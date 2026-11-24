@@ -29,7 +29,7 @@ enum ToggleVariant {
 /// Toggle(
 ///   value: bold,
 ///   onChanged: (v) => setState(() => bold = v),
-///   child: const Icon(LucideIcons.bold),
+///   child: const Icon(PhosphorIconsRegular.textB),
 /// )
 /// ```
 ///
@@ -475,8 +475,8 @@ class ToggleGroupController<T> extends ChangeNotifier {
 ///   values: const {'bold'},
 ///   onChanged: (values) => setState(() => selected = values),
 ///   children: const [
-///     ToggleGroupItem(value: 'bold', child: Icon(LucideIcons.bold)),
-///     ToggleGroupItem(value: 'italic', child: Icon(LucideIcons.italic)),
+///     ToggleGroupItem(value: 'bold', child: Icon(PhosphorIconsRegular.textB)),
+///     ToggleGroupItem(value: 'italic', child: Icon(PhosphorIconsRegular.textItalic)),
 ///   ],
 /// )
 /// ```

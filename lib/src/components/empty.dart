@@ -12,7 +12,7 @@ import 'package:flutter/widgets.dart';
 ///
 /// ```dart
 /// Empty(
-///   icon: const Icon(LucideIcons.inbox),
+///   icon: const Icon(PhosphorIconsRegular.tray),
 ///   title: const Text('No messages'),
 ///   description: const Text('Messages you receive will show up here.'),
 ///   actions: [Button(onPressed: refresh, child: const Text('Refresh'))],

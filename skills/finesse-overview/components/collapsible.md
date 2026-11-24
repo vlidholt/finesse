@@ -29,7 +29,7 @@ class CollapsibleBasicExample extends StatelessWidget {
             ),
             IconButton.ghost(
               icon: Icon(
-                open ? LucideIcons.chevronsDownUp : LucideIcons.chevronsUpDown,
+                open ? PhosphorIconsRegular.arrowsInLineVertical : PhosphorIconsRegular.caretUpDown,
               ),
               semanticLabel: open ? 'Collapse' : 'Expand',
               onPressed: toggle,

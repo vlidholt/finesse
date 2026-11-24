@@ -6,7 +6,7 @@ Add `finesse` to your project from the command line:
 flutter pub add finesse
 ```
 
-Everything ships through one import: components, theme, Lucide icons, and animation effects.
+Everything ships through one import: components, theme, Phosphor icons, and animation effects.
 
 ```dart
 import 'package:finesse/finesse.dart';
@@ -55,11 +55,11 @@ FinesseApp(
 
 ## Use the components
 
-Components are plain widgets. Icons come from the bundled Lucide set:
+Components are plain widgets. Icons come from the bundled Phosphor set:
 
 ```dart
 Button(
-  leading: const Icon(LucideIcons.mail),
+  leading: const Icon(PhosphorIconsRegular.envelopeSimple),
   onPressed: () {},
   child: const Text('Login with Email'),
 )

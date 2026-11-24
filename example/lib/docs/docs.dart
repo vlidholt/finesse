@@ -236,7 +236,7 @@ class _CopyButtonState extends State<_CopyButton> {
       foregroundColor: const Color(0xFFA1A1AA),
       hoverBackgroundColor: const Color(0x1AFFFFFF),
       hoverForegroundColor: const Color(0xFFFAFAFA),
-      icon: Icon(copied ? LucideIcons.check : LucideIcons.copy),
+      icon: Icon(copied ? PhosphorIconsRegular.check : PhosphorIconsRegular.copy),
       onPressed: () async {
         await Clipboard.setData(ClipboardData(text: widget.code));
         if (!mounted) return;

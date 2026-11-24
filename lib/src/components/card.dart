@@ -1,4 +1,5 @@
 import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/backdrop.dart';
 import 'package:finesse/src/utils/border.dart';
 import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:finesse/src/utils/separated_iterable.dart';
@@ -237,17 +238,28 @@ class Card extends StatelessWidget {
     final effectiveClipBehavior =
         clipBehavior ?? theme.cardTheme.clipBehavior ?? Clip.antiAlias;
 
-    return Container(
+    final effectiveBlur = theme.cardTheme.blur ?? 0;
+    // A blurred card is only worth its backdrop layer while the fill lets
+    // the backdrop through.
+    final blurs = effectiveBlur > 0 && effectiveBackgroundColor.a < 1;
+
+    final content = Container(
       width: width,
       height: height,
       padding: effectivePadding,
       clipBehavior: effectiveClipBehavior,
-      decoration: ShadowDecoration.box(
-        color: effectiveBackgroundColor,
-        borderRadius: effectiveRadius,
-        border: effectiveBorder.toBorder(),
-        shadows: effectiveShadows ?? const [],
-      ),
+      decoration: blurs
+          ? BoxDecoration(
+              color: effectiveBackgroundColor,
+              borderRadius: effectiveRadius,
+              border: effectiveBorder.toBorder(),
+            )
+          : ShadowDecoration.box(
+              color: effectiveBackgroundColor,
+              borderRadius: effectiveRadius,
+              border: effectiveBorder.toBorder(),
+              shadows: effectiveShadows ?? const [],
+            ),
       child: Row(
         mainAxisSize: effectiveRowMainAxisSize,
         mainAxisAlignment: effectiveRowMainAxisAlignment,
@@ -306,6 +318,22 @@ class Card extends StatelessWidget {
           ),
           ?trailing,
         ],
+      ),
+    );
+
+    if (!blurs) return content;
+    // The clip a backdrop filter needs would cut the card's own shadow off,
+    // so the shadow is painted by a box outside it.
+    return DecoratedBox(
+      decoration: ShadowDecoration.box(
+        borderRadius: effectiveRadius,
+        shadows: effectiveShadows ?? const [],
+      ),
+      child: Backdrop(
+        blur: effectiveBlur,
+        saturation: theme.cardTheme.saturation ?? 1,
+        borderRadius: effectiveRadius,
+        child: content,
       ),
     );
   }

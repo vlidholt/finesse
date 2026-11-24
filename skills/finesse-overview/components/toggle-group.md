@@ -30,17 +30,17 @@ class _ToggleGroupBasicExampleState extends State<ToggleGroupBasicExample> {
         ToggleGroupItem(
           value: 'left',
           semanticLabel: 'Align left',
-          child: Icon(LucideIcons.alignLeft),
+          child: Icon(PhosphorIconsRegular.textAlignLeft),
         ),
         ToggleGroupItem(
           value: 'center',
           semanticLabel: 'Align center',
-          child: Icon(LucideIcons.alignCenter),
+          child: Icon(PhosphorIconsRegular.textAlignCenter),
         ),
         ToggleGroupItem(
           value: 'right',
           semanticLabel: 'Align right',
-          child: Icon(LucideIcons.alignRight),
+          child: Icon(PhosphorIconsRegular.textAlignRight),
         ),
       ],
     );
@@ -75,17 +75,17 @@ class _ToggleGroupMultipleExampleState
         ToggleGroupItem(
           value: 'bold',
           semanticLabel: 'Bold',
-          child: Icon(LucideIcons.bold),
+          child: Icon(PhosphorIconsRegular.textB),
         ),
         ToggleGroupItem(
           value: 'italic',
           semanticLabel: 'Italic',
-          child: Icon(LucideIcons.italic),
+          child: Icon(PhosphorIconsRegular.textItalic),
         ),
         ToggleGroupItem(
           value: 'underline',
           semanticLabel: 'Underline',
-          child: Icon(LucideIcons.underline),
+          child: Icon(PhosphorIconsRegular.textUnderline),
         ),
       ],
     );
@@ -122,17 +122,17 @@ class _ToggleGroupOutlineExampleState extends State<ToggleGroupOutlineExample> {
         ToggleGroupItem(
           value: 'bold',
           semanticLabel: 'Bold',
-          child: Icon(LucideIcons.bold),
+          child: Icon(PhosphorIconsRegular.textB),
         ),
         ToggleGroupItem(
           value: 'italic',
           semanticLabel: 'Italic',
-          child: Icon(LucideIcons.italic),
+          child: Icon(PhosphorIconsRegular.textItalic),
         ),
         ToggleGroupItem(
           value: 'underline',
           semanticLabel: 'Underline',
-          child: Icon(LucideIcons.underline),
+          child: Icon(PhosphorIconsRegular.textUnderline),
         ),
       ],
     );

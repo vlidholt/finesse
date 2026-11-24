@@ -17,7 +17,7 @@ class InputOtpBasicExample extends StatelessWidget {
             OtpFieldSlot(),
           ],
         ),
-        Icon(LucideIcons.dot),
+        Icon(PhosphorIconsRegular.dotOutline),
         OtpFieldGroup(
           children: [
             OtpFieldSlot(),

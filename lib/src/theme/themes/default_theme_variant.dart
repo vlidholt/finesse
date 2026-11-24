@@ -25,6 +25,18 @@ import 'package:finesse/src/theme/components/dialog.dart';
 import 'package:finesse/src/theme/components/divider.dart';
 import 'package:finesse/src/theme/components/empty.dart';
 import 'package:finesse/src/theme/components/kbd.dart';
+import 'package:finesse/src/theme/components/glass.dart';
+import 'package:finesse/src/theme/components/app_bar.dart';
+import 'package:finesse/src/theme/components/navigation_bar.dart';
+import 'package:finesse/src/theme/components/bottom_navigation_bar.dart';
+import 'package:finesse/src/theme/components/chip.dart';
+import 'package:finesse/src/theme/components/list_tile.dart';
+import 'package:finesse/src/theme/components/chat_bubble.dart';
+import 'package:finesse/src/theme/components/indicator_badge.dart';
+import 'package:finesse/src/theme/components/icon_tile.dart';
+import 'package:finesse/src/theme/components/timeline.dart';
+import 'package:finesse/src/theme/components/layout.dart';
+import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/components/menubar.dart';
 import 'package:finesse/src/theme/components/otp_field.dart';
 import 'package:finesse/src/theme/components/pagination.dart';
@@ -64,7 +76,7 @@ import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// The default [ThemeVariant]: shadcn/ui's v4 components, rendered in one
 /// of its styles.
@@ -81,11 +93,13 @@ class DefaultThemeVariant extends ThemeVariant {
     required this.colorScheme,
     required this.radius,
     required this.effectiveTextTheme,
-    this.style = StyleTokens.nova,
+    StyleTokens style = StyleTokens.finesse,
+    this.formFactor = FormFactor.desktop,
     this.spacing = const Spacing(),
     this.menuColorScheme,
     this.menuTranslucent = false,
-  });
+  }) : baseStyle = style,
+       style = style.forFormFactor(formFactor);
 
   @override
   final ColorScheme colorScheme;
@@ -97,9 +111,17 @@ class DefaultThemeVariant extends ThemeVariant {
   @override
   final TextTheme effectiveTextTheme;
 
-  /// The shadcn/ui style this variant renders.
+  /// The style this variant was created with, before its [formFactor] was
+  /// applied.
+  @override
+  final StyleTokens baseStyle;
+
+  /// [baseStyle]'s metrics for [formFactor]. Every component theme reads this.
   @override
   final StyleTokens style;
+
+  @override
+  final FormFactor formFactor;
 
   /// The spacing scale every padding and gap is a multiple of.
   @override
@@ -122,7 +144,7 @@ class DefaultThemeVariant extends ThemeVariant {
 
   /// The radius scale derived from [radius].
   @override
-  Radii get radii => Radii(radius);
+  Radii get radii => Radii(radius, style.radiusScale);
 
   @override
   DefaultThemeVariant rebuild({
@@ -130,6 +152,7 @@ class DefaultThemeVariant extends ThemeVariant {
     BorderRadius? radius,
     TextTheme? effectiveTextTheme,
     StyleTokens? style,
+    FormFactor? formFactor,
     Spacing? spacing,
     Object? menuColorScheme = unsetMenuColorScheme,
     bool? menuTranslucent,
@@ -138,7 +161,8 @@ class DefaultThemeVariant extends ThemeVariant {
       colorScheme: colorScheme ?? this.colorScheme,
       radius: radius ?? this.radius,
       effectiveTextTheme: effectiveTextTheme ?? this.effectiveTextTheme,
-      style: style ?? this.style,
+      style: style ?? baseStyle,
+      formFactor: formFactor ?? this.formFactor,
       spacing: spacing ?? this.spacing,
       // `null` is meaningful here (menus follow the page), so an explicit
       // sentinel distinguishes "not passed" from "reset to null".
@@ -230,6 +254,9 @@ class DefaultThemeVariant extends ThemeVariant {
     SurfaceFill.input30 => _wash(scheme.input, .3),
     SurfaceFill.input50 => _wash(scheme.input, .5),
     SurfaceFill.input90 => _wash(scheme.input, .9),
+    SurfaceFill.glass => _wash(scheme.card, style.glassStrongOpacity),
+    SurfaceFill.secondary => scheme.secondary,
+    SurfaceFill.card => scheme.card,
   };
 
   /// A card's hairline outline, shadcn's `ring-foreground/10`.
@@ -526,7 +553,9 @@ class DefaultThemeVariant extends ThemeVariant {
       decoration: FinesseDecoration(
         border: FinesseBorder.all(
           radius: controlRadius,
-          color: _isDark && style.outlineButtonDarkInputBorder
+          color: style.outlineButtonStrongBorder
+              ? colorScheme.borderStrong
+              : _isDark && style.outlineButtonDarkInputBorder
               ? colorScheme.input
               : colorScheme.border,
           width: 1,
@@ -697,12 +726,31 @@ class DefaultThemeVariant extends ThemeVariant {
 
   /// Badge geometry: `rounded-4xl px-2 py-0.5` — a pill in every style
   /// except the square ones.
-  ShapeBorder get _badgeShape => style.buttonRadius == RadiusToken.none
-      ? const RoundedRectangleBorder()
-      : const StadiumBorder();
+  ShapeBorder get _badgeShape => switch (style.badgeRadius) {
+    final token? => RoundedRectangleBorder(
+      borderRadius: radii.resolve(token),
+    ),
+    null when style.buttonRadius == RadiusToken.none =>
+      const RoundedRectangleBorder(),
+    null => const StadiumBorder(),
+  };
 
-  EdgeInsetsGeometry get _badgePadding =>
-      spacing.symmetric(horizontal: 2, vertical: 0.5);
+  EdgeInsetsGeometry get _badgePadding {
+    final horizontal = scaled(style.badgePaddingX);
+    // A fixed-height badge centres its label, so only the sides are padded.
+    final height = style.badgeHeight;
+    if (height == null) {
+      return EdgeInsets.symmetric(
+        horizontal: horizontal,
+        vertical: spacing(.5),
+      );
+    }
+    final vertical = (scaled(height) - _lineHeightOf(style.caption)) / 2;
+    return EdgeInsets.symmetric(
+      horizontal: horizontal,
+      vertical: vertical < 0 ? 0 : vertical,
+    );
+  }
 
   /// `sera`'s badges are bare uppercase captions: no fill, border or padding.
   BadgeTheme _flatBadgeTheme(Color foreground) => BadgeTheme(
@@ -718,7 +766,7 @@ class DefaultThemeVariant extends ThemeVariant {
   AvatarTheme avatarTheme() {
     return AvatarTheme(
       // `size-8`, with `size-10` as the large step.
-      size: const Size.square(32),
+      size: Size.square(style.avatarSize),
       shape: const CircleBorder(),
       backgroundColor: colorScheme.muted,
     );
@@ -1008,11 +1056,20 @@ class DefaultThemeVariant extends ThemeVariant {
   @override
   CardTheme cardTheme() {
     return CardTheme(
-      backgroundColor: colorScheme.card,
+      backgroundColor: _wash(
+        colorScheme.card,
+        _isDark
+            ? style.cardOpacityDark ?? style.cardOpacity
+            : style.cardOpacity,
+      ),
+      blur: style.cardBlur ? style.glassBlur : 0,
+      saturation: style.cardBlur ? style.glassSaturation : 1,
       padding: EdgeInsets.all(scaled(style.cardPadding)),
       border: FinesseBorder.all(color: cardBorderColor, width: 1),
       radius: cardRadius,
-      shadows: style.cardShadow,
+      shadows: _isDark
+          ? style.cardShadowDark ?? style.cardShadow
+          : style.cardShadow,
       gap: scaled(style.cardGap),
       // `gap-(--card-spacing)`: sections sit a full card padding apart.
       sectionGap: scaled(style.cardPadding),
@@ -1183,7 +1240,7 @@ class DefaultThemeVariant extends ThemeVariant {
   ToastTheme primaryToastTheme() {
     return ToastTheme(
       alignment: Alignment.bottomRight,
-      closeIconData: LucideIcons.x,
+      closeIconData: PhosphorIconsRegular.x,
       titleStyle: style.label
           .apply(effectiveTextTheme.muted)
           .copyWith(
@@ -1211,7 +1268,7 @@ class DefaultThemeVariant extends ThemeVariant {
   ToastTheme destructiveToastTheme() {
     return ToastTheme(
       alignment: Alignment.bottomRight,
-      closeIconData: LucideIcons.x,
+      closeIconData: PhosphorIconsRegular.x,
       titleStyle: style.label
           .apply(effectiveTextTheme.muted)
           .copyWith(
@@ -1323,7 +1380,7 @@ class DefaultThemeVariant extends ThemeVariant {
   @override
   DialogTheme primaryDialogTheme() {
     return DialogTheme(
-      closeIconData: LucideIcons.x,
+      closeIconData: PhosphorIconsRegular.x,
       radius: dialogRadius,
       // A dialog sits on the popover surface (`bg-popover`), which in dark
       // mode is a step lighter than the page, with the same hairline ring as
@@ -1450,7 +1507,7 @@ class DefaultThemeVariant extends ThemeVariant {
     const bezierCurve = Cubic(0.87, 0, 0.13, 1);
     const duration = Duration(milliseconds: 300);
     return AccordionTheme(
-      iconData: LucideIcons.chevronDown,
+      iconData: PhosphorIconsRegular.caretDown,
       padding: spacing.symmetric(vertical: 4),
       underlineTitleOnHover: true,
       duration: duration,
@@ -1538,37 +1595,64 @@ class DefaultThemeVariant extends ThemeVariant {
 
   @override
   TabsTheme tabsTheme() {
+    final listRadius = radii.resolve(style.tabsListRadius);
+    // Concentric corners: the tab's radius is the list's less the padding
+    // between them, so the two curves share a centre.
+    Radius inset(Radius r) {
+      final x = r.x - style.tabsListPadding;
+      final y = r.y - style.tabsListPadding;
+      return Radius.elliptical(x < 0 ? 0 : x, y < 0 ? 0 : y);
+    }
+
+    final tabRadius = style.concentricTabs
+        ? BorderRadius.only(
+            topLeft: inset(listRadius.topLeft),
+            topRight: inset(listRadius.topRight),
+            bottomLeft: inset(listRadius.bottomLeft),
+            bottomRight: inset(listRadius.bottomRight),
+          )
+        : radii.resolve(style.tabRadius);
+    final tabHeight = style.tabHeight;
+    final verticalPadding = tabHeight == null
+        ? scaled(style.tabPaddingY)
+        : ((scaled(tabHeight) - _lineHeightOf(style.label)) / 2).clamp(
+            0.0,
+            double.infinity,
+          );
+    final selectedFill =
+        _fill(style.tabSelectedFill, colorScheme) ?? colorScheme.background;
     return TabsTheme(
       dragStartBehavior: DragStartBehavior.start,
       padding: EdgeInsets.all(style.tabsListPadding),
       // The strip is `bg-muted rounded-lg p-[3px]`; each tab sits one radius
       // step inside it (`rounded-md`).
       decoration: FinesseDecoration(
-        color: colorScheme.muted,
+        color: _fill(style.tabsListFill, colorScheme) ?? colorScheme.muted,
         border: FinesseBorder.all(
-          radius: radii.resolve(style.tabsListRadius),
+          radius: listRadius,
           width: 0,
           color: colorScheme.ring,
         ),
       ),
       tabDecoration: FinesseDecoration(
-        border: FinesseBorder.all(
-          radius: radii.resolve(style.tabRadius),
-          width: 0,
-        ),
+        border: FinesseBorder.all(radius: tabRadius, width: 0),
       ),
       gap: 8,
+      tabsGap: scaled(style.tabsGap),
       expandContent: false,
       tabBackgroundColor: const Color(0x00000000),
-      tabSelectedBackgroundColor: colorScheme.background,
+      tabSelectedBackgroundColor: selectedFill,
       tabHoverBackgroundColor: const Color(0x00000000),
-      tabSelectedHoverBackgroundColor: colorScheme.background,
+      tabSelectedHoverBackgroundColor: selectedFill,
       tabPadding: EdgeInsets.symmetric(
         horizontal: scaled(style.tabPaddingX),
-        vertical: scaled(style.tabPaddingY),
+        vertical: verticalPadding,
       ),
       tabTextStyle: style.label.apply(effectiveTextTheme.small),
-      tabForegroundColor: colorScheme.foreground,
+      tabForegroundColor: style.tabUnselectedMuted
+          ? colorScheme.mutedForeground
+          : colorScheme.foreground,
+      tabHoverForegroundColor: colorScheme.foreground,
       tabSelectedForegroundColor: colorScheme.foreground,
       // `data-active:shadow-sm`; most styles drop it.
       tabSelectedShadows: style.tabSelectedShadow,
@@ -1581,7 +1665,236 @@ class DefaultThemeVariant extends ThemeVariant {
     // change with the style preset. Style roles reach components through their
     // own theme slots (`style.label.apply(...)` on buttons, menus, and so on),
     // not by rewriting these entries.
-    return effectiveTextTheme;
+    final t = effectiveTextTheme;
+    final display = style.display;
+    final headline = style.headline;
+    final subtitle = style.subtitle;
+    final small = style.small;
+    if (display == null &&
+        headline == null &&
+        subtitle == null &&
+        small == null) {
+      return t;
+    }
+    // A style that names these roles owns the whole scale, so its body role
+    // sets the paragraph size too — that is what moves running text from 14
+    // to 15 on a phone.
+    return t.copyWith(
+      h1: display?.apply(t.h1),
+      h3: headline?.apply(t.h3),
+      h4: style.title.apply(t.h4),
+      p: style.body.apply(t.p),
+      list: style.body.apply(t.list),
+      large: subtitle?.apply(t.large),
+      small: small?.apply(t.small),
+      muted: small?.apply(t.muted),
+    );
+  }
+
+  /// The bar opacity for this scheme's brightness.
+  double get _barOpacity =>
+      _isDark ? style.barOpacityDark ?? style.barOpacity : style.barOpacity;
+
+  double get _glassOpacity => _isDark
+      ? style.glassOpacityDark ?? style.glassOpacity
+      : style.glassOpacity;
+
+  @override
+  GlassTheme glassTheme() {
+    return GlassTheme(
+      blur: style.glassBlur,
+      saturation: style.glassSaturation,
+      color: colorScheme.card,
+      opacity: _glassOpacity,
+      strongOpacity: style.glassStrongOpacity,
+      borderColor: colorScheme.border,
+      borderWidth: 1,
+      radius: cardRadius,
+    );
+  }
+
+  @override
+  AppBarTheme appBarTheme() {
+    final opacity = _barOpacity;
+    return AppBarTheme(
+      height: scaled(style.appBarHeight),
+      backgroundColor: _wash(colorScheme.bar, opacity),
+      foregroundColor: colorScheme.foreground,
+      borderColor: colorScheme.border,
+      blur: opacity < 1 ? style.glassBlur : 0,
+      saturation: opacity < 1 ? style.glassSaturation : 1,
+      padding: EdgeInsets.symmetric(horizontal: scaled(style.pagePaddingX)),
+      maxWidth: style.pageMaxWidth,
+      gap: scaled(style.gapXl),
+      titleStyle: style.title.apply(effectiveTextTheme.large),
+    );
+  }
+
+  @override
+  NavigationBarTheme navigationBarTheme() {
+    return NavigationBarTheme(
+      itemWidth: scaled(style.navigationItemWidth),
+      iconSize: scaled(style.navigationIconSize),
+      gap: scaled(4),
+      labelStyle: style.caption
+          .apply(effectiveTextTheme.small)
+          .copyWith(height: 1),
+      foregroundColor: colorScheme.mutedForeground,
+      selectedIconColor: colorScheme.tint,
+      selectedLabelColor: colorScheme.foreground,
+      hoverColor: colorScheme.foreground,
+      indicatorColor: colorScheme.tint,
+      indicatorHeight: style.navigationIndicatorHeight,
+      indicatorInset: scaled(12),
+    );
+  }
+
+  @override
+  BottomNavigationBarTheme bottomNavigationBarTheme() {
+    final opacity = _barOpacity;
+    return BottomNavigationBarTheme(
+      floating: style.bottomNavigationFloating,
+      itemWidth: scaled(style.bottomNavigationItemWidth),
+      itemHeight: scaled(style.bottomNavigationItemHeight),
+      iconSize: scaled(style.bottomNavigationIconSize),
+      actionIconSize: scaled(22),
+      padding: EdgeInsets.all(scaled(style.bottomNavigationPadding)),
+      margin: EdgeInsets.only(bottom: scaled(22)),
+      gap: scaled(4),
+      radius: radii.full,
+      backgroundColor: _wash(colorScheme.bar, opacity),
+      borderColor: colorScheme.border,
+      blur: opacity < 1 ? style.glassBlur : 0,
+      saturation: opacity < 1 ? style.glassSaturation : 1,
+      foregroundColor: colorScheme.foregroundSubtle,
+      selectedForegroundColor: colorScheme.tint,
+      selectedBackgroundColor: colorScheme.accent,
+      actionBackgroundColor: colorScheme.primary,
+      actionForegroundColor: colorScheme.primaryForeground,
+    );
+  }
+
+  @override
+  ChipTheme chipTheme() {
+    return ChipTheme(
+      height: scaled(style.chipHeight),
+      padding: EdgeInsets.symmetric(horizontal: scaled(style.chipPaddingX)),
+      gap: scaled(style.chipGap),
+      iconSize: scaled(style.chipIconSize),
+      radius: radii.resolve(style.chipRadius),
+      borderWidth: 1,
+      textStyle: (style.small ?? style.body)
+          .apply(effectiveTextTheme.small)
+          .copyWith(fontWeight: FontWeight.w500, height: 1),
+      backgroundColor: _fill(SurfaceFill.glass, colorScheme),
+      hoverBackgroundColor: colorScheme.muted,
+      foregroundColor: colorScheme.foregroundSubtle,
+      borderColor: colorScheme.border,
+      selectedBackgroundColor: colorScheme.accent,
+      selectedForegroundColor: colorScheme.accentForeground,
+      selectedBorderColor: colorScheme.accentBorder,
+    );
+  }
+
+  @override
+  ListTileTheme listTileTheme() {
+    return ListTileTheme(
+      padding: EdgeInsets.symmetric(
+        horizontal: scaled(style.listTilePaddingX),
+        vertical: scaled(style.listTilePaddingY),
+      ),
+      gap: scaled(style.listTileGap),
+      titleGap: 0,
+      radius: radii.lg,
+      titleStyle: (style.subtitle ?? style.label).apply(
+        effectiveTextTheme.large,
+      ),
+      subtitleStyle: (style.small ?? style.body).apply(
+        effectiveTextTheme.muted,
+      ),
+      hoverColor: colorScheme.muted,
+      selectedColor: colorScheme.accent,
+    );
+  }
+
+  @override
+  ChatBubbleTheme chatBubbleTheme() {
+    return ChatBubbleTheme(
+      radius: style.chatBubbleRadius,
+      tailRadius: style.chatBubbleTailRadius,
+      padding: EdgeInsets.symmetric(
+        horizontal: scaled(style.chatBubblePaddingX),
+        vertical: scaled(style.chatBubblePaddingY),
+      ),
+      textStyle: effectiveTextTheme.p.copyWith(fontSize: 15, height: 22 / 15),
+      // A received message is a soft accent wash in the light, where the
+      // accent is a pale solid; a dark accent is a saturated wash, so the
+      // neutral fill reads better there.
+      incomingColor: _isDark
+          ? _wash(colorScheme.secondary, .8)
+          : colorScheme.accent,
+      incomingForegroundColor: colorScheme.foreground,
+      outgoingColor: colorScheme.tint,
+      outgoingForegroundColor: colorScheme.tintForeground,
+      maxWidthFactor: .78,
+    );
+  }
+
+  @override
+  IndicatorBadgeTheme indicatorBadgeTheme() {
+    return IndicatorBadgeTheme(
+      size: 18,
+      dotSize: 10,
+      padding: const EdgeInsets.symmetric(horizontal: 5),
+      backgroundColor: colorScheme.destructive,
+      foregroundColor: colorScheme.destructiveForeground,
+      textStyle: effectiveTextTheme.small.copyWith(
+        fontSize: 11,
+        fontWeight: FontWeight.w600,
+        height: 18 / 11,
+        letterSpacing: 0,
+      ),
+      ringColor: colorScheme.card,
+      ringWidth: 2,
+    );
+  }
+
+  @override
+  IconTileTheme iconTileTheme() {
+    return IconTileTheme(
+      size: scaled(40),
+      iconSize: scaled(22),
+      radius: radii.lg,
+      backgroundColor: colorScheme.accent,
+      foregroundColor: colorScheme.tint,
+    );
+  }
+
+  @override
+  TimelineTheme timelineTheme() {
+    return TimelineTheme(
+      lineColor: colorScheme.borderStrong,
+      lineWidth: 2,
+      gap: scaled(14),
+      spacing: scaled(20),
+      lineGap: scaled(6),
+    );
+  }
+
+  @override
+  LayoutTheme layoutTheme() {
+    return LayoutTheme(
+      pagePadding: EdgeInsets.symmetric(
+        horizontal: scaled(style.pagePaddingX),
+        vertical: scaled(style.pagePaddingY),
+      ),
+      pageMaxWidth: style.pageMaxWidth,
+      gapXs: scaled(style.gapXs),
+      gapSm: scaled(style.gapSm),
+      gapMd: scaled(style.gapMd),
+      gapLg: scaled(style.gapLg),
+      gapXl: scaled(style.gapXl),
+    );
   }
 
   @override
@@ -1665,8 +1978,8 @@ class DefaultThemeVariant extends ThemeVariant {
     // row all share the cell size.
     navigationButtonSize: scaled(style.calendarCellSize),
     navigationButtonIconSize: scaled(style.iconButtonIconSize),
-    backNavigationButtonIconData: LucideIcons.chevronLeft,
-    forwardNavigationButtonIconData: LucideIcons.chevronRight,
+    backNavigationButtonIconData: PhosphorIconsRegular.caretLeft,
+    forwardNavigationButtonIconData: PhosphorIconsRegular.caretRight,
     navigationButtonPadding: EdgeInsets.zero,
     navigationButtonDisabledOpacity: .5,
     decoration: FinesseDecoration(
@@ -1737,7 +2050,7 @@ class DefaultThemeVariant extends ThemeVariant {
       buttonVariant: ButtonVariant.outline,
       width: 276,
       mainAxisAlignment: MainAxisAlignment.start,
-      iconData: LucideIcons.calendar,
+      iconData: PhosphorIconsRegular.calendarBlank,
     );
   }
 

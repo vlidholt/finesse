@@ -21,18 +21,18 @@ class AlertDefaultExample extends StatelessWidget {
         spacing: 16,
         children: [
           Alert(
-            icon: Icon(LucideIcons.circleCheck),
+            icon: Icon(PhosphorIconsRegular.checkCircle),
             title: Text('Success! Your changes have been saved'),
             description: Text(
               'This is an alert with icon, title and description.',
             ),
           ),
           Alert(
-            icon: Icon(LucideIcons.popcorn),
+            icon: Icon(PhosphorIconsRegular.popcorn),
             title: Text('This Alert has a title and an icon. No description.'),
           ),
           Alert.destructive(
-            icon: Icon(LucideIcons.circleAlert),
+            icon: Icon(PhosphorIconsRegular.warningCircle),
             title: Text('Unable to process your payment.'),
             description: Column(
               mainAxisSize: MainAxisSize.min,
@@ -67,7 +67,7 @@ class AlertDestructiveExample extends StatelessWidget {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 576),
       child: const Alert.destructive(
-        icon: Icon(LucideIcons.circleAlert),
+        icon: Icon(PhosphorIconsRegular.warningCircle),
         title: Text('Error'),
         description: Text('Your session has expired. Please log in again.'),
       ),

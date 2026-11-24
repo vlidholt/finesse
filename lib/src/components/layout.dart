@@ -1,3 +1,4 @@
+import 'package:finesse/src/theme/components/layout.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
@@ -24,7 +25,33 @@ import 'package:flutter/widgets.dart';
 /// Outside a flex it lays out as a square of the same size.
 class Gap extends LeafRenderObjectWidget {
   /// Creates a gap of [steps] steps on the spacing scale.
-  const Gap(this.steps, {super.key, this.crossAxisSteps}) : _raw = false;
+  const Gap(this.steps, {super.key, this.crossAxisSteps})
+    : _raw = false,
+      size = null;
+
+  /// Creates a gap of a named [size] on the theme's gap scale.
+  ///
+  /// Unlike a step count, a named gap follows the form factor: `GapSize.lg`
+  /// is 16 on a desktop and 12 on a phone in the default style.
+  const Gap.size(GapSize this.size, {super.key})
+    : steps = 0,
+      crossAxisSteps = null,
+      _raw = false;
+
+  /// The theme's `xs` gap: between an icon and its label.
+  const Gap.xs({Key? key}) : this.size(GapSize.xs, key: key);
+
+  /// The theme's `sm` gap: between related controls.
+  const Gap.sm({Key? key}) : this.size(GapSize.sm, key: key);
+
+  /// The theme's `md` gap: between the rows of a group.
+  const Gap.md({Key? key}) : this.size(GapSize.md, key: key);
+
+  /// The theme's `lg` gap: between cards and sections.
+  const Gap.lg({Key? key}) : this.size(GapSize.lg, key: key);
+
+  /// The theme's `xl` gap: between the columns of a page.
+  const Gap.xl({Key? key}) : this.size(GapSize.xl, key: key);
 
   /// Creates a gap of an explicit number of logical pixels, bypassing the
   /// scale.
@@ -33,7 +60,12 @@ class Gap extends LeafRenderObjectWidget {
   const Gap.raw(double pixels, {super.key, double? crossAxisExtent})
     : steps = pixels,
       crossAxisSteps = crossAxisExtent,
-      _raw = true;
+      _raw = true,
+      size = null;
+
+  /// The named size, for a gap made with [Gap.size] or one of its
+  /// shorthands.
+  final GapSize? size;
 
   /// How many steps of space to insert along the main axis.
   final double steps;
@@ -45,8 +77,12 @@ class Gap extends LeafRenderObjectWidget {
 
   final bool _raw;
 
-  double _resolve(BuildContext context, double value) =>
-      _raw ? value : Theme.of(context).spacing(value);
+  double _resolve(BuildContext context, double value) {
+    if (_raw) return value;
+    final theme = Theme.of(context);
+    final named = size;
+    return named == null ? theme.spacing(value) : theme.layoutTheme.gap(named);
+  }
 
   @override
   RenderObject createRenderObject(BuildContext context) {
@@ -231,6 +267,7 @@ class FinesseColumn extends StatelessWidget {
   const FinesseColumn({
     super.key,
     this.spacing = 0,
+    this.gap,
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.mainAxisSize = MainAxisSize.max,
     this.crossAxisAlignment = CrossAxisAlignment.center,
@@ -242,6 +279,11 @@ class FinesseColumn extends StatelessWidget {
 
   /// The gap between children, in steps.
   final double spacing;
+
+  /// The space between children as a named step of the theme's gap scale.
+  ///
+  /// Takes precedence over [spacing], and follows the form factor.
+  final GapSize? gap;
 
   /// How the children are placed vertically. Defaults to
   /// [MainAxisAlignment.start].
@@ -271,8 +313,11 @@ class FinesseColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Column(
-      spacing: Theme.of(context).spacing(spacing),
+      spacing: gap == null
+          ? theme.spacing(spacing)
+          : theme.layoutTheme.gap(gap!),
       mainAxisAlignment: mainAxisAlignment,
       mainAxisSize: mainAxisSize,
       crossAxisAlignment: crossAxisAlignment,
@@ -292,6 +337,7 @@ class FinesseRow extends StatelessWidget {
   const FinesseRow({
     super.key,
     this.spacing = 0,
+    this.gap,
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.mainAxisSize = MainAxisSize.max,
     this.crossAxisAlignment = CrossAxisAlignment.center,
@@ -303,6 +349,11 @@ class FinesseRow extends StatelessWidget {
 
   /// The gap between children, in steps.
   final double spacing;
+
+  /// The space between children as a named step of the theme's gap scale.
+  ///
+  /// Takes precedence over [spacing], and follows the form factor.
+  final GapSize? gap;
 
   /// How the children are placed horizontally. Defaults to
   /// [MainAxisAlignment.start].
@@ -332,8 +383,11 @@ class FinesseRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Row(
-      spacing: Theme.of(context).spacing(spacing),
+      spacing: gap == null
+          ? theme.spacing(spacing)
+          : theme.layoutTheme.gap(gap!),
       mainAxisAlignment: mainAxisAlignment,
       mainAxisSize: mainAxisSize,
       crossAxisAlignment: crossAxisAlignment,

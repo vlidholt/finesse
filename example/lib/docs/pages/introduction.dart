@@ -36,7 +36,7 @@ final introductionDoc = ComponentDoc(
               'Sixteen color schemes, each in light and dark, plus the '
                   'menu finishes from the shadcn theme editor: inverted, '
                   'translucent, and bold accent.',
-              'Lucide icons through `LucideIcons` and `flutter_animate` '
+              'Phosphor icons through `PhosphorIconsRegular` and `flutter_animate` '
                   'effects, both re-exported so a single import covers '
                   'them.',
             ],

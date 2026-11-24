@@ -14,7 +14,7 @@ import 'package:finesse/src/utils/separated_iterable.dart';
 import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// {@template DialogRoute}
 /// A custom dialog route that allows specifying a `reverseTransitionDuration`.
@@ -462,7 +462,7 @@ class Dialog extends StatelessWidget {
 
   /// {@template Dialog.closeIconData}
   /// The icon data for the close button.
-  /// Used if [closeIcon] is null; defaults to [LucideIcons.x] if not specified.
+  /// Used if [closeIcon] is null; defaults to [PhosphorIconsRegular.x] if not specified.
   /// {@endtemplate}
   final IconData? closeIconData;
 
@@ -680,7 +680,7 @@ class Dialog extends StatelessWidget {
                   size: 16,
                   closeIconData ??
                       effectiveDialogTheme.closeIconData ??
-                      LucideIcons.x,
+                      PhosphorIconsRegular.x,
                 ),
                 width: 20,
                 height: 20,

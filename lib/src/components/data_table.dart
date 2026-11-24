@@ -8,7 +8,7 @@ import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/debug_check.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:flutter/widgets.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:two_dimensional_scrollables/two_dimensional_scrollables.dart';
 
 /// Width of the leading checkbox column in a selectable [DataTable].
@@ -476,8 +476,8 @@ class _DataTableState<T> extends State<DataTable<T>> {
             const SizedBox(width: 4),
             Icon(
               controller.sortDirection == SortDirection.ascending
-                  ? LucideIcons.moveDown
-                  : LucideIcons.moveUp,
+                  ? PhosphorIconsRegular.arrowDown
+                  : PhosphorIconsRegular.arrowUp,
               size: 14,
               color: theme.colorScheme.foreground,
             ),

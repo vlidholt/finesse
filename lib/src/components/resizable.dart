@@ -7,7 +7,7 @@ import 'package:finesse/src/utils/extensions/double.dart';
 import 'package:finesse/src/utils/mouse_cursor_provider.dart';
 import 'package:finesse/src/utils/provider.dart';
 import 'package:flutter/widgets.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// The result of resizing a panel
 enum ResizeResult {
@@ -817,8 +817,8 @@ class ResizablePanelGroupState extends State<ResizablePanelGroup> {
                     child: Icon(
                       widget.handleIconData ??
                           (isHorizontal
-                              ? LucideIcons.gripVertical
-                              : LucideIcons.gripHorizontal),
+                              ? PhosphorIconsRegular.dotsSixVertical
+                              : PhosphorIconsRegular.dotsSix),
                       size: effectiveHandleSize,
                     ),
                   ),

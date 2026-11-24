@@ -32,6 +32,8 @@ class CardTheme with _$CardTheme {
     this.descriptionStyle,
     this.gap,
     this.sectionGap,
+    this.blur,
+    this.saturation,
   }) : _canMerge = canMerge;
 
   @ignore
@@ -97,6 +99,12 @@ class CardTheme with _$CardTheme {
   final double? sectionGap;
 
   /// Linearly interpolates between [a] and [b] by [t].
+  /// The sigma of the backdrop blur behind a translucent card; 0 for none.
+  final double? blur;
+
+  /// How much a blurred card saturates its backdrop; 1 leaves it alone.
+  final double? saturation;
+
   static CardTheme? lerp(
     CardTheme? a,
     CardTheme? b,

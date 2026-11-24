@@ -296,7 +296,7 @@ class _ThemeEditorButton extends StatelessWidget {
         final open = themeEditorOpenProvider.of(context);
         void toggle() => open.value = !open.value;
         final icon = Icon(
-          LucideIcons.paintbrush,
+          PhosphorIconsRegular.paintBrush,
           semanticLabel: open.value
               ? 'Hide the theme editor'
               : 'Show the theme editor',
@@ -338,7 +338,7 @@ class _ThemeModeButton extends StatelessWidget {
         final isLight = mode == ThemeMode.light;
         return IconButton.ghost(
           icon: Icon(
-            isLight ? LucideIcons.sun : LucideIcons.moon,
+            isLight ? PhosphorIconsRegular.sun : PhosphorIconsRegular.moon,
             semanticLabel: isLight
                 ? 'Switch to dark mode'
                 : 'Switch to light mode',
@@ -370,7 +370,7 @@ class _DirectionButton extends StatelessWidget {
         return IconButton.ghost(
           icon: Icon(
             // Lucide's pilcrow pair is its text-direction icon.
-            isLtr ? LucideIcons.pilcrowRight : LucideIcons.pilcrowLeft,
+            isLtr ? PhosphorIconsRegular.textAlignLeft : PhosphorIconsRegular.textAlignRight,
             semanticLabel: isLtr ? 'Switch to RTL' : 'Switch to LTR',
           ),
           onPressed: () {

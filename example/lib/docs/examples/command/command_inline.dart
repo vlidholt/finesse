@@ -19,14 +19,14 @@ class CommandInlineExample extends StatelessWidget {
               CommandItem(
                 label: 'Calendar',
                 value: 'calendar',
-                leading: const Icon(LucideIcons.calendar),
+                leading: const Icon(PhosphorIconsRegular.calendarBlank),
                 onSelected: () {},
               ),
               CommandItem(
                 label: 'Search Emoji',
                 value: 'emoji',
                 keywords: const ['smiley', 'face'],
-                leading: const Icon(LucideIcons.smile),
+                leading: const Icon(PhosphorIconsRegular.smiley),
                 onSelected: () {},
               ),
             ],
@@ -37,14 +37,14 @@ class CommandInlineExample extends StatelessWidget {
               CommandItem(
                 label: 'Profile',
                 value: 'profile',
-                leading: const Icon(LucideIcons.user),
+                leading: const Icon(PhosphorIconsRegular.user),
                 trailing: const Kbd.group(['⌘', 'P']),
                 onSelected: () {},
               ),
               CommandItem(
                 label: 'Billing',
                 value: 'billing',
-                leading: const Icon(LucideIcons.creditCard),
+                leading: const Icon(PhosphorIconsRegular.creditCard),
                 trailing: const Kbd.group(['⌘', 'B']),
                 onSelected: () {},
               ),

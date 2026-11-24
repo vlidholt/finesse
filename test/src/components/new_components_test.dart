@@ -273,7 +273,7 @@ void main() {
       await tester.pumpWidget(
         wrap(
           Empty(
-            icon: const Icon(LucideIcons.inbox),
+            icon: const Icon(PhosphorIconsRegular.tray),
             title: const Text('Nothing here'),
             description: const Text('Try again later.'),
             actions: [
@@ -285,7 +285,7 @@ void main() {
       expect(find.text('Nothing here'), findsOneWidget);
       expect(find.text('Try again later.'), findsOneWidget);
       expect(find.text('Refresh'), findsOneWidget);
-      expect(find.byIcon(LucideIcons.inbox), findsOneWidget);
+      expect(find.byIcon(PhosphorIconsRegular.tray), findsOneWidget);
     });
   });
 

@@ -16,7 +16,7 @@ class TooltipKeyboardExample extends StatelessWidget {
         ],
       ),
       child: IconButton.outline(
-        icon: const Icon(LucideIcons.save),
+        icon: const Icon(PhosphorIconsRegular.floppyDisk),
         onPressed: () {},
       ),
     );

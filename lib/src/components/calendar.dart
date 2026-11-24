@@ -11,7 +11,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart' hide TextDirection;
-import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// Encapsulates a start and end [DateTime] that represent the range of dates.
 ///
@@ -621,12 +621,12 @@ class Calendar extends StatefulWidget {
   final double? navigationButtonIconSize;
 
   /// {@template Calendar.backNavigationButtonIconData}
-  /// The back navigation button src, defaults to [LucideIcons.chevronLeft]
+  /// The back navigation button src, defaults to [PhosphorIconsRegular.caretLeft]
   /// {@endtemplate}
   final IconData? backNavigationButtonIconData;
 
   /// {@template Calendar.forwardNavigationButtonIconData}
-  /// The forward navigation button src, defaults to [LucideIcons.chevronRight]
+  /// The forward navigation button src, defaults to [PhosphorIconsRegular.caretRight]
   /// {@endtemplate}
   final IconData? forwardNavigationButtonIconData;
 
@@ -1243,12 +1243,12 @@ class _CalendarState extends State<Calendar> {
     final effectiveBackNavigationButtonSrc =
         widget.backNavigationButtonIconData ??
         theme.calendarTheme.backNavigationButtonIconData ??
-        LucideIcons.chevronLeft;
+        PhosphorIconsRegular.caretLeft;
 
     final effectiveForwardNavigationButtonSrc =
         widget.forwardNavigationButtonIconData ??
         theme.calendarTheme.forwardNavigationButtonIconData ??
-        LucideIcons.chevronRight;
+        PhosphorIconsRegular.caretRight;
 
     final effectiveNavigationButtonPadding =
         widget.navigationButtonPadding ??

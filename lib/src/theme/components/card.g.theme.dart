@@ -56,6 +56,8 @@ mixin _$CardTheme {
       ),
       gap: lerpDouble$(a.gap, b.gap, t),
       sectionGap: lerpDouble$(a.sectionGap, b.sectionGap, t),
+      blur: lerpDouble$(a.blur, b.blur, t),
+      saturation: lerpDouble$(a.saturation, b.saturation, t),
     );
   }
 
@@ -78,6 +80,8 @@ mixin _$CardTheme {
     TextStyle? descriptionStyle,
     double? gap,
     double? sectionGap,
+    double? blur,
+    double? saturation,
   }) {
     final _this = (this as CardTheme);
 
@@ -103,6 +107,8 @@ mixin _$CardTheme {
       descriptionStyle: descriptionStyle ?? _this.descriptionStyle,
       gap: gap ?? _this.gap,
       sectionGap: sectionGap ?? _this.sectionGap,
+      blur: blur ?? _this.blur,
+      saturation: saturation ?? _this.saturation,
     );
   }
 
@@ -138,6 +144,8 @@ mixin _$CardTheme {
           other.descriptionStyle,
       gap: other.gap,
       sectionGap: other.sectionGap,
+      blur: other.blur,
+      saturation: other.saturation,
     );
   }
 
@@ -171,14 +179,16 @@ mixin _$CardTheme {
         _other.titleStyle == _this.titleStyle &&
         _other.descriptionStyle == _this.descriptionStyle &&
         _other.gap == _this.gap &&
-        _other.sectionGap == _this.sectionGap;
+        _other.sectionGap == _this.sectionGap &&
+        _other.blur == _this.blur &&
+        _other.saturation == _this.saturation;
   }
 
   @override
   int get hashCode {
     final _this = (this as CardTheme);
 
-    return Object.hash(
+    return Object.hashAll([
       runtimeType,
       _this.padding,
       _this.backgroundColor,
@@ -198,6 +208,8 @@ mixin _$CardTheme {
       _this.descriptionStyle,
       _this.gap,
       _this.sectionGap,
-    );
+      _this.blur,
+      _this.saturation,
+    ]);
   }
 }

@@ -112,7 +112,7 @@ class _Settings extends StatelessWidget {
         children: [
           ThemePicker<StylePreset>(
             label: 'Style',
-            icon: LucideIcons.shapes,
+            icon: PhosphorIconsRegular.shapes,
             value: config.style,
             options: [
               for (final s in StylePreset.values)
@@ -149,7 +149,7 @@ class _Settings extends StatelessWidget {
           const _Separator(),
           _FontPicker(
             label: 'Heading',
-            icon: LucideIcons.heading,
+            icon: PhosphorIconsRegular.textH,
             value: config.headingFontTitle ?? _sameAsBody,
             includeSameAsBody: true,
             onLoaded: (v) => onChanged(
@@ -160,14 +160,14 @@ class _Settings extends StatelessWidget {
           ),
           _FontPicker(
             label: 'Font',
-            icon: LucideIcons.type,
+            icon: PhosphorIconsRegular.textT,
             value: config.fontTitle,
             onLoaded: (v) => onChanged(config.copyWith(fontTitle: v)),
           ),
           const _Separator(),
           ThemePicker<RadiusPreset>(
             label: 'Radius',
-            icon: LucideIcons.squareRoundCorner,
+            icon: PhosphorIconsRegular.square,
             value: config.radius,
             options: [
               for (final r in RadiusPreset.values)
@@ -181,7 +181,7 @@ class _Settings extends StatelessWidget {
           // One row, two radio groups — shadcn's Menu picker shape.
           ThemeGroupPicker(
             label: 'Menu',
-            icon: LucideIcons.menu,
+            icon: PhosphorIconsRegular.list,
             value: '${config.menuColor.label} / ${config.menuFinish.label}',
             groups: [
               PickerGroup(
@@ -212,7 +212,7 @@ class _Settings extends StatelessWidget {
           ),
           ThemePicker<EditorMenuAccent>(
             label: 'Menu Accent',
-            icon: LucideIcons.highlighter,
+            icon: PhosphorIconsRegular.highlighter,
             // A translucent menu highlights with a foreground wash, so the
             // accent has no effect there; the picker is locked to make that
             // visible, as shadcn's editor does.
@@ -229,7 +229,7 @@ class _Settings extends StatelessWidget {
           const _Separator(),
           ThemeSlider(
             label: 'Text Scale',
-            icon: LucideIcons.aLargeSmall,
+            icon: PhosphorIconsRegular.textAa,
             value: config.textScale,
             min: .8,
             max: 1.6,
@@ -261,7 +261,7 @@ class _Actions extends StatelessWidget {
             width: double.infinity,
             child: Button(
               onPressed: () => _copy(context, config),
-              leading: const Icon(LucideIcons.clipboard),
+              leading: const Icon(PhosphorIconsRegular.clipboard),
               child: const Text('Copy Theme'),
             ),
           ),
@@ -271,14 +271,14 @@ class _Actions extends StatelessWidget {
               Expanded(
                 child: Button.outline(
                   onPressed: () => _showCode(context, config),
-                  leading: const Icon(LucideIcons.code),
+                  leading: const Icon(PhosphorIconsRegular.code),
                   child: const Text('Code'),
                 ),
               ),
               Expanded(
                 child: Button.outline(
                   onPressed: () => onChanged(const ThemeEditorConfig()),
-                  leading: const Icon(LucideIcons.rotateCcw),
+                  leading: const Icon(PhosphorIconsRegular.arrowCounterClockwise),
                   child: const Text('Reset'),
                 ),
               ),
@@ -317,7 +317,7 @@ class _Actions extends StatelessWidget {
               await Clipboard.setData(ClipboardData(text: snippet));
               if (context.mounted) Navigator.of(context).pop();
             },
-            leading: const Icon(LucideIcons.copy),
+            leading: const Icon(PhosphorIconsRegular.copy),
             child: const Text('Copy'),
           ),
         ],

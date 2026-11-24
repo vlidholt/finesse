@@ -5,7 +5,7 @@ import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:flutter/widgets.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// {@template Breadcrumb}
 /// A breadcrumb navigation component that displays the current page location
@@ -275,7 +275,7 @@ class BreadcrumbSeparator extends StatelessWidget {
         theme.colorScheme.mutedForeground;
 
     return Icon(
-      LucideIcons.chevronRight,
+      PhosphorIconsRegular.caretRight,
       size: effectiveSeparatorSize,
       color: effectiveColor,
     );
@@ -310,7 +310,7 @@ class BreadcrumbEllipsis extends StatelessWidget {
     final effectiveSize = size ?? theme.breadcrumbTheme.ellipsisSize ?? 16.0;
 
     return Icon(
-      LucideIcons.ellipsis,
+      PhosphorIconsRegular.dotsThree,
       size: effectiveSize,
       color: theme.colorScheme.mutedForeground,
     );
@@ -487,7 +487,7 @@ class _BreadcrumbDropdownState extends State<BreadcrumbDropdown> {
                 turns: controller.isOpen ? 0.5 : 0.0,
                 duration: const Duration(milliseconds: 200),
                 child: Icon(
-                  LucideIcons.chevronDown,
+                  PhosphorIconsRegular.caretDown,
                   size: theme.breadcrumbTheme.separatorSize ?? 14,
                   color: effectiveTextColor,
                 ),

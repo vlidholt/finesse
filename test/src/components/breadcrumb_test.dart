@@ -6,7 +6,7 @@ import 'package:finesse/src/theme/components/breadcrumb.dart';
 import 'package:finesse/src/theme/data.dart';
 import 'package:flutter/material.dart' hide ThemeData;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 void main() {
   // Helper method to create a test widget wrapped in FinesseApp and Scaffold
@@ -48,7 +48,7 @@ void main() {
       expect(wrapFinder, findsOneWidget);
 
       // Should have 2 separators between 3 items (chevron icons)
-      final iconFinder = find.byIcon(LucideIcons.chevronRight);
+      final iconFinder = find.byIcon(PhosphorIconsRegular.caretRight);
       expect(iconFinder, findsNWidgets(2));
     });
 
@@ -70,7 +70,7 @@ void main() {
 
       // Check if custom separator is used
       expect(find.byIcon(Icons.arrow_forward_ios), findsOneWidget);
-      expect(find.byIcon(LucideIcons.chevronRight), findsNothing);
+      expect(find.byIcon(PhosphorIconsRegular.caretRight), findsNothing);
     });
 
     testWidgets('renders breadcrumb links correctly', (
@@ -128,7 +128,7 @@ void main() {
       );
 
       expect(find.byType(BreadcrumbEllipsis), findsOneWidget);
-      expect(find.byIcon(LucideIcons.ellipsis), findsOneWidget);
+      expect(find.byIcon(PhosphorIconsRegular.dotsThree), findsOneWidget);
     });
 
     testWidgets('handles text direction correctly', (
@@ -214,7 +214,7 @@ void main() {
       );
 
       expect(find.byType(BreadcrumbSeparator), findsOneWidget);
-      expect(find.byIcon(LucideIcons.chevronRight), findsOneWidget);
+      expect(find.byIcon(PhosphorIconsRegular.caretRight), findsOneWidget);
     });
   });
 
@@ -229,7 +229,7 @@ void main() {
       );
 
       expect(find.byType(BreadcrumbEllipsis), findsOneWidget);
-      expect(find.byIcon(LucideIcons.ellipsis), findsOneWidget);
+      expect(find.byIcon(PhosphorIconsRegular.dotsThree), findsOneWidget);
     });
   });
 
@@ -267,7 +267,7 @@ void main() {
         ),
       );
 
-      expect(find.byIcon(LucideIcons.chevronDown), findsOneWidget);
+      expect(find.byIcon(PhosphorIconsRegular.caretDown), findsOneWidget);
     });
 
     testWidgets('shows popover when clicked', (tester) async {

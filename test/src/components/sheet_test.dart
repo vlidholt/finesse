@@ -1621,7 +1621,7 @@ void main() {
             maxSize: 1,
             controller: controller,
             useSafeArea: true,
-            closeIconData: LucideIcons.x,
+            closeIconData: PhosphorIconsRegular.x,
           ),
         );
         await tester.pump();
@@ -1637,7 +1637,7 @@ void main() {
         // space without needing a Positioned bump.
         expect(findClosePositioned(tester).top, 8);
         // Verify it's actually rendered below the notch in absolute coords.
-        final iconTop = tester.getTopLeft(find.byIcon(LucideIcons.x)).dy;
+        final iconTop = tester.getTopLeft(find.byIcon(PhosphorIconsRegular.x)).dy;
         expect(iconTop, greaterThanOrEqualTo(40));
       },
     );
@@ -1659,7 +1659,7 @@ void main() {
             maxSize: 1,
             controller: controller,
             useSafeArea: true,
-            closeIconData: LucideIcons.x,
+            closeIconData: PhosphorIconsRegular.x,
             closeIconPosition: const Position(top: 16, right: 16),
           ),
         );
@@ -1682,7 +1682,7 @@ void main() {
 
         await tester.pumpWidget(
           sheetWidget(
-            closeIconData: LucideIcons.x,
+            closeIconData: PhosphorIconsRegular.x,
           ),
         );
         await tester.pump();
@@ -1705,7 +1705,7 @@ void main() {
           sheetWidget(
             expandable: true,
             useSafeArea: false,
-            closeIconData: LucideIcons.x,
+            closeIconData: PhosphorIconsRegular.x,
             maxSize: 1,
             controller: controller,
           ),

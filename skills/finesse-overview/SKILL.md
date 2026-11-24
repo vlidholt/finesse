@@ -138,7 +138,7 @@ class _CounterPageState extends State<CounterPage> {
             const SizedBox(height: 16),
             Button(
               onPressed: () => setState(() => _counter++),
-              child: const Icon(LucideIcons.plus),
+              child: const Icon(PhosphorIconsRegular.plus),
             ),
           ],
         ),

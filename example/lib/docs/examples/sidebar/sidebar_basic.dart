@@ -49,7 +49,7 @@ class _SidebarBasicExampleState extends State<SidebarBasicExample> {
                     borderRadius: theme.radii.md,
                   ),
                   child: Icon(
-                    LucideIcons.galleryVerticalEnd,
+                    PhosphorIconsRegular.stack,
                     size: 16,
                     color: theme.colorScheme.primaryForeground,
                   ),
@@ -67,8 +67,8 @@ class _SidebarBasicExampleState extends State<SidebarBasicExample> {
               ],
             ),
             footer: SidebarMenuButton(
-              leading: const Icon(LucideIcons.circleUser),
-              trailing: const Icon(LucideIcons.chevronsUpDown),
+              leading: const Icon(PhosphorIconsRegular.userCircle),
+              trailing: const Icon(PhosphorIconsRegular.caretUpDown),
               tooltip: 'Account',
               onPressed: () {},
               child: const Text('shadcn'),
@@ -79,9 +79,9 @@ class _SidebarBasicExampleState extends State<SidebarBasicExample> {
                 children: [
                   SidebarMenu(
                     children: [
-                      item('Home', LucideIcons.house),
-                      item('Inbox', LucideIcons.inbox),
-                      item('Calendar', LucideIcons.calendar),
+                      item('Home', PhosphorIconsRegular.house),
+                      item('Inbox', PhosphorIconsRegular.tray),
+                      item('Calendar', PhosphorIconsRegular.calendarBlank),
                     ],
                   ),
                 ],
@@ -91,8 +91,8 @@ class _SidebarBasicExampleState extends State<SidebarBasicExample> {
                 children: [
                   SidebarMenu(
                     children: [
-                      item('Profile', LucideIcons.user),
-                      item('Billing', LucideIcons.creditCard),
+                      item('Profile', PhosphorIconsRegular.user),
+                      item('Billing', PhosphorIconsRegular.creditCard),
                     ],
                   ),
                 ],

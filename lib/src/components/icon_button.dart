@@ -3,6 +3,8 @@ import 'package:finesse/src/theme/components/button.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/theme/themes/default_theme_variant.dart';
+import 'package:finesse/src/utils/border.dart';
 import 'package:finesse/src/utils/debug_check.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:finesse/src/utils/states_controller.dart';
@@ -499,6 +501,24 @@ class IconButton extends StatelessWidget {
     // back to the height so an icon button stays square at every size.
     final effectiveWidth = width ?? defaultSize.width ?? effectiveHeight;
 
+    // The style can round icon buttons differently from text buttons — a
+    // circle beside a 10-point rectangle. The focus ring has to follow the
+    // new radius or it stays a rounded square around a round button.
+    var effectiveDecoration = decoration;
+    final radiusToken = theme.style.iconButtonRadius;
+    if (radiusToken != null && decoration == null) {
+      final radius = theme.radii.resolve(radiusToken);
+      final themeVariant = theme.variant;
+      effectiveDecoration = FinesseDecoration(
+        border: FinesseBorder(radius: radius),
+        secondaryFocusedBorder:
+            themeVariant is DefaultThemeVariant &&
+                !theme.disableSecondaryBorder
+            ? themeVariant.ringFor(radius)
+            : null,
+      );
+    }
+
     Widget button = Button.raw(
       variant: variant,
       width: effectiveWidth,
@@ -518,7 +538,7 @@ class IconButton extends StatelessWidget {
       pressedForegroundColor: pressedForegroundColor,
       shadows: shadows,
       gradient: gradient,
-      decoration: decoration,
+      decoration: effectiveDecoration,
       enabled: enabled,
       statesController: statesController,
       hoverStrategies: hoverStrategies,

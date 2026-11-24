@@ -15,7 +15,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart' as intl;
-import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// Variants available for the [DatePicker] widget.
 enum DatePickerVariant {
@@ -778,7 +778,7 @@ class DatePicker extends StatefulWidget {
   final Widget? trailing;
 
   /// {@template DatePicker.iconData}
-  /// The icon of the date picker button, defaults to [LucideIcons.calendar].
+  /// The icon of the date picker button, defaults to [PhosphorIconsRegular.calendarBlank].
   /// {@endtemplate}
   final IconData? iconData;
 
@@ -1031,7 +1031,9 @@ class _DatePickerState extends State<DatePicker> {
         widget.buttonTextStyle ?? theme.datePickerTheme.buttonTextStyle;
 
     final defaultIcon = Icon(
-      widget.iconData ?? theme.datePickerTheme.iconData ?? LucideIcons.calendar,
+      widget.iconData ??
+          theme.datePickerTheme.iconData ??
+          PhosphorIconsRegular.calendarBlank,
     );
     final effectiveLeading = widget.trailing == null || widget.leading != null
         ? IconTheme.merge(

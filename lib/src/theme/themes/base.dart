@@ -19,6 +19,17 @@ import 'package:finesse/src/theme/components/dialog.dart';
 import 'package:finesse/src/theme/components/divider.dart';
 import 'package:finesse/src/theme/components/empty.dart';
 import 'package:finesse/src/theme/components/kbd.dart';
+import 'package:finesse/src/theme/components/glass.dart';
+import 'package:finesse/src/theme/components/app_bar.dart';
+import 'package:finesse/src/theme/components/navigation_bar.dart';
+import 'package:finesse/src/theme/components/bottom_navigation_bar.dart';
+import 'package:finesse/src/theme/components/chip.dart';
+import 'package:finesse/src/theme/components/list_tile.dart';
+import 'package:finesse/src/theme/components/chat_bubble.dart';
+import 'package:finesse/src/theme/components/indicator_badge.dart';
+import 'package:finesse/src/theme/components/icon_tile.dart';
+import 'package:finesse/src/theme/components/timeline.dart';
+import 'package:finesse/src/theme/components/layout.dart';
 import 'package:finesse/src/theme/components/menubar.dart';
 import 'package:finesse/src/theme/components/otp_field.dart';
 import 'package:finesse/src/theme/components/pagination.dart';
@@ -44,6 +55,7 @@ import 'package:finesse/src/theme/components/time_picker.dart';
 import 'package:finesse/src/theme/components/toast.dart';
 import 'package:finesse/src/theme/components/toggle.dart';
 import 'package:finesse/src/theme/components/tooltip.dart';
+import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/radii.dart';
 import 'package:finesse/src/theme/spacing.dart';
 import 'package:finesse/src/theme/style.dart';
@@ -116,6 +128,17 @@ abstract class BaseTheme {
     required this.defaultKeyboardToolbarTheme,
     required this.skeletonTheme,
     required this.kbdTheme,
+    required this.glassTheme,
+    required this.appBarTheme,
+    required this.navigationBarTheme,
+    required this.bottomNavigationBarTheme,
+    required this.chipTheme,
+    required this.listTileTheme,
+    required this.chatBubbleTheme,
+    required this.indicatorBadgeTheme,
+    required this.iconTileTheme,
+    required this.timelineTheme,
+    required this.layoutTheme,
     required this.scrollAreaTheme,
     required this.spinnerTheme,
     required this.toggleTheme,
@@ -145,6 +168,39 @@ abstract class BaseTheme {
 
   /// The theme of `Kbd` keyboard keys.
   final KbdTheme kbdTheme;
+
+  /// The theme of the matching widget.
+  final GlassTheme glassTheme;
+
+  /// The theme of the matching widget.
+  final AppBarTheme appBarTheme;
+
+  /// The theme of the matching widget.
+  final NavigationBarTheme navigationBarTheme;
+
+  /// The theme of the matching widget.
+  final BottomNavigationBarTheme bottomNavigationBarTheme;
+
+  /// The theme of the matching widget.
+  final ChipTheme chipTheme;
+
+  /// The theme of the matching widget.
+  final ListTileTheme listTileTheme;
+
+  /// The theme of the matching widget.
+  final ChatBubbleTheme chatBubbleTheme;
+
+  /// The theme of the matching widget.
+  final IndicatorBadgeTheme indicatorBadgeTheme;
+
+  /// The theme of the matching widget.
+  final IconTileTheme iconTileTheme;
+
+  /// The theme of the matching widget.
+  final TimelineTheme timelineTheme;
+
+  /// The theme of the matching widget.
+  final LayoutTheme layoutTheme;
 
   /// The theme of `ScrollArea`.
   final ScrollAreaTheme scrollAreaTheme;
@@ -365,12 +421,20 @@ abstract class ThemeVariant {
     BorderRadius? radius,
     TextTheme? effectiveTextTheme,
     StyleTokens? style,
+    FormFactor? formFactor,
     Spacing? spacing,
   });
 
   /// The shadcn/ui style this variant renders — the radius, focus-ring and
   /// label knobs that distinguish one style from another.
   StyleTokens get style;
+
+  /// The style the variant was created with, before [formFactor] was
+  /// applied. Defaults to [style] for a variant with one set of metrics.
+  StyleTokens get baseStyle => style;
+
+  /// The class of screen [style]'s metrics are for.
+  FormFactor get formFactor => FormFactor.desktop;
 
   /// The corner-radius scale, derived from the variant's base radius.
   Radii get radii;
@@ -531,6 +595,39 @@ abstract class ThemeVariant {
 
   /// Builds the theme of `Kbd` keyboard keys.
   KbdTheme kbdTheme();
+
+  /// Builds the [GlassTheme].
+  GlassTheme glassTheme();
+
+  /// Builds the [AppBarTheme].
+  AppBarTheme appBarTheme();
+
+  /// Builds the [NavigationBarTheme].
+  NavigationBarTheme navigationBarTheme();
+
+  /// Builds the [BottomNavigationBarTheme].
+  BottomNavigationBarTheme bottomNavigationBarTheme();
+
+  /// Builds the [ChipTheme].
+  ChipTheme chipTheme();
+
+  /// Builds the [ListTileTheme].
+  ListTileTheme listTileTheme();
+
+  /// Builds the [ChatBubbleTheme].
+  ChatBubbleTheme chatBubbleTheme();
+
+  /// Builds the [IndicatorBadgeTheme].
+  IndicatorBadgeTheme indicatorBadgeTheme();
+
+  /// Builds the [IconTileTheme].
+  IconTileTheme iconTileTheme();
+
+  /// Builds the [TimelineTheme].
+  TimelineTheme timelineTheme();
+
+  /// Builds the [LayoutTheme].
+  LayoutTheme layoutTheme();
 
   /// Builds the theme of `ScrollArea`.
   ScrollAreaTheme scrollAreaTheme();

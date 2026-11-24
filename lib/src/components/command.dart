@@ -9,7 +9,7 @@ import 'package:finesse/src/utils/border.dart';
 import 'package:finesse/src/utils/debug_check.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:flutter/widgets.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// A single selectable row in a [Command].
 ///
@@ -531,7 +531,7 @@ class CommandState extends State<Command> {
                 leading:
                     widget.leadingSearchIcon ??
                     Icon(
-                      LucideIcons.search,
+                      PhosphorIconsRegular.magnifyingGlass,
                       size: commandTheme.searchIconSize ?? 16,
                       color:
                           commandTheme.searchIconColor ??

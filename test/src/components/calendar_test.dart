@@ -8,7 +8,7 @@ import 'package:flutter/material.dart' hide DateTimeRange, IconButton;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 void main() {
   // Helper method to create a test widget wrapped in FinesseApp and Scaffold
@@ -253,7 +253,7 @@ void main() {
       expect(find.text('October 2023'), findsOneWidget);
 
       // Tap forward navigation button
-      final forwardButtonFinder = find.byIcon(LucideIcons.chevronRight);
+      final forwardButtonFinder = find.byIcon(PhosphorIconsRegular.caretRight);
       await tester.tap(forwardButtonFinder);
       await tester.pumpAndSettle();
 
@@ -261,7 +261,7 @@ void main() {
       expect(find.text('November 2023'), findsOneWidget);
 
       // Tap back navigation button
-      final backButtonFinder = find.byIcon(LucideIcons.chevronLeft);
+      final backButtonFinder = find.byIcon(PhosphorIconsRegular.caretLeft);
       await tester.tap(backButtonFinder);
       await tester.pumpAndSettle();
 

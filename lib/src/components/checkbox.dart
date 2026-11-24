@@ -7,7 +7,7 @@ import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// A customizable checkbox widget with optional label and sublabel.
 ///
@@ -210,7 +210,7 @@ class _CheckboxState extends State<Checkbox> {
     final effectiveIcon =
         widget.icon ??
         Icon(
-          LucideIcons.check,
+          PhosphorIconsRegular.check,
           color: theme.colorScheme.primaryForeground,
           // `[&>svg]:size-3.5`: the glyph sits 2px inside its 16px box.
           size: effectiveSize - 2,

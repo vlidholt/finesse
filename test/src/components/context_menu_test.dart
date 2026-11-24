@@ -4,7 +4,7 @@ import 'package:finesse/src/components/context_menu.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 void main() {
   // Helper method to create a test widget wrapped in FinesseApp and Scaffold
@@ -186,7 +186,7 @@ void main() {
                   child: Text('Reload'),
                 ),
                 const ContextMenuItem.inset(
-                  trailing: Icon(LucideIcons.chevronRight),
+                  trailing: Icon(PhosphorIconsRegular.caretRight),
                   items: [
                     ContextMenuItem(
                       child: Text('Save Page As...'),
@@ -204,7 +204,7 @@ void main() {
                   child: Text('More Tools'),
                 ),
                 const ContextMenuItem(
-                  leading: Icon(LucideIcons.check),
+                  leading: Icon(PhosphorIconsRegular.check),
                   child: Text('Show Bookmarks Bar'),
                 ),
                 const ContextMenuItem.inset(child: Text('Show Full URLs')),

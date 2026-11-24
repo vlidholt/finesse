@@ -247,27 +247,27 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.byIcon(LucideIcons.moveUp), findsNothing);
-      expect(find.byIcon(LucideIcons.moveDown), findsNothing);
+      expect(find.byIcon(PhosphorIconsRegular.arrowUp), findsNothing);
+      expect(find.byIcon(PhosphorIconsRegular.arrowDown), findsNothing);
 
       await tester.tap(find.text('Name'));
       await tester.pumpAndSettle();
       expect(controller.sortColumnId, 'name');
       expect(controller.sortDirection, SortDirection.ascending);
-      expect(find.byIcon(LucideIcons.moveDown), findsOneWidget);
-      expect(find.byIcon(LucideIcons.moveUp), findsNothing);
+      expect(find.byIcon(PhosphorIconsRegular.arrowDown), findsOneWidget);
+      expect(find.byIcon(PhosphorIconsRegular.arrowUp), findsNothing);
 
       await tester.tap(find.text('Name'));
       await tester.pumpAndSettle();
       expect(controller.sortDirection, SortDirection.descending);
-      expect(find.byIcon(LucideIcons.moveUp), findsOneWidget);
-      expect(find.byIcon(LucideIcons.moveDown), findsNothing);
+      expect(find.byIcon(PhosphorIconsRegular.arrowUp), findsOneWidget);
+      expect(find.byIcon(PhosphorIconsRegular.arrowDown), findsNothing);
 
       await tester.tap(find.text('Name'));
       await tester.pumpAndSettle();
       expect(controller.sortColumnId, isNull);
-      expect(find.byIcon(LucideIcons.moveUp), findsNothing);
-      expect(find.byIcon(LucideIcons.moveDown), findsNothing);
+      expect(find.byIcon(PhosphorIconsRegular.arrowUp), findsNothing);
+      expect(find.byIcon(PhosphorIconsRegular.arrowDown), findsNothing);
     });
 
     testWidgets('a non-sortable header does not sort', (tester) async {

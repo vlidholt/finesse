@@ -66,6 +66,15 @@ class ColorScheme {
     Color? sidebarAccentForeground,
     Color? sidebarBorder,
     Color? sidebarRing,
+    Color? foregroundSubtle,
+    Color? tint,
+    Color? tintForeground,
+    Color? success,
+    Color? successMuted,
+    Color? warning,
+    Color? borderStrong,
+    Color? accentBorder,
+    Color? bar,
     this.custom = const {},
   }) : _canMerge = canMerge,
        _chart1 = chart1,
@@ -80,7 +89,16 @@ class ColorScheme {
        _sidebarAccent = sidebarAccent,
        _sidebarAccentForeground = sidebarAccentForeground,
        _sidebarBorder = sidebarBorder,
-       _sidebarRing = sidebarRing;
+       _sidebarRing = sidebarRing,
+       _foregroundSubtle = foregroundSubtle,
+       _tint = tint,
+       _tintForeground = tintForeground,
+       _success = success,
+       _successMuted = successMuted,
+       _warning = warning,
+       _borderStrong = borderStrong,
+       _accentBorder = accentBorder,
+       _bar = bar;
 
   /// Returns the light or dark scheme shadcn/ui calls [name], such as `zinc` or
   /// `slate`.
@@ -252,6 +270,15 @@ class ColorScheme {
   final Color? _sidebarAccentForeground;
   final Color? _sidebarBorder;
   final Color? _sidebarRing;
+  final Color? _foregroundSubtle;
+  final Color? _tint;
+  final Color? _tintForeground;
+  final Color? _success;
+  final Color? _successMuted;
+  final Color? _warning;
+  final Color? _borderStrong;
+  final Color? _accentBorder;
+  final Color? _bar;
 
   /// The first categorical chart colour.
   ///
@@ -307,6 +334,48 @@ class ColorScheme {
   /// The focus ring colour inside the sidebar, `--sidebar-ring`. Defaults to
   /// [ring].
   Color get sidebarRing => _sidebarRing ?? ring;
+
+  /// Text one step quieter than [foreground] and one louder than
+  /// [mutedForeground]: chip labels, ghost button labels, secondary lines.
+  ///
+  /// Falls back to a mix of the two.
+  Color get foregroundSubtle =>
+      _foregroundSubtle ?? Color.lerp(foreground, mutedForeground, .5)!;
+
+  /// The brand colour for things drawn directly on a surface: the selected
+  /// navigation icon, links, progress fills, a liked heart.
+  ///
+  /// [primary] fills buttons and has to carry [primaryForeground] text in both
+  /// brightnesses; [tint] has to read against the page, so a dark scheme
+  /// usually makes it lighter than its [primary]. Falls back to [primary].
+  Color get tint => _tint ?? primary;
+
+  /// The colour of content on a [tint] fill. Falls back to
+  /// [primaryForeground].
+  Color get tintForeground => _tintForeground ?? primaryForeground;
+
+  /// The colour of positive status text and icons.
+  Color get success => _success ?? const Color(0xff15803d);
+
+  /// The soft fill behind [success] content. Falls back to a 12% wash of
+  /// [success].
+  Color get successMuted => _successMuted ?? success.withValues(alpha: .12);
+
+  /// The colour of cautionary status text and icons.
+  Color get warning => _warning ?? const Color(0xffb45309);
+
+  /// A hairline one step stronger than [border], for controls that sit on a
+  /// surface of nearly the same colour: outline buttons, key caps. Falls back
+  /// to [input].
+  Color get borderStrong => _borderStrong ?? input;
+
+  /// The outline of a selected, [accent]-filled control such as a chip. Falls
+  /// back to a third of [tint].
+  Color get accentBorder => _accentBorder ?? tint.withValues(alpha: .32);
+
+  /// The colour of app and navigation bars, before the style's bar opacity is
+  /// applied. Falls back to [card].
+  Color get bar => _bar ?? card;
 
   /// Linearly interpolates between [a] and [b] by [t].
   ///
@@ -380,6 +449,15 @@ class ColorScheme {
       ),
       sidebarBorder: Color.lerp(a._sidebarBorder, b._sidebarBorder, t),
       sidebarRing: Color.lerp(a._sidebarRing, b._sidebarRing, t),
+      foregroundSubtle: Color.lerp(a._foregroundSubtle, b._foregroundSubtle, t),
+      tint: Color.lerp(a._tint, b._tint, t),
+      tintForeground: Color.lerp(a._tintForeground, b._tintForeground, t),
+      success: Color.lerp(a._success, b._success, t),
+      successMuted: Color.lerp(a._successMuted, b._successMuted, t),
+      warning: Color.lerp(a._warning, b._warning, t),
+      borderStrong: Color.lerp(a._borderStrong, b._borderStrong, t),
+      accentBorder: Color.lerp(a._accentBorder, b._accentBorder, t),
+      bar: Color.lerp(a._bar, b._bar, t),
       custom: {
         for (final key in {...a.custom.keys, ...b.custom.keys})
           key: Color.lerp(
@@ -428,6 +506,15 @@ class ColorScheme {
     Color? sidebarAccentForeground,
     Color? sidebarBorder,
     Color? sidebarRing,
+    Color? foregroundSubtle,
+    Color? tint,
+    Color? tintForeground,
+    Color? success,
+    Color? successMuted,
+    Color? warning,
+    Color? borderStrong,
+    Color? accentBorder,
+    Color? bar,
     Map<String, Color>? custom,
   }) {
     return ColorScheme(
@@ -468,6 +555,15 @@ class ColorScheme {
           sidebarAccentForeground ?? _sidebarAccentForeground,
       sidebarBorder: sidebarBorder ?? _sidebarBorder,
       sidebarRing: sidebarRing ?? _sidebarRing,
+      foregroundSubtle: foregroundSubtle ?? _foregroundSubtle,
+      tint: tint ?? _tint,
+      tintForeground: tintForeground ?? _tintForeground,
+      success: success ?? _success,
+      successMuted: successMuted ?? _successMuted,
+      warning: warning ?? _warning,
+      borderStrong: borderStrong ?? _borderStrong,
+      accentBorder: accentBorder ?? _accentBorder,
+      bar: bar ?? _bar,
       custom: custom ?? this.custom,
     );
   }
@@ -591,6 +687,15 @@ class ColorScheme {
           other._sidebarAccentForeground ?? _sidebarAccentForeground,
       sidebarBorder: other._sidebarBorder ?? _sidebarBorder,
       sidebarRing: other._sidebarRing ?? _sidebarRing,
+      foregroundSubtle: other._foregroundSubtle ?? _foregroundSubtle,
+      tint: other._tint ?? _tint,
+      tintForeground: other._tintForeground ?? _tintForeground,
+      success: other._success ?? _success,
+      successMuted: other._successMuted ?? _successMuted,
+      warning: other._warning ?? _warning,
+      borderStrong: other._borderStrong ?? _borderStrong,
+      accentBorder: other._accentBorder ?? _accentBorder,
+      bar: other._bar ?? _bar,
       custom: {...custom, ...other.custom},
     );
   }
@@ -633,6 +738,15 @@ class ColorScheme {
         other._sidebarAccentForeground == _sidebarAccentForeground &&
         other._sidebarBorder == _sidebarBorder &&
         other._sidebarRing == _sidebarRing &&
+        other._foregroundSubtle == _foregroundSubtle &&
+        other._tint == _tint &&
+        other._tintForeground == _tintForeground &&
+        other._success == _success &&
+        other._successMuted == _successMuted &&
+        other._warning == _warning &&
+        other._borderStrong == _borderStrong &&
+        other._accentBorder == _accentBorder &&
+        other._bar == _bar &&
         mapEquals(other.custom, custom);
   }
 
@@ -676,6 +790,15 @@ class ColorScheme {
       _sidebarAccentForeground,
       _sidebarBorder,
       _sidebarRing,
+      _foregroundSubtle,
+      _tint,
+      _tintForeground,
+      _success,
+      _successMuted,
+      _warning,
+      _borderStrong,
+      _accentBorder,
+      _bar,
       Object.hashAllUnordered([
         for (final entry in custom.entries) Object.hash(entry.key, entry.value),
       ]),

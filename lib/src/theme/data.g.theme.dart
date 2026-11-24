@@ -31,6 +31,33 @@ mixin _$ThemeData {
       sidebarTheme: SidebarTheme.lerp(a.sidebarTheme, b.sidebarTheme, t)!,
       skeletonTheme: SkeletonTheme.lerp(a.skeletonTheme, b.skeletonTheme, t)!,
       kbdTheme: KbdTheme.lerp(a.kbdTheme, b.kbdTheme, t)!,
+      glassTheme: GlassTheme.lerp(a.glassTheme, b.glassTheme, t)!,
+      appBarTheme: AppBarTheme.lerp(a.appBarTheme, b.appBarTheme, t)!,
+      navigationBarTheme: NavigationBarTheme.lerp(
+        a.navigationBarTheme,
+        b.navigationBarTheme,
+        t,
+      )!,
+      bottomNavigationBarTheme: BottomNavigationBarTheme.lerp(
+        a.bottomNavigationBarTheme,
+        b.bottomNavigationBarTheme,
+        t,
+      )!,
+      chipTheme: ChipTheme.lerp(a.chipTheme, b.chipTheme, t)!,
+      listTileTheme: ListTileTheme.lerp(a.listTileTheme, b.listTileTheme, t)!,
+      chatBubbleTheme: ChatBubbleTheme.lerp(
+        a.chatBubbleTheme,
+        b.chatBubbleTheme,
+        t,
+      )!,
+      indicatorBadgeTheme: IndicatorBadgeTheme.lerp(
+        a.indicatorBadgeTheme,
+        b.indicatorBadgeTheme,
+        t,
+      )!,
+      iconTileTheme: IconTileTheme.lerp(a.iconTileTheme, b.iconTileTheme, t)!,
+      timelineTheme: TimelineTheme.lerp(a.timelineTheme, b.timelineTheme, t)!,
+      layoutTheme: LayoutTheme.lerp(a.layoutTheme, b.layoutTheme, t)!,
       scrollAreaTheme: ScrollAreaTheme.lerp(
         a.scrollAreaTheme,
         b.scrollAreaTheme,
@@ -227,6 +254,17 @@ mixin _$ThemeData {
     SidebarTheme? sidebarTheme,
     SkeletonTheme? skeletonTheme,
     KbdTheme? kbdTheme,
+    GlassTheme? glassTheme,
+    AppBarTheme? appBarTheme,
+    NavigationBarTheme? navigationBarTheme,
+    BottomNavigationBarTheme? bottomNavigationBarTheme,
+    ChipTheme? chipTheme,
+    ListTileTheme? listTileTheme,
+    ChatBubbleTheme? chatBubbleTheme,
+    IndicatorBadgeTheme? indicatorBadgeTheme,
+    IconTileTheme? iconTileTheme,
+    TimelineTheme? timelineTheme,
+    LayoutTheme? layoutTheme,
     ScrollAreaTheme? scrollAreaTheme,
     SpinnerTheme? spinnerTheme,
     ToggleTheme? toggleTheme,
@@ -297,6 +335,18 @@ mixin _$ThemeData {
       sidebarTheme: sidebarTheme ?? _this.sidebarTheme,
       skeletonTheme: skeletonTheme ?? _this.skeletonTheme,
       kbdTheme: kbdTheme ?? _this.kbdTheme,
+      glassTheme: glassTheme ?? _this.glassTheme,
+      appBarTheme: appBarTheme ?? _this.appBarTheme,
+      navigationBarTheme: navigationBarTheme ?? _this.navigationBarTheme,
+      bottomNavigationBarTheme:
+          bottomNavigationBarTheme ?? _this.bottomNavigationBarTheme,
+      chipTheme: chipTheme ?? _this.chipTheme,
+      listTileTheme: listTileTheme ?? _this.listTileTheme,
+      chatBubbleTheme: chatBubbleTheme ?? _this.chatBubbleTheme,
+      indicatorBadgeTheme: indicatorBadgeTheme ?? _this.indicatorBadgeTheme,
+      iconTileTheme: iconTileTheme ?? _this.iconTileTheme,
+      timelineTheme: timelineTheme ?? _this.timelineTheme,
+      layoutTheme: layoutTheme ?? _this.layoutTheme,
       scrollAreaTheme: scrollAreaTheme ?? _this.scrollAreaTheme,
       spinnerTheme: spinnerTheme ?? _this.spinnerTheme,
       toggleTheme: toggleTheme ?? _this.toggleTheme,
@@ -384,6 +434,23 @@ mixin _$ThemeData {
       sidebarTheme: _this.sidebarTheme.merge(other.sidebarTheme),
       skeletonTheme: _this.skeletonTheme.merge(other.skeletonTheme),
       kbdTheme: _this.kbdTheme.merge(other.kbdTheme),
+      glassTheme: _this.glassTheme.merge(other.glassTheme),
+      appBarTheme: _this.appBarTheme.merge(other.appBarTheme),
+      navigationBarTheme: _this.navigationBarTheme.merge(
+        other.navigationBarTheme,
+      ),
+      bottomNavigationBarTheme: _this.bottomNavigationBarTheme.merge(
+        other.bottomNavigationBarTheme,
+      ),
+      chipTheme: _this.chipTheme.merge(other.chipTheme),
+      listTileTheme: _this.listTileTheme.merge(other.listTileTheme),
+      chatBubbleTheme: _this.chatBubbleTheme.merge(other.chatBubbleTheme),
+      indicatorBadgeTheme: _this.indicatorBadgeTheme.merge(
+        other.indicatorBadgeTheme,
+      ),
+      iconTileTheme: _this.iconTileTheme.merge(other.iconTileTheme),
+      timelineTheme: _this.timelineTheme.merge(other.timelineTheme),
+      layoutTheme: _this.layoutTheme.merge(other.layoutTheme),
       scrollAreaTheme: _this.scrollAreaTheme.merge(other.scrollAreaTheme),
       spinnerTheme: _this.spinnerTheme.merge(other.spinnerTheme),
       toggleTheme: _this.toggleTheme.merge(other.toggleTheme),
@@ -488,6 +555,17 @@ mixin _$ThemeData {
         _other.sidebarTheme == _this.sidebarTheme &&
         _other.skeletonTheme == _this.skeletonTheme &&
         _other.kbdTheme == _this.kbdTheme &&
+        _other.glassTheme == _this.glassTheme &&
+        _other.appBarTheme == _this.appBarTheme &&
+        _other.navigationBarTheme == _this.navigationBarTheme &&
+        _other.bottomNavigationBarTheme == _this.bottomNavigationBarTheme &&
+        _other.chipTheme == _this.chipTheme &&
+        _other.listTileTheme == _this.listTileTheme &&
+        _other.chatBubbleTheme == _this.chatBubbleTheme &&
+        _other.indicatorBadgeTheme == _this.indicatorBadgeTheme &&
+        _other.iconTileTheme == _this.iconTileTheme &&
+        _other.timelineTheme == _this.timelineTheme &&
+        _other.layoutTheme == _this.layoutTheme &&
         _other.scrollAreaTheme == _this.scrollAreaTheme &&
         _other.spinnerTheme == _this.spinnerTheme &&
         _other.toggleTheme == _this.toggleTheme &&
@@ -562,6 +640,17 @@ mixin _$ThemeData {
       _this.sidebarTheme,
       _this.skeletonTheme,
       _this.kbdTheme,
+      _this.glassTheme,
+      _this.appBarTheme,
+      _this.navigationBarTheme,
+      _this.bottomNavigationBarTheme,
+      _this.chipTheme,
+      _this.listTileTheme,
+      _this.chatBubbleTheme,
+      _this.indicatorBadgeTheme,
+      _this.iconTileTheme,
+      _this.timelineTheme,
+      _this.layoutTheme,
       _this.scrollAreaTheme,
       _this.spinnerTheme,
       _this.toggleTheme,

@@ -54,34 +54,93 @@ enum RadiusToken {
 /// multipliers here are expressed relative to `md`. With the default 8px that
 /// reproduces shadcn's scale exactly: sm 6, md 8, lg 10, xl 14, 2xl 16,
 /// 3xl 24, 4xl 32.
+/// The factors that turn a theme's base (`md`) radius into the rest of the
+/// [RadiusToken] scale.
+///
+/// The default is Tailwind's: 0.75, 1.25, 1.75, 2, 3 and 4 times the base. A
+/// style with its own rhythm supplies its own; Finesse's default style uses
+/// `RadiusScale(sm: .6, lg: 1.2, xl: 1.6, xl2: 2, xl3: 2.4, xl4: 3.2)`, which
+/// at a base of 10 gives 6, 12, 16, 20, 24 and 32.
+@immutable
+class RadiusScale {
+  /// Creates a scale from the factor of each step above and below `md`.
+  const RadiusScale({
+    this.sm = .75,
+    this.lg = 1.25,
+    this.xl = 1.75,
+    this.xl2 = 2,
+    this.xl3 = 3,
+    this.xl4 = 4,
+  });
+
+  /// The factor of [RadiusToken.sm].
+  final double sm;
+
+  /// The factor of [RadiusToken.lg].
+  final double lg;
+
+  /// The factor of [RadiusToken.xl].
+  final double xl;
+
+  /// The factor of [RadiusToken.xl2].
+  final double xl2;
+
+  /// The factor of [RadiusToken.xl3].
+  final double xl3;
+
+  /// The factor of [RadiusToken.xl4].
+  final double xl4;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is RadiusScale &&
+          other.sm == sm &&
+          other.lg == lg &&
+          other.xl == xl &&
+          other.xl2 == xl2 &&
+          other.xl3 == xl3 &&
+          other.xl4 == xl4);
+
+  @override
+  int get hashCode => Object.hash(sm, lg, xl, xl2, xl3, xl4);
+
+  @override
+  String toString() =>
+      'RadiusScale(sm: $sm, lg: $lg, xl: $xl, xl2: $xl2, xl3: $xl3, xl4: $xl4)';
+}
+
 @immutable
 class Radii {
   /// Creates a scale from the base (`md`) radius.
-  const Radii(this.md);
+  const Radii(this.md, [this.scale = const RadiusScale()]);
 
   /// The `md` step, i.e. the theme's component radius.
   final BorderRadius md;
+
+  /// The factors the other steps are derived from [md] with.
+  final RadiusScale scale;
 
   /// Square corners, `rounded-none`.
   BorderRadius get none => BorderRadius.zero;
 
   /// `rounded-sm`: 0.75 × [md], 6px by default.
-  BorderRadius get sm => _scale(0.75);
+  BorderRadius get sm => _scale(scale.sm);
 
   /// `rounded-lg`: 1.25 × [md], 10px by default.
-  BorderRadius get lg => _scale(1.25);
+  BorderRadius get lg => _scale(scale.lg);
 
   /// `rounded-xl`: 1.75 × [md], 14px by default.
-  BorderRadius get xl => _scale(1.75);
+  BorderRadius get xl => _scale(scale.xl);
 
   /// `rounded-2xl`: 2 × [md], 16px by default.
-  BorderRadius get xl2 => _scale(2);
+  BorderRadius get xl2 => _scale(scale.xl2);
 
   /// `rounded-3xl`: 3 × [md], 24px by default.
-  BorderRadius get xl3 => _scale(3);
+  BorderRadius get xl3 => _scale(scale.xl3);
 
   /// `rounded-4xl`: 4 × [md], 32px by default.
-  BorderRadius get xl4 => _scale(4);
+  BorderRadius get xl4 => _scale(scale.xl4);
 
   /// Fully rounded, `rounded-full`, for pills and circles.
   BorderRadius get full => const BorderRadius.all(Radius.circular(9999));
@@ -111,10 +170,11 @@ class Radii {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) || (other is Radii && other.md == md);
+      identical(this, other) ||
+      (other is Radii && other.md == md && other.scale == scale);
 
   @override
-  int get hashCode => md.hashCode;
+  int get hashCode => Object.hash(md, scale);
 
   @override
   String toString() => 'Radii(md: $md)';

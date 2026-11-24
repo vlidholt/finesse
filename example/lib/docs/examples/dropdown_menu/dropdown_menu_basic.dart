@@ -10,18 +10,18 @@ class DropdownMenuBasicExample extends StatelessWidget {
       constraints: const BoxConstraints(minWidth: 224),
       items: const [
         ContextMenuItem(
-          leading: Icon(LucideIcons.user),
+          leading: Icon(PhosphorIconsRegular.user),
           trailing: Text('⇧⌘P'),
           child: Text('Profile'),
         ),
         ContextMenuItem(
-          leading: Icon(LucideIcons.settings),
+          leading: Icon(PhosphorIconsRegular.gear),
           trailing: Text('⌘S'),
           child: Text('Settings'),
         ),
         ContextMenuItem(
-          leading: Icon(LucideIcons.users),
-          trailing: Icon(LucideIcons.chevronRight),
+          leading: Icon(PhosphorIconsRegular.users),
+          trailing: Icon(PhosphorIconsRegular.caretRight),
           items: [
             ContextMenuItem(child: Text('Email')),
             ContextMenuItem(child: Text('Message')),
@@ -29,7 +29,7 @@ class DropdownMenuBasicExample extends StatelessWidget {
               margin: EdgeInsets.symmetric(vertical: 4),
             ),
             ContextMenuItem(
-              trailing: Icon(LucideIcons.chevronRight),
+              trailing: Icon(PhosphorIconsRegular.caretRight),
               items: [
                 ContextMenuItem(child: Text('Slack')),
                 ContextMenuItem(child: Text('Discord')),
@@ -42,7 +42,7 @@ class DropdownMenuBasicExample extends StatelessWidget {
         ),
         Divider.horizontal(margin: EdgeInsets.symmetric(vertical: 4)),
         ContextMenuItem(
-          leading: Icon(LucideIcons.logOut),
+          leading: Icon(PhosphorIconsRegular.signOut),
           destructive: true,
           child: Text('Log out'),
         ),

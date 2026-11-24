@@ -1,5 +1,5 @@
 import 'package:finesse/src/theme/color_scheme/base.dart';
-import 'package:finesse/src/theme/color_scheme/slate.dart';
+import 'package:finesse/src/theme/color_scheme/teal.dart';
 import 'package:finesse/src/theme/components/accordion.dart';
 import 'package:finesse/src/theme/components/alert.dart';
 import 'package:finesse/src/theme/components/avatar.dart';
@@ -20,6 +20,17 @@ import 'package:finesse/src/theme/components/dialog.dart';
 import 'package:finesse/src/theme/components/divider.dart';
 import 'package:finesse/src/theme/components/empty.dart';
 import 'package:finesse/src/theme/components/kbd.dart';
+import 'package:finesse/src/theme/components/glass.dart';
+import 'package:finesse/src/theme/components/app_bar.dart';
+import 'package:finesse/src/theme/components/navigation_bar.dart';
+import 'package:finesse/src/theme/components/bottom_navigation_bar.dart';
+import 'package:finesse/src/theme/components/chip.dart';
+import 'package:finesse/src/theme/components/list_tile.dart';
+import 'package:finesse/src/theme/components/chat_bubble.dart';
+import 'package:finesse/src/theme/components/indicator_badge.dart';
+import 'package:finesse/src/theme/components/icon_tile.dart';
+import 'package:finesse/src/theme/components/timeline.dart';
+import 'package:finesse/src/theme/components/layout.dart';
 import 'package:finesse/src/theme/components/menubar.dart';
 import 'package:finesse/src/theme/components/otp_field.dart';
 import 'package:finesse/src/theme/components/pagination.dart';
@@ -45,6 +56,7 @@ import 'package:finesse/src/theme/components/time_picker.dart';
 import 'package:finesse/src/theme/components/toast.dart';
 import 'package:finesse/src/theme/components/toggle.dart';
 import 'package:finesse/src/theme/components/tooltip.dart';
+import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/radii.dart';
 import 'package:finesse/src/theme/spacing.dart';
 import 'package:finesse/src/theme/style.dart';
@@ -139,6 +151,17 @@ class ThemeData extends BaseTheme with _$ThemeData {
     TabsTheme? tabsTheme,
     SkeletonTheme? skeletonTheme,
     KbdTheme? kbdTheme,
+    GlassTheme? glassTheme,
+    AppBarTheme? appBarTheme,
+    NavigationBarTheme? navigationBarTheme,
+    BottomNavigationBarTheme? bottomNavigationBarTheme,
+    ChipTheme? chipTheme,
+    ListTileTheme? listTileTheme,
+    ChatBubbleTheme? chatBubbleTheme,
+    IndicatorBadgeTheme? indicatorBadgeTheme,
+    IconTileTheme? iconTileTheme,
+    TimelineTheme? timelineTheme,
+    LayoutTheme? layoutTheme,
     ScrollAreaTheme? scrollAreaTheme,
     SpinnerTheme? spinnerTheme,
     ToggleTheme? toggleTheme,
@@ -166,6 +189,12 @@ class ThemeData extends BaseTheme with _$ThemeData {
     ///
     /// When a [variant] is also given, the variant is rebuilt with this style.
     StyleTokens? style,
+
+    /// The class of screen the theme is laid out for. [style] carries two
+    /// sets of metrics; this picks one. `FinesseApp` sets it from the window
+    /// width, so an app rarely passes it. Defaults to the variant's, or
+    /// [FormFactor.desktop].
+    FormFactor? formFactor,
 
     /// The spacing scale every padding and gap is a multiple of.
     ///
@@ -199,8 +228,13 @@ class ThemeData extends BaseTheme with _$ThemeData {
     // shadcn/ui's `--radius` is 0.625rem and `--radius-md` — what button,
     // input, checkbox and most other components use via `rounded-md` — is
     // `calc(var(--radius) * 0.8)`, i.e. 8px.
+    // The style a new variant is built from. With a variant and no style the
+    // variant keeps its own.
+    final defaultStyle = style ?? variant?.baseStyle ?? StyleTokens.finesse;
     final effectiveRadius =
-        radius ?? variant?.radius ?? const BorderRadius.all(Radius.circular(8));
+        radius ??
+        variant?.radius ??
+        BorderRadius.all(Radius.circular(defaultStyle.radius));
 
     final effectiveTextTheme = textTheme == null
         ? (variant?.effectiveTextTheme ?? DefaultThemeVariant.defaultTextTheme)
@@ -221,8 +255,8 @@ class ThemeData extends BaseTheme with _$ThemeData {
         colorScheme ??
         variant?.colorScheme ??
         switch (effectiveBrightness) {
-          Brightness.light => const SlateColorScheme.light(),
-          Brightness.dark => const SlateColorScheme.dark(),
+          Brightness.light => const TealColorScheme.light(),
+          Brightness.dark => const TealColorScheme.dark(),
         };
 
     // A bold menu accent is a scheme transformation in the reference —
@@ -266,7 +300,8 @@ class ThemeData extends BaseTheme with _$ThemeData {
                   // every copy.
                   (variant.effectiveTextTheme == effectiveTextTheme ||
                       variant.textTheme() == effectiveTextTheme) &&
-                  (style == null || style == variant.style) &&
+                  (style == null || style == variant.baseStyle) &&
+                  (formFactor == null || formFactor == variant.formFactor) &&
                   (spacing == null || spacing == variant.spacing) &&
                   !menuOptionsChanged
               ? variant
@@ -276,6 +311,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
                   radius: effectiveRadius,
                   effectiveTextTheme: effectiveTextTheme,
                   style: style,
+                  formFactor: formFactor,
                   spacing: spacing,
                   menuColorScheme: menuColorScheme != null
                       ? effectiveMenuColorScheme
@@ -287,6 +323,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
                   radius: effectiveRadius,
                   effectiveTextTheme: effectiveTextTheme,
                   style: style,
+                  formFactor: formFactor,
                   spacing: spacing,
                 ));
 
@@ -297,7 +334,8 @@ class ThemeData extends BaseTheme with _$ThemeData {
             colorScheme: effectiveColorScheme,
             radius: effectiveRadius,
             effectiveTextTheme: effectiveTextTheme,
-            style: style ?? StyleTokens.nova,
+            style: defaultStyle,
+            formFactor: formFactor ?? FormFactor.desktop,
             spacing: spacing ?? const Spacing(),
             menuColorScheme: effectiveMenuColorScheme,
             menuTranslucent: menuTranslucent ?? false,
@@ -306,7 +344,8 @@ class ThemeData extends BaseTheme with _$ThemeData {
             colorScheme: effectiveColorScheme,
             radius: effectiveRadius,
             effectiveTextTheme: effectiveTextTheme,
-            style: style ?? StyleTokens.nova,
+            style: defaultStyle,
+            formFactor: formFactor ?? FormFactor.desktop,
             spacing: spacing ?? const Spacing(),
             menuColorScheme: effectiveMenuColorScheme,
             menuTranslucent: menuTranslucent ?? false,
@@ -361,6 +400,17 @@ class ThemeData extends BaseTheme with _$ThemeData {
         tabsTheme: tabsTheme,
         skeletonTheme: skeletonTheme,
         kbdTheme: kbdTheme,
+        glassTheme: glassTheme,
+        appBarTheme: appBarTheme,
+        navigationBarTheme: navigationBarTheme,
+        bottomNavigationBarTheme: bottomNavigationBarTheme,
+        chipTheme: chipTheme,
+        listTileTheme: listTileTheme,
+        chatBubbleTheme: chatBubbleTheme,
+        indicatorBadgeTheme: indicatorBadgeTheme,
+        iconTileTheme: iconTileTheme,
+        timelineTheme: timelineTheme,
+        layoutTheme: layoutTheme,
         scrollAreaTheme: scrollAreaTheme,
         spinnerTheme: spinnerTheme,
         toggleTheme: toggleTheme,
@@ -382,6 +432,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
         textareaTheme: textareaTheme,
         defaultKeyboardToolbarTheme: defaultKeyboardToolbarTheme,
         style: style,
+        formFactor: formFactor,
         spacing: spacing,
         menuColorScheme: menuColorScheme,
         menuTranslucent: menuTranslucent,
@@ -494,6 +545,25 @@ class ThemeData extends BaseTheme with _$ThemeData {
           .merge(defaultKeyboardToolbarTheme),
       skeletonTheme: effectiveVariant.skeletonTheme().merge(skeletonTheme),
       kbdTheme: effectiveVariant.kbdTheme().merge(kbdTheme),
+      glassTheme: effectiveVariant.glassTheme().merge(glassTheme),
+      appBarTheme: effectiveVariant.appBarTheme().merge(appBarTheme),
+      navigationBarTheme: effectiveVariant.navigationBarTheme().merge(
+        navigationBarTheme,
+      ),
+      bottomNavigationBarTheme: effectiveVariant
+          .bottomNavigationBarTheme()
+          .merge(bottomNavigationBarTheme),
+      chipTheme: effectiveVariant.chipTheme().merge(chipTheme),
+      listTileTheme: effectiveVariant.listTileTheme().merge(listTileTheme),
+      chatBubbleTheme: effectiveVariant.chatBubbleTheme().merge(
+        chatBubbleTheme,
+      ),
+      indicatorBadgeTheme: effectiveVariant.indicatorBadgeTheme().merge(
+        indicatorBadgeTheme,
+      ),
+      iconTileTheme: effectiveVariant.iconTileTheme().merge(iconTileTheme),
+      timelineTheme: effectiveVariant.timelineTheme().merge(timelineTheme),
+      layoutTheme: effectiveVariant.layoutTheme().merge(layoutTheme),
       scrollAreaTheme: effectiveVariant.scrollAreaTheme().merge(
         scrollAreaTheme,
       ),
@@ -573,6 +643,17 @@ class ThemeData extends BaseTheme with _$ThemeData {
     required super.defaultKeyboardToolbarTheme,
     required super.skeletonTheme,
     required super.kbdTheme,
+    required super.glassTheme,
+    required super.appBarTheme,
+    required super.navigationBarTheme,
+    required super.bottomNavigationBarTheme,
+    required super.chipTheme,
+    required super.listTileTheme,
+    required super.chatBubbleTheme,
+    required super.indicatorBadgeTheme,
+    required super.iconTileTheme,
+    required super.timelineTheme,
+    required super.layoutTheme,
     required super.scrollAreaTheme,
     required super.spinnerTheme,
     required super.toggleTheme,
@@ -646,6 +727,17 @@ class ThemeData extends BaseTheme with _$ThemeData {
     TabsTheme? tabsTheme,
     SkeletonTheme? skeletonTheme,
     KbdTheme? kbdTheme,
+    GlassTheme? glassTheme,
+    AppBarTheme? appBarTheme,
+    NavigationBarTheme? navigationBarTheme,
+    BottomNavigationBarTheme? bottomNavigationBarTheme,
+    ChipTheme? chipTheme,
+    ListTileTheme? listTileTheme,
+    ChatBubbleTheme? chatBubbleTheme,
+    IndicatorBadgeTheme? indicatorBadgeTheme,
+    IconTileTheme? iconTileTheme,
+    TimelineTheme? timelineTheme,
+    LayoutTheme? layoutTheme,
     ScrollAreaTheme? scrollAreaTheme,
     SpinnerTheme? spinnerTheme,
     ToggleTheme? toggleTheme,
@@ -667,6 +759,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     TextareaTheme? textareaTheme,
     DefaultKeyboardToolbarTheme? defaultKeyboardToolbarTheme,
     StyleTokens? style,
+    FormFactor? formFactor,
     Spacing? spacing,
     ColorScheme? menuColorScheme,
     bool? menuTranslucent,
@@ -722,6 +815,18 @@ class ThemeData extends BaseTheme with _$ThemeData {
       tabsTheme: tabsTheme ?? i.tabsTheme,
       skeletonTheme: skeletonTheme ?? i.skeletonTheme,
       kbdTheme: kbdTheme ?? i.kbdTheme,
+      glassTheme: glassTheme ?? i.glassTheme,
+      appBarTheme: appBarTheme ?? i.appBarTheme,
+      navigationBarTheme: navigationBarTheme ?? i.navigationBarTheme,
+      bottomNavigationBarTheme:
+          bottomNavigationBarTheme ?? i.bottomNavigationBarTheme,
+      chipTheme: chipTheme ?? i.chipTheme,
+      listTileTheme: listTileTheme ?? i.listTileTheme,
+      chatBubbleTheme: chatBubbleTheme ?? i.chatBubbleTheme,
+      indicatorBadgeTheme: indicatorBadgeTheme ?? i.indicatorBadgeTheme,
+      iconTileTheme: iconTileTheme ?? i.iconTileTheme,
+      timelineTheme: timelineTheme ?? i.timelineTheme,
+      layoutTheme: layoutTheme ?? i.layoutTheme,
       scrollAreaTheme: scrollAreaTheme ?? i.scrollAreaTheme,
       spinnerTheme: spinnerTheme ?? i.spinnerTheme,
       toggleTheme: toggleTheme ?? i.toggleTheme,
@@ -744,6 +849,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
       defaultKeyboardToolbarTheme:
           defaultKeyboardToolbarTheme ?? i.defaultKeyboardToolbarTheme,
       style: style ?? i.style,
+      formFactor: formFactor ?? i.formFactor,
       spacing: spacing ?? i.spacing,
       menuColorScheme: menuColorScheme ?? i.menuColorScheme,
       menuTranslucent: menuTranslucent ?? i.menuTranslucent,
@@ -760,6 +866,21 @@ class ThemeData extends BaseTheme with _$ThemeData {
 
   /// The shadcn/ui style this theme renders.
   StyleTokens get style => variant.style;
+
+  /// The class of screen this theme's metrics are for.
+  FormFactor get formFactor => variant.formFactor;
+
+  /// This theme laid out for [formFactor].
+  ///
+  /// Returns this theme when it already is, and otherwise rebuilds every
+  /// component theme from the style's other set of metrics. The result is
+  /// cached, so `FinesseApp` can call this on every build.
+  ThemeData withFormFactor(FormFactor formFactor) {
+    if (formFactor == this.formFactor) return this;
+    return _formFactorCache[this] ??= copyWith(formFactor: formFactor);
+  }
+
+  static final _formFactorCache = Expando<ThemeData>();
 
   /// The spacing scale every padding and gap is a multiple of.
   ///
@@ -835,6 +956,17 @@ final class _ThemeInputs {
     this.tabsTheme,
     this.skeletonTheme,
     this.kbdTheme,
+    this.glassTheme,
+    this.appBarTheme,
+    this.navigationBarTheme,
+    this.bottomNavigationBarTheme,
+    this.chipTheme,
+    this.listTileTheme,
+    this.chatBubbleTheme,
+    this.indicatorBadgeTheme,
+    this.iconTileTheme,
+    this.timelineTheme,
+    this.layoutTheme,
     this.scrollAreaTheme,
     this.spinnerTheme,
     this.toggleTheme,
@@ -856,6 +988,7 @@ final class _ThemeInputs {
     this.textareaTheme,
     this.defaultKeyboardToolbarTheme,
     this.style,
+    this.formFactor,
     this.spacing,
     this.menuColorScheme,
     this.menuTranslucent,
@@ -908,6 +1041,17 @@ final class _ThemeInputs {
   final TabsTheme? tabsTheme;
   final SkeletonTheme? skeletonTheme;
   final KbdTheme? kbdTheme;
+  final GlassTheme? glassTheme;
+  final AppBarTheme? appBarTheme;
+  final NavigationBarTheme? navigationBarTheme;
+  final BottomNavigationBarTheme? bottomNavigationBarTheme;
+  final ChipTheme? chipTheme;
+  final ListTileTheme? listTileTheme;
+  final ChatBubbleTheme? chatBubbleTheme;
+  final IndicatorBadgeTheme? indicatorBadgeTheme;
+  final IconTileTheme? iconTileTheme;
+  final TimelineTheme? timelineTheme;
+  final LayoutTheme? layoutTheme;
   final ScrollAreaTheme? scrollAreaTheme;
   final SpinnerTheme? spinnerTheme;
   final ToggleTheme? toggleTheme;
@@ -929,6 +1073,7 @@ final class _ThemeInputs {
   final TextareaTheme? textareaTheme;
   final DefaultKeyboardToolbarTheme? defaultKeyboardToolbarTheme;
   final StyleTokens? style;
+  final FormFactor? formFactor;
   final Spacing? spacing;
   final ColorScheme? menuColorScheme;
   final bool? menuTranslucent;

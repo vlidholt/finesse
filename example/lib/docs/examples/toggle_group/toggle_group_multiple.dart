@@ -22,17 +22,17 @@ class _ToggleGroupMultipleExampleState
         ToggleGroupItem(
           value: 'bold',
           semanticLabel: 'Bold',
-          child: Icon(LucideIcons.bold),
+          child: Icon(PhosphorIconsRegular.textB),
         ),
         ToggleGroupItem(
           value: 'italic',
           semanticLabel: 'Italic',
-          child: Icon(LucideIcons.italic),
+          child: Icon(PhosphorIconsRegular.textItalic),
         ),
         ToggleGroupItem(
           value: 'underline',
           semanticLabel: 'Underline',
-          child: Icon(LucideIcons.underline),
+          child: Icon(PhosphorIconsRegular.textUnderline),
         ),
       ],
     );

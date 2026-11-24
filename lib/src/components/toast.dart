@@ -10,7 +10,7 @@ import 'package:finesse/src/utils/responsive.dart';
 import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// A widget that manages and displays toasts within the widget tree.
 ///
@@ -422,7 +422,7 @@ class Toast extends StatefulWidget {
 
   /// {@template Toast.closeIconData}
   /// The icon data for the close button.
-  /// Used if [closeIcon] is null; defaults to [LucideIcons.x] if not specified.
+  /// Used if [closeIcon] is null; defaults to [PhosphorIconsRegular.x] if not specified.
   /// {@endtemplate}
   final IconData? closeIconData;
 
@@ -605,7 +605,7 @@ class _ToastState extends State<Toast> {
             size: 16,
             widget.closeIconData ??
                 effectiveToastTheme.closeIconData ??
-                LucideIcons.x,
+                PhosphorIconsRegular.x,
           ),
           width: 20,
           height: 20,

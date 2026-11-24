@@ -301,7 +301,7 @@ class _PayoutThresholdCardState extends State<_PayoutThresholdCard> {
       title: 'Payout Threshold',
       description: 'Set the minimum balance required before a payout.',
       trailing: IconButton.ghost(
-        icon: const Icon(LucideIcons.x),
+        icon: const Icon(PhosphorIconsRegular.x),
         semanticLabel: 'Dismiss',
         onPressed: () {},
       ),
@@ -562,29 +562,29 @@ class _RecentTransactionsCard extends StatelessWidget {
 
   static const _items = [
     (
-      LucideIcons.coffee,
+      PhosphorIconsRegular.coffee,
       'Blue Bottle Coffee',
       'Food & Drink',
       'Today, 10:24 AM',
       r'-$8.50',
     ),
     (
-      LucideIcons.shoppingCart,
+      PhosphorIconsRegular.shoppingCart,
       'Whole Foods Market',
       'Groceries',
       'Yesterday',
       r'-$126.40',
     ),
     (
-      LucideIcons.creditCard,
+      PhosphorIconsRegular.creditCard,
       'Stripe Payout',
       'Income',
       'Oct 12',
       r'+$4,200.00',
     ),
-    (LucideIcons.car, 'Uber Technologies', 'Transport', 'Oct 11', r'-$24.10'),
+    (PhosphorIconsRegular.car, 'Uber Technologies', 'Transport', 'Oct 11', r'-$24.10'),
     (
-      LucideIcons.tv,
+      PhosphorIconsRegular.television,
       'Netflix Subscription',
       'Entertainment',
       'Oct 10',
@@ -790,7 +790,7 @@ class _DistributeTrackCard extends StatelessWidget {
     final theme = Theme.of(context);
     return _PreviewCard(
       child: Empty(
-        icon: const Icon(LucideIcons.plus),
+        icon: const Icon(PhosphorIconsRegular.plus),
         title: const Text('Distribute Track'),
         description: const Text(
           'Upload your first master to start reaching listeners on Spotify, '
@@ -1027,7 +1027,7 @@ class _VerifyDeviceCardState extends State<_VerifyDeviceCard> {
       trailing: Tooltip(
         builder: (_) => const Text('Resend the code'),
         child: IconButton.ghost(
-          icon: const Icon(LucideIcons.refreshCw, size: 16),
+          icon: const Icon(PhosphorIconsRegular.arrowsClockwise, size: 16),
           onPressed: () {},
         ),
       ),
@@ -1047,7 +1047,7 @@ class _VerifyDeviceCardState extends State<_VerifyDeviceCard> {
                   OtpFieldSlot(),
                 ],
               ),
-              Icon(LucideIcons.dot),
+              Icon(PhosphorIconsRegular.dotOutline),
               OtpFieldGroup(
                 children: [
                   OtpFieldSlot(),
@@ -1066,7 +1066,7 @@ class _VerifyDeviceCardState extends State<_VerifyDeviceCard> {
             ],
           ),
           const Alert(
-            icon: Icon(LucideIcons.info),
+            icon: Icon(PhosphorIconsRegular.info),
             title: Text('Heads up'),
             description: Text('Codes expire after 10 minutes.'),
           ),
@@ -1250,7 +1250,7 @@ class _QuickActionsCardState extends State<_QuickActionsCard> {
               child: FinesseRow(
                 spacing: 2,
                 children: [
-                  const Icon(LucideIcons.mousePointerClick, size: 16),
+                  const Icon(PhosphorIconsRegular.cursorClick, size: 16),
                   Expanded(
                     child: Text(
                       'Right-click for options',
@@ -1344,7 +1344,7 @@ class _WorkspaceCardState extends State<_WorkspaceCard> {
                   ContextMenuItem(child: Text('New Invoice')),
                   ContextMenuItem(child: Text('Import…')),
                   ContextMenuItem(
-                    trailing: Icon(LucideIcons.chevronRight),
+                    trailing: Icon(PhosphorIconsRegular.caretRight),
                     items: [
                       ContextMenuItem(child: Text('INV-001')),
                       ContextMenuItem(child: Text('INV-002')),
@@ -1353,12 +1353,12 @@ class _WorkspaceCardState extends State<_WorkspaceCard> {
                     child: Text('Open Recent'),
                   ),
                   ContextMenuItem(
-                    trailing: Icon(LucideIcons.chevronRight),
+                    trailing: Icon(PhosphorIconsRegular.caretRight),
                     items: [
                       ContextMenuItem(child: Text('PDF')),
                       ContextMenuItem(child: Text('CSV')),
                       ContextMenuItem(
-                        trailing: Icon(LucideIcons.chevronRight),
+                        trailing: Icon(PhosphorIconsRegular.caretRight),
                         items: [
                           ContextMenuItem(child: Text('Xero')),
                           ContextMenuItem(child: Text('QuickBooks')),
@@ -1369,7 +1369,7 @@ class _WorkspaceCardState extends State<_WorkspaceCard> {
                     child: Text('Export As'),
                   ),
                   ContextMenuItem(
-                    trailing: Icon(LucideIcons.chevronRight),
+                    trailing: Icon(PhosphorIconsRegular.caretRight),
                     items: [
                       ContextMenuItem(child: Text('Email')),
                       ContextMenuItem(child: Text('Copy Link')),
@@ -1384,7 +1384,7 @@ class _WorkspaceCardState extends State<_WorkspaceCard> {
                   ContextMenuItem(child: Text('Undo')),
                   ContextMenuItem(child: Text('Redo')),
                   ContextMenuItem(
-                    trailing: Icon(LucideIcons.chevronRight),
+                    trailing: Icon(PhosphorIconsRegular.caretRight),
                     items: [
                       ContextMenuItem(child: Text('Find…')),
                       ContextMenuItem(child: Text('Find Next')),
@@ -1393,7 +1393,7 @@ class _WorkspaceCardState extends State<_WorkspaceCard> {
                     child: Text('Find'),
                   ),
                   ContextMenuItem(
-                    trailing: Icon(LucideIcons.chevronRight),
+                    trailing: Icon(PhosphorIconsRegular.caretRight),
                     items: [
                       ContextMenuItem(child: Text('Paid')),
                       ContextMenuItem(child: Text('Pending')),
@@ -1407,7 +1407,7 @@ class _WorkspaceCardState extends State<_WorkspaceCard> {
               MenubarItem(
                 items: const [
                   ContextMenuItem(
-                    trailing: Icon(LucideIcons.chevronRight),
+                    trailing: Icon(PhosphorIconsRegular.caretRight),
                     items: [
                       ContextMenuItem(child: Text('Status')),
                       ContextMenuItem(child: Text('Customer')),
@@ -1416,7 +1416,7 @@ class _WorkspaceCardState extends State<_WorkspaceCard> {
                     child: Text('Group By'),
                   ),
                   ContextMenuItem(
-                    trailing: Icon(LucideIcons.chevronRight),
+                    trailing: Icon(PhosphorIconsRegular.caretRight),
                     items: [
                       ContextMenuItem(child: Text('Date')),
                       ContextMenuItem(child: Text('Amount')),
@@ -1425,7 +1425,7 @@ class _WorkspaceCardState extends State<_WorkspaceCard> {
                     child: Text('Sort By'),
                   ),
                   ContextMenuItem(
-                    trailing: Icon(LucideIcons.chevronRight),
+                    trailing: Icon(PhosphorIconsRegular.caretRight),
                     items: [
                       ContextMenuItem(child: Text('Invoice')),
                       ContextMenuItem(child: Text('Status')),
@@ -1435,7 +1435,7 @@ class _WorkspaceCardState extends State<_WorkspaceCard> {
                     child: Text('Columns'),
                   ),
                   ContextMenuItem(
-                    trailing: Icon(LucideIcons.chevronRight),
+                    trailing: Icon(PhosphorIconsRegular.caretRight),
                     items: [
                       ContextMenuItem(child: Text('Compact')),
                       ContextMenuItem(child: Text('Default')),
@@ -1444,7 +1444,7 @@ class _WorkspaceCardState extends State<_WorkspaceCard> {
                     child: Text('Density'),
                   ),
                   ContextMenuItem(
-                    trailing: Icon(LucideIcons.chevronRight),
+                    trailing: Icon(PhosphorIconsRegular.caretRight),
                     items: [
                       ContextMenuItem(child: Text('USD')),
                       ContextMenuItem(child: Text('EUR')),
@@ -1454,7 +1454,7 @@ class _WorkspaceCardState extends State<_WorkspaceCard> {
                     child: Text('Currency'),
                   ),
                   ContextMenuItem(
-                    trailing: Icon(LucideIcons.chevronRight),
+                    trailing: Icon(PhosphorIconsRegular.caretRight),
                     items: [
                       ContextMenuItem(child: Text('75%')),
                       ContextMenuItem(child: Text('100%')),
@@ -1543,13 +1543,13 @@ class _WorkspaceCardState extends State<_WorkspaceCard> {
                 value: bold,
                 semanticLabel: 'Bold',
                 onChanged: (v) => setState(() => bold = v),
-                child: const Icon(LucideIcons.bold, size: 16),
+                child: const Icon(PhosphorIconsRegular.textB, size: 16),
               ),
               Toggle(
                 value: italic,
                 semanticLabel: 'Italic',
                 onChanged: (v) => setState(() => italic = v),
-                child: const Icon(LucideIcons.italic, size: 16),
+                child: const Icon(PhosphorIconsRegular.textItalic, size: 16),
               ),
               const Spacer(),
               Button.ghost(
@@ -1563,13 +1563,13 @@ class _WorkspaceCardState extends State<_WorkspaceCard> {
                         CommandItem(
                           label: 'New invoice',
                           value: 'new',
-                          leading: const Icon(LucideIcons.plus),
+                          leading: const Icon(PhosphorIconsRegular.plus),
                           onSelected: () {},
                         ),
                         CommandItem(
                           label: 'Export CSV',
                           value: 'export',
-                          leading: const Icon(LucideIcons.download),
+                          leading: const Icon(PhosphorIconsRegular.downloadSimple),
                           onSelected: () {},
                         ),
                       ],
@@ -1594,7 +1594,7 @@ class _WorkspaceCardState extends State<_WorkspaceCard> {
                 ),
                 IconButton.ghost(
                   icon: Icon(
-                    open ? LucideIcons.chevronUp : LucideIcons.chevronDown,
+                    open ? PhosphorIconsRegular.caretUp : PhosphorIconsRegular.caretDown,
                     size: 16,
                   ),
                   onPressed: toggle,

@@ -1,3 +1,4 @@
+import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/radii.dart';
 import 'package:finesse/src/theme/text_role.dart';
 import 'package:finesse/src/theme/themes/shadows.dart';
@@ -35,6 +36,15 @@ enum SurfaceFill {
 
   /// `bg-input/90`.
   input90,
+
+  /// The scheme's `card` colour at the style's strong glass opacity.
+  glass,
+
+  /// The scheme's `secondary` colour.
+  secondary,
+
+  /// The scheme's `card` colour.
+  card,
 }
 
 /// The metrics that distinguish one shadcn/ui *style* from another.
@@ -223,6 +233,68 @@ class StyleTokens {
     this.kbdHeight = 20,
     this.kbdPaddingX = 4,
     this.progressHeight = 6,
+    // Finesse additions.
+    this.radius = 8,
+    this.radiusScale = const RadiusScale(),
+    this.iconButtonRadius,
+    this.badgeRadius,
+    this.badgeHeight,
+    this.badgePaddingX = 8,
+    this.outlineButtonStrongBorder = false,
+    this.glassBlur = 24,
+    this.glassSaturation = 1.6,
+    this.glassOpacity = .7,
+    this.glassOpacityDark,
+    this.glassStrongOpacity = .9,
+    this.barOpacity = 1,
+    this.barOpacityDark,
+    this.cardOpacity = 1,
+    this.cardOpacityDark,
+    this.cardBlur = false,
+    this.cardShadowDark,
+    this.floatingShadow = Shadows.lg,
+    this.pagePaddingX = 24,
+    this.pagePaddingY = 24,
+    this.pageMaxWidth = 1280,
+    this.gapXs = 4,
+    this.gapSm = 8,
+    this.gapMd = 12,
+    this.gapLg = 16,
+    this.gapXl = 24,
+    this.appBarHeight = 64,
+    this.navigationItemWidth = 88,
+    this.navigationIconSize = 24,
+    this.navigationIndicatorHeight = 3,
+    this.bottomNavigationItemWidth = 52,
+    this.bottomNavigationItemHeight = 48,
+    this.bottomNavigationIconSize = 26,
+    this.bottomNavigationPadding = 6,
+    this.bottomNavigationFloating = true,
+    this.chipHeight = 32,
+    this.chipPaddingX = 12,
+    this.chipGap = 6,
+    this.chipIconSize = 16,
+    this.chipRadius = RadiusToken.full,
+    this.listTilePaddingX = 12,
+    this.listTilePaddingY = 10,
+    this.listTileGap = 12,
+    this.chatBubbleRadius = 18,
+    this.chatBubbleTailRadius = 6,
+    this.chatBubblePaddingX = 14,
+    this.chatBubblePaddingY = 10,
+    this.tabHeight,
+    this.underlineTabHeight = 48,
+    this.avatarSize = 32,
+    this.display,
+    this.headline,
+    this.subtitle,
+    this.small,
+    this.concentricTabs = false,
+    this.tabsListFill = SurfaceFill.muted,
+    this.tabSelectedFill = SurfaceFill.background,
+    this.tabUnselectedMuted = false,
+    this.tabsGap = 0,
+    this.mobile,
   });
 
   /// The shadcn/ui name of this style, e.g. `nova`.
@@ -726,11 +798,564 @@ class StyleTokens {
   /// Thickness of a progress bar, shadcn's `h-1.5`.
   final double progressHeight;
 
+  /// The base (`md`) corner radius this style implies, in logical pixels.
+  ///
+  /// `ThemeData` uses it when no `radius` is given.
+  final double radius;
+
+  /// How the other radius steps are derived from the base radius.
+  final RadiusScale radiusScale;
+
+  /// The corner radius of icon buttons. Null follows [buttonRadius].
+  final RadiusToken? iconButtonRadius;
+
+  /// The corner radius of badges. Null makes them pills, or squares in a
+  /// style whose [buttonRadius] is [RadiusToken.none].
+  final RadiusToken? badgeRadius;
+
+  /// The fixed height of a badge. Null sizes it from its padding.
+  final double? badgeHeight;
+
+  /// Horizontal padding of a badge.
+  final double badgePaddingX;
+
+  /// Whether outline buttons take the scheme's `borderStrong` rather than
+  /// its `border`.
+  final bool outlineButtonStrongBorder;
+
+  /// The backdrop blur sigma behind glass surfaces and bars.
+  final double glassBlur;
+
+  /// How much glass saturates what shows through it; 1 leaves it alone.
+  final double glassSaturation;
+
+  /// The opacity of a regular glass surface's tint.
+  final double glassOpacity;
+
+  /// [glassOpacity] on a dark scheme. Null uses [glassOpacity].
+  final double? glassOpacityDark;
+
+  /// The opacity of a strong glass surface's tint, and of the `glass`
+  /// [SurfaceFill].
+  final double glassStrongOpacity;
+
+  /// The opacity of app and navigation bars. Below 1 they blur what
+  /// scrolls beneath them.
+  final double barOpacity;
+
+  /// [barOpacity] on a dark scheme. Null uses [barOpacity].
+  final double? barOpacityDark;
+
+  /// The opacity of a card's fill.
+  final double cardOpacity;
+
+  /// [cardOpacity] on a dark scheme. Null uses [cardOpacity].
+  final double? cardOpacityDark;
+
+  /// Whether a translucent card blurs what is behind it.
+  final bool cardBlur;
+
+  /// [cardShadow] on a dark scheme. Null uses [cardShadow].
+  final List<BoxShadow>? cardShadowDark;
+
+  /// The shadow under floating chrome such as a floating navigation bar.
+  final List<BoxShadow> floatingShadow;
+
+  /// Horizontal padding between the window edge and page content.
+  final double pagePaddingX;
+
+  /// Vertical padding above and below page content.
+  final double pagePaddingY;
+
+  /// The widest page content grows before it is centred.
+  final double pageMaxWidth;
+
+  /// The `xs` step of the layout gap scale.
+  final double gapXs;
+
+  /// The `sm` step of the layout gap scale.
+  final double gapSm;
+
+  /// The `md` step of the layout gap scale.
+  final double gapMd;
+
+  /// The `lg` step of the layout gap scale.
+  final double gapLg;
+
+  /// The `xl` step of the layout gap scale.
+  final double gapXl;
+
+  /// The height of an app bar.
+  final double appBarHeight;
+
+  /// The width of a destination in a top navigation bar.
+  final double navigationItemWidth;
+
+  /// The icon size of a navigation destination.
+  final double navigationIconSize;
+
+  /// The thickness of a top navigation bar's selection indicator.
+  final double navigationIndicatorHeight;
+
+  /// The width of a destination in a bottom navigation bar.
+  final double bottomNavigationItemWidth;
+
+  /// The height of a destination in a bottom navigation bar.
+  final double bottomNavigationItemHeight;
+
+  /// The icon size of a bottom navigation destination.
+  final double bottomNavigationIconSize;
+
+  /// The padding inside a floating bottom navigation bar.
+  final double bottomNavigationPadding;
+
+  /// Whether the bottom navigation bar floats as a pill above the page
+  /// rather than spanning the bottom edge.
+  final bool bottomNavigationFloating;
+
+  /// The height of a chip.
+  final double chipHeight;
+
+  /// Horizontal padding of a chip.
+  final double chipPaddingX;
+
+  /// The gap between a chip's icon and label.
+  final double chipGap;
+
+  /// The icon size inside a chip.
+  final double chipIconSize;
+
+  /// The corner radius of a chip.
+  final RadiusToken chipRadius;
+
+  /// Horizontal padding of a list tile.
+  final double listTilePaddingX;
+
+  /// Vertical padding of a list tile.
+  final double listTilePaddingY;
+
+  /// The gap between a list tile's leading widget, text and trailing
+  /// widget.
+  final double listTileGap;
+
+  /// The corner radius of a chat bubble.
+  final double chatBubbleRadius;
+
+  /// The radius of a chat bubble's tail corner.
+  final double chatBubbleTailRadius;
+
+  /// Horizontal padding of a chat bubble.
+  final double chatBubblePaddingX;
+
+  /// Vertical padding of a chat bubble.
+  final double chatBubblePaddingY;
+
+  /// The fixed height of a tab. Null sizes it from its padding.
+  final double? tabHeight;
+
+  /// The height of an underline-style tab.
+  final double underlineTabHeight;
+
+  /// The default avatar diameter.
+  final double avatarSize;
+
+  /// The role of page titles (`h1`). Null keeps the text theme's own.
+  final TextRole? display;
+
+  /// The role of section titles (`h3`). Null keeps the text theme's own.
+  final TextRole? headline;
+
+  /// The role of emphasised single lines such as a person's name
+  /// (`large`). Null keeps [title]'s treatment.
+  final TextRole? subtitle;
+
+  /// The role of secondary lines (`small` and `muted`). Null keeps
+  /// [body]'s treatment.
+  final TextRole? small;
+
+  /// Whether a tab's radius is its list's radius less the list's padding,
+  /// so the two curves stay concentric, instead of [tabRadius].
+  final bool concentricTabs;
+
+  /// The fill of a tab list.
+  final SurfaceFill tabsListFill;
+
+  /// The fill of the selected tab.
+  final SurfaceFill tabSelectedFill;
+
+  /// Whether unselected tabs take the muted foreground.
+  final bool tabUnselectedMuted;
+
+  /// The gap between two tabs.
+  final double tabsGap;
+
+  /// This style's metrics on a touch-sized screen.
+  ///
+  /// Null derives them: see [forFormFactor].
+  final StyleTokens? mobile;
+
   // --- shadcn/ui's eight styles ------------------------------------------
 
-  /// The registry's baseline: 36px controls, 24px card padding, a 3px ring.
-  /// Every other style is expressed as a delta from it.
-  static const vega = StyleTokens(name: 'vega');
+  static const _finesseCardShadow = [
+    BoxShadow(color: Color(0x0d193c4a), offset: Offset(0, 1), blurRadius: 2),
+    BoxShadow(
+      color: Color(0x2e193c4a),
+      offset: Offset(0, 10),
+      blurRadius: 30,
+      spreadRadius: -14,
+    ),
+  ];
+
+  static const _finesseCardShadowDark = [
+    BoxShadow(color: Color(0x4d000000), offset: Offset(0, 1), blurRadius: 2),
+    BoxShadow(
+      color: Color(0xb3000000),
+      offset: Offset(0, 14),
+      blurRadius: 36,
+      spreadRadius: -14,
+    ),
+  ];
+
+  static const _finesseFloatingShadow = [
+    BoxShadow(color: Color(0x0f000000), offset: Offset(0, 1), blurRadius: 2),
+    BoxShadow(
+      color: Color(0x47000000),
+      offset: Offset(0, 16),
+      blurRadius: 40,
+      spreadRadius: -12,
+    ),
+  ];
+
+  static const _finesseTabShadow = [
+    BoxShadow(color: Color(0x14000000), offset: Offset(0, 1), blurRadius: 2),
+  ];
+
+  /// Finesse's default style: soft teal glass.
+  ///
+  /// Controls round to 10, cards to 18, and cards, bars and outline buttons
+  /// are translucent over a blurred backdrop. Its [mobile] counterpart is
+  /// [finesseMobile].
+  static const finesse = StyleTokens(
+    name: 'finesse',
+    radius: 10,
+    radiusScale: RadiusScale(
+      sm: .6,
+      lg: 1.2,
+      xl: 1.6,
+      xl2: 1.8,
+      xl3: 2,
+      xl4: 2.4,
+    ),
+    cardRadius: RadiusToken.xl2,
+    dialogRadius: RadiusToken.xl3,
+    popoverRadius: RadiusToken.lg,
+    tooltipRadius: RadiusToken.sm,
+    commandItemDialogRadius: RadiusToken.md,
+    commandSearchRadius: RadiusToken.md,
+    checkboxRadius: 5,
+    iconButtonRadius: RadiusToken.full,
+    badgeRadius: RadiusToken.sm,
+    badgeHeight: 24,
+    badgePaddingX: 8,
+    cardBorderOpacity: .09,
+    cardBorderOpacityDark: .08,
+    surfaceBorderOpacity: .09,
+    surfaceBorderOpacityDark: .08,
+    ringWidth: 3,
+    ringOpacity: .35,
+    title: TextRole(
+      fontSize: 16,
+      fontWeight: FontWeight.w600,
+      letterSpacing: -.16,
+      height: 22 / 16,
+    ),
+    label: TextRole(fontSize: 14, fontWeight: FontWeight.w500, height: 20 / 14),
+    body: TextRole(fontSize: 14, height: 20 / 14),
+    caption: TextRole(
+      fontSize: 12,
+      fontWeight: FontWeight.w500,
+      height: 16 / 12,
+    ),
+    overline: TextRole(
+      fontSize: 12,
+      fontWeight: FontWeight.w500,
+      letterSpacing: .48,
+      height: 16 / 12,
+      uppercase: true,
+    ),
+    field: TextRole(fontSize: 14, height: 20 / 14),
+    display: TextRole(
+      fontSize: 30,
+      fontWeight: FontWeight.w700,
+      letterSpacing: -.75,
+      height: 36 / 30,
+    ),
+    headline: TextRole(
+      fontSize: 20,
+      fontWeight: FontWeight.w600,
+      letterSpacing: -.4,
+      height: 24 / 20,
+    ),
+    subtitle: TextRole(
+      fontSize: 15,
+      fontWeight: FontWeight.w600,
+      height: 20 / 15,
+    ),
+    small: TextRole(fontSize: 13, height: 18 / 13),
+    cardShadow: _finesseCardShadow,
+    cardShadowDark: _finesseCardShadowDark,
+    popoverShadow: _finesseFloatingShadow,
+    dialogShadow: _finesseFloatingShadow,
+    sheetShadow: _finesseFloatingShadow,
+    floatingShadow: _finesseFloatingShadow,
+    outlineButtonFill: SurfaceFill.glass,
+    outlineButtonFillDark: SurfaceFill.glass,
+    outlineButtonHoverFillDark: SurfaceFill.muted,
+    outlineButtonDarkInputBorder: false,
+    outlineButtonStrongBorder: true,
+    controlShadow: Shadows.none,
+    buttonHeight: 36,
+    buttonHeightSm: 32,
+    buttonHeightLg: 44,
+    buttonPaddingX: 14,
+    buttonPaddingXSm: 12,
+    buttonPaddingXLg: 22,
+    buttonGap: 8,
+    buttonIconSize: 18,
+    buttonIconSizeSm: 16,
+    buttonIconSizeLg: 18,
+    toggleIconSize: 18,
+    badgeIconSize: 14,
+    iconButtonSize: 36,
+    iconButtonSizeSm: 32,
+    iconButtonSizeLg: 40,
+    iconButtonIconSize: 20,
+    iconButtonIconSizeSm: 20,
+    iconButtonIconSizeLg: 20,
+    inputHeight: 40,
+    inputPaddingX: 12,
+    inputPaddingY: 4,
+    textareaPaddingX: 12,
+    textareaPaddingY: 10,
+    fieldFill: SurfaceFill.muted,
+    fieldFillDark: SurfaceFill.muted,
+    selectPaddingX: 12,
+    menuPadding: 6,
+    menuMinWidth: 160,
+    itemPaddingX: 10,
+    itemPaddingY: 8,
+    menubarHeight: 40,
+    calendarCellSize: 36,
+    commandSearchHeight: 40,
+    commandSearchFill: SurfaceFill.muted,
+    commandSearchFillDark: SurfaceFill.muted,
+    sidebarItemHeight: 36,
+    sidebarItemHeightSm: 32,
+    sidebarItemPaddingX: 10,
+    sidebarSubItemPaddingX: 10,
+    controlFillDark: SurfaceFill.none,
+    checkboxSize: 18,
+    radioSize: 18,
+    switchWidth: 36,
+    switchHeight: 20,
+    switchThumbSize: 16,
+    sliderThumbSize: 18,
+    cardPadding: 20,
+    cardGap: 4,
+    dialogPadding: 24,
+    dialogGap: 8,
+    popoverPadding: 16,
+    tabsListPadding: 4,
+    concentricTabs: true,
+    tabsListFill: SurfaceFill.secondary,
+    tabSelectedFill: SurfaceFill.card,
+    tabUnselectedMuted: true,
+    tabsGap: 2,
+    tabSelectedShadow: _finesseTabShadow,
+    tabPaddingX: 14,
+    tabPaddingY: 4,
+    tabHeight: 32,
+    alertPaddingX: 16,
+    alertPaddingY: 14,
+    tableCellPadding: 12,
+    kbdHeight: 20,
+    kbdPaddingX: 5,
+    progressHeight: 7,
+    glassOpacityDark: .66,
+    barOpacity: .94,
+    barOpacityDark: .95,
+    cardOpacity: .88,
+    cardOpacityDark: .82,
+    cardBlur: true,
+    pagePaddingX: 24,
+    pagePaddingY: 24,
+    avatarSize: 40,
+    mobile: finesseMobile,
+  );
+
+  /// [finesse] on a touch-sized screen: 44-point controls, 15-point body
+  /// text, tighter page margins and rounder cards.
+  static const finesseMobile = StyleTokens(
+    name: 'finesse',
+    radius: 10,
+    radiusScale: RadiusScale(
+      sm: .6,
+      lg: 1.2,
+      xl: 1.6,
+      xl2: 1.8,
+      xl3: 2,
+      xl4: 2.4,
+    ),
+    cardRadius: RadiusToken.xl3,
+    dialogRadius: RadiusToken.xl3,
+    popoverRadius: RadiusToken.lg,
+    tooltipRadius: RadiusToken.sm,
+    commandItemDialogRadius: RadiusToken.md,
+    commandSearchRadius: RadiusToken.md,
+    checkboxRadius: 5,
+    iconButtonRadius: RadiusToken.full,
+    badgeRadius: RadiusToken.sm,
+    badgeHeight: 24,
+    badgePaddingX: 8,
+    cardBorderOpacity: .09,
+    cardBorderOpacityDark: .08,
+    surfaceBorderOpacity: .09,
+    surfaceBorderOpacityDark: .08,
+    ringWidth: 3,
+    ringOpacity: .35,
+    title: TextRole(
+      fontSize: 16,
+      fontWeight: FontWeight.w600,
+      letterSpacing: -.16,
+      height: 22 / 16,
+    ),
+    label: TextRole(fontSize: 14, fontWeight: FontWeight.w500, height: 20 / 14),
+    body: TextRole(fontSize: 15, height: 22 / 15),
+    caption: TextRole(
+      fontSize: 12,
+      fontWeight: FontWeight.w500,
+      height: 16 / 12,
+    ),
+    overline: TextRole(
+      fontSize: 12,
+      fontWeight: FontWeight.w500,
+      letterSpacing: .48,
+      height: 16 / 12,
+      uppercase: true,
+    ),
+    field: TextRole(fontSize: 15, height: 20 / 15),
+    display: TextRole(
+      fontSize: 28,
+      fontWeight: FontWeight.w700,
+      letterSpacing: -.7,
+      height: 34 / 28,
+    ),
+    headline: TextRole(
+      fontSize: 20,
+      fontWeight: FontWeight.w600,
+      letterSpacing: -.4,
+      height: 24 / 20,
+    ),
+    subtitle: TextRole(
+      fontSize: 15,
+      fontWeight: FontWeight.w600,
+      height: 20 / 15,
+    ),
+    small: TextRole(fontSize: 13, height: 18 / 13),
+    cardShadow: _finesseCardShadow,
+    cardShadowDark: _finesseCardShadowDark,
+    popoverShadow: _finesseFloatingShadow,
+    dialogShadow: _finesseFloatingShadow,
+    sheetShadow: _finesseFloatingShadow,
+    floatingShadow: _finesseFloatingShadow,
+    outlineButtonFill: SurfaceFill.glass,
+    outlineButtonFillDark: SurfaceFill.glass,
+    outlineButtonHoverFillDark: SurfaceFill.muted,
+    outlineButtonDarkInputBorder: false,
+    outlineButtonStrongBorder: true,
+    controlShadow: Shadows.none,
+    buttonHeight: 44,
+    buttonHeightSm: 36,
+    buttonHeightLg: 48,
+    buttonPaddingX: 14,
+    buttonPaddingXSm: 12,
+    buttonPaddingXLg: 22,
+    buttonGap: 8,
+    buttonIconSize: 18,
+    buttonIconSizeSm: 16,
+    buttonIconSizeLg: 18,
+    toggleIconSize: 18,
+    badgeIconSize: 14,
+    iconButtonSize: 44,
+    iconButtonSizeSm: 32,
+    iconButtonSizeLg: 48,
+    iconButtonIconSize: 22,
+    iconButtonIconSizeSm: 20,
+    iconButtonIconSizeLg: 24,
+    inputHeight: 46,
+    inputPaddingX: 12,
+    inputPaddingY: 4,
+    textareaPaddingX: 12,
+    textareaPaddingY: 10,
+    fieldFill: SurfaceFill.muted,
+    fieldFillDark: SurfaceFill.muted,
+    selectPaddingX: 12,
+    menuPadding: 6,
+    menuMinWidth: 160,
+    itemPaddingX: 10,
+    itemPaddingY: 11,
+    menubarHeight: 44,
+    calendarCellSize: 40,
+    commandSearchHeight: 46,
+    commandSearchFill: SurfaceFill.muted,
+    commandSearchFillDark: SurfaceFill.muted,
+    sidebarItemHeight: 44,
+    sidebarItemHeightSm: 40,
+    sidebarItemPaddingX: 10,
+    sidebarSubItemPaddingX: 10,
+    controlFillDark: SurfaceFill.none,
+    checkboxSize: 20,
+    radioSize: 20,
+    switchWidth: 44,
+    switchHeight: 24,
+    switchThumbSize: 20,
+    sliderThumbSize: 22,
+    cardPadding: 16,
+    cardGap: 4,
+    dialogPadding: 20,
+    dialogGap: 8,
+    popoverPadding: 16,
+    tabsListPadding: 4,
+    concentricTabs: true,
+    tabsListFill: SurfaceFill.secondary,
+    tabSelectedFill: SurfaceFill.card,
+    tabUnselectedMuted: true,
+    tabsGap: 2,
+    tabSelectedShadow: _finesseTabShadow,
+    tabPaddingX: 14,
+    tabPaddingY: 4,
+    tabHeight: 36,
+    alertPaddingX: 16,
+    alertPaddingY: 14,
+    tableCellPadding: 12,
+    kbdHeight: 20,
+    kbdPaddingX: 5,
+    progressHeight: 7,
+    glassOpacityDark: .66,
+    barOpacity: .94,
+    barOpacityDark: .95,
+    cardOpacity: .88,
+    cardOpacityDark: .82,
+    cardBlur: true,
+    pagePaddingX: 16,
+    pagePaddingY: 16,
+    avatarSize: 40,
+    chipHeight: 36,
+    underlineTabHeight: 48,
+    appBarHeight: 60,
+    gapLg: 12,
+    gapXl: 16,
+  );
 
   /// vega, one size down and a step rounder — and shadcn's default style,
   /// which is what a theme uses when none is given.
@@ -888,358 +1513,8 @@ class StyleTokens {
     progressHeight: 4,
   );
 
-  /// The densest of the eight: 28px controls.
-  static const mira = StyleTokens(
-    name: 'mira',
-    calendarCellSize: 24,
-    calendarCaptionHeight: 28,
-    commandItemDialogRadius: RadiusToken.md,
-    commandSearchRadius: RadiusToken.md,
-    commandSearchFill: SurfaceFill.input20,
-    commandSearchBorderOpacity: 1,
-    cardRadius: RadiusToken.lg,
-    popoverRadius: RadiusToken.lg,
-    itemRadius: RadiusToken.md,
-    ringWidth: 2,
-    ringOpacity: .3,
-    // `text-xs/relaxed` throughout: 12px on a 1.625 line.
-    title: TextRole(fontSize: 14, fontWeight: FontWeight.w500),
-    label: TextRole(
-      fontSize: 12,
-      fontWeight: FontWeight.w500,
-      height: 1.625,
-    ),
-    body: TextRole(fontSize: 12, height: 1.625),
-    caption: TextRole(fontSize: 10, fontWeight: FontWeight.w500),
-    field: TextRole(fontSize: 12, height: 1.625),
-    cardShadow: Shadows.none,
-    controlShadow: Shadows.none,
-    outlineButtonFill: SurfaceFill.none,
-    outlineButtonHoverFill: SurfaceFill.input50,
-    outlineButtonDarkInputBorder: false,
-    fieldFill: SurfaceFill.input20,
-    tabSelectedShadow: Shadows.none,
-    buttonHeight: 28,
-    buttonHeightSm: 24,
-    buttonHeightLg: 32,
-    buttonPaddingX: 8,
-    buttonPaddingXSm: 8,
-    buttonGap: 4,
-    // The only style whose icons follow the size step all the way down.
-    buttonIconSize: 14,
-    buttonIconSizeSm: 12,
-    badgeIconSize: 10,
-    iconButtonSize: 28,
-    iconButtonSizeSm: 24,
-    iconButtonSizeLg: 32,
-    iconButtonIconSize: 14,
-    iconButtonIconSizeSm: 12,
-    inputHeight: 28,
-    inputPaddingX: 8,
-    inputPaddingY: 2,
-    textareaPaddingX: 8,
-    textareaPaddingY: 8,
-    selectPaddingX: 8,
-    itemPaddingY: 4,
-    switchWidth: 28,
-    switchHeight: 16.6,
-    switchThumbSize: 14,
-    sliderTrackHeight: 4,
-    sliderThumbSize: 12,
-    cardPadding: 16,
-    dialogPadding: 16,
-    dialogGap: 4,
-    popoverPadding: 10,
-    tabPaddingX: 6,
-    tabPaddingY: 2,
-    accordionTitlePaddingY: 8,
-    alertPaddingX: 8,
-    alertPaddingY: 6,
-    alertIconGap: 6,
-    alertIconSize: 14,
-    progressHeight: 4,
-  );
-
-  /// Soft and pill-shaped, with a wide switch and a thick slider.
-  static const luma = StyleTokens(
-    name: 'luma',
-    calendarCellRadius: RadiusToken.xl4,
-    commandRadius: RadiusToken.xl4,
-    commandItemDialogRadius: RadiusToken.xl3,
-    commandSearchRadius: RadiusToken.xl4,
-    commandGroupPadding: 6,
-    commandSearchHeight: 36,
-    commandSearchFill: SurfaceFill.input50,
-    commandSearchFillDark: SurfaceFill.input50,
-    commandSearchBorderOpacity: 0,
-    buttonRadius: RadiusToken.xl4,
-    cardRadius: RadiusToken.xl4,
-    alertRadius: RadiusToken.xl2,
-    dialogRadius: RadiusToken.xl4,
-    popoverRadius: RadiusToken.xl4,
-    tooltipRadius: RadiusToken.xl,
-    textareaRadius: RadiusToken.xl2,
-    itemRadius: RadiusToken.xl2,
-    checkboxRadius: 5,
-    cardBorderOpacity: .05,
-    cardBorderOpacityDark: .1,
-    surfaceBorderOpacity: .05,
-    surfaceBorderOpacityDark: .1,
-    ringOpacity: .3,
-    cardGap: 6,
-    cardShadow: Shadows.md,
-    controlShadow: Shadows.none,
-    popoverShadow: Shadows.lg,
-    dialogShadow: Shadows.xl,
-    sheetShadow: Shadows.xl,
-    outlineButtonFillDark: SurfaceFill.none,
-    outlineButtonHoverFillDark: SurfaceFill.input30,
-    outlineButtonDarkInputBorder: false,
-    controlFill: SurfaceFill.input90,
-    controlFillDark: SurfaceFill.input90,
-    controlBorderless: true,
-    fieldFill: SurfaceFill.input50,
-    fieldFillDark: SurfaceFill.input50,
-    fieldBorderless: true,
-    sliderTrackFill: SurfaceFill.input90,
-    tabsListRadius: RadiusToken.full,
-    tabRadius: RadiusToken.full,
-    tabSelectedShadow: Shadows.none,
-    buttonPaddingX: 12,
-    buttonPaddingXSm: 12,
-    buttonPaddingXLg: 16,
-    inputPaddingX: 12,
-    textareaPaddingX: 12,
-    textareaPaddingY: 12,
-    selectPaddingX: 12,
-    menuPadding: 6,
-    menuMinWidth: 192,
-    itemPaddingX: 12,
-    itemPaddingY: 8,
-    dialogGap: 6,
-    switchWidth: 44,
-    switchHeight: 20,
-    sliderTrackHeight: 8,
-    tabsListPadding: 4,
-    tabPaddingX: 12,
-    tableCellPadding: 12,
-    kbdHeight: 22,
-    kbdPaddingX: 6,
-    progressHeight: 12,
-    sidebarItemHeight: 36,
-    sidebarItemHeightSm: 32,
-    sidebarItemHeightLg: 56,
-    sidebarItemPaddingX: 12,
-    sidebarSubItemPaddingX: 12,
-  );
-
-  /// Editorial: square, uppercase, letter-spaced, and the largest of the eight.
-  static const sera = StyleTokens(
-    name: 'sera',
-    calendarCellRadius: RadiusToken.none,
-    commandRadius: RadiusToken.none,
-    commandItemDialogRadius: RadiusToken.none,
-    commandSearchRadius: RadiusToken.none,
-    commandPadding: 0,
-    commandGroupPadding: 6,
-    commandSearchHeight: 40,
-    commandSearchFill: SurfaceFill.none,
-    commandSearchFillDark: SurfaceFill.none,
-    commandSearchBorderOpacity: 0,
-    commandSearchUnderline: true,
-    buttonRadius: RadiusToken.none,
-    cardRadius: RadiusToken.none,
-    alertRadius: RadiusToken.none,
-    alertGap: 4,
-    alertAccentBar: true,
-    dialogRadius: RadiusToken.none,
-    popoverRadius: RadiusToken.none,
-    tooltipRadius: RadiusToken.none,
-    textareaRadius: RadiusToken.none,
-    itemRadius: RadiusToken.none,
-    checkboxRadius: 0,
-    cardBorderOpacity: .05,
-    ringWidth: 2,
-    ringOpacity: .3,
-    // Uppercase and tracked out, at Tailwind's `tracking-wider` (0.05em) and
-    // `tracking-widest` (0.1em) converted to pixels at each size.
-    title: TextRole(
-      fontSize: 18,
-      fontWeight: FontWeight.w600,
-      letterSpacing: 0.9,
-      uppercase: true,
-    ),
-    label: TextRole(
-      fontSize: 12,
-      fontWeight: FontWeight.w600,
-      letterSpacing: 1.2,
-      uppercase: true,
-    ),
-    body: TextRole(fontSize: 14, height: 1.625),
-    caption: TextRole(
-      fontSize: 10,
-      fontWeight: FontWeight.w600,
-      letterSpacing: 1,
-      uppercase: true,
-    ),
-    overline: TextRole(
-      fontSize: 12,
-      fontWeight: FontWeight.w600,
-      letterSpacing: 0.6,
-      uppercase: true,
-    ),
-    cardShadow: Shadows.sm,
-    controlShadow: Shadows.none,
-    dialogShadow: Shadows.md,
-    sheetShadow: Shadows.md,
-    outlineButtonFill: SurfaceFill.none,
-    outlineButtonFillDark: SurfaceFill.none,
-    outlineButtonHoverFillDark: SurfaceFill.input30,
-    outlineButtonDarkInputBorder: false,
-    linkUnderline: true,
-    flatBadges: true,
-    controlFillDark: SurfaceFill.none,
-    fieldFillDark: SurfaceFill.none,
-    radioCheckedOutline: true,
-    sliderTrackFill: SurfaceFill.input50,
-    sliderThumbFilled: true,
-    tabsListRadius: RadiusToken.none,
-    tabRadius: RadiusToken.none,
-    tabSelectedShadow: Shadows.none,
-    buttonHeight: 40,
-    buttonHeightSm: 36,
-    buttonHeightLg: 44,
-    buttonPaddingX: 24,
-    buttonPaddingXSm: 16,
-    buttonPaddingXLg: 32,
-    // The one style whose base glyph is `size-3.5` rather than `size-4`.
-    buttonIconSize: 14,
-    toggleIconSize: 14,
-    buttonIconSizeSm: 14,
-    buttonIconSizeLg: 14,
-    iconButtonSize: 40,
-    iconButtonSizeSm: 36,
-    iconButtonSizeLg: 44,
-    iconButtonIconSize: 14,
-    iconButtonIconSizeSm: 14,
-    iconButtonIconSizeLg: 14,
-    inputHeight: 40,
-    // sera's fields are underlined rather than boxed, so they carry no
-    // horizontal inset at all.
-    inputPaddingX: 0,
-    textareaPaddingX: 0,
-    textareaPaddingY: 12,
-    underlinedFields: true,
-    selectPaddingX: 0,
-    menuPadding: 6,
-    menuMinWidth: 192,
-    itemPaddingX: 12,
-    itemPaddingY: 8,
-    menubarHeight: 40,
-    checkboxSize: 18,
-    radioSize: 18,
-    switchWidth: 33,
-    switchHeight: 18,
-    switchThumbSize: 14,
-    sliderTrackHeight: 2,
-    sliderThumbSize: 12,
-    cardPadding: 32,
-    cardGap: 6,
-    tabsListPadding: 4,
-    tabPaddingX: 16,
-    tabPaddingY: 6,
-    tableCellPadding: 12,
-    kbdHeight: 22,
-    kbdPaddingX: 6,
-    progressHeight: 2,
-    sidebarItemHeight: 36,
-    sidebarItemHeightSm: 32,
-    sidebarItemHeightLg: 56,
-    sidebarItemPaddingX: 12,
-    sidebarSubItemPaddingX: 12,
-  );
-
-  /// Rounded and compact.
-  static const rhea = StyleTokens(
-    name: 'rhea',
-    calendarCellRadius: RadiusToken.xl2,
-    commandRadius: RadiusToken.xl3,
-    commandItemDialogRadius: RadiusToken.xl2,
-    commandSearchRadius: RadiusToken.xl2,
-    commandSearchFill: SurfaceFill.input50,
-    commandSearchFillDark: SurfaceFill.input50,
-    commandSearchBorderOpacity: 0,
-    buttonRadius: RadiusToken.xl2,
-    // Card and dialog corners are the 4xl step, capped:
-    // `rounded-[min(var(--radius-4xl),24px)]`.
-    cardRadius: RadiusToken.xl4,
-    alertRadius: RadiusToken.xl2,
-    dialogRadius: RadiusToken.xl4,
-    surfaceRadiusCap: 24,
-    popoverRadius: RadiusToken.xl2,
-    tooltipRadius: RadiusToken.xl,
-    textareaRadius: RadiusToken.xl2,
-    itemRadius: RadiusToken.xl,
-    checkboxRadius: 5,
-    cardBorderOpacity: .05,
-    cardBorderOpacityDark: .1,
-    surfaceBorderOpacity: .05,
-    surfaceBorderOpacityDark: .1,
-    ringOpacity: .3,
-    cardShadow: Shadows.sm,
-    controlShadow: Shadows.none,
-    popoverShadow: Shadows.lg,
-    dialogShadow: Shadows.xl,
-    sheetShadow: Shadows.xl,
-    outlineButtonFillDark: SurfaceFill.none,
-    outlineButtonHoverFillDark: SurfaceFill.input30,
-    outlineButtonDarkInputBorder: false,
-    controlFill: SurfaceFill.input90,
-    controlFillDark: SurfaceFill.input90,
-    controlBorderless: true,
-    fieldFill: SurfaceFill.input50,
-    fieldFillDark: SurfaceFill.input50,
-    fieldBorderless: true,
-    sliderTrackFill: SurfaceFill.input90,
-    tabsListRadius: RadiusToken.xl2,
-    tabRadius: RadiusToken.xl2,
-    tabSelectedShadow: Shadows.none,
-    buttonHeight: 32,
-    buttonHeightSm: 28,
-    buttonHeightLg: 36,
-    buttonPaddingX: 12,
-    buttonPaddingXSm: 12,
-    buttonPaddingXLg: 16,
-    iconButtonSize: 32,
-    iconButtonSizeSm: 28,
-    iconButtonSizeLg: 36,
-    inputHeight: 32,
-    selectPaddingX: 12,
-    menubarHeight: 32,
-    menubarPadding: 3,
-    dialogGap: 6,
-    switchHeight: 20,
-    sliderTrackHeight: 4,
-    cardPadding: 20,
-    cardGap: 6,
-    tabPaddingX: 6,
-    tabPaddingY: 2,
-    progressHeight: 8,
-    sidebarItemPaddingX: 12,
-    sidebarSubItemPaddingX: 12,
-  );
-
-  /// All eight, in shadcn/ui's order.
-  static const all = <StyleTokens>[
-    vega,
-    nova,
-    maia,
-    lyra,
-    mira,
-    luma,
-    sera,
-    rhea,
-  ];
+  /// Every built-in style, the default first.
+  static const all = <StyleTokens>[finesse, nova, maia, lyra];
 
   /// Returns the style shadcn/ui calls [name], such as `nova`.
   ///
@@ -1248,6 +1523,47 @@ class StyleTokens {
     (s) => s.name == name,
     orElse: () => throw ArgumentError.value(name, 'name', 'Unknown style'),
   );
+
+  /// This style's metrics for [formFactor].
+  ///
+  /// On [FormFactor.mobile] that is [mobile] when the style defines one.
+  /// Otherwise the touch metrics are derived: controls grow to at least 44
+  /// logical pixels, body and field text to 15, and page margins tighten to
+  /// 16.
+  StyleTokens forFormFactor(FormFactor formFactor) => switch (formFactor) {
+    FormFactor.desktop => this,
+    FormFactor.mobile => mobile ?? _derivedMobile,
+  };
+
+  StyleTokens get _derivedMobile {
+    double atLeast(double value, double min) => value < min ? min : value;
+    TextRole grown(TextRole role) => role.fontSize >= 15
+        ? role
+        : role.copyWith(fontSize: 15, height: 22 / 15);
+    return copyWith(
+      body: grown(body),
+      field: grown(field),
+      buttonHeight: atLeast(buttonHeight, 44),
+      buttonHeightSm: atLeast(buttonHeightSm, 36),
+      buttonHeightLg: atLeast(buttonHeightLg, 48),
+      iconButtonSize: atLeast(iconButtonSize, 44),
+      iconButtonSizeLg: atLeast(iconButtonSizeLg, 48),
+      inputHeight: atLeast(inputHeight, 44),
+      commandSearchHeight: atLeast(commandSearchHeight, 44),
+      calendarCellSize: atLeast(calendarCellSize, 40),
+      sidebarItemHeight: atLeast(sidebarItemHeight, 44),
+      menubarHeight: atLeast(menubarHeight, 44),
+      itemPaddingY: atLeast(itemPaddingY, 10),
+      chipHeight: atLeast(chipHeight, 36),
+      checkboxSize: atLeast(checkboxSize, 20),
+      radioSize: atLeast(radioSize, 20),
+      appBarHeight: 60,
+      pagePaddingX: 16,
+      pagePaddingY: 16,
+      gapLg: 12,
+      gapXl: 16,
+    );
+  }
 
   /// Creates a copy of this style with the given fields replaced.
   StyleTokens copyWith({
@@ -1377,6 +1693,67 @@ class StyleTokens {
     double? kbdHeight,
     double? kbdPaddingX,
     double? progressHeight,
+    double? radius,
+    RadiusScale? radiusScale,
+    RadiusToken? iconButtonRadius,
+    RadiusToken? badgeRadius,
+    double? badgeHeight,
+    double? badgePaddingX,
+    bool? outlineButtonStrongBorder,
+    double? glassBlur,
+    double? glassSaturation,
+    double? glassOpacity,
+    double? glassOpacityDark,
+    double? glassStrongOpacity,
+    double? barOpacity,
+    double? barOpacityDark,
+    double? cardOpacity,
+    double? cardOpacityDark,
+    bool? cardBlur,
+    List<BoxShadow>? cardShadowDark,
+    List<BoxShadow>? floatingShadow,
+    double? pagePaddingX,
+    double? pagePaddingY,
+    double? pageMaxWidth,
+    double? gapXs,
+    double? gapSm,
+    double? gapMd,
+    double? gapLg,
+    double? gapXl,
+    double? appBarHeight,
+    double? navigationItemWidth,
+    double? navigationIconSize,
+    double? navigationIndicatorHeight,
+    double? bottomNavigationItemWidth,
+    double? bottomNavigationItemHeight,
+    double? bottomNavigationIconSize,
+    double? bottomNavigationPadding,
+    bool? bottomNavigationFloating,
+    double? chipHeight,
+    double? chipPaddingX,
+    double? chipGap,
+    double? chipIconSize,
+    RadiusToken? chipRadius,
+    double? listTilePaddingX,
+    double? listTilePaddingY,
+    double? listTileGap,
+    double? chatBubbleRadius,
+    double? chatBubbleTailRadius,
+    double? chatBubblePaddingX,
+    double? chatBubblePaddingY,
+    double? tabHeight,
+    double? underlineTabHeight,
+    double? avatarSize,
+    TextRole? display,
+    TextRole? headline,
+    TextRole? subtitle,
+    TextRole? small,
+    bool? concentricTabs,
+    SurfaceFill? tabsListFill,
+    SurfaceFill? tabSelectedFill,
+    bool? tabUnselectedMuted,
+    double? tabsGap,
+    StyleTokens? mobile,
   }) {
     return StyleTokens(
       name: name ?? this.name,
@@ -1519,6 +1896,74 @@ class StyleTokens {
       kbdHeight: kbdHeight ?? this.kbdHeight,
       kbdPaddingX: kbdPaddingX ?? this.kbdPaddingX,
       progressHeight: progressHeight ?? this.progressHeight,
+      radius: radius ?? this.radius,
+      radiusScale: radiusScale ?? this.radiusScale,
+      iconButtonRadius: iconButtonRadius ?? this.iconButtonRadius,
+      badgeRadius: badgeRadius ?? this.badgeRadius,
+      badgeHeight: badgeHeight ?? this.badgeHeight,
+      badgePaddingX: badgePaddingX ?? this.badgePaddingX,
+      outlineButtonStrongBorder:
+          outlineButtonStrongBorder ?? this.outlineButtonStrongBorder,
+      glassBlur: glassBlur ?? this.glassBlur,
+      glassSaturation: glassSaturation ?? this.glassSaturation,
+      glassOpacity: glassOpacity ?? this.glassOpacity,
+      glassOpacityDark: glassOpacityDark ?? this.glassOpacityDark,
+      glassStrongOpacity: glassStrongOpacity ?? this.glassStrongOpacity,
+      barOpacity: barOpacity ?? this.barOpacity,
+      barOpacityDark: barOpacityDark ?? this.barOpacityDark,
+      cardOpacity: cardOpacity ?? this.cardOpacity,
+      cardOpacityDark: cardOpacityDark ?? this.cardOpacityDark,
+      cardBlur: cardBlur ?? this.cardBlur,
+      cardShadowDark: cardShadowDark ?? this.cardShadowDark,
+      floatingShadow: floatingShadow ?? this.floatingShadow,
+      pagePaddingX: pagePaddingX ?? this.pagePaddingX,
+      pagePaddingY: pagePaddingY ?? this.pagePaddingY,
+      pageMaxWidth: pageMaxWidth ?? this.pageMaxWidth,
+      gapXs: gapXs ?? this.gapXs,
+      gapSm: gapSm ?? this.gapSm,
+      gapMd: gapMd ?? this.gapMd,
+      gapLg: gapLg ?? this.gapLg,
+      gapXl: gapXl ?? this.gapXl,
+      appBarHeight: appBarHeight ?? this.appBarHeight,
+      navigationItemWidth: navigationItemWidth ?? this.navigationItemWidth,
+      navigationIconSize: navigationIconSize ?? this.navigationIconSize,
+      navigationIndicatorHeight:
+          navigationIndicatorHeight ?? this.navigationIndicatorHeight,
+      bottomNavigationItemWidth:
+          bottomNavigationItemWidth ?? this.bottomNavigationItemWidth,
+      bottomNavigationItemHeight:
+          bottomNavigationItemHeight ?? this.bottomNavigationItemHeight,
+      bottomNavigationIconSize:
+          bottomNavigationIconSize ?? this.bottomNavigationIconSize,
+      bottomNavigationPadding:
+          bottomNavigationPadding ?? this.bottomNavigationPadding,
+      bottomNavigationFloating:
+          bottomNavigationFloating ?? this.bottomNavigationFloating,
+      chipHeight: chipHeight ?? this.chipHeight,
+      chipPaddingX: chipPaddingX ?? this.chipPaddingX,
+      chipGap: chipGap ?? this.chipGap,
+      chipIconSize: chipIconSize ?? this.chipIconSize,
+      chipRadius: chipRadius ?? this.chipRadius,
+      listTilePaddingX: listTilePaddingX ?? this.listTilePaddingX,
+      listTilePaddingY: listTilePaddingY ?? this.listTilePaddingY,
+      listTileGap: listTileGap ?? this.listTileGap,
+      chatBubbleRadius: chatBubbleRadius ?? this.chatBubbleRadius,
+      chatBubbleTailRadius: chatBubbleTailRadius ?? this.chatBubbleTailRadius,
+      chatBubblePaddingX: chatBubblePaddingX ?? this.chatBubblePaddingX,
+      chatBubblePaddingY: chatBubblePaddingY ?? this.chatBubblePaddingY,
+      tabHeight: tabHeight ?? this.tabHeight,
+      underlineTabHeight: underlineTabHeight ?? this.underlineTabHeight,
+      avatarSize: avatarSize ?? this.avatarSize,
+      display: display ?? this.display,
+      headline: headline ?? this.headline,
+      subtitle: subtitle ?? this.subtitle,
+      small: small ?? this.small,
+      concentricTabs: concentricTabs ?? this.concentricTabs,
+      tabsListFill: tabsListFill ?? this.tabsListFill,
+      tabSelectedFill: tabSelectedFill ?? this.tabSelectedFill,
+      tabUnselectedMuted: tabUnselectedMuted ?? this.tabUnselectedMuted,
+      tabsGap: tabsGap ?? this.tabsGap,
+      mobile: mobile ?? this.mobile,
     );
   }
 
@@ -1650,6 +2095,67 @@ class StyleTokens {
     kbdHeight,
     kbdPaddingX,
     progressHeight,
+    radius,
+    radiusScale,
+    iconButtonRadius,
+    badgeRadius,
+    badgeHeight,
+    badgePaddingX,
+    outlineButtonStrongBorder,
+    glassBlur,
+    glassSaturation,
+    glassOpacity,
+    glassOpacityDark,
+    glassStrongOpacity,
+    barOpacity,
+    barOpacityDark,
+    cardOpacity,
+    cardOpacityDark,
+    cardBlur,
+    cardShadowDark,
+    floatingShadow,
+    pagePaddingX,
+    pagePaddingY,
+    pageMaxWidth,
+    gapXs,
+    gapSm,
+    gapMd,
+    gapLg,
+    gapXl,
+    appBarHeight,
+    navigationItemWidth,
+    navigationIconSize,
+    navigationIndicatorHeight,
+    bottomNavigationItemWidth,
+    bottomNavigationItemHeight,
+    bottomNavigationIconSize,
+    bottomNavigationPadding,
+    bottomNavigationFloating,
+    chipHeight,
+    chipPaddingX,
+    chipGap,
+    chipIconSize,
+    chipRadius,
+    listTilePaddingX,
+    listTilePaddingY,
+    listTileGap,
+    chatBubbleRadius,
+    chatBubbleTailRadius,
+    chatBubblePaddingX,
+    chatBubblePaddingY,
+    tabHeight,
+    underlineTabHeight,
+    avatarSize,
+    display,
+    headline,
+    subtitle,
+    small,
+    concentricTabs,
+    tabsListFill,
+    tabSelectedFill,
+    tabUnselectedMuted,
+    tabsGap,
+    mobile,
   ];
 
   @override

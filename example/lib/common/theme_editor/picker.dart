@@ -244,7 +244,7 @@ class _PickerItemState extends State<_PickerItem> {
             ),
             if (widget.selected)
               Icon(
-                LucideIcons.check,
+                PhosphorIconsRegular.check,
                 size: 14,
                 color: theme.colorScheme.foreground,
               ),

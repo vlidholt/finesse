@@ -10,16 +10,16 @@ class ContextMenuSubmenusExample extends StatelessWidget {
     const divider = Divider.horizontal(
       margin: EdgeInsets.symmetric(vertical: 4),
     );
-    const more = Icon(LucideIcons.chevronRight);
+    const more = Icon(PhosphorIconsRegular.caretRight);
     return ContextMenuRegion(
       constraints: const BoxConstraints(minWidth: 220),
       items: const [
         ContextMenuItem(
-          leading: Icon(LucideIcons.folderOpen),
+          leading: Icon(PhosphorIconsRegular.folderOpen),
           child: Text('Open'),
         ),
         ContextMenuItem(
-          leading: Icon(LucideIcons.appWindow),
+          leading: Icon(PhosphorIconsRegular.appWindow),
           trailing: more,
           items: [
             ContextMenuItem(child: Text('Preview')),
@@ -31,7 +31,7 @@ class ContextMenuSubmenusExample extends StatelessWidget {
           child: Text('Open With'),
         ),
         ContextMenuItem(
-          leading: Icon(LucideIcons.share2),
+          leading: Icon(PhosphorIconsRegular.shareNetwork),
           trailing: more,
           items: [
             ContextMenuItem(child: Text('Email')),
@@ -50,7 +50,7 @@ class ContextMenuSubmenusExample extends StatelessWidget {
           child: Text('Share'),
         ),
         ContextMenuItem(
-          leading: Icon(LucideIcons.folderInput),
+          leading: Icon(PhosphorIconsRegular.folderSimplePlus),
           trailing: more,
           items: [
             ContextMenuItem(child: Text('Desktop')),
@@ -69,7 +69,7 @@ class ContextMenuSubmenusExample extends StatelessWidget {
           child: Text('Move To'),
         ),
         ContextMenuItem(
-          leading: Icon(LucideIcons.tag),
+          leading: Icon(PhosphorIconsRegular.tag),
           trailing: more,
           items: [
             ContextMenuItem(child: Text('Red')),
@@ -82,7 +82,7 @@ class ContextMenuSubmenusExample extends StatelessWidget {
           child: Text('Tags'),
         ),
         ContextMenuItem(
-          leading: Icon(LucideIcons.arrowUpDown),
+          leading: Icon(PhosphorIconsRegular.arrowsDownUp),
           trailing: more,
           items: [
             ContextMenuItem(child: Text('Name')),
@@ -93,7 +93,7 @@ class ContextMenuSubmenusExample extends StatelessWidget {
           child: Text('Sort By'),
         ),
         ContextMenuItem(
-          leading: Icon(LucideIcons.layoutGrid),
+          leading: Icon(PhosphorIconsRegular.squaresFour),
           trailing: more,
           items: [
             ContextMenuItem(child: Text('Icons')),
@@ -104,7 +104,7 @@ class ContextMenuSubmenusExample extends StatelessWidget {
           child: Text('View As'),
         ),
         ContextMenuItem(
-          leading: Icon(LucideIcons.copy),
+          leading: Icon(PhosphorIconsRegular.copy),
           trailing: more,
           items: [
             ContextMenuItem(child: Text('Duplicate')),
@@ -114,7 +114,7 @@ class ContextMenuSubmenusExample extends StatelessWidget {
           child: Text('Copy'),
         ),
         ContextMenuItem(
-          leading: Icon(LucideIcons.zap),
+          leading: Icon(PhosphorIconsRegular.lightning),
           trailing: more,
           items: [
             ContextMenuItem(child: Text('Compress')),
@@ -126,7 +126,7 @@ class ContextMenuSubmenusExample extends StatelessWidget {
         ),
         divider,
         ContextMenuItem(
-          leading: Icon(LucideIcons.trash2),
+          leading: Icon(PhosphorIconsRegular.trash),
           destructive: true,
           child: Text('Move to Trash'),
         ),

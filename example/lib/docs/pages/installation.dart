@@ -15,7 +15,7 @@ final installationDoc = ComponentDoc(
           CodeBlock(code: 'flutter pub add finesse'),
           DocParagraph(
             'Everything ships through one import: components, theme, '
-            'Lucide icons, and animation effects.',
+            'Phosphor icons, and animation effects.',
           ),
           CodeBlock(code: "import 'package:finesse/finesse.dart';"),
         ],
@@ -81,12 +81,12 @@ FinesseApp(
         children: [
           DocParagraph(
             'Components are plain widgets. Icons come from the bundled '
-            'Lucide set:',
+            'Phosphor set:',
           ),
           CodeBlock(
             code: '''
 Button(
-  leading: const Icon(LucideIcons.mail),
+  leading: const Icon(PhosphorIconsRegular.envelopeSimple),
   onPressed: () {},
   child: const Text('Login with Email'),
 )''',

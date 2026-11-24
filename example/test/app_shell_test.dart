@@ -113,7 +113,7 @@ void main() {
 
   group('the theme editor toggle', () {
     Future<void> toggle(WidgetTester tester) async {
-      await tester.tap(find.byIcon(LucideIcons.paintbrush).first);
+      await tester.tap(find.byIcon(PhosphorIconsRegular.paintBrush).first);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
     }

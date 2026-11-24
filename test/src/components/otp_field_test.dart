@@ -9,7 +9,7 @@ import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/material.dart' hide TextField, Theme, ThemeData;
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 void main() {
   // Helper method to create a test widget wrapped in FinesseApp and Scaffold
@@ -34,7 +34,7 @@ void main() {
                   OtpFieldSlot(),
                 ],
               ),
-              Icon(LucideIcons.dot),
+              Icon(PhosphorIconsRegular.dotOutline),
               OtpFieldGroup(
                 children: [
                   OtpFieldSlot(),

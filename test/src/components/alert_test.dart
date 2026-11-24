@@ -5,7 +5,7 @@ import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/style.dart';
 import 'package:flutter/material.dart' hide ThemeData;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 void main() {
   Widget createTestWidget(Widget child) {
@@ -214,7 +214,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const Alert(
-            icon: Icon(LucideIcons.mail),
+            icon: Icon(PhosphorIconsRegular.envelopeSimple),
             title: Text('Title'),
             description: Text('Description'),
           ),
@@ -231,7 +231,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const Alert.destructive(
-            icon: Icon(LucideIcons.mail),
+            icon: Icon(PhosphorIconsRegular.envelopeSimple),
             title: Text('Title'),
             description: Text('Description'),
           ),

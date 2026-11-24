@@ -180,7 +180,7 @@ void main() {
       await tester.pumpWidget(const App());
       await tester.pump();
       if (find.byType(ThemeCustomizerPanel).evaluate().isEmpty) {
-        await tester.tap(find.byIcon(LucideIcons.paintbrush).first);
+        await tester.tap(find.byIcon(PhosphorIconsRegular.paintBrush).first);
       }
       // The theme animates across 200ms; the preview animates forever, so
       // pump fixed frames rather than settling.

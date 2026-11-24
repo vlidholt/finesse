@@ -39,7 +39,7 @@ class _SidebarSubmenuExampleState extends State<SidebarSubmenuExample> {
                     children: [
                       for (final entry in _sections.entries) ...[
                         SidebarMenuButton(
-                          leading: const Icon(LucideIcons.bookOpen),
+                          leading: const Icon(PhosphorIconsRegular.bookOpen),
                           onPressed: () {},
                           child: Text(entry.key),
                         ),

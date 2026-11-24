@@ -3,7 +3,7 @@ import 'package:finesse/src/app.dart';
 import 'package:finesse/src/components/avatar.dart'; // Adjust import path based on your project structure
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 void main() {
   // Helper method to create a test widget wrapped in FinesseApp and Scaffold
@@ -217,7 +217,7 @@ void main() {
     testWidgets('Avatar matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const Avatar(null, fallback: Icon(LucideIcons.mail)),
+          const Avatar(null, fallback: Icon(PhosphorIconsRegular.envelopeSimple)),
         ),
       );
 

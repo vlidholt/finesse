@@ -21,7 +21,7 @@ class _InputPasswordExampleState extends State<InputPasswordExample> {
         placeholder: const Text('Password'),
         obscureText: obscure,
         leading: Icon(
-          LucideIcons.lock,
+          PhosphorIconsRegular.lock,
           size: 16,
           color: theme.colorScheme.mutedForeground,
         ),
@@ -30,7 +30,7 @@ class _InputPasswordExampleState extends State<InputPasswordExample> {
           behavior: HitTestBehavior.opaque,
           onTap: () => setState(() => obscure = !obscure),
           child: Icon(
-            obscure ? LucideIcons.eyeOff : LucideIcons.eye,
+            obscure ? PhosphorIconsRegular.eyeSlash : PhosphorIconsRegular.eye,
             size: 16,
             color: theme.colorScheme.mutedForeground,
           ),

@@ -9,7 +9,7 @@ class TooltipIconExample extends StatelessWidget {
     return Tooltip(
       builder: (context) => const Text('Additional information'),
       child: IconButton.ghost(
-        icon: const Icon(LucideIcons.info),
+        icon: const Icon(PhosphorIconsRegular.info),
         onPressed: () {},
       ),
     );

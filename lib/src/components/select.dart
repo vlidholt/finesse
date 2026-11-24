@@ -19,7 +19,7 @@ import 'package:finesse/src/utils/provider.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// Builder for the selected option widget in [Select].
 typedef SelectedOptionBuilder<T> =
@@ -1144,7 +1144,7 @@ class SelectState<T> extends State<Select<T>> {
     final effectiveTrailing =
         widget.trailing ??
         Icon(
-          LucideIcons.chevronDown,
+          PhosphorIconsRegular.caretDown,
           size: 16,
           color: theme.colorScheme.mutedForeground,
         );
@@ -1181,7 +1181,7 @@ class SelectState<T> extends State<Select<T>> {
                 leading: Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: Icon(
-                    LucideIcons.search,
+                    PhosphorIconsRegular.magnifyingGlass,
                     size: 16,
                     color: menuForeground,
                   ),
@@ -1337,7 +1337,7 @@ class SelectState<T> extends State<Select<T>> {
                                     vertical: 4,
                                   ),
                                   child: Icon(
-                                    LucideIcons.chevronUp,
+                                    PhosphorIconsRegular.caretUp,
                                     size: 16,
                                     color: menuForeground,
                                   ),
@@ -1365,7 +1365,7 @@ class SelectState<T> extends State<Select<T>> {
                                     vertical: 4,
                                   ),
                                   child: Icon(
-                                    LucideIcons.chevronDown,
+                                    PhosphorIconsRegular.caretDown,
                                     size: 16,
                                     color: menuForeground,
                                   ),
@@ -1610,7 +1610,7 @@ class _OptionState<T> extends State<SelectOption<T>> {
           widget.selectedIcon ??
           const Padding(
             padding: EdgeInsets.only(right: 8),
-            child: Icon(LucideIcons.check, size: 16),
+            child: Icon(PhosphorIconsRegular.check, size: 16),
           ),
     );
 

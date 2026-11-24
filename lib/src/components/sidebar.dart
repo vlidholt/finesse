@@ -14,7 +14,7 @@ import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// Which edge of the layout the sidebar sits on.
 ///
@@ -872,7 +872,8 @@ class _SidebarTriggerState extends State<SidebarTrigger> {
                   : theme.colorScheme.foreground,
             ),
             child: Center(
-              child: widget.icon ?? const Icon(LucideIcons.panelLeft),
+              child:
+                  widget.icon ?? const Icon(PhosphorIconsRegular.sidebarSimple),
             ),
           ),
         ),

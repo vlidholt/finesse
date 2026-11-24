@@ -4,7 +4,7 @@ import 'package:finesse/src/components/scroll_area.dart';
 import 'package:finesse/src/components/sonner.dart';
 import 'package:finesse/src/components/toast.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/theme/color_scheme/slate.dart';
+import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/theme/theme_scope.dart';
@@ -76,6 +76,7 @@ class FinesseApp extends StatefulWidget {
     this.theme,
     this.darkTheme,
     this.themeMode,
+    this.formFactor,
     this.restorationScopeId,
     this.scrollBehavior = const FinesseScrollBehavior(),
     this.pageRouteBuilder,
@@ -95,6 +96,7 @@ class FinesseApp extends StatefulWidget {
     this.theme,
     this.darkTheme,
     this.themeMode,
+    this.formFactor,
     this.routeInformationProvider,
     this.routeInformationParser,
     this.routerDelegate,
@@ -144,6 +146,7 @@ class FinesseApp extends StatefulWidget {
     this.theme,
     this.darkTheme,
     this.themeMode,
+    this.formFactor,
   }) : actions = null,
        backButtonDispatcher = null,
        onNavigationNotification = null,
@@ -231,6 +234,15 @@ class FinesseApp extends StatefulWidget {
   ///
   /// The default value is [ThemeMode.system].
   final ThemeMode? themeMode;
+
+  /// The class of screen the theme is laid out for.
+  ///
+  /// Null, the default, follows the window: narrower than the theme's `md`
+  /// breakpoint is [FormFactor.mobile], anything wider [FormFactor.desktop].
+  /// Every `StyleTokens` carries metrics for both, so the same widgets come
+  /// out with larger touch targets, larger body text and tighter page
+  /// margins on a phone. Set it to pin one regardless of width.
+  final FormFactor? formFactor;
 
   /// A key for the [Navigator] that the app creates.
   ///
@@ -558,11 +570,7 @@ class _AppState extends State<FinesseApp> {
   }
 
   ThemeData get effectiveLightTheme =>
-      widget.theme ??
-      ThemeData(
-        colorScheme: const SlateColorScheme.light(),
-        brightness: Brightness.light,
-      );
+      widget.theme ?? ThemeData(brightness: Brightness.light);
 
   ThemeData? get effectiveDarkTheme => widget.darkTheme;
 
@@ -583,7 +591,12 @@ class _AppState extends State<FinesseApp> {
       }
       return result;
     }();
-    return data;
+    final formFactor =
+        widget.formFactor ??
+        (MediaQuery.sizeOf(context).width < data.breakpoints.md.value
+            ? FormFactor.mobile
+            : FormFactor.desktop);
+    return data.withFormFactor(formFactor);
   }
 
   Widget _builder(BuildContext context, Widget? child) {

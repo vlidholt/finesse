@@ -117,7 +117,7 @@ class _FormOtpExampleState extends State<FormOtpExample> {
                   OtpFieldSlot(),
                 ],
               ),
-              Icon(LucideIcons.dot),
+              Icon(PhosphorIconsRegular.dotOutline),
               OtpFieldGroup(
                 children: [
                   OtpFieldSlot(),

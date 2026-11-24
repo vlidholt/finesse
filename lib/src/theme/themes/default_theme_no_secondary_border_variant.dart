@@ -9,6 +9,7 @@ import 'package:finesse/src/theme/components/select.dart';
 import 'package:finesse/src/theme/components/switch.dart';
 import 'package:finesse/src/theme/components/tabs.dart';
 import 'package:finesse/src/theme/components/time_picker.dart';
+import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/spacing.dart';
 import 'package:finesse/src/theme/style.dart';
 import 'package:finesse/src/theme/text_theme/text_styles_default.dart';
@@ -32,6 +33,7 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
     required super.radius,
     required super.effectiveTextTheme,
     super.style,
+    super.formFactor,
     super.spacing,
     super.menuColorScheme,
     super.menuTranslucent,
@@ -43,6 +45,7 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
     BorderRadius? radius,
     TextTheme? effectiveTextTheme,
     StyleTokens? style,
+    FormFactor? formFactor,
     Spacing? spacing,
     Object? menuColorScheme = DefaultThemeVariant.unsetMenuColorScheme,
     bool? menuTranslucent,
@@ -51,7 +54,8 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
       colorScheme: colorScheme ?? this.colorScheme,
       radius: radius ?? this.radius,
       effectiveTextTheme: effectiveTextTheme ?? this.effectiveTextTheme,
-      style: style ?? this.style,
+      style: style ?? baseStyle,
+      formFactor: formFactor ?? this.formFactor,
       spacing: spacing ?? this.spacing,
       menuColorScheme:
           identical(

@@ -28,7 +28,7 @@ class MenubarBasicExample extends StatelessWidget {
             ),
             divider,
             ContextMenuItem(
-              trailing: Icon(LucideIcons.chevronRight),
+              trailing: Icon(PhosphorIconsRegular.caretRight),
               items: [
                 ContextMenuItem(child: Text('Email Link')),
                 ContextMenuItem(child: Text('Messages')),
@@ -54,7 +54,7 @@ class MenubarBasicExample extends StatelessWidget {
         MenubarItem(
           items: [
             ContextMenuItem(
-              leading: Icon(LucideIcons.check),
+              leading: Icon(PhosphorIconsRegular.check),
               child: Text('Always Show Full URLs'),
             ),
             ContextMenuItem.inset(child: Text('Reload')),

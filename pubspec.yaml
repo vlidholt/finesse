@@ -30,7 +30,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: ^0.20.0
-  lucide_icons_flutter: ^4.0.1
+  phosphor_flutter: ^2.1.0
   slang: ^4.19.0
   slang_flutter: ^4.19.0
   # Not ^7.5: that needs Dart 3.13, above this package's Flutter 3.41 floor.

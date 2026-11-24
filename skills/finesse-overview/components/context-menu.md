@@ -24,7 +24,7 @@ class ContextMenuBasicExample extends StatelessWidget {
         ContextMenuItem.inset(enabled: false, child: Text('Forward')),
         ContextMenuItem.inset(child: Text('Reload')),
         ContextMenuItem.inset(
-          trailing: Icon(LucideIcons.chevronRight),
+          trailing: Icon(PhosphorIconsRegular.caretRight),
           items: [
             ContextMenuItem(child: Text('Save Page As...')),
             ContextMenuItem(child: Text('Create Shortcut...')),
@@ -35,7 +35,7 @@ class ContextMenuBasicExample extends StatelessWidget {
         ),
         divider,
         ContextMenuItem(
-          leading: Icon(LucideIcons.check),
+          leading: Icon(PhosphorIconsRegular.check),
           child: Text('Show Bookmarks Bar'),
         ),
         ContextMenuItem.inset(child: Text('Show Full URLs')),
