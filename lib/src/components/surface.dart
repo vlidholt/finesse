@@ -1,13 +1,12 @@
-import 'dart:math' as math;
 import 'dart:ui';
 
+import 'package:finesse/src/raw_components/portal.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/arrow_surface.dart';
 import 'package:finesse/src/utils/backdrop.dart';
-import 'package:finesse/src/utils/entrance.dart';
+import 'package:finesse/src/utils/border.dart';
 import 'package:finesse/src/utils/shadow.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 /// Which component's surface a [Surface] paints.
@@ -33,7 +32,7 @@ enum SurfaceKind {
 /// `BoxDecoration(boxShadow:)` washes a translucent fill grey and loses the
 /// shadow next to the element.
 ///
-/// To show one anchored to a rectangle, see [showPopover].
+/// To show one anchored to a rectangle, see `showPopover`.
 /// {@endtemplate}
 class Surface extends StatelessWidget {
   /// {@macro Surface}
@@ -106,6 +105,60 @@ class Surface extends StatelessWidget {
   }
 }
 
+/// The arrow of a [SurfacePainter]: a small tip on the edge of the surface
+/// that faces what the surface is anchored to, as on a `Tooltip`.
+///
+/// It is for a surface shown by a [Portal] — `Popover(showArrow: true)`
+/// passes one — because the portal is what knows where the surface ended
+/// up: on which side of its anchor, and how far it was pushed along the
+/// edge of the screen. The arrow reads both and keeps pointing at the
+/// anchor.
+@immutable
+class SurfaceArrow {
+  /// Creates the arrow of a surface that its portal placed by [anchor].
+  const SurfaceArrow({
+    required this.anchor,
+    this.size = 10,
+    this.radius = 2,
+    this.targetSize,
+  });
+
+  /// The anchor the surface's [Portal] was given. The arrow rides the edge
+  /// that faces the anchor's target, following the portal to a fallback.
+  final AnchorBase anchor;
+
+  /// The side of the arrow's square, which is turned 45° and sunk into the
+  /// edge: the tip stands [protrusion] proud of it.
+  final double size;
+
+  /// The corner radius of the tip.
+  final double radius;
+
+  /// The size of the portal's child, asked while the surface is built. With
+  /// it the arrow points at the middle of the child's edge even when the
+  /// surface is aligned with one of its ends.
+  final ValueGetter<Size?>? targetSize;
+
+  /// How far the tip pokes out of the surface.
+  double get protrusion => ArrowShape.protrusionOf(size, radius);
+
+  /// [anchor] with room for the arrow between the surface and its target:
+  /// every anchor of the chain moved [protrusion] further from the target.
+  AnchorBase spaced(TextDirection textDirection) =>
+      ArrowPlacement.withGap(anchor, protrusion, textDirection);
+
+  @override
+  bool operator ==(Object other) =>
+      other is SurfaceArrow &&
+      other.anchor == anchor &&
+      other.size == size &&
+      other.radius == radius &&
+      other.targetSize == targetSize;
+
+  @override
+  int get hashCode => Object.hash(anchor, size, radius, targetSize);
+}
+
 /// Paints a resolved popover-style surface: [decoration], [padding], the
 /// popover foreground for text and icons, and an optional backdrop [filter].
 ///
@@ -120,7 +173,11 @@ class SurfacePainter extends StatelessWidget {
     required this.child,
     this.filter,
     this.textStyle,
+    this.arrow,
   });
+
+  /// The key of the empty box that marks where the arrow is, for tests.
+  static const arrowKey = ValueKey<String>('finesse_surface_arrow');
 
   /// The decoration of the surface: fill, border, radius and shadows.
   final FinesseDecoration decoration;
@@ -136,6 +193,15 @@ class SurfacePainter extends StatelessWidget {
   /// popover foreground color.
   final TextStyle? textStyle;
 
+  /// An arrow pointing at what the surface is anchored to, or null for a
+  /// plain box.
+  ///
+  /// Surface and arrow are one shape: filled in one stroke, so a
+  /// translucent fill is not doubled where they meet; outlined by one line
+  /// that runs round the tip; clipped as one, so glass blurs one continuous
+  /// area; and casting one shadow, which stays out of both.
+  final SurfaceArrow? arrow;
+
   /// The content of the surface.
   final Widget child;
 
@@ -143,6 +209,26 @@ class SurfacePainter extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final foreground = theme.colorScheme.popoverForeground;
+
+    final content = Padding(
+      padding: padding,
+      child: IconTheme.merge(
+        // Icons follow the surface's own foreground, not the page's, which
+        // is the wrong colour as soon as the surface differs from the page
+        // (an inverted menu rendered its icons invisibly).
+        data: IconThemeData(color: foreground),
+        child: DefaultTextStyle(
+          style: (textStyle ?? const TextStyle()).copyWith(color: foreground),
+          // Not centred: a popover is mostly a menu or a form, which
+          // shadcn/ui aligns to the start.
+          textAlign: TextAlign.start,
+          child: child,
+        ),
+      ),
+    );
+
+    final arrow = this.arrow;
+    if (arrow != null) return _buildArrowed(context, arrow, content);
 
     // A filter has to be clipped, and the clip would cut off the surface's
     // own shadow, which is painted outside the box — so with a filter the
@@ -158,22 +244,7 @@ class SurfacePainter extends StatelessWidget {
       decoration: castsOutside
           ? decoration.copyWith(shadows: const [])
           : decoration,
-      child: Padding(
-        padding: padding,
-        child: IconTheme.merge(
-          // Icons follow the surface's own foreground, not the page's, which
-          // is the wrong colour as soon as the surface differs from the page
-          // (an inverted menu rendered its icons invisibly).
-          data: IconThemeData(color: foreground),
-          child: DefaultTextStyle(
-            style: (textStyle ?? const TextStyle()).copyWith(color: foreground),
-            // Not centred: a popover is mostly a menu or a form, which
-            // shadcn/ui aligns to the start.
-            textAlign: TextAlign.start,
-            child: child,
-          ),
-        ),
-      ),
+      child: content,
     );
 
     return BackdropSurface(
@@ -186,280 +257,95 @@ class SurfacePainter extends StatelessWidget {
       child: surface,
     );
   }
-}
 
-/// Shows a popover anchored to [anchorRect], a rectangle in global
-/// coordinates, for UI that has a rectangle rather than a widget to anchor
-/// to: a text selection, a table cell, a hit on a canvas.
-///
-/// The popover opens [gap] below the rectangle, centred on it, and moves
-/// above when there is not enough room below; it is shifted to stay on
-/// screen. It closes on a tap outside or on Escape, and the returned future
-/// completes with the value it was popped with.
-///
-/// The content is wrapped in a [Surface] of [kind]; pass
-/// [Surface.new]'s parameters through [padding] and [decoration], or set
-/// [surface] to false to draw your own.
-///
-/// The popover takes the keyboard focus when it opens, like any route. Set
-/// [requestFocus] to false — it is `ModalRoute.requestFocus` — to leave the
-/// focus where it is: a toolbar over a text selection must not take the
-/// caret. Escape still closes the popover then, before anything under it.
-/// Its content is another route, though, and no Tab stop from the page:
-/// anchor a `Popover` to a widget when it should be one.
-Future<T?> showPopover<T>({
-  required BuildContext context,
-  required Rect anchorRect,
-  required WidgetBuilder builder,
-  SurfaceKind kind = SurfaceKind.popover,
-  bool surface = true,
-  EdgeInsetsGeometry? padding,
-  FinesseDecoration? decoration,
-  double gap = 4,
-  bool barrierDismissible = true,
-  String? barrierLabel,
-  bool useRootNavigator = false,
-  bool requestFocus = true,
-  RouteSettings? routeSettings,
-}) {
-  final navigator = Navigator.of(context, rootNavigator: useRootNavigator);
-  // The route is built under the navigator; republish a theme applied to the
-  // subtree the popover was opened from (see ThemeScope).
-  final theme = Theme.of(context, listen: false);
-  // It arrives and leaves like a `Popover`: on the motion tokens, and
-  // faster out than in.
-  final motion = Motion.of(context);
-  return navigator.push(
-    _AnchoredPopoverRoute<T>(
-      anchorRect: anchorRect,
-      gap: gap,
-      transitionDuration: motion.reduced
-          ? motion.fast
-          : motion.snappy.settleDuration,
-      reverseTransitionDuration: motion.fast,
-      barrierDismissible: barrierDismissible,
-      barrierLabel: barrierLabel ?? '',
-      takesFocus: requestFocus,
-      settings: routeSettings,
-      builder: (routeContext) {
-        Widget content = Builder(builder: builder);
-        if (surface) {
-          content = Surface(
-            kind: kind,
-            padding: padding,
-            decoration: decoration,
-            child: content,
-          );
-        }
-        return Theme(data: theme, child: content);
-      },
-    ),
-  );
-}
-
-class _AnchoredPopoverRoute<T> extends PopupRoute<T> {
-  _AnchoredPopoverRoute({
-    required this.anchorRect,
-    required this.gap,
-    required this.builder,
-    required this.barrierDismissible,
-    required this.barrierLabel,
-    required this.transitionDuration,
-    required this.reverseTransitionDuration,
-    required this.takesFocus,
-    super.settings,
-  }) : super(requestFocus: takesFocus);
-
-  final Rect anchorRect;
-  final double gap;
-  final WidgetBuilder builder;
-
-  /// Whether the route takes the focus when it is pushed. Without it the
-  /// route's own Escape binding is out of reach — the key goes to whatever
-  /// has the focus, in the route below — so the route listens for Escape
-  /// itself; see [_onKey].
-  final bool takesFocus;
-
-  @override
-  void install() {
-    super.install();
-    if (!takesFocus) FocusManager.instance.addEarlyKeyEventHandler(_onKey);
-  }
-
-  @override
-  void dispose() {
-    if (!takesFocus) FocusManager.instance.removeEarlyKeyEventHandler(_onKey);
-    super.dispose();
-  }
-
-  /// Escape, before the focus tree sees it.
-  ///
-  /// Before, not after: a focused text field consumes Escape whether or not
-  /// it has a use for it, so a handler for keys nobody wanted would never
-  /// hear it. And the route on top is what Escape should close first — a
-  /// dialog under it must not close on the same key press, which is why the
-  /// event stops here.
-  KeyEventResult _onKey(KeyEvent event) {
-    if (event is! KeyDownEvent ||
-        event.logicalKey != LogicalKeyboardKey.escape ||
-        !isCurrent ||
-        !barrierDismissible) {
-      return KeyEventResult.ignored;
-    }
-    // With the focus inside the popover its own bindings act: whatever in
-    // it wants the key first, then the route's.
-    final context = subtreeContext;
-    if (context != null &&
-        FocusScope.of(context, createDependency: false).hasFocus) {
-      return KeyEventResult.ignored;
-    }
-    navigator?.maybePop();
-    return KeyEventResult.handled;
-  }
-
-  @override
-  final Duration transitionDuration;
-
-  @override
-  final Duration reverseTransitionDuration;
-
-  @override
-  final bool barrierDismissible;
-
-  @override
-  final String barrierLabel;
-
-  @override
-  Color? get barrierColor => null;
-
-  @override
-  Widget buildPage(
+  /// The surface with its [arrow]: one outline for the fill, the border,
+  /// the clip and the shadow.
+  Widget _buildArrowed(
     BuildContext context,
-    Animation<double> animation,
-    Animation<double> secondaryAnimation,
+    SurfaceArrow arrow,
+    Widget content,
   ) {
-    return CustomSingleChildLayout(
-      delegate: _AnchorRectLayout(
-        anchorRect: anchorRect,
-        gap: gap,
-        padding: MediaQuery.paddingOf(context),
-      ),
-      child: Builder(builder: builder),
+    final textDirection = Directionality.of(context);
+    final placement = ArrowPlacement.of(
+      context,
+      arrow.anchor,
+      targetSize: arrow.targetSize?.call(),
     );
-  }
+    final border = decoration.border;
+    final shape = ArrowShape(
+      radius: border?.radius?.resolve(textDirection) ?? BorderRadius.zero,
+      direction: placement.direction,
+      arrowSize: arrow.size,
+      arrowRadius: arrow.radius,
+      anchor: placement.anchor,
+      shift: placement.shift,
+    );
+    final fill = decoration.color ?? const Color(0x00000000);
+    final shadows = decoration.shadows ?? const <BoxShadow>[];
+    // Under an opaque fill the shadow needs no clip, the expensive half of
+    // a shadow of this shape: it is painted first and covered.
+    final covered = filter == null && fill.a >= 1;
 
-  /// The animations the transition is drawn from. They depend only on the
-  /// route's animation and the motion tokens, so they are made when those
-  /// change — not in [buildTransitions], which the framework calls on every
-  /// tick, and where new ones made every render object below drop its
-  /// listener and subscribe again.
-  _PopoverAnimations? _animations;
-
-  @override
-  Widget buildTransitions(
-    BuildContext context,
-    Animation<double> animation,
-    Animation<double> secondaryAnimation,
-    Widget child,
-  ) {
-    // shadcn's `fade-in-0 zoom-in-95`, on the theme's motion: in on the
-    // spring, out in a straight line from wherever it is. The fade goes
-    // through a host, so a glass surface fades inside its own filter
-    // rather than under an opacity layer (see [BackdropFade]).
-    final motion = Motion.of(context);
-    final curve = motion.reduced ? motion.standard : motion.snappy.curve;
-    var animations = _animations;
-    if (animations == null ||
-        !animations.isFor(animation, curve: curve, from: motion.overlayScale)) {
-      animations = _animations = _PopoverAnimations(
-        animation,
-        curve: curve,
-        from: motion.overlayScale,
+    // The box keeps its layout — a border is padding around the content —
+    // and whatever else it paints, a gradient or an image. Its fill, its
+    // line and its shadow are the outline's.
+    FinesseBorderSide? cleared(FinesseBorderSide? side) => side == null
+        ? null
+        : FinesseBorderSide(
+            canMerge: side.canMerge,
+            color: const Color(0x00000000),
+            width: side.width,
+            style: side.style,
+            strokeAlign: side.strokeAlign,
+          );
+    Widget surface = CustomPaint(
+      painter: ArrowShapePainter(
+        shape: shape,
+        color: fill,
+        single: true,
+        border: border?.top?.toBorderSide() ?? BorderSide.none,
+        shadows: covered ? shadows : const [],
+      ),
+      child: Decorator(
+        decoration: decoration.copyWith(
+          color: const Color(0x00000000),
+          shadows: const [],
+          border: border == null || border is FinesseRoundedSuperellipseBorder
+              ? border
+              : border.copyWith(
+                  top: cleared(border.top),
+                  right: cleared(border.right),
+                  bottom: cleared(border.bottom),
+                  left: cleared(border.left),
+                ),
+        ),
+        child: content,
+      ),
+    );
+    if (shape.direction != null) {
+      surface = Stack(
+        clipBehavior: Clip.none,
+        children: [
+          surface,
+          Positioned.fill(
+            child: ArrowMarker(shape: shape, markerKey: arrowKey),
+          ),
+        ],
       );
     }
-    return ScaleTransition(
-      scale: animations.scale,
-      child: BackdropFadeHost(opacity: animations.fade, child: child),
+    return BackdropSurface(
+      filter: filter,
+      tintOpacity: fill.a,
+      clipper: ArrowShapeClipper(shape, single: true),
+      shadow: shadows.isNotEmpty && !covered
+          ? ShadowDecoration(
+              decoration: ShapeDecoration(
+                shape: ArrowShapeOutline(shape, single: true),
+              ),
+              shadows: shadows,
+            )
+          : null,
+      child: surface,
     );
   }
-}
-
-/// The animations of one [_AnchoredPopoverRoute]'s transition.
-class _PopoverAnimations {
-  _PopoverAnimations(
-    this._animation, {
-    required Curve curve,
-    required double from,
-  }) : _curve = curve,
-       _from = from {
-    final progress = EntranceProgress(_animation, curve: curve);
-    scale = progress.drive(Tween<double>(begin: from, end: 1));
-    fade = progress.drive(const _FadeInBy(.6));
-  }
-
-  final Animation<double> _animation;
-  final Curve _curve;
-  final double _from;
-
-  /// From the motion's overlay scale up to full size.
-  late final Animation<double> scale;
-
-  /// The popover is readable well before it has settled.
-  late final Animation<double> fade;
-
-  /// Whether these were made for the given animation and tokens.
-  bool isFor(
-    Animation<double> animation, {
-    required Curve curve,
-    required double from,
-  }) => identical(animation, _animation) && curve == _curve && from == _from;
-}
-
-/// A fade that is finished by [end] of the way.
-class _FadeInBy extends Animatable<double> {
-  const _FadeInBy(this.end);
-
-  final double end;
-
-  @override
-  double transform(double t) => (t / end).clamp(0.0, 1.0);
-}
-
-class _AnchorRectLayout extends SingleChildLayoutDelegate {
-  _AnchorRectLayout({
-    required this.anchorRect,
-    required this.gap,
-    required this.padding,
-  });
-
-  final Rect anchorRect;
-  final double gap;
-  final EdgeInsets padding;
-
-  @override
-  BoxConstraints getConstraintsForChild(BoxConstraints constraints) =>
-      constraints.loosen().deflate(padding);
-
-  @override
-  Offset getPositionForChild(Size size, Size childSize) {
-    final top = padding.top;
-    final bottom = size.height - padding.bottom;
-    final below = anchorRect.bottom + gap;
-    final above = anchorRect.top - gap - childSize.height;
-    final y = below + childSize.height <= bottom || above < top ? below : above;
-    final x = anchorRect.center.dx - childSize.width / 2;
-    return Offset(
-      x.clamp(
-        padding.left,
-        math.max(padding.left, size.width - padding.right - childSize.width),
-      ),
-      y.clamp(top, math.max(top, bottom - childSize.height)),
-    );
-  }
-
-  @override
-  bool shouldRelayout(_AnchorRectLayout oldDelegate) =>
-      anchorRect != oldDelegate.anchorRect ||
-      gap != oldDelegate.gap ||
-      padding != oldDelegate.padding;
 }

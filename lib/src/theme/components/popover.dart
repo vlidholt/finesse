@@ -26,6 +26,9 @@ class PopoverTheme with _$PopoverTheme {
     this.decoration,
     this.anchor,
     this.filter,
+    this.showArrow,
+    this.arrowSize,
+    this.arrowRadius,
   }) : _canMerge = canMerge;
 
   @ignore
@@ -57,6 +60,17 @@ class PopoverTheme with _$PopoverTheme {
 
   /// {@macro Popover.textStyle}
   final TextStyle? textStyle;
+
+  /// {@macro Popover.showArrow}
+  final bool? showArrow;
+
+  /// The edge length of the arrow's square, which is turned 45° and sunk
+  /// into the popover's edge. The tooltip's `size-2.5` by default.
+  final double? arrowSize;
+
+  /// The corner radius of the arrow's tip, `rounded-[2px]` — zero in the
+  /// square styles.
+  final double? arrowRadius;
 
   /// Linearly interpolates between [a] and [b] by [t].
   static PopoverTheme? lerp(

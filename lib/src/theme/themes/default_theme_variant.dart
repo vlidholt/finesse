@@ -999,6 +999,10 @@ class DefaultThemeVariant extends ThemeVariant {
         ),
       ),
       filter: popoverFilter,
+      // The tooltip's arrow, for a popover that asks for one
+      // (`Popover(showArrow: true)`, `HoverCard`).
+      arrowSize: scaled(10),
+      arrowRadius: style.itemRadius == RadiusToken.none ? 0 : 2,
       anchor: const AnchorAuto(
         offset: Offset(0, 4),
         fallback: AnchorAuto(

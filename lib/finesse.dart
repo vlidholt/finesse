@@ -74,6 +74,7 @@ export 'src/components/form/fields/textarea.dart';
 export 'src/components/form/fields/time_picker.dart';
 export 'src/components/form/form.dart';
 export 'src/components/glass.dart';
+export 'src/components/hover_card.dart';
 export 'src/components/icon_button.dart';
 export 'src/components/icon_tile.dart';
 export 'src/components/indicator_badge.dart';

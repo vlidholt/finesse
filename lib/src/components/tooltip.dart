@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'dart:ui' show ImageFilter;
 
 import 'package:finesse/src/components/popover.dart';
@@ -9,6 +8,7 @@ import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/anchor_stage.dart';
 import 'package:finesse/src/utils/animate.dart';
+import 'package:finesse/src/utils/arrow_surface.dart';
 import 'package:finesse/src/utils/backdrop.dart';
 import 'package:finesse/src/utils/dismiss_shortcut.dart';
 import 'package:finesse/src/utils/entrance.dart';
@@ -173,10 +173,9 @@ class Tooltip extends StatefulWidget {
   /// The direction the arrow points, i.e. which edge of the tooltip it
   /// rides: [AxisDirection.down] puts it on the bottom edge.
   ///
-  /// Defaults to pointing at the trigger through the default anchors: down
-  /// while the tooltip sits above it, flipping up when the portal falls
-  /// back below. Set it explicitly when using a custom [anchor] that places
-  /// the tooltip to the side.
+  /// Defaults to the edge that faces the trigger, worked out from the
+  /// [anchor]: down while the tooltip sits above it, flipping up when the
+  /// portal falls back below, left or right for a tooltip placed beside it.
   /// {@endtemplate}
   final AxisDirection? arrowDirection;
 
@@ -456,21 +455,23 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
               // stroke, so a translucent tint is not doubled where they
               // meet, and clipped as one, so a glass tooltip blurs one
               // continuous area.
-              final shape = _TooltipShape(
+              final shape = ArrowShape(
                 radius:
                     effectiveDecoration.border?.radius?.resolve(
                       textDirection,
                     ) ??
                     BorderRadius.zero,
-                // The default anchors put the tooltip above the trigger, so
-                // the arrow rides the bottom edge — flipping up when the
-                // portal fell back below.
+                // The edge that faces the trigger. The default anchors put
+                // the tooltip above it, so the arrow rides the bottom edge
+                // — flipping up when the portal fell back below.
                 direction: !showArrow
                     ? null
                     : widget.arrowDirection ??
-                          (PortalPlacement.usedFallbackOf(context)
-                              ? AxisDirection.up
-                              : AxisDirection.down),
+                          ArrowPlacement.of(
+                            context,
+                            effectiveAnchor,
+                          ).direction ??
+                          AxisDirection.down,
                 arrowSize: theme.tooltipTheme.arrowSize ?? 10,
                 arrowRadius: theme.tooltipTheme.arrowRadius ?? 2,
                 // The bubble slides along the viewport edge to stay on
@@ -490,7 +491,7 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
                   : effectiveDecoration.shadows ?? const <BoxShadow>[];
 
               Widget tooltip = CustomPaint(
-                painter: _TooltipShapePainter(shape: shape, color: fill),
+                painter: ArrowShapePainter(shape: shape, color: fill),
                 child: Decorator(
                   // The fill is the painter's; the rest of the decoration —
                   // a border, a gradient — stays the bubble's own.
@@ -526,18 +527,23 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
                   clipBehavior: Clip.none,
                   children: [
                     tooltip,
-                    Positioned.fill(child: _TooltipArrowMarker(shape: shape)),
+                    Positioned.fill(
+                      child: ArrowMarker(
+                        shape: shape,
+                        markerKey: const ValueKey('finesse_tooltip_arrow'),
+                      ),
+                    ),
                   ],
                 );
               }
               tooltip = BackdropSurface(
                 filter: effectiveFilter,
                 tintOpacity: fill.a,
-                clipper: _TooltipShapeClipper(shape),
+                clipper: ArrowShapeClipper(shape),
                 shadow: outerShadows.isNotEmpty
                     ? ShadowDecoration(
                         decoration: ShapeDecoration(
-                          shape: _TooltipOutline(shape),
+                          shape: ArrowShapeOutline(shape),
                         ),
                         shadows: outerShadows,
                       )
@@ -621,219 +627,4 @@ ThemeData _contentThemeOf(ThemeData theme) {
       foregroundColor: theme.colorScheme.background,
     ),
   );
-}
-
-/// The outline of a tooltip: its bubble and, when [direction] is not null,
-/// the arrow pointing from it at its trigger.
-///
-/// The arrow is shadcn/ui's `TooltipArrow`: a `size-2.5` square rotated 45°,
-/// its tip rounded by `rounded-[2px]`, its centre 2px inside the edge it
-/// rides (`translate-y-[calc(-50%-2px)]`) so about half its diagonal — 5px —
-/// pokes out across the anchor gap.
-///
-/// Along its edge the arrow tracks the trigger rather than the bubble: a
-/// tooltip near the side of the window is pushed inward to stay on screen
-/// (see [PortalPlacement.shift]) and a centred arrow would then point
-/// somewhere the trigger is not. It stops short of the bubble's corners,
-/// where a rounded surface has no straight edge left to sit on.
-@immutable
-class _TooltipShape {
-  const _TooltipShape({
-    required this.radius,
-    required this.direction,
-    required this.arrowSize,
-    required this.arrowRadius,
-    required this.shift,
-  });
-
-  /// The bubble's corners.
-  final BorderRadius radius;
-
-  /// The edge the arrow rides, or null for no arrow.
-  final AxisDirection? direction;
-  final double arrowSize;
-  final double arrowRadius;
-
-  /// How far the bubble was moved off its anchor, from
-  /// [PortalPlacement.shift]. The arrow moves back by as much of this as
-  /// its edge has room for.
-  final Offset shift;
-
-  /// How far the arrow's centre sits inside the edge it rides.
-  static const _inset = 2.0;
-
-  /// How far from the centre of an edge of [extent] the arrow may sit.
-  double _travel(double extent) {
-    final cornerRadius = [
-      radius.topLeft.x,
-      radius.topRight.x,
-      radius.bottomLeft.x,
-      radius.bottomRight.x,
-    ].reduce(math.max);
-    // The rotated square is `size * sqrt2` across, so its own half-diagonal
-    // has to clear the corner too.
-    final keepClear = cornerRadius + arrowSize * math.sqrt2 / 2;
-    return math.max(0, extent / 2 - keepClear);
-  }
-
-  /// The centre of the arrow's square on a bubble of [size], or null
-  /// without an arrow.
-  Offset? arrowCenter(Size size) {
-    final direction = this.direction;
-    if (direction == null) return null;
-    final along = switch (direction) {
-      AxisDirection.down || AxisDirection.up =>
-        size.width / 2 +
-            (-shift.dx).clamp(-_travel(size.width), _travel(size.width)),
-      AxisDirection.left || AxisDirection.right =>
-        size.height / 2 +
-            (-shift.dy).clamp(-_travel(size.height), _travel(size.height)),
-    };
-    return switch (direction) {
-      AxisDirection.down => Offset(along, size.height - _inset),
-      AxisDirection.up => Offset(along, _inset),
-      AxisDirection.left => Offset(_inset, along),
-      AxisDirection.right => Offset(size.width - _inset, along),
-    };
-  }
-
-  /// The outline on a bubble of [size].
-  Path build(Size size) {
-    final bubble = Path()..addRRect(radius.toRRect(Offset.zero & size));
-    final center = arrowCenter(size);
-    if (center == null) return bubble;
-    final square = Path()
-      ..addRRect(
-        RRect.fromRectAndRadius(
-          Rect.fromCenter(
-            center: Offset.zero,
-            width: arrowSize,
-            height: arrowSize,
-          ),
-          Radius.circular(arrowRadius),
-        ),
-      );
-    final placed = square.transform(
-      (Matrix4.translationValues(
-        center.dx,
-        center.dy,
-        0,
-      )..rotateZ(math.pi / 4)).storage,
-    );
-    // Two contours wound the same way, filled non-zero: their union, with
-    // the overlap counted once. Not `Path.combine(PathOperation.union, …)`,
-    // which on the web returns the bubble alone — a tooltip without its
-    // arrow.
-    return bubble..addPath(placed, Offset.zero);
-  }
-
-  @override
-  bool operator ==(Object other) =>
-      other is _TooltipShape &&
-      other.radius == radius &&
-      other.direction == direction &&
-      other.arrowSize == arrowSize &&
-      other.arrowRadius == arrowRadius &&
-      other.shift == shift;
-
-  @override
-  int get hashCode =>
-      Object.hash(radius, direction, arrowSize, arrowRadius, shift);
-}
-
-/// A [_TooltipShape] as a border, so a `ShadowDecoration` can cast its
-/// shadow around the whole outline — bubble and arrow — and keep it out of
-/// both.
-class _TooltipOutline extends ShapeBorder {
-  const _TooltipOutline(this.shape);
-
-  final _TooltipShape shape;
-
-  @override
-  EdgeInsetsGeometry get dimensions => EdgeInsets.zero;
-
-  @override
-  Path getOuterPath(Rect rect, {TextDirection? textDirection}) =>
-      shape.build(rect.size).shift(rect.topLeft);
-
-  @override
-  Path getInnerPath(Rect rect, {TextDirection? textDirection}) =>
-      getOuterPath(rect, textDirection: textDirection);
-
-  @override
-  void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {}
-
-  @override
-  ShapeBorder scale(double t) => this;
-
-  @override
-  bool operator ==(Object other) =>
-      other is _TooltipOutline && other.shape == shape;
-
-  @override
-  int get hashCode => shape.hashCode;
-}
-
-class _TooltipShapePainter extends CustomPainter {
-  const _TooltipShapePainter({required this.shape, required this.color});
-
-  final _TooltipShape shape;
-  final Color color;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    canvas.drawPath(shape.build(size), Paint()..color = color);
-  }
-
-  @override
-  bool shouldRepaint(_TooltipShapePainter oldDelegate) =>
-      oldDelegate.shape != shape || oldDelegate.color != color;
-}
-
-class _TooltipShapeClipper extends CustomClipper<Path> {
-  const _TooltipShapeClipper(this.shape);
-
-  final _TooltipShape shape;
-
-  @override
-  Path getClip(Size size) => shape.build(size);
-
-  @override
-  bool shouldReclip(_TooltipShapeClipper oldClipper) =>
-      oldClipper.shape != shape;
-}
-
-/// An empty box where the arrow's square is, so a test can measure where
-/// the tip landed. It takes its place from the same [_TooltipShape] the
-/// painter does.
-class _TooltipArrowMarker extends StatelessWidget {
-  const _TooltipArrowMarker({required this.shape});
-
-  final _TooltipShape shape;
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final center = shape.arrowCenter(constraints.biggest)!;
-        return Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Positioned.fromRect(
-              rect: Rect.fromCenter(
-                center: center,
-                width: shape.arrowSize,
-                height: shape.arrowSize,
-              ),
-              child: const IgnorePointer(
-                child: SizedBox.expand(
-                  key: ValueKey('finesse_tooltip_arrow'),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
 }
