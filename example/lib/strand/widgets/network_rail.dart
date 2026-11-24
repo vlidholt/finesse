@@ -1,0 +1,283 @@
+import 'package:example/strand/data/network_data.dart';
+import 'package:example/strand/widgets/home_pieces.dart';
+import 'package:example/strand/widgets/network_controller.dart';
+import 'package:example/strand/widgets/strand_pieces.dart';
+import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
+
+/// "Manage my network": one row per list — connections, following, groups,
+/// events, pages — with its count, under a row that leads back to the
+/// invitations and suggestions the screen opens on.
+///
+/// On a desktop the selected row is highlighted and [onSelected] swaps the
+/// main column; on a phone nothing is selected and a row opens its list as
+/// a page.
+class NetworkManageCard extends StatelessWidget {
+  const NetworkManageCard({
+    required this.controller,
+    required this.onSelected,
+    this.showSelection = true,
+    this.showGrow = true,
+    super.key,
+  });
+
+  final NetworkController controller;
+  final ValueChanged<NetworkSection> onSelected;
+
+  /// Whether the controller's section is highlighted.
+  final bool showSelection;
+
+  /// Whether the "Grow" row is listed. A phone has a tab for it instead.
+  final bool showGrow;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final inset = theme.layoutTheme.gap(GapSize.sm);
+
+    Widget row(NetworkSection section) {
+      final selected = showSelection && controller.section == section;
+      final count = controller.countOf(section);
+      return Semantics(
+        selected: selected,
+        child: Button.raw(
+          variant: selected ? ButtonVariant.secondary : ButtonVariant.ghost,
+          // The home profile card's shortcut row: 38 tall and inset 10.
+          height: 38,
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: homeSnugGap),
+          gap: homeSnugGap,
+          iconSize: 20,
+          mainAxisAlignment: MainAxisAlignment.start,
+          foregroundColor: selected ? scheme.tint : scheme.foregroundSubtle,
+          leading: Icon(section.icon),
+          trailing: section == NetworkSection.grow
+              ? IndicatorBadge(
+                  count: count,
+                  size: 20,
+                  ringWidth: 0,
+                  semanticLabel: '$count invitations waiting',
+                )
+              : Text(
+                  '$count',
+                  style: theme.textTheme.small.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: selected ? scheme.tint : scheme.mutedForeground,
+                  ),
+                ),
+          onPressed: () => onSelected(section),
+          child: Expanded(
+            child: Text(
+              section == NetworkSection.grow
+                  ? 'Grow your network'
+                  : section.label,
+              // A button centres its label; this one is a list row.
+              textAlign: TextAlign.start,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Card(
+      padding: EdgeInsets.zero,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              homeRailInset,
+              homeRailInset,
+              homeRailInset,
+              homeSnugGap,
+            ),
+            child: Semantics(
+              header: true,
+              child: Text(
+                'Manage my network',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style:
+                    theme.cardTheme.titleStyle ??
+                    theme.textTheme.large.copyWith(color: scheme.foreground),
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.fromLTRB(inset, 0, inset, inset),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (showGrow) row(NetworkSection.grow),
+                for (final section in NetworkSection.managed) row(section),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The right rail's "Upcoming events": the next three, each with a
+/// calendar leaf and an "Attend" pill.
+class NetworkEventsCard extends StatelessWidget {
+  const NetworkEventsCard({
+    required this.controller,
+    required this.onSeeAll,
+    super.key,
+  });
+
+  final NetworkController controller;
+  final VoidCallback onSeeAll;
+
+  /// How many events the rail lists; "See all" has the rest.
+  static const _shown = 3;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    return HomeSectionCard(
+      title: 'Upcoming events',
+      trailing: HomeTextLink(
+        'See all',
+        onPressed: onSeeAll,
+        style: theme.textTheme.small.copyWith(color: scheme.tint),
+      ),
+      child: FinesseColumn(
+        gap: GapSize.lg,
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (final event in NetworkData.events.take(_shown))
+            FinesseRow(
+              gap: GapSize.md,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                StrandDateTile(month: event.month, day: event.day),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        event.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.p.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: scheme.foreground,
+                        ),
+                      ),
+                      Text(
+                        '${event.place} · ${event.time}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: homeFinePrint(theme),
+                      ),
+                      const Gap.sm(),
+                      Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: StrandPillButton(
+                          label: 'Attend',
+                          icon: PhosphorIconsRegular.star,
+                          done: controller.isAttending(event),
+                          doneLabel: 'Going',
+                          doneIcon: PhosphorIconsFill.star,
+                          onPressed: () => controller.toggleAttending(event),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The right rail's "Groups you may like".
+class NetworkSuggestedGroupsCard extends StatelessWidget {
+  const NetworkSuggestedGroupsCard({
+    required this.controller,
+    required this.onSeeAll,
+    super.key,
+  });
+
+  final NetworkController controller;
+  final VoidCallback onSeeAll;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    return HomeSectionCard(
+      title: 'Groups you may like',
+      trailing: HomeTextLink(
+        'See all',
+        onPressed: onSeeAll,
+        style: theme.textTheme.small.copyWith(color: scheme.tint),
+      ),
+      child: FinesseColumn(
+        gap: GapSize.md,
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (final group in NetworkData.suggestedGroups)
+            Row(
+              children: [
+                StrandMark(
+                  asset: group.logo,
+                  icon: group.icon,
+                  label: group.name,
+                  size: 36,
+                ),
+                const Gap.raw(homeSnugGap),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        group.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.small.copyWith(
+                          fontSize: 14,
+                          height: 18 / 14,
+                          color: scheme.foreground,
+                        ),
+                      ),
+                      Text(
+                        group.members,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: homeFinePrint(theme),
+                      ),
+                    ],
+                  ),
+                ),
+                const Gap.sm(),
+                StrandPillButton(
+                  label: 'Join',
+                  icon: PhosphorIconsRegular.plus,
+                  done: controller.hasJoined(group),
+                  doneLabel: 'Joined',
+                  doneIcon: PhosphorIconsRegular.check,
+                  onPressed: () => controller.toggleJoined(group),
+                ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+}

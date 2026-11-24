@@ -852,7 +852,9 @@ void main() {
   });
 
   group('FocusRing', () {
-    testWidgets('paints nothing and adds nothing while hidden', (tester) async {
+    testWidgets('paints nothing and takes no space while hidden', (
+      tester,
+    ) async {
       await pumpFinesse(
         tester,
         const Center(
@@ -862,14 +864,36 @@ void main() {
           ),
         ),
       );
-      expect(
+      // The paint widget is there either way — see the next test — but it
+      // has nothing to paint.
+      final paint = tester.widget<CustomPaint>(
         find.descendant(
           of: find.byType(FocusRing),
           matching: find.byType(CustomPaint),
         ),
-        findsNothing,
       );
+      expect(paint.painter, isNull);
+      expect(paint.foregroundPainter, isNull);
       expect(tester.getSize(find.byType(FocusRing)), const Size(60, 30));
+    });
+
+    testWidgets("showing and hiding the ring keeps the child's state", (
+      tester,
+    ) async {
+      // Returning the child bare while hidden moved it in the tree whenever
+      // focus came or went, which re-created its State and snapped any
+      // implicit animation it was running.
+      var created = 0;
+      Widget ring({required bool visible}) => Center(
+        child: FocusRing(
+          visible: visible,
+          child: _Counted(onCreate: () => created++),
+        ),
+      );
+      await pumpFinesse(tester, ring(visible: false));
+      await pumpFinesse(tester, ring(visible: true));
+      await pumpFinesse(tester, ring(visible: false));
+      expect(created, 1);
     });
 
     testWidgets('takes no space in layout while visible', (tester) async {
@@ -1125,4 +1149,24 @@ class _RecordingCanvas implements Canvas {
   @override
   dynamic noSuchMethod(Invocation invocation) =>
       throw UnsupportedError('${invocation.memberName}');
+}
+
+class _Counted extends StatefulWidget {
+  const _Counted({required this.onCreate});
+
+  final VoidCallback onCreate;
+
+  @override
+  State<_Counted> createState() => _CountedState();
+}
+
+class _CountedState extends State<_Counted> {
+  @override
+  void initState() {
+    super.initState();
+    widget.onCreate();
+  }
+
+  @override
+  Widget build(BuildContext context) => const SizedBox(width: 60, height: 30);
 }

@@ -3,6 +3,7 @@ import 'package:example/strand/widgets/jobs_company_logo.dart';
 import 'package:example/strand/widgets/jobs_detail_sections.dart';
 import 'package:example/strand/widgets/jobs_metrics.dart';
 import 'package:example/strand/widgets/jobs_state.dart';
+import 'package:example/strand/widgets/strand_actions.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -150,12 +151,12 @@ class _CompanyHeader extends StatelessWidget {
           IconButton.secondary(
             icon: const Icon(PhosphorIconsRegular.export),
             semanticLabel: 'Share job',
-            onPressed: () {},
+            onPressed: () => copyLink(context, 'strand.app/jobs/${job.id}'),
           ),
           IconButton.secondary(
             icon: const Icon(PhosphorIconsRegular.dotsThree),
             semanticLabel: 'More options',
-            onPressed: () {},
+            onPressed: () => showSendDialog(context, what: 'this job'),
           ),
         ],
       ],

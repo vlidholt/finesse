@@ -1,14 +1,19 @@
 import 'dart:math' as math;
+import 'dart:ui' show ImageFilter;
 
 import 'package:finesse/src/components/popover.dart';
 import 'package:finesse/src/raw_components/portal.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/data.dart';
+import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/animate.dart';
+import 'package:finesse/src/utils/backdrop.dart';
 import 'package:finesse/src/utils/dismiss_shortcut.dart';
+import 'package:finesse/src/utils/entrance.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:finesse/src/utils/mouse_area.dart';
+import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
@@ -41,6 +46,7 @@ class Tooltip extends StatefulWidget {
     this.reverseDuration,
     this.showArrow,
     this.arrowDirection,
+    this.filter,
   });
 
   /// {@template Tooltip.builder}
@@ -68,7 +74,9 @@ class Tooltip extends StatefulWidget {
   /// The length of time that a pointer must hover over a tooltip's widget
   /// before the tooltip will be shown.
   ///
-  /// Defaults to null (tooltips are shown immediately upon hover).
+  /// Defaults to null (tooltips are shown immediately upon hover). The wait
+  /// is skipped while another tooltip is still showing or leaving, so
+  /// moving along a row of buttons shows each one's tooltip at once.
   /// {@endtemplate}
   final Duration? waitDuration;
 
@@ -83,9 +91,10 @@ class Tooltip extends StatefulWidget {
   /// {@template Tooltip.effects}
   /// The animation effects applied to the tooltip.
   ///
-  /// Defaults to [FadeEffect(), ScaleEffect(begin: Offset(.95, .95), end:
-  /// Offset(1, 1)),
-  /// MoveEffect(begin: Offset(0, 2), end: Offset(0, 0))].
+  /// Defaults to the theme's, and then to a quick `EntranceEffect` on the
+  /// theme's motion tokens: the bubble pops out of the side that faces its
+  /// trigger. A tooltip that takes over from another one — the pointer moved
+  /// to the next button — only fades in.
   /// {@endtemplate}
   final List<Effect<dynamic>>? effects;
 
@@ -152,7 +161,7 @@ class Tooltip extends StatefulWidget {
   /// {@template Tooltip.reverseDuration}
   /// The duration of the tooltip's exit animation.
   ///
-  /// Defaults to [Duration.zero].
+  /// Defaults to the theme's, and then to its `Motion.fast`.
   /// {@endtemplate}
   final Duration? reverseDuration;
 
@@ -172,6 +181,13 @@ class Tooltip extends StatefulWidget {
   /// the tooltip to the side.
   /// {@endtemplate}
   final AxisDirection? arrowDirection;
+
+  /// {@template Tooltip.filter}
+  /// A filter applied to what is behind the tooltip, such as the blur of a
+  /// glass bubble. The bubble and its arrow are filtered as one shape.
+  /// Defaults to the theme's, which is null in a style with solid tooltips.
+  /// {@endtemplate}
+  final ImageFilter? filter;
 
   @override
   State<Tooltip> createState() => _TooltipState();
@@ -195,14 +211,39 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
     );
     if (widget.controller == null) _controller = TooltipController();
     widget.focusNode?.addListener(onFocusChange);
+    controller.addListener(_onOpenChanged);
   }
 
   @override
   void dispose() {
+    _showing.remove(this);
+    controller.removeListener(_onOpenChanged);
     animationController.dispose();
     widget.focusNode?.removeListener(onFocusChange);
     _controller?.dispose();
     super.dispose();
+  }
+
+  /// The tooltips the pointer has brought up: open, or still playing their
+  /// exit. One that is held open by its controller or by focus is not among
+  /// them — it would make every other tooltip a follow-up for as long as it
+  /// stayed.
+  static final _showing = <_TooltipState>{};
+
+  bool get _othersShowing => _showing.any((other) => !identical(other, this));
+
+  /// Whether this showing took over from another tooltip. Such a tooltip
+  /// only fades in — a second pop right beside the first reads as a
+  /// flicker — and does not wait.
+  bool _warm = false;
+
+  void _onOpenChanged() {
+    if (!controller.isOpen) {
+      _showing.remove(this);
+    } else if (!_showing.contains(this)) {
+      // Opened by something other than the pointer.
+      _warm = false;
+    }
   }
 
   /// The hover strategies this tooltip was configured with, before the
@@ -242,15 +283,27 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
       ),
     );
     animationController
-      ..duration = widget.duration ?? theme.tooltipTheme.duration
+      ..duration =
+          widget.duration ??
+          theme.tooltipTheme.duration ??
+          Animate.defaultDuration
       ..reverseDuration =
-          widget.reverseDuration ?? theme.tooltipTheme.reverseDuration;
+          widget.reverseDuration ??
+          theme.tooltipTheme.reverseDuration ??
+          Motion.of(context).fast;
   }
+
+  /// Whether tickers run in this part of the tree; see the same field on
+  /// `Popover`. A tooltip whose trigger went into an inactive branch — an
+  /// `IndexedStack` child that is not showing — would otherwise stay on
+  /// screen over whatever replaced it.
+  bool _tickersEnabled = true;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _syncEffectiveTheme();
+    _tickersEnabled = TickerMode.valuesOf(context).enabled;
   }
 
   @override
@@ -259,6 +312,14 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
     if (widget.focusNode != oldWidget.focusNode) {
       oldWidget.focusNode?.removeListener(onFocusChange);
       widget.focusNode?.addListener(onFocusChange);
+    }
+    if (widget.controller != oldWidget.controller) {
+      (oldWidget.controller ?? _controller)?.removeListener(_onOpenChanged);
+      if (widget.controller == null) {
+        _controller ??= TooltipController();
+      }
+      controller.addListener(_onOpenChanged);
+      _onOpenChanged();
     }
     if (widget.hoverStrategies != oldWidget.hoverStrategies ||
         widget.longPressDuration != oldWidget.longPressDuration ||
@@ -278,11 +339,22 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
     // Every await below can outlive the widget: the pointer leaves, the route
     // is popped, and the delay completes against a disposed controller.
     if (value) {
-      if (widget.waitDuration != null) {
+      if (controller.isOpen) {
+        // Back before it had left: it turns around where it is.
+        if (animationController.status == AnimationStatus.reverse) {
+          animationController.forward();
+        }
+        return;
+      }
+      // No wait while another tooltip is up: the pointer is moving along a
+      // row of triggers, and the next tooltip follows it.
+      if (widget.waitDuration != null && !_othersShowing) {
         await Future<void>.delayed(widget.waitDuration!);
         if (!mounted) return;
       }
       if (hovered) {
+        _warm = _othersShowing;
+        _showing.add(this);
         controller.show();
       }
     } else {
@@ -291,8 +363,11 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
         if (!mounted) return;
       }
       if (!hovered && !hasFocus) {
-        await animationController.reverse();
+        // With tickers muted the exit animation would never complete.
+        if (_tickersEnabled) await animationController.reverse();
         if (!mounted) return;
+        // The pointer may have come back while it was leaving.
+        if (hovered || hasFocus) return;
         controller.hide();
       }
     }
@@ -302,7 +377,7 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    final effectiveEffects = widget.effects ?? theme.tooltipTheme.effects ?? [];
+    final motion = Motion.of(context);
     final effectivePadding = widget.padding ?? theme.tooltipTheme.padding;
     final effectiveDecoration =
         (theme.tooltipTheme.decoration ?? const FinesseDecoration()).merge(
@@ -334,7 +409,7 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
             controller.hide();
           },
           child: Portal(
-            visible: controller.isOpen,
+            visible: controller.isOpen && _tickersEnabled,
             anchor: effectiveAnchor,
             portalBuilder: (context) {
               // Key caps invert along with the surface, the reference's
@@ -349,28 +424,95 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
                 ),
               );
 
-              Widget tooltip = Decorator(
-                decoration: effectiveDecoration,
-                child: Padding(
-                  padding: effectivePadding ?? EdgeInsets.zero,
-                  child: DefaultTextStyle(
-                    // The inverted surface's `text-background`, at `text-xs`.
-                    style:
-                        theme.tooltipTheme.textStyle ??
-                        theme.textTheme.muted.copyWith(
-                          fontSize: 12,
-                          height: 16 / 12,
-                          color: theme.colorScheme.background,
-                        ),
-                    child: Theme(
-                      data: contentTheme,
-                      // Through a Builder, so a custom [Tooltip.builder]
-                      // sees the inverted text style and theme through its
-                      // own context.
-                      child: Builder(builder: widget.builder),
+              final textDirection = Directionality.of(context);
+              final showArrow =
+                  widget.showArrow ?? theme.tooltipTheme.showArrow ?? true;
+              // The bubble and its arrow are one shape: filled in a single
+              // stroke, so a translucent tint is not doubled where they
+              // meet, and clipped as one, so a glass tooltip blurs one
+              // continuous area.
+              final shape = _TooltipShape(
+                radius:
+                    effectiveDecoration.border?.radius?.resolve(
+                      textDirection,
+                    ) ??
+                    BorderRadius.zero,
+                // The default anchors put the tooltip above the trigger, so
+                // the arrow rides the bottom edge — flipping up when the
+                // portal fell back below.
+                direction: !showArrow
+                    ? null
+                    : widget.arrowDirection ??
+                          (PortalPlacement.usedFallbackOf(context)
+                              ? AxisDirection.up
+                              : AxisDirection.down),
+                arrowSize: theme.tooltipTheme.arrowSize ?? 10,
+                arrowRadius: theme.tooltipTheme.arrowRadius ?? 2,
+                // The bubble slides along the viewport edge to stay on
+                // screen; the arrow slides back the same distance so it
+                // keeps pointing at the trigger.
+                shift: PortalPlacement.shiftOf(context),
+              );
+              final fill =
+                  effectiveDecoration.color ?? theme.colorScheme.foreground;
+              final effectiveFilter =
+                  widget.filter ?? theme.tooltipTheme.filter;
+              final shadows = effectiveDecoration.shadows;
+
+              Widget tooltip = CustomPaint(
+                painter: _TooltipShapePainter(shape: shape, color: fill),
+                child: Decorator(
+                  // The fill is the painter's; the rest of the decoration —
+                  // a border, a gradient — stays the bubble's own.
+                  decoration: effectiveDecoration.copyWith(
+                    color: const Color(0x00000000),
+                  ),
+                  child: Padding(
+                    padding: effectivePadding ?? EdgeInsets.zero,
+                    child: DefaultTextStyle(
+                      // The inverted surface's `text-background`, at
+                      // `text-xs`.
+                      style:
+                          theme.tooltipTheme.textStyle ??
+                          theme.textTheme.muted.copyWith(
+                            fontSize: 12,
+                            height: 16 / 12,
+                            color: theme.colorScheme.background,
+                          ),
+                      child: Theme(
+                        data: contentTheme,
+                        // Through a Builder, so a custom [Tooltip.builder]
+                        // sees the inverted text style and theme through
+                        // its own context.
+                        child: Builder(builder: widget.builder),
+                      ),
                     ),
                   ),
                 ),
+              );
+              if (showArrow) {
+                tooltip = Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    tooltip,
+                    Positioned.fill(child: _TooltipArrowMarker(shape: shape)),
+                  ],
+                );
+              }
+              tooltip = BackdropSurface(
+                filter: effectiveFilter,
+                tintOpacity: fill.a,
+                clipper: _TooltipShapeClipper(shape),
+                shadow:
+                    effectiveFilter != null &&
+                        shadows != null &&
+                        shadows.isNotEmpty
+                    ? ShadowDecoration.box(
+                        borderRadius: shape.radius,
+                        shadows: shadows,
+                      )
+                    : null,
+                child: tooltip,
               );
 
               final maxWidth = theme.tooltipTheme.maxWidth ?? 320.0;
@@ -379,39 +521,25 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
                 child: tooltip,
               );
 
-              final showArrow =
-                  widget.showArrow ?? theme.tooltipTheme.showArrow ?? true;
-              if (showArrow) {
-                // The default anchors put the tooltip above the trigger, so
-                // the arrow rides the bottom edge — flipping up when the
-                // portal fell back below.
-                final direction =
-                    widget.arrowDirection ??
-                    (PortalPlacement.usedFallbackOf(context)
-                        ? AxisDirection.up
-                        : AxisDirection.down);
-                tooltip = _TooltipArrow(
-                  direction: direction,
-                  size: theme.tooltipTheme.arrowSize ?? 10,
-                  radius: theme.tooltipTheme.arrowRadius ?? 2,
-                  color:
-                      effectiveDecoration.color ?? theme.colorScheme.foreground,
-                  // The bubble slides along the viewport edge to stay on
-                  // screen; the arrow slides back the same distance so it
-                  // keeps pointing at the trigger.
-                  shift: PortalPlacement.shiftOf(context),
-                  cornerRadius: _cornerRadius(
-                    effectiveDecoration,
-                    Directionality.of(context),
-                  ),
-                  child: tooltip,
-                );
-              }
-
+              // A quick pop out of the trigger's side — quicker than a
+              // popover, which is a larger surface — or a plain fade when
+              // it takes over from another tooltip. Resolved here, where
+              // the tooltip is built for this showing.
+              final effectiveEffects =
+                  widget.effects ??
+                  theme.tooltipTheme.effects ??
+                  (_warm
+                      ? EntranceEffect.fadeFor(motion)
+                      : EntranceEffect.forMotion(
+                          motion,
+                          spring: motion.snappy.scaled(.8),
+                        ));
               if (effectiveEffects.isNotEmpty) {
                 tooltip = FinesseAnimate(
                   controller: animationController,
                   effects: effectiveEffects,
+                  // The bubble may be glass; see [BackdropFade].
+                  fadeThroughBackdrop: true,
                   child: tooltip,
                 );
               }
@@ -445,139 +573,180 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
   }
 }
 
-/// The largest corner radius of the tooltip's own surface, which is how far
-/// along an edge the arrow has to stay before it starts eating into a corner.
-double _cornerRadius(
-  FinesseDecoration decoration,
-  TextDirection textDirection,
-) {
-  final radius = decoration.border?.radius?.resolve(textDirection);
-  if (radius == null) return 0;
-  return [
-    radius.topLeft.x,
-    radius.topRight.x,
-    radius.bottomLeft.x,
-    radius.bottomRight.x,
-  ].reduce(math.max);
-}
-
-/// The arrow pointing from the tooltip at its trigger, shadcn/ui's
-/// `TooltipArrow`: a `size-2.5` square rotated 45°, filled like the surface,
-/// its tip rounded by `rounded-[2px]`.
+/// The outline of a tooltip: its bubble and, when [direction] is not null,
+/// the arrow pointing from it at its trigger.
 ///
-/// The square's centre sits 2px inside the edge it rides
-/// (`translate-y-[calc(-50%-2px)]`), so about half its diagonal — 5px —
-/// pokes out across the anchor gap. It is painted under the bubble and in
-/// the same colour, so the overlap never shows.
+/// The arrow is shadcn/ui's `TooltipArrow`: a `size-2.5` square rotated 45°,
+/// its tip rounded by `rounded-[2px]`, its centre 2px inside the edge it
+/// rides (`translate-y-[calc(-50%-2px)]`) so about half its diagonal — 5px —
+/// pokes out across the anchor gap.
 ///
 /// Along its edge the arrow tracks the trigger rather than the bubble: a
 /// tooltip near the side of the window is pushed inward to stay on screen
 /// (see [PortalPlacement.shift]) and a centred arrow would then point
 /// somewhere the trigger is not. It stops short of the bubble's corners,
 /// where a rounded surface has no straight edge left to sit on.
-class _TooltipArrow extends StatelessWidget {
-  const _TooltipArrow({
-    required this.direction,
-    required this.size,
+@immutable
+class _TooltipShape {
+  const _TooltipShape({
     required this.radius,
-    required this.color,
+    required this.direction,
+    required this.arrowSize,
+    required this.arrowRadius,
     required this.shift,
-    required this.cornerRadius,
-    required this.child,
   });
 
-  final AxisDirection direction;
-  final double size;
-  final double radius;
-  final Color color;
+  /// The bubble's corners.
+  final BorderRadius radius;
+
+  /// The edge the arrow rides, or null for no arrow.
+  final AxisDirection? direction;
+  final double arrowSize;
+  final double arrowRadius;
 
   /// How far the bubble was moved off its anchor, from
   /// [PortalPlacement.shift]. The arrow moves back by as much of this as
   /// its edge has room for.
   final Offset shift;
 
-  /// The bubble's corner radius, which the arrow keeps clear of.
-  final double cornerRadius;
-
-  final Widget child;
+  /// How far the arrow's centre sits inside the edge it rides.
+  static const _inset = 2.0;
 
   /// How far from the centre of an edge of [extent] the arrow may sit.
   double _travel(double extent) {
+    final cornerRadius = [
+      radius.topLeft.x,
+      radius.topRight.x,
+      radius.bottomLeft.x,
+      radius.bottomRight.x,
+    ].reduce(math.max);
     // The rotated square is `size * sqrt2` across, so its own half-diagonal
     // has to clear the corner too.
-    final keepClear = cornerRadius + size * math.sqrt2 / 2;
+    final keepClear = cornerRadius + arrowSize * math.sqrt2 / 2;
     return math.max(0, extent / 2 - keepClear);
   }
 
-  Widget _alongEdge(bool horizontal, Widget diamond) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final travel = _travel(
-          horizontal ? constraints.maxWidth : constraints.maxHeight,
-        );
-        final offset = horizontal
-            ? Offset((-shift.dx).clamp(-travel, travel), 0)
-            : Offset(0, (-shift.dy).clamp(-travel, travel));
-        return Center(
-          child: Transform.translate(offset: offset, child: diamond),
-        );
-      },
+  /// The centre of the arrow's square on a bubble of [size], or null
+  /// without an arrow.
+  Offset? arrowCenter(Size size) {
+    final direction = this.direction;
+    if (direction == null) return null;
+    final along = switch (direction) {
+      AxisDirection.down || AxisDirection.up =>
+        size.width / 2 +
+            (-shift.dx).clamp(-_travel(size.width), _travel(size.width)),
+      AxisDirection.left || AxisDirection.right =>
+        size.height / 2 +
+            (-shift.dy).clamp(-_travel(size.height), _travel(size.height)),
+    };
+    return switch (direction) {
+      AxisDirection.down => Offset(along, size.height - _inset),
+      AxisDirection.up => Offset(along, _inset),
+      AxisDirection.left => Offset(_inset, along),
+      AxisDirection.right => Offset(size.width - _inset, along),
+    };
+  }
+
+  /// The outline on a bubble of [size].
+  Path build(Size size) {
+    final bubble = Path()..addRRect(radius.toRRect(Offset.zero & size));
+    final center = arrowCenter(size);
+    if (center == null) return bubble;
+    final square = Path()
+      ..addRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromCenter(
+            center: Offset.zero,
+            width: arrowSize,
+            height: arrowSize,
+          ),
+          Radius.circular(arrowRadius),
+        ),
+      );
+    final placed = square.transform(
+      (Matrix4.translationValues(
+        center.dx,
+        center.dy,
+        0,
+      )..rotateZ(math.pi / 4)).storage,
     );
+    return Path.combine(PathOperation.union, bubble, placed);
   }
 
   @override
+  bool operator ==(Object other) =>
+      other is _TooltipShape &&
+      other.radius == radius &&
+      other.direction == direction &&
+      other.arrowSize == arrowSize &&
+      other.arrowRadius == arrowRadius &&
+      other.shift == shift;
+
+  @override
+  int get hashCode =>
+      Object.hash(radius, direction, arrowSize, arrowRadius, shift);
+}
+
+class _TooltipShapePainter extends CustomPainter {
+  const _TooltipShapePainter({required this.shape, required this.color});
+
+  final _TooltipShape shape;
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.drawPath(shape.build(size), Paint()..color = color);
+  }
+
+  @override
+  bool shouldRepaint(_TooltipShapePainter oldDelegate) =>
+      oldDelegate.shape != shape || oldDelegate.color != color;
+}
+
+class _TooltipShapeClipper extends CustomClipper<Path> {
+  const _TooltipShapeClipper(this.shape);
+
+  final _TooltipShape shape;
+
+  @override
+  Path getClip(Size size) => shape.build(size);
+
+  @override
+  bool shouldReclip(_TooltipShapeClipper oldClipper) =>
+      oldClipper.shape != shape;
+}
+
+/// An empty box where the arrow's square is, so a test can measure where
+/// the tip landed. It takes its place from the same [_TooltipShape] the
+/// painter does.
+class _TooltipArrowMarker extends StatelessWidget {
+  const _TooltipArrowMarker({required this.shape});
+
+  final _TooltipShape shape;
+
+  @override
   Widget build(BuildContext context) {
-    final diamond = Transform.rotate(
-      // Keyed so a test can measure where the tip actually landed.
-      key: const ValueKey('finesse_tooltip_arrow'),
-      angle: math.pi / 4,
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.all(Radius.circular(radius)),
-        ),
-      ),
-    );
-
-    // The square's centre sits 2px inside the bubble's edge.
-    final inset = -(size / 2) + 2;
-    final positioned = switch (direction) {
-      AxisDirection.down => Positioned(
-        bottom: inset,
-        left: 0,
-        right: 0,
-        child: _alongEdge(true, diamond),
-      ),
-      AxisDirection.up => Positioned(
-        top: inset,
-        left: 0,
-        right: 0,
-        child: _alongEdge(true, diamond),
-      ),
-      AxisDirection.left => Positioned(
-        left: inset,
-        top: 0,
-        bottom: 0,
-        child: _alongEdge(false, diamond),
-      ),
-      AxisDirection.right => Positioned(
-        right: inset,
-        top: 0,
-        bottom: 0,
-        child: _alongEdge(false, diamond),
-      ),
-    };
-
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        // Painted before (under) the bubble, so only the protruding tip
-        // shows.
-        positioned,
-        child,
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final center = shape.arrowCenter(constraints.biggest)!;
+        return Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Positioned.fromRect(
+              rect: Rect.fromCenter(
+                center: center,
+                width: shape.arrowSize,
+                height: shape.arrowSize,
+              ),
+              child: const IgnorePointer(
+                child: SizedBox.expand(
+                  key: ValueKey('finesse_tooltip_arrow'),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

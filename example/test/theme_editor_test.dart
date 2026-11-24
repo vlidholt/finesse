@@ -768,8 +768,10 @@ void main() {
         brightness: Brightness.dark,
       ).build();
 
+      // The default style's menus are glass, so compare the colour under
+      // the opacity.
       expect(
-        theme.contextMenuTheme.decoration!.color,
+        theme.contextMenuTheme.decoration!.color!.withValues(alpha: 1),
         dark.colorScheme.popover,
       );
       expect(
@@ -786,7 +788,10 @@ void main() {
         dark.colorScheme.accent,
       );
       // The page's own popover is untouched: plain popovers do not invert.
-      expect(theme.popoverTheme.decoration!.color, theme.colorScheme.popover);
+      expect(
+        theme.popoverTheme.decoration!.color!.withValues(alpha: 1),
+        theme.colorScheme.popover,
+      );
     });
 
     test('inverted is a no-op in dark mode, as in the reference', () {
@@ -798,7 +803,7 @@ void main() {
       );
       final theme = config.build();
       expect(
-        theme.contextMenuTheme.decoration!.color,
+        theme.contextMenuTheme.decoration!.color!.withValues(alpha: 1),
         theme.colorScheme.popover,
       );
     });

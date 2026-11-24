@@ -1,4 +1,7 @@
 import 'package:example/strand/data/profile_data.dart';
+import 'package:example/strand/navigation.dart';
+import 'package:example/strand/widgets/settings_controller.dart';
+import 'package:example/strand/widgets/settings_links.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -116,7 +119,9 @@ class ProfileHeaderAction extends StatelessWidget {
       iconSize: Theme.of(context).buttonSizesTheme.regular?.iconSize,
       icon: Icon(icon),
       semanticLabel: label,
-      onPressed: onPressed ?? () {},
+      // Editing lives in one place: the Account page of Settings.
+      onPressed:
+          onPressed ?? () => openSettings(context, SettingsSection.account),
     );
   }
 }
@@ -235,7 +240,13 @@ class ProfileStatusTile extends StatelessWidget {
                   ProfileTextLink(
                     status.action,
                     color: accent,
-                    onPressed: onAction ?? () {},
+                    // The status is a privacy preference; the talks are
+                    // arranged in Messages.
+                    onPressed:
+                        onAction ??
+                        () => status.positive
+                            ? openSettings(context, SettingsSection.privacy)
+                            : context.goTo(StrandDestination.messages),
                     style: theme.textTheme.small.copyWith(
                       height: 19 / 13,
                       fontWeight: FontWeight.w600,

@@ -11,13 +11,19 @@ import '../../finesse_harness.dart';
 void main() {
   /// The chip's own box: fill, outline and radius.
   BoxDecoration boxOf(WidgetTester tester, [Finder? chip]) {
-    final container = tester.widget<AnimatedContainer>(
+    final fill = tester.widget<AnimatedFill>(
       find.descendant(
         of: chip ?? find.byType(Chip),
-        matching: find.byType(AnimatedContainer),
+        matching: find.byType(AnimatedFill),
       ),
     );
-    return container.decoration! as BoxDecoration;
+    return BoxDecoration(
+      color: fill.color,
+      borderRadius: fill.borderRadius,
+      border: fill.borderColor == null
+          ? null
+          : Border.all(color: fill.borderColor!, width: fill.borderWidth),
+    );
   }
 
   Color labelColorOf(WidgetTester tester, String label) =>
@@ -196,16 +202,9 @@ void main() {
       expect(tester.getSize(find.byType(Chip)).height, 32);
 
       // The animated box itself carries no size at all.
-      final box = tester.widget<AnimatedContainer>(
-        find.descendant(
-          of: find.byType(Chip),
-          matching: find.byType(AnimatedContainer),
-        ),
-      );
-      expect(box.constraints, isNull);
       expect(
         find.ancestor(
-          of: find.byType(AnimatedContainer),
+          of: find.byType(AnimatedFill),
           matching: find.byWidgetPredicate(
             (w) => w is SizedBox && w.height == 32 && w.width == null,
           ),
@@ -646,7 +645,9 @@ void main() {
         expect(
           find.descendant(
             of: find.byType(Chip),
-            matching: find.byType(CustomPaint),
+            matching: find.byWidgetPredicate(
+              (w) => w is CustomPaint && w.foregroundPainter != null,
+            ),
           ),
           findsNothing,
         );
@@ -685,12 +686,12 @@ void main() {
       // The solid border is replaced by a painter…
       expect(box.border, isNull);
       final painter = tester.widget<CustomPaint>(
-        find
-            .descendant(
-              of: find.byType(Chip),
-              matching: find.byType(CustomPaint),
-            )
-            .first,
+        find.descendant(
+          of: find.byType(Chip),
+          matching: find.byWidgetPredicate(
+            (w) => w is CustomPaint && w.foregroundPainter != null,
+          ),
+        ),
       );
       expect(painter.foregroundPainter, isNotNull);
       // …which takes no space: the chip is the same size as a solid one.

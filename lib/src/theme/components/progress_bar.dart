@@ -1,3 +1,4 @@
+import 'package:finesse/src/theme/motion.dart';
 import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
@@ -16,6 +17,7 @@ class ProgressBarTheme with _$ProgressBarTheme {
     this.color,
     this.borderRadius,
     this.innerBorderRadius,
+    this.spring,
     this.minHeight,
   }) : _canMerge = canMerge;
 
@@ -36,6 +38,10 @@ class ProgressBarTheme with _$ProgressBarTheme {
 
   /// {@macro ProgressBar.innerBorderRadius}
   final BorderRadius? innerBorderRadius;
+
+  /// The spring a determinate bar glides to a new value with. Defaults to the
+  /// theme's `Motion.smooth`; `MotionSpring.instant` moves it at once.
+  final MotionSpring? spring;
 
   /// {@macro ProgressBar.minHeight}
   final double? minHeight;

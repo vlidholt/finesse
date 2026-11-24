@@ -2,9 +2,11 @@ import 'dart:math' as math;
 
 import 'package:finesse/src/raw_components/focusable.dart';
 import 'package:finesse/src/theme/components/slider.dart';
+import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:finesse/src/utils/shadow.dart';
+import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
@@ -977,6 +979,11 @@ class _SliderCoreState extends State<_SliderCore> {
           effectiveThumbRadius * 2,
         );
 
+        final motion = Motion.of(layoutContext);
+        final thumbPressScale =
+            theme.sliderTheme.thumbPressScale ??
+            1 + (1 - motion.pressScale) * 4;
+
         Widget buildThumb(int index) {
           final value = values[index];
           return Positioned(
@@ -1052,25 +1059,42 @@ class _SliderCoreState extends State<_SliderCore> {
                       child: MouseRegion(
                         onEnter: (_) => _setHovered(index),
                         onExit: (_) => _setHovered(null),
-                        child: Container(
-                          decoration: ShadowDecoration.box(
-                            shape: BoxShape.circle,
-                            color: resolvedThumbColor,
-                            border: Border.all(
-                              color: resolvedThumbBorderColor,
-                              width: thumbBorderWidth,
+                        // The ring grows out of the thumb and the thumb
+                        // swells while it is held; both are paint only, so
+                        // the slider's box never changes.
+                        child: SpringBuilder(
+                          value: draggingThumb == index && widget.enabled
+                              ? 1
+                              : 0,
+                          spring: motion.bouncy,
+                          builder: (context, press, child) => Transform.scale(
+                            scale: 1 + (thumbPressScale - 1) * press,
+                            child: child,
+                          ),
+                          child: SpringBuilder(
+                            value: ringVisible ? 1 : 0,
+                            spring: motion.snappy,
+                            builder: (context, ring, _) => Container(
+                              decoration: ShadowDecoration.box(
+                                shape: BoxShape.circle,
+                                color: resolvedThumbColor,
+                                border: Border.all(
+                                  color: resolvedThumbBorderColor,
+                                  width: thumbBorderWidth,
+                                ),
+                                // A spread-only shadow is a ring: it grows
+                                // outward without moving anything, which is
+                                // what `hover:ring-4` does.
+                                shadows: ring > 0
+                                    ? [
+                                        BoxShadow(
+                                          color: ringColor,
+                                          spreadRadius: ringWidth * ring,
+                                        ),
+                                      ]
+                                    : const <BoxShadow>[],
+                              ),
                             ),
-                            // A spread-only shadow is a ring: it grows
-                            // outward without moving anything, which is
-                            // what `hover:ring-4` does.
-                            shadows: ringVisible
-                                ? [
-                                    BoxShadow(
-                                      color: ringColor,
-                                      spreadRadius: ringWidth,
-                                    ),
-                                  ]
-                                : const <BoxShadow>[],
                           ),
                         ),
                       ),

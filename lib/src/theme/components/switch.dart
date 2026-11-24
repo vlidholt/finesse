@@ -20,6 +20,7 @@ class SwitchTheme with _$SwitchTheme {
     this.height,
     this.margin,
     this.duration,
+    this.thumbStretch,
     this.decoration,
     this.padding,
   }) : _canMerge = canMerge;
@@ -50,6 +51,11 @@ class SwitchTheme with _$SwitchTheme {
 
   /// {@macro Switch.duration}
   final Duration? duration;
+
+  /// How far the thumb stretches as it crosses the track, as a fraction of
+  /// its size: 0.25 makes it a quarter wider mid-travel. Defaults to 0.25, and
+  /// to 0 with reduced motion.
+  final double? thumbStretch;
 
   /// {@macro Switch.decoration}
   final FinesseDecoration? decoration;

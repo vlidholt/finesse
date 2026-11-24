@@ -6,9 +6,12 @@ import 'package:finesse/src/components/context_menu.dart';
 import 'package:finesse/src/components/popover.dart';
 import 'package:finesse/src/raw_components/portal.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/border.dart';
+import 'package:finesse/src/utils/entrance.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
+import 'package:finesse/src/utils/moving_indicator.dart';
 import 'package:finesse/src/utils/provider.dart';
 import 'package:finesse/src/utils/provider_index.dart';
 import 'package:finesse/src/utils/shadow.dart';
@@ -103,6 +106,15 @@ class Menubar extends StatefulWidget {
 
 class _MenubarState extends State<Menubar> {
   int? focusedIndex;
+
+  /// The pointer that last went down on one of this menubar's triggers.
+  ///
+  /// The same press reaches the open menu as a tap outside it. The menu
+  /// leaves that press alone: the trigger it landed on switches to its own
+  /// menu on the way up, so the selection goes from one menu straight to
+  /// the next instead of through "none" — which is what lets the second
+  /// menu take over from the first rather than open afresh.
+  int? _triggerPointer;
   MenubarController? _controller;
   MenubarController get controller => widget.controller ?? _controller!;
 
@@ -158,13 +170,17 @@ class _MenubarState extends State<Menubar> {
               theme.style.controlShadow,
         ),
         padding: effectivePadding,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: widget.items
-              .mapIndexed(
-                (i, item) => IndexProvider(index: i, child: item),
-              )
-              .toList(),
+        // The open menu's trigger is marked by one fill that slides along
+        // the strip as the menus are switched.
+        child: MovingIndicator(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: widget.items
+                .mapIndexed(
+                  (i, item) => IndexProvider(index: i, child: item),
+                )
+                .toList(),
+          ),
         ),
       ),
     );
@@ -461,8 +477,23 @@ class _MenubarItemState extends State<MenubarItem> {
     }
   }
 
+  /// The menubar's selection when this item last heard of a change.
+  int? _lastSelectedIndex;
+
+  /// Whether this item's menu took over from another one that was open. It
+  /// then only fades in: the menus stand in for one surface that changes
+  /// its content, and a second full entrance beside the first would read as
+  /// a flicker.
+  bool _tookOver = false;
+
   void onSelectedIndexChange() {
-    final selected = menubarController.selectedIndex == index;
+    final previous = _lastSelectedIndex;
+    final current = menubarController.selectedIndex;
+    _lastSelectedIndex = current;
+    final selected = current == index;
+    if (selected && !popoverController.isOpen) {
+      _tookOver = previous != null && previous != index;
+    }
     popoverController.setOpen(selected);
   }
 
@@ -517,6 +548,15 @@ class _MenubarItemState extends State<MenubarItem> {
     final effectiveButtonDecoration = const FinesseDecoration(
       disableSecondaryBorder: true,
     ).merge(theme.menubarTheme.buttonDecoration).merge(widget.buttonDecoration);
+    // The shape of the trigger, for the fill that marks the open menu.
+    final variantDecoration = switch (effectiveVariant) {
+      ButtonVariant.primary => theme.primaryButtonTheme,
+      ButtonVariant.destructive => theme.destructiveButtonTheme,
+      ButtonVariant.secondary => theme.secondaryButtonTheme,
+      ButtonVariant.ghost => theme.ghostButtonTheme,
+      ButtonVariant.outline => theme.outlineButtonTheme,
+      ButtonVariant.link => theme.linkButtonTheme,
+    }.decoration;
     final effectiveSelectOnHover =
         inherited.widget.selectOnHover ??
         theme.menubarTheme.selectOnHover ??
@@ -534,110 +574,133 @@ class _MenubarItemState extends State<MenubarItem> {
           onHoverArea: widget.onHoverArea,
           padding: widget.padding ?? theme.menubarTheme.contextMenuPadding,
           groupId: widget.groupId,
-          effects: widget.effects ?? theme.menubarTheme.effects,
+          effects:
+              widget.effects ??
+              theme.menubarTheme.effects ??
+              (_tookOver ? EntranceEffect.fadeFor(Motion.of(context)) : null),
           shadows: widget.shadows ?? theme.menubarTheme.shadows,
           decoration: widget.decoration ?? theme.menubarTheme.decoration,
           filter: widget.filter ?? theme.menubarTheme.filter,
           onTapUpInside: (_) {
             menubarController.selectedIndex = index;
           },
-          onTapOutside: (_) {
+          onTapOutside: (event) {
+            // A press on another trigger of this menubar: that trigger
+            // decides.
+            if (event.pointer == inherited._triggerPointer) return;
             menubarController.selectedIndex = null;
           },
-          child: Button.raw(
-            variant: effectiveVariant,
-            height: effectiveHeight,
-            backgroundColor: selected
-                ? effectiveSelectedBackgroundColor
-                : widget.backgroundColor ??
-                      theme.menubarTheme.buttonBackgroundColor,
-            focusNode: widget.focusNode,
-            onFocusChange: (focused) {
-              widget.onFocusChange?.call(focused);
-              // Set the selected index
-              if (focused) {
-                menubarController.selectedIndex = index;
-              }
-            },
-            onHoverChange: (hovered) {
-              widget.onHoverChange?.call(hovered);
-              if (!hovered) return;
-              if (!effectiveSelectOnHover) return;
-              // Hover only *switches* menus: a closed menubar opens on tap,
-              // like the reference (`radix`'s menubar), not on pointer-over.
-              if (menubarController.selectedIndex == null) return;
-              menubarController.selectedIndex = index;
-            },
-            onPressed: () {
-              menubarController.selectedIndex = index;
-              // If selected and popover is not open, open it
-              if (selected && !popoverController.isOpen) {
-                popoverController.show();
-              }
-            },
-            onLongPress: widget.onLongPress,
-            leading: widget.leading,
-            trailing: widget.trailing,
-            size: widget.size ?? theme.menubarTheme.buttonSize,
-            cursor: widget.cursor ?? theme.menubarTheme.buttonCursor,
-            width: widget.width ?? theme.menubarTheme.buttonWidth,
-            padding: widget.buttonPadding ?? theme.menubarTheme.buttonPadding,
-            hoverBackgroundColor:
-                widget.hoverBackgroundColor ??
-                theme.menubarTheme.buttonHoverBackgroundColor,
-            foregroundColor:
-                widget.foregroundColor ??
-                theme.menubarTheme.buttonForegroundColor,
-            hoverForegroundColor:
-                widget.hoverForegroundColor ??
-                theme.menubarTheme.buttonHoverForegroundColor,
-            autofocus: widget.autofocus,
-            pressedBackgroundColor:
-                widget.pressedBackgroundColor ??
-                theme.menubarTheme.buttonPressedBackgroundColor,
-            pressedForegroundColor:
-                widget.pressedForegroundColor ??
-                theme.menubarTheme.buttonPressedForegroundColor,
-            shadows: widget.buttonShadows ?? theme.menubarTheme.buttonShadows,
-            gradient: widget.gradient ?? theme.menubarTheme.buttonGradient,
-            textDecoration:
-                widget.textDecoration ??
-                theme.menubarTheme.buttonTextDecoration,
-            hoverTextDecoration:
-                widget.hoverTextDecoration ??
-                theme.menubarTheme.buttonHoverTextDecoration,
-            decoration: effectiveButtonDecoration,
-            enabled: widget.enabled,
-            statesController: widget.statesController,
-            gap: widget.gap ?? theme.menubarTheme.buttonGap,
-            mainAxisAlignment:
-                widget.mainAxisAlignment ??
-                theme.menubarTheme.buttonMainAxisAlignment,
-            crossAxisAlignment:
-                widget.crossAxisAlignment ??
-                theme.menubarTheme.buttonCrossAxisAlignment,
-            hoverStrategies:
-                widget.hoverStrategies ??
-                theme.menubarTheme.buttonHoverStrategies,
-            onTapDown: widget.onTapDown,
-            onTapUp: widget.onTapUp,
-            onTapCancel: widget.onTapCancel,
-            onSecondaryTapDown: widget.onSecondaryTapDown,
-            onSecondaryTapUp: widget.onSecondaryTapUp,
-            onSecondaryTapCancel: widget.onSecondaryTapCancel,
-            onLongPressStart: widget.onLongPressStart,
-            onLongPressCancel: widget.onLongPressCancel,
-            onLongPressUp: widget.onLongPressUp,
-            onLongPressDown: widget.onLongPressDown,
-            onLongPressEnd: widget.onLongPressEnd,
-            onDoubleTap: widget.onDoubleTap,
-            onDoubleTapDown: widget.onDoubleTapDown,
-            onDoubleTapCancel: widget.onDoubleTapCancel,
-            longPressDuration: widget.longPressDuration,
-            textDirection:
-                widget.textDirection ?? theme.menubarTheme.buttonTextDirection,
-            expands: widget.expands ?? theme.menubarTheme.buttonExpands,
-            child: child,
+          child: MovingIndicatorTarget(
+            selected: selected,
+            decoration: BoxDecoration(
+              color: effectiveSelectedBackgroundColor,
+              borderRadius:
+                  effectiveButtonDecoration.border?.radius ??
+                  variantDecoration?.border?.radius,
+            ),
+            child: Listener(
+              onPointerDown: widget.enabled
+                  ? (event) => inherited._triggerPointer = event.pointer
+                  : null,
+              child: Button.raw(
+                variant: effectiveVariant,
+                height: effectiveHeight,
+                backgroundColor:
+                    widget.backgroundColor ??
+                    theme.menubarTheme.buttonBackgroundColor,
+                focusNode: widget.focusNode,
+                onFocusChange: (focused) {
+                  widget.onFocusChange?.call(focused);
+                  // Set the selected index
+                  if (focused) {
+                    menubarController.selectedIndex = index;
+                  }
+                },
+                onHoverChange: (hovered) {
+                  widget.onHoverChange?.call(hovered);
+                  if (!hovered) return;
+                  if (!effectiveSelectOnHover) return;
+                  // Hover only *switches* menus: a closed menubar opens on
+                  // tap, like the reference (`radix`'s menubar), not on
+                  // pointer-over.
+                  if (menubarController.selectedIndex == null) return;
+                  menubarController.selectedIndex = index;
+                },
+                onPressed: () {
+                  menubarController.selectedIndex = index;
+                  // If selected and popover is not open, open it
+                  if (selected && !popoverController.isOpen) {
+                    popoverController.show();
+                  }
+                },
+                onLongPress: widget.onLongPress,
+                leading: widget.leading,
+                trailing: widget.trailing,
+                size: widget.size ?? theme.menubarTheme.buttonSize,
+                cursor: widget.cursor ?? theme.menubarTheme.buttonCursor,
+                width: widget.width ?? theme.menubarTheme.buttonWidth,
+                padding:
+                    widget.buttonPadding ?? theme.menubarTheme.buttonPadding,
+                hoverBackgroundColor:
+                    widget.hoverBackgroundColor ??
+                    theme.menubarTheme.buttonHoverBackgroundColor,
+                foregroundColor:
+                    widget.foregroundColor ??
+                    theme.menubarTheme.buttonForegroundColor,
+                hoverForegroundColor:
+                    widget.hoverForegroundColor ??
+                    theme.menubarTheme.buttonHoverForegroundColor,
+                autofocus: widget.autofocus,
+                pressedBackgroundColor:
+                    widget.pressedBackgroundColor ??
+                    theme.menubarTheme.buttonPressedBackgroundColor,
+                pressedForegroundColor:
+                    widget.pressedForegroundColor ??
+                    theme.menubarTheme.buttonPressedForegroundColor,
+                shadows:
+                    widget.buttonShadows ?? theme.menubarTheme.buttonShadows,
+                gradient: widget.gradient ?? theme.menubarTheme.buttonGradient,
+                textDecoration:
+                    widget.textDecoration ??
+                    theme.menubarTheme.buttonTextDecoration,
+                hoverTextDecoration:
+                    widget.hoverTextDecoration ??
+                    theme.menubarTheme.buttonHoverTextDecoration,
+                decoration: effectiveButtonDecoration,
+                enabled: widget.enabled,
+                statesController: widget.statesController,
+                gap: widget.gap ?? theme.menubarTheme.buttonGap,
+                mainAxisAlignment:
+                    widget.mainAxisAlignment ??
+                    theme.menubarTheme.buttonMainAxisAlignment,
+                crossAxisAlignment:
+                    widget.crossAxisAlignment ??
+                    theme.menubarTheme.buttonCrossAxisAlignment,
+                hoverStrategies:
+                    widget.hoverStrategies ??
+                    theme.menubarTheme.buttonHoverStrategies,
+                onTapDown: widget.onTapDown,
+                onTapUp: widget.onTapUp,
+                onTapCancel: widget.onTapCancel,
+                onSecondaryTapDown: widget.onSecondaryTapDown,
+                onSecondaryTapUp: widget.onSecondaryTapUp,
+                onSecondaryTapCancel: widget.onSecondaryTapCancel,
+                onLongPressStart: widget.onLongPressStart,
+                onLongPressCancel: widget.onLongPressCancel,
+                onLongPressUp: widget.onLongPressUp,
+                onLongPressDown: widget.onLongPressDown,
+                onLongPressEnd: widget.onLongPressEnd,
+                onDoubleTap: widget.onDoubleTap,
+                onDoubleTapDown: widget.onDoubleTapDown,
+                onDoubleTapCancel: widget.onDoubleTapCancel,
+                longPressDuration: widget.longPressDuration,
+                textDirection:
+                    widget.textDirection ??
+                    theme.menubarTheme.buttonTextDirection,
+                expands: widget.expands ?? theme.menubarTheme.buttonExpands,
+                child: child,
+              ),
+            ),
           ),
         );
       },

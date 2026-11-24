@@ -7,8 +7,8 @@ import 'package:flutter_solidart/flutter_solidart.dart';
 /// The places the Strand shell can show.
 ///
 /// Home, Jobs, Messages and Profile are the four designed screens. Network
-/// and Notifications exist in the navigation but have no design, so they
-/// show a placeholder.
+/// and Notifications are in the designs' navigation but were never drawn;
+/// they are built in the same style, from the same pieces.
 enum StrandDestination { home, network, jobs, messages, notifications, profile }
 
 /// The destination the Strand shell is showing.
@@ -30,6 +30,17 @@ extension StrandNavigation on BuildContext {
   /// Switches the Strand shell to [destination].
   void goTo(StrandDestination destination) =>
       strandDestinationProvider.of(this).value = destination;
+
+  /// Switches the Strand shell to [destination] from anywhere, closing
+  /// whatever full-screen routes are open over it — a search page, a
+  /// settings page — on the way.
+  ///
+  /// Call it with the context of a screen or of a pushed page, not with a
+  /// dialog's own: a dialog lives in another navigator, and closes itself.
+  void leaveTo(StrandDestination destination) {
+    Navigator.of(this).popUntil((route) => route.isFirst);
+    goTo(destination);
+  }
 
   /// Leaves Strand for the component-library browser.
   void openComponentLibrary() =>

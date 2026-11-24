@@ -1,12 +1,14 @@
 import 'package:finesse/src/components/disabled.dart';
 import 'package:finesse/src/raw_components/focusable.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/debug_check.dart';
+import 'package:finesse/src/utils/motion_color.dart';
+import 'package:finesse/src/utils/pop_in.dart';
 import 'package:finesse/src/utils/provider.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
 /// Holds the selected value of a [FinesseRadioGroup] and whether the group is
 /// enabled.
@@ -285,7 +287,9 @@ class Radio<T> extends StatefulWidget {
   final double? circleSize;
 
   /// {@template Radio.duration}
-  /// The duration of the radio animation, defaults to 100ms.
+  /// How long the dot takes to appear. It pops in on a spring — the theme's
+  /// `Motion.bouncy` — and this replaces that spring's duration; when null
+  /// the spring is used as it is.
   /// {@endtemplate}
   final Duration? duration;
 
@@ -380,8 +384,11 @@ class _RadioState<T> extends State<Radio<T>> {
         widget.color ??
         theme.radioTheme.color ??
         theme.colorScheme.primaryForeground;
-    final effectiveDuration =
-        widget.duration ?? theme.radioTheme.duration ?? 100.milliseconds;
+    final motion = Motion.of(context);
+    final duration = widget.duration ?? theme.radioTheme.duration;
+    final dotSpring = duration == null || motion.bouncy.isInstant
+        ? motion.bouncy
+        : motion.bouncy.copyWith(duration: duration);
     final effectivePadding =
         widget.padding ??
         theme.radioTheme.padding ??
@@ -421,11 +428,22 @@ class _RadioState<T> extends State<Radio<T>> {
                 onFocusChange: widget.onFocusChange,
                 focusNode: focusNode,
                 builder: (context, focused, child) {
-                  return Decorator(
-                    focused: focused,
-                    decoration: selected
-                        ? effectiveCheckedDecoration
-                        : effectiveDecoration,
+                  final decoration = selected
+                      ? effectiveCheckedDecoration
+                      : effectiveDecoration;
+                  // The fill fades between the two states; the outline
+                  // swaps with the decoration.
+                  return AnimatedColorBuilder(
+                    color: decoration.color,
+                    duration: motion.fast,
+                    curve: motion.standard,
+                    builder: (context, color, child) => Decorator(
+                      focused: focused,
+                      decoration: color == null
+                          ? decoration
+                          : decoration.copyWith(color: color),
+                      child: child,
+                    ),
                     child: child,
                   );
                 },
@@ -433,21 +451,22 @@ class _RadioState<T> extends State<Radio<T>> {
                   cursor: SystemMouseCursors.click,
                   child: SizedBox.square(
                     dimension: effectiveSize,
-                    child: AnimatedSwitcher(
-                      duration: effectiveDuration,
-                      child: selected
-                          ? Align(
-                              child: SizedBox.square(
-                                dimension: effectiveCircleSize,
-                                child: DecoratedBox(
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: effectiveColor,
-                                  ),
-                                ),
-                              ),
-                            )
-                          : const SizedBox(),
+                    child: Center(
+                      // The dot grows out of the centre and settles.
+                      child: PopIn(
+                        visible: selected,
+                        scale: .2,
+                        spring: dotSpring,
+                        child: SizedBox.square(
+                          dimension: effectiveCircleSize,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: effectiveColor,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),

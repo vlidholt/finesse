@@ -1,8 +1,12 @@
 import 'package:finesse/src/components/indicator_badge.dart';
 import 'package:finesse/src/raw_components/pressable.dart';
+import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/backdrop.dart';
+import 'package:finesse/src/utils/motion_color.dart';
+import 'package:finesse/src/utils/moving_indicator.dart';
 import 'package:finesse/src/utils/shadow.dart';
+import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/widgets.dart';
 
 /// One place a [NavigationBar] or [BottomNavigationBar] can take the user.
@@ -67,12 +71,92 @@ class NavigationAction {
 
 Widget _badged(NavigationDestination destination, Widget icon, Offset offset) {
   final count = destination.badgeCount ?? 0;
-  if (count <= 0 && !destination.showBadge) return icon;
+  // The badge stays in the tree while it has nothing to show, so it pops
+  // in when the first notification arrives and out when the last is read.
   return IndicatorBadge(
-    count: count > 0 ? count : null,
+    count: count > 0 || !destination.showBadge ? count : null,
+    visible: count > 0 || destination.showBadge,
     offset: offset,
     child: icon,
   );
+}
+
+/// A destination's icon, changing from [icon] to [selectedIcon] — usually
+/// from the regular weight to the filled one — as a cross-fade with a small
+/// pop, and in [color], which fades.
+///
+/// Both icons are in the tree only while one fades into the other; at rest
+/// there is the one that shows. They are keyed, so the one that stays keeps
+/// its state — an avatar does not reload — when the other comes or goes.
+/// Deselecting only fades: the pop belongs to the destination the user
+/// chose.
+class _DestinationIcon extends StatelessWidget {
+  const _DestinationIcon({
+    required this.selected,
+    required this.icon,
+    required this.selectedIcon,
+    required this.color,
+    required this.size,
+  });
+
+  final bool selected;
+  final Widget icon;
+  final Widget? selectedIcon;
+  final Color color;
+  final double size;
+
+  static const _restKey = ValueKey('rest');
+  static const _selectedKey = ValueKey('selected');
+
+  @override
+  Widget build(BuildContext context) {
+    final motion = Motion.of(context);
+    // How far the icon grows at the top of the pop: four times the press
+    // shrink, so a style with a calmer press pops less and reduced motion
+    // not at all.
+    final pop = (1 - motion.pressScale) * 4;
+    final filled = selectedIcon;
+    return AnimatedColorBuilder(
+      color: color,
+      duration: motion.fast,
+      curve: motion.standard,
+      builder: (context, color, child) => IconTheme.merge(
+        data: IconThemeData(size: size, color: color),
+        child: child!,
+      ),
+      child: SpringBuilder(
+        value: selected ? 1 : 0,
+        spring: selected ? motion.bouncy : motion.snappy,
+        builder: (context, value, _) {
+          final t = value.clamp(0.0, 1.0);
+          // Up and back over the course of the change, and only on the way
+          // in: 4t(1 − t) is 0 at both ends and 1 half-way.
+          final scale = selected ? 1 + pop * 4 * t * (1 - t) : 1.0;
+          return Transform.scale(
+            scale: scale,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                if (filled == null || t < 1)
+                  KeyedSubtree(
+                    key: _restKey,
+                    child: Opacity(
+                      opacity: filled == null ? 1 : 1 - t,
+                      child: icon,
+                    ),
+                  ),
+                if (filled != null && t > 0)
+                  KeyedSubtree(
+                    key: _selectedKey,
+                    child: Opacity(opacity: t, child: filled),
+                  ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
 }
 
 /// A row of destinations for the top of a wide screen: an icon over a label,
@@ -127,23 +211,31 @@ class NavigationBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final nav = theme.navigationBarTheme;
+    final motion = Motion.of(context);
     final barHeight = height ?? theme.appBarTheme.height ?? 64;
-    return Semantics(
-      container: true,
-      explicitChildNodes: true,
-      child: SizedBox(
+    final inset = nav.indicatorInset ?? 12;
+    final indicatorHeight = nav.indicatorHeight ?? 3;
+    final indicator = BoxDecoration(
+      color: nav.indicatorColor ?? theme.colorScheme.tint,
+      borderRadius: BorderRadius.circular(indicatorHeight),
+    );
+
+    Widget item(int index, NavigationDestination destination) {
+      final selected = index == selectedIndex;
+      return SizedBox(
+        width: nav.itemWidth ?? 88,
         height: barHeight,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
+        child: Stack(
+          clipBehavior: Clip.none,
+          alignment: Alignment.center,
           children: [
-            for (final (index, destination) in destinations.indexed)
-              Pressable(
-                selected: index == selectedIndex,
+            Positioned.fill(
+              child: Pressable(
+                selected: selected,
                 onPressed: onDestinationSelected == null
                     ? null
                     : () => onDestinationSelected!(index),
                 builder: (context, states) {
-                  final selected = index == selectedIndex;
                   final hovered = states.contains(WidgetState.hovered);
                   final rest =
                       nav.foregroundColor ?? theme.colorScheme.mutedForeground;
@@ -157,73 +249,84 @@ class NavigationBar extends StatelessWidget {
                       : hovered
                       ? nav.hoverColor ?? theme.colorScheme.foreground
                       : rest;
-                  final inset = nav.indicatorInset ?? 12;
-                  final indicator = nav.indicatorHeight ?? 3;
+                  final labelStyle = nav.labelStyle ?? theme.textTheme.small;
                   return FocusRing(
                     visible: states.contains(WidgetState.focused),
                     borderRadius: theme.radius,
                     // The app bar clips for its backdrop blur, which would
                     // cut an outside ring off at the top and bottom.
                     inset: true,
-                    child: SizedBox(
-                      width: nav.itemWidth ?? 88,
-                      height: barHeight,
-                      child: Stack(
-                        clipBehavior: Clip.none,
-                        alignment: Alignment.center,
+                    child: Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        spacing: nav.gap ?? 4,
                         children: [
-                          Column(
-                            mainAxisSize: MainAxisSize.min,
-                            spacing: nav.gap ?? 4,
-                            children: [
-                              IconTheme.merge(
-                                data: IconThemeData(
-                                  size: nav.iconSize ?? 24,
-                                  color: iconColor,
-                                ),
-                                child: _badged(
-                                  destination,
-                                  selected
-                                      ? destination.selectedIcon ??
-                                            destination.icon
-                                      : destination.icon,
-                                  const Offset(4, 0),
-                                ),
-                              ),
-                              Text(
-                                destination.label,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: (nav.labelStyle ?? theme.textTheme.small)
-                                    .copyWith(color: labelColor),
-                              ),
-                            ],
-                          ),
-                          if (selected)
-                            PositionedDirectional(
-                              start: inset,
-                              end: inset,
-                              // Over the app bar's own hairline.
-                              bottom: -1,
-                              height: indicator,
-                              child: DecoratedBox(
-                                decoration: BoxDecoration(
-                                  color:
-                                      nav.indicatorColor ??
-                                      theme.colorScheme.tint,
-                                  borderRadius: BorderRadius.circular(
-                                    indicator,
-                                  ),
-                                ),
-                              ),
+                          _badged(
+                            destination,
+                            _DestinationIcon(
+                              selected: selected,
+                              icon: destination.icon,
+                              selectedIcon: destination.selectedIcon,
+                              color: iconColor,
+                              size: nav.iconSize ?? 24,
                             ),
+                            const Offset(4, 0),
+                          ),
+                          AnimatedColorBuilder(
+                            color: labelColor,
+                            duration: motion.fast,
+                            curve: motion.standard,
+                            builder: (context, color, _) => Text(
+                              destination.label,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: labelStyle.copyWith(color: color),
+                            ),
+                          ),
                         ],
                       ),
                     ),
                   );
                 },
               ),
+            ),
+            // Where the bar under the destinations goes when this one is
+            // selected. It is painted once, by the row, and travels. Outside
+            // the pressable, so a press does not shrink its end of the bar.
+            PositionedDirectional(
+              start: inset,
+              end: inset,
+              // Over the app bar's own hairline.
+              bottom: -1,
+              height: indicatorHeight,
+              child: IgnorePointer(
+                child: MovingIndicatorTarget(
+                  selected: selected,
+                  decoration: indicator,
+                ),
+              ),
+            ),
           ],
+        ),
+      );
+    }
+
+    return Semantics(
+      container: true,
+      explicitChildNodes: true,
+      child: SizedBox(
+        height: barHeight,
+        // In front of the destinations, so the bar also covers the app
+        // bar's hairline.
+        child: MovingIndicator(
+          position: DecorationPosition.foreground,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final (index, destination) in destinations.indexed)
+                item(index, destination),
+            ],
+          ),
         ),
       ),
     );
@@ -336,8 +439,16 @@ class BottomNavigationBar extends StatelessWidget {
     final itemRadius = isFloating ? theme.radii.full : theme.radii.lg;
     final bottomInset = MediaQuery.paddingOf(context).bottom;
 
+    final motion = Motion.of(context);
+    // The lens: one pill behind the selected destination, painted by the
+    // row and travelling between them.
+    final lens = BoxDecoration(
+      color: bar.selectedBackgroundColor ?? theme.colorScheme.accent,
+      borderRadius: itemRadius,
+    );
+
     Widget item({
-      required Widget icon,
+      required Widget Function(Color color, double size) icon,
       required String label,
       required VoidCallback? onPressed,
       required bool? selected,
@@ -346,60 +457,77 @@ class BottomNavigationBar extends StatelessWidget {
       Color? foreground,
       double? iconSize,
     }) {
-      final child = Pressable(
+      final isSelected = selected ?? false;
+      Widget child = Pressable(
         selected: selected,
         onPressed: onPressed,
         semanticLabel: label,
         semanticValue: value,
         builder: (context, states) {
-          final isSelected = selected ?? false;
           final hovered = states.contains(WidgetState.hovered);
+          // The selected destination's fill is the lens behind it; only
+          // the hover wash and the action's own fill are painted here. The
+          // wash stays on a hovered destination that becomes selected:
+          // taking it away while the lens is still on its way would flash
+          // the bar's own colour through for a few frames.
           final color =
               background ??
-              (isSelected
-                  ? bar.selectedBackgroundColor ?? theme.colorScheme.accent
-                  : hovered
-                  ? theme.colorScheme.muted
-                  : const Color(0x00000000));
+              (hovered ? theme.colorScheme.muted : const Color(0x00000000));
           return FocusRing(
             visible: states.contains(WidgetState.focused),
             borderRadius: itemRadius,
             inset: true,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 150),
+            child: SizedBox(
               width: isFloating ? itemWidth : null,
               height: bar.itemHeight ?? 48,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
+              // A cross-fade, not `Color.lerp`: from nothing to the wash
+              // that one passes through a half-opaque dark grey, which is
+              // the flash a tap on a destination used to make.
+              child: AnimatedFill(
+                duration: motion.fast,
                 color: color,
                 borderRadius: itemRadius,
-              ),
-              child: IconTheme.merge(
-                data: IconThemeData(
-                  size: iconSize ?? bar.iconSize ?? 26,
-                  color:
+                child: Center(
+                  child: ExcludeSemantics(
+                    child: icon(
                       foreground ??
-                      (isSelected
-                          ? bar.selectedForegroundColor ??
-                                theme.colorScheme.tint
-                          : bar.foregroundColor ??
-                                theme.colorScheme.foregroundSubtle),
+                          (isSelected
+                              ? bar.selectedForegroundColor ??
+                                    theme.colorScheme.tint
+                              : bar.foregroundColor ??
+                                    theme.colorScheme.foregroundSubtle),
+                      iconSize ?? bar.iconSize ?? 26,
+                    ),
+                  ),
                 ),
-                child: ExcludeSemantics(child: icon),
               ),
             ),
           );
         },
       );
+      if (selected != null) {
+        // Around the pressable, not inside it: a press shrinks the icon,
+        // not the lens under it.
+        child = MovingIndicatorTarget(
+          selected: isSelected,
+          decoration: lens,
+          child: child,
+        );
+      }
       return isFloating ? child : Expanded(child: child);
     }
+
+    Widget actionIcon(Color color, double size) => IconTheme.merge(
+      data: IconThemeData(size: size, color: color),
+      child: action!.icon,
+    );
 
     final actionIndex = (destinations.length / 2).ceil();
     final children = <Widget>[
       for (final (index, destination) in destinations.indexed) ...[
         if (action != null && index == actionIndex)
           item(
-            icon: action!.icon,
+            icon: actionIcon,
             label: action!.label,
             onPressed: action!.onPressed,
             selected: null,
@@ -410,11 +538,15 @@ class BottomNavigationBar extends StatelessWidget {
             iconSize: bar.actionIconSize ?? 22,
           ),
         item(
-          icon: _badged(
+          icon: (color, size) => _badged(
             destination,
-            index == selectedIndex
-                ? destination.selectedIcon ?? destination.icon
-                : destination.icon,
+            _DestinationIcon(
+              selected: index == selectedIndex,
+              icon: destination.icon,
+              selectedIcon: destination.selectedIcon,
+              color: color,
+              size: size,
+            ),
             Offset.zero,
           ),
           label: destination.label,
@@ -429,7 +561,7 @@ class BottomNavigationBar extends StatelessWidget {
       ],
       if (action != null && actionIndex >= destinations.length)
         item(
-          icon: action!.icon,
+          icon: actionIcon,
           label: action!.label,
           onPressed: action!.onPressed,
           selected: null,
@@ -459,10 +591,12 @@ class BottomNavigationBar extends StatelessWidget {
                   ),
                 ),
         ),
-        child: Row(
-          mainAxisSize: isFloating ? MainAxisSize.min : MainAxisSize.max,
-          spacing: gap,
-          children: children,
+        child: MovingIndicator(
+          child: Row(
+            mainAxisSize: isFloating ? MainAxisSize.min : MainAxisSize.max,
+            spacing: gap,
+            children: children,
+          ),
         ),
       ),
     );

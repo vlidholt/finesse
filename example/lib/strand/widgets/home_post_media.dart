@@ -1,5 +1,6 @@
 import 'package:example/strand/data/home_data.dart';
 import 'package:example/strand/widgets/home_pieces.dart';
+import 'package:example/strand/widgets/strand_actions.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -142,7 +143,12 @@ class _LinkPreview extends StatelessWidget {
     final layout = theme.layoutTheme;
     final overline = theme.style.overline;
     return Pressable(
-      onPressed: () {},
+      onPressed: () => showArticlePreview(
+        context,
+        image: link.image,
+        source: link.source,
+        title: link.title,
+      ),
       builder: (context, states) => FocusRing(
         visible: states.contains(WidgetState.focused),
         borderRadius: HomePostMedia.radius,

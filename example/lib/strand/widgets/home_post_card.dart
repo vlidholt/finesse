@@ -4,6 +4,9 @@ import 'package:example/strand/widgets/home_pieces.dart';
 import 'package:example/strand/widgets/home_post_comments.dart';
 import 'package:example/strand/widgets/home_post_media.dart';
 import 'package:example/strand/widgets/person_avatar.dart';
+import 'package:example/strand/widgets/strand_actions.dart';
+import 'package:example/strand/widgets/strand_pieces.dart';
+import 'package:example/strand/widgets/strand_previews.dart';
 import 'package:example/strand/widgets/verified_badge.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
@@ -102,7 +105,9 @@ class _HomePostCardState extends State<HomePostCard> {
           const Gap.raw(homeTightGap),
           _Actions(
             post,
-            onComment: post.thread.isEmpty ? () {} : _commentFocus.requestFocus,
+            onComment: post.thread.isEmpty
+                ? () => showCommentDialog(context, post.author)
+                : _commentFocus.requestFocus,
           ),
           if (post.thread.isNotEmpty) ...[
             const Gap.md(),
@@ -144,7 +149,7 @@ class _PostHeader extends StatelessWidget {
                   Flexible(
                     child: HomeTextLink(
                       author.name,
-                      onPressed: () {},
+                      onPressed: () => showPersonPreview(context, author),
                       style: theme.textTheme.large.copyWith(
                         color: scheme.foreground,
                       ),
@@ -224,12 +229,16 @@ class _PostMenu extends StatelessWidget {
       itemsBuilder: (_) => [
         ContextMenuItem(
           leading: const Icon(PhosphorIconsRegular.bookmarkSimple),
-          onPressed: () {},
+          onPressed: () => showStrandToast(
+            context,
+            'Post saved',
+            description: 'Find it under Saved items in your menu.',
+          ),
           child: const Text('Save post'),
         ),
         ContextMenuItem(
           leading: const Icon(PhosphorIconsRegular.link),
-          onPressed: () {},
+          onPressed: () => copyLink(context, 'strand.app/posts/${post.id}'),
           child: const Text('Copy link'),
         ),
         if (post.followable)
@@ -247,7 +256,11 @@ class _PostMenu extends StatelessWidget {
           ),
         ContextMenuItem(
           leading: const Icon(PhosphorIconsRegular.eyeSlash),
-          onPressed: () {},
+          onPressed: () => showStrandToast(
+            context,
+            'Thanks, noted',
+            description: 'You will see fewer posts like this one.',
+          ),
           child: const Text('Not interested'),
         ),
       ],
@@ -381,12 +394,12 @@ class _Actions extends StatelessWidget {
         action(
           icon: PhosphorIconsRegular.repeat,
           label: 'Repost',
-          onPressed: () {},
+          onPressed: () => repostWithToast(context, post.author),
         ),
         action(
           icon: PhosphorIconsRegular.paperPlaneTilt,
           label: 'Send',
-          onPressed: () {},
+          onPressed: () => showSendDialog(context, what: 'this post'),
         ),
       ],
     );
@@ -457,27 +470,27 @@ class _CompactActions extends StatelessWidget {
             icon: PhosphorIconsRegular.chatCircle,
             label: 'Comment',
             count: post.comments,
-            onPressed: () {},
+            onPressed: () => showCommentDialog(context, post.author),
           ),
           if (post.reposts > 0)
             action(
               icon: PhosphorIconsRegular.repeat,
               label: 'Repost',
               count: post.reposts,
-              onPressed: () {},
+              onPressed: () => repostWithToast(context, post.author),
             )
           else
             IconButton.ghost(
               icon: const Icon(PhosphorIconsRegular.repeat),
               foregroundColor: scheme.foregroundSubtle,
               semanticLabel: 'Repost',
-              onPressed: () {},
+              onPressed: () => repostWithToast(context, post.author),
             ),
           IconButton.ghost(
             icon: const Icon(PhosphorIconsRegular.paperPlaneTilt),
             foregroundColor: scheme.foregroundSubtle,
             semanticLabel: 'Send',
-            onPressed: () {},
+            onPressed: () => showSendDialog(context, what: 'this post'),
           ),
         ],
       ),

@@ -18,6 +18,7 @@ class SkeletonTheme with _$SkeletonTheme {
     this.duration,
     this.curve,
     this.animate,
+    this.shimmer,
   }) : _canMerge = canMerge;
 
   @ignore
@@ -43,6 +44,13 @@ class SkeletonTheme with _$SkeletonTheme {
 
   /// {@macro Skeleton.animate}
   final bool? animate;
+
+  /// {@template Skeleton.shimmer}
+  /// Whether the skeleton shimmers — a band of the highlight colour sweeping
+  /// across it — instead of pulsing as a whole. Defaults to the theme's
+  /// `Motion.shimmer`.
+  /// {@endtemplate}
+  final bool? shimmer;
 
   /// Linearly interpolates between [a] and [b] by [t].
   static SkeletonTheme? lerp(

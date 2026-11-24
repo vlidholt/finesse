@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:example/common/app_state.dart';
+import 'package:example/common/page_switch.dart';
 import 'package:example/common/theme_editor/customizer_panel.dart';
 import 'package:example/common/theme_editor/editor_config.dart';
 import 'package:example/screens/components_screen.dart';
@@ -194,18 +195,60 @@ class _AppShellState extends State<AppShell> {
                 ),
                 // Docked beside the page on a wide window. On a narrow one
                 // it covers the page rather than squeezing it, and carries
-                // its own close button.
-                if (open)
-                  PositionedDirectional(
-                    end: 0,
-                    top: 0,
-                    bottom: 0,
-                    width: docked ? ThemeCustomizerPanel.width : width,
-                    child: panel(docked: docked),
+                // its own close button. Always in the stack, after the
+                // page: it slides in and out, and builds nothing while it
+                // is away.
+                PositionedDirectional(
+                  end: 0,
+                  top: 0,
+                  bottom: 0,
+                  width: docked ? ThemeCustomizerPanel.width : width,
+                  child: _SlideFromEnd(
+                    visible: open,
+                    builder: (context) => panel(docked: docked),
                   ),
+                ),
               ],
             );
           },
+        );
+      },
+    );
+  }
+}
+
+/// Slides the editor panel in from the end edge of the window, and out
+/// again, on the theme's surface spring.
+///
+/// Only the panel moves. The page takes its new width at once — animating
+/// that would lay the whole app out again on every frame — and the panel
+/// arrives over the room that was made for it, or leaves over the page that
+/// has already spread out under it. While it is away it builds nothing and
+/// takes no pointers; with reduced motion it is simply there or not.
+class _SlideFromEnd extends StatelessWidget {
+  const _SlideFromEnd({required this.visible, required this.builder});
+
+  final bool visible;
+  final WidgetBuilder builder;
+
+  @override
+  Widget build(BuildContext context) {
+    final rtl = Directionality.of(context) == TextDirection.rtl;
+    return SpringBuilder(
+      value: visible ? 1 : 0,
+      spring: Motion.of(context).smooth,
+      builder: (context, value, _) {
+        final t = value.clamp(0.0, 1.0);
+        if (t <= .001 && !visible) return const SizedBox.shrink();
+        return ClipRect(
+          child: FractionalTranslation(
+            translation: Offset((1 - t) * (rtl ? -1 : 1), 0),
+            // Gone as far as input goes the moment it is told to leave.
+            child: IgnorePointer(
+              ignoring: !visible,
+              child: builder(context),
+            ),
+          ),
         );
       },
     );
@@ -363,18 +406,23 @@ class _SectionsState extends State<_Sections> {
 
         return ColoredBox(
           color: Theme.of(context).colorScheme.background,
-          child: IndexedStack(
-            index: section.index,
-            sizing: StackFit.expand,
-            children: [
-              onlyTicksWhenActive(AppSection.strand, const StrandShell()),
-              onlyTicksWhenActive(
-                AppSection.components,
-                _componentsBuilt
-                    ? const ComponentsSection()
-                    : const SizedBox.shrink(),
-              ),
-            ],
+          // The section switched to slides in from its side: the library
+          // from the end, Strand back from the start.
+          child: PageSwitch(
+            value: section.index,
+            child: IndexedStack(
+              index: section.index,
+              sizing: StackFit.expand,
+              children: [
+                onlyTicksWhenActive(AppSection.strand, const StrandShell()),
+                onlyTicksWhenActive(
+                  AppSection.components,
+                  _componentsBuilt
+                      ? const ComponentsSection()
+                      : const SizedBox.shrink(),
+                ),
+              ],
+            ),
           ),
         );
       },

@@ -77,6 +77,12 @@ mixin _$ButtonTheme {
         b.pressAnimationDuration,
         t,
       ),
+      pressScale: lerpDouble$(a.pressScale, b.pressScale, t),
+      transitionDuration: lerpDuration$(
+        a.transitionDuration,
+        b.transitionDuration,
+        t,
+      ),
       textStyle: TextStyle.lerp(a.textStyle, b.textStyle, t),
     );
   }
@@ -107,6 +113,8 @@ mixin _$ButtonTheme {
     bool? expands,
     Offset? pressedOffset,
     Duration? pressAnimationDuration,
+    double? pressScale,
+    Duration? transitionDuration,
     TextStyle? textStyle,
   }) {
     final _this = (this as ButtonTheme);
@@ -140,6 +148,8 @@ mixin _$ButtonTheme {
       pressedOffset: pressedOffset ?? _this.pressedOffset,
       pressAnimationDuration:
           pressAnimationDuration ?? _this.pressAnimationDuration,
+      pressScale: pressScale ?? _this.pressScale,
+      transitionDuration: transitionDuration ?? _this.transitionDuration,
       textStyle: textStyle ?? _this.textStyle,
     );
   }
@@ -181,6 +191,8 @@ mixin _$ButtonTheme {
       expands: other.expands,
       pressedOffset: other.pressedOffset,
       pressAnimationDuration: other.pressAnimationDuration,
+      pressScale: other.pressScale,
+      transitionDuration: other.transitionDuration,
       textStyle: _this.textStyle?.merge(other.textStyle) ?? other.textStyle,
     );
   }
@@ -223,6 +235,8 @@ mixin _$ButtonTheme {
         _other.expands == _this.expands &&
         _other.pressedOffset == _this.pressedOffset &&
         _other.pressAnimationDuration == _this.pressAnimationDuration &&
+        _other.pressScale == _this.pressScale &&
+        _other.transitionDuration == _this.transitionDuration &&
         _other.textStyle == _this.textStyle;
   }
 
@@ -257,6 +271,8 @@ mixin _$ButtonTheme {
       _this.expands,
       _this.pressedOffset,
       _this.pressAnimationDuration,
+      _this.pressScale,
+      _this.transitionDuration,
       _this.textStyle,
     ]);
   }

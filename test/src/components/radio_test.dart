@@ -3,6 +3,7 @@ import 'package:finesse/src/app.dart';
 import 'package:finesse/src/components/disabled.dart';
 import 'package:finesse/src/components/radio.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/utils/pop_in.dart';
 import 'package:flutter/material.dart' hide Radio;
 import 'package:flutter_test/flutter_test.dart';
 
@@ -50,7 +51,7 @@ void main() {
       // Check no radio is selected (no filled circles)
       expect(
         find.descendant(
-          of: find.byType(AnimatedSwitcher),
+          of: find.byType(PopIn),
           matching: find.byType(DecoratedBox),
         ),
         findsNothing,
@@ -78,7 +79,7 @@ void main() {
       );
 
       // Check one radio is selected (filled circle)
-      final animatedSwitcherFinder = find.byType(AnimatedSwitcher);
+      final animatedSwitcherFinder = find.byType(PopIn);
       expect(animatedSwitcherFinder, findsNWidgets(2));
       expect(
         find.descendant(
@@ -107,7 +108,7 @@ void main() {
       expect(selectedValue, isNull);
       expect(
         find.descendant(
-          of: find.byType(AnimatedSwitcher),
+          of: find.byType(PopIn),
           matching: find.byType(DecoratedBox),
         ),
         findsNothing,
@@ -122,7 +123,7 @@ void main() {
       expect(selectedValue, 'option1');
       expect(
         find.descendant(
-          of: find.byType(AnimatedSwitcher),
+          of: find.byType(PopIn),
           matching: find.byType(DecoratedBox),
         ),
         findsOneWidget,
@@ -228,14 +229,14 @@ void main() {
       final sizedBoxFinder = find.descendant(
         of: radioFinder,
         matching: find.ancestor(
-          of: find.byType(AnimatedSwitcher),
+          of: find.byType(PopIn),
           matching: find.byType(SizedBox),
         ),
       );
       expect(
         sizedBoxFinder,
         findsOneWidget,
-        reason: 'Should find a SizedBox wrapping AnimatedSwitcher in Radio',
+        reason: 'Should find a SizedBox wrapping PopIn in Radio',
       );
       final sizedBox = tester.widget<SizedBox>(sizedBoxFinder);
       expect(
@@ -269,7 +270,7 @@ void main() {
 
       // Check DecoratedBox applies custom color when selected
       final decoratedBoxFinder = find.descendant(
-        of: find.byType(AnimatedSwitcher),
+        of: find.byType(PopIn),
         matching: find.byType(DecoratedBox),
       );
       expect(decoratedBoxFinder, findsOneWidget);
@@ -378,7 +379,7 @@ void main() {
       // Check initial selection
       expect(
         find.descendant(
-          of: find.byType(AnimatedSwitcher),
+          of: find.byType(PopIn),
           matching: find.byType(DecoratedBox),
         ),
         findsOneWidget,
@@ -401,7 +402,7 @@ void main() {
 
       // Verify selection updated (count DecoratedBox instances)
       final decoratedBoxFinder = find.descendant(
-        of: find.byType(AnimatedSwitcher),
+        of: find.byType(PopIn),
         matching: find.byType(DecoratedBox),
       );
       expect(decoratedBoxFinder, findsOneWidget);

@@ -32,6 +32,7 @@ mixin _$SkeletonTheme {
       duration: lerpDuration$(a.duration, b.duration, t),
       curve: t < 0.5 ? a.curve : b.curve,
       animate: t < 0.5 ? a.animate : b.animate,
+      shimmer: t < 0.5 ? a.shimmer : b.shimmer,
     );
   }
 
@@ -42,6 +43,7 @@ mixin _$SkeletonTheme {
     Duration? duration,
     Curve? curve,
     bool? animate,
+    bool? shimmer,
   }) {
     final _this = (this as SkeletonTheme);
 
@@ -52,6 +54,7 @@ mixin _$SkeletonTheme {
       duration: duration ?? _this.duration,
       curve: curve ?? _this.curve,
       animate: animate ?? _this.animate,
+      shimmer: shimmer ?? _this.shimmer,
     );
   }
 
@@ -73,6 +76,7 @@ mixin _$SkeletonTheme {
       duration: other.duration,
       curve: other.curve,
       animate: other.animate,
+      shimmer: other.shimmer,
     );
   }
 
@@ -94,7 +98,8 @@ mixin _$SkeletonTheme {
         _other.radius == _this.radius &&
         _other.duration == _this.duration &&
         _other.curve == _this.curve &&
-        _other.animate == _this.animate;
+        _other.animate == _this.animate &&
+        _other.shimmer == _this.shimmer;
   }
 
   @override
@@ -109,6 +114,7 @@ mixin _$SkeletonTheme {
       _this.duration,
       _this.curve,
       _this.animate,
+      _this.shimmer,
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:finesse/src/theme/form_factor.dart';
+import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/radii.dart';
 import 'package:finesse/src/theme/text_role.dart';
 import 'package:finesse/src/theme/themes/shadows.dart';
@@ -252,6 +253,12 @@ class StyleTokens {
     this.cardOpacity = 1,
     this.cardOpacityDark,
     this.cardBlur = false,
+    this.popoverOpacity = 1,
+    this.popoverOpacityDark,
+    this.tooltipOpacity = 1,
+    this.tooltipOpacityDark,
+    this.tableHoverOpacity = .5,
+    this.tableSelectionTinted = false,
     this.cardShadowDark,
     this.floatingShadow = Shadows.lg,
     this.pagePaddingX = 24,
@@ -302,6 +309,7 @@ class StyleTokens {
     this.tabSelectedFill = SurfaceFill.background,
     this.tabUnselectedMuted = false,
     this.tabsGap = 0,
+    this.motion = Motion.calm,
     this.mobile,
   });
 
@@ -863,6 +871,35 @@ class StyleTokens {
   /// Whether a translucent card blurs what is behind it.
   final bool cardBlur;
 
+  /// The opacity of floating surfaces: popovers, dropdown and context
+  /// menus, the menubar's menus, a select's list and the command palette.
+  /// Below 1 they are glass — the popover colour at this opacity over a
+  /// backdrop blurred by [glassBlur] and saturated by [glassSaturation].
+  ///
+  /// `ThemeData.menuTranslucent` overrides it for the menus: true gives
+  /// them shadcn's translucent finish whatever the style, false keeps them
+  /// solid.
+  final double popoverOpacity;
+
+  /// [popoverOpacity] on a dark scheme. Null uses [popoverOpacity].
+  final double? popoverOpacityDark;
+
+  /// The opacity of a tooltip's bubble. Below 1 it is glass, like
+  /// [popoverOpacity].
+  final double tooltipOpacity;
+
+  /// [tooltipOpacity] on a dark scheme. Null uses [tooltipOpacity].
+  final double? tooltipOpacityDark;
+
+  /// How much of the scheme's `muted` colour a hovered table row is washed
+  /// with. shadcn's `hover:bg-muted/50` is the default; a scheme whose
+  /// `muted` is already a faint wash, like teal's, takes all of it.
+  final double tableHoverOpacity;
+
+  /// Whether a selected table row is tinted with the scheme's `tint` rather
+  /// than filled with its `muted` colour (`data-[state=selected]:bg-muted`).
+  final bool tableSelectionTinted;
+
   /// [cardShadow] on a dark scheme. Null uses [cardShadow].
   final List<BoxShadow>? cardShadowDark;
 
@@ -1019,6 +1056,11 @@ class StyleTokens {
 
   /// The gap between two tabs.
   final double tabsGap;
+
+  /// The motion vocabulary: the durations, curves and springs the style's
+  /// components animate with. [Motion.calm] unless the style says otherwise;
+  /// [Motion.none] switches every transition off.
+  final Motion motion;
 
   /// This style's metrics on a touch-sized screen.
   ///
@@ -1225,9 +1267,16 @@ class StyleTokens {
     cardOpacity: .88,
     cardOpacityDark: .82,
     cardBlur: true,
+    popoverOpacity: .8,
+    popoverOpacityDark: .82,
+    tooltipOpacity: .8,
+    tooltipOpacityDark: .84,
+    tableHoverOpacity: 1,
+    tableSelectionTinted: true,
     pagePaddingX: 24,
     pagePaddingY: 24,
     avatarSize: 40,
+    motion: Motion.lively,
     mobile: finesseMobile,
   );
 
@@ -1392,6 +1441,12 @@ class StyleTokens {
     cardOpacity: .88,
     cardOpacityDark: .82,
     cardBlur: true,
+    popoverOpacity: .8,
+    popoverOpacityDark: .82,
+    tooltipOpacity: .8,
+    tooltipOpacityDark: .84,
+    tableHoverOpacity: 1,
+    tableSelectionTinted: true,
     pagePaddingX: 16,
     pagePaddingY: 16,
     avatarSize: 40,
@@ -1400,6 +1455,7 @@ class StyleTokens {
     appBarHeight: 60,
     gapLg: 12,
     gapXl: 16,
+    motion: Motion.lively,
   );
 
   /// shadcn's default style: its `vega` one size down and a step rounder.
@@ -1830,6 +1886,12 @@ class StyleTokens {
     double? cardOpacity,
     double? cardOpacityDark,
     bool? cardBlur,
+    double? popoverOpacity,
+    double? popoverOpacityDark,
+    double? tooltipOpacity,
+    double? tooltipOpacityDark,
+    double? tableHoverOpacity,
+    bool? tableSelectionTinted,
     List<BoxShadow>? cardShadowDark,
     List<BoxShadow>? floatingShadow,
     double? pagePaddingX,
@@ -1880,6 +1942,7 @@ class StyleTokens {
     SurfaceFill? tabSelectedFill,
     bool? tabUnselectedMuted,
     double? tabsGap,
+    Motion? motion,
     StyleTokens? mobile,
   }) {
     // The phone metrics follow an override wherever they did not differ from
@@ -2560,6 +2623,36 @@ class StyleTokens {
             currentMobile.cardOpacityDark,
           ),
           cardBlur: _shared(cardBlur, this.cardBlur, currentMobile.cardBlur),
+          popoverOpacity: _shared(
+            popoverOpacity,
+            this.popoverOpacity,
+            currentMobile.popoverOpacity,
+          ),
+          popoverOpacityDark: _shared(
+            popoverOpacityDark,
+            this.popoverOpacityDark,
+            currentMobile.popoverOpacityDark,
+          ),
+          tooltipOpacity: _shared(
+            tooltipOpacity,
+            this.tooltipOpacity,
+            currentMobile.tooltipOpacity,
+          ),
+          tooltipOpacityDark: _shared(
+            tooltipOpacityDark,
+            this.tooltipOpacityDark,
+            currentMobile.tooltipOpacityDark,
+          ),
+          tableHoverOpacity: _shared(
+            tableHoverOpacity,
+            this.tableHoverOpacity,
+            currentMobile.tableHoverOpacity,
+          ),
+          tableSelectionTinted: _shared(
+            tableSelectionTinted,
+            this.tableSelectionTinted,
+            currentMobile.tableSelectionTinted,
+          ),
           cardShadowDark: _shared(
             cardShadowDark,
             this.cardShadowDark,
@@ -2766,6 +2859,7 @@ class StyleTokens {
             currentMobile.tabUnselectedMuted,
           ),
           tabsGap: _shared(tabsGap, this.tabsGap, currentMobile.tabsGap),
+          motion: _shared(motion, this.motion, currentMobile.motion),
         );
     return StyleTokens(
       name: name ?? this.name,
@@ -2926,6 +3020,12 @@ class StyleTokens {
       cardOpacity: cardOpacity ?? this.cardOpacity,
       cardOpacityDark: cardOpacityDark ?? this.cardOpacityDark,
       cardBlur: cardBlur ?? this.cardBlur,
+      popoverOpacity: popoverOpacity ?? this.popoverOpacity,
+      popoverOpacityDark: popoverOpacityDark ?? this.popoverOpacityDark,
+      tooltipOpacity: tooltipOpacity ?? this.tooltipOpacity,
+      tooltipOpacityDark: tooltipOpacityDark ?? this.tooltipOpacityDark,
+      tableHoverOpacity: tableHoverOpacity ?? this.tableHoverOpacity,
+      tableSelectionTinted: tableSelectionTinted ?? this.tableSelectionTinted,
       cardShadowDark: cardShadowDark ?? this.cardShadowDark,
       floatingShadow: floatingShadow ?? this.floatingShadow,
       pagePaddingX: pagePaddingX ?? this.pagePaddingX,
@@ -2982,6 +3082,7 @@ class StyleTokens {
       tabSelectedFill: tabSelectedFill ?? this.tabSelectedFill,
       tabUnselectedMuted: tabUnselectedMuted ?? this.tabUnselectedMuted,
       tabsGap: tabsGap ?? this.tabsGap,
+      motion: motion ?? this.motion,
       mobile: nextMobile,
     );
   }
@@ -3131,6 +3232,12 @@ class StyleTokens {
     cardOpacity,
     cardOpacityDark,
     cardBlur,
+    popoverOpacity,
+    popoverOpacityDark,
+    tooltipOpacity,
+    tooltipOpacityDark,
+    tableHoverOpacity,
+    tableSelectionTinted,
     cardShadowDark,
     floatingShadow,
     pagePaddingX,
@@ -3181,6 +3288,7 @@ class StyleTokens {
     tabSelectedFill,
     tabUnselectedMuted,
     tabsGap,
+    motion,
     mobile,
   ];
 

@@ -1,4 +1,5 @@
 import 'package:finesse/src/raw_components/pressable.dart';
+import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/backdrop.dart';
 import 'package:finesse/src/utils/border.dart';
@@ -392,6 +393,11 @@ class Card extends StatelessWidget {
       // The card's content stays in the semantics tree under its label: a
       // card usually holds buttons of its own, and they must stay reachable.
       excludeSemantics: false,
+      // A press is acknowledged by the whole card giving a little: far
+      // less than a button, because the same factor moves a large surface
+      // much further.
+      pressScale:
+          theme.cardTheme.pressScale ?? Motion.of(context).surfacePressScale,
       builder: (context, states) => FocusRing(
         visible: states.contains(WidgetState.focused),
         borderRadius: effectiveRadius,

@@ -18,6 +18,7 @@ class ListTileTheme with _$ListTileTheme {
     this.subtitleStyle,
     this.hoverColor,
     this.selectedColor,
+    this.pressScale,
   }) : _canMerge = canMerge;
 
   @ignore
@@ -50,6 +51,11 @@ class ListTileTheme with _$ListTileTheme {
 
   /// The fill of a selected tile.
   final Color? selectedColor;
+
+  /// The scale of a tappable tile while it is pressed; a paint-time
+  /// transform that springs back on release. Defaults to the theme's
+  /// `Motion.surfacePressScale`; 1 disables it.
+  final double? pressScale;
 
   /// Linearly interpolates between two themes.
   static ListTileTheme? lerp(ListTileTheme? a, ListTileTheme? b, double t) =>

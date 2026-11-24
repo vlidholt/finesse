@@ -1,9 +1,12 @@
 import 'package:finesse/src/components/disabled.dart';
 import 'package:finesse/src/theme/components/badge.dart';
 import 'package:finesse/src/theme/data.dart';
+import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/debug_check.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
+import 'package:finesse/src/utils/motion_color.dart';
+import 'package:finesse/src/utils/pop_in.dart';
 import 'package:flutter/widgets.dart';
 
 /// Variants available for the [Badge] widget.
@@ -246,6 +249,8 @@ class _BadgeState extends State<Badge> {
   Widget build(BuildContext context) {
     assert(debugCheckHasTheme(context));
     final theme = Theme.of(context);
+    final motion = Motion.of(context);
+    final label = widget.child;
 
     Widget badge = Semantics(
       container: true,
@@ -260,12 +265,19 @@ class _BadgeState extends State<Badge> {
         child: ValueListenableBuilder(
           valueListenable: isHovered,
           builder: (context, hovered, child) {
-            return Container(
-              decoration: ShapeDecoration(
-                shape: shape(theme),
-                color: hovered ? hoverBackground(theme) : background(theme),
+            // The fill fades to its hover colour and back.
+            return AnimatedColorBuilder(
+              color: hovered ? hoverBackground(theme) : background(theme),
+              duration: motion.fast,
+              curve: motion.standard,
+              builder: (context, color, child) => Container(
+                decoration: ShapeDecoration(
+                  shape: shape(theme),
+                  color: color,
+                ),
+                padding: padding(theme),
+                child: child,
               ),
-              padding: padding(theme),
               child: child,
             );
           },
@@ -288,6 +300,13 @@ class _BadgeState extends State<Badge> {
           ),
         ),
       ),
+    );
+
+    // A badge whose text changes — a count, a status — pops once, so the
+    // change is noticed. Only a plain `Text` can be compared.
+    badge = PopOnChange(
+      value: label is Text ? (label.data ?? label.textSpan) : null,
+      child: badge,
     );
 
     if (widget.onPressed != null) {

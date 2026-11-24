@@ -34,6 +34,7 @@ class CardTheme with _$CardTheme {
     this.sectionGap,
     this.blur,
     this.saturation,
+    this.pressScale,
   }) : _canMerge = canMerge;
 
   @ignore
@@ -103,6 +104,11 @@ class CardTheme with _$CardTheme {
 
   /// How much a blurred card saturates its backdrop; 1 leaves it alone.
   final double? saturation;
+
+  /// The scale of a pressable card while it is pressed; a paint-time
+  /// transform that springs back on release. Defaults to the theme's
+  /// `Motion.surfacePressScale`; 1 disables it.
+  final double? pressScale;
 
   /// Linearly interpolates between [a] and [b] by [t].
   static CardTheme? lerp(

@@ -94,6 +94,7 @@ mixin _$CommandTheme {
         t,
       ),
       itemIconSize: lerpDouble$(a.itemIconSize, b.itemIconSize, t),
+      surfaceFilter: t < 0.5 ? a.surfaceFilter : b.surfaceFilter,
     );
   }
 
@@ -126,6 +127,7 @@ mixin _$CommandTheme {
     EdgeInsetsGeometry? groupPadding,
     BorderRadiusGeometry? dialogItemRadius,
     double? itemIconSize,
+    ImageFilter? surfaceFilter,
   }) {
     final _this = (this as CommandTheme);
 
@@ -160,6 +162,7 @@ mixin _$CommandTheme {
       groupPadding: groupPadding ?? _this.groupPadding,
       dialogItemRadius: dialogItemRadius ?? _this.dialogItemRadius,
       itemIconSize: itemIconSize ?? _this.itemIconSize,
+      surfaceFilter: surfaceFilter ?? _this.surfaceFilter,
     );
   }
 
@@ -211,6 +214,7 @@ mixin _$CommandTheme {
       groupPadding: other.groupPadding,
       dialogItemRadius: other.dialogItemRadius,
       itemIconSize: other.itemIconSize,
+      surfaceFilter: other.surfaceFilter,
     );
   }
 
@@ -256,7 +260,8 @@ mixin _$CommandTheme {
         _other.listMaxHeight == _this.listMaxHeight &&
         _other.groupPadding == _this.groupPadding &&
         _other.dialogItemRadius == _this.dialogItemRadius &&
-        _other.itemIconSize == _this.itemIconSize;
+        _other.itemIconSize == _this.itemIconSize &&
+        _other.surfaceFilter == _this.surfaceFilter;
   }
 
   @override
@@ -293,6 +298,7 @@ mixin _$CommandTheme {
       _this.groupPadding,
       _this.dialogItemRadius,
       _this.itemIconSize,
+      _this.surfaceFilter,
     ]);
   }
 }

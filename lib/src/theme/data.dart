@@ -5,6 +5,7 @@ import 'package:finesse/src/theme/components/alert.dart';
 import 'package:finesse/src/theme/components/app_bar.dart';
 import 'package:finesse/src/theme/components/avatar.dart';
 import 'package:finesse/src/theme/components/badge.dart';
+import 'package:finesse/src/theme/components/board.dart';
 import 'package:finesse/src/theme/components/bottom_navigation_bar.dart';
 import 'package:finesse/src/theme/components/breadcrumb.dart';
 import 'package:finesse/src/theme/components/button.dart';
@@ -57,6 +58,7 @@ import 'package:finesse/src/theme/components/toast.dart';
 import 'package:finesse/src/theme/components/toggle.dart';
 import 'package:finesse/src/theme/components/tooltip.dart';
 import 'package:finesse/src/theme/form_factor.dart';
+import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/radii.dart';
 import 'package:finesse/src/theme/spacing.dart';
 import 'package:finesse/src/theme/style.dart';
@@ -162,6 +164,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     IndicatorBadgeTheme? indicatorBadgeTheme,
     IconTileTheme? iconTileTheme,
     TimelineTheme? timelineTheme,
+    BoardTheme? boardTheme,
     LayoutTheme? layoutTheme,
     ScrollAreaTheme? scrollAreaTheme,
     SpinnerTheme? spinnerTheme,
@@ -209,9 +212,13 @@ class ThemeData extends BaseTheme with _$ThemeData {
     /// context-menu and menubar surfaces derive their colours from it.
     ColorScheme? menuColorScheme,
 
-    /// Whether menu surfaces are translucent, shadcn's "Translucent" finish:
-    /// the popover colour at 70% over a backdrop blur, with row highlights
-    /// as a `foreground/10` wash.
+    /// Whether menu surfaces are translucent.
+    ///
+    /// Null leaves it to the [style]: menus are glass when its
+    /// `popoverOpacity` is below 1, as in the default `finesse` style. True
+    /// is shadcn's "Translucent" finish in any style — the popover colour at
+    /// 70% over a backdrop blur, with row highlights as a `foreground/10`
+    /// wash. False keeps menus solid even in a glass style.
     bool? menuTranslucent,
 
     /// How strongly menus highlight their rows; see [MenuAccent].
@@ -219,7 +226,23 @@ class ThemeData extends BaseTheme with _$ThemeData {
     /// Bold rewrites the scheme's accent pair with its primary pair before
     /// anything is derived from it, exactly as the reference does.
     MenuAccent? menuAccent,
+
+    /// The motion vocabulary every component animates with, in place of the
+    /// [style]'s own (`StyleTokens.motion`). [Motion.none] switches every
+    /// transition off; [Motion.calm] and [Motion.lively] are the shipped
+    /// characters.
+    Motion? motion,
   }) {
+    // A motion override is a style override: the variant reads its motion
+    // from the style, on both form factors.
+    final styleForMotion = style ?? variant?.baseStyle ?? StyleTokens.finesse;
+    final effectiveStyle = motion == null || motion == styleForMotion.motion
+        ? style
+        : styleForMotion.copyWith(
+            motion: motion,
+            mobile: styleForMotion.mobile?.copyWith(motion: motion),
+          );
+
     // A variant is built from a colour scheme, a radius and a text theme, and
     // bakes all three into its component themes. Where the caller gives one
     // explicitly it wins and the variant is rebuilt below; where they don't,
@@ -230,7 +253,8 @@ class ThemeData extends BaseTheme with _$ThemeData {
     // `calc(var(--radius) * 0.8)`, i.e. 8px.
     // The style a new variant is built from. With a variant and no style the
     // variant keeps its own.
-    final defaultStyle = style ?? variant?.baseStyle ?? StyleTokens.finesse;
+    final defaultStyle =
+        effectiveStyle ?? variant?.baseStyle ?? StyleTokens.finesse;
     final effectiveRadius =
         radius ??
         variant?.radius ??
@@ -300,7 +324,8 @@ class ThemeData extends BaseTheme with _$ThemeData {
                   // every copy.
                   (variant.effectiveTextTheme == effectiveTextTheme ||
                       variant.textTheme() == effectiveTextTheme) &&
-                  (style == null || style == variant.baseStyle) &&
+                  (effectiveStyle == null ||
+                      effectiveStyle == variant.baseStyle) &&
                   (formFactor == null || formFactor == variant.formFactor) &&
                   (spacing == null || spacing == variant.spacing) &&
                   !menuOptionsChanged
@@ -310,19 +335,21 @@ class ThemeData extends BaseTheme with _$ThemeData {
                   colorScheme: effectiveColorScheme,
                   radius: effectiveRadius,
                   effectiveTextTheme: effectiveTextTheme,
-                  style: style,
+                  style: effectiveStyle,
                   formFactor: formFactor,
                   spacing: spacing,
                   menuColorScheme: menuColorScheme != null
                       ? effectiveMenuColorScheme
                       : DefaultThemeVariant.unsetMenuColorScheme,
-                  menuTranslucent: menuTranslucent,
+                  menuTranslucent:
+                      menuTranslucent ??
+                      DefaultThemeVariant.unsetMenuTranslucent,
                 )
               : variant.rebuild(
                   colorScheme: effectiveColorScheme,
                   radius: effectiveRadius,
                   effectiveTextTheme: effectiveTextTheme,
-                  style: style,
+                  style: effectiveStyle,
                   formFactor: formFactor,
                   spacing: spacing,
                 ));
@@ -338,7 +365,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
             formFactor: formFactor ?? FormFactor.desktop,
             spacing: spacing ?? const Spacing(),
             menuColorScheme: effectiveMenuColorScheme,
-            menuTranslucent: menuTranslucent ?? false,
+            menuTranslucent: menuTranslucent,
           ),
           true => DefaultThemeNoSecondaryBorderVariant(
             colorScheme: effectiveColorScheme,
@@ -348,7 +375,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
             formFactor: formFactor ?? FormFactor.desktop,
             spacing: spacing ?? const Spacing(),
             menuColorScheme: effectiveMenuColorScheme,
-            menuTranslucent: menuTranslucent ?? false,
+            menuTranslucent: menuTranslucent,
           ),
         };
 
@@ -410,6 +437,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
         indicatorBadgeTheme: indicatorBadgeTheme,
         iconTileTheme: iconTileTheme,
         timelineTheme: timelineTheme,
+        boardTheme: boardTheme,
         layoutTheme: layoutTheme,
         scrollAreaTheme: scrollAreaTheme,
         spinnerTheme: spinnerTheme,
@@ -437,6 +465,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
         menuColorScheme: menuColorScheme,
         menuTranslucent: menuTranslucent,
         menuAccent: menuAccent,
+        motion: motion,
       ),
       colorScheme: effectiveColorScheme,
       brightness: effectiveBrightness,
@@ -563,6 +592,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
       ),
       iconTileTheme: effectiveVariant.iconTileTheme().merge(iconTileTheme),
       timelineTheme: effectiveVariant.timelineTheme().merge(timelineTheme),
+      boardTheme: effectiveVariant.boardTheme().merge(boardTheme),
       layoutTheme: effectiveVariant.layoutTheme().merge(layoutTheme),
       scrollAreaTheme: effectiveVariant.scrollAreaTheme().merge(
         scrollAreaTheme,
@@ -653,6 +683,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     required super.indicatorBadgeTheme,
     required super.iconTileTheme,
     required super.timelineTheme,
+    required super.boardTheme,
     required super.layoutTheme,
     required super.scrollAreaTheme,
     required super.spinnerTheme,
@@ -737,6 +768,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     IndicatorBadgeTheme? indicatorBadgeTheme,
     IconTileTheme? iconTileTheme,
     TimelineTheme? timelineTheme,
+    BoardTheme? boardTheme,
     LayoutTheme? layoutTheme,
     ScrollAreaTheme? scrollAreaTheme,
     SpinnerTheme? spinnerTheme,
@@ -764,6 +796,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     ColorScheme? menuColorScheme,
     bool? menuTranslucent,
     MenuAccent? menuAccent,
+    Motion? motion,
   }) {
     final i = _inputs;
     return ThemeData(
@@ -826,6 +859,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
       indicatorBadgeTheme: indicatorBadgeTheme ?? i.indicatorBadgeTheme,
       iconTileTheme: iconTileTheme ?? i.iconTileTheme,
       timelineTheme: timelineTheme ?? i.timelineTheme,
+      boardTheme: boardTheme ?? i.boardTheme,
       layoutTheme: layoutTheme ?? i.layoutTheme,
       scrollAreaTheme: scrollAreaTheme ?? i.scrollAreaTheme,
       spinnerTheme: spinnerTheme ?? i.spinnerTheme,
@@ -854,6 +888,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
       menuColorScheme: menuColorScheme ?? i.menuColorScheme,
       menuTranslucent: menuTranslucent ?? i.menuTranslucent,
       menuAccent: menuAccent ?? i.menuAccent,
+      motion: motion ?? i.motion,
     );
   }
 
@@ -905,6 +940,13 @@ class ThemeData extends BaseTheme with _$ThemeData {
 
   /// The class of screen this theme's metrics are for.
   FormFactor get formFactor => variant.formFactor;
+
+  /// The motion vocabulary of this theme: its style's, or the one passed to
+  /// the factory.
+  ///
+  /// Components read it through `Motion.of(context)`, which also honours the
+  /// platform's reduced-motion setting.
+  Motion get motion => variant.style.motion;
 
   /// This theme laid out for [formFactor].
   ///
@@ -1002,6 +1044,7 @@ final class _ThemeInputs {
     this.indicatorBadgeTheme,
     this.iconTileTheme,
     this.timelineTheme,
+    this.boardTheme,
     this.layoutTheme,
     this.scrollAreaTheme,
     this.spinnerTheme,
@@ -1029,6 +1072,7 @@ final class _ThemeInputs {
     this.menuColorScheme,
     this.menuTranslucent,
     this.menuAccent,
+    this.motion,
   });
 
   final ColorScheme? colorScheme;
@@ -1087,6 +1131,7 @@ final class _ThemeInputs {
   final IndicatorBadgeTheme? indicatorBadgeTheme;
   final IconTileTheme? iconTileTheme;
   final TimelineTheme? timelineTheme;
+  final BoardTheme? boardTheme;
   final LayoutTheme? layoutTheme;
   final ScrollAreaTheme? scrollAreaTheme;
   final SpinnerTheme? spinnerTheme;
@@ -1114,4 +1159,5 @@ final class _ThemeInputs {
   final ColorScheme? menuColorScheme;
   final bool? menuTranslucent;
   final MenuAccent? menuAccent;
+  final Motion? motion;
 }

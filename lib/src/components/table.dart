@@ -1,3 +1,5 @@
+import 'package:finesse/src/theme/color_scheme/base.dart';
+import 'package:finesse/src/theme/components/table.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:flutter/gestures.dart';
@@ -176,6 +178,7 @@ class FinesseTable extends StatefulWidget {
     this.columnSpanExtent,
     this.rowSpanBackgroundDecoration,
     this.rowSpanForegroundDecoration,
+    this.rowSelected,
     this.columnSpanBackgroundDecoration,
     this.columnSpanForegroundDecoration,
     this.onHoveredRowIndex,
@@ -230,6 +233,7 @@ class FinesseTable extends StatefulWidget {
     this.columnSpanExtent,
     this.rowSpanBackgroundDecoration,
     this.rowSpanForegroundDecoration,
+    this.rowSelected,
     this.columnSpanBackgroundDecoration,
     this.columnSpanForegroundDecoration,
     this.onHoveredRowIndex,
@@ -338,6 +342,15 @@ class FinesseTable extends StatefulWidget {
   /// Function to define foreground decoration for rows.
   /// {@endtemplate}
   final TableSpanDecoration? Function(int row)? rowSpanForegroundDecoration;
+
+  /// {@template FinesseTable.rowSelected}
+  /// Whether the row at an index is selected, shadcn's
+  /// `data-state="selected"`: a selected row is filled with the theme's
+  /// `rowSelectedColor`, under the pointer or not. The index counts the
+  /// header row, as [rowSpanBackgroundDecoration]'s does. Not consulted for
+  /// a row that [rowSpanBackgroundDecoration] decorates.
+  /// {@endtemplate}
+  final bool Function(int row)? rowSelected;
 
   /// {@template FinesseTable.columnSpanBackgroundDecoration}
   /// Function to define background decoration for columns.
@@ -583,8 +596,35 @@ class _TableState extends State<FinesseTable> {
     );
   }
 
+  /// The fill behind a row: selection first, then the footer's own fill,
+  /// then the hover wash.
+  ///
+  /// The fallbacks are fractions *of* the muted colour — its alpha is
+  /// multiplied, not replaced. A scheme whose `muted` is a 4% wash of the
+  /// foreground used to come out as a 50% wash of it here, which is how a
+  /// hovered row ended up nearly as dark as the text on it.
+  static Color? _rowColor(
+    TableTheme tableTheme,
+    ColorScheme colorScheme, {
+    required bool hovered,
+    required bool selected,
+    required bool isFooter,
+  }) {
+    final muted = colorScheme.muted;
+    final half = muted.withValues(alpha: muted.a * .5);
+    if (selected) return tableTheme.rowSelectedColor ?? muted;
+    if (isFooter) {
+      return hovered
+          ? tableTheme.footerHoverColor ?? muted
+          : tableTheme.footerColor ?? half;
+    }
+    return hovered ? tableTheme.rowHoverColor ?? half : null;
+  }
+
   TableSpan _buildRowSpan(int index, int effectiveRowCount) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final tableTheme = theme.tableTheme;
     final gestureSettings = MediaQuery.maybeGestureSettingsOf(context);
     final isLast = index == effectiveRowCount - 1;
     final isFooter =
@@ -598,11 +638,13 @@ class _TableState extends State<FinesseTable> {
       backgroundDecoration:
           widget.rowSpanBackgroundDecoration?.call(index) ??
           TableSpanDecoration(
-            color: hoveredRowIndex.value == index
-                ? colorScheme.muted.withValues(alpha: isFooter ? 1 : .5)
-                : isFooter
-                ? colorScheme.muted.withValues(alpha: .5)
-                : null,
+            color: _rowColor(
+              tableTheme,
+              colorScheme,
+              hovered: hoveredRowIndex.value == index,
+              selected: widget.rowSelected?.call(index) ?? false,
+              isFooter: isFooter,
+            ),
             border: TableSpanBorder(
               trailing: isLast
                   ? BorderSide.none
@@ -673,10 +715,7 @@ class _TableState extends State<FinesseTable> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    final effectiveRowBuilder =
-        widget.rowBuilder ??
-        theme.tableTheme.rowBuilder ??
-        (i) => _buildRowSpan(i, effectiveRowCount);
+    final customRowBuilder = widget.rowBuilder ?? theme.tableTheme.rowBuilder;
 
     final effectiveColumnBuilder =
         widget.columnBuilder ??
@@ -720,6 +759,13 @@ class _TableState extends State<FinesseTable> {
     return ValueListenableBuilder(
       valueListenable: hoveredRowIndex,
       builder: (context, value, child) {
+        // A new closure for every hovered row, on purpose: the table's
+        // delegate only rebuilds its row spans — which carry the hover
+        // wash — when the row builder it is handed differs. Built once per
+        // `build` instead, a `FinesseTable.list` never repainted its
+        // hover at all.
+        final effectiveRowBuilder =
+            customRowBuilder ?? (i) => _buildRowSpan(i, effectiveRowCount);
         if (cells != null) {
           return TableView.list(
             primary: effectivePrimary,

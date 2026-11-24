@@ -2,11 +2,14 @@ import 'dart:math' as math;
 
 import 'package:finesse/src/components/button.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/theme/themes/shadows.dart';
 import 'package:finesse/src/utils/border.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
+import 'package:finesse/src/utils/moving_indicator.dart';
 import 'package:finesse/src/utils/provider.dart';
+import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
@@ -213,8 +216,41 @@ class Tabs<T> extends StatefulWidget implements PreferredSizeWidget {
 }
 
 /// The state of a [Tabs].
-class TabsState<T> extends State<Tabs<T>> with RestorationMixin {
+class TabsState<T> extends State<Tabs<T>>
+    with RestorationMixin, SingleTickerProviderStateMixin {
   late List<GlobalKey> _tabKeys;
+
+  // Plays once per selection: the incoming panel fades in, sliding from the
+  // side its tab is on. At rest on 1, so nothing animates on first build.
+  late final _contentTransition = AnimationController(vsync: this, value: 1);
+
+  // +1 when the newly selected tab is after the previous one, -1 before.
+  double _contentDirection = 1;
+  T? _lastSelected;
+  TabsController<T>? _listenedController;
+
+  void _onSelectionChanged() {
+    final selected = controller.selected;
+    final previous = _lastSelected;
+    _lastSelected = selected;
+    if (previous == null || previous == selected) return;
+    final from = orderedValues.indexOf(previous);
+    final to = orderedValues.indexOf(selected);
+    _contentDirection = to < from ? -1 : 1;
+    final tabsTheme = Theme.of(context).tabsTheme;
+    _contentTransition
+      ..duration =
+          tabsTheme.contentTransitionDuration ?? Motion.of(context).normal
+      ..forward(from: 0);
+  }
+
+  void _syncControllerListener() {
+    final current = controller;
+    if (identical(current, _listenedController)) return;
+    _listenedController?.removeListener(_onSelectionChanged);
+    _listenedController = current..addListener(_onSelectionChanged);
+    _lastSelected = current.selected;
+  }
 
   /// The values of the tabs, in the order of [Tabs.tabs].
   @protected
@@ -248,6 +284,14 @@ class TabsState<T> extends State<Tabs<T>> with RestorationMixin {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // After RestorationMixin has had the chance to create or restore the
+    // local controller.
+    _syncControllerListener();
+  }
+
+  @override
   void didUpdateWidget(covariant Tabs<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
 
@@ -269,6 +313,8 @@ class TabsState<T> extends State<Tabs<T>> with RestorationMixin {
       orderedValues = widget.tabs.map((e) => e.value).toList();
     }
 
+    _syncControllerListener();
+
     // Update the controller if the value has changed.
     if (widget.value is T &&
         widget.controller == null &&
@@ -279,6 +325,8 @@ class TabsState<T> extends State<Tabs<T>> with RestorationMixin {
 
   @override
   void dispose() {
+    _listenedController?.removeListener(_onSelectionChanged);
+    _contentTransition.dispose();
     scrollController.dispose();
     _controller?.dispose();
     super.dispose();
@@ -303,6 +351,9 @@ class TabsState<T> extends State<Tabs<T>> with RestorationMixin {
   @override
   void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
     if (_controller != null) _registerController();
+    // A restored selection is where the tabs start, not a change to animate.
+    _listenedController = null;
+    _syncControllerListener();
   }
 
   @override
@@ -334,10 +385,28 @@ class TabsState<T> extends State<Tabs<T>> with RestorationMixin {
     final effectiveMaintainState = widget.maintainState ?? true;
     final expandTabs = this.expandTabs(context);
 
-    Widget tabBar = Row(
-      mainAxisSize: expandTabs ? MainAxisSize.max : MainAxisSize.min,
-      spacing: widget.tabsGap ?? tabsTheme.tabsGap ?? 0,
-      children: widget.tabs,
+    final motion = Motion.of(context);
+    final contentOffset =
+        (tabsTheme.contentTransitionOffset ?? motion.overlayTravel * 2) *
+        (motion.reduced ? 0 : 1);
+    // Driven, not a `CurvedAnimation`: that registers a listener on its
+    // parent and would need disposing on every build.
+    final contentCurve = _contentTransition.drive(
+      CurveTween(curve: motion.emphasized),
+    );
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
+
+    // One selection pill for the whole list, travelling between the tabs,
+    // in place of each tab painting its own. Around the row itself — inside
+    // the scroll view — so the tabs' rectangles do not move as it scrolls.
+    Widget tabBar = MovingIndicator(
+      spring: tabsTheme.indicatorSpring,
+      stretch: tabsTheme.indicatorStretch,
+      child: Row(
+        mainAxisSize: expandTabs ? MainAxisSize.max : MainAxisSize.min,
+        spacing: widget.tabsGap ?? tabsTheme.tabsGap ?? 0,
+        children: widget.tabs,
+      ),
     );
 
     if (effectiveTabBarConstraints != null) {
@@ -403,12 +472,20 @@ class TabsState<T> extends State<Tabs<T>> with RestorationMixin {
                 }
                 Widget content = Offstage(
                   offstage: !selected,
-                  child: FocusTraversalGroup(
-                    descendantsAreFocusable: selected,
-                    policy: WidgetOrderTraversalPolicy(),
-                    child: KeyedSubtree(
-                      key: _tabKeys[index],
-                      child: tab.content ?? const SizedBox.shrink(),
+                  child: _TabContentTransition(
+                    animation: contentCurve,
+                    // Only the panel coming in moves; the others are
+                    // offstage and stay put.
+                    offset: selected
+                        ? contentOffset * _contentDirection * (isRtl ? -1 : 1)
+                        : 0,
+                    child: FocusTraversalGroup(
+                      descendantsAreFocusable: selected,
+                      policy: WidgetOrderTraversalPolicy(),
+                      child: KeyedSubtree(
+                        key: _tabKeys[index],
+                        child: tab.content ?? const SizedBox.shrink(),
+                      ),
                     ),
                   ),
                 );
@@ -431,6 +508,37 @@ class TabsState<T> extends State<Tabs<T>> with RestorationMixin {
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+/// Fades a tab's content in, sliding it [offset] logical pixels into place.
+///
+/// Paint only: the panel is laid out where it will rest from the first
+/// frame, so the transition never moves anything around it.
+class _TabContentTransition extends StatelessWidget {
+  const _TabContentTransition({
+    required this.animation,
+    required this.offset,
+    required this.child,
+  });
+
+  final Animation<double> animation;
+  final double offset;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: animation,
+      child: AnimatedBuilder(
+        animation: animation,
+        builder: (context, child) => Transform.translate(
+          offset: Offset(offset * (1 - animation.value), 0),
+          child: child,
+        ),
+        child: child,
       ),
     );
   }
@@ -901,6 +1009,8 @@ class _TabState<T> extends State<Tab<T>> {
     final effectiveTextStyle =
         widget.textStyle ?? tabsTheme.tabTextStyle ?? theme.textTheme.small;
 
+    const clear = Color(0x00000000);
+
     Widget tab = ListenableBuilder(
       listenable: inherited.controller,
       builder: (context, _) {
@@ -947,63 +1057,96 @@ class _TabState<T> extends State<Tab<T>> {
             .merge(widget.decoration)
             .merge(selected ? widget.selectedDecoration : null);
 
-        return Button.secondary(
-          canRequestFocus: selected,
-          leading: widget.leading,
-          trailing: widget.trailing,
-          focusNode: focusNode,
-          height: widget.height ?? tabsTheme.tabHeight ?? 32,
-          width: effectiveWidth,
-          backgroundColor: selected
-              ? effectiveSelectedBackgroundColor
-              : effectiveBackgroundColor,
-          hoverBackgroundColor: selected
-              ? effectiveSelectedHoverBackgroundColor
-              : effectiveHoverBackgroundColor,
-          padding: effectivePadding,
-          decoration: effectiveDecoration,
-          foregroundColor: selected
-              ? effectiveSelectedForegroundColor
-              : effectiveForegroundColor,
-          shadows: selected ? effectiveSelectedShadows : effectiveShadows,
-          onPressed: () {
-            onMayChanged();
-            widget.onPressed?.call();
-          },
-          enabled: widget.enabled,
-          onLongPress: widget.onLongPress,
-          size: effectiveSize,
-          cursor: effectiveCursor,
-          hoverForegroundColor: effectiveHoverForegroundColor,
-          autofocus: widget.autofocus,
-          pressedBackgroundColor: effectivePressedBackgroundColor,
-          pressedForegroundColor: effectivePressedForegroundColor,
-          gradient: effectiveGradient,
-          textDecoration: effectiveTextDecoration,
-          hoverTextDecoration: effectiveHoverTextDecoration,
-          statesController: widget.statesController,
-          mainAxisAlignment: effectiveMainAxisAlignment,
-          crossAxisAlignment: effectiveCrossAxisAlignment,
-          hoverStrategies: effectiveHoverStrategies,
-          onHoverChange: widget.onHoverChange,
-          onTapDown: widget.onTapDown,
-          onTapUp: widget.onTapUp,
-          onTapCancel: widget.onTapCancel,
-          onLongPressStart: widget.onLongPressStart,
-          onLongPressCancel: widget.onLongPressCancel,
-          onLongPressUp: widget.onLongPressUp,
-          onLongPressDown: widget.onLongPressDown,
-          onLongPressEnd: widget.onLongPressEnd,
-          onDoubleTap: widget.onDoubleTap,
-          onDoubleTapDown: widget.onDoubleTapDown,
-          onDoubleTapCancel: widget.onDoubleTapCancel,
-          longPressDuration: widget.longPressDuration,
-          onFocusChange: (focused) {
-            if (focused) onMayChanged();
-          },
-          child: DefaultTextStyle.merge(
-            style: effectiveTextStyle,
-            child: widget.child,
+        // The selected tab's fill, radius and shadow are the travelling
+        // indicator's, painted once by the list. The tab itself stays
+        // clear, so two pills never show at once.
+        final selectedFill = effectiveSelectedBackgroundColor;
+        final selectedHoverFill =
+            effectiveSelectedHoverBackgroundColor == selectedFill
+            ? clear
+            : effectiveSelectedHoverBackgroundColor;
+        final border = effectiveDecoration.border;
+        final pillFill = effectiveGradient == null ? selectedFill : null;
+        final pill = ShadowDecoration(
+          shadows: effectiveSelectedShadows,
+          decoration: border is FinesseRoundedSuperellipseBorder
+              ? ShapeDecoration(
+                  color: pillFill,
+                  gradient: effectiveGradient,
+                  shape: border.toBorder(
+                    textDirection: Directionality.of(context),
+                    defaultRadius: theme.radius,
+                  ),
+                )
+              : BoxDecoration(
+                  color: pillFill,
+                  gradient: effectiveGradient,
+                  borderRadius: border?.radius ?? theme.radius,
+                ),
+        );
+
+        return MovingIndicatorTarget(
+          selected: selected,
+          decoration: pill,
+          child: Button.secondary(
+            canRequestFocus: selected,
+            leading: widget.leading,
+            trailing: widget.trailing,
+            focusNode: focusNode,
+            height: widget.height ?? tabsTheme.tabHeight ?? 32,
+            width: effectiveWidth,
+            backgroundColor: selected ? clear : effectiveBackgroundColor,
+            hoverBackgroundColor: selected
+                ? selectedHoverFill
+                : effectiveHoverBackgroundColor,
+            padding: effectivePadding,
+            decoration: effectiveDecoration,
+            foregroundColor: selected
+                ? effectiveSelectedForegroundColor
+                : effectiveForegroundColor,
+            shadows: selected ? const [] : effectiveShadows,
+            // The gradient belongs to the pill as well.
+            gradient: selected ? null : effectiveGradient,
+            // The label does not shrink away from a pill that stays put.
+            pressScale: 1,
+            onPressed: () {
+              onMayChanged();
+              widget.onPressed?.call();
+            },
+            enabled: widget.enabled,
+            onLongPress: widget.onLongPress,
+            size: effectiveSize,
+            cursor: effectiveCursor,
+            hoverForegroundColor: effectiveHoverForegroundColor,
+            autofocus: widget.autofocus,
+            pressedBackgroundColor: effectivePressedBackgroundColor,
+            pressedForegroundColor: effectivePressedForegroundColor,
+            textDecoration: effectiveTextDecoration,
+            hoverTextDecoration: effectiveHoverTextDecoration,
+            statesController: widget.statesController,
+            mainAxisAlignment: effectiveMainAxisAlignment,
+            crossAxisAlignment: effectiveCrossAxisAlignment,
+            hoverStrategies: effectiveHoverStrategies,
+            onHoverChange: widget.onHoverChange,
+            onTapDown: widget.onTapDown,
+            onTapUp: widget.onTapUp,
+            onTapCancel: widget.onTapCancel,
+            onLongPressStart: widget.onLongPressStart,
+            onLongPressCancel: widget.onLongPressCancel,
+            onLongPressUp: widget.onLongPressUp,
+            onLongPressDown: widget.onLongPressDown,
+            onLongPressEnd: widget.onLongPressEnd,
+            onDoubleTap: widget.onDoubleTap,
+            onDoubleTapDown: widget.onDoubleTapDown,
+            onDoubleTapCancel: widget.onDoubleTapCancel,
+            longPressDuration: widget.longPressDuration,
+            onFocusChange: (focused) {
+              if (focused) onMayChanged();
+            },
+            child: DefaultTextStyle.merge(
+              style: effectiveTextStyle,
+              child: widget.child,
+            ),
           ),
         );
       },

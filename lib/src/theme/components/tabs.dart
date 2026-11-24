@@ -1,5 +1,6 @@
 import 'package:finesse/src/components/button.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -54,6 +55,10 @@ class TabsTheme with _$TabsTheme {
     this.tabCrossAxisAlignment,
     this.tabHoverStrategies,
     this.longPressDuration,
+    this.indicatorSpring,
+    this.indicatorStretch,
+    this.contentTransitionDuration,
+    this.contentTransitionOffset,
   }) : _canMerge = canMerge;
 
   @ignore
@@ -173,6 +178,33 @@ class TabsTheme with _$TabsTheme {
 
   /// {@macro Button.longPressDuration}
   final Duration? longPressDuration;
+
+  /// {@template TabsTheme.indicatorSpring}
+  /// The spring the selection indicator travels between tabs with. Defaults
+  /// to the theme's `Motion.snappy`; `MotionSpring.instant` moves it at once.
+  /// {@endtemplate}
+  final MotionSpring? indicatorSpring;
+
+  /// {@template TabsTheme.indicatorStretch}
+  /// How far the selection indicator stretches while it travels; see
+  /// `MovingIndicator.stretch`. Defaults to the theme's
+  /// `Motion.indicatorStretch`.
+  /// {@endtemplate}
+  final double? indicatorStretch;
+
+  /// {@template TabsTheme.contentTransitionDuration}
+  /// How long a tab's content takes to fade in when the tab is selected.
+  /// Defaults to the theme's `Motion.normal`; `Duration.zero` swaps the
+  /// content at once.
+  /// {@endtemplate}
+  final Duration? contentTransitionDuration;
+
+  /// {@template TabsTheme.contentTransitionOffset}
+  /// How far, in logical pixels, a tab's content slides in from the side its
+  /// tab is on. Defaults to twice the theme's `Motion.overlayTravel`; 0 leaves
+  /// a plain fade.
+  /// {@endtemplate}
+  final double? contentTransitionOffset;
 
   /// Linearly interpolates between [a] and [b] by [t].
   static TabsTheme? lerp(

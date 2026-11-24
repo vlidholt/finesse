@@ -1,7 +1,9 @@
 import 'package:example/strand/data.dart';
 import 'package:example/strand/data/home_data.dart';
+import 'package:example/strand/widgets/compose_dialog.dart';
 import 'package:example/strand/widgets/home_pieces.dart';
 import 'package:example/strand/widgets/person_avatar.dart';
+import 'package:example/strand/widgets/strand_actions.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -170,7 +172,7 @@ class _AddStoryCard extends StatelessWidget {
     final scheme = theme.colorScheme;
     final sideInset = theme.layoutTheme.gap(GapSize.sm);
     return Card(
-      onPressed: () {},
+      onPressed: () => showComposeDialog(context),
       padding: EdgeInsets.zero,
       radius: metrics.borderRadius,
       height: metrics.addHeight,
@@ -258,7 +260,7 @@ class _StoryCard extends StatelessWidget {
     final theme = Theme.of(context);
     final person = story.person;
     return Pressable(
-      onPressed: () {},
+      onPressed: () => showStoryViewer(context, story),
       semanticLabel: '${person.name}’s story',
       builder: (context, states) => FocusRing(
         visible: states.contains(WidgetState.focused),

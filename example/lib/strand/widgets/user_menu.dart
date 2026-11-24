@@ -2,6 +2,8 @@ import 'package:example/common/app_state.dart';
 import 'package:example/strand/data.dart';
 import 'package:example/strand/navigation.dart';
 import 'package:example/strand/widgets/person_avatar.dart';
+import 'package:example/strand/widgets/saved_items_sheet.dart';
+import 'package:example/strand/widgets/settings_links.dart';
 import 'package:example/strand/widgets/verified_badge.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
@@ -86,6 +88,16 @@ class UserMenu extends StatelessWidget {
               onPressed: () => context.goTo(StrandDestination.profile),
               child: const Text('View profile'),
             ),
+          ContextMenuItem(
+            leading: const Icon(PhosphorIconsRegular.bookmarkSimple),
+            onPressed: () => showSavedItems(context),
+            child: const Text('Saved items'),
+          ),
+          ContextMenuItem(
+            leading: const Icon(PhosphorIconsRegular.gearSix),
+            onPressed: () => openSettings(context),
+            child: const Text('Settings'),
+          ),
           ContextMenuItem(
             leading: Icon(
               dark ? PhosphorIconsRegular.sun : PhosphorIconsRegular.moon,

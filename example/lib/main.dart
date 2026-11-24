@@ -5,6 +5,8 @@ import 'package:example/common/theme_editor/editor_config.dart';
 import 'package:example/common/theme_editor/fonts.dart';
 import 'package:example/docs/docs.dart';
 import 'package:example/strand/navigation.dart';
+import 'package:example/strand/session.dart';
+import 'package:example/strand/widgets/jobs_board_view.dart';
 import 'package:finesse/finesse.dart';
 import 'package:finesse/material.dart';
 import 'package:flutter/widgets.dart';
@@ -37,6 +39,8 @@ final appProviders = <InstantiableProvider>[
   themeConfigProvider,
   themeEditorOpenProvider,
   strandDestinationProvider,
+  strandSessionProvider,
+  jobsViewProvider,
 ];
 
 /// Named styles the app adds on top of whatever the editor produces — an

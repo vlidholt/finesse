@@ -1,5 +1,6 @@
 import 'package:example/strand/data/home_data.dart';
 import 'package:example/strand/widgets/home_pieces.dart';
+import 'package:example/strand/widgets/strand_actions.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -9,6 +10,18 @@ class HomeTrendingCard extends StatelessWidget {
 
   /// The rank's column and the glyphs that end the heading and each row.
   static const _markSize = 18.0;
+
+  /// What a topic searches for: its words, without the hash, the year or
+  /// the filler, so that search — which wants every word — finds its posts.
+  static const _queries = {
+    '#DesignSystems': 'Design systems',
+    'Config Nordics 2026': 'Config Nordics',
+    'AI in user research': 'Research',
+    'Accessibility audits': 'Accessibility',
+    'Remote design teams': 'Remote',
+  };
+
+  static String _queryOf(Trend trend) => _queries[trend.title] ?? trend.title;
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +42,7 @@ class HomeTrendingCard extends StatelessWidget {
         children: [
           for (final (index, trend) in HomeData.trends.indexed)
             Pressable(
-              onPressed: () {},
+              onPressed: () => openSearch(context, _queryOf(trend)),
               builder: (context, states) => FocusRing(
                 visible: states.contains(WidgetState.focused),
                 borderRadius: theme.radii.sm,
@@ -106,7 +119,11 @@ class HomeFooterLinks extends StatelessWidget {
         runSpacing: homeTightGap,
         children: [
           for (final link in HomeData.footerLinks)
-            HomeTextLink(link, onPressed: () {}, style: style),
+            HomeTextLink(
+              link,
+              onPressed: () => openFooterLink(context, link),
+              style: style,
+            ),
           Text(HomeData.copyright, style: style),
         ],
       ),

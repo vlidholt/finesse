@@ -1,6 +1,7 @@
 import 'package:example/strand/data/messages_data.dart';
 import 'package:example/strand/widgets/messages_common.dart';
 import 'package:example/strand/widgets/messages_controller.dart';
+import 'package:example/strand/widgets/messages_new_dialog.dart';
 import 'package:example/strand/widgets/search_field.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
@@ -59,7 +60,7 @@ class MessagesConversationList extends StatelessWidget {
 
     final header = Padding(
       padding: headerPadding,
-      child: _ListHeader(controller: controller),
+      child: _ListHeader(controller: controller, onOpen: onOpen),
     );
 
     if (conversations.isEmpty) {
@@ -114,20 +115,24 @@ class MessagesConversationList extends StatelessWidget {
 }
 
 class _ListHeader extends StatelessWidget {
-  const _ListHeader({required this.controller});
+  const _ListHeader({required this.controller, required this.onOpen});
 
   final MessagesController controller;
+
+  /// Opens the conversation "New message" chose.
+  final ValueChanged<Conversation> onOpen;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
 
-    Widget action(IconData icon, String label) => IconButton.secondary(
-      icon: Icon(icon),
-      semanticLabel: label,
-      onPressed: () {},
-    );
+    Widget action(IconData icon, String label, VoidCallback onPressed) =>
+        IconButton.secondary(
+          icon: Icon(icon),
+          semanticLabel: label,
+          onPressed: onPressed,
+        );
 
     return FinesseColumn(
       gap: GapSize.md,
@@ -151,9 +156,20 @@ class _ListHeader extends StatelessWidget {
                 ),
               ),
             ),
-            action(PhosphorIconsRegular.slidersHorizontal, 'Filter'),
+            // Steps through the chips below, for a hand on the keyboard.
+            action(
+              PhosphorIconsRegular.slidersHorizontal,
+              'Filter',
+              () => controller.filter =
+                  MessageFilter.values[(controller.filter.index + 1) %
+                      MessageFilter.values.length],
+            ),
             const Gap.xs(),
-            action(PhosphorIconsRegular.pencilSimple, 'New message'),
+            action(
+              PhosphorIconsRegular.pencilSimple,
+              'New message',
+              () => showNewMessageDialog(context, controller, onOpen),
+            ),
           ],
         ),
         SearchField(

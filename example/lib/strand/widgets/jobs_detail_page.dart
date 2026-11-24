@@ -1,6 +1,7 @@
 import 'package:example/strand/data/jobs_data.dart';
 import 'package:example/strand/widgets/jobs_detail.dart';
 import 'package:example/strand/widgets/jobs_state.dart';
+import 'package:example/strand/widgets/strand_actions.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -72,7 +73,7 @@ class JobDetailPage extends StatelessWidget {
               IconButton.ghost(
                 icon: const Icon(PhosphorIconsRegular.export),
                 semanticLabel: 'Share job',
-                onPressed: () {},
+                onPressed: () => copyLink(context, 'strand.app/jobs/${job.id}'),
               ),
             ],
           ),

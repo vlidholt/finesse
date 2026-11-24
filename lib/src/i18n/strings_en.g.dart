@@ -43,6 +43,7 @@ class FinesseLocalizationsData with BaseTranslations<FinesseLocale, FinesseLocal
 	late final FinesseLocalizationsData$command$en command = FinesseLocalizationsData$command$en.internal(_root);
 	late final FinesseLocalizationsData$pagination$en pagination = FinesseLocalizationsData$pagination$en.internal(_root);
 	late final FinesseLocalizationsData$dialog$en dialog = FinesseLocalizationsData$dialog$en.internal(_root);
+	late final FinesseLocalizationsData$board$en board = FinesseLocalizationsData$board$en.internal(_root);
 }
 
 // Path: timePicker
@@ -174,6 +175,42 @@ class FinesseLocalizationsData$dialog$en {
 	String get dismiss => 'Dismiss';
 }
 
+// Path: board
+class FinesseLocalizationsData$board$en {
+	FinesseLocalizationsData$board$en.internal(this._root);
+
+	final FinesseLocalizationsData _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Move up'
+	String get moveUp => 'Move up';
+
+	/// en: 'Move down'
+	String get moveDown => 'Move down';
+
+	/// en: 'Move to $column'
+	String moveTo({required Object column}) => 'Move to ${column}';
+
+	/// en: 'Picked up. Use the arrow keys to move, Space to drop, Escape to cancel.'
+	String get pickedUp => 'Picked up. Use the arrow keys to move, Space to drop, Escape to cancel.';
+
+	/// en: '$column, position $position of $count'
+	String position({required Object column, required Object position, required Object count}) => '${column}, position ${position} of ${count}';
+
+	/// en: 'Dropped in $column, position $position of $count'
+	String dropped({required Object column, required Object position, required Object count}) => 'Dropped in ${column}, position ${position} of ${count}';
+
+	/// en: 'Move cancelled'
+	String get cancelled => 'Move cancelled';
+
+	/// en: '$column does not accept this item'
+	String refused({required Object column}) => '${column} does not accept this item';
+
+	/// en: 'Drag to move'
+	String get dragHandle => 'Drag to move';
+}
+
 /// The flat map containing all translations for locale <en>.
 /// Only for edge cases! For simple maps, use the map function of this library.
 ///
@@ -201,6 +238,15 @@ extension on FinesseLocalizationsData {
 			'pagination.page' => 'Page',
 			'dialog.close' => 'Close',
 			'dialog.dismiss' => 'Dismiss',
+			'board.moveUp' => 'Move up',
+			'board.moveDown' => 'Move down',
+			'board.moveTo' => ({required Object column}) => 'Move to ${column}',
+			'board.pickedUp' => 'Picked up. Use the arrow keys to move, Space to drop, Escape to cancel.',
+			'board.position' => ({required Object column, required Object position, required Object count}) => '${column}, position ${position} of ${count}',
+			'board.dropped' => ({required Object column, required Object position, required Object count}) => 'Dropped in ${column}, position ${position} of ${count}',
+			'board.cancelled' => 'Move cancelled',
+			'board.refused' => ({required Object column}) => '${column} does not accept this item',
+			'board.dragHandle' => 'Drag to move',
 			_ => null,
 		};
 	}

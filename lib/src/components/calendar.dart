@@ -6,6 +6,7 @@ import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/border.dart';
+import 'package:finesse/src/utils/content_switch.dart';
 import 'package:finesse/src/utils/extensions/date_time.dart';
 import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:flutter/foundation.dart';
@@ -1715,276 +1716,300 @@ class _CalendarState extends State<Calendar> {
                     ),
                   ),
                 ),
-                Actions(
-                  actions: {
-                    DirectionalFocusAction:
-                        CallbackAction<DirectionalFocusIntent>(
-                          onInvoke: (intent) {
-                            FocusScope.of(
-                              context,
-                            ).focusInDirection(intent.direction);
-                            return null;
-                          },
-                        ),
-                  },
-                  child: Shortcuts(
-                    shortcuts: {
-                      LogicalKeySet(LogicalKeyboardKey.arrowUp):
-                          const DirectionalFocusIntent(TraversalDirection.up),
-                      LogicalKeySet(LogicalKeyboardKey.arrowDown):
-                          const DirectionalFocusIntent(TraversalDirection.down),
-                      LogicalKeySet(LogicalKeyboardKey.arrowLeft):
-                          const DirectionalFocusIntent(TraversalDirection.left),
-                      LogicalKeySet(
-                        LogicalKeyboardKey.arrowRight,
-                      ): const DirectionalFocusIntent(
-                        TraversalDirection.right,
-                      ),
-                    },
-                    child: GridView.count(
-                      mainAxisSpacing: effectiveGridMainAxisSpacing,
-                      crossAxisSpacing: effectiveGridCrossAxisSpacing,
-                      crossAxisCount: columnsCount,
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      children: dateModel.dates.mapIndexed((index, date) {
-                        if (date == null) return const SizedBox.shrink();
-                        final selected = switch (widget.variant) {
-                          CalendarVariant.range => false,
-                          CalendarVariant.single ||
-                          CalendarVariant.multiple => selectedDays.any(
-                            (selectedDate) => selectedDate.isSameDay(date),
+                // Changing month brings the new grid in from the side it
+                // lies on: later months from the end, earlier from the
+                // start.
+                ContentSwitch(
+                  value: dateModel.month.year * 12 + dateModel.month.month,
+                  child: Actions(
+                    actions: {
+                      DirectionalFocusAction:
+                          CallbackAction<DirectionalFocusIntent>(
+                            onInvoke: (intent) {
+                              FocusScope.of(
+                                context,
+                              ).focusInDirection(intent.direction);
+                              return null;
+                            },
                           ),
-                        };
-
-                        final isInRange = switch (widget.variant) {
-                          CalendarVariant.range =>
-                            (startRange != null &&
-                                    date.isSameDayOrGreater(startRange!)) &&
-                                (endRange != null &&
-                                    date.isSameDayOrLower(endRange!)),
-                          CalendarVariant.single ||
-                          CalendarVariant.multiple => false,
-                        };
-
-                        final isFirstDateInRange =
-                            startRange != null && date.isSameDay(startRange!);
-                        final isLastDateInRange =
-                            endRange != null && date.isSameDay(endRange!);
-
-                        final isToday = date.isSameDay(today);
-                        final isInMonth = date.month == dateModel.month.month;
-                        final textStyle = switch (widget.variant) {
-                          CalendarVariant.range => () {
-                            if (isFirstDateInRange || isLastDateInRange) {
-                              return effectiveSelectedDayButtonTextStyle;
-                            }
-
-                            if (isInRange) {
-                              return effectiveInsideRangeDayButtonTextStyle;
-                            }
-
-                            return effectiveDayButtonTextStyle;
-                          }(),
-                          CalendarVariant.single || CalendarVariant.multiple =>
-                            isInMonth
-                                ? selected
-                                      ? effectiveSelectedDayButtonTextStyle
-                                      : effectiveDayButtonTextStyle
-                                : effectiveDayButtonOutsideMonthTextStyle,
-                        };
-
-                        final variant = switch (widget.variant) {
-                          CalendarVariant.range => () {
-                            if (isFirstDateInRange || isLastDateInRange) {
-                              return effectiveSelectedDayButtonVariant;
-                            }
-                            if (isInRange) {
-                              return effectiveInsideRangeDayButtonVariant;
-                            }
-                            if (isToday) return effectiveTodayButtonVariant;
-                            return effectiveDayButtonVariant;
-                          }(),
-                          CalendarVariant.single ||
-                          CalendarVariant.multiple => switch (isInMonth) {
-                            true =>
-                              selected
-                                  ? effectiveSelectedDayButtonVariant
-                                  : isToday
-                                  ? effectiveTodayButtonVariant
-                                  : effectiveDayButtonVariant,
-                            false =>
-                              selected
-                                  ? effectiveSelectedOutsideMonthVariant
-                                  : effectiveDayButtonOutsideMonthVariant,
-                          },
-                        };
-
-                        if (effectiveShowWeekNumbers && index % 8 == 0) {
-                          return Center(
-                            child: Text(
-                              date.weekNumber.toString(),
-                              style: effectiveWeekNumbersTextStyle,
-                              textAlign: effectiveWeekNumbersTextAlign,
+                    },
+                    child: Shortcuts(
+                      shortcuts: {
+                        LogicalKeySet(LogicalKeyboardKey.arrowUp):
+                            const DirectionalFocusIntent(TraversalDirection.up),
+                        LogicalKeySet(
+                          LogicalKeyboardKey.arrowDown,
+                        ): const DirectionalFocusIntent(
+                          TraversalDirection.down,
+                        ),
+                        LogicalKeySet(
+                          LogicalKeyboardKey.arrowLeft,
+                        ): const DirectionalFocusIntent(
+                          TraversalDirection.left,
+                        ),
+                        LogicalKeySet(
+                          LogicalKeyboardKey.arrowRight,
+                        ): const DirectionalFocusIntent(
+                          TraversalDirection.right,
+                        ),
+                      },
+                      child: GridView.count(
+                        mainAxisSpacing: effectiveGridMainAxisSpacing,
+                        crossAxisSpacing: effectiveGridCrossAxisSpacing,
+                        crossAxisCount: columnsCount,
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        children: dateModel.dates.mapIndexed((index, date) {
+                          if (date == null) return const SizedBox.shrink();
+                          final selected = switch (widget.variant) {
+                            CalendarVariant.range => false,
+                            CalendarVariant.single ||
+                            CalendarVariant.multiple => selectedDays.any(
+                              (selectedDate) => selectedDate.isSameDay(date),
                             ),
-                          );
-                        }
+                          };
 
-                        final isFirstOfRow =
-                            (index - (effectiveShowWeekNumbers ? 1 : 0)) % 7 ==
-                            0;
-                        final isLastOfRow =
-                            (index - (effectiveShowWeekNumbers ? 1 : 0)) % 7 ==
-                            6;
+                          final isInRange = switch (widget.variant) {
+                            CalendarVariant.range =>
+                              (startRange != null &&
+                                      date.isSameDayOrGreater(startRange!)) &&
+                                  (endRange != null &&
+                                      date.isSameDayOrLower(endRange!)),
+                            CalendarVariant.single ||
+                            CalendarVariant.multiple => false,
+                          };
 
-                        final cellRadius = effectiveDayButtonRadius;
-                        final effectiveDayButtonDecoration =
-                            FinesseDecoration(
-                                  secondaryBorder: const FinesseBorder(
-                                    padding: EdgeInsets.zero,
-                                  ),
-                                  border:
-                                      isInRange &&
-                                          !isFirstDateInRange &&
-                                          !isLastDateInRange
-                                      ? isFirstOfRow
-                                            ? FinesseBorder(
-                                                radius: BorderRadius.only(
-                                                  topLeft: cellRadius.topLeft,
-                                                  bottomLeft:
-                                                      cellRadius.bottomLeft,
-                                                ),
-                                              )
-                                            : isLastOfRow
-                                            ? FinesseBorder(
-                                                radius: BorderRadius.only(
-                                                  topRight: cellRadius.topRight,
-                                                  bottomRight:
-                                                      cellRadius.bottomRight,
-                                                ),
-                                              )
-                                            : const FinesseBorder(
-                                                radius: BorderRadius.zero,
-                                              )
-                                      : FinesseBorder(radius: cellRadius),
-                                  secondaryFocusedBorder: FinesseBorder.all(
-                                    offset: 2,
-                                    color: theme.colorScheme.ring.withValues(
-                                      alpha: .5,
-                                    ),
-                                  ),
-                                )
-                                .merge(theme.calendarTheme.dayButtonDecoration)
-                                .merge(widget.dayButtonDecoration);
+                          final isFirstDateInRange =
+                              startRange != null && date.isSameDay(startRange!);
+                          final isLastDateInRange =
+                              endRange != null && date.isSameDay(endRange!);
 
-                        return Center(
-                          child: Opacity(
-                            opacity: isInMonth
-                                ? 1
-                                : effectiveDayButtonOutsideMonthOpacity,
-                            child: Button.raw(
-                              variant: variant,
-                              width: effectiveDayButtonSize,
-                              height: effectiveDayButtonSize,
-                              decoration: effectiveDayButtonDecoration,
-                              enabled: enabled(date),
-                              padding: effectiveDayButtonPadding,
+                          final isToday = date.isSameDay(today);
+                          final isInMonth = date.month == dateModel.month.month;
+                          final textStyle = switch (widget.variant) {
+                            CalendarVariant.range => () {
+                              if (isFirstDateInRange || isLastDateInRange) {
+                                return effectiveSelectedDayButtonTextStyle;
+                              }
+
+                              if (isInRange) {
+                                return effectiveInsideRangeDayButtonTextStyle;
+                              }
+
+                              return effectiveDayButtonTextStyle;
+                            }(),
+                            CalendarVariant.single ||
+                            CalendarVariant.multiple =>
+                              isInMonth
+                                  ? selected
+                                        ? effectiveSelectedDayButtonTextStyle
+                                        : effectiveDayButtonTextStyle
+                                  : effectiveDayButtonOutsideMonthTextStyle,
+                          };
+
+                          final variant = switch (widget.variant) {
+                            CalendarVariant.range => () {
+                              if (isFirstDateInRange || isLastDateInRange) {
+                                return effectiveSelectedDayButtonVariant;
+                              }
+                              if (isInRange) {
+                                return effectiveInsideRangeDayButtonVariant;
+                              }
+                              if (isToday) return effectiveTodayButtonVariant;
+                              return effectiveDayButtonVariant;
+                            }(),
+                            CalendarVariant.single ||
+                            CalendarVariant.multiple => switch (isInMonth) {
+                              true =>
+                                selected
+                                    ? effectiveSelectedDayButtonVariant
+                                    : isToday
+                                    ? effectiveTodayButtonVariant
+                                    : effectiveDayButtonVariant,
+                              false =>
+                                selected
+                                    ? effectiveSelectedOutsideMonthVariant
+                                    : effectiveDayButtonOutsideMonthVariant,
+                            },
+                          };
+
+                          if (effectiveShowWeekNumbers && index % 8 == 0) {
+                            return Center(
                               child: Text(
-                                date.day.toString(),
-                                style: textStyle,
+                                date.weekNumber.toString(),
+                                style: effectiveWeekNumbersTextStyle,
+                                textAlign: effectiveWeekNumbersTextAlign,
                               ),
-                              onPressed: () {
-                                // ignore the operation if the min is reached
-                                if (selectedDays.contains(date) &&
-                                    widget.min != null &&
-                                    selectedDays.length == widget.min) {
-                                  return;
-                                }
+                            );
+                          }
 
-                                if (widget.variant == CalendarVariant.single) {
-                                  final selectedDate = selectedDays.firstOrNull;
-                                  selectedDays.clear();
-                                  if (effectiveAllowDeselection &&
-                                      (selectedDate?.isSameDay(date) ??
-                                          false)) {
-                                    widget.onChanged?.call(null);
+                          final isFirstOfRow =
+                              (index - (effectiveShowWeekNumbers ? 1 : 0)) %
+                                  7 ==
+                              0;
+                          final isLastOfRow =
+                              (index - (effectiveShowWeekNumbers ? 1 : 0)) %
+                                  7 ==
+                              6;
 
+                          final cellRadius = effectiveDayButtonRadius;
+                          final effectiveDayButtonDecoration =
+                              FinesseDecoration(
+                                    secondaryBorder: const FinesseBorder(
+                                      padding: EdgeInsets.zero,
+                                    ),
+                                    border:
+                                        isInRange &&
+                                            !isFirstDateInRange &&
+                                            !isLastDateInRange
+                                        ? isFirstOfRow
+                                              ? FinesseBorder(
+                                                  radius: BorderRadius.only(
+                                                    topLeft: cellRadius.topLeft,
+                                                    bottomLeft:
+                                                        cellRadius.bottomLeft,
+                                                  ),
+                                                )
+                                              : isLastOfRow
+                                              ? FinesseBorder(
+                                                  radius: BorderRadius.only(
+                                                    topRight:
+                                                        cellRadius.topRight,
+                                                    bottomRight:
+                                                        cellRadius.bottomRight,
+                                                  ),
+                                                )
+                                              : const FinesseBorder(
+                                                  radius: BorderRadius.zero,
+                                                )
+                                        : FinesseBorder(radius: cellRadius),
+                                    secondaryFocusedBorder: FinesseBorder.all(
+                                      offset: 2,
+                                      color: theme.colorScheme.ring.withValues(
+                                        alpha: .5,
+                                      ),
+                                    ),
+                                  )
+                                  .merge(
+                                    theme.calendarTheme.dayButtonDecoration,
+                                  )
+                                  .merge(widget.dayButtonDecoration);
+
+                          return Center(
+                            child: Opacity(
+                              opacity: isInMonth
+                                  ? 1
+                                  : effectiveDayButtonOutsideMonthOpacity,
+                              child: Button.raw(
+                                variant: variant,
+                                width: effectiveDayButtonSize,
+                                height: effectiveDayButtonSize,
+                                decoration: effectiveDayButtonDecoration,
+                                enabled: enabled(date),
+                                // A day is a small button: it follows the
+                                // variant's press response.
+                                pressScale: null,
+                                padding: effectiveDayButtonPadding,
+                                child: Text(
+                                  date.day.toString(),
+                                  style: textStyle,
+                                ),
+                                onPressed: () {
+                                  // ignore the operation if the min is reached
+                                  if (selectedDays.contains(date) &&
+                                      widget.min != null &&
+                                      selectedDays.length == widget.min) {
                                     return;
                                   }
-                                }
-                                final startRangeEquals =
-                                    startRange?.isSameDay(date) ?? false;
-                                final endDateEquals =
-                                    endRange?.isSameDay(date) ?? false;
 
-                                final singleDateSelectedInRange =
-                                    (startRangeEquals && endRange == null) ||
-                                    (endDateEquals && startRange == null);
+                                  if (widget.variant ==
+                                      CalendarVariant.single) {
+                                    final selectedDate =
+                                        selectedDays.firstOrNull;
+                                    selectedDays.clear();
+                                    if (effectiveAllowDeselection &&
+                                        (selectedDate?.isSameDay(date) ??
+                                            false)) {
+                                      widget.onChanged?.call(null);
 
-                                // Skip the operation on the range if a single
-                                // date is selected and allowDeselection is
-                                // false
-                                if (widget.variant == CalendarVariant.range) {
-                                  if (singleDateSelectedInRange &&
-                                      !effectiveAllowDeselection) {
-                                    return;
+                                      return;
+                                    }
                                   }
-                                }
+                                  final startRangeEquals =
+                                      startRange?.isSameDay(date) ?? false;
+                                  final endDateEquals =
+                                      endRange?.isSameDay(date) ?? false;
 
-                                setState(() {
+                                  final singleDateSelectedInRange =
+                                      (startRangeEquals && endRange == null) ||
+                                      (endDateEquals && startRange == null);
+
+                                  // Skip the operation on the range if a single
+                                  // date is selected and allowDeselection is
+                                  // false
                                   if (widget.variant == CalendarVariant.range) {
-                                    // deselect the range
-                                    if (singleDateSelectedInRange) {
-                                      startRange = null;
-                                    } else {
-                                      // select the start range
-                                      if (startRange == null) {
-                                        startRange = date;
+                                    if (singleDateSelectedInRange &&
+                                        !effectiveAllowDeselection) {
+                                      return;
+                                    }
+                                  }
+
+                                  setState(() {
+                                    if (widget.variant ==
+                                        CalendarVariant.range) {
+                                      // deselect the range
+                                      if (singleDateSelectedInRange) {
+                                        startRange = null;
                                       } else {
-                                        // update the start range
-                                        if (isFirstDateInRange ||
-                                            isLastDateInRange) {
+                                        // select the start range
+                                        if (startRange == null) {
                                           startRange = date;
-                                          endRange = null;
                                         } else {
-                                          // update the start/end range based on the date position
-                                          if (date.isBefore(startRange!)) {
+                                          // update the start range
+                                          if (isFirstDateInRange ||
+                                              isLastDateInRange) {
                                             startRange = date;
+                                            endRange = null;
                                           } else {
-                                            endRange = date;
+                                            // update the start/end range based on the date position
+                                            if (date.isBefore(startRange!)) {
+                                              startRange = date;
+                                            } else {
+                                              endRange = date;
+                                            }
                                           }
                                         }
                                       }
-                                    }
-                                  } else {
-                                    if (selectedDays.contains(date)) {
-                                      selectedDays.remove(date);
                                     } else {
-                                      selectedDays.add(date);
+                                      if (selectedDays.contains(date)) {
+                                        selectedDays.remove(date);
+                                      } else {
+                                        selectedDays.add(date);
+                                      }
                                     }
-                                  }
-                                });
+                                  });
 
-                                switch (widget.variant) {
-                                  case CalendarVariant.single:
-                                    widget.onChanged?.call(date);
-                                  case CalendarVariant.multiple:
-                                    widget.onMultipleChanged?.call(
-                                      selectedDays.toList(),
-                                    );
-                                  case CalendarVariant.range:
-                                    widget.onRangeChanged?.call(
-                                      DateTimeRange(
-                                        start: startRange,
-                                        end: endRange,
-                                      ),
-                                    );
-                                }
-                              },
+                                  switch (widget.variant) {
+                                    case CalendarVariant.single:
+                                      widget.onChanged?.call(date);
+                                    case CalendarVariant.multiple:
+                                      widget.onMultipleChanged?.call(
+                                        selectedDays.toList(),
+                                      );
+                                    case CalendarVariant.range:
+                                      widget.onRangeChanged?.call(
+                                        DateTimeRange(
+                                          start: startRange,
+                                          end: endRange,
+                                        ),
+                                      );
+                                  }
+                                },
+                              ),
                             ),
-                          ),
-                        );
-                      }).toList(),
+                          );
+                        }).toList(),
+                      ),
                     ),
                   ),
                 ),

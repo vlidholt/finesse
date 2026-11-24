@@ -71,6 +71,93 @@ clipped, and the clip would cut off the surface's own shadow, so `Glass`,
 `Card` and the bars paint shadows from a `DecoratedBox` *outside* the
 `Backdrop`.
 
+### Floating surfaces are glass too
+
+`popoverOpacity` and `tooltipOpacity` (each with a dark override) do for
+popovers, menus, a select's list, the command palette and tooltips what
+`barOpacity` does for the bars: below 1 the surface is its colour at that
+opacity over the style's glass filter. They are below 1 in `finesse` and 1
+in `nova`, `maia` and `lyra`. `ThemeData.menuTranslucent` is three-state on
+top of that — null follows the style, true is shadcn's 70% finish with a
+`foreground/10` highlight, false keeps menus solid — and
+`test/src/theme/glass_contrast_test.dart` walks every combination over the
+page, black and white.
+
+- **A backdrop filter does not survive under an opacity layer on every
+  renderer** (the filter samples the layer it is in, which is empty while it
+  fades; the engine folds the opacity into the filter only for some layer
+  trees, and the web does not at all). So an entrance fade is not applied
+  around glass: `FinesseAnimate(fadeThroughBackdrop: true)` routes its
+  `FadeEffect`s through a `BackdropFadeHost`, and a `BackdropSurface` with a
+  filter claims the fade — it fades its tint, content and shadow *inside*
+  the filter and fades the filter's own result (`Backdrop.faded`) so that
+  the whole is still a linear cross-fade. `Popover`, `Tooltip` and
+  `showDialog` set the flag; `SurfacePainter`, the tooltip, `Command` and
+  `Dialog` paint through `BackdropSurface`. An effect that composites its
+  child into a layer of its own (blur, tint, shader) would hide the
+  backdrop while it runs. `test/src/utils/backdrop_fade_test.dart` locks it.
+- A tooltip's bubble and arrow are **one path**, filled in one stroke and
+  clipped as one, so a translucent tint is not doubled where they overlap.
+- `EntranceEffect` (below) is covered by `fadeThroughBackdrop` too. Its exit
+  is not its entrance reversed: `EntranceProgress` leaves in a straight line
+  from wherever it was, keyed per controller in an `Expando`, so a rebuilt
+  effect keeps its turning point.
+
+### Motion
+
+One vocabulary, `Motion` (`lib/src/theme/motion.dart`), lives on the style
+(`StyleTokens.motion`: `lively` for `finesse`, `calm` for the shadcn styles,
+`none` to switch it off) and `ThemeData(motion:)` overrides it; it is not a
+`BaseTheme` field. Components read it with `Motion.of(context)` — never
+`theme.motion` — which returns the reduced form under
+`MediaQuery.disableAnimationsOf`. Component-theme motion knobs are nullable
+and resolved at build (`theme.xTheme.knob ?? motion.token`), **not baked by
+the variant**: that is why the popover, tooltip and dialog themes carry no
+effects of their own any more.
+
+Movement and scale ride `MotionSpring`s through `SpringController` /
+`SpringBuilder`, so an interruption keeps its velocity; state fills fade
+through `AnimatedFill` / `AnimatedColorBuilder`. The primitives are in
+`lib/src/utils/` (`spring.dart`, `moving_indicator.dart`, `entrance.dart`,
+`pop_in.dart`, `expand_reveal.dart`, `content_switch.dart`,
+`motion_color.dart`) and are exported.
+
+- **A click is down and up within one frame**, so a builder never sees
+  `pressed`. `PressScale` takes a tap count (`taps:`) and pulses on it;
+  `Pressable` owns that (`pressScale:`), and a widget that also wraps
+  `PressScale` inside a `Pressable` builder scales twice. `Button.raw` does
+  not scale unless given `pressScale`.
+- **A selection or highlight that travels cannot be the item's own fill.**
+  Tabs, toggle groups, navigation destinations, menubar triggers, menu rows,
+  select options and command items mark a `MovingIndicatorTarget` and their
+  list paints one `MovingIndicator`. It resolves its target at paint time (a
+  tab is a relayout boundary), so it must sit inside the scroll view with no
+  `RepaintBoundary` between it and its targets. Text takes its highlighted
+  colour at once, so the glide is switched off when that colour does not
+  read on the bare surface (bold menu accent). The lazy `Select`
+  (`optionsBuilder`) has no common parent and does not glide.
+- **Overlays grow from their anchor.** `Portal` publishes a `MotionOrigin`
+  (corrected for the fallback side and the screen-edge shift) and `Popover`
+  defaults to `EntranceEffect.forMotion(Motion.of(context))`, which returns
+  the identical list per token set (effects have no `==`). The entrance
+  starts when the portal reports the overlay on screen (`Portal.onShown`),
+  not at `show()`.
+- A wrapper that appears only mid-animation re-parents its child and drops
+  its state, so the primitives keep one tree shape (an identity `Transform`
+  costs no layer).
+- A dialog route takes its transition duration from the longest effect;
+  `MotionSpring.settleDuration` is about 1.2 × the perceptual duration on
+  purpose. Do not lengthen it.
+- A `CurvedAnimation` created in `build` leaks a listener; use
+  `controller.drive(CurveTween(...))`.
+- **A fade around a whole page is a fade around glass.** The example's
+  `PageSwitch` (`example/lib/common/page_switch.dart`) slides the incoming
+  page and fades a cover of the page colour *out* over it, never from fully
+  opaque (a blank first frame reads as a flash). `IndexedStack` paints one
+  child, so the switch is incoming-only.
+- The navigator keeps a new `PageRoute` offstage for its first frame, so
+  default finders miss it until the second pump.
+
 ## The reference checkout
 
 `reference/ui/` is a clone of [shadcn-ui/ui](https://github.com/shadcn-ui/ui).
@@ -306,6 +393,26 @@ load. Ours are plain `const IconData(code, fontFamily:, fontPackage:
   `BottomNavigationBar.heightOf`, exact for those two widgets. `AppBar` and
   `TabBar` add their hairline to their height (a 64-point bar is 65 tall),
   as CSS does with a content-box header.
+- **`Color.lerp` between colours of different alpha flashes.** It lerps
+  red, green, blue and alpha separately, so halfway from an opaque white to
+  teal's 4% `muted` wash it paints a half-opaque mid-grey, far darker than
+  either end — every hover on a chip dipped through it, and so does any
+  `AnimatedContainer` fading from `Color(0x00000000)`. State fills go
+  through `AnimatedFill` (`lib/src/raw_components/pressable.dart`), which
+  cross-fades (premultiplied). The related trap is `withValues(alpha: .5)`:
+  it *replaces* the alpha, so "half of muted" has to be `muted.a * .5` —
+  the table hover was a 50% wash of the foreground until it was.
+  `test/src/raw_components/interaction_flash_test.dart` reads the screen
+  frame by frame (`test/frame_sampler.dart`).
+- **`FocusRing` is the same widget shown or hidden.** Returning the child
+  bare while hidden re-parented it whenever focus came or went, which
+  re-created its state and snapped its implicit animations.
+- **An overlay is not in its anchor's branch of the tree.** When the anchor
+  goes inactive — an `IndexedStack` child that is not showing has its
+  tickers disabled — the overlay stays on screen and its exit animation
+  never runs. `Popover` and `Tooltip` hide their portal while
+  `TickerMode` is disabled and finish a close at once
+  (`test/src/components/popover_ticker_mode_test.dart`).
 - **`Pressable` takes hover from a `MouseRegion`**, not from
   `FocusableActionDetector`'s highlight callback, which only fires in the
   traditional highlight mode. A `semanticLabel` excludes the *content's*
@@ -458,12 +565,26 @@ load. Ours are plain `const IconData(code, fontFamily:, fontPackage:
   and assert luminance contrast — that found a real collision (light + inverted
   + bold puts a near-black primary on a near-black surface) that reasoning about
   cases had missed twice.
+- **A `FocusableActionDetector` only learns of the highlight mode from a
+  change notification**, and in a test a mouse that is merely *connected*
+  changes what `FocusManager.highlightMode` returns without sending one. A
+  test that mixes mouse and Tab calls `useTraditionalHighlights()` first.
 - `pumpAndSettle` hangs on anything with `Skeleton` or `Spinner`; pump
   fixed frames instead.
-- Popover contents are wrapped in `IgnorePointer` during the entrance
-  animation — pump ~12 × 50 ms before tapping an option, and pick options near
-  the top of the list, since ones below the scroll fold are found but not
-  tappable.
+- A popover's entrance starts when its overlay is first on screen — two
+  frames after `show()`, while the portal measures it unseen (the only time
+  it ignores pointers) — and takes about 290 ms; the exit takes
+  `Motion.fast`. The content takes taps from its first visible frame, but
+  under a scale transform, so pump ~12 × 50 ms before tapping an option, and
+  pick options near the top of the list, since ones below the scroll fold
+  are found but not tappable.
+- A controller started between two frames moves on the *second* pump: pump
+  once before a timed pump when sampling an animation. A test that reads a
+  colour or ring right after a state change pumps the fade (200 ms) or the
+  spring (400 ms) first.
+- An overlay's element hangs under its anchor, so when the anchor is off
+  stage a default finder calls a menu that is still on screen "gone"; such
+  tests use `skipOffstage: false`.
 - Example tests set `GoogleFonts.config.allowRuntimeFetching = false`; the
   resulting log lines are noise, not failures.
 
@@ -503,6 +624,57 @@ load. Ours are plain `const IconData(code, fontFamily:, fontPackage:
 - `example/macos/` is gitignored, so changes there (e.g. the
   `com.apple.security.network.client` entitlement that `google_fonts` needs)
   will not commit.
+
+## The board
+
+`Board` (`lib/src/components/board*.dart`) is controlled: it reports a
+`BoardMove` and flies the card to wherever the next build puts it, so a
+parent that refuses, sorts or applies late is still animated correctly.
+`BoardMove.toIndex` is counted after removal (apply is remove-then-insert).
+
+- One `Ticker` in `_BoardState` drives everything — neighbour shifts, lifted
+  copies, auto-scroll, the slot fading in — and stops when all of it is at
+  rest, also mid-drag. Springs are stepped with the closed-form oscillator,
+  so a critically damped one never overshoots however long the frame.
+- Neighbours make way by a paint-only translation in `_RenderBoardSlot`;
+  nothing is laid out while a slot opens. The drop index compares the card's
+  centre with the middle of the span each neighbour covers above and below
+  the slot, so it depends on the pointer alone and never flickers.
+- A list change is animated by FLIP resolved **in paint**: `didUpdateWidget`
+  records where each mounted item is drawn and marks it for repaint, and the
+  slot's `paint` works out the offset that keeps it there. A post-frame
+  callback would be one frame late (a jump); paint may not call
+  `markNeedsPaint`, so it writes the field directly.
+- After a drop that moved something, the shift targets are **not** reset
+  until the frame after `onMove`; resetting them first sends every neighbour
+  the wrong way for one frame. For the same reason a flying card does not
+  land in the tick before the parent has rebuilt (`holdFrames`).
+- Recognizers are owned by the board, not the item, so a drag survives its
+  item scrolling out of a lazy list; the dragged or focused slot is also
+  kept alive. A kept-alive sliver child has a **zero** paint transform and
+  its `SliverMultiBoxAdaptorParentData` sits a few wrappers above the slot,
+  so `_box` walks up to find `keptAlive` — reading its position otherwise
+  yields NaN and a semantics assertion.
+- `MultiDragGestureRecognizer` accepts on pointer-down when nothing else is
+  in the arena; `_SlopPointerState` keeps the starter and waits for the slop
+  anyway, or a click lifts the card. The mouse slop equals the pan slop on
+  purpose: the board's listener is deepest, so at the same distance it beats
+  a `SelectionArea` around it (the docs pages).
+- Overlay entries cannot be inserted during build, so a card the parent
+  moved to another column by itself is hidden at once (`_pendingFlights`)
+  and takes off post-frame.
+- A `Card` inside a board is themed through a `Theme` override cached per
+  `ThemeData` in an `Expando` (`ThemeData.copyWith` re-runs the factory).
+- The landing pop is one spring given a push found by bisection so the scale
+  reaches `landScale` and comes back once (`_Spring.kickThrough`); a bouncy
+  spring alone moves a 3% lift by a fraction of a pixel.
+- It needs bounded width and height (it throws a `FlutterError` that says
+  so); `shrinkWrap: true` makes columns as tall as their items and
+  auto-scrolls the enclosing vertical scrollable instead.
+- Tests: find a column with
+  `'${w.runtimeType}'.startsWith('_BoardColumnView')`; never
+  `await controller.showColumn()` in a widget test (it completes only as
+  frames are pumped); layout tests need a real font, as elsewhere.
 
 ## The sidebar component
 
@@ -568,8 +740,38 @@ disco providers in `common/app_state.dart`, provided above `FinesseApp`.
   `example/assets/strand/`, taken from the design files).
 - One screen per destination: `screens/<x>_screen.dart`, its pieces in
   `widgets/<x>_*.dart`, its content in `data/<x>_data.dart`, its tests in
-  `example/test/strand_<x>_screen_test.dart`. Network and Notifications have
-  no design and show `placeholder_screen.dart`.
+  `example/test/strand_<x>_screen_test.dart`. Home, Jobs, Messages and
+  Profile come from the designs. Network, Notifications, Search and Settings
+  were never drawn; they are built from the designed screens' pieces and
+  rules (`widgets/strand_pieces.dart` has the shared page header, section
+  heading, pill button, mark and date tile). Settings and Search are pushed
+  routes. Jobs has a second view, "My applications", a `Board`
+  (`widgets/jobs_board*.dart`, `jobsViewProvider`,
+  `context.openApplications()`).
+- **State more than one place shows is in the `StrandSession`**
+  (`session.dart`, `context.strand`, provided beside
+  `strandDestinationProvider`): notifications (the bell counts
+  `unreadCount`), the network (an invitation can be accepted from a
+  notification), recent searches, settings. A screen's own state stays in
+  the screen. A test that pumps a screen alone adds `strandSessionProvider`
+  to its providers (`test/strand_support.dart`).
+- **Nothing in Strand is a dead end.** A control with no designed
+  destination gets the lightest real response from
+  `widgets/strand_actions.dart` / `strand_previews.dart`: a preview dialog,
+  a toast with Undo, or a trip to the screen that owns the subject.
+  `grep "onPressed: () {}"` under `lib/strand` should stay empty.
+- **From a pushed page, navigate with `context.leaveTo(destination)`**,
+  which pops the page first; `goTo` would switch the shell underneath it.
+  Call it with the page's context, not a dialog's.
+- **The desktop search panel is a `Portal`, not a `Popover`**: a popover
+  takes focus on open and the field has to keep it. Search wants every word
+  of the query; a canned query (a trending topic) is mapped to words the
+  data contains, and `strand_search_screen_test.dart` checks every
+  suggested search finds something.
+- A test finder for a tappable row's inner `Semantics` label finds nothing:
+  `Pressable` merges it into the row's node. Find the widget instead. A
+  render harness must restore `FlutterError.onError` when a step throws, or
+  the test hangs instead of failing.
 - **A screen is built inside the shell's `Scaffold`**, so its `MediaQuery`
   padding already includes the bars; a `PageContainer(scrollable: true)`
   clears them and lets content scroll underneath. A view that needs the

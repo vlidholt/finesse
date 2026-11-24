@@ -1,5 +1,7 @@
+import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/animate.dart';
+import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
@@ -195,10 +197,18 @@ class _ProgressState extends State<ProgressBar>
               borderRadius: effectiveInnerBorderRadius,
             ),
             child: widget.value != null
-                ? DeterminateProgressBar(
-                    value: widget.value!,
-                    color: currentColor,
-                    borderRadius: effectiveInnerBorderRadius,
+                // A new value is glided to rather than jumped to; the bar
+                // starts on its first value without animating.
+                ? SpringBuilder(
+                    value: widget.value!.clamp(0, 1).toDouble(),
+                    spring:
+                        theme.progressBarTheme.spring ??
+                        Motion.of(context).smooth,
+                    builder: (context, value, _) => DeterminateProgressBar(
+                      value: value,
+                      color: currentColor,
+                      borderRadius: effectiveInnerBorderRadius,
+                    ),
                   )
                 : IndeterminateProgressBar(
                     controller: _controller,

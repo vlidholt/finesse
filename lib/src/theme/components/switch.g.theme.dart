@@ -41,6 +41,7 @@ mixin _$SwitchTheme {
       height: lerpDouble$(a.height, b.height, t),
       margin: lerpDouble$(a.margin, b.margin, t),
       duration: lerpDuration$(a.duration, b.duration, t),
+      thumbStretch: lerpDouble$(a.thumbStretch, b.thumbStretch, t),
       decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
     );
@@ -54,6 +55,7 @@ mixin _$SwitchTheme {
     double? height,
     double? margin,
     Duration? duration,
+    double? thumbStretch,
     FinesseDecoration? decoration,
     EdgeInsetsGeometry? padding,
   }) {
@@ -67,6 +69,7 @@ mixin _$SwitchTheme {
       height: height ?? _this.height,
       margin: margin ?? _this.margin,
       duration: duration ?? _this.duration,
+      thumbStretch: thumbStretch ?? _this.thumbStretch,
       decoration: decoration ?? _this.decoration,
       padding: padding ?? _this.padding,
     );
@@ -91,6 +94,7 @@ mixin _$SwitchTheme {
       height: other.height,
       margin: other.margin,
       duration: other.duration,
+      thumbStretch: other.thumbStretch,
       decoration: _this.decoration?.merge(other.decoration) ?? other.decoration,
       padding: other.padding,
     );
@@ -116,6 +120,7 @@ mixin _$SwitchTheme {
         _other.height == _this.height &&
         _other.margin == _this.margin &&
         _other.duration == _this.duration &&
+        _other.thumbStretch == _this.thumbStretch &&
         _other.decoration == _this.decoration &&
         _other.padding == _this.padding;
   }
@@ -133,6 +138,7 @@ mixin _$SwitchTheme {
       _this.height,
       _this.margin,
       _this.duration,
+      _this.thumbStretch,
       _this.decoration,
       _this.padding,
     );

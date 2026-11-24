@@ -1,5 +1,6 @@
 import 'package:example/strand/data/profile_data.dart';
 import 'package:example/strand/widgets/profile_common.dart';
+import 'package:example/strand/widgets/strand_actions.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -178,13 +179,16 @@ class ProfileAboutCard extends StatelessWidget {
 
 /// The "Featured" card: a talk, a case study and an article.
 class ProfileFeaturedCard extends StatelessWidget {
-  const ProfileFeaturedCard({super.key});
+  const ProfileFeaturedCard({this.onSeeAll, super.key});
+
+  /// Called by "See all": the screen switches to its Media tab.
+  final VoidCallback? onSeeAll;
 
   @override
   Widget build(BuildContext context) {
     return ProfileSection(
       title: 'Featured',
-      trailing: ProfileTextLink('See all', onPressed: () {}),
+      trailing: ProfileTextLink('See all', onPressed: onSeeAll),
       child: IntrinsicHeight(
         child: FinesseRow(
           gap: GapSize.md,
@@ -215,7 +219,27 @@ class _FeaturedTile extends StatelessWidget {
     final radius = profileTileRadius(theme);
 
     return Pressable(
-      onPressed: () {},
+      onPressed: () => showArticlePreview(
+        context,
+        image: item.image,
+        source: item.meta,
+        title: item.title,
+        summary: switch (item.kind) {
+          'Talk' =>
+            'Twenty minutes on designing for focus: why defaults matter '
+                'more than settings, and what the planning suite removed '
+                'to get there. Recorded on the main stage at Config '
+                'Nordics.',
+          'Case study' =>
+            'One whiteboard, five people and a rule that nothing ships '
+                'unless a new customer can finish it without reading a '
+                'single tooltip. How six setup screens became two.',
+          _ =>
+            'Forty conversations with small-business owners, and the '
+                'pattern is hard to miss: nobody asked for more features. '
+                'They asked for fewer decisions.',
+        },
+      ),
       builder: (context, states) => FocusRing(
         visible: states.contains(WidgetState.focused),
         borderRadius: radius,

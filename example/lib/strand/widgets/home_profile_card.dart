@@ -1,8 +1,11 @@
 import 'package:example/strand/data.dart';
 import 'package:example/strand/data/home_data.dart';
+import 'package:example/strand/data/network_data.dart';
 import 'package:example/strand/navigation.dart';
 import 'package:example/strand/widgets/home_pieces.dart';
+import 'package:example/strand/widgets/network_links.dart';
 import 'package:example/strand/widgets/person_avatar.dart';
+import 'package:example/strand/widgets/saved_items_sheet.dart';
 import 'package:example/strand/widgets/verified_badge.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
@@ -180,7 +183,17 @@ class HomeProfileCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.start,
                     foregroundColor: scheme.foregroundSubtle,
                     leading: Icon(shortcut.icon),
-                    onPressed: () {},
+                    onPressed: () => switch (shortcut.label) {
+                      'Groups' => openNetworkSection(
+                        context,
+                        NetworkSection.groups,
+                      ),
+                      'Events' => openNetworkSection(
+                        context,
+                        NetworkSection.events,
+                      ),
+                      _ => showSavedItems(context),
+                    },
                     child: Text(shortcut.label),
                   ),
               ],

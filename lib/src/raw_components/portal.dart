@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:finesse/src/utils/entrance.dart';
 import 'package:flutter/widgets.dart';
 
 /// The position of the [Portal] in the global coordinate system.
@@ -221,7 +222,8 @@ class PortalPlacement extends InheritedWidget {
 ///
 /// The overlay is built in the nearest [Overlay] and placed by [anchor].
 /// Descendants of the overlay can read the resolved placement with
-/// [PortalPlacement].
+/// [PortalPlacement], and the point of the overlay that touches its anchor
+/// — where an entrance animation grows from — with `MotionOrigin`.
 class Portal extends StatefulWidget {
   /// Creates a portal that shows the result of [portalBuilder] while [visible]
   /// is true.
@@ -231,7 +233,17 @@ class Portal extends StatefulWidget {
     required this.portalBuilder,
     required this.visible,
     required this.anchor,
+    this.onShown,
   });
+
+  /// Called each time the overlay is about to be painted in its place for
+  /// the first time after [visible] became true.
+  ///
+  /// An auto-anchored overlay is laid out once, unseen, to be measured
+  /// before it can be placed, so it reaches the screen a frame or two after
+  /// [visible] flips. Start an entrance animation from here and none of it
+  /// is spent on frames nobody sees.
+  final VoidCallback? onShown;
 
   /// The widget that the overlay is anchored to.
   final Widget child;
@@ -256,6 +268,22 @@ class _PortalState extends State<Portal> {
   Offset? _calculatedTarget;
   bool _usedFallback = false;
   Offset _shift = Offset.zero;
+
+  /// The point of the overlay's box that sits on its anchor, published as a
+  /// `MotionOrigin` so an entrance grows out of the trigger. Null until it
+  /// has been worked out for an [AnchorAuto] or corrected for a
+  /// [GlobalAnchor].
+  Alignment? _origin;
+
+  /// Whether [Portal.onShown] has been called for the current showing.
+  bool _shownReported = false;
+
+  void _reportShown() {
+    if (_shownReported) return;
+    _shownReported = true;
+    widget.onShown?.call();
+  }
+
   // When scrolling, recalculate the position
   ScrollNotificationObserverState? _scrollNotificationObserver;
   bool _autoPositionUpdateScheduled = false;
@@ -361,13 +389,18 @@ class _PortalState extends State<Portal> {
       if (shouldShow) {
         _calculatePosition();
         show();
+        // The other anchors need no measuring: the next frame paints the
+        // overlay where it belongs.
+        if (!_isAutoAnchor) _reportShown();
       } else {
-        if (_calculatedTarget != null) {
+        _shownReported = false;
+        if (_calculatedTarget != null || _origin != null) {
           setState(() {
             _calculatedTarget = null;
             // The next open starts from the primary position again.
             _usedFallback = false;
             _shift = Offset.zero;
+            _origin = null;
           });
         }
         hide();
@@ -471,6 +504,7 @@ class _PortalState extends State<Portal> {
     // least. [PositionDelegate] centres the overlay on `target.dx` and
     // hangs it below `target.dy`.
     var usedFallback = false;
+    var usedAnchor = anchor;
     if (anchor.fallback != null && overlay != null && overlay.hasSize) {
       final screen = overlayAncestor.size;
       double overflowAlong(double start, double extent, double limit) =>
@@ -498,6 +532,7 @@ class _PortalState extends State<Portal> {
           best = overflow;
           target = candidateTarget;
           usedFallback = true;
+          usedAnchor = candidate;
         }
         candidate = candidate.fallback;
       }
@@ -524,14 +559,18 @@ class _PortalState extends State<Portal> {
           );
     }
 
+    final origin = _autoOrigin(usedAnchor, textDirection, overlaySize, shift);
+
     if (target != _calculatedTarget ||
         usedFallback != _usedFallback ||
-        shift != _shift) {
+        shift != _shift ||
+        origin != _origin) {
       if (mounted) {
         setState(() {
           _calculatedTarget = target;
           _usedFallback = usedFallback;
           _shift = shift;
+          _origin = origin;
         });
       }
     } else if (overlay == null) {
@@ -545,6 +584,45 @@ class _PortalState extends State<Portal> {
         setState(() {});
       }
     }
+    // Measured: the frame this callback precedes is the first to show it.
+    if (overlay != null) _reportShown();
+  }
+
+  /// The point of an overlay placed by [anchor] that sits on the target.
+  ///
+  /// [PositionDelegate] centres the overlay on the target horizontally and
+  /// hangs it below, and [_computeTargetForAnchor] moves it from there by
+  /// the follower anchor — so the follower anchor mirrored is the point that
+  /// touches. A [shift] that kept the overlay on screen moved that point
+  /// the other way across the overlay.
+  static Alignment _autoOrigin(
+    AnchorAuto anchor,
+    TextDirection? textDirection,
+    Size overlaySize,
+    Offset shift,
+  ) {
+    final follower = anchor.followerAnchor.resolve(textDirection);
+    var x = -follower.x;
+    var y = -follower.y;
+    if (overlaySize.width > 0) x -= 2 * shift.dx / overlaySize.width;
+    if (overlaySize.height > 0) y -= 2 * shift.dy / overlaySize.height;
+    return Alignment(x.clamp(-1.0, 1.0), y.clamp(-1.0, 1.0));
+  }
+
+  /// Called by the layout of a [GlobalAnchor] with the corner it ended up
+  /// hanging from, which is the anchor's own unless it was mirrored at a
+  /// screen edge. Layout cannot rebuild, so a change is applied after the
+  /// frame — the first frame of an entrance is all but invisible.
+  void _globalPlaced(Alignment origin, Alignment built) {
+    final current = _origin ?? built;
+    if ((origin.x - current.x).abs() < .01 &&
+        (origin.y - current.y).abs() < .01) {
+      return;
+    }
+    _origin = origin;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) setState(() {});
+    });
   }
 
   Widget buildAutoPosition(
@@ -585,7 +663,17 @@ class _PortalState extends State<Portal> {
             child: PortalPlacement(
               usedFallback: _usedFallback,
               shift: _shift,
-              child: Builder(builder: widget.portalBuilder),
+              child: MotionOrigin(
+                alignment:
+                    _origin ??
+                    _autoOrigin(
+                      anchor,
+                      Directionality.maybeOf(context),
+                      Size.zero,
+                      Offset.zero,
+                    ),
+                child: Builder(builder: widget.portalBuilder),
+              ),
             ),
           ),
         ),
@@ -606,7 +694,10 @@ class _PortalState extends State<Portal> {
       // opposite side of the one its alignments named.
       followerAnchor: anchor.overlayAlignment.resolve(textDirection),
       targetAnchor: anchor.childAlignment.resolve(textDirection),
-      child: widget.portalBuilder(context),
+      child: MotionOrigin(
+        alignment: anchor.overlayAlignment.resolve(textDirection),
+        child: Builder(builder: widget.portalBuilder),
+      ),
     );
   }
 
@@ -614,14 +705,19 @@ class _PortalState extends State<Portal> {
     BuildContext context,
     GlobalAnchor anchor,
   ) {
+    final followerAnchor = anchor.followerAnchor.resolve(
+      Directionality.maybeOf(context) ?? TextDirection.ltr,
+    );
     return CustomSingleChildLayout(
       delegate: _PointPositionDelegate(
         point: anchor.offset,
-        followerAnchor: anchor.followerAnchor.resolve(
-          Directionality.maybeOf(context) ?? TextDirection.ltr,
-        ),
+        followerAnchor: followerAnchor,
+        onPlaced: (origin) => _globalPlaced(origin, followerAnchor),
       ),
-      child: widget.portalBuilder(context),
+      child: MotionOrigin(
+        alignment: _origin ?? followerAnchor,
+        child: Builder(builder: widget.portalBuilder),
+      ),
     );
   }
 
@@ -739,10 +835,15 @@ class _PointPositionDelegate extends SingleChildLayoutDelegate {
   _PointPositionDelegate({
     required this.point,
     required this.followerAnchor,
+    this.onPlaced,
   });
 
   final Offset point;
   final Alignment followerAnchor;
+
+  /// Told the point of the overlay that ended up on [point]: the follower
+  /// anchor, mirrored on any axis where the overlay was.
+  final ValueChanged<Alignment>? onPlaced;
 
   @override
   BoxConstraints getConstraintsForChild(BoxConstraints constraints) =>
@@ -765,12 +866,24 @@ class _PointPositionDelegate extends SingleChildLayoutDelegate {
     return start.clamp(0, math.max(0, limit - extent)).toDouble();
   }
 
+  /// Where on an overlay of [extent] (-1..1) the point is, once the overlay
+  /// starts at [start].
+  static double _alignOf(double point, double start, double extent) =>
+      extent <= 0 ? 0 : (2 * (point - start) / extent - 1).clamp(-1.0, 1.0);
+
   @override
   Offset getPositionForChild(Size size, Size childSize) {
-    return Offset(
+    final position = Offset(
       _place(point.dx, followerAnchor.x, childSize.width, size.width),
       _place(point.dy, followerAnchor.y, childSize.height, size.height),
     );
+    onPlaced?.call(
+      Alignment(
+        _alignOf(point.dx, position.dx, childSize.width),
+        _alignOf(point.dy, position.dy, childSize.height),
+      ),
+    );
+    return position;
   }
 
   @override

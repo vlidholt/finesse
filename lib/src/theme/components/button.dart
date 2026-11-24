@@ -42,6 +42,8 @@ class ButtonTheme with _$ButtonTheme {
     this.expands,
     this.pressedOffset,
     this.pressAnimationDuration,
+    this.pressScale,
+    this.transitionDuration,
     this.textStyle,
   }) : _canMerge = canMerge;
 
@@ -133,6 +135,20 @@ class ButtonTheme with _$ButtonTheme {
   /// How long the [pressedOffset] shift takes, defaults to 100ms.
   /// {@endtemplate}
   final Duration? pressAnimationDuration;
+
+  /// {@template ButtonTheme.pressScale}
+  /// The scale of the button while it is pressed: a paint-time transform that
+  /// springs back on release and never changes the layout. Defaults to the
+  /// theme's `Motion.pressScale`; 1 disables it.
+  /// {@endtemplate}
+  final double? pressScale;
+
+  /// {@template ButtonTheme.transitionDuration}
+  /// How long the background and foreground colours take to change between
+  /// the idle, hovered and pressed states. Defaults to the theme's
+  /// `Motion.fast`; `Duration.zero` changes them at once.
+  /// {@endtemplate}
+  final Duration? transitionDuration;
 
   /// {@macro Button.textStyle}
   final TextStyle? textStyle;

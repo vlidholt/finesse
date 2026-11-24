@@ -1,4 +1,5 @@
 import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/motion.dart';
 import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
@@ -26,6 +27,10 @@ class ToggleTheme with _$ToggleTheme {
     this.gap,
     this.height,
     this.iconSize,
+    this.pressScale,
+    this.transitionDuration,
+    this.indicatorSpring,
+    this.indicatorStretch,
   }) : _canMerge = canMerge;
 
   @ignore
@@ -72,6 +77,24 @@ class ToggleTheme with _$ToggleTheme {
 
   /// The size of the toggle's icons. Defaults to 16.
   final double? iconSize;
+
+  /// The scale of the toggle while it is pressed; a paint-time transform.
+  /// Defaults to the theme's `Motion.pressScale`; 1 disables it.
+  final double? pressScale;
+
+  /// How long the fill and foreground colours take to change between
+  /// states. Defaults to the theme's `Motion.fast`.
+  final Duration? transitionDuration;
+
+  /// The spring the selection travels with between the items of a
+  /// single-selection `ToggleGroup`. Defaults to the theme's `Motion.snappy`;
+  /// `MotionSpring.instant` moves it at once.
+  final MotionSpring? indicatorSpring;
+
+  /// How far the travelling selection of a `ToggleGroup` stretches; see
+  /// `MovingIndicator.stretch`. Defaults to the theme's
+  /// `Motion.indicatorStretch`.
+  final double? indicatorStretch;
 
   /// Linearly interpolates between [a] and [b] by [t].
   static ToggleTheme? lerp(

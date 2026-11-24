@@ -1,13 +1,18 @@
+import 'dart:math' as math;
+
 import 'package:finesse/src/components/divider.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/raw_components/focusable.dart';
+import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/animate.dart';
 import 'package:finesse/src/utils/animation_builder.dart';
 import 'package:finesse/src/utils/effects.dart';
+import 'package:finesse/src/utils/expand_reveal.dart';
 import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:finesse/src/utils/provider.dart';
+import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -304,14 +309,17 @@ class AccordionItem<T> extends StatefulWidget {
   final TextStyle? titleStyle;
 
   /// {@template AccordionItem.curve}
-  /// The curve for animations, defaults to a cubic curve if not specified.
-  /// Affects the timing of expansion and collapse animations.
+  /// The curve for animations. When null — and no [effects] are given — the
+  /// item opens and closes on a spring, the theme's `Motion.smooth`, which
+  /// keeps its velocity when interrupted. Giving a curve switches to a
+  /// fixed-duration animation with that curve.
   /// {@endtemplate}
   final Curve? curve;
 
   /// {@template AccordionItem.duration}
-  /// The duration of animations, defaults to 300ms if not specified.
-  /// Controls how long expansion and collapse animations take.
+  /// The duration of animations. With the default spring it replaces the
+  /// spring's duration; with a [curve] or [effects] it is the animation's
+  /// length, 300ms when null.
   /// {@endtemplate}
   final Duration? duration;
 
@@ -323,8 +331,9 @@ class AccordionItem<T> extends StatefulWidget {
   final FocusNode? focusNode;
 
   /// {@template AccordionItem.effects}
-  /// The animation effects applied to the content when expanding or collapsing.
-  /// Defaults to padding, slide, and size effects if not specified.
+  /// The animation effects applied to the content when expanding or
+  /// collapsing, in place of the default: the content's height growing
+  /// while it fades in.
   /// {@endtemplate}
   final List<Effect<dynamic>>? effects;
 
@@ -401,15 +410,20 @@ class _AccordionItemState<T> extends State<AccordionItem<T>>
         final effectiveSeparator =
             widget.separator ?? const Divider.horizontal();
 
-        final effectiveDuration =
-            widget.duration ??
-            theme.accordionTheme.duration ??
-            300.milliseconds;
+        final motion = Motion.of(context);
+        final customEffects = widget.effects ?? theme.accordionTheme.effects;
+        final customCurve = widget.curve ?? theme.accordionTheme.curve;
+        final customDuration = widget.duration ?? theme.accordionTheme.duration;
+        // A spring unless the caller asked for a particular curve or set of
+        // effects, which need a fixed duration to run over.
+        final sprung = customEffects == null && customCurve == null;
+        final spring = customDuration == null || motion.smooth.isInstant
+            ? motion.smooth
+            : motion.smooth.copyWith(duration: customDuration);
 
-        final effectiveCurve =
-            widget.curve ??
-            theme.accordionTheme.curve ??
-            const Cubic(0.87, 0, 0.13, 1);
+        final effectiveDuration = customDuration ?? 300.milliseconds;
+
+        final effectiveCurve = customCurve ?? const Cubic(0.87, 0, 0.13, 1);
 
         final effectiveTitleStyle =
             (widget.titleStyle ??
@@ -424,9 +438,10 @@ class _AccordionItemState<T> extends State<AccordionItem<T>>
             theme.accordionTheme.underlineTitleOnHover ??
             true;
 
+        final customIconEffects =
+            widget.iconEffects ?? theme.accordionTheme.iconEffects;
         final effectiveIconEffects =
-            widget.iconEffects ??
-            theme.accordionTheme.iconEffects ??
+            customIconEffects ??
             [
               RotateEffect(
                 begin: 0,
@@ -455,8 +470,7 @@ class _AccordionItemState<T> extends State<AccordionItem<T>>
             const EdgeInsets.symmetric(vertical: 16);
 
         final effectiveEffects =
-            widget.effects ??
-            theme.accordionTheme.effects ??
+            customEffects ??
             [
               PaddingEffect(
                 padding: const EdgeInsets.only(bottom: 8),
@@ -474,6 +488,116 @@ class _AccordionItemState<T> extends State<AccordionItem<T>>
                 duration: effectiveDuration,
               ),
             ];
+
+        final header = FinesseGestureDetector(
+          cursor: SystemMouseCursors.click,
+          onHoverChange: (value) => hovered.value = value,
+          behavior: HitTestBehavior.opaque,
+          onTap: () => inherited.effectiveController.toggle(widget.value),
+          child: Padding(
+            padding: effectivePadding,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: CallbackShortcuts(
+                    bindings: {
+                      for (final trigger in keyboardTriggers)
+                        trigger: () {
+                          inherited.effectiveController.toggle(
+                            widget.value,
+                          );
+                        },
+                    },
+                    child: Focusable(
+                      focusNode: focusNode,
+                      builder: (context, focused, child) {
+                        return ValueListenableBuilder(
+                          valueListenable: hovered,
+                          builder: (context, hovered, child) {
+                            return DefaultTextStyle(
+                              style: effectiveTitleStyle.copyWith(
+                                decoration:
+                                    hovered && effectiveUnderlineTitleOnHover
+                                    ? TextDecoration.underline
+                                    : null,
+                              ),
+                              child: child!,
+                            );
+                          },
+                          child: widget.title,
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                if (widget.trailing != null)
+                  Padding(
+                    padding: const EdgeInsetsDirectional.only(
+                      start: 8,
+                      end: 8,
+                    ),
+                    // Its own gesture arena entry, so a tap on the
+                    // action does not also toggle the item.
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () {},
+                      child: widget.trailing,
+                    ),
+                  ),
+                if (sprung && customIconEffects == null)
+                  // The chevron turns on the same spring as the
+                  // content opens.
+                  SpringBuilder(
+                    value: expanded ? 1 : 0,
+                    spring: spring,
+                    builder: (context, t, child) => Transform.rotate(
+                      angle: t * math.pi,
+                      child: child,
+                    ),
+                    child: effectiveIcon,
+                  )
+                else
+                  FinesseAnimate(
+                    target: expanded ? 1 : 0,
+                    effects: effectiveIconEffects,
+                    child: effectiveIcon,
+                  ),
+              ],
+            ),
+          ),
+        );
+
+        if (sprung) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              header,
+              SpringBuilder(
+                value: expanded ? 1 : 0,
+                spring: spring,
+                builder: (context, t, child) {
+                  // Gone once fully closed, unless its state is to be kept.
+                  if (t <= 0 && !expanded && !inherited.maintainState) {
+                    return const SizedBox.shrink();
+                  }
+                  return ExpandReveal(
+                    factor: t,
+                    travel: motion.overlayTravel,
+                    alignment: Alignment.topCenter,
+                    child: child!,
+                  );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: widget.child,
+                ),
+              ),
+              effectiveSeparator,
+            ],
+          );
+        }
 
         return AnimationBuilder(
           duration: effectiveDuration,
@@ -493,73 +617,7 @@ class _AccordionItemState<T> extends State<AccordionItem<T>>
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                FinesseGestureDetector(
-                  cursor: SystemMouseCursors.click,
-                  onHoverChange: (value) => hovered.value = value,
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () =>
-                      inherited.effectiveController.toggle(widget.value),
-                  child: Padding(
-                    padding: effectivePadding,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: CallbackShortcuts(
-                            bindings: {
-                              for (final trigger in keyboardTriggers)
-                                trigger: () {
-                                  inherited.effectiveController.toggle(
-                                    widget.value,
-                                  );
-                                },
-                            },
-                            child: Focusable(
-                              focusNode: focusNode,
-                              builder: (context, focused, child) {
-                                return ValueListenableBuilder(
-                                  valueListenable: hovered,
-                                  builder: (context, hovered, child) {
-                                    return DefaultTextStyle(
-                                      style: effectiveTitleStyle.copyWith(
-                                        decoration:
-                                            hovered &&
-                                                effectiveUnderlineTitleOnHover
-                                            ? TextDecoration.underline
-                                            : null,
-                                      ),
-                                      child: child!,
-                                    );
-                                  },
-                                  child: widget.title,
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                        if (widget.trailing != null)
-                          Padding(
-                            padding: const EdgeInsetsDirectional.only(
-                              start: 8,
-                              end: 8,
-                            ),
-                            // Its own gesture arena entry, so a tap on the
-                            // action does not also toggle the item.
-                            child: GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              onTap: () {},
-                              child: widget.trailing,
-                            ),
-                          ),
-                        FinesseAnimate(
-                          target: expanded ? 1 : 0,
-                          effects: effectiveIconEffects,
-                          child: effectiveIcon,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                header,
                 if (!shouldRemoveChild)
                   FinesseAnimate(
                     controller: controller,

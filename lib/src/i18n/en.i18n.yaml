@@ -32,3 +32,14 @@ pagination:
 dialog:
   close: "Close"
   dismiss: "Dismiss"
+
+board:
+  moveUp: "Move up"
+  moveDown: "Move down"
+  moveTo: "Move to $column"
+  pickedUp: "Picked up. Use the arrow keys to move, Space to drop, Escape to cancel."
+  position: "$column, position $position of $count"
+  dropped: "Dropped in $column, position $position of $count"
+  cancelled: "Move cancelled"
+  refused: "$column does not accept this item"
+  dragHandle: "Drag to move"

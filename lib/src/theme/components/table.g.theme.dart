@@ -41,6 +41,10 @@ mixin _$TableTheme {
       cellHeaderStyle: TextStyle.lerp(a.cellHeaderStyle, b.cellHeaderStyle, t),
       cellStyle: TextStyle.lerp(a.cellStyle, b.cellStyle, t),
       cellFooterStyle: TextStyle.lerp(a.cellFooterStyle, b.cellFooterStyle, t),
+      rowHoverColor: Color.lerp(a.rowHoverColor, b.rowHoverColor, t),
+      rowSelectedColor: Color.lerp(a.rowSelectedColor, b.rowSelectedColor, t),
+      footerColor: Color.lerp(a.footerColor, b.footerColor, t),
+      footerHoverColor: Color.lerp(a.footerHoverColor, b.footerHoverColor, t),
     );
   }
 
@@ -56,6 +60,10 @@ mixin _$TableTheme {
     TextStyle? cellHeaderStyle,
     TextStyle? cellStyle,
     TextStyle? cellFooterStyle,
+    Color? rowHoverColor,
+    Color? rowSelectedColor,
+    Color? footerColor,
+    Color? footerHoverColor,
   }) {
     final _this = (this as TableTheme);
 
@@ -72,6 +80,10 @@ mixin _$TableTheme {
       cellHeaderStyle: cellHeaderStyle ?? _this.cellHeaderStyle,
       cellStyle: cellStyle ?? _this.cellStyle,
       cellFooterStyle: cellFooterStyle ?? _this.cellFooterStyle,
+      rowHoverColor: rowHoverColor ?? _this.rowHoverColor,
+      rowSelectedColor: rowSelectedColor ?? _this.rowSelectedColor,
+      footerColor: footerColor ?? _this.footerColor,
+      footerHoverColor: footerHoverColor ?? _this.footerHoverColor,
     );
   }
 
@@ -102,6 +114,10 @@ mixin _$TableTheme {
       cellFooterStyle:
           _this.cellFooterStyle?.merge(other.cellFooterStyle) ??
           other.cellFooterStyle,
+      rowHoverColor: other.rowHoverColor,
+      rowSelectedColor: other.rowSelectedColor,
+      footerColor: other.footerColor,
+      footerHoverColor: other.footerHoverColor,
     );
   }
 
@@ -128,7 +144,11 @@ mixin _$TableTheme {
         _other.cellPadding == _this.cellPadding &&
         _other.cellHeaderStyle == _this.cellHeaderStyle &&
         _other.cellStyle == _this.cellStyle &&
-        _other.cellFooterStyle == _this.cellFooterStyle;
+        _other.cellFooterStyle == _this.cellFooterStyle &&
+        _other.rowHoverColor == _this.rowHoverColor &&
+        _other.rowSelectedColor == _this.rowSelectedColor &&
+        _other.footerColor == _this.footerColor &&
+        _other.footerHoverColor == _this.footerHoverColor;
   }
 
   @override
@@ -148,6 +168,10 @@ mixin _$TableTheme {
       _this.cellHeaderStyle,
       _this.cellStyle,
       _this.cellFooterStyle,
+      _this.rowHoverColor,
+      _this.rowSelectedColor,
+      _this.footerColor,
+      _this.footerHoverColor,
     );
   }
 }

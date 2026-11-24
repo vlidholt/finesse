@@ -1,3 +1,5 @@
+import 'package:finesse/src/utils/backdrop.dart';
+import 'package:finesse/src/utils/entrance.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
@@ -65,7 +67,22 @@ class FinesseAnimate extends Animate {
     super.adapter,
     super.value,
     super.target,
+    this.fadeThroughBackdrop = false,
   });
+
+  /// Whether the fades among the effects — every [FadeEffect], and the fade
+  /// of an [EntranceEffect] — are offered to a glass surface in [child]
+  /// rather than only applied as an opacity layer.
+  ///
+  /// Set for an entrance animation around a floating surface — a popover, a
+  /// tooltip, a dialog. A backdrop filter does not survive under an opacity
+  /// layer on every renderer, so the fade is applied through a
+  /// [BackdropFadeHost]: a `BackdropSurface` with a filter takes it over and
+  /// fades itself inside its own filter, and when there is none the fade is
+  /// applied here as usual. The other effects are unaffected; ones that
+  /// composite their child into a layer of their own (blur, tint, shader)
+  /// would still hide the backdrop while they run.
+  final bool fadeThroughBackdrop;
 
   final List<EffectEntry> _entries = [];
   EffectEntry? _lastEntry;
@@ -231,9 +248,41 @@ class _AnimateState extends State<FinesseAnimate>
     final reparent =
         Animate.reparentTypes[child.runtimeType] as ReparentChildBuilder?;
     if (reparent != null) child = (child as dynamic).child as Widget;
+    if (widget.fadeThroughBackdrop) {
+      Animation<double>? fade;
+      for (final entry in widget._entries) {
+        final effect = entry.effect;
+        final opacity = switch (effect) {
+          FadeEffect() => effect.buildAnimation(_controller, entry),
+          EntranceEffect() => effect.fadeAnimation(_controller, entry),
+          _ => null,
+        };
+        if (opacity == null) continue;
+        fade = fade == null ? opacity : _ProductAnimation(fade, opacity);
+      }
+      if (fade != null) child = BackdropFadeHost(opacity: fade, child: child);
+    }
     for (final entry in widget._entries) {
-      child = entry.effect.build(context, child, _controller, entry);
+      final effect = entry.effect;
+      if (widget.fadeThroughBackdrop) {
+        if (effect is FadeEffect) continue;
+        if (effect is EntranceEffect) {
+          // Its fade went to the host above; what is left is a transform.
+          child = effect.buildMotion(context, child, _controller, entry);
+          continue;
+        }
+      }
+      child = effect.build(context, child, _controller, entry);
     }
     return reparent?.call(parent, child) ?? child;
   }
+}
+
+/// Two opacities applied one over the other.
+class _ProductAnimation extends CompoundAnimation<double> {
+  _ProductAnimation(Animation<double> first, Animation<double> next)
+    : super(first: first, next: next);
+
+  @override
+  double get value => first.value * next.value;
 }

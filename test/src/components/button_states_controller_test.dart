@@ -185,11 +185,14 @@ void main() {
     controller.update(WidgetState.hovered, true);
     expect(identical(controller.value, before), isTrue);
     await tester.pump();
+    // The fill fades over the theme's fast duration.
+    await tester.pump(const Duration(milliseconds: 200));
     expect(painted(hover), isTrue);
     expect(painted(rest), isFalse);
 
     controller.update(WidgetState.hovered, false);
     await tester.pump();
+    await tester.pump(const Duration(milliseconds: 200));
     expect(painted(rest), isTrue);
   });
 }

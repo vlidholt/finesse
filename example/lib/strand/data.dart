@@ -185,8 +185,77 @@ abstract final class People {
     avatar: StrandAssets.avatarClaireDubois,
   );
 
+  // People who appear only on the screens built after the designs —
+  // Network, Notifications and Search. The first two have one of the
+  // designs' unnamed portraits; the rest have none, so their avatar is
+  // their initials.
+
+  static const leo = Person(
+    name: 'Leo Navarro',
+    headline: 'Motion designer at Orbital',
+    avatar: StrandAssets.avatarConnectionA,
+    location: 'Barcelona, Spain',
+  );
+
+  static const emil = Person(
+    name: 'Emil Sandberg',
+    headline: 'Front-end engineer at Halcyon',
+    avatar: StrandAssets.avatarConnectionB,
+    location: 'Copenhagen, Denmark',
+    online: true,
+  );
+
+  static const hanna = Person(
+    name: 'Hanna Sørensen',
+    headline: 'Staff researcher at Orbital',
+    avatar: '',
+    location: 'Aarhus, Denmark',
+  );
+
+  static const tobias = Person(
+    name: 'Tobias Lund',
+    headline: 'Design operations lead at Halcyon',
+    avatar: '',
+    location: 'Copenhagen, Denmark',
+  );
+
+  static const priya = Person(
+    name: 'Priya Nair',
+    headline: 'Content designer at Quill',
+    avatar: '',
+    verified: true,
+    location: 'London, United Kingdom',
+  );
+
+  static const jonas = Person(
+    name: 'Jonas Berg',
+    headline: 'Senior recruiter at Lumen Labs',
+    avatar: '',
+    location: 'Oslo, Norway',
+  );
+
+  static const ingrid = Person(
+    name: 'Ingrid Dahl',
+    headline: 'Design director at Halcyon',
+    avatar: '',
+    verified: true,
+    location: 'Copenhagen, Denmark',
+  );
+
   /// The signed-in user; an alias of [noor] that reads better at call sites.
   static const me = noor;
+
+  /// The people above who are not in the designs; [all] stays the designs'
+  /// twelve.
+  static const beyondTheDesigns = <Person>[
+    leo,
+    emil,
+    hanna,
+    tobias,
+    priya,
+    jonas,
+    ingrid,
+  ];
 
   static const all = <Person>[
     noor,
@@ -293,5 +362,9 @@ abstract final class Groups {
 /// The unread counts the navigation shows.
 abstract final class StrandCounts {
   static const unreadMessages = 3;
+
+  /// The designs' figure. The bell itself counts the session's unread
+  /// notifications (`NotificationsController.unreadCount`), which start at
+  /// this many — a test holds the two together.
   static const unreadNotifications = 12;
 }

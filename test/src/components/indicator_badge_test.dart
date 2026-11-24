@@ -98,14 +98,9 @@ void main() {
       expect(find.text('0'), findsNothing);
       expect(badgeBox(), findsNothing);
       expect(find.byKey(const Key('target')), findsOneWidget);
-      // No stack, no overlay: the widget is its child.
-      expect(
-        find.descendant(
-          of: find.byType(IndicatorBadge),
-          matching: find.byType(Stack),
-        ),
-        findsNothing,
-      );
+      // Nothing is painted over the child and the widget is the child's
+      // size. (The overlay's slot stays in the tree, empty, so the badge can
+      // pop in and out without the child losing its state.)
       expect(tester.getSize(find.byType(IndicatorBadge)), const Size(24, 24));
     });
 

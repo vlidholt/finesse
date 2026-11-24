@@ -1,10 +1,14 @@
 import 'package:finesse/src/components/disabled.dart';
 import 'package:finesse/src/raw_components/focusable.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/debug_check.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
+import 'package:finesse/src/utils/motion_color.dart';
+import 'package:finesse/src/utils/moving_indicator.dart';
 import 'package:finesse/src/utils/provider.dart';
+import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
@@ -246,8 +250,12 @@ class _ToggleState extends State<Toggle> {
     super.dispose();
   }
 
+  // Counted for the press response; see `PressScale.taps`.
+  int _taps = 0;
+
   void _toggle() {
     if (!enabled) return;
+    setState(() => _taps++);
     widget.onChanged!(!widget.value);
   }
 
@@ -309,6 +317,16 @@ class _ToggleState extends State<Toggle> {
     final effectiveTextStyle = (toggleTheme.textStyle ?? theme.textTheme.small)
         .merge(widget.textStyle);
 
+    final motion = Motion.of(context);
+    final transitionDuration = toggleTheme.transitionDuration ?? motion.fast;
+    final fillRadius = effectiveDecoration.border?.radius ?? theme.radius;
+    // In a single-selection group the selected fill is one shape that
+    // travels between the items, painted by the group; the item itself only
+    // marks where it belongs.
+    final group = context.maybeRead<_ToggleGroupState<dynamic>>();
+    final travelling =
+        group != null && group.widget.variant == ToggleGroupVariant.single;
+
     Widget toggle = Focusable(
       focusNode: widget.focusNode,
       autofocus: widget.autofocus,
@@ -338,26 +356,32 @@ class _ToggleState extends State<Toggle> {
         onTap: _toggle,
         onHoverChange: (hovered) =>
             statesController.update(WidgetState.hovered, hovered),
+        onTapDown: (_) => statesController.update(WidgetState.pressed, true),
+        onTapUp: (_) => statesController.update(WidgetState.pressed, false),
+        onTapCancel: () => statesController.update(WidgetState.pressed, false),
         child: ValueListenableBuilder(
           valueListenable: statesController,
           builder: (context, states, _) {
             final hovered = enabled && states.contains(WidgetState.hovered);
             final foreground = foregroundFor(hovered: hovered);
-            return Container(
+            final fill = backgroundFor(hovered: hovered);
+            final content = Padding(
               padding: effectivePadding,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: backgroundFor(hovered: hovered),
-                borderRadius:
-                    effectiveDecoration.border?.radius ?? theme.radius,
-              ),
-              child: IconTheme(
-                data: IconThemeData(
-                  size: effectiveIconSize,
+              child: Center(
+                child: AnimatedColorBuilder(
                   color: foreground,
-                ),
-                child: DefaultTextStyle(
-                  style: effectiveTextStyle.copyWith(color: foreground),
+                  duration: transitionDuration,
+                  curve: motion.standard,
+                  builder: (context, color, child) => IconTheme(
+                    data: IconThemeData(
+                      size: effectiveIconSize,
+                      color: color,
+                    ),
+                    child: DefaultTextStyle(
+                      style: effectiveTextStyle.copyWith(color: color),
+                      child: child!,
+                    ),
+                  ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -371,9 +395,63 @@ class _ToggleState extends State<Toggle> {
                 ),
               ),
             );
+            final Widget filled;
+            if (travelling) {
+              // The hover fill of an unselected item is still the item's
+              // own; the selected fill is the group's travelling shape.
+              filled = MovingIndicatorTarget(
+                selected: selected,
+                decoration: BoxDecoration(
+                  color: fill,
+                  borderRadius: fillRadius,
+                ),
+                child: AnimatedColorBuilder(
+                  color: selected ? null : fill,
+                  duration: transitionDuration,
+                  curve: motion.standard,
+                  builder: (context, color, child) => DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: color,
+                      borderRadius: fillRadius,
+                    ),
+                    child: child,
+                  ),
+                  child: content,
+                ),
+              );
+            } else {
+              filled = AnimatedColorBuilder(
+                color: fill,
+                duration: transitionDuration,
+                curve: motion.standard,
+                builder: (context, color, child) => DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: color,
+                    borderRadius: fillRadius,
+                  ),
+                  child: child,
+                ),
+                child: content,
+              );
+            }
+            return filled;
           },
         ),
       ),
+    );
+
+    // The press response takes the whole toggle, outline and all. Not in a
+    // single-selection group: there the selection is the group's travelling
+    // shape, and a label shrinking away from it would come apart.
+    toggle = ValueListenableBuilder(
+      valueListenable: statesController,
+      builder: (context, states, child) => PressScale(
+        pressed: enabled && !travelling && states.contains(WidgetState.pressed),
+        taps: travelling ? 0 : _taps,
+        scale: toggleTheme.pressScale,
+        child: child!,
+      ),
+      child: toggle,
     );
 
     toggle = Semantics(
@@ -585,7 +663,11 @@ class _ToggleGroupState<T> extends State<ToggleGroup<T>> {
     if (widget.controller == null &&
         widget.values != null &&
         !setEquals(widget.values, controller.value)) {
+      // The parent already knows: it passed these values. Reporting them
+      // back would call its onChanged — and its setState — mid-build.
+      _syncing = true;
       controller.value = widget.values!;
+      _syncing = false;
     }
   }
 
@@ -596,7 +678,10 @@ class _ToggleGroupState<T> extends State<ToggleGroup<T>> {
     super.dispose();
   }
 
+  bool _syncing = false;
+
   void _onSelectionChanged() {
+    if (_syncing) return;
     widget.onChanged?.call(controller.value);
     if (mounted) setState(() {});
   }
@@ -629,13 +714,25 @@ class _ToggleGroupState<T> extends State<ToggleGroup<T>> {
       );
     }
 
+    final toggleTheme = switch (widget.toggleVariant) {
+      ToggleVariant.primary => Theme.of(context).toggleTheme,
+      ToggleVariant.outline => Theme.of(context).outlineToggleTheme,
+    };
+    final Widget list = widget.axis == Axis.horizontal
+        ? Row(mainAxisSize: widget.mainAxisSize, children: items)
+        : Column(mainAxisSize: widget.mainAxisSize, children: items);
+
     return Provider(
       data: this as _ToggleGroupState<dynamic>,
       child: Semantics(
         container: true,
-        child: widget.axis == Axis.horizontal
-            ? Row(mainAxisSize: widget.mainAxisSize, children: items)
-            : Column(mainAxisSize: widget.mainAxisSize, children: items),
+        // The same tree for both variants; with several selections there is
+        // no single target and the indicator paints nothing.
+        child: MovingIndicator(
+          spring: toggleTheme.indicatorSpring,
+          stretch: toggleTheme.indicatorStretch,
+          child: list,
+        ),
       ),
     );
   }
