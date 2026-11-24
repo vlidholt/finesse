@@ -42,6 +42,7 @@ class TabsTheme with _$TabsTheme {
     this.tabShadows,
     this.tabSelectedShadows,
     this.tabSize,
+    this.tabHeight,
     this.tabCursor,
     this.tabHoverForegroundColor,
     this.tabPressedBackgroundColor,
@@ -135,6 +136,10 @@ class TabsTheme with _$TabsTheme {
 
   /// {@macro Tab.size}
   final ButtonSize? tabSize;
+
+  /// The height of each tab. A `Tab`'s own `height` wins; with neither, a tab
+  /// is 32 logical pixels tall.
+  final double? tabHeight;
 
   /// {@macro Tab.cursor}
   final MouseCursor? tabCursor;

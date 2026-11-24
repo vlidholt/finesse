@@ -1,174 +1,201 @@
-import 'package:disco/disco.dart';
 import 'package:example/common/app_shell.dart';
 import 'package:example/common/theme_editor/customizer_panel.dart';
-import 'package:example/common/theme_editor/preview_panel.dart';
-import 'package:example/main.dart';
+import 'package:example/screens/components_screen.dart';
+import 'package:example/strand/strand_shell.dart';
 import 'package:finesse/finesse.dart';
-import 'package:finesse/material.dart';
-import 'package:flutter/material.dart' hide Badge, TextField;
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'support.dart';
+
 void main() {
-  Future<void> pumpShell(
-    WidgetTester tester, {
-    Size size = const Size(1400, 1200),
-  }) async {
-    tester.view.physicalSize = size;
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
+  setUpAll(setUpFonts);
 
-    await tester.pumpWidget(
-      ProviderScope(
-        providers: [
-          themeModeProvider,
-          directionalityProvider,
-          themeConfigProvider,
-          themeEditorOpenProvider,
-        ],
-        child: FinesseApp(
-          builder: (context, child) => FinesseMaterial(child: child!),
-          home: const AppShell(),
-        ),
-      ),
-    );
-    // Doc previews contain spinners and skeletons that animate forever, so
-    // pump fixed frames rather than pumpAndSettle.
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400));
+  const wide = Size(1400, 1200);
+
+  Finder inSidebar(Finder finder) =>
+      find.descendant(of: find.byType(Sidebar), matching: finder);
+
+  /// The paint-brush button in the component library's bar.
+  Future<void> toggleEditor(WidgetTester tester) async {
+    await tester.tap(find.byIcon(PhosphorIconsRegular.paintBrush).first);
+    await settle(tester);
   }
 
-  /// Switches to the component reference, which is no longer the launch
-  /// section. Three pumps: the sidebar's scroll to the Components group is
-  /// scheduled post-frame, animates from the following frame, and completes
-  /// on the one after.
-  Future<void> openComponents(WidgetTester tester) async {
-    await tester.tap(find.text('Components').first);
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400));
-    await tester.pump(const Duration(milliseconds: 400));
-    await tester.pump(const Duration(milliseconds: 400));
-  }
-
-  testWidgets('the shell opens on the playground', (tester) async {
-    await pumpShell(tester);
-
-    expect(find.text('finesse'), findsOneWidget);
-    expect(find.text('Playground'), findsOneWidget);
-    expect(find.text('Components'), findsWidgets);
-    // The playground is the section shown at launch.
-    expect(find.byType(ThemePreviewPanel), findsOneWidget);
-    expect(find.text('Contribution History'), findsOneWidget);
-    expect(find.byType(ThemeCustomizerPanel), findsNothing);
-  });
-
-  testWidgets('the Components link opens the docs browser', (tester) async {
-    await pumpShell(tester);
-    await openComponents(tester);
-
-    expect(find.byType(Sidebar), findsOneWidget);
-    expect(find.text('Overview'), findsWidgets);
-    expect(
-      find.textContaining('Every component in the library'),
-      findsOneWidget,
-    );
-  });
-
-  testWidgets('selecting a component in the sidebar opens its doc page', (
+  testWidgets('the app opens on Strand, with the editor closed', (
     tester,
   ) async {
-    await pumpShell(tester);
-    await openComponents(tester);
+    await pumpApp(tester, size: wide);
 
-    await tester.tap(find.text('Button').first);
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400));
-
-    expect(
-      find.text(
-        'Displays a button or a component that looks like a button. '
-        'Six variants share one API: pick the one matching the '
-        "action's weight.",
-      ),
-      findsOneWidget,
-    );
+    expect(sectionSignal(tester).value, AppSection.strand);
+    expect(find.byType(StrandShell), findsOneWidget);
+    // The component library is not even built until it is first opened.
+    expect(find.byType(ComponentsScreen, skipOffstage: false), findsNothing);
+    expect(find.byType(ThemeCustomizerPanel), findsNothing);
+    expect(tester.takeException(), isNull);
   });
 
-  testWidgets('the search box filters the sidebar', (tester) async {
-    await pumpShell(tester);
-    await openComponents(tester);
+  group('the component library', () {
+    testWidgets('opens the docs browser under its own bar', (tester) async {
+      await pumpApp(tester, size: wide);
+      await openComponentLibrary(tester);
 
-    await tester.enterText(find.byType(TextField).first, 'badge');
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400));
+      expect(find.byType(ComponentsSection), findsOneWidget);
+      expect(find.byType(Sidebar), findsOneWidget);
+      expect(find.text('Components'), findsWidgets);
+      expect(
+        find.textContaining('finesse is a Flutter implementation'),
+        findsOneWidget,
+      );
+      // Strand is alive underneath, not showing.
+      expect(find.byType(StrandShell), findsNothing);
+      expect(find.byType(StrandShell, skipOffstage: false), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
 
-    // Scoped to the sidebar: the open page is still Overview.
-    Finder inSidebar(String text) => find.descendant(
-      of: find.byType(Sidebar),
-      matching: find.text(text),
-    );
-    expect(inSidebar('Badge'), findsOneWidget);
-    expect(inSidebar('Accordion'), findsNothing);
-  });
-
-  group('the theme editor toggle', () {
-    Future<void> toggle(WidgetTester tester) async {
-      await tester.tap(find.byIcon(PhosphorIconsRegular.paintBrush).first);
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 400));
-    }
-
-    testWidgets('docks the panel beside the page, and closes again', (
+    testWidgets('the back button returns to Strand and keeps the open page', (
       tester,
     ) async {
-      await pumpShell(tester);
+      await pumpApp(tester, size: wide);
+      await openComponentLibrary(tester);
+      await tester.tap(inSidebar(find.text('Badge')));
+      await settle(tester);
+
+      await tester.tap(find.byIcon(PhosphorIconsRegular.arrowLeft));
+      await settle(tester);
+      expect(sectionSignal(tester).value, AppSection.strand);
+      expect(find.byType(StrandShell), findsOneWidget);
+
+      await openComponentLibrary(tester);
+      expect(
+        tester
+            .state<ComponentsScreenState>(find.byType(ComponentsScreen))
+            .selectedSlug,
+        'badge',
+      );
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('selecting a component in the sidebar opens its doc page', (
+      tester,
+    ) async {
+      await pumpApp(tester, size: wide);
+      await openComponentLibrary(tester);
+
+      await tester.tap(inSidebar(find.text('Button')));
+      await settle(tester);
+
+      expect(
+        find.text(
+          'Displays a button or a component that looks like a button. '
+          'Six variants share one API: pick the one matching the '
+          "action's weight.",
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('the search box filters the sidebar', (tester) async {
+      await pumpApp(tester, size: wide);
+      await openComponentLibrary(tester);
+
+      await tester.enterText(inSidebar(find.byType(TextField)), 'badge');
+      await settle(tester);
+
+      expect(inSidebar(find.text('Badge')), findsOneWidget);
+      expect(inSidebar(find.text('Accordion')), findsNothing);
+    });
+
+    testWidgets('its bar switches light and dark, and text direction', (
+      tester,
+    ) async {
+      await pumpApp(tester, size: wide);
+      await openComponentLibrary(tester);
+
+      await tester.tap(find.byIcon(PhosphorIconsRegular.sun));
+      await settle(tester);
+      expect(Theme.of(appContext(tester)).brightness, Brightness.dark);
+
+      await tester.tap(find.byIcon(PhosphorIconsRegular.textAlignLeft));
+      await settle(tester);
+      expect(
+        Directionality.of(tester.element(find.byType(ComponentsScreen))),
+        TextDirection.rtl,
+      );
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('fits a phone', (tester) async {
+      await pumpApp(tester, size: mobileSize);
+      await openComponentLibrary(tester);
+
+      expect(find.byType(ComponentsScreen), findsOneWidget);
+      expect(find.byIcon(PhosphorIconsRegular.arrowLeft), findsOneWidget);
+      expect(find.byIcon(PhosphorIconsRegular.paintBrush), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  });
+
+  group('the theme editor', () {
+    testWidgets('docks beside the page, and closes again', (tester) async {
+      await pumpApp(tester, size: wide);
+      await openComponentLibrary(tester);
 
       expect(find.byType(ThemeCustomizerPanel), findsNothing);
-      await toggle(tester);
+      await toggleEditor(tester);
 
-      expect(find.byType(ThemeCustomizerPanel), findsOneWidget);
-      // Docked, not covering: the page is still there beside it.
-      expect(find.byType(ThemePreviewPanel), findsOneWidget);
+      final panel = find.byType(ThemeCustomizerPanel);
+      expect(panel, findsOneWidget);
+      // Docked, not covering: the page is still there beside it, narrower.
+      expect(tester.getSize(panel).width, ThemeCustomizerPanel.width);
       expect(
-        tester.getSize(find.byType(ThemeCustomizerPanel)).width,
+        tester.getSize(find.byType(ComponentsSection)).width,
+        wide.width - ThemeCustomizerPanel.width,
+      );
+      expect(
+        tester.getTopLeft(panel).dx,
+        wide.width - ThemeCustomizerPanel.width,
+      );
+      // Docked, it needs no close button of its own.
+      expect(find.byIcon(PhosphorIconsRegular.x), findsNothing);
+
+      await toggleEditor(tester);
+      expect(panel, findsNothing);
+      expect(tester.getSize(find.byType(ComponentsSection)).width, wide.width);
+
+      await toggleEditor(tester);
+      expect(panel, findsOneWidget);
+      expect(find.text('Style'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('docks on the start side of nothing: it follows direction', (
+      tester,
+    ) async {
+      await pumpApp(tester, size: wide);
+      await openComponentLibrary(tester);
+      await toggleEditor(tester);
+      await tester.tap(find.byIcon(PhosphorIconsRegular.textAlignLeft));
+      await settle(tester);
+
+      // In RTL the panel is at the left edge and the page beside it.
+      expect(tester.getTopLeft(find.byType(ThemeCustomizerPanel)).dx, 0);
+      expect(
+        tester.getTopLeft(find.byType(ComponentsSection)).dx,
         ThemeCustomizerPanel.width,
       );
-
-      await toggle(tester);
-      expect(find.byType(ThemeCustomizerPanel), findsNothing);
-
-      await toggle(tester);
-      expect(find.byType(ThemeCustomizerPanel), findsOneWidget);
-    });
-
-    testWidgets('stays closed on a narrow viewport until it is opened', (
-      tester,
-    ) async {
-      await pumpShell(tester, size: const Size(600, 1000));
-
-      expect(find.byType(ThemeCustomizerPanel), findsNothing);
-    });
-
-    testWidgets('stays available on the components section', (tester) async {
-      await pumpShell(tester);
-      await openComponents(tester);
-      await toggle(tester);
-
-      expect(find.byType(ThemeCustomizerPanel), findsOneWidget);
-      expect(find.byType(Sidebar), findsOneWidget);
-      expect(find.text('Style'), findsOneWidget);
+      expect(tester.takeException(), isNull);
     });
 
     testWidgets('opening it keeps the page you were on', (tester) async {
       // Building the page conditionally around the panel used to drop the
       // docs browser's State, which sent you back to the first component
       // every time the editor was opened.
-      await pumpShell(tester);
-      await openComponents(tester);
-      await tester.tap(find.text('Badge').first);
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 400));
-      await toggle(tester);
+      await pumpApp(tester, size: wide);
+      await openComponentLibrary(tester);
+      await tester.tap(inSidebar(find.text('Badge')));
+      await settle(tester);
+      await toggleEditor(tester);
 
       expect(find.byType(ThemeCustomizerPanel), findsOneWidget);
       expect(
@@ -177,20 +204,34 @@ void main() {
       );
     });
 
-    testWidgets('fills a narrow viewport', (tester) async {
-      await pumpShell(tester, size: const Size(600, 1000));
+    testWidgets('stays closed on a narrow viewport until it is opened', (
+      tester,
+    ) async {
+      await pumpApp(tester, size: const Size(600, 1000));
 
       expect(find.byType(ThemeCustomizerPanel), findsNothing);
-      await toggle(tester);
+    });
+
+    testWidgets('fills a narrow viewport, and closes itself', (tester) async {
+      const narrow = Size(600, 1000);
+      await pumpApp(tester, size: narrow);
+      await openComponentLibrary(tester);
+      await toggleEditor(tester);
 
       final panel = find.byType(ThemeCustomizerPanel);
       expect(panel, findsOneWidget);
-      expect(tester.getSize(panel).width, 600);
+      expect(tester.getSize(panel), narrow);
       // The page stays in the tree underneath — covered, not discarded, so
       // closing the panel brings back the page you were on.
-      expect(find.byType(ThemePreviewPanel), findsOneWidget);
-      // The toggle is still reachable above it.
-      expect(find.text('Playground'), findsOneWidget);
+      expect(find.byType(ComponentsScreen), findsOneWidget);
+      expect(tester.getSize(find.byType(ComponentsSection)), narrow);
+
+      // Every other toggle is underneath it, so it carries its own.
+      await tester.tap(find.byIcon(PhosphorIconsRegular.x));
+      await settle(tester);
+      expect(panel, findsNothing);
+      expect(find.byType(ComponentsScreen), findsOneWidget);
+      expect(tester.takeException(), isNull);
     });
   });
 }

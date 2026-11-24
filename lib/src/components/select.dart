@@ -7,6 +7,7 @@ import 'package:finesse/src/components/disabled.dart';
 import 'package:finesse/src/components/divider.dart';
 import 'package:finesse/src/components/popover.dart';
 import 'package:finesse/src/components/text_field.dart';
+import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/raw_components/focusable.dart';
 import 'package:finesse/src/raw_components/portal.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
@@ -19,7 +20,6 @@ import 'package:finesse/src/utils/provider.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// Builder for the selected option widget in [Select].
 typedef SelectedOptionBuilder<T> =

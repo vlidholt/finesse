@@ -1,19 +1,7 @@
 import 'package:finesse/src/theme/color_scheme/accent.dart';
-import 'package:finesse/src/theme/color_scheme/blue.dart';
-import 'package:finesse/src/theme/color_scheme/gray.dart';
-import 'package:finesse/src/theme/color_scheme/green.dart';
-import 'package:finesse/src/theme/color_scheme/mauve.dart';
-import 'package:finesse/src/theme/color_scheme/mist.dart';
 import 'package:finesse/src/theme/color_scheme/neutral.dart';
-import 'package:finesse/src/theme/color_scheme/olive.dart';
-import 'package:finesse/src/theme/color_scheme/orange.dart';
-import 'package:finesse/src/theme/color_scheme/red.dart';
-import 'package:finesse/src/theme/color_scheme/rose.dart';
-import 'package:finesse/src/theme/color_scheme/slate.dart';
 import 'package:finesse/src/theme/color_scheme/stone.dart';
-import 'package:finesse/src/theme/color_scheme/taupe.dart';
-import 'package:finesse/src/theme/color_scheme/violet.dart';
-import 'package:finesse/src/theme/color_scheme/yellow.dart';
+import 'package:finesse/src/theme/color_scheme/teal.dart';
 import 'package:finesse/src/theme/color_scheme/zinc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
@@ -100,8 +88,8 @@ class ColorScheme {
        _accentBorder = accentBorder,
        _bar = bar;
 
-  /// Returns the light or dark scheme shadcn/ui calls [name], such as `zinc` or
-  /// `slate`.
+  /// Returns the light or dark scheme called [name]: `teal`, `neutral`,
+  /// `stone` or `zinc`.
   ///
   /// Throws an [Exception] for an unknown name.
   factory ColorScheme.fromName(
@@ -109,70 +97,22 @@ class ColorScheme {
     Brightness brightness = Brightness.light,
   }) {
     return switch (name) {
-      'blue' =>
+      'teal' =>
         brightness == Brightness.light
-            ? const BlueColorScheme.light()
-            : const BlueColorScheme.dark(),
-      'gray' =>
-        brightness == Brightness.light
-            ? const GrayColorScheme.light()
-            : const GrayColorScheme.dark(),
-      'green' =>
-        brightness == Brightness.light
-            ? const GreenColorScheme.light()
-            : const GreenColorScheme.dark(),
+            ? const TealColorScheme.light()
+            : const TealColorScheme.dark(),
       'neutral' =>
         brightness == Brightness.light
             ? const NeutralColorScheme.light()
             : const NeutralColorScheme.dark(),
-      'orange' =>
-        brightness == Brightness.light
-            ? const OrangeColorScheme.light()
-            : const OrangeColorScheme.dark(),
-      'red' =>
-        brightness == Brightness.light
-            ? const RedColorScheme.light()
-            : const RedColorScheme.dark(),
-      'rose' =>
-        brightness == Brightness.light
-            ? const RoseColorScheme.light()
-            : const RoseColorScheme.dark(),
-      'slate' =>
-        brightness == Brightness.light
-            ? const SlateColorScheme.light()
-            : const SlateColorScheme.dark(),
       'stone' =>
         brightness == Brightness.light
             ? const StoneColorScheme.light()
             : const StoneColorScheme.dark(),
-      'violet' =>
-        brightness == Brightness.light
-            ? const VioletColorScheme.light()
-            : const VioletColorScheme.dark(),
-      'yellow' =>
-        brightness == Brightness.light
-            ? const YellowColorScheme.light()
-            : const YellowColorScheme.dark(),
       'zinc' =>
         brightness == Brightness.light
             ? const ZincColorScheme.light()
             : const ZincColorScheme.dark(),
-      'mauve' =>
-        brightness == Brightness.light
-            ? const MauveColorScheme.light()
-            : const MauveColorScheme.dark(),
-      'mist' =>
-        brightness == Brightness.light
-            ? const MistColorScheme.light()
-            : const MistColorScheme.dark(),
-      'olive' =>
-        brightness == Brightness.light
-            ? const OliveColorScheme.light()
-            : const OliveColorScheme.dark(),
-      'taupe' =>
-        brightness == Brightness.light
-            ? const TaupeColorScheme.light()
-            : const TaupeColorScheme.dark(),
       _ => throw Exception('Invalid color scheme name'),
     };
   }
@@ -253,10 +193,9 @@ class ColorScheme {
 
   // shadcn/ui's `--chart-1`..`--chart-5` and `--sidebar-*` tokens.
   //
-  // Stored nullable and resolved through the getters below so that the twelve
-  // colour schemes that predate them — and any scheme a caller wrote by hand —
-  // keep compiling. A null token falls back to the closest existing one, which
-  // is what shadcn's own neutral themes do anyway.
+  // Stored nullable and resolved through the getters below so that a scheme
+  // a caller wrote by hand keeps compiling. A null token falls back to the
+  // closest existing one, which is what shadcn's own neutral themes do anyway.
   final Color? _chart1;
   final Color? _chart2;
   final Color? _chart3;
@@ -380,12 +319,24 @@ class ColorScheme {
   /// Linearly interpolates between [a] and [b] by [t].
   ///
   /// A custom colour that only one scheme defines is interpolated against the
-  /// other scheme's [foreground].
+  /// other scheme's [foreground]. An optional token that only one scheme
+  /// states is interpolated against the other scheme's fallback for it; one
+  /// that neither states stays unset, so it keeps following the token it
+  /// falls back to.
   static ColorScheme lerp(
     ColorScheme a,
     ColorScheme b,
     double t,
   ) {
+    // `Color.lerp(null, colour, t)` fades the colour in from transparent,
+    // which is not what an unset token means: it means "the fallback". So a
+    // token only one side states is lerped between the two *resolved*
+    // colours.
+    Color? optional(Color? x, Color? y, Color Function(ColorScheme) resolved) {
+      if (x == null && y == null) return null;
+      return Color.lerp(x ?? resolved(a), y ?? resolved(b), t);
+    }
+
     return ColorScheme(
       canMerge: t < 0.5 ? a.canMerge : b.canMerge,
       background: Color.lerp(a.background, b.background, t)!,
@@ -424,40 +375,76 @@ class ColorScheme {
       input: Color.lerp(a.input, b.input, t)!,
       ring: Color.lerp(a.ring, b.ring, t)!,
       selection: Color.lerp(a.selection, b.selection, t)!,
-      chart1: Color.lerp(a._chart1, b._chart1, t),
-      chart2: Color.lerp(a._chart2, b._chart2, t),
-      chart3: Color.lerp(a._chart3, b._chart3, t),
-      chart4: Color.lerp(a._chart4, b._chart4, t),
-      chart5: Color.lerp(a._chart5, b._chart5, t),
-      sidebar: Color.lerp(a._sidebar, b._sidebar, t),
-      sidebarForeground: Color.lerp(
+      chart1: optional(a._chart1, b._chart1, (s) => s.chart1),
+      chart2: optional(a._chart2, b._chart2, (s) => s.chart2),
+      chart3: optional(a._chart3, b._chart3, (s) => s.chart3),
+      chart4: optional(a._chart4, b._chart4, (s) => s.chart4),
+      chart5: optional(a._chart5, b._chart5, (s) => s.chart5),
+      sidebar: optional(a._sidebar, b._sidebar, (s) => s.sidebar),
+      sidebarForeground: optional(
         a._sidebarForeground,
         b._sidebarForeground,
-        t,
+        (s) => s.sidebarForeground,
       ),
-      sidebarPrimary: Color.lerp(a._sidebarPrimary, b._sidebarPrimary, t),
-      sidebarPrimaryForeground: Color.lerp(
+      sidebarPrimary: optional(
+        a._sidebarPrimary,
+        b._sidebarPrimary,
+        (s) => s.sidebarPrimary,
+      ),
+      sidebarPrimaryForeground: optional(
         a._sidebarPrimaryForeground,
         b._sidebarPrimaryForeground,
-        t,
+        (s) => s.sidebarPrimaryForeground,
       ),
-      sidebarAccent: Color.lerp(a._sidebarAccent, b._sidebarAccent, t),
-      sidebarAccentForeground: Color.lerp(
+      sidebarAccent: optional(
+        a._sidebarAccent,
+        b._sidebarAccent,
+        (s) => s.sidebarAccent,
+      ),
+      sidebarAccentForeground: optional(
         a._sidebarAccentForeground,
         b._sidebarAccentForeground,
-        t,
+        (s) => s.sidebarAccentForeground,
       ),
-      sidebarBorder: Color.lerp(a._sidebarBorder, b._sidebarBorder, t),
-      sidebarRing: Color.lerp(a._sidebarRing, b._sidebarRing, t),
-      foregroundSubtle: Color.lerp(a._foregroundSubtle, b._foregroundSubtle, t),
-      tint: Color.lerp(a._tint, b._tint, t),
-      tintForeground: Color.lerp(a._tintForeground, b._tintForeground, t),
-      success: Color.lerp(a._success, b._success, t),
-      successMuted: Color.lerp(a._successMuted, b._successMuted, t),
-      warning: Color.lerp(a._warning, b._warning, t),
-      borderStrong: Color.lerp(a._borderStrong, b._borderStrong, t),
-      accentBorder: Color.lerp(a._accentBorder, b._accentBorder, t),
-      bar: Color.lerp(a._bar, b._bar, t),
+      sidebarBorder: optional(
+        a._sidebarBorder,
+        b._sidebarBorder,
+        (s) => s.sidebarBorder,
+      ),
+      sidebarRing: optional(
+        a._sidebarRing,
+        b._sidebarRing,
+        (s) => s.sidebarRing,
+      ),
+      foregroundSubtle: optional(
+        a._foregroundSubtle,
+        b._foregroundSubtle,
+        (s) => s.foregroundSubtle,
+      ),
+      tint: optional(a._tint, b._tint, (s) => s.tint),
+      tintForeground: optional(
+        a._tintForeground,
+        b._tintForeground,
+        (s) => s.tintForeground,
+      ),
+      success: optional(a._success, b._success, (s) => s.success),
+      successMuted: optional(
+        a._successMuted,
+        b._successMuted,
+        (s) => s.successMuted,
+      ),
+      warning: optional(a._warning, b._warning, (s) => s.warning),
+      borderStrong: optional(
+        a._borderStrong,
+        b._borderStrong,
+        (s) => s.borderStrong,
+      ),
+      accentBorder: optional(
+        a._accentBorder,
+        b._accentBorder,
+        (s) => s.accentBorder,
+      ),
+      bar: optional(a._bar, b._bar, (s) => s.bar),
       custom: {
         for (final key in {...a.custom.keys, ...b.custom.keys})
           key: Color.lerp(

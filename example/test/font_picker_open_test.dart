@@ -2,12 +2,13 @@ import 'package:example/common/theme_editor/customizer_panel.dart';
 import 'package:example/common/theme_editor/editor_config.dart';
 import 'package:finesse/finesse.dart';
 import 'package:finesse/material.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:google_fonts/google_fonts.dart';
+
+import 'support.dart';
 
 void main() {
-  setUpAll(() => GoogleFonts.config.allowRuntimeFetching = false);
+  setUpAll(setUpFonts);
 
   testWidgets('the font picker opens', (tester) async {
     tester.view.physicalSize = const Size(1200, 900);
@@ -16,9 +17,10 @@ void main() {
     await tester.pumpWidget(
       FinesseApp(
         builder: (context, child) => FinesseMaterial(child: child!),
-        home: Scaffold(
-          body: Align(
-            alignment: Alignment.centerRight,
+        home: Align(
+          alignment: Alignment.centerRight,
+          child: SizedBox(
+            width: ThemeCustomizerPanel.width,
             child: ThemeCustomizerPanel(
               config: const ThemeEditorConfig(),
               onChanged: (_) {},
@@ -28,10 +30,10 @@ void main() {
       ),
     );
     await tester.pump();
-    await tester.tap(find.text('Inter'));
-    for (var i = 0; i < 12; i++) {
-      await tester.pump(const Duration(milliseconds: 50));
-    }
+    // The default body font is the one the picker shows.
+    await tester.tap(find.text(const ThemeEditorConfig().fontTitle));
+    await settle(tester);
     expect(find.text('Roboto Slab'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 }

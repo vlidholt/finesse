@@ -1,13 +1,78 @@
-# Working notes for `shad`
+# Working notes for `finesse`
 
 Things that are true about this repo and are expensive to rediscover. Written
 for whoever (or whatever) picks the work up next.
+
+## The fork
+
+`finesse` is a fork of `shad` 1.0.2 (a Flutter port of shadcn/ui). The shadcn
+lineage still explains most of the code — tokens are named after Tailwind
+classes, three of the four styles are shadcn's — but the package now has its
+own default look and its own rules.
+
+- **Naming.** No `Shad` prefix: `Button`, `Card`, `Theme`, `ThemeData`. A
+  name that would clash with Flutter's *widgets* layer (or Dart core) keeps a
+  `Finesse` prefix — `FinesseApp`, `FinesseRow`, `FinesseColumn`,
+  `FinessePadding`, `FinesseForm`, `FinesseFormField`, `FinesseTable`,
+  `FinesseBorder`, `FinesseBorderSide`, `FinesseDecoration`,
+  `FinesseGestureDetector`, `FinesseRadioGroup`, `FinesseState`,
+  `FinessePageRoute`, `FinesseLocalizations`, `FinesseMaterial`. A clash with
+  *Material* only (`Card`, `Switch`, `Dialog`, `Tooltip`, `Scaffold`,
+  `AppBar`, `ListTile`, `Chip`) is fine: the package is Material-free, and a
+  file that imports both hides one side. Before adding a public name, check
+  it against `package:flutter/widgets.dart`.
+- **Flutter vocabulary where it exists.** `TextField`/`TextFormField` (was
+  Input), `OtpField`, `Divider` (was Separator), `ProgressBar`,
+  `SelectOption`. Components with no Flutter counterpart keep shadcn's name
+  (`Select`, `Sheet`, `Sonner`, `Popover`, `Textarea`).
+- **No deprecation shims.** The fork is pre-1.0; a rename is a changelog
+  entry under "Breaking changes", not a `@Deprecated` typedef.
+- **The default look** is `StyleTokens.finesse` on `TealColorScheme`, measured
+  from the Strand designs (four screens, desktop and mobile, light and dark)
+  that `example/lib/strand/` replicates. `nova`, `maia` and `lyra` are the
+  shadcn styles that remain; `neutral`, `zinc` and `stone` the base palettes.
+  `reference/ui/` (below) is still the source of truth for those three.
+- **Icons are Phosphor**, vendored into this package (see "Fonts" below) and
+  exported from the barrel: `PhosphorIconsRegular`, `PhosphorIconsFill`,
+  `PhosphorIconsBold`, `Light`, `Thin` and `Duotone`.
+
+### Form factors
+
+Every `StyleTokens` has a second set of metrics for a phone: `style.mobile`
+if it defines one (`finesse` → `finesseMobile`), otherwise derived by
+`forFormFactor` (controls ≥ 44, body 15, page margins 16). The **variant**
+owns the choice: `DefaultThemeVariant(style:, formFactor:)` keeps the style it
+was given as `baseStyle` and exposes the resolved one as `style`, so every
+component theme — and a theme lerp, which carries the variant — follows.
+`FinesseApp` calls `theme.withFormFactor(...)` from the window width (below
+`breakpoints.md`), cached per theme in an `Expando`. Never read the window
+width in a component to pick a size; read the theme.
+
+Layout that *rearranges* on a phone uses `FormFactorBuilder` or
+`Theme.of(context).formFactor`. Layout that only *resizes* uses the gap scale
+(`Gap.md()`, `FinesseRow(gap: GapSize.lg)`), `PageContainer` and widget
+defaults, all of which read `ThemeData.layoutTheme`. Demo screens hard-code a
+dimension only when the design is deliberately off-scale.
+
+### Glass
+
+Translucency is a *style* property, not a colour-scheme one: schemes hold the
+solid `card`/`bar` colours and the style holds `cardOpacity`, `barOpacity`,
+`glassOpacity` (each with a dark override), `glassBlur` and
+`glassSaturation`. `Backdrop` (`lib/src/utils/backdrop.dart`) is the one place
+that builds the filter — blur composed with CSS's saturate matrix, cached per
+value pair — and it returns its child untouched when there is nothing to
+filter, so an opaque style pays for no layer. A backdrop filter has to be
+clipped, and the clip would cut off the surface's own shadow, so `Glass`,
+`Card` and the bars paint shadows from a `DecoratedBox` *outside* the
+`Backdrop`.
 
 ## The reference checkout
 
 `reference/ui/` is a clone of [shadcn-ui/ui](https://github.com/shadcn-ui/ui).
 It is gitignored — it is ~150 MB and not ours to vendor — but it is the source
-of truth for every visual decision here.
+of truth for every visual decision in the `nova`, `maia` and `lyra` styles and
+in every component the `finesse` style inherits unchanged.
 
 **Look values up there. Do not guess at colours, paddings, radii or type.**
 Several rounds of this project's history were spent fixing values that were
@@ -42,37 +107,37 @@ Tailwind conversions used throughout:
 
 ## Theme architecture
 
-The flow is: `ShadThemeData` factory → a `ShadThemeVariant` → per-component
+The flow is: `ThemeData` factory → a `ThemeVariant` → per-component
 themes. Understanding this order prevents most theming bugs.
 
 - A **variant** is constructed from a colour scheme, a radius, a text theme, a
-  `ShadStyleTokens` and a `ShadSpacing`, and **bakes all of them** into the
+  `StyleTokens` and a `Spacing`, and **bakes all of them** into the
   component themes it returns. Change one of its inputs and the variant has to
-  be rebuilt — `ShadThemeVariant.rebuild(...)` exists for exactly that, and the
+  be rebuilt — `ThemeVariant.rebuild(...)` exists for exactly that, and the
   factory calls it when a caller passes both a variant and a different radius,
   scheme or text theme. Where the caller gives no explicit value, the variant's
   own wins, so the two can never disagree.
-- `ShadThemeData.textTheme` comes from `variant.textTheme()`, **not** from the
+- `ThemeData.textTheme` comes from `variant.textTheme()`, **not** from the
   merged input. That is what applies the style's text roles to `small`, `muted`,
   `p`, `list` and `large`. Reading the raw input here once made a style change
   resize components but leave every font size alone.
-- `ShadThemeData` records the caller's raw factory arguments (`_inputs`,
+- `ThemeData` records the caller's raw factory arguments (`_inputs`,
   `@ignore`d by the generator) and its hand-written `copyWith` re-runs the
   factory from them, so `copyWith(radius:/colorScheme:/style:/...)` re-derives
   every component theme. The generated mixin's `copyWith` is shadowed; its
   generated `merge` and `lerp` still go through the factory. **Adding a
-  factory parameter means adding it to `_ShadThemeInputs` and `copyWith`
+  factory parameter means adding it to `_ThemeInputs` and `copyWith`
   too** — `test/src/theme/theme_data_copy_with_test.dart` catches the common
   ones.
-- With no `brightness`, `ShadThemeData` takes it from the scheme's
+- With no `brightness`, `ThemeData` takes it from the scheme's
   background luminance.
 - There are **two variants**, but no longer two copies:
-  `ShadDefaultThemeNoSecondaryBorderVariant` subclasses
-  `ShadDefaultThemeVariant` and overrides only the focus treatment (a 2px
+  `DefaultThemeNoSecondaryBorderVariant` subclasses
+  `DefaultThemeVariant` and overrides only the focus treatment (a 2px
   inner `focusedBorder` recolour plus `focusReserve` insets, instead of the
   outward ring). Fix things in the parent; only touch the subclass when the
   change is about focus geometry.
-- Menu appearance is a **theme-level** feature: `ShadThemeData` takes
+- Menu appearance is a **theme-level** feature: `ThemeData` takes
   `menuColorScheme` (shadcn's "Inverted" — pass the dark counterpart scheme;
   the reference toggles the `dark` class on menu surfaces, so in dark mode
   inverted is a no-op), `menuTranslucent` (`popover/70` + backdrop blur,
@@ -86,12 +151,12 @@ themes. Understanding this order prevents most theming bugs.
 The generator compares `List` fields by identity. Every theme class with a
 list field overrides `==`/`hashCode` to compare them by value and defer to the
 generated `==` for the rest (see the comment in any of them, e.g.
-`ShadPopoverTheme`). A new list field needs adding to that override.
+`PopoverTheme`). A new list field needs adding to that override.
 `flutter_animate` `Effect`s have no `==`, so effects lists only compare equal
 when they are const.
 
 
-`ShadAnimatedTheme` is an `ImplicitlyAnimatedWidget`: if `ShadThemeData !=` the
+`AnimatedTheme` is an `ImplicitlyAnimatedWidget`: if `ThemeData !=` the
 previous one, it starts a 200 ms lerp across ~54 component themes on every
 rebuild. Anything that breaks value equality — a method tear-off in `==`, a
 non-const `Widget` in a theme field, a `List` compared by identity — silently
@@ -100,21 +165,21 @@ locks the chain; add to it rather than trusting a local check.
 
 ## The token system
 
-- `ShadRadii` — the `none/sm/md/lg/xl/2xl/4xl/full` scale, derived from
-  `ShadThemeData.radius` (which is the **md** step). At the default 8: 6, 8, 10,
+- `Radii` — the `none/sm/md/lg/xl/2xl/4xl/full` scale, derived from
+  `ThemeData.radius` (which is the **md** step). At the default 8: 6, 8, 10,
   14, 16, 32.
-- `ShadStyleTokens` — one of shadcn's eight styles as 67 measured fields:
+- `StyleTokens` — one of shadcn's eight styles as 67 measured fields:
   radii per surface class, ring width/opacity, border opacities, control and
   field metrics, selection-control dimensions, surface padding, shadows, and
-  six `ShadTextRole`s (`title`, `label`, `body`, `caption`, `overline`, `field`).
-- `ShadSpacing` — the `--spacing` unit (4px default).
+  six `TextRole`s (`title`, `label`, `body`, `caption`, `overline`, `field`).
+- `Spacing` — the `--spacing` unit (4px default).
 - **Metrics shadcn writes in spacing units** (`h-9`, `px-2.5`) are stored in the
   pixels they render at the default step and are passed through the variant's
   `scaled()` so they follow `spacing.step`. **Bracketed literals**
   (`h-[18.4px]`, `rounded-[4px]`, `p-[3px]`) are not scaled. Keep that
   distinction when adding a token.
 - `uppercase` on a text role is **not** applied automatically: `TextStyle` has
-  no text-transform, and every Shad component takes a caller's widget rather
+  no text-transform, and every Finesse component takes a caller's widget rather
   than a string. `role.applyCase(text)` is the escape hatch.
 - **Icon sizes inside buttons are a token, not the caller's problem.**
   `.cn-button` carries `[&_svg:not([class*='size-'])]:size-4`, so the button
@@ -126,18 +191,49 @@ locks the chain; add to it rather than trusting a local check.
   (`buttonIconSize{,Sm,Lg}` vs `iconButtonIconSize{,Sm,Lg}`): the reference's
   `.cn-button-size-icon-sm` keeps 16 where `.cn-button-size-sm` drops to 14.
   Only `mira` follows the step all the way down and only `sera` has a
-  `size-3.5` base; `ShadButtonSizesTheme` carries `iconSm`/`iconLg` slots so
+  `size-3.5` base; `ButtonSizesTheme` carries `iconSm`/`iconLg` slots so
   an icon button never borrows a text button's metrics.
 
 ## Fonts
 
-shad bundles **no fonts** since 1.0: `ShadTextTheme`'s default `family` is
-null (the platform font). Inter/Geist/GeistMono used to ship in `fonts/`;
-that cost every app ~1.2 MB and the web downloaded them at startup.
-`kDefaultFontFamily`/`Mono` remain, deprecated, pointing at nothing. Nothing
-under `lib/` may name a `packages/shad/` asset (CI greps for it).
-`ShadInputOTP` uses tabular figures, not a mono face — the reference's slots
-are not `font-mono`. The example loads every font through `google_fonts`.
+finesse bundles **no text fonts**: `TextTheme`'s default `family` is null (the
+platform font). Nothing under `lib/` may name a `packages/finesse/` asset (CI
+greps for it). `OtpField` uses tabular figures, not a mono face — the
+reference's slots are not `font-mono`. The example loads every text font
+through `google_fonts`.
+
+### Icons are vendored
+
+The Phosphor icon fonts **are** bundled, in `fonts/phosphor/` (six weights,
+~3 MB, declared under `flutter: fonts:` in `pubspec.yaml`), with the Dart
+constants in `lib/src/icons/phosphor_icons_*.dart` (`PhosphorIconsRegular`,
+`Bold`, `Fill`, `Light`, `Thin`, `Duotone`; 1512 icons each). They are copied
+unchanged from `phosphor_flutter` 2.1.0, and the constants are generated from
+its code points. Why not depend on that package: it declares its icons as
+instances of a class that *extends `IconData`*, which Flutter made final in
+3.47, so it no longer compiles — and the analyzer does not report errors
+inside a dependency, so the first symptom is every `flutter test` failing to
+load. Ours are plain `const IconData(code, fontFamily:, fontPackage:
+'finesse')`, which also keeps icon tree-shaking working.
+
+- A duotone icon is two glyphs, so `PhosphorIconsDuotone.x` is a
+  `PhosphorDuotoneIconData`, drawn by `PhosphorDuotoneIcon`, not an `Icon`.
+  Two of them (`cellSignalNone`, `wifiNone`) have no fill layer.
+- Unlike `phosphor_flutter`, the constants do not set `matchTextDirection`:
+  mirroring every icon in RTL flips checkmarks and logos. Components that
+  need a directional chevron pick one themselves.
+- **Licence.** Phosphor is MIT. The notice ships three ways and all three
+  must stay: `fonts/phosphor/LICENSE` (verbatim, next to the files), a second
+  section in the root `LICENSE`, and a header in each generated Dart file.
+  The root `LICENSE` uses Flutter's multi-licence format — sections separated
+  by a line of exactly 80 hyphens, each starting with the component name and
+  a blank line — because that file is what Flutter's licence collector puts
+  on an app's licence page; with more than one section, a section *without*
+  a name header has its first paragraph swallowed as the name.
+- Inside this package's own tests the families are registered without the
+  `packages/finesse/` prefix, and tests load no fonts anyway, so icons are
+  boxes there. That is expected.
+- To update: see `fonts/phosphor/README.md`.
 
 ## Colour tokens (v4)
 
@@ -158,7 +254,7 @@ are not `font-mono`. The example loads every font through `google_fonts`.
 - The dark card and popover are a step lighter than the page.
 - Overlays are `bg-black/10` with `backdrop-blur-xs` in both modes — the blur is
   what lets the tint stay that light.
-- `ShadSlateColorScheme` and `ShadGrayColorScheme` are v3 palettes that shadcn
+- `SlateColorScheme` and `GrayColorScheme` are v3 palettes that shadcn
   no longer ships. They are kept for compatibility — and slate is still the
   package default — while `neutral`, `stone` and `zinc` are generated from
   `themes.ts`. Regenerating slate against v4 is an open question.
@@ -168,7 +264,7 @@ are not `font-mono`. The example loads every font through `google_fonts`.
 - **CSS heights are border-box; `Container` adds its decoration's border as
   padding around the child** (`DecoratedBox` does not — the menubar strip
   relied on one and came out 2px short). A height constraint applied *inside*
-  a `ShadDecorator` comes out `2 × border` too tall — that made outline
+  a `Decorator` comes out `2 × border` too tall — that made outline
   buttons and toggles 2px taller than their borderless variants and every
   control 4px taller in the no-secondary-border variant (focus reserve).
   Size constraints go *outside* the decorator;
@@ -182,11 +278,11 @@ are not `font-mono`. The example loads every font through `google_fonts`.
   comfortably. Related: the select trigger's `py-2`
   never acts in the reference (its height is pinned by `data-[size]:h-*`),
   so there is no `selectPaddingY` token — only `selectPaddingX` and
-  `ShadSelectTheme.minHeight`. The time picker has no reference counterpart;
+  `SelectTheme.minHeight`. The time picker has no reference counterpart;
   its fields deliberately borrow the input's text role, decoration and
   height rather than carrying their own metrics.
 - **`Border` requires colour-uniform sides to paint a radius**, and
-  `BorderSide.none` carries opaque black. `ShadBorderSide.toBorderSide()`
+  `BorderSide.none` carries opaque black. `FinesseBorderSide.toBorderSide()`
   therefore keeps its colour at zero width. Any component that draws only some
   of its sides (the OTP strip) depends on this.
 - **There is no z-index in a `Row`.** shadcn's focused OTP slot uses `z-10` to
@@ -195,13 +291,13 @@ are not `font-mono`. The example loads every font through `google_fonts`.
   are transparent, so only their hairlines cross it); don't move it inside —
   that reads as a different control from every other field.
 - **The portal's overlay is nudged after it is anchored, and anything drawn
-  against the anchor has to follow.** `ShadPositionDelegate` runs Flutter's
+  against the anchor has to follow.** `PositionDelegate` runs Flutter's
   `positionDependentBox`, which clamps the overlay into the viewport at layout
   time — so a tooltip near the window edge is slid inward while its arrow, a
   `Center` inside the bubble, stayed put and pointed at empty space. The
   portal now computes the same placement in `_calculatePosition` (through
-  `ShadPositionDelegate.positionFor`, so the two cannot drift apart) and
-  publishes the displacement as `ShadPortalPlacement.shift`; the arrow
+  `PositionDelegate.positionFor`, so the two cannot drift apart) and
+  publishes the displacement as `PortalPlacement.shift`; the arrow
   subtracts it, clamped to keep the bubble's corner radius plus its own
   half-diagonal clear of each end. Doing this at *paint* time instead
   (`localToGlobal` from the arrow) looks simpler and is wrong: the entrance
@@ -215,30 +311,30 @@ are not `font-mono`. The example loads every font through `google_fonts`.
   the element's — so with any offset or spread the shadow disappears next to
   the element and then restarts with a hard edge a few pixels out. A
   `shadow-lg` dialog lost the 7px directly beneath it that way. Outer shadows
-  therefore go through `ShadShadowDecoration` (`lib/src/utils/shadow.dart`),
+  therefore go through `ShadowDecoration` (`lib/src/utils/shadow.dart`),
   which blurs normally and clips to the region outside the wrapped
   decoration's own `getClipPath`. **Never put an outward shadow in a
-  `BoxDecoration.boxShadow` here** — use `ShadShadowDecoration.box(...)`, which
+  `BoxDecoration.boxShadow` here** — use `ShadowDecoration.box(...)`, which
   takes the same arguments. `test/src/utils/shadow_test.dart` locks the
   profile (monotone falloff, nothing inside the element, a crisp hairline for
   the spread-only shadows used as outlines) by rasterising and sampling; it
   flips `debugDisableShadows` off, which flutter_test otherwise leaves on.
   Tests that introspect a component's fill or border go through
   `test/decoration_finders.dart` to look past the wrapper.
-- `ShadButton` centres its label (`TextAlign.center` in its DefaultTextStyle).
+- `Button` centres its label (`TextAlign.center` in its DefaultTextStyle).
   Anything button-based that should read as a row — menu items — must merge
   `TextAlign.start` back in below the button.
-- `ShadBorder.merge` takes the other's `radius` **and** `offset`
+- `FinesseBorder.merge` takes the other's `radius` **and** `offset`
   unconditionally. An override that sets only the radius silently drops the
   offset — which collapses a focus ring onto the element's own border.
-- `ShadOutwardBorderPainter` inflates the rect by `offset` and strokes *inside*
+- `OutwardBorderPainter` inflates the rect by `offset` and strokes *inside*
   it, so `offset == width` puts the stroke flush against the element. That is
   how the shadcn ring's "no gap" is reproduced.
 - A `Positioned` child does not contribute to a `Stack`'s size. The slider's
   thumb is positioned, so the slider has to reserve `max(track, thumb)` itself
   or it lays out at track height and paints over its neighbours.
 - A widget with no intrinsic height stretches when its parent hands down tight
-  constraints. `ShadKbd` takes an explicit height and an `Align(heightFactor: 1)`
+  constraints. `Kbd` takes an explicit height and an `Align(heightFactor: 1)`
   so a key cap stays key-shaped inside a button's row.
 - Fixed-size boxes around text (OTP slots) must multiply by
   `MediaQuery.textScalerOf(context).scale(1)` or the glyph is clipped.
@@ -246,19 +342,19 @@ are not `font-mono`. The example loads every font through `google_fonts`.
   column's `mainAxisAlignment`**, not by an inner `Align`.
 - State-dependent text colour must be resolved where the state is known. A
   `DefaultTextStyle` inside a builder's captured `child` cannot see hover.
-- **Anchors take a fallback chain** (`ShadAnchorAuto.fallback`, recursively);
+- **Anchors take a fallback chain** (`AnchorAuto.fallback`, recursively);
   the portal keeps the candidate that overflows the screen least, then
-  shifts. Submenus and `ShadDropdownMenu` rely on it to flip horizontally.
-  `ShadGlobalAnchor.followerAnchor` picks the overlay point placed at the
+  shifts. Submenus and `DropdownMenu` rely on it to flip horizontally.
+  `GlobalAnchor.followerAnchor` picks the overlay point placed at the
   global offset; context menus use `topStart` (corner at the pointer).
-- `ShadTextarea` has its own theme; it previously read `ShadInputTheme` for
+- `Textarea` has its own theme; it previously read `TextFieldTheme` for
   padding and alignment, which made every textarea-specific value dead.
 - **A loop that only ever `await`s a synchronously-completed future never
   returns to the event loop.** Dart drains the *whole* microtask queue before
   taking the next event, so such a loop freezes the app outright: no frames,
   no pointer input, and no response to a window resize (the resize path is
   `scheduleForcedFrame`, which still needs an event-loop turn). This is not
-  hypothetical — `ShadSelect`'s hover-to-scroll chevrons hit it. A second
+  hypothetical — `Select`'s hover-to-scroll chevrons hit it. A second
   `animateTo` on a `ScrollPosition` calls `beginActivity`, which disposes the
   previous activity, and `DrivenScrollActivity.dispose` completes its
   completer **synchronously**; two loops therefore cancel each other in an
@@ -269,18 +365,18 @@ are not `font-mono`. The example loads every font through `google_fonts`.
   guard. On web this reads as a browser bug, which is how it went unnoticed.
 - **Escape must not be bound unconditionally.** A `CallbackShortcuts` for
   Escape consumes the key even while its overlay is closed, so the enclosing
-  dialog never closes. Use `ShadDismissShortcut` (`lib/src/utils/`), whose
+  dialog never closes. Use `DismissShortcut` (`lib/src/utils/`), whose
   action reports itself disabled — and the key unhandled — while inactive.
 - **Each root context menu has its own tap-region group**, shared with its
-  submenus (`ShadContextMenuState.tapRegionGroupId`). A single global group
+  submenus (`ContextMenuState.tapRegionGroupId`). A single global group
   made a tap on another menu's trigger count as inside, so the open menu
   never closed.
 - **Dialog routes follow the app theme live** unless opened from a locally
-  re-themed subtree; capturing `ShadTheme.of(context)` at push time froze open
+  re-themed subtree; capturing `Theme.of(context)` at push time froze open
   dialogs and sheets in the old theme across a light/dark switch.
 - **Private field promotion is per library.** Two classes in one file with a
   same-named private field, one of them non-final, disable promotion of both
-  (`ShadTimeOfDay._period` broke when the controller gained a `_period`).
+  (`TimeOfDay._period` broke when the controller gained a `_period`).
 - `calendar.dart` used to contain a literal NUL byte in a cache key, which
   made `grep` treat it as binary and silently skip it. It is `\u0000` now;
   keep NULs escaped.
@@ -311,7 +407,7 @@ are not `font-mono`. The example loads every font through `google_fonts`.
   and assert luminance contrast — that found a real collision (light + inverted
   + bold puts a near-black primary on a near-black surface) that reasoning about
   cases had missed twice.
-- `pumpAndSettle` hangs on anything with `ShadSkeleton` or `ShadSpinner`; pump
+- `pumpAndSettle` hangs on anything with `Skeleton` or `Spinner`; pump
   fixed frames instead.
 - Popover contents are wrapped in `IgnorePointer` during the entrance
   animation — pump ~12 × 50 ms before tapping an option, and pick options near
@@ -333,19 +429,13 @@ are not `font-mono`. The example loads every font through `google_fonts`.
   is the only exemption, and both `.github/workflows/check-imports.yaml` and
   `test/src/material_interop_test.dart` enforce it. Flutter is moving
   Material and Cupertino out of the SDK into `material_ui`/`cupertino_ui`;
-  since 1.0.1 the core does not touch them at all. `ShadApp` therefore has
-  its own `ShadThemeMode`, `ShadPageRoute` and `ShadScrollbar`-based scroll
-  behaviour, and `ShadDefaultStyles` sets the root icon theme and selection
+  since 1.0.1 the core does not touch them at all. `FinesseApp` therefore has
+  its own `ThemeMode`, `FinessePageRoute` and `Scrollbar`-based scroll
+  behaviour, and `DefaultStyles` sets the root icon theme and selection
   colours that a Material `Theme` used to. Material widgets in an app need
-  a `ShadMaterial` (theme + transparent `Material` + localizations); the
-  example wraps its whole app in one. This is why `ShadSpinner` is a
+  a `FinesseMaterial` (theme + transparent `Material` + localizations); the
+  example wraps its whole app in one. This is why `Spinner` is a
   `CustomPainter` rather than a wrapped `CircularProgressIndicator`.
-- Renames keep the old name `@Deprecated('Use X. Will be removed in the next
-  major version.')` and get an entry in `lib/fix_data.yaml`; add a line to
-  `test_fixes/shad.dart(.expect)` and run
-  `dart fix --compare-to-golden test_fixes` (CI does). Data-driven fixes only
-  trigger on reported diagnostics, which is why `test_fixes/` enables
-  `deprecated_member_use_from_same_package`.
 - `test/readme_snippet_test.dart` and `example/test/example_md_test.dart` hold
   verbatim copies of the README and `example/example.md` snippets and check
   they still match.
@@ -364,9 +454,9 @@ are not `font-mono`. The example loads every font through `google_fonts`.
 
 ## The sidebar component
 
-- `ShadSidebarScaffold` owns the responsive behaviour; `ShadSidebar` carries
+- `SidebarScaffold` owns the responsive behaviour; `Sidebar` carries
   the configuration (`side`/`variant`/`collapsible`) and renders the panel.
-  Descendants read `ShadSidebarScope.of(context)` for the collapsed state —
+  Descendants read `SidebarScope.of(context)` for the collapsed state —
   that is how menu buttons shrink to squares and sub-menus vanish in the
   icon rail.
 - **Both collapse modes keep content laid out at the expanded width** inside
@@ -384,7 +474,7 @@ are not `font-mono`. The example loads every font through `google_fonts`.
   the row's minimum width overflow mid-animation in one direction or the
   other.
 - The mobile sheet is imperative: the scaffold listens to the controller and
-  pushes/pops a `ShadSheet` with `scrollable: false` — the sheet's own scroll
+  pushes/pops a `Sheet` with `scrollable: false` — the sheet's own scroll
   view hands the sidebar's `Expanded` column unbounded height, and the crash
   surfaces as a misleading `mouse_tracker` assertion. `openMobile` and `open`
   are independent, as in the reference. Growing past the breakpoint pops the
@@ -397,7 +487,7 @@ are not `font-mono`. The example loads every font through `google_fonts`.
   itself is captured via `ModalRoute.of` in the builder: closing goes through
   it (`pop` when current, `removeRoute` when covered — never a blind
   `Navigator.pop`), and `dispose` removes an orphaned drawer post-frame.
-- `ShadSidebarScaffold.borderRadius` clips the whole scaffold; it exists for
+- `SidebarScaffold.borderRadius` clips the whole scaffold; it exists for
   embedding in rounded containers (the docs demos), where the sidebar's
   square surface would otherwise cover the host's corners.
 - Sidebar metrics vary per style through `sidebarItemHeight`/`Sm`/`Lg` and
@@ -410,7 +500,7 @@ are not `font-mono`. The example loads every font through `google_fonts`.
 ## The example docs browser
 
 `example/lib` is a docs site: `common/app_shell.dart` (top nav, two sections)
-→ `screens/components_screen.dart` (a `ShadSidebarScaffold` listing
+→ `screens/components_screen.dart` (a `SidebarScaffold` listing
 `docs/registry.dart`) → `docs/docs.dart` (the reusable page widgets). The
 other section is `screens/playground_screen.dart`, which is the section the
 app opens on.
@@ -437,10 +527,10 @@ app opens on.
 deliberately:
 
 - **The editor themes the whole app, not a preview pane.** The configuration
-  lives in `themeConfigProvider` (`main.dart`) and `ShadApp`'s `theme`,
+  lives in `themeConfigProvider` (`main.dart`) and `FinesseApp`'s `theme`,
   `darkTheme` and text scale are all built from it, so the top nav, the
   playground and the docs browser restyle together. There is no preview-only
-  `ShadThemeScope` any more.
+  `ThemeScope` any more.
 - `customizer_panel.dart` is the panel; `app_shell.dart` docks it beside the
   page (`ThemeCustomizerPanel.width`) and lets it cover the viewport below
   700px, where a docked panel leaves nothing usable. It is toggled from the
@@ -459,7 +549,7 @@ deliberately:
 - Anything the app adds on top of the generated theme has to be passed
   *into* `ThemeEditorConfig.build()` — `customTextStyles` is how `main.dart`
   keeps its `myCustomStyle` example alive, since the editor owns the whole
-  `ShadTextTheme`.
+  `TextTheme`.
 - The shell reads its signals in the `SignalBuilder` body, **not** inside the
   `LayoutBuilder` below it: that callback runs during layout, outside the
   scope solidart tracks, so a read in there never subscribes and the panel

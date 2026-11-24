@@ -4,8 +4,8 @@ import 'package:finesse/src/components/scroll_area.dart';
 import 'package:finesse/src/components/sonner.dart';
 import 'package:finesse/src/components/toast.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/data.dart';
+import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/theme/theme_scope.dart';
 import 'package:finesse/src/utils/mouse_area.dart';
@@ -637,7 +637,11 @@ class _AppState extends State<FinesseApp> {
               actions: widget.actions,
               restorationScopeId: widget.restorationScopeId,
               localizationsDelegates: effectiveLocalizationsDelegates,
-              textStyle: TextStyle(color: theme.colorScheme.foreground),
+              // A plain `Text` reads as body copy in the theme's own face,
+              // the way it would under a Material `Scaffold`.
+              textStyle: theme.textTheme.p.copyWith(
+                color: theme.colorScheme.foreground,
+              ),
             ),
           );
         }
@@ -670,7 +674,11 @@ class _AppState extends State<FinesseApp> {
             actions: widget.actions,
             restorationScopeId: widget.restorationScopeId,
             localizationsDelegates: effectiveLocalizationsDelegates,
-            textStyle: TextStyle(color: theme.colorScheme.foreground),
+            // A plain `Text` reads as body copy in the theme's own face,
+            // the way it would under a Material `Scaffold`.
+            textStyle: theme.textTheme.p.copyWith(
+              color: theme.colorScheme.foreground,
+            ),
             pageRouteBuilder:
                 widget.pageRouteBuilder ??
                 <T>(RouteSettings settings, WidgetBuilder builder) =>

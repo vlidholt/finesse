@@ -953,7 +953,7 @@ class _TabState<T> extends State<Tab<T>> {
           leading: widget.leading,
           trailing: widget.trailing,
           focusNode: focusNode,
-          height: widget.preferredSize.height,
+          height: widget.height ?? tabsTheme.tabHeight ?? 32,
           width: effectiveWidth,
           backgroundColor: selected
               ? effectiveSelectedBackgroundColor

@@ -1,4 +1,5 @@
 import 'package:finesse/src/components/divider.dart';
+import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/raw_components/focusable.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/animate.dart';
@@ -10,7 +11,6 @@ import 'package:finesse/src/utils/provider.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// {@template AccordionController}
 /// A controller for managing the state of a [Accordion] widget.

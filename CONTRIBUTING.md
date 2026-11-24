@@ -4,12 +4,12 @@ Thank you for your interest in contributing. This guide covers project setup, th
 
 ## Ways to contribute
 
-- Report bugs and reproduce or triage [existing issues](https://github.com/serverpod/finesse/issues).
+- Report bugs and reproduce or triage [existing issues](https://github.com/vlidholt/finesse/issues).
 - Add or improve tests.
 - Add a missing component, or improve an existing one.
 - Improve the documentation in the example app or in `skills/finesse-overview/`.
 
-We communicate through GitHub issues and pull requests, and on the [Serverpod Discord](https://serverpod.dev/discord).
+We communicate through GitHub issues and pull requests.
 
 ## Project setup
 

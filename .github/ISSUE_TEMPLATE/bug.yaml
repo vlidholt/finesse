@@ -11,16 +11,14 @@ body:
       value: |
         Thank you for using finesse!
 
-        If you are looking for support, please check out the documentation
-        or ask a question on the Serverpod Discord:
+        If you are looking for support, please check out the documentation:
 
-          - https://serverpod.github.io/finesse/
-          - https://serverpod.dev/discord
+          - https://vlidholt.github.io/finesse/
   - type: markdown
     attributes:
       value: |
         Before filling the form fields, please consider the following:
-        - Ensure that you have searched the [existing issues](https://github.com/serverpod/finesse/issues)
+        - Ensure that you have searched the [existing issues](https://github.com/vlidholt/finesse/issues)
   - type: textarea
     attributes:
       label: Steps to reproduce

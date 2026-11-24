@@ -81,6 +81,6 @@ ThemeData(textTheme: TextTheme.fromGoogleFont(GoogleFonts.inter))
 
 ## More
 
-The rest of this directory is the [live docs site](https://finesse.serverpod.dev/):
+The rest of this directory is the [live docs site](https://vlidholt.github.io/finesse/):
 every component with live previews, the exact source of each, and a theme
 editor. See `README.md` here for running it locally.

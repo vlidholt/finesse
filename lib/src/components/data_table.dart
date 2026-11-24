@@ -4,11 +4,11 @@ import 'package:finesse/src/components/checkbox.dart';
 import 'package:finesse/src/components/empty.dart';
 import 'package:finesse/src/components/pagination.dart';
 import 'package:finesse/src/components/table.dart';
+import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/debug_check.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:flutter/widgets.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:two_dimensional_scrollables/two_dimensional_scrollables.dart';
 
 /// Width of the leading checkbox column in a selectable [DataTable].

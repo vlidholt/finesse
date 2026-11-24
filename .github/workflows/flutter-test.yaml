@@ -46,16 +46,12 @@ jobs:
           flutter pub get
           flutter analyze
 
-      - name: Check data-driven fixes (lib/fix_data.yaml)
-        run: dart fix --compare-to-golden test_fixes
-
       - name: Check formatting
         run: dart format --output=none --set-exit-if-changed lib test example/lib example/test
 
       - name: No bundled-font asset paths in lib
-        # The deprecated kDefaultFontFamily constants keep their old values.
         run: |
-          if grep -rn "packages/finesse/" lib --exclude=text_styles_default.dart; then
+          if grep -rn "packages/finesse/" lib; then
             echo "::error::lib/ names a font asset finesse no longer ships"
             exit 1
           fi

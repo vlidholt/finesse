@@ -512,8 +512,7 @@ class IconButton extends StatelessWidget {
       effectiveDecoration = FinesseDecoration(
         border: FinesseBorder(radius: radius),
         secondaryFocusedBorder:
-            themeVariant is DefaultThemeVariant &&
-                !theme.disableSecondaryBorder
+            themeVariant is DefaultThemeVariant && !theme.disableSecondaryBorder
             ? themeVariant.ringFor(radius)
             : null,
       );

@@ -182,14 +182,18 @@ class Empty extends StatelessWidget {
                   ],
                   if (actions.isNotEmpty) ...[
                     SizedBox(height: effectiveGap * 2),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        for (var i = 0; i < actions.length; i++) ...[
-                          if (i > 0) SizedBox(width: effectiveGap),
-                          actions[i],
-                        ],
-                      ],
+                    // A Wrap, not a Row: two buttons side by side do not
+                    // fit a phone-width empty state, and should stack
+                    // rather than overflow.
+                    Wrap(
+                      alignment: switch (effectiveCrossAxisAlignment) {
+                        CrossAxisAlignment.start => WrapAlignment.start,
+                        CrossAxisAlignment.end => WrapAlignment.end,
+                        _ => WrapAlignment.center,
+                      },
+                      spacing: effectiveGap,
+                      runSpacing: effectiveGap,
+                      children: actions,
                     ),
                   ],
                 ],

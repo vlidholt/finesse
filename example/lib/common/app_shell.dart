@@ -1,65 +1,52 @@
+import 'package:example/common/app_state.dart';
 import 'package:example/common/theme_editor/customizer_panel.dart';
-import 'package:example/docs/registry.dart';
-import 'package:example/main.dart';
 import 'package:example/screens/components_screen.dart';
-import 'package:example/screens/playground_screen.dart';
+import 'package:example/strand/strand_shell.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_solidart/flutter_solidart.dart';
 
-/// The two screens of the [IndexedStack].
-enum AppSection { playground, docs }
+export 'package:example/common/app_state.dart' show AppSection;
 
-/// The links of the top navigation. Docs and Components both show the
-/// documentation browser — Docs lands on the written pages, Components on the
-/// component reference further down the same sidebar.
-enum AppNavItem { playground, docs, components }
-
-/// The application frame: a shadcn-style top navigation bar over the current
-/// section, with the theme customizer docked beside it when it is open. Both
-/// sections stay alive in an [IndexedStack], so switching back and forth keeps
+/// The application frame: the page, with the theme customizer docked beside
+/// it when it is open.
+///
+/// The page is a [Navigator] showing the current [AppSection] — Strand, or
+/// the component library — and whatever full-screen routes a screen pushes
+/// on top of it. Because the navigator is *inside* the frame, such a route
+/// covers the section's own chrome but leaves the editor panel docked, so a
+/// conversation or a search page can still be re-themed live.
+///
+/// Both sections stay alive once visited, so switching back and forth keeps
 /// scroll position and page state.
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
+
+  /// Below this window width the docked panel would leave the app too narrow
+  /// to use, so it takes the viewport instead.
+  static const narrowBreakpoint = 700.0;
+
+  /// Whether the panel sits beside the page — rather than over it — in a
+  /// window [windowWidth] wide.
+  static bool docksEditor(double windowWidth) =>
+      windowWidth >= narrowBreakpoint;
+
+  /// The width left for the page in a window [windowWidth] wide.
+  ///
+  /// `App` picks the theme's form factor from this rather than from the
+  /// window, so docking the editor beside a medium-width window lays Strand
+  /// out for the phone-sized space it actually has.
+  static double pageWidth(double windowWidth, {required bool editorOpen}) =>
+      editorOpen && docksEditor(windowWidth)
+      ? windowWidth - ThemeCustomizerPanel.width
+      : windowWidth;
 
   @override
   State<AppShell> createState() => _AppShellState();
 }
 
 class _AppShellState extends State<AppShell> {
-  AppSection section = AppSection.playground;
-
-  final _docsKey = GlobalKey<ComponentsScreenState>();
-
-  /// Whether the docs browser is showing a page from the Components group —
-  /// that is what decides which of the two docs links reads as active.
-  bool _viewingComponents = false;
-
-  /// Below this the docked panel would leave the app too narrow to use, so it
-  /// takes the viewport instead.
-  static const _narrow = 700.0;
-
-  AppNavItem get _activeNavItem => switch (section) {
-    AppSection.playground => AppNavItem.playground,
-    AppSection.docs =>
-      _viewingComponents ? AppNavItem.components : AppNavItem.docs,
-  };
-
-  void _selectNavItem(AppNavItem item) {
-    switch (item) {
-      case AppNavItem.playground:
-        setState(() => section = AppSection.playground);
-      case AppNavItem.docs:
-        setState(() => section = AppSection.docs);
-        _docsKey.currentState?.open(docGroups.first.items.first.slug);
-      case AppNavItem.components:
-        setState(() => section = AppSection.docs);
-        final components = docGroups.firstWhere(
-          (group) => group.title == 'Components',
-        );
-        _docsKey.currentState?.open(components.items.first.slug);
-    }
-  }
+  final _navigatorKey = GlobalKey<NavigatorState>();
 
   @override
   Widget build(BuildContext context) {
@@ -73,80 +60,70 @@ class _AppShellState extends State<AppShell> {
         final open = openSignal.value;
         final config = configSignal.value;
 
-        ThemeCustomizerPanel panel({required bool showLeadingBorder}) =>
+        ThemeCustomizerPanel panel({required bool docked}) =>
             ThemeCustomizerPanel(
               config: config,
               onChanged: (next) => configSignal.value = next,
-              showLeadingBorder: showLeadingBorder,
+              showLeadingBorder: docked,
+              // Covering the viewport, it also covers every button that
+              // could close it again.
+              onClose: docked ? null : () => openSignal.value = false,
             );
 
         return LayoutBuilder(
           builder: (context, constraints) {
-            final narrow = constraints.maxWidth < _narrow;
-            // IndexedStack keeps both sections alive (see below) but
-            // installs no TickerMode, so the offstage one's skeletons,
-            // spinners and progress bars keep asking for a frame every
-            // 16ms for the whole session — the app never idles, and every
-            // per-frame allocation compounds instead of being absorbed.
-            Widget onlyTicksWhenActive(AppSection self, Widget child) =>
-                TickerMode(enabled: section == self, child: child);
+            final width = constraints.maxWidth;
+            final docked = AppShell.docksEditor(width);
+            final media = MediaQuery.of(context);
+            final theme = Theme.of(context);
 
-            final body = IndexedStack(
-              index: section.index,
+            // `App` picks the form factor from the width the page will
+            // have, but the theme reaches it through a 200 ms animation
+            // that switches layouts halfway. Docking the panel at once
+            // would squeeze a desktop layout into a phone-sized box for
+            // those frames, so the page keeps its width — with the panel
+            // over its edge — until the theme has caught up.
+            final targetWidth = AppShell.pageWidth(width, editorOpen: open);
+            final targetFormFactor = targetWidth < theme.breakpoints.md.value
+                ? FormFactor.mobile
+                : FormFactor.desktop;
+            final pageWidth = theme.formFactor == targetFormFactor
+                ? targetWidth
+                : width;
+
+            // The page is always the first child of the Stack, under the
+            // same ancestors, so opening the panel never reshapes the
+            // element above it. Building it conditionally instead threw
+            // away the docs browser's state — which read as "the editor
+            // does not affect this page", since it also bounced you back to
+            // the first component.
+            return Stack(
               children: [
-                onlyTicksWhenActive(
-                  AppSection.playground,
-                  const PlaygroundScreen(),
-                ),
-                onlyTicksWhenActive(
-                  AppSection.docs,
-                  ComponentsScreen(
-                    key: _docsKey,
-                    onSelectionChanged: (group) => setState(() {
-                      _viewingComponents = group.title == 'Components';
-                    }),
+                PositionedDirectional(
+                  start: 0,
+                  top: 0,
+                  bottom: 0,
+                  width: pageWidth,
+                  // Breakpoints below read the window width from
+                  // MediaQuery; tell them how wide the page really is.
+                  child: MediaQuery(
+                    data: media.copyWith(
+                      size: Size(pageWidth, media.size.height),
+                    ),
+                    child: _PageNavigator(navigatorKey: _navigatorKey),
                   ),
                 ),
-              ],
-            );
-
-            return Column(
-              children: [
-                _TopNav(
-                  active: _activeNavItem,
-                  onSelect: _selectNavItem,
-                ),
-                // The page is always the first child of both the Stack and
-                // the Row, so opening the panel never reshapes the element
-                // above it. Building it conditionally instead threw away
-                // the docs browser's state — which read as "the editor does
-                // not affect this page", since it also bounced you back to
-                // the first component.
-                Expanded(
-                  child: Stack(
-                    children: [
-                      Positioned.fill(
-                        child: Row(
-                          children: [
-                            Expanded(child: body),
-                            if (open && !narrow)
-                              SizedBox(
-                                width: ThemeCustomizerPanel.width,
-                                child: panel(showLeadingBorder: true),
-                              ),
-                          ],
-                        ),
-                      ),
-                      // Narrow: the panel covers the page rather than
-                      // squeezing it. The top navigation stays put, so its
-                      // toggle is still there to close it again.
-                      if (open && narrow)
-                        Positioned.fill(
-                          child: panel(showLeadingBorder: false),
-                        ),
-                    ],
+                // Docked beside the page on a wide window. On a narrow one
+                // it covers the page rather than squeezing it, and carries
+                // its own close button.
+                if (open)
+                  PositionedDirectional(
+                    end: 0,
+                    top: 0,
+                    bottom: 0,
+                    width: docked ? ThemeCustomizerPanel.width : width,
+                    child: panel(docked: docked),
                   ),
-                ),
               ],
             );
           },
@@ -156,138 +133,172 @@ class _AppShellState extends State<AppShell> {
   }
 }
 
-class _TopNav extends StatelessWidget {
-  const _TopNav({required this.active, required this.onSelect});
+/// The navigator in the page area. Its first route is the section switcher;
+/// screens push full-screen routes above it.
+class _PageNavigator extends StatefulWidget {
+  const _PageNavigator({required this.navigatorKey});
 
-  final AppNavItem active;
-  final ValueChanged<AppNavItem> onSelect;
+  final GlobalKey<NavigatorState> navigatorKey;
+
+  @override
+  State<_PageNavigator> createState() => _PageNavigatorState();
+}
+
+class _PageNavigatorState extends State<_PageNavigator> {
+  /// Whether a full-screen route is showing above the sections.
+  final _canPop = ValueNotifier(false);
+  late final _observer = _CanPopObserver(_canPop);
+
+  @override
+  void dispose() {
+    _canPop.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Container(
-      height: 56,
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.background,
-        border: Border(bottom: BorderSide(color: theme.colorScheme.border)),
+    final navigator = Navigator(
+      key: widget.navigatorKey,
+      observers: [_observer],
+      onGenerateRoute: (settings) => FinessePageRoute<void>(
+        settings: settings,
+        builder: (context) => const _Sections(),
       ),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          // On a phone-width viewport the wordmark's text is the first thing
-          // to go, then the Components link. The toolbar icons stay reachable.
-          final compact = constraints.maxWidth < 640;
+    );
+    // The system back gesture goes to the root navigator, which has nothing
+    // to pop; hand it to this one while it has a route to close, and let it
+    // leave the app otherwise.
+    return ValueListenableBuilder(
+      valueListenable: _canPop,
+      child: navigator,
+      builder: (context, canPop, child) => NavigatorPopHandler(
+        enabled: canPop,
+        onPopWithResult: (_) => widget.navigatorKey.currentState?.maybePop(),
+        child: child!,
+      ),
+    );
+  }
+}
 
-          return Row(
+class _CanPopObserver extends NavigatorObserver {
+  _CanPopObserver(this.canPop);
+
+  final ValueNotifier<bool> canPop;
+
+  void _update() {
+    // After the frame: a route change can arrive while the tree is building.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      canPop.value = navigator?.canPop() ?? false;
+    });
+  }
+
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) =>
+      _update();
+
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) => _update();
+
+  @override
+  void didRemove(Route<dynamic> route, Route<dynamic>? previousRoute) =>
+      _update();
+
+  @override
+  void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) =>
+      _update();
+}
+
+/// Strand and the component library, one showing at a time.
+class _Sections extends StatefulWidget {
+  const _Sections();
+
+  @override
+  State<_Sections> createState() => _SectionsState();
+}
+
+class _SectionsState extends State<_Sections> {
+  /// The component library registers ~50 doc pages; it is not built until it
+  /// is first opened.
+  bool _componentsBuilt = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return SignalBuilder(
+      builder: (context, _) {
+        final section = appSectionProvider.of(context).value;
+        if (section == AppSection.components) _componentsBuilt = true;
+
+        // IndexedStack keeps both sections alive but installs no
+        // TickerMode, so the offstage one's skeletons, spinners and
+        // progress bars would keep asking for a frame every 16ms for the
+        // whole session — the app never idles, and every per-frame
+        // allocation compounds instead of being absorbed.
+        Widget onlyTicksWhenActive(AppSection self, Widget child) =>
+            TickerMode(enabled: section == self, child: child);
+
+        return ColoredBox(
+          color: Theme.of(context).colorScheme.background,
+          child: IndexedStack(
+            index: section.index,
+            sizing: StackFit.expand,
             children: [
-              // Wordmark.
-              Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primary,
-                  borderRadius: theme.radii.sm,
-                ),
-                child: Center(
-                  child: Image.asset(
-                    theme.brightness == Brightness.dark
-                        ? 'assets/logo-black.png'
-                        : 'assets/logo-white.png',
-                    width: 14,
-                    height: 14,
-                    fit: BoxFit.contain,
-                  ),
-                ),
+              onlyTicksWhenActive(AppSection.strand, const StrandShell()),
+              onlyTicksWhenActive(
+                AppSection.components,
+                _componentsBuilt
+                    ? const ComponentsSection()
+                    : const SizedBox.shrink(),
               ),
-              if (!compact) ...[
-                const SizedBox(width: 8),
-                Text(
-                  'finesse',
-                  style: theme.textTheme.large.copyWith(fontSize: 15),
-                ),
-              ],
-              SizedBox(width: compact ? 16 : 28),
-              _NavLink(
-                label: 'Playground',
-                selected: active == AppNavItem.playground,
-                onTap: () => onSelect(AppNavItem.playground),
-              ),
-              SizedBox(width: compact ? 12 : 20),
-              _NavLink(
-                label: 'Docs',
-                selected: active == AppNavItem.docs,
-                onTap: () => onSelect(AppNavItem.docs),
-              ),
-              if (!compact) ...[
-                const SizedBox(width: 20),
-                _NavLink(
-                  label: 'Components',
-                  selected: active == AppNavItem.components,
-                  onTap: () => onSelect(AppNavItem.components),
-                ),
-              ],
-              const Spacer(),
-              const _ThemeModeButton(),
-              const SizedBox(width: 4),
-              const _DirectionButton(),
-              const SizedBox(width: 4),
-              _ThemeEditorButton(showLabel: !compact),
             ],
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }
 
-class _NavLink extends StatefulWidget {
-  const _NavLink({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  State<_NavLink> createState() => _NavLinkState();
-}
-
-class _NavLinkState extends State<_NavLink> {
-  bool hovered = false;
+/// The component-library browser under a slim app bar: back to Strand,
+/// light/dark, text direction and the theme editor.
+class ComponentsSection extends StatelessWidget {
+  const ComponentsSection({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final color = widget.selected || hovered
-        ? theme.colorScheme.foreground
-        : theme.colorScheme.mutedForeground;
-
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => hovered = true),
-      onExit: (_) => setState(() => hovered = false),
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: widget.onTap,
-        child: AnimatedDefaultTextStyle(
-          duration: const Duration(milliseconds: 100),
-          style: theme.textTheme.small.copyWith(color: color),
-          child: Text(widget.label),
+    // A Column, not a Scaffold: the docs browser is a sidebar layout that
+    // fills its box and does not inset itself for a bar laid over it.
+    return Column(
+      children: [
+        AppBar(
+          // The docs browser is full-bleed, so its bar is too.
+          maxWidth: double.infinity,
+          leading: IconButton.ghost(
+            icon: const Icon(PhosphorIconsRegular.arrowLeft),
+            semanticLabel: 'Back to Strand',
+            onPressed: () =>
+                appSectionProvider.of(context).value = AppSection.strand,
+          ),
+          title: const Text('Components'),
+          actions: const [
+            _ThemeModeButton(),
+            _DirectionButton(),
+            _ThemeEditorButton(),
+          ],
         ),
-      ),
+        Expanded(
+          child: MediaQuery.removePadding(
+            context: context,
+            removeTop: true,
+            child: const ComponentsScreen(),
+          ),
+        ),
+      ],
     );
   }
 }
 
-/// Shows and hides the customizer, from either section.
+/// Shows and hides the customizer.
 class _ThemeEditorButton extends StatelessWidget {
-  const _ThemeEditorButton({required this.showLabel});
-
-  final bool showLabel;
+  const _ThemeEditorButton();
 
   @override
   Widget build(BuildContext context) {
@@ -301,27 +312,10 @@ class _ThemeEditorButton extends StatelessWidget {
               ? 'Hide the theme editor'
               : 'Show the theme editor',
         );
-
-        if (!showLabel) {
-          return open.value
-              ? IconButton.secondary(icon: icon, onPressed: toggle)
-              : IconButton.ghost(icon: icon, onPressed: toggle);
-        }
-
         // The pressed-in secondary variant is what marks the panel as open.
         return open.value
-            ? Button.secondary(
-                size: ButtonSize.sm,
-                onPressed: toggle,
-                leading: icon,
-                child: const Text('Edit Theme'),
-              )
-            : Button.ghost(
-                size: ButtonSize.sm,
-                onPressed: toggle,
-                leading: icon,
-                child: const Text('Edit Theme'),
-              );
+            ? IconButton.secondary(icon: icon, onPressed: toggle)
+            : IconButton.ghost(icon: icon, onPressed: toggle);
       },
     );
   }
@@ -343,15 +337,7 @@ class _ThemeModeButton extends StatelessWidget {
                 ? 'Switch to dark mode'
                 : 'Switch to light mode',
           ),
-          onPressed: () {
-            themeModeProvider
-                .of(context)
-                .updateValue(
-                  (value) => value == ThemeMode.light
-                      ? ThemeMode.dark
-                      : ThemeMode.light,
-                );
-          },
+          onPressed: () => toggleThemeMode(context),
         );
       },
     );
@@ -369,8 +355,9 @@ class _DirectionButton extends StatelessWidget {
         final isLtr = direction == TextDirection.ltr;
         return IconButton.ghost(
           icon: Icon(
-            // Lucide's pilcrow pair is its text-direction icon.
-            isLtr ? PhosphorIconsRegular.textAlignLeft : PhosphorIconsRegular.textAlignRight,
+            isLtr
+                ? PhosphorIconsRegular.textAlignLeft
+                : PhosphorIconsRegular.textAlignRight,
             semanticLabel: isLtr ? 'Switch to RTL' : 'Switch to LTR',
           ),
           onPressed: () {

@@ -1,4 +1,5 @@
 import 'package:finesse/src/components/disabled.dart';
+import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/raw_components/focusable.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/theme.dart';
@@ -7,7 +8,6 @@ import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// A customizable checkbox widget with optional label and sublabel.
 ///

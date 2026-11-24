@@ -1,12 +1,18 @@
 import 'package:disco/disco.dart';
 import 'package:example/common/app_shell.dart';
+import 'package:example/common/app_state.dart';
 import 'package:example/common/theme_editor/editor_config.dart';
 import 'package:example/common/theme_editor/fonts.dart';
 import 'package:example/docs/docs.dart';
+import 'package:example/strand/navigation.dart';
 import 'package:finesse/finesse.dart';
 import 'package:finesse/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_solidart/flutter_solidart.dart';
+
+export 'package:example/common/app_state.dart';
+export 'package:example/strand/navigation.dart'
+    show StrandDestination, strandDestinationProvider;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,25 +27,17 @@ Future<void> main() async {
   runApp(const App());
 }
 
-final themeModeProvider = Provider((_) => Signal(ThemeMode.light));
-
-final directionalityProvider = Provider((context) => Signal(TextDirection.ltr));
-
-/// The theme the whole app is built from, edited by the customizer panel.
-///
-/// Compared by value, not by identity: a write here rebuilds two full
-/// [ThemeData]s and restarts a 200 ms lerp across every component theme,
-/// which is far too expensive to spend on a `copyWith` that changed nothing.
-final themeConfigProvider = Provider(
-  (_) => Signal(
-    const ThemeEditorConfig(),
-    comparator: (a, b) => a == b,
-  ),
-);
-
-/// Whether that panel is docked beside the app. [AppShell] opens it by
-/// default on viewports wide enough to dock it.
-final themeEditorOpenProvider = Provider((_) => Signal(false));
+/// Every app-level provider: the state in `common/app_state.dart` and
+/// Strand's selected destination. They sit above [FinesseApp], so every
+/// route can read them.
+final appProviders = <InstantiableProvider>[
+  appSectionProvider,
+  themeModeProvider,
+  directionalityProvider,
+  themeConfigProvider,
+  themeEditorOpenProvider,
+  strandDestinationProvider,
+];
 
 /// Named styles the app adds on top of whatever the editor produces — an
 /// example of extending [TextTheme]; see the `/typography` page for how
@@ -54,53 +52,86 @@ Map<String, TextStyle> appCustomTextStyles(Brightness brightness) => {
   ),
 };
 
-class App extends StatelessWidget {
+/// The example app: Strand, the social network the default theme was
+/// designed for, with the component library and the theme editor one menu
+/// away.
+class App extends StatefulWidget {
   const App({super.key});
+
+  @override
+  State<App> createState() => _AppState();
+}
+
+class _AppState extends State<App> {
+  /// The themes built from [_builtFrom]. Each bakes some fifty component
+  /// themes, so they are rebuilt when the configuration changes and not when
+  /// the window is resized or the editor panel is toggled.
+  ThemeEditorConfig? _builtFrom;
+  late ThemeData _theme;
+  late ThemeData _darkTheme;
+
+  void _buildThemes(ThemeEditorConfig config) {
+    if (config == _builtFrom) return;
+    _builtFrom = config;
+    _theme = config
+        .copyWith(brightness: Brightness.light)
+        .build(customTextStyles: appCustomTextStyles(Brightness.light));
+    _darkTheme = config
+        .copyWith(brightness: Brightness.dark)
+        .build(customTextStyles: appCustomTextStyles(Brightness.dark));
+  }
 
   @override
   Widget build(BuildContext context) {
     return ProviderScope(
-      providers: [
-        themeModeProvider,
-        directionalityProvider,
-        themeConfigProvider,
-        themeEditorOpenProvider,
-      ],
+      providers: appProviders,
       child: SignalBuilder(
         builder: (context, _) {
           final themeMode = themeModeProvider.of(context).value;
           final directionality = directionalityProvider.of(context).value;
           // Both themes come from the editor's configuration, so the panel
-          // restyles the whole app — navigation, playground and docs alike.
+          // restyles the whole app — Strand and the component library alike.
           final config = themeConfigProvider.of(context).value;
-          return FinesseApp(
-            debugShowCheckedModeBanner: false,
-            themeMode: themeMode,
-            theme: config
-                .copyWith(brightness: Brightness.light)
-                .build(
-                  customTextStyles: appCustomTextStyles(Brightness.light),
-                ),
-            darkTheme: config
-                .copyWith(brightness: Brightness.dark)
-                .build(
-                  customTextStyles: appCustomTextStyles(Brightness.dark),
-                ),
-            home: const AppShell(),
-            builder: (context, child) {
-              // The docs and the theme editor use a few Material widgets
-              // (Slider, SelectionArea); FinesseMaterial themes them from the
-              // finesse theme and adds their localizations.
-              return Directionality(
-                textDirection: directionality,
-                // The editor's text scale applies to the whole app; the
-                // customizer panel resets it for its own chrome.
-                child: MediaQuery(
-                  data: MediaQuery.of(context).copyWith(
-                    textScaler: TextScaler.linear(config.textScale),
-                  ),
-                  child: FinesseMaterial(child: child!),
-                ),
+          final editorOpen = themeEditorOpenProvider.of(context).value;
+          _buildThemes(config);
+          final theme = _theme;
+          final darkTheme = _darkTheme;
+
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              // FinesseApp would pick the form factor from the window. The
+              // docked editor takes a slice of it, so pick from the width
+              // the page is left with: docking the panel beside a
+              // medium-width window shows the phone layout it has room for.
+              final pageWidth = AppShell.pageWidth(
+                constraints.maxWidth,
+                editorOpen: editorOpen,
+              );
+              return FinesseApp(
+                debugShowCheckedModeBanner: false,
+                themeMode: themeMode,
+                theme: theme,
+                darkTheme: darkTheme,
+                formFactor: pageWidth < theme.breakpoints.md.value
+                    ? FormFactor.mobile
+                    : FormFactor.desktop,
+                home: const AppShell(),
+                builder: (context, child) {
+                  // The docs and the theme editor use a few Material widgets
+                  // (Slider, SelectionArea); FinesseMaterial themes them from
+                  // the finesse theme and adds their localizations.
+                  return Directionality(
+                    textDirection: directionality,
+                    // The editor's text scale applies to the whole app; the
+                    // customizer panel resets it for its own chrome.
+                    child: MediaQuery(
+                      data: MediaQuery.of(context).copyWith(
+                        textScaler: TextScaler.linear(config.textScale),
+                      ),
+                      child: FinesseMaterial(child: child!),
+                    ),
+                  );
+                },
               );
             },
           );

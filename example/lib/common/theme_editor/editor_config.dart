@@ -2,18 +2,13 @@ import 'package:example/common/theme_editor/fonts.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
-/// shadcn/ui's neutral *base colours*.
+/// The package's *base colours*: Finesse's own teal, and the three shadcn/ui
+/// neutrals it kept.
 enum BaseColor {
+  teal('Teal'),
   neutral('Neutral'),
   stone('Stone'),
-  zinc('Zinc'),
-  mauve('Mauve'),
-  olive('Olive'),
-  mist('Mist'),
-  taupe('Taupe'),
-  // Shipped by this package since before the base/accent split existed.
-  slate('Slate'),
-  gray('Gray');
+  zinc('Zinc');
 
   const BaseColor(this.label);
 
@@ -24,10 +19,13 @@ enum BaseColor {
 
   /// The dot shown in the picker.
   ///
-  /// Not `primary`: in these neutral palettes that is near-black, which
+  /// Not `primary` for the neutrals: there it is near-black, which
   /// disappears against the customizer's dark surface. The muted foreground is
-  /// the same hue at a lightness that reads on either background.
-  Color get swatch => scheme(Brightness.light).mutedForeground;
+  /// the same hue at a lightness that reads on either background. Teal's
+  /// primary is the brand colour itself.
+  Color get swatch => this == BaseColor.teal
+      ? scheme(Brightness.light).primary
+      : scheme(Brightness.light).mutedForeground;
 }
 
 /// shadcn/ui's accent *themes*, layered over a [BaseColor].
@@ -68,9 +66,12 @@ enum AccentColor {
       scheme(brightness)?.primary ?? base.swatch;
 }
 
-/// shadcn/ui's radius presets. The listed values are its `--radius`;
-/// components use `--radius-md`, which is `--radius * 0.8`.
+/// The radius presets. [style] follows the selected style's own radius —
+/// 10 for Finesse — which is what the package does when no radius is given.
+/// The others are shadcn/ui's `--radius` presets; components use
+/// `--radius-md`, which is `--radius * 0.8`.
 enum RadiusPreset {
+  style('Default', null),
   none('None', 0),
   small('Small', 7.2 * 0.8),
   medium('Medium', 10 * 0.8),
@@ -79,23 +80,22 @@ enum RadiusPreset {
   const RadiusPreset(this.label, this.value);
 
   final String label;
-  final double value;
+
+  /// The `md` radius in logical pixels, or null to use the style's.
+  final double? value;
 }
 
-/// shadcn/ui's eight named styles.
+/// The package's named styles: Finesse's own, and the three shadcn/ui
+/// styles it kept.
 ///
 /// Each is a preset over [StyleTokens] — corner radii, focus-ring
 /// thickness and opacity, and label typography — so picking one reshapes every
 /// component at once.
 enum StylePreset {
-  vega('Vega'),
+  finesse('Finesse'),
   nova('Nova'),
   maia('Maia'),
-  lyra('Lyra'),
-  mira('Mira'),
-  luma('Luma'),
-  sera('Sera'),
-  rhea('Rhea');
+  lyra('Lyra');
 
   const StylePreset(this.label);
 
@@ -139,13 +139,13 @@ enum EditorMenuAccent {
 class ThemeEditorConfig {
   const ThemeEditorConfig({
     this.brightness = Brightness.light,
-    this.style = StylePreset.nova,
-    this.baseColor = BaseColor.neutral,
+    this.style = StylePreset.finesse,
+    this.baseColor = BaseColor.teal,
     this.accentColor = AccentColor.base,
     this.chartColor = AccentColor.base,
     this.headingFontTitle,
-    this.fontTitle = 'Inter',
-    this.radius = RadiusPreset.medium,
+    this.fontTitle = 'Geist',
+    this.radius = RadiusPreset.style,
     this.customRadius,
     this.menuColor = MenuSurfaceColor.standard,
     this.menuFinish = MenuSurfaceFinish.solid,
@@ -178,7 +178,14 @@ class ThemeEditorConfig {
   /// One step on the spacing scale, shadcn's `--spacing`.
   final double spacingStep;
 
-  double get effectiveRadius => customRadius ?? radius.value;
+  /// The `md` radius in logical pixels: a custom value, the preset's, or the
+  /// selected style's own.
+  double get effectiveRadius =>
+      customRadius ?? radius.value ?? style.tokens.radius;
+
+  /// Whether the radius is the style's own, so [build] leaves it to the
+  /// package and the exported snippet does not mention it.
+  bool get usesStyleRadius => customRadius == null && radius.value == null;
 
   Spacing get spacing => Spacing(step: spacingStep);
 
@@ -330,7 +337,10 @@ class ThemeEditorConfig {
   /// app hands its own named styles down this way, since the editor owns the
   /// whole [TextTheme] and would otherwise drop them.
   ThemeData build({Map<String, TextStyle> customTextStyles = const {}}) {
-    final borderRadius = BorderRadius.all(Radius.circular(effectiveRadius));
+    // Null hands the choice to the package, which reads the style's radius.
+    final borderRadius = usesStyleRadius
+        ? null
+        : BorderRadius.all(Radius.circular(effectiveRadius));
 
     // The menu options are the library's own — the same semantics as
     // shadcn's create editor: inverted menus take the dark palette,
@@ -362,7 +372,7 @@ class ThemeEditorConfig {
 
     final cap =
         '${baseColor.name[0].toUpperCase()}${baseColor.name.substring(1)}';
-    final ctor = 'const Shad${cap}ColorScheme.${brightness.name}()';
+    final ctor = 'const ${cap}ColorScheme.${brightness.name}()';
 
     if (accentColor == AccentColor.base) {
       buffer.writeln('  colorScheme: $ctor,');
@@ -376,9 +386,12 @@ class ThemeEditorConfig {
         ..writeln('  ),');
     }
 
-    buffer.writeln(
-      '  radius: BorderRadius.circular(${effectiveRadius.toStringAsFixed(1)}),',
-    );
+    if (!usesStyleRadius) {
+      buffer.writeln(
+        '  radius: BorderRadius.circular('
+        '${effectiveRadius.toStringAsFixed(1)}),',
+      );
+    }
     // Every editor font comes from Google Fonts. An app can also bundle the
     // face itself and pass `TextTheme(family: 'Inter')`.
     buffer.writeln(
@@ -396,7 +409,7 @@ class ThemeEditorConfig {
         brightness == Brightness.light) {
       final cap =
           '${baseColor.name[0].toUpperCase()}${baseColor.name.substring(1)}';
-      final darkCtor = 'const Shad${cap}ColorScheme.dark()';
+      final darkCtor = 'const ${cap}ColorScheme.dark()';
       if (accentColor == AccentColor.base) {
         buffer.writeln('  menuColorScheme: $darkCtor,');
       } else {

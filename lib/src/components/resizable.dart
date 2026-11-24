@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:finesse/src/components/divider.dart';
+import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/border.dart';
@@ -7,7 +8,6 @@ import 'package:finesse/src/utils/extensions/double.dart';
 import 'package:finesse/src/utils/mouse_cursor_provider.dart';
 import 'package:finesse/src/utils/provider.dart';
 import 'package:flutter/widgets.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// The result of resizing a panel
 enum ResizeResult {

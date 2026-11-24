@@ -1,26 +1,60 @@
-import 'package:example/common/app_shell.dart';
-import 'package:example/common/theme_editor/customizer_panel.dart';
 import 'package:example/common/theme_editor/editor_config.dart';
 import 'package:example/common/theme_editor/fonts.dart';
-import 'package:example/common/theme_editor/preview_panel.dart';
 import 'package:example/main.dart';
+import 'package:example/screens/components_screen.dart';
+import 'package:example/strand/strand_shell.dart';
 import 'package:finesse/finesse.dart';
-import 'package:flutter/material.dart'
-    hide Checkbox, Radio, Switch, Theme, ThemeData, ThemeMode;
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:google_fonts/google_fonts.dart';
+
+import 'support.dart';
 
 void main() {
   // google_fonts downloads faces on first use; there is no network in tests,
-  // so turn that off. The API still resolves, it just falls back to the
+  // so that is turned off. The API still resolves, it just falls back to the
   // default face for rendering.
-  setUpAll(() => GoogleFonts.config.allowRuntimeFetching = false);
+  setUpAll(setUpFonts);
 
   group('ThemeEditorConfig', () {
-    test('the default config builds a usable theme', () {
-      final theme = const ThemeEditorConfig().build();
-      expect(theme.brightness, Brightness.light);
-      expect(theme.radius, BorderRadius.circular(8));
+    test('the default config is the package default look', () {
+      const config = ThemeEditorConfig();
+      expect(config.style, StylePreset.finesse);
+      expect(config.baseColor, BaseColor.teal);
+      expect(config.accentColor, AccentColor.base);
+      expect(config.fontTitle, 'Geist');
+      // The radius is left to the style, which is 10 for Finesse.
+      expect(config.usesStyleRadius, isTrue);
+      expect(config.effectiveRadius, 10);
+
+      // Apart from the font — the package bundles none — the editor's
+      // default theme is the theme an app gets by passing nothing at all.
+      for (final brightness in Brightness.values) {
+        final theme = config.copyWith(brightness: brightness).build();
+        final packageDefault = ThemeData(
+          brightness: brightness,
+          textTheme: config.textTheme,
+        );
+        expect(theme.style, StyleTokens.finesse);
+        expect(theme.radius, BorderRadius.circular(10));
+        expect(theme.colorScheme, packageDefault.colorScheme);
+        expect(
+          theme.colorScheme,
+          brightness == Brightness.light
+              ? const TealColorScheme.light()
+              : const TealColorScheme.dark(),
+        );
+        expect(theme, packageDefault, reason: '$brightness');
+      }
+    });
+
+    test('the radius follows the style until a preset is picked', () {
+      expect(
+        const ThemeEditorConfig(style: StylePreset.lyra).build().radius,
+        ThemeData(style: StyleTokens.lyra).radius,
+      );
+      const medium = ThemeEditorConfig(radius: RadiusPreset.medium);
+      expect(medium.usesStyleRadius, isFalse);
+      expect(medium.build().radius, BorderRadius.circular(8));
     });
 
     test('accent re-tints primary and ring but not the neutrals', () {
@@ -46,7 +80,7 @@ void main() {
       const config = ThemeEditorConfig(accentColor: AccentColor.base);
       expect(
         config.colorScheme.primary,
-        BaseColor.neutral.scheme(Brightness.light).primary,
+        BaseColor.teal.scheme(Brightness.light).primary,
       );
     });
 
@@ -64,34 +98,40 @@ void main() {
     });
 
     test('the focus ring comes from the style, not from the editor', () {
-      // shadcn has no ring knobs; the style owns it, and so does this editor.
+      // There are no ring knobs; the style owns it.
       final lyra = const ThemeEditorConfig(style: StylePreset.lyra).build();
-      final vega = const ThemeEditorConfig().build();
+      final finesse = const ThemeEditorConfig().build();
 
       expect(lyra.decoration.secondaryFocusedBorder!.top!.width, 1);
-      expect(vega.decoration.secondaryFocusedBorder!.top!.width, 3);
-      expect(vega.decoration.secondaryFocusedBorder!.top!.color!.a, .5);
+      expect(finesse.decoration.secondaryFocusedBorder!.top!.width, 3);
+      expect(
+        finesse.decoration.secondaryFocusedBorder!.top!.color!.a,
+        closeTo(StyleTokens.finesse.ringOpacity, .01),
+      );
     });
 
-    test('a style retypes the components, not the prose scale', () {
-      final vega = const ThemeEditorConfig().build();
+    test('a style retypes the components and keeps the chosen font', () {
+      final finesse = const ThemeEditorConfig().build();
       final lyra = const ThemeEditorConfig(style: StylePreset.lyra).build();
-      final sera = const ThemeEditorConfig(style: StylePreset.sera).build();
 
-      // The typography entries are a fixed prose scale — a style reaches the
-      // UI through each component's own theme slots, not by rewriting them.
-      expect(vega.textTheme.small.fontSize, 14);
-      expect(lyra.textTheme.small.fontSize, 14);
+      // Lyra is the compact, monospace-flavoured style: its menu rows are
+      // set a step smaller than Finesse's.
       expect(lyra.commandTheme.itemTextStyle!.fontSize, 12);
-      expect(sera.cardTheme.titleStyle!.fontWeight, FontWeight.w600);
+      expect(
+        finesse.commandTheme.itemTextStyle!.fontSize,
+        greaterThan(lyra.commandTheme.itemTextStyle!.fontSize!),
+      );
       // The chosen font survives the style's typography.
       expect(
         lyra.commandTheme.itemTextStyle!.fontFamily,
-        vega.textTheme.small.fontFamily,
+        finesse.textTheme.small.fontFamily,
       );
     });
 
     test('every style builds, and carries its own radii and ring', () {
+      expect(StylePreset.values.map((s) => s.name), [
+        for (final style in StyleTokens.all) style.name,
+      ]);
       for (final preset in StylePreset.values) {
         final theme = ThemeEditorConfig(style: preset).build();
         expect(theme.style, preset.tokens);
@@ -102,13 +142,13 @@ void main() {
       }
 
       // Square styles really are square, all the way out to the card.
-      final lyra = ThemeEditorConfig(style: StylePreset.lyra).build();
+      final lyra = const ThemeEditorConfig(style: StylePreset.lyra).build();
       expect(lyra.cardTheme.radius, BorderRadius.zero);
       // ...and a rounded one scales the card past the control radius.
-      final vega = ThemeEditorConfig(style: StylePreset.vega).build();
+      final finesse = const ThemeEditorConfig().build();
       expect(
-        vega.cardTheme.radius!.topLeft.x,
-        greaterThan(vega.radius.topLeft.x),
+        finesse.cardTheme.radius!.topLeft.x,
+        greaterThan(finesse.radius.topLeft.x),
       );
     });
 
@@ -138,8 +178,34 @@ void main() {
       expect(snippet, contains('Brightness.dark'));
       expect(snippet, contains('ZincColorScheme.dark()'));
       expect(snippet, contains('applyAccentScheme'));
-      // The default style, mirroring shadcn's own `DEFAULT_CONFIG.style`.
-      expect(snippet, contains('StyleTokens.nova'));
+      expect(snippet, contains('StyleTokens.finesse'));
+      // The class names of the package as it is now.
+      expect(snippet, isNot(contains('Shad')));
+      expect(snippet, startsWith('ThemeData('));
+    });
+
+    test('the snippet names every base colour scheme that exists', () {
+      for (final base in BaseColor.values) {
+        final snippet = ThemeEditorConfig(baseColor: base).toDartSnippet();
+        final name = '${base.name[0].toUpperCase()}${base.name.substring(1)}';
+        expect(snippet, contains('const ${name}ColorScheme.light()'));
+        // …and the scheme it names is the one the config builds.
+        expect(
+          ThemeEditorConfig(baseColor: base).colorScheme,
+          ColorScheme.fromName(base.name),
+        );
+      }
+    });
+
+    test('the snippet leaves the radius out while it is the style\'s', () {
+      expect(
+        const ThemeEditorConfig().toDartSnippet(),
+        isNot(contains('radius:')),
+      );
+      expect(
+        const ThemeEditorConfig(radius: RadiusPreset.large).toDartSnippet(),
+        contains('radius: BorderRadius.circular(11.2)'),
+      );
     });
 
     test('the snippet omits applyAccent when the accent is the base', () {
@@ -148,52 +214,28 @@ void main() {
     });
   });
 
-  /// The editor's own Theme, not FinesseApp's outer one.
-  ///
-  /// find.ancestor yields nearest-first, so the first match above the preview
-  /// panel is the theme the editor is driving.
-  ThemeData previewTheme(WidgetTester tester) => tester
-      .widget<Theme>(
-        find
-            .ancestor(
-              of: find.byType(ThemePreviewPanel),
-              matching: find.byType(Theme),
-            )
-            .first,
-      )
-      .data;
+  /// The theme Strand is built with — what the editor is driving.
+  ThemeData strandTheme(WidgetTester tester) =>
+      Theme.of(tester.element(find.byType(StrandShell)));
 
   group('the customizer panel', () {
     /// Pumps the whole app and opens the editor.
     ///
-    /// The app itself is what the panel edits now, so the test drives [App]
+    /// The app itself is what the panel edits, so the test drives [App]
     /// rather than a page: that is the wiring under test.
     Future<void> pump(
       WidgetTester tester, {
       Size size = const Size(1600, 1400),
     }) async {
-      tester.view.physicalSize = size;
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-
-      await tester.pumpWidget(const App());
-      await tester.pump();
-      if (find.byType(ThemeCustomizerPanel).evaluate().isEmpty) {
-        await tester.tap(find.byIcon(PhosphorIconsRegular.paintBrush).first);
-      }
-      // The theme animates across 200ms; the preview animates forever, so
-      // pump fixed frames rather than settling.
-      for (var i = 0; i < 12; i++) {
-        await tester.pump(const Duration(milliseconds: 50));
-      }
+      await pumpApp(tester, size: size);
+      await openThemeEditor(tester);
     }
 
     /// Opens the picker labelled [label] and chooses [option].
     ///
-    /// The value lives inside a popover, so it has to be opened first; the
-    /// preview animates forever (spinner, skeletons) so fixed pumps are used
-    /// throughout rather than pumpAndSettle.
+    /// The value lives inside a popover, so it has to be opened first. Fixed
+    /// pumps are used throughout rather than pumpAndSettle, which never
+    /// returns once a spinner or a skeleton is on screen.
     Future<void> choose(
       WidgetTester tester,
       String label,
@@ -202,7 +244,6 @@ void main() {
       await tester.tap(find.text(label));
       // Popover wraps its content in an IgnorePointer while the entrance
       // animation runs, so the option is not tappable until it finishes.
-      // pumpAndSettle is unusable here: the preview's spinner never settles.
       for (var i = 0; i < 12; i++) {
         await tester.pump(const Duration(milliseconds: 50));
       }
@@ -212,9 +253,8 @@ void main() {
       }
     }
 
-    testWidgets('shows every setting shadcn/ui exposes', (tester) async {
+    testWidgets('shows every setting', (tester) async {
       await pump(tester);
-      await tester.pump();
 
       for (final label in [
         'Style',
@@ -226,16 +266,16 @@ void main() {
         'Radius',
         'Menu',
         'Menu Accent',
+        'Text Scale',
       ]) {
         expect(find.text(label), findsOneWidget, reason: 'missing $label');
       }
-      // The preview is a dashboard now, not a component gallery.
-      expect(find.text('Contribution History'), findsOneWidget);
-      expect(find.text('Palette'), findsOneWidget);
-      expect(find.text('Typography'), findsOneWidget);
-      expect(find.text('Text Scale'), findsOneWidget);
-      // Light/dark and direction are app-wide toolbar switches, not settings
-      // this panel duplicates.
+      // The defaults, as the pickers show them.
+      expect(find.text('Finesse'), findsOneWidget);
+      expect(find.text('Teal'), findsOneWidget);
+      expect(find.text('Geist'), findsOneWidget);
+      // Light/dark and direction are app-wide switches, not settings this
+      // panel duplicates.
       expect(find.text('Mode'), findsNothing);
       expect(find.text('Direction'), findsNothing);
       // Radius has a preset picker; the raw px sliders were noise next to it.
@@ -243,42 +283,19 @@ void main() {
       expect(find.text('Corner Radius'), findsNothing);
       // One icon set ships, so the picker was a control with nothing to pick.
       expect(find.text('Icon Library'), findsNothing);
-      // shadcn has no focus-ring knobs; neither do we.
+      // There are no focus-ring knobs.
       expect(find.text('Ring'), findsNothing);
       expect(find.text('Opacity'), findsNothing);
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('the preview covers the selection controls', (tester) async {
+    testWidgets('offers exactly the styles and base colours the package has', (
+      tester,
+    ) async {
       await pump(tester);
-      await tester.pump();
-
-      // A theme is judged on its controls, so the preview has to contain
-      // them — checkboxes and radios were missing entirely.
-      expect(find.byType(Checkbox), findsWidgets);
-      // The radio group is generic over a private enum, so match by name.
-      expect(
-        find.byWidgetPredicate(
-          (w) => w.runtimeType.toString().startsWith('Radio<'),
-        ),
-        findsWidgets,
-      );
-      expect(find.byType(Switch), findsWidgets);
-      expect(find.byType(OtpField), findsWidgets);
-      expect(find.byType(ProgressBar), findsWidgets);
-      expect(find.byType(Skeleton), findsWidgets);
-      expect(tester.takeException(), isNull);
-    });
-
-    testWidgets('every shadcn style is offered', (tester) async {
-      await pump(tester);
-      await tester.pump();
 
       await tester.tap(find.text('Style'));
-      for (var i = 0; i < 12; i++) {
-        await tester.pump(const Duration(milliseconds: 50));
-      }
-
+      await settle(tester);
       for (final style in StylePreset.values) {
         expect(
           find.text(style.label),
@@ -286,48 +303,55 @@ void main() {
           reason: 'missing ${style.label}',
         );
       }
+      for (final gone in ['Vega', 'Mira', 'Luma', 'Sera', 'Rhea']) {
+        expect(find.text(gone), findsNothing, reason: gone);
+      }
+      await tester.tapAt(const Offset(20, 20));
+      await settle(tester);
+
+      await tester.tap(find.text('Base Color'));
+      await settle(tester);
+      for (final base in BaseColor.values) {
+        expect(find.text(base.label), findsWidgets, reason: base.label);
+      }
+      for (final gone in ['Slate', 'Gray', 'Mauve', 'Olive', 'Mist', 'Taupe']) {
+        expect(find.text(gone), findsNothing, reason: gone);
+      }
+      expect(tester.takeException(), isNull);
     });
 
-    testWidgets('the preview follows the app-wide theme mode', (tester) async {
+    testWidgets('Strand follows the app-wide theme mode', (tester) async {
       await pump(tester);
-      await tester.pump();
-      expect(previewTheme(tester).brightness, Brightness.light);
+      expect(strandTheme(tester).brightness, Brightness.light);
 
-      themeModeProvider.of(tester.element(find.byType(AppShell))).value =
-          ThemeMode.dark;
-      for (var i = 0; i < 12; i++) {
-        await tester.pump(const Duration(milliseconds: 50));
-      }
+      themeModeProvider.of(appContext(tester)).value = ThemeMode.dark;
+      await settle(tester);
 
-      expect(previewTheme(tester).brightness, Brightness.dark);
+      expect(strandTheme(tester).brightness, Brightness.dark);
       expect(tester.takeException(), isNull);
     });
 
     testWidgets('picking a theme applies the accent scheme', (tester) async {
       await pump(tester);
-      await tester.pump();
 
       // Picked from near the top of the list: the popover scrolls, and an
       // option below the fold is found but not hit-testable.
       await choose(tester, 'Theme', 'Blue');
 
       expect(
-        previewTheme(tester).colorScheme.primary,
+        strandTheme(tester).colorScheme.primary,
         AccentScheme.blueLight.primary,
       );
     });
 
-    testWidgets('picking a base colour keeps the neutrals separate', (
-      tester,
-    ) async {
+    testWidgets('picking a base colour changes the neutrals', (tester) async {
       await pump(tester);
-      await tester.pump();
 
-      await choose(tester, 'Base Color', 'Mist');
+      await choose(tester, 'Base Color', 'Zinc');
 
       expect(
-        previewTheme(tester).colorScheme.background,
-        const MistColorScheme.light().background,
+        strandTheme(tester).colorScheme.background,
+        const ZincColorScheme.light().background,
       );
     });
 
@@ -335,11 +359,10 @@ void main() {
       tester,
     ) async {
       await pump(tester);
-      await tester.pump();
 
       await choose(tester, 'Chart Color', 'Green');
 
-      final scheme = previewTheme(tester).colorScheme;
+      final scheme = strandTheme(tester).colorScheme;
       expect(scheme.chart1, AccentScheme.greenLight.chart1);
       // The primary is untouched by the chart picker.
       expect(scheme.primary, isNot(AccentScheme.greenLight.primary));
@@ -347,26 +370,43 @@ void main() {
 
     testWidgets('takes over a narrow viewport', (tester) async {
       await pump(tester, size: const Size(600, 1400));
-      await tester.pump();
 
       expect(find.text('Style'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('re-themes the app around it, not just the playground', (
-      tester,
-    ) async {
+    testWidgets('re-themes both halves of the app', (tester) async {
       await pump(tester);
-      await tester.pump();
 
-      await choose(tester, 'Base Color', 'Mist');
+      await choose(tester, 'Base Color', 'Zinc');
+      await choose(tester, 'Style', 'Lyra');
 
-      // The shell's own chrome is themed from the same configuration.
-      final shellTheme = Theme.of(tester.element(find.text('Playground')));
-      expect(
-        shellTheme.colorScheme.background,
-        const MistColorScheme.light().background,
+      final zinc = const ZincColorScheme.light().background;
+      expect(strandTheme(tester).colorScheme.background, zinc);
+      expect(strandTheme(tester).style, StyleTokens.lyra);
+
+      // The component library is themed from the same configuration.
+      await openComponentLibrary(tester);
+      final docsTheme = Theme.of(
+        tester.element(find.byType(ComponentsScreen)),
       );
+      expect(docsTheme.colorScheme.background, zinc);
+      expect(docsTheme.style, StyleTokens.lyra);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('Reset returns to the package default look', (tester) async {
+      await pump(tester);
+      await choose(tester, 'Style', 'Nova');
+      expect(strandTheme(tester).style, StyleTokens.nova);
+
+      await tester.tap(find.text('Reset'));
+      await settle(tester);
+      expect(
+        themeConfigProvider.of(appContext(tester)).value,
+        const ThemeEditorConfig(),
+      );
+      expect(strandTheme(tester).style, StyleTokens.finesse);
     });
   });
 
@@ -584,8 +624,8 @@ void main() {
     });
 
     test('picking a font changes the theme text', () {
-      const inter = ThemeEditorConfig();
-      const geist = ThemeEditorConfig(fontTitle: 'Geist');
+      const geist = ThemeEditorConfig();
+      const inter = ThemeEditorConfig(fontTitle: 'Inter');
       expect(inter.textTheme.family, isNot(geist.textTheme.family));
     });
   });

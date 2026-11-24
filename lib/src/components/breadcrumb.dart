@@ -1,11 +1,11 @@
 import 'package:finesse/src/components/button.dart';
 import 'package:finesse/src/components/popover.dart';
+import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/raw_components/portal.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:flutter/widgets.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// {@template Breadcrumb}
 /// A breadcrumb navigation component that displays the current page location

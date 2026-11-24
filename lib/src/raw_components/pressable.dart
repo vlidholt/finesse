@@ -1,5 +1,4 @@
 import 'package:finesse/src/theme/theme.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 /// Builds a widget from the interaction states of a [Pressable].

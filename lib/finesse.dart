@@ -15,7 +15,6 @@ export 'package:flutter_animate/flutter_animate.dart' hide Effect;
 // docs use. The rest of `intl` (Intl, Bidi, plural/gender helpers, …) is not
 // part of this package's API.
 export 'package:intl/intl.dart' show DateFormat, NumberFormat;
-export 'package:phosphor_flutter/phosphor_flutter.dart';
 // Required by FinesseTable's public signature; FinesseTableCell extends
 // TableViewCell.
 export 'package:two_dimensional_scrollables/two_dimensional_scrollables.dart'
@@ -81,8 +80,8 @@ export 'src/components/layout.dart';
 export 'src/components/list_tile.dart';
 export 'src/components/menubar.dart';
 export 'src/components/navigation_bar.dart';
-export 'src/components/page_container.dart';
 export 'src/components/otp_field.dart' hide kInvisibleCharCode;
+export 'src/components/page_container.dart';
 export 'src/components/pagination.dart';
 export 'src/components/popover.dart';
 export 'src/components/progress_bar.dart';
@@ -121,6 +120,7 @@ export 'src/i18n/localizations_delegate.dart';
 // AppLocaleUtils collides with the one slang generates in an app.
 export 'src/i18n/strings.g.dart'
     show FinesseLocale, FinesseLocalizationsData, FinesseLocalizationsDataEn;
+export 'src/icons/phosphor_icons.dart';
 // Raw Components
 export 'src/raw_components/focusable.dart';
 export 'src/raw_components/keyboard_toolbar.dart';
@@ -130,34 +130,25 @@ export 'src/raw_components/roving_focus.dart';
 // App Themes & Color Schemes
 export 'src/theme/color_scheme/accent.dart';
 export 'src/theme/color_scheme/base.dart';
-export 'src/theme/color_scheme/blue.dart';
-export 'src/theme/color_scheme/gray.dart';
-export 'src/theme/color_scheme/green.dart';
-export 'src/theme/color_scheme/mauve.dart';
-export 'src/theme/color_scheme/mist.dart';
 export 'src/theme/color_scheme/neutral.dart';
-export 'src/theme/color_scheme/olive.dart';
-export 'src/theme/color_scheme/orange.dart';
-export 'src/theme/color_scheme/red.dart';
-export 'src/theme/color_scheme/rose.dart';
-export 'src/theme/color_scheme/slate.dart';
 export 'src/theme/color_scheme/stone.dart';
 export 'src/theme/color_scheme/teal.dart';
-export 'src/theme/color_scheme/taupe.dart';
-export 'src/theme/color_scheme/violet.dart';
-export 'src/theme/color_scheme/yellow.dart';
 export 'src/theme/color_scheme/zinc.dart';
 // Component Themes
 export 'src/theme/components/accordion.dart';
 export 'src/theme/components/alert.dart';
+export 'src/theme/components/app_bar.dart';
 export 'src/theme/components/avatar.dart';
 export 'src/theme/components/badge.dart';
+export 'src/theme/components/bottom_navigation_bar.dart';
 export 'src/theme/components/breadcrumb.dart';
 export 'src/theme/components/button.dart';
 export 'src/theme/components/button_sizes.dart';
 export 'src/theme/components/calendar.dart';
 export 'src/theme/components/card.dart';
+export 'src/theme/components/chat_bubble.dart';
 export 'src/theme/components/checkbox.dart';
+export 'src/theme/components/chip.dart';
 export 'src/theme/components/collapsible.dart';
 export 'src/theme/components/command.dart';
 export 'src/theme/components/context_menu.dart';
@@ -167,20 +158,15 @@ export 'src/theme/components/default_keyboard_toolbar.dart';
 export 'src/theme/components/dialog.dart';
 export 'src/theme/components/divider.dart';
 export 'src/theme/components/empty.dart';
+export 'src/theme/components/glass.dart';
+export 'src/theme/components/icon_tile.dart';
+export 'src/theme/components/indicator_badge.dart';
 export 'src/theme/components/input_decorator.dart';
 export 'src/theme/components/kbd.dart';
-export 'src/theme/components/glass.dart';
-export 'src/theme/components/app_bar.dart';
-export 'src/theme/components/navigation_bar.dart';
-export 'src/theme/components/bottom_navigation_bar.dart';
-export 'src/theme/components/chip.dart';
-export 'src/theme/components/list_tile.dart';
-export 'src/theme/components/chat_bubble.dart';
-export 'src/theme/components/indicator_badge.dart';
-export 'src/theme/components/icon_tile.dart';
-export 'src/theme/components/timeline.dart';
 export 'src/theme/components/layout.dart';
+export 'src/theme/components/list_tile.dart';
 export 'src/theme/components/menubar.dart';
+export 'src/theme/components/navigation_bar.dart';
 export 'src/theme/components/otp_field.dart';
 export 'src/theme/components/pagination.dart';
 export 'src/theme/components/popover.dart';
@@ -202,6 +188,7 @@ export 'src/theme/components/tabs.dart';
 export 'src/theme/components/text_field.dart';
 export 'src/theme/components/textarea.dart';
 export 'src/theme/components/time_picker.dart';
+export 'src/theme/components/timeline.dart';
 export 'src/theme/components/toast.dart';
 export 'src/theme/components/toggle.dart';
 export 'src/theme/components/tooltip.dart';

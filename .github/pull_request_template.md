@@ -16,7 +16,7 @@ To try this branch, add the following to your `pubspec.yaml`:
 ```yaml
 finesse:
     git:
-      url: https://github.com/serverpod/finesse
+      url: https://github.com/vlidholt/finesse
       ref: your-branch-name-here
 ```
 
@@ -27,15 +27,10 @@ finesse:
 - [ ] I listed at least one issue that this PR fixes in the description above.
 - [ ] I updated/added relevant documentation (doc comments with `///`).
 - [ ] I added new tests to check the change I am making.
-- [ ] I followed the [Data Driven Fixes] where supported.
 - [ ] All existing and new tests are passing.
-- [ ] Renamed or removed public API keeps a `@Deprecated` shim and has an entry in `lib/fix_data.yaml`.
+- [ ] Renamed or removed public API is listed under "Breaking changes" in `CHANGELOG.md`.
 - [ ] I updated the `CHANGELOG.md` file with a summary of changes made following the format already used.
 
-If you need help, consider asking on [Discord].
-
 <!-- Links -->
-[Contributor Guide]: https://github.com/serverpod/finesse/blob/main/CONTRIBUTING.md
+[Contributor Guide]: https://github.com/vlidholt/finesse/blob/main/CONTRIBUTING.md
 [Flutter Style Guide]: https://github.com/flutter/flutter/blob/main/docs/contributing/Style-guide-for-Flutter-repo.md
-[Discord]: https://serverpod.dev/discord
-[Data Driven Fixes]: https://github.com/flutter/flutter/blob/main/docs/contributing/Data-driven-Fixes.md

@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:boxy/flex.dart';
 import 'package:finesse/src/components/icon_button.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
+import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/theme/theme_scope.dart';
 import 'package:finesse/src/theme/themes/shadows.dart';
@@ -14,7 +15,6 @@ import 'package:finesse/src/utils/separated_iterable.dart';
 import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// {@template DialogRoute}
 /// A custom dialog route that allows specifying a `reverseTransitionDuration`.

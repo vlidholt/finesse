@@ -99,6 +99,11 @@ class ListTile extends StatelessWidget {
           child: child,
         );
 
+    // The scheme's colour is a default: a style that states its own colour —
+    // the caller's or the theme's — keeps it.
+    TextStyle coloured(TextStyle style, Color fallback) =>
+        style.color == null ? style.copyWith(color: fallback) : style;
+
     final row = Padding(
       padding:
           padding ??
@@ -117,17 +122,21 @@ class ListTile extends StatelessWidget {
               children: [
                 line(
                   title,
-                  (titleStyle ?? tile.titleStyle ?? theme.textTheme.large)
-                      .copyWith(color: theme.colorScheme.foreground),
+                  coloured(
+                    titleStyle ?? tile.titleStyle ?? theme.textTheme.large,
+                    theme.colorScheme.foreground,
+                  ),
                   titleMaxLines,
                 ),
                 if (subtitle != null)
                   line(
                     subtitle!,
-                    (subtitleStyle ??
-                            tile.subtitleStyle ??
-                            theme.textTheme.muted)
-                        .copyWith(color: theme.colorScheme.mutedForeground),
+                    coloured(
+                      subtitleStyle ??
+                          tile.subtitleStyle ??
+                          theme.textTheme.muted,
+                      theme.colorScheme.mutedForeground,
+                    ),
                     subtitleMaxLines,
                   ),
               ],

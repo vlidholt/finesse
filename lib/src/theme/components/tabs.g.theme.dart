@@ -91,6 +91,7 @@ mixin _$TabsTheme {
       tabShadows: t < 0.5 ? a.tabShadows : b.tabShadows,
       tabSelectedShadows: t < 0.5 ? a.tabSelectedShadows : b.tabSelectedShadows,
       tabSize: t < 0.5 ? a.tabSize : b.tabSize,
+      tabHeight: lerpDouble$(a.tabHeight, b.tabHeight, t),
       tabCursor: t < 0.5 ? a.tabCursor : b.tabCursor,
       tabHoverForegroundColor: Color.lerp(
         a.tabHoverForegroundColor,
@@ -153,6 +154,7 @@ mixin _$TabsTheme {
     List<BoxShadow>? tabShadows,
     List<BoxShadow>? tabSelectedShadows,
     ButtonSize? tabSize,
+    double? tabHeight,
     MouseCursor? tabCursor,
     Color? tabHoverForegroundColor,
     Color? tabPressedBackgroundColor,
@@ -199,6 +201,7 @@ mixin _$TabsTheme {
       tabShadows: tabShadows ?? _this.tabShadows,
       tabSelectedShadows: tabSelectedShadows ?? _this.tabSelectedShadows,
       tabSize: tabSize ?? _this.tabSize,
+      tabHeight: tabHeight ?? _this.tabHeight,
       tabCursor: tabCursor ?? _this.tabCursor,
       tabHoverForegroundColor:
           tabHoverForegroundColor ?? _this.tabHoverForegroundColor,
@@ -260,6 +263,7 @@ mixin _$TabsTheme {
       tabShadows: other.tabShadows,
       tabSelectedShadows: other.tabSelectedShadows,
       tabSize: other.tabSize,
+      tabHeight: other.tabHeight,
       tabCursor: other.tabCursor,
       tabHoverForegroundColor: other.tabHoverForegroundColor,
       tabPressedBackgroundColor: other.tabPressedBackgroundColor,
@@ -313,6 +317,7 @@ mixin _$TabsTheme {
         _other.tabShadows == _this.tabShadows &&
         _other.tabSelectedShadows == _this.tabSelectedShadows &&
         _other.tabSize == _this.tabSize &&
+        _other.tabHeight == _this.tabHeight &&
         _other.tabCursor == _this.tabCursor &&
         _other.tabHoverForegroundColor == _this.tabHoverForegroundColor &&
         _other.tabPressedBackgroundColor == _this.tabPressedBackgroundColor &&
@@ -357,6 +362,7 @@ mixin _$TabsTheme {
       _this.tabShadows,
       _this.tabSelectedShadows,
       _this.tabSize,
+      _this.tabHeight,
       _this.tabCursor,
       _this.tabHoverForegroundColor,
       _this.tabPressedBackgroundColor,

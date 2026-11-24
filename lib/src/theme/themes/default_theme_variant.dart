@@ -3,18 +3,23 @@ import 'dart:ui' show ImageFilter;
 
 import 'package:finesse/src/components/button.dart';
 import 'package:finesse/src/components/select.dart';
+import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/raw_components/portal.dart';
 import 'package:finesse/src/theme/color_scheme/base.dart';
 import 'package:finesse/src/theme/components/accordion.dart';
 import 'package:finesse/src/theme/components/alert.dart';
+import 'package:finesse/src/theme/components/app_bar.dart';
 import 'package:finesse/src/theme/components/avatar.dart';
 import 'package:finesse/src/theme/components/badge.dart';
+import 'package:finesse/src/theme/components/bottom_navigation_bar.dart';
 import 'package:finesse/src/theme/components/breadcrumb.dart';
 import 'package:finesse/src/theme/components/button.dart';
 import 'package:finesse/src/theme/components/button_sizes.dart';
 import 'package:finesse/src/theme/components/calendar.dart';
 import 'package:finesse/src/theme/components/card.dart';
+import 'package:finesse/src/theme/components/chat_bubble.dart';
 import 'package:finesse/src/theme/components/checkbox.dart';
+import 'package:finesse/src/theme/components/chip.dart';
 import 'package:finesse/src/theme/components/collapsible.dart';
 import 'package:finesse/src/theme/components/command.dart';
 import 'package:finesse/src/theme/components/context_menu.dart';
@@ -24,20 +29,14 @@ import 'package:finesse/src/theme/components/default_keyboard_toolbar.dart';
 import 'package:finesse/src/theme/components/dialog.dart';
 import 'package:finesse/src/theme/components/divider.dart';
 import 'package:finesse/src/theme/components/empty.dart';
-import 'package:finesse/src/theme/components/kbd.dart';
 import 'package:finesse/src/theme/components/glass.dart';
-import 'package:finesse/src/theme/components/app_bar.dart';
-import 'package:finesse/src/theme/components/navigation_bar.dart';
-import 'package:finesse/src/theme/components/bottom_navigation_bar.dart';
-import 'package:finesse/src/theme/components/chip.dart';
-import 'package:finesse/src/theme/components/list_tile.dart';
-import 'package:finesse/src/theme/components/chat_bubble.dart';
-import 'package:finesse/src/theme/components/indicator_badge.dart';
 import 'package:finesse/src/theme/components/icon_tile.dart';
-import 'package:finesse/src/theme/components/timeline.dart';
+import 'package:finesse/src/theme/components/indicator_badge.dart';
+import 'package:finesse/src/theme/components/kbd.dart';
 import 'package:finesse/src/theme/components/layout.dart';
-import 'package:finesse/src/theme/form_factor.dart';
+import 'package:finesse/src/theme/components/list_tile.dart';
 import 'package:finesse/src/theme/components/menubar.dart';
+import 'package:finesse/src/theme/components/navigation_bar.dart';
 import 'package:finesse/src/theme/components/otp_field.dart';
 import 'package:finesse/src/theme/components/pagination.dart';
 import 'package:finesse/src/theme/components/popover.dart';
@@ -59,9 +58,11 @@ import 'package:finesse/src/theme/components/tabs.dart';
 import 'package:finesse/src/theme/components/text_field.dart';
 import 'package:finesse/src/theme/components/textarea.dart';
 import 'package:finesse/src/theme/components/time_picker.dart';
+import 'package:finesse/src/theme/components/timeline.dart';
 import 'package:finesse/src/theme/components/toast.dart';
 import 'package:finesse/src/theme/components/toggle.dart';
 import 'package:finesse/src/theme/components/tooltip.dart';
+import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/radii.dart';
 import 'package:finesse/src/theme/spacing.dart';
 import 'package:finesse/src/theme/style.dart';
@@ -76,7 +77,6 @@ import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// The default [ThemeVariant]: shadcn/ui's v4 components, rendered in one
 /// of its styles.
@@ -86,7 +86,8 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 class DefaultThemeVariant extends ThemeVariant {
   /// Creates the variant.
   ///
-  /// [style] defaults to [StyleTokens.nova], [spacing] to the 4px step and
+  /// [style] defaults to [StyleTokens.finesse], [formFactor] to
+  /// [FormFactor.desktop], [spacing] to the 4px step and
   /// [menuTranslucent] to false. A null [menuColorScheme] makes menus follow
   /// [colorScheme].
   DefaultThemeVariant({
@@ -1639,6 +1640,7 @@ class DefaultThemeVariant extends ThemeVariant {
       ),
       gap: 8,
       tabsGap: scaled(style.tabsGap),
+      tabHeight: tabHeight == null ? null : scaled(tabHeight),
       expandContent: false,
       tabBackgroundColor: const Color(0x00000000),
       tabSelectedBackgroundColor: selectedFill,
@@ -1724,7 +1726,11 @@ class DefaultThemeVariant extends ThemeVariant {
       blur: opacity < 1 ? style.glassBlur : 0,
       saturation: opacity < 1 ? style.glassSaturation : 1,
       padding: EdgeInsets.symmetric(horizontal: scaled(style.pagePaddingX)),
-      maxWidth: style.pageMaxWidth,
+      // The bar's *content* is as wide as the page's padding box: in the
+      // Strand designs the logo sits one page margin outside the first
+      // card, and the 280-point search field only fits at that width. The
+      // cap applies outside the bar's own padding, hence the addition.
+      maxWidth: style.pageMaxWidth + 2 * scaled(style.pagePaddingX),
       gap: scaled(style.gapXl),
       titleStyle: style.title.apply(effectiveTextTheme.large),
     );

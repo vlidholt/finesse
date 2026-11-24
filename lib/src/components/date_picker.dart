@@ -4,6 +4,7 @@ import 'package:finesse/src/components/button.dart';
 import 'package:finesse/src/components/calendar.dart';
 import 'package:finesse/src/components/popover.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
+import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/raw_components/portal.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/theme.dart';
@@ -15,7 +16,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart' as intl;
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// Variants available for the [DatePicker] widget.
 enum DatePickerVariant {

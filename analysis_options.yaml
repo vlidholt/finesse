@@ -8,7 +8,6 @@ analyzer:
   exclude:
     - build/**
     - reference/**
-    - test_fixes/**
     - "**/*.g.dart"
     - "**/*.g.theme.dart"
 

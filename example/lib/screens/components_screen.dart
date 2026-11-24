@@ -150,11 +150,21 @@ class ComponentsScreenState extends State<ComponentsScreen> {
                   child: Divider.vertical(margin: EdgeInsets.zero),
                 ),
                 const SizedBox(width: 12),
-                Breadcrumb(
-                  children: [
-                    Text(selectedGroup.title, style: theme.textTheme.muted),
-                    Text(doc.title),
-                  ],
+                // Scrolls rather than overflows: on a phone a long section
+                // and page name do not fit beside the trigger.
+                Expanded(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Breadcrumb(
+                      children: [
+                        Text(
+                          selectedGroup.title,
+                          style: theme.textTheme.muted,
+                        ),
+                        Text(doc.title),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),

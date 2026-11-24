@@ -37,30 +37,13 @@ enum RadiusToken {
   full,
 }
 
-/// A corner-radius scale derived from one base radius.
-///
-/// shadcn/ui defines its scale relative to a single `--radius` custom
-/// property:
-///
-/// ```css
-/// --radius-sm: calc(var(--radius) * 0.6);
-/// --radius-md: calc(var(--radius) * 0.8);
-/// --radius-lg: var(--radius);
-/// --radius-xl: calc(var(--radius) * 1.4);
-/// ```
-///
-/// This package's `ThemeData.radius` is the *component* radius — the
-/// `rounded-md` step, since that is what button and input use — so the
-/// multipliers here are expressed relative to `md`. With the default 8px that
-/// reproduces shadcn's scale exactly: sm 6, md 8, lg 10, xl 14, 2xl 16,
-/// 3xl 24, 4xl 32.
 /// The factors that turn a theme's base (`md`) radius into the rest of the
 /// [RadiusToken] scale.
 ///
 /// The default is Tailwind's: 0.75, 1.25, 1.75, 2, 3 and 4 times the base. A
 /// style with its own rhythm supplies its own; Finesse's default style uses
-/// `RadiusScale(sm: .6, lg: 1.2, xl: 1.6, xl2: 2, xl3: 2.4, xl4: 3.2)`, which
-/// at a base of 10 gives 6, 12, 16, 20, 24 and 32.
+/// `RadiusScale(sm: .6, lg: 1.2, xl: 1.6, xl2: 1.8, xl3: 2, xl4: 2.4)`, which
+/// at a base of 10 gives 6, 12, 16, 18, 20 and 24.
 @immutable
 class RadiusScale {
   /// Creates a scale from the factor of each step above and below `md`.
@@ -110,6 +93,23 @@ class RadiusScale {
       'RadiusScale(sm: $sm, lg: $lg, xl: $xl, xl2: $xl2, xl3: $xl3, xl4: $xl4)';
 }
 
+/// A corner-radius scale derived from one base radius.
+///
+/// shadcn/ui defines its scale relative to a single `--radius` custom
+/// property:
+///
+/// ```css
+/// --radius-sm: calc(var(--radius) * 0.6);
+/// --radius-md: calc(var(--radius) * 0.8);
+/// --radius-lg: var(--radius);
+/// --radius-xl: calc(var(--radius) * 1.4);
+/// ```
+///
+/// This package's `ThemeData.radius` is the *component* radius — the
+/// `rounded-md` step, since that is what button and input use — so the
+/// multipliers here are expressed relative to `md`. With an 8px base and the
+/// default [RadiusScale] that reproduces shadcn's scale exactly: sm 6, md 8,
+/// lg 10, xl 14, 2xl 16, 3xl 24, 4xl 32. A style can supply its own [scale].
 @immutable
 class Radii {
   /// Creates a scale from the base (`md`) radius.

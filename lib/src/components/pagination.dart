@@ -1,6 +1,7 @@
 import 'package:finesse/src/components/button.dart';
 import 'package:finesse/src/components/icon_button.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
+import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/theme.dart';
@@ -8,7 +9,6 @@ import 'package:finesse/src/utils/border.dart';
 import 'package:finesse/src/utils/debug_check.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 const _transparent = Color(0x00000000);
 

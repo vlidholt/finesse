@@ -15,6 +15,7 @@ import 'package:flutter/widgets.dart';
 /// )
 /// ```
 ///
+/// The content is as wide as the window allows, up to the maximum width.
 /// The margins and the maximum width come from the theme's `LayoutTheme`, so
 /// they tighten on a phone and every screen built on a `PageContainer` lines
 /// up with the app bar. The safe area — which inside a `Scaffold` includes
@@ -65,7 +66,10 @@ class PageContainer extends StatelessWidget {
         constraints: BoxConstraints(
           maxWidth: maxWidth ?? layout.pageMaxWidth ?? double.infinity,
         ),
-        child: Padding(
+        // Fill the page width (up to the maximum) rather than hugging the
+        // content, so a column of cards does not need to ask for it.
+        child: Container(
+          width: double.infinity,
           padding: effectivePadding,
           // The safe area has been spent; descendants must not add it again.
           child: MediaQuery.removePadding(

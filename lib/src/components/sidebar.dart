@@ -4,6 +4,7 @@ import 'package:finesse/src/components/divider.dart';
 import 'package:finesse/src/components/sheet.dart';
 import 'package:finesse/src/components/skeleton.dart';
 import 'package:finesse/src/components/tooltip.dart';
+import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/raw_components/focusable.dart';
 import 'package:finesse/src/raw_components/portal.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
@@ -14,7 +15,6 @@ import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// Which edge of the layout the sidebar sits on.
 ///

@@ -126,7 +126,19 @@ class ThemeDataTween extends Tween<ThemeData> {
   ThemeDataTween({super.begin, super.end});
 
   @override
-  ThemeData lerp(double t) => ThemeData.lerp(begin, end, t)!;
+  ThemeData lerp(double t) {
+    final from = begin;
+    final to = end;
+    // Two form factors are two layouts, not the ends of a range: 40-point
+    // buttons on the way from 36 to 44 belong to neither. Interpolating would
+    // also keep the old layout's metrics on screen for half the transition
+    // while the window is already the new size, which is when things
+    // overflow. So a change of form factor takes effect at once.
+    if (from != null && to != null && from.formFactor != to.formFactor) {
+      return to;
+    }
+    return ThemeData.lerp(from, to, t)!;
+  }
 }
 
 /// Animated version of [Theme] which automatically transitions the colors

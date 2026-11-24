@@ -9,7 +9,7 @@ major version of `finesse`.
 
 Do not open a public issue for a security problem. Use GitHub's private
 vulnerability reporting instead:
-<https://github.com/serverpod/finesse/security/advisories/new>.
+<https://github.com/vlidholt/finesse/security/advisories/new>.
 
 Include the affected version, a description of the problem, and steps to
 reproduce it. We acknowledge reports within three working days and keep you

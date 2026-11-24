@@ -8,9 +8,7 @@
 /linux/
 /windows/
 /reference/
-/specs/
 /scripts/
-/test_fixes/
 /CLAUDE.md
 /build.yaml
 /coverage/

@@ -49,8 +49,9 @@ enum SurfaceFill {
 
 /// The metrics that distinguish one shadcn/ui *style* from another.
 ///
-/// shadcn ships eight named styles. They are not colour variations — they are
-/// full geometry sets. Comparing `registry/styles/style-*.css` shows the same
+/// shadcn ships eight named styles, of which finesse keeps three — [nova],
+/// [maia] and [lyra] — beside its own [finesse]. They are not colour
+/// variations — they are full geometry sets. Comparing `registry/styles/style-*.css` shows the same
 /// components rebuilt at different sizes: a `mira` button is 28px tall with 8px
 /// of horizontal padding while a `sera` button is 40px tall with 24px, and
 /// everything around them — inputs, menu rows, card padding, slider tracks,
@@ -80,9 +81,9 @@ enum SurfaceFill {
 /// to a theme variant reshapes every component at once, which is what makes a
 /// style switch a single setting rather than a second theme.
 ///
-/// The field defaults here are `vega`'s, so a custom style only has to state
-/// what it changes. That is separate from the *theme's* default style, which
-/// is [nova] — shadcn's own `DEFAULT_CONFIG.style`.
+/// The field defaults here are shadcn's `vega`, so a custom style only has to
+/// state what it changes. That is separate from the *theme's* default style,
+/// which is [finesse].
 @immutable
 class StyleTokens {
   /// Creates a style. Only [name] is required; every other field defaults to
@@ -994,7 +995,7 @@ class StyleTokens {
   /// Null derives them: see [forFormFactor].
   final StyleTokens? mobile;
 
-  // --- shadcn/ui's eight styles ------------------------------------------
+  // --- The shipped styles -------------------------------------------------
 
   static const _finesseCardShadow = [
     BoxShadow(color: Color(0x0d193c4a), offset: Offset(0, 1), blurRadius: 2),
@@ -1357,8 +1358,7 @@ class StyleTokens {
     gapXl: 16,
   );
 
-  /// vega, one size down and a step rounder — and shadcn's default style,
-  /// which is what a theme uses when none is given.
+  /// shadcn's default style: its `vega` one size down and a step rounder.
   static const nova = StyleTokens(
     name: 'nova',
     calendarCellSize: 28,
@@ -1516,7 +1516,7 @@ class StyleTokens {
   /// Every built-in style, the default first.
   static const all = <StyleTokens>[finesse, nova, maia, lyra];
 
-  /// Returns the style shadcn/ui calls [name], such as `nova`.
+  /// Returns the built-in style called [name], such as `finesse` or `nova`.
   ///
   /// Throws an [ArgumentError] for an unknown name.
   static StyleTokens fromName(String name) => all.firstWhere(

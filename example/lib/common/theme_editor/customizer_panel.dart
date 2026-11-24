@@ -3,13 +3,13 @@ import 'package:example/common/theme_editor/fonts.dart';
 import 'package:example/common/theme_editor/picker.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/material.dart'
-    hide Dialog, Divider, Theme, ThemeData, showDialog;
+    hide Dialog, Divider, IconButton, Theme, ThemeData, showDialog;
 import 'package:flutter/services.dart';
 
 /// shadcn/ui's `/create` customizer, as a panel docked beside the app.
 ///
-/// It edits the configuration the whole app is themed from — the top
-/// navigation, the playground and the docs browser all follow it. The panel
+/// It edits the configuration the whole app is themed from — Strand and the
+/// component library both follow it. The panel
 /// itself does not: it renders as fixed dark chrome at an unscaled text size,
 /// because a panel that followed the configuration becomes unreadable while
 /// editing a light, menu-inverted or heavily scaled theme.
@@ -19,6 +19,7 @@ class ThemeCustomizerPanel extends StatelessWidget {
     required this.config,
     required this.onChanged,
     this.showLeadingBorder = true,
+    this.onClose,
   });
 
   final ThemeEditorConfig config;
@@ -27,6 +28,11 @@ class ThemeCustomizerPanel extends StatelessWidget {
   /// Drawn when the panel sits beside the app; dropped when it fills a narrow
   /// viewport and there is nothing to separate it from.
   final bool showLeadingBorder;
+
+  /// When given, the panel opens with a title row and a close button that
+  /// calls this. The shell passes it when the panel covers a narrow
+  /// viewport, where nothing else on screen could close it.
+  final VoidCallback? onClose;
 
   /// Width of the docked panel on a wide viewport.
   static const width = 272.0;
@@ -40,6 +46,9 @@ class ThemeCustomizerPanel extends StatelessWidget {
     brightness: Brightness.dark,
     colorScheme: const NeutralColorScheme.dark(),
     radius: const BorderRadius.all(Radius.circular(8)),
+    // Pinned too: the panel was laid out against shadcn's compact Nova
+    // metrics, and the package default — Finesse — is roomier.
+    style: StyleTokens.nova,
   );
 
   @override
@@ -69,6 +78,27 @@ class ThemeCustomizerPanel extends StatelessWidget {
       ),
       child: Column(
         children: [
+          if (onClose != null)
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                14,
+                8 + MediaQuery.paddingOf(context).top,
+                8,
+                0,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text('Theme editor', style: theme.textTheme.large),
+                  ),
+                  IconButton.ghost(
+                    icon: const Icon(PhosphorIconsRegular.x),
+                    semanticLabel: 'Close the theme editor',
+                    onPressed: onClose,
+                  ),
+                ],
+              ),
+            ),
           Expanded(
             child: _Settings(config: config, onChanged: onChanged),
           ),
@@ -278,7 +308,9 @@ class _Actions extends StatelessWidget {
               Expanded(
                 child: Button.outline(
                   onPressed: () => onChanged(const ThemeEditorConfig()),
-                  leading: const Icon(PhosphorIconsRegular.arrowCounterClockwise),
+                  leading: const Icon(
+                    PhosphorIconsRegular.arrowCounterClockwise,
+                  ),
                   child: const Text('Reset'),
                 ),
               ),

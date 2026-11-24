@@ -1,14 +1,14 @@
 # finesse
 
 [![pub package](https://img.shields.io/pub/v/finesse.svg)](https://pub.dev/packages/finesse)
-[![Flutter test](https://github.com/serverpod/finesse/actions/workflows/flutter-test.yaml/badge.svg)](https://github.com/serverpod/finesse/actions/workflows/flutter-test.yaml)
+[![Flutter test](https://github.com/vlidholt/finesse/actions/workflows/flutter-test.yaml/badge.svg)](https://github.com/vlidholt/finesse/actions/workflows/flutter-test.yaml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 A Flutter port of [shadcn/ui](https://ui.shadcn.com). `finesse` provides more than 40 components as plain Flutter widgets, themed by one `ThemeData`, with no dependency on Material or Cupertino.
 
-[![Live demo](https://raw.githubusercontent.com/serverpod/finesse/main/assets/screenshot.png)](https://finesse.serverpod.dev/)
+[![Live demo](https://raw.githubusercontent.com/vlidholt/finesse/main/assets/screenshot.png)](https://vlidholt.github.io/finesse/)
 
-Live component browser and docs: **<https://finesse.serverpod.dev/>**
+Live component browser and docs: **<https://vlidholt.github.io/finesse/>**
 
 ## Features
 
@@ -79,7 +79,7 @@ class HomePage extends StatelessWidget {
 }
 ```
 
-The [live docs](https://finesse.serverpod.dev/) give the full component reference. Each page pairs a live preview with the exact source that renders it. The site also has guides on theming, styles, layout, forms, and responsive design.
+The [live docs](https://vlidholt.github.io/finesse/) give the full component reference. Each page pairs a live preview with the exact source that renders it. The site also has guides on theming, styles, layout, forms, and responsive design.
 
 ## Fonts
 
@@ -148,7 +148,7 @@ Upgrading from 0.x? See [MIGRATION.md](MIGRATION.md).
 
 ## Not yet available
 
-These shadcn/ui components have no `finesse` equivalent yet: navigation menu, hover card, drawer, carousel, chart, combobox (partly covered by `Select.withSearch`), aspect ratio, native select, and the layout primitives button group, input group, field and item. The [issue tracker](https://github.com/serverpod/finesse/issues) is the place to ask for one.
+These shadcn/ui components have no `finesse` equivalent yet: navigation menu, hover card, drawer, carousel, chart, combobox (partly covered by `Select.withSearch`), aspect ratio, native select, and the layout primitives button group, input group, field and item. The [issue tracker](https://github.com/vlidholt/finesse/issues) is the place to ask for one.
 
 ## Repository layout
 
@@ -165,7 +165,7 @@ Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for how to set
 
 ## Credits
 
-`finesse` began as [flutter-shadcn-ui](https://github.com/nank1ro/flutter-shadcn-ui) by [Alexandru Mariuti](https://github.com/nank1ro). It is now maintained by [Serverpod](https://serverpod.dev).
+`finesse` is a fork of [shad](https://github.com/serverpod/shad) by [Serverpod](https://serverpod.dev), which began as [flutter-shadcn-ui](https://github.com/nank1ro/flutter-shadcn-ui) by [Alexandru Mariuti](https://github.com/nank1ro). Its icons are [Phosphor Icons](https://phosphoricons.com), bundled under the MIT License.
 
 ## License
 

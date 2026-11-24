@@ -101,103 +101,113 @@ class Chip extends StatelessWidget {
     final radius = chip.radius ?? theme.radii.full;
     final onTap = onSelected != null ? () => onSelected!(!selected) : onPressed;
 
+    Widget buildChip(BuildContext context, Set<WidgetState> states) {
+      final hovered = states.contains(WidgetState.hovered);
+      final Color fill;
+      final Color foreground;
+      final Color outline;
+      if (selected) {
+        fill = chip.selectedBackgroundColor ?? scheme.accent;
+        foreground = chip.selectedForegroundColor ?? scheme.accentForeground;
+        outline = chip.selectedBorderColor ?? scheme.accentBorder;
+      } else {
+        foreground =
+            foregroundColor ?? chip.foregroundColor ?? scheme.foregroundSubtle;
+        switch (variant) {
+          case ChipVariant.outline:
+            fill = hovered
+                ? chip.hoverBackgroundColor ?? scheme.muted
+                : backgroundColor ?? chip.backgroundColor ?? scheme.card;
+            outline = borderColor ?? chip.borderColor ?? scheme.border;
+          case ChipVariant.soft:
+            fill = hovered ? scheme.secondary : backgroundColor ?? scheme.muted;
+            outline = borderColor ?? scheme.border;
+          case ChipVariant.dashed:
+            fill = hovered
+                ? chip.hoverBackgroundColor ?? scheme.muted
+                : backgroundColor ?? const Color(0x00000000);
+            outline = borderColor ?? scheme.borderStrong;
+        }
+      }
+      final borderWidth = chip.borderWidth ?? 1;
+      final dashed = variant == ChipVariant.dashed && !selected;
+      final textStyle = (chip.textStyle ?? theme.textTheme.small).copyWith(
+        color: foreground,
+      );
+
+      Widget content = Padding(
+        padding:
+            padding ??
+            chip.padding ??
+            const EdgeInsets.symmetric(horizontal: 12),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          spacing: chip.gap ?? 6,
+          children: [
+            ?leading,
+            Flexible(child: label),
+            ?trailing,
+          ],
+        ),
+      );
+      content = DefaultTextStyle.merge(
+        style: textStyle,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        softWrap: false,
+        child: IconTheme.merge(
+          data: IconThemeData(size: chip.iconSize ?? 16, color: foreground),
+          child: content,
+        ),
+      );
+
+      Widget box = AnimatedContainer(
+        duration: const Duration(milliseconds: 120),
+        height: height ?? chip.height ?? 32,
+        decoration: BoxDecoration(
+          color: fill,
+          borderRadius: radius,
+          border: dashed
+              ? null
+              : Border.all(color: outline, width: borderWidth),
+        ),
+        child: content,
+      );
+      if (dashed) {
+        box = CustomPaint(
+          foregroundPainter: _DashedBorderPainter(
+            color: outline,
+            width: borderWidth,
+            radius: radius,
+          ),
+          child: box,
+        );
+      }
+      return FocusRing(
+        visible: states.contains(WidgetState.focused),
+        borderRadius: radius,
+        child: box,
+      );
+    }
+
+    // A chip with neither callback is a tag, not a control: wrapping it in a
+    // `Pressable` would announce every skill or label as a disabled button.
+    if (onTap == null) {
+      final tag = buildChip(context, const <WidgetState>{});
+      if (semanticLabel == null && !selected) return tag;
+      return Semantics(
+        label: semanticLabel,
+        selected: selected ? true : null,
+        child: tag,
+      );
+    }
+
     return Pressable(
       onPressed: onTap,
       selected: selected,
       focusNode: focusNode,
       semanticLabel: semanticLabel,
-      builder: (context, states) {
-        final hovered = states.contains(WidgetState.hovered);
-        final Color fill;
-        final Color foreground;
-        final Color outline;
-        if (selected) {
-          fill = chip.selectedBackgroundColor ?? scheme.accent;
-          foreground = chip.selectedForegroundColor ?? scheme.accentForeground;
-          outline = chip.selectedBorderColor ?? scheme.accentBorder;
-        } else {
-          foreground =
-              foregroundColor ??
-              chip.foregroundColor ??
-              scheme.foregroundSubtle;
-          switch (variant) {
-            case ChipVariant.outline:
-              fill = hovered
-                  ? chip.hoverBackgroundColor ?? scheme.muted
-                  : backgroundColor ?? chip.backgroundColor ?? scheme.card;
-              outline = borderColor ?? chip.borderColor ?? scheme.border;
-            case ChipVariant.soft:
-              fill = hovered
-                  ? scheme.secondary
-                  : backgroundColor ?? scheme.muted;
-              outline = borderColor ?? scheme.border;
-            case ChipVariant.dashed:
-              fill = hovered
-                  ? chip.hoverBackgroundColor ?? scheme.muted
-                  : backgroundColor ?? const Color(0x00000000);
-              outline = borderColor ?? scheme.borderStrong;
-          }
-        }
-        final borderWidth = chip.borderWidth ?? 1;
-        final dashed = variant == ChipVariant.dashed && !selected;
-        final textStyle = (chip.textStyle ?? theme.textTheme.small).copyWith(
-          color: foreground,
-        );
-
-        Widget content = Padding(
-          padding:
-              padding ??
-              chip.padding ??
-              const EdgeInsets.symmetric(horizontal: 12),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            spacing: chip.gap ?? 6,
-            children: [
-              ?leading,
-              Flexible(child: label),
-              ?trailing,
-            ],
-          ),
-        );
-        content = DefaultTextStyle.merge(
-          style: textStyle,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          softWrap: false,
-          child: IconTheme.merge(
-            data: IconThemeData(size: chip.iconSize ?? 16, color: foreground),
-            child: content,
-          ),
-        );
-
-        Widget box = AnimatedContainer(
-          duration: const Duration(milliseconds: 120),
-          height: height ?? chip.height ?? 32,
-          decoration: BoxDecoration(
-            color: fill,
-            borderRadius: radius,
-            border: dashed
-                ? null
-                : Border.all(color: outline, width: borderWidth),
-          ),
-          child: content,
-        );
-        if (dashed) {
-          box = CustomPaint(
-            foregroundPainter: _DashedBorderPainter(
-              color: outline,
-              width: borderWidth,
-              radius: radius,
-            ),
-            child: box,
-          );
-        }
-        return FocusRing(
-          visible: states.contains(WidgetState.focused),
-          borderRadius: radius,
-          child: box,
-        );
-      },
+      builder: buildChip,
     );
   }
 }

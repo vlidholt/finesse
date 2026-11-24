@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:finesse/src/components/button.dart';
 import 'package:finesse/src/components/icon_button.dart';
 import 'package:finesse/src/components/select.dart';
+import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/border.dart';
@@ -11,7 +12,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart' hide TextDirection;
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// Encapsulates a start and end [DateTime] that represent the range of dates.
 ///

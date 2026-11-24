@@ -27,6 +27,7 @@ class IndicatorBadge extends StatelessWidget {
     this.visible = true,
     this.alignment = AlignmentDirectional.topEnd,
     this.offset = Offset.zero,
+    this.overhang = .35,
     this.color,
     this.foregroundColor,
     this.ringColor,
@@ -60,6 +61,12 @@ class IndicatorBadge extends StatelessWidget {
   /// A nudge from that corner, in logical pixels. Positive x moves towards
   /// the end, positive y downwards.
   final Offset offset;
+
+  /// How far the badge hangs outside the corner it is pinned to, as a
+  /// fraction of its own size. The default suits a count on an icon; 0 keeps
+  /// the badge inside [child]'s bounds, flush with the corner — a presence
+  /// dot on a round avatar.
+  final double overhang;
 
   /// The badge's fill. Defaults to the theme's destructive colour.
   final Color? color;
@@ -164,9 +171,13 @@ class IndicatorBadge extends StatelessWidget {
             child: Transform.translate(
               offset: Offset(offset.dx * direction, offset.dy),
               child: FractionalTranslation(
-                // Centre the badge on the corner it is pinned to, then pull
-                // it a third of the way back in so it overlaps the child.
-                translation: Offset(resolved.x * .35, resolved.y * .35),
+                // Aligned, the badge sits inside the corner it is pinned to;
+                // push it part of the way out so it overlaps the child's
+                // edge.
+                translation: Offset(
+                  resolved.x * overhang,
+                  resolved.y * overhang,
+                ),
                 child: badge,
               ),
             ),

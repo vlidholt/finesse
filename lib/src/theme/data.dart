@@ -2,14 +2,18 @@ import 'package:finesse/src/theme/color_scheme/base.dart';
 import 'package:finesse/src/theme/color_scheme/teal.dart';
 import 'package:finesse/src/theme/components/accordion.dart';
 import 'package:finesse/src/theme/components/alert.dart';
+import 'package:finesse/src/theme/components/app_bar.dart';
 import 'package:finesse/src/theme/components/avatar.dart';
 import 'package:finesse/src/theme/components/badge.dart';
+import 'package:finesse/src/theme/components/bottom_navigation_bar.dart';
 import 'package:finesse/src/theme/components/breadcrumb.dart';
 import 'package:finesse/src/theme/components/button.dart';
 import 'package:finesse/src/theme/components/button_sizes.dart';
 import 'package:finesse/src/theme/components/calendar.dart';
 import 'package:finesse/src/theme/components/card.dart';
+import 'package:finesse/src/theme/components/chat_bubble.dart';
 import 'package:finesse/src/theme/components/checkbox.dart';
+import 'package:finesse/src/theme/components/chip.dart';
 import 'package:finesse/src/theme/components/collapsible.dart';
 import 'package:finesse/src/theme/components/command.dart';
 import 'package:finesse/src/theme/components/context_menu.dart';
@@ -19,19 +23,14 @@ import 'package:finesse/src/theme/components/default_keyboard_toolbar.dart';
 import 'package:finesse/src/theme/components/dialog.dart';
 import 'package:finesse/src/theme/components/divider.dart';
 import 'package:finesse/src/theme/components/empty.dart';
-import 'package:finesse/src/theme/components/kbd.dart';
 import 'package:finesse/src/theme/components/glass.dart';
-import 'package:finesse/src/theme/components/app_bar.dart';
-import 'package:finesse/src/theme/components/navigation_bar.dart';
-import 'package:finesse/src/theme/components/bottom_navigation_bar.dart';
-import 'package:finesse/src/theme/components/chip.dart';
-import 'package:finesse/src/theme/components/list_tile.dart';
-import 'package:finesse/src/theme/components/chat_bubble.dart';
-import 'package:finesse/src/theme/components/indicator_badge.dart';
 import 'package:finesse/src/theme/components/icon_tile.dart';
-import 'package:finesse/src/theme/components/timeline.dart';
+import 'package:finesse/src/theme/components/indicator_badge.dart';
+import 'package:finesse/src/theme/components/kbd.dart';
 import 'package:finesse/src/theme/components/layout.dart';
+import 'package:finesse/src/theme/components/list_tile.dart';
 import 'package:finesse/src/theme/components/menubar.dart';
+import 'package:finesse/src/theme/components/navigation_bar.dart';
 import 'package:finesse/src/theme/components/otp_field.dart';
 import 'package:finesse/src/theme/components/pagination.dart';
 import 'package:finesse/src/theme/components/popover.dart';
@@ -53,6 +52,7 @@ import 'package:finesse/src/theme/components/tabs.dart';
 import 'package:finesse/src/theme/components/text_field.dart';
 import 'package:finesse/src/theme/components/textarea.dart';
 import 'package:finesse/src/theme/components/time_picker.dart';
+import 'package:finesse/src/theme/components/timeline.dart';
 import 'package:finesse/src/theme/components/toast.dart';
 import 'package:finesse/src/theme/components/toggle.dart';
 import 'package:finesse/src/theme/components/tooltip.dart';
@@ -102,7 +102,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
   /// is true.
   factory ThemeData({
     /// The color scheme to use for the theme.
-    /// Defaults to [SlateColorScheme] based on the [brightness].
+    /// Defaults to [TealColorScheme] based on the [brightness].
     ColorScheme? colorScheme,
 
     /// The overall brightness of the theme, defaults to [Brightness.light].
@@ -183,9 +183,8 @@ class ThemeData extends BaseTheme with _$ThemeData {
     TextareaTheme? textareaTheme,
     DefaultKeyboardToolbarTheme? defaultKeyboardToolbarTheme,
 
-    /// The shadcn/ui style: the radius, focus-ring and label treatment shared
-    /// by every component. Defaults to [StyleTokens.nova], which is
-    /// shadcn's own default (`DEFAULT_CONFIG.style`).
+    /// The style: the radius, focus-ring and label treatment shared by every
+    /// component. Defaults to [StyleTokens.finesse].
     ///
     /// When a [variant] is also given, the variant is rebuilt with this style.
     StyleTokens? style,

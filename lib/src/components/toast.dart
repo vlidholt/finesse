@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:finesse/src/components/icon_button.dart';
+import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/theme/themes/shadows.dart';
 import 'package:finesse/src/utils/animate.dart';
@@ -10,7 +11,6 @@ import 'package:finesse/src/utils/responsive.dart';
 import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// A widget that manages and displays toasts within the widget tree.
 ///

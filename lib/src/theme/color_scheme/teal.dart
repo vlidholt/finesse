@@ -56,10 +56,6 @@ class TealColorScheme extends ColorScheme {
     super.custom,
   });
 
-  /// Creates the light variant of [TealColorScheme].
-  ///
-  /// Every colour defaults to its light-mode value.
-
   /// The light palette.
   const TealColorScheme.light({
     super.background = const Color(0xfff3f5f7),

@@ -1,6 +1,7 @@
 import 'package:finesse/src/components/dialog.dart';
 import 'package:finesse/src/components/text_field.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
+import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/raw_components/roving_focus.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/theme.dart';
@@ -9,7 +10,6 @@ import 'package:finesse/src/utils/border.dart';
 import 'package:finesse/src/utils/debug_check.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:flutter/widgets.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// A single selectable row in a [Command].
 ///

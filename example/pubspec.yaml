@@ -31,6 +31,8 @@ flutter:
   uses-material-design: true
   assets:
     - assets/
+    # The Strand demo's images; see assets/strand/README.md.
+    - assets/strand/
     # Each docs example directory is bundled so the doc pages can show the
     # exact source file that renders the preview.
     - lib/docs/examples/accordion/

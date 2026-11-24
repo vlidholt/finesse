@@ -1,9 +1,9 @@
 import 'package:finesse/src/components/button.dart';
 import 'package:finesse/src/components/icon_button.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
+import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// {@template DefaultKeyboardToolbar}
 /// A default keyboard toolbar with "Previous", "Next", and "Done" buttons.
