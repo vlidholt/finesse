@@ -81,10 +81,3 @@ class OtpFormField extends FinesseFormField<String> {
 
 /// The state of a [OtpFormField].
 class OtpFormFieldState extends FinesseFormFieldState<OtpFormField, String> {}
-
-/// The old name of [OtpFormFieldState].
-@Deprecated(
-  'Use OtpFormFieldState. '
-  'Will be removed in the next major version.',
-)
-typedef FormBuilderOtpFieldState = OtpFormFieldState;

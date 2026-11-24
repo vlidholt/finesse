@@ -39,35 +39,3 @@ abstract final class FinesseClipboard {
     PasteFilesErrorCallback callback,
   ) => impl.removePasteFilesErrorListener(callback);
 }
-
-/// Registers a listener for paste events containing file data.
-@Deprecated(
-  'Use FinesseClipboard.addPasteFilesListener. '
-  'Will be removed in the next major version.',
-)
-void addPasteFilesListener(PasteFilesCallback callback) =>
-    FinesseClipboard.addPasteFilesListener(callback);
-
-/// Removes a previously registered paste files listener.
-@Deprecated(
-  'Use FinesseClipboard.removePasteFilesListener. '
-  'Will be removed in the next major version.',
-)
-void removePasteFilesListener(PasteFilesCallback callback) =>
-    FinesseClipboard.removePasteFilesListener(callback);
-
-/// Registers a listener for errors that occur during paste file extraction.
-@Deprecated(
-  'Use FinesseClipboard.addPasteFilesErrorListener. '
-  'Will be removed in the next major version.',
-)
-void addPasteFilesErrorListener(PasteFilesErrorCallback callback) =>
-    FinesseClipboard.addPasteFilesErrorListener(callback);
-
-/// Removes a previously registered paste files error listener.
-@Deprecated(
-  'Use FinesseClipboard.removePasteFilesErrorListener. '
-  'Will be removed in the next major version.',
-)
-void removePasteFilesErrorListener(PasteFilesErrorCallback callback) =>
-    FinesseClipboard.removePasteFilesErrorListener(callback);

@@ -246,10 +246,6 @@ class TextFormField extends FinesseFormField<String> {
 
     /// {@macro TextField.onLineCountChanged}
     ValueChanged<int>? onLineCountChanged,
-    @Deprecated(
-      'Use onLineCountChanged. Will be removed in the next major version.',
-    )
-    ValueChanged<int>? onLineCountChange,
 
     /// {@macro TextField.editableTextSize}
     Size? editableTextSize,
@@ -348,7 +344,7 @@ class TextFormField extends FinesseFormField<String> {
              keyboardToolbarBuilder: keyboardToolbarBuilder,
              top: top,
              bottom: bottom,
-             onLineCountChanged: onLineCountChanged ?? onLineCountChange,
+             onLineCountChanged: onLineCountChanged,
              editableTextSize: editableTextSize,
              useBrowserContextMenu: useBrowserContextMenu,
              onPasteFiles: onPasteFiles,
@@ -430,10 +426,3 @@ class TextFormFieldState extends FinesseFormFieldState<TextFormField, String> {
     }
   }
 }
-
-/// The old name of [TextFormFieldState].
-@Deprecated(
-  'Use TextFormFieldState. '
-  'Will be removed in the next major version.',
-)
-typedef FormBuilderTextFieldState = TextFormFieldState;

@@ -235,7 +235,6 @@ mixin _$DatePickerTheme {
       ),
       cursor: t < 0.5 ? a.cursor : b.cursor,
       size: t < 0.5 ? a.size : b.size,
-      sizesTheme: ButtonSizesTheme.lerp(a.sizesTheme, b.sizesTheme, t),
       buttonVariant: t < 0.5 ? a.buttonVariant : b.buttonVariant,
       backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
       hoverBackgroundColor: Color.lerp(
@@ -257,11 +256,6 @@ mixin _$DatePickerTheme {
       pressedForegroundColor: Color.lerp(
         a.pressedForegroundColor,
         b.pressedForegroundColor,
-        t,
-      ),
-      disabledBackgroundColor: Color.lerp(
-        a.disabledBackgroundColor,
-        b.disabledBackgroundColor,
         t,
       ),
       buttonShadows: t < 0.5 ? a.buttonShadows : b.buttonShadows,
@@ -363,7 +357,6 @@ mixin _$DatePickerTheme {
     Duration? popoverReverseDuration,
     MouseCursor? cursor,
     ButtonSize? size,
-    ButtonSizesTheme? sizesTheme,
     ButtonVariant? buttonVariant,
     Color? backgroundColor,
     Color? hoverBackgroundColor,
@@ -371,7 +364,6 @@ mixin _$DatePickerTheme {
     Color? hoverForegroundColor,
     Color? pressedBackgroundColor,
     Color? pressedForegroundColor,
-    Color? disabledBackgroundColor,
     List<BoxShadow>? buttonShadows,
     Gradient? gradient,
     TextDecoration? textDecoration,
@@ -481,7 +473,6 @@ mixin _$DatePickerTheme {
           popoverReverseDuration ?? _this.popoverReverseDuration,
       cursor: cursor ?? _this.cursor,
       size: size ?? _this.size,
-      sizesTheme: sizesTheme ?? _this.sizesTheme,
       buttonVariant: buttonVariant ?? _this.buttonVariant,
       backgroundColor: backgroundColor ?? _this.backgroundColor,
       hoverBackgroundColor: hoverBackgroundColor ?? _this.hoverBackgroundColor,
@@ -491,8 +482,6 @@ mixin _$DatePickerTheme {
           pressedBackgroundColor ?? _this.pressedBackgroundColor,
       pressedForegroundColor:
           pressedForegroundColor ?? _this.pressedForegroundColor,
-      disabledBackgroundColor:
-          disabledBackgroundColor ?? _this.disabledBackgroundColor,
       buttonShadows: buttonShadows ?? _this.buttonShadows,
       gradient: gradient ?? _this.gradient,
       textDecoration: textDecoration ?? _this.textDecoration,
@@ -620,7 +609,6 @@ mixin _$DatePickerTheme {
       popoverReverseDuration: other.popoverReverseDuration,
       cursor: other.cursor,
       size: other.size,
-      sizesTheme: _this.sizesTheme?.merge(other.sizesTheme) ?? other.sizesTheme,
       buttonVariant: other.buttonVariant,
       backgroundColor: other.backgroundColor,
       hoverBackgroundColor: other.hoverBackgroundColor,
@@ -628,7 +616,6 @@ mixin _$DatePickerTheme {
       hoverForegroundColor: other.hoverForegroundColor,
       pressedBackgroundColor: other.pressedBackgroundColor,
       pressedForegroundColor: other.pressedForegroundColor,
-      disabledBackgroundColor: other.disabledBackgroundColor,
       buttonShadows: other.buttonShadows,
       gradient: other.gradient,
       textDecoration: other.textDecoration,
@@ -739,7 +726,6 @@ mixin _$DatePickerTheme {
         _other.popoverReverseDuration == _this.popoverReverseDuration &&
         _other.cursor == _this.cursor &&
         _other.size == _this.size &&
-        _other.sizesTheme == _this.sizesTheme &&
         _other.buttonVariant == _this.buttonVariant &&
         _other.backgroundColor == _this.backgroundColor &&
         _other.hoverBackgroundColor == _this.hoverBackgroundColor &&
@@ -747,7 +733,6 @@ mixin _$DatePickerTheme {
         _other.hoverForegroundColor == _this.hoverForegroundColor &&
         _other.pressedBackgroundColor == _this.pressedBackgroundColor &&
         _other.pressedForegroundColor == _this.pressedForegroundColor &&
-        _other.disabledBackgroundColor == _this.disabledBackgroundColor &&
         _other.buttonShadows == _this.buttonShadows &&
         _other.gradient == _this.gradient &&
         _other.textDecoration == _this.textDecoration &&
@@ -837,7 +822,6 @@ mixin _$DatePickerTheme {
       _this.popoverReverseDuration,
       _this.cursor,
       _this.size,
-      _this.sizesTheme,
       _this.buttonVariant,
       _this.backgroundColor,
       _this.hoverBackgroundColor,
@@ -845,7 +829,6 @@ mixin _$DatePickerTheme {
       _this.hoverForegroundColor,
       _this.pressedBackgroundColor,
       _this.pressedForegroundColor,
-      _this.disabledBackgroundColor,
       _this.buttonShadows,
       _this.gradient,
       _this.textDecoration,

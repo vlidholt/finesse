@@ -9,18 +9,6 @@ import 'package:theme_extensions_builder_annotation/theme_extensions_builder_ann
 
 part 'select.g.theme.dart';
 
-/// The minimum width of a select's trigger and options when none is set.
-@Deprecated(
-  'Use Select.defaultMinWidth. Will be removed in the next major version.',
-)
-const kDefaultSelectMinWidth = 128.0;
-
-/// The maximum height of a select's options when none is set.
-@Deprecated(
-  'Use Select.defaultMaxHeight. Will be removed in the next major version.',
-)
-const kDefaultSelectMaxHeight = 384.0;
-
 /// {@template SelectTheme}
 /// Theme for the `Select` widget.
 /// {@endtemplate}

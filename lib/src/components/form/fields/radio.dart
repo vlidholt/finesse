@@ -146,10 +146,3 @@ class RadioGroupFormFieldState<T>
     }
   }
 }
-
-/// The old name of [RadioGroupFormFieldState].
-@Deprecated(
-  'Use RadioGroupFormFieldState. '
-  'Will be removed in the next major version.',
-)
-typedef FormBuilderRadioGroupState<T> = RadioGroupFormFieldState<T>;

@@ -73,12 +73,6 @@ class DatePickerFormField extends FinesseFormField<DateTime> {
     /// {@macro Calendar.multipleSelected}
     List<DateTime>? multipleSelected,
 
-    @Deprecated(
-      'The date picker has no multiple-selection mode, so this is never '
-      'called. Will be removed in the next major version.',
-    )
-    ValueChanged<List<DateTime>>? onMultipleChanged,
-
     /// {@macro Calendar.showOutsideDays}
     bool? showOutsideDays,
 
@@ -252,11 +246,6 @@ class DatePickerFormField extends FinesseFormField<DateTime> {
 
     /// {@macro Calendar.selectedDayButtonOutsideMonthVariant}
     ButtonVariant? selectedDayButtonOutsideMonthVariant,
-    @Deprecated(
-      'Use selectedDayButtonOutsideMonthVariant. '
-      'Will be removed in the next major version.',
-    )
-    ButtonVariant? selectedDayButtonOusideMonthVariant,
 
     // ---
     // POPOVER
@@ -518,8 +507,7 @@ class DatePickerFormField extends FinesseFormField<DateTime> {
              dayButtonOutsideMonthTextStyle: dayButtonOutsideMonthTextStyle,
              dayButtonOutsideMonthVariant: dayButtonOutsideMonthVariant,
              selectedDayButtonOutsideMonthVariant:
-                 selectedDayButtonOutsideMonthVariant ??
-                 selectedDayButtonOusideMonthVariant,
+                 selectedDayButtonOutsideMonthVariant,
              closeOnTapOutside: closeOnTapOutside,
              anchor: anchor,
              effects: effects,
@@ -589,10 +577,3 @@ class DatePickerFormField extends FinesseFormField<DateTime> {
 /// The state of a [DatePickerFormField].
 class DatePickerFormFieldState
     extends FinesseFormFieldState<DatePickerFormField, DateTime> {}
-
-/// The old name of [DatePickerFormFieldState].
-@Deprecated(
-  'Use DatePickerFormFieldState. '
-  'Will be removed in the next major version.',
-)
-typedef FormBuilderDatePickerState = DatePickerFormFieldState;

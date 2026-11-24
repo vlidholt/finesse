@@ -1,22 +1,5 @@
 import 'package:flutter/widgets.dart';
 
-/// The font family finesse bundled before 1.0.
-@Deprecated(
-  'finesse no longer bundles fonts, so this family resolves to nothing and text '
-  'falls back to the platform font. Set TextTheme(family: ...) to a font '
-  'your app declares, or use TextTheme.fromGoogleFont. '
-  'Will be removed in the next major version.',
-)
-const kDefaultFontFamily = 'packages/finesse/Inter';
-
-/// The monospace font family finesse bundled before 1.0.
-@Deprecated(
-  'finesse no longer bundles fonts, so this family resolves to nothing and text '
-  'falls back to the platform font. Use a monospace family your app declares. '
-  'Will be removed in the next major version.',
-)
-const kDefaultFontFamilyMono = 'packages/finesse/GeistMono';
-
 /// The default text styles of a `TextTheme`, before a style's text roles
 /// are applied.
 ///

@@ -17,19 +17,13 @@ class Avatar extends StatelessWidget {
   const Avatar(
     this.src, {
     super.key,
-    Widget? fallback,
-    @Deprecated(
-      'Use fallback, as shadcn names it (AvatarFallback). '
-      'Will be removed in the next major version.',
-    )
-    Widget? placeholder,
+    this.fallback,
     this.size,
     this.shape,
     this.backgroundColor,
     this.package,
     this.fit,
-  }) : image = null,
-       fallback = fallback ?? placeholder;
+  }) : image = null;
 
   /// Creates an avatar showing [image], for any other source: a file, memory
   /// bytes, a cached network image, or an SVG rasterised by an
@@ -60,13 +54,6 @@ class Avatar extends StatelessWidget {
   /// there is no image. Usually initials or an icon.
   /// {@endtemplate}
   final Widget? fallback;
-
-  /// The old name of [fallback].
-  @Deprecated(
-    'Use fallback, as shadcn names it (AvatarFallback). '
-    'Will be removed in the next major version.',
-  )
-  Widget? get placeholder => fallback;
 
   /// {@template Avatar.size}
   /// The size of the avatar, overriding the theme default if specified.

@@ -15,12 +15,7 @@ enum ToggleVariant {
   primary,
 
   /// A bordered toggle with a subtle shadow.
-  outline;
-
-  /// The old name of [primary]. Every other component calls its default
-  /// variant `primary`.
-  @Deprecated('Use primary. Will be removed in the next major version.')
-  static const default_ = primary;
+  outline,
 }
 
 /// {@template Toggle}

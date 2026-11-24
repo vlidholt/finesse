@@ -152,7 +152,7 @@ class _CounterPageState extends State<CounterPage> {
 
 `finesse`'s public API (`package:finesse/finesse.dart`) re-exports the parts of a few libraries that its own component signatures depend on, so callers do not need a second dependency just to pass an argument `finesse` asks for.
 
-- [flutter_animate](https://pub.dev/packages/flutter_animate): the `effects:` parameter on `Popover`, `Select`, `Accordion`, `Menubar`, and similar components takes a `List<Effect>` (aliased as `AnimateEffect`).
+- [flutter_animate](https://pub.dev/packages/flutter_animate): the `effects:` parameter on `Popover`, `Select`, `Accordion`, `Menubar`, and similar components takes a `List<Effect>` (aliased as `AnimEffect`).
 - [lucide_icons_flutter](https://pub.dev/packages/lucide_icons_flutter): the icon set used throughout the library and its examples, exposed as `LucideIcons.*`. Browse the icons [here](https://lucide.dev/icons/).
 - [two_dimensional_scrollables](https://pub.dev/packages/two_dimensional_scrollables): `FinesseTable` builds on `TableView`, so `FinesseTableCell` extends its `TableViewCell`.
 - [intl](https://pub.dev/packages/intl): `DateFormat` and `NumberFormat` are used by the calendar, date picker, and pagination widgets.

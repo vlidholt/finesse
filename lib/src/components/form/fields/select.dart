@@ -887,17 +887,3 @@ class SelectMultipleFormFieldState<T>
     controller.value = initialValue ?? {};
   }
 }
-
-/// The old name of [SelectMultipleFormFieldState].
-@Deprecated(
-  'Use SelectMultipleFormFieldState. '
-  'Will be removed in the next major version.',
-)
-typedef FormBuilderSelectMultipleState<T> = SelectMultipleFormFieldState<T>;
-
-/// The old name of [SelectFormFieldState].
-@Deprecated(
-  'Use SelectFormFieldState. '
-  'Will be removed in the next major version.',
-)
-typedef FormBuilderSelectState<T> = SelectFormFieldState<T>;

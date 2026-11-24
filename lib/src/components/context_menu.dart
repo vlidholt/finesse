@@ -20,16 +20,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-/// The tap-region group every context menu shared before 1.0.
-///
-/// Menus now get a group of their own (shared with their submenus), so a tap
-/// on another menu's trigger counts as outside and closes the open one.
-@Deprecated(
-  'Each menu now has its own tap-region group; this one is no longer used. '
-  'Will be removed in the next major version.',
-)
-const kContextMenuGroupId = ValueKey('context-menu');
-
 /// {@template ContextMenuRegion}
 /// A widget that shows the context menu when the user right clicks the [child]
 /// or long presses it (only on android and ios), unless a value to

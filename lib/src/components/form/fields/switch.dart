@@ -108,10 +108,3 @@ class SwitchFormField extends FinesseFormField<bool> {
 /// The state of a [SwitchFormField].
 class SwitchFormFieldState
     extends FinesseFormFieldState<SwitchFormField, bool> {}
-
-/// The old name of [SwitchFormFieldState].
-@Deprecated(
-  'Use SwitchFormFieldState. '
-  'Will be removed in the next major version.',
-)
-typedef FormBuilderSwitchState = SwitchFormFieldState;

@@ -98,10 +98,3 @@ class CheckboxFormField extends FinesseFormField<bool> {
 /// The state of a [CheckboxFormField].
 class CheckboxFormFieldState
     extends FinesseFormFieldState<CheckboxFormField, bool> {}
-
-/// The old name of [CheckboxFormFieldState].
-@Deprecated(
-  'Use CheckboxFormFieldState. '
-  'Will be removed in the next major version.',
-)
-typedef FormBuilderCheckboxState = CheckboxFormFieldState;

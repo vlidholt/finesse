@@ -122,18 +122,13 @@ class TextField extends StatefulWidget {
     this.keyboardToolbarBuilder,
     this.top,
     this.bottom,
-    ValueChanged<int>? onLineCountChanged,
-    @Deprecated(
-      'Use onLineCountChanged. Will be removed in the next major version.',
-    )
-    ValueChanged<int>? onLineCountChange,
+    this.onLineCountChanged,
     this.editableTextSize,
     this.verticalGap,
     this.useBrowserContextMenu,
     this.onPasteFiles,
     this.onPasteFilesError,
-  }) : onLineCountChanged = onLineCountChanged ?? onLineCountChange,
-       smartDashesType =
+  }) : smartDashesType =
            smartDashesType ??
            (obscureText ? SmartDashesType.disabled : SmartDashesType.enabled),
        smartQuotesType =
@@ -618,12 +613,6 @@ class TextField extends StatefulWidget {
   /// For example, if the [maxLines] limit has been reached.
   /// {@endtemplate}
   final ValueChanged<int>? onLineCountChanged;
-
-  /// The old name of [onLineCountChanged].
-  @Deprecated(
-    'Use onLineCountChanged. Will be removed in the next major version.',
-  )
-  ValueChanged<int>? get onLineCountChange => onLineCountChanged;
 
   /// {@template TextField.groupId}
   /// The tap-region group of the field. A tap inside any region of the same

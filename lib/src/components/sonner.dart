@@ -44,11 +44,7 @@ class Sonner extends StatefulWidget {
   const Sonner({
     super.key,
     required this.child,
-    int? maxVisibleToasts,
-    @Deprecated(
-      'Use maxVisibleToasts. Will be removed in the next major version.',
-    )
-    int? visibleToastsAmount,
+    this.maxVisibleToasts,
     this.alignment,
     this.padding,
     this.expandedGap,
@@ -56,7 +52,7 @@ class Sonner extends StatefulWidget {
     this.scaleFactor,
     this.animationDuration,
     this.animationCurve,
-  }) : maxVisibleToasts = maxVisibleToasts ?? visibleToastsAmount;
+  });
 
   /// The widget below the toaster in the tree, over which toasts are displayed.
   /// Typically the main app content.
@@ -68,12 +64,6 @@ class Sonner extends StatefulWidget {
   /// Defaults to 3 if not provided.
   /// {@endtemplate}
   final int? maxVisibleToasts;
-
-  /// The old name of [maxVisibleToasts].
-  @Deprecated(
-    'Use maxVisibleToasts. Will be removed in the next major version.',
-  )
-  int? get visibleToastsAmount => maxVisibleToasts;
 
   /// {@template Sonner.alignment}
   /// The alignment of the toasts within the widget.
@@ -362,10 +352,6 @@ class SonnerState extends State<Sonner> with TickerProviderStateMixin {
       }
     });
   }
-
-  /// The old, misspelled name of [hideTemporarily].
-  @Deprecated('Use hideTemporarily. Will be removed in the next major version.')
-  Future<void> hideTemporarely(Object? id) => hideTemporarily(id);
 
   /// Temporarily hides the toast with the provided [id]entifier.
   ///

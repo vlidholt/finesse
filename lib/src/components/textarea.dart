@@ -97,17 +97,12 @@ class Textarea extends StatefulWidget {
     this.bottom,
     this.leading,
     this.trailing,
-    ValueChanged<int>? onLineCountChanged,
-    @Deprecated(
-      'Use onLineCountChanged. Will be removed in the next major version.',
-    )
-    ValueChanged<int>? onLineCountChange,
+    this.onLineCountChanged,
     this.verticalGap,
     this.useBrowserContextMenu,
     this.onPasteFiles,
     this.onPasteFilesError,
-  }) : onLineCountChanged = onLineCountChanged ?? onLineCountChange,
-       enableInteractiveSelection = enableInteractiveSelection ?? !readOnly,
+  }) : enableInteractiveSelection = enableInteractiveSelection ?? !readOnly,
        assert(
          initialValue == null || controller == null,
          'Either initialValue or controller must be specified',
@@ -463,12 +458,6 @@ class Textarea extends StatefulWidget {
 
   /// {@macro TextField.onLineCountChanged}
   final ValueChanged<int>? onLineCountChanged;
-
-  /// The old name of [onLineCountChanged].
-  @Deprecated(
-    'Use onLineCountChanged. Will be removed in the next major version.',
-  )
-  ValueChanged<int>? get onLineCountChange => onLineCountChanged;
 
   /// {@macro TextField.useBrowserContextMenu}
   final bool? useBrowserContextMenu;

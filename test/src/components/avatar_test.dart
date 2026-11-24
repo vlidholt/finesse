@@ -214,18 +214,6 @@ void main() {
       expect(find.byType(Image), findsNothing);
     });
 
-    testWidgets('placeholder still works as the deprecated name of fallback', (
-      tester,
-    ) async {
-      await tester.pumpWidget(
-        createTestWidget(
-          // ignore: deprecated_member_use_from_same_package
-          const Avatar(null, placeholder: Text('XY')),
-        ),
-      );
-      expect(find.text('XY'), findsOneWidget);
-    });
-
     testWidgets('Avatar matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(

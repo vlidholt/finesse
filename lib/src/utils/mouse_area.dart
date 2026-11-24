@@ -228,11 +228,6 @@ class MouseArea extends SingleChildRenderObjectWidget {
     this.groupId,
     this.onEnter,
     this.onExit,
-    @Deprecated(
-      'Has no effect; wrap the child in a MouseRegion. '
-      'Will be removed in the next major version.',
-    )
-    this.cursor = MouseCursor.defer,
     String? debugLabel,
   }) : debugLabel = kReleaseMode ? null : debugLabel;
 
@@ -263,15 +258,6 @@ class MouseArea extends SingleChildRenderObjectWidget {
   /// Triggered when a pointer exits the region.
   final PointerExitEventListener? onExit;
 
-  /// Has no effect: the area's render object does not take part in mouse
-  /// tracking, so it never sets the cursor. Wrap the child in a
-  /// `MouseRegion` to change the cursor.
-  @Deprecated(
-    'Has no effect; wrap the child in a MouseRegion. '
-    'Will be removed in the next major version.',
-  )
-  final MouseCursor cursor;
-
   /// An optional debug label to help with debugging in debug mode.
   ///
   /// Will be null in release mode.
@@ -287,8 +273,6 @@ class MouseArea extends SingleChildRenderObjectWidget {
       debugLabel: debugLabel,
       onEnter: onEnter,
       onExit: onExit,
-      // ignore: deprecated_member_use_from_same_package
-      cursor: cursor,
     );
   }
 

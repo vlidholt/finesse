@@ -20,11 +20,7 @@ class ToastTheme with _$ToastTheme {
     this.closeIconData,
     this.alignment,
     this.offset,
-    Duration? displayDuration,
-    @Deprecated(
-      'Use displayDuration. Will be removed in the next major version.',
-    )
-    Duration? duration,
+    this.displayDuration,
     this.animateIn,
     this.animateOut,
     this.textDirection,
@@ -42,8 +38,7 @@ class ToastTheme with _$ToastTheme {
     this.closeIcon,
     this.mainAxisAlignment,
     this.mainAxisSize,
-  }) : displayDuration = displayDuration ?? duration,
-       _canMerge = canMerge;
+  }) : _canMerge = canMerge;
 
   @ignore
   final bool _canMerge;
@@ -65,10 +60,6 @@ class ToastTheme with _$ToastTheme {
 
   /// {@macro Toast.displayDuration}
   final Duration? displayDuration;
-
-  /// The old name of [displayDuration].
-  @Deprecated('Use displayDuration. Will be removed in the next major version.')
-  Duration? get duration => displayDuration;
 
   /// {@macro Toast.animateIn}
   final List<Effect<dynamic>>? animateIn;

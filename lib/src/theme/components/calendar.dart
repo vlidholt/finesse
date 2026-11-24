@@ -58,12 +58,7 @@ class CalendarTheme with _$CalendarTheme {
     this.weekdaysTextAlign,
     this.gridMainAxisSpacing,
     this.gridCrossAxisSpacing,
-    ButtonVariant? selectedDayButtonOutsideMonthVariant,
-    @Deprecated(
-      'Use selectedDayButtonOutsideMonthVariant. '
-      'Will be removed in the next major version.',
-    )
-    ButtonVariant? selectedDayButtonOusideMonthVariant,
+    this.selectedDayButtonOutsideMonthVariant,
     this.captionLayout,
     this.hideWeekdayNames,
     this.showOutsideDays,
@@ -77,10 +72,7 @@ class CalendarTheme with _$CalendarTheme {
     this.allowDeselection,
     this.dropdownFormatMonth,
     this.dropdownFormatYear,
-  }) : selectedDayButtonOutsideMonthVariant =
-           selectedDayButtonOutsideMonthVariant ??
-           selectedDayButtonOusideMonthVariant,
-       _canMerge = canMerge;
+  }) : _canMerge = canMerge;
 
   @ignore
   final bool _canMerge;
@@ -223,14 +215,6 @@ class CalendarTheme with _$CalendarTheme {
 
   /// {@macro Calendar.selectedDayButtonOutsideMonthVariant}
   final ButtonVariant? selectedDayButtonOutsideMonthVariant;
-
-  /// The old, misspelled name of [selectedDayButtonOutsideMonthVariant].
-  @Deprecated(
-    'Use selectedDayButtonOutsideMonthVariant. '
-    'Will be removed in the next major version.',
-  )
-  ButtonVariant? get selectedDayButtonOusideMonthVariant =>
-      selectedDayButtonOutsideMonthVariant;
 
   /// {@macro Calendar.captionLayout}
   final CalendarCaptionLayout? captionLayout;

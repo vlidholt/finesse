@@ -55,11 +55,6 @@ class MenubarTheme with _$MenubarTheme {
     this.buttonMainAxisAlignment,
     this.buttonCrossAxisAlignment,
     this.buttonHoverStrategies,
-    @Deprecated(
-      'Has no effect: menubar items do not respond to long presses. '
-      'Will be removed in the next major version.',
-    )
-    this.buttonLongPressDuration,
     this.buttonTextDirection,
     this.buttonExpands,
     this.selectOnHover,
@@ -172,13 +167,6 @@ class MenubarTheme with _$MenubarTheme {
 
   /// {@macro Button.hoverStrategies}
   final HoverStrategies? buttonHoverStrategies;
-
-  /// Has no effect: menubar items do not respond to long presses.
-  @Deprecated(
-    'Has no effect: menubar items do not respond to long presses. '
-    'Will be removed in the next major version.',
-  )
-  final Duration? buttonLongPressDuration;
 
   /// {@macro Button.textDirection}
   final TextDirection? buttonTextDirection;

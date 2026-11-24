@@ -12,11 +12,7 @@ class SonnerTheme with _$SonnerTheme {
   /// {@macro SonnerTheme}
   const SonnerTheme({
     bool canMerge = true,
-    int? maxVisibleToasts,
-    @Deprecated(
-      'Use maxVisibleToasts. Will be removed in the next major version.',
-    )
-    int? visibleToastsAmount,
+    this.maxVisibleToasts,
     this.alignment,
     this.padding,
     this.expandedGap,
@@ -24,8 +20,7 @@ class SonnerTheme with _$SonnerTheme {
     this.scaleFactor,
     this.animationDuration,
     this.animationCurve,
-  }) : maxVisibleToasts = maxVisibleToasts ?? visibleToastsAmount,
-       _canMerge = canMerge;
+  }) : _canMerge = canMerge;
 
   @ignore
   final bool _canMerge;
@@ -35,12 +30,6 @@ class SonnerTheme with _$SonnerTheme {
 
   /// {@macro Sonner.visible_toasts_amount}
   final int? maxVisibleToasts;
-
-  /// The old name of [maxVisibleToasts].
-  @Deprecated(
-    'Use maxVisibleToasts. Will be removed in the next major version.',
-  )
-  int? get visibleToastsAmount => maxVisibleToasts;
 
   /// {@macro Sonner.alignment}
   final AlignmentGeometry? alignment;

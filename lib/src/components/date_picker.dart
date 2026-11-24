@@ -51,11 +51,6 @@ class DatePicker extends StatefulWidget {
     this.popoverPadding,
     this.multipleSelected,
     this.onChanged,
-    @Deprecated(
-      'DatePicker has no multiple-selection mode, so this is never '
-      'called. Will be removed in the next major version.',
-    )
-    this.onMultipleChanged,
     this.showOutsideDays,
     this.initialMonth,
     this.formatMonthYear,
@@ -117,12 +112,7 @@ class DatePicker extends StatefulWidget {
     this.gridCrossAxisSpacing,
     this.dayButtonOutsideMonthTextStyle,
     this.dayButtonOutsideMonthVariant,
-    ButtonVariant? selectedDayButtonOutsideMonthVariant,
-    @Deprecated(
-      'Use selectedDayButtonOutsideMonthVariant. '
-      'Will be removed in the next major version.',
-    )
-    ButtonVariant? selectedDayButtonOusideMonthVariant,
+    this.selectedDayButtonOutsideMonthVariant,
     this.closeOnTapOutside = true,
     this.focusNode,
     this.anchor,
@@ -184,10 +174,7 @@ class DatePicker extends StatefulWidget {
     this.popoverReverseDuration,
     this.buttonTextStyle,
     this.trailing,
-  }) : selectedDayButtonOutsideMonthVariant =
-           selectedDayButtonOutsideMonthVariant ??
-           selectedDayButtonOusideMonthVariant,
-       variant = DatePickerVariant.single,
+  }) : variant = DatePickerVariant.single,
        formatDateRange = null,
        selectedRange = null;
 
@@ -207,11 +194,6 @@ class DatePicker extends StatefulWidget {
     this.popoverPadding,
     this.multipleSelected,
     this.onChanged,
-    @Deprecated(
-      'DatePicker has no multiple-selection mode, so this is never '
-      'called. Will be removed in the next major version.',
-    )
-    this.onMultipleChanged,
     this.showOutsideDays,
     this.initialMonth,
     this.formatMonthYear,
@@ -273,12 +255,7 @@ class DatePicker extends StatefulWidget {
     this.gridCrossAxisSpacing,
     this.dayButtonOutsideMonthTextStyle,
     this.dayButtonOutsideMonthVariant,
-    ButtonVariant? selectedDayButtonOutsideMonthVariant,
-    @Deprecated(
-      'Use selectedDayButtonOutsideMonthVariant. '
-      'Will be removed in the next major version.',
-    )
-    ButtonVariant? selectedDayButtonOusideMonthVariant,
+    this.selectedDayButtonOutsideMonthVariant,
     this.closeOnTapOutside = true,
     this.focusNode,
     this.anchor,
@@ -340,10 +317,7 @@ class DatePicker extends StatefulWidget {
     this.popoverReverseDuration,
     this.buttonTextStyle,
     this.trailing,
-  }) : selectedDayButtonOutsideMonthVariant =
-           selectedDayButtonOutsideMonthVariant ??
-           selectedDayButtonOusideMonthVariant,
-       variant = DatePickerVariant.range,
+  }) : variant = DatePickerVariant.range,
        selected = null,
        formatDate = null,
        selectedRange = selected;
@@ -366,11 +340,6 @@ class DatePicker extends StatefulWidget {
     this.popoverPadding,
     this.multipleSelected,
     this.onChanged,
-    @Deprecated(
-      'DatePicker has no multiple-selection mode, so this is never '
-      'called. Will be removed in the next major version.',
-    )
-    this.onMultipleChanged,
     this.showOutsideDays,
     this.initialMonth,
     this.formatMonthYear,
@@ -432,12 +401,7 @@ class DatePicker extends StatefulWidget {
     this.gridCrossAxisSpacing,
     this.dayButtonOutsideMonthTextStyle,
     this.dayButtonOutsideMonthVariant,
-    ButtonVariant? selectedDayButtonOutsideMonthVariant,
-    @Deprecated(
-      'Use selectedDayButtonOutsideMonthVariant. '
-      'Will be removed in the next major version.',
-    )
-    ButtonVariant? selectedDayButtonOusideMonthVariant,
+    this.selectedDayButtonOutsideMonthVariant,
     this.closeOnTapOutside = true,
     this.focusNode,
     this.anchor,
@@ -501,9 +465,7 @@ class DatePicker extends StatefulWidget {
     this.popoverReverseDuration,
     this.buttonTextStyle,
     this.trailing,
-  }) : selectedDayButtonOutsideMonthVariant =
-           selectedDayButtonOutsideMonthVariant ??
-           selectedDayButtonOusideMonthVariant;
+  });
 
   /// {@template DatePicker.placeholder}
   /// The placeholder of the date picker, shown when no date is selected.
@@ -578,13 +540,6 @@ class DatePicker extends StatefulWidget {
 
   /// {@macro Calendar.onChanged}
   final ValueChanged<DateTime?>? onChanged;
-
-  /// Never called: [DatePicker] has no multiple-selection mode.
-  @Deprecated(
-    'DatePicker has no multiple-selection mode, so this is never called. '
-    'Will be removed in the next major version.',
-  )
-  final ValueChanged<List<DateTime>>? onMultipleChanged;
 
   /// {@macro Calendar.showOutsideDays}
   final bool? showOutsideDays;
@@ -771,14 +726,6 @@ class DatePicker extends StatefulWidget {
 
   /// {@macro Calendar.selectedDayButtonOutsideMonthVariant}
   final ButtonVariant? selectedDayButtonOutsideMonthVariant;
-
-  /// The old, misspelled name of [selectedDayButtonOutsideMonthVariant].
-  @Deprecated(
-    'Use selectedDayButtonOutsideMonthVariant. '
-    'Will be removed in the next major version.',
-  )
-  ButtonVariant? get selectedDayButtonOusideMonthVariant =>
-      selectedDayButtonOutsideMonthVariant;
 
   // ---
   // POPOVER

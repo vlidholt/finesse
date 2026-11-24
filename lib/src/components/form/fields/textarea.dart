@@ -209,10 +209,6 @@ class TextareaFormField extends FinesseFormField<String> {
 
     /// {@macro TextField.onLineCountChanged}
     ValueChanged<int>? onLineCountChanged,
-    @Deprecated(
-      'Use onLineCountChanged. Will be removed in the next major version.',
-    )
-    ValueChanged<int>? onLineCountChange,
 
     /// {@macro TextField.verticalGap}
     double? verticalGap,
@@ -299,7 +295,7 @@ class TextareaFormField extends FinesseFormField<String> {
              bottom: bottom,
              leading: leading,
              trailing: trailing,
-             onLineCountChanged: onLineCountChanged ?? onLineCountChange,
+             onLineCountChanged: onLineCountChanged,
              verticalGap: verticalGap,
              useBrowserContextMenu: useBrowserContextMenu,
              onPasteFiles: onPasteFiles,
@@ -381,10 +377,3 @@ class TextareaFormFieldState
     }
   }
 }
-
-/// The old name of [TextareaFormFieldState].
-@Deprecated(
-  'Use TextareaFormFieldState. '
-  'Will be removed in the next major version.',
-)
-typedef FormBuilderTextareaState = TextareaFormFieldState;

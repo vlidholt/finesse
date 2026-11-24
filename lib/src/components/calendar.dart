@@ -187,20 +187,12 @@ class Calendar extends StatefulWidget {
     this.gridCrossAxisSpacing,
     this.dayButtonOutsideMonthTextStyle,
     this.dayButtonOutsideMonthVariant,
-    ButtonVariant? selectedDayButtonOutsideMonthVariant,
-    @Deprecated(
-      'Use selectedDayButtonOutsideMonthVariant. '
-      'Will be removed in the next major version.',
-    )
-    ButtonVariant? selectedDayButtonOusideMonthVariant,
+    this.selectedDayButtonOutsideMonthVariant,
     this.allowDeselection,
     this.groupId,
     this.dropdownFormatMonth,
     this.dropdownFormatYear,
-  }) : selectedDayButtonOutsideMonthVariant =
-           selectedDayButtonOutsideMonthVariant ??
-           selectedDayButtonOusideMonthVariant,
-       variant = CalendarVariant.single,
+  }) : variant = CalendarVariant.single,
        multipleSelected = null,
        onMultipleChanged = null,
        min = null,
@@ -273,19 +265,11 @@ class Calendar extends StatefulWidget {
     this.gridCrossAxisSpacing,
     this.dayButtonOutsideMonthTextStyle,
     this.dayButtonOutsideMonthVariant,
-    ButtonVariant? selectedDayButtonOutsideMonthVariant,
-    @Deprecated(
-      'Use selectedDayButtonOutsideMonthVariant. '
-      'Will be removed in the next major version.',
-    )
-    ButtonVariant? selectedDayButtonOusideMonthVariant,
+    this.selectedDayButtonOutsideMonthVariant,
     this.groupId,
     this.dropdownFormatMonth,
     this.dropdownFormatYear,
-  }) : selectedDayButtonOutsideMonthVariant =
-           selectedDayButtonOutsideMonthVariant ??
-           selectedDayButtonOusideMonthVariant,
-       variant = CalendarVariant.multiple,
+  }) : variant = CalendarVariant.multiple,
        multipleSelected = selected,
        selected = null,
        onMultipleChanged = onChanged,
@@ -359,20 +343,12 @@ class Calendar extends StatefulWidget {
     this.gridCrossAxisSpacing,
     this.dayButtonOutsideMonthTextStyle,
     this.dayButtonOutsideMonthVariant,
-    ButtonVariant? selectedDayButtonOutsideMonthVariant,
-    @Deprecated(
-      'Use selectedDayButtonOutsideMonthVariant. '
-      'Will be removed in the next major version.',
-    )
-    ButtonVariant? selectedDayButtonOusideMonthVariant,
+    this.selectedDayButtonOutsideMonthVariant,
     this.allowDeselection,
     this.groupId,
     this.dropdownFormatMonth,
     this.dropdownFormatYear,
-  }) : selectedDayButtonOutsideMonthVariant =
-           selectedDayButtonOutsideMonthVariant ??
-           selectedDayButtonOusideMonthVariant,
-       variant = CalendarVariant.range,
+  }) : variant = CalendarVariant.range,
        multipleSelected = null,
        selected = null,
        onMultipleChanged = null,
@@ -451,19 +427,12 @@ class Calendar extends StatefulWidget {
     this.gridCrossAxisSpacing,
     this.dayButtonOutsideMonthTextStyle,
     this.dayButtonOutsideMonthVariant,
-    ButtonVariant? selectedDayButtonOutsideMonthVariant,
-    @Deprecated(
-      'Use selectedDayButtonOutsideMonthVariant. '
-      'Will be removed in the next major version.',
-    )
-    ButtonVariant? selectedDayButtonOusideMonthVariant,
+    this.selectedDayButtonOutsideMonthVariant,
     this.allowDeselection,
     this.groupId,
     this.dropdownFormatMonth,
     this.dropdownFormatYear,
-  }) : selectedDayButtonOutsideMonthVariant =
-           selectedDayButtonOutsideMonthVariant ??
-           selectedDayButtonOusideMonthVariant;
+  });
 
   /// {@template Calendar.variant}
   /// The variant of the calendar to use.
@@ -893,14 +862,6 @@ class Calendar extends StatefulWidget {
   /// [ButtonVariant.secondary]
   /// {@endtemplate}
   final ButtonVariant? selectedDayButtonOutsideMonthVariant;
-
-  /// The old, misspelled name of [selectedDayButtonOutsideMonthVariant].
-  @Deprecated(
-    'Use selectedDayButtonOutsideMonthVariant. '
-    'Will be removed in the next major version.',
-  )
-  ButtonVariant? get selectedDayButtonOusideMonthVariant =>
-      selectedDayButtonOutsideMonthVariant;
 
   /// {@template Calendar.allowDeselection}
   /// Whether to allow deselection of the selected date, defaults to false.

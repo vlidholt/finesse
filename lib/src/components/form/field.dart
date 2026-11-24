@@ -315,14 +315,3 @@ class FinesseFormFieldState<F extends FinesseFormField<T>, T>
     if (fun != null) map[effectiveId] = fun;
   }
 }
-
-/// The old name of [FinesseFormField].
-@Deprecated('Use FinesseFormField. Will be removed in the next major version.')
-typedef FormBuilderField<T> = FinesseFormField<T>;
-
-/// The old name of [FinesseFormFieldState].
-@Deprecated(
-  'Use FinesseFormFieldState. Will be removed in the next major version.',
-)
-typedef FormBuilderFieldState<F extends FinesseFormField<T>, T> =
-    FinesseFormFieldState<F, T>;

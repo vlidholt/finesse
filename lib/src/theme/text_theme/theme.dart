@@ -792,15 +792,3 @@ class TextTheme {
     );
   }
 }
-
-/// The old name of [FontBuilder].
-@Deprecated(
-  'Use FontBuilder. Will be removed in the next major version.',
-)
-typedef GoogleFontBuilder = FontBuilder;
-
-/// The old name of [BuilderTextStyle].
-@Deprecated(
-  'Use BuilderTextStyle. Will be removed in the next major version.',
-)
-typedef GoogleFontTextStyle = BuilderTextStyle;

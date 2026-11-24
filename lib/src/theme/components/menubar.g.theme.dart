@@ -110,11 +110,6 @@ mixin _$MenubarTheme {
       buttonHoverStrategies: t < 0.5
           ? a.buttonHoverStrategies
           : b.buttonHoverStrategies,
-      buttonLongPressDuration: lerpDuration$(
-        a.buttonLongPressDuration,
-        b.buttonLongPressDuration,
-        t,
-      ),
       buttonTextDirection: t < 0.5
           ? a.buttonTextDirection
           : b.buttonTextDirection,
@@ -158,7 +153,6 @@ mixin _$MenubarTheme {
     MainAxisAlignment? buttonMainAxisAlignment,
     CrossAxisAlignment? buttonCrossAxisAlignment,
     HoverStrategies? buttonHoverStrategies,
-    Duration? buttonLongPressDuration,
     TextDirection? buttonTextDirection,
     bool? buttonExpands,
     bool? selectOnHover,
@@ -211,8 +205,6 @@ mixin _$MenubarTheme {
           buttonCrossAxisAlignment ?? _this.buttonCrossAxisAlignment,
       buttonHoverStrategies:
           buttonHoverStrategies ?? _this.buttonHoverStrategies,
-      buttonLongPressDuration:
-          buttonLongPressDuration ?? _this.buttonLongPressDuration,
       buttonTextDirection: buttonTextDirection ?? _this.buttonTextDirection,
       buttonExpands: buttonExpands ?? _this.buttonExpands,
       selectOnHover: selectOnHover ?? _this.selectOnHover,
@@ -267,7 +259,6 @@ mixin _$MenubarTheme {
       buttonMainAxisAlignment: other.buttonMainAxisAlignment,
       buttonCrossAxisAlignment: other.buttonCrossAxisAlignment,
       buttonHoverStrategies: other.buttonHoverStrategies,
-      buttonLongPressDuration: other.buttonLongPressDuration,
       buttonTextDirection: other.buttonTextDirection,
       buttonExpands: other.buttonExpands,
       selectOnHover: other.selectOnHover,
@@ -324,7 +315,6 @@ mixin _$MenubarTheme {
         _other.buttonMainAxisAlignment == _this.buttonMainAxisAlignment &&
         _other.buttonCrossAxisAlignment == _this.buttonCrossAxisAlignment &&
         _other.buttonHoverStrategies == _this.buttonHoverStrategies &&
-        _other.buttonLongPressDuration == _this.buttonLongPressDuration &&
         _other.buttonTextDirection == _this.buttonTextDirection &&
         _other.buttonExpands == _this.buttonExpands &&
         _other.selectOnHover == _this.selectOnHover;
@@ -370,7 +360,6 @@ mixin _$MenubarTheme {
       _this.buttonMainAxisAlignment,
       _this.buttonCrossAxisAlignment,
       _this.buttonHoverStrategies,
-      _this.buttonLongPressDuration,
       _this.buttonTextDirection,
       _this.buttonExpands,
       _this.selectOnHover,

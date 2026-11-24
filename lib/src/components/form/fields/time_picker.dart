@@ -614,10 +614,3 @@ class TimePickerFormFieldState
     }
   }
 }
-
-/// The old name of [TimePickerFormFieldState].
-@Deprecated(
-  'Use TimePickerFormFieldState. '
-  'Will be removed in the next major version.',
-)
-typedef FormBuilderTimePickerState = TimePickerFormFieldState;

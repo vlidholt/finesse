@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:finesse/src/components/button.dart';
 import 'package:finesse/src/components/calendar.dart';
 import 'package:finesse/src/raw_components/portal.dart';
-import 'package:finesse/src/theme/components/button_sizes.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:flutter/foundation.dart';
@@ -63,12 +62,7 @@ class DatePickerTheme with _$DatePickerTheme {
     this.weekdaysTextAlign,
     this.gridMainAxisSpacing,
     this.gridCrossAxisSpacing,
-    ButtonVariant? selectedDayButtonOutsideMonthVariant,
-    @Deprecated(
-      'Use selectedDayButtonOutsideMonthVariant. '
-      'Will be removed in the next major version.',
-    )
-    ButtonVariant? selectedDayButtonOusideMonthVariant,
+    this.selectedDayButtonOutsideMonthVariant,
     this.captionLayout,
     this.hideWeekdayNames,
     this.showOutsideDays,
@@ -88,12 +82,6 @@ class DatePickerTheme with _$DatePickerTheme {
     this.filter,
     this.cursor,
     this.size,
-    @Deprecated(
-      'Has no effect: the date picker button takes its sizes from '
-      'ThemeData.buttonSizesTheme. Will be removed in the next major '
-      'version.',
-    )
-    this.sizesTheme,
     this.buttonVariant,
     this.backgroundColor,
     this.hoverBackgroundColor,
@@ -101,11 +89,6 @@ class DatePickerTheme with _$DatePickerTheme {
     this.hoverForegroundColor,
     this.pressedBackgroundColor,
     this.pressedForegroundColor,
-    @Deprecated(
-      'Has no effect: the date picker button has no disabled background. '
-      'Will be removed in the next major version.',
-    )
-    this.disabledBackgroundColor,
     this.buttonShadows,
     this.gradient,
     this.textDecoration,
@@ -126,10 +109,7 @@ class DatePickerTheme with _$DatePickerTheme {
     this.expands,
     this.popoverReverseDuration,
     this.buttonTextStyle,
-  }) : selectedDayButtonOutsideMonthVariant =
-           selectedDayButtonOutsideMonthVariant ??
-           selectedDayButtonOusideMonthVariant,
-       _canMerge = canMerge;
+  }) : _canMerge = canMerge;
 
   @ignore
   final bool _canMerge;
@@ -276,14 +256,6 @@ class DatePickerTheme with _$DatePickerTheme {
   /// {@macro Calendar.selectedDayButtonOutsideMonthVariant}
   final ButtonVariant? selectedDayButtonOutsideMonthVariant;
 
-  /// The old, misspelled name of [selectedDayButtonOutsideMonthVariant].
-  @Deprecated(
-    'Use selectedDayButtonOutsideMonthVariant. '
-    'Will be removed in the next major version.',
-  )
-  ButtonVariant? get selectedDayButtonOusideMonthVariant =>
-      selectedDayButtonOutsideMonthVariant;
-
   /// {@macro Calendar.captionLayout}
   final CalendarCaptionLayout? captionLayout;
 
@@ -352,15 +324,6 @@ class DatePickerTheme with _$DatePickerTheme {
   /// {@macro Button.size}
   final ButtonSize? size;
 
-  /// Has no effect: the date picker button takes its sizes from
-  /// `ThemeData.buttonSizesTheme`.
-  @Deprecated(
-    'Has no effect: the date picker button takes its sizes from '
-    'ThemeData.buttonSizesTheme. Will be removed in the next major '
-    'version.',
-  )
-  final ButtonSizesTheme? sizesTheme;
-
   /// {@macro Button.variant}
   final ButtonVariant? buttonVariant;
 
@@ -381,13 +344,6 @@ class DatePickerTheme with _$DatePickerTheme {
 
   /// {@macro Button.pressedForegroundColor}
   final Color? pressedForegroundColor;
-
-  /// Has no effect: the date picker's button has no disabled background.
-  @Deprecated(
-    'Has no effect: the date picker button has no disabled background. '
-    'Will be removed in the next major version.',
-  )
-  final Color? disabledBackgroundColor;
 
   /// {@macro Button.shadows}
   final List<BoxShadow>? buttonShadows;

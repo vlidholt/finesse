@@ -12,13 +12,6 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-/// The default duration for toasts to remain visible.
-/// How long a toast stays on screen when it sets no duration.
-@Deprecated(
-  'Use Toast.defaultDuration. Will be removed in the next major version.',
-)
-const kDefaultToastDuration = Toast.defaultDuration;
-
 /// A widget that manages and displays toasts within the widget tree.
 ///
 /// The [Toaster] widget acts as a provider for toast notifications,
@@ -311,11 +304,7 @@ class Toast extends StatefulWidget {
     this.closeIconData,
     this.alignment,
     this.offset,
-    Duration? displayDuration,
-    @Deprecated(
-      'Use displayDuration. Will be removed in the next major version.',
-    )
-    Duration? duration,
+    this.displayDuration,
     this.textDirection,
     this.animateIn,
     this.animateOut,
@@ -333,8 +322,7 @@ class Toast extends StatefulWidget {
     this.constraints,
     this.mainAxisAlignment,
     this.mainAxisSize,
-  }) : displayDuration = displayDuration ?? duration,
-       variant = ToastVariant.primary;
+  }) : variant = ToastVariant.primary;
 
   /// Creates a destructive variant toast widget, typically for error or warning
   /// messages.
@@ -348,11 +336,7 @@ class Toast extends StatefulWidget {
     this.closeIconData,
     this.alignment,
     this.offset,
-    Duration? displayDuration,
-    @Deprecated(
-      'Use displayDuration. Will be removed in the next major version.',
-    )
-    Duration? duration,
+    this.displayDuration,
     this.textDirection,
     this.animateIn,
     this.animateOut,
@@ -370,8 +354,7 @@ class Toast extends StatefulWidget {
     this.constraints,
     this.mainAxisAlignment,
     this.mainAxisSize,
-  }) : displayDuration = displayDuration ?? duration,
-       variant = ToastVariant.destructive;
+  }) : variant = ToastVariant.destructive;
 
   /// Creates a toast widget with a specified [variant], offering full
   /// customization.
@@ -386,11 +369,7 @@ class Toast extends StatefulWidget {
     this.closeIconData,
     this.alignment,
     this.offset,
-    Duration? displayDuration,
-    @Deprecated(
-      'Use displayDuration. Will be removed in the next major version.',
-    )
-    Duration? duration,
+    this.displayDuration,
     this.textDirection,
     this.animateIn,
     this.animateOut,
@@ -408,7 +387,7 @@ class Toast extends StatefulWidget {
     this.constraints,
     this.mainAxisAlignment,
     this.mainAxisSize,
-  }) : displayDuration = displayDuration ?? duration;
+  });
 
   /// {@template Toast.id}
   /// The unique identifier for the toast, used for tracking and managing
@@ -464,11 +443,6 @@ class Toast extends StatefulWidget {
   /// the theme's value, then to [Toast.defaultDuration] (5 seconds).
   /// {@endtemplate}
   final Duration? displayDuration;
-
-  /// The old name of [displayDuration]. Everywhere else in finesse, `duration`
-  /// is the length of an animation.
-  @Deprecated('Use displayDuration. Will be removed in the next major version.')
-  Duration? get duration => displayDuration;
 
   /// {@template Toast.textDirection}
   /// The directionality of the toast’s content (e.g., LTR or RTL).

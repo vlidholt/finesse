@@ -14,7 +14,7 @@ class AvatarDefaultExample extends StatelessWidget {
           'https://avatars.githubusercontent.com/u/124599?v=4',
           fallback: Text('CN'),
         ),
-        // The placeholder shows while loading, or if the image fails.
+        // The fallback shows while loading, or if the image fails.
         Avatar('', fallback: Text('AB')),
       ],
     );

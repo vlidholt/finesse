@@ -1,7 +1,4 @@
 // App
-// ignore: no_leading_underscores_for_library_prefixes
-import 'package:flutter_animate/flutter_animate.dart' as _animate show Effect;
-
 // External libraries.
 //
 // Only what the package's own public API requires is re-exported. `boxy`,
@@ -50,8 +47,7 @@ export 'src/components/card.dart';
 export 'src/components/checkbox.dart';
 export 'src/components/collapsible.dart';
 export 'src/components/command.dart';
-export 'src/components/context_menu.dart'
-    hide ContextMenuItemController, kContextMenuGroupId;
+export 'src/components/context_menu.dart' hide ContextMenuItemController;
 export 'src/components/data_table.dart';
 export 'src/components/date_picker.dart';
 export 'src/components/default_keyboard_toolbar.dart';
@@ -212,7 +208,3 @@ export 'src/utils/position.dart' hide PositionedExt;
 export 'src/utils/responsive.dart';
 export 'src/utils/shadow.dart' hide paintOuterShadows;
 export 'src/utils/states_controller.dart';
-
-/// The old name of `AnimEffect`, flutter_animate's `Effect`.
-@Deprecated('Use AnimEffect. Will be removed in the next major version.')
-typedef AnimateEffect<T> = _animate.Effect<T>;
