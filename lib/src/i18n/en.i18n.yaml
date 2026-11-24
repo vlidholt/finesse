@@ -23,6 +23,23 @@ empty:
 command:
   noResults: "No results found."
 
+menu:
+  control: "Ctrl"
+  alt: "Alt"
+  shift: "Shift"
+  meta: "Meta"
+  enter: "Enter"
+  escape: "Esc"
+  space: "Space"
+  tab: "Tab"
+  backspace: "Backspace"
+  delete: "Del"
+  insert: "Ins"
+  home: "Home"
+  end: "End"
+  pageUp: "PgUp"
+  pageDown: "PgDn"
+
 pagination:
   previous: "Previous"
   next: "Next"

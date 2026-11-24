@@ -3,22 +3,33 @@ import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:finesse/src/components/button.dart';
+import 'package:finesse/src/components/divider.dart';
+import 'package:finesse/src/components/dropdown_menu.dart';
 import 'package:finesse/src/components/popover.dart';
 import 'package:finesse/src/components/scroll_area.dart';
+import 'package:finesse/src/i18n/localizations_delegate.dart';
+import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/raw_components/portal.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/data.dart';
+import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/theme/theme_scope.dart';
 import 'package:finesse/src/utils/arrow_key_focus.dart';
 import 'package:finesse/src/utils/border.dart';
 import 'package:finesse/src/utils/browser_context_menu/browser_context_menu.dart';
 import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:finesse/src/utils/mouse_area.dart';
+import 'package:finesse/src/utils/pop_in.dart';
 import 'package:finesse/src/utils/provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+
+part 'menu_items.dart';
+part 'show_menu.dart';
 
 /// {@template ContextMenuRegion}
 /// A widget that shows the context menu when the user right clicks the [child]
@@ -494,6 +505,45 @@ class ContextMenuState extends State<ContextMenu> {
     previous._unhoverNow();
   }
 
+  /// How many checkable rows of this menu level are mounted. Rows that are
+  /// direct children of the menu are seen in its item list; this finds the
+  /// ones a wrapper hides.
+  int _checkables = 0;
+
+  /// Whether the last build gave this level an indicator column.
+  bool _builtIndicatorColumn = false;
+
+  void _checkableMounted() {
+    _checkables++;
+    _syncIndicatorColumn();
+  }
+
+  void _checkableUnmounted() {
+    _checkables--;
+    _syncIndicatorColumn();
+  }
+
+  /// Rebuilds once the frame is over when the rows that registered
+  /// disagree with what the item list said: a row is mounted during the
+  /// build that would have to change.
+  void _syncIndicatorColumn() {
+    if ((_checkables > 0) == _builtIndicatorColumn) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && (_checkables > 0) != _builtIndicatorColumn) {
+        setState(() {});
+      }
+    });
+  }
+
+  /// Whether any of [items] is a checkable row, so that every row of the
+  /// level reserves the indicator column and the labels line up.
+  static bool _anyCheckable(List<Widget> items) => items.any(
+    (item) =>
+        item is MenuCheckboxItem ||
+        item is MenuRadioGroup ||
+        item is MenuRadioItem,
+  );
+
   /// The characters typed in quick succession, for type-ahead.
   String _typeAhead = '';
   Timer? _typeAheadReset;
@@ -639,6 +689,15 @@ class ContextMenuState extends State<ContextMenu> {
   void initState() {
     super.initState();
     _listenTo(controller);
+    // A menu that is open from the start — `visible: true`, or the route of
+    // `showMenu` — gets no change to hear of, and takes the focus like one
+    // that was opened later. After the frame: whether it is a submenu is
+    // only known once it has been built.
+    if (controller.isOpen) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _onOpenChanged();
+      });
+    }
   }
 
   @override
@@ -744,6 +803,9 @@ class ContextMenuState extends State<ContextMenu> {
       useSameGroupIdForChild: false,
       requestFocus: widget.requestFocus,
       popover: (context) {
+        final items = widget.itemsBuilder?.call(context) ?? widget.items;
+        final indicatorColumn = _checkables > 0 || _anyCheckable(items);
+        _builtIndicatorColumn = indicatorColumn;
         return MouseArea(
           groupId: widget.groupId,
           key: ValueKey(widget.groupId),
@@ -770,12 +832,11 @@ class ContextMenuState extends State<ContextMenu> {
                         child: ScrollArea(
                           child: _MenuLevel(
                             menu: this,
+                            indicatorColumn: indicatorColumn,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisSize: MainAxisSize.min,
-                              children:
-                                  widget.itemsBuilder?.call(context) ??
-                                  widget.items,
+                              children: items,
                             ),
                           ),
                         ),
@@ -913,6 +974,8 @@ class ContextMenuItem extends StatefulWidget {
     this.selectedBackgroundColor,
     this.closeOnTap,
     this.destructive = false,
+    this.shortcut,
+    this.value,
   }) : variant = ContextMenuItemVariant.primary,
        insetPadding = null;
 
@@ -945,6 +1008,8 @@ class ContextMenuItem extends StatefulWidget {
     this.selectedBackgroundColor,
     this.closeOnTap,
     this.destructive = false,
+    this.shortcut,
+    this.value,
   });
 
   /// Creates an inset menu item, whose label lines up with items that have a
@@ -976,6 +1041,8 @@ class ContextMenuItem extends StatefulWidget {
     this.selectedBackgroundColor,
     this.closeOnTap,
     this.destructive = false,
+    this.shortcut,
+    this.value,
   }) : variant = ContextMenuItemVariant.inset;
 
   /// {@template ContextMenuItem.variant}
@@ -1136,6 +1203,21 @@ class ContextMenuItem extends StatefulWidget {
   /// {@endtemplate}
   final bool destructive;
 
+  /// {@template ContextMenuItem.shortcut}
+  /// The keyboard shortcut shown at the end of the row, before [trailing].
+  ///
+  /// It is only displayed: binding the keys is the app's job.
+  /// {@endtemplate}
+  final MenuShortcut? shortcut;
+
+  /// {@template ContextMenuItem.value}
+  /// What [showMenu] completes with when this item is chosen.
+  ///
+  /// It is read when the item closes its menu (see [closeOnTap]). A menu
+  /// that was not shown with [showMenu] ignores it.
+  /// {@endtemplate}
+  final Object? value;
+
   @override
   State<ContextMenuItem> createState() => _ContextMenuItemState();
 }
@@ -1198,17 +1280,38 @@ class _ContextMenuItemState extends State<ContextMenuItem> {
     });
   }
 
+  /// The menu level this row told that it is checkable.
+  ContextMenuState? _registeredWith;
+
   @override
   void initState() {
     super.initState();
     statesController.addListener(_onStatesChanged);
     // register the subitem controller if this item is a submenu
     parentItemController?.registerSubItem(controller);
+    if (context.getInheritedWidgetOfExactType<_MenuCheckable>() != null) {
+      _registeredWith = context
+          .getInheritedWidgetOfExactType<_MenuLevel>()
+          ?.menu;
+      _registeredWith?._checkableMounted();
+    }
+  }
+
+  /// Closes the whole menu after this row was chosen, handing its value to
+  /// [showMenu] when that is what opened the menu.
+  void _close(ContextMenuState contextMenu) {
+    context.getInheritedWidgetOfExactType<_MenuResult>()?.holder.value =
+        widget.value;
+    contextMenu.setVisible(false);
   }
 
   @override
   void dispose() {
     _unhoverTimer?.cancel();
+    final registeredWith = _registeredWith;
+    if (registeredWith != null && registeredWith.mounted) {
+      registeredWith._checkableUnmounted();
+    }
     parentItemController?.unregisterSubItem(controller);
     controller.dispose();
     statesController.dispose();
@@ -1220,6 +1323,17 @@ class _ContextMenuItemState extends State<ContextMenuItem> {
     final theme = Theme.of(context);
 
     final contextMenu = context.read<ContextMenuState>();
+
+    // Set by `MenuCheckboxItem` and `MenuRadioItem` around their row.
+    final checkable = context
+        .dependOnInheritedWidgetOfExactType<_MenuCheckable>();
+    final indicatorColumn =
+        checkable != null ||
+        (context
+                .dependOnInheritedWidgetOfExactType<_MenuLevel>()
+                ?.indicatorColumn ??
+            false);
+    final effectiveIndicatorSize = theme.contextMenuTheme.indicatorSize ?? 16;
 
     final effectivePadding =
         widget.padding ??
@@ -1322,6 +1436,11 @@ class _ContextMenuItemState extends State<ContextMenuItem> {
           color: effectiveSelectedTextStyle.color,
         );
 
+    // The shortcut is trailing text with the style's own spacing; its
+    // colour is the trailing style's for the row's state.
+    final effectiveShortcutTextStyle =
+        theme.contextMenuTheme.shortcutTextStyle ?? effectiveTrailingTextStyle;
+
     final effectiveBackgroundColor =
         widget.backgroundColor ?? theme.contextMenuTheme.backgroundColor;
 
@@ -1378,70 +1497,108 @@ class _ContextMenuItemState extends State<ContextMenuItem> {
           items: widget.items,
           child: Padding(
             padding: effectivePadding,
-            child: Button.raw(
-              height: effectiveHeight,
-              enabled: widget.enabled,
-              variant: effectiveButtonVariant,
-              decoration: effectiveDecoration,
-              width: double.infinity,
-              padding: effectiveInsetPadding,
-              statesController: statesController,
-              backgroundColor: selected
-                  ? effectiveSelectedBackgroundColor
-                  : effectiveBackgroundColor,
-              hoverBackgroundColor: effectiveSelectedBackgroundColor,
-              // Through the button rather than a wrapping DefaultTextStyle,
-              // so its IconTheme recolours leading and trailing icons with
-              // the text — shadcn's `focus:**:text-accent-foreground`.
-              foregroundColor: selected
-                  ? selectedForegroundColor
-                  : foregroundColor,
-              hoverForegroundColor: selectedForegroundColor,
-              // A menu's highlight follows the pointer and the arrow keys
-              // row by row: it is there or it is not, with no fade and no
-              // glide between rows.
-              transitionDuration: Duration.zero,
-              textStyle: highlighted
-                  ? effectiveSelectedTextStyle
-                  : effectiveTextStyle,
-              onFocusChange: controller.setFocused,
-              onTapDown: widget.onTapDown != null
-                  ? (details) {
-                      widget.onTapDown!(details);
-                      if (effectiveCloseOnTap) contextMenu.setVisible(false);
-                    }
-                  : null,
-              onPressed: () {
-                widget.onPressed?.call();
-                if (effectiveCloseOnTap) contextMenu.setVisible(false);
-              },
-              child: Expanded(
-                child: Row(
-                  children: [
-                    if (widget.leading != null)
-                      Padding(
-                        padding: effectiveLeadingPadding,
-                        child: widget.leading,
-                      ),
-                    // The button centres its text (`TextAlign.center` in its
-                    // DefaultTextStyle); a menu row is start-aligned.
-                    Expanded(
-                      child: DefaultTextStyle.merge(
-                        textAlign: TextAlign.start,
-                        child: widget.child,
-                      ),
-                    ),
-                    if (widget.trailing != null)
-                      Padding(
-                        padding: effectiveTrailingPadding,
-                        child: DefaultTextStyle(
-                          style: highlighted
-                              ? effectiveSelectedTrailingTextStyle
-                              : effectiveTrailingTextStyle,
-                          child: widget.trailing!,
+            child: _CheckableSemantics(
+              checkable: checkable,
+              child: Button.raw(
+                height: effectiveHeight,
+                enabled: widget.enabled,
+                variant: effectiveButtonVariant,
+                decoration: effectiveDecoration,
+                width: double.infinity,
+                padding: effectiveInsetPadding,
+                statesController: statesController,
+                backgroundColor: selected
+                    ? effectiveSelectedBackgroundColor
+                    : effectiveBackgroundColor,
+                hoverBackgroundColor: effectiveSelectedBackgroundColor,
+                // Through the button rather than a wrapping DefaultTextStyle,
+                // so its IconTheme recolours leading and trailing icons with
+                // the text — shadcn's `focus:**:text-accent-foreground`.
+                foregroundColor: selected
+                    ? selectedForegroundColor
+                    : foregroundColor,
+                hoverForegroundColor: selectedForegroundColor,
+                // A menu's highlight follows the pointer and the arrow keys
+                // row by row: it is there or it is not, with no fade and no
+                // glide between rows.
+                transitionDuration: Duration.zero,
+                textStyle: highlighted
+                    ? effectiveSelectedTextStyle
+                    : effectiveTextStyle,
+                onFocusChange: controller.setFocused,
+                onTapDown: widget.onTapDown != null
+                    ? (details) {
+                        widget.onTapDown!(details);
+                        if (effectiveCloseOnTap) _close(contextMenu);
+                      }
+                    : null,
+                onPressed: () {
+                  // Space on a checkable row toggles it and leaves the menu
+                  // open, so several can be set in one visit; Enter and a
+                  // click do what the row's `closeOnTap` says. The button
+                  // binds both keys to this callback, so the key is asked.
+                  final stays =
+                      checkable != null &&
+                      HardwareKeyboard.instance.isLogicalKeyPressed(
+                        LogicalKeyboardKey.space,
+                      );
+                  widget.onPressed?.call();
+                  if (effectiveCloseOnTap && !stays) _close(contextMenu);
+                },
+                child: Expanded(
+                  child: Row(
+                    children: [
+                      if (indicatorColumn)
+                        Padding(
+                          padding: effectiveLeadingPadding,
+                          child: SizedBox.square(
+                            dimension: effectiveIndicatorSize,
+                            child: checkable == null
+                                ? null
+                                : _MenuIndicator(
+                                    checked: checkable.checked,
+                                    radio: checkable.radio,
+                                    size: effectiveIndicatorSize,
+                                  ),
+                          ),
+                        ),
+                      if (widget.leading != null)
+                        Padding(
+                          padding: effectiveLeadingPadding,
+                          child: widget.leading,
+                        ),
+                      // The button centres its text (`TextAlign.center` in its
+                      // DefaultTextStyle); a menu row is start-aligned.
+                      Expanded(
+                        child: DefaultTextStyle.merge(
+                          textAlign: TextAlign.start,
+                          child: widget.child,
                         ),
                       ),
-                  ],
+                      if (widget.shortcut != null)
+                        Padding(
+                          padding: effectiveTrailingPadding,
+                          child: DefaultTextStyle(
+                            style: effectiveShortcutTextStyle.copyWith(
+                              color: highlighted
+                                  ? effectiveSelectedTrailingTextStyle.color
+                                  : effectiveTrailingTextStyle.color,
+                            ),
+                            child: widget.shortcut!,
+                          ),
+                        ),
+                      if (widget.trailing != null)
+                        Padding(
+                          padding: effectiveTrailingPadding,
+                          child: DefaultTextStyle(
+                            style: highlighted
+                                ? effectiveSelectedTrailingTextStyle
+                                : effectiveTrailingTextStyle,
+                            child: widget.trailing!,
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -1471,10 +1628,19 @@ class _ContextMenuItemState extends State<ContextMenuItem> {
 /// Marks the items built by one menu level, so a menu can tell its own items
 /// from those of a submenu below it.
 class _MenuLevel extends InheritedWidget {
-  const _MenuLevel({required this.menu, required super.child});
+  const _MenuLevel({
+    required this.menu,
+    required this.indicatorColumn,
+    required super.child,
+  });
 
   final ContextMenuState menu;
 
+  /// Whether a row of this level is checkable. Every row then keeps the
+  /// column of the check marks free, so the labels line up.
+  final bool indicatorColumn;
+
   @override
-  bool updateShouldNotify(_MenuLevel oldWidget) => menu != oldWidget.menu;
+  bool updateShouldNotify(_MenuLevel oldWidget) =>
+      menu != oldWidget.menu || indicatorColumn != oldWidget.indicatorColumn;
 }

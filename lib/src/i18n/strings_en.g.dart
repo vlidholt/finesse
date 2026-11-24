@@ -41,6 +41,7 @@ class FinesseLocalizationsData with BaseTranslations<FinesseLocale, FinesseLocal
 	late final FinesseLocalizationsData$keyboardToolbar$en keyboardToolbar = FinesseLocalizationsData$keyboardToolbar$en.internal(_root);
 	late final FinesseLocalizationsData$empty$en empty = FinesseLocalizationsData$empty$en.internal(_root);
 	late final FinesseLocalizationsData$command$en command = FinesseLocalizationsData$command$en.internal(_root);
+	late final FinesseLocalizationsData$menu$en menu = FinesseLocalizationsData$menu$en.internal(_root);
 	late final FinesseLocalizationsData$pagination$en pagination = FinesseLocalizationsData$pagination$en.internal(_root);
 	late final FinesseLocalizationsData$dialog$en dialog = FinesseLocalizationsData$dialog$en.internal(_root);
 	late final FinesseLocalizationsData$board$en board = FinesseLocalizationsData$board$en.internal(_root);
@@ -139,6 +140,60 @@ class FinesseLocalizationsData$command$en {
 	String get noResults => 'No results found.';
 }
 
+// Path: menu
+class FinesseLocalizationsData$menu$en {
+	FinesseLocalizationsData$menu$en.internal(this._root);
+
+	final FinesseLocalizationsData _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Ctrl'
+	String get control => 'Ctrl';
+
+	/// en: 'Alt'
+	String get alt => 'Alt';
+
+	/// en: 'Shift'
+	String get shift => 'Shift';
+
+	/// en: 'Meta'
+	String get meta => 'Meta';
+
+	/// en: 'Enter'
+	String get enter => 'Enter';
+
+	/// en: 'Esc'
+	String get escape => 'Esc';
+
+	/// en: 'Space'
+	String get space => 'Space';
+
+	/// en: 'Tab'
+	String get tab => 'Tab';
+
+	/// en: 'Backspace'
+	String get backspace => 'Backspace';
+
+	/// en: 'Del'
+	String get delete => 'Del';
+
+	/// en: 'Ins'
+	String get insert => 'Ins';
+
+	/// en: 'Home'
+	String get home => 'Home';
+
+	/// en: 'End'
+	String get end => 'End';
+
+	/// en: 'PgUp'
+	String get pageUp => 'PgUp';
+
+	/// en: 'PgDn'
+	String get pageDown => 'PgDn';
+}
+
 // Path: pagination
 class FinesseLocalizationsData$pagination$en {
 	FinesseLocalizationsData$pagination$en.internal(this._root);
@@ -232,6 +287,21 @@ extension on FinesseLocalizationsData {
 			'keyboardToolbar.done' => 'Done',
 			'empty.title' => 'No results',
 			'command.noResults' => 'No results found.',
+			'menu.control' => 'Ctrl',
+			'menu.alt' => 'Alt',
+			'menu.shift' => 'Shift',
+			'menu.meta' => 'Meta',
+			'menu.enter' => 'Enter',
+			'menu.escape' => 'Esc',
+			'menu.space' => 'Space',
+			'menu.tab' => 'Tab',
+			'menu.backspace' => 'Backspace',
+			'menu.delete' => 'Del',
+			'menu.insert' => 'Ins',
+			'menu.home' => 'Home',
+			'menu.end' => 'End',
+			'menu.pageUp' => 'PgUp',
+			'menu.pageDown' => 'PgDn',
 			'pagination.previous' => 'Previous',
 			'pagination.next' => 'Next',
 			'pagination.morePages' => 'More pages',
