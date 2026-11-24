@@ -93,8 +93,7 @@ class TextareaFormField extends FinesseFormField<String> {
     MouseCursor? mouseCursor,
 
     /// {@macro Textarea.magnifierConfiguration}
-    TextMagnifierConfiguration magnifierConfiguration =
-        TextMagnifierConfiguration.disabled,
+    TextMagnifierConfiguration? magnifierConfiguration,
 
     /// {@macro Textarea.cursorWidth}
     double? cursorWidth,

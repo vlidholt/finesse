@@ -6,6 +6,8 @@ import 'dart:ui' as ui;
 import 'package:boxy/flex.dart';
 import 'package:finesse/src/components/context_menu.dart';
 import 'package:finesse/src/components/disabled.dart';
+import 'package:finesse/src/components/text_magnifier.dart';
+import 'package:finesse/src/components/text_selection.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/i18n/strings.g.dart';
 import 'package:finesse/src/raw_components/keyboard_toolbar.dart';
@@ -102,7 +104,7 @@ class TextField extends StatefulWidget {
     this.enableIMEPersonalizedLearning = true,
     this.contextMenuBuilder,
     this.spellCheckConfiguration,
-    this.magnifierConfiguration = TextMagnifierConfiguration.disabled,
+    this.magnifierConfiguration,
     this.selectionColor,
     this.padding,
     this.leading,
@@ -412,8 +414,11 @@ class TextField extends StatefulWidget {
   final bool enableInteractiveSelection;
 
   /// {@template TextField.selectionControls}
-  /// Custom controls for text selection handles.
-  /// Defaults to platform-specific controls if not specified.
+  /// Builds the drag handles at the ends of a selection.
+  ///
+  /// Defaults to `FinesseTextSelectionControls.adaptive`: this system's
+  /// handles on iOS and Android, and none on a desktop, where a selection
+  /// is made with the pointer.
   /// {@endtemplate}
   final TextSelectionControls? selectionControls;
 
@@ -496,9 +501,13 @@ class TextField extends StatefulWidget {
   final bool enableIMEPersonalizedLearning;
 
   /// {@template TextField.contextMenuBuilder}
-  /// Custom builder for the context menu (e.g., copy/paste).
-  /// Defaults to a simple toolbar with copy/cut/paste buttons styled with
-  /// [Theme].
+  /// Builds the menu of a selection: cut, copy, paste and so on.
+  ///
+  /// Defaults to `TextFieldState.defaultContextMenuBuilder`, which follows
+  /// the platform: a horizontal `TextSelectionToolbar` over the selection
+  /// on iOS and Android, a `ContextMenu` at the pointer on a desktop. On
+  /// the web the browser's own menu is used instead (see
+  /// `TextField.useBrowserContextMenu`).
   /// {@endtemplate}
   final EditableTextContextMenuBuilder? contextMenuBuilder;
 
@@ -509,10 +518,14 @@ class TextField extends StatefulWidget {
   final SpellCheckConfiguration? spellCheckConfiguration;
 
   /// {@template TextField.magnifierConfiguration}
-  /// Configuration for the text magnifier.
-  /// Defaults to [TextMagnifierConfiguration.disabled].
+  /// The magnifier shown above the finger while the caret or a selection
+  /// handle is dragged.
+  ///
+  /// Defaults to `TextMagnifier.adaptiveConfiguration`: this system's loupe
+  /// on iOS and Android, none on a desktop. Pass
+  /// [TextMagnifierConfiguration.disabled] for no magnifier at all.
   /// {@endtemplate}
-  final TextMagnifierConfiguration magnifierConfiguration;
+  final TextMagnifierConfiguration? magnifierConfiguration;
 
   /// {@template TextField.selectionColor}
   /// The color of the text selection highlight.
@@ -1009,14 +1022,35 @@ class TextFieldState extends State<TextField>
     }
   }
 
-  /// The default text selection menu: a [ContextMenu] with localized cut,
-  /// copy, paste and select-all items.
+  /// The default text selection menu, which follows the platform.
   ///
-  /// Items that would do nothing, such as copy with no selection, are left out.
+  /// On iOS and Android it is a [TextSelectionToolbar]: a horizontal pill
+  /// over the selection with whatever the platform offers for it. When
+  /// `TextFieldTheme.useSystemContextMenu` is true and the platform can draw
+  /// the menu itself (iOS 16 and later), the system's own menu is shown
+  /// instead — pasting from it does not raise iOS's paste-permission
+  /// dialog.
+  ///
+  /// On a desktop it is a [ContextMenu] at the pointer with localized cut,
+  /// copy, paste and select-all items. Items that would do nothing, such as
+  /// copy with no selection, are left out.
   static Widget defaultContextMenuBuilder(
     BuildContext context,
     EditableTextState editableTextState,
   ) {
+    if (FinesseTextSelectionControls.usesTouchSelection) {
+      final useSystemMenu =
+          Theme.of(context).textFieldTheme.useSystemContextMenu ?? false;
+      if (useSystemMenu &&
+          SystemContextMenu.isSupportedByField(editableTextState)) {
+        return SystemContextMenu.editableText(
+          editableTextState: editableTextState,
+        );
+      }
+      return TextSelectionToolbar.editableText(
+        editableTextState: editableTextState,
+      );
+    }
     final l = FinesseLocalizations.of(context);
     final textValue = editableTextState.textEditingValue;
     final selection = textValue.selection;
@@ -1223,7 +1257,9 @@ class TextFieldState extends State<TextField>
                             ? null
                             : (widget.contextMenuBuilder ??
                                   defaultContextMenuBuilder),
-                        selectionControls: widget.selectionControls,
+                        selectionControls:
+                            widget.selectionControls ??
+                            FinesseTextSelectionControls.adaptive,
                         // ! End of selection handler
                         // ! section
                         mouseCursor: effectiveMouseCursor,
@@ -1247,7 +1283,9 @@ class TextFieldState extends State<TextField>
                         autofocus: widget.autofocus,
                         obscureText: widget.obscureText,
                         autocorrect: widget.autocorrect,
-                        magnifierConfiguration: widget.magnifierConfiguration,
+                        magnifierConfiguration:
+                            widget.magnifierConfiguration ??
+                            TextMagnifier.adaptiveConfiguration,
                         smartDashesType: widget.smartDashesType,
                         smartQuotesType: widget.smartQuotesType,
                         enableSuggestions: widget.enableSuggestions,

@@ -54,6 +54,7 @@ import 'package:example/docs/pages/responsive.dart';
 import 'package:example/docs/pages/scaffold.dart';
 import 'package:example/docs/pages/scroll_area.dart';
 import 'package:example/docs/pages/select.dart';
+import 'package:example/docs/pages/selection_area.dart';
 import 'package:example/docs/pages/sheet.dart';
 import 'package:example/docs/pages/sidebar.dart';
 import 'package:example/docs/pages/skeleton.dart';
@@ -158,6 +159,7 @@ final componentDocs = [
   scaffoldDoc,
   scrollAreaDoc,
   selectDoc,
+  selectionAreaDoc,
   sheetDoc,
   sidebarDoc,
   skeletonDoc,

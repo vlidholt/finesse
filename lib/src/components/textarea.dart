@@ -70,7 +70,7 @@ class Textarea extends StatefulWidget {
     this.enableIMEPersonalizedLearning = true,
     this.contextMenuBuilder,
     this.spellCheckConfiguration,
-    this.magnifierConfiguration = TextMagnifierConfiguration.disabled,
+    this.magnifierConfiguration,
     this.selectionColor,
     this.padding,
     this.mainAxisAlignment,
@@ -335,9 +335,11 @@ class Textarea extends StatefulWidget {
   final SpellCheckConfiguration? spellCheckConfiguration;
 
   /// {@template Textarea.magnifierConfiguration}
-  /// Configuration for the text magnifier shown during selection.
+  /// The magnifier shown above the finger while the caret or a selection
+  /// handle is dragged. Defaults to `TextMagnifier.adaptiveConfiguration`:
+  /// this system's loupe on iOS and Android, none on a desktop.
   /// {@endtemplate}
-  final TextMagnifierConfiguration magnifierConfiguration;
+  final TextMagnifierConfiguration? magnifierConfiguration;
 
   /// {@template Textarea.contentInsertionConfiguration}
   /// Platform-specific configuration for handling content insertion.

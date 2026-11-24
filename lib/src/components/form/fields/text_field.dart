@@ -40,8 +40,7 @@ class TextFormField extends FinesseFormField<String> {
     Widget? placeholder,
 
     /// {@macro TextField.magnifierConfiguration}
-    TextMagnifierConfiguration magnifierConfiguration =
-        TextMagnifierConfiguration.disabled,
+    TextMagnifierConfiguration? magnifierConfiguration,
 
     /// {@macro TextField.keyboardType}
     TextInputType? keyboardType,

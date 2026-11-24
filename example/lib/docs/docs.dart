@@ -5,7 +5,8 @@
 
 import 'package:example/common/code_style.dart';
 import 'package:finesse/finesse.dart';
-import 'package:flutter/material.dart' hide IconButton, Tab, Theme;
+import 'package:flutter/material.dart'
+    hide IconButton, SelectionArea, Tab, Theme;
 import 'package:flutter/services.dart';
 import 'package:syntax_highlight/syntax_highlight.dart';
 

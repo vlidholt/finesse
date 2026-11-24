@@ -92,6 +92,7 @@ export 'src/components/resizable.dart';
 export 'src/components/scaffold.dart';
 export 'src/components/scroll_area.dart';
 export 'src/components/select.dart';
+export 'src/components/selection_area.dart';
 export 'src/components/sheet.dart'
     hide
         RenderSheetLayoutWithSizeListener,
@@ -110,6 +111,8 @@ export 'src/components/tab_bar.dart';
 export 'src/components/table.dart';
 export 'src/components/tabs.dart';
 export 'src/components/text_field.dart';
+export 'src/components/text_magnifier.dart';
+export 'src/components/text_selection.dart';
 export 'src/components/textarea.dart' hide ResizeGripPainter;
 export 'src/components/time_picker.dart' hide TimePickerTextEditingController;
 export 'src/components/timeline.dart';
@@ -193,6 +196,7 @@ export 'src/theme/components/switch.dart';
 export 'src/theme/components/table.dart';
 export 'src/theme/components/tabs.dart';
 export 'src/theme/components/text_field.dart';
+export 'src/theme/components/text_selection.dart';
 export 'src/theme/components/textarea.dart';
 export 'src/theme/components/time_picker.dart';
 export 'src/theme/components/timeline.dart';

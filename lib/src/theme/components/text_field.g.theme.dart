@@ -61,6 +61,9 @@ mixin _$TextFieldTheme {
       useBrowserContextMenu: t < 0.5
           ? a.useBrowserContextMenu
           : b.useBrowserContextMenu,
+      useSystemContextMenu: t < 0.5
+          ? a.useSystemContextMenu
+          : b.useSystemContextMenu,
     );
   }
 
@@ -84,6 +87,7 @@ mixin _$TextFieldTheme {
     EdgeInsetsGeometry? scrollbarPadding,
     double? verticalGap,
     bool? useBrowserContextMenu,
+    bool? useSystemContextMenu,
   }) {
     final _this = (this as TextFieldTheme);
 
@@ -109,6 +113,7 @@ mixin _$TextFieldTheme {
       verticalGap: verticalGap ?? _this.verticalGap,
       useBrowserContextMenu:
           useBrowserContextMenu ?? _this.useBrowserContextMenu,
+      useSystemContextMenu: useSystemContextMenu ?? _this.useSystemContextMenu,
     );
   }
 
@@ -145,6 +150,7 @@ mixin _$TextFieldTheme {
       scrollbarPadding: other.scrollbarPadding,
       verticalGap: other.verticalGap,
       useBrowserContextMenu: other.useBrowserContextMenu,
+      useSystemContextMenu: other.useSystemContextMenu,
     );
   }
 
@@ -179,14 +185,15 @@ mixin _$TextFieldTheme {
         _other.constraints == _this.constraints &&
         _other.scrollbarPadding == _this.scrollbarPadding &&
         _other.verticalGap == _this.verticalGap &&
-        _other.useBrowserContextMenu == _this.useBrowserContextMenu;
+        _other.useBrowserContextMenu == _this.useBrowserContextMenu &&
+        _other.useSystemContextMenu == _this.useSystemContextMenu;
   }
 
   @override
   int get hashCode {
     final _this = (this as TextFieldTheme);
 
-    return Object.hash(
+    return Object.hashAll([
       runtimeType,
       _this.decoration,
       _this.padding,
@@ -207,6 +214,7 @@ mixin _$TextFieldTheme {
       _this.scrollbarPadding,
       _this.verticalGap,
       _this.useBrowserContextMenu,
-    );
+      _this.useSystemContextMenu,
+    ]);
   }
 }

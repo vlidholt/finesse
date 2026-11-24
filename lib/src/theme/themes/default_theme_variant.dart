@@ -60,6 +60,7 @@ import 'package:finesse/src/theme/components/switch.dart';
 import 'package:finesse/src/theme/components/table.dart';
 import 'package:finesse/src/theme/components/tabs.dart';
 import 'package:finesse/src/theme/components/text_field.dart';
+import 'package:finesse/src/theme/components/text_selection.dart';
 import 'package:finesse/src/theme/components/textarea.dart';
 import 'package:finesse/src/theme/components/time_picker.dart';
 import 'package:finesse/src/theme/components/timeline.dart';
@@ -1269,6 +1270,49 @@ class DefaultThemeVariant extends ThemeVariant {
       alignment: AlignmentDirectional.centerStart,
       placeholderAlignment: AlignmentDirectional.centerStart,
       gap: 8,
+    );
+  }
+
+  @override
+  TextSelectionTheme textSelectionTheme() {
+    return TextSelectionTheme(
+      // The tint, not the primary: a handle is drawn straight on the page
+      // and the primary is tuned as a button fill (see `ColorScheme.tint`).
+      handleColor: colorScheme.tint,
+      // Literals, like a caret's width: a handle is a mark on the text, not
+      // a control that follows the spacing step.
+      handleSize: 12,
+      handleStemWidth: 2,
+      // A touch target wherever it shows; a menu row's height when that is
+      // taller.
+      toolbarHeight: math.max(menuItemHeight, 40),
+      toolbarDecoration: FinesseDecoration(
+        border: FinesseBorder.all(
+          radius: popoverRadius,
+          color: menuSurfaceBorderColor,
+          width: 1,
+        ),
+      ),
+      toolbarItemPadding: EdgeInsets.symmetric(
+        horizontal: scaled(style.itemPaddingX) + scaled(style.menuPadding),
+      ),
+      toolbarTextStyle: style.body
+          .apply(effectiveTextTheme.muted)
+          .copyWith(color: menuScheme.popoverForeground),
+      toolbarDividerColor: menuSurfaceBorderColor,
+      // The wash a menu row takes, wherever the style has one: the toolbar
+      // is a menu laid on its side.
+      toolbarPressedColor: _menuHighlightWash != null
+          ? menuItemHighlight
+          : _wash(menuScheme.foreground, _menuIsDark ? .1 : .06),
+      toolbarGap: 8,
+      magnifierSize: const Size(88, 48),
+      magnifierScale: 1.25,
+      magnifierBorderRadius: const BorderRadius.all(Radius.circular(9999)),
+      magnifierBorderColor: colorScheme.borderStrong,
+      magnifierShadows: _isDark
+          ? style.floatingShadowDark ?? style.floatingShadow
+          : style.floatingShadow,
     );
   }
 

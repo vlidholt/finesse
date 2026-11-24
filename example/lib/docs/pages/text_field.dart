@@ -2,6 +2,7 @@ import 'package:example/docs/docs.dart';
 import 'package:example/docs/examples/text_field/text_field_basic.dart';
 import 'package:example/docs/examples/text_field/text_field_disabled.dart';
 import 'package:example/docs/examples/text_field/text_field_password.dart';
+import 'package:example/docs/examples/text_field/text_field_touch_selection.dart';
 
 final textFieldDoc = ComponentDoc(
   slug: 'text_field',
@@ -25,6 +26,17 @@ final textFieldDoc = ComponentDoc(
       id: 'text_field_disabled',
       title: 'Disabled',
       builder: (_) => const TextFieldDisabledExample(),
+    ),
+    ComponentExample(
+      id: 'text_field_touch_selection',
+      title: 'Selection on touch',
+      description:
+          'On iOS and Android every field has selection handles, a '
+          'horizontal `TextSelectionToolbar` and a `TextMagnifier`, styled '
+          'by `ThemeData.textSelectionTheme`; a desktop keeps its pointer '
+          'selection and menu. This field asks for the touch controls by '
+          'name so they show here too.',
+      builder: (_) => const TextFieldTouchSelectionExample(),
     ),
   ],
 );

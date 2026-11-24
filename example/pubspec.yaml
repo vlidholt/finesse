@@ -68,6 +68,7 @@ flutter:
     - lib/docs/examples/radio_group/
     - lib/docs/examples/resizable/
     - lib/docs/examples/select/
+    - lib/docs/examples/selection_area/
     - lib/docs/examples/divider/
     - lib/docs/examples/sheet/
     - lib/docs/examples/sidebar/

@@ -176,6 +176,11 @@ mixin _$ThemeData {
         b.textFieldTheme,
         t,
       )!,
+      textSelectionTheme: TextSelectionTheme.lerp(
+        a.textSelectionTheme,
+        b.textSelectionTheme,
+        t,
+      )!,
       radioTheme: RadioTheme.lerp(a.radioTheme, b.radioTheme, t)!,
       primaryToastTheme: ToastTheme.lerp(
         a.primaryToastTheme,
@@ -315,6 +320,7 @@ mixin _$ThemeData {
     SwitchTheme? switchTheme,
     CheckboxTheme? checkboxTheme,
     TextFieldTheme? textFieldTheme,
+    TextSelectionTheme? textSelectionTheme,
     RadioTheme? radioTheme,
     ToastTheme? primaryToastTheme,
     ToastTheme? destructiveToastTheme,
@@ -403,6 +409,7 @@ mixin _$ThemeData {
       switchTheme: switchTheme ?? _this.switchTheme,
       checkboxTheme: checkboxTheme ?? _this.checkboxTheme,
       textFieldTheme: textFieldTheme ?? _this.textFieldTheme,
+      textSelectionTheme: textSelectionTheme ?? _this.textSelectionTheme,
       radioTheme: radioTheme ?? _this.radioTheme,
       primaryToastTheme: primaryToastTheme ?? _this.primaryToastTheme,
       destructiveToastTheme:
@@ -525,6 +532,9 @@ mixin _$ThemeData {
       switchTheme: _this.switchTheme.merge(other.switchTheme),
       checkboxTheme: _this.checkboxTheme.merge(other.checkboxTheme),
       textFieldTheme: _this.textFieldTheme.merge(other.textFieldTheme),
+      textSelectionTheme: _this.textSelectionTheme.merge(
+        other.textSelectionTheme,
+      ),
       radioTheme: _this.radioTheme.merge(other.radioTheme),
       primaryToastTheme: _this.primaryToastTheme.merge(other.primaryToastTheme),
       destructiveToastTheme: _this.destructiveToastTheme.merge(
@@ -630,6 +640,7 @@ mixin _$ThemeData {
         _other.switchTheme == _this.switchTheme &&
         _other.checkboxTheme == _this.checkboxTheme &&
         _other.textFieldTheme == _this.textFieldTheme &&
+        _other.textSelectionTheme == _this.textSelectionTheme &&
         _other.radioTheme == _this.radioTheme &&
         _other.primaryToastTheme == _this.primaryToastTheme &&
         _other.destructiveToastTheme == _this.destructiveToastTheme &&
@@ -719,6 +730,7 @@ mixin _$ThemeData {
       _this.switchTheme,
       _this.checkboxTheme,
       _this.textFieldTheme,
+      _this.textSelectionTheme,
       _this.radioTheme,
       _this.primaryToastTheme,
       _this.destructiveToastTheme,
