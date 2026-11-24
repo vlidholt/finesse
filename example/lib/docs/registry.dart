@@ -43,6 +43,7 @@ import 'package:example/docs/pages/navigation_bar.dart';
 import 'package:example/docs/pages/otp_field.dart';
 import 'package:example/docs/pages/overview.dart';
 import 'package:example/docs/pages/page_container.dart';
+import 'package:example/docs/pages/page_route.dart';
 import 'package:example/docs/pages/pagination.dart';
 import 'package:example/docs/pages/popover.dart';
 import 'package:example/docs/pages/portal.dart';
@@ -149,6 +150,7 @@ final componentDocs = [
   navigationBarDoc,
   otpFieldDoc,
   pageContainerDoc,
+  pageRouteDoc,
   paginationDoc,
   popoverDoc,
   pressableDoc,

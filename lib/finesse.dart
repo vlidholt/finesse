@@ -124,6 +124,8 @@ export 'src/i18n/localizations_delegate.dart';
 export 'src/i18n/strings.g.dart'
     show FinesseLocale, FinesseLocalizationsData, FinesseLocalizationsDataEn;
 export 'src/icons/phosphor_icons.dart';
+// Routes
+export 'src/page_route.dart';
 // Raw Components
 export 'src/raw_components/focusable.dart';
 export 'src/raw_components/keyboard_toolbar.dart';

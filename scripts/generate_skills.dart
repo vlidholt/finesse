@@ -53,6 +53,7 @@ const _slugs = [
   'navigation_bar',
   'otp_field',
   'page_container',
+  'page_route',
   'pagination',
   'popover',
   'pressable',

@@ -103,6 +103,7 @@ flutter:
     - lib/docs/examples/pressable/
     - lib/docs/examples/motion/
     - lib/docs/examples/page_container/
+    - lib/docs/examples/page_route/
     - lib/docs/examples/form_factors/
     - lib/docs/examples/icons/
 
