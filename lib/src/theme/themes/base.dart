@@ -29,6 +29,7 @@ import 'package:finesse/src/theme/components/icon_tile.dart';
 import 'package:finesse/src/theme/components/indicator_badge.dart';
 import 'package:finesse/src/theme/components/kbd.dart';
 import 'package:finesse/src/theme/components/layout.dart';
+import 'package:finesse/src/theme/components/list_section.dart';
 import 'package:finesse/src/theme/components/list_tile.dart';
 import 'package:finesse/src/theme/components/menubar.dart';
 import 'package:finesse/src/theme/components/navigation_bar.dart';
@@ -156,6 +157,7 @@ abstract class BaseTheme {
     required this.navigationBarTheme,
     required this.bottomNavigationBarTheme,
     required this.chipTheme,
+    required this.listSectionTheme,
     required this.listTileTheme,
     required this.chatBubbleTheme,
     required this.chatListTheme,
@@ -210,6 +212,9 @@ abstract class BaseTheme {
 
   /// The theme of the matching widget.
   final ChipTheme chipTheme;
+
+  /// The theme of `ListSection`.
+  final ListSectionTheme listSectionTheme;
 
   /// The theme of the matching widget.
   final ListTileTheme listTileTheme;
@@ -650,6 +655,9 @@ abstract class ThemeVariant {
 
   /// Builds the [ChipTheme].
   ChipTheme chipTheme();
+
+  /// Builds the [ListSectionTheme].
+  ListSectionTheme listSectionTheme();
 
   /// Builds the [ListTileTheme].
   ListTileTheme listTileTheme();

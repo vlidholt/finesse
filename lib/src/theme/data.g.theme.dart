@@ -44,6 +44,11 @@ mixin _$ThemeData {
         t,
       )!,
       chipTheme: ChipTheme.lerp(a.chipTheme, b.chipTheme, t)!,
+      listSectionTheme: ListSectionTheme.lerp(
+        a.listSectionTheme,
+        b.listSectionTheme,
+        t,
+      )!,
       listTileTheme: ListTileTheme.lerp(a.listTileTheme, b.listTileTheme, t)!,
       chatBubbleTheme: ChatBubbleTheme.lerp(
         a.chatBubbleTheme,
@@ -271,6 +276,7 @@ mixin _$ThemeData {
     NavigationBarTheme? navigationBarTheme,
     BottomNavigationBarTheme? bottomNavigationBarTheme,
     ChipTheme? chipTheme,
+    ListSectionTheme? listSectionTheme,
     ListTileTheme? listTileTheme,
     ChatBubbleTheme? chatBubbleTheme,
     ChatListTheme? chatListTheme,
@@ -357,6 +363,7 @@ mixin _$ThemeData {
       bottomNavigationBarTheme:
           bottomNavigationBarTheme ?? _this.bottomNavigationBarTheme,
       chipTheme: chipTheme ?? _this.chipTheme,
+      listSectionTheme: listSectionTheme ?? _this.listSectionTheme,
       listTileTheme: listTileTheme ?? _this.listTileTheme,
       chatBubbleTheme: chatBubbleTheme ?? _this.chatBubbleTheme,
       chatListTheme: chatListTheme ?? _this.chatListTheme,
@@ -463,6 +470,7 @@ mixin _$ThemeData {
         other.bottomNavigationBarTheme,
       ),
       chipTheme: _this.chipTheme.merge(other.chipTheme),
+      listSectionTheme: _this.listSectionTheme.merge(other.listSectionTheme),
       listTileTheme: _this.listTileTheme.merge(other.listTileTheme),
       chatBubbleTheme: _this.chatBubbleTheme.merge(other.chatBubbleTheme),
       chatListTheme: _this.chatListTheme.merge(other.chatListTheme),
@@ -586,6 +594,7 @@ mixin _$ThemeData {
         _other.navigationBarTheme == _this.navigationBarTheme &&
         _other.bottomNavigationBarTheme == _this.bottomNavigationBarTheme &&
         _other.chipTheme == _this.chipTheme &&
+        _other.listSectionTheme == _this.listSectionTheme &&
         _other.listTileTheme == _this.listTileTheme &&
         _other.chatBubbleTheme == _this.chatBubbleTheme &&
         _other.chatListTheme == _this.chatListTheme &&
@@ -675,6 +684,7 @@ mixin _$ThemeData {
       _this.navigationBarTheme,
       _this.bottomNavigationBarTheme,
       _this.chipTheme,
+      _this.listSectionTheme,
       _this.listTileTheme,
       _this.chatBubbleTheme,
       _this.chatListTheme,

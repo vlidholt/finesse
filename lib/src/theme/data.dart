@@ -30,6 +30,7 @@ import 'package:finesse/src/theme/components/icon_tile.dart';
 import 'package:finesse/src/theme/components/indicator_badge.dart';
 import 'package:finesse/src/theme/components/kbd.dart';
 import 'package:finesse/src/theme/components/layout.dart';
+import 'package:finesse/src/theme/components/list_section.dart';
 import 'package:finesse/src/theme/components/list_tile.dart';
 import 'package:finesse/src/theme/components/menubar.dart';
 import 'package:finesse/src/theme/components/navigation_bar.dart';
@@ -149,6 +150,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     NavigationBarTheme? navigationBarTheme,
     BottomNavigationBarTheme? bottomNavigationBarTheme,
     ChipTheme? chipTheme,
+    ListSectionTheme? listSectionTheme,
     ListTileTheme? listTileTheme,
     ChatBubbleTheme? chatBubbleTheme,
     ChatListTheme? chatListTheme,
@@ -417,6 +419,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
         navigationBarTheme: navigationBarTheme,
         bottomNavigationBarTheme: bottomNavigationBarTheme,
         chipTheme: chipTheme,
+        listSectionTheme: listSectionTheme,
         listTileTheme: listTileTheme,
         chatBubbleTheme: chatBubbleTheme,
         chatListTheme: chatListTheme,
@@ -571,6 +574,9 @@ class ThemeData extends BaseTheme with _$ThemeData {
           .bottomNavigationBarTheme()
           .merge(bottomNavigationBarTheme),
       chipTheme: effectiveVariant.chipTheme().merge(chipTheme),
+      listSectionTheme: effectiveVariant.listSectionTheme().merge(
+        listSectionTheme,
+      ),
       listTileTheme: effectiveVariant.listTileTheme().merge(listTileTheme),
       chatBubbleTheme: effectiveVariant.chatBubbleTheme().merge(
         chatBubbleTheme,
@@ -673,6 +679,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     required super.navigationBarTheme,
     required super.bottomNavigationBarTheme,
     required super.chipTheme,
+    required super.listSectionTheme,
     required super.listTileTheme,
     required super.chatBubbleTheme,
     required super.chatListTheme,
@@ -761,6 +768,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     NavigationBarTheme? navigationBarTheme,
     BottomNavigationBarTheme? bottomNavigationBarTheme,
     ChipTheme? chipTheme,
+    ListSectionTheme? listSectionTheme,
     ListTileTheme? listTileTheme,
     ChatBubbleTheme? chatBubbleTheme,
     ChatListTheme? chatListTheme,
@@ -855,6 +863,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
       bottomNavigationBarTheme:
           bottomNavigationBarTheme ?? i.bottomNavigationBarTheme,
       chipTheme: chipTheme ?? i.chipTheme,
+      listSectionTheme: listSectionTheme ?? i.listSectionTheme,
       listTileTheme: listTileTheme ?? i.listTileTheme,
       chatBubbleTheme: chatBubbleTheme ?? i.chatBubbleTheme,
       chatListTheme: chatListTheme ?? i.chatListTheme,
@@ -1043,6 +1052,7 @@ final class _ThemeInputs {
     this.navigationBarTheme,
     this.bottomNavigationBarTheme,
     this.chipTheme,
+    this.listSectionTheme,
     this.listTileTheme,
     this.chatBubbleTheme,
     this.chatListTheme,
@@ -1133,6 +1143,7 @@ final class _ThemeInputs {
   final NavigationBarTheme? navigationBarTheme;
   final BottomNavigationBarTheme? bottomNavigationBarTheme;
   final ChipTheme? chipTheme;
+  final ListSectionTheme? listSectionTheme;
   final ListTileTheme? listTileTheme;
   final ChatBubbleTheme? chatBubbleTheme;
   final ChatListTheme? chatListTheme;

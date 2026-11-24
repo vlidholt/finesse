@@ -60,6 +60,7 @@ flutter:
     - lib/docs/examples/dropdown_menu/
     - lib/docs/examples/keyboard_toolbar/
     - lib/docs/examples/layout/
+    - lib/docs/examples/list_section/
     - lib/docs/examples/menubar/
     - lib/docs/examples/pagination/
     - lib/docs/examples/popover/

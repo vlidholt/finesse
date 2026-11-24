@@ -1,8 +1,8 @@
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
-/// Settings rows: an icon tile in front, a control or a chevron behind, and
-/// a subtitle that is allowed to wrap to two lines.
+/// Settings rows: an icon tile in front, a control, a value or a chevron
+/// behind, and a subtitle that is allowed to wrap to two lines.
 class ListTileSettingsExample extends StatefulWidget {
   const ListTileSettingsExample({super.key});
 
@@ -44,10 +44,7 @@ class _ListTileSettingsExampleState extends State<ListTileSettingsExample> {
               ),
               title: const Text('Privacy'),
               subtitle: const Text('Who can see your profile and activity'),
-              trailing: const PhosphorIcon(
-                PhosphorIconsRegular.caretRight,
-                size: 16,
-              ),
+              showChevron: true,
               onTap: () {},
             ),
             ListTile(
@@ -55,11 +52,8 @@ class _ListTileSettingsExampleState extends State<ListTileSettingsExample> {
                 icon: PhosphorIcon(PhosphorIconsRegular.translate),
               ),
               title: const Text('Language'),
-              subtitle: const Text('English'),
-              trailing: const PhosphorIcon(
-                PhosphorIconsRegular.caretRight,
-                size: 16,
-              ),
+              value: const Text('English'),
+              showChevron: true,
               onTap: () {},
             ),
           ],

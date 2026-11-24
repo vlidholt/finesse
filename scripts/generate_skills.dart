@@ -48,6 +48,7 @@ const _slugs = [
   'indicator_badge',
   'kbd',
   'keyboard_toolbar',
+  'list_section',
   'list_tile',
   'menubar',
   'navigation_bar',

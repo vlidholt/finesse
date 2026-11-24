@@ -36,6 +36,7 @@ import 'package:finesse/src/theme/components/icon_tile.dart';
 import 'package:finesse/src/theme/components/indicator_badge.dart';
 import 'package:finesse/src/theme/components/kbd.dart';
 import 'package:finesse/src/theme/components/layout.dart';
+import 'package:finesse/src/theme/components/list_section.dart';
 import 'package:finesse/src/theme/components/list_tile.dart';
 import 'package:finesse/src/theme/components/menubar.dart';
 import 'package:finesse/src/theme/components/navigation_bar.dart';
@@ -1955,6 +1956,41 @@ class DefaultThemeVariant extends ThemeVariant {
   }
 
   @override
+  ListSectionTheme listSectionTheme() {
+    final tileX = scaled(style.cardPadding);
+    return ListSectionTheme(
+      margin: EdgeInsets.zero,
+      // The card's own fill and corners: null here, so a `CardTheme`
+      // override reaches the sections too.
+      headerStyle: style.overline
+          .apply(effectiveTextTheme.muted)
+          .copyWith(color: colorScheme.mutedForeground),
+      // No footer style: the footer is the text theme's caption, which the
+      // style's roles have been applied to.
+      headerPadding: EdgeInsetsDirectional.only(
+        start: tileX,
+        end: tileX,
+        bottom: scaled(style.gapSm),
+      ),
+      footerPadding: EdgeInsetsDirectional.only(
+        start: tileX,
+        end: tileX,
+        top: scaled(style.gapSm),
+      ),
+      // Rows line up with a card's content: the card padding at the sides.
+      tilePadding: EdgeInsets.symmetric(
+        horizontal: tileX,
+        vertical: scaled(style.listTilePaddingY),
+      ),
+      // As tall as a button, which is a touch target on a phone.
+      minTileHeight: scaled(style.buttonHeight),
+      dividerColor: colorScheme.border,
+      dividerThickness: 1,
+      pressedColor: colorScheme.muted,
+    );
+  }
+
+  @override
   ListTileTheme listTileTheme() {
     return ListTileTheme(
       padding: EdgeInsets.symmetric(
@@ -1972,6 +2008,10 @@ class DefaultThemeVariant extends ThemeVariant {
       ),
       hoverColor: colorScheme.muted,
       selectedColor: colorScheme.accent,
+      valueStyle: (style.small ?? style.body).apply(effectiveTextTheme.muted),
+      chevronColor: _wash(colorScheme.mutedForeground, .7),
+      chevronSize: 16,
+      destructiveColor: colorScheme.destructive,
     );
   }
 
