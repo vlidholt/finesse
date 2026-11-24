@@ -38,6 +38,7 @@ import 'package:finesse/finesse.dart';
 - [Form](guides/form.md): `FinesseForm` and the `*FormField` widgets.
 - [Responsive](guides/responsive.md): the breakpoint scale, `ResponsiveBuilder`, `context.breakpoint`.
 - [Portal](guides/portal.md): the overlay primitive behind popovers, selects, and menus.
+- [Motion](guides/motion.md): the `Motion` tokens, what animates on its own, and the spring, press, indicator and entrance building blocks.
 
 ## Components
 

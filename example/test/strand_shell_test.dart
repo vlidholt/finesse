@@ -274,6 +274,41 @@ void main() {
         expect(tester.takeException(), isNull, reason: 'at $width');
       }
     });
+
+    testWidgets('search is reachable at every width: the field, then a '
+        'magnifier in the bar', (tester) async {
+      for (final width in [1280.0, 1100.0, 960.0, 900.0, 840.0, 768.0]) {
+        await pumpApp(tester, size: Size(width, 800));
+        // Either the field itself or the magnifier that opens the page, and
+        // never both.
+        final field = inAppBar(find.byType(SearchField)).hitTestable();
+        final magnifier = inAppBar(
+          find.widgetWithIcon(
+            IconButton,
+            PhosphorIconsRegular.magnifyingGlass,
+          ),
+        ).hitTestable();
+        expect(
+          field.evaluate().length + magnifier.evaluate().length,
+          1,
+          reason: 'at $width',
+        );
+        expect(tester.takeException(), isNull, reason: 'at $width');
+      }
+
+      // In the narrow range the magnifier opens the search page.
+      await pumpApp(tester, size: const Size(800, 800));
+      await tapAndSettle(
+        tester,
+        inAppBar(
+          find.widgetWithIcon(
+            IconButton,
+            PhosphorIconsRegular.magnifyingGlass,
+          ),
+        ).hitTestable(),
+      );
+      expect(find.byType(SearchScreen), findsOneWidget);
+    });
   });
 
   group('on a phone (390x844)', () {

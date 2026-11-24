@@ -576,18 +576,25 @@ class DefaultThemeVariant extends ThemeVariant {
     // `border-border bg-background hover:bg-muted hover:text-foreground`,
     // with `dark:bg-input/30 dark:border-input dark:hover:bg-input/50` — and
     // per-style fills, which is what the [SurfaceFill] tokens carry.
+    final fill = _fill(
+      _isDark ? style.outlineButtonFillDark : style.outlineButtonFill,
+      colorScheme,
+    );
+    final hoverFill = _fill(
+      _isDark ? style.outlineButtonHoverFillDark : style.outlineButtonHoverFill,
+      colorScheme,
+    );
     return ButtonTheme(
       textStyle: style.label.apply(effectiveTextTheme.small),
-      backgroundColor: _fill(
-        _isDark ? style.outlineButtonFillDark : style.outlineButtonFill,
-        colorScheme,
-      ),
-      hoverBackgroundColor: _fill(
-        _isDark
-            ? style.outlineButtonHoverFillDark
-            : style.outlineButtonHoverFill,
-        colorScheme,
-      ),
+      backgroundColor: fill,
+      // A scheme whose hover colour is a wash (teal's `muted` is 4% of the
+      // foreground) would turn an opaque button see-through on hover — over
+      // a photograph the picture shows through. The wash goes over the
+      // button's own fill instead.
+      hoverBackgroundColor:
+          fill != null && hoverFill != null && fill.a == 1 && hoverFill.a < 1
+          ? Color.alphaBlend(hoverFill, fill)
+          : hoverFill,
       foregroundColor: colorScheme.foreground,
       hoverForegroundColor: colorScheme.foreground,
       shadows: style.controlShadow,

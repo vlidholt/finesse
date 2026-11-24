@@ -189,27 +189,37 @@ class StrandShell extends StatelessWidget {
 /// The bar gives this zone whatever is left beside the centred navigation —
 /// 396 logical pixels in the designs' 1440 window, where everything fits,
 /// and next to nothing just above the phone breakpoint. So it sheds in
-/// order: the search field narrows and then goes (it collapses itself), and
-/// last the logo drops its wordmark.
+/// order: the search field narrows to its magnifier (it collapses itself),
+/// then the logo drops its wordmark so the magnifier can stay — search has
+/// no other entry on a desktop — and only when even that does not fit does
+/// search go.
 class _BarStart extends StatelessWidget {
   const _BarStart({required this.onLogoPressed});
 
   final VoidCallback onLogoPressed;
+
+  /// The least the search bar needs to draw anything: its magnifier.
+  static const _searchMinWidth = 40.0;
 
   @override
   Widget build(BuildContext context) {
     // The gap the app bar itself puts between a leading widget and a title.
     final gap = (Theme.of(context).appBarTheme.gap ?? 24) - 4;
     final logoWidth = StrandLogo.widthOf(context);
+    final markWidth = StrandLogo.widthOf(context, showWordmark: false);
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final showWordmark = constraints.maxWidth >= logoWidth;
+        final room = constraints.maxWidth;
+        final searchBesideLogo = room >= logoWidth + gap + _searchMinWidth;
+        final searchBesideMark = room >= markWidth + gap + _searchMinWidth;
+        final showWordmark =
+            searchBesideLogo || (!searchBesideMark && room >= logoWidth);
         return Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             StrandLogo(onPressed: onLogoPressed, showWordmark: showWordmark),
-            if (showWordmark) ...[
+            if (searchBesideLogo || searchBesideMark) ...[
               Gap.raw(gap),
               const Flexible(child: StrandSearchBar()),
             ],
