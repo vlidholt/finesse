@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:finesse/src/raw_components/pressable.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
@@ -245,7 +243,7 @@ class _DashedBorderPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = width;
     final path = Path()..addRRect(rrect);
-    for (final PathMetric metric in path.computeMetrics()) {
+    for (final metric in path.computeMetrics()) {
       // Stretch the pattern so a whole number of dashes fits the outline and
       // the last one meets the first without a seam.
       final count = (metric.length / (_dash + _gap)).round();

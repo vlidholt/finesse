@@ -462,7 +462,8 @@ class Dialog extends StatelessWidget {
 
   /// {@template Dialog.closeIconData}
   /// The icon data for the close button.
-  /// Used if [closeIcon] is null; defaults to [PhosphorIconsRegular.x] if not specified.
+  /// Used if [closeIcon] is null; defaults to [PhosphorIconsRegular.x] if not
+  /// specified.
   /// {@endtemplate}
   final IconData? closeIconData;
 

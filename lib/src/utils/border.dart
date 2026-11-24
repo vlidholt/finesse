@@ -422,8 +422,8 @@ class FinesseBorderSide with Diagnosticable {
   ///
   /// This property is not honored by toPaint (because the [Paint] object
   /// cannot represent it); it is intended that classes that use
-  /// [FinesseBorderSide] objects implement this property when painting borders by
-  /// suitably inflating or deflating their regions.
+  /// [FinesseBorderSide] objects implement this property when painting borders
+  /// by suitably inflating or deflating their regions.
   final double? strokeAlign;
 
   /// Creates a copy of this border but with the given fields replaced with the

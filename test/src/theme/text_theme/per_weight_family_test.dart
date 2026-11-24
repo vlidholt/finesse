@@ -102,7 +102,7 @@ void main() {
       }
     }
 
-    test('the finesse heading is the 700 face, not the text theme\'s 800', () {
+    test("the finesse heading is the 700 face, not the text theme's 800", () {
       final theme = ThemeData(textTheme: textTheme);
       expect(theme.textTheme.h1.fontWeight, FontWeight.w700);
       expect(theme.textTheme.h1.fontFamily, 'Fake_700');

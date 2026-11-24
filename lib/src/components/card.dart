@@ -367,7 +367,7 @@ class Card extends StatelessWidget {
 
     // The clip a backdrop filter needs would cut the card's own shadow off,
     // so the shadow is painted by a box outside it.
-    final Widget card = blurs
+    final card = blurs
         ? DecoratedBox(
             decoration: ShadowDecoration.box(
               borderRadius: effectiveRadius,
@@ -392,8 +392,6 @@ class Card extends StatelessWidget {
       // The card's content stays in the semantics tree under its label: a
       // card usually holds buttons of its own, and they must stay reachable.
       excludeSemantics: false,
-      // Buttons inside the card win the gesture arena over it on their own.
-      behavior: HitTestBehavior.opaque,
       builder: (context, states) => FocusRing(
         visible: states.contains(WidgetState.focused),
         borderRadius: effectiveRadius,

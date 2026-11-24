@@ -3,7 +3,8 @@ import 'package:theme_extensions_builder_annotation/theme_extensions_builder_ann
 
 part 'bottom_navigation_bar.g.theme.dart';
 
-/// The theme of `BottomNavigationBar`: every value the widget does not set itself.
+/// The theme of `BottomNavigationBar`: every value the widget does not set
+/// itself.
 @themeGen
 @immutable
 class BottomNavigationBarTheme with _$BottomNavigationBarTheme {

@@ -85,8 +85,8 @@ enum MenuAccent {
   bold,
 }
 
-/// The complete visual configuration of a Finesse app: colour scheme, text theme,
-/// radius, style, spacing and every component theme.
+/// The complete visual configuration of a Finesse app: colour scheme, text
+/// theme, radius, style, spacing and every component theme.
 ///
 /// The factory resolves its inputs into a [ThemeVariant], which derives the
 /// component themes. An explicit component theme passed here is merged over the

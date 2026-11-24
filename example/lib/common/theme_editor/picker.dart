@@ -1,3 +1,10 @@
+// The example shows Material widgets beside finesse's through the SDK's own
+// Material library, as `package:finesse/material.dart` does; Flutter
+// deprecated it in 3.47 in favour of the `material_ui` package. The list's
+// `cacheExtent` is deprecated too, but its replacement does not exist on
+// the minimum Flutter the package supports (3.41).
+// ignore_for_file: deprecated_member_use
+
 import 'dart:math' as math;
 
 import 'package:finesse/finesse.dart';
@@ -293,7 +300,7 @@ class _PickerListState<T> extends State<_PickerList<T>> {
           primary: false,
           padding: EdgeInsets.zero,
           itemExtent: extent,
-          scrollCacheExtent: ScrollCacheExtent.pixels(extent),
+          cacheExtent: extent,
           itemCount: widget.options.length,
           itemBuilder: (context, index) {
             final option = widget.options[index];

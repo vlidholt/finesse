@@ -37,10 +37,10 @@ class NavigationDestination {
   /// Whether to show a dot badge when there is no [badgeCount].
   final bool showBadge;
 
-  /// Whether a [NavigationScaffold] lists the destination in its top bar.
+  /// Whether a `NavigationScaffold` lists the destination in its top bar.
   final bool showInTopBar;
 
-  /// Whether a [NavigationScaffold] lists the destination in its bottom bar.
+  /// Whether a `NavigationScaffold` lists the destination in its bottom bar.
   final bool showInBottomBar;
 }
 
@@ -97,9 +97,9 @@ Widget _badged(NavigationDestination destination, Widget icon, Offset offset) {
 /// )
 /// ```
 ///
-/// It is meant for an [AppBar]'s `middle` and fills the bar's height, so the
+/// It is meant for an `AppBar`'s `middle` and fills the bar's height, so the
 /// selection indicator sits on the bar's bottom edge. On a phone use a
-/// [BottomNavigationBar]; a [NavigationScaffold] switches between the two.
+/// [BottomNavigationBar]; a `NavigationScaffold` switches between the two.
 class NavigationBar extends StatelessWidget {
   /// Creates a top navigation bar.
   const NavigationBar({
@@ -249,7 +249,7 @@ class NavigationBar extends StatelessWidget {
 /// In a style whose bottom bar floats — Finesse's default — it is a glass
 /// pill hovering above the page, as wide as its destinations; otherwise it
 /// spans the bottom edge and shares the width between them. Either way it
-/// respects the bottom safe area. Put it in a [Scaffold] so the page scrolls
+/// respects the bottom safe area. Put it in a `Scaffold` so the page scrolls
 /// beneath it.
 class BottomNavigationBar extends StatelessWidget {
   /// Creates a bottom navigation bar.
@@ -279,7 +279,7 @@ class BottomNavigationBar extends StatelessWidget {
   final bool? floating;
 
   /// The height a [BottomNavigationBar] takes in [context], including its
-  /// margin and the bottom safe area. A [Scaffold] uses it to inset its body.
+  /// margin and the bottom safe area. A `Scaffold` uses it to inset its body.
   static double heightOf(BuildContext context) {
     final theme = Theme.of(context);
     final bar = theme.bottomNavigationBarTheme;

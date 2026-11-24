@@ -32,8 +32,8 @@ class RadioController<T> extends ValueNotifier<T?> {
 /// A customizable radio group widget that allows selection of one item from
 /// a list of options.
 ///
-/// The [FinesseRadioGroup] widget is designed to manage a group of radio buttons
-/// and handle their state. It supports various configurations such as
+/// The [FinesseRadioGroup] widget is designed to manage a group of radio
+/// buttons and handle their state. It supports various configurations such as
 /// alignment, spacing, and initial value selection.
 class FinesseRadioGroup<T> extends StatefulWidget {
   /// Creates a [FinesseRadioGroup] with the given [items] and optional

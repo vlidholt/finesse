@@ -21,7 +21,7 @@ import 'package:flutter/widgets.dart';
 ///
 /// The bar's height follows the theme's form factor and its fill follows the
 /// style's bar opacity: a translucent bar blurs whatever scrolls beneath it,
-/// which is the reason to put it in a [Scaffold] rather than a `Column`. The
+/// which is the reason to put it in a `Scaffold` rather than a `Column`. The
 /// content is centred and capped at the width of a `PageContainer`'s padding
 /// box, so on a wide screen the bar's ends sit one page margin outside the
 /// page content below it.
@@ -82,7 +82,7 @@ class AppBar extends StatelessWidget {
   final bool primary;
 
   /// The height an [AppBar] takes in [context], including the status bar
-  /// when [primary]. A [Scaffold] uses it to inset its body.
+  /// when [primary]. A `Scaffold` uses it to inset its body.
   static double heightOf(BuildContext context, {bool primary = true}) {
     final theme = Theme.of(context);
     return (theme.appBarTheme.height ?? 64) +

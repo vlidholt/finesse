@@ -25,8 +25,8 @@ void main() {
     });
 
     test('decoration is a value type (FinesseBorder ==)', () {
-      // Regression: FinesseBorder had no operator==, so FinesseDecoration.== fell
-      // back to identity and every ThemeData was unequal.
+      // Regression: FinesseBorder had no operator==, so FinesseDecoration.==
+      // fell back to identity and every ThemeData was unequal.
       expect(buildTheme().decoration, equals(buildTheme().decoration));
     });
 

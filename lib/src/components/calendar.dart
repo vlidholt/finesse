@@ -621,12 +621,14 @@ class Calendar extends StatefulWidget {
   final double? navigationButtonIconSize;
 
   /// {@template Calendar.backNavigationButtonIconData}
-  /// The back navigation button src, defaults to [PhosphorIconsRegular.caretLeft]
+  /// The back navigation button src, defaults to
+  /// [PhosphorIconsRegular.caretLeft]
   /// {@endtemplate}
   final IconData? backNavigationButtonIconData;
 
   /// {@template Calendar.forwardNavigationButtonIconData}
-  /// The forward navigation button src, defaults to [PhosphorIconsRegular.caretRight]
+  /// The forward navigation button src, defaults to
+  /// [PhosphorIconsRegular.caretRight]
   /// {@endtemplate}
   final IconData? forwardNavigationButtonIconData;
 

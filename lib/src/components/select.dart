@@ -1105,9 +1105,9 @@ class SelectState<T> extends State<Select<T>> {
 
         if (controller.value.isNotEmpty) {
           // The value shown in the trigger belongs to the *page*, not the
-          // menu: `selectOptionTheme.selectedTextStyle` carries the menu palette's
-          // highlight foreground, which is unreadable on the trigger the
-          // moment menus are inverted or bold.
+          // menu: `selectOptionTheme.selectedTextStyle` carries the menu
+          // palette's highlight foreground, which is unreadable on the trigger
+          // the moment menus are inverted or bold.
           resultDefaultTextStyle = theme.textTheme.muted.fallback(
             color: theme.colorScheme.foreground,
           );

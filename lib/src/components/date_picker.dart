@@ -777,7 +777,8 @@ class DatePicker extends StatefulWidget {
   final Widget? trailing;
 
   /// {@template DatePicker.iconData}
-  /// The icon of the date picker button, defaults to [PhosphorIconsRegular.calendarBlank].
+  /// The icon of the date picker button, defaults to
+  /// [PhosphorIconsRegular.calendarBlank].
   /// {@endtemplate}
   final IconData? iconData;
 

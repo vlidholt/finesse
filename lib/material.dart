@@ -19,6 +19,11 @@
 /// `cupertino_ui` packages.
 library;
 
+// Flutter deprecated the SDK's Material and Cupertino libraries in 3.47 in
+// favour of the `material_ui` and `cupertino_ui` packages. This library wraps
+// the SDK ones on purpose, as its comment above says.
+// ignore_for_file: deprecated_member_use
+
 import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/text_theme/theme.dart';
 import 'package:finesse/src/theme/theme.dart';

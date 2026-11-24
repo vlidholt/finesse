@@ -23,7 +23,8 @@ typedef FromValueTransformer<T> = T Function(dynamic value);
 /// The [FinesseFormField] extends [FormField] to provide a styled input
 /// field with a label, error display, and description, integrated with
 /// `Theme` via [InputDecorator]. It supports validation, focus
-/// management, and value transformation, designed for use within a [FinesseForm].
+/// management, and value transformation, designed for use within a
+/// [FinesseForm].
 @immutable
 class FinesseFormField<T> extends FormField<T> {
   /// Creates a form field widget with a custom builder and optional properties.

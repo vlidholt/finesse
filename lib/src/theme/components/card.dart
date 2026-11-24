@@ -98,13 +98,13 @@ class CardTheme with _$CardTheme {
   /// title and its description. Null falls back to [gap].
   final double? sectionGap;
 
-  /// Linearly interpolates between [a] and [b] by [t].
   /// The sigma of the backdrop blur behind a translucent card; 0 for none.
   final double? blur;
 
   /// How much a blurred card saturates its backdrop; 1 leaves it alone.
   final double? saturation;
 
+  /// Linearly interpolates between [a] and [b] by [t].
   static CardTheme? lerp(
     CardTheme? a,
     CardTheme? b,

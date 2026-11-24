@@ -300,9 +300,9 @@ class DataTableController<T> extends ChangeNotifier {
 /// )
 /// ```
 ///
-/// [FinesseTable] is built on `TableView`, a two-dimensional scroll view with no
-/// shrink-wrap, so this needs a bounded height — give it one via [height], an
-/// [Expanded], or a [SizedBox].
+/// [FinesseTable] is built on `TableView`, a two-dimensional scroll view with
+/// no shrink-wrap, so this needs a bounded height — give it one via [height],
+/// an [Expanded], or a [SizedBox].
 /// {@endtemplate}
 class DataTable<T> extends StatefulWidget {
   /// {@macro DataTable}

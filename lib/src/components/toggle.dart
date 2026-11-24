@@ -475,7 +475,10 @@ class ToggleGroupController<T> extends ChangeNotifier {
 ///   onChanged: (values) => setState(() => selected = values),
 ///   children: const [
 ///     ToggleGroupItem(value: 'bold', child: Icon(PhosphorIconsRegular.textB)),
-///     ToggleGroupItem(value: 'italic', child: Icon(PhosphorIconsRegular.textItalic)),
+///     ToggleGroupItem(
+///       value: 'italic',
+///       child: Icon(PhosphorIconsRegular.textItalic),
+///     ),
 ///   ],
 /// )
 /// ```

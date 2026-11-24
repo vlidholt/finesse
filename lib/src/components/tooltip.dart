@@ -215,8 +215,8 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
   /// Computed here rather than in build(). Building it per build allocated a
   /// fresh `onHoverChange` closure, and HoverStrategies compares that
   /// closure in `==`, so the copied theme was never equal to the previous one.
-  /// FinesseInheritedTheme then reported a change and rebuilt the tooltip's entire
-  /// child subtree on every tooltip rebuild — and `ThemeData.copyWith`
+  /// FinesseInheritedTheme then reported a change and rebuilt the tooltip's
+  /// entire child subtree on every tooltip rebuild — and `ThemeData.copyWith`
   /// re-runs all 54 component-theme merges each time.
   late ThemeData _childTheme;
 

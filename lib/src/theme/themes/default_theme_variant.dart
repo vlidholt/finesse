@@ -1116,8 +1116,9 @@ class DefaultThemeVariant extends ThemeVariant {
       padding: spacing.directional(start: 2),
       decoration: FinesseDecoration(
         border: FinesseBorder.all(radius: radius.add(radius / 2), width: 0),
-        // FinesseBorder.merge takes `other`'s radius and offset unconditionally,
-        // so an override has to restate both or they fall back to null.
+        // FinesseBorder.merge takes `other`'s radius and offset
+        // unconditionally, so an override has to restate both or they fall
+        // back to null.
         secondaryFocusedBorder: FinesseBorder.all(
           radius: radius
               .add(radius / 2)
@@ -1547,8 +1548,8 @@ class DefaultThemeVariant extends ThemeVariant {
       cellAlignment: Alignment.centerLeft,
       cellHeight: 48,
       // Horizontal only: shadcn's `p-2` sits on a cell that grows with its
-      // content, while FinesseTable rows have a fixed height, so vertical padding
-      // there just squeezes the content out.
+      // content, while FinesseTable rows have a fixed height, so vertical
+      // padding there just squeezes the content out.
       cellPadding: EdgeInsets.symmetric(
         horizontal: scaled(style.tableCellPadding),
       ),

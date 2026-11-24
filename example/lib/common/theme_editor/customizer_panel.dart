@@ -1,3 +1,8 @@
+// The example shows Material widgets beside finesse's through the SDK's own
+// Material library, as `package:finesse/material.dart` does; Flutter
+// deprecated it in 3.47 in favour of the `material_ui` package.
+// ignore_for_file: deprecated_member_use
+
 import 'package:example/common/theme_editor/editor_config.dart';
 import 'package:example/common/theme_editor/fonts.dart';
 import 'package:example/common/theme_editor/picker.dart';

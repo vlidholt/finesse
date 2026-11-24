@@ -9,8 +9,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-/// A [TextField] that takes part in a `FinesseForm`, with a label, a description
-/// and validation.
+/// A [TextField] that takes part in a `FinesseForm`, with a label, a
+/// description and validation.
 class TextFormField extends FinesseFormField<String> {
   /// Creates a text input form field.
   TextFormField({

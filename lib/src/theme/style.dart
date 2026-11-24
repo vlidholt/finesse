@@ -87,7 +87,7 @@ enum SurfaceFill {
 @immutable
 class StyleTokens {
   /// Creates a style. Only [name] is required; every other field defaults to
-  /// [vega]'s value.
+  /// the value of shadcn's base style, `vega`.
   const StyleTokens({
     required this.name,
     // Radii.
