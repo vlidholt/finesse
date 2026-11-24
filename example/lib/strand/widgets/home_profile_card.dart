@@ -151,7 +151,7 @@ class HomeProfileCard extends StatelessWidget {
                         stat.value,
                         style: theme.textTheme.small.copyWith(
                           fontWeight: FontWeight.w600,
-                          color: scheme.accentForeground,
+                          color: scheme.tint,
                         ),
                       ),
                     ],

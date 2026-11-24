@@ -562,8 +562,24 @@ class ColorScheme {
   /// *accent* as two independent choices: pick `zinc` for the greys, then
   /// `blue` for the primary and focus ring. A [ColorScheme] bundles both,
   /// so this re-tints only the parts that follow the accent — [primary],
-  /// [ring] and [selection] — and derives a readable [primaryForeground] when
-  /// one is not supplied.
+  /// [ring], [selection] and the [tint] — and derives a readable
+  /// [primaryForeground] when one is not supplied.
+  ///
+  /// The [tint] is the brand colour drawn directly on the page (selected
+  /// icons, links, progress fills), so it only follows [accent] where the
+  /// accent can be read there:
+  ///
+  /// * If [accent] has a contrast of at least 4.5:1 against both [background]
+  ///   and [card], it becomes the [tint]; [tintForeground] becomes the new
+  ///   [primaryForeground] and [accentBorder] the tint at 32% opacity. A
+  ///   scheme that names its own tint, as `TealColorScheme` does, has it
+  ///   replaced.
+  /// * Otherwise the three are left as they are. A scheme that names no tint
+  ///   still follows the new [primary], because that is what [tint] falls
+  ///   back to; a scheme that names one keeps it, since a legible tint of
+  ///   the old hue serves better than an illegible one of the new. Pass a
+  ///   tint of your own with [copyWith], or use [applyAccentScheme], whose
+  ///   accents carry a ramp to pick a legible step from.
   ///
   /// ```dart
   /// ThemeData(
@@ -577,11 +593,18 @@ class ColorScheme {
     bool tintSelection = true,
   }) {
     final foreground = accentForeground ?? contrastingForeground(accent);
+    // The same bar applyAccentScheme sets for a tint: it is drawn *on* a
+    // surface, so it has to read against the page and against a card.
+    final legible =
+        _contrast(accent, background) >= 4.5 && _contrast(accent, card) >= 4.5;
     return copyWith(
       primary: accent,
       primaryForeground: foreground,
       ring: accent,
       selection: tintSelection ? accent.withValues(alpha: .3) : null,
+      tint: legible ? accent : null,
+      tintForeground: legible ? foreground : null,
+      accentBorder: legible ? accent.withValues(alpha: .32) : null,
     );
   }
 

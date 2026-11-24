@@ -7,7 +7,7 @@ void main() {
     'toggling enabled with a shared states controller does not notify '
     'listeners during build',
     (tester) async {
-      final controller = StatesController();
+      final controller = WidgetStatesController();
       addTearDown(controller.dispose);
       var enabled = true;
       late StateSetter setOuter;
@@ -23,7 +23,7 @@ void main() {
               ValueListenableBuilder(
                 valueListenable: controller,
                 builder: (context, states, _) => Text(
-                  states.contains(FinesseState.disabled) ? 'off' : 'on',
+                  states.contains(WidgetState.disabled) ? 'off' : 'on',
                 ),
               ),
               StatefulBuilder(

@@ -86,6 +86,16 @@ AccentScheme.fromName('violet', brightness: Brightness.dark);
 // Or any one color, with a readable foreground derived for it:
 const NeutralColorScheme.light().applyAccent(const Color(0xFF3B82F6));''',
           ),
+          DocParagraph(
+            '`applyAccent` re-colors the primary, the focus ring and the '
+            'selection. It also moves the `tint` (selected icons, links, '
+            'progress fills), `tintForeground` and `accentBorder` when '
+            'the color has a contrast of at least 4.5:1 against both '
+            '`background` and `card`; a color too faint for that leaves '
+            'them alone, so set `tint` yourself with `copyWith` or use '
+            'an `AccentScheme`, which picks a legible step from its '
+            'ramp.',
+          ),
         ],
       ),
       DocSection(

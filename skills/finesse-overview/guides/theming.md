@@ -61,6 +61,8 @@ AccentScheme.fromName('violet', brightness: Brightness.dark);
 const NeutralColorScheme.light().applyAccent(const Color(0xFF3B82F6));
 ```
 
+`applyAccent` re-colors the primary, the focus ring and the selection. It also moves the `tint` (selected icons, links, progress fills), `tintForeground` and `accentBorder` when the color has a contrast of at least 4.5:1 against both `background` and `card`; a color too faint for that leaves them alone, so set `tint` yourself with `copyWith` or use an `AccentScheme`, which picks a legible step from its ramp.
+
 There is no `BlueColorScheme`, `RoseColorScheme` or `SlateColorScheme`: a colored theme is a base scheme plus an accent.
 
 ## Customizing a scheme

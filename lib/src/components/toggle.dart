@@ -5,7 +5,6 @@ import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/debug_check.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:finesse/src/utils/provider.dart';
-import 'package:finesse/src/utils/states_controller.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
@@ -216,7 +215,7 @@ class Toggle extends StatefulWidget {
 
   /// Holds the interaction states of the toggle, such as hovered and pressed.
   /// When null, the toggle creates its own.
-  final StatesController? statesController;
+  final WidgetStatesController? statesController;
 
   /// The accessible name, needed when [child] is icon-only.
   final String? semanticLabel;
@@ -226,9 +225,9 @@ class Toggle extends StatefulWidget {
 }
 
 class _ToggleState extends State<Toggle> {
-  StatesController? _internalStatesController;
+  WidgetStatesController? _internalStatesController;
 
-  StatesController get statesController =>
+  WidgetStatesController get statesController =>
       widget.statesController ?? _internalStatesController!;
 
   bool get enabled => widget.enabled && widget.onChanged != null;
@@ -237,7 +236,7 @@ class _ToggleState extends State<Toggle> {
   void initState() {
     super.initState();
     if (widget.statesController == null) {
-      _internalStatesController = StatesController();
+      _internalStatesController = WidgetStatesController();
     }
   }
 
@@ -338,11 +337,11 @@ class _ToggleState extends State<Toggle> {
         behavior: HitTestBehavior.opaque,
         onTap: _toggle,
         onHoverChange: (hovered) =>
-            statesController.update(FinesseState.hovered, hovered),
+            statesController.update(WidgetState.hovered, hovered),
         child: ValueListenableBuilder(
           valueListenable: statesController,
           builder: (context, states, _) {
-            final hovered = enabled && states.contains(FinesseState.hovered);
+            final hovered = enabled && states.contains(WidgetState.hovered);
             final foreground = foregroundFor(hovered: hovered);
             return Container(
               padding: effectivePadding,

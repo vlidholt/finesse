@@ -5,7 +5,6 @@ import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/debug_check.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
-import 'package:finesse/src/utils/states_controller.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 
@@ -397,7 +396,7 @@ class IconButton extends StatelessWidget {
   final bool enabled;
 
   /// {@macro Button.statesController}
-  final StatesController? statesController;
+  final WidgetStatesController? statesController;
 
   /// {@macro Button.hoverStrategies}
   final HoverStrategies? hoverStrategies;

@@ -10,8 +10,8 @@ The first release of `finesse`, a fork of [`shad`](https://pub.dev/packages/shad
   Flutter's widgets layer keep a `Finesse` prefix: `FinesseApp`,
   `FinesseRow`, `FinesseColumn`, `FinessePadding`, `FinesseForm`,
   `FinesseFormField`, `FinesseTable`, `FinesseBorder`, `FinesseDecoration`,
-  `FinesseGestureDetector`, `FinesseRadioGroup`, `FinesseState`,
-  `FinessePageRoute`, `FinesseMaterial` and a few more.
+  `FinesseGestureDetector`, `FinesseRadioGroup`, `FinessePageRoute`,
+  `FinesseMaterial` and a few more.
 - **Flutter names where they exist.** `ShadInput` is `TextField`,
   `ShadInputFormField` is `TextFormField`, `ShadInputOTP` is `OtpField`,
   `ShadSeparator` is `Divider`, `ShadProgress` is `ProgressBar` and
@@ -19,6 +19,26 @@ The first release of `finesse`, a fork of [`shad`](https://pub.dev/packages/shad
   (`ThemeData.textFieldTheme`, `dividerTheme`, `progressBarTheme`, …).
 - **Everything `@Deprecated` in shad 1.0 is removed**, along with its
   data-driven fixes.
+- **Flutter's `WidgetState`, not a state enum of our own.** `ShadState` and
+  `ShadStatesController` are gone. Every `statesController` parameter
+  (`Button`, `IconButton`, `Toggle`, `Tab`, `MenubarItem`, `DatePicker` and
+  the date picker form fields) takes Flutter's `WidgetStatesController`, and
+  the states are `WidgetState.hovered`, `pressed`, `focused` and `disabled`,
+  the same vocabulary `Pressable`, `Chip`, `ListTile` and the navigation
+  bars already use. One difference in behaviour: `WidgetStatesController`
+  changes its `value` set in place before it notifies, where
+  `ShadStatesController` assigned a new set, so a listener that compares
+  against the previous states has to keep its own copy of them.
+- **`ShadAppType.shadcn` is `FinesseAppType.standard`**, the app
+  `FinesseApp.new` and `FinesseApp.router` build.
+- **`ColorScheme.applyAccent` moves the tint as well as the primary.** With
+  a colour that reads against both the background and the card (a contrast
+  of at least 4.5:1), `tint` becomes that colour, `tintForeground` its
+  foreground and `accentBorder` the tint at 32%. Before, a scheme that names
+  its own tint, as the default `TealColorScheme` does, kept teal icons,
+  links and progress bars under a re-coloured primary. A colour too faint
+  for that leaves the three alone: a scheme without a tint of its own still
+  follows the new primary, and one with a tint keeps it.
 - **A new default look.** `ThemeData()` is the `finesse` style on the
   `TealColorScheme`: 10-point controls, 18-point translucent cards over a
   blurred backdrop, soft tinted shadows. Pass `style: StyleTokens.nova` and

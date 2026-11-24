@@ -283,7 +283,7 @@ class ProfileTextLink extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: effectiveStyle.copyWith(
-            color: color ?? theme.colorScheme.accentForeground,
+            color: color ?? theme.colorScheme.tint,
             decoration: states.contains(WidgetState.hovered)
                 ? TextDecoration.underline
                 : TextDecoration.none,
@@ -393,7 +393,7 @@ class ProfileMetaItem extends StatelessWidget {
     final style =
         (meta.link
                 ? theme.textTheme.small.copyWith(
-                    color: theme.colorScheme.accentForeground,
+                    color: theme.colorScheme.tint,
                   )
                 : theme.textTheme.muted)
             .copyWith(fontSize: 14);

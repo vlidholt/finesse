@@ -234,7 +234,7 @@ class _ConversationTile extends StatelessWidget {
             style: theme.messagesCaption.copyWith(
               height: 20 / 12,
               fontWeight: isUnread ? FontWeight.w600 : null,
-              color: isUnread ? colors.accentForeground : null,
+              color: isUnread ? colors.tint : null,
             ),
           ),
         ],

@@ -11,7 +11,6 @@ import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/extensions/date_time.dart';
 import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
-import 'package:finesse/src/utils/states_controller.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -846,7 +845,7 @@ class DatePicker extends StatefulWidget {
   final bool enabled;
 
   /// {@macro Button.statesController}
-  final StatesController? statesController;
+  final WidgetStatesController? statesController;
 
   /// {@macro Button.gap}
   final double? gap;

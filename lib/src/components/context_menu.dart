@@ -14,7 +14,6 @@ import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:finesse/src/utils/mouse_area.dart';
 import 'package:finesse/src/utils/provider.dart';
-import 'package:finesse/src/utils/states_controller.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -1123,7 +1122,7 @@ class _ContextMenuItemState extends State<ContextMenuItem> {
   /// Shared with the item's button so the trailing widget and text colours
   /// can follow the button's own hover state — a leaf item is only ever
   /// hovered, never "selected", so selection alone cannot drive them.
-  final statesController = StatesController();
+  final statesController = WidgetStatesController();
   // get the parent item controller, if any, meaning this item is a submenu
   late final parentItemController = context
       .maybeRead<ContextMenuItemController>();
@@ -1148,7 +1147,7 @@ class _ContextMenuItemState extends State<ContextMenuItem> {
   /// came from lets go at once. The button's own hover is used because leaf
   /// rows have no hover area of their own.
   void _onStatesChanged() {
-    final hovered = statesController.value.contains(FinesseState.hovered);
+    final hovered = statesController.value.contains(WidgetState.hovered);
     if (hovered == _buttonHovered) return;
     _buttonHovered = hovered;
     if (hovered) {
@@ -1338,7 +1337,7 @@ class _ContextMenuItemState extends State<ContextMenuItem> {
     Widget child = ListenableBuilder(
       listenable: Listenable.merge([controller, statesController]),
       builder: (context, _) {
-        final hovered = statesController.value.contains(FinesseState.hovered);
+        final hovered = statesController.value.contains(WidgetState.hovered);
         final selected = controller.selected;
         // Rest vs highlight, resolved here because a leaf item's hover lives
         // in the button's own states — selection alone cannot see it.

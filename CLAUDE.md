@@ -583,6 +583,12 @@ disco providers in `common/app_state.dart`, provided above `FinesseApp`.
   `theme.radii`; an off-scale number that recurs gets one named constant in
   the screen's own `*_metrics.dart` or common file (`jobsSnugGap = 14`), not
   a new theme token.
+- **Text and icons drawn straight on a surface use `scheme.tint`**, never
+  `accentForeground`. The two are the same teal in the default scheme, but
+  `accentForeground` is the ink *on an accent fill* (a selected chip, a
+  highlighted menu row), and a bold menu accent rewrites the accent pair
+  with the primary pair — which made every link and stat number near-white
+  on a white card under the Press preset.
 - **Reading the designs.** In the design HTML, `<span>`/`<div>` are
   content-box and `<button>` is border-box: a `h:30` span with a 1px border
   renders 32 tall, which is why skill chips are 32. A header of `h:64` with

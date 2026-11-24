@@ -7,7 +7,6 @@ import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/debug_check.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:finesse/src/utils/separated_iterable.dart';
-import 'package:finesse/src/utils/states_controller.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -648,10 +647,16 @@ class Button extends StatefulWidget {
   final bool enabled;
 
   /// {@template Button.statesController}
-  /// The controller for managing button states (e.g., hovered, pressed,
-  /// focused). If null, an internal controller is created.
+  /// The controller that holds the button's interaction states
+  /// ([WidgetState.hovered], [WidgetState.pressed], [WidgetState.focused] and
+  /// [WidgetState.disabled]). If null, an internal controller is created.
+  ///
+  /// This is Flutter's own [WidgetStatesController], which changes its
+  /// [WidgetStatesController.value] set in place before notifying: a listener
+  /// that needs to know which state flipped has to keep its own copy of the
+  /// states it last saw.
   /// {@endtemplate}
-  final StatesController? statesController;
+  final WidgetStatesController? statesController;
 
   /// {@template Button.gap}
   /// The gap between the button's items (e.g., [leading], [child], [trailing]).
@@ -816,10 +821,10 @@ class Button extends StatefulWidget {
 }
 
 class _ButtonState extends State<Button> {
-  StatesController? _statesController;
+  WidgetStatesController? _statesController;
   FocusNode? _focusNode;
 
-  StatesController get statesController =>
+  WidgetStatesController get statesController =>
       widget.statesController ?? _statesController!;
 
   FocusNode get focusNode => widget.focusNode ?? _focusNode!;
@@ -828,8 +833,8 @@ class _ButtonState extends State<Button> {
   void initState() {
     super.initState();
     if (widget.statesController == null) {
-      _statesController = StatesController({
-        if (!widget.enabled) FinesseState.disabled,
+      _statesController = WidgetStatesController({
+        if (!widget.enabled) WidgetState.disabled,
       });
     }
     if (widget.focusNode == null) _focusNode = FocusNode();
@@ -839,7 +844,7 @@ class _ButtonState extends State<Button> {
     if (widget.statesController != null && !widget.enabled) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
-          statesController.update(FinesseState.disabled, true);
+          statesController.update(WidgetState.disabled, true);
         }
       });
     }
@@ -853,7 +858,7 @@ class _ButtonState extends State<Button> {
       if (widget.statesController == null) {
         // Our own controller's only listener is the builder below us, which
         // may be marked dirty while we update.
-        statesController.update(FinesseState.disabled, !widget.enabled);
+        statesController.update(WidgetState.disabled, !widget.enabled);
       } else {
         // An external controller may have listeners elsewhere in the tree
         // (a menu item's trailing icon); notifying them now, mid-build, is
@@ -861,7 +866,7 @@ class _ButtonState extends State<Button> {
         // widget.enabled, so it is correct this frame regardless.
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
-            statesController.update(FinesseState.disabled, !widget.enabled);
+            statesController.update(WidgetState.disabled, !widget.enabled);
           }
         });
       }
@@ -883,7 +888,7 @@ class _ButtonState extends State<Button> {
   }
 
   void onFocusChange() {
-    statesController.update(FinesseState.focused, focusNode.hasFocus);
+    statesController.update(WidgetState.focused, focusNode.hasFocus);
   }
 
   ButtonTheme buttonTheme(ThemeData theme) {
@@ -1130,10 +1135,10 @@ class _ButtonState extends State<Button> {
       child: ValueListenableBuilder(
         valueListenable: statesController,
         builder: (context, states, _) {
-          final pressed = states.contains(FinesseState.pressed);
-          final hovered = states.contains(FinesseState.hovered);
+          final pressed = states.contains(WidgetState.pressed);
+          final hovered = states.contains(WidgetState.hovered);
           final enabled =
-              widget.enabled && !states.contains(FinesseState.disabled);
+              widget.enabled && !states.contains(WidgetState.disabled);
 
           final effectiveBackgroundColor = hasPressedBackgroundColor && pressed
               ? pressedBackgroundColor(theme)
@@ -1254,7 +1259,7 @@ class _ButtonState extends State<Button> {
                           behavior: HitTestBehavior.opaque,
                           onHoverChange: (value) {
                             statesController.update(
-                              FinesseState.hovered,
+                              WidgetState.hovered,
                               value,
                             );
                             widget.onHoverChange?.call(value);
@@ -1264,19 +1269,19 @@ class _ButtonState extends State<Button> {
                           onLongPress: widget.onLongPress,
                           onTap: widget.onPressed == null ? null : onTap,
                           onTapDown: (details) {
-                            statesController.update(FinesseState.pressed, true);
+                            statesController.update(WidgetState.pressed, true);
                             widget.onTapDown?.call(details);
                           },
                           onTapUp: (details) {
                             statesController.update(
-                              FinesseState.pressed,
+                              WidgetState.pressed,
                               false,
                             );
                             widget.onTapUp?.call(details);
                           },
                           onTapCancel: () {
                             statesController.update(
-                              FinesseState.pressed,
+                              WidgetState.pressed,
                               false,
                             );
                             widget.onTapCancel?.call();

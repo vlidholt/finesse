@@ -16,7 +16,7 @@ class HomeGroupsCard extends StatelessWidget {
       trailing: HomeTextLink(
         'See all',
         onPressed: () {},
-        style: theme.textTheme.small.copyWith(color: scheme.accentForeground),
+        style: theme.textTheme.small.copyWith(color: scheme.tint),
       ),
       child: FinesseColumn(
         gap: GapSize.md,

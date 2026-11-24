@@ -28,9 +28,9 @@ enum ThemeMode {
 
 /// The kind of app that [FinesseApp] builds.
 enum FinesseAppType {
-  /// Builds a [WidgetsApp] with finesse defaults. Used by [FinesseApp.new] and
-  /// [FinesseApp.router].
-  shadcn,
+  /// The standard finesse app: a [WidgetsApp] with finesse defaults. Used by
+  /// [FinesseApp.new] and [FinesseApp.router].
+  standard,
 
   /// Calls [FinesseApp.appBuilder], so you can build your own app widget, for
   /// example a `MaterialApp`. Used by [FinesseApp.custom].
@@ -88,7 +88,7 @@ class FinesseApp extends StatefulWidget {
        backButtonDispatcher = null,
        routerConfig = null,
        appBuilder = null,
-       type = FinesseAppType.shadcn;
+       type = FinesseAppType.standard;
 
   /// Creates a [FinesseApp] that uses the [Router] instead of a [Navigator].
   const FinesseApp.router({
@@ -131,7 +131,7 @@ class FinesseApp extends StatefulWidget {
        initialRoute = null,
        pageRouteBuilder = null,
        appBuilder = null,
-       type = FinesseAppType.shadcn;
+       type = FinesseAppType.standard;
 
   /// Creates a [FinesseApp] that provides the theme but calls [appBuilder] to
   /// build the app widget.
@@ -184,9 +184,9 @@ class FinesseApp extends StatefulWidget {
 
   /// The type of app to use.
   ///
-  /// If you are going to use only Finesse components, use [FinesseAppType.shadcn].
-  /// To build your own app widget, such as a `MaterialApp`, use
-  /// [FinesseAppType.custom].
+  /// If you are going to use only Finesse components, use
+  /// [FinesseAppType.standard]. To build your own app widget, such as a
+  /// `MaterialApp`, use [FinesseAppType.custom].
   final FinesseAppType type;
 
   /// Default visual properties, like colors fonts and shapes, for this app's
@@ -610,7 +610,7 @@ class _AppState extends State<FinesseApp> {
   Widget _buildApp(BuildContext context) {
     final theme = Theme.of(context);
     switch (widget.type) {
-      case FinesseAppType.shadcn:
+      case FinesseAppType.standard:
         if (usesRouter) {
           return DefaultStyles(
             data: theme,

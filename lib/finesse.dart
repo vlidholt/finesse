@@ -222,4 +222,3 @@ export 'src/utils/mouse_area.dart' show MouseArea, MouseAreaSurface;
 export 'src/utils/position.dart' hide PositionedExt;
 export 'src/utils/responsive.dart';
 export 'src/utils/shadow.dart' hide paintOuterShadows;
-export 'src/utils/states_controller.dart';

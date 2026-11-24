@@ -7,7 +7,6 @@ import 'package:finesse/src/theme/themes/shadows.dart';
 import 'package:finesse/src/utils/border.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:finesse/src/utils/provider.dart';
-import 'package:finesse/src/utils/states_controller.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
@@ -708,7 +707,7 @@ class Tab<T> extends StatefulWidget implements PreferredSizeWidget {
   /// {@template Tab.statesController}
   /// Custom states controller for managing tab states.
   /// {@endtemplate}
-  final StatesController? statesController;
+  final WidgetStatesController? statesController;
 
   /// {@macro Button.mainAxisAlignment}
   final MainAxisAlignment? mainAxisAlignment;

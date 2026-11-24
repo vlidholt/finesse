@@ -8,7 +8,6 @@ import 'package:finesse/src/components/popover.dart';
 import 'package:finesse/src/raw_components/portal.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
-import 'package:finesse/src/utils/states_controller.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -355,7 +354,7 @@ class DatePickerFormField extends FinesseFormField<DateTime> {
     FinesseDecoration? buttonDecoration,
 
     /// {@macro Button.statesController}
-    StatesController? statesController,
+    WidgetStatesController? statesController,
 
     /// {@macro Button.gap}
     double? gap,
