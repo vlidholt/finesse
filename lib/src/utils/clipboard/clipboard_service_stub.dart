@@ -1,13 +1,13 @@
-import 'package:shad/src/utils/clipboard/clipboard_service.dart';
+import 'package:finesse/src/utils/clipboard/clipboard_service.dart';
 
 /// Does nothing. Pasting files is supported only on the web.
-void addPasteFilesListener(ShadPasteFilesCallback callback) {}
+void addPasteFilesListener(PasteFilesCallback callback) {}
 
 /// Does nothing. Pasting files is supported only on the web.
-void removePasteFilesListener(ShadPasteFilesCallback callback) {}
+void removePasteFilesListener(PasteFilesCallback callback) {}
 
 /// Does nothing. Pasting files is supported only on the web.
-void addPasteFilesErrorListener(ShadPasteFilesErrorCallback callback) {}
+void addPasteFilesErrorListener(PasteFilesErrorCallback callback) {}
 
 /// Does nothing. Pasting files is supported only on the web.
-void removePasteFilesErrorListener(ShadPasteFilesErrorCallback callback) {}
+void removePasteFilesErrorListener(PasteFilesErrorCallback callback) {}

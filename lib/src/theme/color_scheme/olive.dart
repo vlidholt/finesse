@@ -1,17 +1,17 @@
+import 'package:finesse/src/theme/color_scheme/base.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/color_scheme/base.dart';
 
 /// The shadcn/ui `olive` colour scheme.
 ///
 /// Generated from shadcn/ui's `registry/themes.ts`, converting each OKLCH
 /// value to sRGB.
 @immutable
-class ShadOliveColorScheme extends ShadColorScheme {
-  /// Creates a [ShadOliveColorScheme] from explicit colours.
+class OliveColorScheme extends ColorScheme {
+  /// Creates a [OliveColorScheme] from explicit colours.
   ///
-  /// Use [ShadOliveColorScheme.light] or [ShadOliveColorScheme.dark] for the
+  /// Use [OliveColorScheme.light] or [OliveColorScheme.dark] for the
   /// shadcn/ui values.
-  const ShadOliveColorScheme({
+  const OliveColorScheme({
     required super.background,
     required super.foreground,
     required super.card,
@@ -48,10 +48,10 @@ class ShadOliveColorScheme extends ShadColorScheme {
     super.custom,
   });
 
-  /// Creates the light variant of [ShadOliveColorScheme].
+  /// Creates the light variant of [OliveColorScheme].
   ///
   /// Every colour defaults to its light-mode value.
-  const ShadOliveColorScheme.light({
+  const OliveColorScheme.light({
     super.background = const Color(0xffffffff),
     super.foreground = const Color(0xff0c0c09),
     super.card = const Color(0xffffffff),
@@ -88,10 +88,10 @@ class ShadOliveColorScheme extends ShadColorScheme {
     super.custom,
   });
 
-  /// Creates the dark variant of [ShadOliveColorScheme].
+  /// Creates the dark variant of [OliveColorScheme].
   ///
   /// Every colour defaults to its dark-mode value.
-  const ShadOliveColorScheme.dark({
+  const OliveColorScheme.dark({
     super.background = const Color(0xff0c0c09),
     super.foreground = const Color(0xfffbfbf9),
     super.card = const Color(0xff1d1d16),

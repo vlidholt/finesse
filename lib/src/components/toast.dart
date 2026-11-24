@@ -1,33 +1,33 @@
 import 'dart:async';
 
+import 'package:finesse/src/components/icon_button.dart';
+import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/theme/themes/shadows.dart';
+import 'package:finesse/src/utils/animate.dart';
+import 'package:finesse/src/utils/border.dart';
+import 'package:finesse/src/utils/position.dart';
+import 'package:finesse/src/utils/responsive.dart';
+import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:shad/src/components/icon_button.dart';
-import 'package:shad/src/theme/theme.dart';
-import 'package:shad/src/theme/themes/shadows.dart';
-import 'package:shad/src/utils/animate.dart';
-import 'package:shad/src/utils/border.dart';
-import 'package:shad/src/utils/position.dart';
-import 'package:shad/src/utils/responsive.dart';
-import 'package:shad/src/utils/shadow.dart';
 
 /// The default duration for toasts to remain visible.
 /// How long a toast stays on screen when it sets no duration.
 @Deprecated(
-  'Use ShadToast.defaultDuration. Will be removed in the next major version.',
+  'Use Toast.defaultDuration. Will be removed in the next major version.',
 )
-const kDefaultToastDuration = ShadToast.defaultDuration;
+const kDefaultToastDuration = Toast.defaultDuration;
 
 /// A widget that manages and displays toasts within the widget tree.
 ///
-/// The [ShadToaster] widget acts as a provider for toast notifications,
+/// The [Toaster] widget acts as a provider for toast notifications,
 /// displaying them as overlays on top of its child widget. It uses an
 /// [InheritedWidget] to allow descendants to access its state and show toasts
-/// via [ShadToaster.of].
-class ShadToaster extends StatefulWidget {
+/// via [Toaster.of].
+class Toaster extends StatefulWidget {
   /// Creates a toaster widget that wraps the provided child.
-  const ShadToaster({
+  const Toaster({
     super.key,
     required this.child,
   });
@@ -37,41 +37,39 @@ class ShadToaster extends StatefulWidget {
   final Widget child;
 
   @override
-  State<ShadToaster> createState() => ShadToasterState();
+  State<Toaster> createState() => ToasterState();
 
-  /// Retrieves the [ShadToasterState] from the nearest [ShadToaster] ancestor.
+  /// Retrieves the [ToasterState] from the nearest [Toaster] ancestor.
   ///
-  /// Throws a [FlutterError] if no [ShadToaster] is found in the widget tree.
-  static ShadToasterState of(BuildContext context) {
+  /// Throws a [FlutterError] if no [Toaster] is found in the widget tree.
+  static ToasterState of(BuildContext context) {
     final provider = maybeOf(context);
     if (provider == null) {
       throw FlutterError(
-        '''Could not find ShadToaster InheritedWidget in the ancestor widget tree.''',
+        '''Could not find Toaster InheritedWidget in the ancestor widget tree.''',
       );
     }
     return provider;
   }
 
-  /// Attempts to retrieve the [ShadToasterState] from the nearest [ShadToaster]
+  /// Attempts to retrieve the [ToasterState] from the nearest [Toaster]
   /// ancestor.
   ///
-  /// Returns null if no [ShadToaster] is found, allowing optional access.
-  static ShadToasterState? maybeOf(BuildContext context) {
-    final scope = context
-        .dependOnInheritedWidgetOfExactType<ShadToasterScope>();
-    return scope?.shadMessengerState;
+  /// Returns null if no [Toaster] is found, allowing optional access.
+  static ToasterState? maybeOf(BuildContext context) {
+    final scope = context.dependOnInheritedWidgetOfExactType<ToasterScope>();
+    return scope?.messengerState;
   }
 }
 
-/// The state class for [ShadToaster], managing toast visibility and animations.
+/// The state class for [Toaster], managing toast visibility and animations.
 ///
 /// Controls the display, hiding, and timing of toasts using an animation
 /// controller and timer, providing methods to show and hide toasts
 /// programmatically.
-class ShadToasterState extends State<ShadToaster>
-    with TickerProviderStateMixin {
+class ToasterState extends State<Toaster> with TickerProviderStateMixin {
   late final _controller = AnimationController(vsync: this);
-  final _visibleToast = ValueNotifier<ShadToast?>(null);
+  final _visibleToast = ValueNotifier<Toast?>(null);
   final _shown = ValueNotifier(false);
   Timer? _timer;
 
@@ -86,7 +84,7 @@ class ShadToasterState extends State<ShadToaster>
 
   /// Shows [toast], replacing the one on screen, and hides it after its display
   /// duration.
-  void show(ShadToast toast) {
+  void show(Toast toast) {
     _timer?.cancel();
     _shown.value = true;
     _visibleToast.value = toast;
@@ -107,10 +105,10 @@ class ShadToasterState extends State<ShadToaster>
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
 
-    return ShadToasterScope(
-      shadMessengerState: this,
+    return ToasterScope(
+      messengerState: this,
       child: Stack(
         children: [
           widget.child,
@@ -121,8 +119,8 @@ class ShadToasterState extends State<ShadToaster>
                 valueListenable: _visibleToast,
                 builder: (context, toast, child) {
                   final effectiveToastTheme = switch (toast?.variant) {
-                    ShadToastVariant.primary || null => theme.primaryToastTheme,
-                    ShadToastVariant.destructive => theme.destructiveToastTheme,
+                    ToastVariant.primary || null => theme.primaryToastTheme,
+                    ToastVariant.destructive => theme.destructiveToastTheme,
                   };
                   final effectiveAlignment =
                       toast?.alignment ??
@@ -242,7 +240,7 @@ class ShadToasterState extends State<ShadToaster>
                       effectiveToastTheme.offset ??
                       defaultOffset;
 
-                  return ShadAnimate(
+                  return FinesseAnimate(
                     controller: _controller,
                     effects: visible ? effectiveAnimateIn : effectiveAnimateOut,
                     child: Align(
@@ -266,44 +264,44 @@ class ShadToasterState extends State<ShadToaster>
   }
 }
 
-/// An inherited widget that provides access to the [ShadToasterState].
+/// An inherited widget that provides access to the [ToasterState].
 ///
-/// Allows descendants to access the toaster state via [ShadToaster.of] or
-/// [ShadToaster.maybeOf] for showing and hiding toasts.
-class ShadToasterScope extends InheritedWidget {
-  /// Creates a scope widget that holds the [ShadToasterState] and child.
-  const ShadToasterScope({
+/// Allows descendants to access the toaster state via [Toaster.of] or
+/// [Toaster.maybeOf] for showing and hiding toasts.
+class ToasterScope extends InheritedWidget {
+  /// Creates a scope widget that holds the [ToasterState] and child.
+  const ToasterScope({
     super.key,
     required super.child,
-    required this.shadMessengerState,
+    required this.messengerState,
   });
 
-  /// The [ShadToasterState] instance managing toast display.
-  final ShadToasterState shadMessengerState;
+  /// The [ToasterState] instance managing toast display.
+  final ToasterState messengerState;
 
   @override
-  bool updateShouldNotify(ShadToasterScope oldWidget) =>
-      shadMessengerState != oldWidget.shadMessengerState;
+  bool updateShouldNotify(ToasterScope oldWidget) =>
+      messengerState != oldWidget.messengerState;
 }
 
-/// Variants available for the [ShadToast] widget.
-enum ShadToastVariant {
-  /// The default toast. Styled by `ShadThemeData.primaryToastTheme`.
+/// Variants available for the [Toast] widget.
+enum ToastVariant {
+  /// The default toast. Styled by `ThemeData.primaryToastTheme`.
   primary,
 
-  /// A toast for errors. Styled by `ShadThemeData.destructiveToastTheme`.
+  /// A toast for errors. Styled by `ThemeData.destructiveToastTheme`.
   destructive,
 }
 
 /// A customizable toast notification widget.
 ///
-/// The [ShadToast] widget displays a notification with a title, description,
+/// The [Toast] widget displays a notification with a title, description,
 /// optional action, and close button, styled according to its variant (primary
-/// or destructive). It supports animations and integrates with [ShadTheme] for
+/// or destructive). It supports animations and integrates with [Theme] for
 /// consistent appearance.
-class ShadToast extends StatefulWidget {
+class Toast extends StatefulWidget {
   /// Creates a primary variant toast widget.
-  const ShadToast({
+  const Toast({
     super.key,
     this.id,
     this.title,
@@ -336,11 +334,11 @@ class ShadToast extends StatefulWidget {
     this.mainAxisAlignment,
     this.mainAxisSize,
   }) : displayDuration = displayDuration ?? duration,
-       variant = ShadToastVariant.primary;
+       variant = ToastVariant.primary;
 
   /// Creates a destructive variant toast widget, typically for error or warning
   /// messages.
-  const ShadToast.destructive({
+  const Toast.destructive({
     super.key,
     this.id,
     this.title,
@@ -373,11 +371,11 @@ class ShadToast extends StatefulWidget {
     this.mainAxisAlignment,
     this.mainAxisSize,
   }) : displayDuration = displayDuration ?? duration,
-       variant = ShadToastVariant.destructive;
+       variant = ToastVariant.destructive;
 
   /// Creates a toast widget with a specified [variant], offering full
   /// customization.
-  const ShadToast.raw({
+  const Toast.raw({
     super.key,
     this.id,
     required this.variant,
@@ -412,145 +410,145 @@ class ShadToast extends StatefulWidget {
     this.mainAxisSize,
   }) : displayDuration = displayDuration ?? duration;
 
-  /// {@template ShadToast.id}
+  /// {@template Toast.id}
   /// The unique identifier for the toast, used for tracking and managing
   /// toasts. Defaults to `UniqueKey()` if not specified.
   /// {@endtemplate}
   final Object? id;
 
-  /// {@template ShadToast.title}
+  /// {@template Toast.title}
   /// The title widget displayed at the top of the toast.
   /// Typically a [Text] widget, styled with the theme’s muted bold style.
   /// {@endtemplate}
   final Widget? title;
 
-  /// {@template ShadToast.description}
+  /// {@template Toast.description}
   /// The description widget displayed below the title.
   /// Typically a [Text] widget, styled with the theme’s muted style.
   /// {@endtemplate}
   final Widget? description;
 
-  /// {@template ShadToast.action}
+  /// {@template Toast.action}
   /// An optional action widget displayed alongside the content.
   /// Typically a button, padded according to [actionPadding].
   /// {@endtemplate}
   final Widget? action;
 
-  /// {@template ShadToast.closeIcon}
+  /// {@template Toast.closeIcon}
   /// The custom widget for the close button.
   /// Overrides [closeIconData] if provided; defaults to a ghost button with an
   /// 'X' icon.
   /// {@endtemplate}
   final Widget? closeIcon;
 
-  /// {@template ShadToast.closeIconData}
+  /// {@template Toast.closeIconData}
   /// The icon data for the close button.
   /// Used if [closeIcon] is null; defaults to [LucideIcons.x] if not specified.
   /// {@endtemplate}
   final IconData? closeIconData;
 
-  /// {@template ShadToast.alignment}
+  /// {@template Toast.alignment}
   /// The alignment of the toast within the screen.
   /// Defaults to [Alignment.bottomRight] if not specified.
   /// {@endtemplate}
   final Alignment? alignment;
 
-  /// {@template ShadToast.offset}
+  /// {@template Toast.offset}
   /// The offset from the [alignment] position as padding.
   /// Defaults to 16 pixels from edges or safe areas if not specified.
   /// {@endtemplate}
   final Offset? offset;
 
-  /// {@template ShadToast.displayDuration}
+  /// {@template Toast.displayDuration}
   /// How long the toast stays visible before it hides itself. Defaults to
-  /// the theme's value, then to [ShadToast.defaultDuration] (5 seconds).
+  /// the theme's value, then to [Toast.defaultDuration] (5 seconds).
   /// {@endtemplate}
   final Duration? displayDuration;
 
-  /// The old name of [displayDuration]. Everywhere else in shad, `duration`
+  /// The old name of [displayDuration]. Everywhere else in finesse, `duration`
   /// is the length of an animation.
   @Deprecated('Use displayDuration. Will be removed in the next major version.')
   Duration? get duration => displayDuration;
 
-  /// {@template ShadToast.textDirection}
+  /// {@template Toast.textDirection}
   /// The directionality of the toast’s content (e.g., LTR or RTL).
   /// Defaults to null, inheriting from the context.
   /// {@endtemplate}
   final TextDirection? textDirection;
 
-  /// {@template ShadToast.animateIn}
+  /// {@template Toast.animateIn}
   /// The animation effects when the toast appears.
   /// Defaults to alignment-specific slide or fade effects if not specified.
   /// {@endtemplate}
   final List<Effect<dynamic>>? animateIn;
 
-  /// {@template ShadToast.animateOut}
+  /// {@template Toast.animateOut}
   /// The animation effects when the toast disappears.
   /// Defaults to alignment-specific slide or fade effects if not specified.
   /// {@endtemplate}
   final List<Effect<dynamic>>? animateOut;
 
-  /// {@template ShadToast.crossAxisAlignment}
+  /// {@template Toast.crossAxisAlignment}
   /// The cross-axis alignment of the toast’s content (vertical).
   /// Defaults to [CrossAxisAlignment.center] if not specified.
   /// {@endtemplate}
   final CrossAxisAlignment? crossAxisAlignment;
 
-  /// {@template ShadToast.mainAxisAlignment}
+  /// {@template Toast.mainAxisAlignment}
   /// The main-axis alignment of the toast’s content (horizontally).
   /// Defaults to [MainAxisAlignment.spaceBetween] if not specified.
   /// {@endtemplate}
   final MainAxisAlignment? mainAxisAlignment;
 
-  /// {@template ShadToast.showCloseIconOnlyWhenHovered}
+  /// {@template Toast.showCloseIconOnlyWhenHovered}
   /// Whether the close icon is visible only when the toast is hovered.
   /// Defaults to true if not specified.
   /// {@endtemplate}
   final bool? showCloseIconOnlyWhenHovered;
 
-  /// {@template ShadToast.titleStyle}
+  /// {@template Toast.titleStyle}
   /// The text style for the title.
   /// Defaults to a bold muted style with variant-specific foreground color.
   /// {@endtemplate}
   final TextStyle? titleStyle;
 
-  /// {@template ShadToast.descriptionStyle}
+  /// {@template Toast.descriptionStyle}
   /// The text style for the description.
   /// Defaults to a muted style with variant-specific foreground color.
   /// {@endtemplate}
   final TextStyle? descriptionStyle;
 
-  /// {@template ShadToast.actionPadding}
+  /// {@template Toast.actionPadding}
   /// The padding around the action widget.
   /// Defaults to start padding of 16 if not specified.
   /// {@endtemplate}
   final EdgeInsetsGeometry? actionPadding;
 
-  /// {@template ShadToast.border}
+  /// {@template Toast.border}
   /// The border surrounding the toast.
   /// Defaults to a border with the theme’s border color if not specified.
   /// {@endtemplate}
-  final ShadBorder? border;
+  final FinesseBorder? border;
 
-  /// {@template ShadToast.radius}
+  /// {@template Toast.radius}
   /// The border radius of the toast’s corners.
   /// Defaults to the theme’s radius if not specified.
   /// {@endtemplate}
   final BorderRadius? radius;
 
-  /// {@template ShadToast.shadows}
+  /// {@template Toast.shadows}
   /// The list of box shadows applied to the toast for elevation.
   /// Defaults to large shadows if not specified.
   /// {@endtemplate}
   final List<BoxShadow>? shadows;
 
-  /// {@template ShadToast.backgroundColor}
+  /// {@template Toast.backgroundColor}
   /// The background color of the toast.
   /// Defaults to the theme’s background color if not specified.
   /// {@endtemplate}
   final Color? backgroundColor;
 
-  /// {@template ShadToast.padding}
+  /// {@template Toast.padding}
   /// The padding inside the toast, surrounding all content.
   ///
   /// Defaults to EdgeInsetsDirectional.fromSTEB(24, 24, 32, 24) if not
@@ -558,27 +556,27 @@ class ShadToast extends StatefulWidget {
   /// {@endtemplate}
   final EdgeInsetsGeometry? padding;
 
-  /// {@template ShadToast.closeIconPosition}
+  /// {@template Toast.closeIconPosition}
   /// The position of the close icon within the toast.
   /// Defaults to top-end (8, 8) if not specified.
   /// {@endtemplate}
-  final ShadPosition? closeIconPosition;
+  final Position? closeIconPosition;
 
-  /// {@template ShadToast.variant}
-  /// The variant of the toast, either [ShadToastVariant.primary] or
-  /// [ShadToastVariant.destructive]. Determines the visual style applied
-  /// through the [ShadTheme].
+  /// {@template Toast.variant}
+  /// The variant of the toast, either [ToastVariant.primary] or
+  /// [ToastVariant.destructive]. Determines the visual style applied
+  /// through the [Theme].
   /// {@endtemplate}
-  final ShadToastVariant variant;
+  final ToastVariant variant;
 
-  /// {@template ShadToast.constraints}
+  /// {@template Toast.constraints}
   /// Constraints applied to the toast’s layout.
   /// Responsive to screen size; defaults to unbounded min width and 420 max
   /// width on larger screens.
   /// {@endtemplate}
   final BoxConstraints? constraints;
 
-  /// {@template ShadToast.mainAxisSize}
+  /// {@template Toast.mainAxisSize}
   /// The main axis size of the toast's content (horizontal).
   /// Defaults to [MainAxisSize.max] if not specified.
   /// {@endtemplate}
@@ -591,19 +589,19 @@ class ShadToast extends StatefulWidget {
   /// How long this toast stays on screen: [displayDuration], else its
   /// variant's theme, else [defaultDuration].
   Duration resolveDisplayDuration(BuildContext context) {
-    final theme = ShadTheme.of(context, listen: false);
+    final theme = Theme.of(context, listen: false);
     final variantTheme = switch (variant) {
-      ShadToastVariant.primary => theme.primaryToastTheme,
-      ShadToastVariant.destructive => theme.destructiveToastTheme,
+      ToastVariant.primary => theme.primaryToastTheme,
+      ToastVariant.destructive => theme.destructiveToastTheme,
     };
     return displayDuration ?? variantTheme.displayDuration ?? defaultDuration;
   }
 
   @override
-  State<ShadToast> createState() => _ShadToastState();
+  State<Toast> createState() => _ToastState();
 }
 
-class _ShadToastState extends State<ShadToast> {
+class _ToastState extends State<Toast> {
   final hovered = ValueNotifier(false);
 
   @override
@@ -614,21 +612,21 @@ class _ShadToastState extends State<ShadToast> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
 
     final effectiveToastTheme = switch (widget.variant) {
-      ShadToastVariant.primary => theme.primaryToastTheme,
-      ShadToastVariant.destructive => theme.destructiveToastTheme,
+      ToastVariant.primary => theme.primaryToastTheme,
+      ToastVariant.destructive => theme.destructiveToastTheme,
     };
     final effectiveForegroundColor = switch (widget.variant) {
-      ShadToastVariant.primary => theme.colorScheme.foreground,
-      ShadToastVariant.destructive => theme.colorScheme.destructiveForeground,
+      ToastVariant.primary => theme.colorScheme.foreground,
+      ToastVariant.destructive => theme.colorScheme.destructiveForeground,
     };
 
     final effectiveCloseIcon =
         widget.closeIcon ??
         effectiveToastTheme.closeIcon ??
-        ShadIconButton.ghost(
+        IconButton.ghost(
           icon: Icon(
             size: 16,
             widget.closeIconData ??
@@ -642,7 +640,7 @@ class _ShadToastState extends State<ShadToast> {
           hoverBackgroundColor: const Color(0x00000000),
           hoverForegroundColor: effectiveForegroundColor,
           pressedForegroundColor: effectiveForegroundColor,
-          onPressed: () => ShadToaster.of(context).hide(),
+          onPressed: () => Toaster.of(context).hide(),
         );
     final effectiveTitleStyle =
         widget.titleStyle ??
@@ -664,11 +662,11 @@ class _ShadToastState extends State<ShadToast> {
     final effectiveBorder =
         widget.border ??
         effectiveToastTheme.border ??
-        ShadBorder.all(color: theme.colorScheme.border, width: 1);
+        FinesseBorder.all(color: theme.colorScheme.border, width: 1);
     final effectiveBorderRadius =
         widget.radius ?? effectiveToastTheme.radius ?? theme.radius;
     final effectiveShadows =
-        widget.shadows ?? effectiveToastTheme.shadows ?? ShadShadows.lg;
+        widget.shadows ?? effectiveToastTheme.shadows ?? Shadows.lg;
     final effectiveBackgroundColor =
         widget.backgroundColor ??
         effectiveToastTheme.backgroundColor ??
@@ -688,7 +686,7 @@ class _ShadToastState extends State<ShadToast> {
     final effectiveCloseIconPosition =
         widget.closeIconPosition ??
         effectiveToastTheme.closeIconPosition ??
-        ShadPosition.directional(
+        Position.directional(
           top: 8,
           end: 8,
           textDirection: Directionality.of(context),
@@ -707,7 +705,7 @@ class _ShadToastState extends State<ShadToast> {
     return MouseRegion(
       onEnter: (_) => hovered.value = true,
       onExit: (_) => hovered.value = false,
-      child: ShadResponsiveBuilder(
+      child: ResponsiveBuilder(
         builder: (context, breakpoint) {
           final effectiveConstraints =
               widget.constraints ??
@@ -723,7 +721,7 @@ class _ShadToastState extends State<ShadToast> {
           return ConstrainedBox(
             constraints: effectiveConstraints,
             child: DecoratedBox(
-              decoration: ShadShadowDecoration.box(
+              decoration: ShadowDecoration.box(
                 border: effectiveBorder.toBorder(),
                 borderRadius: effectiveBorderRadius,
                 shadows: effectiveShadows,

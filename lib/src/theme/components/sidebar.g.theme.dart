@@ -9,14 +9,10 @@ part of 'sidebar.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadSidebarTheme {
+mixin _$SidebarTheme {
   bool get canMerge => true;
 
-  static ShadSidebarTheme? lerp(
-    ShadSidebarTheme? a,
-    ShadSidebarTheme? b,
-    double t,
-  ) {
+  static SidebarTheme? lerp(SidebarTheme? a, SidebarTheme? b, double t) {
     if (identical(a, b)) {
       return a;
     }
@@ -29,7 +25,7 @@ mixin _$ShadSidebarTheme {
       return t == 0.0 ? a : null;
     }
 
-    return ShadSidebarTheme(
+    return SidebarTheme(
       width: lerpDouble$(a.width, b.width, t),
       collapsedWidth: lerpDouble$(a.collapsedWidth, b.collapsedWidth, t),
       mobileWidth: lerpDouble$(a.mobileWidth, b.mobileWidth, t),
@@ -138,7 +134,7 @@ mixin _$ShadSidebarTheme {
     );
   }
 
-  ShadSidebarTheme copyWith({
+  SidebarTheme copyWith({
     double? width,
     double? collapsedWidth,
     double? mobileWidth,
@@ -181,9 +177,9 @@ mixin _$ShadSidebarTheme {
     BorderRadius? insetRadius,
     List<BoxShadow>? insetShadows,
   }) {
-    final _this = (this as ShadSidebarTheme);
+    final _this = (this as SidebarTheme);
 
-    return ShadSidebarTheme(
+    return SidebarTheme(
       width: width ?? _this.width,
       collapsedWidth: collapsedWidth ?? _this.collapsedWidth,
       mobileWidth: mobileWidth ?? _this.mobileWidth,
@@ -230,8 +226,8 @@ mixin _$ShadSidebarTheme {
     );
   }
 
-  ShadSidebarTheme merge(ShadSidebarTheme? other) {
-    final _this = (this as ShadSidebarTheme);
+  SidebarTheme merge(SidebarTheme? other) {
+    final _this = (this as SidebarTheme);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -306,8 +302,8 @@ mixin _$ShadSidebarTheme {
       return false;
     }
 
-    final _this = (this as ShadSidebarTheme);
-    final _other = (other as ShadSidebarTheme);
+    final _this = (this as SidebarTheme);
+    final _other = (other as SidebarTheme);
 
     return _other.width == _this.width &&
         _other.collapsedWidth == _this.collapsedWidth &&
@@ -354,7 +350,7 @@ mixin _$ShadSidebarTheme {
 
   @override
   int get hashCode {
-    final _this = (this as ShadSidebarTheme);
+    final _this = (this as SidebarTheme);
 
     return Object.hashAll([
       runtimeType,

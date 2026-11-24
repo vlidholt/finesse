@@ -1,14 +1,14 @@
+import 'package:finesse/src/components/checkbox.dart';
+import 'package:finesse/src/components/form/field.dart';
+import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/components/checkbox.dart';
-import 'package:shad/src/components/form/field.dart';
-import 'package:shad/src/theme/components/decorator.dart';
-import 'package:shad/src/theme/theme.dart';
 
-/// A [ShadCheckbox] that takes part in a `ShadForm`, with a label, a
+/// A [Checkbox] that takes part in a `FinesseForm`, with a label, a
 /// description and validation.
-class ShadCheckboxFormField extends ShadFormField<bool> {
+class CheckboxFormField extends FinesseFormField<bool> {
   /// Creates a checkbox form field.
-  ShadCheckboxFormField({
+  CheckboxFormField({
     super.id,
     super.key,
     super.onSaved,
@@ -26,51 +26,51 @@ class ShadCheckboxFormField extends ShadFormField<bool> {
     required bool super.initialValue,
     super.focusNode,
 
-    /// {@macro ShadCheckbox.decoration}
-    ShadDecoration? decoration,
+    /// {@macro Checkbox.decoration}
+    FinesseDecoration? decoration,
 
     /// Returns an error message for the value, or null when it is valid.
     String? Function(bool)? validator,
 
-    /// {@macro ShadCheckbox.size}
+    /// {@macro Checkbox.size}
     double? size,
 
-    /// {@macro ShadCheckbox.duration}
+    /// {@macro Checkbox.duration}
     Duration? duration,
 
-    /// {@macro ShadCheckbox.icon}
+    /// {@macro Checkbox.icon}
     Widget? icon,
 
-    /// {@macro ShadCheckbox.color}
+    /// {@macro Checkbox.color}
     Color? color,
 
-    /// {@macro ShadCheckbox.label}
+    /// {@macro Checkbox.label}
     Widget? inputLabel,
 
-    /// {@macro ShadCheckbox.sublabel}
+    /// {@macro Checkbox.sublabel}
     Widget? inputSublabel,
 
-    /// {@macro ShadCheckbox.padding}
+    /// {@macro Checkbox.padding}
     EdgeInsetsGeometry? padding,
 
-    /// {@macro ShadCheckbox.direction}
+    /// {@macro Checkbox.direction}
     TextDirection? direction,
 
-    /// {@macro ShadCheckbox.crossAxisAlignment}
+    /// {@macro Checkbox.crossAxisAlignment}
     CrossAxisAlignment? crossAxisAlignment,
 
-    /// {@macro ShadCheckbox.checkboxPadding}
+    /// {@macro Checkbox.checkboxPadding}
     EdgeInsetsGeometry? checkboxPadding,
   }) : super(
          onChanged: onChanged == null ? null : (v) => onChanged(v ?? false),
          validator: validator == null ? null : (v) => validator(v ?? false),
          decorationBuilder: (context) =>
-             (ShadTheme.of(context).checkboxTheme.decoration ??
-                     const ShadDecoration())
+             (Theme.of(context).checkboxTheme.decoration ??
+                     const FinesseDecoration())
                  .merge(decoration),
          builder: (state) {
-           state as ShadCheckboxFormFieldState;
-           return ShadCheckbox(
+           state as CheckboxFormFieldState;
+           return Checkbox(
              value: state.value!,
              onChanged: state.didChange,
              enabled: state.enabled,
@@ -91,17 +91,17 @@ class ShadCheckboxFormField extends ShadFormField<bool> {
        );
 
   @override
-  ShadFormFieldState<ShadCheckboxFormField, bool> createState() =>
-      ShadCheckboxFormFieldState();
+  FinesseFormFieldState<CheckboxFormField, bool> createState() =>
+      CheckboxFormFieldState();
 }
 
-/// The state of a [ShadCheckboxFormField].
-class ShadCheckboxFormFieldState
-    extends ShadFormFieldState<ShadCheckboxFormField, bool> {}
+/// The state of a [CheckboxFormField].
+class CheckboxFormFieldState
+    extends FinesseFormFieldState<CheckboxFormField, bool> {}
 
-/// The old name of [ShadCheckboxFormFieldState].
+/// The old name of [CheckboxFormFieldState].
 @Deprecated(
-  'Use ShadCheckboxFormFieldState. '
+  'Use CheckboxFormFieldState. '
   'Will be removed in the next major version.',
 )
-typedef ShadFormBuilderCheckboxState = ShadCheckboxFormFieldState;
+typedef FormBuilderCheckboxState = CheckboxFormFieldState;

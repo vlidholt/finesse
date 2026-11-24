@@ -3,14 +3,14 @@ import 'package:theme_extensions_builder_annotation/theme_extensions_builder_ann
 
 part 'spinner.g.theme.dart';
 
-/// {@template ShadSpinnerTheme}
-/// Theme for the `ShadSpinner` widget.
+/// {@template SpinnerTheme}
+/// Theme for the `Spinner` widget.
 /// {@endtemplate}
 @themeGen
 @immutable
-class ShadSpinnerTheme with _$ShadSpinnerTheme {
-  /// {@macro ShadSpinnerTheme}
-  const ShadSpinnerTheme({
+class SpinnerTheme with _$SpinnerTheme {
+  /// {@macro SpinnerTheme}
+  const SpinnerTheme({
     bool canMerge = true,
     this.color,
     this.trackColor,
@@ -25,25 +25,25 @@ class ShadSpinnerTheme with _$ShadSpinnerTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro ShadSpinner.color}
+  /// {@macro Spinner.color}
   final Color? color;
 
-  /// {@macro ShadSpinner.trackColor}
+  /// {@macro Spinner.trackColor}
   final Color? trackColor;
 
-  /// {@macro ShadSpinner.size}
+  /// {@macro Spinner.size}
   final double? size;
 
-  /// {@macro ShadSpinner.strokeWidth}
+  /// {@macro Spinner.strokeWidth}
   final double? strokeWidth;
 
-  /// {@macro ShadSpinner.duration}
+  /// {@macro Spinner.duration}
   final Duration? duration;
 
   /// Linearly interpolates between [a] and [b] by [t].
-  static ShadSpinnerTheme? lerp(
-    ShadSpinnerTheme? a,
-    ShadSpinnerTheme? b,
+  static SpinnerTheme? lerp(
+    SpinnerTheme? a,
+    SpinnerTheme? b,
     double t,
-  ) => _$ShadSpinnerTheme.lerp(a, b, t);
+  ) => _$SpinnerTheme.lerp(a, b, t);
 }

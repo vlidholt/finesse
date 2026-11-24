@@ -1,17 +1,17 @@
 import 'package:collection/collection.dart';
+import 'package:finesse/src/components/button.dart';
+import 'package:finesse/src/components/icon_button.dart';
+import 'package:finesse/src/components/select.dart';
+import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/border.dart';
+import 'package:finesse/src/utils/extensions/date_time.dart';
+import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:shad/src/components/button.dart';
-import 'package:shad/src/components/icon_button.dart';
-import 'package:shad/src/components/select.dart';
-import 'package:shad/src/theme/components/decorator.dart';
-import 'package:shad/src/theme/theme.dart';
-import 'package:shad/src/utils/border.dart';
-import 'package:shad/src/utils/extensions/date_time.dart';
-import 'package:shad/src/utils/extensions/text_style.dart';
 
 /// Encapsulates a start and end [DateTime] that represent the range of dates.
 ///
@@ -19,9 +19,9 @@ import 'package:shad/src/utils/extensions/text_style.dart';
 /// may be equal to indicate a date range of a single day. The [start] date must
 /// not be after the [end] date.
 @immutable
-class ShadDateTimeRange {
+class DateTimeRange {
   /// Creates a date range for the given start and end [DateTime].
-  const ShadDateTimeRange({
+  const DateTimeRange({
     this.start,
     this.end,
   });
@@ -43,16 +43,14 @@ class ShadDateTimeRange {
     if (other.runtimeType != runtimeType) {
       return false;
     }
-    return other is ShadDateTimeRange &&
-        other.start == start &&
-        other.end == end;
+    return other is DateTimeRange && other.start == start && other.end == end;
   }
 
   @override
   int get hashCode => Object.hashAll([start, end]);
 
   @override
-  String toString() => 'ShadDateTimeRange(start: $start, end $end)';
+  String toString() => 'DateTimeRange(start: $start, end $end)';
 }
 
 /// Represents the data model for a single month in the calendar.
@@ -60,9 +58,9 @@ class ShadDateTimeRange {
 /// Contains the month date, a list of dates to display, and the first date
 /// shown.
 @immutable
-class ShadCalendarModel {
+class CalendarModel {
   /// Creates a calendar model for a specific month.
-  const ShadCalendarModel({
+  const CalendarModel({
     required this.month,
     required this.dates,
     required this.firstDateShown,
@@ -83,15 +81,15 @@ class ShadCalendarModel {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is ShadCalendarModel &&
+    return other is CalendarModel &&
         other.month == month &&
         listEquals(other.dates, dates) &&
         other.firstDateShown == firstDateShown;
   }
 }
 
-/// Variants available for the [ShadCalendar] widget.
-enum ShadCalendarVariant {
+/// Variants available for the [Calendar] widget.
+enum CalendarVariant {
   /// Selects one date.
   single,
 
@@ -102,8 +100,8 @@ enum ShadCalendarVariant {
   range,
 }
 
-/// Caption layout options for the [ShadCalendar] widget.
-enum ShadCalendarCaptionLayout {
+/// Caption layout options for the [Calendar] widget.
+enum CalendarCaptionLayout {
   /// Displays the month and year as a label. Default value.
   label,
 
@@ -119,15 +117,15 @@ enum ShadCalendarCaptionLayout {
 
 /// A customizable calendar widget for selecting dates or date ranges.
 ///
-/// The [ShadCalendar] widget supports single date selection, multiple date
+/// The [Calendar] widget supports single date selection, multiple date
 /// selection, or date range selection through its variants. It offers extensive
 /// customization for appearance, navigation, and behavior, integrating with
-/// [ShadTheme] for styling. Use named constructors like [ShadCalendar.multiple]
-/// or [ShadCalendar.range] for specific selection modes, or [ShadCalendar.raw]
+/// [Theme] for styling. Use named constructors like [Calendar.multiple]
+/// or [Calendar.range] for specific selection modes, or [Calendar.raw]
 /// for full control.
-class ShadCalendar extends StatefulWidget {
+class Calendar extends StatefulWidget {
   /// Creates a single-date selection calendar widget.
-  const ShadCalendar({
+  const Calendar({
     super.key,
     this.selected,
     this.onChanged,
@@ -189,12 +187,12 @@ class ShadCalendar extends StatefulWidget {
     this.gridCrossAxisSpacing,
     this.dayButtonOutsideMonthTextStyle,
     this.dayButtonOutsideMonthVariant,
-    ShadButtonVariant? selectedDayButtonOutsideMonthVariant,
+    ButtonVariant? selectedDayButtonOutsideMonthVariant,
     @Deprecated(
       'Use selectedDayButtonOutsideMonthVariant. '
       'Will be removed in the next major version.',
     )
-    ShadButtonVariant? selectedDayButtonOusideMonthVariant,
+    ButtonVariant? selectedDayButtonOusideMonthVariant,
     this.allowDeselection,
     this.groupId,
     this.dropdownFormatMonth,
@@ -202,7 +200,7 @@ class ShadCalendar extends StatefulWidget {
   }) : selectedDayButtonOutsideMonthVariant =
            selectedDayButtonOutsideMonthVariant ??
            selectedDayButtonOusideMonthVariant,
-       variant = ShadCalendarVariant.single,
+       variant = CalendarVariant.single,
        multipleSelected = null,
        onMultipleChanged = null,
        min = null,
@@ -211,7 +209,7 @@ class ShadCalendar extends StatefulWidget {
        selectedRange = null;
 
   /// Creates a multiple-date selection calendar widget.
-  const ShadCalendar.multiple({
+  const Calendar.multiple({
     super.key,
     List<DateTime>? selected,
     ValueChanged<List<DateTime>>? onChanged,
@@ -275,19 +273,19 @@ class ShadCalendar extends StatefulWidget {
     this.gridCrossAxisSpacing,
     this.dayButtonOutsideMonthTextStyle,
     this.dayButtonOutsideMonthVariant,
-    ShadButtonVariant? selectedDayButtonOutsideMonthVariant,
+    ButtonVariant? selectedDayButtonOutsideMonthVariant,
     @Deprecated(
       'Use selectedDayButtonOutsideMonthVariant. '
       'Will be removed in the next major version.',
     )
-    ShadButtonVariant? selectedDayButtonOusideMonthVariant,
+    ButtonVariant? selectedDayButtonOusideMonthVariant,
     this.groupId,
     this.dropdownFormatMonth,
     this.dropdownFormatYear,
   }) : selectedDayButtonOutsideMonthVariant =
            selectedDayButtonOutsideMonthVariant ??
            selectedDayButtonOusideMonthVariant,
-       variant = ShadCalendarVariant.multiple,
+       variant = CalendarVariant.multiple,
        multipleSelected = selected,
        selected = null,
        onMultipleChanged = onChanged,
@@ -297,10 +295,10 @@ class ShadCalendar extends StatefulWidget {
        allowDeselection = null;
 
   /// Creates a date range selection calendar widget.
-  const ShadCalendar.range({
+  const Calendar.range({
     super.key,
-    ShadDateTimeRange? selected,
-    ValueChanged<ShadDateTimeRange?>? onChanged,
+    DateTimeRange? selected,
+    ValueChanged<DateTimeRange?>? onChanged,
     this.showOutsideDays,
     this.initialMonth,
     this.formatMonthYear,
@@ -361,12 +359,12 @@ class ShadCalendar extends StatefulWidget {
     this.gridCrossAxisSpacing,
     this.dayButtonOutsideMonthTextStyle,
     this.dayButtonOutsideMonthVariant,
-    ShadButtonVariant? selectedDayButtonOutsideMonthVariant,
+    ButtonVariant? selectedDayButtonOutsideMonthVariant,
     @Deprecated(
       'Use selectedDayButtonOutsideMonthVariant. '
       'Will be removed in the next major version.',
     )
-    ShadButtonVariant? selectedDayButtonOusideMonthVariant,
+    ButtonVariant? selectedDayButtonOusideMonthVariant,
     this.allowDeselection,
     this.groupId,
     this.dropdownFormatMonth,
@@ -374,7 +372,7 @@ class ShadCalendar extends StatefulWidget {
   }) : selectedDayButtonOutsideMonthVariant =
            selectedDayButtonOutsideMonthVariant ??
            selectedDayButtonOusideMonthVariant,
-       variant = ShadCalendarVariant.range,
+       variant = CalendarVariant.range,
        multipleSelected = null,
        selected = null,
        onMultipleChanged = null,
@@ -384,7 +382,7 @@ class ShadCalendar extends StatefulWidget {
 
   /// Creates a calendar widget with a specified [variant], allowing full
   /// customization.
-  const ShadCalendar.raw({
+  const Calendar.raw({
     super.key,
     required this.variant,
     this.selected,
@@ -453,12 +451,12 @@ class ShadCalendar extends StatefulWidget {
     this.gridCrossAxisSpacing,
     this.dayButtonOutsideMonthTextStyle,
     this.dayButtonOutsideMonthVariant,
-    ShadButtonVariant? selectedDayButtonOutsideMonthVariant,
+    ButtonVariant? selectedDayButtonOutsideMonthVariant,
     @Deprecated(
       'Use selectedDayButtonOutsideMonthVariant. '
       'Will be removed in the next major version.',
     )
-    ShadButtonVariant? selectedDayButtonOusideMonthVariant,
+    ButtonVariant? selectedDayButtonOusideMonthVariant,
     this.allowDeselection,
     this.groupId,
     this.dropdownFormatMonth,
@@ -467,77 +465,77 @@ class ShadCalendar extends StatefulWidget {
            selectedDayButtonOutsideMonthVariant ??
            selectedDayButtonOusideMonthVariant;
 
-  /// {@template ShadCalendar.variant}
+  /// {@template Calendar.variant}
   /// The variant of the calendar to use.
   /// {@endtemplate}
-  final ShadCalendarVariant variant;
+  final CalendarVariant variant;
 
-  /// {@template ShadCalendar.selected}
+  /// {@template Calendar.selected}
   /// The date that is currently selected, defaults to null.
   /// {@endtemplate}
   final DateTime? selected;
 
-  /// {@template ShadCalendar.multipleSelected}
+  /// {@template Calendar.multipleSelected}
   /// The dates that are currently selected, defaults to null.
   /// {@endtemplate}
   final List<DateTime>? multipleSelected;
 
-  /// {@template ShadCalendar.onChanged}
+  /// {@template Calendar.onChanged}
   /// Called when the user selects a date.
   /// {@endtemplate}
   final ValueChanged<DateTime?>? onChanged;
 
-  /// {@template ShadCalendar.onMultipleChanged}
+  /// {@template Calendar.onMultipleChanged}
   /// Called when the user selects multiple dates.
   /// {@endtemplate}
   final ValueChanged<List<DateTime>>? onMultipleChanged;
 
-  /// {@template ShadCalendar.showOutsideDays}
+  /// {@template Calendar.showOutsideDays}
   /// Whether to show days outside the current month, defaults to true.
   /// {@endtemplate}
   final bool? showOutsideDays;
 
-  /// {@template ShadCalendar.initialMonth}
+  /// {@template Calendar.initialMonth}
   /// The month to show by default, defaults to the current month.
   /// {@endtemplate}
   final DateTime? initialMonth;
 
-  /// {@template ShadCalendar.formatMonthYear}
+  /// {@template Calendar.formatMonthYear}
   /// The format to use for the month, defaults to 'LLLL y'.
   /// {@endtemplate}
   final String Function(DateTime date)? formatMonthYear;
 
-  /// {@template ShadCalendar.formatMonth}
+  /// {@template Calendar.formatMonth}
   /// The format to use for the month, defaults to 'LLLL'.
   /// {@endtemplate}
   final String Function(DateTime date)? formatMonth;
 
-  /// {@template ShadCalendar.dropdownFormatMonth}
+  /// {@template Calendar.dropdownFormatMonth}
   /// The format to use for the month in dropdowns, defaults to 'MMM'.
   /// {@endtemplate}
   final String Function(DateTime date)? dropdownFormatMonth;
 
-  /// {@template ShadCalendar.dropdownFormatYear}
+  /// {@template Calendar.dropdownFormatYear}
   /// The format to use for the year in dropdowns, defaults to 'y'.
   /// {@endtemplate}
   final String Function(DateTime date)? dropdownFormatYear;
 
-  /// {@template ShadCalendar.formatYear}
+  /// {@template Calendar.formatYear}
   /// The format to use for the year, defaults to 'y'.
   /// {@endtemplate}
   final String Function(DateTime date)? formatYear;
 
-  /// {@template ShadCalendar.formatWeekday}
+  /// {@template Calendar.formatWeekday}
   /// The format to use for the weekday, defaults to 'EE'.
   /// {@endtemplate}
   final String Function(DateTime date)? formatWeekday;
 
-  /// {@template ShadCalendar.showWeekNumbers}
+  /// {@template Calendar.showWeekNumbers}
   /// Whether to show week numbers, defaults to false.
   /// {@endtemplate}
   final bool? showWeekNumbers;
 
-  /// {@template ShadCalendar.weekStartsOn}
+  /// {@template Calendar.weekStartsOn}
   /// Which day of the week is the first day of the week.
   ///
   /// In accordance with ISO 8601 a week starts with Monday, which
@@ -545,7 +543,7 @@ class ShadCalendar extends StatefulWidget {
   /// {@endtemplate}
   final int? weekStartsOn;
 
-  /// {@template ShadCalendar.fixedWeeks}
+  /// {@template Calendar.fixedWeeks}
   /// Display six weeks per months, regardless the month’s number of weeks.
   ///
   /// To use this [showOutsideDays] must be set to true.
@@ -553,27 +551,27 @@ class ShadCalendar extends StatefulWidget {
   /// {@endtemplate}
   final bool? fixedWeeks;
 
-  /// {@template ShadCalendar.hideWeekdayNames}
+  /// {@template Calendar.hideWeekdayNames}
   /// Hide the month’s head displaying the weekday names, defaults to false.
   /// {@endtemplate}
   final bool? hideWeekdayNames;
 
-  /// {@template ShadCalendar.numberOfMonths}
+  /// {@template Calendar.numberOfMonths}
   /// The number of displayed months, defaults to 1.
   /// {@endtemplate}
   final int numberOfMonths;
 
-  /// {@template ShadCalendar.fromMonth}
+  /// {@template Calendar.fromMonth}
   /// The month to start the calendar from, defaults to null.
   /// {@endtemplate}
   final DateTime? fromMonth;
 
-  /// {@template ShadCalendar.toMonth}
+  /// {@template Calendar.toMonth}
   /// The month to end the calendar with, defaults to null.
   /// {@endtemplate}
   final DateTime? toMonth;
 
-  /// {@template ShadCalendar.onMonthChanged}
+  /// {@template Calendar.onMonthChanged}
   /// A callback that is called when the month changes.
   ///
   /// If the `numberOfMonths` is greater than 1, this callback will be called
@@ -581,103 +579,103 @@ class ShadCalendar extends StatefulWidget {
   /// {@endtemplate}
   final ValueChanged<DateTime>? onMonthChanged;
 
-  /// {@template ShadCalendar.reverseMonths}
+  /// {@template Calendar.reverseMonths}
   /// Whether to reverse the months, defaults to false.
   /// {@endtemplate}
   final bool reverseMonths;
 
-  /// {@template ShadCalendar.min}
+  /// {@template Calendar.min}
   /// The minimum amount of days that can be selected.
   /// {@endtemplate}
   final int? min;
 
-  /// {@template ShadCalendar.max}
+  /// {@template Calendar.max}
   /// The maximum amount of days that can be selected.
   /// {@endtemplate}
   final int? max;
 
-  /// {@template ShadCalendar.selectableDayPredicate}
+  /// {@template Calendar.selectableDayPredicate}
   /// A function that determines whether a day is selectable.
   /// {@endtemplate}
   final bool Function(DateTime day)? selectableDayPredicate;
 
-  /// {@template ShadCalendar.selectedRange}
+  /// {@template Calendar.selectedRange}
   /// The range of dates that are currently selected, defaults to null.
   /// {@endtemplate}
-  final ShadDateTimeRange? selectedRange;
+  final DateTimeRange? selectedRange;
 
-  /// {@template ShadCalendar.onRangeChanged}
+  /// {@template Calendar.onRangeChanged}
   /// Called when the user selects a range of dates.
   /// {@endtemplate}
-  final ValueChanged<ShadDateTimeRange?>? onRangeChanged;
+  final ValueChanged<DateTimeRange?>? onRangeChanged;
 
-  /// {@template ShadCalendar.captionLayout}
-  /// The layout of the caption, defaults to [ShadCalendarCaptionLayout.label].
+  /// {@template Calendar.captionLayout}
+  /// The layout of the caption, defaults to [CalendarCaptionLayout.label].
   /// {@endtemplate}
-  final ShadCalendarCaptionLayout? captionLayout;
+  final CalendarCaptionLayout? captionLayout;
 
-  /// {@template ShadCalendar.hideNavigation}
+  /// {@template Calendar.hideNavigation}
   /// Whether to hide the navigation buttons, defaults to false.
   /// {@endtemplate}
   final bool? hideNavigation;
 
-  /// {@template ShadCalendar.yearSelectorMinWidth}
+  /// {@template Calendar.yearSelectorMinWidth}
   /// The minimum width of the year selector, defaults to 64
   /// {@endtemplate}
   final double? yearSelectorMinWidth;
 
-  /// {@template ShadCalendar.monthSelectorMinWidth}
+  /// {@template Calendar.monthSelectorMinWidth}
   /// The minimum width of the month selector, defaults to 64
   /// {@endtemplate}
   final double? monthSelectorMinWidth;
 
-  /// {@template ShadCalendar.yearSelectorPadding}
+  /// {@template Calendar.yearSelectorPadding}
   /// The padding of the year selector, defaults to
   /// `EdgeInsets.symmetric(horizontal: 8, vertical: 4)`
   /// {@endtemplate}
   final EdgeInsetsGeometry? yearSelectorPadding;
 
-  /// {@template ShadCalendar.monthSelectorPadding}
+  /// {@template Calendar.monthSelectorPadding}
   /// The padding of the month selector, defaults to
   /// `EdgeInsets.symmetric(horizontal: 8, vertical: 4)`
   /// {@endtemplate}
   final EdgeInsetsGeometry? monthSelectorPadding;
 
-  /// {@template ShadCalendar.navigationButtonSize}
+  /// {@template Calendar.navigationButtonSize}
   /// The navigation button size, defaults to 28
   /// {@endtemplate}
   final double? navigationButtonSize;
 
-  /// {@template ShadCalendar.navigationButtonIconSize}
+  /// {@template Calendar.navigationButtonIconSize}
   /// The navigation button icon size, defaults to 16
   /// {@endtemplate}
   final double? navigationButtonIconSize;
 
-  /// {@template ShadCalendar.backNavigationButtonIconData}
+  /// {@template Calendar.backNavigationButtonIconData}
   /// The back navigation button src, defaults to [LucideIcons.chevronLeft]
   /// {@endtemplate}
   final IconData? backNavigationButtonIconData;
 
-  /// {@template ShadCalendar.forwardNavigationButtonIconData}
+  /// {@template Calendar.forwardNavigationButtonIconData}
   /// The forward navigation button src, defaults to [LucideIcons.chevronRight]
   /// {@endtemplate}
   final IconData? forwardNavigationButtonIconData;
 
-  /// {@template ShadCalendar.navigationButtonPadding}
+  /// {@template Calendar.navigationButtonPadding}
   /// The padding of the navigation button, defaults to [EdgeInsets.zero]
   /// {@endtemplate}
   final EdgeInsetsGeometry? navigationButtonPadding;
 
-  /// {@template ShadCalendar.navigationButtonDisabledOpacity}
+  /// {@template Calendar.navigationButtonDisabledOpacity}
   /// The opacity of the navigation button when disabled, defaults to .5
   /// {@endtemplate}
   final double? navigationButtonDisabledOpacity;
 
-  /// {@template ShadCalendar.decoration}
+  /// {@template Calendar.decoration}
   /// The decoration of the calendar, defaults to
   /// ```dart
-  /// ShadDecoration(
-  ///   border: ShadBorder.all(
+  /// FinesseDecoration(
+  ///   border: FinesseBorder.all(
   ///     radius: radius,
   ///     padding: const EdgeInsets.all(12),
   ///     color: colorScheme.border
@@ -685,136 +683,136 @@ class ShadCalendar extends StatefulWidget {
   /// )
   /// ```
   /// {@endtemplate}
-  final ShadDecoration? decoration;
+  final FinesseDecoration? decoration;
 
-  /// {@template ShadCalendar.spacingBetweenMonths}
+  /// {@template Calendar.spacingBetweenMonths}
   /// The spacing between months, defaults to 16
   /// {@endtemplate}
   final double? spacingBetweenMonths;
 
-  /// {@template ShadCalendar.runSpacingBetweenMonths}
+  /// {@template Calendar.runSpacingBetweenMonths}
   /// The run spacing between months, defaults to 16
   /// {@endtemplate}
   final double? runSpacingBetweenMonths;
 
-  /// {@template ShadCalendar.monthConstraints}
+  /// {@template Calendar.monthConstraints}
   /// The month constraints, defaults to `BoxConstraints(maxWidth: 252)`
   /// or `BoxConstraints(maxWidth: 310)` depending on the [hideNavigation] and
   /// [captionLayout] values.
   /// {@endtemplate}
   final BoxConstraints? monthConstraints;
 
-  /// {@template ShadCalendar.headerHeight}
+  /// {@template Calendar.headerHeight}
   /// The height of the header, defaults to 38
   /// {@endtemplate}
   final double? headerHeight;
 
-  /// {@template ShadCalendar.headerPadding}
+  /// {@template Calendar.headerPadding}
   /// The padding of the header, defaults to `EdgeInsets.only(bottom: 16)`
   /// {@endtemplate}
   final EdgeInsetsGeometry? headerPadding;
 
-  /// {@template ShadCalendar.captionLayoutGap}
+  /// {@template Calendar.captionLayoutGap}
   /// The gap between the caption layout elements, defaults to 8
   /// {@endtemplate}
   final double? captionLayoutGap;
 
-  /// {@template ShadCalendar.headerTextStyle}
+  /// {@template Calendar.headerTextStyle}
   /// The text style of the header, defaults to `effectiveTextTheme.small`
   /// {@endtemplate}
   final TextStyle? headerTextStyle;
 
-  /// {@template ShadCalendar.weekdaysPadding}
+  /// {@template Calendar.weekdaysPadding}
   /// The padding of the weekdays, defaults to `EdgeInsets.only(bottom: 8)`
   /// {@endtemplate}
   final EdgeInsetsGeometry? weekdaysPadding;
 
-  /// {@template ShadCalendar.weekdaysTextStyle}
+  /// {@template Calendar.weekdaysTextStyle}
   /// The text style of the weekdays, defaults to
   /// `textTheme.muted.copyWith(fontSize: 12.8)`
   /// {@endtemplate}
   final TextStyle? weekdaysTextStyle;
 
-  /// {@template ShadCalendar.weekdaysTextAlign}
+  /// {@template Calendar.weekdaysTextAlign}
   /// The text align of the weekdays, defaults to [TextAlign.center]
   /// {@endtemplate}
   final TextAlign? weekdaysTextAlign;
 
-  /// {@template ShadCalendar.weekNumbersHeaderText}
+  /// {@template Calendar.weekNumbersHeaderText}
   /// The header text of the week numbers, defaults to `#`
   /// {@endtemplate}
   final String? weekNumbersHeaderText;
 
-  /// {@template ShadCalendar.weekNumbersHeaderTextStyle}
+  /// {@template Calendar.weekNumbersHeaderTextStyle}
   /// The header text style of the week numbers, defaults to
   /// `textTheme.muted.copyWith(fontSize: 12.8)`
   /// {@endtemplate}
   final TextStyle? weekNumbersHeaderTextStyle;
 
-  /// {@template ShadCalendar.weekNumbersTextStyle}
+  /// {@template Calendar.weekNumbersTextStyle}
   /// The text style of the week numbers, defaults to
   /// `textTheme.muted.copyWith(fontSize: 12.8)`
   /// {@endtemplate}
   final TextStyle? weekNumbersTextStyle;
 
-  /// {@template ShadCalendar.weekNumbersTextAlign}
+  /// {@template Calendar.weekNumbersTextAlign}
   /// The text align of the week numbers, defaults to [TextAlign.center]
   /// {@endtemplate}
   final TextAlign? weekNumbersTextAlign;
 
-  /// {@template ShadCalendar.dayButtonSize}
+  /// {@template Calendar.dayButtonSize}
   /// The size of the day buttons, defaults to 36
   /// {@endtemplate}
   final double? dayButtonSize;
 
-  /// {@template ShadCalendar.dayButtonOutsideMonthOpacity}
+  /// {@template Calendar.dayButtonOutsideMonthOpacity}
   /// The opacity of the day buttons outside the month, defaults to .5
   /// {@endtemplate}
   final double? dayButtonOutsideMonthOpacity;
 
-  /// {@template ShadCalendar.dayButtonPadding}
+  /// {@template Calendar.dayButtonPadding}
   /// The padding of the day buttons, defaults to [EdgeInsets.zero]
   /// {@endtemplate}
   final EdgeInsetsGeometry? dayButtonPadding;
 
-  /// {@template ShadCalendar.dayButtonDecoration}
+  /// {@template Calendar.dayButtonDecoration}
   /// The decoration of the day buttons, defaults to
   /// ```dart
-  /// ShadDecoration(
+  /// FinesseDecoration(
   ///   secondaryBorder:
-  ///       const ShadBorder(padding: EdgeInsets.zero),
+  ///       const FinesseBorder(padding: EdgeInsets.zero),
   ///   border: isInRange &&
   ///           !isFirstDateInRange &&
   ///           !isLastDateInRange
   ///       ? isFirstOfRow
-  ///           ? ShadBorder(
+  ///           ? FinesseBorder(
   ///               radius: BorderRadius.only(
   ///                 topLeft: theme.radius.topLeft,
   ///                 bottomLeft: theme.radius.bottomLeft,
   ///               ),
   ///             )
   ///           : isLastOfRow
-  ///               ? ShadBorder(
+  ///               ? FinesseBorder(
   ///                   radius: BorderRadius.only(
   ///                     topRight: theme.radius.topRight,
   ///                     bottomRight:
   ///                         theme.radius.bottomRight,
   ///                   ),
   ///                 )
-  ///               : const ShadBorder(
+  ///               : const FinesseBorder(
   ///                   radius: BorderRadius.zero,
   ///                 )
   ///       : null,
-  ///    secondaryFocusedBorder: ShadBorder.all(
+  ///    secondaryFocusedBorder: FinesseBorder.all(
   ///       offset: 2,
   ///       color: theme.colorScheme.ring.withValues(alpha: .5),
   ///     ),
   ///   ),
   /// ```
   /// {@endtemplate}
-  final ShadDecoration? dayButtonDecoration;
+  final FinesseDecoration? dayButtonDecoration;
 
-  /// {@template ShadCalendar.selectedDayButtonTextStyle}
+  /// {@template Calendar.selectedDayButtonTextStyle}
   /// The text style of the selected day button, defaults to
   /// ```dart
   /// textTheme.small.copyWith(
@@ -825,7 +823,7 @@ class ShadCalendar extends StatefulWidget {
   /// {@endtemplate}
   final TextStyle? selectedDayButtonTextStyle;
 
-  /// {@template ShadCalendar.insideRangeDayButtonTextStyle}
+  /// {@template Calendar.insideRangeDayButtonTextStyle}
   /// The text style of the inside range day button, defaults to
   /// ```dart
   /// textTheme.small.copyWith(
@@ -835,7 +833,7 @@ class ShadCalendar extends StatefulWidget {
   /// {@endtemplate}
   final TextStyle? insideRangeDayButtonTextStyle;
 
-  /// {@template ShadCalendar.dayButtonTextStyle}
+  /// {@template Calendar.dayButtonTextStyle}
   /// The text style of the day button, defaults to
   /// ```dart
   /// textTheme.small.copyWith(
@@ -846,80 +844,80 @@ class ShadCalendar extends StatefulWidget {
   /// {@endtemplate}
   final TextStyle? dayButtonTextStyle;
 
-  /// {@template ShadCalendar.dayButtonVariant}
-  /// The variant of the day button, defaults to [ShadButtonVariant.ghost]
+  /// {@template Calendar.dayButtonVariant}
+  /// The variant of the day button, defaults to [ButtonVariant.ghost]
   /// {@endtemplate}
-  final ShadButtonVariant? dayButtonVariant;
+  final ButtonVariant? dayButtonVariant;
 
-  /// {@template ShadCalendar.selectedDayButtonVariant}
+  /// {@template Calendar.selectedDayButtonVariant}
   /// The variant of the selected day button, defaults to
-  /// [ShadButtonVariant.primary]
+  /// [ButtonVariant.primary]
   /// {@endtemplate}
-  final ShadButtonVariant? selectedDayButtonVariant;
+  final ButtonVariant? selectedDayButtonVariant;
 
-  /// {@template ShadCalendar.insideRangeDayButtonVariant}
+  /// {@template Calendar.insideRangeDayButtonVariant}
   /// The variant of the inside range day button, defaults to
-  /// [ShadButtonVariant.secondary]
+  /// [ButtonVariant.secondary]
   /// {@endtemplate}
-  final ShadButtonVariant? insideRangeDayButtonVariant;
+  final ButtonVariant? insideRangeDayButtonVariant;
 
-  /// {@template ShadCalendar.todayButtonVariant}
-  /// The variant of the today button, defaults to [ShadButtonVariant.secondary]
+  /// {@template Calendar.todayButtonVariant}
+  /// The variant of the today button, defaults to [ButtonVariant.secondary]
   /// {@endtemplate}
-  final ShadButtonVariant? todayButtonVariant;
+  final ButtonVariant? todayButtonVariant;
 
-  /// {@template ShadCalendar.gridMainAxisSpacing}
+  /// {@template Calendar.gridMainAxisSpacing}
   /// The main axis spacing of the grid, defaults to 8
   /// {@endtemplate}
   final double? gridMainAxisSpacing;
 
-  /// {@template ShadCalendar.gridCrossAxisSpacing}
+  /// {@template Calendar.gridCrossAxisSpacing}
   /// The cross axis spacing of the grid, defaults to 0
   /// {@endtemplate}
   final double? gridCrossAxisSpacing;
 
-  /// {@template ShadCalendar.dayButtonOutsideMonthTextStyle}
+  /// {@template Calendar.dayButtonOutsideMonthTextStyle}
   /// The text style of the day buttons outside the month, defaults to
   /// `textTheme.muted`
   /// {@endtemplate}
   final TextStyle? dayButtonOutsideMonthTextStyle;
 
-  /// {@template ShadCalendar.dayButtonOutsideMonthVariant}
+  /// {@template Calendar.dayButtonOutsideMonthVariant}
   /// The variant of the day buttons outside the month, defaults to
-  /// [ShadButtonVariant.ghost]
+  /// [ButtonVariant.ghost]
   /// {@endtemplate}
-  final ShadButtonVariant? dayButtonOutsideMonthVariant;
+  final ButtonVariant? dayButtonOutsideMonthVariant;
 
-  /// {@template ShadCalendar.selectedDayButtonOutsideMonthVariant}
+  /// {@template Calendar.selectedDayButtonOutsideMonthVariant}
   /// The variant of the selected day buttons outside the month, defaults to
-  /// [ShadButtonVariant.secondary]
+  /// [ButtonVariant.secondary]
   /// {@endtemplate}
-  final ShadButtonVariant? selectedDayButtonOutsideMonthVariant;
+  final ButtonVariant? selectedDayButtonOutsideMonthVariant;
 
   /// The old, misspelled name of [selectedDayButtonOutsideMonthVariant].
   @Deprecated(
     'Use selectedDayButtonOutsideMonthVariant. '
     'Will be removed in the next major version.',
   )
-  ShadButtonVariant? get selectedDayButtonOusideMonthVariant =>
+  ButtonVariant? get selectedDayButtonOusideMonthVariant =>
       selectedDayButtonOutsideMonthVariant;
 
-  /// {@template ShadCalendar.allowDeselection}
+  /// {@template Calendar.allowDeselection}
   /// Whether to allow deselection of the selected date, defaults to false.
   /// {@endtemplate}
   final bool? allowDeselection;
 
-  /// {@macro ShadPopover.groupId}
+  /// {@macro Popover.groupId}
   final Object? groupId;
 
   @override
-  State<ShadCalendar> createState() => _ShadCalendarState();
+  State<Calendar> createState() => _CalendarState();
 }
 
-class _ShadCalendarState extends State<ShadCalendar> {
+class _CalendarState extends State<Calendar> {
   final today = DateTime.now().startOfDay;
   late DateTime currentMonth = widget.initialMonth ?? today.startOfMonth;
-  List<ShadCalendarModel> datesModels = [];
+  List<CalendarModel> datesModels = [];
   // The first date shown in the calendar, used to render the week days
   late DateTime firstDateShown;
   bool isPreviousMonthButtonDisabled = false;
@@ -940,27 +938,27 @@ class _ShadCalendarState extends State<ShadCalendar> {
 
   bool get effectiveShowOutsideDays =>
       widget.showOutsideDays ??
-      ShadTheme.of(context, listen: false).calendarTheme.showOutsideDays ??
+      Theme.of(context, listen: false).calendarTheme.showOutsideDays ??
       true;
 
   bool get effectiveHideWeekdayNames =>
       widget.hideWeekdayNames ??
-      ShadTheme.of(context, listen: false).calendarTheme.hideWeekdayNames ??
+      Theme.of(context, listen: false).calendarTheme.hideWeekdayNames ??
       false;
 
   bool get effectiveShowWeekNumbers =>
       widget.showWeekNumbers ??
-      ShadTheme.of(context, listen: false).calendarTheme.showWeekNumbers ??
+      Theme.of(context, listen: false).calendarTheme.showWeekNumbers ??
       false;
 
   int get effectiveWeekStartsOn =>
       widget.weekStartsOn ??
-      ShadTheme.of(context, listen: false).calendarTheme.weekStartsOn ??
+      Theme.of(context, listen: false).calendarTheme.weekStartsOn ??
       1;
 
   bool get effectiveFixedWeeks =>
       widget.fixedWeeks ??
-      ShadTheme.of(context, listen: false).calendarTheme.fixedWeeks ??
+      Theme.of(context, listen: false).calendarTheme.fixedWeeks ??
       false;
 
   bool enabled(DateTime date) {
@@ -976,7 +974,7 @@ class _ShadCalendarState extends State<ShadCalendar> {
       return selectedDays.any((selectedDay) => selectedDay.isSameDay(date));
     }
 
-    if (widget.variant == ShadCalendarVariant.range) {
+    if (widget.variant == CalendarVariant.range) {
       bool satifiesMin() {
         if (widget.min != null && startRange != null) {
           // only the dates after min are enabled
@@ -1015,7 +1013,7 @@ class _ShadCalendarState extends State<ShadCalendar> {
   }
 
   @override
-  void didUpdateWidget(covariant ShadCalendar oldWidget) {
+  void didUpdateWidget(covariant Calendar oldWidget) {
     super.didUpdateWidget(oldWidget);
     final bool initialMonthChanged;
     if ((oldWidget.initialMonth == currentMonth ||
@@ -1131,7 +1129,7 @@ class _ShadCalendarState extends State<ShadCalendar> {
     }
 
     datesModels.add(
-      ShadCalendarModel(
+      CalendarModel(
         month: month,
         dates: dates,
         firstDateShown: firstDateShown,
@@ -1206,13 +1204,13 @@ class _ShadCalendarState extends State<ShadCalendar> {
       'When fixedWeeks is true, showOutsideDays must be true',
     );
 
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     final locale = Localizations.localeOf(context);
 
     final effectiveCaptionLayout =
         widget.captionLayout ??
         theme.calendarTheme.captionLayout ??
-        ShadCalendarCaptionLayout.label;
+        CalendarCaptionLayout.label;
 
     final effectiveFormatMonth =
         widget.formatMonth ??
@@ -1302,7 +1300,7 @@ class _ShadCalendarState extends State<ShadCalendar> {
         .5;
 
     final effectiveDecoration =
-        (theme.calendarTheme.decoration ?? const ShadDecoration()).merge(
+        (theme.calendarTheme.decoration ?? const FinesseDecoration()).merge(
           widget.decoration,
         );
 
@@ -1455,48 +1453,48 @@ class _ShadCalendarState extends State<ShadCalendar> {
     final effectiveDayButtonVariant =
         widget.dayButtonVariant ??
         theme.calendarTheme.dayButtonVariant ??
-        ShadButtonVariant.ghost;
+        ButtonVariant.ghost;
 
     final effectiveSelectedDayButtonVariant =
         widget.selectedDayButtonVariant ??
         theme.calendarTheme.selectedDayButtonVariant ??
-        ShadButtonVariant.primary;
+        ButtonVariant.primary;
 
     final effectiveInsideRangeDayButtonVariant =
         widget.insideRangeDayButtonVariant ??
         theme.calendarTheme.insideRangeDayButtonVariant ??
-        ShadButtonVariant.secondary;
+        ButtonVariant.secondary;
 
     final effectiveDayButtonOutsideMonthVariant =
         widget.dayButtonOutsideMonthVariant ??
         theme.calendarTheme.dayButtonOutsideMonthVariant ??
-        ShadButtonVariant.ghost;
+        ButtonVariant.ghost;
 
     final effectiveSelectedOutsideMonthVariant =
         widget.selectedDayButtonOutsideMonthVariant ??
         theme.calendarTheme.selectedDayButtonOutsideMonthVariant ??
-        ShadButtonVariant.secondary;
+        ButtonVariant.secondary;
 
     final effectiveTodayButtonVariant =
         widget.todayButtonVariant ??
         theme.calendarTheme.todayButtonVariant ??
-        ShadButtonVariant.secondary;
+        ButtonVariant.secondary;
 
     final effectiveAllowDeselection =
         widget.allowDeselection ??
         theme.calendarTheme.allowDeselection ??
         false;
 
-    final yearSelector = ShadSelect<int>(
+    final yearSelector = Select<int>(
       initialValue: currentMonth.year,
       groupId: widget.groupId,
       padding: effectiveYearSelectorPadding,
       minHeight: effectiveSelectorMinHeight,
-      decoration: ShadDecoration(
+      decoration: FinesseDecoration(
         // The dropdown trigger rounds with the cells
         // (`rounded-(--cell-radius)`), not with the field radius.
-        border: ShadBorder(radius: effectiveDayButtonRadius),
-        secondaryFocusedBorder: ShadBorder.all(
+        border: FinesseBorder(radius: effectiveDayButtonRadius),
+        secondaryFocusedBorder: FinesseBorder.all(
           color: theme.colorScheme.ring.withValues(alpha: .5),
         ),
       ),
@@ -1507,7 +1505,7 @@ class _ShadCalendarState extends State<ShadCalendar> {
         );
       },
       options: availableYears.map(
-        (year) => ShadOption(
+        (year) => SelectOption(
           value: year,
           child: Text(effectiveFormatYear(DateTime(year))),
         ),
@@ -1519,13 +1517,13 @@ class _ShadCalendarState extends State<ShadCalendar> {
       },
     );
 
-    final monthSelector = ShadSelect<int>(
+    final monthSelector = Select<int>(
       initialValue: currentMonth.month,
       groupId: widget.groupId,
       minHeight: effectiveSelectorMinHeight,
-      decoration: ShadDecoration(
-        border: ShadBorder(radius: effectiveDayButtonRadius),
-        secondaryFocusedBorder: ShadBorder.all(
+      decoration: FinesseDecoration(
+        border: FinesseBorder(radius: effectiveDayButtonRadius),
+        secondaryFocusedBorder: FinesseBorder.all(
           color: theme.colorScheme.ring.withValues(alpha: .5),
         ),
       ),
@@ -1540,7 +1538,7 @@ class _ShadCalendarState extends State<ShadCalendar> {
         12,
         (index) {
           final d = DateTime(currentMonth.year, index + 1);
-          return ShadOption(
+          return SelectOption(
             value: index + 1,
             child: Text(effectiveFormatMonth(d)),
           );
@@ -1558,7 +1556,7 @@ class _ShadCalendarState extends State<ShadCalendar> {
       builder: (context, isHovered, _) {
         return Opacity(
           opacity: isHovered ? 1 : effectiveNavigationButtonDisabledOpacity,
-          child: ShadIconButton.outline(
+          child: IconButton.outline(
             width: effectiveNavigationButtonSize,
             height: effectiveNavigationButtonSize,
             padding: effectiveNavigationButtonPadding,
@@ -1579,7 +1577,7 @@ class _ShadCalendarState extends State<ShadCalendar> {
       builder: (context, isHovered, _) {
         return Opacity(
           opacity: isHovered ? 1 : effectiveNavigationButtonDisabledOpacity,
-          child: ShadIconButton.outline(
+          child: IconButton.outline(
             width: effectiveNavigationButtonSize,
             height: effectiveNavigationButtonSize,
             padding: effectiveNavigationButtonPadding,
@@ -1598,7 +1596,7 @@ class _ShadCalendarState extends State<ShadCalendar> {
 
     final columnsCount = effectiveShowWeekNumbers ? 8 : 7;
 
-    return ShadDecorator(
+    return Decorator(
       decoration: effectiveDecoration,
       child: Wrap(
         spacing: effectiveSpacingBetweenMonths,
@@ -1635,7 +1633,7 @@ class _ShadCalendarState extends State<ShadCalendar> {
                     child:
                         !isFirstMonth &&
                             effectiveCaptionLayout !=
-                                ShadCalendarCaptionLayout.label
+                                CalendarCaptionLayout.label
                         ? Center(
                             child: Text(
                               effectiveFormatMonthYear(dateModel.month),
@@ -1643,8 +1641,8 @@ class _ShadCalendarState extends State<ShadCalendar> {
                             ),
                           )
                         : switch (effectiveCaptionLayout) {
-                            ShadCalendarCaptionLayout.label => labelNavigation,
-                            ShadCalendarCaptionLayout.dropdown => Row(
+                            CalendarCaptionLayout.label => labelNavigation,
+                            CalendarCaptionLayout.dropdown => Row(
                               textDirection: TextDirection.ltr,
                               children: [
                                 if (!effectiveHideNavigation) backButton,
@@ -1665,7 +1663,7 @@ class _ShadCalendarState extends State<ShadCalendar> {
                                 if (!effectiveHideNavigation) forwardButton,
                               ],
                             ),
-                            ShadCalendarCaptionLayout.dropdownMonths => Row(
+                            CalendarCaptionLayout.dropdownMonths => Row(
                               textDirection: TextDirection.ltr,
                               children: [
                                 if (!effectiveHideNavigation) backButton,
@@ -1691,7 +1689,7 @@ class _ShadCalendarState extends State<ShadCalendar> {
                                 if (!effectiveHideNavigation) forwardButton,
                               ],
                             ),
-                            ShadCalendarCaptionLayout.dropdownYears => Row(
+                            CalendarCaptionLayout.dropdownYears => Row(
                               textDirection: TextDirection.ltr,
                               children: [
                                 if (!effectiveHideNavigation) backButton,
@@ -1789,21 +1787,21 @@ class _ShadCalendarState extends State<ShadCalendar> {
                       children: dateModel.dates.mapIndexed((index, date) {
                         if (date == null) return const SizedBox.shrink();
                         final selected = switch (widget.variant) {
-                          ShadCalendarVariant.range => false,
-                          ShadCalendarVariant.single ||
-                          ShadCalendarVariant.multiple => selectedDays.any(
+                          CalendarVariant.range => false,
+                          CalendarVariant.single ||
+                          CalendarVariant.multiple => selectedDays.any(
                             (selectedDate) => selectedDate.isSameDay(date),
                           ),
                         };
 
                         final isInRange = switch (widget.variant) {
-                          ShadCalendarVariant.range =>
+                          CalendarVariant.range =>
                             (startRange != null &&
                                     date.isSameDayOrGreater(startRange!)) &&
                                 (endRange != null &&
                                     date.isSameDayOrLower(endRange!)),
-                          ShadCalendarVariant.single ||
-                          ShadCalendarVariant.multiple => false,
+                          CalendarVariant.single ||
+                          CalendarVariant.multiple => false,
                         };
 
                         final isFirstDateInRange =
@@ -1814,7 +1812,7 @@ class _ShadCalendarState extends State<ShadCalendar> {
                         final isToday = date.isSameDay(today);
                         final isInMonth = date.month == dateModel.month.month;
                         final textStyle = switch (widget.variant) {
-                          ShadCalendarVariant.range => () {
+                          CalendarVariant.range => () {
                             if (isFirstDateInRange || isLastDateInRange) {
                               return effectiveSelectedDayButtonTextStyle;
                             }
@@ -1825,8 +1823,7 @@ class _ShadCalendarState extends State<ShadCalendar> {
 
                             return effectiveDayButtonTextStyle;
                           }(),
-                          ShadCalendarVariant.single ||
-                          ShadCalendarVariant.multiple =>
+                          CalendarVariant.single || CalendarVariant.multiple =>
                             isInMonth
                                 ? selected
                                       ? effectiveSelectedDayButtonTextStyle
@@ -1835,7 +1832,7 @@ class _ShadCalendarState extends State<ShadCalendar> {
                         };
 
                         final variant = switch (widget.variant) {
-                          ShadCalendarVariant.range => () {
+                          CalendarVariant.range => () {
                             if (isFirstDateInRange || isLastDateInRange) {
                               return effectiveSelectedDayButtonVariant;
                             }
@@ -1845,8 +1842,8 @@ class _ShadCalendarState extends State<ShadCalendar> {
                             if (isToday) return effectiveTodayButtonVariant;
                             return effectiveDayButtonVariant;
                           }(),
-                          ShadCalendarVariant.single ||
-                          ShadCalendarVariant.multiple => switch (isInMonth) {
+                          CalendarVariant.single ||
+                          CalendarVariant.multiple => switch (isInMonth) {
                             true =>
                               selected
                                   ? effectiveSelectedDayButtonVariant
@@ -1879,8 +1876,8 @@ class _ShadCalendarState extends State<ShadCalendar> {
 
                         final cellRadius = effectiveDayButtonRadius;
                         final effectiveDayButtonDecoration =
-                            ShadDecoration(
-                                  secondaryBorder: const ShadBorder(
+                            FinesseDecoration(
+                                  secondaryBorder: const FinesseBorder(
                                     padding: EdgeInsets.zero,
                                   ),
                                   border:
@@ -1888,7 +1885,7 @@ class _ShadCalendarState extends State<ShadCalendar> {
                                           !isFirstDateInRange &&
                                           !isLastDateInRange
                                       ? isFirstOfRow
-                                            ? ShadBorder(
+                                            ? FinesseBorder(
                                                 radius: BorderRadius.only(
                                                   topLeft: cellRadius.topLeft,
                                                   bottomLeft:
@@ -1896,18 +1893,18 @@ class _ShadCalendarState extends State<ShadCalendar> {
                                                 ),
                                               )
                                             : isLastOfRow
-                                            ? ShadBorder(
+                                            ? FinesseBorder(
                                                 radius: BorderRadius.only(
                                                   topRight: cellRadius.topRight,
                                                   bottomRight:
                                                       cellRadius.bottomRight,
                                                 ),
                                               )
-                                            : const ShadBorder(
+                                            : const FinesseBorder(
                                                 radius: BorderRadius.zero,
                                               )
-                                      : ShadBorder(radius: cellRadius),
-                                  secondaryFocusedBorder: ShadBorder.all(
+                                      : FinesseBorder(radius: cellRadius),
+                                  secondaryFocusedBorder: FinesseBorder.all(
                                     offset: 2,
                                     color: theme.colorScheme.ring.withValues(
                                       alpha: .5,
@@ -1922,7 +1919,7 @@ class _ShadCalendarState extends State<ShadCalendar> {
                             opacity: isInMonth
                                 ? 1
                                 : effectiveDayButtonOutsideMonthOpacity,
-                            child: ShadButton.raw(
+                            child: Button.raw(
                               variant: variant,
                               width: effectiveDayButtonSize,
                               height: effectiveDayButtonSize,
@@ -1941,8 +1938,7 @@ class _ShadCalendarState extends State<ShadCalendar> {
                                   return;
                                 }
 
-                                if (widget.variant ==
-                                    ShadCalendarVariant.single) {
+                                if (widget.variant == CalendarVariant.single) {
                                   final selectedDate = selectedDays.firstOrNull;
                                   selectedDays.clear();
                                   if (effectiveAllowDeselection &&
@@ -1965,8 +1961,7 @@ class _ShadCalendarState extends State<ShadCalendar> {
                                 // Skip the operation on the range if a single
                                 // date is selected and allowDeselection is
                                 // false
-                                if (widget.variant ==
-                                    ShadCalendarVariant.range) {
+                                if (widget.variant == CalendarVariant.range) {
                                   if (singleDateSelectedInRange &&
                                       !effectiveAllowDeselection) {
                                     return;
@@ -1974,8 +1969,7 @@ class _ShadCalendarState extends State<ShadCalendar> {
                                 }
 
                                 setState(() {
-                                  if (widget.variant ==
-                                      ShadCalendarVariant.range) {
+                                  if (widget.variant == CalendarVariant.range) {
                                     // deselect the range
                                     if (singleDateSelectedInRange) {
                                       startRange = null;
@@ -2009,15 +2003,15 @@ class _ShadCalendarState extends State<ShadCalendar> {
                                 });
 
                                 switch (widget.variant) {
-                                  case ShadCalendarVariant.single:
+                                  case CalendarVariant.single:
                                     widget.onChanged?.call(date);
-                                  case ShadCalendarVariant.multiple:
+                                  case CalendarVariant.multiple:
                                     widget.onMultipleChanged?.call(
                                       selectedDays.toList(),
                                     );
-                                  case ShadCalendarVariant.range:
+                                  case CalendarVariant.range:
                                     widget.onRangeChanged?.call(
-                                      ShadDateTimeRange(
+                                      DateTimeRange(
                                         start: startRange,
                                         end: endRange,
                                       ),

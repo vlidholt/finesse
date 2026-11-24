@@ -4,7 +4,7 @@ final themingDoc = ComponentDoc(
   slug: 'theming',
   title: 'Theming',
   description:
-      'One ShadThemeData drives every component: color scheme, radius, '
+      'One ThemeData drives every component: color scheme, radius, '
       'typography, and per-component overrides.',
   body: (context) => const DocProse(
     children: [
@@ -13,11 +13,11 @@ final themingDoc = ComponentDoc(
         children: [
           DocParagraph(
             'Every component resolves its appearance from the nearest '
-            '`ShadTheme`. Your own widgets read it the same way:',
+            '`Theme`. Your own widgets read it the same way:',
           ),
           CodeBlock(
             code: '''
-final theme = ShadTheme.of(context);
+final theme = Theme.of(context);
 
 theme.colorScheme.primary;   // the palette
 theme.textTheme.p;           // the type scale
@@ -36,23 +36,23 @@ theme.style;                 // the active style preset''',
           ),
           CodeBlock(
             code: '''
-ShadApp(
-  theme: ShadThemeData(
-    colorScheme: const ShadZincColorScheme.light(),
+FinesseApp(
+  theme: ThemeData(
+    colorScheme: const ZincColorScheme.light(),
   ),
-  darkTheme: ShadThemeData(
+  darkTheme: ThemeData(
     brightness: Brightness.dark,
-    colorScheme: const ShadZincColorScheme.dark(),
+    colorScheme: const ZincColorScheme.dark(),
   ),
 )''',
           ),
           DocParagraph(
             'To let users pick a palette at runtime, resolve one by name '
-            'with `ShadColorScheme.fromName`:',
+            'with `ColorScheme.fromName`:',
           ),
           CodeBlock(
             code: '''
-final scheme = ShadColorScheme.fromName(
+final scheme = ColorScheme.fromName(
   'rose',
   brightness: Brightness.dark,
 );''',
@@ -69,8 +69,8 @@ final scheme = ShadColorScheme.fromName(
           ),
           CodeBlock(
             code: '''
-ShadThemeData(
-  colorScheme: const ShadSlateColorScheme.light(
+ThemeData(
+  colorScheme: const SlateColorScheme.light(
     primary: Color(0xFF16A34A),
     custom: {
       'highlight': Color(0xFFFACC15),
@@ -79,7 +79,7 @@ ShadThemeData(
 )
 
 // Read it back anywhere:
-ShadTheme.of(context).colorScheme.custom['highlight'];''',
+Theme.of(context).colorScheme.custom['highlight'];''',
           ),
           DocParagraph(
             'An extension keeps custom colors as convenient as the '
@@ -87,7 +87,7 @@ ShadTheme.of(context).colorScheme.custom['highlight'];''',
           ),
           CodeBlock(
             code: '''
-extension AppColors on ShadColorScheme {
+extension AppColors on ColorScheme {
   Color get highlight => custom['highlight']!;
 }''',
           ),
@@ -97,15 +97,15 @@ extension AppColors on ShadColorScheme {
         title: 'Component themes',
         children: [
           DocParagraph(
-            'Every component has a theme slot on `ShadThemeData`: '
-            '`primaryButtonTheme`, `cardTheme`, `inputTheme`, and so on. '
+            'Every component has a theme slot on `ThemeData`: '
+            '`primaryButtonTheme`, `cardTheme`, `textFieldTheme`, and so on. '
             'Values you pass are merged over what the style derives, so an '
             'override touches exactly the property you name:',
           ),
           CodeBlock(
             code: '''
-ShadThemeData(
-  primaryButtonTheme: const ShadButtonTheme(
+ThemeData(
+  primaryButtonTheme: const ButtonTheme(
     backgroundColor: Color(0xFF16A34A),
   ),
 )''',
@@ -123,7 +123,7 @@ ShadThemeData(
           ),
           CodeBlock(
             code: '''
-ShadThemeData(
+ThemeData(
   radius: const BorderRadius.all(Radius.circular(10)),
 )''',
           ),
@@ -141,10 +141,10 @@ ShadThemeData(
           ),
           CodeBlock(
             code: '''
-ShadThemeData(
-  menuColorScheme: const ShadSlateColorScheme.dark(),
+ThemeData(
+  menuColorScheme: const SlateColorScheme.dark(),
   menuTranslucent: true,
-  menuAccent: ShadMenuAccent.bold,
+  menuAccent: MenuAccent.bold,
 )''',
           ),
         ],

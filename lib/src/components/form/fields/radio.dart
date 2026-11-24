@@ -1,14 +1,14 @@
+import 'package:finesse/src/components/form/field.dart';
+import 'package:finesse/src/components/radio.dart';
+import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/components/form/field.dart';
-import 'package:shad/src/components/radio.dart';
-import 'package:shad/src/theme/components/decorator.dart';
-import 'package:shad/src/theme/theme.dart';
 
-/// A [ShadRadioGroup] that takes part in a `ShadForm`, with a label, a
+/// A [FinesseRadioGroup] that takes part in a `FinesseForm`, with a label, a
 /// description and validation.
-class ShadRadioGroupFormField<T> extends ShadFormField<T> {
+class RadioGroupFormField<T> extends FinesseFormField<T> {
   /// Creates a radio group form field.
-  ShadRadioGroupFormField({
+  RadioGroupFormField({
     super.id,
     super.key,
     super.onSaved,
@@ -28,34 +28,34 @@ class ShadRadioGroupFormField<T> extends ShadFormField<T> {
     super.validator,
     required Iterable<Widget> items,
 
-    /// {@macro ShadRadioGroup.axis}
+    /// {@macro FinesseRadioGroup.axis}
     Axis? axis,
 
-    /// {@macro ShadRadioGroup.spacing}
+    /// {@macro FinesseRadioGroup.spacing}
     double? spacing,
 
-    /// {@macro ShadRadioGroup.runSpacing}
+    /// {@macro FinesseRadioGroup.runSpacing}
     double? runSpacing,
 
-    /// {@macro ShadRadioGroup.alignment}
+    /// {@macro FinesseRadioGroup.alignment}
     WrapAlignment? alignment,
 
-    /// {@macro ShadRadioGroup.runAlignment}
+    /// {@macro FinesseRadioGroup.runAlignment}
     WrapAlignment? runAlignment,
 
-    /// {@macro ShadRadioGroup.crossAxisAlignment}
+    /// {@macro FinesseRadioGroup.crossAxisAlignment}
     WrapCrossAlignment? crossAxisAlignment,
 
-    /// {@macro ShadRadioGroup.controller}
+    /// {@macro FinesseRadioGroup.controller}
     this.controller,
   }) : super(
          decorationBuilder: (context) =>
-             ShadTheme.of(context).radioTheme.decoration ??
-             const ShadDecoration(),
+             Theme.of(context).radioTheme.decoration ??
+             const FinesseDecoration(),
          initialValue: controller?.value ?? initialValue,
          builder: (state) {
-           state as ShadRadioGroupFormFieldState<T>;
-           return ShadRadioGroup(
+           state as RadioGroupFormFieldState<T>;
+           return FinesseRadioGroup(
              items: items,
              onChanged: state.didChange,
              enabled: state.enabled,
@@ -71,28 +71,28 @@ class ShadRadioGroupFormField<T> extends ShadFormField<T> {
          },
        );
 
-  /// {@macro ShadRadioGroup.controller}
-  final ShadRadioController<T>? controller;
+  /// {@macro FinesseRadioGroup.controller}
+  final RadioController<T>? controller;
 
   @override
-  ShadFormFieldState<ShadRadioGroupFormField<T>, T> createState() =>
-      ShadRadioGroupFormFieldState<T>();
+  FinesseFormFieldState<RadioGroupFormField<T>, T> createState() =>
+      RadioGroupFormFieldState<T>();
 }
 
-/// The state of a [ShadRadioGroupFormField].
-class ShadRadioGroupFormFieldState<T>
-    extends ShadFormFieldState<ShadRadioGroupFormField<T>, T> {
-  ShadRadioController<T>? _controller;
+/// The state of a [RadioGroupFormField].
+class RadioGroupFormFieldState<T>
+    extends FinesseFormFieldState<RadioGroupFormField<T>, T> {
+  RadioController<T>? _controller;
 
-  /// The controller in use: [ShadRadioGroupFormField.controller] when given,
+  /// The controller in use: [RadioGroupFormField.controller] when given,
   /// otherwise an internal one.
-  ShadRadioController<T> get controller => widget.controller ?? _controller!;
+  RadioController<T> get controller => widget.controller ?? _controller!;
 
   @override
   void initState() {
     super.initState();
     if (widget.controller == null) {
-      _controller = ShadRadioController<T>(
+      _controller = RadioController<T>(
         value: initialValue,
         enabled: enabled,
       );
@@ -109,7 +109,7 @@ class ShadRadioGroupFormFieldState<T>
   }
 
   @override
-  void didUpdateWidget(covariant ShadRadioGroupFormField<T> oldWidget) {
+  void didUpdateWidget(covariant RadioGroupFormField<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.controller == oldWidget.controller) return;
     // Move the listener with the controller. It used to stay on the old one,
@@ -119,7 +119,7 @@ class ShadRadioGroupFormFieldState<T>
       _controller?.dispose();
       _controller = null;
     } else {
-      _controller = ShadRadioController<T>(value: value, enabled: enabled);
+      _controller = RadioController<T>(value: value, enabled: enabled);
     }
     controller.addListener(onControllerChanged);
   }
@@ -138,7 +138,7 @@ class ShadRadioGroupFormFieldState<T>
   }
 
   /// Copies the controller's value into the field's value and calls
-  /// [ShadFormField.onChanged].
+  /// [FinesseFormField.onChanged].
   void onControllerChanged() {
     if (controller.value != value) {
       didChange(controller.value);
@@ -147,9 +147,9 @@ class ShadRadioGroupFormFieldState<T>
   }
 }
 
-/// The old name of [ShadRadioGroupFormFieldState].
+/// The old name of [RadioGroupFormFieldState].
 @Deprecated(
-  'Use ShadRadioGroupFormFieldState. '
+  'Use RadioGroupFormFieldState. '
   'Will be removed in the next major version.',
 )
-typedef ShadFormBuilderRadioGroupState<T> = ShadRadioGroupFormFieldState<T>;
+typedef FormBuilderRadioGroupState<T> = RadioGroupFormFieldState<T>;

@@ -1,26 +1,26 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/shad.dart';
 
 void main() {
   test('toggle and badge icon sizes follow the style', () {
-    ShadThemeData of(ShadStyleTokens style) => ShadThemeData(style: style);
+    ThemeData of(StyleTokens style) => ThemeData(style: style);
     // `.cn-toggle` `size-4`, sera `size-3.5`.
-    expect(of(ShadStyleTokens.vega).toggleTheme.iconSize, 16);
-    expect(of(ShadStyleTokens.sera).toggleTheme.iconSize, 14);
-    expect(of(ShadStyleTokens.vega).outlineToggleTheme.iconSize, 16);
+    expect(of(StyleTokens.vega).toggleTheme.iconSize, 16);
+    expect(of(StyleTokens.sera).toggleTheme.iconSize, 14);
+    expect(of(StyleTokens.vega).outlineToggleTheme.iconSize, 16);
     // `.cn-badge` `[&>svg]:size-3`, mira `size-2.5`.
-    expect(of(ShadStyleTokens.vega).primaryBadgeTheme.iconSize, 12);
-    expect(of(ShadStyleTokens.mira).primaryBadgeTheme.iconSize, 10);
-    expect(of(ShadStyleTokens.vega).outlineBadgeTheme.iconSize, 12);
+    expect(of(StyleTokens.vega).primaryBadgeTheme.iconSize, 12);
+    expect(of(StyleTokens.mira).primaryBadgeTheme.iconSize, 10);
+    expect(of(StyleTokens.vega).outlineBadgeTheme.iconSize, 12);
   });
 
   testWidgets('a badge hands its icon size down', (tester) async {
     await tester.pumpWidget(
-      ShadApp(
-        theme: ShadThemeData(style: ShadStyleTokens.mira),
+      FinesseApp(
+        theme: ThemeData(style: StyleTokens.mira),
         home: const Center(
-          child: ShadBadge(child: Icon(IconData(0x41))),
+          child: Badge(child: Icon(IconData(0x41))),
         ),
       ),
     );

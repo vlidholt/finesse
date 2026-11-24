@@ -1,32 +1,32 @@
-import 'package:flutter/material.dart';
+import 'package:finesse/material.dart';
+import 'package:finesse/src/app.dart';
+import 'package:finesse/src/components/disabled.dart';
+import 'package:finesse/src/components/radio.dart';
+import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:flutter/material.dart' hide Radio;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/material.dart';
-import 'package:shad/src/app.dart';
-import 'package:shad/src/components/disabled.dart';
-import 'package:shad/src/components/radio.dart';
-import 'package:shad/src/theme/components/decorator.dart';
 
 void main() {
-  // Helper method to create a test widget wrapped in ShadApp and Scaffold
+  // Helper method to create a test widget wrapped in FinesseApp and Scaffold
   Widget createTestWidget(Widget child) {
-    return ShadApp(
-      builder: (context, child) => ShadMaterial(child: child!),
+    return FinesseApp(
+      builder: (context, child) => FinesseMaterial(child: child!),
       home: Scaffold(
         body: child,
       ),
     );
   }
 
-  group('ShadRadioGroup and ShadRadio', () {
+  group('FinesseRadioGroup and Radio', () {
     testWidgets('renders with no initial selection correctly', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadRadioGroup<String>(
+          const FinesseRadioGroup<String>(
             items: [
-              ShadRadio(value: 'option1', label: Text('Option 1')),
-              ShadRadio(value: 'option2', label: Text('Option 2')),
+              Radio(value: 'option1', label: Text('Option 1')),
+              Radio(value: 'option2', label: Text('Option 2')),
             ],
           ),
         ),
@@ -34,13 +34,13 @@ void main() {
 
       // Check both radios are rendered (use a more specific finder)
       final radioFinder = find.byWidgetPredicate(
-        (widget) => widget is ShadRadio<String>,
-        description: 'ShadRadio<String>',
+        (widget) => widget is Radio<String>,
+        description: 'Radio<String>',
       );
       expect(
         radioFinder,
         findsNWidgets(2),
-        reason: 'Should find 2 ShadRadio<String> widgets',
+        reason: 'Should find 2 Radio<String> widgets',
       );
 
       // Check label texts are present
@@ -67,11 +67,11 @@ void main() {
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadRadioGroup<String>(
+          const FinesseRadioGroup<String>(
             initialValue: 'option1',
             items: [
-              ShadRadio(value: 'option1', label: Text('Option 1')),
-              ShadRadio(value: 'option2', label: Text('Option 2')),
+              Radio(value: 'option1', label: Text('Option 1')),
+              Radio(value: 'option2', label: Text('Option 2')),
             ],
           ),
         ),
@@ -93,11 +93,11 @@ void main() {
       String? selectedValue;
       await tester.pumpWidget(
         createTestWidget(
-          ShadRadioGroup<String>(
+          FinesseRadioGroup<String>(
             onChanged: (value) => selectedValue = value,
             items: const [
-              ShadRadio(value: 'option1', label: Text('Option 1')),
-              ShadRadio(value: 'option2', label: Text('Option 2')),
+              Radio(value: 'option1', label: Text('Option 1')),
+              Radio(value: 'option2', label: Text('Option 2')),
             ],
           ),
         ),
@@ -143,26 +143,26 @@ void main() {
       String? selectedValue;
       await tester.pumpWidget(
         createTestWidget(
-          ShadRadioGroup<String>(
+          FinesseRadioGroup<String>(
             enabled: false,
             onChanged: (value) => selectedValue = value,
             items: const [
-              ShadRadio(value: 'option1', label: Text('Option 1')),
-              ShadRadio(value: 'option2', label: Text('Option 2')),
+              Radio(value: 'option1', label: Text('Option 1')),
+              Radio(value: 'option2', label: Text('Option 2')),
             ],
           ),
         ),
       );
 
-      // Attempt to tap the ShadRadio widget instead of the Text
+      // Attempt to tap the Radio widget instead of the Text
       final radioFinder = find.byWidgetPredicate(
-        (widget) => widget is ShadRadio<String> && widget.value == 'option1',
-        description: 'ShadRadio with value "option1"',
+        (widget) => widget is Radio<String> && widget.value == 'option1',
+        description: 'Radio with value "option1"',
       );
       expect(
         radioFinder,
         findsOneWidget,
-        reason: 'Should find the first ShadRadio',
+        reason: 'Should find the first Radio',
       );
       await tester.tap(radioFinder);
       await tester.pumpAndSettle();
@@ -174,12 +174,12 @@ void main() {
         reason: 'Selection should not change when disabled',
       );
 
-      // Check ShadDisabled is applied
-      final disabledFinder = find.byType(ShadDisabled);
+      // Check Disabled is applied
+      final disabledFinder = find.byType(Disabled);
       expect(
         disabledFinder,
         findsWidgets,
-        reason: 'ShadDisabled should be present in the tree',
+        reason: 'Disabled should be present in the tree',
       );
 
       // Optional: Verify the GestureDetector is disabled
@@ -201,9 +201,9 @@ void main() {
       const customSize = 24.0;
       await tester.pumpWidget(
         createTestWidget(
-          const ShadRadioGroup<String>(
+          const FinesseRadioGroup<String>(
             items: [
-              ShadRadio(
+              Radio(
                 value: 'option1',
                 label: Text('Option 1'),
                 size: customSize,
@@ -213,15 +213,15 @@ void main() {
         ),
       );
 
-      // Verify ShadRadio is rendered
+      // Verify Radio is rendered
       final radioFinder = find.byWidgetPredicate(
-        (widget) => widget is ShadRadio<String>,
-        description: 'ShadRadio<String>',
+        (widget) => widget is Radio<String>,
+        description: 'Radio<String>',
       );
       expect(
         radioFinder,
         findsOneWidget,
-        reason: 'ShadRadio should be rendered in the group',
+        reason: 'Radio should be rendered in the group',
       );
 
       // Check SizedBox applies custom size
@@ -235,7 +235,7 @@ void main() {
       expect(
         sizedBoxFinder,
         findsOneWidget,
-        reason: 'Should find a SizedBox wrapping AnimatedSwitcher in ShadRadio',
+        reason: 'Should find a SizedBox wrapping AnimatedSwitcher in Radio',
       );
       final sizedBox = tester.widget<SizedBox>(sizedBoxFinder);
       expect(
@@ -254,10 +254,10 @@ void main() {
       const customColor = Colors.red;
       await tester.pumpWidget(
         createTestWidget(
-          const ShadRadioGroup<String>(
+          const FinesseRadioGroup<String>(
             initialValue: 'option1',
             items: [
-              ShadRadio(
+              Radio(
                 value: 'option1',
                 label: Text('Option 1'),
                 color: customColor,
@@ -285,11 +285,11 @@ void main() {
       const customSpacing = 16.0;
       await tester.pumpWidget(
         createTestWidget(
-          const ShadRadioGroup<String>(
+          const FinesseRadioGroup<String>(
             spacing: customSpacing,
             items: [
-              ShadRadio(value: 'option1', label: Text('Option 1')),
-              ShadRadio(value: 'option2', label: Text('Option 2')),
+              Radio(value: 'option1', label: Text('Option 1')),
+              Radio(value: 'option2', label: Text('Option 2')),
             ],
           ),
         ),
@@ -306,9 +306,9 @@ void main() {
       final focusNode = FocusNode();
       await tester.pumpWidget(
         createTestWidget(
-          ShadRadioGroup<String>(
+          FinesseRadioGroup<String>(
             items: [
-              ShadRadio(
+              Radio(
                 value: 'option1',
                 label: const Text('Option 1'),
                 focusNode: focusNode,
@@ -325,19 +325,19 @@ void main() {
       // Verify focus is applied
       expect(focusNode.hasFocus, true);
 
-      // Check ShadDecorator reflects focused state
-      final decoratorFinder = find.byType(ShadDecorator);
+      // Check Decorator reflects focused state
+      final decoratorFinder = find.byType(Decorator);
       expect(decoratorFinder, findsOneWidget);
-      final decorator = tester.widget<ShadDecorator>(decoratorFinder);
+      final decorator = tester.widget<Decorator>(decoratorFinder);
       expect(decorator.focused, true);
     });
 
     testWidgets('renders with label and sublabel', (WidgetTester tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadRadioGroup<String>(
+          const FinesseRadioGroup<String>(
             items: [
-              ShadRadio(
+              Radio(
                 value: 'option1',
                 label: Text('Option 1'),
                 sublabel: Text('Sublabel'),
@@ -364,12 +364,12 @@ void main() {
     testWidgets('updates initialValue correctly', (WidgetTester tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadRadioGroup<String>(
+          const FinesseRadioGroup<String>(
             key: ValueKey('initial'),
             initialValue: 'option1',
             items: [
-              ShadRadio(value: 'option1', label: Text('Option 1')),
-              ShadRadio(value: 'option2', label: Text('Option 2')),
+              Radio(value: 'option1', label: Text('Option 1')),
+              Radio(value: 'option2', label: Text('Option 2')),
             ],
           ),
         ),
@@ -387,12 +387,12 @@ void main() {
       // Update with new initialValue
       await tester.pumpWidget(
         createTestWidget(
-          const ShadRadioGroup<String>(
+          const FinesseRadioGroup<String>(
             key: ValueKey('updated'),
             initialValue: 'option2',
             items: [
-              ShadRadio(value: 'option1', label: Text('Option 1')),
-              ShadRadio(value: 'option2', label: Text('Option 2')),
+              Radio(value: 'option1', label: Text('Option 1')),
+              Radio(value: 'option2', label: Text('Option 2')),
             ],
           ),
         ),
@@ -407,13 +407,13 @@ void main() {
       expect(decoratedBoxFinder, findsOneWidget);
     });
 
-    testWidgets('ShadRadio matches goldens', (tester) async {
+    testWidgets('Radio matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          ShadRadioGroup<bool>(
+          FinesseRadioGroup<bool>(
             items: List.generate(
               3,
-              (index) => ShadRadio<bool>(
+              (index) => Radio<bool>(
                 value: index.isEven,
                 label: Text('Label $index'),
                 sublabel: Text('Sublabel $index'),
@@ -424,7 +424,7 @@ void main() {
       );
 
       await expectLater(
-        find.byType(ShadRadioGroup<bool>),
+        find.byType(FinesseRadioGroup<bool>),
         matchesGoldenFile('goldens/radio.png'),
       );
     });

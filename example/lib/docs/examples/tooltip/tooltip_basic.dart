@@ -1,14 +1,14 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class TooltipBasicExample extends StatelessWidget {
   const TooltipBasicExample({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ShadTooltip(
+    return Tooltip(
       builder: (context) => const Text('Add to library'),
-      child: ShadButton.outline(
+      child: Button.outline(
         onPressed: () {},
         child: const Text('Show Tooltip'),
       ),

@@ -14,9 +14,9 @@ Update the `ref` below with your branch name, then users can test your changes b
 To try this branch, add the following to your `pubspec.yaml`:
 
 ```yaml
-shad:
+finesse:
     git:
-      url: https://github.com/serverpod/shad
+      url: https://github.com/serverpod/finesse
       ref: your-branch-name-here
 ```
 
@@ -35,7 +35,7 @@ shad:
 If you need help, consider asking on [Discord].
 
 <!-- Links -->
-[Contributor Guide]: https://github.com/serverpod/shad/blob/main/CONTRIBUTING.md
+[Contributor Guide]: https://github.com/serverpod/finesse/blob/main/CONTRIBUTING.md
 [Flutter Style Guide]: https://github.com/flutter/flutter/blob/main/docs/contributing/Style-guide-for-Flutter-repo.md
 [Discord]: https://serverpod.dev/discord
 [Data Driven Fixes]: https://github.com/flutter/flutter/blob/main/docs/contributing/Data-driven-Fixes.md

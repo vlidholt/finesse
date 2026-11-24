@@ -1,8 +1,8 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-/// The axis along which a [ShadRovingFocus] group moves its highlight.
-enum ShadRovingFocusOrientation {
+/// The axis along which a [RovingFocus] group moves its highlight.
+enum RovingFocusOrientation {
   /// Left/Right move the highlight; Up/Down are left to the framework.
   horizontal,
 
@@ -19,12 +19,12 @@ enum ShadRovingFocusOrientation {
 /// "Roving" is the WAI-ARIA pattern the shadcn/ui components inherit from
 /// Radix: the collection is a single tab stop, and the arrow keys move an
 /// internal highlight between items rather than moving focus item by item.
-class ShadRovingFocusController extends ChangeNotifier {
+class RovingFocusController extends ChangeNotifier {
   /// Creates a controller for [itemCount] items.
   ///
   /// Nothing is highlighted unless [highlightedIndex] is given. [loop]
   /// defaults to true.
-  ShadRovingFocusController({
+  RovingFocusController({
     int itemCount = 0,
     int? highlightedIndex,
     this.loop = true,
@@ -98,7 +98,7 @@ class ShadRovingFocusController extends ChangeNotifier {
 }
 
 /// Wraps a collection of items with arrow-key, Home/End and typeahead
-/// navigation over a [ShadRovingFocusController].
+/// navigation over a [RovingFocusController].
 ///
 /// This is the shared keyboard substrate for the components that Radix
 /// guarantees arrow navigation on — tabs, menus, menubars, selects, toggle
@@ -106,14 +106,14 @@ class ShadRovingFocusController extends ChangeNotifier {
 ///
 /// The widget only interprets keys and updates the controller; painting the
 /// highlight and reacting to activation is up to the caller, which reads
-/// [ShadRovingFocusController.highlightedIndex].
-class ShadRovingFocus extends StatefulWidget {
+/// [RovingFocusController.highlightedIndex].
+class RovingFocus extends StatefulWidget {
   /// Creates a roving-focus group around [child].
-  const ShadRovingFocus({
+  const RovingFocus({
     super.key,
     required this.controller,
     required this.child,
-    this.orientation = ShadRovingFocusOrientation.horizontal,
+    this.orientation = RovingFocusOrientation.horizontal,
     this.onActivate,
     this.onEscape,
     this.textDirection,
@@ -124,13 +124,13 @@ class ShadRovingFocus extends StatefulWidget {
   });
 
   /// The controller holding the highlighted index.
-  final ShadRovingFocusController controller;
+  final RovingFocusController controller;
 
   /// The widget below this widget in the tree, which shows the items.
   final Widget child;
 
   /// Which arrow keys move the highlight.
-  final ShadRovingFocusOrientation orientation;
+  final RovingFocusOrientation orientation;
 
   /// Called with the highlighted index when Enter or Space is pressed.
   final ValueChanged<int>? onActivate;
@@ -158,18 +158,18 @@ class ShadRovingFocus extends StatefulWidget {
   final FocusNode? focusNode;
 
   @override
-  State<ShadRovingFocus> createState() => _ShadRovingFocusState();
+  State<RovingFocus> createState() => _RovingFocusState();
 }
 
-class _ShadRovingFocusState extends State<ShadRovingFocus> {
+class _RovingFocusState extends State<RovingFocus> {
   String _typeahead = '';
   DateTime? _lastKeystroke;
 
   bool get _handlesHorizontal =>
-      widget.orientation != ShadRovingFocusOrientation.vertical;
+      widget.orientation != RovingFocusOrientation.vertical;
 
   bool get _handlesVertical =>
-      widget.orientation != ShadRovingFocusOrientation.horizontal;
+      widget.orientation != RovingFocusOrientation.horizontal;
 
   TextDirection get _textDirection =>
       widget.textDirection ?? Directionality.of(context);

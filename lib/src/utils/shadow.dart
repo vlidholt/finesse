@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
-/// {@template ShadShadowDecoration}
+/// {@template ShadowDecoration}
 /// A [Decoration] that paints [shadows] behind [decoration] the way CSS paints
 /// an outer `box-shadow`.
 ///
@@ -30,17 +30,17 @@ import 'package:flutter/widgets.dart';
 /// where [BlurStyle.inner] already clips them the way CSS clips `inset`.
 /// {@endtemplate}
 @immutable
-class ShadShadowDecoration extends Decoration {
-  /// {@macro ShadShadowDecoration}
-  const ShadShadowDecoration({
+class ShadowDecoration extends Decoration {
+  /// {@macro ShadowDecoration}
+  const ShadowDecoration({
     required this.decoration,
     this.shadows = const [],
   });
 
-  /// A [ShadShadowDecoration] wrapping a [BoxDecoration] built from the usual
+  /// A [ShadowDecoration] wrapping a [BoxDecoration] built from the usual
   /// [BoxDecoration] arguments, so a call site reads like the plain decoration
   /// it replaces.
-  factory ShadShadowDecoration.box({
+  factory ShadowDecoration.box({
     List<BoxShadow> shadows = const [],
     Color? color,
     DecorationImage? image,
@@ -50,7 +50,7 @@ class ShadShadowDecoration extends Decoration {
     BlendMode? backgroundBlendMode,
     BoxShape shape = BoxShape.rectangle,
   }) {
-    return ShadShadowDecoration(
+    return ShadowDecoration(
       shadows: shadows,
       decoration: BoxDecoration(
         color: color,
@@ -86,33 +86,33 @@ class ShadShadowDecoration extends Decoration {
       decoration.hitTest(size, position, textDirection: textDirection);
 
   @override
-  ShadShadowDecoration? lerpFrom(Decoration? a, double t) {
+  ShadowDecoration? lerpFrom(Decoration? a, double t) {
     final other = _wrap(a);
     if (other == null && a != null) return null;
-    return ShadShadowDecoration(
+    return ShadowDecoration(
       decoration: Decoration.lerp(other?.decoration, decoration, t)!,
       shadows: BoxShadow.lerpList(other?.shadows, shadows, t) ?? const [],
     );
   }
 
   @override
-  ShadShadowDecoration? lerpTo(Decoration? b, double t) {
+  ShadowDecoration? lerpTo(Decoration? b, double t) {
     final other = _wrap(b);
     if (other == null && b != null) return null;
-    return ShadShadowDecoration(
+    return ShadowDecoration(
       decoration: Decoration.lerp(decoration, other?.decoration, t)!,
       shadows: BoxShadow.lerpList(shadows, other?.shadows, t) ?? const [],
     );
   }
 
   /// Views a plain [BoxDecoration]/[ShapeDecoration] as a shadowless
-  /// [ShadShadowDecoration] so the two can be lerped against each other.
-  static ShadShadowDecoration? _wrap(Decoration? decoration) {
+  /// [ShadowDecoration] so the two can be lerped against each other.
+  static ShadowDecoration? _wrap(Decoration? decoration) {
     return switch (decoration) {
       null => null,
-      final ShadShadowDecoration d => d,
-      final BoxDecoration d => ShadShadowDecoration(decoration: d),
-      final ShapeDecoration d => ShadShadowDecoration(decoration: d),
+      final ShadowDecoration d => d,
+      final BoxDecoration d => ShadowDecoration(decoration: d),
+      final ShapeDecoration d => ShadowDecoration(decoration: d),
       _ => null,
     };
   }
@@ -122,13 +122,13 @@ class ShadShadowDecoration extends Decoration {
     final inner = onChanged == null
         ? decoration.createBoxPainter()
         : decoration.createBoxPainter(onChanged);
-    return _ShadShadowPainter(this, inner, onChanged);
+    return _ShadowPainter(this, inner, onChanged);
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is ShadShadowDecoration &&
+    return other is ShadowDecoration &&
         other.decoration == decoration &&
         listEquals(other.shadows, shadows);
   }
@@ -145,10 +145,10 @@ class ShadShadowDecoration extends Decoration {
   }
 }
 
-class _ShadShadowPainter extends BoxPainter {
-  _ShadShadowPainter(this._decoration, this._inner, [super.onChanged]);
+class _ShadowPainter extends BoxPainter {
+  _ShadowPainter(this._decoration, this._inner, [super.onChanged]);
 
-  final ShadShadowDecoration _decoration;
+  final ShadowDecoration _decoration;
   final BoxPainter _inner;
 
   @override
@@ -176,7 +176,7 @@ class _ShadShadowPainter extends BoxPainter {
 /// Paints [shadows] outside the shape [decoration] describes for [rect], the
 /// way CSS clips an outer `box-shadow` to the border box.
 ///
-/// {@macro ShadShadowDecoration}
+/// {@macro ShadowDecoration}
 void paintOuterShadows(
   Canvas canvas,
   Rect rect, {

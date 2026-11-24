@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class SwitchBasicExample extends StatefulWidget {
   const SwitchBasicExample({super.key});
@@ -13,7 +13,7 @@ class _SwitchBasicExampleState extends State<SwitchBasicExample> {
 
   @override
   Widget build(BuildContext context) {
-    return ShadSwitch(
+    return Switch(
       value: value,
       onChanged: (v) => setState(() => value = v),
       label: const Text('Airplane Mode'),

@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class BadgeVariantsExample extends StatelessWidget {
   const BadgeVariantsExample({super.key});
@@ -10,10 +10,10 @@ class BadgeVariantsExample extends StatelessWidget {
       spacing: 8,
       runSpacing: 8,
       children: [
-        ShadBadge(child: Text('Primary')),
-        ShadBadge.secondary(child: Text('Secondary')),
-        ShadBadge.destructive(child: Text('Destructive')),
-        ShadBadge.outline(child: Text('Outline')),
+        Badge(child: Text('Primary')),
+        Badge.secondary(child: Text('Secondary')),
+        Badge.destructive(child: Text('Destructive')),
+        Badge.outline(child: Text('Outline')),
       ],
     );
   }

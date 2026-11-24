@@ -1,18 +1,18 @@
+import 'package:finesse/src/theme/color_scheme/base.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/color_scheme/base.dart';
 
 /// The shadcn/ui v3 `slate` colour scheme.
 ///
 /// shadcn/ui v4 no longer ships this palette. It is kept for
 /// compatibility.
-/// `ShadThemeData` still uses it by default.
+/// `ThemeData` still uses it by default.
 @immutable
-class ShadSlateColorScheme extends ShadColorScheme {
-  /// Creates a [ShadSlateColorScheme] from explicit colours.
+class SlateColorScheme extends ColorScheme {
+  /// Creates a [SlateColorScheme] from explicit colours.
   ///
-  /// Use [ShadSlateColorScheme.light] or [ShadSlateColorScheme.dark] for the
+  /// Use [SlateColorScheme.light] or [SlateColorScheme.dark] for the
   /// shadcn/ui values.
-  const ShadSlateColorScheme({
+  const SlateColorScheme({
     required super.background,
     required super.foreground,
     required super.card,
@@ -36,10 +36,10 @@ class ShadSlateColorScheme extends ShadColorScheme {
     super.custom,
   });
 
-  /// Creates the light variant of [ShadSlateColorScheme].
+  /// Creates the light variant of [SlateColorScheme].
   ///
   /// Every colour defaults to its light-mode value.
-  const ShadSlateColorScheme.light({
+  const SlateColorScheme.light({
     super.background = const Color(0xffffffff),
     super.foreground = const Color(0xff020817),
     super.card = const Color(0xffffffff),
@@ -63,10 +63,10 @@ class ShadSlateColorScheme extends ShadColorScheme {
     super.custom,
   });
 
-  /// Creates the dark variant of [ShadSlateColorScheme].
+  /// Creates the dark variant of [SlateColorScheme].
   ///
   /// Every colour defaults to its dark-mode value.
-  const ShadSlateColorScheme.dark({
+  const SlateColorScheme.dark({
     super.background = const Color(0xff020817),
     super.foreground = const Color(0xfff8fafc),
     super.card = const Color(0xff020817),

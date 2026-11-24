@@ -1,73 +1,73 @@
 import 'dart:typed_data';
 
-import 'package:shad/src/utils/clipboard/clipboard_service_stub.dart'
-    if (dart.library.js_interop) 'package:shad/src/utils/clipboard/clipboard_service_web.dart'
+import 'package:finesse/src/utils/clipboard/clipboard_service_stub.dart'
+    if (dart.library.js_interop) 'package:finesse/src/utils/clipboard/clipboard_service_web.dart'
     as impl;
 
 /// A single item read from the system clipboard.
-typedef ShadClipboardItem = ({String mimeType, Uint8List bytes});
+typedef ClipboardItem = ({String mimeType, Uint8List bytes});
 
 /// Callback for receiving pasted file items.
-typedef ShadPasteFilesCallback = void Function(List<ShadClipboardItem> files);
+typedef PasteFilesCallback = void Function(List<ClipboardItem> files);
 
 /// Callback for receiving errors during paste file extraction.
-typedef ShadPasteFilesErrorCallback = void Function(Object error);
+typedef PasteFilesErrorCallback = void Function(Object error);
 
 /// Listens for files pasted into the app.
 ///
 /// On web, listens to the browser `paste` event and extracts file items from
 /// the clipboard data. On other platforms, every method is a no-op.
-abstract final class ShadClipboard {
+abstract final class FinesseClipboard {
   /// Registers a listener for paste events containing file data.
   ///
   /// The [callback] is invoked only when the paste contains file items.
-  static void addPasteFilesListener(ShadPasteFilesCallback callback) =>
+  static void addPasteFilesListener(PasteFilesCallback callback) =>
       impl.addPasteFilesListener(callback);
 
   /// Removes a previously registered paste files listener.
-  static void removePasteFilesListener(ShadPasteFilesCallback callback) =>
+  static void removePasteFilesListener(PasteFilesCallback callback) =>
       impl.removePasteFilesListener(callback);
 
   /// Registers a listener for errors that occur during paste file
   /// extraction.
   static void addPasteFilesErrorListener(
-    ShadPasteFilesErrorCallback callback,
+    PasteFilesErrorCallback callback,
   ) => impl.addPasteFilesErrorListener(callback);
 
   /// Removes a previously registered paste files error listener.
   static void removePasteFilesErrorListener(
-    ShadPasteFilesErrorCallback callback,
+    PasteFilesErrorCallback callback,
   ) => impl.removePasteFilesErrorListener(callback);
 }
 
 /// Registers a listener for paste events containing file data.
 @Deprecated(
-  'Use ShadClipboard.addPasteFilesListener. '
+  'Use FinesseClipboard.addPasteFilesListener. '
   'Will be removed in the next major version.',
 )
-void addPasteFilesListener(ShadPasteFilesCallback callback) =>
-    ShadClipboard.addPasteFilesListener(callback);
+void addPasteFilesListener(PasteFilesCallback callback) =>
+    FinesseClipboard.addPasteFilesListener(callback);
 
 /// Removes a previously registered paste files listener.
 @Deprecated(
-  'Use ShadClipboard.removePasteFilesListener. '
+  'Use FinesseClipboard.removePasteFilesListener. '
   'Will be removed in the next major version.',
 )
-void removePasteFilesListener(ShadPasteFilesCallback callback) =>
-    ShadClipboard.removePasteFilesListener(callback);
+void removePasteFilesListener(PasteFilesCallback callback) =>
+    FinesseClipboard.removePasteFilesListener(callback);
 
 /// Registers a listener for errors that occur during paste file extraction.
 @Deprecated(
-  'Use ShadClipboard.addPasteFilesErrorListener. '
+  'Use FinesseClipboard.addPasteFilesErrorListener. '
   'Will be removed in the next major version.',
 )
-void addPasteFilesErrorListener(ShadPasteFilesErrorCallback callback) =>
-    ShadClipboard.addPasteFilesErrorListener(callback);
+void addPasteFilesErrorListener(PasteFilesErrorCallback callback) =>
+    FinesseClipboard.addPasteFilesErrorListener(callback);
 
 /// Removes a previously registered paste files error listener.
 @Deprecated(
-  'Use ShadClipboard.removePasteFilesErrorListener. '
+  'Use FinesseClipboard.removePasteFilesErrorListener. '
   'Will be removed in the next major version.',
 )
-void removePasteFilesErrorListener(ShadPasteFilesErrorCallback callback) =>
-    ShadClipboard.removePasteFilesErrorListener(callback);
+void removePasteFilesErrorListener(PasteFilesErrorCallback callback) =>
+    FinesseClipboard.removePasteFilesErrorListener(callback);

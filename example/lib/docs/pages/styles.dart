@@ -23,8 +23,8 @@ final stylesDoc = ComponentDoc(
         children: [
           CodeBlock(
             code: '''
-ShadThemeData(
-  style: ShadStyleTokens.maia,
+ThemeData(
+  style: StyleTokens.maia,
 )''',
           ),
           DocBullets(
@@ -53,13 +53,13 @@ ShadThemeData(
         title: 'Picking at runtime',
         children: [
           DocParagraph(
-            'The presets are values on `ShadStyleTokens`, so a style '
+            'The presets are values on `StyleTokens`, so a style '
             'switcher is a list and a lookup:',
           ),
           CodeBlock(
             code: '''
-ShadStyleTokens.all;              // the eight presets
-ShadStyleTokens.fromName('sera'); // one, by its shadcn name''',
+StyleTokens.all;              // the eight presets
+StyleTokens.fromName('sera'); // one, by its shadcn name''',
           ),
         ],
       ),
@@ -72,9 +72,9 @@ ShadStyleTokens.fromName('sera'); // one, by its shadcn name''',
           ),
           CodeBlock(
             code: '''
-ShadThemeData(
-  style: ShadStyleTokens.nova.copyWith(
-    buttonRadius: ShadRadiusToken.full,
+ThemeData(
+  style: StyleTokens.nova.copyWith(
+    buttonRadius: RadiusToken.full,
     buttonHeight: 40,
   ),
 )''',
@@ -86,14 +86,14 @@ ShadThemeData(
         children: [
           DocParagraph(
             "Metrics the reference writes in Tailwind's spacing units "
-            "follow the theme's `ShadSpacing` step: 4px, like "
+            "follow the theme's `Spacing` step: 4px, like "
             '`0.25rem`. Raising it loosens every unit-derived padding and '
             'gap in one move:',
           ),
           CodeBlock(
             code: '''
-ShadThemeData(
-  spacing: const ShadSpacing(step: 5),
+ThemeData(
+  spacing: const Spacing(step: 5),
 )''',
           ),
         ],

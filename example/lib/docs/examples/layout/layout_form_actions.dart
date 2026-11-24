@@ -1,7 +1,7 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
-/// Stacked primary and secondary actions with `ShadColumn` spacing.
+/// Stacked primary and secondary actions with `FinesseColumn` spacing.
 /// the footer pattern used in dialogs and forms.
 class LayoutFormActionsExample extends StatelessWidget {
   const LayoutFormActionsExample({super.key});
@@ -10,19 +10,19 @@ class LayoutFormActionsExample extends StatelessWidget {
   Widget build(BuildContext context) {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 320),
-      child: ShadCard(
+      child: Card(
         title: const Text('Schedule payout'),
         description: const Text('Confirm the transfer details below.'),
-        child: ShadColumn(
+        child: FinesseColumn(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
           spacing: 3,
           children: [
-            const ShadInput(
+            const TextField(
               placeholder: Text('Amount'),
             ),
-            ShadButton(onPressed: () {}, child: const Text('Schedule')),
-            ShadButton.outline(
+            Button(onPressed: () {}, child: const Text('Schedule')),
+            Button.outline(
               onPressed: () {},
               child: const Text('Cancel'),
             ),

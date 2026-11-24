@@ -1,16 +1,16 @@
 import 'package:collection/collection.dart';
+import 'package:finesse/src/components/divider.dart';
+import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/border.dart';
+import 'package:finesse/src/utils/extensions/double.dart';
+import 'package:finesse/src/utils/mouse_cursor_provider.dart';
+import 'package:finesse/src/utils/provider.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:shad/src/components/separator.dart';
-import 'package:shad/src/theme/components/decorator.dart';
-import 'package:shad/src/theme/theme.dart';
-import 'package:shad/src/utils/border.dart';
-import 'package:shad/src/utils/extensions/double.dart';
-import 'package:shad/src/utils/mouse_cursor_provider.dart';
-import 'package:shad/src/utils/provider.dart';
 
 /// The result of resizing a panel
-enum ShadResizeResult {
+enum ResizeResult {
   /// The whole drag distance was applied.
   success,
 
@@ -24,10 +24,10 @@ enum ShadResizeResult {
 }
 
 /// The size information of a panel
-class ShadPanelInfo {
+class PanelInfo {
   /// Creates the size information of a panel. All sizes are fractions of the
   /// group, from 0 to 1.
-  ShadPanelInfo({
+  PanelInfo({
     required this.id,
     required this.defaultSize,
     this.minSize = 0,
@@ -54,25 +54,25 @@ class ShadPanelInfo {
     _size = value;
   }
 
-  /// {@template ShadPanelInfo.defaultSize}
+  /// {@template PanelInfo.defaultSize}
   /// The default size of the panel, which is set during initialization.
   /// Must be between [minSize] and [maxSize].
   /// {@endtemplate}
   final double defaultSize;
 
-  /// {@template ShadPanelInfo.minSize}
+  /// {@template PanelInfo.minSize}
   /// The minimum size the panel can be resized to.
   /// Must be between 0 and 1.
   /// {@endtemplate}
   final double minSize;
 
-  /// {@template ShadPanelInfo.maxSize}
+  /// {@template PanelInfo.maxSize}
   /// The maximum size the panel can be resized to.
   /// Must be between 0 and 1.
   /// {@endtemplate}
   final double maxSize;
 
-  /// {@template ShadPanelInfo.id}
+  /// {@template PanelInfo.id}
   /// The unique identifier for the panel.
   /// This must be unique among all panels in the group.
   /// {@endtemplate}
@@ -81,36 +81,36 @@ class ShadPanelInfo {
 
   @override
   String toString() {
-    return '''ShadPanelInfo(size: $size, minSize: $minSize, maxSize: $maxSize, defaultSize: $defaultSize)''';
+    return '''PanelInfo(size: $size, minSize: $minSize, maxSize: $maxSize, defaultSize: $defaultSize)''';
   }
 }
 
-/// Holds the sizes of the panels in a [ShadResizablePanelGroup] and resizes
+/// Holds the sizes of the panels in a [ResizablePanelGroup] and resizes
 /// them.
 ///
-/// Pass one to [ShadResizablePanelGroup.controller] to read or change the
+/// Pass one to [ResizablePanelGroup.controller] to read or change the
 /// sizes from outside. When none is given, the group creates its own.
-class ShadResizableController extends ChangeNotifier {
+class ResizableController extends ChangeNotifier {
   /// Creates a controller with no panels.
-  ShadResizableController();
+  ResizableController();
 
   /// The size information of each panel, in layout order.
-  final panelsInfo = <ShadPanelInfo>[];
+  final panelsInfo = <PanelInfo>[];
 
   /// The default size of each panel, in layout order. Used to reset sizes.
   final defaultSizes = <double>[];
 
-  /// {@template ShadResizableController.registerPanel}
+  /// {@template ResizableController.registerPanel}
   /// This method adds a new panel to the controller and returns its index.
   /// {@endtemplate}
-  int registerPanel(ShadPanelInfo info) {
+  int registerPanel(PanelInfo info) {
     panelsInfo.add(info);
     defaultSizes.add(info.defaultSize);
     return panelsInfo.length - 1;
   }
 
   /// Inserts a panel at [index] and notifies listeners.
-  void insertPanel(int index, ShadPanelInfo info) {
+  void insertPanel(int index, PanelInfo info) {
     panelsInfo.insert(index, info);
     defaultSizes.insert(index, info.defaultSize);
     notifyListeners();
@@ -127,18 +127,18 @@ class ShadResizableController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// {@template ShadResizableController.getPanelInfo}
+  /// {@template ResizableController.getPanelInfo}
   /// This method retrieves the information of a panel at the specified index.
   /// Throws an exception if the index is out of bounds.
   /// {@endtemplate}
-  ShadPanelInfo getPanelInfo(int index) {
+  PanelInfo getPanelInfo(int index) {
     final contains = panelsInfo.length > index;
     if (!contains) throw Exception('Panel info not found for index: $index');
     return panelsInfo[index];
   }
 
   /// Update the panel info with the given [panels]
-  void update(List<ShadPanelInfo> panels) {
+  void update(List<PanelInfo> panels) {
     clear();
     panels.forEach(registerPanel);
     notifyListeners();
@@ -165,14 +165,14 @@ class ShadResizableController extends ChangeNotifier {
   ///
   /// [pivotIndices] is the pair of panel indices adjacent to the dragged
   /// divider: `[leadingIndex, trailingIndex]`.
-  ShadResizeResult resize({
+  ResizeResult resize({
     required double delta,
     required List<double> initialLayout,
     required List<int> pivotIndices,
   }) {
     if (delta.abs() < 1e-9) {
       _applyLayout(initialLayout);
-      return ShadResizeResult.success;
+      return ResizeResult.success;
     }
 
     final leadingPivot = pivotIndices[0];
@@ -287,8 +287,8 @@ class ShadResizableController extends ChangeNotifier {
     if ((sum - 1.0).abs() > 0.01) {
       // Layout is invalid; keep the current layout unchanged.
       return delta > 0
-          ? ShadResizeResult.failedTrailing
-          : ShadResizeResult.failedLeading;
+          ? ResizeResult.failedTrailing
+          : ResizeResult.failedLeading;
     }
 
     _applyLayout(nextLayout);
@@ -301,7 +301,7 @@ class ShadResizableController extends ChangeNotifier {
         totalGrowth += nextLayout[i] - initialLayout[i];
       }
       if ((totalGrowth - originalDelta).abs() > 1e-6) {
-        return ShadResizeResult.failedTrailing;
+        return ResizeResult.failedTrailing;
       }
     } else {
       var totalGrowth = 0.0;
@@ -309,11 +309,11 @@ class ShadResizableController extends ChangeNotifier {
         totalGrowth += nextLayout[i] - initialLayout[i];
       }
       if ((totalGrowth - (-originalDelta)).abs() > 1e-6) {
-        return ShadResizeResult.failedLeading;
+        return ResizeResult.failedLeading;
       }
     }
 
-    return ShadResizeResult.success;
+    return ResizeResult.success;
   }
 
   /// Applies a pre-validated layout directly to panel sizes.
@@ -353,11 +353,11 @@ class ShadResizableController extends ChangeNotifier {
       .asFixed(6);
 }
 
-/// {@template ShadResizablePanelGroup}
+/// {@template ResizablePanelGroup}
 /// A widget that provides a group of resizable panels, allowing users to
 /// adjust the size of each panel dynamically.
 ///
-/// The [ShadResizablePanelGroup] manages multiple [ShadResizablePanel] widgets
+/// The [ResizablePanelGroup] manages multiple [ResizablePanel] widgets
 /// and provides functionality to resize them by dragging dividers between them.
 /// It supports both horizontal and vertical arrangements of panels, and allows
 /// customization of the appearance and behavior of the dividers and handles.
@@ -365,9 +365,9 @@ class ShadResizableController extends ChangeNotifier {
 /// This widget is useful for creating flexible layouts where users can adjust
 /// the size of different sections of the UI according to their preferences.
 /// {@endtemplate}
-class ShadResizablePanelGroup extends StatefulWidget {
-  /// {@macro ShadResizablePanelGroup}
-  const ShadResizablePanelGroup({
+class ResizablePanelGroup extends StatefulWidget {
+  /// {@macro ResizablePanelGroup}
+  const ResizablePanelGroup({
     super.key,
     required this.children,
     this.axis = Axis.horizontal,
@@ -390,117 +390,117 @@ class ShadResizablePanelGroup extends StatefulWidget {
     this.handleSize,
   });
 
-  /// {@template ShadResizablePanelGroup.axis}
+  /// {@template ResizablePanelGroup.axis}
   /// The axis along which the panels are arranged.
   /// Can be either [Axis.horizontal] or [Axis.vertical].
   /// {@endtemplate}
   final Axis axis;
 
-  /// {@template ShadResizablePanelGroup.children}
+  /// {@template ResizablePanelGroup.children}
   /// The list of resizable panels to be displayed in the group.
-  /// Each panel must be a [ShadResizablePanel].
+  /// Each panel must be a [ResizablePanel].
   /// {@endtemplate}
-  final List<ShadResizablePanel> children;
+  final List<ResizablePanel> children;
 
-  /// {@template ShadResizablePanelGroup.mainAxisAlignment}
+  /// {@template ResizablePanelGroup.mainAxisAlignment}
   /// The alignment of the panels along the main axis.
   /// {@endtemplate}
   final MainAxisAlignment? mainAxisAlignment;
 
-  /// {@template ShadResizablePanelGroup.crossAxisAlignment}
+  /// {@template ResizablePanelGroup.crossAxisAlignment}
   /// The alignment of the panels along the cross axis.
   /// {@endtemplate}
   final CrossAxisAlignment? crossAxisAlignment;
 
-  /// {@template ShadResizablePanelGroup.mainAxisSize}
+  /// {@template ResizablePanelGroup.mainAxisSize}
   /// The size of the main axis for the panels.
   /// {@endtemplate}
   final MainAxisSize? mainAxisSize;
 
-  /// {@template ShadResizablePanelGroup.textDirection}
+  /// {@template ResizablePanelGroup.textDirection}
   /// The text direction for the panels' content.
   /// Can be set to [TextDirection.ltr] or [TextDirection.rtl].
   /// {@endtemplate}
   final TextDirection? textDirection;
 
-  /// {@template ShadResizablePanelGroup.verticalDirection}
+  /// {@template ResizablePanelGroup.verticalDirection}
   /// The vertical direction for the panels' layout.
   /// Can be set to [VerticalDirection.down] or [VerticalDirection.up].
   /// {@endtemplate}
   final VerticalDirection? verticalDirection;
 
-  /// {@template ShadResizablePanelGroup.controller}
+  /// {@template ResizablePanelGroup.controller}
   /// The controller that manages the resizable panels.
   /// If not provided, a new controller will be created.
   /// {@endtemplate}
-  final ShadResizableController? controller;
+  final ResizableController? controller;
 
-  /// {@template ShadResizablePanelGroup.showHandle}
+  /// {@template ResizablePanelGroup.showHandle}
   /// Whether to show the resize handle between panels.
   /// {@endtemplate}
   final bool? showHandle;
 
-  /// {@template ShadResizablePanelGroup.handleIconData}
+  /// {@template ResizablePanelGroup.handleIconData}
   /// The icon data for the resize handle.
   /// {@endtemplate}
   final IconData? handleIconData;
 
-  /// {@template ShadResizablePanelGroup.handleIcon}
+  /// {@template ResizablePanelGroup.handleIcon}
   /// A custom widget to use as the resize handle.
   /// If provided, this will be displayed instead of the default icon.
   /// {@endtemplate}
   final Widget? handleIcon;
 
-  /// {@template ShadResizablePanelGroup.dividerSize}
+  /// {@template ResizablePanelGroup.dividerSize}
   /// The size of the divider between panels.
   /// {@endtemplate}
   final double? dividerSize;
 
-  /// {@template ShadResizablePanelGroup.dividerThickness}
+  /// {@template ResizablePanelGroup.dividerThickness}
   /// The thickness of the divider between panels.
   /// {@endtemplate}
   final double? dividerThickness;
 
-  /// {@template ShadResizablePanelGroup.onDividerDoubleTap}
+  /// {@template ResizablePanelGroup.onDividerDoubleTap}
   /// Callback function that is triggered when the divider is double-tapped.
   /// {@endtemplate}
   final VoidCallback? onDividerDoubleTap;
 
-  /// {@template ShadResizablePanelGroup.resetOnDoubleTap}
+  /// {@template ResizablePanelGroup.resetOnDoubleTap}
   /// Whether to reset the panel sizes on double-tap of the divider.
   /// {@endtemplate}
   final bool? resetOnDoubleTap;
 
-  /// {@template ShadResizablePanelGroup.dividerColor}
+  /// {@template ResizablePanelGroup.dividerColor}
   /// The color of the divider between panels.
   /// {@endtemplate}
   final Color? dividerColor;
 
-  /// {@template ShadResizablePanelGroup.handleDecoration}
+  /// {@template ResizablePanelGroup.handleDecoration}
   /// Custom decoration for the resize handle.
   /// {@endtemplate}
-  final ShadDecoration? handleDecoration;
+  final FinesseDecoration? handleDecoration;
 
-  /// {@template ShadResizablePanelGroup.handlePadding}
+  /// {@template ResizablePanelGroup.handlePadding}
   /// Padding around the resize handle.
   /// {@endtemplate}
   final EdgeInsetsGeometry? handlePadding;
 
-  /// {@template ShadResizablePanelGroup.handleSize}
+  /// {@template ResizablePanelGroup.handleSize}
   /// The size of the resize handle icon.
   /// {@endtemplate}
   final double? handleSize;
 
   @override
-  ShadResizablePanelGroupState createState() => ShadResizablePanelGroupState();
+  ResizablePanelGroupState createState() => ResizablePanelGroupState();
 }
 
-/// The state of a [ShadResizablePanelGroup].
-class ShadResizablePanelGroupState extends State<ShadResizablePanelGroup> {
-  ShadResizableController? _internalController;
+/// The state of a [ResizablePanelGroup].
+class ResizablePanelGroupState extends State<ResizablePanelGroup> {
+  ResizableController? _internalController;
 
   /// Sets the mouse cursor while a divider is dragged.
-  late final mouseCursorController = context.read<ShadMouseCursorController>();
+  late final mouseCursorController = context.read<MouseCursorController>();
 
   /// Whether a divider is being dragged.
   @protected
@@ -525,11 +525,11 @@ class ShadResizablePanelGroupState extends State<ShadResizablePanelGroup> {
   /// The number of dividers, one fewer than the number of panels.
   int get dividersCount => widget.children.length - 1;
 
-  /// The controller in use: [ShadResizablePanelGroup.controller], or an
+  /// The controller in use: [ResizablePanelGroup.controller], or an
   /// internal one when that is null.
-  ShadResizableController get controller {
+  ResizableController get controller {
     if (widget.controller != null) return widget.controller!;
-    return _internalController ??= ShadResizableController();
+    return _internalController ??= ResizableController();
   }
 
   @override
@@ -542,7 +542,7 @@ class ShadResizablePanelGroupState extends State<ShadResizablePanelGroup> {
   }
 
   @override
-  void didUpdateWidget(covariant ShadResizablePanelGroup oldWidget) {
+  void didUpdateWidget(covariant ResizablePanelGroup oldWidget) {
     super.didUpdateWidget(oldWidget);
     // Adding and removing panels
     if (oldWidget.children.length != widget.children.length) {
@@ -566,7 +566,7 @@ class ShadResizablePanelGroupState extends State<ShadResizablePanelGroup> {
         final info = widget.children[index];
         controller.insertPanel(
           index,
-          ShadPanelInfo(
+          PanelInfo(
             id: info.id,
             defaultSize: availableSizePerPanel,
             minSize: info.minSize,
@@ -588,7 +588,7 @@ class ShadResizablePanelGroupState extends State<ShadResizablePanelGroup> {
   void registerPanels() {
     for (final c in widget.children) {
       controller.registerPanel(
-        ShadPanelInfo(
+        PanelInfo(
           id: c.id,
           defaultSize: c.defaultSize,
           minSize: c.minSize,
@@ -598,11 +598,11 @@ class ShadResizablePanelGroupState extends State<ShadResizablePanelGroup> {
     }
   }
 
-  /// {@macro ShadResizableController.registerPanel}
-  int registerPanel(ShadPanelInfo info) => controller.registerPanel(info);
+  /// {@macro ResizableController.registerPanel}
+  int registerPanel(PanelInfo info) => controller.registerPanel(info);
 
-  /// {@macro ShadResizableController.getPanelInfo}
-  ShadPanelInfo getPanelInfo(int index) => controller.getPanelInfo(index);
+  /// {@macro ResizableController.getPanelInfo}
+  PanelInfo getPanelInfo(int index) => controller.getPanelInfo(index);
 
   /// Starts a drag of the divider after the panel at [index].
   ///
@@ -658,19 +658,19 @@ class ShadResizablePanelGroupState extends State<ShadResizablePanelGroup> {
     );
 
     switch (result) {
-      case ShadResizeResult.success:
+      case ResizeResult.success:
         final cursor = switch (widget.axis) {
           Axis.horizontal => SystemMouseCursors.resizeLeftRight,
           Axis.vertical => SystemMouseCursors.resizeUpDown,
         };
         mouseCursorController.cursor = cursor;
-      case ShadResizeResult.failedLeading:
+      case ResizeResult.failedLeading:
         final cursor = switch (widget.axis) {
           Axis.horizontal => SystemMouseCursors.resizeRight,
           Axis.vertical => SystemMouseCursors.resizeDown,
         };
         mouseCursorController.cursor = cursor;
-      case ShadResizeResult.failedTrailing:
+      case ResizeResult.failedTrailing:
         final cursor = switch (widget.axis) {
           Axis.horizontal => SystemMouseCursors.resizeLeft,
           Axis.vertical => SystemMouseCursors.resizeUp,
@@ -689,7 +689,7 @@ class ShadResizablePanelGroupState extends State<ShadResizablePanelGroup> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     final effectiveShowHandle =
         widget.showHandle ?? theme.resizableTheme.showHandle ?? false;
     final effectiveDividerSize =
@@ -708,9 +708,9 @@ class ShadResizablePanelGroupState extends State<ShadResizablePanelGroup> {
         theme.colorScheme.border;
 
     final effectiveHandleDecoration =
-        ShadDecoration(
+        FinesseDecoration(
               color: theme.colorScheme.border,
-              border: ShadBorder.all(
+              border: FinesseBorder.all(
                 radius: const BorderRadius.all(Radius.circular(4)),
                 width: 0,
               ),
@@ -758,7 +758,7 @@ class ShadResizablePanelGroupState extends State<ShadResizablePanelGroup> {
         final rtl = Directionality.of(context) == TextDirection.rtl;
 
         final divider = switch (widget.axis) {
-          Axis.horizontal => ShadSeparator.vertical(
+          Axis.horizontal => Divider.vertical(
             margin: EdgeInsets.symmetric(horizontal: effectiveDividerSize / 2),
             thickness: effectiveDividerThickness,
             color: effectiveDividerColor,
@@ -766,7 +766,7 @@ class ShadResizablePanelGroupState extends State<ShadResizablePanelGroup> {
           Axis.vertical => SizedBox(
             // double.infinity doesn't work, just providing a big number
             width: 50000,
-            child: ShadSeparator.horizontal(
+            child: Divider.horizontal(
               margin: EdgeInsets.symmetric(vertical: effectiveDividerSize / 2),
               thickness: effectiveDividerThickness,
               color: effectiveDividerColor,
@@ -810,7 +810,7 @@ class ShadResizablePanelGroupState extends State<ShadResizablePanelGroup> {
             // lazy, will be initialized when the handle is needed
             late final handle =
                 widget.handleIcon ??
-                ShadDecorator(
+                Decorator(
                   decoration: effectiveHandleDecoration,
                   child: Padding(
                     padding: effectiveHandlePadding,
@@ -924,18 +924,18 @@ class ShadResizablePanelGroupState extends State<ShadResizablePanelGroup> {
   }
 }
 
-/// {@template ShadResizablePanel}
+/// {@template ResizablePanel}
 /// A widget that represents a single resizable panel within a
-/// [ShadResizablePanelGroup].
+/// [ResizablePanelGroup].
 ///
-/// The [ShadResizablePanel] allows users to define a panel that can be resized
+/// The [ResizablePanel] allows users to define a panel that can be resized
 /// dynamically. It requires an ID for uniqueness, a child widget to display,
 /// and size constraints to control the resizing behavior. This panel can be
 /// part of a larger group of panels that can be resized relative to each other.
 /// {@endtemplate}
-class ShadResizablePanel extends StatelessWidget {
-  /// {@macro ShadResizablePanel}
-  const ShadResizablePanel({
+class ResizablePanel extends StatelessWidget {
+  /// {@macro ResizablePanel}
+  const ResizablePanel({
     super.key,
     required this.id,
     required this.child,
@@ -960,32 +960,32 @@ class ShadResizablePanel extends StatelessWidget {
          ' or equal to maxSize',
        );
 
-  /// {@template ShadResizablePanel.id}
+  /// {@template ResizablePanel.id}
   /// The unique identifier for the panel.
   /// This ID must be unique among all panels in the group to ensure proper
   /// management and resizing behavior.
   /// {@endtemplate}
   final Object id;
 
-  /// {@template ShadResizablePanel.child}
+  /// {@template ResizablePanel.child}
   /// The child widget displayed within the panel.
   /// This can be any widget that represents the content of the panel.
   /// {@endtemplate}
   final Widget child;
 
-  /// {@template ShadResizablePanel.defaultSize}
+  /// {@template ResizablePanel.defaultSize}
   /// The default size of the panel when it is first displayed.
   /// This value must be between [minSize] and [maxSize].
   /// {@endtemplate}
   final double defaultSize;
 
-  /// {@template ShadResizablePanel.minSize}
+  /// {@template ResizablePanel.minSize}
   /// The minimum size the panel can be resized to.
   /// This value must be greater than or equal to 0.
   /// {@endtemplate}
   final double minSize;
 
-  /// {@template ShadResizablePanel.maxSize}
+  /// {@template ResizablePanel.maxSize}
   /// The maximum size the panel can be resized to.
   /// This value must be greater than or equal to 0.
   /// {@endtemplate}

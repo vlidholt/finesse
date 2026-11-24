@@ -1,24 +1,24 @@
+import 'package:finesse/material.dart';
+import 'package:finesse/src/app.dart';
+import 'package:finesse/src/components/date_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/material.dart';
-import 'package:shad/src/app.dart';
-import 'package:shad/src/components/date_picker.dart';
 
 void main() {
-  // Helper method to create a test widget wrapped in ShadApp and Scaffold
+  // Helper method to create a test widget wrapped in FinesseApp and Scaffold
   Widget createTestWidget(Widget child) {
-    return ShadApp(
-      builder: (context, child) => ShadMaterial(child: child!),
+    return FinesseApp(
+      builder: (context, child) => FinesseMaterial(child: child!),
       home: Scaffold(body: child),
     );
   }
 
-  group('ShadDatePicker', () {
-    testWidgets('ShadDatePicker matches goldens', (tester) async {
-      await tester.pumpWidget(createTestWidget(const ShadDatePicker()));
+  group('DatePicker', () {
+    testWidgets('DatePicker matches goldens', (tester) async {
+      await tester.pumpWidget(createTestWidget(const DatePicker()));
 
       await expectLater(
-        find.byType(ShadDatePicker),
+        find.byType(DatePicker),
         matchesGoldenFile('goldens/date_picker.png'),
       );
     });

@@ -3,55 +3,55 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:collection/collection.dart';
+import 'package:finesse/src/components/disabled.dart';
+import 'package:finesse/src/components/divider.dart';
+import 'package:finesse/src/components/popover.dart';
+import 'package:finesse/src/components/text_field.dart';
+import 'package:finesse/src/raw_components/focusable.dart';
+import 'package:finesse/src/raw_components/portal.dart';
+import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/debug_check.dart';
+import 'package:finesse/src/utils/dismiss_shortcut.dart';
+import 'package:finesse/src/utils/extensions/text_style.dart';
+import 'package:finesse/src/utils/gesture_detector.dart';
+import 'package:finesse/src/utils/provider.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:shad/src/components/disabled.dart';
-import 'package:shad/src/components/input.dart';
-import 'package:shad/src/components/popover.dart';
-import 'package:shad/src/components/separator.dart';
-import 'package:shad/src/raw_components/focusable.dart';
-import 'package:shad/src/raw_components/portal.dart';
-import 'package:shad/src/theme/components/decorator.dart';
-import 'package:shad/src/theme/theme.dart';
-import 'package:shad/src/utils/debug_check.dart';
-import 'package:shad/src/utils/dismiss_shortcut.dart';
-import 'package:shad/src/utils/extensions/text_style.dart';
-import 'package:shad/src/utils/gesture_detector.dart';
-import 'package:shad/src/utils/provider.dart';
 
-/// Builder for the selected option widget in [ShadSelect].
-typedef ShadSelectedOptionBuilder<T> =
+/// Builder for the selected option widget in [Select].
+typedef SelectedOptionBuilder<T> =
     Widget Function(
       BuildContext context,
       T value,
     );
 
-/// Controls the selection state of a [ShadSelect] widget.
+/// Controls the selection state of a [Select] widget.
 ///
 /// It extends [ValueNotifier] to provide reactive updates when the selected
 /// values change.
-class ShadSelectController<T> extends ValueNotifier<Set<T>> {
+class SelectController<T> extends ValueNotifier<Set<T>> {
   /// Creates a controller with [initialValue] selected. Defaults to an empty
   /// selection.
-  ShadSelectController({Set<T>? initialValue}) : super(initialValue ?? {});
+  SelectController({Set<T>? initialValue}) : super(initialValue ?? {});
 }
 
-/// Defines the different variants of the [ShadSelect] widget.
-enum ShadSelectVariant {
-  /// Selects one option. Used by [ShadSelect.new].
+/// Defines the different variants of the [Select] widget.
+enum SelectVariant {
+  /// Selects one option. Used by [Select.new].
   primary,
 
   /// Selects one option and shows a search field. Used by
-  /// [ShadSelect.withSearch].
+  /// [Select.withSearch].
   search,
 
-  /// Selects many options. Used by [ShadSelect.multiple].
+  /// Selects many options. Used by [Select.multiple].
   multiple,
 
   /// Selects many options and shows a search field. Used by
-  /// [ShadSelect.multipleWithSearch].
+  /// [Select.multipleWithSearch].
   multipleWithSearch,
 }
 
@@ -59,9 +59,9 @@ enum ShadSelectVariant {
 ///
 /// It supports single and multiple selection, search functionality, and
 /// extensive customization through various properties.
-class ShadSelect<T> extends StatefulWidget {
-  /// Creates a [ShadSelect] with the primary variant.
-  const ShadSelect({
+class Select<T> extends StatefulWidget {
+  /// Creates a [Select] with the primary variant.
+  const Select({
     super.key,
     required this.selectedOptionBuilder,
     this.options,
@@ -102,7 +102,7 @@ class ShadSelect<T> extends StatefulWidget {
     this.popoverReverseDuration,
     this.ensureSelectedVisible,
     this.onPressed,
-  }) : variant = ShadSelectVariant.primary,
+  }) : variant = SelectVariant.primary,
        initialValues = const {},
        onSearchChanged = null,
        searchDivider = null,
@@ -120,8 +120,8 @@ class ShadSelect<T> extends StatefulWidget {
          'Either options or optionsBuilder must be provided',
        );
 
-  /// Creates a [ShadSelect] with the search variant.
-  const ShadSelect.withSearch({
+  /// Creates a [Select] with the search variant.
+  const Select.withSearch({
     super.key,
     this.options,
     this.optionsBuilder,
@@ -171,7 +171,7 @@ class ShadSelect<T> extends StatefulWidget {
     this.searchFocusNode,
     this.onSearchSubmitted,
     this.onPressed,
-  }) : variant = ShadSelectVariant.search,
+  }) : variant = SelectVariant.search,
        selectedOptionsBuilder = null,
        onMultipleChanged = null,
        initialValues = const {},
@@ -184,8 +184,8 @@ class ShadSelect<T> extends StatefulWidget {
          'Either search or onSearchChanged must be provided',
        );
 
-  /// Creates a [ShadSelect] with the multiple select variant.
-  const ShadSelect.multiple({
+  /// Creates a [Select] with the multiple select variant.
+  const Select.multiple({
     super.key,
     this.options,
     this.optionsBuilder,
@@ -226,7 +226,7 @@ class ShadSelect<T> extends StatefulWidget {
     this.popoverReverseDuration,
     this.ensureSelectedVisible,
     this.onPressed,
-  }) : variant = ShadSelectVariant.multiple,
+  }) : variant = SelectVariant.multiple,
        onSearchChanged = null,
        initialValue = null,
        selectedOptionBuilder = null,
@@ -245,8 +245,8 @@ class ShadSelect<T> extends StatefulWidget {
          'Either options or optionsBuilder must be provided',
        );
 
-  /// Creates a [ShadSelect] with the multiple select and search variant.
-  const ShadSelect.multipleWithSearch({
+  /// Creates a [Select] with the multiple select and search variant.
+  const Select.multipleWithSearch({
     super.key,
     this.options,
     this.optionsBuilder,
@@ -296,7 +296,7 @@ class ShadSelect<T> extends StatefulWidget {
     this.searchFocusNode,
     this.onSearchSubmitted,
     this.onPressed,
-  }) : variant = ShadSelectVariant.multipleWithSearch,
+  }) : variant = SelectVariant.multipleWithSearch,
        selectedOptionBuilder = null,
        onChanged = null,
        onMultipleChanged = onChanged,
@@ -310,8 +310,8 @@ class ShadSelect<T> extends StatefulWidget {
          'Either search or onSearchChanged must be provided',
        );
 
-  /// Creates a [ShadSelect] with a raw variant, allowing full customization.
-  const ShadSelect.raw({
+  /// Creates a [Select] with a raw variant, allowing full customization.
+  const Select.raw({
     super.key,
     required this.variant,
     this.options,
@@ -366,7 +366,7 @@ class ShadSelect<T> extends StatefulWidget {
     this.onSearchSubmitted,
     this.onPressed,
   }) : assert(
-         variant == ShadSelectVariant.primary || onSearchChanged != null,
+         variant == SelectVariant.primary || onSearchChanged != null,
          'onSearchChanged must be provided when variant is search',
        ),
        assert(
@@ -378,155 +378,155 @@ class ShadSelect<T> extends StatefulWidget {
          '''Either selectedOptionBuilder or selectedOptionsBuilder must be provided''',
        );
 
-  /// {@template ShadSelect.controller}
-  /// The controller of the [ShadSelect].
+  /// {@template Select.controller}
+  /// The controller of the [Select].
   /// {@endtemplate}
-  final ShadSelectController<T>? controller;
+  final SelectController<T>? controller;
 
-  /// {@template ShadSelect.onChanged}
-  /// The callback that is called when the value of the [ShadSelect] changes.
+  /// {@template Select.onChanged}
+  /// The callback that is called when the value of the [Select] changes.
   ///
-  /// This is used for single selection [ShadSelect] variants.
+  /// This is used for single selection [Select] variants.
   /// {@endtemplate}
   final ValueChanged<T?>? onChanged;
 
-  /// {@template ShadSelect.onMultipleChanged}
-  /// The callback that is called when the values of the [ShadSelect] changes.
-  /// Called only the variant is [ShadSelect.multiple].
+  /// {@template Select.onMultipleChanged}
+  /// The callback that is called when the values of the [Select] changes.
+  /// Called only the variant is [Select.multiple].
   /// {@endtemplate}
   final ValueChanged<Set<T>>? onMultipleChanged;
 
-  /// {@template ShadSelect.allowDeselection}
-  /// Whether the [ShadSelect] allows deselection, defaults to
+  /// {@template Select.allowDeselection}
+  /// Whether the [Select] allows deselection, defaults to
   /// `false`.
   /// {@endtemplate}
   final bool allowDeselection;
 
-  /// {@template ShadSelect.enabled}
-  /// Whether the [ShadSelect] is enabled.
+  /// {@template Select.enabled}
+  /// Whether the [Select] is enabled.
   ///
   /// When disabled, the select cannot be interacted with and visually appears
   /// disabled. Defaults to `true`.
   /// {@endtemplate}
   final bool enabled;
 
-  /// {@template ShadSelect.initialValue}
-  /// The initially selected value for single select [ShadSelect] variants.
+  /// {@template Select.initialValue}
+  /// The initially selected value for single select [Select] variants.
   ///
   /// Defaults to `null`.
   /// {@endtemplate}
   final T? initialValue;
 
-  /// {@template ShadSelect.initialValues}
-  /// The initial values of the [ShadSelect], defaults to `[]`.
+  /// {@template Select.initialValues}
+  /// The initial values of the [Select], defaults to `[]`.
   /// {@endtemplate}
   final Set<T> initialValues;
 
-  /// {@template ShadSelect.placeholder}
+  /// {@template Select.placeholder}
   /// The widget to display as a placeholder when no option is selected.
   ///
   /// Typically a [Text] widget prompting the user to make a selection.
   /// {@endtemplate}
   final Widget? placeholder;
 
-  /// {@template ShadSelect.placeholderStyle}
+  /// {@template Select.placeholderStyle}
   /// The text style to apply by default to the placeholder widget.
   /// If the placeholder contains a [Text] widget, this style will be merged
   /// with its existing style.
   /// {@endtemplate}
   final TextStyle? placeholderStyle;
 
-  /// {@template ShadSelect.selectedOptionBuilder}
+  /// {@template Select.selectedOptionBuilder}
   /// Builder function for rendering the currently selected option in single
-  /// select [ShadSelect] variants.
+  /// select [Select] variants.
   ///
   /// This function is called with the current [BuildContext] and the selected
   /// value of type `T`.
   /// {@endtemplate}
-  final ShadSelectedOptionBuilder<T>? selectedOptionBuilder;
+  final SelectedOptionBuilder<T>? selectedOptionBuilder;
 
-  /// {@template ShadSelect.selectedOptionsBuilder}
+  /// {@template Select.selectedOptionsBuilder}
   /// Builder function for rendering the currently selected options in multiple
-  /// select [ShadSelect] variants.
+  /// select [Select] variants.
   ///
   /// This function is called with the current [BuildContext] and a list of
   /// selected values of type `T`.
   /// {@endtemplate}
-  final ShadSelectedOptionBuilder<List<T>>? selectedOptionsBuilder;
+  final SelectedOptionBuilder<List<T>>? selectedOptionsBuilder;
 
-  /// {@template ShadSelect.options}
+  /// {@template Select.options}
   /// An iterable of widgets representing the selectable options.
   ///
   /// Use this for a small, static set of options. For larger or dynamic lists,
   /// consider using [optionsBuilder] for better performance.
   ///
-  /// Each widget in this iterable should typically be a [ShadOption] widget.
+  /// Each widget in this iterable should typically be a [SelectOption] widget.
   /// {@endtemplate}
   final Iterable<Widget>? options;
 
-  /// {@template ShadSelect.optionsBuilder}
+  /// {@template Select.optionsBuilder}
   /// A builder function for creating options widgets on demand.
   ///
   /// This is efficient for large or dynamically generated lists of options, as
   /// it only builds options that are currently visible.
   ///
   /// The builder is called with the [BuildContext] and the index of the option
-  /// to build. It should return a widget, typically a [ShadOption].
+  /// to build. It should return a widget, typically a [SelectOption].
   ///
   /// NOTE: By using this builder, you must handle the width of the options
   /// yourself, because no intrinsic width calculation is performed.
   /// {@endtemplate}
   final Widget? Function(BuildContext, int)? optionsBuilder;
 
-  /// {@template ShadSelect.focusNode}
-  /// The focus node to control the focus state of the [ShadSelect].
+  /// {@template Select.focusNode}
+  /// The focus node to control the focus state of the [Select].
   ///
   /// If null, a default [FocusNode] will be created internally.
   /// {@endtemplate}
   final FocusNode? focusNode;
 
-  /// {@template ShadWidget.autofocus}
+  /// {@template Widget.autofocus}
   /// Whether this widget should be focused when first shown.
   /// Defaults to `false`.
   /// {@endtemplate}
   final bool autofocus;
 
-  /// {@template ShadWidget.onFocusChange}
+  /// {@template Widget.onFocusChange}
   /// Called when the focus state of this widget changes.
   /// {@endtemplate}
   final ValueChanged<bool>? onFocusChange;
 
-  /// {@template ShadSelect.closeOnTapOutside}
+  /// {@template Select.closeOnTapOutside}
   /// Whether to close the select popover when tapping outside of it.
   ///
   /// Defaults to `true`.
   /// {@endtemplate}
   final bool closeOnTapOutside;
 
-  /// {@template ShadSelect.minWidth}
+  /// {@template Select.minWidth}
   /// The minimum width of the select input and popover.
   ///
-  /// Defaults to `max(ShadSelect.defaultMinWidth, constraints.minWidth)`.
+  /// Defaults to `max(Select.defaultMinWidth, constraints.minWidth)`.
   /// The actual minimum width will be the maximum of this value and the
   /// intrinsic minimum width of the widget.
   /// {@endtemplate}
   final double? minWidth;
 
-  /// {@template ShadSelect.maxWidth}
+  /// {@template Select.maxWidth}
   /// The maximum width of the select input and popover.
   ///
   /// Defaults to `double.infinity`.
   /// {@endtemplate}
   final double? maxWidth;
 
-  /// {@template ShadSelect.maxHeight}
+  /// {@template Select.maxHeight}
   /// The maximum height of the select popover.
   ///
-  /// Defaults to [ShadSelect.defaultMaxHeight].
+  /// Defaults to [Select.defaultMaxHeight].
   /// {@endtemplate}
   final double? maxHeight;
 
-  /// {@template ShadSelect.minHeight}
+  /// {@template Select.minHeight}
   /// The minimum height of the select trigger, border included, so it lines
   /// up with the text field and button heights of the current style.
   ///
@@ -535,174 +535,174 @@ class ShadSelect<T> extends StatefulWidget {
   /// {@endtemplate}
   final double? minHeight;
 
-  /// {@template ShadSelect.decoration}
+  /// {@template Select.decoration}
   /// The visual decoration of the select input.
   ///
-  /// Uses [ShadDecoration] to define borders, colors, and more.
+  /// Uses [FinesseDecoration] to define borders, colors, and more.
   /// {@endtemplate}
-  final ShadDecoration? decoration;
+  final FinesseDecoration? decoration;
 
-  /// {@template ShadSelect.trailing}
+  /// {@template Select.trailing}
   /// The widget to display at the end of the select input, typically an icon.
   ///
   /// Defaults to a chevron-down icon.
   /// {@endtemplate}
   final Widget? trailing;
 
-  /// {@template ShadSelect.padding}
+  /// {@template Select.padding}
   /// The padding around the content of the select input.
   ///
   /// Defaults to `EdgeInsets.symmetric(horizontal: 12, vertical: 8)`.
   /// {@endtemplate}
   final EdgeInsetsGeometry? padding;
 
-  /// {@template ShadSelect.optionsPadding}
+  /// {@template Select.optionsPadding}
   /// The padding around the options within the popover.
   ///
   /// Defaults to `EdgeInsets.all(4)`.
   /// {@endtemplate}
   final EdgeInsetsGeometry? optionsPadding;
 
-  /// {@template ShadSelect.showScrollToTopChevron}
+  /// {@template Select.showScrollToTopChevron}
   /// Whether to display a chevron icon at the top of the popover when
   /// scrollable. Defaults to `true`.
   /// {@endtemplate}
   final bool? showScrollToTopChevron;
 
-  /// {@template ShadSelect.showScrollToBottomChevron}
+  /// {@template Select.showScrollToBottomChevron}
   /// Whether to display a chevron icon at the bottom of the popover when
   /// scrollable. Defaults to `true`.
   /// {@endtemplate}
   final bool? showScrollToBottomChevron;
 
-  /// {@template ShadSelect.scrollController}
+  /// {@template Select.scrollController}
   /// The scroll controller for the options list in the popover.
   ///
   /// If null, a default [ScrollController] will be created internally.
   /// {@endtemplate}
   final ScrollController? scrollController;
 
-  /// {@template ShadSelect.anchor}
+  /// {@template Select.anchor}
   /// The anchor configuration for positioning the popover relative to the
   /// select input.
   ///
-  /// Defaults to `ShadAnchorAuto(offset: Offset(0, 4))`
+  /// Defaults to `AnchorAuto(offset: Offset(0, 4))`
   /// {@endtemplate}
-  final ShadAnchorBase? anchor;
+  final AnchorBase? anchor;
 
-  /// {@template ShadSelect.variant}
-  /// The variant of the [ShadSelect] widget, determining its behavior and
+  /// {@template Select.variant}
+  /// The variant of the [Select] widget, determining its behavior and
   /// appearance.
   ///
-  /// See [ShadSelectVariant] for available variants.
-  /// Defaults to [ShadSelectVariant.primary] for the default constructor.
+  /// See [SelectVariant] for available variants.
+  /// Defaults to [SelectVariant.primary] for the default constructor.
   /// {@endtemplate}
-  final ShadSelectVariant variant;
+  final SelectVariant variant;
 
-  /// {@template ShadSelect.onSearchChanged}
+  /// {@template Select.onSearchChanged}
   /// Callback function invoked when the search query changes in search-enabled
-  /// [ShadSelect] variants.
+  /// [Select] variants.
   ///
   /// Provides the current search string as an argument.
   /// {@endtemplate}
   final ValueChanged<String>? onSearchChanged;
 
-  /// {@template ShadSelect.searchDivider}
+  /// {@template Select.searchDivider}
   /// Widget to display as a divider between the search input and the options
   /// list
-  /// in search-enabled [ShadSelect] variants.
+  /// in search-enabled [Select] variants.
   ///
   /// Defaults to a Divider with height 1.
   /// {@endtemplate}
   final Widget? searchDivider;
 
-  /// {@template ShadSelect.searchInputLeading}
+  /// {@template Select.searchInputLeading}
   /// Widget to display at the leading edge of the search input field.
   ///
   /// Typically an icon, like a search icon.
   /// {@endtemplate}
   final Widget? searchInputLeading;
 
-  /// {@template ShadSelect.searchPlaceholder}
+  /// {@template Select.searchPlaceholder}
   /// Placeholder text to display in the search input field when no query is
   /// entered.
   /// {@endtemplate}
   final Widget? searchPlaceholder;
 
-  /// {@template ShadSelect.searchPadding}
+  /// {@template Select.searchPadding}
   /// Padding around the search input field.
   ///
   /// Defaults to `EdgeInsets.all(12)`.
   /// {@endtemplate}
   final EdgeInsetsGeometry? searchPadding;
 
-  /// {@template ShadSelect.search}
+  /// {@template Select.search}
   /// A completely customizable search input widget.
   ///
-  /// If provided, this widget will be used instead of the default [ShadInput]
+  /// If provided, this widget will be used instead of the default [TextField]
   /// for search functionality.
   /// {@endtemplate}
   final Widget? search;
 
-  /// {@template ShadSelect.clearSearchOnClose}
+  /// {@template Select.clearSearchOnClose}
   /// Whether to clear the search input when the popover is closed.
   ///
-  /// Defaults to `true`. Can be overridden by `ShadThemeData.selectTheme`.
+  /// Defaults to `true`. Can be overridden by `ThemeData.selectTheme`.
   /// {@endtemplate}
   final bool? clearSearchOnClose;
 
-  /// {@macro ShadPopover.effects}
+  /// {@macro Popover.effects}
   final List<Effect<dynamic>>? effects;
 
-  /// {@macro ShadPopover.shadows}
+  /// {@macro Popover.shadows}
   final List<BoxShadow>? shadows;
 
-  /// {@macro ShadPopover.filter}
+  /// {@macro Popover.filter}
   final ImageFilter? filter;
 
-  /// {@template ShadSelect.popoverController}
+  /// {@template Select.popoverController}
   /// Controller for managing the visibility and behavior of the popover.
   ///
-  /// If null, a default [ShadPopoverController] is created internally.
+  /// If null, a default [PopoverController] is created internally.
   /// {@endtemplate}
-  final ShadPopoverController? popoverController;
+  final PopoverController? popoverController;
 
-  /// {@template ShadSelect.header}
+  /// {@template Select.header}
   /// Widget to display at the top of the popover, above the options list.
   ///
   /// Useful for titles or additional information.
   /// {@endtemplate}
   final Widget? header;
 
-  /// {@template ShadSelect.footer}
+  /// {@template Select.footer}
   /// Widget to display at the bottom of the popover, below the options list.
   ///
   /// Useful for actions or additional information.
   /// {@endtemplate}
   final Widget? footer;
 
-  /// {@template ShadSelect.closeOnSelect}
+  /// {@template Select.closeOnSelect}
   /// Whether to automatically close the popover when an option is selected.
   ///
   /// Defaults to `true`.
   /// {@endtemplate}
   final bool closeOnSelect;
 
-  /// {@template ShadSelect.groupId}
+  /// {@template Select.groupId}
   /// Group ID for the popover, used for managing popover visibility in groups.
   ///
-  /// See [ShadPopover.groupId] for more details.
+  /// See [Popover.groupId] for more details.
   /// {@endtemplate}
   final Object? groupId;
 
-  /// {@template ShadSelect.itemCount}
+  /// {@template Select.itemCount}
   /// The number of items to display when using [optionsBuilder].
   ///
   /// Required when using [optionsBuilder] to determine the scrollable extent.
   /// {@endtemplate}
   final int? itemCount;
 
-  /// {@template ShadSelect.shrinkWrap}
+  /// {@template Select.shrinkWrap}
   /// Whether the options list should shrink-wrap its content.
   ///
   /// Defaults to `false`. Set to `true` for smaller lists to reduce popover
@@ -710,36 +710,36 @@ class ShadSelect<T> extends StatefulWidget {
   /// {@endtemplate}
   final bool? shrinkWrap;
 
-  /// {@template ShadSelect.popoverReverseDuration}
+  /// {@template Select.popoverReverseDuration}
   /// The duration of the popover's exit animation.
   ///
   /// Defaults to [Duration.zero ].
   /// {@endtemplate}
   final Duration? popoverReverseDuration;
 
-  /// {@template ShadSelect.ensureSelectedVisible}
+  /// {@template Select.ensureSelectedVisible}
   /// Whether to automatically scroll the options list to ensure the selected
   /// option is visible when the popover opens.
-  /// Defaults to true if the variant is [ShadSelectVariant.primary] or
-  /// [ShadSelectVariant.search], false otherwise.
+  /// Defaults to true if the variant is [SelectVariant.primary] or
+  /// [SelectVariant.search], false otherwise.
   /// {@endtemplate}
   final bool? ensureSelectedVisible;
 
-  /// {@template ShadSelect.searchFocusNode}
+  /// {@template Select.searchFocusNode}
   /// Focus node for the search input field in search-enabled variants.
   /// If null, a default [FocusNode] will be created internally.
   /// {@endtemplate}
   final FocusNode? searchFocusNode;
 
-  /// {@template ShadSelect.onSearchSubmitted}
+  /// {@template Select.onSearchSubmitted}
   /// Callback function invoked when the search query is submitted in
   /// search-enabled
-  /// [ShadSelect] variants.
+  /// [Select] variants.
   /// Provides the current search string as an argument.
   /// {@endtemplate}
   final ValueChanged<String>? onSearchSubmitted;
 
-  /// {@template ShadSelect.onPressed}
+  /// {@template Select.onPressed}
   /// Callback function invoked when the select input is pressed.
   ///
   /// If provided, this callback will be called instead of toggling the
@@ -755,32 +755,31 @@ class ShadSelect<T> extends StatefulWidget {
   static const double defaultMaxHeight = 384;
 
   @override
-  ShadSelectState<T> createState() => ShadSelectState();
+  SelectState<T> createState() => SelectState();
 }
 
-/// The state of a [ShadSelect].
-class ShadSelectState<T> extends State<ShadSelect<T>> {
-  /// The focus node created when [ShadSelect.focusNode] is null.
+/// The state of a [Select].
+class SelectState<T> extends State<Select<T>> {
+  /// The focus node created when [Select.focusNode] is null.
   @protected
   FocusNode? internalFocusNode;
   FocusNode? _internalSearchFocusNode;
 
   // ignore: use_late_for_private_fields_and_variables
-  ShadSelectController<T>? _controller;
+  SelectController<T>? _controller;
 
-  /// The selection controller in use: [ShadSelect.controller], or an internal
+  /// The selection controller in use: [Select.controller], or an internal
   /// one when that is null.
-  ShadSelectController<T> get controller => widget.controller ?? _controller!;
+  SelectController<T> get controller => widget.controller ?? _controller!;
 
   VoidCallback? _popoverControllerListener;
 
-  ShadPopoverController? _popoverController;
+  PopoverController? _popoverController;
 
-  /// The popover controller in use: [ShadSelect.popoverController], or an
+  /// The popover controller in use: [Select.popoverController], or an
   /// internal one when that is null.
-  ShadPopoverController get popoverController =>
-      widget.popoverController ??
-      (_popoverController ??= ShadPopoverController());
+  PopoverController get popoverController =>
+      widget.popoverController ?? (_popoverController ??= PopoverController());
 
   VoidCallback? _scrollControllerListener;
 
@@ -812,33 +811,33 @@ class ShadSelectState<T> extends State<ShadSelect<T>> {
   /// so that chain freezes the app outright: no frames, no input, no resize.
   bool _autoScrolling = false;
 
-  /// The focus node of the trigger: [ShadSelect.focusNode], or an internal one.
+  /// The focus node of the trigger: [Select.focusNode], or an internal one.
   FocusNode get focusNode => widget.focusNode ?? internalFocusNode!;
 
-  /// The focus node of the search field: [ShadSelect.searchFocusNode], or an
+  /// The focus node of the search field: [Select.searchFocusNode], or an
   /// internal one.
   FocusNode get searchFocusNode =>
       widget.searchFocusNode ?? (_internalSearchFocusNode ??= FocusNode());
 
-  /// The scroll controller of the option list: [ShadSelect.scrollController],
+  /// The scroll controller of the option list: [Select.scrollController],
   /// or an internal one.
   ScrollController get scrollController =>
       widget.scrollController ?? _scrollController!;
 
   /// Whether to scroll the selected option into view when the popover opens.
   ///
-  /// Uses [ShadSelect.ensureSelectedVisible] when set. Otherwise it is true
+  /// Uses [Select.ensureSelectedVisible] when set. Otherwise it is true
   /// for the single-selection variants and false for the multiple ones.
   bool get ensureSelectedVisible =>
       widget.ensureSelectedVisible ??
-      (widget.variant == ShadSelectVariant.primary ||
-          widget.variant == ShadSelectVariant.search);
+      (widget.variant == SelectVariant.primary ||
+          widget.variant == SelectVariant.search);
 
   @override
   void initState() {
     super.initState();
     if (widget.controller == null) {
-      _controller = ShadSelectController<T>(
+      _controller = SelectController<T>(
         initialValue: {
           if (widget.initialValue is T) widget.initialValue as T,
           ...widget.initialValues,
@@ -874,7 +873,7 @@ class ShadSelectState<T> extends State<ShadSelect<T>> {
         }
         final effectiveClearSearchOnClose =
             widget.clearSearchOnClose ??
-            ShadTheme.of(
+            Theme.of(
               context,
               listen: false,
             ).selectTheme.clearSearchOnClose ??
@@ -892,8 +891,8 @@ class ShadSelectState<T> extends State<ShadSelect<T>> {
 
   /// Whether the variant shows a search field.
   bool isSearchVariant() {
-    return widget.variant == ShadSelectVariant.search ||
-        widget.variant == ShadSelectVariant.multipleWithSearch;
+    return widget.variant == SelectVariant.search ||
+        widget.variant == SelectVariant.multipleWithSearch;
   }
 
   /// Opens or closes the popover, and focuses the search field when it opens.
@@ -905,7 +904,7 @@ class ShadSelectState<T> extends State<ShadSelect<T>> {
   }
 
   @override
-  void didUpdateWidget(covariant ShadSelect<T> oldWidget) {
+  void didUpdateWidget(covariant Select<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     Set<T>? next;
     if (widget.initialValue != oldWidget.initialValue &&
@@ -1007,12 +1006,12 @@ class ShadSelectState<T> extends State<ShadSelect<T>> {
   ///
   /// Single-selection variants replace the selection. Multiple-selection
   /// variants add to it. A selected value is removed when
-  /// [ShadSelect.allowDeselection] is true. Calls [ShadSelect.onChanged] or
-  /// [ShadSelect.onMultipleChanged] when the selection changes.
+  /// [Select.allowDeselection] is true. Calls [Select.onChanged] or
+  /// [Select.onMultipleChanged] when the selection changes.
   void select(T value) {
     final isMultiSelection =
-        widget.variant == ShadSelectVariant.multiple ||
-        widget.variant == ShadSelectVariant.multipleWithSearch;
+        widget.variant == SelectVariant.multiple ||
+        widget.variant == SelectVariant.multipleWithSearch;
 
     final prevList = controller.value.toList(growable: false);
     if (widget.closeOnSelect) popoverController.hide();
@@ -1046,8 +1045,8 @@ class ShadSelectState<T> extends State<ShadSelect<T>> {
 
   @override
   Widget build(BuildContext context) {
-    assert(debugCheckHasShadTheme(context));
-    final theme = ShadTheme.of(context);
+    assert(debugCheckHasTheme(context));
+    final theme = Theme.of(context);
 
     final effectiveDecoration = theme.decoration
         .merge(theme.selectTheme.decoration)
@@ -1080,9 +1079,9 @@ class ShadSelectState<T> extends State<ShadSelect<T>> {
     final effectiveAnchor =
         widget.anchor ??
         theme.selectTheme.anchor ??
-        const ShadAnchorAuto(
+        const AnchorAuto(
           offset: Offset(0, 4),
-          fallback: ShadAnchorAuto(
+          fallback: AnchorAuto(
             offset: Offset(0, -4),
             followerAnchor: Alignment.topCenter,
             targetAnchor: Alignment.topCenter,
@@ -1106,7 +1105,7 @@ class ShadSelectState<T> extends State<ShadSelect<T>> {
 
         if (controller.value.isNotEmpty) {
           // The value shown in the trigger belongs to the *page*, not the
-          // menu: `optionTheme.selectedTextStyle` carries the menu palette's
+          // menu: `selectOptionTheme.selectedTextStyle` carries the menu palette's
           // highlight foreground, which is unreadable on the trigger the
           // moment menus are inverted or bold.
           resultDefaultTextStyle = theme.textTheme.muted.fallback(
@@ -1151,15 +1150,13 @@ class ShadSelectState<T> extends State<ShadSelect<T>> {
         );
 
     final effectiveMinWidth =
-        widget.minWidth ??
-        theme.selectTheme.minWidth ??
-        ShadSelect.defaultMinWidth;
+        widget.minWidth ?? theme.selectTheme.minWidth ?? Select.defaultMinWidth;
     final effectiveMaxWidth =
         widget.maxWidth ?? theme.selectTheme.maxWidth ?? double.infinity;
     final effectiveMaxHeight =
         widget.maxHeight ??
         theme.selectTheme.maxHeight ??
-        ShadSelect.defaultMaxHeight;
+        Select.defaultMaxHeight;
     final effectiveMinHeight = widget.minHeight ?? theme.selectTheme.minHeight;
     final effectiveOptionsPadding =
         widget.optionsPadding ??
@@ -1170,17 +1167,16 @@ class ShadSelectState<T> extends State<ShadSelect<T>> {
     // palette, not the page's: an inverted menu keeps its own foreground.
     // The option rows' resting colour carries it.
     final menuForeground =
-        theme.optionTheme.textStyle?.color ??
+        theme.selectOptionTheme.textStyle?.color ??
         theme.colorScheme.popoverForeground;
 
     final search = switch (widget.variant) {
-      ShadSelectVariant.primary || ShadSelectVariant.multiple => null,
-      ShadSelectVariant.search ||
-      ShadSelectVariant.multipleWithSearch => Column(
+      SelectVariant.primary || SelectVariant.multiple => null,
+      SelectVariant.search || SelectVariant.multipleWithSearch => Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           widget.search ??
-              ShadInput(
+              TextField(
                 focusNode: searchFocusNode,
                 leading: Padding(
                   padding: const EdgeInsets.only(right: 8),
@@ -1190,19 +1186,19 @@ class ShadSelectState<T> extends State<ShadSelect<T>> {
                     color: menuForeground,
                   ),
                 ),
-                style: (theme.inputTheme.style ?? theme.textTheme.muted)
+                style: (theme.textFieldTheme.style ?? theme.textTheme.muted)
                     .copyWith(color: menuForeground),
                 padding:
                     widget.searchPadding ??
                     theme.selectTheme.searchPadding ??
                     const EdgeInsets.all(12),
                 placeholder: widget.searchPlaceholder,
-                decoration: ShadDecoration.none,
+                decoration: FinesseDecoration.none,
                 onChanged: widget.onSearchChanged,
                 onSubmitted: widget.onSearchSubmitted,
               ),
           widget.searchDivider ??
-              const ShadSeparator.horizontal(margin: EdgeInsets.zero),
+              const Divider.horizontal(margin: EdgeInsets.zero),
         ],
       ),
     };
@@ -1210,7 +1206,7 @@ class ShadSelectState<T> extends State<ShadSelect<T>> {
     return ListenableBuilder(
       listenable: searchFocusNode,
       builder: (context, child) {
-        return ShadDismissShortcut(
+        return DismissShortcut(
           isActive: () => popoverController.isOpen,
           onDismiss: popoverController.hide,
           child: CallbackShortcuts(
@@ -1244,7 +1240,7 @@ class ShadSelectState<T> extends State<ShadSelect<T>> {
             // included — so it re-runs on every layout pass of the *closed*
             // select. `widget.options` is a lazy Iterable, so materialising it
             // eagerly meant constructing every option widget on each of those
-            // passes. ShadCalendar's year dropdown passes 201 options, each
+            // passes. Calendar's year dropdown passes 201 options, each
             // building a DateFormat.
             Widget buildOptions() {
               if (widget.options != null) {
@@ -1269,15 +1265,15 @@ class ShadSelectState<T> extends State<ShadSelect<T>> {
               );
             }
 
-            final Widget select = ShadDisabled(
+            final Widget select = Disabled(
               disabled: !widget.enabled,
-              child: ShadFocusable(
+              child: Focusable(
                 autofocus: widget.autofocus,
                 onFocusChange: widget.onFocusChange,
                 canRequestFocus: widget.enabled,
                 focusNode: focusNode,
                 builder: (context, focused, child) {
-                  final decorated = ShadDecorator(
+                  final decorated = Decorator(
                     focused: focused,
                     decoration: effectiveDecoration,
                     child: child,
@@ -1292,7 +1288,7 @@ class ShadSelectState<T> extends State<ShadSelect<T>> {
                     child: decorated,
                   );
                 },
-                child: ShadGestureDetector(
+                child: FinesseGestureDetector(
                   cursor: SystemMouseCursors.click,
                   behavior: HitTestBehavior.opaque,
                   onTapDown: (details) {
@@ -1381,10 +1377,10 @@ class ShadSelectState<T> extends State<ShadSelect<T>> {
                   )
                 : null;
 
-            return ShadProvider(
-              data: this as ShadSelectState<dynamic>,
+            return Provider(
+              data: this as SelectState<dynamic>,
               notifyUpdate: (_) => true,
-              child: ShadPopover(
+              child: Popover(
                 groupId: widget.groupId,
                 padding: EdgeInsets.zero,
                 controller: popoverController,
@@ -1455,13 +1451,13 @@ class ShadSelectState<T> extends State<ShadSelect<T>> {
   }
 }
 
-/// An option in the list of a [ShadSelect].
+/// An option in the list of a [Select].
 ///
 /// Shows a check icon when selected and highlights on hover and focus.
 /// Tapping it selects [value].
-class ShadOption<T> extends StatefulWidget {
+class SelectOption<T> extends StatefulWidget {
   /// Creates an option for [value] that shows [child].
-  const ShadOption({
+  const SelectOption({
     super.key,
     required this.value,
     required this.child,
@@ -1476,52 +1472,52 @@ class ShadOption<T> extends StatefulWidget {
     this.selectedTextStyle,
   });
 
-  /// The value of the [ShadOption], it must be unique above the options.
+  /// The value of the [SelectOption], it must be unique above the options.
   final T value;
 
   /// The child widget.
   final Widget child;
 
-  /// The background color of the [ShadOption] when hovered, defaults to
-  /// `ShadThemeData.accent`.
+  /// The background color of the [SelectOption] when hovered, defaults to
+  /// `ThemeData.accent`.
   final Color? hoveredBackgroundColor;
 
-  /// The padding of the [ShadOption], defaults to
+  /// The padding of the [SelectOption], defaults to
   /// `EdgeInsets.symmetric(horizontal: 8, vertical: 6)`
   final EdgeInsetsGeometry? padding;
 
-  /// The icon of the [ShadOption] when selected.
+  /// The icon of the [SelectOption] when selected.
   final Widget? selectedIcon;
 
-  /// The radius of the [ShadOption], defaults to `ShadThemeData.radius`.
+  /// The radius of the [SelectOption], defaults to `ThemeData.radius`.
   final BorderRadius? radius;
 
-  /// The background color of the [ShadOption], defaults to
-  /// `ShadThemeData.optionTheme.backgroundColor`.
+  /// The background color of the [SelectOption], defaults to
+  /// `ThemeData.selectOptionTheme.backgroundColor`.
   final Color? backgroundColor;
 
-  /// The background color of the [ShadOption] when selected, defaults to
-  /// `ShadThemeData.optionTheme.selectedBackgroundColor`.
+  /// The background color of the [SelectOption] when selected, defaults to
+  /// `ThemeData.selectOptionTheme.selectedBackgroundColor`.
   final Color? selectedBackgroundColor;
 
-  /// The text style of the [ShadOption], defaults to
-  /// `ShadThemeData.optionTheme.textStyle`.
+  /// The text style of the [SelectOption], defaults to
+  /// `ThemeData.selectOptionTheme.textStyle`.
   final TextStyle? textStyle;
 
-  /// The text style of the [ShadOption] when selected, defaults to
-  /// `ShadThemeData.optionTheme.selectedTextStyle`.
+  /// The text style of the [SelectOption] when selected, defaults to
+  /// `ThemeData.selectOptionTheme.selectedTextStyle`.
   final TextStyle? selectedTextStyle;
 
-  /// {@template ShadOption.direction}
+  /// {@template SelectOption.direction}
   /// The direction of the ambient.
   /// {@endtemplate}
   final TextDirection? direction;
 
   @override
-  State<ShadOption<T>> createState() => _ShadOptionState<T>();
+  State<SelectOption<T>> createState() => _OptionState<T>();
 }
 
-class _ShadOptionState<T> extends State<ShadOption<T>> {
+class _OptionState<T> extends State<SelectOption<T>> {
   final hovered = ValueNotifier(false);
   final focusNode = FocusNode();
 
@@ -1530,8 +1526,7 @@ class _ShadOptionState<T> extends State<ShadOption<T>> {
     super.initState();
     focusNode.addListener(onFocusChange);
 
-    final inherited =
-        context.read<ShadSelectState<dynamic>>() as ShadSelectState<T>;
+    final inherited = context.read<SelectState<dynamic>>() as SelectState<T>;
     final selected = inherited.controller.value.contains(widget.value);
     if (selected && inherited.ensureSelectedVisible) {
       focusNode.requestFocus();
@@ -1560,49 +1555,50 @@ class _ShadOptionState<T> extends State<ShadOption<T>> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     final inheritedSelect =
-        context.watch<ShadSelectState<dynamic>>() as ShadSelectState<T>;
+        context.watch<SelectState<dynamic>>() as SelectState<T>;
     final selected = inheritedSelect.controller.value.contains(widget.value);
 
     final effectiveHoveredBackgroundColor =
-        theme.optionTheme.hoveredBackgroundColor ?? theme.colorScheme.accent;
+        theme.selectOptionTheme.hoveredBackgroundColor ??
+        theme.colorScheme.accent;
 
     final effectivePadding =
         widget.padding ??
-        theme.optionTheme.padding ??
+        theme.selectOptionTheme.padding ??
         const EdgeInsets.symmetric(horizontal: 8, vertical: 6);
 
     final effectiveTextStyle =
         widget.textStyle ??
-        theme.optionTheme.textStyle ??
+        theme.selectOptionTheme.textStyle ??
         theme.textTheme.muted.fallback(
           color: theme.colorScheme.popoverForeground,
         );
 
     final effectiveSelectedTextStyle =
         widget.selectedTextStyle ??
-        theme.optionTheme.selectedTextStyle ??
+        theme.selectOptionTheme.selectedTextStyle ??
         theme.textTheme.muted.fallback(
           color: theme.colorScheme.popoverForeground,
         );
 
     final effectiveSelectedBackgroundColor =
         widget.selectedBackgroundColor ??
-        theme.optionTheme.selectedBackgroundColor;
+        theme.selectOptionTheme.selectedBackgroundColor;
 
     final effectiveBackgroundColor =
-        widget.backgroundColor ?? theme.optionTheme.backgroundColor;
+        widget.backgroundColor ?? theme.selectOptionTheme.backgroundColor;
 
     final effectiveRadius =
-        widget.radius ?? theme.optionTheme.radius ?? theme.radius;
+        widget.radius ?? theme.selectOptionTheme.radius ?? theme.radius;
 
     final effectiveSelectedIconColor =
-        theme.optionTheme.selectedIconColor ??
+        theme.selectOptionTheme.selectedIconColor ??
         theme.colorScheme.popoverForeground;
 
     final effectiveSelectedHoveredIconColor =
-        theme.optionTheme.selectedHoveredIconColor ??
+        theme.selectOptionTheme.selectedHoveredIconColor ??
         theme.colorScheme.accentForeground;
 
     // No explicit colour here: the icon inherits it from the IconTheme below,
@@ -1626,7 +1622,7 @@ class _ShadOptionState<T> extends State<ShadOption<T>> {
       },
       child: Focus(
         focusNode: focusNode,
-        child: ShadGestureDetector(
+        child: FinesseGestureDetector(
           behavior: HitTestBehavior.opaque,
           cursor: SystemMouseCursors.click,
           onHoverChange: (value) {

@@ -9,10 +9,10 @@ part of 'badge.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadBadgeTheme {
+mixin _$BadgeTheme {
   bool get canMerge => true;
 
-  static ShadBadgeTheme? lerp(ShadBadgeTheme? a, ShadBadgeTheme? b, double t) {
+  static BadgeTheme? lerp(BadgeTheme? a, BadgeTheme? b, double t) {
     if (identical(a, b)) {
       return a;
     }
@@ -25,7 +25,7 @@ mixin _$ShadBadgeTheme {
       return t == 0.0 ? a : null;
     }
 
-    return ShadBadgeTheme(
+    return BadgeTheme(
       shape: ShapeBorder.lerp(a.shape, b.shape, t),
       backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
       hoverBackgroundColor: Color.lerp(
@@ -41,7 +41,7 @@ mixin _$ShadBadgeTheme {
     );
   }
 
-  ShadBadgeTheme copyWith({
+  BadgeTheme copyWith({
     ShapeBorder? shape,
     Color? backgroundColor,
     Color? hoverBackgroundColor,
@@ -51,9 +51,9 @@ mixin _$ShadBadgeTheme {
     TextStyle? textStyle,
     double? iconSize,
   }) {
-    final _this = (this as ShadBadgeTheme);
+    final _this = (this as BadgeTheme);
 
-    return ShadBadgeTheme(
+    return BadgeTheme(
       shape: shape ?? _this.shape,
       backgroundColor: backgroundColor ?? _this.backgroundColor,
       hoverBackgroundColor: hoverBackgroundColor ?? _this.hoverBackgroundColor,
@@ -65,8 +65,8 @@ mixin _$ShadBadgeTheme {
     );
   }
 
-  ShadBadgeTheme merge(ShadBadgeTheme? other) {
-    final _this = (this as ShadBadgeTheme);
+  BadgeTheme merge(BadgeTheme? other) {
+    final _this = (this as BadgeTheme);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -98,8 +98,8 @@ mixin _$ShadBadgeTheme {
       return false;
     }
 
-    final _this = (this as ShadBadgeTheme);
-    final _other = (other as ShadBadgeTheme);
+    final _this = (this as BadgeTheme);
+    final _other = (other as BadgeTheme);
 
     return _other.shape == _this.shape &&
         _other.backgroundColor == _this.backgroundColor &&
@@ -113,7 +113,7 @@ mixin _$ShadBadgeTheme {
 
   @override
   int get hashCode {
-    final _this = (this as ShadBadgeTheme);
+    final _this = (this as BadgeTheme);
 
     return Object.hash(
       runtimeType,

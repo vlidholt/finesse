@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 const _items = [
   (
@@ -27,10 +27,10 @@ class AccordionSingleExample extends StatelessWidget {
   Widget build(BuildContext context) {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 600),
-      child: ShadAccordion<({String content, String title})>(
+      child: Accordion<({String content, String title})>(
         children: [
           for (final item in _items)
-            ShadAccordionItem(
+            AccordionItem(
               value: item,
               title: Text(item.title),
               child: Text(item.content),

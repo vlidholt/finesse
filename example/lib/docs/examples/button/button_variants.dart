@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class ButtonVariantsExample extends StatelessWidget {
   const ButtonVariantsExample({super.key});
@@ -11,27 +11,27 @@ class ButtonVariantsExample extends StatelessWidget {
       runSpacing: 8,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        ShadButton(
+        Button(
           onPressed: () {},
           child: const Text('Primary'),
         ),
-        ShadButton.secondary(
+        Button.secondary(
           onPressed: () {},
           child: const Text('Secondary'),
         ),
-        ShadButton.destructive(
+        Button.destructive(
           onPressed: () {},
           child: const Text('Destructive'),
         ),
-        ShadButton.outline(
+        Button.outline(
           onPressed: () {},
           child: const Text('Outline'),
         ),
-        ShadButton.ghost(
+        Button.ghost(
           onPressed: () {},
           child: const Text('Ghost'),
         ),
-        ShadButton.link(
+        Button.link(
           onPressed: () {},
           child: const Text('Link'),
         ),

@@ -3,17 +3,17 @@ import 'package:example/common/app_shell.dart';
 import 'package:example/common/theme_editor/editor_config.dart';
 import 'package:example/common/theme_editor/fonts.dart';
 import 'package:example/docs/docs.dart';
+import 'package:finesse/finesse.dart';
+import 'package:finesse/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_solidart/flutter_solidart.dart';
-import 'package:shad/material.dart';
-import 'package:shad/shad.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SolidartConfig.devToolsEnabled = false;
   // The docs' code blocks need the Dart grammar and highlighter theme.
   await CodeHighlighter.ensureInitialized();
-  // shad bundles no fonts. Fetch the editor's default face before the first
+  // finesse bundles no fonts. Fetch the editor's default face before the first
   // frame, so the app does not open in the fallback font and then reflow.
   await EditorFont.byTitle(const ThemeEditorConfig().fontTitle).load(
     timeout: const Duration(seconds: 3),
@@ -21,14 +21,14 @@ Future<void> main() async {
   runApp(const App());
 }
 
-final themeModeProvider = Provider((_) => Signal(ShadThemeMode.light));
+final themeModeProvider = Provider((_) => Signal(ThemeMode.light));
 
 final directionalityProvider = Provider((context) => Signal(TextDirection.ltr));
 
 /// The theme the whole app is built from, edited by the customizer panel.
 ///
 /// Compared by value, not by identity: a write here rebuilds two full
-/// [ShadThemeData]s and restarts a 200 ms lerp across every component theme,
+/// [ThemeData]s and restarts a 200 ms lerp across every component theme,
 /// which is far too expensive to spend on a `copyWith` that changed nothing.
 final themeConfigProvider = Provider(
   (_) => Signal(
@@ -42,7 +42,7 @@ final themeConfigProvider = Provider(
 final themeEditorOpenProvider = Provider((_) => Signal(false));
 
 /// Named styles the app adds on top of whatever the editor produces — an
-/// example of extending [ShadTextTheme]; see the `/typography` page for how
+/// example of extending [TextTheme]; see the `/typography` page for how
 /// they are read back.
 Map<String, TextStyle> appCustomTextStyles(Brightness brightness) => {
   'myCustomStyle': TextStyle(
@@ -73,7 +73,7 @@ class App extends StatelessWidget {
           // Both themes come from the editor's configuration, so the panel
           // restyles the whole app — navigation, playground and docs alike.
           final config = themeConfigProvider.of(context).value;
-          return ShadApp(
+          return FinesseApp(
             debugShowCheckedModeBanner: false,
             themeMode: themeMode,
             theme: config
@@ -89,8 +89,8 @@ class App extends StatelessWidget {
             home: const AppShell(),
             builder: (context, child) {
               // The docs and the theme editor use a few Material widgets
-              // (Slider, SelectionArea); ShadMaterial themes them from the
-              // shad theme and adds their localizations.
+              // (Slider, SelectionArea); FinesseMaterial themes them from the
+              // finesse theme and adds their localizations.
               return Directionality(
                 textDirection: directionality,
                 // The editor's text scale applies to the whole app; the
@@ -99,7 +99,7 @@ class App extends StatelessWidget {
                   data: MediaQuery.of(context).copyWith(
                     textScaler: TextScaler.linear(config.textScale),
                   ),
-                  child: ShadMaterial(child: child!),
+                  child: FinesseMaterial(child: child!),
                 ),
               );
             },

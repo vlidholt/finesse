@@ -1,21 +1,21 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/shad.dart';
 
 void main() {
   testWidgets('tapping another menubar menu switches to it', (tester) async {
     await tester.pumpWidget(
-      const ShadApp(
+      const FinesseApp(
         home: Align(
           alignment: Alignment.topLeft,
-          child: ShadMenubar(
+          child: Menubar(
             items: [
-              ShadMenubarItem(
-                items: [ShadContextMenuItem(child: Text('New file'))],
+              MenubarItem(
+                items: [ContextMenuItem(child: Text('New file'))],
                 child: Text('File'),
               ),
-              ShadMenubarItem(
-                items: [ShadContextMenuItem(child: Text('Undo'))],
+              MenubarItem(
+                items: [ContextMenuItem(child: Text('Undo'))],
                 child: Text('Edit'),
               ),
             ],

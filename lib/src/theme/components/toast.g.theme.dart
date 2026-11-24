@@ -9,10 +9,10 @@ part of 'toast.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadToastTheme {
+mixin _$ToastTheme {
   bool get canMerge => true;
 
-  static ShadToastTheme? lerp(ShadToastTheme? a, ShadToastTheme? b, double t) {
+  static ToastTheme? lerp(ToastTheme? a, ToastTheme? b, double t) {
     if (identical(a, b)) {
       return a;
     }
@@ -25,7 +25,7 @@ mixin _$ShadToastTheme {
       return t == 0.0 ? a : null;
     }
 
-    return ShadToastTheme(
+    return ToastTheme(
       backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
       closeIconData: t < 0.5 ? a.closeIconData : b.closeIconData,
       alignment: Alignment.lerp(a.alignment, b.alignment, t),
@@ -49,11 +49,11 @@ mixin _$ShadToastTheme {
         b.actionPadding,
         t,
       ),
-      border: ShadBorder.lerp(a.border, b.border, t),
+      border: FinesseBorder.lerp(a.border, b.border, t),
       radius: BorderRadius.lerp(a.radius, b.radius, t),
       shadows: t < 0.5 ? a.shadows : b.shadows,
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
-      closeIconPosition: ShadPosition.lerp(
+      closeIconPosition: Position.lerp(
         a.closeIconPosition,
         b.closeIconPosition,
         t,
@@ -65,7 +65,7 @@ mixin _$ShadToastTheme {
     );
   }
 
-  ShadToastTheme copyWith({
+  ToastTheme copyWith({
     Color? backgroundColor,
     IconData? closeIconData,
     Alignment? alignment,
@@ -79,19 +79,19 @@ mixin _$ShadToastTheme {
     TextStyle? titleStyle,
     TextStyle? descriptionStyle,
     EdgeInsetsGeometry? actionPadding,
-    ShadBorder? border,
+    FinesseBorder? border,
     BorderRadius? radius,
     List<BoxShadow>? shadows,
     EdgeInsetsGeometry? padding,
-    ShadPosition? closeIconPosition,
+    Position? closeIconPosition,
     BoxConstraints? constraints,
     Widget? closeIcon,
     MainAxisAlignment? mainAxisAlignment,
     MainAxisSize? mainAxisSize,
   }) {
-    final _this = (this as ShadToastTheme);
+    final _this = (this as ToastTheme);
 
-    return ShadToastTheme(
+    return ToastTheme(
       backgroundColor: backgroundColor ?? _this.backgroundColor,
       closeIconData: closeIconData ?? _this.closeIconData,
       alignment: alignment ?? _this.alignment,
@@ -118,8 +118,8 @@ mixin _$ShadToastTheme {
     );
   }
 
-  ShadToastTheme merge(ShadToastTheme? other) {
-    final _this = (this as ShadToastTheme);
+  ToastTheme merge(ToastTheme? other) {
+    final _this = (this as ToastTheme);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -167,8 +167,8 @@ mixin _$ShadToastTheme {
       return false;
     }
 
-    final _this = (this as ShadToastTheme);
-    final _other = (other as ShadToastTheme);
+    final _this = (this as ToastTheme);
+    final _other = (other as ToastTheme);
 
     return _other.backgroundColor == _this.backgroundColor &&
         _other.closeIconData == _this.closeIconData &&
@@ -197,7 +197,7 @@ mixin _$ShadToastTheme {
 
   @override
   int get hashCode {
-    final _this = (this as ShadToastTheme);
+    final _this = (this as ToastTheme);
 
     return Object.hashAll([
       runtimeType,

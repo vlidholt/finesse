@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class ToggleGroupMultipleExample extends StatefulWidget {
   const ToggleGroupMultipleExample({super.key});
@@ -15,21 +15,21 @@ class _ToggleGroupMultipleExampleState
 
   @override
   Widget build(BuildContext context) {
-    return ShadToggleGroup<String>.multiple(
+    return ToggleGroup<String>.multiple(
       values: formatting,
       onChanged: (values) => setState(() => formatting = values),
       children: const [
-        ShadToggleGroupItem(
+        ToggleGroupItem(
           value: 'bold',
           semanticLabel: 'Bold',
           child: Icon(LucideIcons.bold),
         ),
-        ShadToggleGroupItem(
+        ToggleGroupItem(
           value: 'italic',
           semanticLabel: 'Italic',
           child: Icon(LucideIcons.italic),
         ),
-        ShadToggleGroupItem(
+        ToggleGroupItem(
           value: 'underline',
           semanticLabel: 'Underline',
           child: Icon(LucideIcons.underline),

@@ -1,54 +1,54 @@
 // ignore_for_file: lines_longer_than_80_chars
 
+import 'package:finesse/src/components/scroll_area.dart';
+import 'package:finesse/src/components/sonner.dart';
+import 'package:finesse/src/components/toast.dart';
+import 'package:finesse/src/i18n/localizations_delegate.dart';
+import 'package:finesse/src/theme/color_scheme/slate.dart';
+import 'package:finesse/src/theme/data.dart';
+import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/theme/theme_scope.dart';
+import 'package:finesse/src/utils/mouse_area.dart';
+import 'package:finesse/src/utils/mouse_cursor_provider.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_localizations/flutter_localizations.dart'
     show GlobalWidgetsLocalizations;
-import 'package:shad/src/components/scroll_area.dart';
-import 'package:shad/src/components/sonner.dart';
-import 'package:shad/src/components/toast.dart';
-import 'package:shad/src/i18n/localizations_delegate.dart';
-import 'package:shad/src/theme/color_scheme/slate.dart';
-import 'package:shad/src/theme/data.dart';
-import 'package:shad/src/theme/theme.dart';
-import 'package:shad/src/theme/theme_scope.dart';
-import 'package:shad/src/utils/mouse_area.dart';
-import 'package:shad/src/utils/mouse_cursor_provider.dart';
 
-/// Which of [ShadApp.theme] and [ShadApp.darkTheme] the app uses.
-enum ShadThemeMode {
+/// Which of [FinesseApp.theme] and [FinesseApp.darkTheme] the app uses.
+enum ThemeMode {
   /// Follow the platform's brightness setting.
   system,
 
-  /// Always use [ShadApp.theme].
+  /// Always use [FinesseApp.theme].
   light,
 
-  /// Always use [ShadApp.darkTheme], or [ShadApp.theme] when it is null.
+  /// Always use [FinesseApp.darkTheme], or [FinesseApp.theme] when it is null.
   dark,
 }
 
-/// The kind of app that [ShadApp] builds.
-enum ShadAppType {
-  /// Builds a [WidgetsApp] with shad defaults. Used by [ShadApp.new] and
-  /// [ShadApp.router].
+/// The kind of app that [FinesseApp] builds.
+enum FinesseAppType {
+  /// Builds a [WidgetsApp] with finesse defaults. Used by [FinesseApp.new] and
+  /// [FinesseApp.router].
   shadcn,
 
-  /// Calls [ShadApp.appBuilder], so you can build your own app widget, for
-  /// example a `MaterialApp`. Used by [ShadApp.custom].
+  /// Calls [FinesseApp.appBuilder], so you can build your own app widget, for
+  /// example a `MaterialApp`. Used by [FinesseApp.custom].
   custom,
 }
 
-/// The root widget of a shad app.
+/// The root widget of a finesse app.
 ///
-/// It provides the [ShadTheme], the localizations, the toaster and the
+/// It provides the [Theme], the localizations, the toaster and the
 /// sonner. Below them it builds a [WidgetsApp], or calls [appBuilder] for
-/// [ShadApp.custom].
+/// [FinesseApp.custom].
 ///
-/// shad does not depend on Material or Cupertino. To use their widgets in the
-/// same app, wrap them in a `ShadMaterial` from `package:shad/material.dart`,
+/// finesse does not depend on Material or Cupertino. To use their widgets in the
+/// same app, wrap them in a `FinesseMaterial` from `package:finesse/material.dart`,
 /// usually through [builder].
-class ShadApp extends StatefulWidget {
-  /// Creates a [ShadApp] providing a [ShadTheme].
-  const ShadApp({
+class FinesseApp extends StatefulWidget {
+  /// Creates a [FinesseApp] providing a [Theme].
+  const FinesseApp({
     super.key,
     this.navigatorKey,
     this.onGenerateRoute,
@@ -77,7 +77,7 @@ class ShadApp extends StatefulWidget {
     this.darkTheme,
     this.themeMode,
     this.restorationScopeId,
-    this.scrollBehavior = const ShadScrollBehavior(),
+    this.scrollBehavior = const FinesseScrollBehavior(),
     this.pageRouteBuilder,
     this.themeCurve = Curves.linear,
     this.backgroundColor,
@@ -87,10 +87,10 @@ class ShadApp extends StatefulWidget {
        backButtonDispatcher = null,
        routerConfig = null,
        appBuilder = null,
-       type = ShadAppType.shadcn;
+       type = FinesseAppType.shadcn;
 
-  /// Creates a [ShadApp] that uses the [Router] instead of a [Navigator].
-  const ShadApp.router({
+  /// Creates a [FinesseApp] that uses the [Router] instead of a [Navigator].
+  const FinesseApp.router({
     super.key,
     this.theme,
     this.darkTheme,
@@ -116,7 +116,7 @@ class ShadApp extends StatefulWidget {
     this.shortcuts,
     this.actions,
     this.restorationScopeId,
-    this.scrollBehavior = const ShadScrollBehavior(),
+    this.scrollBehavior = const FinesseScrollBehavior(),
     this.themeCurve = Curves.linear,
     this.backgroundColor,
   }) : navigatorObservers = null,
@@ -129,16 +129,16 @@ class ShadApp extends StatefulWidget {
        initialRoute = null,
        pageRouteBuilder = null,
        appBuilder = null,
-       type = ShadAppType.shadcn;
+       type = FinesseAppType.shadcn;
 
-  /// Creates a [ShadApp] that provides the theme but calls [appBuilder] to
+  /// Creates a [FinesseApp] that provides the theme but calls [appBuilder] to
   /// build the app widget.
   ///
-  /// Use it to put a `MaterialApp` or a `CupertinoApp` below the shad theme.
-  /// Theme it with `shadMaterialThemeFrom(ShadTheme.of(context))` from
-  /// `package:shad/material.dart`, and return a [ShadAppBuilder] from its
+  /// Use it to put a `MaterialApp` or a `CupertinoApp` below the finesse theme.
+  /// Theme it with `materialThemeFrom(Theme.of(context))` from
+  /// `package:finesse/material.dart`, and return a [FinesseAppBuilder] from its
   /// `builder` to get the toaster and the sonner.
-  const ShadApp.custom({
+  const FinesseApp.custom({
     super.key,
     required WidgetBuilder this.appBuilder,
     this.theme,
@@ -170,34 +170,34 @@ class ShadApp extends StatefulWidget {
        routerDelegate = null,
        routes = null,
        backgroundColor = null,
-       scrollBehavior = const ShadScrollBehavior(),
+       scrollBehavior = const FinesseScrollBehavior(),
        shortcuts = null,
        showPerformanceOverlay = false,
        showSemanticsDebugger = false,
        supportedLocales = const <Locale>[Locale('en', 'US')],
        themeCurve = Curves.linear,
        title = '',
-       type = ShadAppType.custom;
+       type = FinesseAppType.custom;
 
   /// The type of app to use.
   ///
-  /// If you are going to use only Shad components, use [ShadAppType.shadcn].
+  /// If you are going to use only Finesse components, use [FinesseAppType.shadcn].
   /// To build your own app widget, such as a `MaterialApp`, use
-  /// [ShadAppType.custom].
-  final ShadAppType type;
+  /// [FinesseAppType.custom].
+  final FinesseAppType type;
 
   /// Default visual properties, like colors fonts and shapes, for this app's
-  /// shad widgets.
+  /// finesse widgets.
   ///
-  /// A second [darkTheme] [ShadThemeData] value, which is used to provide a
+  /// A second [darkTheme] [ThemeData] value, which is used to provide a
   /// dark version of the user interface can also be specified. [themeMode] will
   /// control which theme will be used if a [darkTheme] is provided.
   ///
   /// The default value of this property is the value of
-  /// `ShadThemeData(brightness: Brightness.light)`.
-  final ShadThemeData? theme;
+  /// `ThemeData(brightness: Brightness.light)`.
+  final ThemeData? theme;
 
-  /// The [ShadThemeData] to use when a 'dark mode' is requested by the
+  /// The [ThemeData] to use when a 'dark mode' is requested by the
   /// system.
   ///
   /// Some host platforms allow the users to select a system-wide 'dark mode',
@@ -205,32 +205,32 @@ class ShadApp extends StatefulWidget {
   /// dark theme just for this application. This is theme that will be used for
   /// such cases. [themeMode] will control which theme will be used.
   ///
-  /// This theme should have a [ShadThemeData.brightness] set to
+  /// This theme should have a [ThemeData.brightness] set to
   /// [Brightness.dark].
   ///
   /// Uses [theme] instead when null. Defaults to the value of
-  /// [ShadThemeData(brightness: Brightness.light)] when both [darkTheme] and
+  /// [ThemeData(brightness: Brightness.light)] when both [darkTheme] and
   /// [theme] are null.
-  final ShadThemeData? darkTheme;
+  final ThemeData? darkTheme;
 
   /// Determines which theme will be used by the application if both [theme]
   /// and [darkTheme] are provided.
   ///
-  /// If set to [ShadThemeMode.system], the choice of which theme to use will
+  /// If set to [ThemeMode.system], the choice of which theme to use will
   /// be based on the user's system preferences. If the
   /// [MediaQuery.platformBrightnessOf] is [Brightness.light], [theme] will be
   /// used. If it is [Brightness.dark], [darkTheme] will be used (unless it is
   /// null, in which case [theme] will be used.
   ///
-  /// If set to [ShadThemeMode.light] the [theme] will always be used,
+  /// If set to [ThemeMode.light] the [theme] will always be used,
   /// regardless of the user's system preference.
   ///
-  /// If set to [ShadThemeMode.dark] the [darkTheme] will be used
+  /// If set to [ThemeMode.dark] the [darkTheme] will be used
   /// regardless of the user's system preference. If [darkTheme] is null
   /// then it will fallback to using [theme].
   ///
-  /// The default value is [ShadThemeMode.system].
-  final ShadThemeMode? themeMode;
+  /// The default value is [ThemeMode.system].
+  final ThemeMode? themeMode;
 
   /// A key for the [Navigator] that the app creates.
   ///
@@ -285,32 +285,32 @@ class ShadApp extends StatefulWidget {
   /// See [WidgetsApp.navigatorObservers].
   final List<NavigatorObserver>? navigatorObservers;
 
-  /// Gives route information to the [Router]. Used by [ShadApp.router].
+  /// Gives route information to the [Router]. Used by [FinesseApp.router].
   ///
   /// See [WidgetsApp.routeInformationProvider].
   final RouteInformationProvider? routeInformationProvider;
 
   /// Parses route information into a configuration for [routerDelegate].
-  /// Used by [ShadApp.router].
+  /// Used by [FinesseApp.router].
   ///
   /// See [WidgetsApp.routeInformationParser].
   final RouteInformationParser<Object>? routeInformationParser;
 
   /// Builds the [Navigator] from the route configuration. Used by
-  /// [ShadApp.router].
+  /// [FinesseApp.router].
   ///
   /// See [WidgetsApp.routerDelegate].
   final RouterDelegate<Object>? routerDelegate;
 
   /// Tells the [Router] when the system back button is pressed. Used by
-  /// [ShadApp.router].
+  /// [FinesseApp.router].
   ///
   /// See [WidgetsApp.backButtonDispatcher].
   final BackButtonDispatcher? backButtonDispatcher;
 
   /// A single object that holds the router delegates, as an alternative to
   /// [routeInformationProvider], [routeInformationParser], [routerDelegate] and
-  /// [backButtonDispatcher]. Used by [ShadApp.router].
+  /// [backButtonDispatcher]. Used by [FinesseApp.router].
   ///
   /// See [WidgetsApp.routerConfig].
   final RouterConfig<Object>? routerConfig;
@@ -370,10 +370,10 @@ class ShadApp extends StatefulWidget {
 
   /// Extra localization delegates for the app.
   ///
-  /// The app always adds the shad and widgets delegates after these. Add
+  /// The app always adds the finesse and widgets delegates after these. Add
   /// `GlobalMaterialLocalizations.delegate` and
   /// `GlobalCupertinoLocalizations.delegate` here for Material or Cupertino
-  /// widgets, or wrap them in a `ShadMaterial`, which adds them. See [WidgetsApp.localizationsDelegates].
+  /// widgets, or wrap them in a `FinesseMaterial`, which adds them. See [WidgetsApp.localizationsDelegates].
   final Iterable<LocalizationsDelegate<dynamic>>? localizationsDelegates;
 
   /// Selects the app locale from the list of system locales.
@@ -421,12 +421,12 @@ class ShadApp extends StatefulWidget {
   /// add your own [Shortcuts] widget.
   ///
   /// Alternatively, you could insert a [Shortcuts] widget with just the mapping
-  /// you want to add between the [ShadApp] and its child and get the same
+  /// you want to add between the [FinesseApp] and its child and get the same
   /// effect.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
-  ///   return ShadApp(
+  ///   return FinesseApp(
   ///     shortcuts: <ShortcutActivator, Intent>{
   ///       ... WidgetsApp.defaultShortcuts,
   ///       const SingleActivator(LogicalKeyboardKey.select):
@@ -455,12 +455,12 @@ class ShadApp extends StatefulWidget {
   /// add your own [Actions] widget.
   ///
   /// Alternatively, you could insert a [Actions] widget with just the mapping
-  /// you want to add between the [ShadApp] and its child and get the same
+  /// you want to add between the [FinesseApp] and its child and get the same
   /// effect.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
-  ///   return ShadApp(
+  ///   return FinesseApp(
   ///     actions: <Type, Action<Intent>>{
   ///       ... WidgetsApp.defaultActions,
   ///       ActivateAction: CallbackAction(
@@ -491,7 +491,7 @@ class ShadApp extends StatefulWidget {
   final String? restorationScopeId;
 
   /// How [Scrollable] widgets in the app behave. Defaults to
-  /// [ShadScrollBehavior].
+  /// [FinesseScrollBehavior].
   ///
   /// See also:
   ///
@@ -499,34 +499,34 @@ class ShadApp extends StatefulWidget {
   ///    in a subtree.
   final ScrollBehavior scrollBehavior;
 
-  /// The curve used to animated from one [ShadThemeData] to another, defaults
+  /// The curve used to animated from one [ThemeData] to another, defaults
   /// to [Curves.linear].
   final Curve themeCurve;
 
   /// A custom app widget builder.
   final WidgetBuilder? appBuilder;
 
-  /// {@macro ShadAppBuilder.backgroundColor}
+  /// {@macro FinesseAppBuilder.backgroundColor}
   final Color? backgroundColor;
 
   @override
-  State<ShadApp> createState() => _ShadAppState();
+  State<FinesseApp> createState() => _AppState();
 }
 
-class _ShadAppState extends State<ShadApp> {
+class _AppState extends State<FinesseApp> {
   final heroController = HeroController();
 
   bool get usesRouter =>
       widget.routerDelegate != null || widget.routerConfig != null;
 
-  /// The app's own delegates, followed by shad's and the widgets layer's.
+  /// The app's own delegates, followed by finesse's and the widgets layer's.
   Iterable<LocalizationsDelegate<dynamic>>
   get effectiveLocalizationsDelegates sync* {
     final localizationsDelegates = widget.localizationsDelegates;
     if (localizationsDelegates != null) {
       yield* localizationsDelegates;
     }
-    yield GlobalShadLocalizations.delegate;
+    yield GlobalFinesseLocalizations.delegate;
     yield GlobalWidgetsLocalizations.delegate;
   }
 
@@ -542,11 +542,11 @@ class _ShadAppState extends State<ShadApp> {
       behavior: widget.scrollBehavior,
       child: HeroControllerScope(
         controller: heroController,
-        child: ShadAnimatedTheme(
+        child: AnimatedTheme(
           data: theme(context),
           curve: widget.themeCurve,
-          child: ShadMouseAreaSurface(
-            child: ShadMouseCursorProvider(
+          child: MouseAreaSurface(
+            child: MouseCursorProvider(
               child: Builder(
                 builder: _buildApp,
               ),
@@ -557,24 +557,24 @@ class _ShadAppState extends State<ShadApp> {
     );
   }
 
-  ShadThemeData get effectiveLightTheme =>
+  ThemeData get effectiveLightTheme =>
       widget.theme ??
-      ShadThemeData(
-        colorScheme: const ShadSlateColorScheme.light(),
+      ThemeData(
+        colorScheme: const SlateColorScheme.light(),
         brightness: Brightness.light,
       );
 
-  ShadThemeData? get effectiveDarkTheme => widget.darkTheme;
+  ThemeData? get effectiveDarkTheme => widget.darkTheme;
 
-  ShadThemeData theme(BuildContext context) {
-    final mode = widget.themeMode ?? ShadThemeMode.system;
+  ThemeData theme(BuildContext context) {
+    final mode = widget.themeMode ?? ThemeMode.system;
     final platformBrightness = MediaQuery.platformBrightnessOf(context);
     final useDarkStyle =
-        mode == ShadThemeMode.dark ||
-        (mode == ShadThemeMode.system && platformBrightness == Brightness.dark);
+        mode == ThemeMode.dark ||
+        (mode == ThemeMode.system && platformBrightness == Brightness.dark);
 
     final data = () {
-      late ShadThemeData result;
+      late ThemeData result;
       final lightTheme = effectiveLightTheme;
       if (useDarkStyle) {
         result = effectiveDarkTheme ?? lightTheme;
@@ -587,7 +587,7 @@ class _ShadAppState extends State<ShadApp> {
   }
 
   Widget _builder(BuildContext context, Widget? child) {
-    return ShadAppBuilder(
+    return FinesseAppBuilder(
       backgroundColor: widget.backgroundColor,
       builder: widget.builder,
       child: child,
@@ -595,11 +595,11 @@ class _ShadAppState extends State<ShadApp> {
   }
 
   Widget _buildApp(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     switch (widget.type) {
-      case ShadAppType.shadcn:
+      case FinesseAppType.shadcn:
         if (usesRouter) {
-          return ShadDefaultStyles(
+          return DefaultStyles(
             data: theme,
             child: WidgetsApp.router(
               key: GlobalObjectKey(this),
@@ -629,7 +629,7 @@ class _ShadAppState extends State<ShadApp> {
           );
         }
 
-        return ShadDefaultStyles(
+        return DefaultStyles(
           data: theme,
           child: WidgetsApp(
             key: GlobalObjectKey(this),
@@ -661,11 +661,11 @@ class _ShadAppState extends State<ShadApp> {
             pageRouteBuilder:
                 widget.pageRouteBuilder ??
                 <T>(RouteSettings settings, WidgetBuilder builder) =>
-                    ShadPageRoute<T>(settings: settings, builder: builder),
+                    FinessePageRoute<T>(settings: settings, builder: builder),
           ),
         );
-      case ShadAppType.custom:
-        return ShadDefaultStyles(
+      case FinesseAppType.custom:
+        return DefaultStyles(
           data: theme,
           child: Builder(builder: widget.appBuilder!),
         );
@@ -673,18 +673,18 @@ class _ShadAppState extends State<ShadApp> {
   }
 }
 
-/// Describes how [Scrollable] widgets behave for [ShadApp]s.
+/// Describes how [Scrollable] widgets behave for [FinesseApp]s.
 ///
-/// Vertical scrollables get a [ShadScrollbar] on every platform but Android
+/// Vertical scrollables get a [Scrollbar] on every platform but Android
 /// and Fuchsia, where scrollbars are not shown.
 ///
 /// See also:
 ///
 ///  * [ScrollBehavior], the default scrolling behavior extended by this class.
-class ShadScrollBehavior extends ScrollBehavior {
-  /// Creates a ShadScrollBehavior that decorates vertical [Scrollable]s with
-  /// a [ShadScrollbar] based on the current platform.
-  const ShadScrollBehavior();
+class FinesseScrollBehavior extends ScrollBehavior {
+  /// Creates a FinesseScrollBehavior that decorates vertical [Scrollable]s with
+  /// a [Scrollbar] based on the current platform.
+  const FinesseScrollBehavior();
 
   @override
   Widget buildScrollbar(
@@ -701,7 +701,7 @@ class ShadScrollBehavior extends ScrollBehavior {
           case TargetPlatform.iOS:
           case TargetPlatform.linux:
           case TargetPlatform.windows:
-            return ShadScrollbar(controller: details.controller, child: child);
+            return Scrollbar(controller: details.controller, child: child);
           case TargetPlatform.android:
           case TargetPlatform.fuchsia:
             return child;
@@ -710,14 +710,14 @@ class ShadScrollBehavior extends ScrollBehavior {
   }
 }
 
-/// The page route [ShadApp] uses by default: the new page fades in.
+/// The page route [FinesseApp] uses by default: the new page fades in.
 ///
 /// shadcn/ui has no page transitions of its own. For the platform
 /// transitions, such as the iOS back swipe, pass a `MaterialPageRoute` or a
-/// `CupertinoPageRoute` to [ShadApp.pageRouteBuilder].
-class ShadPageRoute<T> extends PageRoute<T> {
+/// `CupertinoPageRoute` to [FinesseApp.pageRouteBuilder].
+class FinessePageRoute<T> extends PageRoute<T> {
   /// Creates a page route that builds its page with [builder].
-  ShadPageRoute({
+  FinessePageRoute({
     required this.builder,
     super.settings,
     this.maintainState = true,
@@ -770,14 +770,14 @@ class ShadPageRoute<T> extends PageRoute<T> {
 // `Colors.blue`, which this default used to be.
 const _defaultColor = Color(0xFF2196F3);
 
-/// {@template ShadAppBuilder}
+/// {@template FinesseAppBuilder}
 /// The builder for an `*App` instance.
 ///
 /// Must be placed in the builder of the `*App` widget.
 /// {@endtemplate}
-class ShadAppBuilder extends StatelessWidget {
-  /// {@macro ShadAppBuilder}
-  const ShadAppBuilder({
+class FinesseAppBuilder extends StatelessWidget {
+  /// {@macro FinesseAppBuilder}
+  const FinesseAppBuilder({
     super.key,
     this.builder,
     this.child,
@@ -790,8 +790,8 @@ class ShadAppBuilder extends StatelessWidget {
   /// The widget below this one, usually the app's [Navigator].
   final Widget? child;
 
-  /// {@template ShadAppBuilder.backgroundColor}
-  /// The background color of the page, defaults to `ShadTheme.of(context).colorScheme.background`.
+  /// {@template FinesseAppBuilder.backgroundColor}
+  /// The background color of the page, defaults to `Theme.of(context).colorScheme.background`.
   /// {@endtemplate}
   final Color? backgroundColor;
 
@@ -810,15 +810,14 @@ class ShadAppBuilder extends StatelessWidget {
     // resolves to the theme we passed to AnimatedTheme.
     return Builder(
       builder: (BuildContext context) {
-        // The reason for wrapping the [child] with `ShadToaster` and `ShadSonner`
+        // The reason for wrapping the [child] with `Toaster` and `Sonner`
         // is to ensures that any `InheritedWidget`s introduced by the [builder]
         // (such as `Directionality`) are inherited by the toaster and sonner.
         final effectiveChild = child != null
-            ? ShadToaster(child: ShadSonner(child: child!))
+            ? Toaster(child: Sonner(child: child!))
             : child;
         return ColoredBox(
-          color:
-              backgroundColor ?? ShadTheme.of(context).colorScheme.background,
+          color: backgroundColor ?? Theme.of(context).colorScheme.background,
           child: builder?.call(context, effectiveChild) ?? effectiveChild,
         );
       },

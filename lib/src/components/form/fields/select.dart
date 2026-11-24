@@ -1,20 +1,20 @@
 import 'dart:ui';
 
+import 'package:finesse/src/components/form/field.dart';
+import 'package:finesse/src/components/popover.dart';
+import 'package:finesse/src/components/select.dart';
+import 'package:finesse/src/raw_components/portal.dart';
+import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/components/form/field.dart';
-import 'package:shad/src/components/popover.dart';
-import 'package:shad/src/components/select.dart';
-import 'package:shad/src/raw_components/portal.dart';
-import 'package:shad/src/theme/components/decorator.dart';
-import 'package:shad/src/theme/theme.dart';
 
-/// A single-choice [ShadSelect] that takes part in a `ShadForm`, with a
+/// A single-choice [Select] that takes part in a `FinesseForm`, with a
 /// label, a description and validation.
 ///
-/// For a field that holds several values, use [ShadSelectMultipleFormField].
-class ShadSelectFormField<T> extends ShadFormField<T> {
-  /// Creates a select form field, like [ShadSelect.new].
-  ShadSelectFormField({
+/// For a field that holds several values, use [SelectMultipleFormField].
+class SelectFormField<T> extends FinesseFormField<T> {
+  /// Creates a select form field, like [Select.new].
+  SelectFormField({
     super.id,
     super.key,
     super.onSaved,
@@ -33,96 +33,96 @@ class ShadSelectFormField<T> extends ShadFormField<T> {
     super.focusNode,
     super.validator,
 
-    /// {@macro ShadSelect.selectedOptionBuilder}
-    required ShadSelectedOptionBuilder<T> selectedOptionBuilder,
+    /// {@macro Select.selectedOptionBuilder}
+    required SelectedOptionBuilder<T> selectedOptionBuilder,
 
-    /// {@macro ShadSelect.options}
+    /// {@macro Select.options}
     Iterable<Widget>? options,
 
-    /// {@macro ShadSelect.optionsBuilder}
+    /// {@macro Select.optionsBuilder}
     Widget? Function(BuildContext, int)? optionsBuilder,
 
-    /// {@macro ShadSelect.placeholder}
+    /// {@macro Select.placeholder}
     Widget? placeholder,
 
-    /// {@macro ShadSelect.closeOnTapOutside}
+    /// {@macro Select.closeOnTapOutside}
     bool closeOnTapOutside = true,
 
-    /// {@macro ShadSelect.minWidth}
+    /// {@macro Select.minWidth}
     double? minWidth,
 
-    /// {@macro ShadSelect.maxWidth}
+    /// {@macro Select.maxWidth}
     double? maxWidth,
 
-    /// {@macro ShadSelect.maxHeight}
+    /// {@macro Select.maxHeight}
     double? maxHeight,
 
-    /// {@macro ShadSelect.decoration}
-    ShadDecoration? decoration,
+    /// {@macro Select.decoration}
+    FinesseDecoration? decoration,
 
-    /// {@macro ShadSelect.trailing}
+    /// {@macro Select.trailing}
     Widget? trailing,
 
-    /// {@macro ShadSelect.padding}
+    /// {@macro Select.padding}
     EdgeInsetsGeometry? padding,
 
-    /// {@macro ShadSelect.optionsPadding}
+    /// {@macro Select.optionsPadding}
     EdgeInsetsGeometry? optionsPadding,
 
-    /// {@macro ShadSelect.showScrollToTopChevron}
+    /// {@macro Select.showScrollToTopChevron}
     bool? showScrollToTopChevron,
 
-    /// {@macro ShadSelect.showScrollToBottomChevron}
+    /// {@macro Select.showScrollToBottomChevron}
     bool? showScrollToBottomChevron,
 
-    /// {@macro ShadSelect.scrollController}
+    /// {@macro Select.scrollController}
     ScrollController? scrollController,
 
-    /// {@macro ShadSelect.anchor}
-    ShadAnchorBase? anchor,
+    /// {@macro Select.anchor}
+    AnchorBase? anchor,
 
-    /// {@macro ShadPopover.filter}
+    /// {@macro Popover.filter}
     ImageFilter? filter,
 
-    /// {@macro ShadSelect.popoverController}
-    ShadPopoverController? popoverController,
+    /// {@macro Select.popoverController}
+    PopoverController? popoverController,
 
-    /// {@macro ShadSelect.header}
+    /// {@macro Select.header}
     Widget? header,
 
-    /// {@macro ShadSelect.footer}
+    /// {@macro Select.footer}
     Widget? footer,
 
-    /// {@macro ShadSelect.allowDeselection}
+    /// {@macro Select.allowDeselection}
     bool allowDeselection = false,
 
-    /// {@macro ShadSelect.closeOnSelect}
+    /// {@macro Select.closeOnSelect}
     bool closeOnSelect = true,
 
-    /// {@macro ShadPopover.groupId}
+    /// {@macro Popover.groupId}
     Object? groupId,
 
-    /// {@macro ShadSelect.itemCount}
+    /// {@macro Select.itemCount}
     int? itemCount,
 
-    /// {@macro ShadSelect.shrinkWrap}
+    /// {@macro Select.shrinkWrap}
     bool? shrinkWrap,
     this.controller,
 
-    /// {@macro ShadSelect.ensureSelectedVisible}
+    /// {@macro Select.ensureSelectedVisible}
     bool? ensureSelectedVisible,
 
-    /// {@macro ShadSelect.onPressed}
+    /// {@macro Select.onPressed}
     VoidCallback? onPressed,
   }) : super(
          decorationBuilder: (context) =>
-             (ShadTheme.of(context).selectTheme.decoration ??
-                     const ShadDecoration())
+             (Theme.of(context).selectTheme.decoration ??
+                     const FinesseDecoration())
                  .merge(decoration),
          builder: (state) {
-           state as ShadSelectFormFieldState<T>;
+           state as SelectFormFieldState<T>;
 
-           return ShadSelect<T>(
+           return Select<T>(
              options: options,
              allowDeselection: allowDeselection,
              optionsBuilder: optionsBuilder,
@@ -159,8 +159,8 @@ class ShadSelectFormField<T> extends ShadFormField<T> {
        );
 
   /// Creates a select form field with a search input, like
-  /// [ShadSelect.withSearch].
-  ShadSelectFormField.withSearch({
+  /// [Select.withSearch].
+  SelectFormField.withSearch({
     super.id,
     super.key,
     super.onSaved,
@@ -178,10 +178,10 @@ class ShadSelectFormField<T> extends ShadFormField<T> {
     super.initialValue,
     super.focusNode,
     super.validator,
-    required ShadSelectedOptionBuilder<T> selectedOptionBuilder,
+    required SelectedOptionBuilder<T> selectedOptionBuilder,
     Iterable<Widget>? options,
 
-    /// The builder for the options of the [ShadSelect].
+    /// The builder for the options of the [Select].
     Widget? Function(BuildContext, int)? optionsBuilder,
     ValueChanged<String>? onSearchChanged,
     Widget? placeholder,
@@ -189,14 +189,14 @@ class ShadSelectFormField<T> extends ShadFormField<T> {
     double? minWidth,
     double? maxWidth,
     double? maxHeight,
-    ShadDecoration? decoration,
+    FinesseDecoration? decoration,
     Widget? trailing,
     EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? optionsPadding,
     bool? showScrollToTopChevron,
     bool? showScrollToBottomChevron,
     ScrollController? scrollController,
-    ShadAnchorBase? anchor,
+    AnchorBase? anchor,
     ImageFilter? filter,
     Widget? searchDivider,
     Widget? searchInputLeading,
@@ -204,48 +204,48 @@ class ShadSelectFormField<T> extends ShadFormField<T> {
     EdgeInsetsGeometry? searchPadding,
     Widget? search,
     bool? clearSearchOnClose,
-    ShadPopoverController? popoverController,
+    PopoverController? popoverController,
 
-    /// {@macro ShadSelect.header}
+    /// {@macro Select.header}
     Widget? header,
 
-    /// {@macro ShadSelect.footer}
+    /// {@macro Select.footer}
     Widget? footer,
     bool allowDeselection = false,
     bool closeOnSelect = true,
 
-    /// {@macro ShadPopover.groupId}
+    /// {@macro Popover.groupId}
     Object? groupId,
 
-    /// {@macro ShadSelect.itemCount}
+    /// {@macro Select.itemCount}
     int? itemCount,
 
-    /// {@macro ShadSelect.shrinkWrap}
+    /// {@macro Select.shrinkWrap}
     bool? shrinkWrap,
 
-    /// {@macro ShadSelect.controller}
+    /// {@macro Select.controller}
     this.controller,
 
-    /// {@macro ShadSelect.ensureSelectedVisible}
+    /// {@macro Select.ensureSelectedVisible}
     bool? ensureSelectedVisible,
 
-    /// {@macro ShadSelect.searchFocusNode}
+    /// {@macro Select.searchFocusNode}
     FocusNode? searchFocusNode,
 
-    /// {@macro ShadSelect.onSearchSubmitted}
+    /// {@macro Select.onSearchSubmitted}
     ValueChanged<String>? onSearchSubmitted,
 
-    /// {@macro ShadSelect.onPressed}
+    /// {@macro Select.onPressed}
     VoidCallback? onPressed,
   }) : super(
          decorationBuilder: (context) =>
-             (ShadTheme.of(context).selectTheme.decoration ??
-                     const ShadDecoration())
+             (Theme.of(context).selectTheme.decoration ??
+                     const FinesseDecoration())
                  .merge(decoration),
          builder: (state) {
-           state as ShadSelectFormFieldState<T>;
+           state as SelectFormFieldState<T>;
 
-           return ShadSelect<T>.withSearch(
+           return Select<T>.withSearch(
              options: options,
              allowDeselection: allowDeselection,
              optionsBuilder: optionsBuilder,
@@ -291,9 +291,9 @@ class ShadSelectFormField<T> extends ShadFormField<T> {
        );
 
   /// Creates a select form field with an explicit [variant], like
-  /// [ShadSelect.raw]. [variant] must be [ShadSelectVariant.primary] or
-  /// [ShadSelectVariant.search].
-  ShadSelectFormField.raw({
+  /// [Select.raw]. [variant] must be [SelectVariant.primary] or
+  /// [SelectVariant.search].
+  SelectFormField.raw({
     super.id,
     super.key,
     super.onSaved,
@@ -311,25 +311,25 @@ class ShadSelectFormField<T> extends ShadFormField<T> {
     super.focusNode,
     super.validator,
     super.forceErrorText,
-    required ShadSelectVariant variant,
-    required ShadSelectedOptionBuilder<T> selectedOptionBuilder,
+    required SelectVariant variant,
+    required SelectedOptionBuilder<T> selectedOptionBuilder,
     Iterable<Widget>? options,
 
-    /// The builder for the options of the [ShadSelect].
+    /// The builder for the options of the [Select].
     Widget? Function(BuildContext, int)? optionsBuilder,
     ValueChanged<String>? onSearchChanged,
     Widget? placeholder,
     bool closeOnTapOutside = true,
     double? minWidth,
     double? maxHeight,
-    ShadDecoration? decoration,
+    FinesseDecoration? decoration,
     Widget? trailing,
     EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? optionsPadding,
     bool? showScrollToTopChevron,
     bool? showScrollToBottomChevron,
     ScrollController? scrollController,
-    ShadAnchorBase? anchor,
+    AnchorBase? anchor,
     ImageFilter? filter,
     Widget? searchDivider,
     Widget? searchInputLeading,
@@ -337,53 +337,52 @@ class ShadSelectFormField<T> extends ShadFormField<T> {
     EdgeInsetsGeometry? searchPadding,
     Widget? search,
     bool? clearSearchOnClose,
-    ShadPopoverController? popoverController,
+    PopoverController? popoverController,
 
-    /// {@macro ShadSelect.header}
+    /// {@macro Select.header}
     Widget? header,
 
-    /// {@macro ShadSelect.footer}
+    /// {@macro Select.footer}
     Widget? footer,
     bool allowDeselection = false,
     bool closeOnSelect = true,
 
-    /// {@macro ShadPopover.groupId}
+    /// {@macro Popover.groupId}
     Object? groupId,
 
-    /// {@macro ShadSelect.itemCount}
+    /// {@macro Select.itemCount}
     int? itemCount,
 
-    /// {@macro ShadSelect.shrinkWrap}
+    /// {@macro Select.shrinkWrap}
     bool? shrinkWrap,
 
-    /// {@macro ShadSelect.controller}
+    /// {@macro Select.controller}
     this.controller,
 
-    /// {@macro ShadSelect.ensureSelectedVisible}
+    /// {@macro Select.ensureSelectedVisible}
     bool? ensureSelectedVisible,
 
-    /// {@macro ShadSelect.searchFocusNode}
+    /// {@macro Select.searchFocusNode}
     FocusNode? searchFocusNode,
 
-    /// {@macro ShadSelect.onSearchSubmitted}
+    /// {@macro Select.onSearchSubmitted}
     ValueChanged<String>? onSearchSubmitted,
 
-    /// {@macro ShadSelect.onPressed}
+    /// {@macro Select.onPressed}
     VoidCallback? onPressed,
   }) : assert(
-         variant == ShadSelectVariant.primary ||
-             variant == ShadSelectVariant.search,
-         '''The variant is not supported. Use primary or search or use ShadSelectMultipleFormField instead.''',
+         variant == SelectVariant.primary || variant == SelectVariant.search,
+         '''The variant is not supported. Use primary or search or use SelectMultipleFormField instead.''',
        ),
        super(
          decorationBuilder: (context) =>
-             (ShadTheme.of(context).selectTheme.decoration ??
-                     const ShadDecoration())
+             (Theme.of(context).selectTheme.decoration ??
+                     const FinesseDecoration())
                  .merge(decoration),
          builder: (state) {
-           state as ShadSelectFormFieldState<T>;
+           state as SelectFormFieldState<T>;
 
-           return ShadSelect<T>.raw(
+           return Select<T>.raw(
              variant: variant,
              options: options,
              optionsBuilder: optionsBuilder,
@@ -428,24 +427,24 @@ class ShadSelectFormField<T> extends ShadFormField<T> {
          },
        );
 
-  /// {@macro ShadSelect.controller}
-  final ShadSelectController<T>? controller;
+  /// {@macro Select.controller}
+  final SelectController<T>? controller;
 
   @override
-  ShadFormFieldState<ShadSelectFormField<T>, T> createState() =>
-      ShadSelectFormFieldState<T>();
+  FinesseFormFieldState<SelectFormField<T>, T> createState() =>
+      SelectFormFieldState<T>();
 }
 
-/// The state of a [ShadSelectFormField].
-class ShadSelectFormFieldState<T>
-    extends ShadFormFieldState<ShadSelectFormField<T>, T> {
-  ShadSelectController<T>? _controller;
+/// The state of a [SelectFormField].
+class SelectFormFieldState<T>
+    extends FinesseFormFieldState<SelectFormField<T>, T> {
+  SelectController<T>? _controller;
 
-  /// The controller in use: [ShadSelectFormField.controller] when given,
+  /// The controller in use: [SelectFormField.controller] when given,
   /// otherwise an internal one created from the initial value.
-  ShadSelectController<T> get controller =>
+  SelectController<T> get controller =>
       widget.controller ??
-      (_controller ??= ShadSelectController<T>(
+      (_controller ??= SelectController<T>(
         initialValue: {if (initialValue is T) initialValue as T},
       ));
 
@@ -482,12 +481,12 @@ class ShadSelectFormFieldState<T>
   }
 }
 
-/// A multiple-choice [ShadSelect] that takes part in a `ShadForm`, with a
+/// A multiple-choice [Select] that takes part in a `FinesseForm`, with a
 /// label, a description and validation. Its value is the set of selected
 /// options.
-class ShadSelectMultipleFormField<T> extends ShadFormField<Set<T>> {
-  /// Creates a multiple select form field, like [ShadSelect.multiple].
-  ShadSelectMultipleFormField({
+class SelectMultipleFormField<T> extends FinesseFormField<Set<T>> {
+  /// Creates a multiple select form field, like [Select.multiple].
+  SelectMultipleFormField({
     super.id,
     super.key,
     super.onSaved,
@@ -505,55 +504,55 @@ class ShadSelectMultipleFormField<T> extends ShadFormField<Set<T>> {
     super.focusNode,
     super.validator,
     super.forceErrorText,
-    required ShadSelectedOptionBuilder<List<T>> selectedOptionsBuilder,
+    required SelectedOptionBuilder<List<T>> selectedOptionsBuilder,
     Iterable<Widget>? options,
 
-    /// The builder for the options of the [ShadSelect].
+    /// The builder for the options of the [Select].
     Widget? Function(BuildContext, int)? optionsBuilder,
     Widget? placeholder,
     bool closeOnTapOutside = true,
     double? minWidth,
     double? maxWidth,
     double? maxHeight,
-    ShadDecoration? decoration,
+    FinesseDecoration? decoration,
     Widget? trailing,
     EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? optionsPadding,
     bool? showScrollToTopChevron,
     bool? showScrollToBottomChevron,
     ScrollController? scrollController,
-    ShadAnchorBase? anchor,
+    AnchorBase? anchor,
     ImageFilter? filter,
-    ShadPopoverController? popoverController,
+    PopoverController? popoverController,
 
-    /// {@macro ShadSelect.header}
+    /// {@macro Select.header}
     Widget? header,
 
-    /// {@macro ShadSelect.footer}
+    /// {@macro Select.footer}
     Widget? footer,
     bool closeOnSelect = true,
 
-    /// {@macro ShadSelect.allowDeselection}
+    /// {@macro Select.allowDeselection}
     bool allowDeselection = true,
     this.controller,
 
-    /// {@macro ShadSelect.ensureSelectedVisible}
+    /// {@macro Select.ensureSelectedVisible}
     bool? ensureSelectedVisible,
 
-    /// {@macro ShadSelect.onPressed}
+    /// {@macro Select.onPressed}
     VoidCallback? onPressed,
 
-    /// {@macro ShadPopover.groupId}
+    /// {@macro Popover.groupId}
     Object? groupId,
   }) : super(
          decorationBuilder: (context) =>
-             (ShadTheme.of(context).selectTheme.decoration ??
-                     const ShadDecoration())
+             (Theme.of(context).selectTheme.decoration ??
+                     const FinesseDecoration())
                  .merge(decoration),
          builder: (state) {
-           state as ShadSelectMultipleFormFieldState<T>;
+           state as SelectMultipleFormFieldState<T>;
 
-           return ShadSelect<T>.multiple(
+           return Select<T>.multiple(
              options: options,
              optionsBuilder: optionsBuilder,
              selectedOptionsBuilder: selectedOptionsBuilder,
@@ -587,8 +586,8 @@ class ShadSelectMultipleFormField<T> extends ShadFormField<Set<T>> {
        );
 
   /// Creates a multiple select form field with a search input, like
-  /// [ShadSelect.multipleWithSearch].
-  ShadSelectMultipleFormField.withSearch({
+  /// [Select.multipleWithSearch].
+  SelectMultipleFormField.withSearch({
     super.id,
     super.key,
     super.onSaved,
@@ -606,10 +605,10 @@ class ShadSelectMultipleFormField<T> extends ShadFormField<Set<T>> {
     super.focusNode,
     super.validator,
     super.forceErrorText,
-    required ShadSelectedOptionBuilder<List<T>> selectedOptionsBuilder,
+    required SelectedOptionBuilder<List<T>> selectedOptionsBuilder,
     Iterable<Widget>? options,
 
-    /// The builder for the options of the [ShadSelect].
+    /// The builder for the options of the [Select].
     Widget? Function(BuildContext, int)? optionsBuilder,
     ValueChanged<String>? onSearchChanged,
     Widget? placeholder,
@@ -617,14 +616,14 @@ class ShadSelectMultipleFormField<T> extends ShadFormField<Set<T>> {
     double? minWidth,
     double? maxWidth,
     double? maxHeight,
-    ShadDecoration? decoration,
+    FinesseDecoration? decoration,
     Widget? trailing,
     EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? optionsPadding,
     bool? showScrollToTopChevron,
     bool? showScrollToBottomChevron,
     ScrollController? scrollController,
-    ShadAnchorBase? anchor,
+    AnchorBase? anchor,
     ImageFilter? filter,
     Widget? searchDivider,
     Widget? searchInputLeading,
@@ -632,42 +631,42 @@ class ShadSelectMultipleFormField<T> extends ShadFormField<Set<T>> {
     EdgeInsetsGeometry? searchPadding,
     Widget? search,
     bool? clearSearchOnClose,
-    ShadPopoverController? popoverController,
+    PopoverController? popoverController,
 
-    /// {@macro ShadSelect.header}
+    /// {@macro Select.header}
     Widget? header,
 
-    /// {@macro ShadSelect.footer}
+    /// {@macro Select.footer}
     Widget? footer,
     bool closeOnSelect = true,
 
-    /// {@macro ShadSelect.allowDeselection}
+    /// {@macro Select.allowDeselection}
     bool allowDeselection = true,
     this.controller,
 
-    /// {@macro ShadSelect.ensureSelectedVisible}
+    /// {@macro Select.ensureSelectedVisible}
     bool? ensureSelectedVisible,
 
-    /// {@macro ShadSelect.searchFocusNode}
+    /// {@macro Select.searchFocusNode}
     FocusNode? searchFocusNode,
 
-    /// {@macro ShadSelect.onSearchSubmitted}
+    /// {@macro Select.onSearchSubmitted}
     ValueChanged<String>? onSearchSubmitted,
 
-    /// {@macro ShadSelect.onPressed}
+    /// {@macro Select.onPressed}
     VoidCallback? onPressed,
 
-    /// {@macro ShadPopover.groupId}
+    /// {@macro Popover.groupId}
     Object? groupId,
   }) : super(
          decorationBuilder: (context) =>
-             (ShadTheme.of(context).selectTheme.decoration ??
-                     const ShadDecoration())
+             (Theme.of(context).selectTheme.decoration ??
+                     const FinesseDecoration())
                  .merge(decoration),
          builder: (state) {
-           state as ShadSelectMultipleFormFieldState<T>;
+           state as SelectMultipleFormFieldState<T>;
 
-           return ShadSelect<T>.multipleWithSearch(
+           return Select<T>.multipleWithSearch(
              options: options,
              optionsBuilder: optionsBuilder,
              selectedOptionsBuilder: selectedOptionsBuilder,
@@ -710,9 +709,9 @@ class ShadSelectMultipleFormField<T> extends ShadFormField<Set<T>> {
        );
 
   /// Creates a multiple select form field with an explicit [variant], like
-  /// [ShadSelect.raw]. [variant] must be [ShadSelectVariant.multiple] or
-  /// [ShadSelectVariant.multipleWithSearch].
-  ShadSelectMultipleFormField.raw({
+  /// [Select.raw]. [variant] must be [SelectVariant.multiple] or
+  /// [SelectVariant.multipleWithSearch].
+  SelectMultipleFormField.raw({
     super.id,
     super.key,
     super.onSaved,
@@ -730,25 +729,25 @@ class ShadSelectMultipleFormField<T> extends ShadFormField<Set<T>> {
     super.focusNode,
     super.validator,
     super.forceErrorText,
-    required ShadSelectVariant variant,
-    required ShadSelectedOptionBuilder<List<T>> selectedOptionsBuilder,
+    required SelectVariant variant,
+    required SelectedOptionBuilder<List<T>> selectedOptionsBuilder,
     Iterable<Widget>? options,
 
-    /// The builder for the options of the [ShadSelect].
+    /// The builder for the options of the [Select].
     Widget? Function(BuildContext, int)? optionsBuilder,
     ValueChanged<String>? onSearchChanged,
     Widget? placeholder,
     bool closeOnTapOutside = true,
     double? minWidth,
     double? maxHeight,
-    ShadDecoration? decoration,
+    FinesseDecoration? decoration,
     Widget? trailing,
     EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? optionsPadding,
     bool? showScrollToTopChevron,
     bool? showScrollToBottomChevron,
     ScrollController? scrollController,
-    ShadAnchorBase? anchor,
+    AnchorBase? anchor,
     ImageFilter? filter,
     Widget? searchDivider,
     Widget? searchInputLeading,
@@ -756,45 +755,45 @@ class ShadSelectMultipleFormField<T> extends ShadFormField<Set<T>> {
     EdgeInsetsGeometry? searchPadding,
     Widget? search,
     bool? clearSearchOnClose,
-    ShadPopoverController? popoverController,
+    PopoverController? popoverController,
 
-    /// {@macro ShadSelect.header}
+    /// {@macro Select.header}
     Widget? header,
 
-    /// {@macro ShadSelect.footer}
+    /// {@macro Select.footer}
     Widget? footer,
     bool allowDeselection = true,
     bool closeOnSelect = true,
     this.controller,
 
-    /// {@macro ShadSelect.ensureSelectedVisible}
+    /// {@macro Select.ensureSelectedVisible}
     bool? ensureSelectedVisible,
 
-    /// {@macro ShadSelect.searchFocusNode}
+    /// {@macro Select.searchFocusNode}
     FocusNode? searchFocusNode,
 
-    /// {@macro ShadSelect.onSearchSubmitted}
+    /// {@macro Select.onSearchSubmitted}
     ValueChanged<String>? onSearchSubmitted,
 
-    /// {@macro ShadSelect.onPressed}
+    /// {@macro Select.onPressed}
     VoidCallback? onPressed,
 
-    /// {@macro ShadPopover.groupId}
+    /// {@macro Popover.groupId}
     Object? groupId,
   }) : assert(
-         variant == ShadSelectVariant.multiple ||
-             variant == ShadSelectVariant.multipleWithSearch,
-         '''The variant is not supported. Use multiple or multipleWithSearch or use ShadSelectFormField instead.''',
+         variant == SelectVariant.multiple ||
+             variant == SelectVariant.multipleWithSearch,
+         '''The variant is not supported. Use multiple or multipleWithSearch or use SelectFormField instead.''',
        ),
        super(
          decorationBuilder: (context) =>
-             (ShadTheme.of(context).selectTheme.decoration ??
-                     const ShadDecoration())
+             (Theme.of(context).selectTheme.decoration ??
+                     const FinesseDecoration())
                  .merge(decoration),
          builder: (state) {
-           state as ShadSelectMultipleFormFieldState<T>;
+           state as SelectMultipleFormFieldState<T>;
 
-           return ShadSelect<T>.raw(
+           return Select<T>.raw(
              variant: variant,
              options: options,
              optionsBuilder: optionsBuilder,
@@ -837,24 +836,24 @@ class ShadSelectMultipleFormField<T> extends ShadFormField<Set<T>> {
          },
        );
 
-  /// {@macro ShadSelect.controller}
-  final ShadSelectController<T>? controller;
+  /// {@macro Select.controller}
+  final SelectController<T>? controller;
 
   @override
-  ShadFormFieldState<ShadSelectMultipleFormField<T>, Set<T>> createState() =>
-      ShadSelectMultipleFormFieldState<T>();
+  FinesseFormFieldState<SelectMultipleFormField<T>, Set<T>> createState() =>
+      SelectMultipleFormFieldState<T>();
 }
 
-/// The state of a [ShadSelectMultipleFormField].
-class ShadSelectMultipleFormFieldState<T>
-    extends ShadFormFieldState<ShadSelectMultipleFormField<T>, Set<T>> {
-  ShadSelectController<T>? _controller;
+/// The state of a [SelectMultipleFormField].
+class SelectMultipleFormFieldState<T>
+    extends FinesseFormFieldState<SelectMultipleFormField<T>, Set<T>> {
+  SelectController<T>? _controller;
 
-  /// The controller in use: [ShadSelectMultipleFormField.controller] when
+  /// The controller in use: [SelectMultipleFormField.controller] when
   /// given, otherwise an internal one created from the initial value.
-  ShadSelectController<T> get controller =>
+  SelectController<T> get controller =>
       widget.controller ??
-      (_controller ??= ShadSelectController<T>(initialValue: initialValue));
+      (_controller ??= SelectController<T>(initialValue: initialValue));
 
   @override
   void initState() {
@@ -889,17 +888,16 @@ class ShadSelectMultipleFormFieldState<T>
   }
 }
 
-/// The old name of [ShadSelectMultipleFormFieldState].
+/// The old name of [SelectMultipleFormFieldState].
 @Deprecated(
-  'Use ShadSelectMultipleFormFieldState. '
+  'Use SelectMultipleFormFieldState. '
   'Will be removed in the next major version.',
 )
-typedef ShadFormBuilderSelectMultipleState<T> =
-    ShadSelectMultipleFormFieldState<T>;
+typedef FormBuilderSelectMultipleState<T> = SelectMultipleFormFieldState<T>;
 
-/// The old name of [ShadSelectFormFieldState].
+/// The old name of [SelectFormFieldState].
 @Deprecated(
-  'Use ShadSelectFormFieldState. '
+  'Use SelectFormFieldState. '
   'Will be removed in the next major version.',
 )
-typedef ShadFormBuilderSelectState<T> = ShadSelectFormFieldState<T>;
+typedef FormBuilderSelectState<T> = SelectFormFieldState<T>;

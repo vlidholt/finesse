@@ -1,17 +1,17 @@
+import 'package:finesse/src/utils/border.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/utils/border.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
 part 'kbd.g.theme.dart';
 
-/// {@template ShadKbdTheme}
-/// Theme for the `ShadKbd` widget.
+/// {@template KbdTheme}
+/// Theme for the `Kbd` widget.
 /// {@endtemplate}
 @themeGen
 @immutable
-class ShadKbdTheme with _$ShadKbdTheme {
-  /// {@macro ShadKbdTheme}
-  const ShadKbdTheme({
+class KbdTheme with _$KbdTheme {
+  /// {@macro KbdTheme}
+  const KbdTheme({
     bool canMerge = true,
     this.backgroundColor,
     this.foregroundColor,
@@ -29,22 +29,22 @@ class ShadKbdTheme with _$ShadKbdTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro ShadKbd.backgroundColor}
+  /// {@macro Kbd.backgroundColor}
   final Color? backgroundColor;
 
-  /// {@macro ShadKbd.foregroundColor}
+  /// {@macro Kbd.foregroundColor}
   final Color? foregroundColor;
 
-  /// {@macro ShadKbd.border}
-  final ShadBorder? border;
+  /// {@macro Kbd.border}
+  final FinesseBorder? border;
 
-  /// {@macro ShadKbd.padding}
+  /// {@macro Kbd.padding}
   final EdgeInsetsGeometry? padding;
 
-  /// {@macro ShadKbd.textStyle}
+  /// {@macro Kbd.textStyle}
   final TextStyle? textStyle;
 
-  /// The gap between adjacent keys in a `ShadKbd` group.
+  /// The gap between adjacent keys in a `Kbd` group.
   final double? gap;
 
   /// The minimum width of a single key cap.
@@ -57,6 +57,6 @@ class ShadKbdTheme with _$ShadKbdTheme {
   final double? height;
 
   /// Linearly interpolates between [a] and [b] by [t].
-  static ShadKbdTheme? lerp(ShadKbdTheme? a, ShadKbdTheme? b, double t) =>
-      _$ShadKbdTheme.lerp(a, b, t);
+  static KbdTheme? lerp(KbdTheme? a, KbdTheme? b, double t) =>
+      _$KbdTheme.lerp(a, b, t);
 }

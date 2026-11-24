@@ -1,20 +1,35 @@
+import 'package:finesse/finesse.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/material.dart';
-import 'package:shad/shad.dart';
+import 'package:flutter/material.dart'
+    hide
+        Badge,
+        Card,
+        Checkbox,
+        Dialog,
+        Divider,
+        IconButton,
+        Radio,
+        Slider,
+        Switch,
+        Tab,
+        TextField,
+        Theme,
+        Tooltip,
+        showDialog;
 
 /// The live-themed half of the theme editor.
 ///
 /// Modelled on shadcn/ui's `/create` preview: a masonry of realistic product
 /// cards rather than a component gallery, so a configuration can be judged the
 /// way it will actually be seen. Charts are drawn with `fl_chart` and take
-/// their colours from `ShadColorScheme.charts`, which is what makes the
+/// their colours from `ColorScheme.charts`, which is what makes the
 /// editor's "Chart Color" setting visible.
 class ThemePreviewPanel extends StatelessWidget {
   const ThemePreviewPanel({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
 
     return ColoredBox(
       color: theme.colorScheme.muted,
@@ -121,10 +136,10 @@ class _PreviewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Deliberately ShadCard's own title/description slots rather than hand-set
+    // Deliberately Card's own title/description slots rather than hand-set
     // text styles: that is what puts the card under the theme's typography, so
     // switching style visibly retypes the preview.
-    return ShadCard(
+    return Card(
       title: title == null ? null : Text(title!),
       description: description == null ? null : Text(description!),
       action: trailing,
@@ -141,7 +156,7 @@ class _ContributionHistoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     return _PreviewCard(
       title: 'Contribution History',
       description: 'Last 6 months of activity',
@@ -218,7 +233,7 @@ class _ContributionHistoryCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          ShadButton.secondary(
+          Button.secondary(
             onPressed: () {},
             child: const Text('View Full Report'),
           ),
@@ -241,7 +256,7 @@ class _Stat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -281,11 +296,11 @@ class _PayoutThresholdCardState extends State<_PayoutThresholdCard> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     return _PreviewCard(
       title: 'Payout Threshold',
       description: 'Set the minimum balance required before a payout.',
-      trailing: ShadIconButton.ghost(
+      trailing: IconButton.ghost(
         icon: const Icon(LucideIcons.x),
         semanticLabel: 'Dismiss',
         onPressed: () {},
@@ -295,17 +310,17 @@ class _PayoutThresholdCardState extends State<_PayoutThresholdCard> {
         children: [
           Text('Preferred Currency', style: theme.textTheme.small),
           const SizedBox(height: 6),
-          ShadSelect<String>(
+          Select<String>(
             initialValue: currency,
             onChanged: (v) => setState(() => currency = v ?? currency),
             options: const [
-              ShadOption(
+              SelectOption(
                 value: 'usd',
                 child: Text('USD — United States Dollar'),
               ),
-              ShadOption(value: 'eur', child: Text('EUR — Euro')),
-              ShadOption(value: 'gbp', child: Text('GBP — British Pound')),
-              ShadOption(value: 'sek', child: Text('SEK — Swedish Krona')),
+              SelectOption(value: 'eur', child: Text('EUR — Euro')),
+              SelectOption(value: 'gbp', child: Text('GBP — British Pound')),
+              SelectOption(value: 'sek', child: Text('SEK — Swedish Krona')),
             ],
             selectedOptionBuilder: (context, value) => Text(
               switch (value) {
@@ -331,7 +346,7 @@ class _PayoutThresholdCardState extends State<_PayoutThresholdCard> {
               ),
             ],
           ),
-          ShadSlider(
+          Slider(
             initialValue: amount,
             min: 50,
             max: 10000,
@@ -347,11 +362,11 @@ class _PayoutThresholdCardState extends State<_PayoutThresholdCard> {
           const SizedBox(height: 16),
           Text('Notes', style: theme.textTheme.small),
           const SizedBox(height: 6),
-          const ShadTextarea(
+          const Textarea(
             placeholder: Text('Add any notes for this payout configuration...'),
           ),
           const SizedBox(height: 16),
-          ShadButton(
+          Button(
             onPressed: () {},
             child: const Text('Save Threshold'),
           ),
@@ -366,12 +381,12 @@ class _SavingsTargetsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     return _PreviewCard(
       title: 'Savings Targets',
       description: 'Active milestones for 2024',
-      trailing: ShadButton.outline(
-        size: ShadButtonSize.sm,
+      trailing: Button.outline(
+        size: ButtonSize.sm,
         onPressed: () {},
         child: const Text('New Goal'),
       ),
@@ -421,7 +436,7 @@ class _Target extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -479,7 +494,7 @@ class _ClaimableBalanceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     return _PreviewCard(
       title: 'Claimable Balance',
       child: Column(
@@ -489,12 +504,12 @@ class _ClaimableBalanceCard extends StatelessWidget {
           const SizedBox(height: 8),
           const Align(
             alignment: AlignmentDirectional.centerStart,
-            child: ShadBadge.secondary(child: Text('Pending Setup')),
+            child: Badge.secondary(child: Text('Pending Setup')),
           ),
           const SizedBox(height: 16),
           const _Row(label: 'Net Royalties', value: r'$0.00'),
           const _Row(label: 'Processing Fee', value: r'-$0.00'),
-          const ShadSeparator.horizontal(
+          const Divider.horizontal(
             margin: EdgeInsets.symmetric(vertical: 8),
           ),
           const _Row(label: 'Total Ready to Claim', value: r'$0.00 USD'),
@@ -518,7 +533,7 @@ class _Row extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -579,7 +594,7 @@ class _RecentTransactionsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     return _PreviewCard(
       title: 'Recent Transactions',
       description: 'Your latest account activity.',
@@ -656,7 +671,7 @@ class _BuyInvestmentCardState extends State<_BuyInvestmentCard> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     return _PreviewCard(
       title: 'Buy Investment',
       child: Column(
@@ -664,7 +679,7 @@ class _BuyInvestmentCardState extends State<_BuyInvestmentCard> {
         children: [
           Text('Amount to Invest', style: theme.textTheme.small),
           const SizedBox(height: 6),
-          const ShadInput(
+          const TextField(
             initialValue: '1,000.00',
             leading: Padding(
               padding: EdgeInsets.only(right: 4),
@@ -674,13 +689,13 @@ class _BuyInvestmentCardState extends State<_BuyInvestmentCard> {
           const SizedBox(height: 12),
           Text('Order Type', style: theme.textTheme.small),
           const SizedBox(height: 6),
-          ShadSelect<String>(
+          Select<String>(
             initialValue: orderType,
             onChanged: (v) => setState(() => orderType = v ?? orderType),
             options: const [
-              ShadOption(value: 'market', child: Text('Market Order')),
-              ShadOption(value: 'limit', child: Text('Limit Order')),
-              ShadOption(value: 'stop', child: Text('Stop Order')),
+              SelectOption(value: 'market', child: Text('Market Order')),
+              SelectOption(value: 'limit', child: Text('Limit Order')),
+              SelectOption(value: 'stop', child: Text('Stop Order')),
             ],
             selectedOptionBuilder: (context, value) => Text(
               switch (value) {
@@ -699,7 +714,7 @@ class _BuyInvestmentCardState extends State<_BuyInvestmentCard> {
           const _Row(label: 'Estimated Shares', value: '12.48'),
           const _Row(label: 'Buying Power', value: r'$8,420.00'),
           const SizedBox(height: 16),
-          ShadButton(onPressed: () {}, child: const Text('Review Order')),
+          Button(onPressed: () {}, child: const Text('Review Order')),
           const SizedBox(height: 8),
           Text(
             'Trades are typically executed within market hours.',
@@ -727,7 +742,7 @@ class _WireTransferCardState extends State<_WireTransferCard> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     return _PreviewCard(
       title: 'Wire Transfer',
       description: 'Same-day settlement to any linked account.',
@@ -737,23 +752,23 @@ class _WireTransferCardState extends State<_WireTransferCard> {
           Row(
             children: [
               const Expanded(
-                child: ShadInput(placeholder: Text('Amount')),
+                child: TextField(placeholder: Text('Amount')),
               ),
               const SizedBox(width: 8),
-              ShadSelect<String>(
+              Select<String>(
                 minWidth: 96,
                 initialValue: currency,
                 onChanged: (v) => setState(() => currency = v ?? currency),
                 options: const [
-                  ShadOption(value: 'usd', child: Text('USD')),
-                  ShadOption(value: 'eur', child: Text('EUR')),
-                  ShadOption(value: 'sek', child: Text('SEK')),
+                  SelectOption(value: 'usd', child: Text('USD')),
+                  SelectOption(value: 'eur', child: Text('EUR')),
+                  SelectOption(value: 'sek', child: Text('SEK')),
                 ],
                 selectedOptionBuilder: (context, value) =>
                     Text(value.toUpperCase()),
               ),
               const SizedBox(width: 8),
-              ShadButton(onPressed: () {}, child: const Text('Send')),
+              Button(onPressed: () {}, child: const Text('Send')),
             ],
           ),
           const SizedBox(height: 8),
@@ -772,9 +787,9 @@ class _DistributeTrackCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     return _PreviewCard(
-      child: ShadEmpty(
+      child: Empty(
         icon: const Icon(LucideIcons.plus),
         title: const Text('Distribute Track'),
         description: const Text(
@@ -782,7 +797,7 @@ class _DistributeTrackCard extends StatelessWidget {
           'Apple Music, and more.',
         ),
         actions: [
-          ShadButton(onPressed: () {}, child: const Text('Create Release')),
+          Button(onPressed: () {}, child: const Text('Create Release')),
         ],
         // The reference Empty keeps its `p-12` breathing room, which is what
         // centres the block inside the card; zeroing it pinned the icon to
@@ -802,7 +817,7 @@ class _TeamActivityCard extends StatefulWidget {
 }
 
 class _TeamActivityCardState extends State<_TeamActivityCard> {
-  final tabs = ShadTabsController<String>(value: 'overview');
+  final tabs = TabsController<String>(value: 'overview');
   bool notify = true;
   Set<String> range = {'30d'};
 
@@ -814,20 +829,20 @@ class _TeamActivityCardState extends State<_TeamActivityCard> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     return _PreviewCard(
       title: 'Team Activity',
       description: 'Engagement over the selected range.',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ShadToggleGroup<String>(
+          ToggleGroup<String>(
             values: range,
             onChanged: (v) => setState(() => range = v),
             children: const [
-              ShadToggleGroupItem(value: '7d', child: Text('7d')),
-              ShadToggleGroupItem(value: '30d', child: Text('30d')),
-              ShadToggleGroupItem(value: '90d', child: Text('90d')),
+              ToggleGroupItem(value: '7d', child: Text('7d')),
+              ToggleGroupItem(value: '30d', child: Text('30d')),
+              ToggleGroupItem(value: '90d', child: Text('90d')),
             ],
           ),
           const SizedBox(height: 16),
@@ -873,7 +888,7 @@ class _TeamActivityCardState extends State<_TeamActivityCard> {
             ),
           ),
           const SizedBox(height: 16),
-          ShadSwitch(
+          Switch(
             value: notify,
             label: const Text('Email me weekly summaries'),
             onChanged: (v) => setState(() => notify = v),
@@ -881,7 +896,7 @@ class _TeamActivityCardState extends State<_TeamActivityCard> {
           const SizedBox(height: 12),
           Row(
             children: [
-              const ShadAvatar(
+              const Avatar(
                 'https://avatars.githubusercontent.com/u/124599?v=4',
                 fallback: Text('CN'),
               ),
@@ -892,8 +907,8 @@ class _TeamActivityCardState extends State<_TeamActivityCard> {
                   style: theme.textTheme.muted,
                 ),
               ),
-              ShadButton.ghost(
-                size: ShadButtonSize.sm,
+              Button.ghost(
+                size: ButtonSize.sm,
                 onPressed: () {},
                 child: const Text('Manage'),
               ),
@@ -925,42 +940,42 @@ class _NotificationsCardState extends State<_NotificationsCard> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     return _PreviewCard(
       title: 'Notifications',
       description: 'Choose what you want to be notified about',
-      child: ShadColumn(
+      child: FinesseColumn(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         spacing: 4,
         children: [
-          ShadRadioGroup<_NotifyAbout>(
+          FinesseRadioGroup<_NotifyAbout>(
             initialValue: about,
             onChanged: (v) => setState(() => about = v ?? about),
             items: const [
-              ShadRadio(
+              Radio(
                 value: _NotifyAbout.all,
                 label: Text('All new messages'),
               ),
-              ShadRadio(
+              Radio(
                 value: _NotifyAbout.mentions,
                 label: Text('Direct messages and mentions'),
               ),
-              ShadRadio(value: _NotifyAbout.none, label: Text('Nothing')),
+              Radio(value: _NotifyAbout.none, label: Text('Nothing')),
             ],
           ),
-          const ShadSeparator.horizontal(
+          const Divider.horizontal(
             margin: EdgeInsets.symmetric(
               vertical: 4,
             ),
           ),
           for (final entry in channels.entries)
-            ShadCheckbox(
+            Checkbox(
               value: entry.value,
               onChanged: (v) => setState(() => channels[entry.key] = v),
               label: Text(entry.key),
             ),
-          const ShadSeparator.horizontal(
+          const Divider.horizontal(
             margin: EdgeInsets.symmetric(
               vertical: 4,
             ),
@@ -973,7 +988,7 @@ class _NotificationsCardState extends State<_NotificationsCard> {
                   style: theme.textTheme.small,
                 ),
               ),
-              ShadSwitch(
+              Switch(
                 value: marketing,
                 onChanged: (v) => setState(() => marketing = v),
               ),
@@ -1005,60 +1020,60 @@ class _VerifyDeviceCardState extends State<_VerifyDeviceCard> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     return _PreviewCard(
       title: 'Verify Device',
       description: 'Enter the 6-digit code we sent you',
-      trailing: ShadTooltip(
+      trailing: Tooltip(
         builder: (_) => const Text('Resend the code'),
-        child: ShadIconButton.ghost(
+        child: IconButton.ghost(
           icon: const Icon(LucideIcons.refreshCw, size: 16),
           onPressed: () {},
         ),
       ),
-      child: ShadColumn(
+      child: FinesseColumn(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         spacing: 4,
         children: [
-          ShadInputOTP(
+          OtpField(
             maxLength: 6,
             onChanged: (v) => setState(() => code = v),
             children: const [
-              ShadInputOTPGroup(
+              OtpFieldGroup(
                 children: [
-                  ShadInputOTPSlot(),
-                  ShadInputOTPSlot(),
-                  ShadInputOTPSlot(),
+                  OtpFieldSlot(),
+                  OtpFieldSlot(),
+                  OtpFieldSlot(),
                 ],
               ),
               Icon(LucideIcons.dot),
-              ShadInputOTPGroup(
+              OtpFieldGroup(
                 children: [
-                  ShadInputOTPSlot(),
-                  ShadInputOTPSlot(),
-                  ShadInputOTPSlot(),
+                  OtpFieldSlot(),
+                  OtpFieldSlot(),
+                  OtpFieldSlot(),
                 ],
               ),
             ],
           ),
-          ShadProgress(value: code.length / 6),
-          ShadRow(
+          ProgressBar(value: code.length / 6),
+          FinesseRow(
             spacing: 2,
             children: [
               Text('Paste with', style: theme.textTheme.muted),
-              const ShadKbd.group(['⌘', 'V']),
+              const Kbd.group(['⌘', 'V']),
             ],
           ),
-          const ShadAlert(
+          const Alert(
             icon: Icon(LucideIcons.info),
             title: Text('Heads up'),
             description: Text('Codes expire after 10 minutes.'),
           ),
-          ShadButton(
+          Button(
             onPressed: submitting ? null : submit,
             leading: submitting
-                ? const ShadSpinner(size: 16, strokeWidth: 2)
+                ? const Spinner(size: 16, strokeWidth: 2)
                 : null,
             child: Text(submitting ? 'Verifying' : 'Verify'),
           ),
@@ -1074,27 +1089,27 @@ class _ScheduleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     return _PreviewCard(
       title: 'Schedule Payout',
       description: 'Pick when the transfer should run',
-      child: ShadColumn(
+      child: FinesseColumn(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         spacing: 4,
         children: [
-          ShadBreadcrumb(
+          Breadcrumb(
             children: [
-              ShadBreadcrumbLink(onPressed: () {}, child: const Text('Wallet')),
-              const ShadBreadcrumbEllipsis(),
+              BreadcrumbLink(onPressed: () {}, child: const Text('Wallet')),
+              const BreadcrumbEllipsis(),
               const Text('Payouts'),
             ],
           ),
-          const ShadDatePicker(),
-          const ShadTimePicker(),
-          ShadAccordion<int>(
+          const DatePicker(),
+          const TimePicker(),
+          Accordion<int>(
             children: [
-              ShadAccordionItem(
+              AccordionItem(
                 value: 0,
                 title: const Text('When will it arrive?'),
                 child: Text(
@@ -1102,7 +1117,7 @@ class _ScheduleCard extends StatelessWidget {
                   style: theme.textTheme.muted,
                 ),
               ),
-              ShadAccordionItem(
+              AccordionItem(
                 value: 1,
                 title: const Text('Are there fees?'),
                 child: Text(
@@ -1128,7 +1143,7 @@ class _QuickActionsCard extends StatefulWidget {
 }
 
 class _QuickActionsCardState extends State<_QuickActionsCard> {
-  final popover = ShadPopoverController();
+  final popover = PopoverController();
   int page = 2;
 
   @override
@@ -1139,11 +1154,11 @@ class _QuickActionsCardState extends State<_QuickActionsCard> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     return _PreviewCard(
       title: 'Quick Actions',
       description: 'Every themed surface in one place',
-      child: ShadColumn(
+      child: FinesseColumn(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         spacing: 4,
@@ -1152,11 +1167,11 @@ class _QuickActionsCardState extends State<_QuickActionsCard> {
             spacing: 8,
             runSpacing: 8,
             children: [
-              ShadPopover(
+              Popover(
                 controller: popover,
                 popover: (_) => SizedBox(
                   width: 220,
-                  child: ShadColumn(
+                  child: FinesseColumn(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     spacing: 1,
@@ -1169,25 +1184,25 @@ class _QuickActionsCardState extends State<_QuickActionsCard> {
                     ],
                   ),
                 ),
-                child: ShadButton.outline(
+                child: Button.outline(
                   onPressed: popover.toggle,
                   child: const Text('Popover'),
                 ),
               ),
-              ShadButton.outline(
-                onPressed: () => showShadDialog<void>(
+              Button.outline(
+                onPressed: () => showDialog<void>(
                   context: context,
-                  builder: (context) => ShadDialog.alert(
+                  builder: (context) => Dialog.alert(
                     title: const Text('Are you sure?'),
                     description: const Text(
                       'This will permanently cancel the scheduled payout.',
                     ),
                     actions: [
-                      ShadButton.outline(
+                      Button.outline(
                         onPressed: () => Navigator.of(context).pop(),
                         child: const Text('Cancel'),
                       ),
-                      ShadButton(
+                      Button(
                         onPressed: () => Navigator.of(context).pop(),
                         child: const Text('Continue'),
                       ),
@@ -1196,10 +1211,10 @@ class _QuickActionsCardState extends State<_QuickActionsCard> {
                 ),
                 child: const Text('Dialog'),
               ),
-              ShadButton.outline(
-                onPressed: () => showShadSheet<void>(
+              Button.outline(
+                onPressed: () => showSheet<void>(
                   context: context,
-                  builder: (context) => ShadSheet(
+                  builder: (context) => Sheet(
                     title: const Text('Filters'),
                     description: const Text('Narrow the transaction list.'),
                     child: const SizedBox(height: 80),
@@ -1207,9 +1222,9 @@ class _QuickActionsCardState extends State<_QuickActionsCard> {
                 ),
                 child: const Text('Sheet'),
               ),
-              ShadButton.outline(
-                onPressed: () => ShadSonner.of(context).show(
-                  const ShadToast(
+              Button.outline(
+                onPressed: () => Sonner.of(context).show(
+                  const Toast(
                     title: Text('Payout scheduled'),
                     description: Text('Friday at 09:00'),
                   ),
@@ -1218,21 +1233,21 @@ class _QuickActionsCardState extends State<_QuickActionsCard> {
               ),
             ],
           ),
-          const ShadSeparator.horizontal(
+          const Divider.horizontal(
             margin: EdgeInsets.symmetric(
               vertical: 4,
             ),
           ),
           // Right-click target: the context menu is a themed surface too.
-          ShadContextMenuRegion(
+          ContextMenuRegion(
             constraints: const BoxConstraints(minWidth: 200),
             items: const [
-              ShadContextMenuItem(child: Text('Duplicate')),
-              ShadContextMenuItem(child: Text('Archive')),
-              ShadContextMenuItem(enabled: false, child: Text('Delete')),
+              ContextMenuItem(child: Text('Duplicate')),
+              ContextMenuItem(child: Text('Archive')),
+              ContextMenuItem(enabled: false, child: Text('Delete')),
             ],
-            child: ShadCard(
-              child: ShadRow(
+            child: Card(
+              child: FinesseRow(
                 spacing: 2,
                 children: [
                   const Icon(LucideIcons.mousePointerClick, size: 16),
@@ -1246,35 +1261,35 @@ class _QuickActionsCardState extends State<_QuickActionsCard> {
               ),
             ),
           ),
-          const ShadSeparator.horizontal(
+          const Divider.horizontal(
             margin: EdgeInsets.symmetric(
               vertical: 4,
             ),
           ),
           // The loading state of the row above it, so skeletons are themed
           // against the same surface they stand in for.
-          ShadRow(
+          FinesseRow(
             spacing: 3,
             children: const [
-              ShadSkeleton(width: 36, height: 36),
+              Skeleton(width: 36, height: 36),
               Expanded(
-                child: ShadColumn(
+                child: FinesseColumn(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   spacing: 2,
                   children: [
-                    ShadSkeleton(width: 140, height: 12),
-                    ShadSkeleton(width: 90, height: 12),
+                    Skeleton(width: 140, height: 12),
+                    Skeleton(width: 90, height: 12),
                   ],
                 ),
               ),
             ],
           ),
-          const ShadSeparator.horizontal(
+          const Divider.horizontal(
             margin: EdgeInsets.symmetric(
               vertical: 4,
             ),
           ),
-          ShadPaginationCompact(
+          PaginationCompact(
             page: page,
             pageCount: 8,
             onPageChanged: (p) => setState(() => page = p),
@@ -1303,7 +1318,7 @@ class _WorkspaceCardState extends State<_WorkspaceCard> {
 
   bool bold = true;
   bool italic = false;
-  final collapsible = ShadCollapsibleController(open: true);
+  final collapsible = CollapsibleController(open: true);
 
   @override
   void dispose() {
@@ -1313,138 +1328,138 @@ class _WorkspaceCardState extends State<_WorkspaceCard> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     return _PreviewCard(
       title: 'Workspace',
       description: 'Invoices for the current period',
-      child: ShadColumn(
+      child: FinesseColumn(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         spacing: 4,
         children: [
-          ShadMenubar(
+          Menubar(
             items: [
-              ShadMenubarItem(
+              MenubarItem(
                 items: const [
-                  ShadContextMenuItem(child: Text('New Invoice')),
-                  ShadContextMenuItem(child: Text('Import…')),
-                  ShadContextMenuItem(
+                  ContextMenuItem(child: Text('New Invoice')),
+                  ContextMenuItem(child: Text('Import…')),
+                  ContextMenuItem(
                     trailing: Icon(LucideIcons.chevronRight),
                     items: [
-                      ShadContextMenuItem(child: Text('INV-001')),
-                      ShadContextMenuItem(child: Text('INV-002')),
-                      ShadContextMenuItem(child: Text('INV-003')),
+                      ContextMenuItem(child: Text('INV-001')),
+                      ContextMenuItem(child: Text('INV-002')),
+                      ContextMenuItem(child: Text('INV-003')),
                     ],
                     child: Text('Open Recent'),
                   ),
-                  ShadContextMenuItem(
+                  ContextMenuItem(
                     trailing: Icon(LucideIcons.chevronRight),
                     items: [
-                      ShadContextMenuItem(child: Text('PDF')),
-                      ShadContextMenuItem(child: Text('CSV')),
-                      ShadContextMenuItem(
+                      ContextMenuItem(child: Text('PDF')),
+                      ContextMenuItem(child: Text('CSV')),
+                      ContextMenuItem(
                         trailing: Icon(LucideIcons.chevronRight),
                         items: [
-                          ShadContextMenuItem(child: Text('Xero')),
-                          ShadContextMenuItem(child: Text('QuickBooks')),
+                          ContextMenuItem(child: Text('Xero')),
+                          ContextMenuItem(child: Text('QuickBooks')),
                         ],
                         child: Text('Accounting'),
                       ),
                     ],
                     child: Text('Export As'),
                   ),
-                  ShadContextMenuItem(
+                  ContextMenuItem(
                     trailing: Icon(LucideIcons.chevronRight),
                     items: [
-                      ShadContextMenuItem(child: Text('Email')),
-                      ShadContextMenuItem(child: Text('Copy Link')),
+                      ContextMenuItem(child: Text('Email')),
+                      ContextMenuItem(child: Text('Copy Link')),
                     ],
                     child: Text('Share'),
                   ),
                 ],
                 child: const Text('File'),
               ),
-              ShadMenubarItem(
+              MenubarItem(
                 items: const [
-                  ShadContextMenuItem(child: Text('Undo')),
-                  ShadContextMenuItem(child: Text('Redo')),
-                  ShadContextMenuItem(
+                  ContextMenuItem(child: Text('Undo')),
+                  ContextMenuItem(child: Text('Redo')),
+                  ContextMenuItem(
                     trailing: Icon(LucideIcons.chevronRight),
                     items: [
-                      ShadContextMenuItem(child: Text('Find…')),
-                      ShadContextMenuItem(child: Text('Find Next')),
-                      ShadContextMenuItem(child: Text('Find Previous')),
+                      ContextMenuItem(child: Text('Find…')),
+                      ContextMenuItem(child: Text('Find Next')),
+                      ContextMenuItem(child: Text('Find Previous')),
                     ],
                     child: Text('Find'),
                   ),
-                  ShadContextMenuItem(
+                  ContextMenuItem(
                     trailing: Icon(LucideIcons.chevronRight),
                     items: [
-                      ShadContextMenuItem(child: Text('Paid')),
-                      ShadContextMenuItem(child: Text('Pending')),
-                      ShadContextMenuItem(child: Text('Unpaid')),
+                      ContextMenuItem(child: Text('Paid')),
+                      ContextMenuItem(child: Text('Pending')),
+                      ContextMenuItem(child: Text('Unpaid')),
                     ],
                     child: Text('Mark As'),
                   ),
                 ],
                 child: const Text('Edit'),
               ),
-              ShadMenubarItem(
+              MenubarItem(
                 items: const [
-                  ShadContextMenuItem(
+                  ContextMenuItem(
                     trailing: Icon(LucideIcons.chevronRight),
                     items: [
-                      ShadContextMenuItem(child: Text('Status')),
-                      ShadContextMenuItem(child: Text('Customer')),
-                      ShadContextMenuItem(child: Text('Month')),
+                      ContextMenuItem(child: Text('Status')),
+                      ContextMenuItem(child: Text('Customer')),
+                      ContextMenuItem(child: Text('Month')),
                     ],
                     child: Text('Group By'),
                   ),
-                  ShadContextMenuItem(
+                  ContextMenuItem(
                     trailing: Icon(LucideIcons.chevronRight),
                     items: [
-                      ShadContextMenuItem(child: Text('Date')),
-                      ShadContextMenuItem(child: Text('Amount')),
-                      ShadContextMenuItem(child: Text('Customer')),
+                      ContextMenuItem(child: Text('Date')),
+                      ContextMenuItem(child: Text('Amount')),
+                      ContextMenuItem(child: Text('Customer')),
                     ],
                     child: Text('Sort By'),
                   ),
-                  ShadContextMenuItem(
+                  ContextMenuItem(
                     trailing: Icon(LucideIcons.chevronRight),
                     items: [
-                      ShadContextMenuItem(child: Text('Invoice')),
-                      ShadContextMenuItem(child: Text('Status')),
-                      ShadContextMenuItem(child: Text('Amount')),
-                      ShadContextMenuItem(child: Text('Due Date')),
+                      ContextMenuItem(child: Text('Invoice')),
+                      ContextMenuItem(child: Text('Status')),
+                      ContextMenuItem(child: Text('Amount')),
+                      ContextMenuItem(child: Text('Due Date')),
                     ],
                     child: Text('Columns'),
                   ),
-                  ShadContextMenuItem(
+                  ContextMenuItem(
                     trailing: Icon(LucideIcons.chevronRight),
                     items: [
-                      ShadContextMenuItem(child: Text('Compact')),
-                      ShadContextMenuItem(child: Text('Default')),
-                      ShadContextMenuItem(child: Text('Comfortable')),
+                      ContextMenuItem(child: Text('Compact')),
+                      ContextMenuItem(child: Text('Default')),
+                      ContextMenuItem(child: Text('Comfortable')),
                     ],
                     child: Text('Density'),
                   ),
-                  ShadContextMenuItem(
+                  ContextMenuItem(
                     trailing: Icon(LucideIcons.chevronRight),
                     items: [
-                      ShadContextMenuItem(child: Text('USD')),
-                      ShadContextMenuItem(child: Text('EUR')),
-                      ShadContextMenuItem(child: Text('SEK')),
-                      ShadContextMenuItem(child: Text('GBP')),
+                      ContextMenuItem(child: Text('USD')),
+                      ContextMenuItem(child: Text('EUR')),
+                      ContextMenuItem(child: Text('SEK')),
+                      ContextMenuItem(child: Text('GBP')),
                     ],
                     child: Text('Currency'),
                   ),
-                  ShadContextMenuItem(
+                  ContextMenuItem(
                     trailing: Icon(LucideIcons.chevronRight),
                     items: [
-                      ShadContextMenuItem(child: Text('75%')),
-                      ShadContextMenuItem(child: Text('100%')),
-                      ShadContextMenuItem(child: Text('125%')),
-                      ShadContextMenuItem(child: Text('150%')),
+                      ContextMenuItem(child: Text('75%')),
+                      ContextMenuItem(child: Text('100%')),
+                      ContextMenuItem(child: Text('125%')),
+                      ContextMenuItem(child: Text('150%')),
                     ],
                     child: Text('Zoom'),
                   ),
@@ -1453,25 +1468,25 @@ class _WorkspaceCardState extends State<_WorkspaceCard> {
               ),
             ],
           ),
-          ShadTabs<String>(
+          Tabs<String>(
             value: 'invoices',
             tabs: [
-              ShadTab(
+              Tab(
                 value: 'invoices',
                 // TableView is a 2-D scroll view with no shrink-wrap, so it
                 // needs a bounded height inside a scrolling card.
                 content: SizedBox(
                   height: 140,
-                  child: ShadTable.list(
+                  child: FinesseTable.list(
                     // Without this the columns size to their content and the
                     // table stops short of the card's edge.
                     columnSpanExtent: (index) => index == 2
                         ? const RemainingTableSpanExtent()
                         : const FractionalTableSpanExtent(.3),
                     header: const [
-                      ShadTableCell.header(child: Text('Invoice')),
-                      ShadTableCell.header(child: Text('Status')),
-                      ShadTableCell.header(
+                      FinesseTableCell.header(child: Text('Invoice')),
+                      FinesseTableCell.header(child: Text('Status')),
+                      FinesseTableCell.header(
                         alignment: Alignment.centerRight,
                         child: Text('Amount'),
                       ),
@@ -1479,11 +1494,11 @@ class _WorkspaceCardState extends State<_WorkspaceCard> {
                     children: [
                       for (final row in _rows)
                         [
-                          ShadTableCell(child: Text(row.$1)),
-                          ShadTableCell(
-                            child: ShadBadge.secondary(child: Text(row.$2)),
+                          FinesseTableCell(child: Text(row.$1)),
+                          FinesseTableCell(
+                            child: Badge.secondary(child: Text(row.$2)),
                           ),
-                          ShadTableCell(
+                          FinesseTableCell(
                             alignment: Alignment.centerRight,
                             child: Text(row.$3),
                           ),
@@ -1493,21 +1508,21 @@ class _WorkspaceCardState extends State<_WorkspaceCard> {
                 ),
                 child: const Text('Invoices'),
               ),
-              ShadTab(
+              Tab(
                 value: 'layout',
                 content: SizedBox(
                   height: 120,
-                  child: ShadResizablePanelGroup(
+                  child: ResizablePanelGroup(
                     showHandle: true,
                     children: [
-                      ShadResizablePanel(
+                      ResizablePanel(
                         id: 0,
                         defaultSize: .35,
                         child: Center(
                           child: Text('Sidebar', style: theme.textTheme.muted),
                         ),
                       ),
-                      ShadResizablePanel(
+                      ResizablePanel(
                         id: 1,
                         defaultSize: .65,
                         child: Center(
@@ -1521,37 +1536,37 @@ class _WorkspaceCardState extends State<_WorkspaceCard> {
               ),
             ],
           ),
-          ShadRow(
+          FinesseRow(
             spacing: 2,
             children: [
-              ShadToggle(
+              Toggle(
                 value: bold,
                 semanticLabel: 'Bold',
                 onChanged: (v) => setState(() => bold = v),
                 child: const Icon(LucideIcons.bold, size: 16),
               ),
-              ShadToggle(
+              Toggle(
                 value: italic,
                 semanticLabel: 'Italic',
                 onChanged: (v) => setState(() => italic = v),
                 child: const Icon(LucideIcons.italic, size: 16),
               ),
               const Spacer(),
-              ShadButton.ghost(
-                onPressed: () => showShadCommandDialog<String>(
+              Button.ghost(
+                onPressed: () => showCommandDialog<String>(
                   context: context,
                   placeholder: const Text('Type a command or search…'),
                   groups: [
-                    ShadCommandGroup(
+                    CommandGroup(
                       heading: 'Actions',
                       items: [
-                        ShadCommandItem(
+                        CommandItem(
                           label: 'New invoice',
                           value: 'new',
                           leading: const Icon(LucideIcons.plus),
                           onSelected: () {},
                         ),
-                        ShadCommandItem(
+                        CommandItem(
                           label: 'Export CSV',
                           value: 'export',
                           leading: const Icon(LucideIcons.download),
@@ -1561,14 +1576,14 @@ class _WorkspaceCardState extends State<_WorkspaceCard> {
                     ),
                   ],
                 ),
-                trailing: const ShadKbd.group(['⌘', 'K']),
+                trailing: const Kbd.group(['⌘', 'K']),
                 child: const Text('Search'),
               ),
             ],
           ),
-          ShadCollapsible(
+          Collapsible(
             controller: collapsible,
-            trigger: (context, open, toggle) => ShadRow(
+            trigger: (context, open, toggle) => FinesseRow(
               spacing: 2,
               children: [
                 Expanded(
@@ -1577,7 +1592,7 @@ class _WorkspaceCardState extends State<_WorkspaceCard> {
                     style: theme.textTheme.small,
                   ),
                 ),
-                ShadIconButton.ghost(
+                IconButton.ghost(
                   icon: Icon(
                     open ? LucideIcons.chevronUp : LucideIcons.chevronDown,
                     size: 16,
@@ -1604,7 +1619,7 @@ class _PaletteCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     final scheme = theme.colorScheme;
 
     final swatches = <(String, Color, Color)>[
@@ -1619,7 +1634,7 @@ class _PaletteCard extends StatelessWidget {
     return _PreviewCard(
       title: 'Palette',
       description: 'Base colour, accent and chart ramp',
-      child: ShadColumn(
+      child: FinesseColumn(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         spacing: 3,
@@ -1636,7 +1651,7 @@ class _PaletteCard extends StatelessWidget {
                 ),
             ],
           ),
-          const ShadSeparator.horizontal(
+          const Divider.horizontal(
             margin: EdgeInsets.symmetric(vertical: 4),
           ),
           Text('Chart ramp', style: theme.textTheme.muted),
@@ -1655,7 +1670,7 @@ class _PaletteCard extends StatelessWidget {
                 ),
             ],
           ),
-          const ShadSeparator.horizontal(
+          const Divider.horizontal(
             margin: EdgeInsets.symmetric(vertical: 4),
           ),
           Row(
@@ -1702,7 +1717,7 @@ class _Swatch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     return Container(
       width: 96,
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
@@ -1742,7 +1757,7 @@ class _TypographyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     final text = theme.textTheme;
     final styleName = theme.style.name;
     final capitalizedStyle =
@@ -1792,8 +1807,8 @@ class _TypographyCard extends StatelessWidget {
 
     return _PreviewCard(
       title: 'Typography',
-      trailing: ShadBadge(child: Text(capitalizedStyle)),
-      child: ShadColumn(
+      trailing: Badge(child: Text(capitalizedStyle)),
+      child: FinesseColumn(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         spacing: 4,

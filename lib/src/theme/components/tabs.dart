@@ -1,22 +1,21 @@
+import 'package:finesse/src/components/button.dart';
+import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
-
-import 'package:shad/src/components/button.dart';
-import 'package:shad/src/theme/components/decorator.dart';
-import 'package:shad/src/utils/gesture_detector.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
 part 'tabs.g.theme.dart';
 
-/// {@template ShadTabsTheme}
-/// Theme for the `ShadTabs` widget.
+/// {@template TabsTheme}
+/// Theme for the `Tabs` widget.
 /// {@endtemplate}
 @themeGen
 @immutable
-class ShadTabsTheme with _$ShadTabsTheme {
-  /// {@macro ShadTabsTheme}
-  const ShadTabsTheme({
+class TabsTheme with _$TabsTheme {
+  /// {@macro TabsTheme}
+  const TabsTheme({
     bool canMerge = true,
     this.gap,
     this.tabsGap,
@@ -62,128 +61,128 @@ class ShadTabsTheme with _$ShadTabsTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro ShadTabs.gap}
+  /// {@macro Tabs.gap}
   final double? gap;
 
-  /// {@macro ShadTabs.tabsGap}
+  /// {@macro Tabs.tabsGap}
   final double? tabsGap;
 
-  /// {@macro ShadTabs.expandTabs}
+  /// {@macro Tabs.expandTabs}
   final bool? expandTabs;
 
-  /// {@macro ShadTabs.tabBarAlignment}
+  /// {@macro Tabs.tabBarAlignment}
   final Alignment? tabBarAlignment;
 
-  /// {@macro ShadTabs.dragStartBehavior}
+  /// {@macro Tabs.dragStartBehavior}
   final DragStartBehavior? dragStartBehavior;
 
-  /// {@macro ShadTabs.physics}
+  /// {@macro Tabs.physics}
   final ScrollPhysics? physics;
 
-  /// {@macro ShadTabs.padding}
+  /// {@macro Tabs.padding}
   final EdgeInsetsGeometry? padding;
 
-  /// {@macro ShadTabs.decoration}
-  final ShadDecoration? decoration;
+  /// {@macro Tabs.decoration}
+  final FinesseDecoration? decoration;
 
-  /// {@macro ShadTabs.tabBarConstraints}
+  /// {@macro Tabs.tabBarConstraints}
   final BoxConstraints? tabBarConstraints;
 
-  /// {@macro ShadTabs.contentConstraints}
+  /// {@macro Tabs.contentConstraints}
   final BoxConstraints? contentConstraints;
 
-  /// {@macro ShadTab.expand}
+  /// {@macro Tab.expand}
   final bool? expandContent;
 
-  /// {@macro ShadTab.width}
+  /// {@macro Tab.width}
   final double? tabWidth;
 
-  /// {@macro ShadTab.backgroundColor}
+  /// {@macro Tab.backgroundColor}
   final Color? tabBackgroundColor;
 
-  /// {@macro ShadTab.selectedBackgroundColor}
+  /// {@macro Tab.selectedBackgroundColor}
   final Color? tabSelectedBackgroundColor;
 
-  /// {@macro ShadTab.hoverBackgroundColor}
+  /// {@macro Tab.hoverBackgroundColor}
   final Color? tabHoverBackgroundColor;
 
-  /// {@macro ShadTab.selectedHoverBackgroundColor}
+  /// {@macro Tab.selectedHoverBackgroundColor}
   final Color? tabSelectedHoverBackgroundColor;
 
-  /// {@macro ShadTab.padding}
+  /// {@macro Tab.padding}
   final EdgeInsetsGeometry? tabPadding;
 
-  /// {@macro ShadTab.decoration}
-  final ShadDecoration? tabDecoration;
+  /// {@macro Tab.decoration}
+  final FinesseDecoration? tabDecoration;
 
-  /// {@macro ShadTab.selectedDecoration}
-  final ShadDecoration? tabSelectedDecoration;
+  /// {@macro Tab.selectedDecoration}
+  final FinesseDecoration? tabSelectedDecoration;
 
-  /// {@macro ShadTab.foregroundColor}
+  /// {@macro Tab.foregroundColor}
   final Color? tabForegroundColor;
 
-  /// {@macro ShadTab.selectedForegroundColor}
+  /// {@macro Tab.selectedForegroundColor}
   final Color? tabSelectedForegroundColor;
 
-  /// {@macro ShadTab.textStyle}
+  /// {@macro Tab.textStyle}
   final TextStyle? tabTextStyle;
 
-  /// {@macro ShadTab.shadows}
+  /// {@macro Tab.shadows}
   final List<BoxShadow>? tabShadows;
 
-  /// {@macro ShadTab.selectedShadows}
+  /// {@macro Tab.selectedShadows}
   final List<BoxShadow>? tabSelectedShadows;
 
-  /// {@macro ShadTab.size}
-  final ShadButtonSize? tabSize;
+  /// {@macro Tab.size}
+  final ButtonSize? tabSize;
 
-  /// {@macro ShadTab.cursor}
+  /// {@macro Tab.cursor}
   final MouseCursor? tabCursor;
 
-  /// {@macro ShadTab.hoverForegroundColor}
+  /// {@macro Tab.hoverForegroundColor}
   final Color? tabHoverForegroundColor;
 
-  /// {@macro ShadTab.pressedBackgroundColor}
+  /// {@macro Tab.pressedBackgroundColor}
   final Color? tabPressedBackgroundColor;
 
-  /// {@macro ShadTab.pressedForegroundColor}
+  /// {@macro Tab.pressedForegroundColor}
   final Color? tabPressedForegroundColor;
 
-  /// {@macro ShadTab.gradient}
+  /// {@macro Tab.gradient}
   final Gradient? tabGradient;
 
-  /// {@macro ShadTab.textDecoration}
+  /// {@macro Tab.textDecoration}
   final TextDecoration? tabTextDecoration;
 
-  /// {@macro ShadTab.hoverTextDecoration}
+  /// {@macro Tab.hoverTextDecoration}
   final TextDecoration? tabHoverTextDecoration;
 
-  /// {@macro ShadButton.mainAxisAlignment}
+  /// {@macro Button.mainAxisAlignment}
   final MainAxisAlignment? tabMainAxisAlignment;
 
-  /// {@macro ShadButton.crossAxisAlignment}
+  /// {@macro Button.crossAxisAlignment}
   final CrossAxisAlignment? tabCrossAxisAlignment;
 
-  /// {@macro ShadButton.hoverStrategies}
-  final ShadHoverStrategies? tabHoverStrategies;
+  /// {@macro Button.hoverStrategies}
+  final HoverStrategies? tabHoverStrategies;
 
-  /// {@macro ShadButton.longPressDuration}
+  /// {@macro Button.longPressDuration}
   final Duration? longPressDuration;
 
   /// Linearly interpolates between [a] and [b] by [t].
-  static ShadTabsTheme? lerp(
-    ShadTabsTheme? a,
-    ShadTabsTheme? b,
+  static TabsTheme? lerp(
+    TabsTheme? a,
+    TabsTheme? b,
     double t,
-  ) => _$ShadTabsTheme.lerp(a, b, t);
+  ) => _$TabsTheme.lerp(a, b, t);
 
   // The generated `==` compares lists by identity, so a theme built with a
-  // non-const list would never equal its own rebuild, and ShadAnimatedTheme
+  // non-const list would never equal its own rebuild, and AnimatedTheme
   // would re-lerp on every frame. Compare the lists by value, then let the
   // generated `==` compare everything else against a copy that shares them.
   @override
   bool operator ==(Object other) =>
-      other is ShadTabsTheme &&
+      other is TabsTheme &&
       listEquals(tabShadows, other.tabShadows) &&
       listEquals(tabSelectedShadows, other.tabSelectedShadows) &&
       super ==

@@ -1,14 +1,14 @@
+import 'package:finesse/src/utils/provider.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/utils/provider.dart';
 
 /// An immutable class that holds an [index].
 ///
-/// Used by [ShadIndexProvider] to provide the index to the child
+/// Used by [IndexProvider] to provide the index to the child
 /// widget.
 @immutable
-class ShadProviderIndex {
+class ProviderIndex {
   /// Creates an index holder.
-  const ShadProviderIndex(this.index);
+  const ProviderIndex(this.index);
 
   /// The index.
   final int index;
@@ -16,10 +16,10 @@ class ShadProviderIndex {
 
 /// Provides an [index] to the [child] widget.
 /// The child widget can access the index using
-/// `context.watch<ShadProviderIndex>().index`.
-class ShadIndexProvider extends StatelessWidget {
-  /// Creates a [ShadIndexProvider].
-  const ShadIndexProvider({
+/// `context.watch<ProviderIndex>().index`.
+class IndexProvider extends StatelessWidget {
+  /// Creates a [IndexProvider].
+  const IndexProvider({
     super.key,
     required this.index,
     required this.child,
@@ -33,8 +33,8 @@ class ShadIndexProvider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ShadProvider(
-      data: ShadProviderIndex(index),
+    return Provider(
+      data: ProviderIndex(index),
       notifyUpdate: (oldWidget) => oldWidget.data.index != index,
       child: child,
     );

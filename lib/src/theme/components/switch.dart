@@ -1,17 +1,17 @@
+import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/components/decorator.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
 part 'switch.g.theme.dart';
 
-/// {@template ShadSwitchTheme}
-/// Theme for the `ShadSwitch` widget.
+/// {@template SwitchTheme}
+/// Theme for the `Switch` widget.
 /// {@endtemplate}
 @themeGen
 @immutable
-class ShadSwitchTheme with _$ShadSwitchTheme {
-  /// {@macro ShadSwitchTheme}
-  const ShadSwitchTheme({
+class SwitchTheme with _$SwitchTheme {
+  /// {@macro SwitchTheme}
+  const SwitchTheme({
     bool canMerge = true,
     this.thumbColor,
     this.uncheckedTrackColor,
@@ -30,37 +30,37 @@ class ShadSwitchTheme with _$ShadSwitchTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro ShadSwitch.thumbColor}
+  /// {@macro Switch.thumbColor}
   final Color? thumbColor;
 
-  /// {@macro ShadSwitch.uncheckedTrackColor}
+  /// {@macro Switch.uncheckedTrackColor}
   final Color? uncheckedTrackColor;
 
-  /// {@macro ShadSwitch.checkedTrackColor}
+  /// {@macro Switch.checkedTrackColor}
   final Color? checkedTrackColor;
 
-  /// {@macro ShadSwitch.width}
+  /// {@macro Switch.width}
   final double? width;
 
-  /// {@macro ShadSwitch.height}
+  /// {@macro Switch.height}
   final double? height;
 
-  /// {@macro ShadSwitch.margin}
+  /// {@macro Switch.margin}
   final double? margin;
 
-  /// {@macro ShadSwitch.duration}
+  /// {@macro Switch.duration}
   final Duration? duration;
 
-  /// {@macro ShadSwitch.decoration}
-  final ShadDecoration? decoration;
+  /// {@macro Switch.decoration}
+  final FinesseDecoration? decoration;
 
-  /// {@macro ShadSwitch.padding}
+  /// {@macro Switch.padding}
   final EdgeInsetsGeometry? padding;
 
   /// Linearly interpolates between [a] and [b] by [t].
-  static ShadSwitchTheme? lerp(
-    ShadSwitchTheme? a,
-    ShadSwitchTheme? b,
+  static SwitchTheme? lerp(
+    SwitchTheme? a,
+    SwitchTheme? b,
     double t,
-  ) => _$ShadSwitchTheme.lerp(a, b, t);
+  ) => _$SwitchTheme.lerp(a, b, t);
 }

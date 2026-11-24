@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class ButtonSizesExample extends StatelessWidget {
   const ButtonSizesExample({super.key});
@@ -11,17 +11,17 @@ class ButtonSizesExample extends StatelessWidget {
       runSpacing: 8,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        ShadButton.outline(
-          size: ShadButtonSize.sm,
+        Button.outline(
+          size: ButtonSize.sm,
           onPressed: () {},
           child: const Text('Small'),
         ),
-        ShadButton.outline(
+        Button.outline(
           onPressed: () {},
           child: const Text('Regular'),
         ),
-        ShadButton.outline(
-          size: ShadButtonSize.lg,
+        Button.outline(
+          size: ButtonSize.lg,
           onPressed: () {},
           child: const Text('Large'),
         ),

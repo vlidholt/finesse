@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class SliderBasicExample extends StatelessWidget {
   const SliderBasicExample({super.key});
@@ -8,7 +8,7 @@ class SliderBasicExample extends StatelessWidget {
   Widget build(BuildContext context) {
     return const SizedBox(
       width: 300,
-      child: ShadSlider(
+      child: Slider(
         initialValue: 33,
         max: 100,
       ),

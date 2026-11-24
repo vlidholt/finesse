@@ -5,14 +5,14 @@ import 'package:theme_extensions_builder_annotation/theme_extensions_builder_ann
 
 part 'accordion.g.theme.dart';
 
-/// {@template ShadAccordionTheme}
-/// Theme for the `ShadAccordion` widget.
+/// {@template AccordionTheme}
+/// Theme for the `Accordion` widget.
 /// {@endtemplate}
 @themeGen
 @immutable
-class ShadAccordionTheme with _$ShadAccordionTheme {
-  /// {@macro ShadAccordionTheme}
-  const ShadAccordionTheme({
+class AccordionTheme with _$AccordionTheme {
+  /// {@macro AccordionTheme}
+  const AccordionTheme({
     bool canMerge = true,
     this.iconData,
     this.iconEffects,
@@ -31,47 +31,47 @@ class ShadAccordionTheme with _$ShadAccordionTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro ShadAccordionItem.iconData}
+  /// {@macro AccordionItem.iconData}
   final IconData? iconData;
 
-  /// {@macro ShadAccordionItem.iconEffects}
+  /// {@macro AccordionItem.iconEffects}
   final List<Effect<dynamic>>? iconEffects;
 
-  /// {@macro ShadAccordionItem.padding}
+  /// {@macro AccordionItem.padding}
   final EdgeInsetsGeometry? padding;
 
-  /// {@macro ShadAccordionItem.underlineTitleOnHover}
+  /// {@macro AccordionItem.underlineTitleOnHover}
   final bool? underlineTitleOnHover;
 
-  /// {@macro ShadAccordionItem.titleStyle}
+  /// {@macro AccordionItem.titleStyle}
   final TextStyle? titleStyle;
 
-  /// {@macro ShadAccordionItem.curve}
+  /// {@macro AccordionItem.curve}
   final Curve? curve;
 
-  /// {@macro ShadAccordionItem.duration}
+  /// {@macro AccordionItem.duration}
   final Duration? duration;
 
-  /// {@macro ShadAccordion.maintainState}
+  /// {@macro Accordion.maintainState}
   final bool? maintainState;
 
-  /// {@macro ShadAccordionItem.effects}
+  /// {@macro AccordionItem.effects}
   final List<Effect<dynamic>>? effects;
 
   /// Linearly interpolates between [a] and [b] by [t].
-  static ShadAccordionTheme? lerp(
-    ShadAccordionTheme? a,
-    ShadAccordionTheme? b,
+  static AccordionTheme? lerp(
+    AccordionTheme? a,
+    AccordionTheme? b,
     double t,
-  ) => _$ShadAccordionTheme.lerp(a, b, t);
+  ) => _$AccordionTheme.lerp(a, b, t);
 
   // The generated `==` compares lists by identity, so a theme built with a
-  // non-const list would never equal its own rebuild, and ShadAnimatedTheme
+  // non-const list would never equal its own rebuild, and AnimatedTheme
   // would re-lerp on every frame. Compare the lists by value, then let the
   // generated `==` compare everything else against a copy that shares them.
   @override
   bool operator ==(Object other) =>
-      other is ShadAccordionTheme &&
+      other is AccordionTheme &&
       listEquals(iconEffects, other.iconEffects) &&
       listEquals(effects, other.effects) &&
       super == other.copyWith(iconEffects: iconEffects, effects: effects);

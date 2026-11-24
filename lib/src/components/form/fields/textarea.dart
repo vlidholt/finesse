@@ -1,18 +1,18 @@
 import 'dart:ui' as ui;
 
+import 'package:finesse/src/components/form/field.dart';
+import 'package:finesse/src/components/textarea.dart';
+import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/clipboard/clipboard_service.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/components/form/field.dart';
-import 'package:shad/src/components/textarea.dart';
-import 'package:shad/src/theme/components/decorator.dart';
-import 'package:shad/src/theme/theme.dart';
-import 'package:shad/src/utils/clipboard/clipboard_service.dart';
 
-/// A [ShadTextarea] that takes part in a `ShadForm`, with a label, a
+/// A [Textarea] that takes part in a `FinesseForm`, with a label, a
 /// description and validation.
-class ShadTextareaFormField extends ShadFormField<String> {
+class TextareaFormField extends FinesseFormField<String> {
   /// Creates a textarea form field.
-  ShadTextareaFormField({
+  TextareaFormField({
     super.key,
     super.id,
     super.onSaved,
@@ -32,210 +32,210 @@ class ShadTextareaFormField extends ShadFormField<String> {
     super.focusNode,
     void Function(String)? onChanged,
 
-    /// {@macro ShadTextarea.decoration}
-    ShadDecoration? decoration,
+    /// {@macro Textarea.decoration}
+    FinesseDecoration? decoration,
 
-    /// {@macro ShadTextarea.placeholder}
+    /// {@macro Textarea.placeholder}
     Widget? placeholder,
 
-    /// {@macro ShadTextarea.placeholderStyle}
+    /// {@macro Textarea.placeholderStyle}
     TextStyle? placeholderStyle,
 
-    /// {@macro ShadTextarea.alignment}
+    /// {@macro Textarea.alignment}
     AlignmentGeometry? alignment,
 
-    /// {@macro ShadTextarea.placeholderAlignment}
+    /// {@macro Textarea.placeholderAlignment}
     AlignmentGeometry? placeholderAlignment,
 
-    /// {@macro ShadTextarea.padding}
+    /// {@macro Textarea.padding}
     EdgeInsetsGeometry? padding,
 
-    /// {@macro ShadTextarea.inputPadding}
+    /// {@macro Textarea.inputPadding}
     EdgeInsetsGeometry? inputPadding,
 
-    /// {@macro ShadTextarea.gap}
+    /// {@macro Textarea.gap}
     double? gap,
 
-    /// {@macro ShadTextarea.constraints}
+    /// {@macro Textarea.constraints}
     BoxConstraints? constraints,
 
-    /// {@macro ShadTextarea.mainAxisAlignment}
+    /// {@macro Textarea.mainAxisAlignment}
     MainAxisAlignment? mainAxisAlignment,
 
-    /// {@macro ShadTextarea.crossAxisAlignment}
+    /// {@macro Textarea.crossAxisAlignment}
     CrossAxisAlignment? crossAxisAlignment,
 
-    /// {@macro ShadTextarea.readOnly}
+    /// {@macro Textarea.readOnly}
     bool readOnly = false,
 
-    /// {@macro ShadTextarea.autofocus}
+    /// {@macro Textarea.autofocus}
     bool autofocus = false,
 
-    /// {@macro ShadTextarea.showCursor}
+    /// {@macro Textarea.showCursor}
     bool? showCursor,
 
-    /// {@macro ShadTextarea.onPressedAlwaysCalled}
+    /// {@macro Textarea.onPressedAlwaysCalled}
     bool onPressedAlwaysCalled = false,
 
-    /// {@macro ShadTextarea.onPressedOutside}
+    /// {@macro Textarea.onPressedOutside}
     TapRegionCallback? onPressedOutside,
 
-    /// {@macro ShadTextarea.onPressed}
+    /// {@macro Textarea.onPressed}
     GestureTapCallback? onPressed,
 
-    /// {@macro ShadTextarea.scrollController}
+    /// {@macro Textarea.scrollController}
     ScrollController? scrollController,
 
-    /// {@macro ShadTextarea.scrollPhysics}
+    /// {@macro Textarea.scrollPhysics}
     ScrollPhysics? scrollPhysics,
 
-    /// {@macro ShadTextarea.mouseCursor}
+    /// {@macro Textarea.mouseCursor}
     MouseCursor? mouseCursor,
 
-    /// {@macro ShadTextarea.magnifierConfiguration}
+    /// {@macro Textarea.magnifierConfiguration}
     TextMagnifierConfiguration magnifierConfiguration =
         TextMagnifierConfiguration.disabled,
 
-    /// {@macro ShadTextarea.cursorWidth}
+    /// {@macro Textarea.cursorWidth}
     double? cursorWidth,
 
-    /// {@macro ShadTextarea.cursorHeight}
+    /// {@macro Textarea.cursorHeight}
     double? cursorHeight,
 
-    /// {@macro ShadTextarea.cursorRadius}
+    /// {@macro Textarea.cursorRadius}
     Radius? cursorRadius,
 
-    /// {@macro ShadTextarea.cursorOpacityAnimates}
+    /// {@macro Textarea.cursorOpacityAnimates}
     bool? cursorOpacityAnimates,
 
-    /// {@macro ShadTextarea.cursorColor}
+    /// {@macro Textarea.cursorColor}
     Color? cursorColor,
 
-    /// {@macro ShadTextarea.selectionColor}
+    /// {@macro Textarea.selectionColor}
     Color? selectionColor,
 
-    /// {@macro ShadTextarea.keyboardAppearance}
+    /// {@macro Textarea.keyboardAppearance}
     Brightness? keyboardAppearance,
 
-    /// {@macro ShadTextarea.textDirection}
+    /// {@macro Textarea.textDirection}
     TextDirection? textDirection,
 
-    /// {@macro ShadTextarea.textAlign}
+    /// {@macro Textarea.textAlign}
     TextAlign textAlign = TextAlign.start,
 
-    /// {@macro ShadTextarea.onEditingComplete}
+    /// {@macro Textarea.onEditingComplete}
     VoidCallback? onEditingComplete,
 
-    /// {@macro ShadTextarea.onSubmitted}
+    /// {@macro Textarea.onSubmitted}
     ValueChanged<String>? onSubmitted,
 
-    /// {@macro ShadTextarea.onAppPrivateCommand}
+    /// {@macro Textarea.onAppPrivateCommand}
     AppPrivateCommandCallback? onAppPrivateCommand,
 
-    /// {@macro ShadTextarea.style}
+    /// {@macro Textarea.style}
     TextStyle? style,
 
-    /// {@macro ShadTextarea.strutStyle}
+    /// {@macro Textarea.strutStyle}
     StrutStyle? strutStyle,
 
-    /// {@macro ShadTextarea.scribbleEnabled}
+    /// {@macro Textarea.scribbleEnabled}
     bool scribbleEnabled = true,
 
-    /// {@macro ShadTextarea.stylusHandwritingEnabled}
+    /// {@macro Textarea.stylusHandwritingEnabled}
     bool stylusHandwritingEnabled = true,
 
-    /// {@macro ShadTextarea.enableIMEPersonalizedLearning}
+    /// {@macro Textarea.enableIMEPersonalizedLearning}
     bool enableIMEPersonalizedLearning = true,
 
-    /// {@macro ShadTextarea.contextMenuBuilder}
+    /// {@macro Textarea.contextMenuBuilder}
     EditableTextContextMenuBuilder? contextMenuBuilder,
 
-    /// {@macro ShadTextarea.spellCheckConfiguration}
+    /// {@macro Textarea.spellCheckConfiguration}
     SpellCheckConfiguration? spellCheckConfiguration,
 
-    /// {@macro ShadTextarea.contentInsertionConfiguration}
+    /// {@macro Textarea.contentInsertionConfiguration}
     ContentInsertionConfiguration? contentInsertionConfiguration,
 
-    /// {@macro ShadTextarea.selectionControls}
+    /// {@macro Textarea.selectionControls}
     TextSelectionControls? selectionControls,
 
-    /// {@macro ShadTextarea.enableInteractiveSelection}
+    /// {@macro Textarea.enableInteractiveSelection}
     bool? enableInteractiveSelection,
 
-    /// {@macro ShadTextarea.selectionHeightStyle}
+    /// {@macro Textarea.selectionHeightStyle}
     ui.BoxHeightStyle selectionHeightStyle = ui.BoxHeightStyle.tight,
 
-    /// {@macro ShadTextarea.selectionWidthStyle}
+    /// {@macro Textarea.selectionWidthStyle}
     ui.BoxWidthStyle selectionWidthStyle = ui.BoxWidthStyle.tight,
 
-    /// {@macro ShadTextarea.clipBehavior}
+    /// {@macro Textarea.clipBehavior}
     Clip clipBehavior = Clip.hardEdge,
 
-    /// {@macro ShadTextarea.dragStartBehavior}
+    /// {@macro Textarea.dragStartBehavior}
     DragStartBehavior dragStartBehavior = DragStartBehavior.start,
 
-    /// {@macro ShadTextarea.minHeight}
+    /// {@macro Textarea.minHeight}
     double minHeight = 80,
 
-    /// {@macro ShadTextarea.maxHeight}
+    /// {@macro Textarea.maxHeight}
     double maxHeight = 500,
 
-    /// {@macro ShadTextarea.resizable}
+    /// {@macro Textarea.resizable}
     bool resizable = true,
 
-    /// {@macro ShadTextarea.onHeightChanged}
+    /// {@macro Textarea.onHeightChanged}
     ValueChanged<double>? onHeightChanged,
 
-    /// {@macro ShadTextarea.resizeHandleBuilder}
+    /// {@macro Textarea.resizeHandleBuilder}
     WidgetBuilder? resizeHandleBuilder,
 
-    /// {@macro ShadTextarea.groupId}
+    /// {@macro Textarea.groupId}
     Object? groupId,
 
-    /// {@macro ShadKeyboardToolbar.toolbarBuilder}
+    /// {@macro KeyboardToolbar.toolbarBuilder}
     WidgetBuilder? keyboardToolbarBuilder,
 
-    /// {@macro ShadInput.leading}
+    /// {@macro TextField.leading}
     Widget? leading,
 
-    /// {@macro ShadInput.trailing}
+    /// {@macro TextField.trailing}
     Widget? trailing,
 
-    /// {@macro ShadInput.top}
+    /// {@macro TextField.top}
     Widget? top,
 
-    /// {@macro ShadInput.bottom}
+    /// {@macro TextField.bottom}
     Widget? bottom,
 
-    /// {@macro ShadInput.onLineCountChanged}
+    /// {@macro TextField.onLineCountChanged}
     ValueChanged<int>? onLineCountChanged,
     @Deprecated(
       'Use onLineCountChanged. Will be removed in the next major version.',
     )
     ValueChanged<int>? onLineCountChange,
 
-    /// {@macro ShadInput.verticalGap}
+    /// {@macro TextField.verticalGap}
     double? verticalGap,
 
-    /// {@macro ShadInput.useBrowserContextMenu}
+    /// {@macro TextField.useBrowserContextMenu}
     bool? useBrowserContextMenu,
 
-    /// {@macro ShadInput.onPasteFiles}
-    ValueChanged<List<ShadClipboardItem>>? onPasteFiles,
+    /// {@macro TextField.onPasteFiles}
+    ValueChanged<List<ClipboardItem>>? onPasteFiles,
 
-    /// {@macro ShadInput.onPasteFilesError}
+    /// {@macro TextField.onPasteFilesError}
     ValueChanged<Object>? onPasteFilesError,
   }) : super(
          initialValue: controller != null ? controller.text : initialValue,
          validator: validator == null ? null : (v) => validator(v ?? ''),
          onChanged: onChanged == null ? null : (v) => onChanged(v ?? ''),
          decorationBuilder: (context) =>
-             (ShadTheme.of(context).inputTheme.decoration ??
-                     const ShadDecoration())
+             (Theme.of(context).textFieldTheme.decoration ??
+                     const FinesseDecoration())
                  .merge(decoration),
          builder: (state) {
-           state as ShadTextareaFormFieldState;
-           return ShadTextarea(
+           state as TextareaFormFieldState;
+           return Textarea(
              key: state.textareaKey,
              controller: state.controller,
              restorationId: restorationId,
@@ -312,18 +312,18 @@ class ShadTextareaFormField extends ShadFormField<String> {
   final TextEditingController? controller;
 
   @override
-  ShadFormFieldState<ShadTextareaFormField, String> createState() =>
-      ShadTextareaFormFieldState();
+  FinesseFormFieldState<TextareaFormField, String> createState() =>
+      TextareaFormFieldState();
 }
 
-/// The state of a [ShadTextareaFormField].
-class ShadTextareaFormFieldState
-    extends ShadFormFieldState<ShadTextareaFormField, String> {
-  /// The key of the inner [ShadTextarea].
+/// The state of a [TextareaFormField].
+class TextareaFormFieldState
+    extends FinesseFormFieldState<TextareaFormField, String> {
+  /// The key of the inner [Textarea].
   final GlobalKey<State<StatefulWidget>> textareaKey = GlobalKey();
   TextEditingController? _controller;
 
-  /// The controller in use: [ShadTextareaFormField.controller] when given,
+  /// The controller in use: [TextareaFormField.controller] when given,
   /// otherwise an internal one.
   TextEditingController get controller => widget.controller ?? _controller!;
 
@@ -344,7 +344,7 @@ class ShadTextareaFormFieldState
   }
 
   @override
-  void didUpdateWidget(covariant ShadTextareaFormField oldWidget) {
+  void didUpdateWidget(covariant TextareaFormField oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.controller == oldWidget.controller) return;
     // Move the listener with the controller. It used to stay on the old one,
@@ -382,9 +382,9 @@ class ShadTextareaFormFieldState
   }
 }
 
-/// The old name of [ShadTextareaFormFieldState].
+/// The old name of [TextareaFormFieldState].
 @Deprecated(
-  'Use ShadTextareaFormFieldState. '
+  'Use TextareaFormFieldState. '
   'Will be removed in the next major version.',
 )
-typedef ShadFormBuilderTextareaState = ShadTextareaFormFieldState;
+typedef FormBuilderTextareaState = TextareaFormFieldState;

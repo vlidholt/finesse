@@ -2,9 +2,9 @@ import 'package:flutter/widgets.dart';
 
 /// Creates an [AnimationController] and rebuilds [builder] on every tick of
 /// it.
-class ShadAnimationBuilder extends StatefulWidget {
+class AnimationBuilder extends StatefulWidget {
   /// Creates an animation builder with a controller of the given [duration].
-  const ShadAnimationBuilder({
+  const AnimationBuilder({
     super.key,
     required this.duration,
     required this.builder,
@@ -19,10 +19,10 @@ class ShadAnimationBuilder extends StatefulWidget {
   builder;
 
   @override
-  State<ShadAnimationBuilder> createState() => _ShadAnimationBuilderState();
+  State<AnimationBuilder> createState() => _AnimationBuilderState();
 }
 
-class _ShadAnimationBuilderState extends State<ShadAnimationBuilder>
+class _AnimationBuilderState extends State<AnimationBuilder>
     with SingleTickerProviderStateMixin {
   late final controller = AnimationController(
     duration: widget.duration,
@@ -30,7 +30,7 @@ class _ShadAnimationBuilderState extends State<ShadAnimationBuilder>
   );
 
   @override
-  void didUpdateWidget(ShadAnimationBuilder oldWidget) {
+  void didUpdateWidget(AnimationBuilder oldWidget) {
     super.didUpdateWidget(oldWidget);
     // The controller is created once with the initial duration, so without
     // this a later duration change was silently ignored.

@@ -1,6 +1,6 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/shad.dart';
 
 void main() {
   testWidgets('long action labels ellipsize on a narrow screen', (
@@ -10,11 +10,11 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
-      ShadApp(
-        home: ShadDialog(
+      FinesseApp(
+        home: Dialog(
           title: const Text('Delete'),
           actions: [
-            ShadButton(
+            Button(
               onPressed: () {},
               child: const Text(
                 'Delete this file and every one of its earlier versions now',

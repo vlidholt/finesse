@@ -9,14 +9,10 @@ part of 'sonner.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadSonnerTheme {
+mixin _$SonnerTheme {
   bool get canMerge => true;
 
-  static ShadSonnerTheme? lerp(
-    ShadSonnerTheme? a,
-    ShadSonnerTheme? b,
-    double t,
-  ) {
+  static SonnerTheme? lerp(SonnerTheme? a, SonnerTheme? b, double t) {
     if (identical(a, b)) {
       return a;
     }
@@ -29,7 +25,7 @@ mixin _$ShadSonnerTheme {
       return t == 0.0 ? a : null;
     }
 
-    return ShadSonnerTheme(
+    return SonnerTheme(
       maxVisibleToasts: t < 0.5 ? a.maxVisibleToasts : b.maxVisibleToasts,
       alignment: AlignmentGeometry.lerp(a.alignment, b.alignment, t),
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
@@ -45,7 +41,7 @@ mixin _$ShadSonnerTheme {
     );
   }
 
-  ShadSonnerTheme copyWith({
+  SonnerTheme copyWith({
     int? maxVisibleToasts,
     AlignmentGeometry? alignment,
     EdgeInsetsGeometry? padding,
@@ -55,9 +51,9 @@ mixin _$ShadSonnerTheme {
     Duration? animationDuration,
     Curve? animationCurve,
   }) {
-    final _this = (this as ShadSonnerTheme);
+    final _this = (this as SonnerTheme);
 
-    return ShadSonnerTheme(
+    return SonnerTheme(
       maxVisibleToasts: maxVisibleToasts ?? _this.maxVisibleToasts,
       alignment: alignment ?? _this.alignment,
       padding: padding ?? _this.padding,
@@ -69,8 +65,8 @@ mixin _$ShadSonnerTheme {
     );
   }
 
-  ShadSonnerTheme merge(ShadSonnerTheme? other) {
-    final _this = (this as ShadSonnerTheme);
+  SonnerTheme merge(SonnerTheme? other) {
+    final _this = (this as SonnerTheme);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -102,8 +98,8 @@ mixin _$ShadSonnerTheme {
       return false;
     }
 
-    final _this = (this as ShadSonnerTheme);
-    final _other = (other as ShadSonnerTheme);
+    final _this = (this as SonnerTheme);
+    final _other = (other as SonnerTheme);
 
     return _other.maxVisibleToasts == _this.maxVisibleToasts &&
         _other.alignment == _this.alignment &&
@@ -117,7 +113,7 @@ mixin _$ShadSonnerTheme {
 
   @override
   int get hashCode {
-    final _this = (this as ShadSonnerTheme);
+    final _this = (this as SonnerTheme);
 
     return Object.hash(
       runtimeType,

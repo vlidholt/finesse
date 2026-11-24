@@ -1,20 +1,20 @@
 // ignore_for_file: avoid_redundant_argument_values
 
+import 'package:finesse/material.dart';
+import 'package:finesse/src/app.dart';
+import 'package:finesse/src/raw_components/portal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/material.dart';
-import 'package:shad/src/app.dart';
-import 'package:shad/src/raw_components/portal.dart';
 
 void main() {
   Widget createTestWidget(Widget child) {
-    return ShadApp(
-      builder: (context, child) => ShadMaterial(child: child!),
+    return FinesseApp(
+      builder: (context, child) => FinesseMaterial(child: child!),
       home: Scaffold(body: Center(child: child)),
     );
   }
 
-  group('ShadPortal with ShadAnchorAuto', () {
+  group('Portal with AnchorAuto', () {
     testWidgets(
       'portal becomes visible with followerAnchor bottomCenter',
       (tester) async {
@@ -25,9 +25,9 @@ void main() {
         // prevented the overlay from becoming visible.
         await tester.pumpWidget(
           createTestWidget(
-            ShadPortal(
+            Portal(
               visible: true,
-              anchor: const ShadAnchorAuto(
+              anchor: const AnchorAuto(
                 followerAnchor: Alignment.bottomCenter,
                 targetAnchor: Alignment.bottomCenter,
               ),
@@ -60,9 +60,9 @@ void main() {
       (tester) async {
         await tester.pumpWidget(
           createTestWidget(
-            ShadPortal(
+            Portal(
               visible: true,
-              anchor: const ShadAnchorAuto(
+              anchor: const AnchorAuto(
                 followerAnchor: Alignment.topCenter,
                 targetAnchor: Alignment.topCenter,
               ),
@@ -89,9 +89,9 @@ void main() {
     testWidgets('portal is hidden when visible is false', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          ShadPortal(
+          Portal(
             visible: false,
-            anchor: const ShadAnchorAuto(
+            anchor: const AnchorAuto(
               followerAnchor: Alignment.bottomCenter,
               targetAnchor: Alignment.bottomCenter,
             ),
@@ -117,9 +117,9 @@ void main() {
             StatefulBuilder(
               builder: (context, setStateFn) {
                 setState = setStateFn;
-                return ShadPortal(
+                return Portal(
                   visible: visible,
-                  anchor: const ShadAnchorAuto(
+                  anchor: const AnchorAuto(
                     followerAnchor: Alignment.bottomCenter,
                     targetAnchor: Alignment.bottomCenter,
                   ),
@@ -149,16 +149,16 @@ void main() {
     testWidgets(
       'portal with fallback anchor becomes visible',
       (tester) async {
-        // Verify that a ShadAnchorAuto with a fallback renders the portal
+        // Verify that a AnchorAuto with a fallback renders the portal
         // correctly when the primary anchor fits.
         await tester.pumpWidget(
           createTestWidget(
-            ShadPortal(
+            Portal(
               visible: true,
-              anchor: const ShadAnchorAuto(
+              anchor: const AnchorAuto(
                 followerAnchor: Alignment.bottomCenter,
                 targetAnchor: Alignment.bottomCenter,
-                fallback: ShadAnchorAuto(
+                fallback: AnchorAuto(
                   followerAnchor: Alignment.topCenter,
                   targetAnchor: Alignment.topCenter,
                 ),
@@ -193,18 +193,18 @@ void main() {
         const triggerKey = Key('trigger');
 
         await tester.pumpWidget(
-          ShadApp(
-            builder: (context, child) => ShadMaterial(child: child!),
+          FinesseApp(
+            builder: (context, child) => FinesseMaterial(child: child!),
             home: Scaffold(
               body: Align(
                 alignment: Alignment.bottomCenter,
-                child: ShadPortal(
+                child: Portal(
                   visible: true,
-                  anchor: const ShadAnchorAuto(
+                  anchor: const AnchorAuto(
                     offset: Offset(0, 4),
                     targetAnchor: Alignment.bottomCenter,
                     followerAnchor: Alignment.topCenter,
-                    fallback: ShadAnchorAuto(
+                    fallback: AnchorAuto(
                       offset: Offset(0, -4),
                       targetAnchor: Alignment.topCenter,
                       followerAnchor: Alignment.bottomCenter,

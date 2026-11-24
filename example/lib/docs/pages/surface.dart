@@ -6,7 +6,7 @@ final surfaceDoc = ComponentDoc(
   slug: 'surface',
   title: 'Surface',
   description:
-      'The popover and menu chrome as a widget, for floating UI shad has no '
+      'The popover and menu chrome as a widget, for floating UI finesse has no '
       'component for, and a popover anchored to any rectangle.',
   examples: [
     ComponentExample(
@@ -18,7 +18,7 @@ final surfaceDoc = ComponentDoc(
       id: 'surface_anchored',
       title: 'Anchored to a rectangle',
       description:
-          'showShadPopover takes a global Rect: a text selection, a table '
+          'showPopover takes a global Rect: a text selection, a table '
           'cell, a point on a canvas.',
       minPreviewHeight: 260,
       builder: (_) => const SurfaceAnchoredExample(),

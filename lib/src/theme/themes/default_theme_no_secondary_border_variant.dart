@@ -1,33 +1,33 @@
+import 'package:finesse/src/theme/color_scheme/base.dart';
+import 'package:finesse/src/theme/components/calendar.dart';
+import 'package:finesse/src/theme/components/checkbox.dart';
+import 'package:finesse/src/theme/components/context_menu.dart';
+import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/components/otp_field.dart';
+import 'package:finesse/src/theme/components/radio.dart';
+import 'package:finesse/src/theme/components/select.dart';
+import 'package:finesse/src/theme/components/switch.dart';
+import 'package:finesse/src/theme/components/tabs.dart';
+import 'package:finesse/src/theme/components/time_picker.dart';
+import 'package:finesse/src/theme/spacing.dart';
+import 'package:finesse/src/theme/style.dart';
+import 'package:finesse/src/theme/text_theme/text_styles_default.dart';
+import 'package:finesse/src/theme/text_theme/theme.dart';
+import 'package:finesse/src/theme/themes/default_theme_variant.dart';
+import 'package:finesse/src/utils/border.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/color_scheme/base.dart';
-import 'package:shad/src/theme/components/calendar.dart';
-import 'package:shad/src/theme/components/checkbox.dart';
-import 'package:shad/src/theme/components/context_menu.dart';
-import 'package:shad/src/theme/components/decorator.dart';
-import 'package:shad/src/theme/components/input_otp.dart';
-import 'package:shad/src/theme/components/radio.dart';
-import 'package:shad/src/theme/components/select.dart';
-import 'package:shad/src/theme/components/switch.dart';
-import 'package:shad/src/theme/components/tabs.dart';
-import 'package:shad/src/theme/components/time_picker.dart';
-import 'package:shad/src/theme/spacing.dart';
-import 'package:shad/src/theme/style.dart';
-import 'package:shad/src/theme/text_theme/text_styles_default.dart';
-import 'package:shad/src/theme/text_theme/theme.dart';
-import 'package:shad/src/theme/themes/default_theme_variant.dart';
-import 'package:shad/src/utils/border.dart';
 
-/// [ShadDefaultThemeVariant] without the outward focus ring.
+/// [DefaultThemeVariant] without the outward focus ring.
 ///
 /// Focus is shown by recolouring a 2px border *inside* each control instead of
 /// painting a ring around it, and every bordered control reserves that
 /// thickness up front (see [focusReserve]) so focusing never shifts content.
 /// Everything else — colours, metrics, menu handling — is inherited, so a
 /// reference fix in the default variant lands here too.
-class ShadDefaultThemeNoSecondaryBorderVariant extends ShadDefaultThemeVariant {
+class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
   /// Creates the variant. The arguments are the same as for
-  /// [ShadDefaultThemeVariant.new].
-  ShadDefaultThemeNoSecondaryBorderVariant({
+  /// [DefaultThemeVariant.new].
+  DefaultThemeNoSecondaryBorderVariant({
     required super.colorScheme,
     required super.radius,
     required super.effectiveTextTheme,
@@ -38,16 +38,16 @@ class ShadDefaultThemeNoSecondaryBorderVariant extends ShadDefaultThemeVariant {
   });
 
   @override
-  ShadDefaultThemeNoSecondaryBorderVariant rebuild({
-    ShadColorScheme? colorScheme,
+  DefaultThemeNoSecondaryBorderVariant rebuild({
+    ColorScheme? colorScheme,
     BorderRadius? radius,
-    ShadTextTheme? effectiveTextTheme,
-    ShadStyleTokens? style,
-    ShadSpacing? spacing,
-    Object? menuColorScheme = ShadDefaultThemeVariant.unsetMenuColorScheme,
+    TextTheme? effectiveTextTheme,
+    StyleTokens? style,
+    Spacing? spacing,
+    Object? menuColorScheme = DefaultThemeVariant.unsetMenuColorScheme,
     bool? menuTranslucent,
   }) {
-    return ShadDefaultThemeNoSecondaryBorderVariant(
+    return DefaultThemeNoSecondaryBorderVariant(
       colorScheme: colorScheme ?? this.colorScheme,
       radius: radius ?? this.radius,
       effectiveTextTheme: effectiveTextTheme ?? this.effectiveTextTheme,
@@ -56,10 +56,10 @@ class ShadDefaultThemeNoSecondaryBorderVariant extends ShadDefaultThemeVariant {
       menuColorScheme:
           identical(
             menuColorScheme,
-            ShadDefaultThemeVariant.unsetMenuColorScheme,
+            DefaultThemeVariant.unsetMenuColorScheme,
           )
           ? this.menuColorScheme
-          : menuColorScheme as ShadColorScheme?,
+          : menuColorScheme as ColorScheme?,
       menuTranslucent: menuTranslucent ?? this.menuTranslucent,
     );
   }
@@ -72,24 +72,24 @@ class ShadDefaultThemeNoSecondaryBorderVariant extends ShadDefaultThemeVariant {
       borderWidth >= 2 ? null : spacing.all((2 - borderWidth) / 4);
 
   @override
-  ShadBorder get fieldBorder => super.fieldBorder.copyWith(
+  FinesseBorder get fieldBorder => super.fieldBorder.copyWith(
     padding: focusReserve(1),
   );
 
   @override
-  ShadBorder get textareaBorder => super.textareaBorder.copyWith(
+  FinesseBorder get textareaBorder => super.textareaBorder.copyWith(
     padding: focusReserve(1),
   );
 
   @override
-  ShadDecoration decorationTheme() {
+  FinesseDecoration decorationTheme() {
     // No outward ring in this variant: a transparent 2px border reserves the
     // space and is recoloured with the ring colour on focus. The inherited
     // secondary (outward) borders never paint, because the decorator checks
     // the theme-wide `disableSecondaryBorder` flag this variant is built for.
     return super.decorationTheme().copyWith(
-      border: ShadBorder.all(width: 2, color: const Color(0x00000000)),
-      focusedBorder: ShadBorder.all(
+      border: FinesseBorder.all(width: 2, color: const Color(0x00000000)),
+      focusedBorder: FinesseBorder.all(
         color: colorScheme.ring,
         radius: radius,
         width: 2,
@@ -98,10 +98,10 @@ class ShadDefaultThemeNoSecondaryBorderVariant extends ShadDefaultThemeVariant {
   }
 
   @override
-  ShadSelectTheme selectTheme() => super.selectTheme().merge(
-    ShadSelectTheme(
-      decoration: ShadDecoration(
-        border: ShadBorder.all(
+  SelectTheme selectTheme() => super.selectTheme().merge(
+    SelectTheme(
+      decoration: FinesseDecoration(
+        border: FinesseBorder.all(
           radius: controlRadius,
           color: colorScheme.input,
           padding: focusReserve(1),
@@ -112,40 +112,40 @@ class ShadDefaultThemeNoSecondaryBorderVariant extends ShadDefaultThemeVariant {
   );
 
   @override
-  ShadSwitchTheme switchTheme() {
+  SwitchTheme switchTheme() {
     final height = style.switchHeight;
     final radius = BorderRadius.all(Radius.circular(height));
     return super.switchTheme().merge(
-      ShadSwitchTheme(
-        decoration: ShadDecoration(
-          border: ShadBorder.all(
+      SwitchTheme(
+        decoration: FinesseDecoration(
+          border: FinesseBorder.all(
             radius: radius,
             width: 0,
             padding: focusReserve(0),
           ),
-          focusedBorder: ShadBorder.all(radius: radius, width: 2),
+          focusedBorder: FinesseBorder.all(radius: radius, width: 2),
         ),
       ),
     );
   }
 
   @override
-  ShadCheckboxTheme checkboxTheme() {
+  CheckboxTheme checkboxTheme() {
     final checkboxRadius = BorderRadius.all(
       Radius.circular(style.checkboxRadius),
     );
-    ShadDecoration decorationWith(Color borderColor) => ShadDecoration(
+    FinesseDecoration decorationWith(Color borderColor) => FinesseDecoration(
       shadows: style.controlShadow,
-      border: ShadBorder.all(
+      border: FinesseBorder.all(
         color: borderColor,
         radius: checkboxRadius,
         padding: focusReserve(1),
         width: 1,
       ),
-      focusedBorder: ShadBorder.all(width: 2),
+      focusedBorder: FinesseBorder.all(width: 2),
     );
     return super.checkboxTheme().merge(
-      ShadCheckboxTheme(
+      CheckboxTheme(
         decoration: decorationWith(controlBorderColor),
         checkedDecoration: decorationWith(colorScheme.primary),
       ),
@@ -153,21 +153,21 @@ class ShadDefaultThemeNoSecondaryBorderVariant extends ShadDefaultThemeVariant {
   }
 
   @override
-  ShadRadioTheme radioTheme() {
+  RadioTheme radioTheme() {
     final base = super.radioTheme();
     final circleRadius = BorderRadius.all(
       Radius.circular(base.circleSize ?? 8),
     );
-    ShadDecoration adapt(ShadDecoration? decoration) =>
-        (decoration ?? const ShadDecoration()).copyWith(
+    FinesseDecoration adapt(FinesseDecoration? decoration) =>
+        (decoration ?? const FinesseDecoration()).copyWith(
           border: decoration?.border?.copyWith(padding: focusReserve(1)),
-          focusedBorder: ShadBorder.all(
+          focusedBorder: FinesseBorder.all(
             radius: circleRadius.add(circleRadius / 2),
             width: 2,
           ),
         );
     return base.merge(
-      ShadRadioTheme(
+      RadioTheme(
         decoration: adapt(base.decoration),
         checkedDecoration: adapt(base.checkedDecoration),
       ),
@@ -175,14 +175,14 @@ class ShadDefaultThemeNoSecondaryBorderVariant extends ShadDefaultThemeVariant {
   }
 
   @override
-  ShadTabsTheme tabsTheme() => super.tabsTheme().merge(
-    ShadTabsTheme(
-      tabDecoration: ShadDecoration(
-        border: ShadBorder.all(
+  TabsTheme tabsTheme() => super.tabsTheme().merge(
+    TabsTheme(
+      tabDecoration: FinesseDecoration(
+        border: FinesseBorder.all(
           radius: const BorderRadius.all(Radius.circular(4)),
           width: 0,
         ),
-        focusedBorder: ShadBorder.all(
+        focusedBorder: FinesseBorder.all(
           radius: const BorderRadius.all(Radius.circular(4)),
         ),
       ),
@@ -190,37 +190,37 @@ class ShadDefaultThemeNoSecondaryBorderVariant extends ShadDefaultThemeVariant {
   );
 
   @override
-  ShadContextMenuTheme contextMenuTheme() => super.contextMenuTheme().merge(
-    ShadContextMenuTheme(
-      itemDecoration: ShadDecoration(
-        border: ShadBorder.all(radius: itemRadius, width: 0),
+  ContextMenuTheme contextMenuTheme() => super.contextMenuTheme().merge(
+    ContextMenuTheme(
+      itemDecoration: FinesseDecoration(
+        border: FinesseBorder.all(radius: itemRadius, width: 0),
         focusedBorder: decorationTheme().border,
       ),
     ),
   );
 
   @override
-  ShadCalendarTheme calendarTheme() => super.calendarTheme().merge(
-    const ShadCalendarTheme(
+  CalendarTheme calendarTheme() => super.calendarTheme().merge(
+    const CalendarTheme(
       yearSelectorMinWidth: 100,
       monthSelectorMinWidth: 130,
     ),
   );
 
   @override
-  ShadTimePickerTheme timePickerTheme() => super.timePickerTheme().merge(
-    ShadTimePickerTheme(
+  TimePickerTheme timePickerTheme() => super.timePickerTheme().merge(
+    TimePickerTheme(
       spacing: 4,
       gap: 2,
       fieldWidth: 50,
       periodHeight: 44,
-      periodDecoration: ShadDecoration(
-        border: ShadBorder.all(
+      periodDecoration: FinesseDecoration(
+        border: FinesseBorder.all(
           width: 2,
           color: colorScheme.border,
           radius: radius,
         ),
-        focusedBorder: ShadBorder.all(
+        focusedBorder: FinesseBorder.all(
           width: 2,
           color: colorScheme.ring,
           radius: radius,
@@ -231,14 +231,14 @@ class ShadDefaultThemeNoSecondaryBorderVariant extends ShadDefaultThemeVariant {
   );
 
   @override
-  ShadInputOTPTheme inputOTPTheme() {
-    final base = super.inputOTPTheme();
+  OtpFieldTheme otpFieldTheme() {
+    final base = super.otpFieldTheme();
     // No extra slot padding here: a slot is a fixed square with a centred
     // glyph, so vertical padding cannot move anything — but it can overflow
     // the box once the reserve and a tall text role (mira) use up the room.
     return base.merge(
-      ShadInputOTPTheme(
-        decoration: (base.decoration ?? const ShadDecoration()).copyWith(
+      OtpFieldTheme(
+        decoration: (base.decoration ?? const FinesseDecoration()).copyWith(
           border: base.decoration?.border?.copyWith(
             padding: focusReserve(1),
           ),
@@ -247,23 +247,23 @@ class ShadDefaultThemeNoSecondaryBorderVariant extends ShadDefaultThemeVariant {
     );
   }
 
-  /// The text theme used when the caller gives none: the [ShadTextDefaultTheme]
+  /// The text theme used when the caller gives none: the [TextDefaultTheme]
   /// styles in the platform font.
-  static ShadTextTheme get defaultTextTheme {
-    return ShadTextTheme.custom(
-      h1Large: ShadTextDefaultTheme.h1Large(),
-      h1: ShadTextDefaultTheme.h1(),
-      h2: ShadTextDefaultTheme.h2(),
-      h3: ShadTextDefaultTheme.h3(),
-      h4: ShadTextDefaultTheme.h4(),
-      p: ShadTextDefaultTheme.p(),
-      blockquote: ShadTextDefaultTheme.blockquote(),
-      table: ShadTextDefaultTheme.table(),
-      list: ShadTextDefaultTheme.list(),
-      lead: ShadTextDefaultTheme.lead(),
-      large: ShadTextDefaultTheme.large(),
-      small: ShadTextDefaultTheme.small(),
-      muted: ShadTextDefaultTheme.muted(),
+  static TextTheme get defaultTextTheme {
+    return TextTheme.custom(
+      h1Large: TextDefaultTheme.h1Large(),
+      h1: TextDefaultTheme.h1(),
+      h2: TextDefaultTheme.h2(),
+      h3: TextDefaultTheme.h3(),
+      h4: TextDefaultTheme.h4(),
+      p: TextDefaultTheme.p(),
+      blockquote: TextDefaultTheme.blockquote(),
+      table: TextDefaultTheme.table(),
+      list: TextDefaultTheme.list(),
+      lead: TextDefaultTheme.lead(),
+      large: TextDefaultTheme.large(),
+      small: TextDefaultTheme.small(),
+      muted: TextDefaultTheme.muted(),
     );
   }
 }

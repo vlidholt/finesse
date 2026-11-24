@@ -1,20 +1,22 @@
 import 'dart:io';
 
+import 'package:finesse/finesse.dart';
+import 'package:finesse/material.dart';
 import 'package:flutter/cupertino.dart' show CupertinoLocalizations;
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'
+    hide Scrollbar, Slider, TextField, Theme, ThemeData, ThemeMode;
+import 'package:flutter/material.dart' as m;
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/material.dart';
-import 'package:shad/shad.dart';
 
-/// shad's core does not depend on Material or Cupertino, which Flutter is
+/// finesse's core does not depend on Material or Cupertino, which Flutter is
 /// moving out of the SDK into the `material_ui` and `cupertino_ui` packages.
-/// Interop is opt-in through `package:shad/material.dart`.
+/// Interop is opt-in through `package:finesse/material.dart`.
 void main() {
-  final dark = ShadThemeData(
+  final dark = ThemeData(
     brightness: Brightness.dark,
-    colorScheme: const ShadZincColorScheme.dark(),
+    colorScheme: const ZincColorScheme.dark(),
   );
 
   test('only lib/material.dart imports Material or Cupertino', () {
@@ -31,15 +33,15 @@ void main() {
     expect(offenders, isEmpty);
   });
 
-  group('ShadApp without ShadMaterial', () {
-    testWidgets('sets the icon and selection styles from the shad theme', (
+  group('FinesseApp without FinesseMaterial', () {
+    testWidgets('sets the icon and selection styles from the finesse theme', (
       tester,
     ) async {
       late IconThemeData icons;
       late DefaultSelectionStyle selection;
       await tester.pumpWidget(
-        ShadApp(
-          themeMode: ShadThemeMode.dark,
+        FinesseApp(
+          themeMode: ThemeMode.dark,
           darkTheme: dark,
           home: Builder(
             builder: (context) {
@@ -56,10 +58,10 @@ void main() {
       expect(selection.selectionColor, dark.colorScheme.selection);
     });
 
-    testWidgets('pushes pages with a ShadPageRoute', (tester) async {
+    testWidgets('pushes pages with a FinessePageRoute', (tester) async {
       final navigator = GlobalKey<NavigatorState>();
       await tester.pumpWidget(
-        ShadApp(
+        FinesseApp(
           navigatorKey: navigator,
           routes: {
             '/': (_) => const Text('home'),
@@ -72,40 +74,40 @@ void main() {
       expect(find.text('next'), findsOneWidget);
       expect(
         ModalRoute.of(tester.element(find.text('next'))),
-        isA<ShadPageRoute<Object?>>(),
+        isA<FinessePageRoute<Object?>>(),
       );
     });
 
-    testWidgets('gives vertical scrollables a ShadScrollbar on desktop', (
+    testWidgets('gives vertical scrollables a Scrollbar on desktop', (
       tester,
     ) async {
       debugDefaultTargetPlatformOverride = TargetPlatform.linux;
       addTearDown(() => debugDefaultTargetPlatformOverride = null);
       await tester.pumpWidget(
-        ShadApp(
+        FinesseApp(
           home: ListView(
             children: [for (var i = 0; i < 50; i++) Text('$i')],
           ),
         ),
       );
-      expect(find.byType(ShadScrollbar), findsOneWidget);
+      expect(find.byType(Scrollbar), findsOneWidget);
       debugDefaultTargetPlatformOverride = null;
     });
   });
 
-  group('ShadMaterial', () {
-    testWidgets('derives the Material theme from the shad theme', (
+  group('FinesseMaterial', () {
+    testWidgets('derives the Material theme from the finesse theme', (
       tester,
     ) async {
-      late ThemeData material;
+      late m.ThemeData material;
       await tester.pumpWidget(
-        ShadApp(
-          themeMode: ShadThemeMode.dark,
+        FinesseApp(
+          themeMode: ThemeMode.dark,
           darkTheme: dark,
-          builder: (context, child) => ShadMaterial(child: child!),
+          builder: (context, child) => FinesseMaterial(child: child!),
           home: Builder(
             builder: (context) {
-              material = Theme.of(context);
+              material = m.Theme.of(context);
               return const SizedBox.shrink();
             },
           ),
@@ -117,17 +119,17 @@ void main() {
     });
 
     testWidgets('themeBuilder changes the derived theme', (tester) async {
-      late ThemeData material;
+      late m.ThemeData material;
       await tester.pumpWidget(
-        ShadApp(
-          builder: (context, child) => ShadMaterial(
+        FinesseApp(
+          builder: (context, child) => FinesseMaterial(
             themeBuilder: (context, theme) =>
                 theme.copyWith(splashFactory: NoSplash.splashFactory),
             child: child!,
           ),
           home: Builder(
             builder: (context) {
-              material = Theme.of(context);
+              material = m.Theme.of(context);
               return const SizedBox.shrink();
             },
           ),
@@ -140,15 +142,15 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        ShadApp(
-          builder: (context, child) => ShadMaterial(child: child!),
+        FinesseApp(
+          builder: (context, child) => FinesseMaterial(child: child!),
           home: const Column(
-            children: [TextField(), Slider(value: .5, onChanged: null)],
+            children: [m.TextField(), m.Slider(value: .5, onChanged: null)],
           ),
         ),
       );
       expect(tester.takeException(), isNull);
-      final context = tester.element(find.byType(TextField));
+      final context = tester.element(find.byType(m.TextField));
       expect(MaterialLocalizations.of(context), isNotNull);
       expect(CupertinoLocalizations.of(context), isNotNull);
     });
@@ -156,10 +158,10 @@ void main() {
     testWidgets('keeps the text direction set above it', (tester) async {
       late TextDirection direction;
       await tester.pumpWidget(
-        ShadApp(
+        FinesseApp(
           builder: (context, child) => Directionality(
             textDirection: TextDirection.rtl,
-            child: ShadMaterial(child: child!),
+            child: FinesseMaterial(child: child!),
           ),
           home: Builder(
             builder: (context) {
@@ -176,12 +178,12 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        ShadApp(
+        FinesseApp(
           localizationsDelegates: const [
             GlobalMaterialLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          builder: (context, child) => ShadMaterial(child: child!),
+          builder: (context, child) => FinesseMaterial(child: child!),
           home: const SizedBox.shrink(),
         ),
       );

@@ -1,30 +1,30 @@
+import 'package:finesse/src/i18n/localizations_delegate.dart';
+import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/debug_check.dart';
+import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/i18n/localizations_delegate.dart';
-import 'package:shad/src/theme/theme.dart';
-import 'package:shad/src/utils/debug_check.dart';
-import 'package:shad/src/utils/extensions/text_style.dart';
 
-/// {@template ShadEmpty}
+/// {@template Empty}
 /// An empty-state placeholder.
 ///
 /// Mirrors shadcn/ui's `Empty`: an icon, a title, a description and optional
 /// actions, centred in the space where content would otherwise be.
 ///
 /// ```dart
-/// ShadEmpty(
+/// Empty(
 ///   icon: const Icon(LucideIcons.inbox),
 ///   title: const Text('No messages'),
 ///   description: const Text('Messages you receive will show up here.'),
-///   actions: [ShadButton(onPressed: refresh, child: const Text('Refresh'))],
+///   actions: [Button(onPressed: refresh, child: const Text('Refresh'))],
 /// )
 /// ```
 ///
 /// [title] falls back to a localized "No results" so the widget is never
 /// silently blank.
 /// {@endtemplate}
-class ShadEmpty extends StatelessWidget {
-  /// {@macro ShadEmpty}
-  const ShadEmpty({
+class Empty extends StatelessWidget {
+  /// {@macro Empty}
+  const Empty({
     super.key,
     this.icon,
     this.title,
@@ -53,7 +53,7 @@ class ShadEmpty extends StatelessWidget {
   /// Actions offered to the user, laid out in a row below the description.
   final List<Widget> actions;
 
-  /// {@template ShadEmpty.padding}
+  /// {@template Empty.padding}
   /// The padding around the content.
   /// {@endtemplate}
   final EdgeInsetsGeometry? padding;
@@ -61,7 +61,7 @@ class ShadEmpty extends StatelessWidget {
   /// The vertical gap between the icon, title, description and actions.
   final double? gap;
 
-  /// {@template ShadEmpty.iconSize}
+  /// {@template Empty.iconSize}
   /// The size of [icon].
   /// {@endtemplate}
   final double? iconSize;
@@ -69,22 +69,22 @@ class ShadEmpty extends StatelessWidget {
   /// The color applied to [icon].
   final Color? iconColor;
 
-  /// {@template ShadEmpty.titleStyle}
+  /// {@template Empty.titleStyle}
   /// The style of [title].
   /// {@endtemplate}
   final TextStyle? titleStyle;
 
-  /// {@template ShadEmpty.descriptionStyle}
+  /// {@template Empty.descriptionStyle}
   /// The style of [description].
   /// {@endtemplate}
   final TextStyle? descriptionStyle;
 
-  /// {@template ShadEmpty.crossAxisAlignment}
+  /// {@template Empty.crossAxisAlignment}
   /// The horizontal alignment of the content.
   /// {@endtemplate}
   final CrossAxisAlignment? crossAxisAlignment;
 
-  /// {@template ShadEmpty.mainAxisAlignment}
+  /// {@template Empty.mainAxisAlignment}
   /// The vertical alignment of the content.
   /// {@endtemplate}
   final MainAxisAlignment? mainAxisAlignment;
@@ -95,10 +95,10 @@ class ShadEmpty extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    assert(debugCheckHasShadTheme(context));
-    final theme = ShadTheme.of(context);
+    assert(debugCheckHasTheme(context));
+    final theme = Theme.of(context);
     final emptyTheme = theme.emptyTheme;
-    final localizations = ShadLocalizations.of(context);
+    final localizations = FinesseLocalizations.of(context);
 
     final effectivePadding =
         padding ??

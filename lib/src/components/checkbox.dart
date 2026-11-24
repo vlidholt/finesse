@@ -1,23 +1,23 @@
+import 'package:finesse/src/components/disabled.dart';
+import 'package:finesse/src/raw_components/focusable.dart';
+import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/debug_check.dart';
+import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:shad/src/components/disabled.dart';
-import 'package:shad/src/raw_components/focusable.dart';
-import 'package:shad/src/theme/components/decorator.dart';
-import 'package:shad/src/theme/theme.dart';
-import 'package:shad/src/utils/debug_check.dart';
-import 'package:shad/src/utils/extensions/text_style.dart';
 
 /// A customizable checkbox widget with optional label and sublabel.
 ///
-/// The [ShadCheckbox] widget allows users to toggle a boolean state, visually
+/// The [Checkbox] widget allows users to toggle a boolean state, visually
 /// represented by a checkmark within a styled box. It supports enabling/disabling,
-/// focus handling, animations, and integrates with [ShadTheme] for consistent
+/// focus handling, animations, and integrates with [Theme] for consistent
 /// styling.
-class ShadCheckbox extends StatefulWidget {
+class Checkbox extends StatefulWidget {
   /// Creates a checkbox widget with the specified state and options.
-  const ShadCheckbox({
+  const Checkbox({
     super.key,
     required this.value,
     this.enabled = true,
@@ -39,109 +39,109 @@ class ShadCheckbox extends StatefulWidget {
     this.checkboxPadding,
   });
 
-  /// {@template ShadCheckbox.value}
+  /// {@template Checkbox.value}
   /// Whether the checkbox is checked (true) or unchecked (false).
   /// Required to set the initial state of the checkbox.
   /// {@endtemplate}
   final bool value;
 
-  /// {@template ShadCheckbox.enabled}
+  /// {@template Checkbox.enabled}
   /// Whether the checkbox is interactive.
   /// Defaults to true; if false, the checkbox is disabled and visually dimmed.
   /// {@endtemplate}
   final bool enabled;
 
-  /// {@template ShadCheckbox.onChanged}
+  /// {@template Checkbox.onChanged}
   /// Callback invoked when the checkbox is toggled.
   /// If null, the checkbox is non-interactive but still visible.
   /// {@endtemplate}
   final ValueChanged<bool>? onChanged;
 
-  /// {@template ShadCheckbox.focusNode}
+  /// {@template Checkbox.focusNode}
   /// The focus node for keyboard navigation and focus handling.
   /// If null, an internal focus node is created.
   /// {@endtemplate}
   final FocusNode? focusNode;
 
-  /// {@template ShadWidget.autofocus}
+  /// {@template Widget.autofocus}
   /// Whether this widget should be focused when first shown.
   /// Defaults to `false`.
   /// {@endtemplate}
   final bool autofocus;
 
-  /// {@template ShadWidget.onFocusChange}
+  /// {@template Widget.onFocusChange}
   /// Called when the focus state of this widget changes.
   /// {@endtemplate}
   final ValueChanged<bool>? onFocusChange;
 
-  /// {@template ShadCheckbox.decoration}
+  /// {@template Checkbox.decoration}
   /// The decoration applied to the checkbox box.
   /// Merged with the theme’s default decoration if provided.
   /// {@endtemplate}
-  final ShadDecoration? decoration;
+  final FinesseDecoration? decoration;
 
-  /// {@template ShadCheckbox.size}
+  /// {@template Checkbox.size}
   /// The size (width and height) of the checkbox box.
   /// Defaults to 16 if not specified.
   /// {@endtemplate}
   final double? size;
 
-  /// {@template ShadCheckbox.duration}
+  /// {@template Checkbox.duration}
   /// The duration of the checkmark animation when toggling.
   /// Defaults to 100 milliseconds if not specified.
   /// {@endtemplate}
   final Duration? duration;
 
-  /// {@template ShadCheckbox.icon}
+  /// {@template Checkbox.icon}
   /// The icon displayed when the checkbox is checked.
   /// Defaults to a checkmark icon if not specified.
   /// {@endtemplate}
   final Widget? icon;
 
-  /// {@template ShadCheckbox.color}
+  /// {@template Checkbox.color}
   /// The color of the checkbox when checked.
   /// Defaults to the theme’s primary color if not specified.
   /// {@endtemplate}
   final Color? color;
 
-  /// {@template ShadCheckbox.uncheckedColor}
+  /// {@template Checkbox.uncheckedColor}
   /// The color of the checkbox when unchecked.
   /// Defaults to the theme’s input color if not specified.
   /// {@endtemplate}
   final Color? uncheckedColor;
 
-  /// {@template ShadCheckbox.label}
+  /// {@template Checkbox.label}
   /// An optional label displayed next to the checkbox.
   /// Typically a [Text] widget, positioned based on [direction].
   /// {@endtemplate}
   final Widget? label;
 
-  /// {@template ShadCheckbox.sublabel}
+  /// {@template Checkbox.sublabel}
   /// An optional sublabel displayed below the label.
   /// Typically a [Text] widget, enhancing the checkbox description.
   /// {@endtemplate}
   final Widget? sublabel;
 
-  /// {@template ShadCheckbox.padding}
+  /// {@template Checkbox.padding}
   /// The padding between the checkbox and its label/sublabel.
   /// Defaults to `EdgeInsetsDirectional.only(start: 8)` if not specified.
   /// {@endtemplate}
   final EdgeInsetsGeometry? padding;
 
-  /// {@template ShadCheckbox.checkboxPadding}
+  /// {@template Checkbox.checkboxPadding}
   /// The padding around the checkbox field only.
   ///
   /// Defaults to `EdgeInsets.only(top: 1)` if not specified.
   /// {@endtemplate}
   final EdgeInsetsGeometry? checkboxPadding;
 
-  /// {@template ShadCheckbox.direction}
+  /// {@template Checkbox.direction}
   /// The text direction for arranging the checkbox and label/sublabel.
   /// Defaults to null (inherits from context) if not specified.
   /// {@endtemplate}
   final TextDirection? direction;
 
-  /// {@template ShadCheckbox.crossAxisAlignment}
+  /// {@template Checkbox.crossAxisAlignment}
   /// The cross-axis alignment of the checkbox and label/sublabel.
   /// Defaults to [CrossAxisAlignment.start] if both label and sublabel are
   /// present, otherwise [CrossAxisAlignment.center].
@@ -149,10 +149,10 @@ class ShadCheckbox extends StatefulWidget {
   final CrossAxisAlignment? crossAxisAlignment;
 
   @override
-  State<ShadCheckbox> createState() => _ShadCheckboxState();
+  State<Checkbox> createState() => _CheckboxState();
 }
 
-class _ShadCheckboxState extends State<ShadCheckbox> {
+class _CheckboxState extends State<Checkbox> {
   FocusNode? _focusNode;
 
   FocusNode get focusNode => widget.focusNode ?? _focusNode!;
@@ -180,8 +180,8 @@ class _ShadCheckboxState extends State<ShadCheckbox> {
 
   @override
   Widget build(BuildContext context) {
-    assert(debugCheckHasShadTheme(context));
-    final theme = ShadTheme.of(context);
+    assert(debugCheckHasTheme(context));
+    final theme = Theme.of(context);
 
     final effectiveColor =
         widget.color ?? theme.checkboxTheme.color ?? theme.colorScheme.primary;
@@ -199,7 +199,7 @@ class _ShadCheckboxState extends State<ShadCheckbox> {
                     ? theme.checkboxTheme.checkedDecoration ??
                           theme.checkboxTheme.decoration
                     : theme.checkboxTheme.decoration) ??
-                const ShadDecoration())
+                const FinesseDecoration())
             .merge(widget.decoration)
             .copyWith(
               color: widget.value ? effectiveColor : effectiveUncheckedColor,
@@ -235,7 +235,7 @@ class _ShadCheckboxState extends State<ShadCheckbox> {
 
     final checkbox = Semantics(
       checked: widget.value,
-      child: ShadDisabled(
+      child: Disabled(
         showForbiddenCursor: true,
         disabled: !widget.enabled,
         child: CallbackShortcuts(
@@ -246,12 +246,12 @@ class _ShadCheckboxState extends State<ShadCheckbox> {
                 onTap();
               },
           },
-          child: ShadFocusable(
+          child: Focusable(
             autofocus: widget.autofocus,
             onFocusChange: widget.onFocusChange,
             focusNode: focusNode,
             builder: (context, focused, child) {
-              return ShadDecorator(
+              return Decorator(
                 focused: focused,
                 decoration: effectiveDecoration,
                 child: child,
@@ -285,7 +285,7 @@ class _ShadCheckboxState extends State<ShadCheckbox> {
         theme.checkboxTheme.crossAxisAlignment ??
         defaultCrossAxisAlignment;
 
-    return ShadDisabled(
+    return Disabled(
       showForbiddenCursor: true,
       disabled: !widget.enabled,
       disabledOpacity: 1,

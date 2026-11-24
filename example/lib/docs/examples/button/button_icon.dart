@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class ButtonIconExample extends StatelessWidget {
   const ButtonIconExample({super.key});
@@ -11,12 +11,12 @@ class ButtonIconExample extends StatelessWidget {
       runSpacing: 8,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        ShadButton(
+        Button(
           onPressed: () {},
           leading: const Icon(LucideIcons.mail),
           child: const Text('Login with Email'),
         ),
-        ShadButton.outline(
+        Button.outline(
           onPressed: () {},
           trailing: const Icon(LucideIcons.chevronRight),
           child: const Text('Next'),

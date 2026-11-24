@@ -1,7 +1,7 @@
 import 'package:example/docs/docs.dart';
 import 'package:example/screens/components_screen.dart';
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 /// A grid of every component doc page — the landing page for the Components
 /// section.
@@ -64,7 +64,7 @@ class _ComponentLinkState extends State<_ComponentLink> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     final titleColor = hovered
         ? theme.colorScheme.primary
         : theme.colorScheme.foreground;

@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 const _profile = [
   (title: 'Name', value: 'Alexandru'),
@@ -11,19 +11,19 @@ class DialogFormExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
-    return ShadButton.outline(
+    final theme = Theme.of(context);
+    return Button.outline(
       child: const Text('Edit Profile'),
       onPressed: () {
-        showShadDialog<void>(
+        showDialog<void>(
           context: context,
-          builder: (context) => ShadDialog(
+          builder: (context) => Dialog(
             title: const Text('Edit Profile'),
             description: const Text(
               "Make changes to your profile here. Click save when you're "
               'done.',
             ),
-            actions: const [ShadButton(child: Text('Save changes'))],
+            actions: const [Button(child: Text('Save changes'))],
             crossAxisAlignment: CrossAxisAlignment.stretch,
             child: Container(
               width: 375,
@@ -45,7 +45,7 @@ class DialogFormExample extends StatelessWidget {
                         const SizedBox(width: 16),
                         Expanded(
                           flex: 3,
-                          child: ShadInput(initialValue: field.value),
+                          child: TextField(initialValue: field.value),
                         ),
                       ],
                     ),

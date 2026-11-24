@@ -1,23 +1,23 @@
-import 'package:flutter/material.dart';
+import 'package:finesse/material.dart';
+import 'package:finesse/src/app.dart';
+import 'package:finesse/src/components/button.dart'; // Adjust import path based on your project structure
+import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/theme.dart';
+import 'package:flutter/material.dart' hide Theme;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/material.dart';
-import 'package:shad/src/app.dart';
-import 'package:shad/src/components/button.dart'; // Adjust import path based on your project structure
-import 'package:shad/src/theme/components/decorator.dart';
-import 'package:shad/src/theme/theme.dart';
 
 void main() {
-  // Helper method to create a test widget wrapped in ShadApp and Scaffold
+  // Helper method to create a test widget wrapped in FinesseApp and Scaffold
   Widget createTestWidget(Widget child) {
-    return ShadApp(
-      builder: (context, child) => ShadMaterial(child: child!),
+    return FinesseApp(
+      builder: (context, child) => FinesseMaterial(child: child!),
       home: Scaffold(
         body: child,
       ),
     );
   }
 
-  group('ShadButton', () {
+  group('Button', () {
     testWidgets('an expanding button keeps a Flexible child as it is', (
       tester,
     ) async {
@@ -25,7 +25,7 @@ void main() {
         createTestWidget(
           const SizedBox(
             width: 120,
-            child: ShadButton(
+            child: Button(
               width: double.infinity,
               expands: true,
               child: Flexible(
@@ -48,7 +48,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadButton(
+          const Button(
             child: Text('Primary Button'),
           ),
         ),
@@ -62,8 +62,8 @@ void main() {
       expect(rowFinder, findsOneWidget);
 
       // Verify the button is enabled by default
-      expect(find.byType(ShadButton), findsOneWidget);
-      final button = tester.widget<ShadButton>(find.byType(ShadButton));
+      expect(find.byType(Button), findsOneWidget);
+      final button = tester.widget<Button>(find.byType(Button));
       expect(button.enabled, true);
     });
 
@@ -72,7 +72,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadButton.destructive(
+          const Button.destructive(
             child: Text('Destructive Button'),
           ),
         ),
@@ -91,7 +91,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadButton.outline(
+          const Button.outline(
             child: Text('Outline Button'),
           ),
         ),
@@ -110,7 +110,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadButton.secondary(
+          const Button.secondary(
             child: Text('Secondary Button'),
           ),
         ),
@@ -127,7 +127,7 @@ void main() {
     testWidgets('renders ghost variant correctly', (WidgetTester tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadButton.ghost(
+          const Button.ghost(
             child: Text('Ghost Button'),
           ),
         ),
@@ -144,7 +144,7 @@ void main() {
     testWidgets('renders link variant correctly', (WidgetTester tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadButton.link(
+          const Button.link(
             child: Text('Link Button'),
           ),
         ),
@@ -163,7 +163,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadButton(
+          const Button(
             leading: Icon(Icons.star),
             trailing: Icon(Icons.arrow_forward),
             child: Text('Button with Icons'),
@@ -199,7 +199,7 @@ void main() {
 
       await tester.pumpWidget(
         createTestWidget(
-          const ShadButton(
+          const Button(
             backgroundColor: customBackgroundColor,
             padding: customPadding,
             width: customWidth,
@@ -208,8 +208,8 @@ void main() {
         ),
       );
 
-      // Find the ShadButton widget
-      final buttonFinder = find.byType(ShadButton);
+      // Find the Button widget
+      final buttonFinder = find.byType(Button);
       expect(buttonFinder, findsOneWidget);
 
       // Find the ConstrainedBox that applies width constraints
@@ -236,13 +236,13 @@ void main() {
       final padding = tester.widget<Padding>(paddingFinder);
       expect(padding.padding, customPadding);
 
-      // Find the ShadDecorator and check background color
+      // Find the Decorator and check background color
       final decoratorFinder = find.descendant(
         of: buttonFinder,
-        matching: find.byType(ShadDecorator),
+        matching: find.byType(Decorator),
       );
       expect(decoratorFinder, findsOneWidget);
-      final decorator = tester.widget<ShadDecorator>(decoratorFinder);
+      final decorator = tester.widget<Decorator>(decoratorFinder);
       expect(decorator.decoration?.color, customBackgroundColor);
     });
 
@@ -252,7 +252,7 @@ void main() {
       var pressed = false;
       await tester.pumpWidget(
         createTestWidget(
-          ShadButton(
+          Button(
             enabled: false,
             onPressed: () => pressed = true,
             child: const Text('Disabled Button'),
@@ -268,7 +268,7 @@ void main() {
 
       // Check opacity is reduced for disabled state
       final opacityFinder = find.descendant(
-        of: find.byType(ShadButton),
+        of: find.byType(Button),
         matching: find.byType(Opacity),
       );
       expect(opacityFinder, findsOneWidget);
@@ -277,7 +277,7 @@ void main() {
 
       // Verify AbsorbPointer is present and absorbing events
       final absorbPointerFinder = find.descendant(
-        of: find.byType(ShadButton),
+        of: find.byType(Button),
         matching: find.byType(AbsorbPointer),
       );
       expect(absorbPointerFinder, findsOneWidget);
@@ -289,7 +289,7 @@ void main() {
       final focusNode = FocusNode();
       await tester.pumpWidget(
         createTestWidget(
-          ShadButton(
+          Button(
             focusNode: focusNode,
             child: const Text('Focusable Button'),
           ),
@@ -303,13 +303,13 @@ void main() {
       // Verify the button is focused
       expect(focusNode.hasFocus, true);
 
-      // Check that ShadDecorator reflects the focused state
+      // Check that Decorator reflects the focused state
       final decoratorFinder = find.descendant(
-        of: find.byType(ShadButton),
-        matching: find.byType(ShadDecorator),
+        of: find.byType(Button),
+        matching: find.byType(Decorator),
       );
       expect(decoratorFinder, findsOneWidget);
-      final decorator = tester.widget<ShadDecorator>(decoratorFinder);
+      final decorator = tester.widget<Decorator>(decoratorFinder);
       expect(decorator.focused, true);
     });
 
@@ -318,7 +318,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadButton(
+          const Button(
             textDirection: TextDirection.rtl,
             leading: Icon(Icons.arrow_back),
             trailing: Icon(Icons.arrow_forward),
@@ -345,8 +345,8 @@ void main() {
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadButton(
-            size: ShadButtonSize.lg,
+          const Button(
+            size: ButtonSize.lg,
             child: Text('Large Button'),
           ),
         ),
@@ -354,14 +354,14 @@ void main() {
 
       // Verify the button renders with large size
       final constrainedBoxFinder = find.descendant(
-        of: find.byType(ShadButton),
+        of: find.byType(Button),
         matching: find.byType(ConstrainedBox),
       );
       expect(constrainedBoxFinder, findsOneWidget);
       final constrainedBox = tester.widget<ConstrainedBox>(
         constrainedBoxFinder,
       );
-      final theme = ShadTheme.of(tester.element(find.byType(ShadButton)));
+      final theme = Theme.of(tester.element(find.byType(Button)));
       expect(
         constrainedBox.constraints.minHeight,
         theme.buttonSizesTheme.lg?.height,
@@ -374,7 +374,7 @@ void main() {
       var pressed = false;
       await tester.pumpWidget(
         createTestWidget(
-          ShadButton(
+          Button(
             child: const Text('Press Me'),
             onPressed: () => pressed = true,
           ),
@@ -389,10 +389,10 @@ void main() {
       expect(pressed, true);
     });
 
-    testWidgets('ShadButton matches goldens', (tester) async {
+    testWidgets('Button matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadButton(
+          const Button(
             leading: Icon(Icons.star),
             trailing: Icon(Icons.arrow_forward),
             child: Text('Button'),
@@ -401,15 +401,15 @@ void main() {
       );
 
       await expectLater(
-        find.byType(ShadButton),
+        find.byType(Button),
         matchesGoldenFile('goldens/button.png'),
       );
     });
 
-    testWidgets('ShadButton.destructive matches goldens', (tester) async {
+    testWidgets('Button.destructive matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadButton.destructive(
+          const Button.destructive(
             leading: Icon(Icons.star),
             trailing: Icon(Icons.arrow_forward),
             child: Text('Button'),
@@ -418,15 +418,15 @@ void main() {
       );
 
       await expectLater(
-        find.byType(ShadButton),
+        find.byType(Button),
         matchesGoldenFile('goldens/button_destructive.png'),
       );
     });
 
-    testWidgets('ShadButton.outline matches goldens', (tester) async {
+    testWidgets('Button.outline matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadButton.outline(
+          const Button.outline(
             leading: Icon(Icons.star),
             trailing: Icon(Icons.arrow_forward),
             child: Text('Button'),
@@ -435,15 +435,15 @@ void main() {
       );
 
       await expectLater(
-        find.byType(ShadButton),
+        find.byType(Button),
         matchesGoldenFile('goldens/button_outline.png'),
       );
     });
 
-    testWidgets('ShadButton.secondary matches goldens', (tester) async {
+    testWidgets('Button.secondary matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadButton.secondary(
+          const Button.secondary(
             leading: Icon(Icons.star),
             trailing: Icon(Icons.arrow_forward),
             child: Text('Button'),
@@ -452,15 +452,15 @@ void main() {
       );
 
       await expectLater(
-        find.byType(ShadButton),
+        find.byType(Button),
         matchesGoldenFile('goldens/button_secondary.png'),
       );
     });
 
-    testWidgets('ShadButton.ghost matches goldens', (tester) async {
+    testWidgets('Button.ghost matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadButton.ghost(
+          const Button.ghost(
             leading: Icon(Icons.star),
             trailing: Icon(Icons.arrow_forward),
             child: Text('Button'),
@@ -469,15 +469,15 @@ void main() {
       );
 
       await expectLater(
-        find.byType(ShadButton),
+        find.byType(Button),
         matchesGoldenFile('goldens/button_ghost.png'),
       );
     });
 
-    testWidgets('ShadButton.link matches goldens', (tester) async {
+    testWidgets('Button.link matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadButton.link(
+          const Button.link(
             leading: Icon(Icons.star),
             trailing: Icon(Icons.arrow_forward),
             child: Text('Button'),
@@ -486,7 +486,7 @@ void main() {
       );
 
       await expectLater(
-        find.byType(ShadButton),
+        find.byType(Button),
         matchesGoldenFile('goldens/button_link.png'),
       );
     });
@@ -500,7 +500,7 @@ void main() {
         // Flutter's 24.
         await tester.pumpWidget(
           createTestWidget(
-            const ShadButton(
+            const Button(
               leading: Icon(Icons.star),
               trailing: Icon(Icons.arrow_forward),
               child: Text('Button'),
@@ -521,8 +521,8 @@ void main() {
         // nova's `.cn-button-size-sm` is `[&_svg…]:size-3.5`.
         await tester.pumpWidget(
           createTestWidget(
-            const ShadButton(
-              size: ShadButtonSize.sm,
+            const Button(
+              size: ButtonSize.sm,
               leading: Icon(Icons.star),
               child: Text('Button'),
             ),
@@ -535,7 +535,7 @@ void main() {
       testWidgets('an explicit size on the icon wins', (tester) async {
         await tester.pumpWidget(
           createTestWidget(
-            const ShadButton(
+            const Button(
               leading: Icon(Icons.star, size: 22),
               child: Text('Button'),
             ),
@@ -545,10 +545,10 @@ void main() {
         expect(tester.getSize(find.byIcon(Icons.star)), const Size.square(22));
       });
 
-      testWidgets('ShadButton.iconSize overrides the style', (tester) async {
+      testWidgets('Button.iconSize overrides the style', (tester) async {
         await tester.pumpWidget(
           createTestWidget(
-            const ShadButton(
+            const Button(
               iconSize: 10,
               leading: Icon(Icons.star),
               child: Text('Button'),
@@ -563,17 +563,17 @@ void main() {
         tester,
       ) async {
         // shadcn has no separate IconButton — `<Button size="icon">` is the
-        // whole of it, and ShadIconButton is a convenience over this.
+        // whole of it, and IconButton is a convenience over this.
         await tester.pumpWidget(
           createTestWidget(
-            const ShadButton(
-              size: ShadButtonSize.icon,
+            const Button(
+              size: ButtonSize.icon,
               child: Icon(Icons.star),
             ),
           ),
         );
 
-        expect(tester.getSize(find.byType(ShadButton)), const Size.square(32));
+        expect(tester.getSize(find.byType(Button)), const Size.square(32));
         expect(tester.getSize(find.byIcon(Icons.star)), const Size.square(16));
       });
     });

@@ -4,11 +4,11 @@ import 'package:flutter/widgets.dart';
 ///
 /// These are the CSS values as written; the clipping CSS does on top of them —
 /// an outer shadow is never visible through the element it belongs to — is
-/// `ShadShadowDecoration`'s job, and every Shad component paints its shadows
+/// `ShadowDecoration`'s job, and every Finesse component paints its shadows
 /// through one. Handing these to a plain [BoxDecoration] instead gives
 /// Flutter's own behaviour, which paints the whole blurred shape behind the
 /// box and so washes a transparent or translucent fill grey.
-abstract final class ShadShadows {
+abstract final class Shadows {
   /// Tailwind's `shadow-none`.
   static const none = <BoxShadow>[];
 
@@ -113,7 +113,3 @@ abstract final class ShadShadows {
     ),
   ];
 }
-
-/// The old name of [ShadShadows].
-@Deprecated('Use ShadShadows. Will be removed in the next major version.')
-typedef Shadows = ShadShadows;

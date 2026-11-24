@@ -1,37 +1,37 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/shad.dart';
 
 /// An open dialog or sheet follows the app theme: switching light/dark while
 /// it is open restyles it too. It used to keep the theme it was opened with.
 void main() {
   testWidgets('an open dialog follows a light/dark switch', (tester) async {
-    final mode = ValueNotifier(ShadThemeMode.light);
+    final mode = ValueNotifier(ThemeMode.light);
     addTearDown(mode.dispose);
     Brightness? seen;
 
     await tester.pumpWidget(
       ValueListenableBuilder(
         valueListenable: mode,
-        builder: (context, themeMode, _) => ShadApp(
+        builder: (context, themeMode, _) => FinesseApp(
           themeMode: themeMode,
-          theme: ShadThemeData(
+          theme: ThemeData(
             brightness: Brightness.light,
-            colorScheme: const ShadZincColorScheme.light(),
+            colorScheme: const ZincColorScheme.light(),
           ),
-          darkTheme: ShadThemeData(
+          darkTheme: ThemeData(
             brightness: Brightness.dark,
-            colorScheme: const ShadZincColorScheme.dark(),
+            colorScheme: const ZincColorScheme.dark(),
           ),
           home: Builder(
             builder: (context) => Center(
-              child: ShadButton(
-                onPressed: () => showShadDialog<void>(
+              child: Button(
+                onPressed: () => showDialog<void>(
                   context: context,
-                  builder: (context) => ShadDialog(
+                  builder: (context) => Dialog(
                     child: Builder(
                       builder: (context) {
-                        seen = ShadTheme.of(context).brightness;
+                        seen = Theme.of(context).brightness;
                         return const Text('content');
                       },
                     ),
@@ -49,7 +49,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(seen, Brightness.light);
 
-    mode.value = ShadThemeMode.dark;
+    mode.value = ThemeMode.dark;
     await tester.pumpAndSettle();
     expect(find.text('content'), findsOneWidget);
     expect(seen, Brightness.dark);
@@ -60,25 +60,25 @@ void main() {
   ) async {
     Brightness? seen;
     await tester.pumpWidget(
-      ShadApp(
-        theme: ShadThemeData(
+      FinesseApp(
+        theme: ThemeData(
           brightness: Brightness.light,
-          colorScheme: const ShadZincColorScheme.light(),
+          colorScheme: const ZincColorScheme.light(),
         ),
-        home: ShadThemeScope(
-          data: ShadThemeData(
+        home: ThemeScope(
+          data: ThemeData(
             brightness: Brightness.dark,
-            colorScheme: const ShadZincColorScheme.dark(),
+            colorScheme: const ZincColorScheme.dark(),
           ),
           child: Builder(
             builder: (context) => Center(
-              child: ShadButton(
-                onPressed: () => showShadDialog<void>(
+              child: Button(
+                onPressed: () => showDialog<void>(
                   context: context,
-                  builder: (context) => ShadDialog(
+                  builder: (context) => Dialog(
                     child: Builder(
                       builder: (context) {
-                        seen = ShadTheme.of(context).brightness;
+                        seen = Theme.of(context).brightness;
                         return const Text('content');
                       },
                     ),

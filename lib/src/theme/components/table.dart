@@ -5,14 +5,14 @@ import 'package:two_dimensional_scrollables/two_dimensional_scrollables.dart';
 
 part 'table.g.theme.dart';
 
-/// {@template ShadTableTheme}
-/// Theme for the `ShadTable` widget.
+/// {@template TableTheme}
+/// Theme for the `FinesseTable` widget.
 /// {@endtemplate}
 @themeGen
 @immutable
-class ShadTableTheme with _$ShadTableTheme {
-  /// {@macro ShadTableTheme}
-  const ShadTableTheme({
+class TableTheme with _$TableTheme {
+  /// {@macro TableTheme}
+  const TableTheme({
     bool canMerge = true,
     this.diagonalDragBehavior,
     this.dragStartBehavior,
@@ -33,28 +33,28 @@ class ShadTableTheme with _$ShadTableTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro ShadTable.diagonalDragBehavior}
+  /// {@macro FinesseTable.diagonalDragBehavior}
   final DiagonalDragBehavior? diagonalDragBehavior;
 
-  /// {@macro ShadTable.dragStartBehavior}
+  /// {@macro FinesseTable.dragStartBehavior}
   final DragStartBehavior? dragStartBehavior;
 
-  /// {@macro ShadTable.keyboardDismissBehavior}
+  /// {@macro FinesseTable.keyboardDismissBehavior}
   final ScrollViewKeyboardDismissBehavior? keyboardDismissBehavior;
 
-  /// {@macro ShadTable.columnBuilder}
+  /// {@macro FinesseTable.columnBuilder}
   final TableSpanBuilder? columnBuilder;
 
-  /// {@macro ShadTable.rowBuilder}
+  /// {@macro FinesseTable.rowBuilder}
   final TableSpanBuilder? rowBuilder;
 
-  /// {@macro ShadTableCell.alignment}
+  /// {@macro FinesseTableCell.alignment}
   final Alignment? cellAlignment;
 
-  /// {@macro ShadTableCell.height}
+  /// {@macro FinesseTableCell.height}
   final double? cellHeight;
 
-  /// {@macro ShadTableCell.padding}
+  /// {@macro FinesseTableCell.padding}
   final EdgeInsetsGeometry? cellPadding;
 
   /// Text style of header cells. Defaults to the text theme's `muted` at
@@ -69,9 +69,9 @@ class ShadTableTheme with _$ShadTableTheme {
   final TextStyle? cellFooterStyle;
 
   /// Linearly interpolates between [a] and [b] by [t].
-  static ShadTableTheme? lerp(
-    ShadTableTheme? a,
-    ShadTableTheme? b,
+  static TableTheme? lerp(
+    TableTheme? a,
+    TableTheme? b,
     double t,
-  ) => _$ShadTableTheme.lerp(a, b, t);
+  ) => _$TableTheme.lerp(a, b, t);
 }

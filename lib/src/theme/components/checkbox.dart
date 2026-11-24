@@ -1,18 +1,17 @@
+import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:flutter/widgets.dart';
-
-import 'package:shad/src/theme/components/decorator.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
 part 'checkbox.g.theme.dart';
 
-/// {@template ShadCheckboxTheme}
-/// Theme for the `ShadCheckbox` widget.
+/// {@template CheckboxTheme}
+/// Theme for the `Checkbox` widget.
 /// {@endtemplate}
 @themeGen
 @immutable
-class ShadCheckboxTheme with _$ShadCheckboxTheme {
-  /// {@macro ShadCheckboxTheme}
-  const ShadCheckboxTheme({
+class CheckboxTheme with _$CheckboxTheme {
+  /// {@macro CheckboxTheme}
+  const CheckboxTheme({
     bool canMerge = true,
     this.color,
     this.uncheckedColor,
@@ -31,39 +30,39 @@ class ShadCheckboxTheme with _$ShadCheckboxTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro ShadCheckbox.color}
+  /// {@macro Checkbox.color}
   final Color? color;
 
-  /// {@macro ShadCheckbox.uncheckedColor}
+  /// {@macro Checkbox.uncheckedColor}
   final Color? uncheckedColor;
 
-  /// {@macro ShadCheckbox.size}
+  /// {@macro Checkbox.size}
   final double? size;
 
-  /// {@macro ShadCheckbox.duration}
+  /// {@macro Checkbox.duration}
   final Duration? duration;
 
-  /// {@macro ShadCheckbox.decoration}
-  final ShadDecoration? decoration;
+  /// {@macro Checkbox.decoration}
+  final FinesseDecoration? decoration;
 
   /// The decoration while checked, when it differs from [decoration] —
   /// shadcn recolours the outline with the fill (`data-checked:border-primary`)
   /// so a checked control has no pale halo. Null means "same as [decoration]".
-  final ShadDecoration? checkedDecoration;
+  final FinesseDecoration? checkedDecoration;
 
-  /// {@macro ShadCheckbox.padding}
+  /// {@macro Checkbox.padding}
   final EdgeInsetsGeometry? padding;
 
-  /// {@macro ShadCheckbox.crossAxisAlignment}
+  /// {@macro Checkbox.crossAxisAlignment}
   final CrossAxisAlignment? crossAxisAlignment;
 
-  /// {@macro ShadCheckbox.checkboxPadding}
+  /// {@macro Checkbox.checkboxPadding}
   final EdgeInsetsGeometry? checkboxPadding;
 
   /// Linearly interpolates between [a] and [b] by [t].
-  static ShadCheckboxTheme? lerp(
-    ShadCheckboxTheme? a,
-    ShadCheckboxTheme? b,
+  static CheckboxTheme? lerp(
+    CheckboxTheme? a,
+    CheckboxTheme? b,
     double t,
-  ) => _$ShadCheckboxTheme.lerp(a, b, t);
+  ) => _$CheckboxTheme.lerp(a, b, t);
 }

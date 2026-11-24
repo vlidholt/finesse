@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 const _layer = [
   (name: 'Width', initialValue: '100%'),
@@ -16,7 +16,7 @@ class PopoverBasicExample extends StatefulWidget {
 }
 
 class _PopoverBasicExampleState extends State<PopoverBasicExample> {
-  final controller = ShadPopoverController();
+  final controller = PopoverController();
 
   @override
   void dispose() {
@@ -26,8 +26,8 @@ class _PopoverBasicExampleState extends State<PopoverBasicExample> {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = ShadTheme.of(context).textTheme;
-    return ShadPopover(
+    final textTheme = Theme.of(context).textTheme;
+    return Popover(
       controller: controller,
       popover: (_) => SizedBox(
         width: 288,
@@ -44,14 +44,14 @@ class _PopoverBasicExampleState extends State<PopoverBasicExample> {
                   Expanded(child: Text(field.name)),
                   Expanded(
                     flex: 2,
-                    child: ShadInput(initialValue: field.initialValue),
+                    child: TextField(initialValue: field.initialValue),
                   ),
                 ],
               ),
           ],
         ),
       ),
-      child: ShadButton.outline(
+      child: Button.outline(
         onPressed: controller.toggle,
         child: const Text('Open popover'),
       ),

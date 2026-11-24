@@ -1,42 +1,42 @@
 import 'dart:math' as math;
 import 'dart:ui';
 
+import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/components/decorator.dart';
-import 'package:shad/src/theme/theme.dart';
-import 'package:shad/src/utils/shadow.dart';
 
-/// Which component's surface a [ShadSurface] paints.
-enum ShadSurfaceKind {
-  /// A popover's: `ShadPopoverTheme`'s decoration, shadows, padding and
+/// Which component's surface a [Surface] paints.
+enum SurfaceKind {
+  /// A popover's: `PopoverTheme`'s decoration, shadows, padding and
   /// filter, in the popover colours.
   popover,
 
-  /// A menu's: the popover surface with `ShadContextMenuTheme`'s decoration,
-  /// shadows, padding and filter over it, as `ShadContextMenu` and
-  /// `ShadSelect` draw it.
+  /// A menu's: the popover surface with `ContextMenuTheme`'s decoration,
+  /// shadows, padding and filter over it, as `ContextMenu` and
+  /// `Select` draw it.
   menu,
 }
 
-/// {@template ShadSurface}
+/// {@template Surface}
 /// The surface of a popover or menu, around any [child].
 ///
-/// Use it for floating UI that shad does not provide as a component — a
+/// Use it for floating UI that finesse does not provide as a component — a
 /// cell editor, a find bar, a hover card — so it gets the same outline
 /// (shadcn's `ring-foreground/10`, not `--border`), radius, padding,
-/// colours and shadow as a `ShadPopover`. The shadow is painted the way CSS
+/// colours and shadow as a `Popover`. The shadow is painted the way CSS
 /// paints `box-shadow`, outside the element only; a hand-built
 /// `BoxDecoration(boxShadow:)` washes a translucent fill grey and loses the
 /// shadow next to the element.
 ///
-/// To show one anchored to a rectangle, see [showShadPopover].
+/// To show one anchored to a rectangle, see [showPopover].
 /// {@endtemplate}
-class ShadSurface extends StatelessWidget {
-  /// {@macro ShadSurface}
-  const ShadSurface({
+class Surface extends StatelessWidget {
+  /// {@macro Surface}
+  const Surface({
     super.key,
     required this.child,
-    this.kind = ShadSurfaceKind.popover,
+    this.kind = SurfaceKind.popover,
     this.padding,
     this.decoration,
     this.shadows,
@@ -47,14 +47,14 @@ class ShadSurface extends StatelessWidget {
   /// The content.
   final Widget child;
 
-  /// Whose surface to paint. Defaults to [ShadSurfaceKind.popover].
-  final ShadSurfaceKind kind;
+  /// Whose surface to paint. Defaults to [SurfaceKind.popover].
+  final SurfaceKind kind;
 
   /// Overrides the surface's padding.
   final EdgeInsetsGeometry? padding;
 
   /// Merged over the surface's decoration.
-  final ShadDecoration? decoration;
+  final FinesseDecoration? decoration;
 
   /// Overrides the surface's shadows.
   final List<BoxShadow>? shadows;
@@ -67,13 +67,13 @@ class ShadSurface extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     final popoverTheme = theme.popoverTheme;
     final menuTheme = theme.contextMenuTheme;
-    final isMenu = kind == ShadSurfaceKind.menu;
+    final isMenu = kind == SurfaceKind.menu;
 
     var effectiveDecoration =
-        (popoverTheme.decoration ?? const ShadDecoration())
+        (popoverTheme.decoration ?? const FinesseDecoration())
             .merge(isMenu ? menuTheme.decoration : null)
             .merge(decoration);
     effectiveDecoration = effectiveDecoration.copyWith(
@@ -91,7 +91,7 @@ class ShadSurface extends StatelessWidget {
             : popoverTheme.padding ??
                   const EdgeInsets.symmetric(horizontal: 12, vertical: 6));
 
-    return ShadSurfacePainter(
+    return SurfacePainter(
       decoration: effectiveDecoration,
       padding: effectivePadding,
       filter:
@@ -105,11 +105,11 @@ class ShadSurface extends StatelessWidget {
 /// Paints a resolved popover-style surface: [decoration], [padding], the
 /// popover foreground for text and icons, and an optional backdrop [filter].
 ///
-/// [ShadSurface] resolves the theme and paints through this; `ShadPopover`
+/// [Surface] resolves the theme and paints through this; `Popover`
 /// paints its own surface through it too, so the two cannot drift apart.
-class ShadSurfacePainter extends StatelessWidget {
+class SurfacePainter extends StatelessWidget {
   /// Creates a painter for an already resolved surface.
-  const ShadSurfacePainter({
+  const SurfacePainter({
     super.key,
     required this.decoration,
     required this.padding,
@@ -119,7 +119,7 @@ class ShadSurfacePainter extends StatelessWidget {
   });
 
   /// The decoration of the surface: fill, border, radius and shadows.
-  final ShadDecoration decoration;
+  final FinesseDecoration decoration;
 
   /// The space between the edge of the surface and [child].
   final EdgeInsetsGeometry padding;
@@ -137,10 +137,10 @@ class ShadSurfacePainter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     final foreground = theme.colorScheme.popoverForeground;
 
-    Widget surface = ShadDecorator(
+    Widget surface = Decorator(
       decoration: decoration,
       child: Padding(
         padding: padding,
@@ -173,7 +173,7 @@ class ShadSurfacePainter extends StatelessWidget {
       final shadows = decoration.shadows;
       if (shadows != null && shadows.isNotEmpty) {
         surface = DecoratedBox(
-          decoration: ShadShadowDecoration.box(
+          decoration: ShadowDecoration.box(
             borderRadius: radius,
             shadows: shadows,
           ),
@@ -194,17 +194,17 @@ class ShadSurfacePainter extends StatelessWidget {
 /// screen. It closes on a tap outside or on Escape, and the returned future
 /// completes with the value it was popped with.
 ///
-/// The content is wrapped in a [ShadSurface] of [kind]; pass
-/// [ShadSurface.new]'s parameters through [padding] and [decoration], or set
+/// The content is wrapped in a [Surface] of [kind]; pass
+/// [Surface.new]'s parameters through [padding] and [decoration], or set
 /// [surface] to false to draw your own.
-Future<T?> showShadPopover<T>({
+Future<T?> showPopover<T>({
   required BuildContext context,
   required Rect anchorRect,
   required WidgetBuilder builder,
-  ShadSurfaceKind kind = ShadSurfaceKind.popover,
+  SurfaceKind kind = SurfaceKind.popover,
   bool surface = true,
   EdgeInsetsGeometry? padding,
-  ShadDecoration? decoration,
+  FinesseDecoration? decoration,
   double gap = 4,
   bool barrierDismissible = true,
   String? barrierLabel,
@@ -213,10 +213,10 @@ Future<T?> showShadPopover<T>({
 }) {
   final navigator = Navigator.of(context, rootNavigator: useRootNavigator);
   // The route is built under the navigator; republish a theme applied to the
-  // subtree the popover was opened from (see ShadThemeScope).
-  final theme = ShadTheme.of(context, listen: false);
+  // subtree the popover was opened from (see ThemeScope).
+  final theme = Theme.of(context, listen: false);
   return navigator.push(
-    _ShadAnchoredPopoverRoute<T>(
+    _AnchoredPopoverRoute<T>(
       anchorRect: anchorRect,
       gap: gap,
       barrierDismissible: barrierDismissible,
@@ -225,21 +225,21 @@ Future<T?> showShadPopover<T>({
       builder: (routeContext) {
         Widget content = Builder(builder: builder);
         if (surface) {
-          content = ShadSurface(
+          content = Surface(
             kind: kind,
             padding: padding,
             decoration: decoration,
             child: content,
           );
         }
-        return ShadTheme(data: theme, child: content);
+        return Theme(data: theme, child: content);
       },
     ),
   );
 }
 
-class _ShadAnchoredPopoverRoute<T> extends PopupRoute<T> {
-  _ShadAnchoredPopoverRoute({
+class _AnchoredPopoverRoute<T> extends PopupRoute<T> {
+  _AnchoredPopoverRoute({
     required this.anchorRect,
     required this.gap,
     required this.builder,

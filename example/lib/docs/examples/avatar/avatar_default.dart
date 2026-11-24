@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class AvatarDefaultExample extends StatelessWidget {
   const AvatarDefaultExample({super.key});
@@ -10,12 +10,12 @@ class AvatarDefaultExample extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       spacing: 8,
       children: [
-        ShadAvatar(
+        Avatar(
           'https://avatars.githubusercontent.com/u/124599?v=4',
           fallback: Text('CN'),
         ),
         // The placeholder shows while loading, or if the image fails.
-        ShadAvatar('', fallback: Text('AB')),
+        Avatar('', fallback: Text('AB')),
       ],
     );
   }

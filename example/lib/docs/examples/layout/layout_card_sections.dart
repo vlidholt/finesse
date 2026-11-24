@@ -1,7 +1,7 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
-/// A card interior laid out with `ShadColumn` spacing and separators.
+/// A card interior laid out with `FinesseColumn` spacing and separators.
 class LayoutCardSectionsExample extends StatefulWidget {
   const LayoutCardSectionsExample({super.key});
 
@@ -18,28 +18,28 @@ class _LayoutCardSectionsExampleState extends State<LayoutCardSectionsExample> {
   Widget build(BuildContext context) {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 320),
-      child: ShadCard(
+      child: Card(
         title: const Text('Notifications'),
         description: const Text('Choose what you want to be notified about'),
-        child: ShadColumn(
+        child: FinesseColumn(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
           spacing: 4,
           children: [
-            ShadCheckbox(
+            Checkbox(
               value: email,
               onChanged: (v) => setState(() => email = v),
               label: const Text('Email'),
             ),
-            ShadCheckbox(
+            Checkbox(
               value: push,
               onChanged: (v) => setState(() => push = v),
               label: const Text('Push'),
             ),
-            const ShadSeparator.horizontal(
+            const Divider.horizontal(
               margin: EdgeInsets.symmetric(vertical: 4),
             ),
-            ShadButton(onPressed: () {}, child: const Text('Save preferences')),
+            Button(onPressed: () {}, child: const Text('Save preferences')),
           ],
         ),
       ),

@@ -9,14 +9,10 @@ part of 'dialog.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadDialogTheme {
+mixin _$DialogTheme {
   bool get canMerge => true;
 
-  static ShadDialogTheme? lerp(
-    ShadDialogTheme? a,
-    ShadDialogTheme? b,
-    double t,
-  ) {
+  static DialogTheme? lerp(DialogTheme? a, DialogTheme? b, double t) {
     if (identical(a, b)) {
       return a;
     }
@@ -29,9 +25,9 @@ mixin _$ShadDialogTheme {
       return t == 0.0 ? a : null;
     }
 
-    return ShadDialogTheme(
+    return DialogTheme(
       closeIconData: t < 0.5 ? a.closeIconData : b.closeIconData,
-      closeIconPosition: ShadPosition.lerp(
+      closeIconPosition: Position.lerp(
         a.closeIconPosition,
         b.closeIconPosition,
         t,
@@ -90,9 +86,9 @@ mixin _$ShadDialogTheme {
     );
   }
 
-  ShadDialogTheme copyWith({
+  DialogTheme copyWith({
     IconData? closeIconData,
-    ShadPosition? closeIconPosition,
+    Position? closeIconPosition,
     BorderRadius? radius,
     Color? backgroundColor,
     bool? expandActionsWhenTiny,
@@ -125,9 +121,9 @@ mixin _$ShadDialogTheme {
     Color? barrierColor,
     double? barrierBlurSigma,
   }) {
-    final _this = (this as ShadDialogTheme);
+    final _this = (this as DialogTheme);
 
-    return ShadDialogTheme(
+    return DialogTheme(
       closeIconData: closeIconData ?? _this.closeIconData,
       closeIconPosition: closeIconPosition ?? _this.closeIconPosition,
       radius: radius ?? _this.radius,
@@ -168,8 +164,8 @@ mixin _$ShadDialogTheme {
     );
   }
 
-  ShadDialogTheme merge(ShadDialogTheme? other) {
-    final _this = (this as ShadDialogTheme);
+  DialogTheme merge(DialogTheme? other) {
+    final _this = (this as DialogTheme);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -228,8 +224,8 @@ mixin _$ShadDialogTheme {
       return false;
     }
 
-    final _this = (this as ShadDialogTheme);
-    final _other = (other as ShadDialogTheme);
+    final _this = (this as DialogTheme);
+    final _other = (other as DialogTheme);
 
     return _other.closeIconData == _this.closeIconData &&
         _other.closeIconPosition == _this.closeIconPosition &&
@@ -268,7 +264,7 @@ mixin _$ShadDialogTheme {
 
   @override
   int get hashCode {
-    final _this = (this as ShadDialogTheme);
+    final _this = (this as DialogTheme);
 
     return Object.hashAll([
       runtimeType,

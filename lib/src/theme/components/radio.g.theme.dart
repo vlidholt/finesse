@@ -9,10 +9,10 @@ part of 'radio.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadRadioTheme {
+mixin _$RadioTheme {
   bool get canMerge => true;
 
-  static ShadRadioTheme? lerp(ShadRadioTheme? a, ShadRadioTheme? b, double t) {
+  static RadioTheme? lerp(RadioTheme? a, RadioTheme? b, double t) {
     if (identical(a, b)) {
       return a;
     }
@@ -25,12 +25,12 @@ mixin _$ShadRadioTheme {
       return t == 0.0 ? a : null;
     }
 
-    return ShadRadioTheme(
+    return RadioTheme(
       color: Color.lerp(a.color, b.color, t),
       size: lerpDouble$(a.size, b.size, t),
       duration: lerpDuration$(a.duration, b.duration, t),
-      decoration: ShadDecoration.lerp(a.decoration, b.decoration, t),
-      checkedDecoration: ShadDecoration.lerp(
+      decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
+      checkedDecoration: FinesseDecoration.lerp(
         a.checkedDecoration,
         b.checkedDecoration,
         t,
@@ -47,12 +47,12 @@ mixin _$ShadRadioTheme {
     );
   }
 
-  ShadRadioTheme copyWith({
+  RadioTheme copyWith({
     Color? color,
     double? size,
     Duration? duration,
-    ShadDecoration? decoration,
-    ShadDecoration? checkedDecoration,
+    FinesseDecoration? decoration,
+    FinesseDecoration? checkedDecoration,
     EdgeInsetsGeometry? padding,
     double? circleSize,
     Axis? axis,
@@ -63,9 +63,9 @@ mixin _$ShadRadioTheme {
     WrapCrossAlignment? crossAxisAlignment,
     EdgeInsetsGeometry? radioPadding,
   }) {
-    final _this = (this as ShadRadioTheme);
+    final _this = (this as RadioTheme);
 
-    return ShadRadioTheme(
+    return RadioTheme(
       color: color ?? _this.color,
       size: size ?? _this.size,
       duration: duration ?? _this.duration,
@@ -83,8 +83,8 @@ mixin _$ShadRadioTheme {
     );
   }
 
-  ShadRadioTheme merge(ShadRadioTheme? other) {
-    final _this = (this as ShadRadioTheme);
+  RadioTheme merge(RadioTheme? other) {
+    final _this = (this as RadioTheme);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -124,8 +124,8 @@ mixin _$ShadRadioTheme {
       return false;
     }
 
-    final _this = (this as ShadRadioTheme);
-    final _other = (other as ShadRadioTheme);
+    final _this = (this as RadioTheme);
+    final _other = (other as RadioTheme);
 
     return _other.color == _this.color &&
         _other.size == _this.size &&
@@ -145,7 +145,7 @@ mixin _$ShadRadioTheme {
 
   @override
   int get hashCode {
-    final _this = (this as ShadRadioTheme);
+    final _this = (this as RadioTheme);
 
     return Object.hash(
       runtimeType,

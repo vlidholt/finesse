@@ -1,42 +1,42 @@
+import 'package:finesse/src/components/context_menu.dart';
+import 'package:finesse/src/raw_components/portal.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/components/context_menu.dart';
-import 'package:shad/src/raw_components/portal.dart';
 
-/// Builds a [ShadDropdownMenu]'s trigger. Call `controller.toggle` from the
+/// Builds a [DropdownMenu]'s trigger. Call `controller.toggle` from the
 /// trigger's `onPressed`.
-typedef ShadDropdownMenuTriggerBuilder =
+typedef DropdownMenuTriggerBuilder =
     Widget Function(
       BuildContext context,
-      ShadContextMenuController controller,
+      FinesseContextMenuController controller,
       Widget? child,
     );
 
-/// {@template ShadDropdownMenu}
+/// {@template DropdownMenu}
 /// shadcn/ui's DropdownMenu: a menu that opens from a trigger, below it and
 /// aligned to its start edge.
 ///
-/// The menu is a [ShadContextMenu], so it takes the same items
-/// ([ShadContextMenuItem], separators, labels, submenus), scrolls when long,
+/// The menu is a [ContextMenu], so it takes the same items
+/// ([ContextMenuItem], separators, labels, submenus), scrolls when long,
 /// supports keyboard navigation and type-ahead, and flips to stay on screen:
 /// to the trigger's end edge near the side of the screen, above it near the
 /// bottom.
 ///
 /// ```dart
-/// ShadDropdownMenu(
+/// DropdownMenu(
 ///   items: [
-///     ShadContextMenuItem(child: Text('Profile'), onPressed: () {}),
-///     ShadContextMenuItem(child: Text('Log out'), onPressed: () {}),
+///     ContextMenuItem(child: Text('Profile'), onPressed: () {}),
+///     ContextMenuItem(child: Text('Log out'), onPressed: () {}),
 ///   ],
-///   builder: (context, controller, _) => ShadButton.outline(
+///   builder: (context, controller, _) => Button.outline(
 ///     onPressed: controller.toggle,
 ///     child: const Text('Open'),
 ///   ),
 /// )
 /// ```
 /// {@endtemplate}
-class ShadDropdownMenu extends StatefulWidget {
-  /// {@macro ShadDropdownMenu}
-  const ShadDropdownMenu({
+class DropdownMenu extends StatefulWidget {
+  /// {@macro DropdownMenu}
+  const DropdownMenu({
     super.key,
     required this.builder,
     this.items = const [],
@@ -49,13 +49,13 @@ class ShadDropdownMenu extends StatefulWidget {
     this.onOpenChange,
   });
 
-  /// Builds the trigger. See [ShadDropdownMenuTriggerBuilder].
-  final ShadDropdownMenuTriggerBuilder builder;
+  /// Builds the trigger. See [DropdownMenuTriggerBuilder].
+  final DropdownMenuTriggerBuilder builder;
 
-  /// {@macro ShadContextMenu.items}
+  /// {@macro ContextMenu.items}
   final List<Widget> items;
 
-  /// {@macro ShadContextMenu.itemsBuilder}
+  /// {@macro ContextMenu.itemsBuilder}
   final List<Widget> Function(BuildContext context)? itemsBuilder;
 
   /// Passed to [builder] unchanged, for a part of the trigger that does not
@@ -63,16 +63,16 @@ class ShadDropdownMenu extends StatefulWidget {
   final Widget? child;
 
   /// Controls whether the menu is open. One is created when not given.
-  final ShadContextMenuController? controller;
+  final FinesseContextMenuController? controller;
 
   /// Where the menu opens. Defaults to below the trigger at its start edge,
   /// falling back to its end edge and then to above it.
-  final ShadAnchorBase? anchor;
+  final AnchorBase? anchor;
 
-  /// {@macro ShadContextMenu.constraints}
+  /// {@macro ContextMenu.constraints}
   final BoxConstraints? constraints;
 
-  /// {@macro ShadContextMenu.padding}
+  /// {@macro ContextMenu.padding}
   final EdgeInsetsGeometry? padding;
 
   /// Called when the menu opens or closes.
@@ -81,19 +81,19 @@ class ShadDropdownMenu extends StatefulWidget {
   /// The default anchor: Radix's `side="bottom" align="start"` with
   /// `sideOffset={4}`, trying the other alignment and then the other side
   /// when the menu would leave the screen.
-  static const defaultAnchor = ShadAnchorAuto(
+  static const defaultAnchor = AnchorAuto(
     offset: Offset(0, 4),
     targetAnchor: AlignmentDirectional.bottomStart,
     followerAnchor: AlignmentDirectional.bottomEnd,
-    fallback: ShadAnchorAuto(
+    fallback: AnchorAuto(
       offset: Offset(0, 4),
       targetAnchor: AlignmentDirectional.bottomEnd,
       followerAnchor: AlignmentDirectional.bottomStart,
-      fallback: ShadAnchorAuto(
+      fallback: AnchorAuto(
         offset: Offset(0, -4),
         targetAnchor: AlignmentDirectional.topStart,
         followerAnchor: AlignmentDirectional.topEnd,
-        fallback: ShadAnchorAuto(
+        fallback: AnchorAuto(
           offset: Offset(0, -4),
           targetAnchor: AlignmentDirectional.topEnd,
           followerAnchor: AlignmentDirectional.topStart,
@@ -103,15 +103,15 @@ class ShadDropdownMenu extends StatefulWidget {
   );
 
   @override
-  State<ShadDropdownMenu> createState() => _ShadDropdownMenuState();
+  State<DropdownMenu> createState() => _DropdownMenuState();
 }
 
-class _ShadDropdownMenuState extends State<ShadDropdownMenu> {
-  ShadContextMenuController? _ownController;
-  ShadContextMenuController get _controller =>
-      widget.controller ?? (_ownController ??= ShadContextMenuController());
+class _DropdownMenuState extends State<DropdownMenu> {
+  FinesseContextMenuController? _ownController;
+  FinesseContextMenuController get _controller =>
+      widget.controller ?? (_ownController ??= FinesseContextMenuController());
 
-  ShadContextMenuController? _listened;
+  FinesseContextMenuController? _listened;
   bool _wasOpen = false;
 
   void _listen() {
@@ -136,7 +136,7 @@ class _ShadDropdownMenuState extends State<ShadDropdownMenu> {
   }
 
   @override
-  void didUpdateWidget(ShadDropdownMenu oldWidget) {
+  void didUpdateWidget(DropdownMenu oldWidget) {
     super.didUpdateWidget(oldWidget);
     _listen();
   }
@@ -150,9 +150,9 @@ class _ShadDropdownMenuState extends State<ShadDropdownMenu> {
 
   @override
   Widget build(BuildContext context) {
-    return ShadContextMenu(
+    return ContextMenu(
       controller: _controller,
-      anchor: widget.anchor ?? ShadDropdownMenu.defaultAnchor,
+      anchor: widget.anchor ?? DropdownMenu.defaultAnchor,
       items: widget.items,
       itemsBuilder: widget.itemsBuilder,
       constraints: widget.constraints,

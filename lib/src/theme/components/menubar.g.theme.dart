@@ -9,14 +9,10 @@ part of 'menubar.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadMenubarTheme {
+mixin _$MenubarTheme {
   bool get canMerge => true;
 
-  static ShadMenubarTheme? lerp(
-    ShadMenubarTheme? a,
-    ShadMenubarTheme? b,
-    double t,
-  ) {
+  static MenubarTheme? lerp(MenubarTheme? a, MenubarTheme? b, double t) {
     if (identical(a, b)) {
       return a;
     }
@@ -29,11 +25,11 @@ mixin _$ShadMenubarTheme {
       return t == 0.0 ? a : null;
     }
 
-    return ShadMenubarTheme(
+    return MenubarTheme(
       radius: BorderRadiusGeometry.lerp(a.radius, b.radius, t),
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
       backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
-      border: ShadBorder.lerp(a.border, b.border, t),
+      border: FinesseBorder.lerp(a.border, b.border, t),
       constraints: BoxConstraints.lerp(a.constraints, b.constraints, t),
       contextMenuPadding: EdgeInsetsGeometry.lerp(
         a.contextMenuPadding,
@@ -42,7 +38,7 @@ mixin _$ShadMenubarTheme {
       ),
       effects: t < 0.5 ? a.effects : b.effects,
       shadows: t < 0.5 ? a.shadows : b.shadows,
-      decoration: ShadDecoration.lerp(a.decoration, b.decoration, t),
+      decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
       filter: t < 0.5 ? a.filter : b.filter,
       anchor: t < 0.5 ? a.anchor : b.anchor,
       buttonVariant: t < 0.5 ? a.buttonVariant : b.buttonVariant,
@@ -99,7 +95,7 @@ mixin _$ShadMenubarTheme {
       buttonHoverTextDecoration: t < 0.5
           ? a.buttonHoverTextDecoration
           : b.buttonHoverTextDecoration,
-      buttonDecoration: ShadDecoration.lerp(
+      buttonDecoration: FinesseDecoration.lerp(
         a.buttonDecoration,
         b.buttonDecoration,
         t,
@@ -127,20 +123,20 @@ mixin _$ShadMenubarTheme {
     );
   }
 
-  ShadMenubarTheme copyWith({
+  MenubarTheme copyWith({
     BorderRadiusGeometry? radius,
     EdgeInsetsGeometry? padding,
     Color? backgroundColor,
-    ShadBorder? border,
+    FinesseBorder? border,
     BoxConstraints? constraints,
     EdgeInsetsGeometry? contextMenuPadding,
     List<Effect<dynamic>>? effects,
     List<BoxShadow>? shadows,
-    ShadDecoration? decoration,
+    FinesseDecoration? decoration,
     ImageFilter? filter,
-    ShadAnchorBase? anchor,
-    ShadButtonVariant? buttonVariant,
-    ShadButtonSize? buttonSize,
+    AnchorBase? anchor,
+    ButtonVariant? buttonVariant,
+    ButtonSize? buttonSize,
     MouseCursor? buttonCursor,
     double? buttonWidth,
     double? buttonHeight,
@@ -157,19 +153,19 @@ mixin _$ShadMenubarTheme {
     Gradient? buttonGradient,
     TextDecoration? buttonTextDecoration,
     TextDecoration? buttonHoverTextDecoration,
-    ShadDecoration? buttonDecoration,
+    FinesseDecoration? buttonDecoration,
     double? buttonGap,
     MainAxisAlignment? buttonMainAxisAlignment,
     CrossAxisAlignment? buttonCrossAxisAlignment,
-    ShadHoverStrategies? buttonHoverStrategies,
+    HoverStrategies? buttonHoverStrategies,
     Duration? buttonLongPressDuration,
     TextDirection? buttonTextDirection,
     bool? buttonExpands,
     bool? selectOnHover,
   }) {
-    final _this = (this as ShadMenubarTheme);
+    final _this = (this as MenubarTheme);
 
-    return ShadMenubarTheme(
+    return MenubarTheme(
       radius: radius ?? _this.radius,
       padding: padding ?? _this.padding,
       backgroundColor: backgroundColor ?? _this.backgroundColor,
@@ -223,8 +219,8 @@ mixin _$ShadMenubarTheme {
     );
   }
 
-  ShadMenubarTheme merge(ShadMenubarTheme? other) {
-    final _this = (this as ShadMenubarTheme);
+  MenubarTheme merge(MenubarTheme? other) {
+    final _this = (this as MenubarTheme);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -288,8 +284,8 @@ mixin _$ShadMenubarTheme {
       return false;
     }
 
-    final _this = (this as ShadMenubarTheme);
-    final _other = (other as ShadMenubarTheme);
+    final _this = (this as MenubarTheme);
+    final _other = (other as MenubarTheme);
 
     return _other.radius == _this.radius &&
         _other.padding == _this.padding &&
@@ -336,7 +332,7 @@ mixin _$ShadMenubarTheme {
 
   @override
   int get hashCode {
-    final _this = (this as ShadMenubarTheme);
+    final _this = (this as MenubarTheme);
 
     return Object.hashAll([
       runtimeType,

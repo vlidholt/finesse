@@ -1,8 +1,8 @@
 import 'dart:ui' as ui;
 
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/shad.dart';
 
 TextStyle _fakeGoogleFont({
   TextStyle? textStyle,
@@ -31,9 +31,9 @@ TextStyle _fakeGoogleFont({
 );
 
 void main() {
-  group('shad bundles no fonts', () {
+  group('finesse bundles no fonts', () {
     test('the default text theme uses the platform font', () {
-      final theme = ShadTextTheme();
+      final theme = TextTheme();
       expect(theme.family, isNull);
       for (final style in [
         theme.h1Large,
@@ -55,22 +55,22 @@ void main() {
     });
 
     test('the resolved theme names no family either', () {
-      final theme = ShadThemeData();
+      final theme = ThemeData();
       expect(theme.textTheme.family, isNull);
       expect(theme.textTheme.p.fontFamily, isNull);
     });
 
     test('a package qualifies only a family the caller named', () {
-      expect(ShadTextTheme(package: 'my_fonts').family, isNull);
+      expect(TextTheme(package: 'my_fonts').family, isNull);
       expect(
-        ShadTextTheme(family: 'Inter', package: 'my_fonts').family,
+        TextTheme(family: 'Inter', package: 'my_fonts').family,
         'packages/my_fonts/Inter',
       );
-      expect(ShadTextTheme(family: 'Inter').p.fontFamily, 'Inter');
+      expect(TextTheme(family: 'Inter').p.fontFamily, 'Inter');
     });
 
     test('input OTP slots use tabular figures, not a monospace family', () {
-      final style = ShadThemeData().inputOTPTheme.style!;
+      final style = ThemeData().otpFieldTheme.style!;
       expect(style.fontFamily, isNull);
       expect(style.fontFeatures, contains(const FontFeature.tabularFigures()));
     });
@@ -79,13 +79,13 @@ void main() {
   group('fromGoogleFont', () {
     test('the same builder gives an equal text theme', () {
       expect(
-        ShadTextTheme.fromGoogleFont(_fakeGoogleFont),
-        ShadTextTheme.fromGoogleFont(_fakeGoogleFont),
+        TextTheme.fromGoogleFont(_fakeGoogleFont),
+        TextTheme.fromGoogleFont(_fakeGoogleFont),
       );
     });
 
     test('the family follows the weight', () {
-      final theme = ShadTextTheme.fromGoogleFont(_fakeGoogleFont);
+      final theme = TextTheme.fromGoogleFont(_fakeGoogleFont);
       expect(theme.h1.fontFamily, 'Fake_800');
       expect(
         theme.p.copyWith(fontWeight: FontWeight.w700).fontFamily,
@@ -94,7 +94,7 @@ void main() {
     });
 
     test('a copy keeps the weight or style it does not change', () {
-      final italicBold = ShadBuilderTextStyle(
+      final italicBold = BuilderTextStyle(
         const TextStyle(
           fontWeight: FontWeight.w700,
           fontStyle: FontStyle.italic,

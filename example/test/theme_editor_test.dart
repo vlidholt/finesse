@@ -4,10 +4,11 @@ import 'package:example/common/theme_editor/editor_config.dart';
 import 'package:example/common/theme_editor/fonts.dart';
 import 'package:example/common/theme_editor/preview_panel.dart';
 import 'package:example/main.dart';
-import 'package:flutter/material.dart';
+import 'package:finesse/finesse.dart';
+import 'package:flutter/material.dart'
+    hide Checkbox, Radio, Switch, Theme, ThemeData, ThemeMode;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shad/shad.dart';
 
 void main() {
   // google_fonts downloads faces on first use; there is no network in tests,
@@ -28,11 +29,11 @@ void main() {
 
       expect(
         accented.colorScheme.primary,
-        ShadAccentScheme.blueLight.primary,
+        AccentScheme.blueLight.primary,
       );
       expect(
         accented.colorScheme.ring,
-        ShadAccentScheme.blueLight.primary,
+        AccentScheme.blueLight.primary,
       );
       // Neutrals are untouched — that is the whole point of separating the
       // base palette from the accent.
@@ -135,10 +136,10 @@ void main() {
       final snippet = config.toDartSnippet();
 
       expect(snippet, contains('Brightness.dark'));
-      expect(snippet, contains('ShadZincColorScheme.dark()'));
+      expect(snippet, contains('ZincColorScheme.dark()'));
       expect(snippet, contains('applyAccentScheme'));
       // The default style, mirroring shadcn's own `DEFAULT_CONFIG.style`.
-      expect(snippet, contains('ShadStyleTokens.nova'));
+      expect(snippet, contains('StyleTokens.nova'));
     });
 
     test('the snippet omits applyAccent when the accent is the base', () {
@@ -147,16 +148,16 @@ void main() {
     });
   });
 
-  /// The editor's own ShadTheme, not ShadApp's outer one.
+  /// The editor's own Theme, not FinesseApp's outer one.
   ///
   /// find.ancestor yields nearest-first, so the first match above the preview
   /// panel is the theme the editor is driving.
-  ShadThemeData previewTheme(WidgetTester tester) => tester
-      .widget<ShadTheme>(
+  ThemeData previewTheme(WidgetTester tester) => tester
+      .widget<Theme>(
         find
             .ancestor(
               of: find.byType(ThemePreviewPanel),
-              matching: find.byType(ShadTheme),
+              matching: find.byType(Theme),
             )
             .first,
       )
@@ -199,7 +200,7 @@ void main() {
       String option,
     ) async {
       await tester.tap(find.text(label));
-      // ShadPopover wraps its content in an IgnorePointer while the entrance
+      // Popover wraps its content in an IgnorePointer while the entrance
       // animation runs, so the option is not tappable until it finishes.
       // pumpAndSettle is unusable here: the preview's spinner never settles.
       for (var i = 0; i < 12; i++) {
@@ -254,18 +255,18 @@ void main() {
 
       // A theme is judged on its controls, so the preview has to contain
       // them — checkboxes and radios were missing entirely.
-      expect(find.byType(ShadCheckbox), findsWidgets);
+      expect(find.byType(Checkbox), findsWidgets);
       // The radio group is generic over a private enum, so match by name.
       expect(
         find.byWidgetPredicate(
-          (w) => w.runtimeType.toString().startsWith('ShadRadio<'),
+          (w) => w.runtimeType.toString().startsWith('Radio<'),
         ),
         findsWidgets,
       );
-      expect(find.byType(ShadSwitch), findsWidgets);
-      expect(find.byType(ShadInputOTP), findsWidgets);
-      expect(find.byType(ShadProgress), findsWidgets);
-      expect(find.byType(ShadSkeleton), findsWidgets);
+      expect(find.byType(Switch), findsWidgets);
+      expect(find.byType(OtpField), findsWidgets);
+      expect(find.byType(ProgressBar), findsWidgets);
+      expect(find.byType(Skeleton), findsWidgets);
       expect(tester.takeException(), isNull);
     });
 
@@ -293,7 +294,7 @@ void main() {
       expect(previewTheme(tester).brightness, Brightness.light);
 
       themeModeProvider.of(tester.element(find.byType(AppShell))).value =
-          ShadThemeMode.dark;
+          ThemeMode.dark;
       for (var i = 0; i < 12; i++) {
         await tester.pump(const Duration(milliseconds: 50));
       }
@@ -312,7 +313,7 @@ void main() {
 
       expect(
         previewTheme(tester).colorScheme.primary,
-        ShadAccentScheme.blueLight.primary,
+        AccentScheme.blueLight.primary,
       );
     });
 
@@ -326,7 +327,7 @@ void main() {
 
       expect(
         previewTheme(tester).colorScheme.background,
-        const ShadMistColorScheme.light().background,
+        const MistColorScheme.light().background,
       );
     });
 
@@ -339,9 +340,9 @@ void main() {
       await choose(tester, 'Chart Color', 'Green');
 
       final scheme = previewTheme(tester).colorScheme;
-      expect(scheme.chart1, ShadAccentScheme.greenLight.chart1);
+      expect(scheme.chart1, AccentScheme.greenLight.chart1);
       // The primary is untouched by the chart picker.
-      expect(scheme.primary, isNot(ShadAccentScheme.greenLight.primary));
+      expect(scheme.primary, isNot(AccentScheme.greenLight.primary));
     });
 
     testWidgets('takes over a narrow viewport', (tester) async {
@@ -361,10 +362,10 @@ void main() {
       await choose(tester, 'Base Color', 'Mist');
 
       // The shell's own chrome is themed from the same configuration.
-      final shellTheme = ShadTheme.of(tester.element(find.text('Playground')));
+      final shellTheme = Theme.of(tester.element(find.text('Playground')));
       expect(
         shellTheme.colorScheme.background,
-        const ShadMistColorScheme.light().background,
+        const MistColorScheme.light().background,
       );
     });
   });
@@ -392,12 +393,12 @@ void main() {
         dark.colorScheme.popoverForeground,
       );
       expect(
-        theme.optionTheme.textStyle!.color,
+        theme.selectOptionTheme.textStyle!.color,
         dark.colorScheme.popoverForeground,
       );
       // The row highlight is the dark accent pair, icons included.
       expect(
-        theme.optionTheme.hoveredBackgroundColor,
+        theme.selectOptionTheme.hoveredBackgroundColor,
         dark.colorScheme.accent,
       );
       // The page's own popover is untouched: plain popovers do not invert.
@@ -429,7 +430,7 @@ void main() {
       expect(theme.contextMenuTheme.filter, isNotNull);
       expect(theme.selectTheme.filter, isNotNull);
       // …with row highlights as a foreground wash so they read through.
-      expect(theme.optionTheme.hoveredBackgroundColor!.a, lessThan(.2));
+      expect(theme.selectOptionTheme.hoveredBackgroundColor!.a, lessThan(.2));
       // The page palette itself stays opaque.
       expect(theme.colorScheme.popover.a, 1);
     });
@@ -438,7 +439,7 @@ void main() {
       // The reference writes `accent = primary` into the generated theme, so
       // it is a scheme transformation, and menus pick it up through their
       // normal accent highlight.
-      const config = ThemeEditorConfig(menuAccent: MenuAccent.bold);
+      const config = ThemeEditorConfig(menuAccent: EditorMenuAccent.bold);
       final theme = config.build();
 
       expect(theme.colorScheme.accent, theme.colorScheme.primary);
@@ -447,15 +448,15 @@ void main() {
         theme.colorScheme.primaryForeground,
       );
       expect(
-        theme.optionTheme.hoveredBackgroundColor,
+        theme.selectOptionTheme.hoveredBackgroundColor,
         theme.colorScheme.primary,
       );
       expect(
-        theme.optionTheme.selectedTextStyle!.color,
+        theme.selectOptionTheme.selectedTextStyle!.color,
         theme.colorScheme.primaryForeground,
       );
       expect(
-        theme.optionTheme.textStyle!.color,
+        theme.selectOptionTheme.textStyle!.color,
         theme.colorScheme.popoverForeground,
       );
     });
@@ -467,7 +468,7 @@ void main() {
       for (final brightness in Brightness.values) {
         for (final color in MenuSurfaceColor.values) {
           for (final finish in MenuSurfaceFinish.values) {
-            for (final accent in MenuAccent.values) {
+            for (final accent in EditorMenuAccent.values) {
               final config = ThemeEditorConfig(
                 brightness: brightness,
                 menuColor: color,
@@ -487,13 +488,13 @@ void main() {
 
               // Resting row.
               expect(
-                contrast(theme.optionTheme.textStyle!.color!, surface),
+                contrast(theme.selectOptionTheme.textStyle!.color!, surface),
                 greaterThan(.2),
                 reason: 'resting row unreadable: $where',
               );
               // Hovered row: the option and the context menu use the same
               // pair, so a menu cannot change colour halfway down.
-              final highlight = theme.optionTheme.hoveredBackgroundColor!;
+              final highlight = theme.selectOptionTheme.hoveredBackgroundColor!;
               expect(
                 theme.contextMenuTheme.selectedBackgroundColor,
                 highlight,
@@ -502,7 +503,7 @@ void main() {
               final paintedHighlight = composite(highlight, surface);
               expect(
                 contrast(
-                  theme.optionTheme.selectedTextStyle!.color!,
+                  theme.selectOptionTheme.selectedTextStyle!.color!,
                   paintedHighlight,
                 ),
                 greaterThan(.2),
@@ -539,7 +540,7 @@ void main() {
     });
 
     test('every font comes from Google Fonts through a cached builder', () {
-      // shad bundles no fonts, so every option, Inter included, resolves
+      // finesse bundles no fonts, so every option, Inter included, resolves
       // through google_fonts.
       for (final font in EditorFont.all) {
         expect(
@@ -549,7 +550,7 @@ void main() {
         );
       }
       // The builder and theme are cached: a fresh closure per access would
-      // make ShadThemeData unequal to itself.
+      // make ThemeData unequal to itself.
       final inter = EditorFont.byTitle('Inter');
       expect(identical(inter.builder, inter.builder), isTrue);
       expect(identical(inter.textTheme(), inter.textTheme()), isTrue);

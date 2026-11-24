@@ -3,14 +3,14 @@ import 'package:theme_extensions_builder_annotation/theme_extensions_builder_ann
 
 part 'scroll_area.g.theme.dart';
 
-/// {@template ShadScrollAreaTheme}
-/// Theme for `ShadScrollArea` and `ShadScrollbar`.
+/// {@template ScrollAreaTheme}
+/// Theme for `ScrollArea` and `Scrollbar`.
 /// {@endtemplate}
 @themeGen
 @immutable
-class ShadScrollAreaTheme with _$ShadScrollAreaTheme {
-  /// {@macro ShadScrollAreaTheme}
-  const ShadScrollAreaTheme({
+class ScrollAreaTheme with _$ScrollAreaTheme {
+  /// {@macro ScrollAreaTheme}
+  const ScrollAreaTheme({
     bool canMerge = true,
     this.thickness,
     this.crossAxisMargin,
@@ -28,34 +28,34 @@ class ShadScrollAreaTheme with _$ShadScrollAreaTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro ShadScrollbar.thickness}
+  /// {@macro Scrollbar.thickness}
   final double? thickness;
 
-  /// {@macro ShadScrollbar.crossAxisMargin}
+  /// {@macro Scrollbar.crossAxisMargin}
   final double? crossAxisMargin;
 
-  /// {@macro ShadScrollbar.mainAxisMargin}
+  /// {@macro Scrollbar.mainAxisMargin}
   final double? mainAxisMargin;
 
-  /// {@macro ShadScrollbar.radius}
+  /// {@macro Scrollbar.radius}
   final Radius? radius;
 
-  /// {@macro ShadScrollbar.thumbColor}
+  /// {@macro Scrollbar.thumbColor}
   final Color? thumbColor;
 
-  /// {@macro ShadScrollbar.thumbVisibility}
+  /// {@macro Scrollbar.thumbVisibility}
   final bool? thumbVisibility;
 
-  /// {@macro ShadScrollbar.fadeDuration}
+  /// {@macro Scrollbar.fadeDuration}
   final Duration? fadeDuration;
 
-  /// {@macro ShadScrollbar.timeToFade}
+  /// {@macro Scrollbar.timeToFade}
   final Duration? timeToFade;
 
   /// Linearly interpolates between [a] and [b] by [t].
-  static ShadScrollAreaTheme? lerp(
-    ShadScrollAreaTheme? a,
-    ShadScrollAreaTheme? b,
+  static ScrollAreaTheme? lerp(
+    ScrollAreaTheme? a,
+    ScrollAreaTheme? b,
     double t,
-  ) => _$ShadScrollAreaTheme.lerp(a, b, t);
+  ) => _$ScrollAreaTheme.lerp(a, b, t);
 }

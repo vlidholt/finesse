@@ -1,7 +1,7 @@
+import 'package:finesse/src/theme/color_scheme/base.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/color_scheme/base.dart';
 
-/// An accent overlay for a [ShadColorScheme].
+/// An accent overlay for a [ColorScheme].
 ///
 /// shadcn/ui splits a theme in two. A *base colour* — neutral, stone, zinc,
 /// mauve, olive, mist or taupe — supplies the full neutral palette:
@@ -10,25 +10,25 @@ import 'package:shad/src/theme/color_scheme/base.dart';
 /// ramp and the sidebar primary. Its themes file reflects this exactly — the
 /// accent entries define those keys and nothing else.
 ///
-/// [ShadColorScheme] bundles both halves, so this type carries the overlay and
-/// [ShadColorScheme.applyAccentScheme] merges it in.
+/// [ColorScheme] bundles both halves, so this type carries the overlay and
+/// [ColorScheme.applyAccentScheme] merges it in.
 ///
 /// ```dart
-/// ShadThemeData(
-///   colorScheme: const ShadZincColorScheme.light()
-///       .applyAccentScheme(ShadAccentScheme.violetLight),
+/// ThemeData(
+///   colorScheme: const ZincColorScheme.light()
+///       .applyAccentScheme(AccentScheme.violetLight),
 /// )
 /// ```
 ///
-/// For a one-off hue with no curated ramp, [ShadColorScheme.applyAccent]
+/// For a one-off hue with no curated ramp, [ColorScheme.applyAccent]
 /// takes a plain [Color] instead.
 @immutable
-class ShadAccentScheme {
+class AccentScheme {
   /// Creates an accent overlay.
   ///
   /// Only [name], [primary] and [primaryForeground] are required. A null
   /// optional token leaves the base scheme's value in place.
-  const ShadAccentScheme({
+  const AccentScheme({
     required this.name,
     required this.primary,
     required this.primaryForeground,
@@ -81,7 +81,7 @@ class ShadAccentScheme {
   final Color? sidebarPrimaryForeground;
 
   /// Every accent, in the order shadcn/ui lists them.
-  static const all = <String, (ShadAccentScheme, ShadAccentScheme)>{
+  static const all = <String, (AccentScheme, AccentScheme)>{
     'amber': (amberLight, amberDark),
     'blue': (blueLight, blueDark),
     'cyan': (cyanLight, cyanDark),
@@ -105,7 +105,7 @@ class ShadAccentScheme {
   ///
   /// Throws [ArgumentError] for an unknown name; use `all.containsKey` first
   /// when the name comes from user input.
-  static ShadAccentScheme fromName(
+  static AccentScheme fromName(
     String name, {
     Brightness brightness = Brightness.light,
   }) {
@@ -117,7 +117,7 @@ class ShadAccentScheme {
   }
 
   /// The shadcn/ui `amber` accent, light mode.
-  static const amberLight = ShadAccentScheme(
+  static const amberLight = AccentScheme(
     name: 'amber',
     primary: Color(0xffbb4d00),
     primaryForeground: Color(0xfffffbeb),
@@ -133,7 +133,7 @@ class ShadAccentScheme {
   );
 
   /// The shadcn/ui `amber` accent, dark mode.
-  static const amberDark = ShadAccentScheme(
+  static const amberDark = AccentScheme(
     name: 'amber',
     primary: Color(0xff973c00),
     primaryForeground: Color(0xfffffbeb),
@@ -149,7 +149,7 @@ class ShadAccentScheme {
   );
 
   /// The shadcn/ui `blue` accent, light mode.
-  static const blueLight = ShadAccentScheme(
+  static const blueLight = AccentScheme(
     name: 'blue',
     primary: Color(0xff1447e6),
     primaryForeground: Color(0xffeff6ff),
@@ -165,7 +165,7 @@ class ShadAccentScheme {
   );
 
   /// The shadcn/ui `blue` accent, dark mode.
-  static const blueDark = ShadAccentScheme(
+  static const blueDark = AccentScheme(
     name: 'blue',
     primary: Color(0xff193cb8),
     primaryForeground: Color(0xffeff6ff),
@@ -181,7 +181,7 @@ class ShadAccentScheme {
   );
 
   /// The shadcn/ui `cyan` accent, light mode.
-  static const cyanLight = ShadAccentScheme(
+  static const cyanLight = AccentScheme(
     name: 'cyan',
     primary: Color(0xff007595),
     primaryForeground: Color(0xffecfeff),
@@ -197,7 +197,7 @@ class ShadAccentScheme {
   );
 
   /// The shadcn/ui `cyan` accent, dark mode.
-  static const cyanDark = ShadAccentScheme(
+  static const cyanDark = AccentScheme(
     name: 'cyan',
     primary: Color(0xff005f78),
     primaryForeground: Color(0xffecfeff),
@@ -213,7 +213,7 @@ class ShadAccentScheme {
   );
 
   /// The shadcn/ui `emerald` accent, light mode.
-  static const emeraldLight = ShadAccentScheme(
+  static const emeraldLight = AccentScheme(
     name: 'emerald',
     primary: Color(0xff007a55),
     primaryForeground: Color(0xffecfdf5),
@@ -229,7 +229,7 @@ class ShadAccentScheme {
   );
 
   /// The shadcn/ui `emerald` accent, dark mode.
-  static const emeraldDark = ShadAccentScheme(
+  static const emeraldDark = AccentScheme(
     name: 'emerald',
     primary: Color(0xff006045),
     primaryForeground: Color(0xffecfdf5),
@@ -245,7 +245,7 @@ class ShadAccentScheme {
   );
 
   /// The shadcn/ui `fuchsia` accent, light mode.
-  static const fuchsiaLight = ShadAccentScheme(
+  static const fuchsiaLight = AccentScheme(
     name: 'fuchsia',
     primary: Color(0xffa800b7),
     primaryForeground: Color(0xfffdf4ff),
@@ -261,7 +261,7 @@ class ShadAccentScheme {
   );
 
   /// The shadcn/ui `fuchsia` accent, dark mode.
-  static const fuchsiaDark = ShadAccentScheme(
+  static const fuchsiaDark = AccentScheme(
     name: 'fuchsia',
     primary: Color(0xff8a0194),
     primaryForeground: Color(0xfffdf4ff),
@@ -277,7 +277,7 @@ class ShadAccentScheme {
   );
 
   /// The shadcn/ui `green` accent, light mode.
-  static const greenLight = ShadAccentScheme(
+  static const greenLight = AccentScheme(
     name: 'green',
     primary: Color(0xff008236),
     primaryForeground: Color(0xfff0fdf4),
@@ -293,7 +293,7 @@ class ShadAccentScheme {
   );
 
   /// The shadcn/ui `green` accent, dark mode.
-  static const greenDark = ShadAccentScheme(
+  static const greenDark = AccentScheme(
     name: 'green',
     primary: Color(0xff016630),
     primaryForeground: Color(0xfff0fdf4),
@@ -309,7 +309,7 @@ class ShadAccentScheme {
   );
 
   /// The shadcn/ui `indigo` accent, light mode.
-  static const indigoLight = ShadAccentScheme(
+  static const indigoLight = AccentScheme(
     name: 'indigo',
     primary: Color(0xff432dd7),
     primaryForeground: Color(0xffeef2ff),
@@ -325,7 +325,7 @@ class ShadAccentScheme {
   );
 
   /// The shadcn/ui `indigo` accent, dark mode.
-  static const indigoDark = ShadAccentScheme(
+  static const indigoDark = AccentScheme(
     name: 'indigo',
     primary: Color(0xff372aac),
     primaryForeground: Color(0xffeef2ff),
@@ -341,7 +341,7 @@ class ShadAccentScheme {
   );
 
   /// The shadcn/ui `lime` accent, light mode.
-  static const limeLight = ShadAccentScheme(
+  static const limeLight = AccentScheme(
     name: 'lime',
     primary: Color(0xff9ae600),
     primaryForeground: Color(0xff35530e),
@@ -357,7 +357,7 @@ class ShadAccentScheme {
   );
 
   /// The shadcn/ui `lime` accent, dark mode.
-  static const limeDark = ShadAccentScheme(
+  static const limeDark = AccentScheme(
     name: 'lime',
     primary: Color(0xff7ccf00),
     primaryForeground: Color(0xff35530e),
@@ -373,7 +373,7 @@ class ShadAccentScheme {
   );
 
   /// The shadcn/ui `orange` accent, light mode.
-  static const orangeLight = ShadAccentScheme(
+  static const orangeLight = AccentScheme(
     name: 'orange',
     primary: Color(0xffca3500),
     primaryForeground: Color(0xfffff7ed),
@@ -389,7 +389,7 @@ class ShadAccentScheme {
   );
 
   /// The shadcn/ui `orange` accent, dark mode.
-  static const orangeDark = ShadAccentScheme(
+  static const orangeDark = AccentScheme(
     name: 'orange',
     primary: Color(0xff9f2d00),
     primaryForeground: Color(0xfffff7ed),
@@ -405,7 +405,7 @@ class ShadAccentScheme {
   );
 
   /// The shadcn/ui `pink` accent, light mode.
-  static const pinkLight = ShadAccentScheme(
+  static const pinkLight = AccentScheme(
     name: 'pink',
     primary: Color(0xffc6005c),
     primaryForeground: Color(0xfffdf2f8),
@@ -421,7 +421,7 @@ class ShadAccentScheme {
   );
 
   /// The shadcn/ui `pink` accent, dark mode.
-  static const pinkDark = ShadAccentScheme(
+  static const pinkDark = AccentScheme(
     name: 'pink',
     primary: Color(0xffa3004c),
     primaryForeground: Color(0xfffdf2f8),
@@ -437,7 +437,7 @@ class ShadAccentScheme {
   );
 
   /// The shadcn/ui `purple` accent, light mode.
-  static const purpleLight = ShadAccentScheme(
+  static const purpleLight = AccentScheme(
     name: 'purple',
     primary: Color(0xff8200db),
     primaryForeground: Color(0xfffaf5ff),
@@ -453,7 +453,7 @@ class ShadAccentScheme {
   );
 
   /// The shadcn/ui `purple` accent, dark mode.
-  static const purpleDark = ShadAccentScheme(
+  static const purpleDark = AccentScheme(
     name: 'purple',
     primary: Color(0xff6e11b0),
     primaryForeground: Color(0xfffaf5ff),
@@ -469,7 +469,7 @@ class ShadAccentScheme {
   );
 
   /// The shadcn/ui `red` accent, light mode.
-  static const redLight = ShadAccentScheme(
+  static const redLight = AccentScheme(
     name: 'red',
     primary: Color(0xffc10007),
     primaryForeground: Color(0xfffef2f2),
@@ -485,7 +485,7 @@ class ShadAccentScheme {
   );
 
   /// The shadcn/ui `red` accent, dark mode.
-  static const redDark = ShadAccentScheme(
+  static const redDark = AccentScheme(
     name: 'red',
     primary: Color(0xff9f0712),
     primaryForeground: Color(0xfffef2f2),
@@ -501,7 +501,7 @@ class ShadAccentScheme {
   );
 
   /// The shadcn/ui `rose` accent, light mode.
-  static const roseLight = ShadAccentScheme(
+  static const roseLight = AccentScheme(
     name: 'rose',
     primary: Color(0xffc70036),
     primaryForeground: Color(0xfffff1f2),
@@ -517,7 +517,7 @@ class ShadAccentScheme {
   );
 
   /// The shadcn/ui `rose` accent, dark mode.
-  static const roseDark = ShadAccentScheme(
+  static const roseDark = AccentScheme(
     name: 'rose',
     primary: Color(0xffa50036),
     primaryForeground: Color(0xfffff1f2),
@@ -533,7 +533,7 @@ class ShadAccentScheme {
   );
 
   /// The shadcn/ui `sky` accent, light mode.
-  static const skyLight = ShadAccentScheme(
+  static const skyLight = AccentScheme(
     name: 'sky',
     primary: Color(0xff0069a8),
     primaryForeground: Color(0xfff0f9ff),
@@ -549,7 +549,7 @@ class ShadAccentScheme {
   );
 
   /// The shadcn/ui `sky` accent, dark mode.
-  static const skyDark = ShadAccentScheme(
+  static const skyDark = AccentScheme(
     name: 'sky',
     primary: Color(0xff00598a),
     primaryForeground: Color(0xfff0f9ff),
@@ -565,7 +565,7 @@ class ShadAccentScheme {
   );
 
   /// The shadcn/ui `teal` accent, light mode.
-  static const tealLight = ShadAccentScheme(
+  static const tealLight = AccentScheme(
     name: 'teal',
     primary: Color(0xff00786f),
     primaryForeground: Color(0xfff0fdfa),
@@ -581,7 +581,7 @@ class ShadAccentScheme {
   );
 
   /// The shadcn/ui `teal` accent, dark mode.
-  static const tealDark = ShadAccentScheme(
+  static const tealDark = AccentScheme(
     name: 'teal',
     primary: Color(0xff005f5a),
     primaryForeground: Color(0xfff0fdfa),
@@ -597,7 +597,7 @@ class ShadAccentScheme {
   );
 
   /// The shadcn/ui `violet` accent, light mode.
-  static const violetLight = ShadAccentScheme(
+  static const violetLight = AccentScheme(
     name: 'violet',
     primary: Color(0xff7008e7),
     primaryForeground: Color(0xfff5f3ff),
@@ -613,7 +613,7 @@ class ShadAccentScheme {
   );
 
   /// The shadcn/ui `violet` accent, dark mode.
-  static const violetDark = ShadAccentScheme(
+  static const violetDark = AccentScheme(
     name: 'violet',
     primary: Color(0xff5d0ec0),
     primaryForeground: Color(0xfff5f3ff),
@@ -629,7 +629,7 @@ class ShadAccentScheme {
   );
 
   /// The shadcn/ui `yellow` accent, light mode.
-  static const yellowLight = ShadAccentScheme(
+  static const yellowLight = AccentScheme(
     name: 'yellow',
     primary: Color(0xfffdc700),
     primaryForeground: Color(0xff733e0a),
@@ -645,7 +645,7 @@ class ShadAccentScheme {
   );
 
   /// The shadcn/ui `yellow` accent, dark mode.
-  static const yellowDark = ShadAccentScheme(
+  static const yellowDark = AccentScheme(
     name: 'yellow',
     primary: Color(0xfff0b100),
     primaryForeground: Color(0xff733e0a),
@@ -663,7 +663,7 @@ class ShadAccentScheme {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is ShadAccentScheme &&
+    return other is AccentScheme &&
         other.name == name &&
         other.primary == primary &&
         other.primaryForeground == primaryForeground &&

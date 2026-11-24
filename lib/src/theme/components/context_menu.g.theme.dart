@@ -9,12 +9,12 @@ part of 'context_menu.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadContextMenuTheme {
+mixin _$ContextMenuTheme {
   bool get canMerge => true;
 
-  static ShadContextMenuTheme? lerp(
-    ShadContextMenuTheme? a,
-    ShadContextMenuTheme? b,
+  static ContextMenuTheme? lerp(
+    ContextMenuTheme? a,
+    ContextMenuTheme? b,
     double t,
   ) {
     if (identical(a, b)) {
@@ -29,7 +29,7 @@ mixin _$ShadContextMenuTheme {
       return t == 0.0 ? a : null;
     }
 
-    return ShadContextMenuTheme(
+    return ContextMenuTheme(
       popoverReverseDuration: lerpDuration$(
         a.popoverReverseDuration,
         b.popoverReverseDuration,
@@ -53,7 +53,7 @@ mixin _$ShadContextMenuTheme {
       showDelay: lerpDuration$(a.showDelay, b.showDelay, t),
       height: lerpDouble$(a.height, b.height, t),
       buttonVariant: t < 0.5 ? a.buttonVariant : b.buttonVariant,
-      itemDecoration: ShadDecoration.lerp(
+      itemDecoration: FinesseDecoration.lerp(
         a.itemDecoration,
         b.itemDecoration,
         t,
@@ -103,12 +103,12 @@ mixin _$ShadContextMenuTheme {
       closeOnTap: t < 0.5 ? a.closeOnTap : b.closeOnTap,
       effects: t < 0.5 ? a.effects : b.effects,
       shadows: t < 0.5 ? a.shadows : b.shadows,
-      decoration: ShadDecoration.lerp(a.decoration, b.decoration, t),
+      decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
       filter: t < 0.5 ? a.filter : b.filter,
     );
   }
 
-  ShadContextMenuTheme copyWith({
+  ContextMenuTheme copyWith({
     Duration? popoverReverseDuration,
     BoxConstraints? constraints,
     EdgeInsetsGeometry? padding,
@@ -116,11 +116,11 @@ mixin _$ShadContextMenuTheme {
     EdgeInsetsGeometry? trailingPadding,
     EdgeInsetsGeometry? itemPadding,
     EdgeInsetsGeometry? insetPadding,
-    ShadAnchorBase? anchor,
+    AnchorBase? anchor,
     Duration? showDelay,
     double? height,
-    ShadButtonVariant? buttonVariant,
-    ShadDecoration? itemDecoration,
+    ButtonVariant? buttonVariant,
+    FinesseDecoration? itemDecoration,
     TextStyle? textStyle,
     TextStyle? selectedTextStyle,
     TextStyle? trailingTextStyle,
@@ -134,12 +134,12 @@ mixin _$ShadContextMenuTheme {
     bool? closeOnTap,
     List<Effect<dynamic>>? effects,
     List<BoxShadow>? shadows,
-    ShadDecoration? decoration,
+    FinesseDecoration? decoration,
     ImageFilter? filter,
   }) {
-    final _this = (this as ShadContextMenuTheme);
+    final _this = (this as ContextMenuTheme);
 
-    return ShadContextMenuTheme(
+    return ContextMenuTheme(
       popoverReverseDuration:
           popoverReverseDuration ?? _this.popoverReverseDuration,
       constraints: constraints ?? _this.constraints,
@@ -176,8 +176,8 @@ mixin _$ShadContextMenuTheme {
     );
   }
 
-  ShadContextMenuTheme merge(ShadContextMenuTheme? other) {
-    final _this = (this as ShadContextMenuTheme);
+  ContextMenuTheme merge(ContextMenuTheme? other) {
+    final _this = (this as ContextMenuTheme);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -239,8 +239,8 @@ mixin _$ShadContextMenuTheme {
       return false;
     }
 
-    final _this = (this as ShadContextMenuTheme);
-    final _other = (other as ShadContextMenuTheme);
+    final _this = (this as ContextMenuTheme);
+    final _other = (other as ContextMenuTheme);
 
     return _other.popoverReverseDuration == _this.popoverReverseDuration &&
         _other.constraints == _this.constraints &&
@@ -274,7 +274,7 @@ mixin _$ShadContextMenuTheme {
 
   @override
   int get hashCode {
-    final _this = (this as ShadContextMenuTheme);
+    final _this = (this as ContextMenuTheme);
 
     return Object.hashAll([
       runtimeType,

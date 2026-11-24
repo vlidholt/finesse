@@ -1,13 +1,13 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/shad.dart';
 
 void main() {
   Future<void> pumpMenu(
     WidgetTester tester, {
-    required ShadContextMenuController controller,
+    required FinesseContextMenuController controller,
     List<Widget> items = const [],
     List<Widget> Function(BuildContext)? itemsBuilder,
     Size size = const Size(800, 600),
@@ -16,10 +16,10 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
-      ShadApp(
+      FinesseApp(
         home: Align(
           alignment: Alignment.topLeft,
-          child: ShadContextMenu(
+          child: ContextMenu(
             controller: controller,
             items: items,
             itemsBuilder: itemsBuilder,
@@ -34,19 +34,19 @@ void main() {
     // The outermost decorator above an item is the menu's own surface.
     final surface = find.ancestor(
       of: find.text(firstItem),
-      matching: find.byType(ShadDecorator),
+      matching: find.byType(Decorator),
     );
     return tester.getRect(surface.last);
   }
 
   group('showAt', () {
     testWidgets('opens with its corner at the point', (tester) async {
-      final controller = ShadContextMenuController();
+      final controller = FinesseContextMenuController();
       addTearDown(controller.dispose);
       await pumpMenu(
         tester,
         controller: controller,
-        items: const [ShadContextMenuItem(child: Text('Copy'))],
+        items: const [ContextMenuItem(child: Text('Copy'))],
       );
 
       controller.showAt(const Offset(200, 150));
@@ -59,12 +59,12 @@ void main() {
     testWidgets('mirrors to stay on screen near the far corner', (
       tester,
     ) async {
-      final controller = ShadContextMenuController();
+      final controller = FinesseContextMenuController();
       addTearDown(controller.dispose);
       await pumpMenu(
         tester,
         controller: controller,
-        items: const [ShadContextMenuItem(child: Text('Copy'))],
+        items: const [ContextMenuItem(child: Text('Copy'))],
       );
 
       controller.showAt(const Offset(795, 595));
@@ -81,15 +81,14 @@ void main() {
   testWidgets('a long menu is capped to the screen and scrolls', (
     tester,
   ) async {
-    final controller = ShadContextMenuController();
+    final controller = FinesseContextMenuController();
     addTearDown(controller.dispose);
     await pumpMenu(
       tester,
       controller: controller,
       size: const Size(400, 300),
       items: [
-        for (var i = 0; i < 40; i++)
-          ShadContextMenuItem(child: Text('Item $i')),
+        for (var i = 0; i < 40; i++) ContextMenuItem(child: Text('Item $i')),
       ],
     );
     controller.showAt(const Offset(10, 10));
@@ -109,7 +108,7 @@ void main() {
   testWidgets('itemsBuilder runs only while the menu is open', (
     tester,
   ) async {
-    final controller = ShadContextMenuController();
+    final controller = FinesseContextMenuController();
     addTearDown(controller.dispose);
     var builds = 0;
     await pumpMenu(
@@ -117,7 +116,7 @@ void main() {
       controller: controller,
       itemsBuilder: (_) {
         builds++;
-        return const [ShadContextMenuItem(child: Text('Lazy'))];
+        return const [ContextMenuItem(child: Text('Lazy'))];
       },
     );
     expect(builds, 0);
@@ -129,21 +128,21 @@ void main() {
   });
 
   group('keyboard', () {
-    Future<ShadContextMenuController> openMenu(WidgetTester tester) async {
-      final controller = ShadContextMenuController();
+    Future<FinesseContextMenuController> openMenu(WidgetTester tester) async {
+      final controller = FinesseContextMenuController();
       addTearDown(controller.dispose);
       await pumpMenu(
         tester,
         controller: controller,
         items: const [
           // A leading icon renders a glyph as text; type-ahead must skip it.
-          ShadContextMenuItem(
+          ContextMenuItem(
             leading: Icon(IconData(0x41)),
             child: Text('Back'),
           ),
-          ShadContextMenuItem(child: Text('Copy')),
-          ShadContextMenuItem(child: Text('Cut')),
-          ShadContextMenuItem(child: Text('Paste')),
+          ContextMenuItem(child: Text('Copy')),
+          ContextMenuItem(child: Text('Cut')),
+          ContextMenuItem(child: Text('Paste')),
         ],
       );
       controller.show();
@@ -221,14 +220,14 @@ void main() {
   testWidgets('a submenu near the right edge opens on the left', (
     tester,
   ) async {
-    final controller = ShadContextMenuController();
+    final controller = FinesseContextMenuController();
     addTearDown(controller.dispose);
     await pumpMenu(
       tester,
       controller: controller,
       items: const [
-        ShadContextMenuItem(
-          items: [ShadContextMenuItem(child: Text('Nested'))],
+        ContextMenuItem(
+          items: [ContextMenuItem(child: Text('Nested'))],
           child: Text('More'),
         ),
       ],
@@ -261,26 +260,26 @@ void main() {
 
   group('moving to another row', () {
     Future<TestGesture> openFirst(WidgetTester tester) async {
-      final controller = ShadContextMenuController();
+      final controller = FinesseContextMenuController();
       addTearDown(controller.dispose);
       await pumpMenu(
         tester,
         controller: controller,
         items: const [
-          ShadContextMenuItem(
+          ContextMenuItem(
             items: [
-              ShadContextMenuItem(
-                items: [ShadContextMenuItem(child: Text('Deep'))],
+              ContextMenuItem(
+                items: [ContextMenuItem(child: Text('Deep'))],
                 child: Text('Nested'),
               ),
             ],
             child: Text('First'),
           ),
-          ShadContextMenuItem(
-            items: [ShadContextMenuItem(child: Text('Second nested'))],
+          ContextMenuItem(
+            items: [ContextMenuItem(child: Text('Second nested'))],
             child: Text('Second'),
           ),
-          ShadContextMenuItem(child: Text('Leaf')),
+          ContextMenuItem(child: Text('Leaf')),
         ],
       );
       controller.showAt(const Offset(100, 100));
@@ -333,18 +332,18 @@ void main() {
   testWidgets('a submenu closes on time while the pointer keeps moving', (
     tester,
   ) async {
-    final controller = ShadContextMenuController();
+    final controller = FinesseContextMenuController();
     addTearDown(controller.dispose);
     await pumpMenu(
       tester,
       controller: controller,
       items: const [
-        ShadContextMenuItem(
-          items: [ShadContextMenuItem(child: Text('First nested'))],
+        ContextMenuItem(
+          items: [ContextMenuItem(child: Text('First nested'))],
           child: Text('First'),
         ),
-        ShadContextMenuItem(
-          items: [ShadContextMenuItem(child: Text('Second nested'))],
+        ContextMenuItem(
+          items: [ContextMenuItem(child: Text('Second nested'))],
           child: Text('Second'),
         ),
       ],

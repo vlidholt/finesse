@@ -10,13 +10,13 @@ final layoutDoc = ComponentDoc(
   title: 'Layout',
   description:
       'Layout widgets measure gaps and padding in theme spacing steps: '
-      '`ShadRow`, `ShadColumn`, `ShadGap`, and `ShadPadding`.',
+      '`FinesseRow`, `FinesseColumn`, `Gap`, and `FinessePadding`.',
   examples: [
     ComponentExample(
       id: 'layout_spacing',
       title: 'Row and column spacing',
       description:
-          'Set `spacing` on `ShadRow` or `ShadColumn` to insert the same '
+          'Set `spacing` on `FinesseRow` or `FinesseColumn` to insert the same '
           'gap between every child.',
       builder: (_) => const LayoutSpacingExample(),
     ),
@@ -24,7 +24,7 @@ final layoutDoc = ComponentDoc(
       id: 'layout_gap',
       title: 'Gaps',
       description:
-          'Use `ShadGap` in a plain `Row` or `Column` when only some '
+          'Use `Gap` in a plain `Row` or `Column` when only some '
           'children need space between them.',
       builder: (_) => const LayoutGapExample(),
     ),
@@ -32,7 +32,7 @@ final layoutDoc = ComponentDoc(
       id: 'layout_padding',
       title: 'Padding',
       description:
-          '`ShadPadding` maps Tailwind inset classes to theme steps. '
+          '`FinessePadding` maps Tailwind inset classes to theme steps. '
           '`symmetric(horizontal: 6, vertical: 4)` matches `px-6 py-4`.',
       builder: (_) => const LayoutPaddingExample(),
     ),
@@ -40,15 +40,15 @@ final layoutDoc = ComponentDoc(
       id: 'layout_card_sections',
       title: 'Card sections',
       description:
-          'Use `ShadColumn` with `crossAxisAlignment: stretch` inside a '
-          'card. Put `ShadSeparator` between groups.',
+          'Use `FinesseColumn` with `crossAxisAlignment: stretch` inside a '
+          'card. Put `Divider` between groups.',
       builder: (_) => const LayoutCardSectionsExample(),
     ),
     ComponentExample(
       id: 'layout_form_actions',
       title: 'Form actions',
       description:
-          'Stack fields and buttons in a `ShadColumn`. Put the primary '
+          'Stack fields and buttons in a `FinesseColumn`. Put the primary '
           'action above the outline cancel.',
       builder: (_) => const LayoutFormActionsExample(),
     ),

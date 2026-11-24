@@ -14,9 +14,9 @@ import 'package:flutter/widgets.dart';
 /// 14/20, `text-base` 16/24, `text-lg` 18/28. Tracking is stored in logical
 /// pixels — Tailwind's `tracking-wider` is `0.05em`, so at 18px it is 0.9.
 @immutable
-class ShadTextRole {
+class TextRole {
   /// Creates a text role. [uppercase] defaults to false.
-  const ShadTextRole({
+  const TextRole({
     required this.fontSize,
     this.fontWeight,
     this.letterSpacing,
@@ -65,14 +65,14 @@ class ShadTextRole {
   String applyCase(String text) => uppercase ? text.toUpperCase() : text;
 
   /// Creates a copy of this role with the given fields replaced.
-  ShadTextRole copyWith({
+  TextRole copyWith({
     double? fontSize,
     FontWeight? fontWeight,
     double? letterSpacing,
     double? height,
     bool? uppercase,
   }) {
-    return ShadTextRole(
+    return TextRole(
       fontSize: fontSize ?? this.fontSize,
       fontWeight: fontWeight ?? this.fontWeight,
       letterSpacing: letterSpacing ?? this.letterSpacing,
@@ -84,7 +84,7 @@ class ShadTextRole {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is ShadTextRole &&
+      (other is TextRole &&
           other.fontSize == fontSize &&
           other.fontWeight == fontWeight &&
           other.letterSpacing == letterSpacing &&
@@ -97,6 +97,6 @@ class ShadTextRole {
 
   @override
   String toString() =>
-      'ShadTextRole($fontSize, $fontWeight'
+      'TextRole($fontSize, $fontWeight'
       '${uppercase ? ', uppercase' : ''})';
 }

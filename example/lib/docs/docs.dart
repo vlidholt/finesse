@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:finesse/finesse.dart';
+import 'package:flutter/material.dart' hide IconButton, Tab, Theme;
 import 'package:flutter/services.dart';
-import 'package:shad/shad.dart';
 import 'package:syntax_highlight/syntax_highlight.dart';
 
 /// One documented component: what the sidebar lists and a doc page renders.
@@ -81,7 +81,7 @@ class CodeHighlighter {
   ///
   /// Highlighting runs a TextMate grammar over a whole file and builds a
   /// multi-thousand-node span tree. [CodeBlock] is a StatelessWidget that
-  /// depends on [ShadTheme], and [ShadTabs] keeps unselected tabs mounted, so
+  /// depends on [Theme], and [Tabs] keeps unselected tabs mounted, so
   /// without this every code block on a page — visible or not — was
   /// re-tokenized on every theme notification. The corpus is the bundled
   /// examples, so the map is bounded by the docs themselves.
@@ -116,7 +116,7 @@ class CodeBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
 
     Widget content = SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -206,7 +206,7 @@ class _AssetCodeBlockState extends State<_AssetCodeBlock> {
         if (!snapshot.hasData) {
           return const SizedBox(
             height: 120,
-            child: Center(child: ShadSpinner()),
+            child: Center(child: Spinner()),
           );
         }
         return CodeBlock(code: snapshot.data!, maxHeight: widget.maxHeight);
@@ -229,7 +229,7 @@ class _CopyButtonState extends State<_CopyButton> {
 
   @override
   Widget build(BuildContext context) {
-    return ShadIconButton.ghost(
+    return IconButton.ghost(
       width: 28,
       height: 28,
       iconSize: 14,
@@ -262,7 +262,7 @@ class DocSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -287,7 +287,7 @@ class DocParagraph extends StatelessWidget {
 
   /// [text] split into plain and `code` spans.
   static List<InlineSpan> spans(BuildContext context, String text) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     final code = TextStyle(
       fontFamily: 'JetBrainsMono',
       fontSize: 13,
@@ -304,7 +304,7 @@ class DocParagraph extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     return Text.rich(
       TextSpan(children: spans(context, text)),
       style: theme.textTheme.p,
@@ -320,7 +320,7 @@ class DocBullets extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -382,7 +382,7 @@ class ExamplePreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     return Container(
       width: double.infinity,
       constraints: BoxConstraints(minHeight: minHeight),
@@ -414,7 +414,7 @@ class DocExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -430,11 +430,11 @@ class DocExample extends StatelessWidget {
           ),
         ],
         const SizedBox(height: 12),
-        ShadTabs<String>(
+        Tabs<String>(
           value: 'preview',
           tabBarAlignment: Alignment.centerLeft,
           tabs: [
-            ShadTab(
+            Tab(
               value: 'preview',
               content: ExamplePreview(
                 minHeight: example.minPreviewHeight,
@@ -443,7 +443,7 @@ class DocExample extends StatelessWidget {
               ),
               child: const Text('Preview'),
             ),
-            ShadTab(
+            Tab(
               value: 'code',
               content: CodeBlock.asset(example.assetPath(slug)),
               child: const Text('Code'),
@@ -463,7 +463,7 @@ class ComponentDocPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
 
     return SelectionArea(
       child: SingleChildScrollView(

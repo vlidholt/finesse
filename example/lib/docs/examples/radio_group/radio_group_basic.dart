@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 enum NotifyAbout {
   all('All new messages'),
@@ -16,12 +16,12 @@ class RadioGroupBasicExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ShadRadioGroup<NotifyAbout>(
+    return FinesseRadioGroup<NotifyAbout>(
       initialValue: NotifyAbout.mentions,
       onChanged: (value) {},
       items: [
         for (final option in NotifyAbout.values)
-          ShadRadio(value: option, label: Text(option.message)),
+          Radio(value: option, label: Text(option.message)),
       ],
     );
   }

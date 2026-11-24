@@ -1,32 +1,32 @@
+import 'package:finesse/material.dart';
+import 'package:finesse/src/app.dart';
+import 'package:finesse/src/components/context_menu.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:shad/material.dart';
-import 'package:shad/src/app.dart';
-import 'package:shad/src/components/context_menu.dart';
 
 void main() {
-  // Helper method to create a test widget wrapped in ShadApp and Scaffold
+  // Helper method to create a test widget wrapped in FinesseApp and Scaffold
   Widget createTestWidget(Widget child) {
-    return ShadApp(
-      builder: (context, child) => ShadMaterial(child: child!),
+    return FinesseApp(
+      builder: (context, child) => FinesseMaterial(child: child!),
       home: Scaffold(body: child),
     );
   }
 
-  group('ShadContextMenuRegion tapEnabled', () {
+  group('ContextMenuRegion tapEnabled', () {
     Widget buildRegion({
-      ShadContextMenuController? controller,
+      FinesseContextMenuController? controller,
       bool? tapEnabled,
     }) {
-      return ShadApp(
-        builder: (context, child) => ShadMaterial(child: child!),
+      return FinesseApp(
+        builder: (context, child) => FinesseMaterial(child: child!),
         home: Scaffold(
-          body: ShadContextMenuRegion(
+          body: ContextMenuRegion(
             controller: controller,
             tapEnabled: tapEnabled,
-            items: const [ShadContextMenuItem(child: Text('Item'))],
+            items: const [ContextMenuItem(child: Text('Item'))],
             child: const SizedBox(width: 200, height: 200, key: Key('target')),
           ),
         ),
@@ -36,7 +36,7 @@ void main() {
     testWidgets(
       'tap opens menu by default on mobile platforms',
       (tester) async {
-        final controller = ShadContextMenuController();
+        final controller = FinesseContextMenuController();
         addTearDown(controller.dispose);
         await tester.pumpWidget(buildRegion(controller: controller));
         await tester.pumpAndSettle();
@@ -58,7 +58,7 @@ void main() {
     testWidgets(
       'tap does not open menu by default on desktop platforms',
       (tester) async {
-        final controller = ShadContextMenuController();
+        final controller = FinesseContextMenuController();
         addTearDown(controller.dispose);
         await tester.pumpWidget(buildRegion(controller: controller));
         await tester.pumpAndSettle();
@@ -81,7 +81,7 @@ void main() {
     testWidgets(
       'tapEnabled: true opens menu on desktop',
       (tester) async {
-        final controller = ShadContextMenuController();
+        final controller = FinesseContextMenuController();
         addTearDown(controller.dispose);
         await tester.pumpWidget(
           buildRegion(controller: controller, tapEnabled: true),
@@ -106,7 +106,7 @@ void main() {
     testWidgets(
       'tapEnabled: false prevents tap from opening menu on mobile',
       (tester) async {
-        final controller = ShadContextMenuController();
+        final controller = FinesseContextMenuController();
         addTearDown(controller.dispose);
         await tester.pumpWidget(
           buildRegion(controller: controller, tapEnabled: false),
@@ -130,15 +130,15 @@ void main() {
     testWidgets(
       'opening a menu with a disabled item does not assert during build',
       (tester) async {
-        final controller = ShadContextMenuController();
+        final controller = FinesseContextMenuController();
         addTearDown(controller.dispose);
         await tester.pumpWidget(
           createTestWidget(
-            ShadContextMenuRegion(
+            ContextMenuRegion(
               controller: controller,
               items: const [
-                ShadContextMenuItem(child: Text('Enabled')),
-                ShadContextMenuItem(
+                ContextMenuItem(child: Text('Enabled')),
+                ContextMenuItem(
                   enabled: false,
                   child: Text('Disabled'),
                 ),
@@ -168,51 +168,51 @@ void main() {
       },
     );
 
-    group('ShadContextMenu', () {
-      testWidgets('ShadContextMenu matches goldens', (tester) async {
+    group('ContextMenu', () {
+      testWidgets('ContextMenu matches goldens', (tester) async {
         await tester.pumpWidget(
           createTestWidget(
-            ShadContextMenuRegion(
+            ContextMenuRegion(
               constraints: const BoxConstraints(minWidth: 300),
               items: [
-                const ShadContextMenuItem.inset(
+                const ContextMenuItem.inset(
                   child: Text('Back'),
                 ),
-                const ShadContextMenuItem.inset(
+                const ContextMenuItem.inset(
                   enabled: false,
                   child: Text('Forward'),
                 ),
-                const ShadContextMenuItem.inset(
+                const ContextMenuItem.inset(
                   child: Text('Reload'),
                 ),
-                const ShadContextMenuItem.inset(
+                const ContextMenuItem.inset(
                   trailing: Icon(LucideIcons.chevronRight),
                   items: [
-                    ShadContextMenuItem(
+                    ContextMenuItem(
                       child: Text('Save Page As...'),
                     ),
-                    ShadContextMenuItem(
+                    ContextMenuItem(
                       child: Text('Create Shortcut...'),
                     ),
-                    ShadContextMenuItem(
+                    ContextMenuItem(
                       child: Text('Name Window...'),
                     ),
-                    ShadContextMenuItem(
+                    ContextMenuItem(
                       child: Text('Developer Tools'),
                     ),
                   ],
                   child: Text('More Tools'),
                 ),
-                const ShadContextMenuItem(
+                const ContextMenuItem(
                   leading: Icon(LucideIcons.check),
                   child: Text('Show Bookmarks Bar'),
                 ),
-                const ShadContextMenuItem.inset(child: Text('Show Full URLs')),
+                const ContextMenuItem.inset(child: Text('Show Full URLs')),
                 const Padding(
                   padding: EdgeInsets.fromLTRB(36, 8, 8, 8),
                   child: Text('People'),
                 ),
-                ShadContextMenuItem(
+                ContextMenuItem(
                   leading: SizedBox.square(
                     dimension: 16,
                     child: Center(
@@ -228,7 +228,7 @@ void main() {
                   ),
                   child: const Text('Pedro Duarte'),
                 ),
-                const ShadContextMenuItem.inset(child: Text('Colm Tuite')),
+                const ContextMenuItem.inset(child: Text('Colm Tuite')),
               ],
               child: Container(
                 width: 300,
@@ -245,7 +245,7 @@ void main() {
         );
 
         await expectLater(
-          find.byType(ShadContextMenuRegion),
+          find.byType(ContextMenuRegion),
           matchesGoldenFile('goldens/context_menu_region.png'),
         );
       });

@@ -1,33 +1,33 @@
-import 'package:flutter/material.dart';
+import 'package:finesse/material.dart';
+import 'package:finesse/src/app.dart';
+import 'package:finesse/src/components/breadcrumb.dart';
+import 'package:finesse/src/components/button.dart';
+import 'package:finesse/src/theme/components/breadcrumb.dart';
+import 'package:finesse/src/theme/data.dart';
+import 'package:flutter/material.dart' hide ThemeData;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:shad/material.dart';
-import 'package:shad/src/app.dart';
-import 'package:shad/src/components/breadcrumb.dart';
-import 'package:shad/src/components/button.dart';
-import 'package:shad/src/theme/components/breadcrumb.dart';
-import 'package:shad/src/theme/data.dart';
 
 void main() {
-  // Helper method to create a test widget wrapped in ShadApp and Scaffold
+  // Helper method to create a test widget wrapped in FinesseApp and Scaffold
   Widget createTestWidget(Widget child) {
-    return ShadApp(
-      builder: (context, child) => ShadMaterial(child: child!),
+    return FinesseApp(
+      builder: (context, child) => FinesseMaterial(child: child!),
       home: Scaffold(
         body: child,
       ),
     );
   }
 
-  group('ShadBreadcrumb', () {
+  group('Breadcrumb', () {
     testWidgets('renders basic breadcrumb correctly', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          ShadApp(
-            builder: (context, child) => ShadMaterial(child: child!),
-            home: const ShadBreadcrumb(
+          FinesseApp(
+            builder: (context, child) => FinesseMaterial(child: child!),
+            home: const Breadcrumb(
               children: [
                 Text('Home'),
                 Text('Library'),
@@ -55,9 +55,9 @@ void main() {
     testWidgets('renders with custom separator', (WidgetTester tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          ShadApp(
-            builder: (context, child) => ShadMaterial(child: child!),
-            home: const ShadBreadcrumb(
+          FinesseApp(
+            builder: (context, child) => FinesseMaterial(child: child!),
+            home: const Breadcrumb(
               separator: Icon(Icons.arrow_forward_ios),
               children: [
                 Text('Home'),
@@ -81,15 +81,15 @@ void main() {
 
       await tester.pumpWidget(
         createTestWidget(
-          ShadApp(
-            builder: (context, child) => ShadMaterial(child: child!),
-            home: ShadBreadcrumb(
+          FinesseApp(
+            builder: (context, child) => FinesseMaterial(child: child!),
+            home: Breadcrumb(
               children: [
-                ShadBreadcrumbLink(
+                BreadcrumbLink(
                   onPressed: () => homeTapped = true,
                   child: const Text('Home'),
                 ),
-                ShadBreadcrumbLink(
+                BreadcrumbLink(
                   onPressed: () => libraryTapped = true,
                   child: const Text('Library'),
                 ),
@@ -113,12 +113,12 @@ void main() {
     testWidgets('renders ellipsis correctly', (WidgetTester tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          ShadApp(
-            builder: (context, child) => ShadMaterial(child: child!),
-            home: const ShadBreadcrumb(
+          FinesseApp(
+            builder: (context, child) => FinesseMaterial(child: child!),
+            home: const Breadcrumb(
               children: [
                 Text('Home'),
-                ShadBreadcrumbEllipsis(),
+                BreadcrumbEllipsis(),
                 Text('Library'),
                 Text('Current'),
               ],
@@ -127,7 +127,7 @@ void main() {
         ),
       );
 
-      expect(find.byType(ShadBreadcrumbEllipsis), findsOneWidget);
+      expect(find.byType(BreadcrumbEllipsis), findsOneWidget);
       expect(find.byIcon(LucideIcons.ellipsis), findsOneWidget);
     });
 
@@ -136,9 +136,9 @@ void main() {
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          ShadApp(
-            builder: (context, child) => ShadMaterial(child: child!),
-            home: const ShadBreadcrumb(
+          FinesseApp(
+            builder: (context, child) => FinesseMaterial(child: child!),
+            home: const Breadcrumb(
               textDirection: TextDirection.rtl,
               children: [
                 Text('Home'),
@@ -157,15 +157,15 @@ void main() {
     });
   });
 
-  group('ShadBreadcrumbLink', () {
+  group('BreadcrumbLink', () {
     testWidgets('calls onPressed when tapped', (WidgetTester tester) async {
       var wasTapped = false;
 
       await tester.pumpWidget(
         createTestWidget(
-          ShadApp(
-            builder: (context, child) => ShadMaterial(child: child!),
-            home: ShadBreadcrumbLink(
+          FinesseApp(
+            builder: (context, child) => FinesseMaterial(child: child!),
+            home: BreadcrumbLink(
               onPressed: () => wasTapped = true,
               child: const Text('Clickable'),
             ),
@@ -184,9 +184,9 @@ void main() {
     testWidgets('handles hover correctly', (WidgetTester tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          ShadApp(
-            builder: (context, child) => ShadMaterial(child: child!),
-            home: ShadBreadcrumbLink(
+          FinesseApp(
+            builder: (context, child) => FinesseMaterial(child: child!),
+            home: BreadcrumbLink(
               onPressed: () {},
               child: const Text('Hoverable'),
             ),
@@ -195,7 +195,7 @@ void main() {
       );
 
       expect(find.text('Hoverable'), findsOneWidget);
-      final button = find.widgetWithText(ShadButton, 'Hoverable');
+      final button = find.widgetWithText(Button, 'Hoverable');
       expect(
         find.descendant(of: button, matching: find.byType(MouseRegion)),
         findsOneWidget,
@@ -203,45 +203,45 @@ void main() {
     });
   });
 
-  group('ShadBreadcrumbSeparator', () {
+  group('BreadcrumbSeparator', () {
     testWidgets('renders default separator correctly', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadBreadcrumbSeparator(),
+          const BreadcrumbSeparator(),
         ),
       );
 
-      expect(find.byType(ShadBreadcrumbSeparator), findsOneWidget);
+      expect(find.byType(BreadcrumbSeparator), findsOneWidget);
       expect(find.byIcon(LucideIcons.chevronRight), findsOneWidget);
     });
   });
 
-  group('ShadBreadcrumbEllipsis', () {
+  group('BreadcrumbEllipsis', () {
     testWidgets('renders default ellipsis correctly', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadBreadcrumbEllipsis(),
+          const BreadcrumbEllipsis(),
         ),
       );
 
-      expect(find.byType(ShadBreadcrumbEllipsis), findsOneWidget);
+      expect(find.byType(BreadcrumbEllipsis), findsOneWidget);
       expect(find.byIcon(LucideIcons.ellipsis), findsOneWidget);
     });
   });
 
-  group('ShadBreadcrumbDropdown', () {
+  group('BreadcrumbDropdown', () {
     testWidgets('renders child widget', (tester) async {
       await tester.pumpWidget(
-        ShadApp(
-          builder: (context, child) => ShadMaterial(child: child!),
+        FinesseApp(
+          builder: (context, child) => FinesseMaterial(child: child!),
           home: const Scaffold(
-            body: ShadBreadcrumbDropdown(
+            body: BreadcrumbDropdown(
               items: [
-                ShadBreadcrumbDropMenuItem(child: Text('Item 1')),
+                BreadcrumbDropMenuItem(child: Text('Item 1')),
               ],
               child: Text('Dropdown'),
             ),
@@ -254,12 +254,12 @@ void main() {
 
     testWidgets('displays chevron down icon', (tester) async {
       await tester.pumpWidget(
-        ShadApp(
-          builder: (context, child) => ShadMaterial(child: child!),
+        FinesseApp(
+          builder: (context, child) => FinesseMaterial(child: child!),
           home: const Scaffold(
-            body: ShadBreadcrumbDropdown(
+            body: BreadcrumbDropdown(
               items: [
-                ShadBreadcrumbDropMenuItem(child: Text('Item 1')),
+                BreadcrumbDropMenuItem(child: Text('Item 1')),
               ],
               child: Text('Dropdown'),
             ),
@@ -272,13 +272,13 @@ void main() {
 
     testWidgets('shows popover when clicked', (tester) async {
       await tester.pumpWidget(
-        ShadApp(
-          builder: (context, child) => ShadMaterial(child: child!),
+        FinesseApp(
+          builder: (context, child) => FinesseMaterial(child: child!),
           home: const Scaffold(
-            body: ShadBreadcrumbDropdown(
+            body: BreadcrumbDropdown(
               items: [
-                ShadBreadcrumbDropMenuItem(child: Text('Item 1')),
-                ShadBreadcrumbDropMenuItem(child: Text('Item 2')),
+                BreadcrumbDropMenuItem(child: Text('Item 1')),
+                BreadcrumbDropMenuItem(child: Text('Item 2')),
               ],
               child: Text('Dropdown'),
             ),
@@ -301,12 +301,12 @@ void main() {
 
     testWidgets('hides popover when clicked again', (tester) async {
       await tester.pumpWidget(
-        ShadApp(
-          builder: (context, child) => ShadMaterial(child: child!),
+        FinesseApp(
+          builder: (context, child) => FinesseMaterial(child: child!),
           home: const Scaffold(
-            body: ShadBreadcrumbDropdown(
+            body: BreadcrumbDropdown(
               items: [
-                ShadBreadcrumbDropMenuItem(child: Text('Item 1')),
+                BreadcrumbDropMenuItem(child: Text('Item 1')),
               ],
               child: Text('Dropdown'),
             ),
@@ -327,14 +327,14 @@ void main() {
 
     testWidgets('displays multiple dropdown items', (tester) async {
       await tester.pumpWidget(
-        ShadApp(
-          builder: (context, child) => ShadMaterial(child: child!),
+        FinesseApp(
+          builder: (context, child) => FinesseMaterial(child: child!),
           home: const Scaffold(
-            body: ShadBreadcrumbDropdown(
+            body: BreadcrumbDropdown(
               items: [
-                ShadBreadcrumbDropMenuItem(child: Text('Components')),
-                ShadBreadcrumbDropMenuItem(child: Text('Documentation')),
-                ShadBreadcrumbDropMenuItem(child: Text('Themes')),
+                BreadcrumbDropMenuItem(child: Text('Components')),
+                BreadcrumbDropMenuItem(child: Text('Documentation')),
+                BreadcrumbDropMenuItem(child: Text('Themes')),
               ],
               child: Text('More'),
             ),
@@ -354,18 +354,18 @@ void main() {
       const testSpacing = 10.0;
 
       await tester.pumpWidget(
-        ShadApp(
-          builder: (context, child) => ShadMaterial(child: child!),
-          theme: ShadThemeData(
+        FinesseApp(
+          builder: (context, child) => FinesseMaterial(child: child!),
+          theme: ThemeData(
             brightness: Brightness.light,
-            breadcrumbTheme: const ShadBreadcrumbTheme(
+            breadcrumbTheme: const BreadcrumbTheme(
               spacing: testSpacing,
             ),
           ),
           home: const Scaffold(
-            body: ShadBreadcrumbDropdown(
+            body: BreadcrumbDropdown(
               items: [
-                ShadBreadcrumbDropMenuItem(child: Text('Item 1')),
+                BreadcrumbDropMenuItem(child: Text('Item 1')),
               ],
               child: Text('Dropdown'),
             ),
@@ -379,12 +379,12 @@ void main() {
 
     testWidgets('controller is disposed properly', (tester) async {
       await tester.pumpWidget(
-        ShadApp(
-          builder: (context, child) => ShadMaterial(child: child!),
+        FinesseApp(
+          builder: (context, child) => FinesseMaterial(child: child!),
           home: const Scaffold(
-            body: ShadBreadcrumbDropdown(
+            body: BreadcrumbDropdown(
               items: [
-                ShadBreadcrumbDropMenuItem(child: Text('Item 1')),
+                BreadcrumbDropMenuItem(child: Text('Item 1')),
               ],
               child: Text('Dropdown'),
             ),
@@ -396,17 +396,17 @@ void main() {
       await tester.pumpWidget(const MaterialApp(home: Scaffold()));
 
       // If we get here without errors, disposal worked correctly
-      expect(find.byType(ShadBreadcrumbDropdown), findsNothing);
+      expect(find.byType(BreadcrumbDropdown), findsNothing);
     });
   });
 
-  group('ShadBreadcrumbDropMenuItem', () {
+  group('BreadcrumbDropMenuItem', () {
     testWidgets('renders child widget', (tester) async {
       await tester.pumpWidget(
-        ShadApp(
-          builder: (context, child) => ShadMaterial(child: child!),
+        FinesseApp(
+          builder: (context, child) => FinesseMaterial(child: child!),
           home: const Scaffold(
-            body: ShadBreadcrumbDropMenuItem(
+            body: BreadcrumbDropMenuItem(
               child: Text('Menu Item'),
             ),
           ),
@@ -420,10 +420,10 @@ void main() {
       var wasPressed = false;
 
       await tester.pumpWidget(
-        ShadApp(
-          builder: (context, child) => ShadMaterial(child: child!),
+        FinesseApp(
+          builder: (context, child) => FinesseMaterial(child: child!),
           home: Scaffold(
-            body: ShadBreadcrumbDropMenuItem(
+            body: BreadcrumbDropMenuItem(
               onPressed: () => wasPressed = true,
               child: const Text('Clickable Item'),
             ),
@@ -439,10 +439,10 @@ void main() {
 
     testWidgets('does not call onPressed when null', (tester) async {
       await tester.pumpWidget(
-        ShadApp(
-          builder: (context, child) => ShadMaterial(child: child!),
+        FinesseApp(
+          builder: (context, child) => FinesseMaterial(child: child!),
           home: const Scaffold(
-            body: ShadBreadcrumbDropMenuItem(
+            body: BreadcrumbDropMenuItem(
               child: Text('Non-clickable Item'),
             ),
           ),
@@ -458,17 +458,17 @@ void main() {
 
     testWidgets('applies default padding', (tester) async {
       await tester.pumpWidget(
-        ShadApp(
-          builder: (context, child) => ShadMaterial(child: child!),
+        FinesseApp(
+          builder: (context, child) => FinesseMaterial(child: child!),
           home: const Scaffold(
-            body: ShadBreadcrumbDropMenuItem(
+            body: BreadcrumbDropMenuItem(
               child: Text('Item'),
             ),
           ),
         ),
       );
 
-      final button = tester.widget<ShadButton>(find.byType(ShadButton));
+      final button = tester.widget<Button>(find.byType(Button));
       expect(
         button.padding,
         const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -479,10 +479,10 @@ void main() {
       const customPadding = EdgeInsets.all(12);
 
       await tester.pumpWidget(
-        ShadApp(
-          builder: (context, child) => ShadMaterial(child: child!),
+        FinesseApp(
+          builder: (context, child) => FinesseMaterial(child: child!),
           home: const Scaffold(
-            body: ShadBreadcrumbDropMenuItem(
+            body: BreadcrumbDropMenuItem(
               itemPadding: customPadding,
               child: Text('Item'),
             ),
@@ -490,32 +490,32 @@ void main() {
         ),
       );
 
-      final button = tester.widget<ShadButton>(find.byType(ShadButton));
+      final button = tester.widget<Button>(find.byType(Button));
       expect(button.padding, customPadding);
     });
 
     testWidgets('uses ghost button variant', (tester) async {
       await tester.pumpWidget(
-        ShadApp(
-          builder: (context, child) => ShadMaterial(child: child!),
+        FinesseApp(
+          builder: (context, child) => FinesseMaterial(child: child!),
           home: const Scaffold(
-            body: ShadBreadcrumbDropMenuItem(
+            body: BreadcrumbDropMenuItem(
               child: Text('Item'),
             ),
           ),
         ),
       );
 
-      final button = tester.widget<ShadButton>(find.byType(ShadButton));
-      expect(button.variant, ShadButtonVariant.ghost);
+      final button = tester.widget<Button>(find.byType(Button));
+      expect(button.variant, ButtonVariant.ghost);
     });
 
     testWidgets('renders complex child widget', (tester) async {
       await tester.pumpWidget(
-        ShadApp(
-          builder: (context, child) => ShadMaterial(child: child!),
+        FinesseApp(
+          builder: (context, child) => FinesseMaterial(child: child!),
           home: const Scaffold(
-            body: ShadBreadcrumbDropMenuItem(
+            body: BreadcrumbDropMenuItem(
               child: Row(
                 children: [
                   Icon(Icons.home),
@@ -533,21 +533,21 @@ void main() {
     });
   });
 
-  group('ShadBreadcrumbDropdown integration', () {
+  group('BreadcrumbDropdown integration', () {
     testWidgets('dropdown items respond to tap', (tester) async {
       var selectedItem = '';
 
       await tester.pumpWidget(
-        ShadApp(
-          builder: (context, child) => ShadMaterial(child: child!),
+        FinesseApp(
+          builder: (context, child) => FinesseMaterial(child: child!),
           home: Scaffold(
-            body: ShadBreadcrumbDropdown(
+            body: BreadcrumbDropdown(
               items: [
-                ShadBreadcrumbDropMenuItem(
+                BreadcrumbDropMenuItem(
                   onPressed: () => selectedItem = 'Item 1',
                   child: const Text('Item 1'),
                 ),
-                ShadBreadcrumbDropMenuItem(
+                BreadcrumbDropMenuItem(
                   onPressed: () => selectedItem = 'Item 2',
                   child: const Text('Item 2'),
                 ),
@@ -571,10 +571,10 @@ void main() {
 
     testWidgets('works with empty children list', (tester) async {
       await tester.pumpWidget(
-        ShadApp(
-          builder: (context, child) => ShadMaterial(child: child!),
+        FinesseApp(
+          builder: (context, child) => FinesseMaterial(child: child!),
           home: const Scaffold(
-            body: ShadBreadcrumbDropdown(
+            body: BreadcrumbDropdown(
               items: [],
               child: Text('Empty'),
             ),

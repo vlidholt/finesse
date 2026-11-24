@@ -1,6 +1,6 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/shad.dart';
 
 class _User {
   const _User(this.id, this.name, this.age);
@@ -17,30 +17,30 @@ void main() {
     _User('3', 'Bob', 35),
   ];
 
-  List<ShadDataTableColumn<_User>> columns() => [
-    ShadDataTableColumn(
+  List<DataTableColumn<_User>> columns() => [
+    DataTableColumn(
       id: 'name',
       header: 'Name',
       cellBuilder: (context, user) => Text(user.name),
       compare: (a, b) => a.name.compareTo(b.name),
     ),
-    ShadDataTableColumn(
+    DataTableColumn(
       id: 'age',
       header: 'Age',
       cellBuilder: (context, user) => Text('${user.age}'),
       compare: (a, b) => a.age.compareTo(b.age),
     ),
     // Not sortable: no comparator.
-    ShadDataTableColumn(
+    DataTableColumn(
       id: 'id',
       header: 'ID',
       cellBuilder: (context, user) => Text(user.id),
     ),
   ];
 
-  group('ShadDataTableController', () {
-    ShadDataTableController<_User> build({int? pageSize}) {
-      final controller = ShadDataTableController<_User>(
+  group('DataTableController', () {
+    DataTableController<_User> build({int? pageSize}) {
+      final controller = DataTableController<_User>(
         rows: users,
         pageSize: pageSize,
       );
@@ -53,10 +53,10 @@ void main() {
     testWidgets('sorts ascending, descending, then clears', (tester) async {
       final controller = build();
       await tester.pumpWidget(
-        ShadApp(
+        FinesseApp(
           home: SizedBox(
             height: 400,
-            child: ShadDataTable<_User>(
+            child: DataTable<_User>(
               columns: columns(),
               controller: controller,
               height: 300,
@@ -72,7 +72,7 @@ void main() {
       ]);
 
       controller.sortBy('name');
-      expect(controller.sortDirection, ShadSortDirection.ascending);
+      expect(controller.sortDirection, SortDirection.ascending);
       expect(controller.filteredRows.map((u) => u.name), [
         'Alice',
         'Bob',
@@ -80,7 +80,7 @@ void main() {
       ]);
 
       controller.sortBy('name');
-      expect(controller.sortDirection, ShadSortDirection.descending);
+      expect(controller.sortDirection, SortDirection.descending);
       expect(controller.filteredRows.map((u) => u.name), [
         'Charlie',
         'Bob',
@@ -100,8 +100,8 @@ void main() {
     testWidgets('switching columns restarts at ascending', (tester) async {
       final controller = build();
       await tester.pumpWidget(
-        ShadApp(
-          home: ShadDataTable<_User>(
+        FinesseApp(
+          home: DataTable<_User>(
             columns: columns(),
             controller: controller,
             height: 300,
@@ -112,16 +112,16 @@ void main() {
       controller
         ..sortBy('name')
         ..sortBy('name');
-      expect(controller.sortDirection, ShadSortDirection.descending);
+      expect(controller.sortDirection, SortDirection.descending);
 
       controller.sortBy('age');
       expect(controller.sortColumnId, 'age');
-      expect(controller.sortDirection, ShadSortDirection.ascending);
+      expect(controller.sortDirection, SortDirection.ascending);
       expect(controller.filteredRows.map((u) => u.age), [25, 30, 35]);
     });
 
     test('sorting never mutates the source rows', () {
-      final controller = ShadDataTableController<_User>(rows: users);
+      final controller = DataTableController<_User>(rows: users);
       addTearDown(controller.dispose);
       controller.filteredRows.sort((a, b) => a.name.compareTo(b.name));
       expect(controller.rows.map((u) => u.name), [
@@ -132,7 +132,7 @@ void main() {
     });
 
     test('filters rows and resets to the first page', () {
-      final controller = ShadDataTableController<_User>(
+      final controller = DataTableController<_User>(
         rows: users,
         pageSize: 1,
       );
@@ -151,7 +151,7 @@ void main() {
     });
 
     test('pages the visible rows', () {
-      final controller = ShadDataTableController<_User>(
+      final controller = DataTableController<_User>(
         rows: users,
         pageSize: 2,
       );
@@ -166,7 +166,7 @@ void main() {
     });
 
     test('clamps the page to the available range', () {
-      final controller = ShadDataTableController<_User>(
+      final controller = DataTableController<_User>(
         rows: users,
         pageSize: 2,
       );
@@ -179,14 +179,14 @@ void main() {
     });
 
     test('pageCount is 1 when there are no rows', () {
-      final controller = ShadDataTableController<_User>(pageSize: 10);
+      final controller = DataTableController<_User>(pageSize: 10);
       addTearDown(controller.dispose);
       expect(controller.pageCount, 1);
       expect(controller.visibleRows, isEmpty);
     });
 
     test('tracks selection by key', () {
-      final controller = ShadDataTableController<_User>(rows: users);
+      final controller = DataTableController<_User>(rows: users);
       addTearDown(controller.dispose);
 
       controller.toggleSelected('1');
@@ -201,7 +201,7 @@ void main() {
     });
 
     test('selection survives a re-sort', () {
-      final controller = ShadDataTableController<_User>(rows: users);
+      final controller = DataTableController<_User>(rows: users);
       addTearDown(controller.dispose);
       controller
         ..toggleSelected('2')
@@ -210,14 +210,14 @@ void main() {
     });
   });
 
-  group('ShadDataTable', () {
+  group('DataTable', () {
     testWidgets('renders headers and cells', (tester) async {
-      final controller = ShadDataTableController<_User>(rows: users);
+      final controller = DataTableController<_User>(rows: users);
       addTearDown(controller.dispose);
 
       await tester.pumpWidget(
-        ShadApp(
-          home: ShadDataTable<_User>(
+        FinesseApp(
+          home: DataTable<_User>(
             columns: columns(),
             controller: controller,
             height: 400,
@@ -233,12 +233,12 @@ void main() {
     });
 
     testWidgets('tapping a sortable header sorts the table', (tester) async {
-      final controller = ShadDataTableController<_User>(rows: users);
+      final controller = DataTableController<_User>(rows: users);
       addTearDown(controller.dispose);
 
       await tester.pumpWidget(
-        ShadApp(
-          home: ShadDataTable<_User>(
+        FinesseApp(
+          home: DataTable<_User>(
             columns: columns(),
             controller: controller,
             height: 400,
@@ -253,13 +253,13 @@ void main() {
       await tester.tap(find.text('Name'));
       await tester.pumpAndSettle();
       expect(controller.sortColumnId, 'name');
-      expect(controller.sortDirection, ShadSortDirection.ascending);
+      expect(controller.sortDirection, SortDirection.ascending);
       expect(find.byIcon(LucideIcons.moveDown), findsOneWidget);
       expect(find.byIcon(LucideIcons.moveUp), findsNothing);
 
       await tester.tap(find.text('Name'));
       await tester.pumpAndSettle();
-      expect(controller.sortDirection, ShadSortDirection.descending);
+      expect(controller.sortDirection, SortDirection.descending);
       expect(find.byIcon(LucideIcons.moveUp), findsOneWidget);
       expect(find.byIcon(LucideIcons.moveDown), findsNothing);
 
@@ -271,12 +271,12 @@ void main() {
     });
 
     testWidgets('a non-sortable header does not sort', (tester) async {
-      final controller = ShadDataTableController<_User>(rows: users);
+      final controller = DataTableController<_User>(rows: users);
       addTearDown(controller.dispose);
 
       await tester.pumpWidget(
-        ShadApp(
-          home: ShadDataTable<_User>(
+        FinesseApp(
+          home: DataTable<_User>(
             columns: columns(),
             controller: controller,
             height: 400,
@@ -293,12 +293,12 @@ void main() {
     testWidgets('shows the empty state when there are no rows', (
       tester,
     ) async {
-      final controller = ShadDataTableController<_User>();
+      final controller = DataTableController<_User>();
       addTearDown(controller.dispose);
 
       await tester.pumpWidget(
-        ShadApp(
-          home: ShadDataTable<_User>(
+        FinesseApp(
+          home: DataTable<_User>(
             columns: columns(),
             controller: controller,
             height: 400,
@@ -307,19 +307,19 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.byType(ShadEmpty), findsOneWidget);
+      expect(find.byType(Empty), findsOneWidget);
     });
 
     testWidgets('hides columns marked invisible', (tester) async {
-      final controller = ShadDataTableController<_User>(rows: users);
+      final controller = DataTableController<_User>(rows: users);
       addTearDown(controller.dispose);
 
       await tester.pumpWidget(
-        ShadApp(
-          home: ShadDataTable<_User>(
+        FinesseApp(
+          home: DataTable<_User>(
             columns: [
               ...columns().where((c) => c.id != 'age'),
-              ShadDataTableColumn(
+              DataTableColumn(
                 id: 'age',
                 header: 'Age',
                 visible: false,
@@ -340,12 +340,12 @@ void main() {
     testWidgets('selectable renders checkboxes and tracks selection', (
       tester,
     ) async {
-      final controller = ShadDataTableController<_User>(rows: users);
+      final controller = DataTableController<_User>(rows: users);
       addTearDown(controller.dispose);
 
       await tester.pumpWidget(
-        ShadApp(
-          home: ShadDataTable<_User>(
+        FinesseApp(
+          home: DataTable<_User>(
             columns: columns(),
             controller: controller,
             keyOf: (user) => user.id,
@@ -357,9 +357,9 @@ void main() {
       await tester.pumpAndSettle();
 
       // One per row plus the select-all in the header.
-      expect(find.byType(ShadCheckbox), findsNWidgets(users.length + 1));
+      expect(find.byType(Checkbox), findsNWidgets(users.length + 1));
 
-      await tester.tap(find.byType(ShadCheckbox).at(1));
+      await tester.tap(find.byType(Checkbox).at(1));
       await tester.pumpAndSettle();
       expect(controller.selectedKeys, hasLength(1));
     });
@@ -367,12 +367,12 @@ void main() {
     testWidgets('the header checkbox selects and clears every row', (
       tester,
     ) async {
-      final controller = ShadDataTableController<_User>(rows: users);
+      final controller = DataTableController<_User>(rows: users);
       addTearDown(controller.dispose);
 
       await tester.pumpWidget(
-        ShadApp(
-          home: ShadDataTable<_User>(
+        FinesseApp(
+          home: DataTable<_User>(
             columns: columns(),
             controller: controller,
             keyOf: (user) => user.id,
@@ -383,11 +383,11 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byType(ShadCheckbox).first);
+      await tester.tap(find.byType(Checkbox).first);
       await tester.pumpAndSettle();
       expect(controller.selectedKeys, {'1', '2', '3'});
 
-      await tester.tap(find.byType(ShadCheckbox).first);
+      await tester.tap(find.byType(Checkbox).first);
       await tester.pumpAndSettle();
       expect(controller.selectedKeys, isEmpty);
     });
@@ -395,15 +395,15 @@ void main() {
     testWidgets('shows a pagination bar when a pageSize is set', (
       tester,
     ) async {
-      final controller = ShadDataTableController<_User>(
+      final controller = DataTableController<_User>(
         rows: users,
         pageSize: 2,
       );
       addTearDown(controller.dispose);
 
       await tester.pumpWidget(
-        ShadApp(
-          home: ShadDataTable<_User>(
+        FinesseApp(
+          home: DataTable<_User>(
             columns: columns(),
             controller: controller,
             height: 300,
@@ -412,7 +412,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.byType(ShadPaginationCompact), findsOneWidget);
+      expect(find.byType(PaginationCompact), findsOneWidget);
       expect(find.text('Charlie'), findsOneWidget);
       expect(find.text('Bob'), findsNothing);
 

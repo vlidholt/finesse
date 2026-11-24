@@ -9,14 +9,10 @@ part of 'button.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadButtonTheme {
+mixin _$ButtonTheme {
   bool get canMerge => true;
 
-  static ShadButtonTheme? lerp(
-    ShadButtonTheme? a,
-    ShadButtonTheme? b,
-    double t,
-  ) {
+  static ButtonTheme? lerp(ButtonTheme? a, ButtonTheme? b, double t) {
     if (identical(a, b)) {
       return a;
     }
@@ -29,10 +25,10 @@ mixin _$ShadButtonTheme {
       return t == 0.0 ? a : null;
     }
 
-    return ShadButtonTheme(
+    return ButtonTheme(
       cursor: t < 0.5 ? a.cursor : b.cursor,
       size: t < 0.5 ? a.size : b.size,
-      sizesTheme: ShadButtonSizesTheme.lerp(a.sizesTheme, b.sizesTheme, t),
+      sizesTheme: ButtonSizesTheme.lerp(a.sizesTheme, b.sizesTheme, t),
       backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
       hoverBackgroundColor: Color.lerp(
         a.hoverBackgroundColor,
@@ -61,7 +57,7 @@ mixin _$ShadButtonTheme {
       hoverTextDecoration: t < 0.5
           ? a.hoverTextDecoration
           : b.hoverTextDecoration,
-      decoration: ShadDecoration.lerp(a.decoration, b.decoration, t),
+      decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
       width: lerpDouble$(a.width, b.width, t),
       height: lerpDouble$(a.height, b.height, t),
       longPressDuration: lerpDuration$(
@@ -85,10 +81,10 @@ mixin _$ShadButtonTheme {
     );
   }
 
-  ShadButtonTheme copyWith({
+  ButtonTheme copyWith({
     MouseCursor? cursor,
-    ShadButtonSize? size,
-    ShadButtonSizesTheme? sizesTheme,
+    ButtonSize? size,
+    ButtonSizesTheme? sizesTheme,
     Color? backgroundColor,
     Color? hoverBackgroundColor,
     Color? foregroundColor,
@@ -99,11 +95,11 @@ mixin _$ShadButtonTheme {
     Gradient? gradient,
     TextDecoration? textDecoration,
     TextDecoration? hoverTextDecoration,
-    ShadDecoration? decoration,
+    FinesseDecoration? decoration,
     double? width,
     double? height,
     Duration? longPressDuration,
-    ShadHoverStrategies? hoverStrategies,
+    HoverStrategies? hoverStrategies,
     MainAxisAlignment? mainAxisAlignment,
     CrossAxisAlignment? crossAxisAlignment,
     TextDirection? textDirection,
@@ -113,9 +109,9 @@ mixin _$ShadButtonTheme {
     Duration? pressAnimationDuration,
     TextStyle? textStyle,
   }) {
-    final _this = (this as ShadButtonTheme);
+    final _this = (this as ButtonTheme);
 
-    return ShadButtonTheme(
+    return ButtonTheme(
       cursor: cursor ?? _this.cursor,
       size: size ?? _this.size,
       sizesTheme: sizesTheme ?? _this.sizesTheme,
@@ -148,8 +144,8 @@ mixin _$ShadButtonTheme {
     );
   }
 
-  ShadButtonTheme merge(ShadButtonTheme? other) {
-    final _this = (this as ShadButtonTheme);
+  ButtonTheme merge(ButtonTheme? other) {
+    final _this = (this as ButtonTheme);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -199,8 +195,8 @@ mixin _$ShadButtonTheme {
       return false;
     }
 
-    final _this = (this as ShadButtonTheme);
-    final _other = (other as ShadButtonTheme);
+    final _this = (this as ButtonTheme);
+    final _other = (other as ButtonTheme);
 
     return _other.cursor == _this.cursor &&
         _other.size == _this.size &&
@@ -232,7 +228,7 @@ mixin _$ShadButtonTheme {
 
   @override
   int get hashCode {
-    final _this = (this as ShadButtonTheme);
+    final _this = (this as ButtonTheme);
 
     return Object.hashAll([
       runtimeType,

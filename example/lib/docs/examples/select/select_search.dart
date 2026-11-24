@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 const _dartFrameworks = {
   'serverpod': 'Serverpod',
@@ -34,7 +34,7 @@ class _SelectSearchExampleState extends State<SelectSearchExample> {
   Widget build(BuildContext context) {
     return ConstrainedBox(
       constraints: const BoxConstraints(minWidth: 180),
-      child: ShadSelect<String>.withSearch(
+      child: Select<String>.withSearch(
         minWidth: 180,
         placeholder: const Text('Select framework...'),
         onSearchChanged: (value) => setState(() => searchValue = value),
@@ -48,7 +48,7 @@ class _SelectSearchExampleState extends State<SelectSearchExample> {
           for (final entry in _dartFrameworks.entries)
             Offstage(
               offstage: !filtered.containsKey(entry.key),
-              child: ShadOption(value: entry.key, child: Text(entry.value)),
+              child: SelectOption(value: entry.key, child: Text(entry.value)),
             ),
         ],
         selectedOptionBuilder: (context, value) =>

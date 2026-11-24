@@ -9,14 +9,10 @@ part of 'textarea.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadTextareaTheme {
+mixin _$TextareaTheme {
   bool get canMerge => true;
 
-  static ShadTextareaTheme? lerp(
-    ShadTextareaTheme? a,
-    ShadTextareaTheme? b,
-    double t,
-  ) {
+  static TextareaTheme? lerp(TextareaTheme? a, TextareaTheme? b, double t) {
     if (identical(a, b)) {
       return a;
     }
@@ -29,8 +25,8 @@ mixin _$ShadTextareaTheme {
       return t == 0.0 ? a : null;
     }
 
-    return ShadTextareaTheme(
-      decoration: ShadDecoration.lerp(a.decoration, b.decoration, t),
+    return TextareaTheme(
+      decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
       style: TextStyle.lerp(a.style, b.style, t),
       placeholderStyle: TextStyle.lerp(
@@ -63,8 +59,8 @@ mixin _$ShadTextareaTheme {
     );
   }
 
-  ShadTextareaTheme copyWith({
-    ShadDecoration? decoration,
+  TextareaTheme copyWith({
+    FinesseDecoration? decoration,
     EdgeInsetsGeometry? padding,
     TextStyle? style,
     TextStyle? placeholderStyle,
@@ -81,9 +77,9 @@ mixin _$ShadTextareaTheme {
     Widget Function(BuildContext)? resizeHandleBuilder,
     EdgeInsetsGeometry? scrollbarPadding,
   }) {
-    final _this = (this as ShadTextareaTheme);
+    final _this = (this as TextareaTheme);
 
-    return ShadTextareaTheme(
+    return TextareaTheme(
       decoration: decoration ?? _this.decoration,
       padding: padding ?? _this.padding,
       style: style ?? _this.style,
@@ -103,8 +99,8 @@ mixin _$ShadTextareaTheme {
     );
   }
 
-  ShadTextareaTheme merge(ShadTextareaTheme? other) {
-    final _this = (this as ShadTextareaTheme);
+  TextareaTheme merge(TextareaTheme? other) {
+    final _this = (this as TextareaTheme);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -146,8 +142,8 @@ mixin _$ShadTextareaTheme {
       return false;
     }
 
-    final _this = (this as ShadTextareaTheme);
-    final _other = (other as ShadTextareaTheme);
+    final _this = (this as TextareaTheme);
+    final _other = (other as TextareaTheme);
 
     return _other.decoration == _this.decoration &&
         _other.padding == _this.padding &&
@@ -169,7 +165,7 @@ mixin _$ShadTextareaTheme {
 
   @override
   int get hashCode {
-    final _this = (this as ShadTextareaTheme);
+    final _this = (this as TextareaTheme);
 
     return Object.hash(
       runtimeType,

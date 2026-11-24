@@ -9,12 +9,12 @@ part of 'time_picker.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadTimePickerTheme {
+mixin _$TimePickerTheme {
   bool get canMerge => true;
 
-  static ShadTimePickerTheme? lerp(
-    ShadTimePickerTheme? a,
-    ShadTimePickerTheme? b,
+  static TimePickerTheme? lerp(
+    TimePickerTheme? a,
+    TimePickerTheme? b,
     double t,
   ) {
     if (identical(a, b)) {
@@ -29,7 +29,7 @@ mixin _$ShadTimePickerTheme {
       return t == 0.0 ? a : null;
     }
 
-    return ShadTimePickerTheme(
+    return TimePickerTheme(
       axis: t < 0.5 ? a.axis : b.axis,
       spacing: lerpDouble$(a.spacing, b.spacing, t),
       runSpacing: lerpDouble$(a.runSpacing, b.runSpacing, t),
@@ -52,12 +52,12 @@ mixin _$ShadTimePickerTheme {
       labelStyle: TextStyle.lerp(a.labelStyle, b.labelStyle, t),
       fieldWidth: lerpDouble$(a.fieldWidth, b.fieldWidth, t),
       fieldPadding: EdgeInsetsGeometry.lerp(a.fieldPadding, b.fieldPadding, t),
-      fieldDecoration: ShadDecoration.lerp(
+      fieldDecoration: FinesseDecoration.lerp(
         a.fieldDecoration,
         b.fieldDecoration,
         t,
       ),
-      periodDecoration: ShadDecoration.lerp(
+      periodDecoration: FinesseDecoration.lerp(
         a.periodDecoration,
         b.periodDecoration,
         t,
@@ -73,7 +73,7 @@ mixin _$ShadTimePickerTheme {
     );
   }
 
-  ShadTimePickerTheme copyWith({
+  TimePickerTheme copyWith({
     Axis? axis,
     double? spacing,
     double? runSpacing,
@@ -81,7 +81,7 @@ mixin _$ShadTimePickerTheme {
     WrapAlignment? alignment,
     WrapAlignment? runAlignment,
     WrapCrossAlignment? crossAxisAlignment,
-    ShadDayPeriod? initialDayPeriod,
+    DayPeriod? initialDayPeriod,
     double? periodHeight,
     double? periodMinWidth,
     double? gap,
@@ -90,8 +90,8 @@ mixin _$ShadTimePickerTheme {
     TextStyle? labelStyle,
     double? fieldWidth,
     EdgeInsetsGeometry? fieldPadding,
-    ShadDecoration? fieldDecoration,
-    ShadDecoration? periodDecoration,
+    FinesseDecoration? fieldDecoration,
+    FinesseDecoration? periodDecoration,
     Widget? hourLabel,
     Widget? minuteLabel,
     Widget? secondLabel,
@@ -101,9 +101,9 @@ mixin _$ShadTimePickerTheme {
     Widget? secondPlaceholder,
     Widget? periodPlaceholder,
   }) {
-    final _this = (this as ShadTimePickerTheme);
+    final _this = (this as TimePickerTheme);
 
-    return ShadTimePickerTheme(
+    return TimePickerTheme(
       axis: axis ?? _this.axis,
       spacing: spacing ?? _this.spacing,
       runSpacing: runSpacing ?? _this.runSpacing,
@@ -134,8 +134,8 @@ mixin _$ShadTimePickerTheme {
     );
   }
 
-  ShadTimePickerTheme merge(ShadTimePickerTheme? other) {
-    final _this = (this as ShadTimePickerTheme);
+  TimePickerTheme merge(TimePickerTheme? other) {
+    final _this = (this as TimePickerTheme);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -191,8 +191,8 @@ mixin _$ShadTimePickerTheme {
       return false;
     }
 
-    final _this = (this as ShadTimePickerTheme);
-    final _other = (other as ShadTimePickerTheme);
+    final _this = (this as TimePickerTheme);
+    final _other = (other as TimePickerTheme);
 
     return _other.axis == _this.axis &&
         _other.spacing == _this.spacing &&
@@ -224,7 +224,7 @@ mixin _$ShadTimePickerTheme {
 
   @override
   int get hashCode {
-    final _this = (this as ShadTimePickerTheme);
+    final _this = (this as TimePickerTheme);
 
     return Object.hashAll([
       runtimeType,

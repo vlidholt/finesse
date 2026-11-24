@@ -1,39 +1,39 @@
 import 'dart:ui' show Tristate;
 
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/shad.dart';
 
 void main() {
-  Widget wrap(Widget child) => ShadApp(home: Center(child: child));
+  Widget wrap(Widget child) => FinesseApp(home: Center(child: child));
 
-  group('ShadSkeleton', () {
+  group('Skeleton', () {
     testWidgets('renders at the requested size', (tester) async {
       await tester.pumpWidget(
-        wrap(const ShadSkeleton(width: 200, height: 16, animate: false)),
+        wrap(const Skeleton(width: 200, height: 16, animate: false)),
       );
-      final size = tester.getSize(find.byType(ShadSkeleton));
+      final size = tester.getSize(find.byType(Skeleton));
       expect(size, const Size(200, 16));
     });
 
     testWidgets('reads its color from the theme', (tester) async {
       await tester.pumpWidget(
-        ShadApp(
-          theme: ShadThemeData(
-            colorScheme: const ShadSlateColorScheme.light(),
+        FinesseApp(
+          theme: ThemeData(
+            colorScheme: const SlateColorScheme.light(),
             brightness: Brightness.light,
-            skeletonTheme: const ShadSkeletonTheme(
+            skeletonTheme: const SkeletonTheme(
               color: Color(0xFF123456),
               animate: false,
             ),
           ),
-          home: const Center(child: ShadSkeleton(width: 10, height: 10)),
+          home: const Center(child: Skeleton(width: 10, height: 10)),
         ),
       );
       final box = tester.widget<DecoratedBox>(
         find
             .descendant(
-              of: find.byType(ShadSkeleton),
+              of: find.byType(Skeleton),
               matching: find.byType(DecoratedBox),
             )
             .first,
@@ -47,19 +47,19 @@ void main() {
     testWidgets('is hidden from semantics', (tester) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(
-        wrap(const ShadSkeleton(width: 10, height: 10, animate: false)),
+        wrap(const Skeleton(width: 10, height: 10, animate: false)),
       );
       expect(find.byType(ExcludeSemantics), findsWidgets);
       handle.dispose();
     });
   });
 
-  group('ShadSpinner', () {
+  group('Spinner', () {
     testWidgets('renders at the requested size and keeps animating', (
       tester,
     ) async {
-      await tester.pumpWidget(wrap(const ShadSpinner(size: 24)));
-      expect(tester.getSize(find.byType(ShadSpinner)), const Size(24, 24));
+      await tester.pumpWidget(wrap(const Spinner(size: 24)));
+      expect(tester.getSize(find.byType(Spinner)), const Size(24, 24));
 
       // A repeating animation never settles, so pump fixed frames instead of
       // pumpAndSettle (which would time out).
@@ -68,25 +68,25 @@ void main() {
     });
   });
 
-  group('ShadKbd', () {
+  group('Kbd', () {
     testWidgets('renders a single cap', (tester) async {
-      await tester.pumpWidget(wrap(const ShadKbd('K')));
+      await tester.pumpWidget(wrap(const Kbd('K')));
       expect(find.text('K'), findsOneWidget);
     });
 
     testWidgets('renders a group of caps', (tester) async {
-      await tester.pumpWidget(wrap(const ShadKbd.group(['⌘', 'K'])));
+      await tester.pumpWidget(wrap(const Kbd.group(['⌘', 'K'])));
       expect(find.text('⌘'), findsOneWidget);
       expect(find.text('K'), findsOneWidget);
     });
   });
 
-  group('ShadToggle', () {
+  group('Toggle', () {
     testWidgets('calls onChanged with the flipped value', (tester) async {
       final changes = <bool>[];
       await tester.pumpWidget(
         wrap(
-          ShadToggle(
+          Toggle(
             value: false,
             onChanged: changes.add,
             child: const Text('Bold'),
@@ -94,7 +94,7 @@ void main() {
         ),
       );
 
-      await tester.tap(find.byType(ShadToggle));
+      await tester.tap(find.byType(Toggle));
       await tester.pumpAndSettle();
       expect(changes, [true]);
     });
@@ -103,7 +103,7 @@ void main() {
       final changes = <bool>[];
       await tester.pumpWidget(
         wrap(
-          ShadToggle(
+          Toggle(
             value: false,
             enabled: false,
             onChanged: changes.add,
@@ -112,7 +112,7 @@ void main() {
         ),
       );
 
-      await tester.tap(find.byType(ShadToggle), warnIfMissed: false);
+      await tester.tap(find.byType(Toggle), warnIfMissed: false);
       await tester.pumpAndSettle();
       expect(changes, isEmpty);
     });
@@ -120,7 +120,7 @@ void main() {
     testWidgets('outline uses the outline toggle theme', (tester) async {
       await tester.pumpWidget(
         wrap(
-          ShadToggle.outline(
+          Toggle.outline(
             value: false,
             onChanged: (_) {},
             child: const Text('Bold'),
@@ -128,8 +128,8 @@ void main() {
         ),
       );
 
-      final theme = ShadTheme.of(
-        tester.element(find.byType(ShadToggle)),
+      final theme = Theme.of(
+        tester.element(find.byType(Toggle)),
       );
       expect(theme.outlineToggleTheme.decoration?.border?.top?.width, 1);
       expect(theme.toggleTheme.decoration?.border?.top?.width, 0);
@@ -139,7 +139,7 @@ void main() {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(
         wrap(
-          ShadToggle(
+          Toggle(
             value: true,
             onChanged: (_) {},
             semanticLabel: 'Bold',
@@ -147,7 +147,7 @@ void main() {
           ),
         ),
       );
-      final node = tester.getSemantics(find.byType(ShadToggle));
+      final node = tester.getSemantics(find.byType(Toggle));
       // The explicit label replaces the child's text rather than merging.
       expect(node.label, 'Bold');
       expect(node.flagsCollection.isButton, isTrue);
@@ -158,17 +158,17 @@ void main() {
     });
   });
 
-  group('ShadToggleGroup', () {
+  group('ToggleGroup', () {
     testWidgets('single variant replaces the selection', (tester) async {
       Set<String>? latest;
       await tester.pumpWidget(
         wrap(
-          ShadToggleGroup<String>(
+          ToggleGroup<String>(
             values: const {'a'},
             onChanged: (v) => latest = v,
             children: const [
-              ShadToggleGroupItem(value: 'a', child: Text('A')),
-              ShadToggleGroupItem(value: 'b', child: Text('B')),
+              ToggleGroupItem(value: 'a', child: Text('A')),
+              ToggleGroupItem(value: 'b', child: Text('B')),
             ],
           ),
         ),
@@ -183,12 +183,12 @@ void main() {
       Set<String>? latest;
       await tester.pumpWidget(
         wrap(
-          ShadToggleGroup<String>(
+          ToggleGroup<String>(
             values: const {'a'},
             onChanged: (v) => latest = v,
             children: const [
-              ShadToggleGroupItem(value: 'a', child: Text('A')),
-              ShadToggleGroupItem(value: 'b', child: Text('B')),
+              ToggleGroupItem(value: 'a', child: Text('A')),
+              ToggleGroupItem(value: 'b', child: Text('B')),
             ],
           ),
         ),
@@ -203,12 +203,12 @@ void main() {
       Set<String>? latest;
       await tester.pumpWidget(
         wrap(
-          ShadToggleGroup<String>.multiple(
+          ToggleGroup<String>.multiple(
             values: const {'a'},
             onChanged: (v) => latest = v,
             children: const [
-              ShadToggleGroupItem(value: 'a', child: Text('A')),
-              ShadToggleGroupItem(value: 'b', child: Text('B')),
+              ToggleGroupItem(value: 'a', child: Text('A')),
+              ToggleGroupItem(value: 'b', child: Text('B')),
             ],
           ),
         ),
@@ -220,14 +220,14 @@ void main() {
     });
   });
 
-  group('ShadCollapsible', () {
+  group('Collapsible', () {
     testWidgets('hides content until opened', (tester) async {
-      final controller = ShadCollapsibleController();
+      final controller = CollapsibleController();
       addTearDown(controller.dispose);
 
       await tester.pumpWidget(
         wrap(
-          ShadCollapsible(
+          Collapsible(
             controller: controller,
             child: const Text('Hidden'),
           ),
@@ -245,12 +245,12 @@ void main() {
     });
 
     testWidgets('keeps content mounted with maintainState', (tester) async {
-      final controller = ShadCollapsibleController();
+      final controller = CollapsibleController();
       addTearDown(controller.dispose);
 
       await tester.pumpWidget(
         wrap(
-          ShadCollapsible(
+          Collapsible(
             controller: controller,
             maintainState: true,
             child: const Text('Hidden'),
@@ -261,9 +261,9 @@ void main() {
     });
   });
 
-  group('ShadEmpty', () {
+  group('Empty', () {
     testWidgets('falls back to a localized title', (tester) async {
-      await tester.pumpWidget(wrap(const ShadEmpty()));
+      await tester.pumpWidget(wrap(const Empty()));
       expect(find.text('No results'), findsOneWidget);
     });
 
@@ -272,12 +272,12 @@ void main() {
     ) async {
       await tester.pumpWidget(
         wrap(
-          ShadEmpty(
+          Empty(
             icon: const Icon(LucideIcons.inbox),
             title: const Text('Nothing here'),
             description: const Text('Try again later.'),
             actions: [
-              ShadButton(onPressed: () {}, child: const Text('Refresh')),
+              Button(onPressed: () {}, child: const Text('Refresh')),
             ],
           ),
         ),
@@ -289,24 +289,24 @@ void main() {
     });
   });
 
-  group('ShadPagination.buildPageWindow', () {
+  group('Pagination.buildPageWindow', () {
     test('returns every page when they all fit', () {
       expect(
-        ShadPagination.buildPageWindow(page: 1, pageCount: 5),
+        Pagination.buildPageWindow(page: 1, pageCount: 5),
         [1, 2, 3, 4, 5],
       );
     });
 
     test('inserts an ellipsis for a skipped run', () {
       expect(
-        ShadPagination.buildPageWindow(page: 1, pageCount: 20),
+        Pagination.buildPageWindow(page: 1, pageCount: 20),
         [1, 2, null, 20],
       );
     });
 
     test('windows around the current page', () {
       expect(
-        ShadPagination.buildPageWindow(page: 10, pageCount: 20),
+        Pagination.buildPageWindow(page: 10, pageCount: 20),
         [1, null, 9, 10, 11, null, 20],
       );
     });
@@ -315,28 +315,28 @@ void main() {
       // A gap of exactly one page would make the ellipsis longer than the
       // number it replaces.
       expect(
-        ShadPagination.buildPageWindow(page: 4, pageCount: 7),
+        Pagination.buildPageWindow(page: 4, pageCount: 7),
         [1, 2, 3, 4, 5, 6, 7],
       );
     });
 
     test('handles the degenerate cases', () {
-      expect(ShadPagination.buildPageWindow(page: 1, pageCount: 0), isEmpty);
-      expect(ShadPagination.buildPageWindow(page: 1, pageCount: 1), [1]);
+      expect(Pagination.buildPageWindow(page: 1, pageCount: 0), isEmpty);
+      expect(Pagination.buildPageWindow(page: 1, pageCount: 1), [1]);
       // An out-of-range page is clamped rather than throwing.
       expect(
-        ShadPagination.buildPageWindow(page: 99, pageCount: 3),
+        Pagination.buildPageWindow(page: 99, pageCount: 3),
         [1, 2, 3],
       );
     });
   });
 
-  group('ShadPagination', () {
+  group('Pagination', () {
     testWidgets('navigates with the previous/next buttons', (tester) async {
       final visited = <int>[];
       await tester.pumpWidget(
         wrap(
-          ShadPagination(
+          Pagination(
             page: 5,
             pageCount: 20,
             onPageChanged: visited.add,
@@ -357,7 +357,7 @@ void main() {
       final visited = <int>[];
       await tester.pumpWidget(
         wrap(
-          ShadPagination(page: 1, pageCount: 5, onPageChanged: visited.add),
+          Pagination(page: 1, pageCount: 5, onPageChanged: visited.add),
         ),
       );
 
@@ -370,7 +370,7 @@ void main() {
       final visited = <int>[];
       await tester.pumpWidget(
         wrap(
-          ShadPagination(page: 1, pageCount: 5, onPageChanged: visited.add),
+          Pagination(page: 1, pageCount: 5, onPageChanged: visited.add),
         ),
       );
 

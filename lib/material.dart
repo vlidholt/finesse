@@ -1,15 +1,15 @@
-/// Material and Cupertino interop for shad.
+/// Material and Cupertino interop for finesse.
 ///
-/// `package:shad/shad.dart` does not depend on Material or Cupertino. Import
+/// `package:finesse/finesse.dart` does not depend on Material or Cupertino. Import
 /// this library as well when an app puts Material or Cupertino widgets next
-/// to shad's, and wrap them in a [ShadMaterial]:
+/// to finesse's, and wrap them in a [FinesseMaterial]:
 ///
 /// ```dart
-/// import 'package:shad/material.dart';
-/// import 'package:shad/shad.dart';
+/// import 'package:finesse/material.dart';
+/// import 'package:finesse/finesse.dart';
 ///
-/// ShadApp(
-///   builder: (context, child) => ShadMaterial(child: child!),
+/// FinesseApp(
+///   builder: (context, child) => FinesseMaterial(child: child!),
 ///   home: const HomePage(),
 /// )
 /// ```
@@ -19,32 +19,34 @@
 /// `cupertino_ui` packages.
 library;
 
+import 'package:finesse/src/theme/data.dart';
+import 'package:finesse/src/theme/text_theme/theme.dart';
+import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/cupertino.dart' show CupertinoLocalizations;
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'
+    hide ColorScheme, TextTheme, Theme, ThemeData;
+import 'package:flutter/material.dart' as m;
 import 'package:flutter_localizations/flutter_localizations.dart'
     show GlobalCupertinoLocalizations, GlobalMaterialLocalizations;
-import 'package:shad/src/theme/data.dart';
-import 'package:shad/src/theme/text_theme/theme.dart';
-import 'package:shad/src/theme/theme.dart';
 
-/// Derives the Material [ThemeData] a [ShadThemeData] implies: its colours,
+/// Derives the Material [ThemeData] a [ThemeData] implies: its colours,
 /// font, divider, text selection, icon and scrollbar themes.
 ///
-/// [ShadMaterial] installs it. Call it yourself to theme a `MaterialApp`
-/// built by `ShadApp.custom`:
+/// [FinesseMaterial] installs it. Call it yourself to theme a `MaterialApp`
+/// built by `FinesseApp.custom`:
 ///
 /// ```dart
-/// ShadApp.custom(
+/// FinesseApp.custom(
 ///   appBuilder: (context) => MaterialApp(
-///     theme: shadMaterialThemeFrom(ShadTheme.of(context)),
-///     builder: (context, child) => ShadAppBuilder(child: child!),
+///     theme: materialThemeFrom(Theme.of(context)),
+///     builder: (context, child) => FinesseAppBuilder(child: child!),
 ///   ),
 /// )
 /// ```
-ThemeData shadMaterialThemeFrom(ShadThemeData themeData) {
-  final theme = ThemeData(
+m.ThemeData materialThemeFrom(ThemeData themeData) {
+  final theme = m.ThemeData(
     fontFamily: themeData.textTheme.family,
-    colorScheme: ColorScheme(
+    colorScheme: m.ColorScheme(
       brightness: themeData.brightness,
       primary: themeData.colorScheme.primary,
       onPrimary: themeData.colorScheme.primaryForeground,
@@ -58,8 +60,8 @@ ThemeData shadMaterialThemeFrom(ShadThemeData themeData) {
     scaffoldBackgroundColor: themeData.colorScheme.background,
     brightness: themeData.brightness,
     dividerTheme: DividerThemeData(
-      color: themeData.separatorTheme.color ?? themeData.colorScheme.border,
-      thickness: themeData.separatorTheme.thickness ?? 1,
+      color: themeData.dividerTheme.color ?? themeData.colorScheme.border,
+      thickness: themeData.dividerTheme.thickness ?? 1,
     ),
     textSelectionTheme: TextSelectionThemeData(
       cursorColor: themeData.colorScheme.primary,
@@ -83,39 +85,40 @@ ThemeData shadMaterialThemeFrom(ShadThemeData themeData) {
   return theme.copyWith(textTheme: _withFontBuilder(theme.textTheme, builder));
 }
 
-/// {@template ShadMaterial}
-/// Lets Material and Cupertino widgets in [child] follow the nearest shad
+/// {@template FinesseMaterial}
+/// Lets Material and Cupertino widgets in [child] follow the nearest finesse
 /// theme.
 ///
-/// It installs the Material [Theme] that [shadMaterialThemeFrom] derives
+/// It installs the Material [Theme] that [materialThemeFrom] derives
 /// (Cupertino widgets take their theme from it) and a transparent [Material],
 /// and adds the Material and Cupertino localizations when no ancestor
 /// provides them. Widgets such as `TextField`, `Slider` and `InkWell` need
 /// all three.
 ///
-/// Put one around the whole app through `ShadApp.builder`, or around a
-/// subtree. Inside a `ShadThemeScope` it follows that scope's theme.
+/// Put one around the whole app through `FinesseApp.builder`, or around a
+/// subtree. Inside a `ThemeScope` it follows that scope's theme.
 /// {@endtemplate}
-class ShadMaterial extends StatelessWidget {
-  /// {@macro ShadMaterial}
-  const ShadMaterial({super.key, required this.child, this.themeBuilder});
+class FinesseMaterial extends StatelessWidget {
+  /// {@macro FinesseMaterial}
+  const FinesseMaterial({super.key, required this.child, this.themeBuilder});
 
   /// The widget below this widget in the tree.
   final Widget child;
 
-  /// Changes the Material [ThemeData] derived from the shad theme. It
+  /// Changes the Material [ThemeData] derived from the finesse theme. It
   /// receives the derived theme and returns the theme to use.
-  final ThemeData Function(BuildContext context, ThemeData theme)? themeBuilder;
+  final m.ThemeData Function(BuildContext context, m.ThemeData theme)?
+  themeBuilder;
 
   @override
   Widget build(BuildContext context) {
-    var theme = shadMaterialThemeFrom(ShadTheme.of(context));
+    var theme = materialThemeFrom(Theme.of(context));
     if (themeBuilder case final builder?) theme = builder(context, theme);
 
-    Widget result = Theme(
+    Widget result = m.Theme(
       data: theme,
       // A transparent Material, which widgets such as Slider and InkWell
-      // look for, keeping the text style that shad set.
+      // look for, keeping the text style that finesse set.
       child: Material(
         type: MaterialType.transparency,
         textStyle: DefaultTextStyle.of(context).style,
@@ -154,13 +157,13 @@ class ShadMaterial extends StatelessWidget {
   }
 }
 
-TextTheme _withFontBuilder(TextTheme textTheme, ShadFontBuilder builder) {
-  TextStyle apply(TextStyle? style) => ShadBuilderTextStyle(
+m.TextTheme _withFontBuilder(m.TextTheme textTheme, FontBuilder builder) {
+  TextStyle apply(TextStyle? style) => BuilderTextStyle(
     (style ?? const TextStyle()).omitFamilyAndPackage,
     builder: builder,
     overrideFamilyWithBuilder: true,
   );
-  return TextTheme(
+  return m.TextTheme(
     displayLarge: apply(textTheme.displayLarge),
     displayMedium: apply(textTheme.displayMedium),
     displaySmall: apply(textTheme.displaySmall),

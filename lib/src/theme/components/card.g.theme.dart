@@ -9,10 +9,10 @@ part of 'card.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadCardTheme {
+mixin _$CardTheme {
   bool get canMerge => true;
 
-  static ShadCardTheme? lerp(ShadCardTheme? a, ShadCardTheme? b, double t) {
+  static CardTheme? lerp(CardTheme? a, CardTheme? b, double t) {
     if (identical(a, b)) {
       return a;
     }
@@ -25,11 +25,11 @@ mixin _$ShadCardTheme {
       return t == 0.0 ? a : null;
     }
 
-    return ShadCardTheme(
+    return CardTheme(
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
       backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
       radius: BorderRadius.lerp(a.radius, b.radius, t),
-      border: ShadBorder.lerp(a.border, b.border, t),
+      border: FinesseBorder.lerp(a.border, b.border, t),
       shadows: t < 0.5 ? a.shadows : b.shadows,
       width: lerpDouble$(a.width, b.width, t),
       height: lerpDouble$(a.height, b.height, t),
@@ -59,11 +59,11 @@ mixin _$ShadCardTheme {
     );
   }
 
-  ShadCardTheme copyWith({
+  CardTheme copyWith({
     EdgeInsetsGeometry? padding,
     Color? backgroundColor,
     BorderRadius? radius,
-    ShadBorder? border,
+    FinesseBorder? border,
     List<BoxShadow>? shadows,
     double? width,
     double? height,
@@ -79,9 +79,9 @@ mixin _$ShadCardTheme {
     double? gap,
     double? sectionGap,
   }) {
-    final _this = (this as ShadCardTheme);
+    final _this = (this as CardTheme);
 
-    return ShadCardTheme(
+    return CardTheme(
       padding: padding ?? _this.padding,
       backgroundColor: backgroundColor ?? _this.backgroundColor,
       radius: radius ?? _this.radius,
@@ -106,8 +106,8 @@ mixin _$ShadCardTheme {
     );
   }
 
-  ShadCardTheme merge(ShadCardTheme? other) {
-    final _this = (this as ShadCardTheme);
+  CardTheme merge(CardTheme? other) {
+    final _this = (this as CardTheme);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -151,8 +151,8 @@ mixin _$ShadCardTheme {
       return false;
     }
 
-    final _this = (this as ShadCardTheme);
-    final _other = (other as ShadCardTheme);
+    final _this = (this as CardTheme);
+    final _other = (other as CardTheme);
 
     return _other.padding == _this.padding &&
         _other.backgroundColor == _this.backgroundColor &&
@@ -176,7 +176,7 @@ mixin _$ShadCardTheme {
 
   @override
   int get hashCode {
-    final _this = (this as ShadCardTheme);
+    final _this = (this as CardTheme);
 
     return Object.hash(
       runtimeType,

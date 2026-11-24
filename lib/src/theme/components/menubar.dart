@@ -1,25 +1,25 @@
 import 'dart:ui';
 
+import 'package:finesse/src/components/button.dart';
+import 'package:finesse/src/raw_components/portal.dart';
+import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/utils/border.dart';
+import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:shad/src/components/button.dart';
-import 'package:shad/src/raw_components/portal.dart';
-import 'package:shad/src/theme/components/decorator.dart';
-import 'package:shad/src/utils/border.dart';
-import 'package:shad/src/utils/gesture_detector.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
 part 'menubar.g.theme.dart';
 
-/// {@template ShadMenubarTheme}
-/// Theme for the `ShadMenubar` widget.
+/// {@template MenubarTheme}
+/// Theme for the `Menubar` widget.
 /// {@endtemplate}
 @themeGen
 @immutable
-class ShadMenubarTheme with _$ShadMenubarTheme {
-  /// {@macro ShadMenubarTheme}
-  const ShadMenubarTheme({
+class MenubarTheme with _$MenubarTheme {
+  /// {@macro MenubarTheme}
+  const MenubarTheme({
     bool canMerge = true,
     this.radius,
     this.padding,
@@ -71,107 +71,107 @@ class ShadMenubarTheme with _$ShadMenubarTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro ShadMenubar.radius}
+  /// {@macro Menubar.radius}
   final BorderRadiusGeometry? radius;
 
-  /// {@macro ShadMenubar.padding}
+  /// {@macro Menubar.padding}
   final EdgeInsetsGeometry? padding;
 
-  /// {@macro ShadMenubar.backgroundColor}
+  /// {@macro Menubar.backgroundColor}
   final Color? backgroundColor;
 
-  /// {@macro ShadMenubar.border}
-  final ShadBorder? border;
+  /// {@macro Menubar.border}
+  final FinesseBorder? border;
 
-  /// {@macro ShadContextMenu.constraints}
+  /// {@macro ContextMenu.constraints}
   final BoxConstraints? constraints;
 
-  /// {@macro ShadContextMenu.padding}
+  /// {@macro ContextMenu.padding}
   final EdgeInsetsGeometry? contextMenuPadding;
 
-  /// {@macro ShadPopover.effects}
+  /// {@macro Popover.effects}
   final List<Effect<dynamic>>? effects;
 
-  /// {@macro ShadPopover.shadows}
+  /// {@macro Popover.shadows}
   final List<BoxShadow>? shadows;
 
-  /// {@macro ShadPopover.decoration}
-  final ShadDecoration? decoration;
+  /// {@macro Popover.decoration}
+  final FinesseDecoration? decoration;
 
-  /// {@macro ShadPopover.filter}
+  /// {@macro Popover.filter}
   final ImageFilter? filter;
 
-  /// {@macro ShadMenubarItem.anchor}
-  final ShadAnchorBase? anchor;
+  /// {@macro MenubarItem.anchor}
+  final AnchorBase? anchor;
 
-  /// {@macro ShadButton.variant}
-  final ShadButtonVariant? buttonVariant;
+  /// {@macro Button.variant}
+  final ButtonVariant? buttonVariant;
 
-  /// {@macro ShadButton.size}
-  final ShadButtonSize? buttonSize;
+  /// {@macro Button.size}
+  final ButtonSize? buttonSize;
 
-  /// {@macro ShadButton.cursor}
+  /// {@macro Button.cursor}
   final MouseCursor? buttonCursor;
 
-  /// {@macro ShadButton.width}
+  /// {@macro Button.width}
   final double? buttonWidth;
 
-  /// {@macro ShadMenubarItem.height}
+  /// {@macro MenubarItem.height}
   final double? buttonHeight;
 
-  /// {@macro ShadButton.padding}
+  /// {@macro Button.padding}
   final EdgeInsetsGeometry? buttonPadding;
 
-  /// {@macro ShadButton.backgroundColor}
+  /// {@macro Button.backgroundColor}
   final Color? buttonBackgroundColor;
 
-  /// {@macro ShadMenubarItem.selectedBackgroundColor}
+  /// {@macro MenubarItem.selectedBackgroundColor}
   final Color? buttonSelectedBackgroundColor;
 
-  /// {@macro ShadButton.hoverBackgroundColor}
+  /// {@macro Button.hoverBackgroundColor}
   final Color? buttonHoverBackgroundColor;
 
-  /// {@macro ShadButton.foregroundColor}
+  /// {@macro Button.foregroundColor}
   final Color? buttonForegroundColor;
 
-  /// {@macro ShadButton.hoverForegroundColor}
+  /// {@macro Button.hoverForegroundColor}
   final Color? buttonHoverForegroundColor;
 
-  /// {@macro ShadButton.pressedBackgroundColor}
+  /// {@macro Button.pressedBackgroundColor}
   final Color? buttonPressedBackgroundColor;
 
-  /// {@macro ShadButton.pressedForegroundColor}
+  /// {@macro Button.pressedForegroundColor}
   final Color? buttonPressedForegroundColor;
 
-  /// {@macro ShadButton.shadows}
+  /// {@macro Button.shadows}
   final List<BoxShadow>? buttonShadows;
 
-  /// {@macro ShadMenubar.stripShadows}
+  /// {@macro Menubar.stripShadows}
   final List<BoxShadow>? stripShadows;
 
-  /// {@macro ShadButton.gradient}
+  /// {@macro Button.gradient}
   final Gradient? buttonGradient;
 
-  /// {@macro ShadButton.textDecoration}
+  /// {@macro Button.textDecoration}
   final TextDecoration? buttonTextDecoration;
 
-  /// {@macro ShadButton.hoverTextDecoration}
+  /// {@macro Button.hoverTextDecoration}
   final TextDecoration? buttonHoverTextDecoration;
 
-  /// {@macro ShadButton.decoration}
-  final ShadDecoration? buttonDecoration;
+  /// {@macro Button.decoration}
+  final FinesseDecoration? buttonDecoration;
 
-  /// {@macro ShadButton.gap}
+  /// {@macro Button.gap}
   final double? buttonGap;
 
-  /// {@macro ShadButton.mainAxisAlignment}
+  /// {@macro Button.mainAxisAlignment}
   final MainAxisAlignment? buttonMainAxisAlignment;
 
-  /// {@macro ShadButton.crossAxisAlignment}
+  /// {@macro Button.crossAxisAlignment}
   final CrossAxisAlignment? buttonCrossAxisAlignment;
 
-  /// {@macro ShadButton.hoverStrategies}
-  final ShadHoverStrategies? buttonHoverStrategies;
+  /// {@macro Button.hoverStrategies}
+  final HoverStrategies? buttonHoverStrategies;
 
   /// Has no effect: menubar items do not respond to long presses.
   @Deprecated(
@@ -180,29 +180,29 @@ class ShadMenubarTheme with _$ShadMenubarTheme {
   )
   final Duration? buttonLongPressDuration;
 
-  /// {@macro ShadButton.textDirection}
+  /// {@macro Button.textDirection}
   final TextDirection? buttonTextDirection;
 
-  /// {@macro ShadButton.expands}
+  /// {@macro Button.expands}
   final bool? buttonExpands;
 
-  /// {@macro ShadMenubar.selectOnHover}
+  /// {@macro Menubar.selectOnHover}
   final bool? selectOnHover;
 
   /// Linearly interpolates between [a] and [b] by [t].
-  static ShadMenubarTheme? lerp(
-    ShadMenubarTheme? a,
-    ShadMenubarTheme? b,
+  static MenubarTheme? lerp(
+    MenubarTheme? a,
+    MenubarTheme? b,
     double t,
-  ) => _$ShadMenubarTheme.lerp(a, b, t);
+  ) => _$MenubarTheme.lerp(a, b, t);
 
   // The generated `==` compares lists by identity, so a theme built with a
-  // non-const list would never equal its own rebuild, and ShadAnimatedTheme
+  // non-const list would never equal its own rebuild, and AnimatedTheme
   // would re-lerp on every frame. Compare the lists by value, then let the
   // generated `==` compare everything else against a copy that shares them.
   @override
   bool operator ==(Object other) =>
-      other is ShadMenubarTheme &&
+      other is MenubarTheme &&
       listEquals(effects, other.effects) &&
       listEquals(shadows, other.shadows) &&
       listEquals(buttonShadows, other.buttonShadows) &&

@@ -1,9 +1,9 @@
 import 'package:example/main.dart';
 import 'package:example/screens/components_screen.dart';
+import 'package:finesse/finesse.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shad/shad.dart';
 
 void main() {
   setUpAll(() => GoogleFonts.config.allowRuntimeFetching = false);
@@ -24,7 +24,7 @@ void main() {
   /// extentless one).
   double sidebarOffset(WidgetTester tester) {
     final scrollable = find.descendant(
-      of: find.byType(ShadSidebar),
+      of: find.byType(Sidebar),
       matching: find.byType(Scrollable),
     );
     return tester
@@ -45,7 +45,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
     expect(find.text('Getting started'), findsWidgets);
     expect(
-      find.textContaining('shad is a Flutter implementation'),
+      find.textContaining('finesse is a Flutter implementation'),
       findsOneWidget,
     );
     expect(sidebarOffset(tester), 0);

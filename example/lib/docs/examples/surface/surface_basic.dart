@@ -1,31 +1,31 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 /// The popover and menu surfaces, around any widget: for floating UI that
-/// shad has no component for.
+/// finesse has no component for.
 class SurfaceBasicExample extends StatelessWidget {
   const SurfaceBasicExample({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     return Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 24,
       children: [
-        ShadSurface(
+        Surface(
           child: SizedBox(
             width: 200,
             child: Text(
               'A popover surface: the outline, radius, padding and shadow '
-              'of ShadPopover.',
+              'of Popover.',
               style: theme.textTheme.small,
             ),
           ),
         ),
-        ShadSurface(
-          kind: ShadSurfaceKind.menu,
+        Surface(
+          kind: SurfaceKind.menu,
           child: SizedBox(
             width: 160,
             child: Column(

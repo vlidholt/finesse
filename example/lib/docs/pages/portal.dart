@@ -10,8 +10,8 @@ final portalDoc = ComponentDoc(
       'menus: renders a follower widget anchored to its child, above '
       'everything else.',
   body: (context) => const DocParagraph(
-    '`ShadPortal` is a building block rather than an end-user component. '
-    'Reach for `ShadPopover`, `ShadTooltip`, or the menu components first. '
+    '`Portal` is a building block rather than an end-user component. '
+    'Reach for `Popover`, `Tooltip`, or the menu components first. '
     'Use the portal directly only when you build a new floating surface.',
   ),
   examples: [
@@ -20,7 +20,7 @@ final portalDoc = ComponentDoc(
       title: 'Anchoring modes',
       description:
           'Hover the red square. The portal cycles through '
-          '`ShadAnchorAuto` follower anchors every second.',
+          '`AnchorAuto` follower anchors every second.',
       minPreviewHeight: 360,
       padding: EdgeInsets.zero,
       builder: (_) => const PortalAnchoringExample(),

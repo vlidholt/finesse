@@ -9,10 +9,10 @@ part of 'kbd.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadKbdTheme {
+mixin _$KbdTheme {
   bool get canMerge => true;
 
-  static ShadKbdTheme? lerp(ShadKbdTheme? a, ShadKbdTheme? b, double t) {
+  static KbdTheme? lerp(KbdTheme? a, KbdTheme? b, double t) {
     if (identical(a, b)) {
       return a;
     }
@@ -25,10 +25,10 @@ mixin _$ShadKbdTheme {
       return t == 0.0 ? a : null;
     }
 
-    return ShadKbdTheme(
+    return KbdTheme(
       backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
       foregroundColor: Color.lerp(a.foregroundColor, b.foregroundColor, t),
-      border: ShadBorder.lerp(a.border, b.border, t),
+      border: FinesseBorder.lerp(a.border, b.border, t),
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
       textStyle: TextStyle.lerp(a.textStyle, b.textStyle, t),
       gap: lerpDouble$(a.gap, b.gap, t),
@@ -37,19 +37,19 @@ mixin _$ShadKbdTheme {
     );
   }
 
-  ShadKbdTheme copyWith({
+  KbdTheme copyWith({
     Color? backgroundColor,
     Color? foregroundColor,
-    ShadBorder? border,
+    FinesseBorder? border,
     EdgeInsetsGeometry? padding,
     TextStyle? textStyle,
     double? gap,
     double? minWidth,
     double? height,
   }) {
-    final _this = (this as ShadKbdTheme);
+    final _this = (this as KbdTheme);
 
-    return ShadKbdTheme(
+    return KbdTheme(
       backgroundColor: backgroundColor ?? _this.backgroundColor,
       foregroundColor: foregroundColor ?? _this.foregroundColor,
       border: border ?? _this.border,
@@ -61,8 +61,8 @@ mixin _$ShadKbdTheme {
     );
   }
 
-  ShadKbdTheme merge(ShadKbdTheme? other) {
-    final _this = (this as ShadKbdTheme);
+  KbdTheme merge(KbdTheme? other) {
+    final _this = (this as KbdTheme);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -94,8 +94,8 @@ mixin _$ShadKbdTheme {
       return false;
     }
 
-    final _this = (this as ShadKbdTheme);
-    final _other = (other as ShadKbdTheme);
+    final _this = (this as KbdTheme);
+    final _other = (other as KbdTheme);
 
     return _other.backgroundColor == _this.backgroundColor &&
         _other.foregroundColor == _this.foregroundColor &&
@@ -109,7 +109,7 @@ mixin _$ShadKbdTheme {
 
   @override
   int get hashCode {
-    final _this = (this as ShadKbdTheme);
+    final _this = (this as KbdTheme);
 
     return Object.hash(
       runtimeType,

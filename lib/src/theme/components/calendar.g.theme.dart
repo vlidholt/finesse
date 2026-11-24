@@ -9,14 +9,10 @@ part of 'calendar.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadCalendarTheme {
+mixin _$CalendarTheme {
   bool get canMerge => true;
 
-  static ShadCalendarTheme? lerp(
-    ShadCalendarTheme? a,
-    ShadCalendarTheme? b,
-    double t,
-  ) {
+  static CalendarTheme? lerp(CalendarTheme? a, CalendarTheme? b, double t) {
     if (identical(a, b)) {
       return a;
     }
@@ -29,7 +25,7 @@ mixin _$ShadCalendarTheme {
       return t == 0.0 ? a : null;
     }
 
-    return ShadCalendarTheme(
+    return CalendarTheme(
       hideNavigation: t < 0.5 ? a.hideNavigation : b.hideNavigation,
       yearSelectorMinWidth: lerpDouble$(
         a.yearSelectorMinWidth,
@@ -77,7 +73,7 @@ mixin _$ShadCalendarTheme {
         b.navigationButtonDisabledOpacity,
         t,
       ),
-      decoration: ShadDecoration.lerp(a.decoration, b.decoration, t),
+      decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
       spacingBetweenMonths: lerpDouble$(
         a.spacingBetweenMonths,
         b.spacingBetweenMonths,
@@ -149,7 +145,7 @@ mixin _$ShadCalendarTheme {
         b.dayButtonPadding,
         t,
       ),
-      dayButtonDecoration: ShadDecoration.lerp(
+      dayButtonDecoration: FinesseDecoration.lerp(
         a.dayButtonDecoration,
         b.dayButtonDecoration,
         t,
@@ -216,7 +212,7 @@ mixin _$ShadCalendarTheme {
     );
   }
 
-  ShadCalendarTheme copyWith({
+  CalendarTheme copyWith({
     bool? hideNavigation,
     double? yearSelectorMinWidth,
     double? monthSelectorMinWidth,
@@ -228,7 +224,7 @@ mixin _$ShadCalendarTheme {
     IconData? forwardNavigationButtonIconData,
     EdgeInsetsGeometry? navigationButtonPadding,
     double? navigationButtonDisabledOpacity,
-    ShadDecoration? decoration,
+    FinesseDecoration? decoration,
     double? spacingBetweenMonths,
     double? runSpacingBetweenMonths,
     BoxConstraints? monthConstraints,
@@ -248,20 +244,20 @@ mixin _$ShadCalendarTheme {
     double? selectorMinHeight,
     double? dayButtonOutsideMonthOpacity,
     EdgeInsetsGeometry? dayButtonPadding,
-    ShadDecoration? dayButtonDecoration,
+    FinesseDecoration? dayButtonDecoration,
     TextStyle? selectedDayButtonTextStyle,
     TextStyle? insideRangeDayButtonTextStyle,
     TextStyle? dayButtonTextStyle,
-    ShadButtonVariant? dayButtonVariant,
-    ShadButtonVariant? selectedDayButtonVariant,
-    ShadButtonVariant? insideRangeDayButtonVariant,
-    ShadButtonVariant? todayButtonVariant,
+    ButtonVariant? dayButtonVariant,
+    ButtonVariant? selectedDayButtonVariant,
+    ButtonVariant? insideRangeDayButtonVariant,
+    ButtonVariant? todayButtonVariant,
     double? gridMainAxisSpacing,
     double? gridCrossAxisSpacing,
     TextStyle? dayButtonOutsideMonthTextStyle,
-    ShadButtonVariant? dayButtonOutsideMonthVariant,
-    ShadButtonVariant? selectedDayButtonOutsideMonthVariant,
-    ShadCalendarCaptionLayout? captionLayout,
+    ButtonVariant? dayButtonOutsideMonthVariant,
+    ButtonVariant? selectedDayButtonOutsideMonthVariant,
+    CalendarCaptionLayout? captionLayout,
     bool? hideWeekdayNames,
     bool? showOutsideDays,
     String Function(DateTime)? formatMonthYear,
@@ -275,9 +271,9 @@ mixin _$ShadCalendarTheme {
     bool? fixedWeeks,
     bool? allowDeselection,
   }) {
-    final _this = (this as ShadCalendarTheme);
+    final _this = (this as CalendarTheme);
 
-    return ShadCalendarTheme(
+    return CalendarTheme(
       hideNavigation: hideNavigation ?? _this.hideNavigation,
       yearSelectorMinWidth: yearSelectorMinWidth ?? _this.yearSelectorMinWidth,
       monthSelectorMinWidth:
@@ -359,8 +355,8 @@ mixin _$ShadCalendarTheme {
     );
   }
 
-  ShadCalendarTheme merge(ShadCalendarTheme? other) {
-    final _this = (this as ShadCalendarTheme);
+  CalendarTheme merge(CalendarTheme? other) {
+    final _this = (this as CalendarTheme);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -468,8 +464,8 @@ mixin _$ShadCalendarTheme {
       return false;
     }
 
-    final _this = (this as ShadCalendarTheme);
-    final _other = (other as ShadCalendarTheme);
+    final _this = (this as CalendarTheme);
+    final _other = (other as CalendarTheme);
 
     return _other.hideNavigation == _this.hideNavigation &&
         _other.yearSelectorMinWidth == _this.yearSelectorMinWidth &&
@@ -541,7 +537,7 @@ mixin _$ShadCalendarTheme {
 
   @override
   int get hashCode {
-    final _this = (this as ShadCalendarTheme);
+    final _this = (this as CalendarTheme);
 
     return Object.hashAll([
       runtimeType,

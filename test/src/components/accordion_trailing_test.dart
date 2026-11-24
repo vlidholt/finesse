@@ -1,6 +1,6 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/shad.dart';
 
 void main() {
   testWidgets('a trailing header action does not toggle the item', (
@@ -8,13 +8,13 @@ void main() {
   ) async {
     var resets = 0;
     await tester.pumpWidget(
-      ShadApp(
-        home: ShadAccordion<int>(
+      FinesseApp(
+        home: Accordion<int>(
           children: [
-            ShadAccordionItem(
+            AccordionItem(
               value: 1,
               title: const Text('Axes'),
-              trailing: ShadButton.link(
+              trailing: Button.link(
                 onPressed: () => resets++,
                 child: const Text('Reset'),
               ),

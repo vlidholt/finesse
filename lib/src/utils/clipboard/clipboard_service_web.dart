@@ -1,10 +1,10 @@
 import 'dart:js_interop';
 
-import 'package:shad/src/utils/clipboard/clipboard_service.dart';
+import 'package:finesse/src/utils/clipboard/clipboard_service.dart';
 import 'package:web/web.dart' as web;
 
-final _listeners = <ShadPasteFilesCallback>{};
-final _errorListeners = <ShadPasteFilesErrorCallback>{};
+final _listeners = <PasteFilesCallback>{};
+final _errorListeners = <PasteFilesErrorCallback>{};
 bool _initialized = false;
 
 void _ensureInitialized() {
@@ -38,8 +38,8 @@ void _onPaste(web.Event event) {
   );
 }
 
-Future<List<ShadClipboardItem>> _extractFiles(web.DataTransfer data) async {
-  final results = <ShadClipboardItem>[];
+Future<List<ClipboardItem>> _extractFiles(web.DataTransfer data) async {
+  final results = <ClipboardItem>[];
   final items = data.items;
   for (var i = 0; i < items.length; i++) {
     final item = items[i];
@@ -60,23 +60,23 @@ Future<List<ShadClipboardItem>> _extractFiles(web.DataTransfer data) async {
 /// Calls [callback] with the files of each paste event in the document.
 ///
 /// Paste events without files do not call it.
-void addPasteFilesListener(ShadPasteFilesCallback callback) {
+void addPasteFilesListener(PasteFilesCallback callback) {
   _ensureInitialized();
   _listeners.add(callback);
 }
 
 /// Removes a callback added with [addPasteFilesListener].
-void removePasteFilesListener(ShadPasteFilesCallback callback) {
+void removePasteFilesListener(PasteFilesCallback callback) {
   _listeners.remove(callback);
 }
 
 /// Calls [callback] when reading the files of a paste event fails.
-void addPasteFilesErrorListener(ShadPasteFilesErrorCallback callback) {
+void addPasteFilesErrorListener(PasteFilesErrorCallback callback) {
   _ensureInitialized();
   _errorListeners.add(callback);
 }
 
 /// Removes a callback added with [addPasteFilesErrorListener].
-void removePasteFilesErrorListener(ShadPasteFilesErrorCallback callback) {
+void removePasteFilesErrorListener(PasteFilesErrorCallback callback) {
   _errorListeners.remove(callback);
 }

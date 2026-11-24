@@ -4,14 +4,14 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-/// A registry of [ShadMouseAreaRenderBox]es that a pointer can be inside or
+/// A registry of [MouseAreaRenderBox]es that a pointer can be inside or
 /// outside of.
 abstract class MouseAreaRegistry {
-  /// Register the given [ShadMouseAreaRenderBox] with the registry.
-  void registerMouseArea(ShadMouseAreaRenderBox region);
+  /// Register the given [MouseAreaRenderBox] with the registry.
+  void registerMouseArea(MouseAreaRenderBox region);
 
-  /// Unregister the given [ShadMouseAreaRenderBox] with the registry.
-  void unregisterMouseArea(ShadMouseAreaRenderBox region);
+  /// Unregister the given [MouseAreaRenderBox] with the registry.
+  void unregisterMouseArea(MouseAreaRenderBox region);
 
   /// Allows finding of the nearest [MouseAreaRegistry], such as a
   /// [MouseAreaSurfaceRenderBox].
@@ -43,7 +43,7 @@ MouseRegionRegistry.of() was called with a context that does not contain a Mouse
   }
 }
 
-/// The render object of a [ShadMouseAreaSurface].
+/// The render object of a [MouseAreaSurface].
 ///
 /// On each pointer event it receives, it calls `onEnter` on the registered
 /// areas under the pointer, and on all other areas of their groups, and
@@ -52,10 +52,9 @@ MouseRegionRegistry.of() was called with a context that does not contain a Mouse
 class MouseAreaSurfaceRenderBox extends RenderProxyBoxWithHitTestBehavior
     implements MouseAreaRegistry {
   final Expando<BoxHitTestResult> _cachedResults = Expando<BoxHitTestResult>();
-  final Set<ShadMouseAreaRenderBox> _registeredRegions =
-      <ShadMouseAreaRenderBox>{};
-  final Map<Object?, Set<ShadMouseAreaRenderBox>> _groupIdToRegions =
-      <Object?, Set<ShadMouseAreaRenderBox>>{};
+  final Set<MouseAreaRenderBox> _registeredRegions = <MouseAreaRenderBox>{};
+  final Map<Object?, Set<MouseAreaRenderBox>> _groupIdToRegions =
+      <Object?, Set<MouseAreaRenderBox>>{};
 
   @override
   void handleEvent(PointerEvent event, HitTestEntry entry) {
@@ -87,10 +86,10 @@ class MouseAreaSurfaceRenderBox extends RenderProxyBoxWithHitTestBehavior
     final hitRegions = _getRegionsHit(
       _registeredRegions,
       result.path,
-    ).cast<ShadMouseAreaRenderBox>().toSet();
+    ).cast<MouseAreaRenderBox>().toSet();
 
-    final insideRegions = <ShadMouseAreaRenderBox>{
-      for (final ShadMouseAreaRenderBox region in hitRegions)
+    final insideRegions = <MouseAreaRenderBox>{
+      for (final MouseAreaRenderBox region in hitRegions)
         if (region.groupId == null)
           region
         // Adding all grouped regions, so they act as a single region.
@@ -176,17 +175,17 @@ class MouseAreaSurfaceRenderBox extends RenderProxyBoxWithHitTestBehavior
   }
 
   @override
-  void registerMouseArea(ShadMouseAreaRenderBox region) {
+  void registerMouseArea(MouseAreaRenderBox region) {
     assert(!_registeredRegions.contains(region));
     _registeredRegions.add(region);
     if (region.groupId != null) {
-      _groupIdToRegions[region.groupId] ??= <ShadMouseAreaRenderBox>{};
+      _groupIdToRegions[region.groupId] ??= <MouseAreaRenderBox>{};
       _groupIdToRegions[region.groupId]!.add(region);
     }
   }
 
   @override
-  void unregisterMouseArea(ShadMouseAreaRenderBox region) {
+  void unregisterMouseArea(MouseAreaRenderBox region) {
     assert(_registeredRegions.contains(region));
     _registeredRegions.remove(region);
     if (region.groupId != null) {
@@ -200,7 +199,7 @@ class MouseAreaSurfaceRenderBox extends RenderProxyBoxWithHitTestBehavior
 
   // Returns the registered regions that are in the hit path.
   Set<HitTestTarget> _getRegionsHit(
-    Set<ShadMouseAreaRenderBox> detectors,
+    Set<MouseAreaRenderBox> detectors,
     Iterable<HitTestEntry> hitTestPath,
   ) {
     return <HitTestTarget>{
@@ -212,16 +211,16 @@ class MouseAreaSurfaceRenderBox extends RenderProxyBoxWithHitTestBehavior
 }
 
 /// Reports whether a pointer is inside or outside of its child, through the
-/// nearest [ShadMouseAreaSurface].
+/// nearest [MouseAreaSurface].
 ///
 /// Areas with the same [groupId] act as one area. The popover, the tooltip
 /// and the context menu use it to stay open while the pointer moves between
 /// the trigger and the overlay.
-class ShadMouseArea extends SingleChildRenderObjectWidget {
-  /// Creates a const [ShadMouseArea].
+class MouseArea extends SingleChildRenderObjectWidget {
+  /// Creates a const [MouseArea].
   ///
   /// The [child] argument is required.
-  const ShadMouseArea({
+  const MouseArea({
     super.key,
     super.child,
     this.enabled = true,
@@ -237,20 +236,20 @@ class ShadMouseArea extends SingleChildRenderObjectWidget {
     String? debugLabel,
   }) : debugLabel = kReleaseMode ? null : debugLabel;
 
-  /// Whether or not this [ShadMouseArea] is enabled as part of the composite
+  /// Whether or not this [MouseArea] is enabled as part of the composite
   /// region.
   final bool enabled;
 
   /// How to behave during hit testing when deciding how the hit test propagates
-  /// to children and whether to consider targets behind this [ShadMouseArea].
+  /// to children and whether to consider targets behind this [MouseArea].
   ///
   /// Defaults to [HitTestBehavior.deferToChild].
   ///
   /// See [HitTestBehavior] for the allowed values and their meanings.
   final HitTestBehavior behavior;
 
-  /// {@template ShadMouseArea.groupId}
-  /// An optional group ID that groups [ShadMouseArea]s together so that they
+  /// {@template MouseArea.groupId}
+  /// An optional group ID that groups [MouseArea]s together so that they
   /// operate as one region. If any member of a group is hit by a particular
   /// hover, then all members will have their [onEnter] or [onExit] called.
   ///
@@ -280,7 +279,7 @@ class ShadMouseArea extends SingleChildRenderObjectWidget {
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return ShadMouseAreaRenderBox(
+    return MouseAreaRenderBox(
       registry: MouseAreaRegistry.maybeOf(context),
       enabled: enabled,
       behavior: behavior,
@@ -327,7 +326,7 @@ class ShadMouseArea extends SingleChildRenderObjectWidget {
   @override
   void updateRenderObject(
     BuildContext context,
-    covariant ShadMouseAreaRenderBox renderObject,
+    covariant MouseAreaRenderBox renderObject,
   ) {
     renderObject
       ..registry = MouseAreaRegistry.maybeOf(context)
@@ -342,10 +341,10 @@ class ShadMouseArea extends SingleChildRenderObjectWidget {
   }
 }
 
-/// The render object of a [ShadMouseArea].
-class ShadMouseAreaRenderBox extends RenderProxyBoxWithHitTestBehavior {
-  /// Creates a [ShadMouseAreaRenderBox].
-  ShadMouseAreaRenderBox({
+/// The render object of a [MouseArea].
+class MouseAreaRenderBox extends RenderProxyBoxWithHitTestBehavior {
+  /// Creates a [MouseAreaRenderBox].
+  MouseAreaRenderBox({
     this.onEnter,
     this.onExit,
     MouseAreaRegistry? registry,
@@ -407,7 +406,7 @@ class ShadMouseAreaRenderBox extends RenderProxyBoxWithHitTestBehavior {
     }
   }
 
-  /// An optional group ID that groups [ShadMouseAreaRenderBox]s together so
+  /// An optional group ID that groups [MouseAreaRenderBox]s together so
   /// that they operate as one region. If any member of a group is hit by a
   /// particular hover, then all members will have their
   /// [onEnter] or [onExit] called.
@@ -428,7 +427,7 @@ class ShadMouseAreaRenderBox extends RenderProxyBoxWithHitTestBehavior {
     }
   }
 
-  /// The registry that this [ShadMouseAreaRenderBox] should register with.
+  /// The registry that this [MouseAreaRenderBox] should register with.
   ///
   /// If the [registry] is null, then this region will not be registered
   /// anywhere, and will not do any tap detection.
@@ -520,13 +519,13 @@ class ShadMouseAreaRenderBox extends RenderProxyBoxWithHitTestBehavior {
 }
 
 /// A widget that provides notification of a hover inside or outside of a set of
-/// registered regions, grouped by [ShadMouseArea.groupId], without
+/// registered regions, grouped by [MouseArea.groupId], without
 /// participating in the [gesture disambiguation](https://flutter.dev/to/gesture-disambiguation) system.
-class ShadMouseAreaSurface extends SingleChildRenderObjectWidget {
-  /// Creates a const [ShadMouseAreaSurface].
+class MouseAreaSurface extends SingleChildRenderObjectWidget {
+  /// Creates a const [MouseAreaSurface].
   ///
   /// The [child] attribute is required.
-  const ShadMouseAreaSurface({
+  const MouseAreaSurface({
     super.key,
     required Widget super.child,
   });

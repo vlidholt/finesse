@@ -1,79 +1,79 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class MenubarBasicExample extends StatelessWidget {
   const MenubarBasicExample({super.key});
 
   @override
   Widget build(BuildContext context) {
-    const divider = ShadSeparator.horizontal(
+    const divider = Divider.horizontal(
       margin: EdgeInsets.symmetric(vertical: 4),
     );
-    return ShadMenubar(
+    return Menubar(
       items: const [
-        ShadMenubarItem(
+        MenubarItem(
           items: [
-            ShadContextMenuItem(child: Text('New Tab')),
-            ShadContextMenuItem(child: Text('New Window')),
-            ShadContextMenuItem(
+            ContextMenuItem(child: Text('New Tab')),
+            ContextMenuItem(child: Text('New Window')),
+            ContextMenuItem(
               enabled: false,
               child: Text('New Incognito Window'),
             ),
             divider,
-            ShadContextMenuItem(
+            ContextMenuItem(
               trailing: Icon(LucideIcons.chevronRight),
               items: [
-                ShadContextMenuItem(child: Text('Email Link')),
-                ShadContextMenuItem(child: Text('Messages')),
-                ShadContextMenuItem(child: Text('Notes')),
+                ContextMenuItem(child: Text('Email Link')),
+                ContextMenuItem(child: Text('Messages')),
+                ContextMenuItem(child: Text('Notes')),
               ],
               child: Text('Share'),
             ),
-            ShadContextMenuItem(
+            ContextMenuItem(
               trailing: Icon(LucideIcons.chevronRight),
               items: [
-                ShadContextMenuItem(child: Text('PDF')),
-                ShadContextMenuItem(child: Text('HTML')),
-                ShadContextMenuItem(child: Text('Plain Text')),
+                ContextMenuItem(child: Text('PDF')),
+                ContextMenuItem(child: Text('HTML')),
+                ContextMenuItem(child: Text('Plain Text')),
               ],
               child: Text('Export As'),
             ),
             divider,
-            ShadContextMenuItem(child: Text('Print...')),
+            ContextMenuItem(child: Text('Print...')),
           ],
           child: Text('File'),
         ),
-        ShadMenubarItem(
+        MenubarItem(
           items: [
-            ShadContextMenuItem(child: Text('Undo')),
-            ShadContextMenuItem(child: Text('Redo')),
+            ContextMenuItem(child: Text('Undo')),
+            ContextMenuItem(child: Text('Redo')),
             divider,
-            ShadContextMenuItem(
+            ContextMenuItem(
               trailing: Icon(LucideIcons.chevronRight),
               items: [
-                ShadContextMenuItem(child: Text('Search the Web')),
+                ContextMenuItem(child: Text('Search the Web')),
                 divider,
-                ShadContextMenuItem(child: Text('Find...')),
-                ShadContextMenuItem(child: Text('Find Next')),
-                ShadContextMenuItem(child: Text('Find Previous')),
+                ContextMenuItem(child: Text('Find...')),
+                ContextMenuItem(child: Text('Find Next')),
+                ContextMenuItem(child: Text('Find Previous')),
               ],
               child: Text('Find'),
             ),
             divider,
-            ShadContextMenuItem(child: Text('Cut')),
-            ShadContextMenuItem(child: Text('Copy')),
-            ShadContextMenuItem(child: Text('Paste')),
+            ContextMenuItem(child: Text('Cut')),
+            ContextMenuItem(child: Text('Copy')),
+            ContextMenuItem(child: Text('Paste')),
           ],
           child: Text('Edit'),
         ),
-        ShadMenubarItem(
+        MenubarItem(
           items: [
-            ShadContextMenuItem(
+            ContextMenuItem(
               leading: Icon(LucideIcons.check),
               child: Text('Always Show Full URLs'),
             ),
-            ShadContextMenuItem.inset(child: Text('Reload')),
-            ShadContextMenuItem.inset(child: Text('Toggle Full Screen')),
+            ContextMenuItem.inset(child: Text('Reload')),
+            ContextMenuItem.inset(child: Text('Toggle Full Screen')),
           ],
           child: Text('View'),
         ),

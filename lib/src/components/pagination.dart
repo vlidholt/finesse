@@ -1,33 +1,33 @@
+import 'package:finesse/src/components/button.dart';
+import 'package:finesse/src/components/icon_button.dart';
+import 'package:finesse/src/i18n/localizations_delegate.dart';
+import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/data.dart';
+import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/border.dart';
+import 'package:finesse/src/utils/debug_check.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:shad/src/components/button.dart';
-import 'package:shad/src/components/icon_button.dart';
-import 'package:shad/src/i18n/localizations_delegate.dart';
-import 'package:shad/src/theme/components/decorator.dart';
-import 'package:shad/src/theme/data.dart';
-import 'package:shad/src/theme/theme.dart';
-import 'package:shad/src/utils/border.dart';
-import 'package:shad/src/utils/debug_check.dart';
 
 const _transparent = Color(0x00000000);
 
-/// Reserves the same inset as [ShadButtonVariant.outline] without showing a
+/// Reserves the same inset as [ButtonVariant.outline] without showing a
 /// border, so page numbers do not shift when the selection moves.
-ShadDecoration _inactivePageButtonDecoration(ShadThemeData theme) {
+FinesseDecoration _inactivePageButtonDecoration(ThemeData theme) {
   final outlineBorder = theme.outlineButtonTheme.decoration?.border;
   if (outlineBorder == null) {
-    return ShadDecoration(
-      border: ShadBorder.all(width: 1, color: _transparent),
+    return FinesseDecoration(
+      border: FinesseBorder.all(width: 1, color: _transparent),
     );
   }
 
-  ShadBorderSide transparentize(ShadBorderSide? side) {
-    final effective = side ?? const ShadBorderSide(width: 1);
+  FinesseBorderSide transparentize(FinesseBorderSide? side) {
+    final effective = side ?? const FinesseBorderSide(width: 1);
     return effective.copyWith(color: _transparent);
   }
 
-  return ShadDecoration(
+  return FinesseDecoration(
     border: outlineBorder.copyWith(
       top: transparentize(outlineBorder.top),
       right: transparentize(outlineBorder.right),
@@ -37,7 +37,7 @@ ShadDecoration _inactivePageButtonDecoration(ShadThemeData theme) {
   );
 }
 
-/// {@template ShadPagination}
+/// {@template Pagination}
 /// A page navigator.
 ///
 /// Mirrors shadcn/ui's `Pagination`: previous/next buttons around a windowed
@@ -45,7 +45,7 @@ ShadDecoration _inactivePageButtonDecoration(ShadThemeData theme) {
 /// skipped.
 ///
 /// ```dart
-/// ShadPagination(
+/// Pagination(
 ///   page: page,
 ///   pageCount: 20,
 ///   onPageChanged: (p) => setState(() => page = p),
@@ -54,9 +54,9 @@ ShadDecoration _inactivePageButtonDecoration(ShadThemeData theme) {
 ///
 /// [page] is 1-based, matching how page numbers are shown to users.
 /// {@endtemplate}
-class ShadPagination extends StatelessWidget {
-  /// {@macro ShadPagination}
-  const ShadPagination({
+class Pagination extends StatelessWidget {
+  /// {@macro Pagination}
+  const Pagination({
     super.key,
     required this.page,
     required this.pageCount,
@@ -83,17 +83,17 @@ class ShadPagination extends StatelessWidget {
   /// Called with the new page when the user navigates.
   final ValueChanged<int>? onPageChanged;
 
-  /// {@template ShadPagination.siblingCount}
+  /// {@template Pagination.siblingCount}
   /// How many pages to show either side of the current one, defaults to 1.
   /// {@endtemplate}
   final int? siblingCount;
 
-  /// {@template ShadPagination.boundaryCount}
+  /// {@template Pagination.boundaryCount}
   /// How many pages to always show at each end, defaults to 1.
   /// {@endtemplate}
   final int? boundaryCount;
 
-  /// {@template ShadPagination.showEdges}
+  /// {@template Pagination.showEdges}
   /// Whether to show the previous/next buttons, defaults to `true`.
   /// {@endtemplate}
   final bool? showEdges;
@@ -101,7 +101,7 @@ class ShadPagination extends StatelessWidget {
   /// The gap between items.
   final double? gap;
 
-  /// {@template ShadPagination.mainAxisAlignment}
+  /// {@template Pagination.mainAxisAlignment}
   /// How the row of items is aligned.
   /// {@endtemplate}
   final MainAxisAlignment? mainAxisAlignment;
@@ -177,10 +177,10 @@ class ShadPagination extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    assert(debugCheckHasShadTheme(context));
-    final theme = ShadTheme.of(context);
+    assert(debugCheckHasTheme(context));
+    final theme = Theme.of(context);
     final paginationTheme = theme.paginationTheme;
-    final localizations = ShadLocalizations.of(context);
+    final localizations = FinesseLocalizations.of(context);
     final numberFormat = NumberFormat.decimalPattern(
       Localizations.localeOf(context).toLanguageTag(),
     );
@@ -218,7 +218,7 @@ class ShadPagination extends StatelessWidget {
 
     if (effectiveShowEdges) {
       items.add(
-        ShadButton.ghost(
+        Button.ghost(
           enabled: canGoPrevious,
           onPressed: canGoPrevious ? () => onPageChanged!(page - 1) : null,
           leading: const Icon(LucideIcons.chevronLeft, size: 16),
@@ -253,11 +253,9 @@ class ShadPagination extends StatelessWidget {
               '${localizations.pagination.page} '
               '${numberFormat.format(entry)}',
           child: ExcludeSemantics(
-            child: ShadButton.raw(
-              variant: isCurrent
-                  ? ShadButtonVariant.outline
-                  : ShadButtonVariant.ghost,
-              size: ShadButtonSize.icon,
+            child: Button.raw(
+              variant: isCurrent ? ButtonVariant.outline : ButtonVariant.ghost,
+              size: ButtonSize.icon,
               decoration: isCurrent
                   ? null
                   : _inactivePageButtonDecoration(theme),
@@ -275,7 +273,7 @@ class ShadPagination extends StatelessWidget {
     if (effectiveShowEdges) {
       addGap();
       items.add(
-        ShadButton.ghost(
+        Button.ghost(
           enabled: canGoNext,
           onPressed: canGoNext ? () => onPageChanged!(page + 1) : null,
           trailing: const Icon(LucideIcons.chevronRight, size: 16),
@@ -299,9 +297,9 @@ class ShadPagination extends StatelessWidget {
 ///
 /// Useful in a toolbar or beneath a data table, where a full run of page
 /// numbers does not fit.
-class ShadPaginationCompact extends StatelessWidget {
+class PaginationCompact extends StatelessWidget {
   /// Creates a compact pagination for [page] of [pageCount].
-  const ShadPaginationCompact({
+  const PaginationCompact({
     super.key,
     required this.page,
     required this.pageCount,
@@ -334,9 +332,9 @@ class ShadPaginationCompact extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    assert(debugCheckHasShadTheme(context));
-    final theme = ShadTheme.of(context);
-    final localizations = ShadLocalizations.of(context);
+    assert(debugCheckHasTheme(context));
+    final theme = Theme.of(context);
+    final localizations = FinesseLocalizations.of(context);
     final numberFormat = NumberFormat.decimalPattern(
       Localizations.localeOf(context).toLanguageTag(),
     );
@@ -348,7 +346,7 @@ class ShadPaginationCompact extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        ShadIconButton.ghost(
+        IconButton.ghost(
           icon: const Icon(LucideIcons.chevronLeft),
           semanticLabel: localizations.pagination.previous,
           enabled: canGoPrevious,
@@ -363,7 +361,7 @@ class ShadPaginationCompact extends StatelessWidget {
               style: theme.textTheme.muted,
             ),
         SizedBox(width: effectiveGap),
-        ShadIconButton.ghost(
+        IconButton.ghost(
           icon: const Icon(LucideIcons.chevronRight),
           semanticLabel: localizations.pagination.next,
           enabled: canGoNext,

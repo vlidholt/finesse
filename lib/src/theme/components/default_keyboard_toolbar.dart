@@ -3,14 +3,14 @@ import 'package:theme_extensions_builder_annotation/theme_extensions_builder_ann
 
 part 'default_keyboard_toolbar.g.theme.dart';
 
-/// {@template ShadDefaultKeyboardToolbarTheme}
-/// Theme for the `ShadDefaultKeyboardToolbar` widget.
+/// {@template DefaultKeyboardToolbarTheme}
+/// Theme for the `DefaultKeyboardToolbar` widget.
 /// {@endtemplate}
 @themeGen
 @immutable
-class ShadDefaultKeyboardToolbarTheme with _$ShadDefaultKeyboardToolbarTheme {
-  /// {@macro ShadDefaultKeyboardToolbarTheme}
-  const ShadDefaultKeyboardToolbarTheme({
+class DefaultKeyboardToolbarTheme with _$DefaultKeyboardToolbarTheme {
+  /// {@macro DefaultKeyboardToolbarTheme}
+  const DefaultKeyboardToolbarTheme({
     bool canMerge = true,
     this.backgroundColor,
     this.doneText,
@@ -26,28 +26,28 @@ class ShadDefaultKeyboardToolbarTheme with _$ShadDefaultKeyboardToolbarTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro ShadDefaultKeyboardToolbar.backgroundColor}
+  /// {@macro DefaultKeyboardToolbar.backgroundColor}
   final Color? backgroundColor;
 
-  /// {@macro ShadDefaultKeyboardToolbar.doneText}
+  /// {@macro DefaultKeyboardToolbar.doneText}
   final String? doneText;
 
-  /// {@macro ShadDefaultKeyboardToolbar.showPreviousButton}
+  /// {@macro DefaultKeyboardToolbar.showPreviousButton}
   final bool? showPreviousButton;
 
-  /// {@macro ShadDefaultKeyboardToolbar.showNextButton}
+  /// {@macro DefaultKeyboardToolbar.showNextButton}
   final bool? showNextButton;
 
-  /// {@macro ShadDefaultKeyboardToolbar.showDoneButton}
+  /// {@macro DefaultKeyboardToolbar.showDoneButton}
   final bool? showDoneButton;
 
-  /// {@macro ShadKeyboardToolbar.hideThreshold}
+  /// {@macro KeyboardToolbar.hideThreshold}
   final double? hideThreshold;
 
   /// Linearly interpolates between [a] and [b] by [t].
-  static ShadDefaultKeyboardToolbarTheme? lerp(
-    ShadDefaultKeyboardToolbarTheme? a,
-    ShadDefaultKeyboardToolbarTheme? b,
+  static DefaultKeyboardToolbarTheme? lerp(
+    DefaultKeyboardToolbarTheme? a,
+    DefaultKeyboardToolbarTheme? b,
     double t,
-  ) => _$ShadDefaultKeyboardToolbarTheme.lerp(a, b, t);
+  ) => _$DefaultKeyboardToolbarTheme.lerp(a, b, t);
 }

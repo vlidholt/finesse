@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 const _fruits = {
   'apple': 'Apple',
@@ -16,11 +16,11 @@ class SelectBasicExample extends StatelessWidget {
   Widget build(BuildContext context) {
     return ConstrainedBox(
       constraints: const BoxConstraints(minWidth: 180),
-      child: ShadSelect<String>(
+      child: Select<String>(
         placeholder: const Text('Select a fruit'),
         options: [
           for (final fruit in _fruits.entries)
-            ShadOption(value: fruit.key, child: Text(fruit.value)),
+            SelectOption(value: fruit.key, child: Text(fruit.value)),
         ],
         selectedOptionBuilder: (context, value) => Text(_fruits[value]!),
         onChanged: (value) {},

@@ -1,21 +1,21 @@
+import 'package:finesse/src/raw_components/portal.dart';
+import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:shad/src/raw_components/portal.dart';
-import 'package:shad/src/theme/components/decorator.dart';
-import 'package:shad/src/utils/gesture_detector.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
 part 'tooltip.g.theme.dart';
 
-/// {@template ShadTooltipTheme}
-/// Theme for the `ShadTooltip` widget.
+/// {@template TooltipTheme}
+/// Theme for the `Tooltip` widget.
 /// {@endtemplate}
 @themeGen
 @immutable
-class ShadTooltipTheme with _$ShadTooltipTheme {
-  /// {@macro ShadTooltipTheme}
-  const ShadTooltipTheme({
+class TooltipTheme with _$TooltipTheme {
+  /// {@macro TooltipTheme}
+  const TooltipTheme({
     bool canMerge = true,
     this.waitDuration,
     this.showDuration,
@@ -40,34 +40,34 @@ class ShadTooltipTheme with _$ShadTooltipTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro ShadTooltip.waitDuration}
+  /// {@macro Tooltip.waitDuration}
   final Duration? waitDuration;
 
-  /// {@macro ShadTooltip.showDuration}
+  /// {@macro Tooltip.showDuration}
   final Duration? showDuration;
 
-  /// {@macro ShadTooltip.effects}
+  /// {@macro Tooltip.effects}
   final List<Effect<dynamic>>? effects;
 
-  /// {@macro ShadTooltip.anchor}
-  final ShadAnchorBase? anchor;
+  /// {@macro Tooltip.anchor}
+  final AnchorBase? anchor;
 
-  /// {@macro ShadTooltip.padding}
+  /// {@macro Tooltip.padding}
   final EdgeInsetsGeometry? padding;
 
-  /// {@macro ShadTooltip.decoration}
-  final ShadDecoration? decoration;
+  /// {@macro Tooltip.decoration}
+  final FinesseDecoration? decoration;
 
-  /// {@macro ShadTooltip.hoverStrategies}
-  final ShadHoverStrategies? hoverStrategies;
+  /// {@macro Tooltip.hoverStrategies}
+  final HoverStrategies? hoverStrategies;
 
-  /// {@macro ShadTooltip.longPressDuration}
+  /// {@macro Tooltip.longPressDuration}
   final Duration? longPressDuration;
 
-  /// {@macro ShadTooltip.duration}
+  /// {@macro Tooltip.duration}
   final Duration? duration;
 
-  /// {@macro ShadTooltip.reverseDuration}
+  /// {@macro Tooltip.reverseDuration}
   final Duration? reverseDuration;
 
   /// The text style of the tooltip's content, `text-xs` on the inverted
@@ -77,7 +77,7 @@ class ShadTooltipTheme with _$ShadTooltipTheme {
   /// The widest the tooltip may grow, `max-w-xs`.
   final double? maxWidth;
 
-  /// {@macro ShadTooltip.showArrow}
+  /// {@macro Tooltip.showArrow}
   final bool? showArrow;
 
   /// The edge length of the arrow's rotated square, `size-2.5`.
@@ -88,19 +88,19 @@ class ShadTooltipTheme with _$ShadTooltipTheme {
   final double? arrowRadius;
 
   /// Linearly interpolates between [a] and [b] by [t].
-  static ShadTooltipTheme? lerp(
-    ShadTooltipTheme? a,
-    ShadTooltipTheme? b,
+  static TooltipTheme? lerp(
+    TooltipTheme? a,
+    TooltipTheme? b,
     double t,
-  ) => _$ShadTooltipTheme.lerp(a, b, t);
+  ) => _$TooltipTheme.lerp(a, b, t);
 
   // The generated `==` compares lists by identity, so a theme built with a
-  // non-const list would never equal its own rebuild, and ShadAnimatedTheme
+  // non-const list would never equal its own rebuild, and AnimatedTheme
   // would re-lerp on every frame. Compare the lists by value, then let the
   // generated `==` compare everything else against a copy that shares them.
   @override
   bool operator ==(Object other) =>
-      other is ShadTooltipTheme &&
+      other is TooltipTheme &&
       listEquals(effects, other.effects) &&
       super == other.copyWith(effects: effects);
 

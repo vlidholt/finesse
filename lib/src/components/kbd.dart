@@ -1,30 +1,30 @@
+import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/border.dart';
+import 'package:finesse/src/utils/debug_check.dart';
+import 'package:finesse/src/utils/separated_iterable.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/theme.dart';
-import 'package:shad/src/utils/border.dart';
-import 'package:shad/src/utils/debug_check.dart';
-import 'package:shad/src/utils/separated_iterable.dart';
 
-/// {@template ShadKbd}
+/// {@template Kbd}
 /// A keyboard key cap, used to document a shortcut.
 ///
 /// Mirrors shadcn/ui's `Kbd`. A single key:
 ///
 /// ```dart
-/// const ShadKbd('⌘')
+/// const Kbd('⌘')
 /// ```
 ///
 /// or a chord, rendered as a row of caps:
 ///
 /// ```dart
-/// const ShadKbd.group(['⌘', 'K'])
+/// const Kbd.group(['⌘', 'K'])
 /// ```
 ///
 /// This is presentational. It documents a shortcut, it does not register one —
 /// use `CallbackShortcuts` or `Shortcuts` for that.
 /// {@endtemplate}
-class ShadKbd extends StatelessWidget {
-  /// {@macro ShadKbd}
-  const ShadKbd(
+class Kbd extends StatelessWidget {
+  /// {@macro Kbd}
+  const Kbd(
     String this.label, {
     super.key,
     this.backgroundColor,
@@ -38,7 +38,7 @@ class ShadKbd extends StatelessWidget {
        gap = null;
 
   /// A group of keys rendered as adjacent caps, e.g. `['⌘', 'K']`.
-  const ShadKbd.group(
+  const Kbd.group(
     List<String> this.keys, {
     super.key,
     this.backgroundColor,
@@ -57,27 +57,27 @@ class ShadKbd extends StatelessWidget {
   /// The labels of a group of key caps.
   final List<String>? keys;
 
-  /// {@template ShadKbd.backgroundColor}
+  /// {@template Kbd.backgroundColor}
   /// The background color of the key cap.
   /// {@endtemplate}
   final Color? backgroundColor;
 
-  /// {@template ShadKbd.foregroundColor}
+  /// {@template Kbd.foregroundColor}
   /// The text color of the key cap.
   /// {@endtemplate}
   final Color? foregroundColor;
 
-  /// {@template ShadKbd.border}
+  /// {@template Kbd.border}
   /// The border of the key cap.
   /// {@endtemplate}
-  final ShadBorder? border;
+  final FinesseBorder? border;
 
-  /// {@template ShadKbd.padding}
+  /// {@template Kbd.padding}
   /// The padding inside the key cap.
   /// {@endtemplate}
   final EdgeInsetsGeometry? padding;
 
-  /// {@template ShadKbd.textStyle}
+  /// {@template Kbd.textStyle}
   /// The text style of the key label.
   /// {@endtemplate}
   final TextStyle? textStyle;
@@ -88,13 +88,13 @@ class ShadKbd extends StatelessWidget {
   /// The minimum width of a single cap, so that `⌘` and `K` line up.
   final double? minWidth;
 
-  /// {@template ShadKbd.height}
+  /// {@template Kbd.height}
   /// The height of the key cap. Defaults to the theme's.
   /// {@endtemplate}
   final double? height;
 
   Widget _buildCap(BuildContext context, String text) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     final kbdTheme = theme.kbdTheme;
 
     final effectiveBackgroundColor =
@@ -103,7 +103,7 @@ class ShadKbd extends StatelessWidget {
         foregroundColor ??
         kbdTheme.foregroundColor ??
         theme.colorScheme.mutedForeground;
-    final effectiveBorder = (kbdTheme.border ?? const ShadBorder()).merge(
+    final effectiveBorder = (kbdTheme.border ?? const FinesseBorder()).merge(
       border,
     );
     final effectivePadding =
@@ -144,15 +144,15 @@ class ShadKbd extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    assert(debugCheckHasShadTheme(context));
+    assert(debugCheckHasTheme(context));
     assert(
       label != null || keys != null,
-      'ShadKbd needs either a label or a list of keys',
+      'Kbd needs either a label or a list of keys',
     );
 
     if (label != null) return _buildCap(context, label!);
 
-    final effectiveGap = gap ?? ShadTheme.of(context).kbdTheme.gap ?? 4.0;
+    final effectiveGap = gap ?? Theme.of(context).kbdTheme.gap ?? 4.0;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: keys!

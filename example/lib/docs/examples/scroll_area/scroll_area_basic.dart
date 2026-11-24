@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class ScrollAreaBasicExample extends StatelessWidget {
   const ScrollAreaBasicExample({super.key});
@@ -8,7 +8,7 @@ class ScrollAreaBasicExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     return Container(
       width: 192,
       height: 288,
@@ -16,7 +16,7 @@ class ScrollAreaBasicExample extends StatelessWidget {
         border: Border.all(color: theme.colorScheme.border),
         borderRadius: theme.radius,
       ),
-      child: ShadScrollArea(
+      child: ScrollArea(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -25,7 +25,7 @@ class ScrollAreaBasicExample extends StatelessWidget {
             const SizedBox(height: 16),
             for (final tag in tags) ...[
               Text(tag, style: theme.textTheme.muted),
-              const ShadSeparator.horizontal(),
+              const Divider.horizontal(),
             ],
           ],
         ),

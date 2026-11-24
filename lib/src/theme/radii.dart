@@ -7,14 +7,14 @@ import 'package:flutter/widgets.dart';
 /// drives the whole set consistently: cards stay proportionally rounder than
 /// buttons, menu items proportionally tighter, and changing the theme radius
 /// moves all of them together.
-enum ShadRadiusToken {
+enum RadiusToken {
   /// No rounding, `rounded-none`.
   none,
 
   /// `rounded-sm`: 0.75 × `md`, 6px by default.
   sm,
 
-  /// The base step. `ShadThemeData.radius` is this one — it is what buttons,
+  /// The base step. `ThemeData.radius` is this one — it is what buttons,
   /// inputs and popovers use.
   md,
 
@@ -49,15 +49,15 @@ enum ShadRadiusToken {
 /// --radius-xl: calc(var(--radius) * 1.4);
 /// ```
 ///
-/// This package's `ShadThemeData.radius` is the *component* radius — the
+/// This package's `ThemeData.radius` is the *component* radius — the
 /// `rounded-md` step, since that is what button and input use — so the
 /// multipliers here are expressed relative to `md`. With the default 8px that
 /// reproduces shadcn's scale exactly: sm 6, md 8, lg 10, xl 14, 2xl 16,
 /// 3xl 24, 4xl 32.
 @immutable
-class ShadRadii {
+class Radii {
   /// Creates a scale from the base (`md`) radius.
-  const ShadRadii(this.md);
+  const Radii(this.md);
 
   /// The `md` step, i.e. the theme's component radius.
   final BorderRadius md;
@@ -87,16 +87,16 @@ class ShadRadii {
   BorderRadius get full => const BorderRadius.all(Radius.circular(9999));
 
   /// The radius for [token].
-  BorderRadius resolve(ShadRadiusToken token) => switch (token) {
-    ShadRadiusToken.none => none,
-    ShadRadiusToken.sm => sm,
-    ShadRadiusToken.md => md,
-    ShadRadiusToken.lg => lg,
-    ShadRadiusToken.xl => xl,
-    ShadRadiusToken.xl2 => xl2,
-    ShadRadiusToken.xl3 => xl3,
-    ShadRadiusToken.xl4 => xl4,
-    ShadRadiusToken.full => full,
+  BorderRadius resolve(RadiusToken token) => switch (token) {
+    RadiusToken.none => none,
+    RadiusToken.sm => sm,
+    RadiusToken.md => md,
+    RadiusToken.lg => lg,
+    RadiusToken.xl => xl,
+    RadiusToken.xl2 => xl2,
+    RadiusToken.xl3 => xl3,
+    RadiusToken.xl4 => xl4,
+    RadiusToken.full => full,
   };
 
   BorderRadius _scale(double factor) => BorderRadius.only(
@@ -111,11 +111,11 @@ class ShadRadii {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) || (other is ShadRadii && other.md == md);
+      identical(this, other) || (other is Radii && other.md == md);
 
   @override
   int get hashCode => md.hashCode;
 
   @override
-  String toString() => 'ShadRadii(md: $md)';
+  String toString() => 'Radii(md: $md)';
 }

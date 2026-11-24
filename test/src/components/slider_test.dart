@@ -1,31 +1,31 @@
+import 'package:finesse/material.dart';
+import 'package:finesse/src/app.dart';
+import 'package:finesse/src/components/slider.dart';
+import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide RangeSlider, Slider, Theme;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/material.dart';
-import 'package:shad/src/app.dart';
-import 'package:shad/src/components/slider.dart';
-import 'package:shad/src/theme/theme.dart';
 
 import '../../decoration_finders.dart';
 
 void main() {
-  // Helper method to create a test widget wrapped in ShadApp and Scaffold
+  // Helper method to create a test widget wrapped in FinesseApp and Scaffold
   Widget createTestWidget(Widget child) {
-    return ShadApp(
-      builder: (context, child) => ShadMaterial(child: child!),
+    return FinesseApp(
+      builder: (context, child) => FinesseMaterial(child: child!),
       home: Scaffold(body: child),
     );
   }
 
-  group('ShadSlider', () {
-    testWidgets('ShadSlider matches goldens', (tester) async {
+  group('Slider', () {
+    testWidgets('Slider matches goldens', (tester) async {
       await tester.pumpWidget(
-        createTestWidget(const ShadSlider(initialValue: 33, max: 100)),
+        createTestWidget(const Slider(initialValue: 33, max: 100)),
       );
 
       await expectLater(
-        find.byType(ShadSlider),
+        find.byType(Slider),
         matchesGoldenFile('goldens/slider.png'),
       );
     });
@@ -40,17 +40,17 @@ void main() {
         createTestWidget(
           const Column(
             mainAxisSize: MainAxisSize.min,
-            children: [ShadSlider(initialValue: 33, max: 100)],
+            children: [Slider(initialValue: 33, max: 100)],
           ),
         ),
       );
 
-      final theme = ShadTheme.of(
-        tester.element(find.byType(ShadSlider)),
+      final theme = Theme.of(
+        tester.element(find.byType(Slider)),
       );
       final thumbDiameter = theme.sliderTheme.thumbRadius! * 2;
 
-      expect(tester.getSize(find.byType(ShadSlider)).height, thumbDiameter);
+      expect(tester.getSize(find.byType(Slider)).height, thumbDiameter);
       expect(thumbDiameter, greaterThan(theme.sliderTheme.trackHeight!));
     });
 
@@ -60,7 +60,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           // Half-way, so the thumb sits under the slider's centre point.
-          const Center(child: ShadSlider(initialValue: 50, max: 100)),
+          const Center(child: Slider(initialValue: 50, max: 100)),
         ),
       );
 
@@ -78,10 +78,10 @@ void main() {
       final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
       await gesture.addPointer();
       addTearDown(gesture.removePointer);
-      await gesture.moveTo(tester.getCenter(find.byType(ShadSlider)));
+      await gesture.moveTo(tester.getCenter(find.byType(Slider)));
       await tester.pump();
 
-      final theme = ShadTheme.of(tester.element(find.byType(ShadSlider)));
+      final theme = Theme.of(tester.element(find.byType(Slider)));
       final ring = theme.decoration.secondaryFocusedBorder!.top!;
       final shadow = shadowsOf(thumbDecoration())!.single;
 
@@ -98,7 +98,7 @@ void main() {
       // survive the whole gesture, not just the hover.
       await tester.pumpWidget(
         createTestWidget(
-          const Center(child: ShadSlider(initialValue: 50, max: 100)),
+          const Center(child: Slider(initialValue: 50, max: 100)),
         ),
       );
 
@@ -109,7 +109,7 @@ void main() {
             (d) => boxDecorationOf(d)?.shape == BoxShape.circle,
           )!;
 
-      final centre = tester.getCenter(find.byType(ShadSlider));
+      final centre = tester.getCenter(find.byType(Slider));
       final gesture = await tester.startGesture(centre);
       await tester.pump();
       expect(shadowsOf(thumb()), isNotNull);
@@ -130,7 +130,7 @@ void main() {
           const Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ShadSlider(
+              Slider(
                 initialValue: 33,
                 max: 100,
                 trackHeight: 40,
@@ -141,11 +141,11 @@ void main() {
         ),
       );
 
-      expect(tester.getSize(find.byType(ShadSlider)).height, 40);
+      expect(tester.getSize(find.byType(Slider)).height, 40);
     });
   });
 
-  group('ShadRangeSlider', () {
+  group('RangeSlider', () {
     /// The thumbs, in the order they are painted (lowest value first).
     Finder thumbs() => find.byWidgetPredicate(
       (widget) =>
@@ -170,7 +170,7 @@ void main() {
           const Center(
             child: SizedBox(
               width: 400,
-              child: ShadRangeSlider(initialValues: [25, 75], max: 100),
+              child: RangeSlider(initialValues: [25, 75], max: 100),
             ),
           ),
         ),
@@ -178,8 +178,8 @@ void main() {
 
       expect(thumbs(), findsNWidgets(2));
 
-      final theme = ShadTheme.of(tester.element(find.byType(ShadRangeSlider)));
-      final slider = tester.getRect(find.byType(ShadRangeSlider));
+      final theme = Theme.of(tester.element(find.byType(RangeSlider)));
+      final slider = tester.getRect(find.byType(RangeSlider));
       final track = activeTrack(tester, theme.colorScheme.primary);
 
       // The fill starts at the low thumb rather than at the track's start,
@@ -188,7 +188,7 @@ void main() {
       expect(track.width, moreOrLessEquals(200, epsilon: 1));
     });
 
-    testWidgets('a single value still fills from the start, like ShadSlider', (
+    testWidgets('a single value still fills from the start, like Slider', (
       tester,
     ) async {
       await tester.pumpWidget(
@@ -196,14 +196,14 @@ void main() {
           const Center(
             child: SizedBox(
               width: 400,
-              child: ShadRangeSlider(initialValues: [25], max: 100),
+              child: RangeSlider(initialValues: [25], max: 100),
             ),
           ),
         ),
       );
 
-      final theme = ShadTheme.of(tester.element(find.byType(ShadRangeSlider)));
-      final slider = tester.getRect(find.byType(ShadRangeSlider));
+      final theme = Theme.of(tester.element(find.byType(RangeSlider)));
+      final slider = tester.getRect(find.byType(RangeSlider));
       final track = activeTrack(tester, theme.colorScheme.primary);
 
       expect(track.left, moreOrLessEquals(slider.left, epsilon: 1));
@@ -217,7 +217,7 @@ void main() {
           Center(
             child: SizedBox(
               width: 400,
-              child: ShadRangeSlider(
+              child: RangeSlider(
                 initialValues: const [25, 75],
                 max: 100,
                 onChanged: (values) => changed = values,
@@ -244,7 +244,7 @@ void main() {
           Center(
             child: SizedBox(
               width: 400,
-              child: ShadRangeSlider(
+              child: RangeSlider(
                 initialValues: const [25, 75],
                 max: 100,
                 onChanged: (values) => changed = values,
@@ -269,7 +269,7 @@ void main() {
           Center(
             child: SizedBox(
               width: 400,
-              child: ShadRangeSlider(
+              child: RangeSlider(
                 initialValues: const [25, 75],
                 max: 100,
                 onChanged: (values) => changed = values,
@@ -279,7 +279,7 @@ void main() {
         ),
       );
 
-      final slider = tester.getRect(find.byType(ShadRangeSlider));
+      final slider = tester.getRect(find.byType(RangeSlider));
       // A tenth in: closer to the low thumb.
       await tester.tapAt(Offset(slider.left + 40, slider.center.dy));
       await tester.pump();
@@ -295,7 +295,7 @@ void main() {
           Center(
             child: SizedBox(
               width: 400,
-              child: ShadRangeSlider(
+              child: RangeSlider(
                 initialValues: const [25, 75],
                 max: 100,
                 divisions: 100,
@@ -336,7 +336,7 @@ void main() {
             Center(
               child: SizedBox(
                 width: 400,
-                child: ShadRangeSlider(
+                child: RangeSlider(
                   initialValues: const [100, 100],
                   max: 100,
                   onChanged: (values) => changed = values,
@@ -370,7 +370,7 @@ void main() {
           const Center(
             child: SizedBox(
               width: 400,
-              child: ShadRangeSlider(initialValues: [25, 75], max: 100),
+              child: RangeSlider(initialValues: [25, 75], max: 100),
             ),
           ),
         ),

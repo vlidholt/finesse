@@ -1,39 +1,39 @@
-import 'package:flutter/material.dart';
+import 'package:finesse/finesse.dart';
+import 'package:finesse/material.dart';
+import 'package:flutter/material.dart' hide TextField, TextFormField;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/material.dart';
-import 'package:shad/shad.dart';
 
 void main() {
   Widget createTestWidget(Widget child) {
-    return ShadApp(
-      builder: (context, child) => ShadMaterial(child: child!),
+    return FinesseApp(
+      builder: (context, child) => FinesseMaterial(child: child!),
       home: Scaffold(
         body: child,
       ),
     );
   }
 
-  group('ShadForm - Dot Notation', () {
+  group('FinesseForm - Dot Notation', () {
     testWidgets('converts dot notation field IDs to nested map by default', (
       tester,
     ) async {
-      final formKey = GlobalKey<ShadFormState>();
+      final formKey = GlobalKey<FinesseFormState>();
 
       await tester.pumpWidget(
         createTestWidget(
-          ShadForm(
+          FinesseForm(
             key: formKey,
             child: Column(
               children: [
-                ShadInputFormField(
+                TextFormField(
                   id: 'user.name',
                   initialValue: 'John',
                 ),
-                ShadInputFormField(
+                TextFormField(
                   id: 'user.email',
                   initialValue: 'john@example.com',
                 ),
-                ShadInputFormField(
+                TextFormField(
                   id: 'user.age',
                   initialValue: '30',
                 ),
@@ -59,11 +59,11 @@ void main() {
     testWidgets('supports initial values with nested structure', (
       tester,
     ) async {
-      final formKey = GlobalKey<ShadFormState>();
+      final formKey = GlobalKey<FinesseFormState>();
 
       await tester.pumpWidget(
         createTestWidget(
-          ShadForm(
+          FinesseForm(
             key: formKey,
             initialValue: const {
               'user': {
@@ -73,8 +73,8 @@ void main() {
             },
             child: Column(
               children: [
-                ShadInputFormField(id: 'user.name'),
-                ShadInputFormField(id: 'user.email'),
+                TextFormField(id: 'user.name'),
+                TextFormField(id: 'user.email'),
               ],
             ),
           ),
@@ -94,23 +94,23 @@ void main() {
     });
 
     testWidgets('handles mixed flat and nested field IDs', (tester) async {
-      final formKey = GlobalKey<ShadFormState>();
+      final formKey = GlobalKey<FinesseFormState>();
 
       await tester.pumpWidget(
         createTestWidget(
-          ShadForm(
+          FinesseForm(
             key: formKey,
             child: Column(
               children: [
-                ShadInputFormField(
+                TextFormField(
                   id: 'username',
                   initialValue: 'john_doe',
                 ),
-                ShadInputFormField(
+                TextFormField(
                   id: 'user.email',
                   initialValue: 'john@example.com',
                 ),
-                ShadInputFormField(
+                TextFormField(
                   id: 'user.profile.bio',
                   initialValue: 'Developer',
                 ),
@@ -136,20 +136,20 @@ void main() {
     });
 
     testWidgets('uses custom separator when specified', (tester) async {
-      final formKey = GlobalKey<ShadFormState>();
+      final formKey = GlobalKey<FinesseFormState>();
 
       await tester.pumpWidget(
         createTestWidget(
-          ShadForm(
+          FinesseForm(
             key: formKey,
             fieldIdSeparator: '/',
             child: Column(
               children: [
-                ShadInputFormField(
+                TextFormField(
                   id: 'user/name',
                   initialValue: 'John',
                 ),
-                ShadInputFormField(
+                TextFormField(
                   id: 'user/email',
                   initialValue: 'john@example.com',
                 ),
@@ -174,20 +174,20 @@ void main() {
     testWidgets('disables dot notation when fieldIdSeparator is null', (
       tester,
     ) async {
-      final formKey = GlobalKey<ShadFormState>();
+      final formKey = GlobalKey<FinesseFormState>();
 
       await tester.pumpWidget(
         createTestWidget(
-          ShadForm(
+          FinesseForm(
             key: formKey,
             fieldIdSeparator: null,
             child: Column(
               children: [
-                ShadInputFormField(
+                TextFormField(
                   id: 'user.name',
                   initialValue: 'John',
                 ),
-                ShadInputFormField(
+                TextFormField(
                   id: 'user.email',
                   initialValue: 'john@example.com',
                 ),
@@ -211,11 +211,11 @@ void main() {
     testWidgets('preserves custom initial values in nested structure', (
       tester,
     ) async {
-      final formKey = GlobalKey<ShadFormState>();
+      final formKey = GlobalKey<FinesseFormState>();
 
       await tester.pumpWidget(
         createTestWidget(
-          ShadForm(
+          FinesseForm(
             key: formKey,
             initialValue: const {
               'user': {
@@ -226,7 +226,7 @@ void main() {
             },
             child: Column(
               children: [
-                ShadInputFormField(id: 'user.name'),
+                TextFormField(id: 'user.name'),
               ],
             ),
           ),
@@ -247,15 +247,15 @@ void main() {
     });
 
     testWidgets('handles deeply nested dot notation', (tester) async {
-      final formKey = GlobalKey<ShadFormState>();
+      final formKey = GlobalKey<FinesseFormState>();
 
       await tester.pumpWidget(
         createTestWidget(
-          ShadForm(
+          FinesseForm(
             key: formKey,
             child: Column(
               children: [
-                ShadInputFormField(
+                TextFormField(
                   id: 'company.department.team.member.name',
                   initialValue: 'Alice',
                 ),
@@ -283,15 +283,15 @@ void main() {
     });
 
     testWidgets('updates nested values correctly', (tester) async {
-      final formKey = GlobalKey<ShadFormState>();
+      final formKey = GlobalKey<FinesseFormState>();
 
       await tester.pumpWidget(
         createTestWidget(
-          ShadForm(
+          FinesseForm(
             key: formKey,
             child: Column(
               children: [
-                ShadInputFormField(
+                TextFormField(
                   id: 'user.name',
                   initialValue: 'John',
                 ),
@@ -317,24 +317,24 @@ void main() {
     });
 
     testWidgets('works with different form field types', (tester) async {
-      final formKey = GlobalKey<ShadFormState>();
+      final formKey = GlobalKey<FinesseFormState>();
 
       await tester.pumpWidget(
         createTestWidget(
-          ShadForm(
+          FinesseForm(
             key: formKey,
             child: Column(
               children: [
-                ShadInputFormField(
+                TextFormField(
                   id: 'user.name',
                   initialValue: 'John',
                 ),
-                ShadCheckboxFormField(
+                CheckboxFormField(
                   id: 'user.active',
                   initialValue: true,
                   label: const Text('Active'),
                 ),
-                ShadSwitchFormField(
+                SwitchFormField(
                   id: 'user.verified',
                   initialValue: false,
                   label: const Text('Verified'),
@@ -359,30 +359,30 @@ void main() {
     });
   });
 
-  group('ShadForm - onChanged', () {
+  group('FinesseForm - onChanged', () {
     testWidgets(
       'fires with new value already present in formKey.currentState!.value',
       (tester) async {
-        final formKey = GlobalKey<ShadFormState>();
+        final formKey = GlobalKey<FinesseFormState>();
         var seenValue = <String, dynamic>{};
 
         await tester.pumpWidget(
           createTestWidget(
-            ShadForm(
+            FinesseForm(
               key: formKey,
               onChanged: () {
                 seenValue = Map<String, dynamic>.from(
                   formKey.currentState!.value,
                 );
               },
-              child: ShadInputFormField(id: 'username'),
+              child: TextFormField(id: 'username'),
             ),
           ),
         );
 
         await tester.pumpAndSettle();
 
-        await tester.enterText(find.byType(ShadInput), 'hello');
+        await tester.enterText(find.byType(TextField), 'hello');
         await tester.pumpAndSettle();
 
         expect(seenValue['username'], 'hello');
@@ -390,13 +390,13 @@ void main() {
     );
   });
 
-  group('ShadForm - Value Transformers with Dot Notation', () {
+  group('FinesseForm - Value Transformers with Dot Notation', () {
     testWidgets('applies transformers to nested values', (tester) async {
-      final formKey = GlobalKey<ShadFormState>();
+      final formKey = GlobalKey<FinesseFormState>();
 
       await tester.pumpWidget(
         createTestWidget(
-          ShadForm(
+          FinesseForm(
             key: formKey,
             initialValue: const {
               'user': {
@@ -405,7 +405,7 @@ void main() {
             },
             child: Column(
               children: [
-                ShadInputFormField(
+                TextFormField(
                   id: 'user.age',
                   toValueTransformer: (value) => value,
                 ),

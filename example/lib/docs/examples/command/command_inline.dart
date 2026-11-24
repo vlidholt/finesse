@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class CommandInlineExample extends StatelessWidget {
   const CommandInlineExample({super.key});
@@ -8,21 +8,21 @@ class CommandInlineExample extends StatelessWidget {
   Widget build(BuildContext context) {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 450),
-      child: ShadCommand(
+      child: Command(
         autofocus: false,
-        decoration: const ShadDecoration(shadows: ShadShadows.md),
+        decoration: const FinesseDecoration(shadows: Shadows.md),
         placeholder: const Text('Type a command or search…'),
         groups: [
-          ShadCommandGroup(
+          CommandGroup(
             heading: 'Suggestions',
             items: [
-              ShadCommandItem(
+              CommandItem(
                 label: 'Calendar',
                 value: 'calendar',
                 leading: const Icon(LucideIcons.calendar),
                 onSelected: () {},
               ),
-              ShadCommandItem(
+              CommandItem(
                 label: 'Search Emoji',
                 value: 'emoji',
                 keywords: const ['smiley', 'face'],
@@ -31,21 +31,21 @@ class CommandInlineExample extends StatelessWidget {
               ),
             ],
           ),
-          ShadCommandGroup(
+          CommandGroup(
             heading: 'Settings',
             items: [
-              ShadCommandItem(
+              CommandItem(
                 label: 'Profile',
                 value: 'profile',
                 leading: const Icon(LucideIcons.user),
-                trailing: const ShadKbd.group(['⌘', 'P']),
+                trailing: const Kbd.group(['⌘', 'P']),
                 onSelected: () {},
               ),
-              ShadCommandItem(
+              CommandItem(
                 label: 'Billing',
                 value: 'billing',
                 leading: const Icon(LucideIcons.creditCard),
-                trailing: const ShadKbd.group(['⌘', 'B']),
+                trailing: const Kbd.group(['⌘', 'B']),
                 onSelected: () {},
               ),
             ],

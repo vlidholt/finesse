@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class ToggleOutlineExample extends StatefulWidget {
   const ToggleOutlineExample({super.key});
@@ -18,13 +18,13 @@ class _ToggleOutlineExampleState extends State<ToggleOutlineExample> {
       mainAxisSize: MainAxisSize.min,
       spacing: 8,
       children: [
-        ShadToggle.outline(
+        Toggle.outline(
           value: bold,
           semanticLabel: 'Bold',
           onChanged: (value) => setState(() => bold = value),
           child: const Icon(LucideIcons.bold),
         ),
-        ShadToggle.outline(
+        Toggle.outline(
           value: italic,
           semanticLabel: 'Italic',
           onChanged: (value) => setState(() => italic = value),

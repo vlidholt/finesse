@@ -9,10 +9,10 @@ import 'package:flutter/widgets.dart';
 /// `DismissIntent` — Escape on a focused, closed trigger did nothing. Here the
 /// action reports itself disabled while inactive, which leaves the key event
 /// unhandled and lets it reach the next handler up the focus chain.
-class ShadDismissShortcut extends StatelessWidget {
+class DismissShortcut extends StatelessWidget {
   /// Creates a shortcut that calls [onDismiss] on Escape while [isActive]
   /// returns true.
-  const ShadDismissShortcut({
+  const DismissShortcut({
     super.key,
     required this.isActive,
     required this.onDismiss,
@@ -32,11 +32,11 @@ class ShadDismissShortcut extends StatelessWidget {
   Widget build(BuildContext context) {
     return Shortcuts(
       shortcuts: const {
-        SingleActivator(LogicalKeyboardKey.escape): _ShadDismissIntent(),
+        SingleActivator(LogicalKeyboardKey.escape): _DismissIntent(),
       },
       child: Actions(
         actions: {
-          _ShadDismissIntent: _ShadDismissAction(isActive, onDismiss),
+          _DismissIntent: _DismissAction(isActive, onDismiss),
         },
         child: child,
       ),
@@ -47,22 +47,22 @@ class ShadDismissShortcut extends StatelessWidget {
 // A private intent rather than DismissIntent: binding DismissIntent here
 // would shadow the enclosing route's own DismissIntent action for everything
 // below, even when this action is disabled.
-class _ShadDismissIntent extends Intent {
-  const _ShadDismissIntent();
+class _DismissIntent extends Intent {
+  const _DismissIntent();
 }
 
-class _ShadDismissAction extends Action<_ShadDismissIntent> {
-  _ShadDismissAction(this._isActive, this._onDismiss);
+class _DismissAction extends Action<_DismissIntent> {
+  _DismissAction(this._isActive, this._onDismiss);
 
   final bool Function() _isActive;
   final VoidCallback _onDismiss;
 
   @override
-  bool isEnabled(_ShadDismissIntent intent) => _isActive();
+  bool isEnabled(_DismissIntent intent) => _isActive();
 
   @override
-  bool consumesKey(_ShadDismissIntent intent) => _isActive();
+  bool consumesKey(_DismissIntent intent) => _isActive();
 
   @override
-  void invoke(_ShadDismissIntent intent) => _onDismiss();
+  void invoke(_DismissIntent intent) => _onDismiss();
 }

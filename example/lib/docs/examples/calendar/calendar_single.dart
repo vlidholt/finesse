@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class CalendarSingleExample extends StatefulWidget {
   const CalendarSingleExample({super.key});
@@ -13,7 +13,7 @@ class _CalendarSingleExampleState extends State<CalendarSingleExample> {
 
   @override
   Widget build(BuildContext context) {
-    return ShadCalendar(
+    return Calendar(
       selected: selected,
       onChanged: (date) => setState(() => selected = date),
     );

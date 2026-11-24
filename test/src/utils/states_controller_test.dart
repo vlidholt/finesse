@@ -1,50 +1,50 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/shad.dart';
 
 void main() {
-  group('ShadStatesController', () {
+  group('StatesController', () {
     test('emits a new Set instead of mutating in place', () {
       // Regression: update() mutated the Set held by the ValueNotifier and
       // then called notifyListeners, so a listener that captured the previous
       // value saw it change underneath and could not diff the two.
-      final controller = ShadStatesController();
+      final controller = StatesController();
       addTearDown(controller.dispose);
 
       final before = controller.value;
-      controller.update(ShadState.hovered, true);
+      controller.update(FinesseState.hovered, true);
       final after = controller.value;
 
       expect(identical(before, after), isFalse);
       expect(before, isEmpty, reason: 'the old Set must not be mutated');
-      expect(after, contains(ShadState.hovered));
+      expect(after, contains(FinesseState.hovered));
     });
 
     test('notifies only when the state actually changes', () {
-      final controller = ShadStatesController();
+      final controller = StatesController();
       addTearDown(controller.dispose);
 
       var notifications = 0;
       controller.addListener(() => notifications++);
 
-      controller.update(ShadState.pressed, true);
+      controller.update(FinesseState.pressed, true);
       expect(notifications, 1);
 
       // Already pressed — nothing changed, so no notification.
-      controller.update(ShadState.pressed, true);
+      controller.update(FinesseState.pressed, true);
       expect(notifications, 1);
 
-      controller.update(ShadState.pressed, false);
+      controller.update(FinesseState.pressed, false);
       expect(notifications, 2);
 
       // Already not pressed.
-      controller.update(ShadState.pressed, false);
+      controller.update(FinesseState.pressed, false);
       expect(notifications, 2);
     });
 
     test('seeds from the provided initial states', () {
-      final controller = ShadStatesController({ShadState.disabled});
+      final controller = StatesController({FinesseState.disabled});
       addTearDown(controller.dispose);
-      expect(controller.value, {ShadState.disabled});
+      expect(controller.value, {FinesseState.disabled});
     });
   });
 }

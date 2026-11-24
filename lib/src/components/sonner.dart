@@ -3,45 +3,45 @@ import 'dart:math' as math;
 
 import 'package:boxy/boxy.dart';
 import 'package:collection/collection.dart';
+import 'package:finesse/src/components/toast.dart';
+import 'package:finesse/src/theme/components/sonner.dart';
+import 'package:finesse/src/theme/data.dart';
+import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/animate.dart';
+import 'package:finesse/src/utils/mouse_area.dart';
+import 'package:finesse/src/utils/responsive.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:shad/src/components/toast.dart';
-import 'package:shad/src/theme/components/sonner.dart';
-import 'package:shad/src/theme/data.dart';
-import 'package:shad/src/theme/theme.dart';
-import 'package:shad/src/utils/animate.dart';
-import 'package:shad/src/utils/mouse_area.dart';
-import 'package:shad/src/utils/responsive.dart';
 
 ///
-/// Allows descendants to access the toaster state via [ShadSonner.of] or
-/// [ShadSonner.maybeOf] for showing and hiding toasts.
-class ShadSonnerScope extends InheritedWidget {
-  /// Creates a scope widget that holds the [ShadSonnerState] and child.
-  const ShadSonnerScope({
+/// Allows descendants to access the toaster state via [Sonner.of] or
+/// [Sonner.maybeOf] for showing and hiding toasts.
+class SonnerScope extends InheritedWidget {
+  /// Creates a scope widget that holds the [SonnerState] and child.
+  const SonnerScope({
     super.key,
     required super.child,
-    required this.shadMessengerState,
+    required this.messengerState,
   });
 
-  /// The [ShadSonnerState] instance managing toast display.
-  final ShadSonnerState shadMessengerState;
+  /// The [SonnerState] instance managing toast display.
+  final SonnerState messengerState;
 
   @override
-  bool updateShouldNotify(ShadSonnerScope oldWidget) =>
-      shadMessengerState != oldWidget.shadMessengerState;
+  bool updateShouldNotify(SonnerScope oldWidget) =>
+      messengerState != oldWidget.messengerState;
 }
 
 /// A widget that manages and displays toasts within the widget tree.
 ///
-/// The [ShadSonner] widget acts as a provider for toast notifications,
+/// The [Sonner] widget acts as a provider for toast notifications,
 /// displaying them as overlays on top of its child widget. It uses an
 /// [InheritedWidget] to allow descendants to access its state and show toasts
-/// via [ShadSonner.of].
-class ShadSonner extends StatefulWidget {
+/// via [Sonner.of].
+class Sonner extends StatefulWidget {
   /// Creates a toaster widget that wraps the provided child.
-  const ShadSonner({
+  const Sonner({
     super.key,
     required this.child,
     int? maxVisibleToasts,
@@ -62,7 +62,7 @@ class ShadSonner extends StatefulWidget {
   /// Typically the main app content.
   final Widget child;
 
-  /// {@template ShadSonner.visible_toasts_amount}
+  /// {@template Sonner.visible_toasts_amount}
   /// The maximum number of toasts that can be displayed at once.
   ///
   /// Defaults to 3 if not provided.
@@ -75,35 +75,35 @@ class ShadSonner extends StatefulWidget {
   )
   int? get visibleToastsAmount => maxVisibleToasts;
 
-  /// {@template ShadSonner.alignment}
+  /// {@template Sonner.alignment}
   /// The alignment of the toasts within the widget.
   ///
   /// Defaults to [Alignment.bottomRight] if not provided.
   /// {@endtemplate}
   final AlignmentGeometry? alignment;
 
-  /// {@template ShadSonner.padding}
+  /// {@template Sonner.padding}
   /// The padding around the toasts.
   ///
   /// Defaults to [EdgeInsets.all(16)] if not provided.
   /// {@endtemplate}
   final EdgeInsetsGeometry? padding;
 
-  /// {@template ShadSonner.expandedGap}
+  /// {@template Sonner.expandedGap}
   /// The gap between toasts in the expanded state.
   ///
   /// Defaults to 8.0 if not provided.
   /// {@endtemplate}
   final double? expandedGap;
 
-  /// {@template ShadSonner.collapsedGap}
+  /// {@template Sonner.collapsedGap}
   /// The gap between toasts in the collapsed state.
   ///
   /// Defaults to 16.0 if not provided.
   /// {@endtemplate}
   final double? collapsedGap;
 
-  /// {@template ShadSonner.scaleFactor}
+  /// {@template Sonner.scaleFactor}
   /// The scale factor for the toasts when they are collapsed.
   /// The scale factor is applied to the width and height of the toasts.
   /// The most recent toast will have no scale factor.
@@ -116,14 +116,14 @@ class ShadSonner extends StatefulWidget {
   /// {@endtemplate}
   final double? scaleFactor;
 
-  /// {@template ShadSonner.animationDuration}
+  /// {@template Sonner.animationDuration}
   /// The duration of the animation when showing and hiding toasts.
   ///
   /// Defaults to 300 milliseconds if not provided.
   /// {@endtemplate}
   final Duration? animationDuration;
 
-  /// {@template ShadSonner.animationCurve}
+  /// {@template Sonner.animationCurve}
   /// The curve used for the animation when showing and hiding toasts.
   ///
   /// Defaults to [Cubic(0.215, 0.61, 0.355, 1)] if not provided.
@@ -131,35 +131,35 @@ class ShadSonner extends StatefulWidget {
   final Curve? animationCurve;
 
   @override
-  State<ShadSonner> createState() => ShadSonnerState();
+  State<Sonner> createState() => SonnerState();
 
-  /// Retrieves the [ShadSonnerState] from the nearest [ShadSonner] ancestor.
+  /// Retrieves the [SonnerState] from the nearest [Sonner] ancestor.
   ///
-  /// Throws a [FlutterError] if no [ShadSonner] is found in the widget tree.
-  static ShadSonnerState of(BuildContext context) {
+  /// Throws a [FlutterError] if no [Sonner] is found in the widget tree.
+  static SonnerState of(BuildContext context) {
     final provider = maybeOf(context);
     if (provider == null) {
       throw FlutterError(
-        '''Could not find ShadSonner InheritedWidget in the ancestor widget tree.''',
+        '''Could not find Sonner InheritedWidget in the ancestor widget tree.''',
       );
     }
     return provider;
   }
 
-  /// Attempts to retrieve the [ShadSonnerState] from the nearest [ShadSonner]
+  /// Attempts to retrieve the [SonnerState] from the nearest [Sonner]
   /// ancestor.
   ///
-  /// Returns null if no [ShadSonner] is found, allowing optional access.
-  static ShadSonnerState? maybeOf(BuildContext context) {
-    final scope = context.dependOnInheritedWidgetOfExactType<ShadSonnerScope>();
-    return scope?.shadMessengerState;
+  /// Returns null if no [Sonner] is found, allowing optional access.
+  static SonnerState? maybeOf(BuildContext context) {
+    final scope = context.dependOnInheritedWidgetOfExactType<SonnerScope>();
+    return scope?.messengerState;
   }
 }
 
-/// The state of one toast in a [ShadSonner].
-class ShadToastInfo {
+/// The state of one toast in a [Sonner].
+class ToastInfo {
   /// Creates the state of a toast. The toast starts visible.
-  ShadToastInfo({
+  ToastInfo({
     required this.id,
     required this.toast,
     required this.controller,
@@ -171,7 +171,7 @@ class ShadToastInfo {
   final Object id;
 
   /// The toast to show.
-  final ShadToast toast;
+  final Toast toast;
 
   /// Drives the enter and exit animation of the toast.
   final AnimationController controller;
@@ -188,20 +188,19 @@ class ShadToastInfo {
   Timer? timer;
 }
 
-/// The state of a [ShadSonner]. Use it to show and hide toasts.
+/// The state of a [Sonner]. Use it to show and hide toasts.
 ///
-/// Get it with `ShadSonner.of(context)`.
-class ShadSonnerState extends State<ShadSonner> with TickerProviderStateMixin {
-  /// The sonner theme of the current [ShadTheme].
-  ShadSonnerTheme get sonnerTheme =>
-      ShadTheme.of(context, listen: false).sonnerTheme;
+/// Get it with `Sonner.of(context)`.
+class SonnerState extends State<Sonner> with TickerProviderStateMixin {
+  /// The sonner theme of the current [Theme].
+  SonnerTheme get sonnerTheme => Theme.of(context, listen: false).sonnerTheme;
 
   /// How many toasts are on screen at once.
   int get maxVisibleToasts =>
       widget.maxVisibleToasts ?? sonnerTheme.maxVisibleToasts ?? 3;
 
-  final _temporarelyHiddenToasts = <ShadToastInfo>[];
-  final _toasts = <ShadToastInfo>[];
+  final _temporarelyHiddenToasts = <ToastInfo>[];
+  final _toasts = <ToastInfo>[];
 
   /// How long a toast takes to enter and exit. Defaults to 300 milliseconds.
   Duration get animationDuration =>
@@ -234,15 +233,15 @@ class ShadSonnerState extends State<ShadSonner> with TickerProviderStateMixin {
 
   /// The theme published to the toast subtree, memoized on the ambient theme.
   ///
-  /// `ShadThemeData.copyWith` re-runs all 54 component-theme merges, and this
+  /// `ThemeData.copyWith` re-runs all 54 component-theme merges, and this
   /// wraps the entire app, so recomputing it on every build was wasteful.
-  ShadThemeData? _ambientTheme;
-  late ShadThemeData _toastSubtreeTheme;
+  ThemeData? _ambientTheme;
+  late ThemeData _toastSubtreeTheme;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     if (identical(theme, _ambientTheme)) return;
     _ambientTheme = theme;
     _toastSubtreeTheme = theme.copyWith(
@@ -296,12 +295,12 @@ class ShadSonnerState extends State<ShadSonner> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  /// Shows the provided [ShadToast] and returns an identifier for the toast.
+  /// Shows the provided [Toast] and returns an identifier for the toast.
   ///
-  /// The identifier will match the provided [ShadToast.id] if it is not null,
+  /// The identifier will match the provided [Toast.id] if it is not null,
   /// otherwise it will be a [UniqueKey].
   Object? show(
-    ShadToast toast, {
+    Toast toast, {
     // Whether to append the toast to the end of the list or insert it at the
     // beginning.
     bool append = true,
@@ -311,7 +310,7 @@ class ShadSonnerState extends State<ShadSonner> with TickerProviderStateMixin {
       duration: animationDuration,
     );
     final effectiveId = toast.id ?? UniqueKey();
-    final toastInfo = ShadToastInfo(
+    final toastInfo = ToastInfo(
       id: effectiveId,
       toast: toast,
       controller: controller,
@@ -356,7 +355,7 @@ class ShadSonnerState extends State<ShadSonner> with TickerProviderStateMixin {
         final hiddenToast = _temporarelyHiddenToasts.removeLast();
         // show() mints a fresh controller for the requeued toast, so the one
         // this entry carried while hidden has to go — it is never reachable
-        // again, and ShadSonner wraps the whole app, so these accumulate for
+        // again, and Sonner wraps the whole app, so these accumulate for
         // the entire session.
         hiddenToast.controller.dispose();
         show(hiddenToast.toast, append: false);
@@ -414,7 +413,7 @@ class ShadSonnerState extends State<ShadSonner> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
 
     final effectiveAlignment =
         widget.alignment ??
@@ -433,9 +432,9 @@ class ShadSonnerState extends State<ShadSonner> with TickerProviderStateMixin {
     final effectiveScaleFactor =
         widget.scaleFactor ?? theme.sonnerTheme.scaleFactor ?? 0.05;
 
-    return ShadSonnerScope(
-      shadMessengerState: this,
-      child: ShadTheme(
+    return SonnerScope(
+      messengerState: this,
+      child: Theme(
         data: _toastSubtreeTheme,
         child: ValueListenableBuilder(
           valueListenable: hovered,
@@ -444,7 +443,7 @@ class ShadSonnerState extends State<ShadSonner> with TickerProviderStateMixin {
               alignment: effectiveAlignment,
               children: [
                 widget.child,
-                ShadResponsiveBuilder(
+                ResponsiveBuilder(
                   builder: (context, breakpoint) {
                     return ConstrainedBox(
                       constraints: BoxConstraints(
@@ -455,7 +454,7 @@ class ShadSonnerState extends State<ShadSonner> with TickerProviderStateMixin {
                             ? 420
                             : double.infinity,
                       ),
-                      child: ShadMouseArea(
+                      child: MouseArea(
                         onEnter: onEnter,
                         onExit: onExit,
                         child: Padding(
@@ -479,9 +478,9 @@ class ShadSonnerState extends State<ShadSonner> with TickerProviderStateMixin {
 
                                 final effectiveToastTheme =
                                     switch (toast.variant) {
-                                      ShadToastVariant.primary =>
+                                      ToastVariant.primary =>
                                         theme.primaryToastTheme,
-                                      ShadToastVariant.destructive =>
+                                      ToastVariant.destructive =>
                                         theme.destructiveToastTheme,
                                     };
 
@@ -590,7 +589,7 @@ class ShadSonnerState extends State<ShadSonner> with TickerProviderStateMixin {
                                     effectiveToastTheme.animateOut ??
                                     defaultAnimateOut;
 
-                                return ShadAnimate(
+                                return FinesseAnimate(
                                   autoPlay: false,
                                   controller: animationController,
                                   effects: [
@@ -599,7 +598,7 @@ class ShadSonnerState extends State<ShadSonner> with TickerProviderStateMixin {
                                       end: const Offset(1, 1),
                                     ),
                                   ],
-                                  child: ShadAnimate(
+                                  child: FinesseAnimate(
                                     autoPlay: false,
                                     controller: toastInfo.controller,
                                     effects: toastInfo.temporarilyHide

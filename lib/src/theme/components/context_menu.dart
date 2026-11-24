@@ -1,23 +1,23 @@
 import 'dart:ui';
 
+import 'package:finesse/src/components/button.dart';
+import 'package:finesse/src/raw_components/portal.dart';
+import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:shad/src/components/button.dart';
-import 'package:shad/src/raw_components/portal.dart';
-import 'package:shad/src/theme/components/decorator.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
 part 'context_menu.g.theme.dart';
 
-/// {@template ShadContextMenuTheme}
-/// Theme for the `ShadContextMenu` widget.
+/// {@template ContextMenuTheme}
+/// Theme for the `ContextMenu` widget.
 /// {@endtemplate}
 @themeGen
 @immutable
-class ShadContextMenuTheme with _$ShadContextMenuTheme {
-  /// {@macro ShadContextMenuTheme}
-  const ShadContextMenuTheme({
+class ContextMenuTheme with _$ContextMenuTheme {
+  /// {@macro ContextMenuTheme}
+  const ContextMenuTheme({
     bool canMerge = true,
     this.constraints,
     this.padding,
@@ -54,49 +54,49 @@ class ShadContextMenuTheme with _$ShadContextMenuTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro ShadPopover.reverseDuration}
+  /// {@macro Popover.reverseDuration}
   final Duration? popoverReverseDuration;
 
-  /// {@macro ShadContextMenu.constraints}
+  /// {@macro ContextMenu.constraints}
   final BoxConstraints? constraints;
 
-  /// {@macro ShadContextMenu.padding}
+  /// {@macro ContextMenu.padding}
   final EdgeInsetsGeometry? padding;
 
-  /// {@macro ShadContextMenuItem.leadingPadding}
+  /// {@macro ContextMenuItem.leadingPadding}
   final EdgeInsetsGeometry? leadingPadding;
 
-  /// {@macro ShadContextMenuItem.trailingPadding}
+  /// {@macro ContextMenuItem.trailingPadding}
   final EdgeInsetsGeometry? trailingPadding;
 
-  /// {@macro ShadContextMenuItem.padding}
+  /// {@macro ContextMenuItem.padding}
   final EdgeInsetsGeometry? itemPadding;
 
-  /// {@macro ShadContextMenuItem.insetPadding}
+  /// {@macro ContextMenuItem.insetPadding}
   final EdgeInsetsGeometry? insetPadding;
 
-  /// {@macro ShadContextMenuItem.anchor}
-  final ShadAnchorBase? anchor;
+  /// {@macro ContextMenuItem.anchor}
+  final AnchorBase? anchor;
 
-  /// {@macro ShadContextMenuItem.showDelay}
+  /// {@macro ContextMenuItem.showDelay}
   final Duration? showDelay;
 
-  /// {@macro ShadContextMenuItem.height}
+  /// {@macro ContextMenuItem.height}
   final double? height;
 
-  /// {@macro ShadContextMenuItem.buttonVariant}
-  final ShadButtonVariant? buttonVariant;
+  /// {@macro ContextMenuItem.buttonVariant}
+  final ButtonVariant? buttonVariant;
 
-  /// {@macro ShadContextMenuItem.decoration}
-  final ShadDecoration? itemDecoration;
+  /// {@macro ContextMenuItem.decoration}
+  final FinesseDecoration? itemDecoration;
 
-  /// {@macro ShadContextMenuItem.textStyle}
+  /// {@macro ContextMenuItem.textStyle}
   final TextStyle? textStyle;
 
-  /// {@macro ShadContextMenuItem.selectedTextStyle}
+  /// {@macro ContextMenuItem.selectedTextStyle}
   final TextStyle? selectedTextStyle;
 
-  /// {@macro ShadContextMenuItem.trailingTextStyle}
+  /// {@macro ContextMenuItem.trailingTextStyle}
   final TextStyle? trailingTextStyle;
 
   /// The style of an item's trailing widget while the item is hovered or its
@@ -116,44 +116,44 @@ class ShadContextMenuTheme with _$ShadContextMenuTheme {
   /// Constraints applied to every item row.
   final BoxConstraints? itemConstraints;
 
-  /// {@macro ShadContextMenu.padding}
+  /// {@macro ContextMenu.padding}
   final EdgeInsetsGeometry? subMenuPadding;
 
-  /// {@macro ShadContextMenuItem.backgroundColor}
+  /// {@macro ContextMenuItem.backgroundColor}
   final Color? backgroundColor;
 
-  /// {@macro ShadContextMenuItem.selectedBackgroundColor}
+  /// {@macro ContextMenuItem.selectedBackgroundColor}
   final Color? selectedBackgroundColor;
 
-  /// {@macro ShadContextMenuItem.closeOnTap}
+  /// {@macro ContextMenuItem.closeOnTap}
   final bool? closeOnTap;
 
-  /// {@macro ShadPopover.effects}
+  /// {@macro Popover.effects}
   final List<Effect<dynamic>>? effects;
 
-  /// {@macro ShadPopover.shadows}
+  /// {@macro Popover.shadows}
   final List<BoxShadow>? shadows;
 
-  /// {@macro ShadPopover.decoration}
-  final ShadDecoration? decoration;
+  /// {@macro Popover.decoration}
+  final FinesseDecoration? decoration;
 
-  /// {@macro ShadPopover.filter}
+  /// {@macro Popover.filter}
   final ImageFilter? filter;
 
   /// Linearly interpolates between [a] and [b] by [t].
-  static ShadContextMenuTheme? lerp(
-    ShadContextMenuTheme? a,
-    ShadContextMenuTheme? b,
+  static ContextMenuTheme? lerp(
+    ContextMenuTheme? a,
+    ContextMenuTheme? b,
     double t,
-  ) => _$ShadContextMenuTheme.lerp(a, b, t);
+  ) => _$ContextMenuTheme.lerp(a, b, t);
 
   // The generated `==` compares lists by identity, so a theme built with a
-  // non-const list would never equal its own rebuild, and ShadAnimatedTheme
+  // non-const list would never equal its own rebuild, and AnimatedTheme
   // would re-lerp on every frame. Compare the lists by value, then let the
   // generated `==` compare everything else against a copy that shares them.
   @override
   bool operator ==(Object other) =>
-      other is ShadContextMenuTheme &&
+      other is ContextMenuTheme &&
       listEquals(effects, other.effects) &&
       listEquals(shadows, other.shadows) &&
       super == other.copyWith(effects: effects, shadows: shadows);

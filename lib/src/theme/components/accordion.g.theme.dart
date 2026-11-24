@@ -9,14 +9,10 @@ part of 'accordion.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadAccordionTheme {
+mixin _$AccordionTheme {
   bool get canMerge => true;
 
-  static ShadAccordionTheme? lerp(
-    ShadAccordionTheme? a,
-    ShadAccordionTheme? b,
-    double t,
-  ) {
+  static AccordionTheme? lerp(AccordionTheme? a, AccordionTheme? b, double t) {
     if (identical(a, b)) {
       return a;
     }
@@ -29,7 +25,7 @@ mixin _$ShadAccordionTheme {
       return t == 0.0 ? a : null;
     }
 
-    return ShadAccordionTheme(
+    return AccordionTheme(
       iconData: t < 0.5 ? a.iconData : b.iconData,
       iconEffects: t < 0.5 ? a.iconEffects : b.iconEffects,
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
@@ -44,7 +40,7 @@ mixin _$ShadAccordionTheme {
     );
   }
 
-  ShadAccordionTheme copyWith({
+  AccordionTheme copyWith({
     IconData? iconData,
     List<Effect<dynamic>>? iconEffects,
     EdgeInsetsGeometry? padding,
@@ -55,9 +51,9 @@ mixin _$ShadAccordionTheme {
     bool? maintainState,
     List<Effect<dynamic>>? effects,
   }) {
-    final _this = (this as ShadAccordionTheme);
+    final _this = (this as AccordionTheme);
 
-    return ShadAccordionTheme(
+    return AccordionTheme(
       iconData: iconData ?? _this.iconData,
       iconEffects: iconEffects ?? _this.iconEffects,
       padding: padding ?? _this.padding,
@@ -71,8 +67,8 @@ mixin _$ShadAccordionTheme {
     );
   }
 
-  ShadAccordionTheme merge(ShadAccordionTheme? other) {
-    final _this = (this as ShadAccordionTheme);
+  AccordionTheme merge(AccordionTheme? other) {
+    final _this = (this as AccordionTheme);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -105,8 +101,8 @@ mixin _$ShadAccordionTheme {
       return false;
     }
 
-    final _this = (this as ShadAccordionTheme);
-    final _other = (other as ShadAccordionTheme);
+    final _this = (this as AccordionTheme);
+    final _other = (other as AccordionTheme);
 
     return _other.iconData == _this.iconData &&
         _other.iconEffects == _this.iconEffects &&
@@ -121,7 +117,7 @@ mixin _$ShadAccordionTheme {
 
   @override
   int get hashCode {
-    final _this = (this as ShadAccordionTheme);
+    final _this = (this as AccordionTheme);
 
     return Object.hash(
       runtimeType,

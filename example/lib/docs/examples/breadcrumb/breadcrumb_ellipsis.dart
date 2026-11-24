@@ -1,20 +1,20 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class BreadcrumbEllipsisExample extends StatelessWidget {
   const BreadcrumbEllipsisExample({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ShadBreadcrumb(
+    return Breadcrumb(
       children: [
-        ShadBreadcrumbLink(
+        BreadcrumbLink(
           onPressed: () {},
           child: const Text('Home'),
         ),
         // Collapses the middle of a deep hierarchy.
-        const ShadBreadcrumbEllipsis(),
-        ShadBreadcrumbLink(
+        const BreadcrumbEllipsis(),
+        BreadcrumbLink(
           onPressed: () {},
           child: const Text('Components'),
         ),

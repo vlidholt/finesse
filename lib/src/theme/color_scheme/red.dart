@@ -1,17 +1,17 @@
+import 'package:finesse/src/theme/color_scheme/base.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/color_scheme/base.dart';
 
 /// The shadcn/ui v3 `red` theme: a neutral base with a red primary.
 ///
-/// Kept for compatibility. In v4, apply `ShadAccentScheme.redLight` or
-/// `ShadAccentScheme.redDark` to a base colour scheme instead.
+/// Kept for compatibility. In v4, apply `AccentScheme.redLight` or
+/// `AccentScheme.redDark` to a base colour scheme instead.
 @immutable
-class ShadRedColorScheme extends ShadColorScheme {
-  /// Creates a [ShadRedColorScheme] from explicit colours.
+class RedColorScheme extends ColorScheme {
+  /// Creates a [RedColorScheme] from explicit colours.
   ///
-  /// Use [ShadRedColorScheme.light] or [ShadRedColorScheme.dark] for the
+  /// Use [RedColorScheme.light] or [RedColorScheme.dark] for the
   /// shadcn/ui values.
-  const ShadRedColorScheme({
+  const RedColorScheme({
     required super.background,
     required super.foreground,
     required super.card,
@@ -35,10 +35,10 @@ class ShadRedColorScheme extends ShadColorScheme {
     super.custom,
   });
 
-  /// Creates the light variant of [ShadRedColorScheme].
+  /// Creates the light variant of [RedColorScheme].
   ///
   /// Every colour defaults to its light-mode value.
-  const ShadRedColorScheme.light({
+  const RedColorScheme.light({
     super.background = const Color(0xffffffff),
     super.foreground = const Color(0xff0a0a0a),
     super.card = const Color(0xffffffff),
@@ -62,10 +62,10 @@ class ShadRedColorScheme extends ShadColorScheme {
     super.custom,
   });
 
-  /// Creates the dark variant of [ShadRedColorScheme].
+  /// Creates the dark variant of [RedColorScheme].
   ///
   /// Every colour defaults to its dark-mode value.
-  const ShadRedColorScheme.dark({
+  const RedColorScheme.dark({
     super.background = const Color(0xff0a0a0a),
     super.foreground = const Color(0xfffafafa),
     super.card = const Color(0xff0a0a0a),

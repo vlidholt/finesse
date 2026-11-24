@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class ToggleGroupOutlineExample extends StatefulWidget {
   const ToggleGroupOutlineExample({super.key});
@@ -14,22 +14,22 @@ class _ToggleGroupOutlineExampleState extends State<ToggleGroupOutlineExample> {
 
   @override
   Widget build(BuildContext context) {
-    return ShadToggleGroup<String>(
+    return ToggleGroup<String>(
       values: values,
-      toggleVariant: ShadToggleVariant.outline,
+      toggleVariant: ToggleVariant.outline,
       onChanged: (next) => setState(() => values = next),
       children: const [
-        ShadToggleGroupItem(
+        ToggleGroupItem(
           value: 'bold',
           semanticLabel: 'Bold',
           child: Icon(LucideIcons.bold),
         ),
-        ShadToggleGroupItem(
+        ToggleGroupItem(
           value: 'italic',
           semanticLabel: 'Italic',
           child: Icon(LucideIcons.italic),
         ),
-        ShadToggleGroupItem(
+        ToggleGroupItem(
           value: 'underline',
           semanticLabel: 'Underline',
           child: Icon(LucideIcons.underline),

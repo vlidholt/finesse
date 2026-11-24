@@ -3,7 +3,7 @@ const _daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 /// Calendar helpers on [DateTime].
 ///
 /// The returned dates are in local time.
-extension ShadDateTime on DateTime {
+extension FinesseDateTime on DateTime {
   /// Whether the year [value] is a leap year. It does not read this date.
   bool isLeapYear(int value) =>
       value % 400 == 0 || (value % 4 == 0 && value % 100 != 0);

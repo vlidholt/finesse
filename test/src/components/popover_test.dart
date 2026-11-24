@@ -1,23 +1,23 @@
+import 'package:finesse/material.dart';
+import 'package:finesse/src/app.dart';
+import 'package:finesse/src/components/popover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/material.dart';
-import 'package:shad/src/app.dart';
-import 'package:shad/src/components/popover.dart';
 
 void main() {
-  // Helper method to create a test widget wrapped in ShadApp and Scaffold
+  // Helper method to create a test widget wrapped in FinesseApp and Scaffold
   Widget createTestWidget(Widget child) {
-    return ShadApp(
-      builder: (context, child) => ShadMaterial(child: child!),
+    return FinesseApp(
+      builder: (context, child) => FinesseMaterial(child: child!),
       home: Scaffold(body: child),
     );
   }
 
-  group('ShadPopover', () {
-    testWidgets('ShadPopover matches goldens', (tester) async {
+  group('Popover', () {
+    testWidgets('Popover matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          ShadPopover(
+          Popover(
             visible: true,
             popover: (context) {
               return const Text('Popover');
@@ -28,7 +28,7 @@ void main() {
       );
 
       await expectLater(
-        find.byType(ShadPopover),
+        find.byType(Popover),
         matchesGoldenFile('goldens/popover.png'),
       );
     });
@@ -40,7 +40,7 @@ void main() {
       // centred every select option, menu item and form label inside it.
       await tester.pumpWidget(
         createTestWidget(
-          ShadPopover(
+          Popover(
             visible: true,
             popover: (context) => const SizedBox(
               width: 200,

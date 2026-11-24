@@ -4,14 +4,14 @@ import 'package:theme_extensions_builder_annotation/theme_extensions_builder_ann
 
 part 'sidebar.g.theme.dart';
 
-/// {@template ShadSidebarTheme}
-/// Theme for the `ShadSidebar` widget.
+/// {@template SidebarTheme}
+/// Theme for the `Sidebar` widget.
 /// {@endtemplate}
 @themeGen
 @immutable
-class ShadSidebarTheme with _$ShadSidebarTheme {
-  /// {@macro ShadSidebarTheme}
-  const ShadSidebarTheme({
+class SidebarTheme with _$SidebarTheme {
+  /// {@macro SidebarTheme}
+  const SidebarTheme({
     bool canMerge = true,
     this.width,
     this.collapsedWidth,
@@ -62,23 +62,23 @@ class ShadSidebarTheme with _$ShadSidebarTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro ShadSidebar.width}
+  /// {@macro Sidebar.width}
   final double? width;
 
-  /// {@macro ShadSidebar.collapsedWidth}
+  /// {@macro Sidebar.collapsedWidth}
   final double? collapsedWidth;
 
-  /// {@macro ShadSidebar.mobileWidth}
+  /// {@macro Sidebar.mobileWidth}
   final double? mobileWidth;
 
-  /// {@macro ShadSidebar.backgroundColor}
+  /// {@macro Sidebar.backgroundColor}
   final Color? backgroundColor;
 
   /// The text and icon colour of the sidebar. Defaults to the colour
   /// scheme's `sidebarForeground`.
   final Color? foregroundColor;
 
-  /// {@macro ShadSidebar.borderColor}
+  /// {@macro Sidebar.borderColor}
   final Color? borderColor;
 
   /// The hover/active fill of menu buttons, shadcn's `bg-sidebar-accent`.
@@ -118,7 +118,7 @@ class ShadSidebarTheme with _$ShadSidebarTheme {
   /// `text-xs font-medium text-sidebar-foreground/70`.
   final TextStyle? groupLabelTextStyle;
 
-  /// {@macro ShadSidebarMenuButton.height}
+  /// {@macro SidebarMenuButton.height}
   final double? menuButtonHeight;
 
   /// Height of a small menu button, shadcn's `h-7`.
@@ -189,19 +189,19 @@ class ShadSidebarTheme with _$ShadSidebarTheme {
   final List<BoxShadow>? insetShadows;
 
   /// Linearly interpolates between [a] and [b] by [t].
-  static ShadSidebarTheme? lerp(
-    ShadSidebarTheme? a,
-    ShadSidebarTheme? b,
+  static SidebarTheme? lerp(
+    SidebarTheme? a,
+    SidebarTheme? b,
     double t,
-  ) => _$ShadSidebarTheme.lerp(a, b, t);
+  ) => _$SidebarTheme.lerp(a, b, t);
 
   // The generated `==` compares lists by identity, so a theme built with a
-  // non-const list would never equal its own rebuild, and ShadAnimatedTheme
+  // non-const list would never equal its own rebuild, and AnimatedTheme
   // would re-lerp on every frame. Compare the lists by value, then let the
   // generated `==` compare everything else against a copy that shares them.
   @override
   bool operator ==(Object other) =>
-      other is ShadSidebarTheme &&
+      other is SidebarTheme &&
       listEquals(floatingShadows, other.floatingShadows) &&
       listEquals(insetShadows, other.insetShadows) &&
       super ==

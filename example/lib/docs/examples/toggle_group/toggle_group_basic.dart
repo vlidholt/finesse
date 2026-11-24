@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class ToggleGroupBasicExample extends StatefulWidget {
   const ToggleGroupBasicExample({super.key});
@@ -14,21 +14,21 @@ class _ToggleGroupBasicExampleState extends State<ToggleGroupBasicExample> {
 
   @override
   Widget build(BuildContext context) {
-    return ShadToggleGroup<String>(
+    return ToggleGroup<String>(
       values: alignment,
       onChanged: (values) => setState(() => alignment = values),
       children: const [
-        ShadToggleGroupItem(
+        ToggleGroupItem(
           value: 'left',
           semanticLabel: 'Align left',
           child: Icon(LucideIcons.alignLeft),
         ),
-        ShadToggleGroupItem(
+        ToggleGroupItem(
           value: 'center',
           semanticLabel: 'Align center',
           child: Icon(LucideIcons.alignCenter),
         ),
-        ShadToggleGroupItem(
+        ToggleGroupItem(
           value: 'right',
           semanticLabel: 'Align right',
           child: Icon(LucideIcons.alignRight),

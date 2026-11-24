@@ -1,18 +1,18 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/shad.dart';
 
 void main() {
-  group('ShadColorScheme.merge', () {
+  group('ColorScheme.merge', () {
     test('merge with null returns this', () {
-      const scheme = ShadSlateColorScheme.light();
+      const scheme = SlateColorScheme.light();
       final result = scheme.merge(null);
       expect(identical(result, scheme), isTrue);
     });
 
     test('merge replaces all standard color fields', () {
-      const base = ShadSlateColorScheme.light();
-      const other = ShadSlateColorScheme.dark();
+      const base = SlateColorScheme.light();
+      const other = SlateColorScheme.dark();
       final result = base.merge(other);
 
       expect(result.background, other.background);
@@ -38,10 +38,10 @@ void main() {
     });
 
     test('merge combines custom maps', () {
-      final base = const ShadSlateColorScheme.light().copyWith(
+      final base = const SlateColorScheme.light().copyWith(
         custom: const {'brand': Color(0xFF000000)},
       );
-      final other = const ShadSlateColorScheme.light().copyWith(
+      final other = const SlateColorScheme.light().copyWith(
         custom: const {'accent': Color(0xFFFFFFFF)},
       );
       final result = base.merge(other);
@@ -51,10 +51,10 @@ void main() {
     });
 
     test('merge custom map - other overrides same keys', () {
-      final base = const ShadSlateColorScheme.light().copyWith(
+      final base = const SlateColorScheme.light().copyWith(
         custom: const {'brand': Color(0xFF000000)},
       );
-      final other = const ShadSlateColorScheme.light().copyWith(
+      final other = const SlateColorScheme.light().copyWith(
         custom: const {'brand': Color(0xFFFF0000)},
       );
       final result = base.merge(other);
@@ -63,10 +63,10 @@ void main() {
     });
 
     test('merge with canMerge false returns other unchanged', () {
-      final base = const ShadSlateColorScheme.light().copyWith(
+      final base = const SlateColorScheme.light().copyWith(
         custom: const {'brand': Color(0xFF000000)},
       );
-      const other = ShadColorScheme(
+      const other = ColorScheme(
         canMerge: false,
         background: Color(0xFF111111),
         foreground: Color(0xFF222222),
@@ -98,15 +98,15 @@ void main() {
     });
   });
 
-  group('ShadThemeData.merge', () {
+  group('ThemeData.merge', () {
     test('merges colorScheme custom maps', () {
-      final base = ShadThemeData(
-        colorScheme: const ShadSlateColorScheme.light().copyWith(
+      final base = ThemeData(
+        colorScheme: const SlateColorScheme.light().copyWith(
           custom: const {'brand': Color(0xFF000000)},
         ),
       );
-      final other = ShadThemeData(
-        colorScheme: const ShadSlateColorScheme.light().copyWith(
+      final other = ThemeData(
+        colorScheme: const SlateColorScheme.light().copyWith(
           custom: const {'accent': Color(0xFFFFFFFF)},
         ),
       );
@@ -123,13 +123,13 @@ void main() {
     });
 
     test('non-mergeable colorScheme replaces rather than merges', () {
-      final base = ShadThemeData(
-        colorScheme: const ShadSlateColorScheme.light().copyWith(
+      final base = ThemeData(
+        colorScheme: const SlateColorScheme.light().copyWith(
           custom: const {'brand': Color(0xFF000000)},
         ),
       );
-      final other = ShadThemeData(
-        colorScheme: const ShadColorScheme(
+      final other = ThemeData(
+        colorScheme: const ColorScheme(
           canMerge: false,
           background: Color(0xFF111111),
           foreground: Color(0xFF222222),

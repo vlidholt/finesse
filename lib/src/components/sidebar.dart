@@ -1,25 +1,25 @@
 import 'dart:math' as math;
 
+import 'package:finesse/src/components/divider.dart';
+import 'package:finesse/src/components/sheet.dart';
+import 'package:finesse/src/components/skeleton.dart';
+import 'package:finesse/src/components/tooltip.dart';
+import 'package:finesse/src/raw_components/focusable.dart';
+import 'package:finesse/src/raw_components/portal.dart';
+import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/border.dart';
+import 'package:finesse/src/utils/debug_check.dart';
+import 'package:finesse/src/utils/gesture_detector.dart';
+import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:shad/src/components/separator.dart';
-import 'package:shad/src/components/sheet.dart';
-import 'package:shad/src/components/skeleton.dart';
-import 'package:shad/src/components/tooltip.dart';
-import 'package:shad/src/raw_components/focusable.dart';
-import 'package:shad/src/raw_components/portal.dart';
-import 'package:shad/src/theme/components/decorator.dart';
-import 'package:shad/src/theme/theme.dart';
-import 'package:shad/src/utils/border.dart';
-import 'package:shad/src/utils/debug_check.dart';
-import 'package:shad/src/utils/gesture_detector.dart';
-import 'package:shad/src/utils/shadow.dart';
 
 /// Which edge of the layout the sidebar sits on.
 ///
 /// Directional: `start` is the left edge in LTR and the right edge in RTL.
-enum ShadSidebarSide {
+enum SidebarSide {
   /// The start edge: left in LTR, right in RTL.
   start,
 
@@ -27,8 +27,8 @@ enum ShadSidebarSide {
   end,
 }
 
-/// The visual treatment of a [ShadSidebar], mirroring shadcn/ui's `variant`.
-enum ShadSidebarVariant {
+/// The visual treatment of a [Sidebar], mirroring shadcn/ui's `variant`.
+enum SidebarVariant {
   /// A full-height panel separated from the content by a hairline.
   sidebar,
 
@@ -40,8 +40,8 @@ enum ShadSidebarVariant {
   inset,
 }
 
-/// How a [ShadSidebar] collapses, mirroring shadcn/ui's `collapsible`.
-enum ShadSidebarCollapsible {
+/// How a [Sidebar] collapses, mirroring shadcn/ui's `collapsible`.
+enum SidebarCollapsible {
   /// Slides fully off-screen.
   offcanvas,
 
@@ -52,8 +52,8 @@ enum ShadSidebarCollapsible {
   none,
 }
 
-/// The size of a [ShadSidebarMenuButton].
-enum ShadSidebarMenuButtonSize {
+/// The size of a [SidebarMenuButton].
+enum SidebarMenuButtonSize {
   /// A short row with smaller text, shadcn's `h-7`.
   sm,
 
@@ -64,8 +64,8 @@ enum ShadSidebarMenuButtonSize {
   lg,
 }
 
-/// The visual variant of a [ShadSidebarMenuButton].
-enum ShadSidebarMenuButtonVariant {
+/// The visual variant of a [SidebarMenuButton].
+enum SidebarMenuButtonVariant {
   /// Transparent until hovered.
   standard,
 
@@ -73,22 +73,22 @@ enum ShadSidebarMenuButtonVariant {
   outline,
 }
 
-/// Controls the open state of a [ShadSidebar].
+/// Controls the open state of a [Sidebar].
 ///
 /// Desktop and mobile are independent, exactly as in shadcn/ui: [open] drives
 /// the inline sidebar, [openMobile] the modal sheet shown under the
 /// breakpoint.
-class ShadSidebarController extends ChangeNotifier {
+class SidebarController extends ChangeNotifier {
   /// Creates a controller. The desktop sidebar starts expanded when [open] is
   /// true, the default. The mobile sheet starts closed.
-  ShadSidebarController({bool open = true}) : _open = open;
+  SidebarController({bool open = true}) : _open = open;
 
   bool _open;
 
   /// Whether the inline (desktop) sidebar is expanded.
   bool get open => _open;
 
-  /// The same as [open], under the name `ShadPopoverController` uses.
+  /// The same as [open], under the name `PopoverController` uses.
   bool get isOpen => _open;
 
   set open(bool value) {
@@ -115,13 +115,13 @@ class ShadSidebarController extends ChangeNotifier {
 }
 
 /// What a sidebar descendant needs to know about its host: the controller,
-/// the form factor and the configuration of the [ShadSidebar] it sits in.
+/// the form factor and the configuration of the [Sidebar] it sits in.
 ///
-/// Obtained with [ShadSidebarScope.of] — [ShadSidebarTrigger] uses it to
+/// Obtained with [SidebarScope.of] — [SidebarTrigger] uses it to
 /// toggle, menu widgets use it to render their collapsed (icon-rail) form.
-class ShadSidebarScope extends InheritedWidget {
-  /// Creates a scope. [ShadSidebarScaffold] builds one, so you rarely need to.
-  const ShadSidebarScope({
+class SidebarScope extends InheritedWidget {
+  /// Creates a scope. [SidebarScaffold] builds one, so you rarely need to.
+  const SidebarScope({
     super.key,
     required this.controller,
     required this.isMobile,
@@ -135,7 +135,7 @@ class ShadSidebarScope extends InheritedWidget {
   });
 
   /// The controller that holds the open state.
-  final ShadSidebarController controller;
+  final SidebarController controller;
 
   /// Whether the host layout is below the mobile breakpoint.
   final bool isMobile;
@@ -147,44 +147,44 @@ class ShadSidebarScope extends InheritedWidget {
   final bool open;
 
   /// The edge of the layout that the sidebar sits on.
-  final ShadSidebarSide side;
+  final SidebarSide side;
 
   /// The visual variant of the sidebar.
-  final ShadSidebarVariant variant;
+  final SidebarVariant variant;
 
   /// How the sidebar collapses.
-  final ShadSidebarCollapsible collapsible;
+  final SidebarCollapsible collapsible;
 
   /// The resolved icon-rail width, so descendants shrink to the same rail the
-  /// sidebar animates to even when [ShadSidebar.collapsedWidth] overrides the
+  /// sidebar animates to even when [Sidebar.collapsedWidth] overrides the
   /// theme.
   final double collapsedWidth;
 
   /// Whether descendants should render their icon-rail form.
   bool get collapsed =>
-      !inSheet && !open && collapsible == ShadSidebarCollapsible.icon;
+      !inSheet && !open && collapsible == SidebarCollapsible.icon;
 
   /// Flips the sidebar for the current form factor.
   void toggle() => controller.toggle(isMobile: isMobile);
 
   /// Returns the nearest scope, or null when there is none.
-  static ShadSidebarScope? maybeOf(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType<ShadSidebarScope>();
+  static SidebarScope? maybeOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<SidebarScope>();
 
   /// Returns the nearest scope.
   ///
-  /// Asserts that a [ShadSidebarScaffold] is an ancestor.
-  static ShadSidebarScope of(BuildContext context) {
+  /// Asserts that a [SidebarScaffold] is an ancestor.
+  static SidebarScope of(BuildContext context) {
     final scope = maybeOf(context);
     assert(
       scope != null,
-      'ShadSidebarScope.of() called outside of a ShadSidebarScaffold',
+      'SidebarScope.of() called outside of a SidebarScaffold',
     );
     return scope!;
   }
 
   @override
-  bool updateShouldNotify(ShadSidebarScope oldWidget) =>
+  bool updateShouldNotify(SidebarScope oldWidget) =>
       controller != oldWidget.controller ||
       isMobile != oldWidget.isMobile ||
       inSheet != oldWidget.inSheet ||
@@ -195,28 +195,28 @@ class ShadSidebarScope extends InheritedWidget {
       collapsedWidth != oldWidget.collapsedWidth;
 }
 
-/// {@template ShadSidebarScaffold}
-/// Lays out a [ShadSidebar] next to the page content, mirroring shadcn/ui's
+/// {@template SidebarScaffold}
+/// Lays out a [Sidebar] next to the page content, mirroring shadcn/ui's
 /// `SidebarProvider` + `SidebarInset`.
 ///
 /// Above the `md` breakpoint the sidebar renders inline and collapses
 /// according to its `collapsible` mode; below it the sidebar disappears and
-/// [ShadSidebarTrigger] (or the controller) presents it as a modal sheet.
+/// [SidebarTrigger] (or the controller) presents it as a modal sheet.
 /// `⌘B`/`Ctrl+B` toggles it.
 ///
 /// ```dart
-/// ShadSidebarScaffold(
-///   sidebar: ShadSidebar(
+/// SidebarScaffold(
+///   sidebar: Sidebar(
 ///     header: ...,
-///     children: [ShadSidebarGroup(...)],
+///     children: [SidebarGroup(...)],
 ///   ),
 ///   child: page,
 /// )
 /// ```
 /// {@endtemplate}
-class ShadSidebarScaffold extends StatefulWidget {
-  /// {@macro ShadSidebarScaffold}
-  const ShadSidebarScaffold({
+class SidebarScaffold extends StatefulWidget {
+  /// {@macro SidebarScaffold}
+  const SidebarScaffold({
     super.key,
     required this.sidebar,
     required this.child,
@@ -228,7 +228,7 @@ class ShadSidebarScaffold extends StatefulWidget {
   });
 
   /// The sidebar configuration and content.
-  final ShadSidebar sidebar;
+  final Sidebar sidebar;
 
   /// The page content next to the sidebar.
   final Widget child;
@@ -236,7 +236,7 @@ class ShadSidebarScaffold extends StatefulWidget {
   /// An external controller for the open state.
   ///
   /// When null an internal one is created, seeded from [defaultOpen].
-  final ShadSidebarController? controller;
+  final SidebarController? controller;
 
   /// Whether the sidebar starts open. Ignored when [controller] is set.
   final bool defaultOpen;
@@ -255,14 +255,13 @@ class ShadSidebarScaffold extends StatefulWidget {
   final BorderRadiusGeometry? borderRadius;
 
   @override
-  State<ShadSidebarScaffold> createState() => _ShadSidebarScaffoldState();
+  State<SidebarScaffold> createState() => _SidebarScaffoldState();
 }
 
-class _ShadSidebarScaffoldState extends State<ShadSidebarScaffold> {
-  ShadSidebarController? _internalController;
+class _SidebarScaffoldState extends State<SidebarScaffold> {
+  SidebarController? _internalController;
 
-  ShadSidebarController get controller =>
-      widget.controller ?? _internalController!;
+  SidebarController get controller => widget.controller ?? _internalController!;
 
   late bool _lastOpen;
   bool _sheetShowing = false;
@@ -276,7 +275,7 @@ class _ShadSidebarScaffoldState extends State<ShadSidebarScaffold> {
   void initState() {
     super.initState();
     if (widget.controller == null) {
-      _internalController = ShadSidebarController(open: widget.defaultOpen);
+      _internalController = SidebarController(open: widget.defaultOpen);
     }
     _lastOpen = controller.open;
     controller.addListener(_onControllerChanged);
@@ -286,7 +285,7 @@ class _ShadSidebarScaffoldState extends State<ShadSidebarScaffold> {
   }
 
   @override
-  void didUpdateWidget(ShadSidebarScaffold oldWidget) {
+  void didUpdateWidget(SidebarScaffold oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.controller != oldWidget.controller) {
       (oldWidget.controller ?? _internalController)?.removeListener(
@@ -321,7 +320,7 @@ class _ShadSidebarScaffoldState extends State<ShadSidebarScaffold> {
   }
 
   bool get _isMobile {
-    final breakpoints = ShadTheme.of(context).breakpoints;
+    final breakpoints = Theme.of(context).breakpoints;
     return MediaQuery.sizeOf(context).width < breakpoints.md.value;
   }
 
@@ -340,10 +339,10 @@ class _ShadSidebarScaffoldState extends State<ShadSidebarScaffold> {
     }
   }
 
-  /// The icon-rail width, resolved the same way [ShadSidebar] resolves it.
+  /// The icon-rail width, resolved the same way [Sidebar] resolves it.
   double get _collapsedWidth =>
       widget.sidebar.collapsedWidth ??
-      ShadTheme.of(context).sidebarTheme.collapsedWidth ??
+      Theme.of(context).sidebarTheme.collapsedWidth ??
       48;
 
   bool _onKeyEvent(KeyEvent event) {
@@ -385,15 +384,15 @@ class _ShadSidebarScaffoldState extends State<ShadSidebarScaffold> {
 
   void _showMobileSheet() {
     final sidebar = widget.sidebar;
-    final theme = ShadTheme.of(context).sidebarTheme;
+    final theme = Theme.of(context).sidebarTheme;
     final effectiveMobileWidth =
         sidebar.mobileWidth ?? theme.mobileWidth ?? 288;
     final textDirection = Directionality.of(context);
     final sheetSide = switch ((sidebar.side, textDirection)) {
-      (ShadSidebarSide.start, TextDirection.ltr) => ShadSheetSide.left,
-      (ShadSidebarSide.start, TextDirection.rtl) => ShadSheetSide.right,
-      (ShadSidebarSide.end, TextDirection.ltr) => ShadSheetSide.right,
-      (ShadSidebarSide.end, TextDirection.rtl) => ShadSheetSide.left,
+      (SidebarSide.start, TextDirection.ltr) => SheetSide.left,
+      (SidebarSide.start, TextDirection.rtl) => SheetSide.right,
+      (SidebarSide.end, TextDirection.ltr) => SheetSide.right,
+      (SidebarSide.end, TextDirection.rtl) => SheetSide.left,
     };
     // The route can outlive this State (dispose removes it a frame later),
     // and its builder re-runs on MediaQuery changes in the meantime — so
@@ -401,12 +400,12 @@ class _ShadSidebarScaffoldState extends State<ShadSidebarScaffold> {
     // whose `context` and `widget` are gone after unmount.
     final controller = this.controller;
     final collapsedWidth = _collapsedWidth;
-    showShadSheet<void>(
+    showSheet<void>(
       context: context,
       side: sheetSide,
       builder: (sheetContext) {
         _sheetRoute = ModalRoute.of(sheetContext);
-        return ShadSidebarScope(
+        return SidebarScope(
           controller: controller,
           isMobile: true,
           inSheet: true,
@@ -415,7 +414,7 @@ class _ShadSidebarScaffoldState extends State<ShadSidebarScaffold> {
           variant: sidebar.variant,
           collapsible: sidebar.collapsible,
           collapsedWidth: collapsedWidth,
-          child: ShadSheet(
+          child: Sheet(
             padding: EdgeInsets.zero,
             gap: 0,
             closeIcon: const SizedBox.shrink(),
@@ -424,7 +423,7 @@ class _ShadSidebarScaffoldState extends State<ShadSidebarScaffold> {
             scrollable: false,
             backgroundColor:
                 sidebar.backgroundColor ??
-                ShadTheme.of(sheetContext).sidebarTheme.backgroundColor,
+                Theme.of(sheetContext).sidebarTheme.backgroundColor,
             constraints: BoxConstraints.tightFor(width: effectiveMobileWidth),
             child: sidebar,
           ),
@@ -441,8 +440,8 @@ class _ShadSidebarScaffoldState extends State<ShadSidebarScaffold> {
 
   @override
   Widget build(BuildContext context) {
-    assert(debugCheckHasShadTheme(context));
-    final theme = ShadTheme.of(context);
+    assert(debugCheckHasTheme(context));
+    final theme = Theme.of(context);
     final sidebarTheme = theme.sidebarTheme;
     final sidebar = widget.sidebar;
     final isMobile = _isMobile;
@@ -450,7 +449,7 @@ class _ShadSidebarScaffoldState extends State<ShadSidebarScaffold> {
 
     var content = widget.child;
 
-    if (sidebar.variant == ShadSidebarVariant.inset && !isMobile) {
+    if (sidebar.variant == SidebarVariant.inset && !isMobile) {
       final margin = (sidebarTheme.insetMargin ?? const EdgeInsets.all(8))
           .resolve(
             Directionality.of(context),
@@ -459,7 +458,7 @@ class _ShadSidebarScaffoldState extends State<ShadSidebarScaffold> {
       // `m-2 ml-0`, except the start margin comes back when the sidebar is
       // fully collapsed (`peer-data-[state=collapsed]:ml-2` with offcanvas).
       final restoreStart =
-          collapsed && sidebar.collapsible == ShadSidebarCollapsible.offcanvas;
+          collapsed && sidebar.collapsible == SidebarCollapsible.offcanvas;
       content = Container(
         margin: EdgeInsetsDirectional.only(
           start: restoreStart ? margin.left : 0,
@@ -468,7 +467,7 @@ class _ShadSidebarScaffoldState extends State<ShadSidebarScaffold> {
           bottom: margin.bottom,
         ),
         clipBehavior: Clip.antiAlias,
-        decoration: ShadShadowDecoration.box(
+        decoration: ShadowDecoration.box(
           color: theme.colorScheme.background,
           borderRadius: sidebarTheme.insetRadius,
           shadows: sidebarTheme.insetShadows ?? const [],
@@ -485,7 +484,7 @@ class _ShadSidebarScaffoldState extends State<ShadSidebarScaffold> {
     // disappears along with the panel, so there is nothing to grab.
     if (!isMobile &&
         sidebar.rail &&
-        sidebar.collapsible == ShadSidebarCollapsible.icon) {
+        sidebar.collapsible == SidebarCollapsible.icon) {
       content = Stack(
         clipBehavior: Clip.none,
         children: [
@@ -493,10 +492,10 @@ class _ShadSidebarScaffoldState extends State<ShadSidebarScaffold> {
           PositionedDirectional(
             top: 0,
             bottom: 0,
-            start: sidebar.side == ShadSidebarSide.start ? -8 : null,
-            end: sidebar.side == ShadSidebarSide.end ? -8 : null,
+            start: sidebar.side == SidebarSide.start ? -8 : null,
+            end: sidebar.side == SidebarSide.end ? -8 : null,
             width: 16,
-            child: const _ShadSidebarRail(),
+            child: const _SidebarRail(),
           ),
         ],
       );
@@ -509,8 +508,8 @@ class _ShadSidebarScaffoldState extends State<ShadSidebarScaffold> {
       body = Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: switch (sidebar.side) {
-          ShadSidebarSide.start => [sidebar, Expanded(child: content)],
-          ShadSidebarSide.end => [Expanded(child: content), sidebar],
+          SidebarSide.start => [sidebar, Expanded(child: content)],
+          SidebarSide.end => [Expanded(child: content), sidebar],
         },
       );
     }
@@ -519,7 +518,7 @@ class _ShadSidebarScaffoldState extends State<ShadSidebarScaffold> {
       body = ClipRRect(borderRadius: widget.borderRadius!, child: body);
     }
 
-    return ShadSidebarScope(
+    return SidebarScope(
       controller: controller,
       isMobile: isMobile,
       inSheet: false,
@@ -533,21 +532,21 @@ class _ShadSidebarScaffoldState extends State<ShadSidebarScaffold> {
   }
 }
 
-/// {@template ShadSidebar}
+/// {@template Sidebar}
 /// A composable, collapsible side navigation panel.
 ///
-/// Mirrors shadcn/ui's `Sidebar`. Always used inside a [ShadSidebarScaffold],
+/// Mirrors shadcn/ui's `Sidebar`. Always used inside a [SidebarScaffold],
 /// which owns the open state and the responsive behaviour. Content is composed
-/// from [ShadSidebarGroup]s of [ShadSidebarMenu]s, with optional [header] and
+/// from [SidebarGroup]s of [SidebarMenu]s, with optional [header] and
 /// [footer] slots pinned outside the scrollable area.
 /// {@endtemplate}
-class ShadSidebar extends StatelessWidget {
-  /// {@macro ShadSidebar}
-  const ShadSidebar({
+class Sidebar extends StatelessWidget {
+  /// {@macro Sidebar}
+  const Sidebar({
     super.key,
-    this.side = ShadSidebarSide.start,
-    this.variant = ShadSidebarVariant.sidebar,
-    this.collapsible = ShadSidebarCollapsible.offcanvas,
+    this.side = SidebarSide.start,
+    this.variant = SidebarVariant.sidebar,
+    this.collapsible = SidebarCollapsible.offcanvas,
     this.header,
     this.footer,
     this.children = const [],
@@ -561,14 +560,14 @@ class ShadSidebar extends StatelessWidget {
   });
 
   /// The edge of the layout that the sidebar sits on. Defaults to
-  /// [ShadSidebarSide.start].
-  final ShadSidebarSide side;
+  /// [SidebarSide.start].
+  final SidebarSide side;
 
-  /// The visual variant. Defaults to [ShadSidebarVariant.sidebar].
-  final ShadSidebarVariant variant;
+  /// The visual variant. Defaults to [SidebarVariant.sidebar].
+  final SidebarVariant variant;
 
-  /// How the sidebar collapses. Defaults to [ShadSidebarCollapsible.offcanvas].
-  final ShadSidebarCollapsible collapsible;
+  /// How the sidebar collapses. Defaults to [SidebarCollapsible.offcanvas].
+  final SidebarCollapsible collapsible;
 
   /// Pinned above the scrollable content, shadcn's `SidebarHeader`.
   final Widget? header;
@@ -576,43 +575,43 @@ class ShadSidebar extends StatelessWidget {
   /// Pinned below the scrollable content, shadcn's `SidebarFooter`.
   final Widget? footer;
 
-  /// The scrollable content, typically [ShadSidebarGroup]s.
+  /// The scrollable content, typically [SidebarGroup]s.
   final List<Widget> children;
 
   /// Whether the sidebar shows a grab rail on its inner edge that toggles
   /// it, shadcn/ui's `SidebarRail`: the edge highlights under the pointer,
   /// shows a resize cursor, and a click collapses or expands the sidebar.
   ///
-  /// Only takes effect with [ShadSidebarCollapsible.icon] — with the other
+  /// Only takes effect with [SidebarCollapsible.icon] — with the other
   /// modes the edge leaves the screen together with the panel.
   final bool rail;
 
-  /// {@template ShadSidebar.width}
+  /// {@template Sidebar.width}
   /// The expanded width, shadcn's `--sidebar-width` (16rem).
   /// {@endtemplate}
   final double? width;
 
-  /// {@template ShadSidebar.collapsedWidth}
+  /// {@template Sidebar.collapsedWidth}
   /// The icon-rail width, shadcn's `--sidebar-width-icon` (3rem).
   /// {@endtemplate}
   final double? collapsedWidth;
 
-  /// {@template ShadSidebar.mobileWidth}
+  /// {@template Sidebar.mobileWidth}
   /// The width of the mobile sheet, shadcn's 18rem.
   /// {@endtemplate}
   final double? mobileWidth;
 
-  /// {@template ShadSidebar.backgroundColor}
+  /// {@template Sidebar.backgroundColor}
   /// The surface colour, defaults to the scheme's `sidebar`.
   /// {@endtemplate}
   final Color? backgroundColor;
 
-  /// {@template ShadSidebar.borderColor}
+  /// {@template Sidebar.borderColor}
   /// The hairline colour, defaults to the scheme's `sidebarBorder`.
   /// {@endtemplate}
   final Color? borderColor;
 
-  /// {@template ShadSidebar.scrollController}
+  /// {@template Sidebar.scrollController}
   /// Controls the scrollable content area — the region holding [children],
   /// between [header] and [footer].
   ///
@@ -624,10 +623,10 @@ class ShadSidebar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    assert(debugCheckHasShadTheme(context));
-    final theme = ShadTheme.of(context);
+    assert(debugCheckHasTheme(context));
+    final theme = Theme.of(context);
     final sidebarTheme = theme.sidebarTheme;
-    final scope = ShadSidebarScope.of(context);
+    final scope = SidebarScope.of(context);
 
     final effectiveBackgroundColor =
         backgroundColor ??
@@ -669,7 +668,7 @@ class ShadSidebar extends StatelessWidget {
       return ColoredBox(color: effectiveBackgroundColor, child: content);
     }
 
-    final floating = variant == ShadSidebarVariant.floating;
+    final floating = variant == SidebarVariant.floating;
     final floatingMargin =
         (sidebarTheme.floatingMargin ?? const EdgeInsets.all(8)).resolve(
           Directionality.of(context),
@@ -681,7 +680,7 @@ class ShadSidebar extends StatelessWidget {
     // at the clip edge instead of throwing a RenderFlex overflow; the widgets
     // that *should* shrink (menu buttons) do so themselves via
     // `scope.collapsed`, independent of the width they are laid out at.
-    if (collapsible == ShadSidebarCollapsible.icon) {
+    if (collapsible == SidebarCollapsible.icon) {
       final innerWidth =
           effectiveWidth - (floating ? floatingMargin.horizontal : 0);
       content = OverflowBox(
@@ -693,27 +692,27 @@ class ShadSidebar extends StatelessWidget {
     }
 
     switch (variant) {
-      case ShadSidebarVariant.sidebar:
+      case SidebarVariant.sidebar:
         content = DecoratedBox(
           decoration: BoxDecoration(
             color: effectiveBackgroundColor,
             border: BorderDirectional(
-              start: side == ShadSidebarSide.end
+              start: side == SidebarSide.end
                   ? BorderSide(color: effectiveBorderColor)
                   : BorderSide.none,
-              end: side == ShadSidebarSide.start
+              end: side == SidebarSide.start
                   ? BorderSide(color: effectiveBorderColor)
                   : BorderSide.none,
             ),
           ),
           child: content,
         );
-      case ShadSidebarVariant.floating:
+      case SidebarVariant.floating:
         content = Padding(
           padding: floatingMargin,
           child: Container(
             clipBehavior: Clip.antiAlias,
-            decoration: ShadShadowDecoration.box(
+            decoration: ShadowDecoration.box(
               color: effectiveBackgroundColor,
               borderRadius: sidebarTheme.floatingRadius,
               border: Border.all(color: effectiveBorderColor),
@@ -722,7 +721,7 @@ class ShadSidebar extends StatelessWidget {
             child: content,
           ),
         );
-      case ShadSidebarVariant.inset:
+      case SidebarVariant.inset:
         content = ColoredBox(
           color: effectiveBackgroundColor,
           child: content,
@@ -731,30 +730,30 @@ class ShadSidebar extends StatelessWidget {
 
     final open = scope.open;
     final double targetWidth;
-    if (collapsible == ShadSidebarCollapsible.none || open) {
+    if (collapsible == SidebarCollapsible.none || open) {
       targetWidth = effectiveWidth;
     } else {
       targetWidth = switch (collapsible) {
-        ShadSidebarCollapsible.offcanvas => 0,
+        SidebarCollapsible.offcanvas => 0,
         // Floating and inset keep their outer margin around the icon rail:
         // `w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]`.
-        ShadSidebarCollapsible.icon =>
+        SidebarCollapsible.icon =>
           effectiveCollapsedWidth +
-              (floating || variant == ShadSidebarVariant.inset
+              (floating || variant == SidebarVariant.inset
                   ? floatingMargin.horizontal
                   : 0),
-        ShadSidebarCollapsible.none => effectiveWidth,
+        SidebarCollapsible.none => effectiveWidth,
       };
     }
 
     // Offcanvas slides the fixed-width panel out; anchoring it to the inner
     // edge clips the outer part first, like the reference's `left: -width`.
     // Icon mode instead re-lays the content out at the animated width.
-    if (collapsible == ShadSidebarCollapsible.offcanvas) {
+    if (collapsible == SidebarCollapsible.offcanvas) {
       content = OverflowBox(
         minWidth: effectiveWidth,
         maxWidth: effectiveWidth,
-        alignment: side == ShadSidebarSide.start
+        alignment: side == SidebarSide.start
             ? AlignmentDirectional.centerEnd
             : AlignmentDirectional.centerStart,
         child: content,
@@ -787,7 +786,7 @@ class _SidebarColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final sidebarTheme = ShadTheme.of(context).sidebarTheme;
+    final sidebarTheme = Theme.of(context).sidebarTheme;
     final contentGap = sidebarTheme.contentGap ?? 8;
 
     final spaced = <Widget>[
@@ -826,9 +825,9 @@ class _SidebarColumn extends StatelessWidget {
 
 /// A ghost icon button that toggles the enclosing sidebar, shadcn/ui's
 /// `SidebarTrigger`.
-class ShadSidebarTrigger extends StatefulWidget {
+class SidebarTrigger extends StatefulWidget {
   /// Creates a trigger for the enclosing sidebar.
-  const ShadSidebarTrigger({super.key, this.icon, this.onPressed});
+  const SidebarTrigger({super.key, this.icon, this.onPressed});
 
   /// The icon, defaults to `PanelLeft`.
   final Widget? icon;
@@ -837,20 +836,20 @@ class ShadSidebarTrigger extends StatefulWidget {
   final VoidCallback? onPressed;
 
   @override
-  State<ShadSidebarTrigger> createState() => _ShadSidebarTriggerState();
+  State<SidebarTrigger> createState() => _SidebarTriggerState();
 }
 
-class _ShadSidebarTriggerState extends State<ShadSidebarTrigger> {
+class _SidebarTriggerState extends State<SidebarTrigger> {
   bool hovered = false;
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
-    final scope = ShadSidebarScope.of(context);
+    final theme = Theme.of(context);
+    final scope = SidebarScope.of(context);
     return Semantics(
       button: true,
       label: 'Toggle sidebar',
-      child: ShadGestureDetector(
+      child: FinesseGestureDetector(
         cursor: SystemMouseCursors.click,
         onHoverChange: (value) => setState(() => hovered = value),
         onTap: () {
@@ -883,20 +882,20 @@ class _ShadSidebarTriggerState extends State<ShadSidebarTrigger> {
 }
 
 /// The grab strip on the sidebar's inner edge, shadcn/ui's `SidebarRail`.
-class _ShadSidebarRail extends StatefulWidget {
-  const _ShadSidebarRail();
+class _SidebarRail extends StatefulWidget {
+  const _SidebarRail();
 
   @override
-  State<_ShadSidebarRail> createState() => _ShadSidebarRailState();
+  State<_SidebarRail> createState() => _SidebarRailState();
 }
 
-class _ShadSidebarRailState extends State<_ShadSidebarRail> {
+class _SidebarRailState extends State<_SidebarRail> {
   bool hovered = false;
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
-    final scope = ShadSidebarScope.of(context);
+    final theme = Theme.of(context);
+    final scope = SidebarScope.of(context);
     final borderColor =
         theme.sidebarTheme.borderColor ?? theme.colorScheme.sidebarBorder;
 
@@ -904,13 +903,13 @@ class _ShadSidebarRailState extends State<_ShadSidebarRail> {
     // reference: `[[data-side=left]_&]:cursor-w-resize` flipping to
     // `e-resize` when collapsed, and mirrored on the right side.
     final onLeft =
-        (scope.side == ShadSidebarSide.start) ==
+        (scope.side == SidebarSide.start) ==
         (Directionality.of(context) == TextDirection.ltr);
     final cursor = onLeft == scope.open
         ? SystemMouseCursors.resizeLeft
         : SystemMouseCursors.resizeRight;
 
-    return ShadGestureDetector(
+    return FinesseGestureDetector(
       cursor: cursor,
       // The whole strip toggles, not just the 2px line it highlights —
       // deferring to the child left everything but the hairline untappable.
@@ -929,13 +928,13 @@ class _ShadSidebarRailState extends State<_ShadSidebarRail> {
   }
 }
 
-/// {@template ShadSidebarGroup}
+/// {@template SidebarGroup}
 /// A titled section of sidebar content, shadcn/ui's `SidebarGroup` +
 /// `SidebarGroupLabel` + `SidebarGroupContent`.
 /// {@endtemplate}
-class ShadSidebarGroup extends StatelessWidget {
-  /// {@macro ShadSidebarGroup}
-  const ShadSidebarGroup({
+class SidebarGroup extends StatelessWidget {
+  /// {@macro SidebarGroup}
+  const SidebarGroup({
     super.key,
     this.label,
     this.action,
@@ -949,13 +948,13 @@ class ShadSidebarGroup extends StatelessWidget {
   /// `SidebarGroupAction`.
   final Widget? action;
 
-  /// The content of the group, typically a [ShadSidebarMenu].
+  /// The content of the group, typically a [SidebarMenu].
   final List<Widget> children;
 
   @override
   Widget build(BuildContext context) {
-    final sidebarTheme = ShadTheme.of(context).sidebarTheme;
-    final scope = ShadSidebarScope.of(context);
+    final sidebarTheme = Theme.of(context).sidebarTheme;
+    final scope = SidebarScope.of(context);
     final collapsed = scope.collapsed;
 
     final labelHeight = sidebarTheme.groupLabelHeight ?? 32;
@@ -1003,7 +1002,7 @@ class _GroupLabelRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     final sidebarTheme = theme.sidebarTheme;
     final labelStyle =
         sidebarTheme.groupLabelTextStyle ?? theme.textTheme.muted;
@@ -1031,16 +1030,16 @@ class _GroupLabelRow extends StatelessWidget {
 }
 
 /// A vertical list of menu rows, shadcn/ui's `SidebarMenu`.
-class ShadSidebarMenu extends StatelessWidget {
+class SidebarMenu extends StatelessWidget {
   /// Creates a menu with the given rows.
-  const ShadSidebarMenu({super.key, required this.children});
+  const SidebarMenu({super.key, required this.children});
 
-  /// The rows, typically [ShadSidebarMenuButton]s.
+  /// The rows, typically [SidebarMenuButton]s.
   final List<Widget> children;
 
   @override
   Widget build(BuildContext context) {
-    final gap = ShadTheme.of(context).sidebarTheme.menuGap ?? 4;
+    final gap = Theme.of(context).sidebarTheme.menuGap ?? 4;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -1053,7 +1052,7 @@ class ShadSidebarMenu extends StatelessWidget {
   }
 }
 
-/// {@template ShadSidebarMenuButton}
+/// {@template SidebarMenuButton}
 /// A row in a sidebar menu, shadcn/ui's `SidebarMenuButton`.
 ///
 /// Renders an icon, a label and an optional trailing widget; highlights with
@@ -1061,17 +1060,17 @@ class ShadSidebarMenu extends StatelessWidget {
 /// it shrinks to a square and, when [tooltip] is given, shows the label as a
 /// tooltip instead.
 /// {@endtemplate}
-class ShadSidebarMenuButton extends StatefulWidget {
-  /// {@macro ShadSidebarMenuButton}
-  const ShadSidebarMenuButton({
+class SidebarMenuButton extends StatefulWidget {
+  /// {@macro SidebarMenuButton}
+  const SidebarMenuButton({
     super.key,
     this.onPressed,
     this.leading,
     required this.child,
     this.trailing,
     this.isActive = false,
-    this.size = ShadSidebarMenuButtonSize.regular,
-    this.variant = ShadSidebarMenuButtonVariant.standard,
+    this.size = SidebarMenuButtonSize.regular,
+    this.variant = SidebarMenuButtonVariant.standard,
     this.tooltip,
     this.focusNode,
     this.enabled = true,
@@ -1093,11 +1092,11 @@ class ShadSidebarMenuButton extends StatefulWidget {
   final bool isActive;
 
   /// The height and text size of the row. Defaults to
-  /// [ShadSidebarMenuButtonSize.regular].
-  final ShadSidebarMenuButtonSize size;
+  /// [SidebarMenuButtonSize.regular].
+  final SidebarMenuButtonSize size;
 
-  /// The visual variant. Defaults to [ShadSidebarMenuButtonVariant.standard].
-  final ShadSidebarMenuButtonVariant variant;
+  /// The visual variant. Defaults to [SidebarMenuButtonVariant.standard].
+  final SidebarMenuButtonVariant variant;
 
   /// Shown next to the icon rail when collapsed.
   final String? tooltip;
@@ -1109,31 +1108,31 @@ class ShadSidebarMenuButton extends StatefulWidget {
   /// focus. Defaults to true.
   final bool enabled;
 
-  /// {@template ShadSidebarMenuButton.height}
+  /// {@template SidebarMenuButton.height}
   /// Height of a menu button, shadcn's `h-8`.
   /// {@endtemplate}
   @override
-  State<ShadSidebarMenuButton> createState() => _ShadSidebarMenuButtonState();
+  State<SidebarMenuButton> createState() => _SidebarMenuButtonState();
 }
 
-class _ShadSidebarMenuButtonState extends State<ShadSidebarMenuButton> {
+class _SidebarMenuButtonState extends State<SidebarMenuButton> {
   bool hovered = false;
   bool pressed = false;
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     final sidebarTheme = theme.sidebarTheme;
-    final scope = ShadSidebarScope.of(context);
+    final scope = SidebarScope.of(context);
     final collapsed = scope.collapsed;
 
     final duration = sidebarTheme.duration ?? const Duration(milliseconds: 200);
     final curve = sidebarTheme.curve ?? Curves.linear;
 
     final expandedHeight = switch (widget.size) {
-      ShadSidebarMenuButtonSize.sm => sidebarTheme.menuButtonHeightSm ?? 28,
-      ShadSidebarMenuButtonSize.regular => sidebarTheme.menuButtonHeight ?? 32,
-      ShadSidebarMenuButtonSize.lg => sidebarTheme.menuButtonHeightLg ?? 48,
+      SidebarMenuButtonSize.sm => sidebarTheme.menuButtonHeightSm ?? 28,
+      SidebarMenuButtonSize.regular => sidebarTheme.menuButtonHeight ?? 32,
+      SidebarMenuButtonSize.lg => sidebarTheme.menuButtonHeightLg ?? 48,
     };
 
     // In the icon rail every size becomes a square that fills the rail's
@@ -1154,7 +1153,7 @@ class _ShadSidebarMenuButtonState extends State<ShadSidebarMenuButton> {
               const EdgeInsets.symmetric(horizontal: 8));
 
     final textStyle = switch (widget.size) {
-      ShadSidebarMenuButtonSize.sm =>
+      SidebarMenuButtonSize.sm =>
         sidebarTheme.menuButtonTextStyleSm ??
             sidebarTheme.menuButtonTextStyle ??
             theme.textTheme.small,
@@ -1174,7 +1173,7 @@ class _ShadSidebarMenuButtonState extends State<ShadSidebarMenuButton> {
     final radius = sidebarTheme.menuButtonRadius ?? theme.radii.sm;
     final gap = sidebarTheme.menuButtonGap ?? 8;
 
-    final outline = widget.variant == ShadSidebarMenuButtonVariant.outline;
+    final outline = widget.variant == SidebarMenuButtonVariant.outline;
     final borderColor =
         sidebarTheme.borderColor ?? theme.colorScheme.sidebarBorder;
 
@@ -1241,15 +1240,15 @@ class _ShadSidebarMenuButtonState extends State<ShadSidebarMenuButton> {
       row = Center(child: row);
     }
 
-    Widget button = ShadFocusable(
+    Widget button = Focusable(
       canRequestFocus: widget.enabled,
       focusNode: widget.focusNode,
       builder: (context, focused, child) {
-        return ShadDecorator(
+        return Decorator(
           focused: focused,
-          decoration: ShadDecoration(
-            border: ShadBorder.all(radius: radius, width: 0),
-            secondaryFocusedBorder: ShadBorder.all(
+          decoration: FinesseDecoration(
+            border: FinesseBorder.all(radius: radius, width: 0),
+            secondaryFocusedBorder: FinesseBorder.all(
               radius: radius.add(BorderRadius.circular(ringWidth)),
               width: ringWidth,
               offset: ringWidth,
@@ -1259,7 +1258,7 @@ class _ShadSidebarMenuButtonState extends State<ShadSidebarMenuButton> {
           child: child,
         );
       },
-      child: ShadGestureDetector(
+      child: FinesseGestureDetector(
         cursor: widget.enabled ? SystemMouseCursors.click : MouseCursor.defer,
         onHoverChange: widget.enabled
             ? (value) => setState(() => hovered = value)
@@ -1273,7 +1272,7 @@ class _ShadSidebarMenuButtonState extends State<ShadSidebarMenuButton> {
             : null,
         onTap: widget.enabled ? widget.onPressed : null,
         // The sidebar lays its content out at the expanded width even while
-        // the rail is collapsed (see ShadSidebar), so the square form needs
+        // the rail is collapsed (see Sidebar), so the square form needs
         // an explicit width; the LayoutBuilder below supplies the expanded
         // target so both ends of the animation are finite.
         child: LayoutBuilder(
@@ -1287,7 +1286,7 @@ class _ShadSidebarMenuButtonState extends State<ShadSidebarMenuButton> {
               width: collapsed ? collapsedSize : expandedWidth,
               height: height,
               padding: padding,
-              decoration: ShadShadowDecoration.box(
+              decoration: ShadowDecoration.box(
                 color: highlighted
                     ? accent
                     : outline
@@ -1327,11 +1326,11 @@ class _ShadSidebarMenuButtonState extends State<ShadSidebarMenuButton> {
     if (widget.tooltip != null && collapsed && !scope.isMobile) {
       // The tooltip hangs off the button's inner side — away from the
       // screen edge the rail sits on — with the arrow pointing back at it.
-      final towardEnd = scope.side == ShadSidebarSide.start;
+      final towardEnd = scope.side == SidebarSide.start;
       final physicalRight =
           towardEnd == (Directionality.of(context) == TextDirection.ltr);
-      button = ShadTooltip(
-        anchor: ShadAnchor(
+      button = Tooltip(
+        anchor: Anchor(
           childAlignment: towardEnd
               ? AlignmentDirectional.centerEnd
               : AlignmentDirectional.centerStart,
@@ -1360,16 +1359,16 @@ class _ShadSidebarMenuButtonState extends State<ShadSidebarMenuButton> {
 
 /// A count or status marker at the end of a menu row, shadcn/ui's
 /// `SidebarMenuBadge`.
-class ShadSidebarMenuBadge extends StatelessWidget {
+class SidebarMenuBadge extends StatelessWidget {
   /// Creates a badge that shows [child].
-  const ShadSidebarMenuBadge({super.key, required this.child});
+  const SidebarMenuBadge({super.key, required this.child});
 
   /// The content of the badge, usually a short text.
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     final sidebarTheme = theme.sidebarTheme;
     return Container(
       height: 20,
@@ -1387,9 +1386,9 @@ class ShadSidebarMenuBadge extends StatelessWidget {
 /// A small hover-accent icon control, shadcn/ui's `SidebarMenuAction` and
 /// `SidebarGroupAction`: put it in a menu button's `trailing` or a group's
 /// `action` slot.
-class ShadSidebarMenuAction extends StatefulWidget {
+class SidebarMenuAction extends StatefulWidget {
   /// Creates an action button that shows [icon].
-  const ShadSidebarMenuAction({
+  const SidebarMenuAction({
     super.key,
     required this.icon,
     this.onPressed,
@@ -1406,15 +1405,15 @@ class ShadSidebarMenuAction extends StatefulWidget {
   final String? semanticLabel;
 
   @override
-  State<ShadSidebarMenuAction> createState() => _ShadSidebarMenuActionState();
+  State<SidebarMenuAction> createState() => _SidebarMenuActionState();
 }
 
-class _ShadSidebarMenuActionState extends State<ShadSidebarMenuAction> {
+class _SidebarMenuActionState extends State<SidebarMenuAction> {
   bool hovered = false;
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     final sidebarTheme = theme.sidebarTheme;
     final accent = sidebarTheme.accentColor ?? theme.colorScheme.sidebarAccent;
     final accentForeground =
@@ -1426,7 +1425,7 @@ class _ShadSidebarMenuActionState extends State<ShadSidebarMenuAction> {
     return Semantics(
       button: true,
       label: widget.semanticLabel,
-      child: ShadGestureDetector(
+      child: FinesseGestureDetector(
         cursor: SystemMouseCursors.click,
         onHoverChange: (value) => setState(() => hovered = value),
         onTap: widget.onPressed,
@@ -1453,18 +1452,18 @@ class _ShadSidebarMenuActionState extends State<ShadSidebarMenuAction> {
 
 /// An indented, bordered list nested under a menu row, shadcn/ui's
 /// `SidebarMenuSub`. Hidden entirely in the icon rail.
-class ShadSidebarMenuSub extends StatelessWidget {
+class SidebarMenuSub extends StatelessWidget {
   /// Creates a sub-menu with the given rows.
-  const ShadSidebarMenuSub({super.key, required this.children});
+  const SidebarMenuSub({super.key, required this.children});
 
-  /// The rows, typically [ShadSidebarMenuSubButton]s.
+  /// The rows, typically [SidebarMenuSubButton]s.
   final List<Widget> children;
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     final sidebarTheme = theme.sidebarTheme;
-    final scope = ShadSidebarScope.of(context);
+    final scope = SidebarScope.of(context);
     if (scope.collapsed) return const SizedBox.shrink();
 
     final borderColor =
@@ -1494,10 +1493,10 @@ class ShadSidebarMenuSub extends StatelessWidget {
   }
 }
 
-/// A row inside a [ShadSidebarMenuSub], shadcn/ui's `SidebarMenuSubButton`.
-class ShadSidebarMenuSubButton extends StatefulWidget {
+/// A row inside a [SidebarMenuSub], shadcn/ui's `SidebarMenuSubButton`.
+class SidebarMenuSubButton extends StatefulWidget {
   /// Creates a sub-menu row.
-  const ShadSidebarMenuSubButton({
+  const SidebarMenuSubButton({
     super.key,
     this.onPressed,
     this.leading,
@@ -1527,16 +1526,15 @@ class ShadSidebarMenuSubButton extends StatefulWidget {
   final FocusNode? focusNode;
 
   @override
-  State<ShadSidebarMenuSubButton> createState() =>
-      _ShadSidebarMenuSubButtonState();
+  State<SidebarMenuSubButton> createState() => _SidebarMenuSubButtonState();
 }
 
-class _ShadSidebarMenuSubButtonState extends State<ShadSidebarMenuSubButton> {
+class _SidebarMenuSubButtonState extends State<SidebarMenuSubButton> {
   bool hovered = false;
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     final sidebarTheme = theme.sidebarTheme;
 
     final accent = sidebarTheme.accentColor ?? theme.colorScheme.sidebarAccent;
@@ -1559,14 +1557,14 @@ class _ShadSidebarMenuSubButtonState extends State<ShadSidebarMenuSubButton> {
     return Semantics(
       button: true,
       selected: widget.isActive,
-      child: ShadFocusable(
+      child: Focusable(
         focusNode: widget.focusNode,
         builder: (context, focused, child) {
-          return ShadDecorator(
+          return Decorator(
             focused: focused,
-            decoration: ShadDecoration(
-              border: ShadBorder.all(radius: radius, width: 0),
-              secondaryFocusedBorder: ShadBorder.all(
+            decoration: FinesseDecoration(
+              border: FinesseBorder.all(radius: radius, width: 0),
+              secondaryFocusedBorder: FinesseBorder.all(
                 radius: radius.add(BorderRadius.circular(ringWidth)),
                 width: ringWidth,
                 offset: ringWidth,
@@ -1576,7 +1574,7 @@ class _ShadSidebarMenuSubButtonState extends State<ShadSidebarMenuSubButton> {
             child: child,
           );
         },
-        child: ShadGestureDetector(
+        child: FinesseGestureDetector(
           cursor: SystemMouseCursors.click,
           onHoverChange: (value) => setState(() => hovered = value),
           onTap: widget.onPressed,
@@ -1623,25 +1621,24 @@ class _ShadSidebarMenuSubButtonState extends State<ShadSidebarMenuSubButton> {
 
 /// A placeholder menu row while content loads, shadcn/ui's
 /// `SidebarMenuSkeleton`.
-class ShadSidebarMenuSkeleton extends StatefulWidget {
+class SidebarMenuSkeleton extends StatefulWidget {
   /// Creates a placeholder row.
-  const ShadSidebarMenuSkeleton({super.key, this.showIcon = false});
+  const SidebarMenuSkeleton({super.key, this.showIcon = false});
 
   /// Whether to show a square placeholder for the icon. Defaults to false.
   final bool showIcon;
 
   @override
-  State<ShadSidebarMenuSkeleton> createState() =>
-      _ShadSidebarMenuSkeletonState();
+  State<SidebarMenuSkeleton> createState() => _SidebarMenuSkeletonState();
 }
 
-class _ShadSidebarMenuSkeletonState extends State<ShadSidebarMenuSkeleton> {
+class _SidebarMenuSkeletonState extends State<SidebarMenuSkeleton> {
   // Random width between 50% and 90%, stable for this row's lifetime.
   final widthFactor = 0.5 + math.Random().nextDouble() * 0.4;
 
   @override
   Widget build(BuildContext context) {
-    final sidebarTheme = ShadTheme.of(context).sidebarTheme;
+    final sidebarTheme = Theme.of(context).sidebarTheme;
     final iconSize = sidebarTheme.iconSize ?? 16;
     final gap = sidebarTheme.menuButtonGap ?? 8;
     return Container(
@@ -1652,14 +1649,14 @@ class _ShadSidebarMenuSkeletonState extends State<ShadSidebarMenuSkeleton> {
       child: Row(
         children: [
           if (widget.showIcon) ...[
-            ShadSkeleton(width: iconSize, height: iconSize),
+            Skeleton(width: iconSize, height: iconSize),
             SizedBox(width: gap),
           ],
           Expanded(
             child: FractionallySizedBox(
               alignment: AlignmentDirectional.centerStart,
               widthFactor: widthFactor,
-              child: const ShadSkeleton(height: 16),
+              child: const Skeleton(height: 16),
             ),
           ),
         ],
@@ -1669,14 +1666,14 @@ class _ShadSidebarMenuSkeletonState extends State<ShadSidebarMenuSkeleton> {
 }
 
 /// A hairline between sidebar sections, shadcn/ui's `SidebarSeparator`.
-class ShadSidebarSeparator extends StatelessWidget {
+class SidebarDivider extends StatelessWidget {
   /// Creates a separator.
-  const ShadSidebarSeparator({super.key});
+  const SidebarDivider({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
-    return ShadSeparator.horizontal(
+    final theme = Theme.of(context);
+    return Divider.horizontal(
       margin: const EdgeInsets.symmetric(horizontal: 8),
       color: theme.sidebarTheme.borderColor ?? theme.colorScheme.sidebarBorder,
     );

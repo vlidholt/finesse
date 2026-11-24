@@ -1,17 +1,17 @@
+import 'package:finesse/src/theme/color_scheme/base.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/color_scheme/base.dart';
 
 /// The shadcn/ui `neutral` colour scheme.
 ///
 /// Generated from shadcn/ui's `registry/themes.ts`, converting each OKLCH
 /// value to sRGB.
 @immutable
-class ShadNeutralColorScheme extends ShadColorScheme {
-  /// Creates a [ShadNeutralColorScheme] from explicit colours.
+class NeutralColorScheme extends ColorScheme {
+  /// Creates a [NeutralColorScheme] from explicit colours.
   ///
-  /// Use [ShadNeutralColorScheme.light] or [ShadNeutralColorScheme.dark] for
+  /// Use [NeutralColorScheme.light] or [NeutralColorScheme.dark] for
   /// the shadcn/ui values.
-  const ShadNeutralColorScheme({
+  const NeutralColorScheme({
     required super.background,
     required super.foreground,
     required super.card,
@@ -48,10 +48,10 @@ class ShadNeutralColorScheme extends ShadColorScheme {
     super.custom,
   });
 
-  /// Creates the light variant of [ShadNeutralColorScheme].
+  /// Creates the light variant of [NeutralColorScheme].
   ///
   /// Every colour defaults to its light-mode value.
-  const ShadNeutralColorScheme.light({
+  const NeutralColorScheme.light({
     super.background = const Color(0xffffffff),
     super.foreground = const Color(0xff0a0a0a),
     super.card = const Color(0xffffffff),
@@ -88,10 +88,10 @@ class ShadNeutralColorScheme extends ShadColorScheme {
     super.custom,
   });
 
-  /// Creates the dark variant of [ShadNeutralColorScheme].
+  /// Creates the dark variant of [NeutralColorScheme].
   ///
   /// Every colour defaults to its dark-mode value.
-  const ShadNeutralColorScheme.dark({
+  const NeutralColorScheme.dark({
     super.background = const Color(0xff0a0a0a),
     super.foreground = const Color(0xfffafafa),
     super.card = const Color(0xff171717),

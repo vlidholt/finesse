@@ -1,16 +1,16 @@
+import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/components/decorator.dart';
-import 'package:shad/src/theme/theme.dart';
-import 'package:shad/src/utils/extensions/text_style.dart';
 
 /// Lays out a form field: a [label] above [child], then a [description] and an
 /// [error] below it.
 ///
 /// Styles and paddings come from [decoration] merged over
-/// `ShadThemeData.decoration`.
-class ShadInputDecorator extends StatelessWidget {
+/// `ThemeData.decoration`.
+class InputDecorator extends StatelessWidget {
   /// Creates an input decorator.
-  const ShadInputDecorator({
+  const InputDecorator({
     super.key,
     this.child,
     this.label,
@@ -32,11 +32,11 @@ class ShadInputDecorator extends StatelessWidget {
   final Widget? description;
 
   /// Overrides for the label, description and error styles and paddings.
-  final ShadDecoration? decoration;
+  final FinesseDecoration? decoration;
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     final effectiveDecoration = theme.decoration.merge(decoration);
     final hasError = effectiveDecoration.hasError ?? false;
 

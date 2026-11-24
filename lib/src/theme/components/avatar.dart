@@ -3,14 +3,14 @@ import 'package:theme_extensions_builder_annotation/theme_extensions_builder_ann
 
 part 'avatar.g.theme.dart';
 
-/// {@template ShadAvatarTheme}
-/// Theme for the `ShadAvatar` widget.
+/// {@template AvatarTheme}
+/// Theme for the `Avatar` widget.
 /// {@endtemplate}
 @themeGen
 @immutable
-class ShadAvatarTheme with _$ShadAvatarTheme {
-  /// {@macro ShadAvatarTheme}
-  const ShadAvatarTheme({
+class AvatarTheme with _$AvatarTheme {
+  /// {@macro AvatarTheme}
+  const AvatarTheme({
     bool canMerge = true,
     this.size,
     this.shape,
@@ -24,22 +24,22 @@ class ShadAvatarTheme with _$ShadAvatarTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro ShadAvatar.size}
+  /// {@macro Avatar.size}
   final Size? size;
 
-  /// {@macro ShadAvatar.shape}
+  /// {@macro Avatar.shape}
   final ShapeBorder? shape;
 
-  /// {@macro ShadAvatar.backgroundColor}
+  /// {@macro Avatar.backgroundColor}
   final Color? backgroundColor;
 
-  /// {@macro ShadAvatar.fit}
+  /// {@macro Avatar.fit}
   final BoxFit? fit;
 
   /// Linearly interpolates between [a] and [b] by [t].
-  static ShadAvatarTheme? lerp(
-    ShadAvatarTheme? a,
-    ShadAvatarTheme? b,
+  static AvatarTheme? lerp(
+    AvatarTheme? a,
+    AvatarTheme? b,
     double t,
-  ) => _$ShadAvatarTheme.lerp(a, b, t);
+  ) => _$AvatarTheme.lerp(a, b, t);
 }

@@ -9,12 +9,12 @@ part of 'collapsible.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadCollapsibleTheme {
+mixin _$CollapsibleTheme {
   bool get canMerge => true;
 
-  static ShadCollapsibleTheme? lerp(
-    ShadCollapsibleTheme? a,
-    ShadCollapsibleTheme? b,
+  static CollapsibleTheme? lerp(
+    CollapsibleTheme? a,
+    CollapsibleTheme? b,
     double t,
   ) {
     if (identical(a, b)) {
@@ -29,7 +29,7 @@ mixin _$ShadCollapsibleTheme {
       return t == 0.0 ? a : null;
     }
 
-    return ShadCollapsibleTheme(
+    return CollapsibleTheme(
       duration: lerpDuration$(a.duration, b.duration, t),
       curve: t < 0.5 ? a.curve : b.curve,
       reverseDuration: lerpDuration$(a.reverseDuration, b.reverseDuration, t),
@@ -38,16 +38,16 @@ mixin _$ShadCollapsibleTheme {
     );
   }
 
-  ShadCollapsibleTheme copyWith({
+  CollapsibleTheme copyWith({
     Duration? duration,
     Curve? curve,
     Duration? reverseDuration,
     Curve? reverseCurve,
     CrossAxisAlignment? crossAxisAlignment,
   }) {
-    final _this = (this as ShadCollapsibleTheme);
+    final _this = (this as CollapsibleTheme);
 
-    return ShadCollapsibleTheme(
+    return CollapsibleTheme(
       duration: duration ?? _this.duration,
       curve: curve ?? _this.curve,
       reverseDuration: reverseDuration ?? _this.reverseDuration,
@@ -56,8 +56,8 @@ mixin _$ShadCollapsibleTheme {
     );
   }
 
-  ShadCollapsibleTheme merge(ShadCollapsibleTheme? other) {
-    final _this = (this as ShadCollapsibleTheme);
+  CollapsibleTheme merge(CollapsibleTheme? other) {
+    final _this = (this as CollapsibleTheme);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -86,8 +86,8 @@ mixin _$ShadCollapsibleTheme {
       return false;
     }
 
-    final _this = (this as ShadCollapsibleTheme);
-    final _other = (other as ShadCollapsibleTheme);
+    final _this = (this as CollapsibleTheme);
+    final _other = (other as CollapsibleTheme);
 
     return _other.duration == _this.duration &&
         _other.curve == _this.curve &&
@@ -98,7 +98,7 @@ mixin _$ShadCollapsibleTheme {
 
   @override
   int get hashCode {
-    final _this = (this as ShadCollapsibleTheme);
+    final _this = (this as CollapsibleTheme);
 
     return Object.hash(
       runtimeType,

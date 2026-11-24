@@ -1,10 +1,10 @@
 import 'package:flutter/widgets.dart';
 
-/// Builds a widget from the focus state of a [ShadFocusable].
+/// Builds a widget from the focus state of a [Focusable].
 ///
 /// [focused] is true while the node has focus. [child] is the
-/// [ShadFocusable.child], passed through so it does not rebuild.
-typedef ShadFocusWidgetBuilder =
+/// [Focusable.child], passed through so it does not rebuild.
+typedef FocusWidgetBuilder =
     Widget Function(
       BuildContext context,
       bool focused,
@@ -12,9 +12,9 @@ typedef ShadFocusWidgetBuilder =
     );
 
 /// A [Focus] widget that rebuilds its [builder] when the focus changes.
-class ShadFocusable extends StatefulWidget {
+class Focusable extends StatefulWidget {
   /// Creates a focusable widget.
-  const ShadFocusable({
+  const Focusable({
     super.key,
     required this.builder,
     this.focusNode,
@@ -41,7 +41,7 @@ class ShadFocusable extends StatefulWidget {
   final FocusNode? focusNode;
 
   /// Builds the content with the current focus state.
-  final ShadFocusWidgetBuilder builder;
+  final FocusWidgetBuilder builder;
 
   /// A widget passed to [builder] that does not depend on the focus state.
   final Widget? child;
@@ -70,10 +70,10 @@ class ShadFocusable extends StatefulWidget {
   final String? debugLabel;
 
   @override
-  State<ShadFocusable> createState() => _ShadFocusableState();
+  State<Focusable> createState() => _FocusableState();
 }
 
-class _ShadFocusableState extends State<ShadFocusable> {
+class _FocusableState extends State<Focusable> {
   FocusNode? _internal;
 
   final isFocused = ValueNotifier(false);

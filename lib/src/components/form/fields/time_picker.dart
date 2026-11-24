@@ -1,13 +1,13 @@
+import 'package:finesse/src/components/form/field.dart';
+import 'package:finesse/src/components/time_picker.dart';
+import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/components/form/field.dart';
-import 'package:shad/src/components/time_picker.dart';
-import 'package:shad/src/theme/components/decorator.dart';
 
-/// A [ShadTimePicker] that takes part in a `ShadForm`, with a label, a
+/// A [TimePicker] that takes part in a `FinesseForm`, with a label, a
 /// description and validation.
-class ShadTimePickerFormField extends ShadFormField<ShadTimeOfDay> {
+class TimePickerFormField extends FinesseFormField<TimeOfDay> {
   /// Creates a 24-hour time picker form field.
-  ShadTimePickerFormField({
+  TimePickerFormField({
     super.id,
     super.key,
     super.onSaved,
@@ -24,108 +24,108 @@ class ShadTimePickerFormField extends ShadFormField<ShadTimeOfDay> {
     super.validator,
     super.focusNode,
 
-    /// {@macro ShadTimePicker.onChanged}
+    /// {@macro TimePicker.onChanged}
     super.onChanged,
 
-    /// {@macro ShadTimePicker.initialValue}
+    /// {@macro TimePicker.initialValue}
     super.initialValue,
 
-    /// {@macro ShadTimePicker.controller}
+    /// {@macro TimePicker.controller}
     this.controller,
 
-    /// {@macro ShadTimePicker.axis}
+    /// {@macro TimePicker.axis}
     Axis? axis,
 
-    /// {@macro ShadTimePicker.spacing}
+    /// {@macro TimePicker.spacing}
     double? spacing,
 
-    /// {@macro ShadTimePicker.runSpacing}
+    /// {@macro TimePicker.runSpacing}
     double? runSpacing,
 
-    /// {@macro ShadTimePicker.jumpToNextFieldWhenFilled}
+    /// {@macro TimePicker.jumpToNextFieldWhenFilled}
     bool? jumpToNextFieldWhenFilled,
 
-    /// {@macro ShadTimePicker.hourLabel}
+    /// {@macro TimePicker.hourLabel}
     Widget? hourLabel,
 
-    /// {@macro ShadTimePicker.minuteLabel}
+    /// {@macro TimePicker.minuteLabel}
     Widget? minuteLabel,
 
-    /// {@macro ShadTimePicker.secondLabel}
+    /// {@macro TimePicker.secondLabel}
     Widget? secondLabel,
 
-    /// {@macro ShadTimePicker.hourPlaceholder}
+    /// {@macro TimePicker.hourPlaceholder}
     Widget? hourPlaceholder,
 
-    /// {@macro ShadTimePicker.minutePlaceholder}
+    /// {@macro TimePicker.minutePlaceholder}
     Widget? minutePlaceholder,
 
-    /// {@macro ShadTimePicker.secondPlaceholder}
+    /// {@macro TimePicker.secondPlaceholder}
     Widget? secondPlaceholder,
 
-    /// {@macro ShadTimePicker.leading}
+    /// {@macro TimePicker.leading}
     Widget? leading,
 
-    /// {@macro ShadTimePicker.trailing}
+    /// {@macro TimePicker.trailing}
     Widget? trailing,
 
-    /// {@macro ShadTimePicker.alignment}
+    /// {@macro TimePicker.alignment}
     WrapAlignment? alignment,
 
-    /// {@macro ShadTimePicker.runAlignment}
+    /// {@macro TimePicker.runAlignment}
     WrapAlignment? runAlignment,
 
-    /// {@macro ShadTimePicker.crossAxisAlignment}
+    /// {@macro TimePicker.crossAxisAlignment}
     WrapCrossAlignment? crossAxisAlignment,
 
-    /// {@macro ShadTimePicker.maxHour}
+    /// {@macro TimePicker.maxHour}
     int maxHour = 23,
 
-    /// {@macro ShadTimePicker.maxMinute}
+    /// {@macro TimePicker.maxMinute}
     int maxMinute = 59,
 
-    /// {@macro ShadTimePicker.maxSecond}
+    /// {@macro TimePicker.maxSecond}
     int maxSecond = 59,
 
-    /// {@macro ShadTimePicker.minHour}
+    /// {@macro TimePicker.minHour}
     int minHour = 0,
 
-    /// {@macro ShadTimePicker.minMinute}
+    /// {@macro TimePicker.minMinute}
     int minMinute = 0,
 
-    /// {@macro ShadTimePicker.minSecond}
+    /// {@macro TimePicker.minSecond}
     int minSecond = 0,
 
-    /// {@macro ShadTimePicker.gap}
+    /// {@macro TimePicker.gap}
     double? gap,
 
-    /// {@macro ShadTimePicker.style}
+    /// {@macro TimePicker.style}
     TextStyle? style,
 
-    /// {@macro ShadTimePicker.placeholderStyle}
+    /// {@macro TimePicker.placeholderStyle}
     TextStyle? placeholderStyle,
 
-    /// {@macro ShadTimePicker.labelStyle}
+    /// {@macro TimePicker.labelStyle}
     TextStyle? labelStyle,
 
-    /// {@macro ShadTimePicker.fieldWidth}
+    /// {@macro TimePicker.fieldWidth}
     double? fieldWidth,
 
-    /// {@macro ShadTimePicker.fieldPadding}
+    /// {@macro TimePicker.fieldPadding}
     EdgeInsetsGeometry? fieldPadding,
 
-    /// {@macro ShadTimePicker.fieldDecoration}
-    ShadDecoration? fieldDecoration,
+    /// {@macro TimePicker.fieldDecoration}
+    FinesseDecoration? fieldDecoration,
 
-    /// {@macro ShadKeyboardToolbar.toolbarBuilder}
+    /// {@macro KeyboardToolbar.toolbarBuilder}
     WidgetBuilder? keyboardToolbarBuilder,
     this.showHours,
     this.showMinutes,
     this.showSeconds,
   }) : super(
          builder: (state) {
-           state as ShadTimePickerFormFieldState;
-           return ShadTimePicker(
+           state as TimePickerFormFieldState;
+           return TimePicker(
              controller: state.controller,
              onChanged: state.didChange,
              enabled: state.enabled,
@@ -167,7 +167,7 @@ class ShadTimePickerFormField extends ShadFormField<ShadTimeOfDay> {
        );
 
   /// Creates a 12-hour time picker form field with an AM/PM selector.
-  ShadTimePickerFormField.period({
+  TimePickerFormField.period({
     super.id,
     super.key,
     super.onSaved,
@@ -183,126 +183,126 @@ class ShadTimePickerFormField extends ShadFormField<ShadTimeOfDay> {
     super.restorationId,
     super.validator,
 
-    /// {@macro ShadTimePicker.onChanged}
+    /// {@macro TimePicker.onChanged}
     super.onChanged,
 
-    /// {@macro ShadTimePicker.initialValue}
+    /// {@macro TimePicker.initialValue}
     super.initialValue,
 
-    /// {@macro ShadTimePicker.controller}
+    /// {@macro TimePicker.controller}
     this.controller,
 
-    /// {@macro ShadTimePicker.axis}
+    /// {@macro TimePicker.axis}
     Axis? axis,
 
-    /// {@macro ShadTimePicker.spacing}
+    /// {@macro TimePicker.spacing}
     double? spacing,
 
-    /// {@macro ShadTimePicker.runSpacing}
+    /// {@macro TimePicker.runSpacing}
     double? runSpacing,
 
-    /// {@macro ShadTimePicker.jumpToNextFieldWhenFilled}
+    /// {@macro TimePicker.jumpToNextFieldWhenFilled}
     bool? jumpToNextFieldWhenFilled,
 
-    /// {@macro ShadTimePicker.hourLabel}
+    /// {@macro TimePicker.hourLabel}
     Widget? hourLabel,
 
-    /// {@macro ShadTimePicker.minuteLabel}
+    /// {@macro TimePicker.minuteLabel}
     Widget? minuteLabel,
 
-    /// {@macro ShadTimePicker.secondLabel}
+    /// {@macro TimePicker.secondLabel}
     Widget? secondLabel,
 
-    /// {@macro ShadTimePicker.hourPlaceholder}
+    /// {@macro TimePicker.hourPlaceholder}
     Widget? hourPlaceholder,
 
-    /// {@macro ShadTimePicker.minutePlaceholder}
+    /// {@macro TimePicker.minutePlaceholder}
     Widget? minutePlaceholder,
 
-    /// {@macro ShadTimePicker.secondPlaceholder}
+    /// {@macro TimePicker.secondPlaceholder}
     Widget? secondPlaceholder,
 
-    /// {@macro ShadTimePicker.leading}
+    /// {@macro TimePicker.leading}
     Widget? leading,
 
-    /// {@macro ShadTimePicker.trailing}
+    /// {@macro TimePicker.trailing}
     Widget? trailing,
 
-    /// {@macro ShadTimePicker.alignment}
+    /// {@macro TimePicker.alignment}
     WrapAlignment? alignment,
 
-    /// {@macro ShadTimePicker.runAlignment}
+    /// {@macro TimePicker.runAlignment}
     WrapAlignment? runAlignment,
 
-    /// {@macro ShadTimePicker.crossAxisAlignment}
+    /// {@macro TimePicker.crossAxisAlignment}
     WrapCrossAlignment? crossAxisAlignment,
 
-    /// {@macro ShadTimePicker.maxHour}
+    /// {@macro TimePicker.maxHour}
     int maxHour = 23,
 
-    /// {@macro ShadTimePicker.maxMinute}
+    /// {@macro TimePicker.maxMinute}
     int maxMinute = 59,
 
-    /// {@macro ShadTimePicker.maxSecond}
+    /// {@macro TimePicker.maxSecond}
     int maxSecond = 59,
 
-    /// {@macro ShadTimePicker.minHour}
+    /// {@macro TimePicker.minHour}
     int minHour = 0,
 
-    /// {@macro ShadTimePicker.minMinute}
+    /// {@macro TimePicker.minMinute}
     int minMinute = 0,
 
-    /// {@macro ShadTimePicker.minSecond}
+    /// {@macro TimePicker.minSecond}
     int minSecond = 0,
 
-    /// {@macro ShadTimePicker.initialDayPeriod}
-    ShadDayPeriod? initialDayPeriod,
+    /// {@macro TimePicker.initialDayPeriod}
+    DayPeriod? initialDayPeriod,
 
-    /// {@macro ShadTimePicker.periodLabel}
+    /// {@macro TimePicker.periodLabel}
     Widget? periodLabel,
 
-    /// {@macro ShadTimePicker.periodPlaceholder}
+    /// {@macro TimePicker.periodPlaceholder}
     Widget? periodPlaceholder,
 
-    /// {@macro ShadTimePicker.periodHeight}
+    /// {@macro TimePicker.periodHeight}
     double? periodHeight,
 
-    /// {@macro ShadTimePicker.periodMinWidth}
+    /// {@macro TimePicker.periodMinWidth}
     double? periodMinWidth,
 
-    /// {@macro ShadTimePicker.gap}
+    /// {@macro TimePicker.gap}
     double? gap,
 
-    /// {@macro ShadTimePicker.style}
+    /// {@macro TimePicker.style}
     TextStyle? style,
 
-    /// {@macro ShadTimePicker.placeholderStyle}
+    /// {@macro TimePicker.placeholderStyle}
     TextStyle? placeholderStyle,
 
-    /// {@macro ShadTimePicker.labelStyle}
+    /// {@macro TimePicker.labelStyle}
     TextStyle? labelStyle,
 
-    /// {@macro ShadTimePicker.fieldWidth}
+    /// {@macro TimePicker.fieldWidth}
     double? fieldWidth,
 
-    /// {@macro ShadTimePicker.fieldPadding}
+    /// {@macro TimePicker.fieldPadding}
     EdgeInsetsGeometry? fieldPadding,
 
-    /// {@macro ShadTimePicker.fieldDecoration}
-    ShadDecoration? fieldDecoration,
+    /// {@macro TimePicker.fieldDecoration}
+    FinesseDecoration? fieldDecoration,
 
-    /// {@macro ShadTimePicker.periodDecoration}
-    ShadDecoration? periodDecoration,
+    /// {@macro TimePicker.periodDecoration}
+    FinesseDecoration? periodDecoration,
 
-    /// {@macro ShadKeyboardToolbar.toolbarBuilder}
+    /// {@macro KeyboardToolbar.toolbarBuilder}
     WidgetBuilder? keyboardToolbarBuilder,
     this.showHours,
     this.showMinutes,
     this.showSeconds,
   }) : super(
          builder: (state) {
-           state as ShadTimePickerFormFieldState;
-           return ShadTimePicker.period(
+           state as TimePickerFormFieldState;
+           return TimePicker.period(
              controller: state.controller,
              onChanged: state.didChange,
              enabled: state.enabled,
@@ -350,8 +350,8 @@ class ShadTimePickerFormField extends ShadFormField<ShadTimeOfDay> {
        );
 
   /// Creates a time picker form field with an explicit [variant].
-  ShadTimePickerFormField.raw({
-    required ShadTimePickerVariant variant,
+  TimePickerFormField.raw({
+    required TimePickerVariant variant,
     super.id,
     super.key,
     super.onSaved,
@@ -367,126 +367,126 @@ class ShadTimePickerFormField extends ShadFormField<ShadTimeOfDay> {
     super.restorationId,
     super.validator,
 
-    /// {@macro ShadTimePicker.onChanged}
+    /// {@macro TimePicker.onChanged}
     super.onChanged,
 
-    /// {@macro ShadTimePicker.initialValue}
+    /// {@macro TimePicker.initialValue}
     super.initialValue,
 
-    /// {@macro ShadTimePicker.controller}
+    /// {@macro TimePicker.controller}
     this.controller,
 
-    /// {@macro ShadTimePicker.axis}
+    /// {@macro TimePicker.axis}
     Axis? axis,
 
-    /// {@macro ShadTimePicker.spacing}
+    /// {@macro TimePicker.spacing}
     double? spacing,
 
-    /// {@macro ShadTimePicker.runSpacing}
+    /// {@macro TimePicker.runSpacing}
     double? runSpacing,
 
-    /// {@macro ShadTimePicker.jumpToNextFieldWhenFilled}
+    /// {@macro TimePicker.jumpToNextFieldWhenFilled}
     bool? jumpToNextFieldWhenFilled,
 
-    /// {@macro ShadTimePicker.hourLabel}
+    /// {@macro TimePicker.hourLabel}
     Widget? hourLabel,
 
-    /// {@macro ShadTimePicker.minuteLabel}
+    /// {@macro TimePicker.minuteLabel}
     Widget? minuteLabel,
 
-    /// {@macro ShadTimePicker.secondLabel}
+    /// {@macro TimePicker.secondLabel}
     Widget? secondLabel,
 
-    /// {@macro ShadTimePicker.hourPlaceholder}
+    /// {@macro TimePicker.hourPlaceholder}
     Widget? hourPlaceholder,
 
-    /// {@macro ShadTimePicker.minutePlaceholder}
+    /// {@macro TimePicker.minutePlaceholder}
     Widget? minutePlaceholder,
 
-    /// {@macro ShadTimePicker.secondPlaceholder}
+    /// {@macro TimePicker.secondPlaceholder}
     Widget? secondPlaceholder,
 
-    /// {@macro ShadTimePicker.leading}
+    /// {@macro TimePicker.leading}
     Widget? leading,
 
-    /// {@macro ShadTimePicker.trailing}
+    /// {@macro TimePicker.trailing}
     Widget? trailing,
 
-    /// {@macro ShadTimePicker.alignment}
+    /// {@macro TimePicker.alignment}
     WrapAlignment? alignment,
 
-    /// {@macro ShadTimePicker.runAlignment}
+    /// {@macro TimePicker.runAlignment}
     WrapAlignment? runAlignment,
 
-    /// {@macro ShadTimePicker.crossAxisAlignment}
+    /// {@macro TimePicker.crossAxisAlignment}
     WrapCrossAlignment? crossAxisAlignment,
 
-    /// {@macro ShadTimePicker.maxHour}
+    /// {@macro TimePicker.maxHour}
     int maxHour = 23,
 
-    /// {@macro ShadTimePicker.maxMinute}
+    /// {@macro TimePicker.maxMinute}
     int maxMinute = 59,
 
-    /// {@macro ShadTimePicker.maxSecond}
+    /// {@macro TimePicker.maxSecond}
     int maxSecond = 59,
 
-    /// {@macro ShadTimePicker.minHour}
+    /// {@macro TimePicker.minHour}
     int minHour = 0,
 
-    /// {@macro ShadTimePicker.minMinute}
+    /// {@macro TimePicker.minMinute}
     int minMinute = 0,
 
-    /// {@macro ShadTimePicker.minSecond}
+    /// {@macro TimePicker.minSecond}
     int minSecond = 0,
 
-    /// {@macro ShadTimePicker.initialDayPeriod}
-    ShadDayPeriod? initialDayPeriod,
+    /// {@macro TimePicker.initialDayPeriod}
+    DayPeriod? initialDayPeriod,
 
-    /// {@macro ShadTimePicker.periodLabel}
+    /// {@macro TimePicker.periodLabel}
     Widget? periodLabel,
 
-    /// {@macro ShadTimePicker.periodPlaceholder}
+    /// {@macro TimePicker.periodPlaceholder}
     Widget? periodPlaceholder,
 
-    /// {@macro ShadTimePicker.periodHeight}
+    /// {@macro TimePicker.periodHeight}
     double? periodHeight,
 
-    /// {@macro ShadTimePicker.periodMinWidth}
+    /// {@macro TimePicker.periodMinWidth}
     double? periodMinWidth,
 
-    /// {@macro ShadTimePicker.gap}
+    /// {@macro TimePicker.gap}
     double? gap,
 
-    /// {@macro ShadTimePicker.style}
+    /// {@macro TimePicker.style}
     TextStyle? style,
 
-    /// {@macro ShadTimePicker.placeholderStyle}
+    /// {@macro TimePicker.placeholderStyle}
     TextStyle? placeholderStyle,
 
-    /// {@macro ShadTimePicker.labelStyle}
+    /// {@macro TimePicker.labelStyle}
     TextStyle? labelStyle,
 
-    /// {@macro ShadTimePicker.fieldWidth}
+    /// {@macro TimePicker.fieldWidth}
     double? fieldWidth,
 
-    /// {@macro ShadTimePicker.fieldPadding}
+    /// {@macro TimePicker.fieldPadding}
     EdgeInsetsGeometry? fieldPadding,
 
-    /// {@macro ShadTimePicker.fieldDecoration}
-    ShadDecoration? fieldDecoration,
+    /// {@macro TimePicker.fieldDecoration}
+    FinesseDecoration? fieldDecoration,
 
-    /// {@macro ShadTimePicker.periodDecoration}
-    ShadDecoration? periodDecoration,
+    /// {@macro TimePicker.periodDecoration}
+    FinesseDecoration? periodDecoration,
 
-    /// {@macro ShadKeyboardToolbar.toolbarBuilder}
+    /// {@macro KeyboardToolbar.toolbarBuilder}
     WidgetBuilder? keyboardToolbarBuilder,
     this.showHours,
     this.showMinutes,
     this.showSeconds,
   }) : super(
          builder: (state) {
-           state as ShadTimePickerFormFieldState;
-           return ShadTimePicker.raw(
+           state as TimePickerFormFieldState;
+           return TimePicker.raw(
              variant: variant,
              controller: state.controller,
              onChanged: state.didChange,
@@ -535,30 +535,30 @@ class ShadTimePickerFormField extends ShadFormField<ShadTimeOfDay> {
        );
 
   @override
-  ShadFormFieldState<ShadTimePickerFormField, ShadTimeOfDay> createState() =>
-      ShadTimePickerFormFieldState();
+  FinesseFormFieldState<TimePickerFormField, TimeOfDay> createState() =>
+      TimePickerFormFieldState();
 
-  /// {@macro ShadTimePicker.controller}
-  final ShadTimePickerController? controller;
+  /// {@macro TimePicker.controller}
+  final TimePickerController? controller;
 
-  /// {@macro ShadTimePicker.showHours}
+  /// {@macro TimePicker.showHours}
   final bool? showHours;
 
-  /// {@macro ShadTimePicker.showMinutes}
+  /// {@macro TimePicker.showMinutes}
   final bool? showMinutes;
 
-  /// {@macro ShadTimePicker.showSeconds}
+  /// {@macro TimePicker.showSeconds}
   final bool? showSeconds;
 }
 
-/// The state of a [ShadTimePickerFormField].
-class ShadTimePickerFormFieldState
-    extends ShadFormFieldState<ShadTimePickerFormField, ShadTimeOfDay> {
-  ShadTimePickerController? _controller;
+/// The state of a [TimePickerFormField].
+class TimePickerFormFieldState
+    extends FinesseFormFieldState<TimePickerFormField, TimeOfDay> {
+  TimePickerController? _controller;
 
-  /// The controller in use: [ShadTimePickerFormField.controller] when given,
+  /// The controller in use: [TimePickerFormField.controller] when given,
   /// otherwise an internal one created from the initial value.
-  ShadTimePickerController get controller => widget.controller ?? _controller!;
+  TimePickerController get controller => widget.controller ?? _controller!;
 
   /// Whether the seconds field shows. Defaults to true.
   bool get showSeconds => widget.showSeconds ?? true;
@@ -573,7 +573,7 @@ class ShadTimePickerFormFieldState
   void initState() {
     super.initState();
     if (widget.controller == null) {
-      _controller = ShadTimePickerController.fromTimeOfDay(widget.initialValue);
+      _controller = TimePickerController.fromTimeOfDay(widget.initialValue);
     }
     controller.setHour(showHours ? controller.hour : 0);
     controller.setMinute(showMinutes ? controller.minute : 0);
@@ -594,7 +594,7 @@ class ShadTimePickerFormFieldState
 
   @override
   void didUpdateWidget(
-    covariant ShadTimePickerFormField oldWidget,
+    covariant TimePickerFormField oldWidget,
   ) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.showHours != widget.showHours) {
@@ -615,9 +615,9 @@ class ShadTimePickerFormFieldState
   }
 }
 
-/// The old name of [ShadTimePickerFormFieldState].
+/// The old name of [TimePickerFormFieldState].
 @Deprecated(
-  'Use ShadTimePickerFormFieldState. '
+  'Use TimePickerFormFieldState. '
   'Will be removed in the next major version.',
 )
-typedef ShadFormBuilderTimePickerState = ShadTimePickerFormFieldState;
+typedef FormBuilderTimePickerState = TimePickerFormFieldState;

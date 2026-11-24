@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class AlertDefaultExample extends StatelessWidget {
   const AlertDefaultExample({super.key});
@@ -13,18 +13,18 @@ class AlertDefaultExample extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 16,
         children: [
-          ShadAlert(
+          Alert(
             icon: Icon(LucideIcons.circleCheck),
             title: Text('Success! Your changes have been saved'),
             description: Text(
               'This is an alert with icon, title and description.',
             ),
           ),
-          ShadAlert(
+          Alert(
             icon: Icon(LucideIcons.popcorn),
             title: Text('This Alert has a title and an icon. No description.'),
           ),
-          ShadAlert.destructive(
+          Alert.destructive(
             icon: Icon(LucideIcons.circleAlert),
             title: Text('Unable to process your payment.'),
             description: Column(

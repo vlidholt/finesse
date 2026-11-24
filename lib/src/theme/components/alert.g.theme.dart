@@ -9,10 +9,10 @@ part of 'alert.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadAlertTheme {
+mixin _$AlertTheme {
   bool get canMerge => true;
 
-  static ShadAlertTheme? lerp(ShadAlertTheme? a, ShadAlertTheme? b, double t) {
+  static AlertTheme? lerp(AlertTheme? a, AlertTheme? b, double t) {
     if (identical(a, b)) {
       return a;
     }
@@ -25,8 +25,8 @@ mixin _$ShadAlertTheme {
       return t == 0.0 ? a : null;
     }
 
-    return ShadAlertTheme(
-      decoration: ShadDecoration.lerp(a.decoration, b.decoration, t),
+    return AlertTheme(
+      decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
       iconPadding: EdgeInsetsGeometry.lerp(a.iconPadding, b.iconPadding, t),
       iconColor: Color.lerp(a.iconColor, b.iconColor, t),
       titleStyle: TextStyle.lerp(a.titleStyle, b.titleStyle, t),
@@ -42,8 +42,8 @@ mixin _$ShadAlertTheme {
     );
   }
 
-  ShadAlertTheme copyWith({
-    ShadDecoration? decoration,
+  AlertTheme copyWith({
+    FinesseDecoration? decoration,
     EdgeInsetsGeometry? iconPadding,
     Color? iconColor,
     TextStyle? titleStyle,
@@ -53,9 +53,9 @@ mixin _$ShadAlertTheme {
     double? iconSize,
     double? gap,
   }) {
-    final _this = (this as ShadAlertTheme);
+    final _this = (this as AlertTheme);
 
-    return ShadAlertTheme(
+    return AlertTheme(
       decoration: decoration ?? _this.decoration,
       iconPadding: iconPadding ?? _this.iconPadding,
       iconColor: iconColor ?? _this.iconColor,
@@ -68,8 +68,8 @@ mixin _$ShadAlertTheme {
     );
   }
 
-  ShadAlertTheme merge(ShadAlertTheme? other) {
-    final _this = (this as ShadAlertTheme);
+  AlertTheme merge(AlertTheme? other) {
+    final _this = (this as AlertTheme);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -104,8 +104,8 @@ mixin _$ShadAlertTheme {
       return false;
     }
 
-    final _this = (this as ShadAlertTheme);
-    final _other = (other as ShadAlertTheme);
+    final _this = (this as AlertTheme);
+    final _other = (other as AlertTheme);
 
     return _other.decoration == _this.decoration &&
         _other.iconPadding == _this.iconPadding &&
@@ -120,7 +120,7 @@ mixin _$ShadAlertTheme {
 
   @override
   int get hashCode {
-    final _this = (this as ShadAlertTheme);
+    final _this = (this as AlertTheme);
 
     return Object.hash(
       runtimeType,

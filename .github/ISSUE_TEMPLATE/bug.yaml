@@ -1,6 +1,6 @@
 name: Report a bug
 description: |
-  You found a bug in shad causing your application to crash or throw an
+  You found a bug in finesse causing your application to crash or throw an
   exception, a widget is buggy, or something looks wrong.
 labels:
   - bug
@@ -9,18 +9,18 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thank you for using shad!
+        Thank you for using finesse!
 
         If you are looking for support, please check out the documentation
         or ask a question on the Serverpod Discord:
 
-          - https://serverpod.github.io/shad/
+          - https://serverpod.github.io/finesse/
           - https://serverpod.dev/discord
   - type: markdown
     attributes:
       value: |
         Before filling the form fields, please consider the following:
-        - Ensure that you have searched the [existing issues](https://github.com/serverpod/shad/issues)
+        - Ensure that you have searched the [existing issues](https://github.com/serverpod/finesse/issues)
   - type: textarea
     attributes:
       label: Steps to reproduce
@@ -45,8 +45,8 @@ body:
       required: true
   - type: input
     attributes:
-      label: shad version
-      description: Please tell us which version of shad you are using.
+      label: finesse version
+      description: Please tell us which version of finesse you are using.
       placeholder: ex. 0.7.3
     validations:
       required: true

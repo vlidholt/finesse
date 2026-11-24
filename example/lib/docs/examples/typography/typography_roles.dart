@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class TypographyRolesExample extends StatelessWidget {
   const TypographyRolesExample({super.key});
@@ -42,26 +42,25 @@ class TypographyRolesExample extends StatelessWidget {
   static const _proseLabelWidth = 104.0;
   static const _componentLabelWidth = 300.0;
 
-  static TextStyle _textThemeStyle(ShadTextTheme text, String key) =>
-      switch (key) {
-        'h1Large' => text.h1Large,
-        'h1' => text.h1,
-        'h2' => text.h2,
-        'h3' => text.h3,
-        'h4' => text.h4,
-        'p' => text.p,
-        'blockquote' => text.blockquote,
-        'table' => text.table,
-        'list' => text.list,
-        'lead' => text.lead,
-        'large' => text.large,
-        'small' => text.small,
-        'muted' => text.muted,
-        _ => text.p,
-      };
+  static TextStyle _textThemeStyle(TextTheme text, String key) => switch (key) {
+    'h1Large' => text.h1Large,
+    'h1' => text.h1,
+    'h2' => text.h2,
+    'h3' => text.h3,
+    'h4' => text.h4,
+    'p' => text.p,
+    'blockquote' => text.blockquote,
+    'table' => text.table,
+    'list' => text.list,
+    'lead' => text.lead,
+    'large' => text.large,
+    'small' => text.small,
+    'muted' => text.muted,
+    _ => text.p,
+  };
 
   static List<(String label, TextStyle style)> _componentThemeStyles(
-    ShadThemeData theme,
+    ThemeData theme,
   ) {
     final entries = <(String, TextStyle?)>[
       ('button.primary.textStyle', theme.primaryButtonTheme.textStyle),
@@ -88,12 +87,12 @@ class TypographyRolesExample extends StatelessWidget {
         theme.decoration.descriptionStyle,
       ),
       ('decorator.errorLabelStyle', theme.decoration.errorLabelStyle),
-      ('option.textStyle', theme.optionTheme.textStyle),
-      ('option.selectedTextStyle', theme.optionTheme.selectedTextStyle),
+      ('option.textStyle', theme.selectOptionTheme.textStyle),
+      ('option.selectedTextStyle', theme.selectOptionTheme.selectedTextStyle),
       ('card.titleStyle', theme.cardTheme.titleStyle),
       ('card.descriptionStyle', theme.cardTheme.descriptionStyle),
-      ('input.style', theme.inputTheme.style),
-      ('input.placeholderStyle', theme.inputTheme.placeholderStyle),
+      ('input.style', theme.textFieldTheme.style),
+      ('input.placeholderStyle', theme.textFieldTheme.placeholderStyle),
       ('textarea.style', theme.textareaTheme.style),
       ('textarea.placeholderStyle', theme.textareaTheme.placeholderStyle),
       ('toast.primary.titleStyle', theme.primaryToastTheme.titleStyle),
@@ -170,7 +169,7 @@ class TypographyRolesExample extends StatelessWidget {
       ('timePicker.style', theme.timePickerTheme.style),
       ('timePicker.placeholderStyle', theme.timePickerTheme.placeholderStyle),
       ('timePicker.labelStyle', theme.timePickerTheme.labelStyle),
-      ('inputOTP.style', theme.inputOTPTheme.style),
+      ('inputOTP.style', theme.otpFieldTheme.style),
       ('kbd.textStyle', theme.kbdTheme.textStyle),
       ('toggle.textStyle', theme.toggleTheme.textStyle),
       ('toggle.outline.textStyle', theme.outlineToggleTheme.textStyle),
@@ -211,11 +210,11 @@ class TypographyRolesExample extends StatelessWidget {
     return (lighter + 0.05) / (darker + 0.05);
   }
 
-  static Color _effectiveColor(TextStyle style, ShadColorScheme scheme) {
+  static Color _effectiveColor(TextStyle style, ColorScheme scheme) {
     return style.color ?? scheme.foreground;
   }
 
-  static Color? _inferredSurface(String label, ShadColorScheme scheme) {
+  static Color? _inferredSurface(String label, ColorScheme scheme) {
     return switch (label) {
       'button.primary.textStyle' ||
       'badge.primary.textStyle' ||
@@ -253,7 +252,7 @@ class TypographyRolesExample extends StatelessWidget {
     };
   }
 
-  static Color _fallbackSurface(Color textColor, ShadColorScheme scheme) {
+  static Color _fallbackSurface(Color textColor, ColorScheme scheme) {
     return textColor.computeLuminance() > 0.5
         ? scheme.foreground
         : scheme.muted;
@@ -262,7 +261,7 @@ class TypographyRolesExample extends StatelessWidget {
   static Color? _backgroundForSample(
     String label,
     TextStyle style,
-    ShadColorScheme scheme,
+    ColorScheme scheme,
   ) {
     final textColor = _effectiveColor(style, scheme);
 
@@ -288,7 +287,7 @@ class TypographyRolesExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     final text = theme.textTheme;
     final scheme = theme.colorScheme;
 
@@ -377,7 +376,7 @@ class TypographyRolesExample extends StatelessWidget {
                   sampleText,
                   labelWidth: proseLabelWidth,
                 ),
-              const ShadSeparator.horizontal(
+              const Divider.horizontal(
                 margin: EdgeInsets.symmetric(vertical: 8),
               ),
               for (final (label, style) in componentStyles)

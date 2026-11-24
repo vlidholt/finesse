@@ -1,37 +1,37 @@
+import 'package:finesse/material.dart';
+import 'package:finesse/src/app.dart';
+import 'package:finesse/src/components/accordion.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/material.dart';
-import 'package:shad/src/app.dart';
-import 'package:shad/src/components/accordion.dart';
 
 void main() {
   /// Wraps a widget with necessary providers and material app structure for
   /// testing.
   Widget createTestWidget(Widget child) {
-    return ShadApp(
-      builder: (context, child) => ShadMaterial(child: child!),
+    return FinesseApp(
+      builder: (context, child) => FinesseMaterial(child: child!),
       home: Scaffold(
         body: child,
       ),
     );
   }
 
-  group('ShadAccordion', () {
+  group('Accordion', () {
     testWidgets('renders single variant correctly', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          ShadAccordion<String>(
+          Accordion<String>(
             initialValue: 'item1',
             children: const [
-              ShadAccordionItem(
+              AccordionItem(
                 value: 'item1',
                 title: Text('Item 1'),
                 child: Text('Content 1'),
               ),
-              ShadAccordionItem(
+              AccordionItem(
                 value: 'item2',
                 title: Text('Item 2'),
                 child: Text('Content 2'),
@@ -63,15 +63,15 @@ void main() {
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          ShadAccordion.multiple(
+          Accordion.multiple(
             initialValue: const ['item1'],
             children: const [
-              ShadAccordionItem(
+              AccordionItem(
                 value: 'item1',
                 title: Text('Item 1'),
                 child: Text('Content 1'),
               ),
-              ShadAccordionItem(
+              AccordionItem(
                 value: 'item2',
                 title: Text('Item 2'),
                 child: Text('Content 2'),
@@ -107,9 +107,9 @@ void main() {
 
       await tester.pumpWidget(
         createTestWidget(
-          ShadAccordion<String>(
+          Accordion<String>(
             children: const [
-              ShadAccordionItem(
+              AccordionItem(
                 value: 'item1',
                 title: Text('Item 1'),
                 padding: customPadding,
@@ -123,8 +123,8 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // Find the ShadAccordionItem
-      final itemFinder = find.byType(ShadAccordionItem<String>);
+      // Find the AccordionItem
+      final itemFinder = find.byType(AccordionItem<String>);
       expect(itemFinder, findsOneWidget);
 
       // Check padding - look for the Padding widget that wraps the Row
@@ -170,9 +170,9 @@ void main() {
     testWidgets('handles hover effect correctly', (WidgetTester tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          ShadAccordion<String>(
+          Accordion<String>(
             children: const [
-              ShadAccordionItem(
+              AccordionItem(
                 value: 'item1',
                 title: Text('Item 1'),
                 underlineTitleOnHover: true,
@@ -184,8 +184,8 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // Find the ShadAccordionItem
-      final itemFinder = find.byType(ShadAccordionItem<String>);
+      // Find the AccordionItem
+      final itemFinder = find.byType(AccordionItem<String>);
       expect(itemFinder, findsOneWidget);
 
       // Initial state - no underline
@@ -236,12 +236,12 @@ void main() {
       );
     });
 
-    testWidgets('ShadAccordion matches goldens', (tester) async {
+    testWidgets('Accordion matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          ShadAccordion<String>(
+          Accordion<String>(
             children: List.generate(2, (index) {
-              return ShadAccordionItem(
+              return AccordionItem(
                 value: 'item$index',
                 title: Text('Item $index'),
                 child: Text('Content $index'),
@@ -252,7 +252,7 @@ void main() {
       );
 
       await expectLater(
-        find.byType(ShadAccordion<String>),
+        find.byType(Accordion<String>),
         matchesGoldenFile('goldens/accordion.png'),
       );
     });

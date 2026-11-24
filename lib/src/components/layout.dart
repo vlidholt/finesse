@@ -1,36 +1,36 @@
+import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/theme.dart';
 
 /// Empty space between two children of a [Row], [Column] or [Flex], measured
 /// in steps on the theme's spacing scale.
 ///
 /// shadcn/ui expresses the space between elements as `gap-2`, `space-y-4` and
-/// so on — a multiple of one variable rather than a pixel count. [ShadGap] is
+/// so on — a multiple of one variable rather than a pixel count. [Gap] is
 /// the same idea: it sizes itself along whichever axis the enclosing flex runs,
 /// so the same widget works in a row and a column, and the whole layout
-/// rescales with `ShadThemeData.spacing`.
+/// rescales with `ThemeData.spacing`.
 ///
 /// ```dart
 /// Column(
 ///   children: [
 ///     const Text('Title'),
-///     const ShadGap(2), // 8px with the default 4px step
+///     const Gap(2), // 8px with the default 4px step
 ///     const Text('Body'),
 ///   ],
 /// )
 /// ```
 ///
 /// Outside a flex it lays out as a square of the same size.
-class ShadGap extends LeafRenderObjectWidget {
+class Gap extends LeafRenderObjectWidget {
   /// Creates a gap of [steps] steps on the spacing scale.
-  const ShadGap(this.steps, {super.key, this.crossAxisSteps}) : _raw = false;
+  const Gap(this.steps, {super.key, this.crossAxisSteps}) : _raw = false;
 
   /// Creates a gap of an explicit number of logical pixels, bypassing the
   /// scale.
   ///
   /// Useful when a design calls for a value that is deliberately off-scale.
-  const ShadGap.raw(double pixels, {super.key, double? crossAxisExtent})
+  const Gap.raw(double pixels, {super.key, double? crossAxisExtent})
     : steps = pixels,
       crossAxisSteps = crossAxisExtent,
       _raw = true;
@@ -46,7 +46,7 @@ class ShadGap extends LeafRenderObjectWidget {
   final bool _raw;
 
   double _resolve(BuildContext context, double value) =>
-      _raw ? value : ShadTheme.of(context).spacing(value);
+      _raw ? value : Theme.of(context).spacing(value);
 
   @override
   RenderObject createRenderObject(BuildContext context) {
@@ -136,11 +136,11 @@ class _RenderGap extends RenderBox {
 
 /// [Padding] measured in steps on the theme's spacing scale.
 ///
-/// The named constructors mirror [EdgeInsets], so `ShadPadding.symmetric(
+/// The named constructors mirror [EdgeInsets], so `FinessePadding.symmetric(
 /// horizontal: 6, vertical: 4)` is shadcn's `px-6 py-4`.
-class ShadPadding extends StatelessWidget {
+class FinessePadding extends StatelessWidget {
   /// The same number of steps on every side.
-  const ShadPadding.all(double steps, {super.key, required this.child})
+  const FinessePadding.all(double steps, {super.key, required this.child})
     : _left = steps,
       _top = steps,
       _right = steps,
@@ -149,7 +149,7 @@ class ShadPadding extends StatelessWidget {
       _end = null;
 
   /// Steps on the horizontal and vertical axes.
-  const ShadPadding.symmetric({
+  const FinessePadding.symmetric({
     super.key,
     required this.child,
     double horizontal = 0,
@@ -162,7 +162,7 @@ class ShadPadding extends StatelessWidget {
        _end = null;
 
   /// Steps on individually chosen sides.
-  const ShadPadding.only({
+  const FinessePadding.only({
     super.key,
     required this.child,
     double left = 0,
@@ -178,7 +178,7 @@ class ShadPadding extends StatelessWidget {
 
   /// Steps on direction-relative sides, resolved against the ambient
   /// [Directionality].
-  const ShadPadding.directional({
+  const FinessePadding.directional({
     super.key,
     required this.child,
     double start = 0,
@@ -204,7 +204,7 @@ class ShadPadding extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final spacing = ShadTheme.of(context).spacing;
+    final spacing = Theme.of(context).spacing;
     final padding = _start != null
         ? spacing.directional(
             start: _start,
@@ -226,9 +226,9 @@ class ShadPadding extends StatelessWidget {
 /// scale.
 ///
 /// Equivalent to shadcn's `flex flex-col gap-N`.
-class ShadColumn extends StatelessWidget {
+class FinesseColumn extends StatelessWidget {
   /// Creates a column with [spacing] steps between its [children].
-  const ShadColumn({
+  const FinesseColumn({
     super.key,
     this.spacing = 0,
     this.mainAxisAlignment = MainAxisAlignment.start,
@@ -272,7 +272,7 @@ class ShadColumn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      spacing: ShadTheme.of(context).spacing(spacing),
+      spacing: Theme.of(context).spacing(spacing),
       mainAxisAlignment: mainAxisAlignment,
       mainAxisSize: mainAxisSize,
       crossAxisAlignment: crossAxisAlignment,
@@ -287,9 +287,9 @@ class ShadColumn extends StatelessWidget {
 /// A [Row] whose `spacing` is expressed in steps on the theme's spacing scale.
 ///
 /// Equivalent to shadcn's `flex items-center gap-N`.
-class ShadRow extends StatelessWidget {
+class FinesseRow extends StatelessWidget {
   /// Creates a row with [spacing] steps between its [children].
-  const ShadRow({
+  const FinesseRow({
     super.key,
     this.spacing = 0,
     this.mainAxisAlignment = MainAxisAlignment.start,
@@ -333,7 +333,7 @@ class ShadRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      spacing: ShadTheme.of(context).spacing(spacing),
+      spacing: Theme.of(context).spacing(spacing),
       mainAxisAlignment: mainAxisAlignment,
       mainAxisSize: mainAxisSize,
       crossAxisAlignment: crossAxisAlignment,

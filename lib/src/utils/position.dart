@@ -6,10 +6,10 @@ import 'package:flutter/widgets.dart';
 ///
 /// Used to place toasts, sheets and dialogs. A null side is not constrained.
 @immutable
-class ShadPosition {
+class Position {
   /// Creates a position from distances to the top, left, right and bottom
   /// edges.
-  const ShadPosition({
+  const Position({
     this.top,
     this.left,
     this.right,
@@ -19,7 +19,7 @@ class ShadPosition {
   /// Creates a position from distances to the start and end edges.
   ///
   /// [textDirection] decides whether start is the left or the right edge.
-  factory ShadPosition.directional({
+  factory Position.directional({
     double? top,
     double? bottom,
     double? start,
@@ -30,7 +30,7 @@ class ShadPosition {
       TextDirection.rtl => (end, start),
       TextDirection.ltr => (start, end),
     };
-    return ShadPosition(
+    return Position(
       top: top,
       bottom: bottom,
       left: left,
@@ -51,13 +51,13 @@ class ShadPosition {
   final double? bottom;
 
   /// Returns a copy with the given fields replaced.
-  ShadPosition copyWith({
+  Position copyWith({
     double? top,
     double? left,
     double? right,
     double? bottom,
   }) {
-    return ShadPosition(
+    return Position(
       top: top ?? this.top,
       left: left ?? this.left,
       right: right ?? this.right,
@@ -69,9 +69,9 @@ class ShadPosition {
   ///
   /// It does not interpolate the distances, so a theme animation jumps to the
   /// new position.
-  static ShadPosition? lerp(
-    ShadPosition? a,
-    ShadPosition? b,
+  static Position? lerp(
+    Position? a,
+    Position? b,
     double t,
   ) {
     if (identical(a, b)) return a;
@@ -80,7 +80,7 @@ class ShadPosition {
     double? side(double? from, double? to) => from != null && to != null
         ? lerpDouble(from, to, t)
         : (t < .5 ? from : to);
-    return ShadPosition(
+    return Position(
       top: side(a?.top, b?.top),
       left: side(a?.left, b?.left),
       right: side(a?.right, b?.right),
@@ -92,7 +92,7 @@ class ShadPosition {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
-    return other is ShadPosition &&
+    return other is Position &&
         other.top == top &&
         other.left == left &&
         other.right == right &&
@@ -101,7 +101,7 @@ class ShadPosition {
 
   @override
   String toString() {
-    return 'ShadPosition(top: $top, left: $left, '
+    return 'Position(top: $top, left: $left, '
         'right: $right, bottom: $bottom)';
   }
 
@@ -112,7 +112,7 @@ class ShadPosition {
 /// Wraps a widget in a [Positioned] widget.
 extension PositionedExt on Widget {
   /// Wraps this widget in a [Positioned] with the distances of [position].
-  Widget positionedWith(ShadPosition position) {
+  Widget positionedWith(Position position) {
     return Positioned(
       top: position.top,
       left: position.left,

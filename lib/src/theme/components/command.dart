@@ -1,17 +1,17 @@
+import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/components/decorator.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
 part 'command.g.theme.dart';
 
-/// {@template ShadCommandTheme}
-/// Theme for the `ShadCommand` widget.
+/// {@template CommandTheme}
+/// Theme for the `Command` widget.
 /// {@endtemplate}
 @themeGen
 @immutable
-class ShadCommandTheme with _$ShadCommandTheme {
-  /// {@macro ShadCommandTheme}
-  const ShadCommandTheme({
+class CommandTheme with _$CommandTheme {
+  /// {@macro CommandTheme}
+  const CommandTheme({
     bool canMerge = true,
     this.backgroundColor,
     this.decoration,
@@ -49,13 +49,13 @@ class ShadCommandTheme with _$ShadCommandTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro ShadCommand.backgroundColor}
+  /// {@macro Command.backgroundColor}
   final Color? backgroundColor;
 
-  /// {@macro ShadCommand.decoration}
-  final ShadDecoration? decoration;
+  /// {@macro Command.decoration}
+  final FinesseDecoration? decoration;
 
-  /// {@macro ShadCommand.padding}
+  /// {@macro Command.padding}
   final EdgeInsetsGeometry? padding;
 
   /// The padding around the search field.
@@ -64,16 +64,16 @@ class ShadCommandTheme with _$ShadCommandTheme {
   /// The padding around the scrollable option list.
   final EdgeInsetsGeometry? optionsPadding;
 
-  /// The style of a `ShadCommandGroup` heading.
+  /// The style of a `CommandGroup` heading.
   final TextStyle? groupHeadingStyle;
 
-  /// The padding around a `ShadCommandGroup` heading.
+  /// The padding around a `CommandGroup` heading.
   final EdgeInsetsGeometry? groupHeadingPadding;
 
-  /// The padding inside a `ShadCommandItem`.
+  /// The padding inside a `CommandItem`.
   final EdgeInsetsGeometry? itemPadding;
 
-  /// The text style of a `ShadCommandItem`.
+  /// The text style of a `CommandItem`.
   final TextStyle? itemTextStyle;
 
   /// The background color of the highlighted item.
@@ -91,10 +91,10 @@ class ShadCommandTheme with _$ShadCommandTheme {
   /// The gap between an item's leading widget, label and trailing widget.
   final double? itemGap;
 
-  /// {@macro ShadCommand.height}
+  /// {@macro Command.height}
   final double? height;
 
-  /// {@macro ShadCommand.width}
+  /// {@macro Command.width}
   final double? width;
 
   /// The padding around the empty state.
@@ -106,7 +106,7 @@ class ShadCommandTheme with _$ShadCommandTheme {
   /// The decoration of the box around the search field — shadcn's
   /// `.cn-command-input-group`: an `--input` wash inside a soft outline,
   /// with no focus ring.
-  final ShadDecoration? searchDecoration;
+  final FinesseDecoration? searchDecoration;
 
   /// The height of the search box, `.cn-command-input-group`'s `h-8!`.
   final double? searchHeight;
@@ -141,9 +141,9 @@ class ShadCommandTheme with _$ShadCommandTheme {
   final double? itemIconSize;
 
   /// Linearly interpolates between [a] and [b] by [t].
-  static ShadCommandTheme? lerp(
-    ShadCommandTheme? a,
-    ShadCommandTheme? b,
+  static CommandTheme? lerp(
+    CommandTheme? a,
+    CommandTheme? b,
     double t,
-  ) => _$ShadCommandTheme.lerp(a, b, t);
+  ) => _$CommandTheme.lerp(a, b, t);
 }

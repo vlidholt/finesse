@@ -1,34 +1,34 @@
 import 'dart:ui';
 
+import 'package:finesse/src/raw_components/portal.dart';
+import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:shad/src/raw_components/portal.dart';
-import 'package:shad/src/theme/components/decorator.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
 part 'select.g.theme.dart';
 
 /// The minimum width of a select's trigger and options when none is set.
 @Deprecated(
-  'Use ShadSelect.defaultMinWidth. Will be removed in the next major version.',
+  'Use Select.defaultMinWidth. Will be removed in the next major version.',
 )
 const kDefaultSelectMinWidth = 128.0;
 
 /// The maximum height of a select's options when none is set.
 @Deprecated(
-  'Use ShadSelect.defaultMaxHeight. Will be removed in the next major version.',
+  'Use Select.defaultMaxHeight. Will be removed in the next major version.',
 )
 const kDefaultSelectMaxHeight = 384.0;
 
-/// {@template ShadSelectTheme}
-/// Theme for the `ShadSelect` widget.
+/// {@template SelectTheme}
+/// Theme for the `Select` widget.
 /// {@endtemplate}
 @themeGen
 @immutable
-class ShadSelectTheme with _$ShadSelectTheme {
-  /// {@macro ShadSelectTheme}
-  const ShadSelectTheme({
+class SelectTheme with _$SelectTheme {
+  /// {@macro SelectTheme}
+  const SelectTheme({
     bool canMerge = true,
     this.decoration,
     this.placeholderStyle,
@@ -56,77 +56,77 @@ class ShadSelectTheme with _$ShadSelectTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro ShadPopover.reverseDuration}
+  /// {@macro Popover.reverseDuration}
   final Duration? popoverReverseDuration;
 
-  /// {@macro ShadSelect.decoration}
-  final ShadDecoration? decoration;
+  /// {@macro Select.decoration}
+  final FinesseDecoration? decoration;
 
-  /// {@macro ShadSelect.placeholderStyle}
+  /// {@macro Select.placeholderStyle}
   final TextStyle? placeholderStyle;
 
-  /// {@macro ShadSelect.minWidth}
+  /// {@macro Select.minWidth}
   final double? minWidth;
 
-  /// {@macro ShadSelect.maxWidth}
+  /// {@macro Select.maxWidth}
   final double? maxWidth;
 
-  /// {@macro ShadSelect.maxHeight}
+  /// {@macro Select.maxHeight}
   final double? maxHeight;
 
-  /// {@macro ShadSelect.minHeight}
+  /// {@macro Select.minHeight}
   final double? minHeight;
 
-  /// {@macro ShadSelect.padding}
+  /// {@macro Select.padding}
   final EdgeInsetsGeometry? padding;
 
-  /// {@macro ShadSelect.optionsPadding}
+  /// {@macro Select.optionsPadding}
   final EdgeInsetsGeometry? optionsPadding;
 
-  /// {@macro ShadSelect.showScrollToTopChevron}
+  /// {@macro Select.showScrollToTopChevron}
   final bool? showScrollToTopChevron;
 
-  /// {@macro ShadSelect.showScrollToBottomChevron}
+  /// {@macro Select.showScrollToBottomChevron}
   final bool? showScrollToBottomChevron;
 
-  /// {@macro ShadSelect.anchor}
-  final ShadAnchorBase? anchor;
+  /// {@macro Select.anchor}
+  final AnchorBase? anchor;
 
-  /// {@macro ShadSelect.searchPadding}
+  /// {@macro Select.searchPadding}
   final EdgeInsetsGeometry? searchPadding;
 
-  /// {@macro ShadSelect.clearSearchOnClose}
+  /// {@macro Select.clearSearchOnClose}
   final bool? clearSearchOnClose;
 
-  /// {@macro ShadPopover.filter}
+  /// {@macro Popover.filter}
   final ImageFilter? filter;
 
   /// The decoration of the options popover, as opposed to [decoration] which
   /// styles the trigger. Menus can carry their own palette (see
-  /// `ShadThemeData.menuColorScheme`), so the options surface cannot simply
-  /// fall back to the page's `ShadPopoverTheme`.
-  final ShadDecoration? popoverDecoration;
+  /// `ThemeData.menuColorScheme`), so the options surface cannot simply
+  /// fall back to the page's `PopoverTheme`.
+  final FinesseDecoration? popoverDecoration;
 
-  /// {@macro ShadPopover.effects}
+  /// {@macro Popover.effects}
   final List<Effect<dynamic>>? effects;
 
-  /// {@macro ShadPopover.shadows}
+  /// {@macro Popover.shadows}
   final List<BoxShadow>? shadows;
 
   /// Linearly interpolates between [a] and [b] by [t].
-  static ShadSelectTheme? lerp(
-    ShadSelectTheme? a,
-    ShadSelectTheme? b,
+  static SelectTheme? lerp(
+    SelectTheme? a,
+    SelectTheme? b,
     double t,
-  ) => _$ShadSelectTheme.lerp(a, b, t);
+  ) => _$SelectTheme.lerp(a, b, t);
 
   // The generated `==` compares lists by identity, so a theme built with a
-  // non-const list would never equal its own rebuild, and ShadAnimatedTheme
+  // non-const list would never equal its own rebuild, and AnimatedTheme
   // would re-lerp on every frame. Compare the lists by value, then let the
   // generated `==` compare everything else against a copy that shares them.
   @override
   bool operator ==(Object other) =>
-      other is ShadSelectTheme &&
+      other is SelectTheme &&
       listEquals(effects, other.effects) &&
       listEquals(shadows, other.shadows) &&
       super == other.copyWith(effects: effects, shadows: shadows);

@@ -1,67 +1,66 @@
 import 'dart:math' as math;
 
+import 'package:finesse/src/raw_components/focusable.dart';
+import 'package:finesse/src/theme/components/slider.dart';
+import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/gesture_detector.dart';
+import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/raw_components/focusable.dart';
 
-import 'package:shad/src/theme/components/slider.dart';
-import 'package:shad/src/theme/theme.dart';
-import 'package:shad/src/utils/gesture_detector.dart';
-import 'package:shad/src/utils/shadow.dart';
-
-/// Possible ways for a user to interact with a [ShadSlider].
-enum ShadSliderInteraction {
-  /// Allows the user to interact with a [ShadSlider] by tapping or sliding
+/// Possible ways for a user to interact with a [Slider].
+enum SliderInteraction {
+  /// Allows the user to interact with a [Slider] by tapping or sliding
   /// anywhere on the track.
   ///
   /// Essentially all possible interactions are allowed.
   ///
-  /// This is different from [ShadSliderInteraction.slideOnly] as when you try
+  /// This is different from [SliderInteraction.slideOnly] as when you try
   /// to slide anywhere other than the thumb, the thumb will move to the first
   /// point of contact.
   tapAndSlide,
 
-  /// Allows the user to interact with a [ShadSlider] by only tapping anywhere
+  /// Allows the user to interact with a [Slider] by only tapping anywhere
   /// on the track.
   ///
   /// Sliding interaction is ignored.
   tapOnly,
 
-  /// Allows the user to interact with a [ShadSlider] only by sliding anywhere
+  /// Allows the user to interact with a [Slider] only by sliding anywhere
   /// on the track.
   ///
   /// Tapping interaction is ignored.
   slideOnly,
 
-  /// Allows the user to interact with a [ShadSlider] only by sliding the thumb.
+  /// Allows the user to interact with a [Slider] only by sliding the thumb.
   ///
   /// Tapping and sliding interactions on the track are ignored.
   slideThumb,
 }
 
-/// {@template ShadSliderController}
-/// A controller for the [ShadSlider] widget, managing its value.
+/// {@template SliderController}
+/// A controller for the [Slider] widget, managing its value.
 ///
 /// Extends [ValueNotifier] to provide reactive updates when the slider value
 /// changes.
 /// {@endtemplate}
-class ShadSliderController extends ValueNotifier<double> {
-  /// Creates a [ShadSliderController] with an initial value.
-  ShadSliderController({
+class SliderController extends ValueNotifier<double> {
+  /// Creates a [SliderController] with an initial value.
+  SliderController({
     required double initialValue,
   }) : super(initialValue);
 }
 
-/// {@template ShadRangeSliderController}
-/// A controller for the [ShadRangeSlider] widget, managing its values — one
+/// {@template RangeSliderController}
+/// A controller for the [RangeSlider] widget, managing its values — one
 /// per thumb, in ascending order.
 ///
 /// Extends [ValueNotifier] to provide reactive updates when any of the values
 /// change.
 /// {@endtemplate}
-class ShadRangeSliderController extends ValueNotifier<List<double>> {
-  /// Creates a [ShadRangeSliderController] with the initial values.
-  ShadRangeSliderController({
+class RangeSliderController extends ValueNotifier<List<double>> {
+  /// Creates a [RangeSliderController] with the initial values.
+  RangeSliderController({
     required List<double> initialValues,
   }) : super(List<double>.of(initialValues));
 }
@@ -71,13 +70,13 @@ class ShadRangeSliderController extends ValueNotifier<List<double>> {
 /// Allows users to select a value from a continuous range by dragging a thumb
 /// along a track.
 ///
-/// See [ShadRangeSlider] for a slider with more than one thumb.
-class ShadSlider extends StatefulWidget {
-  /// Creates a [ShadSlider].
+/// See [RangeSlider] for a slider with more than one thumb.
+class Slider extends StatefulWidget {
+  /// Creates a [Slider].
   ///
   /// Either [initialValue] or [controller] must be provided to determine the
   /// slider's starting value.
-  const ShadSlider({
+  const Slider({
     super.key,
     this.initialValue,
     this.onChanged,
@@ -112,21 +111,21 @@ class ShadSlider extends StatefulWidget {
          'Either initialValue or controller must be specified',
        );
 
-  /// {@template ShadSlider.initialValue}
+  /// {@template Slider.initialValue}
   /// The initial value of the slider.
   ///
   /// This value is used only when [controller] is null.
   /// {@endtemplate}
   final double? initialValue;
 
-  /// {@template ShadSlider.onChanged}
+  /// {@template Slider.onChanged}
   /// Callback that is called when the slider value changes.
   ///
   /// Provides the new value as an argument.
   /// {@endtemplate}
   final ValueChanged<double>? onChanged;
 
-  /// {@template ShadSlider.enabled}
+  /// {@template Slider.enabled}
   /// Whether the slider is enabled.
   ///
   /// When disabled, the slider cannot be interacted with and visually appears
@@ -134,145 +133,145 @@ class ShadSlider extends StatefulWidget {
   /// {@endtemplate}
   final bool enabled;
 
-  /// {@template ShadSlider.min}
+  /// {@template Slider.min}
   /// The minimum value the slider can take.
   ///
   /// Defaults to 0.0.
   /// {@endtemplate}
   final double? min;
 
-  /// {@template ShadSlider.max}
+  /// {@template Slider.max}
   /// The maximum value the slider can take.
   ///
   /// Defaults to 1.0.
   /// {@endtemplate}
   final double? max;
 
-  /// {@template ShadSlider.focusNode}
+  /// {@template Slider.focusNode}
   /// The focus node to control the focus state of the slider.
   ///
   /// If null, a default [FocusNode] will be created internally.
   /// {@endtemplate}
   final FocusNode? focusNode;
 
-  /// {@template ShadWidget.onFocusChange}
+  /// {@template Widget.onFocusChange}
   /// Called when the focus state of this widget changes.
   /// {@endtemplate}
   final ValueChanged<bool>? onFocusChange;
 
-  /// {@template ShadSlider.autofocus}
+  /// {@template Slider.autofocus}
   /// Whether the slider should automatically focus when it is first built.
   ///
   /// Defaults to false.
   /// {@endtemplate}
   final bool autofocus;
 
-  /// {@template ShadSlider.mouseCursor}
+  /// {@template Slider.mouseCursor}
   /// The cursor for the slider when it is enabled.
   ///
   /// Defaults to [SystemMouseCursors.click].
   /// {@endtemplate}
   final MouseCursor? mouseCursor;
 
-  /// {@template ShadSlider.disabledMouseCursor}
+  /// {@template Slider.disabledMouseCursor}
   /// The cursor for the slider when it is disabled.
   ///
   /// Defaults to [SystemMouseCursors.forbidden].
   /// {@endtemplate}
   final MouseCursor? disabledMouseCursor;
 
-  /// {@template ShadSlider.thumbColor}
+  /// {@template Slider.thumbColor}
   /// The color of the slider thumb when enabled.
   ///
   /// Defaults to the theme's background color.
   /// {@endtemplate}
   final Color? thumbColor;
 
-  /// {@template ShadSlider.disabledThumbColor}
+  /// {@template Slider.disabledThumbColor}
   /// The color of the slider thumb when disabled.
   ///
   /// Defaults to the theme's background color.
   /// {@endtemplate}
   final Color? disabledThumbColor;
 
-  /// {@template ShadSlider.thumbBorderColor}
+  /// {@template Slider.thumbBorderColor}
   /// The border color of the slider thumb when enabled.
   ///
   /// Defaults to the theme's primary color.
   /// {@endtemplate}
   final Color? thumbBorderColor;
 
-  /// {@template ShadSlider.disabledThumbBorderColor}
+  /// {@template Slider.disabledThumbBorderColor}
   /// The border color of the slider thumb when disabled.
   ///
   /// Defaults to a semi-transparent version of the theme's primary color.
   /// {@endtemplate}
   final Color? disabledThumbBorderColor;
 
-  /// {@template ShadSlider.activeTrackColor}
+  /// {@template Slider.activeTrackColor}
   /// The color of the active portion of the slider track.
   ///
   /// Defaults to the theme's primary color.
   /// {@endtemplate}
   final Color? activeTrackColor;
 
-  /// {@template ShadSlider.inactiveTrackColor}
+  /// {@template Slider.inactiveTrackColor}
   /// The color of the inactive portion of the slider track.
   ///
   /// Defaults to the theme's secondary color.
   /// {@endtemplate}
   final Color? inactiveTrackColor;
 
-  /// {@template ShadSlider.disabledActiveTrackColor}
+  /// {@template Slider.disabledActiveTrackColor}
   /// The color of the active track when the slider is disabled.
   ///
   /// Defaults to a semi-transparent version of the theme's primary color.
   /// {@endtemplate}
   final Color? disabledActiveTrackColor;
 
-  /// {@template ShadSlider.disabledInactiveTrackColor}
+  /// {@template Slider.disabledInactiveTrackColor}
   /// The color of the inactive track when the slider is disabled.
   ///
   /// Defaults to a semi-transparent version of the theme's secondary color.
   /// {@endtemplate}
   final Color? disabledInactiveTrackColor;
 
-  /// {@template ShadSlider.trackHeight}
+  /// {@template Slider.trackHeight}
   /// The height of the slider track.
   ///
   /// Defaults to 8.0.
   /// {@endtemplate}
   final double? trackHeight;
 
-  /// {@template ShadSlider.thumbRadius}
+  /// {@template Slider.thumbRadius}
   /// The radius of the slider thumb.
   ///
   /// Defaults to 10.0.
   /// {@endtemplate}
   final double? thumbRadius;
 
-  /// {@template ShadSlider.onChangeStart}
+  /// {@template Slider.onChangeStart}
   /// Callback that is called when the user starts to change the slider value.
   ///
   /// Provides the starting value as an argument.
   /// {@endtemplate}
   final ValueChanged<double>? onChangeStart;
 
-  /// {@template ShadSlider.onChangeEnd}
+  /// {@template Slider.onChangeEnd}
   /// Callback that is called when the user finishes changing the slider value.
   ///
   /// Provides the ending value as an argument.
   /// {@endtemplate}
   final ValueChanged<double>? onChangeEnd;
 
-  /// {@template ShadSlider.divisions}
+  /// {@template Slider.divisions}
   /// The number of discrete divisions the slider has.
   ///
   /// When provided, the slider will snap to these divisions.
   /// {@endtemplate}
   final int? divisions;
 
-  /// {@template ShadSlider.showDivisionMarks}
+  /// {@template Slider.showDivisionMarks}
   /// Whether to draw the tick marks on the track when [divisions] is set.
   ///
   /// Snapping still applies either way; set this to false for a clean track
@@ -280,7 +279,7 @@ class ShadSlider extends StatefulWidget {
   /// {@endtemplate}
   final bool showDivisionMarks;
 
-  /// {@template ShadSlider.label}
+  /// {@template Slider.label}
   /// The slider's accessible name, announced by assistive technologies
   /// together with its value.
   ///
@@ -288,34 +287,34 @@ class ShadSlider extends StatefulWidget {
   /// {@endtemplate}
   final String? label;
 
-  /// {@template ShadSlider.semanticFormatterCallback}
+  /// {@template Slider.semanticFormatterCallback}
   /// A semantic formatter to be called by assistive technologies.
   /// {@endtemplate}
   final String Function(double value)? semanticFormatterCallback;
 
-  /// {@template ShadSlider.allowedInteraction}
+  /// {@template Slider.allowedInteraction}
   /// Configures how the user can interact with the slider.
   ///
-  /// Defaults to `ShadSliderInteraction.tapAndSlide`.
+  /// Defaults to `SliderInteraction.tapAndSlide`.
   /// {@endtemplate}
-  final ShadSliderInteraction? allowedInteraction;
+  final SliderInteraction? allowedInteraction;
 
-  /// {@macro ShadSliderController}
-  final ShadSliderController? controller;
+  /// {@macro SliderController}
+  final SliderController? controller;
 
   @override
-  State<ShadSlider> createState() => _ShadSliderState();
+  State<Slider> createState() => _SliderState();
 }
 
-class _ShadSliderState extends State<ShadSlider> {
+class _SliderState extends State<Slider> {
   late final controller =
       widget.controller ??
-      ShadSliderController(
+      SliderController(
         initialValue: widget.initialValue!,
       );
 
   @override
-  void didUpdateWidget(covariant ShadSlider oldWidget) {
+  void didUpdateWidget(covariant Slider oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.controller != widget.controller) {
       // Dispose the old controller if it was internally created
@@ -343,7 +342,7 @@ class _ShadSliderState extends State<ShadSlider> {
     final slider = ValueListenableBuilder(
       valueListenable: controller,
       builder: (context, value, child) {
-        return _ShadSliderCore(
+        return _SliderCore(
           // One thumb: the multi-thumb core collapses to exactly the
           // single-value slider when handed a one-element list.
           values: [value],
@@ -397,18 +396,18 @@ class _ShadSliderState extends State<ShadSlider> {
 /// always the ends of the range.
 ///
 /// ```dart
-/// ShadRangeSlider(
+/// RangeSlider(
 ///   initialValues: const [20, 80],
 ///   max: 100,
 ///   onChanged: (values) => print('${values.first}..${values.last}'),
 /// )
 /// ```
-class ShadRangeSlider extends StatefulWidget {
-  /// Creates a [ShadRangeSlider].
+class RangeSlider extends StatefulWidget {
+  /// Creates a [RangeSlider].
   ///
   /// Either [initialValues] or [controller] must be provided to determine the
   /// slider's starting values, one per thumb.
-  const ShadRangeSlider({
+  const RangeSlider({
     super.key,
     this.initialValues,
     this.onChanged,
@@ -440,30 +439,30 @@ class ShadRangeSlider extends StatefulWidget {
          'Either initialValues or controller must be specified',
        );
 
-  /// {@template ShadRangeSlider.initialValues}
+  /// {@template RangeSlider.initialValues}
   /// The initial values of the slider, one per thumb, in ascending order.
   ///
   /// These values are used only when [controller] is null.
   /// {@endtemplate}
   final List<double>? initialValues;
 
-  /// {@template ShadRangeSlider.onChanged}
+  /// {@template RangeSlider.onChanged}
   /// Callback that is called when any of the slider values change.
   ///
   /// Provides the full list of values as an argument.
   /// {@endtemplate}
   final ValueChanged<List<double>>? onChanged;
 
-  /// {@macro ShadSlider.enabled}
+  /// {@macro Slider.enabled}
   final bool enabled;
 
-  /// {@macro ShadSlider.min}
+  /// {@macro Slider.min}
   final double? min;
 
-  /// {@macro ShadSlider.max}
+  /// {@macro Slider.max}
   final double? max;
 
-  /// {@template ShadRangeSlider.autofocus}
+  /// {@template RangeSlider.autofocus}
   /// Whether the lowest thumb should automatically focus when the slider is
   /// first built.
   ///
@@ -471,85 +470,85 @@ class ShadRangeSlider extends StatefulWidget {
   /// {@endtemplate}
   final bool autofocus;
 
-  /// {@macro ShadSlider.mouseCursor}
+  /// {@macro Slider.mouseCursor}
   final MouseCursor? mouseCursor;
 
-  /// {@macro ShadSlider.disabledMouseCursor}
+  /// {@macro Slider.disabledMouseCursor}
   final MouseCursor? disabledMouseCursor;
 
-  /// {@macro ShadSlider.thumbColor}
+  /// {@macro Slider.thumbColor}
   final Color? thumbColor;
 
-  /// {@macro ShadSlider.disabledThumbColor}
+  /// {@macro Slider.disabledThumbColor}
   final Color? disabledThumbColor;
 
-  /// {@macro ShadSlider.thumbBorderColor}
+  /// {@macro Slider.thumbBorderColor}
   final Color? thumbBorderColor;
 
-  /// {@macro ShadSlider.disabledThumbBorderColor}
+  /// {@macro Slider.disabledThumbBorderColor}
   final Color? disabledThumbBorderColor;
 
-  /// {@macro ShadSlider.activeTrackColor}
+  /// {@macro Slider.activeTrackColor}
   final Color? activeTrackColor;
 
-  /// {@macro ShadSlider.inactiveTrackColor}
+  /// {@macro Slider.inactiveTrackColor}
   final Color? inactiveTrackColor;
 
-  /// {@macro ShadSlider.disabledActiveTrackColor}
+  /// {@macro Slider.disabledActiveTrackColor}
   final Color? disabledActiveTrackColor;
 
-  /// {@macro ShadSlider.disabledInactiveTrackColor}
+  /// {@macro Slider.disabledInactiveTrackColor}
   final Color? disabledInactiveTrackColor;
 
-  /// {@macro ShadSlider.trackHeight}
+  /// {@macro Slider.trackHeight}
   final double? trackHeight;
 
-  /// {@macro ShadSlider.thumbRadius}
+  /// {@macro Slider.thumbRadius}
   final double? thumbRadius;
 
-  /// {@template ShadRangeSlider.onChangeStart}
+  /// {@template RangeSlider.onChangeStart}
   /// Callback that is called when the user starts to change a value.
   ///
   /// Provides the values as they were when the gesture started.
   /// {@endtemplate}
   final ValueChanged<List<double>>? onChangeStart;
 
-  /// {@template ShadRangeSlider.onChangeEnd}
+  /// {@template RangeSlider.onChangeEnd}
   /// Callback that is called when the user finishes changing a value.
   ///
   /// Provides the final values as an argument.
   /// {@endtemplate}
   final ValueChanged<List<double>>? onChangeEnd;
 
-  /// {@macro ShadSlider.divisions}
+  /// {@macro Slider.divisions}
   final int? divisions;
 
-  /// {@macro ShadSlider.showDivisionMarks}
+  /// {@macro Slider.showDivisionMarks}
   final bool showDivisionMarks;
 
-  /// {@template ShadRangeSlider.semanticFormatterCallback}
+  /// {@template RangeSlider.semanticFormatterCallback}
   /// A semantic formatter to be called by assistive technologies, with the
   /// value of one thumb and its index.
   /// {@endtemplate}
   final String Function(double value, int index)? semanticFormatterCallback;
 
-  /// {@macro ShadSlider.allowedInteraction}
-  final ShadSliderInteraction? allowedInteraction;
+  /// {@macro Slider.allowedInteraction}
+  final SliderInteraction? allowedInteraction;
 
-  /// {@macro ShadRangeSliderController}
-  final ShadRangeSliderController? controller;
+  /// {@macro RangeSliderController}
+  final RangeSliderController? controller;
 
   @override
-  State<ShadRangeSlider> createState() => _ShadRangeSliderState();
+  State<RangeSlider> createState() => _RangeSliderState();
 }
 
-class _ShadRangeSliderState extends State<ShadRangeSlider> {
+class _RangeSliderState extends State<RangeSlider> {
   late final controller =
       widget.controller ??
-      ShadRangeSliderController(initialValues: widget.initialValues!);
+      RangeSliderController(initialValues: widget.initialValues!);
 
   @override
-  void didUpdateWidget(covariant ShadRangeSlider oldWidget) {
+  void didUpdateWidget(covariant RangeSlider oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.controller != widget.controller &&
         widget.controller == null) {
@@ -568,7 +567,7 @@ class _ShadRangeSliderState extends State<ShadRangeSlider> {
     return ValueListenableBuilder(
       valueListenable: controller,
       builder: (context, values, child) {
-        return _ShadSliderCore(
+        return _SliderCore(
           values: values,
           onValuesChanged: (next) {
             controller.value = next;
@@ -602,15 +601,15 @@ class _ShadRangeSliderState extends State<ShadRangeSlider> {
   }
 }
 
-/// The slider implementation both [ShadSlider] and [ShadRangeSlider] render.
+/// The slider implementation both [Slider] and [RangeSlider] render.
 ///
 /// Holds no value of its own — the values come down from the wrapper's
 /// controller and go back up through [onValuesChanged] — so there is exactly
 /// one source of truth however many thumbs there are. A single-thumb core is
 /// pixel-for-pixel the old single-value slider: the active track simply starts
 /// at the minimum instead of at the lowest thumb.
-class _ShadSliderCore extends StatefulWidget {
-  const _ShadSliderCore({
+class _SliderCore extends StatefulWidget {
+  const _SliderCore({
     required this.values,
     required this.onValuesChanged,
     required this.enabled,
@@ -666,25 +665,25 @@ class _ShadSliderCore extends StatefulWidget {
   final ValueChanged<List<double>>? onChangeEnd;
   final int? divisions;
   final bool showDivisionMarks;
-  final ShadSliderInteraction? allowedInteraction;
+  final SliderInteraction? allowedInteraction;
   final String Function(double value, int index)? semanticFormatter;
 
   @override
-  State<_ShadSliderCore> createState() => _ShadSliderCoreState();
+  State<_SliderCore> createState() => _SliderCoreState();
 }
 
-class _ShadSliderCoreState extends State<_ShadSliderCore> {
+class _SliderCoreState extends State<_SliderCore> {
   /// The focus nodes this state owns, by thumb index.
   ///
   /// Thumb 0 uses the caller's node when there is one, so
-  /// [ShadSlider.focusNode] still addresses the thumb it always did.
+  /// [Slider.focusNode] still addresses the thumb it always did.
   final _ownedFocusNodes = <int, FocusNode>{};
 
   FocusNode _focusNodeFor(int index) {
     if (index == 0 && widget.focusNode != null) return widget.focusNode!;
     return _ownedFocusNodes.putIfAbsent(
       index,
-      () => FocusNode(debugLabel: 'ShadSlider thumb $index'),
+      () => FocusNode(debugLabel: 'Slider thumb $index'),
     );
   }
 
@@ -712,7 +711,7 @@ class _ShadSliderCoreState extends State<_ShadSliderCore> {
   }
 
   @override
-  void didUpdateWidget(covariant _ShadSliderCore oldWidget) {
+  void didUpdateWidget(covariant _SliderCore oldWidget) {
     super.didUpdateWidget(oldWidget);
     // Drop the nodes of thumbs that no longer exist.
     if (widget.values.length < oldWidget.values.length) {
@@ -735,8 +734,7 @@ class _ShadSliderCoreState extends State<_ShadSliderCore> {
 
   // The bounds are read through the theme here as well as in build, so a
   // theme-level min/max reaches the interaction maths and not just the paint.
-  ShadSliderTheme get _sliderTheme =>
-      ShadTheme.of(context, listen: false).sliderTheme;
+  SliderTheme get _sliderTheme => Theme.of(context, listen: false).sliderTheme;
 
   double get _min => widget.min ?? _sliderTheme.min ?? 0;
 
@@ -843,7 +841,7 @@ class _ShadSliderCoreState extends State<_ShadSliderCore> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
 
     final effectiveMouseCursor =
         widget.mouseCursor ??
@@ -913,19 +911,19 @@ class _ShadSliderCoreState extends State<_ShadSliderCore> {
         widget.thumbRadius ?? theme.sliderTheme.thumbRadius ?? 10.0;
 
     final effectiveAllowedInteraction =
-        widget.allowedInteraction ?? ShadSliderInteraction.tapAndSlide;
+        widget.allowedInteraction ?? SliderInteraction.tapAndSlide;
 
     final canTap =
         widget.enabled &&
-        (effectiveAllowedInteraction == ShadSliderInteraction.tapAndSlide ||
-            effectiveAllowedInteraction == ShadSliderInteraction.tapOnly);
+        (effectiveAllowedInteraction == SliderInteraction.tapAndSlide ||
+            effectiveAllowedInteraction == SliderInteraction.tapOnly);
     final canSlideTrack =
         widget.enabled &&
-        (effectiveAllowedInteraction == ShadSliderInteraction.tapAndSlide ||
-            effectiveAllowedInteraction == ShadSliderInteraction.slideOnly);
+        (effectiveAllowedInteraction == SliderInteraction.tapAndSlide ||
+            effectiveAllowedInteraction == SliderInteraction.slideOnly);
     final canSlideThumb =
         widget.enabled &&
-        effectiveAllowedInteraction != ShadSliderInteraction.tapOnly;
+        effectiveAllowedInteraction != SliderInteraction.tapOnly;
 
     // The thumb's ring is the same one fields draw: colour, opacity and width
     // all come from the theme's focus ring rather than being invented here.
@@ -962,7 +960,7 @@ class _ShadSliderCoreState extends State<_ShadSliderCore> {
       builder: (layoutContext, constraints) {
         assert(
           constraints.hasBoundedWidth,
-          'ShadSlider requires a bounded width',
+          'Slider requires a bounded width',
         );
         // Calculate the effective width available for the track
         final effectiveTrackWidth = constraints.maxWidth;
@@ -990,11 +988,11 @@ class _ShadSliderCoreState extends State<_ShadSliderCore> {
                       effectiveTrackWidth - effectiveThumbRadius,
                     ),
             top: (effectiveHeight - effectiveThumbRadius * 2) / 2,
-            child: ShadFocusable(
+            child: Focusable(
               focusNode: _focusNodeFor(index),
               canRequestFocus: widget.enabled,
               // Only the first thumb reports focus to the caller: it is the
-              // one [ShadSlider.focusNode] addresses.
+              // one [Slider.focusNode] addresses.
               onFocusChange: index == 0 ? widget.onFocusChange : null,
               autofocus: widget.autofocus && index == 0,
               onKeyEvent: (node, event) {
@@ -1016,7 +1014,7 @@ class _ShadSliderCoreState extends State<_ShadSliderCore> {
                   child: SizedBox(
                     width: effectiveThumbRadius * 2,
                     height: effectiveThumbRadius * 2,
-                    child: ShadGestureDetector(
+                    child: FinesseGestureDetector(
                       cursor: widget.enabled
                           ? effectiveMouseCursor
                           : effectiveDisabledMouseCursor,
@@ -1055,7 +1053,7 @@ class _ShadSliderCoreState extends State<_ShadSliderCore> {
                         onEnter: (_) => _setHovered(index),
                         onExit: (_) => _setHovered(null),
                         child: Container(
-                          decoration: ShadShadowDecoration.box(
+                          decoration: ShadowDecoration.box(
                             shape: BoxShape.circle,
                             color: resolvedThumbColor,
                             border: Border.all(
@@ -1110,7 +1108,7 @@ class _ShadSliderCoreState extends State<_ShadSliderCore> {
             alignment: Alignment.centerLeft,
             children: [
               // Track with gesture handling based on interaction mode
-              ShadGestureDetector(
+              FinesseGestureDetector(
                 cursor: widget.enabled
                     ? effectiveMouseCursor
                     : effectiveDisabledMouseCursor,

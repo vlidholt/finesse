@@ -3,14 +3,14 @@ import 'package:theme_extensions_builder_annotation/theme_extensions_builder_ann
 
 part 'skeleton.g.theme.dart';
 
-/// {@template ShadSkeletonTheme}
-/// Theme for the `ShadSkeleton` widget.
+/// {@template SkeletonTheme}
+/// Theme for the `Skeleton` widget.
 /// {@endtemplate}
 @themeGen
 @immutable
-class ShadSkeletonTheme with _$ShadSkeletonTheme {
-  /// {@macro ShadSkeletonTheme}
-  const ShadSkeletonTheme({
+class SkeletonTheme with _$SkeletonTheme {
+  /// {@macro SkeletonTheme}
+  const SkeletonTheme({
     bool canMerge = true,
     this.color,
     this.highlightColor,
@@ -26,28 +26,28 @@ class ShadSkeletonTheme with _$ShadSkeletonTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro ShadSkeleton.color}
+  /// {@macro Skeleton.color}
   final Color? color;
 
-  /// {@macro ShadSkeleton.highlightColor}
+  /// {@macro Skeleton.highlightColor}
   final Color? highlightColor;
 
-  /// {@macro ShadSkeleton.radius}
+  /// {@macro Skeleton.radius}
   final BorderRadiusGeometry? radius;
 
-  /// {@macro ShadSkeleton.duration}
+  /// {@macro Skeleton.duration}
   final Duration? duration;
 
-  /// {@macro ShadSkeleton.curve}
+  /// {@macro Skeleton.curve}
   final Curve? curve;
 
-  /// {@macro ShadSkeleton.animate}
+  /// {@macro Skeleton.animate}
   final bool? animate;
 
   /// Linearly interpolates between [a] and [b] by [t].
-  static ShadSkeletonTheme? lerp(
-    ShadSkeletonTheme? a,
-    ShadSkeletonTheme? b,
+  static SkeletonTheme? lerp(
+    SkeletonTheme? a,
+    SkeletonTheme? b,
     double t,
-  ) => _$ShadSkeletonTheme.lerp(a, b, t);
+  ) => _$SkeletonTheme.lerp(a, b, t);
 }

@@ -9,14 +9,10 @@ part of 'slider.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadSliderTheme {
+mixin _$SliderTheme {
   bool get canMerge => true;
 
-  static ShadSliderTheme? lerp(
-    ShadSliderTheme? a,
-    ShadSliderTheme? b,
-    double t,
-  ) {
+  static SliderTheme? lerp(SliderTheme? a, SliderTheme? b, double t) {
     if (identical(a, b)) {
       return a;
     }
@@ -29,7 +25,7 @@ mixin _$ShadSliderTheme {
       return t == 0.0 ? a : null;
     }
 
-    return ShadSliderTheme(
+    return SliderTheme(
       min: lerpDouble$(a.min, b.min, t),
       max: lerpDouble$(a.max, b.max, t),
       mouseCursor: t < 0.5 ? a.mouseCursor : b.mouseCursor,
@@ -69,7 +65,7 @@ mixin _$ShadSliderTheme {
     );
   }
 
-  ShadSliderTheme copyWith({
+  SliderTheme copyWith({
     double? min,
     double? max,
     MouseCursor? mouseCursor,
@@ -85,9 +81,9 @@ mixin _$ShadSliderTheme {
     double? trackHeight,
     double? thumbRadius,
   }) {
-    final _this = (this as ShadSliderTheme);
+    final _this = (this as SliderTheme);
 
-    return ShadSliderTheme(
+    return SliderTheme(
       min: min ?? _this.min,
       max: max ?? _this.max,
       mouseCursor: mouseCursor ?? _this.mouseCursor,
@@ -108,8 +104,8 @@ mixin _$ShadSliderTheme {
     );
   }
 
-  ShadSliderTheme merge(ShadSliderTheme? other) {
-    final _this = (this as ShadSliderTheme);
+  SliderTheme merge(SliderTheme? other) {
+    final _this = (this as SliderTheme);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -147,8 +143,8 @@ mixin _$ShadSliderTheme {
       return false;
     }
 
-    final _this = (this as ShadSliderTheme);
-    final _other = (other as ShadSliderTheme);
+    final _this = (this as SliderTheme);
+    final _other = (other as SliderTheme);
 
     return _other.min == _this.min &&
         _other.max == _this.max &&
@@ -168,7 +164,7 @@ mixin _$ShadSliderTheme {
 
   @override
   int get hashCode {
-    final _this = (this as ShadSliderTheme);
+    final _this = (this as SliderTheme);
 
     return Object.hash(
       runtimeType,

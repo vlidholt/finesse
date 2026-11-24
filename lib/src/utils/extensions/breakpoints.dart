@@ -1,16 +1,16 @@
+import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/responsive.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/theme.dart';
-import 'package:shad/src/utils/responsive.dart';
 
-/// Reads the current [ShadBreakpoint] from a [BuildContext].
-extension ShadBreakpointsExt on BuildContext {
+/// Reads the current [Breakpoint] from a [BuildContext].
+extension BreakpointsExt on BuildContext {
   /// The breakpoint that matches the screen width, from the breakpoints of the
-  /// current [ShadTheme].
+  /// current [Theme].
   ///
   /// Rebuilds the caller when the screen size or the theme changes.
-  ShadBreakpoint get breakpoint {
+  Breakpoint get breakpoint {
     final width = MediaQuery.sizeOf(this).width;
-    final breakpoints = ShadTheme.of(this).breakpoints;
+    final breakpoints = Theme.of(this).breakpoints;
     return breakpoints.fromWidth(width);
   }
 }

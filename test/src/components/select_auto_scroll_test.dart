@@ -1,7 +1,7 @@
+import 'package:finesse/finesse.dart';
+import 'package:finesse/material.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/material.dart';
-import 'package:shad/shad.dart';
 
 /// The chevron auto-scroll loops drive a single [ScrollController]. A second
 /// `animateTo` on a scroll position disposes the first one's activity, and
@@ -10,25 +10,25 @@ import 'package:shad/shad.dart';
 /// whole microtask queue before returning to the embedder, which freezes the
 /// app: no frames, no input, no resize. Only one loop may ever run.
 void main() {
-  Widget wrap(Widget child) => ShadApp(
-    builder: (context, child) => ShadMaterial(child: child!),
+  Widget wrap(Widget child) => FinesseApp(
+    builder: (context, child) => FinesseMaterial(child: child!),
     home: Scaffold(body: child),
   );
 
-  Widget select(GlobalKey<ShadSelectState<String>> key) => ShadSelect<String>(
+  Widget select(GlobalKey<SelectState<String>> key) => Select<String>(
     key: key,
     placeholder: const Text('Pick one'),
     maxHeight: 120,
     selectedOptionBuilder: (context, value) => Text(value),
     options: List.generate(
       60,
-      (i) => ShadOption<String>(value: 'item $i', child: Text('item $i')),
+      (i) => SelectOption<String>(value: 'item $i', child: Text('item $i')),
     ),
   );
 
-  group('ShadSelect chevron auto-scroll', () {
+  group('Select chevron auto-scroll', () {
     testWidgets('a second start does not spawn a second loop', (tester) async {
-      final key = GlobalKey<ShadSelectState<String>>();
+      final key = GlobalKey<SelectState<String>>();
       await tester.pumpWidget(wrap(select(key)));
 
       final state = key.currentState!;
@@ -55,7 +55,7 @@ void main() {
     testWidgets('the loop releases its guard when the list is opened', (
       tester,
     ) async {
-      final key = GlobalKey<ShadSelectState<String>>();
+      final key = GlobalKey<SelectState<String>>();
       await tester.pumpWidget(wrap(select(key)));
 
       await tester.tap(find.text('Pick one'));

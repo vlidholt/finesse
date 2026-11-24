@@ -1,19 +1,19 @@
-import 'package:flutter/material.dart';
+import 'package:finesse/material.dart';
+import 'package:finesse/src/app.dart';
+import 'package:finesse/src/components/dialog.dart';
+import 'package:flutter/material.dart' hide Dialog, showDialog;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/material.dart';
-import 'package:shad/src/app.dart';
-import 'package:shad/src/components/dialog.dart';
 
 void main() {
-  // Helper method to create a test widget wrapped in ShadApp and Scaffold
+  // Helper method to create a test widget wrapped in FinesseApp and Scaffold
   Widget createTestWidget(Widget child) {
-    return ShadApp(
-      builder: (context, child) => ShadMaterial(child: child!),
+    return FinesseApp(
+      builder: (context, child) => FinesseMaterial(child: child!),
       home: Scaffold(body: child),
     );
   }
 
-  group('showShadDialog', () {
+  group('showDialog', () {
     Future<void> open(
       WidgetTester tester, {
       bool barrierDismissible = true,
@@ -23,10 +23,10 @@ void main() {
           Builder(
             builder: (context) => Center(
               child: GestureDetector(
-                onTap: () => showShadDialog<void>(
+                onTap: () => showDialog<void>(
                   context: context,
                   barrierDismissible: barrierDismissible,
-                  builder: (context) => const ShadDialog(
+                  builder: (context) => const Dialog(
                     title: Text('Title'),
                     child: Text('Body'),
                   ),
@@ -43,14 +43,14 @@ void main() {
 
     testWidgets('tapping the barrier dismisses it', (tester) async {
       await open(tester);
-      expect(find.byType(ShadDialog), findsOneWidget);
+      expect(find.byType(Dialog), findsOneWidget);
 
       // The corner is outside the centered dialog. The default barrier blur
       // layer sits above the ModalBarrier and must not swallow this tap.
       await tester.tapAt(const Offset(5, 5));
       await tester.pumpAndSettle();
 
-      expect(find.byType(ShadDialog), findsNothing);
+      expect(find.byType(Dialog), findsNothing);
     });
 
     testWidgets('barrierDismissible: false keeps it open', (tester) async {
@@ -59,15 +59,15 @@ void main() {
       await tester.tapAt(const Offset(5, 5));
       await tester.pumpAndSettle();
 
-      expect(find.byType(ShadDialog), findsOneWidget);
+      expect(find.byType(Dialog), findsOneWidget);
     });
   });
 
-  group('ShadDialog', () {
-    testWidgets('ShadDialog matches goldens', (tester) async {
+  group('Dialog', () {
+    testWidgets('Dialog matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadDialog(
+          const Dialog(
             title: Text('Title'),
             description: Text('Description'),
             child: Text('Child'),
@@ -76,7 +76,7 @@ void main() {
       );
 
       await expectLater(
-        find.byType(ShadDialog),
+        find.byType(Dialog),
         matchesGoldenFile('goldens/dialog.png'),
       );
     });

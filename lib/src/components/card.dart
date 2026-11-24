@@ -1,19 +1,19 @@
+import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/border.dart';
+import 'package:finesse/src/utils/extensions/text_style.dart';
+import 'package:finesse/src/utils/separated_iterable.dart';
+import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/theme.dart';
-import 'package:shad/src/utils/border.dart';
-import 'package:shad/src/utils/extensions/text_style.dart';
-import 'package:shad/src/utils/separated_iterable.dart';
-import 'package:shad/src/utils/shadow.dart';
 
 // A customizable card widget for displaying structured content.
 ///
-/// The [ShadCard] widget provides a container with a title, description, main
+/// The [Card] widget provides a container with a title, description, main
 /// content, and optional footer, styled with a background, border, and shadows.
-/// It integrates with [ShadTheme] for consistent styling and supports leading
+/// It integrates with [Theme] for consistent styling and supports leading
 /// and trailing widgets for additional layout flexibility.
-class ShadCard extends StatelessWidget {
+class Card extends StatelessWidget {
   /// Creates a card widget with optional content and styling.
-  const ShadCard({
+  const Card({
     super.key,
     this.title,
     this.description,
@@ -41,142 +41,142 @@ class ShadCard extends StatelessWidget {
     this.action,
   });
 
-  /// {@template ShadCard.title}
+  /// {@template Card.title}
   /// The title widget displayed at the top of the card.
   /// Typically a [Text] widget, styled with the theme’s h3 style.
   /// {@endtemplate}
   final Widget? title;
 
-  /// {@template ShadCard.description}
+  /// {@template Card.description}
   /// The description widget displayed below the title.
   /// Typically a [Text] widget, styled with the theme’s muted style.
   /// {@endtemplate}
   final Widget? description;
 
-  /// {@template ShadCard.child}
+  /// {@template Card.child}
   /// The main content widget of the card, displayed below the description.
   /// Expands flexibly within the card’s column layout.
   /// {@endtemplate}
   final Widget? child;
 
-  /// {@template ShadCard.footer}
+  /// {@template Card.footer}
   /// The footer widget displayed at the bottom of the card.
   /// Useful for actions or additional information.
   /// {@endtemplate}
   final Widget? footer;
 
-  /// {@template ShadCard.padding}
+  /// {@template Card.padding}
   /// The padding inside the card, surrounding all content.
   /// Defaults to EdgeInsets.all(24) if not specified.
   /// {@endtemplate}
   final EdgeInsetsGeometry? padding;
 
-  /// {@template ShadCard.backgroundColor}
+  /// {@template Card.backgroundColor}
   /// The background color of the card.
   /// Defaults to the theme’s card color if not specified.
   /// {@endtemplate}
   final Color? backgroundColor;
 
-  /// {@template ShadCard.radius}
+  /// {@template Card.radius}
   /// The border radius of the card’s corners.
   /// Defaults to the theme’s radius if not specified.
   /// {@endtemplate}
   final BorderRadius? radius;
 
-  /// {@template ShadCard.border}
+  /// {@template Card.border}
   /// The border surrounding the card.
   /// Defaults to a border with the theme’s border color if not specified.
   /// {@endtemplate}
-  final ShadBorder? border;
+  final FinesseBorder? border;
 
-  /// {@template ShadCard.shadows}
+  /// {@template Card.shadows}
   /// The list of box shadows applied to the card for elevation.
   /// Defaults to the theme’s card shadows if not specified.
   /// {@endtemplate}
   final List<BoxShadow>? shadows;
 
-  /// {@template ShadCard.width}
+  /// {@template Card.width}
   /// The explicit width of the card.
   /// If null, the card sizes to its content or constraints.
   /// {@endtemplate}
   final double? width;
 
-  /// {@template ShadCard.height}
+  /// {@template Card.height}
   /// The explicit height of the card.
   /// If null, the card sizes to its content or constraints.
   /// {@endtemplate}
   final double? height;
 
-  /// {@template ShadCard.leading}
+  /// {@template Card.leading}
   /// The widget displayed at the start of the card’s row.
   /// Typically an icon or small graphic, positioned before the main content.
   /// {@endtemplate}
   final Widget? leading;
 
-  /// {@template ShadCard.trailing}
+  /// {@template Card.trailing}
   /// The widget displayed at the end of the card’s row.
   /// Typically an icon or small graphic, positioned after the main content.
   /// {@endtemplate}
   final Widget? trailing;
 
-  /// {@template ShadCard.rowMainAxisAlignment}
+  /// {@template Card.rowMainAxisAlignment}
   /// The main axis alignment of the card’s row (horizontal).
   /// Defaults to [MainAxisAlignment.spaceBetween] if not specified.
   /// {@endtemplate}
   final MainAxisAlignment? rowMainAxisAlignment;
 
-  /// {@template ShadCard.rowCrossAxisAlignment}
+  /// {@template Card.rowCrossAxisAlignment}
   /// The cross axis alignment of the card’s row (vertical).
   /// Defaults to [CrossAxisAlignment.start] if not specified.
   /// {@endtemplate}
   final CrossAxisAlignment? rowCrossAxisAlignment;
 
-  /// {@template ShadCard.columnMainAxisAlignment}
+  /// {@template Card.columnMainAxisAlignment}
   /// The main axis alignment of the card’s column (vertical).
   /// Defaults to [MainAxisAlignment.start] if not specified.
   /// {@endtemplate}
   final MainAxisAlignment? columnMainAxisAlignment;
 
-  /// {@template ShadCard.columnCrossAxisAlignment}
+  /// {@template Card.columnCrossAxisAlignment}
   /// The cross axis alignment of the card’s column (horizontal).
   /// Defaults to [CrossAxisAlignment.start] if not specified.
   /// {@endtemplate}
   final CrossAxisAlignment? columnCrossAxisAlignment;
 
-  /// {@template ShadCard.rowMainAxisSize}
+  /// {@template Card.rowMainAxisSize}
   /// The main axis size of the card’s row.
   /// Defaults to [MainAxisSize.min] if not specified.
   /// {@endtemplate}
   final MainAxisSize? rowMainAxisSize;
 
-  /// {@template ShadCard.columnMainAxisSize}
+  /// {@template Card.columnMainAxisSize}
   /// The main axis size of the card’s column.
   /// Defaults to [MainAxisSize.min] if not specified.
   /// {@endtemplate}
   final MainAxisSize? columnMainAxisSize;
 
-  /// {@template ShadCard.clipBehavior}
+  /// {@template Card.clipBehavior}
   /// The clip behavior of the card, controlling how content is clipped.
   /// Defaults to [Clip.antiAlias] if not specified.
   /// {@endtemplate}
   final Clip? clipBehavior;
 
-  /// {@template ShadCard.titleStyle}
+  /// {@template Card.titleStyle}
   /// The text style of [title].
   /// {@endtemplate}
   final TextStyle? titleStyle;
 
-  /// {@template ShadCard.descriptionStyle}
+  /// {@template Card.descriptionStyle}
   /// The text style of [description].
   /// {@endtemplate}
   final TextStyle? descriptionStyle;
 
-  /// {@template ShadCard.gap}
+  /// {@template Card.gap}
   /// The vertical space between the title, description, content and footer.
   /// {@endtemplate}
   final double? gap;
 
-  /// {@template ShadCard.action}
+  /// {@template Card.action}
   /// A widget pinned to the end of the header row, shadcn/ui's `CardAction` —
   /// typically a dismiss or overflow button.
   ///
@@ -187,7 +187,7 @@ class ShadCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     final effectiveGap = gap ?? theme.cardTheme.gap ?? 0;
     // Sections sit `--card-spacing` apart; the small [gap] only separates the
     // title from its description.
@@ -203,7 +203,7 @@ class ShadCard extends StatelessWidget {
     final effectiveBorder =
         border ??
         theme.cardTheme.border ??
-        ShadBorder.all(color: theme.colorScheme.border, width: 1);
+        FinesseBorder.all(color: theme.colorScheme.border, width: 1);
     final effectiveShadows = shadows ?? theme.cardTheme.shadows;
 
     final effectiveRowMainAxisSize =
@@ -242,7 +242,7 @@ class ShadCard extends StatelessWidget {
       height: height,
       padding: effectivePadding,
       clipBehavior: effectiveClipBehavior,
-      decoration: ShadShadowDecoration.box(
+      decoration: ShadowDecoration.box(
         color: effectiveBackgroundColor,
         borderRadius: effectiveRadius,
         border: effectiveBorder.toBorder(),

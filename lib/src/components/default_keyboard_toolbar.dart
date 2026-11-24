@@ -1,16 +1,16 @@
+import 'package:finesse/src/components/button.dart';
+import 'package:finesse/src/components/icon_button.dart';
+import 'package:finesse/src/i18n/localizations_delegate.dart';
+import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:shad/src/components/button.dart';
-import 'package:shad/src/components/icon_button.dart';
-import 'package:shad/src/i18n/localizations_delegate.dart';
-import 'package:shad/src/theme/theme.dart';
 
-/// {@template ShadDefaultKeyboardToolbar}
+/// {@template DefaultKeyboardToolbar}
 /// A default keyboard toolbar with "Previous", "Next", and "Done" buttons.
 /// {@endtemplate}
-class ShadDefaultKeyboardToolbar extends StatelessWidget {
-  /// {@macro ShadDefaultKeyboardToolbar}
-  const ShadDefaultKeyboardToolbar({
+class DefaultKeyboardToolbar extends StatelessWidget {
+  /// {@macro DefaultKeyboardToolbar}
+  const DefaultKeyboardToolbar({
     super.key,
     this.backgroundColor,
     this.doneText,
@@ -19,41 +19,41 @@ class ShadDefaultKeyboardToolbar extends StatelessWidget {
     this.showDoneButton,
   });
 
-  /// {@template ShadDefaultKeyboardToolbar.backgroundColor}
-  /// The background color of the toolbar, defaults to ShadColorScheme.accent.
+  /// {@template DefaultKeyboardToolbar.backgroundColor}
+  /// The background color of the toolbar, defaults to ColorScheme.accent.
   /// {@endtemplate}
   final Color? backgroundColor;
 
-  /// {@template ShadDefaultKeyboardToolbar.doneText}
+  /// {@template DefaultKeyboardToolbar.doneText}
   /// The text of the "Done" button, defaults to "Done".
   /// {@endtemplate}
   final String? doneText;
 
-  /// {@template ShadDefaultKeyboardToolbar.showPreviousButton}
+  /// {@template DefaultKeyboardToolbar.showPreviousButton}
   /// Whether to show the "Previous" focus button, defaults to true.
   /// {@endtemplate}
   final bool? showPreviousButton;
 
-  /// {@template ShadDefaultKeyboardToolbar.showNextButton}
+  /// {@template DefaultKeyboardToolbar.showNextButton}
   /// Whether to show the "Next" focus button, defaults to true.
   /// {@endtemplate}
   final bool? showNextButton;
 
-  /// {@template ShadDefaultKeyboardToolbar.showDoneButton}
+  /// {@template DefaultKeyboardToolbar.showDoneButton}
   /// Whether to show the "Done" button, defaults to true.
   /// {@endtemplate}
   final bool? showDoneButton;
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
 
     final effectiveBackgroundColor =
         backgroundColor ??
         theme.defaultKeyboardToolbarTheme.backgroundColor ??
         theme.colorScheme.accent;
 
-    final l = ShadLocalizations.of(context);
+    final l = FinesseLocalizations.of(context);
     final effectiveDoneText =
         doneText ??
         theme.defaultKeyboardToolbarTheme.doneText ??
@@ -82,14 +82,14 @@ class ShadDefaultKeyboardToolbar extends StatelessWidget {
         child: Row(
           children: [
             if (effectiveShowPreviousButton)
-              ShadIconButton.ghost(
+              IconButton.ghost(
                 icon: const Icon(LucideIcons.chevronUp),
                 onPressed: () {
                   FocusScope.of(context).previousFocus();
                 },
               ),
             if (effectiveShowNextButton)
-              ShadIconButton.ghost(
+              IconButton.ghost(
                 icon: const Icon(LucideIcons.chevronDown),
                 onPressed: () {
                   FocusScope.of(context).nextFocus();
@@ -97,7 +97,7 @@ class ShadDefaultKeyboardToolbar extends StatelessWidget {
               ),
             const Spacer(),
             if (effectiveShowDoneButton)
-              ShadButton.link(
+              Button.link(
                 child: Text(effectiveDoneText),
                 onPressed: () {
                   FocusScope.of(context).unfocus();

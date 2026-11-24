@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class CheckboxBasicExample extends StatefulWidget {
   const CheckboxBasicExample({super.key});
@@ -13,7 +13,7 @@ class _CheckboxBasicExampleState extends State<CheckboxBasicExample> {
 
   @override
   Widget build(BuildContext context) {
-    return ShadCheckbox(
+    return Checkbox(
       value: value,
       onChanged: (v) => setState(() => value = v),
       label: const Text('Accept terms and conditions'),

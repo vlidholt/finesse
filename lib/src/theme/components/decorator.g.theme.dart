@@ -9,10 +9,14 @@ part of 'decorator.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadDecoration {
+mixin _$FinesseDecoration {
   bool get canMerge => true;
 
-  static ShadDecoration? lerp(ShadDecoration? a, ShadDecoration? b, double t) {
+  static FinesseDecoration? lerp(
+    FinesseDecoration? a,
+    FinesseDecoration? b,
+    double t,
+  ) {
     if (identical(a, b)) {
       return a;
     }
@@ -25,19 +29,23 @@ mixin _$ShadDecoration {
       return t == 0.0 ? a : null;
     }
 
-    return ShadDecoration(
+    return FinesseDecoration(
       labelStyle: TextStyle.lerp(a.labelStyle, b.labelStyle, t),
       errorLabelStyle: TextStyle.lerp(a.errorLabelStyle, b.errorLabelStyle, t),
-      border: ShadBorder.lerp(a.border, b.border, t),
-      focusedBorder: ShadBorder.lerp(a.focusedBorder, b.focusedBorder, t),
-      errorBorder: ShadBorder.lerp(a.errorBorder, b.errorBorder, t),
-      secondaryBorder: ShadBorder.lerp(a.secondaryBorder, b.secondaryBorder, t),
-      secondaryFocusedBorder: ShadBorder.lerp(
+      border: FinesseBorder.lerp(a.border, b.border, t),
+      focusedBorder: FinesseBorder.lerp(a.focusedBorder, b.focusedBorder, t),
+      errorBorder: FinesseBorder.lerp(a.errorBorder, b.errorBorder, t),
+      secondaryBorder: FinesseBorder.lerp(
+        a.secondaryBorder,
+        b.secondaryBorder,
+        t,
+      ),
+      secondaryFocusedBorder: FinesseBorder.lerp(
         a.secondaryFocusedBorder,
         b.secondaryFocusedBorder,
         t,
       ),
-      secondaryErrorBorder: ShadBorder.lerp(
+      secondaryErrorBorder: FinesseBorder.lerp(
         a.secondaryErrorBorder,
         b.secondaryErrorBorder,
         t,
@@ -74,15 +82,15 @@ mixin _$ShadDecoration {
     );
   }
 
-  ShadDecoration copyWith({
+  FinesseDecoration copyWith({
     TextStyle? labelStyle,
     TextStyle? errorLabelStyle,
-    ShadBorder? border,
-    ShadBorder? focusedBorder,
-    ShadBorder? errorBorder,
-    ShadBorder? secondaryBorder,
-    ShadBorder? secondaryFocusedBorder,
-    ShadBorder? secondaryErrorBorder,
+    FinesseBorder? border,
+    FinesseBorder? focusedBorder,
+    FinesseBorder? errorBorder,
+    FinesseBorder? secondaryBorder,
+    FinesseBorder? secondaryFocusedBorder,
+    FinesseBorder? secondaryErrorBorder,
     TextStyle? errorStyle,
     TextStyle? descriptionStyle,
     EdgeInsetsGeometry? labelPadding,
@@ -99,9 +107,9 @@ mixin _$ShadDecoration {
     bool? fallbackToBorder,
     bool? fallbackToLabelStyle,
   }) {
-    final _this = (this as ShadDecoration);
+    final _this = (this as FinesseDecoration);
 
-    return ShadDecoration(
+    return FinesseDecoration(
       labelStyle: labelStyle ?? _this.labelStyle,
       errorLabelStyle: errorLabelStyle ?? _this.errorLabelStyle,
       border: border ?? _this.border,
@@ -130,8 +138,8 @@ mixin _$ShadDecoration {
     );
   }
 
-  ShadDecoration merge(ShadDecoration? other) {
-    final _this = (this as ShadDecoration);
+  FinesseDecoration merge(FinesseDecoration? other) {
+    final _this = (this as FinesseDecoration);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -191,8 +199,8 @@ mixin _$ShadDecoration {
       return false;
     }
 
-    final _this = (this as ShadDecoration);
-    final _other = (other as ShadDecoration);
+    final _this = (this as FinesseDecoration);
+    final _other = (other as FinesseDecoration);
 
     return _other.labelStyle == _this.labelStyle &&
         _other.errorLabelStyle == _this.errorLabelStyle &&
@@ -221,7 +229,7 @@ mixin _$ShadDecoration {
 
   @override
   int get hashCode {
-    final _this = (this as ShadDecoration);
+    final _this = (this as FinesseDecoration);
 
     return Object.hashAll([
       runtimeType,

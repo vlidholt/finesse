@@ -1,12 +1,12 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/shad.dart';
 
 void main() {
-  group('ShadRadii', () {
+  group('Radii', () {
     // shadcn/ui's scale at the default --radius: sm 6, md 8, lg 10, xl 14,
     // 2xl 16, 4xl 32. Pinning the numbers is the only way this stays honest.
-    const radii = ShadRadii(BorderRadius.all(Radius.circular(8)));
+    const radii = Radii(BorderRadius.all(Radius.circular(8)));
 
     test('reproduces the shadcn scale from the md step', () {
       expect(radii.none, BorderRadius.zero);
@@ -20,22 +20,22 @@ void main() {
     });
 
     test('resolve covers every token', () {
-      for (final token in ShadRadiusToken.values) {
+      for (final token in RadiusToken.values) {
         expect(radii.resolve(token), isA<BorderRadius>());
       }
-      expect(radii.resolve(ShadRadiusToken.lg), radii.lg);
+      expect(radii.resolve(RadiusToken.lg), radii.lg);
     });
 
     test('a zero base radius stays square at every step', () {
-      const square = ShadRadii(BorderRadius.zero);
-      for (final token in ShadRadiusToken.values) {
-        if (token == ShadRadiusToken.full) continue;
+      const square = Radii(BorderRadius.zero);
+      for (final token in RadiusToken.values) {
+        if (token == RadiusToken.full) continue;
         expect(square.resolve(token), BorderRadius.zero, reason: '$token');
       }
     });
 
     test('scales each corner independently', () {
-      const lopsided = ShadRadii(
+      const lopsided = Radii(
         BorderRadius.only(
           topLeft: Radius.circular(4),
           bottomRight: Radius.circular(8),
@@ -48,52 +48,52 @@ void main() {
 
     test('equality is by the base radius', () {
       expect(
-        const ShadRadii(BorderRadius.all(Radius.circular(8))),
-        const ShadRadii(BorderRadius.all(Radius.circular(8))),
+        const Radii(BorderRadius.all(Radius.circular(8))),
+        const Radii(BorderRadius.all(Radius.circular(8))),
       );
       expect(
-        const ShadRadii(BorderRadius.all(Radius.circular(8))).hashCode,
-        const ShadRadii(BorderRadius.all(Radius.circular(8))).hashCode,
+        const Radii(BorderRadius.all(Radius.circular(8))).hashCode,
+        const Radii(BorderRadius.all(Radius.circular(8))).hashCode,
       );
       expect(
-        const ShadRadii(BorderRadius.all(Radius.circular(8))),
-        isNot(const ShadRadii(BorderRadius.all(Radius.circular(9)))),
+        const Radii(BorderRadius.all(Radius.circular(8))),
+        isNot(const Radii(BorderRadius.all(Radius.circular(9)))),
       );
     });
   });
 
-  group('ShadStyleTokens', () {
+  group('StyleTokens', () {
     test('ships all eight shadcn styles, uniquely named', () {
-      expect(ShadStyleTokens.all, hasLength(8));
+      expect(StyleTokens.all, hasLength(8));
       expect(
-        ShadStyleTokens.all.map((s) => s.name).toSet(),
+        StyleTokens.all.map((s) => s.name).toSet(),
         hasLength(8),
       );
-      for (final style in ShadStyleTokens.all) {
-        expect(ShadStyleTokens.fromName(style.name), style);
+      for (final style in StyleTokens.all) {
+        expect(StyleTokens.fromName(style.name), style);
       }
     });
 
     test('fromName rejects an unknown name', () {
-      expect(() => ShadStyleTokens.fromName('nope'), throwsArgumentError);
+      expect(() => StyleTokens.fromName('nope'), throwsArgumentError);
     });
 
     test('the square styles are square everywhere', () {
-      for (final style in [ShadStyleTokens.lyra, ShadStyleTokens.sera]) {
-        expect(style.buttonRadius, ShadRadiusToken.none, reason: style.name);
-        expect(style.cardRadius, ShadRadiusToken.none, reason: style.name);
-        expect(style.dialogRadius, ShadRadiusToken.none, reason: style.name);
-        expect(style.popoverRadius, ShadRadiusToken.none, reason: style.name);
-        expect(style.itemRadius, ShadRadiusToken.none, reason: style.name);
+      for (final style in [StyleTokens.lyra, StyleTokens.sera]) {
+        expect(style.buttonRadius, RadiusToken.none, reason: style.name);
+        expect(style.cardRadius, RadiusToken.none, reason: style.name);
+        expect(style.dialogRadius, RadiusToken.none, reason: style.name);
+        expect(style.popoverRadius, RadiusToken.none, reason: style.name);
+        expect(style.itemRadius, RadiusToken.none, reason: style.name);
       }
     });
 
     test('sera upper-cases and letter-spaces its labels', () {
-      expect(ShadStyleTokens.sera.label.applyCase('Save'), 'SAVE');
-      expect(ShadStyleTokens.vega.label.applyCase('Save'), 'Save');
+      expect(StyleTokens.sera.label.applyCase('Save'), 'SAVE');
+      expect(StyleTokens.vega.label.applyCase('Save'), 'Save');
 
       const base = TextStyle(fontSize: 14);
-      final applied = ShadStyleTokens.sera.label.apply(base);
+      final applied = StyleTokens.sera.label.apply(base);
       expect(applied.fontSize, 12);
       expect(applied.fontWeight, FontWeight.w600);
       expect(applied.letterSpacing, 1.2);
@@ -105,7 +105,7 @@ void main() {
         color: Color(0xFF00FF00),
         fontFamily: 'Geist',
       );
-      final applied = ShadStyleTokens.lyra.body.apply(base);
+      final applied = StyleTokens.lyra.body.apply(base);
       expect(applied.fontSize, 12);
       expect(applied.color, const Color(0xFF00FF00));
       expect(applied.fontFamily, 'Geist');
@@ -114,29 +114,29 @@ void main() {
     test('roles size text per style', () {
       // The observation this models: the styles resize text, they do not just
       // reshape boxes.
-      expect(ShadStyleTokens.vega.body.fontSize, 14); // text-sm
-      expect(ShadStyleTokens.lyra.body.fontSize, 12); // text-xs
-      expect(ShadStyleTokens.mira.body.height, 1.625); // text-xs/relaxed
-      expect(ShadStyleTokens.vega.title.fontSize, 16); // text-base
-      expect(ShadStyleTokens.sera.title.fontSize, 18); // text-lg
-      expect(ShadStyleTokens.lyra.title.fontSize, 14); // text-sm
-      expect(ShadStyleTokens.sera.caption.fontSize, 10);
-      expect(ShadStyleTokens.nova.title.height, 1.375); // leading-snug
+      expect(StyleTokens.vega.body.fontSize, 14); // text-sm
+      expect(StyleTokens.lyra.body.fontSize, 12); // text-xs
+      expect(StyleTokens.mira.body.height, 1.625); // text-xs/relaxed
+      expect(StyleTokens.vega.title.fontSize, 16); // text-base
+      expect(StyleTokens.sera.title.fontSize, 18); // text-lg
+      expect(StyleTokens.lyra.title.fontSize, 14); // text-sm
+      expect(StyleTokens.sera.caption.fontSize, 10);
+      expect(StyleTokens.nova.title.height, 1.375); // leading-snug
     });
 
     test('line height defaults follow Tailwind', () {
-      expect(ShadTextRole.defaultHeightFor(12), 16 / 12);
-      expect(ShadTextRole.defaultHeightFor(14), 20 / 14);
-      expect(ShadTextRole.defaultHeightFor(16), 24 / 16);
-      expect(ShadTextRole.defaultHeightFor(18), 28 / 18);
+      expect(TextRole.defaultHeightFor(12), 16 / 12);
+      expect(TextRole.defaultHeightFor(14), 20 / 14);
+      expect(TextRole.defaultHeightFor(16), 24 / 16);
+      expect(TextRole.defaultHeightFor(18), 28 / 18);
     });
 
     test('the prose text theme is style-independent', () {
       // shadcn's typography examples use fixed Tailwind classes; style roles
       // reach components through their theme slots instead.
-      final vega = ShadThemeData(style: ShadStyleTokens.vega);
-      final lyra = ShadThemeData(style: ShadStyleTokens.lyra);
-      final sera = ShadThemeData(style: ShadStyleTokens.sera);
+      final vega = ThemeData(style: StyleTokens.vega);
+      final lyra = ThemeData(style: StyleTokens.lyra);
+      final sera = ThemeData(style: StyleTokens.sera);
 
       expect(vega.textTheme.small.fontSize, 14);
       expect(vega.textTheme.small.fontWeight, FontWeight.w500);
@@ -159,7 +159,7 @@ void main() {
     test('a textarea keeps a moderate radius in the round styles', () {
       // maia has rounded-4xl buttons but a rounded-xl textarea: a 32px radius
       // on a tall box eats into the text.
-      final maia = ShadThemeData(style: ShadStyleTokens.maia);
+      final maia = ThemeData(style: StyleTokens.maia);
       final buttonRadius =
           (maia.primaryButtonTheme.decoration!.border!.radius! as BorderRadius)
               .topLeft
@@ -177,15 +177,15 @@ void main() {
     test(
       'OTP slots round only the ends of the strip, at the control radius',
       () {
-        final maia = ShadThemeData(style: ShadStyleTokens.maia);
+        final maia = ThemeData(style: StyleTokens.maia);
 
-        expect(maia.inputOTPTheme.middleRadius, BorderRadius.zero);
-        expect(maia.inputOTPTheme.firstRadius!.topLeft.x, 32);
-        expect(maia.inputOTPTheme.firstRadius!.topRight.x, 0);
-        expect(maia.inputOTPTheme.lastRadius!.topRight.x, 32);
+        expect(maia.otpFieldTheme.middleRadius, BorderRadius.zero);
+        expect(maia.otpFieldTheme.firstRadius!.topLeft.x, 32);
+        expect(maia.otpFieldTheme.firstRadius!.topRight.x, 0);
+        expect(maia.otpFieldTheme.lastRadius!.topRight.x, 32);
         // A slot is the size of a control.
         expect(
-          maia.inputOTPTheme.height,
+          maia.otpFieldTheme.height,
           maia.buttonSizesTheme.regular!.height,
         );
       },
@@ -194,7 +194,7 @@ void main() {
     test('every field ring is concentric with its own shape', () {
       // The ring used to be built once from the control radius, so a textarea
       // — which has a radius of its own — was ringed in the wrong shape.
-      final maia = ShadThemeData(style: ShadStyleTokens.maia);
+      final maia = ThemeData(style: StyleTokens.maia);
 
       final controlRing =
           maia.decoration.secondaryFocusedBorder!.radius! as BorderRadius;
@@ -208,47 +208,47 @@ void main() {
     });
 
     test('OTP slots ring like any other field', () {
-      final vega = ShadThemeData(style: ShadStyleTokens.vega);
-      final ring = vega.inputOTPTheme.decoration!.secondaryFocusedBorder!.top!;
+      final vega = ThemeData(style: StyleTokens.vega);
+      final ring = vega.otpFieldTheme.decoration!.secondaryFocusedBorder!.top!;
 
       expect(ring.width, vega.style.ringWidth);
       expect(ring.color!.a, closeTo(vega.style.ringOpacity, .001));
       // The focused border itself is a hairline in the ring colour, not the
       // opaque 2px box it used to draw.
-      expect(vega.inputOTPTheme.decoration!.focusedBorder!.top!.width, 1);
+      expect(vega.otpFieldTheme.decoration!.focusedBorder!.top!.width, 1);
     });
 
     test('a textarea reads its own theme, not the input theme', () {
-      // ShadTextarea resolved padding, alignment and gap from `inputTheme`,
+      // Textarea resolved padding, alignment and gap from `textFieldTheme`,
       // which made every textarea-specific value in `textareaTheme` dead —
       // a multi-line field was padded like a single-line one.
-      final theme = ShadThemeData();
+      final theme = ThemeData();
 
       expect(
         theme.textareaTheme.padding,
         const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       );
       expect(
-        theme.inputTheme.padding,
+        theme.textFieldTheme.padding,
         const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       );
     });
 
     test('a single-line field centres its text in its fixed height', () {
-      final theme = ShadThemeData();
+      final theme = ThemeData();
 
       // nova, the default style, sizes its fields `h-8`.
-      expect(theme.inputTheme.constraints!.minHeight, 32);
-      expect(theme.inputTheme.alignment, AlignmentDirectional.centerStart);
+      expect(theme.textFieldTheme.constraints!.minHeight, 32);
+      expect(theme.textFieldTheme.alignment, AlignmentDirectional.centerStart);
       expect(
-        theme.inputTheme.placeholderAlignment,
+        theme.textFieldTheme.placeholderAlignment,
         AlignmentDirectional.centerStart,
       );
     });
 
     test('checkbox and radio share their unchecked look', () {
       for (final brightness in Brightness.values) {
-        final theme = ShadThemeData(brightness: brightness);
+        final theme = ThemeData(brightness: brightness);
         final fill = theme.checkboxTheme.uncheckedColor;
 
         expect(fill, theme.radioTheme.decoration!.color, reason: '$brightness');
@@ -264,7 +264,7 @@ void main() {
     });
 
     test('overlays are light and blurred, as shadcn draws them', () {
-      final theme = ShadThemeData();
+      final theme = ThemeData();
 
       // `bg-black/10` — light enough that the palette behind stays visible,
       // which only works because the barrier is also blurred.
@@ -276,7 +276,7 @@ void main() {
     test('tabs are as wide as their labels, not the bar', () {
       // shadcn's TabsList is `w-fit`; ours stretched every tab across the
       // whole bar, which read as enormous padding inside it.
-      final theme = ShadThemeData();
+      final theme = ThemeData();
       expect(theme.tabsTheme.expandTabs ?? false, isFalse);
       expect(theme.tabsTheme.padding, const EdgeInsets.all(3)); // p-[3px]
       expect(
@@ -291,22 +291,22 @@ void main() {
       // dark mode, so a hairline lightens whatever it sits on. Ours were
       // opaque greys, which vanished on a card of the same value — that is why
       // a checkbox was hard to make out.
-      const dark = ShadNeutralColorScheme.dark();
+      const dark = NeutralColorScheme.dark();
       expect(dark.border, const Color(0x1affffff));
       expect(dark.input, const Color(0x26ffffff));
       // And the dark card is a step lighter than the page, per v4.
       expect(dark.card, isNot(dark.background));
 
-      const light = ShadNeutralColorScheme.light();
+      const light = NeutralColorScheme.light();
       expect(light.border, const Color(0xffe5e5e5)); // oklch(0.922 0 0)
       expect(light.input, const Color(0xffe5e5e5));
     });
 
     test('fields outline with --input, surfaces with a foreground wash', () {
-      final theme = ShadThemeData();
+      final theme = ThemeData();
 
       expect(
-        theme.inputTheme.decoration!.border!.top!.color,
+        theme.textFieldTheme.decoration!.border!.top!.color,
         theme.colorScheme.input,
       );
       expect(
@@ -321,43 +321,43 @@ void main() {
     });
 
     test('sera underlines its fields instead of boxing them', () {
-      final sera = ShadThemeData(style: ShadStyleTokens.sera);
-      final vega = ShadThemeData(style: ShadStyleTokens.vega);
+      final sera = ThemeData(style: StyleTokens.sera);
+      final vega = ThemeData(style: StyleTokens.vega);
 
-      final seraBorder = sera.inputTheme.decoration!.border!;
+      final seraBorder = sera.textFieldTheme.decoration!.border!;
       expect(seraBorder.bottom, isNotNull);
       expect(seraBorder.top, isNull);
       expect(seraBorder.radius, BorderRadius.zero);
 
-      expect(vega.inputTheme.decoration!.border!.top, isNotNull);
+      expect(vega.textFieldTheme.decoration!.border!.top, isNotNull);
     });
 
     test('shadows differ per style', () {
-      expect(ShadStyleTokens.vega.cardShadow, ShadShadows.xs);
-      expect(ShadStyleTokens.nova.cardShadow, ShadShadows.none);
-      expect(ShadStyleTokens.luma.cardShadow, ShadShadows.md);
-      expect(ShadStyleTokens.maia.popoverShadow, ShadShadows.xl2);
-      expect(ShadStyleTokens.rhea.dialogShadow, ShadShadows.xl);
+      expect(StyleTokens.vega.cardShadow, Shadows.xs);
+      expect(StyleTokens.nova.cardShadow, Shadows.none);
+      expect(StyleTokens.luma.cardShadow, Shadows.md);
+      expect(StyleTokens.maia.popoverShadow, Shadows.xl2);
+      expect(StyleTokens.rhea.dialogShadow, Shadows.xl);
     });
 
     test('copyWith and equality', () {
-      final tuned = ShadStyleTokens.vega.copyWith(ringWidth: 1);
+      final tuned = StyleTokens.vega.copyWith(ringWidth: 1);
       expect(tuned.ringWidth, 1);
-      expect(tuned.ringOpacity, ShadStyleTokens.vega.ringOpacity);
-      expect(tuned, isNot(ShadStyleTokens.vega));
+      expect(tuned.ringOpacity, StyleTokens.vega.ringOpacity);
+      expect(tuned, isNot(StyleTokens.vega));
       expect(
-        ShadStyleTokens.vega.copyWith(),
-        ShadStyleTokens.vega,
+        StyleTokens.vega.copyWith(),
+        StyleTokens.vega,
       );
       expect(
-        ShadStyleTokens.vega.copyWith().hashCode,
-        ShadStyleTokens.vega.hashCode,
+        StyleTokens.vega.copyWith().hashCode,
+        StyleTokens.vega.hashCode,
       );
     });
   });
 
-  group('ShadSpacing', () {
-    const spacing = ShadSpacing();
+  group('Spacing', () {
+    const spacing = Spacing();
 
     test("one step is Tailwind's 0.25rem", () {
       expect(spacing.step, 4);
@@ -381,32 +381,32 @@ void main() {
     });
 
     test('a different step rescales everything', () {
-      const tight = ShadSpacing(step: 2);
+      const tight = Spacing(step: 2);
       expect(tight(6), 12);
       expect(tight.all(6), const EdgeInsets.all(12));
     });
 
     test('lerp, copyWith and equality', () {
       expect(
-        ShadSpacing.lerp(const ShadSpacing(), const ShadSpacing(step: 8), .5),
-        const ShadSpacing(step: 6),
+        Spacing.lerp(const Spacing(), const Spacing(step: 8), .5),
+        const Spacing(step: 6),
       );
-      expect(const ShadSpacing().copyWith(step: 8), const ShadSpacing(step: 8));
+      expect(const Spacing().copyWith(step: 8), const Spacing(step: 8));
       // Built at runtime so the analyzer doesn't fold it into the default.
-      final explicit = ShadSpacing(step: [4.0].first);
-      expect(const ShadSpacing(), explicit);
-      expect(const ShadSpacing().hashCode, explicit.hashCode);
+      final explicit = Spacing(step: [4.0].first);
+      expect(const Spacing(), explicit);
+      expect(const Spacing().hashCode, explicit.hashCode);
     });
   });
 
-  group('ShadThemeData style and spacing', () {
+  group('ThemeData style and spacing', () {
     test('the card radius follows the theme radius', () {
-      // The bug this pins: ShadCardTheme.radius was hardcoded to 8, so setting
+      // The bug this pins: CardTheme.radius was hardcoded to 8, so setting
       // a radius moved buttons and inputs but left cards alone.
-      final small = ShadThemeData(
+      final small = ThemeData(
         radius: const BorderRadius.all(Radius.circular(4)),
       );
-      final large = ShadThemeData(
+      final large = ThemeData(
         radius: const BorderRadius.all(Radius.circular(16)),
       );
 
@@ -419,7 +419,7 @@ void main() {
     });
 
     test('a style reshapes every radius at once', () {
-      final lyra = ShadThemeData(style: ShadStyleTokens.lyra);
+      final lyra = ThemeData(style: StyleTokens.lyra);
       expect(lyra.cardTheme.radius, BorderRadius.zero);
       expect(lyra.primaryDialogTheme.radius, BorderRadius.zero);
       expect(
@@ -427,13 +427,13 @@ void main() {
         BorderRadius.zero,
       );
 
-      final luma = ShadThemeData(style: ShadStyleTokens.luma);
+      final luma = ThemeData(style: StyleTokens.luma);
       expect(luma.cardTheme.radius!.topLeft.x, greaterThan(8));
     });
 
     test('button labels follow the style typography', () {
-      final vega = ShadThemeData(style: ShadStyleTokens.vega);
-      final sera = ShadThemeData(style: ShadStyleTokens.sera);
+      final vega = ThemeData(style: StyleTokens.vega);
+      final sera = ThemeData(style: StyleTokens.sera);
 
       expect(
         vega.primaryButtonTheme.textStyle!.fontSize,
@@ -450,21 +450,21 @@ void main() {
       // Spot-checks against `registry/styles/style-*.css`, converting
       // Tailwind's scale at 4px per unit. These are the numbers that make the
       // styles visibly different sizes rather than just different radii.
-      expect(ShadStyleTokens.vega.buttonHeight, 36); // h-9
-      expect(ShadStyleTokens.mira.buttonHeight, 28); // h-7
-      expect(ShadStyleTokens.sera.buttonHeight, 40); // h-10
-      expect(ShadStyleTokens.sera.buttonPaddingX, 24); // px-6
-      expect(ShadStyleTokens.mira.buttonPaddingX, 8); // px-2
-      expect(ShadStyleTokens.maia.sliderTrackHeight, 12); // h-3
-      expect(ShadStyleTokens.sera.sliderTrackHeight, 2); // h-0.5
-      expect(ShadStyleTokens.luma.switchWidth, 44); // w-11
-      expect(ShadStyleTokens.sera.cardPadding, 32); // --card-spacing: 8
-      expect(ShadStyleTokens.nova.cardPadding, 16); // --card-spacing: 4
+      expect(StyleTokens.vega.buttonHeight, 36); // h-9
+      expect(StyleTokens.mira.buttonHeight, 28); // h-7
+      expect(StyleTokens.sera.buttonHeight, 40); // h-10
+      expect(StyleTokens.sera.buttonPaddingX, 24); // px-6
+      expect(StyleTokens.mira.buttonPaddingX, 8); // px-2
+      expect(StyleTokens.maia.sliderTrackHeight, 12); // h-3
+      expect(StyleTokens.sera.sliderTrackHeight, 2); // h-0.5
+      expect(StyleTokens.luma.switchWidth, 44); // w-11
+      expect(StyleTokens.sera.cardPadding, 32); // --card-spacing: 8
+      expect(StyleTokens.nova.cardPadding, 16); // --card-spacing: 4
     });
 
     test('the metrics reach the component themes', () {
-      final mira = ShadThemeData(style: ShadStyleTokens.mira);
-      final sera = ShadThemeData(style: ShadStyleTokens.sera);
+      final mira = ThemeData(style: StyleTokens.mira);
+      final sera = ThemeData(style: StyleTokens.sera);
 
       expect(mira.buttonSizesTheme.regular!.height, 28);
       expect(sera.buttonSizesTheme.regular!.height, 40);
@@ -477,9 +477,9 @@ void main() {
       expect(mira.sliderTheme.trackHeight, 4);
       expect(mira.sliderTheme.thumbRadius, 6);
       expect(mira.switchTheme.width, 28);
-      expect(mira.progressTheme.minHeight, 4);
+      expect(mira.progressBarTheme.minHeight, 4);
       expect(
-        sera.optionTheme.padding,
+        sera.selectOptionTheme.padding,
         const EdgeInsets.symmetric(
           horizontal: 12,
           vertical: 8,
@@ -488,13 +488,13 @@ void main() {
       // The switch thumb is what is left after the inset on both sides.
       expect(
         sera.switchTheme.height! - sera.switchTheme.margin! * 2,
-        ShadStyleTokens.sera.switchThumbSize,
+        StyleTokens.sera.switchThumbSize,
       );
     });
 
     test('the focus ring follows the style', () {
-      final lyra = ShadThemeData(style: ShadStyleTokens.lyra);
-      final vega = ShadThemeData(style: ShadStyleTokens.vega);
+      final lyra = ThemeData(style: StyleTokens.lyra);
+      final vega = ThemeData(style: StyleTokens.vega);
 
       expect(lyra.decoration.secondaryFocusedBorder!.top!.width, 1);
       expect(vega.decoration.secondaryFocusedBorder!.top!.width, 3);
@@ -503,8 +503,8 @@ void main() {
     });
 
     test('spacing drives component padding', () {
-      final normal = ShadThemeData();
-      final tight = ShadThemeData(spacing: const ShadSpacing(step: 2));
+      final normal = ThemeData();
+      final tight = ThemeData(spacing: const Spacing(step: 2));
 
       // nova's `--card-spacing` is `--spacing(4)`, so it halves with the step.
       expect(normal.cardTheme.padding, const EdgeInsets.all(16));
@@ -515,18 +515,18 @@ void main() {
       // step, and rescale with it — exactly as Tailwind's `h-8` follows
       // `--spacing`. Its bracketed literals do not.
       expect(tight.buttonSizesTheme.regular!.height, 16);
-      expect(tight.switchTheme.width, ShadStyleTokens.nova.switchWidth);
+      expect(tight.switchTheme.width, StyleTokens.nova.switchWidth);
     });
 
     test('style and spacing survive copyWith', () {
-      final theme = ShadThemeData(
-        style: ShadStyleTokens.rhea,
-        spacing: const ShadSpacing(step: 5),
+      final theme = ThemeData(
+        style: StyleTokens.rhea,
+        spacing: const Spacing(step: 5),
       );
       final copy = theme.copyWith(disabledOpacity: .3);
 
-      expect(copy.style, ShadStyleTokens.rhea);
-      expect(copy.spacing, const ShadSpacing(step: 5));
+      expect(copy.style, StyleTokens.rhea);
+      expect(copy.spacing, const Spacing(step: 5));
       expect(copy.cardTheme.radius, theme.cardTheme.radius);
     });
 
@@ -538,13 +538,13 @@ void main() {
       // Note this is about construction. `copyWith` forwards the already
       // resolved component themes, so it cannot re-derive them; changing the
       // radius of an existing theme means rebuilding it.
-      final variant = ShadDefaultThemeVariant(
-        colorScheme: const ShadSlateColorScheme.light(),
+      final variant = DefaultThemeVariant(
+        colorScheme: const SlateColorScheme.light(),
         radius: const BorderRadius.all(Radius.circular(4)),
-        effectiveTextTheme: ShadDefaultThemeVariant.defaultTextTheme,
-        style: ShadStyleTokens.rhea,
+        effectiveTextTheme: DefaultThemeVariant.defaultTextTheme,
+        style: StyleTokens.rhea,
       );
-      final theme = ShadThemeData(
+      final theme = ThemeData(
         variant: variant,
         radius: const BorderRadius.all(Radius.circular(16)),
       );
@@ -555,16 +555,16 @@ void main() {
       // (64 at an md of 16) hits the 24px cap.
       expect(theme.cardTheme.radius!.topLeft.x, 24);
       // Rebuilding keeps everything the caller did not override.
-      expect(theme.style, ShadStyleTokens.rhea);
+      expect(theme.style, StyleTokens.rhea);
     });
 
     test('a variant supplies the radius when none is given', () {
-      final variant = ShadDefaultThemeVariant(
-        colorScheme: const ShadSlateColorScheme.light(),
+      final variant = DefaultThemeVariant(
+        colorScheme: const SlateColorScheme.light(),
         radius: const BorderRadius.all(Radius.circular(6)),
-        effectiveTextTheme: ShadDefaultThemeVariant.defaultTextTheme,
+        effectiveTextTheme: DefaultThemeVariant.defaultTextTheme,
       );
-      final theme = ShadThemeData(variant: variant);
+      final theme = ThemeData(variant: variant);
 
       expect(theme.variant, same(variant));
       // The theme's own radius agrees with the variant rather than defaulting

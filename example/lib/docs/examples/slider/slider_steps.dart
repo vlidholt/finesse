@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class SliderStepsExample extends StatelessWidget {
   const SliderStepsExample({super.key});
@@ -13,8 +13,8 @@ class SliderStepsExample extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 24,
         children: [
-          ShadSlider(initialValue: 50, max: 100, divisions: 10),
-          ShadSlider(
+          Slider(initialValue: 50, max: 100, divisions: 10),
+          Slider(
             initialValue: 50,
             max: 100,
             divisions: 10,

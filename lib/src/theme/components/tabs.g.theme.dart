@@ -9,10 +9,10 @@ part of 'tabs.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadTabsTheme {
+mixin _$TabsTheme {
   bool get canMerge => true;
 
-  static ShadTabsTheme? lerp(ShadTabsTheme? a, ShadTabsTheme? b, double t) {
+  static TabsTheme? lerp(TabsTheme? a, TabsTheme? b, double t) {
     if (identical(a, b)) {
       return a;
     }
@@ -25,7 +25,7 @@ mixin _$ShadTabsTheme {
       return t == 0.0 ? a : null;
     }
 
-    return ShadTabsTheme(
+    return TabsTheme(
       gap: lerpDouble$(a.gap, b.gap, t),
       tabsGap: lerpDouble$(a.tabsGap, b.tabsGap, t),
       expandTabs: t < 0.5 ? a.expandTabs : b.expandTabs,
@@ -33,7 +33,7 @@ mixin _$ShadTabsTheme {
       dragStartBehavior: t < 0.5 ? a.dragStartBehavior : b.dragStartBehavior,
       physics: t < 0.5 ? a.physics : b.physics,
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
-      decoration: ShadDecoration.lerp(a.decoration, b.decoration, t),
+      decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
       tabBarConstraints: BoxConstraints.lerp(
         a.tabBarConstraints,
         b.tabBarConstraints,
@@ -67,8 +67,12 @@ mixin _$ShadTabsTheme {
         t,
       ),
       tabPadding: EdgeInsetsGeometry.lerp(a.tabPadding, b.tabPadding, t),
-      tabDecoration: ShadDecoration.lerp(a.tabDecoration, b.tabDecoration, t),
-      tabSelectedDecoration: ShadDecoration.lerp(
+      tabDecoration: FinesseDecoration.lerp(
+        a.tabDecoration,
+        b.tabDecoration,
+        t,
+      ),
+      tabSelectedDecoration: FinesseDecoration.lerp(
         a.tabSelectedDecoration,
         b.tabSelectedDecoration,
         t,
@@ -123,7 +127,7 @@ mixin _$ShadTabsTheme {
     );
   }
 
-  ShadTabsTheme copyWith({
+  TabsTheme copyWith({
     double? gap,
     double? tabsGap,
     bool? expandTabs,
@@ -131,7 +135,7 @@ mixin _$ShadTabsTheme {
     DragStartBehavior? dragStartBehavior,
     ScrollPhysics? physics,
     EdgeInsetsGeometry? padding,
-    ShadDecoration? decoration,
+    FinesseDecoration? decoration,
     BoxConstraints? tabBarConstraints,
     BoxConstraints? contentConstraints,
     bool? expandContent,
@@ -141,14 +145,14 @@ mixin _$ShadTabsTheme {
     Color? tabHoverBackgroundColor,
     Color? tabSelectedHoverBackgroundColor,
     EdgeInsetsGeometry? tabPadding,
-    ShadDecoration? tabDecoration,
-    ShadDecoration? tabSelectedDecoration,
+    FinesseDecoration? tabDecoration,
+    FinesseDecoration? tabSelectedDecoration,
     Color? tabForegroundColor,
     Color? tabSelectedForegroundColor,
     TextStyle? tabTextStyle,
     List<BoxShadow>? tabShadows,
     List<BoxShadow>? tabSelectedShadows,
-    ShadButtonSize? tabSize,
+    ButtonSize? tabSize,
     MouseCursor? tabCursor,
     Color? tabHoverForegroundColor,
     Color? tabPressedBackgroundColor,
@@ -158,12 +162,12 @@ mixin _$ShadTabsTheme {
     TextDecoration? tabHoverTextDecoration,
     MainAxisAlignment? tabMainAxisAlignment,
     CrossAxisAlignment? tabCrossAxisAlignment,
-    ShadHoverStrategies? tabHoverStrategies,
+    HoverStrategies? tabHoverStrategies,
     Duration? longPressDuration,
   }) {
-    final _this = (this as ShadTabsTheme);
+    final _this = (this as TabsTheme);
 
-    return ShadTabsTheme(
+    return TabsTheme(
       gap: gap ?? _this.gap,
       tabsGap: tabsGap ?? _this.tabsGap,
       expandTabs: expandTabs ?? _this.expandTabs,
@@ -214,8 +218,8 @@ mixin _$ShadTabsTheme {
     );
   }
 
-  ShadTabsTheme merge(ShadTabsTheme? other) {
-    final _this = (this as ShadTabsTheme);
+  TabsTheme merge(TabsTheme? other) {
+    final _this = (this as TabsTheme);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -280,8 +284,8 @@ mixin _$ShadTabsTheme {
       return false;
     }
 
-    final _this = (this as ShadTabsTheme);
-    final _other = (other as ShadTabsTheme);
+    final _this = (this as TabsTheme);
+    final _other = (other as TabsTheme);
 
     return _other.gap == _this.gap &&
         _other.tabsGap == _this.tabsGap &&
@@ -324,7 +328,7 @@ mixin _$ShadTabsTheme {
 
   @override
   int get hashCode {
-    final _this = (this as ShadTabsTheme);
+    final _this = (this as TabsTheme);
 
     return Object.hashAll([
       runtimeType,

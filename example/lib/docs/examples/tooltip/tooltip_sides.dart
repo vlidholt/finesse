@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class TooltipSidesExample extends StatelessWidget {
   const TooltipSidesExample({super.key});
@@ -30,29 +30,29 @@ class _SideTooltip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final anchor = switch (direction) {
-      AxisDirection.up => const ShadAnchor(
+      AxisDirection.up => const Anchor(
         childAlignment: Alignment.topCenter,
         overlayAlignment: Alignment.bottomCenter,
         offset: Offset(0, -4),
       ),
-      AxisDirection.down => const ShadAnchor(
+      AxisDirection.down => const Anchor(
         childAlignment: Alignment.bottomCenter,
         overlayAlignment: Alignment.topCenter,
         offset: Offset(0, 4),
       ),
-      AxisDirection.left => const ShadAnchor(
+      AxisDirection.left => const Anchor(
         childAlignment: Alignment.centerLeft,
         overlayAlignment: Alignment.centerRight,
         offset: Offset(-4, 0),
       ),
-      AxisDirection.right => const ShadAnchor(
+      AxisDirection.right => const Anchor(
         childAlignment: Alignment.centerRight,
         overlayAlignment: Alignment.centerLeft,
         offset: Offset(4, 0),
       ),
     };
 
-    return ShadTooltip(
+    return Tooltip(
       anchor: anchor,
       // The arrow points back at the trigger, opposite the placement side.
       arrowDirection: switch (direction) {
@@ -62,7 +62,7 @@ class _SideTooltip extends StatelessWidget {
         AxisDirection.right => AxisDirection.left,
       },
       builder: (context) => const Text('Add to library'),
-      child: ShadButton.outline(onPressed: () {}, child: Text(label)),
+      child: Button.outline(onPressed: () {}, child: Text(label)),
     );
   }
 }

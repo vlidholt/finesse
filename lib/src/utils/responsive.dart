@@ -1,53 +1,53 @@
 import 'dart:ui';
 
+import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/theme.dart';
 
 /// The screen widths at which the layout changes, as in Tailwind CSS.
 ///
-/// Read the current set from the `breakpoints` of [ShadTheme], and the
-/// current breakpoint with [ShadResponsiveBuilder].
+/// Read the current set from the `breakpoints` of [Theme], and the
+/// current breakpoint with [ResponsiveBuilder].
 @immutable
-class ShadBreakpoints {
+class Breakpoints {
   /// Creates breakpoints from minimum widths in logical pixels.
   ///
   /// The defaults are the Tailwind CSS values: [sm] 640, [md] 768, [lg] 1024,
   /// [xl] 1280 and [xxl] 1536. [tn] starts at 0.
-  ShadBreakpoints({
+  Breakpoints({
     double tn = 0,
     double sm = 640,
     double md = 768,
     double lg = 1024,
     double xl = 1280,
     double xxl = 1536,
-  }) : tn = ShadBreakpointTN(tn),
-       sm = ShadBreakpointSM(sm),
-       md = ShadBreakpointMD(md),
-       lg = ShadBreakpointLG(lg),
-       xl = ShadBreakpointXL(xl),
-       xxl = ShadBreakpointXXL(xxl);
+  }) : tn = BreakpointTN(tn),
+       sm = BreakpointSM(sm),
+       md = BreakpointMD(md),
+       lg = BreakpointLG(lg),
+       xl = BreakpointXL(xl),
+       xxl = BreakpointXXL(xxl);
 
   /// The tiny breakpoint, for widths below [sm]. Starts at 0 by default.
-  final ShadBreakpoint tn;
+  final Breakpoint tn;
 
   /// The small breakpoint. Starts at 640 by default.
-  final ShadBreakpoint sm;
+  final Breakpoint sm;
 
   /// The medium breakpoint. Starts at 768 by default.
-  final ShadBreakpoint md;
+  final Breakpoint md;
 
   /// The large breakpoint. Starts at 1024 by default.
-  final ShadBreakpoint lg;
+  final Breakpoint lg;
 
   /// The extra-large breakpoint. Starts at 1280 by default.
-  final ShadBreakpoint xl;
+  final Breakpoint xl;
 
   /// The 2xl breakpoint. Starts at 1536 by default.
-  final ShadBreakpoint xxl;
+  final Breakpoint xxl;
 
   /// Returns the largest breakpoint whose minimum width is not more than
   /// [width].
-  ShadBreakpoint fromWidth(double width) {
+  Breakpoint fromWidth(double width) {
     if (width < sm.value) return tn;
     if (width < md.value) return sm;
     if (width < lg.value) return md;
@@ -59,19 +59,19 @@ class ShadBreakpoints {
   /// Interpolates between two sets of breakpoints.
   ///
   /// Both [a] and [b] must be non-null.
-  static ShadBreakpoints? lerp(
-    ShadBreakpoints? a,
-    ShadBreakpoints? b,
+  static Breakpoints? lerp(
+    Breakpoints? a,
+    Breakpoints? b,
     double t,
   ) {
     if (a == null || b == null) return t < .5 ? a : b;
-    return ShadBreakpoints(
-      tn: ShadBreakpoint.lerp(a.tn, b.tn, t),
-      sm: ShadBreakpoint.lerp(a.sm, b.sm, t),
-      md: ShadBreakpoint.lerp(a.md, b.md, t),
-      lg: ShadBreakpoint.lerp(a.lg, b.lg, t),
-      xl: ShadBreakpoint.lerp(a.xl, b.xl, t),
-      xxl: ShadBreakpoint.lerp(a.xxl, b.xxl, t),
+    return Breakpoints(
+      tn: Breakpoint.lerp(a.tn, b.tn, t),
+      sm: Breakpoint.lerp(a.sm, b.sm, t),
+      md: Breakpoint.lerp(a.md, b.md, t),
+      lg: Breakpoint.lerp(a.lg, b.lg, t),
+      xl: Breakpoint.lerp(a.xl, b.xl, t),
+      xxl: Breakpoint.lerp(a.xxl, b.xxl, t),
     );
   }
 
@@ -79,7 +79,7 @@ class ShadBreakpoints {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other.runtimeType != runtimeType) return false;
-    return other is ShadBreakpoints &&
+    return other is Breakpoints &&
         other.tn == tn &&
         other.sm == sm &&
         other.md == md &&
@@ -97,34 +97,34 @@ class ShadBreakpoints {
 /// Compare breakpoints with the `<`, `>`, `<=` and `>=` operators, which
 /// compare their [value]s.
 @immutable
-sealed class ShadBreakpoint {
-  const ShadBreakpoint(this.value);
+sealed class Breakpoint {
+  const Breakpoint(this.value);
 
   /// The minimum width of the breakpoint, in logical pixels.
   final double value;
 
   /// Whether this breakpoint starts at a smaller width than [other].
-  bool operator <(ShadBreakpoint other) {
+  bool operator <(Breakpoint other) {
     return value < other.value;
   }
 
   /// Whether this breakpoint starts at a larger width than [other].
-  bool operator >(ShadBreakpoint other) {
+  bool operator >(Breakpoint other) {
     return value > other.value;
   }
 
   /// Whether this breakpoint starts at or below the width of [other].
-  bool operator <=(ShadBreakpoint other) {
+  bool operator <=(Breakpoint other) {
     return value <= other.value;
   }
 
   /// Whether this breakpoint starts at or above the width of [other].
-  bool operator >=(ShadBreakpoint other) {
+  bool operator >=(Breakpoint other) {
     return value >= other.value;
   }
 
   /// Interpolates between the values of two breakpoints.
-  static double lerp(ShadBreakpoint a, ShadBreakpoint b, double t) {
+  static double lerp(Breakpoint a, Breakpoint b, double t) {
     return lerpDouble(a.value, b.value, t)!;
   }
 
@@ -132,8 +132,8 @@ sealed class ShadBreakpoint {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     // The subclasses add no fields, so comparing [runtimeType] and [value] is
-    // enough to keep e.g. `ShadBreakpointSM(0) != ShadBreakpointMD(0)`.
-    return other is ShadBreakpoint &&
+    // enough to keep e.g. `BreakpointSM(0) != BreakpointMD(0)`.
+    return other is Breakpoint &&
         other.runtimeType == runtimeType &&
         other.value == value;
   }
@@ -142,67 +142,67 @@ sealed class ShadBreakpoint {
   int get hashCode => Object.hash(runtimeType, value);
 }
 
-/// The tiny breakpoint. See [ShadBreakpoints.tn].
-class ShadBreakpointTN extends ShadBreakpoint {
+/// The tiny breakpoint. See [Breakpoints.tn].
+class BreakpointTN extends Breakpoint {
   /// Creates a tiny breakpoint that starts at [value].
-  const ShadBreakpointTN(super.value);
+  const BreakpointTN(super.value);
 }
 
-/// The small breakpoint. See [ShadBreakpoints.sm].
-class ShadBreakpointSM extends ShadBreakpoint {
+/// The small breakpoint. See [Breakpoints.sm].
+class BreakpointSM extends Breakpoint {
   /// Creates a small breakpoint that starts at [value].
-  const ShadBreakpointSM(super.value);
+  const BreakpointSM(super.value);
 }
 
-/// The medium breakpoint. See [ShadBreakpoints.md].
-class ShadBreakpointMD extends ShadBreakpoint {
+/// The medium breakpoint. See [Breakpoints.md].
+class BreakpointMD extends Breakpoint {
   /// Creates a medium breakpoint that starts at [value].
-  const ShadBreakpointMD(super.value);
+  const BreakpointMD(super.value);
 }
 
-/// The large breakpoint. See [ShadBreakpoints.lg].
-class ShadBreakpointLG extends ShadBreakpoint {
+/// The large breakpoint. See [Breakpoints.lg].
+class BreakpointLG extends Breakpoint {
   /// Creates a large breakpoint that starts at [value].
-  const ShadBreakpointLG(super.value);
+  const BreakpointLG(super.value);
 }
 
-/// The extra-large breakpoint. See [ShadBreakpoints.xl].
-class ShadBreakpointXL extends ShadBreakpoint {
+/// The extra-large breakpoint. See [Breakpoints.xl].
+class BreakpointXL extends Breakpoint {
   /// Creates an extra-large breakpoint that starts at [value].
-  const ShadBreakpointXL(super.value);
+  const BreakpointXL(super.value);
 }
 
-/// The 2xl breakpoint. See [ShadBreakpoints.xxl].
-class ShadBreakpointXXL extends ShadBreakpoint {
+/// The 2xl breakpoint. See [Breakpoints.xxl].
+class BreakpointXXL extends Breakpoint {
   /// Creates a 2xl breakpoint that starts at [value].
-  const ShadBreakpointXXL(super.value);
+  const BreakpointXXL(super.value);
 }
 
-/// Builds a widget for the current [ShadBreakpoint].
-typedef ShadResponsiveWidgetBuilder =
+/// Builds a widget for the current [Breakpoint].
+typedef ResponsiveWidgetBuilder =
     Widget Function(
       BuildContext context,
-      ShadBreakpoint breakpoint,
+      Breakpoint breakpoint,
     );
 
 /// Builds its child for the breakpoint that matches the screen width.
 ///
 /// The width comes from [MediaQuery], so the builder runs again when the
 /// screen size changes. The breakpoints come from the theme.
-class ShadResponsiveBuilder extends StatelessWidget {
+class ResponsiveBuilder extends StatelessWidget {
   /// Creates a builder that calls [builder] with the current breakpoint.
-  const ShadResponsiveBuilder({
+  const ResponsiveBuilder({
     super.key,
     required this.builder,
   });
 
   /// Builds the child for the current breakpoint.
-  final ShadResponsiveWidgetBuilder builder;
+  final ResponsiveWidgetBuilder builder;
 
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
-    final breakpoints = ShadTheme.of(context).breakpoints;
+    final breakpoints = Theme.of(context).breakpoints;
     final breakpoint = breakpoints.fromWidth(width);
     return builder(context, breakpoint);
   }

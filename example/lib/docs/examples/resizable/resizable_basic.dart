@@ -1,12 +1,12 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class ResizableBasicExample extends StatelessWidget {
   const ResizableBasicExample({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     return SizedBox(
       width: 300,
       height: 200,
@@ -17,28 +17,28 @@ class ResizableBasicExample extends StatelessWidget {
         ),
         child: ClipRRect(
           borderRadius: theme.radius,
-          child: ShadResizablePanelGroup(
+          child: ResizablePanelGroup(
             showHandle: true,
             children: [
-              ShadResizablePanel(
+              ResizablePanel(
                 id: 0,
                 defaultSize: .5,
                 minSize: .2,
                 child: const Center(child: Text('One')),
               ),
-              ShadResizablePanel(
+              ResizablePanel(
                 id: 1,
                 defaultSize: .5,
-                child: ShadResizablePanelGroup(
+                child: ResizablePanelGroup(
                   axis: Axis.vertical,
                   showHandle: true,
                   children: [
-                    ShadResizablePanel(
+                    ResizablePanel(
                       id: 0,
                       defaultSize: .5,
                       child: const Center(child: Text('Two')),
                     ),
-                    ShadResizablePanel(
+                    ResizablePanel(
                       id: 1,
                       defaultSize: .5,
                       child: const Center(child: Text('Three')),

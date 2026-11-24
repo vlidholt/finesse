@@ -1,103 +1,103 @@
-import 'package:flutter/material.dart';
+import 'package:finesse/material.dart';
+import 'package:finesse/src/app.dart';
+import 'package:finesse/src/components/button.dart';
+import 'package:finesse/src/components/icon_button.dart';
+import 'package:finesse/src/theme/color_scheme/zinc.dart';
+import 'package:finesse/src/theme/data.dart';
+import 'package:finesse/src/theme/spacing.dart';
+import 'package:finesse/src/theme/style.dart';
+import 'package:flutter/material.dart' hide IconButton, ThemeData;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/material.dart';
-import 'package:shad/src/app.dart';
-import 'package:shad/src/components/button.dart';
-import 'package:shad/src/components/icon_button.dart';
-import 'package:shad/src/theme/color_scheme/zinc.dart';
-import 'package:shad/src/theme/data.dart';
-import 'package:shad/src/theme/spacing.dart';
-import 'package:shad/src/theme/style.dart';
 
 void main() {
-  // Helper method to create a test widget wrapped in ShadApp and Scaffold
+  // Helper method to create a test widget wrapped in FinesseApp and Scaffold
   Widget createTestWidget(Widget child) {
-    return ShadApp(
-      builder: (context, child) => ShadMaterial(child: child!),
+    return FinesseApp(
+      builder: (context, child) => FinesseMaterial(child: child!),
       home: Scaffold(body: child),
     );
   }
 
-  group('ShadIconButton', () {
-    testWidgets('ShadIconButton matches goldens', (tester) async {
+  group('IconButton', () {
+    testWidgets('IconButton matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadIconButton(
+          const IconButton(
             icon: Icon(Icons.add),
           ),
         ),
       );
 
       await expectLater(
-        find.byType(ShadIconButton),
+        find.byType(IconButton),
         matchesGoldenFile('goldens/icon_button.png'),
       );
     });
 
-    testWidgets('ShadIconButton.destructive matches goldens', (tester) async {
+    testWidgets('IconButton.destructive matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadIconButton.destructive(
+          const IconButton.destructive(
             icon: Icon(Icons.add),
           ),
         ),
       );
 
       await expectLater(
-        find.byType(ShadIconButton),
+        find.byType(IconButton),
         matchesGoldenFile('goldens/icon_button_destructive.png'),
       );
     });
 
-    testWidgets('ShadIconButton.outline matches goldens', (tester) async {
+    testWidgets('IconButton.outline matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadIconButton.outline(
+          const IconButton.outline(
             icon: Icon(Icons.add),
           ),
         ),
       );
 
       await expectLater(
-        find.byType(ShadIconButton),
+        find.byType(IconButton),
         matchesGoldenFile('goldens/icon_button_outline.png'),
       );
     });
-    testWidgets('ShadIconButton.secondary matches goldens', (tester) async {
+    testWidgets('IconButton.secondary matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadIconButton.secondary(
+          const IconButton.secondary(
             icon: Icon(Icons.add),
           ),
         ),
       );
 
       await expectLater(
-        find.byType(ShadIconButton),
+        find.byType(IconButton),
         matchesGoldenFile('goldens/icon_button_secondary.png'),
       );
     });
 
-    testWidgets('ShadIconButton.ghost matches goldens', (tester) async {
+    testWidgets('IconButton.ghost matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadIconButton.ghost(
+          const IconButton.ghost(
             icon: Icon(Icons.add),
           ),
         ),
       );
 
       await expectLater(
-        find.byType(ShadIconButton),
+        find.byType(IconButton),
         matchesGoldenFile('goldens/icon_button_ghost.png'),
       );
     });
 
-    testWidgets('ShadIconButton.iconSize updates icon size', (tester) async {
+    testWidgets('IconButton.iconSize updates icon size', (tester) async {
       const customIconSize = 10.0;
       await tester.pumpWidget(
         createTestWidget(
-          const ShadIconButton(
+          const IconButton(
             icon: Icon(Icons.add),
             iconSize: customIconSize,
           ),
@@ -114,13 +114,13 @@ void main() {
       // `.cn-button` is `[&_svg:not([class*='size-'])]:size-4`; without a
       // size the IconTheme fallback used to render every icon at 24.
       await tester.pumpWidget(
-        createTestWidget(const ShadIconButton(icon: Icon(Icons.add))),
+        createTestWidget(const IconButton(icon: Icon(Icons.add))),
       );
 
       expect(tester.getSize(find.byType(Icon)), const Size.square(16));
       // nova's `.cn-button-size-icon` is `size-8`.
       expect(
-        tester.getSize(find.byType(ShadIconButton)),
+        tester.getSize(find.byType(IconButton)),
         const Size.square(32),
       );
     });
@@ -129,7 +129,7 @@ void main() {
       // The reference's `:not([class*='size-'])`.
       await tester.pumpWidget(
         createTestWidget(
-          const ShadIconButton(icon: Icon(Icons.add, size: 20)),
+          const IconButton(icon: Icon(Icons.add, size: 20)),
         ),
       );
 
@@ -142,16 +142,16 @@ void main() {
       // independently of text buttons at the same step.
       await tester.pumpWidget(
         createTestWidget(
-          const ShadIconButton(
+          const IconButton(
             icon: Icon(Icons.add),
-            size: ShadButtonSize.sm,
+            size: ButtonSize.sm,
           ),
         ),
       );
 
       expect(tester.getSize(find.byType(Icon)), const Size.square(16));
       expect(
-        tester.getSize(find.byType(ShadIconButton)),
+        tester.getSize(find.byType(IconButton)),
         const Size.square(28),
       );
     });
@@ -174,10 +174,10 @@ void main() {
 
     test('text buttons', () {
       for (final entry in expected.entries) {
-        final sizes = ShadThemeData(
+        final sizes = ThemeData(
           brightness: Brightness.light,
-          colorScheme: const ShadZincColorScheme.light(),
-          style: ShadStyleTokens.fromName(entry.key),
+          colorScheme: const ZincColorScheme.light(),
+          style: StyleTokens.fromName(entry.key),
         ).buttonSizesTheme;
 
         expect(
@@ -201,10 +201,10 @@ void main() {
       };
 
       for (final entry in iconExpected.entries) {
-        final sizes = ShadThemeData(
+        final sizes = ThemeData(
           brightness: Brightness.light,
-          colorScheme: const ShadZincColorScheme.light(),
-          style: ShadStyleTokens.fromName(entry.key),
+          colorScheme: const ZincColorScheme.light(),
+          style: StyleTokens.fromName(entry.key),
         ).buttonSizesTheme;
 
         expect(
@@ -222,10 +222,10 @@ void main() {
     test('the spacing unit scales them', () {
       // `size-4` is `calc(var(--spacing) * 4)`, so a wider unit widens the
       // glyph with everything else.
-      final theme = ShadThemeData(
+      final theme = ThemeData(
         brightness: Brightness.light,
-        colorScheme: const ShadZincColorScheme.light(),
-        spacing: const ShadSpacing(step: 5),
+        colorScheme: const ZincColorScheme.light(),
+        spacing: const Spacing(step: 5),
       );
       expect(theme.buttonSizesTheme.icon!.iconSize, 20);
     });

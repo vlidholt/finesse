@@ -1,29 +1,29 @@
-import 'package:flutter/material.dart';
+import 'package:finesse/material.dart';
+import 'package:finesse/src/app.dart';
+import 'package:finesse/src/components/checkbox.dart'; // Adjust import path based on your project structure
+import 'package:finesse/src/components/disabled.dart';
+import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:flutter/material.dart' hide Checkbox;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/material.dart';
-import 'package:shad/src/app.dart';
-import 'package:shad/src/components/checkbox.dart'; // Adjust import path based on your project structure
-import 'package:shad/src/components/disabled.dart';
-import 'package:shad/src/theme/components/decorator.dart';
 
 void main() {
-  // Helper method to create a test widget wrapped in ShadApp and Scaffold
+  // Helper method to create a test widget wrapped in FinesseApp and Scaffold
   Widget createTestWidget(Widget child) {
-    return ShadApp(
-      builder: (context, child) => ShadMaterial(child: child!),
+    return FinesseApp(
+      builder: (context, child) => FinesseMaterial(child: child!),
       home: Scaffold(
         body: child,
       ),
     );
   }
 
-  group('ShadCheckbox', () {
+  group('Checkbox', () {
     testWidgets('renders unchecked state correctly', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadCheckbox(
+          const Checkbox(
             value: false,
           ),
         ),
@@ -48,7 +48,7 @@ void main() {
     testWidgets('renders checked state correctly', (WidgetTester tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadCheckbox(
+          const Checkbox(
             value: true,
           ),
         ),
@@ -69,7 +69,7 @@ void main() {
     testWidgets('renders with label and sublabel', (WidgetTester tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadCheckbox(
+          const Checkbox(
             value: false,
             label: Text('Checkbox Label'),
             sublabel: Text('Checkbox Sublabel'),
@@ -99,7 +99,7 @@ void main() {
       var value = false;
       await tester.pumpWidget(
         createTestWidget(
-          ShadCheckbox(
+          Checkbox(
             value: value,
             onChanged: (newValue) => value = newValue,
             key: ValueKey(value), // Force rebuild on value change
@@ -118,11 +118,11 @@ void main() {
       );
 
       // Tap to toggle
-      await tester.tap(find.byType(ShadCheckbox));
+      await tester.tap(find.byType(Checkbox));
       await tester.pumpWidget(
         // Rebuild with new state
         createTestWidget(
-          ShadCheckbox(
+          Checkbox(
             value: true,
             onChanged: (newValue) => value = newValue,
             key: const ValueKey(true),
@@ -145,11 +145,11 @@ void main() {
       );
 
       // Tap again to toggle back
-      await tester.tap(find.byType(ShadCheckbox));
+      await tester.tap(find.byType(Checkbox));
       await tester.pumpWidget(
         // Rebuild with new state
         createTestWidget(
-          ShadCheckbox(
+          Checkbox(
             value: false,
             onChanged: (newValue) => value = newValue,
             key: const ValueKey(false),
@@ -181,7 +181,7 @@ void main() {
       var value = false;
       await tester.pumpWidget(
         createTestWidget(
-          ShadCheckbox(
+          Checkbox(
             value: value,
             enabled: false,
             onChanged: (newValue) => value = newValue,
@@ -190,19 +190,19 @@ void main() {
       );
 
       // Attempt to tap the checkbox
-      await tester.tap(find.byType(ShadCheckbox));
+      await tester.tap(find.byType(Checkbox));
       await tester.pumpAndSettle();
 
       // Verify onChanged was not called (still false)
       expect(value, false);
 
-      // Check ShadDisabled is applied with absorbing pointer events
-      final disabledFinder = find.byType(ShadDisabled);
+      // Check Disabled is applied with absorbing pointer events
+      final disabledFinder = find.byType(Disabled);
       expect(
         disabledFinder,
         findsNWidgets(2),
       ); // One for checkbox, one for outer wrapper
-      final innerDisabled = tester.widget<ShadDisabled>(disabledFinder.first);
+      final innerDisabled = tester.widget<Disabled>(disabledFinder.first);
       expect(innerDisabled.disabled, true);
     });
 
@@ -210,7 +210,7 @@ void main() {
       const customSize = 24.0;
       await tester.pumpWidget(
         createTestWidget(
-          const ShadCheckbox(
+          const Checkbox(
             value: true,
             size: customSize,
           ),
@@ -220,7 +220,7 @@ void main() {
       // Check SizedBox applies custom size (target the one wrapping
       // AnimatedSwitcher)
       final sizedBoxFinder = find.descendant(
-        of: find.byType(ShadCheckbox),
+        of: find.byType(Checkbox),
         matching: find.ancestor(
           of: find.byType(AnimatedSwitcher),
           matching: find.byType(SizedBox),
@@ -243,17 +243,17 @@ void main() {
       const customColor = Colors.red;
       await tester.pumpWidget(
         createTestWidget(
-          const ShadCheckbox(
+          const Checkbox(
             value: true,
             color: customColor,
           ),
         ),
       );
 
-      // Check ShadDecorator applies custom color when checked
-      final decoratorFinder = find.byType(ShadDecorator);
+      // Check Decorator applies custom color when checked
+      final decoratorFinder = find.byType(Decorator);
       expect(decoratorFinder, findsOneWidget);
-      final decorator = tester.widget<ShadDecorator>(decoratorFinder);
+      final decorator = tester.widget<Decorator>(decoratorFinder);
       expect(decorator.decoration?.color, customColor);
     });
 
@@ -263,7 +263,7 @@ void main() {
       const customPadding = EdgeInsets.all(16);
       await tester.pumpWidget(
         createTestWidget(
-          const ShadCheckbox(
+          const Checkbox(
             value: false,
             label: Text('Label'),
             padding: customPadding,
@@ -288,7 +288,7 @@ void main() {
       final focusNode = FocusNode();
       await tester.pumpWidget(
         createTestWidget(
-          ShadCheckbox(
+          Checkbox(
             value: false,
             focusNode: focusNode,
           ),
@@ -302,10 +302,10 @@ void main() {
       // Verify focus is applied
       expect(focusNode.hasFocus, true);
 
-      // Check ShadDecorator reflects focused state
-      final decoratorFinder = find.byType(ShadDecorator);
+      // Check Decorator reflects focused state
+      final decoratorFinder = find.byType(Decorator);
       expect(decoratorFinder, findsOneWidget);
-      final decorator = tester.widget<ShadDecorator>(decoratorFinder);
+      final decorator = tester.widget<Decorator>(decoratorFinder);
       expect(decorator.focused, true);
     });
 
@@ -314,7 +314,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadCheckbox(
+          const Checkbox(
             value: false,
           ),
         ),
@@ -326,10 +326,10 @@ void main() {
       expect(find.text('Label'), findsNothing);
     });
 
-    testWidgets('ShadCheckbox on matches goldens', (tester) async {
+    testWidgets('Checkbox on matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadCheckbox(
+          const Checkbox(
             value: true,
             icon: Icon(Icons.air_rounded),
             label: Text('Label'),
@@ -339,15 +339,15 @@ void main() {
       );
 
       await expectLater(
-        find.byType(ShadCheckbox),
+        find.byType(Checkbox),
         matchesGoldenFile('goldens/checkbox_on.png'),
       );
     });
 
-    testWidgets('ShadCheckbox off matches goldens', (tester) async {
+    testWidgets('Checkbox off matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadCheckbox(
+          const Checkbox(
             value: false,
             icon: Icon(Icons.air_rounded),
             label: Text('Label'),
@@ -357,7 +357,7 @@ void main() {
       );
 
       await expectLater(
-        find.byType(ShadCheckbox),
+        find.byType(Checkbox),
         matchesGoldenFile('goldens/checkbox_off.png'),
       );
     });

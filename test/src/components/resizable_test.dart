@@ -1,28 +1,28 @@
+import 'package:finesse/material.dart';
+import 'package:finesse/src/app.dart';
+import 'package:finesse/src/components/resizable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/material.dart';
-import 'package:shad/src/app.dart';
-import 'package:shad/src/components/resizable.dart';
 
 void main() {
-  // Helper method to create a test widget wrapped in ShadApp and Scaffold
+  // Helper method to create a test widget wrapped in FinesseApp and Scaffold
   Widget createTestWidget(Widget child) {
-    return ShadApp(
-      builder: (context, child) => ShadMaterial(child: child!),
+    return FinesseApp(
+      builder: (context, child) => FinesseMaterial(child: child!),
       home: Scaffold(body: child),
     );
   }
 
-  group('ShadResizableController.resize', () {
-    ShadResizableController buildController({
+  group('ResizableController.resize', () {
+    ResizableController buildController({
       required List<double> sizes,
       double totalWidth = 100,
       double minSize = 0,
     }) {
-      final controller = ShadResizableController();
+      final controller = ResizableController();
       for (var i = 0; i < sizes.length; i++) {
         controller.registerPanel(
-          ShadPanelInfo(
+          PanelInfo(
             id: i,
             defaultSize: sizes[i],
             minSize: minSize,
@@ -53,7 +53,7 @@ void main() {
           pivotIndices: [0, 1],
         );
 
-        expect(result, ShadResizeResult.success);
+        expect(result, ResizeResult.success);
         expect(controller.getPanelInfo(0).size, closeTo(0.85, 1e-5));
         expect(controller.getPanelInfo(1).size, closeTo(0.00, 1e-5));
         expect(controller.getPanelInfo(2).size, closeTo(0.15, 1e-5));
@@ -74,7 +74,7 @@ void main() {
         pivotIndices: [0, 1],
       );
 
-      expect(result, ShadResizeResult.failedLeading);
+      expect(result, ResizeResult.failedLeading);
       expect(controller.getPanelInfo(0).size, closeTo(0.00, 1e-5));
       expect(controller.getPanelInfo(1).size, closeTo(0.75, 1e-5));
       expect(controller.getPanelInfo(2).size, closeTo(0.25, 1e-5));
@@ -93,7 +93,7 @@ void main() {
         pivotIndices: [1, 2],
       );
 
-      expect(result, ShadResizeResult.failedTrailing);
+      expect(result, ResizeResult.failedTrailing);
       expect(controller.getPanelInfo(0).size, closeTo(0.25, 1e-5));
       expect(controller.getPanelInfo(1).size, closeTo(0.75, 1e-5));
       expect(controller.getPanelInfo(2).size, closeTo(0.00, 1e-5));
@@ -111,7 +111,7 @@ void main() {
         pivotIndices: [0, 1],
       );
 
-      expect(result, ShadResizeResult.failedLeading);
+      expect(result, ResizeResult.failedLeading);
       expect(controller.getPanelInfo(0).size, closeTo(0.0, 1e-5));
       expect(controller.getPanelInfo(1).size, closeTo(1.0, 1e-5));
     });
@@ -126,7 +126,7 @@ void main() {
         pivotIndices: [0, 1],
       );
 
-      expect(result, ShadResizeResult.success);
+      expect(result, ResizeResult.success);
       expect(controller.getPanelInfo(0).size, closeTo(0.50, 1e-5));
       expect(controller.getPanelInfo(1).size, closeTo(0.50, 1e-5));
     });
@@ -166,18 +166,18 @@ void main() {
         pivotIndices: [0, 1],
       );
 
-      expect(result, ShadResizeResult.failedTrailing);
+      expect(result, ResizeResult.failedTrailing);
       expect(controller.getPanelInfo(0).size, closeTo(1.0, 1e-5));
       expect(controller.getPanelInfo(1).size, closeTo(0.0, 1e-5));
     });
 
     test('respects minSize constraints on trailing panels', () {
-      final controller = ShadResizableController();
+      final controller = ResizableController();
       controller.registerPanel(
-        ShadPanelInfo(id: 0, defaultSize: 0.50, maxSize: 1),
+        PanelInfo(id: 0, defaultSize: 0.50, maxSize: 1),
       );
       controller.registerPanel(
-        ShadPanelInfo(id: 1, defaultSize: 0.50, minSize: 0.20, maxSize: 1),
+        PanelInfo(id: 1, defaultSize: 0.50, minSize: 0.20, maxSize: 1),
       );
       controller.totalAvailableWidth = 100;
       final initialLayout = [0.50, 0.50];
@@ -188,18 +188,18 @@ void main() {
         pivotIndices: [0, 1],
       );
 
-      expect(result, ShadResizeResult.failedTrailing);
+      expect(result, ResizeResult.failedTrailing);
       expect(controller.getPanelInfo(0).size, closeTo(0.80, 1e-5));
       expect(controller.getPanelInfo(1).size, closeTo(0.20, 1e-5));
     });
 
     test('respects maxSize constraints on leading pivot', () {
-      final controller = ShadResizableController();
+      final controller = ResizableController();
       controller.registerPanel(
-        ShadPanelInfo(id: 0, defaultSize: 0.50, maxSize: 0.60),
+        PanelInfo(id: 0, defaultSize: 0.50, maxSize: 0.60),
       );
       controller.registerPanel(
-        ShadPanelInfo(id: 1, defaultSize: 0.50, maxSize: 1),
+        PanelInfo(id: 1, defaultSize: 0.50, maxSize: 1),
       );
       controller.totalAvailableWidth = 100;
       final initialLayout = [0.50, 0.50];
@@ -211,22 +211,22 @@ void main() {
       );
 
       // Leading pivot can only grow to 0.60, so only 0.10 consumed.
-      expect(result, ShadResizeResult.failedTrailing);
+      expect(result, ResizeResult.failedTrailing);
       expect(controller.getPanelInfo(0).size, closeTo(0.60, 1e-5));
       expect(controller.getPanelInfo(1).size, closeTo(0.40, 1e-5));
     });
 
     test('Phase 3 overflow: pivot at max cascades to adjacent panels', () {
       // 3 panels, leading pivot maxSize=0.40
-      final controller = ShadResizableController();
+      final controller = ResizableController();
       controller.registerPanel(
-        ShadPanelInfo(id: 0, defaultSize: 0.20, maxSize: 1),
+        PanelInfo(id: 0, defaultSize: 0.20, maxSize: 1),
       );
       controller.registerPanel(
-        ShadPanelInfo(id: 1, defaultSize: 0.40, maxSize: 0.40),
+        PanelInfo(id: 1, defaultSize: 0.40, maxSize: 0.40),
       );
       controller.registerPanel(
-        ShadPanelInfo(id: 2, defaultSize: 0.40, maxSize: 1),
+        PanelInfo(id: 2, defaultSize: 0.40, maxSize: 1),
       );
       controller.totalAvailableWidth = 100;
       final initialLayout = [0.20, 0.40, 0.40];
@@ -239,19 +239,19 @@ void main() {
         pivotIndices: [1, 2],
       );
 
-      expect(result, ShadResizeResult.success);
+      expect(result, ResizeResult.success);
       expect(controller.getPanelInfo(0).size, closeTo(0.50, 1e-5));
       expect(controller.getPanelInfo(1).size, closeTo(0.40, 1e-5));
       expect(controller.getPanelInfo(2).size, closeTo(0.10, 1e-5));
     });
 
     test('all panels at minSize: backward drag is a no-op', () {
-      final controller = ShadResizableController();
+      final controller = ResizableController();
       controller.registerPanel(
-        ShadPanelInfo(id: 0, defaultSize: 0.20, minSize: 0.20, maxSize: 1),
+        PanelInfo(id: 0, defaultSize: 0.20, minSize: 0.20, maxSize: 1),
       );
       controller.registerPanel(
-        ShadPanelInfo(id: 1, defaultSize: 0.80, maxSize: 1),
+        PanelInfo(id: 1, defaultSize: 0.80, maxSize: 1),
       );
       controller.totalAvailableWidth = 100;
       final initialLayout = [0.20, 0.80];
@@ -263,19 +263,19 @@ void main() {
       );
 
       // Panel 0 can't shrink below 0.20, so nothing happens.
-      expect(result, ShadResizeResult.failedLeading);
+      expect(result, ResizeResult.failedLeading);
       expect(controller.getPanelInfo(0).size, closeTo(0.20, 1e-5));
       expect(controller.getPanelInfo(1).size, closeTo(0.80, 1e-5));
     });
   });
 
-  group('ShadResizable', () {
-    testWidgets('ShadResizable matches goldens', (tester) async {
+  group('Resizable', () {
+    testWidgets('Resizable matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          ShadResizablePanelGroup(
+          ResizablePanelGroup(
             children: [
-              ShadResizablePanel(
+              ResizablePanel(
                 id: 1,
                 defaultSize: 0.5,
                 child: Container(
@@ -284,7 +284,7 @@ void main() {
                   child: const Text('One'),
                 ),
               ),
-              ShadResizablePanel(
+              ResizablePanel(
                 id: 2,
                 defaultSize: 0.5,
                 child: Container(
@@ -299,25 +299,25 @@ void main() {
       );
 
       await expectLater(
-        find.byType(ShadResizablePanelGroup),
+        find.byType(ResizablePanelGroup),
         matchesGoldenFile('goldens/resizable.png'),
       );
     });
 
     testWidgets('drag start → update → verify layout changes', (tester) async {
-      final controller = ShadResizableController();
+      final controller = ResizableController();
 
       await tester.pumpWidget(
         createTestWidget(
-          ShadResizablePanelGroup(
+          ResizablePanelGroup(
             controller: controller,
             children: const [
-              ShadResizablePanel(
+              ResizablePanel(
                 id: 1,
                 defaultSize: 0.5,
                 child: Text('One'),
               ),
-              ShadResizablePanel(
+              ResizablePanel(
                 id: 2,
                 defaultSize: 0.5,
                 child: Text('Two'),

@@ -1,37 +1,37 @@
+import 'package:finesse/src/theme/color_scheme/accent.dart';
+import 'package:finesse/src/theme/color_scheme/blue.dart';
+import 'package:finesse/src/theme/color_scheme/gray.dart';
+import 'package:finesse/src/theme/color_scheme/green.dart';
+import 'package:finesse/src/theme/color_scheme/mauve.dart';
+import 'package:finesse/src/theme/color_scheme/mist.dart';
+import 'package:finesse/src/theme/color_scheme/neutral.dart';
+import 'package:finesse/src/theme/color_scheme/olive.dart';
+import 'package:finesse/src/theme/color_scheme/orange.dart';
+import 'package:finesse/src/theme/color_scheme/red.dart';
+import 'package:finesse/src/theme/color_scheme/rose.dart';
+import 'package:finesse/src/theme/color_scheme/slate.dart';
+import 'package:finesse/src/theme/color_scheme/stone.dart';
+import 'package:finesse/src/theme/color_scheme/taupe.dart';
+import 'package:finesse/src/theme/color_scheme/violet.dart';
+import 'package:finesse/src/theme/color_scheme/yellow.dart';
+import 'package:finesse/src/theme/color_scheme/zinc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/color_scheme/accent.dart';
-import 'package:shad/src/theme/color_scheme/blue.dart';
-import 'package:shad/src/theme/color_scheme/gray.dart';
-import 'package:shad/src/theme/color_scheme/green.dart';
-import 'package:shad/src/theme/color_scheme/mauve.dart';
-import 'package:shad/src/theme/color_scheme/mist.dart';
-import 'package:shad/src/theme/color_scheme/neutral.dart';
-import 'package:shad/src/theme/color_scheme/olive.dart';
-import 'package:shad/src/theme/color_scheme/orange.dart';
-import 'package:shad/src/theme/color_scheme/red.dart';
-import 'package:shad/src/theme/color_scheme/rose.dart';
-import 'package:shad/src/theme/color_scheme/slate.dart';
-import 'package:shad/src/theme/color_scheme/stone.dart';
-import 'package:shad/src/theme/color_scheme/taupe.dart';
-import 'package:shad/src/theme/color_scheme/violet.dart';
-import 'package:shad/src/theme/color_scheme/yellow.dart';
-import 'package:shad/src/theme/color_scheme/zinc.dart';
 
 /// The colour tokens of a theme, one field per shadcn/ui CSS variable.
 ///
 /// A scheme bundles a neutral base palette and the hue-carrying tokens of an
 /// accent. Use one of the shipped schemes, such as
-/// [ShadNeutralColorScheme.light], and [applyAccentScheme] to change its hue.
+/// [NeutralColorScheme.light], and [applyAccentScheme] to change its hue.
 /// The `--chart-*` and `--sidebar-*` tokens are optional and fall back to the
 /// closest core token.
 @immutable
-class ShadColorScheme {
+class ColorScheme {
   /// Creates a colour scheme from explicit colours.
   ///
   /// Set [canMerge] to false so that merging this scheme into another one
   /// returns it unchanged.
-  const ShadColorScheme({
+  const ColorScheme({
     bool canMerge = true,
     required this.background,
     required this.foreground,
@@ -86,75 +86,75 @@ class ShadColorScheme {
   /// `slate`.
   ///
   /// Throws an [Exception] for an unknown name.
-  factory ShadColorScheme.fromName(
+  factory ColorScheme.fromName(
     String name, {
     Brightness brightness = Brightness.light,
   }) {
     return switch (name) {
       'blue' =>
         brightness == Brightness.light
-            ? const ShadBlueColorScheme.light()
-            : const ShadBlueColorScheme.dark(),
+            ? const BlueColorScheme.light()
+            : const BlueColorScheme.dark(),
       'gray' =>
         brightness == Brightness.light
-            ? const ShadGrayColorScheme.light()
-            : const ShadGrayColorScheme.dark(),
+            ? const GrayColorScheme.light()
+            : const GrayColorScheme.dark(),
       'green' =>
         brightness == Brightness.light
-            ? const ShadGreenColorScheme.light()
-            : const ShadGreenColorScheme.dark(),
+            ? const GreenColorScheme.light()
+            : const GreenColorScheme.dark(),
       'neutral' =>
         brightness == Brightness.light
-            ? const ShadNeutralColorScheme.light()
-            : const ShadNeutralColorScheme.dark(),
+            ? const NeutralColorScheme.light()
+            : const NeutralColorScheme.dark(),
       'orange' =>
         brightness == Brightness.light
-            ? const ShadOrangeColorScheme.light()
-            : const ShadOrangeColorScheme.dark(),
+            ? const OrangeColorScheme.light()
+            : const OrangeColorScheme.dark(),
       'red' =>
         brightness == Brightness.light
-            ? const ShadRedColorScheme.light()
-            : const ShadRedColorScheme.dark(),
+            ? const RedColorScheme.light()
+            : const RedColorScheme.dark(),
       'rose' =>
         brightness == Brightness.light
-            ? const ShadRoseColorScheme.light()
-            : const ShadRoseColorScheme.dark(),
+            ? const RoseColorScheme.light()
+            : const RoseColorScheme.dark(),
       'slate' =>
         brightness == Brightness.light
-            ? const ShadSlateColorScheme.light()
-            : const ShadSlateColorScheme.dark(),
+            ? const SlateColorScheme.light()
+            : const SlateColorScheme.dark(),
       'stone' =>
         brightness == Brightness.light
-            ? const ShadStoneColorScheme.light()
-            : const ShadStoneColorScheme.dark(),
+            ? const StoneColorScheme.light()
+            : const StoneColorScheme.dark(),
       'violet' =>
         brightness == Brightness.light
-            ? const ShadVioletColorScheme.light()
-            : const ShadVioletColorScheme.dark(),
+            ? const VioletColorScheme.light()
+            : const VioletColorScheme.dark(),
       'yellow' =>
         brightness == Brightness.light
-            ? const ShadYellowColorScheme.light()
-            : const ShadYellowColorScheme.dark(),
+            ? const YellowColorScheme.light()
+            : const YellowColorScheme.dark(),
       'zinc' =>
         brightness == Brightness.light
-            ? const ShadZincColorScheme.light()
-            : const ShadZincColorScheme.dark(),
+            ? const ZincColorScheme.light()
+            : const ZincColorScheme.dark(),
       'mauve' =>
         brightness == Brightness.light
-            ? const ShadMauveColorScheme.light()
-            : const ShadMauveColorScheme.dark(),
+            ? const MauveColorScheme.light()
+            : const MauveColorScheme.dark(),
       'mist' =>
         brightness == Brightness.light
-            ? const ShadMistColorScheme.light()
-            : const ShadMistColorScheme.dark(),
+            ? const MistColorScheme.light()
+            : const MistColorScheme.dark(),
       'olive' =>
         brightness == Brightness.light
-            ? const ShadOliveColorScheme.light()
-            : const ShadOliveColorScheme.dark(),
+            ? const OliveColorScheme.light()
+            : const OliveColorScheme.dark(),
       'taupe' =>
         brightness == Brightness.light
-            ? const ShadTaupeColorScheme.light()
-            : const ShadTaupeColorScheme.dark(),
+            ? const TaupeColorScheme.light()
+            : const TaupeColorScheme.dark(),
       _ => throw Exception('Invalid color scheme name'),
     };
   }
@@ -312,12 +312,12 @@ class ShadColorScheme {
   ///
   /// A custom colour that only one scheme defines is interpolated against the
   /// other scheme's [foreground].
-  static ShadColorScheme lerp(
-    ShadColorScheme a,
-    ShadColorScheme b,
+  static ColorScheme lerp(
+    ColorScheme a,
+    ColorScheme b,
     double t,
   ) {
-    return ShadColorScheme(
+    return ColorScheme(
       canMerge: t < 0.5 ? a.canMerge : b.canMerge,
       background: Color.lerp(a.background, b.background, t)!,
       foreground: Color.lerp(a.foreground, b.foreground, t)!,
@@ -391,9 +391,9 @@ class ShadColorScheme {
     );
   }
 
-  /// Creates a copy of this [ShadColorScheme] but with the given fields
+  /// Creates a copy of this [ColorScheme] but with the given fields
   /// replaced with the new values.
-  ShadColorScheme copyWith({
+  ColorScheme copyWith({
     bool? canMerge,
     Color? background,
     Color? foreground,
@@ -430,7 +430,7 @@ class ShadColorScheme {
     Color? sidebarRing,
     Map<String, Color>? custom,
   }) {
-    return ShadColorScheme(
+    return ColorScheme(
       canMerge: canMerge ?? this.canMerge,
       background: background ?? this.background,
       foreground: foreground ?? this.foreground,
@@ -477,18 +477,18 @@ class ShadColorScheme {
   ///
   /// shadcn/ui's theme editor treats the neutral *base colour* and the
   /// *accent* as two independent choices: pick `zinc` for the greys, then
-  /// `blue` for the primary and focus ring. A [ShadColorScheme] bundles both,
+  /// `blue` for the primary and focus ring. A [ColorScheme] bundles both,
   /// so this re-tints only the parts that follow the accent — [primary],
   /// [ring] and [selection] — and derives a readable [primaryForeground] when
   /// one is not supplied.
   ///
   /// ```dart
-  /// ShadThemeData(
-  ///   colorScheme: const ShadZincColorScheme.light()
+  /// ThemeData(
+  ///   colorScheme: const ZincColorScheme.light()
   ///       .applyAccent(const Color(0xff3b82f6)),
   /// )
   /// ```
-  ShadColorScheme applyAccent(
+  ColorScheme applyAccent(
     Color accent, {
     Color? accentForeground,
     bool tintSelection = true,
@@ -513,10 +513,10 @@ class ShadColorScheme {
   /// picking up the themed hue.
   ///
   /// ```dart
-  /// const ShadZincColorScheme.light()
-  ///     .applyAccentScheme(ShadAccentScheme.violetLight)
+  /// const ZincColorScheme.light()
+  ///     .applyAccentScheme(AccentScheme.violetLight)
   /// ```
-  ShadColorScheme applyAccentScheme(ShadAccentScheme accent) {
+  ColorScheme applyAccentScheme(AccentScheme accent) {
     return copyWith(
       primary: accent.primary,
       primaryForeground: accent.primaryForeground,
@@ -544,12 +544,12 @@ class ShadColorScheme {
         : const Color(0xfffafafa);
   }
 
-  /// Merges this [ShadColorScheme] with [other].
+  /// Merges this [ColorScheme] with [other].
   ///
   /// If [other] is null, returns this instance unchanged.
   /// The [custom] maps are combined, with [other]'s values taking precedence
   /// for duplicate keys.
-  ShadColorScheme merge(ShadColorScheme? other) {
+  ColorScheme merge(ColorScheme? other) {
     if (other == null) return this;
     if (!other.canMerge) return other;
     return copyWith(
@@ -599,7 +599,7 @@ class ShadColorScheme {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
-    return other is ShadColorScheme &&
+    return other is ColorScheme &&
         other.background == background &&
         other.foreground == foreground &&
         other.card == card &&

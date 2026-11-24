@@ -1,19 +1,19 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/shad.dart';
 
 void main() {
   testWidgets(
     'toggling enabled with a shared states controller does not notify '
     'listeners during build',
     (tester) async {
-      final controller = ShadStatesController();
+      final controller = StatesController();
       addTearDown(controller.dispose);
       var enabled = true;
       late StateSetter setOuter;
 
       await tester.pumpWidget(
-        ShadApp(
+        FinesseApp(
           home: Column(
             children: [
               // A listener on the same controller outside the subtree that
@@ -23,13 +23,13 @@ void main() {
               ValueListenableBuilder(
                 valueListenable: controller,
                 builder: (context, states, _) => Text(
-                  states.contains(ShadState.disabled) ? 'off' : 'on',
+                  states.contains(FinesseState.disabled) ? 'off' : 'on',
                 ),
               ),
               StatefulBuilder(
                 builder: (context, setState) {
                   setOuter = setState;
-                  return ShadButton(
+                  return Button(
                     enabled: enabled,
                     statesController: controller,
                     onPressed: () {},

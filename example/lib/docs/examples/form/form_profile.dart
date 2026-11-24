@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class FormProfileExample extends StatefulWidget {
   const FormProfileExample({super.key});
@@ -9,11 +9,11 @@ class FormProfileExample extends StatefulWidget {
 }
 
 class _FormProfileExampleState extends State<FormProfileExample> {
-  final formKey = GlobalKey<ShadFormState>();
+  final formKey = GlobalKey<FinesseFormState>();
 
   @override
   Widget build(BuildContext context) {
-    return ShadForm(
+    return FinesseForm(
       key: formKey,
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 350),
@@ -21,7 +21,7 @@ class _FormProfileExampleState extends State<FormProfileExample> {
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: 16,
           children: [
-            ShadInputFormField(
+            TextFormField(
               id: 'username',
               label: const Text('Username'),
               placeholder: const Text('Enter your username'),
@@ -33,7 +33,7 @@ class _FormProfileExampleState extends State<FormProfileExample> {
                 return null;
               },
             ),
-            ShadCheckboxFormField(
+            CheckboxFormField(
               id: 'terms',
               initialValue: false,
               inputLabel: const Text('I accept the terms and conditions'),
@@ -44,12 +44,12 @@ class _FormProfileExampleState extends State<FormProfileExample> {
                 return null;
               },
             ),
-            ShadButton(
+            Button(
               child: const Text('Submit'),
               onPressed: () {
                 if (formKey.currentState!.saveAndValidate()) {
-                  ShadToaster.of(context).show(
-                    ShadToast(
+                  Toaster.of(context).show(
+                    Toast(
                       title: const Text('Form submitted'),
                       description: Text('${formKey.currentState!.value}'),
                     ),

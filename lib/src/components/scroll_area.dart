@@ -1,18 +1,18 @@
+import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/debug_check.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/theme.dart';
-import 'package:shad/src/utils/debug_check.dart';
 
-/// {@template ShadScrollbar}
+/// {@template Scrollbar}
 /// shadcn/ui's scrollbar, around any scrollable [child]: a thin thumb in the
 /// border colour that fades in while scrolling.
 ///
 /// Use it to give a `ListView`, `GridView` or `CustomScrollView` the same
-/// scrollbar as [ShadScrollArea]. The platform's own scrollbar is turned off
+/// scrollbar as [ScrollArea]. The platform's own scrollbar is turned off
 /// below it, so there is only one.
 /// {@endtemplate}
-class ShadScrollbar extends StatelessWidget {
-  /// {@macro ShadScrollbar}
-  const ShadScrollbar({
+class Scrollbar extends StatelessWidget {
+  /// {@macro Scrollbar}
+  const Scrollbar({
     super.key,
     required this.child,
     this.controller,
@@ -34,46 +34,46 @@ class ShadScrollbar extends StatelessWidget {
   /// as for Flutter's own scrollbars.
   final ScrollController? controller;
 
-  /// {@template ShadScrollbar.thickness}
+  /// {@template Scrollbar.thickness}
   /// The thumb's thickness. Defaults to 7: shadcn's `w-2.5` track less its
   /// `p-px` padding and its 1px transparent border.
   /// {@endtemplate}
   final double? thickness;
 
-  /// {@template ShadScrollbar.crossAxisMargin}
+  /// {@template Scrollbar.crossAxisMargin}
   /// The gap between the thumb and the edge of the scrollable. Defaults to 1.
   /// {@endtemplate}
   final double? crossAxisMargin;
 
-  /// {@template ShadScrollbar.mainAxisMargin}
+  /// {@template Scrollbar.mainAxisMargin}
   /// The gap between the thumb and the ends of the track. Defaults to 1.
   /// {@endtemplate}
   final double? mainAxisMargin;
 
-  /// {@template ShadScrollbar.radius}
+  /// {@template Scrollbar.radius}
   /// The thumb's corner radius. Defaults to fully rounded, or square in the
   /// styles with square items.
   /// {@endtemplate}
   final Radius? radius;
 
-  /// {@template ShadScrollbar.thumbColor}
+  /// {@template Scrollbar.thumbColor}
   /// The thumb's colour. Defaults to the scheme's `border`.
   /// {@endtemplate}
   final Color? thumbColor;
 
-  /// {@template ShadScrollbar.thumbVisibility}
+  /// {@template Scrollbar.thumbVisibility}
   /// Whether the thumb stays visible when not scrolling. Defaults to false:
   /// it fades in while scrolling and out after [timeToFade], like Radix's
   /// default `hover` type.
   /// {@endtemplate}
   final bool? thumbVisibility;
 
-  /// {@template ShadScrollbar.fadeDuration}
+  /// {@template Scrollbar.fadeDuration}
   /// How long the thumb takes to fade in and out.
   /// {@endtemplate}
   final Duration? fadeDuration;
 
-  /// {@template ShadScrollbar.timeToFade}
+  /// {@template Scrollbar.timeToFade}
   /// How long the thumb stays after scrolling stops. Defaults to 600ms,
   /// Radix's `scrollHideDelay`.
   /// {@endtemplate}
@@ -85,8 +85,8 @@ class ShadScrollbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    assert(debugCheckHasShadTheme(context));
-    final theme = ShadTheme.of(context);
+    assert(debugCheckHasTheme(context));
+    final theme = Theme.of(context);
     final scrollTheme = theme.scrollAreaTheme;
 
     return RawScrollbar(
@@ -116,25 +116,25 @@ class ShadScrollbar extends StatelessWidget {
   }
 }
 
-/// {@template ShadScrollArea}
+/// {@template ScrollArea}
 /// shadcn/ui's ScrollArea: scrolls [child] along [scrollDirection], with a
-/// [ShadScrollbar].
+/// [Scrollbar].
 ///
 /// [child] is the content, not a scrollable; wrap a `ListView` or other
-/// scrollable in a [ShadScrollbar] instead.
+/// scrollable in a [Scrollbar] instead.
 ///
 /// ```dart
 /// SizedBox(
 ///   height: 200,
-///   child: ShadScrollArea(
+///   child: ScrollArea(
 ///     child: Column(children: [for (final tag in tags) Text(tag)]),
 ///   ),
 /// )
 /// ```
 /// {@endtemplate}
-class ShadScrollArea extends StatefulWidget {
-  /// {@macro ShadScrollArea}
-  const ShadScrollArea({
+class ScrollArea extends StatefulWidget {
+  /// {@macro ScrollArea}
+  const ScrollArea({
     super.key,
     required this.child,
     this.controller,
@@ -162,7 +162,7 @@ class ShadScrollArea extends StatefulWidget {
   /// The scroll physics.
   final ScrollPhysics? physics;
 
-  /// {@macro ShadScrollbar.thumbVisibility}
+  /// {@macro Scrollbar.thumbVisibility}
   final bool? thumbVisibility;
 
   /// Whether to fade the edges that have more content beyond them, a cue
@@ -177,10 +177,10 @@ class ShadScrollArea extends StatefulWidget {
   final double edgeShadowExtent;
 
   @override
-  State<ShadScrollArea> createState() => _ShadScrollAreaState();
+  State<ScrollArea> createState() => _ScrollAreaState();
 }
 
-class _ShadScrollAreaState extends State<ShadScrollArea> {
+class _ScrollAreaState extends State<ScrollArea> {
   ScrollController? _ownController;
   ScrollController get _controller =>
       widget.controller ?? (_ownController ??= ScrollController());
@@ -210,7 +210,7 @@ class _ShadScrollAreaState extends State<ShadScrollArea> {
   }
 
   Widget _edge(BuildContext context, {required bool start}) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     final color =
         widget.edgeShadowColor ??
         theme.colorScheme.foreground.withValues(
@@ -244,7 +244,7 @@ class _ShadScrollAreaState extends State<ShadScrollArea> {
 
   @override
   Widget build(BuildContext context) {
-    final result = ShadScrollbar(
+    final result = Scrollbar(
       controller: _controller,
       thumbVisibility: widget.thumbVisibility,
       child: SingleChildScrollView(

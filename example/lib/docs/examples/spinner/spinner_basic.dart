@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class SpinnerBasicExample extends StatelessWidget {
   const SpinnerBasicExample({super.key});
@@ -10,9 +10,9 @@ class SpinnerBasicExample extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       spacing: 24,
       children: [
-        ShadSpinner(size: 16),
-        ShadSpinner(),
-        ShadSpinner(size: 32),
+        Spinner(size: 16),
+        Spinner(),
+        Spinner(size: 32),
       ],
     );
   }

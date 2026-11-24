@@ -1,17 +1,17 @@
+import 'package:finesse/src/theme/color_scheme/base.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/color_scheme/base.dart';
 
 /// The shadcn/ui `taupe` colour scheme.
 ///
 /// Generated from shadcn/ui's `registry/themes.ts`, converting each OKLCH
 /// value to sRGB.
 @immutable
-class ShadTaupeColorScheme extends ShadColorScheme {
-  /// Creates a [ShadTaupeColorScheme] from explicit colours.
+class TaupeColorScheme extends ColorScheme {
+  /// Creates a [TaupeColorScheme] from explicit colours.
   ///
-  /// Use [ShadTaupeColorScheme.light] or [ShadTaupeColorScheme.dark] for the
+  /// Use [TaupeColorScheme.light] or [TaupeColorScheme.dark] for the
   /// shadcn/ui values.
-  const ShadTaupeColorScheme({
+  const TaupeColorScheme({
     required super.background,
     required super.foreground,
     required super.card,
@@ -48,10 +48,10 @@ class ShadTaupeColorScheme extends ShadColorScheme {
     super.custom,
   });
 
-  /// Creates the light variant of [ShadTaupeColorScheme].
+  /// Creates the light variant of [TaupeColorScheme].
   ///
   /// Every colour defaults to its light-mode value.
-  const ShadTaupeColorScheme.light({
+  const TaupeColorScheme.light({
     super.background = const Color(0xffffffff),
     super.foreground = const Color(0xff0c0a09),
     super.card = const Color(0xffffffff),
@@ -88,10 +88,10 @@ class ShadTaupeColorScheme extends ShadColorScheme {
     super.custom,
   });
 
-  /// Creates the dark variant of [ShadTaupeColorScheme].
+  /// Creates the dark variant of [TaupeColorScheme].
   ///
   /// Every colour defaults to its dark-mode value.
-  const ShadTaupeColorScheme.dark({
+  const TaupeColorScheme.dark({
     super.background = const Color(0xff0c0a09),
     super.foreground = const Color(0xfffbfaf9),
     super.card = const Color(0xff1d1816),

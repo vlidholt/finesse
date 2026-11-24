@@ -1,24 +1,24 @@
+import 'package:finesse/material.dart';
+import 'package:finesse/src/app.dart';
+import 'package:finesse/src/components/time_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/material.dart';
-import 'package:shad/src/app.dart';
-import 'package:shad/src/components/time_picker.dart';
 
 void main() {
-  // Helper method to create a test widget wrapped in ShadApp and Scaffold
+  // Helper method to create a test widget wrapped in FinesseApp and Scaffold
   Widget createTestWidget(Widget child) {
-    return ShadApp(
-      builder: (context, child) => ShadMaterial(child: child!),
+    return FinesseApp(
+      builder: (context, child) => FinesseMaterial(child: child!),
       home: Scaffold(body: child),
     );
   }
 
-  group('ShadTimePicker', () {
-    testWidgets('ShadTimePicker matches goldens', (tester) async {
-      await tester.pumpWidget(createTestWidget(const ShadTimePicker()));
+  group('TimePicker', () {
+    testWidgets('TimePicker matches goldens', (tester) async {
+      await tester.pumpWidget(createTestWidget(const TimePicker()));
 
       await expectLater(
-        find.byType(ShadTimePicker),
+        find.byType(TimePicker),
         matchesGoldenFile('goldens/time_picker.png'),
       );
     });

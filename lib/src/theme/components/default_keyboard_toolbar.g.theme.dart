@@ -9,12 +9,12 @@ part of 'default_keyboard_toolbar.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadDefaultKeyboardToolbarTheme {
+mixin _$DefaultKeyboardToolbarTheme {
   bool get canMerge => true;
 
-  static ShadDefaultKeyboardToolbarTheme? lerp(
-    ShadDefaultKeyboardToolbarTheme? a,
-    ShadDefaultKeyboardToolbarTheme? b,
+  static DefaultKeyboardToolbarTheme? lerp(
+    DefaultKeyboardToolbarTheme? a,
+    DefaultKeyboardToolbarTheme? b,
     double t,
   ) {
     if (identical(a, b)) {
@@ -29,7 +29,7 @@ mixin _$ShadDefaultKeyboardToolbarTheme {
       return t == 0.0 ? a : null;
     }
 
-    return ShadDefaultKeyboardToolbarTheme(
+    return DefaultKeyboardToolbarTheme(
       backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
       doneText: t < 0.5 ? a.doneText : b.doneText,
       showPreviousButton: t < 0.5 ? a.showPreviousButton : b.showPreviousButton,
@@ -39,7 +39,7 @@ mixin _$ShadDefaultKeyboardToolbarTheme {
     );
   }
 
-  ShadDefaultKeyboardToolbarTheme copyWith({
+  DefaultKeyboardToolbarTheme copyWith({
     Color? backgroundColor,
     String? doneText,
     bool? showPreviousButton,
@@ -47,9 +47,9 @@ mixin _$ShadDefaultKeyboardToolbarTheme {
     bool? showDoneButton,
     double? hideThreshold,
   }) {
-    final _this = (this as ShadDefaultKeyboardToolbarTheme);
+    final _this = (this as DefaultKeyboardToolbarTheme);
 
-    return ShadDefaultKeyboardToolbarTheme(
+    return DefaultKeyboardToolbarTheme(
       backgroundColor: backgroundColor ?? _this.backgroundColor,
       doneText: doneText ?? _this.doneText,
       showPreviousButton: showPreviousButton ?? _this.showPreviousButton,
@@ -59,10 +59,8 @@ mixin _$ShadDefaultKeyboardToolbarTheme {
     );
   }
 
-  ShadDefaultKeyboardToolbarTheme merge(
-    ShadDefaultKeyboardToolbarTheme? other,
-  ) {
-    final _this = (this as ShadDefaultKeyboardToolbarTheme);
+  DefaultKeyboardToolbarTheme merge(DefaultKeyboardToolbarTheme? other) {
+    final _this = (this as DefaultKeyboardToolbarTheme);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -92,8 +90,8 @@ mixin _$ShadDefaultKeyboardToolbarTheme {
       return false;
     }
 
-    final _this = (this as ShadDefaultKeyboardToolbarTheme);
-    final _other = (other as ShadDefaultKeyboardToolbarTheme);
+    final _this = (this as DefaultKeyboardToolbarTheme);
+    final _other = (other as DefaultKeyboardToolbarTheme);
 
     return _other.backgroundColor == _this.backgroundColor &&
         _other.doneText == _this.doneText &&
@@ -105,7 +103,7 @@ mixin _$ShadDefaultKeyboardToolbarTheme {
 
   @override
   int get hashCode {
-    final _this = (this as ShadDefaultKeyboardToolbarTheme);
+    final _this = (this as DefaultKeyboardToolbarTheme);
 
     return Object.hash(
       runtimeType,

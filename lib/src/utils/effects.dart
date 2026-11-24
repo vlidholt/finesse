@@ -1,20 +1,20 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-/// An effect from flutter_animate, under a shad name.
-typedef ShadAnimEffect<T> = Effect<T>;
+/// An effect from flutter_animate, under a finesse name.
+typedef AnimEffect<T> = Effect<T>;
 
 /// Animates the size of a widget along its vertical axis with a
 /// [SizeTransition].
 ///
 /// The value is the size factor: 0 is collapsed and 1 is the full size.
 @immutable
-class ShadSizeEffect extends Effect<double> {
+class SizeEffect extends Effect<double> {
   /// Creates a size effect.
   ///
   /// When neither [begin] nor [end] is given, it animates from 0 to 1. When
   /// only [end] is given, it starts at 1.
-  const ShadSizeEffect({
+  const SizeEffect({
     super.delay,
     super.duration,
     super.curve,
@@ -49,14 +49,14 @@ class ShadSizeEffect extends Effect<double> {
 ///
 /// It reads the animation value when it builds, so it moves only while
 /// something above it rebuilds on every frame, such as a
-/// `ShadAnimationBuilder`.
+/// `AnimationBuilder`.
 @immutable
-class ShadPaddingEffect extends Effect<double> {
+class PaddingEffect extends Effect<double> {
   /// Creates a padding effect.
   ///
   /// When neither [begin] nor [end] is given, it animates from 0 to 1. When
   /// only [end] is given, it starts at 1.
-  const ShadPaddingEffect({
+  const PaddingEffect({
     required this.padding,
     super.delay,
     super.duration,

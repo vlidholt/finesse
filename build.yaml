@@ -22,8 +22,8 @@ targets:
           timestamp: false
           flutter_integration: true
           locale_handling: false
-          class_name: ShadLocalizationsData
-          enum_name: ShadLocale
+          class_name: FinesseLocalizationsData
+          enum_name: FinesseLocale
           fallback_strategy: base_locale
           string_interpolation: dart
       slang_build_runner:legacy:

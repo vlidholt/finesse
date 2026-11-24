@@ -1,65 +1,65 @@
+import 'package:finesse/src/theme/color_scheme/base.dart';
+import 'package:finesse/src/theme/components/accordion.dart';
+import 'package:finesse/src/theme/components/alert.dart';
+import 'package:finesse/src/theme/components/avatar.dart';
+import 'package:finesse/src/theme/components/badge.dart';
+import 'package:finesse/src/theme/components/breadcrumb.dart';
+import 'package:finesse/src/theme/components/button.dart';
+import 'package:finesse/src/theme/components/button_sizes.dart';
+import 'package:finesse/src/theme/components/calendar.dart';
+import 'package:finesse/src/theme/components/card.dart';
+import 'package:finesse/src/theme/components/checkbox.dart';
+import 'package:finesse/src/theme/components/collapsible.dart';
+import 'package:finesse/src/theme/components/command.dart';
+import 'package:finesse/src/theme/components/context_menu.dart';
+import 'package:finesse/src/theme/components/date_picker.dart';
+import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/components/default_keyboard_toolbar.dart';
+import 'package:finesse/src/theme/components/dialog.dart';
+import 'package:finesse/src/theme/components/divider.dart';
+import 'package:finesse/src/theme/components/empty.dart';
+import 'package:finesse/src/theme/components/kbd.dart';
+import 'package:finesse/src/theme/components/menubar.dart';
+import 'package:finesse/src/theme/components/otp_field.dart';
+import 'package:finesse/src/theme/components/pagination.dart';
+import 'package:finesse/src/theme/components/popover.dart';
+import 'package:finesse/src/theme/components/progress_bar.dart';
+import 'package:finesse/src/theme/components/radio.dart';
+import 'package:finesse/src/theme/components/resizable.dart';
+import 'package:finesse/src/theme/components/scroll_area.dart';
+import 'package:finesse/src/theme/components/select.dart';
+import 'package:finesse/src/theme/components/select_option.dart';
+import 'package:finesse/src/theme/components/sheet.dart';
+import 'package:finesse/src/theme/components/sidebar.dart';
+import 'package:finesse/src/theme/components/skeleton.dart';
+import 'package:finesse/src/theme/components/slider.dart';
+import 'package:finesse/src/theme/components/sonner.dart';
+import 'package:finesse/src/theme/components/spinner.dart';
+import 'package:finesse/src/theme/components/switch.dart';
+import 'package:finesse/src/theme/components/table.dart';
+import 'package:finesse/src/theme/components/tabs.dart';
+import 'package:finesse/src/theme/components/text_field.dart';
+import 'package:finesse/src/theme/components/textarea.dart';
+import 'package:finesse/src/theme/components/time_picker.dart';
+import 'package:finesse/src/theme/components/toast.dart';
+import 'package:finesse/src/theme/components/toggle.dart';
+import 'package:finesse/src/theme/components/tooltip.dart';
+import 'package:finesse/src/theme/radii.dart';
+import 'package:finesse/src/theme/spacing.dart';
+import 'package:finesse/src/theme/style.dart';
+import 'package:finesse/src/theme/text_theme/theme.dart';
+import 'package:finesse/src/utils/gesture_detector.dart';
+import 'package:finesse/src/utils/responsive.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/color_scheme/base.dart';
-import 'package:shad/src/theme/components/accordion.dart';
-import 'package:shad/src/theme/components/alert.dart';
-import 'package:shad/src/theme/components/avatar.dart';
-import 'package:shad/src/theme/components/badge.dart';
-import 'package:shad/src/theme/components/breadcrumb.dart';
-import 'package:shad/src/theme/components/button.dart';
-import 'package:shad/src/theme/components/button_sizes.dart';
-import 'package:shad/src/theme/components/calendar.dart';
-import 'package:shad/src/theme/components/card.dart';
-import 'package:shad/src/theme/components/checkbox.dart';
-import 'package:shad/src/theme/components/collapsible.dart';
-import 'package:shad/src/theme/components/command.dart';
-import 'package:shad/src/theme/components/context_menu.dart';
-import 'package:shad/src/theme/components/date_picker.dart';
-import 'package:shad/src/theme/components/decorator.dart';
-import 'package:shad/src/theme/components/default_keyboard_toolbar.dart';
-import 'package:shad/src/theme/components/dialog.dart';
-import 'package:shad/src/theme/components/empty.dart';
-import 'package:shad/src/theme/components/input.dart';
-import 'package:shad/src/theme/components/input_otp.dart';
-import 'package:shad/src/theme/components/kbd.dart';
-import 'package:shad/src/theme/components/menubar.dart';
-import 'package:shad/src/theme/components/option.dart';
-import 'package:shad/src/theme/components/pagination.dart';
-import 'package:shad/src/theme/components/popover.dart';
-import 'package:shad/src/theme/components/progress.dart';
-import 'package:shad/src/theme/components/radio.dart';
-import 'package:shad/src/theme/components/resizable.dart';
-import 'package:shad/src/theme/components/scroll_area.dart';
-import 'package:shad/src/theme/components/select.dart';
-import 'package:shad/src/theme/components/separator.dart';
-import 'package:shad/src/theme/components/sheet.dart';
-import 'package:shad/src/theme/components/sidebar.dart';
-import 'package:shad/src/theme/components/skeleton.dart';
-import 'package:shad/src/theme/components/slider.dart';
-import 'package:shad/src/theme/components/sonner.dart';
-import 'package:shad/src/theme/components/spinner.dart';
-import 'package:shad/src/theme/components/switch.dart';
-import 'package:shad/src/theme/components/table.dart';
-import 'package:shad/src/theme/components/tabs.dart';
-import 'package:shad/src/theme/components/textarea.dart';
-import 'package:shad/src/theme/components/time_picker.dart';
-import 'package:shad/src/theme/components/toast.dart';
-import 'package:shad/src/theme/components/toggle.dart';
-import 'package:shad/src/theme/components/tooltip.dart';
-import 'package:shad/src/theme/radii.dart';
-import 'package:shad/src/theme/spacing.dart';
-import 'package:shad/src/theme/style.dart';
-import 'package:shad/src/theme/text_theme/theme.dart';
-import 'package:shad/src/utils/gesture_detector.dart';
-import 'package:shad/src/utils/responsive.dart';
 
 /// The resolved values of a theme: the colour scheme, the text theme, the
 /// shared settings and one theme per component.
 ///
-/// `ShadThemeData` is the only implementation. Its fields are documented here.
+/// `ThemeData` is the only implementation. Its fields are documented here.
 @immutable
-abstract class ShadBaseTheme {
+abstract class BaseTheme {
   /// Creates a base theme with every value given.
-  const ShadBaseTheme({
+  const BaseTheme({
     required this.colorScheme,
     required this.brightness,
     required this.primaryButtonTheme,
@@ -82,11 +82,11 @@ abstract class ShadBaseTheme {
     required this.textTheme,
     required this.disabledOpacity,
     required this.selectTheme,
-    required this.optionTheme,
+    required this.selectOptionTheme,
     required this.cardTheme,
     required this.switchTheme,
     required this.checkboxTheme,
-    required this.inputTheme,
+    required this.textFieldTheme,
     required this.radioTheme,
     required this.primaryToastTheme,
     required this.destructiveToastTheme,
@@ -97,7 +97,7 @@ abstract class ShadBaseTheme {
     required this.alertDialogTheme,
     required this.sliderTheme,
     required this.sheetTheme,
-    required this.progressTheme,
+    required this.progressBarTheme,
     required this.accordionTheme,
     required this.tableTheme,
     required this.resizableTheme,
@@ -108,9 +108,9 @@ abstract class ShadBaseTheme {
     required this.calendarTheme,
     required this.datePickerTheme,
     required this.timePickerTheme,
-    required this.inputOTPTheme,
+    required this.otpFieldTheme,
     required this.menubarTheme,
-    required this.separatorTheme,
+    required this.dividerTheme,
     required this.sonnerTheme,
     required this.textareaTheme,
     required this.defaultKeyboardToolbarTheme,
@@ -130,429 +130,429 @@ abstract class ShadBaseTheme {
 
   /// The variant that produced the component theme defaults below.
   ///
-  /// Stored so that `ShadThemeData.copyWith` re-derives from the same variant
+  /// Stored so that `ThemeData.copyWith` re-derives from the same variant
   /// instead of silently falling back to the default one.
-  final ShadThemeVariant variant;
+  final ThemeVariant variant;
 
-  /// The theme of `ShadCommand`.
-  final ShadCommandTheme commandTheme;
+  /// The theme of `Command`.
+  final CommandTheme commandTheme;
 
-  /// The theme of `ShadSidebar` and its menu.
-  final ShadSidebarTheme sidebarTheme;
+  /// The theme of `Sidebar` and its menu.
+  final SidebarTheme sidebarTheme;
 
-  /// The theme of `ShadSkeleton`.
-  final ShadSkeletonTheme skeletonTheme;
+  /// The theme of `Skeleton`.
+  final SkeletonTheme skeletonTheme;
 
-  /// The theme of `ShadKbd` keyboard keys.
-  final ShadKbdTheme kbdTheme;
+  /// The theme of `Kbd` keyboard keys.
+  final KbdTheme kbdTheme;
 
-  /// The theme of `ShadScrollArea`.
-  final ShadScrollAreaTheme scrollAreaTheme;
+  /// The theme of `ScrollArea`.
+  final ScrollAreaTheme scrollAreaTheme;
 
-  /// The theme of `ShadSpinner`.
-  final ShadSpinnerTheme spinnerTheme;
+  /// The theme of `Spinner`.
+  final SpinnerTheme spinnerTheme;
 
-  /// The theme of `ShadToggle` in its default variant.
-  final ShadToggleTheme toggleTheme;
+  /// The theme of `Toggle` in its default variant.
+  final ToggleTheme toggleTheme;
 
-  /// The theme of outline toggles, `ShadToggle.outline`.
-  final ShadToggleTheme outlineToggleTheme;
+  /// The theme of outline toggles, `Toggle.outline`.
+  final ToggleTheme outlineToggleTheme;
 
-  /// The theme of `ShadEmpty`.
-  final ShadEmptyTheme emptyTheme;
+  /// The theme of `Empty`.
+  final EmptyTheme emptyTheme;
 
-  /// The theme of `ShadPagination`.
-  final ShadPaginationTheme paginationTheme;
+  /// The theme of `Pagination`.
+  final PaginationTheme paginationTheme;
 
-  /// The theme of `ShadCollapsible`.
-  final ShadCollapsibleTheme collapsibleTheme;
+  /// The theme of `Collapsible`.
+  final CollapsibleTheme collapsibleTheme;
 
   /// The colour tokens every component theme is built from.
-  final ShadColorScheme colorScheme;
+  final ColorScheme colorScheme;
 
   /// Whether the theme is light or dark.
   final Brightness brightness;
 
-  /// The theme of primary buttons, `ShadButton`'s default variant.
-  final ShadButtonTheme primaryButtonTheme;
+  /// The theme of primary buttons, `Button`'s default variant.
+  final ButtonTheme primaryButtonTheme;
 
-  /// The theme of secondary buttons, `ShadButton.secondary`.
-  final ShadButtonTheme secondaryButtonTheme;
+  /// The theme of secondary buttons, `Button.secondary`.
+  final ButtonTheme secondaryButtonTheme;
 
-  /// The theme of destructive buttons, `ShadButton.destructive`.
-  final ShadButtonTheme destructiveButtonTheme;
+  /// The theme of destructive buttons, `Button.destructive`.
+  final ButtonTheme destructiveButtonTheme;
 
-  /// The theme of outline buttons, `ShadButton.outline`.
-  final ShadButtonTheme outlineButtonTheme;
+  /// The theme of outline buttons, `Button.outline`.
+  final ButtonTheme outlineButtonTheme;
 
-  /// The theme of ghost buttons, `ShadButton.ghost`.
-  final ShadButtonTheme ghostButtonTheme;
+  /// The theme of ghost buttons, `Button.ghost`.
+  final ButtonTheme ghostButtonTheme;
 
-  /// The theme of link buttons, `ShadButton.link`.
-  final ShadButtonTheme linkButtonTheme;
+  /// The theme of link buttons, `Button.link`.
+  final ButtonTheme linkButtonTheme;
 
-  /// The theme of primary badges, `ShadBadge`'s default variant.
-  final ShadBadgeTheme primaryBadgeTheme;
+  /// The theme of primary badges, `Badge`'s default variant.
+  final BadgeTheme primaryBadgeTheme;
 
-  /// The theme of secondary badges, `ShadBadge.secondary`.
-  final ShadBadgeTheme secondaryBadgeTheme;
+  /// The theme of secondary badges, `Badge.secondary`.
+  final BadgeTheme secondaryBadgeTheme;
 
-  /// The theme of destructive badges, `ShadBadge.destructive`.
-  final ShadBadgeTheme destructiveBadgeTheme;
+  /// The theme of destructive badges, `Badge.destructive`.
+  final BadgeTheme destructiveBadgeTheme;
 
-  /// The theme of outline badges, `ShadBadge.outline`.
-  final ShadBadgeTheme outlineBadgeTheme;
+  /// The theme of outline badges, `Badge.outline`.
+  final BadgeTheme outlineBadgeTheme;
 
-  /// The theme of `ShadBreadcrumb`.
-  final ShadBreadcrumbTheme breadcrumbTheme;
+  /// The theme of `Breadcrumb`.
+  final BreadcrumbTheme breadcrumbTheme;
 
-  /// The component radius, the `md` step of [ShadRadii]. Defaults to 8.
+  /// The component radius, the `md` step of [Radii]. Defaults to 8.
   final BorderRadius radius;
 
-  /// The theme of `ShadAvatar`.
-  final ShadAvatarTheme avatarTheme;
+  /// The theme of `Avatar`.
+  final AvatarTheme avatarTheme;
 
-  /// The metrics of each `ShadButton` size.
-  final ShadButtonSizesTheme buttonSizesTheme;
+  /// The metrics of each `Button` size.
+  final ButtonSizesTheme buttonSizesTheme;
 
-  /// The theme of `ShadTooltip`.
-  final ShadTooltipTheme tooltipTheme;
+  /// The theme of `Tooltip`.
+  final TooltipTheme tooltipTheme;
 
-  /// The theme of `ShadPopover`.
-  final ShadPopoverTheme popoverTheme;
+  /// The theme of `Popover`.
+  final PopoverTheme popoverTheme;
 
   /// The default border and label styling of controls. Component decorations
   /// are merged over it.
-  final ShadDecoration decoration;
+  final FinesseDecoration decoration;
 
   /// The text styles. These have the style's text roles applied, so they can
   /// differ from the text theme passed in.
-  final ShadTextTheme textTheme;
+  final TextTheme textTheme;
 
   /// The opacity of disabled components. Defaults to 0.5.
   final double disabledOpacity;
 
-  /// The theme of `ShadSelect`.
-  final ShadSelectTheme selectTheme;
+  /// The theme of `Select`.
+  final SelectTheme selectTheme;
 
-  /// The theme of `ShadOption`, the rows of a select.
-  final ShadOptionTheme optionTheme;
+  /// The theme of `SelectOption`, the rows of a select.
+  final SelectOptionTheme selectOptionTheme;
 
-  /// The theme of `ShadCard`.
-  final ShadCardTheme cardTheme;
+  /// The theme of `Card`.
+  final CardTheme cardTheme;
 
-  /// The theme of `ShadSwitch`.
-  final ShadSwitchTheme switchTheme;
+  /// The theme of `Switch`.
+  final SwitchTheme switchTheme;
 
-  /// The theme of `ShadCheckbox`.
-  final ShadCheckboxTheme checkboxTheme;
+  /// The theme of `Checkbox`.
+  final CheckboxTheme checkboxTheme;
 
-  /// The theme of `ShadInput`.
-  final ShadInputTheme inputTheme;
+  /// The theme of `TextField`.
+  final TextFieldTheme textFieldTheme;
 
-  /// The theme of `ShadRadio`.
-  final ShadRadioTheme radioTheme;
+  /// The theme of `Radio`.
+  final RadioTheme radioTheme;
 
-  /// The theme of default toasts, `ShadToast`.
-  final ShadToastTheme primaryToastTheme;
+  /// The theme of default toasts, `Toast`.
+  final ToastTheme primaryToastTheme;
 
-  /// The theme of destructive toasts, `ShadToast.destructive`.
-  final ShadToastTheme destructiveToastTheme;
+  /// The theme of destructive toasts, `Toast.destructive`.
+  final ToastTheme destructiveToastTheme;
 
   /// The screen widths at which the layout changes.
-  final ShadBreakpoints breakpoints;
+  final Breakpoints breakpoints;
 
-  /// The theme of default alerts, `ShadAlert`.
-  final ShadAlertTheme primaryAlertTheme;
+  /// The theme of default alerts, `Alert`.
+  final AlertTheme primaryAlertTheme;
 
-  /// The theme of destructive alerts, `ShadAlert.destructive`.
-  final ShadAlertTheme destructiveAlertTheme;
+  /// The theme of destructive alerts, `Alert.destructive`.
+  final AlertTheme destructiveAlertTheme;
 
-  /// The theme of `ShadDialog`.
-  final ShadDialogTheme primaryDialogTheme;
+  /// The theme of `Dialog`.
+  final DialogTheme primaryDialogTheme;
 
-  /// The theme of alert dialogs, `ShadDialog.alert`.
-  final ShadDialogTheme alertDialogTheme;
+  /// The theme of alert dialogs, `Dialog.alert`.
+  final DialogTheme alertDialogTheme;
 
-  /// The theme of `ShadSlider`.
-  final ShadSliderTheme sliderTheme;
+  /// The theme of `Slider`.
+  final SliderTheme sliderTheme;
 
-  /// The theme of `ShadSheet`.
-  final ShadSheetTheme sheetTheme;
+  /// The theme of `Sheet`.
+  final SheetTheme sheetTheme;
 
-  /// The theme of `ShadProgress`.
-  final ShadProgressTheme progressTheme;
+  /// The theme of `ProgressBar`.
+  final ProgressBarTheme progressBarTheme;
 
-  /// The theme of `ShadAccordion`.
-  final ShadAccordionTheme accordionTheme;
+  /// The theme of `Accordion`.
+  final AccordionTheme accordionTheme;
 
-  /// The theme of `ShadTable`.
-  final ShadTableTheme tableTheme;
+  /// The theme of `FinesseTable`.
+  final TableTheme tableTheme;
 
-  /// The theme of `ShadResizablePanelGroup`.
-  final ShadResizableTheme resizableTheme;
+  /// The theme of `ResizablePanelGroup`.
+  final ResizableTheme resizableTheme;
 
   /// The gestures that give touch devices a hover state.
-  final ShadHoverStrategies hoverStrategies;
+  final HoverStrategies hoverStrategies;
 
   /// Whether controls show focus without the outward ring. Defaults to false.
   ///
-  /// When true, `ShadThemeData` uses
-  /// `ShadDefaultThemeNoSecondaryBorderVariant`.
+  /// When true, `ThemeData` uses
+  /// `DefaultThemeNoSecondaryBorderVariant`.
   final bool disableSecondaryBorder;
 
-  /// The theme of `ShadTabs`.
-  final ShadTabsTheme tabsTheme;
+  /// The theme of `Tabs`.
+  final TabsTheme tabsTheme;
 
-  /// The theme of `ShadContextMenu`.
-  final ShadContextMenuTheme contextMenuTheme;
+  /// The theme of `ContextMenu`.
+  final ContextMenuTheme contextMenuTheme;
 
-  /// The theme of `ShadCalendar`.
-  final ShadCalendarTheme calendarTheme;
+  /// The theme of `Calendar`.
+  final CalendarTheme calendarTheme;
 
-  /// The theme of `ShadDatePicker`.
-  final ShadDatePickerTheme datePickerTheme;
+  /// The theme of `DatePicker`.
+  final DatePickerTheme datePickerTheme;
 
-  /// The theme of `ShadTimePicker`.
-  final ShadTimePickerTheme timePickerTheme;
+  /// The theme of `TimePicker`.
+  final TimePickerTheme timePickerTheme;
 
-  /// The theme of `ShadInputOTP`.
-  final ShadInputOTPTheme inputOTPTheme;
+  /// The theme of `OtpField`.
+  final OtpFieldTheme otpFieldTheme;
 
-  /// The theme of `ShadMenubar`.
-  final ShadMenubarTheme menubarTheme;
+  /// The theme of `Menubar`.
+  final MenubarTheme menubarTheme;
 
-  /// The theme of `ShadSeparator`.
-  final ShadSeparatorTheme separatorTheme;
+  /// The theme of `Divider`.
+  final DividerTheme dividerTheme;
 
-  /// The theme of `ShadSonner`.
-  final ShadSonnerTheme sonnerTheme;
+  /// The theme of `Sonner`.
+  final SonnerTheme sonnerTheme;
 
-  /// The theme of `ShadTextarea`.
-  final ShadTextareaTheme textareaTheme;
+  /// The theme of `Textarea`.
+  final TextareaTheme textareaTheme;
 
-  /// The theme of `ShadDefaultKeyboardToolbar`.
-  final ShadDefaultKeyboardToolbarTheme defaultKeyboardToolbarTheme;
+  /// The theme of `DefaultKeyboardToolbar`.
+  final DefaultKeyboardToolbarTheme defaultKeyboardToolbarTheme;
 }
 
 /// Derives every component theme from one colour scheme, radius, text theme,
 /// style and spacing scale.
 ///
 /// A variant bakes its inputs into the themes it returns, so call [rebuild] to
-/// change one of them. `ShadThemeData` calls the builder methods when it is
+/// change one of them. `ThemeData` calls the builder methods when it is
 /// created, and an explicit component theme is merged over the result. See
-/// `ShadDefaultThemeVariant` and `ShadDefaultThemeNoSecondaryBorderVariant`.
+/// `DefaultThemeVariant` and `DefaultThemeNoSecondaryBorderVariant`.
 @immutable
-abstract class ShadThemeVariant {
+abstract class ThemeVariant {
   /// The palette every component theme is built from.
-  ShadColorScheme get colorScheme;
+  ColorScheme get colorScheme;
 
   /// The base ("md") radius the rest of the scale derives from.
   BorderRadius get radius;
 
   /// The already-merged text theme.
-  ShadTextTheme get effectiveTextTheme;
+  TextTheme get effectiveTextTheme;
 
   /// Returns a variant of the same kind with the given inputs replaced.
   ///
   /// A variant bakes its inputs into the component themes when it is
   /// constructed, so changing one of them means building a new variant.
-  /// `ShadThemeData.copyWith` relies on this: without it, `copyWith(radius:)`
+  /// `ThemeData.copyWith` relies on this: without it, `copyWith(radius:)`
   /// on a theme that carries a variant would update the theme's `radius` field
   /// and leave every component at the old one.
-  ShadThemeVariant rebuild({
-    ShadColorScheme? colorScheme,
+  ThemeVariant rebuild({
+    ColorScheme? colorScheme,
     BorderRadius? radius,
-    ShadTextTheme? effectiveTextTheme,
-    ShadStyleTokens? style,
-    ShadSpacing? spacing,
+    TextTheme? effectiveTextTheme,
+    StyleTokens? style,
+    Spacing? spacing,
   });
 
   /// The shadcn/ui style this variant renders — the radius, focus-ring and
   /// label knobs that distinguish one style from another.
-  ShadStyleTokens get style;
+  StyleTokens get style;
 
   /// The corner-radius scale, derived from the variant's base radius.
-  ShadRadii get radii;
+  Radii get radii;
 
   /// The spacing scale every padding and gap is a multiple of.
-  ShadSpacing get spacing;
+  Spacing get spacing;
 
-  /// Builds the theme of primary buttons, `ShadButton`'s default variant.
-  ShadButtonTheme primaryButtonTheme();
+  /// Builds the theme of primary buttons, `Button`'s default variant.
+  ButtonTheme primaryButtonTheme();
 
-  /// Builds the theme of secondary buttons, `ShadButton.secondary`.
-  ShadButtonTheme secondaryButtonTheme();
+  /// Builds the theme of secondary buttons, `Button.secondary`.
+  ButtonTheme secondaryButtonTheme();
 
-  /// Builds the theme of destructive buttons, `ShadButton.destructive`.
-  ShadButtonTheme destructiveButtonTheme();
+  /// Builds the theme of destructive buttons, `Button.destructive`.
+  ButtonTheme destructiveButtonTheme();
 
-  /// Builds the theme of outline buttons, `ShadButton.outline`.
-  ShadButtonTheme outlineButtonTheme();
+  /// Builds the theme of outline buttons, `Button.outline`.
+  ButtonTheme outlineButtonTheme();
 
-  /// Builds the theme of ghost buttons, `ShadButton.ghost`.
-  ShadButtonTheme ghostButtonTheme();
+  /// Builds the theme of ghost buttons, `Button.ghost`.
+  ButtonTheme ghostButtonTheme();
 
-  /// Builds the theme of link buttons, `ShadButton.link`.
-  ShadButtonTheme linkButtonTheme();
+  /// Builds the theme of link buttons, `Button.link`.
+  ButtonTheme linkButtonTheme();
 
-  /// Builds the metrics of each `ShadButton` size.
-  ShadButtonSizesTheme buttonSizesTheme();
+  /// Builds the metrics of each `Button` size.
+  ButtonSizesTheme buttonSizesTheme();
 
-  /// Builds the theme of primary badges, `ShadBadge`'s default variant.
-  ShadBadgeTheme primaryBadgeTheme();
+  /// Builds the theme of primary badges, `Badge`'s default variant.
+  BadgeTheme primaryBadgeTheme();
 
-  /// Builds the theme of secondary badges, `ShadBadge.secondary`.
-  ShadBadgeTheme secondaryBadgeTheme();
+  /// Builds the theme of secondary badges, `Badge.secondary`.
+  BadgeTheme secondaryBadgeTheme();
 
-  /// Builds the theme of destructive badges, `ShadBadge.destructive`.
-  ShadBadgeTheme destructiveBadgeTheme();
+  /// Builds the theme of destructive badges, `Badge.destructive`.
+  BadgeTheme destructiveBadgeTheme();
 
-  /// Builds the theme of outline badges, `ShadBadge.outline`.
-  ShadBadgeTheme outlineBadgeTheme();
+  /// Builds the theme of outline badges, `Badge.outline`.
+  BadgeTheme outlineBadgeTheme();
 
-  /// Builds the theme of `ShadAvatar`.
-  ShadAvatarTheme avatarTheme();
+  /// Builds the theme of `Avatar`.
+  AvatarTheme avatarTheme();
 
-  /// Builds the theme of `ShadBreadcrumb`.
-  ShadBreadcrumbTheme breadcrumbTheme();
+  /// Builds the theme of `Breadcrumb`.
+  BreadcrumbTheme breadcrumbTheme();
 
-  /// Builds the theme of `ShadTooltip`.
-  ShadTooltipTheme tooltipTheme();
+  /// Builds the theme of `Tooltip`.
+  TooltipTheme tooltipTheme();
 
-  /// Builds the theme of `ShadPopover`.
-  ShadPopoverTheme popoverTheme();
+  /// Builds the theme of `Popover`.
+  PopoverTheme popoverTheme();
 
-  /// Builds the default [ShadDecoration] of controls.
-  ShadDecoration decorationTheme();
+  /// Builds the default [FinesseDecoration] of controls.
+  FinesseDecoration decorationTheme();
 
   /// Builds the text theme: [effectiveTextTheme] with the style's text roles
   /// applied to `small`, `muted`, `p`, `list` and `large`.
-  ShadTextTheme textTheme();
+  TextTheme textTheme();
 
-  /// Builds the theme of `ShadSelect`.
-  ShadSelectTheme selectTheme();
+  /// Builds the theme of `Select`.
+  SelectTheme selectTheme();
 
-  /// Builds the theme of `ShadOption`, the rows of a select.
-  ShadOptionTheme optionTheme();
+  /// Builds the theme of `SelectOption`, the rows of a select.
+  SelectOptionTheme selectOptionTheme();
 
-  /// Builds the theme of `ShadCard`.
-  ShadCardTheme cardTheme();
+  /// Builds the theme of `Card`.
+  CardTheme cardTheme();
 
-  /// Builds the theme of `ShadSwitch`.
-  ShadSwitchTheme switchTheme();
+  /// Builds the theme of `Switch`.
+  SwitchTheme switchTheme();
 
-  /// Builds the theme of `ShadCheckbox`.
-  ShadCheckboxTheme checkboxTheme();
+  /// Builds the theme of `Checkbox`.
+  CheckboxTheme checkboxTheme();
 
-  /// Builds the theme of `ShadInput`.
-  ShadInputTheme inputTheme();
+  /// Builds the theme of `TextField`.
+  TextFieldTheme textFieldTheme();
 
-  /// Builds the theme of `ShadRadio`.
-  ShadRadioTheme radioTheme();
+  /// Builds the theme of `Radio`.
+  RadioTheme radioTheme();
 
-  /// Builds the theme of default toasts, `ShadToast`.
-  ShadToastTheme primaryToastTheme();
+  /// Builds the theme of default toasts, `Toast`.
+  ToastTheme primaryToastTheme();
 
-  /// Builds the theme of destructive toasts, `ShadToast.destructive`.
-  ShadToastTheme destructiveToastTheme();
+  /// Builds the theme of destructive toasts, `Toast.destructive`.
+  ToastTheme destructiveToastTheme();
 
-  /// Builds the theme of default alerts, `ShadAlert`.
-  ShadAlertTheme primaryAlertTheme();
+  /// Builds the theme of default alerts, `Alert`.
+  AlertTheme primaryAlertTheme();
 
-  /// Builds the theme of destructive alerts, `ShadAlert.destructive`.
-  ShadAlertTheme destructiveAlertTheme();
+  /// Builds the theme of destructive alerts, `Alert.destructive`.
+  AlertTheme destructiveAlertTheme();
 
-  /// Builds the theme of `ShadDialog`.
-  ShadDialogTheme primaryDialogTheme();
+  /// Builds the theme of `Dialog`.
+  DialogTheme primaryDialogTheme();
 
-  /// Builds the theme of alert dialogs, `ShadDialog.alert`.
-  ShadDialogTheme alertDialogTheme();
+  /// Builds the theme of alert dialogs, `Dialog.alert`.
+  DialogTheme alertDialogTheme();
 
-  /// Builds the theme of `ShadSlider`.
-  ShadSliderTheme sliderTheme();
+  /// Builds the theme of `Slider`.
+  SliderTheme sliderTheme();
 
-  /// Builds the theme of `ShadSheet`.
-  ShadSheetTheme sheetTheme();
+  /// Builds the theme of `Sheet`.
+  SheetTheme sheetTheme();
 
-  /// Builds the theme of `ShadProgress`.
-  ShadProgressTheme progressTheme();
+  /// Builds the theme of `ProgressBar`.
+  ProgressBarTheme progressBarTheme();
 
-  /// Builds the theme of `ShadAccordion`.
-  ShadAccordionTheme accordionTheme();
+  /// Builds the theme of `Accordion`.
+  AccordionTheme accordionTheme();
 
-  /// Builds the theme of `ShadTable`.
-  ShadTableTheme tableTheme();
+  /// Builds the theme of `FinesseTable`.
+  TableTheme tableTheme();
 
-  /// Builds the theme of `ShadResizablePanelGroup`.
-  ShadResizableTheme resizableTheme();
+  /// Builds the theme of `ResizablePanelGroup`.
+  ResizableTheme resizableTheme();
 
   /// Builds the gestures that give touch devices a hover state.
-  ShadHoverStrategies hoverStrategies();
+  HoverStrategies hoverStrategies();
 
-  /// Builds the theme of `ShadTabs`.
-  ShadTabsTheme tabsTheme();
+  /// Builds the theme of `Tabs`.
+  TabsTheme tabsTheme();
 
-  /// Builds the theme of `ShadContextMenu`.
-  ShadContextMenuTheme contextMenuTheme();
+  /// Builds the theme of `ContextMenu`.
+  ContextMenuTheme contextMenuTheme();
 
-  /// Builds the theme of `ShadCalendar`.
-  ShadCalendarTheme calendarTheme();
+  /// Builds the theme of `Calendar`.
+  CalendarTheme calendarTheme();
 
-  /// Builds the theme of `ShadDatePicker`.
-  ShadDatePickerTheme datePickerTheme();
+  /// Builds the theme of `DatePicker`.
+  DatePickerTheme datePickerTheme();
 
-  /// Builds the theme of `ShadTimePicker`.
-  ShadTimePickerTheme timePickerTheme();
+  /// Builds the theme of `TimePicker`.
+  TimePickerTheme timePickerTheme();
 
-  /// Builds the theme of `ShadInputOTP`.
-  ShadInputOTPTheme inputOTPTheme();
+  /// Builds the theme of `OtpField`.
+  OtpFieldTheme otpFieldTheme();
 
-  /// Builds the theme of `ShadMenubar`.
-  ShadMenubarTheme menubarTheme();
+  /// Builds the theme of `Menubar`.
+  MenubarTheme menubarTheme();
 
-  /// Builds the theme of `ShadSeparator`.
-  ShadSeparatorTheme separatorTheme();
+  /// Builds the theme of `Divider`.
+  DividerTheme dividerTheme();
 
-  /// Builds the theme of `ShadSonner`.
-  ShadSonnerTheme sonnerTheme();
+  /// Builds the theme of `Sonner`.
+  SonnerTheme sonnerTheme();
 
-  /// Builds the theme of `ShadTextarea`.
-  ShadTextareaTheme textareaTheme();
+  /// Builds the theme of `Textarea`.
+  TextareaTheme textareaTheme();
 
-  /// Builds the theme of `ShadDefaultKeyboardToolbar`.
-  ShadDefaultKeyboardToolbarTheme defaultKeyboardToolbarTheme();
+  /// Builds the theme of `DefaultKeyboardToolbar`.
+  DefaultKeyboardToolbarTheme defaultKeyboardToolbarTheme();
 
-  /// Builds the theme of `ShadCommand`.
-  ShadCommandTheme commandTheme();
+  /// Builds the theme of `Command`.
+  CommandTheme commandTheme();
 
-  /// Builds the theme of `ShadSkeleton`.
-  ShadSkeletonTheme skeletonTheme();
+  /// Builds the theme of `Skeleton`.
+  SkeletonTheme skeletonTheme();
 
-  /// Builds the theme of `ShadKbd` keyboard keys.
-  ShadKbdTheme kbdTheme();
+  /// Builds the theme of `Kbd` keyboard keys.
+  KbdTheme kbdTheme();
 
-  /// Builds the theme of `ShadScrollArea`.
-  ShadScrollAreaTheme scrollAreaTheme();
+  /// Builds the theme of `ScrollArea`.
+  ScrollAreaTheme scrollAreaTheme();
 
-  /// Builds the theme of `ShadSpinner`.
-  ShadSpinnerTheme spinnerTheme();
+  /// Builds the theme of `Spinner`.
+  SpinnerTheme spinnerTheme();
 
-  /// Builds the theme of `ShadToggle` in its default variant.
-  ShadToggleTheme toggleTheme();
+  /// Builds the theme of `Toggle` in its default variant.
+  ToggleTheme toggleTheme();
 
-  /// Builds the theme of outline toggles, `ShadToggle.outline`.
-  ShadToggleTheme outlineToggleTheme();
+  /// Builds the theme of outline toggles, `Toggle.outline`.
+  ToggleTheme outlineToggleTheme();
 
-  /// Builds the theme of `ShadEmpty`.
-  ShadEmptyTheme emptyTheme();
+  /// Builds the theme of `Empty`.
+  EmptyTheme emptyTheme();
 
-  /// Builds the theme of `ShadPagination`.
-  ShadPaginationTheme paginationTheme();
+  /// Builds the theme of `Pagination`.
+  PaginationTheme paginationTheme();
 
-  /// Builds the theme of `ShadCollapsible`.
-  ShadCollapsibleTheme collapsibleTheme();
+  /// Builds the theme of `Collapsible`.
+  CollapsibleTheme collapsibleTheme();
 
-  /// Builds the theme of `ShadSidebar` and its menu.
-  ShadSidebarTheme sidebarTheme();
+  /// Builds the theme of `Sidebar` and its menu.
+  SidebarTheme sidebarTheme();
 }

@@ -1,17 +1,17 @@
+import 'package:finesse/src/theme/color_scheme/base.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/color_scheme/base.dart';
 
 /// The shadcn/ui `stone` colour scheme.
 ///
 /// Generated from shadcn/ui's `registry/themes.ts`, converting each OKLCH
 /// value to sRGB.
 @immutable
-class ShadStoneColorScheme extends ShadColorScheme {
-  /// Creates a [ShadStoneColorScheme] from explicit colours.
+class StoneColorScheme extends ColorScheme {
+  /// Creates a [StoneColorScheme] from explicit colours.
   ///
-  /// Use [ShadStoneColorScheme.light] or [ShadStoneColorScheme.dark] for the
+  /// Use [StoneColorScheme.light] or [StoneColorScheme.dark] for the
   /// shadcn/ui values.
-  const ShadStoneColorScheme({
+  const StoneColorScheme({
     required super.background,
     required super.foreground,
     required super.card,
@@ -48,10 +48,10 @@ class ShadStoneColorScheme extends ShadColorScheme {
     super.custom,
   });
 
-  /// Creates the light variant of [ShadStoneColorScheme].
+  /// Creates the light variant of [StoneColorScheme].
   ///
   /// Every colour defaults to its light-mode value.
-  const ShadStoneColorScheme.light({
+  const StoneColorScheme.light({
     super.background = const Color(0xffffffff),
     super.foreground = const Color(0xff0c0a09),
     super.card = const Color(0xffffffff),
@@ -88,10 +88,10 @@ class ShadStoneColorScheme extends ShadColorScheme {
     super.custom,
   });
 
-  /// Creates the dark variant of [ShadStoneColorScheme].
+  /// Creates the dark variant of [StoneColorScheme].
   ///
   /// Every colour defaults to its dark-mode value.
-  const ShadStoneColorScheme.dark({
+  const StoneColorScheme.dark({
     super.background = const Color(0xff0c0a09),
     super.foreground = const Color(0xfffafaf9),
     super.card = const Color(0xff1c1917),

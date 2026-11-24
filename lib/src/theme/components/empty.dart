@@ -3,14 +3,14 @@ import 'package:theme_extensions_builder_annotation/theme_extensions_builder_ann
 
 part 'empty.g.theme.dart';
 
-/// {@template ShadEmptyTheme}
-/// Theme for the `ShadEmpty` widget.
+/// {@template EmptyTheme}
+/// Theme for the `Empty` widget.
 /// {@endtemplate}
 @themeGen
 @immutable
-class ShadEmptyTheme with _$ShadEmptyTheme {
-  /// {@macro ShadEmptyTheme}
-  const ShadEmptyTheme({
+class EmptyTheme with _$EmptyTheme {
+  /// {@macro EmptyTheme}
+  const EmptyTheme({
     bool canMerge = true,
     this.padding,
     this.gap,
@@ -28,34 +28,34 @@ class ShadEmptyTheme with _$ShadEmptyTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro ShadEmpty.padding}
+  /// {@macro Empty.padding}
   final EdgeInsetsGeometry? padding;
 
   /// The vertical gap between the icon, title, description and actions.
   final double? gap;
 
-  /// {@macro ShadEmpty.iconSize}
+  /// {@macro Empty.iconSize}
   final double? iconSize;
 
   /// The color applied to the icon.
   final Color? iconColor;
 
-  /// {@macro ShadEmpty.titleStyle}
+  /// {@macro Empty.titleStyle}
   final TextStyle? titleStyle;
 
-  /// {@macro ShadEmpty.descriptionStyle}
+  /// {@macro Empty.descriptionStyle}
   final TextStyle? descriptionStyle;
 
-  /// {@macro ShadEmpty.crossAxisAlignment}
+  /// {@macro Empty.crossAxisAlignment}
   final CrossAxisAlignment? crossAxisAlignment;
 
-  /// {@macro ShadEmpty.mainAxisAlignment}
+  /// {@macro Empty.mainAxisAlignment}
   final MainAxisAlignment? mainAxisAlignment;
 
   /// Linearly interpolates between [a] and [b] by [t].
-  static ShadEmptyTheme? lerp(
-    ShadEmptyTheme? a,
-    ShadEmptyTheme? b,
+  static EmptyTheme? lerp(
+    EmptyTheme? a,
+    EmptyTheme? b,
     double t,
-  ) => _$ShadEmptyTheme.lerp(a, b, t);
+  ) => _$EmptyTheme.lerp(a, b, t);
 }

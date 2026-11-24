@@ -1,27 +1,27 @@
+import 'package:finesse/material.dart';
+import 'package:finesse/src/app.dart';
+import 'package:finesse/src/components/avatar.dart'; // Adjust import path based on your project structure
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:shad/material.dart';
-import 'package:shad/src/app.dart';
-import 'package:shad/src/components/avatar.dart'; // Adjust import path based on your project structure
 
 void main() {
-  // Helper method to create a test widget wrapped in ShadApp and Scaffold
+  // Helper method to create a test widget wrapped in FinesseApp and Scaffold
   Widget createTestWidget(Widget child) {
-    return ShadApp(
-      builder: (context, child) => ShadMaterial(child: child!),
+    return FinesseApp(
+      builder: (context, child) => FinesseMaterial(child: child!),
       home: Scaffold(
         body: child,
       ),
     );
   }
 
-  group('ShadAvatar', () {
+  group('Avatar', () {
     testWidgets('applies custom size correctly', (WidgetTester tester) async {
       const customSize = Size(60, 60);
       await tester.pumpWidget(
         createTestWidget(
-          const ShadAvatar(
+          const Avatar(
             'assets/test_image.png',
             size: customSize,
           ),
@@ -49,7 +49,7 @@ void main() {
       );
       await tester.pumpWidget(
         createTestWidget(
-          const ShadAvatar(
+          const Avatar(
             'assets/test_image.png',
             shape: customShape,
           ),
@@ -70,7 +70,7 @@ void main() {
       const customBackgroundColor = Colors.blue;
       await tester.pumpWidget(
         createTestWidget(
-          const ShadAvatar(
+          const Avatar(
             'assets/test_image.png',
             backgroundColor: customBackgroundColor,
           ),
@@ -89,7 +89,7 @@ void main() {
       const customFit = BoxFit.cover;
       await tester.pumpWidget(
         createTestWidget(
-          const ShadAvatar(
+          const Avatar(
             'assets/test_image.png',
             fit: customFit,
           ),
@@ -110,7 +110,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadAvatar('assets/test_image.png'),
+          const Avatar('assets/test_image.png'),
         ),
       );
 
@@ -136,7 +136,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadAvatar('assets/test_image.png'),
+          const Avatar('assets/test_image.png'),
         ),
       );
 
@@ -153,7 +153,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadAvatar('', fallback: Text('AB')),
+          const Avatar('', fallback: Text('AB')),
         ),
       );
 
@@ -166,7 +166,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadAvatar(
+          const Avatar(
             'https://example.invalid/avatar.png',
             fallback: Text('AB'),
           ),
@@ -189,9 +189,9 @@ void main() {
         return tester.widget<Image>(image).image;
       }
 
-      const network = ShadAvatar('https://example.invalid/a.png');
-      const asset = ShadAvatar('img/a.png', package: 'my_pkg');
-      const provider = ShadAvatar.image(AssetImage('img/b.png'));
+      const network = Avatar('https://example.invalid/a.png');
+      const asset = Avatar('img/a.png', package: 'my_pkg');
+      const provider = Avatar.image(AssetImage('img/b.png'));
       await tester.pumpWidget(
         createTestWidget(const Column(children: [network, asset, provider])),
       );
@@ -204,11 +204,11 @@ void main() {
       expect(providerOf(provider), const AssetImage('img/b.png'));
     });
 
-    testWidgets('ShadAvatar.image with no image shows the fallback', (
+    testWidgets('Avatar.image with no image shows the fallback', (
       tester,
     ) async {
       await tester.pumpWidget(
-        createTestWidget(const ShadAvatar.image(null, fallback: Text('AB'))),
+        createTestWidget(const Avatar.image(null, fallback: Text('AB'))),
       );
       expect(find.text('AB'), findsOneWidget);
       expect(find.byType(Image), findsNothing);
@@ -220,21 +220,21 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           // ignore: deprecated_member_use_from_same_package
-          const ShadAvatar(null, placeholder: Text('XY')),
+          const Avatar(null, placeholder: Text('XY')),
         ),
       );
       expect(find.text('XY'), findsOneWidget);
     });
 
-    testWidgets('ShadAvatar matches goldens', (tester) async {
+    testWidgets('Avatar matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadAvatar(null, fallback: Icon(LucideIcons.mail)),
+          const Avatar(null, fallback: Icon(LucideIcons.mail)),
         ),
       );
 
       await expectLater(
-        find.byType(ShadAvatar),
+        find.byType(Avatar),
         matchesGoldenFile('goldens/avatar.png'),
       );
     });

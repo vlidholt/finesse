@@ -1,26 +1,26 @@
 import 'dart:ui';
 
+import 'package:finesse/src/components/button.dart';
+import 'package:finesse/src/components/calendar.dart';
+import 'package:finesse/src/raw_components/portal.dart';
+import 'package:finesse/src/theme/components/button_sizes.dart';
+import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:shad/src/components/button.dart';
-import 'package:shad/src/components/calendar.dart';
-import 'package:shad/src/raw_components/portal.dart';
-import 'package:shad/src/theme/components/button_sizes.dart';
-import 'package:shad/src/theme/components/decorator.dart';
-import 'package:shad/src/utils/gesture_detector.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
 part 'date_picker.g.theme.dart';
 
-/// {@template ShadDatePickerTheme}
-/// Theme for the `ShadDatePicker` widget.
+/// {@template DatePickerTheme}
+/// Theme for the `DatePicker` widget.
 /// {@endtemplate}
 @themeGen
 @immutable
-class ShadDatePickerTheme with _$ShadDatePickerTheme {
-  /// {@macro ShadDatePickerTheme}
-  const ShadDatePickerTheme({
+class DatePickerTheme with _$DatePickerTheme {
+  /// {@macro DatePickerTheme}
+  const DatePickerTheme({
     bool canMerge = true,
     this.hideNavigation,
     this.yearSelectorMinWidth,
@@ -63,12 +63,12 @@ class ShadDatePickerTheme with _$ShadDatePickerTheme {
     this.weekdaysTextAlign,
     this.gridMainAxisSpacing,
     this.gridCrossAxisSpacing,
-    ShadButtonVariant? selectedDayButtonOutsideMonthVariant,
+    ButtonVariant? selectedDayButtonOutsideMonthVariant,
     @Deprecated(
       'Use selectedDayButtonOutsideMonthVariant. '
       'Will be removed in the next major version.',
     )
-    ShadButtonVariant? selectedDayButtonOusideMonthVariant,
+    ButtonVariant? selectedDayButtonOusideMonthVariant,
     this.captionLayout,
     this.hideWeekdayNames,
     this.showOutsideDays,
@@ -90,7 +90,7 @@ class ShadDatePickerTheme with _$ShadDatePickerTheme {
     this.size,
     @Deprecated(
       'Has no effect: the date picker button takes its sizes from '
-      'ShadThemeData.buttonSizesTheme. Will be removed in the next major '
+      'ThemeData.buttonSizesTheme. Will be removed in the next major '
       'version.',
     )
     this.sizesTheme,
@@ -137,249 +137,249 @@ class ShadDatePickerTheme with _$ShadDatePickerTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro ShadDatePicker.formatDate}
+  /// {@macro DatePicker.formatDate}
   final String Function(DateTime)? formatDate;
 
-  /// {@macro ShadDatePicker.formatDateRange}
-  final String Function(ShadDateTimeRange)? formatDateRange;
+  /// {@macro DatePicker.formatDateRange}
+  final String Function(DateTimeRange)? formatDateRange;
 
-  /// {@macro ShadDatePicker.iconData}
+  /// {@macro DatePicker.iconData}
   final IconData? iconData;
 
   // ---
   // CALENDAR
   // ---
 
-  /// {@macro ShadCalendar.hideNavigation}
+  /// {@macro Calendar.hideNavigation}
   final bool? hideNavigation;
 
-  /// {@macro ShadCalendar.yearSelectorMinWidth}
+  /// {@macro Calendar.yearSelectorMinWidth}
   final double? yearSelectorMinWidth;
 
-  /// {@macro ShadCalendar.monthSelectorMinWidth}
+  /// {@macro Calendar.monthSelectorMinWidth}
   final double? monthSelectorMinWidth;
 
-  /// {@macro ShadCalendar.yearSelectorPadding}
+  /// {@macro Calendar.yearSelectorPadding}
   final EdgeInsetsGeometry? yearSelectorPadding;
 
-  /// {@macro ShadCalendar.monthSelectorPadding}
+  /// {@macro Calendar.monthSelectorPadding}
   final EdgeInsetsGeometry? monthSelectorPadding;
 
-  /// {@macro ShadCalendar.navigationButtonSize}
+  /// {@macro Calendar.navigationButtonSize}
   final double? navigationButtonSize;
 
-  /// {@macro ShadCalendar.navigationButtonIconSize}
+  /// {@macro Calendar.navigationButtonIconSize}
   final double? navigationButtonIconSize;
 
-  /// {@macro ShadCalendar.backNavigationButtonIconData}
+  /// {@macro Calendar.backNavigationButtonIconData}
   final IconData? backNavigationButtonIconData;
 
-  /// {@macro ShadCalendar.forwardNavigationButtonIconData}
+  /// {@macro Calendar.forwardNavigationButtonIconData}
   final IconData? forwardNavigationButtonIconData;
 
-  /// {@macro ShadCalendar.navigationButtonPadding}
+  /// {@macro Calendar.navigationButtonPadding}
   final EdgeInsetsGeometry? navigationButtonPadding;
 
-  /// {@macro ShadCalendar.navigationButtonDisabledOpacity}
+  /// {@macro Calendar.navigationButtonDisabledOpacity}
   final double? navigationButtonDisabledOpacity;
 
-  /// {@macro ShadCalendar.decoration}
-  final ShadDecoration? calendarDecoration;
+  /// {@macro Calendar.decoration}
+  final FinesseDecoration? calendarDecoration;
 
-  /// {@macro ShadCalendar.spacingBetweenMonths}
+  /// {@macro Calendar.spacingBetweenMonths}
   final double? spacingBetweenMonths;
 
-  /// {@macro ShadCalendar.runSpacingBetweenMonths}
+  /// {@macro Calendar.runSpacingBetweenMonths}
   final double? runSpacingBetweenMonths;
 
-  /// {@macro ShadCalendar.monthConstraints}
+  /// {@macro Calendar.monthConstraints}
   final BoxConstraints? monthConstraints;
 
-  /// {@macro ShadCalendar.headerHeight}
+  /// {@macro Calendar.headerHeight}
   final double? calendarHeaderHeight;
 
-  /// {@macro ShadCalendar.headerPadding}
+  /// {@macro Calendar.headerPadding}
   final EdgeInsetsGeometry? calendarHeaderPadding;
 
-  /// {@macro ShadCalendar.captionLayoutGap}
+  /// {@macro Calendar.captionLayoutGap}
   final double? captionLayoutGap;
 
-  /// {@macro ShadCalendar.headerTextStyle}
+  /// {@macro Calendar.headerTextStyle}
   final TextStyle? calendarHeaderTextStyle;
 
-  /// {@macro ShadCalendar.weekdaysPadding}
+  /// {@macro Calendar.weekdaysPadding}
   final EdgeInsetsGeometry? weekdaysPadding;
 
-  /// {@macro ShadCalendar.weekdaysTextStyle}
+  /// {@macro Calendar.weekdaysTextStyle}
   final TextStyle? weekdaysTextStyle;
 
-  /// {@macro ShadCalendar.weekdaysTextAlign}
+  /// {@macro Calendar.weekdaysTextAlign}
   final TextAlign? weekdaysTextAlign;
 
-  /// {@macro ShadCalendar.weekNumbersHeaderText}
+  /// {@macro Calendar.weekNumbersHeaderText}
   final String? weekNumbersHeaderText;
 
-  /// {@macro ShadCalendar.weekNumbersHeaderTextStyle}
+  /// {@macro Calendar.weekNumbersHeaderTextStyle}
   final TextStyle? weekNumbersHeaderTextStyle;
 
-  /// {@macro ShadCalendar.weekNumbersTextStyle}
+  /// {@macro Calendar.weekNumbersTextStyle}
   final TextStyle? weekNumbersTextStyle;
 
-  /// {@macro ShadCalendar.weekNumbersTextAlign}
+  /// {@macro Calendar.weekNumbersTextAlign}
   final TextAlign? weekNumbersTextAlign;
 
-  /// {@macro ShadCalendar.dayButtonSize}
+  /// {@macro Calendar.dayButtonSize}
   final double? dayButtonSize;
 
-  /// {@macro ShadCalendar.dayButtonOutsideMonthOpacity}
+  /// {@macro Calendar.dayButtonOutsideMonthOpacity}
   final double? dayButtonOutsideMonthOpacity;
 
-  /// {@macro ShadCalendar.dayButtonPadding}
+  /// {@macro Calendar.dayButtonPadding}
   final EdgeInsetsGeometry? dayButtonPadding;
 
-  /// {@macro ShadCalendar.dayButtonDecoration}
-  final ShadDecoration? dayButtonDecoration;
+  /// {@macro Calendar.dayButtonDecoration}
+  final FinesseDecoration? dayButtonDecoration;
 
-  /// {@macro ShadCalendar.selectedDayButtonTextStyle}
+  /// {@macro Calendar.selectedDayButtonTextStyle}
   final TextStyle? selectedDayButtonTextStyle;
 
-  /// {@macro ShadCalendar.insideRangeDayButtonTextStyle}
+  /// {@macro Calendar.insideRangeDayButtonTextStyle}
   final TextStyle? insideRangeDayButtonTextStyle;
 
-  /// {@macro ShadCalendar.dayButtonTextStyle}
+  /// {@macro Calendar.dayButtonTextStyle}
   final TextStyle? dayButtonTextStyle;
 
-  /// {@macro ShadCalendar.dayButtonVariant}
-  final ShadButtonVariant? dayButtonVariant;
+  /// {@macro Calendar.dayButtonVariant}
+  final ButtonVariant? dayButtonVariant;
 
-  /// {@macro ShadCalendar.selectedDayButtonVariant}
-  final ShadButtonVariant? selectedDayButtonVariant;
+  /// {@macro Calendar.selectedDayButtonVariant}
+  final ButtonVariant? selectedDayButtonVariant;
 
-  /// {@macro ShadCalendar.insideRangeDayButtonVariant}
-  final ShadButtonVariant? insideRangeDayButtonVariant;
+  /// {@macro Calendar.insideRangeDayButtonVariant}
+  final ButtonVariant? insideRangeDayButtonVariant;
 
-  /// {@macro ShadCalendar.todayButtonVariant}
-  final ShadButtonVariant? todayButtonVariant;
+  /// {@macro Calendar.todayButtonVariant}
+  final ButtonVariant? todayButtonVariant;
 
-  /// {@macro ShadCalendar.gridMainAxisSpacing}
+  /// {@macro Calendar.gridMainAxisSpacing}
   final double? gridMainAxisSpacing;
 
-  /// {@macro ShadCalendar.gridCrossAxisSpacing}
+  /// {@macro Calendar.gridCrossAxisSpacing}
   final double? gridCrossAxisSpacing;
 
-  /// {@macro ShadCalendar.dayButtonOutsideMonthTextStyle}
+  /// {@macro Calendar.dayButtonOutsideMonthTextStyle}
   final TextStyle? dayButtonOutsideMonthTextStyle;
 
-  /// {@macro ShadCalendar.dayButtonOutsideMonthVariant}
-  final ShadButtonVariant? dayButtonOutsideMonthVariant;
+  /// {@macro Calendar.dayButtonOutsideMonthVariant}
+  final ButtonVariant? dayButtonOutsideMonthVariant;
 
-  /// {@macro ShadCalendar.selectedDayButtonOutsideMonthVariant}
-  final ShadButtonVariant? selectedDayButtonOutsideMonthVariant;
+  /// {@macro Calendar.selectedDayButtonOutsideMonthVariant}
+  final ButtonVariant? selectedDayButtonOutsideMonthVariant;
 
   /// The old, misspelled name of [selectedDayButtonOutsideMonthVariant].
   @Deprecated(
     'Use selectedDayButtonOutsideMonthVariant. '
     'Will be removed in the next major version.',
   )
-  ShadButtonVariant? get selectedDayButtonOusideMonthVariant =>
+  ButtonVariant? get selectedDayButtonOusideMonthVariant =>
       selectedDayButtonOutsideMonthVariant;
 
-  /// {@macro ShadCalendar.captionLayout}
-  final ShadCalendarCaptionLayout? captionLayout;
+  /// {@macro Calendar.captionLayout}
+  final CalendarCaptionLayout? captionLayout;
 
-  /// {@macro ShadCalendar.hideWeekdayNames}
+  /// {@macro Calendar.hideWeekdayNames}
   final bool? hideWeekdayNames;
 
-  /// {@macro ShadCalendar.showOutsideDays}
+  /// {@macro Calendar.showOutsideDays}
   final bool? showOutsideDays;
 
-  /// {@macro ShadCalendar.formatMonthYear}
+  /// {@macro Calendar.formatMonthYear}
   final String Function(DateTime date)? formatMonthYear;
 
-  /// {@macro ShadCalendar.formatMonth}
+  /// {@macro Calendar.formatMonth}
   final String Function(DateTime date)? formatMonth;
 
-  /// {@macro ShadCalendar.formatYear}
+  /// {@macro Calendar.formatYear}
   final String Function(DateTime date)? formatYear;
 
-  /// {@macro ShadCalendar.formatWeekday}
+  /// {@macro Calendar.formatWeekday}
   final String Function(DateTime date)? formatWeekday;
 
-  /// {@macro ShadCalendar.showWeekNumbers}
+  /// {@macro Calendar.showWeekNumbers}
   final bool? showWeekNumbers;
 
-  /// {@macro ShadCalendar.weekStartsOn}
+  /// {@macro Calendar.weekStartsOn}
   final int? weekStartsOn;
 
-  /// {@macro ShadCalendar.fixedWeeks}
+  /// {@macro Calendar.fixedWeeks}
   final bool? fixedWeeks;
 
-  /// {@macro ShadCalendar.allowDeselection}
+  /// {@macro Calendar.allowDeselection}
   final bool? allowDeselection;
 
   // ---
   // POPOVER
   // ---
 
-  /// {@macro ShadPopover.effects}
+  /// {@macro Popover.effects}
   final List<Effect<dynamic>>? effects;
 
-  /// {@macro ShadPopover.shadows}
+  /// {@macro Popover.shadows}
   final List<BoxShadow>? shadows;
 
-  /// {@macro ShadPopover.padding}
+  /// {@macro Popover.padding}
   final EdgeInsetsGeometry? popoverPadding;
 
-  /// {@macro ShadPopover.decoration}
-  final ShadDecoration? popoverDecoration;
+  /// {@macro Popover.decoration}
+  final FinesseDecoration? popoverDecoration;
 
-  /// {@macro ShadPopover.anchor}
-  final ShadAnchorBase? anchor;
+  /// {@macro Popover.anchor}
+  final AnchorBase? anchor;
 
-  /// {@macro ShadPopover.filter}
+  /// {@macro Popover.filter}
   final ImageFilter? filter;
 
-  /// {@macro ShadPopover.reverseDuration}
+  /// {@macro Popover.reverseDuration}
   final Duration? popoverReverseDuration;
 
   // ---
   // BUTTON
   // ---
 
-  /// {@macro ShadButton.cursor}
+  /// {@macro Button.cursor}
   final MouseCursor? cursor;
 
-  /// {@macro ShadButton.size}
-  final ShadButtonSize? size;
+  /// {@macro Button.size}
+  final ButtonSize? size;
 
   /// Has no effect: the date picker button takes its sizes from
-  /// `ShadThemeData.buttonSizesTheme`.
+  /// `ThemeData.buttonSizesTheme`.
   @Deprecated(
     'Has no effect: the date picker button takes its sizes from '
-    'ShadThemeData.buttonSizesTheme. Will be removed in the next major '
+    'ThemeData.buttonSizesTheme. Will be removed in the next major '
     'version.',
   )
-  final ShadButtonSizesTheme? sizesTheme;
+  final ButtonSizesTheme? sizesTheme;
 
-  /// {@macro ShadButton.variant}
-  final ShadButtonVariant? buttonVariant;
+  /// {@macro Button.variant}
+  final ButtonVariant? buttonVariant;
 
-  /// {@macro ShadButton.backgroundColor}
+  /// {@macro Button.backgroundColor}
   final Color? backgroundColor;
 
-  /// {@macro ShadButton.hoverBackgroundColor}
+  /// {@macro Button.hoverBackgroundColor}
   final Color? hoverBackgroundColor;
 
-  /// {@macro ShadButton.foregroundColor}
+  /// {@macro Button.foregroundColor}
   final Color? foregroundColor;
 
-  /// {@macro ShadButton.hoverForegroundColor}
+  /// {@macro Button.hoverForegroundColor}
   final Color? hoverForegroundColor;
 
-  /// {@macro ShadButton.pressedBackgroundColor}
+  /// {@macro Button.pressedBackgroundColor}
   final Color? pressedBackgroundColor;
 
-  /// {@macro ShadButton.pressedForegroundColor}
+  /// {@macro Button.pressedForegroundColor}
   final Color? pressedForegroundColor;
 
   /// Has no effect: the date picker's button has no disabled background.
@@ -389,68 +389,68 @@ class ShadDatePickerTheme with _$ShadDatePickerTheme {
   )
   final Color? disabledBackgroundColor;
 
-  /// {@macro ShadButton.shadows}
+  /// {@macro Button.shadows}
   final List<BoxShadow>? buttonShadows;
 
-  /// {@macro ShadButton.gradient}
+  /// {@macro Button.gradient}
   final Gradient? gradient;
 
-  /// {@macro ShadButton.textDecoration}
+  /// {@macro Button.textDecoration}
   final TextDecoration? textDecoration;
 
-  /// {@macro ShadButton.hoverTextDecoration}
+  /// {@macro Button.hoverTextDecoration}
   final TextDecoration? hoverTextDecoration;
 
-  /// {@macro ShadButton.decoration}
-  final ShadDecoration? buttonDecoration;
+  /// {@macro Button.decoration}
+  final FinesseDecoration? buttonDecoration;
 
-  /// {@macro ShadButton.width}
+  /// {@macro Button.width}
   final double? width;
 
-  /// {@macro ShadButton.height}
+  /// {@macro Button.height}
   final double? height;
 
-  /// {@macro ShadButton.longPressDuration}
+  /// {@macro Button.longPressDuration}
   final Duration? longPressDuration;
 
-  /// {@macro ShadButton.hoverStrategies}
-  final ShadHoverStrategies? hoverStrategies;
+  /// {@macro Button.hoverStrategies}
+  final HoverStrategies? hoverStrategies;
 
-  /// {@macro ShadButton.mainAxisAlignment}
+  /// {@macro Button.mainAxisAlignment}
   final MainAxisAlignment? mainAxisAlignment;
 
-  /// {@macro ShadButton.crossAxisAlignment}
+  /// {@macro Button.crossAxisAlignment}
   final CrossAxisAlignment? crossAxisAlignment;
 
-  /// {@macro ShadButton.textDirection}
+  /// {@macro Button.textDirection}
   final TextDirection? textDirection;
 
-  /// {@macro ShadButton.gap}
+  /// {@macro Button.gap}
   final double? gap;
 
-  /// {@macro ShadButton.padding}
+  /// {@macro Button.padding}
   final EdgeInsetsGeometry? buttonPadding;
 
-  /// {@macro ShadButton.expands}
+  /// {@macro Button.expands}
   final bool? expands;
 
-  /// {@macro ShadButton.textStyle}
+  /// {@macro Button.textStyle}
   final TextStyle? buttonTextStyle;
 
   /// Linearly interpolates between [a] and [b] by [t].
-  static ShadDatePickerTheme? lerp(
-    ShadDatePickerTheme? a,
-    ShadDatePickerTheme? b,
+  static DatePickerTheme? lerp(
+    DatePickerTheme? a,
+    DatePickerTheme? b,
     double t,
-  ) => _$ShadDatePickerTheme.lerp(a, b, t);
+  ) => _$DatePickerTheme.lerp(a, b, t);
 
   // The generated `==` compares lists by identity, so a theme built with a
-  // non-const list would never equal its own rebuild, and ShadAnimatedTheme
+  // non-const list would never equal its own rebuild, and AnimatedTheme
   // would re-lerp on every frame. Compare the lists by value, then let the
   // generated `==` compare everything else against a copy that shares them.
   @override
   bool operator ==(Object other) =>
-      other is ShadDatePickerTheme &&
+      other is DatePickerTheme &&
       listEquals(effects, other.effects) &&
       listEquals(shadows, other.shadows) &&
       listEquals(buttonShadows, other.buttonShadows) &&

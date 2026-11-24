@@ -1,14 +1,14 @@
+import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/border.dart';
+import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/theme.dart';
-import 'package:shad/src/utils/border.dart';
-import 'package:shad/src/utils/shadow.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
 part 'decorator.g.theme.dart';
 
-/// {@template ShadDecoration}
-/// The border, fill and label styling of a control, applied by [ShadDecorator].
+/// {@template FinesseDecoration}
+/// The border, fill and label styling of a control, applied by [Decorator].
 ///
 /// A control has a primary border drawn on its edge and an optional secondary
 /// border drawn outside it, which is how the focus ring is painted. Each has a
@@ -17,9 +17,9 @@ part 'decorator.g.theme.dart';
 /// {@endtemplate}
 @themeGen
 @immutable
-class ShadDecoration with _$ShadDecoration {
-  /// {@macro ShadDecoration}
-  const ShadDecoration({
+class FinesseDecoration with _$FinesseDecoration {
+  /// {@macro FinesseDecoration}
+  const FinesseDecoration({
     bool canMerge = true,
     this.border,
     this.focusedBorder,
@@ -54,14 +54,14 @@ class ShadDecoration with _$ShadDecoration {
 
   /// A decoration with no borders that replaces, rather than merges into, the
   /// decoration it is merged with.
-  static const ShadDecoration none = ShadDecoration(
+  static const FinesseDecoration none = FinesseDecoration(
     canMerge: false,
-    border: ShadBorder.none,
-    focusedBorder: ShadBorder.none,
-    errorBorder: ShadBorder.none,
-    secondaryBorder: ShadBorder.none,
-    secondaryFocusedBorder: ShadBorder.none,
-    secondaryErrorBorder: ShadBorder.none,
+    border: FinesseBorder.none,
+    focusedBorder: FinesseBorder.none,
+    errorBorder: FinesseBorder.none,
+    secondaryBorder: FinesseBorder.none,
+    secondaryFocusedBorder: FinesseBorder.none,
+    secondaryErrorBorder: FinesseBorder.none,
   );
 
   /// The text style of a field's label.
@@ -72,22 +72,22 @@ class ShadDecoration with _$ShadDecoration {
   final TextStyle? errorLabelStyle;
 
   /// The border drawn on the control's edge.
-  final ShadBorder? border;
+  final FinesseBorder? border;
 
   /// The border drawn on the control's edge while it has focus.
-  final ShadBorder? focusedBorder;
+  final FinesseBorder? focusedBorder;
 
   /// The border drawn on the control's edge while [hasError] is true.
-  final ShadBorder? errorBorder;
+  final FinesseBorder? errorBorder;
 
   /// The border drawn outside the control, such as shadcn's `ring-*`.
-  final ShadBorder? secondaryBorder;
+  final FinesseBorder? secondaryBorder;
 
   /// The outer border while the control has focus. This is the focus ring.
-  final ShadBorder? secondaryFocusedBorder;
+  final FinesseBorder? secondaryFocusedBorder;
 
   /// The outer border while [hasError] is true.
-  final ShadBorder? secondaryErrorBorder;
+  final FinesseBorder? secondaryErrorBorder;
 
   /// The text style of a field's error message.
   final TextStyle? errorStyle;
@@ -130,7 +130,7 @@ class ShadDecoration with _$ShadDecoration {
   final bool? hasError;
 
   /// Whether to skip the secondary borders. Defaults to
-  /// `ShadThemeData.disableSecondaryBorder`.
+  /// `ThemeData.disableSecondaryBorder`.
   final bool? disableSecondaryBorder;
 
   /// Whether to fallback to the [border] if no [focusedBorder] or [errorBorder]
@@ -144,24 +144,24 @@ class ShadDecoration with _$ShadDecoration {
   final bool? fallbackToLabelStyle;
 
   /// Linearly interpolates between [a] and [b] by [t].
-  static ShadDecoration? lerp(
-    ShadDecoration? a,
-    ShadDecoration? b,
+  static FinesseDecoration? lerp(
+    FinesseDecoration? a,
+    FinesseDecoration? b,
     double t,
-  ) => _$ShadDecoration.lerp(a, b, t);
+  ) => _$FinesseDecoration.lerp(a, b, t);
 
   @override
   String toString() {
-    return '''ShadDecoration(border: $border, focusedBorder: $focusedBorder, errorBorder: $errorBorder, secondaryBorder: $secondaryBorder, secondaryFocusedBorder: $secondaryFocusedBorder, secondaryErrorBorder: $secondaryErrorBorder, labelStyle: $labelStyle, errorLabelStyle: $errorLabelStyle, errorStyle: $errorStyle, descriptionStyle: $descriptionStyle, labelPadding: $labelPadding, descriptionPadding: $descriptionPadding, errorPadding: $errorPadding, fallbackToBorder: $fallbackToBorder, color: $color, image: $image, shadows: $shadows, gradient: $gradient, backgroundBlendMode: $backgroundBlendMode, shape: $shape, hasError: $hasError, fallbackToLabelStyle: $fallbackToLabelStyle, disableSecondaryBorder: $disableSecondaryBorder)''';
+    return '''FinesseDecoration(border: $border, focusedBorder: $focusedBorder, errorBorder: $errorBorder, secondaryBorder: $secondaryBorder, secondaryFocusedBorder: $secondaryFocusedBorder, secondaryErrorBorder: $secondaryErrorBorder, labelStyle: $labelStyle, errorLabelStyle: $errorLabelStyle, errorStyle: $errorStyle, descriptionStyle: $descriptionStyle, labelPadding: $labelPadding, descriptionPadding: $descriptionPadding, errorPadding: $errorPadding, fallbackToBorder: $fallbackToBorder, color: $color, image: $image, shadows: $shadows, gradient: $gradient, backgroundBlendMode: $backgroundBlendMode, shape: $shape, hasError: $hasError, fallbackToLabelStyle: $fallbackToLabelStyle, disableSecondaryBorder: $disableSecondaryBorder)''';
   }
 
   // The generated `==` compares lists by identity, so a theme built with a
-  // non-const list would never equal its own rebuild, and ShadAnimatedTheme
+  // non-const list would never equal its own rebuild, and AnimatedTheme
   // would re-lerp on every frame. Compare the lists by value, then let the
   // generated `==` compare everything else against a copy that shares them.
   @override
   bool operator ==(Object other) =>
-      other is ShadDecoration &&
+      other is FinesseDecoration &&
       listEquals(shadows, other.shadows) &&
       super == other.copyWith(shadows: shadows);
 
@@ -173,14 +173,14 @@ class ShadDecoration with _$ShadDecoration {
   );
 }
 
-/// Paints a [ShadDecoration] around [child].
+/// Paints a [FinesseDecoration] around [child].
 ///
 /// Picks the normal, focused or error form of each border from [focused] and
 /// `decoration.hasError`, and merges [decoration] over
-/// `ShadThemeData.decoration`.
-class ShadDecorator extends StatelessWidget {
+/// `ThemeData.decoration`.
+class Decorator extends StatelessWidget {
   /// Creates a decorator.
-  const ShadDecorator({
+  const Decorator({
     super.key,
     this.child,
     this.decoration,
@@ -191,14 +191,14 @@ class ShadDecorator extends StatelessWidget {
   final Widget? child;
 
   /// The decoration to apply to the child.
-  final ShadDecoration? decoration;
+  final FinesseDecoration? decoration;
 
   /// Whether the child has focus, defaults to false.
   final bool focused;
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     final textDirection = Directionality.of(context);
 
     final effectiveDecoration = theme.decoration.merge(decoration);
@@ -242,11 +242,11 @@ class ShadDecorator extends StatelessWidget {
     }
 
     // The shadows go on the wrapper rather than the decoration itself so they
-    // are clipped to the control's own outline; see [ShadShadowDecoration].
-    final primaryDecoration = ShadShadowDecoration(
+    // are clipped to the control's own outline; see [ShadowDecoration].
+    final primaryDecoration = ShadowDecoration(
       shadows: effectiveDecoration.shadows ?? const [],
       decoration: switch (border) {
-        final ShadRoundedSuperellipseBorder border => ShapeDecoration(
+        final FinesseRoundedSuperellipseBorder border => ShapeDecoration(
           color: effectiveDecoration.color,
           image: effectiveDecoration.image,
           gradient: effectiveDecoration.gradient,
@@ -255,7 +255,7 @@ class ShadDecorator extends StatelessWidget {
             defaultRadius: theme.radius,
           ),
         ),
-        final ShadBorder? border => BoxDecoration(
+        final FinesseBorder? border => BoxDecoration(
           border: true == border?.hasBorder ? border?.toBorder() : null,
           borderRadius: effectiveDecoration.shape == BoxShape.circle
               ? null
@@ -279,7 +279,7 @@ class ShadDecorator extends StatelessWidget {
       decorated = Padding(
         padding: secondaryBorder.padding ?? EdgeInsets.zero,
         child: CustomPaint(
-          foregroundPainter: ShadOutwardBorderPainter(
+          foregroundPainter: OutwardBorderPainter(
             border: secondaryBorder.toBorder(),
             offset: secondaryBorder.offset ?? 0,
             radius:
@@ -296,12 +296,12 @@ class ShadDecorator extends StatelessWidget {
   }
 }
 
-/// {@template shadOutwardBorderPainter}
+/// {@template outwardBorderPainter}
 /// A [CustomPainter] that paints a border outward from the given rectangle.
 /// {@endtemplate}
-class ShadOutwardBorderPainter extends CustomPainter {
-  /// {@macro shadOutwardBorderPainter}
-  const ShadOutwardBorderPainter({
+class OutwardBorderPainter extends CustomPainter {
+  /// {@macro outwardBorderPainter}
+  const OutwardBorderPainter({
     required this.border,
     required this.offset,
     required this.radius,
@@ -331,7 +331,7 @@ class ShadOutwardBorderPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant ShadOutwardBorderPainter oldDelegate) {
+  bool shouldRepaint(covariant OutwardBorderPainter oldDelegate) {
     return border != oldDelegate.border ||
         offset != oldDelegate.offset ||
         radius != oldDelegate.radius ||

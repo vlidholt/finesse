@@ -1,17 +1,17 @@
+import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/components/decorator.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
 part 'toggle.g.theme.dart';
 
-/// {@template ShadToggleTheme}
-/// Theme for the `ShadToggle` widget.
+/// {@template ToggleTheme}
+/// Theme for the `Toggle` widget.
 /// {@endtemplate}
 @themeGen
 @immutable
-class ShadToggleTheme with _$ShadToggleTheme {
-  /// {@macro ShadToggleTheme}
-  const ShadToggleTheme({
+class ToggleTheme with _$ToggleTheme {
+  /// {@macro ToggleTheme}
+  const ToggleTheme({
     bool canMerge = true,
     this.backgroundColor,
     this.hoverBackgroundColor,
@@ -34,34 +34,34 @@ class ShadToggleTheme with _$ShadToggleTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro ShadToggle.backgroundColor}
+  /// {@macro Toggle.backgroundColor}
   final Color? backgroundColor;
 
-  /// {@macro ShadToggle.hoverBackgroundColor}
+  /// {@macro Toggle.hoverBackgroundColor}
   final Color? hoverBackgroundColor;
 
-  /// {@macro ShadToggle.selectedBackgroundColor}
+  /// {@macro Toggle.selectedBackgroundColor}
   final Color? selectedBackgroundColor;
 
-  /// {@macro ShadToggle.selectedHoverBackgroundColor}
+  /// {@macro Toggle.selectedHoverBackgroundColor}
   final Color? selectedHoverBackgroundColor;
 
-  /// {@macro ShadToggle.foregroundColor}
+  /// {@macro Toggle.foregroundColor}
   final Color? foregroundColor;
 
-  /// {@macro ShadToggle.hoverForegroundColor}
+  /// {@macro Toggle.hoverForegroundColor}
   final Color? hoverForegroundColor;
 
-  /// {@macro ShadToggle.selectedForegroundColor}
+  /// {@macro Toggle.selectedForegroundColor}
   final Color? selectedForegroundColor;
 
-  /// {@macro ShadToggle.padding}
+  /// {@macro Toggle.padding}
   final EdgeInsetsGeometry? padding;
 
-  /// {@macro ShadToggle.decoration}
-  final ShadDecoration? decoration;
+  /// {@macro Toggle.decoration}
+  final FinesseDecoration? decoration;
 
-  /// {@macro ShadToggle.textStyle}
+  /// {@macro Toggle.textStyle}
   final TextStyle? textStyle;
 
   /// The gap between the leading icon and the label.
@@ -74,9 +74,9 @@ class ShadToggleTheme with _$ShadToggleTheme {
   final double? iconSize;
 
   /// Linearly interpolates between [a] and [b] by [t].
-  static ShadToggleTheme? lerp(
-    ShadToggleTheme? a,
-    ShadToggleTheme? b,
+  static ToggleTheme? lerp(
+    ToggleTheme? a,
+    ToggleTheme? b,
     double t,
-  ) => _$ShadToggleTheme.lerp(a, b, t);
+  ) => _$ToggleTheme.lerp(a, b, t);
 }

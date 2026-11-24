@@ -1,28 +1,28 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/shad.dart';
 
 /// Every context menu used to share one tap-region group, so a tap on another
 /// menu's trigger counted as "inside" and the open menu never closed.
 void main() {
   Future<void> pumpMenus(
     WidgetTester tester,
-    ShadContextMenuController a,
-    ShadContextMenuController b,
+    FinesseContextMenuController a,
+    FinesseContextMenuController b,
   ) async {
     await tester.pumpWidget(
-      ShadApp(
+      FinesseApp(
         home: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            ShadContextMenu(
+            ContextMenu(
               controller: a,
-              items: const [ShadContextMenuItem(child: Text('a item'))],
+              items: const [ContextMenuItem(child: Text('a item'))],
               child: const SizedBox(width: 80, height: 40, child: Text('A')),
             ),
-            ShadContextMenu(
+            ContextMenu(
               controller: b,
-              items: const [ShadContextMenuItem(child: Text('b item'))],
+              items: const [ContextMenuItem(child: Text('b item'))],
               child: const SizedBox(width: 80, height: 40, child: Text('B')),
             ),
           ],
@@ -34,8 +34,8 @@ void main() {
   testWidgets("a tap on another menu's trigger closes the open menu", (
     tester,
   ) async {
-    final a = ShadContextMenuController();
-    final b = ShadContextMenuController();
+    final a = FinesseContextMenuController();
+    final b = FinesseContextMenuController();
     addTearDown(a.dispose);
     addTearDown(b.dispose);
     await pumpMenus(tester, a, b);

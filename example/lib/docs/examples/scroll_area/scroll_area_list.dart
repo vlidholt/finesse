@@ -1,8 +1,8 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
-/// ShadScrollbar gives any scrollable — here a lazily built list — the same
-/// scrollbar as ShadScrollArea.
+/// Scrollbar gives any scrollable — here a lazily built list — the same
+/// scrollbar as ScrollArea.
 class ScrollAreaListExample extends StatefulWidget {
   const ScrollAreaListExample({super.key});
 
@@ -21,11 +21,11 @@ class _ScrollAreaListExampleState extends State<ScrollAreaListExample> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     return SizedBox(
       width: 240,
       height: 240,
-      child: ShadScrollbar(
+      child: Scrollbar(
         controller: controller,
         thumbVisibility: true,
         child: ListView.builder(

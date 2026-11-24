@@ -1,0 +1,15 @@
+import 'package:example/docs/docs.dart';
+import 'package:example/docs/examples/progress_bar/progress_bar_basic.dart';
+
+final progressDoc = ComponentDoc(
+  slug: 'progress',
+  title: 'Progress',
+  description: 'An indicator that shows how much of a task is complete.',
+  examples: [
+    ComponentExample(
+      id: 'progress_basic',
+      title: 'Determinate and indeterminate',
+      builder: (_) => const ProgressBasicExample(),
+    ),
+  ],
+);

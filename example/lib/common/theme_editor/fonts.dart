@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'dart:ui' as ui;
 
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shad/shad.dart';
 
 /// A selectable font, mirroring shadcn/ui's `FONT_DEFINITIONS`.
 ///
-/// Every face is resolved through `google_fonts` at runtime: shad bundles no
+/// Every face is resolved through `google_fonts` at runtime: finesse bundles no
 /// fonts, and neither does this app, which is why the list can be as long as
 /// the original's without shipping any font assets.
 @immutable
@@ -28,20 +28,20 @@ class EditorFont {
 
   /// One builder and one text theme per family.
   ///
-  /// `ShadTextTheme` compares `googleFontBuilder` by closure identity, and two
+  /// `TextTheme` compares `googleFontBuilder` by closure identity, and two
   /// closure literals are never `==`. Minting a fresh one per access made
-  /// `ShadThemeData` unequal to itself, which restarts `ShadAnimatedTheme`'s
+  /// `ThemeData` unequal to itself, which restarts `AnimatedTheme`'s
   /// 200 ms lerp across ~54 component themes on every rebuild and drags every
-  /// `ShadTheme.of` dependent along with it — the equality invariant CLAUDE.md
+  /// `Theme.of` dependent along with it — the equality invariant CLAUDE.md
   /// calls load-bearing. Keyed by family, since `EditorFont` is const.
-  static final _builders = <String, ShadFontBuilder>{};
-  static final _textThemes = <String, ShadTextTheme>{};
+  static final _builders = <String, FontBuilder>{};
+  static final _textThemes = <String, TextTheme>{};
 
-  /// Wraps `GoogleFonts.getFont` into the all-named shape `ShadFontBuilder`
+  /// Wraps `GoogleFonts.getFont` into the all-named shape `FontBuilder`
   /// expects.
   ///
   /// `getFont` takes the family positionally, so it cannot be passed directly.
-  ShadFontBuilder get builder => _builders[family] ??=
+  FontBuilder get builder => _builders[family] ??=
       ({
         TextStyle? textStyle,
         Color? color,
@@ -86,8 +86,8 @@ class EditorFont {
       );
 
   /// Builds the text theme for this font.
-  ShadTextTheme textTheme() =>
-      _textThemes[family] ??= ShadTextTheme.fromGoogleFont(builder);
+  TextTheme textTheme() =>
+      _textThemes[family] ??= TextTheme.fromGoogleFont(builder);
 
   /// The regular face, for showing the font's own name in a picker.
   ///

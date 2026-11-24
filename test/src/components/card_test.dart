@@ -1,28 +1,28 @@
-import 'package:flutter/material.dart';
+import 'package:finesse/material.dart';
+import 'package:finesse/src/app.dart';
+import 'package:finesse/src/components/card.dart'; // Adjust import path based on your project structure
+import 'package:finesse/src/theme/theme.dart';
+import 'package:flutter/material.dart' hide Card, Theme;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/material.dart';
-import 'package:shad/src/app.dart';
-import 'package:shad/src/components/card.dart'; // Adjust import path based on your project structure
-import 'package:shad/src/theme/theme.dart';
 
 import '../../decoration_finders.dart';
 
 void main() {
-  // Helper method to create a test widget wrapped in ShadApp and Scaffold
+  // Helper method to create a test widget wrapped in FinesseApp and Scaffold
   Widget createTestWidget(Widget child) {
-    return ShadApp(
-      builder: (context, child) => ShadMaterial(child: child!),
+    return FinesseApp(
+      builder: (context, child) => FinesseMaterial(child: child!),
       home: Scaffold(
         body: child,
       ),
     );
   }
 
-  group('ShadCard', () {
+  group('Card', () {
     testWidgets('renders basic content correctly', (WidgetTester tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadCard(
+          const Card(
             title: Text('Card Title'),
             description: Text('Card Description'),
             footer: Text('Card Footer'),
@@ -51,7 +51,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadCard(
+          const Card(
             leading: Icon(Icons.star),
             trailing: Icon(Icons.arrow_forward),
             child: Text('Main Content'),
@@ -83,7 +83,7 @@ void main() {
       const customPadding = EdgeInsets.all(40);
       await tester.pumpWidget(
         createTestWidget(
-          const ShadCard(
+          const Card(
             padding: customPadding,
             child: Text('Padded Card'),
           ),
@@ -104,7 +104,7 @@ void main() {
       const customRadius = BorderRadius.all(Radius.circular(12));
       await tester.pumpWidget(
         createTestWidget(
-          const ShadCard(
+          const Card(
             backgroundColor: customBackgroundColor,
             radius: customRadius,
             child: Text('Styled Card'),
@@ -128,7 +128,7 @@ void main() {
       const customHeight = 200.0;
       await tester.pumpWidget(
         createTestWidget(
-          const ShadCard(
+          const Card(
             width: customWidth,
             height: customHeight,
             child: Text('Sized Card'),
@@ -147,7 +147,7 @@ void main() {
     testWidgets('handles row alignment correctly', (WidgetTester tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadCard(
+          const Card(
             leading: Icon(Icons.star),
             trailing: Icon(Icons.arrow_forward),
             rowMainAxisAlignment: MainAxisAlignment.center,
@@ -170,7 +170,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadCard(
+          const Card(
             title: Text('Title'),
             description: Text('Description'),
             columnMainAxisAlignment: MainAxisAlignment.center,
@@ -194,7 +194,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadCard(
+          const Card(
             child: Text('Minimal Card'),
           ),
         ),
@@ -210,7 +210,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadCard(
+          const Card(
             child: Text('Default Styled Card'),
           ),
         ),
@@ -225,19 +225,19 @@ void main() {
       expect(container.padding, const EdgeInsets.all(16));
       expect(
         decoration?.color,
-        ShadTheme.of(tester.element(containerFinder)).colorScheme.card,
+        Theme.of(tester.element(containerFinder)).colorScheme.card,
       );
       expect(
         decoration?.borderRadius,
-        ShadTheme.of(tester.element(containerFinder)).cardTheme.radius,
+        Theme.of(tester.element(containerFinder)).cardTheme.radius,
       );
       expect(decoration?.border, isNotNull);
     });
 
-    testWidgets('ShadCard matches goldens', (tester) async {
+    testWidgets('Card matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadCard(
+          const Card(
             title: Text('title'),
             description: Text('description'),
             footer: Text('footer'),
@@ -249,7 +249,7 @@ void main() {
       );
 
       await expectLater(
-        find.byType(ShadCard),
+        find.byType(Card),
         matchesGoldenFile('goldens/card.png'),
       );
     });

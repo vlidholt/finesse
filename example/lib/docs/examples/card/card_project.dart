@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 const _frameworks = {
   'next': 'Next.js',
@@ -13,18 +13,18 @@ class CardProjectExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ShadCard(
+    return Card(
       width: 350,
       title: const Text('Create project'),
       description: const Text('Deploy your new project in one-click.'),
       footer: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          ShadButton.outline(
+          Button.outline(
             onPressed: () {},
             child: const Text('Cancel'),
           ),
-          ShadButton(
+          Button(
             onPressed: () {},
             child: const Text('Deploy'),
           ),
@@ -36,15 +36,15 @@ class CardProjectExample extends StatelessWidget {
         children: [
           const Text('Name'),
           const SizedBox(height: 6),
-          const ShadInput(placeholder: Text('Name of your project')),
+          const TextField(placeholder: Text('Name of your project')),
           const SizedBox(height: 16),
           const Text('Framework'),
           const SizedBox(height: 6),
-          ShadSelect<String>(
+          Select<String>(
             placeholder: const Text('Select'),
             options: [
               for (final entry in _frameworks.entries)
-                ShadOption(value: entry.key, child: Text(entry.value)),
+                SelectOption(value: entry.key, child: Text(entry.value)),
             ],
             selectedOptionBuilder: (context, value) =>
                 Text(_frameworks[value]!),

@@ -1,34 +1,34 @@
 import 'package:flutter/widgets.dart';
 
-/// Reads a [ShadProvider] value without a dependency on it.
+/// Reads a [Provider] value without a dependency on it.
 extension ProviderReadExt on BuildContext {
-  /// Returns the value of the nearest `ShadProvider<T>`. Throws when there is
+  /// Returns the value of the nearest `Provider<T>`. Throws when there is
   /// none. Does not rebuild the caller when the value changes.
-  T read<T>() => ShadProvider.of<T>(this, listen: false);
+  T read<T>() => Provider.of<T>(this, listen: false);
 
-  /// Returns the value of the nearest `ShadProvider<T>`, or null when there is
+  /// Returns the value of the nearest `Provider<T>`, or null when there is
   /// none. Does not rebuild the caller when the value changes.
-  T? maybeRead<T>() => ShadProvider.maybeOf<T>(this, listen: false);
+  T? maybeRead<T>() => Provider.maybeOf<T>(this, listen: false);
 }
 
-/// Reads a [ShadProvider] value and depends on it.
+/// Reads a [Provider] value and depends on it.
 extension ProviderWatchExt on BuildContext {
-  /// Returns the value of the nearest `ShadProvider<T>`. Throws when there is
+  /// Returns the value of the nearest `Provider<T>`. Throws when there is
   /// none. Rebuilds the caller when the provider notifies.
-  T watch<T>() => ShadProvider.of<T>(this);
+  T watch<T>() => Provider.of<T>(this);
 
-  /// Returns the value of the nearest `ShadProvider<T>`, or null when there is
+  /// Returns the value of the nearest `Provider<T>`, or null when there is
   /// none. Rebuilds the caller when the provider notifies.
-  T? maybeWatch<T>() => ShadProvider.maybeOf<T>(this);
+  T? maybeWatch<T>() => Provider.maybeOf<T>(this);
 }
 
 /// Provides a value of type [T] to its descendants.
 ///
 /// Read it with `context.read<T>()` or `context.watch<T>()`. Dependents
 /// rebuild only when [notifyUpdate] returns true.
-class ShadProvider<T> extends InheritedWidget {
+class Provider<T> extends InheritedWidget {
   /// Creates a provider of [data].
-  const ShadProvider({
+  const Provider({
     super.key,
     required super.child,
     required this.data,
@@ -39,9 +39,9 @@ class ShadProvider<T> extends InheritedWidget {
   final T data;
 
   /// Whether to notify the update of the provider, defaults to false
-  final bool Function(ShadProvider<T> oldWidget)? notifyUpdate;
+  final bool Function(Provider<T> oldWidget)? notifyUpdate;
 
-  /// Returns the value of the nearest `ShadProvider<T>`.
+  /// Returns the value of the nearest `Provider<T>`.
   ///
   /// Throws a [FlutterError] when there is none. When [listen] is true, the
   /// default, [context] depends on the provider.
@@ -55,24 +55,22 @@ class ShadProvider<T> extends InheritedWidget {
     return inherited;
   }
 
-  /// Returns the value of the nearest `ShadProvider<T>`, or null when there is
+  /// Returns the value of the nearest `Provider<T>`, or null when there is
   /// none.
   ///
   /// When [listen] is true, the default, [context] depends on the provider.
   static T? maybeOf<T>(BuildContext context, {bool listen = true}) {
     if (listen) {
-      return context
-          .dependOnInheritedWidgetOfExactType<ShadProvider<T>>()
-          ?.data;
+      return context.dependOnInheritedWidgetOfExactType<Provider<T>>()?.data;
     }
     final provider = context
-        .getElementForInheritedWidgetOfExactType<ShadProvider<T>>()
+        .getElementForInheritedWidgetOfExactType<Provider<T>>()
         ?.widget;
-    return (provider as ShadProvider<T>?)?.data;
+    return (provider as Provider<T>?)?.data;
   }
 
   @override
-  bool updateShouldNotify(covariant ShadProvider<T> oldWidget) {
+  bool updateShouldNotify(covariant Provider<T> oldWidget) {
     return notifyUpdate?.call(oldWidget) ?? false;
   }
 }

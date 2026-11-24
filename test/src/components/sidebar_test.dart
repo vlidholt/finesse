@@ -1,11 +1,11 @@
+import 'package:finesse/material.dart';
+import 'package:finesse/src/app.dart';
+import 'package:finesse/src/components/sheet.dart';
+import 'package:finesse/src/components/sidebar.dart';
+import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Theme;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/material.dart';
-import 'package:shad/src/app.dart';
-import 'package:shad/src/components/sheet.dart';
-import 'package:shad/src/components/sidebar.dart';
-import 'package:shad/src/theme/theme.dart';
 
 import '../../decoration_finders.dart';
 
@@ -14,20 +14,20 @@ void main() {
   const desktopSize = Size(1200, 800);
 
   Widget createTestWidget({
-    ShadSidebarController? controller,
-    ShadSidebarCollapsible collapsible = ShadSidebarCollapsible.offcanvas,
-    ShadSidebarVariant variant = ShadSidebarVariant.sidebar,
+    SidebarController? controller,
+    SidebarCollapsible collapsible = SidebarCollapsible.offcanvas,
+    SidebarVariant variant = SidebarVariant.sidebar,
     List<Widget> children = const [],
     Widget? header,
     Widget? footer,
     Widget child = const Text('content'),
   }) {
-    return ShadApp(
-      builder: (context, child) => ShadMaterial(child: child!),
+    return FinesseApp(
+      builder: (context, child) => FinesseMaterial(child: child!),
       home: Scaffold(
-        body: ShadSidebarScaffold(
+        body: SidebarScaffold(
           controller: controller,
-          sidebar: ShadSidebar(
+          sidebar: Sidebar(
             collapsible: collapsible,
             variant: variant,
             header: header,
@@ -48,7 +48,7 @@ void main() {
     await tester.pumpWidget(widget);
   }
 
-  group('ShadSidebar', () {
+  group('Sidebar', () {
     testWidgets('renders header, groups and footer', (tester) async {
       await pumpDesktop(
         tester,
@@ -56,12 +56,12 @@ void main() {
           header: const Text('Acme'),
           footer: const Text('Account'),
           children: [
-            ShadSidebarGroup(
+            SidebarGroup(
               label: const Text('Platform'),
               children: [
-                ShadSidebarMenu(
+                SidebarMenu(
                   children: [
-                    ShadSidebarMenuButton(
+                    SidebarMenuButton(
                       onPressed: () {},
                       child: const Text('Home'),
                     ),
@@ -82,11 +82,11 @@ void main() {
 
     testWidgets('lays out at the theme width', (tester) async {
       await pumpDesktop(tester, createTestWidget());
-      final theme = ShadTheme.of(
-        tester.element(find.byType(ShadSidebarScaffold)),
+      final theme = Theme.of(
+        tester.element(find.byType(SidebarScaffold)),
       );
       expect(
-        tester.getSize(find.byType(ShadSidebar)).width,
+        tester.getSize(find.byType(Sidebar)).width,
         theme.sidebarTheme.width,
       );
     });
@@ -94,7 +94,7 @@ void main() {
     testWidgets('offcanvas collapse animates the width to zero', (
       tester,
     ) async {
-      final controller = ShadSidebarController();
+      final controller = SidebarController();
       addTearDown(controller.dispose);
       await pumpDesktop(tester, createTestWidget(controller: controller));
 
@@ -102,17 +102,17 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
 
-      expect(tester.getSize(find.byType(ShadSidebar)).width, 0);
+      expect(tester.getSize(find.byType(Sidebar)).width, 0);
     });
 
     testWidgets('icon collapse stops at the collapsed width', (tester) async {
-      final controller = ShadSidebarController();
+      final controller = SidebarController();
       addTearDown(controller.dispose);
       await pumpDesktop(
         tester,
         createTestWidget(
           controller: controller,
-          collapsible: ShadSidebarCollapsible.icon,
+          collapsible: SidebarCollapsible.icon,
         ),
       );
 
@@ -120,28 +120,28 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
 
-      final theme = ShadTheme.of(
-        tester.element(find.byType(ShadSidebarScaffold)),
+      final theme = Theme.of(
+        tester.element(find.byType(SidebarScaffold)),
       );
       expect(
-        tester.getSize(find.byType(ShadSidebar)).width,
+        tester.getSize(find.byType(Sidebar)).width,
         theme.sidebarTheme.collapsedWidth,
       );
     });
 
     testWidgets('the trigger toggles the controller', (tester) async {
-      final controller = ShadSidebarController();
+      final controller = SidebarController();
       addTearDown(controller.dispose);
       await pumpDesktop(
         tester,
         createTestWidget(
           controller: controller,
-          child: const ShadSidebarTrigger(),
+          child: const SidebarTrigger(),
         ),
       );
 
       expect(controller.open, isTrue);
-      await tester.tap(find.byType(ShadSidebarTrigger));
+      await tester.tap(find.byType(SidebarTrigger));
       await tester.pump();
       expect(controller.open, isFalse);
     });
@@ -154,11 +154,11 @@ void main() {
         tester,
         createTestWidget(
           children: [
-            ShadSidebarGroup(
+            SidebarGroup(
               children: [
-                ShadSidebarMenu(
+                SidebarMenu(
                   children: [
-                    ShadSidebarMenuButton(
+                    SidebarMenuButton(
                       isActive: true,
                       onPressed: () => pressed = true,
                       child: const Text('Home'),
@@ -175,12 +175,12 @@ void main() {
       expect(pressed, isTrue);
 
       // The active row keeps the sidebar accent as its fill.
-      final theme = ShadTheme.of(
-        tester.element(find.byType(ShadSidebarScaffold)),
+      final theme = Theme.of(
+        tester.element(find.byType(SidebarScaffold)),
       );
       final containers = tester.widgetList<AnimatedContainer>(
         find.descendant(
-          of: find.byType(ShadSidebarMenuButton),
+          of: find.byType(SidebarMenuButton),
           matching: find.byType(AnimatedContainer),
         ),
       );
@@ -192,25 +192,25 @@ void main() {
     });
 
     testWidgets('sub-menus hide in the icon rail', (tester) async {
-      final controller = ShadSidebarController();
+      final controller = SidebarController();
       addTearDown(controller.dispose);
       await pumpDesktop(
         tester,
         createTestWidget(
           controller: controller,
-          collapsible: ShadSidebarCollapsible.icon,
+          collapsible: SidebarCollapsible.icon,
           children: [
-            ShadSidebarGroup(
+            SidebarGroup(
               children: [
-                ShadSidebarMenu(
+                SidebarMenu(
                   children: [
-                    ShadSidebarMenuButton(
+                    SidebarMenuButton(
                       onPressed: () {},
                       child: const Text('Docs'),
                     ),
-                    ShadSidebarMenuSub(
+                    SidebarMenuSub(
                       children: [
-                        ShadSidebarMenuSubButton(
+                        SidebarMenuSubButton(
                           onPressed: () {},
                           child: const Text('Installation'),
                         ),
@@ -244,11 +244,11 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           children: [
-            ShadSidebarGroup(
+            SidebarGroup(
               children: [
-                ShadSidebarMenu(
+                SidebarMenu(
                   children: [
-                    ShadSidebarMenuButton(
+                    SidebarMenuButton(
                       onPressed: () {},
                       child: const Text('Home'),
                     ),
@@ -272,18 +272,18 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      final controller = ShadSidebarController();
+      final controller = SidebarController();
       addTearDown(controller.dispose);
       await tester.pumpWidget(
         createTestWidget(
           controller: controller,
-          collapsible: ShadSidebarCollapsible.icon,
+          collapsible: SidebarCollapsible.icon,
           children: [
-            ShadSidebarGroup(
+            SidebarGroup(
               children: [
-                ShadSidebarMenu(
+                SidebarMenu(
                   children: [
-                    ShadSidebarMenuButton(
+                    SidebarMenuButton(
                       leading: const Icon(Icons.home),
                       onPressed: () {},
                       child: const Text('Home'),
@@ -293,7 +293,7 @@ void main() {
               ],
             ),
           ],
-          child: const Row(children: [ShadSidebarTrigger()]),
+          child: const Row(children: [SidebarTrigger()]),
         ),
       );
       await tester.pump();
@@ -307,9 +307,9 @@ void main() {
       );
       await gesture.addPointer(location: Offset.zero);
       addTearDown(gesture.removePointer);
-      await gesture.moveTo(tester.getCenter(find.byType(ShadSidebarTrigger)));
+      await gesture.moveTo(tester.getCenter(find.byType(SidebarTrigger)));
       await tester.pump();
-      await gesture.down(tester.getCenter(find.byType(ShadSidebarTrigger)));
+      await gesture.down(tester.getCenter(find.byType(SidebarTrigger)));
       await tester.pump(const Duration(milliseconds: 50));
       await gesture.up();
       for (var i = 0; i < 12; i++) {
@@ -318,7 +318,7 @@ void main() {
 
       expect(tester.takeException(), isNull);
       expect(controller.openMobile, isTrue);
-      expect(find.byType(ShadSheet), findsOneWidget);
+      expect(find.byType(Sheet), findsOneWidget);
       // The sheet shows the full sidebar, never the icon rail.
       expect(find.text('Home'), findsOneWidget);
 
@@ -327,7 +327,7 @@ void main() {
       for (var i = 0; i < 12; i++) {
         await tester.pump(const Duration(milliseconds: 50));
       }
-      expect(find.byType(ShadSheet), findsNothing);
+      expect(find.byType(Sheet), findsNothing);
       expect(tester.takeException(), isNull);
     });
 
@@ -338,13 +338,13 @@ void main() {
       // nothing about collapsing. In CSS they would just be clipped by
       // overflow-hidden; the sidebar reproduces that by laying content out at
       // the expanded width, so neither may throw a RenderFlex overflow.
-      final controller = ShadSidebarController();
+      final controller = SidebarController();
       addTearDown(controller.dispose);
       await pumpDesktop(
         tester,
         createTestWidget(
           controller: controller,
-          collapsible: ShadSidebarCollapsible.icon,
+          collapsible: SidebarCollapsible.icon,
           header: Row(
             children: [
               Container(width: 32, height: 32, color: const Color(0xFF000000)),
@@ -355,18 +355,18 @@ void main() {
             ],
           ),
           children: [
-            ShadSidebarGroup(
+            SidebarGroup(
               label: const Text('Platform'),
               children: [
-                ShadSidebarMenu(
+                SidebarMenu(
                   children: [
-                    ShadSidebarMenuButton(
+                    SidebarMenuButton(
                       leading: const Icon(Icons.home),
                       trailing: const Icon(Icons.chevron_right),
                       onPressed: () {},
                       child: const Text('Home'),
                     ),
-                    const ShadSidebarMenuSkeleton(showIcon: true),
+                    const SidebarMenuSkeleton(showIcon: true),
                   ],
                 ),
               ],
@@ -393,19 +393,19 @@ void main() {
     testWidgets('collapsed menu buttons are squares at the start edge', (
       tester,
     ) async {
-      final controller = ShadSidebarController(open: false);
+      final controller = SidebarController(open: false);
       addTearDown(controller.dispose);
       await pumpDesktop(
         tester,
         createTestWidget(
           controller: controller,
-          collapsible: ShadSidebarCollapsible.icon,
+          collapsible: SidebarCollapsible.icon,
           children: [
-            ShadSidebarGroup(
+            SidebarGroup(
               children: [
-                ShadSidebarMenu(
+                SidebarMenu(
                   children: [
-                    ShadSidebarMenuButton(
+                    SidebarMenuButton(
                       leading: const Icon(Icons.home),
                       onPressed: () {},
                       child: const Text('Home'),
@@ -420,12 +420,12 @@ void main() {
       await tester.pump(const Duration(milliseconds: 300));
 
       // `size-8! p-2!`: rail 48 minus the group's p-2 → a 32px square.
-      final theme = ShadTheme.of(
-        tester.element(find.byType(ShadSidebarScaffold)),
+      final theme = Theme.of(
+        tester.element(find.byType(SidebarScaffold)),
       );
       final collapsedWidth = theme.sidebarTheme.collapsedWidth ?? 48;
       final button = find.descendant(
-        of: find.byType(ShadSidebarMenuButton),
+        of: find.byType(SidebarMenuButton),
         matching: find.byType(AnimatedContainer),
       );
       expect(
@@ -435,7 +435,7 @@ void main() {
       // Flush with the rail's padding, not centered in the expanded width.
       expect(
         tester.getTopLeft(button.first).dx,
-        tester.getTopLeft(find.byType(ShadSidebar)).dx + 8,
+        tester.getTopLeft(find.byType(Sidebar)).dx + 8,
       );
       expect(tester.takeException(), isNull);
     });
@@ -448,7 +448,7 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      final controller = ShadSidebarController();
+      final controller = SidebarController();
       addTearDown(controller.dispose);
       await tester.pumpWidget(createTestWidget(controller: controller));
       await tester.pump();
@@ -457,14 +457,14 @@ void main() {
       for (var i = 0; i < 12; i++) {
         await tester.pump(const Duration(milliseconds: 50));
       }
-      expect(find.byType(ShadSheet), findsOneWidget);
+      expect(find.byType(Sheet), findsOneWidget);
 
       // Well clear of the 288px drawer.
       await tester.tapAt(const Offset(450, 400));
       for (var i = 0; i < 12; i++) {
         await tester.pump(const Duration(milliseconds: 50));
       }
-      expect(find.byType(ShadSheet), findsNothing);
+      expect(find.byType(Sheet), findsNothing);
       // ...and the controller learned about it, so the trigger reopens.
       expect(controller.openMobile, isFalse);
       expect(tester.takeException(), isNull);
@@ -477,20 +477,20 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      final controller = ShadSidebarController();
+      final controller = SidebarController();
       addTearDown(controller.dispose);
       final show = ValueNotifier<bool>(true);
       addTearDown(show.dispose);
 
       await tester.pumpWidget(
-        ShadApp(
-          builder: (context, child) => ShadMaterial(child: child!),
+        FinesseApp(
+          builder: (context, child) => FinesseMaterial(child: child!),
           home: ValueListenableBuilder<bool>(
             valueListenable: show,
             builder: (context, value, _) => value
-                ? ShadSidebarScaffold(
+                ? SidebarScaffold(
                     controller: controller,
-                    sidebar: const ShadSidebar(children: [Text('menu')]),
+                    sidebar: const Sidebar(children: [Text('menu')]),
                     child: const Text('content'),
                   )
                 : const Text('gone'),
@@ -503,7 +503,7 @@ void main() {
       for (var i = 0; i < 12; i++) {
         await tester.pump(const Duration(milliseconds: 50));
       }
-      expect(find.byType(ShadSheet), findsOneWidget);
+      expect(find.byType(Sheet), findsOneWidget);
 
       // Swap the scaffold out from under its open drawer, then change the
       // window metrics: the route's builder re-runs on MediaQuery changes
@@ -518,7 +518,7 @@ void main() {
       expect(tester.takeException(), isNull);
       // The drawer went down with its scaffold, as unmounting the provider
       // does in the reference.
-      expect(find.byType(ShadSheet), findsNothing);
+      expect(find.byType(Sheet), findsNothing);
     });
 
     testWidgets('growing past the breakpoint closes the mobile sheet', (
@@ -529,7 +529,7 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      final controller = ShadSidebarController();
+      final controller = SidebarController();
       addTearDown(controller.dispose);
       await tester.pumpWidget(createTestWidget(controller: controller));
       await tester.pump();
@@ -538,7 +538,7 @@ void main() {
       for (var i = 0; i < 12; i++) {
         await tester.pump(const Duration(milliseconds: 50));
       }
-      expect(find.byType(ShadSheet), findsOneWidget);
+      expect(find.byType(Sheet), findsOneWidget);
 
       // Resize to desktop: the drawer belongs to the mobile layout and goes
       // with it, as unmounting does in the reference.
@@ -546,7 +546,7 @@ void main() {
       for (var i = 0; i < 12; i++) {
         await tester.pump(const Duration(milliseconds: 50));
       }
-      expect(find.byType(ShadSheet), findsNothing);
+      expect(find.byType(Sheet), findsNothing);
       expect(controller.openMobile, isFalse);
       expect(tester.takeException(), isNull);
     });
@@ -554,15 +554,15 @@ void main() {
     testWidgets('borderRadius clips the embedded scaffold', (tester) async {
       await pumpDesktop(
         tester,
-        ShadApp(
-          builder: (context, child) => ShadMaterial(child: child!),
+        FinesseApp(
+          builder: (context, child) => FinesseMaterial(child: child!),
           home: Center(
             child: SizedBox(
               width: 700,
               height: 400,
-              child: ShadSidebarScaffold(
+              child: SidebarScaffold(
                 borderRadius: BorderRadius.circular(12),
-                sidebar: const ShadSidebar(),
+                sidebar: const Sidebar(),
                 child: const Text('content'),
               ),
             ),
@@ -572,7 +572,7 @@ void main() {
 
       final clip = tester.widget<ClipRRect>(
         find.descendant(
-          of: find.byType(ShadSidebarScaffold),
+          of: find.byType(SidebarScaffold),
           matching: find.byType(ClipRRect),
         ),
       );
@@ -580,26 +580,26 @@ void main() {
     });
   });
 
-  group('ShadSidebar.rail', () {
+  group('Sidebar.rail', () {
     Widget railWidget(
-      ShadSidebarController controller, {
-      ShadSidebarCollapsible collapsible = ShadSidebarCollapsible.icon,
+      SidebarController controller, {
+      SidebarCollapsible collapsible = SidebarCollapsible.icon,
     }) {
-      return ShadApp(
-        builder: (context, child) => ShadMaterial(child: child!),
+      return FinesseApp(
+        builder: (context, child) => FinesseMaterial(child: child!),
         home: Scaffold(
-          body: ShadSidebarScaffold(
+          body: SidebarScaffold(
             controller: controller,
-            sidebar: ShadSidebar(
+            sidebar: Sidebar(
               rail: true,
               collapsible: collapsible,
               children: [
-                ShadSidebarGroup(
+                SidebarGroup(
                   label: const Text('Group'),
                   children: [
-                    ShadSidebarMenu(
+                    SidebarMenu(
                       children: [
-                        ShadSidebarMenuButton(
+                        SidebarMenuButton(
                           onPressed: () {},
                           child: const Text('Home'),
                         ),
@@ -627,7 +627,7 @@ void main() {
 
     testWidgets('clicking the edge toggles the sidebar, and the cursor '
         'points where the edge will go', (tester) async {
-      final controller = ShadSidebarController();
+      final controller = SidebarController();
       addTearDown(controller.dispose);
       await pumpDesktop(tester, railWidget(controller));
 
@@ -647,11 +647,11 @@ void main() {
     });
 
     testWidgets('only accompanies the icon collapse mode', (tester) async {
-      final controller = ShadSidebarController();
+      final controller = SidebarController();
       addTearDown(controller.dispose);
       await pumpDesktop(
         tester,
-        railWidget(controller, collapsible: ShadSidebarCollapsible.offcanvas),
+        railWidget(controller, collapsible: SidebarCollapsible.offcanvas),
       );
 
       expect(railFinder(), findsNothing);
@@ -662,23 +662,23 @@ void main() {
     testWidgets('pop up on the inner side of the rail, arrow pointing back', (
       tester,
     ) async {
-      final controller = ShadSidebarController(open: false);
+      final controller = SidebarController(open: false);
       addTearDown(controller.dispose);
       await pumpDesktop(
         tester,
-        ShadApp(
-          builder: (context, child) => ShadMaterial(child: child!),
+        FinesseApp(
+          builder: (context, child) => FinesseMaterial(child: child!),
           home: Scaffold(
-            body: ShadSidebarScaffold(
+            body: SidebarScaffold(
               controller: controller,
-              sidebar: ShadSidebar(
-                collapsible: ShadSidebarCollapsible.icon,
+              sidebar: Sidebar(
+                collapsible: SidebarCollapsible.icon,
                 children: [
-                  ShadSidebarGroup(
+                  SidebarGroup(
                     children: [
-                      ShadSidebarMenu(
+                      SidebarMenu(
                         children: [
-                          ShadSidebarMenuButton(
+                          SidebarMenuButton(
                             onPressed: () {},
                             tooltip: 'Home',
                             leading: const Icon(IconData(0x2302)),
@@ -699,7 +699,7 @@ void main() {
 
       // The button's layout box keeps the expanded width inside the rail's
       // clip, so aim at the visible square on the left.
-      final button = find.byType(ShadSidebarMenuButton);
+      final button = find.byType(SidebarMenuButton);
       final buttonRect = tester.getRect(button);
       final gesture = await tester.createGesture(
         kind: PointerDeviceKind.mouse,
@@ -722,7 +722,7 @@ void main() {
     });
   });
 
-  group('ShadSidebar.scrollController', () {
+  group('Sidebar.scrollController', () {
     testWidgets('drives the content area between header and footer', (
       tester,
     ) async {
@@ -731,22 +731,22 @@ void main() {
 
       await pumpDesktop(
         tester,
-        ShadApp(
-          builder: (context, child) => ShadMaterial(child: child!),
+        FinesseApp(
+          builder: (context, child) => FinesseMaterial(child: child!),
           home: Scaffold(
-            body: ShadSidebarScaffold(
-              sidebar: ShadSidebar(
+            body: SidebarScaffold(
+              sidebar: Sidebar(
                 scrollController: controller,
                 header: const Text('Header'),
                 children: [
                   for (var group = 0; group < 20; group++)
-                    ShadSidebarGroup(
+                    SidebarGroup(
                       label: Text('Group $group'),
                       children: [
-                        ShadSidebarMenu(
+                        SidebarMenu(
                           children: [
                             for (var item = 0; item < 4; item++)
-                              ShadSidebarMenuButton(
+                              SidebarMenuButton(
                                 onPressed: () {},
                                 child: Text('Item $group.$item'),
                               ),

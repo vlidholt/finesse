@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class SidebarBasicExample extends StatefulWidget {
   const SidebarBasicExample({super.key});
@@ -11,8 +11,8 @@ class SidebarBasicExample extends StatefulWidget {
 class _SidebarBasicExampleState extends State<SidebarBasicExample> {
   String selected = 'Home';
 
-  ShadSidebarMenuButton item(String label, IconData icon) {
-    return ShadSidebarMenuButton(
+  SidebarMenuButton item(String label, IconData icon) {
+    return SidebarMenuButton(
       leading: Icon(icon),
       isActive: selected == label,
       tooltip: label,
@@ -23,7 +23,7 @@ class _SidebarBasicExampleState extends State<SidebarBasicExample> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     return SizedBox(
       width: 700,
       height: 420,
@@ -32,10 +32,10 @@ class _SidebarBasicExampleState extends State<SidebarBasicExample> {
           border: Border.all(color: theme.colorScheme.border),
           borderRadius: theme.radii.lg,
         ),
-        child: ShadSidebarScaffold(
+        child: SidebarScaffold(
           borderRadius: theme.radii.lg,
-          sidebar: ShadSidebar(
-            collapsible: ShadSidebarCollapsible.icon,
+          sidebar: Sidebar(
+            collapsible: SidebarCollapsible.icon,
             // The inner edge highlights under the pointer and toggles the
             // sidebar on click.
             rail: true,
@@ -66,7 +66,7 @@ class _SidebarBasicExampleState extends State<SidebarBasicExample> {
                 ),
               ],
             ),
-            footer: ShadSidebarMenuButton(
+            footer: SidebarMenuButton(
               leading: const Icon(LucideIcons.circleUser),
               trailing: const Icon(LucideIcons.chevronsUpDown),
               tooltip: 'Account',
@@ -74,10 +74,10 @@ class _SidebarBasicExampleState extends State<SidebarBasicExample> {
               child: const Text('shadcn'),
             ),
             children: [
-              ShadSidebarGroup(
+              SidebarGroup(
                 label: const Text('Platform'),
                 children: [
-                  ShadSidebarMenu(
+                  SidebarMenu(
                     children: [
                       item('Home', LucideIcons.house),
                       item('Inbox', LucideIcons.inbox),
@@ -86,10 +86,10 @@ class _SidebarBasicExampleState extends State<SidebarBasicExample> {
                   ),
                 ],
               ),
-              ShadSidebarGroup(
+              SidebarGroup(
                 label: const Text('Settings'),
                 children: [
-                  ShadSidebarMenu(
+                  SidebarMenu(
                     children: [
                       item('Profile', LucideIcons.user),
                       item('Billing', LucideIcons.creditCard),
@@ -106,7 +106,7 @@ class _SidebarBasicExampleState extends State<SidebarBasicExample> {
                 padding: const EdgeInsets.all(8),
                 child: Row(
                   children: [
-                    const ShadSidebarTrigger(),
+                    const SidebarTrigger(),
                     const SizedBox(width: 8),
                     Text(selected, style: theme.textTheme.small),
                   ],

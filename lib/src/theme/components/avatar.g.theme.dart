@@ -9,14 +9,10 @@ part of 'avatar.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadAvatarTheme {
+mixin _$AvatarTheme {
   bool get canMerge => true;
 
-  static ShadAvatarTheme? lerp(
-    ShadAvatarTheme? a,
-    ShadAvatarTheme? b,
-    double t,
-  ) {
+  static AvatarTheme? lerp(AvatarTheme? a, AvatarTheme? b, double t) {
     if (identical(a, b)) {
       return a;
     }
@@ -29,7 +25,7 @@ mixin _$ShadAvatarTheme {
       return t == 0.0 ? a : null;
     }
 
-    return ShadAvatarTheme(
+    return AvatarTheme(
       size: Size.lerp(a.size, b.size, t),
       shape: ShapeBorder.lerp(a.shape, b.shape, t),
       backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
@@ -37,15 +33,15 @@ mixin _$ShadAvatarTheme {
     );
   }
 
-  ShadAvatarTheme copyWith({
+  AvatarTheme copyWith({
     Size? size,
     ShapeBorder? shape,
     Color? backgroundColor,
     BoxFit? fit,
   }) {
-    final _this = (this as ShadAvatarTheme);
+    final _this = (this as AvatarTheme);
 
-    return ShadAvatarTheme(
+    return AvatarTheme(
       size: size ?? _this.size,
       shape: shape ?? _this.shape,
       backgroundColor: backgroundColor ?? _this.backgroundColor,
@@ -53,8 +49,8 @@ mixin _$ShadAvatarTheme {
     );
   }
 
-  ShadAvatarTheme merge(ShadAvatarTheme? other) {
-    final _this = (this as ShadAvatarTheme);
+  AvatarTheme merge(AvatarTheme? other) {
+    final _this = (this as AvatarTheme);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -82,8 +78,8 @@ mixin _$ShadAvatarTheme {
       return false;
     }
 
-    final _this = (this as ShadAvatarTheme);
-    final _other = (other as ShadAvatarTheme);
+    final _this = (this as AvatarTheme);
+    final _other = (other as AvatarTheme);
 
     return _other.size == _this.size &&
         _other.shape == _this.shape &&
@@ -93,7 +89,7 @@ mixin _$ShadAvatarTheme {
 
   @override
   int get hashCode {
-    final _this = (this as ShadAvatarTheme);
+    final _this = (this as AvatarTheme);
 
     return Object.hash(
       runtimeType,

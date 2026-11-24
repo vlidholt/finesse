@@ -1,17 +1,17 @@
+import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/components/decorator.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
 part 'alert.g.theme.dart';
 
-/// {@template ShadAlertTheme}
-/// Theme for the `ShadAlert` widget.
+/// {@template AlertTheme}
+/// Theme for the `Alert` widget.
 /// {@endtemplate}
 @themeGen
 @immutable
-class ShadAlertTheme with _$ShadAlertTheme {
-  /// {@macro ShadAlertTheme}
-  const ShadAlertTheme({
+class AlertTheme with _$AlertTheme {
+  /// {@macro AlertTheme}
+  const AlertTheme({
     bool canMerge = true,
     this.decoration,
     this.iconPadding,
@@ -30,37 +30,37 @@ class ShadAlertTheme with _$ShadAlertTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro ShadAlert.decoration}
-  final ShadDecoration? decoration;
+  /// {@macro Alert.decoration}
+  final FinesseDecoration? decoration;
 
-  /// {@macro ShadAlert.iconPadding}
+  /// {@macro Alert.iconPadding}
   final EdgeInsetsGeometry? iconPadding;
 
-  /// {@macro ShadAlert.iconColor}
+  /// {@macro Alert.iconColor}
   final Color? iconColor;
 
-  /// {@macro ShadAlert.title}
+  /// {@macro Alert.title}
   final TextStyle? titleStyle;
 
-  /// {@macro ShadAlert.descriptionStyle}
+  /// {@macro Alert.descriptionStyle}
   final TextStyle? descriptionStyle;
 
-  /// {@macro ShadAlert.mainAxisAlignment}
+  /// {@macro Alert.mainAxisAlignment}
   final MainAxisAlignment? mainAxisAlignment;
 
-  /// {@macro ShadAlert.crossAxisAlignment}
+  /// {@macro Alert.crossAxisAlignment}
   final CrossAxisAlignment? crossAxisAlignment;
 
-  /// {@macro ShadAlert.iconSize}
+  /// {@macro Alert.iconSize}
   final double? iconSize;
 
-  /// {@macro ShadAlert.gap}
+  /// {@macro Alert.gap}
   final double? gap;
 
   /// Linearly interpolates between [a] and [b] by [t].
-  static ShadAlertTheme? lerp(
-    ShadAlertTheme? a,
-    ShadAlertTheme? b,
+  static AlertTheme? lerp(
+    AlertTheme? a,
+    AlertTheme? b,
     double t,
-  ) => _$ShadAlertTheme.lerp(a, b, t);
+  ) => _$AlertTheme.lerp(a, b, t);
 }

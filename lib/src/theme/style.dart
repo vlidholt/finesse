@@ -1,8 +1,8 @@
+import 'package:finesse/src/theme/radii.dart';
+import 'package:finesse/src/theme/text_role.dart';
+import 'package:finesse/src/theme/themes/shadows.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/radii.dart';
-import 'package:shad/src/theme/text_role.dart';
-import 'package:shad/src/theme/themes/shadows.dart';
 
 /// A wash of colour a style paints behind a control or an outline button.
 ///
@@ -11,7 +11,7 @@ import 'package:shad/src/theme/themes/shadows.dart';
 /// `--input` wash in dark, `maia` uses the wash in both modes, `luma` fills
 /// controls with `--input` at 90%, and `sera` leaves everything transparent.
 /// Each value names the utility it was read from.
-enum ShadSurfaceFill {
+enum SurfaceFill {
   /// No fill at all, `bg-transparent`.
   none,
 
@@ -46,7 +46,7 @@ enum ShadSurfaceFill {
 /// everything around them — inputs, menu rows, card padding, slider tracks,
 /// switch dimensions — moves with it.
 ///
-/// They also retype it. Each style redefines a handful of [ShadTextRole]s —
+/// They also retype it. Each style redefines a handful of [TextRole]s —
 /// title, label, body, caption, overline and field — so `lyra` sets body copy
 /// at 12px, `mira` puts it on a relaxed line, and `sera` sets labels in 12px
 /// semibold uppercase with wide tracking. Shadows move too: `nova` drops the
@@ -74,22 +74,22 @@ enum ShadSurfaceFill {
 /// what it changes. That is separate from the *theme's* default style, which
 /// is [nova] — shadcn's own `DEFAULT_CONFIG.style`.
 @immutable
-class ShadStyleTokens {
+class StyleTokens {
   /// Creates a style. Only [name] is required; every other field defaults to
   /// [vega]'s value.
-  const ShadStyleTokens({
+  const StyleTokens({
     required this.name,
     // Radii.
-    this.buttonRadius = ShadRadiusToken.md,
-    this.cardRadius = ShadRadiusToken.xl,
-    this.dialogRadius = ShadRadiusToken.xl,
-    this.popoverRadius = ShadRadiusToken.md,
-    this.tooltipRadius = ShadRadiusToken.md,
-    this.commandRadius = ShadRadiusToken.xl,
-    this.commandItemDialogRadius = ShadRadiusToken.lg,
-    this.commandSearchRadius = ShadRadiusToken.lg,
-    this.textareaRadius = ShadRadiusToken.md,
-    this.itemRadius = ShadRadiusToken.sm,
+    this.buttonRadius = RadiusToken.md,
+    this.cardRadius = RadiusToken.xl,
+    this.dialogRadius = RadiusToken.xl,
+    this.popoverRadius = RadiusToken.md,
+    this.tooltipRadius = RadiusToken.md,
+    this.commandRadius = RadiusToken.xl,
+    this.commandItemDialogRadius = RadiusToken.lg,
+    this.commandSearchRadius = RadiusToken.lg,
+    this.textareaRadius = RadiusToken.md,
+    this.itemRadius = RadiusToken.sm,
     this.checkboxRadius = 4,
     // Focus ring.
     this.cardBorderOpacity = .1,
@@ -102,32 +102,32 @@ class ShadStyleTokens {
     this.ringWidth = 3,
     this.ringOpacity = .5,
     // Typography, by role.
-    this.title = const ShadTextRole(fontSize: 16, fontWeight: FontWeight.w500),
-    this.label = const ShadTextRole(fontSize: 14, fontWeight: FontWeight.w500),
-    this.body = const ShadTextRole(fontSize: 14),
-    this.caption = const ShadTextRole(
+    this.title = const TextRole(fontSize: 16, fontWeight: FontWeight.w500),
+    this.label = const TextRole(fontSize: 14, fontWeight: FontWeight.w500),
+    this.body = const TextRole(fontSize: 14),
+    this.caption = const TextRole(
       fontSize: 12,
       fontWeight: FontWeight.w500,
     ),
-    this.overline = const ShadTextRole(
+    this.overline = const TextRole(
       fontSize: 12,
       fontWeight: FontWeight.w500,
     ),
-    this.field = const ShadTextRole(fontSize: 14),
-    // ShadShadows.
-    this.cardShadow = ShadShadows.xs,
-    this.popoverShadow = ShadShadows.md,
-    this.dialogShadow = ShadShadows.none,
-    this.sheetShadow = ShadShadows.lg,
+    this.field = const TextRole(fontSize: 14),
+    // Shadows.
+    this.cardShadow = Shadows.xs,
+    this.popoverShadow = Shadows.md,
+    this.dialogShadow = Shadows.none,
+    this.sheetShadow = Shadows.lg,
     // Buttons and toggles.
-    this.outlineButtonFill = ShadSurfaceFill.background,
-    this.outlineButtonFillDark = ShadSurfaceFill.input30,
-    this.outlineButtonHoverFill = ShadSurfaceFill.muted,
-    this.outlineButtonHoverFillDark = ShadSurfaceFill.input50,
+    this.outlineButtonFill = SurfaceFill.background,
+    this.outlineButtonFillDark = SurfaceFill.input30,
+    this.outlineButtonHoverFill = SurfaceFill.muted,
+    this.outlineButtonHoverFillDark = SurfaceFill.input50,
     this.outlineButtonDarkInputBorder = true,
     this.linkUnderline = false,
     this.flatBadges = false,
-    this.controlShadow = ShadShadows.xs,
+    this.controlShadow = Shadows.xs,
     this.buttonHeight = 36,
     this.buttonHeightSm = 32,
     this.buttonHeightLg = 40,
@@ -153,8 +153,8 @@ class ShadStyleTokens {
     this.textareaPaddingX = 10,
     this.textareaPaddingY = 10,
     this.underlinedFields = false,
-    this.fieldFill = ShadSurfaceFill.none,
-    this.fieldFillDark = ShadSurfaceFill.input30,
+    this.fieldFill = SurfaceFill.none,
+    this.fieldFillDark = SurfaceFill.input30,
     this.fieldBorderless = false,
     // Select and menus.
     this.selectPaddingX = 10,
@@ -166,15 +166,15 @@ class ShadStyleTokens {
     this.menubarPadding = 4,
     // Calendar.
     this.calendarCellSize = 32,
-    this.calendarCellRadius = ShadRadiusToken.md,
+    this.calendarCellRadius = RadiusToken.md,
     this.calendarPadding = 12,
     this.calendarCaptionHeight = 32,
     // Command palette.
     this.commandPadding = 4,
     this.commandGroupPadding = 4,
     this.commandSearchHeight = 32,
-    this.commandSearchFill = ShadSurfaceFill.input30,
-    this.commandSearchFillDark = ShadSurfaceFill.input30,
+    this.commandSearchFill = SurfaceFill.input30,
+    this.commandSearchFillDark = SurfaceFill.input30,
     this.commandSearchBorderOpacity = .3,
     this.commandSearchUnderline = false,
     // Sidebar.
@@ -184,8 +184,8 @@ class ShadStyleTokens {
     this.sidebarItemPaddingX = 8,
     this.sidebarSubItemPaddingX = 8,
     // Selection controls.
-    this.controlFill = ShadSurfaceFill.none,
-    this.controlFillDark = ShadSurfaceFill.input30,
+    this.controlFill = SurfaceFill.none,
+    this.controlFillDark = SurfaceFill.input30,
     this.controlBorderless = false,
     this.radioCheckedOutline = false,
     this.checkboxSize = 16,
@@ -195,7 +195,7 @@ class ShadStyleTokens {
     this.switchThumbSize = 16,
     this.sliderTrackHeight = 6,
     this.sliderThumbSize = 16,
-    this.sliderTrackFill = ShadSurfaceFill.muted,
+    this.sliderTrackFill = SurfaceFill.muted,
     this.sliderThumbFilled = false,
     // Surfaces.
     this.cardPadding = 24,
@@ -205,13 +205,13 @@ class ShadStyleTokens {
     this.popoverPadding = 16,
     // Everything else.
     this.tabsListPadding = 3,
-    this.tabsListRadius = ShadRadiusToken.lg,
-    this.tabRadius = ShadRadiusToken.md,
-    this.tabSelectedShadow = ShadShadows.sm,
+    this.tabsListRadius = RadiusToken.lg,
+    this.tabRadius = RadiusToken.md,
+    this.tabSelectedShadow = Shadows.sm,
     this.tabPaddingX = 8,
     this.tabPaddingY = 4,
     this.accordionTitlePaddingY = 16,
-    this.alertRadius = ShadRadiusToken.lg,
+    this.alertRadius = RadiusToken.lg,
     this.alertPaddingX = 16,
     this.alertPaddingY = 12,
     this.alertGap = 2,
@@ -231,42 +231,42 @@ class ShadStyleTokens {
   // --- Radii --------------------------------------------------------------
 
   /// Corner radius of buttons, inputs, toggles and other controls.
-  final ShadRadiusToken buttonRadius;
+  final RadiusToken buttonRadius;
 
   /// Corner radius of cards.
-  final ShadRadiusToken cardRadius;
+  final RadiusToken cardRadius;
 
   /// Corner radius of dialogs and sheets.
-  final ShadRadiusToken dialogRadius;
+  final RadiusToken dialogRadius;
 
   /// Corner radius of popovers, select and menu surfaces.
-  final ShadRadiusToken popoverRadius;
+  final RadiusToken popoverRadius;
 
   /// Corner radius of a tooltip (`.cn-tooltip-content`), `rounded-md` —
   /// tighter than the popover's in most styles.
-  final ShadRadiusToken tooltipRadius;
+  final RadiusToken tooltipRadius;
 
   /// Corner radius of a command palette (`.cn-command`).
-  final ShadRadiusToken commandRadius;
+  final RadiusToken commandRadius;
 
   /// Corner radius of a command item shown inside a dialog — shadcn rounds
   /// them a step up there (`in-data-[slot=dialog-content]:rounded-lg!`),
   /// while inline palettes keep [itemRadius].
-  final ShadRadiusToken commandItemDialogRadius;
+  final RadiusToken commandItemDialogRadius;
 
   /// Corner radius of the command palette's search box
   /// (`.cn-command-input-group rounded-lg!`).
-  final ShadRadiusToken commandSearchRadius;
+  final RadiusToken commandSearchRadius;
 
   /// Corner radius of a textarea.
   ///
   /// Separate from [buttonRadius] because shadcn keeps it moderate even in the
   /// pill-shaped styles: `maia` has `rounded-4xl` buttons but a `rounded-xl`
   /// textarea, since a 32px radius on a tall box eats into the text.
-  final ShadRadiusToken textareaRadius;
+  final RadiusToken textareaRadius;
 
   /// Corner radius of rows inside a surface, e.g. menu and select items.
-  final ShadRadiusToken itemRadius;
+  final RadiusToken itemRadius;
 
   /// Corner radius of a checkbox, in logical pixels.
   ///
@@ -317,22 +317,22 @@ class ShadStyleTokens {
   // --- Typography ---------------------------------------------------------
 
   /// Card and dialog titles.
-  final ShadTextRole title;
+  final TextRole title;
 
   /// Interactive labels: buttons, toggles, tabs and form labels.
-  final ShadTextRole label;
+  final TextRole label;
 
   /// Body copy: descriptions, menu rows, popover content, table cells.
-  final ShadTextRole body;
+  final TextRole body;
 
   /// Small supporting text: badges, keyboard keys, command shortcuts.
-  final ShadTextRole caption;
+  final TextRole caption;
 
   /// Section headings inside a surface: menu group labels, table headers.
-  final ShadTextRole overline;
+  final TextRole overline;
 
   /// Text inside a field: input, textarea, select trigger.
-  final ShadTextRole field;
+  final TextRole field;
 
   // --- Shadows ------------------------------------------------------------
 
@@ -354,19 +354,19 @@ class ShadStyleTokens {
   ///
   /// `vega` uses the page background, `maia` an `input/30` wash, `sera`
   /// nothing at all.
-  final ShadSurfaceFill outlineButtonFill;
+  final SurfaceFill outlineButtonFill;
 
   /// What an outline button paints behind itself in dark mode,
   /// shadcn's `dark:bg-input/30`.
-  final ShadSurfaceFill outlineButtonFillDark;
+  final SurfaceFill outlineButtonFillDark;
 
   /// The hover fill of an outline or ghost-adjacent button in light mode,
   /// shadcn's `hover:bg-muted`.
-  final ShadSurfaceFill outlineButtonHoverFill;
+  final SurfaceFill outlineButtonHoverFill;
 
   /// The hover fill of an outline button in dark mode,
   /// shadcn's `dark:hover:bg-input/50`.
-  final ShadSurfaceFill outlineButtonHoverFillDark;
+  final SurfaceFill outlineButtonHoverFillDark;
 
   /// Whether an outline button's dark-mode border uses `--input` rather than
   /// `--border` (`dark:border-input`). True in `vega`, `nova` and `lyra`;
@@ -483,10 +483,10 @@ class ShadStyleTokens {
   /// What a text field, textarea or select trigger paints behind itself in
   /// light mode. `bg-transparent` in most styles; `maia` uses `input/30`,
   /// `mira` `input/20`, `luma` and `rhea` `input/50`.
-  final ShadSurfaceFill fieldFill;
+  final SurfaceFill fieldFill;
 
   /// The field fill in dark mode, shadcn's `dark:bg-input/30`.
-  final ShadSurfaceFill fieldFillDark;
+  final SurfaceFill fieldFillDark;
 
   /// Whether fields drop their `--input` outline (`border-transparent`),
   /// relying on [fieldFill] instead. `luma` and `rhea` do this.
@@ -528,7 +528,7 @@ class ShadStyleTokens {
   /// The calendar's `--cell-radius`, rounding day cells and the month/year
   /// dropdown triggers. Deliberately its own token: `vega`'s buttons are
   /// `rounded-lg` while its calendar cells are `rounded-md`.
-  final ShadRadiusToken calendarCellRadius;
+  final RadiusToken calendarCellRadius;
 
   /// Padding around the whole calendar, `.cn-calendar`'s `p-3` —
   /// `p-2` in `nova` and `lyra`.
@@ -554,11 +554,11 @@ class ShadStyleTokens {
   final double commandSearchHeight;
 
   /// The wash behind the search box, `bg-input/30` in most styles.
-  final ShadSurfaceFill commandSearchFill;
+  final SurfaceFill commandSearchFill;
 
   /// The dark-mode wash behind the search box, where it differs
   /// (`mira` is `bg-input/20 dark:bg-input/30`).
-  final ShadSurfaceFill commandSearchFillDark;
+  final SurfaceFill commandSearchFillDark;
 
   /// Opacity of the search box's `--input` outline, `border-input/30`.
   /// Zero in the borderless styles.
@@ -594,11 +594,11 @@ class ShadStyleTokens {
   ///
   /// Transparent in most styles; `luma` and `rhea` fill their controls with
   /// `bg-input/90` instead of outlining them.
-  final ShadSurfaceFill controlFill;
+  final SurfaceFill controlFill;
 
   /// The fill of an unchecked checkbox or radio in dark mode,
   /// shadcn's `dark:bg-input/30`.
-  final ShadSurfaceFill controlFillDark;
+  final SurfaceFill controlFillDark;
 
   /// Whether checkboxes and radios draw no outline (`border-transparent`),
   /// relying on [controlFill] instead. `luma` and `rhea` do this.
@@ -632,7 +632,7 @@ class ShadStyleTokens {
 
   /// The slider's inactive track, `bg-muted` (`input/90` in `luma` and
   /// `rhea`, `input/50` in `sera`).
-  final ShadSurfaceFill sliderTrackFill;
+  final SurfaceFill sliderTrackFill;
 
   /// Whether the slider thumb is a solid primary dot rather than a white
   /// bordered one. `sera` does this.
@@ -653,7 +653,7 @@ class ShadStyleTokens {
   /// actions.
   ///
   /// shadcn splits this in two: `gap-6` between a dialog's sections and
-  /// `gap-2` inside its header. `ShadDialog` stacks all four children
+  /// `gap-2` inside its header. `Dialog` stacks all four children
   /// uniformly, so this carries the header value, which is the one that shows.
   final double dialogGap;
 
@@ -666,11 +666,11 @@ class ShadStyleTokens {
   final double tabsListPadding;
 
   /// Corner radius of the tab strip, shadcn's `rounded-lg`.
-  final ShadRadiusToken tabsListRadius;
+  final RadiusToken tabsListRadius;
 
   /// Corner radius of a single tab, shadcn's `rounded-md` — one step inside
   /// the strip's.
-  final ShadRadiusToken tabRadius;
+  final RadiusToken tabRadius;
 
   /// The shadow under the active tab, `data-active:shadow-sm`. Only `vega`
   /// and `nova` keep it.
@@ -687,7 +687,7 @@ class ShadStyleTokens {
 
   /// Corner radius of an alert, `rounded-lg` — one step below the card's in
   /// most styles.
-  final ShadRadiusToken alertRadius;
+  final RadiusToken alertRadius;
 
   /// Horizontal padding of an alert, shadcn's `px-4`.
   final double alertPaddingX;
@@ -730,27 +730,27 @@ class ShadStyleTokens {
 
   /// The registry's baseline: 36px controls, 24px card padding, a 3px ring.
   /// Every other style is expressed as a delta from it.
-  static const vega = ShadStyleTokens(name: 'vega');
+  static const vega = StyleTokens(name: 'vega');
 
   /// vega, one size down and a step rounder — and shadcn's default style,
   /// which is what a theme uses when none is given.
-  static const nova = ShadStyleTokens(
+  static const nova = StyleTokens(
     name: 'nova',
     calendarCellSize: 28,
     calendarPadding: 8,
     calendarCaptionHeight: 24,
     // `leading-snug` on the card title.
-    title: ShadTextRole(
+    title: TextRole(
       fontSize: 16,
       fontWeight: FontWeight.w500,
       height: 1.375,
     ),
-    cardShadow: ShadShadows.none,
-    controlShadow: ShadShadows.none,
-    buttonRadius: ShadRadiusToken.lg,
-    popoverRadius: ShadRadiusToken.lg,
-    textareaRadius: ShadRadiusToken.lg,
-    itemRadius: ShadRadiusToken.md,
+    cardShadow: Shadows.none,
+    controlShadow: Shadows.none,
+    buttonRadius: RadiusToken.lg,
+    popoverRadius: RadiusToken.lg,
+    textareaRadius: RadiusToken.lg,
+    itemRadius: RadiusToken.md,
     buttonHeight: 32,
     buttonHeightSm: 28,
     buttonHeightLg: 36,
@@ -778,36 +778,36 @@ class ShadStyleTokens {
   );
 
   /// Pill-shaped and roomy.
-  static const maia = ShadStyleTokens(
+  static const maia = StyleTokens(
     name: 'maia',
-    calendarCellRadius: ShadRadiusToken.xl4,
-    commandItemDialogRadius: ShadRadiusToken.xl2,
-    commandSearchRadius: ShadRadiusToken.xl4,
+    calendarCellRadius: RadiusToken.xl4,
+    commandItemDialogRadius: RadiusToken.xl2,
+    commandSearchRadius: RadiusToken.xl4,
     commandSearchHeight: 36,
     commandSearchBorderOpacity: 1,
-    cardShadow: ShadShadows.none,
-    controlShadow: ShadShadows.none,
-    popoverShadow: ShadShadows.xl2,
-    buttonRadius: ShadRadiusToken.xl4,
-    cardRadius: ShadRadiusToken.xl2,
-    commandRadius: ShadRadiusToken.xl4,
-    dialogRadius: ShadRadiusToken.xl4,
-    popoverRadius: ShadRadiusToken.xl2,
-    tooltipRadius: ShadRadiusToken.xl2,
-    textareaRadius: ShadRadiusToken.xl,
-    itemRadius: ShadRadiusToken.xl,
+    cardShadow: Shadows.none,
+    controlShadow: Shadows.none,
+    popoverShadow: Shadows.xl2,
+    buttonRadius: RadiusToken.xl4,
+    cardRadius: RadiusToken.xl2,
+    commandRadius: RadiusToken.xl4,
+    dialogRadius: RadiusToken.xl4,
+    popoverRadius: RadiusToken.xl2,
+    tooltipRadius: RadiusToken.xl2,
+    textareaRadius: RadiusToken.xl,
+    itemRadius: RadiusToken.xl,
     checkboxRadius: 6,
     surfaceBorderOpacity: .05,
     surfaceBorderOpacityDark: .1,
     dialogBorderOpacity: .05,
     dialogBorderOpacityDark: .05,
-    outlineButtonFill: ShadSurfaceFill.input30,
-    outlineButtonHoverFill: ShadSurfaceFill.input50,
+    outlineButtonFill: SurfaceFill.input30,
+    outlineButtonHoverFill: SurfaceFill.input50,
     outlineButtonDarkInputBorder: false,
-    fieldFill: ShadSurfaceFill.input30,
-    tabsListRadius: ShadRadiusToken.xl4,
-    tabRadius: ShadRadiusToken.xl,
-    tabSelectedShadow: ShadShadows.none,
+    fieldFill: SurfaceFill.input30,
+    tabsListRadius: RadiusToken.xl4,
+    tabRadius: RadiusToken.xl,
+    tabSelectedShadow: Shadows.none,
     menuMinWidth: 192,
     buttonPaddingX: 12,
     buttonPaddingXSm: 12,
@@ -829,34 +829,34 @@ class ShadStyleTokens {
   );
 
   /// Square and compact.
-  static const lyra = ShadStyleTokens(
+  static const lyra = StyleTokens(
     name: 'lyra',
     calendarCellSize: 28,
-    calendarCellRadius: ShadRadiusToken.none,
+    calendarCellRadius: RadiusToken.none,
     calendarPadding: 8,
     calendarCaptionHeight: 24,
-    commandItemDialogRadius: ShadRadiusToken.none,
-    commandSearchRadius: ShadRadiusToken.none,
+    commandItemDialogRadius: RadiusToken.none,
+    commandSearchRadius: RadiusToken.none,
     commandPadding: 0,
     commandGroupPadding: 0,
     commandSearchBorderOpacity: 0,
     commandSearchUnderline: true,
-    buttonRadius: ShadRadiusToken.none,
-    cardRadius: ShadRadiusToken.none,
-    commandRadius: ShadRadiusToken.none,
-    dialogRadius: ShadRadiusToken.none,
-    popoverRadius: ShadRadiusToken.none,
-    tooltipRadius: ShadRadiusToken.none,
-    textareaRadius: ShadRadiusToken.none,
-    itemRadius: ShadRadiusToken.none,
+    buttonRadius: RadiusToken.none,
+    cardRadius: RadiusToken.none,
+    commandRadius: RadiusToken.none,
+    dialogRadius: RadiusToken.none,
+    popoverRadius: RadiusToken.none,
+    tooltipRadius: RadiusToken.none,
+    textareaRadius: RadiusToken.none,
+    itemRadius: RadiusToken.none,
     checkboxRadius: 0,
     ringWidth: 1,
-    title: ShadTextRole(fontSize: 14, fontWeight: FontWeight.w500),
-    label: ShadTextRole(fontSize: 12, fontWeight: FontWeight.w500),
-    body: ShadTextRole(fontSize: 12),
-    field: ShadTextRole(fontSize: 12),
-    cardShadow: ShadShadows.none,
-    controlShadow: ShadShadows.none,
+    title: TextRole(fontSize: 14, fontWeight: FontWeight.w500),
+    label: TextRole(fontSize: 12, fontWeight: FontWeight.w500),
+    body: TextRole(fontSize: 12),
+    field: TextRole(fontSize: 12),
+    cardShadow: Shadows.none,
+    controlShadow: Shadows.none,
     buttonHeight: 32,
     buttonHeightSm: 28,
     buttonHeightLg: 36,
@@ -868,9 +868,9 @@ class ShadStyleTokens {
     menuPadding: 0,
     itemPaddingY: 8,
     menubarHeight: 32,
-    tabsListRadius: ShadRadiusToken.none,
-    tabRadius: ShadRadiusToken.none,
-    tabSelectedShadow: ShadShadows.none,
+    tabsListRadius: RadiusToken.none,
+    tabRadius: RadiusToken.none,
+    tabSelectedShadow: Shadows.none,
     sliderTrackHeight: 4,
     sliderThumbSize: 12,
     cardPadding: 16,
@@ -882,43 +882,43 @@ class ShadStyleTokens {
     accordionTitlePaddingY: 10,
     alertPaddingX: 10,
     alertPaddingY: 8,
-    alertRadius: ShadRadiusToken.none,
+    alertRadius: RadiusToken.none,
     alertIconGap: 8,
     alertIconOffset: 0,
     progressHeight: 4,
   );
 
   /// The densest of the eight: 28px controls.
-  static const mira = ShadStyleTokens(
+  static const mira = StyleTokens(
     name: 'mira',
     calendarCellSize: 24,
     calendarCaptionHeight: 28,
-    commandItemDialogRadius: ShadRadiusToken.md,
-    commandSearchRadius: ShadRadiusToken.md,
-    commandSearchFill: ShadSurfaceFill.input20,
+    commandItemDialogRadius: RadiusToken.md,
+    commandSearchRadius: RadiusToken.md,
+    commandSearchFill: SurfaceFill.input20,
     commandSearchBorderOpacity: 1,
-    cardRadius: ShadRadiusToken.lg,
-    popoverRadius: ShadRadiusToken.lg,
-    itemRadius: ShadRadiusToken.md,
+    cardRadius: RadiusToken.lg,
+    popoverRadius: RadiusToken.lg,
+    itemRadius: RadiusToken.md,
     ringWidth: 2,
     ringOpacity: .3,
     // `text-xs/relaxed` throughout: 12px on a 1.625 line.
-    title: ShadTextRole(fontSize: 14, fontWeight: FontWeight.w500),
-    label: ShadTextRole(
+    title: TextRole(fontSize: 14, fontWeight: FontWeight.w500),
+    label: TextRole(
       fontSize: 12,
       fontWeight: FontWeight.w500,
       height: 1.625,
     ),
-    body: ShadTextRole(fontSize: 12, height: 1.625),
-    caption: ShadTextRole(fontSize: 10, fontWeight: FontWeight.w500),
-    field: ShadTextRole(fontSize: 12, height: 1.625),
-    cardShadow: ShadShadows.none,
-    controlShadow: ShadShadows.none,
-    outlineButtonFill: ShadSurfaceFill.none,
-    outlineButtonHoverFill: ShadSurfaceFill.input50,
+    body: TextRole(fontSize: 12, height: 1.625),
+    caption: TextRole(fontSize: 10, fontWeight: FontWeight.w500),
+    field: TextRole(fontSize: 12, height: 1.625),
+    cardShadow: Shadows.none,
+    controlShadow: Shadows.none,
+    outlineButtonFill: SurfaceFill.none,
+    outlineButtonHoverFill: SurfaceFill.input50,
     outlineButtonDarkInputBorder: false,
-    fieldFill: ShadSurfaceFill.input20,
-    tabSelectedShadow: ShadShadows.none,
+    fieldFill: SurfaceFill.input20,
+    tabSelectedShadow: Shadows.none,
     buttonHeight: 28,
     buttonHeightSm: 24,
     buttonHeightLg: 32,
@@ -961,25 +961,25 @@ class ShadStyleTokens {
   );
 
   /// Soft and pill-shaped, with a wide switch and a thick slider.
-  static const luma = ShadStyleTokens(
+  static const luma = StyleTokens(
     name: 'luma',
-    calendarCellRadius: ShadRadiusToken.xl4,
-    commandRadius: ShadRadiusToken.xl4,
-    commandItemDialogRadius: ShadRadiusToken.xl3,
-    commandSearchRadius: ShadRadiusToken.xl4,
+    calendarCellRadius: RadiusToken.xl4,
+    commandRadius: RadiusToken.xl4,
+    commandItemDialogRadius: RadiusToken.xl3,
+    commandSearchRadius: RadiusToken.xl4,
     commandGroupPadding: 6,
     commandSearchHeight: 36,
-    commandSearchFill: ShadSurfaceFill.input50,
-    commandSearchFillDark: ShadSurfaceFill.input50,
+    commandSearchFill: SurfaceFill.input50,
+    commandSearchFillDark: SurfaceFill.input50,
     commandSearchBorderOpacity: 0,
-    buttonRadius: ShadRadiusToken.xl4,
-    cardRadius: ShadRadiusToken.xl4,
-    alertRadius: ShadRadiusToken.xl2,
-    dialogRadius: ShadRadiusToken.xl4,
-    popoverRadius: ShadRadiusToken.xl4,
-    tooltipRadius: ShadRadiusToken.xl,
-    textareaRadius: ShadRadiusToken.xl2,
-    itemRadius: ShadRadiusToken.xl2,
+    buttonRadius: RadiusToken.xl4,
+    cardRadius: RadiusToken.xl4,
+    alertRadius: RadiusToken.xl2,
+    dialogRadius: RadiusToken.xl4,
+    popoverRadius: RadiusToken.xl4,
+    tooltipRadius: RadiusToken.xl,
+    textareaRadius: RadiusToken.xl2,
+    itemRadius: RadiusToken.xl2,
     checkboxRadius: 5,
     cardBorderOpacity: .05,
     cardBorderOpacityDark: .1,
@@ -987,24 +987,24 @@ class ShadStyleTokens {
     surfaceBorderOpacityDark: .1,
     ringOpacity: .3,
     cardGap: 6,
-    cardShadow: ShadShadows.md,
-    controlShadow: ShadShadows.none,
-    popoverShadow: ShadShadows.lg,
-    dialogShadow: ShadShadows.xl,
-    sheetShadow: ShadShadows.xl,
-    outlineButtonFillDark: ShadSurfaceFill.none,
-    outlineButtonHoverFillDark: ShadSurfaceFill.input30,
+    cardShadow: Shadows.md,
+    controlShadow: Shadows.none,
+    popoverShadow: Shadows.lg,
+    dialogShadow: Shadows.xl,
+    sheetShadow: Shadows.xl,
+    outlineButtonFillDark: SurfaceFill.none,
+    outlineButtonHoverFillDark: SurfaceFill.input30,
     outlineButtonDarkInputBorder: false,
-    controlFill: ShadSurfaceFill.input90,
-    controlFillDark: ShadSurfaceFill.input90,
+    controlFill: SurfaceFill.input90,
+    controlFillDark: SurfaceFill.input90,
     controlBorderless: true,
-    fieldFill: ShadSurfaceFill.input50,
-    fieldFillDark: ShadSurfaceFill.input50,
+    fieldFill: SurfaceFill.input50,
+    fieldFillDark: SurfaceFill.input50,
     fieldBorderless: true,
-    sliderTrackFill: ShadSurfaceFill.input90,
-    tabsListRadius: ShadRadiusToken.full,
-    tabRadius: ShadRadiusToken.full,
-    tabSelectedShadow: ShadShadows.none,
+    sliderTrackFill: SurfaceFill.input90,
+    tabsListRadius: RadiusToken.full,
+    tabRadius: RadiusToken.full,
+    tabSelectedShadow: Shadows.none,
     buttonPaddingX: 12,
     buttonPaddingXSm: 12,
     buttonPaddingXLg: 16,
@@ -1034,78 +1034,78 @@ class ShadStyleTokens {
   );
 
   /// Editorial: square, uppercase, letter-spaced, and the largest of the eight.
-  static const sera = ShadStyleTokens(
+  static const sera = StyleTokens(
     name: 'sera',
-    calendarCellRadius: ShadRadiusToken.none,
-    commandRadius: ShadRadiusToken.none,
-    commandItemDialogRadius: ShadRadiusToken.none,
-    commandSearchRadius: ShadRadiusToken.none,
+    calendarCellRadius: RadiusToken.none,
+    commandRadius: RadiusToken.none,
+    commandItemDialogRadius: RadiusToken.none,
+    commandSearchRadius: RadiusToken.none,
     commandPadding: 0,
     commandGroupPadding: 6,
     commandSearchHeight: 40,
-    commandSearchFill: ShadSurfaceFill.none,
-    commandSearchFillDark: ShadSurfaceFill.none,
+    commandSearchFill: SurfaceFill.none,
+    commandSearchFillDark: SurfaceFill.none,
     commandSearchBorderOpacity: 0,
     commandSearchUnderline: true,
-    buttonRadius: ShadRadiusToken.none,
-    cardRadius: ShadRadiusToken.none,
-    alertRadius: ShadRadiusToken.none,
+    buttonRadius: RadiusToken.none,
+    cardRadius: RadiusToken.none,
+    alertRadius: RadiusToken.none,
     alertGap: 4,
     alertAccentBar: true,
-    dialogRadius: ShadRadiusToken.none,
-    popoverRadius: ShadRadiusToken.none,
-    tooltipRadius: ShadRadiusToken.none,
-    textareaRadius: ShadRadiusToken.none,
-    itemRadius: ShadRadiusToken.none,
+    dialogRadius: RadiusToken.none,
+    popoverRadius: RadiusToken.none,
+    tooltipRadius: RadiusToken.none,
+    textareaRadius: RadiusToken.none,
+    itemRadius: RadiusToken.none,
     checkboxRadius: 0,
     cardBorderOpacity: .05,
     ringWidth: 2,
     ringOpacity: .3,
     // Uppercase and tracked out, at Tailwind's `tracking-wider` (0.05em) and
     // `tracking-widest` (0.1em) converted to pixels at each size.
-    title: ShadTextRole(
+    title: TextRole(
       fontSize: 18,
       fontWeight: FontWeight.w600,
       letterSpacing: 0.9,
       uppercase: true,
     ),
-    label: ShadTextRole(
+    label: TextRole(
       fontSize: 12,
       fontWeight: FontWeight.w600,
       letterSpacing: 1.2,
       uppercase: true,
     ),
-    body: ShadTextRole(fontSize: 14, height: 1.625),
-    caption: ShadTextRole(
+    body: TextRole(fontSize: 14, height: 1.625),
+    caption: TextRole(
       fontSize: 10,
       fontWeight: FontWeight.w600,
       letterSpacing: 1,
       uppercase: true,
     ),
-    overline: ShadTextRole(
+    overline: TextRole(
       fontSize: 12,
       fontWeight: FontWeight.w600,
       letterSpacing: 0.6,
       uppercase: true,
     ),
-    cardShadow: ShadShadows.sm,
-    controlShadow: ShadShadows.none,
-    dialogShadow: ShadShadows.md,
-    sheetShadow: ShadShadows.md,
-    outlineButtonFill: ShadSurfaceFill.none,
-    outlineButtonFillDark: ShadSurfaceFill.none,
-    outlineButtonHoverFillDark: ShadSurfaceFill.input30,
+    cardShadow: Shadows.sm,
+    controlShadow: Shadows.none,
+    dialogShadow: Shadows.md,
+    sheetShadow: Shadows.md,
+    outlineButtonFill: SurfaceFill.none,
+    outlineButtonFillDark: SurfaceFill.none,
+    outlineButtonHoverFillDark: SurfaceFill.input30,
     outlineButtonDarkInputBorder: false,
     linkUnderline: true,
     flatBadges: true,
-    controlFillDark: ShadSurfaceFill.none,
-    fieldFillDark: ShadSurfaceFill.none,
+    controlFillDark: SurfaceFill.none,
+    fieldFillDark: SurfaceFill.none,
     radioCheckedOutline: true,
-    sliderTrackFill: ShadSurfaceFill.input50,
+    sliderTrackFill: SurfaceFill.input50,
     sliderThumbFilled: true,
-    tabsListRadius: ShadRadiusToken.none,
-    tabRadius: ShadRadiusToken.none,
-    tabSelectedShadow: ShadShadows.none,
+    tabsListRadius: RadiusToken.none,
+    tabRadius: RadiusToken.none,
+    tabSelectedShadow: Shadows.none,
     buttonHeight: 40,
     buttonHeightSm: 36,
     buttonHeightLg: 44,
@@ -1160,50 +1160,50 @@ class ShadStyleTokens {
   );
 
   /// Rounded and compact.
-  static const rhea = ShadStyleTokens(
+  static const rhea = StyleTokens(
     name: 'rhea',
-    calendarCellRadius: ShadRadiusToken.xl2,
-    commandRadius: ShadRadiusToken.xl3,
-    commandItemDialogRadius: ShadRadiusToken.xl2,
-    commandSearchRadius: ShadRadiusToken.xl2,
-    commandSearchFill: ShadSurfaceFill.input50,
-    commandSearchFillDark: ShadSurfaceFill.input50,
+    calendarCellRadius: RadiusToken.xl2,
+    commandRadius: RadiusToken.xl3,
+    commandItemDialogRadius: RadiusToken.xl2,
+    commandSearchRadius: RadiusToken.xl2,
+    commandSearchFill: SurfaceFill.input50,
+    commandSearchFillDark: SurfaceFill.input50,
     commandSearchBorderOpacity: 0,
-    buttonRadius: ShadRadiusToken.xl2,
+    buttonRadius: RadiusToken.xl2,
     // Card and dialog corners are the 4xl step, capped:
     // `rounded-[min(var(--radius-4xl),24px)]`.
-    cardRadius: ShadRadiusToken.xl4,
-    alertRadius: ShadRadiusToken.xl2,
-    dialogRadius: ShadRadiusToken.xl4,
+    cardRadius: RadiusToken.xl4,
+    alertRadius: RadiusToken.xl2,
+    dialogRadius: RadiusToken.xl4,
     surfaceRadiusCap: 24,
-    popoverRadius: ShadRadiusToken.xl2,
-    tooltipRadius: ShadRadiusToken.xl,
-    textareaRadius: ShadRadiusToken.xl2,
-    itemRadius: ShadRadiusToken.xl,
+    popoverRadius: RadiusToken.xl2,
+    tooltipRadius: RadiusToken.xl,
+    textareaRadius: RadiusToken.xl2,
+    itemRadius: RadiusToken.xl,
     checkboxRadius: 5,
     cardBorderOpacity: .05,
     cardBorderOpacityDark: .1,
     surfaceBorderOpacity: .05,
     surfaceBorderOpacityDark: .1,
     ringOpacity: .3,
-    cardShadow: ShadShadows.sm,
-    controlShadow: ShadShadows.none,
-    popoverShadow: ShadShadows.lg,
-    dialogShadow: ShadShadows.xl,
-    sheetShadow: ShadShadows.xl,
-    outlineButtonFillDark: ShadSurfaceFill.none,
-    outlineButtonHoverFillDark: ShadSurfaceFill.input30,
+    cardShadow: Shadows.sm,
+    controlShadow: Shadows.none,
+    popoverShadow: Shadows.lg,
+    dialogShadow: Shadows.xl,
+    sheetShadow: Shadows.xl,
+    outlineButtonFillDark: SurfaceFill.none,
+    outlineButtonHoverFillDark: SurfaceFill.input30,
     outlineButtonDarkInputBorder: false,
-    controlFill: ShadSurfaceFill.input90,
-    controlFillDark: ShadSurfaceFill.input90,
+    controlFill: SurfaceFill.input90,
+    controlFillDark: SurfaceFill.input90,
     controlBorderless: true,
-    fieldFill: ShadSurfaceFill.input50,
-    fieldFillDark: ShadSurfaceFill.input50,
+    fieldFill: SurfaceFill.input50,
+    fieldFillDark: SurfaceFill.input50,
     fieldBorderless: true,
-    sliderTrackFill: ShadSurfaceFill.input90,
-    tabsListRadius: ShadRadiusToken.xl2,
-    tabRadius: ShadRadiusToken.xl2,
-    tabSelectedShadow: ShadShadows.none,
+    sliderTrackFill: SurfaceFill.input90,
+    tabsListRadius: RadiusToken.xl2,
+    tabRadius: RadiusToken.xl2,
+    tabSelectedShadow: Shadows.none,
     buttonHeight: 32,
     buttonHeightSm: 28,
     buttonHeightLg: 36,
@@ -1230,7 +1230,7 @@ class ShadStyleTokens {
   );
 
   /// All eight, in shadcn/ui's order.
-  static const all = <ShadStyleTokens>[
+  static const all = <StyleTokens>[
     vega,
     nova,
     maia,
@@ -1244,24 +1244,24 @@ class ShadStyleTokens {
   /// Returns the style shadcn/ui calls [name], such as `nova`.
   ///
   /// Throws an [ArgumentError] for an unknown name.
-  static ShadStyleTokens fromName(String name) => all.firstWhere(
+  static StyleTokens fromName(String name) => all.firstWhere(
     (s) => s.name == name,
     orElse: () => throw ArgumentError.value(name, 'name', 'Unknown style'),
   );
 
   /// Creates a copy of this style with the given fields replaced.
-  ShadStyleTokens copyWith({
+  StyleTokens copyWith({
     String? name,
-    ShadRadiusToken? buttonRadius,
-    ShadRadiusToken? cardRadius,
-    ShadRadiusToken? dialogRadius,
-    ShadRadiusToken? popoverRadius,
-    ShadRadiusToken? tooltipRadius,
-    ShadRadiusToken? commandRadius,
-    ShadRadiusToken? commandItemDialogRadius,
-    ShadRadiusToken? commandSearchRadius,
-    ShadRadiusToken? textareaRadius,
-    ShadRadiusToken? itemRadius,
+    RadiusToken? buttonRadius,
+    RadiusToken? cardRadius,
+    RadiusToken? dialogRadius,
+    RadiusToken? popoverRadius,
+    RadiusToken? tooltipRadius,
+    RadiusToken? commandRadius,
+    RadiusToken? commandItemDialogRadius,
+    RadiusToken? commandSearchRadius,
+    RadiusToken? textareaRadius,
+    RadiusToken? itemRadius,
     double? checkboxRadius,
     double? cardBorderOpacity,
     double? cardBorderOpacityDark,
@@ -1272,20 +1272,20 @@ class ShadStyleTokens {
     double? surfaceRadiusCap,
     double? ringWidth,
     double? ringOpacity,
-    ShadTextRole? title,
-    ShadTextRole? label,
-    ShadTextRole? body,
-    ShadTextRole? caption,
-    ShadTextRole? overline,
-    ShadTextRole? field,
+    TextRole? title,
+    TextRole? label,
+    TextRole? body,
+    TextRole? caption,
+    TextRole? overline,
+    TextRole? field,
     List<BoxShadow>? cardShadow,
     List<BoxShadow>? popoverShadow,
     List<BoxShadow>? dialogShadow,
     List<BoxShadow>? sheetShadow,
-    ShadSurfaceFill? outlineButtonFill,
-    ShadSurfaceFill? outlineButtonFillDark,
-    ShadSurfaceFill? outlineButtonHoverFill,
-    ShadSurfaceFill? outlineButtonHoverFillDark,
+    SurfaceFill? outlineButtonFill,
+    SurfaceFill? outlineButtonFillDark,
+    SurfaceFill? outlineButtonHoverFill,
+    SurfaceFill? outlineButtonHoverFillDark,
     bool? outlineButtonDarkInputBorder,
     bool? linkUnderline,
     bool? flatBadges,
@@ -1314,8 +1314,8 @@ class ShadStyleTokens {
     double? textareaPaddingX,
     double? textareaPaddingY,
     bool? underlinedFields,
-    ShadSurfaceFill? fieldFill,
-    ShadSurfaceFill? fieldFillDark,
+    SurfaceFill? fieldFill,
+    SurfaceFill? fieldFillDark,
     bool? fieldBorderless,
     double? selectPaddingX,
     double? menuPadding,
@@ -1325,14 +1325,14 @@ class ShadStyleTokens {
     double? menubarHeight,
     double? menubarPadding,
     double? calendarCellSize,
-    ShadRadiusToken? calendarCellRadius,
+    RadiusToken? calendarCellRadius,
     double? calendarPadding,
     double? calendarCaptionHeight,
     double? commandPadding,
     double? commandGroupPadding,
     double? commandSearchHeight,
-    ShadSurfaceFill? commandSearchFill,
-    ShadSurfaceFill? commandSearchFillDark,
+    SurfaceFill? commandSearchFill,
+    SurfaceFill? commandSearchFillDark,
     double? commandSearchBorderOpacity,
     bool? commandSearchUnderline,
     double? sidebarItemHeight,
@@ -1340,8 +1340,8 @@ class ShadStyleTokens {
     double? sidebarItemHeightLg,
     double? sidebarItemPaddingX,
     double? sidebarSubItemPaddingX,
-    ShadSurfaceFill? controlFill,
-    ShadSurfaceFill? controlFillDark,
+    SurfaceFill? controlFill,
+    SurfaceFill? controlFillDark,
     bool? controlBorderless,
     bool? radioCheckedOutline,
     double? checkboxSize,
@@ -1351,7 +1351,7 @@ class ShadStyleTokens {
     double? switchThumbSize,
     double? sliderTrackHeight,
     double? sliderThumbSize,
-    ShadSurfaceFill? sliderTrackFill,
+    SurfaceFill? sliderTrackFill,
     bool? sliderThumbFilled,
     double? cardPadding,
     double? cardGap,
@@ -1359,13 +1359,13 @@ class ShadStyleTokens {
     double? dialogGap,
     double? popoverPadding,
     double? tabsListPadding,
-    ShadRadiusToken? tabsListRadius,
-    ShadRadiusToken? tabRadius,
+    RadiusToken? tabsListRadius,
+    RadiusToken? tabRadius,
     List<BoxShadow>? tabSelectedShadow,
     double? tabPaddingX,
     double? tabPaddingY,
     double? accordionTitlePaddingY,
-    ShadRadiusToken? alertRadius,
+    RadiusToken? alertRadius,
     double? alertPaddingX,
     double? alertPaddingY,
     double? alertGap,
@@ -1378,7 +1378,7 @@ class ShadStyleTokens {
     double? kbdPaddingX,
     double? progressHeight,
   }) {
-    return ShadStyleTokens(
+    return StyleTokens(
       name: name ?? this.name,
       buttonRadius: buttonRadius ?? this.buttonRadius,
       cardRadius: cardRadius ?? this.cardRadius,
@@ -1655,7 +1655,7 @@ class ShadStyleTokens {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    if (other is! ShadStyleTokens) return false;
+    if (other is! StyleTokens) return false;
     final a = _props;
     final b = other._props;
     for (var i = 0; i < a.length; i++) {
@@ -1679,5 +1679,5 @@ class ShadStyleTokens {
   );
 
   @override
-  String toString() => 'ShadStyleTokens($name)';
+  String toString() => 'StyleTokens($name)';
 }

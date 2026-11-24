@@ -9,14 +9,10 @@ part of 'toggle.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadToggleTheme {
+mixin _$ToggleTheme {
   bool get canMerge => true;
 
-  static ShadToggleTheme? lerp(
-    ShadToggleTheme? a,
-    ShadToggleTheme? b,
-    double t,
-  ) {
+  static ToggleTheme? lerp(ToggleTheme? a, ToggleTheme? b, double t) {
     if (identical(a, b)) {
       return a;
     }
@@ -29,7 +25,7 @@ mixin _$ShadToggleTheme {
       return t == 0.0 ? a : null;
     }
 
-    return ShadToggleTheme(
+    return ToggleTheme(
       backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
       hoverBackgroundColor: Color.lerp(
         a.hoverBackgroundColor,
@@ -58,7 +54,7 @@ mixin _$ShadToggleTheme {
         t,
       ),
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
-      decoration: ShadDecoration.lerp(a.decoration, b.decoration, t),
+      decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
       textStyle: TextStyle.lerp(a.textStyle, b.textStyle, t),
       gap: lerpDouble$(a.gap, b.gap, t),
       height: lerpDouble$(a.height, b.height, t),
@@ -66,7 +62,7 @@ mixin _$ShadToggleTheme {
     );
   }
 
-  ShadToggleTheme copyWith({
+  ToggleTheme copyWith({
     Color? backgroundColor,
     Color? hoverBackgroundColor,
     Color? selectedBackgroundColor,
@@ -75,15 +71,15 @@ mixin _$ShadToggleTheme {
     Color? hoverForegroundColor,
     Color? selectedForegroundColor,
     EdgeInsetsGeometry? padding,
-    ShadDecoration? decoration,
+    FinesseDecoration? decoration,
     TextStyle? textStyle,
     double? gap,
     double? height,
     double? iconSize,
   }) {
-    final _this = (this as ShadToggleTheme);
+    final _this = (this as ToggleTheme);
 
-    return ShadToggleTheme(
+    return ToggleTheme(
       backgroundColor: backgroundColor ?? _this.backgroundColor,
       hoverBackgroundColor: hoverBackgroundColor ?? _this.hoverBackgroundColor,
       selectedBackgroundColor:
@@ -103,8 +99,8 @@ mixin _$ShadToggleTheme {
     );
   }
 
-  ShadToggleTheme merge(ShadToggleTheme? other) {
-    final _this = (this as ShadToggleTheme);
+  ToggleTheme merge(ToggleTheme? other) {
+    final _this = (this as ToggleTheme);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -141,8 +137,8 @@ mixin _$ShadToggleTheme {
       return false;
     }
 
-    final _this = (this as ShadToggleTheme);
-    final _other = (other as ShadToggleTheme);
+    final _this = (this as ToggleTheme);
+    final _other = (other as ToggleTheme);
 
     return _other.backgroundColor == _this.backgroundColor &&
         _other.hoverBackgroundColor == _this.hoverBackgroundColor &&
@@ -162,7 +158,7 @@ mixin _$ShadToggleTheme {
 
   @override
   int get hashCode {
-    final _this = (this as ShadToggleTheme);
+    final _this = (this as ToggleTheme);
 
     return Object.hash(
       runtimeType,

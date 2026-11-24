@@ -2,25 +2,25 @@
 // package's Example tab. Keep the two in sync.
 import 'dart:io';
 
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/shad.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ShadApp(
-      theme: ShadThemeData(
-        colorScheme: const ShadZincColorScheme.light(),
+    return FinesseApp(
+      theme: ThemeData(
+        colorScheme: const ZincColorScheme.light(),
         // One of shadcn/ui's eight styles: vega, nova, maia, lyra, mira,
         // luma, sera or rhea.
-        style: ShadStyleTokens.nova,
+        style: StyleTokens.nova,
       ),
-      darkTheme: ShadThemeData(
-        colorScheme: const ShadZincColorScheme.dark(),
-        style: ShadStyleTokens.nova,
+      darkTheme: ThemeData(
+        colorScheme: const ZincColorScheme.dark(),
+        style: StyleTokens.nova,
       ),
       home: const Center(child: SignUpCard()),
     );
@@ -32,16 +32,16 @@ class SignUpCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ShadCard(
+    return Card(
       width: 360,
       title: const Text('Create an account'),
       description: const Text('Enter your details to get started.'),
       footer: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          ShadButton(
-            onPressed: () => ShadToaster.of(context).show(
-              const ShadToast(title: Text('Account created')),
+          Button(
+            onPressed: () => Toaster.of(context).show(
+              const Toast(title: Text('Account created')),
             ),
             child: const Text('Sign up'),
           ),
@@ -51,12 +51,12 @@ class SignUpCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 12,
         children: [
-          const ShadInput(placeholder: Text('Email')),
-          ShadSelect<String>(
+          const TextField(placeholder: Text('Email')),
+          Select<String>(
             placeholder: const Text('Plan'),
             options: const [
-              ShadOption(value: 'free', child: Text('Free')),
-              ShadOption(value: 'pro', child: Text('Pro')),
+              SelectOption(value: 'free', child: Text('Free')),
+              SelectOption(value: 'pro', child: Text('Pro')),
             ],
             selectedOptionBuilder: (context, value) => Text(value),
           ),

@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class KbdBasicExample extends StatelessWidget {
   const KbdBasicExample({super.key});
@@ -10,13 +10,13 @@ class KbdBasicExample extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       spacing: 16,
       children: [
-        ShadKbd('K'),
-        ShadKbd.group(['⌘', 'K']),
+        Kbd('K'),
+        Kbd.group(['⌘', 'K']),
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text('Press '),
-            ShadKbd.group(['Ctrl', 'Shift', 'P']),
+            Kbd.group(['Ctrl', 'Shift', 'P']),
             Text(' to open the palette'),
           ],
         ),

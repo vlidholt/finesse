@@ -3,8 +3,8 @@ import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
-/// Converts a [ShadBorderSide] to a Flutter [BorderSide].
-extension ShadBorderSideToBorderSide on ShadBorderSide {
+/// Converts a [FinesseBorderSide] to a Flutter [BorderSide].
+extension BorderSideToBorderSide on FinesseBorderSide {
   /// Returns the Flutter [BorderSide] for this side.
   ///
   /// A side with no width becomes a zero-width side that keeps its color,
@@ -32,14 +32,14 @@ extension ShadBorderSideToBorderSide on ShadBorderSide {
   }
 }
 
-/// Converts a [ShadBorder] to a Flutter [Border].
-extension ShadBorderToBorder on ShadBorder {
-  /// Returns a [ShadBoxBorder] with the four sides of this border.
+/// Converts a [FinesseBorder] to a Flutter [Border].
+extension BorderToBorder on FinesseBorder {
+  /// Returns a [FinesseBoxBorder] with the four sides of this border.
   ///
   /// Missing sides become [BorderSide.none]. The radius, padding and offset are
   /// not part of the result.
   Border toBorder() {
-    return ShadBoxBorder(
+    return FinesseBoxBorder(
       top: top?.toBorderSide() ?? BorderSide.none,
       right: right?.toBorderSide() ?? BorderSide.none,
       bottom: bottom?.toBorderSide() ?? BorderSide.none,
@@ -58,9 +58,9 @@ extension ShadBorderToBorder on ShadBorder {
 /// straight sides clipped to the rounded outline — at field hairline widths
 /// the corners are indistinguishable from the real thing, and the state only
 /// lasts for the frames of the transition.
-class ShadBoxBorder extends Border {
+class FinesseBoxBorder extends Border {
   /// Creates a border with the given sides.
-  const ShadBoxBorder({super.top, super.right, super.bottom, super.left});
+  const FinesseBoxBorder({super.top, super.right, super.bottom, super.left});
 
   /// Mirrors the cases [Border.paint] can draw inside a radius itself: a
   /// fully uniform border, a uniformly invisible one, or sides that show a
@@ -122,13 +122,13 @@ class ShadBoxBorder extends Border {
   }
 }
 
-/// {@template ShadBorder}
+/// {@template FinesseBorder}
 /// A wrapper around the [Border] class with a reasonable merge.
 /// {@endtemplate}
 @immutable
-class ShadBorder {
-  /// {@macro ShadBorder}
-  const ShadBorder({
+class FinesseBorder {
+  /// {@macro FinesseBorder}
+  const FinesseBorder({
     this.canMerge = true,
     this.padding,
     this.radius,
@@ -140,8 +140,8 @@ class ShadBorder {
   });
 
   /// Creates a border whose sides are all the same.
-  const ShadBorder.fromBorderSide(
-    ShadBorderSide side, {
+  const FinesseBorder.fromBorderSide(
+    FinesseBorderSide side, {
     this.canMerge = true,
     this.padding,
     this.radius,
@@ -155,9 +155,9 @@ class ShadBorder {
   ///
   /// The `vertical` argument applies to the [left] and [right] sides, and the
   /// `horizontal` argument applies to the [top] and [bottom] sides.
-  const ShadBorder.symmetric({
-    ShadBorderSide? vertical,
-    ShadBorderSide? horizontal,
+  const FinesseBorder.symmetric({
+    FinesseBorderSide? vertical,
+    FinesseBorderSide? horizontal,
     this.canMerge = true,
     this.padding,
     this.radius,
@@ -170,7 +170,7 @@ class ShadBorder {
   /// A uniform border with all sides the same color and width.
   ///
   /// The sides default to black solid borders, one logical pixel wide.
-  factory ShadBorder.all({
+  factory FinesseBorder.all({
     bool canMerge = true,
     Color? color,
     double? width,
@@ -180,13 +180,13 @@ class ShadBorder {
     BorderRadiusGeometry? radius,
     double? offset,
   }) {
-    final side = ShadBorderSide(
+    final side = FinesseBorderSide(
       color: color,
       width: width,
       style: style,
       strokeAlign: strokeAlign,
     );
-    return ShadBorder.fromBorderSide(
+    return FinesseBorder.fromBorderSide(
       side,
       padding: padding,
       canMerge: canMerge,
@@ -198,28 +198,28 @@ class ShadBorder {
   /// Interpolates between two borders.
   ///
   /// The [canMerge] value comes from [b] when it is not null.
-  static ShadBorder? lerp(ShadBorder? a, ShadBorder? b, double t) {
+  static FinesseBorder? lerp(FinesseBorder? a, FinesseBorder? b, double t) {
     if (identical(a, b)) return a;
-    return ShadBorder(
+    return FinesseBorder(
       canMerge: b?.canMerge ?? a?.canMerge ?? true,
       padding: EdgeInsetsGeometry.lerp(a?.padding, b?.padding, t),
       radius: BorderRadiusGeometry.lerp(a?.radius, b?.radius, t),
-      top: ShadBorderSide.lerp(
+      top: FinesseBorderSide.lerp(
         a?.top,
         b?.top,
         t,
       ),
-      right: ShadBorderSide.lerp(
+      right: FinesseBorderSide.lerp(
         a?.right,
         b?.right,
         t,
       ),
-      bottom: ShadBorderSide.lerp(
+      bottom: FinesseBorderSide.lerp(
         a?.bottom,
         b?.bottom,
         t,
       ),
-      left: ShadBorderSide.lerp(
+      left: FinesseBorderSide.lerp(
         a?.left,
         b?.left,
         t,
@@ -236,17 +236,17 @@ class ShadBorder {
       (left?.width ?? 0) != 0;
 
   /// A border with no sides that replaces any border it is merged into.
-  static const ShadBorder none = ShadBorder(canMerge: false);
+  static const FinesseBorder none = FinesseBorder(canMerge: false);
 
-  /// Creates a [ShadBorder] that represents the addition of the two given
-  /// [ShadBorder]s.
-  ShadBorder merge(ShadBorder? other) {
+  /// Creates a [FinesseBorder] that represents the addition of the two given
+  /// [FinesseBorder]s.
+  FinesseBorder merge(FinesseBorder? other) {
     if (other == null) return this;
     if (!other.canMerge) return other;
-    if (other is ShadRoundedSuperellipseBorder) {
-      return ShadRoundedSuperellipseBorder(
+    if (other is FinesseRoundedSuperellipseBorder) {
+      return FinesseRoundedSuperellipseBorder(
         side: switch (this) {
-          final ShadRoundedSuperellipseBorder border =>
+          final FinesseRoundedSuperellipseBorder border =>
             border.side?.merge(other.side) ?? other.side,
           _ => other.side,
         },
@@ -269,17 +269,17 @@ class ShadBorder {
   }
 
   /// Returns a copy with the given fields replaced.
-  ShadBorder copyWith({
+  FinesseBorder copyWith({
     bool? canMerge,
     EdgeInsetsGeometry? padding,
-    ShadBorderSide? top,
-    ShadBorderSide? right,
-    ShadBorderSide? bottom,
-    ShadBorderSide? left,
+    FinesseBorderSide? top,
+    FinesseBorderSide? right,
+    FinesseBorderSide? bottom,
+    FinesseBorderSide? left,
     BorderRadiusGeometry? radius,
     double? offset,
   }) {
-    return ShadBorder(
+    return FinesseBorder(
       canMerge: canMerge ?? this.canMerge,
       top: top ?? this.top,
       right: right ?? this.right,
@@ -301,16 +301,16 @@ class ShadBorder {
   final BorderRadiusGeometry? radius;
 
   /// The top side of this border.
-  final ShadBorderSide? top;
+  final FinesseBorderSide? top;
 
   /// The right side of this border.
-  final ShadBorderSide? right;
+  final FinesseBorderSide? right;
 
   /// The bottom side of this border.
-  final ShadBorderSide? bottom;
+  final FinesseBorderSide? bottom;
 
   /// The left side of this border.
-  final ShadBorderSide? left;
+  final FinesseBorderSide? left;
 
   /// The offset between the border and the widget.
   ///
@@ -320,16 +320,16 @@ class ShadBorder {
 
   @override
   String toString() {
-    return '''ShadBorder(canMerge: $canMerge, padding: $padding, radius: $radius, top: $top, right: $right, bottom: $bottom, left: $left, offset: $offset)''';
+    return '''FinesseBorder(canMerge: $canMerge, padding: $padding, radius: $radius, top: $top, right: $right, bottom: $bottom, left: $left, offset: $offset)''';
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    // Guards against a base [ShadBorder] comparing equal to a subclass
-    // instance, keeping `==` symmetric with [ShadRoundedSuperellipseBorder].
+    // Guards against a base [FinesseBorder] comparing equal to a subclass
+    // instance, keeping `==` symmetric with [FinesseRoundedSuperellipseBorder].
     if (other.runtimeType != runtimeType) return false;
-    return other is ShadBorder &&
+    return other is FinesseBorder &&
         other.canMerge == canMerge &&
         other.padding == padding &&
         other.radius == radius &&
@@ -355,9 +355,9 @@ class ShadBorder {
 
 /// Creates the side of a border.
 @immutable
-class ShadBorderSide with Diagnosticable {
+class FinesseBorderSide with Diagnosticable {
   /// Creates the side of a border.
-  const ShadBorderSide({
+  const FinesseBorderSide({
     this.canMerge = true,
     this.color,
     this.width,
@@ -366,7 +366,7 @@ class ShadBorderSide with Diagnosticable {
   }) : assert(width == null || width >= 0.0);
 
   /// Merges two border sides into one
-  ShadBorderSide merge(ShadBorderSide? other) {
+  FinesseBorderSide merge(FinesseBorderSide? other) {
     if (other == null) return this;
     if (!other.canMerge) return other;
     return copyWith(
@@ -396,9 +396,9 @@ class ShadBorderSide with Diagnosticable {
   final BorderStyle? style;
 
   /// A hairline black border that is not rendered.
-  static const ShadBorderSide none = ShadBorderSide(canMerge: false);
+  static const FinesseBorderSide none = FinesseBorderSide(canMerge: false);
 
-  /// The relative position of the stroke on a [ShadBorderSide] in an
+  /// The relative position of the stroke on a [FinesseBorderSide] in an
   /// [OutlinedBorder] or [Border].
   ///
   /// Values typically range from -1.0 ([BorderSide.strokeAlignInside], inside
@@ -422,20 +422,20 @@ class ShadBorderSide with Diagnosticable {
   ///
   /// This property is not honored by toPaint (because the [Paint] object
   /// cannot represent it); it is intended that classes that use
-  /// [ShadBorderSide] objects implement this property when painting borders by
+  /// [FinesseBorderSide] objects implement this property when painting borders by
   /// suitably inflating or deflating their regions.
   final double? strokeAlign;
 
   /// Creates a copy of this border but with the given fields replaced with the
   /// new values.
-  ShadBorderSide copyWith({
+  FinesseBorderSide copyWith({
     bool? canMerge,
     Color? color,
     double? width,
     BorderStyle? style,
     double? strokeAlign,
   }) {
-    return ShadBorderSide(
+    return FinesseBorderSide(
       canMerge: canMerge ?? this.canMerge,
       color: color ?? this.color,
       width: width ?? this.width,
@@ -447,9 +447,13 @@ class ShadBorderSide with Diagnosticable {
   /// Interpolates between two border sides.
   ///
   /// The style switches from [a] to [b] at the midpoint.
-  static ShadBorderSide? lerp(ShadBorderSide? a, ShadBorderSide? b, double t) {
+  static FinesseBorderSide? lerp(
+    FinesseBorderSide? a,
+    FinesseBorderSide? b,
+    double t,
+  ) {
     if (identical(a, b)) return a;
-    return ShadBorderSide(
+    return FinesseBorderSide(
       canMerge: b?.canMerge ?? a?.canMerge ?? true,
       color: Color.lerp(a?.color, b?.color, t),
       width: lerpDouble(a?.width, b?.width, t),
@@ -466,7 +470,7 @@ class ShadBorderSide with Diagnosticable {
     if (other.runtimeType != runtimeType) {
       return false;
     }
-    return other is ShadBorderSide &&
+    return other is FinesseBorderSide &&
         other.canMerge == canMerge &&
         other.color == color &&
         other.width == width &&
@@ -478,7 +482,7 @@ class ShadBorderSide with Diagnosticable {
   int get hashCode => Object.hash(canMerge, color, width, style, strokeAlign);
 
   @override
-  String toStringShort() => 'ShadBorderSide';
+  String toStringShort() => 'FinesseBorderSide';
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
@@ -519,8 +523,8 @@ class ShadBorderSide with Diagnosticable {
   }
 }
 
-/// Converts a [ShadRoundedSuperellipseBorder] to a Flutter [ShapeBorder].
-extension ShadRoundedSuperellipseBorderExt on ShadRoundedSuperellipseBorder {
+/// Converts a [FinesseRoundedSuperellipseBorder] to a Flutter [ShapeBorder].
+extension RoundedSuperellipseBorderExt on FinesseRoundedSuperellipseBorder {
   /// Returns a [RoundedSuperellipseBorder] with the side and radius of this
   /// border.
   ///
@@ -541,27 +545,27 @@ extension ShadRoundedSuperellipseBorderExt on ShadRoundedSuperellipseBorder {
 /// A rectangular border with rounded corners following the shape of an
 /// [RSuperellipse].
 @immutable
-class ShadRoundedSuperellipseBorder extends ShadBorder {
+class FinesseRoundedSuperellipseBorder extends FinesseBorder {
   /// Creates a superellipse border with [side] on every edge.
-  const ShadRoundedSuperellipseBorder({
+  const FinesseRoundedSuperellipseBorder({
     super.canMerge,
     this.side,
     super.radius,
   });
 
   /// The side drawn on every edge.
-  final ShadBorderSide? side;
+  final FinesseBorderSide? side;
 
   @override
   String toString() {
-    return '''ShadRoundedSuperellipseBorder(canMerge: $canMerge, side: $side, radius: $radius)''';
+    return '''FinesseRoundedSuperellipseBorder(canMerge: $canMerge, side: $side, radius: $radius)''';
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other.runtimeType != runtimeType) return false;
-    return other is ShadRoundedSuperellipseBorder &&
+    return other is FinesseRoundedSuperellipseBorder &&
         other.canMerge == canMerge &&
         other.side == side &&
         other.radius == radius;

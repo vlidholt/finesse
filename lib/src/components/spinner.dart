@@ -1,27 +1,27 @@
 import 'dart:math' as math;
 
+import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/debug_check.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/theme.dart';
-import 'package:shad/src/utils/debug_check.dart';
 
-/// {@template ShadSpinner}
+/// {@template Spinner}
 /// An indeterminate circular loading indicator.
 ///
-/// Mirrors shadcn/ui's `Spinner`. Unlike `ShadProgress`, which is a linear
+/// Mirrors shadcn/ui's `Spinner`. Unlike `ProgressBar`, which is a linear
 /// bar, this is the small inline spinner you put inside a button or next to a
 /// label while an action is in flight.
 ///
 /// ```dart
-/// ShadButton(
+/// Button(
 ///   onPressed: submitting ? null : submit,
-///   leading: submitting ? const ShadSpinner(size: 16) : null,
+///   leading: submitting ? const Spinner(size: 16) : null,
 ///   child: const Text('Save'),
 /// )
 /// ```
 /// {@endtemplate}
-class ShadSpinner extends StatefulWidget {
-  /// {@macro ShadSpinner}
-  const ShadSpinner({
+class Spinner extends StatefulWidget {
+  /// {@macro Spinner}
+  const Spinner({
     super.key,
     this.size,
     this.color,
@@ -31,29 +31,29 @@ class ShadSpinner extends StatefulWidget {
     this.semanticLabel,
   });
 
-  /// {@template ShadSpinner.size}
+  /// {@template Spinner.size}
   /// The diameter of the spinner, defaults to 16.
   /// {@endtemplate}
   final double? size;
 
-  /// {@template ShadSpinner.color}
+  /// {@template Spinner.color}
   /// The color of the moving arc.
   /// {@endtemplate}
   final Color? color;
 
-  /// {@template ShadSpinner.trackColor}
+  /// {@template Spinner.trackColor}
   /// The color of the ring behind the arc.
   ///
   /// Pass a fully transparent color for an arc with no visible track.
   /// {@endtemplate}
   final Color? trackColor;
 
-  /// {@template ShadSpinner.strokeWidth}
+  /// {@template Spinner.strokeWidth}
   /// The thickness of the arc, defaults to 2.
   /// {@endtemplate}
   final double? strokeWidth;
 
-  /// {@template ShadSpinner.duration}
+  /// {@template Spinner.duration}
   /// The duration of one full rotation, defaults to 900ms.
   /// {@endtemplate}
   final Duration? duration;
@@ -62,11 +62,10 @@ class ShadSpinner extends StatefulWidget {
   final String? semanticLabel;
 
   @override
-  State<ShadSpinner> createState() => _ShadSpinnerState();
+  State<Spinner> createState() => _SpinnerState();
 }
 
-class _ShadSpinnerState extends State<ShadSpinner>
-    with SingleTickerProviderStateMixin {
+class _SpinnerState extends State<Spinner> with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 900),
@@ -79,7 +78,7 @@ class _ShadSpinnerState extends State<ShadSpinner>
   }
 
   @override
-  void didUpdateWidget(ShadSpinner oldWidget) {
+  void didUpdateWidget(Spinner oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.duration != oldWidget.duration) _syncDuration();
   }
@@ -88,7 +87,7 @@ class _ShadSpinnerState extends State<ShadSpinner>
     _controller
       ..duration =
           widget.duration ??
-          ShadTheme.of(context).spinnerTheme.duration ??
+          Theme.of(context).spinnerTheme.duration ??
           const Duration(milliseconds: 900)
       ..repeat();
   }
@@ -101,8 +100,8 @@ class _ShadSpinnerState extends State<ShadSpinner>
 
   @override
   Widget build(BuildContext context) {
-    assert(debugCheckHasShadTheme(context));
-    final theme = ShadTheme.of(context);
+    assert(debugCheckHasTheme(context));
+    final theme = Theme.of(context);
     final spinnerTheme = theme.spinnerTheme;
 
     final effectiveSize = widget.size ?? spinnerTheme.size ?? 16.0;
@@ -128,7 +127,7 @@ class _ShadSpinnerState extends State<ShadSpinner>
           animation: _controller,
           builder: (context, _) {
             return CustomPaint(
-              painter: _ShadSpinnerPainter(
+              painter: _SpinnerPainter(
                 progress: _controller.value,
                 color: effectiveColor,
                 trackColor: effectiveTrackColor,
@@ -155,8 +154,8 @@ class _ShadSpinnerState extends State<ShadSpinner>
 ///
 /// Hand-painted rather than wrapping `CircularProgressIndicator` because
 /// nothing under `lib/` is allowed to import `material.dart`.
-class _ShadSpinnerPainter extends CustomPainter {
-  _ShadSpinnerPainter({
+class _SpinnerPainter extends CustomPainter {
+  _SpinnerPainter({
     required this.progress,
     required this.color,
     required this.trackColor,
@@ -202,7 +201,7 @@ class _ShadSpinnerPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_ShadSpinnerPainter oldDelegate) {
+  bool shouldRepaint(_SpinnerPainter oldDelegate) {
     return oldDelegate.progress != progress ||
         oldDelegate.color != color ||
         oldDelegate.trackColor != trackColor ||

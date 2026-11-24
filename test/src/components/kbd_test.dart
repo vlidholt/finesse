@@ -1,19 +1,19 @@
-import 'package:flutter/material.dart';
+import 'package:finesse/material.dart';
+import 'package:finesse/src/app.dart';
+import 'package:finesse/src/components/kbd.dart';
+import 'package:finesse/src/theme/theme.dart';
+import 'package:flutter/material.dart' hide Theme;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/material.dart';
-import 'package:shad/src/app.dart';
-import 'package:shad/src/components/kbd.dart';
-import 'package:shad/src/theme/theme.dart';
 
 void main() {
   Widget createTestWidget(Widget child) {
-    return ShadApp(
-      builder: (context, child) => ShadMaterial(child: child!),
+    return FinesseApp(
+      builder: (context, child) => FinesseMaterial(child: child!),
       home: Scaffold(body: child),
     );
   }
 
-  group('ShadKbd', () {
+  group('Kbd', () {
     testWidgets('keeps its own height inside a stretched row', (tester) async {
       // Regression: the key cap had no height of its own, so in a row that
       // stretches its children — a button's content row, for one — it grew to
@@ -24,16 +24,16 @@ void main() {
             height: 80,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [ShadKbd('K')],
+              children: [Kbd('K')],
             ),
           ),
         ),
       );
 
-      final theme = ShadTheme.of(tester.element(find.byType(ShadKbd)));
+      final theme = Theme.of(tester.element(find.byType(Kbd)));
       final cap = tester.getSize(
         find.descendant(
-          of: find.byType(ShadKbd),
+          of: find.byType(Kbd),
           matching: find.byType(Container),
         ),
       );
@@ -51,7 +51,7 @@ void main() {
             width: 400,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [ShadKbd('K')],
+              children: [Kbd('K')],
             ),
           ),
         ),
@@ -59,7 +59,7 @@ void main() {
 
       final cap = tester.getSize(
         find.descendant(
-          of: find.byType(ShadKbd),
+          of: find.byType(Kbd),
           matching: find.byType(Container),
         ),
       );
@@ -69,10 +69,10 @@ void main() {
 
     testWidgets('height follows the theme', (tester) async {
       await tester.pumpWidget(
-        createTestWidget(const Center(child: ShadKbd('K', height: 32))),
+        createTestWidget(const Center(child: Kbd('K', height: 32))),
       );
 
-      expect(tester.getSize(find.byType(ShadKbd)).height, 32);
+      expect(tester.getSize(find.byType(Kbd)).height, 32);
     });
   });
 }

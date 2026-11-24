@@ -1,27 +1,27 @@
-import 'package:flutter/material.dart';
+import 'package:finesse/material.dart';
+import 'package:finesse/src/app.dart';
+import 'package:finesse/src/components/kbd.dart';
+import 'package:finesse/src/components/tooltip.dart';
+import 'package:finesse/src/theme/data.dart';
+import 'package:finesse/src/theme/style.dart';
+import 'package:finesse/src/theme/theme.dart';
+import 'package:flutter/material.dart' hide Theme, ThemeData, Tooltip;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/material.dart';
-import 'package:shad/src/app.dart';
-import 'package:shad/src/components/kbd.dart';
-import 'package:shad/src/components/tooltip.dart';
-import 'package:shad/src/theme/data.dart';
-import 'package:shad/src/theme/style.dart';
-import 'package:shad/src/theme/theme.dart';
 
 void main() {
-  // Helper method to create a test widget wrapped in ShadApp and Scaffold
+  // Helper method to create a test widget wrapped in FinesseApp and Scaffold
   Widget createTestWidget(Widget child) {
-    return ShadApp(
-      builder: (context, child) => ShadMaterial(child: child!),
+    return FinesseApp(
+      builder: (context, child) => FinesseMaterial(child: child!),
       home: Scaffold(body: child),
     );
   }
 
-  group('ShadTooltip', () {
-    testWidgets('ShadDatePicker matches goldens', (tester) async {
+  group('Tooltip', () {
+    testWidgets('DatePicker matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          ShadTooltip(
+          Tooltip(
             builder: (context) {
               return const Text('Tooltip');
             },
@@ -31,7 +31,7 @@ void main() {
       );
 
       await expectLater(
-        find.byType(ShadTooltip),
+        find.byType(Tooltip),
         matchesGoldenFile('goldens/tooltip.png'),
       );
       await tester.pumpAndSettle();
@@ -50,7 +50,7 @@ void main() {
             Center(
               child: GestureDetector(
                 onTap: () => taps++,
-                child: ShadTooltip(
+                child: Tooltip(
                   builder: (_) => const Text('Tooltip'),
                   child: const SizedBox.square(
                     key: trigger,
@@ -83,7 +83,7 @@ void main() {
                 ),
               ),
               Center(
-                child: ShadTooltip(
+                child: Tooltip(
                   builder: (_) => const Text('Tooltip'),
                   child: const SizedBox.square(
                     key: trigger,
@@ -107,7 +107,7 @@ void main() {
     // text-background` at `text-xs`, borderless and shadowless, with a
     // per-style radius one notch under the popover's.
     test('the surface is inverted, shadowless, at text-xs', () {
-      final theme = ShadThemeData();
+      final theme = ThemeData();
       final tooltip = theme.tooltipTheme;
       expect(tooltip.decoration?.color, theme.colorScheme.foreground);
       expect(tooltip.decoration?.shadows, isNull);
@@ -119,18 +119,18 @@ void main() {
     });
 
     test('the radius follows the style, and square styles sharpen the tip', () {
-      BorderRadius radiusOf(ShadStyleTokens style) => ShadThemeData(
+      BorderRadius radiusOf(StyleTokens style) => ThemeData(
         style: style,
       ).tooltipTheme.decoration!.border!.radius!.resolve(TextDirection.ltr);
 
       // vega `rounded-md` 8, maia `rounded-2xl` 16, luma `rounded-xl` 14.
-      expect(radiusOf(ShadStyleTokens.vega).topLeft.x, 8);
-      expect(radiusOf(ShadStyleTokens.maia).topLeft.x, 16);
-      expect(radiusOf(ShadStyleTokens.luma).topLeft.x, 14);
-      expect(radiusOf(ShadStyleTokens.lyra), BorderRadius.zero);
-      expect(radiusOf(ShadStyleTokens.sera), BorderRadius.zero);
+      expect(radiusOf(StyleTokens.vega).topLeft.x, 8);
+      expect(radiusOf(StyleTokens.maia).topLeft.x, 16);
+      expect(radiusOf(StyleTokens.luma).topLeft.x, 14);
+      expect(radiusOf(StyleTokens.lyra), BorderRadius.zero);
+      expect(radiusOf(StyleTokens.sera), BorderRadius.zero);
       expect(
-        ShadThemeData(style: ShadStyleTokens.lyra).tooltipTheme.arrowRadius,
+        ThemeData(style: StyleTokens.lyra).tooltipTheme.arrowRadius,
         0,
       );
     });
@@ -139,17 +139,17 @@ void main() {
   group('content inversion', () {
     testWidgets('the builder context sees the inverted text style and the '
         'kbd re-theme', (tester) async {
-      final controller = ShadTooltipController();
+      final controller = TooltipController();
       addTearDown(controller.dispose);
       TextStyle? seenStyle;
       await tester.pumpWidget(
         createTestWidget(
           Center(
-            child: ShadTooltip(
+            child: Tooltip(
               controller: controller,
               builder: (context) {
                 seenStyle = DefaultTextStyle.of(context).style;
-                return const ShadKbd('S');
+                return const Kbd('S');
               },
               child: const Text('trigger'),
             ),
@@ -160,7 +160,7 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
 
-      final theme = ShadTheme.of(tester.element(find.text('trigger')));
+      final theme = Theme.of(tester.element(find.text('trigger')));
       // A custom builder reads the tooltip's own style through its context —
       // it used to get the page's, which painted foreground-on-foreground.
       expect(seenStyle?.color, theme.colorScheme.background);
@@ -186,12 +186,12 @@ void main() {
     testWidgets('rides the bottom edge when the tooltip sits above', (
       tester,
     ) async {
-      final controller = ShadTooltipController();
+      final controller = TooltipController();
       addTearDown(controller.dispose);
       await tester.pumpWidget(
         createTestWidget(
           Center(
-            child: ShadTooltip(
+            child: Tooltip(
               controller: controller,
               builder: (_) => const Text('Tooltip'),
               child: const Text('trigger'),
@@ -217,14 +217,14 @@ void main() {
     testWidgets('flips above when the portal falls back below', (
       tester,
     ) async {
-      final controller = ShadTooltipController();
+      final controller = TooltipController();
       addTearDown(controller.dispose);
       await tester.pumpWidget(
         createTestWidget(
           Align(
             // No room above: the fallback anchor places the tooltip below.
             alignment: Alignment.topCenter,
-            child: ShadTooltip(
+            child: Tooltip(
               controller: controller,
               builder: (_) => const Text('Tooltip'),
               child: const Text('trigger'),
@@ -246,12 +246,12 @@ void main() {
     });
 
     testWidgets('can be turned off', (tester) async {
-      final controller = ShadTooltipController();
+      final controller = TooltipController();
       addTearDown(controller.dispose);
       await tester.pumpWidget(
         createTestWidget(
           Center(
-            child: ShadTooltip(
+            child: Tooltip(
               controller: controller,
               showArrow: false,
               builder: (_) => const Text('Tooltip'),

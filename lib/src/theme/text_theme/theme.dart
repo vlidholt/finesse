@@ -1,14 +1,15 @@
 import 'dart:ui' as ui;
+
+import 'package:finesse/src/theme/text_theme/text_styles_default.dart';
+import 'package:finesse/src/theme/themes/default_theme_variant.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/text_theme/text_styles_default.dart';
-import 'package:shad/src/theme/themes/default_theme_variant.dart';
 
 /// Strips the font family from a [TextStyle].
 extension OmitFamilyAndPackageExtension on TextStyle {
   /// A copy of this style without its `fontFamily` and `package`.
   ///
-  /// Every other property is kept. Used to hand a style to a [ShadFontBuilder],
+  /// Every other property is kept. Used to hand a style to a [FontBuilder],
   /// which supplies the family itself.
   TextStyle get omitFamilyAndPackage {
     return TextStyle(
@@ -42,7 +43,7 @@ extension OmitFamilyAndPackageExtension on TextStyle {
 
 /// Builds a [TextStyle] in a given font, with the same signature as the
 /// `google_fonts` style functions such as `GoogleFonts.inter`.
-typedef ShadFontBuilder =
+typedef FontBuilder =
     TextStyle Function({
       TextStyle? textStyle,
       Color? color,
@@ -66,19 +67,19 @@ typedef ShadFontBuilder =
     });
 
 /// A [TextStyle] whose family follows its weight and style through a
-/// [ShadFontBuilder].
+/// [FontBuilder].
 ///
 /// Font sources such as `google_fonts` register one family per weight
 /// (`Inter_700`), so a plain `copyWith(fontWeight: ...)` would keep the old
 /// weight's family. This style asks the builder for the family again whenever
 /// the weight or style changes. See
 /// https://github.com/material-foundation/flutter-packages/issues/35.
-class ShadBuilderTextStyle extends TextStyle {
+class BuilderTextStyle extends TextStyle {
   /// Wraps [textStyle] so that its family comes from [builder].
   ///
   /// When [overrideFamilyWithBuilder] is false, the builder supplies the family
   /// only if [textStyle] has none.
-  ShadBuilderTextStyle(
+  BuilderTextStyle(
     TextStyle textStyle, {
     required this.builder,
     this.overrideFamilyWithBuilder = false,
@@ -123,7 +124,7 @@ class ShadBuilderTextStyle extends TextStyle {
        );
 
   /// Resolves the family for a weight and style.
-  final ShadFontBuilder builder;
+  final FontBuilder builder;
 
   /// Whether the builder's family replaces the style's own family even when
   /// the style names one.
@@ -214,15 +215,15 @@ class ShadBuilderTextStyle extends TextStyle {
 ///
 /// Components read these styles, and the theme variant applies its style's text
 /// roles to [small], [muted], [p], [list] and [large]. Use
-/// [ShadTextTheme.fromGoogleFont] to set every style in one font.
+/// [TextTheme.fromGoogleFont] to set every style in one font.
 @immutable
-class ShadTextTheme {
+class TextTheme {
   /// Creates a text theme.
   ///
-  /// A null style takes the [ShadTextDefaultTheme] value in [family]. [package]
+  /// A null style takes the [TextDefaultTheme] value in [family]. [package]
   /// prefixes [family] as `packages/<package>/<family>`. [family] defaults to
   /// null, which uses the platform font.
-  factory ShadTextTheme({
+  factory TextTheme({
     TextStyle? h1Large,
     TextStyle? h1,
     TextStyle? h2,
@@ -238,7 +239,7 @@ class ShadTextTheme {
     TextStyle? muted,
     String? family,
     String? package,
-    ShadFontBuilder? googleFontBuilder,
+    FontBuilder? googleFontBuilder,
     Map<String, TextStyle> custom = const {},
   }) {
     // With no family, text uses the platform font. A package only qualifies
@@ -248,22 +249,21 @@ class ShadTextTheme {
       effectiveFamily = 'packages/$package/$effectiveFamily';
     }
 
-    return ShadTextTheme.custom(
-      h1Large: h1Large ?? ShadTextDefaultTheme.h1Large(family: effectiveFamily),
-      h1: h1 ?? ShadTextDefaultTheme.h1(family: effectiveFamily),
-      h2: h2 ?? ShadTextDefaultTheme.h2(family: effectiveFamily),
-      h3: h3 ?? ShadTextDefaultTheme.h3(family: effectiveFamily),
-      h4: h4 ?? ShadTextDefaultTheme.h4(family: effectiveFamily),
-      p: p ?? ShadTextDefaultTheme.p(family: effectiveFamily),
+    return TextTheme.custom(
+      h1Large: h1Large ?? TextDefaultTheme.h1Large(family: effectiveFamily),
+      h1: h1 ?? TextDefaultTheme.h1(family: effectiveFamily),
+      h2: h2 ?? TextDefaultTheme.h2(family: effectiveFamily),
+      h3: h3 ?? TextDefaultTheme.h3(family: effectiveFamily),
+      h4: h4 ?? TextDefaultTheme.h4(family: effectiveFamily),
+      p: p ?? TextDefaultTheme.p(family: effectiveFamily),
       blockquote:
-          blockquote ??
-          ShadTextDefaultTheme.blockquote(family: effectiveFamily),
-      table: table ?? ShadTextDefaultTheme.table(family: effectiveFamily),
-      list: list ?? ShadTextDefaultTheme.list(family: effectiveFamily),
-      lead: lead ?? ShadTextDefaultTheme.lead(family: effectiveFamily),
-      large: large ?? ShadTextDefaultTheme.large(family: effectiveFamily),
-      small: small ?? ShadTextDefaultTheme.small(family: effectiveFamily),
-      muted: muted ?? ShadTextDefaultTheme.muted(family: effectiveFamily),
+          blockquote ?? TextDefaultTheme.blockquote(family: effectiveFamily),
+      table: table ?? TextDefaultTheme.table(family: effectiveFamily),
+      list: list ?? TextDefaultTheme.list(family: effectiveFamily),
+      lead: lead ?? TextDefaultTheme.lead(family: effectiveFamily),
+      large: large ?? TextDefaultTheme.large(family: effectiveFamily),
+      small: small ?? TextDefaultTheme.small(family: effectiveFamily),
+      muted: muted ?? TextDefaultTheme.muted(family: effectiveFamily),
       family: effectiveFamily,
       googleFontBuilder: googleFontBuilder,
       custom: custom,
@@ -274,7 +274,7 @@ class ShadTextTheme {
   ///
   /// Set [canMerge] to false so that merging this theme into another one
   /// returns it unchanged.
-  const ShadTextTheme.custom({
+  const TextTheme.custom({
     this.canMerge = true,
     required this.h1Large,
     required this.h1,
@@ -298,66 +298,66 @@ class ShadTextTheme {
   ///
   /// The sizes and weights come from [textTheme], or from the default text
   /// theme when it is null. [custom] styles are added to the result.
-  factory ShadTextTheme.fromGoogleFont(
-    ShadFontBuilder fontBuilder, {
-    ShadTextTheme? textTheme,
+  factory TextTheme.fromGoogleFont(
+    FontBuilder fontBuilder, {
+    TextTheme? textTheme,
     Map<String, TextStyle> custom = const {},
   }) {
     final effectiveTextTheme =
-        textTheme ?? ShadDefaultThemeVariant.defaultTextTheme;
+        textTheme ?? DefaultThemeVariant.defaultTextTheme;
 
-    final p = ShadBuilderTextStyle(
+    final p = BuilderTextStyle(
       effectiveTextTheme.p.omitFamilyAndPackage,
       builder: fontBuilder,
     );
 
-    return ShadTextTheme(
-      h1Large: ShadBuilderTextStyle(
+    return TextTheme(
+      h1Large: BuilderTextStyle(
         effectiveTextTheme.h1Large.omitFamilyAndPackage,
         builder: fontBuilder,
       ),
-      h1: ShadBuilderTextStyle(
+      h1: BuilderTextStyle(
         effectiveTextTheme.h1.omitFamilyAndPackage,
         builder: fontBuilder,
       ),
-      h2: ShadBuilderTextStyle(
+      h2: BuilderTextStyle(
         effectiveTextTheme.h2.omitFamilyAndPackage,
         builder: fontBuilder,
       ),
-      h3: ShadBuilderTextStyle(
+      h3: BuilderTextStyle(
         effectiveTextTheme.h3.omitFamilyAndPackage,
         builder: fontBuilder,
       ),
-      h4: ShadBuilderTextStyle(
+      h4: BuilderTextStyle(
         effectiveTextTheme.h4.omitFamilyAndPackage,
         builder: fontBuilder,
       ),
       p: p,
-      blockquote: ShadBuilderTextStyle(
+      blockquote: BuilderTextStyle(
         effectiveTextTheme.blockquote.omitFamilyAndPackage,
         builder: fontBuilder,
       ),
-      table: ShadBuilderTextStyle(
+      table: BuilderTextStyle(
         effectiveTextTheme.table.omitFamilyAndPackage,
         builder: fontBuilder,
       ),
-      list: ShadBuilderTextStyle(
+      list: BuilderTextStyle(
         effectiveTextTheme.list.omitFamilyAndPackage,
         builder: fontBuilder,
       ),
-      lead: ShadBuilderTextStyle(
+      lead: BuilderTextStyle(
         effectiveTextTheme.lead.omitFamilyAndPackage,
         builder: fontBuilder,
       ),
-      large: ShadBuilderTextStyle(
+      large: BuilderTextStyle(
         effectiveTextTheme.large.omitFamilyAndPackage,
         builder: fontBuilder,
       ),
-      small: ShadBuilderTextStyle(
+      small: BuilderTextStyle(
         effectiveTextTheme.small.omitFamilyAndPackage,
         builder: fontBuilder,
       ),
-      muted: ShadBuilderTextStyle(
+      muted: BuilderTextStyle(
         effectiveTextTheme.muted.omitFamilyAndPackage,
         builder: fontBuilder,
       ),
@@ -365,12 +365,12 @@ class ShadTextTheme {
       googleFontBuilder: fontBuilder,
       custom: {
         for (final e in effectiveTextTheme.custom.entries)
-          e.key: ShadBuilderTextStyle(
+          e.key: BuilderTextStyle(
             e.value.omitFamilyAndPackage,
             builder: fontBuilder,
           ),
         for (final e in custom.entries)
-          e.key: ShadBuilderTextStyle(
+          e.key: BuilderTextStyle(
             e.value.omitFamilyAndPackage,
             builder: fontBuilder,
           ),
@@ -424,9 +424,9 @@ class ShadTextTheme {
 
   /// The font family of the theme.
   ///
-  /// Null means the platform font. shad bundles no fonts: set this to a
+  /// Null means the platform font. finesse bundles no fonts: set this to a
   /// family your app declares under `flutter: fonts:`, or build the theme
-  /// with [ShadTextTheme.fromGoogleFont].
+  /// with [TextTheme.fromGoogleFont].
   final String? family;
 
   /// Whether this theme combines with the one it is merged into.
@@ -434,14 +434,14 @@ class ShadTextTheme {
   /// When false, `other.merge(this)` returns this theme unchanged.
   final bool canMerge;
 
-  /// The builder that [ShadTextTheme.fromGoogleFont] used, or null.
-  final ShadFontBuilder? googleFontBuilder;
+  /// The builder that [TextTheme.fromGoogleFont] used, or null.
+  final FontBuilder? googleFontBuilder;
 
   /// Creates a copy of this theme with the given fields replaced.
   ///
   /// [package] prefixes the family as `packages/<package>/<family>`, unless it
   /// is prefixed already.
-  ShadTextTheme copyWith({
+  TextTheme copyWith({
     TextStyle? h1Large,
     TextStyle? h1,
     TextStyle? h2,
@@ -457,7 +457,7 @@ class ShadTextTheme {
     TextStyle? muted,
     String? family,
     String? package,
-    ShadFontBuilder? googleFontBuilder,
+    FontBuilder? googleFontBuilder,
     Map<String, TextStyle>? custom,
   }) {
     final baseFamily = family ?? this.family;
@@ -472,7 +472,7 @@ class ShadTextTheme {
       effectiveFamily = baseFamily;
     }
 
-    return ShadTextTheme.custom(
+    return TextTheme.custom(
       canMerge: canMerge,
       h1Large: h1Large ?? this.h1Large,
       h1: h1 ?? this.h1,
@@ -497,7 +497,7 @@ class ShadTextTheme {
   ///
   /// Returns this theme when [other] is null, and [other] when its [canMerge]
   /// is false. [other]'s family and custom styles take precedence.
-  ShadTextTheme merge(ShadTextTheme? other) {
+  TextTheme merge(TextTheme? other) {
     if (other == null) return this;
     if (!other.canMerge) return other;
     return copyWith(
@@ -524,7 +524,7 @@ class ShadTextTheme {
   ///
   /// [displayColor] colours the headings, from [h1Large] to [h4]. [bodyColor]
   /// colours every other style and the custom styles.
-  ShadTextTheme apply({
+  TextTheme apply({
     String? family,
     List<String>? fontFamilyFallback,
     String? package,
@@ -537,7 +537,7 @@ class ShadTextTheme {
     TextDecorationStyle? decorationStyle,
   }) {
     final effectiveFamily = family ?? this.family;
-    return ShadTextTheme.custom(
+    return TextTheme.custom(
       canMerge: canMerge,
       family: effectiveFamily,
       h1Large: h1Large.apply(
@@ -702,9 +702,9 @@ class ShadTextTheme {
   }
 
   /// Linearly interpolates between [a] and [b] by [t].
-  static ShadTextTheme? lerp(
-    ShadTextTheme? a,
-    ShadTextTheme? b,
+  static TextTheme? lerp(
+    TextTheme? a,
+    TextTheme? b,
     double t,
   ) {
     if (identical(a, b)) {
@@ -713,7 +713,7 @@ class ShadTextTheme {
     if (a == null || b == null) {
       return t < 0.5 ? a : b;
     }
-    return ShadTextTheme.custom(
+    return TextTheme.custom(
       canMerge: t < 0.5 ? a.canMerge : b.canMerge,
       h1Large: TextStyle.lerp(a.h1Large, b.h1Large, t)!,
       h1: TextStyle.lerp(a.h1, b.h1, t)!,
@@ -745,7 +745,7 @@ class ShadTextTheme {
     if (other.runtimeType != runtimeType) {
       return false;
     }
-    return other is ShadTextTheme &&
+    return other is TextTheme &&
         other.h1Large == h1Large &&
         other.h1 == h1 &&
         other.h2 == h2 &&
@@ -793,14 +793,14 @@ class ShadTextTheme {
   }
 }
 
-/// The old name of [ShadFontBuilder].
+/// The old name of [FontBuilder].
 @Deprecated(
-  'Use ShadFontBuilder. Will be removed in the next major version.',
+  'Use FontBuilder. Will be removed in the next major version.',
 )
-typedef GoogleFontBuilder = ShadFontBuilder;
+typedef GoogleFontBuilder = FontBuilder;
 
-/// The old name of [ShadBuilderTextStyle].
+/// The old name of [BuilderTextStyle].
 @Deprecated(
-  'Use ShadBuilderTextStyle. Will be removed in the next major version.',
+  'Use BuilderTextStyle. Will be removed in the next major version.',
 )
-typedef GoogleFontTextStyle = ShadBuilderTextStyle;
+typedef GoogleFontTextStyle = BuilderTextStyle;

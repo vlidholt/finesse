@@ -1,17 +1,17 @@
+import 'package:finesse/src/theme/color_scheme/base.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/color_scheme/base.dart';
 
 /// The shadcn/ui `zinc` colour scheme.
 ///
 /// Generated from shadcn/ui's `registry/themes.ts`, converting each OKLCH
 /// value to sRGB.
 @immutable
-class ShadZincColorScheme extends ShadColorScheme {
-  /// Creates a [ShadZincColorScheme] from explicit colours.
+class ZincColorScheme extends ColorScheme {
+  /// Creates a [ZincColorScheme] from explicit colours.
   ///
-  /// Use [ShadZincColorScheme.light] or [ShadZincColorScheme.dark] for the
+  /// Use [ZincColorScheme.light] or [ZincColorScheme.dark] for the
   /// shadcn/ui values.
-  const ShadZincColorScheme({
+  const ZincColorScheme({
     required super.background,
     required super.foreground,
     required super.card,
@@ -48,10 +48,10 @@ class ShadZincColorScheme extends ShadColorScheme {
     super.custom,
   });
 
-  /// Creates the light variant of [ShadZincColorScheme].
+  /// Creates the light variant of [ZincColorScheme].
   ///
   /// Every colour defaults to its light-mode value.
-  const ShadZincColorScheme.light({
+  const ZincColorScheme.light({
     super.background = const Color(0xffffffff),
     super.foreground = const Color(0xff09090b),
     super.card = const Color(0xffffffff),
@@ -88,10 +88,10 @@ class ShadZincColorScheme extends ShadColorScheme {
     super.custom,
   });
 
-  /// Creates the dark variant of [ShadZincColorScheme].
+  /// Creates the dark variant of [ZincColorScheme].
   ///
   /// Every colour defaults to its dark-mode value.
-  const ShadZincColorScheme.dark({
+  const ZincColorScheme.dark({
     super.background = const Color(0xff09090b),
     super.foreground = const Color(0xfffafafa),
     super.card = const Color(0xff18181b),

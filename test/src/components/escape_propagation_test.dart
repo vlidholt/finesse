@@ -1,20 +1,20 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/shad.dart';
 
 /// A closed tooltip, popover or select must not swallow Escape: it has to
 /// reach the dialog around it. An open one closes itself and stops there.
 void main() {
   Future<void> openDialog(WidgetTester tester, Widget content) async {
     await tester.pumpWidget(
-      ShadApp(
+      FinesseApp(
         home: Builder(
           builder: (context) => Center(
-            child: ShadButton(
-              onPressed: () => showShadDialog<void>(
+            child: Button(
+              onPressed: () => showDialog<void>(
                 context: context,
-                builder: (context) => ShadDialog(
+                builder: (context) => Dialog(
                   title: const Text('Dialog'),
                   child: content,
                 ),
@@ -42,9 +42,9 @@ void main() {
     addTearDown(focusNode.dispose);
     await openDialog(
       tester,
-      ShadTooltip(
+      Tooltip(
         builder: (_) => const Text('tip'),
-        child: ShadButton(
+        child: Button(
           focusNode: focusNode,
           onPressed: () {},
           child: const Text('trigger'),
@@ -61,16 +61,16 @@ void main() {
   testWidgets('Escape closes an open popover first, then the dialog', (
     tester,
   ) async {
-    final controller = ShadPopoverController();
+    final controller = PopoverController();
     final focusNode = FocusNode();
     addTearDown(controller.dispose);
     addTearDown(focusNode.dispose);
     await openDialog(
       tester,
-      ShadPopover(
+      Popover(
         controller: controller,
         popover: (_) => const Text('content'),
-        child: ShadButton(
+        child: Button(
           focusNode: focusNode,
           onPressed: controller.toggle,
           child: const Text('trigger'),

@@ -1,17 +1,17 @@
+import 'package:finesse/src/theme/color_scheme/base.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/color_scheme/base.dart';
 
 /// The shadcn/ui v3 `blue` theme: a neutral base with a blue primary.
 ///
-/// Kept for compatibility. In v4, apply `ShadAccentScheme.blueLight` or
-/// `ShadAccentScheme.blueDark` to a base colour scheme instead.
+/// Kept for compatibility. In v4, apply `AccentScheme.blueLight` or
+/// `AccentScheme.blueDark` to a base colour scheme instead.
 @immutable
-class ShadBlueColorScheme extends ShadColorScheme {
-  /// Creates a [ShadBlueColorScheme] from explicit colours.
+class BlueColorScheme extends ColorScheme {
+  /// Creates a [BlueColorScheme] from explicit colours.
   ///
-  /// Use [ShadBlueColorScheme.light] or [ShadBlueColorScheme.dark] for the
+  /// Use [BlueColorScheme.light] or [BlueColorScheme.dark] for the
   /// shadcn/ui values.
-  const ShadBlueColorScheme({
+  const BlueColorScheme({
     required super.background,
     required super.foreground,
     required super.card,
@@ -35,10 +35,10 @@ class ShadBlueColorScheme extends ShadColorScheme {
     super.custom,
   });
 
-  /// Creates the light variant of [ShadBlueColorScheme].
+  /// Creates the light variant of [BlueColorScheme].
   ///
   /// Every colour defaults to its light-mode value.
-  const ShadBlueColorScheme.light({
+  const BlueColorScheme.light({
     super.background = const Color(0xffffffff),
     super.foreground = const Color(0xff020817),
     super.card = const Color(0xffffffff),
@@ -62,10 +62,10 @@ class ShadBlueColorScheme extends ShadColorScheme {
     super.custom,
   });
 
-  /// Creates the dark variant of [ShadBlueColorScheme].
+  /// Creates the dark variant of [BlueColorScheme].
   ///
   /// Every colour defaults to its dark-mode value.
-  const ShadBlueColorScheme.dark({
+  const BlueColorScheme.dark({
     super.background = const Color(0xff020817),
     super.foreground = const Color(0xfff8fafc),
     super.card = const Color(0xff020817),

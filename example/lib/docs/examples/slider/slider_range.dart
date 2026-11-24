@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class SliderRangeExample extends StatefulWidget {
   const SliderRangeExample({super.key});
@@ -13,7 +13,7 @@ class _SliderRangeExampleState extends State<SliderRangeExample> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     return SizedBox(
       width: 300,
       child: Column(
@@ -27,7 +27,7 @@ class _SliderRangeExampleState extends State<SliderRangeExample> {
             '\$${values.first.round()} – \$${values.last.round()}',
             style: theme.textTheme.small,
           ),
-          ShadRangeSlider(
+          RangeSlider(
             initialValues: values,
             max: 100,
             onChanged: (next) => setState(() => values = next),

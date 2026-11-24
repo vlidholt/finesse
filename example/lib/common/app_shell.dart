@@ -3,9 +3,9 @@ import 'package:example/docs/registry.dart';
 import 'package:example/main.dart';
 import 'package:example/screens/components_screen.dart';
 import 'package:example/screens/playground_screen.dart';
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_solidart/flutter_solidart.dart';
-import 'package:shad/shad.dart';
 
 /// The two screens of the [IndexedStack].
 enum AppSection { playground, docs }
@@ -164,7 +164,7 @@ class _TopNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
 
     return Container(
       height: 56,
@@ -203,7 +203,7 @@ class _TopNav extends StatelessWidget {
               if (!compact) ...[
                 const SizedBox(width: 8),
                 Text(
-                  'shad',
+                  'finesse',
                   style: theme.textTheme.large.copyWith(fontSize: 15),
                 ),
               ],
@@ -261,7 +261,7 @@ class _NavLinkState extends State<_NavLink> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     final color = widget.selected || hovered
         ? theme.colorScheme.foreground
         : theme.colorScheme.mutedForeground;
@@ -304,20 +304,20 @@ class _ThemeEditorButton extends StatelessWidget {
 
         if (!showLabel) {
           return open.value
-              ? ShadIconButton.secondary(icon: icon, onPressed: toggle)
-              : ShadIconButton.ghost(icon: icon, onPressed: toggle);
+              ? IconButton.secondary(icon: icon, onPressed: toggle)
+              : IconButton.ghost(icon: icon, onPressed: toggle);
         }
 
         // The pressed-in secondary variant is what marks the panel as open.
         return open.value
-            ? ShadButton.secondary(
-                size: ShadButtonSize.sm,
+            ? Button.secondary(
+                size: ButtonSize.sm,
                 onPressed: toggle,
                 leading: icon,
                 child: const Text('Edit Theme'),
               )
-            : ShadButton.ghost(
-                size: ShadButtonSize.sm,
+            : Button.ghost(
+                size: ButtonSize.sm,
                 onPressed: toggle,
                 leading: icon,
                 child: const Text('Edit Theme'),
@@ -335,8 +335,8 @@ class _ThemeModeButton extends StatelessWidget {
     return SignalBuilder(
       builder: (context, _) {
         final mode = themeModeProvider.of(context).value;
-        final isLight = mode == ShadThemeMode.light;
-        return ShadIconButton.ghost(
+        final isLight = mode == ThemeMode.light;
+        return IconButton.ghost(
           icon: Icon(
             isLight ? LucideIcons.sun : LucideIcons.moon,
             semanticLabel: isLight
@@ -347,9 +347,9 @@ class _ThemeModeButton extends StatelessWidget {
             themeModeProvider
                 .of(context)
                 .updateValue(
-                  (value) => value == ShadThemeMode.light
-                      ? ShadThemeMode.dark
-                      : ShadThemeMode.light,
+                  (value) => value == ThemeMode.light
+                      ? ThemeMode.dark
+                      : ThemeMode.light,
                 );
           },
         );
@@ -367,7 +367,7 @@ class _DirectionButton extends StatelessWidget {
       builder: (context, _) {
         final direction = directionalityProvider.of(context).value;
         final isLtr = direction == TextDirection.ltr;
-        return ShadIconButton.ghost(
+        return IconButton.ghost(
           icon: Icon(
             // Lucide's pilcrow pair is its text-direction icon.
             isLtr ? LucideIcons.pilcrowRight : LucideIcons.pilcrowLeft,

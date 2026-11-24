@@ -9,14 +9,10 @@ part of 'tooltip.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadTooltipTheme {
+mixin _$TooltipTheme {
   bool get canMerge => true;
 
-  static ShadTooltipTheme? lerp(
-    ShadTooltipTheme? a,
-    ShadTooltipTheme? b,
-    double t,
-  ) {
+  static TooltipTheme? lerp(TooltipTheme? a, TooltipTheme? b, double t) {
     if (identical(a, b)) {
       return a;
     }
@@ -29,13 +25,13 @@ mixin _$ShadTooltipTheme {
       return t == 0.0 ? a : null;
     }
 
-    return ShadTooltipTheme(
+    return TooltipTheme(
       waitDuration: lerpDuration$(a.waitDuration, b.waitDuration, t),
       showDuration: lerpDuration$(a.showDuration, b.showDuration, t),
       effects: t < 0.5 ? a.effects : b.effects,
       anchor: t < 0.5 ? a.anchor : b.anchor,
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
-      decoration: ShadDecoration.lerp(a.decoration, b.decoration, t),
+      decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
       hoverStrategies: t < 0.5 ? a.hoverStrategies : b.hoverStrategies,
       longPressDuration: lerpDuration$(
         a.longPressDuration,
@@ -52,14 +48,14 @@ mixin _$ShadTooltipTheme {
     );
   }
 
-  ShadTooltipTheme copyWith({
+  TooltipTheme copyWith({
     Duration? waitDuration,
     Duration? showDuration,
     List<Effect<dynamic>>? effects,
-    ShadAnchorBase? anchor,
+    AnchorBase? anchor,
     EdgeInsetsGeometry? padding,
-    ShadDecoration? decoration,
-    ShadHoverStrategies? hoverStrategies,
+    FinesseDecoration? decoration,
+    HoverStrategies? hoverStrategies,
     Duration? longPressDuration,
     Duration? duration,
     Duration? reverseDuration,
@@ -69,9 +65,9 @@ mixin _$ShadTooltipTheme {
     double? arrowSize,
     double? arrowRadius,
   }) {
-    final _this = (this as ShadTooltipTheme);
+    final _this = (this as TooltipTheme);
 
-    return ShadTooltipTheme(
+    return TooltipTheme(
       waitDuration: waitDuration ?? _this.waitDuration,
       showDuration: showDuration ?? _this.showDuration,
       effects: effects ?? _this.effects,
@@ -90,8 +86,8 @@ mixin _$ShadTooltipTheme {
     );
   }
 
-  ShadTooltipTheme merge(ShadTooltipTheme? other) {
-    final _this = (this as ShadTooltipTheme);
+  TooltipTheme merge(TooltipTheme? other) {
+    final _this = (this as TooltipTheme);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -130,8 +126,8 @@ mixin _$ShadTooltipTheme {
       return false;
     }
 
-    final _this = (this as ShadTooltipTheme);
-    final _other = (other as ShadTooltipTheme);
+    final _this = (this as TooltipTheme);
+    final _other = (other as TooltipTheme);
 
     return _other.waitDuration == _this.waitDuration &&
         _other.showDuration == _this.showDuration &&
@@ -152,7 +148,7 @@ mixin _$ShadTooltipTheme {
 
   @override
   int get hashCode {
-    final _this = (this as ShadTooltipTheme);
+    final _this = (this as TooltipTheme);
 
     return Object.hash(
       runtimeType,

@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class TextareaBasicExample extends StatelessWidget {
   const TextareaBasicExample({super.key});
@@ -8,7 +8,7 @@ class TextareaBasicExample extends StatelessWidget {
   Widget build(BuildContext context) {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 400),
-      child: ShadTextarea(
+      child: Textarea(
         placeholder: const Text('Type your message here...'),
         onChanged: (value) {},
       ),

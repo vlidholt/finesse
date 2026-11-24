@@ -1,17 +1,17 @@
+import 'package:finesse/src/theme/color_scheme/base.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/color_scheme/base.dart';
 
 /// The shadcn/ui v3 `violet` theme: a neutral base with a violet primary.
 ///
-/// Kept for compatibility. In v4, apply `ShadAccentScheme.violetLight` or
-/// `ShadAccentScheme.violetDark` to a base colour scheme instead.
+/// Kept for compatibility. In v4, apply `AccentScheme.violetLight` or
+/// `AccentScheme.violetDark` to a base colour scheme instead.
 @immutable
-class ShadVioletColorScheme extends ShadColorScheme {
-  /// Creates a [ShadVioletColorScheme] from explicit colours.
+class VioletColorScheme extends ColorScheme {
+  /// Creates a [VioletColorScheme] from explicit colours.
   ///
-  /// Use [ShadVioletColorScheme.light] or [ShadVioletColorScheme.dark] for the
+  /// Use [VioletColorScheme.light] or [VioletColorScheme.dark] for the
   /// shadcn/ui values.
-  const ShadVioletColorScheme({
+  const VioletColorScheme({
     required super.background,
     required super.foreground,
     required super.card,
@@ -35,10 +35,10 @@ class ShadVioletColorScheme extends ShadColorScheme {
     super.custom,
   });
 
-  /// Creates the light variant of [ShadVioletColorScheme].
+  /// Creates the light variant of [VioletColorScheme].
   ///
   /// Every colour defaults to its light-mode value.
-  const ShadVioletColorScheme.light({
+  const VioletColorScheme.light({
     super.background = const Color(0xffffffff),
     super.foreground = const Color(0xff030712),
     super.card = const Color(0xffffffff),
@@ -62,10 +62,10 @@ class ShadVioletColorScheme extends ShadColorScheme {
     super.custom,
   });
 
-  /// Creates the dark variant of [ShadVioletColorScheme].
+  /// Creates the dark variant of [VioletColorScheme].
   ///
   /// Every colour defaults to its dark-mode value.
-  const ShadVioletColorScheme.dark({
+  const VioletColorScheme.dark({
     super.background = const Color(0xff030712),
     super.foreground = const Color(0xfff9fafb),
     super.card = const Color(0xff030712),

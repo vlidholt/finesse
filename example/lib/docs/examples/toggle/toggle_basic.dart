@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class ToggleBasicExample extends StatefulWidget {
   const ToggleBasicExample({super.key});
@@ -18,13 +18,13 @@ class _ToggleBasicExampleState extends State<ToggleBasicExample> {
       mainAxisSize: MainAxisSize.min,
       spacing: 8,
       children: [
-        ShadToggle(
+        Toggle(
           value: bold,
           semanticLabel: 'Bold',
           onChanged: (value) => setState(() => bold = value),
           child: const Icon(LucideIcons.bold),
         ),
-        ShadToggle(
+        Toggle(
           value: underline,
           leading: const Icon(LucideIcons.underline),
           onChanged: (value) => setState(() => underline = value),

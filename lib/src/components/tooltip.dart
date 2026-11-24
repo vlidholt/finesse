@@ -1,29 +1,29 @@
 import 'dart:math' as math;
 
+import 'package:finesse/src/components/popover.dart';
+import 'package:finesse/src/raw_components/portal.dart';
+import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/data.dart';
+import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/animate.dart';
+import 'package:finesse/src/utils/dismiss_shortcut.dart';
+import 'package:finesse/src/utils/gesture_detector.dart';
+import 'package:finesse/src/utils/mouse_area.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:shad/src/components/popover.dart';
-import 'package:shad/src/raw_components/portal.dart';
-import 'package:shad/src/theme/components/decorator.dart';
-import 'package:shad/src/theme/data.dart';
-import 'package:shad/src/theme/theme.dart';
-import 'package:shad/src/utils/animate.dart';
-import 'package:shad/src/utils/dismiss_shortcut.dart';
-import 'package:shad/src/utils/gesture_detector.dart';
-import 'package:shad/src/utils/mouse_area.dart';
 
-/// Controls the visibility of a [ShadTooltip].
-typedef ShadTooltipController = ShadPopoverController;
+/// Controls the visibility of a [Tooltip].
+typedef TooltipController = PopoverController;
 
-/// {@template ShadTooltip}
+/// {@template Tooltip}
 /// A widget that displays a tooltip on hover or focus, styled to match the
 /// Shadcn UI design system.
 ///
 /// Provides customizable delay, duration, animation effects, and styling.
 /// {@endtemplate}
-class ShadTooltip extends StatefulWidget {
-  /// {@macro ShadTooltip}
-  const ShadTooltip({
+class Tooltip extends StatefulWidget {
+  /// {@macro Tooltip}
+  const Tooltip({
     super.key,
     required this.child,
     required this.builder,
@@ -43,28 +43,28 @@ class ShadTooltip extends StatefulWidget {
     this.arrowDirection,
   });
 
-  /// {@template ShadTooltip.builder}
+  /// {@template Tooltip.builder}
   /// The builder function that creates the tooltip content widget.
   ///
   /// Called with the [BuildContext] to build the tooltip's content.
   /// {@endtemplate}
   final WidgetBuilder builder;
 
-  /// {@template ShadTooltip.child}
+  /// {@template Tooltip.child}
   /// The child widget that triggers the tooltip when hovered or focused.
   ///
   /// This is the widget that the tooltip is attached to.
   /// {@endtemplate}
   final Widget child;
 
-  /// {@template ShadTooltip.focusNode}
+  /// {@template Tooltip.focusNode}
   /// The focus node of the child widget.
   ///
   /// When the child gains focus, the tooltip will be shown.
   /// {@endtemplate}
   final FocusNode? focusNode;
 
-  /// {@template ShadTooltip.waitDuration}
+  /// {@template Tooltip.waitDuration}
   /// The length of time that a pointer must hover over a tooltip's widget
   /// before the tooltip will be shown.
   ///
@@ -72,7 +72,7 @@ class ShadTooltip extends StatefulWidget {
   /// {@endtemplate}
   final Duration? waitDuration;
 
-  /// {@template ShadTooltip.showDuration}
+  /// {@template Tooltip.showDuration}
   /// The length of time that the tooltip will be shown after a mouse pointer
   /// exits the widget.
   ///
@@ -80,7 +80,7 @@ class ShadTooltip extends StatefulWidget {
   /// {@endtemplate}
   final Duration? showDuration;
 
-  /// {@template ShadTooltip.effects}
+  /// {@template Tooltip.effects}
   /// The animation effects applied to the tooltip.
   ///
   /// Defaults to [FadeEffect(), ScaleEffect(begin: Offset(.95, .95), end:
@@ -89,51 +89,51 @@ class ShadTooltip extends StatefulWidget {
   /// {@endtemplate}
   final List<Effect<dynamic>>? effects;
 
-  /// {@template ShadTooltip.padding}
+  /// {@template Tooltip.padding}
   /// The padding of the tooltip content.
   ///
   /// Defaults to `EdgeInsets.symmetric(horizontal: 12, vertical: 6)`.
   /// {@endtemplate}
   final EdgeInsetsGeometry? padding;
 
-  /// {@template ShadTooltip.decoration}
+  /// {@template Tooltip.decoration}
   /// The decoration of the tooltip.
   ///
   /// Defines the visual appearance of the tooltip's container.
   /// {@endtemplate}
-  final ShadDecoration? decoration;
+  final FinesseDecoration? decoration;
 
-  /// {@template ShadTooltip.anchor}
+  /// {@template Tooltip.anchor}
   /// The anchor position of the tooltip relative to its child.
   ///
   /// Defaults to
   /// ```dart
-  /// const ShadAnchorAuto(
+  /// const AnchorAuto(
   ///   offset: Offset(0, -4),
   ///   followerAnchor: Alignment.topCenter,
   ///   targetAnchor: Alignment.topCenter,
   /// );
   /// ```
   /// {@endtemplate}
-  final ShadAnchorBase? anchor;
+  final AnchorBase? anchor;
 
-  /// {@template ShadTooltip.hoverStrategies}
+  /// {@template Tooltip.hoverStrategies}
   /// The hover strategies to use for the tooltip on devices with touchscreens.
   ///
   /// Configures how hover interactions are interpreted, especially on touch
   /// devices.
   /// {@endtemplate}
-  final ShadHoverStrategies? hoverStrategies;
+  final HoverStrategies? hoverStrategies;
 
-  /// {@template ShadTooltip.controller}
-  /// The controller that manages the visibility of the [ShadTooltip].
+  /// {@template Tooltip.controller}
+  /// The controller that manages the visibility of the [Tooltip].
   ///
   /// Allows programmatic control over showing and hiding the tooltip. If null,
-  /// a default [ShadTooltipController] is created internally.
+  /// a default [TooltipController] is created internally.
   /// {@endtemplate}
-  final ShadTooltipController? controller;
+  final TooltipController? controller;
 
-  /// {@template ShadTooltip.longPressDuration}
+  /// {@template Tooltip.longPressDuration}
   /// The duration for a long press to be recognized, triggering the tooltip on
   /// touch devices.
   ///
@@ -142,27 +142,27 @@ class ShadTooltip extends StatefulWidget {
   /// {@endtemplate}
   final Duration? longPressDuration;
 
-  /// {@template ShadTooltip.duration}
+  /// {@template Tooltip.duration}
   /// The duration of the tooltip's entrance animation.
   ///
   /// Defaults to [Animate.defaultDuration].
   /// {@endtemplate}
   final Duration? duration;
 
-  /// {@template ShadTooltip.reverseDuration}
+  /// {@template Tooltip.reverseDuration}
   /// The duration of the tooltip's exit animation.
   ///
   /// Defaults to [Duration.zero].
   /// {@endtemplate}
   final Duration? reverseDuration;
 
-  /// {@template ShadTooltip.showArrow}
+  /// {@template Tooltip.showArrow}
   /// Whether the tooltip draws the arrow pointing at its trigger, defaults
   /// to true.
   /// {@endtemplate}
   final bool? showArrow;
 
-  /// {@template ShadTooltip.arrowDirection}
+  /// {@template Tooltip.arrowDirection}
   /// The direction the arrow points, i.e. which edge of the tooltip it
   /// rides: [AxisDirection.down] puts it on the bottom edge.
   ///
@@ -174,17 +174,16 @@ class ShadTooltip extends StatefulWidget {
   final AxisDirection? arrowDirection;
 
   @override
-  State<ShadTooltip> createState() => _ShadTooltipState();
+  State<Tooltip> createState() => _TooltipState();
 }
 
-class _ShadTooltipState extends State<ShadTooltip>
-    with SingleTickerProviderStateMixin {
+class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
   late final AnimationController animationController;
-  ShadTooltipController? _controller;
+  TooltipController? _controller;
   bool hovered = false;
   bool get hasFocus => widget.focusNode?.hasFocus ?? false;
 
-  ShadTooltipController get controller => widget.controller ?? _controller!;
+  TooltipController get controller => widget.controller ?? _controller!;
 
   @override
   void initState() {
@@ -194,7 +193,7 @@ class _ShadTooltipState extends State<ShadTooltip>
       duration: Animate.defaultDuration,
       reverseDuration: Duration.zero,
     );
-    if (widget.controller == null) _controller = ShadTooltipController();
+    if (widget.controller == null) _controller = TooltipController();
     widget.focusNode?.addListener(onFocusChange);
   }
 
@@ -208,18 +207,18 @@ class _ShadTooltipState extends State<ShadTooltip>
 
   /// The hover strategies this tooltip was configured with, before the
   /// tooltip's own onHoverChange is layered on top.
-  ShadHoverStrategies? _baseHoverStrategies;
+  HoverStrategies? _baseHoverStrategies;
 
-  /// The theme handed to [ShadTooltip.child], with the merged hover strategies
+  /// The theme handed to [Tooltip.child], with the merged hover strategies
   /// applied.
   ///
   /// Computed here rather than in build(). Building it per build allocated a
-  /// fresh `onHoverChange` closure, and ShadHoverStrategies compares that
+  /// fresh `onHoverChange` closure, and HoverStrategies compares that
   /// closure in `==`, so the copied theme was never equal to the previous one.
-  /// ShadInheritedTheme then reported a change and rebuilt the tooltip's entire
-  /// child subtree on every tooltip rebuild — and `ShadThemeData.copyWith`
+  /// FinesseInheritedTheme then reported a change and rebuilt the tooltip's entire
+  /// child subtree on every tooltip rebuild — and `ThemeData.copyWith`
   /// re-runs all 54 component-theme merges each time.
-  late ShadThemeData _childTheme;
+  late ThemeData _childTheme;
 
   void _handleHoverChange(bool value) {
     _baseHoverStrategies?.onHoverChange?.call(value);
@@ -227,7 +226,7 @@ class _ShadTooltipState extends State<ShadTooltip>
   }
 
   void _syncEffectiveTheme() {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     final base =
         widget.hoverStrategies ??
         theme.tooltipTheme.hoverStrategies ??
@@ -255,7 +254,7 @@ class _ShadTooltipState extends State<ShadTooltip>
   }
 
   @override
-  void didUpdateWidget(ShadTooltip oldWidget) {
+  void didUpdateWidget(Tooltip oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.focusNode != oldWidget.focusNode) {
       oldWidget.focusNode?.removeListener(onFocusChange);
@@ -301,23 +300,23 @@ class _ShadTooltipState extends State<ShadTooltip>
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
 
     final effectiveEffects = widget.effects ?? theme.tooltipTheme.effects ?? [];
     final effectivePadding = widget.padding ?? theme.tooltipTheme.padding;
     final effectiveDecoration =
-        (theme.tooltipTheme.decoration ?? const ShadDecoration()).merge(
+        (theme.tooltipTheme.decoration ?? const FinesseDecoration()).merge(
           widget.decoration,
         );
 
     final effectiveAnchor =
         widget.anchor ??
         theme.tooltipTheme.anchor ??
-        const ShadAnchorAuto(
+        const AnchorAuto(
           offset: Offset(0, -4),
           followerAnchor: Alignment.topCenter,
           targetAnchor: Alignment.topCenter,
-          fallback: ShadAnchorAuto(
+          fallback: AnchorAuto(
             offset: Offset(0, 4),
           ),
         );
@@ -328,13 +327,13 @@ class _ShadTooltipState extends State<ShadTooltip>
         // Radix dismisses a tooltip on Escape; without this a keyboard user
         // who focused the trigger had no way to get rid of it. Only while it
         // is shown, so Escape still reaches an enclosing dialog otherwise.
-        return ShadDismissShortcut(
+        return DismissShortcut(
           isActive: () => controller.isOpen,
           onDismiss: () {
             hovered = false;
             controller.hide();
           },
-          child: ShadPortal(
+          child: Portal(
             visible: controller.isOpen,
             anchor: effectiveAnchor,
             portalBuilder: (context) {
@@ -350,7 +349,7 @@ class _ShadTooltipState extends State<ShadTooltip>
                 ),
               );
 
-              Widget tooltip = ShadDecorator(
+              Widget tooltip = Decorator(
                 decoration: effectiveDecoration,
                 child: Padding(
                   padding: effectivePadding ?? EdgeInsets.zero,
@@ -363,9 +362,9 @@ class _ShadTooltipState extends State<ShadTooltip>
                           height: 16 / 12,
                           color: theme.colorScheme.background,
                         ),
-                    child: ShadTheme(
+                    child: Theme(
                       data: contentTheme,
-                      // Through a Builder, so a custom [ShadTooltip.builder]
+                      // Through a Builder, so a custom [Tooltip.builder]
                       // sees the inverted text style and theme through its
                       // own context.
                       child: Builder(builder: widget.builder),
@@ -388,10 +387,10 @@ class _ShadTooltipState extends State<ShadTooltip>
                 // portal fell back below.
                 final direction =
                     widget.arrowDirection ??
-                    (ShadPortalPlacement.usedFallbackOf(context)
+                    (PortalPlacement.usedFallbackOf(context)
                         ? AxisDirection.up
                         : AxisDirection.down);
-                tooltip = _ShadTooltipArrow(
+                tooltip = _TooltipArrow(
                   direction: direction,
                   size: theme.tooltipTheme.arrowSize ?? 10,
                   radius: theme.tooltipTheme.arrowRadius ?? 2,
@@ -400,7 +399,7 @@ class _ShadTooltipState extends State<ShadTooltip>
                   // The bubble slides along the viewport edge to stay on
                   // screen; the arrow slides back the same distance so it
                   // keeps pointing at the trigger.
-                  shift: ShadPortalPlacement.shiftOf(context),
+                  shift: PortalPlacement.shiftOf(context),
                   cornerRadius: _cornerRadius(
                     effectiveDecoration,
                     Directionality.of(context),
@@ -410,15 +409,15 @@ class _ShadTooltipState extends State<ShadTooltip>
               }
 
               if (effectiveEffects.isNotEmpty) {
-                tooltip = ShadAnimate(
+                tooltip = FinesseAnimate(
                   controller: animationController,
                   effects: effectiveEffects,
                   child: tooltip,
                 );
               }
-              return ShadMouseArea(groupId: 'tooltip', child: tooltip);
+              return MouseArea(groupId: 'tooltip', child: tooltip);
             },
-            child: ShadMouseArea(
+            child: MouseArea(
               groupId: 'tooltip',
               // The child reports hover through the theme's hover strategies,
               // but a disabled button stops reporting, so its tooltip never
@@ -433,7 +432,7 @@ class _ShadTooltipState extends State<ShadTooltip>
                 hitTestBehavior: HitTestBehavior.deferToChild,
                 onEnter: (_) => onHoverChange(true),
                 onExit: (_) => onHoverChange(false),
-                child: ShadTheme(
+                child: Theme(
                   data: _childTheme,
                   child: widget.child,
                 ),
@@ -448,7 +447,10 @@ class _ShadTooltipState extends State<ShadTooltip>
 
 /// The largest corner radius of the tooltip's own surface, which is how far
 /// along an edge the arrow has to stay before it starts eating into a corner.
-double _cornerRadius(ShadDecoration decoration, TextDirection textDirection) {
+double _cornerRadius(
+  FinesseDecoration decoration,
+  TextDirection textDirection,
+) {
   final radius = decoration.border?.radius?.resolve(textDirection);
   if (radius == null) return 0;
   return [
@@ -470,11 +472,11 @@ double _cornerRadius(ShadDecoration decoration, TextDirection textDirection) {
 ///
 /// Along its edge the arrow tracks the trigger rather than the bubble: a
 /// tooltip near the side of the window is pushed inward to stay on screen
-/// (see [ShadPortalPlacement.shift]) and a centred arrow would then point
+/// (see [PortalPlacement.shift]) and a centred arrow would then point
 /// somewhere the trigger is not. It stops short of the bubble's corners,
 /// where a rounded surface has no straight edge left to sit on.
-class _ShadTooltipArrow extends StatelessWidget {
-  const _ShadTooltipArrow({
+class _TooltipArrow extends StatelessWidget {
+  const _TooltipArrow({
     required this.direction,
     required this.size,
     required this.radius,
@@ -490,7 +492,7 @@ class _ShadTooltipArrow extends StatelessWidget {
   final Color color;
 
   /// How far the bubble was moved off its anchor, from
-  /// [ShadPortalPlacement.shift]. The arrow moves back by as much of this as
+  /// [PortalPlacement.shift]. The arrow moves back by as much of this as
   /// its edge has room for.
   final Offset shift;
 
@@ -527,7 +529,7 @@ class _ShadTooltipArrow extends StatelessWidget {
   Widget build(BuildContext context) {
     final diamond = Transform.rotate(
       // Keyed so a test can measure where the tip actually landed.
-      key: const ValueKey('shad_tooltip_arrow'),
+      key: const ValueKey('finesse_tooltip_arrow'),
       angle: math.pi / 4,
       child: Container(
         width: size,

@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:finesse/finesse.dart';
+import 'package:finesse/material.dart';
+import 'package:flutter/material.dart' hide Theme, Tooltip;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/material.dart';
-import 'package:shad/shad.dart';
 
 /// The arrow points at the trigger, not at the middle of the bubble.
 ///
@@ -10,7 +10,7 @@ import 'package:shad/shad.dart';
 /// then aims it at empty space beside the trigger, which is what this locks
 /// down.
 void main() {
-  const arrow = ValueKey('shad_tooltip_arrow');
+  const arrow = ValueKey('finesse_tooltip_arrow');
   const viewport = Size(400, 400);
 
   /// Pumps a tooltip whose trigger sits at [triggerAlignment], already open.
@@ -24,18 +24,18 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
 
-    final controller = ShadTooltipController(isOpen: true);
+    final controller = TooltipController(isOpen: true);
     addTearDown(controller.dispose);
 
     await tester.pumpWidget(
-      ShadApp(
-        builder: (context, child) => ShadMaterial(child: child!),
+      FinesseApp(
+        builder: (context, child) => FinesseMaterial(child: child!),
         home: Scaffold(
           body: Align(
             alignment: triggerAlignment,
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: triggerInset),
-              child: ShadTooltip(
+              child: Tooltip(
                 controller: controller,
                 builder: (context) => SizedBox(width: contentWidth, height: 20),
                 child: const SizedBox(
@@ -59,7 +59,7 @@ void main() {
   }
 
   Rect bubbleRect(WidgetTester tester) =>
-      tester.getRect(find.byType(ShadDecorator).last);
+      tester.getRect(find.byType(Decorator).last);
 
   testWidgets('the arrow stays over a trigger the bubble was pushed off', (
     tester,
@@ -97,7 +97,7 @@ void main() {
     await pumpTooltip(tester, Alignment.centerRight, contentWidth: 380);
 
     final bubble = bubbleRect(tester);
-    final theme = ShadTheme.of(tester.element(find.byType(ShadTooltip)));
+    final theme = Theme.of(tester.element(find.byType(Tooltip)));
     final cornerRadius = theme.tooltipTheme.decoration!.border!.radius!
         .resolve(TextDirection.ltr)
         .topRight

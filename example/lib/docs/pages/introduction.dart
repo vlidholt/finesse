@@ -9,10 +9,10 @@ final introductionDoc = ComponentDoc(
   body: (context) => const DocProse(
     children: [
       DocParagraph(
-        'shad is a Flutter implementation of shadcn/ui. It is a port in the '
+        'finesse is a Flutter implementation of shadcn/ui. It is a port in the '
         'strict sense. Every color, radius, padding, shadow, and type size '
         'comes from the reference CSS instead of an approximation, so a '
-        'screen built with shad sits next to its web counterpart without a '
+        'screen built with finesse sits next to its web counterpart without a '
         'seam.',
       ),
       DocParagraph(
@@ -52,7 +52,7 @@ final introductionDoc = ComponentDoc(
             'the app as an asset, so the two can never drift apart.',
           ),
           DocParagraph(
-            'This documentation app is itself built with shad. Open the '
+            'This documentation app is itself built with finesse. Open the '
             'theme editor with the paintbrush button in the top bar and '
             'change the style, palette, or radius. The whole app '
             'restyles, including these pages.',

@@ -1,40 +1,40 @@
+import 'package:finesse/src/components/form/field.dart';
+import 'package:finesse/src/utils/extensions/map.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/components/form/field.dart';
-import 'package:shad/src/utils/extensions/map.dart';
 
-/// Used to configure the auto validation of [FormField] and [ShadForm]
+/// Used to configure the auto validation of [FormField] and [FinesseForm]
 /// widgets.
-enum ShadAutovalidateMode {
+enum FinesseAutovalidateMode {
   /// No auto validation will occur.
   disabled,
 
-  /// Used to auto-validate [ShadForm] and [FormField] even without user
+  /// Used to auto-validate [FinesseForm] and [FormField] even without user
   /// interaction.
   always,
 
-  /// Used to auto-validate [ShadForm] and [FormField] only after each user
+  /// Used to auto-validate [FinesseForm] and [FormField] only after each user
   /// interaction.
   onUserInteraction,
 
-  /// Used to auto-validate [ShadForm] and [FormField] every time after the
+  /// Used to auto-validate [FinesseForm] and [FormField] every time after the
   /// first validation.
   alwaysAfterFirstValidation,
 }
 
 /// A typedef representing a map of form field states with dynamic values.
-typedef ShadFormFields =
-    Map<String, ShadFormFieldState<ShadFormField<dynamic>, dynamic>>;
+typedef FormFields =
+    Map<String, FinesseFormFieldState<FinesseFormField<dynamic>, dynamic>>;
 
 /// A stateful widget that manages a form with validation and field management.
-class ShadForm extends StatefulWidget {
+class FinesseForm extends StatefulWidget {
   /// Creates a form around [child].
-  const ShadForm({
+  const FinesseForm({
     super.key,
     required this.child,
     this.onChanged,
     this.canPop,
     this.onPopInvokedWithResult,
-    this.autovalidateMode = ShadAutovalidateMode.alwaysAfterFirstValidation,
+    this.autovalidateMode = FinesseAutovalidateMode.alwaysAfterFirstValidation,
     this.initialValue = const {},
     this.enabled = true,
     this.skipDisabled = false,
@@ -52,7 +52,7 @@ class ShadForm extends StatefulWidget {
   final PopInvokedWithResultCallback<Object?>? onPopInvokedWithResult;
 
   /// The auto validation mode for the form
-  final ShadAutovalidateMode autovalidateMode;
+  final FinesseAutovalidateMode autovalidateMode;
 
   /// The widget tree contained within the form
   final Widget child;
@@ -72,51 +72,49 @@ class ShadForm extends StatefulWidget {
   final bool clearValueOnUnregister;
 
   /// The separator to use for nested maps in the resulting form
-  /// [ShadFormState.value].
+  /// [FinesseFormState.value].
   ///
   /// Defaults to '.', but can be customized to any string (e.g., '/', ':').
   /// Pass `null` to disable dot notation support.
   final String? fieldIdSeparator;
 
   @override
-  State<ShadForm> createState() => ShadFormState();
+  State<FinesseForm> createState() => FinesseFormState();
 
-  /// Returns the nearest [ShadFormState] from the widget tree
+  /// Returns the nearest [FinesseFormState] from the widget tree
   /// Throws assertion error if not found
-  static ShadFormState of(BuildContext context) {
+  static FinesseFormState of(BuildContext context) {
     final state = maybeOf(context);
-    assert(state != null, 'No ShadFormState found in context');
+    assert(state != null, 'No FinesseFormState found in context');
     return state!;
   }
 
-  /// Returns the nearest [ShadFormState] from the widget tree or null if not
+  /// Returns the nearest [FinesseFormState] from the widget tree or null if not
   /// found
-  static ShadFormState? maybeOf(BuildContext context) {
-    return (context
-                .getElementForInheritedWidgetOfExactType<ShadFormScope>()
-                ?.widget
-            as ShadFormScope?)
+  static FinesseFormState? maybeOf(BuildContext context) {
+    return (context.getElementForInheritedWidgetOfExactType<FormScope>()?.widget
+            as FormScope?)
         ?._formState;
   }
 }
 
-/// The state class for [ShadForm] managing form fields and validation
-class ShadFormState extends State<ShadForm> {
+/// The state class for [FinesseForm] managing form fields and validation
+class FinesseFormState extends State<FinesseForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final ShadFormFields _fields = {};
+  final FormFields _fields = {};
   final Map<String, dynamic> _value = {};
   final Map<String, Function> _toValueTransformers = {};
   final Map<String, Function> _fromValueTransformers = {};
 
   /// The validation mode passed to the inner [Form].
   ///
-  /// It starts from [ShadForm.autovalidateMode]. With
-  /// [ShadAutovalidateMode.alwaysAfterFirstValidation] it switches to
+  /// It starts from [FinesseForm.autovalidateMode]. With
+  /// [FinesseAutovalidateMode.alwaysAfterFirstValidation] it switches to
   /// [AutovalidateMode.always] on the first [validate], and back on [reset].
   late final ValueNotifier<AutovalidateMode> autovalidateMode;
 
   /// Returns the registered form fields
-  ShadFormFields get fields => _fields;
+  FormFields get fields => _fields;
 
   /// Returns the initial form values
   Map<String, dynamic> get initialValue => widget.initialValue;
@@ -157,11 +155,11 @@ class ShadFormState extends State<ShadForm> {
   void initState() {
     super.initState();
     final mode = switch (widget.autovalidateMode) {
-      ShadAutovalidateMode.always => AutovalidateMode.always,
-      ShadAutovalidateMode.onUserInteraction =>
+      FinesseAutovalidateMode.always => AutovalidateMode.always,
+      FinesseAutovalidateMode.onUserInteraction =>
         AutovalidateMode.onUserInteraction,
-      ShadAutovalidateMode.alwaysAfterFirstValidation ||
-      ShadAutovalidateMode.disabled => AutovalidateMode.disabled,
+      FinesseAutovalidateMode.alwaysAfterFirstValidation ||
+      FinesseAutovalidateMode.disabled => AutovalidateMode.disabled,
     };
     autovalidateMode = ValueNotifier(mode);
   }
@@ -175,7 +173,7 @@ class ShadFormState extends State<ShadForm> {
   /// Registers a form field with the specified id
   void registerField(
     String id,
-    ShadFormFieldState<ShadFormField<dynamic>, dynamic> field,
+    FinesseFormFieldState<FinesseFormField<dynamic>, dynamic> field,
   ) {
     _fields[id] = field;
 
@@ -284,7 +282,7 @@ class ShadFormState extends State<ShadForm> {
   /// Unregisters a form field
   void unregisterField(
     String id,
-    ShadFormFieldState<ShadFormField<dynamic>, dynamic> field,
+    FinesseFormFieldState<FinesseFormField<dynamic>, dynamic> field,
   ) {
     _fields.remove(id);
     _toValueTransformers.remove(id);
@@ -301,7 +299,7 @@ class ShadFormState extends State<ShadForm> {
     bool autoScrollWhenFocusOnInvalid = false,
   }) {
     if (widget.autovalidateMode ==
-        ShadAutovalidateMode.alwaysAfterFirstValidation) {
+        FinesseAutovalidateMode.alwaysAfterFirstValidation) {
       autovalidateMode.value = AutovalidateMode.always;
     }
     final hasError = !_formKey.currentState!.validate();
@@ -336,11 +334,11 @@ class ShadFormState extends State<ShadForm> {
   /// Resets the form to its initial state
   void reset() {
     autovalidateMode.value = switch (widget.autovalidateMode) {
-      ShadAutovalidateMode.always => AutovalidateMode.always,
-      ShadAutovalidateMode.onUserInteraction =>
+      FinesseAutovalidateMode.always => AutovalidateMode.always,
+      FinesseAutovalidateMode.onUserInteraction =>
         AutovalidateMode.onUserInteraction,
-      ShadAutovalidateMode.alwaysAfterFirstValidation ||
-      ShadAutovalidateMode.disabled => AutovalidateMode.disabled,
+      FinesseAutovalidateMode.alwaysAfterFirstValidation ||
+      FinesseAutovalidateMode.disabled => AutovalidateMode.disabled,
     };
     _value.clear();
     _formKey.currentState?.reset();
@@ -365,7 +363,7 @@ class ShadFormState extends State<ShadForm> {
           child: child!,
         );
       },
-      child: ShadFormScope(
+      child: FormScope(
         formState: this,
         child: FocusTraversalGroup(
           policy: WidgetOrderTraversalPolicy(),
@@ -376,21 +374,21 @@ class ShadFormState extends State<ShadForm> {
   }
 }
 
-/// An inherited widget that provides access to the [ShadFormState]
-class ShadFormScope extends InheritedWidget {
+/// An inherited widget that provides access to the [FinesseFormState]
+class FormScope extends InheritedWidget {
   /// Creates a scope that gives [child] access to `formState`.
-  const ShadFormScope({
+  const FormScope({
     super.key,
     required super.child,
-    required ShadFormState formState,
+    required FinesseFormState formState,
   }) : _formState = formState;
 
-  final ShadFormState _formState;
+  final FinesseFormState _formState;
 
-  /// The ShadForm widget associated with this scope
-  ShadForm get form => _formState.widget;
+  /// The FinesseForm widget associated with this scope
+  FinesseForm get form => _formState.widget;
 
   @override
-  bool updateShouldNotify(ShadFormScope oldWidget) =>
+  bool updateShouldNotify(FormScope oldWidget) =>
       oldWidget._formState != _formState;
 }

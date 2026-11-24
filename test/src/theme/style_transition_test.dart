@@ -1,35 +1,35 @@
-import 'package:flutter/material.dart';
+import 'package:finesse/material.dart';
+import 'package:finesse/src/app.dart';
+import 'package:finesse/src/components/otp_field.dart';
+import 'package:finesse/src/components/text_field.dart';
+import 'package:finesse/src/theme/data.dart';
+import 'package:finesse/src/theme/style.dart';
+import 'package:flutter/material.dart' hide TextField, ThemeData;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/material.dart';
-import 'package:shad/src/app.dart';
-import 'package:shad/src/components/input.dart';
-import 'package:shad/src/components/input_otp.dart';
-import 'package:shad/src/theme/data.dart';
-import 'package:shad/src/theme/style.dart';
 
 void main() {
   // Switching styles animates every component theme through
-  // `ShadAnimatedTheme`. Mid-flight a boxed field's border lerps towards an
+  // `AnimatedTheme`. Mid-flight a boxed field's border lerps towards an
   // underlined (`sera`) or borderless (`maia`) one: three sides fade out
   // while the bottom crosses to another colour, so the sides momentarily
   // disagree — which `Border.paint` refuses to combine with a border radius.
-  // `ShadBoxBorder` exists to paint exactly that state; this walks every
+  // `FinesseBoxBorder` exists to paint exactly that state; this walks every
   // style pair to pin it.
   testWidgets('fields survive animated transitions between all styles', (
     tester,
   ) async {
-    Widget app(ShadStyleTokens style) => ShadApp(
-      builder: (context, child) => ShadMaterial(child: child!),
-      theme: ShadThemeData(style: style),
+    Widget app(StyleTokens style) => FinesseApp(
+      builder: (context, child) => FinesseMaterial(child: child!),
+      theme: ThemeData(style: style),
       home: const Scaffold(
         body: Column(
           children: [
-            ShadInput(),
-            ShadInputOTP(
+            TextField(),
+            OtpField(
               maxLength: 2,
               children: [
-                ShadInputOTPGroup(
-                  children: [ShadInputOTPSlot(), ShadInputOTPSlot()],
+                OtpFieldGroup(
+                  children: [OtpFieldSlot(), OtpFieldSlot()],
                 ),
               ],
             ),
@@ -38,8 +38,8 @@ void main() {
       ),
     );
 
-    for (final from in ShadStyleTokens.all) {
-      for (final to in ShadStyleTokens.all) {
+    for (final from in StyleTokens.all) {
+      for (final to in StyleTokens.all) {
         if (identical(from, to)) continue;
         await tester.pumpWidget(app(from));
         await tester.pumpAndSettle();

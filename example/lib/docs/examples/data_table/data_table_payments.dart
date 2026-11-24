@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class Payment {
   const Payment(this.id, this.status, this.email, this.amount);
@@ -29,7 +29,7 @@ class DataTablePaymentsExample extends StatefulWidget {
 }
 
 class _DataTablePaymentsExampleState extends State<DataTablePaymentsExample> {
-  final controller = ShadDataTableController<Payment>(
+  final controller = DataTableController<Payment>(
     rows: _payments,
     pageSize: 5,
   );
@@ -53,7 +53,7 @@ class _DataTablePaymentsExampleState extends State<DataTablePaymentsExample> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     final total = controller.filteredRows.length;
     final rowHeight = theme.tableTheme.cellHeight ?? 48;
     final visibleRowCount = controller.visibleRows.length;
@@ -71,10 +71,10 @@ class _DataTablePaymentsExampleState extends State<DataTablePaymentsExample> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
           children: [
-            ShadCard(
+            Card(
               padding: EdgeInsets.zero,
               clipBehavior: Clip.antiAlias,
-              child: ShadDataTable<Payment>(
+              child: DataTable<Payment>(
                 controller: controller,
                 selectable: true,
                 keyOf: (payment) => payment.id,
@@ -82,28 +82,28 @@ class _DataTablePaymentsExampleState extends State<DataTablePaymentsExample> {
                 showPagination: false,
                 showSelectionCount: false,
                 columns: [
-                  ShadDataTableColumn(
+                  DataTableColumn(
                     id: 'status',
                     header: 'Status',
                     extent: const FixedTableSpanExtent(140),
                     compare: (a, b) => a.status.compareTo(b.status),
-                    cellBuilder: (context, payment) => ShadBadge.raw(
+                    cellBuilder: (context, payment) => Badge.raw(
                       variant: switch (payment.status) {
-                        'success' => ShadBadgeVariant.primary,
-                        'failed' => ShadBadgeVariant.destructive,
-                        _ => ShadBadgeVariant.secondary,
+                        'success' => BadgeVariant.primary,
+                        'failed' => BadgeVariant.destructive,
+                        _ => BadgeVariant.secondary,
                       },
                       child: Text(payment.status),
                     ),
                   ),
-                  ShadDataTableColumn(
+                  DataTableColumn(
                     id: 'email',
                     header: 'Email',
                     compare: (a, b) => a.email.compareTo(b.email),
                     cellBuilder: (context, payment) =>
                         Text(payment.email, overflow: TextOverflow.ellipsis),
                   ),
-                  ShadDataTableColumn(
+                  DataTableColumn(
                     id: 'amount',
                     header: 'Amount',
                     extent: const FixedTableSpanExtent(120),
@@ -123,7 +123,7 @@ class _DataTablePaymentsExampleState extends State<DataTablePaymentsExample> {
                   style: theme.textTheme.muted,
                 ),
                 const Spacer(),
-                ShadPaginationCompact(
+                PaginationCompact(
                   page: controller.page,
                   pageCount: controller.pageCount,
                   onPageChanged: (page) => controller.page = page,

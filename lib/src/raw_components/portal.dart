@@ -2,21 +2,21 @@ import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
 
-/// The position of the [ShadPortal] in the global coordinate system.
-sealed class ShadAnchorBase {
-  const ShadAnchorBase();
+/// The position of the [Portal] in the global coordinate system.
+sealed class AnchorBase {
+  const AnchorBase();
 }
 
-/// Automatically infers the position of the [ShadPortal] in the global
+/// Automatically infers the position of the [Portal] in the global
 /// coordinate system adjusting according to the [offset],
 /// [followerAnchor] and [targetAnchor] properties.
 @immutable
-class ShadAnchorAuto extends ShadAnchorBase {
+class AnchorAuto extends AnchorBase {
   /// Creates an anchor that places the overlay relative to the target.
   ///
   /// By default the bottom center of the overlay sits on the bottom center of
   /// the target, and the overlay follows the target when the window resizes.
-  const ShadAnchorAuto({
+  const AnchorAuto({
     this.offset = Offset.zero,
     this.followTargetOnResize = true,
     this.followerAnchor = Alignment.bottomCenter,
@@ -45,13 +45,13 @@ class ShadAnchorAuto extends ShadAnchorBase {
   /// The candidate that overflows least wins, so a fallback mirrored to the
   /// other side flips a menu or tooltip away from the edge it would cross.
   /// Whatever still overflows is then shifted back on screen.
-  final ShadAnchorAuto? fallback;
+  final AnchorAuto? fallback;
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
-    return other is ShadAnchorAuto &&
+    return other is AnchorAuto &&
         other.offset == offset &&
         other.followTargetOnResize == followTargetOnResize &&
         other.followerAnchor == followerAnchor &&
@@ -68,15 +68,15 @@ class ShadAnchorAuto extends ShadAnchorBase {
       fallback.hashCode;
 }
 
-/// Manually specifies the position of the [ShadPortal] in the global
+/// Manually specifies the position of the [Portal] in the global
 /// coordinate system.
 @immutable
-class ShadAnchor extends ShadAnchorBase {
+class Anchor extends AnchorBase {
   /// Creates an anchor from a point on the child and a point on the overlay.
   ///
   /// By default the bottom-left corner of the overlay sits on the top-left
   /// corner of the child.
-  const ShadAnchor({
+  const Anchor({
     this.childAlignment = Alignment.topLeft,
     this.overlayAlignment = Alignment.bottomLeft,
     this.offset = Offset.zero,
@@ -98,18 +98,18 @@ class ShadAnchor extends ShadAnchorBase {
   final Offset offset;
 
   /// The overlay hangs centred below the child.
-  static const center = ShadAnchor(
+  static const center = Anchor(
     childAlignment: Alignment.bottomCenter,
     overlayAlignment: Alignment.topCenter,
   );
 
   /// Returns a copy with the given fields replaced.
-  ShadAnchor copyWith({
+  Anchor copyWith({
     AlignmentGeometry? childAlignment,
     AlignmentGeometry? overlayAlignment,
     Offset? offset,
   }) {
-    return ShadAnchor(
+    return Anchor(
       childAlignment: childAlignment ?? this.childAlignment,
       overlayAlignment: overlayAlignment ?? this.overlayAlignment,
       offset: offset ?? this.offset,
@@ -120,7 +120,7 @@ class ShadAnchor extends ShadAnchorBase {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
-    return other is ShadAnchor &&
+    return other is Anchor &&
         other.childAlignment == childAlignment &&
         other.overlayAlignment == overlayAlignment &&
         other.offset == offset;
@@ -137,9 +137,9 @@ class ShadAnchor extends ShadAnchorBase {
 /// Positions the overlay at a point in the global coordinate system, such as
 /// where the pointer was pressed.
 @immutable
-class ShadGlobalAnchor extends ShadAnchorBase {
+class GlobalAnchor extends AnchorBase {
   /// Creates an anchor at the global point [offset].
-  const ShadGlobalAnchor(
+  const GlobalAnchor(
     this.offset, {
     this.followerAnchor = Alignment.topCenter,
   });
@@ -162,7 +162,7 @@ class ShadGlobalAnchor extends ShadAnchorBase {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
-    return other is ShadGlobalAnchor &&
+    return other is GlobalAnchor &&
         other.offset == offset &&
         other.followerAnchor == followerAnchor;
   }
@@ -171,15 +171,15 @@ class ShadGlobalAnchor extends ShadAnchorBase {
   int get hashCode => Object.hash(offset, followerAnchor);
 }
 
-/// Publishes which position the enclosing [ShadPortal] resolved to: the
-/// primary anchor, or its [ShadAnchorAuto.fallback].
+/// Publishes which position the enclosing [Portal] resolved to: the
+/// primary anchor, or its [AnchorAuto.fallback].
 ///
 /// An overlay that renders differently per side — a tooltip's arrow — reads
 /// this to flip along with the portal. Outside an auto-anchored portal the
 /// lookup reports the primary position.
-class ShadPortalPlacement extends InheritedWidget {
+class PortalPlacement extends InheritedWidget {
   /// Creates the placement data for a portal's overlay.
-  const ShadPortalPlacement({
+  const PortalPlacement({
     super.key,
     required this.usedFallback,
     required super.child,
@@ -198,23 +198,21 @@ class ShadPortalPlacement extends InheritedWidget {
   final Offset shift;
 
   /// Whether the nearest portal above [context] fell back to its anchor's
-  /// [ShadAnchorAuto.fallback] position.
+  /// [AnchorAuto.fallback] position.
   static bool usedFallbackOf(BuildContext context) =>
       context
-          .dependOnInheritedWidgetOfExactType<ShadPortalPlacement>()
+          .dependOnInheritedWidgetOfExactType<PortalPlacement>()
           ?.usedFallback ??
       false;
 
   /// The [shift] of the nearest portal above [context], or [Offset.zero]
   /// outside an auto-anchored portal.
   static Offset shiftOf(BuildContext context) =>
-      context
-          .dependOnInheritedWidgetOfExactType<ShadPortalPlacement>()
-          ?.shift ??
+      context.dependOnInheritedWidgetOfExactType<PortalPlacement>()?.shift ??
       Offset.zero;
 
   @override
-  bool updateShouldNotify(ShadPortalPlacement oldWidget) =>
+  bool updateShouldNotify(PortalPlacement oldWidget) =>
       usedFallback != oldWidget.usedFallback || shift != oldWidget.shift;
 }
 
@@ -223,11 +221,11 @@ class ShadPortalPlacement extends InheritedWidget {
 ///
 /// The overlay is built in the nearest [Overlay] and placed by [anchor].
 /// Descendants of the overlay can read the resolved placement with
-/// [ShadPortalPlacement].
-class ShadPortal extends StatefulWidget {
+/// [PortalPlacement].
+class Portal extends StatefulWidget {
   /// Creates a portal that shows the result of [portalBuilder] while [visible]
   /// is true.
-  const ShadPortal({
+  const Portal({
     super.key,
     required this.child,
     required this.portalBuilder,
@@ -245,13 +243,13 @@ class ShadPortal extends StatefulWidget {
   final bool visible;
 
   /// Where to place the overlay.
-  final ShadAnchorBase anchor;
+  final AnchorBase anchor;
 
   @override
-  State<ShadPortal> createState() => _ShadPortalState();
+  State<Portal> createState() => _PortalState();
 }
 
-class _ShadPortalState extends State<ShadPortal> {
+class _PortalState extends State<Portal> {
   final layerLink = LayerLink();
   final overlayPortalController = OverlayPortalController();
   final overlayKey = GlobalKey();
@@ -269,7 +267,7 @@ class _ShadPortalState extends State<ShadPortal> {
   }
 
   @override
-  void didUpdateWidget(covariant ShadPortal oldWidget) {
+  void didUpdateWidget(covariant Portal oldWidget) {
     super.didUpdateWidget(oldWidget);
     // Avoid scheduling a post-frame visibility update on every rebuild.
     final visibilityChanged = widget.visible != oldWidget.visible;
@@ -287,8 +285,8 @@ class _ShadPortalState extends State<ShadPortal> {
     super.didChangeDependencies();
     _syncScrollNotificationObserver();
 
-    if (widget.visible && widget.anchor is ShadAnchorAuto) {
-      final anchor = widget.anchor as ShadAnchorAuto;
+    if (widget.visible && widget.anchor is AnchorAuto) {
+      final anchor = widget.anchor as AnchorAuto;
       if (anchor.followTargetOnResize) {
         _scheduleAutoPositionUpdate();
       }
@@ -302,7 +300,7 @@ class _ShadPortalState extends State<ShadPortal> {
     super.dispose();
   }
 
-  bool get _isAutoAnchor => widget.anchor is ShadAnchorAuto;
+  bool get _isAutoAnchor => widget.anchor is AnchorAuto;
 
   bool get _shouldListenToScrollNotifications =>
       widget.visible && _isAutoAnchor;
@@ -395,14 +393,14 @@ class _ShadPortalState extends State<ShadPortal> {
   /// Computes the target offset for the given [anchor] configuration.
   ///
   /// The returned [Offset] is the point in the overlay ancestor's coordinate
-  /// system that [ShadPositionDelegate] uses as the top anchor for the
+  /// system that [PositionDelegate] uses as the top anchor for the
   /// overlay widget (i.e. the overlay's top-left corner is placed at this
-  /// point when [ShadPositionDelegate.preferBelow] is `true`).
+  /// point when [PositionDelegate.preferBelow] is `true`).
   Offset _computeTargetForAnchor({
     required RenderBox box,
     required RenderBox overlayAncestor,
     required Size overlaySize,
-    required ShadAnchorAuto anchor,
+    required AnchorAuto anchor,
     required TextDirection? textDirection,
   }) {
     final resolvedTargetAnchor = anchor.targetAnchor.resolve(textDirection);
@@ -432,9 +430,9 @@ class _ShadPortalState extends State<ShadPortal> {
 
   void _calculatePosition() {
     // Only auto-position when the overlay is visible.
-    if (!mounted || !widget.visible || widget.anchor is! ShadAnchorAuto) return;
+    if (!mounted || !widget.visible || widget.anchor is! AnchorAuto) return;
 
-    final anchor = widget.anchor as ShadAnchorAuto;
+    final anchor = widget.anchor as AnchorAuto;
     final box = context.findRenderObject();
     final overlayState = Overlay.of(context, debugRequiredFor: widget);
     final overlayAncestor = overlayState.context.findRenderObject();
@@ -470,7 +468,7 @@ class _ShadPortalState extends State<ShadPortal> {
 
     // With the overlay's size known, try the fallback chain when the primary
     // position crosses a screen edge, and keep whichever candidate overflows
-    // least. [ShadPositionDelegate] centres the overlay on `target.dx` and
+    // least. [PositionDelegate] centres the overlay on `target.dx` and
     // hangs it below `target.dy`.
     var usedFallback = false;
     if (anchor.fallback != null && overlay != null && overlay.hasSize) {
@@ -505,21 +503,21 @@ class _ShadPortalState extends State<ShadPortal> {
       }
     }
 
-    // How far [ShadPositionDelegate] will push the overlay off its anchor to
+    // How far [PositionDelegate] will push the overlay off its anchor to
     // keep it on screen. Worked out here rather than in the delegate because
     // the arrow that needs it is built, not laid out — and `overlaySize` is
     // one frame stale in exactly the way `target` already is.
     var shift = Offset.zero;
     if (overlay != null && overlay.hasSize) {
       shift =
-          ShadPositionDelegate.positionFor(
+          PositionDelegate.positionFor(
             size: overlayAncestor.size,
             childSize: overlaySize,
             target: target,
             verticalOffset: 0,
             preferBelow: true,
           ) -
-          ShadPositionDelegate.anchoredPositionFor(
+          PositionDelegate.anchoredPositionFor(
             childSize: overlaySize,
             target: target,
             verticalOffset: 0,
@@ -551,7 +549,7 @@ class _ShadPortalState extends State<ShadPortal> {
 
   Widget buildAutoPosition(
     BuildContext context,
-    ShadAnchorAuto anchor,
+    AnchorAuto anchor,
   ) {
     if (anchor.followTargetOnResize) {
       MediaQuery.sizeOf(context);
@@ -571,7 +569,7 @@ class _ShadPortalState extends State<ShadPortal> {
     }
 
     return CustomSingleChildLayout(
-      delegate: ShadPositionDelegate(
+      delegate: PositionDelegate(
         target: target,
         verticalOffset: 0,
         preferBelow: true,
@@ -584,7 +582,7 @@ class _ShadPortalState extends State<ShadPortal> {
           visible: overlay != null,
           child: IgnorePointer(
             ignoring: overlay == null,
-            child: ShadPortalPlacement(
+            child: PortalPlacement(
               usedFallback: _usedFallback,
               shift: _shift,
               child: Builder(builder: widget.portalBuilder),
@@ -597,7 +595,7 @@ class _ShadPortalState extends State<ShadPortal> {
 
   Widget buildManualPosition(
     BuildContext context,
-    ShadAnchor anchor,
+    Anchor anchor,
   ) {
     final textDirection = Directionality.maybeOf(context);
     return CompositedTransformFollower(
@@ -614,10 +612,10 @@ class _ShadPortalState extends State<ShadPortal> {
 
   Widget buildGlobalPosition(
     BuildContext context,
-    ShadGlobalAnchor anchor,
+    GlobalAnchor anchor,
   ) {
     return CustomSingleChildLayout(
-      delegate: _ShadPointPositionDelegate(
+      delegate: _PointPositionDelegate(
         point: anchor.offset,
         followerAnchor: anchor.followerAnchor.resolve(
           Directionality.maybeOf(context) ?? TextDirection.ltr,
@@ -638,9 +636,9 @@ class _ShadPortalState extends State<ShadPortal> {
             widthFactor: 1,
             heightFactor: 1,
             child: switch (widget.anchor) {
-              final ShadAnchorAuto anchor => buildAutoPosition(context, anchor),
-              final ShadAnchor anchor => buildManualPosition(context, anchor),
-              final ShadGlobalAnchor anchor => buildGlobalPosition(
+              final AnchorAuto anchor => buildAutoPosition(context, anchor),
+              final Anchor anchor => buildManualPosition(context, anchor),
+              final GlobalAnchor anchor => buildGlobalPosition(
                 context,
                 anchor,
               ),
@@ -655,9 +653,9 @@ class _ShadPortalState extends State<ShadPortal> {
 
 /// A delegate for computing the layout of an overlay to be displayed above or
 /// below a target specified in the global coordinate system.
-class ShadPositionDelegate extends SingleChildLayoutDelegate {
+class PositionDelegate extends SingleChildLayoutDelegate {
   /// Creates a delegate for computing the layout of an overlay.
-  ShadPositionDelegate({
+  PositionDelegate({
     required this.target,
     required this.verticalOffset,
     required this.preferBelow,
@@ -679,8 +677,8 @@ class ShadPositionDelegate extends SingleChildLayoutDelegate {
 
   /// Where an overlay of [childSize] lands inside [size].
   ///
-  /// Exposed so [ShadPortal] can work out how far this pushed the overlay off
-  /// its anchor without re-deriving the rule; see [ShadPortalPlacement.shift].
+  /// Exposed so [Portal] can work out how far this pushed the overlay off
+  /// its anchor without re-deriving the rule; see [PortalPlacement.shift].
   static Offset positionFor({
     required Size size,
     required Size childSize,
@@ -727,7 +725,7 @@ class ShadPositionDelegate extends SingleChildLayoutDelegate {
   }
 
   @override
-  bool shouldRelayout(ShadPositionDelegate oldDelegate) {
+  bool shouldRelayout(PositionDelegate oldDelegate) {
     return target != oldDelegate.target ||
         verticalOffset != oldDelegate.verticalOffset ||
         preferBelow != oldDelegate.preferBelow;
@@ -737,8 +735,8 @@ class ShadPositionDelegate extends SingleChildLayoutDelegate {
 /// Places an overlay so that its [followerAnchor] point sits on [point],
 /// mirrored across the point on any axis where it would leave the screen,
 /// then clamped onto the screen.
-class _ShadPointPositionDelegate extends SingleChildLayoutDelegate {
-  _ShadPointPositionDelegate({
+class _PointPositionDelegate extends SingleChildLayoutDelegate {
+  _PointPositionDelegate({
     required this.point,
     required this.followerAnchor,
   });
@@ -776,7 +774,7 @@ class _ShadPointPositionDelegate extends SingleChildLayoutDelegate {
   }
 
   @override
-  bool shouldRelayout(_ShadPointPositionDelegate oldDelegate) =>
+  bool shouldRelayout(_PointPositionDelegate oldDelegate) =>
       point != oldDelegate.point ||
       followerAnchor != oldDelegate.followerAnchor;
 }

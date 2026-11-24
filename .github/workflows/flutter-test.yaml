@@ -55,8 +55,8 @@ jobs:
       - name: No bundled-font asset paths in lib
         # The deprecated kDefaultFontFamily constants keep their old values.
         run: |
-          if grep -rn "packages/shad/" lib --exclude=text_styles_default.dart; then
-            echo "::error::lib/ names a font asset shad no longer ships"
+          if grep -rn "packages/finesse/" lib --exclude=text_styles_default.dart; then
+            echo "::error::lib/ names a font asset finesse no longer ships"
             exit 1
           fi
 

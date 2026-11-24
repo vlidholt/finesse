@@ -1,45 +1,45 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/shad.dart';
 
 void main() {
-  group('ShadScrollAreaTheme', () {
+  group('ScrollAreaTheme', () {
     test('matches .cn-scroll-area-* per style', () {
-      final vega = ShadThemeData(style: ShadStyleTokens.vega).scrollAreaTheme;
+      final vega = ThemeData(style: StyleTokens.vega).scrollAreaTheme;
       // `w-2.5 p-px border-l`: a 7px thumb inset 1px.
       expect(vega.thickness, 7);
       expect(vega.crossAxisMargin, 1);
       expect(vega.radius, const Radius.circular(999));
       // lyra and sera square the thumb (`rounded-none`).
       expect(
-        ShadThemeData(style: ShadStyleTokens.lyra).scrollAreaTheme.radius,
+        ThemeData(style: StyleTokens.lyra).scrollAreaTheme.radius,
         Radius.zero,
       );
       expect(
-        ShadThemeData(style: ShadStyleTokens.sera).scrollAreaTheme.radius,
+        ThemeData(style: StyleTokens.sera).scrollAreaTheme.radius,
         Radius.zero,
       );
     });
 
     test('the thumb is the border colour', () {
-      final theme = ShadThemeData();
+      final theme = ThemeData();
       expect(theme.scrollAreaTheme.thumbColor, theme.colorScheme.border);
     });
   });
 
-  testWidgets('ShadScrollArea scrolls its content with one scrollbar', (
+  testWidgets('ScrollArea scrolls its content with one scrollbar', (
     tester,
   ) async {
     final controller = ScrollController();
     addTearDown(controller.dispose);
     await tester.pumpWidget(
-      ShadApp(
+      FinesseApp(
         home: Align(
           alignment: Alignment.topLeft,
           child: SizedBox(
             height: 100,
             width: 100,
-            child: ShadScrollArea(
+            child: ScrollArea(
               controller: controller,
               child: Column(
                 children: [
@@ -63,13 +63,13 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(
-      ShadApp(
+      FinesseApp(
         home: Align(
           alignment: Alignment.topLeft,
           child: SizedBox(
             height: 100,
             width: 100,
-            child: ShadScrollArea(
+            child: ScrollArea(
               edgeShadows: true,
               child: Column(
                 children: [

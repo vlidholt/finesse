@@ -1,9 +1,19 @@
-import 'package:flutter/material.dart';
+import 'package:finesse/finesse.dart';
+import 'package:finesse/material.dart';
+import 'package:flutter/material.dart'
+    hide
+        Badge,
+        Card,
+        Checkbox,
+        Dialog,
+        Slider,
+        Switch,
+        Tab,
+        TextField,
+        ThemeData;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/material.dart';
-import 'package:shad/shad.dart';
 
-/// Every outward shadow has to go through [ShadShadowDecoration] so it is
+/// Every outward shadow has to go through [ShadowDecoration] so it is
 /// clipped to the element it belongs to. A shadow left on a plain
 /// [BoxDecoration] paints behind the whole box — a grey wash under anything
 /// translucent — and one wearing [BlurStyle.outer] instead is cut out along its
@@ -16,33 +26,33 @@ import 'package:shad/shad.dart';
 /// See `lib/src/utils/shadow.dart`.
 void main() {
   final surfaces = <Widget>[
-    const ShadCard(title: Text('Card'), child: Text('Body')),
-    const ShadInput(placeholder: Text('Input')),
-    const ShadTextarea(placeholder: Text('Textarea')),
-    ShadButton(onPressed: () {}, child: const Text('Button')),
-    ShadButton.outline(onPressed: () {}, child: const Text('Button')),
-    ShadCheckbox(value: true, onChanged: (_) {}),
-    ShadSwitch(value: true, onChanged: (_) {}),
-    const ShadSlider(initialValue: 50, max: 100),
-    ShadSelect<String>(
-      options: const [ShadOption(value: 'a', child: Text('A'))],
+    const Card(title: Text('Card'), child: Text('Body')),
+    const TextField(placeholder: Text('Input')),
+    const Textarea(placeholder: Text('Textarea')),
+    Button(onPressed: () {}, child: const Text('Button')),
+    Button.outline(onPressed: () {}, child: const Text('Button')),
+    Checkbox(value: true, onChanged: (_) {}),
+    Switch(value: true, onChanged: (_) {}),
+    const Slider(initialValue: 50, max: 100),
+    Select<String>(
+      options: const [SelectOption(value: 'a', child: Text('A'))],
       selectedOptionBuilder: (context, value) => Text(value),
       placeholder: const Text('Select'),
     ),
-    const ShadTabs<String>(
+    const Tabs<String>(
       value: 'a',
-      tabs: [ShadTab(value: 'a', child: Text('A'))],
+      tabs: [Tab(value: 'a', child: Text('A'))],
     ),
-    const ShadMenubar(
-      items: [ShadMenubarItem(items: [], child: Text('File'))],
+    const Menubar(
+      items: [MenubarItem(items: [], child: Text('File'))],
     ),
-    const ShadToast(title: Text('Toast')),
-    const ShadDialog(title: Text('Dialog'), child: Text('Body')),
-    const ShadBadge(child: Text('Badge')),
-    const ShadProgress(value: 0.5),
+    const Toast(title: Text('Toast')),
+    const Dialog(title: Text('Dialog'), child: Text('Body')),
+    const Badge(child: Text('Badge')),
+    const ProgressBar(value: 0.5),
   ];
 
-  for (final style in ShadStyleTokens.all) {
+  for (final style in StyleTokens.all) {
     testWidgets('${style.name} paints no shadow on a raw BoxDecoration', (
       tester,
     ) async {
@@ -51,10 +61,10 @@ void main() {
       addTearDown(tester.view.reset);
 
       await tester.pumpWidget(
-        ShadApp(
-          builder: (context, child) => ShadMaterial(child: child!),
-          theme: ShadThemeData(
-            colorScheme: const ShadSlateColorScheme.light(),
+        FinesseApp(
+          builder: (context, child) => FinesseMaterial(child: child!),
+          theme: ThemeData(
+            colorScheme: const SlateColorScheme.light(),
             style: style,
           ),
           home: Scaffold(
@@ -88,7 +98,7 @@ void main() {
       expect(
         offenders,
         isEmpty,
-        reason: 'wrap these in ShadShadowDecoration:\n${offenders.join('\n')}',
+        reason: 'wrap these in ShadowDecoration:\n${offenders.join('\n')}',
       );
     });
   }

@@ -9,14 +9,10 @@ part of 'select.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadSelectTheme {
+mixin _$SelectTheme {
   bool get canMerge => true;
 
-  static ShadSelectTheme? lerp(
-    ShadSelectTheme? a,
-    ShadSelectTheme? b,
-    double t,
-  ) {
+  static SelectTheme? lerp(SelectTheme? a, SelectTheme? b, double t) {
     if (identical(a, b)) {
       return a;
     }
@@ -29,13 +25,13 @@ mixin _$ShadSelectTheme {
       return t == 0.0 ? a : null;
     }
 
-    return ShadSelectTheme(
+    return SelectTheme(
       popoverReverseDuration: lerpDuration$(
         a.popoverReverseDuration,
         b.popoverReverseDuration,
         t,
       ),
-      decoration: ShadDecoration.lerp(a.decoration, b.decoration, t),
+      decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
       placeholderStyle: TextStyle.lerp(
         a.placeholderStyle,
         b.placeholderStyle,
@@ -65,7 +61,7 @@ mixin _$ShadSelectTheme {
       ),
       clearSearchOnClose: t < 0.5 ? a.clearSearchOnClose : b.clearSearchOnClose,
       filter: t < 0.5 ? a.filter : b.filter,
-      popoverDecoration: ShadDecoration.lerp(
+      popoverDecoration: FinesseDecoration.lerp(
         a.popoverDecoration,
         b.popoverDecoration,
         t,
@@ -75,9 +71,9 @@ mixin _$ShadSelectTheme {
     );
   }
 
-  ShadSelectTheme copyWith({
+  SelectTheme copyWith({
     Duration? popoverReverseDuration,
-    ShadDecoration? decoration,
+    FinesseDecoration? decoration,
     TextStyle? placeholderStyle,
     double? minWidth,
     double? maxWidth,
@@ -87,17 +83,17 @@ mixin _$ShadSelectTheme {
     EdgeInsetsGeometry? optionsPadding,
     bool? showScrollToTopChevron,
     bool? showScrollToBottomChevron,
-    ShadAnchorBase? anchor,
+    AnchorBase? anchor,
     EdgeInsetsGeometry? searchPadding,
     bool? clearSearchOnClose,
     ImageFilter? filter,
-    ShadDecoration? popoverDecoration,
+    FinesseDecoration? popoverDecoration,
     List<Effect<dynamic>>? effects,
     List<BoxShadow>? shadows,
   }) {
-    final _this = (this as ShadSelectTheme);
+    final _this = (this as SelectTheme);
 
-    return ShadSelectTheme(
+    return SelectTheme(
       popoverReverseDuration:
           popoverReverseDuration ?? _this.popoverReverseDuration,
       decoration: decoration ?? _this.decoration,
@@ -122,8 +118,8 @@ mixin _$ShadSelectTheme {
     );
   }
 
-  ShadSelectTheme merge(ShadSelectTheme? other) {
-    final _this = (this as ShadSelectTheme);
+  SelectTheme merge(SelectTheme? other) {
+    final _this = (this as SelectTheme);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -169,8 +165,8 @@ mixin _$ShadSelectTheme {
       return false;
     }
 
-    final _this = (this as ShadSelectTheme);
-    final _other = (other as ShadSelectTheme);
+    final _this = (this as SelectTheme);
+    final _other = (other as SelectTheme);
 
     return _other.popoverReverseDuration == _this.popoverReverseDuration &&
         _other.decoration == _this.decoration &&
@@ -194,7 +190,7 @@ mixin _$ShadSelectTheme {
 
   @override
   int get hashCode {
-    final _this = (this as ShadSelectTheme);
+    final _this = (this as SelectTheme);
 
     return Object.hash(
       runtimeType,

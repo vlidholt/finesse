@@ -1,25 +1,25 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class EmptyBasicExample extends StatelessWidget {
   const EmptyBasicExample({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ShadCard(
+    return Card(
       width: 400,
       height: 320,
       columnMainAxisSize: MainAxisSize.max,
-      child: ShadEmpty(
+      child: Empty(
         icon: const Icon(LucideIcons.inbox),
         title: const Text('No messages'),
         description: const Text('Messages you receive will show up here.'),
         actions: [
-          ShadButton.outline(
+          Button.outline(
             onPressed: () {},
             child: const Text('Refresh'),
           ),
-          ShadButton(
+          Button(
             onPressed: () {},
             child: const Text('Compose'),
           ),

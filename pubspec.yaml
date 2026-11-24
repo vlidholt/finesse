@@ -1,12 +1,12 @@
-name: shad
+name: finesse
 description: >-
   A high-fidelity Flutter port of shadcn/ui: 40+ components, all eight shadcn
   styles and 16 color schemes, with no Material or Cupertino dependency.
 version: 1.0.2
-homepage: https://shad.serverpod.dev/
-repository: https://github.com/serverpod/shad
-issue_tracker: https://github.com/serverpod/shad/issues
-documentation: https://shad.serverpod.dev/
+homepage: https://finesse.serverpod.dev/
+repository: https://github.com/serverpod/finesse
+issue_tracker: https://github.com/serverpod/finesse/issues
+documentation: https://finesse.serverpod.dev/
 topics:
   - user-interface
   - design-system
@@ -14,7 +14,7 @@ topics:
   - material-alternative
   - widgets
 screenshots:
-  - description: The shad component browser and theme editor.
+  - description: The finesse component browser and theme editor.
     path: assets/screenshot.png
 
 environment:
@@ -35,7 +35,7 @@ dependencies:
   slang_flutter: ^4.19.0
   # Not ^7.5: that needs Dart 3.13, above this package's Flutter 3.41 floor.
   theme_extensions_builder_annotation: ^7.1.0
-  # Re-exported in part: ShadTableCell extends TableViewCell.
+  # Re-exported in part: FinesseTableCell extends TableViewCell.
   two_dimensional_scrollables: ^0.5.3
   web: ^1.1.1
 

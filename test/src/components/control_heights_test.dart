@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:finesse/finesse.dart';
+import 'package:finesse/material.dart';
+import 'package:flutter/material.dart' hide IconButton, TextField, ThemeData;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/material.dart';
-import 'package:shad/shad.dart';
 
 /// The reference gives fields, select triggers and every button variant the
 /// same border-box height per style (`h-9`/`h-8`/`h-7`/`h-10`), which is what
@@ -11,16 +11,16 @@ import 'package:shad/shad.dart';
 void main() {
   testWidgets('controls share the style height on a row', (tester) async {
     for (final disableSecondaryBorder in [false, true]) {
-      for (final style in ShadStyleTokens.all) {
-        final theme = ShadThemeData(
+      for (final style in StyleTokens.all) {
+        final theme = ThemeData(
           brightness: Brightness.light,
-          colorScheme: const ShadSlateColorScheme.light(),
+          colorScheme: const SlateColorScheme.light(),
           style: style,
           disableSecondaryBorder: disableSecondaryBorder,
         );
         await tester.pumpWidget(
-          ShadApp(
-            builder: (context, child) => ShadMaterial(child: child!),
+          FinesseApp(
+            builder: (context, child) => FinesseMaterial(child: child!),
             theme: theme,
             home: Scaffold(
               // A Wrap rather than a Row: the roster is wider than the test
@@ -31,52 +31,52 @@ void main() {
                   children: [
                     const SizedBox(
                       width: 140,
-                      child: ShadInput(placeholder: Text('Email')),
+                      child: TextField(placeholder: Text('Email')),
                     ),
                     SizedBox(
                       width: 140,
-                      child: ShadSelect<String>(
+                      child: Select<String>(
                         placeholder: const Text('Pick'),
                         options: const [
-                          ShadOption(value: 'a', child: Text('A')),
+                          SelectOption(value: 'a', child: Text('A')),
                         ],
                         selectedOptionBuilder: (context, value) => Text(value),
                       ),
                     ),
-                    ShadButton(onPressed: () {}, child: const Text('Go')),
-                    ShadButton.outline(
+                    Button(onPressed: () {}, child: const Text('Go')),
+                    Button.outline(
                       onPressed: () {},
                       child: const Text('Go'),
                     ),
-                    ShadButton.secondary(
+                    Button.secondary(
                       onPressed: () {},
                       child: const Text('Go'),
                     ),
-                    ShadButton.ghost(onPressed: () {}, child: const Text('Go')),
-                    ShadToggle(
+                    Button.ghost(onPressed: () {}, child: const Text('Go')),
+                    Toggle(
                       value: false,
                       onChanged: (_) {},
                       child: const Text('Tg'),
                     ),
-                    ShadToggle.outline(
+                    Toggle.outline(
                       value: false,
                       onChanged: (_) {},
                       child: const Text('Tg'),
                     ),
-                    const ShadDatePicker(),
-                    const ShadInputOTP(
+                    const DatePicker(),
+                    const OtpField(
                       maxLength: 2,
                       children: [
-                        ShadInputOTPGroup(
-                          children: [ShadInputOTPSlot(), ShadInputOTPSlot()],
+                        OtpFieldGroup(
+                          children: [OtpFieldSlot(), OtpFieldSlot()],
                         ),
                       ],
                     ),
-                    const ShadTimePicker(),
-                    const ShadMenubar(
+                    const TimePicker(),
+                    const Menubar(
                       items: [
-                        ShadMenubarItem(
-                          items: [ShadContextMenuItem(child: Text('New'))],
+                        MenubarItem(
+                          items: [ContextMenuItem(child: Text('New'))],
                           child: Text('File'),
                         ),
                       ],
@@ -96,20 +96,20 @@ void main() {
             '${style.name} '
             '(disableSecondaryBorder: $disableSecondaryBorder)';
         final expected = style.inputHeight;
-        // `.first` — the time picker contributes ShadInputs of its own.
+        // `.first` — the time picker contributes Inputs of its own.
         expect(
-          tester.getSize(find.byType(ShadInput).first).height,
+          tester.getSize(find.byType(TextField).first).height,
           expected,
           reason: 'input height in $label',
         );
         expect(
-          tester.getSize(find.byType(ShadSelect<String>)).height,
+          tester.getSize(find.byType(Select<String>)).height,
           expected,
           reason: 'select trigger height in $label',
         );
-        // The date picker trigger is itself a ShadButton, so it is covered by
+        // The date picker trigger is itself a Button, so it is covered by
         // the loop.
-        final buttons = find.byType(ShadButton, skipOffstage: false);
+        final buttons = find.byType(Button, skipOffstage: false);
         for (var i = 0; i < 5; i++) {
           expect(
             tester.getSize(buttons.at(i)).height,
@@ -117,7 +117,7 @@ void main() {
             reason: 'button #$i height in $label',
           );
         }
-        final toggles = find.byType(ShadToggle);
+        final toggles = find.byType(Toggle);
         for (var i = 0; i < 2; i++) {
           expect(
             tester.getSize(toggles.at(i)).height,
@@ -126,7 +126,7 @@ void main() {
           );
         }
         expect(
-          tester.getSize(find.byType(ShadInputOTPSlot).first),
+          tester.getSize(find.byType(OtpFieldSlot).first),
           Size.square(style.inputHeight),
           reason: 'OTP slot size in $label',
         );
@@ -135,8 +135,8 @@ void main() {
               .getSize(
                 find
                     .descendant(
-                      of: find.byType(ShadTimePicker),
-                      matching: find.byType(ShadInput),
+                      of: find.byType(TimePicker),
+                      matching: find.byType(TextField),
                     )
                     .first,
               )
@@ -145,7 +145,7 @@ void main() {
           reason: 'time picker field height in $label',
         );
         expect(
-          tester.getSize(find.byType(ShadMenubar)).height,
+          tester.getSize(find.byType(Menubar)).height,
           style.menubarHeight,
           reason: 'menubar strip height in $label',
         );
@@ -155,22 +155,22 @@ void main() {
 
   testWidgets('calendar geometry follows the style tokens', (tester) async {
     for (final disableSecondaryBorder in [false, true]) {
-      for (final style in ShadStyleTokens.all) {
-        final theme = ShadThemeData(
+      for (final style in StyleTokens.all) {
+        final theme = ThemeData(
           brightness: Brightness.light,
-          colorScheme: const ShadSlateColorScheme.light(),
+          colorScheme: const SlateColorScheme.light(),
           style: style,
           disableSecondaryBorder: disableSecondaryBorder,
         );
         await tester.pumpWidget(
-          ShadApp(
-            builder: (context, child) => ShadMaterial(child: child!),
+          FinesseApp(
+            builder: (context, child) => FinesseMaterial(child: child!),
             theme: theme,
             home: Scaffold(
               body: Center(
-                child: ShadCalendar(
+                child: Calendar(
                   selected: DateTime(2024, 5, 15),
-                  captionLayout: ShadCalendarCaptionLayout.dropdown,
+                  captionLayout: CalendarCaptionLayout.dropdown,
                   // Single-glyph captions: the test font (Ahem) renders every
                   // glyph a full em wide, so a real month name wraps to two
                   // lines inside the trigger and inflates its height.
@@ -198,21 +198,21 @@ void main() {
         // A mid-month day cell: `size-(--cell-size)`.
         expect(
           tester.getSize(
-            find.widgetWithText(ShadButton, '15', skipOffstage: false).first,
+            find.widgetWithText(Button, '15', skipOffstage: false).first,
           ),
           Size.square(style.calendarCellSize),
           reason: 'day cell size in $label',
         );
         // The navigation chevrons share the cell size.
         expect(
-          tester.getSize(find.byType(ShadIconButton).first),
+          tester.getSize(find.byType(IconButton).first),
           Size.square(style.calendarCellSize),
           reason: 'navigation button size in $label',
         );
         // The month/year dropdown triggers take the caption height
         // (`.cn-calendar-caption-label`), not the field height.
         expect(
-          tester.getSize(find.byType(ShadSelect<int>).first).height,
+          tester.getSize(find.byType(Select<int>).first).height,
           style.calendarCaptionHeight,
           reason: 'caption dropdown trigger height in $label',
         );

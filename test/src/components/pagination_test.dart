@@ -1,12 +1,12 @@
+import 'package:finesse/material.dart';
+import 'package:finesse/src/app.dart';
+import 'package:finesse/src/components/pagination.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/material.dart';
-import 'package:shad/src/app.dart';
-import 'package:shad/src/components/pagination.dart';
 
 void main() {
-  Widget wrap(Widget child) => ShadApp(
-    builder: (context, child) => ShadMaterial(child: child!),
+  Widget wrap(Widget child) => FinesseApp(
+    builder: (context, child) => FinesseMaterial(child: child!),
     home: Scaffold(body: Center(child: child)),
   );
 
@@ -15,7 +15,7 @@ void main() {
   ) async {
     await tester.pumpWidget(
       wrap(
-        const ShadPagination(
+        const Pagination(
           page: 2,
           pageCount: 5,
           showEdges: false,
@@ -60,7 +60,7 @@ class _PaginationHarnessState extends State<_PaginationHarness> {
 
   @override
   Widget build(BuildContext context) {
-    return ShadPagination(
+    return Pagination(
       page: page,
       pageCount: 5,
       onPageChanged: (value) => setState(() => page = value),

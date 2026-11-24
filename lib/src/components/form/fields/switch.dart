@@ -1,14 +1,14 @@
+import 'package:finesse/src/components/form/field.dart';
+import 'package:finesse/src/components/switch.dart';
+import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/components/form/field.dart';
-import 'package:shad/src/components/switch.dart';
-import 'package:shad/src/theme/components/decorator.dart';
-import 'package:shad/src/theme/theme.dart';
 
-/// A [ShadSwitch] that takes part in a `ShadForm`, with a label, a
+/// A [Switch] that takes part in a `FinesseForm`, with a label, a
 /// description and validation.
-class ShadSwitchFormField extends ShadFormField<bool> {
+class SwitchFormField extends FinesseFormField<bool> {
   /// Creates a switch form field.
-  ShadSwitchFormField({
+  SwitchFormField({
     super.id,
     super.key,
     super.onSaved,
@@ -27,41 +27,41 @@ class ShadSwitchFormField extends ShadFormField<bool> {
     /// Whether the switch starts on.
     required bool initialValue,
 
-    /// {@macro ShadSwitch.decoration}
-    ShadDecoration? decoration,
+    /// {@macro Switch.decoration}
+    FinesseDecoration? decoration,
     super.focusNode,
 
     /// Returns an error message for the value, or null when it is valid.
     String? Function(bool)? validator,
 
-    /// {@macro ShadSwitch.thumbColor}
+    /// {@macro Switch.thumbColor}
     Color? thumbColor,
 
-    /// {@macro ShadSwitch.uncheckedTrackColor}
+    /// {@macro Switch.uncheckedTrackColor}
     Color? uncheckedTrackColor,
 
-    /// {@macro ShadSwitch.checkedTrackColor}
+    /// {@macro Switch.checkedTrackColor}
     Color? checkedTrackColor,
 
-    /// {@macro ShadSwitch.width}
+    /// {@macro Switch.width}
     double? width,
 
-    /// {@macro ShadSwitch.margin}
+    /// {@macro Switch.margin}
     double? margin,
 
-    /// {@macro ShadSwitch.duration}
+    /// {@macro Switch.duration}
     Duration? duration,
 
-    /// {@macro ShadSwitch.label}
+    /// {@macro Switch.label}
     Widget? inputLabel,
 
-    /// {@macro ShadSwitch.sublabel}
+    /// {@macro Switch.sublabel}
     Widget? inputSublabel,
 
-    /// {@macro ShadSwitch.padding}
+    /// {@macro Switch.padding}
     EdgeInsetsGeometry? padding,
 
-    /// {@macro ShadSwitch.direction}
+    /// {@macro Switch.direction}
     TextDirection? direction,
   }) : super(
          initialValue: initialValue,
@@ -74,13 +74,13 @@ class ShadSwitchFormField extends ShadFormField<bool> {
                  return validator(v ?? false);
                },
          decorationBuilder: (context) =>
-             (ShadTheme.of(context).switchTheme.decoration ??
-                     const ShadDecoration())
+             (Theme.of(context).switchTheme.decoration ??
+                     const FinesseDecoration())
                  .merge(decoration),
          builder: (state) {
-           state as ShadSwitchFormFieldState;
+           state as SwitchFormFieldState;
 
-           return ShadSwitch(
+           return Switch(
              value: state.value!,
              onChanged: state.didChange,
              enabled: state.enabled,
@@ -101,17 +101,17 @@ class ShadSwitchFormField extends ShadFormField<bool> {
        );
 
   @override
-  ShadFormFieldState<ShadSwitchFormField, bool> createState() =>
-      ShadSwitchFormFieldState();
+  FinesseFormFieldState<SwitchFormField, bool> createState() =>
+      SwitchFormFieldState();
 }
 
-/// The state of a [ShadSwitchFormField].
-class ShadSwitchFormFieldState
-    extends ShadFormFieldState<ShadSwitchFormField, bool> {}
+/// The state of a [SwitchFormField].
+class SwitchFormFieldState
+    extends FinesseFormFieldState<SwitchFormField, bool> {}
 
-/// The old name of [ShadSwitchFormFieldState].
+/// The old name of [SwitchFormFieldState].
 @Deprecated(
-  'Use ShadSwitchFormFieldState. '
+  'Use SwitchFormFieldState. '
   'Will be removed in the next major version.',
 )
-typedef ShadFormBuilderSwitchState = ShadSwitchFormFieldState;
+typedef FormBuilderSwitchState = SwitchFormFieldState;

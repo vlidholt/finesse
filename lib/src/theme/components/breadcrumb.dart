@@ -1,17 +1,17 @@
+import 'package:finesse/src/raw_components/portal.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/raw_components/portal.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
 part 'breadcrumb.g.theme.dart';
 
-/// {@template ShadBreadcrumbTheme}
-/// Theme for the `ShadBreadcrumb` widget.
+/// {@template BreadcrumbTheme}
+/// Theme for the `Breadcrumb` widget.
 /// {@endtemplate}
 @themeGen
 @immutable
-class ShadBreadcrumbTheme with _$ShadBreadcrumbTheme {
-  /// {@macro ShadBreadcrumbTheme}
-  const ShadBreadcrumbTheme({
+class BreadcrumbTheme with _$BreadcrumbTheme {
+  /// {@macro BreadcrumbTheme}
+  const BreadcrumbTheme({
     bool canMerge = true,
     this.separator,
     this.ellipsis,
@@ -41,71 +41,71 @@ class ShadBreadcrumbTheme with _$ShadBreadcrumbTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// The widget between items. Defaults to `ShadBreadcrumbSeparator`.
+  /// The widget between items. Defaults to `BreadcrumbSeparator`.
   final Widget? separator;
 
-  /// The widget `ShadBreadcrumbEllipsis` shows for collapsed items. Defaults
+  /// The widget `BreadcrumbEllipsis` shows for collapsed items. Defaults
   /// to Lucide's ellipsis icon at `ellipsisSize`.
   final Widget? ellipsis;
 
-  /// {@macro ShadBreadcrumb.separatorSize}
+  /// {@macro Breadcrumb.separatorSize}
   final double? separatorSize;
 
-  /// {@macro ShadBreadcrumb.separatorColor}
+  /// {@macro Breadcrumb.separatorColor}
   final Color? separatorColor;
 
-  /// {@macro ShadBreadcrumb.ellipsisSize}
+  /// {@macro Breadcrumb.ellipsisSize}
   final double? ellipsisSize;
 
-  /// {@macro ShadBreadcrumb.spacing}
+  /// {@macro Breadcrumb.spacing}
   final double? spacing;
 
-  /// {@macro ShadBreadcrumb.itemTextStyle}
+  /// {@macro Breadcrumb.itemTextStyle}
   final TextStyle? itemTextStyle;
 
-  /// {@macro ShadBreadcrumb.linkTextStyle}
+  /// {@macro Breadcrumb.linkTextStyle}
   final TextStyle? linkTextStyle;
 
-  /// {@macro ShadBreadcrumb.linkNormalTextColor}
+  /// {@macro Breadcrumb.linkNormalTextColor}
   final Color? linkNormalTextColor;
 
-  /// {@macro ShadBreadcrumb.linkHoverTextColor}
+  /// {@macro Breadcrumb.linkHoverTextColor}
   final Color? linkHoverTextColor;
 
-  /// {@macro ShadBreadcrumb.wrapAlignment}
+  /// {@macro Breadcrumb.wrapAlignment}
   final WrapAlignment? mainAxisAlignment;
 
-  /// {@macro ShadBreadcrumb.wrapCrossAxisAlignment}
+  /// {@macro Breadcrumb.wrapCrossAxisAlignment}
   final WrapCrossAlignment? crossAxisAlignment;
 
-  /// {@macro ShadBreadcrumb.dropdownMenuBackgroundColor}
+  /// {@macro Breadcrumb.dropdownMenuBackgroundColor}
   final Color? dropdownMenuBackgroundColor;
 
-  /// {@macro ShadBreadcrumb.dropdownMenuPadding}
+  /// {@macro Breadcrumb.dropdownMenuPadding}
   final EdgeInsetsGeometry? dropdownMenuPadding;
 
-  /// {@macro ShadBreadcrumb.dropdownTextStyle}
+  /// {@macro Breadcrumb.dropdownTextStyle}
   final TextStyle? dropdownTextStyle;
 
-  /// {@macro ShadBreadcrumb.dropdownItemPadding}
+  /// {@macro Breadcrumb.dropdownItemPadding}
   final EdgeInsetsGeometry? dropdownItemPadding;
 
-  /// {@macro ShadBreadcrumb.dropdownMenuAnchor}
-  final ShadAnchorBase? dropdownMenuAnchor;
+  /// {@macro Breadcrumb.dropdownMenuAnchor}
+  final AnchorBase? dropdownMenuAnchor;
 
-  /// {@macro ShadBreadcrumb.dropdownArrowGap}
+  /// {@macro Breadcrumb.dropdownArrowGap}
   final double? dropdownArrowGap;
 
-  /// {@macro ShadBreadcrumb.lastItemTextColor}
+  /// {@macro Breadcrumb.lastItemTextColor}
   final Color? lastItemTextColor;
 
-  /// {@macro ShadBreadcrumb.showDropdownArrow}
+  /// {@macro Breadcrumb.showDropdownArrow}
   final bool? showDropdownArrow;
 
   /// Linearly interpolates between [a] and [b] by [t].
-  static ShadBreadcrumbTheme? lerp(
-    ShadBreadcrumbTheme? a,
-    ShadBreadcrumbTheme? b,
+  static BreadcrumbTheme? lerp(
+    BreadcrumbTheme? a,
+    BreadcrumbTheme? b,
     double t,
-  ) => _$ShadBreadcrumbTheme.lerp(a, b, t);
+  ) => _$BreadcrumbTheme.lerp(a, b, t);
 }

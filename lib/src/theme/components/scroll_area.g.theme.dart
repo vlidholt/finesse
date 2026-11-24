@@ -9,12 +9,12 @@ part of 'scroll_area.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadScrollAreaTheme {
+mixin _$ScrollAreaTheme {
   bool get canMerge => true;
 
-  static ShadScrollAreaTheme? lerp(
-    ShadScrollAreaTheme? a,
-    ShadScrollAreaTheme? b,
+  static ScrollAreaTheme? lerp(
+    ScrollAreaTheme? a,
+    ScrollAreaTheme? b,
     double t,
   ) {
     if (identical(a, b)) {
@@ -29,7 +29,7 @@ mixin _$ShadScrollAreaTheme {
       return t == 0.0 ? a : null;
     }
 
-    return ShadScrollAreaTheme(
+    return ScrollAreaTheme(
       thickness: lerpDouble$(a.thickness, b.thickness, t),
       crossAxisMargin: lerpDouble$(a.crossAxisMargin, b.crossAxisMargin, t),
       mainAxisMargin: lerpDouble$(a.mainAxisMargin, b.mainAxisMargin, t),
@@ -41,7 +41,7 @@ mixin _$ShadScrollAreaTheme {
     );
   }
 
-  ShadScrollAreaTheme copyWith({
+  ScrollAreaTheme copyWith({
     double? thickness,
     double? crossAxisMargin,
     double? mainAxisMargin,
@@ -51,9 +51,9 @@ mixin _$ShadScrollAreaTheme {
     Duration? fadeDuration,
     Duration? timeToFade,
   }) {
-    final _this = (this as ShadScrollAreaTheme);
+    final _this = (this as ScrollAreaTheme);
 
-    return ShadScrollAreaTheme(
+    return ScrollAreaTheme(
       thickness: thickness ?? _this.thickness,
       crossAxisMargin: crossAxisMargin ?? _this.crossAxisMargin,
       mainAxisMargin: mainAxisMargin ?? _this.mainAxisMargin,
@@ -65,8 +65,8 @@ mixin _$ShadScrollAreaTheme {
     );
   }
 
-  ShadScrollAreaTheme merge(ShadScrollAreaTheme? other) {
-    final _this = (this as ShadScrollAreaTheme);
+  ScrollAreaTheme merge(ScrollAreaTheme? other) {
+    final _this = (this as ScrollAreaTheme);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -98,8 +98,8 @@ mixin _$ShadScrollAreaTheme {
       return false;
     }
 
-    final _this = (this as ShadScrollAreaTheme);
-    final _other = (other as ShadScrollAreaTheme);
+    final _this = (this as ScrollAreaTheme);
+    final _other = (other as ScrollAreaTheme);
 
     return _other.thickness == _this.thickness &&
         _other.crossAxisMargin == _this.crossAxisMargin &&
@@ -113,7 +113,7 @@ mixin _$ShadScrollAreaTheme {
 
   @override
   int get hashCode {
-    final _this = (this as ShadScrollAreaTheme);
+    final _this = (this as ScrollAreaTheme);
 
     return Object.hash(
       runtimeType,

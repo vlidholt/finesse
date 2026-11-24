@@ -1,9 +1,9 @@
 import 'package:example/docs/docs.dart';
 import 'package:example/docs/registry.dart';
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
-/// The documentation browser: a [ShadSidebar] of every doc page next to the
+/// The documentation browser: a [Sidebar] of every doc page next to the
 /// selected page.
 class ComponentsScreen extends StatefulWidget {
   const ComponentsScreen({
@@ -100,27 +100,27 @@ class ComponentsScreenState extends State<ComponentsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     final doc = selectedDoc;
 
-    return ShadSidebarScaffold(
-      sidebar: ShadSidebar(
+    return SidebarScaffold(
+      sidebar: Sidebar(
         scrollController: _sidebarScrollController,
-        header: ShadInput(
+        header: TextField(
           placeholder: const Text('Search docs'),
           leading: const Icon(LucideIcons.search),
           onChanged: (value) => setState(() => query = value),
         ),
         children: [
           for (final group in filteredGroups)
-            ShadSidebarGroup(
+            SidebarGroup(
               key: _groupKeys[group.title],
               label: Text(group.title),
               children: [
-                ShadSidebarMenu(
+                SidebarMenu(
                   children: [
                     for (final item in group.items)
-                      ShadSidebarMenuButton(
+                      SidebarMenuButton(
                         isActive: item.slug == doc.slug,
                         onPressed: () => _select(item.slug),
                         child: Text(item.title),
@@ -143,14 +143,14 @@ class ComponentsScreenState extends State<ComponentsScreen> {
             ),
             child: Row(
               children: [
-                const ShadSidebarTrigger(),
+                const SidebarTrigger(),
                 const SizedBox(width: 8),
                 const SizedBox(
                   height: 16,
-                  child: ShadSeparator.vertical(margin: EdgeInsets.zero),
+                  child: Divider.vertical(margin: EdgeInsets.zero),
                 ),
                 const SizedBox(width: 12),
-                ShadBreadcrumb(
+                Breadcrumb(
                   children: [
                     Text(selectedGroup.title, style: theme.textTheme.muted),
                     Text(doc.title),

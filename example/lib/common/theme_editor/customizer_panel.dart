@@ -1,9 +1,10 @@
 import 'package:example/common/theme_editor/editor_config.dart';
 import 'package:example/common/theme_editor/fonts.dart';
 import 'package:example/common/theme_editor/picker.dart';
-import 'package:flutter/material.dart';
+import 'package:finesse/finesse.dart';
+import 'package:flutter/material.dart'
+    hide Dialog, Divider, Theme, ThemeData, showDialog;
 import 'package:flutter/services.dart';
-import 'package:shad/shad.dart';
 
 /// shadcn/ui's `/create` customizer, as a panel docked beside the app.
 ///
@@ -35,15 +36,15 @@ class ThemeCustomizerPanel extends StatelessWidget {
   ///
   /// Built once. The factory bakes ~54 component themes, and this one never
   /// varies, so rebuilding it per panel build was pure cost.
-  static final _chrome = ShadThemeData(
+  static final _chrome = ThemeData(
     brightness: Brightness.dark,
-    colorScheme: const ShadNeutralColorScheme.dark(),
+    colorScheme: const NeutralColorScheme.dark(),
     radius: const BorderRadius.all(Radius.circular(8)),
   );
 
   @override
   Widget build(BuildContext context) {
-    return ShadThemeScope(
+    return ThemeScope(
       data: _chrome,
       child: MediaQuery(
         data: MediaQuery.of(
@@ -55,7 +56,7 @@ class ThemeCustomizerPanel extends StatelessWidget {
   }
 
   Widget _buildPanel(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -209,7 +210,7 @@ class _Settings extends StatelessWidget {
               ),
             ],
           ),
-          ThemePicker<MenuAccent>(
+          ThemePicker<EditorMenuAccent>(
             label: 'Menu Accent',
             icon: LucideIcons.highlighter,
             // A translucent menu highlights with a foreground wash, so the
@@ -217,10 +218,10 @@ class _Settings extends StatelessWidget {
             // visible, as shadcn's editor does.
             value: config.menuFinish == MenuSurfaceFinish.solid
                 ? config.menuAccent
-                : MenuAccent.subtle,
+                : EditorMenuAccent.subtle,
             enabled: config.menuFinish == MenuSurfaceFinish.solid,
             options: [
-              for (final m in MenuAccent.values)
+              for (final m in EditorMenuAccent.values)
                 PickerOption(value: m, label: m.label),
             ],
             onChanged: (v) => onChanged(config.copyWith(menuAccent: v)),
@@ -258,7 +259,7 @@ class _Actions extends StatelessWidget {
         children: [
           SizedBox(
             width: double.infinity,
-            child: ShadButton(
+            child: Button(
               onPressed: () => _copy(context, config),
               leading: const Icon(LucideIcons.clipboard),
               child: const Text('Copy Theme'),
@@ -268,14 +269,14 @@ class _Actions extends StatelessWidget {
             spacing: 8,
             children: [
               Expanded(
-                child: ShadButton.outline(
+                child: Button.outline(
                   onPressed: () => _showCode(context, config),
                   leading: const Icon(LucideIcons.code),
                   child: const Text('Code'),
                 ),
               ),
               Expanded(
-                child: ShadButton.outline(
+                child: Button.outline(
                   onPressed: () => onChanged(const ThemeEditorConfig()),
                   leading: const Icon(LucideIcons.rotateCcw),
                   child: const Text('Reset'),
@@ -291,27 +292,27 @@ class _Actions extends StatelessWidget {
   Future<void> _copy(BuildContext context, ThemeEditorConfig config) async {
     await Clipboard.setData(ClipboardData(text: config.toDartSnippet()));
     if (!context.mounted) return;
-    ShadSonner.of(context).show(
-      const ShadToast(title: Text('Theme copied to clipboard')),
+    Sonner.of(context).show(
+      const Toast(title: Text('Theme copied to clipboard')),
     );
   }
 
   void _showCode(BuildContext context, ThemeEditorConfig config) {
     final snippet = config.toDartSnippet();
-    showShadDialog<void>(
+    showDialog<void>(
       context: context,
-      builder: (context) => ShadDialog(
-        title: const Text('ShadThemeData'),
+      builder: (context) => Dialog(
+        title: const Text('ThemeData'),
         description: const Text(
-          'Paste this into your ShadApp to reproduce the preview.',
+          'Paste this into your FinesseApp to reproduce the preview.',
         ),
         semanticLabel: 'Generated theme code',
         actions: [
-          ShadButton.outline(
+          Button.outline(
             onPressed: () => Navigator.of(context).pop(),
             child: const Text('Close'),
           ),
-          ShadButton(
+          Button(
             onPressed: () async {
               await Clipboard.setData(ClipboardData(text: snippet));
               if (context.mounted) Navigator.of(context).pop();
@@ -325,7 +326,7 @@ class _Actions extends StatelessWidget {
           child: SingleChildScrollView(
             child: SelectableText(
               snippet,
-              style: ShadTheme.of(context).textTheme.small.copyWith(
+              style: Theme.of(context).textTheme.small.copyWith(
                 fontFamily: 'JetBrainsMono',
               ),
             ),
@@ -341,7 +342,7 @@ class _Separator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const ShadSeparator.horizontal(
+    return const Divider.horizontal(
       margin: EdgeInsets.symmetric(vertical: 2),
     );
   }

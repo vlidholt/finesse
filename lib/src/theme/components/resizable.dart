@@ -1,17 +1,17 @@
+import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/components/decorator.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
 part 'resizable.g.theme.dart';
 
-/// {@template ShadResizableTheme}
-/// Theme for the `ShadResizablePanelGroup` widget.
+/// {@template ResizableTheme}
+/// Theme for the `ResizablePanelGroup` widget.
 /// {@endtemplate}
 @themeGen
 @immutable
-class ShadResizableTheme with _$ShadResizableTheme {
-  /// {@macro ShadResizableTheme}
-  const ShadResizableTheme({
+class ResizableTheme with _$ResizableTheme {
+  /// {@macro ResizableTheme}
+  const ResizableTheme({
     bool canMerge = true,
     this.mainAxisAlignment,
     this.crossAxisAlignment,
@@ -35,52 +35,52 @@ class ShadResizableTheme with _$ShadResizableTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro ShadResizablePanelGroup.mainAxisAlignment}
+  /// {@macro ResizablePanelGroup.mainAxisAlignment}
   final MainAxisAlignment? mainAxisAlignment;
 
-  /// {@macro ShadResizablePanelGroup.crossAxisAlignment}
+  /// {@macro ResizablePanelGroup.crossAxisAlignment}
   final CrossAxisAlignment? crossAxisAlignment;
 
-  /// {@macro ShadResizablePanelGroup.mainAxisSize}
+  /// {@macro ResizablePanelGroup.mainAxisSize}
   final MainAxisSize? mainAxisSize;
 
-  /// {@macro ShadResizablePanelGroup.textDirection}
+  /// {@macro ResizablePanelGroup.textDirection}
   final TextDirection? textDirection;
 
-  /// {@macro ShadResizablePanelGroup.verticalDirection}
+  /// {@macro ResizablePanelGroup.verticalDirection}
   final VerticalDirection? verticalDirection;
 
-  /// {@macro ShadResizablePanelGroup.showHandle}
+  /// {@macro ResizablePanelGroup.showHandle}
   final bool? showHandle;
 
-  /// {@macro ShadResizablePanelGroup.handleIconData}
+  /// {@macro ResizablePanelGroup.handleIconData}
   final IconData? handleIconData;
 
-  /// {@macro ShadResizablePanelGroup.dividerSize}
+  /// {@macro ResizablePanelGroup.dividerSize}
   final double? dividerSize;
 
-  /// {@macro ShadResizablePanelGroup.resetOnDoubleTap}
+  /// {@macro ResizablePanelGroup.resetOnDoubleTap}
   final bool? resetOnDoubleTap;
 
-  /// {@macro ShadResizablePanelGroup.handleDecoration}
-  final ShadDecoration? handleDecoration;
+  /// {@macro ResizablePanelGroup.handleDecoration}
+  final FinesseDecoration? handleDecoration;
 
-  /// {@macro ShadResizablePanelGroup.handlePadding}
+  /// {@macro ResizablePanelGroup.handlePadding}
   final EdgeInsetsGeometry? handlePadding;
 
-  /// {@macro ShadResizablePanelGroup.handleSize}
+  /// {@macro ResizablePanelGroup.handleSize}
   final double? handleSize;
 
-  /// {@macro ShadResizablePanelGroup.dividerThickness}
+  /// {@macro ResizablePanelGroup.dividerThickness}
   final double? dividerThickness;
 
-  /// {@macro ShadResizablePanelGroup.dividerColor}
+  /// {@macro ResizablePanelGroup.dividerColor}
   final Color? dividerColor;
 
   /// Linearly interpolates between [a] and [b] by [t].
-  static ShadResizableTheme? lerp(
-    ShadResizableTheme? a,
-    ShadResizableTheme? b,
+  static ResizableTheme? lerp(
+    ResizableTheme? a,
+    ResizableTheme? b,
     double t,
-  ) => _$ShadResizableTheme.lerp(a, b, t);
+  ) => _$ResizableTheme.lerp(a, b, t);
 }

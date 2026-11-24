@@ -1,20 +1,21 @@
-import 'package:flutter/material.dart';
+import 'package:finesse/material.dart';
+import 'package:finesse/src/app.dart';
+import 'package:finesse/src/components/button.dart';
+import 'package:finesse/src/components/card.dart';
+import 'package:finesse/src/components/form/fields/text_field.dart';
+import 'package:finesse/src/components/tabs.dart';
+import 'package:finesse/src/theme/color_scheme/green.dart';
+import 'package:finesse/src/theme/components/tabs.dart';
+import 'package:finesse/src/theme/data.dart';
+import 'package:flutter/material.dart'
+    hide Card, Tab, TextFormField, Theme, ThemeData;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/material.dart';
-import 'package:shad/src/app.dart';
-import 'package:shad/src/components/button.dart';
-import 'package:shad/src/components/card.dart';
-import 'package:shad/src/components/form/fields/input.dart';
-import 'package:shad/src/components/tabs.dart';
-import 'package:shad/src/theme/color_scheme/green.dart';
-import 'package:shad/src/theme/components/tabs.dart';
-import 'package:shad/src/theme/data.dart';
 
 void main() {
-  // Helper method to create a test widget wrapped in ShadApp and Scaffold
+  // Helper method to create a test widget wrapped in FinesseApp and Scaffold
   Widget createTestWidget(Widget child) {
-    return ShadApp(
-      builder: (context, child) => ShadMaterial(child: child!),
+    return FinesseApp(
+      builder: (context, child) => FinesseMaterial(child: child!),
       home: Scaffold(body: child),
     );
   }
@@ -23,44 +24,44 @@ void main() {
     ({Color selected, Color unselected})? themeForegroundColor,
     ({Color selected, Color unselected})? tabForegroundColor,
   }) {
-    return ShadApp(
-      builder: (context, child) => ShadMaterial(child: child!),
-      theme: ShadThemeData(
-        colorScheme: const ShadGreenColorScheme.light(),
+    return FinesseApp(
+      builder: (context, child) => FinesseMaterial(child: child!),
+      theme: ThemeData(
+        colorScheme: const GreenColorScheme.light(),
         brightness: Brightness.light,
         tabsTheme: themeForegroundColor == null
             ? null
-            : ShadTabsTheme(
+            : TabsTheme(
                 tabSelectedForegroundColor: themeForegroundColor.selected,
                 tabForegroundColor: themeForegroundColor.unselected,
               ),
       ),
       home: Scaffold(
-        body: ShadTabs<String>(
+        body: Tabs<String>(
           value: 'account',
           tabBarConstraints: const BoxConstraints(maxWidth: 400),
           contentConstraints: const BoxConstraints(maxWidth: 400),
           tabs: [
-            ShadTab(
+            Tab(
               value: 'account',
               foregroundColor: tabForegroundColor?.unselected,
               selectedForegroundColor: tabForegroundColor?.selected,
-              content: ShadCard(
+              content: Card(
                 title: const Text('Account'),
                 description: const Text(
                   """Make changes to your account here. Click save when you're done.""",
                 ),
-                footer: const ShadButton(child: Text('Save changes')),
+                footer: const Button(child: Text('Save changes')),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const SizedBox(height: 16),
-                    ShadInputFormField(
+                    TextFormField(
                       label: const Text('Name'),
                       initialValue: 'Ale',
                     ),
                     const SizedBox(height: 8),
-                    ShadInputFormField(
+                    TextFormField(
                       label: const Text('Username'),
                       initialValue: 'nank1ro',
                     ),
@@ -70,25 +71,25 @@ void main() {
               ),
               child: const Text('AccountTab'),
             ),
-            ShadTab(
+            Tab(
               value: 'password',
               foregroundColor: tabForegroundColor?.unselected,
               selectedForegroundColor: tabForegroundColor?.selected,
-              content: ShadCard(
+              content: Card(
                 title: const Text('Password'),
                 description: const Text(
                   """Change your password here. After saving, you'll be logged out.""",
                 ),
-                footer: const ShadButton(child: Text('Save password')),
+                footer: const Button(child: Text('Save password')),
                 child: Column(
                   children: [
                     const SizedBox(height: 16),
-                    ShadInputFormField(
+                    TextFormField(
                       label: const Text('Current password'),
                       obscureText: true,
                     ),
                     const SizedBox(height: 8),
-                    ShadInputFormField(
+                    TextFormField(
                       label: const Text('New password'),
                       obscureText: true,
                     ),
@@ -104,33 +105,33 @@ void main() {
     );
   }
 
-  group('ShadTabs', () {
-    testWidgets('ShadTabs matches goldens', (tester) async {
+  group('Tabs', () {
+    testWidgets('Tabs matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          ShadTabs<String>(
+          Tabs<String>(
             value: 'account',
             tabBarConstraints: const BoxConstraints(maxWidth: 400),
             contentConstraints: const BoxConstraints(maxWidth: 400),
             tabs: [
-              ShadTab(
+              Tab(
                 value: 'account',
-                content: ShadCard(
+                content: Card(
                   title: const Text('Account'),
                   description: const Text(
                     """Make changes to your account here. Click save when you're done.""",
                   ),
-                  footer: const ShadButton(child: Text('Save changes')),
+                  footer: const Button(child: Text('Save changes')),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const SizedBox(height: 16),
-                      ShadInputFormField(
+                      TextFormField(
                         label: const Text('Name'),
                         initialValue: 'Ale',
                       ),
                       const SizedBox(height: 8),
-                      ShadInputFormField(
+                      TextFormField(
                         label: const Text('Username'),
                         initialValue: 'nank1ro',
                       ),
@@ -140,23 +141,23 @@ void main() {
                 ),
                 child: const Text('Account'),
               ),
-              ShadTab(
+              Tab(
                 value: 'password',
-                content: ShadCard(
+                content: Card(
                   title: const Text('Password'),
                   description: const Text(
                     """Change your password here. After saving, you'll be logged out.""",
                   ),
-                  footer: const ShadButton(child: Text('Save password')),
+                  footer: const Button(child: Text('Save password')),
                   child: Column(
                     children: [
                       const SizedBox(height: 16),
-                      ShadInputFormField(
+                      TextFormField(
                         label: const Text('Current password'),
                         obscureText: true,
                       ),
                       const SizedBox(height: 8),
-                      ShadInputFormField(
+                      TextFormField(
                         label: const Text('New password'),
                         obscureText: true,
                       ),
@@ -172,14 +173,14 @@ void main() {
       );
 
       await expectLater(
-        find.byType(ShadTabs<String>),
+        find.byType(Tabs<String>),
         matchesGoldenFile('goldens/tabs.png'),
       );
       await tester.pumpAndSettle();
     });
 
-    testWidgets('ShadTab applies the correct color to the button when provided '
-        'from ShadTab', (tester) async {
+    testWidgets('Tab applies the correct color to the button when provided '
+        'from Tab', (tester) async {
       const redColor = Color(0xFFFF0000);
       const blueColor = Color(0xFF0000FF);
       await tester.pumpWidget(
@@ -201,8 +202,8 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('ShadTab applies the correct color to the button when provided '
-        'from ShadTheme', (tester) async {
+    testWidgets('Tab applies the correct color to the button when provided '
+        'from Theme', (tester) async {
       const redColor = Color(0xFFFF0000);
       const blueColor = Color(0xFF0000FF);
       await tester.pumpWidget(
@@ -224,7 +225,7 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('ShadTab provided color overrides ShadTheme color', (
+    testWidgets('Tab provided color overrides Theme color', (
       tester,
     ) async {
       const redColor = Color(0xFFFF0000);

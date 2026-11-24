@@ -1,6 +1,6 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/shad.dart';
 
 /// The placeholder used to be driven by a ValueListenableBuilder wrapped
 /// around the whole field, so every keystroke — and every cursor move, since
@@ -9,22 +9,22 @@ import 'package:shad/shad.dart';
 /// It is now driven by a derived notifier scoped to the placeholder alone.
 /// These tests pin the visible behaviour that refactor had to preserve.
 void main() {
-  Widget wrap(Widget child) => ShadApp(home: child);
+  Widget wrap(Widget child) => FinesseApp(home: child);
 
   testWidgets('placeholder shows when empty and hides once text is typed', (
     tester,
   ) async {
     await tester.pumpWidget(
-      wrap(const ShadInput(placeholder: Text('Email'))),
+      wrap(const TextField(placeholder: Text('Email'))),
     );
 
     expect(find.text('Email'), findsOneWidget);
 
-    await tester.enterText(find.byType(ShadInput), 'a');
+    await tester.enterText(find.byType(TextField), 'a');
     await tester.pump();
     expect(find.text('Email'), findsNothing);
 
-    await tester.enterText(find.byType(ShadInput), '');
+    await tester.enterText(find.byType(TextField), '');
     await tester.pump();
     expect(find.text('Email'), findsOneWidget);
   });
@@ -34,7 +34,7 @@ void main() {
   ) async {
     await tester.pumpWidget(
       wrap(
-        const ShadInput(initialValue: 'hello', placeholder: Text('Email')),
+        const TextField(initialValue: 'hello', placeholder: Text('Email')),
       ),
     );
 
@@ -47,7 +47,7 @@ void main() {
 
     await tester.pumpWidget(
       wrap(
-        ShadInput(controller: controller, placeholder: const Text('Email')),
+        TextField(controller: controller, placeholder: const Text('Email')),
       ),
     );
     expect(find.text('Email'), findsOneWidget);
@@ -68,12 +68,12 @@ void main() {
     addTearDown(second.dispose);
 
     await tester.pumpWidget(
-      wrap(ShadInput(controller: first, placeholder: const Text('Email'))),
+      wrap(TextField(controller: first, placeholder: const Text('Email'))),
     );
     expect(find.text('Email'), findsNothing);
 
     await tester.pumpWidget(
-      wrap(ShadInput(controller: second, placeholder: const Text('Email'))),
+      wrap(TextField(controller: second, placeholder: const Text('Email'))),
     );
     expect(find.text('Email'), findsOneWidget);
 
@@ -91,7 +91,7 @@ void main() {
 
     await tester.pumpWidget(
       wrap(
-        ShadInput(controller: controller, placeholder: const Text('Email')),
+        TextField(controller: controller, placeholder: const Text('Email')),
       ),
     );
     expect(find.text('Email'), findsNothing);

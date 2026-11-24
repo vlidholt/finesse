@@ -2,12 +2,12 @@
 @TestOn('browser')
 library;
 
+import 'package:finesse/finesse.dart';
+import 'package:finesse/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/material.dart';
-import 'package:shad/shad.dart';
 
 void main() {
   testWidgets(
@@ -39,12 +39,12 @@ void main() {
       );
 
       await tester.pumpWidget(
-        ShadApp(
-          builder: (context, child) => ShadMaterial(child: child!),
+        FinesseApp(
+          builder: (context, child) => FinesseMaterial(child: child!),
           home: const Scaffold(
-            body: ShadContextMenuRegion(
+            body: ContextMenuRegion(
               items: [
-                ShadContextMenuItem(child: Text('Copy')),
+                ContextMenuItem(child: Text('Copy')),
               ],
               child: SizedBox(
                 key: Key('region'),

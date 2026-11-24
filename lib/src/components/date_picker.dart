@@ -1,24 +1,24 @@
 import 'dart:ui';
 
+import 'package:finesse/src/components/button.dart';
+import 'package:finesse/src/components/calendar.dart';
+import 'package:finesse/src/components/popover.dart';
+import 'package:finesse/src/i18n/localizations_delegate.dart';
+import 'package:finesse/src/raw_components/portal.dart';
+import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/extensions/date_time.dart';
+import 'package:finesse/src/utils/extensions/text_style.dart';
+import 'package:finesse/src/utils/gesture_detector.dart';
+import 'package:finesse/src/utils/states_controller.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:shad/src/components/button.dart';
-import 'package:shad/src/components/calendar.dart';
-import 'package:shad/src/components/popover.dart';
-import 'package:shad/src/i18n/localizations_delegate.dart';
-import 'package:shad/src/raw_components/portal.dart';
-import 'package:shad/src/theme/components/decorator.dart';
-import 'package:shad/src/theme/theme.dart';
-import 'package:shad/src/utils/extensions/date_time.dart';
-import 'package:shad/src/utils/extensions/text_style.dart';
-import 'package:shad/src/utils/gesture_detector.dart';
-import 'package:shad/src/utils/states_controller.dart';
 
-/// Variants available for the [ShadDatePicker] widget.
-enum ShadDatePickerVariant {
+/// Variants available for the [DatePicker] widget.
+enum DatePickerVariant {
   /// Picks one date.
   single,
 
@@ -28,15 +28,15 @@ enum ShadDatePickerVariant {
 
 /// A customizable date picker widget with a button and popover calendar.
 ///
-/// The [ShadDatePicker] widget combines a button with a popover calendar,
+/// The [DatePicker] widget combines a button with a popover calendar,
 /// allowing users to select a single date or a date range. It supports
 /// extensive customization for both the button and calendar, integrating with
-/// [ShadTheme] for consistent styling. Use named constructors like
-/// [ShadDatePicker.range] for range selection or [ShadDatePicker.raw] for full
+/// [Theme] for consistent styling. Use named constructors like
+/// [DatePicker.range] for range selection or [DatePicker.raw] for full
 /// control.
-class ShadDatePicker extends StatefulWidget {
+class DatePicker extends StatefulWidget {
   /// Creates a single-date picker widget with a button and popover calendar.
-  const ShadDatePicker({
+  const DatePicker({
     super.key,
     this.placeholder,
     this.popoverController,
@@ -52,7 +52,7 @@ class ShadDatePicker extends StatefulWidget {
     this.multipleSelected,
     this.onChanged,
     @Deprecated(
-      'ShadDatePicker has no multiple-selection mode, so this is never '
+      'DatePicker has no multiple-selection mode, so this is never '
       'called. Will be removed in the next major version.',
     )
     this.onMultipleChanged,
@@ -117,12 +117,12 @@ class ShadDatePicker extends StatefulWidget {
     this.gridCrossAxisSpacing,
     this.dayButtonOutsideMonthTextStyle,
     this.dayButtonOutsideMonthVariant,
-    ShadButtonVariant? selectedDayButtonOutsideMonthVariant,
+    ButtonVariant? selectedDayButtonOutsideMonthVariant,
     @Deprecated(
       'Use selectedDayButtonOutsideMonthVariant. '
       'Will be removed in the next major version.',
     )
-    ShadButtonVariant? selectedDayButtonOusideMonthVariant,
+    ButtonVariant? selectedDayButtonOusideMonthVariant,
     this.closeOnTapOutside = true,
     this.focusNode,
     this.anchor,
@@ -187,16 +187,16 @@ class ShadDatePicker extends StatefulWidget {
   }) : selectedDayButtonOutsideMonthVariant =
            selectedDayButtonOutsideMonthVariant ??
            selectedDayButtonOusideMonthVariant,
-       variant = ShadDatePickerVariant.single,
+       variant = DatePickerVariant.single,
        formatDateRange = null,
        selectedRange = null;
 
   /// Creates a date range picker widget with a button and popover calendar.
-  const ShadDatePicker.range({
+  const DatePicker.range({
     super.key,
     this.popoverController,
     this.placeholder,
-    ShadDateTimeRange? selected,
+    DateTimeRange? selected,
     this.formatDateRange,
     this.closeOnSelection,
     this.allowDeselection,
@@ -208,7 +208,7 @@ class ShadDatePicker extends StatefulWidget {
     this.multipleSelected,
     this.onChanged,
     @Deprecated(
-      'ShadDatePicker has no multiple-selection mode, so this is never '
+      'DatePicker has no multiple-selection mode, so this is never '
       'called. Will be removed in the next major version.',
     )
     this.onMultipleChanged,
@@ -273,12 +273,12 @@ class ShadDatePicker extends StatefulWidget {
     this.gridCrossAxisSpacing,
     this.dayButtonOutsideMonthTextStyle,
     this.dayButtonOutsideMonthVariant,
-    ShadButtonVariant? selectedDayButtonOutsideMonthVariant,
+    ButtonVariant? selectedDayButtonOutsideMonthVariant,
     @Deprecated(
       'Use selectedDayButtonOutsideMonthVariant. '
       'Will be removed in the next major version.',
     )
-    ShadButtonVariant? selectedDayButtonOusideMonthVariant,
+    ButtonVariant? selectedDayButtonOusideMonthVariant,
     this.closeOnTapOutside = true,
     this.focusNode,
     this.anchor,
@@ -343,14 +343,14 @@ class ShadDatePicker extends StatefulWidget {
   }) : selectedDayButtonOutsideMonthVariant =
            selectedDayButtonOutsideMonthVariant ??
            selectedDayButtonOusideMonthVariant,
-       variant = ShadDatePickerVariant.range,
+       variant = DatePickerVariant.range,
        selected = null,
        formatDate = null,
        selectedRange = selected;
 
   /// Creates a date picker widget with a specified [variant], offering full
   /// customization.
-  const ShadDatePicker.raw({
+  const DatePicker.raw({
     super.key,
     required this.variant,
     this.popoverController,
@@ -367,7 +367,7 @@ class ShadDatePicker extends StatefulWidget {
     this.multipleSelected,
     this.onChanged,
     @Deprecated(
-      'ShadDatePicker has no multiple-selection mode, so this is never '
+      'DatePicker has no multiple-selection mode, so this is never '
       'called. Will be removed in the next major version.',
     )
     this.onMultipleChanged,
@@ -432,12 +432,12 @@ class ShadDatePicker extends StatefulWidget {
     this.gridCrossAxisSpacing,
     this.dayButtonOutsideMonthTextStyle,
     this.dayButtonOutsideMonthVariant,
-    ShadButtonVariant? selectedDayButtonOutsideMonthVariant,
+    ButtonVariant? selectedDayButtonOutsideMonthVariant,
     @Deprecated(
       'Use selectedDayButtonOutsideMonthVariant. '
       'Will be removed in the next major version.',
     )
-    ShadButtonVariant? selectedDayButtonOusideMonthVariant,
+    ButtonVariant? selectedDayButtonOusideMonthVariant,
     this.closeOnTapOutside = true,
     this.focusNode,
     this.anchor,
@@ -505,498 +505,498 @@ class ShadDatePicker extends StatefulWidget {
            selectedDayButtonOutsideMonthVariant ??
            selectedDayButtonOusideMonthVariant;
 
-  /// {@template ShadDatePicker.placeholder}
+  /// {@template DatePicker.placeholder}
   /// The placeholder of the date picker, shown when no date is selected.
   /// {@endtemplate}
   final Widget? placeholder;
 
-  /// {@template ShadDatePicker.popoverController}
-  /// The [ShadPopoverController] to use.
+  /// {@template DatePicker.popoverController}
+  /// The [PopoverController] to use.
   /// {@endtemplate}
-  final ShadPopoverController? popoverController;
+  final PopoverController? popoverController;
 
-  /// {@template ShadDatePicker.selected}
+  /// {@template DatePicker.selected}
   /// The selected date, defaults to `null`.
   /// {@endtemplate}
   final DateTime? selected;
 
-  /// {@template ShadDatePicker.selectedRange}
+  /// {@template DatePicker.selectedRange}
   /// The selected range, defaults to `null`.
   /// {@endtemplate}
-  final ShadDateTimeRange? selectedRange;
+  final DateTimeRange? selectedRange;
 
-  /// {@template ShadDatePicker.closeOnSelection}
+  /// {@template DatePicker.closeOnSelection}
   /// Whether to close the popover when a date is selected.
   /// Defaults to `true`.
   /// {@endtemplate}
   final bool? closeOnSelection;
 
-  /// {@template ShadDatePicker.formatDate}
+  /// {@template DatePicker.formatDate}
   /// A function that formats the selected date.
   /// {@endtemplate}
   final String Function(DateTime)? formatDate;
 
-  /// {@template ShadDatePicker.formatDateRange}
+  /// {@template DatePicker.formatDateRange}
   /// A function that formats the selected date range.
   /// {@endtemplate}
-  final String Function(ShadDateTimeRange)? formatDateRange;
+  final String Function(DateTimeRange)? formatDateRange;
 
-  /// {@template ShadDatePicker.allowDeselection}
+  /// {@template DatePicker.allowDeselection}
   /// Whether to allow deselection of the selected date.
   /// {@endtemplate}
   final bool? allowDeselection;
 
-  /// {@template ShadDatePicker.variant}
+  /// {@template DatePicker.variant}
   /// The variant of the date picker.
   /// {@endtemplate}
-  final ShadDatePickerVariant variant;
+  final DatePickerVariant variant;
 
-  /// {@template ShadDatePicker.header}
+  /// {@template DatePicker.header}
   /// The header of the date picker.
   /// {@endtemplate}
   final Widget? header;
 
-  /// {@template ShadDatePicker.footer}
+  /// {@template DatePicker.footer}
   /// The footer of the date picker.
   /// {@endtemplate}
   final Widget? footer;
 
-  /// {@macro ShadPopover.groupId}
+  /// {@macro Popover.groupId}
   final Object? groupId;
 
-  /// {@template ShadDatePicker.calendarDecoration}
+  /// {@template DatePicker.calendarDecoration}
   /// The decoration of the calendar.
-  /// Defaults to `ShadDecoration.none`.
+  /// Defaults to `FinesseDecoration.none`.
   /// {@endtemplate}
-  final ShadDecoration? calendarDecoration;
+  final FinesseDecoration? calendarDecoration;
 
-  /// {@macro ShadPopover.padding}
+  /// {@macro Popover.padding}
   final EdgeInsetsGeometry? popoverPadding;
 
-  /// {@macro ShadCalendar.multipleSelected}
+  /// {@macro Calendar.multipleSelected}
   final List<DateTime>? multipleSelected;
 
-  /// {@macro ShadCalendar.onChanged}
+  /// {@macro Calendar.onChanged}
   final ValueChanged<DateTime?>? onChanged;
 
-  /// Never called: [ShadDatePicker] has no multiple-selection mode.
+  /// Never called: [DatePicker] has no multiple-selection mode.
   @Deprecated(
-    'ShadDatePicker has no multiple-selection mode, so this is never called. '
+    'DatePicker has no multiple-selection mode, so this is never called. '
     'Will be removed in the next major version.',
   )
   final ValueChanged<List<DateTime>>? onMultipleChanged;
 
-  /// {@macro ShadCalendar.showOutsideDays}
+  /// {@macro Calendar.showOutsideDays}
   final bool? showOutsideDays;
 
-  /// {@macro ShadCalendar.initialMonth}
+  /// {@macro Calendar.initialMonth}
   final DateTime? initialMonth;
 
-  /// {@macro ShadCalendar.formatMonthYear}
+  /// {@macro Calendar.formatMonthYear}
   final String Function(DateTime date)? formatMonthYear;
 
-  /// {@macro ShadCalendar.formatMonth}
+  /// {@macro Calendar.formatMonth}
   final String Function(DateTime date)? formatMonth;
 
-  /// {@macro ShadCalendar.formatYear}
+  /// {@macro Calendar.formatYear}
   final String Function(DateTime date)? formatYear;
 
-  /// {@macro ShadCalendar.formatWeekday}
+  /// {@macro Calendar.formatWeekday}
   final String Function(DateTime date)? formatWeekday;
 
-  /// {@macro ShadCalendar.showWeekNumbers}
+  /// {@macro Calendar.showWeekNumbers}
   final bool? showWeekNumbers;
 
-  /// {@macro ShadCalendar.weekStartsOn}
+  /// {@macro Calendar.weekStartsOn}
   final int? weekStartsOn;
 
-  /// {@macro ShadCalendar.fixedWeeks}
+  /// {@macro Calendar.fixedWeeks}
   final bool? fixedWeeks;
 
-  /// {@macro ShadCalendar.hideWeekdayNames}
+  /// {@macro Calendar.hideWeekdayNames}
   final bool? hideWeekdayNames;
 
-  /// {@macro ShadCalendar.numberOfMonths}
+  /// {@macro Calendar.numberOfMonths}
   final int numberOfMonths;
 
-  /// {@macro ShadCalendar.fromMonth}
+  /// {@macro Calendar.fromMonth}
   final DateTime? fromMonth;
 
-  /// {@macro ShadCalendar.toMonth}
+  /// {@macro Calendar.toMonth}
   final DateTime? toMonth;
 
-  /// {@macro ShadCalendar.onMonthChanged}
+  /// {@macro Calendar.onMonthChanged}
   final ValueChanged<DateTime>? onMonthChanged;
 
-  /// {@macro ShadCalendar.reverseMonths}
+  /// {@macro Calendar.reverseMonths}
   final bool reverseMonths;
 
-  /// {@macro ShadCalendar.min}
+  /// {@macro Calendar.min}
   final int? min;
 
-  /// {@macro ShadCalendar.max}
+  /// {@macro Calendar.max}
   final int? max;
 
-  /// {@macro ShadCalendar.selectableDayPredicate}
+  /// {@macro Calendar.selectableDayPredicate}
   final bool Function(DateTime day)? selectableDayPredicate;
 
-  /// {@macro ShadCalendar.onRangeChanged}
-  final ValueChanged<ShadDateTimeRange?>? onRangeChanged;
+  /// {@macro Calendar.onRangeChanged}
+  final ValueChanged<DateTimeRange?>? onRangeChanged;
 
-  /// {@macro ShadCalendar.captionLayout}
-  final ShadCalendarCaptionLayout? captionLayout;
+  /// {@macro Calendar.captionLayout}
+  final CalendarCaptionLayout? captionLayout;
 
-  /// {@macro ShadCalendar.hideNavigation}
+  /// {@macro Calendar.hideNavigation}
   final bool? hideNavigation;
 
-  /// {@macro ShadCalendar.yearSelectorMinWidth}
+  /// {@macro Calendar.yearSelectorMinWidth}
   final double? yearSelectorMinWidth;
 
-  /// {@macro ShadCalendar.monthSelectorMinWidth}
+  /// {@macro Calendar.monthSelectorMinWidth}
   final double? monthSelectorMinWidth;
 
-  /// {@macro ShadCalendar.yearSelectorPadding}
+  /// {@macro Calendar.yearSelectorPadding}
   final EdgeInsetsGeometry? yearSelectorPadding;
 
-  /// {@macro ShadCalendar.monthSelectorPadding}
+  /// {@macro Calendar.monthSelectorPadding}
   final EdgeInsetsGeometry? monthSelectorPadding;
 
-  /// {@macro ShadCalendar.navigationButtonSize}
+  /// {@macro Calendar.navigationButtonSize}
   final double? navigationButtonSize;
 
-  /// {@macro ShadCalendar.navigationButtonIconSize}
+  /// {@macro Calendar.navigationButtonIconSize}
   final double? navigationButtonIconSize;
 
-  /// {@macro ShadCalendar.backNavigationButtonIconData}
+  /// {@macro Calendar.backNavigationButtonIconData}
   final IconData? backNavigationButtonIconData;
 
-  /// {@macro ShadCalendar.forwardNavigationButtonIconData}
+  /// {@macro Calendar.forwardNavigationButtonIconData}
   final IconData? forwardNavigationButtonIconData;
 
-  /// {@macro ShadCalendar.navigationButtonPadding}
+  /// {@macro Calendar.navigationButtonPadding}
   final EdgeInsetsGeometry? navigationButtonPadding;
 
-  /// {@macro ShadCalendar.navigationButtonDisabledOpacity}
+  /// {@macro Calendar.navigationButtonDisabledOpacity}
   final double? navigationButtonDisabledOpacity;
 
-  /// {@macro ShadCalendar.decoration}
-  final ShadDecoration? decoration;
+  /// {@macro Calendar.decoration}
+  final FinesseDecoration? decoration;
 
-  /// {@macro ShadCalendar.spacingBetweenMonths}
+  /// {@macro Calendar.spacingBetweenMonths}
   final double? spacingBetweenMonths;
 
-  /// {@macro ShadCalendar.runSpacingBetweenMonths}
+  /// {@macro Calendar.runSpacingBetweenMonths}
   final double? runSpacingBetweenMonths;
 
-  /// {@macro ShadCalendar.monthConstraints}
+  /// {@macro Calendar.monthConstraints}
   final BoxConstraints? monthConstraints;
 
-  /// {@macro ShadCalendar.headerHeight}
+  /// {@macro Calendar.headerHeight}
   final double? calendarHeaderHeight;
 
-  /// {@macro ShadCalendar.headerPadding}
+  /// {@macro Calendar.headerPadding}
   final EdgeInsetsGeometry? calendarHeaderPadding;
 
-  /// {@macro ShadCalendar.captionLayoutGap}
+  /// {@macro Calendar.captionLayoutGap}
   final double? captionLayoutGap;
 
-  /// {@macro ShadCalendar.headerTextStyle}
+  /// {@macro Calendar.headerTextStyle}
   final TextStyle? calendarHeaderTextStyle;
 
-  /// {@macro ShadCalendar.weekdaysPadding}
+  /// {@macro Calendar.weekdaysPadding}
   final EdgeInsetsGeometry? weekdaysPadding;
 
-  /// {@macro ShadCalendar.weekdaysTextStyle}
+  /// {@macro Calendar.weekdaysTextStyle}
   final TextStyle? weekdaysTextStyle;
 
-  /// {@macro ShadCalendar.weekdaysTextAlign}
+  /// {@macro Calendar.weekdaysTextAlign}
   final TextAlign? weekdaysTextAlign;
 
-  /// {@macro ShadCalendar.weekNumbersHeaderText}
+  /// {@macro Calendar.weekNumbersHeaderText}
   final String? weekNumbersHeaderText;
 
-  /// {@macro ShadCalendar.weekNumbersHeaderTextStyle}
+  /// {@macro Calendar.weekNumbersHeaderTextStyle}
   final TextStyle? weekNumbersHeaderTextStyle;
 
-  /// {@macro ShadCalendar.weekNumbersTextStyle}
+  /// {@macro Calendar.weekNumbersTextStyle}
   final TextStyle? weekNumbersTextStyle;
 
-  /// {@macro ShadCalendar.weekNumbersTextAlign}
+  /// {@macro Calendar.weekNumbersTextAlign}
   final TextAlign? weekNumbersTextAlign;
 
-  /// {@macro ShadCalendar.dayButtonSize}
+  /// {@macro Calendar.dayButtonSize}
   final double? dayButtonSize;
 
-  /// {@macro ShadCalendar.dayButtonOutsideMonthOpacity}
+  /// {@macro Calendar.dayButtonOutsideMonthOpacity}
   final double? dayButtonOutsideMonthOpacity;
 
-  /// {@macro ShadCalendar.dayButtonPadding}
+  /// {@macro Calendar.dayButtonPadding}
   final EdgeInsetsGeometry? dayButtonPadding;
 
-  /// {@macro ShadCalendar.dayButtonDecoration}
-  final ShadDecoration? dayButtonDecoration;
+  /// {@macro Calendar.dayButtonDecoration}
+  final FinesseDecoration? dayButtonDecoration;
 
-  /// {@macro ShadCalendar.selectedDayButtonTextStyle}
+  /// {@macro Calendar.selectedDayButtonTextStyle}
   final TextStyle? selectedDayButtonTextStyle;
 
-  /// {@macro ShadCalendar.insideRangeDayButtonTextStyle}
+  /// {@macro Calendar.insideRangeDayButtonTextStyle}
   final TextStyle? insideRangeDayButtonTextStyle;
 
-  /// {@macro ShadCalendar.dayButtonTextStyle}
+  /// {@macro Calendar.dayButtonTextStyle}
   final TextStyle? dayButtonTextStyle;
 
-  /// {@macro ShadCalendar.dayButtonVariant}
-  final ShadButtonVariant? dayButtonVariant;
+  /// {@macro Calendar.dayButtonVariant}
+  final ButtonVariant? dayButtonVariant;
 
-  /// {@macro ShadCalendar.selectedDayButtonVariant}
-  final ShadButtonVariant? selectedDayButtonVariant;
+  /// {@macro Calendar.selectedDayButtonVariant}
+  final ButtonVariant? selectedDayButtonVariant;
 
-  /// {@macro ShadCalendar.insideRangeDayButtonVariant}
-  final ShadButtonVariant? insideRangeDayButtonVariant;
+  /// {@macro Calendar.insideRangeDayButtonVariant}
+  final ButtonVariant? insideRangeDayButtonVariant;
 
-  /// {@macro ShadCalendar.todayButtonVariant}
-  final ShadButtonVariant? todayButtonVariant;
+  /// {@macro Calendar.todayButtonVariant}
+  final ButtonVariant? todayButtonVariant;
 
-  /// {@macro ShadCalendar.gridMainAxisSpacing}
+  /// {@macro Calendar.gridMainAxisSpacing}
   final double? gridMainAxisSpacing;
 
-  /// {@macro ShadCalendar.gridCrossAxisSpacing}
+  /// {@macro Calendar.gridCrossAxisSpacing}
   final double? gridCrossAxisSpacing;
 
-  /// {@macro ShadCalendar.dayButtonOutsideMonthTextStyle}
+  /// {@macro Calendar.dayButtonOutsideMonthTextStyle}
   final TextStyle? dayButtonOutsideMonthTextStyle;
 
-  /// {@macro ShadCalendar.dayButtonOutsideMonthVariant}
-  final ShadButtonVariant? dayButtonOutsideMonthVariant;
+  /// {@macro Calendar.dayButtonOutsideMonthVariant}
+  final ButtonVariant? dayButtonOutsideMonthVariant;
 
-  /// {@macro ShadCalendar.selectedDayButtonOutsideMonthVariant}
-  final ShadButtonVariant? selectedDayButtonOutsideMonthVariant;
+  /// {@macro Calendar.selectedDayButtonOutsideMonthVariant}
+  final ButtonVariant? selectedDayButtonOutsideMonthVariant;
 
   /// The old, misspelled name of [selectedDayButtonOutsideMonthVariant].
   @Deprecated(
     'Use selectedDayButtonOutsideMonthVariant. '
     'Will be removed in the next major version.',
   )
-  ShadButtonVariant? get selectedDayButtonOusideMonthVariant =>
+  ButtonVariant? get selectedDayButtonOusideMonthVariant =>
       selectedDayButtonOutsideMonthVariant;
 
   // ---
   // POPOVER
   // ---
 
-  /// {@macro ShadPopover.closeOnTapOutside}
+  /// {@macro Popover.closeOnTapOutside}
   final bool closeOnTapOutside;
 
-  /// {@macro ShadPopover.focusNode}
+  /// {@macro Popover.focusNode}
   final FocusNode? focusNode;
 
-  ///{@macro ShadPopover.anchor}
-  final ShadAnchorBase? anchor;
+  ///{@macro Popover.anchor}
+  final AnchorBase? anchor;
 
-  /// {@macro ShadPopover.effects}
+  /// {@macro Popover.effects}
   final List<Effect<dynamic>>? effects;
 
-  /// {@macro ShadPopover.shadows}
+  /// {@macro Popover.shadows}
   final List<BoxShadow>? shadows;
 
-  /// {@macro ShadPopover.decoration}
-  final ShadDecoration? popoverDecoration;
+  /// {@macro Popover.decoration}
+  final FinesseDecoration? popoverDecoration;
 
-  /// {@macro ShadPopover.filter}
+  /// {@macro Popover.filter}
   final ImageFilter? filter;
 
-  /// {@macro ShadMouseArea.groupId}
+  /// {@macro MouseArea.groupId}
   final Object? areaGroupId;
 
-  /// {@macro ShadPopover.useSameGroupIdForChild}
+  /// {@macro Popover.useSameGroupIdForChild}
   final bool useSameGroupIdForChild;
 
-  /// {@macro ShadPopover.reverseDuration}
+  /// {@macro Popover.reverseDuration}
   final Duration? popoverReverseDuration;
 
   // ---
   // BUTTON
   // ---
 
-  /// {@macro ShadButton.onPressed}
+  /// {@macro Button.onPressed}
   final VoidCallback? onPressed;
 
-  /// {@macro ShadButton.onLongPress}
+  /// {@macro Button.onLongPress}
   final VoidCallback? onLongPress;
 
-  /// {@macro ShadButton.leading}
+  /// {@macro Button.leading}
   final Widget? leading;
 
-  /// {@macro ShadButton.trailing}
+  /// {@macro Button.trailing}
   final Widget? trailing;
 
-  /// {@template ShadDatePicker.iconData}
+  /// {@template DatePicker.iconData}
   /// The icon of the date picker button, defaults to [LucideIcons.calendar].
   /// {@endtemplate}
   final IconData? iconData;
 
-  /// {@macro ShadButton.child}
+  /// {@macro Button.child}
   final Widget? buttonChild;
 
-  /// {@macro ShadButton.variant}
-  final ShadButtonVariant? buttonVariant;
+  /// {@macro Button.variant}
+  final ButtonVariant? buttonVariant;
 
-  /// {@macro ShadButton.size}
-  final ShadButtonSize? size;
+  /// {@macro Button.size}
+  final ButtonSize? size;
 
-  /// {@macro ShadButton.cursor}
+  /// {@macro Button.cursor}
   final MouseCursor? cursor;
 
-  /// {@macro ShadButton.width}
+  /// {@macro Button.width}
   final double? width;
 
-  /// {@macro ShadButton.height}
+  /// {@macro Button.height}
   final double? height;
 
-  /// {@macro ShadButton.padding}
+  /// {@macro Button.padding}
   final EdgeInsetsGeometry? buttonPadding;
 
-  /// {@macro ShadButton.backgroundColor}
+  /// {@macro Button.backgroundColor}
   final Color? backgroundColor;
 
-  /// {@macro ShadButton.hoverBackgroundColor}
+  /// {@macro Button.hoverBackgroundColor}
   final Color? hoverBackgroundColor;
 
-  /// {@macro ShadButton.foregroundColor}
+  /// {@macro Button.foregroundColor}
   final Color? foregroundColor;
 
-  /// {@macro ShadButton.hoverForegroundColor}
+  /// {@macro Button.hoverForegroundColor}
   final Color? hoverForegroundColor;
 
-  /// {@macro ShadButton.autofocus}
+  /// {@macro Button.autofocus}
   final bool autofocus;
 
-  /// {@macro ShadButton.focusNode}
+  /// {@macro Button.focusNode}
   final FocusNode? buttonFocusNode;
 
-  /// {@macro ShadButton.pressedBackgroundColor}
+  /// {@macro Button.pressedBackgroundColor}
   final Color? pressedBackgroundColor;
 
-  /// {@macro ShadButton.pressedForegroundColor}
+  /// {@macro Button.pressedForegroundColor}
   final Color? pressedForegroundColor;
 
-  /// {@macro ShadButton.shadows}
+  /// {@macro Button.shadows}
   final List<BoxShadow>? buttonShadows;
 
-  /// {@macro ShadButton.gradient}
+  /// {@macro Button.gradient}
   final Gradient? gradient;
 
-  /// {@macro ShadButton.textDecoration}
+  /// {@macro Button.textDecoration}
   final TextDecoration? textDecoration;
 
-  /// {@macro ShadButton.hoverTextDecoration}
+  /// {@macro Button.hoverTextDecoration}
   final TextDecoration? hoverTextDecoration;
 
-  /// {@macro ShadButton.decoration}
-  final ShadDecoration? buttonDecoration;
+  /// {@macro Button.decoration}
+  final FinesseDecoration? buttonDecoration;
 
-  /// {@macro ShadButton.enabled}
+  /// {@macro Button.enabled}
   final bool enabled;
 
-  /// {@macro ShadButton.statesController}
-  final ShadStatesController? statesController;
+  /// {@macro Button.statesController}
+  final StatesController? statesController;
 
-  /// {@macro ShadButton.gap}
+  /// {@macro Button.gap}
   final double? gap;
 
-  /// {@macro ShadButton.mainAxisAlignment}
+  /// {@macro Button.mainAxisAlignment}
   final MainAxisAlignment? mainAxisAlignment;
 
-  /// {@macro ShadButton.crossAxisAlignment}
+  /// {@macro Button.crossAxisAlignment}
   final CrossAxisAlignment? crossAxisAlignment;
 
-  /// {@macro ShadButton.hoverStrategies}
-  final ShadHoverStrategies? hoverStrategies;
+  /// {@macro Button.hoverStrategies}
+  final HoverStrategies? hoverStrategies;
 
-  /// {@macro ShadButton.onHoverChange}
+  /// {@macro Button.onHoverChange}
   final ValueChanged<bool>? onHoverChange;
 
-  /// {@macro ShadButton.onTapDown}
+  /// {@macro Button.onTapDown}
   final ValueChanged<TapDownDetails>? onTapDown;
 
-  /// {@macro ShadButton.onTapUp}
+  /// {@macro Button.onTapUp}
   final ValueChanged<TapUpDetails>? onTapUp;
 
-  /// {@macro ShadButton.onTapCancel}
+  /// {@macro Button.onTapCancel}
   final VoidCallback? onTapCancel;
 
-  /// {@macro ShadButton.onSecondaryTapDown}
+  /// {@macro Button.onSecondaryTapDown}
   final ValueChanged<TapDownDetails>? onSecondaryTapDown;
 
-  /// {@macro ShadButton.onSecondaryTapUp}
+  /// {@macro Button.onSecondaryTapUp}
   final ValueChanged<TapUpDetails>? onSecondaryTapUp;
 
-  /// {@macro ShadButton.onSecondaryTapCancel}
+  /// {@macro Button.onSecondaryTapCancel}
   final VoidCallback? onSecondaryTapCancel;
 
-  /// {@macro ShadButton.onLongPressStart}
+  /// {@macro Button.onLongPressStart}
   final ValueChanged<LongPressStartDetails>? onLongPressStart;
 
-  /// {@macro ShadButton.onLongPressCancel}
+  /// {@macro Button.onLongPressCancel}
   final VoidCallback? onLongPressCancel;
 
-  /// {@macro ShadButton.onLongPressUp}
+  /// {@macro Button.onLongPressUp}
   final VoidCallback? onLongPressUp;
 
-  /// {@macro ShadButton.onLongPressDown}
+  /// {@macro Button.onLongPressDown}
   final ValueChanged<LongPressDownDetails>? onLongPressDown;
 
-  /// {@macro ShadButton.onLongPressEnd}
+  /// {@macro Button.onLongPressEnd}
   final ValueChanged<LongPressEndDetails>? onLongPressEnd;
 
-  /// {@macro ShadButton.onDoubleTap}
+  /// {@macro Button.onDoubleTap}
   final VoidCallback? onDoubleTap;
 
-  /// {@macro ShadButton.onDoubleTapDown}
+  /// {@macro Button.onDoubleTapDown}
   final ValueChanged<TapDownDetails>? onDoubleTapDown;
 
-  /// {@macro ShadButton.onDoubleTapCancel}
+  /// {@macro Button.onDoubleTapCancel}
   final VoidCallback? onDoubleTapCancel;
 
-  /// {@macro ShadButton.longPressDuration}
+  /// {@macro Button.longPressDuration}
   final Duration? longPressDuration;
 
-  /// {@macro ShadButton.textDirection}
+  /// {@macro Button.textDirection}
   final TextDirection? textDirection;
 
-  /// {@macro ShadButton.onFocusChange}
+  /// {@macro Button.onFocusChange}
   final ValueChanged<bool>? onFocusChange;
 
-  /// {@macro ShadButton.expands}
+  /// {@macro Button.expands}
   final bool? expands;
 
-  /// {@macro ShadButton.textStyle}
+  /// {@macro Button.textStyle}
   final TextStyle? buttonTextStyle;
 
   @override
-  State<ShadDatePicker> createState() => _ShadDatePickerState();
+  State<DatePicker> createState() => _DatePickerState();
 }
 
-class _ShadDatePickerState extends State<ShadDatePicker> {
+class _DatePickerState extends State<DatePicker> {
   late DateTime? selected = widget.selected;
-  late ShadDateTimeRange? selectedRange = widget.selectedRange;
+  late DateTimeRange? selectedRange = widget.selectedRange;
   final _groupId = UniqueKey();
 
-  ShadPopoverController? _popoverController;
+  PopoverController? _popoverController;
 
-  ShadPopoverController get popoverController =>
+  PopoverController get popoverController =>
       widget.popoverController ?? _popoverController!;
 
   @override
   void initState() {
     super.initState();
     if (widget.popoverController == null) {
-      _popoverController = ShadPopoverController();
+      _popoverController = PopoverController();
     }
   }
 
   @override
-  void didUpdateWidget(covariant ShadDatePicker oldWidget) {
+  void didUpdateWidget(covariant DatePicker oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.selected != oldWidget.selected) {
       selected = widget.selected;
@@ -1025,7 +1025,7 @@ class _ShadDatePickerState extends State<ShadDatePicker> {
     return '$month $ordinalDay, $year'; // October 1st, 2024
   }
 
-  String defaultDateRangeFormat(ShadDateTimeRange range, Locale locale) {
+  String defaultDateRangeFormat(DateTimeRange range, Locale locale) {
     if (range.start == null) return '';
     final buffer = StringBuffer();
 
@@ -1046,11 +1046,11 @@ class _ShadDatePickerState extends State<ShadDatePicker> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
 
     final isSelected = switch (widget.variant) {
-      ShadDatePickerVariant.single => selected != null,
-      ShadDatePickerVariant.range =>
+      DatePickerVariant.single => selected != null,
+      DatePickerVariant.range =>
         selectedRange != null && selectedRange!.start != null,
     };
 
@@ -1073,7 +1073,7 @@ class _ShadDatePickerState extends State<ShadDatePicker> {
     final effectiveCalendarDecoration =
         widget.calendarDecoration ??
         theme.datePickerTheme.calendarDecoration ??
-        ShadDecoration.none;
+        FinesseDecoration.none;
 
     final effectiveExpands =
         widget.expands ?? theme.datePickerTheme.expands ?? false;
@@ -1109,7 +1109,7 @@ class _ShadDatePickerState extends State<ShadDatePicker> {
           )
         : null;
 
-    return ShadPopover(
+    return Popover(
       controller: popoverController,
       groupId: effectiveGroupId,
       padding: widget.popoverPadding ?? theme.datePickerTheme.popoverPadding,
@@ -1131,10 +1131,10 @@ class _ShadDatePickerState extends State<ShadDatePicker> {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (widget.header != null) widget.header!,
-            ShadCalendar.raw(
+            Calendar.raw(
               variant: switch (widget.variant) {
-                ShadDatePickerVariant.single => ShadCalendarVariant.single,
-                ShadDatePickerVariant.range => ShadCalendarVariant.range,
+                DatePickerVariant.single => CalendarVariant.single,
+                DatePickerVariant.range => CalendarVariant.range,
               },
               selected: selected,
               groupId: effectiveGroupId,
@@ -1315,13 +1315,13 @@ class _ShadDatePickerState extends State<ShadDatePicker> {
           ],
         );
       },
-      child: ShadButton.raw(
+      child: Button.raw(
         decoration:
             widget.buttonDecoration ?? theme.datePickerTheme.buttonDecoration,
         variant:
             widget.buttonVariant ??
             theme.datePickerTheme.buttonVariant ??
-            ShadButtonVariant.outline,
+            ButtonVariant.outline,
         width: widget.width ?? theme.datePickerTheme.width ?? 276,
         mainAxisAlignment:
             widget.mainAxisAlignment ??
@@ -1397,10 +1397,10 @@ class _ShadDatePickerState extends State<ShadDatePicker> {
             (isSelected
                 ? Text(
                     switch (widget.variant) {
-                      ShadDatePickerVariant.single => effectiveFormatDate(
+                      DatePickerVariant.single => effectiveFormatDate(
                         selected!,
                       ),
-                      ShadDatePickerVariant.range => effectiveFormatDateRange(
+                      DatePickerVariant.range => effectiveFormatDateRange(
                         selectedRange!,
                       ),
                     },
@@ -1413,7 +1413,9 @@ class _ShadDatePickerState extends State<ShadDatePicker> {
                     child:
                         widget.placeholder ??
                         Text(
-                          ShadLocalizations.of(context).datePicker.selectDate,
+                          FinesseLocalizations.of(
+                            context,
+                          ).datePicker.selectDate,
                         ),
                   )),
       ),

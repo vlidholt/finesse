@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class PaginationCompactExample extends StatefulWidget {
   const PaginationCompactExample({super.key});
@@ -14,7 +14,7 @@ class _PaginationCompactExampleState extends State<PaginationCompactExample> {
 
   @override
   Widget build(BuildContext context) {
-    return ShadPaginationCompact(
+    return PaginationCompact(
       page: page,
       pageCount: 10,
       onPageChanged: (value) => setState(() => page = value),

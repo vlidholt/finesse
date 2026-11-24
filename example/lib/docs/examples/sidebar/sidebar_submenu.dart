@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class SidebarSubmenuExample extends StatefulWidget {
   const SidebarSubmenuExample({super.key});
@@ -18,7 +18,7 @@ class _SidebarSubmenuExampleState extends State<SidebarSubmenuExample> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     return SizedBox(
       width: 700,
       height: 420,
@@ -27,26 +27,26 @@ class _SidebarSubmenuExampleState extends State<SidebarSubmenuExample> {
           border: Border.all(color: theme.colorScheme.border),
           borderRadius: theme.radii.lg,
         ),
-        child: ShadSidebarScaffold(
+        child: SidebarScaffold(
           borderRadius: theme.radii.lg,
-          sidebar: ShadSidebar(
-            variant: ShadSidebarVariant.floating,
+          sidebar: Sidebar(
+            variant: SidebarVariant.floating,
             children: [
-              ShadSidebarGroup(
+              SidebarGroup(
                 label: const Text('Documentation'),
                 children: [
-                  ShadSidebarMenu(
+                  SidebarMenu(
                     children: [
                       for (final entry in _sections.entries) ...[
-                        ShadSidebarMenuButton(
+                        SidebarMenuButton(
                           leading: const Icon(LucideIcons.bookOpen),
                           onPressed: () {},
                           child: Text(entry.key),
                         ),
-                        ShadSidebarMenuSub(
+                        SidebarMenuSub(
                           children: [
                             for (final page in entry.value)
-                              ShadSidebarMenuSubButton(
+                              SidebarMenuSubButton(
                                 isActive: selected == page,
                                 onPressed: () =>
                                     setState(() => selected = page),

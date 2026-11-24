@@ -9,10 +9,10 @@ part of 'data.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadThemeData {
+mixin _$ThemeData {
   bool get canMerge => true;
 
-  static ShadThemeData? lerp(ShadThemeData? a, ShadThemeData? b, double t) {
+  static ThemeData? lerp(ThemeData? a, ThemeData? b, double t) {
     if (identical(a, b)) {
       return a;
     }
@@ -25,164 +25,164 @@ mixin _$ShadThemeData {
       return t == 0.0 ? a : null;
     }
 
-    return ShadThemeData(
+    return ThemeData(
       variant: t < 0.5 ? a.variant : b.variant,
-      commandTheme: ShadCommandTheme.lerp(a.commandTheme, b.commandTheme, t)!,
-      sidebarTheme: ShadSidebarTheme.lerp(a.sidebarTheme, b.sidebarTheme, t)!,
-      skeletonTheme: ShadSkeletonTheme.lerp(
-        a.skeletonTheme,
-        b.skeletonTheme,
-        t,
-      )!,
-      kbdTheme: ShadKbdTheme.lerp(a.kbdTheme, b.kbdTheme, t)!,
-      scrollAreaTheme: ShadScrollAreaTheme.lerp(
+      commandTheme: CommandTheme.lerp(a.commandTheme, b.commandTheme, t)!,
+      sidebarTheme: SidebarTheme.lerp(a.sidebarTheme, b.sidebarTheme, t)!,
+      skeletonTheme: SkeletonTheme.lerp(a.skeletonTheme, b.skeletonTheme, t)!,
+      kbdTheme: KbdTheme.lerp(a.kbdTheme, b.kbdTheme, t)!,
+      scrollAreaTheme: ScrollAreaTheme.lerp(
         a.scrollAreaTheme,
         b.scrollAreaTheme,
         t,
       )!,
-      spinnerTheme: ShadSpinnerTheme.lerp(a.spinnerTheme, b.spinnerTheme, t)!,
-      toggleTheme: ShadToggleTheme.lerp(a.toggleTheme, b.toggleTheme, t)!,
-      outlineToggleTheme: ShadToggleTheme.lerp(
+      spinnerTheme: SpinnerTheme.lerp(a.spinnerTheme, b.spinnerTheme, t)!,
+      toggleTheme: ToggleTheme.lerp(a.toggleTheme, b.toggleTheme, t)!,
+      outlineToggleTheme: ToggleTheme.lerp(
         a.outlineToggleTheme,
         b.outlineToggleTheme,
         t,
       )!,
-      emptyTheme: ShadEmptyTheme.lerp(a.emptyTheme, b.emptyTheme, t)!,
-      paginationTheme: ShadPaginationTheme.lerp(
+      emptyTheme: EmptyTheme.lerp(a.emptyTheme, b.emptyTheme, t)!,
+      paginationTheme: PaginationTheme.lerp(
         a.paginationTheme,
         b.paginationTheme,
         t,
       )!,
-      collapsibleTheme: ShadCollapsibleTheme.lerp(
+      collapsibleTheme: CollapsibleTheme.lerp(
         a.collapsibleTheme,
         b.collapsibleTheme,
         t,
       )!,
-      colorScheme: ShadColorScheme.lerp(a.colorScheme, b.colorScheme, t),
+      colorScheme: ColorScheme.lerp(a.colorScheme, b.colorScheme, t),
       brightness: t < 0.5 ? a.brightness : b.brightness,
-      primaryButtonTheme: ShadButtonTheme.lerp(
+      primaryButtonTheme: ButtonTheme.lerp(
         a.primaryButtonTheme,
         b.primaryButtonTheme,
         t,
       )!,
-      secondaryButtonTheme: ShadButtonTheme.lerp(
+      secondaryButtonTheme: ButtonTheme.lerp(
         a.secondaryButtonTheme,
         b.secondaryButtonTheme,
         t,
       )!,
-      destructiveButtonTheme: ShadButtonTheme.lerp(
+      destructiveButtonTheme: ButtonTheme.lerp(
         a.destructiveButtonTheme,
         b.destructiveButtonTheme,
         t,
       )!,
-      outlineButtonTheme: ShadButtonTheme.lerp(
+      outlineButtonTheme: ButtonTheme.lerp(
         a.outlineButtonTheme,
         b.outlineButtonTheme,
         t,
       )!,
-      ghostButtonTheme: ShadButtonTheme.lerp(
+      ghostButtonTheme: ButtonTheme.lerp(
         a.ghostButtonTheme,
         b.ghostButtonTheme,
         t,
       )!,
-      linkButtonTheme: ShadButtonTheme.lerp(
+      linkButtonTheme: ButtonTheme.lerp(
         a.linkButtonTheme,
         b.linkButtonTheme,
         t,
       )!,
-      primaryBadgeTheme: ShadBadgeTheme.lerp(
+      primaryBadgeTheme: BadgeTheme.lerp(
         a.primaryBadgeTheme,
         b.primaryBadgeTheme,
         t,
       )!,
-      secondaryBadgeTheme: ShadBadgeTheme.lerp(
+      secondaryBadgeTheme: BadgeTheme.lerp(
         a.secondaryBadgeTheme,
         b.secondaryBadgeTheme,
         t,
       )!,
-      destructiveBadgeTheme: ShadBadgeTheme.lerp(
+      destructiveBadgeTheme: BadgeTheme.lerp(
         a.destructiveBadgeTheme,
         b.destructiveBadgeTheme,
         t,
       )!,
-      outlineBadgeTheme: ShadBadgeTheme.lerp(
+      outlineBadgeTheme: BadgeTheme.lerp(
         a.outlineBadgeTheme,
         b.outlineBadgeTheme,
         t,
       )!,
-      breadcrumbTheme: ShadBreadcrumbTheme.lerp(
+      breadcrumbTheme: BreadcrumbTheme.lerp(
         a.breadcrumbTheme,
         b.breadcrumbTheme,
         t,
       )!,
       radius: BorderRadius.lerp(a.radius, b.radius, t)!,
-      avatarTheme: ShadAvatarTheme.lerp(a.avatarTheme, b.avatarTheme, t)!,
-      buttonSizesTheme: ShadButtonSizesTheme.lerp(
+      avatarTheme: AvatarTheme.lerp(a.avatarTheme, b.avatarTheme, t)!,
+      buttonSizesTheme: ButtonSizesTheme.lerp(
         a.buttonSizesTheme,
         b.buttonSizesTheme,
         t,
       )!,
-      tooltipTheme: ShadTooltipTheme.lerp(a.tooltipTheme, b.tooltipTheme, t)!,
-      popoverTheme: ShadPopoverTheme.lerp(a.popoverTheme, b.popoverTheme, t)!,
-      decoration: ShadDecoration.lerp(a.decoration, b.decoration, t)!,
-      textTheme: ShadTextTheme.lerp(a.textTheme, b.textTheme, t)!,
+      tooltipTheme: TooltipTheme.lerp(a.tooltipTheme, b.tooltipTheme, t)!,
+      popoverTheme: PopoverTheme.lerp(a.popoverTheme, b.popoverTheme, t)!,
+      decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t)!,
+      textTheme: TextTheme.lerp(a.textTheme, b.textTheme, t)!,
       disabledOpacity: lerpDouble$(a.disabledOpacity, b.disabledOpacity, t)!,
-      selectTheme: ShadSelectTheme.lerp(a.selectTheme, b.selectTheme, t)!,
-      optionTheme: ShadOptionTheme.lerp(a.optionTheme, b.optionTheme, t)!,
-      cardTheme: ShadCardTheme.lerp(a.cardTheme, b.cardTheme, t)!,
-      switchTheme: ShadSwitchTheme.lerp(a.switchTheme, b.switchTheme, t)!,
-      checkboxTheme: ShadCheckboxTheme.lerp(
-        a.checkboxTheme,
-        b.checkboxTheme,
+      selectTheme: SelectTheme.lerp(a.selectTheme, b.selectTheme, t)!,
+      selectOptionTheme: SelectOptionTheme.lerp(
+        a.selectOptionTheme,
+        b.selectOptionTheme,
         t,
       )!,
-      inputTheme: ShadInputTheme.lerp(a.inputTheme, b.inputTheme, t)!,
-      radioTheme: ShadRadioTheme.lerp(a.radioTheme, b.radioTheme, t)!,
-      primaryToastTheme: ShadToastTheme.lerp(
+      cardTheme: CardTheme.lerp(a.cardTheme, b.cardTheme, t)!,
+      switchTheme: SwitchTheme.lerp(a.switchTheme, b.switchTheme, t)!,
+      checkboxTheme: CheckboxTheme.lerp(a.checkboxTheme, b.checkboxTheme, t)!,
+      textFieldTheme: TextFieldTheme.lerp(
+        a.textFieldTheme,
+        b.textFieldTheme,
+        t,
+      )!,
+      radioTheme: RadioTheme.lerp(a.radioTheme, b.radioTheme, t)!,
+      primaryToastTheme: ToastTheme.lerp(
         a.primaryToastTheme,
         b.primaryToastTheme,
         t,
       )!,
-      destructiveToastTheme: ShadToastTheme.lerp(
+      destructiveToastTheme: ToastTheme.lerp(
         a.destructiveToastTheme,
         b.destructiveToastTheme,
         t,
       )!,
-      breakpoints: ShadBreakpoints.lerp(a.breakpoints, b.breakpoints, t)!,
-      primaryAlertTheme: ShadAlertTheme.lerp(
+      breakpoints: Breakpoints.lerp(a.breakpoints, b.breakpoints, t)!,
+      primaryAlertTheme: AlertTheme.lerp(
         a.primaryAlertTheme,
         b.primaryAlertTheme,
         t,
       )!,
-      destructiveAlertTheme: ShadAlertTheme.lerp(
+      destructiveAlertTheme: AlertTheme.lerp(
         a.destructiveAlertTheme,
         b.destructiveAlertTheme,
         t,
       )!,
-      primaryDialogTheme: ShadDialogTheme.lerp(
+      primaryDialogTheme: DialogTheme.lerp(
         a.primaryDialogTheme,
         b.primaryDialogTheme,
         t,
       )!,
-      alertDialogTheme: ShadDialogTheme.lerp(
+      alertDialogTheme: DialogTheme.lerp(
         a.alertDialogTheme,
         b.alertDialogTheme,
         t,
       )!,
-      sliderTheme: ShadSliderTheme.lerp(a.sliderTheme, b.sliderTheme, t)!,
-      sheetTheme: ShadSheetTheme.lerp(a.sheetTheme, b.sheetTheme, t)!,
-      progressTheme: ShadProgressTheme.lerp(
-        a.progressTheme,
-        b.progressTheme,
+      sliderTheme: SliderTheme.lerp(a.sliderTheme, b.sliderTheme, t)!,
+      sheetTheme: SheetTheme.lerp(a.sheetTheme, b.sheetTheme, t)!,
+      progressBarTheme: ProgressBarTheme.lerp(
+        a.progressBarTheme,
+        b.progressBarTheme,
         t,
       )!,
-      accordionTheme: ShadAccordionTheme.lerp(
+      accordionTheme: AccordionTheme.lerp(
         a.accordionTheme,
         b.accordionTheme,
         t,
       )!,
-      tableTheme: ShadTableTheme.lerp(a.tableTheme, b.tableTheme, t)!,
-      resizableTheme: ShadResizableTheme.lerp(
+      tableTheme: TableTheme.lerp(a.tableTheme, b.tableTheme, t)!,
+      resizableTheme: ResizableTheme.lerp(
         a.resizableTheme,
         b.resizableTheme,
         t,
@@ -191,45 +191,29 @@ mixin _$ShadThemeData {
       disableSecondaryBorder: t < 0.5
           ? a.disableSecondaryBorder
           : b.disableSecondaryBorder,
-      tabsTheme: ShadTabsTheme.lerp(a.tabsTheme, b.tabsTheme, t)!,
-      contextMenuTheme: ShadContextMenuTheme.lerp(
+      tabsTheme: TabsTheme.lerp(a.tabsTheme, b.tabsTheme, t)!,
+      contextMenuTheme: ContextMenuTheme.lerp(
         a.contextMenuTheme,
         b.contextMenuTheme,
         t,
       )!,
-      calendarTheme: ShadCalendarTheme.lerp(
-        a.calendarTheme,
-        b.calendarTheme,
-        t,
-      )!,
-      datePickerTheme: ShadDatePickerTheme.lerp(
+      calendarTheme: CalendarTheme.lerp(a.calendarTheme, b.calendarTheme, t)!,
+      datePickerTheme: DatePickerTheme.lerp(
         a.datePickerTheme,
         b.datePickerTheme,
         t,
       )!,
-      timePickerTheme: ShadTimePickerTheme.lerp(
+      timePickerTheme: TimePickerTheme.lerp(
         a.timePickerTheme,
         b.timePickerTheme,
         t,
       )!,
-      inputOTPTheme: ShadInputOTPTheme.lerp(
-        a.inputOTPTheme,
-        b.inputOTPTheme,
-        t,
-      )!,
-      menubarTheme: ShadMenubarTheme.lerp(a.menubarTheme, b.menubarTheme, t)!,
-      separatorTheme: ShadSeparatorTheme.lerp(
-        a.separatorTheme,
-        b.separatorTheme,
-        t,
-      )!,
-      sonnerTheme: ShadSonnerTheme.lerp(a.sonnerTheme, b.sonnerTheme, t)!,
-      textareaTheme: ShadTextareaTheme.lerp(
-        a.textareaTheme,
-        b.textareaTheme,
-        t,
-      )!,
-      defaultKeyboardToolbarTheme: ShadDefaultKeyboardToolbarTheme.lerp(
+      otpFieldTheme: OtpFieldTheme.lerp(a.otpFieldTheme, b.otpFieldTheme, t)!,
+      menubarTheme: MenubarTheme.lerp(a.menubarTheme, b.menubarTheme, t)!,
+      dividerTheme: DividerTheme.lerp(a.dividerTheme, b.dividerTheme, t)!,
+      sonnerTheme: SonnerTheme.lerp(a.sonnerTheme, b.sonnerTheme, t)!,
+      textareaTheme: TextareaTheme.lerp(a.textareaTheme, b.textareaTheme, t)!,
+      defaultKeyboardToolbarTheme: DefaultKeyboardToolbarTheme.lerp(
         a.defaultKeyboardToolbarTheme,
         b.defaultKeyboardToolbarTheme,
         t,
@@ -237,77 +221,77 @@ mixin _$ShadThemeData {
     );
   }
 
-  ShadThemeData copyWith({
-    ShadThemeVariant? variant,
-    ShadCommandTheme? commandTheme,
-    ShadSidebarTheme? sidebarTheme,
-    ShadSkeletonTheme? skeletonTheme,
-    ShadKbdTheme? kbdTheme,
-    ShadScrollAreaTheme? scrollAreaTheme,
-    ShadSpinnerTheme? spinnerTheme,
-    ShadToggleTheme? toggleTheme,
-    ShadToggleTheme? outlineToggleTheme,
-    ShadEmptyTheme? emptyTheme,
-    ShadPaginationTheme? paginationTheme,
-    ShadCollapsibleTheme? collapsibleTheme,
-    ShadColorScheme? colorScheme,
+  ThemeData copyWith({
+    ThemeVariant? variant,
+    CommandTheme? commandTheme,
+    SidebarTheme? sidebarTheme,
+    SkeletonTheme? skeletonTheme,
+    KbdTheme? kbdTheme,
+    ScrollAreaTheme? scrollAreaTheme,
+    SpinnerTheme? spinnerTheme,
+    ToggleTheme? toggleTheme,
+    ToggleTheme? outlineToggleTheme,
+    EmptyTheme? emptyTheme,
+    PaginationTheme? paginationTheme,
+    CollapsibleTheme? collapsibleTheme,
+    ColorScheme? colorScheme,
     Brightness? brightness,
-    ShadButtonTheme? primaryButtonTheme,
-    ShadButtonTheme? secondaryButtonTheme,
-    ShadButtonTheme? destructiveButtonTheme,
-    ShadButtonTheme? outlineButtonTheme,
-    ShadButtonTheme? ghostButtonTheme,
-    ShadButtonTheme? linkButtonTheme,
-    ShadBadgeTheme? primaryBadgeTheme,
-    ShadBadgeTheme? secondaryBadgeTheme,
-    ShadBadgeTheme? destructiveBadgeTheme,
-    ShadBadgeTheme? outlineBadgeTheme,
-    ShadBreadcrumbTheme? breadcrumbTheme,
+    ButtonTheme? primaryButtonTheme,
+    ButtonTheme? secondaryButtonTheme,
+    ButtonTheme? destructiveButtonTheme,
+    ButtonTheme? outlineButtonTheme,
+    ButtonTheme? ghostButtonTheme,
+    ButtonTheme? linkButtonTheme,
+    BadgeTheme? primaryBadgeTheme,
+    BadgeTheme? secondaryBadgeTheme,
+    BadgeTheme? destructiveBadgeTheme,
+    BadgeTheme? outlineBadgeTheme,
+    BreadcrumbTheme? breadcrumbTheme,
     BorderRadius? radius,
-    ShadAvatarTheme? avatarTheme,
-    ShadButtonSizesTheme? buttonSizesTheme,
-    ShadTooltipTheme? tooltipTheme,
-    ShadPopoverTheme? popoverTheme,
-    ShadDecoration? decoration,
-    ShadTextTheme? textTheme,
+    AvatarTheme? avatarTheme,
+    ButtonSizesTheme? buttonSizesTheme,
+    TooltipTheme? tooltipTheme,
+    PopoverTheme? popoverTheme,
+    FinesseDecoration? decoration,
+    TextTheme? textTheme,
     double? disabledOpacity,
-    ShadSelectTheme? selectTheme,
-    ShadOptionTheme? optionTheme,
-    ShadCardTheme? cardTheme,
-    ShadSwitchTheme? switchTheme,
-    ShadCheckboxTheme? checkboxTheme,
-    ShadInputTheme? inputTheme,
-    ShadRadioTheme? radioTheme,
-    ShadToastTheme? primaryToastTheme,
-    ShadToastTheme? destructiveToastTheme,
-    ShadBreakpoints? breakpoints,
-    ShadAlertTheme? primaryAlertTheme,
-    ShadAlertTheme? destructiveAlertTheme,
-    ShadDialogTheme? primaryDialogTheme,
-    ShadDialogTheme? alertDialogTheme,
-    ShadSliderTheme? sliderTheme,
-    ShadSheetTheme? sheetTheme,
-    ShadProgressTheme? progressTheme,
-    ShadAccordionTheme? accordionTheme,
-    ShadTableTheme? tableTheme,
-    ShadResizableTheme? resizableTheme,
-    ShadHoverStrategies? hoverStrategies,
+    SelectTheme? selectTheme,
+    SelectOptionTheme? selectOptionTheme,
+    CardTheme? cardTheme,
+    SwitchTheme? switchTheme,
+    CheckboxTheme? checkboxTheme,
+    TextFieldTheme? textFieldTheme,
+    RadioTheme? radioTheme,
+    ToastTheme? primaryToastTheme,
+    ToastTheme? destructiveToastTheme,
+    Breakpoints? breakpoints,
+    AlertTheme? primaryAlertTheme,
+    AlertTheme? destructiveAlertTheme,
+    DialogTheme? primaryDialogTheme,
+    DialogTheme? alertDialogTheme,
+    SliderTheme? sliderTheme,
+    SheetTheme? sheetTheme,
+    ProgressBarTheme? progressBarTheme,
+    AccordionTheme? accordionTheme,
+    TableTheme? tableTheme,
+    ResizableTheme? resizableTheme,
+    HoverStrategies? hoverStrategies,
     bool? disableSecondaryBorder,
-    ShadTabsTheme? tabsTheme,
-    ShadContextMenuTheme? contextMenuTheme,
-    ShadCalendarTheme? calendarTheme,
-    ShadDatePickerTheme? datePickerTheme,
-    ShadTimePickerTheme? timePickerTheme,
-    ShadInputOTPTheme? inputOTPTheme,
-    ShadMenubarTheme? menubarTheme,
-    ShadSeparatorTheme? separatorTheme,
-    ShadSonnerTheme? sonnerTheme,
-    ShadTextareaTheme? textareaTheme,
-    ShadDefaultKeyboardToolbarTheme? defaultKeyboardToolbarTheme,
+    TabsTheme? tabsTheme,
+    ContextMenuTheme? contextMenuTheme,
+    CalendarTheme? calendarTheme,
+    DatePickerTheme? datePickerTheme,
+    TimePickerTheme? timePickerTheme,
+    OtpFieldTheme? otpFieldTheme,
+    MenubarTheme? menubarTheme,
+    DividerTheme? dividerTheme,
+    SonnerTheme? sonnerTheme,
+    TextareaTheme? textareaTheme,
+    DefaultKeyboardToolbarTheme? defaultKeyboardToolbarTheme,
   }) {
-    final _this = (this as ShadThemeData);
+    final _this = (this as ThemeData);
 
-    return ShadThemeData(
+    return ThemeData(
       variant: variant ?? _this.variant,
       commandTheme: commandTheme ?? _this.commandTheme,
       sidebarTheme: sidebarTheme ?? _this.sidebarTheme,
@@ -344,11 +328,11 @@ mixin _$ShadThemeData {
       textTheme: textTheme ?? _this.textTheme,
       disabledOpacity: disabledOpacity ?? _this.disabledOpacity,
       selectTheme: selectTheme ?? _this.selectTheme,
-      optionTheme: optionTheme ?? _this.optionTheme,
+      selectOptionTheme: selectOptionTheme ?? _this.selectOptionTheme,
       cardTheme: cardTheme ?? _this.cardTheme,
       switchTheme: switchTheme ?? _this.switchTheme,
       checkboxTheme: checkboxTheme ?? _this.checkboxTheme,
-      inputTheme: inputTheme ?? _this.inputTheme,
+      textFieldTheme: textFieldTheme ?? _this.textFieldTheme,
       radioTheme: radioTheme ?? _this.radioTheme,
       primaryToastTheme: primaryToastTheme ?? _this.primaryToastTheme,
       destructiveToastTheme:
@@ -361,7 +345,7 @@ mixin _$ShadThemeData {
       alertDialogTheme: alertDialogTheme ?? _this.alertDialogTheme,
       sliderTheme: sliderTheme ?? _this.sliderTheme,
       sheetTheme: sheetTheme ?? _this.sheetTheme,
-      progressTheme: progressTheme ?? _this.progressTheme,
+      progressBarTheme: progressBarTheme ?? _this.progressBarTheme,
       accordionTheme: accordionTheme ?? _this.accordionTheme,
       tableTheme: tableTheme ?? _this.tableTheme,
       resizableTheme: resizableTheme ?? _this.resizableTheme,
@@ -373,9 +357,9 @@ mixin _$ShadThemeData {
       calendarTheme: calendarTheme ?? _this.calendarTheme,
       datePickerTheme: datePickerTheme ?? _this.datePickerTheme,
       timePickerTheme: timePickerTheme ?? _this.timePickerTheme,
-      inputOTPTheme: inputOTPTheme ?? _this.inputOTPTheme,
+      otpFieldTheme: otpFieldTheme ?? _this.otpFieldTheme,
       menubarTheme: menubarTheme ?? _this.menubarTheme,
-      separatorTheme: separatorTheme ?? _this.separatorTheme,
+      dividerTheme: dividerTheme ?? _this.dividerTheme,
       sonnerTheme: sonnerTheme ?? _this.sonnerTheme,
       textareaTheme: textareaTheme ?? _this.textareaTheme,
       defaultKeyboardToolbarTheme:
@@ -383,8 +367,8 @@ mixin _$ShadThemeData {
     );
   }
 
-  ShadThemeData merge(ShadThemeData? other) {
-    final _this = (this as ShadThemeData);
+  ThemeData merge(ThemeData? other) {
+    final _this = (this as ThemeData);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -443,11 +427,11 @@ mixin _$ShadThemeData {
       textTheme: _this.textTheme.merge(other.textTheme),
       disabledOpacity: other.disabledOpacity,
       selectTheme: _this.selectTheme.merge(other.selectTheme),
-      optionTheme: _this.optionTheme.merge(other.optionTheme),
+      selectOptionTheme: _this.selectOptionTheme.merge(other.selectOptionTheme),
       cardTheme: _this.cardTheme.merge(other.cardTheme),
       switchTheme: _this.switchTheme.merge(other.switchTheme),
       checkboxTheme: _this.checkboxTheme.merge(other.checkboxTheme),
-      inputTheme: _this.inputTheme.merge(other.inputTheme),
+      textFieldTheme: _this.textFieldTheme.merge(other.textFieldTheme),
       radioTheme: _this.radioTheme.merge(other.radioTheme),
       primaryToastTheme: _this.primaryToastTheme.merge(other.primaryToastTheme),
       destructiveToastTheme: _this.destructiveToastTheme.merge(
@@ -464,7 +448,7 @@ mixin _$ShadThemeData {
       alertDialogTheme: _this.alertDialogTheme.merge(other.alertDialogTheme),
       sliderTheme: _this.sliderTheme.merge(other.sliderTheme),
       sheetTheme: _this.sheetTheme.merge(other.sheetTheme),
-      progressTheme: _this.progressTheme.merge(other.progressTheme),
+      progressBarTheme: _this.progressBarTheme.merge(other.progressBarTheme),
       accordionTheme: _this.accordionTheme.merge(other.accordionTheme),
       tableTheme: _this.tableTheme.merge(other.tableTheme),
       resizableTheme: _this.resizableTheme.merge(other.resizableTheme),
@@ -475,9 +459,9 @@ mixin _$ShadThemeData {
       calendarTheme: _this.calendarTheme.merge(other.calendarTheme),
       datePickerTheme: _this.datePickerTheme.merge(other.datePickerTheme),
       timePickerTheme: _this.timePickerTheme.merge(other.timePickerTheme),
-      inputOTPTheme: _this.inputOTPTheme.merge(other.inputOTPTheme),
+      otpFieldTheme: _this.otpFieldTheme.merge(other.otpFieldTheme),
       menubarTheme: _this.menubarTheme.merge(other.menubarTheme),
-      separatorTheme: _this.separatorTheme.merge(other.separatorTheme),
+      dividerTheme: _this.dividerTheme.merge(other.dividerTheme),
       sonnerTheme: _this.sonnerTheme.merge(other.sonnerTheme),
       textareaTheme: _this.textareaTheme.merge(other.textareaTheme),
       defaultKeyboardToolbarTheme: _this.defaultKeyboardToolbarTheme.merge(
@@ -496,8 +480,8 @@ mixin _$ShadThemeData {
       return false;
     }
 
-    final _this = (this as ShadThemeData);
-    final _other = (other as ShadThemeData);
+    final _this = (this as ThemeData);
+    final _other = (other as ThemeData);
 
     return _other.variant == _this.variant &&
         _other.commandTheme == _this.commandTheme &&
@@ -533,11 +517,11 @@ mixin _$ShadThemeData {
         _other.textTheme == _this.textTheme &&
         _other.disabledOpacity == _this.disabledOpacity &&
         _other.selectTheme == _this.selectTheme &&
-        _other.optionTheme == _this.optionTheme &&
+        _other.selectOptionTheme == _this.selectOptionTheme &&
         _other.cardTheme == _this.cardTheme &&
         _other.switchTheme == _this.switchTheme &&
         _other.checkboxTheme == _this.checkboxTheme &&
-        _other.inputTheme == _this.inputTheme &&
+        _other.textFieldTheme == _this.textFieldTheme &&
         _other.radioTheme == _this.radioTheme &&
         _other.primaryToastTheme == _this.primaryToastTheme &&
         _other.destructiveToastTheme == _this.destructiveToastTheme &&
@@ -548,7 +532,7 @@ mixin _$ShadThemeData {
         _other.alertDialogTheme == _this.alertDialogTheme &&
         _other.sliderTheme == _this.sliderTheme &&
         _other.sheetTheme == _this.sheetTheme &&
-        _other.progressTheme == _this.progressTheme &&
+        _other.progressBarTheme == _this.progressBarTheme &&
         _other.accordionTheme == _this.accordionTheme &&
         _other.tableTheme == _this.tableTheme &&
         _other.resizableTheme == _this.resizableTheme &&
@@ -559,9 +543,9 @@ mixin _$ShadThemeData {
         _other.calendarTheme == _this.calendarTheme &&
         _other.datePickerTheme == _this.datePickerTheme &&
         _other.timePickerTheme == _this.timePickerTheme &&
-        _other.inputOTPTheme == _this.inputOTPTheme &&
+        _other.otpFieldTheme == _this.otpFieldTheme &&
         _other.menubarTheme == _this.menubarTheme &&
-        _other.separatorTheme == _this.separatorTheme &&
+        _other.dividerTheme == _this.dividerTheme &&
         _other.sonnerTheme == _this.sonnerTheme &&
         _other.textareaTheme == _this.textareaTheme &&
         _other.defaultKeyboardToolbarTheme == _this.defaultKeyboardToolbarTheme;
@@ -569,7 +553,7 @@ mixin _$ShadThemeData {
 
   @override
   int get hashCode {
-    final _this = (this as ShadThemeData);
+    final _this = (this as ThemeData);
 
     return Object.hashAll([
       runtimeType,
@@ -607,11 +591,11 @@ mixin _$ShadThemeData {
       _this.textTheme,
       _this.disabledOpacity,
       _this.selectTheme,
-      _this.optionTheme,
+      _this.selectOptionTheme,
       _this.cardTheme,
       _this.switchTheme,
       _this.checkboxTheme,
-      _this.inputTheme,
+      _this.textFieldTheme,
       _this.radioTheme,
       _this.primaryToastTheme,
       _this.destructiveToastTheme,
@@ -622,7 +606,7 @@ mixin _$ShadThemeData {
       _this.alertDialogTheme,
       _this.sliderTheme,
       _this.sheetTheme,
-      _this.progressTheme,
+      _this.progressBarTheme,
       _this.accordionTheme,
       _this.tableTheme,
       _this.resizableTheme,
@@ -633,9 +617,9 @@ mixin _$ShadThemeData {
       _this.calendarTheme,
       _this.datePickerTheme,
       _this.timePickerTheme,
-      _this.inputOTPTheme,
+      _this.otpFieldTheme,
       _this.menubarTheme,
-      _this.separatorTheme,
+      _this.dividerTheme,
       _this.sonnerTheme,
       _this.textareaTheme,
       _this.defaultKeyboardToolbarTheme,

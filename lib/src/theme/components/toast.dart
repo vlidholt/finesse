@@ -1,21 +1,20 @@
+import 'package:finesse/src/utils/border.dart';
+import 'package:finesse/src/utils/position.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:shad/src/utils/border.dart';
-
-import 'package:shad/src/utils/position.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
 part 'toast.g.theme.dart';
 
-/// {@template ShadToastTheme}
-/// Theme for the `ShadToast` widget.
+/// {@template ToastTheme}
+/// Theme for the `Toast` widget.
 /// {@endtemplate}
 @themeGen
 @immutable
-class ShadToastTheme with _$ShadToastTheme {
-  /// {@macro ShadToastTheme}
-  const ShadToastTheme({
+class ToastTheme with _$ToastTheme {
+  /// {@macro ToastTheme}
+  const ToastTheme({
     bool canMerge = true,
     this.backgroundColor,
     this.closeIconData,
@@ -52,90 +51,90 @@ class ShadToastTheme with _$ShadToastTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro ShadToast.backgroundColor}
+  /// {@macro Toast.backgroundColor}
   final Color? backgroundColor;
 
-  /// {@macro ShadToast.closeIconData}
+  /// {@macro Toast.closeIconData}
   final IconData? closeIconData;
 
-  /// {@macro ShadToast.alignment}
+  /// {@macro Toast.alignment}
   final Alignment? alignment;
 
-  /// {@macro ShadToast.offset}
+  /// {@macro Toast.offset}
   final Offset? offset;
 
-  /// {@macro ShadToast.displayDuration}
+  /// {@macro Toast.displayDuration}
   final Duration? displayDuration;
 
   /// The old name of [displayDuration].
   @Deprecated('Use displayDuration. Will be removed in the next major version.')
   Duration? get duration => displayDuration;
 
-  /// {@macro ShadToast.animateIn}
+  /// {@macro Toast.animateIn}
   final List<Effect<dynamic>>? animateIn;
 
-  /// {@macro ShadToast.animateOut}
+  /// {@macro Toast.animateOut}
   final List<Effect<dynamic>>? animateOut;
 
-  /// {@macro ShadToast.textDirection}
+  /// {@macro Toast.textDirection}
   final TextDirection? textDirection;
 
-  /// {@macro ShadToast.crossAxisAlignment}
+  /// {@macro Toast.crossAxisAlignment}
   final CrossAxisAlignment? crossAxisAlignment;
 
-  /// {@macro ShadToast.showCloseIconOnlyWhenHovered}
+  /// {@macro Toast.showCloseIconOnlyWhenHovered}
   final bool? showCloseIconOnlyWhenHovered;
 
-  /// {@macro ShadToast.titleStyle}
+  /// {@macro Toast.titleStyle}
   final TextStyle? titleStyle;
 
-  /// {@macro ShadToast.descriptionStyle}
+  /// {@macro Toast.descriptionStyle}
   final TextStyle? descriptionStyle;
 
-  /// {@macro ShadToast.actionPadding}
+  /// {@macro Toast.actionPadding}
   final EdgeInsetsGeometry? actionPadding;
 
-  /// {@macro ShadToast.border}
-  final ShadBorder? border;
+  /// {@macro Toast.border}
+  final FinesseBorder? border;
 
-  /// {@macro ShadToast.radius}
+  /// {@macro Toast.radius}
   final BorderRadius? radius;
 
-  /// {@macro ShadToast.shadows}
+  /// {@macro Toast.shadows}
   final List<BoxShadow>? shadows;
 
-  /// {@macro ShadToast.padding}
+  /// {@macro Toast.padding}
   final EdgeInsetsGeometry? padding;
 
-  /// {@macro ShadToast.closeIconPosition}
-  final ShadPosition? closeIconPosition;
+  /// {@macro Toast.closeIconPosition}
+  final Position? closeIconPosition;
 
-  /// {@macro ShadToast.constraints}
+  /// {@macro Toast.constraints}
   final BoxConstraints? constraints;
 
-  /// {@macro ShadToast.closeIcon}
+  /// {@macro Toast.closeIcon}
   final Widget? closeIcon;
 
-  /// {@macro ShadToast.mainAxisAlignment}
+  /// {@macro Toast.mainAxisAlignment}
   final MainAxisAlignment? mainAxisAlignment;
 
-  /// {@macro ShadToast.mainAxisSize}
+  /// {@macro Toast.mainAxisSize}
   final MainAxisSize? mainAxisSize;
 
   /// Linearly interpolates between [a] and [b] by [t].
-  static ShadToastTheme? lerp(
-    ShadToastTheme? a,
-    ShadToastTheme? b,
+  static ToastTheme? lerp(
+    ToastTheme? a,
+    ToastTheme? b,
     double t,
-  ) => _$ShadToastTheme.lerp(a, b, t);
+  ) => _$ToastTheme.lerp(a, b, t);
 
   // The generated `==` compares lists by identity, so a theme built with a
-  // non-const list would never equal its own rebuild, and ShadAnimatedTheme
+  // non-const list would never equal its own rebuild, and AnimatedTheme
   // would re-lerp on every frame. Compare the lists by value, then let the
   // generated `==` compare everything else against a copy that shares them.
   @override
   bool operator ==(Object other) =>
-      other is ShadToastTheme &&
+      other is ToastTheme &&
       listEquals(animateIn, other.animateIn) &&
       listEquals(animateOut, other.animateOut) &&
       listEquals(shadows, other.shadows) &&

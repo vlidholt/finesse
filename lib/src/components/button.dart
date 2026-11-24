@@ -1,19 +1,19 @@
+import 'package:finesse/src/raw_components/focusable.dart';
+import 'package:finesse/src/theme/components/button.dart';
+import 'package:finesse/src/theme/components/button_sizes.dart';
+import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/data.dart';
+import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/debug_check.dart';
+import 'package:finesse/src/utils/gesture_detector.dart';
+import 'package:finesse/src/utils/separated_iterable.dart';
+import 'package:finesse/src/utils/states_controller.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/raw_components/focusable.dart';
-import 'package:shad/src/theme/components/button.dart';
-import 'package:shad/src/theme/components/button_sizes.dart';
-import 'package:shad/src/theme/components/decorator.dart';
-import 'package:shad/src/theme/data.dart';
-import 'package:shad/src/theme/theme.dart';
-import 'package:shad/src/utils/debug_check.dart';
-import 'package:shad/src/utils/gesture_detector.dart';
-import 'package:shad/src/utils/separated_iterable.dart';
-import 'package:shad/src/utils/states_controller.dart';
 
-/// Variants available for the [ShadButton] widget.
-enum ShadButtonVariant {
+/// Variants available for the [Button] widget.
+enum ButtonVariant {
   /// Filled with the primary colour. The default.
   primary,
 
@@ -33,13 +33,13 @@ enum ShadButtonVariant {
   link,
 }
 
-/// Size options available for the [ShadButton] widget.
+/// Size options available for the [Button] widget.
 ///
 /// Maps onto shadcn/ui's `size` prop: [regular] is `default`, plus `sm`, `lg`
 /// and `icon`.
 ///
-/// The concrete metrics for each size come from `ShadButtonSizesTheme`.
-enum ShadButtonSize {
+/// The concrete metrics for each size come from `ButtonSizesTheme`.
+enum ButtonSize {
   /// The default size, shadcn's `default`.
   regular,
 
@@ -52,21 +52,21 @@ enum ShadButtonSize {
   /// A square button sized for a single icon, matching
   /// `<Button size="icon">`.
   ///
-  /// This is the size `ShadIconButton` uses by default.
+  /// This is the size `IconButton` uses by default.
   icon,
 }
 
 /// A highly customizable button widget with variant and size options.
 ///
-/// The [ShadButton] widget provides a flexible button with multiple styling
+/// The [Button] widget provides a flexible button with multiple styling
 /// variants (primary, destructive, outline, secondary, ghost, link) and sizes
 /// (regular, small, large).
 /// It supports rich interaction states (hover, press, focus) and can include leading/trailing
 /// widgets alongside text. Use named constructors for specific variants or
-/// [ShadButton.raw] for full control.
-class ShadButton extends StatefulWidget {
+/// [Button.raw] for full control.
+class Button extends StatefulWidget {
   /// Creates a primary variant button widget.
-  const ShadButton({
+  const Button({
     super.key,
     this.child,
     this.leading,
@@ -121,11 +121,11 @@ class ShadButton extends StatefulWidget {
     this.expands,
     this.textStyle,
     this.canRequestFocus,
-  }) : variant = ShadButtonVariant.primary;
+  }) : variant = ButtonVariant.primary;
 
   /// Creates a button widget with a specified [variant], allowing full control
   /// over configuration.
-  const ShadButton.raw({
+  const Button.raw({
     super.key,
     required this.variant,
     this.size,
@@ -185,7 +185,7 @@ class ShadButton extends StatefulWidget {
 
   /// Creates a destructive variant button widget, typically for warning or
   /// error actions.
-  const ShadButton.destructive({
+  const Button.destructive({
     super.key,
     this.child,
     this.leading,
@@ -240,11 +240,11 @@ class ShadButton extends StatefulWidget {
     this.expands,
     this.textStyle,
     this.canRequestFocus,
-  }) : variant = ShadButtonVariant.destructive;
+  }) : variant = ButtonVariant.destructive;
 
   /// Creates an outline variant button widget, typically with a bordered
   /// appearance.
-  const ShadButton.outline({
+  const Button.outline({
     super.key,
     this.child,
     this.leading,
@@ -299,11 +299,11 @@ class ShadButton extends StatefulWidget {
     this.expands,
     this.textStyle,
     this.canRequestFocus,
-  }) : variant = ShadButtonVariant.outline;
+  }) : variant = ButtonVariant.outline;
 
   /// Creates a secondary variant button widget, typically for less prominent
   /// actions.
-  const ShadButton.secondary({
+  const Button.secondary({
     super.key,
     this.child,
     this.leading,
@@ -358,10 +358,10 @@ class ShadButton extends StatefulWidget {
     this.expands,
     this.textStyle,
     this.canRequestFocus,
-  }) : variant = ShadButtonVariant.secondary;
+  }) : variant = ButtonVariant.secondary;
 
   /// Creates a ghost variant button widget, typically with minimal styling.
-  const ShadButton.ghost({
+  const Button.ghost({
     super.key,
     this.child,
     this.leading,
@@ -416,10 +416,10 @@ class ShadButton extends StatefulWidget {
     this.expands,
     this.textStyle,
     this.canRequestFocus,
-  }) : variant = ShadButtonVariant.ghost;
+  }) : variant = ButtonVariant.ghost;
 
   /// Creates a link variant button widget, styled like a hyperlink.
-  const ShadButton.link({
+  const Button.link({
     super.key,
     required this.child,
     this.onPressed,
@@ -474,67 +474,67 @@ class ShadButton extends StatefulWidget {
     this.trailing,
     this.textStyle,
     this.canRequestFocus,
-  }) : variant = ShadButtonVariant.link;
+  }) : variant = ButtonVariant.link;
 
-  /// {@template ShadButton.onPressed}
+  /// {@template Button.onPressed}
   /// The callback invoked when the button is tapped.
   /// {@endtemplate}
   final VoidCallback? onPressed;
 
-  /// {@template ShadButton.onLongPress}
+  /// {@template Button.onLongPress}
   /// The callback invoked when the button is long-pressed, adding long-press
   /// functionality if provided. Controlled by [longPressDuration] for timing.
   /// {@endtemplate}
   final VoidCallback? onLongPress;
 
-  /// {@template ShadButton.leading}
+  /// {@template Button.leading}
   /// The widget displayed before the main [child], typically an icon or small
   /// graphic. Positioned according to [mainAxisAlignment] and [textDirection].
   /// {@endtemplate}
   final Widget? leading;
 
-  /// {@template ShadButton.child}
+  /// {@template Button.child}
   /// The main content widget of the button, typically a [Text] widget.
   /// Styled with the foreground color and theme text styles.
   /// {@endtemplate}
   final Widget? child;
 
-  /// {@template ShadButton.trailing}
+  /// {@template Button.trailing}
   /// The widget displayed after the main [child], typically an icon or small
   /// graphic. Positioned according to [mainAxisAlignment] and [textDirection].
   /// {@endtemplate}
   final Widget? trailing;
 
-  /// {@template ShadButton.variant}
-  /// The variant of the button, one of [ShadButtonVariant] options (primary,
+  /// {@template Button.variant}
+  /// The variant of the button, one of [ButtonVariant] options (primary,
   /// destructive, etc.). Determines the visual style applied through the
-  /// [ShadTheme].
+  /// [Theme].
   /// {@endtemplate}
-  final ShadButtonVariant variant;
+  final ButtonVariant variant;
 
-  /// {@template ShadButton.size}
-  /// The size of the button, one of [ShadButtonSize] options (regular, sm, lg).
+  /// {@template Button.size}
+  /// The size of the button, one of [ButtonSize] options (regular, sm, lg).
   /// Affects dimensions and padding unless overridden by [width], [height], or
   /// [padding].
   /// {@endtemplate}
-  final ShadButtonSize? size;
+  final ButtonSize? size;
 
-  /// {@template ShadButton.iconSize}
+  /// {@template Button.iconSize}
   /// The size handed to icons in the button that do not set one themselves.
   ///
-  /// Defaults to the size's `iconSize` in `ShadButtonSizesTheme`, shadcn's
+  /// Defaults to the size's `iconSize` in `ButtonSizesTheme`, shadcn's
   /// `[&_svg:not([class*='size-'])]:size-4`. An [Icon] with an explicit
   /// `size` is left alone either way.
   /// {@endtemplate}
   final double? iconSize;
 
-  /// {@template ShadButton.cursor}
+  /// {@template Button.cursor}
   /// The mouse cursor displayed over the button, overriding the theme default
   /// if specified. Typically [SystemMouseCursors.click] when enabled.
   /// {@endtemplate}
   final MouseCursor? cursor;
 
-  /// {@template ShadButton.width}
+  /// {@template Button.width}
   /// The explicit minimum width of the button, overriding size-based defaults.
   /// If null, it falls back to theme or size-specific minimums. When set to 0,
   /// or a value smaller than the child's width the button's width will be
@@ -542,7 +542,7 @@ class ShadButton extends StatefulWidget {
   /// {@endtemplate}
   final double? width;
 
-  /// {@template ShadButton.height}
+  /// {@template Button.height}
   /// The explicit minimum height of the button, overriding size-based defaults.
   /// If null, it falls back to theme or size-specific minimums. When set to 0,
   /// or a value smaller than the child's height the button's height will be
@@ -550,276 +550,276 @@ class ShadButton extends StatefulWidget {
   /// {@endtemplate}
   final double? height;
 
-  /// {@template ShadButton.padding}
+  /// {@template Button.padding}
   /// Padding around the button's content, overriding size-based defaults
   /// if specified. Controls internal spacing within the button.
   /// {@endtemplate}
   final EdgeInsetsGeometry? padding;
 
-  /// {@template ShadButton.backgroundColor}
+  /// {@template Button.backgroundColor}
   /// The background color of the button when not hovered or pressed, overriding
   /// the theme default if provided. Changes based on [variant] if not
   /// explicitly set.
   /// {@endtemplate}
   final Color? backgroundColor;
 
-  /// {@template ShadButton.hoverBackgroundColor}
+  /// {@template Button.hoverBackgroundColor}
   /// The background color of the button when hovered, overriding the theme
   /// default if provided.
   /// Applied during mouse hover for visual feedback.
   /// {@endtemplate}
   final Color? hoverBackgroundColor;
 
-  /// {@template ShadButton.foregroundColor}
+  /// {@template Button.foregroundColor}
   /// The color of the button's content (e.g., text, icons) when not hovered or
   /// pressed.
   /// Overrides the theme default if provided; required in theme if not set.
   /// {@endtemplate}
   final Color? foregroundColor;
 
-  /// {@template ShadButton.hoverForegroundColor}
+  /// {@template Button.hoverForegroundColor}
   /// The color of the button's content when hovered, overriding the theme
   /// default if provided.
   /// Applied during mouse hover for visual feedback.
   /// {@endtemplate}
   final Color? hoverForegroundColor;
 
-  /// {@template ShadButton.autofocus}
+  /// {@template Button.autofocus}
   /// Whether the button should automatically receive focus when the widget is
   /// built. Defaults to false; managed by [focusNode].
   /// {@endtemplate}
   final bool autofocus;
 
-  /// {@template ShadButton.focusNode}
+  /// {@template Button.focusNode}
   /// The focus node for keyboard navigation, created internally if not
   /// provided. Enables focus handling and shortcuts like Enter key activation.
   /// {@endtemplate}
   final FocusNode? focusNode;
 
-  /// {@template ShadButton.pressedBackgroundColor}
+  /// {@template Button.pressedBackgroundColor}
   /// The background color of the button when pressed, overriding the theme
   /// default if provided. Applied during tap or long-press interactions.
   /// {@endtemplate}
   final Color? pressedBackgroundColor;
 
-  /// {@template ShadButton.pressedForegroundColor}
+  /// {@template Button.pressedForegroundColor}
   /// The foreground color of the button when pressed, overriding the theme
   /// default if provided. Applied to content during tap or long-press
   /// interactions.
   /// {@endtemplate}
   final Color? pressedForegroundColor;
 
-  /// {@template ShadButton.shadows}
+  /// {@template Button.shadows}
   /// The list of box shadows applied to the button, overriding the theme
   /// default if provided. Enhances visual depth and elevation.
   /// {@endtemplate}
   final List<BoxShadow>? shadows;
 
-  /// {@template ShadButton.gradient}
+  /// {@template Button.gradient}
   /// The gradient applied to the button's background, overriding the theme
   /// default if provided. Supersedes [backgroundColor] if both are set.
   /// {@endtemplate}
   final Gradient? gradient;
 
-  /// {@template ShadButton.textDecoration}
+  /// {@template Button.textDecoration}
   /// The text decoration applied to the button's text when not hovered,
   /// overriding the theme default if provided. E.g., [TextDecoration.underline]
   /// for styling.
   /// {@endtemplate}
   final TextDecoration? textDecoration;
 
-  /// {@template ShadButton.hoverTextDecoration}
+  /// {@template Button.hoverTextDecoration}
   /// The text decoration applied to the button's text when hovered, overriding
   /// the theme default if provided. Applied during mouse hover for visual
   /// feedback.
   /// {@endtemplate}
   final TextDecoration? hoverTextDecoration;
 
-  /// {@template ShadButton.decoration}
+  /// {@template Button.decoration}
   /// Custom decoration for the button, merged with theme defaults if provided.
   /// Allows advanced styling beyond basic colors and shadows.
   /// {@endtemplate}
-  final ShadDecoration? decoration;
+  final FinesseDecoration? decoration;
 
-  /// {@template ShadButton.enabled}
+  /// {@template Button.enabled}
   /// Whether the button is interactive, defaults to true.
   /// If false, the button is disabled, visually dimmed, and non-responsive.
   /// {@endtemplate}
   final bool enabled;
 
-  /// {@template ShadButton.statesController}
+  /// {@template Button.statesController}
   /// The controller for managing button states (e.g., hovered, pressed,
   /// focused). If null, an internal controller is created.
   /// {@endtemplate}
-  final ShadStatesController? statesController;
+  final StatesController? statesController;
 
-  /// {@template ShadButton.gap}
+  /// {@template Button.gap}
   /// The gap between the button's items (e.g., [leading], [child], [trailing]).
   /// Defaults to 8 pixels if not specified.
   /// {@endtemplate}
   final double? gap;
 
-  /// {@template ShadButton.mainAxisAlignment}
+  /// {@template Button.mainAxisAlignment}
   /// The main axis alignment of the button's content within its [Row].
   /// Defaults to [MainAxisAlignment.center] if not specified.
   /// {@endtemplate}
   final MainAxisAlignment? mainAxisAlignment;
 
-  /// {@template ShadButton.crossAxisAlignment}
+  /// {@template Button.crossAxisAlignment}
   /// The cross axis alignment of the button's content within its [Row].
   /// Defaults to [CrossAxisAlignment.center] if not specified.
   /// {@endtemplate}
   final CrossAxisAlignment? crossAxisAlignment;
 
-  /// {@template ShadButton.hoverStrategies}
+  /// {@template Button.hoverStrategies}
   /// The strategies for handling hover behavior, overriding the theme default
   /// if provided. Controls how hover states are detected and applied.
   /// {@endtemplate}
-  final ShadHoverStrategies? hoverStrategies;
+  final HoverStrategies? hoverStrategies;
 
-  /// {@template ShadButton.onHoverChange}
+  /// {@template Button.onHoverChange}
   /// Callback invoked when the hover state changes, providing the new hover
   /// value. Complements internal hover state management.
   /// {@endtemplate}
   final ValueChanged<bool>? onHoverChange;
 
-  /// {@template ShadButton.onTapDown}
+  /// {@template Button.onTapDown}
   /// Callback invoked when a tap begins, providing tap details.
   /// Triggers the pressed state visually.
   /// {@endtemplate}
   final ValueChanged<TapDownDetails>? onTapDown;
 
-  /// {@template ShadButton.onTapUp}
+  /// {@template Button.onTapUp}
   /// Callback invoked when a tap ends, providing tap details.
   /// Ends the pressed state visually.
   /// {@endtemplate}
   final ValueChanged<TapUpDetails>? onTapUp;
 
-  /// {@template ShadButton.onTapCancel}
+  /// {@template Button.onTapCancel}
   /// Callback invoked when a tap is canceled.
   /// Resets the pressed state.
   /// {@endtemplate}
   final VoidCallback? onTapCancel;
 
-  /// {@template ShadButton.onSecondaryTapDown}
+  /// {@template Button.onSecondaryTapDown}
   /// Callback invoked when a secondary (e.g., right-click) tap begins,
   /// providing tap details. For advanced gesture handling.
   /// {@endtemplate}
   final ValueChanged<TapDownDetails>? onSecondaryTapDown;
 
-  /// {@template ShadButton.onSecondaryTapUp}
+  /// {@template Button.onSecondaryTapUp}
   /// Callback invoked when a secondary tap ends, providing tap details.
   /// For advanced gesture handling.
   /// {@endtemplate}
   final ValueChanged<TapUpDetails>? onSecondaryTapUp;
 
-  /// {@template ShadButton.onSecondaryTapCancel}
+  /// {@template Button.onSecondaryTapCancel}
   /// Callback invoked when a secondary tap is canceled.
   /// For advanced gesture handling.
   /// {@endtemplate}
   final VoidCallback? onSecondaryTapCancel;
 
-  /// {@template ShadButton.onLongPressStart}
+  /// {@template Button.onLongPressStart}
   /// Callback invoked when a long press begins, providing details.
   /// Part of long-press gesture handling.
   /// {@endtemplate}
   final ValueChanged<LongPressStartDetails>? onLongPressStart;
 
-  /// {@template ShadButton.onLongPressCancel}
+  /// {@template Button.onLongPressCancel}
   /// Callback invoked when a long press is canceled.
   /// Part of long-press gesture handling.
   /// {@endtemplate}
   final VoidCallback? onLongPressCancel;
 
-  /// {@template ShadButton.onLongPressUp}
+  /// {@template Button.onLongPressUp}
   /// Callback invoked when a long press ends by lifting.
   /// Part of long-press gesture handling.
   /// {@endtemplate}
   final VoidCallback? onLongPressUp;
 
-  /// {@template ShadButton.onLongPressDown}
+  /// {@template Button.onLongPressDown}
   /// Callback invoked when a long press is detected, providing details.
   /// Part of long-press gesture handling.
   /// {@endtemplate}
   final ValueChanged<LongPressDownDetails>? onLongPressDown;
 
-  /// {@template ShadButton.onLongPressEnd}
+  /// {@template Button.onLongPressEnd}
   /// Callback invoked when a long press ends, providing details.
   /// Part of long-press gesture handling.
   /// {@endtemplate}
   final ValueChanged<LongPressEndDetails>? onLongPressEnd;
 
-  /// {@template ShadButton.onDoubleTap}
+  /// {@template Button.onDoubleTap}
   /// Callback invoked when a double tap occurs.
   /// For advanced gesture handling.
   /// {@endtemplate}
   final VoidCallback? onDoubleTap;
 
-  /// {@template ShadButton.onDoubleTapDown}
+  /// {@template Button.onDoubleTapDown}
   /// Callback invoked when a double tap begins, providing details.
   /// For advanced gesture handling.
   /// {@endtemplate}
   final ValueChanged<TapDownDetails>? onDoubleTapDown;
 
-  /// {@template ShadButton.onDoubleTapCancel}
+  /// {@template Button.onDoubleTapCancel}
   /// Callback invoked when a double tap is canceled.
   /// For advanced gesture handling.
   /// {@endtemplate}
   final VoidCallback? onDoubleTapCancel;
 
-  /// {@template ShadButton.longPressDuration}
+  /// {@template Button.longPressDuration}
   /// The duration required to trigger a long press, overriding the theme
   /// default if provided. Controls the timing of [onLongPress] and related
   /// callbacks.
   /// {@endtemplate}
   final Duration? longPressDuration;
 
-  /// {@template ShadButton.textDirection}
+  /// {@template Button.textDirection}
   /// The text direction for the button's content, overriding the default if
   /// specified. Can be set to [TextDirection.ltr] or [TextDirection.rtl].
   /// {@endtemplate}
   final TextDirection? textDirection;
 
-  /// {@template ShadButton.onFocusChange}
+  /// {@template Button.onFocusChange}
   /// Callback invoked when the focus state changes, providing the new focus
   /// value. Complements internal focus state management.
   /// {@endtemplate}
   final ValueChanged<bool>? onFocusChange;
 
-  /// {@macro ShadButtonTheme.pressedOffset}
+  /// {@macro ButtonTheme.pressedOffset}
   final Offset? pressedOffset;
 
-  /// {@macro ShadButtonTheme.pressAnimationDuration}
+  /// {@macro ButtonTheme.pressAnimationDuration}
   final Duration? pressAnimationDuration;
 
-  /// {@template ShadButton.expands}
+  /// {@template Button.expands}
   /// Whether the [child] expands to fill available space along the main axis.
   /// Defaults to false if not specified.
   /// {@endtemplate}
   final bool? expands;
 
-  /// {@template ShadButton.textStyle}
+  /// {@template Button.textStyle}
   /// The text style applied to the button's [child] when it is a [Text] widget,
   /// overriding the theme default if provided.
   /// Allows customization of font size, weight, and other text properties.
   /// {@endtemplate}
   final TextStyle? textStyle;
 
-  /// {@template ShadButton.canRequestFocus}
+  /// {@template Button.canRequestFocus}
   /// Whether the button can request focus.
   /// Defaults to true if [enabled] is true, false otherwise.
   /// {@endtemplate}
   final bool? canRequestFocus;
 
   @override
-  State<ShadButton> createState() => _ShadButtonState();
+  State<Button> createState() => _ButtonState();
 }
 
-class _ShadButtonState extends State<ShadButton> {
-  ShadStatesController? _statesController;
+class _ButtonState extends State<Button> {
+  StatesController? _statesController;
   FocusNode? _focusNode;
 
-  ShadStatesController get statesController =>
+  StatesController get statesController =>
       widget.statesController ?? _statesController!;
 
   FocusNode get focusNode => widget.focusNode ?? _focusNode!;
@@ -828,8 +828,8 @@ class _ShadButtonState extends State<ShadButton> {
   void initState() {
     super.initState();
     if (widget.statesController == null) {
-      _statesController = ShadStatesController({
-        if (!widget.enabled) ShadState.disabled,
+      _statesController = StatesController({
+        if (!widget.enabled) FinesseState.disabled,
       });
     }
     if (widget.focusNode == null) _focusNode = FocusNode();
@@ -839,7 +839,7 @@ class _ShadButtonState extends State<ShadButton> {
     if (widget.statesController != null && !widget.enabled) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
-          statesController.update(ShadState.disabled, true);
+          statesController.update(FinesseState.disabled, true);
         }
       });
     }
@@ -847,13 +847,13 @@ class _ShadButtonState extends State<ShadButton> {
   }
 
   @override
-  void didUpdateWidget(covariant ShadButton oldWidget) {
+  void didUpdateWidget(covariant Button oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.enabled != widget.enabled) {
       if (widget.statesController == null) {
         // Our own controller's only listener is the builder below us, which
         // may be marked dirty while we update.
-        statesController.update(ShadState.disabled, !widget.enabled);
+        statesController.update(FinesseState.disabled, !widget.enabled);
       } else {
         // An external controller may have listeners elsewhere in the tree
         // (a menu item's trailing icon); notifying them now, mid-build, is
@@ -861,7 +861,7 @@ class _ShadButtonState extends State<ShadButton> {
         // widget.enabled, so it is correct this frame regardless.
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
-            statesController.update(ShadState.disabled, !widget.enabled);
+            statesController.update(FinesseState.disabled, !widget.enabled);
           }
         });
       }
@@ -883,43 +883,43 @@ class _ShadButtonState extends State<ShadButton> {
   }
 
   void onFocusChange() {
-    statesController.update(ShadState.focused, focusNode.hasFocus);
+    statesController.update(FinesseState.focused, focusNode.hasFocus);
   }
 
-  ShadButtonTheme buttonTheme(ShadThemeData theme) {
+  ButtonTheme buttonTheme(ThemeData theme) {
     return switch (widget.variant) {
-      ShadButtonVariant.primary => theme.primaryButtonTheme,
-      ShadButtonVariant.destructive => theme.destructiveButtonTheme,
-      ShadButtonVariant.secondary => theme.secondaryButtonTheme,
-      ShadButtonVariant.ghost => theme.ghostButtonTheme,
-      ShadButtonVariant.outline => theme.outlineButtonTheme,
-      ShadButtonVariant.link => theme.linkButtonTheme,
+      ButtonVariant.primary => theme.primaryButtonTheme,
+      ButtonVariant.destructive => theme.destructiveButtonTheme,
+      ButtonVariant.secondary => theme.secondaryButtonTheme,
+      ButtonVariant.ghost => theme.ghostButtonTheme,
+      ButtonVariant.outline => theme.outlineButtonTheme,
+      ButtonVariant.link => theme.linkButtonTheme,
     };
   }
 
-  ShadButtonSizeTheme sizeTheme(
-    ShadThemeData theme,
-    ShadButtonSize size,
+  ButtonSizeTheme sizeTheme(
+    ThemeData theme,
+    ButtonSize size,
   ) {
     switch (size) {
-      case ShadButtonSize.sm:
+      case ButtonSize.sm:
         return buttonTheme(theme).sizesTheme?.sm ?? theme.buttonSizesTheme.sm!;
-      case ShadButtonSize.lg:
+      case ButtonSize.lg:
         return buttonTheme(theme).sizesTheme?.lg ?? theme.buttonSizesTheme.lg!;
-      case ShadButtonSize.icon:
+      case ButtonSize.icon:
         return buttonTheme(theme).sizesTheme?.icon ??
             theme.buttonSizesTheme.icon!;
-      case ShadButtonSize.regular:
+      case ButtonSize.regular:
         return buttonTheme(theme).sizesTheme?.regular ??
             theme.buttonSizesTheme.regular!;
     }
   }
 
-  double defaultHeightForSize(ShadThemeData theme, ShadButtonSize size) {
+  double defaultHeightForSize(ThemeData theme, ButtonSize size) {
     return sizeTheme(theme, size).height;
   }
 
-  double height(ShadThemeData theme) {
+  double height(ThemeData theme) {
     if (widget.height != null) return widget.height!;
     if (buttonTheme(theme).height != null) {
       return buttonTheme(theme).height!;
@@ -929,15 +929,15 @@ class _ShadButtonState extends State<ShadButton> {
     }
     return defaultHeightForSize(
       theme,
-      buttonTheme(theme).size ?? ShadButtonSize.regular,
+      buttonTheme(theme).size ?? ButtonSize.regular,
     );
   }
 
-  double? defaultWidthForSize(ShadThemeData theme, ShadButtonSize size) {
+  double? defaultWidthForSize(ThemeData theme, ButtonSize size) {
     return sizeTheme(theme, size).width;
   }
 
-  double? width(ShadThemeData theme) {
+  double? width(ThemeData theme) {
     if (widget.width != null) return widget.width!;
     if (buttonTheme(theme).width != null) {
       return buttonTheme(theme).width!;
@@ -947,25 +947,25 @@ class _ShadButtonState extends State<ShadButton> {
     }
     return defaultWidthForSize(
       theme,
-      buttonTheme(theme).size ?? ShadButtonSize.regular,
+      buttonTheme(theme).size ?? ButtonSize.regular,
     );
   }
 
   EdgeInsetsGeometry defaultPaddingForSize(
-    ShadThemeData theme,
-    ShadButtonSize size,
+    ThemeData theme,
+    ButtonSize size,
   ) {
     return sizeTheme(theme, size).padding;
   }
 
-  EdgeInsetsGeometry padding(ShadThemeData theme) {
+  EdgeInsetsGeometry padding(ThemeData theme) {
     if (widget.padding != null) return widget.padding!;
     if (widget.size != null) {
       return defaultPaddingForSize(theme, widget.size!);
     }
     return defaultPaddingForSize(
       theme,
-      buttonTheme(theme).size ?? ShadButtonSize.regular,
+      buttonTheme(theme).size ?? ButtonSize.regular,
     );
   }
 
@@ -974,35 +974,35 @@ class _ShadButtonState extends State<ShadButton> {
   ///
   /// Only a default: an [Icon] carrying its own `size` still wins, which is
   /// what the reference's `:not([class*='size-'])` says.
-  double? iconSize(ShadThemeData theme) {
+  double? iconSize(ThemeData theme) {
     if (widget.iconSize != null) return widget.iconSize;
     return sizeTheme(
       theme,
-      widget.size ?? buttonTheme(theme).size ?? ShadButtonSize.regular,
+      widget.size ?? buttonTheme(theme).size ?? ButtonSize.regular,
     ).iconSize;
   }
 
-  Color? background(ShadThemeData theme) {
+  Color? background(ThemeData theme) {
     return widget.backgroundColor ?? buttonTheme(theme).backgroundColor;
   }
 
-  Color? hoverBackground(ShadThemeData theme) {
+  Color? hoverBackground(ThemeData theme) {
     return widget.hoverBackgroundColor ??
         buttonTheme(theme).hoverBackgroundColor;
   }
 
-  Color foreground(ShadThemeData theme) {
+  Color foreground(ThemeData theme) {
     if (widget.foregroundColor != null) return widget.foregroundColor!;
 
     final btnThemeForegroundColor = buttonTheme(theme).foregroundColor;
     assert(
       btnThemeForegroundColor != null,
-      'Button foregroundColor is null in ShadButtonTheme',
+      'Button foregroundColor is null in ButtonTheme',
     );
     return buttonTheme(theme).foregroundColor!;
   }
 
-  Color hoverForeground(ShadThemeData theme) {
+  Color hoverForeground(ThemeData theme) {
     if (widget.hoverForegroundColor != null) {
       return widget.hoverForegroundColor!;
     }
@@ -1011,23 +1011,23 @@ class _ShadButtonState extends State<ShadButton> {
     ).hoverForegroundColor;
     assert(
       btnThemeHoverForegroundColor != null,
-      'Button hoverForegroundColor is null in ShadButtonTheme',
+      'Button hoverForegroundColor is null in ButtonTheme',
     );
     return buttonTheme(theme).hoverForegroundColor!;
   }
 
-  Color pressedBackgroundColor(ShadThemeData theme) {
+  Color pressedBackgroundColor(ThemeData theme) {
     return widget.pressedBackgroundColor ??
         buttonTheme(theme).pressedBackgroundColor!;
   }
 
-  Color pressedForegroundColor(ShadThemeData theme) {
+  Color pressedForegroundColor(ThemeData theme) {
     return widget.pressedForegroundColor ??
         buttonTheme(theme).pressedForegroundColor!;
   }
 
   TextDecoration? textDecoration(
-    ShadThemeData theme, {
+    ThemeData theme, {
     required bool hovered,
   }) {
     if (hovered) {
@@ -1037,18 +1037,18 @@ class _ShadButtonState extends State<ShadButton> {
     return widget.textDecoration ?? buttonTheme(theme).textDecoration;
   }
 
-  MouseCursor cursor(ShadThemeData theme) {
+  MouseCursor cursor(ThemeData theme) {
     if (widget.cursor != null) return widget.cursor!;
     return (widget.enabled
         ? buttonTheme(theme).cursor ?? SystemMouseCursors.click
         : MouseCursor.defer);
   }
 
-  Gradient? gradient(ShadThemeData theme) {
+  Gradient? gradient(ThemeData theme) {
     return widget.gradient ?? buttonTheme(theme).gradient;
   }
 
-  List<BoxShadow>? shadows(ShadThemeData theme) {
+  List<BoxShadow>? shadows(ThemeData theme) {
     return widget.shadows ?? buttonTheme(theme).shadows;
   }
 
@@ -1059,8 +1059,8 @@ class _ShadButtonState extends State<ShadButton> {
 
   @override
   Widget build(BuildContext context) {
-    assert(debugCheckHasShadTheme(context));
-    final theme = ShadTheme.of(context);
+    assert(debugCheckHasTheme(context));
+    final theme = Theme.of(context);
     final iconTheme = IconTheme.of(context);
 
     final hasPressedBackgroundColor =
@@ -1071,7 +1071,7 @@ class _ShadButtonState extends State<ShadButton> {
         buttonTheme(theme).pressedForegroundColor != null;
 
     final effectiveDecoration =
-        (buttonTheme(theme).decoration ?? const ShadDecoration()).merge(
+        (buttonTheme(theme).decoration ?? const FinesseDecoration()).merge(
           widget.decoration,
         );
 
@@ -1130,10 +1130,10 @@ class _ShadButtonState extends State<ShadButton> {
       child: ValueListenableBuilder(
         valueListenable: statesController,
         builder: (context, states, _) {
-          final pressed = states.contains(ShadState.pressed);
-          final hovered = states.contains(ShadState.hovered);
+          final pressed = states.contains(FinesseState.pressed);
+          final hovered = states.contains(FinesseState.hovered);
           final enabled =
-              widget.enabled && !states.contains(ShadState.disabled);
+              widget.enabled && !states.contains(FinesseState.disabled);
 
           final effectiveBackgroundColor = hasPressedBackgroundColor && pressed
               ? pressedBackgroundColor(theme)
@@ -1181,7 +1181,7 @@ class _ShadButtonState extends State<ShadButton> {
             // the pixel offset once the height is known.
             // Requires a real handler as well as the enabled state: a button
             // with no onPressed does nothing, so it should not appear to
-            // depress. `enabled` here tracks ShadButton.enabled, which is
+            // depress. `enabled` here tracks Button.enabled, which is
             // independent of whether a callback was supplied.
             offset: pressed && enabled && widget.onPressed != null
                 ? Offset(
@@ -1216,7 +1216,7 @@ class _ShadButtonState extends State<ShadButton> {
                     opacity: enabled ? 1 : .5,
                     child: AbsorbPointer(
                       absorbing: !enabled,
-                      child: ShadFocusable(
+                      child: Focusable(
                         canRequestFocus: effectiveCanRequestFocus,
                         autofocus: widget.autofocus,
                         focusNode: focusNode,
@@ -1244,16 +1244,19 @@ class _ShadButtonState extends State<ShadButton> {
                                 ? double.infinity
                                 : effectiveHeight,
                           ),
-                          child: ShadDecorator(
+                          child: Decorator(
                             decoration: updatedDecoration,
                             focused: focused,
                             child: child,
                           ),
                         ),
-                        child: ShadGestureDetector(
+                        child: FinesseGestureDetector(
                           behavior: HitTestBehavior.opaque,
                           onHoverChange: (value) {
-                            statesController.update(ShadState.hovered, value);
+                            statesController.update(
+                              FinesseState.hovered,
+                              value,
+                            );
                             widget.onHoverChange?.call(value);
                           },
                           hoverStrategies: effectiveHoverStrategies,
@@ -1261,15 +1264,21 @@ class _ShadButtonState extends State<ShadButton> {
                           onLongPress: widget.onLongPress,
                           onTap: widget.onPressed == null ? null : onTap,
                           onTapDown: (details) {
-                            statesController.update(ShadState.pressed, true);
+                            statesController.update(FinesseState.pressed, true);
                             widget.onTapDown?.call(details);
                           },
                           onTapUp: (details) {
-                            statesController.update(ShadState.pressed, false);
+                            statesController.update(
+                              FinesseState.pressed,
+                              false,
+                            );
                             widget.onTapUp?.call(details);
                           },
                           onTapCancel: () {
-                            statesController.update(ShadState.pressed, false);
+                            statesController.update(
+                              FinesseState.pressed,
+                              false,
+                            );
                             widget.onTapCancel?.call();
                           },
                           onSecondaryTapDown: (details) {

@@ -1,15 +1,15 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class CollapsibleBasicExample extends StatelessWidget {
   const CollapsibleBasicExample({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     return SizedBox(
       width: 350,
-      child: ShadCollapsible(
+      child: Collapsible(
         trigger: (context, open, toggle) => Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -20,7 +20,7 @@ class CollapsibleBasicExample extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            ShadIconButton.ghost(
+            IconButton.ghost(
               icon: Icon(
                 open ? LucideIcons.chevronsDownUp : LucideIcons.chevronsUpDown,
               ),
@@ -34,11 +34,11 @@ class CollapsibleBasicExample extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              ShadCard(child: Text('@radix-ui/primitives')),
+              Card(child: Text('@radix-ui/primitives')),
               SizedBox(height: 8),
-              ShadCard(child: Text('@radix-ui/colors')),
+              Card(child: Text('@radix-ui/colors')),
               SizedBox(height: 8),
-              ShadCard(child: Text('@stitches/react')),
+              Card(child: Text('@stitches/react')),
             ],
           ),
         ),

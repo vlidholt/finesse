@@ -9,12 +9,12 @@ part of 'date_picker.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadDatePickerTheme {
+mixin _$DatePickerTheme {
   bool get canMerge => true;
 
-  static ShadDatePickerTheme? lerp(
-    ShadDatePickerTheme? a,
-    ShadDatePickerTheme? b,
+  static DatePickerTheme? lerp(
+    DatePickerTheme? a,
+    DatePickerTheme? b,
     double t,
   ) {
     if (identical(a, b)) {
@@ -29,7 +29,7 @@ mixin _$ShadDatePickerTheme {
       return t == 0.0 ? a : null;
     }
 
-    return ShadDatePickerTheme(
+    return DatePickerTheme(
       formatDate: t < 0.5 ? a.formatDate : b.formatDate,
       formatDateRange: t < 0.5 ? a.formatDateRange : b.formatDateRange,
       iconData: t < 0.5 ? a.iconData : b.iconData,
@@ -80,7 +80,7 @@ mixin _$ShadDatePickerTheme {
         b.navigationButtonDisabledOpacity,
         t,
       ),
-      calendarDecoration: ShadDecoration.lerp(
+      calendarDecoration: FinesseDecoration.lerp(
         a.calendarDecoration,
         b.calendarDecoration,
         t,
@@ -154,7 +154,7 @@ mixin _$ShadDatePickerTheme {
         b.dayButtonPadding,
         t,
       ),
-      dayButtonDecoration: ShadDecoration.lerp(
+      dayButtonDecoration: FinesseDecoration.lerp(
         a.dayButtonDecoration,
         b.dayButtonDecoration,
         t,
@@ -221,7 +221,7 @@ mixin _$ShadDatePickerTheme {
         b.popoverPadding,
         t,
       ),
-      popoverDecoration: ShadDecoration.lerp(
+      popoverDecoration: FinesseDecoration.lerp(
         a.popoverDecoration,
         b.popoverDecoration,
         t,
@@ -235,7 +235,7 @@ mixin _$ShadDatePickerTheme {
       ),
       cursor: t < 0.5 ? a.cursor : b.cursor,
       size: t < 0.5 ? a.size : b.size,
-      sizesTheme: ShadButtonSizesTheme.lerp(a.sizesTheme, b.sizesTheme, t),
+      sizesTheme: ButtonSizesTheme.lerp(a.sizesTheme, b.sizesTheme, t),
       buttonVariant: t < 0.5 ? a.buttonVariant : b.buttonVariant,
       backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
       hoverBackgroundColor: Color.lerp(
@@ -270,7 +270,7 @@ mixin _$ShadDatePickerTheme {
       hoverTextDecoration: t < 0.5
           ? a.hoverTextDecoration
           : b.hoverTextDecoration,
-      buttonDecoration: ShadDecoration.lerp(
+      buttonDecoration: FinesseDecoration.lerp(
         a.buttonDecoration,
         b.buttonDecoration,
         t,
@@ -297,9 +297,9 @@ mixin _$ShadDatePickerTheme {
     );
   }
 
-  ShadDatePickerTheme copyWith({
+  DatePickerTheme copyWith({
     String Function(DateTime)? formatDate,
-    String Function(ShadDateTimeRange)? formatDateRange,
+    String Function(DateTimeRange)? formatDateRange,
     IconData? iconData,
     bool? hideNavigation,
     double? yearSelectorMinWidth,
@@ -312,7 +312,7 @@ mixin _$ShadDatePickerTheme {
     IconData? forwardNavigationButtonIconData,
     EdgeInsetsGeometry? navigationButtonPadding,
     double? navigationButtonDisabledOpacity,
-    ShadDecoration? calendarDecoration,
+    FinesseDecoration? calendarDecoration,
     double? spacingBetweenMonths,
     double? runSpacingBetweenMonths,
     BoxConstraints? monthConstraints,
@@ -330,20 +330,20 @@ mixin _$ShadDatePickerTheme {
     double? dayButtonSize,
     double? dayButtonOutsideMonthOpacity,
     EdgeInsetsGeometry? dayButtonPadding,
-    ShadDecoration? dayButtonDecoration,
+    FinesseDecoration? dayButtonDecoration,
     TextStyle? selectedDayButtonTextStyle,
     TextStyle? insideRangeDayButtonTextStyle,
     TextStyle? dayButtonTextStyle,
-    ShadButtonVariant? dayButtonVariant,
-    ShadButtonVariant? selectedDayButtonVariant,
-    ShadButtonVariant? insideRangeDayButtonVariant,
-    ShadButtonVariant? todayButtonVariant,
+    ButtonVariant? dayButtonVariant,
+    ButtonVariant? selectedDayButtonVariant,
+    ButtonVariant? insideRangeDayButtonVariant,
+    ButtonVariant? todayButtonVariant,
     double? gridMainAxisSpacing,
     double? gridCrossAxisSpacing,
     TextStyle? dayButtonOutsideMonthTextStyle,
-    ShadButtonVariant? dayButtonOutsideMonthVariant,
-    ShadButtonVariant? selectedDayButtonOutsideMonthVariant,
-    ShadCalendarCaptionLayout? captionLayout,
+    ButtonVariant? dayButtonOutsideMonthVariant,
+    ButtonVariant? selectedDayButtonOutsideMonthVariant,
+    CalendarCaptionLayout? captionLayout,
     bool? hideWeekdayNames,
     bool? showOutsideDays,
     String Function(DateTime)? formatMonthYear,
@@ -357,14 +357,14 @@ mixin _$ShadDatePickerTheme {
     List<Effect<dynamic>>? effects,
     List<BoxShadow>? shadows,
     EdgeInsetsGeometry? popoverPadding,
-    ShadDecoration? popoverDecoration,
-    ShadAnchorBase? anchor,
+    FinesseDecoration? popoverDecoration,
+    AnchorBase? anchor,
     ImageFilter? filter,
     Duration? popoverReverseDuration,
     MouseCursor? cursor,
-    ShadButtonSize? size,
-    ShadButtonSizesTheme? sizesTheme,
-    ShadButtonVariant? buttonVariant,
+    ButtonSize? size,
+    ButtonSizesTheme? sizesTheme,
+    ButtonVariant? buttonVariant,
     Color? backgroundColor,
     Color? hoverBackgroundColor,
     Color? foregroundColor,
@@ -376,11 +376,11 @@ mixin _$ShadDatePickerTheme {
     Gradient? gradient,
     TextDecoration? textDecoration,
     TextDecoration? hoverTextDecoration,
-    ShadDecoration? buttonDecoration,
+    FinesseDecoration? buttonDecoration,
     double? width,
     double? height,
     Duration? longPressDuration,
-    ShadHoverStrategies? hoverStrategies,
+    HoverStrategies? hoverStrategies,
     MainAxisAlignment? mainAxisAlignment,
     CrossAxisAlignment? crossAxisAlignment,
     TextDirection? textDirection,
@@ -389,9 +389,9 @@ mixin _$ShadDatePickerTheme {
     bool? expands,
     TextStyle? buttonTextStyle,
   }) {
-    final _this = (this as ShadDatePickerTheme);
+    final _this = (this as DatePickerTheme);
 
-    return ShadDatePickerTheme(
+    return DatePickerTheme(
       formatDate: formatDate ?? _this.formatDate,
       formatDateRange: formatDateRange ?? _this.formatDateRange,
       iconData: iconData ?? _this.iconData,
@@ -512,8 +512,8 @@ mixin _$ShadDatePickerTheme {
     );
   }
 
-  ShadDatePickerTheme merge(ShadDatePickerTheme? other) {
-    final _this = (this as ShadDatePickerTheme);
+  DatePickerTheme merge(DatePickerTheme? other) {
+    final _this = (this as DatePickerTheme);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -662,8 +662,8 @@ mixin _$ShadDatePickerTheme {
       return false;
     }
 
-    final _this = (this as ShadDatePickerTheme);
-    final _other = (other as ShadDatePickerTheme);
+    final _this = (this as DatePickerTheme);
+    final _other = (other as DatePickerTheme);
 
     return _other.formatDate == _this.formatDate &&
         _other.formatDateRange == _this.formatDateRange &&
@@ -768,7 +768,7 @@ mixin _$ShadDatePickerTheme {
 
   @override
   int get hashCode {
-    final _this = (this as ShadDatePickerTheme);
+    final _this = (this as DatePickerTheme);
 
     return Object.hashAll([
       runtimeType,

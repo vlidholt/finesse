@@ -1,30 +1,30 @@
 import 'dart:ui';
 
 import 'package:boxy/flex.dart';
+import 'package:finesse/src/components/icon_button.dart';
+import 'package:finesse/src/i18n/localizations_delegate.dart';
+import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/theme/theme_scope.dart';
+import 'package:finesse/src/theme/themes/shadows.dart';
+import 'package:finesse/src/utils/animate.dart';
+import 'package:finesse/src/utils/extensions/text_style.dart';
+import 'package:finesse/src/utils/position.dart';
+import 'package:finesse/src/utils/responsive.dart';
+import 'package:finesse/src/utils/separated_iterable.dart';
+import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:shad/src/components/icon_button.dart';
-import 'package:shad/src/i18n/localizations_delegate.dart';
-import 'package:shad/src/theme/theme.dart';
-import 'package:shad/src/theme/theme_scope.dart';
-import 'package:shad/src/theme/themes/shadows.dart';
-import 'package:shad/src/utils/animate.dart';
-import 'package:shad/src/utils/extensions/text_style.dart';
-import 'package:shad/src/utils/position.dart';
-import 'package:shad/src/utils/responsive.dart';
-import 'package:shad/src/utils/separated_iterable.dart';
-import 'package:shad/src/utils/shadow.dart';
 
-/// {@template ShadDialogRoute}
+/// {@template DialogRoute}
 /// A custom dialog route that allows specifying a `reverseTransitionDuration`.
 /// Tapping the barrier pops the route when [barrierDismissible] is true.
 ///
-/// Used internally by [showShadDialog].
+/// Used internally by [showDialog].
 /// {@endtemplate}
-class ShadDialogRoute<T> extends PopupRoute<T> {
-  /// {@macro ShadDialogRoute}
-  ShadDialogRoute({
+class DialogRoute<T> extends PopupRoute<T> {
+  /// {@macro DialogRoute}
+  DialogRoute({
     required this.pageBuilder,
     this.barrierDismissible = true,
     this.barrierLabel,
@@ -38,7 +38,7 @@ class ShadDialogRoute<T> extends PopupRoute<T> {
     super.settings,
   });
 
-  /// Builds the content of the route, usually a [ShadDialog].
+  /// Builds the content of the route, usually a [Dialog].
   final WidgetBuilder pageBuilder;
 
   @override
@@ -50,7 +50,7 @@ class ShadDialogRoute<T> extends PopupRoute<T> {
   @override
   final Color? barrierColor;
 
-  /// {@template ShadDialog.barrierBlurSigma}
+  /// {@template Dialog.barrierBlurSigma}
   /// The gaussian blur applied to whatever is behind the barrier, shadcn/ui's
   /// `backdrop-blur-xs`.
   ///
@@ -69,7 +69,7 @@ class ShadDialogRoute<T> extends PopupRoute<T> {
   final RouteTransitionsBuilder? transitionBuilder;
 
   /// Not used by this route. It is kept to match the arguments of
-  /// [showShadDialog].
+  /// [showDialog].
   final Offset? anchorPoint;
 
   @override
@@ -124,11 +124,11 @@ class ShadDialogRoute<T> extends PopupRoute<T> {
   }
 }
 
-/// Displays a [ShadDialog] as a modal dialog with animation.
+/// Displays a [Dialog] as a modal dialog with animation.
 ///
 /// Shows a dialog with customizable barrier and animation properties, returning
 /// a [Future] with the result when the dialog is dismissed.
-Future<T?> showShadDialog<T>({
+Future<T?> showDialog<T>({
   /// The build context in which to show the dialog.
   required BuildContext context,
 
@@ -141,13 +141,13 @@ Future<T?> showShadDialog<T>({
 
   /// The color of the barrier behind the dialog.
   ///
-  /// Defaults to `ShadDialogTheme.barrierColor` — shadcn's `bg-black/10`,
+  /// Defaults to `DialogTheme.barrierColor` — shadcn's `bg-black/10`,
   /// which works because the barrier is also blurred.
   Color? barrierColor,
 
   /// The gaussian blur applied behind the barrier.
   ///
-  /// Defaults to `ShadDialogTheme.barrierBlurSigma`.
+  /// Defaults to `DialogTheme.barrierBlurSigma`.
   double? barrierBlurSigma,
 
   /// The accessibility label for the barrier, which dismisses the dialog.
@@ -173,8 +173,8 @@ Future<T?> showShadDialog<T>({
   List<Effect<dynamic>>? animateOut,
 
   /// The variant of the dialog to display.
-  /// Defaults to [ShadDialogVariant.primary].
-  ShadDialogVariant variant = ShadDialogVariant.primary,
+  /// Defaults to [DialogVariant.primary].
+  DialogVariant variant = DialogVariant.primary,
 
   /// Whether the route occludes the routes behind it.
   /// When false, [MediaQuery.viewInsetsOf] from the host scaffold will be
@@ -182,10 +182,10 @@ Future<T?> showShadDialog<T>({
   /// Defaults to true (standard dialog behavior).
   bool opaque = false,
 }) {
-  final theme = ShadTheme.of(context);
+  final theme = Theme.of(context);
   final effectiveDialogTheme = switch (variant) {
-    ShadDialogVariant.primary => theme.primaryDialogTheme,
-    ShadDialogVariant.alert => theme.alertDialogTheme,
+    DialogVariant.primary => theme.primaryDialogTheme,
+    DialogVariant.alert => theme.alertDialogTheme,
   };
 
   final effectiveAnimateIn =
@@ -220,29 +220,29 @@ Future<T?> showShadDialog<T>({
     );
   }
 
-  // A route is built under the Navigator, so it does not see a ShadTheme that
+  // A route is built under the Navigator, so it does not see a Theme that
   // was applied to a subtree — only the app-level one. When the call site is
-  // re-themed (see ShadThemeScope), republish its theme inside the route so
+  // re-themed (see ThemeScope), republish its theme inside the route so
   // the dialog matches its surroundings. Otherwise follow the app-level theme
   // live: capturing it here froze an open dialog or sheet in the theme it was
   // opened with, so a light/dark switch left it behind.
-  final ambientTheme = ShadTheme.of(context, listen: false);
+  final ambientTheme = Theme.of(context, listen: false);
   final navigator = Navigator.of(context, rootNavigator: useRootNavigator);
   final themedLocally =
-      ambientTheme != ShadTheme.maybeOf(navigator.context, listen: false);
+      ambientTheme != Theme.maybeOf(navigator.context, listen: false);
   final opener = context;
 
   return navigator.push(
-    ShadDialogRoute(
+    DialogRoute(
       pageBuilder: (routeContext) {
         // Depend on the app-level theme in both cases, so the route rebuilds
         // when it changes; a re-themed opener is re-read at that point.
-        final appTheme = ShadTheme.maybeOf(routeContext);
-        return ShadThemeScope(
+        final appTheme = Theme.maybeOf(routeContext);
+        return ThemeScope(
           data: !themedLocally && appTheme != null
               ? appTheme
               : opener.mounted
-              ? ShadTheme.of(opener, listen: false)
+              ? Theme.of(opener, listen: false)
               : ambientTheme,
           child: Builder(builder: builder),
         );
@@ -257,7 +257,7 @@ Future<T?> showShadDialog<T>({
           2,
       barrierDismissible: barrierDismissible,
       barrierLabel:
-          barrierLabel ?? ShadLocalizations.of(context).dialog.dismiss,
+          barrierLabel ?? FinesseLocalizations.of(context).dialog.dismiss,
       anchorPoint: anchorPoint,
       settings: routeSettings,
       opaque: opaque,
@@ -268,7 +268,7 @@ Future<T?> showShadDialog<T>({
           return child;
         }
         final animateIn = animation.status == AnimationStatus.forward;
-        return ShadAnimate(
+        return FinesseAnimate(
           effects: animateIn ? effectiveAnimateIn : effectiveAnimateOut,
           child: child,
         );
@@ -277,8 +277,8 @@ Future<T?> showShadDialog<T>({
   );
 }
 
-/// Variants available for the [ShadDialog] widget.
-enum ShadDialogVariant {
+/// Variants available for the [Dialog] widget.
+enum DialogVariant {
   /// A standard dialog with a close button.
   primary,
 
@@ -289,14 +289,14 @@ enum ShadDialogVariant {
 
 /// A customizable dialog widget for displaying content and actions.
 ///
-/// The [ShadDialog] widget provides a styled container for presenting a title,
+/// The [Dialog] widget provides a styled container for presenting a title,
 /// description, custom content, and actions in a modal format. It supports
-/// variants (primary and alert) and integrates with [ShadTheme] for styling.
-/// Use named constructors like [ShadDialog.alert] for alert-specific styling or
-/// [ShadDialog.raw] for full control.
-class ShadDialog extends StatelessWidget {
+/// variants (primary and alert) and integrates with [Theme] for styling.
+/// Use named constructors like [Dialog.alert] for alert-specific styling or
+/// [Dialog.raw] for full control.
+class Dialog extends StatelessWidget {
   /// Creates a primary variant dialog widget.
-  const ShadDialog({
+  const Dialog({
     super.key,
     this.title,
     this.description,
@@ -334,11 +334,11 @@ class ShadDialog extends StatelessWidget {
     this.titlePinned,
     this.descriptionPinned,
     this.actionsPinned,
-  }) : variant = ShadDialogVariant.primary;
+  }) : variant = DialogVariant.primary;
 
   /// Creates an alert variant dialog widget, typically for warnings or
   /// critical messages.
-  const ShadDialog.alert({
+  const Dialog.alert({
     super.key,
     this.title,
     this.description,
@@ -376,11 +376,11 @@ class ShadDialog extends StatelessWidget {
     this.titlePinned,
     this.descriptionPinned,
     this.actionsPinned,
-  }) : variant = ShadDialogVariant.alert;
+  }) : variant = DialogVariant.alert;
 
   /// Creates a dialog widget with a specified [variant], offering full
   /// customization.
-  const ShadDialog.raw({
+  const Dialog.raw({
     super.key,
     required this.variant,
     this.title,
@@ -421,59 +421,59 @@ class ShadDialog extends StatelessWidget {
     this.actionsPinned,
   });
 
-  /// {@template ShadDialog.title}
+  /// {@template Dialog.title}
   /// The title widget displayed at the top of the dialog.
   /// Typically a [Text] widget, styled with the theme’s large text style.
   /// {@endtemplate}
   final Widget? title;
 
-  /// {@template ShadDialog.description}
+  /// {@template Dialog.description}
   /// The description widget displayed below the title.
   /// Typically a [Text] widget, styled with the theme’s muted style.
   /// {@endtemplate}
   final Widget? description;
 
-  /// {@template ShadDialog.child}
+  /// {@template Dialog.child}
   /// The main content widget of the dialog, displayed below the description.
   /// Expands to fill available space if scrollable.
   /// {@endtemplate}
   final Widget? child;
 
-  /// {@template ShadDialog.variant}
-  /// The variant of the dialog, either [ShadDialogVariant.primary] or
-  /// [ShadDialogVariant.alert]. Determines the visual style applied through the
-  /// [ShadTheme].
+  /// {@template Dialog.variant}
+  /// The variant of the dialog, either [DialogVariant.primary] or
+  /// [DialogVariant.alert]. Determines the visual style applied through the
+  /// [Theme].
   /// {@endtemplate}
-  final ShadDialogVariant variant;
+  final DialogVariant variant;
 
-  /// {@template ShadDialog.actions}
+  /// {@template Dialog.actions}
   /// The list of action widgets displayed at the bottom of the dialog.
   /// Typically buttons, arranged based on [actionsAxis].
   /// Defaults to an empty list if not specified.
   /// {@endtemplate}
   final List<Widget> actions;
 
-  /// {@template ShadDialog.closeIcon}
+  /// {@template Dialog.closeIcon}
   /// The custom widget for the close button.
   /// Overrides [closeIconData] if provided; defaults to a ghost button with an
   /// 'X' icon.
   /// {@endtemplate}
   final Widget? closeIcon;
 
-  /// {@template ShadDialog.closeIconData}
+  /// {@template Dialog.closeIconData}
   /// The icon data for the close button.
   /// Used if [closeIcon] is null; defaults to [LucideIcons.x] if not specified.
   /// {@endtemplate}
   final IconData? closeIconData;
 
-  /// {@template ShadDialog.onClose}
+  /// {@template Dialog.onClose}
   /// Called when the default close button is pressed. Defaults to
   /// `Navigator.maybePop`, which respects a `PopScope` around the dialog.
   /// Not used when [closeIcon] replaces the button.
   /// {@endtemplate}
   final VoidCallback? onClose;
 
-  /// {@template ShadDialog.semanticLabel}
+  /// {@template Dialog.semanticLabel}
   /// The accessible name of the dialog, announced when it opens.
   ///
   /// Defaults to null, in which case screen readers fall back to reading the
@@ -481,140 +481,140 @@ class ShadDialog extends StatelessWidget {
   /// {@endtemplate}
   final String? semanticLabel;
 
-  /// {@template ShadDialog.closeIconPosition}
+  /// {@template Dialog.closeIconPosition}
   /// The position of the close icon within the dialog.
   /// Defaults to top-end (8, 8) if not specified.
   /// {@endtemplate}
-  final ShadPosition? closeIconPosition;
+  final Position? closeIconPosition;
 
-  /// {@template ShadDialog.radius}
+  /// {@template Dialog.radius}
   /// The border radius of the dialog’s corners.
   /// Defaults to the theme’s radius if not specified.
   /// {@endtemplate}
   final BorderRadius? radius;
 
-  /// {@template ShadDialog.backgroundColor}
+  /// {@template Dialog.backgroundColor}
   /// The background color of the dialog.
   /// Defaults to the theme’s background color if not specified.
   /// {@endtemplate}
   final Color? backgroundColor;
 
-  /// {@template ShadDialog.expandActionsWhenTiny}
+  /// {@template Dialog.expandActionsWhenTiny}
   /// Whether actions expand to full width on small screens.
   /// Defaults to true if not specified.
   /// {@endtemplate}
   final bool? expandActionsWhenTiny;
 
-  /// {@template ShadDialog.padding}
+  /// {@template Dialog.padding}
   /// The padding inside the dialog, surrounding all content.
   /// Defaults to EdgeInsets.all(24) if not specified.
   /// {@endtemplate}
   final EdgeInsetsGeometry? padding;
 
-  /// {@template ShadDialog.gap}
+  /// {@template Dialog.gap}
   /// The gap between content elements (title, description, child, actions).
   /// Defaults to 8 if not specified.
   /// {@endtemplate}
   final double? gap;
 
-  /// {@template ShadDialog.constraints}
+  /// {@template Dialog.constraints}
   /// Constraints applied to the dialog’s layout.
   /// Defaults to a max width of 512 if not specified.
   /// {@endtemplate}
   final BoxConstraints? constraints;
 
-  /// {@template ShadDialog.border}
+  /// {@template Dialog.border}
   /// The border surrounding the dialog.
   /// Defaults to a border with the theme’s border color if not specified.
   /// {@endtemplate}
   final BoxBorder? border;
 
-  /// {@template ShadDialog.shadows}
+  /// {@template Dialog.shadows}
   /// The list of box shadows applied to the dialog for elevation.
   /// Defaults to large shadows if not specified.
   /// {@endtemplate}
   final List<BoxShadow>? shadows;
 
-  /// {@template ShadDialog.removeBorderRadiusWhenTiny}
+  /// {@template Dialog.removeBorderRadiusWhenTiny}
   /// Whether to remove the border radius on small screens.
   /// Defaults to true if not specified.
   /// {@endtemplate}
   final bool? removeBorderRadiusWhenTiny;
 
-  /// {@template ShadDialog.actionsAxis}
+  /// {@template Dialog.actionsAxis}
   /// The axis along which actions are arranged (horizontal or vertical).
   /// Responsive to screen size if not specified.
   /// {@endtemplate}
   final Axis? actionsAxis;
 
-  /// {@template ShadDialog.actionsMainAxisSize}
+  /// {@template Dialog.actionsMainAxisSize}
   /// The main axis size of the actions layout.
   /// Defaults to [MainAxisSize.max] if not specified.
   /// {@endtemplate}
   final MainAxisSize? actionsMainAxisSize;
 
-  /// {@template ShadDialog.actionsMainAxisAlignment}
+  /// {@template Dialog.actionsMainAxisAlignment}
   /// The main axis alignment of the actions.
   /// Defaults to [MainAxisAlignment.end] if not specified.
   /// {@endtemplate}
   final MainAxisAlignment? actionsMainAxisAlignment;
 
-  /// {@template ShadDialog.actionsVerticalDirection}
+  /// {@template Dialog.actionsVerticalDirection}
   /// The vertical direction of the actions layout when vertical.
   /// Responsive to screen size if not specified.
   /// {@endtemplate}
   final VerticalDirection? actionsVerticalDirection;
 
-  /// {@template ShadDialog.titleStyle}
+  /// {@template Dialog.titleStyle}
   /// The text style for the title.
   /// Defaults to the theme’s large text style if not specified.
   /// {@endtemplate}
   final TextStyle? titleStyle;
 
-  /// {@template ShadDialog.descriptionStyle}
+  /// {@template Dialog.descriptionStyle}
   /// The text style for the description.
   /// Defaults to the theme’s muted text style if not specified.
   /// {@endtemplate}
   final TextStyle? descriptionStyle;
 
-  /// {@template ShadDialog.titleTextAlign}
+  /// {@template Dialog.titleTextAlign}
   /// The text alignment for the title.
   /// Responsive to screen size if not specified.
   /// {@endtemplate}
   final TextAlign? titleTextAlign;
 
-  /// {@template ShadDialog.descriptionTextAlign}
+  /// {@template Dialog.descriptionTextAlign}
   /// The text alignment for the description.
   /// Responsive to screen size if not specified.
   /// {@endtemplate}
   final TextAlign? descriptionTextAlign;
 
-  /// {@template ShadDialog.alignment}
+  /// {@template Dialog.alignment}
   /// The alignment of the dialog within its parent container.
   /// Defaults to [Alignment.center] if not specified.
   /// {@endtemplate}
   final Alignment? alignment;
 
-  /// {@template ShadDialog.mainAxisAlignment}
+  /// {@template Dialog.mainAxisAlignment}
   /// The main axis alignment of the dialog’s column content.
   /// Defaults to [MainAxisAlignment.start] if not specified.
   /// {@endtemplate}
   final MainAxisAlignment? mainAxisAlignment;
 
-  /// {@template ShadDialog.crossAxisAlignment}
+  /// {@template Dialog.crossAxisAlignment}
   /// The cross axis alignment of the dialog’s column content.
   /// Defaults to [CrossAxisAlignment.start] if not specified.
   /// {@endtemplate}
   final CrossAxisAlignment? crossAxisAlignment;
 
-  /// {@template ShadDialog.scrollable}
+  /// {@template Dialog.scrollable}
   /// Whether the dialog content is scrollable.
   ///
   /// Defaults to true if not specified.
   /// {@endtemplate}
   final bool? scrollable;
 
-  /// {@template ShadDialog.scrollPadding}
+  /// {@template Dialog.scrollPadding}
   /// The padding applied when the dialog content is scrollable.
   ///
   /// If not specified, no additional padding is applied to the scrollable
@@ -622,14 +622,14 @@ class ShadDialog extends StatelessWidget {
   /// {@endtemplate}
   final EdgeInsetsGeometry? scrollPadding;
 
-  /// {@template ShadDialog.actionsGap}
+  /// {@template Dialog.actionsGap}
   /// The gap between action buttons.
 
   /// Defaults to 8 if not specified.
   /// {@endtemplate}
   final double? actionsGap;
 
-  /// {@template ShadDialog.useSafeArea}
+  /// {@template Dialog.useSafeArea}
   /// Whether to wrap the dialog in a SafeArea widget to avoid system UI
   /// intrusions.
   ///
@@ -637,21 +637,21 @@ class ShadDialog extends StatelessWidget {
   /// {@endtemplate}
   final bool? useSafeArea;
 
-  /// {@template ShadDialog.titlePinned}
+  /// {@template Dialog.titlePinned}
   /// Whether the title is pinned when scrolling and [scrollable] is true.
   ///
   /// Defaults to false if not specified.
   /// {@endtemplate}
   final bool? titlePinned;
 
-  /// {@template ShadDialog.descriptionPinned}
+  /// {@template Dialog.descriptionPinned}
   /// Whether the description is pinned when scrolling and [scrollable] is true.
   ///
   /// Defaults to false if not specified.
   /// {@endtemplate}
   final bool? descriptionPinned;
 
-  /// {@template ShadDialog.actionsPinned}
+  /// {@template Dialog.actionsPinned}
   /// Whether the actions are pinned when scrolling and [scrollable] is true.
   ///
   /// Defaults to true if not specified.
@@ -660,10 +660,10 @@ class ShadDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     final effectiveDialogTheme = switch (variant) {
-      ShadDialogVariant.primary => theme.primaryDialogTheme,
-      ShadDialogVariant.alert => theme.alertDialogTheme,
+      DialogVariant.primary => theme.primaryDialogTheme,
+      DialogVariant.alert => theme.alertDialogTheme,
     };
 
     final effectiveBackgroundColor =
@@ -675,7 +675,7 @@ class ShadDialog extends StatelessWidget {
         closeIcon ??
         (closeIconData == null && effectiveDialogTheme.closeIconData == null
             ? null
-            : ShadIconButton.ghost(
+            : IconButton.ghost(
                 icon: Icon(
                   size: 16,
                   closeIconData ??
@@ -691,14 +691,14 @@ class ShadDialog extends StatelessWidget {
                 hoverBackgroundColor: const Color(0x00000000),
                 hoverForegroundColor: theme.colorScheme.foreground,
                 pressedForegroundColor: theme.colorScheme.foreground,
-                semanticLabel: ShadLocalizations.of(context).dialog.close,
+                semanticLabel: FinesseLocalizations.of(context).dialog.close,
                 onPressed: onClose ?? () => Navigator.of(context).maybePop(),
               ));
 
     final effectiveCloseIconPosition =
         closeIconPosition ??
         effectiveDialogTheme.closeIconPosition ??
-        ShadPosition.directional(
+        Position.directional(
           top: 8,
           end: 8,
           textDirection: Directionality.of(context),
@@ -723,7 +723,7 @@ class ShadDialog extends StatelessWidget {
         Border.all(color: theme.colorScheme.border);
 
     final effectiveShadows =
-        shadows ?? effectiveDialogTheme.shadows ?? ShadShadows.lg;
+        shadows ?? effectiveDialogTheme.shadows ?? Shadows.lg;
 
     final effectiveRemoveBorderRadiusWhenTiny =
         removeBorderRadiusWhenTiny ??
@@ -782,7 +782,7 @@ class ShadDialog extends StatelessWidget {
 
     final dialog = ConstrainedBox(
       constraints: effectiveConstraints,
-      child: ShadResponsiveBuilder(
+      child: ResponsiveBuilder(
         builder: (context, breakpoint) {
           final sm = breakpoint >= theme.breakpoints.sm;
 
@@ -833,7 +833,7 @@ class ShadDialog extends StatelessWidget {
           if (!sm &&
               effectiveExpandActionsWhenTiny &&
               effectiveActions != null) {
-            effectiveActions = ShadTheme(
+            effectiveActions = Theme(
               data: theme.copyWith(
                 primaryButtonTheme: theme.primaryButtonTheme.copyWith(
                   width: double.infinity,
@@ -954,7 +954,7 @@ class ShadDialog extends StatelessWidget {
           }
 
           return DecoratedBox(
-            decoration: ShadShadowDecoration.box(
+            decoration: ShadowDecoration.box(
               color: effectiveBackgroundColor,
               borderRadius: (!sm && effectiveRemoveBorderRadiusWhenTiny)
                   ? null
@@ -974,7 +974,7 @@ class ShadDialog extends StatelessWidget {
     return Semantics(
       // Matches what Flutter's own AlertDialog publishes: the dialog names the
       // route it scopes, and its children are described explicitly rather than
-      // being flattened into one label. ShadDialogRoute extends PopupRoute, so
+      // being flattened into one label. DialogRoute extends PopupRoute, so
       // the focus trap and focus restoration already come from ModalRoute.
       scopesRoute: true,
       explicitChildNodes: true,

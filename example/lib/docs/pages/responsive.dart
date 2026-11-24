@@ -13,12 +13,12 @@ final responsiveDoc = ComponentDoc(
         children: [
           DocParagraph(
             "The theme carries six breakpoints matching Tailwind's "
-            'scale. Override any of them on `ShadThemeData`:',
+            'scale. Override any of them on `ThemeData`:',
           ),
           CodeBlock(
             code: '''
-ShadThemeData(
-  breakpoints: ShadBreakpoints(
+ThemeData(
+  breakpoints: Breakpoints(
     tn: 0,     // tiny
     sm: 640,
     md: 768,
@@ -34,15 +34,15 @@ ShadThemeData(
         title: 'Reading the current breakpoint',
         children: [
           DocParagraph(
-            '`ShadResponsiveBuilder` rebuilds with the breakpoint for the '
+            '`ResponsiveBuilder` rebuilds with the breakpoint for the '
             'current width; `context.breakpoint` reads the same value '
             'inline.',
           ),
           CodeBlock(
             code: '''
-ShadResponsiveBuilder(
+ResponsiveBuilder(
   builder: (context, breakpoint) {
-    final sm = breakpoint >= ShadTheme.of(context).breakpoints.sm;
+    final sm = breakpoint >= Theme.of(context).breakpoints.sm;
     return sm ? const WideLayout() : const NarrowLayout();
   },
 )''',
@@ -64,12 +64,12 @@ ShadResponsiveBuilder(
           CodeBlock(
             code: '''
 return switch (context.breakpoint) {
-  ShadBreakpointTN() => const Text('Tiny'),
-  ShadBreakpointSM() => const Text('Small'),
-  ShadBreakpointMD() => const Text('Medium'),
-  ShadBreakpointLG() => const Text('Large'),
-  ShadBreakpointXL() => const Text('Extra large'),
-  ShadBreakpointXXL() => const Text('Extra extra large'),
+  BreakpointTN() => const Text('Tiny'),
+  BreakpointSM() => const Text('Small'),
+  BreakpointMD() => const Text('Medium'),
+  BreakpointLG() => const Text('Large'),
+  BreakpointXL() => const Text('Extra large'),
+  BreakpointXXL() => const Text('Extra extra large'),
 };''',
           ),
         ],

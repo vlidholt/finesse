@@ -1,28 +1,28 @@
 import 'package:flutter/widgets.dart';
 
-/// The font family shad bundled before 1.0.
+/// The font family finesse bundled before 1.0.
 @Deprecated(
-  'shad no longer bundles fonts, so this family resolves to nothing and text '
-  'falls back to the platform font. Set ShadTextTheme(family: ...) to a font '
-  'your app declares, or use ShadTextTheme.fromGoogleFont. '
+  'finesse no longer bundles fonts, so this family resolves to nothing and text '
+  'falls back to the platform font. Set TextTheme(family: ...) to a font '
+  'your app declares, or use TextTheme.fromGoogleFont. '
   'Will be removed in the next major version.',
 )
-const kDefaultFontFamily = 'packages/shad/Inter';
+const kDefaultFontFamily = 'packages/finesse/Inter';
 
-/// The monospace font family shad bundled before 1.0.
+/// The monospace font family finesse bundled before 1.0.
 @Deprecated(
-  'shad no longer bundles fonts, so this family resolves to nothing and text '
+  'finesse no longer bundles fonts, so this family resolves to nothing and text '
   'falls back to the platform font. Use a monospace family your app declares. '
   'Will be removed in the next major version.',
 )
-const kDefaultFontFamilyMono = 'packages/shad/GeistMono';
+const kDefaultFontFamilyMono = 'packages/finesse/GeistMono';
 
-/// The default text styles of a `ShadTextTheme`, before a style's text roles
+/// The default text styles of a `TextTheme`, before a style's text roles
 /// are applied.
 ///
 /// `family` is null by default, so text uses the platform font unless the
 /// app sets one.
-abstract class ShadTextDefaultTheme {
+abstract class TextDefaultTheme {
   /// The display heading: 48px, extra-bold.
   static TextStyle h1Large({
     String? family,

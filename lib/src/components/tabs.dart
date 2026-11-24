@@ -1,24 +1,24 @@
 import 'dart:math' as math;
 
+import 'package:finesse/src/components/button.dart';
+import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/theme/themes/shadows.dart';
+import 'package:finesse/src/utils/border.dart';
+import 'package:finesse/src/utils/gesture_detector.dart';
+import 'package:finesse/src/utils/provider.dart';
+import 'package:finesse/src/utils/states_controller.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/components/button.dart';
-import 'package:shad/src/theme/components/decorator.dart';
-import 'package:shad/src/theme/theme.dart';
-import 'package:shad/src/theme/themes/shadows.dart';
-import 'package:shad/src/utils/border.dart';
-import 'package:shad/src/utils/gesture_detector.dart';
-import 'package:shad/src/utils/provider.dart';
-import 'package:shad/src/utils/states_controller.dart';
 
-/// A controller for [ShadTabs] to manage tab selection.
+/// A controller for [Tabs] to manage tab selection.
 ///
 /// Extends [ChangeNotifier] to provide reactive updates when the selected tab
 /// changes.
-class ShadTabsController<T> extends ChangeNotifier {
-  /// Creates a [ShadTabsController] with an initial selected value.
-  ShadTabsController({required T value}) : _selected = value;
+class TabsController<T> extends ChangeNotifier {
+  /// Creates a [TabsController] with an initial selected value.
+  TabsController({required T value}) : _selected = value;
 
   T _selected;
 
@@ -37,18 +37,18 @@ class ShadTabsController<T> extends ChangeNotifier {
   }
 }
 
-/// A restorable version of [ShadTabsController] for state persistence.
+/// A restorable version of [TabsController] for state persistence.
 ///
 /// Useful for maintaining tab selection across widget rebuilds and state
 /// restoration.
-class ShadRestorableTabsController<T>
-    extends RestorableChangeNotifier<ShadTabsController<T>> {
-  /// Creates a [ShadRestorableTabsController].
-  factory ShadRestorableTabsController({required T value}) =>
-      ShadRestorableTabsController.fromValue(value);
+class RestorableTabsController<T>
+    extends RestorableChangeNotifier<TabsController<T>> {
+  /// Creates a [RestorableTabsController].
+  factory RestorableTabsController({required T value}) =>
+      RestorableTabsController.fromValue(value);
 
-  /// Creates a [ShadRestorableTabsController] from a given value.
-  ShadRestorableTabsController.fromValue(T value) : selected = value;
+  /// Creates a [RestorableTabsController] from a given value.
+  RestorableTabsController.fromValue(T value) : selected = value;
 
   /// The value used to create the default controller and saved for state
   /// restoration.
@@ -57,13 +57,13 @@ class ShadRestorableTabsController<T>
   T selected;
 
   @override
-  ShadTabsController<T> createDefaultValue() {
-    return ShadTabsController<T>(value: selected);
+  TabsController<T> createDefaultValue() {
+    return TabsController<T>(value: selected);
   }
 
   @override
-  ShadTabsController<T> fromPrimitives(Object? data) {
-    return ShadTabsController<T>(value: data! as T);
+  TabsController<T> fromPrimitives(Object? data) {
+    return TabsController<T>(value: data! as T);
   }
 
   @override
@@ -74,19 +74,19 @@ class ShadRestorableTabsController<T>
   }
 }
 
-/// {@template ShadTabs}
+/// {@template Tabs}
 /// A widget that displays a horizontal series of tabs with associated content.
 ///
-/// When no [ShadTab] has `content`, only the tab list is shown, with no gap
+/// When no [Tab] has `content`, only the tab list is shown, with no gap
 /// below it. That is the standalone tabs list, or segmented control, that
 /// switches something elsewhere on the page through `onChanged`.
 ///
 /// Supports scrollable and non-scrollable layouts, custom styling, and state
 /// management.
 /// {@endtemplate}
-class ShadTabs<T> extends StatefulWidget implements PreferredSizeWidget {
-  /// {@macro ShadTabs}
-  const ShadTabs({
+class Tabs<T> extends StatefulWidget implements PreferredSizeWidget {
+  /// {@macro Tabs}
+  const Tabs({
     super.key,
     this.value,
     required this.tabs,
@@ -110,22 +110,22 @@ class ShadTabs<T> extends StatefulWidget implements PreferredSizeWidget {
          'Either value or controller must be provided',
        );
 
-  /// {@template ShadTabs.value}
+  /// {@template Tabs.value}
   /// The currently selected tab.
   /// {@endtemplate}
   final T? value;
 
-  /// {@template ShadTabs.tabs}
+  /// {@template Tabs.tabs}
   /// The tabs to display.
   /// {@endtemplate}
-  final List<ShadTab<T>> tabs;
+  final List<Tab<T>> tabs;
 
-  /// {@template ShadTabs.controller}
+  /// {@template Tabs.controller}
   /// The controller of the tabs.
   /// {@endtemplate}
-  final ShadTabsController<T>? controller;
+  final TabsController<T>? controller;
 
-  /// {@template ShadTabs.expandTabs}
+  /// {@template Tabs.expandTabs}
   /// Whether the tabs share the full width of the bar.
   ///
   /// Defaults to false, matching shadcn/ui's `w-fit` list: a tab is as wide as
@@ -133,74 +133,74 @@ class ShadTabs<T> extends StatefulWidget implements PreferredSizeWidget {
   /// {@endtemplate}
   final bool? expandTabs;
 
-  /// {@template ShadTabs.tabsGap}
+  /// {@template Tabs.tabsGap}
   /// The horizontal gap between the tabs in the tabBar.
   /// {@endtemplate}
   final double? tabsGap;
 
-  /// {@template ShadTabs.tabBarAlignment}
+  /// {@template Tabs.tabBarAlignment}
   /// The alignment of the tabBar.
   /// {@endtemplate}
   final Alignment? tabBarAlignment;
 
-  /// {@template ShadTabs.gap}
+  /// {@template Tabs.gap}
   /// The gap between the tabBar and the content.
   /// {@endtemplate}
   final double? gap;
 
-  /// {@template ShadTabs.scrollable}
+  /// {@template Tabs.scrollable}
   /// Whether the tabs should be scrollable, defaults to false.
   /// {@endtemplate}
   final bool? scrollable;
 
-  /// {@template ShadTabs.dragStartBehavior}
+  /// {@template Tabs.dragStartBehavior}
   /// The drag start behavior of the tabs, defaults to [DragStartBehavior.start]
   /// {@endtemplate}
   final DragStartBehavior? dragStartBehavior;
 
-  /// {@template ShadTabs.physics}
+  /// {@template Tabs.physics}
   /// The physics of the tabs, defaults to null.
   /// {@endtemplate}
   final ScrollPhysics? physics;
 
-  /// {@template ShadTabs.padding}
+  /// {@template Tabs.padding}
   /// The padding of the tabs, defaults to `EdgeInsets.zero`.
   /// {@endtemplate}
   final EdgeInsetsGeometry? padding;
 
-  /// {@template ShadTabs.decoration}
+  /// {@template Tabs.decoration}
   /// The decoration of the tabs.
   /// {@endtemplate}
-  final ShadDecoration? decoration;
+  final FinesseDecoration? decoration;
 
-  /// {@template ShadTabs.tabBarConstraints}
+  /// {@template Tabs.tabBarConstraints}
   /// The constraints of the tab bar, defaults to `null`.
   /// {@endtemplate}
   final BoxConstraints? tabBarConstraints;
 
-  /// {@template ShadTabs.contentConstraints}
+  /// {@template Tabs.contentConstraints}
   /// The constraints of the content, defaults to `null`.
   /// {@endtemplate}
   final BoxConstraints? contentConstraints;
 
-  /// {@template ShadTabs.restorationId}
+  /// {@template Tabs.restorationId}
   /// The restoration id, defaults to `null`.
   /// {@endtemplate}
   final String? restorationId;
 
-  /// {@template ShadTabs.onChanged}
+  /// {@template Tabs.onChanged}
   /// The callback that is called when the value of the tabs changes.
   /// {@endtemplate}
   final ValueChanged<T>? onChanged;
 
-  /// {@template ShadTabs.maintainState}
+  /// {@template Tabs.maintainState}
   /// Whether to maintain the state of the tabs when switching between them.
   /// Defaults to true.
   /// {@endtemplate}
   final bool? maintainState;
 
   @override
-  State<ShadTabs<T>> createState() => ShadTabsState<T>();
+  State<Tabs<T>> createState() => TabsState<T>();
 
   @override
   Size get preferredSize {
@@ -213,20 +213,19 @@ class ShadTabs<T> extends StatefulWidget implements PreferredSizeWidget {
   }
 }
 
-/// The state of a [ShadTabs].
-class ShadTabsState<T> extends State<ShadTabs<T>> with RestorationMixin {
+/// The state of a [Tabs].
+class TabsState<T> extends State<Tabs<T>> with RestorationMixin {
   late List<GlobalKey> _tabKeys;
 
-  /// The values of the tabs, in the order of [ShadTabs.tabs].
+  /// The values of the tabs, in the order of [Tabs.tabs].
   @protected
   late List<T> orderedValues;
 
-  ShadRestorableTabsController<T>? _controller;
+  RestorableTabsController<T>? _controller;
 
-  /// The controller in use: [ShadTabs.controller], or an internal restorable
+  /// The controller in use: [Tabs.controller], or an internal restorable
   /// one when that is null.
-  ShadTabsController<T> get controller =>
-      widget.controller ?? _controller!.value;
+  TabsController<T> get controller => widget.controller ?? _controller!.value;
 
   /// Scrolls the tab list when [scrollable] is true.
   @protected
@@ -234,7 +233,7 @@ class ShadTabsState<T> extends State<ShadTabs<T>> with RestorationMixin {
 
   /// Whether the tabs share the full width of the bar.
   bool expandTabs(BuildContext context) =>
-      widget.expandTabs ?? ShadTheme.of(context).tabsTheme.expandTabs ?? false;
+      widget.expandTabs ?? Theme.of(context).tabsTheme.expandTabs ?? false;
 
   /// Whether the tab list scrolls horizontally. Defaults to false.
   bool get scrollable => widget.scrollable ?? false;
@@ -250,7 +249,7 @@ class ShadTabsState<T> extends State<ShadTabs<T>> with RestorationMixin {
   }
 
   @override
-  void didUpdateWidget(covariant ShadTabs<T> oldWidget) {
+  void didUpdateWidget(covariant Tabs<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
 
     if (widget.controller == null && oldWidget.controller != null) {
@@ -293,7 +292,7 @@ class ShadTabsState<T> extends State<ShadTabs<T>> with RestorationMixin {
 
   void _createLocalController(T value) {
     assert(_controller == null);
-    _controller = ShadRestorableTabsController<T>.fromValue(value);
+    _controller = RestorableTabsController<T>.fromValue(value);
     if (!restorePending) {
       _registerController();
     }
@@ -309,7 +308,7 @@ class ShadTabsState<T> extends State<ShadTabs<T>> with RestorationMixin {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     final tabsTheme = theme.tabsTheme;
 
     final effectiveDragStartBehavior =
@@ -320,9 +319,9 @@ class ShadTabsState<T> extends State<ShadTabs<T>> with RestorationMixin {
     final effectivePadding =
         widget.padding ?? tabsTheme.padding ?? EdgeInsets.zero;
 
-    final effectiveDecoration = ShadDecoration(
+    final effectiveDecoration = FinesseDecoration(
       color: theme.colorScheme.muted,
-      border: ShadBorder.all(radius: theme.radius, width: 0),
+      border: FinesseBorder.all(radius: theme.radius, width: 0),
     ).merge(tabsTheme.decoration).merge(widget.decoration);
 
     final effectiveGap = widget.gap ?? tabsTheme.gap ?? 8;
@@ -376,17 +375,17 @@ class ShadTabsState<T> extends State<ShadTabs<T>> with RestorationMixin {
       tabBar = Align(alignment: effectiveTabBarAlignment, child: tabBar);
     }
 
-    return ShadProvider(
-      data: this as ShadTabsState<dynamic>,
+    return Provider(
+      data: this as TabsState<dynamic>,
       notifyUpdate: (_) => true,
       child: ListenableBuilder(
         listenable: controller,
         builder: (context, _) {
-          final decoratedBar = ShadDecorator(
+          final decoratedBar = Decorator(
             decoration: effectiveDecoration,
             child: tabBar,
           );
-          // With no panels, ShadTabs is just its list: shadcn's TabsList on
+          // With no panels, Tabs is just its list: shadcn's TabsList on
           // its own, the segmented control of a toolbar or settings row.
           if (widget.tabs.every((tab) => tab.content == null)) {
             return decoratedBar;
@@ -438,14 +437,14 @@ class ShadTabsState<T> extends State<ShadTabs<T>> with RestorationMixin {
   }
 }
 
-/// {@template ShadTab}
-/// Represents a single tab item within a [ShadTabs] widget.
+/// {@template Tab}
+/// Represents a single tab item within a [Tabs] widget.
 ///
 /// Includes properties for styling, content, and interaction handling.
 /// {@endtemplate}
-class ShadTab<T> extends StatefulWidget implements PreferredSizeWidget {
-  /// {@macro ShadTab}
-  const ShadTab({
+class Tab<T> extends StatefulWidget implements PreferredSizeWidget {
+  /// {@macro Tab}
+  const Tab({
     super.key,
     required this.value,
     required this.child,
@@ -501,280 +500,280 @@ class ShadTab<T> extends StatefulWidget implements PreferredSizeWidget {
     this.maintainState,
   });
 
-  /// {@template ShadTab.value}
+  /// {@template Tab.value}
   /// The value associated with this tab, used for selection and identification.
   /// {@endtemplate}
   final T value;
 
-  /// {@template ShadTab.child}
+  /// {@template Tab.child}
   /// The widget to display as the tab's label, typically a [Text] widget.
   /// {@endtemplate}
   final Widget child;
 
-  /// {@template ShadTab.content}
+  /// {@template Tab.content}
   /// The widget to display as the content associated with this tab.
   ///
   /// Displayed when the tab is selected.
   /// {@endtemplate}
   final Widget? content;
 
-  /// {@template ShadTab.leading}
+  /// {@template Tab.leading}
   /// A widget to display at the start of the tab, often an [Icon].
   /// {@endtemplate}
   final Widget? leading;
 
-  /// {@template ShadTab.trailing}
+  /// {@template Tab.trailing}
   /// A widget to display at the end of the tab.
   /// {@endtemplate}
   final Widget? trailing;
 
-  /// {@template ShadTab.enabled}
+  /// {@template Tab.enabled}
   /// Whether the tab is enabled and can be selected.
   ///
   /// Defaults to true.
   /// {@endtemplate}
   final bool enabled;
 
-  /// {@template ShadTab.flex}
+  /// {@template Tab.flex}
   /// Flex factor for the tab when it's part of a [Row] in a non-scrollable
-  /// [ShadTabs].
+  /// [Tabs].
   ///
-  /// Ignored when [ShadTabs] is scrollable. Defaults to 1.
+  /// Ignored when [Tabs] is scrollable. Defaults to 1.
   /// {@endtemplate}
   final int flex;
 
-  /// {@template ShadTab.height}
+  /// {@template Tab.height}
   /// Height of the tab.
   ///
   /// Defaults to 32.
   /// {@endtemplate}
   final double? height;
 
-  /// {@template ShadTab.width}
+  /// {@template Tab.width}
   /// Width of the tab.
   ///
-  /// In non-scrollable [ShadTabs], defaults to `double.infinity`. In scrollable
-  /// [ShadTabs], defaults to null, allowing the tab to size to its content.
+  /// In non-scrollable [Tabs], defaults to `double.infinity`. In scrollable
+  /// [Tabs], defaults to null, allowing the tab to size to its content.
   /// {@endtemplate}
   final double? width;
 
-  /// {@template ShadTab.backgroundColor}
+  /// {@template Tab.backgroundColor}
   /// Background color of the tab when unselected.
   ///
   /// Defaults to `Colors.transparent`.
   /// {@endtemplate}
   final Color? backgroundColor;
 
-  /// {@template ShadTab.selectedBackgroundColor}
+  /// {@template Tab.selectedBackgroundColor}
   /// Background color of the tab when selected.
   ///
   /// Defaults to theme's background color.
   /// {@endtemplate}
   final Color? selectedBackgroundColor;
 
-  /// {@template ShadTab.hoverBackgroundColor}
+  /// {@template Tab.hoverBackgroundColor}
   /// Background color when hovered.
   ///
   /// Defaults to [backgroundColor].
   /// {@endtemplate}
   final Color? hoverBackgroundColor;
 
-  /// {@template ShadTab.selectedHoverBackgroundColor}
+  /// {@template Tab.selectedHoverBackgroundColor}
   /// Background color when selected and hovered.
   ///
   /// Defaults to [selectedBackgroundColor].
   /// {@endtemplate}
   final Color? selectedHoverBackgroundColor;
 
-  /// {@template ShadTab.padding}
+  /// {@template Tab.padding}
   /// Padding within the tab.
   ///
   /// Defaults to `EdgeInsets.symmetric(horizontal: 12, vertical: 6)`.
   /// {@endtemplate}
   final EdgeInsetsGeometry? padding;
 
-  /// {@template ShadTab.decoration}
+  /// {@template Tab.decoration}
   /// Decoration for the tab when unselected.
   ///
-  /// Uses [ShadDecoration].
+  /// Uses [FinesseDecoration].
   /// {@endtemplate}
-  final ShadDecoration? decoration;
+  final FinesseDecoration? decoration;
 
-  /// {@template ShadTab.selectedDecoration}
+  /// {@template Tab.selectedDecoration}
   /// Decoration for the tab when selected.
   ///
-  /// Defaults to [decoration]. Uses [ShadDecoration].
+  /// Defaults to [decoration]. Uses [FinesseDecoration].
   /// {@endtemplate}
-  final ShadDecoration? selectedDecoration;
+  final FinesseDecoration? selectedDecoration;
 
-  /// {@template ShadTab.foregroundColor}
+  /// {@template Tab.foregroundColor}
   /// Foreground color (text/icon color) when unselected.
   ///
   /// Defaults to theme's foreground color.
   /// {@endtemplate}
   final Color? foregroundColor;
 
-  /// {@template ShadTab.selectedForegroundColor}
+  /// {@template Tab.selectedForegroundColor}
   /// Foreground color when selected.
   ///
   /// Defaults to [foregroundColor].
   /// {@endtemplate}
   final Color? selectedForegroundColor;
 
-  /// {@template ShadTab.textStyle}
+  /// {@template Tab.textStyle}
   /// Text style for the tab label.
   ///
   /// Defaults to theme's small text style.
   /// {@endtemplate}
   final TextStyle? textStyle;
 
-  /// {@template ShadTab.shadows}
+  /// {@template Tab.shadows}
   /// Shadows for the tab when unselected.
   ///
-  /// Defaults to small shadows ([ShadShadows.sm]).
+  /// Defaults to small shadows ([Shadows.sm]).
   /// {@endtemplate}
   final List<BoxShadow>? shadows;
 
-  /// {@template ShadTab.selectedShadows}
+  /// {@template Tab.selectedShadows}
   /// Shadows for the tab when selected.
   ///
-  /// Defaults to small shadows ([ShadShadows.sm]).
+  /// Defaults to small shadows ([Shadows.sm]).
   /// {@endtemplate}
   final List<BoxShadow>? selectedShadows;
 
-  /// {@template ShadTab.focusNode}
+  /// {@template Tab.focusNode}
   /// Focus node to control the focus state of the tab.
   ///
   /// If null, an internal [FocusNode] is created.
   /// {@endtemplate}
   final FocusNode? focusNode;
 
-  /// {@template ShadTab.onPressed}
+  /// {@template Tab.onPressed}
   /// Callback for tap events on the tab.
   /// {@endtemplate}
   final VoidCallback? onPressed;
 
-  /// {@template ShadTab.onLongPress}
+  /// {@template Tab.onLongPress}
   /// Callback for long-press events on the tab.
   /// {@endtemplate}
   final VoidCallback? onLongPress;
 
-  /// {@template ShadTab.size}
-  /// Size configuration for the tab, uses [ShadButtonSize].
+  /// {@template Tab.size}
+  /// Size configuration for the tab, uses [ButtonSize].
   /// {@endtemplate}
-  final ShadButtonSize? size;
+  final ButtonSize? size;
 
-  /// {@template ShadTab.cursor}
+  /// {@template Tab.cursor}
   /// Mouse cursor when hovering over the tab.
   /// {@endtemplate}
   final MouseCursor? cursor;
 
-  /// {@template ShadTab.hoverForegroundColor}
+  /// {@template Tab.hoverForegroundColor}
   /// Foreground color when hovered.
   /// {@endtemplate}
   final Color? hoverForegroundColor;
 
-  /// {@template ShadTab.autofocus}
+  /// {@template Tab.autofocus}
   /// Whether the tab should automatically focus on build.
   ///
   /// Defaults to false.
   /// {@endtemplate}
   final bool autofocus;
 
-  /// {@template ShadTab.pressedBackgroundColor}
+  /// {@template Tab.pressedBackgroundColor}
   /// Background color when pressed.
   /// {@endtemplate}
   final Color? pressedBackgroundColor;
 
-  /// {@template ShadTab.pressedForegroundColor}
+  /// {@template Tab.pressedForegroundColor}
   /// Foreground color when pressed.
   /// {@endtemplate}
   final Color? pressedForegroundColor;
 
-  /// {@template ShadTab.gradient}
+  /// {@template Tab.gradient}
   /// Background gradient for the tab.
   /// {@endtemplate}
   final Gradient? gradient;
 
-  /// {@template ShadTab.textDecoration}
+  /// {@template Tab.textDecoration}
   /// Text decoration for the tab label.
   /// {@endtemplate}
   final TextDecoration? textDecoration;
 
-  /// {@template ShadTab.hoverTextDecoration}
+  /// {@template Tab.hoverTextDecoration}
   /// Text decoration when hovered.
   /// {@endtemplate}
   final TextDecoration? hoverTextDecoration;
 
-  /// {@template ShadTab.statesController}
+  /// {@template Tab.statesController}
   /// Custom states controller for managing tab states.
   /// {@endtemplate}
-  final ShadStatesController? statesController;
+  final StatesController? statesController;
 
-  /// {@macro ShadButton.mainAxisAlignment}
+  /// {@macro Button.mainAxisAlignment}
   final MainAxisAlignment? mainAxisAlignment;
 
-  /// {@macro ShadButton.crossAxisAlignment}
+  /// {@macro Button.crossAxisAlignment}
   final CrossAxisAlignment? crossAxisAlignment;
 
-  /// {@macro ShadButton.hoverStrategies}
-  final ShadHoverStrategies? hoverStrategies;
+  /// {@macro Button.hoverStrategies}
+  final HoverStrategies? hoverStrategies;
 
-  /// {@macro ShadButton.onHoverChange}
+  /// {@macro Button.onHoverChange}
   final ValueChanged<bool>? onHoverChange;
 
-  /// {@macro ShadButton.onTapDown}
+  /// {@macro Button.onTapDown}
   final ValueChanged<TapDownDetails>? onTapDown;
 
-  /// {@macro ShadButton.onTapUp}
+  /// {@macro Button.onTapUp}
   final ValueChanged<TapUpDetails>? onTapUp;
 
-  /// {@macro ShadButton.onTapCancel}
+  /// {@macro Button.onTapCancel}
   final VoidCallback? onTapCancel;
 
-  /// {@macro ShadButton.onLongPressStart}
+  /// {@macro Button.onLongPressStart}
   final ValueChanged<LongPressStartDetails>? onLongPressStart;
 
-  /// {@macro ShadButton.onLongPressCancel}
+  /// {@macro Button.onLongPressCancel}
   final VoidCallback? onLongPressCancel;
 
-  /// {@macro ShadButton.onLongPressUp}
+  /// {@macro Button.onLongPressUp}
   final VoidCallback? onLongPressUp;
 
-  /// {@macro ShadButton.onLongPressDown}
+  /// {@macro Button.onLongPressDown}
   final ValueChanged<LongPressDownDetails>? onLongPressDown;
 
-  /// {@macro ShadButton.onLongPressEnd}
+  /// {@macro Button.onLongPressEnd}
   final ValueChanged<LongPressEndDetails>? onLongPressEnd;
 
-  /// {@macro ShadButton.onDoubleTap}
+  /// {@macro Button.onDoubleTap}
   final VoidCallback? onDoubleTap;
 
-  /// {@macro ShadButton.onDoubleTapDown}
+  /// {@macro Button.onDoubleTapDown}
   final ValueChanged<TapDownDetails>? onDoubleTapDown;
 
-  /// {@macro ShadButton.onDoubleTapCancel}
+  /// {@macro Button.onDoubleTapCancel}
   final VoidCallback? onDoubleTapCancel;
 
-  /// {@macro ShadButton.longPressDuration}
+  /// {@macro Button.longPressDuration}
   final Duration? longPressDuration;
 
-  /// {@template ShadTab.expand}
+  /// {@template Tab.expand}
   /// Whether the tab content should be expanded, defaults to `false`.
   /// {@endtemplate}
   final bool? expandContent;
 
-  /// {@template ShadTab.maintainState}
+  /// {@template Tab.maintainState}
   /// Whether to maintain the state of this tab when switching away from it.
   ///
-  /// When set, overrides the global [ShadTabs.maintainState] for this specific
-  /// tab. When null, falls back to [ShadTabs.maintainState] (which defaults to
+  /// When set, overrides the global [Tabs.maintainState] for this specific
+  /// tab. When null, falls back to [Tabs.maintainState] (which defaults to
   /// true).
   /// {@endtemplate}
   final bool? maintainState;
 
   @override
-  State<ShadTab<T>> createState() => _ShadTabState<T>();
+  State<Tab<T>> createState() => _TabState<T>();
 
   @override
   Size get preferredSize {
@@ -782,7 +781,7 @@ class ShadTab<T> extends StatefulWidget implements PreferredSizeWidget {
   }
 }
 
-class _ShadTabState<T> extends State<ShadTab<T>> {
+class _TabState<T> extends State<Tab<T>> {
   FocusNode? _focusNode;
 
   FocusNode get focusNode => widget.focusNode ?? _focusNode!;
@@ -797,7 +796,7 @@ class _ShadTabState<T> extends State<ShadTab<T>> {
   }
 
   @override
-  void didUpdateWidget(covariant ShadTab<T> oldWidget) {
+  void didUpdateWidget(covariant Tab<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.focusNode == null && oldWidget.focusNode != null) {
       focusNode.removeListener(focusNodeListener);
@@ -823,9 +822,8 @@ class _ShadTabState<T> extends State<ShadTab<T>> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
-    final inherited =
-        context.watch<ShadTabsState<dynamic>>() as ShadTabsState<T>;
+    final theme = Theme.of(context);
+    final inherited = context.watch<TabsState<dynamic>>() as TabsState<T>;
 
     void onMayChanged() {
       final hasChanged = inherited.controller.select(widget.value);
@@ -878,9 +876,7 @@ class _ShadTabState<T> extends State<ShadTab<T>> {
 
     final effectiveShadows = widget.shadows ?? tabsTheme.tabShadows;
     final effectiveSelectedShadows =
-        widget.selectedShadows ??
-        tabsTheme.tabSelectedShadows ??
-        ShadShadows.sm;
+        widget.selectedShadows ?? tabsTheme.tabSelectedShadows ?? Shadows.sm;
 
     final effectiveMainAxisAlignment =
         widget.mainAxisAlignment ?? tabsTheme.tabMainAxisAlignment;
@@ -912,26 +908,29 @@ class _ShadTabState<T> extends State<ShadTab<T>> {
         final selected = inherited.controller.selected == widget.value;
 
         final defaultDecoration = switch (theme.disableSecondaryBorder) {
-          true => ShadDecoration(
-            border: ShadBorder.all(
+          true => FinesseDecoration(
+            border: FinesseBorder.all(
               radius: BorderRadius.circular(2),
               width: 0,
               padding: const EdgeInsets.all(2),
             ),
-            focusedBorder: ShadBorder.all(
+            focusedBorder: FinesseBorder.all(
               width: 2,
               radius: BorderRadius.circular(2),
               color: theme.colorScheme.ring,
             ),
           ),
-          false => ShadDecoration(
-            border: ShadBorder.all(radius: BorderRadius.circular(2), width: 0),
+          false => FinesseDecoration(
+            border: FinesseBorder.all(
+              radius: BorderRadius.circular(2),
+              width: 0,
+            ),
             // No inner gutter around a tab: the strip's own `p-[3px]` is the
             // only inset in the reference. The old 4px secondary padding
             // shrank every tab inside its box, which read as too much space
             // between the tabs and the strip's border. The focus ring is the
             // standard outward ring; like shadcn's, it may overlap the strip.
-            secondaryFocusedBorder: ShadBorder.all(
+            secondaryFocusedBorder: FinesseBorder.all(
               width: 2,
               radius: theme.radius,
               offset: 2,
@@ -949,7 +948,7 @@ class _ShadTabState<T> extends State<ShadTab<T>> {
             .merge(widget.decoration)
             .merge(selected ? widget.selectedDecoration : null);
 
-        return ShadButton.secondary(
+        return Button.secondary(
           canRequestFocus: selected,
           leading: widget.leading,
           trailing: widget.trailing,

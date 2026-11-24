@@ -1,5 +1,5 @@
 name: example
-description: "The shad docs site, component browser and theme editor."
+description: "The finesse docs site, component browser and theme editor."
 
 publish_to: "none"
 
@@ -12,7 +12,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  shad:
+  finesse:
     path: ..
   flutter_solidart: ^2.1.0
   google_fonts: ^8.2.1
@@ -51,8 +51,8 @@ flutter:
     - lib/docs/examples/empty/
     - lib/docs/examples/form/
     - lib/docs/examples/icon_button/
-    - lib/docs/examples/input/
-    - lib/docs/examples/input_otp/
+    - lib/docs/examples/text_field/
+    - lib/docs/examples/otp_field/
     - lib/docs/examples/kbd/
     - lib/docs/examples/surface/
     - lib/docs/examples/scroll_area/
@@ -63,11 +63,11 @@ flutter:
     - lib/docs/examples/pagination/
     - lib/docs/examples/popover/
     - lib/docs/examples/portal/
-    - lib/docs/examples/progress/
+    - lib/docs/examples/progress_bar/
     - lib/docs/examples/radio_group/
     - lib/docs/examples/resizable/
     - lib/docs/examples/select/
-    - lib/docs/examples/separator/
+    - lib/docs/examples/divider/
     - lib/docs/examples/sheet/
     - lib/docs/examples/sidebar/
     - lib/docs/examples/skeleton/

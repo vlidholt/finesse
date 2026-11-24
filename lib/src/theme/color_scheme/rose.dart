@@ -1,17 +1,17 @@
+import 'package:finesse/src/theme/color_scheme/base.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/color_scheme/base.dart';
 
 /// The shadcn/ui v3 `rose` theme: a neutral base with a rose primary.
 ///
-/// Kept for compatibility. In v4, apply `ShadAccentScheme.roseLight` or
-/// `ShadAccentScheme.roseDark` to a base colour scheme instead.
+/// Kept for compatibility. In v4, apply `AccentScheme.roseLight` or
+/// `AccentScheme.roseDark` to a base colour scheme instead.
 @immutable
-class ShadRoseColorScheme extends ShadColorScheme {
-  /// Creates a [ShadRoseColorScheme] from explicit colours.
+class RoseColorScheme extends ColorScheme {
+  /// Creates a [RoseColorScheme] from explicit colours.
   ///
-  /// Use [ShadRoseColorScheme.light] or [ShadRoseColorScheme.dark] for the
+  /// Use [RoseColorScheme.light] or [RoseColorScheme.dark] for the
   /// shadcn/ui values.
-  const ShadRoseColorScheme({
+  const RoseColorScheme({
     required super.background,
     required super.foreground,
     required super.card,
@@ -35,10 +35,10 @@ class ShadRoseColorScheme extends ShadColorScheme {
     super.custom,
   });
 
-  /// Creates the light variant of [ShadRoseColorScheme].
+  /// Creates the light variant of [RoseColorScheme].
   ///
   /// Every colour defaults to its light-mode value.
-  const ShadRoseColorScheme.light({
+  const RoseColorScheme.light({
     super.background = const Color(0xffffffff),
     super.foreground = const Color(0xff09090b),
     super.card = const Color(0xffffffff),
@@ -62,10 +62,10 @@ class ShadRoseColorScheme extends ShadColorScheme {
     super.custom,
   });
 
-  /// Creates the dark variant of [ShadRoseColorScheme].
+  /// Creates the dark variant of [RoseColorScheme].
   ///
   /// Every colour defaults to its dark-mode value.
-  const ShadRoseColorScheme.dark({
+  const RoseColorScheme.dark({
     super.background = const Color(0xff0c0a09),
     super.foreground = const Color(0xfff2f2f2),
     super.card = const Color(0xff1c1917),

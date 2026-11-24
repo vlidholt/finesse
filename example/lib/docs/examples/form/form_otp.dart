@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class FormOtpExample extends StatefulWidget {
   const FormOtpExample({super.key});
@@ -9,42 +9,42 @@ class FormOtpExample extends StatefulWidget {
 }
 
 class _FormOtpExampleState extends State<FormOtpExample> {
-  final formKey = GlobalKey<ShadFormState>();
+  final formKey = GlobalKey<FinesseFormState>();
 
   @override
   Widget build(BuildContext context) {
-    return ShadForm(
+    return FinesseForm(
       key: formKey,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: 16,
         children: [
-          ShadInputOTPFormField(
+          OtpFormField(
             id: 'otp',
             maxLength: 6,
             label: const Text('OTP'),
             description: const Text('Enter your one-time password.'),
             validator: (v) => v.contains(' ') ? 'Fill the whole code' : null,
             children: const [
-              ShadInputOTPGroup(
+              OtpFieldGroup(
                 children: [
-                  ShadInputOTPSlot(),
-                  ShadInputOTPSlot(),
-                  ShadInputOTPSlot(),
+                  OtpFieldSlot(),
+                  OtpFieldSlot(),
+                  OtpFieldSlot(),
                 ],
               ),
               Icon(LucideIcons.dot),
-              ShadInputOTPGroup(
+              OtpFieldGroup(
                 children: [
-                  ShadInputOTPSlot(),
-                  ShadInputOTPSlot(),
-                  ShadInputOTPSlot(),
+                  OtpFieldSlot(),
+                  OtpFieldSlot(),
+                  OtpFieldSlot(),
                 ],
               ),
             ],
           ),
-          ShadButton(
+          Button(
             child: const Text('Verify'),
             onPressed: () => formKey.currentState!.saveAndValidate(),
           ),

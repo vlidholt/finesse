@@ -1,24 +1,24 @@
+import 'package:finesse/src/components/dialog.dart';
+import 'package:finesse/src/components/text_field.dart';
+import 'package:finesse/src/i18n/localizations_delegate.dart';
+import 'package:finesse/src/raw_components/roving_focus.dart';
+import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/theme/themes/shadows.dart';
+import 'package:finesse/src/utils/border.dart';
+import 'package:finesse/src/utils/debug_check.dart';
+import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:shad/src/components/dialog.dart';
-import 'package:shad/src/components/input.dart';
-import 'package:shad/src/i18n/localizations_delegate.dart';
-import 'package:shad/src/raw_components/roving_focus.dart';
-import 'package:shad/src/theme/components/decorator.dart';
-import 'package:shad/src/theme/theme.dart';
-import 'package:shad/src/theme/themes/shadows.dart';
-import 'package:shad/src/utils/border.dart';
-import 'package:shad/src/utils/debug_check.dart';
-import 'package:shad/src/utils/gesture_detector.dart';
 
-/// A single selectable row in a [ShadCommand].
+/// A single selectable row in a [Command].
 ///
 /// This is a description rather than a widget: the command renders it, so that
 /// filtering, highlighting and keyboard navigation stay in one place.
 @immutable
-class ShadCommandItem {
+class CommandItem {
   /// Creates an item. Only [label] is required.
-  const ShadCommandItem({
+  const CommandItem({
     required this.label,
     this.onSelected,
     this.leading,
@@ -37,7 +37,7 @@ class ShadCommandItem {
   /// An icon shown before the label.
   final Widget? leading;
 
-  /// Shown at the end of the row, typically a `ShadKbd` shortcut hint.
+  /// Shown at the end of the row, typically a `Kbd` shortcut hint.
   final Widget? trailing;
 
   /// Extra terms the filter should match, for synonyms the label omits.
@@ -48,18 +48,18 @@ class ShadCommandItem {
   /// Whether the item can be chosen.
   final bool enabled;
 
-  /// An arbitrary payload, surfaced through [ShadCommand.onItemSelected].
+  /// An arbitrary payload, surfaced through [Command.onItemSelected].
   final Object? value;
 
   /// The haystack the default filter searches.
   String get searchText => [label, ...keywords].join(' ').toLowerCase();
 }
 
-/// A titled run of [ShadCommandItem]s.
+/// A titled run of [CommandItem]s.
 @immutable
-class ShadCommandGroup {
+class CommandGroup {
   /// Creates a group of [items] under an optional [heading].
-  const ShadCommandGroup({
+  const CommandGroup({
     required this.items,
     this.heading,
   });
@@ -69,33 +69,33 @@ class ShadCommandGroup {
   final String? heading;
 
   /// The items in the group, in display order.
-  final List<ShadCommandItem> items;
+  final List<CommandItem> items;
 }
 
 /// Filters items against the current query.
 ///
 /// Return the items to show, in the order to show them.
-typedef ShadCommandFilter =
-    List<ShadCommandItem> Function(
-      List<ShadCommandItem> items,
+typedef CommandFilter =
+    List<CommandItem> Function(
+      List<CommandItem> items,
       String query,
     );
 
-/// {@template ShadCommand}
+/// {@template Command}
 /// A searchable command palette.
 ///
 /// Mirrors shadcn/ui's `Command`: a filter field over a grouped, keyboard
-/// navigable list. Use [showShadCommandDialog] for the ⌘K overlay, or embed
-/// [ShadCommand] directly inside a popover or a page.
+/// navigable list. Use [showCommandDialog] for the ⌘K overlay, or embed
+/// [Command] directly inside a popover or a page.
 ///
 /// ```dart
-/// ShadCommand(
+/// Command(
 ///   groups: [
-///     ShadCommandGroup(
+///     CommandGroup(
 ///       heading: 'Suggestions',
 ///       items: [
-///         ShadCommandItem(label: 'Calendar', onSelected: openCalendar),
-///         ShadCommandItem(label: 'Search Emoji', keywords: ['emoji']),
+///         CommandItem(label: 'Calendar', onSelected: openCalendar),
+///         CommandItem(label: 'Search Emoji', keywords: ['emoji']),
 ///       ],
 ///     ),
 ///   ],
@@ -106,9 +106,9 @@ typedef ShadCommandFilter =
 /// Escape closes. The highlight is a roving one — the search field keeps
 /// keyboard focus throughout, so the user can keep typing.
 /// {@endtemplate}
-class ShadCommand extends StatefulWidget {
-  /// {@macro ShadCommand}
-  const ShadCommand({
+class Command extends StatefulWidget {
+  /// {@macro Command}
+  const Command({
     super.key,
     required this.groups,
     this.placeholder,
@@ -132,7 +132,7 @@ class ShadCommand extends StatefulWidget {
   /// The grouped items.
   ///
   /// Pass a single group with no heading for an ungrouped list.
-  final List<ShadCommandGroup> groups;
+  final List<CommandGroup> groups;
 
   /// The placeholder of the search field.
   final Widget? placeholder;
@@ -144,7 +144,7 @@ class ShadCommand extends StatefulWidget {
   final Widget Function(BuildContext context, String query)? emptyBuilder;
 
   /// Called with the chosen item, in addition to its own `onSelected`.
-  final ValueChanged<ShadCommandItem>? onItemSelected;
+  final ValueChanged<CommandItem>? onItemSelected;
 
   /// Called whenever the query changes.
   final ValueChanged<String>? onQueryChanged;
@@ -154,7 +154,7 @@ class ShadCommand extends StatefulWidget {
   /// Defaults to a case-insensitive substring match over the label and
   /// keywords, preserving the declared order. Supply your own for fuzzy or
   /// server-side matching.
-  final ShadCommandFilter? filter;
+  final CommandFilter? filter;
 
   /// A controller for the search field.
   final TextEditingController? controller;
@@ -165,27 +165,27 @@ class ShadCommand extends StatefulWidget {
   /// Called when Escape is pressed.
   final VoidCallback? onEscape;
 
-  /// {@template ShadCommand.backgroundColor}
+  /// {@template Command.backgroundColor}
   /// The background color of the palette.
   /// {@endtemplate}
   final Color? backgroundColor;
 
-  /// {@template ShadCommand.decoration}
+  /// {@template Command.decoration}
   /// The decoration of the palette.
   /// {@endtemplate}
-  final ShadDecoration? decoration;
+  final FinesseDecoration? decoration;
 
-  /// {@template ShadCommand.padding}
+  /// {@template Command.padding}
   /// The padding around the palette's contents.
   /// {@endtemplate}
   final EdgeInsetsGeometry? padding;
 
-  /// {@template ShadCommand.height}
+  /// {@template Command.height}
   /// The height of the palette.
   /// {@endtemplate}
   final double? height;
 
-  /// {@template ShadCommand.width}
+  /// {@template Command.width}
   /// The width of the palette.
   /// {@endtemplate}
   final double? width;
@@ -198,7 +198,7 @@ class ShadCommand extends StatefulWidget {
 
   /// The corner radius of an item, overriding the theme's.
   ///
-  /// [showShadCommandDialog] passes the theme's `dialogItemRadius` here —
+  /// [showCommandDialog] passes the theme's `dialogItemRadius` here —
   /// shadcn rounds items a step further inside a dialog than inline.
   final BorderRadiusGeometry? itemRadius;
 
@@ -207,8 +207,8 @@ class ShadCommand extends StatefulWidget {
   ///
   /// Exposed so a custom [filter] can fall back to it, and so the matching
   /// rule can be tested directly.
-  static List<ShadCommandItem> defaultFilter(
-    List<ShadCommandItem> items,
+  static List<CommandItem> defaultFilter(
+    List<CommandItem> items,
     String query,
   ) {
     final normalized = query.trim().toLowerCase();
@@ -217,21 +217,21 @@ class ShadCommand extends StatefulWidget {
   }
 
   @override
-  State<ShadCommand> createState() => ShadCommandState();
+  State<Command> createState() => CommandState();
 }
 
-/// The state of a [ShadCommand].
-class ShadCommandState extends State<ShadCommand> {
+/// The state of a [Command].
+class CommandState extends State<Command> {
   TextEditingController? _internalController;
 
-  /// The controller of the search field: [ShadCommand.controller] when given,
+  /// The controller of the search field: [Command.controller] when given,
   /// otherwise an internal one.
   TextEditingController get searchController =>
       widget.controller ?? _internalController!;
 
-  final _rovingController = ShadRovingFocusController();
+  final _rovingController = RovingFocusController();
   final _scrollController = ScrollController();
-  final _searchFocusNode = FocusNode(debugLabel: 'ShadCommand search');
+  final _searchFocusNode = FocusNode(debugLabel: 'Command search');
 
   /// The keys of the currently visible item rows, used to scroll the
   /// highlighted one into view.
@@ -250,7 +250,7 @@ class ShadCommandState extends State<ShadCommand> {
   /// Groups are flattened because the highlight moves across group boundaries
   /// — a user pressing Down at the end of one group lands on the first item of
   /// the next.
-  List<ShadCommandItem> _visibleItems = const [];
+  List<CommandItem> _visibleItems = const [];
 
   @override
   void initState() {
@@ -264,7 +264,7 @@ class ShadCommandState extends State<ShadCommand> {
   }
 
   @override
-  void didUpdateWidget(ShadCommand oldWidget) {
+  void didUpdateWidget(Command oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.controller != oldWidget.controller) {
       (oldWidget.controller ?? _internalController)?.removeListener(
@@ -338,7 +338,7 @@ class ShadCommandState extends State<ShadCommand> {
     );
   }
 
-  void _select(ShadCommandItem item) {
+  void _select(CommandItem item) {
     if (!item.enabled) return;
     item.onSelected?.call();
     widget.onItemSelected?.call(item);
@@ -351,16 +351,16 @@ class ShadCommandState extends State<ShadCommand> {
 
   @override
   Widget build(BuildContext context) {
-    assert(debugCheckHasShadTheme(context));
-    final theme = ShadTheme.of(context);
+    assert(debugCheckHasTheme(context));
+    final theme = Theme.of(context);
     final commandTheme = theme.commandTheme;
 
-    final filter = widget.filter ?? ShadCommand.defaultFilter;
+    final filter = widget.filter ?? Command.defaultFilter;
 
     // Filter per group so an empty group can drop its heading too, while the
     // flat list keeps the highlight indices aligned with what is rendered.
-    final filteredGroups = <(ShadCommandGroup, List<ShadCommandItem>)>[];
-    final flat = <ShadCommandItem>[];
+    final filteredGroups = <(CommandGroup, List<CommandItem>)>[];
+    final flat = <CommandItem>[];
     for (final group in widget.groups) {
       final matches = filter(group.items, _query);
       if (matches.isEmpty) continue;
@@ -378,7 +378,7 @@ class ShadCommandState extends State<ShadCommand> {
         commandTheme.backgroundColor ??
         theme.colorScheme.popover;
     final effectiveDecoration =
-        (commandTheme.decoration ?? const ShadDecoration()).merge(
+        (commandTheme.decoration ?? const FinesseDecoration()).merge(
           widget.decoration,
         );
     final effectiveHeight = widget.height ?? commandTheme.height;
@@ -414,7 +414,7 @@ class ShadCommandState extends State<ShadCommand> {
         final index = runningIndex++;
         final key = _itemKeys.putIfAbsent(index, GlobalKey.new);
         children.add(
-          _ShadCommandItemView(
+          _CommandItemView(
             key: key,
             item: item,
             highlighted: _rovingController.highlightedIndex == index,
@@ -440,7 +440,7 @@ class ShadCommandState extends State<ShadCommand> {
     }
 
     // `.cn-command-empty py-6 text-center text-sm`: a single quiet line, not
-    // the ShadEmpty hero.
+    // the Empty hero.
     var body = flat.isEmpty
         ? (widget.emptyBuilder?.call(context, _query) ??
               Padding(
@@ -448,7 +448,7 @@ class ShadCommandState extends State<ShadCommand> {
                     commandTheme.emptyPadding ??
                     const EdgeInsets.symmetric(vertical: 24),
                 child: Text(
-                  ShadLocalizations.of(context).command.noResults,
+                  FinesseLocalizations.of(context).command.noResults,
                   textAlign: TextAlign.center,
                   style:
                       commandTheme.emptyTextStyle ??
@@ -487,7 +487,7 @@ class ShadCommandState extends State<ShadCommand> {
         ) ??
         theme.radius;
 
-    final ownsSurface = widget.decoration != ShadDecoration.none;
+    final ownsSurface = widget.decoration != FinesseDecoration.none;
 
     // `.cn-command-input-group`: a soft box around the search field — an
     // `--input` wash and outline, no focus ring — rather than the old
@@ -495,9 +495,9 @@ class ShadCommandState extends State<ShadCommand> {
     final effectiveSearchHeight = commandTheme.searchHeight ?? 32.0;
     final effectiveSearchDecoration =
         commandTheme.searchDecoration ??
-        ShadDecoration(
+        FinesseDecoration(
           color: theme.colorScheme.input.withValues(alpha: .3),
-          border: ShadBorder.all(
+          border: FinesseBorder.all(
             radius: const BorderRadius.all(Radius.circular(10)),
             color: theme.colorScheme.input.withValues(alpha: .3),
             width: 1,
@@ -517,7 +517,7 @@ class ShadCommandState extends State<ShadCommand> {
               padding:
                   commandTheme.searchPadding ??
                   const EdgeInsets.fromLTRB(8, 8, 8, 0),
-              child: ShadInput(
+              child: TextField(
                 controller: searchController,
                 focusNode: _searchFocusNode,
                 autofocus: widget.autofocus,
@@ -545,7 +545,7 @@ class ShadCommandState extends State<ShadCommand> {
     );
 
     final child = ownsSurface
-        ? ShadDecorator(
+        ? Decorator(
             decoration: effectiveDecoration.copyWith(
               color: effectiveBackgroundColor,
             ),
@@ -556,9 +556,9 @@ class ShadCommandState extends State<ShadCommand> {
           )
         : content;
 
-    return ShadRovingFocus(
+    return RovingFocus(
       controller: _rovingController,
-      orientation: ShadRovingFocusOrientation.vertical,
+      orientation: RovingFocusOrientation.vertical,
       onActivate: _activateAt,
       onEscape: widget.onEscape,
       // The search field holds focus, so this Focus node must not steal it —
@@ -568,8 +568,8 @@ class ShadCommandState extends State<ShadCommand> {
   }
 }
 
-class _ShadCommandItemView extends StatelessWidget {
-  const _ShadCommandItemView({
+class _CommandItemView extends StatelessWidget {
+  const _CommandItemView({
     super.key,
     required this.item,
     required this.highlighted,
@@ -579,7 +579,7 @@ class _ShadCommandItemView extends StatelessWidget {
     required this.onHover,
   });
 
-  final ShadCommandItem item;
+  final CommandItem item;
   final bool highlighted;
   final BorderRadiusGeometry radius;
   final double iconSize;
@@ -588,7 +588,7 @@ class _ShadCommandItemView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     final commandTheme = theme.commandTheme;
 
     final foreground = !item.enabled
@@ -605,7 +605,7 @@ class _ShadCommandItemView extends StatelessWidget {
       enabled: item.enabled,
       label: item.label,
       child: ExcludeSemantics(
-        child: ShadGestureDetector(
+        child: FinesseGestureDetector(
           cursor: item.enabled
               ? SystemMouseCursors.click
               : SystemMouseCursors.forbidden,
@@ -652,24 +652,24 @@ class _ShadCommandItemView extends StatelessWidget {
   }
 }
 
-/// Shows a [ShadCommand] as a modal palette, the ⌘K pattern.
+/// Shows a [Command] as a modal palette, the ⌘K pattern.
 ///
 /// Returns the value of the chosen item, or null if dismissed.
-Future<T?> showShadCommandDialog<T>({
+Future<T?> showCommandDialog<T>({
   required BuildContext context,
-  required List<ShadCommandGroup> groups,
+  required List<CommandGroup> groups,
   Widget? placeholder,
-  ShadCommandFilter? filter,
+  CommandFilter? filter,
   Widget Function(BuildContext context, String query)? emptyBuilder,
   bool barrierDismissible = true,
   double? width,
   double? height,
 }) {
-  return showShadDialog<T>(
+  return showDialog<T>(
     context: context,
     barrierDismissible: barrierDismissible,
     builder: (context) {
-      final theme = ShadTheme.of(context);
+      final theme = Theme.of(context);
       final commandTheme = theme.commandTheme;
       // `.cn-command-dialog top-1/3 translate-y-0`: the top edge sits at a
       // third of the screen and stays put while filtering changes the
@@ -683,7 +683,7 @@ Future<T?> showShadCommandDialog<T>({
       );
       return Padding(
         padding: EdgeInsets.fromLTRB(16, topOffset, 16, 16),
-        child: ShadDialog(
+        child: Dialog(
           alignment: Alignment.topCenter,
           // `sm:max-w-md`, with the padding above keeping the
           // `calc(100%-2rem)` margins on narrow screens.
@@ -692,16 +692,16 @@ Future<T?> showShadCommandDialog<T>({
           radius: radius,
           padding: EdgeInsets.zero,
           scrollable: false,
-          shadows: ShadShadows.none,
+          shadows: Shadows.none,
           closeIcon: const SizedBox.shrink(),
-          child: ShadCommand(
+          child: Command(
             groups: groups,
             placeholder: placeholder,
             filter: filter,
             emptyBuilder: emptyBuilder,
             width: width ?? double.infinity,
             height: height,
-            decoration: ShadDecoration.none,
+            decoration: FinesseDecoration.none,
             backgroundColor: const Color(0x00000000),
             itemRadius: commandTheme.dialogItemRadius,
             onEscape: () => Navigator.of(context).maybePop(),

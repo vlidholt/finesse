@@ -11,13 +11,13 @@ import 'package:slang/generated.dart';
 import 'strings.g.dart';
 
 // Path: <root>
-class ShadLocalizationsDataZu extends ShadLocalizationsData with BaseTranslations<ShadLocale, ShadLocalizationsData> {
+class FinesseLocalizationsDataZu extends FinesseLocalizationsData with BaseTranslations<FinesseLocale, FinesseLocalizationsData> {
 	/// You can call this constructor and build your own translation instance of this locale.
-	/// Constructing via the enum [ShadLocale.build] is preferred.
-	ShadLocalizationsDataZu({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<ShadLocale, ShadLocalizationsData>? meta})
+	/// Constructing via the enum [FinesseLocale.build] is preferred.
+	FinesseLocalizationsDataZu({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<FinesseLocale, FinesseLocalizationsData>? meta})
 		: assert(overrides == null, 'Set "translation_overrides: true" in order to enable this feature.'),
 		  _meta = meta ?? TranslationMetadata(
-		    locale: ShadLocale.zu,
+		    locale: FinesseLocale.zu,
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
 		    ordinalResolver: ordinalResolver,
@@ -27,30 +27,30 @@ class ShadLocalizationsDataZu extends ShadLocalizationsData with BaseTranslation
 	}
 
 	/// Metadata for the translations of <zu>.
-	final TranslationMetadata<ShadLocale, ShadLocalizationsData> _meta;
-	@override TranslationMetadata<ShadLocale, ShadLocalizationsData> get $meta => _meta;
+	final TranslationMetadata<FinesseLocale, FinesseLocalizationsData> _meta;
+	@override TranslationMetadata<FinesseLocale, FinesseLocalizationsData> get $meta => _meta;
 
 	/// Access flat map
 	@override dynamic operator[](String key) => _meta.getTranslation(key) ?? super[key];
 
-	late final ShadLocalizationsDataZu _root = this; // ignore: unused_field
+	late final FinesseLocalizationsDataZu _root = this; // ignore: unused_field
 
 	@override 
-	ShadLocalizationsDataZu $copyWith({TranslationMetadata<ShadLocale, ShadLocalizationsData>? meta}) => ShadLocalizationsDataZu(meta: meta ?? this.$meta);
+	FinesseLocalizationsDataZu $copyWith({TranslationMetadata<FinesseLocale, FinesseLocalizationsData>? meta}) => FinesseLocalizationsDataZu(meta: meta ?? this.$meta);
 
 	// Translations
-	@override late final _ShadLocalizationsData$timePicker$zu timePicker = _ShadLocalizationsData$timePicker$zu._(_root);
-	@override late final _ShadLocalizationsData$datePicker$zu datePicker = _ShadLocalizationsData$datePicker$zu._(_root);
-	@override late final _ShadLocalizationsData$input$zu input = _ShadLocalizationsData$input$zu._(_root);
-	@override late final _ShadLocalizationsData$keyboardToolbar$zu keyboardToolbar = _ShadLocalizationsData$keyboardToolbar$zu._(_root);
-	@override late final _ShadLocalizationsData$dialog$zu dialog = _ShadLocalizationsData$dialog$zu._(_root);
+	@override late final _FinesseLocalizationsData$timePicker$zu timePicker = _FinesseLocalizationsData$timePicker$zu._(_root);
+	@override late final _FinesseLocalizationsData$datePicker$zu datePicker = _FinesseLocalizationsData$datePicker$zu._(_root);
+	@override late final _FinesseLocalizationsData$input$zu input = _FinesseLocalizationsData$input$zu._(_root);
+	@override late final _FinesseLocalizationsData$keyboardToolbar$zu keyboardToolbar = _FinesseLocalizationsData$keyboardToolbar$zu._(_root);
+	@override late final _FinesseLocalizationsData$dialog$zu dialog = _FinesseLocalizationsData$dialog$zu._(_root);
 }
 
 // Path: timePicker
-class _ShadLocalizationsData$timePicker$zu extends ShadLocalizationsData$timePicker$en {
-	_ShadLocalizationsData$timePicker$zu._(ShadLocalizationsDataZu root) : this._root = root, super.internal(root);
+class _FinesseLocalizationsData$timePicker$zu extends FinesseLocalizationsData$timePicker$en {
+	_FinesseLocalizationsData$timePicker$zu._(FinesseLocalizationsDataZu root) : this._root = root, super.internal(root);
 
-	final ShadLocalizationsDataZu _root; // ignore: unused_field
+	final FinesseLocalizationsDataZu _root; // ignore: unused_field
 
 	// Translations
 	@override String get hours => 'Amahora';
@@ -61,20 +61,20 @@ class _ShadLocalizationsData$timePicker$zu extends ShadLocalizationsData$timePic
 }
 
 // Path: datePicker
-class _ShadLocalizationsData$datePicker$zu extends ShadLocalizationsData$datePicker$en {
-	_ShadLocalizationsData$datePicker$zu._(ShadLocalizationsDataZu root) : this._root = root, super.internal(root);
+class _FinesseLocalizationsData$datePicker$zu extends FinesseLocalizationsData$datePicker$en {
+	_FinesseLocalizationsData$datePicker$zu._(FinesseLocalizationsDataZu root) : this._root = root, super.internal(root);
 
-	final ShadLocalizationsDataZu _root; // ignore: unused_field
+	final FinesseLocalizationsDataZu _root; // ignore: unused_field
 
 	// Translations
 	@override String get selectDate => 'Khetha usuku';
 }
 
 // Path: input
-class _ShadLocalizationsData$input$zu extends ShadLocalizationsData$input$en {
-	_ShadLocalizationsData$input$zu._(ShadLocalizationsDataZu root) : this._root = root, super.internal(root);
+class _FinesseLocalizationsData$input$zu extends FinesseLocalizationsData$input$en {
+	_FinesseLocalizationsData$input$zu._(FinesseLocalizationsDataZu root) : this._root = root, super.internal(root);
 
-	final ShadLocalizationsDataZu _root; // ignore: unused_field
+	final FinesseLocalizationsDataZu _root; // ignore: unused_field
 
 	// Translations
 	@override String get cut => 'Sika';
@@ -84,20 +84,20 @@ class _ShadLocalizationsData$input$zu extends ShadLocalizationsData$input$en {
 }
 
 // Path: keyboardToolbar
-class _ShadLocalizationsData$keyboardToolbar$zu extends ShadLocalizationsData$keyboardToolbar$en {
-	_ShadLocalizationsData$keyboardToolbar$zu._(ShadLocalizationsDataZu root) : this._root = root, super.internal(root);
+class _FinesseLocalizationsData$keyboardToolbar$zu extends FinesseLocalizationsData$keyboardToolbar$en {
+	_FinesseLocalizationsData$keyboardToolbar$zu._(FinesseLocalizationsDataZu root) : this._root = root, super.internal(root);
 
-	final ShadLocalizationsDataZu _root; // ignore: unused_field
+	final FinesseLocalizationsDataZu _root; // ignore: unused_field
 
 	// Translations
 	@override String get done => 'Kuqediwe';
 }
 
 // Path: dialog
-class _ShadLocalizationsData$dialog$zu extends ShadLocalizationsData$dialog$en {
-	_ShadLocalizationsData$dialog$zu._(ShadLocalizationsDataZu root) : this._root = root, super.internal(root);
+class _FinesseLocalizationsData$dialog$zu extends FinesseLocalizationsData$dialog$en {
+	_FinesseLocalizationsData$dialog$zu._(FinesseLocalizationsDataZu root) : this._root = root, super.internal(root);
 
-	final ShadLocalizationsDataZu _root; // ignore: unused_field
+	final FinesseLocalizationsDataZu _root; // ignore: unused_field
 
 	// Translations
 	@override String get close => 'Vala';
@@ -109,7 +109,7 @@ class _ShadLocalizationsData$dialog$zu extends ShadLocalizationsData$dialog$en {
 ///
 /// The Dart AOT compiler has issues with very large switch statements,
 /// so the map is split into smaller functions (512 entries each).
-extension on ShadLocalizationsDataZu {
+extension on FinesseLocalizationsDataZu {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
 			'timePicker.hours' => 'Amahora',

@@ -1,10 +1,10 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/shad.dart';
 
 void main() {
-  Widget wrap(Widget child) => ShadApp(home: Center(child: child));
+  Widget wrap(Widget child) => FinesseApp(home: Center(child: child));
 
   group('hover is retained across a click', () {
     testWidgets('a mouse click does not clear the hover state', (tester) async {
@@ -15,7 +15,7 @@ void main() {
       final changes = <bool>[];
       await tester.pumpWidget(
         wrap(
-          ShadButton(
+          Button(
             onPressed: () {},
             onHoverChange: changes.add,
             child: const Text('Click me'),
@@ -27,12 +27,12 @@ void main() {
       await gesture.addPointer(location: Offset.zero);
       addTearDown(gesture.removePointer);
 
-      await gesture.moveTo(tester.getCenter(find.byType(ShadButton)));
+      await gesture.moveTo(tester.getCenter(find.byType(Button)));
       await tester.pumpAndSettle();
       expect(changes, [true]);
 
       // Click without moving the pointer.
-      await gesture.down(tester.getCenter(find.byType(ShadButton)));
+      await gesture.down(tester.getCenter(find.byType(Button)));
       await tester.pump();
       await gesture.up();
       await tester.pumpAndSettle();
@@ -53,7 +53,7 @@ void main() {
       final changes = <bool>[];
       await tester.pumpWidget(
         wrap(
-          ShadButton(
+          Button(
             onPressed: () {},
             onHoverChange: changes.add,
             child: const Text('Tap me'),
@@ -61,7 +61,7 @@ void main() {
         ),
       );
 
-      await tester.tap(find.byType(ShadButton));
+      await tester.tap(find.byType(Button));
       await tester.pumpAndSettle();
 
       expect(changes, contains(true));
@@ -74,7 +74,7 @@ void main() {
       final slide = tester.widget<AnimatedSlide>(
         find
             .descendant(
-              of: find.byType(ShadButton),
+              of: find.byType(Button),
               matching: find.byType(AnimatedSlide),
             )
             .first,
@@ -85,11 +85,11 @@ void main() {
     testWidgets('the button shifts down while pressed', (tester) async {
       // shadcn/ui applies `active:translate-y-px`.
       await tester.pumpWidget(
-        wrap(ShadButton(onPressed: () {}, child: const Text('Press'))),
+        wrap(Button(onPressed: () {}, child: const Text('Press'))),
       );
       expect(slideOffset(tester), Offset.zero);
 
-      final gesture = await tester.press(find.byType(ShadButton));
+      final gesture = await tester.press(find.byType(Button));
       await tester.pump();
       expect(slideOffset(tester).dy, greaterThan(0));
 
@@ -101,7 +101,7 @@ void main() {
     testWidgets('pressedOffset can be overridden', (tester) async {
       await tester.pumpWidget(
         wrap(
-          ShadButton(
+          Button(
             onPressed: () {},
             pressedOffset: Offset.zero,
             child: const Text('Press'),
@@ -109,7 +109,7 @@ void main() {
         ),
       );
 
-      final gesture = await tester.press(find.byType(ShadButton));
+      final gesture = await tester.press(find.byType(Button));
       await tester.pump();
       expect(slideOffset(tester), Offset.zero);
       await gesture.up();
@@ -118,14 +118,14 @@ void main() {
     testWidgets('a disabled button does not shift', (tester) async {
       await tester.pumpWidget(
         wrap(
-          ShadButton(
+          Button(
             enabled: false,
             onPressed: () {},
             child: const Text('Press'),
           ),
         ),
       );
-      final gesture = await tester.press(find.byType(ShadButton));
+      final gesture = await tester.press(find.byType(Button));
       await tester.pump();
       expect(slideOffset(tester), Offset.zero);
       await gesture.up();
@@ -136,9 +136,9 @@ void main() {
       // 1/height reads as "Offset(0.0, 0.0)" in a failure message. Compare dy
       // numerically.
       await tester.pumpWidget(
-        wrap(const ShadButton(child: Text('Press'))),
+        wrap(const Button(child: Text('Press'))),
       );
-      final gesture = await tester.press(find.byType(ShadButton));
+      final gesture = await tester.press(find.byType(Button));
       await tester.pump();
       expect(slideOffset(tester).dy, 0);
       await gesture.up();

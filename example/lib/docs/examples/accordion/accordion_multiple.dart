@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 const _items = [
   (title: 'First section', content: 'Multiple sections can be open at once.'),
@@ -16,10 +16,10 @@ class AccordionMultipleExample extends StatelessWidget {
   Widget build(BuildContext context) {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 600),
-      child: ShadAccordion<({String content, String title})>.multiple(
+      child: Accordion<({String content, String title})>.multiple(
         children: [
           for (final item in _items)
-            ShadAccordionItem(
+            AccordionItem(
               value: item,
               title: Text(item.title),
               child: Text(item.content),

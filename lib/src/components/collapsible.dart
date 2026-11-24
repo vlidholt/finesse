@@ -1,11 +1,11 @@
+import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/debug_check.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/theme.dart';
-import 'package:shad/src/utils/debug_check.dart';
 
-/// Controls the open state of a [ShadCollapsible].
-class ShadCollapsibleController extends ChangeNotifier {
+/// Controls the open state of a [Collapsible].
+class CollapsibleController extends ChangeNotifier {
   /// Creates a controller. [open] sets whether the content starts shown.
-  ShadCollapsibleController({bool open = false}) : _open = open;
+  CollapsibleController({bool open = false}) : _open = open;
 
   bool _open;
 
@@ -18,7 +18,7 @@ class ShadCollapsibleController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// The same as [open], under the name `ShadPopoverController` uses.
+  /// The same as [open], under the name `PopoverController` uses.
   bool get isOpen => _open;
 
   /// Shows the content.
@@ -31,13 +31,13 @@ class ShadCollapsibleController extends ChangeNotifier {
   void toggle() => open = !_open;
 }
 
-/// Builds the trigger of a [ShadCollapsible].
+/// Builds the trigger of a [Collapsible].
 ///
 /// [open] is the current state and [toggle] flips it.
-typedef ShadCollapsibleTriggerBuilder =
+typedef CollapsibleTriggerBuilder =
     Widget Function(BuildContext context, bool open, VoidCallback toggle);
 
-/// {@template ShadCollapsible}
+/// {@template Collapsible}
 /// An expandable/collapsible section.
 ///
 /// Mirrors shadcn/ui's `Collapsible`: the primitive underneath an accordion,
@@ -45,8 +45,8 @@ typedef ShadCollapsibleTriggerBuilder =
 /// of them.
 ///
 /// ```dart
-/// ShadCollapsible(
-///   trigger: (context, open, toggle) => ShadButton.ghost(
+/// Collapsible(
+///   trigger: (context, open, toggle) => Button.ghost(
 ///     onPressed: toggle,
 ///     child: Text(open ? 'Hide' : 'Show'),
 ///   ),
@@ -55,11 +55,11 @@ typedef ShadCollapsibleTriggerBuilder =
 /// ```
 ///
 /// For a group of sections where opening one closes the others, use
-/// `ShadAccordion` instead.
+/// `Accordion` instead.
 /// {@endtemplate}
-class ShadCollapsible extends StatefulWidget {
-  /// {@macro ShadCollapsible}
-  const ShadCollapsible({
+class Collapsible extends StatefulWidget {
+  /// {@macro Collapsible}
+  const Collapsible({
     super.key,
     required this.child,
     this.trigger,
@@ -84,12 +84,12 @@ class ShadCollapsible extends StatefulWidget {
   ///
   /// Optional: leave it null and drive the collapsible from a [controller] when
   /// the trigger lives elsewhere in your layout.
-  final ShadCollapsibleTriggerBuilder? trigger;
+  final CollapsibleTriggerBuilder? trigger;
 
   /// An external controller for the open state.
   ///
   /// When null an internal one is created, seeded from [initiallyOpen].
-  final ShadCollapsibleController? controller;
+  final CollapsibleController? controller;
 
   /// Whether the collapsible starts open. Ignored when [controller] is set.
   final bool initiallyOpen;
@@ -97,27 +97,27 @@ class ShadCollapsible extends StatefulWidget {
   /// Called whenever the open state changes.
   final ValueChanged<bool>? onOpenChange;
 
-  /// {@template ShadCollapsible.duration}
+  /// {@template Collapsible.duration}
   /// The duration of the expand animation.
   /// {@endtemplate}
   final Duration? duration;
 
-  /// {@template ShadCollapsible.curve}
+  /// {@template Collapsible.curve}
   /// The curve of the expand animation.
   /// {@endtemplate}
   final Curve? curve;
 
-  /// {@template ShadCollapsible.reverseDuration}
+  /// {@template Collapsible.reverseDuration}
   /// The duration of the collapse animation, defaults to [duration].
   /// {@endtemplate}
   final Duration? reverseDuration;
 
-  /// {@template ShadCollapsible.reverseCurve}
+  /// {@template Collapsible.reverseCurve}
   /// The curve of the collapse animation, defaults to [curve].
   /// {@endtemplate}
   final Curve? reverseCurve;
 
-  /// {@template ShadCollapsible.crossAxisAlignment}
+  /// {@template Collapsible.crossAxisAlignment}
   /// How the trigger and content are aligned horizontally.
   /// {@endtemplate}
   final CrossAxisAlignment? crossAxisAlignment;
@@ -129,17 +129,17 @@ class ShadCollapsible extends StatefulWidget {
   final bool maintainState;
 
   @override
-  State<ShadCollapsible> createState() => ShadCollapsibleState();
+  State<Collapsible> createState() => CollapsibleState();
 }
 
-/// The state of a [ShadCollapsible].
-class ShadCollapsibleState extends State<ShadCollapsible>
+/// The state of a [Collapsible].
+class CollapsibleState extends State<Collapsible>
     with SingleTickerProviderStateMixin {
-  ShadCollapsibleController? _internalController;
+  CollapsibleController? _internalController;
 
-  /// The controller in use: [ShadCollapsible.controller] when given, otherwise
+  /// The controller in use: [Collapsible.controller] when given, otherwise
   /// an internal one.
-  ShadCollapsibleController get controller =>
+  CollapsibleController get controller =>
       widget.controller ?? _internalController!;
 
   late final AnimationController _animationController = AnimationController(
@@ -157,7 +157,7 @@ class ShadCollapsibleState extends State<ShadCollapsible>
   void initState() {
     super.initState();
     if (widget.controller == null) {
-      _internalController = ShadCollapsibleController(
+      _internalController = CollapsibleController(
         open: widget.initiallyOpen,
       );
     }
@@ -165,7 +165,7 @@ class ShadCollapsibleState extends State<ShadCollapsible>
   }
 
   @override
-  void didUpdateWidget(ShadCollapsible oldWidget) {
+  void didUpdateWidget(Collapsible oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.controller != oldWidget.controller) {
       (oldWidget.controller ?? _internalController)?.removeListener(
@@ -197,8 +197,8 @@ class ShadCollapsibleState extends State<ShadCollapsible>
 
   @override
   Widget build(BuildContext context) {
-    assert(debugCheckHasShadTheme(context));
-    final theme = ShadTheme.of(context);
+    assert(debugCheckHasTheme(context));
+    final theme = Theme.of(context);
     final collapsibleTheme = theme.collapsibleTheme;
 
     _animationController

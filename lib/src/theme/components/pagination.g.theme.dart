@@ -9,12 +9,12 @@ part of 'pagination.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadPaginationTheme {
+mixin _$PaginationTheme {
   bool get canMerge => true;
 
-  static ShadPaginationTheme? lerp(
-    ShadPaginationTheme? a,
-    ShadPaginationTheme? b,
+  static PaginationTheme? lerp(
+    PaginationTheme? a,
+    PaginationTheme? b,
     double t,
   ) {
     if (identical(a, b)) {
@@ -29,7 +29,7 @@ mixin _$ShadPaginationTheme {
       return t == 0.0 ? a : null;
     }
 
-    return ShadPaginationTheme(
+    return PaginationTheme(
       gap: lerpDouble$(a.gap, b.gap, t),
       mainAxisAlignment: t < 0.5 ? a.mainAxisAlignment : b.mainAxisAlignment,
       siblingCount: t < 0.5 ? a.siblingCount : b.siblingCount,
@@ -43,7 +43,7 @@ mixin _$ShadPaginationTheme {
     );
   }
 
-  ShadPaginationTheme copyWith({
+  PaginationTheme copyWith({
     double? gap,
     MainAxisAlignment? mainAxisAlignment,
     int? siblingCount,
@@ -51,9 +51,9 @@ mixin _$ShadPaginationTheme {
     bool? showEdges,
     TextStyle? ellipsisTextStyle,
   }) {
-    final _this = (this as ShadPaginationTheme);
+    final _this = (this as PaginationTheme);
 
-    return ShadPaginationTheme(
+    return PaginationTheme(
       gap: gap ?? _this.gap,
       mainAxisAlignment: mainAxisAlignment ?? _this.mainAxisAlignment,
       siblingCount: siblingCount ?? _this.siblingCount,
@@ -63,8 +63,8 @@ mixin _$ShadPaginationTheme {
     );
   }
 
-  ShadPaginationTheme merge(ShadPaginationTheme? other) {
-    final _this = (this as ShadPaginationTheme);
+  PaginationTheme merge(PaginationTheme? other) {
+    final _this = (this as PaginationTheme);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -96,8 +96,8 @@ mixin _$ShadPaginationTheme {
       return false;
     }
 
-    final _this = (this as ShadPaginationTheme);
-    final _other = (other as ShadPaginationTheme);
+    final _this = (this as PaginationTheme);
+    final _other = (other as PaginationTheme);
 
     return _other.gap == _this.gap &&
         _other.mainAxisAlignment == _this.mainAxisAlignment &&
@@ -109,7 +109,7 @@ mixin _$ShadPaginationTheme {
 
   @override
   int get hashCode {
-    final _this = (this as ShadPaginationTheme);
+    final _this = (this as PaginationTheme);
 
     return Object.hash(
       runtimeType,

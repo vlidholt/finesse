@@ -1,22 +1,22 @@
+import 'package:finesse/finesse.dart';
+import 'package:finesse/material.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/material.dart';
-import 'package:shad/shad.dart';
 
 void main() {
-  // Helper method to create a test widget wrapped in ShadApp and Scaffold
+  // Helper method to create a test widget wrapped in FinesseApp and Scaffold
   Widget createTestWidget(Widget child) {
-    return ShadApp(
-      builder: (context, child) => ShadMaterial(child: child!),
+    return FinesseApp(
+      builder: (context, child) => FinesseMaterial(child: child!),
       home: Scaffold(body: child),
     );
   }
 
-  group('ShadSelect', () {
-    testWidgets('ShadSelect matches goldens', (tester) async {
+  group('Select', () {
+    testWidgets('Select matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          ShadSelect<String>(
+          Select<String>(
             placeholder: const Text('Select a fruit'),
             options: [
               const Padding(
@@ -26,7 +26,7 @@ void main() {
                 ),
               ),
               ...['apple', 'banana', 'watermelon'].map(
-                (fruit) => ShadOption(
+                (fruit) => SelectOption(
                   value: fruit,
                   child: Text(fruit),
                 ),
@@ -38,16 +38,16 @@ void main() {
       );
 
       await expectLater(
-        find.byType(ShadSelect<String>),
+        find.byType(Select<String>),
         matchesGoldenFile('goldens/select.png'),
       );
     });
   });
 
-  group('ShadSelectMultipleFormField', () {
-    /// Returns an iterable of [ShadOption] widgets for the given [fruits].
+  group('SelectMultipleFormField', () {
+    /// Returns an iterable of [SelectOption] widgets for the given [fruits].
     Iterable<Widget> fruitOptions(List<String> fruits) {
-      return fruits.map((f) => ShadOption<String>(value: f, child: Text(f)));
+      return fruits.map((f) => SelectOption<String>(value: f, child: Text(f)));
     }
 
     testWidgets('onChanged fires on the first selection', (tester) async {
@@ -55,7 +55,7 @@ void main() {
 
       await tester.pumpWidget(
         createTestWidget(
-          ShadSelectMultipleFormField<String>(
+          SelectMultipleFormField<String>(
             onChanged: changes.add,
             placeholder: const Text('Select fruits'),
             selectedOptionsBuilder: (context, values) =>
@@ -66,8 +66,8 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      final selectState = tester.state<ShadSelectState<String>>(
-        find.byType(ShadSelect<String>),
+      final selectState = tester.state<SelectState<String>>(
+        find.byType(Select<String>),
       );
 
       selectState.select('apple');
@@ -84,7 +84,7 @@ void main() {
 
         await tester.pumpWidget(
           createTestWidget(
-            ShadSelectMultipleFormField<String>(
+            SelectMultipleFormField<String>(
               onChanged: changes.add,
               placeholder: const Text('Select fruits'),
               selectedOptionsBuilder: (context, values) =>
@@ -95,8 +95,8 @@ void main() {
         );
         await tester.pumpAndSettle();
 
-        final selectState = tester.state<ShadSelectState<String>>(
-          find.byType(ShadSelect<String>),
+        final selectState = tester.state<SelectState<String>>(
+          find.byType(Select<String>),
         );
 
         selectState.select('apple');
@@ -123,7 +123,7 @@ void main() {
 
       await tester.pumpWidget(
         createTestWidget(
-          ShadSelectMultipleFormField<String>(
+          SelectMultipleFormField<String>(
             onChanged: changes.add,
             placeholder: const Text('Select fruits'),
             selectedOptionsBuilder: (context, values) =>
@@ -134,8 +134,8 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      final selectState = tester.state<ShadSelectState<String>>(
-        find.byType(ShadSelect<String>),
+      final selectState = tester.state<SelectState<String>>(
+        find.byType(Select<String>),
       );
 
       selectState.select('apple');
@@ -156,13 +156,13 @@ void main() {
     testWidgets(
       'form value reflects every selection',
       (tester) async {
-        final formKey = GlobalKey<ShadFormState>();
+        final formKey = GlobalKey<FinesseFormState>();
 
         await tester.pumpWidget(
           createTestWidget(
-            ShadForm(
+            FinesseForm(
               key: formKey,
-              child: ShadSelectMultipleFormField<String>(
+              child: SelectMultipleFormField<String>(
                 id: 'fruits',
                 placeholder: const Text('Select fruits'),
                 selectedOptionsBuilder: (context, values) =>
@@ -174,8 +174,8 @@ void main() {
         );
         await tester.pumpAndSettle();
 
-        final selectState = tester.state<ShadSelectState<String>>(
-          find.byType(ShadSelect<String>),
+        final selectState = tester.state<SelectState<String>>(
+          find.byType(Select<String>),
         );
 
         selectState.select('apple');

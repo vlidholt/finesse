@@ -48,11 +48,11 @@ import 'package:flutter_animate/flutter_animate.dart';
 ///
 /// See [SwapEffect] for one approach to work around this.
 // ignore: must_be_immutable
-class ShadAnimate extends Animate {
+class FinesseAnimate extends Animate {
   /// Creates an animation with the given [effects] for [child].
   ///
   /// See [Animate.new] for the parameters.
-  ShadAnimate({
+  FinesseAnimate({
     super.key,
     super.child = const SizedBox.shrink(),
     super.effects,
@@ -103,10 +103,10 @@ class ShadAnimate extends Animate {
   }
 
   @override
-  State<Animate> createState() => _ShadAnimateState();
+  State<Animate> createState() => _AnimateState();
 }
 
-class _ShadAnimateState extends State<ShadAnimate>
+class _AnimateState extends State<FinesseAnimate>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   bool _isInternalController = false;
@@ -120,7 +120,7 @@ class _ShadAnimateState extends State<ShadAnimate>
   }
 
   @override
-  void didUpdateWidget(ShadAnimate oldWidget) {
+  void didUpdateWidget(FinesseAnimate oldWidget) {
     if (oldWidget.controller != widget.controller ||
         oldWidget.duration != widget.duration) {
       _initController();

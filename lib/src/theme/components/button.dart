@@ -1,21 +1,21 @@
+import 'package:finesse/src/components/button.dart';
+import 'package:finesse/src/theme/components/button_sizes.dart';
+import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/components/button.dart';
-import 'package:shad/src/theme/components/button_sizes.dart';
-import 'package:shad/src/theme/components/decorator.dart';
-import 'package:shad/src/utils/gesture_detector.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
 part 'button.g.theme.dart';
 
-/// The theme for ShadButton.
+/// The theme for Button.
 ///
 /// Use this class to override some properties to all buttons in just one place.
 @themeGen
 @immutable
-class ShadButtonTheme with _$ShadButtonTheme {
-  /// Creates a [ShadButtonTheme].
-  const ShadButtonTheme({
+class ButtonTheme with _$ButtonTheme {
+  /// Creates a [ButtonTheme].
+  const ButtonTheme({
     bool canMerge = true,
     this.cursor,
     this.size,
@@ -51,76 +51,76 @@ class ShadButtonTheme with _$ShadButtonTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro ShadButton.cursor}
+  /// {@macro Button.cursor}
   final MouseCursor? cursor;
 
-  /// {@macro ShadButton.size}
-  final ShadButtonSize? size;
+  /// {@macro Button.size}
+  final ButtonSize? size;
 
-  /// {@macro ShadButtonSizesTheme}
-  final ShadButtonSizesTheme? sizesTheme;
+  /// {@macro ButtonSizesTheme}
+  final ButtonSizesTheme? sizesTheme;
 
-  /// {@macro ShadButton.backgroundColor}
+  /// {@macro Button.backgroundColor}
   final Color? backgroundColor;
 
-  /// {@macro ShadButton.hoverBackgroundColor}
+  /// {@macro Button.hoverBackgroundColor}
   final Color? hoverBackgroundColor;
 
-  /// {@macro ShadButton.foregroundColor}
+  /// {@macro Button.foregroundColor}
   final Color? foregroundColor;
 
-  /// {@macro ShadButton.hoverForegroundColor}
+  /// {@macro Button.hoverForegroundColor}
   final Color? hoverForegroundColor;
 
-  /// {@macro ShadButton.pressedBackgroundColor}
+  /// {@macro Button.pressedBackgroundColor}
   final Color? pressedBackgroundColor;
 
-  /// {@macro ShadButton.pressedForegroundColor}
+  /// {@macro Button.pressedForegroundColor}
   final Color? pressedForegroundColor;
 
-  /// {@macro ShadButton.shadows}
+  /// {@macro Button.shadows}
   final List<BoxShadow>? shadows;
 
-  /// {@macro ShadButton.gradient}
+  /// {@macro Button.gradient}
   final Gradient? gradient;
 
-  /// {@macro ShadButton.textDecoration}
+  /// {@macro Button.textDecoration}
   final TextDecoration? textDecoration;
 
-  /// {@macro ShadButton.hoverTextDecoration}
+  /// {@macro Button.hoverTextDecoration}
   final TextDecoration? hoverTextDecoration;
 
-  /// {@macro ShadButton.decoration}
-  final ShadDecoration? decoration;
+  /// {@macro Button.decoration}
+  final FinesseDecoration? decoration;
 
-  /// {@macro ShadButton.width}
+  /// {@macro Button.width}
   final double? width;
 
-  /// {@macro ShadButton.height}
+  /// {@macro Button.height}
   final double? height;
 
-  /// {@macro ShadButton.longPressDuration}
+  /// {@macro Button.longPressDuration}
   final Duration? longPressDuration;
 
-  /// {@macro ShadButton.hoverStrategies}
-  final ShadHoverStrategies? hoverStrategies;
+  /// {@macro Button.hoverStrategies}
+  final HoverStrategies? hoverStrategies;
 
-  /// {@macro ShadButton.mainAxisAlignment}
+  /// {@macro Button.mainAxisAlignment}
   final MainAxisAlignment? mainAxisAlignment;
 
-  /// {@macro ShadButton.crossAxisAlignment}
+  /// {@macro Button.crossAxisAlignment}
   final CrossAxisAlignment? crossAxisAlignment;
 
-  /// {@macro ShadButton.textDirection}
+  /// {@macro Button.textDirection}
   final TextDirection? textDirection;
 
-  /// {@macro ShadButton.gap}
+  /// {@macro Button.gap}
   final double? gap;
 
-  /// {@macro ShadButton.expands}
+  /// {@macro Button.expands}
   final bool? expands;
 
-  /// {@template ShadButtonTheme.pressedOffset}
+  /// {@template ButtonTheme.pressedOffset}
   /// How far the button shifts while pressed.
   ///
   /// shadcn/ui nudges a button down by one pixel on `:active`
@@ -129,30 +129,30 @@ class ShadButtonTheme with _$ShadButtonTheme {
   /// {@endtemplate}
   final Offset? pressedOffset;
 
-  /// {@template ShadButtonTheme.pressAnimationDuration}
+  /// {@template ButtonTheme.pressAnimationDuration}
   /// How long the [pressedOffset] shift takes, defaults to 100ms.
   /// {@endtemplate}
   final Duration? pressAnimationDuration;
 
-  /// {@macro ShadButton.textStyle}
+  /// {@macro Button.textStyle}
   final TextStyle? textStyle;
 
   /// Linearly interpolates between [a] and [b] by [t].
-  static ShadButtonTheme? lerp(
-    ShadButtonTheme? a,
-    ShadButtonTheme? b,
+  static ButtonTheme? lerp(
+    ButtonTheme? a,
+    ButtonTheme? b,
     double t,
   ) {
-    return _$ShadButtonTheme.lerp(a, b, t);
+    return _$ButtonTheme.lerp(a, b, t);
   }
 
   // The generated `==` compares lists by identity, so a theme built with a
-  // non-const list would never equal its own rebuild, and ShadAnimatedTheme
+  // non-const list would never equal its own rebuild, and AnimatedTheme
   // would re-lerp on every frame. Compare the lists by value, then let the
   // generated `==` compare everything else against a copy that shares them.
   @override
   bool operator ==(Object other) =>
-      other is ShadButtonTheme &&
+      other is ButtonTheme &&
       listEquals(shadows, other.shadows) &&
       super == other.copyWith(shadows: shadows);
 

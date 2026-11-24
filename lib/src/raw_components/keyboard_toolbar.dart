@@ -1,13 +1,13 @@
+import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/theme.dart';
 
-/// {@template ShadKeyboardToolbar}
+/// {@template KeyboardToolbar}
 /// Renders a toolbar above the keyboard fully customizable.
 /// {@endtemplate}
-class ShadKeyboardToolbar extends StatefulWidget {
-  /// {@macro ShadKeyboardToolbar}
-  const ShadKeyboardToolbar({
+class KeyboardToolbar extends StatefulWidget {
+  /// {@macro KeyboardToolbar}
+  const KeyboardToolbar({
     super.key,
     this.toolbarBuilder,
     required this.child,
@@ -15,33 +15,33 @@ class ShadKeyboardToolbar extends StatefulWidget {
     this.hideThreshold,
   });
 
-  /// {@template ShadKeyboardToolbar.child}
+  /// {@template KeyboardToolbar.child}
   /// The child widget that will trigger the keyboard toolbar, typically and
   /// input field.
   /// {@endtemplate}
   final Widget child;
 
-  /// {@template ShadKeyboardToolbar.toolbarBuilder}
+  /// {@template KeyboardToolbar.toolbarBuilder}
   /// A builder function that returns the toolbar widget.
   /// {@endtemplate}
   final WidgetBuilder? toolbarBuilder;
 
-  /// {@template ShadKeyboardToolbar.focusNode}
+  /// {@template KeyboardToolbar.focusNode}
   /// The focus node of the child widget that will trigger the keyboard toolbar.
   /// {@endtemplate}
   final FocusNode focusNode;
 
-  /// {@template ShadKeyboardToolbar.hideThreshold}
+  /// {@template KeyboardToolbar.hideThreshold}
   /// The threshold in pixels for hiding the toolbar when the keyboard is
   /// dismissed. Defaults to 20 pixels.
   /// {@endtemplate}
   final double? hideThreshold;
 
   @override
-  State<ShadKeyboardToolbar> createState() => _ShadKeyboardToolbarState();
+  State<KeyboardToolbar> createState() => _KeyboardToolbarState();
 }
 
-class _ShadKeyboardToolbarState extends State<ShadKeyboardToolbar>
+class _KeyboardToolbarState extends State<KeyboardToolbar>
     with WidgetsBindingObserver {
   final controller = OverlayPortalController();
   final keyboardHeight = ValueNotifier<double>(0);
@@ -91,7 +91,7 @@ class _ShadKeyboardToolbarState extends State<ShadKeyboardToolbar>
   Widget build(BuildContext context) {
     if (!keyboardSupported) return widget.child;
 
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
 
     final effectiveHideThreshold =
         widget.hideThreshold ??

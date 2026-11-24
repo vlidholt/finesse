@@ -9,14 +9,10 @@ part of 'switch.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadSwitchTheme {
+mixin _$SwitchTheme {
   bool get canMerge => true;
 
-  static ShadSwitchTheme? lerp(
-    ShadSwitchTheme? a,
-    ShadSwitchTheme? b,
-    double t,
-  ) {
+  static SwitchTheme? lerp(SwitchTheme? a, SwitchTheme? b, double t) {
     if (identical(a, b)) {
       return a;
     }
@@ -29,7 +25,7 @@ mixin _$ShadSwitchTheme {
       return t == 0.0 ? a : null;
     }
 
-    return ShadSwitchTheme(
+    return SwitchTheme(
       thumbColor: Color.lerp(a.thumbColor, b.thumbColor, t),
       uncheckedTrackColor: Color.lerp(
         a.uncheckedTrackColor,
@@ -45,12 +41,12 @@ mixin _$ShadSwitchTheme {
       height: lerpDouble$(a.height, b.height, t),
       margin: lerpDouble$(a.margin, b.margin, t),
       duration: lerpDuration$(a.duration, b.duration, t),
-      decoration: ShadDecoration.lerp(a.decoration, b.decoration, t),
+      decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
     );
   }
 
-  ShadSwitchTheme copyWith({
+  SwitchTheme copyWith({
     Color? thumbColor,
     Color? uncheckedTrackColor,
     Color? checkedTrackColor,
@@ -58,12 +54,12 @@ mixin _$ShadSwitchTheme {
     double? height,
     double? margin,
     Duration? duration,
-    ShadDecoration? decoration,
+    FinesseDecoration? decoration,
     EdgeInsetsGeometry? padding,
   }) {
-    final _this = (this as ShadSwitchTheme);
+    final _this = (this as SwitchTheme);
 
-    return ShadSwitchTheme(
+    return SwitchTheme(
       thumbColor: thumbColor ?? _this.thumbColor,
       uncheckedTrackColor: uncheckedTrackColor ?? _this.uncheckedTrackColor,
       checkedTrackColor: checkedTrackColor ?? _this.checkedTrackColor,
@@ -76,8 +72,8 @@ mixin _$ShadSwitchTheme {
     );
   }
 
-  ShadSwitchTheme merge(ShadSwitchTheme? other) {
-    final _this = (this as ShadSwitchTheme);
+  SwitchTheme merge(SwitchTheme? other) {
+    final _this = (this as SwitchTheme);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -110,8 +106,8 @@ mixin _$ShadSwitchTheme {
       return false;
     }
 
-    final _this = (this as ShadSwitchTheme);
-    final _other = (other as ShadSwitchTheme);
+    final _this = (this as SwitchTheme);
+    final _other = (other as SwitchTheme);
 
     return _other.thumbColor == _this.thumbColor &&
         _other.uncheckedTrackColor == _this.uncheckedTrackColor &&
@@ -126,7 +122,7 @@ mixin _$ShadSwitchTheme {
 
   @override
   int get hashCode {
-    final _this = (this as ShadSwitchTheme);
+    final _this = (this as SwitchTheme);
 
     return Object.hash(
       runtimeType,

@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:finesse/material.dart';
+import 'package:finesse/src/app.dart';
+import 'package:finesse/src/components/table.dart';
+import 'package:flutter/material.dart' hide Card;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/material.dart';
-import 'package:shad/src/app.dart';
-import 'package:shad/src/components/table.dart';
 import 'package:two_dimensional_scrollables/two_dimensional_scrollables.dart';
 
 const invoices = [
@@ -50,33 +50,33 @@ const invoices = [
   ),
 ];
 void main() {
-  // Helper method to create a test widget wrapped in ShadApp and Scaffold
+  // Helper method to create a test widget wrapped in FinesseApp and Scaffold
   Widget createTestWidget(Widget child) {
-    return ShadApp(
-      builder: (context, child) => ShadMaterial(child: child!),
+    return FinesseApp(
+      builder: (context, child) => FinesseMaterial(child: child!),
       home: Scaffold(body: child),
     );
   }
 
-  group('ShadTable', () {
-    testWidgets('ShadTable matches goldens', (tester) async {
+  group('FinesseTable', () {
+    testWidgets('FinesseTable matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          ShadTable.list(
+          FinesseTable.list(
             header: const [
-              ShadTableCell.header(child: Text('Invoice')),
-              ShadTableCell.header(child: Text('Status')),
-              ShadTableCell.header(child: Text('Method')),
-              ShadTableCell.header(
+              FinesseTableCell.header(child: Text('Invoice')),
+              FinesseTableCell.header(child: Text('Status')),
+              FinesseTableCell.header(child: Text('Method')),
+              FinesseTableCell.header(
                 alignment: Alignment.centerRight,
                 child: Text('Amount'),
               ),
             ],
             footer: const [
-              ShadTableCell.footer(child: Text('Total')),
-              ShadTableCell.footer(child: Text('')),
-              ShadTableCell.footer(child: Text('')),
-              ShadTableCell.footer(
+              FinesseTableCell.footer(child: Text('Total')),
+              FinesseTableCell.footer(child: Text('')),
+              FinesseTableCell.footer(child: Text('')),
+              FinesseTableCell.footer(
                 alignment: Alignment.centerRight,
                 child: Text(r'$2500.00'),
               ),
@@ -94,7 +94,7 @@ void main() {
             },
             children: invoices.map(
               (invoice) => [
-                ShadTableCell(
+                FinesseTableCell(
                   child: Text(
                     invoice.invoice,
                     style: const TextStyle(
@@ -102,9 +102,9 @@ void main() {
                     ),
                   ),
                 ),
-                ShadTableCell(child: Text(invoice.paymentStatus)),
-                ShadTableCell(child: Text(invoice.paymentMethod)),
-                ShadTableCell(
+                FinesseTableCell(child: Text(invoice.paymentStatus)),
+                FinesseTableCell(child: Text(invoice.paymentMethod)),
+                FinesseTableCell(
                   alignment: Alignment.centerRight,
                   child: Text(
                     invoice.totalAmount,
@@ -117,7 +117,7 @@ void main() {
       );
 
       await expectLater(
-        find.byType(ShadTable),
+        find.byType(FinesseTable),
         matchesGoldenFile('goldens/table.png'),
       );
     });

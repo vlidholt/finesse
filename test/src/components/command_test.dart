@@ -1,22 +1,22 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/shad.dart';
 
 void main() {
-  List<ShadCommandGroup> groups({
+  List<CommandGroup> groups({
     void Function(String)? onSelected,
     bool cherryEnabled = true,
   }) => [
-    ShadCommandGroup(
+    CommandGroup(
       heading: 'Fruit',
       items: [
-        ShadCommandItem(
+        CommandItem(
           label: 'Apple',
           value: 'apple',
           onSelected: () => onSelected?.call('Apple'),
         ),
-        ShadCommandItem(
+        CommandItem(
           label: 'Banana',
           value: 'banana',
           keywords: const ['yellow'],
@@ -24,10 +24,10 @@ void main() {
         ),
       ],
     ),
-    ShadCommandGroup(
+    CommandGroup(
       heading: 'Berries',
       items: [
-        ShadCommandItem(
+        CommandItem(
           label: 'Cherry',
           value: 'cherry',
           enabled: cherryEnabled,
@@ -37,7 +37,7 @@ void main() {
     ),
   ];
 
-  Widget wrap(Widget child) => ShadApp(home: Center(child: child));
+  Widget wrap(Widget child) => FinesseApp(home: Center(child: child));
 
   /// Matches a rendered item label only.
   ///
@@ -47,37 +47,37 @@ void main() {
   Finder resultText(String label) =>
       find.byWidgetPredicate((w) => w is Text && w.data == label);
 
-  group('ShadCommand.defaultFilter', () {
+  group('Command.defaultFilter', () {
     final items = groups().expand((g) => g.items).toList();
 
     test('returns everything for an empty query', () {
-      expect(ShadCommand.defaultFilter(items, ''), hasLength(3));
-      expect(ShadCommand.defaultFilter(items, '   '), hasLength(3));
+      expect(Command.defaultFilter(items, ''), hasLength(3));
+      expect(Command.defaultFilter(items, '   '), hasLength(3));
     });
 
     test('matches case-insensitively on the label', () {
-      final result = ShadCommand.defaultFilter(items, 'aPp');
+      final result = Command.defaultFilter(items, 'aPp');
       expect(result.map((i) => i.label), ['Apple']);
     });
 
     test('matches on keywords too', () {
-      final result = ShadCommand.defaultFilter(items, 'yellow');
+      final result = Command.defaultFilter(items, 'yellow');
       expect(result.map((i) => i.label), ['Banana']);
     });
 
     test('preserves the declared order', () {
-      final result = ShadCommand.defaultFilter(items, 'a');
+      final result = Command.defaultFilter(items, 'a');
       expect(result.map((i) => i.label), ['Apple', 'Banana']);
     });
 
     test('returns nothing when there is no match', () {
-      expect(ShadCommand.defaultFilter(items, 'zzz'), isEmpty);
+      expect(Command.defaultFilter(items, 'zzz'), isEmpty);
     });
   });
 
-  group('ShadCommand', () {
+  group('Command', () {
     testWidgets('renders every group and item', (tester) async {
-      await tester.pumpWidget(wrap(ShadCommand(groups: groups())));
+      await tester.pumpWidget(wrap(Command(groups: groups())));
       await tester.pump();
 
       expect(find.text('Fruit'), findsOneWidget);
@@ -89,10 +89,10 @@ void main() {
     testWidgets('typing filters items and hides emptied groups', (
       tester,
     ) async {
-      await tester.pumpWidget(wrap(ShadCommand(groups: groups())));
+      await tester.pumpWidget(wrap(Command(groups: groups())));
       await tester.pump();
 
-      await tester.enterText(find.byType(ShadInput), 'cher');
+      await tester.enterText(find.byType(TextField), 'cher');
       await tester.pumpAndSettle();
 
       expect(find.text('Cherry'), findsOneWidget);
@@ -103,10 +103,10 @@ void main() {
     });
 
     testWidgets('shows the empty state when nothing matches', (tester) async {
-      await tester.pumpWidget(wrap(ShadCommand(groups: groups())));
+      await tester.pumpWidget(wrap(Command(groups: groups())));
       await tester.pump();
 
-      await tester.enterText(find.byType(ShadInput), 'zzzz');
+      await tester.enterText(find.byType(TextField), 'zzzz');
       await tester.pumpAndSettle();
 
       expect(find.text('No results found.'), findsOneWidget);
@@ -115,7 +115,7 @@ void main() {
     testWidgets('a custom emptyBuilder replaces the default', (tester) async {
       await tester.pumpWidget(
         wrap(
-          ShadCommand(
+          Command(
             groups: groups(),
             emptyBuilder: (context, query) => Text('nothing for "$query"'),
           ),
@@ -123,7 +123,7 @@ void main() {
       );
       await tester.pump();
 
-      await tester.enterText(find.byType(ShadInput), 'zzzz');
+      await tester.enterText(find.byType(TextField), 'zzzz');
       await tester.pumpAndSettle();
       expect(find.text('nothing for "zzzz"'), findsOneWidget);
     });
@@ -131,7 +131,7 @@ void main() {
     testWidgets('a custom filter is used', (tester) async {
       await tester.pumpWidget(
         wrap(
-          ShadCommand(
+          Command(
             groups: groups(),
             // Exact match only.
             filter: (items, query) => query.isEmpty
@@ -142,11 +142,11 @@ void main() {
       );
       await tester.pump();
 
-      await tester.enterText(find.byType(ShadInput), 'App');
+      await tester.enterText(find.byType(TextField), 'App');
       await tester.pumpAndSettle();
       expect(find.text('No results found.'), findsOneWidget);
 
-      await tester.enterText(find.byType(ShadInput), 'Apple');
+      await tester.enterText(find.byType(TextField), 'Apple');
       await tester.pumpAndSettle();
       expect(resultText('Apple'), findsOneWidget);
     });
@@ -154,7 +154,7 @@ void main() {
     testWidgets('tapping an item selects it', (tester) async {
       final chosen = <String>[];
       await tester.pumpWidget(
-        wrap(ShadCommand(groups: groups(onSelected: chosen.add))),
+        wrap(Command(groups: groups(onSelected: chosen.add))),
       );
       await tester.pump();
 
@@ -167,7 +167,7 @@ void main() {
       final chosen = <String>[];
       await tester.pumpWidget(
         wrap(
-          ShadCommand(
+          Command(
             groups: groups(onSelected: chosen.add, cherryEnabled: false),
           ),
         ),
@@ -184,7 +184,7 @@ void main() {
     ) async {
       final chosen = <String>[];
       await tester.pumpWidget(
-        wrap(ShadCommand(groups: groups(onSelected: chosen.add))),
+        wrap(Command(groups: groups(onSelected: chosen.add))),
       );
       await tester.pumpAndSettle();
 
@@ -202,7 +202,7 @@ void main() {
     testWidgets('End jumps to the last item', (tester) async {
       final chosen = <String>[];
       await tester.pumpWidget(
-        wrap(ShadCommand(groups: groups(onSelected: chosen.add))),
+        wrap(Command(groups: groups(onSelected: chosen.add))),
       );
       await tester.pumpAndSettle();
 
@@ -218,7 +218,7 @@ void main() {
       var escaped = false;
       await tester.pumpWidget(
         wrap(
-          ShadCommand(groups: groups(), onEscape: () => escaped = true),
+          Command(groups: groups(), onEscape: () => escaped = true),
         ),
       );
       await tester.pumpAndSettle();
@@ -229,10 +229,10 @@ void main() {
     });
 
     testWidgets('onItemSelected reports the chosen item', (tester) async {
-      ShadCommandItem? selected;
+      CommandItem? selected;
       await tester.pumpWidget(
         wrap(
-          ShadCommand(
+          Command(
             groups: groups(),
             onItemSelected: (item) => selected = item,
           ),
@@ -250,7 +250,7 @@ void main() {
       addTearDown(controller.dispose);
 
       await tester.pumpWidget(
-        wrap(ShadCommand(groups: groups(), controller: controller)),
+        wrap(Command(groups: groups(), controller: controller)),
       );
       await tester.pump();
 
@@ -261,15 +261,15 @@ void main() {
     });
   });
 
-  group('showShadCommandDialog', () {
+  group('showCommandDialog', () {
     Future<void> open(WidgetTester tester) async {
       await tester.pumpWidget(
-        ShadApp(
+        FinesseApp(
           home: Builder(
             builder: (context) => Center(
-              child: ShadButton(
+              child: Button(
                 child: const Text('Open'),
-                onPressed: () => showShadCommandDialog<String>(
+                onPressed: () => showCommandDialog<String>(
                   context: context,
                   groups: groups(),
                 ),
@@ -287,14 +287,14 @@ void main() {
         'while filtering', (tester) async {
       await open(tester);
 
-      final screen = tester.getSize(find.byType(ShadApp));
-      final openRect = tester.getRect(find.byType(ShadCommand));
+      final screen = tester.getSize(find.byType(FinesseApp));
+      final openRect = tester.getRect(find.byType(Command));
       // `.cn-command-dialog top-1/3 translate-y-0`.
       expect(openRect.top, screen.height / 3);
 
       await tester.enterText(find.byType(EditableText), 'banana');
       await tester.pumpAndSettle();
-      final filteredRect = tester.getRect(find.byType(ShadCommand));
+      final filteredRect = tester.getRect(find.byType(Command));
 
       // Fewer results: the palette shrinks from the bottom only.
       expect(filteredRect.top, openRect.top);
@@ -306,7 +306,7 @@ void main() {
     ) async {
       await open(tester);
 
-      final rect = tester.getRect(find.byType(ShadCommand));
+      final rect = tester.getRect(find.byType(Command));
       // Well under the old fixed 300 — the three items plus the search box.
       expect(rect.height, lessThan(250));
 
@@ -320,13 +320,13 @@ void main() {
         'underline', (tester) async {
       await open(tester);
 
-      final theme = ShadTheme.of(
-        tester.element(find.byType(ShadCommand)),
+      final theme = Theme.of(
+        tester.element(find.byType(Command)),
       );
-      final input = tester.widget<ShadInput>(
+      final input = tester.widget<TextField>(
         find.descendant(
-          of: find.byType(ShadCommand),
-          matching: find.byType(ShadInput),
+          of: find.byType(Command),
+          matching: find.byType(TextField),
         ),
       );
       // `bg-input/30` inside an `--input` outline, no focus ring.
@@ -342,8 +342,8 @@ void main() {
         ),
       );
       // Inset from the dialog edge (`p-1` + `p-1 pb-0`), not edge-to-edge.
-      final inputRect = tester.getRect(find.byType(ShadInput));
-      final commandRect = tester.getRect(find.byType(ShadCommand));
+      final inputRect = tester.getRect(find.byType(TextField));
+      final commandRect = tester.getRect(find.byType(Command));
       expect(inputRect.left - commandRect.left, greaterThan(0));
       // `h-8!`.
       expect(inputRect.height, theme.style.commandSearchHeight);
@@ -351,11 +351,11 @@ void main() {
 
     testWidgets('the dialog casts no shadow', (tester) async {
       await open(tester);
-      final dialog = tester.widget<ShadDialog>(find.byType(ShadDialog));
-      expect(dialog.shadows, ShadShadows.none);
+      final dialog = tester.widget<Dialog>(find.byType(Dialog));
+      expect(dialog.shadows, Shadows.none);
     });
 
-    testWidgets('the empty state is a quiet text-sm line, not the ShadEmpty '
+    testWidgets('the empty state is a quiet text-sm line, not the Empty '
         'hero', (tester) async {
       await open(tester);
       await tester.enterText(find.byType(EditableText), 'zzzz');
@@ -366,7 +366,7 @@ void main() {
       final text = tester.widget<Text>(find.text('No results found.'));
       expect(text.style?.fontSize, 14);
       expect(text.textAlign, TextAlign.center);
-      expect(find.byType(ShadEmpty), findsNothing);
+      expect(find.byType(Empty), findsNothing);
     });
   });
 }

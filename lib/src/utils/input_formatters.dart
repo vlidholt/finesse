@@ -1,9 +1,9 @@
 import 'package:flutter/services.dart';
 
 /// Converts all entered text to upper case. Keeps the selection.
-class ShadUpperCaseTextInputFormatter extends TextInputFormatter {
+class UpperCaseTextInputFormatter extends TextInputFormatter {
   /// Creates an upper-case formatter.
-  const ShadUpperCaseTextInputFormatter();
+  const UpperCaseTextInputFormatter();
 
   @override
   TextEditingValue formatEditUpdate(
@@ -18,9 +18,9 @@ class ShadUpperCaseTextInputFormatter extends TextInputFormatter {
 }
 
 /// Converts all entered text to lower case. Keeps the selection.
-class ShadLowerCaseTextInputFormatter extends TextInputFormatter {
+class LowerCaseTextInputFormatter extends TextInputFormatter {
   /// Creates a lower-case formatter.
-  const ShadLowerCaseTextInputFormatter();
+  const LowerCaseTextInputFormatter();
 
   @override
   TextEditingValue formatEditUpdate(

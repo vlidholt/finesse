@@ -1,30 +1,33 @@
+import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/theme.dart';
 
-/// Asserts that [context] has a [ShadTheme] ancestor.
+/// Asserts that [context] has a [Theme] ancestor.
 ///
 /// Throws a [FlutterError] in debug mode when there is none. Always returns
 /// true, so call it inside an `assert`.
-bool debugCheckHasShadTheme(BuildContext context) {
+bool debugCheckHasTheme(BuildContext context) {
   assert(() {
-    if (context.widget is! ShadInheritedTheme &&
-        context.getElementForInheritedWidgetOfExactType<ShadInheritedTheme>() ==
+    if (context.widget is! FinesseInheritedTheme &&
+        context
+                .getElementForInheritedWidgetOfExactType<
+                  FinesseInheritedTheme
+                >() ==
             null) {
       throw FlutterError.fromParts(<DiagnosticsNode>[
-        ErrorSummary('No ShadTheme widget ancestor found.'),
+        ErrorSummary('No Theme widget ancestor found.'),
         ErrorDescription(
-          '''${context.widget.runtimeType} widgets require a ShadTheme widget ancestor.''',
+          '''${context.widget.runtimeType} widgets require a Theme widget ancestor.''',
         ),
         context.describeWidget(
-          'The specific widget that could not find a ShadTheme ancestor was',
+          'The specific widget that could not find a Theme ancestor was',
         ),
         context.describeOwnershipChain(
           'The ownership chain for the affected widget is',
         ),
         ErrorHint(
-          'No ShadTheme ancestor could be found starting from the context '
-          'that was passed to ShadTheme.of(). This can happen because the '
-          'app is not wrapped with the Shad widget.',
+          'No Theme ancestor could be found starting from the context '
+          'that was passed to Theme.of(). This can happen because the '
+          'app is not wrapped with the Finesse widget.',
         ),
       ]);
     }

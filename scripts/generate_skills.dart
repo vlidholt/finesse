@@ -1,6 +1,6 @@
 // ignore_for_file: avoid_print
 //
-// Regenerates skills/shad-overview/components/*.md from the example app's
+// Regenerates skills/finesse-overview/components/*.md from the example app's
 // documentation pages, which are the single source of truth for component
 // descriptions and sample code (see CLAUDE.md: "the code shown is the code
 // that runs").
@@ -69,7 +69,7 @@ const _slugs = [
 
 void main() {
   final pagesDir = Directory('example/lib/docs/pages');
-  final outDir = Directory('skills/shad-overview/components')
+  final outDir = Directory('skills/finesse-overview/components')
     ..createSync(recursive: true);
 
   // Start clean so a renamed or removed component cannot leave a stale file

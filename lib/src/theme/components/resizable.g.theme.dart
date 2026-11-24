@@ -9,14 +9,10 @@ part of 'resizable.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadResizableTheme {
+mixin _$ResizableTheme {
   bool get canMerge => true;
 
-  static ShadResizableTheme? lerp(
-    ShadResizableTheme? a,
-    ShadResizableTheme? b,
-    double t,
-  ) {
+  static ResizableTheme? lerp(ResizableTheme? a, ResizableTheme? b, double t) {
     if (identical(a, b)) {
       return a;
     }
@@ -29,7 +25,7 @@ mixin _$ShadResizableTheme {
       return t == 0.0 ? a : null;
     }
 
-    return ShadResizableTheme(
+    return ResizableTheme(
       mainAxisAlignment: t < 0.5 ? a.mainAxisAlignment : b.mainAxisAlignment,
       crossAxisAlignment: t < 0.5 ? a.crossAxisAlignment : b.crossAxisAlignment,
       mainAxisSize: t < 0.5 ? a.mainAxisSize : b.mainAxisSize,
@@ -39,7 +35,7 @@ mixin _$ShadResizableTheme {
       handleIconData: t < 0.5 ? a.handleIconData : b.handleIconData,
       dividerSize: lerpDouble$(a.dividerSize, b.dividerSize, t),
       resetOnDoubleTap: t < 0.5 ? a.resetOnDoubleTap : b.resetOnDoubleTap,
-      handleDecoration: ShadDecoration.lerp(
+      handleDecoration: FinesseDecoration.lerp(
         a.handleDecoration,
         b.handleDecoration,
         t,
@@ -55,7 +51,7 @@ mixin _$ShadResizableTheme {
     );
   }
 
-  ShadResizableTheme copyWith({
+  ResizableTheme copyWith({
     MainAxisAlignment? mainAxisAlignment,
     CrossAxisAlignment? crossAxisAlignment,
     MainAxisSize? mainAxisSize,
@@ -65,15 +61,15 @@ mixin _$ShadResizableTheme {
     IconData? handleIconData,
     double? dividerSize,
     bool? resetOnDoubleTap,
-    ShadDecoration? handleDecoration,
+    FinesseDecoration? handleDecoration,
     EdgeInsetsGeometry? handlePadding,
     double? handleSize,
     double? dividerThickness,
     Color? dividerColor,
   }) {
-    final _this = (this as ShadResizableTheme);
+    final _this = (this as ResizableTheme);
 
-    return ShadResizableTheme(
+    return ResizableTheme(
       mainAxisAlignment: mainAxisAlignment ?? _this.mainAxisAlignment,
       crossAxisAlignment: crossAxisAlignment ?? _this.crossAxisAlignment,
       mainAxisSize: mainAxisSize ?? _this.mainAxisSize,
@@ -91,8 +87,8 @@ mixin _$ShadResizableTheme {
     );
   }
 
-  ShadResizableTheme merge(ShadResizableTheme? other) {
-    final _this = (this as ShadResizableTheme);
+  ResizableTheme merge(ResizableTheme? other) {
+    final _this = (this as ResizableTheme);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -132,8 +128,8 @@ mixin _$ShadResizableTheme {
       return false;
     }
 
-    final _this = (this as ShadResizableTheme);
-    final _other = (other as ShadResizableTheme);
+    final _this = (this as ResizableTheme);
+    final _other = (other as ResizableTheme);
 
     return _other.mainAxisAlignment == _this.mainAxisAlignment &&
         _other.crossAxisAlignment == _this.crossAxisAlignment &&
@@ -153,7 +149,7 @@ mixin _$ShadResizableTheme {
 
   @override
   int get hashCode {
-    final _this = (this as ShadResizableTheme);
+    final _this = (this as ResizableTheme);
 
     return Object.hash(
       runtimeType,

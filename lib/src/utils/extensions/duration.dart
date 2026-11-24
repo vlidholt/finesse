@@ -2,7 +2,7 @@
 ///
 /// [Duration] already has `+`, `-` and `*` operators, so the operators of this
 /// extension with the same names never apply.
-extension ShadDurationExt on Duration {
+extension DurationExt on Duration {
   /// Returns the sum of the two durations.
   Duration operator +(Duration other) {
     return Duration(

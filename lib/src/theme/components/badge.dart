@@ -3,14 +3,14 @@ import 'package:theme_extensions_builder_annotation/theme_extensions_builder_ann
 
 part 'badge.g.theme.dart';
 
-/// {@template ShadBadgeTheme}
-/// Theme for the `ShadBadge` widget.
+/// {@template BadgeTheme}
+/// Theme for the `Badge` widget.
 /// {@endtemplate}
 @themeGen
 @immutable
-class ShadBadgeTheme with _$ShadBadgeTheme {
-  /// {@macro ShadBadgeTheme}
-  const ShadBadgeTheme({
+class BadgeTheme with _$BadgeTheme {
+  /// {@macro BadgeTheme}
+  const BadgeTheme({
     bool canMerge = true,
     this.shape,
     this.backgroundColor,
@@ -28,34 +28,34 @@ class ShadBadgeTheme with _$ShadBadgeTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro ShadBadge.shape}
+  /// {@macro Badge.shape}
   final ShapeBorder? shape;
 
-  /// {@macro ShadBadge.backgroundColor}
+  /// {@macro Badge.backgroundColor}
   final Color? backgroundColor;
 
-  /// {@macro ShadBadge.hoverBackgroundColor}
+  /// {@macro Badge.hoverBackgroundColor}
   final Color? hoverBackgroundColor;
 
-  /// {@macro ShadBadge.foregroundColor}
+  /// {@macro Badge.foregroundColor}
   final Color? foregroundColor;
 
-  /// {@macro ShadBadge.padding}
+  /// {@macro Badge.padding}
   final EdgeInsetsGeometry? padding;
 
-  /// {@macro ShadBadge.cursor}
+  /// {@macro Badge.cursor}
   final MouseCursor? cursor;
 
-  /// {@macro ShadBadge.textStyle}
+  /// {@macro Badge.textStyle}
   final TextStyle? textStyle;
 
   /// The size of the badge's icons. Defaults to 12.
   final double? iconSize;
 
   /// Linearly interpolates between [a] and [b] by [t].
-  static ShadBadgeTheme? lerp(
-    ShadBadgeTheme? a,
-    ShadBadgeTheme? b,
+  static BadgeTheme? lerp(
+    BadgeTheme? a,
+    BadgeTheme? b,
     double t,
-  ) => _$ShadBadgeTheme.lerp(a, b, t);
+  ) => _$BadgeTheme.lerp(a, b, t);
 }

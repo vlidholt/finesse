@@ -1,31 +1,31 @@
+import 'package:finesse/src/components/button.dart';
+import 'package:finesse/src/theme/components/button.dart';
+import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/data.dart';
+import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/debug_check.dart';
+import 'package:finesse/src/utils/gesture_detector.dart';
+import 'package:finesse/src/utils/states_controller.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/components/button.dart';
-import 'package:shad/src/theme/components/button.dart';
-import 'package:shad/src/theme/components/decorator.dart';
-import 'package:shad/src/theme/data.dart';
-import 'package:shad/src/theme/theme.dart';
-import 'package:shad/src/utils/debug_check.dart';
-import 'package:shad/src/utils/gesture_detector.dart';
-import 'package:shad/src/utils/states_controller.dart';
 
 /// A customizable icon-only button widget with variant styling.
 ///
-/// The [ShadIconButton] widget is a specialized version of [ShadButton]
+/// The [IconButton] widget is a specialized version of [Button]
 /// designed for icon-only use cases, offering multiple styling variants
 /// (primary, destructive, outline, secondary, ghost). It supports rich
-/// interaction states and integrates with [ShadTheme] for consistent
-/// appearance. Use named constructors like [ShadIconButton.destructive] for
-/// specific variants or [ShadIconButton.raw] for full control.
+/// interaction states and integrates with [Theme] for consistent
+/// appearance. Use named constructors like [IconButton.destructive] for
+/// specific variants or [IconButton.raw] for full control.
 ///
 /// shadcn/ui itself has no separate component — it is `<Button size="icon">`,
-/// and `ShadButton(size: ShadButtonSize.icon, child: Icon(...))` is exactly
+/// and `Button(size: ButtonSize.icon, child: Icon(...))` is exactly
 /// that. This adds the square sizes for the `sm`/`lg` steps (which shadcn
 /// spells `size-icon-sm` / `size-icon-lg`) and the semantic label an
 /// icon-only control needs, so prefer it when the button holds only an icon.
-class ShadIconButton extends StatelessWidget {
+class IconButton extends StatelessWidget {
   /// Creates a primary variant icon button widget.
-  const ShadIconButton({
+  const IconButton({
     super.key,
     required this.icon,
     this.iconSize,
@@ -68,11 +68,11 @@ class ShadIconButton extends StatelessWidget {
     this.onDoubleTapCancel,
     this.longPressDuration,
     this.onFocusChange,
-  }) : variant = ShadButtonVariant.primary;
+  }) : variant = ButtonVariant.primary;
 
   /// Creates an icon button widget with a specified [variant], offering full
   /// customization.
-  const ShadIconButton.raw({
+  const IconButton.raw({
     super.key,
     required this.variant,
     required this.icon,
@@ -117,13 +117,13 @@ class ShadIconButton extends StatelessWidget {
     this.onDoubleTapCancel,
     this.longPressDuration,
   }) : assert(
-         variant != ShadButtonVariant.link,
-         "ShadIconButton doesn't support the link variant",
+         variant != ButtonVariant.link,
+         "IconButton doesn't support the link variant",
        );
 
   /// Creates a destructive variant icon button widget, typically for warning or
   /// error actions.
-  const ShadIconButton.destructive({
+  const IconButton.destructive({
     super.key,
     required this.icon,
     this.iconSize,
@@ -166,11 +166,11 @@ class ShadIconButton extends StatelessWidget {
     this.onDoubleTapDown,
     this.onDoubleTapCancel,
     this.longPressDuration,
-  }) : variant = ShadButtonVariant.destructive;
+  }) : variant = ButtonVariant.destructive;
 
   /// Creates an outline variant icon button widget, typically with a bordered
   /// appearance.
-  const ShadIconButton.outline({
+  const IconButton.outline({
     super.key,
     required this.icon,
     this.iconSize,
@@ -213,11 +213,11 @@ class ShadIconButton extends StatelessWidget {
     this.onDoubleTapCancel,
     this.longPressDuration,
     this.onFocusChange,
-  }) : variant = ShadButtonVariant.outline;
+  }) : variant = ButtonVariant.outline;
 
   /// Creates a secondary variant icon button widget, typically for less
   /// prominent actions.
-  const ShadIconButton.secondary({
+  const IconButton.secondary({
     super.key,
     required this.icon,
     this.iconSize,
@@ -260,11 +260,11 @@ class ShadIconButton extends StatelessWidget {
     this.onDoubleTapCancel,
     this.longPressDuration,
     this.onFocusChange,
-  }) : variant = ShadButtonVariant.secondary;
+  }) : variant = ButtonVariant.secondary;
 
   /// Creates a ghost variant icon button widget, typically with minimal
   /// styling.
-  const ShadIconButton.ghost({
+  const IconButton.ghost({
     super.key,
     required this.icon,
     this.iconSize,
@@ -307,39 +307,39 @@ class ShadIconButton extends StatelessWidget {
     this.onDoubleTapCancel,
     this.longPressDuration,
     this.onFocusChange,
-  }) : variant = ShadButtonVariant.ghost;
+  }) : variant = ButtonVariant.ghost;
 
-  /// {@macro ShadButton.variant}
-  final ShadButtonVariant variant;
+  /// {@macro Button.variant}
+  final ButtonVariant variant;
 
-  /// {@macro ShadButton.onPressed}
+  /// {@macro Button.onPressed}
   final VoidCallback? onPressed;
 
-  /// {@macro ShadButton.onLongPress}
+  /// {@macro Button.onLongPress}
   final VoidCallback? onLongPress;
 
-  /// {@template ShadIconButton.icon}
+  /// {@template IconButton.icon}
   /// The icon widget displayed within the button.
   /// Typically an [Icon], required to define the button’s content.
   /// {@endtemplate}
   final Widget icon;
 
-  /// {@template ShadIconButton.iconSize}
+  /// {@template IconButton.iconSize}
   /// The size of the icon within the button.
   /// Defaults to the [IconThemeData.size] if not specified.
   /// {@endtemplate}
   final double? iconSize;
 
-  /// {@template ShadIconButton.size}
+  /// {@template IconButton.size}
   /// The button size to resolve metrics from.
   ///
-  /// Defaults to [ShadButtonSize.icon] — the square icon size matching
-  /// shadcn/ui's `<Button size="icon">`. Pass [ShadButtonSize.sm] or
-  /// [ShadButtonSize.lg] for the smaller/larger icon buttons.
+  /// Defaults to [ButtonSize.icon] — the square icon size matching
+  /// shadcn/ui's `<Button size="icon">`. Pass [ButtonSize.sm] or
+  /// [ButtonSize.lg] for the smaller/larger icon buttons.
   /// {@endtemplate}
-  final ShadButtonSize? size;
+  final ButtonSize? size;
 
-  /// {@template ShadIconButton.semanticLabel}
+  /// {@template IconButton.semanticLabel}
   /// The accessible name announced by screen readers.
   ///
   /// An icon-only button has no text for assistive technology to read, so
@@ -348,147 +348,147 @@ class ShadIconButton extends StatelessWidget {
   /// {@endtemplate}
   final String? semanticLabel;
 
-  /// {@macro ShadButton.cursor}
+  /// {@macro Button.cursor}
   final MouseCursor? cursor;
 
-  /// {@macro ShadButton.width}
+  /// {@macro Button.width}
   final double? width;
 
-  /// {@macro ShadButton.height}
+  /// {@macro Button.height}
   final double? height;
 
-  /// {@macro ShadButton.padding}
+  /// {@macro Button.padding}
   final EdgeInsetsGeometry? padding;
 
-  /// {@macro ShadButton.backgroundColor}
+  /// {@macro Button.backgroundColor}
   final Color? backgroundColor;
 
-  /// {@macro ShadButton.hoverBackgroundColor}
+  /// {@macro Button.hoverBackgroundColor}
   final Color? hoverBackgroundColor;
 
-  /// {@macro ShadButton.foregroundColor}
+  /// {@macro Button.foregroundColor}
   final Color? foregroundColor;
 
-  /// {@macro ShadButton.hoverForegroundColor}
+  /// {@macro Button.hoverForegroundColor}
   final Color? hoverForegroundColor;
 
-  /// {@macro ShadButton.autofocus}
+  /// {@macro Button.autofocus}
   final bool autofocus;
 
-  /// {@macro ShadButton.focusNode}
+  /// {@macro Button.focusNode}
   final FocusNode? focusNode;
 
-  /// {@macro ShadButton.pressedBackgroundColor}
+  /// {@macro Button.pressedBackgroundColor}
   final Color? pressedBackgroundColor;
 
-  /// {@macro ShadButton.pressedForegroundColor}
+  /// {@macro Button.pressedForegroundColor}
   final Color? pressedForegroundColor;
 
-  /// {@macro ShadButton.shadows}
+  /// {@macro Button.shadows}
   final List<BoxShadow>? shadows;
 
-  /// {@macro ShadButton.gradient}
+  /// {@macro Button.gradient}
   final Gradient? gradient;
 
-  /// {@macro ShadButton.decoration}
-  final ShadDecoration? decoration;
+  /// {@macro Button.decoration}
+  final FinesseDecoration? decoration;
 
-  /// {@macro ShadButton.enabled}
+  /// {@macro Button.enabled}
   final bool enabled;
 
-  /// {@macro ShadButton.statesController}
-  final ShadStatesController? statesController;
+  /// {@macro Button.statesController}
+  final StatesController? statesController;
 
-  /// {@macro ShadButton.hoverStrategies}
-  final ShadHoverStrategies? hoverStrategies;
+  /// {@macro Button.hoverStrategies}
+  final HoverStrategies? hoverStrategies;
 
-  /// {@macro ShadButton.onHoverChange}
+  /// {@macro Button.onHoverChange}
   final ValueChanged<bool>? onHoverChange;
 
-  /// {@macro ShadButton.onTapDown}
+  /// {@macro Button.onTapDown}
   final ValueChanged<TapDownDetails>? onTapDown;
 
-  /// {@macro ShadButton.onTapUp}
+  /// {@macro Button.onTapUp}
   final ValueChanged<TapUpDetails>? onTapUp;
 
-  /// {@macro ShadButton.onTapCancel}
+  /// {@macro Button.onTapCancel}
   final VoidCallback? onTapCancel;
 
-  /// {@macro ShadButton.onSecondaryTapDown}
+  /// {@macro Button.onSecondaryTapDown}
   final ValueChanged<TapDownDetails>? onSecondaryTapDown;
 
-  /// {@macro ShadButton.onSecondaryTapUp}
+  /// {@macro Button.onSecondaryTapUp}
   final ValueChanged<TapUpDetails>? onSecondaryTapUp;
 
-  /// {@macro ShadButton.onSecondaryTapCancel}
+  /// {@macro Button.onSecondaryTapCancel}
   final VoidCallback? onSecondaryTapCancel;
 
-  /// {@macro ShadButton.onLongPressStart}
+  /// {@macro Button.onLongPressStart}
   final ValueChanged<LongPressStartDetails>? onLongPressStart;
 
-  /// {@macro ShadButton.onLongPressCancel}
+  /// {@macro Button.onLongPressCancel}
   final VoidCallback? onLongPressCancel;
 
-  /// {@macro ShadButton.onLongPressUp}
+  /// {@macro Button.onLongPressUp}
   final VoidCallback? onLongPressUp;
 
-  /// {@macro ShadButton.onLongPressDown}
+  /// {@macro Button.onLongPressDown}
   final ValueChanged<LongPressDownDetails>? onLongPressDown;
 
-  /// {@macro ShadButton.onLongPressEnd}
+  /// {@macro Button.onLongPressEnd}
   final ValueChanged<LongPressEndDetails>? onLongPressEnd;
 
-  /// {@macro ShadButton.onDoubleTap}
+  /// {@macro Button.onDoubleTap}
   final VoidCallback? onDoubleTap;
 
-  /// {@macro ShadButton.onDoubleTapDown}
+  /// {@macro Button.onDoubleTapDown}
   final ValueChanged<TapDownDetails>? onDoubleTapDown;
 
-  /// {@macro ShadButton.onDoubleTapCancel}
+  /// {@macro Button.onDoubleTapCancel}
   final VoidCallback? onDoubleTapCancel;
 
-  /// {@macro ShadButton.longPressDuration}
+  /// {@macro Button.longPressDuration}
   final Duration? longPressDuration;
 
-  /// {@macro ShadButton.onFocusChange}
+  /// {@macro Button.onFocusChange}
   final ValueChanged<bool>? onFocusChange;
 
   /// The button theme for [variant], read from [theme].
-  ShadButtonTheme buttonTheme(ShadThemeData theme) {
+  ButtonTheme buttonTheme(ThemeData theme) {
     return switch (variant) {
-      ShadButtonVariant.primary => theme.primaryButtonTheme,
-      ShadButtonVariant.destructive => theme.destructiveButtonTheme,
-      ShadButtonVariant.secondary => theme.secondaryButtonTheme,
-      ShadButtonVariant.ghost => theme.ghostButtonTheme,
-      ShadButtonVariant.outline => theme.outlineButtonTheme,
-      ShadButtonVariant.link => theme.linkButtonTheme,
+      ButtonVariant.primary => theme.primaryButtonTheme,
+      ButtonVariant.destructive => theme.destructiveButtonTheme,
+      ButtonVariant.secondary => theme.secondaryButtonTheme,
+      ButtonVariant.ghost => theme.ghostButtonTheme,
+      ButtonVariant.outline => theme.outlineButtonTheme,
+      ButtonVariant.link => theme.linkButtonTheme,
     };
   }
 
   @override
   Widget build(BuildContext context) {
-    assert(debugCheckHasShadTheme(context));
+    assert(debugCheckHasTheme(context));
 
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
 
     final sizesTheme = buttonTheme(theme).sizesTheme;
     // The square sizes, not the text-button ones: shadcn sizes an icon
     // button's glyph independently of a text button's at the same step
     // (`.cn-button-size-icon-sm` keeps 16 where `.cn-button-size-sm` drops
     // to 14).
-    final defaultSize = switch (size ?? ShadButtonSize.icon) {
-      ShadButtonSize.icon => sizesTheme?.icon ?? theme.buttonSizesTheme.icon!,
-      ShadButtonSize.sm =>
+    final defaultSize = switch (size ?? ButtonSize.icon) {
+      ButtonSize.icon => sizesTheme?.icon ?? theme.buttonSizesTheme.icon!,
+      ButtonSize.sm =>
         sizesTheme?.iconSm ??
             theme.buttonSizesTheme.iconSm ??
             sizesTheme?.sm ??
             theme.buttonSizesTheme.sm!,
-      ShadButtonSize.lg =>
+      ButtonSize.lg =>
         sizesTheme?.iconLg ??
             theme.buttonSizesTheme.iconLg ??
             sizesTheme?.lg ??
             theme.buttonSizesTheme.lg!,
-      ShadButtonSize.regular =>
+      ButtonSize.regular =>
         sizesTheme?.regular ?? theme.buttonSizesTheme.regular!,
     };
 
@@ -499,7 +499,7 @@ class ShadIconButton extends StatelessWidget {
     // back to the height so an icon button stays square at every size.
     final effectiveWidth = width ?? defaultSize.width ?? effectiveHeight;
 
-    Widget button = ShadButton.raw(
+    Widget button = Button.raw(
       variant: variant,
       width: effectiveWidth,
       height: effectiveHeight,

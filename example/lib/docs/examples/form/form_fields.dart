@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 enum NotifyAbout {
   all('All new messages'),
@@ -20,7 +20,7 @@ class FormFieldsExample extends StatefulWidget {
 }
 
 class _FormFieldsExampleState extends State<FormFieldsExample> {
-  final formKey = GlobalKey<ShadFormState>();
+  final formKey = GlobalKey<FinesseFormState>();
 
   static const verifiedEmails = [
     'm@example.com',
@@ -30,7 +30,7 @@ class _FormFieldsExampleState extends State<FormFieldsExample> {
 
   @override
   Widget build(BuildContext context) {
-    return ShadForm(
+    return FinesseForm(
       key: formKey,
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 350),
@@ -38,48 +38,48 @@ class _FormFieldsExampleState extends State<FormFieldsExample> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: 16,
           children: [
-            ShadInputFormField(
+            TextFormField(
               id: 'username',
               label: const Text('Username'),
               placeholder: const Text('Enter your username'),
             ),
-            ShadSelectFormField<String>(
+            SelectFormField<String>(
               id: 'email',
               label: const Text('Email'),
               placeholder: const Text('Select a verified email'),
               options: [
                 for (final email in verifiedEmails)
-                  ShadOption(value: email, child: Text(email)),
+                  SelectOption(value: email, child: Text(email)),
               ],
               selectedOptionBuilder: (context, value) => Text(value),
             ),
-            ShadTextareaFormField(
+            TextareaFormField(
               id: 'bio',
               label: const Text('Bio'),
               placeholder: const Text('Tell us about yourself...'),
             ),
-            ShadRadioGroupFormField<NotifyAbout>(
+            RadioGroupFormField<NotifyAbout>(
               id: 'notify',
               label: const Text('Notify me about'),
               items: [
                 for (final option in NotifyAbout.values)
-                  ShadRadio(value: option, label: Text(option.message)),
+                  Radio(value: option, label: Text(option.message)),
               ],
             ),
-            ShadDatePickerFormField(
+            DatePickerFormField(
               id: 'date',
               label: const Text('Date of birth'),
             ),
-            ShadTimePickerFormField(
+            TimePickerFormField(
               id: 'time',
               label: const Text('Pick a time'),
             ),
-            ShadSwitchFormField(
+            SwitchFormField(
               id: 'marketing',
               initialValue: false,
               inputLabel: const Text('Marketing emails'),
             ),
-            ShadButton(
+            Button(
               child: const Text('Submit'),
               onPressed: () => formKey.currentState!.saveAndValidate(),
             ),

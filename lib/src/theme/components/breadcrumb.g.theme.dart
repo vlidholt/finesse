@@ -9,12 +9,12 @@ part of 'breadcrumb.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadBreadcrumbTheme {
+mixin _$BreadcrumbTheme {
   bool get canMerge => true;
 
-  static ShadBreadcrumbTheme? lerp(
-    ShadBreadcrumbTheme? a,
-    ShadBreadcrumbTheme? b,
+  static BreadcrumbTheme? lerp(
+    BreadcrumbTheme? a,
+    BreadcrumbTheme? b,
     double t,
   ) {
     if (identical(a, b)) {
@@ -29,7 +29,7 @@ mixin _$ShadBreadcrumbTheme {
       return t == 0.0 ? a : null;
     }
 
-    return ShadBreadcrumbTheme(
+    return BreadcrumbTheme(
       separator: t < 0.5 ? a.separator : b.separator,
       ellipsis: t < 0.5 ? a.ellipsis : b.ellipsis,
       separatorSize: lerpDouble$(a.separatorSize, b.separatorSize, t),
@@ -81,7 +81,7 @@ mixin _$ShadBreadcrumbTheme {
     );
   }
 
-  ShadBreadcrumbTheme copyWith({
+  BreadcrumbTheme copyWith({
     Widget? separator,
     Widget? ellipsis,
     double? separatorSize,
@@ -98,14 +98,14 @@ mixin _$ShadBreadcrumbTheme {
     EdgeInsetsGeometry? dropdownMenuPadding,
     TextStyle? dropdownTextStyle,
     EdgeInsetsGeometry? dropdownItemPadding,
-    ShadAnchorBase? dropdownMenuAnchor,
+    AnchorBase? dropdownMenuAnchor,
     double? dropdownArrowGap,
     Color? lastItemTextColor,
     bool? showDropdownArrow,
   }) {
-    final _this = (this as ShadBreadcrumbTheme);
+    final _this = (this as BreadcrumbTheme);
 
-    return ShadBreadcrumbTheme(
+    return BreadcrumbTheme(
       separator: separator ?? _this.separator,
       ellipsis: ellipsis ?? _this.ellipsis,
       separatorSize: separatorSize ?? _this.separatorSize,
@@ -130,8 +130,8 @@ mixin _$ShadBreadcrumbTheme {
     );
   }
 
-  ShadBreadcrumbTheme merge(ShadBreadcrumbTheme? other) {
-    final _this = (this as ShadBreadcrumbTheme);
+  BreadcrumbTheme merge(BreadcrumbTheme? other) {
+    final _this = (this as BreadcrumbTheme);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -181,8 +181,8 @@ mixin _$ShadBreadcrumbTheme {
       return false;
     }
 
-    final _this = (this as ShadBreadcrumbTheme);
-    final _other = (other as ShadBreadcrumbTheme);
+    final _this = (this as BreadcrumbTheme);
+    final _other = (other as BreadcrumbTheme);
 
     return _other.separator == _this.separator &&
         _other.ellipsis == _this.ellipsis &&
@@ -209,7 +209,7 @@ mixin _$ShadBreadcrumbTheme {
 
   @override
   int get hashCode {
-    final _this = (this as ShadBreadcrumbTheme);
+    final _this = (this as BreadcrumbTheme);
 
     return Object.hashAll([
       runtimeType,

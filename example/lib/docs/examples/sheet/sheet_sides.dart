@@ -1,27 +1,27 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class SheetSidesExample extends StatelessWidget {
   const SheetSidesExample({super.key});
 
-  void _open(BuildContext context, ShadSheetSide side) {
-    showShadSheet<void>(
+  void _open(BuildContext context, SheetSide side) {
+    showSheet<void>(
       context: context,
       side: side,
-      builder: (context) => ShadSheet(
+      builder: (context) => Sheet(
         title: const Text('Edit Profile'),
         description: const Text(
           "Make changes to your profile here. Click save when you're done.",
         ),
         actions: [
-          ShadButton(
+          Button(
             child: const Text('Save changes'),
             onPressed: () => Navigator.of(context).pop(),
           ),
         ],
         child: const Padding(
           padding: EdgeInsets.symmetric(vertical: 20),
-          child: ShadInput(placeholder: Text('Name')),
+          child: TextField(placeholder: Text('Name')),
         ),
       ),
     );
@@ -33,8 +33,8 @@ class SheetSidesExample extends StatelessWidget {
       spacing: 8,
       runSpacing: 8,
       children: [
-        for (final side in ShadSheetSide.values)
-          ShadButton.outline(
+        for (final side in SheetSide.values)
+          Button.outline(
             onPressed: () => _open(context, side),
             child: Text(side.name),
           ),

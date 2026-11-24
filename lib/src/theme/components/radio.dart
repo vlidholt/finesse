@@ -1,18 +1,17 @@
+import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:flutter/widgets.dart';
-
-import 'package:shad/src/theme/components/decorator.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
 part 'radio.g.theme.dart';
 
-/// {@template ShadRadioTheme}
-/// Theme for the `ShadRadio` widget.
+/// {@template RadioTheme}
+/// Theme for the `Radio` widget.
 /// {@endtemplate}
 @themeGen
 @immutable
-class ShadRadioTheme with _$ShadRadioTheme {
-  /// {@macro ShadRadioTheme}
-  const ShadRadioTheme({
+class RadioTheme with _$RadioTheme {
+  /// {@macro RadioTheme}
+  const RadioTheme({
     bool canMerge = true,
     this.color,
     this.duration,
@@ -36,56 +35,56 @@ class ShadRadioTheme with _$ShadRadioTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro ShadRadio.color}
+  /// {@macro Radio.color}
   final Color? color;
 
-  /// {@macro ShadRadio.size}
+  /// {@macro Radio.size}
   final double? size;
 
-  /// {@macro ShadRadio.duration}
+  /// {@macro Radio.duration}
   final Duration? duration;
 
-  /// {@macro ShadRadio.decoration}
-  final ShadDecoration? decoration;
+  /// {@macro Radio.decoration}
+  final FinesseDecoration? decoration;
 
   /// The decoration while selected, when it differs from [decoration]: the
   /// reference fills the circle with the primary (`data-checked:bg-primary
   /// data-checked:border-primary`) and draws a primary-foreground dot, so the
   /// selected radio cannot keep the unchecked outline. Null means "same as
   /// [decoration]".
-  final ShadDecoration? checkedDecoration;
+  final FinesseDecoration? checkedDecoration;
 
-  /// {@macro ShadRadio.padding}
+  /// {@macro Radio.padding}
   final EdgeInsetsGeometry? padding;
 
-  /// {@macro ShadRadio.circleSize}
+  /// {@macro Radio.circleSize}
   final double? circleSize;
 
-  /// {@macro ShadRadioGroup.axis}
+  /// {@macro FinesseRadioGroup.axis}
   final Axis? axis;
 
-  /// {@macro ShadRadioGroup.spacing}
+  /// {@macro FinesseRadioGroup.spacing}
   final double? spacing;
 
-  /// {@macro ShadRadioGroup.runSpacing}
+  /// {@macro FinesseRadioGroup.runSpacing}
   final double? runSpacing;
 
-  /// {@macro ShadRadioGroup.alignment}
+  /// {@macro FinesseRadioGroup.alignment}
   final WrapAlignment? alignment;
 
-  /// {@macro ShadRadioGroup.runAlignment}
+  /// {@macro FinesseRadioGroup.runAlignment}
   final WrapAlignment? runAlignment;
 
-  /// {@macro ShadRadioGroup.crossAxisAlignment}
+  /// {@macro FinesseRadioGroup.crossAxisAlignment}
   final WrapCrossAlignment? crossAxisAlignment;
 
-  /// {@macro ShadRadio.radioPadding}
+  /// {@macro Radio.radioPadding}
   final EdgeInsetsGeometry? radioPadding;
 
   /// Linearly interpolates between [a] and [b] by [t].
-  static ShadRadioTheme? lerp(
-    ShadRadioTheme? a,
-    ShadRadioTheme? b,
+  static RadioTheme? lerp(
+    RadioTheme? a,
+    RadioTheme? b,
     double t,
-  ) => _$ShadRadioTheme.lerp(a, b, t);
+  ) => _$RadioTheme.lerp(a, b, t);
 }

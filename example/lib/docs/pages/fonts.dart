@@ -4,7 +4,7 @@ final fontsDoc = ComponentDoc(
   slug: 'fonts',
   title: 'Fonts',
   description:
-      'shad bundles no fonts. Text uses the platform font until you choose '
+      'finesse bundles no fonts. Text uses the platform font until you choose '
       'one: from Google Fonts at runtime, or from your own assets.',
   body: (context) => const DocProse(
     children: [
@@ -19,8 +19,8 @@ final fontsDoc = ComponentDoc(
           CodeBlock(
             code: '''
 // flutter pub add google_fonts
-ShadThemeData(
-  textTheme: ShadTextTheme.fromGoogleFont(GoogleFonts.inter),
+ThemeData(
+  textTheme: TextTheme.fromGoogleFont(GoogleFonts.inter),
 )''',
           ),
           DocParagraph(
@@ -63,13 +63,13 @@ flutter:
           ),
           CodeBlock(
             code: '''
-ShadThemeData(
-  textTheme: ShadTextTheme(family: 'Inter'),
+ThemeData(
+  textTheme: TextTheme(family: 'Inter'),
 )''',
           ),
           DocParagraph(
             'A font from another package is named with its package: '
-            "`ShadTextTheme(family: 'Inter', package: 'my_fonts')`.",
+            "`TextTheme(family: 'Inter', package: 'my_fonts')`.",
           ),
         ],
       ),

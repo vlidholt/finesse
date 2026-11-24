@@ -9,14 +9,10 @@ part of 'command.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadCommandTheme {
+mixin _$CommandTheme {
   bool get canMerge => true;
 
-  static ShadCommandTheme? lerp(
-    ShadCommandTheme? a,
-    ShadCommandTheme? b,
-    double t,
-  ) {
+  static CommandTheme? lerp(CommandTheme? a, CommandTheme? b, double t) {
     if (identical(a, b)) {
       return a;
     }
@@ -29,9 +25,9 @@ mixin _$ShadCommandTheme {
       return t == 0.0 ? a : null;
     }
 
-    return ShadCommandTheme(
+    return CommandTheme(
       backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
-      decoration: ShadDecoration.lerp(a.decoration, b.decoration, t),
+      decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
       searchPadding: EdgeInsetsGeometry.lerp(
         a.searchPadding,
@@ -76,7 +72,7 @@ mixin _$ShadCommandTheme {
       width: lerpDouble$(a.width, b.width, t),
       emptyPadding: EdgeInsetsGeometry.lerp(a.emptyPadding, b.emptyPadding, t),
       emptyTextStyle: TextStyle.lerp(a.emptyTextStyle, b.emptyTextStyle, t),
-      searchDecoration: ShadDecoration.lerp(
+      searchDecoration: FinesseDecoration.lerp(
         a.searchDecoration,
         b.searchDecoration,
         t,
@@ -101,9 +97,9 @@ mixin _$ShadCommandTheme {
     );
   }
 
-  ShadCommandTheme copyWith({
+  CommandTheme copyWith({
     Color? backgroundColor,
-    ShadDecoration? decoration,
+    FinesseDecoration? decoration,
     EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? searchPadding,
     EdgeInsetsGeometry? optionsPadding,
@@ -120,7 +116,7 @@ mixin _$ShadCommandTheme {
     double? width,
     EdgeInsetsGeometry? emptyPadding,
     TextStyle? emptyTextStyle,
-    ShadDecoration? searchDecoration,
+    FinesseDecoration? searchDecoration,
     double? searchHeight,
     Color? searchIconColor,
     double? searchIconSize,
@@ -131,9 +127,9 @@ mixin _$ShadCommandTheme {
     BorderRadiusGeometry? dialogItemRadius,
     double? itemIconSize,
   }) {
-    final _this = (this as ShadCommandTheme);
+    final _this = (this as CommandTheme);
 
-    return ShadCommandTheme(
+    return CommandTheme(
       backgroundColor: backgroundColor ?? _this.backgroundColor,
       decoration: decoration ?? _this.decoration,
       padding: padding ?? _this.padding,
@@ -167,8 +163,8 @@ mixin _$ShadCommandTheme {
     );
   }
 
-  ShadCommandTheme merge(ShadCommandTheme? other) {
-    final _this = (this as ShadCommandTheme);
+  CommandTheme merge(CommandTheme? other) {
+    final _this = (this as CommandTheme);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -228,8 +224,8 @@ mixin _$ShadCommandTheme {
       return false;
     }
 
-    final _this = (this as ShadCommandTheme);
-    final _other = (other as ShadCommandTheme);
+    final _this = (this as CommandTheme);
+    final _other = (other as CommandTheme);
 
     return _other.backgroundColor == _this.backgroundColor &&
         _other.decoration == _this.decoration &&
@@ -265,7 +261,7 @@ mixin _$ShadCommandTheme {
 
   @override
   int get hashCode {
-    final _this = (this as ShadCommandTheme);
+    final _this = (this as CommandTheme);
 
     return Object.hashAll([
       runtimeType,

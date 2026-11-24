@@ -1,24 +1,26 @@
-import 'package:flutter/material.dart';
+import 'package:finesse/finesse.dart';
+import 'package:finesse/material.dart';
+import 'package:flutter/material.dart'
+    hide Dialog, Theme, ThemeData, showDialog;
+import 'package:flutter/material.dart' as m;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/material.dart';
-import 'package:shad/shad.dart';
 
 void main() {
-  final darkTheme = ShadThemeData(
+  final darkTheme = ThemeData(
     brightness: Brightness.dark,
-    colorScheme: const ShadNeutralColorScheme.dark(),
+    colorScheme: const NeutralColorScheme.dark(),
   );
 
-  group('ShadThemeScope', () {
-    testWidgets('publishes the Shad theme to its subtree', (tester) async {
-      late ShadThemeData seen;
+  group('ThemeScope', () {
+    testWidgets('publishes the Finesse theme to its subtree', (tester) async {
+      late ThemeData seen;
       await tester.pumpWidget(
-        ShadApp(
-          home: ShadThemeScope(
+        FinesseApp(
+          home: ThemeScope(
             data: darkTheme,
             child: Builder(
               builder: (context) {
-                seen = ShadTheme.of(context);
+                seen = Theme.of(context);
                 return const SizedBox.shrink();
               },
             ),
@@ -33,12 +35,12 @@ void main() {
       // to inherit the app's DefaultTextStyle and render black-on-black.
       late TextStyle style;
       await tester.pumpWidget(
-        ShadApp(
-          theme: ShadThemeData(
+        FinesseApp(
+          theme: ThemeData(
             brightness: Brightness.light,
-            colorScheme: const ShadNeutralColorScheme.light(),
+            colorScheme: const NeutralColorScheme.light(),
           ),
-          home: ShadThemeScope(
+          home: ThemeScope(
             data: darkTheme,
             child: Builder(
               builder: (context) {
@@ -55,8 +57,8 @@ void main() {
     testWidgets('icons follow the scoped theme', (tester) async {
       late IconThemeData icons;
       await tester.pumpWidget(
-        ShadApp(
-          home: ShadThemeScope(
+        FinesseApp(
+          home: ThemeScope(
             data: darkTheme,
             child: Builder(
               builder: (context) {
@@ -73,8 +75,8 @@ void main() {
     testWidgets('sets the selection colours', (tester) async {
       late DefaultSelectionStyle selection;
       await tester.pumpWidget(
-        ShadApp(
-          home: ShadThemeScope(
+        FinesseApp(
+          home: ThemeScope(
             data: darkTheme,
             child: Builder(
               builder: (context) {
@@ -89,18 +91,18 @@ void main() {
       expect(selection.selectionColor, darkTheme.colorScheme.selection);
     });
 
-    testWidgets('a ShadMaterial inside follows the scoped theme', (
+    testWidgets('a FinesseMaterial inside follows the scoped theme', (
       tester,
     ) async {
-      late ThemeData material;
+      late m.ThemeData material;
       await tester.pumpWidget(
-        ShadApp(
-          home: ShadThemeScope(
+        FinesseApp(
+          home: ThemeScope(
             data: darkTheme,
-            child: ShadMaterial(
+            child: FinesseMaterial(
               child: Builder(
                 builder: (context) {
-                  material = Theme.of(context);
+                  material = m.Theme.of(context);
                   return const SizedBox.shrink();
                 },
               ),
@@ -113,29 +115,29 @@ void main() {
     });
   });
 
-  group('showShadDialog theme inheritance', () {
+  group('showDialog theme inheritance', () {
     testWidgets("a dialog opened from a scope keeps that scope's theme", (
       tester,
     ) async {
       // A route is built under the Navigator, so without the fix the dialog
       // would pick up the app theme and clash with the panel it came from.
-      late ShadThemeData insideDialog;
+      late ThemeData insideDialog;
 
       await tester.pumpWidget(
-        ShadApp(
-          theme: ShadThemeData(
+        FinesseApp(
+          theme: ThemeData(
             brightness: Brightness.light,
-            colorScheme: const ShadNeutralColorScheme.light(),
+            colorScheme: const NeutralColorScheme.light(),
           ),
-          home: ShadThemeScope(
+          home: ThemeScope(
             data: darkTheme,
             child: Builder(
-              builder: (context) => ShadButton(
-                onPressed: () => showShadDialog<void>(
+              builder: (context) => Button(
+                onPressed: () => showDialog<void>(
                   context: context,
                   builder: (context) {
-                    insideDialog = ShadTheme.of(context);
-                    return const ShadDialog(child: Text('hi'));
+                    insideDialog = Theme.of(context);
+                    return const Dialog(child: Text('hi'));
                   },
                 ),
                 child: const Text('open'),

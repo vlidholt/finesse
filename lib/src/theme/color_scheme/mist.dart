@@ -1,17 +1,17 @@
+import 'package:finesse/src/theme/color_scheme/base.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/color_scheme/base.dart';
 
 /// The shadcn/ui `mist` colour scheme.
 ///
 /// Generated from shadcn/ui's `registry/themes.ts`, converting each OKLCH
 /// value to sRGB.
 @immutable
-class ShadMistColorScheme extends ShadColorScheme {
-  /// Creates a [ShadMistColorScheme] from explicit colours.
+class MistColorScheme extends ColorScheme {
+  /// Creates a [MistColorScheme] from explicit colours.
   ///
-  /// Use [ShadMistColorScheme.light] or [ShadMistColorScheme.dark] for the
+  /// Use [MistColorScheme.light] or [MistColorScheme.dark] for the
   /// shadcn/ui values.
-  const ShadMistColorScheme({
+  const MistColorScheme({
     required super.background,
     required super.foreground,
     required super.card,
@@ -48,10 +48,10 @@ class ShadMistColorScheme extends ShadColorScheme {
     super.custom,
   });
 
-  /// Creates the light variant of [ShadMistColorScheme].
+  /// Creates the light variant of [MistColorScheme].
   ///
   /// Every colour defaults to its light-mode value.
-  const ShadMistColorScheme.light({
+  const MistColorScheme.light({
     super.background = const Color(0xffffffff),
     super.foreground = const Color(0xff090b0c),
     super.card = const Color(0xffffffff),
@@ -88,10 +88,10 @@ class ShadMistColorScheme extends ShadColorScheme {
     super.custom,
   });
 
-  /// Creates the dark variant of [ShadMistColorScheme].
+  /// Creates the dark variant of [MistColorScheme].
   ///
   /// Every colour defaults to its dark-mode value.
-  const ShadMistColorScheme.dark({
+  const MistColorScheme.dark({
     super.background = const Color(0xff090b0c),
     super.foreground = const Color(0xfff9fbfb),
     super.card = const Color(0xff161b1d),

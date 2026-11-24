@@ -9,14 +9,10 @@ part of 'popover.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadPopoverTheme {
+mixin _$PopoverTheme {
   bool get canMerge => true;
 
-  static ShadPopoverTheme? lerp(
-    ShadPopoverTheme? a,
-    ShadPopoverTheme? b,
-    double t,
-  ) {
+  static PopoverTheme? lerp(PopoverTheme? a, PopoverTheme? b, double t) {
     if (identical(a, b)) {
       return a;
     }
@@ -29,11 +25,11 @@ mixin _$ShadPopoverTheme {
       return t == 0.0 ? a : null;
     }
 
-    return ShadPopoverTheme(
+    return PopoverTheme(
       effects: t < 0.5 ? a.effects : b.effects,
       shadows: t < 0.5 ? a.shadows : b.shadows,
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
-      decoration: ShadDecoration.lerp(a.decoration, b.decoration, t),
+      decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
       anchor: t < 0.5 ? a.anchor : b.anchor,
       filter: t < 0.5 ? a.filter : b.filter,
       reverseDuration: lerpDuration$(a.reverseDuration, b.reverseDuration, t),
@@ -41,19 +37,19 @@ mixin _$ShadPopoverTheme {
     );
   }
 
-  ShadPopoverTheme copyWith({
+  PopoverTheme copyWith({
     List<Effect<dynamic>>? effects,
     List<BoxShadow>? shadows,
     EdgeInsetsGeometry? padding,
-    ShadDecoration? decoration,
-    ShadAnchorBase? anchor,
+    FinesseDecoration? decoration,
+    AnchorBase? anchor,
     ImageFilter? filter,
     Duration? reverseDuration,
     TextStyle? textStyle,
   }) {
-    final _this = (this as ShadPopoverTheme);
+    final _this = (this as PopoverTheme);
 
-    return ShadPopoverTheme(
+    return PopoverTheme(
       effects: effects ?? _this.effects,
       shadows: shadows ?? _this.shadows,
       padding: padding ?? _this.padding,
@@ -65,8 +61,8 @@ mixin _$ShadPopoverTheme {
     );
   }
 
-  ShadPopoverTheme merge(ShadPopoverTheme? other) {
-    final _this = (this as ShadPopoverTheme);
+  PopoverTheme merge(PopoverTheme? other) {
+    final _this = (this as PopoverTheme);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -98,8 +94,8 @@ mixin _$ShadPopoverTheme {
       return false;
     }
 
-    final _this = (this as ShadPopoverTheme);
-    final _other = (other as ShadPopoverTheme);
+    final _this = (this as PopoverTheme);
+    final _other = (other as PopoverTheme);
 
     return _other.effects == _this.effects &&
         _other.shadows == _this.shadows &&
@@ -113,7 +109,7 @@ mixin _$ShadPopoverTheme {
 
   @override
   int get hashCode {
-    final _this = (this as ShadPopoverTheme);
+    final _this = (this as PopoverTheme);
 
     return Object.hash(
       runtimeType,

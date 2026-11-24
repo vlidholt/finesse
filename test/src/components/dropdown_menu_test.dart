@@ -1,6 +1,6 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/shad.dart';
 
 void main() {
   Future<void> pump(WidgetTester tester, Alignment alignment) async {
@@ -8,15 +8,15 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
-      ShadApp(
+      FinesseApp(
         home: Align(
           alignment: alignment,
-          child: ShadDropdownMenu(
+          child: DropdownMenu(
             items: const [
-              ShadContextMenuItem(child: Text('Profile')),
-              ShadContextMenuItem(child: Text('Log out')),
+              ContextMenuItem(child: Text('Profile')),
+              ContextMenuItem(child: Text('Log out')),
             ],
-            builder: (context, controller, _) => ShadButton(
+            builder: (context, controller, _) => Button(
               onPressed: controller.toggle,
               child: const Text('Account'),
             ),
@@ -30,7 +30,7 @@ void main() {
     find
         .ancestor(
           of: find.text('Profile'),
-          matching: find.byType(ShadDecorator),
+          matching: find.byType(Decorator),
         )
         .last,
   );
@@ -41,7 +41,7 @@ void main() {
     await pump(tester, Alignment.topLeft);
     await tester.tap(find.text('Account'));
     await tester.pumpAndSettle();
-    final trigger = tester.getRect(find.byType(ShadButton).first);
+    final trigger = tester.getRect(find.byType(Button).first);
     final rect = menu(tester);
     expect(rect.left, moreOrLessEquals(trigger.left, epsilon: 1));
     expect(rect.top, moreOrLessEquals(trigger.bottom + 4, epsilon: 1));
@@ -57,7 +57,7 @@ void main() {
     await pump(tester, Alignment.bottomRight);
     await tester.tap(find.text('Account'));
     await tester.pumpAndSettle();
-    final trigger = tester.getRect(find.byType(ShadButton).first);
+    final trigger = tester.getRect(find.byType(Button).first);
     final rect = menu(tester);
     expect(rect.right, lessThanOrEqualTo(800));
     expect(rect.bottom, moreOrLessEquals(trigger.top - 4, epsilon: 1));

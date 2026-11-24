@@ -1,7 +1,7 @@
-# shad docs site
+# finesse docs site
 
-The source of <https://shad.serverpod.dev/>: the component browser, the docs
-for every `shad` component, and a theme editor that mirrors shadcn/ui's
+The source of <https://finesse.serverpod.dev/>: the component browser, the docs
+for every `finesse` component, and a theme editor that mirrors shadcn/ui's
 `/create`.
 
 For a minimal app, see [example.md](example.md).

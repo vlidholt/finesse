@@ -1,28 +1,28 @@
+import 'package:finesse/material.dart';
+import 'package:finesse/src/app.dart';
+import 'package:finesse/src/components/badge.dart'; // Adjust import path based on your project structure
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Badge;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/material.dart';
-import 'package:shad/src/app.dart';
-import 'package:shad/src/components/badge.dart'; // Adjust import path based on your project structure
 
 void main() {
-  // Helper method to create a test widget wrapped in ShadApp and Scaffold
+  // Helper method to create a test widget wrapped in FinesseApp and Scaffold
   Widget createTestWidget(Widget child) {
-    return ShadApp(
-      builder: (context, child) => ShadMaterial(child: child!),
+    return FinesseApp(
+      builder: (context, child) => FinesseMaterial(child: child!),
       home: Scaffold(
         body: child,
       ),
     );
   }
 
-  group('ShadBadge', () {
+  group('Badge', () {
     testWidgets('renders primary variant correctly', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadBadge(
+          const Badge(
             child: Text('Primary Badge'),
           ),
         ),
@@ -45,7 +45,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadBadge.secondary(
+          const Badge.secondary(
             child: Text('Secondary Badge'),
           ),
         ),
@@ -64,7 +64,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadBadge.outline(
+          const Badge.outline(
             child: Text('Outline Badge'),
           ),
         ),
@@ -83,7 +83,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadBadge.destructive(
+          const Badge.destructive(
             child: Text('Destructive Badge'),
           ),
         ),
@@ -103,7 +103,7 @@ void main() {
       );
       await tester.pumpWidget(
         createTestWidget(
-          const ShadBadge(
+          const Badge(
             shape: customShape,
             child: Text('Custom Shape Badge'),
           ),
@@ -125,7 +125,7 @@ void main() {
       const customForegroundColor = Colors.yellow;
       await tester.pumpWidget(
         createTestWidget(
-          const ShadBadge(
+          const Badge(
             backgroundColor: customBackgroundColor,
             foregroundColor: customForegroundColor,
             child: Text('Colored Badge'),
@@ -158,7 +158,7 @@ void main() {
       const customPadding = EdgeInsets.all(10);
       await tester.pumpWidget(
         createTestWidget(
-          const ShadBadge(
+          const Badge(
             padding: customPadding,
             child: Text('Padded Badge'),
           ),
@@ -178,7 +178,7 @@ void main() {
       const customHoverBackgroundColor = Colors.red;
       await tester.pumpWidget(
         createTestWidget(
-          const ShadBadge(
+          const Badge(
             hoverBackgroundColor: customHoverBackgroundColor,
             child: Text('Hover Badge'),
           ),
@@ -211,7 +211,7 @@ void main() {
       var pressed = false;
       await tester.pumpWidget(
         createTestWidget(
-          ShadBadge(
+          Badge(
             child: const Text('Press Me'),
             onPressed: () => pressed = true,
           ),
@@ -231,7 +231,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadBadge(
+          const Badge(
             child: Text('Default Shape Badge'),
           ),
         ),
@@ -245,54 +245,54 @@ void main() {
       expect(decoration?.shape, isA<StadiumBorder>());
     });
 
-    testWidgets('ShadBadge matches goldens', (tester) async {
+    testWidgets('Badge matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadBadge(child: Text('Badge')),
+          const Badge(child: Text('Badge')),
         ),
       );
 
       await expectLater(
-        find.byType(ShadBadge),
+        find.byType(Badge),
         matchesGoldenFile('goldens/badge.png'),
       );
     });
 
-    testWidgets('ShadBadge.secondary matches goldens', (tester) async {
+    testWidgets('Badge.secondary matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadBadge.secondary(child: Text('Badge')),
+          const Badge.secondary(child: Text('Badge')),
         ),
       );
 
       await expectLater(
-        find.byType(ShadBadge),
+        find.byType(Badge),
         matchesGoldenFile('goldens/badge_secondary.png'),
       );
     });
 
-    testWidgets('ShadBadge.outline matches goldens', (tester) async {
+    testWidgets('Badge.outline matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadBadge.outline(child: Text('Badge')),
+          const Badge.outline(child: Text('Badge')),
         ),
       );
 
       await expectLater(
-        find.byType(ShadBadge),
+        find.byType(Badge),
         matchesGoldenFile('goldens/badge_outline.png'),
       );
     });
 
-    testWidgets('ShadBadge.destructive matches goldens', (tester) async {
+    testWidgets('Badge.destructive matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadBadge.destructive(child: Text('Badge')),
+          const Badge.destructive(child: Text('Badge')),
         ),
       );
 
       await expectLater(
-        find.byType(ShadBadge),
+        find.byType(Badge),
         matchesGoldenFile('goldens/badge_destructive.png'),
       );
     });

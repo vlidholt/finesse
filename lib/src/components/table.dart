@@ -1,18 +1,18 @@
+import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/theme.dart';
-import 'package:shad/src/utils/extensions/text_style.dart';
 import 'package:two_dimensional_scrollables/two_dimensional_scrollables.dart';
 
-/// Builder function for creating [ShadTableCell] widgets.
-typedef ShadTableCellBuilder =
-    ShadTableCell Function(
+/// Builder function for creating [FinesseTableCell] widgets.
+typedef TableCellBuilder =
+    FinesseTableCell Function(
       BuildContext context,
       TableVicinity vicinity,
     );
 
-/// Enum representing different variants of [ShadTableCell].
-enum ShadTableCellVariant {
+/// Enum representing different variants of [FinesseTableCell].
+enum TableCellVariant {
   /// Variant for header cells.
   header,
 
@@ -23,52 +23,52 @@ enum ShadTableCellVariant {
   footer,
 }
 
-/// {@template ShadTableCell}
-/// A cell widget for use within [ShadTable].
+/// {@template FinesseTableCell}
+/// A cell widget for use within [FinesseTable].
 ///
 /// Provides styling and structure for table cells, including header and footer
 /// variants.
 /// {@endtemplate}
-class ShadTableCell extends TableViewCell {
-  /// {@macro ShadTableCell}
-  const ShadTableCell({
+class FinesseTableCell extends TableViewCell {
+  /// {@macro FinesseTableCell}
+  const FinesseTableCell({
     super.key,
     required super.child,
     this.alignment,
     this.height,
     this.padding,
     this.style,
-  }) : variant = ShadTableCellVariant.cell;
+  }) : variant = TableCellVariant.cell;
 
-  /// Creates a [ShadTableCell] with the header variant.
+  /// Creates a [FinesseTableCell] with the header variant.
   ///
-  /// {@macro ShadTableCell}
-  const ShadTableCell.header({
+  /// {@macro FinesseTableCell}
+  const FinesseTableCell.header({
     super.key,
     required super.child,
     this.alignment,
     this.height,
     this.padding,
     this.style,
-  }) : variant = ShadTableCellVariant.header;
+  }) : variant = TableCellVariant.header;
 
-  /// Creates a [ShadTableCell] with the footer variant.
+  /// Creates a [FinesseTableCell] with the footer variant.
   ///
-  /// {@macro ShadTableCell}
-  const ShadTableCell.footer({
+  /// {@macro FinesseTableCell}
+  const FinesseTableCell.footer({
     super.key,
     required super.child,
     this.alignment,
     this.height,
     this.padding,
     this.style,
-  }) : variant = ShadTableCellVariant.footer;
+  }) : variant = TableCellVariant.footer;
 
-  /// Creates a [ShadTableCell] with a raw variant, allowing explicit variant
+  /// Creates a [FinesseTableCell] with a raw variant, allowing explicit variant
   /// specification.
   ///
-  /// {@macro ShadTableCell}
-  const ShadTableCell.raw({
+  /// {@macro FinesseTableCell}
+  const FinesseTableCell.raw({
     super.key,
     required this.variant,
     required super.child,
@@ -78,34 +78,34 @@ class ShadTableCell extends TableViewCell {
     this.style,
   });
 
-  /// {@template ShadTableCell.variant}
+  /// {@template FinesseTableCell.variant}
   /// The variant of the table cell, determining its styling.
   /// {@endtemplate}
-  final ShadTableCellVariant variant;
+  final TableCellVariant variant;
 
-  /// {@template ShadTableCell.alignment}
+  /// {@template FinesseTableCell.alignment}
   /// Alignment of the cell's content.
   /// {@endtemplate}
   final AlignmentGeometry? alignment;
 
-  /// {@template ShadTableCell.height}
+  /// {@template FinesseTableCell.height}
   /// Height of the table cell.
   /// {@endtemplate}
   final double? height;
 
-  /// {@template ShadTableCell.padding}
+  /// {@template FinesseTableCell.padding}
   /// Padding within the table cell.
   /// {@endtemplate}
   final EdgeInsetsGeometry? padding;
 
-  /// {@template ShadTableCell.style}
+  /// {@template FinesseTableCell.style}
   /// Text style for the cell's content.
   /// {@endtemplate}
   final TextStyle? style;
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
 
     final effectiveAlignment =
         alignment ??
@@ -122,15 +122,15 @@ class ShadTableCell extends TableViewCell {
     final textStyle =
         style ??
         switch (variant) {
-          ShadTableCellVariant.cell =>
+          TableCellVariant.cell =>
             (theme.tableTheme.cellStyle ?? theme.textTheme.muted).fallback(
               color: theme.colorScheme.foreground,
             ),
-          ShadTableCellVariant.header =>
+          TableCellVariant.header =>
             (theme.tableTheme.cellHeaderStyle ??
                     theme.textTheme.muted.copyWith(fontWeight: FontWeight.w500))
                 .fallback(color: theme.colorScheme.foreground),
-          ShadTableCellVariant.footer =>
+          TableCellVariant.footer =>
             (theme.tableTheme.cellFooterStyle ??
                     theme.textTheme.muted.copyWith(fontWeight: FontWeight.w500))
                 .fallback(color: theme.colorScheme.foreground),
@@ -151,25 +151,25 @@ class ShadTableCell extends TableViewCell {
   }
 }
 
-/// {@template ShadTable}
+/// {@template FinesseTable}
 /// A customizable table widget for displaying tabular data.
 ///
 /// Supports on-demand cell building, fixed lists of cells, headers, footers,
 /// and various interactions.
 /// {@endtemplate}
-class ShadTable extends StatefulWidget {
-  /// Creates a [ShadTable] of widgets that are created on demand.
+class FinesseTable extends StatefulWidget {
+  /// Creates a [FinesseTable] of widgets that are created on demand.
   ///
   /// This constructor is appropriate for table views with a large
   /// number of cells because the [builder] is called only for those
   /// cells that are actually visible.
-  const ShadTable({
+  const FinesseTable({
     super.key,
-    required ShadTableCellBuilder this.builder,
+    required TableCellBuilder this.builder,
     required this.columnCount,
     required this.rowCount,
-    ShadTableCell Function(BuildContext context, int column)? header,
-    ShadTableCell Function(BuildContext context, int column)? footer,
+    FinesseTableCell Function(BuildContext context, int column)? header,
+    FinesseTableCell Function(BuildContext context, int column)? footer,
     this.columnBuilder,
     this.rowBuilder,
     this.rowSpanExtent,
@@ -212,16 +212,16 @@ class ShadTable extends StatefulWidget {
        header = null,
        footer = null;
 
-  /// Creates a [ShadTable] from an explicit two dimensional array of
+  /// Creates a [FinesseTable] from an explicit two dimensional array of
   /// [children].
   ///
   /// This constructor is appropriate for list views with a small number of
   /// children because constructing the [List] requires doing work for every
   /// child that could possibly be displayed in the list view instead of just
   /// those children that are actually visible.
-  ShadTable.list({
+  FinesseTable.list({
     super.key,
-    required Iterable<Iterable<ShadTableCell>> this.children,
+    required Iterable<Iterable<FinesseTableCell>> this.children,
     this.header,
     this.footer,
     this.columnBuilder,
@@ -267,219 +267,221 @@ class ShadTable extends StatefulWidget {
        columnCount = children.elementAt(0).length,
        rowCount = children.length;
 
-  /// {@template ShadTable.headerBuilder}
+  /// {@template FinesseTable.headerBuilder}
   /// Builder function for creating header cells.
   /// {@endtemplate}
-  final ShadTableCell Function(BuildContext context, int column)? headerBuilder;
+  final FinesseTableCell Function(BuildContext context, int column)?
+  headerBuilder;
 
-  /// {@template ShadTable.footerBuilder}
+  /// {@template FinesseTable.footerBuilder}
   /// Builder function for creating footer cells.
   /// {@endtemplate}
-  final ShadTableCell Function(BuildContext context, int column)? footerBuilder;
+  final FinesseTableCell Function(BuildContext context, int column)?
+  footerBuilder;
 
-  /// {@template ShadTable.header}
+  /// {@template FinesseTable.header}
   /// Explicit list of header cells.
   /// {@endtemplate}
-  final Iterable<ShadTableCell>? header;
+  final Iterable<FinesseTableCell>? header;
 
-  /// {@template ShadTable.footer}
+  /// {@template FinesseTable.footer}
   /// Explicit list of footer cells.
   /// {@endtemplate}
-  final Iterable<ShadTableCell>? footer;
+  final Iterable<FinesseTableCell>? footer;
 
-  /// {@template ShadTable.builder}
+  /// {@template FinesseTable.builder}
   /// Builder function for creating table cells on demand.
   /// {@endtemplate}
-  final ShadTableCellBuilder? builder;
+  final TableCellBuilder? builder;
 
-  /// {@template ShadTable.columnCount}
+  /// {@template FinesseTable.columnCount}
   /// Number of columns in the table.
   /// {@endtemplate}
   final int columnCount;
 
-  /// {@template ShadTable.rowCount}
+  /// {@template FinesseTable.rowCount}
   /// Number of rows in the table (excluding header and footer).
   /// {@endtemplate}
   final int rowCount;
 
-  /// {@template ShadTable.children}
-  /// Explicit 2D list of [ShadTableCell] widgets.
+  /// {@template FinesseTable.children}
+  /// Explicit 2D list of [FinesseTableCell] widgets.
   /// {@endtemplate}
-  final Iterable<Iterable<ShadTableCell>>? children;
+  final Iterable<Iterable<FinesseTableCell>>? children;
 
-  /// {@template ShadTable.columnBuilder}
+  /// {@template FinesseTable.columnBuilder}
   /// Builder for defining column properties.
   /// {@endtemplate}
   final TableSpanBuilder? columnBuilder;
 
-  /// {@template ShadTable.rowBuilder}
+  /// {@template FinesseTable.rowBuilder}
   /// Builder for defining row properties.
   /// {@endtemplate}
   final TableSpanBuilder? rowBuilder;
 
-  /// {@template ShadTable.rowSpanExtent}
+  /// {@template FinesseTable.rowSpanExtent}
   /// Function to define custom row span extents.
   /// {@endtemplate}
   final TableSpanExtent? Function(int row)? rowSpanExtent;
 
-  /// {@template ShadTable.columnSpanExtent}
+  /// {@template FinesseTable.columnSpanExtent}
   /// Function to define custom column span extents.
   /// {@endtemplate}
   final TableSpanExtent? Function(int column)? columnSpanExtent;
 
-  /// {@template ShadTable.rowSpanBackgroundDecoration}
+  /// {@template FinesseTable.rowSpanBackgroundDecoration}
   /// Function to define background decoration for rows.
   /// {@endtemplate}
   final TableSpanDecoration? Function(int row)? rowSpanBackgroundDecoration;
 
-  /// {@template ShadTable.rowSpanForegroundDecoration}
+  /// {@template FinesseTable.rowSpanForegroundDecoration}
   /// Function to define foreground decoration for rows.
   /// {@endtemplate}
   final TableSpanDecoration? Function(int row)? rowSpanForegroundDecoration;
 
-  /// {@template ShadTable.columnSpanBackgroundDecoration}
+  /// {@template FinesseTable.columnSpanBackgroundDecoration}
   /// Function to define background decoration for columns.
   /// {@endtemplate}
   final TableSpanDecoration? Function(int column)?
   columnSpanBackgroundDecoration;
 
-  /// {@template ShadTable.columnSpanForegroundDecoration}
+  /// {@template FinesseTable.columnSpanForegroundDecoration}
   /// Function to define foreground decoration for columns.
   /// {@endtemplate}
   final TableSpanDecoration? Function(int column)?
   columnSpanForegroundDecoration;
 
-  /// {@template ShadTable.onHoveredRowIndex}
+  /// {@template FinesseTable.onHoveredRowIndex}
   /// Callback for when a row is hovered, providing the row index.
   /// {@endtemplate}
   final ValueChanged<int?>? onHoveredRowIndex;
 
-  /// {@template ShadTable.verticalScrollController}
+  /// {@template FinesseTable.verticalScrollController}
   /// Controller for vertical scrolling.
   /// {@endtemplate}
   final ScrollController? verticalScrollController;
 
-  /// {@template ShadTable.horizontalScrollController}
+  /// {@template FinesseTable.horizontalScrollController}
   /// Controller for horizontal scrolling.
   /// {@endtemplate}
   final ScrollController? horizontalScrollController;
 
-  /// {@template ShadTable.pinnedRowCount}
+  /// {@template FinesseTable.pinnedRowCount}
   /// Number of pinned rows at the top.
   /// {@endtemplate}
   final int? pinnedRowCount;
 
-  /// {@template ShadTable.pinnedColumnCount}
+  /// {@template FinesseTable.pinnedColumnCount}
   /// Number of pinned columns at the start.
   /// {@endtemplate}
   final int? pinnedColumnCount;
 
-  /// {@template ShadTable.primary}
+  /// {@template FinesseTable.primary}
   /// Whether this is the primary scroll view.
   /// {@endtemplate}
   final bool? primary;
 
-  /// {@template ShadTable.diagonalDragBehavior}
+  /// {@template FinesseTable.diagonalDragBehavior}
   /// Drag behavior when dragging diagonally.
   /// {@endtemplate}
   final DiagonalDragBehavior? diagonalDragBehavior;
 
-  /// {@template ShadTable.dragStartBehavior}
+  /// {@template FinesseTable.dragStartBehavior}
   /// Determines when a drag formally starts.
   /// {@endtemplate}
   final DragStartBehavior? dragStartBehavior;
 
-  /// {@template ShadTable.keyboardDismissBehavior}
+  /// {@template FinesseTable.keyboardDismissBehavior}
   /// Configures how the keyboard is dismissed when a drag starts.
   /// {@endtemplate}
   final ScrollViewKeyboardDismissBehavior? keyboardDismissBehavior;
 
-  /// {@template ShadTable.verticalScrollPhysics}
+  /// {@template FinesseTable.verticalScrollPhysics}
   /// Physics for vertical scrolling.
   /// {@endtemplate}
   final ScrollPhysics? verticalScrollPhysics;
 
-  /// {@template ShadTable.horizontalScrollPhysics}
+  /// {@template FinesseTable.horizontalScrollPhysics}
   /// Physics for horizontal scrolling.
   /// {@endtemplate}
   final ScrollPhysics? horizontalScrollPhysics;
 
-  /// {@template ShadTable.onRowTap}
+  /// {@template FinesseTable.onRowTap}
   /// Callback for tap gestures on a row.
   /// {@endtemplate}
   final void Function(int row)? onRowTap;
 
-  /// {@template ShadTable.onRowTapDown}
+  /// {@template FinesseTable.onRowTapDown}
   /// Callback for tap down gestures on a row.
   /// {@endtemplate}
   final void Function(int row)? onRowTapDown;
 
-  /// {@template ShadTable.onRowTapUp}
+  /// {@template FinesseTable.onRowTapUp}
   /// Callback for tap up gestures on a row.
   /// {@endtemplate}
   final void Function(int row)? onRowTapUp;
 
-  /// {@template ShadTable.onRowTapCancel}
+  /// {@template FinesseTable.onRowTapCancel}
   /// Callback for tap cancel gestures on a row.
   /// {@endtemplate}
   final void Function(int row)? onRowTapCancel;
 
-  /// {@template ShadTable.onRowSecondaryTap}
+  /// {@template FinesseTable.onRowSecondaryTap}
   /// Callback for secondary tap gestures on a row.
   /// {@endtemplate}
   final void Function(int row)? onRowSecondaryTap;
 
-  /// {@template ShadTable.onRowSecondaryTapDown}
+  /// {@template FinesseTable.onRowSecondaryTapDown}
   /// Callback for secondary tap down gestures on a row.
   /// {@endtemplate}
   final void Function(int row)? onRowSecondaryTapDown;
 
-  /// {@template ShadTable.onRowSecondaryTapUp}
+  /// {@template FinesseTable.onRowSecondaryTapUp}
   /// Callback for secondary tap up gestures on a row.
   /// {@endtemplate}
   final void Function(int row)? onRowSecondaryTapUp;
 
-  /// {@template ShadTable.onRowSecondaryTapCancel}
+  /// {@template FinesseTable.onRowSecondaryTapCancel}
   /// Callback for secondary tap cancel gestures on a row.
   /// {@endtemplate}
   final void Function(int row)? onRowSecondaryTapCancel;
 
-  /// {@template ShadTable.onColumnTap}
+  /// {@template FinesseTable.onColumnTap}
   /// Callback for tap gestures on a column.
   /// {@endtemplate}
   final void Function(int column)? onColumnTap;
 
-  /// {@template ShadTable.onColumnTapDown}
+  /// {@template FinesseTable.onColumnTapDown}
   /// Callback for tap down gestures on a column.
   /// {@endtemplate}
   final void Function(int column)? onColumnTapDown;
 
-  /// {@template ShadTable.onColumnTapUp}
+  /// {@template FinesseTable.onColumnTapUp}
   /// Callback for tap up gestures on a column.
   /// {@endtemplate}
   final void Function(int column)? onColumnTapUp;
 
-  /// {@template ShadTable.onColumnTapCancel}
+  /// {@template FinesseTable.onColumnTapCancel}
   /// Callback for tap cancel gestures on a column.
   /// {@endtemplate}
   final void Function(int column)? onColumnTapCancel;
 
-  /// {@template ShadTable.onColumnSecondaryTap}
+  /// {@template FinesseTable.onColumnSecondaryTap}
   /// Callback for secondary tap gestures on a column.
   /// {@endtemplate}
   final void Function(int column)? onColumnSecondaryTap;
 
-  /// {@template ShadTable.onColumnSecondaryTapDown}
+  /// {@template FinesseTable.onColumnSecondaryTapDown}
   /// Callback for secondary tap down gestures on a column.
   /// {@endtemplate}
   final void Function(int column)? onColumnSecondaryTapDown;
 
-  /// {@template ShadTable.onColumnSecondaryTapUp}
+  /// {@template FinesseTable.onColumnSecondaryTapUp}
   /// Callback for secondary tap up gestures on a column.
   /// {@endtemplate}
   final void Function(int column)? onColumnSecondaryTapUp;
 
-  /// {@template ShadTable.onColumnSecondaryTapCancel}
+  /// {@template FinesseTable.onColumnSecondaryTapCancel}
   /// Callback for secondary tap cancel gestures on a column.
   /// {@endtemplate}
   final void Function(int column)? onColumnSecondaryTapCancel;
@@ -491,10 +493,10 @@ class ShadTable extends StatefulWidget {
   final Set<PointerDeviceKind>? supportedDevices;
 
   @override
-  State<ShadTable> createState() => _ShadTableState();
+  State<FinesseTable> createState() => _TableState();
 }
 
-class _ShadTableState extends State<ShadTable> {
+class _TableState extends State<FinesseTable> {
   final hoveredRowIndex = ValueNotifier<int?>(null);
 
   /// This is a workaround to avoid rebuilding the same row when the pointer
@@ -582,7 +584,7 @@ class _ShadTableState extends State<ShadTable> {
   }
 
   TableSpan _buildRowSpan(int index, int effectiveRowCount) {
-    final colorScheme = ShadTheme.of(context).colorScheme;
+    final colorScheme = Theme.of(context).colorScheme;
     final gestureSettings = MediaQuery.maybeGestureSettingsOf(context);
     final isLast = index == effectiveRowCount - 1;
     final isFooter =
@@ -669,7 +671,7 @@ class _ShadTableState extends State<ShadTable> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
 
     final effectiveRowBuilder =
         widget.rowBuilder ??
@@ -709,7 +711,7 @@ class _ShadTableState extends State<ShadTable> {
     // depends on the hovered index.
     final cells = widget.children == null
         ? null
-        : <List<ShadTableCell>>[
+        : <List<FinesseTableCell>>[
             if (widget.header != null) widget.header!.toList(),
             ...widget.children!.map((row) => row.toList()),
             if (widget.footer != null) widget.footer!.toList(),

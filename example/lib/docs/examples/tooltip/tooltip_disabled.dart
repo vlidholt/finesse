@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class TooltipDisabledExample extends StatelessWidget {
   const TooltipDisabledExample({super.key});
@@ -9,10 +9,10 @@ class TooltipDisabledExample extends StatelessWidget {
     // A disabled button absorbs pointer events, so a wrapper reports the
     // hover on its behalf — the reference wraps its trigger in a span for
     // the same reason.
-    return ShadTooltip(
+    return Tooltip(
       builder: (context) => const Text('This feature is currently unavailable'),
-      child: ShadGestureDetector(
-        child: ShadButton.outline(
+      child: FinesseGestureDetector(
+        child: Button.outline(
           enabled: false,
           onPressed: () {},
           child: const Text('Disabled'),

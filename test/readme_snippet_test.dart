@@ -3,27 +3,27 @@
 // Scaffold, and ThemeMode was not exported) and nothing noticed.
 import 'dart:io';
 
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/shad.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ShadApp(
-      theme: ShadThemeData(
+    return FinesseApp(
+      theme: ThemeData(
         brightness: Brightness.light,
-        colorScheme: const ShadZincColorScheme.light(),
-        style: ShadStyleTokens.nova,
+        colorScheme: const ZincColorScheme.light(),
+        style: StyleTokens.nova,
       ),
-      darkTheme: ShadThemeData(
+      darkTheme: ThemeData(
         brightness: Brightness.dark,
-        colorScheme: const ShadZincColorScheme.dark(),
-        style: ShadStyleTokens.nova,
+        colorScheme: const ZincColorScheme.dark(),
+        style: StyleTokens.nova,
       ),
-      themeMode: ShadThemeMode.system,
+      themeMode: ThemeMode.system,
       home: const HomePage(),
     );
   }
@@ -35,15 +35,15 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: ShadCard(
+      child: Card(
         width: 320,
         title: const Text('Create project'),
         description: const Text('Deploy your new project in one click.'),
-        footer: ShadButton(
+        footer: Button(
           onPressed: () {},
           child: const Text('Deploy'),
         ),
-        child: const ShadInput(placeholder: Text('Name of your project')),
+        child: const TextField(placeholder: Text('Name of your project')),
       ),
     );
   }

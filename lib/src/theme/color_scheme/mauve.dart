@@ -1,17 +1,17 @@
+import 'package:finesse/src/theme/color_scheme/base.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/color_scheme/base.dart';
 
 /// The shadcn/ui `mauve` colour scheme.
 ///
 /// Generated from shadcn/ui's `registry/themes.ts`, converting each OKLCH
 /// value to sRGB.
 @immutable
-class ShadMauveColorScheme extends ShadColorScheme {
-  /// Creates a [ShadMauveColorScheme] from explicit colours.
+class MauveColorScheme extends ColorScheme {
+  /// Creates a [MauveColorScheme] from explicit colours.
   ///
-  /// Use [ShadMauveColorScheme.light] or [ShadMauveColorScheme.dark] for the
+  /// Use [MauveColorScheme.light] or [MauveColorScheme.dark] for the
   /// shadcn/ui values.
-  const ShadMauveColorScheme({
+  const MauveColorScheme({
     required super.background,
     required super.foreground,
     required super.card,
@@ -48,10 +48,10 @@ class ShadMauveColorScheme extends ShadColorScheme {
     super.custom,
   });
 
-  /// Creates the light variant of [ShadMauveColorScheme].
+  /// Creates the light variant of [MauveColorScheme].
   ///
   /// Every colour defaults to its light-mode value.
-  const ShadMauveColorScheme.light({
+  const MauveColorScheme.light({
     super.background = const Color(0xffffffff),
     super.foreground = const Color(0xff0c090c),
     super.card = const Color(0xffffffff),
@@ -88,10 +88,10 @@ class ShadMauveColorScheme extends ShadColorScheme {
     super.custom,
   });
 
-  /// Creates the dark variant of [ShadMauveColorScheme].
+  /// Creates the dark variant of [MauveColorScheme].
   ///
   /// Every colour defaults to its dark-mode value.
-  const ShadMauveColorScheme.dark({
+  const MauveColorScheme.dark({
     super.background = const Color(0xff0c090c),
     super.foreground = const Color(0xfffafafa),
     super.card = const Color(0xff1d161e),

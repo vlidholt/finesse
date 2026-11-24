@@ -3,10 +3,10 @@ import 'package:example/common/app_shell.dart';
 import 'package:example/common/theme_editor/customizer_panel.dart';
 import 'package:example/common/theme_editor/preview_panel.dart';
 import 'package:example/main.dart';
-import 'package:flutter/material.dart';
+import 'package:finesse/finesse.dart';
+import 'package:finesse/material.dart';
+import 'package:flutter/material.dart' hide Badge, TextField;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/material.dart';
-import 'package:shad/shad.dart';
 
 void main() {
   Future<void> pumpShell(
@@ -26,8 +26,8 @@ void main() {
           themeConfigProvider,
           themeEditorOpenProvider,
         ],
-        child: ShadApp(
-          builder: (context, child) => ShadMaterial(child: child!),
+        child: FinesseApp(
+          builder: (context, child) => FinesseMaterial(child: child!),
           home: const AppShell(),
         ),
       ),
@@ -53,7 +53,7 @@ void main() {
   testWidgets('the shell opens on the playground', (tester) async {
     await pumpShell(tester);
 
-    expect(find.text('shad'), findsOneWidget);
+    expect(find.text('finesse'), findsOneWidget);
     expect(find.text('Playground'), findsOneWidget);
     expect(find.text('Components'), findsWidgets);
     // The playground is the section shown at launch.
@@ -66,7 +66,7 @@ void main() {
     await pumpShell(tester);
     await openComponents(tester);
 
-    expect(find.byType(ShadSidebar), findsOneWidget);
+    expect(find.byType(Sidebar), findsOneWidget);
     expect(find.text('Overview'), findsWidgets);
     expect(
       find.textContaining('Every component in the library'),
@@ -98,13 +98,13 @@ void main() {
     await pumpShell(tester);
     await openComponents(tester);
 
-    await tester.enterText(find.byType(ShadInput).first, 'badge');
+    await tester.enterText(find.byType(TextField).first, 'badge');
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
 
     // Scoped to the sidebar: the open page is still Overview.
     Finder inSidebar(String text) => find.descendant(
-      of: find.byType(ShadSidebar),
+      of: find.byType(Sidebar),
       matching: find.text(text),
     );
     expect(inSidebar('Badge'), findsOneWidget);
@@ -155,7 +155,7 @@ void main() {
       await toggle(tester);
 
       expect(find.byType(ThemeCustomizerPanel), findsOneWidget);
-      expect(find.byType(ShadSidebar), findsOneWidget);
+      expect(find.byType(Sidebar), findsOneWidget);
       expect(find.text('Style'), findsOneWidget);
     });
 

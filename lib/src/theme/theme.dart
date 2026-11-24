@@ -1,36 +1,36 @@
+import 'package:finesse/src/theme/data.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/data.dart';
 
-/// Provides a [ShadThemeData] to its descendants.
+/// Provides a [ThemeData] to its descendants.
 ///
-/// `ShadApp` inserts one. Use [ShadTheme.merge] to override part of the theme
+/// `FinesseApp` inserts one. Use [Theme.merge] to override part of the theme
 /// for a subtree.
-class ShadTheme extends StatelessWidget {
+class Theme extends StatelessWidget {
   /// Creates a widget that applies [data] to [child].
-  const ShadTheme({
+  const Theme({
     super.key,
     required this.data,
     required this.child,
   });
 
   /// The theme for descendant widgets.
-  final ShadThemeData data;
+  final ThemeData data;
 
   /// The widget below this widget in the tree.
   final Widget child;
 
-  /// Returns the nearest [ShadThemeData].
+  /// Returns the nearest [ThemeData].
   ///
-  /// Throws a [FlutterError] when there is no [ShadTheme] ancestor. When
+  /// Throws a [FlutterError] when there is no [Theme] ancestor. When
   /// [listen] is true, [context] rebuilds when the theme changes.
-  static ShadThemeData of(BuildContext context, {bool listen = true}) {
+  static ThemeData of(BuildContext context, {bool listen = true}) {
     final provider = maybeOf(context, listen: listen);
     if (provider == null) {
       throw FlutterError(
         '''
-        ShadTheme.of() called with a context that does not contain a ShadTheme.\n
-        No ShadTheme ancestor could be found starting from the context that was passed to ShadTheme.of(). 
-        This can happen because you do not have a ShadApp widget (which introduces a ShadTheme), 
+        Theme.of() called with a context that does not contain a Theme.\n
+        No Theme ancestor could be found starting from the context that was passed to Theme.of(). 
+        This can happen because you do not have a FinesseApp widget (which introduces a Theme), 
         or it can happen if the context you use comes from a widget above this widget.\n
         The context used was: $context''',
       );
@@ -38,104 +38,104 @@ class ShadTheme extends StatelessWidget {
     return provider;
   }
 
-  /// Creates a [ShadThemeData] that overrides the [ShadThemeData] in
+  /// Creates a [ThemeData] that overrides the [ThemeData] in
   /// scope at this point in the widget tree.
   ///
-  /// The given [data] is merged with the [data] from the default [ShadTheme]
+  /// The given [data] is merged with the [data] from the default [Theme]
   /// for the [BuildContext] where the widget is inserted.
   static Widget merge({
     Key? key,
-    ShadThemeData? data,
+    ThemeData? data,
     required Widget child,
   }) {
     return Builder(
       key: key,
       builder: (BuildContext context) {
-        final parent = ShadTheme.of(context);
-        return ShadTheme(data: parent.merge(data), child: child);
+        final parent = Theme.of(context);
+        return Theme(data: parent.merge(data), child: child);
       },
     );
   }
 
-  /// Returns the nearest [ShadThemeData], or null when there is no [ShadTheme]
+  /// Returns the nearest [ThemeData], or null when there is no [Theme]
   /// ancestor.
   ///
   /// When [listen] is true, [context] rebuilds when the theme changes.
-  static ShadThemeData? maybeOf(
+  static ThemeData? maybeOf(
     BuildContext context, {
     bool listen = true,
   }) {
     if (listen) {
       return context
-          .dependOnInheritedWidgetOfExactType<ShadInheritedTheme>()
+          .dependOnInheritedWidgetOfExactType<FinesseInheritedTheme>()
           ?.theme
           .data;
     }
     final provider = context
-        .getElementForInheritedWidgetOfExactType<ShadInheritedTheme>()
+        .getElementForInheritedWidgetOfExactType<FinesseInheritedTheme>()
         ?.widget;
 
-    return (provider as ShadInheritedTheme?)?.theme.data;
+    return (provider as FinesseInheritedTheme?)?.theme.data;
   }
 
   @override
   Widget build(BuildContext context) {
-    return ShadInheritedTheme(
+    return FinesseInheritedTheme(
       theme: this,
       child: child,
     );
   }
 }
 
-/// The inherited widget that [ShadTheme] inserts.
+/// The inherited widget that [Theme] inserts.
 ///
 /// It lets [InheritedTheme.capture] carry the theme into routes and overlays.
-class ShadInheritedTheme extends InheritedTheme {
+class FinesseInheritedTheme extends InheritedTheme {
   /// Creates an inherited theme for [theme].
-  const ShadInheritedTheme({
+  const FinesseInheritedTheme({
     super.key,
     required this.theme,
     required super.child,
   });
 
-  /// The [ShadTheme] that inserted this widget.
-  final ShadTheme theme;
+  /// The [Theme] that inserted this widget.
+  final Theme theme;
 
   @override
   Widget wrap(BuildContext context, Widget child) {
-    return ShadTheme(data: theme.data, child: child);
+    return Theme(data: theme.data, child: child);
   }
 
   @override
-  bool updateShouldNotify(ShadInheritedTheme oldWidget) =>
+  bool updateShouldNotify(FinesseInheritedTheme oldWidget) =>
       theme.data != oldWidget.theme.data;
 }
 
-/// An interpolation between two [ShadThemeData]s.
+/// An interpolation between two [ThemeData]s.
 ///
-/// This class specializes the interpolation of [Tween<ShadThemeData>] to call
-/// the [ShadThemeData.lerp] method.
+/// This class specializes the interpolation of [Tween<ThemeData>] to call
+/// the [ThemeData.lerp] method.
 ///
 /// See [Tween] for a discussion on how to use interpolation objects.
-class ShadThemeDataTween extends Tween<ShadThemeData> {
-  /// Creates a [ShadThemeData] tween.
+class ThemeDataTween extends Tween<ThemeData> {
+  /// Creates a [ThemeData] tween.
   ///
   /// The [begin] and [end] properties must be non-null before the tween is
   /// first used, but the arguments can be null if the values are going to be
   /// filled in later.
-  ShadThemeDataTween({super.begin, super.end});
+  ThemeDataTween({super.begin, super.end});
 
   @override
-  ShadThemeData lerp(double t) => ShadThemeData.lerp(begin, end, t)!;
+  ThemeData lerp(double t) => ThemeData.lerp(begin, end, t)!;
 }
 
-/// Animated version of [ShadTheme] which automatically transitions the colors
+/// Animated version of [Theme] which automatically transitions the colors
 /// etc, over a given duration whenever the given theme changes.
-class ShadAnimatedTheme extends ImplicitlyAnimatedWidget {
+class AnimatedTheme extends ImplicitlyAnimatedWidget {
   /// Creates an animated theme.
   ///
   /// By default, the theme transition uses a linear curve.
-  const ShadAnimatedTheme({
+  const AnimatedTheme({
     super.key,
     required this.data,
     required this.child,
@@ -145,19 +145,17 @@ class ShadAnimatedTheme extends ImplicitlyAnimatedWidget {
   });
 
   /// Specifies the color and typography values for descendant widgets.
-  final ShadThemeData data;
+  final ThemeData data;
 
   /// The widget below this widget in the tree.
   final Widget child;
 
   @override
-  AnimatedWidgetBaseState<ShadAnimatedTheme> createState() =>
-      _ShadAnimatedThemeState();
+  AnimatedWidgetBaseState<AnimatedTheme> createState() => _AnimatedThemeState();
 }
 
-class _ShadAnimatedThemeState
-    extends AnimatedWidgetBaseState<ShadAnimatedTheme> {
-  ShadThemeDataTween? _data;
+class _AnimatedThemeState extends AnimatedWidgetBaseState<AnimatedTheme> {
+  ThemeDataTween? _data;
 
   @override
   void forEachTween(TweenVisitor<dynamic> visitor) {
@@ -165,15 +163,14 @@ class _ShadAnimatedThemeState
         visitor(
               _data,
               widget.data,
-              (dynamic value) =>
-                  ShadThemeDataTween(begin: value as ShadThemeData),
+              (dynamic value) => ThemeDataTween(begin: value as ThemeData),
             )!
-            as ShadThemeDataTween;
+            as ThemeDataTween;
   }
 
   @override
   Widget build(BuildContext context) {
-    return ShadTheme(
+    return Theme(
       data: _data!.evaluate(animation),
       child: widget.child,
     );

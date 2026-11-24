@@ -1,21 +1,20 @@
+import 'package:finesse/src/components/sheet.dart';
+import 'package:finesse/src/utils/position.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-
-import 'package:shad/src/components/sheet.dart';
-import 'package:shad/src/utils/position.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
 part 'sheet.g.theme.dart';
 
-/// {@template ShadSheetTheme}
-/// Theme for the `ShadSheet` widget.
+/// {@template SheetTheme}
+/// Theme for the `Sheet` widget.
 /// {@endtemplate}
 @themeGen
 @immutable
-class ShadSheetTheme with _$ShadSheetTheme {
-  /// {@macro ShadSheetTheme}
-  const ShadSheetTheme({
+class SheetTheme with _$SheetTheme {
+  /// {@macro SheetTheme}
+  const SheetTheme({
     bool canMerge = true,
     this.constraints,
     this.expandCrossSide,
@@ -75,67 +74,67 @@ class ShadSheetTheme with _$ShadSheetTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro ShadSheet.constraints}
+  /// {@macro Sheet.constraints}
   final BoxConstraints? constraints;
 
-  /// {@macro ShadSheet.expandCrossSide}
+  /// {@macro Sheet.expandCrossSide}
   final bool? expandCrossSide;
 
-  /// {@macro ShadSheet.closeIcon}
+  /// {@macro Sheet.closeIcon}
   final Widget? closeIcon;
 
-  /// {@macro ShadSheet.closeIconData}
+  /// {@macro Sheet.closeIconData}
   final IconData? closeIconData;
 
-  /// {@macro ShadSheet.closeIconPosition}
-  final ShadPosition? closeIconPosition;
+  /// {@macro Sheet.closeIconPosition}
+  final Position? closeIconPosition;
 
-  /// {@macro ShadSheet.radius}
+  /// {@macro Sheet.radius}
   final BorderRadius? radius;
 
-  /// {@macro ShadSheet.backgroundColor}
+  /// {@macro Sheet.backgroundColor}
   final Color? backgroundColor;
 
-  /// {@macro ShadSheet.expandActionsWhenTiny}
+  /// {@macro Sheet.expandActionsWhenTiny}
   final bool? expandActionsWhenTiny;
 
-  /// {@macro ShadSheet.padding}
+  /// {@macro Sheet.padding}
   final EdgeInsetsGeometry? padding;
 
-  /// {@macro ShadSheet.gap}
+  /// {@macro Sheet.gap}
   final double? gap;
 
-  /// {@macro ShadSheet.actionsAxis}
+  /// {@macro Sheet.actionsAxis}
   final Axis? actionsAxis;
 
-  /// {@macro ShadSheet.actionsMainAxisSize}
+  /// {@macro Sheet.actionsMainAxisSize}
   final MainAxisSize? actionsMainAxisSize;
 
-  /// {@macro ShadSheet.actionsMainAxisAlignment}
+  /// {@macro Sheet.actionsMainAxisAlignment}
   final MainAxisAlignment? actionsMainAxisAlignment;
 
-  /// {@macro ShadSheet.actionsVerticalDirection}
+  /// {@macro Sheet.actionsVerticalDirection}
   final VerticalDirection? actionsVerticalDirection;
 
-  /// {@macro ShadSheet.border}
+  /// {@macro Sheet.border}
   final BoxBorder? border;
 
-  /// {@macro ShadSheet.shadows}
+  /// {@macro Sheet.shadows}
   final List<BoxShadow>? shadows;
 
-  /// {@macro ShadSheet.removeBorderRadiusWhenTiny}
+  /// {@macro Sheet.removeBorderRadiusWhenTiny}
   final bool? removeBorderRadiusWhenTiny;
 
-  /// {@macro ShadSheet.titleStyle}
+  /// {@macro Sheet.titleStyle}
   final TextStyle? titleStyle;
 
-  /// {@macro ShadSheet.descriptionStyle}
+  /// {@macro Sheet.descriptionStyle}
   final TextStyle? descriptionStyle;
 
-  /// {@macro ShadSheet.titleTextAlign}
+  /// {@macro Sheet.titleTextAlign}
   final TextAlign? titleTextAlign;
 
-  /// {@macro ShadSheet.descriptionTextAlign}
+  /// {@macro Sheet.descriptionTextAlign}
   final TextAlign? descriptionTextAlign;
 
   /// The effects played when the sheet appears. Defaults to a slide in
@@ -146,70 +145,70 @@ class ShadSheetTheme with _$ShadSheetTheme {
   /// to its side.
   final List<Effect<dynamic>>? animateOut;
 
-  /// {@macro ShadSheet.mainAxisAlignment}
+  /// {@macro Sheet.mainAxisAlignment}
   final MainAxisAlignment? mainAxisAlignment;
 
-  /// {@macro ShadSheet.crossAxisAlignment}
+  /// {@macro Sheet.crossAxisAlignment}
   final CrossAxisAlignment? crossAxisAlignment;
 
-  /// {@macro ShadSheet.scrollable}
+  /// {@macro Sheet.scrollable}
   final bool? scrollable;
 
-  /// {@macro ShadSheet.scrollPadding}
+  /// {@macro Sheet.scrollPadding}
   final EdgeInsetsGeometry? scrollPadding;
 
-  /// {@macro ShadSheet.disabledScrollControlMaxRatio}
+  /// {@macro Sheet.disabledScrollControlMaxRatio}
   final double? disabledScrollControlMaxRatio;
 
-  /// {@macro ShadSheet.minFlingVelocity}
+  /// {@macro Sheet.minFlingVelocity}
   final double? minFlingVelocity;
 
-  /// {@macro ShadSheet.snapFlingVelocity}
+  /// {@macro Sheet.snapFlingVelocity}
   final double? snapFlingVelocity;
 
-  /// {@macro ShadSheet.closeProgressThreshold}
+  /// {@macro Sheet.closeProgressThreshold}
   final double? closeProgressThreshold;
 
-  /// {@macro ShadSheet.side}
-  final ShadSheetSide? side;
+  /// {@macro Sheet.side}
+  final SheetSide? side;
 
-  /// {@macro ShadDialog.useSafeArea}
+  /// {@macro Dialog.useSafeArea}
   final bool? useSafeArea;
 
-  /// {@macro ShadDialog.titlePinned}
+  /// {@macro Dialog.titlePinned}
   final bool? titlePinned;
 
-  /// {@macro ShadDialog.descriptionPinned}
+  /// {@macro Dialog.descriptionPinned}
   final bool? descriptionPinned;
 
-  /// {@macro ShadDialog.actionsPinned}
+  /// {@macro Dialog.actionsPinned}
   final bool? actionsPinned;
 
-  /// {@macro ShadSheet.expandable}
+  /// {@macro Sheet.expandable}
   final bool? expandable;
 
-  /// {@macro ShadSheet.initialSize}
+  /// {@macro Sheet.initialSize}
   final double? initialSize;
 
-  /// {@macro ShadSheet.minSize}
+  /// {@macro Sheet.minSize}
   final double? minSize;
 
-  /// {@macro ShadSheet.maxSize}
+  /// {@macro Sheet.maxSize}
   final double? maxSize;
 
-  /// {@macro ShadSheet.snap}
+  /// {@macro Sheet.snap}
   final bool? snap;
 
-  /// {@macro ShadSheet.snapSizes}
+  /// {@macro Sheet.snapSizes}
   final List<double>? snapSizes;
 
-  /// {@macro ShadSheet.snapAnimationDuration}
+  /// {@macro Sheet.snapAnimationDuration}
   final Duration? snapAnimationDuration;
 
-  /// {@macro ShadSheet.snapAnimationCurve}
+  /// {@macro Sheet.snapAnimationCurve}
   final Curve? snapAnimationCurve;
 
-  /// {@macro ShadSheet.showDragHandle}
+  /// {@macro Sheet.showDragHandle}
   final bool? showDragHandle;
 
   /// Color of the default drag handle pill.
@@ -224,23 +223,23 @@ class ShadSheetTheme with _$ShadSheetTheme {
   /// Border radius of the default drag handle pill.
   final BorderRadius? dragHandleRadius;
 
-  /// {@macro ShadSheet.dragHandleExtent}
+  /// {@macro Sheet.dragHandleExtent}
   final double? dragHandleExtent;
 
   /// Linearly interpolates between [a] and [b] by [t].
-  static ShadSheetTheme? lerp(
-    ShadSheetTheme? a,
-    ShadSheetTheme? b,
+  static SheetTheme? lerp(
+    SheetTheme? a,
+    SheetTheme? b,
     double t,
-  ) => _$ShadSheetTheme.lerp(a, b, t);
+  ) => _$SheetTheme.lerp(a, b, t);
 
   // The generated `==` compares lists by identity, so a theme built with a
-  // non-const list would never equal its own rebuild, and ShadAnimatedTheme
+  // non-const list would never equal its own rebuild, and AnimatedTheme
   // would re-lerp on every frame. Compare the lists by value, then let the
   // generated `==` compare everything else against a copy that shares them.
   @override
   bool operator ==(Object other) =>
-      other is ShadSheetTheme &&
+      other is SheetTheme &&
       listEquals(shadows, other.shadows) &&
       listEquals(animateIn, other.animateIn) &&
       listEquals(animateOut, other.animateOut) &&

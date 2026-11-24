@@ -9,12 +9,12 @@ part of 'button_sizes.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadButtonSizeTheme {
+mixin _$ButtonSizeTheme {
   bool get canMerge => true;
 
-  static ShadButtonSizeTheme? lerp(
-    ShadButtonSizeTheme? a,
-    ShadButtonSizeTheme? b,
+  static ButtonSizeTheme? lerp(
+    ButtonSizeTheme? a,
+    ButtonSizeTheme? b,
     double t,
   ) {
     if (identical(a, b)) {
@@ -29,7 +29,7 @@ mixin _$ShadButtonSizeTheme {
       return t == 0.0 ? a : null;
     }
 
-    return ShadButtonSizeTheme(
+    return ButtonSizeTheme(
       height: lerpDouble$(a.height, b.height, t)!,
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t)!,
       width: lerpDouble$(a.width, b.width, t),
@@ -37,15 +37,15 @@ mixin _$ShadButtonSizeTheme {
     );
   }
 
-  ShadButtonSizeTheme copyWith({
+  ButtonSizeTheme copyWith({
     double? height,
     EdgeInsetsGeometry? padding,
     double? width,
     double? iconSize,
   }) {
-    final _this = (this as ShadButtonSizeTheme);
+    final _this = (this as ButtonSizeTheme);
 
-    return ShadButtonSizeTheme(
+    return ButtonSizeTheme(
       height: height ?? _this.height,
       padding: padding ?? _this.padding,
       width: width ?? _this.width,
@@ -53,8 +53,8 @@ mixin _$ShadButtonSizeTheme {
     );
   }
 
-  ShadButtonSizeTheme merge(ShadButtonSizeTheme? other) {
-    final _this = (this as ShadButtonSizeTheme);
+  ButtonSizeTheme merge(ButtonSizeTheme? other) {
+    final _this = (this as ButtonSizeTheme);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -82,8 +82,8 @@ mixin _$ShadButtonSizeTheme {
       return false;
     }
 
-    final _this = (this as ShadButtonSizeTheme);
-    final _other = (other as ShadButtonSizeTheme);
+    final _this = (this as ButtonSizeTheme);
+    final _other = (other as ButtonSizeTheme);
 
     return _other.height == _this.height &&
         _other.padding == _this.padding &&
@@ -93,7 +93,7 @@ mixin _$ShadButtonSizeTheme {
 
   @override
   int get hashCode {
-    final _this = (this as ShadButtonSizeTheme);
+    final _this = (this as ButtonSizeTheme);
 
     return Object.hash(
       runtimeType,
@@ -105,12 +105,12 @@ mixin _$ShadButtonSizeTheme {
   }
 }
 
-mixin _$ShadButtonSizesTheme {
+mixin _$ButtonSizesTheme {
   bool get canMerge => true;
 
-  static ShadButtonSizesTheme? lerp(
-    ShadButtonSizesTheme? a,
-    ShadButtonSizesTheme? b,
+  static ButtonSizesTheme? lerp(
+    ButtonSizesTheme? a,
+    ButtonSizesTheme? b,
     double t,
   ) {
     if (identical(a, b)) {
@@ -125,27 +125,27 @@ mixin _$ShadButtonSizesTheme {
       return t == 0.0 ? a : null;
     }
 
-    return ShadButtonSizesTheme(
-      regular: ShadButtonSizeTheme.lerp(a.regular, b.regular, t),
-      sm: ShadButtonSizeTheme.lerp(a.sm, b.sm, t),
-      lg: ShadButtonSizeTheme.lerp(a.lg, b.lg, t),
-      icon: ShadButtonSizeTheme.lerp(a.icon, b.icon, t),
-      iconSm: ShadButtonSizeTheme.lerp(a.iconSm, b.iconSm, t),
-      iconLg: ShadButtonSizeTheme.lerp(a.iconLg, b.iconLg, t),
+    return ButtonSizesTheme(
+      regular: ButtonSizeTheme.lerp(a.regular, b.regular, t),
+      sm: ButtonSizeTheme.lerp(a.sm, b.sm, t),
+      lg: ButtonSizeTheme.lerp(a.lg, b.lg, t),
+      icon: ButtonSizeTheme.lerp(a.icon, b.icon, t),
+      iconSm: ButtonSizeTheme.lerp(a.iconSm, b.iconSm, t),
+      iconLg: ButtonSizeTheme.lerp(a.iconLg, b.iconLg, t),
     );
   }
 
-  ShadButtonSizesTheme copyWith({
-    ShadButtonSizeTheme? regular,
-    ShadButtonSizeTheme? sm,
-    ShadButtonSizeTheme? lg,
-    ShadButtonSizeTheme? icon,
-    ShadButtonSizeTheme? iconSm,
-    ShadButtonSizeTheme? iconLg,
+  ButtonSizesTheme copyWith({
+    ButtonSizeTheme? regular,
+    ButtonSizeTheme? sm,
+    ButtonSizeTheme? lg,
+    ButtonSizeTheme? icon,
+    ButtonSizeTheme? iconSm,
+    ButtonSizeTheme? iconLg,
   }) {
-    final _this = (this as ShadButtonSizesTheme);
+    final _this = (this as ButtonSizesTheme);
 
-    return ShadButtonSizesTheme(
+    return ButtonSizesTheme(
       regular: regular ?? _this.regular,
       sm: sm ?? _this.sm,
       lg: lg ?? _this.lg,
@@ -155,8 +155,8 @@ mixin _$ShadButtonSizesTheme {
     );
   }
 
-  ShadButtonSizesTheme merge(ShadButtonSizesTheme? other) {
-    final _this = (this as ShadButtonSizesTheme);
+  ButtonSizesTheme merge(ButtonSizesTheme? other) {
+    final _this = (this as ButtonSizesTheme);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -186,8 +186,8 @@ mixin _$ShadButtonSizesTheme {
       return false;
     }
 
-    final _this = (this as ShadButtonSizesTheme);
-    final _other = (other as ShadButtonSizesTheme);
+    final _this = (this as ButtonSizesTheme);
+    final _other = (other as ButtonSizesTheme);
 
     return _other.regular == _this.regular &&
         _other.sm == _this.sm &&
@@ -199,7 +199,7 @@ mixin _$ShadButtonSizesTheme {
 
   @override
   int get hashCode {
-    final _this = (this as ShadButtonSizesTheme);
+    final _this = (this as ButtonSizesTheme);
 
     return Object.hash(
       runtimeType,

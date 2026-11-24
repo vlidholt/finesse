@@ -1,16 +1,16 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
-/// showShadPopover anchors a popover to a rectangle rather than a widget:
+/// showPopover anchors a popover to a rectangle rather than a widget:
 /// here, wherever the canvas was clicked.
 class SurfaceAnchoredExample extends StatelessWidget {
   const SurfaceAnchoredExample({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     return GestureDetector(
-      onTapUp: (details) => showShadPopover<void>(
+      onTapUp: (details) => showPopover<void>(
         context: context,
         anchorRect: Rect.fromCenter(
           center: details.globalPosition,

@@ -1,27 +1,27 @@
-import 'package:flutter/material.dart';
+import 'package:finesse/material.dart';
+import 'package:finesse/src/app.dart';
+import 'package:finesse/src/components/button.dart';
+import 'package:finesse/src/components/calendar.dart'; // Adjust import path based on your project structure
+import 'package:finesse/src/components/icon_button.dart';
+import 'package:finesse/src/utils/extensions/date_time.dart';
+import 'package:flutter/material.dart' hide DateTimeRange, IconButton;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:shad/material.dart';
-import 'package:shad/src/app.dart';
-import 'package:shad/src/components/button.dart';
-import 'package:shad/src/components/calendar.dart'; // Adjust import path based on your project structure
-import 'package:shad/src/components/icon_button.dart';
-import 'package:shad/src/utils/extensions/date_time.dart';
 
 void main() {
-  // Helper method to create a test widget wrapped in ShadApp and Scaffold
+  // Helper method to create a test widget wrapped in FinesseApp and Scaffold
   Widget createTestWidget(Widget child) {
-    return ShadApp(
-      builder: (context, child) => ShadMaterial(child: child!),
+    return FinesseApp(
+      builder: (context, child) => FinesseMaterial(child: child!),
       home: Scaffold(
         body: child,
       ),
     );
   }
 
-  group('ShadCalendar', () {
+  group('Calendar', () {
     testWidgets('renders single variant correctly', (
       WidgetTester tester,
     ) async {
@@ -29,7 +29,7 @@ void main() {
       final initialMonth = DateTime(now.year, now.month);
       await tester.pumpWidget(
         createTestWidget(
-          ShadCalendar(
+          Calendar(
             initialMonth: initialMonth,
           ),
         ),
@@ -40,7 +40,7 @@ void main() {
       expect(find.text(monthYearText), findsOneWidget);
 
       // Check navigation buttons are present
-      expect(find.byType(ShadIconButton), findsNWidgets(2));
+      expect(find.byType(IconButton), findsNWidgets(2));
 
       // Check weekday names are rendered (default 7 days)
       expect(find.byType(GridView), findsOneWidget);
@@ -88,7 +88,7 @@ void main() {
       final now = DateTime(2024);
       await tester.pumpWidget(
         createTestWidget(
-          ShadCalendar.multiple(
+          Calendar.multiple(
             initialMonth: DateTime(2024),
             selected: const [],
           ),
@@ -107,7 +107,7 @@ void main() {
       final now = DateTime(2024);
       await tester.pumpWidget(
         createTestWidget(
-          ShadCalendar.range(
+          Calendar.range(
             initialMonth: DateTime(2024),
           ),
         ),
@@ -127,7 +127,7 @@ void main() {
       final initialMonth = DateTime(2023, 10);
       await tester.pumpWidget(
         createTestWidget(
-          ShadCalendar(
+          Calendar(
             initialMonth: initialMonth,
           ),
         ),
@@ -145,7 +145,7 @@ void main() {
       DateTime? selectedDate;
       await tester.pumpWidget(
         createTestWidget(
-          ShadCalendar(
+          Calendar(
             initialMonth: DateTime(2024),
             onChanged: (date) => selectedDate = date,
           ),
@@ -163,10 +163,10 @@ void main() {
       // Check the selected day button has the primary variant
       final selectedButtonFinder = find.ancestor(
         of: find.text('15'),
-        matching: find.byType(ShadButton),
+        matching: find.byType(Button),
       );
-      final selectedButton = tester.widget<ShadButton>(selectedButtonFinder);
-      expect(selectedButton.variant, ShadButtonVariant.primary);
+      final selectedButton = tester.widget<Button>(selectedButtonFinder);
+      expect(selectedButton.variant, ButtonVariant.primary);
     });
 
     testWidgets('selects multiple dates in multiple variant', (
@@ -175,7 +175,7 @@ void main() {
       var selectedDates = <DateTime>[];
       await tester.pumpWidget(
         createTestWidget(
-          ShadCalendar.multiple(
+          Calendar.multiple(
             initialMonth: DateTime(2024),
             onChanged: (dates) => selectedDates = dates,
           ),
@@ -197,10 +197,10 @@ void main() {
     testWidgets('selects date range in range variant', (
       WidgetTester tester,
     ) async {
-      ShadDateTimeRange? selectedRange;
+      DateTimeRange? selectedRange;
       await tester.pumpWidget(
         createTestWidget(
-          ShadCalendar.range(
+          Calendar.range(
             initialMonth: DateTime(2024),
             onChanged: (range) => selectedRange = range,
           ),
@@ -221,19 +221,19 @@ void main() {
       // Check start and end buttons have the selected variant
       final startButtonFinder = find.ancestor(
         of: find.text('10'),
-        matching: find.byType(ShadButton),
+        matching: find.byType(Button),
       );
       final endButtonFinder = find.ancestor(
         of: find.text('15'),
-        matching: find.byType(ShadButton),
+        matching: find.byType(Button),
       );
       expect(
-        tester.widget<ShadButton>(startButtonFinder).variant,
-        ShadButtonVariant.primary,
+        tester.widget<Button>(startButtonFinder).variant,
+        ButtonVariant.primary,
       );
       expect(
-        tester.widget<ShadButton>(endButtonFinder).variant,
-        ShadButtonVariant.primary,
+        tester.widget<Button>(endButtonFinder).variant,
+        ButtonVariant.primary,
       );
     });
 
@@ -243,7 +243,7 @@ void main() {
       final initialMonth = DateTime(2023, 10);
       await tester.pumpWidget(
         createTestWidget(
-          ShadCalendar(
+          Calendar(
             initialMonth: initialMonth,
           ),
         ),
@@ -313,7 +313,7 @@ void main() {
           'THEN focus moves to the next day', (WidgetTester tester) async {
         await tester.pumpWidget(
           createTestWidget(
-            ShadCalendar(initialMonth: DateTime(2025, 9)),
+            Calendar(initialMonth: DateTime(2025, 9)),
           ),
         );
 
@@ -331,7 +331,7 @@ void main() {
           'THEN focus moves to the previous day', (WidgetTester tester) async {
         await tester.pumpWidget(
           createTestWidget(
-            ShadCalendar(initialMonth: DateTime(2025, 9)),
+            Calendar(initialMonth: DateTime(2025, 9)),
           ),
         );
 
@@ -353,7 +353,7 @@ void main() {
       ) async {
         await tester.pumpWidget(
           createTestWidget(
-            ShadCalendar(initialMonth: DateTime(2025, 9)),
+            Calendar(initialMonth: DateTime(2025, 9)),
           ),
         );
 
@@ -374,7 +374,7 @@ void main() {
       ) async {
         await tester.pumpWidget(
           createTestWidget(
-            ShadCalendar(
+            Calendar(
               initialMonth: DateTime(2025, 9),
             ),
           ),
@@ -396,7 +396,7 @@ void main() {
       const customDayButtonSize = 50.0;
       await tester.pumpWidget(
         createTestWidget(
-          ShadCalendar(
+          Calendar(
             initialMonth: DateTime(2024),
             dayButtonSize: customDayButtonSize,
           ),
@@ -406,10 +406,10 @@ void main() {
       // Check a day button has the custom size
       final dayButtonFinder = find.ancestor(
         of: find.text('15'),
-        matching: find.byType(ShadButton),
+        matching: find.byType(Button),
       );
       expect(dayButtonFinder, findsOneWidget);
-      final dayButton = tester.widget<ShadButton>(dayButtonFinder);
+      final dayButton = tester.widget<Button>(dayButtonFinder);
       expect(dayButton.width, customDayButtonSize);
       expect(dayButton.height, customDayButtonSize);
     });
@@ -420,7 +420,7 @@ void main() {
       final date = DateTime(2025, 2);
       await tester.pumpWidget(
         createTestWidget(
-          ShadCalendar(
+          Calendar(
             selected: DateTime(2024, 12),
             showWeekNumbers: true,
             initialMonth: DateTime(2024),
@@ -447,15 +447,15 @@ void main() {
       );
     });
 
-    testWidgets('ShadCalendar matches goldens', (tester) async {
+    testWidgets('Calendar matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          ShadCalendar(
+          Calendar(
             initialMonth: DateTime(2024),
             fromMonth: DateTime(2023),
             toMonth: DateTime(2024, 12),
             hideNavigation: true,
-            captionLayout: ShadCalendarCaptionLayout.label,
+            captionLayout: CalendarCaptionLayout.label,
             showWeekNumbers: false,
             showOutsideDays: false,
             fixedWeeks: false,
@@ -465,17 +465,17 @@ void main() {
       );
 
       await expectLater(
-        find.byType(ShadCalendar),
+        find.byType(Calendar),
         matchesGoldenFile('goldens/calendar.png'),
       );
     });
 
-    testWidgets('ShadCalendar hideNavigation false matches goldens', (
+    testWidgets('Calendar hideNavigation false matches goldens', (
       tester,
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          ShadCalendar(
+          Calendar(
             initialMonth: DateTime(2024),
             fromMonth: DateTime(2023),
             toMonth: DateTime(2024, 12),
@@ -485,15 +485,15 @@ void main() {
       );
 
       await expectLater(
-        find.byType(ShadCalendar),
+        find.byType(Calendar),
         matchesGoldenFile('goldens/calendar_no_hide_navigation.png'),
       );
     });
 
-    testWidgets('ShadCalendar showWeekNumbers matches goldens', (tester) async {
+    testWidgets('Calendar showWeekNumbers matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          ShadCalendar(
+          Calendar(
             initialMonth: DateTime(2024),
             fromMonth: DateTime(2023),
             toMonth: DateTime(2024, 12),
@@ -503,55 +503,55 @@ void main() {
       );
 
       await expectLater(
-        find.byType(ShadCalendar),
+        find.byType(Calendar),
         matchesGoldenFile('goldens/calendar_show_week_numbers.png'),
       );
     });
 
-    testWidgets('ShadCalendar fixedWeeks matches goldens', (tester) async {
+    testWidgets('Calendar fixedWeeks matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          ShadCalendar(
+          Calendar(
             initialMonth: DateTime(2024),
             fromMonth: DateTime(2023),
             toMonth: DateTime(2024, 12),
-            captionLayout: ShadCalendarCaptionLayout.label,
+            captionLayout: CalendarCaptionLayout.label,
             fixedWeeks: true,
           ),
         ),
       );
 
       await expectLater(
-        find.byType(ShadCalendar),
+        find.byType(Calendar),
         matchesGoldenFile('goldens/calendar_fixed_weeks.png'),
       );
     });
 
-    testWidgets('ShadCalendar hideWeekdayNames matches goldens', (
+    testWidgets('Calendar hideWeekdayNames matches goldens', (
       tester,
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          ShadCalendar(
+          Calendar(
             initialMonth: DateTime(2024),
             fromMonth: DateTime(2023),
             toMonth: DateTime(2024, 12),
-            captionLayout: ShadCalendarCaptionLayout.label,
+            captionLayout: CalendarCaptionLayout.label,
             hideWeekdayNames: true,
           ),
         ),
       );
 
       await expectLater(
-        find.byType(ShadCalendar),
+        find.byType(Calendar),
         matchesGoldenFile('goldens/calendar_hide_weekday_names.png'),
       );
     });
 
-    testWidgets('ShadCalendar.multiple matches goldens', (tester) async {
+    testWidgets('Calendar.multiple matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          ShadCalendar.multiple(
+          Calendar.multiple(
             initialMonth: DateTime(2024),
             numberOfMonths: 2,
             fromMonth: DateTime(2024),
@@ -563,15 +563,15 @@ void main() {
       );
 
       await expectLater(
-        find.byType(ShadCalendar),
+        find.byType(Calendar),
         matchesGoldenFile('goldens/calendar_multiple.png'),
       );
     });
 
-    testWidgets('ShadCalendar.range matches goldens', (tester) async {
+    testWidgets('Calendar.range matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          ShadCalendar.range(
+          Calendar.range(
             initialMonth: DateTime(2024),
             numberOfMonths: 2,
             fromMonth: DateTime(2024),
@@ -583,7 +583,7 @@ void main() {
       );
 
       await expectLater(
-        find.byType(ShadCalendar),
+        find.byType(Calendar),
         matchesGoldenFile('goldens/calendar_range.png'),
       );
     });

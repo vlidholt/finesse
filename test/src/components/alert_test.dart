@@ -1,16 +1,16 @@
-import 'package:flutter/material.dart';
+import 'package:finesse/material.dart';
+import 'package:finesse/src/app.dart';
+import 'package:finesse/src/components/alert.dart';
+import 'package:finesse/src/theme/data.dart';
+import 'package:finesse/src/theme/style.dart';
+import 'package:flutter/material.dart' hide ThemeData;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:shad/material.dart';
-import 'package:shad/src/app.dart';
-import 'package:shad/src/components/alert.dart';
-import 'package:shad/src/theme/data.dart';
-import 'package:shad/src/theme/style.dart';
 
 void main() {
   Widget createTestWidget(Widget child) {
-    return ShadApp(
-      builder: (context, child) => ShadMaterial(child: child!),
+    return FinesseApp(
+      builder: (context, child) => FinesseMaterial(child: child!),
       home: Scaffold(
         body: child,
       ),
@@ -23,7 +23,7 @@ void main() {
     // red), a `text-muted-foreground` description that destructive tints at
     // 90% (`text-destructive/90`), and sera's accent bar on the left edge.
     test('both variants sit on bg-card inside a plain border', () {
-      final theme = ShadThemeData();
+      final theme = ThemeData();
       for (final alert in [
         theme.primaryAlertTheme,
         theme.destructiveAlertTheme,
@@ -42,7 +42,7 @@ void main() {
     });
 
     test('sera draws its accent bar as a thick left side', () {
-      final theme = ShadThemeData(style: ShadStyleTokens.sera);
+      final theme = ThemeData(style: StyleTokens.sera);
       final primary = theme.primaryAlertTheme.decoration?.border;
       final destructive = theme.destructiveAlertTheme.decoration?.border;
       expect(primary?.left?.width, 2);
@@ -54,23 +54,23 @@ void main() {
     });
 
     test('mira compacts the icon, vega keeps size-4', () {
-      expect(ShadThemeData().primaryAlertTheme.iconSize, 16);
+      expect(ThemeData().primaryAlertTheme.iconSize, 16);
       expect(
-        ShadThemeData(
-          style: ShadStyleTokens.mira,
+        ThemeData(
+          style: StyleTokens.mira,
         ).primaryAlertTheme.iconSize,
         14,
       );
     });
   });
 
-  group('ShadAlert', () {
+  group('Alert', () {
     testWidgets('renders primary variant correctly', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadAlert(
+          const Alert(
             title: Text('Primary Alert'),
             description: Text('This is a primary alert'),
             icon: Icon(Icons.info),
@@ -93,7 +93,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadAlert.destructive(
+          const Alert.destructive(
             title: Text('Error Alert'),
             description: Text('This is a destructive alert'),
             icon: Icon(Icons.error),
@@ -112,7 +112,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadAlert(
+          const Alert(
             title: Text('No Icon Alert'),
             description: Text('This alert has no icon'),
           ),
@@ -133,7 +133,7 @@ void main() {
 
       await tester.pumpWidget(
         createTestWidget(
-          const ShadAlert(
+          const Alert(
             title: Text('Styled Alert'),
             icon: Icon(Icons.info),
             iconColor: customColor,
@@ -145,11 +145,11 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      // Find the specific ShadAlert widget
-      final alertFinder = find.byType(ShadAlert);
+      // Find the specific Alert widget
+      final alertFinder = find.byType(Alert);
       expect(alertFinder, findsOneWidget);
 
-      // Find the IconTheme within the ShadAlert and check its color
+      // Find the IconTheme within the Alert and check its color
       final iconThemeFinder = find.descendant(
         of: alertFinder,
         matching: find.byType(IconTheme),
@@ -166,7 +166,7 @@ void main() {
       final padding = tester.widget<Padding>(paddingFinder.first);
       expect(padding.padding, customPadding);
 
-      // Find the DefaultTextStyle within the ShadAlert that styles the title
+      // Find the DefaultTextStyle within the Alert that styles the title
       final defaultTextStyleFinder = find.descendant(
         of: alertFinder,
         matching: find.byWidgetPredicate(
@@ -185,7 +185,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadAlert(
+          const Alert(
             title: Text('RTL Alert'),
             textDirection: TextDirection.rtl,
           ),
@@ -200,7 +200,7 @@ void main() {
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
-        createTestWidget(const ShadAlert(icon: Icon(Icons.info))),
+        createTestWidget(const Alert(icon: Icon(Icons.info))),
       );
 
       // Check icon renders
@@ -213,7 +213,7 @@ void main() {
     testWidgets('ShardAlert matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadAlert(
+          const Alert(
             icon: Icon(LucideIcons.mail),
             title: Text('Title'),
             description: Text('Description'),
@@ -222,7 +222,7 @@ void main() {
       );
 
       await expectLater(
-        find.byType(ShadAlert),
+        find.byType(Alert),
         matchesGoldenFile('goldens/alert.png'),
       );
     });
@@ -230,7 +230,7 @@ void main() {
     testWidgets('ShardAlert.destructive matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadAlert.destructive(
+          const Alert.destructive(
             icon: Icon(LucideIcons.mail),
             title: Text('Title'),
             description: Text('Description'),
@@ -239,7 +239,7 @@ void main() {
       );
 
       await expectLater(
-        find.byType(ShadAlert),
+        find.byType(Alert),
         matchesGoldenFile('goldens/alert_destructive.png'),
       );
     });

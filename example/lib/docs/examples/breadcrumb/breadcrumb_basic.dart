@@ -1,18 +1,18 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class BreadcrumbBasicExample extends StatelessWidget {
   const BreadcrumbBasicExample({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ShadBreadcrumb(
+    return Breadcrumb(
       children: [
-        ShadBreadcrumbLink(
+        BreadcrumbLink(
           onPressed: () {},
           child: const Text('Home'),
         ),
-        ShadBreadcrumbLink(
+        BreadcrumbLink(
           onPressed: () {},
           child: const Text('Components'),
         ),

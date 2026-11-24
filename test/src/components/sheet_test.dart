@@ -1,18 +1,18 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:finesse/finesse.dart';
+import 'package:finesse/material.dart';
+import 'package:flutter/material.dart' hide Dialog, IconButton, ThemeData;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/material.dart';
-import 'package:shad/shad.dart';
 
 // Returns the Positioned widget that directly anchors the sheet's close
-// ShadIconButton. find.ancestor yields ancestors nearest-first, so .first
-// is the immediate Positioned parent — the one set by ShadDialog's
+// IconButton. find.ancestor yields ancestors nearest-first, so .first
+// is the immediate Positioned parent — the one set by Dialog's
 // `closeIcon.positionedWith(...)`, not an outer layout Positioned.
 Positioned findClosePositioned(WidgetTester tester) {
   final iconButton = find.descendant(
-    of: find.byType(ShadSheet),
-    matching: find.byType(ShadIconButton),
+    of: find.byType(Sheet),
+    matching: find.byType(IconButton),
   );
   final positioned = find.ancestor(
     of: iconButton,
@@ -22,10 +22,10 @@ Positioned findClosePositioned(WidgetTester tester) {
 }
 
 void main() {
-  // Helper method to create a test widget wrapped in ShadApp and Scaffold
+  // Helper method to create a test widget wrapped in FinesseApp and Scaffold
   Widget createTestWidget(Widget child) {
-    return ShadApp(
-      builder: (context, child) => ShadMaterial(child: child!),
+    return FinesseApp(
+      builder: (context, child) => FinesseMaterial(child: child!),
       home: Scaffold(body: child),
     );
   }
@@ -48,9 +48,9 @@ void main() {
     }
   }
 
-  // Helper to wrap a ShadSheet with the ShadSheetInheritedWidget for a side.
+  // Helper to wrap a Sheet with the SheetInheritedWidget for a side.
   Widget sheetWidget({
-    ShadSheetSide side = ShadSheetSide.bottom,
+    SheetSide side = SheetSide.bottom,
     bool? expandable,
     double? initialSize,
     double? minSize,
@@ -60,12 +60,12 @@ void main() {
     Duration? snapAnimationDuration,
     Curve? snapAnimationCurve,
     Widget? dragHandle,
-    ShadSheetDragHandleBuilder? dragHandleBuilder,
+    SheetDragHandleBuilder? dragHandleBuilder,
     double? dragHandleExtent,
     bool? showDragHandle,
     double? snapFlingVelocity,
     ValueChanged<double>? onSizeChanged,
-    ShadSheetController? controller,
+    SheetController? controller,
     bool? draggable,
     bool isScrollControlled = false,
     double? disabledScrollControlMaxRatio,
@@ -78,14 +78,14 @@ void main() {
     EdgeInsetsGeometry? padding,
     Widget? closeIcon,
     IconData? closeIconData,
-    ShadPosition? closeIconPosition,
+    Position? closeIconPosition,
   }) {
-    return ShadApp(
-      builder: (context, child) => ShadMaterial(child: child!),
+    return FinesseApp(
+      builder: (context, child) => FinesseMaterial(child: child!),
       home: Scaffold(
-        body: ShadSheetInheritedWidget(
+        body: SheetInheritedWidget(
           side: side,
-          child: ShadSheet(
+          child: Sheet(
             expandable: expandable,
             initialSize: initialSize,
             minSize: minSize,
@@ -154,17 +154,17 @@ void main() {
     ),
   );
 
-  group('ShadSheet', () {
-    testWidgets('ShadSheet matches goldens', (tester) async {
+  group('Sheet', () {
+    testWidgets('Sheet matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const ShadSheetInheritedWidget(
-            side: ShadSheetSide.right,
-            child: ShadSheet(
+          const SheetInheritedWidget(
+            side: SheetSide.right,
+            child: Sheet(
               title: Text('Title'),
               description: Text('Description'),
               actions: [
-                ShadIconButton(icon: Icon(Icons.cloud_off)),
+                IconButton(icon: Icon(Icons.cloud_off)),
               ],
               child: Text('Child'),
             ),
@@ -173,7 +173,7 @@ void main() {
       );
 
       await expectLater(
-        find.byType(ShadSheet),
+        find.byType(Sheet),
         matchesGoldenFile('goldens/sheet.png'),
       );
       await tester.pumpAndSettle();
@@ -183,12 +183,12 @@ void main() {
       tester,
     ) async {
       setUpView(tester, size: const Size(800, 600));
-      for (final side in [ShadSheetSide.left, ShadSheetSide.right]) {
+      for (final side in [SheetSide.left, SheetSide.right]) {
         await tester.pumpWidget(
           createTestWidget(
-            ShadSheetInheritedWidget(
+            SheetInheritedWidget(
               side: side,
-              child: const ShadSheet(
+              child: const Sheet(
                 title: Text('Title'),
                 child: Text('Content'),
               ),
@@ -198,7 +198,7 @@ void main() {
         await tester.pumpAndSettle();
 
         final constrainedBoxFinder = find.descendant(
-          of: find.byType(ShadSheet),
+          of: find.byType(Sheet),
           matching: find.byType(ConstrainedBox),
         );
         final constrainedBox = tester.widget<ConstrainedBox>(
@@ -228,7 +228,7 @@ void main() {
     });
   });
 
-  group('ShadSheet expandable', () {
+  group('Sheet expandable', () {
     // Goldens use the tolerant comparator from test/flutter_test_config.dart.
 
     // No resize handle unless expandable is explicitly true (false and the
@@ -239,7 +239,7 @@ void main() {
       ) async {
         await tester.pumpWidget(sheetWidget(expandable: expandable));
         await tester.pump();
-        expect(find.byType(ShadSheetResizeHandle), findsNothing);
+        expect(find.byType(SheetResizeHandle), findsNothing);
       });
     }
 
@@ -258,9 +258,9 @@ void main() {
 
       // initialSize sizes the FULL composite (handle + dialog content),
       // so dialog alone is ~600 - handleHeight.
-      final dialogHeight = tester.getSize(find.byType(ShadDialog)).height;
+      final dialogHeight = tester.getSize(find.byType(Dialog)).height;
       final handleHeight = tester
-          .getSize(find.byType(ShadSheetResizeHandle))
+          .getSize(find.byType(SheetResizeHandle))
           .height;
       expect(dialogHeight + handleHeight, closeTo(600, 2.0));
     });
@@ -270,7 +270,7 @@ void main() {
     ) async {
       setUpView(tester);
 
-      final controller = ShadSheetController();
+      final controller = SheetController();
       addTearDown(controller.dispose);
 
       await tester.pumpWidget(
@@ -287,7 +287,7 @@ void main() {
       expect(controller.size, closeTo(0.5, 0.01));
 
       // Drag handle upward by 300px on a 1200px screen = 0.25 ratio increase
-      final handleFinder = find.byType(ShadSheetResizeHandle);
+      final handleFinder = find.byType(SheetResizeHandle);
       expect(handleFinder, findsOneWidget);
 
       await tester.drag(handleFinder, const Offset(0, -300));
@@ -308,7 +308,7 @@ void main() {
       (tester) async {
         setUpView(tester);
 
-        final controller = ShadSheetController();
+        final controller = SheetController();
         addTearDown(controller.dispose);
 
         await tester.pumpWidget(
@@ -322,7 +322,7 @@ void main() {
         );
         await tester.pump();
 
-        final handleFinder = find.byType(ShadSheetResizeHandle);
+        final handleFinder = find.byType(SheetResizeHandle);
 
         // Drag way down (shrink direction for bottom sheet)
         await tester.drag(handleFinder, const Offset(0, 1200));
@@ -331,17 +331,17 @@ void main() {
         // Should clamp at minSize, not dismiss
         expect(controller.size, closeTo(0.25, 0.01));
         // Sheet should still be visible
-        expect(find.byType(ShadSheet), findsOneWidget);
+        expect(find.byType(Sheet), findsOneWidget);
       },
     );
 
-    for (final side in ShadSheetSide.values) {
+    for (final side in SheetSide.values) {
       testWidgets('drag grow direction increases size for side=$side', (
         tester,
       ) async {
         setUpView(tester);
 
-        final controller = ShadSheetController();
+        final controller = SheetController();
         addTearDown(controller.dispose);
 
         await tester.pumpWidget(
@@ -356,16 +356,16 @@ void main() {
         );
         await tester.pump();
 
-        final handleFinder = find.byType(ShadSheetResizeHandle);
+        final handleFinder = find.byType(SheetResizeHandle);
         expect(handleFinder, findsOneWidget);
         final initialSize = controller.size;
 
         // grow direction: bottom=up, top=down, left=right, right=left
         final growOffset = switch (side) {
-          ShadSheetSide.bottom => const Offset(0, -200),
-          ShadSheetSide.top => const Offset(0, 200),
-          ShadSheetSide.left => const Offset(200, 0),
-          ShadSheetSide.right => const Offset(-200, 0),
+          SheetSide.bottom => const Offset(0, -200),
+          SheetSide.top => const Offset(0, 200),
+          SheetSide.left => const Offset(200, 0),
+          SheetSide.right => const Offset(-200, 0),
         };
 
         await tester.drag(handleFinder, growOffset);
@@ -386,7 +386,7 @@ void main() {
     testWidgets('snap=true snaps to nearest stop on release', (tester) async {
       setUpView(tester);
 
-      final controller = ShadSheetController();
+      final controller = SheetController();
       addTearDown(controller.dispose);
       // Seed the caller-owned controller before mount; initSizeController
       // deliberately does NOT override external controllers with
@@ -408,7 +408,7 @@ void main() {
       );
       await tester.pump();
 
-      final handleFinder = find.byType(ShadSheetResizeHandle);
+      final handleFinder = find.byType(SheetResizeHandle);
 
       // Drag 1: to between 0.3 and 0.6 stop (≈ 0.42) → snap to 0.3.
       // From 0.3, +0.12 ratio (144px up on a 1200-tall view).
@@ -429,7 +429,7 @@ void main() {
       (tester) async {
         setUpView(tester);
 
-        final controller = ShadSheetController();
+        final controller = SheetController();
         addTearDown(controller.dispose);
 
         await tester.pumpWidget(
@@ -446,7 +446,7 @@ void main() {
         );
         await tester.pump();
 
-        final handleFinder = find.byType(ShadSheetResizeHandle);
+        final handleFinder = find.byType(SheetResizeHandle);
 
         // Drag to ≈ 0.6, nearest to 0.5 (initialSize) or 1.0 (maxSize)?
         // 0.6 - 0.5 = 0.1 vs 1.0 - 0.6 = 0.4 → snap to 0.5
@@ -488,7 +488,7 @@ void main() {
       );
       await tester.pump();
 
-      final handleFinder = find.byType(ShadSheetResizeHandle);
+      final handleFinder = find.byType(SheetResizeHandle);
       await tester.drag(handleFinder, const Offset(0, -100));
       await tester.pump();
 
@@ -496,10 +496,10 @@ void main() {
       expect(sizeChanges.last, greaterThan(0.5));
     });
 
-    testWidgets('ShadSheetController.animateTo animates to target size', (
+    testWidgets('SheetController.animateTo animates to target size', (
       tester,
     ) async {
-      final controller = ShadSheetController();
+      final controller = SheetController();
       addTearDown(controller.dispose);
 
       await tester.pumpWidget(
@@ -527,8 +527,8 @@ void main() {
       expect(controller.size, closeTo(0.8, 0.01));
     });
 
-    testWidgets('ShadSheetController.jumpTo is immediate', (tester) async {
-      final controller = ShadSheetController();
+    testWidgets('SheetController.jumpTo is immediate', (tester) async {
+      final controller = SheetController();
       addTearDown(controller.dispose);
 
       await tester.pumpWidget(
@@ -552,7 +552,7 @@ void main() {
       (tester) async {
         setUpView(tester);
 
-        final controller = ShadSheetController();
+        final controller = SheetController();
         addTearDown(controller.dispose);
         var closingCalls = 0;
 
@@ -570,7 +570,7 @@ void main() {
         await tester.pump();
 
         // Handle drag should resize (increase size).
-        final handleFinder = find.byType(ShadSheetResizeHandle);
+        final handleFinder = find.byType(SheetResizeHandle);
         expect(handleFinder, findsOneWidget);
 
         await tester.drag(handleFinder, const Offset(0, -200));
@@ -583,7 +583,7 @@ void main() {
         // the drag origin is clear of the resize handle and bodyDragStrip
         // at the top edge (which would route to resize, not dismiss).
         final fillRect = tester.getRect(
-          find.byKey(const ValueKey('shad_sheet_expandable_fill')),
+          find.byKey(const ValueKey('finesse_sheet_expandable_fill')),
         );
         final flingOrigin = fillRect.center + const Offset(0, 100);
         await tester.flingFrom(flingOrigin, const Offset(0, 600), 2000);
@@ -610,7 +610,7 @@ void main() {
         // 0.95 * 1200 = 1140, which exceeds the 9/16 * 1200 ≈ 675 cap.
         // If cap is bypassed, the dialog (which excludes the handle in
         // expandable mode) should still read well above the cap.
-        final dialogHeight = tester.getSize(find.byType(ShadDialog)).height;
+        final dialogHeight = tester.getSize(find.byType(Dialog)).height;
         expect(dialogHeight, greaterThan(900));
       },
     );
@@ -620,7 +620,7 @@ void main() {
     // top-left instead of the expected side). For each side also assert the
     // opposite-edge coordinate is inside the viewport to prove the sheet is
     // partial-size (initialSize=0.5) and has not degenerated to fullscreen.
-    for (final side in ShadSheetSide.values) {
+    for (final side in SheetSide.values) {
       testWidgets(
         'expandable+draggable=false: sheet anchors to side=$side',
         (tester) async {
@@ -636,20 +636,20 @@ void main() {
           );
           await tester.pump();
 
-          final topLeft = tester.getTopLeft(find.byType(ShadDialog));
-          final bottomRight = tester.getBottomRight(find.byType(ShadDialog));
+          final topLeft = tester.getTopLeft(find.byType(Dialog));
+          final bottomRight = tester.getBottomRight(find.byType(Dialog));
 
           switch (side) {
-            case ShadSheetSide.bottom:
+            case SheetSide.bottom:
               expect(bottomRight.dy, closeTo(1200, 1.0));
               expect(topLeft.dy, greaterThan(0));
-            case ShadSheetSide.top:
+            case SheetSide.top:
               expect(topLeft.dy, closeTo(0, 1.0));
               expect(bottomRight.dy, lessThan(1200));
-            case ShadSheetSide.left:
+            case SheetSide.left:
               expect(topLeft.dx, closeTo(0, 1.0));
               expect(bottomRight.dx, lessThan(800));
-            case ShadSheetSide.right:
+            case SheetSide.right:
               expect(bottomRight.dx, closeTo(800, 1.0));
               expect(topLeft.dx, greaterThan(0));
           }
@@ -671,7 +671,7 @@ void main() {
         await tester.pump();
 
         final handleSize = tester.getSize(
-          find.byType(ShadSheetResizeHandle),
+          find.byType(SheetResizeHandle),
         );
         expect(handleSize.height, greaterThanOrEqualTo(44));
       },
@@ -683,12 +683,12 @@ void main() {
         setUpView(tester, size: const Size(1200, 800));
 
         await tester.pumpWidget(
-          sheetWidget(side: ShadSheetSide.left, expandable: true),
+          sheetWidget(side: SheetSide.left, expandable: true),
         );
         await tester.pump();
 
         final handleSize = tester.getSize(
-          find.byType(ShadSheetResizeHandle),
+          find.byType(SheetResizeHandle),
         );
         expect(handleSize.width, greaterThanOrEqualTo(44));
       },
@@ -702,7 +702,7 @@ void main() {
     ) async {
       setUpView(tester);
 
-      final controller = ShadSheetController();
+      final controller = SheetController();
       addTearDown(controller.dispose);
 
       await tester.pumpWidget(
@@ -716,7 +716,7 @@ void main() {
       );
       await tester.pump();
 
-      final handleFinder = find.byType(ShadSheetResizeHandle);
+      final handleFinder = find.byType(SheetResizeHandle);
       final handleRect = tester.getRect(handleFinder);
       // Start 1px below the top edge of the handle — inside the padding
       // but far from the center pill. Without opaque hit-testing this
@@ -733,12 +733,11 @@ void main() {
     // the sheet body. For a bottom sheet the pill should be closer to the
     // bottom edge of the handle strip (adjacent to the sheet) than to
     // the top edge (outer). Same logic mirrored per side.
-    for (final side in ShadSheetSide.values) {
+    for (final side in SheetSide.values) {
       testWidgets(
         'default drag pill sits near sheet body for side=$side',
         (tester) async {
-          final isVertical =
-              side == ShadSheetSide.bottom || side == ShadSheetSide.top;
+          final isVertical = side == SheetSide.bottom || side == SheetSide.top;
           tester.view.physicalSize = isVertical
               ? const Size(800, 1200)
               : const Size(1200, 800);
@@ -752,10 +751,10 @@ void main() {
           await tester.pump();
 
           final handleRect = tester.getRect(
-            find.byType(ShadSheetResizeHandle),
+            find.byType(SheetResizeHandle),
           );
           final pillRect = tester.getRect(
-            find.byKey(const ValueKey('shad_sheet_drag_pill')),
+            find.byKey(const ValueKey('finesse_sheet_drag_pill')),
           );
 
           // Upper bound guards against silent drift back toward a
@@ -763,25 +762,25 @@ void main() {
           // pronounced enough to read as "pill tucked next to sheet".
           const maxSheetAdjacentGap = 16.0;
           switch (side) {
-            case ShadSheetSide.bottom:
+            case SheetSide.bottom:
               final sheetAdjacent = handleRect.bottom - pillRect.bottom;
               expect(sheetAdjacent, lessThan(pillRect.top - handleRect.top));
               expect(sheetAdjacent, lessThanOrEqualTo(maxSheetAdjacentGap));
-            case ShadSheetSide.top:
+            case SheetSide.top:
               final sheetAdjacent = pillRect.top - handleRect.top;
               expect(
                 sheetAdjacent,
                 lessThan(handleRect.bottom - pillRect.bottom),
               );
               expect(sheetAdjacent, lessThanOrEqualTo(maxSheetAdjacentGap));
-            case ShadSheetSide.left:
+            case SheetSide.left:
               final sheetAdjacent = pillRect.left - handleRect.left;
               expect(
                 sheetAdjacent,
                 lessThan(handleRect.right - pillRect.right),
               );
               expect(sheetAdjacent, lessThanOrEqualTo(maxSheetAdjacentGap));
-            case ShadSheetSide.right:
+            case SheetSide.right:
               final sheetAdjacent = handleRect.right - pillRect.right;
               expect(sheetAdjacent, lessThan(pillRect.left - handleRect.left));
               expect(sheetAdjacent, lessThanOrEqualTo(maxSheetAdjacentGap));
@@ -790,10 +789,10 @@ void main() {
       );
     }
 
-    testWidgets('ShadSheetController.jumpTo clamps out-of-range values', (
+    testWidgets('SheetController.jumpTo clamps out-of-range values', (
       tester,
     ) async {
-      final controller = ShadSheetController();
+      final controller = SheetController();
       addTearDown(controller.dispose);
 
       await tester.pumpWidget(
@@ -808,16 +807,16 @@ void main() {
       expect(controller.size, 0.0);
     });
 
-    // ShadSheetController.animateTo clamps to [0, 1] and
+    // SheetController.animateTo clamps to [0, 1] and
     // actually animates (not jumpTo fallback). We trigger a snap drag
     // first so the sheet wires up an AnimationController on the
     // controller, then animateTo exercises the animated-clamp path.
     testWidgets(
-      'ShadSheetController.animateTo clamps out-of-range target',
+      'SheetController.animateTo clamps out-of-range target',
       (tester) async {
         setUpView(tester);
 
-        final controller = ShadSheetController();
+        final controller = SheetController();
         addTearDown(controller.dispose);
 
         await tester.pumpWidget(
@@ -834,7 +833,7 @@ void main() {
         // Trigger a drag-end so the sheet wires snapController into
         // `controller._animationController`.
         await tester.drag(
-          find.byType(ShadSheetResizeHandle),
+          find.byType(SheetResizeHandle),
           const Offset(0, -20),
         );
         await tester.pumpAndSettle();
@@ -855,7 +854,7 @@ void main() {
     testWidgets('external controller not mutated on initialSize change', (
       tester,
     ) async {
-      final controller = ShadSheetController();
+      final controller = SheetController();
       addTearDown(controller.dispose);
       controller.jumpTo(0.3);
 
@@ -900,9 +899,9 @@ void main() {
         await tester.pump();
 
         final handleHeight = tester
-            .getSize(find.byType(ShadSheetResizeHandle))
+            .getSize(find.byType(SheetResizeHandle))
             .height;
-        final dialogHeight = tester.getSize(find.byType(ShadDialog)).height;
+        final dialogHeight = tester.getSize(find.byType(Dialog)).height;
         // Screen = 1200; initialSize 0.5 → expected composite 600.
         expect(
           handleHeight + dialogHeight,
@@ -919,17 +918,17 @@ void main() {
         setUpView(tester);
 
         await tester.pumpWidget(
-          ShadApp(
-            builder: (context, child) => ShadMaterial(child: child!),
-            theme: ShadThemeData(
+          FinesseApp(
+            builder: (context, child) => FinesseMaterial(child: child!),
+            theme: ThemeData(
               brightness: Brightness.light,
-              colorScheme: const ShadZincColorScheme.light(),
-              sheetTheme: const ShadSheetTheme(initialSize: 0.8),
+              colorScheme: const ZincColorScheme.light(),
+              sheetTheme: const SheetTheme(initialSize: 0.8),
             ),
             home: const Scaffold(
-              body: ShadSheetInheritedWidget(
-                side: ShadSheetSide.bottom,
-                child: ShadSheet(
+              body: SheetInheritedWidget(
+                side: SheetSide.bottom,
+                child: Sheet(
                   expandable: true,
                   child: Text('content'),
                 ),
@@ -940,9 +939,9 @@ void main() {
         await tester.pump();
 
         final handleHeight = tester
-            .getSize(find.byType(ShadSheetResizeHandle))
+            .getSize(find.byType(SheetResizeHandle))
             .height;
-        final dialogHeight = tester.getSize(find.byType(ShadDialog)).height;
+        final dialogHeight = tester.getSize(find.byType(Dialog)).height;
         // 0.8 * 1200 = 960.
         expect(handleHeight + dialogHeight, closeTo(960, 1.0));
       },
@@ -954,22 +953,22 @@ void main() {
     testWidgets(
       'external controller size wins over widget + themed initialSize',
       (tester) async {
-        final controller = ShadSheetController();
+        final controller = SheetController();
         addTearDown(controller.dispose);
         controller.jumpTo(0.3);
 
         await tester.pumpWidget(
-          ShadApp(
-            builder: (context, child) => ShadMaterial(child: child!),
-            theme: ShadThemeData(
+          FinesseApp(
+            builder: (context, child) => FinesseMaterial(child: child!),
+            theme: ThemeData(
               brightness: Brightness.light,
-              colorScheme: const ShadZincColorScheme.light(),
-              sheetTheme: const ShadSheetTheme(initialSize: 0.2),
+              colorScheme: const ZincColorScheme.light(),
+              sheetTheme: const SheetTheme(initialSize: 0.2),
             ),
             home: Scaffold(
-              body: ShadSheetInheritedWidget(
-                side: ShadSheetSide.bottom,
-                child: ShadSheet(
+              body: SheetInheritedWidget(
+                side: SheetSide.bottom,
+                child: Sheet(
                   expandable: true,
                   initialSize: 0.7,
                   controller: controller,
@@ -985,9 +984,9 @@ void main() {
       },
     );
 
-    test('ShadSheet constructor rejects minSize > maxSize', () {
+    test('Sheet constructor rejects minSize > maxSize', () {
       expect(
-        () => ShadSheet(
+        () => Sheet(
           minSize: 0.8,
           maxSize: 0.2,
           child: const Text('x'),
@@ -1004,7 +1003,7 @@ void main() {
       (tester) async {
         setUpView(tester);
 
-        final controller = ShadSheetController();
+        final controller = SheetController();
         addTearDown(controller.dispose);
 
         await tester.pumpWidget(
@@ -1021,7 +1020,7 @@ void main() {
         // Drag deep INSIDE the dialog (well below the pill handle) —
         // the body-edge overlay strip should still grab the drag.
         final dialogCenterTop =
-            tester.getTopLeft(find.byType(ShadDialog)) + const Offset(400, 20);
+            tester.getTopLeft(find.byType(Dialog)) + const Offset(400, 20);
         await tester.dragFrom(dialogCenterTop, const Offset(0, -200));
         await tester.pump();
 
@@ -1035,10 +1034,10 @@ void main() {
       'dragHandleBuilder is invoked with the current side and its '
       'widget is used',
       (tester) async {
-        ShadSheetSide? capturedSide;
+        SheetSide? capturedSide;
         await tester.pumpWidget(
           sheetWidget(
-            side: ShadSheetSide.left,
+            side: SheetSide.left,
             expandable: true,
             // Non-null `dragHandle` to prove the builder takes precedence.
             dragHandle: const SizedBox(
@@ -1052,7 +1051,7 @@ void main() {
         );
         await tester.pump();
 
-        expect(capturedSide, ShadSheetSide.left);
+        expect(capturedSide, SheetSide.left);
         expect(find.byKey(const ValueKey('built_handle')), findsOneWidget);
         expect(
           find.byKey(const ValueKey('unused_static_handle')),
@@ -1068,7 +1067,7 @@ void main() {
       (tester) async {
         setUpView(tester);
 
-        final controller = ShadSheetController();
+        final controller = SheetController();
         addTearDown(controller.dispose);
 
         await tester.pumpWidget(
@@ -1084,7 +1083,7 @@ void main() {
         await tester.pump();
 
         final dialogCenterTop =
-            tester.getTopLeft(find.byType(ShadDialog)) + const Offset(400, 20);
+            tester.getTopLeft(find.byType(Dialog)) + const Offset(400, 20);
         await tester.dragFrom(dialogCenterTop, const Offset(0, -200));
         await tester.pump();
 
@@ -1108,7 +1107,7 @@ void main() {
       (tester) async {
         setUpView(tester, viewPadding: const FakeViewPadding(top: 40));
 
-        final controller = ShadSheetController();
+        final controller = SheetController();
         addTearDown(controller.dispose);
 
         await tester.pumpWidget(
@@ -1123,7 +1122,7 @@ void main() {
         await tester.pump();
 
         EdgeInsets dialogPadding() {
-          final p = tester.widget<ShadDialog>(find.byType(ShadDialog)).padding;
+          final p = tester.widget<Dialog>(find.byType(Dialog)).padding;
           return p?.resolve(TextDirection.ltr) ?? EdgeInsets.zero;
         }
 
@@ -1144,7 +1143,7 @@ void main() {
       (tester) async {
         setUpView(tester, viewPadding: const FakeViewPadding(top: 40));
 
-        final controller = ShadSheetController();
+        final controller = SheetController();
         addTearDown(controller.dispose);
 
         await tester.pumpWidget(
@@ -1163,9 +1162,7 @@ void main() {
         // Composite spans the whole screen at full size; the resize
         // handle must sit at y == viewPadding.top so the user can reach
         // it past the notch / Dynamic Island.
-        final handleTop = tester
-            .getTopLeft(find.byType(ShadSheetResizeHandle))
-            .dy;
+        final handleTop = tester.getTopLeft(find.byType(SheetResizeHandle)).dy;
         expect(handleTop, closeTo(40, 0.01));
       },
     );
@@ -1188,7 +1185,7 @@ void main() {
         // dialog padding instead).
         expect(
           find.descendant(
-            of: find.byType(ShadSheet),
+            of: find.byType(Sheet),
             matching: find.byType(SafeArea),
           ),
           findsNothing,
@@ -1201,7 +1198,7 @@ void main() {
       (tester) async {
         setUpView(tester, viewPadding: const FakeViewPadding(top: 40));
 
-        final controller = ShadSheetController();
+        final controller = SheetController();
         addTearDown(controller.dispose);
 
         await tester.pumpWidget(
@@ -1216,7 +1213,7 @@ void main() {
         await tester.pump();
 
         EdgeInsets dialogPadding() {
-          final p = tester.widget<ShadDialog>(find.byType(ShadDialog)).padding;
+          final p = tester.widget<Dialog>(find.byType(Dialog)).padding;
           return p?.resolve(TextDirection.ltr) ?? EdgeInsets.zero;
         }
 
@@ -1231,13 +1228,13 @@ void main() {
     );
 
     // The expandable path inserts a `PrimaryScrollController
-    // .none` directly above its ShadDialog so the dialog's internal
+    // .none` directly above its Dialog so the dialog's internal
     // SingleChildScrollView cannot share a controller with a caller-
     // provided Scrollable. Sharing triggered the "ScrollController
     // attached to more than one ScrollPosition" assertion during snap
     // animations (issue #655 comment 4296947019).
     testWidgets(
-      'expandable wraps ShadDialog in PrimaryScrollController.none',
+      'expandable wraps Dialog in PrimaryScrollController.none',
       (tester) async {
         await tester.pumpWidget(
           sheetWidget(expandable: true, initialSize: 0.5),
@@ -1245,7 +1242,7 @@ void main() {
         await tester.pump();
 
         final ancestors = find.ancestor(
-          of: find.byType(ShadDialog),
+          of: find.byType(Dialog),
           matching: find.byWidgetPredicate(
             (w) => w is PrimaryScrollController && w.controller == null,
           ),
@@ -1255,13 +1252,13 @@ void main() {
           findsWidgets,
           reason:
               'expected at least one PrimaryScrollController(null) '
-              'ancestor of ShadDialog',
+              'ancestor of Dialog',
         );
 
         // Verify the wrapper is inside the sheet (i.e. our isolation
-        // was added by ShadSheet, not just ambient framework plumbing).
+        // was added by Sheet, not just ambient framework plumbing).
         final sheetScoped = find.descendant(
-          of: find.byType(ShadSheet),
+          of: find.byType(Sheet),
           matching: find.byWidgetPredicate(
             (w) => w is PrimaryScrollController && w.controller == null,
           ),
@@ -1282,14 +1279,14 @@ void main() {
           initialSize: 0.5,
           title: const Text('Edit profile'),
           description: const Text('Make changes to your profile here.'),
-          actions: const [ShadButton(child: Text('Save'))],
+          actions: const [Button(child: Text('Save'))],
           child: goldenSheetBody(),
         ),
       );
       await tester.pump();
 
       await expectLater(
-        find.byType(ShadSheet),
+        find.byType(Sheet),
         matchesGoldenFile('goldens/sheet_expandable_bottom_initial.png'),
       );
     });
@@ -1298,7 +1295,7 @@ void main() {
     testWidgets('golden: expandable bottom sheet at maxSize', (tester) async {
       setUpView(tester);
 
-      final controller = ShadSheetController();
+      final controller = SheetController();
       addTearDown(controller.dispose);
 
       await tester.pumpWidget(
@@ -1309,7 +1306,7 @@ void main() {
           controller: controller,
           title: const Text('Edit profile'),
           description: const Text('Make changes to your profile here.'),
-          actions: const [ShadButton(child: Text('Save'))],
+          actions: const [Button(child: Text('Save'))],
           child: goldenSheetBody(),
         ),
       );
@@ -1318,7 +1315,7 @@ void main() {
       await tester.pump();
 
       await expectLater(
-        find.byType(ShadSheet),
+        find.byType(Sheet),
         matchesGoldenFile('goldens/sheet_expandable_bottom_expanded.png'),
       );
     });
@@ -1329,19 +1326,19 @@ void main() {
 
       await tester.pumpWidget(
         sheetWidget(
-          side: ShadSheetSide.top,
+          side: SheetSide.top,
           expandable: true,
           initialSize: 0.5,
           title: const Text('Notifications'),
           description: const Text('Manage your alerts.'),
-          actions: const [ShadButton(child: Text('Done'))],
+          actions: const [Button(child: Text('Done'))],
           child: goldenSheetBody(),
         ),
       );
       await tester.pump();
 
       await expectLater(
-        find.byType(ShadSheet),
+        find.byType(Sheet),
         matchesGoldenFile('goldens/sheet_expandable_top.png'),
       );
     });
@@ -1352,19 +1349,19 @@ void main() {
 
       await tester.pumpWidget(
         sheetWidget(
-          side: ShadSheetSide.left,
+          side: SheetSide.left,
           expandable: true,
           initialSize: 0.5,
           title: const Text('Navigation'),
           description: const Text('Jump anywhere.'),
-          actions: const [ShadButton(child: Text('Close'))],
+          actions: const [Button(child: Text('Close'))],
           child: goldenSheetBody(),
         ),
       );
       await tester.pump();
 
       await expectLater(
-        find.byType(ShadSheet),
+        find.byType(Sheet),
         matchesGoldenFile('goldens/sheet_expandable_left.png'),
       );
     });
@@ -1375,19 +1372,19 @@ void main() {
 
       await tester.pumpWidget(
         sheetWidget(
-          side: ShadSheetSide.right,
+          side: SheetSide.right,
           expandable: true,
           initialSize: 0.5,
           title: const Text('Filters'),
           description: const Text('Refine the list.'),
-          actions: const [ShadButton(child: Text('Apply'))],
+          actions: const [Button(child: Text('Apply'))],
           child: goldenSheetBody(),
         ),
       );
       await tester.pump();
 
       await expectLater(
-        find.byType(ShadSheet),
+        find.byType(Sheet),
         matchesGoldenFile('goldens/sheet_expandable_right.png'),
       );
     });
@@ -1408,11 +1405,11 @@ void main() {
       await tester.pump();
 
       final fillFinder = find.byKey(
-        const ValueKey('shad_sheet_expandable_fill'),
+        const ValueKey('finesse_sheet_expandable_fill'),
       );
       expect(fillFinder, findsOneWidget);
 
-      final handleRect = tester.getRect(find.byType(ShadSheetResizeHandle));
+      final handleRect = tester.getRect(find.byType(SheetResizeHandle));
       final fillRect = tester.getRect(fillFinder);
 
       // Fill must contain the pill: pill is now inside the decoration.
@@ -1426,12 +1423,11 @@ void main() {
       expect(fillRect.height, closeTo(600, 1.0));
     });
 
-    for (final side in ShadSheetSide.values) {
+    for (final side in SheetSide.values) {
       testWidgets(
         'expandable decoration fills composite for side=$side',
         (tester) async {
-          final isVertical =
-              side == ShadSheetSide.bottom || side == ShadSheetSide.top;
+          final isVertical = side == SheetSide.bottom || side == SheetSide.top;
           final physicalSize = isVertical
               ? const Size(800, 1200)
               : const Size(1200, 800);
@@ -1446,11 +1442,11 @@ void main() {
           await tester.pump();
 
           final fillFinder = find.byKey(
-            const ValueKey('shad_sheet_expandable_fill'),
+            const ValueKey('finesse_sheet_expandable_fill'),
           );
           expect(fillFinder, findsOneWidget);
 
-          final handleRect = tester.getRect(find.byType(ShadSheetResizeHandle));
+          final handleRect = tester.getRect(find.byType(SheetResizeHandle));
           final fillRect = tester.getRect(fillFinder);
           final vw = physicalSize.width;
           final vh = physicalSize.height;
@@ -1470,13 +1466,13 @@ void main() {
 
           // At the anchor edge the fill must reach the viewport edge.
           switch (side) {
-            case ShadSheetSide.bottom:
+            case SheetSide.bottom:
               expect(fillRect.bottom, closeTo(vh, 1.0));
-            case ShadSheetSide.top:
+            case SheetSide.top:
               expect(fillRect.top, closeTo(0, 1.0));
-            case ShadSheetSide.left:
+            case SheetSide.left:
               expect(fillRect.left, closeTo(0, 1.0));
-            case ShadSheetSide.right:
+            case SheetSide.right:
               expect(fillRect.right, closeTo(vw, 1.0));
           }
         },
@@ -1495,17 +1491,17 @@ void main() {
 
       // Drag the pill up by 200px.
       await tester.drag(
-        find.byType(ShadSheetResizeHandle),
+        find.byType(SheetResizeHandle),
         const Offset(0, -200),
       );
       await tester.pump();
 
       final fillFinder = find.byKey(
-        const ValueKey('shad_sheet_expandable_fill'),
+        const ValueKey('finesse_sheet_expandable_fill'),
       );
       expect(fillFinder, findsOneWidget);
 
-      final handleRect = tester.getRect(find.byType(ShadSheetResizeHandle));
+      final handleRect = tester.getRect(find.byType(SheetResizeHandle));
       final fillRect = tester.getRect(fillFinder);
 
       // After drag, the pill must still be inside the fill area.
@@ -1517,7 +1513,7 @@ void main() {
       await tester.pump();
 
       expect(
-        find.byKey(const ValueKey('shad_sheet_expandable_fill')),
+        find.byKey(const ValueKey('finesse_sheet_expandable_fill')),
         findsNothing,
       );
     });
@@ -1533,11 +1529,11 @@ void main() {
       await tester.pump();
 
       final fillFinder = find.byKey(
-        const ValueKey('shad_sheet_expandable_fill'),
+        const ValueKey('finesse_sheet_expandable_fill'),
       );
       expect(fillFinder, findsOneWidget);
 
-      final handleRect = tester.getRect(find.byType(ShadSheetResizeHandle));
+      final handleRect = tester.getRect(find.byType(SheetResizeHandle));
       final fillRect = tester.getRect(fillFinder);
 
       // Fill must contain the pill — decoration wraps the whole composite.
@@ -1575,7 +1571,7 @@ void main() {
         );
         await tester.pump();
 
-        final dialog = tester.widget<ShadDialog>(find.byType(ShadDialog));
+        final dialog = tester.widget<Dialog>(find.byType(Dialog));
         final padding = dialog.padding! as EdgeInsets;
         // Safe-area is zero in test env, so merged padding == dialog default.
         expect(padding.left, 24.0);
@@ -1597,7 +1593,7 @@ void main() {
         );
         await tester.pump();
 
-        final dialog = tester.widget<ShadDialog>(find.byType(ShadDialog));
+        final dialog = tester.widget<Dialog>(find.byType(Dialog));
         final padding = dialog.padding! as EdgeInsets;
         // Explicit 40px wins; must not be 40+24=64.
         expect(padding.left, 40.0);
@@ -1615,7 +1611,7 @@ void main() {
       (tester) async {
         setUpView(tester, viewPadding: const FakeViewPadding(top: 40));
 
-        final controller = ShadSheetController();
+        final controller = SheetController();
         addTearDown(controller.dispose);
 
         await tester.pumpWidget(
@@ -1654,7 +1650,7 @@ void main() {
           viewPadding: const FakeViewPadding(top: 40, right: 10),
         );
 
-        final controller = ShadSheetController();
+        final controller = SheetController();
         addTearDown(controller.dispose);
 
         await tester.pumpWidget(
@@ -1664,7 +1660,7 @@ void main() {
             controller: controller,
             useSafeArea: true,
             closeIconData: LucideIcons.x,
-            closeIconPosition: const ShadPosition(top: 16, right: 16),
+            closeIconPosition: const Position(top: 16, right: 16),
           ),
         );
         await tester.pump();
@@ -1691,7 +1687,7 @@ void main() {
         );
         await tester.pump();
 
-        // SafeArea inside ShadDialog shifts the whole stack; Positioned
+        // SafeArea inside Dialog shifts the whole stack; Positioned
         // stays at 8.
         expect(findClosePositioned(tester).top, 8);
       },
@@ -1702,7 +1698,7 @@ void main() {
       (tester) async {
         setUpView(tester, viewPadding: const FakeViewPadding(top: 40));
 
-        final controller = ShadSheetController();
+        final controller = SheetController();
         addTearDown(controller.dispose);
 
         await tester.pumpWidget(
@@ -1740,14 +1736,14 @@ void main() {
           ),
           title: const Text('Edit profile'),
           description: const Text('Make changes to your profile here.'),
-          actions: const [ShadButton(child: Text('Save'))],
+          actions: const [Button(child: Text('Save'))],
           child: goldenSheetBody(),
         ),
       );
       await tester.pump();
 
       await expectLater(
-        find.byType(ShadSheet),
+        find.byType(Sheet),
         matchesGoldenFile('goldens/sheet_expandable_custom_handle.png'),
       );
     });
@@ -1757,7 +1753,7 @@ void main() {
     // A 150px offset at 1500 px/s gives the velocity tracker ~100ms of samples,
     // which is needed for its least-squares fit. Smaller offsets flake out.
 
-    ShadSheetController setUpFling(
+    SheetController setUpFling(
       WidgetTester tester, {
       Size size = const Size(800, 1200),
     }) {
@@ -1765,7 +1761,7 @@ void main() {
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
-      final controller = ShadSheetController();
+      final controller = SheetController();
       addTearDown(controller.dispose);
       return controller;
     }
@@ -1800,7 +1796,7 @@ void main() {
         await tester.pump();
 
         await tester.fling(
-          find.byType(ShadSheetResizeHandle),
+          find.byType(SheetResizeHandle),
           c.offset,
           1500,
         );
@@ -1829,7 +1825,7 @@ void main() {
 
         // Drag up 120px = +0.1 ratio on a 1200px screen → ~0.6, zero velocity.
         await tester.drag(
-          find.byType(ShadSheetResizeHandle),
+          find.byType(SheetResizeHandle),
           const Offset(0, -120),
         );
         await tester.pump();
@@ -1870,7 +1866,7 @@ void main() {
         await tester.pump();
 
         await tester.fling(
-          find.byType(ShadSheetResizeHandle),
+          find.byType(SheetResizeHandle),
           c.offset,
           1500,
         );
@@ -1902,7 +1898,7 @@ void main() {
 
         // drag up 84px = +0.07 ratio → ~0.57, nearest stop is 0.5.
         await tester.drag(
-          find.byType(ShadSheetResizeHandle),
+          find.byType(SheetResizeHandle),
           const Offset(0, -84),
         );
         await tester.pumpAndSettle();
@@ -1913,9 +1909,9 @@ void main() {
 
     // Test G: fling grow direction on top/left/right sides → snaps to maxSize.
     for (final config in [
-      (side: ShadSheetSide.top, growOffset: const Offset(0, 150)),
-      (side: ShadSheetSide.left, growOffset: const Offset(150, 0)),
-      (side: ShadSheetSide.right, growOffset: const Offset(-150, 0)),
+      (side: SheetSide.top, growOffset: const Offset(0, 150)),
+      (side: SheetSide.left, growOffset: const Offset(150, 0)),
+      (side: SheetSide.right, growOffset: const Offset(-150, 0)),
     ]) {
       testWidgets(
         'fling in grow direction on ${config.side.name} sheet snaps to maxSize',
@@ -1936,7 +1932,7 @@ void main() {
           await tester.pump();
 
           await tester.fling(
-            find.byType(ShadSheetResizeHandle),
+            find.byType(SheetResizeHandle),
             config.growOffset,
             1500,
           );
@@ -1982,7 +1978,7 @@ void main() {
         await tester.pump();
 
         await tester.fling(
-          find.byType(ShadSheetResizeHandle),
+          find.byType(SheetResizeHandle),
           const Offset(0, -150),
           c.velocity,
         );
@@ -2018,7 +2014,7 @@ void main() {
         await tester.pump();
 
         await tester.fling(
-          find.byType(ShadSheetResizeHandle),
+          find.byType(SheetResizeHandle),
           const Offset(0, -150),
           1500,
         );

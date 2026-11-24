@@ -17,7 +17,7 @@ final sidebarDoc = ComponentDoc(
           'With collapsible: icon the sidebar shrinks to a rail of icons. '
           'Menu buttons show their label as a tooltip, and with rail: true '
           'the inner edge becomes a grab rail — click it to toggle. This '
-          'docs app itself runs on ShadSidebarScaffold.',
+          'docs app itself runs on SidebarScaffold.',
       minPreviewHeight: 480,
       builder: (_) => const SidebarBasicExample(),
     ),

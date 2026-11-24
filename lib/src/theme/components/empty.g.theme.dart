@@ -9,10 +9,10 @@ part of 'empty.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadEmptyTheme {
+mixin _$EmptyTheme {
   bool get canMerge => true;
 
-  static ShadEmptyTheme? lerp(ShadEmptyTheme? a, ShadEmptyTheme? b, double t) {
+  static EmptyTheme? lerp(EmptyTheme? a, EmptyTheme? b, double t) {
     if (identical(a, b)) {
       return a;
     }
@@ -25,7 +25,7 @@ mixin _$ShadEmptyTheme {
       return t == 0.0 ? a : null;
     }
 
-    return ShadEmptyTheme(
+    return EmptyTheme(
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
       gap: lerpDouble$(a.gap, b.gap, t),
       iconSize: lerpDouble$(a.iconSize, b.iconSize, t),
@@ -41,7 +41,7 @@ mixin _$ShadEmptyTheme {
     );
   }
 
-  ShadEmptyTheme copyWith({
+  EmptyTheme copyWith({
     EdgeInsetsGeometry? padding,
     double? gap,
     double? iconSize,
@@ -51,9 +51,9 @@ mixin _$ShadEmptyTheme {
     CrossAxisAlignment? crossAxisAlignment,
     MainAxisAlignment? mainAxisAlignment,
   }) {
-    final _this = (this as ShadEmptyTheme);
+    final _this = (this as EmptyTheme);
 
-    return ShadEmptyTheme(
+    return EmptyTheme(
       padding: padding ?? _this.padding,
       gap: gap ?? _this.gap,
       iconSize: iconSize ?? _this.iconSize,
@@ -65,8 +65,8 @@ mixin _$ShadEmptyTheme {
     );
   }
 
-  ShadEmptyTheme merge(ShadEmptyTheme? other) {
-    final _this = (this as ShadEmptyTheme);
+  EmptyTheme merge(EmptyTheme? other) {
+    final _this = (this as EmptyTheme);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -100,8 +100,8 @@ mixin _$ShadEmptyTheme {
       return false;
     }
 
-    final _this = (this as ShadEmptyTheme);
-    final _other = (other as ShadEmptyTheme);
+    final _this = (this as EmptyTheme);
+    final _other = (other as EmptyTheme);
 
     return _other.padding == _this.padding &&
         _other.gap == _this.gap &&
@@ -115,7 +115,7 @@ mixin _$ShadEmptyTheme {
 
   @override
   int get hashCode {
-    final _this = (this as ShadEmptyTheme);
+    final _this = (this as EmptyTheme);
 
     return Object.hash(
       runtimeType,

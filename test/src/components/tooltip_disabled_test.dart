@@ -1,18 +1,18 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/shad.dart';
 
 void main() {
   testWidgets('a disabled button still shows its tooltip on hover', (
     tester,
   ) async {
     await tester.pumpWidget(
-      ShadApp(
+      FinesseApp(
         home: Center(
-          child: ShadTooltip(
+          child: Tooltip(
             builder: (_) => const Text('why it is disabled'),
-            child: const ShadButton(
+            child: const Button(
               enabled: false,
               child: Text('save'),
             ),

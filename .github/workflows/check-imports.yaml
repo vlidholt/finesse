@@ -18,7 +18,7 @@ jobs:
           echo "Checking for prohibited Material and Cupertino imports in lib directory..."
 
           # Define excluded files
-          # The opt-in interop library, package:shad/material.dart.
+          # The opt-in interop library, package:finesse/material.dart.
           EXCLUDED_FILES=(
             "lib/material.dart"
           )
@@ -35,8 +35,8 @@ jobs:
           # Check for cupertino.dart imports (excluding specified files)
           CUPERTINO_IMPORTS=$(eval "grep -rE \"^[[:space:]]*import .*cupertino\\.dart\" lib/ $GREP_EXCLUDE || true")
 
-          # Check for shad.dart imports in lib directory
-          SHAD_IMPORTS=$(grep -rE "^[[:space:]]*import .*shad/shad\.dart" lib/ || true)
+          # Check for finesse.dart imports in lib directory
+          SHAD_IMPORTS=$(grep -rE "^[[:space:]]*import .*finesse/finesse\.dart" lib/ || true)
 
           # Report all findings first
           FOUND_VIOLATIONS=false
@@ -54,7 +54,7 @@ jobs:
           fi
 
           if [ ! -z "$SHAD_IMPORTS" ]; then
-            echo "❌ Found prohibited shad.dart imports:"
+            echo "❌ Found prohibited finesse.dart imports:"
             echo "$SHAD_IMPORTS"
             FOUND_VIOLATIONS=true
           fi

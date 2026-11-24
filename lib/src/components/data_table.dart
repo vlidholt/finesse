@@ -1,17 +1,17 @@
 import 'dart:math' as math;
 
+import 'package:finesse/src/components/checkbox.dart';
+import 'package:finesse/src/components/empty.dart';
+import 'package:finesse/src/components/pagination.dart';
+import 'package:finesse/src/components/table.dart';
+import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/debug_check.dart';
+import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:shad/src/components/checkbox.dart';
-import 'package:shad/src/components/empty.dart';
-import 'package:shad/src/components/pagination.dart';
-import 'package:shad/src/components/table.dart';
-import 'package:shad/src/theme/theme.dart';
-import 'package:shad/src/utils/debug_check.dart';
-import 'package:shad/src/utils/gesture_detector.dart';
 import 'package:two_dimensional_scrollables/two_dimensional_scrollables.dart';
 
-/// Width of the leading checkbox column in a selectable [ShadDataTable].
+/// Width of the leading checkbox column in a selectable [DataTable].
 ///
 /// Wide enough for the default 16px cell inset plus a 16px checkbox.
 const _kSelectionColumnExtent = FixedTableSpanExtent(56);
@@ -38,8 +38,8 @@ class _RemainingMinusTrailingFixedExtent extends TableSpanExtent {
   }
 }
 
-/// The direction a [ShadDataTable] is sorted in.
-enum ShadSortDirection {
+/// The direction a [DataTable] is sorted in.
+enum SortDirection {
   /// Smallest first, in the order the column's `compare` gives.
   ascending,
 
@@ -47,14 +47,14 @@ enum ShadSortDirection {
   descending;
 
   /// The opposite direction.
-  ShadSortDirection get flipped => this == ascending ? descending : ascending;
+  SortDirection get flipped => this == ascending ? descending : ascending;
 }
 
-/// A column definition for a [ShadDataTable].
+/// A column definition for a [DataTable].
 @immutable
-class ShadDataTableColumn<T> {
+class DataTableColumn<T> {
   /// Creates a column definition.
-  const ShadDataTableColumn({
+  const DataTableColumn({
     required this.id,
     required this.header,
     required this.cellBuilder,
@@ -84,7 +84,7 @@ class ShadDataTableColumn<T> {
   ///
   /// When null, this column flexes to fill the viewport minus any trailing
   /// [FixedTableSpanExtent] columns after it. If there is no trailing fixed
-  /// column, [ShadTable]'s default of 100 logical pixels applies.
+  /// column, [FinesseTable]'s default of 100 logical pixels applies.
   final TableSpanExtent? extent;
 
   /// The alignment of cell content.
@@ -100,20 +100,20 @@ class ShadDataTableColumn<T> {
   bool get sortable => compare != null;
 }
 
-/// Holds the sort, filter, paging and selection state of a [ShadDataTable].
+/// Holds the sort, filter, paging and selection state of a [DataTable].
 ///
 /// The controller owns the source rows and derives [visibleRows] from them, so
 /// sorting or filtering never mutates what the caller passed in.
-class ShadDataTableController<T> extends ChangeNotifier {
+class DataTableController<T> extends ChangeNotifier {
   /// Creates a controller over [rows].
   ///
   /// [sortColumnId] and [sortDirection] set the initial sort, and [filter] the
   /// initial filter.
-  ShadDataTableController({
+  DataTableController({
     List<T> rows = const [],
     this.pageSize,
     String? sortColumnId,
-    ShadSortDirection sortDirection = ShadSortDirection.ascending,
+    SortDirection sortDirection = SortDirection.ascending,
     bool Function(T row)? filter,
   }) : _rows = List.of(rows),
        _sortColumnId = sortColumnId,
@@ -125,14 +125,14 @@ class ShadDataTableController<T> extends ChangeNotifier {
 
   List<T> _rows;
   String? _sortColumnId;
-  ShadSortDirection _sortDirection;
+  SortDirection _sortDirection;
   bool Function(T row)? _filter;
   int _page = 1;
   final Set<Object> _selectedKeys = {};
 
-  /// Set by [ShadDataTable] so the controller can resolve a column id to its
+  /// Set by [DataTable] so the controller can resolve a column id to its
   /// comparator without the caller having to hand it the columns twice.
-  List<ShadDataTableColumn<T>> _columns = const [];
+  List<DataTableColumn<T>> _columns = const [];
 
   /// The unfiltered, unsorted source rows.
   List<T> get rows => List.unmodifiable(_rows);
@@ -147,7 +147,7 @@ class ShadDataTableController<T> extends ChangeNotifier {
   String? get sortColumnId => _sortColumnId;
 
   /// The direction of the current sort.
-  ShadSortDirection get sortDirection => _sortDirection;
+  SortDirection get sortDirection => _sortDirection;
 
   /// Returns true for the rows to keep. Null keeps every row.
   ///
@@ -180,7 +180,7 @@ class ShadDataTableController<T> extends ChangeNotifier {
     final column = _columnById(_sortColumnId);
     if (column?.compare != null) {
       filtered.sort(
-        _sortDirection == ShadSortDirection.ascending
+        _sortDirection == SortDirection.ascending
             ? column!.compare!
             : (a, b) => column!.compare!(b, a),
       );
@@ -209,7 +209,7 @@ class ShadDataTableController<T> extends ChangeNotifier {
     return (total / pageSize!).ceil();
   }
 
-  ShadDataTableColumn<T>? _columnById(String? id) {
+  DataTableColumn<T>? _columnById(String? id) {
     if (id == null) return null;
     for (final column in _columns) {
       if (column.id == id) return column;
@@ -226,16 +226,16 @@ class ShadDataTableController<T> extends ChangeNotifier {
   /// column, and clearing the sort when it flips back past descending.
   void sortBy(String columnId) {
     if (_sortColumnId == columnId) {
-      if (_sortDirection == ShadSortDirection.ascending) {
-        _sortDirection = ShadSortDirection.descending;
+      if (_sortDirection == SortDirection.ascending) {
+        _sortDirection = SortDirection.descending;
       } else {
         // Third click clears the sort, matching the shadcn data-table demo.
         _sortColumnId = null;
-        _sortDirection = ShadSortDirection.ascending;
+        _sortDirection = SortDirection.ascending;
       }
     } else {
       _sortColumnId = columnId;
-      _sortDirection = ShadSortDirection.ascending;
+      _sortDirection = SortDirection.ascending;
     }
     notifyListeners();
   }
@@ -278,19 +278,19 @@ class ShadDataTableController<T> extends ChangeNotifier {
   }
 }
 
-/// {@template ShadDataTable}
+/// {@template DataTable}
 /// A sortable, selectable, paginated table.
 ///
 /// Mirrors shadcn/ui's Data Table, which is a composition rather than a single
-/// primitive: this wraps [ShadTable] for presentation and adds a
-/// [ShadDataTableController] for sort, filter, page and selection state.
+/// primitive: this wraps [FinesseTable] for presentation and adds a
+/// [DataTableController] for sort, filter, page and selection state.
 ///
 /// ```dart
-/// ShadDataTable<User>(
+/// DataTable<User>(
 ///   controller: controller,
 ///   keyOf: (user) => user.id,
 ///   columns: [
-///     ShadDataTableColumn(
+///     DataTableColumn(
 ///       id: 'name',
 ///       header: 'Name',
 ///       cellBuilder: (context, user) => Text(user.name),
@@ -300,13 +300,13 @@ class ShadDataTableController<T> extends ChangeNotifier {
 /// )
 /// ```
 ///
-/// [ShadTable] is built on `TableView`, a two-dimensional scroll view with no
+/// [FinesseTable] is built on `TableView`, a two-dimensional scroll view with no
 /// shrink-wrap, so this needs a bounded height — give it one via [height], an
 /// [Expanded], or a [SizedBox].
 /// {@endtemplate}
-class ShadDataTable<T> extends StatefulWidget {
-  /// {@macro ShadDataTable}
-  const ShadDataTable({
+class DataTable<T> extends StatefulWidget {
+  /// {@macro DataTable}
+  const DataTable({
     super.key,
     required this.columns,
     required this.controller,
@@ -322,15 +322,15 @@ class ShadDataTable<T> extends StatefulWidget {
     this.showSelectionCount = true,
   }) : assert(
          !selectable || keyOf != null,
-         'A selectable ShadDataTable needs keyOf to identify its rows',
+         'A selectable DataTable needs keyOf to identify its rows',
        );
 
   /// The columns to render, in order. Columns with `visible: false` are
   /// skipped.
-  final List<ShadDataTableColumn<T>> columns;
+  final List<DataTableColumn<T>> columns;
 
   /// The state of the table.
-  final ShadDataTableController<T> controller;
+  final DataTableController<T> controller;
 
   /// Returns a stable identity for a row, used for selection.
   final Object Function(T row)? keyOf;
@@ -362,17 +362,17 @@ class ShadDataTable<T> extends StatefulWidget {
   final bool? showPagination;
 
   /// Replaces the default pagination bar.
-  final Widget Function(BuildContext context, ShadDataTableController<T>)?
+  final Widget Function(BuildContext context, DataTableController<T>)?
   paginationBuilder;
 
   /// Whether the footer reports "n of m row(s) selected".
   final bool showSelectionCount;
 
   @override
-  State<ShadDataTable<T>> createState() => _ShadDataTableState<T>();
+  State<DataTable<T>> createState() => _DataTableState<T>();
 }
 
-class _ShadDataTableState<T> extends State<ShadDataTable<T>> {
+class _DataTableState<T> extends State<DataTable<T>> {
   @override
   void initState() {
     super.initState();
@@ -382,7 +382,7 @@ class _ShadDataTableState<T> extends State<ShadDataTable<T>> {
   }
 
   @override
-  void didUpdateWidget(ShadDataTable<T> oldWidget) {
+  void didUpdateWidget(DataTable<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.controller != oldWidget.controller) {
       oldWidget.controller.removeListener(_onControllerChanged);
@@ -401,11 +401,11 @@ class _ShadDataTableState<T> extends State<ShadDataTable<T>> {
     if (mounted) setState(() {});
   }
 
-  List<ShadDataTableColumn<T>> get _visibleColumns =>
+  List<DataTableColumn<T>> get _visibleColumns =>
       widget.columns.where((c) => c.visible).toList();
 
   TableSpanExtent? _resolveDataColumnExtent(
-    List<ShadDataTableColumn<T>> columns,
+    List<DataTableColumn<T>> columns,
     int dataColumnIndex,
   ) {
     final column = columns[dataColumnIndex];
@@ -420,9 +420,9 @@ class _ShadDataTableState<T> extends State<ShadDataTable<T>> {
     return _RemainingMinusTrailingFixedExtent(trailingFixed);
   }
 
-  /// The rightmost column without a [ShadDataTableColumn.extent] that sits
+  /// The rightmost column without a [DataTableColumn.extent] that sits
   /// before the trailing fixed-width suffix.
-  int? _flexColumnIndex(List<ShadDataTableColumn<T>> columns) {
+  int? _flexColumnIndex(List<DataTableColumn<T>> columns) {
     final trailingStart = _trailingFixedStartIndex(columns);
     for (var i = trailingStart - 1; i >= 0; i--) {
       if (columns[i].extent == null) return i;
@@ -430,7 +430,7 @@ class _ShadDataTableState<T> extends State<ShadDataTable<T>> {
     return null;
   }
 
-  int _trailingFixedStartIndex(List<ShadDataTableColumn<T>> columns) {
+  int _trailingFixedStartIndex(List<DataTableColumn<T>> columns) {
     var start = columns.length;
     while (start > 0 && columns[start - 1].extent is FixedTableSpanExtent) {
       start--;
@@ -439,7 +439,7 @@ class _ShadDataTableState<T> extends State<ShadDataTable<T>> {
   }
 
   double _sumTrailingFixedExtents(
-    List<ShadDataTableColumn<T>> columns,
+    List<DataTableColumn<T>> columns,
     int fromIndex,
   ) {
     var sum = 0.0;
@@ -453,16 +453,16 @@ class _ShadDataTableState<T> extends State<ShadDataTable<T>> {
 
   Widget _buildHeaderCell(
     BuildContext context,
-    ShadDataTableColumn<T> column,
+    DataTableColumn<T> column,
   ) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     final controller = widget.controller;
     final isSorted = controller.sortColumnId == column.id;
 
     final label = Text(column.header, overflow: TextOverflow.ellipsis);
     if (!column.sortable) return label;
 
-    return ShadGestureDetector(
+    return FinesseGestureDetector(
       cursor: SystemMouseCursors.click,
       behavior: HitTestBehavior.opaque,
       onTap: () => controller.sortBy(column.id),
@@ -475,7 +475,7 @@ class _ShadDataTableState<T> extends State<ShadDataTable<T>> {
           if (isSorted) ...[
             const SizedBox(width: 4),
             Icon(
-              controller.sortDirection == ShadSortDirection.ascending
+              controller.sortDirection == SortDirection.ascending
                   ? LucideIcons.moveDown
                   : LucideIcons.moveUp,
               size: 14,
@@ -492,7 +492,7 @@ class _ShadDataTableState<T> extends State<ShadDataTable<T>> {
     final keys = visibleRows.map(widget.keyOf!).toList();
     final allSelected = keys.isNotEmpty && keys.every(controller.isSelected);
 
-    return ShadCheckbox(
+    return Checkbox(
       value: allSelected,
       onChanged: (value) {
         if (value) {
@@ -508,8 +508,8 @@ class _ShadDataTableState<T> extends State<ShadDataTable<T>> {
 
   @override
   Widget build(BuildContext context) {
-    assert(debugCheckHasShadTheme(context));
-    final theme = ShadTheme.of(context);
+    assert(debugCheckHasTheme(context));
+    final theme = Theme.of(context);
     final controller = widget.controller;
     final columns = _visibleColumns;
     final rows = controller.visibleRows;
@@ -523,10 +523,9 @@ class _ShadDataTableState<T> extends State<ShadDataTable<T>> {
     Widget table;
     if (rows.isEmpty) {
       table =
-          widget.emptyBuilder?.call(context) ??
-          const Center(child: ShadEmpty());
+          widget.emptyBuilder?.call(context) ?? const Center(child: Empty());
     } else {
-      table = ShadTable(
+      table = FinesseTable(
         columnCount: columnCount,
         rowCount: rows.length,
         pinnedRowCount: 1,
@@ -538,7 +537,7 @@ class _ShadDataTableState<T> extends State<ShadDataTable<T>> {
         },
         header: (context, column) {
           if (widget.selectable && column == 0) {
-            return ShadTableCell.header(
+            return FinesseTableCell.header(
               height: widget.headerHeight,
               padding: _kSelectionCellPadding,
               child: _buildSelectAllCheckbox(rows),
@@ -547,7 +546,7 @@ class _ShadDataTableState<T> extends State<ShadDataTable<T>> {
           final definition = columns[column - selectionOffset];
           final dataColumnIndex = column - selectionOffset;
           final isLastColumn = dataColumnIndex == columns.length - 1;
-          return ShadTableCell.header(
+          return FinesseTableCell.header(
             alignment: definition.headerAlignment ?? definition.alignment,
             height: widget.headerHeight,
             padding: isLastColumn ? _kTrailingCellPadding : null,
@@ -558,10 +557,10 @@ class _ShadDataTableState<T> extends State<ShadDataTable<T>> {
           final row = rows[vicinity.row];
           if (widget.selectable && vicinity.column == 0) {
             final key = widget.keyOf!(row);
-            return ShadTableCell(
+            return FinesseTableCell(
               height: widget.rowHeight,
               padding: _kSelectionCellPadding,
-              child: ShadCheckbox(
+              child: Checkbox(
                 value: controller.isSelected(key),
                 onChanged: (_) => controller.toggleSelected(key),
               ),
@@ -570,7 +569,7 @@ class _ShadDataTableState<T> extends State<ShadDataTable<T>> {
           final definition = columns[vicinity.column - selectionOffset];
           final dataColumnIndex = vicinity.column - selectionOffset;
           final isLastColumn = dataColumnIndex == columns.length - 1;
-          return ShadTableCell(
+          return FinesseTableCell(
             alignment: definition.alignment,
             height: widget.rowHeight,
             padding: isLastColumn ? _kTrailingCellPadding : null,
@@ -606,7 +605,7 @@ class _ShadDataTableState<T> extends State<ShadDataTable<T>> {
         ..add(const Spacer())
         ..add(
           widget.paginationBuilder?.call(context, controller) ??
-              ShadPaginationCompact(
+              PaginationCompact(
                 page: controller.page,
                 pageCount: controller.pageCount,
                 onPageChanged: (page) => controller.page = page,

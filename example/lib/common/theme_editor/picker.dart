@@ -1,5 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:shad/shad.dart';
+import 'package:finesse/finesse.dart';
+import 'package:flutter/material.dart'
+    hide Divider, Slider, SliderTheme, Theme, ThemeData;
+import 'package:flutter/material.dart' as m;
 
 /// One option in a [ThemePicker].
 @immutable
@@ -25,9 +27,9 @@ class PickerOption<T> {
 /// The style of a setting row's small heading, e.g. "Style" or "Base Color".
 ///
 /// shadcn's customizer sets these `text-xs text-muted-foreground`. The colour
-/// has to be stated: `ShadTextTheme.muted` carries the muted *metrics* but no
+/// has to be stated: `TextTheme.muted` carries the muted *metrics* but no
 /// colour, so on its own it renders in the ambient foreground.
-TextStyle _labelStyle(ShadThemeData theme) => theme.textTheme.muted.copyWith(
+TextStyle _labelStyle(ThemeData theme) => theme.textTheme.muted.copyWith(
   fontSize: 11,
   color: theme.colorScheme.mutedForeground,
 );
@@ -72,7 +74,7 @@ class ThemePicker<T> extends StatefulWidget {
 }
 
 class _ThemePickerState<T> extends State<ThemePicker<T>> {
-  final controller = ShadPopoverController();
+  final controller = PopoverController();
 
   @override
   void dispose() {
@@ -82,18 +84,18 @@ class _ThemePickerState<T> extends State<ThemePicker<T>> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     final selected = widget.options.firstWhere(
       (o) => o.value == widget.value,
       orElse: () => widget.options.first,
     );
 
-    return ShadPopover(
+    return Popover(
       controller: controller,
       padding: const EdgeInsets.all(4),
-      anchor: const ShadAnchorAuto(offset: Offset(0, 4)),
-      decoration: ShadDecoration(
-        border: ShadBorder.all(
+      anchor: const AnchorAuto(offset: Offset(0, 4)),
+      decoration: FinesseDecoration(
+        border: FinesseBorder.all(
           color: theme.colorScheme.foreground.withValues(alpha: .1),
           radius: theme.radii.lg,
           width: 1,
@@ -134,7 +136,7 @@ class _ThemePickerState<T> extends State<ThemePicker<T>> {
       ),
       child: Opacity(
         opacity: widget.enabled ? 1 : .5,
-        child: ShadGestureDetector(
+        child: FinesseGestureDetector(
           cursor: widget.enabled
               ? SystemMouseCursors.click
               : SystemMouseCursors.basic,
@@ -168,7 +170,7 @@ class _ThemePickerState<T> extends State<ThemePicker<T>> {
                 // top-1/2 -translate-y-1/2`.
                 if (widget.busy) ...[
                   const SizedBox(width: 8),
-                  ShadSpinner(
+                  Spinner(
                     size: 15,
                     color: theme.colorScheme.mutedForeground,
                   ),
@@ -216,8 +218,8 @@ class _PickerItemState extends State<_PickerItem> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
-    return ShadGestureDetector(
+    final theme = Theme.of(context);
+    return FinesseGestureDetector(
       cursor: SystemMouseCursors.click,
       behavior: HitTestBehavior.opaque,
       onTap: widget.onTap,
@@ -267,7 +269,7 @@ class _Swatch extends StatelessWidget {
         color: color,
         shape: BoxShape.circle,
         border: Border.all(
-          color: ShadTheme.of(context).colorScheme.border,
+          color: Theme.of(context).colorScheme.border,
         ),
       ),
     );
@@ -303,7 +305,7 @@ class ThemeSlider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     return Opacity(
       opacity: enabled ? 1 : .5,
       child: Row(
@@ -317,7 +319,7 @@ class ThemeSlider extends StatelessWidget {
             child: Text(label, style: _labelStyle(theme)),
           ),
           Expanded(
-            child: SliderTheme(
+            child: m.SliderTheme(
               // Straight from the theme's slider, so the panel's control
               // matches the ones in the preview. The thumb used to be the
               // page background — near-black, and invisible on this
@@ -338,7 +340,7 @@ class ThemeSlider extends StatelessWidget {
                   enabledThumbRadius: theme.sliderTheme.thumbRadius ?? 8,
                 ),
               ),
-              child: Slider(
+              child: m.Slider(
                 value: value.clamp(min, max),
                 min: min,
                 max: max,
@@ -409,7 +411,7 @@ class PickerGroup {
 }
 
 class _ThemeGroupPickerState extends State<ThemeGroupPicker> {
-  final controller = ShadPopoverController();
+  final controller = PopoverController();
 
   @override
   void dispose() {
@@ -419,12 +421,12 @@ class _ThemeGroupPickerState extends State<ThemeGroupPicker> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
 
-    return ShadPopover(
+    return Popover(
       controller: controller,
       padding: const EdgeInsets.all(4),
-      anchor: const ShadAnchorAuto(offset: Offset(0, 4)),
+      anchor: const AnchorAuto(offset: Offset(0, 4)),
       popover: (context) => ConstrainedBox(
         constraints: const BoxConstraints(
           maxHeight: 360,
@@ -438,7 +440,7 @@ class _ThemeGroupPickerState extends State<ThemeGroupPicker> {
             children: [
               for (var g = 0; g < widget.groups.length; g++) ...[
                 if (g > 0)
-                  const ShadSeparator.horizontal(
+                  const Divider.horizontal(
                     margin: EdgeInsets.symmetric(vertical: 4),
                   ),
                 Padding(
@@ -470,7 +472,7 @@ class _ThemeGroupPickerState extends State<ThemeGroupPicker> {
           ),
         ),
       ),
-      child: ShadGestureDetector(
+      child: FinesseGestureDetector(
         cursor: SystemMouseCursors.click,
         behavior: HitTestBehavior.opaque,
         onTap: controller.toggle,

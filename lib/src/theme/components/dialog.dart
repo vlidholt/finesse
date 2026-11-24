@@ -1,20 +1,19 @@
+import 'package:finesse/src/utils/position.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-
-import 'package:shad/src/utils/position.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
 part 'dialog.g.theme.dart';
 
-/// {@template ShadDialogTheme}
-/// Theme for the `ShadDialog` widget.
+/// {@template DialogTheme}
+/// Theme for the `Dialog` widget.
 /// {@endtemplate}
 @themeGen
 @immutable
-class ShadDialogTheme with _$ShadDialogTheme {
-  /// {@macro ShadDialogTheme}
-  const ShadDialogTheme({
+class DialogTheme with _$DialogTheme {
+  /// {@macro DialogTheme}
+  const DialogTheme({
     bool canMerge = true,
     this.closeIconData,
     this.closeIconPosition,
@@ -57,25 +56,25 @@ class ShadDialogTheme with _$ShadDialogTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro ShadDialog.closeIconData}
+  /// {@macro Dialog.closeIconData}
   final IconData? closeIconData;
 
-  /// {@macro ShadDialog.closeIconPosition}
-  final ShadPosition? closeIconPosition;
+  /// {@macro Dialog.closeIconPosition}
+  final Position? closeIconPosition;
 
-  /// {@macro ShadDialog.radius}
+  /// {@macro Dialog.radius}
   final BorderRadius? radius;
 
-  /// {@macro ShadDialog.backgroundColor}
+  /// {@macro Dialog.backgroundColor}
   final Color? backgroundColor;
 
-  /// {@macro ShadDialog.expandActionsWhenTiny}
+  /// {@macro Dialog.expandActionsWhenTiny}
   final bool? expandActionsWhenTiny;
 
-  /// {@macro ShadDialog.padding}
+  /// {@macro Dialog.padding}
   final EdgeInsetsGeometry? padding;
 
-  /// {@macro ShadDialog.gap}
+  /// {@macro Dialog.gap}
   final double? gap;
 
   /// The effects played when the dialog appears. Defaults to a fade and
@@ -86,93 +85,93 @@ class ShadDialogTheme with _$ShadDialogTheme {
   /// zoom out.
   final List<Effect<dynamic>>? animateOut;
 
-  /// {@macro ShadDialog.constraints}
+  /// {@macro Dialog.constraints}
   final BoxConstraints? constraints;
 
-  /// {@macro ShadDialog.actionsAxis}
+  /// {@macro Dialog.actionsAxis}
   final Axis? actionsAxis;
 
-  /// {@macro ShadDialog.actionsMainAxisSize}
+  /// {@macro Dialog.actionsMainAxisSize}
   final MainAxisSize? actionsMainAxisSize;
 
-  /// {@macro ShadDialog.actionsMainAxisAlignment}
+  /// {@macro Dialog.actionsMainAxisAlignment}
   final MainAxisAlignment? actionsMainAxisAlignment;
 
-  /// {@macro ShadDialog.actionsVerticalDirection}
+  /// {@macro Dialog.actionsVerticalDirection}
   final VerticalDirection? actionsVerticalDirection;
 
-  /// {@macro ShadDialog.border}
+  /// {@macro Dialog.border}
   final BoxBorder? border;
 
-  /// {@macro ShadDialog.shadows}
+  /// {@macro Dialog.shadows}
   final List<BoxShadow>? shadows;
 
-  /// {@macro ShadDialog.removeBorderRadiusWhenTiny}
+  /// {@macro Dialog.removeBorderRadiusWhenTiny}
   final bool? removeBorderRadiusWhenTiny;
 
-  /// {@macro ShadDialog.titleStyle}
+  /// {@macro Dialog.titleStyle}
   final TextStyle? titleStyle;
 
-  /// {@macro ShadDialog.descriptionStyle}
+  /// {@macro Dialog.descriptionStyle}
   final TextStyle? descriptionStyle;
 
-  /// {@macro ShadDialog.titleTextAlign}
+  /// {@macro Dialog.titleTextAlign}
   final TextAlign? titleTextAlign;
 
-  /// {@macro ShadDialog.descriptionTextAlign}
+  /// {@macro Dialog.descriptionTextAlign}
   final TextAlign? descriptionTextAlign;
 
-  /// {@macro ShadDialog.alignment}
+  /// {@macro Dialog.alignment}
   final Alignment? alignment;
 
-  /// {@macro ShadDialog.mainAxisAlignment}
+  /// {@macro Dialog.mainAxisAlignment}
   final MainAxisAlignment? mainAxisAlignment;
 
-  /// {@macro ShadDialog.crossAxisAlignment}
+  /// {@macro Dialog.crossAxisAlignment}
   final CrossAxisAlignment? crossAxisAlignment;
 
-  /// {@macro ShadDialog.scrollable}
+  /// {@macro Dialog.scrollable}
   final bool? scrollable;
 
-  /// {@macro ShadDialog.scrollPadding}
+  /// {@macro Dialog.scrollPadding}
   final EdgeInsetsGeometry? scrollPadding;
 
-  /// {@macro ShadDialog.actionsGap}
+  /// {@macro Dialog.actionsGap}
   final double? actionsGap;
 
-  /// {@macro ShadDialog.useSafeArea}
+  /// {@macro Dialog.useSafeArea}
   final bool? useSafeArea;
 
-  /// {@macro ShadDialog.titlePinned}
+  /// {@macro Dialog.titlePinned}
   final bool? titlePinned;
 
-  /// {@macro ShadDialog.descriptionPinned}
+  /// {@macro Dialog.descriptionPinned}
   final bool? descriptionPinned;
 
-  /// {@macro ShadDialog.actionsPinned}
+  /// {@macro Dialog.actionsPinned}
   final bool? actionsPinned;
 
   /// The colour of the barrier behind the dialog. Defaults to shadcn's
   /// `bg-black/10`, which reads because the barrier is also blurred.
   final Color? barrierColor;
 
-  /// {@macro ShadDialog.barrierBlurSigma}
+  /// {@macro Dialog.barrierBlurSigma}
   final double? barrierBlurSigma;
 
   /// Linearly interpolates between [a] and [b] by [t].
-  static ShadDialogTheme? lerp(
-    ShadDialogTheme? a,
-    ShadDialogTheme? b,
+  static DialogTheme? lerp(
+    DialogTheme? a,
+    DialogTheme? b,
     double t,
-  ) => _$ShadDialogTheme.lerp(a, b, t);
+  ) => _$DialogTheme.lerp(a, b, t);
 
   // The generated `==` compares lists by identity, so a theme built with a
-  // non-const list would never equal its own rebuild, and ShadAnimatedTheme
+  // non-const list would never equal its own rebuild, and AnimatedTheme
   // would re-lerp on every frame. Compare the lists by value, then let the
   // generated `==` compare everything else against a copy that shares them.
   @override
   bool operator ==(Object other) =>
-      other is ShadDialogTheme &&
+      other is DialogTheme &&
       listEquals(animateIn, other.animateIn) &&
       listEquals(animateOut, other.animateOut) &&
       listEquals(shadows, other.shadows) &&

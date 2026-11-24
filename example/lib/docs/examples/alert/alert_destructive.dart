@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class AlertDestructiveExample extends StatelessWidget {
   const AlertDestructiveExample({super.key});
@@ -8,7 +8,7 @@ class AlertDestructiveExample extends StatelessWidget {
   Widget build(BuildContext context) {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 576),
-      child: const ShadAlert.destructive(
+      child: const Alert.destructive(
         icon: Icon(LucideIcons.circleAlert),
         title: Text('Error'),
         description: Text('Your session has expired. Please log in again.'),

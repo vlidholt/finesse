@@ -1,17 +1,17 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class DialogAlertExample extends StatelessWidget {
   const DialogAlertExample({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ShadButton.outline(
+    return Button.outline(
       child: const Text('Delete account'),
       onPressed: () {
-        showShadDialog<bool>(
+        showDialog<bool>(
           context: context,
-          builder: (context) => ShadDialog.alert(
+          builder: (context) => Dialog.alert(
             title: const Text('Are you absolutely sure?'),
             description: const Padding(
               padding: EdgeInsets.only(bottom: 8),
@@ -21,11 +21,11 @@ class DialogAlertExample extends StatelessWidget {
               ),
             ),
             actions: [
-              ShadButton.outline(
+              Button.outline(
                 child: const Text('Cancel'),
                 onPressed: () => Navigator.of(context).pop(false),
               ),
-              ShadButton(
+              Button(
                 child: const Text('Continue'),
                 onPressed: () => Navigator.of(context).pop(true),
               ),

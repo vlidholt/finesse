@@ -1,12 +1,12 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/shad.dart';
 
 void main() {
-  group('ShadRovingFocusController', () {
+  group('RovingFocusController', () {
     test('starts at the first item when moving forward from nothing', () {
-      final c = ShadRovingFocusController(itemCount: 3);
+      final c = RovingFocusController(itemCount: 3);
       addTearDown(c.dispose);
       expect(c.highlightedIndex, isNull);
       c.move(1);
@@ -14,14 +14,14 @@ void main() {
     });
 
     test('starts at the last item when moving backward from nothing', () {
-      final c = ShadRovingFocusController(itemCount: 3);
+      final c = RovingFocusController(itemCount: 3);
       addTearDown(c.dispose);
       c.move(-1);
       expect(c.highlightedIndex, 2);
     });
 
     test('loops past both ends by default', () {
-      final c = ShadRovingFocusController(itemCount: 3, highlightedIndex: 2);
+      final c = RovingFocusController(itemCount: 3, highlightedIndex: 2);
       addTearDown(c.dispose);
       c.move(1);
       expect(c.highlightedIndex, 0);
@@ -30,7 +30,7 @@ void main() {
     });
 
     test('clamps at both ends when loop is false', () {
-      final c = ShadRovingFocusController(
+      final c = RovingFocusController(
         itemCount: 3,
         highlightedIndex: 2,
         loop: false,
@@ -45,7 +45,7 @@ void main() {
     });
 
     test('Home and End jump to the ends', () {
-      final c = ShadRovingFocusController(itemCount: 5, highlightedIndex: 2);
+      final c = RovingFocusController(itemCount: 5, highlightedIndex: 2);
       addTearDown(c.dispose);
       c.moveToFirst();
       expect(c.highlightedIndex, 0);
@@ -54,7 +54,7 @@ void main() {
     });
 
     test('shrinking the collection pulls the highlight back in range', () {
-      final c = ShadRovingFocusController(itemCount: 5, highlightedIndex: 4);
+      final c = RovingFocusController(itemCount: 5, highlightedIndex: 4);
       addTearDown(c.dispose);
       c.itemCount = 2;
       expect(c.highlightedIndex, 1);
@@ -63,31 +63,30 @@ void main() {
     });
 
     test('does nothing on an empty collection', () {
-      final c = ShadRovingFocusController();
+      final c = RovingFocusController();
       addTearDown(c.dispose);
       c.move(1);
       expect(c.highlightedIndex, isNull);
     });
   });
 
-  group('ShadRovingFocus', () {
+  group('RovingFocus', () {
     const labels = ['Apple', 'Banana', 'Cherry'];
 
-    Future<ShadRovingFocusController> pump(
+    Future<RovingFocusController> pump(
       WidgetTester tester, {
-      ShadRovingFocusOrientation orientation =
-          ShadRovingFocusOrientation.horizontal,
+      RovingFocusOrientation orientation = RovingFocusOrientation.horizontal,
       TextDirection textDirection = TextDirection.ltr,
       ValueChanged<int>? onActivate,
       VoidCallback? onEscape,
       bool typeahead = false,
     }) async {
-      final controller = ShadRovingFocusController(itemCount: labels.length);
+      final controller = RovingFocusController(itemCount: labels.length);
       addTearDown(controller.dispose);
       await tester.pumpWidget(
         Directionality(
           textDirection: textDirection,
-          child: ShadRovingFocus(
+          child: RovingFocus(
             controller: controller,
             orientation: orientation,
             autofocus: true,
@@ -126,7 +125,7 @@ void main() {
     ) async {
       final controller = await pump(
         tester,
-        orientation: ShadRovingFocusOrientation.vertical,
+        orientation: RovingFocusOrientation.vertical,
       );
       await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
       expect(controller.highlightedIndex, 0);

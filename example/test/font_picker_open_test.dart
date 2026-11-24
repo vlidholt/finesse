@@ -1,10 +1,10 @@
 import 'package:example/common/theme_editor/customizer_panel.dart';
 import 'package:example/common/theme_editor/editor_config.dart';
+import 'package:finesse/finesse.dart';
+import 'package:finesse/material.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shad/material.dart';
-import 'package:shad/shad.dart';
 
 void main() {
   setUpAll(() => GoogleFonts.config.allowRuntimeFetching = false);
@@ -14,8 +14,8 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
-      ShadApp(
-        builder: (context, child) => ShadMaterial(child: child!),
+      FinesseApp(
+        builder: (context, child) => FinesseMaterial(child: child!),
         home: Scaffold(
           body: Align(
             alignment: Alignment.centerRight,

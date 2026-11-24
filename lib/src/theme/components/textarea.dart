@@ -1,17 +1,17 @@
+import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/components/decorator.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
 part 'textarea.g.theme.dart';
 
-/// {@template ShadTextareaTheme}
-/// Theme for the `ShadTextarea` widget.
+/// {@template TextareaTheme}
+/// Theme for the `Textarea` widget.
 /// {@endtemplate}
 @themeGen
 @immutable
-class ShadTextareaTheme with _$ShadTextareaTheme {
-  /// {@macro ShadTextareaTheme}
-  const ShadTextareaTheme({
+class TextareaTheme with _$TextareaTheme {
+  /// {@macro TextareaTheme}
+  const TextareaTheme({
     bool canMerge = true,
     this.decoration,
     this.padding,
@@ -37,58 +37,58 @@ class ShadTextareaTheme with _$ShadTextareaTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro ShadTextarea.decoration}
-  final ShadDecoration? decoration;
+  /// {@macro Textarea.decoration}
+  final FinesseDecoration? decoration;
 
-  /// {@macro ShadTextarea.padding}
+  /// {@macro Textarea.padding}
   final EdgeInsetsGeometry? padding;
 
-  /// {@macro ShadTextarea.style}
+  /// {@macro Textarea.style}
   final TextStyle? style;
 
-  /// {@macro ShadTextarea.placeholderStyle}
+  /// {@macro Textarea.placeholderStyle}
   final TextStyle? placeholderStyle;
 
-  /// {@macro ShadTextarea.placeholderAlignment}
+  /// {@macro Textarea.placeholderAlignment}
   final AlignmentGeometry? placeholderAlignment;
 
-  /// {@macro ShadTextarea.alignment}
+  /// {@macro Textarea.alignment}
   final AlignmentGeometry? alignment;
 
-  /// {@macro ShadTextarea.inputPadding}
+  /// {@macro Textarea.inputPadding}
   final EdgeInsetsGeometry? inputPadding;
 
-  /// {@macro ShadTextarea.mainAxisAlignment}
+  /// {@macro Textarea.mainAxisAlignment}
   final MainAxisAlignment? mainAxisAlignment;
 
-  /// {@macro ShadTextarea.crossAxisAlignment}
+  /// {@macro Textarea.crossAxisAlignment}
   final CrossAxisAlignment? crossAxisAlignment;
 
-  /// {@macro ShadTextarea.gap}
+  /// {@macro Textarea.gap}
   final double? gap;
 
-  /// {@macro ShadTextarea.constraints}
+  /// {@macro Textarea.constraints}
   final BoxConstraints? constraints;
 
-  /// {@macro ShadTextarea.minHeight}
+  /// {@macro Textarea.minHeight}
   final double? minHeight;
 
-  /// {@macro ShadTextarea.maxHeight}
+  /// {@macro Textarea.maxHeight}
   final double? maxHeight;
 
-  /// {@macro ShadTextarea.resizable}
+  /// {@macro Textarea.resizable}
   final bool? resizable;
 
-  /// {@macro ShadTextarea.resizeHandleBuilder}
+  /// {@macro Textarea.resizeHandleBuilder}
   final WidgetBuilder? resizeHandleBuilder;
 
-  /// {@macro ShadTextarea.scrollbarPadding}
+  /// {@macro Textarea.scrollbarPadding}
   final EdgeInsetsGeometry? scrollbarPadding;
 
   /// Linearly interpolates between [a] and [b] by [t].
-  static ShadTextareaTheme? lerp(
-    ShadTextareaTheme? a,
-    ShadTextareaTheme? b,
+  static TextareaTheme? lerp(
+    TextareaTheme? a,
+    TextareaTheme? b,
     double t,
-  ) => _$ShadTextareaTheme.lerp(a, b, t);
+  ) => _$TextareaTheme.lerp(a, b, t);
 }

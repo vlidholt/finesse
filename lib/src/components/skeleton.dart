@@ -1,8 +1,8 @@
+import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/debug_check.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/theme.dart';
-import 'package:shad/src/utils/debug_check.dart';
 
-/// {@template ShadSkeleton}
+/// {@template Skeleton}
 /// A placeholder shown while content is loading.
 ///
 /// Mirrors shadcn/ui's `Skeleton`: a muted, rounded block that pulses. Give it
@@ -10,15 +10,15 @@ import 'package:shad/src/utils/debug_check.dart';
 /// or by letting it fill its parent.
 ///
 /// ```dart
-/// const ShadSkeleton(width: 200, height: 16)
+/// const Skeleton(width: 200, height: 16)
 /// ```
 ///
 /// Wrap real content once it has loaded rather than nesting it inside the
 /// skeleton; a skeleton is a stand-in, not a container.
 /// {@endtemplate}
-class ShadSkeleton extends StatefulWidget {
-  /// {@macro ShadSkeleton}
-  const ShadSkeleton({
+class Skeleton extends StatefulWidget {
+  /// {@macro Skeleton}
+  const Skeleton({
     super.key,
     this.width,
     this.height,
@@ -32,7 +32,7 @@ class ShadSkeleton extends StatefulWidget {
   });
 
   /// A circular skeleton, useful as an avatar placeholder.
-  const ShadSkeleton.circle({
+  const Skeleton.circle({
     super.key,
     required double size,
     this.color,
@@ -51,32 +51,32 @@ class ShadSkeleton extends StatefulWidget {
   /// The height of the skeleton.
   final double? height;
 
-  /// {@template ShadSkeleton.color}
+  /// {@template Skeleton.color}
   /// The base color of the skeleton.
   /// {@endtemplate}
   final Color? color;
 
-  /// {@template ShadSkeleton.highlightColor}
+  /// {@template Skeleton.highlightColor}
   /// The color the skeleton pulses towards.
   /// {@endtemplate}
   final Color? highlightColor;
 
-  /// {@template ShadSkeleton.radius}
+  /// {@template Skeleton.radius}
   /// The corner radius of the skeleton.
   /// {@endtemplate}
   final BorderRadiusGeometry? radius;
 
-  /// {@template ShadSkeleton.duration}
+  /// {@template Skeleton.duration}
   /// The duration of one full pulse.
   /// {@endtemplate}
   final Duration? duration;
 
-  /// {@template ShadSkeleton.curve}
+  /// {@template Skeleton.curve}
   /// The curve of the pulse.
   /// {@endtemplate}
   final Curve? curve;
 
-  /// {@template ShadSkeleton.animate}
+  /// {@template Skeleton.animate}
   /// Whether the skeleton pulses, defaults to `true`.
   ///
   /// Set to `false` to respect a reduced-motion preference, or in tests and
@@ -91,10 +91,10 @@ class ShadSkeleton extends StatefulWidget {
   final Widget? child;
 
   @override
-  State<ShadSkeleton> createState() => _ShadSkeletonState();
+  State<Skeleton> createState() => _SkeletonState();
 }
 
-class _ShadSkeletonState extends State<ShadSkeleton>
+class _SkeletonState extends State<Skeleton>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     vsync: this,
@@ -110,7 +110,7 @@ class _ShadSkeletonState extends State<ShadSkeleton>
   }
 
   @override
-  void didUpdateWidget(ShadSkeleton oldWidget) {
+  void didUpdateWidget(Skeleton oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.animate != oldWidget.animate ||
         widget.duration != oldWidget.duration) {
@@ -119,7 +119,7 @@ class _ShadSkeletonState extends State<ShadSkeleton>
   }
 
   void _syncAnimation() {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     _controller.duration =
         widget.duration ??
         theme.skeletonTheme.duration ??
@@ -145,8 +145,8 @@ class _ShadSkeletonState extends State<ShadSkeleton>
 
   @override
   Widget build(BuildContext context) {
-    assert(debugCheckHasShadTheme(context));
-    final theme = ShadTheme.of(context);
+    assert(debugCheckHasTheme(context));
+    final theme = Theme.of(context);
     final skeletonTheme = theme.skeletonTheme;
 
     final effectiveColor =

@@ -9,14 +9,10 @@ part of 'spinner.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadSpinnerTheme {
+mixin _$SpinnerTheme {
   bool get canMerge => true;
 
-  static ShadSpinnerTheme? lerp(
-    ShadSpinnerTheme? a,
-    ShadSpinnerTheme? b,
-    double t,
-  ) {
+  static SpinnerTheme? lerp(SpinnerTheme? a, SpinnerTheme? b, double t) {
     if (identical(a, b)) {
       return a;
     }
@@ -29,7 +25,7 @@ mixin _$ShadSpinnerTheme {
       return t == 0.0 ? a : null;
     }
 
-    return ShadSpinnerTheme(
+    return SpinnerTheme(
       color: Color.lerp(a.color, b.color, t),
       trackColor: Color.lerp(a.trackColor, b.trackColor, t),
       size: lerpDouble$(a.size, b.size, t),
@@ -38,16 +34,16 @@ mixin _$ShadSpinnerTheme {
     );
   }
 
-  ShadSpinnerTheme copyWith({
+  SpinnerTheme copyWith({
     Color? color,
     Color? trackColor,
     double? size,
     double? strokeWidth,
     Duration? duration,
   }) {
-    final _this = (this as ShadSpinnerTheme);
+    final _this = (this as SpinnerTheme);
 
-    return ShadSpinnerTheme(
+    return SpinnerTheme(
       color: color ?? _this.color,
       trackColor: trackColor ?? _this.trackColor,
       size: size ?? _this.size,
@@ -56,8 +52,8 @@ mixin _$ShadSpinnerTheme {
     );
   }
 
-  ShadSpinnerTheme merge(ShadSpinnerTheme? other) {
-    final _this = (this as ShadSpinnerTheme);
+  SpinnerTheme merge(SpinnerTheme? other) {
+    final _this = (this as SpinnerTheme);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -86,8 +82,8 @@ mixin _$ShadSpinnerTheme {
       return false;
     }
 
-    final _this = (this as ShadSpinnerTheme);
-    final _other = (other as ShadSpinnerTheme);
+    final _this = (this as SpinnerTheme);
+    final _other = (other as SpinnerTheme);
 
     return _other.color == _this.color &&
         _other.trackColor == _this.trackColor &&
@@ -98,7 +94,7 @@ mixin _$ShadSpinnerTheme {
 
   @override
   int get hashCode {
-    final _this = (this as ShadSpinnerTheme);
+    final _this = (this as SpinnerTheme);
 
     return Object.hash(
       runtimeType,

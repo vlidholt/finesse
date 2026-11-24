@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class IconButtonVariantsExample extends StatelessWidget {
   const IconButtonVariantsExample({super.key});
@@ -10,23 +10,23 @@ class IconButtonVariantsExample extends StatelessWidget {
       spacing: 8,
       runSpacing: 8,
       children: [
-        ShadIconButton(
+        IconButton(
           onPressed: () {},
           icon: const Icon(LucideIcons.rocket),
         ),
-        ShadIconButton.secondary(
+        IconButton.secondary(
           onPressed: () {},
           icon: const Icon(LucideIcons.rocket),
         ),
-        ShadIconButton.destructive(
+        IconButton.destructive(
           onPressed: () {},
           icon: const Icon(LucideIcons.rocket),
         ),
-        ShadIconButton.outline(
+        IconButton.outline(
           onPressed: () {},
           icon: const Icon(LucideIcons.rocket),
         ),
-        ShadIconButton.ghost(
+        IconButton.ghost(
           onPressed: () {},
           icon: const Icon(LucideIcons.rocket),
         ),

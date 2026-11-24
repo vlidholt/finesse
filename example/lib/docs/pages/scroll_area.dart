@@ -6,7 +6,7 @@ final scrollAreaDoc = ComponentDoc(
   slug: 'scroll_area',
   title: 'Scroll Area',
   description:
-      'Scrolls its content with a thin themed scrollbar. ShadScrollbar puts '
+      'Scrolls its content with a thin themed scrollbar. Scrollbar puts '
       'the same scrollbar on any scrollable.',
   examples: [
     ComponentExample(
@@ -19,7 +19,7 @@ final scrollAreaDoc = ComponentDoc(
       id: 'scroll_area_list',
       title: 'Any scrollable',
       description:
-          'Wrap a ListView, GridView or CustomScrollView in ShadScrollbar.',
+          'Wrap a ListView, GridView or CustomScrollView in Scrollbar.',
       minPreviewHeight: 300,
       builder: (_) => const ScrollAreaListExample(),
     ),

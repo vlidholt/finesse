@@ -1,18 +1,18 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/shad.dart';
 
 void main() {
-  testWidgets('a popover surface matches a ShadPopover', (tester) async {
-    final controller = ShadPopoverController(isOpen: true);
+  testWidgets('a popover surface matches a Popover', (tester) async {
+    final controller = PopoverController(isOpen: true);
     addTearDown(controller.dispose);
     await tester.pumpWidget(
-      ShadApp(
+      FinesseApp(
         home: Column(
           children: [
-            const ShadSurface(child: Text('surface')),
-            ShadPopover(
+            const Surface(child: Text('surface')),
+            Popover(
               controller: controller,
               popover: (_) => const Text('popover'),
               child: const SizedBox(width: 10, height: 10),
@@ -23,12 +23,12 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    ShadDecoration decorationAbove(String text) => tester
-        .widget<ShadDecorator>(
+    FinesseDecoration decorationAbove(String text) => tester
+        .widget<Decorator>(
           find
               .ancestor(
                 of: find.text(text),
-                matching: find.byType(ShadDecorator),
+                matching: find.byType(Decorator),
               )
               .first,
         )
@@ -41,16 +41,16 @@ void main() {
     expect(surface.shadows, popover.shadows);
   });
 
-  group('showShadPopover', () {
+  group('showPopover', () {
     Future<void> open(WidgetTester tester, Rect anchor) async {
       tester.view.physicalSize = const Size(800, 600);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
       await tester.pumpWidget(
-        ShadApp(
+        FinesseApp(
           home: Builder(
-            builder: (context) => ShadButton(
-              onPressed: () => showShadPopover<void>(
+            builder: (context) => Button(
+              onPressed: () => showPopover<void>(
                 context: context,
                 anchorRect: anchor,
                 builder: (_) => const SizedBox(
@@ -72,7 +72,7 @@ void main() {
       find
           .ancestor(
             of: find.text('content'),
-            matching: find.byType(ShadDecorator),
+            matching: find.byType(Decorator),
           )
           .first,
     );

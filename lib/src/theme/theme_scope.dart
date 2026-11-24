@@ -1,29 +1,29 @@
+import 'package:finesse/src/theme/data.dart';
+import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/data.dart';
-import 'package:shad/src/theme/theme.dart';
 
-/// {@template ShadThemeScope}
-/// Applies a [ShadThemeData] to a subtree, including the ambient text and icon
+/// {@template ThemeScope}
+/// Applies a [ThemeData] to a subtree, including the ambient text and icon
 /// styling that comes with it.
 ///
-/// [ShadTheme] alone only publishes the Shad theme: `ShadTheme.of` picks it up,
+/// [Theme] alone only publishes the Finesse theme: `Theme.of` picks it up,
 /// but a plain [Text] keeps whatever [DefaultTextStyle] it inherited from
 /// further up, so a light-on-dark panel inside a light app renders dark text on
 /// a dark surface. This widget also sets the text style, icon theme and
 /// selection colours for the subtree.
 ///
 /// Material widgets in the subtree follow it too when they are wrapped in a
-/// `ShadMaterial` from `package:shad/material.dart`, which reads the nearest
-/// shad theme.
+/// `FinesseMaterial` from `package:finesse/material.dart`, which reads the nearest
+/// finesse theme.
 ///
 /// Reach for it when part of the UI is deliberately themed differently from the
 /// app — a dark settings panel, a themed preview pane, an embedded editor:
 ///
 /// ```dart
-/// ShadThemeScope(
-///   data: ShadThemeData(
+/// ThemeScope(
+///   data: ThemeData(
 ///     brightness: Brightness.dark,
-///     colorScheme: const ShadNeutralColorScheme.dark(),
+///     colorScheme: const NeutralColorScheme.dark(),
 ///   ),
 ///   child: const SettingsPanel(),
 /// )
@@ -31,46 +31,46 @@ import 'package:shad/src/theme/theme.dart';
 ///
 /// Overlays opened from inside the scope — popovers, tooltips, selects — stay
 /// within it, because they are built through `OverlayPortal` from this position
-/// in the tree. Routes do not: `showShadDialog` re-publishes the ambient theme
+/// in the tree. Routes do not: `showDialog` re-publishes the ambient theme
 /// itself for that reason.
 /// {@endtemplate}
-class ShadThemeScope extends StatelessWidget {
-  /// {@macro ShadThemeScope}
-  const ShadThemeScope({
+class ThemeScope extends StatelessWidget {
+  /// {@macro ThemeScope}
+  const ThemeScope({
     super.key,
     required this.data,
     required this.child,
   });
 
   /// The theme to apply to [child].
-  final ShadThemeData data;
+  final ThemeData data;
 
   /// The widget below this widget in the tree.
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    return ShadTheme(
+    return Theme(
       data: data,
       child: DefaultTextStyle(
         style: data.textTheme.p.copyWith(color: data.colorScheme.foreground),
-        child: ShadDefaultStyles(data: data, child: child),
+        child: DefaultStyles(data: data, child: child),
       ),
     );
   }
 }
 
-/// Sets the icon theme and the text selection colours that a [ShadThemeData]
+/// Sets the icon theme and the text selection colours that a [ThemeData]
 /// implies for [child].
 ///
-/// `ShadApp` puts one at the root and [ShadThemeScope] one in each re-themed
+/// `FinesseApp` puts one at the root and [ThemeScope] one in each re-themed
 /// subtree.
-class ShadDefaultStyles extends StatelessWidget {
+class DefaultStyles extends StatelessWidget {
   /// Creates the default icon and selection styles for [data].
-  const ShadDefaultStyles({super.key, required this.data, required this.child});
+  const DefaultStyles({super.key, required this.data, required this.child});
 
   /// The theme the styles come from.
-  final ShadThemeData data;
+  final ThemeData data;
 
   /// The widget below this widget in the tree.
   final Widget child;

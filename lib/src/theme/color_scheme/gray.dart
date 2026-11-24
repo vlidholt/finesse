@@ -1,17 +1,17 @@
+import 'package:finesse/src/theme/color_scheme/base.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/color_scheme/base.dart';
 
 /// The shadcn/ui v3 `gray` colour scheme.
 ///
 /// shadcn/ui v4 no longer ships this palette. It is kept for
 /// compatibility.
 @immutable
-class ShadGrayColorScheme extends ShadColorScheme {
-  /// Creates a [ShadGrayColorScheme] from explicit colours.
+class GrayColorScheme extends ColorScheme {
+  /// Creates a [GrayColorScheme] from explicit colours.
   ///
-  /// Use [ShadGrayColorScheme.light] or [ShadGrayColorScheme.dark] for the
+  /// Use [GrayColorScheme.light] or [GrayColorScheme.dark] for the
   /// shadcn/ui values.
-  const ShadGrayColorScheme({
+  const GrayColorScheme({
     required super.background,
     required super.foreground,
     required super.card,
@@ -35,10 +35,10 @@ class ShadGrayColorScheme extends ShadColorScheme {
     super.custom,
   });
 
-  /// Creates the light variant of [ShadGrayColorScheme].
+  /// Creates the light variant of [GrayColorScheme].
   ///
   /// Every colour defaults to its light-mode value.
-  const ShadGrayColorScheme.light({
+  const GrayColorScheme.light({
     super.background = const Color(0xffffffff),
     super.foreground = const Color(0xff030712),
     super.card = const Color(0xffffffff),
@@ -62,10 +62,10 @@ class ShadGrayColorScheme extends ShadColorScheme {
     super.custom,
   });
 
-  /// Creates the dark variant of [ShadGrayColorScheme].
+  /// Creates the dark variant of [GrayColorScheme].
   ///
   /// Every colour defaults to its dark-mode value.
-  const ShadGrayColorScheme.dark({
+  const GrayColorScheme.dark({
     super.background = const Color(0xff030712),
     super.foreground = const Color(0xfff9fafb),
     super.card = const Color(0xff030712),

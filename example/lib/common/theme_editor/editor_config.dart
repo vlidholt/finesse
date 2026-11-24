@@ -1,6 +1,6 @@
 import 'package:example/common/theme_editor/fonts.dart';
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 /// shadcn/ui's neutral *base colours*.
 enum BaseColor {
@@ -19,8 +19,8 @@ enum BaseColor {
 
   final String label;
 
-  ShadColorScheme scheme(Brightness brightness) =>
-      ShadColorScheme.fromName(name, brightness: brightness);
+  ColorScheme scheme(Brightness brightness) =>
+      ColorScheme.fromName(name, brightness: brightness);
 
   /// The dot shown in the picker.
   ///
@@ -55,9 +55,9 @@ enum AccentColor {
 
   final String label;
 
-  ShadAccentScheme? scheme(Brightness brightness) => this == AccentColor.base
+  AccentScheme? scheme(Brightness brightness) => this == AccentColor.base
       ? null
-      : ShadAccentScheme.fromName(name, brightness: brightness);
+      : AccentScheme.fromName(name, brightness: brightness);
 
   /// The dot shown in the picker.
   ///
@@ -84,7 +84,7 @@ enum RadiusPreset {
 
 /// shadcn/ui's eight named styles.
 ///
-/// Each is a preset over [ShadStyleTokens] — corner radii, focus-ring
+/// Each is a preset over [StyleTokens] — corner radii, focus-ring
 /// thickness and opacity, and label typography — so picking one reshapes every
 /// component at once.
 enum StylePreset {
@@ -101,7 +101,7 @@ enum StylePreset {
 
   final String label;
 
-  ShadStyleTokens get tokens => ShadStyleTokens.fromName(name);
+  StyleTokens get tokens => StyleTokens.fromName(name);
 }
 
 /// The menu surface colour, mirroring shadcn's `menuColor` "Default/Inverted".
@@ -125,16 +125,16 @@ enum MenuSurfaceFinish {
 }
 
 /// How strongly a menu highlights its selected item.
-enum MenuAccent {
+enum EditorMenuAccent {
   subtle('Subtle'),
   bold('Bold');
 
-  const MenuAccent(this.label);
+  const EditorMenuAccent(this.label);
 
   final String label;
 }
 
-/// Everything the editor configures, and the [ShadThemeData] it produces.
+/// Everything the editor configures, and the [ThemeData] it produces.
 @immutable
 class ThemeEditorConfig {
   const ThemeEditorConfig({
@@ -149,7 +149,7 @@ class ThemeEditorConfig {
     this.customRadius,
     this.menuColor = MenuSurfaceColor.standard,
     this.menuFinish = MenuSurfaceFinish.solid,
-    this.menuAccent = MenuAccent.subtle,
+    this.menuAccent = EditorMenuAccent.subtle,
     this.textScale = 1,
     this.spacingStep = 4,
   });
@@ -171,7 +171,7 @@ class ThemeEditorConfig {
 
   final MenuSurfaceColor menuColor;
   final MenuSurfaceFinish menuFinish;
-  final MenuAccent menuAccent;
+  final EditorMenuAccent menuAccent;
 
   final double textScale;
 
@@ -180,7 +180,7 @@ class ThemeEditorConfig {
 
   double get effectiveRadius => customRadius ?? radius.value;
 
-  ShadSpacing get spacing => ShadSpacing(step: spacingStep);
+  Spacing get spacing => Spacing(step: spacingStep);
 
   EditorFont get font => EditorFont.byTitle(fontTitle);
 
@@ -201,7 +201,7 @@ class ThemeEditorConfig {
     bool clearCustomRadius = false,
     MenuSurfaceColor? menuColor,
     MenuSurfaceFinish? menuFinish,
-    MenuAccent? menuAccent,
+    EditorMenuAccent? menuAccent,
     double? textScale,
     double? spacingStep,
   }) {
@@ -269,9 +269,9 @@ class ThemeEditorConfig {
   );
 
   /// The palette, fully resolved for [brightness]: base, accent, then chart.
-  ShadColorScheme get colorScheme => _scheme(brightness);
+  ColorScheme get colorScheme => _scheme(brightness);
 
-  ShadColorScheme _scheme(Brightness b) {
+  ColorScheme _scheme(Brightness b) {
     var scheme = baseColor.scheme(b);
 
     final accent = accentColor.scheme(b);
@@ -298,7 +298,7 @@ class ThemeEditorConfig {
   /// an inverted menu is simply built from the dark counterpart of the same
   /// configuration. In dark mode that *is* the page palette, which matches
   /// the reference: inverted menus only differ in light mode.
-  ShadColorScheme? get menuColorScheme =>
+  ColorScheme? get menuColorScheme =>
       menuColor == MenuSurfaceColor.inverted && brightness == Brightness.light
       ? _scheme(Brightness.dark)
       : null;
@@ -307,9 +307,9 @@ class ThemeEditorConfig {
   /// when one is chosen.
   ///
   /// shadcn exposes body and heading fonts separately (`fontHeading:
-  /// "inherit"` means "same as body"). A [ShadTextTheme] carries one family,
+  /// "inherit"` means "same as body"). A [TextTheme] carries one family,
   /// so the heading font is applied by overriding just the h1..h4 styles.
-  ShadTextTheme get textTheme {
+  TextTheme get textTheme {
     final body = font.textTheme();
     final heading = headingFont;
     if (heading == null || heading == font) return body;
@@ -328,15 +328,15 @@ class ThemeEditorConfig {
   ///
   /// [customTextStyles] is merged into the text theme's `custom` map — the
   /// app hands its own named styles down this way, since the editor owns the
-  /// whole [ShadTextTheme] and would otherwise drop them.
-  ShadThemeData build({Map<String, TextStyle> customTextStyles = const {}}) {
+  /// whole [TextTheme] and would otherwise drop them.
+  ThemeData build({Map<String, TextStyle> customTextStyles = const {}}) {
     final borderRadius = BorderRadius.all(Radius.circular(effectiveRadius));
 
     // The menu options are the library's own — the same semantics as
     // shadcn's create editor: inverted menus take the dark palette,
     // translucent ones the blurred 70% surface, and a bold accent rewrites
     // the scheme's accent pair with its primary.
-    return ShadThemeData(
+    return ThemeData(
       brightness: brightness,
       colorScheme: colorScheme,
       radius: borderRadius,
@@ -348,8 +348,8 @@ class ThemeEditorConfig {
       menuColorScheme: menuColorScheme,
       menuTranslucent: menuFinish == MenuSurfaceFinish.translucent,
       menuAccent: switch (menuAccent) {
-        MenuAccent.subtle => ShadMenuAccent.subtle,
-        MenuAccent.bold => ShadMenuAccent.bold,
+        EditorMenuAccent.subtle => MenuAccent.subtle,
+        EditorMenuAccent.bold => MenuAccent.bold,
       },
     );
   }
@@ -357,7 +357,7 @@ class ThemeEditorConfig {
   /// A copy-pasteable snippet reproducing this configuration.
   String toDartSnippet() {
     final buffer = StringBuffer()
-      ..writeln('ShadThemeData(')
+      ..writeln('ThemeData(')
       ..writeln('  brightness: Brightness.${brightness.name},');
 
     final cap =
@@ -370,7 +370,7 @@ class ThemeEditorConfig {
       buffer
         ..writeln('  colorScheme: $ctor.applyAccentScheme(')
         ..writeln(
-          '    ShadAccentScheme.${accentColor.name}'
+          '    AccentScheme.${accentColor.name}'
           '${brightness == Brightness.light ? 'Light' : 'Dark'},',
         )
         ..writeln('  ),');
@@ -380,16 +380,16 @@ class ThemeEditorConfig {
       '  radius: BorderRadius.circular(${effectiveRadius.toStringAsFixed(1)}),',
     );
     // Every editor font comes from Google Fonts. An app can also bundle the
-    // face itself and pass `ShadTextTheme(family: 'Inter')`.
+    // face itself and pass `TextTheme(family: 'Inter')`.
     buffer.writeln(
       '  // flutter pub add google_fonts\n'
-      '  textTheme: ShadTextTheme.fromGoogleFont('
+      '  textTheme: TextTheme.fromGoogleFont('
       "GoogleFonts.${_camel(font.family)}),",
     );
-    buffer.writeln('  style: ShadStyleTokens.${style.name},');
+    buffer.writeln('  style: StyleTokens.${style.name},');
     if (spacingStep != 4) {
       buffer.writeln(
-        '  spacing: ShadSpacing(step: ${spacingStep.toStringAsFixed(1)}),',
+        '  spacing: Spacing(step: ${spacingStep.toStringAsFixed(1)}),',
       );
     }
     if (menuColor == MenuSurfaceColor.inverted &&
@@ -402,15 +402,15 @@ class ThemeEditorConfig {
       } else {
         buffer
           ..writeln('  menuColorScheme: $darkCtor.applyAccentScheme(')
-          ..writeln('    ShadAccentScheme.${accentColor.name}Dark,')
+          ..writeln('    AccentScheme.${accentColor.name}Dark,')
           ..writeln('  ),');
       }
     }
     if (menuFinish == MenuSurfaceFinish.translucent) {
       buffer.writeln('  menuTranslucent: true,');
     }
-    if (menuAccent == MenuAccent.bold) {
-      buffer.writeln('  menuAccent: ShadMenuAccent.bold,');
+    if (menuAccent == EditorMenuAccent.bold) {
+      buffer.writeln('  menuAccent: MenuAccent.bold,');
     }
     buffer.write(')');
     return buffer.toString();

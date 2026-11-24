@@ -1,17 +1,17 @@
+import 'package:finesse/src/theme/color_scheme/base.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/color_scheme/base.dart';
 
 /// The shadcn/ui v3 `green` theme: a neutral base with a green primary.
 ///
-/// Kept for compatibility. In v4, apply `ShadAccentScheme.greenLight` or
-/// `ShadAccentScheme.greenDark` to a base colour scheme instead.
+/// Kept for compatibility. In v4, apply `AccentScheme.greenLight` or
+/// `AccentScheme.greenDark` to a base colour scheme instead.
 @immutable
-class ShadGreenColorScheme extends ShadColorScheme {
-  /// Creates a [ShadGreenColorScheme] from explicit colours.
+class GreenColorScheme extends ColorScheme {
+  /// Creates a [GreenColorScheme] from explicit colours.
   ///
-  /// Use [ShadGreenColorScheme.light] or [ShadGreenColorScheme.dark] for the
+  /// Use [GreenColorScheme.light] or [GreenColorScheme.dark] for the
   /// shadcn/ui values.
-  const ShadGreenColorScheme({
+  const GreenColorScheme({
     required super.background,
     required super.foreground,
     required super.card,
@@ -35,10 +35,10 @@ class ShadGreenColorScheme extends ShadColorScheme {
     super.custom,
   });
 
-  /// Creates the light variant of [ShadGreenColorScheme].
+  /// Creates the light variant of [GreenColorScheme].
   ///
   /// Every colour defaults to its light-mode value.
-  const ShadGreenColorScheme.light({
+  const GreenColorScheme.light({
     super.background = const Color(0xffffffff),
     super.foreground = const Color(0xff09090b),
     super.card = const Color(0xffffffff),
@@ -62,10 +62,10 @@ class ShadGreenColorScheme extends ShadColorScheme {
     super.custom,
   });
 
-  /// Creates the dark variant of [ShadGreenColorScheme].
+  /// Creates the dark variant of [GreenColorScheme].
   ///
   /// Every colour defaults to its dark-mode value.
-  const ShadGreenColorScheme.dark({
+  const GreenColorScheme.dark({
     super.background = const Color(0xff0c0a09),
     super.foreground = const Color(0xfff2f2f2),
     super.card = const Color(0xff1c1917),

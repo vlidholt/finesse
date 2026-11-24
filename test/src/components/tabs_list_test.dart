@@ -1,32 +1,32 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/shad.dart';
 
 void main() {
   testWidgets('tabs without content render only the list', (tester) async {
     String? changed;
     await tester.pumpWidget(
-      ShadApp(
+      FinesseApp(
         home: Align(
           alignment: Alignment.topLeft,
-          child: ShadTabs<String>(
+          child: Tabs<String>(
             value: 'day',
             onChanged: (v) => changed = v,
             tabs: const [
-              ShadTab(value: 'day', child: Text('Day')),
-              ShadTab(value: 'week', child: Text('Week')),
+              Tab(value: 'day', child: Text('Day')),
+              Tab(value: 'week', child: Text('Week')),
             ],
           ),
         ),
       ),
     );
 
-    final tabs = tester.getRect(find.byType(ShadTabs<String>));
+    final tabs = tester.getRect(find.byType(Tabs<String>));
     final list = tester.getRect(
       find
           .descendant(
-            of: find.byType(ShadTabs<String>),
-            matching: find.byType(ShadDecorator),
+            of: find.byType(Tabs<String>),
+            matching: find.byType(Decorator),
           )
           .first,
     );

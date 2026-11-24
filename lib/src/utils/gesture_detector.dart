@@ -1,18 +1,18 @@
+import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/extensions/tap_details.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/theme/theme.dart';
-import 'package:shad/src/utils/extensions/tap_details.dart';
 
 /// Decides which gestures turn the hover state on and off on devices without
 /// a mouse.
 ///
-/// [ShadGestureDetector] uses it to give touch devices a hover state. When a
+/// [FinesseGestureDetector] uses it to give touch devices a hover state. When a
 /// mouse pointer is inside the detector, the strategies are ignored.
 @immutable
-class ShadHoverStrategies {
+class HoverStrategies {
   /// Creates a set of hover strategies.
-  const ShadHoverStrategies({
+  const HoverStrategies({
     this.hover = const {},
     this.unhover = const {},
     this.longPressDuration,
@@ -22,14 +22,14 @@ class ShadHoverStrategies {
   /// The gestures that turn the hover state on. Defaults to none.
   ///
   /// A gesture that is in both [hover] and [unhover] toggles the state.
-  final Set<ShadHoverStrategy> hover;
+  final Set<HoverStrategy> hover;
 
   /// The gestures that turn the hover state off. Defaults to none.
-  final Set<ShadHoverStrategy> unhover;
+  final Set<HoverStrategy> unhover;
 
   /// How long a press must last to count as a long press.
   ///
-  /// [ShadGestureDetector.longPressDuration] takes precedence. When both are
+  /// [FinesseGestureDetector.longPressDuration] takes precedence. When both are
   /// null, the detector uses [kLongPressTimeout].
   final Duration? longPressDuration;
 
@@ -40,7 +40,7 @@ class ShadHoverStrategies {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
-    return other is ShadHoverStrategies &&
+    return other is HoverStrategies &&
         setEquals(other.hover, hover) &&
         setEquals(other.unhover, unhover) &&
         other.longPressDuration == longPressDuration &&
@@ -56,13 +56,13 @@ class ShadHoverStrategies {
   }
 
   /// Returns a copy with the given fields replaced.
-  ShadHoverStrategies copyWith({
-    Set<ShadHoverStrategy>? hover,
-    Set<ShadHoverStrategy>? unhover,
+  HoverStrategies copyWith({
+    Set<HoverStrategy>? hover,
+    Set<HoverStrategy>? unhover,
     Duration? longPressDuration,
     ValueChanged<bool>? onHoverChange,
   }) {
-    return ShadHoverStrategies(
+    return HoverStrategies(
       hover: hover ?? this.hover,
       unhover: unhover ?? this.unhover,
       longPressDuration: longPressDuration ?? this.longPressDuration,
@@ -71,11 +71,11 @@ class ShadHoverStrategies {
   }
 }
 
-/// A gesture that can change the hover state of a [ShadGestureDetector].
+/// A gesture that can change the hover state of a [FinesseGestureDetector].
 ///
-/// Use these values in [ShadHoverStrategies.hover] and
-/// [ShadHoverStrategies.unhover].
-enum ShadHoverStrategy {
+/// Use these values in [HoverStrategies.hover] and
+/// [HoverStrategies.unhover].
+enum HoverStrategy {
   /// A primary pointer touches down for a tap.
   onTapDown,
 
@@ -108,12 +108,12 @@ enum ShadHoverStrategy {
 
   /// A force press starts.
   ///
-  /// [ShadGestureDetector] does not read this value at the moment.
+  /// [FinesseGestureDetector] does not read this value at the moment.
   onForcePressStart,
 
   /// A force press ends.
   ///
-  /// [ShadGestureDetector] does not read this value at the moment.
+  /// [FinesseGestureDetector] does not read this value at the moment.
   onForcePressEnd,
 
   /// A tap completes.
@@ -129,9 +129,9 @@ enum ShadHoverStrategy {
 ///
 /// If the device supports mouse, the [hoverStrategies] will be ignored and
 /// [MouseRegion] will be used instead.
-class ShadGestureDetector extends StatefulWidget {
+class FinesseGestureDetector extends StatefulWidget {
   /// Creates a gesture detector that also tracks the hover state.
-  const ShadGestureDetector({
+  const FinesseGestureDetector({
     super.key,
     required this.child,
     this.cursor = MouseCursor.defer,
@@ -177,8 +177,8 @@ class ShadGestureDetector extends StatefulWidget {
 
   /// The strategies that set the hover state on devices without a mouse.
   ///
-  /// Defaults to the `hoverStrategies` of the current [ShadTheme].
-  final ShadHoverStrategies? hoverStrategies;
+  /// Defaults to the `hoverStrategies` of the current [Theme].
+  final HoverStrategies? hoverStrategies;
 
   /// Called with the new hover state each time it changes.
   ///
@@ -256,7 +256,7 @@ class ShadGestureDetector extends StatefulWidget {
 
   /// How long a press must last to count as a long press.
   ///
-  /// When null, uses [ShadHoverStrategies.longPressDuration], then
+  /// When null, uses [HoverStrategies.longPressDuration], then
   /// [kLongPressTimeout].
   final Duration? longPressDuration;
 
@@ -370,19 +370,19 @@ class ShadGestureDetector extends StatefulWidget {
   /// [PanGestureRecognizer] are affected by this setting.
   final DragStartBehavior dragStartBehavior;
 
-  /// {@macro ShadMouseArea.groupId}
+  /// {@macro MouseArea.groupId}
   final Object? groupId;
 
   @override
-  State<ShadGestureDetector> createState() => _ShadGestureDetectorState();
+  State<FinesseGestureDetector> createState() => _GestureDetectorState();
 }
 
-class _ShadGestureDetectorState extends State<ShadGestureDetector> {
+class _GestureDetectorState extends State<FinesseGestureDetector> {
   bool hovered = false;
 
   /// Whether a mouse pointer is currently inside this detector.
   ///
-  /// [ShadHoverStrategies] exists for devices with no real hover: it
+  /// [HoverStrategies] exists for devices with no real hover: it
   /// synthesises a hover state from tap/long-press gestures. On a device that
   /// *does* hover, applying them fights the MouseRegion — `unhover:
   /// {onTapUp, ...}` would clear the highlight the moment a click completes,
@@ -417,7 +417,7 @@ class _ShadGestureDetectorState extends State<ShadGestureDetector> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     final configuration = ScrollConfiguration.of(context);
 
     final effectiveHoverStrategies =
@@ -425,7 +425,7 @@ class _ShadGestureDetectorState extends State<ShadGestureDetector> {
     final gestures = <Type, GestureRecognizerFactory>{};
     final gestureSettings = MediaQuery.maybeGestureSettingsOf(context);
 
-    void setHover(ShadHoverStrategy strategy) {
+    void setHover(HoverStrategy strategy) {
       // A real hover is already being tracked by the MouseRegion below.
       if (mouseInside) return;
 
@@ -455,7 +455,7 @@ class _ShadGestureDetectorState extends State<ShadGestureDetector> {
     }
 
     void effectiveOnTapDown(TapDownDetails d) {
-      setHover(ShadHoverStrategy.onTapDown);
+      setHover(HoverStrategy.onTapDown);
       final correctedGlobalPosition = correctGlobalPosition(
         context,
         d.globalPosition,
@@ -466,12 +466,12 @@ class _ShadGestureDetectorState extends State<ShadGestureDetector> {
     }
 
     void effectiveOnTap() {
-      setHover(ShadHoverStrategy.onTap);
+      setHover(HoverStrategy.onTap);
       widget.onTap?.call();
     }
 
     void effectiveOnTapOutside(PointerDownEvent event) {
-      setHover(ShadHoverStrategy.onTapOutside);
+      setHover(HoverStrategy.onTapOutside);
       widget.onTapOutside?.call();
     }
 
@@ -504,7 +504,7 @@ class _ShadGestureDetectorState extends State<ShadGestureDetector> {
     }
 
     void effectiveOnTapUp(TapUpDetails d) {
-      setHover(ShadHoverStrategy.onTapUp);
+      setHover(HoverStrategy.onTapUp);
       final correctedGlobalPosition = correctGlobalPosition(
         context,
         d.globalPosition,
@@ -513,12 +513,12 @@ class _ShadGestureDetectorState extends State<ShadGestureDetector> {
     }
 
     void effectiveOnTapCancel() {
-      setHover(ShadHoverStrategy.onTapCancel);
+      setHover(HoverStrategy.onTapCancel);
       widget.onTapCancel?.call();
     }
 
     void effectiveOnDoubleTapDown(TapDownDetails d) {
-      setHover(ShadHoverStrategy.onDoubleTapDown);
+      setHover(HoverStrategy.onDoubleTapDown);
       final correctedGlobalPosition = correctGlobalPosition(
         context,
         d.globalPosition,
@@ -529,12 +529,12 @@ class _ShadGestureDetectorState extends State<ShadGestureDetector> {
     }
 
     void effectiveOnDoubleTapCancel() {
-      setHover(ShadHoverStrategy.onDoubleTapCancel);
+      setHover(HoverStrategy.onDoubleTapCancel);
       widget.onDoubleTapCancel?.call();
     }
 
     void effectiveOnLongPressStart(LongPressStartDetails d) {
-      setHover(ShadHoverStrategy.onLongPressStart);
+      setHover(HoverStrategy.onLongPressStart);
       final correctedGlobalPosition = correctGlobalPosition(
         context,
         d.globalPosition,
@@ -545,17 +545,17 @@ class _ShadGestureDetectorState extends State<ShadGestureDetector> {
     }
 
     void effectiveOnLongPressCancel() {
-      setHover(ShadHoverStrategy.onLongPressCancel);
+      setHover(HoverStrategy.onLongPressCancel);
       widget.onLongPressCancel?.call();
     }
 
     void effectiveOnLongPressUp() {
-      setHover(ShadHoverStrategy.onLongPressUp);
+      setHover(HoverStrategy.onLongPressUp);
       widget.onLongPressUp?.call();
     }
 
     void effectiveOnLongPressDown(LongPressDownDetails d) {
-      setHover(ShadHoverStrategy.onLongPressDown);
+      setHover(HoverStrategy.onLongPressDown);
       final correctedGlobalPosition = correctGlobalPosition(
         context,
         d.globalPosition,
@@ -566,7 +566,7 @@ class _ShadGestureDetectorState extends State<ShadGestureDetector> {
     }
 
     void effectiveOnLongPressEnd(LongPressEndDetails d) {
-      setHover(ShadHoverStrategy.onLongPressEnd);
+      setHover(HoverStrategy.onLongPressEnd);
       final correctedGlobalPosition = correctGlobalPosition(
         context,
         d.globalPosition,

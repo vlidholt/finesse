@@ -9,14 +9,10 @@ part of 'skeleton.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadSkeletonTheme {
+mixin _$SkeletonTheme {
   bool get canMerge => true;
 
-  static ShadSkeletonTheme? lerp(
-    ShadSkeletonTheme? a,
-    ShadSkeletonTheme? b,
-    double t,
-  ) {
+  static SkeletonTheme? lerp(SkeletonTheme? a, SkeletonTheme? b, double t) {
     if (identical(a, b)) {
       return a;
     }
@@ -29,7 +25,7 @@ mixin _$ShadSkeletonTheme {
       return t == 0.0 ? a : null;
     }
 
-    return ShadSkeletonTheme(
+    return SkeletonTheme(
       color: Color.lerp(a.color, b.color, t),
       highlightColor: Color.lerp(a.highlightColor, b.highlightColor, t),
       radius: BorderRadiusGeometry.lerp(a.radius, b.radius, t),
@@ -39,7 +35,7 @@ mixin _$ShadSkeletonTheme {
     );
   }
 
-  ShadSkeletonTheme copyWith({
+  SkeletonTheme copyWith({
     Color? color,
     Color? highlightColor,
     BorderRadiusGeometry? radius,
@@ -47,9 +43,9 @@ mixin _$ShadSkeletonTheme {
     Curve? curve,
     bool? animate,
   }) {
-    final _this = (this as ShadSkeletonTheme);
+    final _this = (this as SkeletonTheme);
 
-    return ShadSkeletonTheme(
+    return SkeletonTheme(
       color: color ?? _this.color,
       highlightColor: highlightColor ?? _this.highlightColor,
       radius: radius ?? _this.radius,
@@ -59,8 +55,8 @@ mixin _$ShadSkeletonTheme {
     );
   }
 
-  ShadSkeletonTheme merge(ShadSkeletonTheme? other) {
-    final _this = (this as ShadSkeletonTheme);
+  SkeletonTheme merge(SkeletonTheme? other) {
+    final _this = (this as SkeletonTheme);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -90,8 +86,8 @@ mixin _$ShadSkeletonTheme {
       return false;
     }
 
-    final _this = (this as ShadSkeletonTheme);
-    final _other = (other as ShadSkeletonTheme);
+    final _this = (this as SkeletonTheme);
+    final _other = (other as SkeletonTheme);
 
     return _other.color == _this.color &&
         _other.highlightColor == _this.highlightColor &&
@@ -103,7 +99,7 @@ mixin _$ShadSkeletonTheme {
 
   @override
   int get hashCode {
-    final _this = (this as ShadSkeletonTheme);
+    final _this = (this as SkeletonTheme);
 
     return Object.hash(
       runtimeType,

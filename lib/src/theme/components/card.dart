@@ -1,18 +1,18 @@
+import 'package:finesse/src/utils/border.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/utils/border.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
 part 'card.g.theme.dart';
 
-/// {@template ShadCardTheme}
-/// Theme for the `ShadCard` widget.
+/// {@template CardTheme}
+/// Theme for the `Card` widget.
 /// {@endtemplate}
 @themeGen
 @immutable
-class ShadCardTheme with _$ShadCardTheme {
-  /// {@macro ShadCardTheme}
-  const ShadCardTheme({
+class CardTheme with _$CardTheme {
+  /// {@macro CardTheme}
+  const CardTheme({
     bool canMerge = true,
     this.backgroundColor,
     this.padding,
@@ -40,55 +40,55 @@ class ShadCardTheme with _$ShadCardTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro ShadCard.padding}
+  /// {@macro Card.padding}
   final EdgeInsetsGeometry? padding;
 
-  /// {@macro ShadCard.backgroundColor}
+  /// {@macro Card.backgroundColor}
   final Color? backgroundColor;
 
-  /// {@macro ShadCard.radius}
+  /// {@macro Card.radius}
   final BorderRadius? radius;
 
-  /// {@macro ShadCard.border}
-  final ShadBorder? border;
+  /// {@macro Card.border}
+  final FinesseBorder? border;
 
-  /// {@macro ShadCard.shadows}
+  /// {@macro Card.shadows}
   final List<BoxShadow>? shadows;
 
-  /// {@macro ShadCard.width}
+  /// {@macro Card.width}
   final double? width;
 
-  /// {@macro ShadCard.height}
+  /// {@macro Card.height}
   final double? height;
 
-  /// {@macro ShadCard.rowMainAxisAlignment}
+  /// {@macro Card.rowMainAxisAlignment}
   final MainAxisAlignment? rowMainAxisAlignment;
 
-  /// {@macro ShadCard.rowCrossAxisAlignment}
+  /// {@macro Card.rowCrossAxisAlignment}
   final CrossAxisAlignment? rowCrossAxisAlignment;
 
-  /// {@macro ShadCard.columnMainAxisAlignment}
+  /// {@macro Card.columnMainAxisAlignment}
   final MainAxisAlignment? columnMainAxisAlignment;
 
-  /// {@macro ShadCard.columnCrossAxisAlignment}
+  /// {@macro Card.columnCrossAxisAlignment}
   final CrossAxisAlignment? columnCrossAxisAlignment;
 
-  /// {@macro ShadCard.rowMainAxisSize}
+  /// {@macro Card.rowMainAxisSize}
   final MainAxisSize? rowMainAxisSize;
 
-  /// {@macro ShadCard.columnMainAxisSize}
+  /// {@macro Card.columnMainAxisSize}
   final MainAxisSize? columnMainAxisSize;
 
-  /// {@macro ShadCard.clipBehavior}
+  /// {@macro Card.clipBehavior}
   final Clip? clipBehavior;
 
-  /// {@macro ShadCard.titleStyle}
+  /// {@macro Card.titleStyle}
   final TextStyle? titleStyle;
 
-  /// {@macro ShadCard.descriptionStyle}
+  /// {@macro Card.descriptionStyle}
   final TextStyle? descriptionStyle;
 
-  /// {@macro ShadCard.gap}
+  /// {@macro Card.gap}
   final double? gap;
 
   /// The space between a card's sections — header, content and footer —
@@ -97,19 +97,19 @@ class ShadCardTheme with _$ShadCardTheme {
   final double? sectionGap;
 
   /// Linearly interpolates between [a] and [b] by [t].
-  static ShadCardTheme? lerp(
-    ShadCardTheme? a,
-    ShadCardTheme? b,
+  static CardTheme? lerp(
+    CardTheme? a,
+    CardTheme? b,
     double t,
-  ) => _$ShadCardTheme.lerp(a, b, t);
+  ) => _$CardTheme.lerp(a, b, t);
 
   // The generated `==` compares lists by identity, so a theme built with a
-  // non-const list would never equal its own rebuild, and ShadAnimatedTheme
+  // non-const list would never equal its own rebuild, and AnimatedTheme
   // would re-lerp on every frame. Compare the lists by value, then let the
   // generated `==` compare everything else against a copy that shares them.
   @override
   bool operator ==(Object other) =>
-      other is ShadCardTheme &&
+      other is CardTheme &&
       listEquals(shadows, other.shadows) &&
       super == other.copyWith(shadows: shadows);
 

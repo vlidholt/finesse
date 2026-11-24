@@ -3,14 +3,14 @@ import 'package:theme_extensions_builder_annotation/theme_extensions_builder_ann
 
 part 'sonner.g.theme.dart';
 
-/// {@template ShadSonnerTheme}
-/// Theme for the `ShadSonner` widget.
+/// {@template SonnerTheme}
+/// Theme for the `Sonner` widget.
 /// {@endtemplate}
 @themeGen
 @immutable
-class ShadSonnerTheme with _$ShadSonnerTheme {
-  /// {@macro ShadSonnerTheme}
-  const ShadSonnerTheme({
+class SonnerTheme with _$SonnerTheme {
+  /// {@macro SonnerTheme}
+  const SonnerTheme({
     bool canMerge = true,
     int? maxVisibleToasts,
     @Deprecated(
@@ -33,7 +33,7 @@ class ShadSonnerTheme with _$ShadSonnerTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro ShadSonner.visible_toasts_amount}
+  /// {@macro Sonner.visible_toasts_amount}
   final int? maxVisibleToasts;
 
   /// The old name of [maxVisibleToasts].
@@ -42,31 +42,31 @@ class ShadSonnerTheme with _$ShadSonnerTheme {
   )
   int? get visibleToastsAmount => maxVisibleToasts;
 
-  /// {@macro ShadSonner.alignment}
+  /// {@macro Sonner.alignment}
   final AlignmentGeometry? alignment;
 
-  /// {@macro ShadSonner.padding}
+  /// {@macro Sonner.padding}
   final EdgeInsetsGeometry? padding;
 
-  /// {@macro ShadSonner.expandedGap}
+  /// {@macro Sonner.expandedGap}
   final double? expandedGap;
 
-  /// {@macro ShadSonner.collapsedGap}
+  /// {@macro Sonner.collapsedGap}
   final double? collapsedGap;
 
-  /// {@macro ShadSonner.scaleFactor}
+  /// {@macro Sonner.scaleFactor}
   final double? scaleFactor;
 
-  /// {@macro ShadSonner.animationDuration}
+  /// {@macro Sonner.animationDuration}
   final Duration? animationDuration;
 
-  /// {@macro ShadSonner.animationCurve}
+  /// {@macro Sonner.animationCurve}
   final Curve? animationCurve;
 
   /// Linearly interpolates between [a] and [b] by [t].
-  static ShadSonnerTheme? lerp(
-    ShadSonnerTheme? a,
-    ShadSonnerTheme? b,
+  static SonnerTheme? lerp(
+    SonnerTheme? a,
+    SonnerTheme? b,
     double t,
-  ) => _$ShadSonnerTheme.lerp(a, b, t);
+  ) => _$SonnerTheme.lerp(a, b, t);
 }

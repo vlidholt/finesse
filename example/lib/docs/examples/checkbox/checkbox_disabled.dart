@@ -1,12 +1,12 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class CheckboxDisabledExample extends StatelessWidget {
   const CheckboxDisabledExample({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ShadCheckbox(
+    return Checkbox(
       value: true,
       enabled: false,
       onChanged: (v) {},

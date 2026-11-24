@@ -1,23 +1,23 @@
+import 'package:finesse/src/components/disabled.dart';
+import 'package:finesse/src/raw_components/focusable.dart';
+import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/animate.dart';
+import 'package:finesse/src/utils/debug_check.dart';
+import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:shad/src/components/disabled.dart';
-import 'package:shad/src/raw_components/focusable.dart';
-import 'package:shad/src/theme/components/decorator.dart';
-import 'package:shad/src/theme/theme.dart';
-import 'package:shad/src/utils/animate.dart';
-import 'package:shad/src/utils/debug_check.dart';
-import 'package:shad/src/utils/extensions/text_style.dart';
 
-/// {@template ShadSwitch}
+/// {@template Switch}
 /// A customizable switch widget, styled according to the Shadcn UI design
 /// system.
 ///
 /// Allows users to toggle between two states: on or off.
 /// {@endtemplate}
-class ShadSwitch extends StatefulWidget {
-  /// {@macro ShadSwitch}
-  const ShadSwitch({
+class Switch extends StatefulWidget {
+  /// {@macro Switch}
+  const Switch({
     super.key,
     required this.value,
     this.enabled = true,
@@ -39,14 +39,14 @@ class ShadSwitch extends StatefulWidget {
     this.padding,
   });
 
-  /// {@template ShadSwitch.value}
+  /// {@template Switch.value}
   /// Whether the switch is currently on or off.
   ///
   /// Represents the current state of the switch.
   /// {@endtemplate}
   final bool value;
 
-  /// {@template ShadSwitch.enabled}
+  /// {@template Switch.enabled}
   /// Whether the switch is enabled and can be interacted with.
   ///
   /// Defaults to true. When disabled, it visually indicates it's inactive and
@@ -54,7 +54,7 @@ class ShadSwitch extends StatefulWidget {
   /// {@endtemplate}
   final bool enabled;
 
-  /// {@template ShadSwitch.onChanged}
+  /// {@template Switch.onChanged}
   /// Callback function invoked when the switch is toggled.
   ///
   /// Provides a boolean value indicating the new state of the switch (true for
@@ -62,82 +62,82 @@ class ShadSwitch extends StatefulWidget {
   /// {@endtemplate}
   final ValueChanged<bool>? onChanged;
 
-  /// {@template ShadSwitch.focusNode}
+  /// {@template Switch.focusNode}
   /// Focus node to control the focus state of the switch.
   ///
   /// If not provided, an internal [FocusNode] is created.
   /// {@endtemplate}
   final FocusNode? focusNode;
 
-  /// {@template ShadWidget.autofocus}
+  /// {@template Widget.autofocus}
   /// Whether this widget should be focused when first shown.
   /// Defaults to `false`.
   /// {@endtemplate}
   final bool autofocus;
 
-  /// {@template ShadWidget.onFocusChange}
+  /// {@template Widget.onFocusChange}
   /// Called when the focus state of this widget changes.
   /// {@endtemplate}
   final ValueChanged<bool>? onFocusChange;
 
-  /// {@template ShadSwitch.thumbColor}
+  /// {@template Switch.thumbColor}
   /// Color of the switch's thumb (the draggable part).
   ///
   /// Defaults to the theme's background color.
   /// {@endtemplate}
   final Color? thumbColor;
 
-  /// {@template ShadSwitch.uncheckedTrackColor}
+  /// {@template Switch.uncheckedTrackColor}
   /// Color of the track when the switch is in the unchecked (off) state.
   ///
   /// Defaults to the theme's input color.
   /// {@endtemplate}
   final Color? uncheckedTrackColor;
 
-  /// {@template ShadSwitch.checkedTrackColor}
+  /// {@template Switch.checkedTrackColor}
   /// Color of the track when the switch is in the checked (on) state.
   ///
   /// Defaults to the theme's primary color.
   /// {@endtemplate}
   final Color? checkedTrackColor;
 
-  /// {@template ShadSwitch.width}
+  /// {@template Switch.width}
   /// Width of the switch widget.
   ///
   /// Defaults to 44.
   /// {@endtemplate}
   final double? width;
 
-  /// {@template ShadSwitch.height}
+  /// {@template Switch.height}
   /// Height of the switch widget.
   ///
   /// Defaults to 24.
   /// {@endtemplate}
   final double? height;
 
-  /// {@template ShadSwitch.margin}
+  /// {@template Switch.margin}
   /// Margin around the thumb within the track.
   ///
   /// Affects the visual spacing and thumb's draggable area. Defaults to 2.
   /// {@endtemplate}
   final double? margin;
 
-  /// {@template ShadSwitch.duration}
+  /// {@template Switch.duration}
   /// Duration of the animation when toggling the switch.
   ///
   /// Defaults to 100 milliseconds.
   /// {@endtemplate}
   final Duration? duration;
 
-  /// {@template ShadSwitch.decoration}
+  /// {@template Switch.decoration}
   /// Custom decoration for the switch track.
   ///
   /// Allows styling the appearance of the track, such as border or background.
-  /// Uses [ShadDecoration].
+  /// Uses [FinesseDecoration].
   /// {@endtemplate}
-  final ShadDecoration? decoration;
+  final FinesseDecoration? decoration;
 
-  /// {@template ShadSwitch.direction}
+  /// {@template Switch.direction}
   /// Text direction of the switch and associated label.
   ///
   /// Determines the layout direction, e.g., left-to-right (LTR) or
@@ -145,7 +145,7 @@ class ShadSwitch extends StatefulWidget {
   /// {@endtemplate}
   final TextDirection? direction;
 
-  /// {@template ShadSwitch.label}
+  /// {@template Switch.label}
   /// Widget to display as a label for the switch.
   ///
   /// Typically a [Text] widget describing the switch's function. Positioned to
@@ -153,7 +153,7 @@ class ShadSwitch extends StatefulWidget {
   /// {@endtemplate}
   final Widget? label;
 
-  /// {@template ShadSwitch.sublabel}
+  /// {@template Switch.sublabel}
   /// Widget to display as a sublabel, providing additional context below the
   /// label.
   ///
@@ -161,7 +161,7 @@ class ShadSwitch extends StatefulWidget {
   /// {@endtemplate}
   final Widget? sublabel;
 
-  /// {@template ShadSwitch.padding}
+  /// {@template Switch.padding}
   /// Padding between the switch itself and its label.
   ///
   /// Defaults to `EdgeInsetsDirectional.only(start: 8)`.
@@ -169,11 +169,10 @@ class ShadSwitch extends StatefulWidget {
   final EdgeInsetsGeometry? padding;
 
   @override
-  State<ShadSwitch> createState() => _ShadSwitchState();
+  State<Switch> createState() => _SwitchState();
 }
 
-class _ShadSwitchState extends State<ShadSwitch>
-    with SingleTickerProviderStateMixin {
+class _SwitchState extends State<Switch> with SingleTickerProviderStateMixin {
   FocusNode? _focusNode;
   late final controller = AnimationController(vsync: this);
 
@@ -187,7 +186,7 @@ class _ShadSwitchState extends State<ShadSwitch>
   }
 
   @override
-  void didUpdateWidget(covariant ShadSwitch oldWidget) {
+  void didUpdateWidget(covariant Switch oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.value != widget.value) {
       controller.animateTo(widget.value ? 1 : 0);
@@ -218,8 +217,8 @@ class _ShadSwitchState extends State<ShadSwitch>
 
   @override
   Widget build(BuildContext context) {
-    assert(debugCheckHasShadTheme(context));
-    final theme = ShadTheme.of(context);
+    assert(debugCheckHasTheme(context));
+    final theme = Theme.of(context);
 
     final direction = widget.direction ?? Directionality.of(context);
     final effectiveThumbColor =
@@ -244,7 +243,7 @@ class _ShadSwitchState extends State<ShadSwitch>
         widget.duration ?? theme.switchTheme.duration ?? 100.milliseconds;
 
     final effectiveDecoration =
-        (theme.switchTheme.decoration ?? const ShadDecoration())
+        (theme.switchTheme.decoration ?? const FinesseDecoration())
             .merge(widget.decoration)
             .copyWith(
               color: widget.value
@@ -279,7 +278,7 @@ class _ShadSwitchState extends State<ShadSwitch>
 
     final switchWidget = Semantics(
       toggled: widget.value,
-      child: ShadDisabled(
+      child: Disabled(
         showForbiddenCursor: true,
         disabled: !widget.enabled,
         child: CallbackShortcuts(
@@ -290,12 +289,12 @@ class _ShadSwitchState extends State<ShadSwitch>
                 onTap();
               },
           },
-          child: ShadFocusable(
+          child: Focusable(
             autofocus: widget.autofocus,
             onFocusChange: widget.onFocusChange,
             focusNode: focusNode,
             builder: (context, focused, child) {
-              return ShadDecorator(
+              return Decorator(
                 focused: focused,
                 decoration: effectiveDecoration,
                 child: child,
@@ -310,7 +309,7 @@ class _ShadSwitchState extends State<ShadSwitch>
                   alignment: Alignment.centerLeft,
                   child: Padding(
                     padding: EdgeInsets.all(effectiveMargin),
-                    child: ShadAnimate(
+                    child: FinesseAnimate(
                       controller: controller,
                       autoPlay: false,
                       effects: effectiveEffects,
@@ -320,8 +319,8 @@ class _ShadSwitchState extends State<ShadSwitch>
                           SizedBox(
                             width: effectiveThumbSize,
                             height: effectiveThumbSize,
-                            child: ShadDecorator(
-                              decoration: ShadDecoration(
+                            child: Decorator(
+                              decoration: FinesseDecoration(
                                 color: effectiveThumbColor,
                                 shape: BoxShape.circle,
                                 canMerge: false,
@@ -340,7 +339,7 @@ class _ShadSwitchState extends State<ShadSwitch>
       ),
     );
 
-    return ShadDisabled(
+    return Disabled(
       showForbiddenCursor: true,
       disabled: !widget.enabled,
       disabledOpacity: 1,

@@ -3,14 +3,14 @@ import 'package:theme_extensions_builder_annotation/theme_extensions_builder_ann
 
 part 'pagination.g.theme.dart';
 
-/// {@template ShadPaginationTheme}
-/// Theme for the `ShadPagination` widget.
+/// {@template PaginationTheme}
+/// Theme for the `Pagination` widget.
 /// {@endtemplate}
 @themeGen
 @immutable
-class ShadPaginationTheme with _$ShadPaginationTheme {
-  /// {@macro ShadPaginationTheme}
-  const ShadPaginationTheme({
+class PaginationTheme with _$PaginationTheme {
+  /// {@macro PaginationTheme}
+  const PaginationTheme({
     bool canMerge = true,
     this.gap,
     this.mainAxisAlignment,
@@ -29,25 +29,25 @@ class ShadPaginationTheme with _$ShadPaginationTheme {
   /// The gap between pagination items.
   final double? gap;
 
-  /// {@macro ShadPagination.mainAxisAlignment}
+  /// {@macro Pagination.mainAxisAlignment}
   final MainAxisAlignment? mainAxisAlignment;
 
-  /// {@macro ShadPagination.siblingCount}
+  /// {@macro Pagination.siblingCount}
   final int? siblingCount;
 
-  /// {@macro ShadPagination.boundaryCount}
+  /// {@macro Pagination.boundaryCount}
   final int? boundaryCount;
 
-  /// {@macro ShadPagination.showEdges}
+  /// {@macro Pagination.showEdges}
   final bool? showEdges;
 
   /// The style of the ellipsis shown in place of skipped pages.
   final TextStyle? ellipsisTextStyle;
 
   /// Linearly interpolates between [a] and [b] by [t].
-  static ShadPaginationTheme? lerp(
-    ShadPaginationTheme? a,
-    ShadPaginationTheme? b,
+  static PaginationTheme? lerp(
+    PaginationTheme? a,
+    PaginationTheme? b,
     double t,
-  ) => _$ShadPaginationTheme.lerp(a, b, t);
+  ) => _$PaginationTheme.lerp(a, b, t);
 }

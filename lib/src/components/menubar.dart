@@ -1,26 +1,26 @@
 import 'dart:ui';
 
 import 'package:collection/collection.dart';
+import 'package:finesse/src/components/button.dart';
+import 'package:finesse/src/components/context_menu.dart';
+import 'package:finesse/src/components/popover.dart';
+import 'package:finesse/src/raw_components/portal.dart';
+import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/border.dart';
+import 'package:finesse/src/utils/gesture_detector.dart';
+import 'package:finesse/src/utils/provider.dart';
+import 'package:finesse/src/utils/provider_index.dart';
+import 'package:finesse/src/utils/shadow.dart';
+import 'package:finesse/src/utils/states_controller.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:shad/src/components/button.dart';
-import 'package:shad/src/components/context_menu.dart';
-import 'package:shad/src/components/popover.dart';
-import 'package:shad/src/raw_components/portal.dart';
-import 'package:shad/src/theme/components/decorator.dart';
-import 'package:shad/src/theme/theme.dart';
-import 'package:shad/src/utils/border.dart';
-import 'package:shad/src/utils/gesture_detector.dart';
-import 'package:shad/src/utils/provider.dart';
-import 'package:shad/src/utils/provider_index.dart';
-import 'package:shad/src/utils/shadow.dart';
-import 'package:shad/src/utils/states_controller.dart';
 
-/// {@template ShadMenubarController}
+/// {@template MenubarController}
 /// The controller for managing the selected item of the menubar
 /// {@endtemplate}
-class ShadMenubarController extends ChangeNotifier {
+class MenubarController extends ChangeNotifier {
   int? _selectedIndex;
 
   /// Returns the selected index of the menubar
@@ -35,10 +35,10 @@ class ShadMenubarController extends ChangeNotifier {
 }
 
 /// A menubar that contains a list of items, typically a list of
-/// [ShadMenubarItem].
-class ShadMenubar extends StatefulWidget {
+/// [MenubarItem].
+class Menubar extends StatefulWidget {
   /// Creates the menubar with the given [items].
-  const ShadMenubar({
+  const Menubar({
     super.key,
     required this.items,
     this.radius,
@@ -50,45 +50,45 @@ class ShadMenubar extends StatefulWidget {
     this.stripShadows,
   });
 
-  /// {@template ShadMenubar.stripShadows}
+  /// {@template Menubar.stripShadows}
   /// The shadow of the menubar strip itself. Defaults to the style's control
   /// shadow (`shadow-xs` in the styles that shadow their controls); pass an
   /// empty list for a flat strip.
   ///
-  /// `ShadMenubarTheme.shadows` is the shadow of the menus that open from it.
+  /// `MenubarTheme.shadows` is the shadow of the menus that open from it.
   /// {@endtemplate}
   final List<BoxShadow>? stripShadows;
 
-  /// {@template ShadMenubar.items}
+  /// {@template Menubar.items}
   /// The items of the menubar
   /// {@endtemplate}
   final Iterable<Widget> items;
 
-  /// {@template ShadMenubar.radius}
+  /// {@template Menubar.radius}
   /// The radius of the menubar, default to `theme.radius`
   /// {@endtemplate}
   final BorderRadiusGeometry? radius;
 
-  /// {@macro ShadMenubarController}
-  final ShadMenubarController? controller;
+  /// {@macro MenubarController}
+  final MenubarController? controller;
 
-  /// {@template ShadMenubar.padding}
+  /// {@template Menubar.padding}
   /// The padding of the menubar, default to `EdgeInsets.all(4)`
   /// {@endtemplate}
   final EdgeInsetsGeometry? padding;
 
-  /// {@template ShadMenubar.backgroundColor}
+  /// {@template Menubar.backgroundColor}
   /// The background color of the menubar, default to `null`
   /// {@endtemplate}
   final Color? backgroundColor;
 
-  /// {@template ShadMenubar.border}
+  /// {@template Menubar.border}
   /// The border of the menubar, default to
-  /// `ShadBorder.all(color: theme.colorScheme.border, width: 1)`
+  /// `FinesseBorder.all(color: theme.colorScheme.border, width: 1)`
   /// {@endtemplate}
-  final ShadBorder? border;
+  final FinesseBorder? border;
 
-  /// {@template ShadMenubar.selectOnHover}
+  /// {@template Menubar.selectOnHover}
   /// Whether hovering a trigger moves the selection *while a menu is already
   /// open*, defaults to `true`.
   ///
@@ -99,19 +99,19 @@ class ShadMenubar extends StatefulWidget {
   final bool? selectOnHover;
 
   @override
-  State<ShadMenubar> createState() => _ShadMenubarState();
+  State<Menubar> createState() => _MenubarState();
 }
 
-class _ShadMenubarState extends State<ShadMenubar> {
+class _MenubarState extends State<Menubar> {
   int? focusedIndex;
-  ShadMenubarController? _controller;
-  ShadMenubarController get controller => widget.controller ?? _controller!;
+  MenubarController? _controller;
+  MenubarController get controller => widget.controller ?? _controller!;
 
   @override
   void initState() {
     super.initState();
     if (widget.controller == null) {
-      _controller = ShadMenubarController();
+      _controller = MenubarController();
     }
   }
 
@@ -123,36 +123,36 @@ class _ShadMenubarState extends State<ShadMenubar> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     final effectiveRadius =
         widget.radius ?? theme.menubarTheme.radius ?? theme.radius;
     final effectivePadding =
         widget.padding ?? theme.menubarTheme.padding ?? const EdgeInsets.all(4);
     final effectiveBackgroundColor =
         widget.backgroundColor ?? theme.menubarTheme.backgroundColor;
-    final effectiveBorder = ShadBorder.all(
+    final effectiveBorder = FinesseBorder.all(
       color: theme.colorScheme.border,
       width: 1,
     ).merge(theme.menubarTheme.border).merge(widget.border);
 
-    return ShadProvider(
+    return Provider(
       // No notifyUpdate: `data` is this State, whose identity never changes,
       // so any predicate over it is constant. Items rebuild through the normal
       // parent-to-child path instead. The previous
       // `(oldState) => oldState.data != this` was always false, i.e. exactly
-      // ShadProvider's default.
+      // Provider's default.
       data: this,
       // A Container rather than DecoratedBox + Padding: Container counts its
       // decoration's border into the padding, which is what makes the strip
       // border-box — `h-9` in the reference includes the hairline, and the
       // theme's trigger height is derived assuming it does.
       child: Container(
-        decoration: ShadShadowDecoration.box(
+        decoration: ShadowDecoration.box(
           color: effectiveBackgroundColor,
           border: effectiveBorder.toBorder(),
           borderRadius: effectiveRadius,
           // The strip's `shadow-xs`; only styles that shadow their controls
-          // keep it. `ShadMenubarTheme.shadows` belongs to the item popovers.
+          // keep it. `MenubarTheme.shadows` belongs to the item popovers.
           shadows:
               widget.stripShadows ??
               theme.menubarTheme.stripShadows ??
@@ -163,7 +163,7 @@ class _ShadMenubarState extends State<ShadMenubar> {
           mainAxisSize: MainAxisSize.min,
           children: widget.items
               .mapIndexed(
-                (i, item) => ShadIndexProvider(index: i, child: item),
+                (i, item) => IndexProvider(index: i, child: item),
               )
               .toList(),
         ),
@@ -173,10 +173,10 @@ class _ShadMenubarState extends State<ShadMenubar> {
 }
 
 /// A menubar item that contains a list of items, typically a list of
-/// [ShadContextMenuItem].
-class ShadMenubarItem extends StatefulWidget {
+/// [ContextMenuItem].
+class MenubarItem extends StatefulWidget {
   /// Creates the menubar item with the given [items].
-  const ShadMenubarItem({
+  const MenubarItem({
     super.key,
     required this.child,
     required this.items,
@@ -243,214 +243,214 @@ class ShadMenubarItem extends StatefulWidget {
   /// The child of the menubar item
   final Widget child;
 
-  /// {@macro ShadContextMenu.items}
+  /// {@macro ContextMenu.items}
   final List<Widget> items;
 
-  /// {@macro ShadContextMenu.constraints}
+  /// {@macro ContextMenu.constraints}
   final BoxConstraints? constraints;
 
-  /// {@macro ShadContextMenu.onHoverArea}
+  /// {@macro ContextMenu.onHoverArea}
   final ValueChanged<bool>? onHoverArea;
 
-  /// {@macro ShadContextMenu.padding}
+  /// {@macro ContextMenu.padding}
   final EdgeInsetsGeometry? padding;
 
-  /// {@macro ShadMouseArea.groupId}
+  /// {@macro MouseArea.groupId}
   final Object? groupId;
 
-  /// {@macro ShadPopover.effects}
+  /// {@macro Popover.effects}
   final List<Effect<dynamic>>? effects;
 
-  /// {@macro ShadPopover.shadows}
+  /// {@macro Popover.shadows}
   final List<BoxShadow>? shadows;
 
-  /// {@macro ShadPopover.decoration}
-  final ShadDecoration? decoration;
+  /// {@macro Popover.decoration}
+  final FinesseDecoration? decoration;
 
-  /// {@macro ShadPopover.filter}
+  /// {@macro Popover.filter}
   final ImageFilter? filter;
 
-  /// {@macro ShadPopover.controller}
-  final ShadPopoverController? controller;
+  /// {@macro Popover.controller}
+  final PopoverController? controller;
 
-  /// {@template ShadMenubarItem.anchor}
+  /// {@template MenubarItem.anchor}
   /// The anchor of the context menu shown by the item, defaults to
   /// ```dart
-  /// const ShadAnchorAuto(
+  /// const AnchorAuto(
   ///   offset: Offset(-4, 8),
   ///   followerAnchor: Alignment.bottomRight,
   ///   targetAnchor: Alignment.bottomLeft,
   /// );
   /// ```
   /// {@endtemplate}
-  final ShadAnchorBase? anchor;
+  final AnchorBase? anchor;
 
-  /// {@macro ShadButton.onLongPress}
+  /// {@macro Button.onLongPress}
   final VoidCallback? onLongPress;
 
-  /// {@macro ShadButton.leading}
+  /// {@macro Button.leading}
   final Widget? leading;
 
-  /// {@macro ShadButton.trailing}
+  /// {@macro Button.trailing}
   final Widget? trailing;
 
-  /// {@macro ShadButton.variant}
+  /// {@macro Button.variant}
   ///
-  /// Defaults to `ShadButtonVariant.ghost`.
-  final ShadButtonVariant? variant;
+  /// Defaults to `ButtonVariant.ghost`.
+  final ButtonVariant? variant;
 
-  /// {@macro ShadButton.size}
-  final ShadButtonSize? size;
+  /// {@macro Button.size}
+  final ButtonSize? size;
 
-  /// {@macro ShadButton.cursor}
+  /// {@macro Button.cursor}
   final MouseCursor? cursor;
 
-  /// {@macro ShadButton.width}
+  /// {@macro Button.width}
   final double? width;
 
-  /// {@template ShadMenubarItem.height}
-  /// {@macro ShadButton.height}
+  /// {@template MenubarItem.height}
+  /// {@macro Button.height}
   ///
   /// Defaults to `32`.
   /// {@endtemplate}
   final double? height;
 
-  /// {@macro ShadButton.padding}
+  /// {@macro Button.padding}
   final EdgeInsetsGeometry? buttonPadding;
 
-  /// {@macro ShadButton.backgroundColor}
+  /// {@macro Button.backgroundColor}
   final Color? backgroundColor;
 
-  /// {@template ShadMenubarItem.selectedBackgroundColor}
+  /// {@template MenubarItem.selectedBackgroundColor}
   /// The background color of the button when the item is selected, defaults to
   /// `theme.colorScheme.accent`.
   /// {@endtemplate}
   final Color? selectedBackgroundColor;
 
-  /// {@macro ShadButton.hoverBackgroundColor}
+  /// {@macro Button.hoverBackgroundColor}
   final Color? hoverBackgroundColor;
 
-  /// {@macro ShadButton.foregroundColor}
+  /// {@macro Button.foregroundColor}
   final Color? foregroundColor;
 
-  /// {@macro ShadButton.hoverForegroundColor}
+  /// {@macro Button.hoverForegroundColor}
   final Color? hoverForegroundColor;
 
-  /// {@macro ShadButton.autofocus}
+  /// {@macro Button.autofocus}
   final bool autofocus;
 
-  /// {@macro ShadButton.focusNode}
+  /// {@macro Button.focusNode}
   final FocusNode? focusNode;
 
-  /// {@macro ShadButton.pressedBackgroundColor}
+  /// {@macro Button.pressedBackgroundColor}
   final Color? pressedBackgroundColor;
 
-  /// {@macro ShadButton.pressedForegroundColor}
+  /// {@macro Button.pressedForegroundColor}
   final Color? pressedForegroundColor;
 
-  /// {@macro ShadButton.shadows}
+  /// {@macro Button.shadows}
   final List<BoxShadow>? buttonShadows;
 
-  /// {@macro ShadButton.gradient}
+  /// {@macro Button.gradient}
   final Gradient? gradient;
 
-  /// {@macro ShadButton.textDecoration}
+  /// {@macro Button.textDecoration}
   final TextDecoration? textDecoration;
 
-  /// {@macro ShadButton.hoverTextDecoration}
+  /// {@macro Button.hoverTextDecoration}
   final TextDecoration? hoverTextDecoration;
 
-  /// {@macro ShadButton.decoration}
-  final ShadDecoration? buttonDecoration;
+  /// {@macro Button.decoration}
+  final FinesseDecoration? buttonDecoration;
 
-  /// {@macro ShadButton.enabled}
+  /// {@macro Button.enabled}
   final bool enabled;
 
-  /// {@macro ShadButton.statesController}
-  final ShadStatesController? statesController;
+  /// {@macro Button.statesController}
+  final StatesController? statesController;
 
-  /// {@macro ShadButton.gap}
+  /// {@macro Button.gap}
   final double? gap;
 
-  /// {@macro ShadButton.mainAxisAlignment}
+  /// {@macro Button.mainAxisAlignment}
   final MainAxisAlignment? mainAxisAlignment;
 
-  /// {@macro ShadButton.crossAxisAlignment}
+  /// {@macro Button.crossAxisAlignment}
   final CrossAxisAlignment? crossAxisAlignment;
 
-  /// {@macro ShadButton.hoverStrategies}
-  final ShadHoverStrategies? hoverStrategies;
+  /// {@macro Button.hoverStrategies}
+  final HoverStrategies? hoverStrategies;
 
-  /// {@macro ShadButton.onHoverChange}
+  /// {@macro Button.onHoverChange}
   final ValueChanged<bool>? onHoverChange;
 
-  /// {@macro ShadButton.onTapDown}
+  /// {@macro Button.onTapDown}
   final ValueChanged<TapDownDetails>? onTapDown;
 
-  /// {@macro ShadButton.onTapUp}
+  /// {@macro Button.onTapUp}
   final ValueChanged<TapUpDetails>? onTapUp;
 
-  /// {@macro ShadButton.onTapCancel}
+  /// {@macro Button.onTapCancel}
   final VoidCallback? onTapCancel;
 
-  /// {@macro ShadButton.onSecondaryTapDown}
+  /// {@macro Button.onSecondaryTapDown}
   final ValueChanged<TapDownDetails>? onSecondaryTapDown;
 
-  /// {@macro ShadButton.onSecondaryTapUp}
+  /// {@macro Button.onSecondaryTapUp}
   final ValueChanged<TapUpDetails>? onSecondaryTapUp;
 
-  /// {@macro ShadButton.onSecondaryTapCancel}
+  /// {@macro Button.onSecondaryTapCancel}
   final VoidCallback? onSecondaryTapCancel;
 
-  /// {@macro ShadButton.onLongPressStart}
+  /// {@macro Button.onLongPressStart}
   final ValueChanged<LongPressStartDetails>? onLongPressStart;
 
-  /// {@macro ShadButton.onLongPressCancel}
+  /// {@macro Button.onLongPressCancel}
   final VoidCallback? onLongPressCancel;
 
-  /// {@macro ShadButton.onLongPressUp}
+  /// {@macro Button.onLongPressUp}
   final VoidCallback? onLongPressUp;
 
-  /// {@macro ShadButton.onLongPressDown}
+  /// {@macro Button.onLongPressDown}
   final ValueChanged<LongPressDownDetails>? onLongPressDown;
 
-  /// {@macro ShadButton.onLongPressEnd}
+  /// {@macro Button.onLongPressEnd}
   final ValueChanged<LongPressEndDetails>? onLongPressEnd;
 
-  /// {@macro ShadButton.onDoubleTap}
+  /// {@macro Button.onDoubleTap}
   final VoidCallback? onDoubleTap;
 
-  /// {@macro ShadButton.onDoubleTapDown}
+  /// {@macro Button.onDoubleTapDown}
   final ValueChanged<TapDownDetails>? onDoubleTapDown;
 
-  /// {@macro ShadButton.onDoubleTapCancel}
+  /// {@macro Button.onDoubleTapCancel}
   final VoidCallback? onDoubleTapCancel;
 
-  /// {@macro ShadButton.longPressDuration}
+  /// {@macro Button.longPressDuration}
   final Duration? longPressDuration;
 
-  /// {@macro ShadButton.textDirection}
+  /// {@macro Button.textDirection}
   final TextDirection? textDirection;
 
-  /// {@macro ShadButton.onFocusChange}
+  /// {@macro Button.onFocusChange}
   final ValueChanged<bool>? onFocusChange;
 
-  /// {@macro ShadButton.expands}
+  /// {@macro Button.expands}
   final bool? expands;
 
   @override
-  State<ShadMenubarItem> createState() => _ShadMenubarItemState();
+  State<MenubarItem> createState() => _MenubarItemState();
 }
 
-class _ShadMenubarItemState extends State<ShadMenubarItem> {
-  ShadPopoverController? _popoverController;
+class _MenubarItemState extends State<MenubarItem> {
+  PopoverController? _popoverController;
 
-  ShadPopoverController get popoverController =>
+  PopoverController get popoverController =>
       widget.controller ?? _popoverController!;
 
-  ShadMenubarController? _menubarController;
+  MenubarController? _menubarController;
 
-  ShadMenubarController get menubarController => _menubarController!;
+  MenubarController get menubarController => _menubarController!;
 
   late int index;
 
@@ -458,7 +458,7 @@ class _ShadMenubarItemState extends State<ShadMenubarItem> {
   void initState() {
     super.initState();
     if (widget.controller == null) {
-      _popoverController = ShadPopoverController();
+      _popoverController = PopoverController();
     }
   }
 
@@ -470,12 +470,12 @@ class _ShadMenubarItemState extends State<ShadMenubarItem> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final newController = context.watch<_ShadMenubarState>().controller;
-    index = context.watch<ShadProviderIndex>().index;
+    final newController = context.watch<_MenubarState>().controller;
+    index = context.watch<ProviderIndex>().index;
 
     // Detach from the previous controller before adopting the new one. The
     // old code reassigned the field first and then removed the listener from
-    // the *new* controller, so swapping ShadMenubar.controller left the
+    // the *new* controller, so swapping Menubar.controller left the
     // listener attached to the old one forever — and it would later call
     // setOpen on a disposed popover controller.
     if (!identical(newController, _menubarController)) {
@@ -494,12 +494,12 @@ class _ShadMenubarItemState extends State<ShadMenubarItem> {
 
   @override
   Widget build(BuildContext context) {
-    final inherited = context.watch<_ShadMenubarState>();
-    final theme = ShadTheme.of(context);
+    final inherited = context.watch<_MenubarState>();
+    final theme = Theme.of(context);
     final effectiveAnchor =
         widget.anchor ??
         theme.menubarTheme.anchor ??
-        const ShadAnchor(
+        const Anchor(
           offset: Offset(-4, 8),
           childAlignment: AlignmentDirectional.bottomStart,
           overlayAlignment: AlignmentDirectional.topStart,
@@ -510,12 +510,12 @@ class _ShadMenubarItemState extends State<ShadMenubarItem> {
     final effectiveVariant =
         widget.variant ??
         theme.menubarTheme.buttonVariant ??
-        ShadButtonVariant.ghost;
+        ButtonVariant.ghost;
     final effectiveSelectedBackgroundColor =
         widget.selectedBackgroundColor ??
         theme.menubarTheme.buttonSelectedBackgroundColor ??
         theme.colorScheme.accent;
-    final effectiveButtonDecoration = const ShadDecoration(
+    final effectiveButtonDecoration = const FinesseDecoration(
       disableSecondaryBorder: true,
     ).merge(theme.menubarTheme.buttonDecoration).merge(widget.buttonDecoration);
     final effectiveSelectOnHover =
@@ -527,7 +527,7 @@ class _ShadMenubarItemState extends State<ShadMenubarItem> {
       listenable: menubarController,
       builder: (context, child) {
         final selected = menubarController.selectedIndex == index;
-        return ShadContextMenu(
+        return ContextMenu(
           anchor: effectiveAnchor,
           controller: popoverController,
           items: widget.items,
@@ -545,7 +545,7 @@ class _ShadMenubarItemState extends State<ShadMenubarItem> {
           onTapOutside: (_) {
             menubarController.selectedIndex = null;
           },
-          child: ShadButton.raw(
+          child: Button.raw(
             variant: effectiveVariant,
             height: effectiveHeight,
             backgroundColor: selected

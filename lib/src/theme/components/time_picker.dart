@@ -1,18 +1,18 @@
+import 'package:finesse/src/components/time_picker.dart';
+import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/components/time_picker.dart';
-import 'package:shad/src/theme/components/decorator.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
 part 'time_picker.g.theme.dart';
 
-/// {@template ShadTimePickerTheme}
-/// Theme for the `ShadTimePicker` widget.
+/// {@template TimePickerTheme}
+/// Theme for the `TimePicker` widget.
 /// {@endtemplate}
 @themeGen
 @immutable
-class ShadTimePickerTheme with _$ShadTimePickerTheme {
-  /// {@macro ShadTimePickerTheme}
-  const ShadTimePickerTheme({
+class TimePickerTheme with _$TimePickerTheme {
+  /// {@macro TimePickerTheme}
+  const TimePickerTheme({
     bool canMerge = true,
     this.axis,
     this.spacing,
@@ -48,88 +48,88 @@ class ShadTimePickerTheme with _$ShadTimePickerTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro ShadTimePicker.axis}
+  /// {@macro TimePicker.axis}
   final Axis? axis;
 
-  /// {@macro ShadTimePicker.spacing}
+  /// {@macro TimePicker.spacing}
   final double? spacing;
 
-  /// {@macro ShadTimePicker.runSpacing}
+  /// {@macro TimePicker.runSpacing}
   final double? runSpacing;
 
-  /// {@macro ShadTimePicker.jumpToNextFieldWhenFilled}
+  /// {@macro TimePicker.jumpToNextFieldWhenFilled}
   final bool? jumpToNextFieldWhenFilled;
 
-  /// {@macro ShadTimePicker.alignment}
+  /// {@macro TimePicker.alignment}
   final WrapAlignment? alignment;
 
-  /// {@macro ShadTimePicker.runAlignment}
+  /// {@macro TimePicker.runAlignment}
   final WrapAlignment? runAlignment;
 
-  /// {@macro ShadTimePicker.crossAxisAlignment}
+  /// {@macro TimePicker.crossAxisAlignment}
   final WrapCrossAlignment? crossAxisAlignment;
 
-  /// {@macro ShadTimePicker.initialDayPeriod}
-  final ShadDayPeriod? initialDayPeriod;
+  /// {@macro TimePicker.initialDayPeriod}
+  final DayPeriod? initialDayPeriod;
 
-  /// {@macro ShadTimePicker.periodHeight}
+  /// {@macro TimePicker.periodHeight}
   final double? periodHeight;
 
-  /// {@macro ShadTimePicker.periodMinWidth}
+  /// {@macro TimePicker.periodMinWidth}
   final double? periodMinWidth;
 
-  /// {@macro ShadTimePicker.gap}
+  /// {@macro TimePicker.gap}
   final double? gap;
 
-  /// {@macro ShadTimePicker.style}
+  /// {@macro TimePicker.style}
   final TextStyle? style;
 
-  /// {@macro ShadTimePicker.placeholderStyle}
+  /// {@macro TimePicker.placeholderStyle}
   final TextStyle? placeholderStyle;
 
-  /// {@macro ShadTimePicker.labelStyle}
+  /// {@macro TimePicker.labelStyle}
   final TextStyle? labelStyle;
 
-  /// {@macro ShadTimePicker.fieldWidth}
+  /// {@macro TimePicker.fieldWidth}
   final double? fieldWidth;
 
-  /// {@macro ShadTimePicker.fieldPadding}
+  /// {@macro TimePicker.fieldPadding}
   final EdgeInsetsGeometry? fieldPadding;
 
-  /// {@macro ShadTimePicker.fieldDecoration}
-  final ShadDecoration? fieldDecoration;
+  /// {@macro TimePicker.fieldDecoration}
+  final FinesseDecoration? fieldDecoration;
 
-  /// {@macro ShadTimePicker.periodDecoration}
-  final ShadDecoration? periodDecoration;
+  /// {@macro TimePicker.periodDecoration}
+  final FinesseDecoration? periodDecoration;
 
-  /// {@macro ShadTimePicker.hourLabel}
+  /// {@macro TimePicker.hourLabel}
   final Widget? hourLabel;
 
-  /// {@macro ShadTimePicker.minuteLabel}
+  /// {@macro TimePicker.minuteLabel}
   final Widget? minuteLabel;
 
-  /// {@macro ShadTimePicker.secondLabel}
+  /// {@macro TimePicker.secondLabel}
   final Widget? secondLabel;
 
-  /// {@macro ShadTimePicker.periodLabel}
+  /// {@macro TimePicker.periodLabel}
   final Widget? periodLabel;
 
-  /// {@macro ShadTimePicker.hourPlaceholder}
+  /// {@macro TimePicker.hourPlaceholder}
   final Widget? hourPlaceholder;
 
-  /// {@macro ShadTimePicker.minutePlaceholder}
+  /// {@macro TimePicker.minutePlaceholder}
   final Widget? minutePlaceholder;
 
-  /// {@macro ShadTimePicker.secondPlaceholder}
+  /// {@macro TimePicker.secondPlaceholder}
   final Widget? secondPlaceholder;
 
-  /// {@macro ShadTimePicker.periodPlaceholder}
+  /// {@macro TimePicker.periodPlaceholder}
   final Widget? periodPlaceholder;
 
   /// Linearly interpolates between [a] and [b] by [t].
-  static ShadTimePickerTheme? lerp(
-    ShadTimePickerTheme? a,
-    ShadTimePickerTheme? b,
+  static TimePickerTheme? lerp(
+    TimePickerTheme? a,
+    TimePickerTheme? b,
     double t,
-  ) => _$ShadTimePickerTheme.lerp(a, b, t);
+  ) => _$TimePickerTheme.lerp(a, b, t);
 }

@@ -1,9 +1,9 @@
 import 'dart:async';
 
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
-/// Cycles `ShadAnchorAuto` follower anchors on a hover-triggered portal.
+/// Cycles `AnchorAuto` follower anchors on a hover-triggered portal.
 class PortalAnchoringExample extends StatefulWidget {
   const PortalAnchoringExample({super.key});
 
@@ -46,7 +46,7 @@ class _PortalAnchoringExampleState extends State<PortalAnchoringExample> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
     final alignment = _alignments[alignmentIndex];
 
     return SizedBox(
@@ -65,11 +65,11 @@ class _PortalAnchoringExampleState extends State<PortalAnchoringExample> {
             ),
           ),
           Align(
-            child: ShadPortal(
-              anchor: ShadAnchorAuto(followerAnchor: alignment),
+            child: Portal(
+              anchor: AnchorAuto(followerAnchor: alignment),
               visible: visible,
               portalBuilder: (context) {
-                return ShadMouseArea(
+                return MouseArea(
                   groupId: 'portal-demo',
                   child: ColoredBox(
                     color: theme.colorScheme.primary,
@@ -83,7 +83,7 @@ class _PortalAnchoringExampleState extends State<PortalAnchoringExample> {
                   ),
                 );
               },
-              child: ShadMouseArea(
+              child: MouseArea(
                 groupId: 'portal-demo',
                 onEnter: (_) => setState(() => visible = true),
                 onExit: (_) => setState(() => visible = false),

@@ -1,9 +1,9 @@
 import 'dart:ui' as ui;
 
+import 'package:finesse/finesse.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/shad.dart';
 
 // The element painted by [_render], centred in a 400x400 white canvas.
 const _canvas = 400;
@@ -49,10 +49,10 @@ void main() {
     'an outer shadow fades away from the element without a hard edge',
     () async {
       final pixels = await _render(
-        ShadShadowDecoration.box(
+        ShadowDecoration.box(
           color: const Color(0xFFFFFFFF),
           borderRadius: BorderRadius.circular(10),
-          shadows: ShadShadows.lg,
+          shadows: Shadows.lg,
         ),
       );
 
@@ -96,9 +96,9 @@ void main() {
     // A translucent surface (the menu finish) would otherwise show the shadow
     // through it as a grey wash.
     final pixels = await _render(
-      ShadShadowDecoration.box(
+      ShadowDecoration.box(
         borderRadius: BorderRadius.circular(10),
-        shadows: ShadShadows.xl2,
+        shadows: Shadows.xl2,
       ),
     );
 
@@ -123,7 +123,7 @@ void main() {
       // `shadow-[0_0_0_1px_...]`, which the sidebar's outline menu button uses
       // as a border that does not take part in layout.
       final pixels = await _render(
-        ShadShadowDecoration.box(
+        ShadowDecoration.box(
           color: const Color(0xFFFFFFFF),
           borderRadius: BorderRadius.circular(10),
           shadows: const [BoxShadow(spreadRadius: 1)],

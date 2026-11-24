@@ -1,131 +1,131 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class ContextMenuSubmenusExample extends StatelessWidget {
   const ContextMenuSubmenusExample({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
-    const divider = ShadSeparator.horizontal(
+    final theme = Theme.of(context);
+    const divider = Divider.horizontal(
       margin: EdgeInsets.symmetric(vertical: 4),
     );
     const more = Icon(LucideIcons.chevronRight);
-    return ShadContextMenuRegion(
+    return ContextMenuRegion(
       constraints: const BoxConstraints(minWidth: 220),
       items: const [
-        ShadContextMenuItem(
+        ContextMenuItem(
           leading: Icon(LucideIcons.folderOpen),
           child: Text('Open'),
         ),
-        ShadContextMenuItem(
+        ContextMenuItem(
           leading: Icon(LucideIcons.appWindow),
           trailing: more,
           items: [
-            ShadContextMenuItem(child: Text('Preview')),
-            ShadContextMenuItem(child: Text('Text Editor')),
-            ShadContextMenuItem(child: Text('Code')),
+            ContextMenuItem(child: Text('Preview')),
+            ContextMenuItem(child: Text('Text Editor')),
+            ContextMenuItem(child: Text('Code')),
             divider,
-            ShadContextMenuItem(child: Text('Other...')),
+            ContextMenuItem(child: Text('Other...')),
           ],
           child: Text('Open With'),
         ),
-        ShadContextMenuItem(
+        ContextMenuItem(
           leading: Icon(LucideIcons.share2),
           trailing: more,
           items: [
-            ShadContextMenuItem(child: Text('Email')),
-            ShadContextMenuItem(child: Text('Messages')),
-            ShadContextMenuItem(child: Text('AirDrop')),
-            ShadContextMenuItem(
+            ContextMenuItem(child: Text('Email')),
+            ContextMenuItem(child: Text('Messages')),
+            ContextMenuItem(child: Text('AirDrop')),
+            ContextMenuItem(
               trailing: more,
               items: [
-                ShadContextMenuItem(child: Text('Copy Link')),
-                ShadContextMenuItem(child: Text('Copy Embed Code')),
-                ShadContextMenuItem(child: Text('Copy as Markdown')),
+                ContextMenuItem(child: Text('Copy Link')),
+                ContextMenuItem(child: Text('Copy Embed Code')),
+                ContextMenuItem(child: Text('Copy as Markdown')),
               ],
               child: Text('Copy'),
             ),
           ],
           child: Text('Share'),
         ),
-        ShadContextMenuItem(
+        ContextMenuItem(
           leading: Icon(LucideIcons.folderInput),
           trailing: more,
           items: [
-            ShadContextMenuItem(child: Text('Desktop')),
-            ShadContextMenuItem(child: Text('Documents')),
-            ShadContextMenuItem(child: Text('Downloads')),
-            ShadContextMenuItem(
+            ContextMenuItem(child: Text('Desktop')),
+            ContextMenuItem(child: Text('Documents')),
+            ContextMenuItem(child: Text('Downloads')),
+            ContextMenuItem(
               trailing: more,
               items: [
-                ShadContextMenuItem(child: Text('Design')),
-                ShadContextMenuItem(child: Text('Engineering')),
-                ShadContextMenuItem(child: Text('Marketing')),
+                ContextMenuItem(child: Text('Design')),
+                ContextMenuItem(child: Text('Engineering')),
+                ContextMenuItem(child: Text('Marketing')),
               ],
               child: Text('Projects'),
             ),
           ],
           child: Text('Move To'),
         ),
-        ShadContextMenuItem(
+        ContextMenuItem(
           leading: Icon(LucideIcons.tag),
           trailing: more,
           items: [
-            ShadContextMenuItem(child: Text('Red')),
-            ShadContextMenuItem(child: Text('Orange')),
-            ShadContextMenuItem(child: Text('Green')),
-            ShadContextMenuItem(child: Text('Blue')),
+            ContextMenuItem(child: Text('Red')),
+            ContextMenuItem(child: Text('Orange')),
+            ContextMenuItem(child: Text('Green')),
+            ContextMenuItem(child: Text('Blue')),
             divider,
-            ShadContextMenuItem(child: Text('Edit Tags...')),
+            ContextMenuItem(child: Text('Edit Tags...')),
           ],
           child: Text('Tags'),
         ),
-        ShadContextMenuItem(
+        ContextMenuItem(
           leading: Icon(LucideIcons.arrowUpDown),
           trailing: more,
           items: [
-            ShadContextMenuItem(child: Text('Name')),
-            ShadContextMenuItem(child: Text('Date Modified')),
-            ShadContextMenuItem(child: Text('Size')),
-            ShadContextMenuItem(child: Text('Kind')),
+            ContextMenuItem(child: Text('Name')),
+            ContextMenuItem(child: Text('Date Modified')),
+            ContextMenuItem(child: Text('Size')),
+            ContextMenuItem(child: Text('Kind')),
           ],
           child: Text('Sort By'),
         ),
-        ShadContextMenuItem(
+        ContextMenuItem(
           leading: Icon(LucideIcons.layoutGrid),
           trailing: more,
           items: [
-            ShadContextMenuItem(child: Text('Icons')),
-            ShadContextMenuItem(child: Text('List')),
-            ShadContextMenuItem(child: Text('Columns')),
-            ShadContextMenuItem(child: Text('Gallery')),
+            ContextMenuItem(child: Text('Icons')),
+            ContextMenuItem(child: Text('List')),
+            ContextMenuItem(child: Text('Columns')),
+            ContextMenuItem(child: Text('Gallery')),
           ],
           child: Text('View As'),
         ),
-        ShadContextMenuItem(
+        ContextMenuItem(
           leading: Icon(LucideIcons.copy),
           trailing: more,
           items: [
-            ShadContextMenuItem(child: Text('Duplicate')),
-            ShadContextMenuItem(child: Text('Copy Path')),
-            ShadContextMenuItem(child: Text('Copy Name')),
+            ContextMenuItem(child: Text('Duplicate')),
+            ContextMenuItem(child: Text('Copy Path')),
+            ContextMenuItem(child: Text('Copy Name')),
           ],
           child: Text('Copy'),
         ),
-        ShadContextMenuItem(
+        ContextMenuItem(
           leading: Icon(LucideIcons.zap),
           trailing: more,
           items: [
-            ShadContextMenuItem(child: Text('Compress')),
-            ShadContextMenuItem(child: Text('Convert Image')),
-            ShadContextMenuItem(child: Text('Remove Background')),
-            ShadContextMenuItem(child: Text('Create PDF')),
+            ContextMenuItem(child: Text('Compress')),
+            ContextMenuItem(child: Text('Convert Image')),
+            ContextMenuItem(child: Text('Remove Background')),
+            ContextMenuItem(child: Text('Create PDF')),
           ],
           child: Text('Quick Actions'),
         ),
         divider,
-        ShadContextMenuItem(
+        ContextMenuItem(
           leading: Icon(LucideIcons.trash2),
           destructive: true,
           child: Text('Move to Trash'),

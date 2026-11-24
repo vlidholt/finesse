@@ -9,10 +9,10 @@ part of 'table.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadTableTheme {
+mixin _$TableTheme {
   bool get canMerge => true;
 
-  static ShadTableTheme? lerp(ShadTableTheme? a, ShadTableTheme? b, double t) {
+  static TableTheme? lerp(TableTheme? a, TableTheme? b, double t) {
     if (identical(a, b)) {
       return a;
     }
@@ -25,7 +25,7 @@ mixin _$ShadTableTheme {
       return t == 0.0 ? a : null;
     }
 
-    return ShadTableTheme(
+    return TableTheme(
       diagonalDragBehavior: t < 0.5
           ? a.diagonalDragBehavior
           : b.diagonalDragBehavior,
@@ -44,7 +44,7 @@ mixin _$ShadTableTheme {
     );
   }
 
-  ShadTableTheme copyWith({
+  TableTheme copyWith({
     DiagonalDragBehavior? diagonalDragBehavior,
     DragStartBehavior? dragStartBehavior,
     ScrollViewKeyboardDismissBehavior? keyboardDismissBehavior,
@@ -57,9 +57,9 @@ mixin _$ShadTableTheme {
     TextStyle? cellStyle,
     TextStyle? cellFooterStyle,
   }) {
-    final _this = (this as ShadTableTheme);
+    final _this = (this as TableTheme);
 
-    return ShadTableTheme(
+    return TableTheme(
       diagonalDragBehavior: diagonalDragBehavior ?? _this.diagonalDragBehavior,
       dragStartBehavior: dragStartBehavior ?? _this.dragStartBehavior,
       keyboardDismissBehavior:
@@ -75,8 +75,8 @@ mixin _$ShadTableTheme {
     );
   }
 
-  ShadTableTheme merge(ShadTableTheme? other) {
-    final _this = (this as ShadTableTheme);
+  TableTheme merge(TableTheme? other) {
+    final _this = (this as TableTheme);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -115,8 +115,8 @@ mixin _$ShadTableTheme {
       return false;
     }
 
-    final _this = (this as ShadTableTheme);
-    final _other = (other as ShadTableTheme);
+    final _this = (this as TableTheme);
+    final _other = (other as TableTheme);
 
     return _other.diagonalDragBehavior == _this.diagonalDragBehavior &&
         _other.dragStartBehavior == _this.dragStartBehavior &&
@@ -133,7 +133,7 @@ mixin _$ShadTableTheme {
 
   @override
   int get hashCode {
-    final _this = (this as ShadTableTheme);
+    final _this = (this as TableTheme);
 
     return Object.hash(
       runtimeType,

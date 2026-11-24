@@ -1,33 +1,33 @@
+import 'package:finesse/src/components/divider.dart';
+import 'package:finesse/src/raw_components/focusable.dart';
+import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/animate.dart';
+import 'package:finesse/src/utils/animation_builder.dart';
+import 'package:finesse/src/utils/effects.dart';
+import 'package:finesse/src/utils/extensions/text_style.dart';
+import 'package:finesse/src/utils/gesture_detector.dart';
+import 'package:finesse/src/utils/provider.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:shad/src/components/separator.dart';
-import 'package:shad/src/raw_components/focusable.dart';
-import 'package:shad/src/theme/theme.dart';
-import 'package:shad/src/utils/animate.dart';
-import 'package:shad/src/utils/animation_builder.dart';
-import 'package:shad/src/utils/effects.dart';
-import 'package:shad/src/utils/extensions/text_style.dart';
-import 'package:shad/src/utils/gesture_detector.dart';
-import 'package:shad/src/utils/provider.dart';
 
-/// {@template ShadAccordionController}
-/// A controller for managing the state of a [ShadAccordion] widget.
+/// {@template AccordionController}
+/// A controller for managing the state of a [Accordion] widget.
 ///
-/// Supports both single `ShadAccordionController` and multiple item expansion
-/// modes `ShadAccordionController.multiple`.
+/// Supports both single `AccordionController` and multiple item expansion
+/// modes `AccordionController.multiple`.
 /// {@endtemplate}
-class ShadAccordionController<T> extends ValueNotifier<List<T>> {
-  /// {@macro ShadAccordionController}
-  ShadAccordionController([T? value])
-    : _variant = ShadAccordionVariant.single,
+class AccordionController<T> extends ValueNotifier<List<T>> {
+  /// {@macro AccordionController}
+  AccordionController([T? value])
+    : _variant = AccordionVariant.single,
       super(List<T>.unmodifiable([?value]));
 
-  /// Creates a controller for [ShadAccordion.multiple], where any number of
+  /// Creates a controller for [Accordion.multiple], where any number of
   /// items can be open at once. [value] lists the items open at the start.
-  ShadAccordionController.multiple([List<T>? value])
-    : _variant = ShadAccordionVariant.multiple,
+  AccordionController.multiple([List<T>? value])
+    : _variant = AccordionVariant.multiple,
       super(List<T>.unmodifiable(value ?? <T>[]));
 
   @override
@@ -35,7 +35,7 @@ class ShadAccordionController<T> extends ValueNotifier<List<T>> {
     super.value = List<T>.unmodifiable(newValue);
   }
 
-  final ShadAccordionVariant _variant;
+  final AccordionVariant _variant;
 
   /// Toggles the expansion state of the item with the given value [v].
   ///
@@ -44,13 +44,13 @@ class ShadAccordionController<T> extends ValueNotifier<List<T>> {
   /// list of expanded items.
   void toggle(T v) {
     switch (_variant) {
-      case ShadAccordionVariant.single:
+      case AccordionVariant.single:
         if (value.contains(v)) {
           value = <T>[];
         } else {
           value = <T>[v];
         }
-      case ShadAccordionVariant.multiple:
+      case AccordionVariant.multiple:
         if (value.contains(v)) {
           value = value.toList()..remove(v);
         } else {
@@ -60,8 +60,8 @@ class ShadAccordionController<T> extends ValueNotifier<List<T>> {
   }
 }
 
-/// Variants available for the [ShadAccordion] widget.
-enum ShadAccordionVariant {
+/// Variants available for the [Accordion] widget.
+enum AccordionVariant {
   /// Only one item can be open at a time. Opening an item closes the others.
   single,
 
@@ -71,97 +71,95 @@ enum ShadAccordionVariant {
 
 /// A customizable accordion widget that manages collapsible items.
 ///
-/// The [ShadAccordion] widget allows users to expand and collapse items,
+/// The [Accordion] widget allows users to expand and collapse items,
 /// supporting either single or multiple open items at a time. Use
-/// [ShadAccordion.multiple] for multiple open items or the default constructor
-/// for single-item behavior. Items are defined using [ShadAccordionItem].
-class ShadAccordion<T> extends StatefulWidget {
+/// [Accordion.multiple] for multiple open items or the default constructor
+/// for single-item behavior. Items are defined using [AccordionItem].
+class Accordion<T> extends StatefulWidget {
   /// Creates a single-type accordion where only one item can be expanded at a
   /// time.
-  ShadAccordion({
+  Accordion({
     super.key,
     required this.children,
     T? initialValue,
     this.maintainState,
     this.controller,
-  }) : variant = ShadAccordionVariant.single,
+  }) : variant = AccordionVariant.single,
        initialValue = <T>[?initialValue],
        assert(
-         controller == null ||
-             controller._variant == ShadAccordionVariant.single,
-         'Pass a single-mode ShadAccordionController to ShadAccordion(...)',
+         controller == null || controller._variant == AccordionVariant.single,
+         'Pass a single-mode AccordionController to Accordion(...)',
        );
 
   /// Creates a multiple-type accordion where multiple items can be expanded
   /// simultaneously.
-  ShadAccordion.multiple({
+  Accordion.multiple({
     super.key,
     required this.children,
     this.initialValue,
     this.maintainState,
     this.controller,
-  }) : variant = ShadAccordionVariant.multiple,
+  }) : variant = AccordionVariant.multiple,
        assert(
-         controller == null ||
-             controller._variant == ShadAccordionVariant.multiple,
-         'Pass a multiple-mode ShadAccordionController to '
-         'ShadAccordion.multiple(...)',
+         controller == null || controller._variant == AccordionVariant.multiple,
+         'Pass a multiple-mode AccordionController to '
+         'Accordion.multiple(...)',
        );
 
-  /// {@template ShadAccordion.variant}
-  /// The type of accordion, either [ShadAccordionVariant.single] or
-  /// [ShadAccordionVariant.multiple].
+  /// {@template Accordion.variant}
+  /// The type of accordion, either [AccordionVariant.single] or
+  /// [AccordionVariant.multiple].
   /// Determines whether only one or multiple items can be expanded at once.
   /// {@endtemplate}
-  final ShadAccordionVariant variant;
+  final AccordionVariant variant;
 
-  /// {@template ShadAccordion.children}
-  /// The list of [ShadAccordionItem] widgets that make up the accordion's
+  /// {@template Accordion.children}
+  /// The list of [AccordionItem] widgets that make up the accordion's
   /// content. Each item can be expanded or collapsed independently based on
   /// [variant].
   /// {@endtemplate}
   final Iterable<Widget> children;
 
-  /// {@template ShadAccordion.initialValue}
+  /// {@template Accordion.initialValue}
   /// The initial list of values for items that should be expanded on creation.
   /// For single type, only the first value is used; for multiple, all values
   /// are used.
   /// {@endtemplate}
   final List<T>? initialValue;
 
-  /// {@template ShadAccordion.maintainState}
+  /// {@template Accordion.maintainState}
   /// Whether to maintain the state of closed items in the widget tree.
   /// If true, closed items remain built but hidden; if false, they are removed.
   /// {@endtemplate}
   final bool? maintainState;
 
-  /// {@macro ShadAccordionController}
-  final ShadAccordionController<T>? controller;
+  /// {@macro AccordionController}
+  final AccordionController<T>? controller;
 
   @override
-  State<ShadAccordion<T>> createState() => ShadAccordionState<T>();
+  State<Accordion<T>> createState() => AccordionState<T>();
 }
 
-/// The state of a [ShadAccordion].
+/// The state of a [Accordion].
 ///
 /// Its items find it in the widget tree to read the controller and
 /// [maintainState].
-class ShadAccordionState<T> extends State<ShadAccordion<T>> {
-  ShadAccordionController<T>? _controller;
+class AccordionState<T> extends State<Accordion<T>> {
+  AccordionController<T>? _controller;
 
-  /// The controller in use: [ShadAccordion.controller] when given, otherwise
-  /// an internal one created from [ShadAccordion.initialValue].
-  ShadAccordionController<T> get effectiveController {
+  /// The controller in use: [Accordion.controller] when given, otherwise
+  /// an internal one created from [Accordion.initialValue].
+  AccordionController<T> get effectiveController {
     if (widget.controller != null) return widget.controller!;
     if (_controller != null) return _controller!;
     return switch (widget.variant) {
-      ShadAccordionVariant.single => _controller ??= ShadAccordionController<T>(
+      AccordionVariant.single => _controller ??= AccordionController<T>(
         widget.initialValue != null && widget.initialValue!.isNotEmpty
             ? widget.initialValue!.first
             : null,
       ),
-      ShadAccordionVariant.multiple =>
-        _controller ??= ShadAccordionController<T>.multiple(
+      AccordionVariant.multiple =>
+        _controller ??= AccordionController<T>.multiple(
           widget.initialValue,
         ),
     };
@@ -174,7 +172,7 @@ class ShadAccordionState<T> extends State<ShadAccordion<T>> {
   }
 
   @override
-  void didUpdateWidget(covariant ShadAccordion<T> oldWidget) {
+  void didUpdateWidget(covariant Accordion<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     // Switched from internal to external controller: dispose internal.
     if (oldWidget.controller == null && widget.controller != null) {
@@ -191,17 +189,17 @@ class ShadAccordionState<T> extends State<ShadAccordion<T>> {
 
   /// Whether closed items stay in the tree.
   ///
-  /// Resolves [ShadAccordion.maintainState], then the theme, then false.
+  /// Resolves [Accordion.maintainState], then the theme, then false.
   bool get maintainState {
     return widget.maintainState ??
-        ShadTheme.of(context, listen: false).accordionTheme.maintainState ??
+        Theme.of(context, listen: false).accordionTheme.maintainState ??
         false;
   }
 
   @override
   Widget build(BuildContext context) {
-    return ShadProvider(
-      data: this as ShadAccordionState<dynamic>,
+    return Provider(
+      data: this as AccordionState<dynamic>,
       notifyUpdate: (_) => true,
       child: FocusTraversalGroup(
         child: Column(
@@ -214,14 +212,14 @@ class ShadAccordionState<T> extends State<ShadAccordion<T>> {
   }
 }
 
-/// An individual item within a [ShadAccordion], capable of being expanded or
+/// An individual item within a [Accordion], capable of being expanded or
 /// collapsed.
 ///
 /// Each item has a title and content, with customizable appearance and
 /// animations.
-class ShadAccordionItem<T> extends StatefulWidget {
+class AccordionItem<T> extends StatefulWidget {
   /// Creates an accordion item with a specific value, title, and content.
-  const ShadAccordionItem({
+  const AccordionItem({
     super.key,
     required this.value,
     required this.title,
@@ -240,107 +238,107 @@ class ShadAccordionItem<T> extends StatefulWidget {
     this.trailing,
   });
 
-  /// {@template ShadAccordionItem.value}
+  /// {@template AccordionItem.value}
   /// The unique value identifying this item within the accordion.
-  /// Used to track its expansion state in the [ShadAccordionState].
+  /// Used to track its expansion state in the [AccordionState].
   /// {@endtemplate}
   final T value;
 
-  /// {@template ShadAccordionItem.title}
+  /// {@template AccordionItem.title}
   /// The title widget of the item, typically a [Text] widget, displayed in the
   /// header.
   /// Styled by [titleStyle] or theme defaults.
   /// {@endtemplate}
   final Widget title;
 
-  /// {@template ShadAccordionItem.child}
+  /// {@template AccordionItem.child}
   /// The content widget displayed when the item is expanded.
   /// Animated in and out based on [effects].
   /// {@endtemplate}
   final Widget child;
 
-  /// {@template ShadAccordionItem.separator}
+  /// {@template AccordionItem.separator}
   /// The widget displayed below the item as a separator, defaults to a
   /// Divider if null.
   /// {@endtemplate}
   final Widget? separator;
 
-  /// {@template ShadAccordionItem.icon}
+  /// {@template AccordionItem.icon}
   /// A custom widget to use as the item's icon, takes precedence over
   /// [iconData].
   /// Displayed in the header and animated based on [iconEffects].
   /// {@endtemplate}
   final Widget? icon;
 
-  /// {@template ShadAccordionItem.iconData}
+  /// {@template AccordionItem.iconData}
   /// The icon data to display if [icon] is not provided.
   /// Used to create a default [Icon] widget with theme styling.
   /// {@endtemplate}
   final IconData? iconData;
 
-  /// {@template ShadAccordionItem.iconEffects}
+  /// {@template AccordionItem.iconEffects}
   /// The animation effects applied to the icon when the item expands or
   /// collapses.
   /// Defaults to a rotation effect if not specified.
   /// {@endtemplate}
   final List<Effect<dynamic>>? iconEffects;
 
-  /// {@template ShadAccordionItem.padding}
+  /// {@template AccordionItem.padding}
   /// Padding around the header content, defaults to vertical padding of 16 if
   /// not specified.
   /// Controls the spacing within the item's header.
   /// {@endtemplate}
   final EdgeInsetsGeometry? padding;
 
-  /// {@template ShadAccordionItem.underlineTitleOnHover}
+  /// {@template AccordionItem.underlineTitleOnHover}
   /// Whether to underline the title when hovered, defaults to true if not
   /// specified.
   /// Enhances visual feedback on mouse hover.
   /// {@endtemplate}
   final bool? underlineTitleOnHover;
 
-  /// {@template ShadAccordionItem.titleStyle}
+  /// {@template AccordionItem.titleStyle}
   /// Style for the title text, overrides theme default if provided.
   /// Controls font size, weight, and other text properties of the [title].
   /// {@endtemplate}
   final TextStyle? titleStyle;
 
-  /// {@template ShadAccordionItem.curve}
+  /// {@template AccordionItem.curve}
   /// The curve for animations, defaults to a cubic curve if not specified.
   /// Affects the timing of expansion and collapse animations.
   /// {@endtemplate}
   final Curve? curve;
 
-  /// {@template ShadAccordionItem.duration}
+  /// {@template AccordionItem.duration}
   /// The duration of animations, defaults to 300ms if not specified.
   /// Controls how long expansion and collapse animations take.
   /// {@endtemplate}
   final Duration? duration;
 
-  /// {@template ShadAccordionItem.focusNode}
+  /// {@template AccordionItem.focusNode}
   /// The focus node for keyboard navigation, created internally if not
   /// provided.
   /// Enables focus handling and shortcuts like Enter key toggling.
   /// {@endtemplate}
   final FocusNode? focusNode;
 
-  /// {@template ShadAccordionItem.effects}
+  /// {@template AccordionItem.effects}
   /// The animation effects applied to the content when expanding or collapsing.
   /// Defaults to padding, slide, and size effects if not specified.
   /// {@endtemplate}
   final List<Effect<dynamic>>? effects;
 
-  /// {@template ShadAccordionItem.trailing}
+  /// {@template AccordionItem.trailing}
   /// An action in the header, between the title and the chevron: a
   /// "Reset" link or a count badge. Taps on it do not toggle the item.
   /// {@endtemplate}
   final Widget? trailing;
 
   @override
-  State<ShadAccordionItem<T>> createState() => _ShadAccordionItemState<T>();
+  State<AccordionItem<T>> createState() => _AccordionItemState<T>();
 }
 
-class _ShadAccordionItemState<T> extends State<ShadAccordionItem<T>>
+class _AccordionItemState<T> extends State<AccordionItem<T>>
     with SingleTickerProviderStateMixin {
   final hovered = ValueNotifier(false);
   FocusNode? _focusNode;
@@ -355,7 +353,7 @@ class _ShadAccordionItemState<T> extends State<ShadAccordionItem<T>>
   }
 
   @override
-  void didUpdateWidget(covariant ShadAccordionItem<T> oldWidget) {
+  void didUpdateWidget(covariant AccordionItem<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     // Internal -> external: detach from internal, attach to external.
     if (oldWidget.focusNode == null && widget.focusNode != null) {
@@ -388,7 +386,7 @@ class _ShadAccordionItemState<T> extends State<ShadAccordionItem<T>>
   @override
   Widget build(BuildContext context) {
     final inherited =
-        context.watch<ShadAccordionState<dynamic>>() as ShadAccordionState<T>;
+        context.watch<AccordionState<dynamic>>() as AccordionState<T>;
 
     final keyboardTriggers = <ShortcutActivator>[
       const SingleActivator(LogicalKeyboardKey.enter),
@@ -399,9 +397,9 @@ class _ShadAccordionItemState<T> extends State<ShadAccordionItem<T>>
       valueListenable: inherited.effectiveController,
       builder: (context, value, child) {
         final expanded = value.contains(widget.value);
-        final theme = ShadTheme.of(context);
+        final theme = Theme.of(context);
         final effectiveSeparator =
-            widget.separator ?? const ShadSeparator.horizontal();
+            widget.separator ?? const Divider.horizontal();
 
         final effectiveDuration =
             widget.duration ??
@@ -460,7 +458,7 @@ class _ShadAccordionItemState<T> extends State<ShadAccordionItem<T>>
             widget.effects ??
             theme.accordionTheme.effects ??
             [
-              ShadPaddingEffect(
+              PaddingEffect(
                 padding: const EdgeInsets.only(bottom: 8),
                 curve: effectiveCurve,
                 duration: effectiveDuration,
@@ -471,13 +469,13 @@ class _ShadAccordionItemState<T> extends State<ShadAccordionItem<T>>
                 end: Offset.zero,
                 duration: effectiveDuration,
               ),
-              ShadSizeEffect(
+              SizeEffect(
                 curve: effectiveCurve,
                 duration: effectiveDuration,
               ),
             ];
 
-        return ShadAnimationBuilder(
+        return AnimationBuilder(
           duration: effectiveDuration,
           builder: (context, controller) {
             if (expanded && !controller.isCompleted) {
@@ -495,7 +493,7 @@ class _ShadAccordionItemState<T> extends State<ShadAccordionItem<T>>
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                ShadGestureDetector(
+                FinesseGestureDetector(
                   cursor: SystemMouseCursors.click,
                   onHoverChange: (value) => hovered.value = value,
                   behavior: HitTestBehavior.opaque,
@@ -516,7 +514,7 @@ class _ShadAccordionItemState<T> extends State<ShadAccordionItem<T>>
                                   );
                                 },
                             },
-                            child: ShadFocusable(
+                            child: Focusable(
                               focusNode: focusNode,
                               builder: (context, focused, child) {
                                 return ValueListenableBuilder(
@@ -553,7 +551,7 @@ class _ShadAccordionItemState<T> extends State<ShadAccordionItem<T>>
                               child: widget.trailing,
                             ),
                           ),
-                        ShadAnimate(
+                        FinesseAnimate(
                           target: expanded ? 1 : 0,
                           effects: effectiveIconEffects,
                           child: effectiveIcon,
@@ -563,7 +561,7 @@ class _ShadAccordionItemState<T> extends State<ShadAccordionItem<T>>
                   ),
                 ),
                 if (!shouldRemoveChild)
-                  ShadAnimate(
+                  FinesseAnimate(
                     controller: controller,
                     effects: effectiveEffects,
                     child: widget.child,

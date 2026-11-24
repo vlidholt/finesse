@@ -3,14 +3,14 @@ import 'package:theme_extensions_builder_annotation/theme_extensions_builder_ann
 
 part 'collapsible.g.theme.dart';
 
-/// {@template ShadCollapsibleTheme}
-/// Theme for the `ShadCollapsible` widget.
+/// {@template CollapsibleTheme}
+/// Theme for the `Collapsible` widget.
 /// {@endtemplate}
 @themeGen
 @immutable
-class ShadCollapsibleTheme with _$ShadCollapsibleTheme {
-  /// {@macro ShadCollapsibleTheme}
-  const ShadCollapsibleTheme({
+class CollapsibleTheme with _$CollapsibleTheme {
+  /// {@macro CollapsibleTheme}
+  const CollapsibleTheme({
     bool canMerge = true,
     this.duration,
     this.curve,
@@ -25,25 +25,25 @@ class ShadCollapsibleTheme with _$ShadCollapsibleTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro ShadCollapsible.duration}
+  /// {@macro Collapsible.duration}
   final Duration? duration;
 
-  /// {@macro ShadCollapsible.curve}
+  /// {@macro Collapsible.curve}
   final Curve? curve;
 
-  /// {@macro ShadCollapsible.reverseDuration}
+  /// {@macro Collapsible.reverseDuration}
   final Duration? reverseDuration;
 
-  /// {@macro ShadCollapsible.reverseCurve}
+  /// {@macro Collapsible.reverseCurve}
   final Curve? reverseCurve;
 
-  /// {@macro ShadCollapsible.crossAxisAlignment}
+  /// {@macro Collapsible.crossAxisAlignment}
   final CrossAxisAlignment? crossAxisAlignment;
 
   /// Linearly interpolates between [a] and [b] by [t].
-  static ShadCollapsibleTheme? lerp(
-    ShadCollapsibleTheme? a,
-    ShadCollapsibleTheme? b,
+  static CollapsibleTheme? lerp(
+    CollapsibleTheme? a,
+    CollapsibleTheme? b,
     double t,
-  ) => _$ShadCollapsibleTheme.lerp(a, b, t);
+  ) => _$CollapsibleTheme.lerp(a, b, t);
 }

@@ -1,11 +1,11 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shad/shad.dart';
 
 void main() {
-  Widget wrap(Widget child, {ShadSpacing spacing = const ShadSpacing()}) {
-    return ShadTheme(
-      data: ShadThemeData(spacing: spacing),
+  Widget wrap(Widget child, {Spacing spacing = const Spacing()}) {
+    return Theme(
+      data: ThemeData(spacing: spacing),
       child: Directionality(
         textDirection: TextDirection.ltr,
         child: Center(child: child),
@@ -13,18 +13,18 @@ void main() {
     );
   }
 
-  group('ShadGap', () {
+  group('Gap', () {
     testWidgets('sizes along the axis of the enclosing flex', (tester) async {
       await tester.pumpWidget(
         wrap(
           const Column(
             mainAxisSize: MainAxisSize.min,
-            children: [SizedBox.square(dimension: 10), ShadGap(4)],
+            children: [SizedBox.square(dimension: 10), Gap(4)],
           ),
         ),
       );
 
-      final size = tester.getSize(find.byType(ShadGap));
+      final size = tester.getSize(find.byType(Gap));
       expect(size.height, 16);
       expect(size.width, 0);
     });
@@ -34,12 +34,12 @@ void main() {
         wrap(
           const Row(
             mainAxisSize: MainAxisSize.min,
-            children: [SizedBox.square(dimension: 10), ShadGap(4)],
+            children: [SizedBox.square(dimension: 10), Gap(4)],
           ),
         ),
       );
 
-      final size = tester.getSize(find.byType(ShadGap));
+      final size = tester.getSize(find.byType(Gap));
       expect(size.width, 16);
       expect(size.height, 0);
     });
@@ -49,13 +49,13 @@ void main() {
         wrap(
           const Column(
             mainAxisSize: MainAxisSize.min,
-            children: [SizedBox.square(dimension: 10), ShadGap(4)],
+            children: [SizedBox.square(dimension: 10), Gap(4)],
           ),
-          spacing: const ShadSpacing(step: 2),
+          spacing: const Spacing(step: 2),
         ),
       );
 
-      expect(tester.getSize(find.byType(ShadGap)).height, 8);
+      expect(tester.getSize(find.byType(Gap)).height, 8);
     });
 
     testWidgets('raw bypasses the scale', (tester) async {
@@ -63,12 +63,12 @@ void main() {
         wrap(
           const Column(
             mainAxisSize: MainAxisSize.min,
-            children: [SizedBox.square(dimension: 10), ShadGap.raw(7)],
+            children: [SizedBox.square(dimension: 10), Gap.raw(7)],
           ),
         ),
       );
 
-      expect(tester.getSize(find.byType(ShadGap)).height, 7);
+      expect(tester.getSize(find.byType(Gap)).height, 7);
     });
 
     testWidgets('takes cross-axis space when asked', (tester) async {
@@ -76,19 +76,19 @@ void main() {
         wrap(
           const Column(
             mainAxisSize: MainAxisSize.min,
-            children: [ShadGap(4, crossAxisSteps: 5)],
+            children: [Gap(4, crossAxisSteps: 5)],
           ),
         ),
       );
 
-      final size = tester.getSize(find.byType(ShadGap));
+      final size = tester.getSize(find.byType(Gap));
       expect(size.height, 16);
       expect(size.width, 20);
     });
 
     testWidgets('outside a flex it is square', (tester) async {
-      await tester.pumpWidget(wrap(const ShadGap(4)));
-      expect(tester.getSize(find.byType(ShadGap)), const Size(16, 16));
+      await tester.pumpWidget(wrap(const Gap(4)));
+      expect(tester.getSize(find.byType(Gap)), const Size(16, 16));
     });
 
     testWidgets('resizes when the step changes', (tester) async {
@@ -96,26 +96,26 @@ void main() {
         wrap(
           const Column(
             mainAxisSize: MainAxisSize.min,
-            children: [SizedBox.square(dimension: 10), ShadGap(4)],
+            children: [SizedBox.square(dimension: 10), Gap(4)],
           ),
         ),
       );
-      expect(tester.getSize(find.byType(ShadGap)).height, 16);
+      expect(tester.getSize(find.byType(Gap)).height, 16);
 
       await tester.pumpWidget(
         wrap(
           const Column(
             mainAxisSize: MainAxisSize.min,
-            children: [SizedBox.square(dimension: 10), ShadGap(4)],
+            children: [SizedBox.square(dimension: 10), Gap(4)],
           ),
-          spacing: const ShadSpacing(step: 10),
+          spacing: const Spacing(step: 10),
         ),
       );
-      expect(tester.getSize(find.byType(ShadGap)).height, 40);
+      expect(tester.getSize(find.byType(Gap)).height, 40);
     });
   });
 
-  group('ShadPadding', () {
+  group('FinessePadding', () {
     testWidgets('all, symmetric and only are measured in steps', (
       tester,
     ) async {
@@ -124,13 +124,13 @@ void main() {
           const Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ShadPadding.all(6, child: SizedBox.shrink()),
-              ShadPadding.symmetric(
+              FinessePadding.all(6, child: SizedBox.shrink()),
+              FinessePadding.symmetric(
                 horizontal: 4,
                 vertical: 2,
                 child: SizedBox.shrink(),
               ),
-              ShadPadding.only(top: 3, child: SizedBox.shrink()),
+              FinessePadding.only(top: 3, child: SizedBox.shrink()),
             ],
           ),
         ),
@@ -154,7 +154,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         wrap(
-          const ShadPadding.directional(
+          const FinessePadding.directional(
             start: 5,
             child: SizedBox.shrink(),
           ),
@@ -168,11 +168,11 @@ void main() {
     });
   });
 
-  group('ShadColumn / ShadRow', () {
+  group('FinesseColumn / FinesseRow', () {
     testWidgets('spacing is expressed in steps', (tester) async {
       await tester.pumpWidget(
         wrap(
-          const ShadColumn(
+          const FinesseColumn(
             mainAxisSize: MainAxisSize.min,
             spacing: 4,
             children: [
@@ -184,13 +184,13 @@ void main() {
       );
 
       // Two 10px children plus one 16px gap.
-      expect(tester.getSize(find.byType(ShadColumn)).height, 36);
+      expect(tester.getSize(find.byType(FinesseColumn)).height, 36);
     });
 
-    testWidgets('ShadRow spaces horizontally', (tester) async {
+    testWidgets('FinesseRow spaces horizontally', (tester) async {
       await tester.pumpWidget(
         wrap(
-          const ShadRow(
+          const FinesseRow(
             mainAxisSize: MainAxisSize.min,
             spacing: 2,
             children: [
@@ -201,7 +201,7 @@ void main() {
         ),
       );
 
-      expect(tester.getSize(find.byType(ShadRow)).width, 28);
+      expect(tester.getSize(find.byType(FinesseRow)).width, 28);
     });
   });
 }

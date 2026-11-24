@@ -10,18 +10,18 @@ import 'package:flutter/widgets.dart';
 /// lines up with the components exactly.
 ///
 /// ```dart
-/// final spacing = ShadTheme.of(context).spacing;
+/// final spacing = Theme.of(context).spacing;
 /// Padding(padding: spacing.all(6), child: ...); // 24px with the default step
 /// ```
 ///
-/// Prefer `ShadGap` and `ShadPadding` over reading the scale by hand — they do
+/// Prefer `Gap` and `FinessePadding` over reading the scale by hand — they do
 /// the lookup for you.
 @immutable
-class ShadSpacing {
+class Spacing {
   /// Creates a scale whose unit step is [step] logical pixels.
   ///
   /// The default matches Tailwind's `0.25rem`.
-  const ShadSpacing({this.step = 4});
+  const Spacing({this.step = 4});
 
   /// The size of one step on the scale.
   final double step;
@@ -81,19 +81,19 @@ class ShadSpacing {
   );
 
   /// Creates a copy of this scale with the given [step].
-  ShadSpacing copyWith({double? step}) => ShadSpacing(step: step ?? this.step);
+  Spacing copyWith({double? step}) => Spacing(step: step ?? this.step);
 
   /// Linearly interpolates the step between [a] and [b] by [t].
-  static ShadSpacing lerp(ShadSpacing a, ShadSpacing b, double t) =>
-      ShadSpacing(step: a.step + (b.step - a.step) * t);
+  static Spacing lerp(Spacing a, Spacing b, double t) =>
+      Spacing(step: a.step + (b.step - a.step) * t);
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) || (other is ShadSpacing && other.step == step);
+      identical(this, other) || (other is Spacing && other.step == step);
 
   @override
   int get hashCode => step.hashCode;
 
   @override
-  String toString() => 'ShadSpacing(step: $step)';
+  String toString() => 'Spacing(step: $step)';
 }

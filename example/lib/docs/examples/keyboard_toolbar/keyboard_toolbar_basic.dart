@@ -1,5 +1,5 @@
+import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
 
 class KeyboardToolbarBasicExample extends StatelessWidget {
   const KeyboardToolbarBasicExample({super.key});
@@ -8,10 +8,10 @@ class KeyboardToolbarBasicExample extends StatelessWidget {
   Widget build(BuildContext context) {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 400),
-      child: ShadInput(
+      child: TextField(
         placeholder: const Text('Focus on mobile to show the toolbar'),
         keyboardType: TextInputType.emailAddress,
-        keyboardToolbarBuilder: (context) => const ShadDefaultKeyboardToolbar(),
+        keyboardToolbarBuilder: (context) => const DefaultKeyboardToolbar(),
       ),
     );
   }

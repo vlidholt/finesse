@@ -3,14 +3,14 @@ import 'package:theme_extensions_builder_annotation/theme_extensions_builder_ann
 
 part 'slider.g.theme.dart';
 
-/// {@template ShadSliderTheme}
-/// Theme for the `ShadSlider` widget.
+/// {@template SliderTheme}
+/// Theme for the `Slider` widget.
 /// {@endtemplate}
 @themeGen
 @immutable
-class ShadSliderTheme with _$ShadSliderTheme {
-  /// {@macro ShadSliderTheme}
-  const ShadSliderTheme({
+class SliderTheme with _$SliderTheme {
+  /// {@macro SliderTheme}
+  const SliderTheme({
     bool canMerge = true,
     this.min,
     this.max,
@@ -34,52 +34,52 @@ class ShadSliderTheme with _$ShadSliderTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro ShadSlider.min}
+  /// {@macro Slider.min}
   final double? min;
 
-  /// {@macro ShadSlider.max}
+  /// {@macro Slider.max}
   final double? max;
 
-  /// {@macro ShadSlider.mouseCursor}
+  /// {@macro Slider.mouseCursor}
   final MouseCursor? mouseCursor;
 
-  /// {@macro ShadSlider.disabledMouseCursor}
+  /// {@macro Slider.disabledMouseCursor}
   final MouseCursor? disabledMouseCursor;
 
-  /// {@macro ShadSlider.thumbColor}
+  /// {@macro Slider.thumbColor}
   final Color? thumbColor;
 
-  /// {@macro ShadSlider.disabledThumbColor}
+  /// {@macro Slider.disabledThumbColor}
   final Color? disabledThumbColor;
 
-  /// {@macro ShadSlider.thumbBorderColor}
+  /// {@macro Slider.thumbBorderColor}
   final Color? thumbBorderColor;
 
-  /// {@macro ShadSlider.disabledThumbBorderColor}
+  /// {@macro Slider.disabledThumbBorderColor}
   final Color? disabledThumbBorderColor;
 
-  /// {@macro ShadSlider.activeTrackColor}
+  /// {@macro Slider.activeTrackColor}
   final Color? activeTrackColor;
 
-  /// {@macro ShadSlider.inactiveTrackColor}
+  /// {@macro Slider.inactiveTrackColor}
   final Color? inactiveTrackColor;
 
-  /// {@macro ShadSlider.disabledActiveTrackColor}
+  /// {@macro Slider.disabledActiveTrackColor}
   final Color? disabledActiveTrackColor;
 
-  /// {@macro ShadSlider.disabledInactiveTrackColor}
+  /// {@macro Slider.disabledInactiveTrackColor}
   final Color? disabledInactiveTrackColor;
 
-  /// {@macro ShadSlider.trackHeight}
+  /// {@macro Slider.trackHeight}
   final double? trackHeight;
 
-  /// {@macro ShadSlider.thumbRadius}
+  /// {@macro Slider.thumbRadius}
   final double? thumbRadius;
 
   /// Linearly interpolates between [a] and [b] by [t].
-  static ShadSliderTheme? lerp(
-    ShadSliderTheme? a,
-    ShadSliderTheme? b,
+  static SliderTheme? lerp(
+    SliderTheme? a,
+    SliderTheme? b,
     double t,
-  ) => _$ShadSliderTheme.lerp(a, b, t);
+  ) => _$SliderTheme.lerp(a, b, t);
 }

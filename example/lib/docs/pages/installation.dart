@@ -3,28 +3,28 @@ import 'package:example/docs/docs.dart';
 final installationDoc = ComponentDoc(
   slug: 'installation',
   title: 'Installation',
-  description: 'Add the package, wrap your app in ShadApp, start building.',
+  description: 'Add the package, wrap your app in FinesseApp, start building.',
   body: (context) => const DocProse(
     children: [
       DocSection(
         title: 'Install the package',
         children: [
           DocParagraph(
-            'Add `shad` to your project from the command line:',
+            'Add `finesse` to your project from the command line:',
           ),
-          CodeBlock(code: 'flutter pub add shad'),
+          CodeBlock(code: 'flutter pub add finesse'),
           DocParagraph(
             'Everything ships through one import: components, theme, '
             'Lucide icons, and animation effects.',
           ),
-          CodeBlock(code: "import 'package:shad/shad.dart';"),
+          CodeBlock(code: "import 'package:finesse/finesse.dart';"),
         ],
       ),
       DocSection(
-        title: 'Set up ShadApp',
+        title: 'Set up FinesseApp',
         children: [
           DocParagraph(
-            '`ShadApp` takes the place of `MaterialApp`. It installs the '
+            '`FinesseApp` takes the place of `MaterialApp`. It installs the '
             'theme, localizations, navigation, and the overlay layer the '
             'floating components use. With no arguments it uses the slate '
             'color scheme and the nova style.',
@@ -32,7 +32,7 @@ final installationDoc = ComponentDoc(
           CodeBlock(
             code: '''
 import 'package:flutter/widgets.dart';
-import 'package:shad/shad.dart';
+import 'package:finesse/finesse.dart';
 
 void main() {
   runApp(const MyApp());
@@ -43,14 +43,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const ShadApp(
+    return const FinesseApp(
       home: HomePage(),
     );
   }
 }''',
           ),
           DocParagraph(
-            'Apps that use the `Router` API use `ShadApp.router` with the '
+            'Apps that use the `Router` API use `FinesseApp.router` with the '
             'usual `routerConfig` or delegate parameters.',
           ),
         ],
@@ -65,10 +65,10 @@ class MyApp extends StatelessWidget {
           ),
           CodeBlock(
             code: '''
-ShadApp(
-  themeMode: ShadThemeMode.system,
-  theme: ShadThemeData(),
-  darkTheme: ShadThemeData(
+FinesseApp(
+  themeMode: ThemeMode.system,
+  theme: ThemeData(),
+  darkTheme: ThemeData(
     brightness: Brightness.dark,
   ),
   home: const HomePage(),
@@ -85,7 +85,7 @@ ShadApp(
           ),
           CodeBlock(
             code: '''
-ShadButton(
+Button(
   leading: const Icon(LucideIcons.mail),
   onPressed: () {},
   child: const Text('Login with Email'),

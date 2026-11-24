@@ -9,10 +9,10 @@ part of 'sheet.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$ShadSheetTheme {
+mixin _$SheetTheme {
   bool get canMerge => true;
 
-  static ShadSheetTheme? lerp(ShadSheetTheme? a, ShadSheetTheme? b, double t) {
+  static SheetTheme? lerp(SheetTheme? a, SheetTheme? b, double t) {
     if (identical(a, b)) {
       return a;
     }
@@ -25,12 +25,12 @@ mixin _$ShadSheetTheme {
       return t == 0.0 ? a : null;
     }
 
-    return ShadSheetTheme(
+    return SheetTheme(
       constraints: BoxConstraints.lerp(a.constraints, b.constraints, t),
       expandCrossSide: t < 0.5 ? a.expandCrossSide : b.expandCrossSide,
       closeIcon: t < 0.5 ? a.closeIcon : b.closeIcon,
       closeIconData: t < 0.5 ? a.closeIconData : b.closeIconData,
-      closeIconPosition: ShadPosition.lerp(
+      closeIconPosition: Position.lerp(
         a.closeIconPosition,
         b.closeIconPosition,
         t,
@@ -123,12 +123,12 @@ mixin _$ShadSheetTheme {
     );
   }
 
-  ShadSheetTheme copyWith({
+  SheetTheme copyWith({
     BoxConstraints? constraints,
     bool? expandCrossSide,
     Widget? closeIcon,
     IconData? closeIconData,
-    ShadPosition? closeIconPosition,
+    Position? closeIconPosition,
     BorderRadius? radius,
     Color? backgroundColor,
     bool? expandActionsWhenTiny,
@@ -155,7 +155,7 @@ mixin _$ShadSheetTheme {
     double? minFlingVelocity,
     double? snapFlingVelocity,
     double? closeProgressThreshold,
-    ShadSheetSide? side,
+    SheetSide? side,
     bool? useSafeArea,
     bool? titlePinned,
     bool? descriptionPinned,
@@ -175,9 +175,9 @@ mixin _$ShadSheetTheme {
     BorderRadius? dragHandleRadius,
     double? dragHandleExtent,
   }) {
-    final _this = (this as ShadSheetTheme);
+    final _this = (this as SheetTheme);
 
-    return ShadSheetTheme(
+    return SheetTheme(
       constraints: constraints ?? _this.constraints,
       expandCrossSide: expandCrossSide ?? _this.expandCrossSide,
       closeIcon: closeIcon ?? _this.closeIcon,
@@ -238,8 +238,8 @@ mixin _$ShadSheetTheme {
     );
   }
 
-  ShadSheetTheme merge(ShadSheetTheme? other) {
-    final _this = (this as ShadSheetTheme);
+  SheetTheme merge(SheetTheme? other) {
+    final _this = (this as SheetTheme);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -315,8 +315,8 @@ mixin _$ShadSheetTheme {
       return false;
     }
 
-    final _this = (this as ShadSheetTheme);
-    final _other = (other as ShadSheetTheme);
+    final _this = (this as SheetTheme);
+    final _other = (other as SheetTheme);
 
     return _other.constraints == _this.constraints &&
         _other.expandCrossSide == _this.expandCrossSide &&
@@ -373,7 +373,7 @@ mixin _$ShadSheetTheme {
 
   @override
   int get hashCode {
-    final _this = (this as ShadSheetTheme);
+    final _this = (this as SheetTheme);
 
     return Object.hashAll([
       runtimeType,

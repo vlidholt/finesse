@@ -1,20 +1,21 @@
 import 'dart:math' as math;
 import 'dart:ui' as ui;
+
+import 'package:finesse/src/components/text_field.dart';
+import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/clipboard/clipboard_service.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shad/src/components/input.dart';
-import 'package:shad/src/theme/components/decorator.dart';
-import 'package:shad/src/theme/theme.dart';
-import 'package:shad/src/utils/clipboard/clipboard_service.dart';
 
 /// A customizable multiline textarea widget with
 /// adjustable height and optional resizing grip.
 ///
-/// The [ShadTextarea] widget builds on [ShadInput] to provide a rich, multiline
+/// The [Textarea] widget builds on [TextField] to provide a rich, multiline
 /// text input experience with support for theming, placeholder content, and
 /// resize interaction.
 ///
-/// It integrates with [ShadTheme] for consistent appearance, and includes
+/// It integrates with [Theme] for consistent appearance, and includes
 /// properties for min/max height, editable behavior, styling, and decoration.
 ///
 /// The field grows or shrinks based on content height (number of lines),
@@ -23,9 +24,9 @@ import 'package:shad/src/utils/clipboard/clipboard_service.dart';
 ///
 /// See also:
 /// - [resizeHandleBuilder], for customizing the drag handle
-class ShadTextarea extends StatefulWidget {
+class Textarea extends StatefulWidget {
   /// Creates a multi-line text field.
-  const ShadTextarea({
+  const Textarea({
     super.key,
     this.initialValue,
     this.controller,
@@ -112,36 +113,36 @@ class ShadTextarea extends StatefulWidget {
          'Either initialValue or controller must be specified',
        );
 
-  /// {@template ShadTextarea.initialValue}
+  /// {@template Textarea.initialValue}
   /// The initial text value of the textarea.
   /// Used if [controller] is null; cannot be used with [controller].
   /// {@endtemplate}
   final String? initialValue;
 
-  /// {@template ShadTextarea.controller}
+  /// {@template Textarea.controller}
   /// Controls the text being edited. If null, an internal controller is created
   /// and initialized with [initialValue].
   /// {@endtemplate}
   final TextEditingController? controller;
 
-  /// {@template ShadTextarea.focusNode}
+  /// {@template Textarea.focusNode}
   /// Defines the keyboard focus for this widget.
   /// If null, one will be created automatically.
   /// {@endtemplate}
   final FocusNode? focusNode;
 
-  /// {@template ShadTextarea.placeholder}
+  /// {@template Textarea.placeholder}
   /// The widget shown when the textarea is empty. Typically a [Text] widget.
   /// {@endtemplate}
   final Widget? placeholder;
 
-  /// {@template ShadTextarea.placeholderStyle}
+  /// {@template Textarea.placeholderStyle}
   /// The text style to use for the placeholder.
   /// If not specified, uses the theme's muted style.
   /// {@endtemplate}
   final TextStyle? placeholderStyle;
 
-  /// {@template ShadTextarea.placeholderAlignment}
+  /// {@template Textarea.placeholderAlignment}
   /// Alignment for the placeholder inside the field.
   ///
   /// Defaults to direction-aware top start:
@@ -149,318 +150,318 @@ class ShadTextarea extends StatefulWidget {
   /// {@endtemplate}
   final AlignmentGeometry? placeholderAlignment;
 
-  /// {@template ShadTextarea.alignment}
+  /// {@template Textarea.alignment}
   /// Alignment for the input field.
   /// Defaults to [Alignment.topLeft].
   /// {@endtemplate}
   final AlignmentGeometry? alignment;
 
-  /// {@template ShadTextarea.decoration}
+  /// {@template Textarea.decoration}
   /// Optional visual decoration for the textarea.
   /// Merged with the theme’s default decoration if provided.
   /// {@endtemplate}
-  final ShadDecoration? decoration;
+  final FinesseDecoration? decoration;
 
-  /// {@template ShadTextarea.undoController}
+  /// {@template Textarea.undoController}
   /// Optional controller for undo/redo functionality inside the text field.
   /// {@endtemplate}
   final UndoHistoryController? undoController;
 
-  /// {@template ShadTextarea.onChanged}
+  /// {@template Textarea.onChanged}
   /// Called when the text being edited changes.
   /// {@endtemplate}
   final ValueChanged<String>? onChanged;
 
-  /// {@template ShadTextarea.onEditingComplete}
+  /// {@template Textarea.onEditingComplete}
   /// Called when the user indicates they are done editing the text.
   /// {@endtemplate}
   final VoidCallback? onEditingComplete;
 
-  /// {@template ShadTextarea.onSubmitted}
+  /// {@template Textarea.onSubmitted}
   /// Called when the user submits the text (e.g. presses "done").
   /// {@endtemplate}
   final ValueChanged<String>? onSubmitted;
 
-  /// {@template ShadTextarea.onAppPrivateCommand}
+  /// {@template Textarea.onAppPrivateCommand}
   /// Called for platform-specific app commands sent to the input field.
   /// {@endtemplate}
   final AppPrivateCommandCallback? onAppPrivateCommand;
 
-  /// {@template ShadTextarea.style}
+  /// {@template Textarea.style}
   /// The text style used for the input text inside the textarea.
   /// {@endtemplate}
   final TextStyle? style;
 
-  /// {@template ShadTextarea.strutStyle}
+  /// {@template Textarea.strutStyle}
   /// The strut style used to determine the line height.
   /// {@endtemplate}
   final StrutStyle? strutStyle;
 
-  /// {@template ShadTextarea.textAlign}
+  /// {@template Textarea.textAlign}
   /// How the text inside the textarea is aligned horizontally.
   /// {@endtemplate}
   final TextAlign textAlign;
 
-  /// {@template ShadTextarea.textDirection}
+  /// {@template Textarea.textDirection}
   /// The direction of the text. Defaults to the inherited direction.
   /// {@endtemplate}
   final TextDirection? textDirection;
 
-  /// {@template ShadTextarea.readOnly}
+  /// {@template Textarea.readOnly}
   /// Whether the text field is read-only.
   /// {@endtemplate}
   final bool readOnly;
 
-  /// {@template ShadTextarea.enabled}
+  /// {@template Textarea.enabled}
   /// Whether the textarea is enabled and can be interacted with.
   /// {@endtemplate}
   final bool enabled;
 
-  /// {@template ShadTextarea.autofocus}
+  /// {@template Textarea.autofocus}
   /// Whether the field should focus itself
   /// automatically when the widget is built.
   /// {@endtemplate}
   final bool autofocus;
 
-  /// {@template ShadTextarea.showCursor}
+  /// {@template Textarea.showCursor}
   /// Whether to show the cursor.
   /// {@endtemplate}
   final bool? showCursor;
 
-  /// {@template ShadTextarea.cursorColor}
+  /// {@template Textarea.cursorColor}
   /// Color of the cursor.
   /// {@endtemplate}
   final Color? cursorColor;
 
-  /// {@template ShadTextarea.cursorWidth}
+  /// {@template Textarea.cursorWidth}
   /// Width of the cursor.
   /// {@endtemplate}
   final double? cursorWidth;
 
-  /// {@template ShadTextarea.cursorHeight}
+  /// {@template Textarea.cursorHeight}
   /// Height of the cursor.
   /// {@endtemplate}
   final double? cursorHeight;
 
-  /// {@template ShadTextarea.cursorRadius}
+  /// {@template Textarea.cursorRadius}
   /// Radius of the cursor for rounded corners.
   /// {@endtemplate}
   final Radius? cursorRadius;
 
-  /// {@template ShadTextarea.cursorOpacityAnimates}
+  /// {@template Textarea.cursorOpacityAnimates}
   /// Whether the cursor opacity should animate.
   /// {@endtemplate}
   final bool? cursorOpacityAnimates;
 
-  /// {@template ShadTextarea.keyboardAppearance}
+  /// {@template Textarea.keyboardAppearance}
   /// Appearance (light/dark) for the keyboard.
   /// {@endtemplate}
   final Brightness? keyboardAppearance;
 
-  /// {@template ShadTextarea.selectionColor}
+  /// {@template Textarea.selectionColor}
   /// Color used to highlight selected text when focused.
   /// {@endtemplate}
   final Color? selectionColor;
 
-  /// {@template ShadTextarea.selectionHeightStyle}
+  /// {@template Textarea.selectionHeightStyle}
   /// Style used to calculate height of text selection highlight.
   /// {@endtemplate}
   final ui.BoxHeightStyle selectionHeightStyle;
 
-  /// {@template ShadTextarea.selectionWidthStyle}
+  /// {@template Textarea.selectionWidthStyle}
   /// Style used to calculate width of text selection highlight.
   /// {@endtemplate}
   final ui.BoxWidthStyle selectionWidthStyle;
 
-  /// {@template ShadTextarea.scrollPadding}
+  /// {@template Textarea.scrollPadding}
   /// Insets to apply to the input when it's scrolled into view.
   /// {@endtemplate}
   final EdgeInsets scrollPadding;
 
-  /// {@template ShadTextarea.scrollController}
+  /// {@template Textarea.scrollController}
   /// Optional controller for managing scroll position.
   /// {@endtemplate}
   final ScrollController? scrollController;
 
-  /// {@template ShadTextarea.scrollPhysics}
+  /// {@template Textarea.scrollPhysics}
   /// The physics applied to the textarea's scroll behavior.
   /// {@endtemplate}
   final ScrollPhysics? scrollPhysics;
 
-  /// {@template ShadTextarea.clipBehavior}
+  /// {@template Textarea.clipBehavior}
   /// Clip behavior of the textarea's content. Default is [Clip.hardEdge].
   /// {@endtemplate}
   final Clip clipBehavior;
 
-  /// {@template ShadTextarea.dragStartBehavior}
+  /// {@template Textarea.dragStartBehavior}
   /// The kind of drag behavior this widget uses for text selection.
   /// {@endtemplate}
   final DragStartBehavior dragStartBehavior;
 
-  /// {@template ShadTextarea.enableInteractiveSelection}
+  /// {@template Textarea.enableInteractiveSelection}
   /// Whether to allow interactive text selection.
   /// {@endtemplate}
   final bool enableInteractiveSelection;
 
-  /// {@template ShadTextarea.selectionControls}
+  /// {@template Textarea.selectionControls}
   /// Controls for displaying custom selection handles.
   /// {@endtemplate}
   final TextSelectionControls? selectionControls;
 
-  /// {@template ShadTextarea.onPressed}
+  /// {@template Textarea.onPressed}
   /// Called when the user taps the textarea.
   /// {@endtemplate}
   final GestureTapCallback? onPressed;
 
-  /// {@template ShadTextarea.onPressedOutside}
+  /// {@template Textarea.onPressedOutside}
   /// Called when a pointer tap happens outside this widget.
   /// {@endtemplate}
   final TapRegionCallback? onPressedOutside;
 
-  /// {@template ShadTextarea.onPressedAlwaysCalled}
+  /// {@template Textarea.onPressedAlwaysCalled}
   /// Whether [onPressed] is called even when text is selected.
   /// {@endtemplate}
   final bool onPressedAlwaysCalled;
 
-  /// {@template ShadTextarea.mouseCursor}
+  /// {@template Textarea.mouseCursor}
   /// The mouse cursor to use when hovering over this widget.
   /// {@endtemplate}
   final MouseCursor? mouseCursor;
 
-  /// {@template ShadTextarea.contextMenuBuilder}
+  /// {@template Textarea.contextMenuBuilder}
   /// Builds the context menu that appears
   /// when text is long-pressed or selected.
   /// {@endtemplate}
   final EditableTextContextMenuBuilder? contextMenuBuilder;
 
-  /// {@template ShadTextarea.spellCheckConfiguration}
+  /// {@template Textarea.spellCheckConfiguration}
   /// Configuration for enabling spell check support.
   /// {@endtemplate}
   final SpellCheckConfiguration? spellCheckConfiguration;
 
-  /// {@template ShadTextarea.magnifierConfiguration}
+  /// {@template Textarea.magnifierConfiguration}
   /// Configuration for the text magnifier shown during selection.
   /// {@endtemplate}
   final TextMagnifierConfiguration magnifierConfiguration;
 
-  /// {@template ShadTextarea.contentInsertionConfiguration}
+  /// {@template Textarea.contentInsertionConfiguration}
   /// Platform-specific configuration for handling content insertion.
   /// {@endtemplate}
   final ContentInsertionConfiguration? contentInsertionConfiguration;
 
-  /// {@template ShadTextarea.restorationId}
+  /// {@template Textarea.restorationId}
   /// Restoration ID used to save the textarea’s state.
   /// {@endtemplate}
   final String? restorationId;
 
-  /// {@template ShadTextarea.scribbleEnabled}
+  /// {@template Textarea.scribbleEnabled}
   /// Enables or disables Apple Pencil Scribble input on iPad.
   /// {@endtemplate}
   final bool scribbleEnabled;
 
-  /// {@template ShadTextarea.stylusHandwritingEnabled}
+  /// {@template Textarea.stylusHandwritingEnabled}
   /// Enables handwriting input using a stylus on supported platforms.
   /// {@endtemplate}
   final bool stylusHandwritingEnabled;
 
-  /// {@template ShadTextarea.enableIMEPersonalizedLearning}
+  /// {@template Textarea.enableIMEPersonalizedLearning}
   /// Enables IME (Input Method Editor) to personalize learning.
   /// {@endtemplate}
   final bool enableIMEPersonalizedLearning;
 
-  /// {@template ShadTextarea.padding}
+  /// {@template Textarea.padding}
   /// Padding around the field.
   /// This is outer padding including borders and input.
   /// {@endtemplate}
   final EdgeInsetsGeometry? padding;
 
-  /// {@template ShadTextarea.inputPadding}
+  /// {@template Textarea.inputPadding}
   /// Inner padding between text and decoration inside the textarea.
   /// {@endtemplate}
   final EdgeInsetsGeometry? inputPadding;
 
-  /// {@template ShadTextarea.gap}
+  /// {@template Textarea.gap}
   /// Horizontal spacing between text and any leading/trailing elements.
   /// {@endtemplate}
   final double? gap;
 
-  /// {@template ShadTextarea.mainAxisAlignment}
+  /// {@template Textarea.mainAxisAlignment}
   /// Layout alignment along the horizontal axis (e.g. leading, text, trailing).
   /// {@endtemplate}
   final MainAxisAlignment? mainAxisAlignment;
 
-  /// {@template ShadTextarea.crossAxisAlignment}
+  /// {@template Textarea.crossAxisAlignment}
   /// Layout alignment along the vertical axis of the row.
   /// {@endtemplate}
   final CrossAxisAlignment? crossAxisAlignment;
 
-  /// {@template ShadTextarea.constraints}
+  /// {@template Textarea.constraints}
   /// Constraints to control layout of the field (e.g. minHeight).
   /// {@endtemplate}
   final BoxConstraints? constraints;
 
-  /// {@template ShadTextarea.groupId}
+  /// {@template Textarea.groupId}
   /// ID used to group text fields for focus/interaction.
   /// {@endtemplate}
   final Object? groupId;
 
-  /// {@template ShadTextarea.maxLength}
+  /// {@template Textarea.maxLength}
   /// The maximum length of the textarea.
   /// Defaults to null (no limit).
   /// {@endtemplate}
   final int? maxLength;
 
-  /// {@template ShadTextarea.minHeight}
+  /// {@template Textarea.minHeight}
   /// The minimum height of the textarea (default is 80).
   /// {@endtemplate}
   final double minHeight;
 
-  /// {@template ShadTextarea.maxHeight}
+  /// {@template Textarea.maxHeight}
   /// The maximum height of the textarea (default is 500).
   /// {@endtemplate}
   final double maxHeight;
 
-  /// {@template ShadTextarea.resizable}
+  /// {@template Textarea.resizable}
   /// Whether the textarea can be resized by the user (default is true).
   /// {@endtemplate}
   final bool resizable;
 
-  /// {@template ShadTextarea.onHeightChanged}
+  /// {@template Textarea.onHeightChanged}
   /// Callback triggered whenever the textarea is resized.
   /// {@endtemplate}
   final ValueChanged<double>? onHeightChanged;
 
-  /// {@template ShadTextarea.resizeHandleBuilder}
+  /// {@template Textarea.resizeHandleBuilder}
   /// Allows customizing the resize handle (shown at bottom-right).
   /// {@endtemplate}
   final WidgetBuilder? resizeHandleBuilder;
 
-  /// {@template ShadTextarea.scrollbarPadding}
+  /// {@template Textarea.scrollbarPadding}
   /// The padding around the scrollbar.
   ///
   /// Defaults to `EdgeInsets.only(bottom: 10)`.
   /// {@endtemplate}
   final EdgeInsetsGeometry? scrollbarPadding;
 
-  /// {@macro ShadKeyboardToolbar.toolbarBuilder}
+  /// {@macro KeyboardToolbar.toolbarBuilder}
   final WidgetBuilder? keyboardToolbarBuilder;
 
-  /// {@macro ShadInput.leading}
+  /// {@macro TextField.leading}
   final Widget? leading;
 
-  /// {@macro ShadInput.trailing}
+  /// {@macro TextField.trailing}
   final Widget? trailing;
 
-  /// {@macro ShadInput.top}
+  /// {@macro TextField.top}
   final Widget? top;
 
-  /// {@macro ShadInput.bottom}
+  /// {@macro TextField.bottom}
   final Widget? bottom;
 
-  /// {@macro ShadInput.verticalGap}
+  /// {@macro TextField.verticalGap}
   final double? verticalGap;
 
-  /// {@macro ShadInput.onLineCountChanged}
+  /// {@macro TextField.onLineCountChanged}
   final ValueChanged<int>? onLineCountChanged;
 
   /// The old name of [onLineCountChanged].
@@ -469,20 +470,20 @@ class ShadTextarea extends StatefulWidget {
   )
   ValueChanged<int>? get onLineCountChange => onLineCountChanged;
 
-  /// {@macro ShadInput.useBrowserContextMenu}
+  /// {@macro TextField.useBrowserContextMenu}
   final bool? useBrowserContextMenu;
 
-  /// {@macro ShadInput.onPasteFiles}
-  final ValueChanged<List<ShadClipboardItem>>? onPasteFiles;
+  /// {@macro TextField.onPasteFiles}
+  final ValueChanged<List<ClipboardItem>>? onPasteFiles;
 
-  /// {@macro ShadInput.onPasteFilesError}
+  /// {@macro TextField.onPasteFilesError}
   final ValueChanged<Object>? onPasteFilesError;
 
   @override
-  State<ShadTextarea> createState() => _ShadTextareaState();
+  State<Textarea> createState() => _TextareaState();
 }
 
-class _ShadTextareaState extends State<ShadTextarea> {
+class _TextareaState extends State<Textarea> {
   late double _textareaHeight;
   FocusNode? _focusNode;
 
@@ -498,7 +499,7 @@ class _ShadTextareaState extends State<ShadTextarea> {
   }
 
   @override
-  void didUpdateWidget(covariant ShadTextarea oldWidget) {
+  void didUpdateWidget(covariant Textarea oldWidget) {
     super.didUpdateWidget(oldWidget);
     final clamped = _textareaHeight.clamp(widget.minHeight, widget.maxHeight);
     if (clamped != _textareaHeight) {
@@ -546,7 +547,7 @@ class _ShadTextareaState extends State<ShadTextarea> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
 
     final effectiveTextStyle = theme.textTheme.muted
         .copyWith(
@@ -558,7 +559,7 @@ class _ShadTextareaState extends State<ShadTextarea> {
     final lineCount = _calculateLineCount(effectiveTextStyle);
 
     final effectiveDecoration =
-        (theme.textareaTheme.decoration ?? const ShadDecoration()).merge(
+        (theme.textareaTheme.decoration ?? const FinesseDecoration()).merge(
           widget.decoration,
         );
 
@@ -624,7 +625,7 @@ class _ShadTextareaState extends State<ShadTextarea> {
       children: [
         ScrollConfiguration(
           behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
-          child: ShadInput(
+          child: TextField(
             editableTextSize: Size(double.infinity, _textareaHeight),
             initialValue: widget.initialValue,
             controller: widget.controller,
@@ -710,7 +711,7 @@ class _ShadTextareaState extends State<ShadTextarea> {
                 behavior: HitTestBehavior.translucent,
                 child: widget.resizeHandleBuilder != null
                     ? Builder(builder: widget.resizeHandleBuilder!)
-                    : const ShadDefaultResizeGrip(),
+                    : const DefaultResizeGrip(),
               ),
             ),
           ),
@@ -719,24 +720,24 @@ class _ShadTextareaState extends State<ShadTextarea> {
   }
 }
 
-/// A small visual grip used to indicate that the [ShadTextarea]
+/// A small visual grip used to indicate that the [Textarea]
 /// is resizable by the user.
 ///
 /// This widget appears in the bottom-right corner and allows
 /// the user to drag and resize the textarea vertically.
-class ShadDefaultResizeGrip extends StatelessWidget {
+class DefaultResizeGrip extends StatelessWidget {
   /// Creates the default resize grip.
-  const ShadDefaultResizeGrip({super.key});
+  const DefaultResizeGrip({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = Theme.of(context);
 
     return SizedBox(
       width: 8,
       height: 8,
       child: CustomPaint(
-        painter: ShadResizeGripPainter(color: theme.colorScheme.ring),
+        painter: ResizeGripPainter(color: theme.colorScheme.ring),
       ),
     );
   }
@@ -744,7 +745,7 @@ class ShadDefaultResizeGrip extends StatelessWidget {
 
 /// A customizable painter for drawing diagonal resize grip lines,
 /// typically used in the bottom-right corner of a resizable widget.
-class ShadResizeGripPainter extends CustomPainter {
+class ResizeGripPainter extends CustomPainter {
   /// Creates a painter that draws multiple diagonal lines to represent a resize
   /// grip.
   ///
@@ -752,7 +753,7 @@ class ShadResizeGripPainter extends CustomPainter {
   /// - [strokeWidth]: Thickness of each grip line. Default is 0.8.
   /// - [lineCount]: Number of diagonal lines to draw. Default is 3.
   /// - [spacing]: Spacing between each line. Default is 4.0.
-  const ShadResizeGripPainter({
+  const ResizeGripPainter({
     required this.color,
     this.strokeWidth = 0.8,
     this.lineCount = 3,
@@ -788,7 +789,7 @@ class ShadResizeGripPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant ShadResizeGripPainter oldDelegate) {
+  bool shouldRepaint(covariant ResizeGripPainter oldDelegate) {
     return oldDelegate.color != color ||
         oldDelegate.strokeWidth != strokeWidth ||
         oldDelegate.lineCount != lineCount ||
