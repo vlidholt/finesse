@@ -64,6 +64,7 @@ import 'package:finesse/src/theme/text_theme/theme.dart';
 import 'package:finesse/src/theme/themes/base.dart';
 import 'package:finesse/src/theme/themes/default_theme_no_secondary_border_variant.dart';
 import 'package:finesse/src/theme/themes/default_theme_variant.dart';
+import 'package:finesse/src/utils/border.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:finesse/src/utils/responsive.dart';
 import 'package:flutter/widgets.dart';
@@ -864,7 +865,43 @@ class ThemeData extends BaseTheme with _$ThemeData {
   Radii get radii => variant.radii;
 
   /// The shadcn/ui style this theme renders.
+  /// The style's metrics for this theme's [formFactor]. Components read
+  /// this.
+  ///
+  /// It is not what the theme was created with on a phone: to carry a style
+  /// over to another theme, pass [baseStyle].
   StyleTokens get style => variant.style;
+
+  /// The style this theme was created with, before [formFactor] picked a set
+  /// of metrics from it. `ThemeData(style: other.baseStyle)` reproduces
+  /// `other`'s style on either form factor; `other.style` would bake a
+  /// phone's metrics in as the desktop ones.
+  StyleTokens get baseStyle => variant.baseStyle;
+
+  /// A button decoration with [radius] corners whose focus ring follows the
+  /// same curve.
+  ///
+  /// Pass it to a `Button` or `IconButton` to reshape one — a pill "Follow",
+  /// a square icon button — without the ring staying behind as a rounded
+  /// rectangle:
+  ///
+  /// ```dart
+  /// Button.outline(
+  ///   decoration: theme.buttonDecoration(radius: theme.radii.full),
+  ///   onPressed: _follow,
+  ///   child: const Text('Follow'),
+  /// )
+  /// ```
+  FinesseDecoration buttonDecoration({required BorderRadius radius}) {
+    final themeVariant = variant;
+    return FinesseDecoration(
+      border: FinesseBorder(radius: radius),
+      secondaryFocusedBorder:
+          themeVariant is DefaultThemeVariant && !disableSecondaryBorder
+          ? themeVariant.ringFor(radius)
+          : null,
+    );
+  }
 
   /// The class of screen this theme's metrics are for.
   FormFactor get formFactor => variant.formFactor;

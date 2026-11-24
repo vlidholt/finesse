@@ -47,6 +47,9 @@ class Backdrop extends StatelessWidget {
     final blurs = blur > 0;
     final saturates = saturation != 1;
     if (!blurs && !saturates) return null;
+    // A theme uses a handful of values; an animated blur would otherwise
+    // add an entry per frame for ever.
+    if (_filters.length > 32) _filters.clear();
     return _filters.putIfAbsent((blur, saturation), () {
       final blurFilter = blurs
           ? ImageFilter.blur(

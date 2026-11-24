@@ -98,13 +98,18 @@ class Glass extends StatelessWidget {
     final theme = Theme.of(context);
     final glass = theme.glassTheme;
     final radius = borderRadius ?? glass.radius ?? theme.radius;
+    final base = glass.color ?? theme.colorScheme.card;
     final tint =
         color ??
-        (glass.color ?? theme.colorScheme.card).withValues(
-          alpha: switch (level) {
-            GlassLevel.regular => glass.opacity ?? .7,
-            GlassLevel.strong => glass.strongOpacity ?? .9,
-          },
+        base.withValues(
+          // Multiplied, so a scheme whose card is already translucent keeps
+          // that.
+          alpha:
+              base.a *
+              switch (level) {
+                GlassLevel.regular => glass.opacity ?? .7,
+                GlassLevel.strong => glass.strongOpacity ?? .9,
+              },
         );
     final effectiveBorder =
         border ??

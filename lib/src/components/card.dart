@@ -1,3 +1,4 @@
+import 'package:finesse/src/raw_components/pressable.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/backdrop.dart';
 import 'package:finesse/src/utils/border.dart';
@@ -16,6 +17,10 @@ class Card extends StatelessWidget {
   /// Creates a card widget with optional content and styling.
   const Card({
     super.key,
+    this.onPressed,
+    this.selected = false,
+    this.sectionGap,
+    this.semanticLabel,
     this.title,
     this.description,
     this.child,
@@ -186,25 +191,45 @@ class Card extends StatelessWidget {
   /// {@endtemplate}
   final Widget? action;
 
+  /// Called when the card is tapped. Makes the whole card a button: it takes
+  /// keyboard focus, shows the theme's focus ring and the click cursor.
+  final VoidCallback? onPressed;
+
+  /// Whether the card is the selected one of a set — the open item of a
+  /// master-detail list. A selected card takes the theme's accent fill and a
+  /// tint outline in place of its hairline.
+  final bool selected;
+
+  /// The gap between the card's sections (header, child, footer). Defaults
+  /// to the theme's, which is the card padding.
+  final double? sectionGap;
+
+  /// What assistive technology reads for a tappable card, in place of its
+  /// content.
+  final String? semanticLabel;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final effectiveGap = gap ?? theme.cardTheme.gap ?? 0;
     // Sections sit `--card-spacing` apart; the small [gap] only separates the
     // title from its description.
-    final effectiveSectionGap = theme.cardTheme.sectionGap ?? effectiveGap;
+    final effectiveSectionGap =
+        sectionGap ?? theme.cardTheme.sectionGap ?? effectiveGap;
 
     final effectivePadding =
         padding ?? theme.cardTheme.padding ?? const EdgeInsets.all(24);
-    final effectiveBackgroundColor =
-        backgroundColor ??
-        theme.cardTheme.backgroundColor ??
-        theme.colorScheme.card;
+    final effectiveBackgroundColor = selected
+        ? backgroundColor ?? theme.colorScheme.accent
+        : backgroundColor ??
+              theme.cardTheme.backgroundColor ??
+              theme.colorScheme.card;
     final effectiveRadius = radius ?? theme.cardTheme.radius ?? theme.radius;
-    final effectiveBorder =
-        border ??
-        theme.cardTheme.border ??
-        FinesseBorder.all(color: theme.colorScheme.border, width: 1);
+    final effectiveBorder = selected
+        ? border ?? FinesseBorder.all(color: theme.colorScheme.tint, width: 1.5)
+        : border ??
+              theme.cardTheme.border ??
+              FinesseBorder.all(color: theme.colorScheme.border, width: 1);
     final effectiveShadows = shadows ?? theme.cardTheme.shadows;
 
     final effectiveRowMainAxisSize =
@@ -321,19 +346,37 @@ class Card extends StatelessWidget {
       ),
     );
 
-    if (!blurs) return content;
     // The clip a backdrop filter needs would cut the card's own shadow off,
     // so the shadow is painted by a box outside it.
-    return DecoratedBox(
-      decoration: ShadowDecoration.box(
+    final Widget card = blurs
+        ? DecoratedBox(
+            decoration: ShadowDecoration.box(
+              borderRadius: effectiveRadius,
+              shadows: effectiveShadows ?? const [],
+            ),
+            child: Backdrop(
+              blur: effectiveBlur,
+              saturation: theme.cardTheme.saturation ?? 1,
+              borderRadius: effectiveRadius,
+              child: content,
+            ),
+          )
+        : content;
+
+    if (onPressed == null) {
+      return selected ? Semantics(selected: true, child: card) : card;
+    }
+    return Pressable(
+      onPressed: onPressed,
+      selected: selected ? true : null,
+      semanticLabel: semanticLabel,
+      // A translucent card must not swallow taps meant for buttons inside
+      // it; those win the gesture arena on their own.
+      behavior: HitTestBehavior.opaque,
+      builder: (context, states) => FocusRing(
+        visible: states.contains(WidgetState.focused),
         borderRadius: effectiveRadius,
-        shadows: effectiveShadows ?? const [],
-      ),
-      child: Backdrop(
-        blur: effectiveBlur,
-        saturation: theme.cardTheme.saturation ?? 1,
-        borderRadius: effectiveRadius,
-        child: content,
+        child: card,
       ),
     );
   }

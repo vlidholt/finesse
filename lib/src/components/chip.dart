@@ -9,7 +9,7 @@ enum ChipVariant {
   /// A translucent fill with a solid hairline. The default.
   outline,
 
-  /// A muted fill with no outline, for read-only tags such as a skill.
+  /// A muted fill with a hairline, for read-only tags such as a skill.
   soft,
 
   /// No fill and a dashed hairline, for something absent or suggested.
@@ -29,8 +29,10 @@ enum ChipVariant {
 ///
 /// A chip with [onSelected] toggles; one with [onPressed] is a button; one
 /// with neither is a static tag. A selected chip takes the theme's accent
-/// fill, accent text and accent outline. Height follows the theme's form
-/// factor: 32 logical pixels on a desktop, 36 on a phone.
+/// fill, accent text and accent outline. A chip that can be tapped follows
+/// the theme's form factor — 32 logical pixels tall on a desktop, 36 on a
+/// phone — while a static tag keeps the desktop height everywhere: it is not
+/// a touch target.
 class Chip extends StatelessWidget {
   /// Creates a chip.
   const Chip({
@@ -100,6 +102,12 @@ class Chip extends StatelessWidget {
     final scheme = theme.colorScheme;
     final radius = chip.radius ?? theme.radii.full;
     final onTap = onSelected != null ? () => onSelected!(!selected) : onPressed;
+    // A tag is not a touch target, so it does not grow on a phone.
+    final effectiveHeight =
+        height ??
+        (onTap == null
+            ? theme.variant.baseStyle.chipHeight * theme.spacing.step / 4
+            : chip.height ?? 32);
 
     Widget buildChip(BuildContext context, Set<WidgetState> states) {
       final hovered = states.contains(WidgetState.hovered);
@@ -161,9 +169,10 @@ class Chip extends StatelessWidget {
         ),
       );
 
+      // The height sits outside the animated box: only colours ease, so a
+      // change of form factor does not make every chip grow for 120 ms.
       Widget box = AnimatedContainer(
         duration: const Duration(milliseconds: 120),
-        height: height ?? chip.height ?? 32,
         decoration: BoxDecoration(
           color: fill,
           borderRadius: radius,
@@ -183,6 +192,7 @@ class Chip extends StatelessWidget {
           child: box,
         );
       }
+      box = SizedBox(height: effectiveHeight, child: box);
       return FocusRing(
         visible: states.contains(WidgetState.focused),
         borderRadius: radius,
@@ -204,7 +214,8 @@ class Chip extends StatelessWidget {
 
     return Pressable(
       onPressed: onTap,
-      selected: selected,
+      // Only a chip that toggles announces "selected" / "not selected".
+      selected: onSelected != null || selected ? selected : null,
       focusNode: focusNode,
       semanticLabel: semanticLabel,
       builder: buildChip,

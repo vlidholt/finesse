@@ -32,6 +32,7 @@ class TabBar extends StatelessWidget {
     this.tabPadding,
     this.showBorder = true,
     this.indicatorColor,
+    this.labelStyle,
     super.key,
   });
 
@@ -60,12 +61,18 @@ class TabBar extends StatelessWidget {
   /// foreground colour.
   final Color? indicatorColor;
 
+  /// The labels' style. Weight and colour are set per tab on top of it.
+  /// Defaults to the theme's `large` text style.
+  final TextStyle? labelStyle;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final barHeight = height ?? theme.style.underlineTabHeight;
-    final baseStyle = theme.textTheme.large.copyWith(height: 1);
+    final baseStyle = (labelStyle ?? theme.textTheme.large).copyWith(
+      height: 1,
+    );
 
     Widget tab(int index) {
       final selected = index == selectedIndex;
@@ -84,9 +91,11 @@ class TabBar extends StatelessWidget {
                 alignment: Alignment.center,
                 children: [
                   Padding(
+                    // Tabs that share the width need little padding of
+                    // their own; tabs that hug their label need room.
                     padding:
                         tabPadding ??
-                        const EdgeInsets.symmetric(horizontal: 16),
+                        EdgeInsets.symmetric(horizontal: expand ? 4 : 16),
                     child: DefaultTextStyle.merge(
                       style: baseStyle.copyWith(
                         fontWeight: selected
@@ -133,7 +142,6 @@ class TabBar extends StatelessWidget {
     if (!expand) {
       row = SingleChildScrollView(
         scrollDirection: Axis.horizontal,
-        clipBehavior: Clip.none,
         child: row,
       );
     }

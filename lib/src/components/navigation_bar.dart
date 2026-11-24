@@ -162,6 +162,9 @@ class NavigationBar extends StatelessWidget {
                   return FocusRing(
                     visible: states.contains(WidgetState.focused),
                     borderRadius: theme.radius,
+                    // The app bar clips for its backdrop blur, which would
+                    // cut an outside ring off at the top and bottom.
+                    inset: true,
                     child: SizedBox(
                       width: nav.itemWidth ?? 88,
                       height: barHeight,
@@ -285,7 +288,9 @@ class BottomNavigationBar extends StatelessWidget {
     );
     final floating = bar.floating ?? true;
     final margin = floating
-        ? (bar.margin ?? EdgeInsets.zero).resolve(Directionality.of(context))
+        ? (bar.margin ?? const EdgeInsets.only(bottom: 22)).resolve(
+            Directionality.of(context),
+          )
         : EdgeInsets.zero;
     return (bar.itemHeight ?? 48) +
         padding.vertical +
@@ -297,10 +302,34 @@ class BottomNavigationBar extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) => _build(context, constraints.maxWidth),
+  );
+
+  Widget _build(BuildContext context, double maxWidth) {
     final theme = Theme.of(context);
     final bar = theme.bottomNavigationBarTheme;
     final isFloating = floating ?? bar.floating ?? true;
+    final barPadding = (bar.padding ?? const EdgeInsets.all(6)).resolve(
+      Directionality.of(context),
+    );
+    final gap = bar.gap ?? 4;
+    // A floating bar is as wide as its items, but never wider than the
+    // screen: on a narrow phone the items give up width evenly rather than
+    // overflow.
+    final itemCount = destinations.length + (action == null ? 0 : 1);
+    var itemWidth = bar.itemWidth ?? 52;
+    if (isFloating && maxWidth.isFinite && itemCount > 0) {
+      const sideMargin = 16.0;
+      final available =
+          maxWidth -
+          2 * sideMargin -
+          barPadding.horizontal -
+          2 -
+          gap * (itemCount - 1);
+      final fit = available / itemCount;
+      if (fit < itemWidth) itemWidth = fit < 0 ? 0 : fit;
+    }
     final radius = isFloating
         ? bar.radius ?? theme.radii.full
         : BorderRadius.zero;
@@ -311,7 +340,8 @@ class BottomNavigationBar extends StatelessWidget {
       required Widget icon,
       required String label,
       required VoidCallback? onPressed,
-      required bool selected,
+      required bool? selected,
+      String? value,
       Color? background,
       Color? foreground,
       double? iconSize,
@@ -320,11 +350,13 @@ class BottomNavigationBar extends StatelessWidget {
         selected: selected,
         onPressed: onPressed,
         semanticLabel: label,
+        semanticValue: value,
         builder: (context, states) {
+          final isSelected = selected ?? false;
           final hovered = states.contains(WidgetState.hovered);
           final color =
               background ??
-              (selected
+              (isSelected
                   ? bar.selectedBackgroundColor ?? theme.colorScheme.accent
                   : hovered
                   ? theme.colorScheme.muted
@@ -332,9 +364,10 @@ class BottomNavigationBar extends StatelessWidget {
           return FocusRing(
             visible: states.contains(WidgetState.focused),
             borderRadius: itemRadius,
+            inset: true,
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 150),
-              width: isFloating ? bar.itemWidth ?? 52 : null,
+              width: isFloating ? itemWidth : null,
               height: bar.itemHeight ?? 48,
               alignment: Alignment.center,
               decoration: BoxDecoration(
@@ -346,7 +379,7 @@ class BottomNavigationBar extends StatelessWidget {
                   size: iconSize ?? bar.iconSize ?? 26,
                   color:
                       foreground ??
-                      (selected
+                      (isSelected
                           ? bar.selectedForegroundColor ??
                                 theme.colorScheme.tint
                           : bar.foregroundColor ??
@@ -369,7 +402,7 @@ class BottomNavigationBar extends StatelessWidget {
             icon: action!.icon,
             label: action!.label,
             onPressed: action!.onPressed,
-            selected: false,
+            selected: null,
             background: bar.actionBackgroundColor ?? theme.colorScheme.primary,
             foreground:
                 bar.actionForegroundColor ??
@@ -385,6 +418,9 @@ class BottomNavigationBar extends StatelessWidget {
             Offset.zero,
           ),
           label: destination.label,
+          value: (destination.badgeCount ?? 0) > 0
+              ? '${destination.badgeCount}'
+              : null,
           onPressed: onDestinationSelected == null
               ? null
               : () => onDestinationSelected!(index),
@@ -396,7 +432,7 @@ class BottomNavigationBar extends StatelessWidget {
           icon: action!.icon,
           label: action!.label,
           onPressed: action!.onPressed,
-          selected: false,
+          selected: null,
           background: bar.actionBackgroundColor ?? theme.colorScheme.primary,
           foreground:
               bar.actionForegroundColor ?? theme.colorScheme.primaryForeground,
@@ -425,7 +461,7 @@ class BottomNavigationBar extends StatelessWidget {
         ),
         child: Row(
           mainAxisSize: isFloating ? MainAxisSize.min : MainAxisSize.max,
-          spacing: bar.gap ?? 4,
+          spacing: gap,
           children: children,
         ),
       ),

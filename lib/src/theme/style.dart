@@ -291,6 +291,13 @@ class StyleTokens {
     this.subtitle,
     this.small,
     this.concentricTabs = false,
+    this.secondaryButtonFill = SurfaceFill.secondary,
+    this.secondaryBadgeFill = SurfaceFill.secondary,
+    this.secondaryBadgeSubtle = false,
+    this.progressTrackFill = SurfaceFill.muted,
+    this.progressTinted = false,
+    this.dividerMargin = 16,
+    this.timelineLineGap = 6,
     this.tabsListFill = SurfaceFill.muted,
     this.tabSelectedFill = SurfaceFill.background,
     this.tabUnselectedMuted = false,
@@ -978,6 +985,29 @@ class StyleTokens {
   /// so the two curves stay concentric, instead of [tabRadius].
   final bool concentricTabs;
 
+  /// The fill of secondary buttons.
+  final SurfaceFill secondaryButtonFill;
+
+  /// The fill of secondary badges.
+  final SurfaceFill secondaryBadgeFill;
+
+  /// Whether secondary badges take the subtle foreground rather than the
+  /// secondary foreground.
+  final bool secondaryBadgeSubtle;
+
+  /// The fill of a progress bar's track.
+  final SurfaceFill progressTrackFill;
+
+  /// Whether a progress bar fills with the scheme's tint rather than its
+  /// primary.
+  final bool progressTinted;
+
+  /// The margin a divider keeps on its cross axis.
+  final double dividerMargin;
+
+  /// The gap between a timeline marker and the line that leaves it.
+  final double timelineLineGap;
+
   /// The fill of a tab list.
   final SurfaceFill tabsListFill;
 
@@ -1168,6 +1198,13 @@ class StyleTokens {
     popoverPadding: 16,
     tabsListPadding: 4,
     concentricTabs: true,
+    secondaryButtonFill: SurfaceFill.muted,
+    secondaryBadgeFill: SurfaceFill.muted,
+    secondaryBadgeSubtle: true,
+    progressTrackFill: SurfaceFill.secondary,
+    progressTinted: true,
+    dividerMargin: 0,
+    timelineLineGap: 8,
     tabsListFill: SurfaceFill.secondary,
     tabSelectedFill: SurfaceFill.card,
     tabUnselectedMuted: true,
@@ -1328,6 +1365,13 @@ class StyleTokens {
     popoverPadding: 16,
     tabsListPadding: 4,
     concentricTabs: true,
+    secondaryButtonFill: SurfaceFill.muted,
+    secondaryBadgeFill: SurfaceFill.muted,
+    secondaryBadgeSubtle: true,
+    progressTrackFill: SurfaceFill.secondary,
+    progressTinted: true,
+    dividerMargin: 0,
+    timelineLineGap: 8,
     tabsListFill: SurfaceFill.secondary,
     tabSelectedFill: SurfaceFill.card,
     tabUnselectedMuted: true,
@@ -1749,6 +1793,13 @@ class StyleTokens {
     TextRole? subtitle,
     TextRole? small,
     bool? concentricTabs,
+    SurfaceFill? secondaryButtonFill,
+    SurfaceFill? secondaryBadgeFill,
+    bool? secondaryBadgeSubtle,
+    SurfaceFill? progressTrackFill,
+    bool? progressTinted,
+    double? dividerMargin,
+    double? timelineLineGap,
     SurfaceFill? tabsListFill,
     SurfaceFill? tabSelectedFill,
     bool? tabUnselectedMuted,
@@ -1959,6 +2010,13 @@ class StyleTokens {
       subtitle: subtitle ?? this.subtitle,
       small: small ?? this.small,
       concentricTabs: concentricTabs ?? this.concentricTabs,
+      secondaryButtonFill: secondaryButtonFill ?? this.secondaryButtonFill,
+      secondaryBadgeFill: secondaryBadgeFill ?? this.secondaryBadgeFill,
+      secondaryBadgeSubtle: secondaryBadgeSubtle ?? this.secondaryBadgeSubtle,
+      progressTrackFill: progressTrackFill ?? this.progressTrackFill,
+      progressTinted: progressTinted ?? this.progressTinted,
+      dividerMargin: dividerMargin ?? this.dividerMargin,
+      timelineLineGap: timelineLineGap ?? this.timelineLineGap,
       tabsListFill: tabsListFill ?? this.tabsListFill,
       tabSelectedFill: tabSelectedFill ?? this.tabSelectedFill,
       tabUnselectedMuted: tabUnselectedMuted ?? this.tabUnselectedMuted,
@@ -2151,6 +2209,13 @@ class StyleTokens {
     subtitle,
     small,
     concentricTabs,
+    secondaryButtonFill,
+    secondaryBadgeFill,
+    secondaryBadgeSubtle,
+    progressTrackFill,
+    progressTinted,
+    dividerMargin,
+    timelineLineGap,
     tabsListFill,
     tabSelectedFill,
     tabUnselectedMuted,

@@ -33,12 +33,12 @@ class Pressable extends StatefulWidget {
     required this.builder,
     this.onPressed,
     this.onLongPress,
-    this.selected = false,
+    this.selected,
     this.focusNode,
     this.autofocus = false,
-    this.canRequestFocus = true,
     this.cursor = SystemMouseCursors.click,
     this.semanticLabel,
+    this.semanticValue,
     this.behavior = HitTestBehavior.opaque,
     super.key,
   });
@@ -50,9 +50,13 @@ class Pressable extends StatefulWidget {
   /// Called on a long press.
   final VoidCallback? onLongPress;
 
-  /// Whether the region represents the selected one of a set. Adds
-  /// [WidgetState.selected] and is announced to assistive technology.
-  final bool selected;
+  /// Whether the region is the selected one of a set, for a region that can
+  /// be selected at all: a tab, a destination, a toggle.
+  ///
+  /// True adds [WidgetState.selected]. Both true and false are announced to
+  /// assistive technology ("selected" / "not selected"); null, the default,
+  /// says the region is a plain button.
+  final bool? selected;
 
   /// The focus node to use; one is created when null.
   final FocusNode? focusNode;
@@ -60,15 +64,15 @@ class Pressable extends StatefulWidget {
   /// Whether the region takes focus when it is first built.
   final bool autofocus;
 
-  /// Whether the region can take keyboard focus at all.
-  final bool canRequestFocus;
-
   /// The cursor shown over an enabled region.
   final MouseCursor cursor;
 
-  /// A description for assistive technology, for a region whose content is
-  /// only an icon.
+  /// What assistive technology reads for the region, in place of its
+  /// content. Needed when the content is only an icon.
   final String? semanticLabel;
+
+  /// A value read after the label, such as an unread count.
+  final String? semanticValue;
 
   /// How the region behaves in hit testing.
   final HitTestBehavior behavior;
@@ -94,46 +98,58 @@ class _PressableState extends State<Pressable> {
   @override
   Widget build(BuildContext context) {
     final enabled = _enabled;
+    final selected = widget.selected ?? false;
     final states = <WidgetState>{
       if (!enabled) WidgetState.disabled,
       if (enabled && _hovered) WidgetState.hovered,
       if (enabled && _focused) WidgetState.focused,
       if (enabled && _pressed) WidgetState.pressed,
-      if (widget.selected) WidgetState.selected,
+      if (selected) WidgetState.selected,
     };
     return Semantics(
       button: true,
       enabled: enabled,
-      selected: widget.selected ? true : null,
+      selected: widget.selected,
       label: widget.semanticLabel,
-      child: FocusableActionDetector(
-        enabled: enabled,
-        focusNode: widget.focusNode,
-        autofocus: widget.autofocus,
-        descendantsAreFocusable: true,
-        mouseCursor: enabled ? widget.cursor : SystemMouseCursors.basic,
-        onShowHoverHighlight: (value) {
-          if (_hovered != value) setState(() => _hovered = value);
+      value: widget.semanticValue,
+      // A label stands in for the content; reading both says it twice.
+      excludeSemantics: widget.semanticLabel != null,
+      // Hover comes from a MouseRegion rather than the action detector's
+      // highlight callback: that one only fires in the traditional highlight
+      // mode, so on a touch-first platform a connected mouse got no hover
+      // feedback until a key was pressed.
+      child: MouseRegion(
+        cursor: enabled ? widget.cursor : MouseCursor.defer,
+        onEnter: (_) {
+          if (!_hovered) setState(() => _hovered = true);
         },
-        onShowFocusHighlight: (value) {
-          if (_focused != value) setState(() => _focused = value);
+        onExit: (_) {
+          if (_hovered && mounted) setState(() => _hovered = false);
         },
-        actions: {
-          ActivateIntent: CallbackAction<ActivateIntent>(
-            onInvoke: (_) {
-              widget.onPressed?.call();
-              return null;
-            },
+        child: FocusableActionDetector(
+          enabled: enabled,
+          focusNode: widget.focusNode,
+          autofocus: widget.autofocus,
+          onShowFocusHighlight: (value) {
+            if (_focused != value) setState(() => _focused = value);
+          },
+          actions: {
+            ActivateIntent: CallbackAction<ActivateIntent>(
+              onInvoke: (_) {
+                widget.onPressed?.call();
+                return null;
+              },
+            ),
+          },
+          child: GestureDetector(
+            behavior: widget.behavior,
+            onTap: widget.onPressed,
+            onLongPress: widget.onLongPress,
+            onTapDown: enabled ? (_) => _setPressed(true) : null,
+            onTapUp: enabled ? (_) => _setPressed(false) : null,
+            onTapCancel: enabled ? () => _setPressed(false) : null,
+            child: widget.builder(context, states),
           ),
-        },
-        child: GestureDetector(
-          behavior: widget.behavior,
-          onTap: widget.onPressed,
-          onLongPress: widget.onLongPress,
-          onTapDown: enabled ? (_) => _setPressed(true) : null,
-          onTapUp: enabled ? (_) => _setPressed(false) : null,
-          onTapCancel: enabled ? () => _setPressed(false) : null,
-          child: widget.builder(context, states),
         ),
       ),
     );
@@ -150,6 +166,7 @@ class FocusRing extends StatelessWidget {
     required this.visible,
     required this.child,
     this.borderRadius = BorderRadius.zero,
+    this.inset = false,
     super.key,
   });
 
@@ -158,6 +175,12 @@ class FocusRing extends StatelessWidget {
 
   /// The corners of the widget the ring surrounds.
   final BorderRadius borderRadius;
+
+  /// Whether the ring is painted just inside [child]'s bounds instead of
+  /// outside them. For a child whose surroundings are clipped — a destination
+  /// in a bar that clips for its backdrop blur — where an outside ring would
+  /// be cut off.
+  final bool inset;
 
   /// The widget the ring surrounds.
   final Widget child;
@@ -173,6 +196,7 @@ class FocusRing extends StatelessWidget {
         ),
         width: theme.style.ringWidth,
         borderRadius: borderRadius,
+        inset: inset,
       ),
       child: child,
     );
@@ -184,16 +208,19 @@ class _FocusRingPainter extends CustomPainter {
     required this.color,
     required this.width,
     required this.borderRadius,
+    required this.inset,
   });
 
   final Color color;
   final double width;
   final BorderRadius borderRadius;
+  final bool inset;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final inner = borderRadius.toRRect(Offset.zero & size);
-    final outer = inner.inflate(width);
+    final bounds = borderRadius.toRRect(Offset.zero & size);
+    final outer = inset ? bounds : bounds.inflate(width);
+    final inner = inset ? bounds.deflate(width) : bounds;
     canvas.drawDRRect(outer, inner, Paint()..color = color);
   }
 
@@ -201,5 +228,6 @@ class _FocusRingPainter extends CustomPainter {
   bool shouldRepaint(_FocusRingPainter oldDelegate) =>
       oldDelegate.color != color ||
       oldDelegate.width != width ||
+      oldDelegate.inset != inset ||
       oldDelegate.borderRadius != borderRadius;
 }

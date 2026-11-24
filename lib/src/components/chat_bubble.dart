@@ -34,6 +34,7 @@ class ChatBubble extends StatelessWidget {
     this.foregroundColor,
     this.padding,
     this.border,
+    this.maxWidth,
     super.key,
   });
 
@@ -58,6 +59,10 @@ class ChatBubble extends StatelessWidget {
   /// A border around the bubble, for attachments drawn on the card colour.
   final BoxBorder? border;
 
+  /// The widest the bubble grows, in logical pixels. Defaults to the theme's
+  /// fraction of the available width.
+  final double? maxWidth;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -76,19 +81,23 @@ class ChatBubble extends StatelessWidget {
         (outgoing
             ? bubble.outgoingForegroundColor ?? theme.colorScheme.tintForeground
             : bubble.incomingForegroundColor ?? theme.colorScheme.foreground);
-    return Align(
-      alignment: outgoing
-          ? AlignmentDirectional.centerEnd
-          : AlignmentDirectional.centerStart,
-      child: FractionallySizedBox(
-        widthFactor: bubble.maxWidthFactor ?? .78,
-        alignment: outgoing
-            ? AlignmentDirectional.centerEnd
-            : AlignmentDirectional.centerStart,
-        child: Align(
-          alignment: outgoing
-              ? AlignmentDirectional.centerEnd
-              : AlignmentDirectional.centerStart,
+    final alignment = outgoing
+        ? AlignmentDirectional.centerEnd
+        : AlignmentDirectional.centerStart;
+    final factor = bubble.maxWidthFactor ?? .78;
+    return LayoutBuilder(
+      builder: (context, constraints) => Align(
+        alignment: alignment,
+        // Hug the message's height even inside a parent of fixed height.
+        heightFactor: 1,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth:
+                maxWidth ??
+                (constraints.hasBoundedWidth
+                    ? constraints.maxWidth * factor
+                    : double.infinity),
+          ),
           child: Container(
             padding:
                 padding ??
@@ -125,13 +134,22 @@ class ChatBubble extends StatelessWidget {
 /// is off screen or animations are disabled.
 class TypingIndicator extends StatefulWidget {
   /// Creates a typing indicator.
-  const TypingIndicator({this.color, this.dotSize = 6, super.key});
+  const TypingIndicator({
+    this.color,
+    this.dotSize = 6,
+    this.semanticLabel = 'Typing',
+    super.key,
+  });
 
   /// The dots' colour. Defaults to the theme's muted foreground.
   final Color? color;
 
   /// The diameter of each dot.
   final double dotSize;
+
+  /// What assistive technology reads for the indicator. Pass a localised
+  /// string, ideally naming who is typing.
+  final String semanticLabel;
 
   @override
   State<TypingIndicator> createState() => _TypingIndicatorState();
@@ -164,7 +182,7 @@ class _TypingIndicatorState extends State<TypingIndicator>
   Widget build(BuildContext context) {
     final color = widget.color ?? Theme.of(context).colorScheme.mutedForeground;
     return Semantics(
-      label: 'Typing',
+      label: widget.semanticLabel,
       child: AnimatedBuilder(
         animation: _controller,
         builder: (context, _) => Row(

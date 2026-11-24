@@ -476,14 +476,16 @@ class DefaultThemeVariant extends ThemeVariant {
 
   @override
   ButtonTheme secondaryButtonTheme() {
+    final fill =
+        _fill(style.secondaryButtonFill, colorScheme) ?? colorScheme.secondary;
     return ButtonTheme(
       textStyle: style.label.apply(effectiveTextTheme.small),
-      backgroundColor: colorScheme.secondary,
+      backgroundColor: fill,
       // `hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)]`:
       // a nudge towards the foreground rather than towards transparency, so
       // the hover reads on any page colour.
       hoverBackgroundColor: Color.lerp(
-        colorScheme.secondary,
+        fill,
         colorScheme.foreground,
         .05,
       ),
@@ -677,12 +679,16 @@ class DefaultThemeVariant extends ThemeVariant {
     if (style.flatBadges) {
       return _flatBadgeTheme(colorScheme.mutedForeground);
     }
+    final fill =
+        _fill(style.secondaryBadgeFill, colorScheme) ?? colorScheme.secondary;
     return BadgeTheme(
       // `[&>svg]:size-3`.
       iconSize: scaled(style.badgeIconSize),
-      backgroundColor: colorScheme.secondary,
-      hoverBackgroundColor: colorScheme.secondary,
-      foregroundColor: colorScheme.secondaryForeground,
+      backgroundColor: fill,
+      hoverBackgroundColor: fill,
+      foregroundColor: style.secondaryBadgeSubtle
+          ? colorScheme.foregroundSubtle
+          : colorScheme.secondaryForeground,
       shape: _badgeShape,
       padding: _badgePadding,
       textStyle: style.caption.apply(effectiveTextTheme.small),
@@ -1496,9 +1502,11 @@ class DefaultThemeVariant extends ThemeVariant {
   ProgressBarTheme progressBarTheme() {
     return ProgressBarTheme(
       minHeight: scaled(style.progressHeight),
-      color: colorScheme.primary,
-      // `bg-muted`, not the secondary, for the same reason as the slider.
-      backgroundColor: colorScheme.muted,
+      color: style.progressTinted ? colorScheme.tint : colorScheme.primary,
+      // `bg-muted`, not the secondary, for the same reason as the slider —
+      // unless the style says otherwise.
+      backgroundColor:
+          _fill(style.progressTrackFill, colorScheme) ?? colorScheme.muted,
       borderRadius: const BorderRadius.all(Radius.circular(16)),
     );
   }
@@ -1672,11 +1680,17 @@ class DefaultThemeVariant extends ThemeVariant {
     final headline = style.headline;
     final subtitle = style.subtitle;
     final small = style.small;
+    // `muted` is a colour as much as a size: shadcn's is
+    // `text-sm text-muted-foreground`. Components build on the raw
+    // `effectiveTextTheme`, so this only reaches `Theme.of(context).textTheme`.
+    final muted = (small?.apply(t.muted) ?? t.muted).copyWith(
+      color: colorScheme.mutedForeground,
+    );
     if (display == null &&
         headline == null &&
         subtitle == null &&
         small == null) {
-      return t;
+      return t.copyWith(muted: muted);
     }
     // A style that names these roles owns the whole scale, so its body role
     // sets the paragraph size too — that is what moves running text from 14
@@ -1689,7 +1703,7 @@ class DefaultThemeVariant extends ThemeVariant {
       list: style.body.apply(t.list),
       large: subtitle?.apply(t.large),
       small: small?.apply(t.small),
-      muted: small?.apply(t.muted),
+      muted: muted,
     );
   }
 
@@ -1883,7 +1897,7 @@ class DefaultThemeVariant extends ThemeVariant {
       lineWidth: 2,
       gap: scaled(14),
       spacing: scaled(20),
-      lineGap: scaled(6),
+      lineGap: scaled(style.timelineLineGap),
     );
   }
 
@@ -2174,8 +2188,12 @@ class DefaultThemeVariant extends ThemeVariant {
     return DividerTheme(
       thickness: 1,
       color: colorScheme.border,
-      verticalMargin: spacing.symmetric(horizontal: 4),
-      horizontalMargin: spacing.symmetric(vertical: 4),
+      verticalMargin: EdgeInsets.symmetric(
+        horizontal: scaled(style.dividerMargin),
+      ),
+      horizontalMargin: EdgeInsets.symmetric(
+        vertical: scaled(style.dividerMargin),
+      ),
     );
   }
 
@@ -2556,11 +2574,22 @@ class DefaultThemeVariant extends ThemeVariant {
         other.colorScheme == colorScheme &&
         other.radius == radius &&
         other.effectiveTextTheme == effectiveTextTheme &&
-        other.style == style &&
-        other.spacing == spacing;
+        other.baseStyle == baseStyle &&
+        other.formFactor == formFactor &&
+        other.spacing == spacing &&
+        other.menuColorScheme == menuColorScheme &&
+        other.menuTranslucent == menuTranslucent;
   }
 
   @override
-  int get hashCode =>
-      Object.hash(colorScheme, radius, effectiveTextTheme, style, spacing);
+  int get hashCode => Object.hash(
+    colorScheme,
+    radius,
+    effectiveTextTheme,
+    baseStyle,
+    formFactor,
+    spacing,
+    menuColorScheme,
+    menuTranslucent,
+  );
 }

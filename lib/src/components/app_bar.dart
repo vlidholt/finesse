@@ -55,7 +55,8 @@ class AppBar extends StatelessWidget {
   /// The widgets at the end, usually icon buttons.
   final List<Widget> actions;
 
-  /// The bar's height, not counting the safe area. Defaults to the theme's.
+  /// The bar's height, not counting the safe area or the hairline under
+  /// it. Defaults to the theme's.
   final double? height;
 
   /// Padding around the content. Defaults to the theme's page margin.
@@ -85,6 +86,8 @@ class AppBar extends StatelessWidget {
   static double heightOf(BuildContext context, {bool primary = true}) {
     final theme = Theme.of(context);
     return (theme.appBarTheme.height ?? 64) +
+        // The hairline under the bar.
+        1 +
         (primary ? MediaQuery.paddingOf(context).top : 0);
   }
 
@@ -140,12 +143,14 @@ class AppBar extends StatelessWidget {
 
     return Semantics(
       container: true,
-      header: true,
       child: Backdrop(
         blur: bar.blur ?? 0,
         saturation: bar.saturation ?? 1,
         child: Container(
-          height: (height ?? bar.height ?? 64) + topInset,
+          // The hairline is added to the height rather than taken from it,
+          // so a 64-point bar has 64 points for its content.
+          height:
+              (height ?? bar.height ?? 64) + topInset + (showBorder ? 1 : 0),
           padding: EdgeInsets.only(top: topInset),
           decoration: BoxDecoration(
             color:

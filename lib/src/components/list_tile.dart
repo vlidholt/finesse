@@ -147,11 +147,24 @@ class ListTile extends StatelessWidget {
       ),
     );
 
-    if (onTap == null && !selected) return row;
+    if (onTap == null) {
+      if (!selected) return row;
+      // Selected but inert: highlighted, and not announced as a button.
+      return Semantics(
+        selected: true,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: tile.selectedColor ?? theme.colorScheme.accent,
+            borderRadius: radius,
+          ),
+          child: row,
+        ),
+      );
+    }
 
     return Pressable(
       onPressed: onTap,
-      selected: selected,
+      selected: selected ? true : null,
       focusNode: focusNode,
       builder: (context, states) {
         final color = selected
