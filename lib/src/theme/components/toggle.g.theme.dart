@@ -59,6 +59,14 @@ mixin _$ToggleTheme {
       gap: lerpDouble$(a.gap, b.gap, t),
       height: lerpDouble$(a.height, b.height, t),
       iconSize: lerpDouble$(a.iconSize, b.iconSize, t),
+      pressScale: lerpDouble$(a.pressScale, b.pressScale, t),
+      transitionDuration: lerpDuration$(
+        a.transitionDuration,
+        b.transitionDuration,
+        t,
+      ),
+      indicatorSpring: t < 0.5 ? a.indicatorSpring : b.indicatorSpring,
+      indicatorStretch: lerpDouble$(a.indicatorStretch, b.indicatorStretch, t),
     );
   }
 
@@ -76,6 +84,10 @@ mixin _$ToggleTheme {
     double? gap,
     double? height,
     double? iconSize,
+    double? pressScale,
+    Duration? transitionDuration,
+    MotionSpring? indicatorSpring,
+    double? indicatorStretch,
   }) {
     final _this = (this as ToggleTheme);
 
@@ -96,6 +108,10 @@ mixin _$ToggleTheme {
       gap: gap ?? _this.gap,
       height: height ?? _this.height,
       iconSize: iconSize ?? _this.iconSize,
+      pressScale: pressScale ?? _this.pressScale,
+      transitionDuration: transitionDuration ?? _this.transitionDuration,
+      indicatorSpring: indicatorSpring ?? _this.indicatorSpring,
+      indicatorStretch: indicatorStretch ?? _this.indicatorStretch,
     );
   }
 
@@ -124,6 +140,10 @@ mixin _$ToggleTheme {
       gap: other.gap,
       height: other.height,
       iconSize: other.iconSize,
+      pressScale: other.pressScale,
+      transitionDuration: other.transitionDuration,
+      indicatorSpring: other.indicatorSpring,
+      indicatorStretch: other.indicatorStretch,
     );
   }
 
@@ -153,7 +173,11 @@ mixin _$ToggleTheme {
         _other.textStyle == _this.textStyle &&
         _other.gap == _this.gap &&
         _other.height == _this.height &&
-        _other.iconSize == _this.iconSize;
+        _other.iconSize == _this.iconSize &&
+        _other.pressScale == _this.pressScale &&
+        _other.transitionDuration == _this.transitionDuration &&
+        _other.indicatorSpring == _this.indicatorSpring &&
+        _other.indicatorStretch == _this.indicatorStretch;
   }
 
   @override
@@ -175,6 +199,10 @@ mixin _$ToggleTheme {
       _this.gap,
       _this.height,
       _this.iconSize,
+      _this.pressScale,
+      _this.transitionDuration,
+      _this.indicatorSpring,
+      _this.indicatorStretch,
     );
   }
 }

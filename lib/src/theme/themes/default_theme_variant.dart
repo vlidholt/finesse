@@ -11,6 +11,7 @@ import 'package:finesse/src/theme/components/alert.dart';
 import 'package:finesse/src/theme/components/app_bar.dart';
 import 'package:finesse/src/theme/components/avatar.dart';
 import 'package:finesse/src/theme/components/badge.dart';
+import 'package:finesse/src/theme/components/board.dart';
 import 'package:finesse/src/theme/components/bottom_navigation_bar.dart';
 import 'package:finesse/src/theme/components/breadcrumb.dart';
 import 'package:finesse/src/theme/components/button.dart';
@@ -71,12 +72,12 @@ import 'package:finesse/src/theme/text_theme/text_styles_default.dart';
 import 'package:finesse/src/theme/text_theme/theme.dart';
 import 'package:finesse/src/theme/themes/base.dart';
 import 'package:finesse/src/theme/themes/shadows.dart';
+import 'package:finesse/src/utils/backdrop.dart';
 import 'package:finesse/src/utils/border.dart';
 import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
 /// The default [ThemeVariant]: shadcn/ui's v4 components, rendered in one
 /// of its styles.
@@ -87,9 +88,9 @@ class DefaultThemeVariant extends ThemeVariant {
   /// Creates the variant.
   ///
   /// [style] defaults to [StyleTokens.finesse], [formFactor] to
-  /// [FormFactor.desktop], [spacing] to the 4px step and
-  /// [menuTranslucent] to false. A null [menuColorScheme] makes menus follow
-  /// [colorScheme].
+  /// [FormFactor.desktop] and [spacing] to the 4px step. A null
+  /// [menuColorScheme] makes menus follow [colorScheme], and a null
+  /// [menuTranslucent] makes them follow the style.
   DefaultThemeVariant({
     required this.colorScheme,
     required this.radius,
@@ -98,7 +99,7 @@ class DefaultThemeVariant extends ThemeVariant {
     this.formFactor = FormFactor.desktop,
     this.spacing = const Spacing(),
     this.menuColorScheme,
-    this.menuTranslucent = false,
+    this.menuTranslucent,
   }) : baseStyle = style,
        style = style.forFormFactor(formFactor);
 
@@ -138,10 +139,15 @@ class DefaultThemeVariant extends ThemeVariant {
   /// page.
   final ColorScheme? menuColorScheme;
 
-  /// Whether menu surfaces are translucent, shadcn's "Translucent" finish:
-  /// the popover colour at 70% over a backdrop blur, with row highlights as a
-  /// `foreground/10` wash so they read through the glass.
-  final bool menuTranslucent;
+  /// Whether menu surfaces are translucent.
+  ///
+  /// Null, the default, leaves it to the style: menus are glass when its
+  /// [StyleTokens.popoverOpacity] is below 1, as in `finesse`, and solid
+  /// otherwise. True is shadcn's "Translucent" finish whatever the style —
+  /// the popover colour at 70% over a backdrop blur, with row highlights as
+  /// a `foreground/10` wash so they read through the glass. False keeps
+  /// menus solid even in a glass style.
+  final bool? menuTranslucent;
 
   /// The radius scale derived from [radius].
   @override
@@ -156,7 +162,7 @@ class DefaultThemeVariant extends ThemeVariant {
     FormFactor? formFactor,
     Spacing? spacing,
     Object? menuColorScheme = unsetMenuColorScheme,
-    bool? menuTranslucent,
+    Object? menuTranslucent = unsetMenuTranslucent,
   }) {
     return DefaultThemeVariant(
       colorScheme: colorScheme ?? this.colorScheme,
@@ -170,13 +176,19 @@ class DefaultThemeVariant extends ThemeVariant {
       menuColorScheme: identical(menuColorScheme, unsetMenuColorScheme)
           ? this.menuColorScheme
           : menuColorScheme as ColorScheme?,
-      menuTranslucent: menuTranslucent ?? this.menuTranslucent,
+      menuTranslucent: identical(menuTranslucent, unsetMenuTranslucent)
+          ? this.menuTranslucent
+          : menuTranslucent as bool?,
     );
   }
 
   /// Sentinel for [rebuild]'s `menuColorScheme`: `null` there is meaningful
   /// ("menus follow the page"), so "leave unchanged" needs its own value.
   static const Object unsetMenuColorScheme = Object();
+
+  /// Sentinel for [rebuild]'s `menuTranslucent`: `null` there is meaningful
+  /// ("menus follow the style"), so "leave unchanged" needs its own value.
+  static const Object unsetMenuTranslucent = _Unset();
 
   /// Scales a metric shadcn expresses in spacing units.
   ///
@@ -316,44 +328,70 @@ class DefaultThemeVariant extends ThemeVariant {
 
   bool get _menuIsDark => _schemeIsDark(menuScheme);
 
+  // --- Glass -----------------------------------------------------------
+
+  /// [StyleTokens.popoverOpacity] for [scheme]'s brightness.
+  double _popoverOpacityOf(ColorScheme scheme) => _schemeIsDark(scheme)
+      ? style.popoverOpacityDark ?? style.popoverOpacity
+      : style.popoverOpacity;
+
+  /// The filter behind this style's glass.
+  ImageFilter? get _glassFilter => Backdrop.filterFor(
+    blur: style.glassBlur,
+    saturation: style.glassSaturation,
+  );
+
+  /// The fill of a popover-style surface on the page palette: the popover
+  /// colour, at the style's [StyleTokens.popoverOpacity].
+  Color get popoverSurfaceColor =>
+      _wash(colorScheme.popover, _popoverOpacityOf(colorScheme));
+
+  /// The backdrop filter of a popover-style surface on the page palette, or
+  /// null when the style keeps them solid.
+  ImageFilter? get popoverFilter =>
+      _popoverOpacityOf(colorScheme) < 1 ? _glassFilter : null;
+
+  /// How opaque menu surfaces are; see [menuTranslucent].
+  double get _menuOpacity => switch (menuTranslucent) {
+    false => 1,
+    // shadcn's `bg-popover/70`, or thinner still if the style already is.
+    true => math.min(.7, _popoverOpacityOf(menuScheme)),
+    null => _popoverOpacityOf(menuScheme),
+  };
+
   /// The surface behind a menu's rows.
-  Color get menuSurfaceColor =>
-      menuTranslucent ? _wash(menuScheme.popover, .7) : menuScheme.popover;
+  Color get menuSurfaceColor => _wash(menuScheme.popover, _menuOpacity);
 
   /// A menu surface's hairline outline, on the menu palette.
   Color get menuSurfaceBorderColor => _surfaceBorderColorOf(menuScheme);
 
   /// The highlight behind a hovered or open menu row.
   ///
-  /// `focus:bg-accent` normally; on a translucent surface shadcn switches to
-  /// a `foreground/10` wash so the highlight reads through the glass.
-  Color get menuItemHighlight =>
-      menuTranslucent ? _wash(menuScheme.foreground, .1) : menuScheme.accent;
+  /// `focus:bg-accent` normally; with shadcn's translucent finish it
+  /// switches to a `foreground/10` wash so the highlight reads through the
+  /// glass. A style that is glass by itself keeps the accent.
+  Color get menuItemHighlight => menuTranslucent ?? false
+      ? _wash(menuScheme.foreground, .1)
+      : menuScheme.accent;
 
   /// The text and icon colour on [menuItemHighlight],
   /// `focus:text-accent-foreground`.
-  Color get menuItemHighlightForeground => menuTranslucent
+  Color get menuItemHighlightForeground => menuTranslucent ?? false
       ? menuScheme.popoverForeground
       : menuScheme.accentForeground;
 
-  /// The backdrop filter of a translucent menu,
-  /// `backdrop-blur-2xl backdrop-saturate-150`.
-  ///
-  /// CSS's `blur(40px)` is a Gaussian with sigma 20; the saturation boost is
-  /// the standard luminance-preserving matrix at s = 1.5.
-  static final ImageFilter _menuBackdropFilter = ImageFilter.compose(
-    outer: const ColorFilter.matrix([
-      1.3935, -0.3575, -0.036, 0, 0, //
-      -0.1065, 1.1425, -0.036, 0, 0,
-      -0.1065, -0.3575, 1.464, 0, 0,
-      0, 0, 0, 1, 0,
-    ]),
-    inner: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-  );
-
-  /// The backdrop filter of menu surfaces: a blur and saturation boost when
-  /// [menuTranslucent] is true, otherwise null.
-  ImageFilter? get menuFilter => menuTranslucent ? _menuBackdropFilter : null;
+  /// The backdrop filter of menu surfaces: null while they are solid, the
+  /// style's glass when the style has one, and otherwise shadcn's
+  /// `backdrop-blur-2xl backdrop-saturate-150` — CSS's `blur(40px)` is a
+  /// Gaussian with sigma 20.
+  ImageFilter? get menuFilter {
+    if (_menuOpacity >= 1) return null;
+    final styleIsGlass =
+        style.popoverOpacity < 1 || (style.popoverOpacityDark ?? 1) < 1;
+    return styleIsGlass
+        ? _glassFilter
+        : Backdrop.filterFor(blur: 20, saturation: 1.5);
+  }
 
   /// A menu row's height: its vertical padding around one line of body text.
   ///
@@ -823,14 +861,15 @@ class DefaultThemeVariant extends ThemeVariant {
     );
   }
 
+  double get _tooltipOpacity => _isDark
+      ? style.tooltipOpacityDark ?? style.tooltipOpacity
+      : style.tooltipOpacity;
+
   @override
   TooltipTheme tooltipTheme() {
     return TooltipTheme(
-      effects: const [
-        FadeEffect(),
-        ScaleEffect(begin: Offset(.95, .95), end: Offset(1, 1)),
-        MoveEffect(begin: Offset(0, 2), end: Offset.zero),
-      ],
+      // No effects or durations: the tooltip pops out of its trigger on the
+      // motion tokens, read where it is built.
       // `px-3 py-1.5` — fixed across the styles, unlike the popover's.
       padding: spacing.symmetric(horizontal: 3, vertical: 1.5),
       // The inverted surface: `bg-foreground text-background`, with no
@@ -841,8 +880,10 @@ class DefaultThemeVariant extends ThemeVariant {
           radius: radii.resolve(style.tooltipRadius),
           width: 0,
         ),
-        color: colorScheme.foreground,
+        // Glass in a style with a tooltip opacity below 1.
+        color: _wash(colorScheme.foreground, _tooltipOpacity),
       ),
+      filter: _tooltipOpacity < 1 ? _glassFilter : null,
       // `text-xs` on the inverted surface.
       textStyle: effectiveTextTheme.muted.copyWith(
         fontSize: 12,
@@ -865,8 +906,6 @@ class DefaultThemeVariant extends ThemeVariant {
           offset: Offset(0, 4),
         ),
       ),
-      duration: Animate.defaultDuration,
-      reverseDuration: Duration.zero,
       hoverStrategies: const HoverStrategies(
         hover: {
           HoverStrategy.onTap,
@@ -888,27 +927,15 @@ class DefaultThemeVariant extends ThemeVariant {
   @override
   PopoverTheme popoverTheme() {
     return PopoverTheme(
-      effects: const [
-        FadeEffect(
-          duration: Duration(milliseconds: 150),
-        ),
-        ScaleEffect(
-          begin: Offset(.95, .95),
-          end: Offset(1, 1),
-          duration: Duration(milliseconds: 150),
-        ),
-        MoveEffect(
-          begin: Offset(0, 2),
-          end: Offset.zero,
-          duration: Duration(milliseconds: 150),
-        ),
-      ],
-      reverseDuration: const Duration(milliseconds: 150),
+      // No effects and no reverse duration: a popover — and every menu,
+      // select list and picker built on one — arrives and leaves on the
+      // motion tokens, read where it is built so `ThemeData(motion:)` and
+      // reduced motion reach it.
       shadows: style.popoverShadow,
       textStyle: style.body.apply(effectiveTextTheme.muted),
       padding: EdgeInsets.all(scaled(style.popoverPadding)),
       decoration: FinesseDecoration(
-        color: colorScheme.popover,
+        color: popoverSurfaceColor,
         shadows: style.popoverShadow,
         border: FinesseBorder.all(
           radius: popoverRadius,
@@ -916,6 +943,7 @@ class DefaultThemeVariant extends ThemeVariant {
           width: 1,
         ),
       ),
+      filter: popoverFilter,
       anchor: const AnchorAuto(
         offset: Offset(0, 4),
         fallback: AnchorAuto(
@@ -1103,7 +1131,6 @@ class DefaultThemeVariant extends ThemeVariant {
       width: width,
       height: height,
       margin: margin,
-      duration: 100.milliseconds,
       thumbColor: colorScheme.background,
       // `not-data-selected:bg-input dark:not-data-selected:bg-input/80`;
       // the filled styles use their control wash instead.
@@ -1139,7 +1166,6 @@ class DefaultThemeVariant extends ThemeVariant {
     );
     return CheckboxTheme(
       size: scaled(style.checkboxSize),
-      duration: 100.milliseconds,
       color: colorScheme.primary,
       uncheckedColor: uncheckedControlFill,
       padding: spacing.directional(start: 2),
@@ -1210,7 +1236,6 @@ class DefaultThemeVariant extends ThemeVariant {
       circleSize: scaled(
         _isDark && style.controlBorderless && !outlined ? 10 : 8,
       ),
-      duration: 100.milliseconds,
       color: outlined ? colorScheme.foreground : colorScheme.primaryForeground,
       padding: spacing.directional(start: 2),
       decoration: FinesseDecoration(
@@ -1388,7 +1413,8 @@ class DefaultThemeVariant extends ThemeVariant {
   @override
   DialogTheme primaryDialogTheme() {
     return DialogTheme(
-      closeIconData: PhosphorIconsRegular.x,
+      // No `closeIconData`: a dialog has no close button unless it asks for
+      // one. A sheet keeps its own; see [sheetTheme].
       radius: dialogRadius,
       // A dialog sits on the popover surface (`bg-popover`), which in dark
       // mode is a step lighter than the page, with the same hairline ring as
@@ -1397,14 +1423,8 @@ class DefaultThemeVariant extends ThemeVariant {
       border: Border.all(color: dialogBorderColor),
       removeBorderRadiusWhenTiny: true,
       expandActionsWhenTiny: true,
-      animateIn: const [
-        FadeEffect(),
-        ScaleEffect(begin: Offset(.95, .95), end: Offset(1, 1)),
-      ],
-      animateOut: const [
-        FadeEffect(begin: 1, end: 0),
-        ScaleEffect(begin: Offset(1, 1), end: Offset(.95, .95)),
-      ],
+      // No `animateIn`/`animateOut`: a dialog scales up and leaves on the
+      // motion tokens, read by `showDialog`.
       constraints: const BoxConstraints(maxWidth: 512),
       // shadcn's overlay is `bg-black/10` with `backdrop-blur-xs`: the blur is
       // what separates the dialog from the page, so the tint can stay light
@@ -1431,14 +1451,8 @@ class DefaultThemeVariant extends ThemeVariant {
       radius: dialogRadius,
       removeBorderRadiusWhenTiny: true,
       expandActionsWhenTiny: true,
-      animateIn: const [
-        FadeEffect(),
-        ScaleEffect(begin: Offset(.95, .95), end: Offset(1, 1)),
-      ],
-      animateOut: const [
-        FadeEffect(begin: 1, end: 0),
-        ScaleEffect(begin: Offset(1, 1), end: Offset(.95, .95)),
-      ],
+      // No `animateIn`/`animateOut`: a dialog scales up and leaves on the
+      // motion tokens, read by `showDialog`.
       constraints: const BoxConstraints(maxWidth: 512),
       // shadcn's overlay is `bg-black/10` with `backdrop-blur-xs`: the blur is
       // what separates the dialog from the page, so the tint can stay light
@@ -1496,6 +1510,9 @@ class DefaultThemeVariant extends ThemeVariant {
     return const SheetTheme(
       radius: BorderRadius.zero,
       expandCrossSide: true,
+      // A sheet is built on a dialog, which has no close button by
+      // default; a sheet has one.
+      closeIconData: PhosphorIconsRegular.x,
     );
   }
 
@@ -1514,23 +1531,13 @@ class DefaultThemeVariant extends ThemeVariant {
 
   @override
   AccordionTheme accordionTheme() {
-    const bezierCurve = Cubic(0.87, 0, 0.13, 1);
-    const duration = Duration(milliseconds: 300);
+    // No duration, curve or effects: an item opens on the motion tokens'
+    // spring unless a theme or the item itself says otherwise.
     return AccordionTheme(
       iconData: PhosphorIconsRegular.caretDown,
       padding: spacing.symmetric(vertical: 4),
       underlineTitleOnHover: true,
-      duration: duration,
       maintainState: false,
-      iconEffects: const [
-        RotateEffect(
-          begin: 0,
-          end: .5,
-          duration: duration,
-          curve: bezierCurve,
-        ),
-      ],
-      curve: bezierCurve,
       titleStyle: style.label
           .apply(effectiveTextTheme.list)
           .copyWith(
@@ -1556,6 +1563,23 @@ class DefaultThemeVariant extends ThemeVariant {
       cellStyle: style.body.apply(effectiveTextTheme.muted),
       cellHeaderStyle: _tableHeaderStyle,
       cellFooterStyle: _tableHeaderStyle,
+      // `hover:bg-muted/50`: a wash *of* the muted colour, which in a
+      // scheme like teal is itself only a few percent of the foreground.
+      rowHoverColor: _wash(colorScheme.muted, style.tableHoverOpacity),
+      // `data-[state=selected]:bg-muted`, or one clear step past the hover
+      // in the scheme's tint: 8% of it on a light surface, 14% on a dark
+      // one, where a wash has to be heavier to show.
+      rowSelectedColor: style.tableSelectionTinted
+          ? _wash(colorScheme.tint, _isDark ? .14 : .08)
+          : colorScheme.muted,
+      // The footer is `bg-muted/50` and takes the row's hover on top.
+      footerColor: _wash(colorScheme.muted, .5),
+      footerHoverColor: colorScheme.muted.withValues(
+        alpha: math.min(
+          1,
+          colorScheme.muted.a * (.5 + style.tableHoverOpacity),
+        ),
+      ),
     );
   }
 
@@ -1905,6 +1929,80 @@ class DefaultThemeVariant extends ThemeVariant {
   }
 
   @override
+  BoardTheme boardTheme() {
+    final mobile = formFactor == FormFactor.mobile;
+    // The column wraps its items concentrically: its radius is theirs plus
+    // the padding between the two. A square style stays square.
+    final inset = scaled(8);
+    final square = cardRadius == BorderRadius.zero;
+    final itemRadius = square ? BorderRadius.zero : radii.xl;
+    final columnRadius = square
+        ? BorderRadius.zero
+        : itemRadius + BorderRadius.circular(inset);
+    final destructive = colorScheme.destructive;
+    return BoardTheme(
+      columnWidth: scaled(mobile ? 360 : 288),
+      columnMinWidth: scaled(240),
+      columnMaxWidth: scaled(400),
+      columnViewportFraction: mobile ? .86 : null,
+      columnGap: scaled(mobile ? style.gapMd : style.gapLg),
+      itemGap: scaled(style.gapSm),
+      padding: EdgeInsets.zero,
+      columnPadding: EdgeInsets.fromLTRB(inset, scaled(2), inset, inset),
+      headerPadding: EdgeInsetsDirectional.fromSTEB(
+        scaled(16),
+        scaled(12),
+        scaled(8),
+        scaled(8),
+      ),
+      footerPadding: EdgeInsets.fromLTRB(inset, 0, inset, inset),
+      columnRadius: columnRadius,
+      // A soft well for the cards to sit in: a wash of the foreground, so
+      // it reads on the page and on a card alike, in both brightnesses.
+      columnColor: _wash(colorScheme.foreground, _isDark ? .06 : .04),
+      columnBorderColor: _wash(colorScheme.foreground, _isDark ? .06 : .03),
+      targetColumnColor: Color.alphaBlend(
+        colorScheme.tint.withValues(alpha: _isDark ? .1 : .06),
+        _wash(colorScheme.foreground, _isDark ? .06 : .04),
+      ),
+      targetColumnBorderColor: colorScheme.tint.withValues(alpha: .35),
+      refusedColumnColor: destructive.withValues(alpha: _isDark ? .12 : .06),
+      refusedColumnBorderColor: destructive.withValues(alpha: .45),
+      headerTextStyle: style.label
+          .apply(effectiveTextTheme.small)
+          .copyWith(color: colorScheme.foreground),
+      countTextStyle: effectiveTextTheme.small.copyWith(
+        fontSize: 12,
+        height: 16 / 12,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0,
+        fontFeatures: const [FontFeature.tabularFigures()],
+      ),
+      countColor: _wash(colorScheme.foreground, _isDark ? .1 : .07),
+      countForegroundColor: colorScheme.mutedForeground,
+      fullCountColor: destructive.withValues(alpha: _isDark ? .22 : .12),
+      fullCountForegroundColor: destructive,
+      itemColor: colorScheme.card.withValues(alpha: 1),
+      itemPadding: EdgeInsets.all(scaled(12)),
+      itemRadius: itemRadius,
+      itemShadows: _isDark ? Shadows.none : Shadows.xs,
+      placeholderColor: colorScheme.tint.withValues(alpha: _isDark ? .14 : .08),
+      placeholderBorderColor: colorScheme.tint.withValues(alpha: .4),
+      emptyHeight: scaled(72),
+      dragScale: 1.03,
+      landScale: .98,
+      // A degree and a half: enough to read as a card in the hand.
+      dragTilt: .026,
+      dragShadows: style.floatingShadow,
+      highlightColor: colorScheme.tint,
+      highlightDuration: style.motion.slow * 1.5,
+      autoScrollExtent: scaled(mobile ? 48 : 64),
+      autoScrollSpeed: 900,
+      snap: mobile,
+    );
+  }
+
+  @override
   LayoutTheme layoutTheme() {
     return LayoutTheme(
       pagePadding: EdgeInsets.symmetric(
@@ -1967,10 +2065,10 @@ class DefaultThemeVariant extends ThemeVariant {
           color: menuItemHighlightForeground,
         ),
     selectedBackgroundColor: menuItemHighlight,
-    destructiveForegroundColor: menuTranslucent
+    destructiveForegroundColor: menuTranslucent ?? false
         ? menuItemHighlightForeground
         : menuScheme.destructive,
-    destructiveSelectedBackgroundColor: menuTranslucent
+    destructiveSelectedBackgroundColor: menuTranslucent ?? false
         ? menuItemHighlight
         : _wash(menuScheme.destructive, _menuIsDark ? .2 : .1),
   );
@@ -2375,9 +2473,8 @@ class DefaultThemeVariant extends ThemeVariant {
 
   @override
   CollapsibleTheme collapsibleTheme() {
+    // The duration and curve are left to the motion tokens.
     return const CollapsibleTheme(
-      duration: Duration(milliseconds: 200),
-      curve: Curves.easeInOut,
       crossAxisAlignment: CrossAxisAlignment.stretch,
     );
   }
@@ -2501,7 +2598,8 @@ class DefaultThemeVariant extends ThemeVariant {
       disableSecondaryBorder: true,
     );
     return CommandTheme(
-      backgroundColor: colorScheme.popover,
+      backgroundColor: popoverSurfaceColor,
+      surfaceFilter: popoverFilter,
       // `.cn-command` carries the surface hairline; shadow comes from the
       // inline demo's `shadow-md`, not from the base style block.
       decoration: FinesseDecoration(
@@ -2595,4 +2693,9 @@ class DefaultThemeVariant extends ThemeVariant {
     menuColorScheme,
     menuTranslucent,
   );
+}
+
+/// The type of [DefaultThemeVariant.unsetMenuTranslucent].
+class _Unset {
+  const _Unset();
 }

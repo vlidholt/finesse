@@ -47,48 +47,45 @@ class _PressableChoiceExampleState extends State<PressableChoiceExample> {
                   borderRadius: radius,
                   child: Opacity(
                     opacity: disabled ? .5 : 1,
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 120),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 12,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? scheme.accent
-                            : states.contains(WidgetState.hovered)
-                            ? scheme.muted
-                            : scheme.card,
-                        borderRadius: radius,
-                        border: Border.all(
-                          color: isSelected
-                              ? scheme.accentBorder
-                              : scheme.border,
+                    child: AnimatedFill(
+                      color: isSelected
+                          ? scheme.accent
+                          : states.contains(WidgetState.hovered)
+                          ? scheme.muted
+                          : scheme.card,
+                      borderColor: isSelected
+                          ? scheme.accentBorder
+                          : scheme.border,
+                      borderRadius: radius,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 12,
                         ),
-                      ),
-                      child: Row(
-                        spacing: 12,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(name, style: theme.textTheme.small),
-                                Text(caption, style: theme.textTheme.muted),
-                              ],
+                        child: Row(
+                          spacing: 12,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(name, style: theme.textTheme.small),
+                                  Text(caption, style: theme.textTheme.muted),
+                                ],
+                              ),
                             ),
-                          ),
-                          Icon(
-                            isSelected
-                                ? PhosphorIconsFill.checkCircle
-                                : PhosphorIconsRegular.circle,
-                            size: 20,
-                            color: isSelected
-                                ? scheme.tint
-                                : scheme.mutedForeground,
-                          ),
-                        ],
+                            Icon(
+                              isSelected
+                                  ? PhosphorIconsFill.checkCircle
+                                  : PhosphorIconsRegular.circle,
+                              size: 20,
+                              color: isSelected
+                                  ? scheme.tint
+                                  : scheme.mutedForeground,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),

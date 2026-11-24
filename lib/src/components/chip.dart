@@ -168,16 +168,15 @@ class Chip extends StatelessWidget {
       );
 
       // The height sits outside the animated box: only colours ease, so a
-      // change of form factor does not make every chip grow for 120 ms.
-      Widget box = AnimatedContainer(
-        duration: const Duration(milliseconds: 120),
-        decoration: BoxDecoration(
-          color: fill,
-          borderRadius: radius,
-          border: dashed
-              ? null
-              : Border.all(color: outline, width: borderWidth),
-        ),
+      // change of form factor does not make every chip grow for 120 ms. The
+      // colours cross-fade rather than `Color.lerp`: the glass fill and the
+      // hover wash differ in alpha, and lerping them channel by channel
+      // dipped through a dark grey on every hover.
+      Widget box = AnimatedFill(
+        color: fill,
+        borderColor: dashed ? null : outline,
+        borderWidth: borderWidth,
+        borderRadius: radius,
         child: content,
       );
       if (dashed) {

@@ -80,6 +80,8 @@ void main() {
       addTearDown(gesture.removePointer);
       await gesture.moveTo(tester.getCenter(find.byType(Slider)));
       await tester.pump();
+      // The ring grows on a spring; let it arrive.
+      await tester.pump(const Duration(milliseconds: 400));
 
       final theme = Theme.of(tester.element(find.byType(Slider)));
       final ring = theme.decoration.secondaryFocusedBorder!.top!;
@@ -112,6 +114,8 @@ void main() {
       final centre = tester.getCenter(find.byType(Slider));
       final gesture = await tester.startGesture(centre);
       await tester.pump();
+      // The ring grows on a spring; let it arrive.
+      await tester.pump(const Duration(milliseconds: 400));
       expect(shadowsOf(thumb()), isNotNull);
 
       // Well outside the slider's bounds.
@@ -121,6 +125,8 @@ void main() {
 
       await gesture.up();
       await tester.pump();
+      // The ring grows on a spring; let it arrive.
+      await tester.pump(const Duration(milliseconds: 400));
       expect(shadowsOf(thumb()), isNull);
     });
 
@@ -388,6 +394,7 @@ void main() {
       addTearDown(gesture.removePointer);
       await gesture.moveTo(tester.getCenter(thumbs().last));
       await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
 
       expect(shadows().first, isNull);
       expect(shadows().last, isNotNull);

@@ -57,6 +57,7 @@ mixin _$ThemeData {
       )!,
       iconTileTheme: IconTileTheme.lerp(a.iconTileTheme, b.iconTileTheme, t)!,
       timelineTheme: TimelineTheme.lerp(a.timelineTheme, b.timelineTheme, t)!,
+      boardTheme: BoardTheme.lerp(a.boardTheme, b.boardTheme, t)!,
       layoutTheme: LayoutTheme.lerp(a.layoutTheme, b.layoutTheme, t)!,
       scrollAreaTheme: ScrollAreaTheme.lerp(
         a.scrollAreaTheme,
@@ -264,6 +265,7 @@ mixin _$ThemeData {
     IndicatorBadgeTheme? indicatorBadgeTheme,
     IconTileTheme? iconTileTheme,
     TimelineTheme? timelineTheme,
+    BoardTheme? boardTheme,
     LayoutTheme? layoutTheme,
     ScrollAreaTheme? scrollAreaTheme,
     SpinnerTheme? spinnerTheme,
@@ -346,6 +348,7 @@ mixin _$ThemeData {
       indicatorBadgeTheme: indicatorBadgeTheme ?? _this.indicatorBadgeTheme,
       iconTileTheme: iconTileTheme ?? _this.iconTileTheme,
       timelineTheme: timelineTheme ?? _this.timelineTheme,
+      boardTheme: boardTheme ?? _this.boardTheme,
       layoutTheme: layoutTheme ?? _this.layoutTheme,
       scrollAreaTheme: scrollAreaTheme ?? _this.scrollAreaTheme,
       spinnerTheme: spinnerTheme ?? _this.spinnerTheme,
@@ -450,6 +453,7 @@ mixin _$ThemeData {
       ),
       iconTileTheme: _this.iconTileTheme.merge(other.iconTileTheme),
       timelineTheme: _this.timelineTheme.merge(other.timelineTheme),
+      boardTheme: _this.boardTheme.merge(other.boardTheme),
       layoutTheme: _this.layoutTheme.merge(other.layoutTheme),
       scrollAreaTheme: _this.scrollAreaTheme.merge(other.scrollAreaTheme),
       spinnerTheme: _this.spinnerTheme.merge(other.spinnerTheme),
@@ -565,6 +569,7 @@ mixin _$ThemeData {
         _other.indicatorBadgeTheme == _this.indicatorBadgeTheme &&
         _other.iconTileTheme == _this.iconTileTheme &&
         _other.timelineTheme == _this.timelineTheme &&
+        _other.boardTheme == _this.boardTheme &&
         _other.layoutTheme == _this.layoutTheme &&
         _other.scrollAreaTheme == _this.scrollAreaTheme &&
         _other.spinnerTheme == _this.spinnerTheme &&
@@ -650,6 +655,7 @@ mixin _$ThemeData {
       _this.indicatorBadgeTheme,
       _this.iconTileTheme,
       _this.timelineTheme,
+      _this.boardTheme,
       _this.layoutTheme,
       _this.scrollAreaTheme,
       _this.spinnerTheme,

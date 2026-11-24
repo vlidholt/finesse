@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:finesse/src/components/dialog.dart';
+import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/position.dart';
 import 'package:finesse/src/utils/shadow.dart';
@@ -68,65 +69,52 @@ Future<T?> showSheet<T>({
 }) {
   final theme = Theme.of(context);
   final effectiveSide = side ?? theme.sheetTheme.side ?? SheetSide.bottom;
-  final defaultAnimateIn = switch (effectiveSide) {
-    SheetSide.top => const SlideEffect(
-      begin: Offset(0, -1),
-      end: Offset.zero,
-      duration: Sheet.defaultEnterDuration,
-      curve: Sheet.defaultAnimationCurve,
-    ),
-    SheetSide.bottom => const SlideEffect(
-      begin: Offset(0, 1),
-      end: Offset.zero,
-      duration: Sheet.defaultEnterDuration,
-      curve: Sheet.defaultAnimationCurve,
-    ),
-    SheetSide.left => const SlideEffect(
-      begin: Offset(-1, 0),
-      end: Offset.zero,
-      duration: Sheet.defaultEnterDuration,
-      curve: Sheet.defaultAnimationCurve,
-    ),
-    SheetSide.right => const SlideEffect(
-      begin: Offset(1, 0),
-      end: Offset.zero,
-      duration: Sheet.defaultEnterDuration,
-      curve: Sheet.defaultAnimationCurve,
-    ),
+  // Away from the screen, as a fraction of the sheet's own size.
+  final away = switch (effectiveSide) {
+    SheetSide.top => const Offset(0, -1),
+    SheetSide.bottom => const Offset(0, 1),
+    SheetSide.left => const Offset(-1, 0),
+    SheetSide.right => const Offset(1, 0),
   };
+  // The sheet arrives on the surface spring and leaves faster than it came,
+  // accelerating away. With reduced motion it only fades.
+  final motion = Motion.of(context);
+  final defaultAnimateIn = motion.reduced
+      ? <Effect<dynamic>>[
+          FadeEffect(duration: motion.fast, curve: motion.standard),
+        ]
+      : [
+          SlideEffect(
+            begin: away,
+            end: Offset.zero,
+            duration: motion.smooth.settleDuration,
+            curve: motion.smooth.curve,
+          ),
+        ];
 
   final effectiveAnimateIn =
-      animateIn ?? theme.sheetTheme.animateIn ?? [defaultAnimateIn];
+      animateIn ?? theme.sheetTheme.animateIn ?? defaultAnimateIn;
 
-  final defaultAnimateOut = switch (effectiveSide) {
-    SheetSide.top => const SlideEffect(
-      begin: Offset.zero,
-      end: Offset(0, -1),
-      duration: Sheet.defaultExitDuration,
-      curve: Sheet.defaultAnimationCurve,
-    ),
-    SheetSide.bottom => const SlideEffect(
-      begin: Offset.zero,
-      end: Offset(0, 1),
-      duration: Sheet.defaultExitDuration,
-      curve: Sheet.defaultAnimationCurve,
-    ),
-    SheetSide.left => const SlideEffect(
-      begin: Offset.zero,
-      end: Offset(-1, 0),
-      duration: Sheet.defaultExitDuration,
-      curve: Sheet.defaultAnimationCurve,
-    ),
-    SheetSide.right => const SlideEffect(
-      begin: Offset.zero,
-      end: Offset(1, 0),
-      duration: Sheet.defaultExitDuration,
-      curve: Sheet.defaultAnimationCurve,
-    ),
-  };
+  final defaultAnimateOut = motion.reduced
+      ? <Effect<dynamic>>[
+          FadeEffect(
+            begin: 1,
+            end: 0,
+            duration: motion.fast,
+            curve: motion.standard,
+          ),
+        ]
+      : [
+          SlideEffect(
+            begin: Offset.zero,
+            end: away,
+            duration: Sheet.defaultExitDuration,
+            curve: motion.exit,
+          ),
+        ];
 
   final effectiveAnimateOut =
-      animateOut ?? theme.sheetTheme.animateOut ?? [defaultAnimateOut];
+      animateOut ?? theme.sheetTheme.animateOut ?? defaultAnimateOut;
 
   return showDialog(
     context: context,
@@ -986,7 +974,9 @@ class _SheetState extends State<Sheet> with TickerProviderStateMixin {
       }
       isClosing = true;
     } else {
-      animationController.forward();
+      // Let go short of the threshold: it springs back open from where it
+      // is, rather than replaying the entrance.
+      animationController.fling();
     }
 
     widget.onDragEnd?.call(

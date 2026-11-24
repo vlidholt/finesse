@@ -1,3 +1,4 @@
+import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/debug_check.dart';
 import 'package:flutter/widgets.dart';
@@ -28,6 +29,7 @@ class Skeleton extends StatefulWidget {
     this.duration,
     this.curve,
     this.animate,
+    this.shimmer,
     this.child,
   });
 
@@ -40,6 +42,7 @@ class Skeleton extends StatefulWidget {
     this.duration,
     this.curve,
     this.animate,
+    this.shimmer,
     this.child,
   }) : width = size,
        height = size,
@@ -79,10 +82,15 @@ class Skeleton extends StatefulWidget {
   /// {@template Skeleton.animate}
   /// Whether the skeleton pulses, defaults to `true`.
   ///
-  /// Set to `false` to respect a reduced-motion preference, or in tests and
-  /// goldens where a running animation would be a source of flake.
+  /// It never animates when the platform asks for reduced motion
+  /// (`MediaQuery.disableAnimationsOf`) or the theme's motion is switched
+  /// off. Set it to `false` in tests and goldens, where a running animation
+  /// would be a source of flake.
   /// {@endtemplate}
   final bool? animate;
+
+  /// {@macro Skeleton.shimmer}
+  final bool? shimmer;
 
   /// An optional child laid out inside the skeleton, used to size it.
   ///
@@ -102,6 +110,7 @@ class _SkeletonState extends State<Skeleton>
   );
 
   bool _animating = false;
+  bool _shimmering = false;
 
   @override
   void didChangeDependencies() {
@@ -113,6 +122,7 @@ class _SkeletonState extends State<Skeleton>
   void didUpdateWidget(Skeleton oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.animate != oldWidget.animate ||
+        widget.shimmer != oldWidget.shimmer ||
         widget.duration != oldWidget.duration) {
       _syncAnimation();
     }
@@ -125,11 +135,21 @@ class _SkeletonState extends State<Skeleton>
         theme.skeletonTheme.duration ??
         const Duration(milliseconds: 1500);
 
-    final shouldAnimate = widget.animate ?? theme.skeletonTheme.animate ?? true;
-    if (shouldAnimate == _animating) return;
+    // A placeholder that moves for as long as it is on screen is exactly
+    // what a reduced-motion setting asks to be spared.
+    final motion = Motion.of(context);
+    final shouldAnimate =
+        (widget.animate ?? theme.skeletonTheme.animate ?? true) &&
+        !motion.reduced;
+    final shimmers =
+        widget.shimmer ?? theme.skeletonTheme.shimmer ?? motion.shimmer;
+    if (shouldAnimate == _animating && shimmers == _shimmering) return;
     _animating = shouldAnimate;
+    _shimmering = shimmers;
     if (shouldAnimate) {
-      _controller.repeat(reverse: true);
+      // A pulse goes there and back; a shimmer sweeps one way and starts
+      // again.
+      _controller.repeat(reverse: !shimmers);
     } else {
       _controller
         ..stop()
@@ -169,12 +189,36 @@ class _SkeletonState extends State<Skeleton>
         child: AnimatedBuilder(
           animation: _controller,
           builder: (context, child) {
+            final t = effectiveCurve.transform(_controller.value);
+            if (_shimmering && _animating) {
+              // A band of the highlight, one box wide, travelling from
+              // just off the leading edge to just off the trailing one.
+              final x = -3 + 4 * t;
+              final sign = Directionality.maybeOf(context) == TextDirection.rtl
+                  ? -1.0
+                  : 1.0;
+              return DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment(sign * x, 0),
+                    end: Alignment(sign * (x + 2), 0),
+                    colors: [
+                      effectiveColor,
+                      effectiveHighlightColor,
+                      effectiveColor,
+                    ],
+                  ),
+                  borderRadius: effectiveRadius,
+                ),
+                child: child,
+              );
+            }
             return DecoratedBox(
               decoration: BoxDecoration(
                 color: Color.lerp(
                   effectiveColor,
                   effectiveHighlightColor,
-                  effectiveCurve.transform(_controller.value),
+                  t,
                 ),
                 borderRadius: effectiveRadius,
               ),

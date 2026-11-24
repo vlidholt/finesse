@@ -34,6 +34,7 @@ mixin _$ListTileTheme {
       subtitleStyle: TextStyle.lerp(a.subtitleStyle, b.subtitleStyle, t),
       hoverColor: Color.lerp(a.hoverColor, b.hoverColor, t),
       selectedColor: Color.lerp(a.selectedColor, b.selectedColor, t),
+      pressScale: lerpDouble$(a.pressScale, b.pressScale, t),
     );
   }
 
@@ -46,6 +47,7 @@ mixin _$ListTileTheme {
     TextStyle? subtitleStyle,
     Color? hoverColor,
     Color? selectedColor,
+    double? pressScale,
   }) {
     final _this = (this as ListTileTheme);
 
@@ -58,6 +60,7 @@ mixin _$ListTileTheme {
       subtitleStyle: subtitleStyle ?? _this.subtitleStyle,
       hoverColor: hoverColor ?? _this.hoverColor,
       selectedColor: selectedColor ?? _this.selectedColor,
+      pressScale: pressScale ?? _this.pressScale,
     );
   }
 
@@ -83,6 +86,7 @@ mixin _$ListTileTheme {
           other.subtitleStyle,
       hoverColor: other.hoverColor,
       selectedColor: other.selectedColor,
+      pressScale: other.pressScale,
     );
   }
 
@@ -106,7 +110,8 @@ mixin _$ListTileTheme {
         _other.titleStyle == _this.titleStyle &&
         _other.subtitleStyle == _this.subtitleStyle &&
         _other.hoverColor == _this.hoverColor &&
-        _other.selectedColor == _this.selectedColor;
+        _other.selectedColor == _this.selectedColor &&
+        _other.pressScale == _this.pressScale;
   }
 
   @override
@@ -123,6 +128,7 @@ mixin _$ListTileTheme {
       _this.subtitleStyle,
       _this.hoverColor,
       _this.selectedColor,
+      _this.pressScale,
     );
   }
 }

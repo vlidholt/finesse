@@ -3,11 +3,13 @@ import 'dart:ui';
 import 'package:finesse/src/components/surface.dart';
 import 'package:finesse/src/raw_components/portal.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/theme/themes/shadows.dart';
 import 'package:finesse/src/utils/animate.dart';
 import 'package:finesse/src/utils/border.dart';
 import 'package:finesse/src/utils/dismiss_shortcut.dart';
+import 'package:finesse/src/utils/entrance.dart';
 import 'package:finesse/src/utils/mouse_area.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -115,9 +117,10 @@ class Popover extends StatefulWidget {
   final AnchorBase? anchor;
 
   /// {@template Popover.effects}
-  /// The animation effects applied to the [popover]. Defaults to
-  /// [FadeEffect(), ScaleEffect(begin: Offset(.95, .95), end: Offset(1, 1)),
-  /// MoveEffect(begin: Offset(0, 2), end: Offset(0, 0))].
+  /// The animation effects applied to the [popover]. Defaults to the
+  /// theme's, and then to `EntranceEffect.forMotion`: a fade with a little
+  /// growth out of the edge that faces the trigger, on the theme's motion
+  /// tokens. An empty list shows the popover at once.
   /// {@endtemplate}
   final List<Effect<dynamic>>? effects;
 
@@ -168,7 +171,8 @@ class Popover extends StatefulWidget {
   /// {@template Popover.reverseDuration}
   /// The duration of the popover's exit animation.
   ///
-  /// Defaults to [Duration(milliseconds: 150)].
+  /// Defaults to the theme's, and then to its `Motion.fast`: a popover
+  /// leaves faster than it arrives.
   ///
   /// To customize the opening animation duration,
   /// use [Effect.duration] in specified [effects].
@@ -207,7 +211,6 @@ class _PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
     animationController.addStatusListener(_onAnimationStatusChanged);
     controller.addListener(_onPopoverToggle);
     _onPopoverToggle();
-    _portalVisible.value = !animationController.isDismissed;
   }
 
   /// Whether [Portal] should be showing its overlay.
@@ -219,20 +222,64 @@ class _PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
   final _portalVisible = ValueNotifier(false);
 
   void _onAnimationStatusChanged(AnimationStatus status) {
-    _portalVisible.value = status != AnimationStatus.dismissed;
+    _portalVisible.value =
+        _entrancePending || status != AnimationStatus.dismissed;
   }
+
+  /// Whether the popover has been opened but its entrance has not started:
+  /// the portal is laying the overlay out, unseen, to place it. The
+  /// entrance starts when the portal reports the overlay shown, so none of
+  /// it plays on frames nobody sees.
+  bool _entrancePending = false;
+
+  /// Whether the portal has reported its overlay shown and has not been
+  /// told to hide since. A popover reopened in that state — closed and
+  /// opened again before a frame was built in between — gets no second
+  /// report, so it starts its entrance at once.
+  bool _portalShown = false;
+
+  void _onPortalShown() {
+    _portalShown = true;
+    if (!_entrancePending) return;
+    _entrancePending = false;
+    if (controller.isOpen) animationController.forward(from: 0);
+  }
+
+  /// Whether tickers run in this part of the tree.
+  ///
+  /// They do not while the popover's anchor is in an inactive branch — an
+  /// `IndexedStack` child that is not showing, a route under an opaque one.
+  /// The overlay is not in that branch, though: it would stay on screen over
+  /// whatever replaced the anchor, and its exit animation, driven by a muted
+  /// ticker, would never finish. So the overlay is only shown while this is
+  /// true, and a close is completed at once while it is false.
+  bool _tickersEnabled = true;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _syncReverseDuration();
+    final tickersEnabled = TickerMode.valuesOf(context).enabled;
+    if (tickersEnabled != _tickersEnabled) {
+      _tickersEnabled = tickersEnabled;
+      if (!tickersEnabled) _finishClosing();
+    }
+  }
+
+  /// Jumps to the end of an exit animation that can no longer run.
+  void _finishClosing() {
+    if (!controller.isOpen && !animationController.isDismissed) {
+      animationController.value = 0;
+    }
   }
 
   /// Mutating the controller belongs in a lifecycle callback, not in build().
   void _syncReverseDuration() {
     animationController.reverseDuration =
         widget.reverseDuration ??
-        Theme.of(context).popoverTheme.reverseDuration;
+        Theme.of(context).popoverTheme.reverseDuration ??
+        // It leaves faster than it arrives.
+        Motion.of(context).fast;
   }
 
   @override
@@ -273,12 +320,27 @@ class _PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
 
   void _onPopoverToggle() {
     if (controller.isOpen) {
-      animationController.forward(from: 0);
+      if (animationController.isDismissed && !_portalShown) {
+        // Shown first, animated once it is on screen.
+        _entrancePending = true;
+        _portalVisible.value = true;
+      } else if (animationController.isDismissed) {
+        animationController.forward(from: 0);
+      } else {
+        // Reopened while it was leaving: it turns around where it is.
+        animationController.forward();
+      }
       // When the popover is opened, request focus
       // to be able to receive key events.
       _popoverFocusNode.requestFocus();
-    } else {
+    } else if (_entrancePending) {
+      // Closed before it was ever seen.
+      _entrancePending = false;
+      _portalVisible.value = !animationController.isDismissed;
+    } else if (_tickersEnabled) {
       animationController.reverse();
+    } else {
+      _finishClosing();
     }
   }
 
@@ -286,7 +348,11 @@ class _PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    final effectiveEffects = widget.effects ?? theme.popoverTheme.effects ?? [];
+    // Grows out of the edge that faces the trigger; the portal says which.
+    final effectiveEffects =
+        widget.effects ??
+        theme.popoverTheme.effects ??
+        EntranceEffect.forMotion(Motion.of(context));
 
     final effectivePadding =
         widget.padding ??
@@ -337,6 +403,8 @@ class _PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
         controller: animationController,
         effects: effectiveEffects,
         autoPlay: false,
+        // The surface may be glass; see [BackdropFade].
+        fadeThroughBackdrop: true,
         child: popover,
       );
     }
@@ -356,6 +424,7 @@ class _PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
       child: ValueListenableBuilder(
         valueListenable: _portalVisible,
         builder: (context, visible, _) {
+          if (!(visible && _tickersEnabled)) _portalShown = false;
           return Portal(
             portalBuilder: (_) {
               // used to trap the focus inside the popover.
@@ -367,8 +436,9 @@ class _PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
                 ),
               );
             },
-            visible: visible,
+            visible: visible && _tickersEnabled,
             anchor: effectiveAnchor,
+            onShown: _onPortalShown,
             child: widget.child,
           );
         },

@@ -89,6 +89,7 @@ flutter:
     - lib/docs/examples/app_bar/
     - lib/docs/examples/navigation_bar/
     - lib/docs/examples/scaffold/
+    - lib/docs/examples/board/
     - lib/docs/examples/chip/
     - lib/docs/examples/list_tile/
     - lib/docs/examples/tab_bar/
@@ -98,6 +99,7 @@ flutter:
     - lib/docs/examples/icon_tile/
     - lib/docs/examples/timeline/
     - lib/docs/examples/pressable/
+    - lib/docs/examples/motion/
     - lib/docs/examples/page_container/
     - lib/docs/examples/form_factors/
     - lib/docs/examples/icons/

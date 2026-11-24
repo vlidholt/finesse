@@ -24,6 +24,7 @@ const _slugs = [
   'avatar',
   'avatar_group',
   'badge',
+  'board',
   'breadcrumb',
   'button',
   'calendar',

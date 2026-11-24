@@ -1,4 +1,5 @@
 import 'package:example/strand/data/jobs_data.dart';
+import 'package:example/strand/widgets/jobs_filters_dialog.dart';
 import 'package:example/strand/widgets/jobs_metrics.dart';
 import 'package:example/strand/widgets/jobs_state.dart';
 import 'package:finesse/finesse.dart';
@@ -171,7 +172,7 @@ class JobsFilterChips extends StatelessWidget {
         Chip(
           label: const Text('All filters'),
           leading: const Icon(PhosphorIconsRegular.slidersHorizontal),
-          onPressed: () {},
+          onPressed: () => showJobFiltersDialog(context, state),
         ),
       ],
     );

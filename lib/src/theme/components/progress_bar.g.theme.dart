@@ -38,6 +38,7 @@ mixin _$ProgressBarTheme {
         b.innerBorderRadius,
         t,
       ),
+      spring: t < 0.5 ? a.spring : b.spring,
       minHeight: lerpDouble$(a.minHeight, b.minHeight, t),
     );
   }
@@ -47,6 +48,7 @@ mixin _$ProgressBarTheme {
     Color? color,
     BorderRadius? borderRadius,
     BorderRadius? innerBorderRadius,
+    MotionSpring? spring,
     double? minHeight,
   }) {
     final _this = (this as ProgressBarTheme);
@@ -56,6 +58,7 @@ mixin _$ProgressBarTheme {
       color: color ?? _this.color,
       borderRadius: borderRadius ?? _this.borderRadius,
       innerBorderRadius: innerBorderRadius ?? _this.innerBorderRadius,
+      spring: spring ?? _this.spring,
       minHeight: minHeight ?? _this.minHeight,
     );
   }
@@ -76,6 +79,7 @@ mixin _$ProgressBarTheme {
       color: other.color,
       borderRadius: other.borderRadius,
       innerBorderRadius: other.innerBorderRadius,
+      spring: other.spring,
       minHeight: other.minHeight,
     );
   }
@@ -97,6 +101,7 @@ mixin _$ProgressBarTheme {
         _other.color == _this.color &&
         _other.borderRadius == _this.borderRadius &&
         _other.innerBorderRadius == _this.innerBorderRadius &&
+        _other.spring == _this.spring &&
         _other.minHeight == _this.minHeight;
   }
 
@@ -110,6 +115,7 @@ mixin _$ProgressBarTheme {
       _this.color,
       _this.borderRadius,
       _this.innerBorderRadius,
+      _this.spring,
       _this.minHeight,
     );
   }

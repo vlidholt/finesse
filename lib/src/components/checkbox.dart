@@ -2,12 +2,14 @@ import 'package:finesse/src/components/disabled.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/raw_components/focusable.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/debug_check.dart';
 import 'package:finesse/src/utils/extensions/text_style.dart';
+import 'package:finesse/src/utils/motion_color.dart';
+import 'package:finesse/src/utils/pop_in.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
 /// A customizable checkbox widget with optional label and sublabel.
 ///
@@ -87,8 +89,10 @@ class Checkbox extends StatefulWidget {
   final double? size;
 
   /// {@template Checkbox.duration}
-  /// The duration of the checkmark animation when toggling.
-  /// Defaults to 100 milliseconds if not specified.
+  /// How long the check mark takes to appear. It pops in on a spring — the
+  /// theme's `Motion.bouncy` — and this replaces that spring's duration;
+  /// when null the spring is used as it is. The fill fades over the theme's
+  /// `Motion.fast`.
   /// {@endtemplate}
   final Duration? duration;
 
@@ -216,8 +220,11 @@ class _CheckboxState extends State<Checkbox> {
           size: effectiveSize - 2,
         );
 
-    final effectiveDuration =
-        widget.duration ?? theme.checkboxTheme.duration ?? 100.milliseconds;
+    final motion = Motion.of(context);
+    final duration = widget.duration ?? theme.checkboxTheme.duration;
+    final checkSpring = duration == null || motion.bouncy.isInstant
+        ? motion.bouncy
+        : motion.bouncy.copyWith(duration: duration);
     final effectivePadding =
         widget.padding ??
         theme.checkboxTheme.padding ??
@@ -251,9 +258,19 @@ class _CheckboxState extends State<Checkbox> {
             onFocusChange: widget.onFocusChange,
             focusNode: focusNode,
             builder: (context, focused, child) {
-              return Decorator(
-                focused: focused,
-                decoration: effectiveDecoration,
+              // The fill fades between the two states; the outline swaps
+              // with the decoration.
+              return AnimatedColorBuilder(
+                color: effectiveDecoration.color,
+                duration: motion.fast,
+                curve: motion.standard,
+                builder: (context, color, child) => Decorator(
+                  focused: focused,
+                  decoration: color == null
+                      ? effectiveDecoration
+                      : effectiveDecoration.copyWith(color: color),
+                  child: child,
+                ),
                 child: child,
               );
             },
@@ -263,9 +280,13 @@ class _CheckboxState extends State<Checkbox> {
                 width: effectiveSize,
                 height: effectiveSize,
                 child: Center(
-                  child: AnimatedSwitcher(
-                    duration: effectiveDuration,
-                    child: widget.value ? effectiveIcon : const SizedBox(),
+                  // The mark pops in while it is wiped on from its leading
+                  // edge, which reads as the stroke being drawn.
+                  child: PopIn(
+                    visible: widget.value,
+                    wipe: true,
+                    spring: checkSpring,
+                    child: effectiveIcon,
                   ),
                 ),
               ),

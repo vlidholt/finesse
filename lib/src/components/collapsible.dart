@@ -1,5 +1,7 @@
+import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/debug_check.dart';
+import 'package:finesse/src/utils/expand_reveal.dart';
 import 'package:flutter/widgets.dart';
 
 /// Controls the open state of a [Collapsible].
@@ -98,12 +100,15 @@ class Collapsible extends StatefulWidget {
   final ValueChanged<bool>? onOpenChange;
 
   /// {@template Collapsible.duration}
-  /// The duration of the expand animation.
+  /// The duration of the expand animation. Defaults to the time the theme's
+  /// `Motion.smooth` spring takes to settle.
   /// {@endtemplate}
   final Duration? duration;
 
   /// {@template Collapsible.curve}
-  /// The curve of the expand animation.
+  /// The curve of the expand animation. Defaults to the theme's
+  /// `Motion.smooth` spring, and the collapse runs the same curve the other
+  /// way round, so both decelerate into place.
   /// {@endtemplate}
   final Curve? curve;
 
@@ -201,16 +206,21 @@ class CollapsibleState extends State<Collapsible>
     final theme = Theme.of(context);
     final collapsibleTheme = theme.collapsibleTheme;
 
+    final motion = Motion.of(context);
+    final curve = widget.curve ?? collapsibleTheme.curve ?? motion.smooth.curve;
     _animationController
       ..duration =
           widget.duration ??
           collapsibleTheme.duration ??
-          const Duration(milliseconds: 200)
+          motion.smooth.settleDuration
       ..reverseDuration =
           widget.reverseDuration ?? collapsibleTheme.reverseDuration;
     _sizeFactor
-      ..curve = widget.curve ?? collapsibleTheme.curve ?? Curves.easeInOut
-      ..reverseCurve = widget.reverseCurve ?? collapsibleTheme.reverseCurve;
+      ..curve = curve
+      // Flipped, the same curve decelerates into the closed state too
+      // instead of running backwards and stopping dead.
+      ..reverseCurve =
+          widget.reverseCurve ?? collapsibleTheme.reverseCurve ?? curve.flipped;
 
     final effectiveCrossAxisAlignment =
         widget.crossAxisAlignment ??
@@ -228,28 +238,25 @@ class CollapsibleState extends State<Collapsible>
             container: true,
             child: widget.trigger!(context, open, controller.toggle),
           ),
-        ClipRect(
-          child: AnimatedBuilder(
-            animation: _sizeFactor,
-            builder: (context, child) {
-              // Skip building the content entirely while fully collapsed,
-              // unless the caller asked to keep its state.
-              if (_sizeFactor.value == 0 && !widget.maintainState) {
-                return const SizedBox.shrink();
-              }
-              return Align(
-                // Only the height factor animates; a default (center)
-                // alignment would also centre the revealed content
-                // horizontally whenever it is narrower than the collapsible.
-                alignment: AlignmentDirectional.topStart,
-                heightFactor: _sizeFactor.value.clamp(0.0, 1.0),
-                child: child,
-              );
-            },
-            child: ExcludeSemantics(
-              excluding: !open,
-              child: widget.child,
-            ),
+        AnimatedBuilder(
+          animation: _sizeFactor,
+          builder: (context, child) {
+            // Skip building the content entirely while fully collapsed,
+            // unless the caller asked to keep its state.
+            if (_sizeFactor.value == 0 && !widget.maintainState) {
+              return const SizedBox.shrink();
+            }
+            // Anchored to the top start: only the height animates, and the
+            // content fades in as it is uncovered.
+            return ExpandReveal(
+              factor: _sizeFactor.value,
+              travel: motion.overlayTravel,
+              child: child!,
+            );
+          },
+          child: ExcludeSemantics(
+            excluding: !open,
+            child: widget.child,
           ),
         ),
       ],

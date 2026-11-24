@@ -576,6 +576,13 @@ class _DataTableState<T> extends State<DataTable<T>> {
             child: definition.cellBuilder(context, row),
           );
         },
+        // A selected row is filled, as shadcn's `data-state="selected"` is.
+        rowSelected: widget.selectable
+            ? (index) =>
+                  index > 0 &&
+                  index <= rows.length &&
+                  controller.isSelected(widget.keyOf!(rows[index - 1]))
+            : null,
         onRowTap: widget.onRowTap == null
             ? null
             : (index) {

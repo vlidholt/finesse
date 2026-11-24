@@ -3,10 +3,13 @@ import 'package:finesse/src/theme/components/button.dart';
 import 'package:finesse/src/theme/components/button_sizes.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/data.dart';
+import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/debug_check.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
+import 'package:finesse/src/utils/motion_color.dart';
 import 'package:finesse/src/utils/separated_iterable.dart';
+import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -117,6 +120,7 @@ class Button extends StatefulWidget {
     this.onFocusChange,
     this.pressedOffset,
     this.pressAnimationDuration,
+    this.pressScale,
     this.expands,
     this.textStyle,
     this.canRequestFocus,
@@ -177,6 +181,7 @@ class Button extends StatefulWidget {
     this.onFocusChange,
     this.pressedOffset,
     this.pressAnimationDuration,
+    this.pressScale = 1,
     this.expands,
     this.textStyle,
     this.canRequestFocus,
@@ -236,6 +241,7 @@ class Button extends StatefulWidget {
     this.onFocusChange,
     this.pressedOffset,
     this.pressAnimationDuration,
+    this.pressScale,
     this.expands,
     this.textStyle,
     this.canRequestFocus,
@@ -295,6 +301,7 @@ class Button extends StatefulWidget {
     this.onFocusChange,
     this.pressedOffset,
     this.pressAnimationDuration,
+    this.pressScale,
     this.expands,
     this.textStyle,
     this.canRequestFocus,
@@ -354,6 +361,7 @@ class Button extends StatefulWidget {
     this.onFocusChange,
     this.pressedOffset,
     this.pressAnimationDuration,
+    this.pressScale,
     this.expands,
     this.textStyle,
     this.canRequestFocus,
@@ -412,6 +420,7 @@ class Button extends StatefulWidget {
     this.onFocusChange,
     this.pressedOffset,
     this.pressAnimationDuration,
+    this.pressScale,
     this.expands,
     this.textStyle,
     this.canRequestFocus,
@@ -468,6 +477,7 @@ class Button extends StatefulWidget {
     this.onFocusChange,
     this.pressedOffset,
     this.pressAnimationDuration,
+    this.pressScale,
     this.expands,
     this.leading,
     this.trailing,
@@ -797,6 +807,14 @@ class Button extends StatefulWidget {
   /// {@macro ButtonTheme.pressAnimationDuration}
   final Duration? pressAnimationDuration;
 
+  /// {@macro ButtonTheme.pressScale}
+  ///
+  /// [Button.raw] is the base of rows and custom controls as well as of
+  /// buttons, so it does not scale unless asked to: it defaults to 1. Pass
+  /// `Motion.of(context).pressScale` for a raw button that should respond
+  /// like the others, or null to follow the variant's theme.
+  final double? pressScale;
+
   /// {@template Button.expands}
   /// Whether the [child] expands to fill available space along the main axis.
   /// Defaults to false if not specified.
@@ -1057,8 +1075,13 @@ class _ButtonState extends State<Button> {
     return widget.shadows ?? buttonTheme(theme).shadows;
   }
 
+  // Counted for the press response: a click is usually down and up within
+  // one frame, so the button is never built pressed at all.
+  int _taps = 0;
+
   void onTap() {
     if (widget.onPressed == null) return;
+    if (mounted) setState(() => _taps++);
     widget.onPressed!();
   }
 
@@ -1123,6 +1146,11 @@ class _ButtonState extends State<Button> {
     // Null keeps whatever the ambient IconTheme says, rather than falling
     // back to Flutter's 24 — but every shipped style sets one.
     final effectiveIconSize = iconSize(theme) ?? iconTheme.size;
+    final motion = Motion.of(context);
+    final effectivePressScale =
+        widget.pressScale ?? buttonTheme(theme).pressScale ?? motion.pressScale;
+    final effectiveTransitionDuration =
+        buttonTheme(theme).transitionDuration ?? motion.fast;
 
     return CallbackShortcuts(
       bindings: {
@@ -1181,29 +1209,21 @@ class _ButtonState extends State<Button> {
               buttonTheme(theme).pressAnimationDuration ??
               const Duration(milliseconds: 100);
 
-          return AnimatedSlide(
-            // AnimatedSlide takes a fraction of the child's size, so convert
-            // the pixel offset once the height is known.
-            // Requires a real handler as well as the enabled state: a button
-            // with no onPressed does nothing, so it should not appear to
-            // depress. `enabled` here tracks Button.enabled, which is
-            // independent of whether a callback was supplied.
-            offset: pressed && enabled && widget.onPressed != null
-                ? Offset(
-                    effectivePressedOffset.dx / 100,
-                    effectivePressedOffset.dy / effectiveHeight,
-                  )
-                : Offset.zero,
-            duration: effectivePressDuration,
-            curve: Curves.easeOut,
-            child: IconTheme(
+          // Requires a real handler as well as the enabled state: a button
+          // with no onPressed does nothing, so it should not appear to
+          // depress. `enabled` here tracks Button.enabled, which is
+          // independent of whether a callback was supplied.
+          final depressed = pressed && enabled && widget.onPressed != null;
+
+          Widget withForeground(Color? color, Widget? child) {
+            return IconTheme(
               data: iconTheme.copyWith(
-                color: effectiveForegroundColor,
+                color: color,
                 size: effectiveIconSize,
               ),
               child: DefaultTextStyle(
                 style: effectiveTextStyle.copyWith(
-                  color: effectiveForegroundColor,
+                  color: color,
                   decoration: textDecoration(
                     theme,
                     hovered: hovered,
@@ -1212,6 +1232,37 @@ class _ButtonState extends State<Button> {
                   decorationStyle: TextDecorationStyle.solid,
                 ),
                 textAlign: TextAlign.center,
+                child: child!,
+              ),
+            );
+          }
+
+          // The press is acknowledged by a scale, a paint-time transform:
+          // the button's box, and so its height, never changes.
+          return PressScale(
+            pressed: depressed,
+            taps: enabled ? _taps : 0,
+            scale: effectivePressScale,
+            child: AnimatedSlide(
+              // AnimatedSlide takes a fraction of the child's size, so
+              // convert the pixel offset once the height is known.
+              offset: depressed
+                  ? Offset(
+                      effectivePressedOffset.dx / 100,
+                      effectivePressedOffset.dy / effectiveHeight,
+                    )
+                  : Offset.zero,
+              duration: effectivePressDuration,
+              curve: Curves.easeOut,
+              // Hover and press change the colours over a short fade
+              // rather than at once. Each fade starts from the colour on
+              // screen, so leaving mid-fade turns around without a flash.
+              child: AnimatedColorBuilder(
+                color: effectiveForegroundColor,
+                duration: effectiveTransitionDuration,
+                curve: motion.standard,
+                builder: (context, color, child) =>
+                    withForeground(color, child),
                 child: Semantics(
                   container: true,
                   button: true,
@@ -1249,9 +1300,17 @@ class _ButtonState extends State<Button> {
                                 ? double.infinity
                                 : effectiveHeight,
                           ),
-                          child: Decorator(
-                            decoration: updatedDecoration,
-                            focused: focused,
+                          child: AnimatedColorBuilder(
+                            color: updatedDecoration.color,
+                            duration: effectiveTransitionDuration,
+                            curve: motion.standard,
+                            builder: (context, color, child) => Decorator(
+                              decoration: color == null
+                                  ? updatedDecoration
+                                  : updatedDecoration.copyWith(color: color),
+                              focused: focused,
+                              child: child,
+                            ),
                             child: child,
                           ),
                         ),

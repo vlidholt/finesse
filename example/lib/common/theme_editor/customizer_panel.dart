@@ -404,13 +404,14 @@ class _SettingsState extends State<_Settings> {
             ThemePicker<EditorMenuAccent>(
               label: 'Menu Accent',
               icon: PhosphorIconsRegular.highlighter,
-              // A translucent menu highlights with a foreground wash, so the
-              // accent has no effect there; the picker is locked to make that
-              // visible, as shadcn's editor does.
-              value: config.menuFinish == MenuSurfaceFinish.solid
+              // shadcn's translucent finish highlights with a foreground
+              // wash, so the accent has no effect there; the picker is
+              // locked to make that visible, as shadcn's editor does. A
+              // style's own glass keeps the accent.
+              value: config.menuFinish != MenuSurfaceFinish.translucent
                   ? config.menuAccent
                   : EditorMenuAccent.subtle,
-              enabled: config.menuFinish == MenuSurfaceFinish.solid,
+              enabled: config.menuFinish != MenuSurfaceFinish.translucent,
               options: [
                 for (final m in EditorMenuAccent.values)
                   PickerOption(value: m, label: m.label),

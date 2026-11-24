@@ -77,12 +77,12 @@ class DialogTheme with _$DialogTheme {
   /// {@macro Dialog.gap}
   final double? gap;
 
-  /// The effects played when the dialog appears. Defaults to a fade and
-  /// zoom in.
+  /// The effects played when the dialog appears. Null, the default, is a
+  /// fade and zoom in on the theme's motion tokens.
   final List<Effect<dynamic>>? animateIn;
 
-  /// The effects played when the dialog disappears. Defaults to a fade and
-  /// zoom out.
+  /// The effects played when the dialog disappears. Null, the default, is
+  /// a quicker fade and zoom out on the theme's motion tokens.
   final List<Effect<dynamic>>? animateOut;
 
   /// {@macro Dialog.constraints}

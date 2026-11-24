@@ -5,6 +5,7 @@ import 'package:example/strand/widgets/messages_common.dart';
 import 'package:example/strand/widgets/messages_composer.dart';
 import 'package:example/strand/widgets/messages_controller.dart';
 import 'package:example/strand/widgets/messages_thread.dart';
+import 'package:example/strand/widgets/strand_actions.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -68,12 +69,12 @@ class _PaneHeader extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
 
-    Widget action(IconData icon, String label, [VoidCallback? onPressed]) =>
+    Widget action(IconData icon, String label, VoidCallback onPressed) =>
         IconButton.ghost(
           size: ButtonSize.lg,
           icon: Icon(icon),
           semanticLabel: label,
-          onPressed: onPressed ?? () {},
+          onPressed: onPressed,
         );
 
     return Container(
@@ -133,13 +134,21 @@ class _PaneHeader extends StatelessWidget {
             gap: GapSize.xs,
             mainAxisSize: MainAxisSize.min,
             children: [
-              action(PhosphorIconsRegular.phone, 'Call'),
-              action(PhosphorIconsRegular.videoCamera, 'Video call'),
-              if (onToggleDetails != null)
+              action(
+                PhosphorIconsRegular.phone,
+                'Call',
+                () => startCall(context, conversation.name),
+              ),
+              action(
+                PhosphorIconsRegular.videoCamera,
+                'Video call',
+                () => startCall(context, conversation.name, video: true),
+              ),
+              if (onToggleDetails case final toggle?)
                 action(
                   PhosphorIconsRegular.info,
                   'Conversation details',
-                  onToggleDetails,
+                  toggle,
                 ),
             ],
           ),
@@ -314,12 +323,12 @@ class MessagesConversationPage extends StatelessWidget {
           IconButton.ghost(
             icon: const Icon(PhosphorIconsRegular.phone),
             semanticLabel: 'Call',
-            onPressed: () {},
+            onPressed: () => startCall(context, conversation.name),
           ),
           IconButton.ghost(
             icon: const Icon(PhosphorIconsRegular.videoCamera),
             semanticLabel: 'Video call',
-            onPressed: () {},
+            onPressed: () => startCall(context, conversation.name, video: true),
           ),
         ],
       ),

@@ -1,3 +1,4 @@
+import 'package:example/common/page_switch.dart';
 import 'package:example/docs/docs.dart';
 import 'package:example/docs/registry.dart';
 import 'package:finesse/finesse.dart';
@@ -43,6 +44,18 @@ class ComponentsScreenState extends State<ComponentsScreen> {
     (doc) => doc.slug == selectedSlug,
     orElse: () => docGroups.first.items.first,
   );
+
+  /// Where [doc] is in the sidebar, counting from the top.
+  static int _indexOf(ComponentDoc doc) {
+    var index = 0;
+    for (final group in docGroups) {
+      for (final item in group.items) {
+        if (item.slug == doc.slug) return index;
+        index++;
+      }
+    }
+    return 0;
+  }
 
   /// The group the selected page belongs to.
   DocGroup get selectedGroup {
@@ -169,7 +182,15 @@ class ComponentsScreenState extends State<ComponentsScreen> {
               ],
             ),
           ),
-          Expanded(child: ComponentDocPage(doc: doc)),
+          // A page lower in the sidebar comes up from below, one higher
+          // comes down from above.
+          Expanded(
+            child: PageSwitch(
+              value: _indexOf(doc),
+              axis: Axis.vertical,
+              child: ComponentDocPage(doc: doc),
+            ),
+          ),
         ],
       ),
     );

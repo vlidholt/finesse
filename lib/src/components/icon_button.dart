@@ -549,6 +549,9 @@ class IconButton extends StatelessWidget {
       onDoubleTapCancel: onDoubleTapCancel,
       longPressDuration: longPressDuration,
       onFocusChange: onFocusChange,
+      // A raw button does not scale unless asked; an icon button is a
+      // button, so it follows the variant's theme like the others.
+      pressScale: null,
       child: icon,
     );
 

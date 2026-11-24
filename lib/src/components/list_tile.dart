@@ -1,4 +1,5 @@
 import 'package:finesse/src/raw_components/pressable.dart';
+import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
 
@@ -166,6 +167,8 @@ class ListTile extends StatelessWidget {
       onPressed: onTap,
       selected: selected ? true : null,
       focusNode: focusNode,
+      // The press gives a little, as a surface does; see `Card`.
+      pressScale: tile.pressScale ?? Motion.of(context).surfacePressScale,
       builder: (context, states) {
         final color = selected
             ? tile.selectedColor ?? theme.colorScheme.accent
@@ -175,9 +178,9 @@ class ListTile extends StatelessWidget {
         return FocusRing(
           visible: states.contains(WidgetState.focused),
           borderRadius: radius,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 120),
-            decoration: BoxDecoration(color: color, borderRadius: radius),
+          child: AnimatedFill(
+            color: color,
+            borderRadius: radius,
             child: row,
           ),
         );

@@ -176,9 +176,13 @@ ThemeData(
           DocParagraph(
             'How menus look is a theme setting. `menuColorScheme` '
             'renders menu surfaces on another '
-            'palette (pass the dark counterpart for the "Inverted" look), '
-            '`menuTranslucent` gives them the blurred 70% finish, and '
-            '`menuAccent` picks how strongly rows highlight.',
+            'palette (pass the dark counterpart for the "Inverted" look) '
+            'and `menuAccent` picks how strongly rows highlight. Whether '
+            'menus are glass is the style\'s choice — they are in '
+            '`finesse`, whose `popoverOpacity` is below 1, and solid in the '
+            'shadcn styles — unless `menuTranslucent` says otherwise: '
+            '`true` gives any style the blurred 70% finish, `false` keeps '
+            'menus solid.',
           ),
           CodeBlock(
             code: '''

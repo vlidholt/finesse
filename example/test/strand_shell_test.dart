@@ -5,11 +5,13 @@ import 'package:example/screens/components_screen.dart';
 import 'package:example/strand/screens/home_screen.dart';
 import 'package:example/strand/screens/jobs_screen.dart';
 import 'package:example/strand/screens/messages_screen.dart';
-import 'package:example/strand/screens/placeholder_screen.dart';
+import 'package:example/strand/screens/network_screen.dart';
+import 'package:example/strand/screens/notifications_screen.dart';
 import 'package:example/strand/screens/profile_screen.dart';
 import 'package:example/strand/screens/search_screen.dart';
 import 'package:example/strand/strand_shell.dart';
 import 'package:example/strand/widgets/person_avatar.dart';
+import 'package:example/strand/session.dart';
 import 'package:example/strand/widgets/search_field.dart';
 import 'package:example/strand/widgets/strand_logo.dart';
 import 'package:finesse/finesse.dart';
@@ -105,22 +107,48 @@ void main() {
       expect(find.byType(MessagesScreen), findsOneWidget);
 
       await tapAndSettle(tester, inTopBar(find.text('Network')));
-      expect(find.byType(PlaceholderScreen), findsOneWidget);
-      expect(
-        find.textContaining('Network is not part of the Strand designs'),
-        findsOneWidget,
-      );
+      expect(find.byType(NetworkScreen), findsOneWidget);
+      expect(find.text('People you may know'), findsOneWidget);
 
       await tapAndSettle(tester, inTopBar(find.text('Notifications')));
+      expect(find.byType(NotificationsScreen), findsOneWidget);
+      expect(find.text('12 unread notifications.'), findsOneWidget);
+      // No destination is a placeholder any more.
       expect(
-        find.textContaining('Notifications is not part of the Strand designs'),
-        findsOneWidget,
+        find.textContaining('not part of the Strand designs'),
+        findsNothing,
       );
 
       // The logo goes home.
       await tapAndSettle(tester, find.byType(StrandLogo));
       expect(destination(tester), StrandDestination.home);
       expect(find.byType(HomeScreen), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('the bell counts the unread notifications', (tester) async {
+      await pumpApp(tester);
+      final notifications = strandSessionProvider
+          .of(appContext(tester))
+          .notifications;
+      expect(inTopBar(find.text('12')), findsOneWidget);
+
+      await tapAndSettle(tester, inTopBar(find.text('Notifications')));
+      // Opening a row reads it.
+      await tapAndSettle(tester, find.textContaining('mentioned you').first);
+      expect(notifications.unreadCount, 11);
+      expect(destination(tester), StrandDestination.home);
+      expect(inTopBar(find.text('11')), findsOneWidget);
+      expect(inTopBar(find.text('12')), findsNothing);
+
+      await tapAndSettle(tester, inTopBar(find.text('Notifications')));
+      await tapAndSettle(
+        tester,
+        find.widgetWithText(Button, 'Mark all as read'),
+      );
+      // No count, no badge; the messages' "3" is untouched.
+      expect(inTopBar(find.text('11')), findsNothing);
+      expect(inTopBar(find.text('3')), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
 
@@ -320,7 +348,7 @@ void main() {
         tester,
         inBottomBar(find.byIcon(PhosphorIconsRegular.usersThree)),
       );
-      expect(find.byType(PlaceholderScreen), findsOneWidget);
+      expect(find.byType(NetworkScreen), findsOneWidget);
 
       // Messages and notifications live in the app bar on a phone.
       await tapAndSettle(
@@ -335,6 +363,7 @@ void main() {
         inAppBar(find.byIcon(PhosphorIconsRegular.bell)),
       );
       expect(destination(tester), StrandDestination.notifications);
+      expect(find.byType(NotificationsScreen), findsOneWidget);
 
       // "Me" opens the profile, which has no app bar over its cover.
       await tapAndSettle(tester, inBottomBar(find.byType(PersonAvatar)));
@@ -384,32 +413,35 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('a placeholder page leads to the component library and the '
-        'theme editor', (tester) async {
+    testWidgets('the theme editor covers a phone-sized window, and closes '
+        'itself', (tester) async {
       await pumpApp(tester, size: mobileSize);
       await tapAndSettle(
         tester,
         inBottomBar(find.byIcon(PhosphorIconsRegular.usersThree)),
       );
 
-      // The editor covers a phone-sized window, and closes itself.
-      await tapAndSettle(tester, find.text('Open theme editor'));
+      await openThemeEditor(tester);
       final panel = find.byType(ThemeCustomizerPanel);
-      expect(panel, findsOneWidget);
       expect(tester.getSize(panel), mobileSize);
       expect(find.text('Style'), findsOneWidget);
-      await tapAndSettle(tester, find.byIcon(PhosphorIconsRegular.x));
+      await tapAndSettle(
+        tester,
+        find.descendant(
+          of: panel,
+          matching: find.byIcon(PhosphorIconsRegular.x),
+        ),
+      );
       expect(panel, findsNothing);
-      expect(find.byType(PlaceholderScreen), findsOneWidget);
+      expect(find.byType(NetworkScreen), findsOneWidget);
 
-      await tapAndSettle(tester, find.text('Browse components'));
-      expect(sectionSignal(tester).value, AppSection.components);
+      await openComponentLibrary(tester);
       expect(find.byType(ComponentsScreen), findsOneWidget);
       expect(find.byType(StrandShell), findsNothing);
 
       await tapAndSettle(tester, find.byIcon(PhosphorIconsRegular.arrowLeft));
       expect(find.byType(StrandShell), findsOneWidget);
-      expect(find.byType(PlaceholderScreen), findsOneWidget);
+      expect(find.byType(NetworkScreen), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
 

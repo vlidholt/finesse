@@ -1,4 +1,5 @@
 import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/pop_in.dart';
 import 'package:flutter/rendering.dart' show OverflowBoxFit;
 import 'package:flutter/widgets.dart';
 
@@ -95,7 +96,8 @@ class IndicatorBadge extends StatelessWidget {
     final hasCount = count != null && (count! > 0 || showZero);
     final isDot = label == null && count == null;
     final shown = visible && (isDot || label != null || hasCount);
-    if (!shown) return child ?? const SizedBox.shrink();
+    // Built even while hidden: the badge pops out, so what it showed has to
+    // stay on screen for the length of its exit.
 
     final ring = ringWidth ?? badgeTheme.ringWidth ?? 2;
     final fill =
@@ -155,6 +157,14 @@ class IndicatorBadge extends StatelessWidget {
       label: semanticLabel,
       excludeSemantics: semanticLabel != null,
       child: badge,
+    );
+    // It pops in when it appears and out when it goes, and pops once when
+    // the count changes. A badge that is there from the start is simply
+    // there.
+    badge = PopIn(
+      visible: shown,
+      scale: .3,
+      child: PopOnChange(value: count, child: badge),
     );
 
     final target = child;

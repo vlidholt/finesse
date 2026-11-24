@@ -28,34 +28,38 @@ class _PressableStatesExampleState extends State<PressableStatesExample> {
         return FocusRing(
           visible: states.contains(WidgetState.focused),
           borderRadius: radius,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 120),
+          // `AnimatedFill` cross-fades its colours. An `AnimatedContainer`
+          // would lerp them channel by channel, and between an opaque fill
+          // and a translucent wash that dips through a dark grey.
+          child: SizedBox(
             width: 260,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
+            child: AnimatedFill(
               color: pressed
                   ? scheme.accent
                   : hovered
                   ? scheme.muted
                   : scheme.card,
+              borderColor: hovered || pressed
+                  ? scheme.borderStrong
+                  : scheme.border,
               borderRadius: radius,
-              border: Border.all(
-                color: hovered || pressed ? scheme.borderStrong : scheme.border,
-              ),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 4,
-              children: [
-                Text('Tapped $taps times', style: theme.textTheme.large),
-                Text(
-                  states.isEmpty
-                      ? 'idle'
-                      : states.map((state) => state.name).join(', '),
-                  style: theme.textTheme.muted,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 4,
+                  children: [
+                    Text('Tapped $taps times', style: theme.textTheme.large),
+                    Text(
+                      states.isEmpty
+                          ? 'idle'
+                          : states.map((state) => state.name).join(', '),
+                      style: theme.textTheme.muted,
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         );

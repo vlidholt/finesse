@@ -1,6 +1,7 @@
 import 'package:example/strand/data/profile_data.dart';
 import 'package:example/strand/widgets/person_avatar.dart';
 import 'package:example/strand/widgets/profile_common.dart';
+import 'package:example/strand/widgets/strand_actions.dart';
 import 'package:example/strand/widgets/verified_badge.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
@@ -91,14 +92,14 @@ class _ProfilePostCardState extends State<ProfilePostCard> {
               Button.ghost(
                 size: ButtonSize.sm,
                 leading: const Icon(PhosphorIconsRegular.chatCircle),
-                onPressed: () {},
+                onPressed: () => showCommentDialog(context, person),
                 child: Text('${post.comments}'),
               ),
               const Spacer(),
               Button.ghost(
                 size: ButtonSize.sm,
                 leading: const Icon(PhosphorIconsRegular.export),
-                onPressed: () {},
+                onPressed: () => showSendDialog(context, what: 'this post'),
                 child: const Text('Share'),
               ),
             ],

@@ -45,6 +45,7 @@ mixin _$TooltipTheme {
       showArrow: t < 0.5 ? a.showArrow : b.showArrow,
       arrowSize: lerpDouble$(a.arrowSize, b.arrowSize, t),
       arrowRadius: lerpDouble$(a.arrowRadius, b.arrowRadius, t),
+      filter: t < 0.5 ? a.filter : b.filter,
     );
   }
 
@@ -64,6 +65,7 @@ mixin _$TooltipTheme {
     bool? showArrow,
     double? arrowSize,
     double? arrowRadius,
+    ImageFilter? filter,
   }) {
     final _this = (this as TooltipTheme);
 
@@ -83,6 +85,7 @@ mixin _$TooltipTheme {
       showArrow: showArrow ?? _this.showArrow,
       arrowSize: arrowSize ?? _this.arrowSize,
       arrowRadius: arrowRadius ?? _this.arrowRadius,
+      filter: filter ?? _this.filter,
     );
   }
 
@@ -113,6 +116,7 @@ mixin _$TooltipTheme {
       showArrow: other.showArrow,
       arrowSize: other.arrowSize,
       arrowRadius: other.arrowRadius,
+      filter: other.filter,
     );
   }
 
@@ -143,7 +147,8 @@ mixin _$TooltipTheme {
         _other.maxWidth == _this.maxWidth &&
         _other.showArrow == _this.showArrow &&
         _other.arrowSize == _this.arrowSize &&
-        _other.arrowRadius == _this.arrowRadius;
+        _other.arrowRadius == _this.arrowRadius &&
+        _other.filter == _this.filter;
   }
 
   @override
@@ -167,6 +172,7 @@ mixin _$TooltipTheme {
       _this.showArrow,
       _this.arrowSize,
       _this.arrowRadius,
+      _this.filter,
     );
   }
 }

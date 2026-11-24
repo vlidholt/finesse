@@ -2,6 +2,10 @@ import 'package:example/strand/assets.dart';
 import 'package:example/strand/data/profile_data.dart';
 import 'package:example/strand/widgets/person_avatar.dart';
 import 'package:example/strand/widgets/profile_common.dart';
+import 'package:example/strand/widgets/saved_items_sheet.dart';
+import 'package:example/strand/widgets/settings_controller.dart';
+import 'package:example/strand/widgets/settings_links.dart';
+import 'package:example/strand/widgets/strand_actions.dart';
 import 'package:example/strand/widgets/verified_badge.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
@@ -69,7 +73,8 @@ class ProfileHeaderCard extends StatelessWidget {
                 child: ProfileCoverButton(
                   icon: PhosphorIconsRegular.camera,
                   label: 'Edit cover',
-                  onPressed: () {},
+                  onPressed: () =>
+                      openSettings(context, SettingsSection.account),
                 ),
               ),
             ],
@@ -132,7 +137,11 @@ class _Identity extends StatelessWidget {
                 children: [
                   Button.outline(
                     leading: const Icon(PhosphorIconsRegular.export),
-                    onPressed: () {},
+                    onPressed: () => copyLink(
+                      context,
+                      ProfileData.publicUrl,
+                      title: 'Profile link copied',
+                    ),
                     child: const Text('Share profile'),
                   ),
                   IconButton.secondary(
@@ -142,7 +151,8 @@ class _Identity extends StatelessWidget {
                     // beside one, where the style's icon buttons are round.
                     decoration: theme.buttonDecoration(radius: theme.radius),
                     semanticLabel: 'Edit profile',
-                    onPressed: () {},
+                    onPressed: () =>
+                        openSettings(context, SettingsSection.account),
                   ),
                 ],
               ),
@@ -239,17 +249,17 @@ class _Identity extends StatelessWidget {
             Button(
               height: actionHeight,
               leading: const Icon(PhosphorIconsRegular.plusCircle),
-              onPressed: () {},
+              onPressed: () => openSettings(context, SettingsSection.privacy),
               child: const Text('Open to'),
             ),
             Button.outline(
               height: actionHeight,
-              onPressed: () {},
+              onPressed: () => openSettings(context, SettingsSection.account),
               child: const Text('Add section'),
             ),
             Button.outline(
               height: actionHeight,
-              onPressed: () {},
+              onPressed: () => showSavedItems(context),
               child: const Text('Resources'),
             ),
           ],

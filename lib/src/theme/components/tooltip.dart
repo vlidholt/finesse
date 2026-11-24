@@ -1,3 +1,5 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:finesse/src/raw_components/portal.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
@@ -32,6 +34,7 @@ class TooltipTheme with _$TooltipTheme {
     this.showArrow,
     this.arrowSize,
     this.arrowRadius,
+    this.filter,
   }) : _canMerge = canMerge;
 
   @ignore
@@ -86,6 +89,9 @@ class TooltipTheme with _$TooltipTheme {
   /// The corner radius of the arrow's tip, `rounded-[2px]` — zero in the
   /// square styles.
   final double? arrowRadius;
+
+  /// {@macro Tooltip.filter}
+  final ImageFilter? filter;
 
   /// Linearly interpolates between [a] and [b] by [t].
   static TooltipTheme? lerp(

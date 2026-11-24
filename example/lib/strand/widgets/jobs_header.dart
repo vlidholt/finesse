@@ -1,5 +1,7 @@
 import 'package:example/strand/data/jobs_data.dart';
 import 'package:example/strand/widgets/jobs_state.dart';
+import 'package:example/strand/widgets/strand_actions.dart';
+import 'package:example/strand/widgets/strand_pieces.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -57,7 +59,25 @@ class JobsHeader extends StatelessWidget {
             ),
             Button(
               leading: const Icon(PhosphorIconsRegular.plus),
-              onPressed: () {},
+              onPressed: () async {
+                final title = await showWriteDialog(
+                  context,
+                  title: 'Post a job',
+                  description:
+                      'Start with the role’s title. You can add the rest '
+                      'before it goes live.',
+                  placeholder: 'Senior product designer',
+                  submit: 'Save draft',
+                  multiline: false,
+                );
+                if (title != null && context.mounted) {
+                  showStrandToast(
+                    context,
+                    'Draft saved',
+                    description: '$title at Halcyon',
+                  );
+                }
+              },
               child: const Text('Post a job'),
             ),
           ],

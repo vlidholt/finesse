@@ -1,13 +1,17 @@
+import 'dart:math' as math;
+
 import 'package:finesse/src/components/disabled.dart';
 import 'package:finesse/src/raw_components/focusable.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/animate.dart';
+import 'package:finesse/src/utils/border.dart';
 import 'package:finesse/src/utils/debug_check.dart';
 import 'package:finesse/src/utils/extensions/text_style.dart';
+import 'package:finesse/src/utils/motion_color.dart';
+import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
 /// {@template Switch}
 /// A customizable switch widget, styled according to the Shadcn UI design
@@ -123,9 +127,9 @@ class Switch extends StatefulWidget {
   final double? margin;
 
   /// {@template Switch.duration}
-  /// Duration of the animation when toggling the switch.
-  ///
-  /// Defaults to 100 milliseconds.
+  /// How long the thumb takes to travel. It moves on a spring — the theme's
+  /// `Motion.bouncy` — and this replaces that spring's duration; when null
+  /// the spring is used as it is. `Duration.zero` moves the thumb at once.
   /// {@endtemplate}
   final Duration? duration;
 
@@ -174,7 +178,19 @@ class Switch extends StatefulWidget {
 
 class _SwitchState extends State<Switch> with SingleTickerProviderStateMixin {
   FocusNode? _focusNode;
-  late final controller = AnimationController(vsync: this);
+  // 0 with the thumb at the unchecked end, 1 at the checked end. A spring,
+  // so toggling back mid-travel turns the thumb around where it is.
+  late final _position = SpringController(
+    vsync: this,
+    value: widget.value ? 1 : 0,
+  );
+
+  MotionSpring get _spring {
+    final motion = Motion.of(context);
+    final duration = widget.duration ?? Theme.of(context).switchTheme.duration;
+    if (duration == null || motion.bouncy.isInstant) return motion.bouncy;
+    return motion.bouncy.copyWith(duration: duration);
+  }
 
   FocusNode get focusNode => widget.focusNode ?? _focusNode!;
 
@@ -182,14 +198,13 @@ class _SwitchState extends State<Switch> with SingleTickerProviderStateMixin {
   void initState() {
     super.initState();
     if (widget.focusNode == null) _focusNode = FocusNode();
-    controller.animateTo(widget.value ? 1 : 0, duration: Duration.zero);
   }
 
   @override
   void didUpdateWidget(covariant Switch oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.value != widget.value) {
-      controller.animateTo(widget.value ? 1 : 0);
+      _position.animateTo(widget.value ? 1 : 0, spring: _spring);
     }
     if (oldWidget.focusNode != widget.focusNode) {
       if (widget.focusNode == null) {
@@ -204,7 +219,7 @@ class _SwitchState extends State<Switch> with SingleTickerProviderStateMixin {
   @override
   void dispose() {
     _focusNode?.dispose();
-    controller.dispose();
+    _position.dispose();
     super.dispose();
   }
 
@@ -239,37 +254,19 @@ class _SwitchState extends State<Switch> with SingleTickerProviderStateMixin {
     final effectiveThumbSize = effectiveHeight - effectiveMargin * 2;
     final transitionStep =
         effectiveWidth - effectiveMargin * 2 - effectiveThumbSize;
-    final effectiveDuration =
-        widget.duration ?? theme.switchTheme.duration ?? 100.milliseconds;
+    final effectiveStretch =
+        theme.switchTheme.thumbStretch ??
+        (Motion.of(context).reduced ? 0 : .25);
 
-    final effectiveDecoration =
-        (theme.switchTheme.decoration ?? const FinesseDecoration())
-            .merge(widget.decoration)
-            .copyWith(
-              color: widget.value
-                  ? effectiveCheckedTrackColor
-                  : effectiveUncheckedTrackColor,
-            );
+    final baseDecoration =
+        (theme.switchTheme.decoration ?? const FinesseDecoration()).merge(
+          widget.decoration,
+        );
 
     final effectivePadding =
         widget.padding ??
         theme.switchTheme.padding ??
         const EdgeInsetsDirectional.only(start: 8);
-
-    final effectiveEffects = [
-      switch (direction) {
-        TextDirection.ltr => MoveEffect(
-          begin: Offset.zero,
-          end: Offset(transitionStep, 0),
-          duration: effectiveDuration,
-        ),
-        TextDirection.rtl => MoveEffect(
-          begin: Offset.zero,
-          end: Offset(-transitionStep, 0),
-          duration: effectiveDuration,
-        ),
-      },
-    ];
 
     final keyboardTriggers = <ShortcutActivator>[
       const SingleActivator(LogicalKeyboardKey.enter),
@@ -294,9 +291,21 @@ class _SwitchState extends State<Switch> with SingleTickerProviderStateMixin {
             onFocusChange: widget.onFocusChange,
             focusNode: focusNode,
             builder: (context, focused, child) {
-              return Decorator(
-                focused: focused,
-                decoration: effectiveDecoration,
+              // The track's colour follows the thumb: it blends from one
+              // state's to the other's as the thumb crosses.
+              return AnimatedBuilder(
+                animation: _position.animation,
+                builder: (context, child) => Decorator(
+                  focused: focused,
+                  decoration: baseDecoration.copyWith(
+                    color: lerpColorThroughAlpha(
+                      effectiveUncheckedTrackColor,
+                      effectiveCheckedTrackColor,
+                      _position.value.clamp(0.0, 1.0),
+                    ),
+                  ),
+                  child: child,
+                ),
                 child: child,
               );
             },
@@ -309,26 +318,48 @@ class _SwitchState extends State<Switch> with SingleTickerProviderStateMixin {
                   alignment: Alignment.centerLeft,
                   child: Padding(
                     padding: EdgeInsets.all(effectiveMargin),
-                    child: FinesseAnimate(
-                      controller: controller,
-                      autoPlay: false,
-                      effects: effectiveEffects,
-                      child: Row(
-                        textDirection: direction,
-                        children: [
-                          SizedBox(
-                            width: effectiveThumbSize,
-                            height: effectiveThumbSize,
-                            child: Decorator(
-                              decoration: FinesseDecoration(
-                                color: effectiveThumbColor,
-                                shape: BoxShape.circle,
-                                canMerge: false,
+                    child: Row(
+                      textDirection: direction,
+                      children: [
+                        AnimatedBuilder(
+                          animation: _position.animation,
+                          builder: (context, child) {
+                            final t = _position.value;
+                            // Widest mid-travel, round again at either end:
+                            // the thumb stretches as it crosses.
+                            final extra =
+                                effectiveThumbSize *
+                                effectiveStretch *
+                                math.sin(math.pi * t.clamp(0.0, 1.0));
+                            // The stretch stays inside the track: the thumb
+                            // grows towards where it is going.
+                            final dx = (transitionStep - extra) * t;
+                            return Transform.translate(
+                              offset: Offset(
+                                direction == TextDirection.ltr ? dx : -dx,
+                                0,
                               ),
+                              child: SizedBox(
+                                width: effectiveThumbSize + extra,
+                                height: effectiveThumbSize,
+                                child: child,
+                              ),
+                            );
+                          },
+                          child: Decorator(
+                            decoration: FinesseDecoration(
+                              color: effectiveThumbColor,
+                              border: FinesseBorder.all(
+                                radius: BorderRadius.circular(
+                                  effectiveThumbSize / 2,
+                                ),
+                                width: 0,
+                              ),
+                              canMerge: false,
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ),

@@ -25,6 +25,10 @@ class TableTheme with _$TableTheme {
     this.cellStyle,
     this.cellHeaderStyle,
     this.cellFooterStyle,
+    this.rowHoverColor,
+    this.rowSelectedColor,
+    this.footerColor,
+    this.footerHoverColor,
   }) : _canMerge = canMerge;
 
   @ignore
@@ -67,6 +71,22 @@ class TableTheme with _$TableTheme {
   /// Text style of footer cells. Defaults to the text theme's `muted` at
   /// medium weight.
   final TextStyle? cellFooterStyle;
+
+  /// The wash behind the row under the pointer. Defaults to half the
+  /// scheme's `muted` colour, shadcn's `hover:bg-muted/50`.
+  final Color? rowHoverColor;
+
+  /// The fill of a selected row; see `FinesseTable.rowSelected`. Defaults
+  /// to the scheme's `muted` colour, `data-[state=selected]:bg-muted`.
+  final Color? rowSelectedColor;
+
+  /// The fill of the footer row. Defaults to half the scheme's `muted`
+  /// colour, `bg-muted/50`.
+  final Color? footerColor;
+
+  /// The fill of the footer row under the pointer. Defaults to the scheme's
+  /// `muted` colour.
+  final Color? footerHoverColor;
 
   /// Linearly interpolates between [a] and [b] by [t].
   static TableTheme? lerp(

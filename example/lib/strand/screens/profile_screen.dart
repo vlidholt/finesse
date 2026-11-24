@@ -89,12 +89,12 @@ class _DesktopProfile extends StatelessWidget {
     ProfileTab.posts => [
       for (final post in ProfileData.posts) ProfilePostCard(post),
     ],
-    ProfileTab.about => const [
-      ProfileAnalyticsCard(),
-      ProfileAboutCard(),
-      ProfileFeaturedCard(),
-      ProfileExperienceCard(),
-      ProfileEducationCard(),
+    ProfileTab.about => [
+      const ProfileAnalyticsCard(),
+      const ProfileAboutCard(),
+      ProfileFeaturedCard(onSeeAll: () => onTabSelected(ProfileTab.media)),
+      const ProfileExperienceCard(),
+      const ProfileEducationCard(),
     ],
     ProfileTab.experience => const [
       ProfileExperienceCard(),

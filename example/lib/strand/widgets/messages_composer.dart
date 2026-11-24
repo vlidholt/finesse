@@ -1,3 +1,4 @@
+import 'package:example/strand/widgets/strand_actions.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -66,7 +67,7 @@ class _MessagesComposerState extends State<MessagesComposer> {
       iconSize: 22,
       icon: Icon(icon),
       semanticLabel: label,
-      onPressed: () {},
+      onPressed: () => showNothingToAttach(context),
     );
 
     return Glass(

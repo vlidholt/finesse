@@ -1,4 +1,5 @@
 import 'package:example/strand/data/home_data.dart';
+import 'package:example/strand/navigation.dart';
 import 'package:example/strand/widgets/home_pieces.dart';
 import 'package:example/strand/widgets/person_avatar.dart';
 import 'package:finesse/finesse.dart';
@@ -65,7 +66,7 @@ class _HomeSuggestionsCardState extends State<HomeSuggestionsCard> {
             gap: homeTightGap,
             textStyle: theme.textTheme.small,
             trailing: const Icon(PhosphorIconsRegular.caretRight, size: 14),
-            onPressed: () {},
+            onPressed: () => context.goTo(StrandDestination.network),
             child: const Flexible(
               child: Text(
                 'Show all suggestions',

@@ -4,6 +4,7 @@ import 'package:finesse/src/theme/components/alert.dart';
 import 'package:finesse/src/theme/components/app_bar.dart';
 import 'package:finesse/src/theme/components/avatar.dart';
 import 'package:finesse/src/theme/components/badge.dart';
+import 'package:finesse/src/theme/components/board.dart';
 import 'package:finesse/src/theme/components/bottom_navigation_bar.dart';
 import 'package:finesse/src/theme/components/breadcrumb.dart';
 import 'package:finesse/src/theme/components/button.dart';
@@ -138,6 +139,7 @@ abstract class BaseTheme {
     required this.indicatorBadgeTheme,
     required this.iconTileTheme,
     required this.timelineTheme,
+    required this.boardTheme,
     required this.layoutTheme,
     required this.scrollAreaTheme,
     required this.spinnerTheme,
@@ -198,6 +200,9 @@ abstract class BaseTheme {
 
   /// The theme of the matching widget.
   final TimelineTheme timelineTheme;
+
+  /// The theme of `Board`.
+  final BoardTheme boardTheme;
 
   /// The theme of the matching widget.
   final LayoutTheme layoutTheme;
@@ -625,6 +630,9 @@ abstract class ThemeVariant {
 
   /// Builds the [TimelineTheme].
   TimelineTheme timelineTheme();
+
+  /// Builds the [BoardTheme].
+  BoardTheme boardTheme();
 
   /// Builds the [LayoutTheme].
   LayoutTheme layoutTheme();

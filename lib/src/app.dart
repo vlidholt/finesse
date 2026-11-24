@@ -6,8 +6,10 @@ import 'package:finesse/src/components/toast.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/form_factor.dart';
+import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/theme/theme_scope.dart';
+import 'package:finesse/src/utils/entrance.dart';
 import 'package:finesse/src/utils/mouse_area.dart';
 import 'package:finesse/src/utils/mouse_cursor_provider.dart';
 import 'package:flutter/widgets.dart';
@@ -731,10 +733,18 @@ class FinesseScrollBehavior extends ScrollBehavior {
   }
 }
 
-/// The page route [FinesseApp] uses by default: the new page fades in.
+/// The page route [FinesseApp] uses by default: the new page fades in while
+/// it moves a short way into place, and leaves the same way, faster.
 ///
-/// shadcn/ui has no page transitions of its own. For the platform
-/// transitions, such as the iOS back swipe, pass a `MaterialPageRoute` or a
+/// On a phone it comes in from the end side — the right, in a left-to-right
+/// layout — and the page under it gives way a little; a [fullscreenDialog]
+/// rises from below. On a desktop, where a page is not a sheet of paper,
+/// it only rises a few pixels. The timing is the theme's `Motion`: with
+/// reduced motion the page only fades, and with `Motion.none` it is simply
+/// there.
+///
+/// It is a quick transition, not a platform one: there is no back swipe.
+/// For the platform transitions pass a `MaterialPageRoute` or a
 /// `CupertinoPageRoute` to [FinesseApp.pageRouteBuilder].
 class FinessePageRoute<T> extends PageRoute<T> {
   /// Creates a page route that builds its page with [builder].
@@ -751,14 +761,52 @@ class FinessePageRoute<T> extends PageRoute<T> {
   @override
   final bool maintainState;
 
+  /// The motion tokens where the route was pushed, without making the
+  /// navigator depend on them. Null before the route has a navigator.
+  Motion? get _motion {
+    final context = navigator?.context;
+    if (context == null) return null;
+    final motion = Theme.maybeOf(context, listen: false)?.motion;
+    if (motion == null) return null;
+    final reduce =
+        context
+            .getInheritedWidgetOfExactType<MediaQuery>()
+            ?.data
+            .disableAnimations ??
+        false;
+    return reduce ? motion.reduce() : motion;
+  }
+
   @override
-  Duration get transitionDuration => const Duration(milliseconds: 200);
+  Duration get transitionDuration {
+    final motion = _motion;
+    if (motion == null) return const Duration(milliseconds: 200);
+    return motion.reduced ? motion.fast : motion.snappy.settleDuration;
+  }
+
+  // It leaves faster than it arrives.
+  @override
+  Duration get reverseTransitionDuration {
+    final motion = _motion;
+    if (motion == null) return const Duration(milliseconds: 200);
+    return motion.reduced ? motion.fast : motion.normal;
+  }
 
   @override
   Color? get barrierColor => null;
 
   @override
   String? get barrierLabel => null;
+
+  /// Whether the route over this one rises from below rather than coming
+  /// in from the side: this page then stays where it is.
+  bool _coveredByDialog = false;
+
+  @override
+  void didChangeNext(Route<dynamic>? nextRoute) {
+    _coveredByDialog = nextRoute is PageRoute && nextRoute.fullscreenDialog;
+    super.didChangeNext(nextRoute);
+  }
 
   @override
   Widget buildPage(
@@ -780,11 +828,65 @@ class FinessePageRoute<T> extends PageRoute<T> {
     Animation<double> secondaryAnimation,
     Widget child,
   ) {
-    return FadeTransition(
-      opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
-      child: child,
+    final motion = Motion.of(context);
+    final mobile = Theme.of(context).formFactor == FormFactor.mobile;
+    final rtl = Directionality.maybeOf(context) == TextDirection.rtl;
+    // In on the spring, and back out in a straight line from wherever it
+    // is, so a pop in the middle of a push does not jump.
+    final progress = EntranceProgress(
+      animation,
+      curve: motion.reduced ? motion.standard : motion.snappy.curve,
+    );
+    // The page under this one gives way as the next is pushed over it.
+    final covered = secondaryAnimation.drive(
+      CurveTween(curve: motion.standard),
+    );
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Where the page comes from, in logical pixels: a fifth of the
+        // width from the end side on a phone, from below for a dialog, and
+        // a short rise on a desktop.
+        final Offset from;
+        if (motion.reduced) {
+          from = Offset.zero;
+        } else if (fullscreenDialog) {
+          from = Offset(0, mobile ? 48 : motion.overlayTravel * 2);
+        } else if (mobile && constraints.hasBoundedWidth) {
+          from = Offset(constraints.maxWidth * .2 * (rtl ? -1 : 1), 0);
+        } else {
+          from = Offset(0, motion.overlayTravel * 2);
+        }
+        final giveWay = motion.reduced || !mobile || _coveredByDialog
+            ? Offset.zero
+            : Offset(
+                -constraints.maxWidth * .06 * (rtl ? -1 : 1),
+                0,
+              );
+        return FadeTransition(
+          opacity: progress.drive(const _FadeInBy(.6)),
+          child: AnimatedBuilder(
+            animation: Listenable.merge([progress, covered]),
+            builder: (context, child) => Transform.translate(
+              offset: from * (1 - progress.value) + giveWay * covered.value,
+              child: child,
+            ),
+            child: child,
+          ),
+        );
+      },
     );
   }
+}
+
+/// A fade that is finished by [end] of the way: the page is readable well
+/// before it has settled.
+class _FadeInBy extends Animatable<double> {
+  const _FadeInBy(this.end);
+
+  final double end;
+
+  @override
+  double transform(double t) => (t / end).clamp(0.0, 1.0);
 }
 
 // The WidgetsApp colour used for the app in the task switcher; Material's

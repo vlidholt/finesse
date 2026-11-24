@@ -1,5 +1,7 @@
 import 'package:example/strand/data.dart';
+import 'package:example/strand/data/network_data.dart';
 import 'package:example/strand/widgets/home_pieces.dart';
+import 'package:example/strand/widgets/network_links.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -15,7 +17,7 @@ class HomeGroupsCard extends StatelessWidget {
       title: 'Your groups',
       trailing: HomeTextLink(
         'See all',
-        onPressed: () {},
+        onPressed: () => openNetworkSection(context, NetworkSection.groups),
         style: theme.textTheme.small.copyWith(color: scheme.tint),
       ),
       child: FinesseColumn(
@@ -25,7 +27,8 @@ class HomeGroupsCard extends StatelessWidget {
         children: [
           for (final group in Groups.all)
             Pressable(
-              onPressed: () {},
+              onPressed: () =>
+                  openNetworkSection(context, NetworkSection.groups),
               builder: (context, states) => FocusRing(
                 visible: states.contains(WidgetState.focused),
                 borderRadius: theme.radii.md,

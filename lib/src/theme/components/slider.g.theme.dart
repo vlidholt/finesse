@@ -62,6 +62,7 @@ mixin _$SliderTheme {
       ),
       trackHeight: lerpDouble$(a.trackHeight, b.trackHeight, t),
       thumbRadius: lerpDouble$(a.thumbRadius, b.thumbRadius, t),
+      thumbPressScale: lerpDouble$(a.thumbPressScale, b.thumbPressScale, t),
     );
   }
 
@@ -80,6 +81,7 @@ mixin _$SliderTheme {
     Color? disabledInactiveTrackColor,
     double? trackHeight,
     double? thumbRadius,
+    double? thumbPressScale,
   }) {
     final _this = (this as SliderTheme);
 
@@ -101,6 +103,7 @@ mixin _$SliderTheme {
           disabledInactiveTrackColor ?? _this.disabledInactiveTrackColor,
       trackHeight: trackHeight ?? _this.trackHeight,
       thumbRadius: thumbRadius ?? _this.thumbRadius,
+      thumbPressScale: thumbPressScale ?? _this.thumbPressScale,
     );
   }
 
@@ -130,6 +133,7 @@ mixin _$SliderTheme {
       disabledInactiveTrackColor: other.disabledInactiveTrackColor,
       trackHeight: other.trackHeight,
       thumbRadius: other.thumbRadius,
+      thumbPressScale: other.thumbPressScale,
     );
   }
 
@@ -159,7 +163,8 @@ mixin _$SliderTheme {
         _other.disabledActiveTrackColor == _this.disabledActiveTrackColor &&
         _other.disabledInactiveTrackColor == _this.disabledInactiveTrackColor &&
         _other.trackHeight == _this.trackHeight &&
-        _other.thumbRadius == _this.thumbRadius;
+        _other.thumbRadius == _this.thumbRadius &&
+        _other.thumbPressScale == _this.thumbPressScale;
   }
 
   @override
@@ -182,6 +187,7 @@ mixin _$SliderTheme {
       _this.disabledInactiveTrackColor,
       _this.trackHeight,
       _this.thumbRadius,
+      _this.thumbPressScale,
     );
   }
 }

@@ -1,6 +1,9 @@
 import 'package:example/strand/data/messages_data.dart';
+import 'package:example/strand/data/network_data.dart';
 import 'package:example/strand/widgets/messages_common.dart';
 import 'package:example/strand/widgets/messages_controller.dart';
+import 'package:example/strand/widgets/network_links.dart';
+import 'package:example/strand/widgets/strand_previews.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -80,7 +83,13 @@ class MessagesDetailsPane extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Button.outline(
-                      onPressed: () {},
+                      onPressed: () => switch (conversation.person) {
+                        final person? => showPersonPreview(context, person),
+                        null => openNetworkSection(
+                          context,
+                          NetworkSection.groups,
+                        ),
+                      },
                       child: Text(
                         conversation.isGroup ? 'View group' : 'View profile',
                       ),

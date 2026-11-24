@@ -37,34 +37,38 @@ class _PressableStatesExampleState extends State<PressableStatesExample> {
         return FocusRing(
           visible: states.contains(WidgetState.focused),
           borderRadius: radius,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 120),
+          // `AnimatedFill` cross-fades its colours. An `AnimatedContainer`
+          // would lerp them channel by channel, and between an opaque fill
+          // and a translucent wash that dips through a dark grey.
+          child: SizedBox(
             width: 260,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
+            child: AnimatedFill(
               color: pressed
                   ? scheme.accent
                   : hovered
                   ? scheme.muted
                   : scheme.card,
+              borderColor: hovered || pressed
+                  ? scheme.borderStrong
+                  : scheme.border,
               borderRadius: radius,
-              border: Border.all(
-                color: hovered || pressed ? scheme.borderStrong : scheme.border,
-              ),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 4,
-              children: [
-                Text('Tapped $taps times', style: theme.textTheme.large),
-                Text(
-                  states.isEmpty
-                      ? 'idle'
-                      : states.map((state) => state.name).join(', '),
-                  style: theme.textTheme.muted,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 4,
+                  children: [
+                    Text('Tapped $taps times', style: theme.textTheme.large),
+                    Text(
+                      states.isEmpty
+                          ? 'idle'
+                          : states.map((state) => state.name).join(', '),
+                      style: theme.textTheme.muted,
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         );
@@ -128,48 +132,45 @@ class _PressableChoiceExampleState extends State<PressableChoiceExample> {
                   borderRadius: radius,
                   child: Opacity(
                     opacity: disabled ? .5 : 1,
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 120),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 12,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? scheme.accent
-                            : states.contains(WidgetState.hovered)
-                            ? scheme.muted
-                            : scheme.card,
-                        borderRadius: radius,
-                        border: Border.all(
-                          color: isSelected
-                              ? scheme.accentBorder
-                              : scheme.border,
+                    child: AnimatedFill(
+                      color: isSelected
+                          ? scheme.accent
+                          : states.contains(WidgetState.hovered)
+                          ? scheme.muted
+                          : scheme.card,
+                      borderColor: isSelected
+                          ? scheme.accentBorder
+                          : scheme.border,
+                      borderRadius: radius,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 12,
                         ),
-                      ),
-                      child: Row(
-                        spacing: 12,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(name, style: theme.textTheme.small),
-                                Text(caption, style: theme.textTheme.muted),
-                              ],
+                        child: Row(
+                          spacing: 12,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(name, style: theme.textTheme.small),
+                                  Text(caption, style: theme.textTheme.muted),
+                                ],
+                              ),
                             ),
-                          ),
-                          Icon(
-                            isSelected
-                                ? PhosphorIconsFill.checkCircle
-                                : PhosphorIconsRegular.circle,
-                            size: 20,
-                            color: isSelected
-                                ? scheme.tint
-                                : scheme.mutedForeground,
-                          ),
-                        ],
+                            Icon(
+                              isSelected
+                                  ? PhosphorIconsFill.checkCircle
+                                  : PhosphorIconsRegular.circle,
+                              size: 20,
+                              color: isSelected
+                                  ? scheme.tint
+                                  : scheme.mutedForeground,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),

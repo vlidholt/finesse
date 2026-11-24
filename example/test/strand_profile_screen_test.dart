@@ -4,6 +4,7 @@ import 'package:example/strand/data/profile_data.dart';
 import 'package:example/strand/navigation.dart';
 import 'package:example/strand/screens/profile_screen.dart';
 import 'package:example/strand/screens/search_screen.dart';
+import 'package:example/strand/session.dart';
 import 'package:example/strand/widgets/profile_about_cards.dart';
 import 'package:example/strand/widgets/profile_common.dart';
 import 'package:example/strand/widgets/profile_experience.dart';
@@ -37,7 +38,11 @@ Future<void> _pumpProfile(
 
   await tester.pumpWidget(
     ProviderScope(
-      providers: [...appProviders, strandDestinationProvider],
+      providers: [
+        ...appProviders,
+        strandDestinationProvider,
+        strandSessionProvider,
+      ],
       child: FinesseApp(
         theme: ThemeData(brightness: brightness),
         home: const Scaffold(body: ProfileScreen()),

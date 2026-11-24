@@ -49,6 +49,7 @@ import 'package:finesse/finesse.dart';
 | Avatar | An image element with a fallback for representing the user. | [avatar.md](components/avatar.md) |
 | Avatar Group | A row of overlapping avatars, each ringed in the colour of the surface behind it: the people who reacted, the mutual connections. | [avatar-group.md](components/avatar-group.md) |
 | Badge | Displays a badge or a component that looks like a badge. | [badge.md](components/badge.md) |
+| Board | Columns of cards that are dragged to reorder them and to move them between columns, like a kanban or Trello board. A mouse drags a card at once and a finger after a long press; from the keyboard, Space picks a focused card up, the arrow keys move it and Space drops it. | [board.md](components/board.md) |
 | Breadcrumb | Displays the path to the current resource using a hierarchy of links. | [breadcrumb.md](components/breadcrumb.md) |
 | Button | Displays a button or a component that looks like a button. Six variants share one API: pick the one matching the action's weight. | [button.md](components/button.md) |
 | Calendar | A component that allows users to select dates: single, multiple, or a range. | [calendar.md](components/calendar.md) |

@@ -12,6 +12,10 @@ final dialogDoc = ComponentDoc(
     ComponentExample(
       id: 'dialog_form',
       title: 'With a form',
+      description:
+          'A dialog has no close button of its own. Its actions close it, '
+          'as do Escape and a tap outside; pass `closeIconData` (or a '
+          '`closeIcon` widget) for an x in the corner.',
       builder: (_) => const DialogFormExample(),
     ),
     ComponentExample(

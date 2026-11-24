@@ -5,6 +5,7 @@ import 'package:example/docs/pages/app_bar.dart';
 import 'package:example/docs/pages/avatar.dart';
 import 'package:example/docs/pages/avatar_group.dart';
 import 'package:example/docs/pages/badge.dart';
+import 'package:example/docs/pages/board.dart';
 import 'package:example/docs/pages/breadcrumb.dart';
 import 'package:example/docs/pages/button.dart';
 import 'package:example/docs/pages/calendar.dart';
@@ -36,6 +37,7 @@ import 'package:example/docs/pages/keyboard_toolbar.dart';
 import 'package:example/docs/pages/layout.dart';
 import 'package:example/docs/pages/list_tile.dart';
 import 'package:example/docs/pages/menubar.dart';
+import 'package:example/docs/pages/motion.dart';
 import 'package:example/docs/pages/navigation_bar.dart';
 import 'package:example/docs/pages/otp_field.dart';
 import 'package:example/docs/pages/overview.dart';
@@ -94,6 +96,7 @@ final docGroups = <DocGroup>[
       layoutDoc,
       formFactorsDoc,
       responsiveDoc,
+      motionDoc,
       formDoc,
       portalDoc,
     ],
@@ -115,6 +118,7 @@ final componentDocs = [
   avatarDoc,
   avatarGroupDoc,
   badgeDoc,
+  boardDoc,
   breadcrumbDoc,
   buttonDoc,
   calendarDoc,

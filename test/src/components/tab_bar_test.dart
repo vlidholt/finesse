@@ -42,10 +42,10 @@ void main() {
     );
   }
 
-  /// The line under the selected tab.
-  Finder indicator() => find.descendant(
-    of: find.byType(Positioned),
-    matching: find.byType(DecoratedBox),
+  /// Where the line under the selected tab rests: the selected target of
+  /// the bar's one travelling indicator.
+  Finder indicator() => find.byWidgetPredicate(
+    (widget) => widget is MovingIndicatorTarget && widget.selected,
   );
 
   /// The padding around a tab's label.
@@ -542,12 +542,15 @@ void main() {
         tester,
         tester.getCenter(find.text('Jobs')),
       );
+      // The colour fades over the theme's fast duration.
+      await tester.pump(const Duration(milliseconds: 200));
       expect(styleOf(tester, 'Jobs').color, s.foreground);
       // Hover does not change the weight, so the label does not shift.
       expect(styleOf(tester, 'Jobs').fontWeight, FontWeight.w500);
 
       await gesture.moveTo(Offset.zero);
       await tester.pump();
+      await tester.pump(const Duration(milliseconds: 200));
       expect(styleOf(tester, 'Jobs').color, s.mutedForeground);
     });
 
@@ -622,7 +625,8 @@ void main() {
       await pumpFinesse(tester, bar());
       final s = themeOf(tester, find.byType(TabBar)).colorScheme;
       BoxDecoration decoration() =>
-          tester.widget<DecoratedBox>(indicator()).decoration as BoxDecoration;
+          tester.widget<MovingIndicatorTarget>(indicator()).decoration
+              as BoxDecoration;
       expect(decoration().color, s.foreground);
 
       const colour = Color(0xff0077cc);

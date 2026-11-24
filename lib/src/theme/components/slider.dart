@@ -26,6 +26,7 @@ class SliderTheme with _$SliderTheme {
     this.disabledInactiveTrackColor,
     this.trackHeight,
     this.thumbRadius,
+    this.thumbPressScale,
   }) : _canMerge = canMerge;
 
   @ignore
@@ -75,6 +76,11 @@ class SliderTheme with _$SliderTheme {
 
   /// {@macro Slider.thumbRadius}
   final double? thumbRadius;
+
+  /// The scale of a thumb while it is dragged; a paint-time transform that
+  /// springs back on release. Defaults to a growth four times the theme's
+  /// press shrink (1.12 for `Motion.lively`); 1 disables it.
+  final double? thumbPressScale;
 
   /// Linearly interpolates between [a] and [b] by [t].
   static SliderTheme? lerp(

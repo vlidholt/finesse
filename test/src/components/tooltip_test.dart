@@ -5,6 +5,7 @@ import 'package:finesse/src/components/tooltip.dart';
 import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/style.dart';
 import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/backdrop.dart';
 import 'package:flutter/material.dart' hide Theme, ThemeData, Tooltip;
 import 'package:flutter_test/flutter_test.dart';
 
@@ -109,15 +110,41 @@ void main() {
     // text-background` at `text-xs`, borderless and shadowless, with a
     // per-style radius one notch under the popover's.
     test('the surface is inverted, shadowless, at text-xs', () {
-      final theme = ThemeData();
+      final theme = ThemeData(style: StyleTokens.nova);
       final tooltip = theme.tooltipTheme;
       expect(tooltip.decoration?.color, theme.colorScheme.foreground);
+      expect(tooltip.filter, isNull);
       expect(tooltip.decoration?.shadows, isNull);
       expect(tooltip.textStyle?.color, theme.colorScheme.background);
       expect(tooltip.textStyle?.fontSize, 12);
       expect(tooltip.showArrow, isTrue);
       expect(tooltip.arrowSize, 10);
       expect(tooltip.arrowRadius, 2);
+    });
+
+    test('in the finesse style it is inverted glass', () {
+      for (final brightness in Brightness.values) {
+        final theme = ThemeData(brightness: brightness);
+        final tooltip = theme.tooltipTheme;
+        final style = theme.style;
+        final opacity = brightness == Brightness.dark
+            ? style.tooltipOpacityDark ?? style.tooltipOpacity
+            : style.tooltipOpacity;
+        expect(opacity, lessThan(1));
+        expect(
+          tooltip.decoration?.color,
+          theme.colorScheme.foreground.withValues(alpha: opacity),
+        );
+        // The same glass as the bars and the `Glass` widget.
+        expect(
+          tooltip.filter,
+          Backdrop.filterFor(
+            blur: style.glassBlur,
+            saturation: style.glassSaturation,
+          ),
+        );
+        expect(tooltip.textStyle?.color, theme.colorScheme.background);
+      }
     });
 
     test('the radius follows the style, and square styles sharpen the tip', () {
@@ -179,14 +206,9 @@ void main() {
   });
 
   group('the arrow', () {
-    // The arrow is the one widget rotated by exactly 45°.
-    Finder diamond() => find.byWidgetPredicate((widget) {
-      if (widget is! Transform) return false;
-      final storage = widget.transform.storage;
-      const sqrt2over2 = 0.7071;
-      return (storage[0] - sqrt2over2).abs() < .01 &&
-          (storage[1] - sqrt2over2).abs() < .01;
-    });
+    // The arrow is part of the bubble's own outline; an empty keyed box
+    // marks where its square sits.
+    Finder diamond() => find.byKey(const ValueKey('finesse_tooltip_arrow'));
 
     testWidgets('rides the bottom edge when the tooltip sits above', (
       tester,

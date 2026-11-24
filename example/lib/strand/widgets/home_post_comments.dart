@@ -2,7 +2,10 @@ import 'package:example/strand/data.dart';
 import 'package:example/strand/data/home_data.dart';
 import 'package:example/strand/widgets/home_pieces.dart';
 import 'package:example/strand/widgets/person_avatar.dart';
+import 'package:example/strand/widgets/strand_actions.dart';
+import 'package:example/strand/widgets/strand_pieces.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 /// The thread under a desktop post: comments with their replies, the
@@ -27,6 +30,38 @@ class _HomePostCommentsState extends State<HomePostComments> {
   /// The comments and replies the signed-in user has liked.
   final _liked = <String>{};
 
+  /// What is typed in the comment field.
+  final _draft = TextEditingController();
+
+  /// The field's focus node when the post did not hand one in.
+  final _ownFocus = FocusNode();
+
+  FocusNode get _fieldFocus => widget.fieldFocusNode ?? _ownFocus;
+
+  @override
+  void dispose() {
+    _draft.dispose();
+    _ownFocus.dispose();
+    super.dispose();
+  }
+
+  /// Puts [text] at the end of the draft and the cursor after it.
+  void _append(String text) {
+    final next = '${_draft.text}$text';
+    _draft.value = TextEditingValue(
+      text: next,
+      selection: TextSelection.collapsed(offset: next.length),
+    );
+    _fieldFocus.requestFocus();
+  }
+
+  void _post() {
+    final text = _draft.text.trim();
+    if (text.isEmpty) return;
+    _draft.clear();
+    showStrandToast(context, 'Comment posted', description: text);
+  }
+
   void _toggle(Set<String> set, String id) {
     setState(() {
       if (!set.remove(id)) set.add(id);
@@ -44,6 +79,8 @@ class _HomePostCommentsState extends State<HomePostComments> {
       avatarSize: avatarSize,
       liked: _liked.contains(comment.id),
       onLike: () => _toggle(_liked, comment.id),
+      // Start the comment with who it answers.
+      onReply: () => _append('@${comment.author.name} '),
     );
   }
 
@@ -98,7 +135,10 @@ class _HomePostCommentsState extends State<HomePostComments> {
               child: Semantics(
                 label: 'Add a comment',
                 child: TextField(
-                  focusNode: widget.fieldFocusNode,
+                  controller: _draft,
+                  focusNode: _fieldFocus,
+                  textInputAction: TextInputAction.send,
+                  onSubmitted: (_) => _post(),
                   placeholder: const Text('Add a comment…'),
                   // The reshaping a pill button takes suits a field too.
                   decoration: theme.buttonDecoration(radius: theme.radii.full),
@@ -122,14 +162,14 @@ class _HomePostCommentsState extends State<HomePostComments> {
                         iconSize: 18,
                         icon: const Icon(PhosphorIconsRegular.smiley),
                         semanticLabel: 'Add emoji',
-                        onPressed: () {},
+                        onPressed: () => _append('👏'),
                       ),
                       IconButton.ghost(
                         size: ButtonSize.sm,
                         iconSize: 18,
                         icon: const Icon(PhosphorIconsRegular.image),
                         semanticLabel: 'Add photo',
-                        onPressed: () {},
+                        onPressed: () => showNothingToAttach(context),
                       ),
                     ],
                   ),
@@ -191,12 +231,14 @@ class _Comment extends StatelessWidget {
     required this.avatarSize,
     required this.liked,
     required this.onLike,
+    required this.onReply,
   });
 
   final FeedComment comment;
   final double avatarSize;
   final bool liked;
   final VoidCallback onLike;
+  final VoidCallback onReply;
 
   @override
   Widget build(BuildContext context) {
@@ -288,7 +330,7 @@ class _Comment extends StatelessWidget {
                       onPressed: onLike,
                       style: liked ? meta.copyWith(color: scheme.tint) : meta,
                     ),
-                    HomeTextLink('Reply', onPressed: () {}, style: meta),
+                    HomeTextLink('Reply', onPressed: onReply, style: meta),
                   ],
                 ),
               ),

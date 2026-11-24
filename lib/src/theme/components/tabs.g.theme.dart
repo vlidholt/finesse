@@ -125,6 +125,18 @@ mixin _$TabsTheme {
         b.longPressDuration,
         t,
       ),
+      indicatorSpring: t < 0.5 ? a.indicatorSpring : b.indicatorSpring,
+      indicatorStretch: lerpDouble$(a.indicatorStretch, b.indicatorStretch, t),
+      contentTransitionDuration: lerpDuration$(
+        a.contentTransitionDuration,
+        b.contentTransitionDuration,
+        t,
+      ),
+      contentTransitionOffset: lerpDouble$(
+        a.contentTransitionOffset,
+        b.contentTransitionOffset,
+        t,
+      ),
     );
   }
 
@@ -166,6 +178,10 @@ mixin _$TabsTheme {
     CrossAxisAlignment? tabCrossAxisAlignment,
     HoverStrategies? tabHoverStrategies,
     Duration? longPressDuration,
+    MotionSpring? indicatorSpring,
+    double? indicatorStretch,
+    Duration? contentTransitionDuration,
+    double? contentTransitionOffset,
   }) {
     final _this = (this as TabsTheme);
 
@@ -218,6 +234,12 @@ mixin _$TabsTheme {
           tabCrossAxisAlignment ?? _this.tabCrossAxisAlignment,
       tabHoverStrategies: tabHoverStrategies ?? _this.tabHoverStrategies,
       longPressDuration: longPressDuration ?? _this.longPressDuration,
+      indicatorSpring: indicatorSpring ?? _this.indicatorSpring,
+      indicatorStretch: indicatorStretch ?? _this.indicatorStretch,
+      contentTransitionDuration:
+          contentTransitionDuration ?? _this.contentTransitionDuration,
+      contentTransitionOffset:
+          contentTransitionOffset ?? _this.contentTransitionOffset,
     );
   }
 
@@ -275,6 +297,10 @@ mixin _$TabsTheme {
       tabCrossAxisAlignment: other.tabCrossAxisAlignment,
       tabHoverStrategies: other.tabHoverStrategies,
       longPressDuration: other.longPressDuration,
+      indicatorSpring: other.indicatorSpring,
+      indicatorStretch: other.indicatorStretch,
+      contentTransitionDuration: other.contentTransitionDuration,
+      contentTransitionOffset: other.contentTransitionOffset,
     );
   }
 
@@ -328,7 +354,11 @@ mixin _$TabsTheme {
         _other.tabMainAxisAlignment == _this.tabMainAxisAlignment &&
         _other.tabCrossAxisAlignment == _this.tabCrossAxisAlignment &&
         _other.tabHoverStrategies == _this.tabHoverStrategies &&
-        _other.longPressDuration == _this.longPressDuration;
+        _other.longPressDuration == _this.longPressDuration &&
+        _other.indicatorSpring == _this.indicatorSpring &&
+        _other.indicatorStretch == _this.indicatorStretch &&
+        _other.contentTransitionDuration == _this.contentTransitionDuration &&
+        _other.contentTransitionOffset == _this.contentTransitionOffset;
   }
 
   @override
@@ -374,6 +404,10 @@ mixin _$TabsTheme {
       _this.tabCrossAxisAlignment,
       _this.tabHoverStrategies,
       _this.longPressDuration,
+      _this.indicatorSpring,
+      _this.indicatorStretch,
+      _this.contentTransitionDuration,
+      _this.contentTransitionOffset,
     ]);
   }
 }

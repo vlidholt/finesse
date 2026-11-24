@@ -4,6 +4,7 @@ import 'package:example/strand/data.dart';
 import 'package:example/strand/data/messages_data.dart';
 import 'package:example/strand/widgets/messages_common.dart';
 import 'package:example/strand/widgets/person_avatar.dart';
+import 'package:example/strand/widgets/strand_pieces.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -384,7 +385,11 @@ class _Attachment extends StatelessWidget {
       level: GlassLevel.strong,
       borderRadius: radius,
       child: ListTile(
-        onTap: () {},
+        onTap: () => showStrandToast(
+          context,
+          'Opening ${file.name}',
+          description: file.attachmentCaption,
+        ),
         padding: EdgeInsets.all(theme.layoutTheme.gap(GapSize.md)),
         borderRadius: radius,
         leading: IconTile(

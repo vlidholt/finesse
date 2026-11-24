@@ -2,7 +2,10 @@ import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/backdrop.dart';
+import 'package:finesse/src/utils/entrance.dart';
 import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/widgets.dart';
 
@@ -140,7 +143,7 @@ class SurfacePainter extends StatelessWidget {
     final theme = Theme.of(context);
     final foreground = theme.colorScheme.popoverForeground;
 
-    Widget surface = Decorator(
+    final surface = Decorator(
       decoration: decoration,
       child: Padding(
         padding: padding,
@@ -160,28 +163,20 @@ class SurfacePainter extends StatelessWidget {
       ),
     );
 
-    final filter = this.filter;
-    if (filter != null) {
-      final radius = decoration.border?.radius ?? BorderRadius.zero;
-      surface = ClipRRect(
-        borderRadius: radius,
-        child: BackdropFilter(filter: filter, child: surface),
-      );
-      // The clip that bounds the filter also cuts off the surface's own
-      // shadow, which is painted outside the box, so it is painted again
-      // outside the clip.
-      final shadows = decoration.shadows;
-      if (shadows != null && shadows.isNotEmpty) {
-        surface = DecoratedBox(
-          decoration: ShadowDecoration.box(
-            borderRadius: radius,
-            shadows: shadows,
-          ),
-          child: surface,
-        );
-      }
-    }
-    return surface;
+    // A filter has to be clipped, and the clip would cut off the surface's
+    // own shadow, which is painted outside the box — so with a filter the
+    // shadow is painted again outside the clip.
+    final radius = decoration.border?.radius ?? BorderRadius.zero;
+    final shadows = decoration.shadows;
+    return BackdropSurface(
+      filter: filter,
+      tintOpacity: decoration.color?.a ?? 0,
+      borderRadius: radius,
+      shadow: filter != null && shadows != null && shadows.isNotEmpty
+          ? ShadowDecoration.box(borderRadius: radius, shadows: shadows)
+          : null,
+      child: surface,
+    );
   }
 }
 
@@ -215,10 +210,17 @@ Future<T?> showPopover<T>({
   // The route is built under the navigator; republish a theme applied to the
   // subtree the popover was opened from (see ThemeScope).
   final theme = Theme.of(context, listen: false);
+  // It arrives and leaves like a `Popover`: on the motion tokens, and
+  // faster out than in.
+  final motion = Motion.of(context);
   return navigator.push(
     _AnchoredPopoverRoute<T>(
       anchorRect: anchorRect,
       gap: gap,
+      transitionDuration: motion.reduced
+          ? motion.fast
+          : motion.snappy.settleDuration,
+      reverseTransitionDuration: motion.fast,
       barrierDismissible: barrierDismissible,
       barrierLabel: barrierLabel ?? '',
       settings: routeSettings,
@@ -245,12 +247,20 @@ class _AnchoredPopoverRoute<T> extends PopupRoute<T> {
     required this.builder,
     required this.barrierDismissible,
     required this.barrierLabel,
+    required this.transitionDuration,
+    required this.reverseTransitionDuration,
     super.settings,
   });
 
   final Rect anchorRect;
   final double gap;
   final WidgetBuilder builder;
+
+  @override
+  final Duration transitionDuration;
+
+  @override
+  final Duration reverseTransitionDuration;
 
   @override
   final bool barrierDismissible;
@@ -260,9 +270,6 @@ class _AnchoredPopoverRoute<T> extends PopupRoute<T> {
 
   @override
   Color? get barrierColor => null;
-
-  @override
-  Duration get transitionDuration => const Duration(milliseconds: 150);
 
   @override
   Widget buildPage(
@@ -287,16 +294,35 @@ class _AnchoredPopoverRoute<T> extends PopupRoute<T> {
     Animation<double> secondaryAnimation,
     Widget child,
   ) {
-    // shadcn's `fade-in-0 zoom-in-95`.
-    final curved = CurvedAnimation(parent: animation, curve: Curves.easeOut);
-    return FadeTransition(
-      opacity: curved,
-      child: ScaleTransition(
-        scale: Tween<double>(begin: .95, end: 1).animate(curved),
+    // shadcn's `fade-in-0 zoom-in-95`, on the theme's motion: in on the
+    // spring, out in a straight line from wherever it is. The fade goes
+    // through a host, so a glass surface fades inside its own filter
+    // rather than under an opacity layer (see [BackdropFade]).
+    final motion = Motion.of(context);
+    final progress = EntranceProgress(
+      animation,
+      curve: motion.reduced ? motion.standard : motion.snappy.curve,
+    );
+    return ScaleTransition(
+      scale: progress.drive(
+        Tween<double>(begin: motion.overlayScale, end: 1),
+      ),
+      child: BackdropFadeHost(
+        opacity: progress.drive(const _FadeInBy(.6)),
         child: child,
       ),
     );
   }
+}
+
+/// A fade that is finished by [end] of the way.
+class _FadeInBy extends Animatable<double> {
+  const _FadeInBy(this.end);
+
+  final double end;
+
+  @override
+  double transform(double t) => (t / end).clamp(0.0, 1.0);
 }
 
 class _AnchorRectLayout extends SingleChildLayoutDelegate {

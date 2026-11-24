@@ -23,7 +23,18 @@ class DialogFormExample extends StatelessWidget {
               "Make changes to your profile here. Click save when you're "
               'done.',
             ),
-            actions: const [Button(child: Text('Save changes'))],
+            // A dialog has no close button of its own, so its actions are
+            // the way out — next to Escape and a tap outside.
+            actions: [
+              Button.outline(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Cancel'),
+              ),
+              Button(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Save changes'),
+              ),
+            ],
             crossAxisAlignment: CrossAxisAlignment.stretch,
             child: Container(
               width: 375,

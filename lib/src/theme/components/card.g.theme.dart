@@ -58,6 +58,7 @@ mixin _$CardTheme {
       sectionGap: lerpDouble$(a.sectionGap, b.sectionGap, t),
       blur: lerpDouble$(a.blur, b.blur, t),
       saturation: lerpDouble$(a.saturation, b.saturation, t),
+      pressScale: lerpDouble$(a.pressScale, b.pressScale, t),
     );
   }
 
@@ -82,6 +83,7 @@ mixin _$CardTheme {
     double? sectionGap,
     double? blur,
     double? saturation,
+    double? pressScale,
   }) {
     final _this = (this as CardTheme);
 
@@ -109,6 +111,7 @@ mixin _$CardTheme {
       sectionGap: sectionGap ?? _this.sectionGap,
       blur: blur ?? _this.blur,
       saturation: saturation ?? _this.saturation,
+      pressScale: pressScale ?? _this.pressScale,
     );
   }
 
@@ -146,6 +149,7 @@ mixin _$CardTheme {
       sectionGap: other.sectionGap,
       blur: other.blur,
       saturation: other.saturation,
+      pressScale: other.pressScale,
     );
   }
 
@@ -181,7 +185,8 @@ mixin _$CardTheme {
         _other.gap == _this.gap &&
         _other.sectionGap == _this.sectionGap &&
         _other.blur == _this.blur &&
-        _other.saturation == _this.saturation;
+        _other.saturation == _this.saturation &&
+        _other.pressScale == _this.pressScale;
   }
 
   @override
@@ -210,6 +215,7 @@ mixin _$CardTheme {
       _this.sectionGap,
       _this.blur,
       _this.saturation,
+      _this.pressScale,
     ]);
   }
 }

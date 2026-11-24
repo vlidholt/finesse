@@ -1,14 +1,20 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:finesse/src/components/dialog.dart';
 import 'package:finesse/src/components/text_field.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/raw_components/roving_focus.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/theme/themes/shadows.dart';
+import 'package:finesse/src/utils/backdrop.dart';
 import 'package:finesse/src/utils/border.dart';
 import 'package:finesse/src/utils/debug_check.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
+import 'package:finesse/src/utils/moving_indicator.dart';
+import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/widgets.dart';
 
 /// A single selectable row in a [Command].
@@ -121,6 +127,7 @@ class Command extends StatefulWidget {
     this.onEscape,
     this.backgroundColor,
     this.decoration,
+    this.surfaceFilter,
     this.padding,
     this.height,
     this.width,
@@ -174,6 +181,14 @@ class Command extends StatefulWidget {
   /// The decoration of the palette.
   /// {@endtemplate}
   final FinesseDecoration? decoration;
+
+  /// {@template Command.surfaceFilter}
+  /// A filter applied to what is behind the palette, such as the blur of a
+  /// glass surface. Defaults to the theme's, which is null in a style with
+  /// solid surfaces. Not used when [decoration] is
+  /// [FinesseDecoration.none]: the palette then has no surface of its own.
+  /// {@endtemplate}
+  final ImageFilter? surfaceFilter;
 
   /// {@template Command.padding}
   /// The padding around the palette's contents.
@@ -394,6 +409,18 @@ class CommandState extends State<Command> {
     final effectiveItemIconSize = commandTheme.itemIconSize ?? 16.0;
 
     var runningIndex = 0;
+    // The glide is only right when an item's highlighted text also reads
+    // on the bare surface; see `ContextMenu`.
+    final highlightGlides =
+        ((commandTheme.itemForegroundColor ??
+                        theme.colorScheme.popoverForeground)
+                    .computeLuminance() -
+                (commandTheme.itemSelectedForegroundColor ??
+                        theme.colorScheme.accentForeground)
+                    .computeLuminance())
+            .abs() <
+        .4;
+
     final groupViews = <Widget>[];
     for (final (group, items) in filteredGroups) {
       final children = <Widget>[];
@@ -461,10 +488,19 @@ class CommandState extends State<Command> {
         : SingleChildScrollView(
             controller: _scrollController,
             padding: effectiveOptionsPadding,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.min,
-              children: groupViews,
+            // The highlight is one shape that glides from item to item
+            // with the arrow keys or the pointer. Inside the scroll view,
+            // so it scrolls with its item.
+            child: MovingIndicator(
+              spring: highlightGlides ? null : MotionSpring.instant,
+              // An item's highlight is its full width: there is nothing
+              // to stretch along.
+              stretch: 0,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: groupViews,
+              ),
             ),
           );
 
@@ -544,14 +580,32 @@ class CommandState extends State<Command> {
       ),
     );
 
+    final surfaceFilter = widget.surfaceFilter ?? commandTheme.surfaceFilter;
+    final surfaceShadows = effectiveDecoration.shadows;
     final child = ownsSurface
-        ? Decorator(
-            decoration: effectiveDecoration.copyWith(
-              color: effectiveBackgroundColor,
-            ),
-            child: ClipRRect(
-              borderRadius: borderRadius,
-              child: content,
+        ? BackdropSurface(
+            filter: surfaceFilter,
+            tintOpacity: effectiveBackgroundColor.a,
+            borderRadius: borderRadius,
+            // The clip around the filter cuts the decoration's own shadow
+            // off, so it is painted again outside it.
+            shadow:
+                surfaceFilter != null &&
+                    surfaceShadows != null &&
+                    surfaceShadows.isNotEmpty
+                ? ShadowDecoration.box(
+                    borderRadius: borderRadius,
+                    shadows: surfaceShadows,
+                  )
+                : null,
+            child: Decorator(
+              decoration: effectiveDecoration.copyWith(
+                color: effectiveBackgroundColor,
+              ),
+              child: ClipRRect(
+                borderRadius: borderRadius,
+                child: content,
+              ),
             ),
           )
         : content;
@@ -614,34 +668,38 @@ class _CommandItemView extends StatelessWidget {
           onHoverChange: (hovered) {
             if (hovered && item.enabled) onHover();
           },
-          child: Container(
-            padding:
-                commandTheme.itemPadding ??
-                const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          // The fill is painted by the list, once, and moves between the
+          // items; this says where it goes and what it looks like here.
+          child: MovingIndicatorTarget(
+            selected: highlighted && item.enabled,
             decoration: BoxDecoration(
-              color: highlighted && item.enabled
-                  ? commandTheme.itemSelectedBackgroundColor ??
-                        theme.colorScheme.accent
-                  : null,
+              color:
+                  commandTheme.itemSelectedBackgroundColor ??
+                  theme.colorScheme.accent,
               borderRadius: radius,
             ),
-            child: IconTheme(
-              data: IconThemeData(size: iconSize, color: foreground),
-              child: DefaultTextStyle(
-                style: (commandTheme.itemTextStyle ?? theme.textTheme.small)
-                    .copyWith(color: foreground),
-                child: Row(
-                  children: [
-                    if (item.leading != null) ...[
-                      item.leading!,
-                      SizedBox(width: commandTheme.itemGap ?? 8),
+            child: Padding(
+              padding:
+                  commandTheme.itemPadding ??
+                  const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              child: IconTheme(
+                data: IconThemeData(size: iconSize, color: foreground),
+                child: DefaultTextStyle(
+                  style: (commandTheme.itemTextStyle ?? theme.textTheme.small)
+                      .copyWith(color: foreground),
+                  child: Row(
+                    children: [
+                      if (item.leading != null) ...[
+                        item.leading!,
+                        SizedBox(width: commandTheme.itemGap ?? 8),
+                      ],
+                      Expanded(child: Text(item.label)),
+                      if (item.trailing != null) ...[
+                        SizedBox(width: commandTheme.itemGap ?? 8),
+                        item.trailing!,
+                      ],
                     ],
-                    Expanded(child: Text(item.label)),
-                    if (item.trailing != null) ...[
-                      SizedBox(width: commandTheme.itemGap ?? 8),
-                      item.trailing!,
-                    ],
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -693,7 +751,9 @@ Future<T?> showCommandDialog<T>({
           padding: EdgeInsets.zero,
           scrollable: false,
           shadows: Shadows.none,
-          closeIcon: const SizedBox.shrink(),
+          // The palette's own fill and filter: glass in a glass style.
+          backgroundColor: commandTheme.backgroundColor,
+          filter: commandTheme.surfaceFilter,
           child: Command(
             groups: groups,
             placeholder: placeholder,

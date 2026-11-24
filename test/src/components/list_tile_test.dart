@@ -14,13 +14,19 @@ void main() {
 
   /// The highlight behind an interactive row.
   BoxDecoration highlightOf(WidgetTester tester) {
-    final container = tester.widget<AnimatedContainer>(
+    final fill = tester.widget<AnimatedFill>(
       find.descendant(
         of: find.byType(ListTile),
-        matching: find.byType(AnimatedContainer),
+        matching: find.byType(AnimatedFill),
       ),
     );
-    return container.decoration! as BoxDecoration;
+    return BoxDecoration(
+      color: fill.color,
+      borderRadius: fill.borderRadius,
+      border: fill.borderColor == null
+          ? null
+          : Border.all(color: fill.borderColor!, width: fill.borderWidth),
+    );
   }
 
   Widget tile({
@@ -474,7 +480,7 @@ void main() {
         );
 
         // …and none of a button's machinery.
-        for (final type in [Pressable, FocusRing, AnimatedContainer]) {
+        for (final type in [Pressable, FocusRing, AnimatedFill]) {
           expect(
             find.descendant(
               of: find.byType(ListTile),

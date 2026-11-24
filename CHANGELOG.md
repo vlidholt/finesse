@@ -53,6 +53,41 @@ The first release of `finesse`, a fork of [`shad`](https://pub.dev/packages/shad
   `PhosphorIconsDuotone` with `PhosphorDuotoneIcon`) with no extra
   dependency. The fonts are MIT licensed; the notice is in `LICENSE` and
   reaches an app's licence page automatically.
+- **Dialogs have no close button by default.** Pass `closeIconData` or
+  `closeIcon`, or set one on `primaryDialogTheme`, to get it back. Sheets
+  keep theirs. A tap on the barrier and Escape still dismiss.
+- **Floating surfaces are glass in the default style.** Popovers, menus, a
+  select's list, the command palette and tooltips are translucent over a
+  blurred backdrop (`StyleTokens.popoverOpacity` and `tooltipOpacity`); they
+  stay solid in `nova`, `maia` and `lyra`. `ThemeData.menuTranslucent` is now
+  three-state: null follows the style, true is shadcn's 70% finish and false
+  keeps menus solid. A tooltip's arrow is part of the bubble's outline.
+- **Motion comes from the theme.** Durations, curves and effects that the
+  built-in themes used to set — `PopoverTheme.effects` and `reverseDuration`,
+  `TooltipTheme.effects` and `duration`, `DialogTheme.animateIn` and
+  `animateOut`, and the `duration`/`curve` of the switch, checkbox, radio,
+  accordion and collapsible themes — are null, and the components animate
+  from the `Motion` tokens instead (see "Added"). Setting any of them still
+  wins. A `duration` on `Switch`, `Checkbox` or `Radio` is the duration of
+  its spring.
+- **Controls respond to a press.** Buttons, toggles, cards, list tiles and
+  anything built on `Pressable` scale slightly while pressed and fade
+  between their state colours. `Button.raw` does not scale unless given
+  `pressScale`; `pressScale: 1` switches it off anywhere.
+- **A selection travels instead of jumping.** The selected `Tab` no longer
+  paints its own fill and shadow, and menu rows, `Select` options, `Command`
+  items and menubar triggers no longer paint their own highlight: the list
+  paints one indicator that moves between them.
+- **Table rows are lighter.** Row hover is a faint wash and a selected row
+  is tinted (`TableTheme.rowHoverColor`, `rowSelectedColor`, `footerColor`,
+  `footerHoverColor`); `DataTable` now fills its selected rows.
+- **Smaller changes in behaviour.** A tooltip fades out instead of
+  vanishing. `FinessePageRoute` slides as well as fades. `Skeleton` shimmers
+  in the default style and holds still under reduced motion. `FocusRing`
+  and `IndicatorBadge` keep the same tree shape whether shown or hidden. The
+  legacy `Toaster` applies `animateIn`/`animateOut` to the toast, not to
+  the box that aligns it. A custom `ThemeVariant` has to implement
+  `boardTheme()`.
 
 ### Added
 
@@ -78,3 +113,46 @@ The first release of `finesse`, a fork of [`shad`](https://pub.dev/packages/shad
   `accentBorder` and `bar`, each with a fallback so existing schemes keep
   working.
 - **A configurable radius scale.** `RadiusScale` and `StyleTokens.radius`.
+- **Motion.** One vocabulary of durations, curves and springs, `Motion`,
+  on the style (`StyleTokens.motion`: `Motion.lively` in the default style,
+  `Motion.calm` in the shadcn ones, `Motion.none` to switch it off) and
+  overridable with `ThemeData(motion:)`. `Motion.of(context)` honours the
+  platform's reduced-motion setting. Menus, popovers, tooltips and dialogs
+  grow from their anchor; tabs, navigation bars, toggle groups and menu
+  highlights have one travelling indicator; switches, checkboxes, accordions,
+  progress bars, toasts, sheets and badges move on springs. The building
+  blocks are public: `MotionSpring`, `SpringController`, `SpringBuilder`,
+  `PressScale`, `MovingIndicator` and `MovingIndicatorTarget`, `Entrance`,
+  `EntranceEffect`, `EntranceProgress`, `MotionOrigin`, `PopIn`,
+  `PopOnChange`, `ExpandReveal`, `ContentSwitch`, `AnimatedFill` and
+  `AnimatedColorBuilder`.
+- **Board.** `Board`, `BoardColumn`, `BoardMove`, `BoardController` and
+  `BoardDragHandle`: a kanban board whose cards are dragged to reorder them
+  and to move them between columns. Columns build lazily and scroll on their
+  own, the board auto-scrolls while a card is held near an edge and snaps
+  column by column on a phone, a column can limit or refuse what it takes,
+  and every move can also be made from the keyboard or by assistive
+  technology. `BoardTheme`, `ThemeData.boardTheme`.
+- **Glass that fades correctly.** `BackdropSurface`, `BackdropFade`,
+  `BackdropFadeHost` and `FinesseAnimate.fadeThroughBackdrop` fade a blurred
+  surface inside its filter; `Dialog.filter`, `Tooltip.filter` and
+  `Command.surfaceFilter` take one.
+- **Smaller additions.** `Pressable.pressScale`, `Button.pressScale`,
+  `Toast.enterEffects` and `exitEffects`, `Skeleton.shimmer`,
+  `FinesseTable.rowSelected`, `Portal.onShown`, and style tokens
+  `tableHoverOpacity` and `tableSelectionTinted`.
+
+### Fixed
+
+Problems inherited from shad:
+
+- A menu or tooltip stayed on screen when the part of the app holding its
+  anchor went inactive (an `IndexedStack` child that is not showing).
+- Hover and selection fills flashed darker midway, because colours of
+  different opacity were blended channel by channel.
+- Table hover and footer rows came out far too dark on a scheme whose
+  `muted` is translucent, and `FinesseTable.list` never repainted its hover.
+- A dialog's barrier blur popped in at the end of the transition.
+- `SelectOption.hoveredBackgroundColor` was ignored.
+- A controlled `ToggleGroup` called `setState` during build.
+- A tooltip re-hovered while it was leaving disappeared anyway.

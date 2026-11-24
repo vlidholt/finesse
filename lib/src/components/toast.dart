@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:finesse/src/components/icon_button.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
+import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/theme/themes/shadows.dart';
 import 'package:finesse/src/utils/animate.dart';
@@ -119,89 +120,15 @@ class ToasterState extends State<Toaster> with TickerProviderStateMixin {
                       toast?.alignment ??
                       effectiveToastTheme.alignment ??
                       Alignment.bottomRight;
-                  // ignore: omit_local_variable_types
-                  final List<Effect<dynamic>> defaultAnimateIn =
-                      switch (effectiveAlignment) {
-                        Alignment.bottomRight ||
-                        Alignment.bottomLeft ||
-                        Alignment.bottomCenter => [
-                          const SlideEffect(
-                            begin: Offset(0, 1),
-                            end: Offset.zero,
-                          ),
-                        ],
-                        Alignment.topRight ||
-                        Alignment.topLeft ||
-                        Alignment.topCenter => [
-                          const SlideEffect(
-                            begin: Offset(0, -1),
-                            end: Offset.zero,
-                          ),
-                        ],
-                        Alignment.centerRight ||
-                        Alignment.topRight ||
-                        Alignment.bottomRight => [
-                          const SlideEffect(
-                            begin: Offset(1, 0),
-                            end: Offset.zero,
-                          ),
-                        ],
-                        Alignment.centerLeft ||
-                        Alignment.topLeft ||
-                        Alignment.bottomLeft => [
-                          const SlideEffect(
-                            begin: Offset(-1, 0),
-                            end: Offset.zero,
-                          ),
-                        ],
-                        Alignment.center || Alignment() => [
-                          const FadeEffect(),
-                          const ScaleEffect(
-                            begin: Offset(.95, .95),
-                            end: Offset(1, 1),
-                          ),
-                        ],
-                      };
-
-                  // ignore: omit_local_variable_types
-                  final List<Effect<dynamic>> defaultAnimateOut =
-                      switch (effectiveAlignment) {
-                        Alignment.bottomRight ||
-                        Alignment.topRight ||
-                        Alignment.centerRight => const [
-                          SlideEffect(
-                            begin: Offset.zero,
-                            end: Offset(1, 0),
-                          ),
-                        ],
-                        Alignment.topLeft ||
-                        Alignment.centerLeft ||
-                        Alignment.bottomLeft => const [
-                          SlideEffect(
-                            begin: Offset.zero,
-                            end: Offset(-1, 0),
-                          ),
-                        ],
-                        Alignment.topCenter => [
-                          const SlideEffect(
-                            begin: Offset.zero,
-                            end: Offset(0, -1),
-                          ),
-                        ],
-                        Alignment.bottomCenter => [
-                          const SlideEffect(
-                            begin: Offset.zero,
-                            end: Offset(0, 1),
-                          ),
-                        ],
-                        Alignment.center || Alignment() => [
-                          const FadeEffect(begin: 1, end: 0),
-                          const ScaleEffect(
-                            begin: Offset(1, 1),
-                            end: Offset(.95, .95),
-                          ),
-                        ],
-                      };
+                  final motion = Motion.of(context);
+                  final defaultAnimateIn = Toast.enterEffects(
+                    effectiveAlignment,
+                    motion,
+                  );
+                  final defaultAnimateOut = Toast.exitEffects(
+                    effectiveAlignment,
+                    motion,
+                  );
 
                   final effectiveAnimateIn =
                       toast?.animateIn ??
@@ -233,17 +160,22 @@ class ToasterState extends State<Toaster> with TickerProviderStateMixin {
                       effectiveToastTheme.offset ??
                       defaultOffset;
 
-                  return FinesseAnimate(
-                    controller: _controller,
-                    effects: visible ? effectiveAnimateIn : effectiveAnimateOut,
-                    child: Align(
-                      alignment: effectiveAlignment,
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: effectiveOffset.dx,
-                          vertical: effectiveOffset.dy,
-                        ),
-                        child: toast,
+                  // Around the toast itself, not the full-screen box that
+                  // aligns it: a slide or a scale is then relative to the
+                  // toast, which is what makes a short travel possible.
+                  return Align(
+                    alignment: effectiveAlignment,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: effectiveOffset.dx,
+                        vertical: effectiveOffset.dy,
+                      ),
+                      child: FinesseAnimate(
+                        controller: _controller,
+                        effects: visible
+                            ? effectiveAnimateIn
+                            : effectiveAnimateOut,
+                        child: toast ?? const SizedBox.shrink(),
                       ),
                     ),
                   );
@@ -560,6 +492,94 @@ class Toast extends StatefulWidget {
   /// How long a toast stays on screen when neither it nor its theme sets a
   /// duration.
   static const defaultDuration = Duration(seconds: 5);
+
+  /// Where a toast aligned to [alignment] comes from and leaves to, as a
+  /// fraction of its own size: the edge of the screen it sits against.
+  static Offset? _edgeOf(Alignment alignment) {
+    if (alignment.y > 0) return const Offset(0, .5);
+    if (alignment.y < 0) return const Offset(0, -.5);
+    if (alignment.x > 0) return const Offset(.25, 0);
+    if (alignment.x < 0) return const Offset(-.25, 0);
+    return null;
+  }
+
+  /// The default entrance of a toast aligned to [alignment], built from the
+  /// [motion] tokens: it fades in while it rises from the screen edge it
+  /// sits against and grows the last few percent, on the `snappy` spring.
+  /// With reduced motion it is a plain fade.
+  ///
+  /// Used when neither the toast nor its theme gives `animateIn`.
+  static List<Effect<dynamic>> enterEffects(
+    Alignment alignment,
+    Motion motion,
+  ) {
+    if (motion.reduced) {
+      return [FadeEffect(duration: motion.fast, curve: motion.standard)];
+    }
+    final spring = motion.snappy;
+    final duration = spring.settleDuration;
+    final edge = _edgeOf(alignment);
+    return [
+      FadeEffect(duration: motion.normal, curve: motion.standard),
+      if (edge != null)
+        SlideEffect(
+          begin: edge,
+          end: Offset.zero,
+          duration: duration,
+          curve: spring.curve,
+        ),
+      ScaleEffect(
+        begin: Offset(motion.overlayScale, motion.overlayScale),
+        end: const Offset(1, 1),
+        duration: duration,
+        curve: spring.curve,
+      ),
+    ];
+  }
+
+  /// The default exit of a toast aligned to [alignment], built from the
+  /// [motion] tokens: the entrance backwards, but shorter and faster — a
+  /// toast leaves quicker than it arrives. With reduced motion it is a plain
+  /// fade.
+  ///
+  /// Used when neither the toast nor its theme gives `animateOut`.
+  static List<Effect<dynamic>> exitEffects(
+    Alignment alignment,
+    Motion motion,
+  ) {
+    if (motion.reduced) {
+      return [
+        FadeEffect(
+          begin: 1,
+          end: 0,
+          duration: motion.fast,
+          curve: motion.standard,
+        ),
+      ];
+    }
+    final edge = _edgeOf(alignment);
+    return [
+      FadeEffect(
+        begin: 1,
+        end: 0,
+        duration: motion.normal,
+        curve: motion.exit,
+      ),
+      if (edge != null)
+        SlideEffect(
+          begin: Offset.zero,
+          end: edge / 2,
+          duration: motion.normal,
+          curve: motion.exit,
+        ),
+      ScaleEffect(
+        begin: const Offset(1, 1),
+        end: Offset(motion.overlayScale, motion.overlayScale),
+        duration: motion.normal,
+        curve: motion.exit,
+      ),
+    ];
+  }
 
   /// How long this toast stays on screen: [displayDuration], else its
   /// variant's theme, else [defaultDuration].

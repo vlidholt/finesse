@@ -1,3 +1,4 @@
+import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/debug_check.dart';
 import 'package:flutter/widgets.dart';
@@ -130,8 +131,32 @@ class Avatar extends StatelessWidget {
               height: size.height,
               fit: fit,
               frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-                if (wasSynchronouslyLoaded || frame != null) return child;
-                return fallback ?? const SizedBox.shrink();
+                // An image that is already there is simply shown. One that
+                // arrives later fades in over the fallback, which fades out
+                // under it — so a picture with transparent parts does not
+                // end up with initials showing through.
+                if (wasSynchronouslyLoaded) return child;
+                final loaded = frame != null;
+                final motion = Motion.of(context);
+                return Stack(
+                  fit: StackFit.expand,
+                  alignment: Alignment.center,
+                  children: [
+                    if (fallback != null)
+                      AnimatedOpacity(
+                        opacity: loaded ? 0 : 1,
+                        duration: motion.normal,
+                        curve: motion.standard,
+                        child: fallback,
+                      ),
+                    AnimatedOpacity(
+                      opacity: loaded ? 1 : 0,
+                      duration: motion.normal,
+                      curve: motion.standard,
+                      child: child,
+                    ),
+                  ],
+                );
               },
               errorBuilder: (context, error, stackTrace) =>
                   fallback ?? const SizedBox.shrink(),

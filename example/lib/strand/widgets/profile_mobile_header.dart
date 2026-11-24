@@ -2,6 +2,9 @@ import 'package:example/strand/assets.dart';
 import 'package:example/strand/data/profile_data.dart';
 import 'package:example/strand/widgets/person_avatar.dart';
 import 'package:example/strand/widgets/profile_common.dart';
+import 'package:example/strand/widgets/settings_controller.dart';
+import 'package:example/strand/widgets/settings_links.dart';
+import 'package:example/strand/widgets/strand_actions.dart';
 import 'package:example/strand/widgets/user_menu.dart';
 import 'package:example/strand/widgets/verified_badge.dart';
 import 'package:finesse/finesse.dart';
@@ -237,13 +240,13 @@ class _Identity extends StatelessWidget {
             Expanded(
               child: Button(
                 leading: const Icon(PhosphorIconsRegular.plusCircle),
-                onPressed: () {},
+                onPressed: () => openSettings(context, SettingsSection.privacy),
                 child: const _ButtonLabel('Open to'),
               ),
             ),
             Expanded(
               child: Button.outline(
-                onPressed: () {},
+                onPressed: () => openSettings(context, SettingsSection.account),
                 child: const _ButtonLabel('Edit profile'),
               ),
             ),
@@ -255,7 +258,11 @@ class _Identity extends StatelessWidget {
               // Squared to the text buttons' radius, as on the desktop.
               decoration: theme.buttonDecoration(radius: theme.radius),
               semanticLabel: 'Share profile',
-              onPressed: () {},
+              onPressed: () => copyLink(
+                context,
+                ProfileData.publicUrl,
+                title: 'Profile link copied',
+              ),
             ),
           ],
         ),

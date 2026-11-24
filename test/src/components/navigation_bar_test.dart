@@ -30,6 +30,23 @@ List<NavigationDestination> destinations(
   ];
 }
 
+/// The badges that show: every destination carries one, hidden until it has
+/// something to say, so that it can pop in.
+Iterable<IndicatorBadge> shownBadges(WidgetTester tester) => tester
+    .widgetList<IndicatorBadge>(find.byType(IndicatorBadge))
+    .where((badge) => badge.visible);
+
+/// The travelling selection indicator of the bar of type [bar].
+RenderMovingIndicator movingIndicator(WidgetTester tester, Type bar) =>
+    tester.renderObject<RenderMovingIndicator>(
+      find.descendant(
+        of: find.byType(bar),
+        matching: find.byWidgetPredicate(
+          (w) => w.runtimeType.toString() == '_MovingIndicatorRenderWidget',
+        ),
+      ),
+    );
+
 void main() {
   group('NavigationBarTheme', () {
     test('is fed by the style and the scheme', () {
@@ -84,11 +101,25 @@ void main() {
         )
         .at(i);
 
-    /// The line under the selected destination.
-    Finder indicator() => find.descendant(
-      of: find.byType(PositionedDirectional),
-      matching: find.byType(DecoratedBox),
-    );
+    /// Where the line under the selected destination is painted, in global
+    /// coordinates, or null when there is none. The line is one shape, drawn
+    /// by the bar, that travels between the destinations.
+    Rect? indicator(WidgetTester tester) {
+      final render = movingIndicator(tester, NavigationBar);
+      final rect = render.indicatorRect;
+      if (rect == null) return null;
+      return MatrixUtils.transformRect(render.getTransformTo(null), rect);
+    }
+
+    /// What the line looks like on the selected destination.
+    BoxDecoration indicatorDecoration(WidgetTester tester) =>
+        tester
+                .renderObjectList<RenderMovingIndicatorTarget>(
+                  find.byType(MovingIndicatorTarget),
+                )
+                .singleWhere((target) => target.selected)
+                .decoration
+            as BoxDecoration;
 
     Color iconColor(WidgetTester tester, String key) =>
         IconTheme.of(tester.element(find.byKey(Key(key)))).color!;
@@ -286,13 +317,15 @@ void main() {
       final s = themeOf(tester, find.byType(NavigationBar)).colorScheme;
 
       final gesture = await hoverAt(tester, tester.getCenter(item(2)));
+      // The colours fade.
+      await settle(tester);
       expect(iconColor(tester, 'Chat-icon'), s.foreground);
       expect(labelColor(tester, 'Chat'), s.foreground);
       // The selected one is unaffected by where the pointer is.
       expect(iconColor(tester, 'Home-selected'), s.tint);
 
       await gesture.moveTo(Offset.zero);
-      await tester.pump();
+      await settle(tester);
       expect(iconColor(tester, 'Chat-icon'), s.mutedForeground);
     });
 
@@ -307,19 +340,13 @@ void main() {
             textDirection: direction,
           );
           final theme = themeOf(tester, find.byType(NavigationBar));
-          expect(indicator(), findsOneWidget);
           final cell = tester.getRect(item(selected));
-          final line = tester.getRect(indicator());
+          final line = indicator(tester)!;
           // Inset 12 from each side of the cell, 3 tall.
-          expect(line.left, cell.left + 12);
-          expect(line.right, cell.right - 12);
-          expect(line.height, 3);
-          expect(
-            (tester.widget<DecoratedBox>(indicator()).decoration
-                    as BoxDecoration)
-                .color,
-            theme.colorScheme.tint,
-          );
+          expect(line.left, closeTo(cell.left + 12, .1));
+          expect(line.right, closeTo(cell.right - 12, .1));
+          expect(line.height, closeTo(3, .1));
+          expect(indicatorDecoration(tester).color, theme.colorScheme.tint);
         }
       }
     });
@@ -329,7 +356,7 @@ void main() {
     ) async {
       for (final selected in [null, -1, 9]) {
         await pumpFinesse(tester, bar(selectedIndex: selected));
-        expect(indicator(), findsNothing, reason: '$selected');
+        expect(indicator(tester), isNull, reason: '$selected');
         expect(tester.takeException(), isNull);
         // And nothing is tinted.
         expect(find.byKey(const Key('Home-selected')), findsNothing);
@@ -352,9 +379,9 @@ void main() {
         ),
       );
       final appBar = tester.getRect(find.byType(AppBar));
-      final line = tester.getRect(indicator());
-      expect(line.bottom, appBar.bottom);
-      expect(line.top, appBar.bottom - 3);
+      final line = indicator(tester)!;
+      expect(line.bottom, closeTo(appBar.bottom, .1));
+      expect(line.top, closeTo(appBar.bottom - 3, .1));
       // The navigation bar is centred in the app bar.
       expect(
         tester.getCenter(find.byType(NavigationBar)).dx,
@@ -372,7 +399,7 @@ void main() {
       expect(find.text('3'), findsOneWidget);
       expect(find.text('99+'), findsOneWidget);
       expect(find.text('0'), findsNothing);
-      expect(find.byType(IndicatorBadge), findsNWidgets(2));
+      expect(shownBadges(tester), hasLength(2));
       expect(tester.takeException(), isNull);
       // The badge is pinned to the icon, not the cell.
       final icon = tester.getRect(find.byKey(const Key('Jobs-icon')));
@@ -390,8 +417,7 @@ void main() {
       tester,
     ) async {
       await pumpFinesse(tester, bar(dots: const {2}));
-      expect(find.byType(IndicatorBadge), findsOneWidget);
-      final badge = tester.widget<IndicatorBadge>(find.byType(IndicatorBadge));
+      final badge = shownBadges(tester).single;
       expect(badge.count, isNull);
       expect(
         find.descendant(
@@ -480,9 +506,10 @@ void main() {
         const Size.square(18),
       );
       expect(iconColor(tester, 'Home-selected'), colour);
-      final line = tester.getRect(indicator());
-      expect(line.height, 5);
-      expect(line.width, 52);
+      final line = indicator(tester)!;
+      expect(line.height, closeTo(5, .1));
+      expect(line.width, closeTo(52, .1));
+      expect(indicatorDecoration(tester).color, colour);
     });
   });
 
@@ -564,16 +591,30 @@ void main() {
         )
         .first;
 
-    BoxDecoration itemBox(WidgetTester tester, int i) =>
-        tester
-                .widget<AnimatedContainer>(
-                  find.descendant(
-                    of: items().at(i),
-                    matching: find.byType(AnimatedContainer),
-                  ),
-                )
-                .decoration!
-            as BoxDecoration;
+    /// The fill behind item [i]: the lens when it is the selected
+    /// destination — one pill, painted by the bar, that travels between
+    /// them — and otherwise the item's own (its hover wash, or the action's
+    /// colour).
+    BoxDecoration itemBox(WidgetTester tester, int i) {
+      final target = find.ancestor(
+        of: items().at(i),
+        matching: find.byType(MovingIndicatorTarget),
+      );
+      if (target.evaluate().isNotEmpty) {
+        final lens = tester.widget<MovingIndicatorTarget>(target.first);
+        if (lens.selected) return lens.decoration as BoxDecoration;
+      }
+      final fill = tester.widget<AnimatedFill>(
+        find.descendant(
+          of: items().at(i),
+          matching: find.byType(AnimatedFill),
+        ),
+      );
+      return BoxDecoration(
+        color: fill.color,
+        borderRadius: fill.borderRadius,
+      );
+    }
 
     Color iconColor(WidgetTester tester, String key) =>
         IconTheme.of(tester.element(find.byKey(Key(key)))).color!;
@@ -988,7 +1029,7 @@ void main() {
       expect(tester.takeException(), isNull);
       expect(find.text('4'), findsOneWidget);
       expect(find.text('99+'), findsOneWidget);
-      expect(find.byType(IndicatorBadge), findsNWidgets(2));
+      expect(shownBadges(tester), hasLength(2));
     });
 
     testWidgets('each destination is announced by its label, as a button; '

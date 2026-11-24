@@ -118,8 +118,10 @@ enum MenuSurfaceColor {
   final String label;
 }
 
-/// The menu surface finish, mirroring shadcn's "Solid/Translucent".
+/// The menu surface finish: shadcn's "Solid/Translucent", after the option
+/// to leave it to the style — glass in Finesse, solid in the shadcn styles.
 enum MenuSurfaceFinish {
+  style('Style'),
   solid('Solid'),
   translucent('Translucent');
 
@@ -229,7 +231,7 @@ class ThemeEditorConfig {
     this.cardPaddingScale = 1,
     this.bottomBarFloating,
     this.menuColor = MenuSurfaceColor.standard,
-    this.menuFinish = MenuSurfaceFinish.solid,
+    this.menuFinish = MenuSurfaceFinish.style,
     this.menuAccent = EditorMenuAccent.subtle,
     this.formFactor = EditorFormFactor.auto,
     this.textScale = 1,
@@ -583,7 +585,8 @@ class ThemeEditorConfig {
     // The menu options are the library's own — the same semantics as
     // shadcn's create editor: inverted menus take the dark palette,
     // translucent ones the blurred 70% surface, and a bold accent rewrites
-    // the scheme's accent pair with its primary.
+    // the scheme's accent pair with its primary. Left to the style, menus
+    // are glass in Finesse and solid in the shadcn styles.
     return ThemeData(
       brightness: brightness,
       colorScheme: colorScheme,
@@ -597,7 +600,11 @@ class ThemeEditorConfig {
       spacing: spacing,
       disableSecondaryBorder: focusRing == FocusRingPlacement.inside,
       menuColorScheme: menuColorScheme,
-      menuTranslucent: menuFinish == MenuSurfaceFinish.translucent,
+      menuTranslucent: switch (menuFinish) {
+        MenuSurfaceFinish.style => null,
+        MenuSurfaceFinish.solid => false,
+        MenuSurfaceFinish.translucent => true,
+      },
       menuAccent: switch (menuAccent) {
         EditorMenuAccent.subtle => MenuAccent.subtle,
         EditorMenuAccent.bold => MenuAccent.bold,
@@ -631,6 +638,7 @@ class ThemeEditorConfig {
       if (menuColor == MenuSurfaceColor.inverted && !dark)
         ..._prefixed('menuColorScheme: ', _schemeCode(Brightness.dark)),
       if (menuFinish == MenuSurfaceFinish.translucent) 'menuTranslucent: true,',
+      if (menuFinish == MenuSurfaceFinish.solid) 'menuTranslucent: false,',
       if (menuAccent == EditorMenuAccent.bold) 'menuAccent: MenuAccent.bold,',
     ];
     return ['ThemeData(', ..._indented(lines), ')'].join('\n');

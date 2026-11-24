@@ -1,3 +1,5 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
@@ -41,6 +43,7 @@ class CommandTheme with _$CommandTheme {
     this.groupPadding,
     this.dialogItemRadius,
     this.itemIconSize,
+    this.surfaceFilter,
   }) : _canMerge = canMerge;
 
   @ignore
@@ -139,6 +142,9 @@ class CommandTheme with _$CommandTheme {
   /// The size of an item's leading icon,
   /// `[&_svg:not([class*='size-'])]:size-4`.
   final double? itemIconSize;
+
+  /// {@macro Command.surfaceFilter}
+  final ImageFilter? surfaceFilter;
 
   /// Linearly interpolates between [a] and [b] by [t].
   static CommandTheme? lerp(

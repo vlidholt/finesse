@@ -3,6 +3,7 @@ import 'package:finesse/src/app.dart';
 import 'package:finesse/src/components/checkbox.dart'; // Adjust import path based on your project structure
 import 'package:finesse/src/components/disabled.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/utils/pop_in.dart';
 import 'package:flutter/material.dart' hide Checkbox;
 import 'package:flutter_test/flutter_test.dart';
 
@@ -29,8 +30,8 @@ void main() {
         ),
       );
 
-      // Check no icon (unchecked state) inside AnimatedSwitcher
-      final animatedSwitcherFinder = find.byType(AnimatedSwitcher);
+      // Check no icon (unchecked state) inside PopIn
+      final animatedSwitcherFinder = find.byType(PopIn);
       expect(animatedSwitcherFinder, findsOneWidget);
       expect(
         find.descendant(
@@ -54,8 +55,8 @@ void main() {
         ),
       );
 
-      // Check icon is present (checked state) inside AnimatedSwitcher
-      final animatedSwitcherFinder = find.byType(AnimatedSwitcher);
+      // Check icon is present (checked state) inside PopIn
+      final animatedSwitcherFinder = find.byType(PopIn);
       expect(animatedSwitcherFinder, findsOneWidget);
       expect(
         find.descendant(
@@ -110,7 +111,7 @@ void main() {
       // Initially unchecked
       expect(
         find.descendant(
-          of: find.byType(AnimatedSwitcher),
+          of: find.byType(PopIn),
           matching: find.byType(Icon),
         ),
         findsNothing,
@@ -136,12 +137,11 @@ void main() {
       expect(value, true, reason: 'Value should toggle to true after tap');
       expect(
         find.descendant(
-          of: find.byType(AnimatedSwitcher),
+          of: find.byType(PopIn),
           matching: find.byType(Icon),
         ),
         findsOneWidget,
-        reason:
-            '''Checked state should show the checkmark icon within AnimatedSwitcher''',
+        reason: '''Checked state should show the checkmark icon within PopIn''',
       );
 
       // Tap again to toggle back
@@ -167,7 +167,7 @@ void main() {
       );
       expect(
         find.descendant(
-          of: find.byType(AnimatedSwitcher),
+          of: find.byType(PopIn),
           matching: find.byType(Icon),
         ),
         findsNothing,
@@ -218,11 +218,11 @@ void main() {
       );
 
       // Check SizedBox applies custom size (target the one wrapping
-      // AnimatedSwitcher)
+      // PopIn)
       final sizedBoxFinder = find.descendant(
         of: find.byType(Checkbox),
         matching: find.ancestor(
-          of: find.byType(AnimatedSwitcher),
+          of: find.byType(PopIn),
           matching: find.byType(SizedBox),
         ),
       );

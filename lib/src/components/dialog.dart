@@ -4,10 +4,13 @@ import 'package:boxy/flex.dart';
 import 'package:finesse/src/components/icon_button.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
+import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/theme/theme_scope.dart';
 import 'package:finesse/src/theme/themes/shadows.dart';
 import 'package:finesse/src/utils/animate.dart';
+import 'package:finesse/src/utils/backdrop.dart';
+import 'package:finesse/src/utils/entrance.dart';
 import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:finesse/src/utils/position.dart';
 import 'package:finesse/src/utils/responsive.dart';
@@ -97,24 +100,29 @@ class DialogRoute<T> extends PopupRoute<T> {
 
     if (barrierBlurSigma <= 0) return content;
 
-    // The filter sits above the barrier and below the dialog, and fades with
-    // the route so the page does not snap out of focus. It must not hit-test:
-    // the ColoredBox that gives the filter its extent is opaque to taps even
+    // The filter sits above the barrier and below the dialog, and grows with
+    // the route so the page does not snap out of focus. It is not faded in:
+    // under an opacity layer a backdrop filter samples that layer, which is
+    // empty, so on some renderers the blur was missing for the whole
+    // transition and appeared at its end. It must not hit-test either: the
+    // ColoredBox that gives the filter its extent is opaque to taps even
     // when fully transparent, and without the IgnorePointer it eats the
     // outside tap that should reach the ModalBarrier and dismiss the route.
     return Stack(
       children: [
         Positioned.fill(
           child: IgnorePointer(
-            child: FadeTransition(
-              opacity: animation,
-              child: BackdropFilter(
-                filter: ImageFilter.blur(
-                  sigmaX: barrierBlurSigma,
-                  sigmaY: barrierBlurSigma,
-                ),
-                child: const ColoredBox(color: Color(0x00000000)),
-              ),
+            child: AnimatedBuilder(
+              animation: animation,
+              child: const ColoredBox(color: Color(0x00000000)),
+              builder: (context, child) {
+                final sigma = barrierBlurSigma * animation.value;
+                return BackdropFilter(
+                  enabled: sigma > 0,
+                  filter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
+                  child: child,
+                );
+              },
             ),
           ),
         ),
@@ -165,11 +173,13 @@ Future<T?> showDialog<T>({
   Offset? anchorPoint,
 
   /// The animation effects when the dialog appears.
-  /// Defaults to fade and scale-in if not specified.
+  /// Defaults to the theme's, and then to `EntranceEffect.forMotion`: a fade
+  /// with a little growth, on the theme's motion tokens.
   List<Effect<dynamic>>? animateIn,
 
   /// The animation effects when the dialog disappears.
-  /// Defaults to fade and scale-out if not specified.
+  /// Defaults to the theme's, and then to a quicker fade and shrink on the
+  /// theme's motion tokens.
   List<Effect<dynamic>>? animateOut,
 
   /// The variant of the dialog to display.
@@ -188,20 +198,35 @@ Future<T?> showDialog<T>({
     DialogVariant.alert => theme.alertDialogTheme,
   };
 
+  // The dialog scales up out of the middle of the screen while the route
+  // ramps the barrier's tint and blur behind it, and leaves faster than it
+  // came. With reduced motion both are a short fade; with none, nothing.
+  final motion = Motion.of(context);
   final effectiveAnimateIn =
       animateIn ??
       effectiveDialogTheme.animateIn ??
-      const [
-        FadeEffect(),
-        ScaleEffect(begin: Offset(.95, .95), end: Offset(1, 1)),
-      ];
+      EntranceEffect.forMotion(motion);
 
+  final exitScale = motion.reduced ? 1.0 : (1 + motion.overlayScale) / 2;
   final effectiveAnimateOut =
       animateOut ??
       effectiveDialogTheme.animateOut ??
-      const [
-        FadeEffect(begin: 1, end: 0),
-        ScaleEffect(begin: Offset(1, 1), end: Offset(.95, .95)),
+      <Effect<dynamic>>[
+        if (motion.normal > Duration.zero) ...[
+          FadeEffect(
+            begin: 1,
+            end: 0,
+            duration: motion.reduced ? motion.fast : motion.normal,
+            curve: motion.exit,
+          ),
+          if (exitScale != 1)
+            ScaleEffect(
+              begin: const Offset(1, 1),
+              end: Offset(exitScale, exitScale),
+              duration: motion.normal,
+              curve: motion.exit,
+            ),
+        ],
       ];
 
   /// Returns the maximum duration(including delay) from
@@ -270,6 +295,8 @@ Future<T?> showDialog<T>({
         final animateIn = animation.status == AnimationStatus.forward;
         return FinesseAnimate(
           effects: animateIn ? effectiveAnimateIn : effectiveAnimateOut,
+          // A glass dialog takes the fade over; see [BackdropFade].
+          fadeThroughBackdrop: true,
           child: child,
         );
       },
@@ -279,7 +306,9 @@ Future<T?> showDialog<T>({
 
 /// Variants available for the [Dialog] widget.
 enum DialogVariant {
-  /// A standard dialog with a close button.
+  /// A standard dialog. Like an alert it has no close button unless it is
+  /// given one (`closeIconData` or `closeIcon`): it is dismissed by a tap on
+  /// the barrier, by Escape, or by one of its actions.
   primary,
 
   /// A dialog that needs a response. It has no close button by default, so the
@@ -315,6 +344,7 @@ class Dialog extends StatelessWidget {
     this.constraints,
     this.border,
     this.shadows,
+    this.filter,
     this.removeBorderRadiusWhenTiny,
     this.actionsAxis,
     this.actionsMainAxisSize,
@@ -357,6 +387,7 @@ class Dialog extends StatelessWidget {
     this.constraints,
     this.border,
     this.shadows,
+    this.filter,
     this.removeBorderRadiusWhenTiny,
     this.actionsAxis,
     this.actionsMainAxisSize,
@@ -400,6 +431,7 @@ class Dialog extends StatelessWidget {
     this.constraints,
     this.border,
     this.shadows,
+    this.filter,
     this.removeBorderRadiusWhenTiny,
     this.actionsAxis,
     this.actionsMainAxisSize,
@@ -454,16 +486,21 @@ class Dialog extends StatelessWidget {
   final List<Widget> actions;
 
   /// {@template Dialog.closeIcon}
-  /// The custom widget for the close button.
-  /// Overrides [closeIconData] if provided; defaults to a ghost button with an
-  /// 'X' icon.
+  /// A custom widget for the close button, shown in the dialog's top end
+  /// corner. Overrides [closeIconData].
+  ///
+  /// A dialog has no close button by default: give it an action that
+  /// closes it — a Cancel or Close button — or pass [closeIconData] to get
+  /// the ghost button with that icon.
   /// {@endtemplate}
   final Widget? closeIcon;
 
   /// {@template Dialog.closeIconData}
-  /// The icon data for the close button.
-  /// Used if [closeIcon] is null; defaults to [PhosphorIconsRegular.x] if not
-  /// specified.
+  /// The icon of the close button, such as [PhosphorIconsRegular.x].
+  ///
+  /// Null, the default, falls back to the theme's `closeIconData`, and when
+  /// that is null too — as it is in the built-in themes — the dialog has no
+  /// close button. Not used when [closeIcon] is given.
   /// {@endtemplate}
   final IconData? closeIconData;
 
@@ -535,6 +572,13 @@ class Dialog extends StatelessWidget {
   /// Defaults to large shadows if not specified.
   /// {@endtemplate}
   final List<BoxShadow>? shadows;
+
+  /// {@template Dialog.filter}
+  /// A filter applied to what is behind the dialog, for a translucent
+  /// [backgroundColor]: the blur of a glass surface. Null, the default,
+  /// applies none.
+  /// {@endtemplate}
+  final ImageFilter? filter;
 
   /// {@template Dialog.removeBorderRadiusWhenTiny}
   /// Whether to remove the border radius on small screens.
@@ -954,16 +998,32 @@ class Dialog extends StatelessWidget {
             widget = SafeArea(child: widget);
           }
 
-          return DecoratedBox(
-            decoration: ShadowDecoration.box(
-              color: effectiveBackgroundColor,
-              borderRadius: (!sm && effectiveRemoveBorderRadiusWhenTiny)
-                  ? null
-                  : effectiveRadius,
-              border: effectiveBorder,
-              shadows: effectiveShadows,
+          final surfaceRadius = (!sm && effectiveRemoveBorderRadiusWhenTiny)
+              ? null
+              : effectiveRadius;
+          // Through a `BackdropSurface` even without a filter, so the
+          // route's entrance fade has one place to go either way.
+          return BackdropSurface(
+            filter: filter,
+            tintOpacity: effectiveBackgroundColor.a,
+            borderRadius: surfaceRadius ?? BorderRadius.zero,
+            // A filter is clipped, which would cut the shadow off; it is
+            // painted outside the clip instead.
+            shadow: filter == null
+                ? null
+                : ShadowDecoration.box(
+                    borderRadius: surfaceRadius,
+                    shadows: effectiveShadows,
+                  ),
+            child: DecoratedBox(
+              decoration: ShadowDecoration.box(
+                color: effectiveBackgroundColor,
+                borderRadius: surfaceRadius,
+                border: effectiveBorder,
+                shadows: filter == null ? effectiveShadows : const [],
+              ),
+              child: widget,
             ),
-            child: widget,
           );
         },
       ),

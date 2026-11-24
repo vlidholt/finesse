@@ -48,7 +48,7 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
     FormFactor? formFactor,
     Spacing? spacing,
     Object? menuColorScheme = DefaultThemeVariant.unsetMenuColorScheme,
-    bool? menuTranslucent,
+    Object? menuTranslucent = DefaultThemeVariant.unsetMenuTranslucent,
   }) {
     return DefaultThemeNoSecondaryBorderVariant(
       colorScheme: colorScheme ?? this.colorScheme,
@@ -64,7 +64,10 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
           )
           ? this.menuColorScheme
           : menuColorScheme as ColorScheme?,
-      menuTranslucent: menuTranslucent ?? this.menuTranslucent,
+      menuTranslucent:
+          identical(menuTranslucent, DefaultThemeVariant.unsetMenuTranslucent)
+          ? this.menuTranslucent
+          : menuTranslucent as bool?,
     );
   }
 

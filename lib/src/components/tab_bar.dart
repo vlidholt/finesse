@@ -1,5 +1,8 @@
 import 'package:finesse/src/raw_components/pressable.dart';
+import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/motion_color.dart';
+import 'package:finesse/src/utils/moving_indicator.dart';
 import 'package:flutter/widgets.dart';
 
 /// A row of text tabs with a line under the selected one, for switching
@@ -17,6 +20,10 @@ import 'package:flutter/widgets.dart';
 /// for a few mutually exclusive views. `TabBar` is the quieter underline
 /// form, and it only reports which tab is selected — the caller shows the
 /// matching content.
+///
+/// The line is one shape: selecting another tab slides it there, stretching
+/// a little on the way, and the labels' colours fade — the theme's `Motion`
+/// sets the pace, and reduced motion moves it at once.
 ///
 /// With [expand] the tabs share the width equally; without it each is as
 /// wide as its label plus [tabPadding] and the row scrolls when it does not
@@ -74,12 +81,20 @@ class TabBar extends StatelessWidget {
     final baseStyle = (labelStyle ?? theme.textTheme.large).copyWith(
       height: 1,
     );
+    final motion = Motion.of(context);
+    final indicator = BoxDecoration(
+      color: indicatorColor ?? scheme.foreground,
+      borderRadius: BorderRadius.circular(2),
+    );
 
     Widget tab(int index) {
       final selected = index == selectedIndex;
       final child = Pressable(
         selected: selected,
         onPressed: onSelected == null ? null : () => onSelected!(index),
+        // The travelling line is the response; a tab that shrank would
+        // take its end of the line with it.
+        pressScale: 1,
         builder: (context, states) {
           final active = selected || states.contains(WidgetState.hovered);
           return FocusRing(
@@ -97,35 +112,44 @@ class TabBar extends StatelessWidget {
                     padding:
                         tabPadding ??
                         EdgeInsets.symmetric(horizontal: expand ? 4 : 16),
-                    child: DefaultTextStyle.merge(
-                      style: baseStyle.copyWith(
-                        fontWeight: selected
-                            ? FontWeight.w600
-                            : FontWeight.w500,
-                        color: active
-                            ? scheme.foreground
-                            : scheme.mutedForeground,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    // The colour fades; the weight cannot (a face is one
+                    // weight, and a label that changed width every frame
+                    // would shake its neighbours), so it switches at once.
+                    child: AnimatedColorBuilder(
+                      color: active
+                          ? scheme.foreground
+                          : scheme.mutedForeground,
+                      duration: motion.fast,
+                      curve: motion.standard,
+                      builder: (context, color, child) =>
+                          DefaultTextStyle.merge(
+                            style: baseStyle.copyWith(
+                              fontWeight: selected
+                                  ? FontWeight.w600
+                                  : FontWeight.w500,
+                              color: color,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            child: child!,
+                          ),
                       child: tabs[index],
                     ),
                   ),
-                  if (selected)
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      // Over the bar's own hairline, which sits just below
-                      // the tabs.
-                      bottom: showBorder ? -1 : 0,
-                      height: 2,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: indicatorColor ?? scheme.foreground,
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
+                  // Where the line goes when this tab is selected. The line
+                  // itself is painted once, by the bar, and travels.
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    // Over the bar's own hairline, which sits just below
+                    // the tabs.
+                    bottom: showBorder ? -1 : 0,
+                    height: 2,
+                    child: MovingIndicatorTarget(
+                      selected: selected,
+                      decoration: indicator,
                     ),
+                  ),
                 ],
               ),
             ),
@@ -135,9 +159,14 @@ class TabBar extends StatelessWidget {
       return expand ? Expanded(child: child) : child;
     }
 
-    Widget row = Row(
-      mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
-      children: [for (var i = 0; i < tabs.length; i++) tab(i)],
+    // Around the row, inside the scroll view: the line scrolls with the
+    // tabs. In front of them, so it also covers the hairline.
+    Widget row = MovingIndicator(
+      position: DecorationPosition.foreground,
+      child: Row(
+        mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
+        children: [for (var i = 0; i < tabs.length; i++) tab(i)],
+      ),
     );
     if (!expand) {
       // Clipped at the sides, but one pixel taller than the tabs so the

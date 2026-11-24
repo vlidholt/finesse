@@ -6,6 +6,7 @@ import 'package:example/strand/data.dart';
 import 'package:example/strand/data/home_data.dart';
 import 'package:example/strand/navigation.dart';
 import 'package:example/strand/screens/home_screen.dart';
+import 'package:example/strand/session.dart';
 import 'package:example/strand/widgets/home_post_card.dart';
 import 'package:example/strand/widgets/home_stories.dart';
 import 'package:finesse/finesse.dart';
@@ -57,7 +58,11 @@ Future<void> _pumpHome(
 
   await tester.pumpWidget(
     ProviderScope(
-      providers: [...appProviders, strandDestinationProvider],
+      providers: [
+        ...appProviders,
+        strandDestinationProvider,
+        strandSessionProvider,
+      ],
       child: FinesseApp(
         theme: ThemeData(
           brightness: brightness,
