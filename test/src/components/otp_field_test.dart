@@ -4,18 +4,21 @@ import 'package:finesse/material.dart';
 import 'package:finesse/src/app.dart';
 import 'package:finesse/src/components/otp_field.dart';
 import 'package:finesse/src/components/text_field.dart';
+import 'package:finesse/src/icons/phosphor_icons.dart';
+import 'package:finesse/src/theme/color_scheme/neutral.dart';
 import 'package:finesse/src/theme/data.dart';
+import 'package:finesse/src/theme/style.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/material.dart' hide TextField, Theme, ThemeData;
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 void main() {
   // Helper method to create a test widget wrapped in FinesseApp and Scaffold
-  Widget createTestWidget(Widget child) {
+  Widget createTestWidget(Widget child, {ThemeData? theme}) {
     return FinesseApp(
       builder: (context, child) => FinesseMaterial(child: child!),
+      theme: theme,
       home: Scaffold(body: child),
     );
   }
@@ -117,6 +120,15 @@ void main() {
               color: Color(0xFFFFFFFF),
               child: Padding(padding: EdgeInsets.all(16), child: strip),
             ),
+          ),
+          // The pixel maths below needs transparent slots and an opaque
+          // hairline to tell "ring over hairline" from the reverse. That is
+          // shadcn's nova on neutral; finesse fills its slots with a
+          // translucent wash and outlines them with one, which blend to
+          // within the tolerance in either order.
+          theme: ThemeData(
+            style: StyleTokens.nova,
+            colorScheme: const NeutralColorScheme.light(),
           ),
         ),
       );

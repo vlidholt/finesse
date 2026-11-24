@@ -2,7 +2,7 @@
 @TestOn('browser')
 library;
 
-import 'package:finesse/finesse.dart';
+import 'package:finesse/finesse.dart' hide Scaffold;
 import 'package:finesse/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';

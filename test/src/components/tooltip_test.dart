@@ -8,6 +8,8 @@ import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/material.dart' hide Theme, ThemeData, Tooltip;
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../fixture_styles.dart';
+
 void main() {
   // Helper method to create a test widget wrapped in FinesseApp and Scaffold
   Widget createTestWidget(Widget child) {
@@ -124,11 +126,14 @@ void main() {
       ).tooltipTheme.decoration!.border!.radius!.resolve(TextDirection.ltr);
 
       // vega `rounded-md` 8, maia `rounded-2xl` 16, luma `rounded-xl` 14.
-      expect(radiusOf(StyleTokens.vega).topLeft.x, 8);
+      expect(radiusOf(FixtureStyles.vega).topLeft.x, 8);
+      expect(radiusOf(StyleTokens.nova).topLeft.x, 8);
+      // finesse: the `sm` step of its own scale, 6 at a base of 10.
+      expect(radiusOf(StyleTokens.finesse).topLeft.x, 6);
       expect(radiusOf(StyleTokens.maia).topLeft.x, 16);
-      expect(radiusOf(StyleTokens.luma).topLeft.x, 14);
+      expect(radiusOf(FixtureStyles.luma).topLeft.x, 14);
       expect(radiusOf(StyleTokens.lyra), BorderRadius.zero);
-      expect(radiusOf(StyleTokens.sera), BorderRadius.zero);
+      expect(radiusOf(FixtureStyles.sera), BorderRadius.zero);
       expect(
         ThemeData(style: StyleTokens.lyra).tooltipTheme.arrowRadius,
         0,

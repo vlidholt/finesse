@@ -1,15 +1,18 @@
 import 'package:finesse/material.dart';
 import 'package:finesse/src/app.dart';
 import 'package:finesse/src/components/badge.dart'; // Adjust import path based on your project structure
+import 'package:finesse/src/theme/data.dart';
+import 'package:finesse/src/theme/style.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart' hide Badge;
+import 'package:flutter/material.dart' hide Badge, ThemeData;
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   // Helper method to create a test widget wrapped in FinesseApp and Scaffold
-  Widget createTestWidget(Widget child) {
+  Widget createTestWidget(Widget child, {ThemeData? theme}) {
     return FinesseApp(
       builder: (context, child) => FinesseMaterial(child: child!),
+      theme: theme,
       home: Scaffold(
         body: child,
       ),
@@ -237,12 +240,53 @@ void main() {
         ),
       );
 
-      // Check Container uses ShapeDecoration with default StadiumBorder
+      // The finesse style rounds badges to its `sm` radius (6 at a base of
+      // 10) instead of making them pills.
       final containerFinder = find.byType(Container);
       expect(containerFinder, findsOneWidget);
       final container = tester.widget<Container>(containerFinder);
       final decoration = container.decoration as ShapeDecoration?;
+      expect(
+        decoration?.shape,
+        isA<RoundedRectangleBorder>().having(
+          (s) => s.borderRadius,
+          'borderRadius',
+          const BorderRadius.all(Radius.circular(6)),
+        ),
+      );
+    });
+
+    testWidgets('the shadcn styles keep the pill shape', (tester) async {
+      await tester.pumpWidget(
+        createTestWidget(
+          const Badge(child: Text('Pill')),
+          theme: ThemeData(style: StyleTokens.nova),
+        ),
+      );
+
+      final container = tester.widget<Container>(find.byType(Container));
+      final decoration = container.decoration as ShapeDecoration?;
       expect(decoration?.shape, isA<StadiumBorder>());
+    });
+
+    testWidgets('a finesse badge is 24 tall, a nova badge hugs its text', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        createTestWidget(const Center(child: Badge(child: Text('New')))),
+      );
+      // `badgeHeight: 24`; the label's 16px line is centred by the padding.
+      expect(tester.getSize(find.byType(Badge)).height, 24);
+
+      await tester.pumpWidget(
+        createTestWidget(
+          const Center(child: Badge(child: Text('New'))),
+          theme: ThemeData(style: StyleTokens.nova),
+        ),
+      );
+      await tester.pumpAndSettle();
+      // `py-0.5` around a 16px line.
+      expect(tester.getSize(find.byType(Badge)).height, 20);
     });
 
     testWidgets('Badge matches goldens', (tester) async {

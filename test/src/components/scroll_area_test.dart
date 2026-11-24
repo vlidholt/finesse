@@ -2,10 +2,12 @@ import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../fixture_styles.dart';
+
 void main() {
   group('ScrollAreaTheme', () {
     test('matches .cn-scroll-area-* per style', () {
-      final vega = ThemeData(style: StyleTokens.vega).scrollAreaTheme;
+      final vega = ThemeData(style: FixtureStyles.vega).scrollAreaTheme;
       // `w-2.5 p-px border-l`: a 7px thumb inset 1px.
       expect(vega.thickness, 7);
       expect(vega.crossAxisMargin, 1);
@@ -16,7 +18,7 @@ void main() {
         Radius.zero,
       );
       expect(
-        ThemeData(style: StyleTokens.sera).scrollAreaTheme.radius,
+        ThemeData(style: FixtureStyles.sera).scrollAreaTheme.radius,
         Radius.zero,
       );
     });

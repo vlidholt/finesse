@@ -3,12 +3,12 @@ import 'package:finesse/src/app.dart';
 import 'package:finesse/src/components/button.dart';
 import 'package:finesse/src/components/calendar.dart'; // Adjust import path based on your project structure
 import 'package:finesse/src/components/icon_button.dart';
+import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/utils/extensions/date_time.dart';
 import 'package:flutter/material.dart' hide DateTimeRange, IconButton;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 void main() {
   // Helper method to create a test widget wrapped in FinesseApp and Scaffold

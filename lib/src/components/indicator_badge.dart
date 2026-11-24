@@ -1,4 +1,5 @@
 import 'package:finesse/src/theme/theme.dart';
+import 'package:flutter/rendering.dart' show OverflowBoxFit;
 import 'package:flutter/widgets.dart';
 
 /// A small count or dot pinned to the corner of another widget: unread
@@ -170,15 +171,28 @@ class IndicatorBadge extends StatelessWidget {
             alignment: resolved,
             child: Transform.translate(
               offset: Offset(offset.dx * direction, offset.dy),
-              child: FractionalTranslation(
-                // Aligned, the badge sits inside the corner it is pinned to;
-                // push it part of the way out so it overlaps the child's
-                // edge.
-                translation: Offset(
-                  resolved.x * overhang,
-                  resolved.y * overhang,
+              // The badge overhangs its child, so it must not be laid out
+              // inside the child's size: a `99+` pill is wider than the 24px
+              // icon it sits on, and squeezed into 24px it clips its own
+              // digits. It keeps its natural size and stays anchored to the
+              // same corner.
+              child: OverflowBox(
+                alignment: resolved,
+                minWidth: 0,
+                minHeight: 0,
+                maxWidth: double.infinity,
+                maxHeight: double.infinity,
+                fit: OverflowBoxFit.deferToChild,
+                child: FractionalTranslation(
+                  // Aligned, the badge sits inside the corner it is pinned
+                  // to; push it part of the way out so it overlaps the
+                  // child's edge.
+                  translation: Offset(
+                    resolved.x * overhang,
+                    resolved.y * overhang,
+                  ),
+                  child: badge,
                 ),
-                child: badge,
               ),
             ),
           ),

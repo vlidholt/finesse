@@ -4,7 +4,7 @@ import 'package:finesse/src/components/button.dart';
 import 'package:finesse/src/components/card.dart';
 import 'package:finesse/src/components/form/fields/text_field.dart';
 import 'package:finesse/src/components/tabs.dart';
-import 'package:finesse/src/theme/color_scheme/green.dart';
+import 'package:finesse/src/theme/color_scheme/zinc.dart';
 import 'package:finesse/src/theme/components/tabs.dart';
 import 'package:finesse/src/theme/data.dart';
 import 'package:flutter/material.dart'
@@ -27,7 +27,7 @@ void main() {
     return FinesseApp(
       builder: (context, child) => FinesseMaterial(child: child!),
       theme: ThemeData(
-        colorScheme: const GreenColorScheme.light(),
+        colorScheme: const ZincColorScheme.light(),
         brightness: Brightness.light,
         tabsTheme: themeForegroundColor == null
             ? null

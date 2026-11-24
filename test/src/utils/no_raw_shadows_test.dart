@@ -1,4 +1,4 @@
-import 'package:finesse/finesse.dart';
+import 'package:finesse/finesse.dart' hide Scaffold;
 import 'package:finesse/material.dart';
 import 'package:flutter/material.dart'
     hide
@@ -64,7 +64,7 @@ void main() {
         FinesseApp(
           builder: (context, child) => FinesseMaterial(child: child!),
           theme: ThemeData(
-            colorScheme: const SlateColorScheme.light(),
+            colorScheme: const NeutralColorScheme.light(),
             style: style,
           ),
           home: Scaffold(

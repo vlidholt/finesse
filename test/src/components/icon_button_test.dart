@@ -9,14 +9,20 @@ import 'package:finesse/src/theme/style.dart';
 import 'package:flutter/material.dart' hide IconButton, ThemeData;
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../fixture_styles.dart';
+
 void main() {
   // Helper method to create a test widget wrapped in FinesseApp and Scaffold
-  Widget createTestWidget(Widget child) {
+  Widget createTestWidget(Widget child, {ThemeData? theme}) {
     return FinesseApp(
       builder: (context, child) => FinesseMaterial(child: child!),
+      theme: theme,
       home: Scaffold(body: child),
     );
   }
+
+  // The `.cn-button-size-icon*` values quoted below are shadcn's nova.
+  final nova = ThemeData(style: StyleTokens.nova);
 
   group('IconButton', () {
     testWidgets('IconButton matches goldens', (tester) async {
@@ -114,7 +120,10 @@ void main() {
       // `.cn-button` is `[&_svg:not([class*='size-'])]:size-4`; without a
       // size the IconTheme fallback used to render every icon at 24.
       await tester.pumpWidget(
-        createTestWidget(const IconButton(icon: Icon(Icons.add))),
+        createTestWidget(
+          const IconButton(icon: Icon(Icons.add)),
+          theme: nova,
+        ),
       );
 
       expect(tester.getSize(find.byType(Icon)), const Size.square(16));
@@ -146,6 +155,7 @@ void main() {
             icon: Icon(Icons.add),
             size: ButtonSize.sm,
           ),
+          theme: nova,
         ),
       );
 
@@ -161,15 +171,18 @@ void main() {
     // Read off `[&_svg:not([class*='size-'])]:size-*` in
     // apps/v4/registry/styles/style-*.css: most styles keep 16 everywhere,
     // `mira` follows the step down and `sera`'s base is `size-3.5`.
-    const expected = {
-      'vega': (16.0, 16.0, 16.0),
-      'nova': (14.0, 16.0, 16.0),
-      'maia': (16.0, 16.0, 16.0),
-      'lyra': (14.0, 16.0, 16.0),
-      'mira': (12.0, 14.0, 16.0),
-      'luma': (16.0, 16.0, 16.0),
-      'sera': (14.0, 14.0, 14.0),
-      'rhea': (16.0, 16.0, 16.0),
+    // finesse draws its glyphs larger: 18 in a text button (16 in a small
+    // one) and 20 in every icon button. `mira` and `sera` no longer ship;
+    // they stay here as fixtures because they are the styles that prove the
+    // `sm` and base slots are read independently.
+    final expected = {
+      StyleTokens.finesse: (16.0, 18.0, 18.0),
+      StyleTokens.nova: (14.0, 16.0, 16.0),
+      StyleTokens.maia: (16.0, 16.0, 16.0),
+      StyleTokens.lyra: (14.0, 16.0, 16.0),
+      FixtureStyles.vega: (16.0, 16.0, 16.0),
+      FixtureStyles.mira: (12.0, 14.0, 16.0),
+      FixtureStyles.sera: (14.0, 14.0, 14.0),
     };
 
     test('text buttons', () {
@@ -177,34 +190,33 @@ void main() {
         final sizes = ThemeData(
           brightness: Brightness.light,
           colorScheme: const ZincColorScheme.light(),
-          style: StyleTokens.fromName(entry.key),
+          style: entry.key,
         ).buttonSizesTheme;
 
         expect(
           (sizes.sm!.iconSize, sizes.regular!.iconSize, sizes.lg!.iconSize),
           entry.value,
-          reason: entry.key,
+          reason: entry.key.name,
         );
       }
     });
 
     test('icon buttons keep the base glyph except in mira and sera', () {
-      const iconExpected = {
-        'vega': (16.0, 16.0, 16.0),
-        'nova': (16.0, 16.0, 16.0),
-        'maia': (16.0, 16.0, 16.0),
-        'lyra': (16.0, 16.0, 16.0),
-        'mira': (12.0, 14.0, 16.0),
-        'luma': (16.0, 16.0, 16.0),
-        'sera': (14.0, 14.0, 14.0),
-        'rhea': (16.0, 16.0, 16.0),
+      final iconExpected = {
+        StyleTokens.finesse: (20.0, 20.0, 20.0),
+        StyleTokens.nova: (16.0, 16.0, 16.0),
+        StyleTokens.maia: (16.0, 16.0, 16.0),
+        StyleTokens.lyra: (16.0, 16.0, 16.0),
+        FixtureStyles.vega: (16.0, 16.0, 16.0),
+        FixtureStyles.mira: (12.0, 14.0, 16.0),
+        FixtureStyles.sera: (14.0, 14.0, 14.0),
       };
 
       for (final entry in iconExpected.entries) {
         final sizes = ThemeData(
           brightness: Brightness.light,
           colorScheme: const ZincColorScheme.light(),
-          style: StyleTokens.fromName(entry.key),
+          style: entry.key,
         ).buttonSizesTheme;
 
         expect(
@@ -214,7 +226,7 @@ void main() {
             sizes.iconLg!.iconSize,
           ),
           entry.value,
-          reason: entry.key,
+          reason: entry.key.name,
         );
       }
     });
@@ -225,6 +237,7 @@ void main() {
       final theme = ThemeData(
         brightness: Brightness.light,
         colorScheme: const ZincColorScheme.light(),
+        style: StyleTokens.nova,
         spacing: const Spacing(step: 5),
       );
       expect(theme.buttonSizesTheme.icon!.iconSize, 20);

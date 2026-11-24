@@ -1,15 +1,18 @@
 import 'package:finesse/material.dart';
 import 'package:finesse/src/app.dart';
 import 'package:finesse/src/components/avatar.dart'; // Adjust import path based on your project structure
-import 'package:flutter/material.dart';
+import 'package:finesse/src/icons/phosphor_icons.dart';
+import 'package:finesse/src/theme/data.dart';
+import 'package:finesse/src/theme/style.dart';
+import 'package:flutter/material.dart' hide ThemeData;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 void main() {
   // Helper method to create a test widget wrapped in FinesseApp and Scaffold
-  Widget createTestWidget(Widget child) {
+  Widget createTestWidget(Widget child, {ThemeData? theme}) {
     return FinesseApp(
       builder: (context, child) => FinesseMaterial(child: child!),
+      theme: theme,
       home: Scaffold(
         body: child,
       ),
@@ -114,12 +117,12 @@ void main() {
         ),
       );
 
-      // Check Container applies default size — shadcn's `size-8`.
+      // Check Container applies default size — the finesse style's 40.
       final containerFinder = find.byType(Container);
       expect(containerFinder, findsOneWidget);
       final container = tester.widget<Container>(containerFinder);
-      expect(container.constraints?.maxWidth, 32.0);
-      expect(container.constraints?.maxHeight, 32.0);
+      expect(container.constraints?.maxWidth, 40.0);
+      expect(container.constraints?.maxHeight, 40.0);
 
       // Check Image uses default size
       final imageFinder = find.byType(Image);
@@ -127,8 +130,21 @@ void main() {
       final image = tester.widget<Image>(
         imageFinder,
       );
-      expect(image.width, 32.0);
-      expect(image.height, 32.0);
+      expect(image.width, 40.0);
+      expect(image.height, 40.0);
+    });
+
+    testWidgets("nova keeps shadcn's size-8 avatar", (tester) async {
+      await tester.pumpWidget(
+        createTestWidget(
+          const Avatar('assets/test_image.png'),
+          theme: ThemeData(style: StyleTokens.nova),
+        ),
+      );
+
+      final container = tester.widget<Container>(find.byType(Container));
+      expect(container.constraints?.maxWidth, 32.0);
+      expect(container.constraints?.maxHeight, 32.0);
     });
 
     testWidgets('renders with default circular shape when not specified', (
@@ -217,7 +233,10 @@ void main() {
     testWidgets('Avatar matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const Avatar(null, fallback: Icon(PhosphorIconsRegular.envelopeSimple)),
+          const Avatar(
+            null,
+            fallback: Icon(PhosphorIconsRegular.envelopeSimple),
+          ),
         ),
       );
 

@@ -1,4 +1,4 @@
-import 'package:finesse/finesse.dart';
+import 'package:finesse/finesse.dart' hide Scaffold;
 import 'package:finesse/material.dart';
 import 'package:flutter/material.dart' hide Theme, Tooltip;
 import 'package:flutter_test/flutter_test.dart';

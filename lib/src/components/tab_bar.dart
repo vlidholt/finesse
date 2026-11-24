@@ -105,8 +105,10 @@ class TabBar extends StatelessWidget {
                     Positioned(
                       left: 0,
                       right: 0,
-                      // Over the bar's own hairline.
-                      bottom: showBorder ? -1 : 0,
+                      // Over the bar's own hairline, which a `DecoratedBox`
+                      // paints inside the bar's height rather than adding
+                      // to it — so the bottom edge is already the hairline.
+                      bottom: 0,
                       height: 2,
                       child: DecoratedBox(
                         decoration: BoxDecoration(

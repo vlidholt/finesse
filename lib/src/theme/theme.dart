@@ -125,19 +125,34 @@ class ThemeDataTween extends Tween<ThemeData> {
   /// filled in later.
   ThemeDataTween({super.begin, super.end});
 
-  @override
-  ThemeData lerp(double t) {
+  /// Whether [begin] and [end] are laid out for different form factors.
+  bool get _changesFormFactor {
     final from = begin;
     final to = end;
+    return from != null && to != null && from.formFactor != to.formFactor;
+  }
+
+  // Overridden as well as [lerp]: a [Tween] never calls `lerp` at either end
+  // — at t == 0 it hands back [begin] — and an implicit animation's first
+  // frame is t == 0. Checking in `lerp` alone therefore still built one
+  // frame of the old form factor's layout in a window that was already the
+  // new size, which is exactly the frame a desktop app bar overflows a
+  // phone-width window on.
+  @override
+  ThemeData transform(double t) {
+    if (_changesFormFactor) return end!;
+    return super.transform(t);
+  }
+
+  @override
+  ThemeData lerp(double t) {
     // Two form factors are two layouts, not the ends of a range: 40-point
     // buttons on the way from 36 to 44 belong to neither. Interpolating would
     // also keep the old layout's metrics on screen for half the transition
     // while the window is already the new size, which is when things
     // overflow. So a change of form factor takes effect at once.
-    if (from != null && to != null && from.formFactor != to.formFactor) {
-      return to;
-    }
-    return ThemeData.lerp(from, to, t)!;
+    if (_changesFormFactor) return end!;
+    return ThemeData.lerp(begin, end, t)!;
   }
 }
 

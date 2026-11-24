@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:finesse/finesse.dart';
+import 'package:finesse/finesse.dart' hide Scaffold;
 import 'package:finesse/material.dart';
 import 'package:flutter/material.dart' hide Dialog, IconButton, ThemeData;
 import 'package:flutter_test/flutter_test.dart';
@@ -1637,7 +1637,9 @@ void main() {
         // space without needing a Positioned bump.
         expect(findClosePositioned(tester).top, 8);
         // Verify it's actually rendered below the notch in absolute coords.
-        final iconTop = tester.getTopLeft(find.byIcon(PhosphorIconsRegular.x)).dy;
+        final iconTop = tester
+            .getTopLeft(find.byIcon(PhosphorIconsRegular.x))
+            .dy;
         expect(iconTop, greaterThanOrEqualTo(40));
       },
     );

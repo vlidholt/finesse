@@ -262,9 +262,10 @@ void main() {
   });
 
   group('showCommandDialog', () {
-    Future<void> open(WidgetTester tester) async {
+    Future<void> open(WidgetTester tester, {ThemeData? theme}) async {
       await tester.pumpWidget(
         FinesseApp(
+          theme: theme,
           home: Builder(
             builder: (context) => Center(
               child: Button(
@@ -318,7 +319,15 @@ void main() {
 
     testWidgets('the search box is the input-group style, not a full-width '
         'underline', (tester) async {
-      await open(tester);
+      // The reference values below are `.cn-command-*` in shadcn's nova on
+      // an opaque `--input`; finesse fills the search box with `muted`.
+      await open(
+        tester,
+        theme: ThemeData(
+          style: StyleTokens.nova,
+          colorScheme: const NeutralColorScheme.light(),
+        ),
+      );
 
       final theme = Theme.of(
         tester.element(find.byType(Command)),

@@ -31,7 +31,9 @@ TextStyle _fakeGoogleFont({
 );
 
 void main() {
-  group('finesse bundles no fonts', () {
+  // Text fonts, that is: the package does ship the Phosphor icon fonts (see
+  // test/src/icons/phosphor_icons_test.dart).
+  group('finesse bundles no text fonts', () {
     test('the default text theme uses the platform font', () {
       final theme = TextTheme();
       expect(theme.family, isNull);

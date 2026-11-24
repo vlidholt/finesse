@@ -8,16 +8,17 @@ import 'package:flutter_test/flutter_test.dart';
 /// a conversion or transcription error, which would otherwise be invisible.
 void main() {
   group('base colour schemes', () {
-    test('mist light matches shadcn', () {
-      const s = MistColorScheme.light();
+    test('zinc light matches shadcn', () {
+      const s = ZincColorScheme.light();
       // oklch(1 0 0)
       expect(s.background, const Color(0xffffffff));
-      // oklch(0.145 0.008 240) -> a very slightly blue near-black
-      expect(s.foreground, const Color(0xff090b0c));
+      // oklch(0.141 0.005 285.823) -> Tailwind v4 zinc-950, a very slightly
+      // blue near-black.
+      expect(s.foreground, const Color(0xff09090b));
     });
 
-    test('the four new base palettes are reachable by name', () {
-      for (final name in ['mauve', 'olive', 'mist', 'taupe']) {
+    test('the kept palettes are reachable by name', () {
+      for (final name in ['teal', 'neutral', 'stone', 'zinc']) {
         expect(
           ColorScheme.fromName(name),
           isNotNull,
@@ -28,10 +29,42 @@ void main() {
           isNotNull,
         );
       }
+      expect(
+        ColorScheme.fromName('teal'),
+        const TealColorScheme.light(),
+      );
+      expect(
+        ColorScheme.fromName('teal', brightness: Brightness.dark),
+        const TealColorScheme.dark(),
+      );
+    });
+
+    test('the palettes finesse dropped are no longer reachable', () {
+      for (final name in [
+        'blue',
+        'gray',
+        'green',
+        'mauve',
+        'mist',
+        'olive',
+        'orange',
+        'red',
+        'rose',
+        'slate',
+        'taupe',
+        'violet',
+        'yellow',
+      ]) {
+        expect(
+          () => ColorScheme.fromName(name),
+          throwsException,
+          reason: name,
+        );
+      }
     });
 
     test('a base palette carries its own chart ramp', () {
-      const s = MistColorScheme.light();
+      const s = ZincColorScheme.light();
       // Explicit chart tokens, not the derived fallback.
       expect(s.charts, hasLength(5));
       expect(s.chart1, isNot(s.chart5));
@@ -59,7 +92,7 @@ void main() {
       // red-600, published as #e7000b. If the conversion drifts, this catches
       // it against a value that can be checked against Tailwind directly.
       expect(
-        const MistColorScheme.light().destructive,
+        const ZincColorScheme.light().destructive,
         const Color(0xffe7000b),
       );
     });
@@ -104,15 +137,7 @@ void main() {
     test('every accent applies to every base without error', () {
       for (final name in AccentScheme.all.keys) {
         for (final brightness in Brightness.values) {
-          for (final baseName in [
-            'neutral',
-            'stone',
-            'zinc',
-            'mauve',
-            'olive',
-            'mist',
-            'taupe',
-          ]) {
+          for (final baseName in ['teal', 'neutral', 'stone', 'zinc']) {
             final scheme =
                 ColorScheme.fromName(
                   baseName,
@@ -128,25 +153,47 @@ void main() {
   });
 
   group('chart and sidebar fallbacks', () {
+    // A hand-written scheme that sets only the required tokens: every shipped
+    // palette now states its chart and sidebar tokens explicitly.
+    const bare = ColorScheme(
+      background: Color(0xffffffff),
+      foreground: Color(0xff020817),
+      card: Color(0xfffefefe),
+      cardForeground: Color(0xff020818),
+      popover: Color(0xffffffff),
+      popoverForeground: Color(0xff020817),
+      primary: Color(0xff0f172a),
+      primaryForeground: Color(0xfff8fafc),
+      secondary: Color(0xfff1f5f9),
+      secondaryForeground: Color(0xff0f172a),
+      muted: Color(0xfff1f5f9),
+      mutedForeground: Color(0xff64748b),
+      accent: Color(0xfff1f5f9),
+      accentForeground: Color(0xff0f172a),
+      destructive: Color(0xffef4444),
+      destructiveForeground: Color(0xfff8fafc),
+      border: Color(0xffe2e8f0),
+      input: Color(0xffe2e8f1),
+      ring: Color(0xff020817),
+      selection: Color(0xffb4d7ff),
+    );
+
     test('a scheme without explicit tokens derives a usable ramp', () {
-      // Slate predates the chart tokens and leaves them unset.
-      const s = SlateColorScheme.light();
-      expect(s.chart1, s.primary);
-      expect(s.chart5, s.mutedForeground);
-      expect(s.charts, hasLength(5));
+      expect(bare.chart1, bare.primary);
+      expect(bare.chart5, bare.mutedForeground);
+      expect(bare.charts, hasLength(5));
     });
 
     test('sidebar tokens fall back to their closest neighbour', () {
-      const s = SlateColorScheme.light();
-      expect(s.sidebar, s.card);
-      expect(s.sidebarForeground, s.cardForeground);
-      expect(s.sidebarPrimary, s.primary);
-      expect(s.sidebarBorder, s.border);
-      expect(s.sidebarRing, s.ring);
+      expect(bare.sidebar, bare.card);
+      expect(bare.sidebarForeground, bare.cardForeground);
+      expect(bare.sidebarPrimary, bare.primary);
+      expect(bare.sidebarBorder, bare.border);
+      expect(bare.sidebarRing, bare.ring);
     });
 
     test('explicit tokens win over the fallback', () {
-      final s = const SlateColorScheme.light().copyWith(
+      final s = bare.copyWith(
         chart1: const Color(0xff123456),
         sidebar: const Color(0xff654321),
       );
@@ -155,19 +202,14 @@ void main() {
     });
 
     test('the new tokens take part in equality', () {
-      const a = SlateColorScheme.light();
-      final b = a.copyWith(chart1: const Color(0xff123456));
-      expect(a, isNot(b));
-      expect(a.hashCode, isNot(b.hashCode));
+      final b = bare.copyWith(chart1: const Color(0xff123456));
+      expect(bare, isNot(b));
+      expect(bare.hashCode, isNot(b.hashCode));
     });
 
     test('lerp interpolates the new tokens', () {
-      final a = const SlateColorScheme.light().copyWith(
-        chart1: const Color(0xff000000),
-      );
-      final b = const SlateColorScheme.light().copyWith(
-        chart1: const Color(0xffffffff),
-      );
+      final a = bare.copyWith(chart1: const Color(0xff000000));
+      final b = bare.copyWith(chart1: const Color(0xffffffff));
       final mid = ColorScheme.lerp(a, b, .5);
       expect(mid.chart1.r, closeTo(.5, .05));
     });

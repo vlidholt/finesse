@@ -20,7 +20,7 @@ void main() {
       await tester.pumpWidget(
         FinesseApp(
           theme: ThemeData(
-            colorScheme: const SlateColorScheme.light(),
+            colorScheme: const NeutralColorScheme.light(),
             brightness: Brightness.light,
             skeletonTheme: const SkeletonTheme(
               color: Color(0xFF123456),

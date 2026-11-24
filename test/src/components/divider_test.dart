@@ -15,7 +15,7 @@ void main() {
 
         final widget = FinesseApp(
           theme: ThemeData(
-            colorScheme: const BlueColorScheme.dark(),
+            colorScheme: const ZincColorScheme.dark(),
             brightness: Brightness.light,
             dividerTheme: dividerTheme,
           ),
@@ -128,7 +128,7 @@ void main() {
 
         final widget = FinesseApp(
           theme: ThemeData(
-            colorScheme: const BlueColorScheme.dark(),
+            colorScheme: const ZincColorScheme.dark(),
             brightness: Brightness.light,
             dividerTheme: dividerTheme,
           ),

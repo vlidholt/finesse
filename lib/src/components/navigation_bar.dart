@@ -283,14 +283,17 @@ class BottomNavigationBar extends StatelessWidget {
     final padding = (bar.padding ?? const EdgeInsets.all(6)).resolve(
       Directionality.of(context),
     );
-    final margin = (bar.floating ?? true)
+    final floating = bar.floating ?? true;
+    final margin = floating
         ? (bar.margin ?? EdgeInsets.zero).resolve(Directionality.of(context))
         : EdgeInsets.zero;
     return (bar.itemHeight ?? 48) +
         padding.vertical +
         margin.vertical +
         MediaQuery.paddingOf(context).bottom +
-        2;
+        // The outline: all round a floating pill, along the top of a docked
+        // bar.
+        (floating ? 2 : 1);
   }
 
   @override

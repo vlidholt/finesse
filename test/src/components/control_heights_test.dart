@@ -1,6 +1,7 @@
-import 'package:finesse/finesse.dart';
+import 'package:finesse/finesse.dart' hide Scaffold;
 import 'package:finesse/material.dart';
-import 'package:flutter/material.dart' hide IconButton, TextField, ThemeData;
+import 'package:flutter/material.dart'
+    hide Checkbox, Chip, IconButton, Switch, Tab, TextField, Theme, ThemeData;
 import 'package:flutter_test/flutter_test.dart';
 
 /// The reference gives fields, select triggers and every button variant the
@@ -8,20 +9,60 @@ import 'package:flutter_test/flutter_test.dart';
 /// lets them sit level on a single row. These renders lock that in: the
 /// border — and the no-secondary-border variant's focus reserve — must be
 /// counted *inside* the height, not added around it.
+///
+/// Every shipped style is walked in both form factors — a style's mobile
+/// metrics are a second full set, whether it states them (finesse) or has
+/// them derived (the shadcn styles) — and in both variants.
 void main() {
-  testWidgets('controls share the style height on a row', (tester) async {
+  /// Every (variant, style, form factor) combination, with the metrics that
+  /// combination resolves to.
+  Iterable<
+    ({
+      bool disableSecondaryBorder,
+      StyleTokens style,
+      FormFactor formFactor,
+      StyleTokens metrics,
+      String label,
+    })
+  >
+  combinations() sync* {
     for (final disableSecondaryBorder in [false, true]) {
       for (final style in StyleTokens.all) {
+        for (final formFactor in FormFactor.values) {
+          yield (
+            disableSecondaryBorder: disableSecondaryBorder,
+            style: style,
+            formFactor: formFactor,
+            metrics: style.forFormFactor(formFactor),
+            label:
+                '${style.name} ${formFactor.name} '
+                '(disableSecondaryBorder: $disableSecondaryBorder)',
+          );
+        }
+      }
+    }
+  }
+
+  testWidgets('controls share the style height on a row', (tester) async {
+    for (final combination in combinations()) {
+      {
+        final style = combination.metrics;
+        final disableSecondaryBorder = combination.disableSecondaryBorder;
         final theme = ThemeData(
           brightness: Brightness.light,
-          colorScheme: const SlateColorScheme.light(),
-          style: style,
+          colorScheme: const NeutralColorScheme.light(),
+          style: combination.style,
+          formFactor: combination.formFactor,
           disableSecondaryBorder: disableSecondaryBorder,
         );
+        expect(theme.style, style, reason: combination.label);
         await tester.pumpWidget(
           FinesseApp(
             builder: (context, child) => FinesseMaterial(child: child!),
             theme: theme,
+            // Pinned: left alone, the app would pick the form factor from
+            // the 800px test window and undo the theme's.
+            formFactor: combination.formFactor,
             home: Scaffold(
               // A Wrap rather than a Row: the roster is wider than the test
               // surface, and an overflowing Row throws in tests. The heights
@@ -81,6 +122,25 @@ void main() {
                         ),
                       ],
                     ),
+                    Chip(label: const Text('Ch'), onPressed: () {}),
+                    IconButton(
+                      icon: const Icon(PhosphorIconsRegular.plus),
+                      onPressed: () {},
+                    ),
+                    IconButton.outline(
+                      icon: const Icon(PhosphorIconsRegular.plus),
+                      onPressed: () {},
+                    ),
+                    const SizedBox(
+                      width: 160,
+                      child: Tabs<String>(
+                        value: 'a',
+                        tabs: [
+                          Tab(value: 'a', child: Text('A')),
+                          Tab(value: 'b', child: Text('B')),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -91,10 +151,12 @@ void main() {
         // theme finish before measuring.
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 250));
+        // A chip eases to a new height by itself, and only starts once the
+        // theme has settled on one.
+        await tester.pump(const Duration(milliseconds: 250));
+        expect(tester.takeException(), isNull, reason: combination.label);
 
-        final label =
-            '${style.name} '
-            '(disableSecondaryBorder: $disableSecondaryBorder)';
+        final label = combination.label;
         final expected = style.inputHeight;
         // `.first` — the time picker contributes Inputs of its own.
         expect(
@@ -149,23 +211,231 @@ void main() {
           style.menubarHeight,
           reason: 'menubar strip height in $label',
         );
+        expect(
+          tester.getSize(find.byType(Chip)).height,
+          style.chipHeight,
+          reason: 'chip height in $label',
+        );
+        // Icon buttons are square, outlined or not.
+        final iconButtons = find.byType(IconButton);
+        for (var i = 0; i < 2; i++) {
+          expect(
+            tester.getSize(iconButtons.at(i)),
+            Size.square(style.iconButtonSize),
+            reason: 'icon button #$i size in $label',
+          );
+        }
+        // A tab is `tabHeight` tall where the style pins one, and the
+        // historical 32 where it does not.
+        final tabs = find.byType(Tab<String>);
+        for (var i = 0; i < 2; i++) {
+          expect(
+            tester.getSize(tabs.at(i)).height,
+            style.tabHeight ?? 32,
+            reason: 'tab #$i height in $label',
+          );
+        }
+      }
+    }
+  });
+
+  testWidgets('finesse: 36/40/32 on a desktop, 44/46/36 on a phone, in both '
+      'variants', (tester) async {
+    // The literal numbers, so a change to the style tokens cannot move the
+    // expectation along with the render.
+    const expected = {
+      FormFactor.desktop: (
+        button: 36.0,
+        input: 40.0,
+        chip: 32.0,
+        iconButton: 36.0,
+        tab: 32.0,
+        menubar: 40.0,
+        checkbox: 18.0,
+        switchSize: Size(36, 20),
+      ),
+      FormFactor.mobile: (
+        button: 44.0,
+        input: 46.0,
+        chip: 36.0,
+        iconButton: 44.0,
+        tab: 36.0,
+        menubar: 44.0,
+        checkbox: 20.0,
+        switchSize: Size(44, 24),
+      ),
+    };
+
+    for (final disableSecondaryBorder in [false, true]) {
+      for (final brightness in Brightness.values) {
+        for (final formFactor in FormFactor.values) {
+          await tester.pumpWidget(
+            FinesseApp(
+              // The default theme: finesse on teal.
+              theme: ThemeData(
+                brightness: brightness,
+                disableSecondaryBorder: disableSecondaryBorder,
+              ),
+              formFactor: formFactor,
+              home: Center(
+                child: Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    const SizedBox(
+                      width: 140,
+                      child: TextField(placeholder: Text('Email')),
+                    ),
+                    SizedBox(
+                      width: 140,
+                      child: Select<String>(
+                        placeholder: const Text('Pick'),
+                        options: const [
+                          SelectOption(value: 'a', child: Text('A')),
+                        ],
+                        selectedOptionBuilder: (context, value) => Text(value),
+                      ),
+                    ),
+                    Button(onPressed: () {}, child: const Text('Go')),
+                    Button.outline(onPressed: () {}, child: const Text('Go')),
+                    Button.secondary(
+                      onPressed: () {},
+                      child: const Text('Go'),
+                    ),
+                    Button.ghost(onPressed: () {}, child: const Text('Go')),
+                    Button.destructive(
+                      onPressed: () {},
+                      child: const Text('Go'),
+                    ),
+                    Chip(label: const Text('Ch'), onPressed: () {}),
+                    Chip(
+                      label: const Text('Ch'),
+                      selected: true,
+                      onSelected: (_) {},
+                    ),
+                    const Chip(
+                      label: Text('Ch'),
+                      variant: ChipVariant.dashed,
+                    ),
+                    IconButton(
+                      icon: const Icon(PhosphorIconsRegular.plus),
+                      onPressed: () {},
+                    ),
+                    IconButton.outline(
+                      icon: const Icon(PhosphorIconsRegular.plus),
+                      onPressed: () {},
+                    ),
+                    const SizedBox(
+                      width: 160,
+                      child: Tabs<String>(
+                        value: 'a',
+                        tabs: [
+                          Tab(value: 'a', child: Text('A')),
+                          Tab(value: 'b', child: Text('B')),
+                        ],
+                      ),
+                    ),
+                    const Menubar(
+                      items: [
+                        MenubarItem(
+                          items: [ContextMenuItem(child: Text('New'))],
+                          child: Text('File'),
+                        ),
+                      ],
+                    ),
+                    Checkbox(value: false, onChanged: (_) {}),
+                    Switch(value: false, onChanged: (_) {}),
+                  ],
+                ),
+              ),
+            ),
+          );
+          await tester.pump();
+          await tester.pump(const Duration(milliseconds: 250));
+          await tester.pump(const Duration(milliseconds: 250));
+          expect(tester.takeException(), isNull);
+
+          final want = expected[formFactor]!;
+          final label =
+              '$formFactor $brightness '
+              '(disableSecondaryBorder: $disableSecondaryBorder)';
+          final theme = Theme.of(tester.element(find.byType(Wrap)));
+          expect(theme.formFactor, formFactor, reason: label);
+
+          expect(
+            tester.getSize(find.byType(TextField)).height,
+            want.input,
+            reason: 'input in $label',
+          );
+          expect(
+            tester.getSize(find.byType(Select<String>)).height,
+            want.input,
+            reason: 'select in $label',
+          );
+          final buttons = find.widgetWithText(Button, 'Go');
+          expect(buttons, findsNWidgets(5));
+          for (var i = 0; i < 5; i++) {
+            expect(
+              tester.getSize(buttons.at(i)).height,
+              want.button,
+              reason: 'button #$i in $label',
+            );
+          }
+          final chips = find.byType(Chip);
+          for (var i = 0; i < 3; i++) {
+            expect(
+              tester.getSize(chips.at(i)).height,
+              want.chip,
+              reason: 'chip #$i in $label',
+            );
+          }
+          final iconButtons = find.byType(IconButton);
+          for (var i = 0; i < 2; i++) {
+            expect(
+              tester.getSize(iconButtons.at(i)),
+              Size.square(want.iconButton),
+              reason: 'icon button #$i in $label',
+            );
+          }
+          final tabs = find.byType(Tab<String>);
+          for (var i = 0; i < 2; i++) {
+            expect(
+              tester.getSize(tabs.at(i)).height,
+              want.tab,
+              reason: 'tab #$i in $label',
+            );
+          }
+          expect(
+            tester.getSize(find.byType(Menubar)).height,
+            want.menubar,
+            reason: 'menubar in $label',
+          );
+          expect(theme.checkboxTheme.size, want.checkbox, reason: label);
+          expect(
+            Size(theme.switchTheme.width!, theme.switchTheme.height!),
+            want.switchSize,
+            reason: label,
+          );
+        }
       }
     }
   });
 
   testWidgets('calendar geometry follows the style tokens', (tester) async {
-    for (final disableSecondaryBorder in [false, true]) {
-      for (final style in StyleTokens.all) {
+    for (final combination in combinations()) {
+      {
+        final style = combination.metrics;
         final theme = ThemeData(
           brightness: Brightness.light,
-          colorScheme: const SlateColorScheme.light(),
-          style: style,
-          disableSecondaryBorder: disableSecondaryBorder,
+          colorScheme: const NeutralColorScheme.light(),
+          style: combination.style,
+          formFactor: combination.formFactor,
+          disableSecondaryBorder: combination.disableSecondaryBorder,
         );
         await tester.pumpWidget(
           FinesseApp(
             builder: (context, child) => FinesseMaterial(child: child!),
             theme: theme,
+            formFactor: combination.formFactor,
             home: Scaffold(
               body: Center(
                 child: Calendar(
@@ -192,9 +462,7 @@ void main() {
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 250));
 
-        final label =
-            '${style.name} '
-            '(disableSecondaryBorder: $disableSecondaryBorder)';
+        final label = combination.label;
         // A mid-month day cell: `size-(--cell-size)`.
         expect(
           tester.getSize(

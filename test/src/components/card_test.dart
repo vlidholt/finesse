@@ -1,17 +1,20 @@
 import 'package:finesse/material.dart';
 import 'package:finesse/src/app.dart';
 import 'package:finesse/src/components/card.dart'; // Adjust import path based on your project structure
+import 'package:finesse/src/theme/data.dart';
+import 'package:finesse/src/theme/style.dart';
 import 'package:finesse/src/theme/theme.dart';
-import 'package:flutter/material.dart' hide Card, Theme;
+import 'package:flutter/material.dart' hide Card, Theme, ThemeData;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../decoration_finders.dart';
 
 void main() {
   // Helper method to create a test widget wrapped in FinesseApp and Scaffold
-  Widget createTestWidget(Widget child) {
+  Widget createTestWidget(Widget child, {ThemeData? theme}) {
     return FinesseApp(
       builder: (context, child) => FinesseMaterial(child: child!),
+      theme: theme,
       home: Scaffold(
         body: child,
       ),
@@ -221,17 +224,40 @@ void main() {
       expect(containerFinder, findsOneWidget);
       final container = tester.widget<Container>(containerFinder);
       final decoration = boxDecorationOf(container.decoration);
-      // The default style is nova, whose `--card-spacing` is `--spacing(4)`.
-      expect(container.padding, const EdgeInsets.all(16));
+      // The default style is finesse: 20 of padding around a card colour
+      // washed to 88%, which is what lets the backdrop blur show through.
+      final theme = Theme.of(tester.element(containerFinder));
+      expect(container.padding, const EdgeInsets.all(20));
       expect(
         decoration?.color,
-        Theme.of(tester.element(containerFinder)).colorScheme.card,
+        theme.colorScheme.card.withValues(alpha: .88),
       );
+      expect(decoration?.color, theme.cardTheme.backgroundColor);
       expect(
         decoration?.borderRadius,
         Theme.of(tester.element(containerFinder)).cardTheme.radius,
       );
       expect(decoration?.border, isNotNull);
+    });
+
+    testWidgets('nova keeps the shadcn card: opaque, --spacing(4) padding', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        createTestWidget(
+          const Card(child: Text('Nova card')),
+          theme: ThemeData(style: StyleTokens.nova),
+        ),
+      );
+
+      final containerFinder = find.byType(Container);
+      final container = tester.widget<Container>(containerFinder);
+      final decoration = boxDecorationOf(container.decoration);
+      expect(container.padding, const EdgeInsets.all(16));
+      expect(
+        decoration?.color,
+        Theme.of(tester.element(containerFinder)).colorScheme.card,
+      );
     });
 
     testWidgets('Card matches goldens', (tester) async {

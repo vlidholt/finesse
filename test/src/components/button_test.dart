@@ -2,15 +2,18 @@ import 'package:finesse/material.dart';
 import 'package:finesse/src/app.dart';
 import 'package:finesse/src/components/button.dart'; // Adjust import path based on your project structure
 import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/data.dart';
+import 'package:finesse/src/theme/style.dart';
 import 'package:finesse/src/theme/theme.dart';
-import 'package:flutter/material.dart' hide Theme;
+import 'package:flutter/material.dart' hide Theme, ThemeData;
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   // Helper method to create a test widget wrapped in FinesseApp and Scaffold
-  Widget createTestWidget(Widget child) {
+  Widget createTestWidget(Widget child, {ThemeData? theme}) {
     return FinesseApp(
       builder: (context, child) => FinesseMaterial(child: child!),
+      theme: theme,
       home: Scaffold(
         body: child,
       ),
@@ -492,6 +495,9 @@ void main() {
     });
 
     group('icon sizing', () {
+      // The `.cn-button` sizes quoted below are shadcn's nova.
+      final nova = ThemeData(style: StyleTokens.nova);
+
       testWidgets('leading and trailing icons take the style default', (
         tester,
       ) async {
@@ -505,6 +511,7 @@ void main() {
               trailing: Icon(Icons.arrow_forward),
               child: Text('Button'),
             ),
+            theme: nova,
           ),
         );
 
@@ -526,6 +533,7 @@ void main() {
               leading: Icon(Icons.star),
               child: Text('Button'),
             ),
+            theme: nova,
           ),
         );
 
@@ -570,6 +578,7 @@ void main() {
               size: ButtonSize.icon,
               child: Icon(Icons.star),
             ),
+            theme: nova,
           ),
         );
 

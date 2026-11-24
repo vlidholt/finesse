@@ -26,9 +26,9 @@ void main() {
   });
 
   test('copyWith(colorScheme:) recolours the component themes', () {
-    final copy = base.copyWith(colorScheme: const RoseColorScheme.light());
+    final copy = base.copyWith(colorScheme: const StoneColorScheme.light());
     final direct = ThemeData(
-      colorScheme: const RoseColorScheme.light(),
+      colorScheme: const StoneColorScheme.light(),
       brightness: Brightness.light,
     );
     expect(copy.primaryButtonTheme, direct.primaryButtonTheme);
@@ -37,18 +37,124 @@ void main() {
 
   test('copyWith(style:) and copyWith(spacing:) re-derive metrics', () {
     final copy = base.copyWith(
-      style: StyleTokens.mira,
+      style: StyleTokens.lyra,
       spacing: const Spacing(step: 3),
     );
     final direct = ThemeData(
       colorScheme: const ZincColorScheme.light(),
       brightness: Brightness.light,
-      style: StyleTokens.mira,
+      style: StyleTokens.lyra,
       spacing: const Spacing(step: 3),
     );
-    expect(copy.style, StyleTokens.mira);
+    expect(copy.style, StyleTokens.lyra);
     expect(copy.spacing.step, 3);
     expect(copy, direct);
+  });
+
+  test('copyWith(formFactor:) re-derives the metrics', () {
+    final copy = base.copyWith(formFactor: FormFactor.mobile);
+    final direct = ThemeData(
+      colorScheme: const ZincColorScheme.light(),
+      brightness: Brightness.light,
+      formFactor: FormFactor.mobile,
+    );
+    expect(base.formFactor, FormFactor.desktop);
+    expect(copy.formFactor, FormFactor.mobile);
+    expect(copy.style, StyleTokens.finesseMobile);
+    expect(copy.buttonSizesTheme.regular!.height, 44);
+    expect(copy.textFieldTheme.constraints!.minHeight, 46);
+    expect(copy.chipTheme.height, 36);
+    expect(copy.textTheme.p.fontSize, 15);
+    expect(copy.layoutTheme, direct.layoutTheme);
+    expect(copy.primaryButtonTheme, direct.primaryButtonTheme);
+    expect(copy, direct);
+    // And back again.
+    expect(copy.copyWith(formFactor: FormFactor.desktop), base);
+  });
+
+  test('copyWith(style:) re-derives from the new style', () {
+    final finesse = ThemeData();
+    final copy = finesse.copyWith(style: StyleTokens.nova);
+    final direct = ThemeData(style: StyleTokens.nova);
+
+    expect(copy.style, StyleTokens.nova);
+    expect(copy.variant.baseStyle, StyleTokens.nova);
+    // 36 -> nova's h-8.
+    expect(finesse.buttonSizesTheme.regular!.height, 36);
+    expect(copy.buttonSizesTheme.regular!.height, 32);
+    // The card goes opaque, so it stops blurring.
+    expect(finesse.cardTheme.blur, greaterThan(0));
+    expect(copy.cardTheme.blur, 0);
+    expect(copy.cardTheme.backgroundColor, copy.colorScheme.card);
+    // nova's prose scale comes back.
+    expect(finesse.textTheme.p.fontSize, 14);
+    expect(copy.textTheme.p.fontSize, 16);
+    expect(copy, direct);
+  });
+
+  test("copyWith(style:) takes the style's own radius and scale when the "
+      'theme stated none', () {
+    final finesse = ThemeData();
+    expect(finesse.radius, const BorderRadius.all(Radius.circular(10)));
+    expect(finesse.radii.scale, StyleTokens.finesse.radiusScale);
+
+    final nova = finesse.copyWith(style: StyleTokens.nova);
+    expect(nova.radius, const BorderRadius.all(Radius.circular(8)));
+    expect(nova.radii.scale, const RadiusScale());
+    // lg on the Tailwind scale: 8 * 1.25.
+    expect(
+      (nova.primaryButtonTheme.decoration!.border!.radius! as BorderRadius)
+          .topLeft
+          .x,
+      10,
+    );
+
+    // A radius the caller stated is theirs and survives the style change.
+    const stated = BorderRadius.all(Radius.circular(4));
+    final pinned = ThemeData(radius: stated).copyWith(style: StyleTokens.nova);
+    expect(pinned.radius, stated);
+  });
+
+  test('copyWith(style:) keeps the form factor', () {
+    final mobile = ThemeData(formFactor: FormFactor.mobile);
+    final copy = mobile.copyWith(style: StyleTokens.nova);
+
+    expect(copy.formFactor, FormFactor.mobile);
+    expect(copy.variant.baseStyle, StyleTokens.nova);
+    expect(copy.style, StyleTokens.nova.forFormFactor(FormFactor.mobile));
+    expect(copy.buttonSizesTheme.regular!.height, 44);
+    expect(
+      copy,
+      ThemeData(style: StyleTokens.nova, formFactor: FormFactor.mobile),
+    );
+  });
+
+  test('copyWith of something unrelated keeps style and form factor', () {
+    final mobile = ThemeData(
+      style: StyleTokens.maia,
+      formFactor: FormFactor.mobile,
+    );
+    final copy = mobile.copyWith(disabledOpacity: .3);
+    expect(copy.formFactor, FormFactor.mobile);
+    expect(copy.variant.baseStyle, StyleTokens.maia);
+    expect(copy.style, mobile.style);
+    expect(copy.buttonSizesTheme, mobile.buttonSizesTheme);
+    expect(copy.disabledOpacity, .3);
+  });
+
+  test('copyWith(colorScheme:) recolours the finesse component themes', () {
+    final copy = ThemeData().copyWith(
+      colorScheme: const TealColorScheme.dark(),
+    );
+    const dark = TealColorScheme.dark();
+    expect(copy.brightness, Brightness.dark);
+    expect(copy.navigationBarTheme.selectedIconColor, dark.tint);
+    expect(copy.chipTheme.selectedBorderColor, dark.accentBorder);
+    expect(copy.glassTheme.color, dark.card);
+    // The dark-only opacities are picked up with the scheme.
+    expect(copy.glassTheme.opacity, .66);
+    expect(copy.cardTheme.backgroundColor, dark.card.withValues(alpha: .82));
+    expect(copy, ThemeData(colorScheme: const TealColorScheme.dark()));
   });
 
   test('copyWith(disableSecondaryBorder: true) switches the variant', () {

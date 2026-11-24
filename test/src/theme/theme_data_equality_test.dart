@@ -11,7 +11,7 @@ import 'package:flutter_test/flutter_test.dart';
 /// re-lerps all 54 component themes on every single rebuild.
 void main() {
   ThemeData buildTheme() => ThemeData(
-    colorScheme: const SlateColorScheme.light(),
+    colorScheme: const NeutralColorScheme.light(),
     brightness: Brightness.light,
   );
 
@@ -52,12 +52,12 @@ void main() {
       // copyWith silently reset it to DefaultThemeVariant. Dialog,
       // Tooltip and Sonner all call copyWith in build().
       final variant = DefaultThemeNoSecondaryBorderVariant(
-        colorScheme: const SlateColorScheme.light(),
+        colorScheme: const NeutralColorScheme.light(),
         radius: const BorderRadius.all(Radius.circular(6)),
         effectiveTextTheme: DefaultThemeVariant.defaultTextTheme,
       );
       final theme = ThemeData(
-        colorScheme: const SlateColorScheme.light(),
+        colorScheme: const NeutralColorScheme.light(),
         brightness: Brightness.light,
         variant: variant,
       );
@@ -70,7 +70,7 @@ void main() {
     test('a genuine difference still compares unequal', () {
       final a = buildTheme();
       final b = ThemeData(
-        colorScheme: const SlateColorScheme.dark(),
+        colorScheme: const NeutralColorScheme.dark(),
         brightness: Brightness.dark,
       );
       expect(a, isNot(equals(b)));
@@ -143,7 +143,7 @@ void main() {
   group('ColorScheme', () {
     test('swapping two colors changes the hash', () {
       // Regression: hashCode was a chain of `^`, which is commutative.
-      const a = SlateColorScheme.light();
+      const a = NeutralColorScheme.light();
       final swapped = a.copyWith(primary: a.secondary, secondary: a.primary);
 
       expect(a, isNot(equals(swapped)));
@@ -153,7 +153,7 @@ void main() {
     test('copyWith preserves canMerge', () {
       // Regression: copyWith dropped canMerge, and merge() is built on
       // copyWith, so the "replace, don't merge" opt-out was unrecoverable.
-      final scheme = const SlateColorScheme.light().copyWith(
+      final scheme = const NeutralColorScheme.light().copyWith(
         canMerge: false,
       );
       expect(scheme.copyWith(primary: const Color(0xFFFF0000)).canMerge, false);
@@ -162,10 +162,10 @@ void main() {
     test('equal custom maps hash alike', () {
       // Regression: hashed MapEntry objects, which hash by identity, while
       // `==` used mapEquals.
-      final a = const SlateColorScheme.light().copyWith(
+      final a = const NeutralColorScheme.light().copyWith(
         custom: {'brand': const Color(0xFF123456)},
       );
-      final b = const SlateColorScheme.light().copyWith(
+      final b = const NeutralColorScheme.light().copyWith(
         custom: {'brand': const Color(0xFF123456)},
       );
 
@@ -236,7 +236,7 @@ void main() {
         builder: (context, value, _) {
           return FinesseApp(
             theme: ThemeData(
-              colorScheme: const SlateColorScheme.light(),
+              colorScheme: const NeutralColorScheme.light(),
               brightness: Brightness.light,
             ),
             home: Builder(
@@ -301,11 +301,201 @@ void main() {
 
     test('a theme with an inline override equals its rebuild', () {
       ThemeData build() => ThemeData(
-        colorScheme: const SlateColorScheme.light(),
+        colorScheme: const NeutralColorScheme.light(),
         brightness: Brightness.light,
         cardTheme: CardTheme(shadows: shadows()),
       );
       expect(build(), build());
+    });
+  });
+
+  group('the default theme and the finesse component themes', () {
+    // The eleven themes the fork added, read off a theme.
+    List<Object?> finesseThemes(ThemeData t) => [
+      t.glassTheme,
+      t.appBarTheme,
+      t.navigationBarTheme,
+      t.bottomNavigationBarTheme,
+      t.chipTheme,
+      t.listTileTheme,
+      t.chatBubbleTheme,
+      t.indicatorBadgeTheme,
+      t.iconTileTheme,
+      t.timelineTheme,
+      t.layoutTheme,
+    ];
+
+    test('two separately built default themes are equal', () {
+      // What `FinesseApp()` with no theme, or `theme: ThemeData()` written
+      // inline, hands `AnimatedTheme` on every build.
+      final a = ThemeData();
+      final b = ThemeData();
+      expect(identical(a, b), isFalse);
+      expect(a, equals(b));
+      expect(a.hashCode, equals(b.hashCode));
+      expect(a.variant, equals(b.variant));
+      expect(a.variant.hashCode, equals(b.variant.hashCode));
+    });
+
+    test('in both brightnesses, form factors and variants', () {
+      for (final brightness in Brightness.values) {
+        for (final formFactor in FormFactor.values) {
+          for (final disableSecondaryBorder in [false, true]) {
+            ThemeData build() => ThemeData(
+              brightness: brightness,
+              formFactor: formFactor,
+              disableSecondaryBorder: disableSecondaryBorder,
+            );
+            final reason = '$brightness $formFactor $disableSecondaryBorder';
+            expect(build(), equals(build()), reason: reason);
+            expect(build().hashCode, build().hashCode, reason: reason);
+          }
+        }
+      }
+    });
+
+    test('for every shipped style', () {
+      for (final style in StyleTokens.all) {
+        for (final formFactor in FormFactor.values) {
+          ThemeData build() => ThemeData(style: style, formFactor: formFactor);
+          expect(build(), equals(build()), reason: style.name);
+          expect(build().hashCode, build().hashCode, reason: style.name);
+        }
+      }
+    });
+
+    test('each new component theme is a value type', () {
+      for (final brightness in Brightness.values) {
+        final a = finesseThemes(ThemeData(brightness: brightness));
+        final b = finesseThemes(ThemeData(brightness: brightness));
+        for (var i = 0; i < a.length; i++) {
+          expect(a[i], equals(b[i]), reason: '${a[i].runtimeType}');
+          expect(
+            a[i].hashCode,
+            b[i].hashCode,
+            reason: '${a[i].runtimeType}',
+          );
+        }
+      }
+    });
+
+    test('each new component theme tells a real difference apart', () {
+      final light = finesseThemes(ThemeData());
+      final dark = finesseThemes(ThemeData(brightness: Brightness.dark));
+      for (var i = 0; i < light.length; i++) {
+        // The layout theme is all metrics, so brightness does not move it.
+        if (light[i] is LayoutTheme) {
+          expect(light[i], equals(dark[i]));
+        } else {
+          expect(
+            light[i],
+            isNot(equals(dark[i])),
+            reason: '${light[i].runtimeType}',
+          );
+        }
+      }
+      expect(
+        ThemeData().layoutTheme,
+        isNot(ThemeData(formFactor: FormFactor.mobile).layoutTheme),
+      );
+    });
+
+    test('a form factor, a style or a scheme makes a different theme', () {
+      final base = ThemeData();
+      expect(base, isNot(ThemeData(formFactor: FormFactor.mobile)));
+      expect(base, isNot(ThemeData(style: StyleTokens.nova)));
+      expect(
+        base,
+        isNot(ThemeData(colorScheme: const NeutralColorScheme.light())),
+      );
+      expect(base, isNot(ThemeData(brightness: Brightness.dark)));
+      // And saying the defaults out loud does not.
+      expect(
+        base,
+        ThemeData(
+          style: StyleTokens.finesse,
+          colorScheme: const TealColorScheme.light(),
+          formFactor: FormFactor.desktop,
+          brightness: Brightness.light,
+          radius: const BorderRadius.all(Radius.circular(10)),
+        ),
+      );
+    });
+
+    test('an override of a new component theme survives and compares', () {
+      ThemeData build() => ThemeData(
+        chipTheme: const ChipTheme(height: 28),
+        layoutTheme: const LayoutTheme(gapLg: 20),
+        glassTheme: const GlassTheme(blur: 8),
+      );
+      final theme = build();
+      expect(theme.chipTheme.height, 28);
+      // Merged over the derived theme, not replacing it.
+      expect(theme.chipTheme.radius, ThemeData().chipTheme.radius);
+      expect(theme.layoutTheme.gap(GapSize.lg), 20);
+      expect(theme.layoutTheme.gap(GapSize.md), 12);
+      expect(theme.glassTheme.blur, 8);
+      expect(theme.glassTheme.saturation, ThemeData().glassTheme.saturation);
+      expect(theme, equals(build()));
+      expect(theme, isNot(ThemeData()));
+      // And it outlives a form-factor switch.
+      final mobile = theme.withFormFactor(FormFactor.mobile);
+      expect(mobile.chipTheme.height, 28);
+      expect(mobile.layoutTheme.gap(GapSize.lg), 20);
+    });
+
+    test('StyleTokens compare by value, mobile counterpart included', () {
+      expect(StyleTokens.finesse.copyWith(), StyleTokens.finesse);
+      expect(
+        StyleTokens.finesse.copyWith().hashCode,
+        StyleTokens.finesse.hashCode,
+      );
+      expect(StyleTokens.finesse, isNot(StyleTokens.finesseMobile));
+      // Two derived mobile styles are separate instances and equal.
+      final a = StyleTokens.nova.forFormFactor(FormFactor.mobile);
+      final b = StyleTokens.nova.forFormFactor(FormFactor.mobile);
+      expect(a, b);
+      expect(a.hashCode, b.hashCode);
+      // A style that differs only in its mobile counterpart is different.
+      expect(
+        StyleTokens.nova.copyWith(mobile: StyleTokens.finesseMobile),
+        isNot(StyleTokens.nova),
+      );
+    });
+
+    testWidgets('a default FinesseApp does not re-animate on a rebuild', (
+      tester,
+    ) async {
+      final rebuild = ValueNotifier(0);
+      addTearDown(rebuild.dispose);
+      final seen = <ThemeData>[];
+
+      await tester.pumpWidget(
+        ValueListenableBuilder<int>(
+          valueListenable: rebuild,
+          builder: (context, value, _) {
+            return FinesseApp(
+              // No theme: the app builds its default one on every build.
+              home: Builder(
+                builder: (context) {
+                  seen.add(Theme.of(context));
+                  return const SizedBox.shrink();
+                },
+              ),
+            );
+          },
+        ),
+      );
+      await tester.pumpAndSettle();
+      final settled = seen.last;
+      seen.clear();
+
+      rebuild.value = 1;
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(seen.every((theme) => theme == settled), isTrue);
     });
   });
 }

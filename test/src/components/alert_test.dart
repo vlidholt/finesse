@@ -1,11 +1,13 @@
 import 'package:finesse/material.dart';
 import 'package:finesse/src/app.dart';
 import 'package:finesse/src/components/alert.dart';
+import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/style.dart';
 import 'package:flutter/material.dart' hide ThemeData;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
+
+import '../../fixture_styles.dart';
 
 void main() {
   Widget createTestWidget(Widget child) {
@@ -42,7 +44,7 @@ void main() {
     });
 
     test('sera draws its accent bar as a thick left side', () {
-      final theme = ThemeData(style: StyleTokens.sera);
+      final theme = ThemeData(style: FixtureStyles.sera);
       final primary = theme.primaryAlertTheme.decoration?.border;
       final destructive = theme.destructiveAlertTheme.decoration?.border;
       expect(primary?.left?.width, 2);
@@ -53,11 +55,17 @@ void main() {
       expect(primary?.top?.color, theme.colorScheme.border);
     });
 
-    test('mira compacts the icon, vega keeps size-4', () {
-      expect(ThemeData().primaryAlertTheme.iconSize, 16);
+    test('mira compacts the icon, the shipped styles keep size-4', () {
+      for (final style in StyleTokens.all) {
+        expect(
+          ThemeData(style: style).primaryAlertTheme.iconSize,
+          16,
+          reason: style.name,
+        );
+      }
       expect(
         ThemeData(
-          style: StyleTokens.mira,
+          style: FixtureStyles.mira,
         ).primaryAlertTheme.iconSize,
         14,
       );
