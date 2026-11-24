@@ -15,25 +15,25 @@ class ScaffoldNavigationExample extends StatefulWidget {
 class _ScaffoldNavigationExampleState extends State<ScaffoldNavigationExample> {
   static const _destinations = [
     NavigationDestination(
-      icon: Icon(PhosphorIconsRegular.house),
-      selectedIcon: Icon(PhosphorIconsFill.house),
+      icon: PhosphorIcon(PhosphorIconsRegular.house),
+      selectedIcon: PhosphorIcon(PhosphorIconsFill.house),
       label: 'Home',
     ),
     NavigationDestination(
-      icon: Icon(PhosphorIconsRegular.usersThree),
-      selectedIcon: Icon(PhosphorIconsFill.usersThree),
+      icon: PhosphorIcon(PhosphorIconsRegular.usersThree),
+      selectedIcon: PhosphorIcon(PhosphorIconsFill.usersThree),
       label: 'Network',
     ),
     NavigationDestination(
-      icon: Icon(PhosphorIconsRegular.chatCircleDots),
-      selectedIcon: Icon(PhosphorIconsFill.chatCircleDots),
+      icon: PhosphorIcon(PhosphorIconsRegular.chatCircleDots),
+      selectedIcon: PhosphorIcon(PhosphorIconsFill.chatCircleDots),
       label: 'Messages',
       badgeCount: 3,
     ),
     // In the top bar on a desktop; behind an app bar button on a phone.
     NavigationDestination(
-      icon: Icon(PhosphorIconsRegular.bell),
-      selectedIcon: Icon(PhosphorIconsFill.bell),
+      icon: PhosphorIcon(PhosphorIconsRegular.bell),
+      selectedIcon: PhosphorIcon(PhosphorIconsFill.bell),
       label: 'Notifications',
       showInBottomBar: false,
     ),
@@ -90,7 +90,7 @@ class _ScaffoldNavigationExampleState extends State<ScaffoldNavigationExample> {
                   destinations: _destinations,
                   selectedIndex: index,
                   onDestinationSelected: (i) => setState(() => index = i),
-                  leading: Icon(
+                  leading: PhosphorIcon(
                     PhosphorIconsFill.waves,
                     size: 28,
                     color: theme.colorScheme.tint,
@@ -98,20 +98,20 @@ class _ScaffoldNavigationExampleState extends State<ScaffoldNavigationExample> {
                   title: const Text('Strand'),
                   actions: [
                     IconButton.ghost(
-                      icon: const Icon(PhosphorIconsRegular.gear),
+                      icon: const PhosphorIcon(PhosphorIconsRegular.gear),
                       semanticLabel: 'Settings',
                       onPressed: () {},
                     ),
                   ],
                   mobileActions: [
                     IconButton.ghost(
-                      icon: const Icon(PhosphorIconsRegular.bell),
+                      icon: const PhosphorIcon(PhosphorIconsRegular.bell),
                       semanticLabel: 'Notifications',
                       onPressed: () => setState(() => index = 3),
                     ),
                   ],
                   action: NavigationAction(
-                    icon: const Icon(PhosphorIconsBold.plus),
+                    icon: const PhosphorIcon(PhosphorIconsBold.plus),
                     label: 'Create post',
                     onPressed: () {},
                   ),

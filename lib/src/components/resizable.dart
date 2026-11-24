@@ -814,7 +814,7 @@ class ResizablePanelGroupState extends State<ResizablePanelGroup> {
                   decoration: effectiveHandleDecoration,
                   child: Padding(
                     padding: effectiveHandlePadding,
-                    child: Icon(
+                    child: PhosphorIcon(
                       widget.handleIconData ??
                           (isHorizontal
                               ? PhosphorIconsRegular.dotsSixVertical

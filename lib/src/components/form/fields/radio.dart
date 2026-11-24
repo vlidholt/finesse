@@ -24,7 +24,6 @@ class RadioGroupFormField<T> extends FinesseFormField<T> {
     super.autovalidateMode,
     super.restorationId,
     T? initialValue,
-    super.focusNode,
     super.validator,
     required Iterable<Widget> items,
 

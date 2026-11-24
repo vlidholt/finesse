@@ -28,7 +28,7 @@ class MenubarBasicExample extends StatelessWidget {
             ),
             divider,
             ContextMenuItem(
-              trailing: Icon(PhosphorIconsRegular.caretRight),
+              trailing: PhosphorIcon(PhosphorIconsRegular.caretRight),
               items: [
                 ContextMenuItem(child: Text('Email Link')),
                 ContextMenuItem(child: Text('Messages')),
@@ -37,7 +37,7 @@ class MenubarBasicExample extends StatelessWidget {
               child: Text('Share'),
             ),
             ContextMenuItem(
-              trailing: Icon(PhosphorIconsRegular.caretRight),
+              trailing: PhosphorIcon(PhosphorIconsRegular.caretRight),
               items: [
                 ContextMenuItem(child: Text('PDF')),
                 ContextMenuItem(child: Text('HTML')),
@@ -56,7 +56,7 @@ class MenubarBasicExample extends StatelessWidget {
             ContextMenuItem(child: Text('Redo')),
             divider,
             ContextMenuItem(
-              trailing: Icon(PhosphorIconsRegular.caretRight),
+              trailing: PhosphorIcon(PhosphorIconsRegular.caretRight),
               items: [
                 ContextMenuItem(child: Text('Search the Web')),
                 divider,
@@ -76,7 +76,7 @@ class MenubarBasicExample extends StatelessWidget {
         MenubarItem(
           items: [
             ContextMenuItem(
-              leading: Icon(PhosphorIconsRegular.check),
+              leading: PhosphorIcon(PhosphorIconsRegular.check),
               child: Text('Always Show Full URLs'),
             ),
             ContextMenuItem.inset(child: Text('Reload')),

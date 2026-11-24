@@ -161,6 +161,27 @@ class EntranceEffect extends Effect<double> {
 
   static final _cache = <(Motion, MotionSpring?), List<Effect<dynamic>>>{};
 
+  /// How many effect lists each cache keeps. An app has a handful of motion
+  /// vocabularies; one that makes them up as it goes — a slider in a theme
+  /// editor, a `Motion` with a curve that has no `==` created on every
+  /// build — would otherwise add an entry per value for as long as it runs.
+  static const _cacheSize = 32;
+
+  /// Looks [key] up in [cache], building the entry with [create] when it is
+  /// not there, and keeps the cache to [_cacheSize] entries by dropping the
+  /// ones that have gone longest without being asked for. An entry in use
+  /// is asked for on every build, so it is never the one dropped.
+  static List<Effect<dynamic>> _cached<K>(
+    Map<K, List<Effect<dynamic>>> cache,
+    K key,
+    List<Effect<dynamic>> Function() create,
+  ) {
+    final effects = cache.remove(key) ?? List.unmodifiable(create());
+    cache[key] = effects;
+    if (cache.length > _cacheSize) cache.remove(cache.keys.first);
+    return effects;
+  }
+
   /// The entrance for [motion]: one [EntranceEffect] on [spring] (the
   /// motion's `snappy` spring when null), as long as the spring takes to
   /// settle.
@@ -171,8 +192,10 @@ class EntranceEffect extends Effect<double> {
     Motion motion, {
     MotionSpring? spring,
   }) {
-    return _cache[(motion, spring)] ??= List.unmodifiable(
-      _entrance(motion, spring ?? motion.snappy),
+    return _cached(
+      _cache,
+      (motion, spring),
+      () => _entrance(motion, spring ?? motion.snappy),
     );
   }
 
@@ -202,15 +225,19 @@ class EntranceEffect extends Effect<double> {
   ///
   /// Like [forMotion] it returns the identical list for equal tokens.
   static List<Effect<dynamic>> fadeFor(Motion motion) {
-    return _fadeCache[motion] ??= List.unmodifiable([
-      if (motion.fast > Duration.zero)
-        EntranceEffect(
-          duration: motion.fast,
-          curve: motion.standard,
-          scale: 1,
-          travel: 0,
-        ),
-    ]);
+    return _cached(
+      _fadeCache,
+      motion,
+      () => [
+        if (motion.fast > Duration.zero)
+          EntranceEffect(
+            duration: motion.fast,
+            curve: motion.standard,
+            scale: 1,
+            travel: 0,
+          ),
+      ],
+    );
   }
 
   /// The fade of this entrance on its own, or null when it does not

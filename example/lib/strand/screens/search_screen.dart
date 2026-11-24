@@ -1,9 +1,9 @@
 import 'package:example/strand/data/search_data.dart';
 import 'package:example/strand/session.dart';
-import 'package:example/strand/widgets/home_pieces.dart';
 import 'package:example/strand/widgets/search_bar.dart';
 import 'package:example/strand/widgets/search_field.dart';
 import 'package:example/strand/widgets/search_results.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -84,7 +84,7 @@ class _SearchScreenState extends State<SearchScreen> {
     final Widget body;
     if (query.trim().isEmpty) {
       body = Card(
-        padding: EdgeInsets.all(theme.layoutTheme.gap(GapSize.sm)),
+        padding: EdgeInsets.all(theme.gap(GapSize.sm)),
         child: SearchSuggestions(history: session.search, onPick: _pick),
       );
     } else if (results.isEmpty) {
@@ -114,7 +114,7 @@ class _SearchScreenState extends State<SearchScreen> {
           if (constraints.maxWidth >= _railFrom) {
             return Row(
               crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: theme.layoutTheme.gap(GapSize.xl),
+              spacing: theme.gap(GapSize.xl),
               children: [
                 SizedBox(width: _railWidth, child: filter),
                 Expanded(child: list),
@@ -124,7 +124,7 @@ class _SearchScreenState extends State<SearchScreen> {
           return Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: homeLooseGap,
+            spacing: theme.gap(GapSize.md),
             children: [filter, list],
           );
         },
@@ -134,7 +134,7 @@ class _SearchScreenState extends State<SearchScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton.ghost(
-          icon: const Icon(PhosphorIconsRegular.arrowLeft),
+          icon: const PhosphorIcon(PhosphorIconsRegular.arrowLeft),
           semanticLabel: 'Back',
           onPressed: () => Navigator.of(context).pop(),
         ),
@@ -162,7 +162,7 @@ class _SearchScreenState extends State<SearchScreen> {
             if (!results.isEmpty) ...[
               Padding(
                 padding: EdgeInsets.symmetric(
-                  horizontal: theme.layoutTheme.gap(GapSize.xs),
+                  horizontal: theme.gap(GapSize.xs),
                 ),
                 child: Text.rich(
                   TextSpan(
@@ -220,7 +220,7 @@ class _CategoryFilter extends StatelessWidget {
       return SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
-          spacing: homeTightGap,
+          spacing: theme.gap(GapSize.xs),
           children: [
             for (final category in SearchCategory.values)
               if (results.countOf(category) > 0)
@@ -236,7 +236,7 @@ class _CategoryFilter extends StatelessWidget {
       );
     }
 
-    final inset = theme.layoutTheme.gap(GapSize.sm);
+    final inset = theme.gap(GapSize.sm);
     return Card(
       padding: EdgeInsets.zero,
       child: Column(
@@ -244,11 +244,11 @@ class _CategoryFilter extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-              homeRailInset,
-              homeRailInset,
-              homeRailInset,
-              homeSnugGap,
+            padding: EdgeInsets.fromLTRB(
+              theme.cardInset,
+              theme.cardInset,
+              theme.cardInset,
+              theme.gap(GapSize.sm),
             ),
             child: Semantics(
               header: true,
@@ -276,19 +276,16 @@ class _CategoryFilter extends StatelessWidget {
                           ? ButtonVariant.secondary
                           : ButtonVariant.ghost,
                       enabled: results.countOf(category) > 0,
-                      // The home profile card's shortcut row.
-                      height: 38,
                       width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: homeSnugGap,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: theme.gap(GapSize.sm),
                       ),
-                      gap: homeSnugGap,
-                      iconSize: 20,
+                      gap: theme.gap(GapSize.sm),
                       mainAxisAlignment: MainAxisAlignment.start,
                       foregroundColor: category == selected
                           ? scheme.tint
                           : scheme.foregroundSubtle,
-                      leading: Icon(category.icon),
+                      leading: PhosphorIcon(category.icon),
                       trailing: Text(
                         '${results.countOf(category)}',
                         style: theme.textTheme.small.copyWith(

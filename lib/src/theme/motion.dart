@@ -215,6 +215,16 @@ class MotionSpringCurve extends Curve {
 ///   a pressed surface shrink; [indicatorStretch] is how far a travelling
 ///   selection indicator stretches; [overlayScale] and [overlayTravel] shape
 ///   an overlay growing out of its anchor.
+///
+/// A [Motion] compares by value, and a theme's equality hangs on it: two
+/// themes that differ only in an unequal `Motion` are different themes, and
+/// an animated theme starts a transition for every such difference. The
+/// three curves are the delicate part, because Flutter's curves have no
+/// `==`. A [Cubic] is compared here by its four numbers, so
+/// `Cubic(.2, 0, 0, 1)` written in a `build` method is fine; any other kind
+/// of curve is compared as Flutter compares it — by identity, for most — so
+/// pass a constant (`Curves.easeInOutCubicEmphasized`), not a curve created
+/// on each build.
 @immutable
 class Motion {
   /// Creates a motion vocabulary. The defaults are [Motion.calm].
@@ -302,12 +312,18 @@ class Motion {
   final Duration slow;
 
   /// The curve of a change in place: ease in and out, weighted to the end.
+  ///
+  /// A [Cubic] or a constant; see the note on equality on [Motion].
   final Curve standard;
 
   /// The curve of something arriving: fast at first, then a long settle.
+  ///
+  /// A [Cubic] or a constant; see the note on equality on [Motion].
   final Curve emphasized;
 
   /// The curve of something leaving: it accelerates away.
+  ///
+  /// A [Cubic] or a constant; see the note on equality on [Motion].
   final Curve exit;
 
   /// The spring of touch response and of selection indicators.
@@ -411,13 +427,19 @@ class Motion {
     reduced: reduced ?? this.reduced,
   );
 
+  /// What stands for [curve] in `==` and `hashCode`: the four numbers of
+  /// a [Cubic], which has no equality of its own, and the curve itself
+  /// otherwise.
+  static Object _comparable(Curve curve) =>
+      curve is Cubic ? (curve.a, curve.b, curve.c, curve.d) : curve;
+
   List<Object?> get _props => [
     fast,
     normal,
     slow,
-    standard,
-    emphasized,
-    exit,
+    _comparable(standard),
+    _comparable(emphasized),
+    _comparable(exit),
     snappy,
     smooth,
     bouncy,

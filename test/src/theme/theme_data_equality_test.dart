@@ -192,6 +192,7 @@ void main() {
           large: base.large,
           small: base.small,
           muted: base.muted,
+          caption: base.caption,
           family: base.family,
           googleFontBuilder: base.googleFontBuilder,
           custom: base.custom,
@@ -282,6 +283,18 @@ void main() {
       expect(
         CardTheme(shadows: shadows()),
         CardTheme(shadows: shadows()),
+      );
+      expect(
+        BottomNavigationBarTheme(shadows: shadows()),
+        BottomNavigationBarTheme(shadows: shadows()),
+      );
+      expect(
+        BottomNavigationBarTheme(shadows: shadows()).hashCode,
+        BottomNavigationBarTheme(shadows: shadows()).hashCode,
+      );
+      expect(
+        BottomNavigationBarTheme(shadows: shadows()),
+        isNot(const BottomNavigationBarTheme(shadows: [])),
       );
       // Deliberately non-const: const lists would be identical anyway.
       expect(

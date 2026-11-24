@@ -12,6 +12,7 @@ import 'package:example/strand/widgets/profile_header_card.dart';
 import 'package:example/strand/widgets/profile_mobile_header.dart';
 import 'package:example/strand/widgets/profile_rail.dart';
 import 'package:example/strand/widgets/profile_tab_content.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:example/strand/widgets/user_menu.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/rendering.dart';
@@ -521,9 +522,12 @@ void main() {
   });
 
   group('takes its measurements from the package', () {
-    testWidgets('a card\'s heading is centred on its button, 14 above the '
-        'content', (tester) async {
+    testWidgets('a card\'s heading is centred on its button, a gap above '
+        'the content', (tester) async {
       await _pumpProfile(tester, size: const Size(1440, 2400));
+      final gap = Theme.of(
+        tester.element(find.byType(ProfileAboutCard)),
+      ).layoutTheme.gap(GapSize.md);
 
       Finder inAbout(Finder finder) => find.descendant(
         of: find.byType(ProfileAboutCard),
@@ -533,7 +537,7 @@ void main() {
       final action = tester.getRect(inAbout(find.byType(ProfileHeaderAction)));
       final text = tester.getRect(inAbout(find.byType(ProfileAboutText)));
       expect(heading.center.dy, action.center.dy);
-      expect(text.top, action.bottom + 14);
+      expect(text.top, action.bottom + gap);
 
       // Without a button the heading is a line of its own.
       final education = tester.getRect(
@@ -548,7 +552,7 @@ void main() {
           matching: find.byType(ProfileLogo),
         ),
       );
-      expect(school.top, education.bottom + 14);
+      expect(school.top, education.bottom + gap);
     });
 
     testWidgets('the mutual connections\' faces line up with the text, their '
@@ -556,28 +560,37 @@ void main() {
       await _pumpProfile(tester, size: _desktop);
 
       final stack = tester.getRect(find.byType(AvatarGroup));
-      // Four 24-point faces, each 6 under the one before it.
-      expect(stack.size, const Size(24 + 18 * 3, 24));
+      // Four faces half the theme's avatar, each a quarter under the one
+      // before it.
+      final face = Theme.of(
+        tester.element(find.byType(AvatarGroup)),
+      ).avatarXs;
+      expect(stack.size, Size(face + face * .75 * 3, face));
       expect(stack.left, tester.getRect(find.text('Noor Haddad')).left);
     });
 
-    testWidgets('on a phone the skill tags keep the desktop chip height and '
-        'the tabs are set at 14', (tester) async {
+    testWidgets('on a phone the skill tags and the tabs keep the theme\'s '
+        'sizes', (tester) async {
       await _pumpProfile(tester, size: const Size(390, 1400));
 
       for (final chip in tester.widgetList<Chip>(find.byType(Chip))) {
         expect(chip.height, isNull);
       }
       expect(tester.getSize(find.byType(Chip).first).height, 32);
-      // Three 22-point faces, each 6 under the one before it.
-      expect(tester.getSize(find.byType(AvatarGroup)), const Size(54, 22));
+      // Faces half the theme's avatar.
+      final theme = Theme.of(tester.element(find.byType(AvatarGroup)));
+      expect(tester.getSize(find.byType(AvatarGroup)).height, theme.avatarXs);
 
       final tabs = tester.getRect(find.byType(TabBar));
       // 48 of tabs and the hairline under them.
       expect(tabs.height, 49);
       for (final label in ['Posts', 'About']) {
         final style = tester.renderObject<RenderParagraph>(_tab(label));
-        expect(style.text.style?.fontSize, 14, reason: label);
+        expect(
+          style.text.style?.fontSize,
+          theme.textTheme.large.fontSize,
+          reason: label,
+        );
       }
     });
   });

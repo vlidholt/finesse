@@ -15,24 +15,24 @@ class _NavigationBarDockedExampleState
     extends State<NavigationBarDockedExample> {
   static const _destinations = [
     NavigationDestination(
-      icon: Icon(PhosphorIconsRegular.house),
-      selectedIcon: Icon(PhosphorIconsFill.house),
+      icon: PhosphorIcon(PhosphorIconsRegular.house),
+      selectedIcon: PhosphorIcon(PhosphorIconsFill.house),
       label: 'Home',
     ),
     NavigationDestination(
-      icon: Icon(PhosphorIconsRegular.magnifyingGlass),
-      selectedIcon: Icon(PhosphorIconsBold.magnifyingGlass),
+      icon: PhosphorIcon(PhosphorIconsRegular.magnifyingGlass),
+      selectedIcon: PhosphorIcon(PhosphorIconsBold.magnifyingGlass),
       label: 'Search',
     ),
     NavigationDestination(
-      icon: Icon(PhosphorIconsRegular.bell),
-      selectedIcon: Icon(PhosphorIconsFill.bell),
+      icon: PhosphorIcon(PhosphorIconsRegular.bell),
+      selectedIcon: PhosphorIcon(PhosphorIconsFill.bell),
       label: 'Notifications',
       showBadge: true,
     ),
     NavigationDestination(
-      icon: Icon(PhosphorIconsRegular.user),
-      selectedIcon: Icon(PhosphorIconsFill.user),
+      icon: PhosphorIcon(PhosphorIconsRegular.user),
+      selectedIcon: PhosphorIcon(PhosphorIconsFill.user),
       label: 'Profile',
     ),
   ];

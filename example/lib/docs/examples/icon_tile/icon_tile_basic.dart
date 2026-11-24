@@ -16,27 +16,27 @@ class IconTileBasicExample extends StatelessWidget {
       alignment: WrapAlignment.center,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        const IconTile(icon: Icon(PhosphorIconsRegular.bookmarkSimple)),
+        const IconTile(icon: PhosphorIcon(PhosphorIconsRegular.bookmarkSimple)),
         const IconTile(
           size: 32,
           iconSize: 18,
-          icon: Icon(PhosphorIconsRegular.fileText),
+          icon: PhosphorIcon(PhosphorIconsRegular.fileText),
         ),
         const IconTile(
           size: 56,
           iconSize: 28,
-          icon: Icon(PhosphorIconsRegular.chartLineUp),
+          icon: PhosphorIcon(PhosphorIconsRegular.chartLineUp),
         ),
         IconTile(
           backgroundColor: scheme.successMuted,
           foregroundColor: scheme.success,
-          icon: const Icon(PhosphorIconsRegular.checkCircle),
+          icon: const PhosphorIcon(PhosphorIconsRegular.checkCircle),
         ),
         IconTile(
           backgroundColor: scheme.muted,
           foregroundColor: scheme.mutedForeground,
           borderRadius: theme.radii.full,
-          icon: const Icon(PhosphorIconsRegular.gear),
+          icon: const PhosphorIcon(PhosphorIconsRegular.gear),
         ),
       ],
     );

@@ -432,11 +432,15 @@ void main() {
     testWidgets('an opaque selected fill stops the card blurring', (
       tester,
     ) async {
-      await pumpFinesse(tester, card());
-      // The finesse card is translucent glass…
+      // A style whose cards are glass: finesse's own are translucent
+      // without a blur.
+      final glass = ThemeData(
+        style: StyleTokens.finesse.copyWith(cardBlur: true),
+      );
+      await pumpFinesse(tester, card(), theme: glass);
       expect(find.byType(BackdropFilter), findsOneWidget);
 
-      await pumpFinesse(tester, card(selected: true));
+      await pumpFinesse(tester, card(selected: true), theme: glass);
       final accent = themeOf(tester, find.byType(Card)).colorScheme.accent;
       // …and a backdrop layer is only paid for while the fill shows it.
       expect(

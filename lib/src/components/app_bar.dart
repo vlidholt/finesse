@@ -10,7 +10,7 @@ import 'package:flutter/widgets.dart';
 ///   leading: const Logo(),
 ///   middle: NavigationBar(destinations: destinations, selectedIndex: 0),
 ///   actions: [
-///     IconButton.ghost(icon: const Icon(PhosphorIconsRegular.bell)),
+///     IconButton.ghost(icon: const PhosphorIcon(PhosphorIconsRegular.bell)),
 ///   ],
 /// )
 /// ```

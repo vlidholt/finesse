@@ -82,10 +82,17 @@ void main() {
     // 36 -> nova's h-8.
     expect(finesse.buttonSizesTheme.regular!.height, 36);
     expect(copy.buttonSizesTheme.regular!.height, 32);
-    // The card goes opaque, so it stops blurring.
-    expect(finesse.cardTheme.blur, greaterThan(0));
+    // The card goes opaque. Neither style blurs behind its cards.
+    expect(finesse.cardTheme.backgroundColor!.a, lessThan(1));
+    expect(finesse.cardTheme.blur, 0);
     expect(copy.cardTheme.blur, 0);
     expect(copy.cardTheme.backgroundColor, copy.colorScheme.card);
+    // A style that does, loses it with the style.
+    final glass = ThemeData(
+      style: StyleTokens.finesse.copyWith(cardBlur: true),
+    );
+    expect(glass.cardTheme.blur, StyleTokens.finesse.glassBlur);
+    expect(glass.copyWith(style: StyleTokens.nova).cardTheme.blur, 0);
     // The published type scale becomes nova's: paragraphs are 14 in both,
     // but `large` drops from finesse's 15-point subtitle to nova's 14, and
     // `h4` from finesse's semibold title to nova's medium one.

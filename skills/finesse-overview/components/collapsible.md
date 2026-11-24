@@ -28,7 +28,7 @@ class CollapsibleBasicExample extends StatelessWidget {
               ),
             ),
             IconButton.ghost(
-              icon: Icon(
+              icon: PhosphorIcon(
                 open
                     ? PhosphorIconsRegular.arrowsInLineVertical
                     : PhosphorIconsRegular.caretUpDown,

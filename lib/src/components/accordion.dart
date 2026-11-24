@@ -458,7 +458,7 @@ class _AccordionItemState<T> extends State<AccordionItem<T>>
 
         final effectiveIcon =
             widget.icon ??
-            Icon(
+            PhosphorIcon(
               effectiveIconData,
               color: theme.colorScheme.foreground,
               size: 16,

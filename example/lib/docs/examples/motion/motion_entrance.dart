@@ -32,7 +32,7 @@ class _MotionEntranceExampleState extends State<MotionEntranceExample> {
             // It grows out of the edge nearest the button that caused it.
             origin: Alignment.bottomCenter,
             child: const Alert(
-              icon: Icon(PhosphorIconsRegular.checkCircle),
+              icon: PhosphorIcon(PhosphorIconsRegular.checkCircle),
               title: Text('Saved'),
               description: Text('Your changes are stored.'),
             ),
@@ -42,7 +42,7 @@ class _MotionEntranceExampleState extends State<MotionEntranceExample> {
             trailing: PopIn(
               visible: saved,
               wipe: true,
-              child: Icon(
+              child: PhosphorIcon(
                 PhosphorIconsBold.check,
                 size: 16,
                 color: scheme.primaryForeground,

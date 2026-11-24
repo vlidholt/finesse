@@ -1,6 +1,6 @@
 import 'package:example/strand/data/jobs_data.dart';
-import 'package:example/strand/widgets/jobs_metrics.dart';
 import 'package:example/strand/widgets/person_avatar.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -14,28 +14,27 @@ class JobFactGrid extends StatelessWidget {
   /// Under this width a half-width tile truncates "4 designers, 12 engineers".
   static const _twoColumnMinWidth = 530.0;
 
-  static const _gap = jobsTightGap;
-
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
+        final gap = Theme.of(context).gap(GapSize.sm);
         final tiles = [for (final fact in facts) _FactTile(fact)];
         if (constraints.maxWidth < _twoColumnMinWidth) {
           return Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: _gap,
+            spacing: gap,
             children: tiles,
           );
         }
         return Column(
           mainAxisSize: MainAxisSize.min,
-          spacing: _gap,
+          spacing: gap,
           children: [
             for (var i = 0; i < tiles.length; i += 2)
               Row(
-                spacing: _gap,
+                spacing: gap,
                 children: [
                   Expanded(child: tiles[i]),
                   Expanded(
@@ -67,13 +66,12 @@ class _FactTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: colors.muted,
         border: Border.all(color: colors.border),
-        // 14: between the theme's `lg` and `xl` corners.
-        borderRadius: const BorderRadius.all(Radius.circular(14)),
+        borderRadius: theme.radii.lg,
       ),
       child: Row(
         spacing: layout.gap(GapSize.md),
         children: [
-          IconTile(icon: Icon(fact.icon)),
+          IconTile(icon: PhosphorIcon(fact.icon)),
           Expanded(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -81,18 +79,13 @@ class _FactTile extends StatelessWidget {
               children: [
                 Text(
                   fact.label,
-                  style: theme.textTheme.muted.copyWith(
-                    fontSize: 12,
-                    height: 16 / 12,
-                  ),
+                  style: theme.textTheme.caption,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
                   fact.value,
-                  style: theme.textTheme.small.copyWith(
-                    fontSize: 14,
-                    height: 20 / 14,
+                  style: theme.textTheme.p.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                   maxLines: 1,
@@ -119,8 +112,7 @@ class JobMatchPanel extends StatelessWidget {
     final text = theme.textTheme;
 
     return Container(
-      // 18: the panel's own inset, a step inside the detail card's.
-      padding: const EdgeInsets.all(18),
+      padding: EdgeInsets.all(theme.gap(GapSize.lg)),
       decoration: BoxDecoration(
         color: colors.successMuted,
         border: Border.all(color: colors.border),
@@ -131,15 +123,15 @@ class JobMatchPanel extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
-            spacing: theme.layoutTheme.gap(GapSize.md),
+            spacing: theme.gap(GapSize.md),
             children: [
               Expanded(
                 child: Row(
-                  spacing: jobsTightGap,
+                  spacing: theme.gap(GapSize.sm),
                   children: [
-                    Icon(
+                    PhosphorIcon(
                       PhosphorIconsFill.sealCheck,
-                      size: 24,
+                      size: theme.glyphLg,
                       color: colors.success,
                     ),
                     Expanded(
@@ -167,17 +159,11 @@ class JobMatchPanel extends StatelessWidget {
               ),
               Text(
                 JobsData.matchScoreLabel,
-                style: text.h3.copyWith(
-                  fontSize: 22,
-                  height: 1,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0,
-                  color: colors.success,
-                ),
+                style: text.h3.copyWith(color: colors.success),
               ),
             ],
           ),
-          const SizedBox(height: jobsSnugGap),
+          const Gap.md(),
           const ProgressBar(
             value: JobsData.matchScore,
             // A hair slimmer than the theme's bar.
@@ -185,10 +171,10 @@ class JobMatchPanel extends StatelessWidget {
             semanticsLabel: 'Skills match',
             semanticsValue: JobsData.matchScoreLabel,
           ),
-          const SizedBox(height: jobsSnugGap),
+          const Gap.md(),
           Wrap(
-            spacing: jobsInlineGap,
-            runSpacing: jobsInlineGap,
+            spacing: theme.gap(GapSize.xs),
+            runSpacing: theme.gap(GapSize.xs),
             children: [
               for (final skill in JobsData.skills) _SkillChip(skill),
             ],
@@ -210,22 +196,17 @@ class _SkillChip extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     final matched = skill.matched;
     return Chip(
-      // The design's 28 plus its 1px outline, which a `Chip` counts inside
-      // its height and the design's CSS box does not.
-      height: 30,
-      padding: const EdgeInsets.symmetric(horizontal: 10),
       variant: matched ? ChipVariant.outline : ChipVariant.dashed,
       backgroundColor: matched ? colors.card : null,
       foregroundColor: matched ? null : colors.mutedForeground,
       semanticLabel: matched
           ? skill.name
           : '${skill.name}, not on your profile',
-      leading: Icon(
+      leading: PhosphorIcon(
         matched ? PhosphorIconsRegular.check : PhosphorIconsRegular.x,
-        size: 14,
         color: matched ? colors.tint : colors.mutedForeground,
       ),
-      label: Text(skill.name, style: const TextStyle(fontSize: 12)),
+      label: Text(skill.name),
     );
   }
 }
@@ -250,9 +231,9 @@ class JobHiringTeam extends StatelessWidget {
         Text(JobsData.hiringTeamTitle, style: text.h4),
         const Gap.md(),
         Row(
-          spacing: theme.layoutTheme.gap(GapSize.md),
+          spacing: theme.gap(GapSize.md),
           children: [
-            const PersonAvatar(person, size: 48),
+            const PersonAvatar(person),
             Expanded(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -287,7 +268,7 @@ class JobHiringTeam extends StatelessWidget {
               ),
             ),
             Button.outline(
-              leading: const Icon(PhosphorIconsRegular.paperPlaneTilt),
+              leading: const PhosphorIcon(PhosphorIconsRegular.paperPlaneTilt),
               onPressed: onMessage,
               child: const Text('Message'),
             ),
@@ -307,13 +288,7 @@ class JobDescription extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final text = theme.textTheme;
-    // The job description is set a size up from the app's body text, with
-    // more leading: 15/24 for the paragraph, 15/23 for the list.
-    final prose = text.p.copyWith(
-      fontSize: 15,
-      height: 24 / 15,
-      color: colors.foregroundSubtle,
-    );
+    final prose = text.p.copyWith(color: colors.foregroundSubtle);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -321,31 +296,26 @@ class JobDescription extends StatelessWidget {
       children: [
         Text(
           JobsData.aboutRoleTitle,
-          style: text.h4.copyWith(fontSize: 18, height: 24 / 18),
+          style: text.h4,
         ),
-        const SizedBox(height: jobsTightGap),
+        const Gap.sm(),
         Text(JobsData.aboutRole, style: prose),
-        const SizedBox(height: jobsWideGap),
+        const Gap.lg(),
         Text(JobsData.responsibilitiesTitle, style: text.h4),
-        const SizedBox(height: jobsTightGap),
+        const Gap.sm(),
         for (final (index, item) in JobsData.responsibilities.indexed) ...[
           if (index > 0) const Gap.sm(),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: jobsTightGap,
+            spacing: theme.gap(GapSize.sm),
             children: [
-              Padding(
-                // The design's drop, which centres the icon on the first
-                // line.
-                padding: const EdgeInsets.only(top: 2),
-                child: Icon(
-                  PhosphorIconsRegular.checkCircle,
-                  size: 20,
-                  color: colors.tint,
-                ),
+              PhosphorIcon(
+                PhosphorIconsRegular.checkCircle,
+                size: theme.glyphLg,
+                color: colors.tint,
               ),
               Expanded(
-                child: Text(item, style: prose.copyWith(height: 23 / 15)),
+                child: Text(item, style: prose),
               ),
             ],
           ),
@@ -374,22 +344,23 @@ class JobCompanyFacts extends StatelessWidget {
         Text('About $companyName', style: text.h4),
         const Gap.md(),
         Wrap(
-          spacing: jobsWideGap,
-          runSpacing: theme.layoutTheme.gap(GapSize.sm),
+          spacing: theme.gap(GapSize.lg),
+          runSpacing: theme.gap(GapSize.sm),
           children: [
             for (final (icon, label) in JobsData.companyFacts)
               Row(
                 mainAxisSize: MainAxisSize.min,
-                spacing: jobsInlineGap,
+                spacing: theme.gap(GapSize.xs),
                 children: [
-                  Icon(icon, size: 18, color: colors.mutedForeground),
+                  PhosphorIcon(
+                    icon,
+                    size: theme.iconBeside(text.muted),
+                    color: colors.mutedForeground,
+                  ),
                   Flexible(
                     child: Text(
                       label,
-                      style: text.muted.copyWith(
-                        fontSize: 14,
-                        height: 18 / 14,
-                      ),
+                      style: text.muted,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),

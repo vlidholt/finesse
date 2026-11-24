@@ -1,9 +1,9 @@
 import 'package:example/strand/data/network_data.dart';
-import 'package:example/strand/widgets/home_pieces.dart';
 import 'package:example/strand/widgets/network_controller.dart';
 import 'package:example/strand/widgets/person_avatar.dart';
 import 'package:example/strand/widgets/strand_pieces.dart';
 import 'package:example/strand/widgets/strand_previews.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -37,7 +37,7 @@ class _NetworkSuggestionsState extends State<NetworkSuggestions> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final suggestions = controller.suggestions;
-    final gap = theme.layoutTheme.gap(GapSize.md);
+    final gap = theme.gap(GapSize.md);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -51,7 +51,7 @@ class _NetworkSuggestionsState extends State<NetworkSuggestions> {
         if (suggestions.isEmpty)
           const Card(
             child: Empty(
-              icon: Icon(PhosphorIconsRegular.usersThree),
+              icon: PhosphorIcon(PhosphorIconsRegular.usersThree),
               title: Text('No more suggestions'),
               description: Text(
                 'You have been through everyone we had in mind. More will '
@@ -96,11 +96,10 @@ class _NetworkSuggestionsState extends State<NetworkSuggestions> {
                     ),
                   if (shown < suggestions.length)
                     Button.secondary(
-                      gap: homeTightGap,
+                      gap: theme.gap(GapSize.xs),
                       textStyle: theme.textTheme.small,
-                      trailing: const Icon(
+                      trailing: const PhosphorIcon(
                         PhosphorIconsRegular.caretDown,
-                        size: 14,
                       ),
                       onPressed: () => setState(() => _expanded = true),
                       child: Text(
@@ -129,12 +128,6 @@ class _PersonCard extends StatelessWidget {
   final NetworkSuggestion suggestion;
   final NetworkController controller;
 
-  static const _avatarSize = 64.0;
-
-  /// The dismiss button, smaller than the theme's smallest so that it sits
-  /// in the card's corner without crowding the portrait.
-  static const _dismissSize = 28.0;
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -145,8 +138,6 @@ class _PersonCard extends StatelessWidget {
 
     return Card(
       radius: theme.radii.xl,
-      // 16 on a desktop and a phone alike, as the job cards are.
-      padding: const EdgeInsets.all(16),
       child: Stack(
         clipBehavior: Clip.none,
         children: [
@@ -163,15 +154,14 @@ class _PersonCard extends StatelessWidget {
                     borderRadius: theme.radii.full,
                     child: PersonAvatar(
                       person,
-                      size: _avatarSize,
+                      size: theme.avatarXl,
                       showOnline: person.online,
                     ),
                   ),
                 ),
               ),
-              const Gap.raw(homeSnugGap),
+              const Gap.sm(),
               Center(child: PersonName(person, onPressed: open)),
-              const Gap.raw(homeHairGap),
               Text(
                 // The trailing line break keeps a one-line headline two
                 // lines tall, so every card in a row is the same height.
@@ -181,13 +171,13 @@ class _PersonCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.muted,
               ),
-              const Gap.raw(homeSnugGap),
+              const Gap.sm(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
+                  PhosphorIcon(
                     suggestion.reasonIcon,
-                    size: 14,
+                    size: theme.iconBeside(theme.textTheme.caption),
                     color: scheme.mutedForeground,
                   ),
                   const Gap.xs(),
@@ -196,12 +186,12 @@ class _PersonCard extends StatelessWidget {
                       suggestion.reason,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: homeFinePrint(theme),
+                      style: theme.textTheme.caption,
                     ),
                   ),
                 ],
               ),
-              const Gap.raw(homeTightGap),
+              const Gap.xs(),
               MutualsLine(
                 people: suggestion.mutuals,
                 label: '${suggestion.mutualCount} mutual',
@@ -216,14 +206,13 @@ class _PersonCard extends StatelessWidget {
             ],
           ),
           PositionedDirectional(
-            // Hung 6 into the card's padding, like a job card's bookmark.
-            top: -6,
-            end: -6,
+            // Hung into the card's padding, so it sits in the corner without
+            // crowding the portrait.
+            top: -theme.gap(GapSize.sm),
+            end: -theme.gap(GapSize.sm),
             child: IconButton.ghost(
-              width: _dismissSize,
-              height: _dismissSize,
-              iconSize: 16,
-              icon: const Icon(PhosphorIconsRegular.x),
+              size: ButtonSize.sm,
+              icon: const PhosphorIcon(PhosphorIconsRegular.x),
               foregroundColor: scheme.mutedForeground,
               semanticLabel: 'Dismiss ${person.name}',
               onPressed: () => controller.dismiss(suggestion),

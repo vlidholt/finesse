@@ -106,12 +106,12 @@ class ButtonIconExample extends StatelessWidget {
       children: [
         Button(
           onPressed: () {},
-          leading: const Icon(PhosphorIconsRegular.envelopeSimple),
+          leading: const PhosphorIcon(PhosphorIconsRegular.envelopeSimple),
           child: const Text('Login with Email'),
         ),
         Button.outline(
           onPressed: () {},
-          trailing: const Icon(PhosphorIconsRegular.caretRight),
+          trailing: const PhosphorIcon(PhosphorIconsRegular.caretRight),
           child: const Text('Next'),
         ),
       ],

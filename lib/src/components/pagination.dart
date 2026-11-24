@@ -221,7 +221,7 @@ class Pagination extends StatelessWidget {
         Button.ghost(
           enabled: canGoPrevious,
           onPressed: canGoPrevious ? () => onPageChanged!(page - 1) : null,
-          leading: const Icon(PhosphorIconsRegular.caretLeft, size: 16),
+          leading: const PhosphorIcon(PhosphorIconsRegular.caretLeft, size: 16),
           child: previousLabel ?? Text(localizations.pagination.previous),
         ),
       );
@@ -278,7 +278,10 @@ class Pagination extends StatelessWidget {
         Button.ghost(
           enabled: canGoNext,
           onPressed: canGoNext ? () => onPageChanged!(page + 1) : null,
-          trailing: const Icon(PhosphorIconsRegular.caretRight, size: 16),
+          trailing: const PhosphorIcon(
+            PhosphorIconsRegular.caretRight,
+            size: 16,
+          ),
           child: nextLabel ?? Text(localizations.pagination.next),
         ),
       );
@@ -349,7 +352,7 @@ class PaginationCompact extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         IconButton.ghost(
-          icon: const Icon(PhosphorIconsRegular.caretLeft),
+          icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft),
           semanticLabel: localizations.pagination.previous,
           enabled: canGoPrevious,
           onPressed: canGoPrevious ? () => onPageChanged!(page - 1) : null,
@@ -364,7 +367,7 @@ class PaginationCompact extends StatelessWidget {
             ),
         SizedBox(width: effectiveGap),
         IconButton.ghost(
-          icon: const Icon(PhosphorIconsRegular.caretRight),
+          icon: const PhosphorIcon(PhosphorIconsRegular.caretRight),
           semanticLabel: localizations.pagination.next,
           enabled: canGoNext,
           onPressed: canGoNext ? () => onPageChanged!(page + 1) : null,

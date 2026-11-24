@@ -38,7 +38,9 @@ own default look and its own rules.
   `reference/ui/` (below) is still the source of truth for those three.
 - **Icons are Phosphor**, vendored into this package (see "Fonts" below) and
   exported from the barrel: `PhosphorIconsRegular`, `PhosphorIconsFill`,
-  `PhosphorIconsBold`, `Light`, `Thin` and `Duotone`.
+  `PhosphorIconsBold`, `Light`, `Thin` and `Duotone`. `PhosphorIcon` is an
+  `Icon` that keeps a small regular icon's line from thinning (see "Optical
+  weight" below).
 
 ### Form factors
 
@@ -56,7 +58,7 @@ Layout that *rearranges* on a phone uses `FormFactorBuilder` or
 `Theme.of(context).formFactor`. Layout that only *resizes* uses the gap scale
 (`Gap.md()`, `FinesseRow(gap: GapSize.lg)`), `PageContainer` and widget
 defaults, all of which read `ThemeData.layoutTheme`. Demo screens hard-code a
-dimension only when the design is deliberately off-scale.
+dimension only for a picture (see the Strand rules below).
 
 ### Glass
 
@@ -69,7 +71,13 @@ value pair — and it returns its child untouched when there is nothing to
 filter, so an opaque style pays for no layer. A backdrop filter has to be
 clipped, and the clip would cut off the surface's own shadow, so `Glass`,
 `Card` and the bars paint shadows from a `DecoratedBox` *outside* the
-`Backdrop`.
+`Backdrop` — a foreground one, painted **after** the surface. A backdrop
+filter samples whatever was painted before it within its blur radius, so a
+shadow painted first is blurred back into the glass as a grey wash;
+`BackdropSurface` orders its shadow the same way.
+`test/src/components/glass_shadow_test.dart` rasterises each floating surface
+with and without its shadow and requires every pixel inside the shape to be
+the same (`glass_shadow_web_test.dart` repeats it in Chrome).
 
 ### Floating surfaces are glass too
 
@@ -83,6 +91,12 @@ top of that — null follows the style, true is shadcn's 70% finish with a
 `test/src/theme/glass_contrast_test.dart` walks every combination over the
 page, black and white.
 
+Toasts are popover surfaces as well: glass in `finesse`, `popover` and
+`popoverForeground` in the shadcn styles (`Toast.filter`,
+`ToastTheme.filter`). `Sonner` crops each stacked toast to its slot with a
+`_ToastClipper` that leaves room for the shadow's reach; the plain `ClipRect`
+it replaced cut every toast's shadow off.
+
 - **A backdrop filter does not survive under an opacity layer on every
   renderer** (the filter samples the layer it is in, which is empty while it
   fades; the engine folds the opacity into the filter only for some layer
@@ -95,7 +109,11 @@ page, black and white.
   `showDialog` set the flag; `SurfacePainter`, the tooltip, `Command` and
   `Dialog` paint through `BackdropSurface`. An effect that composites its
   child into a layer of its own (blur, tint, shader) would hide the
-  backdrop while it runs. `test/src/utils/backdrop_fade_test.dart` locks it.
+  backdrop while it runs. Only the **outermost** surface under a host is
+  offered the fade — a `BackdropSurface` wraps its content in
+  `BackdropFade.none` — or glass inside a solid dialog claims the dialog's
+  fade and the dialog pops in at full opacity.
+  `test/src/utils/backdrop_fade_test.dart` locks it.
 - A tooltip's bubble and arrow are **one path**, filled in one stroke and
   clipped as one, so a translucent tint is not doubled where they overlap.
 - `EntranceEffect` (below) is covered by `fadeThroughBackdrop` too. Its exit
@@ -118,33 +136,61 @@ effects of their own any more.
 Movement and scale ride `MotionSpring`s through `SpringController` /
 `SpringBuilder`, so an interruption keeps its velocity; state fills fade
 through `AnimatedFill` / `AnimatedColorBuilder`. The primitives are in
-`lib/src/utils/` (`spring.dart`, `moving_indicator.dart`, `entrance.dart`,
-`pop_in.dart`, `expand_reveal.dart`, `content_switch.dart`,
-`motion_color.dart`) and are exported.
+`lib/src/utils/` (`spring.dart`, `spring_size.dart`, `moving_indicator.dart`,
+`entrance.dart`, `pop_in.dart`, `expand_reveal.dart`, `content_switch.dart`,
+`motion_color.dart`) and are exported. `AnimatedFill` reads its own duration
+and curve from `Motion.of` (`fast` on `standard`: instant under
+`Motion.none`, still a short fade under reduced motion) — do not pass
+`motion.fast` to it; it needs a `Theme` above it only when one of the two is
+left null. `Motion` compares a `Cubic` by its four numbers, so one written
+in a `build` is fine; any other curve has to be a constant.
 
 - **A click is down and up within one frame**, so a builder never sees
   `pressed`. `PressScale` takes a tap count (`taps:`) and pulses on it;
   `Pressable` owns that (`pressScale:`), and a widget that also wraps
   `PressScale` inside a `Pressable` builder scales twice. `Button.raw` does
   not scale unless given `pressScale`.
-- **A selection or highlight that travels cannot be the item's own fill.**
-  Tabs, toggle groups, navigation destinations, menubar triggers, menu rows,
-  select options and command items mark a `MovingIndicatorTarget` and their
-  list paints one `MovingIndicator`. It resolves its target at paint time (a
-  tab is a relayout boundary), so it must sit inside the scroll view with no
-  `RepaintBoundary` between it and its targets. Text takes its highlighted
-  colour at once, so the glide is switched off when that colour does not
-  read on the bare surface (bold menu accent). The lazy `Select`
-  (`optionsBuilder`) has no common parent and does not glide.
+- **A selection that travels cannot be the item's own fill.** Tabs, the tab
+  bar, toggle groups, navigation destinations and menubar triggers mark a
+  `MovingIndicatorTarget` and their list paints one `MovingIndicator`. It
+  resolves its target at paint time (a tab is a relayout boundary), so it
+  must sit inside the scroll view with no `RepaintBoundary` between it and
+  its targets.
+- **A menu's highlight does not travel.** Menu rows, select options and
+  command items had the glide and lost it: the highlight follows the pointer
+  and the arrow keys row by row, there or not, with no fade and no glide. It
+  is the row's own fill again (a menu row is a `Button` with
+  `transitionDuration: Duration.zero`). In `finesse` the fill is a wash of
+  the menu's foreground (`StyleTokens.menuHighlightOpacity`/`Dark`, .06/.09)
+  under text that keeps its colour — an opaque accent fill is a bright slab
+  on glass. A style without the token keeps shadcn's accent fill, and a
+  bold menu accent fills the row with the primary either way.
 - **Overlays grow from their anchor.** `Portal` publishes a `MotionOrigin`
   (corrected for the fallback side and the screen-edge shift) and `Popover`
   defaults to `EntranceEffect.forMotion(Motion.of(context))`, which returns
-  the identical list per token set (effects have no `==`). The entrance
-  starts when the portal reports the overlay on screen (`Portal.onShown`),
-  not at `show()`.
+  the identical list per token set (effects have no `==`; the cache is
+  bounded to 32 entries). The entrance starts at `Portal.onShown`, not at
+  `show()`: the report comes after the frame that first builds the overlay,
+  for every kind of anchor. The entrance runs on a controller whose
+  duration is set by the animate widget *inside* the overlay, so one started
+  before that widget existed ran on the controller's previous duration
+  (`test/src/raw_components/portal_shown_test.dart`).
 - A wrapper that appears only mid-animation re-parents its child and drops
   its state, so the primitives keep one tree shape (an identity `Transform`
-  costs no layer).
+  costs no layer): `PopIn` keeps its `Opacity` and `ClipRect` for the whole
+  entrance, and `Tabs` builds its `Align` whether or not the tabs expand. A
+  widget that pops *out* keeps drawing what it showed — `IndicatorBadge`
+  remembers its last count while it leaves.
+- **`buildTransitions` runs on every tick** of the route's animation and of
+  the secondary one, for the page and for the one it covers, each time
+  around a new `child`. A `CurvedAnimation` made there leaks a listener per
+  tick and an animate widget built there re-adds every effect sixty times a
+  second. What depends only on the route is kept with the route
+  (`FinessePageRoute._animations`, `_AnchoredPopoverRoute._animations`,
+  `DialogRoute._blurLayer`); the page is moved in paint (`_PageShift`); and
+  a dialog's animate widget is made once per direction, with the content
+  reaching it through `_RouteChild`/`_RouteChildSlot`
+  (`test/src/page_route_motion_test.dart`).
 - A dialog route takes its transition duration from the longest effect;
   `MotionSpring.settleDuration` is about 1.2 × the perceptual duration on
   purpose. Do not lengthen it.
@@ -210,8 +256,15 @@ themes. Understanding this order prevents most theming bugs.
   own wins, so the two can never disagree.
 - `ThemeData.textTheme` comes from `variant.textTheme()`, **not** from the
   merged input. That is what applies the style's text roles to `small`, `muted`,
-  `p`, `list` and `large`. Reading the raw input here once made a style change
-  resize components but leave every font size alone.
+  `caption`, `p`, `list` and `large`. Reading the raw input here once made a
+  style change resize components but leave every font size alone.
+- `TextTheme.caption` is the fine print a size under `muted` (counts,
+  timestamps, sources; 12/16 in `finesse`): the `caption` role's size, line
+  height and tracking, in the muted colour, at the text theme's own regular
+  weight. The role's medium weight is for the components that label things
+  with it (badges, navigation items); metadata set in it stops receding.
+  `TextTheme.custom` requires it
+  (`test/src/theme/text_theme/caption_style_test.dart`).
 - `ThemeData` records the caller's raw factory arguments (`_inputs`,
   `@ignore`d by the generator) and its hand-written `copyWith` re-runs the
   factory from them, so `copyWith(radius:/colorScheme:/style:/...)` re-derives
@@ -220,6 +273,18 @@ themes. Understanding this order prevents most theming bugs.
   factory parameter means adding it to `_ThemeInputs` and `copyWith`
   too** — `test/src/theme/theme_data_copy_with_test.dart` catches the common
   ones.
+- **Never call `ThemeData.copyWith` in a `build`.** It re-runs the factory —
+  every component theme derived again — and hands `Theme` a new object, so
+  its dependents compare some seventy component themes to learn nothing
+  changed. A widget that re-themes its subtree derives that theme once per
+  ambient theme: a top-level `Expando<ThemeData>` keyed by the ambient
+  `ThemeData` (`_expandedActionsThemeOf` in `dialog.dart`, `_contentThemeOf`
+  in `tooltip.dart`, the board's `_itemThemeOf`) or an
+  `identical(theme, last)` check (`Sonner`); `FinesseApp`'s fallback themes
+  are static. `test/src/components/derived_theme_identity_test.dart` holds
+  it. Still open: `Tooltip._syncEffectiveTheme` runs the factory once per
+  tooltip at mount and per theme change, and the board's item theme is
+  derived per lerped `ThemeData` for the frames of a theme switch.
 - With no `brightness`, `ThemeData` takes it from the scheme's
   background luminance.
 - There are **two variants**, but no longer two copies:
@@ -232,10 +297,19 @@ themes. Understanding this order prevents most theming bugs.
   `menuColorScheme` (shadcn's "Inverted" — pass the dark counterpart scheme;
   the reference toggles the `dark` class on menu surfaces, so in dark mode
   inverted is a no-op), `menuTranslucent` (`popover/70` + backdrop blur,
-  `foreground/10` row highlights) and `menuAccent` (bold = the scheme's
-  accent pair is rewritten with its primary pair *before* derivation). The
-  example editor passes these through; it no longer derives menu colours
-  itself.
+  `foreground/10` row highlights) and `menuAccent` (bold = a highlighted row
+  filled with the menu palette's primary pair). The example editor passes
+  these through; it no longer derives menu colours itself.
+- **`menuAccent` is carried by the variant, and the colour scheme is never
+  rewritten.** shadcn implements "bold" by pointing `--accent` at
+  `--primary`, and this package did the same before derivation. But here
+  the accent is far more than a menu colour — the wash of a selected card,
+  chip or list tile, an incoming chat bubble, an icon tile, the bottom bar's
+  selected tab — and all of them turned into primary-coloured slabs. Now
+  `DefaultThemeVariant.menuAccent` (`rebuild(menuAccent:)`) is read in one
+  place, `menuItemHighlight`/`menuItemHighlightForeground`, and
+  `test/src/theme/menu_accent_test.dart` walks palette × style ×
+  brightness × accent. The `MenuAccent` enum lives in `themes/base.dart`.
 
 ### Theme equality is load-bearing
 
@@ -246,9 +320,8 @@ generated `==` for the rest (see the comment in any of them, e.g.
 `flutter_animate` `Effect`s have no `==`, so effects lists only compare equal
 when they are const.
 
-
 `AnimatedTheme` is an `ImplicitlyAnimatedWidget`: if `ThemeData !=` the
-previous one, it starts a 200 ms lerp across ~54 component themes on every
+previous one, it starts a 200 ms lerp across ~70 component themes on every
 rebuild. Anything that breaks value equality — a method tear-off in `==`, a
 non-const `Widget` in a theme field, a `List` compared by identity — silently
 costs a full re-animation per frame. `test/src/theme/theme_data_equality_test.dart`
@@ -324,8 +397,44 @@ load. Ours are plain `const IconData(code, fontFamily:, fontPackage:
   a name header has its first paragraph swallowed as the name.
 - Inside this package's own tests the families are registered without the
   `packages/finesse/` prefix, and tests load no fonts anyway, so icons are
-  boxes there. That is expected.
+  boxes there. That is expected (the stroke tests below load the regular
+  font themselves).
 - To update: see `fonts/phosphor/README.md`.
+
+### Optical weight
+
+The regular weight draws its line a sixteenth of the icon's size — 1.5 at
+24, 1 at 16, 0.75 at 12 — so a small icon looks thin beside a large one.
+`PhosphorIcon` (`lib/src/icons/phosphor_icon.dart`) is an `Icon` subclass
+that, for a `PhosphorIconsRegular` glyph smaller than
+`PhosphorIconTheme.referenceSize`, fills the glyph and strokes a same-colour,
+round-joined outline over it: `strength × (reference − size) / 16` more
+line, so 1.25 at 16 and 1.125 at 12. The style sets both (`iconOpticalSize`
+24, `iconOpticalStrength` 0.5; 0 switches it off). Every other icon — another
+weight, another font, at or above the reference — is a plain `Icon`.
+
+- **Do not swap fonts by size instead.** That was built first (bold below
+  18, light from 28) and thrown away: bold is a 1.5× step, so a 16-point
+  icon came out visibly heavier than an 18-point one; the tables mapping
+  each regular glyph to its twins keep three fonts whole in a release build
+  (+1.4 MB on the web); and an `IconData` built at run time instead of
+  looked up in a const table fails the release build's icon tree-shaker.
+- The outline overlaps the fill by half its width. Painted in a translucent
+  colour or with a blend mode the overlap would be blended twice — a darker
+  rim inside every edge — so then both are painted opaque inside one
+  `saveLayer` that carries the alpha and the blend mode.
+- The glyph is a leaf render object (`ThickenedGlyph`) built by
+  `PhosphorIcon.build`, so there is one `Icon` in the tree and no `RichText`
+  under a thickened icon. `find.byIcon` finds it once; `find.byType(Icon)`
+  matches the exact type and does not — use `find.bySubtype<Icon>()`.
+- `test/src/icons/phosphor_icon_stroke_test.dart` measures the painted line
+  with the real font at 32 device pixels per logical pixel: at a screen's
+  own density the platform fattens a small glyph and the figures differ per
+  machine. `phosphor_icon_stroke_web_test.dart` runs it again in Chrome,
+  where a browser test has no asset bundle and draws all text in the test
+  font: it uses a five-glyph subset embedded in `phosphor_subset_font.dart`
+  and sets `ui_web.TestEnvironment` to let real fonts through. Not checked
+  on Impeller.
 
 ## Colour tokens (v4)
 
@@ -340,7 +449,8 @@ load. Ours are plain `const IconData(code, fontFamily:, fontPackage:
   destructive is a soft `/10` tint, secondary hover is a 5% foreground mix,
   and command items highlight with `bg-muted`. Menu items still use
   `focus:bg-accent focus:text-accent-foreground` — with **every descendant**
-  (icons, shortcuts) following the foreground.
+  (icons, shortcuts) following the foreground. (`finesse` washes the row
+  instead; see "A menu's highlight does not travel" under Motion.)
 - **Dark `--border` and `--input` are translucent whites** (10% and 15%). This
   matters: an opaque grey hairline disappears against a card of the same value.
 - The dark card and popover are a step lighter than the page.
@@ -407,12 +517,31 @@ load. Ours are plain `const IconData(code, fontFamily:, fontPackage:
 - **`FocusRing` is the same widget shown or hidden.** Returning the child
   bare while hidden re-parented it whenever focus came or went, which
   re-created its state and snapped its implicit animations.
-- **An overlay is not in its anchor's branch of the tree.** When the anchor
-  goes inactive — an `IndexedStack` child that is not showing has its
-  tickers disabled — the overlay stays on screen and its exit animation
-  never runs. `Popover` and `Tooltip` hide their portal while
-  `TickerMode` is disabled and finish a close at once
-  (`test/src/components/popover_ticker_mode_test.dart`).
+- **An overlay is not painted where its anchor is, and nothing says "this
+  subtree is hidden" in one place.** Hide the anchor's part of the tree and
+  a menu left open sits over whatever replaced it. `AnchorStage`
+  (`lib/src/utils/anchor_stage.dart`) therefore asks three times.
+  `TickerMode`: disabled under a covered route. `Visibility.of`: false in
+  the hidden children of an `IndexedStack`, which keeps their tickers
+  *running* — `TickerMode` alone misses the commonest case. And whether the
+  anchor is painted at all, by walking `paintsChild` up the render tree
+  after each frame while the overlay is open: an `Offstage`, an `Opacity`
+  of zero and a kept-alive page tell their descendants nothing. The first
+  two are dependencies and act in the frame that hides the anchor; the
+  third is a frame late.
+  `Popover` and `Tooltip` build nothing in the overlay while off stage (the
+  portal takes its overlay down a frame after it is told to) and finish a
+  close at once; the board asks the first two itself. An anchor scrolled
+  out of view is still on stage.
+  `test/src/components/overlay_off_stage_test.dart` walks every way of
+  hiding against every overlay (with `popover_ticker_mode_test.dart`).
+- **A cancelled `TickerFuture` never completes.** `await
+  controller.reverse()` does not return if anything else takes the
+  controller over — an entrance restarting it, effects that change length
+  mid-exit — and whatever came after the `await` (closing the tooltip)
+  never happens. `await controller.reverse().orCancel` inside a
+  `try`/`on TickerCanceled`, then decide again (`Tooltip._leave`,
+  `test/src/components/tooltip_lifecycle_test.dart`).
 - **`Pressable` takes hover from a `MouseRegion`**, not from
   `FocusableActionDetector`'s highlight callback, which only fires in the
   traditional highlight mode. A `semanticLabel` excludes the *content's*
@@ -439,6 +568,16 @@ load. Ours are plain `const IconData(code, fontFamily:, fontPackage:
   `SelectTheme.minHeight`. The time picker has no reference counterpart;
   its fields deliberately borrow the input's text role, decoration and
   height rather than carrying their own metrics.
+- **Alignment goes outside the decorator as well.** `Tabs` placed its
+  `w-fit` strip with an `Align` *inside* its `Decorator`, so in a parent
+  that stretches it the decoration was pulled out to the full width and
+  only the tabs were placed. The `Align` is around the decoration now,
+  `heightFactor: 1`, and `widthFactor: 1` when the `Tabs` has no panels, so
+  a list on its own is as small as its strip wherever its parent lets it
+  be. A tab's text label is one line with an ellipsis in a `Flexible`, so
+  an expanded tab in a narrow strip truncates instead of overflowing its
+  row; a `Tab.child` that is itself a `Flexible` is left alone (two around
+  one child is an error). `test/src/components/tabs_list_test.dart`.
 - **`Border` requires colour-uniform sides to paint a radius**, and
   `BorderSide.none` carries opaque black. `FinesseBorderSide.toBorderSide()`
   therefore keeps its colour at zero width. Any component that draws only some
@@ -479,6 +618,20 @@ load. Ours are plain `const IconData(code, fontFamily:, fontPackage:
   flips `debugDisableShadows` off, which flutter_test otherwise leaves on.
   Tests that introspect a component's fill or border go through
   `test/decoration_finders.dart` to look past the wrapper.
+- **On the web `Path.combine` returns its first operand unchanged.** The
+  clip above was `Path.combine(PathOperation.difference, bounds, shape)`, so
+  in a browser it never cut its hole and every outer shadow was painted
+  behind the whole element: the grey, "dirty" look of every translucent
+  card, bar, menu, dialog and sheet on the web, and of none of them in a
+  test. Do not use `Path.combine` in paint code. A hole is an even-odd path
+  (`_clipOutside` in `shadow.dart`), cut **one contour at a time** —
+  even-odd counts an overlap twice, so a tooltip's bubble and arrow cut out
+  together would leave their overlap in. A union is two contours wound the
+  same way and filled non-zero (the tooltip's outline). The shadow tests
+  now also run in a browser: `test/src/utils/shadow_web_test.dart` and
+  `test/src/components/glass_shadow_web_test.dart`. CI runs every
+  `*_web_test.dart` with `--platform chrome`; the VM suite skips them
+  (`@TestOn('browser')`).
 - `Button` centres its label (`TextAlign.center` in its DefaultTextStyle).
   Anything button-based that should read as a row — menu items — must merge
   `TextAlign.start` back in below the button.
@@ -494,8 +647,25 @@ load. Ours are plain `const IconData(code, fontFamily:, fontPackage:
 - A widget with no intrinsic height stretches when its parent hands down tight
   constraints. `Kbd` takes an explicit height and an `Align(heightFactor: 1)`
   so a key cap stays key-shaped inside a button's row.
-- Fixed-size boxes around text (OTP slots) must multiply by
-  `MediaQuery.textScalerOf(context).scale(1)` or the glyph is clipped.
+- **A style height is a floor, not a size, once text is scaled.** `h-9` is
+  the height at the platform's own text size; the label scales and the box
+  did not, so a tab lost its label at 1.3× and a small button at 1.6×.
+  `Button` (and so `Tab` and menu rows), `Toggle`, `Chip` and `TabBar`
+  constrain `minHeight: h, maxHeight: textScaledMaxHeight(context, h)`
+  (`lib/src/utils/text_scaled_height.dart`): exactly `h` at a scale of 1 or
+  less, so the heights that line controls up on a row are untouched, and
+  above 1 the control grows only when its content needs the room — which
+  means nothing inside may expand to the height it is offered. Only a box
+  that is fixed in *both* directions around a glyph (an OTP slot, a
+  time-picker field) multiplies its side by
+  `MediaQuery.textScalerOf(context).scale(1)`.
+  `control_heights_test.dart` walks scales from .85 to 3. Not done:
+  calendar cells are fixed squares and `AppBar` stays 65.
+- **Padding derived to fill a fixed height leaves no room for anything
+  else inside it.** A style with a tab height pads the label to fill it
+  exactly; the no-secondary-border variant's focus reserve is inside that
+  height too, so the label was laid out in a line's height less the reserve
+  and lost its descenders. The variant takes the reserve out of the padding.
 - Vertical centring in a fixed-height field is governed by the **content
   column's `mainAxisAlignment`**, not by an inner `Align`.
 - State-dependent text colour must be resolved where the state is known. A
@@ -523,8 +693,60 @@ load. Ours are plain `const IconData(code, fontFamily:, fontPackage:
   guard. On web this reads as a browser bug, which is how it went unnoticed.
 - **Escape must not be bound unconditionally.** A `CallbackShortcuts` for
   Escape consumes the key even while its overlay is closed, so the enclosing
-  dialog never closes. Use `DismissShortcut` (`lib/src/utils/`), whose
-  action reports itself disabled — and the key unhandled — while inactive.
+  dialog never closes. Use `DismissShortcut` (`lib/src/utils/`, exported),
+  which leaves the key unhandled while inactive. It is a `Focus(onKeyEvent:)`
+  on the focus chain, not a `Shortcuts` + `Actions` pair: an action is
+  looked up from the focused widget by its intent's type, so the *nearest*
+  one answers for every `Shortcuts` on the way up, and an inactive inner
+  `DismissShortcut` shadowed the active one around it (a closed popover
+  inside a shown tooltip). `isActive` is asked once, *before* `onDismiss`:
+  asked afterwards it answers for the next press, and the Escape that closed
+  the overlay is reported unhandled (the platform beeps, a browser leaves
+  full screen). Nested, one press closes one layer, innermost first
+  (`test/src/components/escape_propagation_test.dart`).
+- **A focused text field consumes Escape**, whether or not it has a use for
+  it, so a handler that waits for the keys nobody wanted never hears it.
+  Wrap the `DismissShortcut` directly around the widget that holds the
+  focus. Where the focus is not in your subtree at all —
+  `showPopover(requestFocus: false)`, whose route is above the one with the
+  focus — the route listens with
+  `FocusManager.instance.addEarlyKeyEventHandler`, and stands back when the
+  focus is inside the popover so its own bindings act first.
+- **Focus and popovers.** `Popover.requestFocus` (also on `ContextMenu`,
+  `ContextMenuRegion`, `DropdownMenu`, `DatePicker` and `showPopover`; not
+  on `Select` or the menubar) says whether the popover takes the focus when
+  it opens. True traps Tab in a `FocusScope`; false leaves the caret where
+  it is and makes the popover's controls the Tab stops after its child.
+  Either way child and overlay are one `FocusTraversalGroup` under an
+  `OrderedTraversalPolicy`, child first: reading order would put a popover
+  that opened *above* its anchor before it, and the group is there in both
+  modes so the child keeps its place in the tree when the flag changes.
+  The overlay is built below the portal, so in the focus tree it is a
+  descendant of what surrounds the child and one `DismissShortcut` hears
+  Escape from both. The focus goes back at `hide()`, in a microtask, not
+  when the exit has played: whatever closed the popover may have asked for
+  the focus itself. A text field gives up the focus on a click outside *its*
+  tap region, so a field that keeps the caret under a popover takes the
+  popover's `groupId` (`test/src/components/popover_focus_test.dart`).
+- **`FocusScopeNode.requestFocus(node)` adopts a node no widget owns.** An
+  unattached node is reparented under the route's scope, where it becomes a
+  primary focus that no key event or traversal can reach and that outlives
+  its own disposal ("FocusNode used after disposed", much later). A form
+  field made of several controls (OTP, radio group, time picker) hands its
+  node to none of them, so `FinesseFormFieldState.focus()` asks the node
+  only when `node.context != null` and otherwise the first focusable control
+  in *element* order — a `FocusNode`'s children are in the order they were
+  attached, which a rebuild shuffles
+  (`test/src/components/form_focus_test.dart`).
+- **On the web the default shortcuts scroll with the arrow keys**; on every
+  other platform they move the focus. A list that left its arrows to the
+  defaults — a menu, a select's options — could be opened from the keyboard
+  in a browser and then not walked. `ArrowKeyFocus`
+  (`lib/src/utils/arrow_key_focus.dart`, internal) binds them to
+  directional focus around such a list; a text field inside keeps its own.
+  `menu_arrow_keys_test.dart` runs on the VM with the web's shortcut map,
+  `menu_arrow_keys_web_test.dart` in Chrome. Not checked on the web: the
+  menubar's left/right and the command palette.
 - **Each root context menu has its own tap-region group**, shared with its
   submenus (`ContextMenuState.tapRegionGroupId`). A single global group
   made a tap on another menu's trigger count as inside, so the open menu
@@ -570,21 +792,36 @@ load. Ours are plain `const IconData(code, fontFamily:, fontPackage:
   changes what `FocusManager.highlightMode` returns without sending one. A
   test that mixes mouse and Tab calls `useTraditionalHighlights()` first.
 - `pumpAndSettle` hangs on anything with `Skeleton` or `Spinner`; pump
-  fixed frames instead.
-- A popover's entrance starts when its overlay is first on screen — two
-  frames after `show()`, while the portal measures it unseen (the only time
-  it ignores pointers) — and takes about 290 ms; the exit takes
-  `Motion.fast`. The content takes taps from its first visible frame, but
-  under a scale transform, so pump ~12 × 50 ms before tapping an option, and
-  pick options near the top of the list, since ones below the scroll fold
-  are found but not tappable.
+  fixed frames instead. A `StreamingText` settles only once nothing is
+  streaming: its caret breathes for as long as more text is expected.
+- A popover's entrance starts after the frame that first builds its overlay
+  (`Portal.onShown`) — a frame or two after `show()`; an auto anchor is
+  first laid out unseen to be measured, the only time the overlay ignores
+  pointers — and takes about 290 ms; the exit takes `Motion.fast`. The
+  content takes taps from its first visible frame, but under a scale
+  transform, so pump ~12 × 50 ms before tapping an option, and pick options
+  near the top of the list, since ones below the scroll fold are found but
+  not tappable. A popover that took the focus gives it back at `hide()`,
+  not when the exit has played.
+- **An overflow is reported once per render object.** A test that checks
+  "nothing overflows" at several window sizes or text scales pumps a fresh
+  tree for each (`pumpWidget(const SizedBox.shrink())` in between); pumped
+  over the same tree, every size after the first passes whatever it does.
+- **Under the fake clock, do not `await` the `close()` of a
+  `StreamController` a mounted widget listens to**: the done event is only
+  delivered by the next pump, the future never completes and the test hangs
+  instead of failing. `unawaited(chunks.close())`, then pump. A stand-in
+  stream is a `StreamController` driven by `Timer`s that `onCancel` cancels
+  (`example/lib/strand/widgets/messages_assistant.dart`), not an `async*`
+  around `Future.delayed`, whose pending delay outlives the listener.
 - A controller started between two frames moves on the *second* pump: pump
   once before a timed pump when sampling an animation. A test that reads a
   colour or ring right after a state change pumps the fade (200 ms) or the
   spring (400 ms) first.
 - An overlay's element hangs under its anchor, so when the anchor is off
   stage a default finder calls a menu that is still on screen "gone"; such
-  tests use `skipOffstage: false`.
+  tests use `skipOffstage: false`. A board's lifted copy hangs under the
+  board in the same way.
 - Example tests set `GoogleFonts.config.allowRuntimeFetching = false`; the
   resulting log lines are noise, not failures.
 
@@ -625,6 +862,63 @@ load. Ours are plain `const IconData(code, fontFamily:, fontPackage:
   `com.apple.security.network.client` entitlement that `google_fonts` needs)
   will not commit.
 
+## Performance
+
+What a frame costs on the web is counted by
+`example/test/perf_structure_test.dart` (backdrop filters, save layers, builds
+and paints per scroll frame, at rest and across a theme switch, per Strand
+screen at both sizes) and timed in a browser with
+`flutter build web --release -t test_driver/perf.dart` and
+`await finessePerf.scroll(1200, 2)` in the console. The Browser pane must be
+*showing*: a hidden pane runs animation at 1 Hz. `FrameTiming.raster` on the
+web ends when commands reach the GPU, so GPU-bound work does not show in it.
+
+- **A clip the size of a shadow is the most expensive thing here.** Skia has
+  no analytic form for "everything outside this rounded box" as one path: on
+  the web it rasterises a mask on the CPU and uploads it again on every frame
+  the surface moves. `paintOuterShadows` (`lib/src/utils/shadow.dart`) clips
+  by the bounding rectangle (`ClipOp.difference`, no mask) plus four corner
+  slivers, and not at all under an opaque fill; other shapes (a tooltip with
+  its arrow) keep the per-contour even-odd clip. Do not replace it with one
+  `clipPath`; `shadow_test.dart` counts and measures the clips.
+- **Cards do not blur.** `cardBlur` is false in every style: a card lies on
+  the flat page and a backdrop filter per card is paid every frame. Cards stay
+  translucent. Bars, popovers, menus, tooltips, toasts and floating `Glass`
+  are the glass. Glass inside scrolling content or on a flat fill is
+  `Glass(frosted: false)`; a label on a photograph is a plain scrim, not an
+  isolated backdrop (that was a save layer and a filter per card). A theme
+  opts in with `StyleTokens.finesse.copyWith(cardBlur: true)` or
+  `CardTheme(blur: …)`; the example's Frost preset does.
+- **A scrolling page is a layer, and so is a card.** `PageContainer` and
+  `Card` each add a `RepaintBoundary`: a scroll paints nothing, and an
+  animation on the page repaints the page's own few boxes. A hand-rolled
+  `SingleChildScrollView` page needs the boundary itself. A real feed is a
+  lazy list.
+- **A theme is switched, not interpolated.** `FinesseApp` uses
+  `CrossFadeTheme` (`lib/src/theme/cross_fade_theme.dart`): one build under
+  the new theme, the previous frame faded out over it as a picture, timed
+  from the frame after the rebuild. `AnimatedTheme` rebuilt the app on every
+  frame of the lerp. Because of that, an implicit animation must not chase a
+  theme change: `AnimatedColorBuilder` and `AnimatedFill` jump when the theme
+  did (`ThemeChange`), and `FinesseMaterial` does not animate its text style.
+  Theme equality is still load-bearing: an unequal theme per build is a full
+  rebuild per build.
+- **Something that never stops is painted, not built**, in a layer of its own
+  (`TypingIndicator`). Nothing may be built or scheduled on a screen at rest.
+- **Never `GoogleFonts.getFont(name)` or `asMap()`**: either keeps all 1,700
+  families in the app (8.5 MB of JavaScript). Name the method
+  (`GoogleFonts.inter`); `EditorFont.builder` is a tear-off per font.
+- **An icon font with no glyph in use is bundled whole**, not shrunk to
+  nothing. `PhosphorFontAnchor` (`lib/src/icons/phosphor_font_anchor.dart`),
+  under every `Theme`, names one glyph of each family — each in an expression
+  at the call site; a constant list and parameter defaults are both invisible
+  to the tool. A seventh family needs adding there
+  (`phosphor_font_anchor_test.dart` compares with the pubspec). Verified on
+  the web only.
+- `--wasm` was measured and not adopted: without cross-origin isolation,
+  which GitHub Pages cannot provide, skwasm rasterises on the main thread and
+  a frame costs the same.
+
 ## The board
 
 `Board` (`lib/src/components/board*.dart`) is controlled: it reports a
@@ -660,9 +954,42 @@ parent that refuses, sorts or applies late is still animated correctly.
   anyway, or a click lifts the card. The mouse slop equals the pan slop on
   purpose: the board's listener is deepest, so at the same distance it beats
   a `SelectionArea` around it (the docs pages).
-- Overlay entries cannot be inserted during build, so a card the parent
-  moved to another column by itself is hidden at once (`_pendingFlights`)
-  and takes off post-frame.
+- **Lifted copies are overlay children of the board**, built by one
+  `OverlayPortal` (`_ProxyLayer`), not overlay entries. They are painted
+  right above the board's own route — under a dialog or a page opened over
+  it, where an entry in the root overlay stayed frozen on top — and inherit
+  what the board inherits. The layer excludes focus, selection and
+  semantics: a copy is a picture. The portal may not be shown, hidden or
+  rebuilt while the tree is building or being laid out, so `_syncPortal`
+  defers to post-frame, and a card the parent moved to another column by
+  itself is still hidden at once (`_pendingFlights`) and takes off after
+  the frame.
+- **Nothing is set in motion off stage.** `_onStage` is `TickerMode` enabled
+  *and* `Visibility.of` (a hidden `IndexedStack` child keeps its tickers).
+  Going off stage, and the app going to the background, calls `_settle()`:
+  the held item is put back, flights end, shifts are zeroed and the drag's
+  end is reported. A copy left in the air would hang over whatever is shown
+  instead and finish its flight long after the drop.
+- **Slot and item are separate widgets.** `_BoardSlot` is the list's child
+  (keep-alive, shift, FLIP); `_BoardItem` is built inside it under a
+  board-owned `GlobalKey` per id (`_itemKey(id)`), so an item that changes
+  column is re-parented with its state and its keyboard focus. There is no
+  refocusing step, and none should come back.
+- `_RenderProxy` is a repaint boundary whose layer *is* the transform: a
+  new position updates that layer and paints nothing again. Do not wrap the
+  copy in anything that changes with its state, or it repaints every frame
+  of a drag.
+- A slot created wanting to be kept alive can only tell the list after the
+  frame; until then `_wishPending` keeps `updateKeepAlive()` from
+  withdrawing the wish, which `AutomaticKeepAlive` asserts on.
+- An item whose copy is in the air is not a Tab stop. A traversal key in an
+  item that a lazy list keeps alive off screen first scrolls it into view
+  (`_showItem`): a kept-alive child has no position, and the focus
+  traversal's own scroll-to-reveal throws.
+- `canMove`, `canAccept` and `limit` are the app's code and a pointer
+  reports many times a frame: they are asked when the target changes, after
+  a rebuild and once more at the drop, not on every event. A drop the rules
+  no longer allow is not reported.
 - A `Card` inside a board is themed through a `Theme` override cached per
   `ThemeData` in an `Expando` (`ThemeData.copyWith` re-runs the factory).
 - The landing pop is one spring given a push found by bisection so the scale
@@ -675,6 +1002,72 @@ parent that refuses, sorts or applies late is still animated correctly.
   `'${w.runtimeType}'.startsWith('_BoardColumnView')`; never
   `await controller.showColumn()` in a widget test (it completes only as
   frames are pumped); layout tests need a real font, as elsewhere.
+  `board_regression_test.dart` holds what review found (state that must
+  survive a change around it, moves that must be refused, copies that must
+  not outlive their moment) and
+  `board_fuzz_test.dart` runs seeded random sessions (drags, keys, lists
+  changed underneath, the board hidden, covered and backgrounded) that fail
+  on any exception, on a copy left over at rest and on a board that never
+  rests — keep every seed that finds something.
+
+## The chat list and streaming text
+
+`ChatList<T>` (`lib/src/components/chat_list.dart`) is controlled: the
+parent owns `messages`, oldest first, and `idOf` gives each a stable
+identity. `StreamingText` (`streaming_text.dart`) reveals text that is still
+arriving. `SpringSize` (`lib/src/utils/spring_size.dart`) is the
+spring-driven `AnimatedSize` both lean on; `ChatBubble` follows its content
+through one (`animateSize`, `ChatBubbleTheme.sizeSpring`).
+
+- The list is a **reversed `CustomScrollView` over one custom sliver**:
+  offset zero is the newest message, so at the end new and growing content
+  pushes the rest up without any scrolling.
+- **A message arrives and leaves as an animated extent.**
+  `_ChatListTransition` opens its height (`Align(heightFactor:)` on a
+  `SpringController`) while it fades and grows from the corner its tail is
+  in, so the messages above glide instead of jumping; a removed message
+  stays built, with `ChatListItem.isLeaving`, until its height is gone. The
+  wrappers are the same moving or at rest, so a message keeps its state.
+- `_RenderChatSliverList` subclasses `RenderSliverList` for three things a
+  plain one cannot do. **Hold still:** once the reader has scrolled back it
+  remembers the topmost child in view and, when a layout moves that child,
+  answers with a `scrollOffsetCorrection` in the same layout — scroll
+  anchoring, with no frame that shows the jump. **Pin the end:** a lazy
+  list only guesses the height of what it has not built, and on finding
+  the guess wrong it moves the scroll offset rather than what is on
+  screen; at offset zero that is backwards, so the correction is not
+  passed on and the list is laid out again until it starts at its start.
+  **`ChatListAlignment.top`:** a reversed list that does not fill its
+  viewport sits at the bottom, so the sliver claims the rest and paints
+  its children that much higher.
+- The jump-to-latest button listens to `ScrollMetricsNotification`:
+  content that grows under a viewport nobody is scrolling changes the
+  metrics without a scroll notification.
+- `SpringSize` never animates the first layout, a change of the
+  *constraints* (a window resize is followed rigidly) or a change within
+  `rigidDistance` on an axis. The last is how text that widens a few pixels
+  a frame is kept from being smoothed twice while a new line still takes
+  the spring.
+- `StreamingText` **lays out all the text that has arrived, sizes itself to
+  the revealed part and paints through clips.** A line already showing is
+  never broken differently by what is revealed after it, and a frame of the
+  reveal costs no text layout. The reveal counts grapheme clusters. The
+  engine refuses a string with half a surrogate pair, and a chunk boundary
+  can leave one: a trailing high surrogate is held back and any other
+  orphan replaced (`_wellFormed`). Complete and fully revealed, it becomes a
+  plain `Text` in the same style, selectable and free. It has no `maxLines`
+  or `softWrap`.
+- Tests: an entering message has no height in its first frames, so finders
+  need `skipOffstage: false`; the extent of a lazy list is a guess until
+  its far end is built, so reaching the start takes
+  `jumpTo(maxScrollExtent)` more than once; see "Testing" for streams under
+  the fake clock.
+- Known limits: an entering message fades through an `Opacity` layer, which
+  glass inside it does not survive on every renderer (see "Floating
+  surfaces are glass too"); a word being revealed at the end of a line can
+  hop to the next when more text arrives; a message inserted above a typing
+  bubble shows a flat bottom edge for a frame or two; a scroll offset far
+  back in a lazy list is an estimate.
 
 ## The sidebar component
 
@@ -747,14 +1140,44 @@ disco providers in `common/app_state.dart`, provided above `FinesseApp`.
   heading, pill button, mark and date tile). Settings and Search are pushed
   routes. Jobs has a second view, "My applications", a `Board`
   (`widgets/jobs_board*.dart`, `jobsViewProvider`,
-  `context.openApplications()`).
+  `context.openApplications()`). A Messages thread is a `ChatList`; the
+  conversation pinned first, "Strand Assistant", streams its replies into a
+  `StreamingText`, and the send button is a stop button while one arrives.
 - **State more than one place shows is in the `StrandSession`**
   (`session.dart`, `context.strand`, provided beside
-  `strandDestinationProvider`): notifications (the bell counts
-  `unreadCount`), the network (an invitation can be accepted from a
-  notification), recent searches, settings. A screen's own state stays in
-  the screen. A test that pumps a screen alone adds `strandSessionProvider`
-  to its providers (`test/strand_support.dart`).
+  `strandDestinationProvider`): `notifications`, `messages`, `network`,
+  `search` (recent searches), `settings`, and `jobs` with `applications` —
+  the Jobs screen's two sides, its summary tiles and the "Saved items" sheet
+  count the same saved jobs. A screen's own state stays in the screen
+  (`HomeFeedModel`).
+  - `session.messages` is the one `MessagesController`: a reply goes on
+    arriving after the user has left the Messages screen. The shell's badge
+    is its `unreadCount` (a `ValueListenable`; requests are not counted),
+    a reply landing in a thread nobody is looking at (`threadVisible`) is
+    unread, and `session.badges` announces a change in either badge number
+    and nothing else. How the other side answers is injected
+    (`MessagesReplies`, `widgets/messages_assistant.dart`).
+  - The session reports every listing to `ApplicationsController.track`
+    whenever anything about the Jobs screen changes, so `track` acts only
+    on a listing whose saved or applied state *changed*. Re-syncing from
+    the full state undid whatever the user had done on the board since.
+  - A test that pumps a screen alone adds `strandSessionProvider` to its
+    providers, or wraps it in `StrandSessionHost`
+    (`test/strand_support.dart`) to decide who answers a message and when;
+    disco disposes an overridden value with the provider's own `dispose`,
+    so the session's timers die with the test's tree.
+- **What the user typed must not live in a `State` that a layout change
+  rebuilds.** The desktop and phone feeds are different widgets, and a
+  resize or the docked editor swaps one for the other: a half-written
+  comment is in `HomeFeedModel.draftFor(post)`; the selected settings page
+  is held by a `GlobalKey` and moves between the two arrangements with its
+  state; and its field grid is one `Wrap` either way (`_FieldGrid`), so the
+  field being typed in keeps its focus when the column count changes.
+- **A control named by a visible label is one semantic node**
+  (`MergeSemantics`, or `ExcludeSemantics` on the label the control
+  repeats). `announced(tester, text)` in `test/strand_support.dart` returns
+  what a screen reader stops on; a labelled control must come out of it
+  once.
 - **Nothing in Strand is a dead end.** A control with no designed
   destination gets the lightest real response from
   `widgets/strand_actions.dart` / `strand_previews.dart`: a preview dialog,
@@ -763,11 +1186,31 @@ disco providers in `common/app_state.dart`, provided above `FinesseApp`.
 - **From a pushed page, navigate with `context.leaveTo(destination)`**,
   which pops the page first; `goTo` would switch the shell underneath it.
   Call it with the page's context, not a dialog's.
-- **The desktop search panel is a `Portal`, not a `Popover`**: a popover
-  takes focus on open and the field has to keep it. Search wants every word
-  of the query; a canned query (a trending topic) is mapped to words the
-  data contains, and `strand_search_screen_test.dart` checks every
-  suggested search finds something.
+- **A panel with no barrier lives and dies with the focus.** The desktop
+  search panel (`widgets/search_bar.dart`) is not a route, so nothing but
+  the focus says whether it is in use. Field and panel are one
+  `FocusTraversalGroup` under a `Focus` that cannot take the focus itself
+  and whose `onFocusChange(false)` closes the panel — Tab away, a click
+  elsewhere, a result opening a dialog. They are one tap-region group too,
+  the `TextField` included, so a click on the panel neither closes it nor
+  takes the caret. It opens from `onPressed` as well as on a focus gain:
+  after a tap outside on a touch screen the field still has the focus. It
+  is still a bare `Portal`, written when a popover always took the focus;
+  `Popover(requestFocus: false)` exists now and the panel can move to it.
+- **A global shortcut asks `context.isOnTopRoute`, not
+  `ModalRoute.isCurrent`** (`navigation.dart`). Strand's pages are in the
+  navigator `AppShell` hosts, and a dialog is pushed on the *root* one, so
+  a page's own route stays current under every dialog; a
+  `HardwareKeyboard` handler hears keys wherever the focus is and would
+  reach through the barrier. The search shortcut is one modifier per
+  platform and no other with it (`SearchField.isSearchShortcut`): ⌘K on
+  Apple platforms, Ctrl+K elsewhere — Ctrl+K deletes to the end of the line
+  in every macOS text field, and AltGr reports itself as Ctrl+Alt on
+  Windows.
+- Search wants every word of the query; a canned query (a trending topic)
+  is mapped to words the data contains, and
+  `strand_search_screen_test.dart` checks every suggested search finds
+  something.
 - A test finder for a tappable row's inner `Semantics` label finds nothing:
   `Pressable` merges it into the row's node. Find the widget instead. A
   render harness must restore `FlutterError.onError` when a step throws, or
@@ -785,17 +1228,33 @@ disco providers in `common/app_state.dart`, provided above `FinesseApp`.
 - **Layout rules the screens follow** (keep to them when adding one): sizes
   come from the theme, never from `if (mobile)`; branch on the form factor
   only where the design *rearranges*; decide how many columns fit from a
-  `LayoutBuilder`'s width so 800–1200px windows degrade gracefully; gaps
-  and radii on the theme's scale use `Gap.md()` / `GapSize` /
-  `theme.radii`; an off-scale number that recurs gets one named constant in
-  the screen's own `*_metrics.dart` or common file (`jobsSnugGap = 14`), not
-  a new theme token.
+  `LayoutBuilder`'s width so 800–1200px windows degrade gracefully.
+- **Strand takes every size from the theme, and a test holds it to that.**
+  Text is a `Theme.of(context).textTheme` style (`h1`, `h3`, `h4`, `large`,
+  `p`, `small`, `muted`, `caption`), copied for a weight or colour, never
+  given a `fontSize`; gaps are `Gap.md()` / `GapSize` / `theme.gap(...)`;
+  radii are `theme.radii`; and the sizes the package has no token for come
+  from `widgets/strand_metrics.dart`, an extension on `ThemeData` that
+  derives them from one — avatar steps `avatarXs`…`avatarXl` from the
+  theme's avatar, `iconBeside(style)` for a glyph set in a line of text,
+  `cardInsets` for a surface laid out like a card. A design value between
+  two steps was snapped to the nearer one on purpose (gaps of 6, 10, 14 and
+  18 became 4, 8, 12 and 16); do not reintroduce named off-scale constants
+  (the old `*_metrics.dart` files are gone).
+  `example/test/strand_theme_coverage_test.dart` builds every screen but
+  Messages under the default theme and under one whose type, gap, radius,
+  avatar and glyph sizes all differ, and fails — with file and line — on
+  any size a Strand source file hands to a widget that is the same in
+  both. A size that is meant to be a literal (a photograph's height, the
+  logo, the story rail) goes in its `_exempt` map with the reason. A
+  `Divider` between sections of a card passes `margin: EdgeInsets.zero`:
+  the shadcn styles give dividers a 16-point margin of their own. A tab
+  strip that fills a phone's width uses `StrandTabLabel`, which shrinks the
+  label to fit where a `Tab`'s own text would end in an ellipsis.
 - **Text and icons drawn straight on a surface use `scheme.tint`**, never
   `accentForeground`. The two are the same teal in the default scheme, but
   `accentForeground` is the ink *on an accent fill* (a selected chip, a
-  highlighted menu row), and a bold menu accent rewrites the accent pair
-  with the primary pair — which made every link and stat number near-white
-  on a white card under the Press preset.
+  highlighted menu row) and need not read on a card.
 - **Reading the designs.** In the design HTML, `<span>`/`<div>` are
   content-box and `<button>` is border-box: a `h:30` span with a 1px border
   renders 32 tall, which is why skill chips are 32. A header of `h:64` with
@@ -832,7 +1291,9 @@ disco providers in `common/app_state.dart`, provided above `FinesseApp`.
   (`text_field`, not `input`); a half-renamed page shows "Missing source
   asset" in its Code tab.
 - Code blocks are always dark, in JetBrains Mono (vendored in
-  `example/fonts/`), highlighted by `syntax_highlight`, whose grammar loads
+  `example/fonts/` and named in one place, `CodeStyle` in
+  `common/code_style.dart`, which the docs and the editor's exported
+  snippet share), highlighted by `syntax_highlight`, whose grammar loads
   in `main()` via `CodeHighlighter.ensureInitialized()` **before** `runApp`.
 - `skills/finesse-overview/components/*.md` are generated from the docs
   pages by `dart run scripts/generate_skills.dart`, whose `_slugs` list is

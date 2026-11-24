@@ -74,10 +74,13 @@ class NetworkController extends ChangeNotifier {
         invitation,
   ];
 
+  /// Accepts [invitation] — also one that was ignored before: the
+  /// notification about it still offers "Accept".
   void accept(Invitation invitation) {
     final name = invitation.person.name;
     if (_accepted.contains(name)) return;
     _accepted.add(name);
+    _ignored.remove(name);
     notifyListeners();
   }
 
@@ -85,10 +88,20 @@ class NetworkController extends ChangeNotifier {
     if (_ignored.add(invitation.person.name)) notifyListeners();
   }
 
-  /// Puts an answered invitation back in the list: the toast's "Undo".
-  void restore(Invitation invitation) {
-    final name = invitation.person.name;
-    if (_accepted.remove(name) | _ignored.remove(name)) notifyListeners();
+  /// The "Undo" of the toast that follows [accept]: the invitation is
+  /// waiting for an answer again.
+  void undoAccept(Invitation invitation) {
+    if (_accepted.remove(invitation.person.name)) notifyListeners();
+  }
+
+  /// The "Undo" of the toast that follows [ignore].
+  ///
+  /// Each undo takes back its own answer and nothing else: the toast stays
+  /// up for a few seconds, and the invitation may have been accepted from
+  /// its notification in the meantime. Undoing the *ignore* must not undo
+  /// that.
+  void undoIgnore(Invitation invitation) {
+    if (_ignored.remove(invitation.person.name)) notifyListeners();
   }
 
   // Connections.

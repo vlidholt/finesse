@@ -1133,6 +1133,240 @@ void main() {
       expect(painterOf().shouldRepaint(outside), isTrue);
     });
   });
+
+  group('AnimatedFill', () {
+    testWidgets("an outline that comes and goes keeps the child's state, "
+        'and takes its width in layout only while it shows', (tester) async {
+      // The padding that makes room for the outline used to be in the tree
+      // only while there was one, so the child changed parent — and was
+      // re-created — when the outline appeared and again when it had faded
+      // out.
+      var created = 0;
+      // Pumped by hand, not through the harness: it settles, and this looks
+      // at the middle of the fade.
+      final theme = ThemeData();
+      Widget fill(Color? border) => Theme(
+        data: theme,
+        child: Directionality(
+          textDirection: TextDirection.ltr,
+          child: Center(
+            child: AnimatedFill(
+              color: const Color(0xFFFFFFFF),
+              borderColor: border,
+              borderWidth: 2,
+              child: _Counted(onCreate: () => created++),
+            ),
+          ),
+        ),
+      );
+      Size size() => tester.getSize(find.byType(AnimatedFill));
+      await tester.pumpWidget(fill(null));
+      expect(created, 1);
+      expect(size(), const Size(60, 30));
+
+      await tester.pumpWidget(fill(const Color(0xFF000000)));
+      expect(size(), const Size(64, 34));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(created, 1, reason: 'the outline appeared');
+
+      await tester.pumpWidget(fill(null));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 60));
+      // Fading out, it still holds its place.
+      expect(size(), const Size(64, 34));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(created, 1, reason: 'the outline faded out');
+      expect(tester.getSize(find.byType(AnimatedFill)), const Size(60, 30));
+    });
+
+    const red = Color(0xFFFF0000);
+    const blue = Color(0xFF0000FF);
+
+    // What the box paints, read off the tree.
+    Color? painted(WidgetTester tester, [Finder? within]) {
+      final fill = within == null
+          ? find.byType(AnimatedFill)
+          : find.descendant(of: within, matching: find.byType(AnimatedFill));
+      final box = tester.widget<DecoratedBox>(
+        find.descendant(of: fill, matching: find.byType(DecoratedBox)).first,
+      );
+      return (box.decoration as BoxDecoration).color;
+    }
+
+    // Pumped by hand, not through the harness: it settles, and these look
+    // at the frames of the fade.
+    Widget themed(
+      Motion motion,
+      Color color, {
+      bool reduceMotion = false,
+      Duration? duration,
+      Curve? curve,
+    }) => MediaQuery(
+      data: MediaQueryData(disableAnimations: reduceMotion),
+      child: Theme(
+        data: ThemeData(motion: motion),
+        child: Directionality(
+          textDirection: TextDirection.ltr,
+          child: Center(
+            child: AnimatedFill(
+              color: color,
+              duration: duration,
+              curve: curve,
+              child: const SizedBox(width: 60, height: 30),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    testWidgets("with no duration it fades on the theme's fast duration "
+        'and standard curve', (tester) async {
+      // Neither is the 120 ms and the straight line it once had built in.
+      const motion = Motion(
+        fast: Duration(milliseconds: 400),
+        standard: Curves.easeIn,
+      );
+      await tester.pumpWidget(themed(motion, red));
+      expect(painted(tester), red);
+
+      await tester.pumpWidget(themed(motion, blue));
+      await tester.pump(const Duration(milliseconds: 200));
+      final half = painted(tester)!;
+      expect(
+        half.b,
+        closeTo(Curves.easeIn.transform(.5), .01),
+        reason: 'half way through 400 ms, on the ease-in curve',
+      );
+      await tester.pump(const Duration(milliseconds: 199));
+      expect(painted(tester)!.toARGB32(), isNot(blue.toARGB32()));
+      await tester.pump(const Duration(milliseconds: 1));
+      expect(painted(tester)!.toARGB32(), blue.toARGB32());
+    });
+
+    testWidgets('under Motion.none the colours change at once', (
+      tester,
+    ) async {
+      await tester.pumpWidget(themed(Motion.none, red));
+      await tester.pumpWidget(themed(Motion.none, blue));
+      expect(
+        painted(tester)!.toARGB32(),
+        blue.toARGB32(),
+        reason: 'the frame that brings the new colour paints it',
+      );
+      expect(tester.binding.hasScheduledFrame, isFalse);
+    });
+
+    testWidgets('under reduced motion it is the short plain fade that is '
+        'left: the fast duration on the standard curve', (tester) async {
+      // A fill moves nothing, so reduced motion keeps it (`Motion.reduce`).
+      // What it must not do is fade on when the theme has no motion at all.
+      const motion = Motion(
+        fast: Duration(milliseconds: 400),
+        standard: Curves.linear,
+      );
+      await tester.pumpWidget(themed(motion, red, reduceMotion: true));
+      await tester.pumpWidget(themed(motion, blue, reduceMotion: true));
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(painted(tester)!.b, closeTo(.5, .01));
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(painted(tester)!.toARGB32(), blue.toARGB32());
+
+      await tester.pumpWidget(themed(Motion.none, red, reduceMotion: true));
+      await tester.pumpWidget(themed(Motion.none, blue, reduceMotion: true));
+      expect(painted(tester)!.toARGB32(), blue.toARGB32());
+    });
+
+    testWidgets('a duration and a curve of its own win over the theme', (
+      tester,
+    ) async {
+      Widget fill(Color color) => themed(
+        Motion.none,
+        color,
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.linear,
+      );
+      await tester.pumpWidget(fill(red));
+      await tester.pumpWidget(fill(blue));
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(painted(tester)!.b, closeTo(.5, .01));
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(painted(tester)!.toARGB32(), blue.toARGB32());
+
+      // And a zero duration switches the fade off under a theme that has
+      // one.
+      Widget instant(Color color) =>
+          themed(Motion.lively, color, duration: Duration.zero);
+      await tester.pumpWidget(instant(red));
+      await tester.pumpWidget(instant(blue));
+      expect(painted(tester)!.toARGB32(), blue.toARGB32());
+    });
+
+    testWidgets('given both, it needs no theme above it', (tester) async {
+      await tester.pumpWidget(
+        const Center(
+          child: AnimatedFill(
+            color: red,
+            duration: Duration(milliseconds: 100),
+            curve: Curves.linear,
+            child: SizedBox(width: 60, height: 30),
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      expect(painted(tester), red);
+    });
+
+    for (final (name, reduceMotion) in [
+      ('Motion.none', false),
+      ('Motion.none and reduced motion', true),
+    ]) {
+      testWidgets('a list tile and a chip take their hover fill at once '
+          'under $name', (tester) async {
+        tester.platformDispatcher.accessibilityFeaturesTestValue =
+            FakeAccessibilityFeatures(disableAnimations: reduceMotion);
+        addTearDown(
+          tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+        );
+        await pumpFinesse(
+          tester,
+          Center(
+            child: SizedBox(
+              width: 300,
+              child: FinesseColumn(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListTile(title: const Text('Row'), onTap: () {}),
+                  Chip(label: const Text('Chip'), onSelected: (_) {}),
+                ],
+              ),
+            ),
+          ),
+          theme: ThemeData(motion: Motion.none),
+        );
+        final gesture = await tester.createGesture(
+          kind: PointerDeviceKind.mouse,
+        );
+        await gesture.addPointer(location: const Offset(1, 1));
+        addTearDown(gesture.removePointer);
+        await tester.pump();
+
+        for (final control in [find.byType(ListTile), find.byType(Chip)]) {
+          final resting = painted(tester, control);
+          await gesture.moveTo(tester.getCenter(control));
+          // One frame: the hover is seen and the fill is there, whole.
+          await tester.pump();
+          final hovered = painted(tester, control);
+          expect(hovered, isNot(resting), reason: '$control is hovered');
+          await tester.pump(const Duration(milliseconds: 300));
+          expect(
+            hovered,
+            painted(tester, control),
+            reason: '$control faded for a while after the hover',
+          );
+        }
+      });
+    }
+  });
 }
 
 Widget _empty(BuildContext context, Set<WidgetState> states) =>

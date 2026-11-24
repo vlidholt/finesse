@@ -19,7 +19,7 @@ import 'package:flutter/widgets.dart';
 /// UserMenu(
 ///   showProfile: false,
 ///   builder: (context, controller, _) => IconButton.ghost(
-///     icon: const Icon(PhosphorIconsRegular.dotsThree),
+///     icon: const PhosphorIcon(PhosphorIconsRegular.dotsThree),
 ///     semanticLabel: 'More options',
 ///     onPressed: controller.toggle,
 ///   ),
@@ -84,22 +84,22 @@ class UserMenu extends StatelessWidget {
           divider,
           if (showProfile)
             ContextMenuItem(
-              leading: const Icon(PhosphorIconsRegular.user),
+              leading: const PhosphorIcon(PhosphorIconsRegular.user),
               onPressed: () => context.goTo(StrandDestination.profile),
               child: const Text('View profile'),
             ),
           ContextMenuItem(
-            leading: const Icon(PhosphorIconsRegular.bookmarkSimple),
+            leading: const PhosphorIcon(PhosphorIconsRegular.bookmarkSimple),
             onPressed: () => showSavedItems(context),
             child: const Text('Saved items'),
           ),
           ContextMenuItem(
-            leading: const Icon(PhosphorIconsRegular.gearSix),
+            leading: const PhosphorIcon(PhosphorIconsRegular.gearSix),
             onPressed: () => openSettings(context),
             child: const Text('Settings'),
           ),
           ContextMenuItem(
-            leading: Icon(
+            leading: PhosphorIcon(
               dark ? PhosphorIconsRegular.sun : PhosphorIconsRegular.moon,
             ),
             onPressed: () => toggleThemeMode(context),
@@ -107,12 +107,12 @@ class UserMenu extends StatelessWidget {
           ),
           divider,
           ContextMenuItem(
-            leading: const Icon(PhosphorIconsRegular.squaresFour),
+            leading: const PhosphorIcon(PhosphorIconsRegular.squaresFour),
             onPressed: context.openComponentLibrary,
             child: const Text('Browse components'),
           ),
           ContextMenuItem(
-            leading: const Icon(PhosphorIconsRegular.paintBrush),
+            leading: const PhosphorIcon(PhosphorIconsRegular.paintBrush),
             onPressed: context.toggleThemeEditor,
             child: Text(
               editorOpen ? 'Close theme editor' : 'Open theme editor',

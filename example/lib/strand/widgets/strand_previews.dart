@@ -3,9 +3,9 @@ import 'package:example/strand/data/network_data.dart';
 import 'package:example/strand/data/search_data.dart';
 import 'package:example/strand/navigation.dart';
 import 'package:example/strand/session.dart';
-import 'package:example/strand/widgets/home_pieces.dart';
 import 'package:example/strand/widgets/person_avatar.dart';
 import 'package:example/strand/widgets/strand_pieces.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -39,6 +39,32 @@ Future<void> showCompanyPreview(BuildContext context, Company company) async {
 
 /// The width the previews are capped at: a card, not a page.
 const _previewConstraints = BoxConstraints(maxWidth: 400);
+
+/// A preview's two buttons, as the dialog's `actions`: side by side while
+/// both fit, one above the other when they do not.
+///
+/// The dialog lays its actions out in a row whose children keep their
+/// natural width, and in a dialog this narrow two labelled buttons outgrow
+/// it at a large text size, or in a wide typeface. Cutting a label short
+/// would lose the one word that says what the button does, so the pair
+/// wraps instead — the main action on top, as the dialog itself stacks its
+/// actions on a narrow screen.
+List<Widget> _previewActions(BuildContext context, List<Widget> buttons) {
+  final gap =
+      Theme.of(context).primaryDialogTheme.actionsGap ??
+      Theme.of(context).gap(GapSize.sm);
+  return [
+    Flexible(
+      child: Wrap(
+        alignment: WrapAlignment.end,
+        verticalDirection: VerticalDirection.up,
+        spacing: gap,
+        runSpacing: gap,
+        children: buttons,
+      ),
+    ),
+  ];
+}
 
 class _PersonPreview extends StatelessWidget {
   const _PersonPreview(this.person);
@@ -75,22 +101,22 @@ class _PersonPreview extends StatelessWidget {
           constraints: _previewConstraints,
           closeIconData: PhosphorIconsRegular.x,
           semanticLabel: person.name,
-          actions: [
+          actions: _previewActions(context, [
             Button.outline(
-              leading: const Icon(PhosphorIconsRegular.paperPlaneTilt),
+              leading: const PhosphorIcon(PhosphorIconsRegular.paperPlaneTilt),
               onPressed: () =>
                   Navigator.of(context).pop(StrandDestination.messages),
               child: const Text('Message'),
             ),
             if (connected)
               Button.secondary(
-                leading: const Icon(PhosphorIconsRegular.check),
+                leading: const PhosphorIcon(PhosphorIconsRegular.check),
                 onPressed: () => Navigator.of(context).pop(),
                 child: const Text('Connected'),
               )
             else
               Button(
-                leading: Icon(
+                leading: PhosphorIcon(
                   network.isRequested(person)
                       ? PhosphorIconsRegular.clock
                       : PhosphorIconsRegular.userPlus,
@@ -100,13 +126,13 @@ class _PersonPreview extends StatelessWidget {
                   network.isRequested(person) ? 'Pending' : 'Connect',
                 ),
               ),
-          ],
+          ]),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               PersonAvatar(
                 person,
-                size: 72,
+                size: theme.avatarXl,
                 showOnline: person.online,
                 onlineRingColor: scheme.popover,
               ),
@@ -115,7 +141,6 @@ class _PersonPreview extends StatelessWidget {
                 person,
                 style: theme.textTheme.h3.copyWith(color: scheme.foreground),
               ),
-              const Gap.raw(homeHairGap),
               Text(
                 person.headline,
                 textAlign: TextAlign.center,
@@ -128,9 +153,9 @@ class _PersonPreview extends StatelessWidget {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
+                    PhosphorIcon(
                       PhosphorIconsRegular.mapPin,
-                      size: 14,
+                      size: theme.iconBeside(theme.textTheme.muted),
                       color: scheme.mutedForeground,
                     ),
                     const Gap.xs(),
@@ -149,16 +174,15 @@ class _PersonPreview extends StatelessWidget {
               if (connected)
                 Text(
                   '1st · In your network',
-                  style: homeFinePrint(theme),
+                  style: theme.textTheme.caption,
                 )
               else if (mutuals != null)
                 MutualsLine(
                   people: mutuals.mutuals,
                   label: '${mutuals.count} mutual connections',
-                  size: 20,
                 )
               else
-                Text('2nd · Not connected yet', style: homeFinePrint(theme)),
+                Text('2nd · Not connected yet', style: theme.textTheme.caption),
             ],
           ),
         );
@@ -189,9 +213,9 @@ class _CompanyPreview extends StatelessWidget {
         constraints: _previewConstraints,
         closeIconData: PhosphorIconsRegular.x,
         semanticLabel: company.name,
-        actions: [
+        actions: _previewActions(context, [
           Button.outline(
-            leading: const Icon(PhosphorIconsRegular.briefcase),
+            leading: const PhosphorIcon(PhosphorIconsRegular.briefcase),
             onPressed: () => Navigator.of(context).pop(StrandDestination.jobs),
             child: Text(roles == 0 ? 'Browse jobs' : 'See open roles'),
           ),
@@ -199,7 +223,7 @@ class _CompanyPreview extends StatelessWidget {
             variant: network.isFollowingPage(company)
                 ? ButtonVariant.secondary
                 : ButtonVariant.primary,
-            leading: Icon(
+            leading: PhosphorIcon(
               network.isFollowingPage(company)
                   ? PhosphorIconsRegular.check
                   : PhosphorIconsRegular.plus,
@@ -209,11 +233,15 @@ class _CompanyPreview extends StatelessWidget {
               network.isFollowingPage(company) ? 'Following' : 'Follow',
             ),
           ),
-        ],
+        ]),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            StrandMark(asset: company.logo, label: company.name, size: 64),
+            StrandMark(
+              asset: company.logo,
+              label: company.name,
+              size: theme.avatarXl,
+            ),
             const Gap.md(),
             Text(
               company.name,
@@ -221,7 +249,6 @@ class _CompanyPreview extends StatelessWidget {
               style: theme.textTheme.h3.copyWith(color: scheme.foreground),
             ),
             if (entry.tagline.isNotEmpty) ...[
-              const Gap.raw(homeHairGap),
               Text(
                 entry.tagline,
                 textAlign: TextAlign.center,
@@ -241,7 +268,7 @@ class _CompanyPreview extends StatelessWidget {
                 ?company.website,
               ].join(' · '),
               textAlign: TextAlign.center,
-              style: homeFinePrint(theme),
+              style: theme.textTheme.caption,
             ),
           ],
         ),

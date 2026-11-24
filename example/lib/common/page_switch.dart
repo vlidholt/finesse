@@ -103,18 +103,26 @@ class _PageSwitchState extends State<PageSwitch>
               child: child,
             );
           },
-          child: widget.child,
+          // A layer of its own, so a frame of the slide moves the page
+          // rather than painting it.
+          child: RepaintBoundary(child: widget.child),
         ),
         // The cover. It takes no pointers, so the page under it is live
-        // from the first frame.
+        // from the first frame. One rectangle painted at the cover's
+        // opacity: a `FadeTransition` around a `ColoredBox` would composite
+        // a layer the size of the page to draw it.
         Positioned.fill(
           child: IgnorePointer(
-            child: FadeTransition(
-              opacity: ReverseAnimation(
-                progress,
-              ).drive(Tween(begin: 0, end: _coverOpacity)),
-              child: ColoredBox(
-                color: widget.color ?? theme.colorScheme.background,
+            child: RepaintBoundary(
+              child: AnimatedBuilder(
+                animation: progress,
+                builder: (context, _) {
+                  final color = widget.color ?? theme.colorScheme.background;
+                  final opacity = _coverOpacity * (1 - progress.value);
+                  return ColoredBox(
+                    color: color.withValues(alpha: color.a * opacity),
+                  );
+                },
               ),
             ),
           ),

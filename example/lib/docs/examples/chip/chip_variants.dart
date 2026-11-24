@@ -33,7 +33,7 @@ class ChipVariantsExample extends StatelessWidget {
             Chip(label: Text('Copenhagen')),
             Chip(
               label: Text('Hybrid'),
-              leading: Icon(PhosphorIconsRegular.buildings),
+              leading: PhosphorIcon(PhosphorIconsRegular.buildings),
             ),
           ]),
           // Soft: read-only tags, such as a person's skills.
@@ -46,7 +46,7 @@ class ChipVariantsExample extends StatelessWidget {
           row('Dashed', [
             Chip(
               label: const Text('Add a skill'),
-              leading: const Icon(PhosphorIconsRegular.plus),
+              leading: const PhosphorIcon(PhosphorIconsRegular.plus),
               variant: ChipVariant.dashed,
               onPressed: () {},
             ),

@@ -534,11 +534,15 @@ void main() {
       await pumpPanel(tester);
       await unfoldAll(tester);
 
+      // Off in the Strand preset, as in the package's default style.
+      expect(config.effectiveCardBlur, isFalse);
       await tapInPanel(tester, find.text('Card Blur'));
-      expect(config.cardBlur, isFalse);
+      expect(config.cardBlur, isTrue);
+      expect(config.build().cardTheme.blur, StyleTokens.finesse.glassBlur);
       await tapInPanel(tester, find.text('Card Blur'));
       expect(config.cardBlur, isNull);
       expect(config, const ThemeEditorConfig());
+      expect(config.build().cardTheme.blur, 0);
     });
 
     testWidgets('pickers set what they are labelled', (tester) async {

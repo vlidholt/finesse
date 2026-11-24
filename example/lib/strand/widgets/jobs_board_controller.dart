@@ -9,9 +9,10 @@ enum ApplicationSort { updated, company }
 /// The applications on the board, by stage.
 ///
 /// The `Board` only reports what the user did; this is where a move is
-/// carried out. It is a [ChangeNotifier] owned by the Jobs screen, so the
-/// board keeps its state while the screen shows "Find jobs", and a listing
-/// saved or applied to over there turns up here.
+/// carried out. It is a [ChangeNotifier] in the `StrandSession`, so the
+/// board keeps its state while the screen shows "Find jobs", a listing
+/// saved or applied to over there turns up here, and the summary tiles and
+/// the "Saved items" sheet count the same columns.
 class ApplicationsController extends ChangeNotifier {
   final Map<ApplicationStage, List<JobApplication>> _stages = {
     for (final stage in ApplicationStage.values)
@@ -83,12 +84,28 @@ class ApplicationsController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Brings the board in line with a listing on the "Find jobs" side:
-  /// applied to, it is under "Applied"; only saved, under "Saved"; neither,
-  /// it is gone unless the user has since dragged it further along.
+  /// What [track] was last told about each listing: (saved, applied).
+  final Map<String, (bool, bool)> _tracked = {};
+
+  /// Tells the board what the "Find jobs" side now says about [job].
+  ///
+  /// The board acts on what *changed* since the last call for the same
+  /// listing, and on nothing else: newly applied to, the card goes under
+  /// "Applied"; newly saved, under "Saved"; no longer saved, it leaves
+  /// "Saved". A call that repeats what the board already knew does
+  /// nothing, so the caller can report every listing whenever anything
+  /// about the screen changes without undoing what the user has done to
+  /// the board since — a card dragged back to "Saved", or cleared from the
+  /// archive, stays where the user put it.
   void track(Job job, {required bool saved, required bool applied}) {
+    final (wasSaved, wasApplied) = _tracked[job.id] ?? (false, false);
+    if (saved == wasSaved && applied == wasApplied) return;
+    _tracked[job.id] = (saved, applied);
+
     final stage = stageOf(job.id);
-    if (applied) {
+    if (applied && !wasApplied) {
+      // Applying moves the card along from "Saved"; further along, or in
+      // the archive, the user has already said where it belongs.
       if (stage == null || stage == ApplicationStage.saved) {
         _stages[ApplicationStage.saved]!.removeWhere((a) => a.id == job.id);
         _stages[ApplicationStage.applied]!.insert(
@@ -97,17 +114,18 @@ class ApplicationsController extends ChangeNotifier {
         );
         notifyListeners();
       }
-    } else if (saved) {
+    } else if (saved && !wasSaved) {
       if (stage == null) {
-        _stages[ApplicationStage.saved]!.insert(
-          0,
-          ApplicationsData.fromJob(job, applied: false),
-        );
+        _stages[applied ? ApplicationStage.applied : ApplicationStage.saved]!
+            .insert(0, ApplicationsData.fromJob(job, applied: applied));
         notifyListeners();
       }
-    } else if (stage == ApplicationStage.saved) {
-      _stages[ApplicationStage.saved]!.removeWhere((a) => a.id == job.id);
-      notifyListeners();
+    } else if (!saved && wasSaved) {
+      // An application the user moved back to "Saved" is not a bookmark.
+      if (stage == ApplicationStage.saved && !applied) {
+        _stages[ApplicationStage.saved]!.removeWhere((a) => a.id == job.id);
+        notifyListeners();
+      }
     }
   }
 }

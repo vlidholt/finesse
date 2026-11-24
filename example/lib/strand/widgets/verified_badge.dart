@@ -1,3 +1,4 @@
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -7,18 +8,19 @@ import 'package:flutter/widgets.dart';
 /// Row(children: [Text(person.name), const Gap.xs(), const VerifiedBadge()])
 /// ```
 class VerifiedBadge extends StatelessWidget {
-  const VerifiedBadge({this.size = 16, super.key});
+  const VerifiedBadge({this.style, super.key});
 
-  /// The icon's size: 16 beside a name in a list, 20 beside a profile's
-  /// title.
-  final double size;
+  /// The style of the name the seal follows, which sets its size. Defaults
+  /// to the name of a row: the theme's `large` style.
+  final TextStyle? style;
 
   @override
   Widget build(BuildContext context) {
-    return Icon(
+    final theme = Theme.of(context);
+    return PhosphorIcon(
       PhosphorIconsFill.sealCheck,
-      size: size,
-      color: Theme.of(context).colorScheme.tint,
+      size: theme.iconBeside(style ?? theme.textTheme.large),
+      color: theme.colorScheme.tint,
       semanticLabel: 'Verified',
     );
   }

@@ -140,7 +140,7 @@ class SpringController {
 ///     angle: t * math.pi,
 ///     child: child,
 ///   ),
-///   child: const Icon(PhosphorIconsRegular.caretDown),
+///   child: const PhosphorIcon(PhosphorIconsRegular.caretDown),
 /// )
 /// ```
 ///

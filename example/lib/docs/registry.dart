@@ -11,6 +11,7 @@ import 'package:example/docs/pages/button.dart';
 import 'package:example/docs/pages/calendar.dart';
 import 'package:example/docs/pages/card.dart';
 import 'package:example/docs/pages/chat_bubble.dart';
+import 'package:example/docs/pages/chat_list.dart';
 import 'package:example/docs/pages/checkbox.dart';
 import 'package:example/docs/pages/chip.dart';
 import 'package:example/docs/pages/collapsible.dart';
@@ -59,6 +60,7 @@ import 'package:example/docs/pages/skeleton.dart';
 import 'package:example/docs/pages/slider.dart';
 import 'package:example/docs/pages/sonner.dart';
 import 'package:example/docs/pages/spinner.dart';
+import 'package:example/docs/pages/streaming_text.dart';
 import 'package:example/docs/pages/styles.dart';
 import 'package:example/docs/pages/surface.dart';
 import 'package:example/docs/pages/switch.dart';
@@ -124,6 +126,7 @@ final componentDocs = [
   calendarDoc,
   cardDoc,
   chatBubbleDoc,
+  chatListDoc,
   checkboxDoc,
   chipDoc,
   collapsibleDoc,
@@ -161,6 +164,7 @@ final componentDocs = [
   sliderDoc,
   sonnerDoc,
   spinnerDoc,
+  streamingTextDoc,
   surfaceDoc,
   switchDoc,
   tabBarDoc,

@@ -7,6 +7,7 @@ import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/anchor_stage.dart';
 import 'package:finesse/src/utils/animate.dart';
 import 'package:finesse/src/utils/backdrop.dart';
 import 'package:finesse/src/utils/dismiss_shortcut.dart';
@@ -42,7 +43,6 @@ class Tooltip extends StatefulWidget {
     this.hoverStrategies,
     this.controller,
     this.longPressDuration,
-    this.duration,
     this.reverseDuration,
     this.showArrow,
     this.arrowDirection,
@@ -95,6 +95,10 @@ class Tooltip extends StatefulWidget {
   /// theme's motion tokens: the bubble pops out of the side that faces its
   /// trigger. A tooltip that takes over from another one — the pointer moved
   /// to the next button — only fades in.
+  ///
+  /// The entrance lasts as long as its effects do: to change its length,
+  /// give the effects a duration ([Effect.duration]). An empty list shows
+  /// the tooltip at once.
   /// {@endtemplate}
   final List<Effect<dynamic>>? effects;
 
@@ -151,15 +155,9 @@ class Tooltip extends StatefulWidget {
   /// {@endtemplate}
   final Duration? longPressDuration;
 
-  /// {@template Tooltip.duration}
-  /// The duration of the tooltip's entrance animation.
-  ///
-  /// Defaults to [Animate.defaultDuration].
-  /// {@endtemplate}
-  final Duration? duration;
-
   /// {@template Tooltip.reverseDuration}
-  /// The duration of the tooltip's exit animation.
+  /// The duration of the tooltip's exit animation: its [effects] played
+  /// backwards over this long.
   ///
   /// Defaults to the theme's, and then to its `Motion.fast`.
   /// {@endtemplate}
@@ -206,17 +204,22 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
     super.initState();
     animationController = AnimationController(
       vsync: this,
+      // Replaced by the animate widget, with the length of its effects,
+      // each time the tooltip is built.
       duration: Animate.defaultDuration,
       reverseDuration: Duration.zero,
     );
     if (widget.controller == null) _controller = TooltipController();
     widget.focusNode?.addListener(onFocusChange);
     controller.addListener(_onOpenChanged);
+    // A controller that arrives open.
+    if (controller.isOpen) _stage.watch();
   }
 
   @override
   void dispose() {
     _showing.remove(this);
+    _stage.dispose();
     controller.removeListener(_onOpenChanged);
     animationController.dispose();
     widget.focusNode?.removeListener(onFocusChange);
@@ -238,8 +241,17 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
   bool _warm = false;
 
   void _onOpenChanged() {
+    if (controller.isOpen) {
+      // Opened behind the scenes, it stays there until its trigger shows.
+      _stage.watch();
+    }
     if (!controller.isOpen) {
       _showing.remove(this);
+      // However it closed — its exit played, focus left, Escape — the next
+      // showing starts from nothing. Left at 1 (a close with no exit), the
+      // next exit would be a real animation started before the overlay was
+      // built, which the entrance then cancels: see [_leave].
+      animationController.value = 0;
     } else if (!_showing.contains(this)) {
       // Opened by something other than the pointer.
       _warm = false;
@@ -282,28 +294,30 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
             widget.longPressDuration ?? theme.tooltipTheme.longPressDuration,
       ),
     );
-    animationController
-      ..duration =
-          widget.duration ??
-          theme.tooltipTheme.duration ??
-          Animate.defaultDuration
-      ..reverseDuration =
-          widget.reverseDuration ??
-          theme.tooltipTheme.reverseDuration ??
-          Motion.of(context).fast;
+    animationController.reverseDuration =
+        widget.reverseDuration ??
+        theme.tooltipTheme.reverseDuration ??
+        Motion.of(context).fast;
   }
 
-  /// Whether tickers run in this part of the tree; see the same field on
-  /// `Popover`. A tooltip whose trigger went into an inactive branch — an
-  /// `IndexedStack` child that is not showing — would otherwise stay on
-  /// screen over whatever replaced it.
-  bool _tickersEnabled = true;
+  /// Whether the trigger is in a part of the tree that is shown; see the
+  /// same field on `Popover`. A tooltip whose trigger was hidden — in an
+  /// `IndexedStack` child that is not showing, an `Offstage` — would
+  /// otherwise stay on screen over whatever replaced it.
+  late final _stage = AnchorStage(
+    context: context,
+    // Not one of this widget's dependencies: nothing else rebuilds it.
+    onChanged: () => setState(() {}),
+    watching: () => controller.isOpen,
+  );
+
+  bool get _onStage => _stage.onStage;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _syncEffectiveTheme();
-    _tickersEnabled = TickerMode.valuesOf(context).enabled;
+    _stage.resolve();
   }
 
   @override
@@ -323,7 +337,6 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
     }
     if (widget.hoverStrategies != oldWidget.hoverStrategies ||
         widget.longPressDuration != oldWidget.longPressDuration ||
-        widget.duration != oldWidget.duration ||
         widget.reverseDuration != oldWidget.reverseDuration) {
       _syncEffectiveTheme();
     }
@@ -362,15 +375,30 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
         await Future<void>.delayed(widget.showDuration!);
         if (!mounted) return;
       }
-      if (!hovered && !hasFocus) {
-        // With tickers muted the exit animation would never complete.
-        if (_tickersEnabled) await animationController.reverse();
-        if (!mounted) return;
-        // The pointer may have come back while it was leaving.
-        if (hovered || hasFocus) return;
-        controller.hide();
+      if (!hovered && !hasFocus) await _leave();
+    }
+  }
+
+  /// Plays the exit and closes the tooltip, unless the pointer or the focus
+  /// came back in the meantime.
+  Future<void> _leave() async {
+    // Off stage nobody sees the exit, and with tickers muted it would never
+    // complete.
+    if (_onStage) {
+      try {
+        await animationController.reverse().orCancel;
+      } on TickerCanceled {
+        // Something else took the controller over. If that was the pointer
+        // coming back, the check below keeps the tooltip; anything else —
+        // the entrance of an overlay built after the pointer had already
+        // left, effects that changed length mid-exit — must not leave the
+        // tooltip up with nothing to close it. A bare `await reverse()`
+        // never returns from a cancelled run.
       }
     }
+    if (!mounted) return;
+    if (hovered || hasFocus) return;
+    controller.hide();
   }
 
   @override
@@ -409,20 +437,17 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
             controller.hide();
           },
           child: Portal(
-            visible: controller.isOpen && _tickersEnabled,
+            visible: controller.isOpen && _onStage,
             anchor: effectiveAnchor,
             portalBuilder: (context) {
+              // The portal takes its overlay down a frame after it is told
+              // to; off stage that frame would show over what replaced the
+              // trigger.
+              if (!_onStage) return const SizedBox.shrink();
               // Key caps invert along with the surface, the reference's
               // `in-data-[slot=tooltip-content]:bg-background/20
               // text-background` (a `/10` wash in dark).
-              final contentTheme = theme.copyWith(
-                kbdTheme: theme.kbdTheme.copyWith(
-                  backgroundColor: theme.colorScheme.background.withValues(
-                    alpha: theme.brightness == Brightness.dark ? .1 : .2,
-                  ),
-                  foregroundColor: theme.colorScheme.background,
-                ),
-              );
+              final contentTheme = _contentThemeOf(theme);
 
               final textDirection = Directionality.of(context);
               final showArrow =
@@ -457,7 +482,12 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
                   effectiveDecoration.color ?? theme.colorScheme.foreground;
               final effectiveFilter =
                   widget.filter ?? theme.tooltipTheme.filter;
-              final shadows = effectiveDecoration.shadows;
+              // Over a filter the shadow is painted outside the clip, and
+              // outside the whole outline — arrow included — rather than by
+              // the bubble's own decoration.
+              final outerShadows = effectiveFilter == null
+                  ? const <BoxShadow>[]
+                  : effectiveDecoration.shadows ?? const <BoxShadow>[];
 
               Widget tooltip = CustomPaint(
                 painter: _TooltipShapePainter(shape: shape, color: fill),
@@ -466,6 +496,7 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
                   // a border, a gradient — stays the bubble's own.
                   decoration: effectiveDecoration.copyWith(
                     color: const Color(0x00000000),
+                    shadows: outerShadows.isNotEmpty ? const [] : null,
                   ),
                   child: Padding(
                     padding: effectivePadding ?? EdgeInsets.zero,
@@ -503,13 +534,12 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
                 filter: effectiveFilter,
                 tintOpacity: fill.a,
                 clipper: _TooltipShapeClipper(shape),
-                shadow:
-                    effectiveFilter != null &&
-                        shadows != null &&
-                        shadows.isNotEmpty
-                    ? ShadowDecoration.box(
-                        borderRadius: shape.radius,
-                        shadows: shadows,
+                shadow: outerShadows.isNotEmpty
+                    ? ShadowDecoration(
+                        decoration: ShapeDecoration(
+                          shape: _TooltipOutline(shape),
+                        ),
+                        shadows: outerShadows,
                       )
                     : null,
                 child: tooltip,
@@ -571,6 +601,26 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
       },
     );
   }
+}
+
+final _contentThemes = Expando<ThemeData>();
+
+/// [theme] as a tooltip's content sees it, with key caps inverted along
+/// with the surface.
+///
+/// `ThemeData.copyWith` runs the theme factory again, so the result is kept
+/// per theme: it is the same for every tooltip, and deriving it in the
+/// portal's builder paid for every component theme on each build of each
+/// open tooltip.
+ThemeData _contentThemeOf(ThemeData theme) {
+  return _contentThemes[theme] ??= theme.copyWith(
+    kbdTheme: theme.kbdTheme.copyWith(
+      backgroundColor: theme.colorScheme.background.withValues(
+        alpha: theme.brightness == Brightness.dark ? .1 : .2,
+      ),
+      foregroundColor: theme.colorScheme.background,
+    ),
+  );
 }
 
 /// The outline of a tooltip: its bubble and, when [direction] is not null,
@@ -670,7 +720,11 @@ class _TooltipShape {
         0,
       )..rotateZ(math.pi / 4)).storage,
     );
-    return Path.combine(PathOperation.union, bubble, placed);
+    // Two contours wound the same way, filled non-zero: their union, with
+    // the overlap counted once. Not `Path.combine(PathOperation.union, …)`,
+    // which on the web returns the bubble alone — a tooltip without its
+    // arrow.
+    return bubble..addPath(placed, Offset.zero);
   }
 
   @override
@@ -685,6 +739,39 @@ class _TooltipShape {
   @override
   int get hashCode =>
       Object.hash(radius, direction, arrowSize, arrowRadius, shift);
+}
+
+/// A [_TooltipShape] as a border, so a `ShadowDecoration` can cast its
+/// shadow around the whole outline — bubble and arrow — and keep it out of
+/// both.
+class _TooltipOutline extends ShapeBorder {
+  const _TooltipOutline(this.shape);
+
+  final _TooltipShape shape;
+
+  @override
+  EdgeInsetsGeometry get dimensions => EdgeInsets.zero;
+
+  @override
+  Path getOuterPath(Rect rect, {TextDirection? textDirection}) =>
+      shape.build(rect.size).shift(rect.topLeft);
+
+  @override
+  Path getInnerPath(Rect rect, {TextDirection? textDirection}) =>
+      getOuterPath(rect, textDirection: textDirection);
+
+  @override
+  void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {}
+
+  @override
+  ShapeBorder scale(double t) => this;
+
+  @override
+  bool operator ==(Object other) =>
+      other is _TooltipOutline && other.shape == shape;
+
+  @override
+  int get hashCode => shape.hashCode;
 }
 
 class _TooltipShapePainter extends CustomPainter {

@@ -274,7 +274,7 @@ class BreadcrumbSeparator extends StatelessWidget {
         theme.breadcrumbTheme.separatorColor ??
         theme.colorScheme.mutedForeground;
 
-    return Icon(
+    return PhosphorIcon(
       PhosphorIconsRegular.caretRight,
       size: effectiveSeparatorSize,
       color: effectiveColor,
@@ -309,7 +309,7 @@ class BreadcrumbEllipsis extends StatelessWidget {
     if (custom != null) return custom;
     final effectiveSize = size ?? theme.breadcrumbTheme.ellipsisSize ?? 16.0;
 
-    return Icon(
+    return PhosphorIcon(
       PhosphorIconsRegular.dotsThree,
       size: effectiveSize,
       color: theme.colorScheme.mutedForeground,
@@ -486,7 +486,7 @@ class _BreadcrumbDropdownState extends State<BreadcrumbDropdown> {
               AnimatedRotation(
                 turns: controller.isOpen ? 0.5 : 0.0,
                 duration: const Duration(milliseconds: 200),
-                child: Icon(
+                child: PhosphorIcon(
                   PhosphorIconsRegular.caretDown,
                   size: theme.breadcrumbTheme.separatorSize ?? 14,
                   color: effectiveTextColor,

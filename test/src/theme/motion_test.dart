@@ -78,6 +78,70 @@ void main() {
       expect(Motion.calm.copyWith(pressScale: .9).pressScale, .9);
     });
 
+    test('two motions with the same cubic, each created anew, are equal', () {
+      // Not const on purpose: a `Cubic` has no `==`, and this is what a
+      // `Motion` put together in a build method looks like.
+      Motion build() => Motion.lively.copyWith(
+        // ignore: prefer_const_constructors
+        standard: Cubic(.2, 0, 0, 1),
+        // ignore: prefer_const_constructors
+        emphasized: Cubic(.16, 1, .3, 1),
+        // ignore: prefer_const_constructors
+        exit: Cubic(.4, 0, 1, 1),
+      );
+      expect(build(), build());
+      expect(build().hashCode, build().hashCode);
+      // The defaults are those numbers: equal to the constant, too.
+      expect(build(), Motion.lively);
+      expect(
+        // ignore: prefer_const_constructors
+        Motion.lively.copyWith(standard: Cubic(.3, 0, 0, 1)),
+        isNot(Motion.lively),
+      );
+      // Any other curve is compared as Flutter compares it.
+      expect(
+        Motion.lively.copyWith(standard: Curves.easeInOutCubicEmphasized),
+        Motion.lively.copyWith(standard: Curves.easeInOutCubicEmphasized),
+      );
+      expect(
+        Motion.lively.copyWith(standard: Curves.linear),
+        isNot(Motion.lively.copyWith(standard: Curves.decelerate)),
+      );
+    });
+
+    test('the entrance of equal motions is one list, and the lists kept '
+        'are bounded', () {
+      // ignore: prefer_const_constructors
+      final a = Motion.lively.copyWith(standard: Cubic(.2, 0, 0, 1));
+      // ignore: prefer_const_constructors
+      final b = Motion.lively.copyWith(standard: Cubic(.2, 0, 0, 1));
+      expect(EntranceEffect.forMotion(a), same(EntranceEffect.forMotion(b)));
+      expect(EntranceEffect.fadeFor(a), same(EntranceEffect.fadeFor(b)));
+
+      // A motion that is in use — asked for again and again — keeps its
+      // list however many others come and go around it.
+      final kept = EntranceEffect.forMotion(Motion.lively);
+      final keptFade = EntranceEffect.fadeFor(Motion.lively);
+      Motion passing(int i) =>
+          Motion.lively.copyWith(fast: Duration(microseconds: 120000 + i));
+      final first = EntranceEffect.forMotion(passing(1));
+      final firstFade = EntranceEffect.fadeFor(passing(1));
+      for (var i = 1; i <= 200; i++) {
+        expect(EntranceEffect.forMotion(passing(i)), hasLength(1));
+        expect(EntranceEffect.fadeFor(passing(i)), hasLength(1));
+        expect(EntranceEffect.forMotion(Motion.lively), same(kept));
+        expect(EntranceEffect.fadeFor(Motion.lively), same(keptFade));
+      }
+      // One that has not been asked for since was let go of, rather than
+      // kept for ever: asked for again, it is built again.
+      expect(EntranceEffect.forMotion(passing(1)), isNot(same(first)));
+      expect(EntranceEffect.fadeFor(passing(1)), isNot(same(firstFade)));
+      expect(
+        EntranceEffect.forMotion(passing(200)),
+        same(EntranceEffect.forMotion(passing(200))),
+      );
+    });
+
     test('reduce takes the movement out and keeps a short fade', () {
       final reduced = Motion.lively.reduce();
       expect(reduced.reduced, isTrue);
@@ -147,6 +211,16 @@ void main() {
         reason: 'passing the style motion explicitly changes nothing',
       );
       expect(ThemeData(motion: custom), isNot(ThemeData()));
+    });
+
+    test('a theme rebuilt with an equal motion made of new curves is '
+        'equal: nothing re-animates', () {
+      ThemeData build() => ThemeData(
+        // ignore: prefer_const_constructors
+        motion: Motion.lively.copyWith(standard: Cubic(.2, 0, 0, 1)),
+      );
+      expect(build(), build());
+      expect(build().hashCode, build().hashCode);
     });
 
     test('StyleTokens.copyWith(motion:) reaches the phone metrics', () {

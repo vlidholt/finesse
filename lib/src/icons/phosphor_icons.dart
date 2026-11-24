@@ -5,9 +5,12 @@
 /// `PhosphorIconsLight`, `PhosphorIconsThin` and `PhosphorIconsDuotone`.
 ///
 /// ```dart
-/// const Icon(PhosphorIconsRegular.house)
+/// const PhosphorIcon(PhosphorIconsRegular.house)
 /// const Icon(PhosphorIconsFill.house) // the selected state
 /// ```
+///
+/// `PhosphorIcon` is an `Icon` that thickens a small regular icon's line,
+/// so that it looks the weight a large one does: see `PhosphorIconTheme`.
 ///
 /// The fonts ship in this package (`fonts/phosphor/`), so no other
 /// dependency is needed, and a release build keeps only the glyphs an app
@@ -18,6 +21,7 @@
 library;
 
 export 'phosphor_duotone_icon.dart';
+export 'phosphor_icon.dart';
 export 'phosphor_icons_bold.dart';
 export 'phosphor_icons_duotone.dart';
 export 'phosphor_icons_fill.dart';

@@ -1,6 +1,7 @@
 import 'package:example/strand/data/home_data.dart';
-import 'package:example/strand/widgets/home_pieces.dart';
 import 'package:example/strand/widgets/strand_actions.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
+import 'package:example/strand/widgets/strand_pieces.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -18,9 +19,8 @@ class HomePostMedia extends StatelessWidget {
   static bool has(FeedPost post) =>
       post.images.isNotEmpty || post.link != null || post.event != null;
 
-  /// The corner radius of every kind of media, between the theme's `lg`
-  /// and `xl`.
-  static const radius = BorderRadius.all(Radius.circular(14));
+  /// The corner radius of every kind of media: a tile nested in a card.
+  static BorderRadius radiusOf(ThemeData theme) => theme.radii.lg;
 
   @override
   Widget build(BuildContext context) {
@@ -43,10 +43,11 @@ class _ImageGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return ClipRRect(
-      borderRadius: HomePostMedia.radius,
+      borderRadius: HomePostMedia.radiusOf(theme),
       child: Row(
-        spacing: homeTightGap,
+        spacing: theme.gap(GapSize.xs),
         children: [
           for (final image in images)
             Expanded(
@@ -83,10 +84,7 @@ class _ImagePagerState extends State<_ImagePager> {
     final images = widget.images;
     final image = images[_index % images.length];
     return ClipRRect(
-      borderRadius: HomePostMedia.radius,
-      // Its own layer, so the counter's backdrop blur samples the
-      // photograph alone.
-      clipBehavior: Clip.antiAliasWithSaveLayer,
+      borderRadius: HomePostMedia.radiusOf(theme),
       child: Stack(
         children: [
           GestureDetector(
@@ -103,20 +101,20 @@ class _ImagePagerState extends State<_ImagePager> {
           ),
           if (images.length > 1)
             PositionedDirectional(
-              top: homeSnugGap,
-              end: homeSnugGap,
+              top: theme.gap(GapSize.sm),
+              end: theme.gap(GapSize.sm),
               child: Glass(
+                frosted: false,
                 color: _scrim,
                 border: const Border.fromBorderSide(BorderSide.none),
                 borderRadius: theme.radii.full,
-                height: 26,
-                padding: const EdgeInsets.symmetric(horizontal: homeSnugGap),
-                alignment: Alignment.center,
+                padding: EdgeInsets.symmetric(
+                  horizontal: theme.gap(GapSize.sm),
+                  vertical: theme.gap(GapSize.xs),
+                ),
                 child: Text(
                   '${_index + 1} / ${images.length}',
-                  style: theme.textTheme.small.copyWith(
-                    fontSize: 12,
-                    height: 1,
+                  style: theme.textTheme.caption.copyWith(
                     fontWeight: FontWeight.w600,
                     color: _onPhoto,
                   ),
@@ -151,7 +149,7 @@ class _LinkPreview extends StatelessWidget {
       ),
       builder: (context, states) => FocusRing(
         visible: states.contains(WidgetState.focused),
-        borderRadius: HomePostMedia.radius,
+        borderRadius: HomePostMedia.radiusOf(theme),
         child: Container(
           // A 120-point thumbnail inside the hairline.
           height: 122,
@@ -160,7 +158,7 @@ class _LinkPreview extends StatelessWidget {
             color: states.contains(WidgetState.hovered)
                 ? scheme.secondary
                 : scheme.muted,
-            borderRadius: HomePostMedia.radius,
+            borderRadius: HomePostMedia.radiusOf(theme),
             border: Border.all(color: scheme.border),
           ),
           child: Row(
@@ -180,7 +178,9 @@ class _LinkPreview extends StatelessWidget {
                     // 16 on a desktop and 12 on a phone, as the theme's
                     // `lg` gap is.
                     horizontal: layout.gap(GapSize.lg),
-                    vertical: compact ? layout.gap(GapSize.md) : homeLooseGap,
+                    vertical: compact
+                        ? layout.gap(GapSize.md)
+                        : theme.gap(GapSize.md),
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -201,7 +201,6 @@ class _LinkPreview extends StatelessWidget {
                           maxLines: 3,
                           overflow: TextOverflow.ellipsis,
                           style: theme.textTheme.large.copyWith(
-                            height: 21 / 15,
                             color: scheme.foreground,
                           ),
                         ),
@@ -241,18 +240,15 @@ class _EventMediaState extends State<_EventMedia> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final inset = theme.layoutTheme.gap(GapSize.md);
+    final inset = theme.gap(GapSize.md);
     final event = widget.event;
     final compact = widget.compact;
-    final star = Icon(
+    final star = PhosphorIcon(
       _interested ? PhosphorIconsFill.star : PhosphorIconsRegular.star,
     );
 
     return ClipRRect(
-      borderRadius: HomePostMedia.radius,
-      // Its own layer, so the strip's backdrop blur samples the photograph
-      // alone and not the card around it.
-      clipBehavior: Clip.antiAliasWithSaveLayer,
+      borderRadius: HomePostMedia.radiusOf(theme),
       child: Stack(
         children: [
           Image.asset(
@@ -267,17 +263,26 @@ class _EventMediaState extends State<_EventMedia> {
             right: inset,
             bottom: inset,
             child: Glass(
+              frosted: false,
               color: _scrim,
               border: Border.all(color: const Color(0x2EFFFFFF)),
-              borderRadius: HomePostMedia.radius,
+              borderRadius: HomePostMedia.radiusOf(theme),
               padding: EdgeInsets.symmetric(
-                horizontal: homeLooseGap,
+                horizontal: theme.gap(GapSize.md),
                 vertical: inset,
               ),
               child: FinesseRow(
                 gap: GapSize.md,
                 children: [
-                  _DateTile(month: event.month, day: event.day),
+                  // The same tile as on a card, in the photograph's fixed
+                  // colours.
+                  StrandDateTile(
+                    month: event.month,
+                    day: event.day,
+                    color: const Color(0xEBFFFFFF),
+                    monthColor: const Color(0xFF176B83),
+                    dayColor: _ink,
+                  ),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -306,7 +311,6 @@ class _EventMediaState extends State<_EventMedia> {
                     // No room for the label beside the event's name.
                     IconButton(
                       size: ButtonSize.sm,
-                      iconSize: 16,
                       backgroundColor: _onPhoto,
                       hoverBackgroundColor: _onPhotoHover,
                       foregroundColor: _ink,
@@ -317,8 +321,7 @@ class _EventMediaState extends State<_EventMedia> {
                     )
                   else
                     Button(
-                      gap: homeTightGap,
-                      iconSize: 16,
+                      gap: theme.gap(GapSize.xs),
                       backgroundColor: _onPhoto,
                       hoverBackgroundColor: _onPhotoHover,
                       foregroundColor: _ink,
@@ -340,48 +343,10 @@ class _EventMediaState extends State<_EventMedia> {
   }
 }
 
-/// The calendar-page tile: month over day on near-opaque white.
-class _DateTile extends StatelessWidget {
-  const _DateTile({required this.month, required this.day});
-
-  final String month;
-  final String day;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final base = theme.textTheme.small.copyWith(fontWeight: FontWeight.w700);
-    return Container(
-      width: 44,
-      height: 44,
-      decoration: BoxDecoration(
-        color: const Color(0xEBFFFFFF),
-        borderRadius: theme.radii.md,
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            month,
-            style: base.copyWith(
-              fontSize: 10,
-              height: 1,
-              letterSpacing: .6,
-              color: const Color(0xFF176B83),
-            ),
-          ),
-          Text(
-            day,
-            style: base.copyWith(fontSize: 18, height: 20 / 18, color: _ink),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// `rgba(9, 9, 11, .36)`: the scrim under text on a photograph.
-const _scrim = Color(0x5C09090B);
+/// The scrim under text on a photograph. The designs have 36% of near-black
+/// over a blur of the photograph; without the blur the photograph's detail
+/// is still there under the text, so the scrim is half again as dense.
+const _scrim = Color(0x8A09090B);
 const _onPhoto = Color(0xFFFFFFFF);
 const _onPhotoHover = Color(0xE6FFFFFF);
 const _ink = Color(0xFF09090B);

@@ -21,7 +21,7 @@ import 'package:finesse/finesse.dart';
 - **The default theme** is `StyleTokens.finesse` on `TealColorScheme`: soft teal glass. `ThemeData()` with no arguments gives it; `ThemeData(brightness: Brightness.dark)` gives its dark form.
 - **Form factors.** `FinesseApp` lays the theme out for `FormFactor.mobile` below the `md` breakpoint (768) and `FormFactor.desktop` above. Buttons are 36 tall on a desktop and 44 on a phone without any code asking. Never read the window width to pick a size. See [form-factors.md](guides/form-factors.md).
 - **Name the relationship, not the pixel count.** Space between components is a `GapSize` (`xs`, `sm`, `md`, `lg`, `xl`): `FinesseColumn(gap: GapSize.lg)`, `const Gap.md()`. `lg` is 16 on a desktop and 12 on a phone. See [layout.md](guides/layout.md).
-- **Icons are Phosphor, bundled.** `Icon(PhosphorIconsRegular.house)`; the fill weight (`PhosphorIconsFill.house`) is the selected state. There is no `LucideIcons`. See [icons.md](guides/icons.md).
+- **Icons are Phosphor, bundled.** `PhosphorIcon(PhosphorIconsRegular.house)`: an `Icon` that thickens a small regular icon's line so it does not look thinner than a large one; always write the regular constant. The fill weight (`PhosphorIconsFill.house`) is the selected state. There is no `LucideIcons`. See [icons.md](guides/icons.md).
 - **A screen** is a `Scaffold` (or `NavigationScaffold`) with an `AppBar`, and its content a `PageContainer`, which supplies the page margins and the maximum width.
 - **`FinessePadding` takes steps, not pixels.** It has no plain constructor, only `.all`, `.symmetric`, `.only`, and `.directional`, and `FinessePadding.symmetric(horizontal: 6, vertical: 4)` is 24 by 16 at the default 4px step. See [layout.md](guides/layout.md#padding).
 - **No deprecated aliases.** The old `Shad*` names, `ShadApp`, `LucideIcons`, the `vega`/`mira`/`luma`/`sera`/`rhea` styles and the slate, gray and accent-named base schemes do not exist.
@@ -33,7 +33,7 @@ import 'package:finesse/finesse.dart';
 - [Styles](guides/styles.md): the four presets (`finesse`, `nova`, `maia`, `lyra`), custom styles, glass.
 - [Form factors](guides/form-factors.md): desktop and phone metrics, how the choice is made, `FormFactorBuilder`, `withFormFactor`.
 - [Layout](guides/layout.md): the gap scale, `FinesseRow`, `FinesseColumn`, `Gap`, `PageContainer`, `FinessePadding`.
-- [Icons](guides/icons.md): the Phosphor classes, selected states, duotone, sizing.
+- [Icons](guides/icons.md): the Phosphor classes, `PhosphorIcon` and optical weight, selected states, duotone, sizing.
 - [Typography](guides/typography.md): the text role scale and how to change the font.
 - [Form](guides/form.md): `FinesseForm` and the `*FormField` widgets.
 - [Responsive](guides/responsive.md): the breakpoint scale, `ResponsiveBuilder`, `context.breakpoint`.
@@ -56,6 +56,7 @@ import 'package:finesse/finesse.dart';
 | Calendar | A component that allows users to select dates: single, multiple, or a range. | [calendar.md](components/calendar.md) |
 | Card | Displays a card with title, description, content, and footer. | [card.md](components/card.md) |
 | Chat Bubble | One message in a conversation. A `ChatBubble` aligns itself to its side, wraps at a fraction of the available width and squares off the corner nearest the sender into a tail. `TypingIndicator` is the three pulsing dots that go in one. | [chat-bubble.md](components/chat-bubble.md) |
+| Chat List | A conversation: a lazily built list of messages anchored to its newest one. `ChatList` animates what is added, removed or resized, follows the end while you are at it and holds the view still once you have scrolled away. | [chat-list.md](components/chat-list.md) |
 | Checkbox | A control that allows the user to toggle between checked and not checked. | [checkbox.md](components/checkbox.md) |
 | Chip | A compact pill for a filter, a choice or a tag. With `onSelected` it toggles, with `onPressed` it is a button, and with neither it is a static tag. Its height follows the form factor. | [chip.md](components/chip.md) |
 | Collapsible | An interactive component that expands and collapses a panel. | [collapsible.md](components/collapsible.md) |
@@ -93,6 +94,7 @@ import 'package:finesse/finesse.dart';
 | Slider | An input where the user selects a value from within a given range. | [slider.md](components/slider.md) |
 | Sonner | An opinionated toast stack: notifications collect and expand on hover. | [sonner.md](components/sonner.md) |
 | Spinner | An animated loading indicator. | [spinner.md](components/spinner.md) |
+| Streaming Text | Text that grows while it is on screen, such as a language model's reply. `StreamingText` reveals it at an even pace, each piece fading in, from a growing string, a `Stream<String>` or a `StreamingTextController`. | [streaming-text.md](components/streaming-text.md) |
 | Surface | The popover and menu chrome as a widget, for floating UI finesse has no component for, and a popover anchored to any rectangle. | [surface.md](components/surface.md) |
 | Switch | A control that allows the user to toggle between checked and not checked. | [switch.md](components/switch.md) |
 | Tab Bar | A row of text tabs with a line under the selected one, for the sections of a page. `TabBar` only reports which tab is selected. Use `Tabs` instead for a segmented control: a filled strip with a raised selection that can also own and switch its content. | [tab-bar.md](components/tab-bar.md) |

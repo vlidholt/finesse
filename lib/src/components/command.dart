@@ -6,14 +6,12 @@ import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/raw_components/roving_focus.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/theme/themes/shadows.dart';
 import 'package:finesse/src/utils/backdrop.dart';
 import 'package:finesse/src/utils/border.dart';
 import 'package:finesse/src/utils/debug_check.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
-import 'package:finesse/src/utils/moving_indicator.dart';
 import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/widgets.dart';
 
@@ -409,18 +407,6 @@ class CommandState extends State<Command> {
     final effectiveItemIconSize = commandTheme.itemIconSize ?? 16.0;
 
     var runningIndex = 0;
-    // The glide is only right when an item's highlighted text also reads
-    // on the bare surface; see `ContextMenu`.
-    final highlightGlides =
-        ((commandTheme.itemForegroundColor ??
-                        theme.colorScheme.popoverForeground)
-                    .computeLuminance() -
-                (commandTheme.itemSelectedForegroundColor ??
-                        theme.colorScheme.accentForeground)
-                    .computeLuminance())
-            .abs() <
-        .4;
-
     final groupViews = <Widget>[];
     for (final (group, items) in filteredGroups) {
       final children = <Widget>[];
@@ -488,19 +474,10 @@ class CommandState extends State<Command> {
         : SingleChildScrollView(
             controller: _scrollController,
             padding: effectiveOptionsPadding,
-            // The highlight is one shape that glides from item to item
-            // with the arrow keys or the pointer. Inside the scroll view,
-            // so it scrolls with its item.
-            child: MovingIndicator(
-              spring: highlightGlides ? null : MotionSpring.instant,
-              // An item's highlight is its full width: there is nothing
-              // to stretch along.
-              stretch: 0,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisSize: MainAxisSize.min,
-                children: groupViews,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: groupViews,
             ),
           );
 
@@ -566,7 +543,7 @@ class CommandState extends State<Command> {
                 gap: commandTheme.searchGap ?? 6,
                 leading:
                     widget.leadingSearchIcon ??
-                    Icon(
+                    PhosphorIcon(
                       PhosphorIconsRegular.magnifyingGlass,
                       size: commandTheme.searchIconSize ?? 16,
                       color:
@@ -581,26 +558,27 @@ class CommandState extends State<Command> {
     );
 
     final surfaceFilter = widget.surfaceFilter ?? commandTheme.surfaceFilter;
-    final surfaceShadows = effectiveDecoration.shadows;
+    // The clip around the filter would cut the decoration's own shadow
+    // off, so with a filter the shadow is painted outside the clip instead
+    // — and only there.
+    final outerShadows = surfaceFilter == null
+        ? const <BoxShadow>[]
+        : effectiveDecoration.shadows ?? const <BoxShadow>[];
     final child = ownsSurface
         ? BackdropSurface(
             filter: surfaceFilter,
             tintOpacity: effectiveBackgroundColor.a,
             borderRadius: borderRadius,
-            // The clip around the filter cuts the decoration's own shadow
-            // off, so it is painted again outside it.
-            shadow:
-                surfaceFilter != null &&
-                    surfaceShadows != null &&
-                    surfaceShadows.isNotEmpty
+            shadow: outerShadows.isNotEmpty
                 ? ShadowDecoration.box(
                     borderRadius: borderRadius,
-                    shadows: surfaceShadows,
+                    shadows: outerShadows,
                   )
                 : null,
             child: Decorator(
               decoration: effectiveDecoration.copyWith(
                 color: effectiveBackgroundColor,
+                shadows: outerShadows.isNotEmpty ? const [] : null,
               ),
               child: ClipRRect(
                 borderRadius: borderRadius,
@@ -668,38 +646,36 @@ class _CommandItemView extends StatelessWidget {
           onHoverChange: (hovered) {
             if (hovered && item.enabled) onHover();
           },
-          // The fill is painted by the list, once, and moves between the
-          // items; this says where it goes and what it looks like here.
-          child: MovingIndicatorTarget(
-            selected: highlighted && item.enabled,
+          // The highlight is the item's own fill, there or not: it does
+          // not fade or travel between the items.
+          child: Container(
+            padding:
+                commandTheme.itemPadding ??
+                const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             decoration: BoxDecoration(
-              color:
-                  commandTheme.itemSelectedBackgroundColor ??
-                  theme.colorScheme.accent,
+              color: highlighted && item.enabled
+                  ? commandTheme.itemSelectedBackgroundColor ??
+                        theme.colorScheme.accent
+                  : null,
               borderRadius: radius,
             ),
-            child: Padding(
-              padding:
-                  commandTheme.itemPadding ??
-                  const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-              child: IconTheme(
-                data: IconThemeData(size: iconSize, color: foreground),
-                child: DefaultTextStyle(
-                  style: (commandTheme.itemTextStyle ?? theme.textTheme.small)
-                      .copyWith(color: foreground),
-                  child: Row(
-                    children: [
-                      if (item.leading != null) ...[
-                        item.leading!,
-                        SizedBox(width: commandTheme.itemGap ?? 8),
-                      ],
-                      Expanded(child: Text(item.label)),
-                      if (item.trailing != null) ...[
-                        SizedBox(width: commandTheme.itemGap ?? 8),
-                        item.trailing!,
-                      ],
+            child: IconTheme(
+              data: IconThemeData(size: iconSize, color: foreground),
+              child: DefaultTextStyle(
+                style: (commandTheme.itemTextStyle ?? theme.textTheme.small)
+                    .copyWith(color: foreground),
+                child: Row(
+                  children: [
+                    if (item.leading != null) ...[
+                      item.leading!,
+                      SizedBox(width: commandTheme.itemGap ?? 8),
                     ],
-                  ),
+                    Expanded(child: Text(item.label)),
+                    if (item.trailing != null) ...[
+                      SizedBox(width: commandTheme.itemGap ?? 8),
+                      item.trailing!,
+                    ],
+                  ],
                 ),
               ),
             ),

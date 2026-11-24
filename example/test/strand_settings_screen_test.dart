@@ -1,8 +1,11 @@
+import 'dart:ui' show Tristate;
+
 import 'package:example/common/app_state.dart';
 import 'package:example/strand/screens/settings_screen.dart';
 import 'package:example/strand/widgets/settings_controller.dart';
 import 'package:example/strand/widgets/settings_sections.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -32,9 +35,12 @@ Future<void> _open(WidgetTester tester, SettingsSection section) async {
   await settleFrames(tester, frames: 4);
 }
 
-/// The switch of the row titled [title].
+/// The switch of the row titled [title]: the row is one semantic node.
 Finder _switch(String title) => find.descendant(
-  of: find.bySemanticsLabel(title),
+  of: find.ancestor(
+    of: find.text(title),
+    matching: find.byType(MergeSemantics),
+  ),
   matching: find.byType(Switch),
 );
 
@@ -145,6 +151,85 @@ void main() {
       await dismissToasts(tester);
     });
 
+    testWidgets('Account: an unsaved edit survives the layout rearranging', (
+      tester,
+    ) async {
+      await _pump(tester, size: const Size(1100, 900));
+      final save = find.widgetWithText(Button, 'Save changes');
+      final edited = find.widgetWithText(TextField, 'Noor H.');
+      await tester.enterText(find.byType(TextField).first, 'Noor H.');
+      await settleFrames(tester, frames: 4);
+      expect(edited, findsOneWidget);
+      expect(tester.widget<Button>(save).enabled, isTrue);
+      // The pages are a rail beside the cards.
+      expect(find.byType(Chip), findsNothing);
+
+      // Narrower, still a desktop: the rail becomes a strip of chips, and
+      // the page moves from a row to a column.
+      tester.view.physicalSize = const Size(800, 900);
+      await settleFrames(tester, frames: 6);
+      expect(Theme.of(strandContext(tester)).formFactor, FormFactor.desktop);
+      expect(find.byType(Chip), findsWidgets);
+      expect(edited, findsOneWidget);
+      expect(tester.widget<Button>(save).enabled, isTrue);
+
+      // A phone, and back to where it started.
+      tester.view.physicalSize = strandPhone;
+      await settleFrames(tester, frames: 6);
+      expect(Theme.of(strandContext(tester)).formFactor, FormFactor.mobile);
+      expect(edited, findsOneWidget);
+      tester.view.physicalSize = const Size(1100, 900);
+      await settleFrames(tester, frames: 6);
+      expect(find.byType(Chip), findsNothing);
+      expect(edited, findsOneWidget);
+      expect(tester.widget<Button>(save).enabled, isTrue);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('Account: the field being typed in keeps the focus when its '
+        'grid changes from two columns to one', (tester) async {
+      await _pump(tester, size: const Size(1100, 900));
+      final name = find.descendant(
+        of: find.bySemanticsLabel('Name'),
+        matching: find.byType(TextField),
+      );
+      final email = find.descendant(
+        of: find.bySemanticsLabel('Email'),
+        matching: find.byType(TextField),
+      );
+      bool sideBySide() =>
+          tester.getTopLeft(name).dy == tester.getTopLeft(email).dy;
+      bool emailFocused() {
+        final focus = FocusManager.instance.primaryFocus?.context;
+        if (focus == null) return false;
+        var inside = false;
+        final field = tester.element(email);
+        focus.visitAncestorElements((element) {
+          inside = element == field;
+          return !inside;
+        });
+        return inside;
+      }
+
+      await tester.tap(email);
+      await settleFrames(tester, frames: 4);
+      expect(sideBySide(), isTrue);
+      expect(emailFocused(), isTrue);
+
+      // Too narrow for two fields in a row, with or without the rail.
+      for (final width in const [800.0, 500.0]) {
+        tester.view.physicalSize = Size(width, 900);
+        await settleFrames(tester, frames: 6);
+        expect(emailFocused(), isTrue, reason: 'at $width');
+      }
+      expect(sideBySide(), isFalse);
+      tester.view.physicalSize = const Size(1100, 900);
+      await settleFrames(tester, frames: 6);
+      expect(sideBySide(), isTrue);
+      expect(emailFocused(), isTrue);
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('Privacy: the radio group, switches and select are live', (
       tester,
     ) async {
@@ -197,6 +282,36 @@ void main() {
       );
       expect(find.byType(Slider), findsOneWidget);
       expect(find.text('80%'), findsOneWidget);
+    });
+
+    testWidgets('a labelled control is announced once, under its label', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await _pump(tester);
+
+      // Account: the fields, and a switch with its sentence.
+      for (final label in ['Name', 'Email', 'Headline', 'Language']) {
+        expect(announced(tester, label), hasLength(1), reason: label);
+      }
+      final twoStep = announced(tester, 'Two-step verification');
+      expect(twoStep, hasLength(1));
+      // The one node is the switch: it has the state and takes the tap.
+      expect(twoStep.single.flagsCollection.isToggled, isNot(Tristate.none));
+      expect(twoStep.single.hasAction(SemanticsAction.tap), isTrue);
+      // Its sentence is part of the same stop.
+      expect(twoStep.single.label, contains('\n'));
+
+      await _open(tester, SettingsSection.notifications);
+      final pause = announced(tester, 'Pause all notifications');
+      expect(pause, hasLength(1));
+      expect(pause.single.flagsCollection.isToggled, isNot(Tristate.none));
+
+      await _open(tester, SettingsSection.appearance);
+      expect(announced(tester, 'Mode'), hasLength(1));
+      expect(announced(tester, 'Text size'), hasLength(1));
+      expect(announced(tester, 'Compact feed'), hasLength(1));
+      handle.dispose();
     });
 
     testWidgets('a setting is still set when the page is opened again', (
@@ -263,6 +378,42 @@ void main() {
       await settle(tester);
       expect(themeConfigProvider.of(page).value.textScale, 1.3);
       expect(find.text('130%'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('the text-size slider follows the theme editor', (
+      tester,
+    ) async {
+      await pumpApp(tester);
+      await openFromMenu(tester);
+      await tester.tap(find.widgetWithText(Button, 'Appearance'));
+      await settle(tester);
+      final slider = find.descendant(
+        of: find.byType(SettingsScreen),
+        matching: find.byType(Slider),
+      );
+      double thumb() => tester.widget<Slider>(slider).controller!.value;
+      expect(find.text('100%'), findsOneWidget);
+      expect(thumb(), 1.0);
+
+      // What the docked editor's "Text Scale" slider does.
+      final config = themeConfigProvider.of(appContext(tester));
+      config.value = config.value.copyWith(textScale: 1.2);
+      await settle(tester);
+      expect(find.text('120%'), findsWidgets);
+      expect(thumb(), closeTo(1.2, .001));
+
+      // The editor's range is the longer one: the thumb stops at its end.
+      config.value = config.value.copyWith(textScale: 1.6);
+      await settle(tester);
+      expect(find.text('160%'), findsWidgets);
+      expect(thumb(), closeTo(1.3, .001));
+      expect(config.value.textScale, 1.6);
+
+      // And back, as the editor's reset does.
+      config.value = config.value.copyWith(textScale: 1);
+      await settle(tester);
+      expect(thumb(), closeTo(1, .001));
       expect(tester.takeException(), isNull);
     });
   });

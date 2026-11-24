@@ -645,12 +645,12 @@ void main() {
     ) async {
       await tester.pumpWidget(box(value: false));
       await tester.pumpAndSettle();
-      expect(find.byType(Icon), findsNothing);
+      expect(find.bySubtype<Icon>(), findsNothing);
 
       await tester.pumpWidget(box(value: true));
       await tester.pump(_frame);
       await tester.pump(_frame);
-      expect(find.byType(Icon), findsOneWidget);
+      expect(find.bySubtype<Icon>(), findsOneWidget);
       final scales = <double>[];
       for (var i = 0; i < 40; i++) {
         scales.add(
@@ -672,12 +672,12 @@ void main() {
 
       await tester.pumpWidget(box(value: false));
       await tester.pumpAndSettle();
-      expect(find.byType(Icon), findsNothing);
+      expect(find.bySubtype<Icon>(), findsNothing);
     });
 
     testWidgets('a box that starts checked is simply checked', (tester) async {
       await tester.pumpWidget(box(value: true));
-      expect(find.byType(Icon), findsOneWidget);
+      expect(find.bySubtype<Icon>(), findsOneWidget);
       expect(
         tester
             .widget<Transform>(
@@ -890,7 +890,11 @@ void main() {
     ) async {
       await tester.pumpWidget(badge(3));
       expect(find.text('3'), findsOneWidget);
-      expect(find.byType(Opacity), findsNothing);
+      // On its first frame it is fully there: `PopIn` keeps its wrappers
+      // for the child's sake, at an opacity and a scale that do nothing.
+      expect(tester.widget<Opacity>(find.byType(Opacity)).opacity, 1);
+      final label = find.text('3');
+      expect(tester.getRect(label).size, tester.getSize(label));
     });
   });
 

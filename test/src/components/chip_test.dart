@@ -201,12 +201,17 @@ void main() {
       await tester.pump(const Duration(milliseconds: 60));
       expect(tester.getSize(find.byType(Chip)).height, 32);
 
-      // The animated box itself carries no size at all.
+      // The animated box itself carries no size at all: the height is a
+      // box around it — a floor and a ceiling, which are the same until
+      // text is scaled up — and it says nothing about the width.
       expect(
         find.ancestor(
           of: find.byType(AnimatedFill),
           matching: find.byWidgetPredicate(
-            (w) => w is SizedBox && w.height == 32 && w.width == null,
+            (w) =>
+                w is ConstrainedBox &&
+                w.constraints ==
+                    const BoxConstraints(minHeight: 32, maxHeight: 32),
           ),
         ),
         findsOneWidget,

@@ -130,14 +130,23 @@ class Backdrop extends StatelessWidget {
 /// kept outside any opacity layer — fades its own result in step, so that
 /// what is on screen is still a plain cross-fade from the page to the
 /// finished glass.
+///
+/// Only the outermost surface under a host is offered the fade. A claim
+/// stops the host fading *everything* under it, so the claimant has to be
+/// the whole of what the host shows; a solid surface claims nothing and its
+/// host fades it, and the glass inside it, as one.
 class BackdropFade extends InheritedWidget {
   /// Publishes [handle] to the surfaces under [child].
   const BackdropFade({required this.handle, required super.child, super.key});
 
   /// Hides any fade above from the surfaces under [child].
   ///
-  /// A surface that has claimed a fade wraps its content in this, so a
-  /// second glass surface inside it does not fade twice.
+  /// Every surface wraps its content in this, whether it claimed the fade
+  /// or not: the fade belongs to the outermost surface under its host. A
+  /// glass surface inside a claimed one would otherwise fade twice, and one
+  /// inside a *solid* surface — an inline command list in a dialog — would
+  /// take the fade away from the surface around it, which then would not
+  /// fade at all.
   const BackdropFade.none({required super.child, super.key}) : handle = null;
 
   /// The fade on offer, or null for none.
@@ -315,9 +324,11 @@ class BackdropSurface extends StatefulWidget {
   /// [borderRadius].
   final CustomClipper<Path>? clipper;
 
-  /// A decoration painted behind the surface and outside its clip: its
-  /// shadow. The clip that bounds the filter would cut a shadow painted by
-  /// [child] off.
+  /// A decoration painted around the surface, outside its clip: its
+  /// shadow, as a `ShadowDecoration`, which paints nothing inside the
+  /// shape. The clip that bounds the filter would cut a shadow painted by
+  /// [child] off. It is painted after [child], so the filter does not
+  /// sample it.
   final Decoration? shadow;
 
   /// The surface: its tint, border and content.
@@ -361,18 +372,17 @@ class _BackdropSurfaceState extends State<BackdropSurface> {
     final filter = widget.filter;
     final fade = _claimed?.opacity;
 
-    var surface = widget.child;
+    // Whatever this surface does with the fade, nothing inside it is
+    // offered it. Always there, so the content keeps its place in the tree
+    // when a filter comes or goes.
+    Widget surface = BackdropFade.none(child: widget.child);
     if (filter != null) {
       if (fade == null) {
         surface = BackdropFilter(filter: filter, child: surface);
       } else {
         surface = AnimatedBuilder(
           animation: fade,
-          // Nothing below fades a second time.
-          child: FadeTransition(
-            opacity: fade,
-            child: BackdropFade.none(child: surface),
-          ),
+          child: FadeTransition(opacity: fade, child: surface),
           builder: (context, child) {
             // At fade t the tint covers t·tint of the backdrop. For the
             // rest to be the page fading into its filtered self, the
@@ -396,14 +406,20 @@ class _BackdropSurfaceState extends State<BackdropSurface> {
 
     final shadow = widget.shadow;
     if (shadow == null) return surface;
-    Widget underlay = DecoratedBox(decoration: shadow);
-    if (fade != null) underlay = FadeTransition(opacity: fade, child: underlay);
+    // Painted *after* the surface, not under it. The shadow only covers the
+    // outside of the shape (see `ShadowDecoration`), so the order makes no
+    // difference to what overlaps what — but a backdrop filter samples
+    // everything painted before it, and a blur that reaches past the edge
+    // would pull a shadow painted first back into the glass as a grey rim.
+    Widget cast = DecoratedBox(decoration: shadow);
+    if (fade != null) cast = FadeTransition(opacity: fade, child: cast);
     return Stack(
       fit: StackFit.passthrough,
       clipBehavior: Clip.none,
       children: [
-        Positioned.fill(child: underlay),
         surface,
+        // A decorated box claims the taps inside its box.
+        Positioned.fill(child: IgnorePointer(child: cast)),
       ],
     );
   }

@@ -30,17 +30,17 @@ class _ToggleGroupBasicExampleState extends State<ToggleGroupBasicExample> {
         ToggleGroupItem(
           value: 'left',
           semanticLabel: 'Align left',
-          child: Icon(PhosphorIconsRegular.textAlignLeft),
+          child: PhosphorIcon(PhosphorIconsRegular.textAlignLeft),
         ),
         ToggleGroupItem(
           value: 'center',
           semanticLabel: 'Align center',
-          child: Icon(PhosphorIconsRegular.textAlignCenter),
+          child: PhosphorIcon(PhosphorIconsRegular.textAlignCenter),
         ),
         ToggleGroupItem(
           value: 'right',
           semanticLabel: 'Align right',
-          child: Icon(PhosphorIconsRegular.textAlignRight),
+          child: PhosphorIcon(PhosphorIconsRegular.textAlignRight),
         ),
       ],
     );
@@ -75,17 +75,17 @@ class _ToggleGroupMultipleExampleState
         ToggleGroupItem(
           value: 'bold',
           semanticLabel: 'Bold',
-          child: Icon(PhosphorIconsRegular.textB),
+          child: PhosphorIcon(PhosphorIconsRegular.textB),
         ),
         ToggleGroupItem(
           value: 'italic',
           semanticLabel: 'Italic',
-          child: Icon(PhosphorIconsRegular.textItalic),
+          child: PhosphorIcon(PhosphorIconsRegular.textItalic),
         ),
         ToggleGroupItem(
           value: 'underline',
           semanticLabel: 'Underline',
-          child: Icon(PhosphorIconsRegular.textUnderline),
+          child: PhosphorIcon(PhosphorIconsRegular.textUnderline),
         ),
       ],
     );
@@ -122,17 +122,17 @@ class _ToggleGroupOutlineExampleState extends State<ToggleGroupOutlineExample> {
         ToggleGroupItem(
           value: 'bold',
           semanticLabel: 'Bold',
-          child: Icon(PhosphorIconsRegular.textB),
+          child: PhosphorIcon(PhosphorIconsRegular.textB),
         ),
         ToggleGroupItem(
           value: 'italic',
           semanticLabel: 'Italic',
-          child: Icon(PhosphorIconsRegular.textItalic),
+          child: PhosphorIcon(PhosphorIconsRegular.textItalic),
         ),
         ToggleGroupItem(
           value: 'underline',
           semanticLabel: 'Underline',
-          child: Icon(PhosphorIconsRegular.textUnderline),
+          child: PhosphorIcon(PhosphorIconsRegular.textUnderline),
         ),
       ],
     );

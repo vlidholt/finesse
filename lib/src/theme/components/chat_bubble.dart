@@ -1,3 +1,4 @@
+import 'package:finesse/src/theme/motion.dart';
 import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
@@ -19,6 +20,7 @@ class ChatBubbleTheme with _$ChatBubbleTheme {
     this.outgoingColor,
     this.outgoingForegroundColor,
     this.maxWidthFactor,
+    this.sizeSpring,
   }) : _canMerge = canMerge;
 
   @ignore
@@ -53,6 +55,11 @@ class ChatBubbleTheme with _$ChatBubbleTheme {
 
   /// The widest a bubble grows, as a fraction of the available width.
   final double? maxWidthFactor;
+
+  /// The spring a bubble follows its content's size with, when the message
+  /// in it changes or grows. Null uses the theme motion's snappy spring
+  /// without its bounce.
+  final MotionSpring? sizeSpring;
 
   /// Linearly interpolates between two themes.
   static ChatBubbleTheme? lerp(

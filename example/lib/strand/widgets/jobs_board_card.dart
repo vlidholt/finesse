@@ -1,6 +1,6 @@
 import 'package:example/strand/data/applications_data.dart';
 import 'package:example/strand/widgets/jobs_company_logo.dart';
-import 'package:example/strand/widgets/jobs_metrics.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -19,7 +19,7 @@ class ApplicationCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final text = theme.textTheme;
-    final caption = text.muted.copyWith(fontSize: 12, height: 16 / 12);
+    final caption = text.caption;
     final toneColor = switch (application.tone) {
       ApplicationTone.quiet => colors.mutedForeground,
       ApplicationTone.active => colors.tint,
@@ -34,11 +34,11 @@ class ApplicationCard extends StatelessWidget {
         children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: jobsTightGap,
+            spacing: theme.gap(GapSize.sm),
             children: [
               JobsCompanyLogo(
                 application.company,
-                size: 36,
+                size: theme.avatarSm,
                 radius: theme.radii.md,
               ),
               Expanded(
@@ -48,16 +48,13 @@ class ApplicationCard extends StatelessWidget {
                   children: [
                     Text(
                       application.title,
-                      style: text.small.copyWith(
-                        fontSize: 14,
-                        height: 18 / 14,
+                      style: text.p.copyWith(
                         fontWeight: FontWeight.w600,
                         color: colors.foreground,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 2),
                     Text(
                       '${application.company.name} · '
                       '${application.location}',
@@ -70,13 +67,17 @@ class ApplicationCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: jobsTightGap),
+          const Gap.sm(),
           Row(
-            spacing: jobsInlineGap,
+            spacing: theme.gap(GapSize.xs),
             children: [
               // Decorative: the text beside it says what it marks.
               ExcludeSemantics(
-                child: Icon(application.statusIcon, size: 14, color: toneColor),
+                child: PhosphorIcon(
+                  application.statusIcon,
+                  size: theme.iconBeside(caption),
+                  color: toneColor,
+                ),
               ),
               Expanded(
                 child: Text(

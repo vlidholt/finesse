@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui' show ImageFilter;
 
 import 'package:finesse/src/components/icon_button.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
@@ -6,6 +7,7 @@ import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/theme/themes/shadows.dart';
 import 'package:finesse/src/utils/animate.dart';
+import 'package:finesse/src/utils/backdrop.dart';
 import 'package:finesse/src/utils/border.dart';
 import 'package:finesse/src/utils/position.dart';
 import 'package:finesse/src/utils/responsive.dart';
@@ -62,24 +64,51 @@ class Toaster extends StatefulWidget {
 /// controller and timer, providing methods to show and hide toasts
 /// programmatically.
 class ToasterState extends State<Toaster> with TickerProviderStateMixin {
-  late final _controller = AnimationController(vsync: this);
+  late final _controller = AnimationController(vsync: this)
+    ..addStatusListener(_onAnimationStatus);
   final _visibleToast = ValueNotifier<Toast?>(null);
   final _shown = ValueNotifier(false);
   Timer? _timer;
 
+  /// Completed when the toast that is leaving has left.
+  Completer<void>? _leaving;
+
   @override
   void dispose() {
     _timer?.cancel();
+    _finishLeaving(remove: false);
     _controller.dispose();
     _shown.dispose();
     _visibleToast.dispose();
     super.dispose();
   }
 
+  /// The exit has played once the controller completes while nothing is
+  /// meant to be shown.
+  ///
+  /// Listened for rather than awaited from `forward()`: the animate widget
+  /// below restarts the controller when the exit effects are a different
+  /// length from the entrance's, which cancels that future — and a
+  /// cancelled `TickerFuture` never completes, so the toast was never
+  /// removed.
+  void _onAnimationStatus(AnimationStatus status) {
+    if (status == AnimationStatus.completed && !_shown.value) {
+      _finishLeaving(remove: true);
+    }
+  }
+
+  void _finishLeaving({required bool remove}) {
+    if (remove) _visibleToast.value = null;
+    _leaving?.complete();
+    _leaving = null;
+  }
+
   /// Shows [toast], replacing the one on screen, and hides it after its display
   /// duration.
   void show(Toast toast) {
     _timer?.cancel();
+    // A toast that was on its way out is replaced, not waited for.
+    _finishLeaving(remove: false);
     _shown.value = true;
     _visibleToast.value = toast;
     _controller.forward(from: 0);
@@ -90,11 +119,20 @@ class ToasterState extends State<Toaster> with TickerProviderStateMixin {
   ///
   /// When [animate] is true, the default, the future completes after the exit
   /// animation.
-  Future<void> hide({bool animate = true}) async {
+  Future<void> hide({bool animate = true}) {
     _timer?.cancel();
     _shown.value = false;
-    if (animate) await _controller.forward(from: 0);
-    _visibleToast.value = null;
+    if (!animate || _visibleToast.value == null) {
+      _controller.stop();
+      _finishLeaving(remove: true);
+      return Future.value();
+    }
+    final leaving = _leaving ??= Completer<void>();
+    // From the start of the exit. The removal is [_onAnimationStatus]'s:
+    // this may be restarted by the animate widget, at the exit's own length,
+    // when it swaps the effects on the next frame.
+    _controller.forward(from: 0);
+    return leaving.future;
   }
 
   @override
@@ -170,12 +208,18 @@ class ToasterState extends State<Toaster> with TickerProviderStateMixin {
                         horizontal: effectiveOffset.dx,
                         vertical: effectiveOffset.dy,
                       ),
-                      child: FinesseAnimate(
-                        controller: _controller,
-                        effects: visible
-                            ? effectiveAnimateIn
-                            : effectiveAnimateOut,
-                        child: toast ?? const SizedBox.shrink(),
+                      // A toast on its way out is not there to be tapped.
+                      child: IgnorePointer(
+                        ignoring: !visible,
+                        child: FinesseAnimate(
+                          controller: _controller,
+                          effects: visible
+                              ? effectiveAnimateIn
+                              : effectiveAnimateOut,
+                          // The toast may be glass; see [BackdropFade].
+                          fadeThroughBackdrop: true,
+                          child: toast ?? const SizedBox.shrink(),
+                        ),
                       ),
                     ),
                   );
@@ -249,6 +293,7 @@ class Toast extends StatefulWidget {
     this.radius,
     this.shadows,
     this.backgroundColor,
+    this.filter,
     this.padding,
     this.closeIconPosition,
     this.constraints,
@@ -281,6 +326,7 @@ class Toast extends StatefulWidget {
     this.radius,
     this.shadows,
     this.backgroundColor,
+    this.filter,
     this.padding,
     this.closeIconPosition,
     this.constraints,
@@ -314,6 +360,7 @@ class Toast extends StatefulWidget {
     this.radius,
     this.shadows,
     this.backgroundColor,
+    this.filter,
     this.padding,
     this.closeIconPosition,
     this.constraints,
@@ -451,9 +498,17 @@ class Toast extends StatefulWidget {
 
   /// {@template Toast.backgroundColor}
   /// The background color of the toast.
-  /// Defaults to the theme’s background color if not specified.
+  /// Defaults to the theme’s popover surface if not specified: a toast is a
+  /// floating surface, so it is glass in a style whose popovers are.
   /// {@endtemplate}
   final Color? backgroundColor;
+
+  /// {@template Toast.filter}
+  /// A filter applied to what is behind the toast, such as the blur of a
+  /// glass surface, for a translucent [backgroundColor]. Defaults to the
+  /// theme's, which is null in a style with solid surfaces.
+  /// {@endtemplate}
+  final ImageFilter? filter;
 
   /// {@template Toast.padding}
   /// The padding inside the toast, surrounding all content.
@@ -514,6 +569,10 @@ class Toast extends StatefulWidget {
     Motion motion,
   ) {
     if (motion.reduced) {
+      // Nothing at all without a duration (`Motion.none`): a zero-length
+      // effect on a controller that is already running divides by its
+      // length and asserts on every frame.
+      if (motion.fast <= Duration.zero) return const [];
       return [FadeEffect(duration: motion.fast, curve: motion.standard)];
     }
     final spring = motion.snappy;
@@ -548,6 +607,7 @@ class Toast extends StatefulWidget {
     Motion motion,
   ) {
     if (motion.reduced) {
+      if (motion.fast <= Duration.zero) return const [];
       return [
         FadeEffect(
           begin: 1,
@@ -614,7 +674,7 @@ class _ToastState extends State<Toast> {
       ToastVariant.destructive => theme.destructiveToastTheme,
     };
     final effectiveForegroundColor = switch (widget.variant) {
-      ToastVariant.primary => theme.colorScheme.foreground,
+      ToastVariant.primary => theme.colorScheme.popoverForeground,
       ToastVariant.destructive => theme.colorScheme.destructiveForeground,
     };
 
@@ -622,7 +682,7 @@ class _ToastState extends State<Toast> {
         widget.closeIcon ??
         effectiveToastTheme.closeIcon ??
         IconButton.ghost(
-          icon: Icon(
+          icon: PhosphorIcon(
             size: 16,
             widget.closeIconData ??
                 effectiveToastTheme.closeIconData ??
@@ -665,7 +725,8 @@ class _ToastState extends State<Toast> {
     final effectiveBackgroundColor =
         widget.backgroundColor ??
         effectiveToastTheme.backgroundColor ??
-        theme.colorScheme.background;
+        theme.colorScheme.popover;
+    final effectiveFilter = widget.filter ?? effectiveToastTheme.filter;
     final effectivePadding =
         widget.padding ??
         effectiveToastTheme.padding ??
@@ -715,63 +776,81 @@ class _ToastState extends State<Toast> {
               );
           return ConstrainedBox(
             constraints: effectiveConstraints,
-            child: DecoratedBox(
-              decoration: ShadowDecoration.box(
-                border: effectiveBorder.toBorder(),
-                borderRadius: effectiveBorderRadius,
-                shadows: effectiveShadows,
-                color: effectiveBackgroundColor,
-              ),
-              child: Stack(
-                children: [
-                  Padding(
-                    padding: effectivePadding,
-                    child: Row(
-                      textDirection: effectiveTextDirection,
-                      mainAxisAlignment: effectiveMainAxisAlignment,
-                      mainAxisSize: effectiveMainAxisSize,
-                      crossAxisAlignment: effectiveCrossAxisAlignment,
-                      children: [
-                        Flexible(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (widget.title != null)
-                                DefaultTextStyle(
-                                  style: effectiveTitleStyle,
-                                  child: widget.title!,
-                                ),
-                              if (widget.description != null)
-                                DefaultTextStyle(
-                                  style: effectiveDescriptionStyle,
-                                  child: widget.description!,
-                                ),
-                            ],
-                          ),
-                        ),
-                        if (widget.action != null)
-                          Padding(
-                            padding: effectiveActionPadding,
-                            child: widget.action,
-                          ),
-                      ],
+            // Through a `BackdropSurface` even without a filter, so the
+            // entrance fade has one place to go either way: a glass toast
+            // fades inside its filter, a solid one as a whole.
+            child: BackdropSurface(
+              filter: effectiveFilter,
+              tintOpacity: effectiveBackgroundColor.a,
+              borderRadius: effectiveBorderRadius,
+              // A filter is clipped, which would cut the shadow off; it is
+              // painted outside the clip instead.
+              shadow: effectiveFilter == null
+                  ? null
+                  : ShadowDecoration.box(
+                      borderRadius: effectiveBorderRadius,
+                      shadows: effectiveShadows,
                     ),
-                  ),
-                  ValueListenableBuilder(
-                    valueListenable: hovered,
-                    builder: (context, hovered, child) {
-                      if (!effectiveShowCloseIconOnlyWhenHovered) {
-                        return child!;
-                      }
-                      return Visibility.maintain(
-                        visible: hovered,
-                        child: child!,
-                      );
-                    },
-                    child: effectiveCloseIcon,
-                  ).positionedWith(effectiveCloseIconPosition),
-                ],
+              child: DecoratedBox(
+                decoration: ShadowDecoration.box(
+                  border: effectiveBorder.toBorder(),
+                  borderRadius: effectiveBorderRadius,
+                  shadows: effectiveFilter == null
+                      ? effectiveShadows
+                      : const [],
+                  color: effectiveBackgroundColor,
+                ),
+                child: Stack(
+                  children: [
+                    Padding(
+                      padding: effectivePadding,
+                      child: Row(
+                        textDirection: effectiveTextDirection,
+                        mainAxisAlignment: effectiveMainAxisAlignment,
+                        mainAxisSize: effectiveMainAxisSize,
+                        crossAxisAlignment: effectiveCrossAxisAlignment,
+                        children: [
+                          Flexible(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (widget.title != null)
+                                  DefaultTextStyle(
+                                    style: effectiveTitleStyle,
+                                    child: widget.title!,
+                                  ),
+                                if (widget.description != null)
+                                  DefaultTextStyle(
+                                    style: effectiveDescriptionStyle,
+                                    child: widget.description!,
+                                  ),
+                              ],
+                            ),
+                          ),
+                          if (widget.action != null)
+                            Padding(
+                              padding: effectiveActionPadding,
+                              child: widget.action,
+                            ),
+                        ],
+                      ),
+                    ),
+                    ValueListenableBuilder(
+                      valueListenable: hovered,
+                      builder: (context, hovered, child) {
+                        if (!effectiveShowCloseIconOnlyWhenHovered) {
+                          return child!;
+                        }
+                        return Visibility.maintain(
+                          visible: hovered,
+                          child: child!,
+                        );
+                      },
+                      child: effectiveCloseIcon,
+                    ).positionedWith(effectiveCloseIconPosition),
+                  ],
+                ),
               ),
             ),
           );

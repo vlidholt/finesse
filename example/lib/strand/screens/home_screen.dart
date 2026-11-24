@@ -2,12 +2,12 @@ import 'package:example/strand/widgets/home_composer_card.dart';
 import 'package:example/strand/widgets/home_feed_scope.dart';
 import 'package:example/strand/widgets/home_feed_tabs.dart';
 import 'package:example/strand/widgets/home_groups_card.dart';
-import 'package:example/strand/widgets/home_pieces.dart';
 import 'package:example/strand/widgets/home_post_card.dart';
 import 'package:example/strand/widgets/home_profile_card.dart';
 import 'package:example/strand/widgets/home_stories.dart';
 import 'package:example/strand/widgets/home_suggestions_card.dart';
 import 'package:example/strand/widgets/home_trending_card.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -94,12 +94,17 @@ class _DesktopHomeState extends State<_DesktopHome> {
               ? ((full - width) / (full - least)).clamp(0.0, 1.0)
               : 0.0;
 
+          // Each column is keyed: the rails come and go with the width,
+          // and without keys the feed between them is matched by position
+          // — dropping both rails at once would rebuild it from nothing,
+          // with the focus and everything else its cards hold.
           return Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: gap,
             children: [
               if (showLeft)
                 SizedBox(
+                  key: const ValueKey(_Column.left),
                   width: _leftWidth - (_leftWidth - _leftMinWidth) * squeeze,
                   child: const FinesseColumn(
                     gap: GapSize.lg,
@@ -108,9 +113,10 @@ class _DesktopHomeState extends State<_DesktopHome> {
                     children: [HomeProfileCard(), HomeGroupsCard()],
                   ),
                 ),
-              const Expanded(child: _Feed()),
+              const Expanded(key: ValueKey(_Column.feed), child: _Feed()),
               if (showRight)
                 SizedBox(
+                  key: const ValueKey(_Column.right),
                   width: _rightWidth - (_rightWidth - _rightMinWidth) * squeeze,
                   child: FinesseColumn(
                     gap: GapSize.lg,
@@ -134,6 +140,9 @@ class _DesktopHomeState extends State<_DesktopHome> {
     );
   }
 }
+
+/// The desktop home's three columns.
+enum _Column { left, feed, right }
 
 /// The desktop feed column.
 class _Feed extends StatelessWidget {
@@ -169,11 +178,11 @@ class _MobileHome extends StatelessWidget {
       // The phone design starts 14 below the app bar and spaces the
       // stories, the control and the posts 14 apart: between the theme's
       // 12 and 16.
-      padding: const EdgeInsets.symmetric(vertical: homeLooseGap),
+      padding: EdgeInsets.symmetric(vertical: theme.gap(GapSize.md)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
-        spacing: homeLooseGap,
+        spacing: theme.gap(GapSize.md),
         children: [
           const HomeStories(),
           Padding(
@@ -184,7 +193,7 @@ class _MobileHome extends StatelessWidget {
             // Post cards sit 4 closer to the screen's edges than the page
             // margin the stories and the control keep.
             padding: EdgeInsets.symmetric(
-              horizontal: theme.layoutTheme.gap(GapSize.md),
+              horizontal: theme.gap(GapSize.md),
             ),
             child: const _Posts(),
           ),

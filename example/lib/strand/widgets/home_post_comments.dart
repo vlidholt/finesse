@@ -1,15 +1,22 @@
 import 'package:example/strand/data.dart';
 import 'package:example/strand/data/home_data.dart';
+import 'package:example/strand/widgets/home_feed_scope.dart';
 import 'package:example/strand/widgets/home_pieces.dart';
 import 'package:example/strand/widgets/person_avatar.dart';
 import 'package:example/strand/widgets/strand_actions.dart';
 import 'package:example/strand/widgets/strand_pieces.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 /// The thread under a desktop post: comments with their replies, the
 /// "View more replies" link and the field for a new comment.
+///
+/// What the user does here — the comment being written, the likes, the
+/// replies opened — is kept in the `HomeFeedModel`, not in this widget: the
+/// card is built anew when the layout changes form factor, and none of it
+/// may be lost to a window resize.
 class HomePostComments extends StatefulWidget {
   const HomePostComments(this.post, {this.fieldFocusNode, super.key});
 
@@ -24,31 +31,26 @@ class HomePostComments extends StatefulWidget {
 }
 
 class _HomePostCommentsState extends State<HomePostComments> {
-  /// The comments whose hidden replies are showing.
-  final _expanded = <String>{};
-
-  /// The comments and replies the signed-in user has liked.
-  final _liked = <String>{};
-
-  /// What is typed in the comment field.
-  final _draft = TextEditingController();
-
   /// The field's focus node when the post did not hand one in.
   final _ownFocus = FocusNode();
 
   FocusNode get _fieldFocus => widget.fieldFocusNode ?? _ownFocus;
 
+  /// What is typed in the comment field.
+  TextEditingController get _draft =>
+      HomeFeedScope.of(context).draftFor(widget.post);
+
   @override
   void dispose() {
-    _draft.dispose();
     _ownFocus.dispose();
     super.dispose();
   }
 
   /// Puts [text] at the end of the draft and the cursor after it.
   void _append(String text) {
-    final next = '${_draft.text}$text';
-    _draft.value = TextEditingValue(
+    final draft = _draft;
+    final next = '${draft.text}$text';
+    draft.value = TextEditingValue(
       text: next,
       selection: TextSelection.collapsed(offset: next.length),
     );
@@ -56,29 +58,19 @@ class _HomePostCommentsState extends State<HomePostComments> {
   }
 
   void _post() {
-    final text = _draft.text.trim();
+    final draft = _draft;
+    final text = draft.text.trim();
     if (text.isEmpty) return;
-    _draft.clear();
+    draft.clear();
     showStrandToast(context, 'Comment posted', description: text);
   }
 
-  void _toggle(Set<String> set, String id) {
-    setState(() {
-      if (!set.remove(id)) set.add(id);
-    });
-  }
-
-  /// The portrait beside a comment and beside the comment field; a reply's
-  /// is a step smaller.
-  static const _avatarSize = 32.0;
-  static const _replyAvatarSize = 28.0;
-
-  Widget _comment(FeedComment comment, {required double avatarSize}) {
+  Widget _comment(FeedComment comment) {
+    final model = HomeFeedScope.of(context);
     return _Comment(
       comment,
-      avatarSize: avatarSize,
-      liked: _liked.contains(comment.id),
-      onLike: () => _toggle(_liked, comment.id),
+      liked: model.isCommentLiked(comment),
+      onLike: () => model.toggleCommentLike(comment),
       // Start the comment with who it answers.
       onReply: () => _append('@${comment.author.name} '),
     );
@@ -88,38 +80,39 @@ class _HomePostCommentsState extends State<HomePostComments> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final model = HomeFeedScope.of(context);
+    // The portrait beside a comment and beside the comment field.
+    final avatarSize = theme.avatarSm;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
-      // 14 between the thread's rows: looser than a group's 12, tighter
-      // than the gap between cards.
-      spacing: homeLooseGap,
+      spacing: theme.gap(GapSize.md),
       children: [
         for (final comment in widget.post.thread) ...[
-          _comment(comment, avatarSize: _avatarSize),
+          _comment(comment),
           for (final reply in [
             ...comment.replies,
-            if (_expanded.contains(comment.id)) ...comment.hiddenReplies,
+            if (model.areRepliesShown(comment)) ...comment.hiddenReplies,
           ])
             _Reply(
               // The rule is centred under the comment's portrait.
-              ruleCentre: _avatarSize / 2,
-              child: _comment(reply, avatarSize: _replyAvatarSize),
+              ruleCentre: avatarSize / 2,
+              child: _comment(reply),
             ),
           if (comment.hiddenReplies.isNotEmpty)
             Padding(
               // Under the comment's text column: its portrait and gap.
-              padding: const EdgeInsetsDirectional.only(
-                start: _avatarSize + homeSnugGap,
+              padding: EdgeInsetsDirectional.only(
+                start: avatarSize + theme.gap(GapSize.sm),
               ),
               child: Align(
                 alignment: AlignmentDirectional.centerStart,
                 child: HomeTextLink(
-                  _expanded.contains(comment.id)
+                  model.areRepliesShown(comment)
                       ? 'Hide replies'
                       : 'View ${comment.hiddenReplies.length} more replies',
-                  onPressed: () => _toggle(_expanded, comment.id),
+                  onPressed: () => model.toggleReplies(comment),
                   style: theme.textTheme.small.copyWith(
                     color: scheme.mutedForeground,
                   ),
@@ -129,8 +122,8 @@ class _HomePostCommentsState extends State<HomePostComments> {
         ],
         Row(
           children: [
-            const PersonAvatar(People.me, size: _avatarSize),
-            const Gap.raw(homeSnugGap),
+            PersonAvatar(People.me, size: avatarSize),
+            const Gap.sm(),
             Expanded(
               child: Semantics(
                 label: 'Add a comment',
@@ -142,32 +135,26 @@ class _HomePostCommentsState extends State<HomePostComments> {
                   placeholder: const Text('Add a comment…'),
                   // The reshaping a pill button takes suits a field too.
                   decoration: theme.buttonDecoration(radius: theme.radii.full),
-                  // The designs size the field's inside at 40 and draw the
-                  // hairline around that.
-                  constraints: const BoxConstraints(minHeight: 42),
-                  // The text starts 16 in — the design's 14 and the 2 a
-                  // browser pads an input with; the round trailing buttons
-                  // sit closer to the pill's end than a field's usual 12.
+                  // The round trailing buttons sit closer to the pill's end
+                  // than a field's usual inset.
                   padding: EdgeInsetsDirectional.only(
-                    start: theme.layoutTheme.gap(GapSize.lg),
-                    end: homeTightGap,
+                    start: theme.gap(GapSize.lg),
+                    end: theme.gap(GapSize.xs),
                   ),
-                  gap: theme.layoutTheme.gap(GapSize.xs),
+                  gap: theme.gap(GapSize.xs),
                   trailing: FinesseRow(
                     gap: GapSize.xs,
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton.ghost(
                         size: ButtonSize.sm,
-                        iconSize: 18,
-                        icon: const Icon(PhosphorIconsRegular.smiley),
+                        icon: const PhosphorIcon(PhosphorIconsRegular.smiley),
                         semanticLabel: 'Add emoji',
                         onPressed: () => _append('👏'),
                       ),
                       IconButton.ghost(
                         size: ButtonSize.sm,
-                        iconSize: 18,
-                        icon: const Icon(PhosphorIconsRegular.image),
+                        icon: const PhosphorIcon(PhosphorIconsRegular.image),
                         semanticLabel: 'Add photo',
                         onPressed: () => showNothingToAttach(context),
                       ),
@@ -191,6 +178,7 @@ class _Reply extends StatelessWidget {
   final double ruleCentre;
   final Widget child;
 
+  /// The thread's rule: a drawn line, not a gap of any scale.
   static const _ruleWidth = 2.0;
 
   @override
@@ -214,7 +202,7 @@ class _Reply extends StatelessWidget {
         ),
         Padding(
           padding: EdgeInsetsDirectional.only(
-            start: ruleCentre + _ruleWidth / 2 + homeSnugGap,
+            start: ruleCentre + _ruleWidth / 2 + theme.gap(GapSize.sm),
           ),
           child: child,
         ),
@@ -228,14 +216,12 @@ class _Reply extends StatelessWidget {
 class _Comment extends StatelessWidget {
   const _Comment(
     this.comment, {
-    required this.avatarSize,
     required this.liked,
     required this.onLike,
     required this.onReply,
   });
 
   final FeedComment comment;
-  final double avatarSize;
   final bool liked;
   final VoidCallback onLike;
   final VoidCallback onReply;
@@ -251,12 +237,15 @@ class _Comment extends StatelessWidget {
     final likes = comment.likes + (liked ? 1 : 0);
     // The bubble's three round corners; the fourth is the tail.
     final corner = theme.radii.xl.topLeft;
+    final tail = Radius.circular(
+      theme.chatBubbleTheme.tailRadius ?? theme.radii.sm.topLeft.x,
+    );
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        PersonAvatar(author, size: avatarSize),
-        const Gap.raw(homeSnugGap),
+        PersonAvatar(author, size: theme.avatarSm),
+        const Gap.sm(),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -269,11 +258,14 @@ class _Comment extends StatelessWidget {
               Container(
                 padding:
                     theme.chatBubbleTheme.padding ??
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    EdgeInsets.symmetric(
+                      horizontal: theme.gap(GapSize.md),
+                      vertical: theme.gap(GapSize.sm),
+                    ),
                 decoration: BoxDecoration(
                   color: theme.chatBubbleTheme.incomingColor ?? scheme.accent,
                   borderRadius: BorderRadiusDirectional.only(
-                    topStart: const Radius.circular(4),
+                    topStart: tail,
                     topEnd: corner,
                     bottomStart: corner,
                     bottomEnd: corner,
@@ -305,7 +297,6 @@ class _Comment extends StatelessWidget {
                         color: scheme.foreground,
                       ),
                     ),
-                    const Gap.raw(homeHairGap),
                     Text(
                       comment.text,
                       style: theme.textTheme.p.copyWith(
@@ -317,12 +308,12 @@ class _Comment extends StatelessWidget {
               ),
               Padding(
                 padding: EdgeInsets.only(
-                  left: theme.layoutTheme.gap(GapSize.xs),
-                  top: homeTightGap,
-                  right: theme.layoutTheme.gap(GapSize.xs),
+                  left: theme.gap(GapSize.xs),
+                  top: theme.gap(GapSize.xs),
+                  right: theme.gap(GapSize.xs),
                 ),
                 child: Row(
-                  spacing: homeLooseGap,
+                  spacing: theme.gap(GapSize.md),
                   children: [
                     Text(comment.age, style: meta),
                     HomeTextLink(

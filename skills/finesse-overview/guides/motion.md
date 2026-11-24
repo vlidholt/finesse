@@ -37,7 +37,7 @@ Springs are `MotionSpring(duration:, bounce:)`: `snappy` for touch response and 
 Nothing to do for these; they follow the theme's motion.
 
 - Popovers, menus, the select list, tooltips and dialogs grow from their anchor and leave faster than they arrive.
-- `Tabs`, `TabBar`, `NavigationBar`, `BottomNavigationBar`, toggle groups, menubar triggers and menu rows have one selection indicator that travels between items.
+- `Tabs`, `TabBar`, `NavigationBar`, `BottomNavigationBar`, toggle groups and menubar triggers have one selection indicator that travels between items. The highlighted row of a menu, a `Select` or a `Command` does not travel or fade: it is on the row under the pointer or the arrow keys at once.
 - Buttons, toggles, cards, list tiles and anything on `Pressable` scale slightly while pressed. `pressScale: 1` switches it off for one widget.
 - `Switch`, `Checkbox`, `Radio`, `Accordion`, `ProgressBar`, `Slider`, toasts, sheets, badges and `Board` move on springs.
 

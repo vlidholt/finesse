@@ -367,21 +367,31 @@ class Card extends StatelessWidget {
     );
 
     // The clip a backdrop filter needs would cut the card's own shadow off,
-    // so the shadow is painted by a box outside it.
-    final card = blurs
-        ? DecoratedBox(
-            decoration: ShadowDecoration.box(
-              borderRadius: effectiveRadius,
-              shadows: effectiveShadows ?? const [],
-            ),
-            child: Backdrop(
-              blur: effectiveBlur,
-              saturation: theme.cardTheme.saturation ?? 1,
-              borderRadius: effectiveRadius,
-              child: content,
-            ),
-          )
-        : content;
+    // so the shadow is painted by a box outside it — after the card, so
+    // the filter does not blur the shadow back into the glass.
+    //
+    // Either way the card is a layer of its own. A page is cards, and
+    // anything that animates on it — a button's press, a hover fill, the
+    // card's own press scale — marks the page for painting on every frame
+    // it runs. With each card painted once and kept, that repaint is the
+    // page's own few boxes; without, it is every paragraph of every card.
+    final card = RepaintBoundary(
+      child: blurs
+          ? DecoratedBox(
+              position: DecorationPosition.foreground,
+              decoration: ShadowDecoration.box(
+                borderRadius: effectiveRadius,
+                shadows: effectiveShadows ?? const [],
+              ),
+              child: Backdrop(
+                blur: effectiveBlur,
+                saturation: theme.cardTheme.saturation ?? 1,
+                borderRadius: effectiveRadius,
+                child: content,
+              ),
+            )
+          : content,
+    );
 
     if (onPressed == null) {
       return selected ? Semantics(selected: true, child: card) : card;

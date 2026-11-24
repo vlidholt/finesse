@@ -141,7 +141,13 @@ class Tabs<T> extends StatefulWidget implements PreferredSizeWidget {
   final double? tabsGap;
 
   /// {@template Tabs.tabBarAlignment}
-  /// The alignment of the tabBar.
+  /// Where the strip of tabs sits in the width [Tabs] has, when the strip is
+  /// narrower than it. Defaults to the start.
+  ///
+  /// The strip is as wide as its tabs — shadcn/ui's `w-fit` list — so above
+  /// its panels, or in a parent that stretches it, there is room to place
+  /// it. It has no effect when the tabs expand (see [expandTabs]) or when a
+  /// [Tabs] without panels is free to be as small as its strip.
   /// {@endtemplate}
   final Alignment? tabBarAlignment;
 
@@ -436,12 +442,10 @@ class TabsState<T> extends State<Tabs<T>>
     final effectiveTabBarAlignment =
         widget.tabBarAlignment ??
         tabsTheme.tabBarAlignment ??
-        // A `w-fit` bar has to be told where to sit, or a stretching parent
-        // pulls the decoration out to the full width behind the tabs.
-        (expandTabs ? null : AlignmentDirectional.centerStart);
-    if (effectiveTabBarAlignment != null) {
-      tabBar = Align(alignment: effectiveTabBarAlignment, child: tabBar);
-    }
+        AlignmentDirectional.centerStart;
+    // With no panels, Tabs is just its list: shadcn's TabsList on its own,
+    // the segmented control of a toolbar or settings row.
+    final listOnly = widget.tabs.every((tab) => tab.content == null);
 
     return Provider(
       data: this as TabsState<dynamic>,
@@ -449,15 +453,26 @@ class TabsState<T> extends State<Tabs<T>>
       child: ListenableBuilder(
         listenable: controller,
         builder: (context, _) {
-          final decoratedBar = Decorator(
-            decoration: effectiveDecoration,
-            child: tabBar,
+          // A `w-fit` strip has to be told where to sit, or a parent that
+          // stretches it pulls the decoration out to the full width behind
+          // the tabs. So the alignment goes *around* the decoration: inside
+          // it, the strip still took the whole width and only the tabs were
+          // placed. Above its panels the strip is placed across their
+          // width; on its own the list is as big as its strip wherever its
+          // parent lets it be, and placed only where the parent insists on
+          // more. Expanded tabs fill whatever width there is, so for them
+          // this changes nothing — it is built all the same, to keep one
+          // tree shape when a theme turns `expandTabs` on or off.
+          final decoratedBar = Align(
+            alignment: effectiveTabBarAlignment,
+            widthFactor: listOnly && !expandTabs ? 1 : null,
+            heightFactor: 1,
+            child: Decorator(
+              decoration: effectiveDecoration,
+              child: tabBar,
+            ),
           );
-          // With no panels, Tabs is just its list: shadcn's TabsList on
-          // its own, the segmented control of a toolbar or settings row.
-          if (widget.tabs.every((tab) => tab.content == null)) {
-            return decoratedBar;
-          }
+          if (listOnly) return decoratedBar;
           return Column(
             children: [
               decoratedBar,
@@ -614,6 +629,12 @@ class Tab<T> extends StatefulWidget implements PreferredSizeWidget {
 
   /// {@template Tab.child}
   /// The widget to display as the tab's label, typically a [Text] widget.
+  ///
+  /// A text label is one line. It is the part of the tab that gives way: in
+  /// a tab narrower than its content — an expanded tab in a narrow strip —
+  /// it is cut short with an ellipsis, next to [leading] and [trailing] at
+  /// their full size. Give the [Text] its own `maxLines` or `overflow` to
+  /// change that.
   /// {@endtemplate}
   final Widget child;
 
@@ -1011,6 +1032,22 @@ class _TabState<T> extends State<Tab<T>> {
 
     const clear = Color(0x00000000);
 
+    // A tab's label is one line, as `whitespace-nowrap` makes it in the
+    // reference, and it is the part of the tab that gives way: in a tab
+    // narrower than its content — an expanded one in a narrow strip — the
+    // label is cut short with an ellipsis instead of overflowing the row it
+    // shares with `leading` and `trailing`. A tab that sizes to its content
+    // hands the label all the width it asks for, so nothing changes there.
+    // A child that brings its own `Flexible` keeps it (two of them around
+    // one child is an error).
+    var label = DefaultTextStyle.merge(
+      style: effectiveTextStyle,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      child: widget.child,
+    );
+    if (widget.child is! Flexible) label = Flexible(child: label);
+
     Widget tab = ListenableBuilder(
       listenable: inherited.controller,
       builder: (context, _) {
@@ -1143,10 +1180,7 @@ class _TabState<T> extends State<Tab<T>> {
             onFocusChange: (focused) {
               if (focused) onMayChanged();
             },
-            child: DefaultTextStyle.merge(
-              style: effectiveTextStyle,
-              child: widget.child,
-            ),
+            child: label,
           ),
         );
       },

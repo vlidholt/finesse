@@ -53,6 +53,29 @@ extension StrandNavigation on BuildContext {
 
 /// Routes for the Strand screens.
 extension StrandRoutes on BuildContext {
+  /// Whether the page this context is on is what the user is looking at:
+  /// its route is the top one of its navigator, and the same holds for the
+  /// route that navigator is in, all the way out.
+  ///
+  /// Strand's pages live in the navigator `AppShell` hosts in its page
+  /// area, but a dialog or a sheet is pushed on the *root* navigator, so a
+  /// page's own route stays "current" under every dialog. Asking only
+  /// `ModalRoute.of(context).isCurrent` therefore says yes behind a modal
+  /// barrier. Anything that acts from outside the focus tree — a global
+  /// keyboard shortcut — has to ask this instead, or it reaches through
+  /// the barrier.
+  bool get isOnTopRoute {
+    BuildContext? at = this;
+    while (at != null && at.mounted) {
+      final route = ModalRoute.of(at);
+      if (route == null) return true;
+      if (!route.isCurrent) return false;
+      // The navigator's own context is inside the route that hosts it.
+      at = route.navigator?.context;
+    }
+    return true;
+  }
+
   /// Pushes a page that takes the whole Strand viewport, covering the
   /// shell's app bar and bottom navigation — a conversation on a phone, a
   /// search page. See the note on full-screen routes in `strand_shell.dart`.

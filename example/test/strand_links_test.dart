@@ -1,4 +1,7 @@
+import 'package:example/common/app_state.dart';
+import 'package:example/strand/data/applications_data.dart';
 import 'package:example/strand/data/home_data.dart';
+import 'package:example/strand/data/jobs_data.dart';
 import 'package:example/strand/data/network_data.dart';
 import 'package:example/strand/screens/home_screen.dart';
 import 'package:example/strand/screens/network_screen.dart';
@@ -54,8 +57,18 @@ void main() {
       final sheet = find.byType(Sheet);
       expect(sheet, findsOneWidget);
       expect(find.text('Posts and articles · 3'), findsOneWidget);
+      // The jobs are the board's "Saved" column: its count, its first two.
+      final saved = session(tester).applications.at(ApplicationStage.saved);
+      expect(find.text('Jobs · ${saved.length}'), findsOneWidget);
+      expect(find.text('See all ${saved.length} saved jobs'), findsOneWidget);
+      expect(
+        find.descendant(of: sheet, matching: find.text(saved[1].title)),
+        findsOneWidget,
+      );
       // A saved job leads to Jobs.
-      await tester.tap(find.text('Principal designer, Platform'));
+      await tester.tap(
+        find.descendant(of: sheet, matching: find.text(saved.first.title)),
+      );
       await settle(tester);
       expect(sheet, findsNothing);
       expect(destination(tester), StrandDestination.jobs);
@@ -176,6 +189,46 @@ void main() {
       expect(session(tester).settings.section, SettingsSection.privacy);
       expect(find.text('Profile visibility'), findsOneWidget);
       expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('"Saved items" lists the jobs saved since, newest first', (
+      tester,
+    ) async {
+      await pumpApp(tester);
+      // Save a listing, as its bookmark on "Find jobs" does.
+      final job = JobsData.jobs.first;
+      session(tester).jobs.toggleSaved(job);
+      await settle(tester, frames: 2);
+
+      await tapAndSettle(tester, inHome(find.text('Saved items')));
+      final sheet = find.byType(Sheet);
+      expect(find.text('Jobs · 7'), findsOneWidget);
+      expect(find.text('See all 7 saved jobs'), findsOneWidget);
+      expect(
+        find.descendant(of: sheet, matching: find.text(job.title)),
+        findsOneWidget,
+      );
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('"Browse components" in the About dialog still works when '
+        'the footer it was opened from is gone', (tester) async {
+      await pumpApp(tester);
+      await tapAndSettle(tester, inHome(find.text('About')));
+      expect(find.text('About Strand'), findsOneWidget);
+
+      // The window narrows under the open dialog: the phone layout has no
+      // right rail, so the footer that opened the dialog is unmounted.
+      tester.view.physicalSize = mobileSize;
+      await settle(tester, frames: 16);
+      expect(find.text('About Strand'), findsOneWidget);
+      expect(inHome(find.text('About')), findsNothing);
+
+      await tester.tap(find.text('Browse components'));
+      await settle(tester);
+      expect(tester.takeException(), isNull);
+      expect(find.text('About Strand'), findsNothing);
+      expect(sectionSignal(tester).value, AppSection.components);
     });
   });
 

@@ -873,7 +873,8 @@ class _SidebarTriggerState extends State<SidebarTrigger> {
             ),
             child: Center(
               child:
-                  widget.icon ?? const Icon(PhosphorIconsRegular.sidebarSimple),
+                  widget.icon ??
+                  const PhosphorIcon(PhosphorIconsRegular.sidebarSimple),
             ),
           ),
         ),

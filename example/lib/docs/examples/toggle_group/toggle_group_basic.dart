@@ -21,17 +21,17 @@ class _ToggleGroupBasicExampleState extends State<ToggleGroupBasicExample> {
         ToggleGroupItem(
           value: 'left',
           semanticLabel: 'Align left',
-          child: Icon(PhosphorIconsRegular.textAlignLeft),
+          child: PhosphorIcon(PhosphorIconsRegular.textAlignLeft),
         ),
         ToggleGroupItem(
           value: 'center',
           semanticLabel: 'Align center',
-          child: Icon(PhosphorIconsRegular.textAlignCenter),
+          child: PhosphorIcon(PhosphorIconsRegular.textAlignCenter),
         ),
         ToggleGroupItem(
           value: 'right',
           semanticLabel: 'Align right',
-          child: Icon(PhosphorIconsRegular.textAlignRight),
+          child: PhosphorIcon(PhosphorIconsRegular.textAlignRight),
         ),
       ],
     );

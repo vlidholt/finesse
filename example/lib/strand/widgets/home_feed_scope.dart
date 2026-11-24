@@ -2,13 +2,19 @@ import 'package:example/strand/data.dart';
 import 'package:example/strand/data/home_data.dart';
 import 'package:flutter/widgets.dart';
 
-/// The home feed's local state: which list is showing, how it is sorted, and
-/// what the signed-in user has liked and whom they follow.
+/// The home feed's local state: which list is showing, how it is sorted,
+/// what the signed-in user has liked and whom they follow — and what they
+/// have done in a post's comments, down to the comment they are writing.
 ///
 /// It lives above the whole screen because the pieces depend on each other:
 /// following an author from a post adds that author's posts to the
 /// "Following" list, and a like has to survive its card moving when the list
-/// is re-sorted. Nothing here is persisted.
+/// is re-sorted. The comment state is here for a plainer reason: the
+/// desktop and the phone feeds are different widgets, and a post card is
+/// rebuilt from nothing when the form factor changes — the window is
+/// resized, the theme editor docks beside the page. Anything the user would
+/// mind losing to that, a half-written comment above all, cannot live in a
+/// card's own `State`. Nothing here is persisted.
 class HomeFeedModel extends ChangeNotifier {
   HomeFeedModel()
     : _liked = {
@@ -22,6 +28,14 @@ class HomeFeedModel extends ChangeNotifier {
 
   final Set<String> _liked;
   final Set<String> _following;
+
+  /// The comments and replies the user has liked, and the comments whose
+  /// hidden replies are showing.
+  final Set<String> _likedComments = {};
+  final Set<String> _expandedComments = {};
+
+  /// What is typed in each post's comment field, by post id.
+  final Map<String, TextEditingController> _drafts = {};
 
   HomeFeed _feed = HomeFeed.forYou;
   FeedSort _sort = FeedSort.top;
@@ -83,6 +97,38 @@ class HomeFeedModel extends ChangeNotifier {
   void toggleFollow(Person person) {
     if (!_following.remove(person.name)) _following.add(person.name);
     notifyListeners();
+  }
+
+  bool isCommentLiked(FeedComment comment) =>
+      _likedComments.contains(comment.id);
+
+  void toggleCommentLike(FeedComment comment) {
+    if (!_likedComments.remove(comment.id)) _likedComments.add(comment.id);
+    notifyListeners();
+  }
+
+  /// Whether [comment]'s hidden replies are showing.
+  bool areRepliesShown(FeedComment comment) =>
+      _expandedComments.contains(comment.id);
+
+  void toggleReplies(FeedComment comment) {
+    if (!_expandedComments.remove(comment.id)) {
+      _expandedComments.add(comment.id);
+    }
+    notifyListeners();
+  }
+
+  /// The controller of [post]'s comment field: the same one for as long as
+  /// the feed lives, so a draft outlasts the card it was typed in.
+  TextEditingController draftFor(FeedPost post) =>
+      _drafts.putIfAbsent(post.id, TextEditingController.new);
+
+  @override
+  void dispose() {
+    for (final draft in _drafts.values) {
+      draft.dispose();
+    }
+    super.dispose();
   }
 }
 

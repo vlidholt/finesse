@@ -1,7 +1,7 @@
 import 'package:example/strand/data/jobs_data.dart';
 import 'package:example/strand/widgets/jobs_filters_dialog.dart';
-import 'package:example/strand/widgets/jobs_metrics.dart';
 import 'package:example/strand/widgets/jobs_state.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -50,10 +50,12 @@ class JobsSearchCard extends StatelessWidget {
 
     if (mobile) {
       return Glass(
+        // In the page's flow, on the flat page: nothing to blur.
+        frosted: false,
         borderRadius: theme.radii.xl2,
         // Tighter than a card: the panel is little more than a frame
         // around the two fields.
-        padding: const EdgeInsets.all(jobsTightGap),
+        padding: EdgeInsets.all(theme.gap(GapSize.sm)),
         shadows: theme.cardTheme.shadows ?? const [],
         child: FinesseColumn(
           gap: GapSize.sm,
@@ -75,25 +77,31 @@ class JobsSearchCard extends StatelessWidget {
           Padding(
             padding: EdgeInsets.all(inset),
             child: Row(
-              spacing: jobsTightGap,
+              spacing: theme.gap(GapSize.sm),
               children: [
                 Expanded(flex: 7, child: title),
                 Expanded(flex: 5, child: location),
                 Button(
                   size: ButtonSize.lg,
                   // As tall as the fields beside it, and a step rounder.
-                  height: _SearchInput.tallHeight,
                   decoration: theme.buttonDecoration(radius: theme.radii.lg),
-                  leading: const Icon(PhosphorIconsRegular.magnifyingGlass),
+                  leading: const PhosphorIcon(
+                    PhosphorIconsRegular.magnifyingGlass,
+                  ),
                   onPressed: _search,
                   child: const Text('Search'),
                 ),
               ],
             ),
           ),
-          const Divider.horizontal(),
+          const Divider.horizontal(margin: EdgeInsets.zero),
           Padding(
-            padding: EdgeInsets.fromLTRB(inset, jobsSnugGap, inset, inset),
+            padding: EdgeInsets.fromLTRB(
+              inset,
+              theme.gap(GapSize.md),
+              inset,
+              inset,
+            ),
             child: JobsFilterChips(state: state),
           ),
         ],
@@ -114,9 +122,6 @@ class _SearchInput extends StatelessWidget {
     required this.onSubmitted,
   });
 
-  /// The desktop design's hero field height; a phone keeps the theme's.
-  static const tallHeight = 48.0;
-
   final TextEditingController controller;
   final String label;
   final String placeholder;
@@ -126,21 +131,31 @@ class _SearchInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    // The desktop's hero fields are as tall as the large button beside
+    // them; a phone keeps the theme's field height.
+    final tallHeight = theme.buttonSizesTheme.lg?.height;
     return Semantics(
       label: label,
       child: TextField(
         controller: controller,
         textInputAction: TextInputAction.search,
         onSubmitted: (_) => onSubmitted(),
-        constraints: tall ? const BoxConstraints(minHeight: tallHeight) : null,
+        constraints: tall && tallHeight != null
+            ? BoxConstraints(minHeight: tallHeight)
+            : null,
         decoration: FinesseDecoration(color: colors.card),
         placeholder: Text(
           placeholder,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
-        leading: Icon(icon, size: 18, color: colors.mutedForeground),
+        leading: PhosphorIcon(
+          icon,
+          size: theme.glyph,
+          color: colors.mutedForeground,
+        ),
       ),
     );
   }
@@ -156,7 +171,7 @@ class JobsFilterChips extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final gap = theme.layoutTheme.gap(GapSize.sm);
+    final gap = theme.gap(GapSize.sm);
 
     return Wrap(
       spacing: gap,
@@ -165,13 +180,13 @@ class JobsFilterChips extends StatelessWidget {
         for (final filter in JobsData.filters)
           Chip(
             label: Text(filter.label),
-            leading: filter.icon == null ? null : Icon(filter.icon),
+            leading: filter.icon == null ? null : PhosphorIcon(filter.icon),
             selected: state.isFilterOn(filter),
             onSelected: (_) => state.toggleFilter(filter),
           ),
         Chip(
           label: const Text('All filters'),
-          leading: const Icon(PhosphorIconsRegular.slidersHorizontal),
+          leading: const PhosphorIcon(PhosphorIconsRegular.slidersHorizontal),
           onPressed: () => showJobFiltersDialog(context, state),
         ),
       ],

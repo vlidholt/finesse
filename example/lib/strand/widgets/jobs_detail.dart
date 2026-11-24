@@ -1,9 +1,9 @@
 import 'package:example/strand/data/jobs_data.dart';
 import 'package:example/strand/widgets/jobs_company_logo.dart';
 import 'package:example/strand/widgets/jobs_detail_sections.dart';
-import 'package:example/strand/widgets/jobs_metrics.dart';
 import 'package:example/strand/widgets/jobs_state.dart';
 import 'package:example/strand/widgets/strand_actions.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -37,17 +37,12 @@ class JobDetail extends StatelessWidget {
   /// Whether "Easy Apply" and "Save" sit under the title.
   final bool showActions;
 
-  // The designs space this pane on its own rhythm — 22 between sections,
-  // 20/6/18 around the title — rather than on the page's gap scale.
-  static const _sectionGap = 22.0;
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final mobile = theme.formFactor == FormFactor.mobile;
-    const section = SizedBox(height: _sectionGap);
-    const rule = Divider.horizontal(
-      margin: EdgeInsets.symmetric(vertical: _sectionGap),
+    const section = Gap.xl();
+    final rule = Divider.horizontal(
+      margin: EdgeInsets.symmetric(vertical: theme.gap(GapSize.xl)),
     );
 
     return Column(
@@ -60,29 +55,24 @@ class JobDetail extends StatelessWidget {
           onFollowPressed: () => state.toggleFollowing(job),
           showActions: showHeaderActions,
         ),
-        const SizedBox(height: jobsWideGap),
+        const Gap.lg(),
         Text(
           job.title,
-          // No phone design exists for this pane; the title drops two steps
-          // there so it wraps to two lines rather than three.
-          style: theme.textTheme.h1.copyWith(
-            fontSize: mobile ? 22 : 26,
-            height: mobile ? 28 / 22 : 32 / 26,
-            letterSpacing: mobile ? -.44 : -.52,
-          ),
+          // The pane's own heading: a step under the page's title.
+          style: theme.textTheme.h3,
         ),
-        const SizedBox(height: jobsInlineGap),
+        const Gap.xs(),
         Text(
           job.detailMeta,
-          style: theme.textTheme.muted.copyWith(fontSize: 14, height: 18 / 14),
+          style: theme.textTheme.muted,
         ),
         if (showActions) ...[
-          const SizedBox(height: 18),
+          const Gap.lg(),
           JobActions(job: job, state: state),
         ],
         section,
         JobFactGrid(facts: JobsData.factsFor(job)),
-        const SizedBox(height: jobsSnugGap),
+        const Gap.md(),
         const JobMatchPanel(),
         section,
         JobHiringTeam(onMessage: onMessage),
@@ -117,9 +107,13 @@ class _CompanyHeader extends StatelessWidget {
     return Row(
       // Between every part of the row, as between a job card's logo and its
       // text.
-      spacing: jobsSnugGap,
+      spacing: theme.gap(GapSize.md),
       children: [
-        JobsCompanyLogo(job.company, size: 56, radius: theme.radii.xl),
+        JobsCompanyLogo(
+          job.company,
+          size: theme.avatarLg,
+          radius: theme.radii.xl,
+        ),
         Expanded(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -141,7 +135,7 @@ class _CompanyHeader extends StatelessWidget {
           ),
         ),
         Button.outline(
-          leading: Icon(
+          leading: PhosphorIcon(
             following ? PhosphorIconsRegular.check : PhosphorIconsRegular.plus,
           ),
           onPressed: onFollowPressed,
@@ -149,12 +143,12 @@ class _CompanyHeader extends StatelessWidget {
         ),
         if (showActions) ...[
           IconButton.secondary(
-            icon: const Icon(PhosphorIconsRegular.export),
+            icon: const PhosphorIcon(PhosphorIconsRegular.export),
             semanticLabel: 'Share job',
             onPressed: () => copyLink(context, 'strand.app/jobs/${job.id}'),
           ),
           IconButton.secondary(
-            icon: const Icon(PhosphorIconsRegular.dotsThree),
+            icon: const PhosphorIcon(PhosphorIconsRegular.dotsThree),
             semanticLabel: 'More options',
             onPressed: () => showSendDialog(context, what: 'this job'),
           ),
@@ -195,7 +189,7 @@ class JobActions extends StatelessWidget {
       foregroundColor: colors.tintForeground,
       hoverForegroundColor: colors.tintForeground,
       enabled: !applied,
-      leading: Icon(
+      leading: PhosphorIcon(
         applied ? PhosphorIconsRegular.check : PhosphorIconsRegular.lightning,
       ),
       onPressed: () => state.apply(job),
@@ -210,7 +204,7 @@ class JobActions extends StatelessWidget {
           size: ButtonSize.lg,
           // The large height with the regular button's side padding.
           padding: theme.buttonSizesTheme.regular?.padding,
-          leading: Icon(
+          leading: PhosphorIcon(
             saved
                 ? PhosphorIconsFill.bookmarkSimple
                 : PhosphorIconsRegular.bookmarkSimple,

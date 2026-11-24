@@ -8,6 +8,7 @@ import 'package:example/strand/widgets/network_controller.dart';
 import 'package:example/strand/widgets/person_avatar.dart';
 import 'package:example/strand/widgets/search_history.dart';
 import 'package:example/strand/widgets/strand_pieces.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -65,7 +66,9 @@ class HighlightedText extends StatelessWidget {
   List<TextSpan> _spans(TextStyle match) {
     final terms = SearchData.termsOf(query);
     if (terms.isEmpty) return [TextSpan(text: text)];
-    final lower = text.toLowerCase();
+    // Folded as the search itself compares: same length as [text], so
+    // the offsets below are offsets into [text] too.
+    final lower = SearchData.fold(text);
 
     // Mark every character a term covers, then emit runs.
     final marked = List.filled(text.length, false);
@@ -125,7 +128,7 @@ class _ResultTile extends StatelessWidget {
           child: Container(
             padding: EdgeInsets.symmetric(
               horizontal: layout.gap(GapSize.md),
-              vertical: homeSnugGap,
+              vertical: theme.gap(GapSize.sm),
             ),
             decoration: BoxDecoration(
               color: hovered ? scheme.muted : null,
@@ -187,7 +190,9 @@ class SearchResultsView extends StatelessWidget {
   /// How many results of a kind "All" shows before "See all".
   int get _preview => compact ? 2 : 3;
 
-  double get _markSize => compact ? 36 : 44;
+  /// The portrait or logo that leads a row: a step smaller in the panel.
+  double _markSizeOf(ThemeData theme) =>
+      compact ? theme.avatarSm : theme.avatarMd;
 
   @override
   Widget build(BuildContext context) {
@@ -200,14 +205,12 @@ class SearchResultsView extends StatelessWidget {
           ]
         : [category];
 
-    final name = theme.textTheme.large.copyWith(
-      fontSize: 14,
-      height: 20 / 14,
+    final name = theme.textTheme.p.copyWith(
       fontWeight: FontWeight.w500,
       color: scheme.foregroundSubtle,
     );
     final detail = theme.textTheme.muted;
-    final fine = homeFinePrint(theme);
+    final fine = theme.textTheme.caption;
     final narrow = theme.formFactor == FormFactor.mobile;
 
     List<Widget> rowsOf(SearchCategory kind, int limit) => switch (kind) {
@@ -215,7 +218,7 @@ class SearchResultsView extends StatelessWidget {
         for (final person in results.people.take(limit))
           _ResultTile(
             onPressed: () => callbacks.onPerson(person),
-            leading: PersonAvatar(person, size: _markSize),
+            leading: PersonAvatar(person, size: _markSizeOf(theme)),
             lines: [
               HighlightedText(person.name, query: query, style: name),
               HighlightedText(person.headline, query: query, style: detail),
@@ -237,7 +240,7 @@ class SearchResultsView extends StatelessWidget {
             leading: StrandMark(
               asset: job.company.logo,
               label: job.company.name,
-              size: _markSize,
+              size: _markSizeOf(theme),
             ),
             lines: [
               HighlightedText(job.title, query: query, style: name),
@@ -256,7 +259,7 @@ class SearchResultsView extends StatelessWidget {
         for (final post in results.posts.take(limit))
           _ResultTile(
             onPressed: () => callbacks.onPost(post),
-            leading: PersonAvatar(post.author, size: _markSize),
+            leading: PersonAvatar(post.author, size: _markSizeOf(theme)),
             lines: [
               HighlightedText(
                 SearchData.excerpt(post.text, query),
@@ -284,7 +287,7 @@ class SearchResultsView extends StatelessWidget {
             leading: StrandMark(
               asset: entry.company.logo,
               label: entry.company.name,
-              size: _markSize,
+              size: _markSizeOf(theme),
             ),
             lines: [
               HighlightedText(entry.company.name, query: query, style: name),
@@ -315,9 +318,12 @@ class SearchResultsView extends StatelessWidget {
       final count = results.countOf(kind);
       final all = category != SearchCategory.all;
       final limit = all ? count : _preview;
-      final inset = theme.layoutTheme.gap(GapSize.md);
+      final inset = theme.gap(GapSize.md);
       final heading = Padding(
-        padding: EdgeInsets.fromLTRB(inset, compact ? 6 : 4, inset, 6),
+        padding: EdgeInsets.symmetric(
+          horizontal: inset,
+          vertical: theme.gap(GapSize.xs),
+        ),
         child: Row(
           children: [
             Expanded(
@@ -352,7 +358,7 @@ class SearchResultsView extends StatelessWidget {
       if (compact) return rows;
       return Card(
         // The rows bring their own inset, as a conversation's do.
-        padding: EdgeInsets.all(theme.layoutTheme.gap(GapSize.sm)),
+        padding: EdgeInsets.all(theme.gap(GapSize.sm)),
         child: rows,
       );
     }
@@ -360,7 +366,7 @@ class SearchResultsView extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: compact ? 4 : theme.layoutTheme.gap(GapSize.lg),
+      spacing: compact ? 4 : theme.gap(GapSize.lg),
       children: [for (final kind in kinds) section(kind)],
     );
   }
@@ -388,9 +394,9 @@ class SearchSuggestions extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final inset = theme.layoutTheme.gap(GapSize.md);
+    final inset = theme.gap(GapSize.md);
     final label = compact
-        ? homeFinePrint(theme).copyWith(fontWeight: FontWeight.w600)
+        ? theme.textTheme.caption.copyWith(fontWeight: FontWeight.w600)
         : theme.textTheme.large.copyWith(color: scheme.foreground);
 
     return ListenableBuilder(
@@ -403,7 +409,10 @@ class SearchSuggestions extends StatelessWidget {
           children: [
             if (recents.isNotEmpty) ...[
               Padding(
-                padding: EdgeInsets.fromLTRB(inset, compact ? 6 : 4, inset, 6),
+                padding: EdgeInsets.symmetric(
+                  horizontal: inset,
+                  vertical: theme.gap(GapSize.xs),
+                ),
                 child: Row(
                   children: [
                     Expanded(
@@ -425,9 +434,9 @@ class SearchSuggestions extends StatelessWidget {
               for (final recent in recents)
                 _ResultTile(
                   onPressed: () => onPick(recent),
-                  leading: Icon(
+                  leading: PhosphorIcon(
                     PhosphorIconsRegular.clockCounterClockwise,
-                    size: 20,
+                    size: theme.glyphLg,
                     color: scheme.mutedForeground,
                   ),
                   lines: [
@@ -441,33 +450,41 @@ class SearchSuggestions extends StatelessWidget {
                     ),
                   ],
                   trailing: IconButton.ghost(
-                    width: 28,
-                    height: 28,
-                    iconSize: 16,
-                    icon: const Icon(PhosphorIconsRegular.x),
+                    size: ButtonSize.sm,
+                    icon: const PhosphorIcon(PhosphorIconsRegular.x),
                     foregroundColor: scheme.mutedForeground,
                     semanticLabel: 'Remove $recent',
                     onPressed: () => history.remove(recent),
                   ),
                 ),
-              Gap.raw(compact ? 6 : inset),
+              Gap.raw(compact ? theme.gap(GapSize.xs) : inset),
             ],
             Padding(
-              padding: EdgeInsets.fromLTRB(inset, compact ? 6 : 4, inset, 10),
+              padding: EdgeInsets.fromLTRB(
+                inset,
+                theme.gap(GapSize.xs),
+                inset,
+                theme.gap(GapSize.sm),
+              ),
               child: Semantics(
                 header: true,
                 child: Text('Trending searches', style: label),
               ),
             ),
             Padding(
-              padding: EdgeInsets.fromLTRB(inset, 0, inset, compact ? 8 : 4),
+              padding: EdgeInsets.fromLTRB(
+                inset,
+                0,
+                inset,
+                theme.gap(compact ? GapSize.sm : GapSize.xs),
+              ),
               child: Wrap(
-                spacing: homeTightGap,
-                runSpacing: homeTightGap,
+                spacing: theme.gap(GapSize.xs),
+                runSpacing: theme.gap(GapSize.xs),
                 children: [
                   for (final trend in SearchData.trending)
                     Chip(
-                      leading: const Icon(PhosphorIconsRegular.trendUp),
+                      leading: const PhosphorIcon(PhosphorIconsRegular.trendUp),
                       label: Text(trend),
                       onPressed: () => onPick(trend),
                     ),
@@ -497,8 +514,8 @@ class SearchNoResults extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Empty(
-      padding: compact ? const EdgeInsets.all(20) : null,
-      icon: const Icon(PhosphorIconsRegular.magnifyingGlass),
+      padding: compact ? Theme.of(context).cardInsets : null,
+      icon: const PhosphorIcon(PhosphorIconsRegular.magnifyingGlass),
       title: Text('No results for “${query.trim()}”'),
       description: const Text(
         'Search looks through people, job listings, posts and companies. '

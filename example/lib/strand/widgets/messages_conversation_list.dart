@@ -3,6 +3,7 @@ import 'package:example/strand/widgets/messages_common.dart';
 import 'package:example/strand/widgets/messages_controller.dart';
 import 'package:example/strand/widgets/messages_new_dialog.dart';
 import 'package:example/strand/widgets/search_field.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -65,7 +66,7 @@ class MessagesConversationList extends StatelessWidget {
 
     if (conversations.isEmpty) {
       const empty = Empty(
-        icon: Icon(PhosphorIconsRegular.chatCircleDots),
+        icon: PhosphorIcon(PhosphorIconsRegular.chatCircleDots),
         title: Text('No conversations'),
         description: Text('Nothing matches this filter.'),
       );
@@ -129,7 +130,7 @@ class _ListHeader extends StatelessWidget {
 
     Widget action(IconData icon, String label, VoidCallback onPressed) =>
         IconButton.secondary(
-          icon: Icon(icon),
+          icon: PhosphorIcon(icon),
           semanticLabel: label,
           onPressed: onPressed,
         );
@@ -146,12 +147,10 @@ class _ListHeader extends StatelessWidget {
                 'Messages',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                // 700 22/28: between the theme's h3 (20) and h1 (30).
+                // The theme's section heading, a weight heavier: the
+                // page's own title.
                 style: theme.textTheme.h3.copyWith(
-                  fontSize: 22,
-                  height: 28 / 22,
                   fontWeight: FontWeight.w700,
-                  letterSpacing: -.44,
                   color: colors.foreground,
                 ),
               ),
@@ -224,6 +223,10 @@ class _ConversationTile extends StatelessWidget {
   final VoidCallback onTap;
   final Color? surfaceColor;
 
+  // A row's picture: a step up from the theme's avatar, for the two lines
+  // of text beside it.
+  static const _avatarSize = 48.0;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -235,7 +238,7 @@ class _ConversationTile extends StatelessWidget {
       onTap: onTap,
       leading: ConversationAvatar(
         conversation,
-        size: 48,
+        size: _avatarSize,
         surfaceColor: surfaceColor,
       ),
       titleStyle: theme.messagesName,
@@ -248,7 +251,10 @@ class _ConversationTile extends StatelessWidget {
           Text(
             time,
             style: theme.messagesCaption.copyWith(
-              height: 20 / 12,
+              // As tall as the name it shares a line with.
+              height:
+                  (theme.messagesName.fontSize! * theme.messagesName.height!) /
+                  theme.messagesCaption.fontSize!,
               fontWeight: isUnread ? FontWeight.w600 : null,
               color: isUnread ? colors.tint : null,
             ),
@@ -263,7 +269,7 @@ class _ConversationTile extends StatelessWidget {
             const Gap.sm(),
             IndicatorBadge(
               count: unread,
-              size: 20,
+              size: theme.glyphLg,
               ringWidth: 0,
               semanticLabel: '$unread unread',
             ),

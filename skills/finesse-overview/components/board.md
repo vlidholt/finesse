@@ -125,7 +125,7 @@ class _BoardLimitExampleState extends State<BoardLimitExample> {
                   ? Button.ghost(
                       width: double.infinity,
                       mainAxisAlignment: MainAxisAlignment.start,
-                      leading: const Icon(PhosphorIconsRegular.plus),
+                      leading: const PhosphorIcon(PhosphorIconsRegular.plus),
                       onPressed: addTicket,
                       child: const Text('Add a ticket'),
                     )
@@ -136,7 +136,7 @@ class _BoardLimitExampleState extends State<BoardLimitExample> {
           leading: Padding(
             padding: const EdgeInsetsDirectional.only(end: 8),
             child: BoardDragHandle(
-              child: Icon(
+              child: PhosphorIcon(
                 PhosphorIconsRegular.dotsSixVertical,
                 size: 18,
                 color: theme.colorScheme.mutedForeground,

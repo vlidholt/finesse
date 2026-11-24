@@ -50,12 +50,23 @@ mixin _$ThemeData {
         b.chatBubbleTheme,
         t,
       )!,
+      chatListTheme: ChatListTheme.lerp(a.chatListTheme, b.chatListTheme, t)!,
+      streamingTextTheme: StreamingTextTheme.lerp(
+        a.streamingTextTheme,
+        b.streamingTextTheme,
+        t,
+      )!,
       indicatorBadgeTheme: IndicatorBadgeTheme.lerp(
         a.indicatorBadgeTheme,
         b.indicatorBadgeTheme,
         t,
       )!,
       iconTileTheme: IconTileTheme.lerp(a.iconTileTheme, b.iconTileTheme, t)!,
+      phosphorIconTheme: PhosphorIconTheme.lerp(
+        a.phosphorIconTheme,
+        b.phosphorIconTheme,
+        t,
+      )!,
       timelineTheme: TimelineTheme.lerp(a.timelineTheme, b.timelineTheme, t)!,
       boardTheme: BoardTheme.lerp(a.boardTheme, b.boardTheme, t)!,
       layoutTheme: LayoutTheme.lerp(a.layoutTheme, b.layoutTheme, t)!,
@@ -262,8 +273,11 @@ mixin _$ThemeData {
     ChipTheme? chipTheme,
     ListTileTheme? listTileTheme,
     ChatBubbleTheme? chatBubbleTheme,
+    ChatListTheme? chatListTheme,
+    StreamingTextTheme? streamingTextTheme,
     IndicatorBadgeTheme? indicatorBadgeTheme,
     IconTileTheme? iconTileTheme,
+    PhosphorIconTheme? phosphorIconTheme,
     TimelineTheme? timelineTheme,
     BoardTheme? boardTheme,
     LayoutTheme? layoutTheme,
@@ -345,8 +359,11 @@ mixin _$ThemeData {
       chipTheme: chipTheme ?? _this.chipTheme,
       listTileTheme: listTileTheme ?? _this.listTileTheme,
       chatBubbleTheme: chatBubbleTheme ?? _this.chatBubbleTheme,
+      chatListTheme: chatListTheme ?? _this.chatListTheme,
+      streamingTextTheme: streamingTextTheme ?? _this.streamingTextTheme,
       indicatorBadgeTheme: indicatorBadgeTheme ?? _this.indicatorBadgeTheme,
       iconTileTheme: iconTileTheme ?? _this.iconTileTheme,
+      phosphorIconTheme: phosphorIconTheme ?? _this.phosphorIconTheme,
       timelineTheme: timelineTheme ?? _this.timelineTheme,
       boardTheme: boardTheme ?? _this.boardTheme,
       layoutTheme: layoutTheme ?? _this.layoutTheme,
@@ -448,10 +465,15 @@ mixin _$ThemeData {
       chipTheme: _this.chipTheme.merge(other.chipTheme),
       listTileTheme: _this.listTileTheme.merge(other.listTileTheme),
       chatBubbleTheme: _this.chatBubbleTheme.merge(other.chatBubbleTheme),
+      chatListTheme: _this.chatListTheme.merge(other.chatListTheme),
+      streamingTextTheme: _this.streamingTextTheme.merge(
+        other.streamingTextTheme,
+      ),
       indicatorBadgeTheme: _this.indicatorBadgeTheme.merge(
         other.indicatorBadgeTheme,
       ),
       iconTileTheme: _this.iconTileTheme.merge(other.iconTileTheme),
+      phosphorIconTheme: _this.phosphorIconTheme.merge(other.phosphorIconTheme),
       timelineTheme: _this.timelineTheme.merge(other.timelineTheme),
       boardTheme: _this.boardTheme.merge(other.boardTheme),
       layoutTheme: _this.layoutTheme.merge(other.layoutTheme),
@@ -566,8 +588,11 @@ mixin _$ThemeData {
         _other.chipTheme == _this.chipTheme &&
         _other.listTileTheme == _this.listTileTheme &&
         _other.chatBubbleTheme == _this.chatBubbleTheme &&
+        _other.chatListTheme == _this.chatListTheme &&
+        _other.streamingTextTheme == _this.streamingTextTheme &&
         _other.indicatorBadgeTheme == _this.indicatorBadgeTheme &&
         _other.iconTileTheme == _this.iconTileTheme &&
+        _other.phosphorIconTheme == _this.phosphorIconTheme &&
         _other.timelineTheme == _this.timelineTheme &&
         _other.boardTheme == _this.boardTheme &&
         _other.layoutTheme == _this.layoutTheme &&
@@ -652,8 +677,11 @@ mixin _$ThemeData {
       _this.chipTheme,
       _this.listTileTheme,
       _this.chatBubbleTheme,
+      _this.chatListTheme,
+      _this.streamingTextTheme,
       _this.indicatorBadgeTheme,
       _this.iconTileTheme,
+      _this.phosphorIconTheme,
       _this.timelineTheme,
       _this.boardTheme,
       _this.layoutTheme,

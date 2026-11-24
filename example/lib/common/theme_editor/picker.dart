@@ -142,7 +142,7 @@ class _RowIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Icon(
+    return PhosphorIcon(
       icon,
       size: 15,
       color: Theme.of(context).colorScheme.mutedForeground,
@@ -372,7 +372,7 @@ class _PickerItemState extends State<_PickerItem> {
               ),
             ),
             if (widget.selected)
-              Icon(
+              PhosphorIcon(
                 PhosphorIconsRegular.check,
                 size: 14,
                 color: theme.colorScheme.foreground,
@@ -488,7 +488,7 @@ class ThemeSlider extends StatelessWidget {
                     onTap: onReset,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 6),
-                      child: Icon(
+                      child: PhosphorIcon(
                         PhosphorIconsRegular.arrowCounterClockwise,
                         size: 13,
                         color: theme.colorScheme.mutedForeground,

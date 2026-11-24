@@ -13,6 +13,7 @@ import 'package:finesse/src/theme/components/button_sizes.dart';
 import 'package:finesse/src/theme/components/calendar.dart';
 import 'package:finesse/src/theme/components/card.dart';
 import 'package:finesse/src/theme/components/chat_bubble.dart';
+import 'package:finesse/src/theme/components/chat_list.dart';
 import 'package:finesse/src/theme/components/checkbox.dart';
 import 'package:finesse/src/theme/components/chip.dart';
 import 'package:finesse/src/theme/components/collapsible.dart';
@@ -34,6 +35,7 @@ import 'package:finesse/src/theme/components/menubar.dart';
 import 'package:finesse/src/theme/components/navigation_bar.dart';
 import 'package:finesse/src/theme/components/otp_field.dart';
 import 'package:finesse/src/theme/components/pagination.dart';
+import 'package:finesse/src/theme/components/phosphor_icon.dart';
 import 'package:finesse/src/theme/components/popover.dart';
 import 'package:finesse/src/theme/components/progress_bar.dart';
 import 'package:finesse/src/theme/components/radio.dart';
@@ -47,6 +49,7 @@ import 'package:finesse/src/theme/components/skeleton.dart';
 import 'package:finesse/src/theme/components/slider.dart';
 import 'package:finesse/src/theme/components/sonner.dart';
 import 'package:finesse/src/theme/components/spinner.dart';
+import 'package:finesse/src/theme/components/streaming_text.dart';
 import 'package:finesse/src/theme/components/switch.dart';
 import 'package:finesse/src/theme/components/table.dart';
 import 'package:finesse/src/theme/components/tabs.dart';
@@ -73,19 +76,6 @@ import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
 part 'data.g.theme.dart';
-
-/// How strongly menus highlight their hovered row, shadcn's "Menu Accent".
-///
-/// The reference implements "bold" by pointing `--accent` at `--primary` in
-/// the theme itself, so it is a *scheme* transformation, not a per-menu one:
-/// everything that highlights with the accent follows.
-enum MenuAccent {
-  /// The accent pair as the palette defines it.
-  subtle,
-
-  /// The primary pair takes over the accent slots.
-  bold,
-}
 
 /// The complete visual configuration of a Finesse app: colour scheme, text
 /// theme, radius, style, spacing and every component theme.
@@ -161,8 +151,11 @@ class ThemeData extends BaseTheme with _$ThemeData {
     ChipTheme? chipTheme,
     ListTileTheme? listTileTheme,
     ChatBubbleTheme? chatBubbleTheme,
+    ChatListTheme? chatListTheme,
+    StreamingTextTheme? streamingTextTheme,
     IndicatorBadgeTheme? indicatorBadgeTheme,
     IconTileTheme? iconTileTheme,
+    PhosphorIconTheme? phosphorIconTheme,
     TimelineTheme? timelineTheme,
     BoardTheme? boardTheme,
     LayoutTheme? layoutTheme,
@@ -223,8 +216,11 @@ class ThemeData extends BaseTheme with _$ThemeData {
 
     /// How strongly menus highlight their rows; see [MenuAccent].
     ///
-    /// Bold rewrites the scheme's accent pair with its primary pair before
-    /// anything is derived from it, exactly as the reference does.
+    /// Bold fills the highlighted row of a menu or a select with the menu
+    /// palette's primary pair. Only menus change: [colorScheme] keeps its
+    /// accent, and so does everything else that is drawn with it. Null
+    /// keeps the [variant]'s, which is [MenuAccent.subtle] unless it was
+    /// built otherwise.
     MenuAccent? menuAccent,
 
     /// The motion vocabulary every component animates with, in place of the
@@ -275,28 +271,13 @@ class ThemeData extends BaseTheme with _$ThemeData {
         (schemeForBrightness == null
             ? Brightness.light
             : _brightnessOf(schemeForBrightness.background));
-    var effectiveColorScheme =
+    final effectiveColorScheme =
         colorScheme ??
         variant?.colorScheme ??
         switch (effectiveBrightness) {
           Brightness.light => const TealColorScheme.light(),
           Brightness.dark => const TealColorScheme.dark(),
         };
-
-    // A bold menu accent is a scheme transformation in the reference —
-    // `accent = primary` in the generated theme vars — so it is applied to
-    // the scheme(s) before any component theme is derived.
-    var effectiveMenuColorScheme = menuColorScheme;
-    if (menuAccent == MenuAccent.bold) {
-      effectiveColorScheme = effectiveColorScheme.copyWith(
-        accent: effectiveColorScheme.primary,
-        accentForeground: effectiveColorScheme.primaryForeground,
-      );
-      effectiveMenuColorScheme = effectiveMenuColorScheme?.copyWith(
-        accent: effectiveMenuColorScheme.primary,
-        accentForeground: effectiveMenuColorScheme.primaryForeground,
-      );
-    }
 
     // A supplied variant already baked the colour scheme, radius and text
     // theme into its component themes, so any of those that arrived separately
@@ -309,9 +290,10 @@ class ThemeData extends BaseTheme with _$ThemeData {
     final menuOptionsChanged =
         variant is DefaultThemeVariant &&
         ((menuColorScheme != null &&
-                effectiveMenuColorScheme != variant.menuColorScheme) ||
+                menuColorScheme != variant.menuColorScheme) ||
             (menuTranslucent != null &&
-                menuTranslucent != variant.menuTranslucent));
+                menuTranslucent != variant.menuTranslucent) ||
+            (menuAccent != null && menuAccent != variant.menuAccent));
 
     final rebuiltVariant = variant == null
         ? null
@@ -338,12 +320,13 @@ class ThemeData extends BaseTheme with _$ThemeData {
                   style: effectiveStyle,
                   formFactor: formFactor,
                   spacing: spacing,
-                  menuColorScheme: menuColorScheme != null
-                      ? effectiveMenuColorScheme
-                      : DefaultThemeVariant.unsetMenuColorScheme,
+                  menuColorScheme:
+                      menuColorScheme ??
+                      DefaultThemeVariant.unsetMenuColorScheme,
                   menuTranslucent:
                       menuTranslucent ??
                       DefaultThemeVariant.unsetMenuTranslucent,
+                  menuAccent: menuAccent,
                 )
               : variant.rebuild(
                   colorScheme: effectiveColorScheme,
@@ -364,8 +347,9 @@ class ThemeData extends BaseTheme with _$ThemeData {
             style: defaultStyle,
             formFactor: formFactor ?? FormFactor.desktop,
             spacing: spacing ?? const Spacing(),
-            menuColorScheme: effectiveMenuColorScheme,
+            menuColorScheme: menuColorScheme,
             menuTranslucent: menuTranslucent,
+            menuAccent: menuAccent ?? MenuAccent.subtle,
           ),
           true => DefaultThemeNoSecondaryBorderVariant(
             colorScheme: effectiveColorScheme,
@@ -374,8 +358,9 @@ class ThemeData extends BaseTheme with _$ThemeData {
             style: defaultStyle,
             formFactor: formFactor ?? FormFactor.desktop,
             spacing: spacing ?? const Spacing(),
-            menuColorScheme: effectiveMenuColorScheme,
+            menuColorScheme: menuColorScheme,
             menuTranslucent: menuTranslucent,
+            menuAccent: menuAccent ?? MenuAccent.subtle,
           ),
         };
 
@@ -434,8 +419,11 @@ class ThemeData extends BaseTheme with _$ThemeData {
         chipTheme: chipTheme,
         listTileTheme: listTileTheme,
         chatBubbleTheme: chatBubbleTheme,
+        chatListTheme: chatListTheme,
+        streamingTextTheme: streamingTextTheme,
         indicatorBadgeTheme: indicatorBadgeTheme,
         iconTileTheme: iconTileTheme,
+        phosphorIconTheme: phosphorIconTheme,
         timelineTheme: timelineTheme,
         boardTheme: boardTheme,
         layoutTheme: layoutTheme,
@@ -587,10 +575,17 @@ class ThemeData extends BaseTheme with _$ThemeData {
       chatBubbleTheme: effectiveVariant.chatBubbleTheme().merge(
         chatBubbleTheme,
       ),
+      chatListTheme: effectiveVariant.chatListTheme().merge(chatListTheme),
+      streamingTextTheme: effectiveVariant.streamingTextTheme().merge(
+        streamingTextTheme,
+      ),
       indicatorBadgeTheme: effectiveVariant.indicatorBadgeTheme().merge(
         indicatorBadgeTheme,
       ),
       iconTileTheme: effectiveVariant.iconTileTheme().merge(iconTileTheme),
+      phosphorIconTheme: effectiveVariant.phosphorIconTheme().merge(
+        phosphorIconTheme,
+      ),
       timelineTheme: effectiveVariant.timelineTheme().merge(timelineTheme),
       boardTheme: effectiveVariant.boardTheme().merge(boardTheme),
       layoutTheme: effectiveVariant.layoutTheme().merge(layoutTheme),
@@ -680,8 +675,11 @@ class ThemeData extends BaseTheme with _$ThemeData {
     required super.chipTheme,
     required super.listTileTheme,
     required super.chatBubbleTheme,
+    required super.chatListTheme,
+    required super.streamingTextTheme,
     required super.indicatorBadgeTheme,
     required super.iconTileTheme,
+    required super.phosphorIconTheme,
     required super.timelineTheme,
     required super.boardTheme,
     required super.layoutTheme,
@@ -765,8 +763,11 @@ class ThemeData extends BaseTheme with _$ThemeData {
     ChipTheme? chipTheme,
     ListTileTheme? listTileTheme,
     ChatBubbleTheme? chatBubbleTheme,
+    ChatListTheme? chatListTheme,
+    StreamingTextTheme? streamingTextTheme,
     IndicatorBadgeTheme? indicatorBadgeTheme,
     IconTileTheme? iconTileTheme,
+    PhosphorIconTheme? phosphorIconTheme,
     TimelineTheme? timelineTheme,
     BoardTheme? boardTheme,
     LayoutTheme? layoutTheme,
@@ -856,8 +857,11 @@ class ThemeData extends BaseTheme with _$ThemeData {
       chipTheme: chipTheme ?? i.chipTheme,
       listTileTheme: listTileTheme ?? i.listTileTheme,
       chatBubbleTheme: chatBubbleTheme ?? i.chatBubbleTheme,
+      chatListTheme: chatListTheme ?? i.chatListTheme,
+      streamingTextTheme: streamingTextTheme ?? i.streamingTextTheme,
       indicatorBadgeTheme: indicatorBadgeTheme ?? i.indicatorBadgeTheme,
       iconTileTheme: iconTileTheme ?? i.iconTileTheme,
+      phosphorIconTheme: phosphorIconTheme ?? i.phosphorIconTheme,
       timelineTheme: timelineTheme ?? i.timelineTheme,
       boardTheme: boardTheme ?? i.boardTheme,
       layoutTheme: layoutTheme ?? i.layoutTheme,
@@ -1041,8 +1045,11 @@ final class _ThemeInputs {
     this.chipTheme,
     this.listTileTheme,
     this.chatBubbleTheme,
+    this.chatListTheme,
+    this.streamingTextTheme,
     this.indicatorBadgeTheme,
     this.iconTileTheme,
+    this.phosphorIconTheme,
     this.timelineTheme,
     this.boardTheme,
     this.layoutTheme,
@@ -1128,8 +1135,11 @@ final class _ThemeInputs {
   final ChipTheme? chipTheme;
   final ListTileTheme? listTileTheme;
   final ChatBubbleTheme? chatBubbleTheme;
+  final ChatListTheme? chatListTheme;
+  final StreamingTextTheme? streamingTextTheme;
   final IndicatorBadgeTheme? indicatorBadgeTheme;
   final IconTileTheme? iconTileTheme;
+  final PhosphorIconTheme? phosphorIconTheme;
   final TimelineTheme? timelineTheme;
   final BoardTheme? boardTheme;
   final LayoutTheme? layoutTheme;

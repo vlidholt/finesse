@@ -113,7 +113,7 @@ class TooltipIconExample extends StatelessWidget {
     return Tooltip(
       builder: (context) => const Text('Additional information'),
       child: IconButton.ghost(
-        icon: const Icon(PhosphorIconsRegular.info),
+        icon: const PhosphorIcon(PhosphorIconsRegular.info),
         onPressed: () {},
       ),
     );
@@ -200,7 +200,7 @@ class TooltipKeyboardExample extends StatelessWidget {
         ],
       ),
       child: IconButton.outline(
-        icon: const Icon(PhosphorIconsRegular.floppyDisk),
+        icon: const PhosphorIcon(PhosphorIconsRegular.floppyDisk),
         onPressed: () {},
       ),
     );

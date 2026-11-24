@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:finesse/src/components/indicator_badge.dart';
 import 'package:finesse/src/raw_components/pressable.dart';
 import 'package:finesse/src/theme/motion.dart';
@@ -168,12 +170,12 @@ class _DestinationIcon extends StatelessWidget {
 ///   onDestinationSelected: (i) => setState(() => index = i),
 ///   destinations: const [
 ///     NavigationDestination(
-///       icon: Icon(PhosphorIconsRegular.house),
-///       selectedIcon: Icon(PhosphorIconsFill.house),
+///       icon: PhosphorIcon(PhosphorIconsRegular.house),
+///       selectedIcon: PhosphorIcon(PhosphorIconsFill.house),
 ///       label: 'Home',
 ///     ),
 ///     NavigationDestination(
-///       icon: Icon(PhosphorIconsRegular.chatCircleDots),
+///       icon: PhosphorIcon(PhosphorIconsRegular.chatCircleDots),
 ///       label: 'Messages',
 ///       badgeCount: 3,
 ///     ),
@@ -341,7 +343,7 @@ class NavigationBar extends StatelessWidget {
 ///   selectedIndex: index,
 ///   onDestinationSelected: (i) => setState(() => index = i),
 ///   action: NavigationAction(
-///     icon: const Icon(PhosphorIconsRegular.plus),
+///     icon: const PhosphorIcon(PhosphorIconsRegular.plus),
 ///     label: 'Create post',
 ///     onPressed: _compose,
 ///   ),
@@ -439,7 +441,6 @@ class BottomNavigationBar extends StatelessWidget {
     final itemRadius = isFloating ? theme.radii.full : theme.radii.lg;
     final bottomInset = MediaQuery.paddingOf(context).bottom;
 
-    final motion = Motion.of(context);
     // The lens: one pill behind the selected destination, painted by the
     // row and travelling between them.
     final lens = BoxDecoration(
@@ -484,7 +485,6 @@ class BottomNavigationBar extends StatelessWidget {
               // that one passes through a half-opaque dark grey, which is
               // the flash a tap on a destination used to make.
               child: AnimatedFill(
-                duration: motion.fast,
                 color: color,
                 borderRadius: itemRadius,
                 child: Center(
@@ -572,33 +572,48 @@ class BottomNavigationBar extends StatelessWidget {
         ),
     ];
 
+    final borderColor = bar.borderColor ?? theme.colorScheme.border;
+    // A floating bar's hairline can catch the light along its top edge;
+    // see [BottomNavigationBarTheme.rimColor].
+    final rimColor = isFloating ? bar.rimColor : null;
+    Widget content = Container(
+      padding: (bar.padding ?? const EdgeInsets.all(6)).add(
+        EdgeInsets.only(bottom: isFloating ? 0 : bottomInset),
+      ),
+      decoration: BoxDecoration(
+        color: bar.backgroundColor ?? theme.colorScheme.card,
+        borderRadius: radius,
+        border: isFloating
+            // With a rim the hairline is painted over the bar, below; the
+            // border still takes its point of layout.
+            ? Border.all(
+                color: rimColor == null ? borderColor : const Color(0x00000000),
+              )
+            : Border(top: BorderSide(color: borderColor)),
+      ),
+      child: MovingIndicator(
+        child: Row(
+          mainAxisSize: isFloating ? MainAxisSize.min : MainAxisSize.max,
+          spacing: gap,
+          children: children,
+        ),
+      ),
+    );
+    if (rimColor != null) {
+      content = CustomPaint(
+        foregroundPainter: _RimPainter(
+          radius: radius,
+          color: borderColor,
+          rimColor: rimColor,
+        ),
+        child: content,
+      );
+    }
     final surface = Backdrop(
       blur: bar.blur ?? 0,
       saturation: bar.saturation ?? 1,
       borderRadius: radius,
-      child: Container(
-        padding: (bar.padding ?? const EdgeInsets.all(6)).add(
-          EdgeInsets.only(bottom: isFloating ? 0 : bottomInset),
-        ),
-        decoration: BoxDecoration(
-          color: bar.backgroundColor ?? theme.colorScheme.card,
-          borderRadius: radius,
-          border: isFloating
-              ? Border.all(color: bar.borderColor ?? theme.colorScheme.border)
-              : Border(
-                  top: BorderSide(
-                    color: bar.borderColor ?? theme.colorScheme.border,
-                  ),
-                ),
-        ),
-        child: MovingIndicator(
-          child: Row(
-            mainAxisSize: isFloating ? MainAxisSize.min : MainAxisSize.max,
-            spacing: gap,
-            children: children,
-          ),
-        ),
-      ),
+      child: content,
     );
 
     final semantic = Semantics(
@@ -614,13 +629,57 @@ class BottomNavigationBar extends StatelessWidget {
       child: Center(
         heightFactor: 1,
         child: DecoratedBox(
+          // Outside the clip, and after the bar: a shadow painted first
+          // would be sampled by the filter and blurred back into the glass.
+          position: DecorationPosition.foreground,
           decoration: ShadowDecoration.box(
             borderRadius: radius,
-            shadows: theme.style.floatingShadow,
+            shadows: bar.shadows ?? theme.style.floatingShadow,
           ),
           child: semantic,
         ),
       ),
     );
   }
+}
+
+/// The hairline of a floating bar, brighter along its top edge: [rimColor]
+/// at the top, fading into [color] by the middle of the bar — the way light
+/// from above catches the rim of a sheet of glass.
+class _RimPainter extends CustomPainter {
+  const _RimPainter({
+    required this.radius,
+    required this.color,
+    required this.rimColor,
+  });
+
+  final BorderRadius radius;
+  final Color color;
+  final Color rimColor;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.isEmpty) return;
+    // A one-point stroke centred half a point inside the edge: where
+    // `Border.all` paints its hairline.
+    final outline = radius.toRRect(Offset.zero & size).deflate(.5);
+    canvas.drawRRect(
+      outline,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1
+        ..shader = ui.Gradient.linear(
+          Offset.zero,
+          Offset(0, size.height),
+          [rimColor, color],
+          const [0, .55],
+        ),
+    );
+  }
+
+  @override
+  bool shouldRepaint(_RimPainter oldDelegate) =>
+      oldDelegate.radius != radius ||
+      oldDelegate.color != color ||
+      oldDelegate.rimColor != rimColor;
 }

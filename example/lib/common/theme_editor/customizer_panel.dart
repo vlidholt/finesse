@@ -3,6 +3,7 @@
 // deprecated it in 3.47 in favour of the `material_ui` package.
 // ignore_for_file: deprecated_member_use
 
+import 'package:example/common/code_style.dart';
 import 'package:example/common/theme_editor/editor_config.dart';
 import 'package:example/common/theme_editor/fonts.dart';
 import 'package:example/common/theme_editor/picker.dart';
@@ -103,7 +104,7 @@ class ThemeCustomizerPanel extends StatelessWidget {
                     child: Text('Theme editor', style: theme.textTheme.large),
                   ),
                   IconButton.ghost(
-                    icon: const Icon(PhosphorIconsRegular.x),
+                    icon: const PhosphorIcon(PhosphorIconsRegular.x),
                     semanticLabel: 'Close the theme editor',
                     onPressed: onClose,
                   ),
@@ -499,7 +500,7 @@ class _Section extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Icon(
+                  PhosphorIcon(
                     expanded
                         ? PhosphorIconsRegular.caretDown
                         : PhosphorIconsRegular.caretRight,
@@ -740,7 +741,7 @@ class _Actions extends StatelessWidget {
             width: double.infinity,
             child: Button(
               onPressed: () => _copy(context, config),
-              leading: const Icon(PhosphorIconsRegular.clipboard),
+              leading: const PhosphorIcon(PhosphorIconsRegular.clipboard),
               child: const Text('Copy Theme'),
             ),
           ),
@@ -750,7 +751,7 @@ class _Actions extends StatelessWidget {
               Expanded(
                 child: Button.outline(
                   onPressed: () => _showCode(context, config),
-                  leading: const Icon(PhosphorIconsRegular.code),
+                  leading: const PhosphorIcon(PhosphorIconsRegular.code),
                   child: const Text('Code'),
                 ),
               ),
@@ -759,7 +760,7 @@ class _Actions extends StatelessWidget {
                   // All the way back: the Strand preset, viewed the default
                   // way.
                   onPressed: () => onChanged(const ThemeEditorConfig()),
-                  leading: const Icon(
+                  leading: const PhosphorIcon(
                     PhosphorIconsRegular.arrowCounterClockwise,
                   ),
                   child: const Text('Reset'),
@@ -801,7 +802,7 @@ class _Actions extends StatelessWidget {
               await Clipboard.setData(ClipboardData(text: snippet));
               if (context.mounted) Navigator.of(context).pop();
             },
-            leading: const Icon(PhosphorIconsRegular.copy),
+            leading: const PhosphorIcon(PhosphorIconsRegular.copy),
             child: const Text('Copy'),
           ),
         ],
@@ -809,10 +810,8 @@ class _Actions extends StatelessWidget {
           constraints: const BoxConstraints(maxWidth: 560),
           child: SelectableText(
             snippet,
-            style: Theme.of(context).textTheme.small.copyWith(
-              fontFamily: 'JetBrainsMono',
-              fontSize: 12,
-              height: 18 / 12,
+            style: Theme.of(context).textTheme.small.merge(
+              CodeStyle.compact,
             ),
           ),
         ),

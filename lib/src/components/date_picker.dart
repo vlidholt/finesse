@@ -113,7 +113,7 @@ class DatePicker extends StatefulWidget {
     this.dayButtonOutsideMonthVariant,
     this.selectedDayButtonOutsideMonthVariant,
     this.closeOnTapOutside = true,
-    this.focusNode,
+    this.requestFocus = true,
     this.anchor,
     this.effects,
     this.shadows,
@@ -256,7 +256,7 @@ class DatePicker extends StatefulWidget {
     this.dayButtonOutsideMonthVariant,
     this.selectedDayButtonOutsideMonthVariant,
     this.closeOnTapOutside = true,
-    this.focusNode,
+    this.requestFocus = true,
     this.anchor,
     this.effects,
     this.shadows,
@@ -402,7 +402,7 @@ class DatePicker extends StatefulWidget {
     this.dayButtonOutsideMonthVariant,
     this.selectedDayButtonOutsideMonthVariant,
     this.closeOnTapOutside = true,
-    this.focusNode,
+    this.requestFocus = true,
     this.anchor,
     this.effects,
     this.shadows,
@@ -733,8 +733,11 @@ class DatePicker extends StatefulWidget {
   /// {@macro Popover.closeOnTapOutside}
   final bool closeOnTapOutside;
 
-  /// {@macro Popover.focusNode}
-  final FocusNode? focusNode;
+  /// {@macro Popover.requestFocus}
+  ///
+  /// With false the focus stays on the trigger button when the calendar
+  /// opens, and Tab moves into it from there.
+  final bool requestFocus;
 
   ///{@macro Popover.anchor}
   final AnchorBase? anchor;
@@ -1030,7 +1033,7 @@ class _DatePickerState extends State<DatePicker> {
     final effectiveButtonTextStyle =
         widget.buttonTextStyle ?? theme.datePickerTheme.buttonTextStyle;
 
-    final defaultIcon = Icon(
+    final defaultIcon = PhosphorIcon(
       widget.iconData ??
           theme.datePickerTheme.iconData ??
           PhosphorIconsRegular.calendarBlank,
@@ -1062,8 +1065,8 @@ class _DatePickerState extends State<DatePicker> {
       controller: popoverController,
       groupId: effectiveGroupId,
       padding: widget.popoverPadding ?? theme.datePickerTheme.popoverPadding,
-      focusNode: widget.focusNode,
       closeOnTapOutside: widget.closeOnTapOutside,
+      requestFocus: widget.requestFocus,
       anchor: widget.anchor ?? theme.datePickerTheme.anchor,
       effects: widget.effects ?? theme.datePickerTheme.effects,
       shadows: widget.shadows ?? theme.datePickerTheme.shadows,

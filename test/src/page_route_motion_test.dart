@@ -256,4 +256,169 @@ void main() {
     await tester.pump();
     expect(find.byKey(page), findsNothing);
   });
+
+  testWidgets('a tap lands on the page where it is painted, part-way in', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(390, 844);
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(_app(formFactor: FormFactor.mobile));
+    await tester.pump(const Duration(milliseconds: 300));
+    var taps = 0;
+    _navigator.currentState!.push(
+      FinessePageRoute<void>(
+        builder: (context) => Align(
+          alignment: Alignment.topLeft,
+          child: GestureDetector(
+            onTap: () => taps++,
+            child: const ColoredBox(
+              key: page,
+              color: Color(0xFF000000),
+              child: SizedBox.square(dimension: 20),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(_frame);
+    await tester.pump(_frame);
+    final shift = _transition(tester, find.byKey(page)).offset;
+    // Still well off its place: a tap where it will be misses it, a tap
+    // where it is drawn hits it.
+    expect(shift.dx, greaterThan(30));
+    await tester.tapAt(const Offset(10, 10));
+    expect(taps, 0);
+    await tester.tapAt(shift + const Offset(10, 10));
+    expect(taps, 1);
+  });
+
+  testWidgets('a transition is set up once, not on every tick', (
+    tester,
+  ) async {
+    // The framework calls `buildTransitions` each time either animation of
+    // a route moves — for the page coming in and the one under it. What it
+    // returns used to be made from scratch every time: new animation objects
+    // (so every render object below dropped its listener and subscribed
+    // again) around a `LayoutBuilder` with a new callback (so both pages
+    // were laid out again). Now the animations are kept with the route and
+    // the movement is paint.
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(390, 844);
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(_app(formFactor: FormFactor.mobile));
+    await tester.pump(const Duration(milliseconds: 300));
+
+    final route = _CountingRoute<void>(
+      builder: (context) => const SizedBox.expand(key: page),
+    );
+    _navigator.currentState!.push(route);
+    await tester.pump();
+    await tester.pump(_frame);
+
+    RenderAnimatedOpacity fadeOf(Key key) => tester.renderObject(
+      find
+          .ancestor(
+            of: find.byKey(key, skipOffstage: false),
+            matching: find.byType(FadeTransition, skipOffstage: false),
+          )
+          .first,
+    );
+    final fades = {page: fadeOf(page).opacity, home: fadeOf(home).opacity};
+    final subscribed = (route.primary!.adds, route.secondary!.adds);
+    final calls = route.calls;
+
+    final moved = <double>[];
+    for (var i = 0; i < 8; i++) {
+      await tester.pump(_frame);
+      moved.add(_transition(tester, find.byKey(page)).offset.dx);
+      // The same animation objects, on the page coming in and on the one
+      // giving way under it.
+      expect(fadeOf(page).opacity, same(fades[page]));
+      expect(fadeOf(home).opacity, same(fades[home]));
+    }
+    // It was called on every one of those ticks, and it is moving…
+    expect(route.calls - calls, 8);
+    expect(moved.toSet().length, greaterThan(4));
+    // …without anything subscribing to the route's animations again.
+    expect((route.primary!.adds, route.secondary!.adds), subscribed);
+    expect(route.primary!.removes, 0);
+    expect(route.secondary!.removes, 0);
+    // And no layout pass is forced on the pages to find out their width.
+    for (final key in [page, home]) {
+      expect(
+        find.ancestor(
+          of: find.byKey(key, skipOffstage: false),
+          matching: find.descendant(
+            of: find.byType(Navigator),
+            matching: find.byType(LayoutBuilder, skipOffstage: false),
+            skipOffstage: false,
+          ),
+        ),
+        findsNothing,
+      );
+    }
+
+    await tester.pump(const Duration(milliseconds: 600));
+    _navigator.currentState!.pop();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 600));
+    expect(find.byKey(page), findsNothing);
+    // Everything that subscribed has let go.
+    expect(route.primary!.removes, route.primary!.adds);
+    expect(route.secondary!.removes, route.secondary!.adds);
+  });
+}
+
+/// A page route that hands its transition animations on through
+/// [_CountingAnimation]s.
+class _CountingRoute<T> extends FinessePageRoute<T> {
+  _CountingRoute({required super.builder});
+
+  _CountingAnimation? primary;
+  _CountingAnimation? secondary;
+  int calls = 0;
+
+  @override
+  Widget buildTransitions(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    calls++;
+    if (primary?.parent != animation) primary = _CountingAnimation(animation);
+    if (secondary?.parent != secondaryAnimation) {
+      secondary = _CountingAnimation(secondaryAnimation);
+    }
+    return super.buildTransitions(context, primary!, secondary!, child);
+  }
+}
+
+/// An animation that counts who subscribes to it.
+class _CountingAnimation extends Animation<double>
+    with AnimationWithParentMixin<double> {
+  _CountingAnimation(this.parent);
+
+  @override
+  final Animation<double> parent;
+
+  int adds = 0;
+  int removes = 0;
+
+  @override
+  void addListener(VoidCallback listener) {
+    adds++;
+    super.addListener(listener);
+  }
+
+  @override
+  void removeListener(VoidCallback listener) {
+    removes++;
+    super.removeListener(listener);
+  }
+
+  @override
+  double get value => parent.value;
 }

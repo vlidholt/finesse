@@ -187,7 +187,7 @@ class _RenderSizeReporter extends RenderProxyBox {
 ///   selectedIndex: index,
 ///   onDestinationSelected: (i) => setState(() => index = i),
 ///   action: NavigationAction(
-///     icon: const Icon(PhosphorIconsRegular.plus),
+///     icon: const PhosphorIcon(PhosphorIconsRegular.plus),
 ///     label: 'Create post',
 ///     onPressed: _compose,
 ///   ),

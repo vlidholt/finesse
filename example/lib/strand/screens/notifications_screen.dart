@@ -1,6 +1,5 @@
 import 'package:example/strand/data/notifications_data.dart';
 import 'package:example/strand/session.dart';
-import 'package:example/strand/widgets/home_pieces.dart';
 import 'package:example/strand/widgets/home_trending_card.dart';
 import 'package:example/strand/widgets/notifications_controller.dart';
 import 'package:example/strand/widgets/notifications_list.dart';
@@ -70,10 +69,6 @@ class NotificationsScreen extends StatelessWidget {
 
     return PageContainer(
       scrollable: true,
-      // As on the Jobs page: the title starts 28 under the app bar.
-      padding: (layout.pagePadding ?? EdgeInsets.zero).add(
-        const EdgeInsets.only(top: 4),
-      ),
       child: LayoutBuilder(
         builder: (context, constraints) {
           final width = constraints.maxWidth;
@@ -95,14 +90,14 @@ class NotificationsScreen extends StatelessWidget {
                 subtitle: _subtitle(controller),
                 actions: [
                   Button.outline(
-                    leading: const Icon(PhosphorIconsRegular.gearSix),
+                    leading: const PhosphorIcon(PhosphorIconsRegular.gearSix),
                     onPressed: () =>
                         openSettings(context, SettingsSection.notifications),
                     child: const Text('Settings'),
                   ),
                   Button(
                     enabled: controller.unreadCount > 0,
-                    leading: const Icon(PhosphorIconsRegular.checks),
+                    leading: const PhosphorIcon(PhosphorIconsRegular.checks),
                     onPressed: controller.markAllRead,
                     child: const Text('Mark all as read'),
                   ),
@@ -128,16 +123,7 @@ class NotificationsScreen extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          // In a row, so the control hugs its labels: given
-                          // the column's width its strip would stretch.
-                          Row(
-                            children: [
-                              _FilterTabs(
-                                controller: controller,
-                                expand: false,
-                              ),
-                            ],
-                          ),
+                          _FilterTabs(controller: controller, expand: false),
                           NotificationsList(controller: controller),
                         ],
                       ),
@@ -175,15 +161,10 @@ class NotificationsScreen extends StatelessWidget {
     final layout = Theme.of(context).layoutTheme;
     return PageContainer(
       scrollable: true,
-      // As on the Jobs page: the title starts 17 under the app bar.
-      padding: (layout.pagePadding ?? EdgeInsets.zero).add(
-        const EdgeInsets.only(top: 1),
-      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        // The phone designs space their blocks 14 apart.
-        spacing: homeLooseGap,
+        spacing: layout.gap(GapSize.md),
         children: [
           Row(
             children: [
@@ -192,13 +173,13 @@ class NotificationsScreen extends StatelessWidget {
               ),
               IconButton.secondary(
                 enabled: controller.unreadCount > 0,
-                icon: const Icon(PhosphorIconsRegular.checks),
+                icon: const PhosphorIcon(PhosphorIconsRegular.checks),
                 semanticLabel: 'Mark all as read',
                 onPressed: controller.markAllRead,
               ),
               const Gap.xs(),
               IconButton.secondary(
-                icon: const Icon(PhosphorIconsRegular.gearSix),
+                icon: const PhosphorIcon(PhosphorIconsRegular.gearSix),
                 semanticLabel: 'Notification settings',
                 onPressed: () =>
                     openSettings(context, SettingsSection.notifications),
@@ -235,19 +216,8 @@ class _FilterTabs extends StatelessWidget {
           for (final filter in NotificationFilter.values)
             Tab(
               value: filter,
-              child: expand
-                  // Four labels share a phone's width: each may shrink.
-                  ? Flexible(
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          filter.label,
-                          maxLines: 1,
-                          softWrap: false,
-                        ),
-                      ),
-                    )
-                  : Text(filter.label),
+              // Four labels share a phone's width: each may shrink.
+              child: StrandTabLabel(filter.label),
             ),
         ],
       ),

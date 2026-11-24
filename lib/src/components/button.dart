@@ -10,6 +10,7 @@ import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:finesse/src/utils/motion_color.dart';
 import 'package:finesse/src/utils/separated_iterable.dart';
 import 'package:finesse/src/utils/spring.dart';
+import 'package:finesse/src/utils/text_scaled_height.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -121,6 +122,7 @@ class Button extends StatefulWidget {
     this.pressedOffset,
     this.pressAnimationDuration,
     this.pressScale,
+    this.transitionDuration,
     this.expands,
     this.textStyle,
     this.canRequestFocus,
@@ -182,6 +184,7 @@ class Button extends StatefulWidget {
     this.pressedOffset,
     this.pressAnimationDuration,
     this.pressScale = 1,
+    this.transitionDuration,
     this.expands,
     this.textStyle,
     this.canRequestFocus,
@@ -242,6 +245,7 @@ class Button extends StatefulWidget {
     this.pressedOffset,
     this.pressAnimationDuration,
     this.pressScale,
+    this.transitionDuration,
     this.expands,
     this.textStyle,
     this.canRequestFocus,
@@ -302,6 +306,7 @@ class Button extends StatefulWidget {
     this.pressedOffset,
     this.pressAnimationDuration,
     this.pressScale,
+    this.transitionDuration,
     this.expands,
     this.textStyle,
     this.canRequestFocus,
@@ -362,6 +367,7 @@ class Button extends StatefulWidget {
     this.pressedOffset,
     this.pressAnimationDuration,
     this.pressScale,
+    this.transitionDuration,
     this.expands,
     this.textStyle,
     this.canRequestFocus,
@@ -421,6 +427,7 @@ class Button extends StatefulWidget {
     this.pressedOffset,
     this.pressAnimationDuration,
     this.pressScale,
+    this.transitionDuration,
     this.expands,
     this.textStyle,
     this.canRequestFocus,
@@ -478,6 +485,7 @@ class Button extends StatefulWidget {
     this.pressedOffset,
     this.pressAnimationDuration,
     this.pressScale,
+    this.transitionDuration,
     this.expands,
     this.leading,
     this.trailing,
@@ -815,6 +823,12 @@ class Button extends StatefulWidget {
   /// like the others, or null to follow the variant's theme.
   final double? pressScale;
 
+  /// {@macro ButtonTheme.transitionDuration}
+  ///
+  /// A row that should take its highlight at once — a menu item — passes
+  /// [Duration.zero].
+  final Duration? transitionDuration;
+
   /// {@template Button.expands}
   /// Whether the [child] expands to fill available space along the main axis.
   /// Defaults to false if not specified.
@@ -1143,6 +1157,10 @@ class _ButtonState extends State<Button> {
 
     final effectiveWidth = width(theme) ?? 0;
     final effectiveHeight = height(theme);
+    // The style height is the height at the platform's text size: a larger
+    // text scale lets the button grow to keep its label whole, and at a
+    // scale of 1 this is the height itself.
+    final effectiveMaxHeight = textScaledMaxHeight(context, effectiveHeight);
     // Null keeps whatever the ambient IconTheme says, rather than falling
     // back to Flutter's 24 — but every shipped style sets one.
     final effectiveIconSize = iconSize(theme) ?? iconTheme.size;
@@ -1150,7 +1168,9 @@ class _ButtonState extends State<Button> {
     final effectivePressScale =
         widget.pressScale ?? buttonTheme(theme).pressScale ?? motion.pressScale;
     final effectiveTransitionDuration =
-        buttonTheme(theme).transitionDuration ?? motion.fast;
+        widget.transitionDuration ??
+        buttonTheme(theme).transitionDuration ??
+        motion.fast;
 
     return CallbackShortcuts(
       bindings: {
@@ -1298,7 +1318,7 @@ class _ButtonState extends State<Button> {
                             // based on its child.
                             maxHeight: effectiveHeight == 0
                                 ? double.infinity
-                                : effectiveHeight,
+                                : effectiveMaxHeight,
                           ),
                           child: AnimatedColorBuilder(
                             color: updatedDecoration.color,

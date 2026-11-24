@@ -36,6 +36,7 @@ class TypographyRolesExample extends StatelessWidget {
         ('large', 'large', 'Are you absolutely sure?'),
         ('small', 'small', 'Email address'),
         ('muted', 'muted', 'Enter your email address.'),
+        ('caption', 'caption', 'Edited 2h ago · 12 comments'),
       ];
 
   static const _minContrast = 3.0;
@@ -56,6 +57,7 @@ class TypographyRolesExample extends StatelessWidget {
     'large' => text.large,
     'small' => text.small,
     'muted' => text.muted,
+    'caption' => text.caption,
     _ => text.p,
   };
 

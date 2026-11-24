@@ -1,12 +1,15 @@
 import 'package:example/strand/data/jobs_data.dart';
 import 'package:flutter/foundation.dart';
 
-/// What the Jobs screen remembers while it is open: the selected listing,
-/// the switched-on filters, and what has been saved, followed and applied to.
+/// What the "Find jobs" side remembers: the selected listing, the
+/// switched-on filters, and what has been saved, followed and applied to.
 ///
-/// It is a [ChangeNotifier] rather than `setState` in the screen because the
-/// detail pane is also shown on a pushed route, which has to see — and
-/// change — the same saved and followed sets as the list underneath it.
+/// It is a [ChangeNotifier] in the `StrandSession` rather than `setState`
+/// in the screen because the detail pane is also shown on a pushed route,
+/// which has to see — and change — the same saved and followed sets as the
+/// list underneath it, and because a saved or applied-to listing is a card
+/// on the board (`ApplicationsController`), which the summary tiles and
+/// the "Saved items" sheet count.
 class JobsState extends ChangeNotifier {
   Job _selected = JobsData.jobs.first;
   JobSort _sort = JobSort.relevant;
@@ -39,10 +42,6 @@ class JobsState extends ChangeNotifier {
       ...JobsData.jobs,
     ]..sort((a, b) => b.salaryCeiling.compareTo(a.salaryCeiling)),
   };
-
-  /// The headline numbers; saving and applying move the first two.
-  int get savedCount => JobsData.savedJobs.value + _saved.length;
-  int get appliedCount => JobsData.applicationsSent.value + _applied.length;
 
   bool isFilterOn(JobFilter filter) => _filters.contains(filter.label);
   bool isSaved(Job job) => _saved.contains(job.id);

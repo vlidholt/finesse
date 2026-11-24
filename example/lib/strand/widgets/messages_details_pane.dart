@@ -3,6 +3,7 @@ import 'package:example/strand/data/network_data.dart';
 import 'package:example/strand/widgets/messages_common.dart';
 import 'package:example/strand/widgets/messages_controller.dart';
 import 'package:example/strand/widgets/network_links.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:example/strand/widgets/strand_previews.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
@@ -10,6 +11,10 @@ import 'package:flutter/widgets.dart';
 // One notch under the theme's `md` gap, where the designs tighten it: between
 // a row's tile and its text, and between the avatar stack and its title.
 const _tightGap = 10.0;
+
+/// The portrait the pane is about: larger than any step of the theme's
+/// avatar scale.
+const _portraitSize = 88.0;
 
 /// The last pane of the desktop card: who the conversation is with, the
 /// people both sides know, and what has been shared.
@@ -54,18 +59,16 @@ class MessagesDetailsPane extends StatelessWidget {
         children: [
           Column(
             children: [
-              ConversationAvatar(conversation, size: 88, showOnline: false),
+              ConversationAvatar(
+                conversation,
+                size: _portraitSize,
+                showOnline: false,
+              ),
               const Gap.md(),
               Text(
                 conversation.name,
                 textAlign: TextAlign.center,
-                // 600 17/24: between the theme's h4 (16) and h3 (20).
-                style: theme.textTheme.h4.copyWith(
-                  fontSize: 17,
-                  height: 24 / 17,
-                  letterSpacing: 0,
-                  color: colors.foreground,
-                ),
+                style: theme.textTheme.h4.copyWith(color: colors.foreground),
               ),
               const Gap.xs(),
               Text(
@@ -82,25 +85,37 @@ class MessagesDetailsPane extends StatelessWidget {
                 gap: GapSize.sm,
                 children: [
                   Expanded(
-                    child: Button.outline(
-                      onPressed: () => switch (conversation.person) {
-                        final person? => showPersonPreview(context, person),
-                        null => openNetworkSection(
-                          context,
-                          NetworkSection.groups,
-                        ),
-                      },
-                      child: Text(
-                        conversation.isGroup ? 'View group' : 'View profile',
-                      ),
-                    ),
+                    child: conversation.assistant
+                        // It has no profile to look at; a fresh start is
+                        // the useful thing to offer.
+                        ? Button.outline(
+                            onPressed: () => controller.clear(conversation),
+                            child: const Text('Clear chat'),
+                          )
+                        : Button.outline(
+                            onPressed: () => switch (conversation.person) {
+                              final person? => showPersonPreview(
+                                context,
+                                person,
+                              ),
+                              null => openNetworkSection(
+                                context,
+                                NetworkSection.groups,
+                              ),
+                            },
+                            child: Text(
+                              conversation.isGroup
+                                  ? 'View group'
+                                  : 'View profile',
+                            ),
+                          ),
                   ),
                   IconButton.secondary(
                     // A rounded square beside the button rather than the
                     // theme's round icon button.
                     decoration: theme.buttonDecoration(radius: theme.radius),
-                    iconSize: 18,
-                    icon: Icon(
+                    iconSize: theme.glyph,
+                    icon: PhosphorIcon(
                       muted
                           ? PhosphorIconsRegular.bellSlash
                           : PhosphorIconsRegular.bell,
@@ -123,8 +138,8 @@ class MessagesDetailsPane extends StatelessWidget {
                 gap: GapSize.sm,
                 children: [
                   AvatarGroup(
-                    size: 26,
-                    overlap: 6,
+                    size: theme.avatarXs + theme.gap(GapSize.xs) * 1.5,
+                    overlap: theme.gap(GapSize.xs) * 1.5,
                     children: [
                       for (final avatar in conversation.mutuals)
                         Avatar(avatar, fit: BoxFit.cover),
@@ -165,7 +180,7 @@ class MessagesDetailsPane extends StatelessWidget {
                     ListTile(
                       padding: EdgeInsets.zero,
                       gap: _tightGap,
-                      leading: GroupLogo(group, size: 32),
+                      leading: GroupLogo(group, size: theme.avatarSm),
                       title: Text(group.name),
                       titleStyle: theme.messagesLabel,
                     ),
@@ -191,10 +206,10 @@ class _SharedFileRow extends StatelessWidget {
       padding: EdgeInsets.zero,
       gap: _tightGap,
       leading: IconTile(
-        size: 36,
-        iconSize: 20,
+        size: theme.avatarSm + theme.gap(GapSize.xs),
+        iconSize: theme.glyphLg,
         borderRadius: theme.radius,
-        icon: Icon(file.icon),
+        icon: PhosphorIcon(file.icon),
       ),
       title: Text(file.name),
       titleStyle: theme.messagesLabel,

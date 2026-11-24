@@ -8,6 +8,7 @@ import 'package:finesse/src/theme/components/sonner.dart';
 import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/theme/themes/shadows.dart';
 import 'package:finesse/src/utils/animate.dart';
 import 'package:finesse/src/utils/mouse_area.dart';
 import 'package:finesse/src/utils/responsive.dart';
@@ -523,7 +524,19 @@ class SonnerState extends State<Sonner> with TickerProviderStateMixin {
                                     effects: toastInfo.temporarilyHide
                                         ? effectiveAnimateOut
                                         : effectiveAnimateIn,
+                                    // The toast may be glass; see
+                                    // [BackdropFade].
+                                    fadeThroughBackdrop: true,
                                     child: ClipRect(
+                                      clipper: _ToastClipper(
+                                        expansion: animation,
+                                        front: index == _toasts.length - 1,
+                                        reach: _shadowReach(
+                                          toast.shadows ??
+                                              effectiveToastTheme.shadows ??
+                                              Shadows.lg,
+                                        ),
+                                      ),
                                       child: OverflowBox(
                                         alignment:
                                             AlignmentDirectional.topStart,
@@ -548,6 +561,53 @@ class SonnerState extends State<Sonner> with TickerProviderStateMixin {
       ),
     );
   }
+}
+
+/// How far [shadows] reach past the box that casts them.
+double _shadowReach(List<BoxShadow> shadows) {
+  var reach = 0.0;
+  for (final shadow in shadows) {
+    reach = math.max(
+      reach,
+      shadow.spreadRadius +
+          shadow.blurSigma * 3 +
+          math.max(shadow.offset.dx.abs(), shadow.offset.dy.abs()),
+    );
+  }
+  return reach;
+}
+
+/// Crops a toast in the stack to its slot, with room for its shadow.
+///
+/// In the collapsed stack every toast is laid out at the height of the one
+/// in front, and a taller one behind it is cropped to that. A plain
+/// `ClipRect` did the cropping — and cut every toast's shadow off with it,
+/// which left a toast as nothing but a hairline on a page of its own
+/// colour. So the toast in [front] keeps [reach] of room on every side for
+/// its shadow, and the ones behind it get theirs as the stack opens
+/// ([expansion] going to 1), when each lies on the page by itself; while
+/// they are stacked, a shadow under the toast in front would only show
+/// through it.
+class _ToastClipper extends CustomClipper<Rect> {
+  const _ToastClipper({
+    required this.expansion,
+    required this.front,
+    required this.reach,
+  }) : super(reclip: expansion);
+
+  final Animation<double> expansion;
+  final bool front;
+  final double reach;
+
+  @override
+  Rect getClip(Size size) =>
+      (Offset.zero & size).inflate(front ? reach : reach * expansion.value);
+
+  @override
+  bool shouldReclip(_ToastClipper oldClipper) =>
+      oldClipper.expansion != expansion ||
+      oldClipper.front != front ||
+      oldClipper.reach != reach;
 }
 
 /// Renders the layout of the toasts, stacking them when animation is at 0, and

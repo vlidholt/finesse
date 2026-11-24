@@ -2,10 +2,10 @@ import 'package:example/common/app_state.dart';
 import 'package:example/strand/data.dart';
 import 'package:example/strand/data/profile_data.dart';
 import 'package:example/strand/navigation.dart';
-import 'package:example/strand/widgets/home_pieces.dart';
 import 'package:example/strand/widgets/person_avatar.dart';
 import 'package:example/strand/widgets/settings_controller.dart';
 import 'package:example/strand/widgets/strand_pieces.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_solidart/flutter_solidart.dart';
@@ -88,12 +88,18 @@ class _SettingRow extends StatelessWidget {
     required this.trailing,
     this.detail,
     this.leading,
+    this.trailingIsLabelled = false,
   });
 
   final String title;
   final String? detail;
   final Widget? leading;
   final Widget trailing;
+
+  /// Whether [trailing] carries [title] as its own semantic label — a group
+  /// of tabs named "Mode". The visible title is then left out of the
+  /// semantics, or a screen reader would say it twice.
+  final bool trailingIsLabelled;
 
   @override
   Widget build(BuildContext context) {
@@ -107,11 +113,14 @@ class _SettingRow extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                title,
-                style: theme.textTheme.p.copyWith(
-                  fontWeight: FontWeight.w500,
-                  color: scheme.foreground,
+              ExcludeSemantics(
+                excluding: trailingIsLabelled,
+                child: Text(
+                  title,
+                  style: theme.textTheme.p.copyWith(
+                    fontWeight: FontWeight.w500,
+                    color: scheme.foreground,
+                  ),
                 ),
               ),
               if (detail case final detail?)
@@ -133,6 +142,11 @@ class _SettingRow extends StatelessWidget {
 
 /// A switch with its label and sentence: a [_SettingRow] ending in a
 /// `Switch`, read to assistive technology as one control.
+///
+/// The row is merged into one semantic node — the title and the sentence
+/// become the switch's label — rather than the switch being given the
+/// title as a label of its own, which left the visible title in the tree
+/// to be read a second time.
 class _SwitchRow extends StatelessWidget {
   const _SwitchRow({
     required this.title,
@@ -148,18 +162,21 @@ class _SwitchRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _SettingRow(
-      title: title,
-      detail: detail,
-      trailing: Semantics(
-        label: title,
-        child: Switch(value: value, onChanged: onChanged),
+    return MergeSemantics(
+      child: _SettingRow(
+        title: title,
+        detail: detail,
+        trailing: Switch(value: value, onChanged: onChanged),
       ),
     );
   }
 }
 
 /// A labelled form field: the label over the control.
+///
+/// The control carries the label in its semantics, so the visible text is
+/// left out of them: one node per field, not a label and then a field of
+/// the same name.
 class _Field extends StatelessWidget {
   const _Field({required this.label, required this.child});
 
@@ -173,13 +190,15 @@ class _Field extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          label,
-          style: theme.textTheme.small.copyWith(
-            color: theme.colorScheme.foreground,
+        ExcludeSemantics(
+          child: Text(
+            label,
+            style: theme.textTheme.small.copyWith(
+              color: theme.colorScheme.foreground,
+            ),
           ),
         ),
-        const Gap.raw(homeTightGap),
+        const Gap.xs(),
         Semantics(label: label, child: child),
       ],
     );
@@ -188,6 +207,11 @@ class _Field extends StatelessWidget {
 
 /// Lays [children] out two across where there is room, and in one column
 /// where there is not.
+///
+/// One `Wrap` either way, with the children's width worked out from the
+/// room: every field stays the same child of the same parent when the
+/// number of columns changes, so the one being typed in keeps its focus
+/// through a resize.
 class _FieldGrid extends StatelessWidget {
   const _FieldGrid({required this.children});
 
@@ -201,32 +225,16 @@ class _FieldGrid extends StatelessWidget {
     final gap = Theme.of(context).layoutTheme.gap(GapSize.lg);
     return LayoutBuilder(
       builder: (context, constraints) {
-        final two = constraints.maxWidth >= _minFieldWidth * 2 + gap;
-        if (!two) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: gap,
-            children: children,
-          );
-        }
-        return Column(
-          mainAxisSize: MainAxisSize.min,
+        final room = constraints.maxWidth;
+        final two = room >= _minFieldWidth * 2 + gap;
+        // Rounded down, so that two of them and the gap never come to a
+        // hair more than the room and wrap.
+        final width = two ? ((room - gap) / 2).floorToDouble() : room;
+        return Wrap(
           spacing: gap,
+          runSpacing: gap,
           children: [
-            for (var i = 0; i < children.length; i += 2)
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: gap,
-                children: [
-                  Expanded(child: children[i]),
-                  Expanded(
-                    child: i + 1 < children.length
-                        ? children[i + 1]
-                        : const SizedBox.shrink(),
-                  ),
-                ],
-              ),
+            for (final child in children) SizedBox(width: width, child: child),
           ],
         );
       },
@@ -234,9 +242,17 @@ class _FieldGrid extends StatelessWidget {
   }
 }
 
-const _rowDivider = Divider.horizontal(
-  margin: EdgeInsets.symmetric(vertical: homeLooseGap),
-);
+/// The rule between two rows of a settings card.
+class _RowDivider extends StatelessWidget {
+  const _RowDivider();
+
+  @override
+  Widget build(BuildContext context) => Divider.horizontal(
+    margin: EdgeInsets.symmetric(
+      vertical: Theme.of(context).gap(GapSize.md),
+    ),
+  );
+}
 
 // Account.
 
@@ -312,7 +328,7 @@ class _ProfileCardState extends State<_ProfileCard> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _SettingRow(
-            leading: const PersonAvatar(People.me, size: 56),
+            leading: PersonAvatar(People.me, size: theme.avatarLg),
             title: _settings.name,
             detail: ProfileData.currentRole,
             trailing: Button.outline(
@@ -321,7 +337,7 @@ class _ProfileCardState extends State<_ProfileCard> {
               child: const Text('View profile'),
             ),
           ),
-          _rowDivider,
+          const _RowDivider(),
           _FieldGrid(
             children: [
               _Field(
@@ -358,13 +374,13 @@ class _ProfileCardState extends State<_ProfileCard> {
               ),
             ],
           ),
-          Gap.raw(theme.layoutTheme.gap(GapSize.xl)),
+          const Gap.xl(),
           // A wrap: in a narrow card at a large text size the two buttons
           // stack rather than overflow.
           Wrap(
             alignment: WrapAlignment.end,
-            spacing: theme.layoutTheme.gap(GapSize.sm),
-            runSpacing: theme.layoutTheme.gap(GapSize.sm),
+            spacing: theme.gap(GapSize.sm),
+            runSpacing: theme.gap(GapSize.sm),
             children: [
               Button.outline(
                 enabled: _dirty,
@@ -405,7 +421,7 @@ class _SecurityCard extends StatelessWidget {
             onChanged: (value) =>
                 settings.update(() => settings.twoStep = value),
           ),
-          _rowDivider,
+          const _RowDivider(),
           _SettingRow(
             title: 'Password',
             detail: 'Last changed in August',
@@ -421,9 +437,9 @@ class _SecurityCard extends StatelessWidget {
               child: const Text('Change'),
             ),
           ),
-          _rowDivider,
+          const _RowDivider(),
           const _SettingRow(
-            leading: IconTile(icon: Icon(PhosphorIconsRegular.laptop)),
+            leading: IconTile(icon: PhosphorIcon(PhosphorIconsRegular.laptop)),
             title: 'MacBook Pro · Copenhagen',
             detail: 'This device · Active now',
             trailing: Badge.secondary(child: Text('Current')),
@@ -431,7 +447,7 @@ class _SecurityCard extends StatelessWidget {
           const Gap.md(),
           _SettingRow(
             leading: const IconTile(
-              icon: Icon(PhosphorIconsRegular.deviceMobile),
+              icon: PhosphorIcon(PhosphorIconsRegular.deviceMobile),
             ),
             title: 'iPhone · Copenhagen',
             detail: 'Strand for iOS · Active 2 hours ago',
@@ -504,7 +520,7 @@ class _ActivityCard extends StatelessWidget {
             onChanged: (value) =>
                 settings.update(() => settings.showOnline = value),
           ),
-          _rowDivider,
+          const _RowDivider(),
           _SwitchRow(
             title: 'Read receipts',
             detail: 'Let people see when you have read their message',
@@ -512,7 +528,7 @@ class _ActivityCard extends StatelessWidget {
             onChanged: (value) =>
                 settings.update(() => settings.readReceipts = value),
           ),
-          _rowDivider,
+          const _RowDivider(),
           _SwitchRow(
             title: 'Share profile views',
             detail: 'Show your name when you look at someone’s profile',
@@ -520,7 +536,7 @@ class _ActivityCard extends StatelessWidget {
             onChanged: (value) =>
                 settings.update(() => settings.shareProfileViews = value),
           ),
-          _rowDivider,
+          const _RowDivider(),
           _SwitchRow(
             title: 'Open to work, recruiters only',
             detail: 'Hide the status from people at Halcyon',
@@ -584,21 +600,22 @@ class _PauseCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       rowMainAxisSize: MainAxisSize.max,
-      child: _SettingRow(
-        leading: IconTile(
-          icon: Icon(
-            settings.pauseAll
-                ? PhosphorIconsRegular.bellSimpleSlash
-                : PhosphorIconsRegular.bellSimpleRinging,
+      // One control to a screen reader, as a [_SwitchRow] is.
+      child: MergeSemantics(
+        child: _SettingRow(
+          leading: IconTile(
+            icon: PhosphorIcon(
+              settings.pauseAll
+                  ? PhosphorIconsRegular.bellSimpleSlash
+                  : PhosphorIconsRegular.bellSimpleRinging,
+            ),
           ),
-        ),
-        title: 'Pause all notifications',
-        detail: settings.pauseAll
-            ? 'Paused. Nothing new will reach you until you switch this off.'
-            : 'Take a break without changing what you are told about.',
-        trailing: Semantics(
-          label: 'Pause all notifications',
-          child: Switch(
+          title: 'Pause all notifications',
+          detail: settings.pauseAll
+              ? 'Paused. Nothing new will reach you until you switch this '
+                    'off.'
+              : 'Take a break without changing what you are told about.',
+          trailing: Switch(
             value: settings.pauseAll,
             onChanged: (value) =>
                 settings.update(() => settings.pauseAll = value),
@@ -622,7 +639,9 @@ class _TopicsCard extends StatelessWidget {
     final theme = Theme.of(context);
     final scale = MediaQuery.textScalerOf(context).scale(1);
     final width = _columnWidth * scale;
-    final heading = homeFinePrint(theme).copyWith(fontWeight: FontWeight.w600);
+    final heading = theme.textTheme.caption.copyWith(
+      fontWeight: FontWeight.w600,
+    );
 
     Widget box(
       Set<NotificationTopic> channel,
@@ -666,9 +685,7 @@ class _TopicsCard extends StatelessWidget {
             ],
           ),
           for (final topic in NotificationTopic.values) ...[
-            const Divider.horizontal(
-              margin: EdgeInsets.symmetric(vertical: 12),
-            ),
+            const _RowDivider(),
             Row(
               children: [
                 Expanded(
@@ -750,11 +767,11 @@ class _JobMatchCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('50%, more roles', style: homeFinePrint(theme)),
-              Text('100%, exact fits', style: homeFinePrint(theme)),
+              Text('50%, more roles', style: theme.textTheme.caption),
+              Text('100%, exact fits', style: theme.textTheme.caption),
             ],
           ),
-          _rowDivider,
+          const _RowDivider(),
           _FieldGrid(
             children: [
               _Field(
@@ -789,14 +806,32 @@ class _JobMatchCard extends StatelessWidget {
 // Appearance.
 
 /// Light or dark, and the text size: the two settings on this page that are
-/// real. They write to the app's own state, so the whole app follows — and
-/// the theme editor shows the same values.
-class _ThemeCard extends StatelessWidget {
+/// real. They write to the app's own state, so the whole app follows, the
+/// theme editor shows the same values, and a change made in the editor
+/// shows here.
+class _ThemeCard extends StatefulWidget {
   const _ThemeCard();
 
   /// The range of the text-size slider. The theme editor's goes further.
   static const _minScale = .85;
   static const _maxScale = 1.3;
+
+  @override
+  State<_ThemeCard> createState() => _ThemeCardState();
+}
+
+class _ThemeCardState extends State<_ThemeCard> {
+  /// The slider's thumb. The text scale is the theme editor's too, which
+  /// can change it while this card is showing; a slider given only an
+  /// initial value would leave its thumb where it was, under a label that
+  /// says something else.
+  final _scale = SliderController(initialValue: 1);
+
+  @override
+  void dispose() {
+    _scale.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -808,6 +843,11 @@ class _ThemeCard extends StatelessWidget {
         final config = themeConfigProvider.of(context);
         final editorOpen = themeEditorOpenProvider.of(context).value;
         final scale = config.value.textScale;
+        // The thumb follows the setting, as far as this slider's shorter
+        // range goes. A drag here writes the value it rounds to, so the
+        // two never pull against each other.
+        final thumb = scale.clamp(_ThemeCard._minScale, _ThemeCard._maxScale);
+        if ((_scale.value - thumb).abs() > .001) _scale.value = thumb;
 
         return _SettingsCard(
           title: 'Theme',
@@ -819,6 +859,7 @@ class _ThemeCard extends StatelessWidget {
               _SettingRow(
                 title: 'Mode',
                 detail: 'Light for the day, dark for the evening',
+                trailingIsLabelled: true,
                 trailing: Semantics(
                   label: 'Mode',
                   container: true,
@@ -828,27 +869,30 @@ class _ThemeCard extends StatelessWidget {
                     tabs: const [
                       Tab(
                         value: ThemeMode.light,
-                        leading: Icon(PhosphorIconsRegular.sun),
+                        leading: PhosphorIcon(PhosphorIconsRegular.sun),
                         child: Text('Light'),
                       ),
                       Tab(
                         value: ThemeMode.dark,
-                        leading: Icon(PhosphorIconsRegular.moon),
+                        leading: PhosphorIcon(PhosphorIconsRegular.moon),
                         child: Text('Dark'),
                       ),
                     ],
                   ),
                 ),
               ),
-              _rowDivider,
+              const _RowDivider(),
               Row(
                 children: [
                   Expanded(
-                    child: Text(
-                      'Text size',
-                      style: theme.textTheme.p.copyWith(
-                        fontWeight: FontWeight.w500,
-                        color: scheme.foreground,
+                    // The slider below is labelled with the same words.
+                    child: ExcludeSemantics(
+                      child: Text(
+                        'Text size',
+                        style: theme.textTheme.p.copyWith(
+                          fontWeight: FontWeight.w500,
+                          color: scheme.foreground,
+                        ),
                       ),
                     ),
                   ),
@@ -861,9 +905,10 @@ class _ThemeCard extends StatelessWidget {
               const Gap.md(),
               Row(
                 children: [
-                  Icon(
+                  PhosphorIcon(
                     PhosphorIconsRegular.textAa,
-                    size: 16,
+                    // A small letter and a large one: the slider's two ends.
+                    size: theme.iconBeside(theme.textTheme.caption),
                     color: scheme.mutedForeground,
                   ),
                   const Gap.md(),
@@ -871,9 +916,9 @@ class _ThemeCard extends StatelessWidget {
                     child: Semantics(
                       label: 'Text size',
                       child: Slider(
-                        initialValue: scale.clamp(_minScale, _maxScale),
-                        min: _minScale,
-                        max: _maxScale,
+                        controller: _scale,
+                        min: _ThemeCard._minScale,
+                        max: _ThemeCard._maxScale,
                         divisions: 9,
                         showDivisionMarks: false,
                         onChanged: (value) {
@@ -888,20 +933,20 @@ class _ThemeCard extends StatelessWidget {
                     ),
                   ),
                   const Gap.md(),
-                  Icon(
+                  PhosphorIcon(
                     PhosphorIconsRegular.textAa,
-                    size: 24,
+                    size: theme.iconBeside(theme.textTheme.h3),
                     color: scheme.mutedForeground,
                   ),
                 ],
               ),
-              _rowDivider,
+              const _RowDivider(),
               _SettingRow(
                 title: 'Theme editor',
                 detail: 'Restyle everything: colours, type, radii, glass',
                 trailing: Button.outline(
                   size: ButtonSize.sm,
-                  leading: const Icon(PhosphorIconsRegular.paintBrush),
+                  leading: const PhosphorIcon(PhosphorIconsRegular.paintBrush),
                   onPressed: context.toggleThemeEditor,
                   child: Text(editorOpen ? 'Close' : 'Open'),
                 ),
@@ -935,7 +980,7 @@ class _DisplayCard extends StatelessWidget {
             onChanged: (value) =>
                 settings.update(() => settings.reduceMotion = value),
           ),
-          _rowDivider,
+          const _RowDivider(),
           _SwitchRow(
             title: 'Compact feed',
             detail: 'Shorter posts, smaller pictures',
@@ -943,7 +988,7 @@ class _DisplayCard extends StatelessWidget {
             onChanged: (value) =>
                 settings.update(() => settings.compactFeed = value),
           ),
-          _rowDivider,
+          const _RowDivider(),
           _FieldGrid(
             children: [
               _Field(

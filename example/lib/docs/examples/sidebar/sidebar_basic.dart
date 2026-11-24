@@ -13,7 +13,7 @@ class _SidebarBasicExampleState extends State<SidebarBasicExample> {
 
   SidebarMenuButton item(String label, IconData icon) {
     return SidebarMenuButton(
-      leading: Icon(icon),
+      leading: PhosphorIcon(icon),
       isActive: selected == label,
       tooltip: label,
       onPressed: () => setState(() => selected = label),
@@ -48,7 +48,7 @@ class _SidebarBasicExampleState extends State<SidebarBasicExample> {
                     color: theme.colorScheme.primary,
                     borderRadius: theme.radii.md,
                   ),
-                  child: Icon(
+                  child: PhosphorIcon(
                     PhosphorIconsRegular.stack,
                     size: 16,
                     color: theme.colorScheme.primaryForeground,
@@ -67,8 +67,8 @@ class _SidebarBasicExampleState extends State<SidebarBasicExample> {
               ],
             ),
             footer: SidebarMenuButton(
-              leading: const Icon(PhosphorIconsRegular.userCircle),
-              trailing: const Icon(PhosphorIconsRegular.caretUpDown),
+              leading: const PhosphorIcon(PhosphorIconsRegular.userCircle),
+              trailing: const PhosphorIcon(PhosphorIconsRegular.caretUpDown),
               tooltip: 'Account',
               onPressed: () {},
               child: const Text('Noor Haddad'),

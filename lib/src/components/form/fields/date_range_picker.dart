@@ -34,7 +34,8 @@ class DateRangePickerFormField extends FinesseFormField<DateTimeRange> {
     super.autovalidateMode,
     super.restorationId,
 
-    /// {@macro Popover.focusNode}
+    /// The focus node of the trigger button, unless [buttonFocusNode] is
+    /// given: what a failed validation focuses.
     super.focusNode,
     super.validator,
     super.initialValue,
@@ -439,7 +440,6 @@ class DateRangePickerFormField extends FinesseFormField<DateTimeRange> {
            return DatePicker.range(
              onRangeChanged: state.didChange,
              enabled: state.enabled,
-             focusNode: state.focusNode,
              leading: leading,
              trailing: trailing,
              decoration: state.decoration,
@@ -538,7 +538,7 @@ class DateRangePickerFormField extends FinesseFormField<DateTimeRange> {
              foregroundColor: foregroundColor,
              hoverForegroundColor: hoverForegroundColor,
              autofocus: autofocus,
-             buttonFocusNode: buttonFocusNode,
+             buttonFocusNode: buttonFocusNode ?? state.focusNode,
              pressedBackgroundColor: pressedBackgroundColor,
              pressedForegroundColor: pressedForegroundColor,
              buttonShadows: buttonShadows,

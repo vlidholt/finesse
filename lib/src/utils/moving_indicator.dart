@@ -1,4 +1,7 @@
+import 'dart:math' as math;
+
 import 'package:finesse/src/theme/motion.dart';
+import 'package:finesse/src/utils/shadow.dart';
 import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
@@ -380,13 +383,60 @@ class RenderMovingIndicator extends RenderProxyBox {
     );
     final canvas = context.canvas;
     if (opacity < 1) {
+      // A layer as large as what the decoration paints, not as large as
+      // the clip: without bounds, fading a pill a few dozen pixels wide in
+      // a bar that nothing clips takes an offscreen the size of the window.
+      final reach = _reach(decoration);
       canvas.saveLayer(
-        null,
+        reach == null
+            ? null
+            : (offset & rect.size).shift(rect.topLeft).inflate(reach),
         Paint()..color = Color.fromRGBO(0, 0, 0, opacity),
       );
     }
     painter.paint(canvas, offset + rect.topLeft, configuration);
     if (opacity < 1) canvas.restore();
+  }
+
+  /// How far beyond its box [decoration] paints — its shadows, and a pixel
+  /// for anti-aliasing — or null for a kind of decoration this cannot tell
+  /// about, whose layer is then left unbounded.
+  static double? _reach(Decoration decoration) {
+    double of(List<BoxShadow>? shadows) {
+      var reach = 1.0;
+      for (final shadow in shadows ?? const <BoxShadow>[]) {
+        reach = math.max(
+          reach,
+          shadow.offset.distance +
+              math.max(0, shadow.spreadRadius) +
+              shadow.blurSigma * 3 +
+              1,
+        );
+      }
+      return reach;
+    }
+
+    switch (decoration) {
+      case BoxDecoration(:final boxShadow, :final border):
+        // A border may be drawn outside the box.
+        return of(boxShadow) + _outset(border);
+      case ShapeDecoration(:final shadows):
+        return of(shadows);
+      case ShadowDecoration(:final shadows, decoration: final inner):
+        final within = _reach(inner);
+        return within == null ? null : math.max(of(shadows), within);
+      default:
+        return null;
+    }
+  }
+
+  static double _outset(BoxBorder? border) {
+    if (border is! Border) return border == null ? 0 : 1;
+    var outset = 0.0;
+    for (final side in [border.top, border.right, border.bottom, border.left]) {
+      outset = math.max(outset, side.strokeOutset);
+    }
+    return outset;
   }
 
   @override

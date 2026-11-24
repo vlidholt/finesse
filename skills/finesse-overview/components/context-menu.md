@@ -24,7 +24,7 @@ class ContextMenuBasicExample extends StatelessWidget {
         ContextMenuItem.inset(enabled: false, child: Text('Forward')),
         ContextMenuItem.inset(child: Text('Reload')),
         ContextMenuItem.inset(
-          trailing: Icon(PhosphorIconsRegular.caretRight),
+          trailing: PhosphorIcon(PhosphorIconsRegular.caretRight),
           items: [
             ContextMenuItem(child: Text('Save Page As...')),
             ContextMenuItem(child: Text('Create Shortcut...')),
@@ -35,7 +35,7 @@ class ContextMenuBasicExample extends StatelessWidget {
         ),
         divider,
         ContextMenuItem(
-          leading: Icon(PhosphorIconsRegular.check),
+          leading: PhosphorIcon(PhosphorIconsRegular.check),
           child: Text('Show Bookmarks Bar'),
         ),
         ContextMenuItem.inset(child: Text('Show Full URLs')),
@@ -72,16 +72,16 @@ class ContextMenuSubmenusExample extends StatelessWidget {
     const divider = Divider.horizontal(
       margin: EdgeInsets.symmetric(vertical: 4),
     );
-    const more = Icon(PhosphorIconsRegular.caretRight);
+    const more = PhosphorIcon(PhosphorIconsRegular.caretRight);
     return ContextMenuRegion(
       constraints: const BoxConstraints(minWidth: 220),
       items: const [
         ContextMenuItem(
-          leading: Icon(PhosphorIconsRegular.folderOpen),
+          leading: PhosphorIcon(PhosphorIconsRegular.folderOpen),
           child: Text('Open'),
         ),
         ContextMenuItem(
-          leading: Icon(PhosphorIconsRegular.appWindow),
+          leading: PhosphorIcon(PhosphorIconsRegular.appWindow),
           trailing: more,
           items: [
             ContextMenuItem(child: Text('Preview')),
@@ -93,7 +93,7 @@ class ContextMenuSubmenusExample extends StatelessWidget {
           child: Text('Open With'),
         ),
         ContextMenuItem(
-          leading: Icon(PhosphorIconsRegular.shareNetwork),
+          leading: PhosphorIcon(PhosphorIconsRegular.shareNetwork),
           trailing: more,
           items: [
             ContextMenuItem(child: Text('Email')),
@@ -112,7 +112,7 @@ class ContextMenuSubmenusExample extends StatelessWidget {
           child: Text('Share'),
         ),
         ContextMenuItem(
-          leading: Icon(PhosphorIconsRegular.folderSimplePlus),
+          leading: PhosphorIcon(PhosphorIconsRegular.folderSimplePlus),
           trailing: more,
           items: [
             ContextMenuItem(child: Text('Desktop')),
@@ -131,7 +131,7 @@ class ContextMenuSubmenusExample extends StatelessWidget {
           child: Text('Move To'),
         ),
         ContextMenuItem(
-          leading: Icon(PhosphorIconsRegular.tag),
+          leading: PhosphorIcon(PhosphorIconsRegular.tag),
           trailing: more,
           items: [
             ContextMenuItem(child: Text('Red')),
@@ -144,7 +144,7 @@ class ContextMenuSubmenusExample extends StatelessWidget {
           child: Text('Tags'),
         ),
         ContextMenuItem(
-          leading: Icon(PhosphorIconsRegular.arrowsDownUp),
+          leading: PhosphorIcon(PhosphorIconsRegular.arrowsDownUp),
           trailing: more,
           items: [
             ContextMenuItem(child: Text('Name')),
@@ -155,7 +155,7 @@ class ContextMenuSubmenusExample extends StatelessWidget {
           child: Text('Sort By'),
         ),
         ContextMenuItem(
-          leading: Icon(PhosphorIconsRegular.squaresFour),
+          leading: PhosphorIcon(PhosphorIconsRegular.squaresFour),
           trailing: more,
           items: [
             ContextMenuItem(child: Text('Icons')),
@@ -166,7 +166,7 @@ class ContextMenuSubmenusExample extends StatelessWidget {
           child: Text('View As'),
         ),
         ContextMenuItem(
-          leading: Icon(PhosphorIconsRegular.copy),
+          leading: PhosphorIcon(PhosphorIconsRegular.copy),
           trailing: more,
           items: [
             ContextMenuItem(child: Text('Duplicate')),
@@ -176,7 +176,7 @@ class ContextMenuSubmenusExample extends StatelessWidget {
           child: Text('Copy'),
         ),
         ContextMenuItem(
-          leading: Icon(PhosphorIconsRegular.lightning),
+          leading: PhosphorIcon(PhosphorIconsRegular.lightning),
           trailing: more,
           items: [
             ContextMenuItem(child: Text('Compress')),
@@ -188,7 +188,7 @@ class ContextMenuSubmenusExample extends StatelessWidget {
         ),
         divider,
         ContextMenuItem(
-          leading: Icon(PhosphorIconsRegular.trash),
+          leading: PhosphorIcon(PhosphorIconsRegular.trash),
           destructive: true,
           child: Text('Move to Trash'),
         ),

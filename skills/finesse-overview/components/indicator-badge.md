@@ -32,28 +32,28 @@ class IndicatorBadgeCountExample extends StatelessWidget {
             count: 3,
             ringColor: ring,
             semanticLabel: '3 unread messages',
-            child: const Icon(PhosphorIconsRegular.chatCircleDots),
+            child: const PhosphorIcon(PhosphorIconsRegular.chatCircleDots),
           ),
           IndicatorBadge(
             count: 128,
             ringColor: ring,
-            child: const Icon(PhosphorIconsRegular.bell),
+            child: const PhosphorIcon(PhosphorIconsRegular.bell),
           ),
           IndicatorBadge(
             count: 12,
             maxCount: 9,
             ringColor: ring,
-            child: const Icon(PhosphorIconsRegular.envelopeSimple),
+            child: const PhosphorIcon(PhosphorIconsRegular.envelopeSimple),
           ),
           IndicatorBadge(
             ringColor: ring,
-            child: const Icon(PhosphorIconsRegular.usersThree),
+            child: const PhosphorIcon(PhosphorIconsRegular.usersThree),
           ),
           // A count of zero hides the badge unless `showZero` is set.
           IndicatorBadge(
             count: 0,
             ringColor: ring,
-            child: const Icon(PhosphorIconsRegular.briefcase),
+            child: const PhosphorIcon(PhosphorIconsRegular.briefcase),
           ),
         ],
       ),
@@ -143,13 +143,13 @@ class IndicatorBadgeStandaloneExample extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(PhosphorIconsRegular.tray),
+              leading: const PhosphorIcon(PhosphorIconsRegular.tray),
               title: const Text('Inbox'),
               trailing: const IndicatorBadge(count: 24),
               onTap: () {},
             ),
             ListTile(
-              leading: const Icon(PhosphorIconsRegular.userPlus),
+              leading: const PhosphorIcon(PhosphorIconsRegular.userPlus),
               title: const Text('Invitations'),
               trailing: IndicatorBadge(
                 count: 2,
@@ -159,7 +159,7 @@ class IndicatorBadgeStandaloneExample extends StatelessWidget {
               onTap: () {},
             ),
             ListTile(
-              leading: const Icon(PhosphorIconsRegular.calendarBlank),
+              leading: const PhosphorIcon(PhosphorIconsRegular.calendarBlank),
               title: const Text('Events'),
               trailing: IndicatorBadge(
                 label: const Text('New'),

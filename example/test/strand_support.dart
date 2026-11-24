@@ -4,7 +4,9 @@ import 'package:disco/disco.dart';
 import 'package:example/common/app_state.dart';
 import 'package:example/strand/navigation.dart';
 import 'package:example/strand/session.dart';
+import 'package:example/strand/widgets/messages_assistant.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -63,7 +65,8 @@ Future<void> dismissToasts(WidgetTester tester) async {
 
 /// Pumps [screen] on its own — below the app's providers and inside a
 /// `Scaffold`, but not inside the Strand shell — in a window of [size]
-/// logical pixels.
+/// logical pixels, under [theme] or, without one, the package's default
+/// theme in [strandTestFont].
 Future<void> pumpStrandScreen(
   WidgetTester tester,
   Widget screen, {
@@ -71,6 +74,7 @@ Future<void> pumpStrandScreen(
   Brightness brightness = Brightness.light,
   double textScale = 1,
   bool appBar = true,
+  ThemeData? theme,
 }) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
@@ -85,10 +89,12 @@ Future<void> pumpStrandScreen(
         strandSessionProvider,
       ],
       child: FinesseApp(
-        theme: ThemeData(
-          brightness: brightness,
-          textTheme: TextTheme(family: strandTestFont),
-        ),
+        theme:
+            theme ??
+            ThemeData(
+              brightness: brightness,
+              textTheme: TextTheme(family: strandTestFont),
+            ),
         builder: (context, child) => MediaQuery(
           data: MediaQuery.of(context).copyWith(
             textScaler: TextScaler.linear(textScale),
@@ -100,6 +106,41 @@ Future<void> pumpStrandScreen(
     ),
   );
   await settleFrames(tester, frames: 4);
+}
+
+/// Provides a [StrandSession] of this widget's own to [child], for a test
+/// that pumps a screen without the app and needs to decide how the session
+/// is made — who answers a message, and when.
+///
+/// The session lives and dies with this widget: the scope below disposes
+/// of it as it would of one it had made itself (an override is disposed by
+/// its provider's own `dispose`), so its timers are cancelled when the
+/// test's tree is taken down, not after.
+class StrandSessionHost extends StatefulWidget {
+  const StrandSessionHost({
+    required this.child,
+    this.replies = const MessagesReplies.none(),
+    super.key,
+  });
+
+  /// How the other side of every conversation answers. Nobody does, unless
+  /// a test says otherwise.
+  final MessagesReplies replies;
+
+  final Widget child;
+
+  @override
+  State<StrandSessionHost> createState() => _StrandSessionHostState();
+}
+
+class _StrandSessionHostState extends State<StrandSessionHost> {
+  late final _session = StrandSession(replies: widget.replies);
+
+  @override
+  Widget build(BuildContext context) => ProviderScopeOverride(
+    overrides: [strandSessionProvider.overrideWithValue(_session)],
+    child: widget.child,
+  );
 }
 
 /// A context below the providers and the theme.
@@ -129,4 +170,31 @@ Future<void> scrollThrough(WidgetTester tester) async {
   await settleFrames(tester, frames: 4);
   await tester.drag(scrollable, const Offset(0, 4000));
   await settleFrames(tester, frames: 4);
+}
+
+/// What a screen reader stops on whose name includes [text]: the semantic
+/// nodes that are not merged into another, with the label the merge gives
+/// them.
+///
+/// A control named by a visible label must come out of this once. Twice
+/// means the label is in the tree beside a control that repeats it. Call
+/// it with `tester.ensureSemantics()` in effect.
+List<SemanticsData> announced(WidgetTester tester, String text) {
+  final found = <SemanticsData>[];
+  void visit(SemanticsNode node) {
+    if (!node.isMergedIntoParent && !node.isInvisible) {
+      final data = node.getSemanticsData();
+      if (data.label.contains(text)) found.add(data);
+    }
+    node.visitChildren((child) {
+      visit(child);
+      return true;
+    });
+  }
+
+  for (final view in tester.binding.renderViews) {
+    final root = view.owner?.semanticsOwner?.rootSemanticsNode;
+    if (root != null) visit(root);
+  }
+  return found;
 }

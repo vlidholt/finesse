@@ -22,7 +22,6 @@ class TimePickerFormField extends FinesseFormField<TimeOfDay> {
     super.autovalidateMode,
     super.restorationId,
     super.validator,
-    super.focusNode,
 
     /// {@macro TimePicker.onChanged}
     super.onChanged,

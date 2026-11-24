@@ -2,13 +2,13 @@ import 'dart:math' as math;
 
 import 'package:example/strand/data/jobs_data.dart';
 import 'package:example/strand/navigation.dart';
+import 'package:example/strand/session.dart';
 import 'package:example/strand/widgets/jobs_board.dart';
 import 'package:example/strand/widgets/jobs_board_controller.dart';
 import 'package:example/strand/widgets/jobs_board_view.dart';
 import 'package:example/strand/widgets/jobs_detail.dart';
 import 'package:example/strand/widgets/jobs_detail_page.dart';
 import 'package:example/strand/widgets/jobs_header.dart';
-import 'package:example/strand/widgets/jobs_metrics.dart';
 import 'package:example/strand/widgets/jobs_results.dart';
 import 'package:example/strand/widgets/jobs_search_card.dart';
 import 'package:example/strand/widgets/jobs_state.dart';
@@ -45,8 +45,10 @@ class JobsScreen extends StatefulWidget {
 }
 
 class _JobsScreenState extends State<JobsScreen> {
-  final _state = JobsState();
-  final _applications = ApplicationsController();
+  // Both sides' state is the session's: the "Saved items" sheet counts the
+  // board's saved jobs too, and the detail page is a pushed route.
+  JobsState get _state => context.strand.jobs;
+  ApplicationsController get _applications => context.strand.applications;
 
   // The side showing when the screen is built on its own, outside the
   // app's providers, as its tests do.
@@ -60,29 +62,7 @@ class _JobsScreenState extends State<JobsScreen> {
   Signal<JobsView> get _view => jobsViewProvider.maybeOf(context) ?? _ownView;
 
   @override
-  void initState() {
-    super.initState();
-    _state.addListener(_trackListings);
-  }
-
-  /// A listing saved or applied to on the "Find jobs" side is a card on
-  /// the board.
-  void _trackListings() {
-    for (final job in JobsData.jobs) {
-      _applications.track(
-        job,
-        saved: _state.isSaved(job),
-        applied: _state.hasApplied(job),
-      );
-    }
-  }
-
-  @override
   void dispose() {
-    _state
-      ..removeListener(_trackListings)
-      ..dispose();
-    _applications.dispose();
     _ownView.dispose();
     _titleController.dispose();
     _locationController.dispose();
@@ -157,7 +137,7 @@ class _JobsScreenState extends State<JobsScreen> {
               child: JobsResults(state: _state, onOpen: _openDetailPage),
             )
           else ...[
-            JobsStats(state: _state),
+            JobsStats(applications: _applications),
             Padding(
               padding: EdgeInsets.only(top: layout.gap(GapSize.xs)),
               child: _buildColumns(),
@@ -168,15 +148,8 @@ class _JobsScreenState extends State<JobsScreen> {
     );
   }
 
-  /// The designs start the page a touch lower than the page margin: 28
-  /// under the app bar on a desktop, 17 on a phone.
-  EdgeInsetsGeometry _pagePadding(BuildContext context) {
-    final theme = Theme.of(context);
-    final mobile = theme.formFactor == FormFactor.mobile;
-    return (theme.layoutTheme.pagePadding ?? EdgeInsets.zero).add(
-      EdgeInsets.only(top: mobile ? 1 : 4),
-    );
-  }
+  EdgeInsetsGeometry _pagePadding(BuildContext context) =>
+      Theme.of(context).layoutTheme.pagePadding ?? EdgeInsets.zero;
 
   /// The board. It does not scroll as a page: the title and the switch stay
   /// put and the board takes the rest of the window, each column scrolling
@@ -249,16 +222,17 @@ class _JobsScreenState extends State<JobsScreen> {
   Widget _buildColumns() {
     return LayoutBuilder(
       builder: (context, constraints) {
+        final theme = Theme.of(context);
+        final columnGap = theme.layoutTheme.gap(GapSize.xl);
         final spare =
-            constraints.maxWidth - jobsWideGap - JobsScreen._detailMinWidth;
+            constraints.maxWidth - columnGap - JobsScreen._detailMinWidth;
         if (spare < JobsScreen._listMinWidth) {
           return JobsResults(state: _state, onOpen: _openDetailPage);
         }
 
-        final theme = Theme.of(context);
         return Row(
           crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: jobsWideGap,
+          spacing: columnGap,
           children: [
             SizedBox(
               width: spare.clamp(
@@ -271,9 +245,9 @@ class _JobsScreenState extends State<JobsScreen> {
             Expanded(
               child: Card(
                 radius: theme.radii.xl3,
-                // 28: roomier than the theme's card inset, for a pane that
-                // is read rather than scanned.
-                padding: const EdgeInsets.all(28),
+                // Roomier than the theme's card inset, for a pane that is
+                // read rather than scanned.
+                padding: EdgeInsets.all(columnGap),
                 child: JobDetail(
                   job: _state.selected,
                   state: _state,

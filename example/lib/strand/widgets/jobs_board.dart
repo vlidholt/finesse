@@ -1,6 +1,7 @@
 import 'package:example/strand/data/applications_data.dart';
 import 'package:example/strand/widgets/jobs_board_card.dart';
 import 'package:example/strand/widgets/jobs_board_controller.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -40,9 +41,9 @@ class JobsBoard extends StatelessWidget {
               id: stage,
               label: stage.label,
               items: applications.at(stage),
-              leading: Icon(
+              leading: PhosphorIcon(
                 stage.icon,
-                size: 16,
+                size: Theme.of(context).glyph,
                 color: Theme.of(context).colorScheme.mutedForeground,
               ),
               trailing: _StageMenu(stage: stage, applications: applications),
@@ -53,7 +54,7 @@ class JobsBoard extends StatelessWidget {
                       // way when a wide font or a large text size needs
                       // more than the column has.
                       expands: true,
-                      leading: Icon(
+                      leading: PhosphorIcon(
                         applications.hasSuggestions
                             ? PhosphorIconsRegular.plus
                             : PhosphorIconsRegular.magnifyingGlass,
@@ -96,13 +97,15 @@ class _StageMenu extends StatelessWidget {
       constraints: const BoxConstraints(minWidth: 208),
       items: [
         ContextMenuItem(
-          leading: const Icon(PhosphorIconsRegular.clockCounterClockwise),
+          leading: const PhosphorIcon(
+            PhosphorIconsRegular.clockCounterClockwise,
+          ),
           enabled: !empty,
           onPressed: () => applications.sort(stage, ApplicationSort.updated),
           child: const Text('Sort by last updated'),
         ),
         ContextMenuItem(
-          leading: const Icon(PhosphorIconsRegular.sortAscending),
+          leading: const PhosphorIcon(PhosphorIconsRegular.sortAscending),
           enabled: !empty,
           onPressed: () => applications.sort(stage, ApplicationSort.company),
           child: const Text('Sort by company'),
@@ -110,7 +113,7 @@ class _StageMenu extends StatelessWidget {
         const Divider.horizontal(margin: EdgeInsets.symmetric(vertical: 4)),
         if (stage == ApplicationStage.archived)
           ContextMenuItem(
-            leading: const Icon(PhosphorIconsRegular.trash),
+            leading: const PhosphorIcon(PhosphorIconsRegular.trash),
             enabled: !empty,
             destructive: true,
             onPressed: applications.clearArchive,
@@ -118,17 +121,15 @@ class _StageMenu extends StatelessWidget {
           )
         else
           ContextMenuItem(
-            leading: const Icon(PhosphorIconsRegular.archive),
+            leading: const PhosphorIcon(PhosphorIconsRegular.archive),
             enabled: !empty,
             onPressed: () => applications.archiveAll(stage),
             child: const Text('Archive all'),
           ),
       ],
       builder: (context, controller, _) => IconButton.ghost(
-        width: 32,
-        height: 32,
-        iconSize: 18,
-        icon: const Icon(PhosphorIconsRegular.dotsThree),
+        size: ButtonSize.sm,
+        icon: const PhosphorIcon(PhosphorIconsRegular.dotsThree),
         semanticLabel: '${stage.label} options',
         onPressed: controller.toggle,
       ),

@@ -94,6 +94,22 @@ class _BoardColumnState<T extends Object> extends State<_BoardColumnView<T>> {
 
   ScrollPosition? get _position => _scroll.hasClients ? _scroll.position : null;
 
+  /// Where the tops of this column's mounted slots are, in global
+  /// coordinates.
+  ///
+  /// Each slot is measured in the list, a few render objects up, and the
+  /// list once in the window: asking every slot for its own global position
+  /// walks the whole tree for each, on every pointer event.
+  double Function(_RenderBoardSlot box)? get _slotTops {
+    final list = _listBox;
+    if (list == null) return null;
+    final toGlobal = list.getTransformTo(null);
+    return (box) => MatrixUtils.transformPoint(
+      toGlobal,
+      box.localToGlobal(Offset.zero, ancestor: list),
+    ).dy;
+  }
+
   /// The index a dragged item whose centre is at [centerY] would take here:
   /// an index into this column's items without the dragged one.
   ///
@@ -105,7 +121,9 @@ class _BoardColumnState<T extends Object> extends State<_BoardColumnView<T>> {
     final source = _board._locations[drag.id];
     final own = source != null && source.column == widget.index;
     final list = _listRect;
-    final y = list == null ? centerY : centerY.clamp(list.top, list.bottom);
+    final topOf = _slotTops;
+    if (list == null || topOf == null) return 0;
+    final y = centerY.clamp(list.top, list.bottom);
     final gap = _board._style.itemGap;
 
     int? first;
@@ -117,7 +135,7 @@ class _BoardColumnState<T extends Object> extends State<_BoardColumnView<T>> {
       final after = own && slot.widget.index > source.index;
       final reduced = after ? slot.widget.index - 1 : slot.widget.index;
       if (first == null || reduced < first) first = reduced;
-      final top = box.localToGlobal(Offset.zero).dy - (after ? drag.extent : 0);
+      final top = topOf(box) - (after ? drag.extent : 0);
       final card = box.size.height - gap;
       if (top + (card + drag.extent) / 2 < y) above++;
     }
@@ -128,7 +146,8 @@ class _BoardColumnState<T extends Object> extends State<_BoardColumnView<T>> {
   /// global coordinates, or null when that place is out of view.
   Rect? _slotRect(int index, _Drag<T> drag) {
     final list = _listRect;
-    if (list == null) return null;
+    final topOf = _slotTops;
+    if (list == null || topOf == null) return null;
     final style = _board._style;
     final padding = style.columnPadding;
     final left = list.left + padding.left;
@@ -147,28 +166,25 @@ class _BoardColumnState<T extends Object> extends State<_BoardColumnView<T>> {
     }
     for (final slot in _mounted) {
       if (slot.widget.id == drag.id) continue;
-      final box = slot._box;
-      if (box == null) continue;
       final after = own && slot.widget.index > source.index;
       final reduced = after ? slot.widget.index - 1 : slot.widget.index;
-      final top = box.localToGlobal(Offset.zero).dy - (after ? drag.extent : 0);
-      if (reduced == index) {
-        return Rect.fromLTWH(left, top, width, drag.size.height);
-      }
-      if (reduced == index - 1 && index == count) {
-        return Rect.fromLTWH(
-          left,
-          top + box.size.height,
-          width,
-          drag.size.height,
-        );
-      }
+      final last = reduced == index - 1 && index == count;
+      if (reduced != index && !last) continue;
+      final box = slot._box;
+      if (box == null) continue;
+      final top = topOf(box) - (after ? drag.extent : 0);
+      return Rect.fromLTWH(
+        left,
+        last ? top + box.size.height : top,
+        width,
+        drag.size.height,
+      );
     }
     return null;
   }
 
   void _setSlot(Rect? global, {required bool restart}) {
-    final list = _listRect;
+    final list = global == null ? null : _listRect;
     final local = global == null || list == null
         ? null
         : global.shift(-list.topLeft);
@@ -487,9 +503,12 @@ class _SlotPainter extends CustomPainter {
       radius != oldDelegate.radius;
 }
 
-/// One item in its column: the builder's widget plus everything the board
-/// hangs on it — the translation that makes way for a dragged item, the
-/// gesture that picks it up, keyboard focus and the semantics actions.
+/// One place in a column: the translation that makes way for a dragged
+/// item, and the item that is there.
+///
+/// The item itself — the builder's widget, its focus and its gestures — is
+/// a [_BoardItem] under a key the board owns, so it moves with its state
+/// from one slot to another when the item changes column.
 class _BoardSlot<T extends Object> extends StatefulWidget {
   const _BoardSlot({
     required this.board,
@@ -514,11 +533,6 @@ class _BoardSlot<T extends Object> extends StatefulWidget {
 
 class _BoardSlotState<T extends Object> extends State<_BoardSlot<T>>
     with AutomaticKeepAliveClientMixin {
-  final FocusNode _focusNode = FocusNode(debugLabel: 'Board item');
-  // Keeps the item's state when the focus ring comes and goes around it.
-  final GlobalKey _contentKey = GlobalKey();
-  bool _showFocus = false;
-
   _BoardState<T> get _board => widget.board;
 
   // Handed over by the render object widget rather than looked up: the
@@ -549,23 +563,33 @@ class _BoardSlotState<T extends Object> extends State<_BoardSlot<T>>
   /// item's own state.
   @override
   bool get wantKeepAlive =>
-      _focusNode.hasFocus ||
+      _board._hasFocus(widget.id) ||
       _board._isHidden(widget.id) ||
       _board._drag?.id == widget.id;
+
+  // Whether the slot was created in this frame wanting to be kept alive.
+  // The list is told of that after the frame — the slot has no child yet to
+  // carry the answer — and may not be told the opposite in the meantime:
+  // `AutomaticKeepAlive` asserts. So until then the wish stands, and is
+  // looked at again when the frame is over.
+  bool _wishPending = false;
 
   @override
   void initState() {
     super.initState();
     widget.columnState._mounted.add(this);
     _board._slotMounted(this);
-    _focusNode.addListener(_focusChanged);
+    if (wantKeepAlive) {
+      _wishPending = true;
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        _wishPending = false;
+        if (mounted) updateKeepAlive();
+      });
+    }
   }
 
-  void _keepAliveChanged() => updateKeepAlive();
-
-  void _focusChanged() {
-    if (!_focusNode.hasFocus) _board._itemBlurred(widget.id);
-    updateKeepAlive();
+  void _keepAliveChanged() {
+    if (!_wishPending) updateKeepAlive();
   }
 
   @override
@@ -585,8 +609,110 @@ class _BoardSlotState<T extends Object> extends State<_BoardSlot<T>>
   void dispose() {
     widget.columnState._mounted.remove(this);
     _board._slotUnmounted(this, widget.id);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    final board = _board;
+    return _SlotShift(
+      owner: this,
+      host: board,
+      id: widget.id,
+      columnId: widget.column.id,
+      child: Padding(
+        padding: EdgeInsets.only(bottom: board._style.itemGap),
+        child: RepaintBoundary(
+          child: _BoardItem<T>(
+            key: board._itemKey(widget.id),
+            board: board,
+            column: widget.column,
+            index: widget.index,
+            item: widget.item,
+            id: widget.id,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// One item: the builder's widget plus everything the board hangs on it —
+/// the gesture that picks it up, keyboard focus and the semantics actions.
+///
+/// It is built under a `GlobalKey` per item id (`_BoardState._itemKey`), so
+/// when the lists put the item in another column its element is moved into
+/// the new slot instead of being built again: the item keeps its state and
+/// its keyboard focus.
+class _BoardItem<T extends Object> extends StatefulWidget {
+  const _BoardItem({
+    required this.board,
+    required this.column,
+    required this.index,
+    required this.item,
+    required this.id,
+    super.key,
+  });
+
+  final _BoardState<T> board;
+  final BoardColumn<T> column;
+  final int index;
+  final T item;
+  final Object id;
+
+  @override
+  State<_BoardItem<T>> createState() => _BoardItemState<T>();
+}
+
+class _BoardItemState<T extends Object> extends State<_BoardItem<T>> {
+  final FocusNode _focusNode = FocusNode(debugLabel: 'Board item');
+  bool _showFocus = false;
+  bool _traversable = true;
+
+  _BoardState<T> get _board => widget.board;
+
+  @override
+  void initState() {
+    super.initState();
+    _board._itemMounted(this);
+    _traversable = _wantsTraversal;
+    _focusNode.addListener(_focusChanged);
+  }
+
+  @override
+  void didUpdateWidget(_BoardItem<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.id != widget.id) {
+      _board._itemUnmounted(this, oldWidget.id);
+      _board._itemMounted(this);
+    }
+    _traversable = _wantsTraversal;
+  }
+
+  @override
+  void dispose() {
+    _board._itemUnmounted(this, widget.id);
     _focusNode.dispose();
     super.dispose();
+  }
+
+  /// An item whose copy is in the air is not a Tab stop, and neither is
+  /// anything inside it: its slot paints nothing, and a lazy list may be
+  /// keeping it alive off screen, where it has no position for the focus
+  /// traversal to scroll to. The item that has the focus keeps it.
+  bool get _wantsTraversal =>
+      !_board._isHidden(widget.id) || _focusNode.hasFocus;
+
+  /// Called when the item's lifted copy comes or goes.
+  void _hiddenChanged() {
+    final traversable = _wantsTraversal;
+    if (traversable != _traversable) setState(() => _traversable = traversable);
+  }
+
+  void _focusChanged() {
+    _board._itemFocusChanged(widget.id, focused: _focusNode.hasFocus);
+    if (mounted) _hiddenChanged();
   }
 
   KeyEventResult _handleKey(FocusNode node, KeyEvent event) =>
@@ -594,7 +720,6 @@ class _BoardSlotState<T extends Object> extends State<_BoardSlot<T>>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     final board = _board;
     final style = board._style;
     final config = board.widget;
@@ -603,6 +728,9 @@ class _BoardSlotState<T extends Object> extends State<_BoardSlot<T>>
     final strings = FinesseLocalizations.of(context).board;
     final draggable = config.enabled;
 
+    // Every wrapper below is there whether or not the board is enabled and
+    // whatever starts a drag: one that came and went would rebuild the item
+    // from scratch each time.
     Widget child = Theme(
       data: style.itemTheme,
       child: Builder(
@@ -614,24 +742,24 @@ class _BoardSlotState<T extends Object> extends State<_BoardSlot<T>>
       ),
     );
 
-    if (draggable && config.dragTrigger == BoardDragTrigger.item) {
-      child = Listener(
-        onPointerDown: (event) =>
-            board._itemPointerDown(event, id, immediate: false),
-        child: child,
-      );
-    }
+    child = Listener(
+      onPointerDown: draggable && config.dragTrigger == BoardDragTrigger.item
+          ? (event) => board._itemPointerDown(event, id, immediate: false)
+          : null,
+      child: child,
+    );
 
     child = FocusRing(
       visible: _showFocus,
       borderRadius: style.itemRadius,
-      child: KeyedSubtree(key: _contentKey, child: child),
+      child: child,
     );
 
     child = Focus(
       canRequestFocus: false,
       skipTraversal: true,
-      onKeyEvent: draggable ? _handleKey : null,
+      descendantsAreTraversable: _traversable,
+      onKeyEvent: _handleKey,
       child: FocusableActionDetector(
         focusNode: _focusNode,
         enabled: draggable,
@@ -665,23 +793,12 @@ class _BoardSlotState<T extends Object> extends State<_BoardSlot<T>>
       child: child,
     );
 
-    return _SlotShift(
-      owner: this,
-      host: board,
+    return _BoardItemScope(
       id: id,
-      columnId: column.id,
-      child: Padding(
-        padding: EdgeInsets.only(bottom: style.itemGap),
-        child: RepaintBoundary(
-          child: _BoardItemScope(
-            id: id,
-            enabled: draggable,
-            startHandleDrag: (event) =>
-                board._itemPointerDown(event, id, immediate: true),
-            child: child,
-          ),
-        ),
-      ),
+      enabled: draggable,
+      startHandleDrag: (event) =>
+          board._itemPointerDown(event, id, immediate: true),
+      child: child,
     );
   }
 }
@@ -761,6 +878,7 @@ class _RenderBoardSlot extends RenderProxyBox {
     _id = value;
     shift = host._shiftOf(value);
     hidden = host._isHidden(value);
+    markNeedsSemanticsUpdate();
   }
 
   double get shift => _shift;
@@ -769,8 +887,11 @@ class _RenderBoardSlot extends RenderProxyBox {
     if (value == _shift) return;
     _shift = value;
     markNeedsPaint();
-    markNeedsSemanticsUpdate();
   }
+
+  /// Called when the shift has come to rest. The semantics tree is told
+  /// where the item is then, once, rather than on every frame of the way.
+  void shiftSettled() => markNeedsSemanticsUpdate();
 
   bool get hidden => _hidden;
   bool _hidden;

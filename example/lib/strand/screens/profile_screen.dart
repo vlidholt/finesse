@@ -3,12 +3,12 @@ import 'package:example/strand/data/profile_data.dart';
 import 'package:example/strand/navigation.dart';
 import 'package:example/strand/screens/search_screen.dart';
 import 'package:example/strand/widgets/profile_about_cards.dart';
-import 'package:example/strand/widgets/profile_common.dart';
 import 'package:example/strand/widgets/profile_experience.dart';
 import 'package:example/strand/widgets/profile_header_card.dart';
 import 'package:example/strand/widgets/profile_mobile_header.dart';
 import 'package:example/strand/widgets/profile_rail.dart';
 import 'package:example/strand/widgets/profile_tab_content.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -168,7 +168,7 @@ class _MobileProfile extends StatelessWidget {
       for (final post in ProfileData.posts) ProfilePostCard(post),
     ],
     ProfileTab.about || ProfileTab.activity => [
-      const ProfileAboutText(ProfileData.aboutShort, lineHeight: 23),
+      const ProfileAboutText(ProfileData.aboutShort),
       ProfileSkills(
         ProfileData.skills.sublist(0, ProfileData.mobileSkillCount),
       ),
@@ -193,32 +193,34 @@ class _MobileProfile extends StatelessWidget {
     final bottomInset = MediaQuery.paddingOf(context).bottom;
 
     return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          ProfileMobileHeader(
-            onBack: () => context.goTo(StrandDestination.home),
-            onSearch: () =>
-                context.pushFullScreen<void>((context) => const SearchScreen()),
-          ),
-          const Gap.sm(),
-          TabBar(
-            selectedIndex: ProfileTab.mobile.indexOf(selected),
-            onSelected: (index) => onTabSelected(ProfileTab.mobile[index]),
-            // A size under the tab bar's own 15, as the phone design sets
-            // its four tabs.
-            labelStyle: theme.textTheme.large.copyWith(fontSize: 14),
-            tabs: [for (final tab in ProfileTab.mobile) Text(tab.label)],
-          ),
-          Padding(
-            padding: pagePadding.add(EdgeInsets.only(bottom: bottomInset)),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: profileSnugGap,
-              children: _sections(selected),
+      // Its own layer, as in a `PageContainer`: a scroll then moves the
+      // page instead of painting all of it again on every frame.
+      child: RepaintBoundary(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ProfileMobileHeader(
+              onBack: () => context.goTo(StrandDestination.home),
+              onSearch: () => context.pushFullScreen<void>(
+                (context) => const SearchScreen(),
+              ),
             ),
-          ),
-        ],
+            const Gap.sm(),
+            TabBar(
+              selectedIndex: ProfileTab.mobile.indexOf(selected),
+              onSelected: (index) => onTabSelected(ProfileTab.mobile[index]),
+              tabs: [for (final tab in ProfileTab.mobile) Text(tab.label)],
+            ),
+            Padding(
+              padding: pagePadding.add(EdgeInsets.only(bottom: bottomInset)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: theme.gap(GapSize.md),
+                children: _sections(selected),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

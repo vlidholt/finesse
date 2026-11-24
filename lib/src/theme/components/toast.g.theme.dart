@@ -27,6 +27,7 @@ mixin _$ToastTheme {
 
     return ToastTheme(
       backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
+      filter: t < 0.5 ? a.filter : b.filter,
       closeIconData: t < 0.5 ? a.closeIconData : b.closeIconData,
       alignment: Alignment.lerp(a.alignment, b.alignment, t),
       offset: Offset.lerp(a.offset, b.offset, t),
@@ -67,6 +68,7 @@ mixin _$ToastTheme {
 
   ToastTheme copyWith({
     Color? backgroundColor,
+    ImageFilter? filter,
     IconData? closeIconData,
     Alignment? alignment,
     Offset? offset,
@@ -93,6 +95,7 @@ mixin _$ToastTheme {
 
     return ToastTheme(
       backgroundColor: backgroundColor ?? _this.backgroundColor,
+      filter: filter ?? _this.filter,
       closeIconData: closeIconData ?? _this.closeIconData,
       alignment: alignment ?? _this.alignment,
       offset: offset ?? _this.offset,
@@ -131,6 +134,7 @@ mixin _$ToastTheme {
 
     return copyWith(
       backgroundColor: other.backgroundColor,
+      filter: other.filter,
       closeIconData: other.closeIconData,
       alignment: other.alignment,
       offset: other.offset,
@@ -171,6 +175,7 @@ mixin _$ToastTheme {
     final _other = (other as ToastTheme);
 
     return _other.backgroundColor == _this.backgroundColor &&
+        _other.filter == _this.filter &&
         _other.closeIconData == _this.closeIconData &&
         _other.alignment == _this.alignment &&
         _other.offset == _this.offset &&
@@ -202,6 +207,7 @@ mixin _$ToastTheme {
     return Object.hashAll([
       runtimeType,
       _this.backgroundColor,
+      _this.filter,
       _this.closeIconData,
       _this.alignment,
       _this.offset,

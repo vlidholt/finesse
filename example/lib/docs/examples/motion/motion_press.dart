@@ -43,7 +43,7 @@ class _MotionPressExampleState extends State<MotionPressExample> {
               mainAxisSize: MainAxisSize.min,
               spacing: 8,
               children: [
-                Icon(
+                PhosphorIcon(
                   PhosphorIconsFill.heart,
                   size: 18,
                   color: scheme.destructive,

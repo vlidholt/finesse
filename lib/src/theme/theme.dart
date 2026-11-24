@@ -1,3 +1,4 @@
+import 'package:finesse/src/icons/phosphor_font_anchor.dart';
 import 'package:finesse/src/theme/data.dart';
 import 'package:flutter/widgets.dart';
 
@@ -82,7 +83,9 @@ class Theme extends StatelessWidget {
   Widget build(BuildContext context) {
     return FinesseInheritedTheme(
       theme: this,
-      child: child,
+      // Every finesse app has a theme, which makes this the place to keep
+      // the icon fonts it does not use from being bundled whole.
+      child: PhosphorFontAnchor.all(child: child),
     );
   }
 }

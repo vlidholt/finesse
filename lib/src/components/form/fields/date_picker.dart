@@ -32,7 +32,8 @@ class DatePickerFormField extends FinesseFormField<DateTime> {
     super.autovalidateMode,
     super.restorationId,
 
-    /// {@macro Popover.focusNode}
+    /// The focus node of the trigger button, unless [buttonFocusNode] is
+    /// given: what a failed validation focuses.
     super.focusNode,
     super.validator,
     super.initialValue,
@@ -433,7 +434,6 @@ class DatePickerFormField extends FinesseFormField<DateTime> {
            return DatePicker(
              onChanged: state.didChange,
              enabled: state.enabled,
-             focusNode: state.focusNode,
              leading: leading,
              trailing: trailing,
              decoration: state.decoration,
@@ -530,7 +530,7 @@ class DatePickerFormField extends FinesseFormField<DateTime> {
              foregroundColor: foregroundColor,
              hoverForegroundColor: hoverForegroundColor,
              autofocus: autofocus,
-             buttonFocusNode: buttonFocusNode,
+             buttonFocusNode: buttonFocusNode ?? state.focusNode,
              pressedBackgroundColor: pressedBackgroundColor,
              pressedForegroundColor: pressedForegroundColor,
              buttonShadows: buttonShadows,

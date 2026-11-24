@@ -40,7 +40,7 @@ class _ChipFiltersExampleState extends State<ChipFiltersExample> {
         for (final MapEntry(key: label, value: icon) in _filters.entries)
           Chip(
             label: Text(label),
-            leading: Icon(icon),
+            leading: PhosphorIcon(icon),
             selected: selected.contains(label),
             onSelected: (value) => setState(
               () => value ? selected.add(label) : selected.remove(label),
@@ -92,7 +92,7 @@ class ChipVariantsExample extends StatelessWidget {
             Chip(label: Text('Copenhagen')),
             Chip(
               label: Text('Hybrid'),
-              leading: Icon(PhosphorIconsRegular.buildings),
+              leading: PhosphorIcon(PhosphorIconsRegular.buildings),
             ),
           ]),
           // Soft: read-only tags, such as a person's skills.
@@ -105,7 +105,7 @@ class ChipVariantsExample extends StatelessWidget {
           row('Dashed', [
             Chip(
               label: const Text('Add a skill'),
-              leading: const Icon(PhosphorIconsRegular.plus),
+              leading: const PhosphorIcon(PhosphorIconsRegular.plus),
               variant: ChipVariant.dashed,
               onPressed: () {},
             ),
@@ -154,14 +154,16 @@ class _ChipRemovableExampleState extends State<ChipRemovableExample> {
         for (final term in terms)
           Chip(
             label: Text(term),
-            trailing: const Icon(PhosphorIconsRegular.x),
+            trailing: const PhosphorIcon(PhosphorIconsRegular.x),
             semanticLabel: 'Remove $term',
             onPressed: () => setState(() => terms.remove(term)),
           ),
         if (terms.length < _all.length)
           Chip(
             label: const Text('Reset'),
-            leading: const Icon(PhosphorIconsRegular.arrowCounterClockwise),
+            leading: const PhosphorIcon(
+              PhosphorIconsRegular.arrowCounterClockwise,
+            ),
             variant: ChipVariant.dashed,
             onPressed: () => setState(
               () => terms

@@ -41,6 +41,8 @@ mixin _$BottomNavigationBarTheme {
       radius: BorderRadius.lerp(a.radius, b.radius, t),
       backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
       borderColor: Color.lerp(a.borderColor, b.borderColor, t),
+      rimColor: Color.lerp(a.rimColor, b.rimColor, t),
+      shadows: t < 0.5 ? a.shadows : b.shadows,
       blur: lerpDouble$(a.blur, b.blur, t),
       saturation: lerpDouble$(a.saturation, b.saturation, t),
       foregroundColor: Color.lerp(a.foregroundColor, b.foregroundColor, t),
@@ -79,6 +81,8 @@ mixin _$BottomNavigationBarTheme {
     BorderRadius? radius,
     Color? backgroundColor,
     Color? borderColor,
+    Color? rimColor,
+    List<BoxShadow>? shadows,
     double? blur,
     double? saturation,
     Color? foregroundColor,
@@ -101,6 +105,8 @@ mixin _$BottomNavigationBarTheme {
       radius: radius ?? _this.radius,
       backgroundColor: backgroundColor ?? _this.backgroundColor,
       borderColor: borderColor ?? _this.borderColor,
+      rimColor: rimColor ?? _this.rimColor,
+      shadows: shadows ?? _this.shadows,
       blur: blur ?? _this.blur,
       saturation: saturation ?? _this.saturation,
       foregroundColor: foregroundColor ?? _this.foregroundColor,
@@ -138,6 +144,8 @@ mixin _$BottomNavigationBarTheme {
       radius: other.radius,
       backgroundColor: other.backgroundColor,
       borderColor: other.borderColor,
+      rimColor: other.rimColor,
+      shadows: other.shadows,
       blur: other.blur,
       saturation: other.saturation,
       foregroundColor: other.foregroundColor,
@@ -172,6 +180,8 @@ mixin _$BottomNavigationBarTheme {
         _other.radius == _this.radius &&
         _other.backgroundColor == _this.backgroundColor &&
         _other.borderColor == _this.borderColor &&
+        _other.rimColor == _this.rimColor &&
+        _other.shadows == _this.shadows &&
         _other.blur == _this.blur &&
         _other.saturation == _this.saturation &&
         _other.foregroundColor == _this.foregroundColor &&
@@ -185,7 +195,7 @@ mixin _$BottomNavigationBarTheme {
   int get hashCode {
     final _this = (this as BottomNavigationBarTheme);
 
-    return Object.hash(
+    return Object.hashAll([
       runtimeType,
       _this.floating,
       _this.itemWidth,
@@ -198,6 +208,8 @@ mixin _$BottomNavigationBarTheme {
       _this.radius,
       _this.backgroundColor,
       _this.borderColor,
+      _this.rimColor,
+      _this.shadows,
       _this.blur,
       _this.saturation,
       _this.foregroundColor,
@@ -205,6 +217,6 @@ mixin _$BottomNavigationBarTheme {
       _this.selectedBackgroundColor,
       _this.actionBackgroundColor,
       _this.actionForegroundColor,
-    );
+    ]);
   }
 }

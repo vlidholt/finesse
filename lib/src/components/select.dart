@@ -11,13 +11,12 @@ import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/raw_components/focusable.dart';
 import 'package:finesse/src/raw_components/portal.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/arrow_key_focus.dart';
 import 'package:finesse/src/utils/debug_check.dart';
 import 'package:finesse/src/utils/dismiss_shortcut.dart';
 import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
-import 'package:finesse/src/utils/moving_indicator.dart';
 import 'package:finesse/src/utils/provider.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -1145,7 +1144,7 @@ class SelectState<T> extends State<Select<T>> {
     // `cn-select-trigger-icon`: `text-muted-foreground size-4`.
     final effectiveTrailing =
         widget.trailing ??
-        Icon(
+        PhosphorIcon(
           PhosphorIconsRegular.caretDown,
           size: 16,
           color: theme.colorScheme.mutedForeground,
@@ -1182,7 +1181,7 @@ class SelectState<T> extends State<Select<T>> {
                 focusNode: searchFocusNode,
                 leading: Padding(
                   padding: const EdgeInsets.only(right: 8),
-                  child: Icon(
+                  child: PhosphorIcon(
                     PhosphorIconsRegular.magnifyingGlass,
                     size: 16,
                     color: menuForeground,
@@ -1245,35 +1244,14 @@ class SelectState<T> extends State<Select<T>> {
             // passes. Calendar's year dropdown passes 201 options, each
             // building a DateFormat.
             Widget buildOptions() {
-              // The glide is only right when an option's highlighted text
-              // also reads on the bare list; see `ContextMenu`.
-              final optionTheme = theme.selectOptionTheme;
-              final highlightGlides =
-                  ((optionTheme.textStyle?.color ??
-                                  theme.colorScheme.popoverForeground)
-                              .computeLuminance() -
-                          (optionTheme.selectedTextStyle?.color ??
-                                  theme.colorScheme.accentForeground)
-                              .computeLuminance())
-                      .abs() <
-                  .4;
               if (widget.options != null) {
                 return SingleChildScrollView(
                   padding: effectiveOptionsPadding,
                   controller: scrollController,
-                  // The highlight is one shape that glides from option to
-                  // option with the pointer or the arrow keys. Inside the
-                  // scroll view, so it scrolls with its option. (A lazily
-                  // built list has no common parent to paint it from:
-                  // there each option paints its own.)
-                  child: MovingIndicator(
-                    spring: highlightGlides ? null : MotionSpring.instant,
-                    stretch: 0,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      mainAxisSize: MainAxisSize.min,
-                      children: widget.options!.toList(),
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisSize: MainAxisSize.min,
+                    children: widget.options!.toList(),
                   ),
                 );
               }
@@ -1359,7 +1337,7 @@ class SelectState<T> extends State<Select<T>> {
                                   padding: const EdgeInsets.symmetric(
                                     vertical: 4,
                                   ),
-                                  child: Icon(
+                                  child: PhosphorIcon(
                                     PhosphorIconsRegular.caretUp,
                                     size: 16,
                                     color: menuForeground,
@@ -1387,7 +1365,7 @@ class SelectState<T> extends State<Select<T>> {
                                   padding: const EdgeInsets.symmetric(
                                     vertical: 4,
                                   ),
-                                  child: Icon(
+                                  child: PhosphorIcon(
                                     PhosphorIconsRegular.caretDown,
                                     size: 16,
                                     color: menuForeground,
@@ -1461,7 +1439,10 @@ class SelectState<T> extends State<Select<T>> {
                       minWidth: calculatedMinWidth,
                       maxWidth: effectiveMaxWidth,
                     ),
-                    child: effectiveColumn,
+                    // The arrows walk the options wherever the app runs;
+                    // the web's default shortcuts would scroll the page
+                    // instead.
+                    child: ArrowKeyFocus(child: effectiveColumn),
                   );
                 },
                 child: select,
@@ -1634,7 +1615,7 @@ class _OptionState<T> extends State<SelectOption<T>> {
           widget.selectedIcon ??
           const Padding(
             padding: EdgeInsets.only(right: 8),
-            child: Icon(PhosphorIconsRegular.check, size: 16),
+            child: PhosphorIcon(PhosphorIconsRegular.check, size: 16),
           ),
     );
 
@@ -1656,10 +1637,10 @@ class _OptionState<T> extends State<SelectOption<T>> {
           child: ValueListenableBuilder(
             valueListenable: hovered,
             builder: (context, hovered, child) {
-              // The hover highlight is not this row's own fill: the list
-              // paints one and moves it between the options.
+              // The highlight is this row's own fill, there or not: it
+              // does not fade or travel between the options.
               final resolvedBackgroundColor = hovered
-                  ? null
+                  ? effectiveHoveredBackgroundColor
                   : selected
                   ? effectiveSelectedBackgroundColor
                   : effectiveBackgroundColor;
@@ -1673,33 +1654,26 @@ class _OptionState<T> extends State<SelectOption<T>> {
                   hovered ||
                   (selected && effectiveSelectedBackgroundColor != null);
 
-              return MovingIndicatorTarget(
-                selected: hovered,
+              return Container(
+                padding: effectivePadding,
                 decoration: BoxDecoration(
-                  color: effectiveHoveredBackgroundColor,
+                  color: resolvedBackgroundColor,
                   borderRadius: effectiveRadius,
                 ),
-                child: Container(
-                  padding: effectivePadding,
-                  decoration: BoxDecoration(
-                    color: resolvedBackgroundColor,
-                    borderRadius: effectiveRadius,
+                // The icon theme mirrors the text: the check indicator and
+                // any icons in the row follow the highlight's foreground
+                // while it is painted.
+                child: IconTheme.merge(
+                  data: IconThemeData(
+                    color: hovered
+                        ? effectiveSelectedHoveredIconColor
+                        : effectiveSelectedIconColor,
                   ),
-                  // The icon theme mirrors the text: the check indicator and
-                  // any icons in the row follow the highlight's foreground
-                  // while it is painted.
-                  child: IconTheme.merge(
-                    data: IconThemeData(
-                      color: hovered
-                          ? effectiveSelectedHoveredIconColor
-                          : effectiveSelectedIconColor,
-                    ),
-                    child: DefaultTextStyle(
-                      style: highlighted
-                          ? effectiveSelectedTextStyle
-                          : effectiveTextStyle,
-                      child: child!,
-                    ),
+                  child: DefaultTextStyle(
+                    style: highlighted
+                        ? effectiveSelectedTextStyle
+                        : effectiveTextStyle,
+                    child: child!,
                   ),
                 ),
               );

@@ -6,10 +6,13 @@ import 'package:example/strand/data/applications_data.dart';
 import 'package:example/strand/data/jobs_data.dart';
 import 'package:example/strand/navigation.dart';
 import 'package:example/strand/screens/jobs_screen.dart';
+import 'package:example/strand/session.dart';
 import 'package:example/strand/widgets/jobs_board.dart';
 import 'package:example/strand/widgets/jobs_board_card.dart';
+import 'package:example/strand/widgets/jobs_board_controller.dart';
 import 'package:example/strand/widgets/jobs_board_view.dart';
 import 'package:example/strand/widgets/jobs_job_card.dart';
+import 'package:example/strand/widgets/jobs_state.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
@@ -64,6 +67,7 @@ Future<void> _pumpJobs(
       providers: [
         ...appProviders,
         strandDestinationProvider,
+        strandSessionProvider,
         if (provideView) jobsViewProvider,
       ],
       child: FinesseApp(
@@ -498,6 +502,54 @@ void main() {
       expect(find.text(job.title), findsNothing);
     });
 
+    testWidgets('the Jobs tiles count the board\'s columns, whatever moved '
+        'the cards', (tester) async {
+      await _pumpJobs(tester);
+      String tile(String label) => tester
+          .widget<Text>(
+            find
+                .descendant(
+                  of: find.widgetWithText(StatTile, label),
+                  matching: find.byWidgetPredicate(
+                    (w) => w is Text && int.tryParse(w.data ?? '') != null,
+                  ),
+                )
+                .first,
+          )
+          .data!;
+      Future<void> expectTiles(String saved, String applied) async {
+        await tester.tap(find.text(ApplicationsData.findTab));
+        await _settle(tester, frames: 6);
+        expect(tile('Saved jobs'), saved);
+        expect(tile('Applications sent'), applied);
+        await tester.tap(find.text(ApplicationsData.boardTab));
+        await _settle(tester, frames: 6);
+        expect(_countOf(tester, ApplicationStage.saved), saved);
+        expect(_countOf(tester, ApplicationStage.applied), applied);
+      }
+
+      await expectTiles('6', '4');
+
+      // "Add from job alerts": a card the Find jobs side knows nothing of.
+      await tester.tap(find.text(ApplicationsData.addLabel));
+      await _settle(tester, frames: 6);
+      await expectTiles('7', '4');
+
+      // A drag from Saved to Applied.
+      await _dragCard(
+        tester,
+        'Staff product designer',
+        tester.getCenter(find.text('Senior designer, Platform').first),
+      );
+      await expectTiles('6', '5');
+
+      await _openMenu(tester, ApplicationStage.saved);
+      await tester.tap(find.text('Archive all'));
+      await _settle(tester);
+      await expectTiles('0', '5');
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('the board keeps its order while Find jobs is showing', (
       tester,
     ) async {
@@ -511,6 +563,152 @@ void main() {
       await tester.tap(find.text(ApplicationsData.boardTab));
       await _settle(tester, frames: 6);
       expect(_titlesIn(tester, ApplicationStage.saved), sorted);
+    });
+  });
+
+  // A listing's card follows what is done to *that listing*: saving it,
+  // un-saving it, applying to it. Anything else `JobsState` announces —
+  // another listing selected, a filter, the sort, the alerts — leaves the
+  // board as the user arranged it.
+  group('the board is not re-synced by unrelated changes', () {
+    test('a card cleared from the archive is not re-added', () {
+      final state = JobsState();
+      final board = ApplicationsController();
+      void trackListings() {
+        for (final job in JobsData.jobs) {
+          board.track(
+            job,
+            saved: state.isSaved(job),
+            applied: state.hasApplied(job),
+          );
+        }
+      }
+
+      state.addListener(trackListings);
+      final job = JobsData.jobs.first;
+      state.toggleSaved(job);
+      expect(board.stageOf(job.id), ApplicationStage.saved);
+      board
+        ..archiveAll(ApplicationStage.saved)
+        ..clearArchive();
+      expect(board.stageOf(job.id), isNull);
+
+      state
+        ..select(JobsData.jobs[1])
+        ..setSort(JobSort.salary)
+        ..toggleAlerts()
+        ..toggleFilter(JobsData.filters.first)
+        ..toggleSaved(JobsData.jobs[2]);
+      expect(board.stageOf(job.id), isNull);
+
+      // Saving it again is about this listing: the card is back.
+      state
+        ..toggleSaved(job)
+        ..toggleSaved(job);
+      expect(board.stageOf(job.id), ApplicationStage.saved);
+    });
+
+    test('a card moved back from Applied to Saved stays there', () {
+      final state = JobsState();
+      final board = ApplicationsController();
+      state.addListener(() {
+        for (final job in JobsData.jobs) {
+          board.track(
+            job,
+            saved: state.isSaved(job),
+            applied: state.hasApplied(job),
+          );
+        }
+      });
+      final job = JobsData.jobs.first;
+      state.apply(job);
+      expect(board.stageOf(job.id), ApplicationStage.applied);
+      board.move(
+        BoardMove<JobApplication>(
+          item: board.at(ApplicationStage.applied).first,
+          fromColumn: ApplicationStage.applied,
+          fromIndex: 0,
+          toColumn: ApplicationStage.saved,
+          toIndex: 0,
+        ),
+      );
+      expect(board.stageOf(job.id), ApplicationStage.saved);
+
+      state
+        ..select(JobsData.jobs[1])
+        ..toggleFollowing(job);
+      expect(board.stageOf(job.id), ApplicationStage.saved);
+    });
+
+    testWidgets('selecting another listing leaves a cleared card cleared', (
+      tester,
+    ) async {
+      // Wide enough for all five columns of the board.
+      await _pumpJobs(
+        tester,
+        size: const Size(2200, 1000),
+        view: JobsView.find,
+      );
+      final job = JobsData.jobs.first;
+      await tester.tap(
+        find
+            .descendant(
+              of: find.byKey(ValueKey(job.id)),
+              matching: find.bySemanticsLabel('Save job'),
+            )
+            .first,
+      );
+      await _settle(tester, frames: 4);
+      await tester.tap(find.text(ApplicationsData.boardTab));
+      await _settle(tester, frames: 8);
+      expect(_card(job.title), findsOneWidget);
+
+      await _openMenu(tester, ApplicationStage.saved);
+      await tester.tap(find.text('Archive all'));
+      await _settle(tester);
+      await _openMenu(tester, ApplicationStage.archived);
+      await tester.tap(find.text('Clear the archive'));
+      await _settle(tester);
+      expect(_card(job.title), findsNothing);
+
+      await tester.tap(find.text(ApplicationsData.findTab));
+      await _settle(tester, frames: 8);
+      await tester.tap(find.byKey(ValueKey(JobsData.jobs[1].id)));
+      await _settle(tester, frames: 4);
+      await tester.tap(find.text(ApplicationsData.boardTab));
+      await _settle(tester, frames: 8);
+
+      expect(tester.takeException(), isNull);
+      expect(_card(job.title), findsNothing);
+    });
+
+    testWidgets('selecting another listing leaves a card dragged back to '
+        'Saved where it is', (tester) async {
+      await _pumpJobs(tester, view: JobsView.find);
+      final job = JobsData.jobs.first;
+      // The first listing is selected: apply to it from the detail pane.
+      await tester.tap(find.text('Easy Apply').first);
+      await _settle(tester, frames: 4);
+      await tester.tap(find.text(ApplicationsData.boardTab));
+      await _settle(tester, frames: 8);
+      expect(_stageOf(tester, job.title), ApplicationStage.applied);
+
+      await _dragCard(
+        tester,
+        job.title,
+        tester.getCenter(find.text('Staff product designer').first),
+      );
+      expect(_stageOf(tester, job.title), ApplicationStage.saved);
+
+      await tester.tap(find.text(ApplicationsData.findTab));
+      await _settle(tester, frames: 8);
+      await tester.tap(find.byKey(ValueKey(JobsData.jobs[1].id)));
+      await _settle(tester, frames: 4);
+      await tester.tap(find.text(ApplicationsData.boardTab));
+      await _settle(tester, frames: 8);
+
+      expect(tester.takeException(), isNull);
+      expect(_stageOf(tester, job.title), ApplicationStage.saved);
     });
   });
 }

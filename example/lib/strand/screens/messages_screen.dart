@@ -2,10 +2,12 @@ import 'dart:math' as math;
 
 import 'package:example/strand/data/messages_data.dart';
 import 'package:example/strand/navigation.dart';
+import 'package:example/strand/session.dart';
 import 'package:example/strand/widgets/messages_controller.dart';
 import 'package:example/strand/widgets/messages_conversation.dart';
 import 'package:example/strand/widgets/messages_conversation_list.dart';
 import 'package:example/strand/widgets/messages_details_pane.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -18,6 +20,12 @@ import 'package:flutter/widgets.dart';
 ///
 /// On a phone the destination is the list alone, on the page itself, and a
 /// row opens the conversation as a page with its own header and composer.
+///
+/// The conversations are the session's (`context.strand.messages`): the
+/// shell's Messages badge counts the unread ones, and a reply keeps coming
+/// while another screen is showing. What this screen adds is knowing when a
+/// thread is actually on screen, which is what makes a reply read on
+/// arrival (`MessagesController.threadVisible`).
 class MessagesScreen extends StatefulWidget {
   const MessagesScreen({super.key});
 
@@ -39,26 +47,51 @@ class MessagesScreen extends StatefulWidget {
 }
 
 class _MessagesScreenState extends State<MessagesScreen> {
-  final _controller = MessagesController();
+  late final MessagesController _controller = context.strand.messages;
+
+  // Whether the conversation pane is beside the list, whether this screen
+  // is the destination showing, and how many conversation pages are open
+  // over it.
+  bool _paneShown = false;
+  bool _onStage = false;
+  int _pages = 0;
+
+  /// Tells the controller whether the open conversation can be seen.
+  void _reportThread() {
+    _controller.threadVisible = _pages > 0 || (_paneShown && _onStage);
+  }
 
   @override
   void dispose() {
-    _controller.dispose();
+    // The session outlives the screen; nothing of it is showing any more.
+    _controller.threadVisible = false;
     super.dispose();
   }
 
   void _openAsPage(Conversation conversation) {
     _controller.select(conversation);
-    context.pushFullScreen<void>(
-      (context) => MessagesConversationPage(
-        controller: _controller,
-        conversationId: conversation.id,
-      ),
-    );
+    _pages++;
+    _reportThread();
+    context
+        .pushFullScreen<void>(
+          (context) => MessagesConversationPage(
+            controller: _controller,
+            conversationId: conversation.id,
+          ),
+        )
+        .whenComplete(() {
+          _pages--;
+          if (mounted) _reportThread();
+        });
   }
 
   @override
   Widget build(BuildContext context) {
+    // The shell keeps a visited screen alive, and stops its tickers while
+    // another destination shows: that is how this one knows it is not the
+    // one being looked at.
+    _onStage = TickerMode.valuesOf(context).enabled;
+    _reportThread();
     return ListenableBuilder(
       listenable: _controller,
       builder: (context, _) => FormFactorBuilder(
@@ -70,6 +103,8 @@ class _MessagesScreenState extends State<MessagesScreen> {
 
   /// A phone: the list is the page.
   Widget _buildList(BuildContext context) {
+    _paneShown = false;
+    _reportThread();
     final theme = Theme.of(context);
     final layout = theme.layoutTheme;
     final margins = (layout.pagePadding ?? const EdgeInsets.all(16)).resolve(
@@ -86,7 +121,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
         scrollable: false,
         showSelection: false,
         surfaceColor: theme.colorScheme.background,
-        headerPadding: margins.copyWith(bottom: layout.gap(GapSize.md)),
+        headerPadding: margins.copyWith(bottom: theme.gap(GapSize.md)),
       ),
     );
   }
@@ -121,28 +156,28 @@ class _MessagesScreenState extends State<MessagesScreen> {
 
   Widget _buildPanes(BuildContext context, double width) {
     final theme = Theme.of(context);
-    final layout = theme.layoutTheme;
     final showConversation = width >= MessagesScreen.conversationBreakpoint;
     final canShowDetails = width >= MessagesScreen.detailsBreakpoint;
+    _paneShown = showConversation;
+    _reportThread();
 
     final list = MessagesConversationList(
       controller: _controller,
       onOpen: showConversation ? _controller.select : _openAsPage,
       showSelection: showConversation,
-      // 18 above the title is the design's; the rest is on the gap scale.
       headerPadding: EdgeInsets.fromLTRB(
-        layout.gap(GapSize.lg),
-        18,
-        layout.gap(GapSize.lg),
-        layout.gap(GapSize.md),
+        theme.gap(GapSize.lg),
+        theme.gap(GapSize.lg),
+        theme.gap(GapSize.lg),
+        theme.gap(GapSize.md),
       ),
     );
 
     return Card(
       padding: EdgeInsets.zero,
-      // Rounder than the theme's cards: the design gives this one 22, which
-      // falls between two steps of the radius scale.
-      radius: const BorderRadius.all(Radius.circular(22)),
+      // Rounder than the theme's cards, as the designs draw the one card
+      // that fills the page.
+      radius: theme.radii.xl2,
       child: SizedBox.expand(
         child: !showConversation
             ? list

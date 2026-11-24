@@ -21,7 +21,7 @@ class _TextFieldPasswordExampleState extends State<TextFieldPasswordExample> {
       child: TextField(
         placeholder: const Text('Password'),
         obscureText: obscure,
-        leading: Icon(
+        leading: PhosphorIcon(
           PhosphorIconsRegular.lock,
           size: 16,
           color: theme.colorScheme.mutedForeground,
@@ -30,7 +30,7 @@ class _TextFieldPasswordExampleState extends State<TextFieldPasswordExample> {
           cursor: SystemMouseCursors.click,
           behavior: HitTestBehavior.opaque,
           onTap: () => setState(() => obscure = !obscure),
-          child: Icon(
+          child: PhosphorIcon(
             obscure ? PhosphorIconsRegular.eyeSlash : PhosphorIconsRegular.eye,
             size: 16,
             color: theme.colorScheme.mutedForeground,

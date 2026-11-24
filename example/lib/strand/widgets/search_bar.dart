@@ -3,10 +3,10 @@ import 'package:example/strand/data/search_data.dart';
 import 'package:example/strand/navigation.dart';
 import 'package:example/strand/screens/search_screen.dart';
 import 'package:example/strand/session.dart';
-import 'package:example/strand/widgets/home_pieces.dart';
 import 'package:example/strand/widgets/search_field.dart';
 import 'package:example/strand/widgets/search_results.dart';
 import 'package:example/strand/widgets/strand_previews.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -43,13 +43,33 @@ SearchCallbacks searchCallbacksFor(
 }
 
 /// The desktop app bar's search: the [SearchField], with a panel under it
-/// while it has the focus.
+/// while the focus is in the field or in the panel.
 ///
 /// Before anything is typed the panel lists the recent and the trending
 /// searches. As the user types it shows the best few people, jobs, posts
 /// and companies, live. Return — or "See all results" — opens the full
-/// [SearchScreen] on the same query; ⌘K (Ctrl+K) puts the cursor in the
-/// field from anywhere.
+/// [SearchScreen] on the same query.
+///
+/// ## The panel follows the focus
+///
+/// The panel is not a route and has no barrier, so nothing but the focus
+/// says whether it is in use. It opens when the field gains the focus (and
+/// when the field is tapped or typed in with the focus already there), and
+/// closes when the focus leaves both the field and the panel — by Tab, by a
+/// click elsewhere, by a result opening a dialog — as well as on Escape and
+/// on a tap outside. Field and panel are one focus traversal group, so Tab
+/// and the down arrow go from the field into the results and Escape closes
+/// the panel from either; they are one tap-region group too, so a click on
+/// the panel's own surface neither closes it nor takes the focus from the
+/// field.
+///
+/// ## The shortcut
+///
+/// ⌘K on an Apple platform, Ctrl+K elsewhere ([SearchField.isSearchShortcut])
+/// puts the cursor in the field from anywhere in Strand. It is a
+/// `HardwareKeyboard` handler, which hears a key wherever the focus is —
+/// including inside a dialog — so it checks that nothing covers the bar
+/// (`isOnTopRoute`) before it acts.
 ///
 /// The panel is a `Portal` rather than a `Popover`: a popover takes the
 /// focus when it opens, and this one has to leave it in the field.
@@ -66,6 +86,13 @@ class StrandSearchBar extends StatefulWidget {
 class _StrandSearchBarState extends State<StrandSearchBar> {
   final _controller = TextEditingController();
   final _focusNode = FocusNode();
+
+  /// Above the field and the panel: has the focus while either does.
+  final _scopeNode = FocusNode(
+    debugLabel: 'StrandSearchBar',
+    canRequestFocus: false,
+    skipTraversal: true,
+  );
   final _group = Object();
   bool _open = false;
 
@@ -88,11 +115,12 @@ class _StrandSearchBarState extends State<StrandSearchBar> {
     HardwareKeyboard.instance.removeHandler(_onKey);
     _controller.dispose();
     _focusNode.dispose();
+    _scopeNode.dispose();
     super.dispose();
   }
 
   void _onFocusChanged() {
-    if (_focusNode.hasFocus && !_open) setState(() => _open = true);
+    if (_focusNode.hasFocus) _show();
   }
 
   void _onQueryChanged() {
@@ -103,15 +131,13 @@ class _StrandSearchBarState extends State<StrandSearchBar> {
     });
   }
 
-  /// ⌘K or Ctrl+K, wherever the focus is — as long as this bar is the page
-  /// on top, not one a full-screen route has covered.
+  /// The search shortcut, wherever the focus is — as long as the bar is
+  /// what the user is looking at.
   bool _onKey(KeyEvent event) {
-    if (event is! KeyDownEvent || event.logicalKey != LogicalKeyboardKey.keyK) {
-      return false;
-    }
-    final keyboard = HardwareKeyboard.instance;
-    if (!keyboard.isMetaPressed && !keyboard.isControlPressed) return false;
-    if (!mounted || !(ModalRoute.of(context)?.isCurrent ?? true)) return false;
+    if (!SearchField.isSearchShortcut(event)) return false;
+    // Not under a dialog, a sheet or a full-screen page: the focus belongs
+    // to whatever covers the bar, and the panel would open behind it.
+    if (!mounted || !context.isOnTopRoute) return false;
     // Strand stays alive behind the component library; the shortcut is
     // not its to take while it is not showing.
     if (appSectionProvider.of(context).untrackedValue != AppSection.strand) {
@@ -121,12 +147,45 @@ class _StrandSearchBarState extends State<StrandSearchBar> {
       _openEmptyPage();
     } else {
       _focusNode.requestFocus();
+      // The field may have the focus already, with the panel closed by a
+      // tap outside.
+      _show();
     }
     return true;
   }
 
+  void _show() {
+    if (!_open) setState(() => _open = true);
+  }
+
   void _close() {
     if (_open) setState(() => _open = false);
+  }
+
+  /// Escape: the panel goes and the field gives up the focus.
+  void _dismiss() {
+    FocusManager.instance.primaryFocus?.unfocus();
+    _close();
+  }
+
+  /// Moves the focus one stop along the field and the panel's controls, in
+  /// reading order, and stops at either end: the arrow keys never leave
+  /// the panel, which Tab does.
+  void _step(int by) {
+    final current = FocusManager.instance.primaryFocus;
+    if (current == null) return;
+    final stops = ReadingOrderTraversalPolicy()
+        .sortDescendants(_scopeNode.traversalDescendants, current)
+        .toList();
+    final next = stops.indexOf(current) + by;
+    if (stops.contains(current) && next >= 0 && next < stops.length) {
+      FocusTraversalPolicy.defaultTraversalRequestFocusCallback(
+        stops[next],
+        alignmentPolicy: by > 0
+            ? ScrollPositionAlignmentPolicy.keepVisibleAtEnd
+            : ScrollPositionAlignmentPolicy.keepVisibleAtStart,
+      );
+    }
   }
 
   /// Whether the bar had no room for the field at the last layout, and
@@ -140,7 +199,7 @@ class _StrandSearchBarState extends State<StrandSearchBar> {
   /// Closes the panel, drops the focus and remembers the query.
   void _leave() {
     context.strand.search.add(_controller.text);
-    _focusNode.unfocus();
+    FocusManager.instance.primaryFocus?.unfocus();
     _close();
   }
 
@@ -175,7 +234,7 @@ class _StrandSearchBarState extends State<StrandSearchBar> {
         return Align(
           alignment: AlignmentDirectional.centerStart,
           child: IconButton.ghost(
-            icon: const Icon(PhosphorIconsRegular.magnifyingGlass),
+            icon: const PhosphorIcon(PhosphorIconsRegular.magnifyingGlass),
             semanticLabel: 'Search',
             onPressed: _openEmptyPage,
           ),
@@ -193,33 +252,58 @@ class _StrandSearchBarState extends State<StrandSearchBar> {
     return TapRegion(
       groupId: _group,
       onTapOutside: (_) => _close(),
-      child: CallbackShortcuts(
-        // Bound only while the panel is open: an unconditional binding
-        // would swallow the Escape meant for whatever encloses the bar.
-        bindings: _open
-            ? {
-                const SingleActivator(LogicalKeyboardKey.escape): () {
-                  _focusNode.unfocus();
-                  _close();
-                },
-              }
-            : const {},
-        child: Portal(
-          visible: _open,
-          anchor: _anchor,
-          portalBuilder: (context) => TapRegion(
-            groupId: _group,
-            child: _Panel(
-              query: _controller.text,
-              onPick: _pick,
-              onSeeAll: _openPage,
-              callbacks: searchCallbacksFor(this.context, before: _leave),
+      // The field and the panel together: the overlay is a descendant of
+      // the `Portal` as far as the focus tree goes, so the panel's controls
+      // are the stops after the field, and [_scopeNode] has the focus while
+      // any of them does.
+      child: FocusTraversalGroup(
+        child: Focus(
+          focusNode: _scopeNode,
+          onFocusChange: (focused) {
+            if (!focused) _close();
+          },
+          // Escape closes the panel from the field or from a result, and
+          // is left alone — for whatever encloses the bar — while the panel
+          // is closed.
+          child: DismissShortcut(
+            isActive: () => _open,
+            onDismiss: _dismiss,
+            child: CallbackShortcuts(
+              // Bound only while the panel is open: closed, the arrows are
+              // the field's own.
+              bindings: _open
+                  ? {
+                      const SingleActivator(LogicalKeyboardKey.arrowDown): () =>
+                          _step(1),
+                      const SingleActivator(LogicalKeyboardKey.arrowUp): () =>
+                          _step(-1),
+                    }
+                  : const {},
+              child: Portal(
+                visible: _open,
+                anchor: _anchor,
+                portalBuilder: (context) => TapRegion(
+                  groupId: _group,
+                  child: _Panel(
+                    query: _controller.text,
+                    onPick: _pick,
+                    onSeeAll: _openPage,
+                    callbacks: searchCallbacksFor(this.context, before: _leave),
+                  ),
+                ),
+                child: SearchField(
+                  controller: _controller,
+                  focusNode: _focusNode,
+                  // The panel is in the field's tap-region group, so a click
+                  // on it leaves the focus in the field.
+                  groupId: _group,
+                  // Open on a focus *gain* is not enough: after a tap outside
+                  // on a touch screen the field still has the focus.
+                  onPressed: _show,
+                  onSubmitted: _openPage,
+                ),
+              ),
             ),
-          ),
-          child: SearchField(
-            controller: _controller,
-            focusNode: _focusNode,
-            onSubmitted: _openPage,
           ),
         ),
       ),
@@ -281,10 +365,10 @@ class _Panel extends StatelessWidget {
           const Divider.horizontal(margin: EdgeInsets.symmetric(vertical: 4)),
           Button.ghost(
             width: double.infinity,
-            gap: homeTightGap,
+            gap: theme.gap(GapSize.xs),
             textStyle: theme.textTheme.small,
             foregroundColor: theme.colorScheme.tint,
-            trailing: const Icon(PhosphorIconsRegular.arrowRight, size: 14),
+            trailing: const PhosphorIcon(PhosphorIconsRegular.arrowRight),
             onPressed: onSeeAll,
             child: Flexible(
               child: Text(
@@ -309,7 +393,7 @@ class _Panel extends StatelessWidget {
           decoration: (popover.decoration ?? const FinesseDecoration())
               .copyWith(shadows: popover.shadows),
           filter: popover.filter,
-          padding: const EdgeInsets.all(6),
+          padding: EdgeInsets.all(theme.gap(GapSize.xs)),
           child: ConstrainedBox(
             constraints: BoxConstraints(maxHeight: maxHeight),
             child: SingleChildScrollView(child: content),

@@ -1,3 +1,5 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:finesse/src/utils/border.dart';
 import 'package:finesse/src/utils/position.dart';
 import 'package:flutter/foundation.dart';
@@ -17,6 +19,7 @@ class ToastTheme with _$ToastTheme {
   const ToastTheme({
     bool canMerge = true,
     this.backgroundColor,
+    this.filter,
     this.closeIconData,
     this.alignment,
     this.offset,
@@ -48,6 +51,9 @@ class ToastTheme with _$ToastTheme {
 
   /// {@macro Toast.backgroundColor}
   final Color? backgroundColor;
+
+  /// {@macro Toast.filter}
+  final ImageFilter? filter;
 
   /// {@macro Toast.closeIconData}
   final IconData? closeIconData;

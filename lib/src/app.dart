@@ -4,6 +4,7 @@ import 'package:finesse/src/components/scroll_area.dart';
 import 'package:finesse/src/components/sonner.dart';
 import 'package:finesse/src/components/toast.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
+import 'package:finesse/src/theme/cross_fade_theme.dart';
 import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/motion.dart';
@@ -12,6 +13,7 @@ import 'package:finesse/src/theme/theme_scope.dart';
 import 'package:finesse/src/utils/entrance.dart';
 import 'package:finesse/src/utils/mouse_area.dart';
 import 'package:finesse/src/utils/mouse_cursor_provider.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_localizations/flutter_localizations.dart'
     show GlobalWidgetsLocalizations;
@@ -513,8 +515,8 @@ class FinesseApp extends StatefulWidget {
   ///    in a subtree.
   final ScrollBehavior scrollBehavior;
 
-  /// The curve used to animated from one [ThemeData] to another, defaults
-  /// to [Curves.linear].
+  /// The curve of the cross-fade from one [ThemeData] to another (see
+  /// [CrossFadeTheme]), defaults to [Curves.linear].
   final Curve themeCurve;
 
   /// A custom app widget builder.
@@ -556,7 +558,10 @@ class _AppState extends State<FinesseApp> {
       behavior: widget.scrollBehavior,
       child: HeroControllerScope(
         controller: heroController,
-        child: AnimatedTheme(
+        // Applied at once, with the previous frame faded out over it:
+        // interpolating the theme instead rebuilds the whole app on every
+        // frame of the transition.
+        child: CrossFadeTheme(
           data: theme(context),
           curve: widget.themeCurve,
           child: MouseAreaSurface(
@@ -571,8 +576,14 @@ class _AppState extends State<FinesseApp> {
     );
   }
 
-  ThemeData get effectiveLightTheme =>
-      widget.theme ?? ThemeData(brightness: Brightness.light);
+  // One instance, not one per build: constructing a `ThemeData` derives
+  // every component theme, and a new one each time is also a miss in the
+  // form-factor cache and a full comparison in `AnimatedTheme`.
+  static final ThemeData _defaultLightTheme = ThemeData(
+    brightness: Brightness.light,
+  );
+
+  ThemeData get effectiveLightTheme => widget.theme ?? _defaultLightTheme;
 
   ThemeData? get effectiveDarkTheme => widget.darkTheme;
 
@@ -821,6 +832,12 @@ class FinessePageRoute<T> extends PageRoute<T> {
     );
   }
 
+  /// The animations the transition is drawn from. They depend only on the
+  /// route's own animations and the motion curves, so they are made when
+  /// those change — not in [buildTransitions], which the framework calls on
+  /// every tick of either animation, for this page and the one it covers.
+  _PageAnimations? _animations;
+
   @override
   Widget buildTransitions(
     BuildContext context,
@@ -830,52 +847,97 @@ class FinessePageRoute<T> extends PageRoute<T> {
   ) {
     final motion = Motion.of(context);
     final mobile = Theme.of(context).formFactor == FormFactor.mobile;
-    final rtl = Directionality.maybeOf(context) == TextDirection.rtl;
+    final side = Directionality.maybeOf(context) == TextDirection.rtl
+        ? -1.0
+        : 1.0;
     // In on the spring, and back out in a straight line from wherever it
     // is, so a pop in the middle of a push does not jump.
-    final progress = EntranceProgress(
-      animation,
-      curve: motion.reduced ? motion.standard : motion.snappy.curve,
-    );
-    // The page under this one gives way as the next is pushed over it.
-    final covered = secondaryAnimation.drive(
-      CurveTween(curve: motion.standard),
-    );
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        // Where the page comes from, in logical pixels: a fifth of the
-        // width from the end side on a phone, from below for a dialog, and
-        // a short rise on a desktop.
-        final Offset from;
-        if (motion.reduced) {
-          from = Offset.zero;
-        } else if (fullscreenDialog) {
-          from = Offset(0, mobile ? 48 : motion.overlayTravel * 2);
-        } else if (mobile && constraints.hasBoundedWidth) {
-          from = Offset(constraints.maxWidth * .2 * (rtl ? -1 : 1), 0);
-        } else {
-          from = Offset(0, motion.overlayTravel * 2);
-        }
-        final giveWay = motion.reduced || !mobile || _coveredByDialog
-            ? Offset.zero
-            : Offset(
-                -constraints.maxWidth * .06 * (rtl ? -1 : 1),
-                0,
-              );
-        return FadeTransition(
-          opacity: progress.drive(const _FadeInBy(.6)),
-          child: AnimatedBuilder(
-            animation: Listenable.merge([progress, covered]),
-            builder: (context, child) => Transform.translate(
-              offset: from * (1 - progress.value) + giveWay * covered.value,
-              child: child,
-            ),
-            child: child,
-          ),
-        );
-      },
+    final enter = motion.reduced ? motion.standard : motion.snappy.curve;
+    var animations = _animations;
+    if (animations == null ||
+        !animations.isFor(
+          animation,
+          secondaryAnimation,
+          enter: enter,
+          giveWay: motion.standard,
+        )) {
+      animations = _animations = _PageAnimations(
+        animation,
+        secondaryAnimation,
+        enter: enter,
+        giveWay: motion.standard,
+      );
+    }
+    // Where the page comes from: a fifth of the width from the end side on
+    // a phone, from below for a dialog, and a short rise on a desktop.
+    var slide = 0.0;
+    var rise = 0.0;
+    if (motion.reduced) {
+      // Only the fade.
+    } else if (fullscreenDialog) {
+      rise = mobile ? 48 : motion.overlayTravel * 2;
+    } else if (mobile) {
+      slide = .2 * side;
+    } else {
+      rise = motion.overlayTravel * 2;
+    }
+    // Everything below is the same widget from one tick to the next, holding
+    // the same animations: updating it is a handful of comparisons, and the
+    // movement itself is paint.
+    return FadeTransition(
+      opacity: animations.fade,
+      child: _PageShift(
+        progress: animations.progress,
+        covered: animations.covered,
+        slide: slide,
+        rise: rise,
+        // The page under this one gives way as the next is pushed over it.
+        giveWay: motion.reduced || !mobile || _coveredByDialog
+            ? 0
+            : -.06 * side,
+        child: child,
+      ),
     );
   }
+}
+
+/// The animations of one [FinessePageRoute]'s transition.
+class _PageAnimations {
+  _PageAnimations(
+    this._animation,
+    this._secondaryAnimation, {
+    required Curve enter,
+    required Curve giveWay,
+  }) : _enter = enter,
+       _giveWay = giveWay,
+       progress = EntranceProgress(_animation, curve: enter),
+       covered = _secondaryAnimation.drive(CurveTween(curve: giveWay));
+
+  final Animation<double> _animation;
+  final Animation<double> _secondaryAnimation;
+  final Curve _enter;
+  final Curve _giveWay;
+
+  /// How far the page is into place: 0 where it comes from, 1 at rest.
+  final EntranceProgress progress;
+
+  /// How far the route above has come over this page.
+  final Animation<double> covered;
+
+  /// The page is readable well before it has settled.
+  late final Animation<double> fade = progress.drive(const _FadeInBy(.6));
+
+  /// Whether these were made for the given animations and curves.
+  bool isFor(
+    Animation<double> animation,
+    Animation<double> secondaryAnimation, {
+    required Curve enter,
+    required Curve giveWay,
+  }) =>
+      identical(animation, _animation) &&
+      identical(secondaryAnimation, _secondaryAnimation) &&
+      enter == _enter &&
+      giveWay == _giveWay;
 }
 
 /// A fade that is finished by [end] of the way: the page is readable well
@@ -887,6 +949,173 @@ class _FadeInBy extends Animatable<double> {
 
   @override
   double transform(double t) => (t / end).clamp(0.0, 1.0);
+}
+
+/// Moves a page along its route's transition, in paint.
+///
+/// While [progress] runs from 0 to 1 the page comes in from [slide] of its
+/// own width to the side and [rise] logical pixels below; while [covered]
+/// runs from 0 to 1 it moves [giveWay] of its width aside for the page
+/// pushed over it.
+///
+/// A render object rather than an `AnimatedBuilder` around a `Transform`
+/// inside a `LayoutBuilder`: the distance is a share of the page's width,
+/// which is known at paint, so a tick costs no build and no layout.
+class _PageShift extends SingleChildRenderObjectWidget {
+  const _PageShift({
+    required this.progress,
+    required this.covered,
+    required this.slide,
+    required this.rise,
+    required this.giveWay,
+    super.child,
+  });
+
+  final Animation<double> progress;
+  final Animation<double> covered;
+  final double slide;
+  final double rise;
+  final double giveWay;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) => _RenderPageShift(
+    progress: progress,
+    covered: covered,
+    slide: slide,
+    rise: rise,
+    giveWay: giveWay,
+  );
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    _RenderPageShift renderObject,
+  ) {
+    renderObject
+      ..progress = progress
+      ..covered = covered
+      ..slide = slide
+      ..rise = rise
+      ..giveWay = giveWay;
+  }
+}
+
+class _RenderPageShift extends RenderProxyBox {
+  _RenderPageShift({
+    required Animation<double> progress,
+    required Animation<double> covered,
+    required double slide,
+    required double rise,
+    required double giveWay,
+  }) : _progress = progress,
+       _covered = covered,
+       _slide = slide,
+       _rise = rise,
+       _giveWay = giveWay;
+
+  Animation<double> get progress => _progress;
+  Animation<double> _progress;
+  set progress(Animation<double> value) {
+    if (identical(value, _progress)) return;
+    if (attached) {
+      _progress.removeListener(_moved);
+      value.addListener(_moved);
+    }
+    _progress = value;
+    _moved();
+  }
+
+  Animation<double> get covered => _covered;
+  Animation<double> _covered;
+  set covered(Animation<double> value) {
+    if (identical(value, _covered)) return;
+    if (attached) {
+      _covered.removeListener(_moved);
+      value.addListener(_moved);
+    }
+    _covered = value;
+    _moved();
+  }
+
+  double get slide => _slide;
+  double _slide;
+  set slide(double value) {
+    if (value == _slide) return;
+    _slide = value;
+    _moved();
+  }
+
+  double get rise => _rise;
+  double _rise;
+  set rise(double value) {
+    if (value == _rise) return;
+    _rise = value;
+    _moved();
+  }
+
+  double get giveWay => _giveWay;
+  double _giveWay;
+  set giveWay(double value) {
+    if (value == _giveWay) return;
+    _giveWay = value;
+    _moved();
+  }
+
+  /// Where the page is painted, relative to where it is laid out.
+  Offset get _shift {
+    final away = 1 - _progress.value;
+    return Offset(
+      (_slide * away + _giveWay * _covered.value) * size.width,
+      _rise * away,
+    );
+  }
+
+  /// The shift last painted, to tell a tick that moves the page from one
+  /// that does not: a page on a desktop does not give way, yet the
+  /// animation of the route over it still runs.
+  Offset? _painted;
+
+  void _moved() {
+    if (hasSize && _shift == _painted) return;
+    markNeedsPaint();
+    markNeedsSemanticsUpdate();
+  }
+
+  @override
+  void attach(PipelineOwner owner) {
+    super.attach(owner);
+    _progress.addListener(_moved);
+    _covered.addListener(_moved);
+  }
+
+  @override
+  void detach() {
+    _progress.removeListener(_moved);
+    _covered.removeListener(_moved);
+    super.detach();
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    final shift = _painted = _shift;
+    super.paint(context, offset + shift);
+  }
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
+    return result.addWithPaintOffset(
+      offset: _shift,
+      position: position,
+      hitTest: (result, position) =>
+          super.hitTestChildren(result, position: position),
+    );
+  }
+
+  @override
+  void applyPaintTransform(RenderBox child, Matrix4 transform) {
+    final shift = _shift;
+    transform.translateByDouble(shift.dx, shift.dy, 0, 1);
+  }
 }
 
 // The WidgetsApp colour used for the app in the task switcher; Material's
@@ -924,8 +1153,8 @@ class FinesseAppBuilder extends StatelessWidget {
     //
     // The widget.builder may contain code that invokes
     // Theme.of(), which should return the theme we selected
-    // above in AnimatedTheme. However, if we invoke
-    // widget.builder() directly as the child of AnimatedTheme
+    // above in CrossFadeTheme. However, if we invoke
+    // widget.builder() directly as the child of CrossFadeTheme
     // then there is no Context separating them, and the
     // widget.builder() will not find the theme. Therefore, we
     // surround widget.builder with yet another builder so that

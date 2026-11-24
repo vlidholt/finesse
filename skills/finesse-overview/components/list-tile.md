@@ -156,7 +156,7 @@ class _ListTileSettingsExampleState extends State<ListTileSettingsExample> {
           children: [
             ListTile(
               leading: const IconTile(
-                icon: Icon(PhosphorIconsRegular.envelopeSimple),
+                icon: PhosphorIcon(PhosphorIconsRegular.envelopeSimple),
               ),
               title: const Text('Weekly digest'),
               subtitle: const Text(
@@ -171,20 +171,26 @@ class _ListTileSettingsExampleState extends State<ListTileSettingsExample> {
             ),
             ListTile(
               leading: const IconTile(
-                icon: Icon(PhosphorIconsRegular.lockSimple),
+                icon: PhosphorIcon(PhosphorIconsRegular.lockSimple),
               ),
               title: const Text('Privacy'),
               subtitle: const Text('Who can see your profile and activity'),
-              trailing: const Icon(PhosphorIconsRegular.caretRight, size: 16),
+              trailing: const PhosphorIcon(
+                PhosphorIconsRegular.caretRight,
+                size: 16,
+              ),
               onTap: () {},
             ),
             ListTile(
               leading: const IconTile(
-                icon: Icon(PhosphorIconsRegular.translate),
+                icon: PhosphorIcon(PhosphorIconsRegular.translate),
               ),
               title: const Text('Language'),
               subtitle: const Text('English'),
-              trailing: const Icon(PhosphorIconsRegular.caretRight, size: 16),
+              trailing: const PhosphorIcon(
+                PhosphorIconsRegular.caretRight,
+                size: 16,
+              ),
               onTap: () {},
             ),
           ],

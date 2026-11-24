@@ -213,7 +213,7 @@ class _CheckboxState extends State<Checkbox> {
 
     final effectiveIcon =
         widget.icon ??
-        Icon(
+        PhosphorIcon(
           PhosphorIconsRegular.check,
           color: theme.colorScheme.primaryForeground,
           // `[&>svg]:size-3.5`: the glyph sits 2px inside its 16px box.

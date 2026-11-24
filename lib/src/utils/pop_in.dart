@@ -18,7 +18,7 @@ import 'package:flutter/widgets.dart';
 /// reduced motion it simply appears and disappears.
 ///
 /// ```dart
-/// PopIn(visible: checked, wipe: true, child: const Icon(check))
+/// PopIn(visible: checked, wipe: true, child: const PhosphorIcon(check))
 /// ```
 ///
 /// Only paint is animated; give the child a fixed box if the space it
@@ -62,19 +62,25 @@ class PopIn extends StatelessWidget {
       spring: visible ? (spring ?? motion.bouncy) : motion.snappy,
       builder: (context, t, child) {
         if (t <= 0) return const SizedBox.shrink();
-        Widget result = Transform.scale(
-          scale: scale + (1 - scale) * t,
-          alignment: alignment,
-          child: child,
+        // One tree for the whole entrance. The fade ends half way and the
+        // wipe when the spring first passes 1, then the spring overshoots
+        // and comes back under it: a wrapper that was only there while it
+        // had something to do would re-parent the child at each of those
+        // moments, and build it from scratch each time. A full opacity and
+        // a clip that is switched off cost no layer.
+        final wiping = wipe && t < 1;
+        return Opacity(
+          opacity: (t * 2).clamp(0.0, 1.0),
+          child: ClipRect(
+            clipper: wiping ? _WipeClipper(t, direction) : null,
+            clipBehavior: wiping ? Clip.hardEdge : Clip.none,
+            child: Transform.scale(
+              scale: scale + (1 - scale) * t,
+              alignment: alignment,
+              child: child,
+            ),
+          ),
         );
-        if (wipe && t < 1) {
-          result = ClipRect(
-            clipper: _WipeClipper(t, direction),
-            child: result,
-          );
-        }
-        final opacity = (t * 2).clamp(0.0, 1.0);
-        return opacity < 1 ? Opacity(opacity: opacity, child: result) : result;
       },
       child: child,
     );
@@ -104,9 +110,11 @@ class _WipeClipper extends CustomClipper<Rect> {
 /// changes: a counter that ticked, a status that flipped.
 ///
 /// Nothing plays when it is first built. The pop is one spring impulse on
-/// the theme's `Motion.bouncy`, so a second change mid-pop adds to it rather
-/// than restarting it, and it is paint only. With reduced motion there is
-/// no pop.
+/// the theme's `Motion.bouncy`, and it is paint only. A second change
+/// mid-pop pushes the child back up to the top of the pop rather than
+/// starting over or adding a whole pop on top, so a value that changes many
+/// times a second holds the child at its peak and lets it go when the
+/// changes stop. With reduced motion there is no pop.
 ///
 /// ```dart
 /// PopOnChange(value: unread, child: Text('$unread'))
@@ -158,7 +166,15 @@ class _PopOnChangeState extends State<PopOnChange>
     final seconds =
         spring.duration.inMicroseconds / Duration.microsecondsPerSecond;
     final kick = 2 * math.pi / seconds * math.e;
-    _pop.animateTo(0, spring: spring, velocity: _pop.velocity + kick);
+    // Mid-pop, only what is still missing to the top: impulses that added
+    // up would carry a value changing every frame to several times the
+    // scale that was asked for. A pop on its way up is never slowed.
+    final missing = (1 - _pop.value).clamp(0.0, 1.0);
+    _pop.animateTo(
+      0,
+      spring: spring,
+      velocity: math.max(_pop.velocity, kick * missing),
+    );
   }
 
   @override

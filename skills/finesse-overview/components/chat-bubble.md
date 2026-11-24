@@ -136,7 +136,7 @@ class ChatBubbleAttachmentExample extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               spacing: 10,
               children: [
-                const IconTile(icon: Icon(PhosphorIconsRegular.image)),
+                const IconTile(icon: PhosphorIcon(PhosphorIconsRegular.image)),
                 Flexible(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,

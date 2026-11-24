@@ -15,7 +15,7 @@ A design system for Flutter: more than 60 widgets themed by one `ThemeData`, wit
 - **Components.** Buttons, text fields, forms, dialogs, sheets, menus, tabs, a sidebar, a data table, a calendar, chips, list tiles, chat bubbles, avatars and badges, and more. Every one is a regular widget and composes with the rest of your tree.
 - **One theme, two form factors.** Every style carries metrics for a desktop and for a phone. `FinesseApp` picks between them from the window width, so the same `Button` is 36 points tall in a desktop window and 44 on a phone, body text grows from 14 to 15, and page margins tighten, with no `if (isMobile)` in your code.
 - **App structure.** `Scaffold`, `AppBar`, a top `NavigationBar` and a floating `BottomNavigationBar`, and `NavigationScaffold`, which switches between the two.
-- **Glass.** Translucent cards and bars over a blurred, saturated backdrop are part of the style, with tokens for blur and for the opacity of each kind of surface. `Glass` puts the same surface anywhere.
+- **Glass.** Translucent cards, and bars, menus, tooltips and toasts that blur and saturate what is behind them, are part of the style, with tokens for blur and for the opacity of each kind of surface. `Glass` puts the same surface anywhere.
 - **Spacing from the theme.** A named gap scale (`Gap.md()`, `FinesseRow(gap: GapSize.lg)`) and `PageContainer` keep screens consistent and let a theme change their rhythm.
 - **Styles and colour schemes.** Four styles (`finesse`, `nova`, `maia`, `lyra`) and four base palettes (`teal`, `neutral`, `zinc`, `stone`) in light and dark, 17 accent overlays, and every token overridable through `copyWith`.
 - **Icons included.** The [Phosphor](https://phosphoricons.com) icon set ships in the package in six weights.

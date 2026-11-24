@@ -4,6 +4,8 @@ import 'package:boxy/flex.dart';
 import 'package:finesse/src/components/icon_button.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
+import 'package:finesse/src/theme/components/button.dart';
+import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/theme/theme_scope.dart';
@@ -18,6 +20,29 @@ import 'package:finesse/src/utils/separated_iterable.dart';
 import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+
+final _expandedActionsThemes = Expando<ThemeData>();
+
+/// [theme] with every button variant as wide as its parent: what the actions
+/// of a dialog on a narrow screen are built under.
+///
+/// `ThemeData.copyWith` runs the theme factory again, so the result is kept
+/// per theme. Deriving it in `build` paid for every component theme on each
+/// build of each open dialog, and handed the actions a new `ThemeData` to
+/// compare against the last one.
+ThemeData _expandedActionsThemeOf(ThemeData theme) {
+  return _expandedActionsThemes[theme] ??= () {
+    ButtonTheme expanded(ButtonTheme button) =>
+        button.copyWith(width: double.infinity, expands: true);
+    return theme.copyWith(
+      primaryButtonTheme: expanded(theme.primaryButtonTheme),
+      secondaryButtonTheme: expanded(theme.secondaryButtonTheme),
+      outlineButtonTheme: expanded(theme.outlineButtonTheme),
+      ghostButtonTheme: expanded(theme.ghostButtonTheme),
+      destructiveButtonTheme: expanded(theme.destructiveButtonTheme),
+    );
+  }();
+}
 
 /// {@template DialogRoute}
 /// A custom dialog route that allows specifying a `reverseTransitionDuration`.
@@ -100,36 +125,135 @@ class DialogRoute<T> extends PopupRoute<T> {
 
     if (barrierBlurSigma <= 0) return content;
 
-    // The filter sits above the barrier and below the dialog, and grows with
-    // the route so the page does not snap out of focus. It is not faded in:
-    // under an opacity layer a backdrop filter samples that layer, which is
-    // empty, so on some renderers the blur was missing for the whole
-    // transition and appeared at its end. It must not hit-test either: the
-    // ColoredBox that gives the filter its extent is opaque to taps even
-    // when fully transparent, and without the IgnorePointer it eats the
-    // outside tap that should reach the ModalBarrier and dismiss the route.
-    return Stack(
-      children: [
-        Positioned.fill(
-          child: IgnorePointer(
-            child: AnimatedBuilder(
-              animation: animation,
-              child: const ColoredBox(color: Color(0x00000000)),
-              builder: (context, child) {
-                final sigma = barrierBlurSigma * animation.value;
-                return BackdropFilter(
-                  enabled: sigma > 0,
-                  filter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
-                  child: child,
-                );
-              },
-            ),
-          ),
+    return Stack(children: [_barrierBlur(animation), content]);
+  }
+
+  Widget? _blurLayer;
+  Animation<double>? _blurAnimation;
+
+  /// The blur behind the dialog, growing with [animation].
+  ///
+  /// The framework calls [buildTransitions] on every tick; the layer is made
+  /// once per animation and handed back as the same widget, so a tick
+  /// rebuilds it through its own listener only, not a second time from
+  /// above.
+  ///
+  /// The filter sits above the barrier and below the dialog, and grows with
+  /// the route so the page does not snap out of focus. It is not faded in:
+  /// under an opacity layer a backdrop filter samples that layer, which is
+  /// empty, so on some renderers the blur was missing for the whole
+  /// transition and appeared at its end. It must not hit-test either: the
+  /// ColoredBox that gives the filter its extent is opaque to taps even
+  /// when fully transparent, and without the IgnorePointer it eats the
+  /// outside tap that should reach the ModalBarrier and dismiss the route.
+  Widget _barrierBlur(Animation<double> animation) {
+    final cached = _blurLayer;
+    if (cached != null && identical(animation, _blurAnimation)) return cached;
+    _blurAnimation = animation;
+    return _blurLayer = Positioned.fill(
+      child: IgnorePointer(
+        child: AnimatedBuilder(
+          animation: animation,
+          child: const ColoredBox(color: Color(0x00000000)),
+          builder: (context, child) {
+            final sigma = barrierBlurSigma * animation.value;
+            return BackdropFilter(
+              enabled: sigma > 0,
+              filter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
+              child: child,
+            );
+          },
         ),
-        content,
-      ],
+      ),
     );
   }
+}
+
+/// Plays a dialog's entrance and exit effects around the route's content.
+///
+/// A route's transition is rebuilt on every tick of its animation, each
+/// time around a new [child]. Building the animate widget there re-added
+/// every effect and rebuilt every effect's animation sixty times a second.
+/// Here it is made once per direction and kept, with a [_RouteChildSlot]
+/// where the content goes: a tick reaches the slot through [_RouteChild] and
+/// leaves the effects alone.
+class _DialogTransition extends StatefulWidget {
+  const _DialogTransition({
+    required this.animation,
+    required this.animateIn,
+    required this.animateOut,
+    required this.child,
+  });
+
+  /// The route's animation. Only its status is read: the effects play on
+  /// their own controller, for the lengths the route was given.
+  final Animation<double> animation;
+
+  final List<Effect<dynamic>> animateIn;
+  final List<Effect<dynamic>> animateOut;
+  final Widget child;
+
+  @override
+  State<_DialogTransition> createState() => _DialogTransitionState();
+}
+
+class _DialogTransitionState extends State<_DialogTransition> {
+  Widget? _animated;
+  bool _entering = false;
+
+  @override
+  void didUpdateWidget(_DialogTransition oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Effects have no `==`; a list is the same when it is the same list.
+    if (!identical(widget.animateIn, oldWidget.animateIn) ||
+        !identical(widget.animateOut, oldWidget.animateOut)) {
+      _animated = null;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // The status changes on a tick, so the rebuild that tick causes is
+    // enough to see it; no listener of its own.
+    final status = widget.animation.status;
+    var content = _animated;
+    if (status == AnimationStatus.completed) {
+      // At rest the dialog is under no effect at all.
+      content = const _RouteChildSlot();
+    } else {
+      final entering = status == AnimationStatus.forward;
+      if (content == null || entering != _entering) {
+        _entering = entering;
+        content = _animated = FinesseAnimate(
+          effects: entering ? widget.animateIn : widget.animateOut,
+          // A glass dialog takes the fade over; see [BackdropFade].
+          fadeThroughBackdrop: true,
+          child: const _RouteChildSlot(),
+        );
+      }
+    }
+    return _RouteChild(routeChild: widget.child, child: content);
+  }
+}
+
+/// Carries a route's content past widgets that must not be rebuilt for it.
+class _RouteChild extends InheritedWidget {
+  const _RouteChild({required this.routeChild, required super.child});
+
+  final Widget routeChild;
+
+  @override
+  bool updateShouldNotify(_RouteChild oldWidget) =>
+      routeChild != oldWidget.routeChild;
+}
+
+/// Where the content carried by the nearest [_RouteChild] is built.
+class _RouteChildSlot extends StatelessWidget {
+  const _RouteChildSlot();
+
+  @override
+  Widget build(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<_RouteChild>()!.routeChild;
 }
 
 /// Displays a [Dialog] as a modal dialog with animation.
@@ -289,14 +413,10 @@ Future<T?> showDialog<T>({
       transitionDuration: maxCompletionDuration(effectiveAnimateIn),
       reverseTransitionDuration: maxCompletionDuration(effectiveAnimateOut),
       transitionBuilder: (context, animation, secondaryAnimation, child) {
-        if (animation.status == AnimationStatus.completed) {
-          return child;
-        }
-        final animateIn = animation.status == AnimationStatus.forward;
-        return FinesseAnimate(
-          effects: animateIn ? effectiveAnimateIn : effectiveAnimateOut,
-          // A glass dialog takes the fade over; see [BackdropFade].
-          fadeThroughBackdrop: true,
+        return _DialogTransition(
+          animation: animation,
+          animateIn: effectiveAnimateIn,
+          animateOut: effectiveAnimateOut,
           child: child,
         );
       },
@@ -721,7 +841,7 @@ class Dialog extends StatelessWidget {
         (closeIconData == null && effectiveDialogTheme.closeIconData == null
             ? null
             : IconButton.ghost(
-                icon: Icon(
+                icon: PhosphorIcon(
                   size: 16,
                   closeIconData ??
                       effectiveDialogTheme.closeIconData ??
@@ -879,28 +999,7 @@ class Dialog extends StatelessWidget {
               effectiveExpandActionsWhenTiny &&
               effectiveActions != null) {
             effectiveActions = Theme(
-              data: theme.copyWith(
-                primaryButtonTheme: theme.primaryButtonTheme.copyWith(
-                  width: double.infinity,
-                  expands: true,
-                ),
-                secondaryButtonTheme: theme.secondaryButtonTheme.copyWith(
-                  width: double.infinity,
-                  expands: true,
-                ),
-                outlineButtonTheme: theme.outlineButtonTheme.copyWith(
-                  width: double.infinity,
-                  expands: true,
-                ),
-                ghostButtonTheme: theme.ghostButtonTheme.copyWith(
-                  width: double.infinity,
-                  expands: true,
-                ),
-                destructiveButtonTheme: theme.destructiveButtonTheme.copyWith(
-                  width: double.infinity,
-                  expands: true,
-                ),
-              ),
+              data: _expandedActionsThemeOf(theme),
               // Full-width buttons give their labels the button's width, so
               // a long label ellipsizes instead of overflowing the button.
               child: DefaultTextStyle.merge(

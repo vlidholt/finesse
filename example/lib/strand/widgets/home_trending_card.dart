@@ -1,15 +1,13 @@
 import 'package:example/strand/data/home_data.dart';
 import 'package:example/strand/widgets/home_pieces.dart';
 import 'package:example/strand/widgets/strand_actions.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
 /// The right rail's "Trending in design" card: five ranked topics.
 class HomeTrendingCard extends StatelessWidget {
   const HomeTrendingCard({super.key});
-
-  /// The rank's column and the glyphs that end the heading and each row.
-  static const _markSize = 18.0;
 
   /// What a topic searches for: its words, without the hash, the year or
   /// the filler, so that search — which wants every word — finds its posts.
@@ -27,18 +25,20 @@ class HomeTrendingCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    // The rank's column and the glyphs that end the heading and each row:
+    // the size of a glyph beside a row's title.
+    final markSize = theme.iconBeside(theme.textTheme.h4);
     return HomeSectionCard(
       title: 'Trending in design',
-      trailing: Icon(
+      trailing: PhosphorIcon(
         PhosphorIconsRegular.sparkle,
-        size: _markSize,
+        size: markSize,
         color: scheme.tint,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
-        // As in the comment thread: 14 between rows of two lines.
-        spacing: homeLooseGap,
+        spacing: theme.gap(GapSize.md),
         children: [
           for (final (index, trend) in HomeData.trends.indexed)
             Pressable(
@@ -50,11 +50,10 @@ class HomeTrendingCard extends StatelessWidget {
                   gap: GapSize.md,
                   children: [
                     SizedBox(
-                      width: _markSize,
+                      width: markSize,
                       child: Text(
                         '${index + 1}',
                         style: theme.textTheme.small.copyWith(
-                          height: 1,
                           fontWeight: FontWeight.w600,
                           color: scheme.mutedForeground,
                         ),
@@ -81,14 +80,14 @@ class HomeTrendingCard extends StatelessWidget {
                             trend.posts,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: homeFinePrint(theme),
+                            style: theme.textTheme.caption,
                           ),
                         ],
                       ),
                     ),
-                    Icon(
+                    PhosphorIcon(
                       PhosphorIconsRegular.trendUp,
-                      size: _markSize,
+                      size: markSize,
                       color: scheme.tint,
                     ),
                   ],
@@ -108,15 +107,15 @@ class HomeFooterLinks extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final style = homeFinePrint(theme);
+    final style = theme.textTheme.caption;
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: theme.layoutTheme.gap(GapSize.sm),
-        vertical: theme.layoutTheme.gap(GapSize.xs),
+        horizontal: theme.gap(GapSize.sm),
+        vertical: theme.gap(GapSize.xs),
       ),
       child: Wrap(
-        spacing: homeLooseGap,
-        runSpacing: homeTightGap,
+        spacing: theme.gap(GapSize.md),
+        runSpacing: theme.gap(GapSize.xs),
         children: [
           for (final link in HomeData.footerLinks)
             HomeTextLink(

@@ -1,4 +1,6 @@
+import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/motion_color.dart';
 import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/widgets.dart';
 
@@ -311,7 +313,12 @@ class _FocusRingPainter extends CustomPainter {
 /// The outline is drawn inside the box and takes its width in layout, like a
 /// `Container`'s border. Only the colours animate; a change of
 /// [borderRadius] or [borderWidth] applies at once.
-class AnimatedFill extends ImplicitlyAnimatedWidget {
+///
+/// The fade is the theme's: `Motion.fast` on `Motion.standard`, read through
+/// `Motion.of`, so it is instant under `Motion.none` and stays the short
+/// plain fade reduced motion leaves. Pass [duration] or [curve] only for a
+/// fill that should differ from every other control's.
+class AnimatedFill extends StatelessWidget {
   /// Creates a box that cross-fades to [color] and [borderColor].
   const AnimatedFill({
     required this.color,
@@ -319,9 +326,9 @@ class AnimatedFill extends ImplicitlyAnimatedWidget {
     this.borderWidth = 1,
     this.borderRadius = BorderRadius.zero,
     this.child,
-    super.duration = const Duration(milliseconds: 120),
-    super.curve,
-    super.onEnd,
+    this.duration,
+    this.curve,
+    this.onEnd,
     super.key,
   });
 
@@ -340,6 +347,18 @@ class AnimatedFill extends ImplicitlyAnimatedWidget {
 
   /// The content of the box.
   final Widget? child;
+
+  /// How long a change of colour takes. Null, the default, is the theme's
+  /// `Motion.fast` — zero under `Motion.none`, which changes the colours at
+  /// once.
+  final Duration? duration;
+
+  /// The curve of a change of colour. Null, the default, is the theme's
+  /// `Motion.standard`.
+  final Curve? curve;
+
+  /// Called each time a change of colour has finished.
+  final VoidCallback? onEnd;
 
   /// Blends [a] into [b] the way a cross-fade between two layers does.
   ///
@@ -366,12 +385,69 @@ class AnimatedFill extends ImplicitlyAnimatedWidget {
   }
 
   @override
-  AnimatedWidgetBaseState<AnimatedFill> createState() => _AnimatedFillState();
+  Widget build(BuildContext context) {
+    // The theme is asked only for what was not given, so a fill with both
+    // needs no theme above it.
+    final motion = duration == null || curve == null
+        ? Motion.of(context)
+        : null;
+    return _AnimatedFill(
+      color: color,
+      borderColor: borderColor,
+      borderWidth: borderWidth,
+      borderRadius: borderRadius,
+      duration: duration ?? motion!.fast,
+      curve: curve ?? motion!.standard,
+      onEnd: onEnd,
+      child: child,
+    );
+  }
 }
 
-class _AnimatedFillState extends AnimatedWidgetBaseState<AnimatedFill> {
+// The implicit animation itself. It is a widget of its own because an
+// `ImplicitlyAnimatedWidget` takes its duration in its constructor, where
+// there is no context to read the theme's from.
+class _AnimatedFill extends ImplicitlyAnimatedWidget {
+  const _AnimatedFill({
+    required this.color,
+    required this.borderColor,
+    required this.borderWidth,
+    required this.borderRadius,
+    required this.child,
+    required super.duration,
+    required super.curve,
+    required super.onEnd,
+  });
+
+  final Color? color;
+  final Color? borderColor;
+  final double borderWidth;
+  final BorderRadiusGeometry borderRadius;
+  final Widget? child;
+
+  @override
+  AnimatedWidgetBaseState<_AnimatedFill> createState() => _AnimatedFillState();
+}
+
+class _AnimatedFillState extends AnimatedWidgetBaseState<_AnimatedFill> {
   _FillTween? _color;
   _FillTween? _borderColor;
+  final _theme = ThemeChange();
+
+  @override
+  void initState() {
+    super.initState();
+    _theme.changedFor(context);
+  }
+
+  @override
+  void didUpdateWidget(_AnimatedFill oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // A fill that is different because the theme is follows it at once:
+    // the fade is for a change of state, and an app changing theme would
+    // otherwise repaint every fill in it for the length of the fade.
+    if (_theme.changedFor(context)) controller.value = 1;
+  }
 
   // An implicit animation drops the tween of a property that becomes null
   // and jumps instead, so "no colour" is tweened as transparent.
@@ -414,12 +490,16 @@ class _AnimatedFillState extends AnimatedWidgetBaseState<AnimatedFill> {
             ? Border.all(color: border, width: widget.borderWidth)
             : null,
       ),
-      child: outlined
-          ? Padding(
-              padding: EdgeInsets.all(widget.borderWidth),
-              child: widget.child,
-            )
-          : widget.child,
+      // The padding stays in the tree without an outline, at zero: building
+      // it only while there is one moved the child under a different parent
+      // each time the outline appeared or finished fading out, which threw
+      // its state away. See [FocusRing].
+      child: Padding(
+        padding: outlined
+            ? EdgeInsets.all(widget.borderWidth)
+            : EdgeInsets.zero,
+        child: widget.child,
+      ),
     );
   }
 }

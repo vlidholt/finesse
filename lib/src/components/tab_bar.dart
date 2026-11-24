@@ -3,6 +3,7 @@ import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/motion_color.dart';
 import 'package:finesse/src/utils/moving_indicator.dart';
+import 'package:finesse/src/utils/text_scaled_height.dart';
 import 'package:flutter/widgets.dart';
 
 /// A row of text tabs with a line under the selected one, for switching
@@ -100,8 +101,13 @@ class TabBar extends StatelessWidget {
           return FocusRing(
             visible: states.contains(WidgetState.focused),
             borderRadius: theme.radius,
-            child: SizedBox(
-              height: barHeight,
+            // A floor once text is scaled up, so a label is never taller
+            // than its tab; at a scale of 1 the two are the same.
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: barHeight,
+                maxHeight: textScaledMaxHeight(context, barHeight),
+              ),
               child: Stack(
                 clipBehavior: Clip.none,
                 alignment: Alignment.center,

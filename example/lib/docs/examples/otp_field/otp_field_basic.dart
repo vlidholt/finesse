@@ -17,7 +17,7 @@ class OtpFieldBasicExample extends StatelessWidget {
             OtpFieldSlot(),
           ],
         ),
-        Icon(PhosphorIconsRegular.dotOutline),
+        PhosphorIcon(PhosphorIconsRegular.dotOutline),
         OtpFieldGroup(
           children: [
             OtpFieldSlot(),

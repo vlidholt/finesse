@@ -52,7 +52,7 @@ class _ScaffoldBasicExampleState extends State<ScaffoldBasicExample> {
               title: const Text('Messages'),
               actions: [
                 IconButton.ghost(
-                  icon: const Icon(PhosphorIconsRegular.notePencil),
+                  icon: const PhosphorIcon(PhosphorIconsRegular.notePencil),
                   semanticLabel: 'New message',
                   onPressed: () {},
                 ),
@@ -63,18 +63,18 @@ class _ScaffoldBasicExampleState extends State<ScaffoldBasicExample> {
               onDestinationSelected: (i) => setState(() => index = i),
               destinations: const [
                 NavigationDestination(
-                  icon: Icon(PhosphorIconsRegular.house),
-                  selectedIcon: Icon(PhosphorIconsFill.house),
+                  icon: PhosphorIcon(PhosphorIconsRegular.house),
+                  selectedIcon: PhosphorIcon(PhosphorIconsFill.house),
                   label: 'Home',
                 ),
                 NavigationDestination(
-                  icon: Icon(PhosphorIconsRegular.chatCircleDots),
-                  selectedIcon: Icon(PhosphorIconsFill.chatCircleDots),
+                  icon: PhosphorIcon(PhosphorIconsRegular.chatCircleDots),
+                  selectedIcon: PhosphorIcon(PhosphorIconsFill.chatCircleDots),
                   label: 'Messages',
                 ),
                 NavigationDestination(
-                  icon: Icon(PhosphorIconsRegular.user),
-                  selectedIcon: Icon(PhosphorIconsFill.user),
+                  icon: PhosphorIcon(PhosphorIconsRegular.user),
+                  selectedIcon: PhosphorIcon(PhosphorIconsFill.user),
                   label: 'Profile',
                 ),
               ],

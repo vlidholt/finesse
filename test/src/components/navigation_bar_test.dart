@@ -1,6 +1,7 @@
 import 'dart:ui' as ui;
 
 import 'package:finesse/finesse.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -532,16 +533,283 @@ void main() {
         expect(bar.gap, 4);
         expect(bar.radius, theme.radii.full);
         expect(bar.backgroundColor!.a, lessThan(1));
-        expect(bar.backgroundColor!.withValues(alpha: 1), s.bar);
         expect(bar.blur, 24);
         expect(bar.saturation, 1.6);
-        expect(bar.borderColor, s.border);
+        if (brightness == Brightness.light) {
+          // On the light page a white pill and its shadow are enough.
+          expect(bar.backgroundColor!.withValues(alpha: 1), s.bar);
+          expect(bar.borderColor, s.border);
+          expect(bar.rimColor, isNull);
+          expect(bar.shadows, theme.style.floatingShadow);
+        } else {
+          // On the dark page the bar is lifted toward the foreground, a
+          // little thinner, and outlined in a brighter hairline with a lit
+          // top edge; see "the dark bar stands off the dark page" below.
+          expect(
+            bar.backgroundColor,
+            Color.alphaBlend(
+              s.foreground.withValues(alpha: .08),
+              s.bar,
+            ).withValues(alpha: .84),
+          );
+          expect(bar.borderColor, s.foreground.withValues(alpha: .12));
+          expect(bar.rimColor, s.foreground.withValues(alpha: .26));
+          expect(bar.shadows, theme.style.floatingShadowDark);
+          expect(bar.shadows, isNot(theme.style.floatingShadow));
+        }
         expect(bar.foregroundColor, s.foregroundSubtle);
         expect(bar.selectedForegroundColor, s.tint);
         expect(bar.selectedBackgroundColor, s.accent);
         expect(bar.actionBackgroundColor, s.primary);
         expect(bar.actionForegroundColor, s.primaryForeground);
       }
+    });
+  });
+
+  group('the floating bar on a dark page', () {
+    double contrast(Color a, Color b) {
+      final la = a.computeLuminance();
+      final lb = b.computeLuminance();
+      final hi = la > lb ? la : lb;
+      final lo = la > lb ? lb : la;
+      return (hi + .05) / (lo + .05);
+    }
+
+    Color over(Color color, Color backdrop) =>
+        Color.alphaBlend(color, backdrop);
+
+    ThemeData dark() =>
+        ThemeData(brightness: Brightness.dark, formFactor: FormFactor.mobile);
+
+    test('is told from the page and from a card by its fill and its rim', () {
+      final theme = dark();
+      final s = theme.colorScheme;
+      final bar = theme.bottomNavigationBarTheme;
+      for (final (name, backdrop) in [
+        ('the page', s.background),
+        ('a card', over(theme.cardTheme.backgroundColor!, s.background)),
+      ]) {
+        final fill = over(bar.backgroundColor!, backdrop);
+        // The plain bar colour at the bar opacity is a shade from the page
+        // (1.03:1) and *under* a card; lifted, the fill alone reads over
+        // both…
+        final before = over(s.bar.withValues(alpha: .95), backdrop);
+        expect(
+          contrast(fill, backdrop),
+          greaterThan(1.12),
+          reason: 'the fill on $name',
+        );
+        expect(
+          contrast(fill, backdrop),
+          greaterThan(contrast(before, backdrop) + .05),
+          reason: 'the fill on $name, against what it was',
+        );
+        // …the hairline reads on the fill and on the backdrop, and its top
+        // edge more than the rest of it.
+        final hairline = over(bar.borderColor!, fill);
+        final rim = over(bar.rimColor!, fill);
+        expect(contrast(hairline, backdrop), greaterThan(1.5), reason: name);
+        expect(contrast(rim, backdrop), greaterThan(2.2), reason: name);
+        expect(contrast(rim, fill), greaterThan(contrast(hairline, fill)));
+        // It is still glass, and still quiet: nowhere near a light surface.
+        expect(bar.backgroundColor!.a, inInclusiveRange(.75, .9));
+        expect(bar.blur, greaterThan(0));
+        expect(contrast(fill, backdrop), lessThan(1.6), reason: name);
+        expect(bar.rimColor!.a, lessThanOrEqualTo(.3));
+        expect(bar.borderColor!.a, inInclusiveRange(.1, .14));
+      }
+      // The shadow is deeper and reaches further than the light one.
+      final shadows = bar.shadows!;
+      expect(shadows, theme.style.floatingShadowDark);
+      expect(
+        shadows.last.color.a,
+        greaterThan(theme.style.floatingShadow.last.color.a * 2),
+      );
+      expect(
+        shadows.last.spreadRadius,
+        greaterThan(theme.style.floatingShadow.last.spreadRadius),
+      );
+    });
+
+    test('its icons, its lens and its action read on it', () {
+      final theme = dark();
+      final s = theme.colorScheme;
+      final bar = theme.bottomNavigationBarTheme;
+      // Over the page, and over the darkest and the brightest thing that
+      // can scroll under glass.
+      for (final backdrop in [
+        s.background,
+        const Color(0xff000000),
+        const Color(0xffffffff),
+      ]) {
+        final fill = over(bar.backgroundColor!, backdrop);
+        final lens = over(bar.selectedBackgroundColor!, fill);
+        expect(
+          contrast(bar.foregroundColor!, fill),
+          greaterThanOrEqualTo(4.5),
+          reason: 'an unselected icon over $backdrop',
+        );
+        expect(
+          contrast(bar.selectedForegroundColor!, lens),
+          greaterThanOrEqualTo(3),
+          reason: 'the selected icon on its lens over $backdrop',
+        );
+        if (backdrop == s.background) {
+          expect(contrast(lens, fill), greaterThan(1.15), reason: 'the lens');
+        }
+        expect(
+          contrast(bar.actionForegroundColor!, bar.actionBackgroundColor!),
+          greaterThanOrEqualTo(4.5),
+        );
+        expect(
+          contrast(bar.actionBackgroundColor!, fill),
+          greaterThan(1.3),
+          reason: 'the action over $backdrop',
+        );
+      }
+    });
+
+    test('it is never thicker than the other bars, and solid when they '
+        'are', () {
+      ThemeData withBars(double opacity) => ThemeData(
+        brightness: Brightness.dark,
+        formFactor: FormFactor.mobile,
+        style: StyleTokens.finesse.copyWith(
+          barOpacity: opacity,
+          barOpacityDark: opacity,
+        ),
+      );
+      // Solid bars: `barOpacity` is the one switch, for this bar too.
+      final solid = withBars(1).bottomNavigationBarTheme;
+      expect(solid.backgroundColor!.a, 1);
+      expect(solid.blur, 0);
+      // Thinner bars than the pill asks for: it follows them down.
+      expect(
+        withBars(.5).bottomNavigationBarTheme.backgroundColor!.a,
+        closeTo(.5, .001),
+      );
+      // Thicker: it keeps its own.
+      expect(
+        withBars(.98).bottomNavigationBarTheme.backgroundColor!.a,
+        closeTo(.84, .001),
+      );
+    });
+
+    test('the light bar and the shadcn styles are as they were', () {
+      final light = ThemeData(formFactor: FormFactor.mobile);
+      final bar = light.bottomNavigationBarTheme;
+      expect(
+        bar.backgroundColor,
+        light.colorScheme.bar.withValues(alpha: .94),
+      );
+      expect(bar.borderColor, light.colorScheme.border);
+      expect(bar.rimColor, isNull);
+      for (final style in [
+        StyleTokens.nova,
+        StyleTokens.maia,
+        StyleTokens.lyra,
+      ]) {
+        for (final brightness in Brightness.values) {
+          final theme = ThemeData(
+            style: style,
+            brightness: brightness,
+            formFactor: FormFactor.mobile,
+            colorScheme: brightness == Brightness.dark
+                ? const NeutralColorScheme.dark()
+                : const NeutralColorScheme.light(),
+          );
+          final bar = theme.bottomNavigationBarTheme;
+          expect(bar.backgroundColor, theme.colorScheme.bar);
+          expect(bar.borderColor, theme.colorScheme.border);
+          expect(bar.rimColor, isNull);
+          expect(bar.shadows, style.floatingShadow);
+        }
+      }
+    });
+
+    testWidgets('the rim is painted along the top edge, and the shadow is '
+        'outside the pill', (tester) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(390, 300);
+      addTearDown(tester.view.reset);
+      debugDisableShadows = false;
+      addTearDown(() => debugDisableShadows = true);
+      final theme = dark();
+      final page = theme.colorScheme.background;
+      final key = GlobalKey();
+      await tester.pumpWidget(
+        RepaintBoundary(
+          key: key,
+          child: FinesseApp(
+            theme: theme,
+            darkTheme: theme,
+            home: ColoredBox(
+              color: page,
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: BottomNavigationBar(
+                  selectedIndex: 0,
+                  onDestinationSelected: (_) {},
+                  destinations: destinations(4),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 300));
+      final pill = tester.getRect(
+        find.descendant(
+          of: find.byType(BottomNavigationBar),
+          matching: find.byType(ClipRRect),
+        ),
+      );
+      late ui.Image image;
+      late ByteData data;
+      await tester.runAsync(() async {
+        final boundary = key.currentContext!.findRenderObject()!;
+        image = await (boundary as RenderRepaintBoundary).toImage();
+        data = (await image.toByteData())!;
+      });
+      Color at(Offset p) {
+        final i = (p.dy.floor() * image.width + p.dx.floor()) * 4;
+        return Color.fromARGB(
+          255,
+          data.getUint8(i),
+          data.getUint8(i + 1),
+          data.getUint8(i + 2),
+        );
+      }
+
+      final bar = theme.bottomNavigationBarTheme;
+      // Between two destinations, clear of the lens and the icons.
+      final x = pill.center.dx;
+      final inside = at(Offset(x, pill.center.dy));
+      final top = at(Offset(x, pill.top + .5));
+      final bottom = at(Offset(x, pill.bottom - .5));
+      final under = at(Offset(x, pill.bottom + 6));
+      final far = at(const Offset(20, 20));
+
+      // The glass is its tint over the page and nothing else: no shadow
+      // behind it.
+      final fill = Color.alphaBlend(bar.backgroundColor!, page);
+      for (final (seen, wanted) in [
+        (inside.r, fill.r),
+        (inside.g, fill.g),
+        (inside.b, fill.b),
+      ]) {
+        // Within a rounding step of the blend, twice over.
+        expect((seen - wanted).abs() * 255, lessThanOrEqualTo(2));
+      }
+      expect(far, page);
+      // Lighter than the page; the hairline lighter than the bar; its top
+      // edge the lightest thing about it.
+      expect(contrast(inside, page), greaterThan(1.12));
+      expect(bottom.computeLuminance(), greaterThan(inside.computeLuminance()));
+      expect(top.computeLuminance(), greaterThan(bottom.computeLuminance()));
+      // And the page under it is darker than the page elsewhere.
+      expect(under.computeLuminance(), lessThan(page.computeLuminance()));
+      image.dispose();
     });
   });
 

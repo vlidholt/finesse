@@ -26,14 +26,16 @@ class _ChipRemovableExampleState extends State<ChipRemovableExample> {
         for (final term in terms)
           Chip(
             label: Text(term),
-            trailing: const Icon(PhosphorIconsRegular.x),
+            trailing: const PhosphorIcon(PhosphorIconsRegular.x),
             semanticLabel: 'Remove $term',
             onPressed: () => setState(() => terms.remove(term)),
           ),
         if (terms.length < _all.length)
           Chip(
             label: const Text('Reset'),
-            leading: const Icon(PhosphorIconsRegular.arrowCounterClockwise),
+            leading: const PhosphorIcon(
+              PhosphorIconsRegular.arrowCounterClockwise,
+            ),
             variant: ChipVariant.dashed,
             onPressed: () => setState(
               () => terms

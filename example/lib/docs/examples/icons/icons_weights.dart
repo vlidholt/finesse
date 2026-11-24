@@ -31,11 +31,14 @@ class IconsWeightsExample extends StatelessWidget {
         runSpacing: 20,
         alignment: WrapAlignment.center,
         children: [
-          weight('Thin', const Icon(PhosphorIconsThin.bellRinging)),
-          weight('Light', const Icon(PhosphorIconsLight.bellRinging)),
-          weight('Regular', const Icon(PhosphorIconsRegular.bellRinging)),
-          weight('Bold', const Icon(PhosphorIconsBold.bellRinging)),
-          weight('Fill', const Icon(PhosphorIconsFill.bellRinging)),
+          weight('Thin', const PhosphorIcon(PhosphorIconsThin.bellRinging)),
+          weight('Light', const PhosphorIcon(PhosphorIconsLight.bellRinging)),
+          weight(
+            'Regular',
+            const PhosphorIcon(PhosphorIconsRegular.bellRinging),
+          ),
+          weight('Bold', const PhosphorIcon(PhosphorIconsBold.bellRinging)),
+          weight('Fill', const PhosphorIcon(PhosphorIconsFill.bellRinging)),
           weight(
             'Duotone',
             const PhosphorDuotoneIcon(PhosphorIconsDuotone.bellRinging),

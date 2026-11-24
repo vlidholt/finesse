@@ -12,6 +12,7 @@ import 'package:finesse/src/theme/components/button_sizes.dart';
 import 'package:finesse/src/theme/components/calendar.dart';
 import 'package:finesse/src/theme/components/card.dart';
 import 'package:finesse/src/theme/components/chat_bubble.dart';
+import 'package:finesse/src/theme/components/chat_list.dart';
 import 'package:finesse/src/theme/components/checkbox.dart';
 import 'package:finesse/src/theme/components/chip.dart';
 import 'package:finesse/src/theme/components/collapsible.dart';
@@ -33,6 +34,7 @@ import 'package:finesse/src/theme/components/menubar.dart';
 import 'package:finesse/src/theme/components/navigation_bar.dart';
 import 'package:finesse/src/theme/components/otp_field.dart';
 import 'package:finesse/src/theme/components/pagination.dart';
+import 'package:finesse/src/theme/components/phosphor_icon.dart';
 import 'package:finesse/src/theme/components/popover.dart';
 import 'package:finesse/src/theme/components/progress_bar.dart';
 import 'package:finesse/src/theme/components/radio.dart';
@@ -46,6 +48,7 @@ import 'package:finesse/src/theme/components/skeleton.dart';
 import 'package:finesse/src/theme/components/slider.dart';
 import 'package:finesse/src/theme/components/sonner.dart';
 import 'package:finesse/src/theme/components/spinner.dart';
+import 'package:finesse/src/theme/components/streaming_text.dart';
 import 'package:finesse/src/theme/components/switch.dart';
 import 'package:finesse/src/theme/components/table.dart';
 import 'package:finesse/src/theme/components/tabs.dart';
@@ -64,6 +67,25 @@ import 'package:finesse/src/theme/text_theme/theme.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:finesse/src/utils/responsive.dart';
 import 'package:flutter/widgets.dart';
+
+/// How strongly menus highlight their hovered row, shadcn's "Menu Accent".
+///
+/// It is a property of *menus*: the rows of a dropdown or context menu, a
+/// menubar's menus and a select's options. The colour scheme is left as it
+/// is — the reference implements "bold" by pointing `--accent` at
+/// `--primary` in the theme, but there the accent is all but a menu colour.
+/// Here it is also the soft wash behind a selected card or chip, an incoming
+/// chat bubble and an icon tile, none of which a menu option should turn
+/// into primary-coloured slabs.
+enum MenuAccent {
+  /// The highlight the style defines: the scheme's accent pair, or a wash
+  /// of the menu's foreground in a style with a
+  /// [StyleTokens.menuHighlightOpacity].
+  subtle,
+
+  /// A filled row in the menu palette's primary pair.
+  bold,
+}
 
 /// The resolved values of a theme: the colour scheme, the text theme, the
 /// shared settings and one theme per component.
@@ -136,8 +158,11 @@ abstract class BaseTheme {
     required this.chipTheme,
     required this.listTileTheme,
     required this.chatBubbleTheme,
+    required this.chatListTheme,
+    required this.streamingTextTheme,
     required this.indicatorBadgeTheme,
     required this.iconTileTheme,
+    required this.phosphorIconTheme,
     required this.timelineTheme,
     required this.boardTheme,
     required this.layoutTheme,
@@ -192,11 +217,21 @@ abstract class BaseTheme {
   /// The theme of the matching widget.
   final ChatBubbleTheme chatBubbleTheme;
 
+  /// The theme of `ChatList`.
+  final ChatListTheme chatListTheme;
+
+  /// The theme of `StreamingText`.
+  final StreamingTextTheme streamingTextTheme;
+
   /// The theme of the matching widget.
   final IndicatorBadgeTheme indicatorBadgeTheme;
 
   /// The theme of the matching widget.
   final IconTileTheme iconTileTheme;
+
+  /// The theme of `PhosphorIcon`: how an icon's line weight follows its
+  /// size.
+  final PhosphorIconTheme phosphorIconTheme;
 
   /// The theme of the matching widget.
   final TimelineTheme timelineTheme;
@@ -622,11 +657,20 @@ abstract class ThemeVariant {
   /// Builds the [ChatBubbleTheme].
   ChatBubbleTheme chatBubbleTheme();
 
+  /// Builds the [ChatListTheme].
+  ChatListTheme chatListTheme();
+
+  /// Builds the [StreamingTextTheme].
+  StreamingTextTheme streamingTextTheme();
+
   /// Builds the [IndicatorBadgeTheme].
   IndicatorBadgeTheme indicatorBadgeTheme();
 
   /// Builds the [IconTileTheme].
   IconTileTheme iconTileTheme();
+
+  /// Builds the [PhosphorIconTheme].
+  PhosphorIconTheme phosphorIconTheme();
 
   /// Builds the [TimelineTheme].
   TimelineTheme timelineTheme();

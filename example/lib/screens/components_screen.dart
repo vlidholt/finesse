@@ -121,7 +121,7 @@ class ComponentsScreenState extends State<ComponentsScreen> {
         scrollController: _sidebarScrollController,
         header: TextField(
           placeholder: const Text('Search docs'),
-          leading: const Icon(PhosphorIconsRegular.magnifyingGlass),
+          leading: const PhosphorIcon(PhosphorIconsRegular.magnifyingGlass),
           onChanged: (value) => setState(() => query = value),
         ),
         children: [

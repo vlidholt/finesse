@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
@@ -22,6 +23,8 @@ class BottomNavigationBarTheme with _$BottomNavigationBarTheme {
     this.radius,
     this.backgroundColor,
     this.borderColor,
+    this.rimColor,
+    this.shadows,
     this.blur,
     this.saturation,
     this.foregroundColor,
@@ -71,6 +74,18 @@ class BottomNavigationBarTheme with _$BottomNavigationBarTheme {
   /// The colour of the bar's hairline.
   final Color? borderColor;
 
+  /// The colour of a floating bar's hairline along its top edge, where
+  /// glass catches the light; it fades into [borderColor] on the way down.
+  /// Null draws the hairline in [borderColor] all the way round.
+  ///
+  /// A dark glass bar over a dark page has no shadow to stand on, so this
+  /// rim is what separates the two.
+  final Color? rimColor;
+
+  /// The shadows a floating bar casts, outside its shape. Defaults to the
+  /// style's floating shadow.
+  final List<BoxShadow>? shadows;
+
   /// The sigma of the backdrop blur under a translucent bar.
   final double? blur;
 
@@ -98,4 +113,19 @@ class BottomNavigationBarTheme with _$BottomNavigationBarTheme {
     BottomNavigationBarTheme? b,
     double t,
   ) => _$BottomNavigationBarTheme.lerp(a, b, t);
+
+  // The generated `==` compares lists by identity, so a theme built with a
+  // non-const list would never equal its own rebuild, and AnimatedTheme
+  // would re-lerp on every frame. Compare the list by value, then let the
+  // generated `==` compare everything else against a copy that shares it.
+  @override
+  bool operator ==(Object other) =>
+      other is BottomNavigationBarTheme &&
+      listEquals(shadows, other.shadows) &&
+      super == other.copyWith(shadows: shadows);
+
+  // Equal themes must hash alike, and the lists may differ in identity.
+  @override
+  int get hashCode =>
+      Object.hash(runtimeType, Object.hashAll(shadows ?? const []));
 }

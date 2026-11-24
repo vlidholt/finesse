@@ -38,7 +38,6 @@ mixin _$TooltipTheme {
         b.longPressDuration,
         t,
       ),
-      duration: lerpDuration$(a.duration, b.duration, t),
       reverseDuration: lerpDuration$(a.reverseDuration, b.reverseDuration, t),
       textStyle: TextStyle.lerp(a.textStyle, b.textStyle, t),
       maxWidth: lerpDouble$(a.maxWidth, b.maxWidth, t),
@@ -58,7 +57,6 @@ mixin _$TooltipTheme {
     FinesseDecoration? decoration,
     HoverStrategies? hoverStrategies,
     Duration? longPressDuration,
-    Duration? duration,
     Duration? reverseDuration,
     TextStyle? textStyle,
     double? maxWidth,
@@ -78,7 +76,6 @@ mixin _$TooltipTheme {
       decoration: decoration ?? _this.decoration,
       hoverStrategies: hoverStrategies ?? _this.hoverStrategies,
       longPressDuration: longPressDuration ?? _this.longPressDuration,
-      duration: duration ?? _this.duration,
       reverseDuration: reverseDuration ?? _this.reverseDuration,
       textStyle: textStyle ?? _this.textStyle,
       maxWidth: maxWidth ?? _this.maxWidth,
@@ -109,7 +106,6 @@ mixin _$TooltipTheme {
       decoration: _this.decoration?.merge(other.decoration) ?? other.decoration,
       hoverStrategies: other.hoverStrategies,
       longPressDuration: other.longPressDuration,
-      duration: other.duration,
       reverseDuration: other.reverseDuration,
       textStyle: _this.textStyle?.merge(other.textStyle) ?? other.textStyle,
       maxWidth: other.maxWidth,
@@ -141,7 +137,6 @@ mixin _$TooltipTheme {
         _other.decoration == _this.decoration &&
         _other.hoverStrategies == _this.hoverStrategies &&
         _other.longPressDuration == _this.longPressDuration &&
-        _other.duration == _this.duration &&
         _other.reverseDuration == _this.reverseDuration &&
         _other.textStyle == _this.textStyle &&
         _other.maxWidth == _this.maxWidth &&
@@ -165,7 +160,6 @@ mixin _$TooltipTheme {
       _this.decoration,
       _this.hoverStrategies,
       _this.longPressDuration,
-      _this.duration,
       _this.reverseDuration,
       _this.textStyle,
       _this.maxWidth,

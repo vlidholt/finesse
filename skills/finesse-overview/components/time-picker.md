@@ -16,7 +16,7 @@ class TimePickerBasicExample extends StatelessWidget {
     return TimePicker(
       trailing: const Padding(
         padding: EdgeInsets.only(left: 8, top: 14),
-        child: Icon(PhosphorIconsRegular.clock),
+        child: PhosphorIcon(PhosphorIconsRegular.clock),
       ),
       onChanged: (time) {},
     );

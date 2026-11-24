@@ -1,8 +1,11 @@
+import 'dart:ui' show Tristate;
+
 import 'package:disco/disco.dart';
 import 'package:example/common/app_state.dart';
 import 'package:example/strand/data/jobs_data.dart';
 import 'package:example/strand/navigation.dart';
 import 'package:example/strand/screens/jobs_screen.dart';
+import 'package:example/strand/session.dart';
 import 'package:example/strand/widgets/jobs_detail.dart';
 import 'package:example/strand/widgets/jobs_detail_page.dart';
 import 'package:example/strand/widgets/jobs_job_card.dart';
@@ -37,7 +40,11 @@ Future<void> _pumpJobs(
 
   await tester.pumpWidget(
     ProviderScope(
-      providers: [...appProviders, strandDestinationProvider],
+      providers: [
+        ...appProviders,
+        strandDestinationProvider,
+        strandSessionProvider,
+      ],
       child: FinesseApp(
         theme: ThemeData(brightness: brightness),
         home: const Scaffold(body: JobsScreen()),
@@ -309,6 +316,61 @@ void main() {
       expect(_inDetail(find.text('About Orbital')), findsOneWidget);
       // Selecting is enough on a desktop: nothing is pushed.
       expect(find.byType(JobDetailPage), findsNothing);
+    });
+
+    testWidgets('"All filters" lists a switch per filter, each announced '
+        'once and live', (tester) async {
+      final handle = tester.ensureSemantics();
+      await _pumpJobs(tester);
+      await tester.tap(find.widgetWithText(Chip, 'All filters'));
+      for (var i = 0; i < 12; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+      final dialog = find.byType(Dialog);
+      expect(dialog, findsOneWidget);
+
+      for (final filter in JobsData.filters) {
+        // The chip behind the dialog is hidden from the semantics by the
+        // modal barrier; what is left is the dialog's row.
+        final row = find.ancestor(
+          of: find.descendant(of: dialog, matching: find.text(filter.label)),
+          matching: find.byType(MergeSemantics),
+        );
+        expect(row, findsOneWidget, reason: filter.label);
+        final node = tester.getSemantics(row);
+        expect(node.label, filter.label);
+        expect(
+          node.getSemanticsData().flagsCollection.isToggled,
+          isNot(Tristate.none),
+          reason: filter.label,
+        );
+        expect(
+          find.descendant(of: row, matching: find.byType(Switch)),
+          findsOneWidget,
+        );
+        // Nothing else in the dialog carries the same name.
+        expect(
+          find.descendant(
+            of: dialog,
+            matching: find.bySemanticsLabel(filter.label),
+          ),
+          findsOneWidget,
+          reason: filter.label,
+        );
+      }
+
+      final hybrid = find.descendant(
+        of: find.ancestor(
+          of: find.descendant(of: dialog, matching: find.text('Hybrid')),
+          matching: find.byType(MergeSemantics),
+        ),
+        matching: find.byType(Switch),
+      );
+      expect(tester.widget<Switch>(hybrid).value, isFalse);
+      await tester.tap(hybrid);
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(tester.widget<Switch>(hybrid).value, isTrue);
+      handle.dispose();
     });
 
     testWidgets('filter chips toggle', (tester) async {

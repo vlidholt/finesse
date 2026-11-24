@@ -29,15 +29,21 @@ enum GlassLevel {
 /// `Glass(color: Color(0x52090909))` is the dark scrim used for labels over a
 /// photo — and is then used at its own alpha.
 ///
-/// A backdrop filter is a compositing layer. A handful on screen is fine; a
-/// long scrolling list of them is not, which is why `Card` only blurs when
-/// the style asks for it.
+/// A backdrop filter reads back and blurs everything behind the surface on
+/// every frame the surface is on screen. A handful of them — the bars, an
+/// open menu, a floating composer — is what glass is for; one per item of a
+/// scrolling list is not, which is why `Card` only blurs when the style
+/// asks for it. Where the blur would show nothing (the surface lies on a
+/// flat fill) or is repeated down a list (a label on every photograph of a
+/// feed), pass `frosted: false`: the same tint, border and shadow with no
+/// filter and no layer.
 class Glass extends StatelessWidget {
   /// Creates a glass surface.
   const Glass({
     this.child,
     this.level = GlassLevel.regular,
     this.color,
+    this.frosted = true,
     this.blur,
     this.saturation,
     this.borderRadius,
@@ -60,6 +66,14 @@ class Glass extends StatelessWidget {
   /// The tint, used at its own alpha. Defaults to the theme's glass colour at
   /// the opacity [level] names.
   final Color? color;
+
+  /// Whether the backdrop is blurred and saturated.
+  ///
+  /// False leaves the tint alone over whatever is behind it — plain
+  /// translucency — and builds no backdrop filter, whatever [blur] and
+  /// [saturation] say. Use it for glass inside scrolling content and for
+  /// glass over a flat surface, where the filter is all cost.
+  final bool frosted;
 
   /// The sigma of the backdrop blur. Defaults to the theme's.
   final double? blur;
@@ -119,8 +133,8 @@ class Glass extends StatelessWidget {
         );
 
     Widget surface = Backdrop(
-      blur: blur ?? glass.blur ?? 0,
-      saturation: saturation ?? glass.saturation ?? 1,
+      blur: frosted ? blur ?? glass.blur ?? 0 : 0,
+      saturation: frosted ? saturation ?? glass.saturation ?? 1 : 1,
       borderRadius: radius,
       child: Container(
         width: width,
@@ -137,7 +151,10 @@ class Glass extends StatelessWidget {
       ),
     );
     if (shadows.isNotEmpty) {
+      // Outside the clip, and after the surface: a shadow painted first
+      // would be sampled by the filter and blurred back into the glass.
       surface = DecoratedBox(
+        position: DecorationPosition.foreground,
         decoration: ShadowDecoration.box(
           borderRadius: radius,
           shadows: shadows,

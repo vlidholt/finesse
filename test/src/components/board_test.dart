@@ -1242,14 +1242,7 @@ void main() {
       );
       final gesture = await _pickUp(tester, 'a1');
       await _dragBy(tester, gesture, const Offset(240, 0), steps: 6);
-      final transform = tester
-          .widget<Transform>(
-            find.ancestor(
-              of: _lifted('a1'),
-              matching: find.byType(Transform),
-            ),
-          )
-          .transform;
+      final transform = tester.renderObject(_lifted('a1')).getTransformTo(null);
       // A rotation: the matrix has a sine in it.
       expect(transform.storage[1].abs(), greaterThan(.002));
       await gesture.up();

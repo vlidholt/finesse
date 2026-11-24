@@ -61,7 +61,8 @@ void main() {
       expect(find.text('strand'), findsOneWidget);
       expect(inAppBar(find.byType(SearchField)), findsOneWidget);
       expect(find.text('Search people, posts, jobs'), findsOneWidget);
-      expect(find.text('⌘K'), findsOneWidget);
+      // The key cap names the platform's chord: Ctrl K off Apple's.
+      expect(find.text(SearchField.shortcutLabel), findsOneWidget);
       for (final label in [
         'Home',
         'Network',
@@ -72,7 +73,8 @@ void main() {
         expect(inTopBar(find.text(label)), findsOneWidget, reason: label);
       }
       expect(inTopBar(find.text('Me')), findsNothing);
-      expect(inTopBar(find.text('3')), findsOneWidget);
+      // Two conversations have something unread; twelve notifications do.
+      expect(inTopBar(find.text('2')), findsOneWidget);
       expect(inTopBar(find.text('12')), findsOneWidget);
       // Home is selected: its filled icon, the others regular.
       expect(inTopBar(find.byIcon(PhosphorIconsFill.house)), findsOneWidget);
@@ -146,9 +148,9 @@ void main() {
         tester,
         find.widgetWithText(Button, 'Mark all as read'),
       );
-      // No count, no badge; the messages' "3" is untouched.
+      // No count, no badge; the messages' "2" is untouched.
       expect(inTopBar(find.text('11')), findsNothing);
-      expect(inTopBar(find.text('3')), findsOneWidget);
+      expect(inTopBar(find.text('2')), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
 
@@ -322,7 +324,7 @@ void main() {
       expect(find.byType(BottomNavigationBar), findsOneWidget);
       expect(find.byType(NavigationBar), findsNothing);
 
-      // The app bar: logo, then search, notifications (12), messages (3).
+      // The app bar: logo, then search, notifications (12), messages (2).
       expect(inAppBar(find.byType(StrandLogo)), findsOneWidget);
       expect(find.byType(SearchField), findsNothing);
       expect(
@@ -335,7 +337,7 @@ void main() {
         findsOneWidget,
       );
       expect(inAppBar(find.text('12')), findsOneWidget);
-      expect(inAppBar(find.text('3')), findsOneWidget);
+      expect(inAppBar(find.text('2')), findsOneWidget);
       expect(
         tester.getSize(
           find.ancestor(

@@ -28,14 +28,14 @@ class CommandInlineExample extends StatelessWidget {
               CommandItem(
                 label: 'Calendar',
                 value: 'calendar',
-                leading: const Icon(PhosphorIconsRegular.calendarBlank),
+                leading: const PhosphorIcon(PhosphorIconsRegular.calendarBlank),
                 onSelected: () {},
               ),
               CommandItem(
                 label: 'Search Emoji',
                 value: 'emoji',
                 keywords: const ['smiley', 'face'],
-                leading: const Icon(PhosphorIconsRegular.smiley),
+                leading: const PhosphorIcon(PhosphorIconsRegular.smiley),
                 onSelected: () {},
               ),
             ],
@@ -46,14 +46,14 @@ class CommandInlineExample extends StatelessWidget {
               CommandItem(
                 label: 'Profile',
                 value: 'profile',
-                leading: const Icon(PhosphorIconsRegular.user),
+                leading: const PhosphorIcon(PhosphorIconsRegular.user),
                 trailing: const Kbd.group(['⌘', 'P']),
                 onSelected: () {},
               ),
               CommandItem(
                 label: 'Billing',
                 value: 'billing',
-                leading: const Icon(PhosphorIconsRegular.creditCard),
+                leading: const PhosphorIcon(PhosphorIconsRegular.creditCard),
                 trailing: const Kbd.group(['⌘', 'B']),
                 onSelected: () {},
               ),
@@ -91,14 +91,16 @@ class CommandDialogExample extends StatelessWidget {
                 CommandItem(
                   label: 'Calendar',
                   value: 'calendar',
-                  leading: const Icon(PhosphorIconsRegular.calendarBlank),
+                  leading: const PhosphorIcon(
+                    PhosphorIconsRegular.calendarBlank,
+                  ),
                   onSelected: () {},
                 ),
                 CommandItem(
                   label: 'Sign out',
                   value: 'signout',
                   keywords: const ['logout', 'exit'],
-                  leading: const Icon(PhosphorIconsRegular.signOut),
+                  leading: const PhosphorIcon(PhosphorIconsRegular.signOut),
                   onSelected: () {},
                 ),
               ],

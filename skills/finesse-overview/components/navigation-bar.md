@@ -35,26 +35,26 @@ class _NavigationBarTopExampleState extends State<NavigationBarTopExample> {
         onDestinationSelected: (i) => setState(() => index = i),
         destinations: const [
           NavigationDestination(
-            icon: Icon(PhosphorIconsRegular.house),
-            selectedIcon: Icon(PhosphorIconsFill.house),
+            icon: PhosphorIcon(PhosphorIconsRegular.house),
+            selectedIcon: PhosphorIcon(PhosphorIconsFill.house),
             label: 'Home',
           ),
           NavigationDestination(
-            icon: Icon(PhosphorIconsRegular.usersThree),
-            selectedIcon: Icon(PhosphorIconsFill.usersThree),
+            icon: PhosphorIcon(PhosphorIconsRegular.usersThree),
+            selectedIcon: PhosphorIcon(PhosphorIconsFill.usersThree),
             label: 'Network',
             // A dot: something is new, without saying how much.
             showBadge: true,
           ),
           NavigationDestination(
-            icon: Icon(PhosphorIconsRegular.chatCircleDots),
-            selectedIcon: Icon(PhosphorIconsFill.chatCircleDots),
+            icon: PhosphorIcon(PhosphorIconsRegular.chatCircleDots),
+            selectedIcon: PhosphorIcon(PhosphorIconsFill.chatCircleDots),
             label: 'Messages',
             badgeCount: 3,
           ),
           NavigationDestination(
-            icon: Icon(PhosphorIconsRegular.bell),
-            selectedIcon: Icon(PhosphorIconsFill.bell),
+            icon: PhosphorIcon(PhosphorIconsRegular.bell),
+            selectedIcon: PhosphorIcon(PhosphorIconsFill.bell),
             label: 'Notifications',
             badgeCount: 128,
           ),
@@ -104,30 +104,30 @@ class _NavigationBarBottomExampleState
           selectedIndex: index,
           onDestinationSelected: (i) => setState(() => index = i),
           action: NavigationAction(
-            icon: const Icon(PhosphorIconsBold.plus),
+            icon: const PhosphorIcon(PhosphorIconsBold.plus),
             label: 'Create post',
             onPressed: () => setState(() => posts++),
           ),
           destinations: const [
             NavigationDestination(
-              icon: Icon(PhosphorIconsRegular.house),
-              selectedIcon: Icon(PhosphorIconsFill.house),
+              icon: PhosphorIcon(PhosphorIconsRegular.house),
+              selectedIcon: PhosphorIcon(PhosphorIconsFill.house),
               label: 'Home',
             ),
             NavigationDestination(
-              icon: Icon(PhosphorIconsRegular.usersThree),
-              selectedIcon: Icon(PhosphorIconsFill.usersThree),
+              icon: PhosphorIcon(PhosphorIconsRegular.usersThree),
+              selectedIcon: PhosphorIcon(PhosphorIconsFill.usersThree),
               label: 'Network',
             ),
             NavigationDestination(
-              icon: Icon(PhosphorIconsRegular.chatCircleDots),
-              selectedIcon: Icon(PhosphorIconsFill.chatCircleDots),
+              icon: PhosphorIcon(PhosphorIconsRegular.chatCircleDots),
+              selectedIcon: PhosphorIcon(PhosphorIconsFill.chatCircleDots),
               label: 'Messages',
               badgeCount: 3,
             ),
             NavigationDestination(
-              icon: Icon(PhosphorIconsRegular.briefcase),
-              selectedIcon: Icon(PhosphorIconsFill.briefcase),
+              icon: PhosphorIcon(PhosphorIconsRegular.briefcase),
+              selectedIcon: PhosphorIcon(PhosphorIconsFill.briefcase),
               label: 'Jobs',
             ),
           ],
@@ -160,24 +160,24 @@ class _NavigationBarDockedExampleState
     extends State<NavigationBarDockedExample> {
   static const _destinations = [
     NavigationDestination(
-      icon: Icon(PhosphorIconsRegular.house),
-      selectedIcon: Icon(PhosphorIconsFill.house),
+      icon: PhosphorIcon(PhosphorIconsRegular.house),
+      selectedIcon: PhosphorIcon(PhosphorIconsFill.house),
       label: 'Home',
     ),
     NavigationDestination(
-      icon: Icon(PhosphorIconsRegular.magnifyingGlass),
-      selectedIcon: Icon(PhosphorIconsBold.magnifyingGlass),
+      icon: PhosphorIcon(PhosphorIconsRegular.magnifyingGlass),
+      selectedIcon: PhosphorIcon(PhosphorIconsBold.magnifyingGlass),
       label: 'Search',
     ),
     NavigationDestination(
-      icon: Icon(PhosphorIconsRegular.bell),
-      selectedIcon: Icon(PhosphorIconsFill.bell),
+      icon: PhosphorIcon(PhosphorIconsRegular.bell),
+      selectedIcon: PhosphorIcon(PhosphorIconsFill.bell),
       label: 'Notifications',
       showBadge: true,
     ),
     NavigationDestination(
-      icon: Icon(PhosphorIconsRegular.user),
-      selectedIcon: Icon(PhosphorIconsFill.user),
+      icon: PhosphorIcon(PhosphorIconsRegular.user),
+      selectedIcon: PhosphorIcon(PhosphorIconsFill.user),
       label: 'Profile',
     ),
   ];

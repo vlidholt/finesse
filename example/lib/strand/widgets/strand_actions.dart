@@ -5,12 +5,12 @@ import 'package:example/strand/data/home_data.dart';
 import 'package:example/strand/data/network_data.dart';
 import 'package:example/strand/navigation.dart';
 import 'package:example/strand/screens/search_screen.dart';
-import 'package:example/strand/widgets/home_pieces.dart';
 import 'package:example/strand/widgets/person_avatar.dart';
 import 'package:example/strand/widgets/profile_common.dart';
 import 'package:example/strand/widgets/settings_controller.dart';
 import 'package:example/strand/widgets/settings_links.dart';
 import 'package:example/strand/widgets/strand_pieces.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -105,7 +105,7 @@ class _StoryViewer extends StatelessWidget {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.all(theme.layoutTheme.gap(GapSize.lg)),
+                padding: EdgeInsets.all(theme.gap(GapSize.lg)),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -113,11 +113,11 @@ class _StoryViewer extends StatelessWidget {
                       children: [
                         PersonAvatar(
                           person,
-                          size: 36,
+                          size: theme.avatarSm,
                           ringColor: _white,
                           ringWidth: 1.5,
                         ),
-                        const Gap.raw(homeSnugGap),
+                        const Gap.sm(),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -136,7 +136,7 @@ class _StoryViewer extends StatelessWidget {
                                 person.headline,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: homeFinePrint(theme).copyWith(
+                                style: theme.textTheme.caption.copyWith(
                                   color: const Color(0xD9FFFFFF),
                                 ),
                               ),
@@ -144,12 +144,14 @@ class _StoryViewer extends StatelessWidget {
                           ),
                         ),
                         // Room for the close button.
-                        const Gap.raw(44),
+                        Gap.raw(theme.avatarMd),
                       ],
                     ),
                     const Spacer(),
                     Button(
-                      leading: const Icon(PhosphorIconsRegular.paperPlaneTilt),
+                      leading: const PhosphorIcon(
+                        PhosphorIconsRegular.paperPlaneTilt,
+                      ),
                       onPressed: () {
                         Navigator.of(context).pop();
                         showStrandToast(
@@ -189,7 +191,7 @@ Future<void> showArticlePreview(
         semanticLabel: title,
         actions: [
           Button.outline(
-            leading: const Icon(PhosphorIconsRegular.bookmarkSimple),
+            leading: const PhosphorIcon(PhosphorIconsRegular.bookmarkSimple),
             onPressed: () {
               Navigator.of(context).pop();
               showStrandToast(
@@ -223,10 +225,7 @@ Future<void> showArticlePreview(
             const Gap.lg(),
             Text(
               theme.style.overline.applyCase(source),
-              style: homeFinePrint(theme).copyWith(
-                fontWeight: FontWeight.w600,
-                letterSpacing: .4,
-              ),
+              style: theme.style.overline.apply(theme.textTheme.caption),
             ),
             const Gap.xs(),
             Text(
@@ -502,10 +501,13 @@ void openFooterLink(BuildContext context, String link) {
                 child: const Text('Close'),
               ),
               Button(
-                leading: const Icon(PhosphorIconsRegular.squaresFour),
+                leading: const PhosphorIcon(PhosphorIconsRegular.squaresFour),
                 onPressed: () {
+                  // With the dialog's own context, not the caller's: the
+                  // footer this was opened from is in a rail that drops
+                  // away when the window narrows, and may be gone by now.
+                  dialogContext.openComponentLibrary();
                   Navigator.of(dialogContext).pop();
-                  context.openComponentLibrary();
                 },
                 child: const Text('Browse components'),
               ),

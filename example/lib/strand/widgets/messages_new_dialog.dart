@@ -1,6 +1,7 @@
 import 'package:example/strand/data/messages_data.dart';
 import 'package:example/strand/widgets/messages_common.dart';
 import 'package:example/strand/widgets/messages_controller.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -71,9 +72,9 @@ class _NewMessageDialogState extends State<_NewMessageDialog> {
               controller: _query,
               autofocus: true,
               placeholder: const Text('Type a name'),
-              leading: Icon(
+              leading: PhosphorIcon(
                 PhosphorIconsRegular.magnifyingGlass,
-                size: 18,
+                size: theme.glyph,
                 color: theme.colorScheme.mutedForeground,
               ),
             ),
@@ -92,7 +93,7 @@ class _NewMessageDialogState extends State<_NewMessageDialog> {
             for (final conversation in matches)
               ListTile(
                 onTap: () => Navigator.of(context).pop(conversation),
-                leading: ConversationAvatar(conversation, size: 40),
+                leading: ConversationAvatar(conversation),
                 titleStyle: theme.messagesName,
                 title: Text(conversation.name),
                 subtitle: Text(conversation.headline),

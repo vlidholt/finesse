@@ -27,7 +27,6 @@ class TooltipTheme with _$TooltipTheme {
     this.anchor,
     this.hoverStrategies,
     this.longPressDuration,
-    this.duration,
     this.reverseDuration,
     this.textStyle,
     this.maxWidth,
@@ -66,9 +65,6 @@ class TooltipTheme with _$TooltipTheme {
 
   /// {@macro Tooltip.longPressDuration}
   final Duration? longPressDuration;
-
-  /// {@macro Tooltip.duration}
-  final Duration? duration;
 
   /// {@macro Tooltip.reverseDuration}
   final Duration? reverseDuration;

@@ -53,7 +53,7 @@ class JobDetailPage extends StatelessWidget {
           backgroundColor: colors.card,
           appBar: AppBar(
             leading: IconButton.ghost(
-              icon: const Icon(PhosphorIconsRegular.arrowLeft),
+              icon: const PhosphorIcon(PhosphorIconsRegular.arrowLeft),
               semanticLabel: 'Back',
               onPressed: () => Navigator.of(context).pop(),
             ),
@@ -61,7 +61,7 @@ class JobDetailPage extends StatelessWidget {
             actionsGap: 0,
             actions: [
               IconButton.ghost(
-                icon: Icon(
+                icon: PhosphorIcon(
                   saved
                       ? PhosphorIconsFill.bookmarkSimple
                       : PhosphorIconsRegular.bookmarkSimple,
@@ -71,7 +71,7 @@ class JobDetailPage extends StatelessWidget {
                 onPressed: () => state.toggleSaved(job),
               ),
               IconButton.ghost(
-                icon: const Icon(PhosphorIconsRegular.export),
+                icon: const PhosphorIcon(PhosphorIconsRegular.export),
                 semanticLabel: 'Share job',
                 onPressed: () => copyLink(context, 'strand.app/jobs/${job.id}'),
               ),

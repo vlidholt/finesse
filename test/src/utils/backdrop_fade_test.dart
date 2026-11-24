@@ -191,6 +191,101 @@ void main() {
     }
   });
 
+  // The fade belongs to the outermost surface under its host. A solid
+  // dialog claims nothing — and the glass inside it (an inline command
+  // list, in the default theme) must not claim it either: a claimed host
+  // stops fading, so the rest of the dialog popped in and out at full
+  // opacity while only the list faded.
+  for (final (name, theme) in <(String, ThemeData)>[
+    ('the default theme', ThemeData()),
+    (
+      'nova with glass popovers',
+      ThemeData(
+        style: StyleTokens.nova.copyWith(popoverOpacity: .8, glassBlur: 20),
+      ),
+    ),
+  ]) {
+    testWidgets('a solid dialog with a glass surface inside fades as one, '
+        'in and out — $name', (tester) async {
+      /// Every opacity above [finder], multiplied.
+      double opacityOf(Finder finder) {
+        var opacity = 1.0;
+        RenderObject? node = tester.renderObject(finder);
+        while (node != null) {
+          if (node is RenderAnimatedOpacity) opacity *= node.opacity.value;
+          if (node is RenderOpacity) opacity *= node.opacity;
+          node = node.parent;
+        }
+        return opacity;
+      }
+
+      await tester.pumpWidget(
+        FinesseApp(
+          theme: theme,
+          home: Builder(
+            builder: (context) => Center(
+              child: Button(
+                onPressed: () => showDialog<void>(
+                  context: context,
+                  builder: (context) => const Dialog(
+                    title: Text('Title'),
+                    child: SizedBox(
+                      height: 200,
+                      child: Command(
+                        groups: [
+                          CommandGroup(
+                            heading: 'Fruit',
+                            items: [CommandItem(label: 'Apple')],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                child: const Text('Open'),
+              ),
+            ),
+          ),
+        ),
+      );
+      // The inner surface is glass: the case under test.
+      await tester.tap(find.text('Open'));
+      await tester.pump();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 32));
+      expect(
+        find.ancestor(
+          of: find.text('Apple'),
+          matching: find.byType(BackdropFilter),
+        ),
+        findsOneWidget,
+      );
+      // Early in the entrance both are part-way in, together.
+      var title = opacityOf(find.text('Title'));
+      var inner = opacityOf(find.text('Apple'));
+      expect(inner, greaterThan(0));
+      expect(inner, lessThan(1), reason: 'the entrance is under way');
+      expect(title, inner, reason: 'title $title, list $inner');
+
+      await tester.pump(const Duration(seconds: 1));
+      expect(opacityOf(find.text('Title')), 1);
+      expect(opacityOf(find.text('Apple')), 1);
+
+      // And they leave together.
+      Navigator.of(tester.element(find.text('Title'))).pop();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 16));
+      await tester.pump(const Duration(milliseconds: 32));
+      title = opacityOf(find.text('Title'));
+      inner = opacityOf(find.text('Apple'));
+      expect(inner, lessThan(1), reason: 'the exit is under way');
+      expect(title, inner, reason: 'title $title, list $inner');
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pump();
+      expect(find.text('Title'), findsNothing);
+    });
+  }
+
   group('Backdrop.faded', () {
     test('is nothing at zero, the filter itself at one, a new one between', () {
       final filter = Backdrop.filterFor(blur: 24, saturation: 1.6)!;
@@ -238,6 +333,83 @@ void main() {
       await tester.pumpWidget(host(null));
       expect(find.byType(BackdropFilter), findsNothing);
       expect(opacityAbove(tester, find.byKey(const Key('child'))), .25);
+    });
+
+    testWidgets('offers the fade to the outermost surface only', (
+      tester,
+    ) async {
+      final animation = AnimationController(vsync: tester, value: .25);
+      addTearDown(animation.dispose);
+      final glass = Backdrop.filterFor(blur: 10);
+
+      /// The opacities above [finder], each one counted.
+      List<double> fadesAbove(Finder finder) {
+        final fades = <double>[];
+        var node = tester.renderObject(finder).parent;
+        while (node != null) {
+          if (node is RenderAnimatedOpacity) fades.add(node.opacity.value);
+          node = node.parent;
+        }
+        return fades;
+      }
+
+      Widget host({required ui.ImageFilter? outer}) => Directionality(
+        textDirection: TextDirection.ltr,
+        child: BackdropFadeHost(
+          opacity: animation,
+          child: BackdropSurface(
+            filter: outer,
+            child: Column(
+              children: [
+                const SizedBox(key: Key('beside'), width: 10, height: 10),
+                BackdropSurface(
+                  filter: glass,
+                  child: const SizedBox(
+                    key: Key('inside'),
+                    width: 10,
+                    height: 10,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      // A solid surface around a glass one: nobody claims, and the host
+      // fades both — once.
+      await tester.pumpWidget(host(outer: null));
+      for (final key in const [Key('beside'), Key('inside')]) {
+        expect(
+          fadesAbove(find.byKey(key)).where((fade) => fade != 1),
+          [.25],
+          reason: '$key',
+        );
+      }
+      final hostFade = tester.renderObject<RenderAnimatedOpacity>(
+        find
+            .descendant(
+              of: find.byType(BackdropFadeHost),
+              matching: find.byType(FadeTransition),
+            )
+            .first,
+      );
+      expect(hostFade.opacity.value, .25);
+
+      // A glass surface around a glass one: the outer claims, the host
+      // stops fading, and the inner one does not fade a second time.
+      await tester.pumpWidget(host(outer: glass));
+      expect(hostFade.opacity.value, 1);
+      for (final key in const [Key('beside'), Key('inside')]) {
+        expect(
+          fadesAbove(find.byKey(key)).where((fade) => fade != 1),
+          [.25],
+          reason: '$key',
+        );
+      }
+      // The content kept its place in the tree through the change.
+      await tester.pumpWidget(host(outer: null));
+      expect(hostFade.opacity.value, .25);
     });
   });
 }

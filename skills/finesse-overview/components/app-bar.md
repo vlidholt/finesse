@@ -37,19 +37,19 @@ class AppBarBasicExample extends StatelessWidget {
             // Not at the top of the screen here, so no status bar inset.
             primary: false,
             leading: IconButton.ghost(
-              icon: const Icon(PhosphorIconsRegular.arrowLeft),
+              icon: const PhosphorIcon(PhosphorIconsRegular.arrowLeft),
               semanticLabel: 'Back',
               onPressed: () {},
             ),
             title: const Text('Messages'),
             actions: [
               IconButton.ghost(
-                icon: const Icon(PhosphorIconsRegular.magnifyingGlass),
+                icon: const PhosphorIcon(PhosphorIconsRegular.magnifyingGlass),
                 semanticLabel: 'Search',
                 onPressed: () {},
               ),
               IconButton.ghost(
-                icon: const Icon(PhosphorIconsRegular.notePencil),
+                icon: const PhosphorIcon(PhosphorIconsRegular.notePencil),
                 semanticLabel: 'New message',
                 onPressed: () {},
               ),
@@ -120,7 +120,7 @@ class _AppBarMiddleExampleState extends State<AppBarMiddleExample> {
                   color: theme.colorScheme.primary,
                   borderRadius: theme.radii.md,
                 ),
-                child: Icon(
+                child: PhosphorIcon(
                   PhosphorIconsBold.waves,
                   size: 18,
                   color: theme.colorScheme.primaryForeground,
@@ -128,32 +128,32 @@ class _AppBarMiddleExampleState extends State<AppBarMiddleExample> {
               ),
               title: const TextField(
                 placeholder: Text('Search'),
-                leading: Icon(PhosphorIconsRegular.magnifyingGlass),
+                leading: PhosphorIcon(PhosphorIconsRegular.magnifyingGlass),
               ),
               middle: NavigationBar(
                 selectedIndex: index,
                 onDestinationSelected: (i) => setState(() => index = i),
                 destinations: const [
                   NavigationDestination(
-                    icon: Icon(PhosphorIconsRegular.house),
-                    selectedIcon: Icon(PhosphorIconsFill.house),
+                    icon: PhosphorIcon(PhosphorIconsRegular.house),
+                    selectedIcon: PhosphorIcon(PhosphorIconsFill.house),
                     label: 'Home',
                   ),
                   NavigationDestination(
-                    icon: Icon(PhosphorIconsRegular.usersThree),
-                    selectedIcon: Icon(PhosphorIconsFill.usersThree),
+                    icon: PhosphorIcon(PhosphorIconsRegular.usersThree),
+                    selectedIcon: PhosphorIcon(PhosphorIconsFill.usersThree),
                     label: 'Network',
                   ),
                   NavigationDestination(
-                    icon: Icon(PhosphorIconsRegular.briefcase),
-                    selectedIcon: Icon(PhosphorIconsFill.briefcase),
+                    icon: PhosphorIcon(PhosphorIconsRegular.briefcase),
+                    selectedIcon: PhosphorIcon(PhosphorIconsFill.briefcase),
                     label: 'Jobs',
                   ),
                 ],
               ),
               actions: [
                 IconButton.ghost(
-                  icon: const Icon(PhosphorIconsRegular.bell),
+                  icon: const PhosphorIcon(PhosphorIconsRegular.bell),
                   semanticLabel: 'Notifications',
                   onPressed: () {},
                 ),

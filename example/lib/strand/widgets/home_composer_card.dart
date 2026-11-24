@@ -1,8 +1,8 @@
 import 'package:example/strand/data.dart';
 import 'package:example/strand/data/home_data.dart';
 import 'package:example/strand/widgets/compose_dialog.dart';
-import 'package:example/strand/widgets/home_pieces.dart';
 import 'package:example/strand/widgets/person_avatar.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -18,7 +18,7 @@ class HomeComposerCard extends StatelessWidget {
     void compose() => showComposeDialog(context);
 
     return Card(
-      padding: EdgeInsets.all(theme.layoutTheme.gap(GapSize.lg)),
+      padding: EdgeInsets.all(theme.gap(GapSize.lg)),
       child: FinesseColumn(
         gap: GapSize.md,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -27,14 +27,13 @@ class HomeComposerCard extends StatelessWidget {
           FinesseRow(
             gap: GapSize.md,
             children: [
-              const PersonAvatar(People.me, size: homeAvatarSize),
+              const PersonAvatar(People.me),
               Expanded(
                 // A button dressed as a field: tapping it opens the
                 // composer rather than taking text here.
                 child: Button.outline(
-                  height: 46,
+                  size: ButtonSize.lg,
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(horizontal: 18),
                   decoration: theme.buttonDecoration(
                     radius: theme.radii.full,
                   ),
@@ -69,15 +68,11 @@ class HomeComposerCard extends StatelessWidget {
               for (final action in HomeData.composerActions)
                 Flexible(
                   child: Button.ghost(
-                    // Two points taller than the theme's button, with a
-                    // larger glyph: these read as tools, not as actions.
-                    height: 38,
                     padding: EdgeInsets.symmetric(
-                      horizontal: theme.layoutTheme.gap(GapSize.md),
+                      horizontal: theme.gap(GapSize.md),
                     ),
-                    iconSize: 22,
                     foregroundColor: scheme.foregroundSubtle,
-                    leading: Icon(action.icon),
+                    leading: PhosphorIcon(action.icon),
                     onPressed: compose,
                     child: Flexible(
                       child: Text(

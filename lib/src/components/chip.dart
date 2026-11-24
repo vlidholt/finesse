@@ -1,5 +1,6 @@
 import 'package:finesse/src/raw_components/pressable.dart';
 import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/text_scaled_height.dart';
 import 'package:flutter/widgets.dart';
 
 /// How a [Chip] is outlined.
@@ -19,7 +20,7 @@ enum ChipVariant {
 /// ```dart
 /// Chip(
 ///   label: const Text('Remote'),
-///   leading: const Icon(PhosphorIconsRegular.globe),
+///   leading: const PhosphorIcon(PhosphorIconsRegular.globe),
 ///   selected: remoteOnly,
 ///   onSelected: (value) => setState(() => remoteOnly = value),
 /// )
@@ -189,7 +190,15 @@ class Chip extends StatelessWidget {
           child: box,
         );
       }
-      box = SizedBox(height: effectiveHeight, child: box);
+      // A floor rather than a fixed height once text is scaled up, so the
+      // label is never cut off; at a scale of 1 the two are the same.
+      box = ConstrainedBox(
+        constraints: BoxConstraints(
+          minHeight: effectiveHeight,
+          maxHeight: textScaledMaxHeight(context, effectiveHeight),
+        ),
+        child: box,
+      );
       return FocusRing(
         visible: states.contains(WidgetState.focused),
         borderRadius: radius,

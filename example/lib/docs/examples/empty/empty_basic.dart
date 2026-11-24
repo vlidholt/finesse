@@ -11,7 +11,7 @@ class EmptyBasicExample extends StatelessWidget {
       height: 320,
       columnMainAxisSize: MainAxisSize.max,
       child: Empty(
-        icon: const Icon(PhosphorIconsRegular.tray),
+        icon: const PhosphorIcon(PhosphorIconsRegular.tray),
         title: const Text('No messages'),
         description: const Text('Messages you receive will show up here.'),
         actions: [

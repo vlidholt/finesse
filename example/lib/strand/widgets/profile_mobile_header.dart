@@ -7,6 +7,7 @@ import 'package:example/strand/widgets/settings_links.dart';
 import 'package:example/strand/widgets/strand_actions.dart';
 import 'package:example/strand/widgets/user_menu.dart';
 import 'package:example/strand/widgets/verified_badge.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -27,7 +28,8 @@ class ProfileMobileHeader extends StatelessWidget {
   final VoidCallback onSearch;
 
   /// The cover's height below the status bar, and the portrait that
-  /// straddles its bottom edge.
+  /// straddles its bottom edge: the profile's own picture sizes, on no
+  /// scale.
   static const _coverHeight = 190.0;
   static const _avatarSize = 96.0;
 
@@ -111,7 +113,7 @@ class _Identity extends StatelessWidget {
     final layout = theme.layoutTheme;
     const person = ProfileData.person;
     // The diameter of the mutual connections' faces.
-    const mutualSize = 22.0;
+    final mutualSize = theme.avatarXs;
     // A copy of the line's own theme style, so the heavier weight gets the
     // font's semibold face.
     final strong = theme.textTheme.muted.copyWith(
@@ -146,7 +148,7 @@ class _Identity extends StatelessWidget {
                     child: AvatarGroup(
                       size: mutualSize,
                       // The same 6 as the desktop's 24-point faces.
-                      overlap: profileInlineGap,
+                      overlap: theme.gap(GapSize.xs),
                       children: [
                         for (final person in ProfileData.mutuals.take(3))
                           Image.asset(
@@ -161,11 +163,7 @@ class _Identity extends StatelessWidget {
                   const Gap.sm(),
                   Text(
                     ProfileData.mutualCount,
-                    style: theme.textTheme.small.copyWith(
-                      fontSize: 12,
-                      height: 1,
-                      color: scheme.mutedForeground,
-                    ),
+                    style: theme.textTheme.caption,
                   ),
                 ],
               ),
@@ -182,19 +180,12 @@ class _Identity extends StatelessWidget {
                   person.name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  // The designs set the name at 24 here, under the theme's
-                  // 28-point phone display size.
-                  style: theme.textTheme.h1.copyWith(
-                    fontSize: 24,
-                    height: 30 / 24,
-                    letterSpacing: -.6,
-                    color: scheme.foreground,
-                  ),
+                  style: theme.textTheme.h1.copyWith(color: scheme.foreground),
                 ),
               ),
             ),
-            const Gap.raw(profileInlineGap),
-            if (person.verified) const VerifiedBadge(size: 20),
+            const Gap.xs(),
+            if (person.verified) VerifiedBadge(style: theme.textTheme.h3),
           ],
         ),
         const Gap.xs(),
@@ -205,9 +196,9 @@ class _Identity extends StatelessWidget {
         const Gap.sm(),
         Row(
           children: [
-            Icon(
+            PhosphorIcon(
               PhosphorIconsRegular.mapPin,
-              size: 14,
+              size: theme.iconBeside(theme.textTheme.muted),
               color: scheme.mutedForeground,
             ),
             const Gap.xs(),
@@ -233,13 +224,13 @@ class _Identity extends StatelessWidget {
             ),
           ],
         ),
-        const Gap.raw(profileSnugGap),
+        const Gap.md(),
         FinesseRow(
           gap: GapSize.sm,
           children: [
             Expanded(
               child: Button(
-                leading: const Icon(PhosphorIconsRegular.plusCircle),
+                leading: const PhosphorIcon(PhosphorIconsRegular.plusCircle),
                 onPressed: () => openSettings(context, SettingsSection.privacy),
                 child: const _ButtonLabel('Open to'),
               ),
@@ -251,10 +242,7 @@ class _Identity extends StatelessWidget {
               ),
             ),
             IconButton.secondary(
-              icon: const Icon(PhosphorIconsRegular.export),
-              // 20 in the designs: between the text button's glyph and the
-              // phone icon button's own 22.
-              iconSize: 20,
+              icon: const PhosphorIcon(PhosphorIconsRegular.export),
               // Squared to the text buttons' radius, as on the desktop.
               decoration: theme.buttonDecoration(radius: theme.radius),
               semanticLabel: 'Share profile',

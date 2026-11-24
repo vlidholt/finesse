@@ -3,6 +3,7 @@
 // deprecated it in 3.47 in favour of the `material_ui` package.
 // ignore_for_file: deprecated_member_use
 
+import 'package:example/common/code_style.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/material.dart' hide IconButton, Tab, Theme;
 import 'package:flutter/services.dart';
@@ -129,12 +130,7 @@ class CodeBlock extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         child: Text.rich(
           CodeHighlighter.highlight(code.trimRight()),
-          style: const TextStyle(
-            fontFamily: 'JetBrainsMono',
-            fontSize: 13,
-            height: 1.6,
-            color: Color(0xFFD4D4D8),
-          ),
+          style: CodeStyle.block.copyWith(color: const Color(0xFFD4D4D8)),
         ),
       ),
     );
@@ -241,7 +237,7 @@ class _CopyButtonState extends State<_CopyButton> {
       foregroundColor: const Color(0xFFA1A1AA),
       hoverBackgroundColor: const Color(0x1AFFFFFF),
       hoverForegroundColor: const Color(0xFFFAFAFA),
-      icon: Icon(
+      icon: PhosphorIcon(
         copied ? PhosphorIconsRegular.check : PhosphorIconsRegular.copy,
       ),
       onPressed: () async {
@@ -295,9 +291,7 @@ class DocParagraph extends StatelessWidget {
   /// [text] split into plain and `code` spans.
   static List<InlineSpan> spans(BuildContext context, String text) {
     final theme = Theme.of(context);
-    final code = TextStyle(
-      fontFamily: 'JetBrainsMono',
-      fontSize: 13,
+    final code = CodeStyle.inline.copyWith(
       color: theme.colorScheme.foreground,
       backgroundColor: theme.colorScheme.muted,
     );

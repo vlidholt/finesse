@@ -95,9 +95,10 @@ final motionDoc = ComponentDoc(
           id: 'motion_indicator',
           title: 'MovingIndicator',
           description:
-              'The travelling selection of `Tabs`, `TabBar`, `ToggleGroup` '
-              'and the navigation bars, and the highlight that glides '
-              'between the rows of a menu, a `Select` or a `Command`. The '
+              'The travelling selection of `Tabs`, `TabBar`, `ToggleGroup`, '
+              'the navigation bars and the menubar. (The highlighted row '
+              'of a menu, a `Select` or a `Command` does not travel: it '
+              'follows the pointer and the arrow keys at once.) The '
               'indicator is painted, not laid out, so nothing is rebuilt '
               'while it moves.',
           builder: (_) => const MotionIndicatorExample(),

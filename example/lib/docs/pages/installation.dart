@@ -87,7 +87,7 @@ FinesseApp(
           CodeBlock(
             code: '''
 Button(
-  leading: const Icon(PhosphorIconsRegular.envelopeSimple),
+  leading: const PhosphorIcon(PhosphorIconsRegular.envelopeSimple),
   onPressed: () {},
   child: const Text('Login with Email'),
 )''',

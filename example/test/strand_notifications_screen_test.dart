@@ -1,3 +1,5 @@
+import 'dart:ui' show Tristate;
+
 import 'package:example/strand/data.dart';
 import 'package:example/strand/data/notifications_data.dart';
 import 'package:example/strand/navigation.dart';
@@ -7,6 +9,7 @@ import 'package:example/strand/widgets/notifications_controller.dart';
 import 'package:example/strand/widgets/notifications_rail.dart';
 import 'package:example/strand/widgets/strand_pieces.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -357,6 +360,108 @@ void main() {
       );
       await settleFrames(tester, frames: 6);
       expect(settings.pauseAll, isTrue);
+    });
+
+    testWidgets('a row\'s hover fill follows the theme\'s motion', (
+      tester,
+    ) async {
+      // A read row: an unread one carries its wash whether hovered or not.
+      final read = NotificationsData.all.firstWhere((n) => !n.unread);
+      Color? fill() {
+        final box = tester.widget<DecoratedBox>(
+          find
+              .descendant(
+                of: find.descendant(
+                  of: _row(read.id),
+                  matching: find.byType(AnimatedFill),
+                ),
+                matching: find.byType(DecoratedBox),
+              )
+              .first,
+        );
+        return (box.decoration as BoxDecoration).color;
+      }
+
+      Future<List<double>> hover(ThemeData theme) async {
+        await pumpStrandScreen(
+          tester,
+          const NotificationsScreen(),
+          theme: theme,
+        );
+        await Scrollable.ensureVisible(
+          tester.element(_row(read.id)),
+          alignment: .5,
+        );
+        await tester.pump();
+        expect(fill()?.a ?? 0, 0);
+        final mouse = await tester.createGesture(
+          kind: PointerDeviceKind.mouse,
+        );
+        await mouse.addPointer(location: Offset.zero);
+        await mouse.moveTo(
+          tester.getTopLeft(_row(read.id)) + const Offset(8, 8),
+        );
+        await tester.pump();
+        final alphas = <double>[];
+        for (var i = 0; i < 12; i++) {
+          await tester.pump(const Duration(milliseconds: 16));
+          alphas.add(fill()?.a ?? 0);
+        }
+        await mouse.removePointer();
+        await tester.pumpWidget(const SizedBox.shrink());
+        return alphas;
+      }
+
+      final font = TextTheme(family: strandTestFont);
+      // The fill a hovered row ends on; a translucent wash in this scheme.
+      final full = ThemeData(textTheme: font).colorScheme.muted.a;
+      // With motion off the fill is simply there on the next frame…
+      final still = await hover(
+        ThemeData(textTheme: font, motion: Motion.none),
+      );
+      expect(still.first, moreOrLessEquals(full));
+      // …and with it on, it fades in and never dips on the way.
+      final moving = await hover(ThemeData(textTheme: font));
+      expect(moving.first, inExclusiveRange(0, full));
+      expect(moving.last, moreOrLessEquals(full));
+      for (var i = 1; i < moving.length; i++) {
+        expect(moving[i], greaterThanOrEqualTo(moving[i - 1]));
+      }
+    });
+
+    testWidgets('each quick switch is announced once, under its label', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await _pump(tester);
+      final labels = [
+        for (final text in tester.widgetList<Text>(
+          find.descendant(
+            of: find.descendant(
+              of: find.byType(NotificationsManageCard),
+              matching: find.byType(MergeSemantics),
+            ),
+            matching: find.byType(Text),
+          ),
+        ))
+          text.data!,
+      ];
+      // A label and a sentence for each of the three switches.
+      expect(labels, hasLength(6));
+      for (var i = 0; i < labels.length; i += 2) {
+        // "Mentions" is also one of the page's filter tabs: a button.
+        final stops = [
+          for (final stop in announced(tester, labels[i]))
+            if (!stop.flagsCollection.isButton) stop,
+        ];
+        expect(stops, hasLength(1), reason: labels[i]);
+        expect(
+          stops.single.flagsCollection.isToggled,
+          isNot(Tristate.none),
+          reason: labels[i],
+        );
+      }
+      handle.dispose();
     });
   });
 

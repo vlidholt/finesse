@@ -360,9 +360,11 @@ abstract final class Groups {
 }
 
 /// The unread counts the navigation shows.
+///
+/// The Messages badge has no figure here: it counts the session's
+/// conversations with something unread
+/// (`MessagesController.unreadCount`).
 abstract final class StrandCounts {
-  static const unreadMessages = 3;
-
   /// The designs' figure. The bell itself counts the session's unread
   /// notifications (`NotificationsController.unreadCount`), which start at
   /// this many — a test holds the two together.

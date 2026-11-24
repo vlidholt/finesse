@@ -15,6 +15,7 @@ import 'package:example/strand/widgets/person_avatar.dart';
 import 'package:example/strand/widgets/search_bar.dart';
 import 'package:example/strand/widgets/strand_logo.dart';
 import 'package:example/strand/widgets/user_menu.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_solidart/flutter_solidart.dart';
@@ -50,6 +51,7 @@ export 'package:example/strand/navigation.dart';
 /// shell, `context.leaveTo(...)` closes the page on the way.
 ///
 /// What more than one screen shows — the unread notifications the bell
+/// counts, the conversations with something unread that the Messages badge
 /// counts, the invitations, the recent searches, the settings — is in the
 /// `StrandSession` (`session.dart`), reached with `context.strand`.
 ///
@@ -89,12 +91,16 @@ class StrandShell extends StatelessWidget {
         final dark = themeModeProvider.of(context).value == ThemeMode.dark;
         final theme = Theme.of(context);
         final colors = theme.colorScheme;
+        final portraitSize = (theme.navigationBarTheme.iconSize ?? 24) + 4;
         void goTo(StrandDestination next) => destinationSignal.value = next;
-        final notifications = context.strand.notifications;
+        final session = context.strand;
+        final notifications = session.notifications;
+        final unreadMessages = session.messages.unreadCount;
 
-        // The bell counts the unread notifications, which are not a signal.
+        // The bell counts the unread notifications and the Messages badge
+        // the conversations with something unread; neither is a signal.
         return ListenableBuilder(
-          listenable: notifications,
+          listenable: session.badges,
           builder: (context, _) => NavigationScaffold(
             selectedIndex: destination.index,
             onDestinationSelected: (index) =>
@@ -103,41 +109,44 @@ class StrandShell extends StatelessWidget {
             // value.
             destinations: [
               const NavigationDestination(
-                icon: Icon(PhosphorIconsRegular.house),
-                selectedIcon: Icon(PhosphorIconsFill.house),
+                icon: PhosphorIcon(PhosphorIconsRegular.house),
+                selectedIcon: PhosphorIcon(PhosphorIconsFill.house),
                 label: 'Home',
               ),
               const NavigationDestination(
-                icon: Icon(PhosphorIconsRegular.usersThree),
-                selectedIcon: Icon(PhosphorIconsFill.usersThree),
+                icon: PhosphorIcon(PhosphorIconsRegular.usersThree),
+                selectedIcon: PhosphorIcon(PhosphorIconsFill.usersThree),
                 label: 'Network',
               ),
               const NavigationDestination(
-                icon: Icon(PhosphorIconsRegular.briefcase),
-                selectedIcon: Icon(PhosphorIconsFill.briefcase),
+                icon: PhosphorIcon(PhosphorIconsRegular.briefcase),
+                selectedIcon: PhosphorIcon(PhosphorIconsFill.briefcase),
                 label: 'Jobs',
               ),
-              const NavigationDestination(
-                icon: Icon(PhosphorIconsRegular.chatCircleDots),
-                selectedIcon: Icon(PhosphorIconsFill.chatCircleDots),
+              NavigationDestination(
+                icon: const PhosphorIcon(PhosphorIconsRegular.chatCircleDots),
+                selectedIcon: const PhosphorIcon(
+                  PhosphorIconsFill.chatCircleDots,
+                ),
                 label: 'Messages',
-                badgeCount: StrandCounts.unreadMessages,
+                badgeCount: unreadMessages.value,
                 // On a phone: the app bar's button.
                 showInBottomBar: false,
               ),
               NavigationDestination(
-                icon: const Icon(PhosphorIconsRegular.bell),
-                selectedIcon: const Icon(PhosphorIconsFill.bell),
+                icon: const PhosphorIcon(PhosphorIconsRegular.bell),
+                selectedIcon: const PhosphorIcon(PhosphorIconsFill.bell),
                 label: 'Notifications',
                 badgeCount: notifications.unreadCount,
                 showInBottomBar: false,
               ),
               NavigationDestination(
-                // 28 is the design's size for the tab's portrait.
-                icon: const PersonAvatar(People.me, size: 28),
+                // A portrait reads smaller than a glyph in the same box, so
+                // it is drawn a little over the bar's icon size.
+                icon: PersonAvatar(People.me, size: portraitSize),
                 selectedIcon: PersonAvatar(
                   People.me,
-                  size: 28,
+                  size: portraitSize,
                   ringColor: colors.tint,
                 ),
                 label: 'Me',
@@ -157,7 +166,7 @@ class StrandShell extends StatelessWidget {
                 // button's own fill.
                 backgroundColor: colors.muted,
                 hoverBackgroundColor: colors.secondary,
-                icon: Icon(
+                icon: PhosphorIcon(
                   dark ? PhosphorIconsRegular.sun : PhosphorIconsRegular.moon,
                 ),
                 semanticLabel: 'Toggle dark mode',
@@ -166,13 +175,14 @@ class StrandShell extends StatelessWidget {
               const _AvatarPill(),
             ],
             action: NavigationAction(
-              icon: const Icon(PhosphorIconsRegular.plus),
+              icon: const PhosphorIcon(PhosphorIconsRegular.plus),
               label: 'Create post',
               onPressed: () => showComposeDialog(context),
             ),
             mobileAppBar: _MobileAppBar(
               destination: destination,
               unreadNotifications: notifications.unreadCount,
+              unreadMessages: unreadMessages.value,
               onSelected: goTo,
             ),
             showMobileAppBar: destination != StrandDestination.profile,
@@ -238,11 +248,13 @@ class _MobileAppBar extends StatelessWidget {
   const _MobileAppBar({
     required this.destination,
     required this.unreadNotifications,
+    required this.unreadMessages,
     required this.onSelected,
   });
 
   final StrandDestination destination;
   final int unreadNotifications;
+  final int unreadMessages;
   final ValueChanged<StrandDestination> onSelected;
 
   @override
@@ -268,7 +280,7 @@ class _MobileAppBar extends StatelessWidget {
         offset: const Offset(0, 2),
         semanticLabel: '$count unread',
         child: IconButton.ghost(
-          icon: Icon(selected ? selectedIcon : icon),
+          icon: PhosphorIcon(selected ? selectedIcon : icon),
           foregroundColor: selected ? theme.colorScheme.tint : null,
           semanticLabel: label,
           onPressed: () => onSelected(target),
@@ -279,13 +291,13 @@ class _MobileAppBar extends StatelessWidget {
     return AppBar(
       padding: EdgeInsetsDirectional.only(
         start: start,
-        end: layout.gap(GapSize.sm),
+        end: theme.gap(GapSize.sm),
       ),
       actionsGap: 0,
       leading: StrandLogo(onPressed: () => onSelected(StrandDestination.home)),
       actions: [
         IconButton.ghost(
-          icon: const Icon(PhosphorIconsRegular.magnifyingGlass),
+          icon: const PhosphorIcon(PhosphorIconsRegular.magnifyingGlass),
           semanticLabel: 'Search',
           onPressed: () =>
               context.pushFullScreen<void>((context) => const SearchScreen()),
@@ -302,7 +314,7 @@ class _MobileAppBar extends StatelessWidget {
           icon: PhosphorIconsRegular.chatCircleDots,
           selectedIcon: PhosphorIconsFill.chatCircleDots,
           label: 'Messages',
-          count: StrandCounts.unreadMessages,
+          count: unreadMessages,
         ),
       ],
     );
@@ -325,19 +337,25 @@ class _AvatarPill extends StatelessWidget {
           visible: states.contains(WidgetState.focused),
           borderRadius: theme.radii.full,
           child: Glass(
+            // On the app bar, which has blurred the page already.
+            frosted: false,
             level: GlassLevel.strong,
             borderRadius: theme.radii.full,
-            // The pill hugs its 32-point portrait: 3 around it, 8 after the
-            // caret. Neither is on the spacing scale.
-            padding: const EdgeInsetsDirectional.fromSTEB(3, 3, 8, 3),
+            // The pill hugs its portrait.
+            padding: EdgeInsetsDirectional.fromSTEB(
+              theme.gap(GapSize.xs),
+              theme.gap(GapSize.xs),
+              theme.gap(GapSize.sm),
+              theme.gap(GapSize.xs),
+            ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const PersonAvatar(People.me, size: 32),
-                const Gap.raw(6),
-                Icon(
+                PersonAvatar(People.me, size: theme.avatarSm),
+                const Gap.xs(),
+                PhosphorIcon(
                   PhosphorIconsRegular.caretDown,
-                  size: 14,
+                  size: theme.iconBeside(theme.textTheme.caption),
                   color: theme.colorScheme.mutedForeground,
                 ),
               ],

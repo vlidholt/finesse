@@ -1,11 +1,13 @@
 import 'package:example/strand/data.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
 /// A [Person]'s portrait.
 ///
 /// ```dart
-/// PersonAvatar(People.omar, size: 48, showOnline: true)
+/// PersonAvatar(People.omar, showOnline: true)
+/// PersonAvatar(People.omar, size: Theme.of(context).avatarSm)
 /// ```
 ///
 /// Three optional decorations, as the designs use them:
@@ -20,7 +22,7 @@ import 'package:flutter/widgets.dart';
 class PersonAvatar extends StatelessWidget {
   const PersonAvatar(
     this.person, {
-    this.size = 40,
+    this.size,
     this.showOnline = false,
     this.storyRing = false,
     this.ringColor,
@@ -31,8 +33,10 @@ class PersonAvatar extends StatelessWidget {
 
   final Person person;
 
-  /// The portrait's diameter.
-  final double size;
+  /// The portrait's diameter. Defaults to the theme's avatar size; the
+  /// steps around it are `theme.avatarXs`, `avatarSm`, `avatarLg` and
+  /// `avatarXl`.
+  final double? size;
 
   /// Whether to show the presence dot. Pass `person.online` to show it only
   /// for someone who is active.
@@ -54,6 +58,7 @@ class PersonAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final size = this.size ?? theme.avatarMd;
 
     Widget avatar = Avatar(
       person.avatar,
@@ -61,6 +66,7 @@ class PersonAvatar extends StatelessWidget {
       fit: BoxFit.cover,
       fallback: Text(
         person.initials,
+        // The portrait's own type: initials fitted to the disc.
         style: theme.textTheme.small.copyWith(
           fontSize: size * .36,
           height: 1,

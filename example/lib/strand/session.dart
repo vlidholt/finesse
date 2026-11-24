@@ -1,4 +1,9 @@
 import 'package:disco/disco.dart';
+import 'package:example/strand/data/jobs_data.dart';
+import 'package:example/strand/widgets/jobs_board_controller.dart';
+import 'package:example/strand/widgets/jobs_state.dart';
+import 'package:example/strand/widgets/messages_assistant.dart';
+import 'package:example/strand/widgets/messages_controller.dart';
 import 'package:example/strand/widgets/network_controller.dart';
 import 'package:example/strand/widgets/notifications_controller.dart';
 import 'package:example/strand/widgets/search_history.dart';
@@ -8,27 +13,69 @@ import 'package:flutter/widgets.dart';
 /// The state Strand's screens share for as long as the app runs: what has
 /// been read, answered, requested, searched for and switched on.
 ///
-/// A screen's own state stays in the screen (`JobsState`,
-/// `MessagesController`, `HomeFeedModel`). These four are here instead
-/// because more than one place shows them:
+/// A screen's own state stays in the screen (`HomeFeedModel`). These are
+/// here instead because more than one place shows them:
 ///
 /// * [notifications] — the shell's bell counts the unread ones.
+/// * [messages] — the shell's Messages badge counts the conversations with
+///   something unread, and a reply goes on arriving after the user has left
+///   the Messages screen for another.
 /// * [network] — an invitation can be accepted from a notification, and a
 ///   request to connect sent from a search result or a profile preview.
 /// * [search] — the app-bar field and the search page list the same recent
 ///   searches.
 /// * [settings] — the page is a pushed route, and has to read the same when
 ///   it is opened again.
+/// * [jobs] and [applications] — the Jobs screen's two sides, its summary
+///   tiles and the "Saved items" sheet all count the same saved jobs. A
+///   listing saved or applied to in [jobs] is a card on the board that
+///   [applications] holds.
 ///
 /// Nothing is persisted.
 class StrandSession {
+  /// [replies] is how the other side of every conversation answers. A test
+  /// passes its own, to decide what arrives and when.
+  StrandSession({MessagesReplies replies = const MessagesReplies()})
+    : messages = MessagesController(replies: replies) {
+    jobs.addListener(_trackListings);
+  }
+
   final notifications = NotificationsController();
+  final MessagesController messages;
   final network = NetworkController();
   final search = SearchHistory();
   final settings = SettingsController();
+  final jobs = JobsState();
+  final applications = ApplicationsController();
+
+  /// What the navigation's badges count: it announces a change in either
+  /// number, and nothing else the two controllers do.
+  late final Listenable badges = Listenable.merge([
+    notifications,
+    messages.unreadCount,
+  ]);
+
+  /// [jobs] announces everything about the Jobs screen — a selection, a
+  /// filter, the sort — and every listing is reported each time; the board
+  /// acts only on a listing whose saved or applied state has changed (see
+  /// [ApplicationsController.track]).
+  void _trackListings() {
+    for (final job in JobsData.jobs) {
+      applications.track(
+        job,
+        saved: jobs.isSaved(job),
+        applied: jobs.hasApplied(job),
+      );
+    }
+  }
 
   void dispose() {
+    jobs
+      ..removeListener(_trackListings)
+      ..dispose();
+    applications.dispose();
     notifications.dispose();
+    messages.dispose();
     network.dispose();
     search.dispose();
     settings.dispose();

@@ -94,6 +94,8 @@ flutter:
     - lib/docs/examples/list_tile/
     - lib/docs/examples/tab_bar/
     - lib/docs/examples/chat_bubble/
+    - lib/docs/examples/chat_list/
+    - lib/docs/examples/streaming_text/
     - lib/docs/examples/indicator_badge/
     - lib/docs/examples/avatar_group/
     - lib/docs/examples/icon_tile/

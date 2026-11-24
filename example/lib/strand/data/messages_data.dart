@@ -60,6 +60,10 @@ class MessageImage {
 }
 
 /// One entry of a conversation's thread: text, an attachment or a picture.
+///
+/// The designed messages are constants without an [id]; the controller gives
+/// each one a stable id when it opens the thread, which is what lets the
+/// list tell a message that moved from one that is new.
 @immutable
 class ChatMessage {
   /// A text message.
@@ -69,8 +73,11 @@ class ChatMessage {
     this.sender,
     this.receipt,
     this.reactions = 0,
+    this.id = '',
+    this.streaming = false,
   }) : file = null,
-       image = null;
+       image = null,
+       pending = false;
 
   /// A document sent as an attachment card.
   const ChatMessage.file(
@@ -78,9 +85,12 @@ class ChatMessage {
     this.outgoing = false,
     this.sender,
     this.receipt,
+    this.id = '',
   }) : text = null,
        image = null,
-       reactions = 0;
+       reactions = 0,
+       pending = false,
+       streaming = false;
 
   /// A picture.
   const ChatMessage.image(
@@ -88,9 +98,41 @@ class ChatMessage {
     this.outgoing = false,
     this.sender,
     this.receipt,
+    this.id = '',
   }) : text = null,
        file = null,
-       reactions = 0;
+       reactions = 0,
+       pending = false,
+       streaming = false;
+
+  /// A reply that is being written: three dots in a bubble, which the text
+  /// takes the place of when it arrives.
+  const ChatMessage.pending({this.sender, this.id = ''})
+    : text = null,
+      file = null,
+      image = null,
+      outgoing = false,
+      receipt = null,
+      reactions = 0,
+      pending = true,
+      streaming = false;
+
+  const ChatMessage._({
+    required this.id,
+    required this.text,
+    required this.file,
+    required this.image,
+    required this.outgoing,
+    required this.sender,
+    required this.receipt,
+    required this.reactions,
+    required this.pending,
+    required this.streaming,
+  });
+
+  /// What the thread knows the message by. Empty for a designed message
+  /// until the controller opens its thread.
+  final String id;
 
   final String? text;
   final SharedFile? file;
@@ -108,6 +150,53 @@ class ChatMessage {
 
   /// How many hearts the message has collected.
   final int reactions;
+
+  /// Whether nothing of the message has arrived yet: its sender is typing.
+  final bool pending;
+
+  /// Whether [text] is still arriving, a piece at a time.
+  final bool streaming;
+
+  /// The same message under [id].
+  ChatMessage withId(String id) => _copy(id: id);
+
+  /// The same message without its delivery line.
+  ChatMessage withoutReceipt() => receipt == null
+      ? this
+      : ChatMessage._(
+          id: id,
+          text: text,
+          file: file,
+          image: image,
+          outgoing: outgoing,
+          sender: sender,
+          receipt: null,
+          reactions: reactions,
+          pending: pending,
+          streaming: streaming,
+        );
+
+  /// The reply this pending or streaming message has become so far.
+  ChatMessage withText(String text, {required bool streaming}) =>
+      _copy(text: text, pending: false, streaming: streaming);
+
+  ChatMessage _copy({
+    String? id,
+    String? text,
+    bool? pending,
+    bool? streaming,
+  }) => ChatMessage._(
+    id: id ?? this.id,
+    text: text ?? this.text,
+    file: file,
+    image: image,
+    outgoing: outgoing,
+    sender: sender,
+    receipt: receipt,
+    reactions: reactions,
+    pending: pending ?? this.pending,
+    streaming: streaming ?? this.streaming,
+  );
 }
 
 /// A row of the Messages list and everything its three panes show.
@@ -120,6 +209,8 @@ class Conversation {
     required this.messages,
     this.person,
     this.group,
+    this.assistant = false,
+    this.replies = const [],
     this.day = 'Today',
     this.unread = 0,
     this.online = false,
@@ -141,6 +232,15 @@ class Conversation {
 
   /// The group the conversation belongs to; null for a [person].
   final Group? group;
+
+  /// Whether the other side is Strand's assistant rather than someone on
+  /// the network: its replies are written as they are read, a piece at a
+  /// time, and its picture is a mark, not a portrait.
+  final bool assistant;
+
+  /// What the other person answers when the user writes to them, one after
+  /// the other. Empty for a conversation nobody answers in.
+  final List<String> replies;
 
   /// When the last message arrived, as the list says it: "2m", "Mon".
   final String time;
@@ -225,9 +325,45 @@ abstract final class MessagesData {
     size: 'Link',
   );
 
+  /// What someone answers when the designs have nothing for them to say.
+  static const _replies = [
+    'Sounds good!',
+    'Let me check and get back to you.',
+    'Thanks, Noor. Talk soon.',
+  ];
+
+  /// The assistant, as the list and the panes name it. It has no portrait:
+  /// `ConversationAvatar` draws its mark instead.
+  static const assistantProfile = Person(
+    name: 'Strand Assistant',
+    headline: 'Drafts, summaries and second opinions',
+    avatar: '',
+  );
+
+  /// The one conversation whose replies are streamed.
+  static const assistant = Conversation(
+    id: 'assistant',
+    person: assistantProfile,
+    assistant: true,
+    time: '1m',
+    preview: 'Ask me to draft a post, tighten a message or prepare for a call.',
+    online: true,
+    messages: [
+      ChatMessage(
+        'Hi Noor. Ask me to draft a post, tighten a message or prepare for '
+        'a call.',
+      ),
+    ],
+  );
+
   static const omar = Conversation(
     id: 'omar',
     person: People.omar,
+    replies: [
+      'Got it, opening the deck now.',
+      'Slide 14 reads much better with the flow next to it. Keep that.',
+      'Send me the next draft whenever it is ready.',
+    ],
     time: '2m',
     preview: 'You: Sending the deck now. Slides 12 to 18…',
     online: true,
@@ -274,6 +410,7 @@ abstract final class MessagesData {
   static const sara = Conversation(
     id: 'sara',
     person: People.sara,
+    replies: _replies,
     time: '18m',
     preview: 'Can we move the research sync to Thursday?',
     unread: 1,
@@ -329,6 +466,7 @@ abstract final class MessagesData {
   static const claire = Conversation(
     id: 'claire',
     person: People.claire,
+    replies: _replies,
     time: '3h',
     preview: 'Thanks Noor, I’ve shared your portfolio with the team.',
     messages: [
@@ -347,6 +485,7 @@ abstract final class MessagesData {
   static const julian = Conversation(
     id: 'julian',
     person: People.julian,
+    replies: _replies,
     time: 'Mon',
     preview: 'See you at Config! Lounge after my talk?',
     day: 'Monday',
@@ -370,6 +509,7 @@ abstract final class MessagesData {
   static const aisha = Conversation(
     id: 'aisha',
     person: People.aisha,
+    replies: _replies,
     time: 'Sun',
     preview: 'Sharing the interview guide here',
     day: 'Sunday',
@@ -388,6 +528,7 @@ abstract final class MessagesData {
   static const mateo = Conversation(
     id: 'mateo',
     person: People.mateo,
+    replies: _replies,
     time: 'Nov 14',
     preview: 'Ha, yes. That bug again.',
     day: 'November 14',
@@ -405,6 +546,7 @@ abstract final class MessagesData {
   static const mei = Conversation(
     id: 'mei',
     person: People.mei,
+    replies: _replies,
     time: 'Nov 12',
     preview: 'Love the new brand work!',
     day: 'November 12',
@@ -457,6 +599,7 @@ abstract final class MessagesData {
   /// Every conversation, in the order of the list. The first is the one a
   /// desktop opens on.
   static const conversations = <Conversation>[
+    assistant,
     omar,
     sara,
     designSystemsGuild,

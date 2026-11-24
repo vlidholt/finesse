@@ -8,6 +8,7 @@ import 'package:example/strand/widgets/strand_actions.dart';
 import 'package:example/strand/widgets/strand_pieces.dart';
 import 'package:example/strand/widgets/strand_previews.dart';
 import 'package:example/strand/widgets/verified_badge.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -40,16 +41,9 @@ class _HomePostCardState extends State<HomePostCard> {
     final theme = Theme.of(context);
     final post = widget.post;
     final compact = theme.formFactor == FormFactor.mobile;
-    final layout = theme.layoutTheme;
-    // 14 on a desktop, 12 on a phone: between the card's blocks.
-    final blockGap = compact ? layout.gap(GapSize.md) : homeLooseGap;
     final body = Text(
       compact ? post.compactBody : post.body,
-      // The feed's reading size, 15/24: roomier than the theme's body text
-      // on either form factor.
       style: theme.textTheme.p.copyWith(
-        fontSize: 15,
-        height: 24 / 15,
         color: theme.colorScheme.foreground,
       ),
     );
@@ -60,20 +54,22 @@ class _HomePostCardState extends State<HomePostCard> {
             Directionality.of(context),
           );
       return Card(
-        // The action row's 44-point targets reach 6 into the bottom inset.
-        padding: padding.copyWith(bottom: padding.bottom - homeTightGap),
+        // The action row's touch targets reach into the bottom inset.
+        padding: padding.copyWith(
+          bottom: padding.bottom - theme.gap(GapSize.xs),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
           children: [
             _PostHeader(post, compact: true),
-            Gap.raw(blockGap),
+            const Gap.md(),
             body,
             if (HomePostMedia.has(post)) ...[
-              Gap.raw(blockGap),
+              const Gap.md(),
               HomePostMedia(post, compact: true),
             ],
-            Gap.raw(blockGap),
+            const Gap.md(),
             _ReactionSummary(post, compact: true),
             const Gap.xs(),
             _CompactActions(post),
@@ -88,21 +84,21 @@ class _HomePostCardState extends State<HomePostCard> {
         mainAxisSize: MainAxisSize.min,
         children: [
           _PostHeader(post, compact: false),
-          Gap.raw(blockGap),
+          const Gap.md(),
           body,
           if (HomePostMedia.has(post)) ...[
-            Gap.raw(blockGap),
+            const Gap.md(),
             HomePostMedia(post, compact: false),
           ],
           Padding(
             padding: EdgeInsets.only(
-              top: layout.gap(GapSize.md),
-              bottom: homeSnugGap,
+              top: theme.gap(GapSize.md),
+              bottom: theme.gap(GapSize.sm),
             ),
             child: _ReactionSummary(post, compact: false),
           ),
-          const Divider.horizontal(),
-          const Gap.raw(homeTightGap),
+          const Divider.horizontal(margin: EdgeInsets.zero),
+          const Gap.xs(),
           _Actions(
             post,
             onComment: post.thread.isEmpty
@@ -137,7 +133,7 @@ class _PostHeader extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        PersonAvatar(author, size: compact ? 40 : homeAvatarSize),
+        PersonAvatar(author),
         const Gap.md(),
         Expanded(
           child: Column(
@@ -156,10 +152,10 @@ class _PostHeader extends StatelessWidget {
                     ),
                   ),
                   if (author.verified) ...[
-                    const Gap.raw(homeTightGap),
+                    const Gap.xs(),
                     const VerifiedBadge(),
                   ],
-                  const Gap.raw(homeTightGap),
+                  const Gap.xs(),
                   Text('· ${post.age}', style: theme.textTheme.muted),
                 ],
               ),
@@ -200,15 +196,12 @@ class _FollowChip extends StatelessWidget {
     return Chip(
       selected: following,
       onSelected: (_) => onPressed(),
-      // Tighter than a filter chip — 10 at the sides, a 14-point glyph —
-      // and outlined in the strong border on the bare card.
-      padding: const EdgeInsets.symmetric(horizontal: homeSnugGap),
+      // Outlined in the strong border on the bare card.
       backgroundColor: const Color(0x00000000),
       borderColor: scheme.borderStrong,
       foregroundColor: scheme.foreground,
-      leading: Icon(
+      leading: PhosphorIcon(
         following ? PhosphorIconsRegular.check : PhosphorIconsRegular.plus,
-        size: 14,
       ),
       label: Text(following ? 'Following' : 'Follow'),
     );
@@ -228,7 +221,7 @@ class _PostMenu extends StatelessWidget {
     return DropdownMenu(
       itemsBuilder: (_) => [
         ContextMenuItem(
-          leading: const Icon(PhosphorIconsRegular.bookmarkSimple),
+          leading: const PhosphorIcon(PhosphorIconsRegular.bookmarkSimple),
           onPressed: () => showStrandToast(
             context,
             'Post saved',
@@ -237,13 +230,13 @@ class _PostMenu extends StatelessWidget {
           child: const Text('Save post'),
         ),
         ContextMenuItem(
-          leading: const Icon(PhosphorIconsRegular.link),
+          leading: const PhosphorIcon(PhosphorIconsRegular.link),
           onPressed: () => copyLink(context, 'strand.app/posts/${post.id}'),
           child: const Text('Copy link'),
         ),
         if (post.followable)
           ContextMenuItem(
-            leading: Icon(
+            leading: PhosphorIcon(
               model.isFollowing(author)
                   ? PhosphorIconsRegular.userMinus
                   : PhosphorIconsRegular.userPlus,
@@ -255,7 +248,7 @@ class _PostMenu extends StatelessWidget {
             ),
           ),
         ContextMenuItem(
-          leading: const Icon(PhosphorIconsRegular.eyeSlash),
+          leading: const PhosphorIcon(PhosphorIconsRegular.eyeSlash),
           onPressed: () => showStrandToast(
             context,
             'Thanks, noted',
@@ -266,7 +259,7 @@ class _PostMenu extends StatelessWidget {
       ],
       builder: (context, controller, _) => IconButton.ghost(
         size: ButtonSize.sm,
-        icon: const Icon(PhosphorIconsRegular.dotsThree),
+        icon: const PhosphorIcon(PhosphorIconsRegular.dotsThree),
         semanticLabel: 'More options',
         onPressed: controller.toggle,
       ),
@@ -288,23 +281,24 @@ class _ReactionSummary extends StatelessWidget {
     final model = HomeFeedScope.of(context);
     final others = formatCount(model.otherReactions(post));
     final name = compact ? post.reactedBy.firstName : post.reactedBy.name;
-    final size = compact ? 18.0 : 20.0;
+    final size = theme.avatarXs;
 
     return Row(
       children: [
         ExcludeSemantics(
           child: AvatarGroup(
             size: size,
-            overlap: 5,
+            overlap: size / 4,
             children: [
               for (final reaction in post.reactions)
                 SizedBox.square(
                   dimension: size,
                   child: ColoredBox(
                     color: reaction.background,
-                    child: Icon(
+                    child: PhosphorIcon(
                       reaction.icon,
-                      size: compact ? 10 : 12,
+                      // The disc's own glyph, fitted to it.
+                      size: size * .6,
                       color: reaction.foreground,
                     ),
                   ),
@@ -358,17 +352,13 @@ class _Actions extends StatelessWidget {
     }) {
       return Expanded(
         child: Button.ghost(
-          // 40: a full-width action sits between the theme's 36-point
-          // button and its 44-point large one.
-          height: 40,
           width: double.infinity,
           padding: EdgeInsets.symmetric(
-            horizontal: theme.layoutTheme.gap(GapSize.xs),
+            horizontal: theme.gap(GapSize.xs),
           ),
-          iconSize: 20,
           foregroundColor: color ?? scheme.foregroundSubtle,
           hoverForegroundColor: color ?? scheme.foreground,
-          leading: Icon(icon),
+          leading: PhosphorIcon(icon),
           onPressed: onPressed,
           child: Flexible(
             child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
@@ -431,16 +421,16 @@ class _CompactActions extends StatelessWidget {
       return Semantics(
         label: label,
         child: Button.ghost(
-          // Hugs its count: 10 at the sides and 6 from glyph to number,
-          // so four of them fit a phone with room to spare.
-          padding: const EdgeInsets.symmetric(horizontal: homeSnugGap),
-          gap: homeTightGap,
+          // Hugs its count, so four of them fit a phone with room to
+          // spare.
+          padding: EdgeInsets.symmetric(horizontal: theme.gap(GapSize.sm)),
+          gap: theme.gap(GapSize.xs),
           iconSize: theme.buttonSizesTheme.icon?.iconSize,
           decoration: pill,
           textStyle: theme.textTheme.small,
           foregroundColor: color ?? scheme.foregroundSubtle,
           hoverForegroundColor: color ?? scheme.foreground,
-          leading: Icon(icon),
+          leading: PhosphorIcon(icon),
           onPressed: onPressed,
           child: Text(formatCount(count)),
         ),
@@ -452,47 +442,55 @@ class _CompactActions extends StatelessWidget {
     return Transform.translate(
       offset: Offset(
         Directionality.of(context) == TextDirection.rtl
-            ? homeSnugGap
-            : -homeSnugGap,
+            ? theme.gap(GapSize.sm)
+            : -theme.gap(GapSize.sm),
         0,
       ),
-      child: Row(
-        spacing: homeHairGap,
-        children: [
-          action(
-            icon: liked ? PhosphorIconsFill.heart : PhosphorIconsRegular.heart,
-            label: 'Like',
-            count: model.reactionCount(post),
-            color: liked ? scheme.tint : null,
-            onPressed: () => model.toggleLike(post),
-          ),
-          action(
-            icon: PhosphorIconsRegular.chatCircle,
-            label: 'Comment',
-            count: post.comments,
-            onPressed: () => showCommentDialog(context, post.author),
-          ),
-          if (post.reposts > 0)
+      // Scaled down rather than cut off where a theme's type and spacing
+      // make the four wider than a narrow phone.
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        alignment: AlignmentDirectional.centerStart,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
             action(
-              icon: PhosphorIconsRegular.repeat,
-              label: 'Repost',
-              count: post.reposts,
-              onPressed: () => repostWithToast(context, post.author),
-            )
-          else
-            IconButton.ghost(
-              icon: const Icon(PhosphorIconsRegular.repeat),
-              foregroundColor: scheme.foregroundSubtle,
-              semanticLabel: 'Repost',
-              onPressed: () => repostWithToast(context, post.author),
+              icon: liked
+                  ? PhosphorIconsFill.heart
+                  : PhosphorIconsRegular.heart,
+              label: 'Like',
+              count: model.reactionCount(post),
+              color: liked ? scheme.tint : null,
+              onPressed: () => model.toggleLike(post),
             ),
-          IconButton.ghost(
-            icon: const Icon(PhosphorIconsRegular.paperPlaneTilt),
-            foregroundColor: scheme.foregroundSubtle,
-            semanticLabel: 'Send',
-            onPressed: () => showSendDialog(context, what: 'this post'),
-          ),
-        ],
+            action(
+              icon: PhosphorIconsRegular.chatCircle,
+              label: 'Comment',
+              count: post.comments,
+              onPressed: () => showCommentDialog(context, post.author),
+            ),
+            if (post.reposts > 0)
+              action(
+                icon: PhosphorIconsRegular.repeat,
+                label: 'Repost',
+                count: post.reposts,
+                onPressed: () => repostWithToast(context, post.author),
+              )
+            else
+              IconButton.ghost(
+                icon: const PhosphorIcon(PhosphorIconsRegular.repeat),
+                foregroundColor: scheme.foregroundSubtle,
+                semanticLabel: 'Repost',
+                onPressed: () => repostWithToast(context, post.author),
+              ),
+            IconButton.ghost(
+              icon: const PhosphorIcon(PhosphorIconsRegular.paperPlaneTilt),
+              foregroundColor: scheme.foregroundSubtle,
+              semanticLabel: 'Send',
+              onPressed: () => showSendDialog(context, what: 'this post'),
+            ),
+          ],
+        ),
       ),
     );
   }

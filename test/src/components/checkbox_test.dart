@@ -36,7 +36,7 @@ void main() {
       expect(
         find.descendant(
           of: animatedSwitcherFinder,
-          matching: find.byType(Icon),
+          matching: find.bySubtype<Icon>(),
         ),
         findsNothing,
       );
@@ -61,7 +61,7 @@ void main() {
       expect(
         find.descendant(
           of: animatedSwitcherFinder,
-          matching: find.byType(Icon),
+          matching: find.bySubtype<Icon>(),
         ),
         findsOneWidget,
       );
@@ -112,7 +112,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byType(PopIn),
-          matching: find.byType(Icon),
+          matching: find.bySubtype<Icon>(),
         ),
         findsNothing,
         reason: 'Initially unchecked, no icon should be present',
@@ -138,7 +138,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byType(PopIn),
-          matching: find.byType(Icon),
+          matching: find.bySubtype<Icon>(),
         ),
         findsOneWidget,
         reason: '''Checked state should show the checkmark icon within PopIn''',
@@ -168,7 +168,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byType(PopIn),
-          matching: find.byType(Icon),
+          matching: find.bySubtype<Icon>(),
         ),
         findsNothing,
         reason: 'Unchecked state should hide the icon',
@@ -233,7 +233,7 @@ void main() {
 
       // Check icon follows the custom size: shadcn's `[&>svg]:size-3.5` puts
       // the glyph 2px inside its box.
-      final iconFinder = find.byType(Icon);
+      final iconFinder = find.bySubtype<Icon>();
       expect(iconFinder, findsOneWidget);
       final icon = tester.widget<Icon>(iconFinder);
       expect(icon.size, customSize - 2);

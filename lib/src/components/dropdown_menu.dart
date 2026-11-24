@@ -47,6 +47,7 @@ class DropdownMenu extends StatefulWidget {
     this.constraints,
     this.padding,
     this.onOpenChange,
+    this.requestFocus = true,
   });
 
   /// Builds the trigger. See [DropdownMenuTriggerBuilder].
@@ -77,6 +78,9 @@ class DropdownMenu extends StatefulWidget {
 
   /// Called when the menu opens or closes.
   final ValueChanged<bool>? onOpenChange;
+
+  /// {@macro ContextMenu.requestFocus}
+  final bool requestFocus;
 
   /// The default anchor: Radix's `side="bottom" align="start"` with
   /// `sideOffset={4}`, trying the other alignment and then the other side
@@ -157,6 +161,7 @@ class _DropdownMenuState extends State<DropdownMenu> {
       itemsBuilder: widget.itemsBuilder,
       constraints: widget.constraints,
       padding: widget.padding,
+      requestFocus: widget.requestFocus,
       child: widget.builder(context, _controller, widget.child),
     );
   }

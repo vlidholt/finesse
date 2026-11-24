@@ -18,7 +18,7 @@ class AvatarGroupMixedExample extends StatelessWidget {
         height: 40,
         color: color,
         alignment: Alignment.center,
-        child: Icon(icon, size: 24, color: const Color(0xFFFFFFFF)),
+        child: PhosphorIcon(icon, size: 24, color: const Color(0xFFFFFFFF)),
       );
     }
 

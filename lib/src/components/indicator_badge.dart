@@ -9,7 +9,7 @@ import 'package:flutter/widgets.dart';
 /// ```dart
 /// IndicatorBadge(
 ///   count: 3,
-///   child: const Icon(PhosphorIconsRegular.chatCircleDots),
+///   child: const PhosphorIcon(PhosphorIconsRegular.chatCircleDots),
 /// )
 /// ```
 ///
@@ -18,7 +18,11 @@ import 'package:flutter/widgets.dart';
 /// colour unless [ringColor] says otherwise — keeps it legible on top of
 /// [child]. Without a [child] the badge is laid out on its own, which is how
 /// an unread count sits at the end of a list row.
-class IndicatorBadge extends StatelessWidget {
+///
+/// The badge pops in when it appears and out when it goes. While it is on
+/// its way out it keeps showing what it showed: a count that drops to zero
+/// leaves as the number it was, not as a `0`.
+class IndicatorBadge extends StatefulWidget {
   /// Creates a badge over [child].
   const IndicatorBadge({
     this.child,
@@ -89,15 +93,54 @@ class IndicatorBadge extends StatelessWidget {
   /// `'3 unread messages'`.
   final String? semanticLabel;
 
+  /// Whether there is a badge to show: [visible], and a dot, a [label] or
+  /// a [count] that is not a hidden zero.
+  bool get _shown {
+    final count = this.count;
+    return visible && (label != null || count == null || count > 0 || showZero);
+  }
+
+  @override
+  State<IndicatorBadge> createState() => _IndicatorBadgeState();
+}
+
+class _IndicatorBadgeState extends State<IndicatorBadge> {
+  // What the badge shows or, once it is hidden, what it last showed. The
+  // badge pops out, so it stays on screen for the length of its exit — and
+  // what hides it is usually the very value it would otherwise draw: a
+  // count of zero, or a count taken away, which reads as a dot.
+  late int? _count = widget.count;
+  late Widget? _label = widget.label;
+
+  @override
+  void didUpdateWidget(IndicatorBadge oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget._shown) {
+      _count = widget.count;
+      _label = widget.label;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final IndicatorBadge(
+      :child,
+      :maxCount,
+      :alignment,
+      :offset,
+      :overhang,
+      :color,
+      :foregroundColor,
+      :ringColor,
+      :ringWidth,
+      :size,
+      :semanticLabel,
+    ) = widget;
+    final count = _count;
+    final label = _label;
     final theme = Theme.of(context);
     final badgeTheme = theme.indicatorBadgeTheme;
-    final hasCount = count != null && (count! > 0 || showZero);
     final isDot = label == null && count == null;
-    final shown = visible && (isDot || label != null || hasCount);
-    // Built even while hidden: the badge pops out, so what it showed has to
-    // stay on screen for the length of its exit.
 
     final ring = ringWidth ?? badgeTheme.ringWidth ?? 2;
     final fill =
@@ -158,11 +201,14 @@ class IndicatorBadge extends StatelessWidget {
       excludeSemantics: semanticLabel != null,
       child: badge,
     );
+    // A badge on its way out is no longer there for assistive technology:
+    // its label already describes the state that hid it.
+    badge = ExcludeSemantics(excluding: !widget._shown, child: badge);
     // It pops in when it appears and out when it goes, and pops once when
     // the count changes. A badge that is there from the start is simply
-    // there.
+    // there. The count watched is the one shown, so hiding is not a change.
     badge = PopIn(
-      visible: shown,
+      visible: widget._shown,
       scale: .3,
       child: PopOnChange(value: count, child: badge),
     );

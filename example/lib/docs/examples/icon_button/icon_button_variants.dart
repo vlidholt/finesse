@@ -12,23 +12,23 @@ class IconButtonVariantsExample extends StatelessWidget {
       children: [
         IconButton(
           onPressed: () {},
-          icon: const Icon(PhosphorIconsRegular.rocket),
+          icon: const PhosphorIcon(PhosphorIconsRegular.rocket),
         ),
         IconButton.secondary(
           onPressed: () {},
-          icon: const Icon(PhosphorIconsRegular.rocket),
+          icon: const PhosphorIcon(PhosphorIconsRegular.rocket),
         ),
         IconButton.destructive(
           onPressed: () {},
-          icon: const Icon(PhosphorIconsRegular.rocket),
+          icon: const PhosphorIcon(PhosphorIconsRegular.rocket),
         ),
         IconButton.outline(
           onPressed: () {},
-          icon: const Icon(PhosphorIconsRegular.rocket),
+          icon: const PhosphorIcon(PhosphorIconsRegular.rocket),
         ),
         IconButton.ghost(
           onPressed: () {},
-          icon: const Icon(PhosphorIconsRegular.rocket),
+          icon: const PhosphorIcon(PhosphorIconsRegular.rocket),
         ),
       ],
     );

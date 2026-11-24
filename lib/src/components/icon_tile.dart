@@ -7,7 +7,7 @@ import 'package:flutter/widgets.dart';
 /// type, a setting.
 ///
 /// ```dart
-/// const IconTile(icon: Icon(PhosphorIconsRegular.bookmarkSimple))
+/// const IconTile(icon: PhosphorIcon(PhosphorIconsRegular.bookmarkSimple))
 /// ```
 ///
 /// The tile takes the theme's accent fill and tint colour, which is what
@@ -72,7 +72,7 @@ class IconTile extends StatelessWidget {
 ///
 /// ```dart
 /// StatTile(
-///   icon: const Icon(PhosphorIconsRegular.bookmarkSimple),
+///   icon: const PhosphorIcon(PhosphorIconsRegular.bookmarkSimple),
 ///   value: const Text('6'),
 ///   label: const Text('Saved jobs'),
 ///   onTap: _openSaved,

@@ -201,9 +201,42 @@ void main() {
     Finder filterIn(Finder card) =>
         find.descendant(of: card, matching: find.byType(BackdropFilter));
 
-    testWidgets('the finesse card is translucent, so it blurs', (tester) async {
+    // finesse with the card blur its styles leave off.
+    final glassCards = StyleTokens.finesse.copyWith(cardBlur: true);
+
+    testWidgets('the finesse card is translucent and does not blur', (
+      tester,
+    ) async {
+      // A card lies on the flat page, where a blur shows nothing and a
+      // backdrop filter per card is paid on every frame.
       for (final brightness in Brightness.values) {
-        final theme = ThemeData(brightness: brightness);
+        for (final formFactor in FormFactor.values) {
+          final theme = ThemeData(brightness: brightness);
+          await pumpFinesse(
+            tester,
+            const Center(child: Card(child: Text('Hi'))),
+            theme: theme,
+            formFactor: formFactor,
+          );
+          final seen = themeOf(tester, find.byType(Card));
+          expect(seen.formFactor, formFactor);
+          expect(seen.cardTheme.backgroundColor!.a, lessThan(1));
+          expect(seen.cardTheme.blur, 0);
+          expect(seen.cardTheme.saturation, 1);
+          expect(
+            find.byType(BackdropFilter),
+            findsNothing,
+            reason: '$brightness $formFactor',
+          );
+        }
+      }
+    });
+
+    testWidgets('a style with card blur on blurs behind its cards', (
+      tester,
+    ) async {
+      for (final brightness in Brightness.values) {
+        final theme = ThemeData(brightness: brightness, style: glassCards);
         await pumpFinesse(
           tester,
           const Center(child: Card(child: Text('Hi'))),
@@ -280,6 +313,7 @@ void main() {
             child: Text('Hi'),
           ),
         ),
+        theme: ThemeData(style: glassCards),
       );
       expect(filterIn(find.byType(Card)), findsNothing);
     });
@@ -289,15 +323,32 @@ void main() {
       await pumpFinesse(
         tester,
         const Center(child: Card(child: Text('Hi'))),
-        theme: ThemeData(cardTheme: const CardTheme(blur: 0)),
+        theme: ThemeData(
+          style: glassCards,
+          cardTheme: const CardTheme(blur: 0),
+        ),
       );
       expect(filterIn(find.byType(Card)), findsNothing);
+    });
+
+    testWidgets('the card theme alone can turn the blur on', (tester) async {
+      await pumpFinesse(
+        tester,
+        const Center(child: Card(child: Text('Hi'))),
+        theme: ThemeData(cardTheme: const CardTheme(blur: 12)),
+      );
+      expect(themeOf(tester, find.byType(Card)).cardTheme.blur, 12);
+      expect(filterIn(find.byType(Card)), findsOneWidget);
     });
 
     testWidgets('the blurred card keeps its shadow, outside the clip', (
       tester,
     ) async {
-      await pumpFinesse(tester, const Center(child: Card(child: Text('Hi'))));
+      await pumpFinesse(
+        tester,
+        const Center(child: Card(child: Text('Hi'))),
+        theme: ThemeData(style: glassCards),
+      );
       final theme = themeOf(tester, find.byType(Card));
       final card = find.byType(Card);
 

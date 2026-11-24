@@ -105,11 +105,12 @@ class _AppShellState extends State<AppShell> {
             final breakpoint = theme.breakpoints.md.value;
 
             // `App` picks the form factor from the width the page will
-            // have, but the theme reaches it through a 200 ms animation
-            // that switches layouts halfway. Docking the panel at once
-            // would squeeze a desktop layout into a phone-sized box for
-            // those frames, so the page keeps its width — with the panel
-            // over its edge — until the theme has caught up.
+            // have, and `FinesseApp` applies a theme in the build it is
+            // given in, so the two normally agree. Should a theme ever
+            // arrive late (an app that lerps its theme), docking the panel
+            // at once would squeeze a desktop layout into a phone-sized
+            // box, so the page keeps its width — with the panel over its
+            // edge — until the theme has caught up.
             final targetWidth = AppShell.pageWidth(width, editorOpen: open);
             final targetFormFactor = AppShell.formFactorFor(
               width,
@@ -205,7 +206,7 @@ class _AppShellState extends State<AppShell> {
                   width: docked ? ThemeCustomizerPanel.width : width,
                   child: _SlideFromEnd(
                     visible: open,
-                    builder: (context) => panel(docked: docked),
+                    child: panel(docked: docked),
                   ),
                 ),
               ],
@@ -225,11 +226,17 @@ class _AppShellState extends State<AppShell> {
 /// arrives over the room that was made for it, or leaves over the page that
 /// has already spread out under it. While it is away it builds nothing and
 /// takes no pointers; with reduced motion it is simply there or not.
+///
+/// The panel is handed over as a widget, built once per build of the shell,
+/// and passed through the spring's `child`: built inside the spring's
+/// `builder` it would be a new widget on every tick, and the whole editor —
+/// every picker and slider row — would rebuild on every frame of the slide.
+/// Away, the widget is constructed but never inflated.
 class _SlideFromEnd extends StatelessWidget {
-  const _SlideFromEnd({required this.visible, required this.builder});
+  const _SlideFromEnd({required this.visible, required this.child});
 
   final bool visible;
-  final WidgetBuilder builder;
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
@@ -237,17 +244,15 @@ class _SlideFromEnd extends StatelessWidget {
     return SpringBuilder(
       value: visible ? 1 : 0,
       spring: Motion.of(context).smooth,
-      builder: (context, value, _) {
+      child: child,
+      builder: (context, value, child) {
         final t = value.clamp(0.0, 1.0);
         if (t <= .001 && !visible) return const SizedBox.shrink();
         return ClipRect(
           child: FractionalTranslation(
             translation: Offset((1 - t) * (rtl ? -1 : 1), 0),
             // Gone as far as input goes the moment it is told to leave.
-            child: IgnorePointer(
-              ignoring: !visible,
-              child: builder(context),
-            ),
+            child: IgnorePointer(ignoring: !visible, child: child),
           ),
         );
       },
@@ -445,7 +450,7 @@ class ComponentsSection extends StatelessWidget {
           // The docs browser is full-bleed, so its bar is too.
           maxWidth: double.infinity,
           leading: IconButton.ghost(
-            icon: const Icon(PhosphorIconsRegular.arrowLeft),
+            icon: const PhosphorIcon(PhosphorIconsRegular.arrowLeft),
             semanticLabel: 'Back to Strand',
             onPressed: () =>
                 appSectionProvider.of(context).value = AppSection.strand,
@@ -479,7 +484,7 @@ class _ThemeEditorButton extends StatelessWidget {
       builder: (context, _) {
         final open = themeEditorOpenProvider.of(context);
         void toggle() => open.value = !open.value;
-        final icon = Icon(
+        final icon = PhosphorIcon(
           PhosphorIconsRegular.paintBrush,
           semanticLabel: open.value
               ? 'Hide the theme editor'
@@ -504,7 +509,7 @@ class _ThemeModeButton extends StatelessWidget {
         final mode = themeModeProvider.of(context).value;
         final isLight = mode == ThemeMode.light;
         return IconButton.ghost(
-          icon: Icon(
+          icon: PhosphorIcon(
             isLight ? PhosphorIconsRegular.sun : PhosphorIconsRegular.moon,
             semanticLabel: isLight
                 ? 'Switch to dark mode'
@@ -527,7 +532,7 @@ class _DirectionButton extends StatelessWidget {
         final direction = directionalityProvider.of(context).value;
         final isLtr = direction == TextDirection.ltr;
         return IconButton.ghost(
-          icon: Icon(
+          icon: PhosphorIcon(
             isLtr
                 ? PhosphorIconsRegular.textAlignLeft
                 : PhosphorIconsRegular.textAlignRight,

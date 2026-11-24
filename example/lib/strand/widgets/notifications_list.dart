@@ -10,6 +10,7 @@ import 'package:example/strand/widgets/person_avatar.dart';
 import 'package:example/strand/widgets/settings_controller.dart';
 import 'package:example/strand/widgets/settings_links.dart';
 import 'package:example/strand/widgets/strand_pieces.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -24,13 +25,13 @@ class NotificationsList extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final groups = controller.groups;
-    final inset = theme.layoutTheme.gap(GapSize.sm);
+    final inset = theme.gap(GapSize.sm);
 
     if (groups.isEmpty) {
       final filter = controller.filter;
       return Card(
         child: Empty(
-          icon: const Icon(PhosphorIconsRegular.bellSimpleSlash),
+          icon: const PhosphorIcon(PhosphorIconsRegular.bellSimpleSlash),
           title: const Text('Nothing here'),
           description: Text(
             filter == NotificationFilter.all
@@ -108,8 +109,6 @@ class _NotificationRow extends StatelessWidget {
 
   final StrandNotification notification;
   final NotificationsController controller;
-
-  static const _markSize = 48.0;
 
   /// Follows the row to wherever it is about.
   void _open(BuildContext context) {
@@ -199,112 +198,111 @@ class _NotificationRow extends StatelessWidget {
         return FocusRing(
           visible: states.contains(WidgetState.focused),
           borderRadius: theme.radii.lg,
-          child: AnimatedContainer(
-            duration: MediaQuery.disableAnimationsOf(context)
-                ? Duration.zero
-                : const Duration(milliseconds: 120),
-            padding: EdgeInsets.all(layout.gap(GapSize.md)),
-            decoration: BoxDecoration(
-              // Unread rows carry the accent wash a selected card does.
-              color: unread
-                  ? wash
-                  : hovered
-                  ? scheme.muted
-                  : scheme.muted.withValues(alpha: 0),
-              borderRadius: theme.radii.lg,
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _Mark(notification, surface: unread ? wash : null),
-                const Gap.md(),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text.rich(
-                        TextSpan(children: _spans(notification.text, body)),
-                        style: body,
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      if (notification.excerpt case final excerpt?) ...[
-                        const Gap.raw(homeHairGap),
-                        Text(
-                          excerpt,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.muted,
-                        ),
-                      ],
-                      if (notification.quote case final quote?) ...[
-                        const Gap.sm(),
-                        _Quote(quote, onCard: !unread),
-                      ],
-                      if (action != null) ...[
-                        const Gap.raw(homeSnugGap),
-                        StrandPillButton(
-                          label: action.label,
-                          icon: action.icon,
-                          done: answered && action.done != null,
-                          doneLabel: action.done,
-                          doneIcon: PhosphorIconsRegular.check,
-                          primary: action == NotificationAction.accept,
-                          onPressed: answered && action.done != null
-                              ? null
-                              : () => _act(context, action),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                const Gap.sm(),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
+          // The fill fades as every control's does: on the theme's motion
+          // (none under `Motion.none` or reduced motion), and as a
+          // cross-fade, which an `AnimatedContainer`'s channel-by-channel
+          // lerp between a fill and nothing is not.
+          child: AnimatedFill(
+            // Unread rows carry the accent wash a selected card does.
+            color: unread
+                ? wash
+                : hovered
+                ? scheme.muted
+                : null,
+            borderRadius: theme.radii.lg,
+            child: Padding(
+              padding: EdgeInsets.all(layout.gap(GapSize.md)),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _Mark(notification, surface: unread ? wash : null),
+                  const Gap.md(),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        if (unread) ...[
-                          Semantics(
-                            label: 'Unread',
-                            child: Container(
-                              width: 8,
-                              height: 8,
-                              decoration: BoxDecoration(
-                                color: scheme.tint,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                          ),
-                          const Gap.raw(homeTightGap),
-                        ],
-                        Text(
-                          notification.age,
-                          // The conversation list's timestamp: 12/20, and
-                          // semibold in the tint while unread.
-                          style: homeFinePrint(theme).copyWith(
-                            height: 20 / 12,
-                            fontWeight: unread ? FontWeight.w600 : null,
-                            color: unread ? scheme.tint : null,
-                          ),
+                        Text.rich(
+                          TextSpan(children: _spans(notification.text, body)),
+                          style: body,
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
                         ),
+                        if (notification.excerpt case final excerpt?) ...[
+                          Text(
+                            excerpt,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.muted,
+                          ),
+                        ],
+                        if (notification.quote case final quote?) ...[
+                          const Gap.sm(),
+                          _Quote(quote, onCard: !unread),
+                        ],
+                        if (action != null) ...[
+                          const Gap.sm(),
+                          StrandPillButton(
+                            label: action.label,
+                            icon: action.icon,
+                            done: answered && action.done != null,
+                            doneLabel: action.done,
+                            doneIcon: PhosphorIconsRegular.check,
+                            primary: action == NotificationAction.accept,
+                            onPressed: answered && action.done != null
+                                ? null
+                                : () => _act(context, action),
+                          ),
+                        ],
                       ],
                     ),
-                    _RowMenu(
-                      unread: unread,
-                      onToggleRead: () => controller.toggleRead(notification),
-                      onMute: () => _remove(
-                        context,
-                        'You will see fewer notifications like this',
+                  ),
+                  const Gap.sm(),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (unread) ...[
+                            Semantics(
+                              label: 'Unread',
+                              child: Container(
+                                width: layout.gap(GapSize.sm),
+                                height: layout.gap(GapSize.sm),
+                                decoration: BoxDecoration(
+                                  color: scheme.tint,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                            ),
+                            const Gap.xs(),
+                          ],
+                          Text(
+                            notification.age,
+                            // Semibold in the tint while unread.
+                            style: theme.textTheme.caption.copyWith(
+                              fontWeight: unread ? FontWeight.w600 : null,
+                              color: unread ? scheme.tint : null,
+                            ),
+                          ),
+                        ],
                       ),
-                      onRemove: () => _remove(context, 'Notification removed'),
-                    ),
-                  ],
-                ),
-              ],
+                      _RowMenu(
+                        unread: unread,
+                        onToggleRead: () => controller.toggleRead(notification),
+                        onMute: () => _remove(
+                          context,
+                          'You will see fewer notifications like this',
+                        ),
+                        onRemove: () =>
+                            _remove(context, 'Notification removed'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         );
@@ -335,32 +333,37 @@ class _Mark extends StatelessWidget {
   /// The colour behind the row, when it is not a card: the mark's ring.
   final Color? surface;
 
-  static const _size = _NotificationRow._markSize;
-  static const _badgeSize = 20.0;
+  // The mark is a picture with a badge pinned to its corner: the badge is
+  // half the picture and its glyph a little over half the badge, whatever
+  // size the theme's avatar is.
+  static const _badgeScale = .5;
+  static const _badgeGlyphScale = .55;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final kind = notification.kind;
+    final size = theme.avatarMd;
+    final badgeSize = size * _badgeScale;
 
     final Widget picture;
     if (notification.people.firstOrNull case final Person person?) {
-      picture = PersonAvatar(person, size: _size);
+      picture = PersonAvatar(person, size: size);
     } else if (notification.company case final company?) {
       picture = StrandMark(
         asset: company.logo,
         label: company.name,
-        size: _size,
+        size: size,
       );
     } else if (notification.group case final group?) {
-      picture = StrandMark(asset: group.logo, label: group.name, size: _size);
+      picture = StrandMark(asset: group.logo, label: group.name, size: size);
     } else {
       // No one to show: the kind's glyph is the picture.
       return IconTile(
-        icon: Icon(kind.icon),
-        size: _size,
-        iconSize: 24,
+        icon: PhosphorIcon(kind.icon),
+        size: size,
+        iconSize: size / 2,
         borderRadius: theme.radii.full,
         backgroundColor: surface == null ? null : scheme.card,
       );
@@ -380,7 +383,7 @@ class _Mark extends StatelessWidget {
     };
 
     return SizedBox.square(
-      dimension: _size,
+      dimension: size,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
@@ -389,8 +392,8 @@ class _Mark extends StatelessWidget {
             end: -3,
             bottom: -3,
             child: Container(
-              width: _badgeSize,
-              height: _badgeSize,
+              width: badgeSize,
+              height: badgeSize,
               decoration: BoxDecoration(
                 color: fill,
                 shape: BoxShape.circle,
@@ -400,7 +403,11 @@ class _Mark extends StatelessWidget {
                   strokeAlign: BorderSide.strokeAlignOutside,
                 ),
               ),
-              child: Icon(kind.icon, size: 11, color: ink),
+              child: PhosphorIcon(
+                kind.icon,
+                size: badgeSize * _badgeGlyphScale,
+                color: ink,
+              ),
             ),
           ),
         ],
@@ -424,8 +431,8 @@ class _Quote extends StatelessWidget {
     final scheme = theme.colorScheme;
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: theme.layoutTheme.gap(GapSize.md),
-        vertical: theme.layoutTheme.gap(GapSize.sm),
+        horizontal: theme.gap(GapSize.md),
+        vertical: theme.gap(GapSize.sm),
       ),
       decoration: BoxDecoration(
         // A comment's bubble on the card; the card's own colour on the
@@ -438,7 +445,6 @@ class _Quote extends StatelessWidget {
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
         style: theme.textTheme.muted.copyWith(
-          height: 19 / 13,
           color: scheme.foregroundSubtle,
         ),
       ),
@@ -477,7 +483,7 @@ class _RowMenu extends StatelessWidget {
       anchor: _anchor,
       itemsBuilder: (_) => [
         ContextMenuItem(
-          leading: Icon(
+          leading: PhosphorIcon(
             unread
                 ? PhosphorIconsRegular.envelopeSimpleOpen
                 : PhosphorIconsRegular.envelopeSimple,
@@ -486,26 +492,26 @@ class _RowMenu extends StatelessWidget {
           child: Text(unread ? 'Mark as read' : 'Mark as unread'),
         ),
         ContextMenuItem(
-          leading: const Icon(PhosphorIconsRegular.bellSimpleSlash),
+          leading: const PhosphorIcon(PhosphorIconsRegular.bellSimpleSlash),
           onPressed: onMute,
           child: const Text('Show fewer like this'),
         ),
         ContextMenuItem(
-          leading: const Icon(PhosphorIconsRegular.gearSix),
+          leading: const PhosphorIcon(PhosphorIconsRegular.gearSix),
           onPressed: () => openSettings(context, SettingsSection.notifications),
           child: const Text('Notification settings'),
         ),
         const Divider.horizontal(margin: EdgeInsets.symmetric(vertical: 4)),
         ContextMenuItem(
           destructive: true,
-          leading: const Icon(PhosphorIconsRegular.trash),
+          leading: const PhosphorIcon(PhosphorIconsRegular.trash),
           onPressed: onRemove,
           child: const Text('Remove'),
         ),
       ],
       builder: (context, menu, _) => IconButton.ghost(
         size: ButtonSize.sm,
-        icon: const Icon(PhosphorIconsRegular.dotsThree),
+        icon: const PhosphorIcon(PhosphorIconsRegular.dotsThree),
         semanticLabel: 'More options',
         onPressed: menu.toggle,
       ),

@@ -9,6 +9,7 @@ import 'package:finesse/src/utils/motion_color.dart';
 import 'package:finesse/src/utils/moving_indicator.dart';
 import 'package:finesse/src/utils/provider.dart';
 import 'package:finesse/src/utils/spring.dart';
+import 'package:finesse/src/utils/text_scaled_height.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
@@ -32,7 +33,7 @@ enum ToggleVariant {
 /// Toggle(
 ///   value: bold,
 ///   onChanged: (v) => setState(() => bold = v),
-///   child: const Icon(PhosphorIconsRegular.textB),
+///   child: const PhosphorIcon(PhosphorIconsRegular.textB),
 /// )
 /// ```
 ///
@@ -338,10 +339,12 @@ class _ToggleState extends State<Toggle> {
         // reserve — is counted into the toggle's height, the way CSS `h-9`
         // is border-box. Constraining inside made an outline toggle 2px
         // taller than a default one.
+        // The height is a floor once text is scaled up, so the label is
+        // never cut off; at a scale of 1 the two are the same.
         return ConstrainedBox(
-          constraints: BoxConstraints.tightFor(
-            height: effectiveHeight,
-            width: widget.width,
+          constraints: BoxConstraints.tightFor(width: widget.width).copyWith(
+            minHeight: effectiveHeight,
+            maxHeight: textScaledMaxHeight(context, effectiveHeight),
           ),
           child: Decorator(
             focused: focused,
@@ -367,7 +370,11 @@ class _ToggleState extends State<Toggle> {
             final fill = backgroundFor(hovered: hovered);
             final content = Padding(
               padding: effectivePadding,
+              // As tall as the label, centred in whatever the toggle's
+              // height leaves: a plain `Center` takes all the height it is
+              // offered, which under a text scale is more than it needs.
               child: Center(
+                heightFactor: 1,
                 child: AnimatedColorBuilder(
                   color: foreground,
                   duration: transitionDuration,
@@ -552,10 +559,13 @@ class ToggleGroupController<T> extends ChangeNotifier {
 ///   values: const {'bold'},
 ///   onChanged: (values) => setState(() => selected = values),
 ///   children: const [
-///     ToggleGroupItem(value: 'bold', child: Icon(PhosphorIconsRegular.textB)),
+///     ToggleGroupItem(
+///       value: 'bold',
+///       child: PhosphorIcon(PhosphorIconsRegular.textB),
+///     ),
 ///     ToggleGroupItem(
 ///       value: 'italic',
-///       child: Icon(PhosphorIconsRegular.textItalic),
+///       child: PhosphorIcon(PhosphorIconsRegular.textItalic),
 ///     ),
 ///   ],
 /// )

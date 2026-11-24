@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:finesse/src/components/surface.dart';
@@ -6,6 +7,7 @@ import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/theme/themes/shadows.dart';
+import 'package:finesse/src/utils/anchor_stage.dart';
 import 'package:finesse/src/utils/animate.dart';
 import 'package:finesse/src/utils/border.dart';
 import 'package:finesse/src/utils/dismiss_shortcut.dart';
@@ -52,6 +54,23 @@ class PopoverController extends ChangeNotifier {
 /// Shows a floating panel next to its [child], shadcn/ui's `Popover`.
 ///
 /// Control the visibility with a [PopoverController] or with [visible].
+///
+/// By default the popover takes the keyboard focus when it opens and keeps
+/// it until it closes, as a menu or a small form should. A popover that
+/// only assists its [child] — the suggestions under a search field — sets
+/// [requestFocus] to false and leaves the caret where it is:
+///
+/// ```dart
+/// Popover(
+///   controller: suggestions,
+///   requestFocus: false,
+///   // The same group for the field: a click on the panel is then not a
+///   // click outside the field, which would take its focus on a desktop.
+///   groupId: group,
+///   popover: (context) => const SuggestionList(),
+///   child: TextField(groupId: group, onChanged: search),
+/// )
+/// ```
 class Popover extends StatefulWidget {
   /// Creates a popover that shows [popover] next to [child].
   const Popover({
@@ -61,7 +80,7 @@ class Popover extends StatefulWidget {
     this.controller,
     this.visible,
     this.closeOnTapOutside = true,
-    this.focusNode,
+    this.requestFocus = true,
     this.anchor,
     this.effects,
     this.reverseDuration,
@@ -103,11 +122,31 @@ class Popover extends StatefulWidget {
   /// {@endtemplate}
   final bool closeOnTapOutside;
 
-  /// {@template Popover.focusNode}
-  /// The focus node of the child, the [popover] will be shown when
-  /// focused.
+  /// {@template Popover.requestFocus}
+  /// Whether the popover takes the keyboard focus when it opens, defaults
+  /// to true. The name is `ModalRoute.requestFocus`'s, which does the same
+  /// for a route.
+  ///
+  /// A popover that takes the focus keeps it: Tab cycles through its
+  /// content, and when it closes the focus goes back to where it was.
+  ///
+  /// With false the focus stays where it is — the caret stays in the field
+  /// the popover hangs under — and the popover is a stop on the way rather
+  /// than a place of its own:
+  ///
+  /// * Tab moves from the child into the popover's content, and from its
+  ///   last control on to whatever follows the child; Shift+Tab goes back
+  ///   the same way.
+  /// * Escape closes it while the focus is in the child or in the popover.
+  ///   Closed from inside, the focus returns to where it was before it
+  ///   went in.
+  /// * It still closes on a tap outside, and not on a tap on its child.
+  ///   A text field gives up the focus on a click outside *its* tap region,
+  ///   though, and the popover is outside it: give the field the same
+  ///   `groupId` as the popover to keep the caret through a click on the
+  ///   popover.
   /// {@endtemplate}
-  final FocusNode? focusNode;
+  final bool requestFocus;
 
   ///{@template Popover.anchor}
   /// The position of the [popover] in the global coordinate system.
@@ -190,9 +229,64 @@ class _PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
 
   late final AnimationController animationController;
 
-  // The focus node of the popover.
-  // It's used to be able to focus the popover and receive key events.
-  final _popoverFocusNode = FocusNode();
+  /// Around the popover: it has the focus while anything in the popover
+  /// does, and takes it when a popover with [Popover.requestFocus] opens, so
+  /// that key events reach the popover before anything in it is focused.
+  final _popoverFocusNode = FocusNode(debugLabel: 'Popover');
+
+  /// The scope of a popover that takes the focus: it keeps Tab inside.
+  final _popoverScopeNode = FocusScopeNode(debugLabel: 'Popover scope');
+
+  /// The anchor first, then the popover, whatever their places on screen:
+  /// reading order alone would put a popover that opened *above* its anchor
+  /// before it, and one beside a row of fields in the middle of the row.
+  final _traversalPolicy = OrderedTraversalPolicy();
+
+  bool get _focusInside =>
+      _popoverFocusNode.hasFocus || _popoverScopeNode.hasFocus;
+
+  /// What last had the focus outside the popover while it was open: where
+  /// the focus goes back to when the popover closes with the focus in it.
+  FocusNode? _focusOutside;
+  bool _trackingFocus = false;
+
+  void _trackFocus() {
+    final focus = FocusManager.instance.primaryFocus;
+    if (focus != null && !_focusInside) _focusOutside = focus;
+  }
+
+  void _focusOnOpen() {
+    _focusOutside = null;
+    _trackFocus();
+    if (!_trackingFocus) {
+      _trackingFocus = true;
+      FocusManager.instance.addListener(_trackFocus);
+    }
+    // To receive key events at once. The node is attached when the overlay
+    // is built, and takes the focus then.
+    if (widget.requestFocus) _popoverFocusNode.requestFocus();
+  }
+
+  void _focusOnClose() {
+    if (_trackingFocus) {
+      _trackingFocus = false;
+      FocusManager.instance.removeListener(_trackFocus);
+    }
+    final target = _focusOutside;
+    _focusOutside = null;
+    // A scope would only hand the focus back to its last focused child,
+    // which is this popover.
+    if (target == null || target is FocusScopeNode) return;
+    // Not at once: whatever closed the popover may have asked for the focus
+    // itself — a press on another field — and that request is applied in a
+    // microtask queued before this one. Only a focus that is still in the
+    // popover then has nowhere else to go.
+    scheduleMicrotask(() {
+      if (!mounted || controller.isOpen || !_focusInside) return;
+      if (target.context == null || !target.canRequestFocus) return;
+      target.requestFocus();
+    });
+  }
 
   Object get groupId => widget.groupId ?? _popoverKey;
 
@@ -245,25 +339,42 @@ class _PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
     if (controller.isOpen) animationController.forward(from: 0);
   }
 
-  /// Whether tickers run in this part of the tree.
+  /// Whether the popover's anchor is in a part of the tree that is shown.
   ///
-  /// They do not while the popover's anchor is in an inactive branch — an
-  /// `IndexedStack` child that is not showing, a route under an opaque one.
-  /// The overlay is not in that branch, though: it would stay on screen over
-  /// whatever replaced the anchor, and its exit animation, driven by a muted
-  /// ticker, would never finish. So the overlay is only shown while this is
-  /// true, and a close is completed at once while it is false.
-  bool _tickersEnabled = true;
+  /// It is not in the hidden child of an `IndexedStack` or a `Visibility`,
+  /// in a route under an opaque one, in an `Offstage`. The overlay is not in
+  /// that branch, though: it would stay on screen over whatever replaced
+  /// the anchor — and where the branch's tickers are muted, its exit
+  /// animation would never finish. So the overlay is only shown while the
+  /// anchor is on stage, and a close is completed at once while it is not.
+  /// See [AnchorStage] for how that is found out.
+  late final _stage = AnchorStage(
+    context: context,
+    onChanged: () {
+      _stageChanged();
+      // Not one of this widget's dependencies: nothing else rebuilds it.
+      setState(() {});
+    },
+    watching: () => controller.isOpen || _portalVisible.value,
+  );
+
+  bool get _onStage => _stage.onStage;
+
+  void _stageChanged() {
+    if (!_onStage) {
+      _finishClosing();
+    } else if (controller.isOpen && widget.requestFocus) {
+      // Its overlay was taken down while it was away, and the focus with
+      // it. It comes back as it was.
+      _popoverFocusNode.requestFocus();
+    }
+  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _syncReverseDuration();
-    final tickersEnabled = TickerMode.valuesOf(context).enabled;
-    if (tickersEnabled != _tickersEnabled) {
-      _tickersEnabled = tickersEnabled;
-      if (!tickersEnabled) _finishClosing();
-    }
+    if (_stage.resolve()) _stageChanged();
   }
 
   /// Jumps to the end of an exit animation that can no longer run.
@@ -313,13 +424,18 @@ class _PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
       ..removeStatusListener(_onAnimationStatusChanged)
       ..dispose();
     _portalVisible.dispose();
+    _stage.dispose();
+    if (_trackingFocus) FocusManager.instance.removeListener(_trackFocus);
     _popoverFocusNode.dispose();
+    _popoverScopeNode.dispose();
     _controller?.dispose();
     super.dispose();
   }
 
   void _onPopoverToggle() {
     if (controller.isOpen) {
+      // Opened behind the scenes, it stays there until its anchor shows.
+      _stage.watch();
       if (animationController.isDismissed && !_portalShown) {
         // Shown first, animated once it is on screen.
         _entrancePending = true;
@@ -330,14 +446,15 @@ class _PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
         // Reopened while it was leaving: it turns around where it is.
         animationController.forward();
       }
-      // When the popover is opened, request focus
-      // to be able to receive key events.
-      _popoverFocusNode.requestFocus();
-    } else if (_entrancePending) {
+      _focusOnOpen();
+      return;
+    }
+    _focusOnClose();
+    if (_entrancePending) {
       // Closed before it was ever seen.
       _entrancePending = false;
       _portalVisible.value = !animationController.isDismissed;
-    } else if (_tickersEnabled) {
+    } else if (_onStage) {
       animationController.reverse();
     } else {
       _finishClosing();
@@ -418,30 +535,54 @@ class _PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
       );
     }
 
+    // The overlay is built below the portal, so in the focus tree the
+    // popover is a descendant of everything around the child: Escape
+    // reaches the shortcut from the child and from the popover alike.
     Widget child = DismissShortcut(
       isActive: () => controller.isOpen,
       onDismiss: controller.hide,
-      child: ValueListenableBuilder(
-        valueListenable: _portalVisible,
-        builder: (context, visible, _) {
-          if (!(visible && _tickersEnabled)) _portalShown = false;
-          return Portal(
-            portalBuilder: (_) {
-              // used to trap the focus inside the popover.
-              return FocusScope(
-                child: Focus(
+      // One traversal group for the child and the popover, in that order.
+      // It is there whether or not the popover takes the focus, so the
+      // child keeps its place in the tree when that changes.
+      child: FocusTraversalGroup(
+        policy: _traversalPolicy,
+        child: ValueListenableBuilder(
+          valueListenable: _portalVisible,
+          builder: (context, visible, _) {
+            if (!(visible && _onStage)) _portalShown = false;
+            return Portal(
+              portalBuilder: (_) {
+                // The portal takes its overlay down a frame after it is
+                // told to. Off stage that frame is one too many: it would
+                // show over what replaced the anchor.
+                if (!_onStage) return const SizedBox.shrink();
+                Widget overlay = Focus(
                   skipTraversal: true,
                   focusNode: _popoverFocusNode,
                   child: popover,
-                ),
-              );
-            },
-            visible: visible && _tickersEnabled,
-            anchor: effectiveAnchor,
-            onShown: _onPortalShown,
-            child: widget.child,
-          );
-        },
+                );
+                // A popover that takes the focus traps it: Tab cycles
+                // through its own content. Without the scope its controls
+                // are stops after the child's, and Tab goes on from the
+                // last of them.
+                if (widget.requestFocus) {
+                  overlay = FocusScope(node: _popoverScopeNode, child: overlay);
+                }
+                return FocusTraversalOrder(
+                  order: const NumericFocusOrder(1),
+                  child: FocusTraversalGroup(child: overlay),
+                );
+              },
+              visible: visible && _onStage,
+              anchor: effectiveAnchor,
+              onShown: _onPortalShown,
+              child: FocusTraversalOrder(
+                order: const NumericFocusOrder(0),
+                child: FocusTraversalGroup(child: widget.child),
+              ),
+            );
+          },
+        ),
       ),
     );
     if (widget.useSameGroupIdForChild) {

@@ -19,6 +19,7 @@ import 'package:finesse/src/theme/components/button_sizes.dart';
 import 'package:finesse/src/theme/components/calendar.dart';
 import 'package:finesse/src/theme/components/card.dart';
 import 'package:finesse/src/theme/components/chat_bubble.dart';
+import 'package:finesse/src/theme/components/chat_list.dart';
 import 'package:finesse/src/theme/components/checkbox.dart';
 import 'package:finesse/src/theme/components/chip.dart';
 import 'package:finesse/src/theme/components/collapsible.dart';
@@ -40,6 +41,7 @@ import 'package:finesse/src/theme/components/menubar.dart';
 import 'package:finesse/src/theme/components/navigation_bar.dart';
 import 'package:finesse/src/theme/components/otp_field.dart';
 import 'package:finesse/src/theme/components/pagination.dart';
+import 'package:finesse/src/theme/components/phosphor_icon.dart';
 import 'package:finesse/src/theme/components/popover.dart';
 import 'package:finesse/src/theme/components/progress_bar.dart';
 import 'package:finesse/src/theme/components/radio.dart';
@@ -53,6 +55,7 @@ import 'package:finesse/src/theme/components/skeleton.dart';
 import 'package:finesse/src/theme/components/slider.dart';
 import 'package:finesse/src/theme/components/sonner.dart';
 import 'package:finesse/src/theme/components/spinner.dart';
+import 'package:finesse/src/theme/components/streaming_text.dart';
 import 'package:finesse/src/theme/components/switch.dart';
 import 'package:finesse/src/theme/components/table.dart';
 import 'package:finesse/src/theme/components/tabs.dart';
@@ -90,7 +93,8 @@ class DefaultThemeVariant extends ThemeVariant {
   /// [style] defaults to [StyleTokens.finesse], [formFactor] to
   /// [FormFactor.desktop] and [spacing] to the 4px step. A null
   /// [menuColorScheme] makes menus follow [colorScheme], and a null
-  /// [menuTranslucent] makes them follow the style.
+  /// [menuTranslucent] makes them follow the style. [menuAccent] defaults
+  /// to [MenuAccent.subtle].
   DefaultThemeVariant({
     required this.colorScheme,
     required this.radius,
@@ -100,6 +104,7 @@ class DefaultThemeVariant extends ThemeVariant {
     this.spacing = const Spacing(),
     this.menuColorScheme,
     this.menuTranslucent,
+    this.menuAccent = MenuAccent.subtle,
   }) : baseStyle = style,
        style = style.forFormFactor(formFactor);
 
@@ -149,6 +154,15 @@ class DefaultThemeVariant extends ThemeVariant {
   /// menus solid even in a glass style.
   final bool? menuTranslucent;
 
+  /// How strongly menus highlight their rows; see [MenuAccent].
+  ///
+  /// It is carried here, as a choice, and read where the menu colours are
+  /// derived ([menuItemHighlight]). It used to be written into the colour
+  /// scheme instead — `accent = primary` — which recoloured everything
+  /// else that draws with the accent: selected cards and chips, incoming
+  /// chat bubbles, icon tiles.
+  final MenuAccent menuAccent;
+
   /// The radius scale derived from [radius].
   @override
   Radii get radii => Radii(radius, style.radiusScale);
@@ -163,6 +177,7 @@ class DefaultThemeVariant extends ThemeVariant {
     Spacing? spacing,
     Object? menuColorScheme = unsetMenuColorScheme,
     Object? menuTranslucent = unsetMenuTranslucent,
+    MenuAccent? menuAccent,
   }) {
     return DefaultThemeVariant(
       colorScheme: colorScheme ?? this.colorScheme,
@@ -179,6 +194,7 @@ class DefaultThemeVariant extends ThemeVariant {
       menuTranslucent: identical(menuTranslucent, unsetMenuTranslucent)
           ? this.menuTranslucent
           : menuTranslucent as bool?,
+      menuAccent: menuAccent ?? this.menuAccent,
     );
   }
 
@@ -365,20 +381,52 @@ class DefaultThemeVariant extends ThemeVariant {
   /// A menu surface's hairline outline, on the menu palette.
   Color get menuSurfaceBorderColor => _surfaceBorderColorOf(menuScheme);
 
+  /// How much of [scheme]'s foreground washes a highlighted row on it, or
+  /// null when the row takes an opaque highlight instead.
+  ///
+  /// The style's [StyleTokens.menuHighlightOpacity] for the scheme's
+  /// brightness — unless [menuAccent] is bold: that asks for a filled
+  /// highlight, and gets one.
+  double? _highlightWashOf(ColorScheme scheme) {
+    if (menuAccent == MenuAccent.bold) return null;
+    return _schemeIsDark(scheme)
+        ? style.menuHighlightOpacityDark ?? style.menuHighlightOpacity
+        : style.menuHighlightOpacity;
+  }
+
+  /// The opacity of the wash behind a highlighted menu row, or null when
+  /// the row is filled with the accent.
+  ///
+  /// shadcn's translucent finish washes with `foreground/10`; otherwise it
+  /// is the style's say (see [_highlightWashOf]).
+  double? get _menuHighlightWash =>
+      menuTranslucent ?? false ? .1 : _highlightWashOf(menuScheme);
+
   /// The highlight behind a hovered or open menu row.
   ///
-  /// `focus:bg-accent` normally; with shadcn's translucent finish it
-  /// switches to a `foreground/10` wash so the highlight reads through the
-  /// glass. A style that is glass by itself keeps the accent.
-  Color get menuItemHighlight => menuTranslucent ?? false
-      ? _wash(menuScheme.foreground, .1)
-      : menuScheme.accent;
+  /// `focus:bg-accent` in a style that says nothing else, and the menu
+  /// palette's primary with a bold [menuAccent]. A style with a
+  /// [StyleTokens.menuHighlightOpacity] — `finesse`, whose menus are glass
+  /// — and shadcn's translucent finish wash the row with the menu's
+  /// foreground instead, so the highlight sits *in* the glass rather than
+  /// on it as an opaque, near-white slab.
+  Color get menuItemHighlight {
+    final wash = _menuHighlightWash;
+    if (wash != null) return _wash(menuScheme.foreground, wash);
+    return menuAccent == MenuAccent.bold
+        ? menuScheme.primary
+        : menuScheme.accent;
+  }
 
-  /// The text and icon colour on [menuItemHighlight],
-  /// `focus:text-accent-foreground`.
-  Color get menuItemHighlightForeground => menuTranslucent ?? false
-      ? menuScheme.popoverForeground
-      : menuScheme.accentForeground;
+  /// The text and icon colour on [menuItemHighlight]:
+  /// `focus:text-accent-foreground` on the accent, the primary's foreground
+  /// on a bold highlight, and the row's resting colour on a wash.
+  Color get menuItemHighlightForeground {
+    if (_menuHighlightWash != null) return menuScheme.popoverForeground;
+    return menuAccent == MenuAccent.bold
+        ? menuScheme.primaryForeground
+        : menuScheme.accentForeground;
+  }
 
   /// The backdrop filter of menu surfaces: null while they are solid, the
   /// style's glass when the style has one, and otherwise shadcn's
@@ -1022,6 +1070,7 @@ class DefaultThemeVariant extends ThemeVariant {
       large: TextDefaultTheme.large(),
       small: TextDefaultTheme.small(),
       muted: TextDefaultTheme.muted(),
+      caption: TextDefaultTheme.caption(),
     );
   }
 
@@ -1284,18 +1333,27 @@ class DefaultThemeVariant extends ThemeVariant {
       titleStyle: style.label
           .apply(effectiveTextTheme.muted)
           .copyWith(
-            color: colorScheme.foreground,
+            color: colorScheme.popoverForeground,
           ),
       descriptionStyle: style.body
           .apply(effectiveTextTheme.muted)
           .copyWith(
-            color: colorScheme.foreground.withValues(alpha: .9),
+            color: colorScheme.popoverForeground.withValues(alpha: .9),
           ),
       actionPadding: spacing.directional(start: 4),
       border: FinesseBorder.all(color: surfaceBorderColor, width: 1),
       // A toast is a floating surface; shadcn gives it the sheet's shadow.
-      shadows: style.sheetShadow,
-      backgroundColor: colorScheme.background,
+      // On a dark page that shadow is all but lost, so a style with a
+      // deeper one for dark floating chrome lends it here.
+      shadows: _isDark
+          ? style.floatingShadowDark ?? style.sheetShadow
+          : style.sheetShadow,
+      // …and the popover's fill (sonner's `bg-popover
+      // text-popover-foreground`), not the page's: on the page colour a
+      // toast is text adrift on the page. In a style whose popovers are
+      // glass, so is the toast.
+      backgroundColor: popoverSurfaceColor,
+      filter: popoverFilter,
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       showCloseIconOnlyWhenHovered: true,
@@ -1720,11 +1778,21 @@ class DefaultThemeVariant extends ThemeVariant {
     final muted = (small?.apply(t.muted) ?? t.muted).fallback(
       color: colorScheme.mutedForeground,
     );
+    // Fine print is the caption role's size, line height and tracking in
+    // the muted colour, at the text theme's own (regular) weight: the role's
+    // medium weight is for badges and navigation labels, and metadata set
+    // in it stops receding.
+    final captionRole = style.caption;
+    final caption = TextRole(
+      fontSize: captionRole.fontSize,
+      letterSpacing: captionRole.letterSpacing,
+      height: captionRole.height,
+    ).apply(t.caption).fallback(color: colorScheme.mutedForeground);
     if (display == null &&
         headline == null &&
         subtitle == null &&
         small == null) {
-      return t.copyWith(muted: muted);
+      return t.copyWith(muted: muted, caption: caption);
     }
     // A style that names these roles owns the whole scale, so its body role
     // sets the paragraph size too — that is what moves running text from 14
@@ -1738,6 +1806,7 @@ class DefaultThemeVariant extends ThemeVariant {
       large: subtitle?.apply(t.large),
       small: small?.apply(t.small),
       muted: muted,
+      caption: caption,
     );
   }
 
@@ -1805,7 +1874,34 @@ class DefaultThemeVariant extends ThemeVariant {
 
   @override
   BottomNavigationBarTheme bottomNavigationBarTheme() {
-    final opacity = _barOpacity;
+    // The bars' opacity, or thinner where the style asks for it — never
+    // thicker, and solid when the bars are: `barOpacity` stays the one
+    // switch between glass bars and solid ones.
+    final barOpacity = _barOpacity;
+    final ownOpacity = _isDark
+        ? style.bottomNavigationOpacityDark ?? style.bottomNavigationOpacity
+        : style.bottomNavigationOpacity;
+    final opacity = barOpacity >= 1 || ownOpacity == null
+        ? barOpacity
+        : math.min(barOpacity, ownOpacity);
+    // On a dark scheme the bar and the page are a shade apart and a shadow
+    // does not show between them, so a style can lift the bar's fill
+    // toward the foreground, outline it in a brighter hairline and light
+    // the hairline's top edge.
+    final lift = _isDark
+        ? style.bottomNavigationLiftDark ?? style.bottomNavigationLift
+        : style.bottomNavigationLift;
+    final borderOpacity = _isDark
+        ? style.bottomNavigationBorderOpacityDark ??
+              style.bottomNavigationBorderOpacity
+        : style.bottomNavigationBorderOpacity;
+    final rimOpacity = _isDark
+        ? style.bottomNavigationRimOpacityDark ??
+              style.bottomNavigationRimOpacity
+        : style.bottomNavigationRimOpacity;
+    final fill = lift > 0
+        ? Color.alphaBlend(_wash(colorScheme.foreground, lift), colorScheme.bar)
+        : colorScheme.bar;
     return BottomNavigationBarTheme(
       floating: style.bottomNavigationFloating,
       itemWidth: scaled(style.bottomNavigationItemWidth),
@@ -1816,8 +1912,16 @@ class DefaultThemeVariant extends ThemeVariant {
       margin: EdgeInsets.only(bottom: scaled(22)),
       gap: scaled(4),
       radius: radii.full,
-      backgroundColor: _wash(colorScheme.bar, opacity),
-      borderColor: colorScheme.border,
+      backgroundColor: _wash(fill, opacity),
+      borderColor: borderOpacity == null
+          ? colorScheme.border
+          : _wash(colorScheme.foreground, borderOpacity),
+      rimColor: rimOpacity == null
+          ? null
+          : _wash(colorScheme.foreground, rimOpacity),
+      shadows: _isDark
+          ? style.floatingShadowDark ?? style.floatingShadow
+          : style.floatingShadow,
       blur: opacity < 1 ? style.glassBlur : 0,
       saturation: opacity < 1 ? style.glassSaturation : 1,
       foregroundColor: colorScheme.foregroundSubtle,
@@ -1895,6 +1999,31 @@ class DefaultThemeVariant extends ThemeVariant {
   }
 
   @override
+  ChatListTheme chatListTheme() {
+    return ChatListTheme(
+      padding: EdgeInsets.all(scaled(style.gapMd)),
+      spacing: scaled(style.gapSm + style.gapXs),
+      groupSpacing: scaled(style.gapXs),
+      // About two lines of text: a glance up does not let go of the end.
+      followDistance: 48,
+      maxStaggerSteps: 3,
+      jumpToLatestMargin: scaled(style.gapSm),
+    );
+  }
+
+  @override
+  StreamingTextTheme streamingTextTheme() {
+    return const StreamingTextTheme(
+      revealRate: 90,
+      catchUpDuration: Duration(milliseconds: 280),
+      showCaret: true,
+      caretWidth: 2,
+      caretGap: 2,
+      caretPulse: Duration(milliseconds: 1200),
+    );
+  }
+
+  @override
   IndicatorBadgeTheme indicatorBadgeTheme() {
     return IndicatorBadgeTheme(
       size: 18,
@@ -1921,6 +2050,17 @@ class DefaultThemeVariant extends ThemeVariant {
       radius: radii.lg,
       backgroundColor: colorScheme.accent,
       foregroundColor: colorScheme.tint,
+    );
+  }
+
+  @override
+  PhosphorIconTheme phosphorIconTheme() {
+    // The reference size is a size on the screen, chosen for the width of a
+    // line in logical pixels: like a hairline, it does not follow the
+    // spacing step.
+    return PhosphorIconTheme(
+      referenceSize: style.iconOpticalSize,
+      strength: style.iconOpticalStrength,
     );
   }
 
@@ -2651,8 +2791,13 @@ class DefaultThemeVariant extends ThemeVariant {
             fontWeight: FontWeight.normal,
           ),
       // `data-selected:bg-muted data-selected:text-foreground` — the command
-      // palette highlights with the muted surface, not the accent.
-      itemSelectedBackgroundColor: colorScheme.muted,
+      // palette highlights with the muted surface, not the accent. A style
+      // that washes its menu highlights washes this one the same way, so
+      // the palette and a menu beside it highlight alike.
+      itemSelectedBackgroundColor: switch (_highlightWashOf(colorScheme)) {
+        final wash? => _wash(colorScheme.foreground, wash),
+        null => colorScheme.muted,
+      },
       itemSelectedForegroundColor: colorScheme.foreground,
       itemForegroundColor: colorScheme.popoverForeground,
       itemRadius: itemRadius,
@@ -2686,7 +2831,8 @@ class DefaultThemeVariant extends ThemeVariant {
         other.formFactor == formFactor &&
         other.spacing == spacing &&
         other.menuColorScheme == menuColorScheme &&
-        other.menuTranslucent == menuTranslucent;
+        other.menuTranslucent == menuTranslucent &&
+        other.menuAccent == menuAccent;
   }
 
   @override
@@ -2699,6 +2845,7 @@ class DefaultThemeVariant extends ThemeVariant {
     spacing,
     menuColorScheme,
     menuTranslucent,
+    menuAccent,
   );
 }
 

@@ -88,6 +88,33 @@ void main() {
       expect(SearchData.search('design zebra').isEmpty, isTrue);
     });
 
+    test('a name is found without its diacritics, and with them', () {
+      final hanna = SearchData.people.firstWhere(
+        (person) => person.name.contains('ø'),
+      );
+      expect(SearchData.search('sorensen').people, contains(hanna));
+      expect(SearchData.search('SØRENSEN').people, contains(hanna));
+      expect(SearchData.search('Sørensen').people, contains(hanna));
+      expect(SearchData.search('sorensenn').people, isEmpty);
+    });
+
+    test('folding keeps every offset where it was', () {
+      // What the highlighting relies on: one code unit in, one out.
+      for (final text in [
+        'Hanna Sørensen',
+        'Halcyon, Nørrebro',
+        'ÀÉÎÕÜ àéîõü Łódź Ærø ß İ',
+        'Design 👏 systems',
+        '',
+      ]) {
+        expect(SearchData.fold(text).length, text.length, reason: text);
+      }
+      expect(SearchData.fold('Hanna Sørensen'), 'hanna sorensen');
+      expect(SearchData.fold('ÀÉÎÕÜ Łódź'), 'aeiou lodz');
+      // Letters that would become two are left alone, as is an emoji.
+      expect(SearchData.fold('Ærø 👏'), 'æro 👏');
+    });
+
     test('every suggested search finds something', () {
       for (final query in [...SearchData.trending, ...SearchData.recents]) {
         expect(SearchData.search(query).isEmpty, isFalse, reason: query);
@@ -187,6 +214,17 @@ void main() {
           ),
         ),
         ['Birch'],
+      );
+
+      // A name typed without its diacritic is found, and marked as it
+      // is written.
+      await _type(tester, 'sorensen');
+      expect(
+        _highlights(
+          tester,
+          find.widgetWithText(HighlightedText, 'Hanna Sørensen'),
+        ),
+        ['Sørensen'],
       );
 
       // Narrowing the query narrows the list, live.

@@ -2,7 +2,6 @@ import 'package:example/strand/data/home_data.dart';
 import 'package:example/strand/data/network_data.dart';
 import 'package:example/strand/navigation.dart';
 import 'package:example/strand/session.dart';
-import 'package:example/strand/widgets/home_pieces.dart';
 import 'package:example/strand/widgets/home_trending_card.dart';
 import 'package:example/strand/widgets/network_controller.dart';
 import 'package:example/strand/widgets/network_invitations_card.dart';
@@ -12,6 +11,7 @@ import 'package:example/strand/widgets/network_section_view.dart';
 import 'package:example/strand/widgets/network_suggestions.dart';
 import 'package:example/strand/widgets/settings_links.dart';
 import 'package:example/strand/widgets/strand_pieces.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -81,10 +81,6 @@ class _DesktopNetwork extends StatelessWidget {
 
     return PageContainer(
       scrollable: true,
-      // As on the Jobs page: the title starts 28 under the app bar.
-      padding: (layout.pagePadding ?? EdgeInsets.zero).add(
-        const EdgeInsets.only(top: 4),
-      ),
       child: LayoutBuilder(
         builder: (context, constraints) {
           final width = constraints.maxWidth;
@@ -121,12 +117,16 @@ class _DesktopNetwork extends StatelessWidget {
                 subtitle: _subtitle,
                 actions: [
                   Button.outline(
-                    leading: const Icon(PhosphorIconsRegular.slidersHorizontal),
+                    leading: const PhosphorIcon(
+                      PhosphorIconsRegular.slidersHorizontal,
+                    ),
                     onPressed: () => openSettings(context),
                     child: const Text('Invitation settings'),
                   ),
                   Button(
-                    leading: const Icon(PhosphorIconsRegular.envelopeSimple),
+                    leading: const PhosphorIcon(
+                      PhosphorIconsRegular.envelopeSimple,
+                    ),
                     onPressed: () => showInviteDialog(context),
                     child: const Text('Invite people'),
                   ),
@@ -195,14 +195,15 @@ class _SectionChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
-        spacing: homeTightGap,
+        spacing: theme.gap(GapSize.xs),
         children: [
           for (final section in NetworkSection.values)
             Chip(
-              leading: Icon(section.icon),
+              leading: PhosphorIcon(section.icon),
               label: Text(
                 '${section.label} · '
                 '${formatCount(controller.countOf(section))}',
@@ -252,25 +253,20 @@ class _MobileNetworkState extends State<_MobileNetwork> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final layout = theme.layoutTheme;
 
     return PageContainer(
       scrollable: true,
-      // As on the Jobs page: the title starts 17 under the app bar.
-      padding: (layout.pagePadding ?? EdgeInsets.zero).add(
-        const EdgeInsets.only(top: 1),
-      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         // The phone designs space their blocks 14 apart.
-        spacing: homeLooseGap,
+        spacing: theme.gap(GapSize.md),
         children: [
           Row(
             children: [
               const Expanded(child: StrandPageHeader(title: NetworkData.title)),
               IconButton.secondary(
-                icon: const Icon(PhosphorIconsRegular.envelopeSimple),
+                icon: const PhosphorIcon(PhosphorIconsRegular.envelopeSimple),
                 semanticLabel: 'Invite people',
                 onPressed: () => showInviteDialog(context),
               ),
@@ -287,16 +283,7 @@ class _MobileNetworkState extends State<_MobileNetwork> {
                 for (final tab in _MobileTab.values)
                   Tab(
                     value: tab,
-                    child: Flexible(
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          _label(tab),
-                          maxLines: 1,
-                          softWrap: false,
-                        ),
-                      ),
-                    ),
+                    child: StrandTabLabel(_label(tab)),
                   ),
               ],
             ),
@@ -351,11 +338,11 @@ class _InvitationsTeaser extends StatelessWidget {
     return Card(
       onPressed: onPressed,
       radius: theme.radii.xl,
-      padding: const EdgeInsets.all(homeLooseGap),
+      padding: EdgeInsets.all(theme.gap(GapSize.md)),
       rowMainAxisSize: MainAxisSize.max,
       child: Row(
         children: [
-          const IconTile(icon: Icon(PhosphorIconsRegular.userPlus)),
+          const IconTile(icon: PhosphorIcon(PhosphorIconsRegular.userPlus)),
           const Gap.md(),
           Expanded(
             child: Column(
@@ -381,9 +368,9 @@ class _InvitationsTeaser extends StatelessWidget {
               ],
             ),
           ),
-          Icon(
+          PhosphorIcon(
             PhosphorIconsRegular.caretRight,
-            size: 18,
+            size: theme.glyph,
             color: scheme.mutedForeground,
           ),
         ],

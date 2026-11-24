@@ -1,7 +1,7 @@
 import 'package:example/strand/session.dart';
-import 'package:example/strand/widgets/home_pieces.dart';
 import 'package:example/strand/widgets/settings_controller.dart';
 import 'package:example/strand/widgets/settings_sections.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -18,7 +18,13 @@ import 'package:flutter/widgets.dart';
 /// mock preference held by the session's `SettingsController`, so the page
 /// reads the same when it is opened again; nothing is persisted. It is
 /// built from the package's form controls as they come.
-class SettingsScreen extends StatelessWidget {
+///
+/// The two arrangements put the selected page under different parents — a
+/// row beside the rail, a column under the chips — so the page is held by
+/// a `GlobalKey` and moves from one to the other with its state: a name
+/// half typed into the profile form is still there, unsaved, after the
+/// window is resized or the theme editor docks beside it.
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
   /// Capped narrower than the app's pages: forms read badly across 1280.
@@ -36,6 +42,15 @@ class SettingsScreen extends StatelessWidget {
   };
 
   @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  /// Keeps the page's element — its text controllers, its focus — when the
+  /// layout around it changes shape.
+  final _pageKey = GlobalKey(debugLabel: 'Settings page');
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final settings = context.strand.settings;
@@ -43,7 +58,7 @@ class SettingsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton.ghost(
-          icon: const Icon(PhosphorIconsRegular.arrowLeft),
+          icon: const PhosphorIcon(PhosphorIconsRegular.arrowLeft),
           semanticLabel: 'Back',
           onPressed: () => Navigator.of(context).pop(),
         ),
@@ -51,7 +66,7 @@ class SettingsScreen extends StatelessWidget {
       ),
       body: PageContainer(
         scrollable: true,
-        maxWidth: _maxWidth,
+        maxWidth: SettingsScreen._maxWidth,
         child: ListenableBuilder(
           listenable: settings,
           builder: (context, _) => LayoutBuilder(
@@ -59,20 +74,23 @@ class SettingsScreen extends StatelessWidget {
               void select(SettingsSection section) =>
                   settings.update(() => settings.section = section);
 
-              final page = SettingsSectionView(
-                // A page's fields keep no state from another page's.
-                key: ValueKey(settings.section),
-                section: settings.section,
-                settings: settings,
+              final page = KeyedSubtree(
+                key: _pageKey,
+                child: SettingsSectionView(
+                  // A page's fields keep no state from another page's.
+                  key: ValueKey(settings.section),
+                  section: settings.section,
+                  settings: settings,
+                ),
               );
 
-              if (constraints.maxWidth >= _railFrom) {
+              if (constraints.maxWidth >= SettingsScreen._railFrom) {
                 return Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: theme.layoutTheme.gap(GapSize.xl),
+                  spacing: theme.gap(GapSize.xl),
                   children: [
                     SizedBox(
-                      width: _railWidth,
+                      width: SettingsScreen._railWidth,
                       child: _SectionRail(
                         selected: settings.section,
                         onSelected: select,
@@ -85,16 +103,18 @@ class SettingsScreen extends StatelessWidget {
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: homeLooseGap,
+                spacing: theme.gap(GapSize.md),
                 children: [
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
-                      spacing: homeTightGap,
+                      spacing: theme.gap(GapSize.xs),
                       children: [
                         for (final section in SettingsSection.values)
                           Chip(
-                            leading: Icon(_icons[section]),
+                            leading: PhosphorIcon(
+                              SettingsScreen._icons[section],
+                            ),
                             label: Text(section.label),
                             selected: section == settings.section,
                             onSelected: (_) => select(section),
@@ -125,7 +145,7 @@ class _SectionRail extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     return Card(
-      padding: EdgeInsets.all(theme.layoutTheme.gap(GapSize.sm)),
+      padding: EdgeInsets.all(theme.gap(GapSize.sm)),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -137,17 +157,16 @@ class _SectionRail extends StatelessWidget {
                 variant: section == selected
                     ? ButtonVariant.secondary
                     : ButtonVariant.ghost,
-                // The home profile card's shortcut row.
-                height: 38,
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: homeSnugGap),
-                gap: homeSnugGap,
-                iconSize: 20,
+                padding: EdgeInsets.symmetric(
+                  horizontal: theme.gap(GapSize.sm),
+                ),
+                gap: theme.gap(GapSize.sm),
                 mainAxisAlignment: MainAxisAlignment.start,
                 foregroundColor: section == selected
                     ? scheme.tint
                     : scheme.foregroundSubtle,
-                leading: Icon(SettingsScreen._icons[section]),
+                leading: PhosphorIcon(SettingsScreen._icons[section]),
                 onPressed: () => onSelected(section),
                 child: Expanded(
                   child: Text(

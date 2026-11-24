@@ -7,14 +7,13 @@ import 'package:finesse/src/components/popover.dart';
 import 'package:finesse/src/components/scroll_area.dart';
 import 'package:finesse/src/raw_components/portal.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/arrow_key_focus.dart';
 import 'package:finesse/src/utils/border.dart';
 import 'package:finesse/src/utils/browser_context_menu/browser_context_menu.dart';
 import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:finesse/src/utils/mouse_area.dart';
-import 'package:finesse/src/utils/moving_indicator.dart';
 import 'package:finesse/src/utils/provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -51,10 +50,14 @@ class ContextMenuRegion extends StatefulWidget {
     this.tapEnabled,
     this.hitTestBehavior = HitTestBehavior.opaque,
     this.popoverReverseDuration,
+    this.requestFocus = true,
   });
 
   /// {@macro Popover.reverseDuration}
   final Duration? popoverReverseDuration;
+
+  /// {@macro ContextMenu.requestFocus}
+  final bool requestFocus;
 
   /// {@template ContextMenuRegion.child}
   /// The child that triggers the visibility of the context menu.
@@ -205,6 +208,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
       decoration: widget.decoration,
       filter: widget.filter,
       popoverReverseDuration: widget.popoverReverseDuration,
+      requestFocus: widget.requestFocus,
       child: FinesseGestureDetector(
         behavior: widget.hitTestBehavior,
         supportedDevices: widget.supportedDevices,
@@ -311,10 +315,23 @@ class ContextMenu extends StatefulWidget {
     this.onTapUpInside,
     this.onTapUpOutside,
     this.popoverReverseDuration,
+    this.requestFocus = true,
   });
 
   /// {@macro Popover.reverseDuration}
   final Duration? popoverReverseDuration;
+
+  /// {@template ContextMenu.requestFocus}
+  /// Whether the menu takes the keyboard focus when it opens, defaults to
+  /// true: the arrow keys, Home, End and type-ahead then work straight
+  /// away, and the focus goes back to where it was when the menu closes.
+  ///
+  /// Set it to false for a menu that assists what it is anchored to — the
+  /// completions under a text field — so the caret stays put. Tab then
+  /// moves from the anchor into the menu, where the arrow keys take over,
+  /// and Escape closes the menu from either. See `Popover.requestFocus`.
+  /// {@endtemplate}
+  final bool requestFocus;
 
   /// {@template ContextMenu.child}
   /// The child of the context menu.
@@ -500,8 +517,9 @@ class ContextMenuState extends State<ContextMenu> {
         mounted) {
       setState(() {});
     }
-    // A hover-opened submenu leaves focus where it is.
-    if (!controller.isOpen || _root != null) return;
+    // A hover-opened submenu leaves focus where it is, and so does a menu
+    // that was asked to.
+    if (!controller.isOpen || _root != null || !widget.requestFocus) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted && controller.isOpen && !_hasFocusedItem) {
         _contentFocusNode.requestFocus();
@@ -680,23 +698,6 @@ class ContextMenuState extends State<ContextMenu> {
 
     final effectiveShadows = widget.shadows ?? theme.contextMenuTheme.shadows;
 
-    // The highlight is one shape that glides from row to row with the
-    // pointer or the arrow keys. A row's text takes its highlighted colour
-    // at once, though, so the glide is only right when that colour also
-    // reads on the bare menu: with a bold accent (white text on a primary
-    // fill) the text would sit unreadable on the surface until the fill
-    // caught up, and the highlight jumps instead.
-    final restColor =
-        theme.contextMenuTheme.textStyle?.color ??
-        theme.colorScheme.popoverForeground;
-    final highlightColor =
-        theme.contextMenuTheme.selectedTextStyle?.color ??
-        theme.colorScheme.accentForeground;
-    final highlightGlides =
-        (restColor.computeLuminance() - highlightColor.computeLuminance())
-            .abs() <
-        .4;
-
     // A point set through FinesseContextMenuController.showAt wins over the
     // menu's own anchor; the menu opens with its corner there.
     final controller = this.controller;
@@ -741,6 +742,7 @@ class ContextMenuState extends State<ContextMenu> {
           theme.contextMenuTheme.popoverReverseDuration ??
           (_root != null ? Duration.zero : null),
       useSameGroupIdForChild: false,
+      requestFocus: widget.requestFocus,
       popover: (context) {
         return MouseArea(
           groupId: widget.groupId,
@@ -754,26 +756,20 @@ class ContextMenuState extends State<ContextMenu> {
                 onTapUpInside: widget.onTapUpInside,
                 onTapUpOutside: widget.onTapUpOutside,
                 groupId: tapRegionGroupId,
-                child: Focus(
-                  focusNode: _contentFocusNode,
-                  skipTraversal: true,
-                  onKeyEvent: _handleKey,
-                  child: FocusTraversalGroup(
-                    policy: OrderedTraversalPolicy(),
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(maxHeight: maxHeight),
-                      child: ScrollArea(
-                        child: _MenuLevel(
-                          menu: this,
-                          // Inside the scroll view, so the highlight
-                          // scrolls with its row.
-                          child: MovingIndicator(
-                            spring: highlightGlides
-                                ? null
-                                : MotionSpring.instant,
-                            // A row's highlight is its full width: there
-                            // is nothing to stretch along.
-                            stretch: 0,
+                // The arrows walk the rows wherever the app runs; the
+                // web's default shortcuts would scroll the page instead.
+                child: ArrowKeyFocus(
+                  child: Focus(
+                    focusNode: _contentFocusNode,
+                    skipTraversal: true,
+                    onKeyEvent: _handleKey,
+                    child: FocusTraversalGroup(
+                      policy: OrderedTraversalPolicy(),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(maxHeight: maxHeight),
+                        child: ScrollArea(
+                          child: _MenuLevel(
+                            menu: this,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisSize: MainAxisSize.min,
@@ -1356,25 +1352,6 @@ class _ContextMenuItemState extends State<ContextMenuItem> {
         theme.contextMenuTheme.closeOnTap ??
         widget.items.isEmpty;
 
-    // The highlight is not the button's own fill: the menu paints one, on
-    // whichever row is highlighted, and moves it between them. This is what
-    // it looks like on this row — the button's shape, in this row's colour.
-    final buttonDecoration = switch (effectiveButtonVariant) {
-      ButtonVariant.primary => theme.primaryButtonTheme,
-      ButtonVariant.destructive => theme.destructiveButtonTheme,
-      ButtonVariant.secondary => theme.secondaryButtonTheme,
-      ButtonVariant.ghost => theme.ghostButtonTheme,
-      ButtonVariant.outline => theme.outlineButtonTheme,
-      ButtonVariant.link => theme.linkButtonTheme,
-    }.decoration;
-    final highlight = BoxDecoration(
-      color: effectiveSelectedBackgroundColor,
-      borderRadius:
-          effectiveDecoration.border?.radius ??
-          buttonDecoration?.border?.radius,
-    );
-    const noFill = Color(0x00000000);
-
     /// if the item has submenu items, use the current item key,
     /// otherwise use the parent item controller's item key
     /// or the current item key if there is no parent item
@@ -1401,68 +1378,70 @@ class _ContextMenuItemState extends State<ContextMenuItem> {
           items: widget.items,
           child: Padding(
             padding: effectivePadding,
-            child: MovingIndicatorTarget(
-              selected: highlighted && widget.enabled,
-              decoration: highlight,
-              child: Button.raw(
-                height: effectiveHeight,
-                enabled: widget.enabled,
-                variant: effectiveButtonVariant,
-                decoration: effectiveDecoration,
-                width: double.infinity,
-                padding: effectiveInsetPadding,
-                statesController: statesController,
-                backgroundColor: effectiveBackgroundColor ?? noFill,
-                hoverBackgroundColor: effectiveBackgroundColor ?? noFill,
-                // Through the button rather than a wrapping DefaultTextStyle,
-                // so its IconTheme recolours leading and trailing icons with
-                // the text — shadcn's `focus:**:text-accent-foreground`.
-                foregroundColor: selected
-                    ? selectedForegroundColor
-                    : foregroundColor,
-                hoverForegroundColor: selectedForegroundColor,
-                textStyle: highlighted
-                    ? effectiveSelectedTextStyle
-                    : effectiveTextStyle,
-                onFocusChange: controller.setFocused,
-                onTapDown: widget.onTapDown != null
-                    ? (details) {
-                        widget.onTapDown!(details);
-                        if (effectiveCloseOnTap) contextMenu.setVisible(false);
-                      }
-                    : null,
-                onPressed: () {
-                  widget.onPressed?.call();
-                  if (effectiveCloseOnTap) contextMenu.setVisible(false);
-                },
-                child: Expanded(
-                  child: Row(
-                    children: [
-                      if (widget.leading != null)
-                        Padding(
-                          padding: effectiveLeadingPadding,
-                          child: widget.leading,
-                        ),
-                      // The button centres its text (`TextAlign.center` in its
-                      // DefaultTextStyle); a menu row is start-aligned.
-                      Expanded(
-                        child: DefaultTextStyle.merge(
-                          textAlign: TextAlign.start,
-                          child: widget.child,
+            child: Button.raw(
+              height: effectiveHeight,
+              enabled: widget.enabled,
+              variant: effectiveButtonVariant,
+              decoration: effectiveDecoration,
+              width: double.infinity,
+              padding: effectiveInsetPadding,
+              statesController: statesController,
+              backgroundColor: selected
+                  ? effectiveSelectedBackgroundColor
+                  : effectiveBackgroundColor,
+              hoverBackgroundColor: effectiveSelectedBackgroundColor,
+              // Through the button rather than a wrapping DefaultTextStyle,
+              // so its IconTheme recolours leading and trailing icons with
+              // the text — shadcn's `focus:**:text-accent-foreground`.
+              foregroundColor: selected
+                  ? selectedForegroundColor
+                  : foregroundColor,
+              hoverForegroundColor: selectedForegroundColor,
+              // A menu's highlight follows the pointer and the arrow keys
+              // row by row: it is there or it is not, with no fade and no
+              // glide between rows.
+              transitionDuration: Duration.zero,
+              textStyle: highlighted
+                  ? effectiveSelectedTextStyle
+                  : effectiveTextStyle,
+              onFocusChange: controller.setFocused,
+              onTapDown: widget.onTapDown != null
+                  ? (details) {
+                      widget.onTapDown!(details);
+                      if (effectiveCloseOnTap) contextMenu.setVisible(false);
+                    }
+                  : null,
+              onPressed: () {
+                widget.onPressed?.call();
+                if (effectiveCloseOnTap) contextMenu.setVisible(false);
+              },
+              child: Expanded(
+                child: Row(
+                  children: [
+                    if (widget.leading != null)
+                      Padding(
+                        padding: effectiveLeadingPadding,
+                        child: widget.leading,
+                      ),
+                    // The button centres its text (`TextAlign.center` in its
+                    // DefaultTextStyle); a menu row is start-aligned.
+                    Expanded(
+                      child: DefaultTextStyle.merge(
+                        textAlign: TextAlign.start,
+                        child: widget.child,
+                      ),
+                    ),
+                    if (widget.trailing != null)
+                      Padding(
+                        padding: effectiveTrailingPadding,
+                        child: DefaultTextStyle(
+                          style: highlighted
+                              ? effectiveSelectedTrailingTextStyle
+                              : effectiveTrailingTextStyle,
+                          child: widget.trailing!,
                         ),
                       ),
-                      if (widget.trailing != null)
-                        Padding(
-                          padding: effectiveTrailingPadding,
-                          child: DefaultTextStyle(
-                            style: highlighted
-                                ? effectiveSelectedTrailingTextStyle
-                                : effectiveTrailingTextStyle,
-                            child: widget.trailing!,
-                          ),
-                        ),
-                    ],
-                  ),
+                  ],
                 ),
               ),
             ),

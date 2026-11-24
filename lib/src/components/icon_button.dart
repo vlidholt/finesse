@@ -18,7 +18,7 @@ import 'package:flutter/widgets.dart';
 /// specific variants or [IconButton.raw] for full control.
 ///
 /// shadcn/ui itself has no separate component — it is `<Button size="icon">`,
-/// and `Button(size: ButtonSize.icon, child: Icon(...))` is exactly
+/// and `Button(size: ButtonSize.icon, child: PhosphorIcon(...))` is exactly
 /// that. This adds the square sizes for the `sm`/`lg` steps (which shadcn
 /// spells `size-icon-sm` / `size-icon-lg`) and the semantic label an
 /// icon-only control needs, so prefer it when the button holds only an icon.

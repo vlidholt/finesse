@@ -474,7 +474,7 @@ class _DataTableState<T> extends State<DataTable<T>> {
           Flexible(child: label),
           if (isSorted) ...[
             const SizedBox(width: 4),
-            Icon(
+            PhosphorIcon(
               controller.sortDirection == SortDirection.ascending
                   ? PhosphorIconsRegular.arrowDown
                   : PhosphorIconsRegular.arrowUp,

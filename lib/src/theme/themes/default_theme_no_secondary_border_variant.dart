@@ -14,6 +14,7 @@ import 'package:finesse/src/theme/spacing.dart';
 import 'package:finesse/src/theme/style.dart';
 import 'package:finesse/src/theme/text_theme/text_styles_default.dart';
 import 'package:finesse/src/theme/text_theme/theme.dart';
+import 'package:finesse/src/theme/themes/base.dart';
 import 'package:finesse/src/theme/themes/default_theme_variant.dart';
 import 'package:finesse/src/utils/border.dart';
 import 'package:flutter/widgets.dart';
@@ -37,6 +38,7 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
     super.spacing,
     super.menuColorScheme,
     super.menuTranslucent,
+    super.menuAccent,
   });
 
   @override
@@ -49,6 +51,7 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
     Spacing? spacing,
     Object? menuColorScheme = DefaultThemeVariant.unsetMenuColorScheme,
     Object? menuTranslucent = DefaultThemeVariant.unsetMenuTranslucent,
+    MenuAccent? menuAccent,
   }) {
     return DefaultThemeNoSecondaryBorderVariant(
       colorScheme: colorScheme ?? this.colorScheme,
@@ -68,6 +71,7 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
           identical(menuTranslucent, DefaultThemeVariant.unsetMenuTranslucent)
           ? this.menuTranslucent
           : menuTranslucent as bool?,
+      menuAccent: menuAccent ?? this.menuAccent,
     );
   }
 
@@ -182,19 +186,32 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
   }
 
   @override
-  TabsTheme tabsTheme() => super.tabsTheme().merge(
-    TabsTheme(
-      tabDecoration: FinesseDecoration(
-        border: FinesseBorder.all(
-          radius: const BorderRadius.all(Radius.circular(4)),
-          width: 0,
-        ),
-        focusedBorder: FinesseBorder.all(
-          radius: const BorderRadius.all(Radius.circular(4)),
+  TabsTheme tabsTheme() {
+    final base = super.tabsTheme();
+    // A style with a tab height pads the label to fill it exactly, and the
+    // focus reserve is inside that height too: left as it is, the label is
+    // laid out in a line's height less the reserve and loses its
+    // descenders. The reserve comes out of the padding instead.
+    final reserve = (focusReserve(0)?.vertical ?? 0) / 2;
+    return base.merge(
+      TabsTheme(
+        tabPadding: style.tabHeight == null
+            ? null
+            : base.tabPadding
+                  ?.subtract(EdgeInsets.symmetric(vertical: reserve))
+                  .clamp(EdgeInsets.zero, EdgeInsetsGeometry.infinity),
+        tabDecoration: FinesseDecoration(
+          border: FinesseBorder.all(
+            radius: const BorderRadius.all(Radius.circular(4)),
+            width: 0,
+          ),
+          focusedBorder: FinesseBorder.all(
+            radius: const BorderRadius.all(Radius.circular(4)),
+          ),
         ),
       ),
-    ),
-  );
+    );
+  }
 
   @override
   ContextMenuTheme contextMenuTheme() => super.contextMenuTheme().merge(
@@ -271,6 +288,7 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
       large: TextDefaultTheme.large(),
       small: TextDefaultTheme.small(),
       muted: TextDefaultTheme.muted(),
+      caption: TextDefaultTheme.caption(),
     );
   }
 }
