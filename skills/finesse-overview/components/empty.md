@@ -5,8 +5,8 @@ A placeholder for an empty state: icon, title, description, and actions.
 ## Default
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class EmptyBasicExample extends StatelessWidget {
   const EmptyBasicExample({super.key});

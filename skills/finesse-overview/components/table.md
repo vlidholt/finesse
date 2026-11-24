@@ -5,8 +5,8 @@ A responsive table component with header and footer rows.
 ## Invoices
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 const _invoices = [
   (

@@ -130,7 +130,8 @@ void main() {
       final pill = inAppBar(find.byIcon(PhosphorIconsRegular.caretDown));
 
       await openMenu(tester, pill);
-      expect(find.text('Noor Haddad'), findsOneWidget);
+      // Once in the menu's header and once on the Home feed's profile card.
+      expect(find.text('Noor Haddad'), findsNWidgets(2));
       expect(find.text('Browse components'), findsOneWidget);
       expect(find.text('Open theme editor'), findsOneWidget);
 

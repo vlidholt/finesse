@@ -5,8 +5,8 @@ A placeholder to show while content is loading.
 ## Default
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class SkeletonCardExample extends StatelessWidget {
   const SkeletonCardExample({super.key});

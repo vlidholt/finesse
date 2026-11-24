@@ -1,14 +1,15 @@
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
-class InputPasswordExample extends StatefulWidget {
-  const InputPasswordExample({super.key});
+class TextFieldPasswordExample extends StatefulWidget {
+  const TextFieldPasswordExample({super.key});
 
   @override
-  State<InputPasswordExample> createState() => _InputPasswordExampleState();
+  State<TextFieldPasswordExample> createState() =>
+      _TextFieldPasswordExampleState();
 }
 
-class _InputPasswordExampleState extends State<InputPasswordExample> {
+class _TextFieldPasswordExampleState extends State<TextFieldPasswordExample> {
   bool obscure = true;
 
   @override

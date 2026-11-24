@@ -5,8 +5,8 @@ Extends the dialog to display content that complements the main content of the s
 ## Sides
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class SheetSidesExample extends StatelessWidget {
   const SheetSidesExample({super.key});

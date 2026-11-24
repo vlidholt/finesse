@@ -1,0 +1,38 @@
+import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
+
+/// Mutual connections: the first avatar is painted on top and each one is
+/// ringed in the colour of the surface behind it.
+class AvatarGroupBasicExample extends StatelessWidget {
+  const AvatarGroupBasicExample({super.key});
+
+  static const _photos = [
+    'assets/strand/avatar_mei_tanaka.jpg',
+    'assets/strand/avatar_omar_rahimi.jpg',
+    'assets/strand/avatar_claire_dubois.jpg',
+    'assets/strand/avatar_julian_reyes.jpg',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Card(
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        spacing: 10,
+        children: [
+          AvatarGroup(
+            size: 28,
+            children: [for (final photo in _photos) Avatar(photo)],
+          ),
+          Flexible(
+            child: Text(
+              'Mei, Omar and 12 other mutual connections',
+              style: theme.textTheme.muted,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

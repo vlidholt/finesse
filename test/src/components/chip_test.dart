@@ -91,10 +91,126 @@ void main() {
           final theme = themeOf(tester, find.byType(Wrap));
           final expected = layout.formFactor == FormFactor.mobile ? 36.0 : 32.0;
           expect(theme.chipTheme.height, expected);
-          for (final chip in find.byType(Chip).evaluate()) {
-            expect(chip.size!.height, expected);
+          // The two chips that can be tapped follow the form factor; the
+          // two tags keep the desktop height.
+          for (final label in ['One', 'Two']) {
+            expect(
+              tester.getSize(find.widgetWithText(Chip, label)).height,
+              expected,
+              reason: label,
+            );
+          }
+          for (final label in ['Tag', 'Add']) {
+            expect(
+              tester.getSize(find.widgetWithText(Chip, label)).height,
+              32,
+              reason: label,
+            );
           }
         },
+      );
+    });
+
+    testWidgets('a tappable chip is 32 on a desktop and 36 on a phone; a '
+        'static one is 32 on both', (tester) async {
+      for (final formFactor in FormFactor.values) {
+        await pumpFinesse(
+          tester,
+          Center(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Chip(key: Key('static'), label: Text('Tag')),
+                const Chip(
+                  key: Key('static-selected'),
+                  label: Text('Tag'),
+                  selected: true,
+                ),
+                Chip(
+                  key: const Key('toggle'),
+                  label: const Text('Tag'),
+                  onSelected: (_) {},
+                ),
+                Chip(
+                  key: const Key('action'),
+                  label: const Text('Tag'),
+                  onPressed: () {},
+                ),
+              ],
+            ),
+          ),
+          formFactor: formFactor,
+        );
+        final touch = formFactor == FormFactor.mobile ? 36.0 : 32.0;
+        double heightOf(String key) =>
+            tester.getSize(find.byKey(Key(key))).height;
+        expect(heightOf('static'), 32, reason: formFactor.name);
+        expect(heightOf('static-selected'), 32, reason: formFactor.name);
+        expect(heightOf('toggle'), touch, reason: formFactor.name);
+        expect(heightOf('action'), touch, reason: formFactor.name);
+      }
+    });
+
+    testWidgets("a static chip's height still follows the spacing unit", (
+      tester,
+    ) async {
+      await pumpFinesse(
+        tester,
+        const Center(child: Chip(label: Text('Tag'))),
+        theme: ThemeData(spacing: const Spacing(step: 5)),
+        formFactor: FormFactor.mobile,
+      );
+      // The desktop 32 at a 5px step, not the phone's 36 at one.
+      expect(tester.getSize(find.byType(Chip)).height, 40);
+    });
+
+    testWidgets('the height is applied outside the animated box, so a change '
+        'of form factor does not animate it', (tester) async {
+      // A plain `Theme`, so the only animation that could move the height
+      // is the chip's own.
+      Widget chip(FormFactor formFactor) => FinesseApp(
+        formFactor: FormFactor.desktop,
+        home: Theme(
+          data: ThemeData(formFactor: formFactor),
+          child: Center(
+            child: Chip(label: const Text('Remote'), onPressed: () {}),
+          ),
+        ),
+      );
+      await tester.pumpWidget(chip(FormFactor.desktop));
+      await settle(tester);
+      expect(tester.getSize(find.byType(Chip)).height, 32);
+
+      await tester.pumpWidget(chip(FormFactor.mobile));
+      // On the very frame the theme changes, and at every point of the
+      // 120 ms colour animation.
+      expect(tester.getSize(find.byType(Chip)).height, 36);
+      for (var i = 0; i < 6; i++) {
+        await tester.pump(const Duration(milliseconds: 30));
+        expect(tester.getSize(find.byType(Chip)).height, 36, reason: '$i');
+      }
+
+      await tester.pumpWidget(chip(FormFactor.desktop));
+      expect(tester.getSize(find.byType(Chip)).height, 32);
+      await tester.pump(const Duration(milliseconds: 60));
+      expect(tester.getSize(find.byType(Chip)).height, 32);
+
+      // The animated box itself carries no size at all.
+      final box = tester.widget<AnimatedContainer>(
+        find.descendant(
+          of: find.byType(Chip),
+          matching: find.byType(AnimatedContainer),
+        ),
+      );
+      expect(box.constraints, isNull);
+      expect(
+        find.ancestor(
+          of: find.byType(AnimatedContainer),
+          matching: find.byWidgetPredicate(
+            (w) => w is SizedBox && w.height == 32 && w.width == null,
+          ),
+        ),
+        findsOneWidget,
       );
     });
 
@@ -508,32 +624,51 @@ void main() {
       expect(labelColorOf(tester, 'Figma'), s.foregroundSubtle);
     });
 
-    testWidgets(
-      'the soft variant has no outline',
-      (
-        tester,
-      ) async {
+    testWidgets('the soft variant keeps a hairline round its muted fill', (
+      tester,
+    ) async {
+      for (final brightness in Brightness.values) {
         await pumpFinesse(
           tester,
           const Center(
             child: Chip(label: Text('Figma'), variant: ChipVariant.soft),
           ),
+          theme: ThemeData(brightness: brightness),
         );
-        final border = boxOf(tester).border as Border?;
+        final theme = themeOf(tester, find.byType(Chip));
+        final border = boxOf(tester).border! as Border;
+        expect(border.isUniform, isTrue, reason: '$brightness');
+        expect(border.top.style, BorderStyle.solid, reason: '$brightness');
+        expect(border.top.width, theme.chipTheme.borderWidth);
+        expect(border.top.width, 1);
+        expect(border.top.color, theme.colorScheme.border);
+        // A solid hairline, not the dashed painter.
         expect(
-          border == null ||
-              border.top.style == BorderStyle.none ||
-              border.top.color.a == 0,
-          isTrue,
-          reason: 'ChipVariant.soft is documented as "no outline"',
+          find.descendant(
+            of: find.byType(Chip),
+            matching: find.byType(CustomPaint),
+          ),
+          findsNothing,
         );
-      },
-      // TODO(finesse): `ChipVariant.soft` is documented as "a muted fill
-      // with no outline", but `Chip.build` gives it a `scheme.border`
-      // hairline like the outline variant. Either the doc or the code is
-      // wrong; left for the author to decide which.
-      skip: true,
-    );
+      }
+    });
+
+    testWidgets("the soft variant's borderColor can be overridden", (
+      tester,
+    ) async {
+      const outline = Color(0xff336699);
+      await pumpFinesse(
+        tester,
+        const Center(
+          child: Chip(
+            label: Text('Figma'),
+            variant: ChipVariant.soft,
+            borderColor: outline,
+          ),
+        ),
+      );
+      expect((boxOf(tester).border! as Border).top.color, outline);
+    });
 
     testWidgets('the dashed variant has no fill and a dashed strong outline', (
       tester,
@@ -677,6 +812,72 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('an unselected toggle chip says it is not selected', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await pumpFinesse(
+        tester,
+        Center(
+          child: Chip(label: const Text('Remote'), onSelected: (_) {}),
+        ),
+      );
+      final data = tester.getSemantics(find.byType(Chip)).getSemanticsData();
+      expect(data.flagsCollection.isButton, isTrue);
+      expect(data.flagsCollection.isSelected, ui.Tristate.isFalse);
+      handle.dispose();
+    });
+
+    testWidgets('an action chip announces a selected state only when it is '
+        'selected', (tester) async {
+      final handle = tester.ensureSemantics();
+      await pumpFinesse(
+        tester,
+        Center(
+          child: Chip(label: const Text('Clear'), onPressed: () {}),
+        ),
+      );
+      expect(
+        tester
+            .getSemantics(find.byType(Chip))
+            .getSemanticsData()
+            .flagsCollection
+            .isSelected,
+        ui.Tristate.none,
+      );
+
+      await pumpFinesse(
+        tester,
+        Center(
+          child: Chip(
+            label: const Text('Clear'),
+            selected: true,
+            onPressed: () {},
+          ),
+        ),
+      );
+      final data = tester.getSemantics(find.byType(Chip)).getSemanticsData();
+      expect(data.flagsCollection.isButton, isTrue);
+      expect(data.flagsCollection.isSelected, ui.Tristate.isTrue);
+      handle.dispose();
+    });
+
+    testWidgets('a selected static chip is announced as selected, and still '
+        'not as a button', (tester) async {
+      final handle = tester.ensureSemantics();
+      await pumpFinesse(
+        tester,
+        const Center(child: Chip(label: Text('Figma'), selected: true)),
+      );
+      final data = tester.getSemantics(find.text('Figma')).getSemanticsData();
+      expect(data.label, 'Figma');
+      expect(data.flagsCollection.isSelected, ui.Tristate.isTrue);
+      expect(data.flagsCollection.isButton, isFalse);
+      expect(data.hasAction(ui.SemanticsAction.tap), isFalse);
+      expect(find.byType(Pressable), findsNothing);
+      handle.dispose();
+    });
+
     testWidgets('an action chip is an enabled button', (tester) async {
       final handle = tester.ensureSemantics();
       await pumpFinesse(
@@ -713,6 +914,7 @@ void main() {
       expect(data.label, 'Figma');
       expect(data.flagsCollection.isButton, isFalse);
       expect(data.flagsCollection.isEnabled, ui.Tristate.none);
+      expect(data.flagsCollection.isSelected, ui.Tristate.none);
       expect(data.hasAction(ui.SemanticsAction.tap), isFalse);
       handle.dispose();
     });

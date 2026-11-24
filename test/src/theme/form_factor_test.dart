@@ -2,6 +2,8 @@ import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../fixture_styles.dart';
+
 /// A style carries two sets of metrics, and the theme's form factor picks
 /// one. These lock the numbers that make a phone layout a phone layout —
 /// 44-point controls, 15-point body text, 16-point page margins — and the
@@ -55,8 +57,8 @@ void main() {
     });
 
     test('the finesse style owns the prose scale', () {
-      // Unlike the shadcn styles, whose typography examples are fixed, a
-      // style that names display/headline/subtitle/small rewrites them.
+      // shadcn's typography examples are a fixed prose scale; a style that
+      // names display/headline/subtitle/small rewrites them.
       expect(desktop.textTheme.h1.fontSize, 30);
       expect(mobile.textTheme.h1.fontSize, 28);
       expect(desktop.textTheme.h3.fontSize, 20);
@@ -65,11 +67,11 @@ void main() {
       expect(desktop.textTheme.large.fontWeight, FontWeight.w600);
       expect(desktop.textTheme.small.fontSize, 13);
       expect(desktop.textTheme.muted.fontSize, 13);
-      // nova names none of them, so its prose stays the shadcn scale.
-      final nova = ThemeData(style: StyleTokens.nova);
-      expect(nova.textTheme.p.fontSize, 16);
-      expect(nova.textTheme.small.fontSize, 14);
-      expect(nova.textTheme.large.fontSize, 18);
+      // vega names none of them, so its prose stays the shadcn scale.
+      final vega = ThemeData(style: FixtureStyles.vega);
+      expect(vega.textTheme.p.fontSize, 16);
+      expect(vega.textTheme.small.fontSize, 14);
+      expect(vega.textTheme.large.fontSize, 18);
     });
 
     test('page padding is 24 on a desktop and 16 on a phone', () {
@@ -240,8 +242,20 @@ void main() {
       expect(theme.chipTheme.height, 36);
       expect(theme.textFieldTheme.style!.fontSize, 15);
       expect(theme.layoutTheme.pagePadding, const EdgeInsets.all(16));
-      // nova's prose scale is not the style's to change.
-      expect(theme.textTheme.p.fontSize, 16);
+      // nova names the app type roles, so it owns the scale and the body
+      // role the phone grew to 15 is its paragraph size too.
+      expect(theme.style.body.fontSize, 15);
+      expect(theme.textTheme.p.fontSize, 15);
+      // A style that names none of them keeps shadcn's prose scale, which is
+      // not the style's to change: its body role still grows, its `p` does
+      // not follow.
+      final bare = ThemeData(
+        style: FixtureStyles.vega,
+        formFactor: FormFactor.mobile,
+      );
+      expect(bare.style.body.fontSize, 15);
+      expect(bare.textFieldTheme.style!.fontSize, 15);
+      expect(bare.textTheme.p.fontSize, 16);
     });
 
     test('every shipped style is at least touch-sized on a phone', () {

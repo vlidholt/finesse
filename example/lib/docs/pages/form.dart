@@ -22,7 +22,7 @@ final formDoc = ComponentDoc(
       id: 'form_fields',
       title: 'Every field type',
       description:
-          'Input, select, textarea, radio group, date picker, time picker, '
+          'Text field, select, textarea, radio group, date picker, time picker, '
           'and switch, all as form fields.',
       minPreviewHeight: 480,
       builder: (_) => const FormFieldsExample(),

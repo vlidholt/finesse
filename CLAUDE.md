@@ -80,7 +80,7 @@ guessed rather than read.
 
 | What | Where |
 | --- | --- |
-| Per-style component CSS (the eight styles) | `apps/v4/registry/styles/style-{vega,nova,maia,lyra,mira,luma,sera,rhea}.css` |
+| Per-style component CSS (we keep `nova`, `maia`, `lyra`) | `apps/v4/registry/styles/style-{vega,nova,maia,lyra,mira,luma,sera,rhea}.css` |
 | Base colour palettes, OKLCH, light + dark | `apps/v4/registry/themes.ts` |
 | The app's own tokens | `apps/v4/app/globals.css` |
 | Component sources | `apps/v4/registry/new-york-v4/ui/*.tsx` |
@@ -168,7 +168,8 @@ locks the chain; add to it rather than trusting a local check.
 - `Radii` — the `none/sm/md/lg/xl/2xl/4xl/full` scale, derived from
   `ThemeData.radius` (which is the **md** step). At the default 8: 6, 8, 10,
   14, 16, 32.
-- `StyleTokens` — one of shadcn's eight styles as 67 measured fields:
+- `StyleTokens` — a style as measured fields (shadcn's 67, plus the fork's
+  glass, layout, navigation, chip and form-factor tokens):
   radii per surface class, ring width/opacity, border opacities, control and
   field metrics, selection-control dimensions, surface padding, shadows, and
   six `TextRole`s (`title`, `label`, `body`, `caption`, `overline`, `field`).
@@ -254,12 +255,58 @@ load. Ours are plain `const IconData(code, fontFamily:, fontPackage:
 - The dark card and popover are a step lighter than the page.
 - Overlays are `bg-black/10` with `backdrop-blur-xs` in both modes — the blur is
   what lets the tint stay that light.
-- `SlateColorScheme` and `GrayColorScheme` are v3 palettes that shadcn
-  no longer ships. They are kept for compatibility — and slate is still the
-  package default — while `neutral`, `stone` and `zinc` are generated from
-  `themes.ts`. Regenerating slate against v4 is an open question.
+- The base palettes are `teal` (the default, measured from the Strand
+  designs), and `neutral`, `stone` and `zinc`, generated from `themes.ts`.
+  shadcn's v3 palettes and the other bases were dropped in the fork;
+  `AccentScheme` recolours any base. `applyAccentScheme` also sets the
+  **tint**: the accent's primary is tuned as a button fill and is often too
+  dim to draw on a dark page, so the tint is the step of the accent's ramp
+  nearest the primary's lightness that reaches 4.5:1 on page and card.
+- The optional scheme tokens — `tint`, `foregroundSubtle`, `success`,
+  `successMuted`, `warning`, `borderStrong`, `accentBorder`, `bar` — each
+  fall back to an existing token, so a hand-written scheme keeps working.
+  `ColorScheme.lerp` lerps a token set on only one side against the other
+  side's *fallback*, not against null, or it fades in from transparent.
 
 ## Flutter gotchas hit in this codebase
+
+- **A per-weight font has one family name per weight, and the family has to
+  change with the weight.** `google_fonts` registers `Geist_regular`,
+  `Geist_500`, `Geist_700`…; a style that keeps `Geist_800` while its weight
+  becomes 700 is drawn from the 800 file, and nothing warns. Three places
+  lost the link and each rendered the wrong face for a long time:
+  `BuilderTextStyle.copyWith` returned a plain `TextStyle`, so only the
+  *first* copy re-resolved the family; `TextTheme.merge` (which `ThemeData`
+  runs on every text theme) merged builder styles into plain ones; and the
+  `fallback()` extension built a new `TextStyle`. All three now keep the
+  style a `BuilderTextStyle`, and
+  `test/src/theme/text_theme/per_weight_family_test.dart` walks every style,
+  form factor and component text style with a fake per-weight font. In app
+  code the rule is: **never write `TextStyle(fontWeight: …)` on its own for
+  a span or an override — copy a theme style**
+  (`theme.textTheme.p.copyWith(fontWeight: FontWeight.w600)`), which
+  resolves the face. A test font hides all of this, since it has one face.
+- **`StyleTokens.copyWith` reaches the phone metrics** only for fields the
+  phone had in common with the desktop (lists by value); a field `mobile`
+  sets on purpose keeps its value, and an explicit `mobile:` is used as
+  given. Before that, customising the default style silently did nothing
+  on a phone.
+- **The three shadcn styles carry an app type scale** (`display`,
+  `headline`, `subtitle`, `small`) like `finesse` does. Without one,
+  `Theme.of(context).textTheme` is shadcn's *prose* scale — a 16-point `p`,
+  an 18-point `large` — and a screen written against it comes out a size too
+  big under that style. A style that names none of the four keeps the prose
+  scale (`FixtureStyles.vega` in the tests).
+- **`Scaffold` measures its bars** after layout and insets its body by the
+  result; the first frame uses `AppBar.heightOf` /
+  `BottomNavigationBar.heightOf`, exact for those two widgets. `AppBar` and
+  `TabBar` add their hairline to their height (a 64-point bar is 65 tall),
+  as CSS does with a content-box header.
+- **`Pressable` takes hover from a `MouseRegion`**, not from
+  `FocusableActionDetector`'s highlight callback, which only fires in the
+  traditional highlight mode. A `semanticLabel` excludes the *content's*
+  semantics only — excluding at the outer `Semantics` also dropped the tap
+  and focus actions, so a labelled region could be read but not activated.
 
 - **CSS heights are border-box; `Container` adds its decoration's border as
   padding around the child** (`DecoratedBox` does not — the menubar strip
@@ -497,23 +544,86 @@ load. Ours are plain `const IconData(code, fontFamily:, fontPackage:
   at the 2xl step (`_sidebarSurfaceRadius`), which matches all styles within
   2px without a dedicated token.
 
-## The example docs browser
+## The example app
 
-`example/lib` is a docs site: `common/app_shell.dart` (top nav, two sections)
-→ `screens/components_screen.dart` (a `SidebarScaffold` listing
-`docs/registry.dart`) → `docs/docs.dart` (the reusable page widgets). The
-other section is `screens/playground_screen.dart`, which is the section the
-app opens on.
+`example/` is three things under one `AppShell` (`common/app_shell.dart`):
+**Strand**, a social-network demo that replicates the reference designs and
+is what the app opens on; the **component library** (docs browser); and the
+**theme editor**, a panel docked beside whichever of the two is showing.
+App-wide state — section, theme mode, text direction, the editor's
+configuration and whether its panel is open — is solidart signals behind
+disco providers in `common/app_state.dart`, provided above `FinesseApp`.
+
+### Strand (`example/lib/strand/`)
+
+- `strand_shell.dart` is a `NavigationScaffold`; `navigation.dart` has
+  `StrandDestination`, `context.goTo(...)` and
+  `context.pushFullScreen(builder)`. `data.dart` and `assets.dart` hold the
+  people, companies and image paths shared by the screens (images are in
+  `example/assets/strand/`, taken from the design files).
+- One screen per destination: `screens/<x>_screen.dart`, its pieces in
+  `widgets/<x>_*.dart`, its content in `data/<x>_data.dart`, its tests in
+  `example/test/strand_<x>_screen_test.dart`. Network and Notifications have
+  no design and show `placeholder_screen.dart`.
+- **A screen is built inside the shell's `Scaffold`**, so its `MediaQuery`
+  padding already includes the bars; a `PageContainer(scrollable: true)`
+  clears them and lets content scroll underneath. A view that needs the
+  whole phone screen (a conversation, a job's detail) is a *pushed route*
+  with its own `Scaffold` + `AppBar`; `AppShell` hosts a nested `Navigator`
+  so such a route covers Strand's bars but not the docked editor.
+- **The form factor follows the page's width, not the window's**
+  (`AppShell.formFactorFor`), so docking the editor beside a narrow window
+  gives Strand the phone layout. The editor can also pin it; pinned Mobile
+  on a wide page is shown in a centred 390×844 frame.
+- **Layout rules the screens follow** (keep to them when adding one): sizes
+  come from the theme, never from `if (mobile)`; branch on the form factor
+  only where the design *rearranges*; decide how many columns fit from a
+  `LayoutBuilder`'s width so 800–1200px windows degrade gracefully; gaps
+  and radii on the theme's scale use `Gap.md()` / `GapSize` /
+  `theme.radii`; an off-scale number that recurs gets one named constant in
+  the screen's own `*_metrics.dart` or common file (`jobsSnugGap = 14`), not
+  a new theme token.
+- **Reading the designs.** In the design HTML, `<span>`/`<div>` are
+  content-box and `<button>` is border-box: a `h:30` span with a 1px border
+  renders 32 tall, which is why skill chips are 32. A header of `h:64` with
+  a bottom border is 65 — `AppBar` and `TabBar` add their hairline to their
+  height for the same reason.
+- **Glass over a photograph needs an isolated backdrop.** A backdrop filter
+  samples everything behind it within the blur radius, so a label on a dark
+  photo picks up the pale page around the card and turns grey; CSS only
+  samples under the element. Story cards and post media therefore clip
+  themselves with `Clip.antiAliasWithSaveLayer`.
+- **Verifying a screen without running the app:** render it to PNG from a
+  test (`RepaintBoundary.toImage` inside `tester.runAsync`, Phosphor fonts
+  loaded from `fonts/phosphor/` as `packages/finesse/PhosphorRegular` etc.,
+  a system TTF as the body font, `debugDisableShadows = false`, every
+  `AssetImage` precached) and compare with the design. flutter_test's own
+  font is an em-wide box per glyph and overflows labels that fit any real
+  font, so screen and docs tests load the example's bundled JetBrains Mono.
+
+### The component library
+
+`screens/components_screen.dart` (a `SidebarScaffold` listing
+`docs/registry.dart`) → `docs/docs.dart` (the reusable page widgets).
 
 - **The code shown is the code that runs.** Each example is one standalone
   widget file under `lib/docs/examples/<slug>/<id>.dart`, bundled as an
   *asset* (one pubspec entry per directory — asset dirs are non-recursive)
   and loaded with `rootBundle` by `CodeBlock.asset`. Adding an example means:
   widget file + `ComponentExample` in `docs/pages/<slug>.dart` + the pubspec
-  entry if the directory is new.
+  entry if the directory is new. Guide pages embed examples in their prose
+  with `DocExample` instead. `example/test/docs_new_pages_test.dart` builds
+  every page at desktop and phone width and checks every example file is
+  registered, bundled and on disk.
+- Slugs, example ids and directory names use the widget's current name
+  (`text_field`, not `input`); a half-renamed page shows "Missing source
+  asset" in its Code tab.
 - Code blocks are always dark, in JetBrains Mono (vendored in
   `example/fonts/`), highlighted by `syntax_highlight`, whose grammar loads
   in `main()` via `CodeHighlighter.ensureInitialized()` **before** `runApp`.
+- `skills/finesse-overview/components/*.md` are generated from the docs
+  pages by `dart run scripts/generate_skills.dart`, whose `_slugs` list is
+  hard-coded and which only reads single-quoted string literals.
 - `example/test_driver/app.dart` wraps `main()` in
   `enableFlutterDriverExtension()`; run with
   `flutter run -t test_driver/app.dart` to drive the app from tooling
@@ -521,31 +631,35 @@ app opens on.
   `set_frame_sync: false` because doc previews contain forever-animating
   spinners.
 
-## The example theme editor
-
-`example/lib/common/theme_editor/` mirrors `/create`. Points that were decided
-deliberately:
+### The theme editor (`example/lib/common/theme_editor/`)
 
 - **The editor themes the whole app, not a preview pane.** The configuration
-  lives in `themeConfigProvider` (`main.dart`) and `FinesseApp`'s `theme`,
-  `darkTheme` and text scale are all built from it, so the top nav, the
-  playground and the docs browser restyle together. There is no preview-only
-  `ThemeScope` any more.
+  lives in `themeConfigProvider` and `FinesseApp`'s `theme`, `darkTheme`,
+  form factor and text scale are all built from it.
+- **Presets** (`presets.dart`): Strand is `const ThemeEditorConfig()` and
+  must build to exactly the package default `ThemeData` with Geist — a test
+  holds that. Choosing a preset loads its fonts first; any later change to
+  the look shows "Custom". Form factor and text scale are *preview* settings
+  and survive a preset change.
+- Style overrides (glass, layout, bottom bar) are applied as
+  `baseStyle.copyWith(...)`. `StyleTokens.copyWith` carries an override to
+  the phone metrics only where they equalled the desktop ones; page margin
+  and card padding differ per form factor, so the editor scales each
+  separately and passes `mobile:` explicitly. Derived styles are cached per
+  configuration: building the same configuration twice must give `==`
+  themes, or `AnimatedTheme` re-animates every frame.
 - `customizer_panel.dart` is the panel; `app_shell.dart` docks it beside the
   page (`ThemeCustomizerPanel.width`) and lets it cover the viewport below
-  700px, where a docked panel leaves nothing usable. It is toggled from the
-  top nav, so it is reachable from both sections.
+  700px, where a docked panel leaves nothing usable.
 - The page is **always** the first child of the shell's `Stack` and `Row`,
   and the panel is added after it. Building the page conditionally instead
   reshaped the element above `ComponentsScreen` and threw its `State` away,
   so opening the editor bounced you back to the first component — which
   reads as "the editor does nothing to this page".
-- The customizer panel is **fixed dark chrome** at an unscaled text size, not
-  part of the theme being edited — a panel that follows the configuration
-  becomes unreadable while editing a light, menu-inverted or 1.6×-scaled
-  theme.
-- Light/dark and text direction are the app-wide toolbar switches; the panel
-  does not duplicate them.
+- The customizer panel is **fixed dark chrome** (pinned to `StyleTokens.nova`)
+  at an unscaled text size, not part of the theme being edited — a panel
+  that follows the configuration becomes unreadable while editing a light,
+  menu-inverted or 1.6×-scaled theme.
 - Anything the app adds on top of the generated theme has to be passed
   *into* `ThemeEditorConfig.build()` — `customTextStyles` is how `main.dart`
   keeps its `myCustomStyle` example alive, since the editor owns the whole
@@ -558,8 +672,11 @@ deliberately:
   the page's `--accent`, which vanishes on an inverted or translucent menu.
 - Fonts all come from `google_fonts` at runtime. `EditorFont.load()` fetches
   the weights the text roles use; `main()` awaits the default font before
-  `runApp`, and the font pickers load a face *before* applying it, so text
-  reflows once, not twice. Builders and text themes are cached per family
-  (closure identity is part of theme equality).
-- `fl_chart` and `google_fonts` are example-only dependencies. The package
-  itself has neither.
+  `runApp`, and a font is applied only after it has loaded, so text reflows
+  once, not twice. Picker rows resolve their preview font in their own
+  `build`, so a font is fetched when its row scrolls into view, not when the
+  panel opens. Builders and text themes are cached per family (closure
+  identity is part of theme equality). In `testWidgets` a font load only
+  ends at its timeout, so font and preset tests pump past it.
+- `google_fonts` is an example-only dependency. The package itself has no
+  font dependency.

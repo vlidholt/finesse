@@ -4,10 +4,17 @@ final responsiveDoc = ComponentDoc(
   slug: 'responsive',
   title: 'Responsive',
   description:
-      "Tailwind's breakpoint scale, carried on the theme: a builder widget "
+      'A scale of six breakpoints, carried on the theme: a builder widget '
       'and a context extension.',
   body: (context) => const DocProse(
     children: [
+      DocParagraph(
+        'Breakpoints are for layouts that change with the width of the '
+        'window. Sizes that change between a desktop and a phone (control '
+        'heights, text, page margins, gaps) are not a breakpoint question: '
+        'the theme already carries them. See Form Factors, which is '
+        'switched at the `md` breakpoint below.',
+      ),
       DocSection(
         title: 'Breakpoints',
         children: [
@@ -49,7 +56,7 @@ ResponsiveBuilder(
           ),
           DocParagraph(
             "Comparisons follow Tailwind's semantics. `sm` means "
-            '"small *and up*", so test with `>=`. Use `==` only to target '
+            '"small and up", so test with `>=`. Use `==` only to target '
             'exactly one band.',
           ),
         ],

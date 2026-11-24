@@ -236,7 +236,9 @@ class _CopyButtonState extends State<_CopyButton> {
       foregroundColor: const Color(0xFFA1A1AA),
       hoverBackgroundColor: const Color(0x1AFFFFFF),
       hoverForegroundColor: const Color(0xFFFAFAFA),
-      icon: Icon(copied ? PhosphorIconsRegular.check : PhosphorIconsRegular.copy),
+      icon: Icon(
+        copied ? PhosphorIconsRegular.check : PhosphorIconsRegular.copy,
+      ),
       onPressed: () async {
         await Clipboard.setData(ClipboardData(text: widget.code));
         if (!mounted) return;
@@ -383,6 +385,11 @@ class ExamplePreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    // On a phone the frame gives its width to the example: a 32-point inset
+    // on each side would leave a 390-point screen with 260 for the preview.
+    final effectivePadding = theme.formFactor == FormFactor.mobile
+        ? padding.clamp(EdgeInsets.zero, const EdgeInsets.all(16))
+        : padding;
     return Container(
       width: double.infinity,
       constraints: BoxConstraints(minHeight: minHeight),
@@ -390,7 +397,7 @@ class ExamplePreview extends StatelessWidget {
         border: Border.all(color: theme.colorScheme.border),
         borderRadius: theme.radii.lg,
       ),
-      padding: padding,
+      padding: effectivePadding,
       // The preview must not inherit the page's text selection: interactive
       // examples handle their own gestures.
       child: SelectionContainer.disabled(
@@ -464,13 +471,15 @@ class ComponentDocPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    // The docs' own margin, tightened on a phone like every other page's.
+    final margin = theme.formFactor == FormFactor.mobile ? 16.0 : 32.0;
 
     return SelectionArea(
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         // A stable key per component so switching pages resets the scroll.
         key: PageStorageKey('docs-${doc.slug}'),
-        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 32),
+        padding: EdgeInsets.symmetric(horizontal: margin, vertical: 32),
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 880),

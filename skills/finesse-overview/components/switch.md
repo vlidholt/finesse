@@ -5,8 +5,8 @@ A control that allows the user to toggle between checked and not checked.
 ## Default
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class SwitchBasicExample extends StatefulWidget {
   const SwitchBasicExample({super.key});

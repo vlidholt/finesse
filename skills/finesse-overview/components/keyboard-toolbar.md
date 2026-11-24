@@ -7,8 +7,8 @@ A toolbar shown above the software keyboard on mobile, with focus navigation and
 Run on a mobile device to see the toolbar.
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class KeyboardToolbarBasicExample extends StatelessWidget {
   const KeyboardToolbarBasicExample({super.key});

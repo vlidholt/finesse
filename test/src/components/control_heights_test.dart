@@ -248,6 +248,7 @@ void main() {
         button: 36.0,
         input: 40.0,
         chip: 32.0,
+        staticChip: 32.0,
         iconButton: 36.0,
         tab: 32.0,
         menubar: 40.0,
@@ -258,6 +259,8 @@ void main() {
         button: 44.0,
         input: 46.0,
         chip: 36.0,
+        // A tag is not a touch target: it keeps the desktop height.
+        staticChip: 32.0,
         iconButton: 44.0,
         tab: 36.0,
         menubar: 44.0,
@@ -312,9 +315,15 @@ void main() {
                       selected: true,
                       onSelected: (_) {},
                     ),
-                    const Chip(
-                      label: Text('Ch'),
+                    Chip(
+                      label: const Text('Ch'),
                       variant: ChipVariant.dashed,
+                      onPressed: () {},
+                    ),
+                    const Chip(label: Text('Tag')),
+                    const Chip(
+                      label: Text('Tag'),
+                      variant: ChipVariant.soft,
                     ),
                     IconButton(
                       icon: const Icon(PhosphorIconsRegular.plus),
@@ -380,12 +389,22 @@ void main() {
               reason: 'button #$i in $label',
             );
           }
-          final chips = find.byType(Chip);
+          final chips = find.widgetWithText(Chip, 'Ch');
+          expect(chips, findsNWidgets(3));
           for (var i = 0; i < 3; i++) {
             expect(
               tester.getSize(chips.at(i)).height,
               want.chip,
               reason: 'chip #$i in $label',
+            );
+          }
+          final tags = find.widgetWithText(Chip, 'Tag');
+          expect(tags, findsNWidgets(2));
+          for (var i = 0; i < 2; i++) {
+            expect(
+              tester.getSize(tags.at(i)).height,
+              want.staticChip,
+              reason: 'static chip #$i in $label',
             );
           }
           final iconButtons = find.byType(IconButton);

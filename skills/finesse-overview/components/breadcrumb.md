@@ -5,8 +5,8 @@ Displays the path to the current resource using a hierarchy of links.
 ## Default
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class BreadcrumbBasicExample extends StatelessWidget {
   const BreadcrumbBasicExample({super.key});
@@ -35,8 +35,8 @@ class BreadcrumbBasicExample extends StatelessWidget {
 An ellipsis stands in for the middle of a deep hierarchy.
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class BreadcrumbEllipsisExample extends StatelessWidget {
   const BreadcrumbEllipsisExample({super.key});

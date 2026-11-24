@@ -7,8 +7,8 @@ A composable command menu with filtering and full keyboard navigation.
 Arrow keys move the highlight, Enter selects. Keywords let items match terms their label does not contain.
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class CommandInlineExample extends StatelessWidget {
   const CommandInlineExample({super.key});
@@ -69,8 +69,8 @@ class CommandInlineExample extends StatelessWidget {
 ## Dialog
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class CommandDialogExample extends StatelessWidget {
   const CommandDialogExample({super.key});

@@ -1,5 +1,8 @@
+import 'dart:math' as math;
+
 import 'package:example/common/app_state.dart';
 import 'package:example/common/theme_editor/customizer_panel.dart';
+import 'package:example/common/theme_editor/editor_config.dart';
 import 'package:example/screens/components_screen.dart';
 import 'package:example/strand/strand_shell.dart';
 import 'package:finesse/finesse.dart';
@@ -41,6 +44,26 @@ class AppShell extends StatefulWidget {
       ? windowWidth - ThemeCustomizerPanel.width
       : windowWidth;
 
+  /// The form factor the app is themed for in a window [windowWidth] wide:
+  /// the one the editor pins, or else the one the page's width calls for —
+  /// a phone below [breakpoint], the theme's `md`.
+  ///
+  /// `App` passes this to `FinesseApp` and the shell lays the page out for
+  /// it, so the two are computed in one place.
+  static FormFactor formFactorFor(
+    double windowWidth, {
+    required bool editorOpen,
+    required EditorFormFactor mode,
+    required double breakpoint,
+  }) => mode.resolve(
+    pageWidth(windowWidth, editorOpen: editorOpen),
+    breakpoint: breakpoint,
+  );
+
+  /// The size of the frame the phone layout is shown in when the editor pins
+  /// it on a window wide enough for a desktop: the designs' phone canvas.
+  static const phoneFrame = Size(390, 844);
+
   @override
   State<AppShell> createState() => _AppShellState();
 }
@@ -77,6 +100,9 @@ class _AppShellState extends State<AppShell> {
             final media = MediaQuery.of(context);
             final theme = Theme.of(context);
 
+            final height = constraints.maxHeight;
+            final breakpoint = theme.breakpoints.md.value;
+
             // `App` picks the form factor from the width the page will
             // have, but the theme reaches it through a 200 ms animation
             // that switches layouts halfway. Docking the panel at once
@@ -84,33 +110,86 @@ class _AppShellState extends State<AppShell> {
             // those frames, so the page keeps its width — with the panel
             // over its edge — until the theme has caught up.
             final targetWidth = AppShell.pageWidth(width, editorOpen: open);
-            final targetFormFactor = targetWidth < theme.breakpoints.md.value
-                ? FormFactor.mobile
-                : FormFactor.desktop;
-            final pageWidth = theme.formFactor == targetFormFactor
-                ? targetWidth
-                : width;
+            final targetFormFactor = AppShell.formFactorFor(
+              width,
+              editorOpen: open,
+              mode: config.formFactor,
+              breakpoint: breakpoint,
+            );
+            final isDesktop = theme.formFactor == FormFactor.desktop;
+            final areaWidth =
+                isDesktop &&
+                    targetFormFactor == FormFactor.mobile &&
+                    config.formFactor == EditorFormFactor.auto
+                ? width
+                : targetWidth;
 
-            // The page is always the first child of the Stack, under the
-            // same ancestors, so opening the panel never reshapes the
-            // element above it. Building it conditionally instead threw
-            // away the docs browser's state — which read as "the editor
-            // does not affect this page", since it also bounced you back to
-            // the first component.
+            // The editor can pin a form factor the page's width would not
+            // have picked. Either way the layout gets the room it was
+            // designed for, and the box it is shown in is fitted to that:
+            //
+            // * a desktop layout in less than a desktop's width is laid out
+            //   at the breakpoint and scaled down to fit, rather than
+            //   overflowing;
+            // * a phone layout on a wide page is shown in a phone-sized
+            //   frame, rather than stretched across the window.
+            //
+            // Both go by the form factor the theme *has*, not the one it is
+            // heading for, so the frame arrives with the layout it frames.
+            final fitsDesktop = isDesktop && areaWidth < breakpoint;
+            final framesPhone =
+                !isDesktop &&
+                config.formFactor == EditorFormFactor.mobile &&
+                areaWidth >= breakpoint;
+
+            var box = Rect.fromLTWH(0, 0, areaWidth, height);
+            var layout = box.size;
+            if (fitsDesktop && areaWidth > 0) {
+              layout = Size(breakpoint, height * breakpoint / areaWidth);
+            } else if (framesPhone) {
+              final frame = Size(
+                AppShell.phoneFrame.width,
+                // A margin above and below, so it reads as a device.
+                math.min(AppShell.phoneFrame.height, math.max(0, height - 32)),
+              );
+              box = Alignment.center.inscribe(frame, box);
+              layout = frame;
+            }
+
+            // The page is always the same child of the Stack, under the
+            // same ancestors, so opening the panel — or framing the page —
+            // never reshapes the element above it. Building it
+            // conditionally instead threw away the docs browser's state —
+            // which read as "the editor does not affect this page", since
+            // it also bounced you back to the first component.
             return Stack(
               children: [
+                // What shows around the phone frame.
                 PositionedDirectional(
                   start: 0,
                   top: 0,
                   bottom: 0,
-                  width: pageWidth,
-                  // Breakpoints below read the window width from
-                  // MediaQuery; tell them how wide the page really is.
-                  child: MediaQuery(
-                    data: media.copyWith(
-                      size: Size(pageWidth, media.size.height),
+                  width: areaWidth,
+                  child: ColoredBox(
+                    color: framesPhone
+                        ? theme.colorScheme.muted
+                        : theme.colorScheme.background,
+                  ),
+                ),
+                PositionedDirectional(
+                  start: box.left,
+                  top: box.top,
+                  width: box.width,
+                  height: box.height,
+                  child: _PageFrame(
+                    framed: framesPhone,
+                    layoutSize: layout,
+                    // Breakpoints below read the window width from
+                    // MediaQuery; tell them how wide the page really is.
+                    child: MediaQuery(
+                      data: media.copyWith(size: layout),
+                      child: _PageNavigator(navigatorKey: _navigatorKey),
                     ),
-                    child: _PageNavigator(navigatorKey: _navigatorKey),
                   ),
                 ),
                 // Docked beside the page on a wide window. On a narrow one
@@ -129,6 +208,52 @@ class _AppShellState extends State<AppShell> {
           },
         );
       },
+    );
+  }
+}
+
+/// The box the page is shown in.
+///
+/// The page is laid out at [layoutSize] and fitted to the box: the two are
+/// the same size except when the editor pins the desktop layout on a narrow
+/// page, where the layout is larger and is scaled down. When [framed] — the
+/// phone layout pinned on a wide page — the box gets a phone's rounded
+/// outline.
+///
+/// The same widgets are built in every case, so switching between them
+/// keeps the page's state.
+class _PageFrame extends StatelessWidget {
+  const _PageFrame({
+    required this.framed,
+    required this.layoutSize,
+    required this.child,
+  });
+
+  final bool framed;
+  final Size layoutSize;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final radius = framed
+        ? const BorderRadius.all(Radius.circular(36))
+        : BorderRadius.zero;
+    return DecoratedBox(
+      position: DecorationPosition.foreground,
+      decoration: BoxDecoration(
+        borderRadius: radius,
+        border: framed
+            ? Border.all(color: Theme.of(context).colorScheme.borderStrong)
+            : null,
+      ),
+      child: ClipRRect(
+        borderRadius: radius,
+        clipBehavior: framed ? Clip.antiAlias : Clip.none,
+        child: FittedBox(
+          alignment: AlignmentDirectional.topStart,
+          child: SizedBox.fromSize(size: layoutSize, child: child),
+        ),
+      ),
     );
   }
 }

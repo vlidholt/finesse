@@ -5,8 +5,8 @@ A set of checkable buttons where only one can be checked at a time.
 ## Default
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 enum NotifyAbout {
   all('All new messages'),

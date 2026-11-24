@@ -13,16 +13,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FinesseApp(
-      theme: ThemeData(
-        brightness: Brightness.light,
-        colorScheme: const ZincColorScheme.light(),
-        style: StyleTokens.nova,
-      ),
-      darkTheme: ThemeData(
-        brightness: Brightness.dark,
-        colorScheme: const ZincColorScheme.dark(),
-        style: StyleTokens.nova,
-      ),
+      theme: ThemeData(),
+      darkTheme: ThemeData(brightness: Brightness.dark),
       themeMode: ThemeMode.system,
       home: const HomePage(),
     );

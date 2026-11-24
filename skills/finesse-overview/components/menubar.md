@@ -5,8 +5,8 @@ A visually persistent menu, common in desktop applications.
 ## Default
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class MenubarBasicExample extends StatelessWidget {
   const MenubarBasicExample({super.key});
@@ -32,8 +32,18 @@ class MenubarBasicExample extends StatelessWidget {
               items: [
                 ContextMenuItem(child: Text('Email Link')),
                 ContextMenuItem(child: Text('Messages')),
+                ContextMenuItem(child: Text('Notes')),
               ],
               child: Text('Share'),
+            ),
+            ContextMenuItem(
+              trailing: Icon(PhosphorIconsRegular.caretRight),
+              items: [
+                ContextMenuItem(child: Text('PDF')),
+                ContextMenuItem(child: Text('HTML')),
+                ContextMenuItem(child: Text('Plain Text')),
+              ],
+              child: Text('Export As'),
             ),
             divider,
             ContextMenuItem(child: Text('Print...')),
@@ -44,6 +54,18 @@ class MenubarBasicExample extends StatelessWidget {
           items: [
             ContextMenuItem(child: Text('Undo')),
             ContextMenuItem(child: Text('Redo')),
+            divider,
+            ContextMenuItem(
+              trailing: Icon(PhosphorIconsRegular.caretRight),
+              items: [
+                ContextMenuItem(child: Text('Search the Web')),
+                divider,
+                ContextMenuItem(child: Text('Find...')),
+                ContextMenuItem(child: Text('Find Next')),
+                ContextMenuItem(child: Text('Find Previous')),
+              ],
+              child: Text('Find'),
+            ),
             divider,
             ContextMenuItem(child: Text('Cut')),
             ContextMenuItem(child: Text('Copy')),

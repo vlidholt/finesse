@@ -38,8 +38,46 @@ void main() {
         expect(theme.timelineTheme.lineWidth, 2);
         expect(theme.timelineTheme.gap, 14);
         expect(theme.timelineTheme.spacing, 20);
-        expect(theme.timelineTheme.lineGap, 6);
+        // The finesse style's `timelineLineGap`.
+        expect(theme.timelineTheme.lineGap, 8);
       }
+    });
+
+    test("the line gap is the style's: 8 in finesse, 6 in the shadcn styles, "
+        'and it follows the spacing unit', () {
+      expect(StyleTokens.finesse.timelineLineGap, 8);
+      expect(StyleTokens.finesseMobile.timelineLineGap, 8);
+      for (final style in [
+        StyleTokens.nova,
+        StyleTokens.maia,
+        StyleTokens.lyra,
+      ]) {
+        expect(style.timelineLineGap, 6, reason: style.name);
+        for (final formFactor in FormFactor.values) {
+          expect(
+            ThemeData(
+              style: style,
+              formFactor: formFactor,
+            ).timelineTheme.lineGap,
+            6,
+            reason: '${style.name} ${formFactor.name}',
+          );
+        }
+      }
+      expect(
+        ThemeData(formFactor: FormFactor.mobile).timelineTheme.lineGap,
+        8,
+      );
+      expect(
+        ThemeData(
+          style: StyleTokens.finesse.copyWith(timelineLineGap: 12),
+        ).timelineTheme.lineGap,
+        12,
+      );
+      expect(
+        ThemeData(spacing: const Spacing(step: 6)).timelineTheme.lineGap,
+        12,
+      );
     });
   });
 
@@ -142,25 +180,82 @@ void main() {
       expect(box.bottom, second.bottom);
     });
 
-    testWidgets('the line runs from under a marker to the next one, with a '
-        'gap at each end', (tester) async {
+    testWidgets('the line leaves a gap under its own marker and runs flush '
+        'to the next one', (tester) async {
+      await pumpFinesse(
+        tester,
+        timeline([entry(0, content: 120), entry(1), entry(2)]),
+      );
+      for (var i = 0; i < 2; i++) {
+        final from = tester.getRect(find.byKey(Key('marker$i')));
+        final to = tester.getRect(find.byKey(Key('marker${i + 1}')));
+        final container = tester.widget<Container>(lines().at(i));
+        // The painted part is the container less its margin.
+        final painted = tester.getRect(
+          find.descendant(
+            of: lines().at(i),
+            matching: find.byType(DecoratedBox),
+          ),
+        );
+
+        // A gap only at the top: the theme's 8.
+        expect(container.margin, const EdgeInsets.only(top: 8));
+        expect(painted.top, from.bottom + 8, reason: 'line $i');
+        expect(painted.bottom, to.top, reason: 'line $i');
+        // 2px wide, centred under the marker.
+        expect(painted.width, 2);
+        expect(painted.center.dx, from.center.dx);
+      }
+    });
+
+    testWidgets("the gap under the marker is the style's", (tester) async {
       await pumpFinesse(
         tester,
         timeline([entry(0, content: 120), entry(1)]),
+        theme: ThemeData(style: StyleTokens.nova),
       );
       final first = tester.getRect(find.byKey(const Key('marker0')));
       final second = tester.getRect(find.byKey(const Key('marker1')));
-      final line = tester.getRect(lines());
-      // The painted part is the container less its margin.
-      final container = tester.widget<Container>(lines());
-      final margin = container.margin! as EdgeInsets;
+      final painted = tester.getRect(
+        find.descendant(of: lines(), matching: find.byType(DecoratedBox)),
+      );
+      expect(painted.top, first.bottom + 6);
+      expect(painted.bottom, second.top);
+    });
 
-      expect(margin, const EdgeInsets.only(top: 6, bottom: 6));
-      expect(line.top + margin.top, first.bottom + 6);
-      expect(line.bottom - margin.bottom, second.top - 6);
-      // 2px wide, centred under the marker.
-      expect(line.width, 2);
-      expect(line.center.dx, first.center.dx);
+    testWidgets('a marker as tall as its entry leaves no line, and no '
+        'overflow', (tester) async {
+      // Content shorter than the marker and no spacing: the line has only
+      // its gap to live in.
+      await pumpFinesse(
+        tester,
+        Align(
+          alignment: Alignment.topCenter,
+          child: SizedBox(
+            width: 320,
+            child: Timeline(
+              spacing: 0,
+              entries: [entry(0, content: 10), entry(1, content: 10)],
+            ),
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      final first = tester.getRect(find.byKey(const Key('marker0')));
+      final second = tester.getRect(find.byKey(const Key('marker1')));
+      // The entry makes room for the gap, so the markers never touch.
+      expect(second.top - first.bottom, 8);
+      expect(
+        tester
+            .getSize(
+              find.descendant(
+                of: lines(),
+                matching: find.byType(DecoratedBox),
+              ),
+            )
+            .height,
+        0,
+      );
     });
 
     testWidgets('the line takes the theme colour, or the one it is given', (

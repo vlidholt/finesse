@@ -5,8 +5,8 @@ The popover and menu chrome as a widget, for floating UI finesse has no componen
 ## Popover and menu surfaces
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 /// The popover and menu surfaces, around any widget: for floating UI that
 /// finesse has no component for.
@@ -16,10 +16,10 @@ class SurfaceBasicExample extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Wrap(
       spacing: 24,
+      runSpacing: 24,
+      alignment: WrapAlignment.center,
       children: [
         Surface(
           child: SizedBox(
@@ -61,8 +61,8 @@ class SurfaceBasicExample extends StatelessWidget {
 showPopover takes a global Rect: a text selection, a table cell, a point on a canvas.
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 /// showPopover anchors a popover to a rectangle rather than a widget:
 /// here, wherever the canvas was clicked.

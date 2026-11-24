@@ -1,10 +1,14 @@
+import 'package:example/common/app_shell.dart';
+import 'package:example/common/theme_editor/customizer_panel.dart';
 import 'package:example/common/theme_editor/editor_config.dart';
 import 'package:example/common/theme_editor/fonts.dart';
+import 'package:example/common/theme_editor/presets.dart';
 import 'package:example/main.dart';
 import 'package:example/screens/components_screen.dart';
 import 'package:example/strand/strand_shell.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_solidart/flutter_solidart.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'support.dart';
@@ -121,11 +125,13 @@ void main() {
         finesse.commandTheme.itemTextStyle!.fontSize,
         greaterThan(lyra.commandTheme.itemTextStyle!.fontSize!),
       );
-      // The chosen font survives the style's typography.
-      expect(
-        lyra.commandTheme.itemTextStyle!.fontFamily,
-        finesse.textTheme.small.fontFamily,
-      );
+      // The chosen font survives the style's typography, in the face for
+      // the weight the style gives the row: a per-weight font has one family
+      // name per weight, and the row is body text, not the medium `small`.
+      final item = lyra.commandTheme.itemTextStyle!;
+      expect(item.fontFamily, startsWith('Geist'));
+      expect(item.fontWeight, FontWeight.w400);
+      expect(item.fontFamily, lyra.textTheme.p.fontFamily);
     });
 
     test('every style builds, and carries its own radii and ring', () {
@@ -178,7 +184,13 @@ void main() {
       expect(snippet, contains('Brightness.dark'));
       expect(snippet, contains('ZincColorScheme.dark()'));
       expect(snippet, contains('applyAccentScheme'));
-      expect(snippet, contains('StyleTokens.finesse'));
+      // Finesse is the package default style, so it is not spelled out…
+      expect(snippet, isNot(contains('style:')));
+      // …and any other is.
+      expect(
+        config.copyWith(style: StylePreset.maia).toDartSnippet(),
+        contains('  style: StyleTokens.maia,\n'),
+      );
       // The class names of the package as it is now.
       expect(snippet, isNot(contains('Shad')));
       expect(snippet, startsWith('ThemeData('));
@@ -188,7 +200,12 @@ void main() {
       for (final base in BaseColor.values) {
         final snippet = ThemeEditorConfig(baseColor: base).toDartSnippet();
         final name = '${base.name[0].toUpperCase()}${base.name.substring(1)}';
-        expect(snippet, contains('const ${name}ColorScheme.light()'));
+        if (base == BaseColor.teal) {
+          // The package default: `ThemeData` picks it by itself.
+          expect(snippet, isNot(contains('colorScheme:')));
+        } else {
+          expect(snippet, contains('const ${name}ColorScheme.light()'));
+        }
         // …and the scheme it names is the one the config builds.
         expect(
           ThemeEditorConfig(baseColor: base).colorScheme,
@@ -218,6 +235,28 @@ void main() {
   ThemeData strandTheme(WidgetTester tester) =>
       Theme.of(tester.element(find.byType(StrandShell)));
 
+  /// Lets a `RenderFlex` overflow pass for the rest of the current test,
+  /// and nothing else.
+  ///
+  /// For the tests that re-theme the *Strand screens* with settings they
+  /// were not drawn for. The test font is a square per glyph — nearly twice
+  /// as wide as any real face — so a label that fits its button with room
+  /// to spare in Geist can miss by a pixel here once a theme changes the
+  /// type size or the card padding. That is the test font's doing, in
+  /// screens these tests are not about; a throw, a failed assertion or any
+  /// other layout error still fails the test. The panel's own overflow is
+  /// checked strictly, in `theme_editor_panel_test.dart`.
+  void tolerateTextOverflow() {
+    final report = FlutterError.onError;
+    FlutterError.onError = (details) {
+      if (details.exceptionAsString().startsWith('A RenderFlex overflowed')) {
+        return;
+      }
+      report?.call(details);
+    };
+    addTearDown(() => FlutterError.onError = report);
+  }
+
   group('the customizer panel', () {
     /// Pumps the whole app and opens the editor.
     ///
@@ -231,6 +270,11 @@ void main() {
       await openThemeEditor(tester);
     }
 
+    Finder inPanel(Finder finder) => find.descendant(
+      of: find.byType(ThemeCustomizerPanel),
+      matching: finder,
+    );
+
     /// Opens the picker labelled [label] and chooses [option].
     ///
     /// The value lives inside a popover, so it has to be opened first. Fixed
@@ -241,6 +285,8 @@ void main() {
       String label,
       String option,
     ) async {
+      await tester.ensureVisible(find.text(label));
+      await tester.pump();
       await tester.tap(find.text(label));
       // Popover wraps its content in an IgnorePointer while the entrance
       // animation runs, so the option is not tappable until it finishes.
@@ -253,19 +299,21 @@ void main() {
       }
     }
 
-    testWidgets('shows every setting', (tester) async {
+    testWidgets('shows the presets and every open section', (tester) async {
       await pump(tester);
 
+      for (final preset in ThemePreset.values) {
+        expect(inPanel(find.text(preset.label)), findsOneWidget);
+      }
       for (final label in [
-        'Style',
         'Base Color',
-        'Theme',
-        'Chart Color',
+        'Accent',
         'Heading',
         'Font',
+        'Style',
         'Radius',
-        'Menu',
-        'Menu Accent',
+        'Focus Ring',
+        'Form Factor',
         'Text Scale',
       ]) {
         expect(find.text(label), findsOneWidget, reason: 'missing $label');
@@ -278,14 +326,10 @@ void main() {
       // panel duplicates.
       expect(find.text('Mode'), findsNothing);
       expect(find.text('Direction'), findsNothing);
-      // Radius has a preset picker; the raw px sliders were noise next to it.
-      expect(find.text('Spacing Unit'), findsNothing);
-      expect(find.text('Corner Radius'), findsNothing);
+      // Nothing in the app draws the chart ramp any more.
+      expect(find.text('Chart Color'), findsNothing);
       // One icon set ships, so the picker was a control with nothing to pick.
       expect(find.text('Icon Library'), findsNothing);
-      // There are no focus-ring knobs.
-      expect(find.text('Ring'), findsNothing);
-      expect(find.text('Opacity'), findsNothing);
       expect(tester.takeException(), isNull);
     });
 
@@ -336,7 +380,7 @@ void main() {
 
       // Picked from near the top of the list: the popover scrolls, and an
       // option below the fold is found but not hit-testable.
-      await choose(tester, 'Theme', 'Blue');
+      await choose(tester, 'Accent', 'Blue');
 
       expect(
         strandTheme(tester).colorScheme.primary,
@@ -353,19 +397,6 @@ void main() {
         strandTheme(tester).colorScheme.background,
         const ZincColorScheme.light().background,
       );
-    });
-
-    testWidgets('chart colour is independent of the main accent', (
-      tester,
-    ) async {
-      await pump(tester);
-
-      await choose(tester, 'Chart Color', 'Green');
-
-      final scheme = strandTheme(tester).colorScheme;
-      expect(scheme.chart1, AccentScheme.greenLight.chart1);
-      // The primary is untouched by the chart picker.
-      expect(scheme.primary, isNot(AccentScheme.greenLight.primary));
     });
 
     testWidgets('takes over a narrow viewport', (tester) async {
@@ -407,6 +438,319 @@ void main() {
         const ThemeEditorConfig(),
       );
       expect(strandTheme(tester).style, StyleTokens.finesse);
+    });
+
+    testWidgets('a preset re-themes the app, and a change after it is Custom', (
+      tester,
+    ) async {
+      await pump(tester);
+      expect(inPanel(find.text('Custom')), findsNothing);
+
+      await tester.tap(inPanel(find.text('Classic')));
+      // Its font loads first; offline that ends at the load's timeout.
+      await tester.pump(const Duration(seconds: 6));
+      await settle(tester);
+
+      final config = themeConfigProvider.of(appContext(tester));
+      expect(ThemePreset.of(config.value), ThemePreset.classic);
+      final theme = strandTheme(tester);
+      expect(theme.colorScheme, const NeutralColorScheme.light());
+      expect(theme.cardTheme.backgroundColor!.a, 1);
+      expect(theme.bottomNavigationBarTheme.floating, isFalse);
+      expect(theme.textTheme.p.fontFamily, contains('Inter'));
+      expect(inPanel(find.text('Custom')), findsNothing);
+
+      await choose(tester, 'Radius', 'Large');
+      expect(ThemePreset.of(config.value), isNull);
+      expect(inPanel(find.text('Custom')), findsOneWidget);
+      expect(strandTheme(tester).radius, BorderRadius.circular(14 * .8));
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('every preset themes Strand in light and dark, desktop and '
+        'phone, without an error', (tester) async {
+      tolerateTextOverflow();
+      for (final size in [desktopSize, mobileSize]) {
+        await pumpApp(tester, size: size);
+        final config = themeConfigProvider.of(appContext(tester));
+        final mode = themeModeProvider.of(appContext(tester));
+        for (final preset in ThemePreset.values) {
+          for (final themeMode in [ThemeMode.light, ThemeMode.dark]) {
+            config.value = preset.config;
+            mode.value = themeMode;
+            await settle(tester);
+            final where = '${preset.label} $themeMode at $size';
+            expect(tester.takeException(), isNull, reason: where);
+            final theme = strandTheme(tester);
+            expect(theme.style.name, preset.config.style.name, reason: where);
+            expect(
+              theme.brightness,
+              themeMode == ThemeMode.light ? Brightness.light : Brightness.dark,
+              reason: where,
+            );
+            expect(
+              theme.formFactor,
+              size == mobileSize ? FormFactor.mobile : FormFactor.desktop,
+              reason: where,
+            );
+          }
+        }
+        mode.value = ThemeMode.light;
+        config.value = const ThemeEditorConfig();
+        await settle(tester);
+      }
+    });
+
+    testWidgets(
+      'the glass and layout overrides reach the app, on a phone too',
+      (
+        tester,
+      ) async {
+        tolerateTextOverflow();
+        for (final size in [desktopSize, mobileSize]) {
+          await pumpApp(tester, size: size);
+          final config = themeConfigProvider.of(appContext(tester));
+          config.value = config.value.copyWith(
+            cardOpacity: () => .5,
+            barOpacity: () => .6,
+            glassBlur: () => 8,
+            cardPaddingScale: 1.5,
+            bottomBarFloating: () => false,
+          );
+          await settle(tester);
+
+          final theme = strandTheme(tester);
+          final phone = size == mobileSize;
+          expect(
+            theme.formFactor,
+            phone ? FormFactor.mobile : FormFactor.desktop,
+          );
+          expect(theme.cardTheme.backgroundColor!.a, closeTo(.5, .005));
+          expect(theme.appBarTheme.backgroundColor!.a, closeTo(.6, .005));
+          expect(theme.cardTheme.blur, 8);
+          expect(theme.cardTheme.padding, EdgeInsets.all(phone ? 24 : 30));
+          expect(theme.bottomNavigationBarTheme.floating, isFalse);
+          expect(tester.takeException(), isNull, reason: '$size');
+        }
+      },
+    );
+  });
+
+  group('the form factor', () {
+    Signal<ThemeEditorConfig> configOf(WidgetTester tester) =>
+        themeConfigProvider.of(appContext(tester));
+
+    Future<void> setFormFactor(
+      WidgetTester tester,
+      EditorFormFactor mode,
+    ) async {
+      configOf(tester).value = configOf(tester).value.copyWith(
+        formFactor: mode,
+      );
+      // Past the theme's 200 ms hand-over from one layout to the other.
+      await settle(tester);
+    }
+
+    ThemeData appTheme(WidgetTester tester) => Theme.of(appContext(tester));
+
+    testWidgets('Auto follows the width', (tester) async {
+      await pumpApp(tester);
+      expect(configOf(tester).value.formFactor, EditorFormFactor.auto);
+      expect(appTheme(tester).formFactor, FormFactor.desktop);
+      expect(find.byType(NavigationBar), findsOneWidget);
+      expect(tester.getSize(find.byType(StrandShell)), desktopSize);
+
+      await pumpApp(tester, size: mobileSize);
+      expect(appTheme(tester).formFactor, FormFactor.mobile);
+      expect(find.byType(BottomNavigationBar), findsOneWidget);
+      expect(tester.getSize(find.byType(StrandShell)), mobileSize);
+    });
+
+    testWidgets('Mobile shows the phone layout on a wide window, in a '
+        'phone-sized frame', (tester) async {
+      await pumpApp(tester);
+      await setFormFactor(tester, EditorFormFactor.mobile);
+
+      expect(appTheme(tester).formFactor, FormFactor.mobile);
+      expect(strandTheme(tester).formFactor, FormFactor.mobile);
+      expect(strandTheme(tester).style, StyleTokens.finesseMobile);
+      // Strand's phone chrome, not its desktop bar.
+      expect(find.byType(BottomNavigationBar), findsOneWidget);
+      expect(find.byType(NavigationBar), findsNothing);
+      // Laid out at a phone's size, centred in the window.
+      final shell = tester.getRect(find.byType(StrandShell));
+      expect(shell.width, AppShell.phoneFrame.width);
+      expect(shell.height, AppShell.phoneFrame.height);
+      expect(shell.center.dx, desktopSize.width / 2);
+      expect(shell.center.dy, desktopSize.height / 2);
+      // Breakpoints inside see a phone as well.
+      expect(
+        MediaQuery.sizeOf(tester.element(find.byType(StrandShell))),
+        AppShell.phoneFrame,
+      );
+      expect(tester.takeException(), isNull);
+
+      // Beside the docked editor the frame is centred in what is left.
+      await openThemeEditor(tester);
+      final docked = tester.getRect(find.byType(StrandShell));
+      expect(docked.size, shell.size);
+      expect(
+        docked.center.dx,
+        (desktopSize.width - ThemeCustomizerPanel.width) / 2,
+      );
+      expect(tester.takeException(), isNull);
+
+      // Back to Auto: the desktop layout, at the page's full size.
+      await setFormFactor(tester, EditorFormFactor.auto);
+      expect(appTheme(tester).formFactor, FormFactor.desktop);
+      expect(find.byType(NavigationBar), findsOneWidget);
+      expect(
+        tester.getSize(find.byType(StrandShell)),
+        Size(
+          desktopSize.width - ThemeCustomizerPanel.width,
+          desktopSize.height,
+        ),
+      );
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('Mobile on a short window keeps a margin around the frame', (
+      tester,
+    ) async {
+      await pumpApp(tester, size: const Size(1200, 600));
+      await setFormFactor(tester, EditorFormFactor.mobile);
+
+      final shell = tester.getRect(find.byType(StrandShell));
+      expect(shell.width, AppShell.phoneFrame.width);
+      expect(shell.height, 600 - 32);
+      expect(shell.top, 16);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('Mobile on a phone-sized window is just the phone', (
+      tester,
+    ) async {
+      await pumpApp(tester, size: mobileSize);
+      await setFormFactor(tester, EditorFormFactor.mobile);
+
+      expect(appTheme(tester).formFactor, FormFactor.mobile);
+      expect(tester.getSize(find.byType(StrandShell)), mobileSize);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('Desktop shows the desktop layout on a narrow window, scaled '
+        'to fit rather than overflowing', (tester) async {
+      await pumpApp(tester, size: mobileSize);
+      expect(find.byType(BottomNavigationBar), findsOneWidget);
+      await setFormFactor(tester, EditorFormFactor.desktop);
+
+      expect(appTheme(tester).formFactor, FormFactor.desktop);
+      expect(strandTheme(tester).style, StyleTokens.finesse);
+      expect(find.byType(NavigationBar), findsOneWidget);
+      expect(find.byType(BottomNavigationBar), findsNothing);
+      // Laid out at the narrowest width a desktop layout is designed for…
+      final breakpoint = appTheme(tester).breakpoints.md.value;
+      final shell = find.byType(StrandShell);
+      expect(tester.getSize(shell).width, breakpoint);
+      expect(
+        MediaQuery.sizeOf(tester.element(shell)).width,
+        breakpoint,
+      );
+      // …and painted across exactly the window.
+      final box = tester.renderObject<RenderBox>(shell);
+      final painted = MatrixUtils.transformRect(
+        box.getTransformTo(null),
+        Offset.zero & box.size,
+      );
+      expect(painted.left, closeTo(0, .01));
+      expect(painted.top, closeTo(0, .01));
+      expect(painted.width, closeTo(mobileSize.width, .01));
+      expect(painted.height, closeTo(mobileSize.height, .01));
+      expect(tester.takeException(), isNull);
+
+      await setFormFactor(tester, EditorFormFactor.auto);
+      expect(appTheme(tester).formFactor, FormFactor.mobile);
+      expect(tester.getSize(shell), mobileSize);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('Desktop keeps the desktop layout beside the docked editor', (
+      tester,
+    ) async {
+      // 900 - 272 is below the phone breakpoint: Auto would switch.
+      await pumpApp(tester, size: const Size(900, 800));
+      await setFormFactor(tester, EditorFormFactor.desktop);
+      await openThemeEditor(tester);
+
+      expect(appTheme(tester).formFactor, FormFactor.desktop);
+      expect(find.byType(NavigationBar), findsOneWidget);
+      final shell = find.byType(StrandShell);
+      expect(
+        tester.getSize(shell).width,
+        appTheme(tester).breakpoints.md.value,
+      );
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('switching keeps the page you were on', (tester) async {
+      await pumpApp(tester);
+      await openComponentLibrary(tester);
+      final screen = find.byType(ComponentsScreen);
+      final state = tester.state(screen);
+
+      for (final mode in [
+        EditorFormFactor.mobile,
+        EditorFormFactor.desktop,
+        EditorFormFactor.auto,
+      ]) {
+        await setFormFactor(tester, mode);
+        expect(tester.state(screen), same(state), reason: '$mode');
+        expect(tester.takeException(), isNull, reason: '$mode');
+      }
+    });
+
+    testWidgets('the picker in the panel sets it', (tester) async {
+      await pumpApp(tester);
+      await openThemeEditor(tester);
+
+      await tester.ensureVisible(find.text('Form Factor'));
+      await tester.pump();
+      await tester.tap(find.text('Form Factor'));
+      await settle(tester);
+      await tester.tap(find.text('Mobile').last);
+      await settle(tester);
+
+      expect(configOf(tester).value.formFactor, EditorFormFactor.mobile);
+      expect(appTheme(tester).formFactor, FormFactor.mobile);
+      expect(find.byType(BottomNavigationBar), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    test('the app and the shell agree on it', () {
+      FormFactor at(
+        double window, {
+        bool editorOpen = false,
+        EditorFormFactor mode = EditorFormFactor.auto,
+      }) => AppShell.formFactorFor(
+        window,
+        editorOpen: editorOpen,
+        mode: mode,
+        breakpoint: 768,
+      );
+
+      expect(at(1440), FormFactor.desktop);
+      expect(at(390), FormFactor.mobile);
+      // The docked editor takes its width out of the page's.
+      expect(at(900), FormFactor.desktop);
+      expect(at(900, editorOpen: true), FormFactor.mobile);
+      // Below the docking breakpoint the editor covers the page instead.
+      expect(at(690, editorOpen: true), FormFactor.mobile);
+      // Pinned, the width does not come into it.
+      expect(at(390, mode: EditorFormFactor.desktop), FormFactor.desktop);
+      expect(
+        at(1440, editorOpen: true, mode: EditorFormFactor.mobile),
+        FormFactor.mobile,
+      );
     });
   });
 

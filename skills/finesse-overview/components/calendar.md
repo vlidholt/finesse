@@ -5,8 +5,8 @@ A component that allows users to select dates: single, multiple, or a range.
 ## Single
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class CalendarSingleExample extends StatefulWidget {
   const CalendarSingleExample({super.key});
@@ -33,8 +33,8 @@ class _CalendarSingleExampleState extends State<CalendarSingleExample> {
 Constrain the selection with min and max lengths.
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class CalendarRangeExample extends StatelessWidget {
   const CalendarRangeExample({super.key});

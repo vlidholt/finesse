@@ -7,8 +7,8 @@ A set of two-state buttons that can be toggled on or off.
 Selecting one value clears the others.
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class ToggleGroupBasicExample extends StatefulWidget {
   const ToggleGroupBasicExample({super.key});
@@ -51,8 +51,8 @@ class _ToggleGroupBasicExampleState extends State<ToggleGroupBasicExample> {
 ## Multiple
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class ToggleGroupMultipleExample extends StatefulWidget {
   const ToggleGroupMultipleExample({super.key});
@@ -98,8 +98,8 @@ class _ToggleGroupMultipleExampleState
 Every item uses the outline toggle style.
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class ToggleGroupOutlineExample extends StatefulWidget {
   const ToggleGroupOutlineExample({super.key});

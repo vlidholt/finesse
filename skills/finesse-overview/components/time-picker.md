@@ -5,8 +5,8 @@ A field for entering a time of day.
 ## 24-hour
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class TimePickerBasicExample extends StatelessWidget {
   const TimePickerBasicExample({super.key});
@@ -27,8 +27,8 @@ class TimePickerBasicExample extends StatelessWidget {
 ## With AM/PM period
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class TimePickerPeriodExample extends StatelessWidget {
   const TimePickerPeriodExample({super.key});

@@ -1,8 +1,8 @@
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
-class InputDisabledExample extends StatelessWidget {
-  const InputDisabledExample({super.key});
+class TextFieldDisabledExample extends StatelessWidget {
+  const TextFieldDisabledExample({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -15,10 +15,11 @@ void main() {
     List<Set<WidgetState>> log, {
     VoidCallback? onPressed,
     VoidCallback? onLongPress,
-    bool selected = false,
+    bool? selected,
     FocusNode? focusNode,
     bool autofocus = false,
     String? semanticLabel,
+    String? semanticValue,
     MouseCursor cursor = SystemMouseCursors.click,
     Size size = const Size(120, 40),
   }) {
@@ -30,6 +31,7 @@ void main() {
         focusNode: focusNode,
         autofocus: autofocus,
         semanticLabel: semanticLabel,
+        semanticValue: semanticValue,
         cursor: cursor,
         builder: (context, states) {
           log.add({...states});
@@ -162,43 +164,6 @@ void main() {
       );
       expect(node.hasPrimaryFocus, isTrue);
     });
-
-    testWidgets(
-      'canRequestFocus: false keeps keyboard focus away',
-      (
-        tester,
-      ) async {
-        final node = FocusNode();
-        addTearDown(node.dispose);
-        var presses = 0;
-        await pumpFinesse(
-          tester,
-          Center(
-            child: Pressable(
-              focusNode: node,
-              canRequestFocus: false,
-              onPressed: () => presses++,
-              builder: (context, states) => const Text('Go'),
-            ),
-          ),
-        );
-
-        node.requestFocus();
-        await tester.pump();
-        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
-        await tester.pump();
-        expect(node.hasFocus, isFalse);
-        // It is still a pointer target.
-        await tester.tap(find.byType(Pressable));
-        expect(presses, 1);
-      },
-      // TODO(finesse): `Pressable.canRequestFocus` is declared and
-      // documented but never read by `_PressableState.build`, so the region
-      // takes focus regardless. FocusableActionDetector has no such
-      // parameter; honouring it needs a decision on whether descendants
-      // stay focusable (an ExcludeFocus would take them out too).
-      skip: true,
-    );
   });
 
   group('Pressable states', () {
@@ -223,6 +188,77 @@ void main() {
       await gesture.moveTo(Offset.zero);
       await tester.pump();
       expect(log.last, isEmpty);
+    });
+
+    testWidgets('hover is reported in touch highlight mode too', (
+      tester,
+    ) async {
+      // A touch-first platform with a mouse attached: the focus manager
+      // stays in touch mode until a key is pressed, and the action
+      // detector's own hover callback never fires there.
+      FocusManager.instance.highlightStrategy =
+          FocusHighlightStrategy.alwaysTouch;
+      final log = <Set<WidgetState>>[];
+      await pumpFinesse(tester, recorder(log, onPressed: () {}));
+      expect(FocusManager.instance.highlightMode, FocusHighlightMode.touch);
+
+      final gesture = await hover(
+        tester,
+        tester.getCenter(find.byType(Pressable)),
+      );
+      expect(log.last, {WidgetState.hovered});
+
+      await gesture.moveTo(Offset.zero);
+      await tester.pump();
+      expect(log.last, isEmpty);
+    });
+
+    testWidgets('hover is reported in the automatic highlight mode a test '
+        'starts in', (tester) async {
+      FocusManager.instance.highlightStrategy =
+          FocusHighlightStrategy.automatic;
+      final log = <Set<WidgetState>>[];
+      await pumpFinesse(tester, recorder(log, onPressed: () {}));
+
+      await hover(tester, tester.getCenter(find.byType(Pressable)));
+      expect(log.last, {WidgetState.hovered});
+    });
+
+    testWidgets('hover on one region leaves its neighbour alone', (
+      tester,
+    ) async {
+      final first = <Set<WidgetState>>[];
+      final second = <Set<WidgetState>>[];
+      await pumpFinesse(
+        tester,
+        Center(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final (key, log) in [('one', first), ('two', second)])
+                Pressable(
+                  key: Key(key),
+                  onPressed: () {},
+                  builder: (context, states) {
+                    log.add({...states});
+                    return const SizedBox(width: 80, height: 40);
+                  },
+                ),
+            ],
+          ),
+        ),
+      );
+      final gesture = await hover(
+        tester,
+        tester.getCenter(find.byKey(const Key('one'))),
+      );
+      expect(first.last, {WidgetState.hovered});
+      expect(second.last, isEmpty);
+
+      await gesture.moveTo(tester.getCenter(find.byKey(const Key('two'))));
+      await tester.pump();
+      expect(first.last, isEmpty);
+      expect(second.last, {WidgetState.hovered});
     });
 
     testWidgets('pressed is reported between down and up', (tester) async {
@@ -314,6 +350,19 @@ void main() {
       expect(log.last, {WidgetState.selected, WidgetState.hovered});
     });
 
+    testWidgets('selected: false and null both report no selected state', (
+      tester,
+    ) async {
+      for (final selected in [false, null]) {
+        final log = <Set<WidgetState>>[];
+        await pumpFinesse(
+          tester,
+          recorder(log, onPressed: () {}, selected: selected),
+        );
+        expect(log.last, isEmpty, reason: 'selected: $selected');
+      }
+    });
+
     testWidgets('with no callbacks it is disabled', (tester) async {
       final log = <Set<WidgetState>>[];
       final node = FocusNode();
@@ -370,6 +419,9 @@ void main() {
   });
 
   group('Pressable cursor', () {
+    /// The cursor the mouse tracker resolves at [position]: the first
+    /// region on the hit path that names one, or the basic cursor when
+    /// every region defers.
     MouseCursor cursorAt(WidgetTester tester, Offset position) {
       final result = HitTestResult();
       RendererBinding.instance.hitTestInView(
@@ -383,7 +435,7 @@ void main() {
           return target.cursor;
         }
       }
-      return MouseCursor.defer;
+      return SystemMouseCursors.basic;
     }
 
     testWidgets('an enabled region shows the click cursor', (tester) async {
@@ -406,11 +458,24 @@ void main() {
     });
 
     testWidgets('a disabled region shows the basic cursor', (tester) async {
-      await pumpFinesse(tester, recorder([]));
+      await pumpFinesse(
+        tester,
+        recorder([], cursor: SystemMouseCursors.grab),
+      );
       expect(
         cursorAt(tester, tester.getCenter(find.byType(Pressable))),
         SystemMouseCursors.basic,
       );
+      // Its own region names no cursor at all while disabled.
+      final region = tester.widget<MouseRegion>(
+        find
+            .descendant(
+              of: find.byType(Pressable),
+              matching: find.byType(MouseRegion),
+            )
+            .first,
+      );
+      expect(region.cursor, MouseCursor.defer);
     });
   });
 
@@ -448,9 +513,8 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('an unselected region carries no selected state at all', (
-      tester,
-    ) async {
+    testWidgets('a plain button (selected: null, the default) carries no '
+        'selected state at all', (tester) async {
       final handle = tester.ensureSemantics();
       await pumpFinesse(tester, recorder([], onPressed: () {}));
 
@@ -458,6 +522,69 @@ void main() {
           .getSemantics(find.byType(Pressable))
           .getSemanticsData();
       expect(data.flagsCollection.isSelected, ui.Tristate.none);
+      expect(const Pressable(builder: _empty).selected, isNull);
+      handle.dispose();
+    });
+
+    testWidgets('selected: false is announced as not selected', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await pumpFinesse(
+        tester,
+        recorder([], onPressed: () {}, selected: false),
+      );
+
+      expect(
+        tester.getSemantics(find.byType(Pressable)),
+        matchesSemantics(
+          label: 'Go',
+          isButton: true,
+          hasEnabledState: true,
+          isEnabled: true,
+          isFocusable: true,
+          hasTapAction: true,
+          hasFocusAction: true,
+          hasSelectedState: true,
+          // isSelected stays false.
+        ),
+      );
+      expect(
+        tester
+            .getSemantics(find.byType(Pressable))
+            .getSemanticsData()
+            .flagsCollection
+            .isSelected,
+        ui.Tristate.isFalse,
+      );
+      handle.dispose();
+    });
+
+    testWidgets('the three selected values are told apart, enabled or not', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      for (final enabled in [true, false]) {
+        for (final (selected, expected) in [
+          (null, ui.Tristate.none),
+          (false, ui.Tristate.isFalse),
+          (true, ui.Tristate.isTrue),
+        ]) {
+          await pumpFinesse(
+            tester,
+            recorder([], onPressed: enabled ? () {} : null, selected: selected),
+          );
+          expect(
+            tester
+                .getSemantics(find.byType(Pressable))
+                .getSemanticsData()
+                .flagsCollection
+                .isSelected,
+            expected,
+            reason: 'selected: $selected, enabled: $enabled',
+          );
+        }
+      }
       handle.dispose();
     });
 
@@ -504,16 +631,220 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets("a semanticLabel replaces the content's own semantics", (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await pumpFinesse(
+        tester,
+        Center(
+          child: Pressable(
+            onPressed: () {},
+            semanticLabel: 'Open profile',
+            builder: (context, states) => const Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('Omar Rahimi'),
+                Icon(PhosphorIconsRegular.user, semanticLabel: 'Person'),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      // The label alone, not "Open profile Omar Rahimi Person".
+      final node = tester.getSemantics(find.byType(Pressable));
+      expect(node.getSemanticsData().label, 'Open profile');
+      expect(find.bySemanticsLabel(RegExp('Omar')), findsNothing);
+      expect(find.bySemanticsLabel('Person'), findsNothing);
+      // The content is still painted.
+      expect(find.text('Omar Rahimi'), findsOneWidget);
+      // And the region is still one a screen reader can focus and activate:
+      // only the content is excluded, not the detectors' actions.
+      expect(
+        node,
+        matchesSemantics(
+          label: 'Open profile',
+          isButton: true,
+          hasEnabledState: true,
+          isEnabled: true,
+          isFocusable: true,
+          hasTapAction: true,
+          hasFocusAction: true,
+        ),
+      );
+      handle.dispose();
+    });
+
+    testWidgets('excludeSemantics: false keeps the content under a label, '
+        'controls included', (tester) async {
+      final handle = tester.ensureSemantics();
+      var outer = 0;
+      var inner = 0;
+      await pumpFinesse(
+        tester,
+        Center(
+          child: Pressable(
+            onPressed: () => outer++,
+            semanticLabel: 'Open profile',
+            excludeSemantics: false,
+            builder: (context, states) => Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('Omar Rahimi'),
+                Pressable(
+                  onPressed: () => inner++,
+                  semanticLabel: 'Follow',
+                  builder: (context, states) =>
+                      const SizedBox(width: 40, height: 40),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      final node = tester.getSemantics(find.byType(Pressable).first);
+      // The label first, then the content it no longer replaces.
+      expect(node.getSemanticsData().label, 'Open profile\nOmar Rahimi');
+      // The control inside is its own node, with its own action.
+      final follow = tester.getSemantics(find.bySemanticsLabel('Follow'));
+      expect(follow.id, isNot(node.id));
+      expect(
+        follow.getSemanticsData().hasAction(ui.SemanticsAction.tap),
+        isTrue,
+      );
+      final owner = node.owner!;
+      owner.performAction(follow.id, ui.SemanticsAction.tap);
+      await tester.pump();
+      expect((outer, inner), (0, 1));
+      owner.performAction(node.id, ui.SemanticsAction.tap);
+      await tester.pump();
+      expect((outer, inner), (1, 1));
+      handle.dispose();
+    });
+
+    testWidgets('by default a label hides a control inside the region', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await pumpFinesse(
+        tester,
+        Center(
+          child: Pressable(
+            onPressed: () {},
+            semanticLabel: 'Open profile',
+            builder: (context, states) => Pressable(
+              onPressed: () {},
+              semanticLabel: 'Follow',
+              builder: (context, states) =>
+                  const SizedBox(width: 40, height: 40),
+            ),
+          ),
+        ),
+      );
+      expect(find.bySemanticsLabel('Open profile'), findsOneWidget);
+      expect(find.bySemanticsLabel('Follow'), findsNothing);
+      expect(const Pressable(builder: _empty).excludeSemantics, isNull);
+      handle.dispose();
+    });
+
+    testWidgets('excludeSemantics: true drops the content even without a '
+        'label', (tester) async {
+      final handle = tester.ensureSemantics();
+      await pumpFinesse(
+        tester,
+        Center(
+          child: Pressable(
+            onPressed: () {},
+            excludeSemantics: true,
+            builder: (context, states) => const Text('Decoration'),
+          ),
+        ),
+      );
+      expect(find.bySemanticsLabel('Decoration'), findsNothing);
+      // Still a button a screen reader can activate.
+      expect(
+        tester.getSemantics(find.byType(Pressable)),
+        matchesSemantics(
+          isButton: true,
+          hasEnabledState: true,
+          isEnabled: true,
+          isFocusable: true,
+          hasTapAction: true,
+          hasFocusAction: true,
+        ),
+      );
+      handle.dispose();
+    });
+
+    testWidgets('the semantic tap action reaches a labelled region', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      var presses = 0;
+      await pumpFinesse(
+        tester,
+        recorder([], onPressed: () => presses++, semanticLabel: 'Go now'),
+      );
+
+      final node = tester.getSemantics(find.byType(Pressable));
+      node.owner!.performAction(node.id, ui.SemanticsAction.tap);
+      await tester.pump();
+      expect(presses, 1);
+      handle.dispose();
+    });
+
+    testWidgets('without a semanticLabel the content is what is read', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await pumpFinesse(tester, recorder([], onPressed: () {}));
+      expect(
+        tester.getSemantics(find.byType(Pressable)).getSemanticsData().label,
+        'Go',
+      );
+      handle.dispose();
+    });
+
+    testWidgets('semanticValue is read after the label', (tester) async {
+      final handle = tester.ensureSemantics();
+      await pumpFinesse(
+        tester,
+        recorder(
+          [],
+          onPressed: () {},
+          semanticLabel: 'Messages',
+          semanticValue: '3',
+        ),
+      );
+      var data = tester.getSemantics(find.byType(Pressable)).getSemanticsData();
+      expect(data.label, 'Messages');
+      expect(data.value, '3');
+
+      // It needs no label of its own: the content names the region.
+      await pumpFinesse(
+        tester,
+        recorder([], onPressed: () {}, semanticValue: '12 unread'),
+      );
+      data = tester.getSemantics(find.byType(Pressable)).getSemanticsData();
+      expect(data.label, 'Go');
+      expect(data.value, '12 unread');
+
+      // And none by default.
+      await pumpFinesse(tester, recorder([], onPressed: () {}));
+      data = tester.getSemantics(find.byType(Pressable)).getSemanticsData();
+      expect(data.value, isEmpty);
+      handle.dispose();
+    });
+
     testWidgets('the semantic tap action calls onPressed', (tester) async {
       final handle = tester.ensureSemantics();
       var presses = 0;
       await pumpFinesse(tester, recorder([], onPressed: () => presses++));
 
-      final id = tester.getSemantics(find.byType(Pressable)).id;
-      tester.binding.pipelineOwner.semanticsOwner!.performAction(
-        id,
-        ui.SemanticsAction.tap,
-      );
+      final node = tester.getSemantics(find.byType(Pressable));
+      node.owner!.performAction(node.id, ui.SemanticsAction.tap);
       await tester.pump();
       expect(presses, 1);
       handle.dispose();
@@ -629,5 +960,169 @@ void main() {
       expectClose(pixel(20 - ringWidth - 1.5, 35), white, 'past the ring');
       expectClose(pixel(50, 50 + ringWidth + 1.5), white, 'below the ring');
     });
+
+    testWidgets('inset: true draws the ring just inside the bounds and '
+        'nothing outside them', (tester) async {
+      final boundary = GlobalKey();
+      await pumpFinesse(
+        tester,
+        Center(
+          child: RepaintBoundary(
+            key: boundary,
+            child: const ColoredBox(
+              color: Color(0xffffffff),
+              child: Padding(
+                padding: EdgeInsets.all(20),
+                child: FocusRing(
+                  visible: true,
+                  inset: true,
+                  child: SizedBox(width: 60, height: 30),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      // It still takes no space.
+      expect(tester.getSize(find.byType(FocusRing)), const Size(60, 30));
+      final theme = themeOf(tester, find.byType(FocusRing));
+      final ringWidth = theme.style.ringWidth;
+      expect(ringWidth, 3);
+      const white = Color(0xffffffff);
+      final ring = Color.alphaBlend(
+        theme.colorScheme.ring.withValues(alpha: theme.style.ringOpacity),
+        white,
+      );
+
+      late final ui.Image image;
+      await tester.runAsync(() async {
+        image =
+            await (boundary.currentContext!.findRenderObject()!
+                    as RenderRepaintBoundary)
+                .toImage();
+      });
+      final data = (await tester.runAsync(() => image.toByteData()))!;
+      Color pixel(double x, double y) {
+        final index = (y.floor() * image.width + x.floor()) * 4;
+        return Color.fromARGB(
+          data.getUint8(index + 3),
+          data.getUint8(index),
+          data.getUint8(index + 1),
+          data.getUint8(index + 2),
+        );
+      }
+
+      void expectClose(Color actual, Color expected, String reason) {
+        for (final (a, b) in [
+          (actual.r, expected.r),
+          (actual.g, expected.g),
+          (actual.b, expected.b),
+        ]) {
+          expect((a - b).abs(), lessThan(3 / 255), reason: reason);
+        }
+      }
+
+      // The child's box is at (20, 20)–(80, 50) in the boundary.
+      // Nothing outside it, on any side or at any corner.
+      expectClose(pixel(20 - .5, 35), white, 'outside the left edge');
+      expectClose(pixel(80 + .5, 35), white, 'outside the right edge');
+      expectClose(pixel(50, 20 - .5), white, 'above the top edge');
+      expectClose(pixel(50, 50 + .5), white, 'below the bottom edge');
+      expectClose(pixel(20 - 1.5, 20 - 1.5), white, 'outside the corner');
+      // The band starts at the edge…
+      expectClose(pixel(20 + .5, 35), ring, 'flush inside the left edge');
+      expectClose(pixel(20 + 1.5, 35), ring, 'left band');
+      expectClose(pixel(80 - 1.5, 35), ring, 'right band');
+      expectClose(pixel(50, 20 + 1.5), ring, 'top band');
+      expectClose(pixel(50, 50 - 1.5), ring, 'bottom band');
+      expectClose(pixel(80 - .5, 50 - .5), ring, 'the corner itself');
+      // …and ends a ring width in.
+      expectClose(pixel(20 + ringWidth + 1.5, 35), white, 'past the band');
+      expectClose(pixel(50, 50 - ringWidth - 1.5), white, 'above the band');
+      expectClose(pixel(50, 35), white, 'the middle of the child');
+    });
+
+    testWidgets('an inset ring follows the border radius, inside it', (
+      tester,
+    ) async {
+      final canvas = _RecordingCanvas();
+      for (final inset in [false, true]) {
+        await pumpFinesse(
+          tester,
+          Center(
+            child: FocusRing(
+              visible: true,
+              inset: inset,
+              borderRadius: const BorderRadius.all(Radius.circular(10)),
+              child: const SizedBox(width: 60, height: 30),
+            ),
+          ),
+        );
+        final paint = tester.widget<CustomPaint>(
+          find.descendant(
+            of: find.byType(FocusRing),
+            matching: find.byType(CustomPaint),
+          ),
+        );
+        // In front of the child, so the child's own fill cannot hide it.
+        expect(paint.painter, isNull);
+        canvas.rings.clear();
+        paint.foregroundPainter!.paint(canvas, const Size(60, 30));
+        final (outer, inner) = canvas.rings.single;
+        const bounds = Rect.fromLTWH(0, 0, 60, 30);
+        if (inset) {
+          expect(outer.outerRect, bounds);
+          expect(outer.tlRadiusX, 10);
+          expect(inner.outerRect, bounds.deflate(3));
+          expect(inner.tlRadiusX, 7);
+        } else {
+          expect(outer.outerRect, bounds.inflate(3));
+          expect(outer.tlRadiusX, 13);
+          expect(inner.outerRect, bounds);
+          expect(inner.tlRadiusX, 10);
+        }
+      }
+    });
+
+    testWidgets('switching inset repaints', (tester) async {
+      CustomPainter painterOf() => tester
+          .widget<CustomPaint>(
+            find.descendant(
+              of: find.byType(FocusRing),
+              matching: find.byType(CustomPaint),
+            ),
+          )
+          .foregroundPainter!;
+      Widget ring({required bool inset}) => Center(
+        child: FocusRing(
+          visible: true,
+          inset: inset,
+          child: const SizedBox(width: 60, height: 30),
+        ),
+      );
+
+      await pumpFinesse(tester, ring(inset: false));
+      final outside = painterOf();
+      await pumpFinesse(tester, ring(inset: false));
+      expect(painterOf().shouldRepaint(outside), isFalse);
+      await pumpFinesse(tester, ring(inset: true));
+      expect(painterOf().shouldRepaint(outside), isTrue);
+    });
   });
+}
+
+Widget _empty(BuildContext context, Set<WidgetState> states) =>
+    const SizedBox.shrink();
+
+/// Records the rounded rectangles a ring painter draws between.
+class _RecordingCanvas implements Canvas {
+  final List<(RRect, RRect)> rings = [];
+
+  @override
+  void drawDRRect(RRect outer, RRect inner, Paint paint) =>
+      rings.add((outer, inner));
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) =>
+      throw UnsupportedError('${invocation.memberName}');
 }

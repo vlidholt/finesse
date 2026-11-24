@@ -279,11 +279,24 @@ void main() {
       expect(TextRole.defaultHeightFor(18), 28 / 18);
     });
 
-    test('the prose text theme is style-independent', () {
-      // shadcn's typography examples use fixed Tailwind classes; style roles
-      // reach components through their theme slots instead.
+    test('a style without the app type roles keeps the prose scale', () {
+      // shadcn's typography examples use fixed Tailwind classes; in a style
+      // that names none of display/headline/subtitle/small, the other roles
+      // reach components through their theme slots and leave the text theme
+      // alone. mira and sera resize their body and label roles; vega is the
+      // defaults.
+      for (final style in const [
+        FixtureStyles.vega,
+        FixtureStyles.mira,
+        FixtureStyles.sera,
+      ]) {
+        expect(style.display, isNull, reason: style.name);
+        expect(style.headline, isNull, reason: style.name);
+        expect(style.subtitle, isNull, reason: style.name);
+        expect(style.small, isNull, reason: style.name);
+      }
       final vega = ThemeData(style: FixtureStyles.vega);
-      final lyra = ThemeData(style: StyleTokens.lyra);
+      final mira = ThemeData(style: FixtureStyles.mira);
       final sera = ThemeData(style: FixtureStyles.sera);
 
       expect(vega.textTheme.small.fontSize, 14);
@@ -293,15 +306,117 @@ void main() {
       expect(vega.textTheme.large.fontWeight, FontWeight.w600);
       expect(vega.textTheme.muted.fontWeight, FontWeight.w400);
       expect(vega.textTheme.p.fontSize, 16);
-      expect(lyra.textTheme.small.fontSize, 14);
-      expect(lyra.textTheme.muted.fontSize, 14);
+      expect(mira.textTheme.small.fontSize, 14);
+      expect(mira.textTheme.muted.fontSize, 14);
+      expect(mira.textTheme.p.fontSize, 16);
       expect(sera.textTheme.large.fontSize, 18);
-      expect(lyra.textTheme.h4.fontSize, vega.textTheme.h4.fontSize);
+      expect(mira.textTheme.h4.fontSize, vega.textTheme.h4.fontSize);
       expect(vega.textTheme.h1.letterSpacing, -0.9);
 
       // Buttons still pick up the style's label role.
-      expect(lyra.primaryButtonTheme.textStyle!.fontSize, 12);
+      expect(mira.primaryButtonTheme.textStyle!.fontSize, 12);
       expect(vega.primaryButtonTheme.textStyle!.fontSize, 14);
+    });
+
+    test('each shipped style publishes its own app type scale', () {
+      // h1 takes `display`, h3 `headline`, h4 the `title` role, p the `body`
+      // role, large `subtitle`, and small and muted `small`. A role that
+      // names no weight (body, small) keeps the text theme's own.
+      void expectScale(
+        ThemeData theme, {
+        required double h1,
+        required double h1Tracking,
+        required double h3,
+        required double h4,
+        required FontWeight h4Weight,
+        required double p,
+        required double large,
+        required double small,
+      }) {
+        final name = '${theme.variant.baseStyle.name} ${theme.formFactor.name}';
+        final text = theme.textTheme;
+        expect(text.h1.fontSize, h1, reason: '$name h1');
+        expect(text.h1.fontWeight, FontWeight.w700, reason: '$name h1');
+        expect(text.h1.letterSpacing, h1Tracking, reason: '$name h1');
+        expect(text.h3.fontSize, h3, reason: '$name h3');
+        expect(text.h3.fontWeight, FontWeight.w600, reason: '$name h3');
+        expect(text.h4.fontSize, h4, reason: '$name h4');
+        expect(text.h4.fontWeight, h4Weight, reason: '$name h4');
+        expect(text.p.fontSize, p, reason: '$name p');
+        expect(text.p.fontWeight, FontWeight.w400, reason: '$name p');
+        expect(text.list.fontSize, p, reason: '$name list');
+        expect(text.large.fontSize, large, reason: '$name large');
+        expect(text.large.fontWeight, FontWeight.w600, reason: '$name large');
+        expect(text.small.fontSize, small, reason: '$name small');
+        expect(text.small.fontWeight, FontWeight.w500, reason: '$name small');
+        expect(text.muted.fontSize, small, reason: '$name muted');
+        expect(text.muted.fontWeight, FontWeight.w400, reason: '$name muted');
+      }
+
+      // nova and maia share one scale: display 30/36, headline 20/28,
+      // subtitle 14/20 and small 13/18, over a 16-point medium title and
+      // 14-point body.
+      for (final style in const [StyleTokens.nova, StyleTokens.maia]) {
+        final theme = ThemeData(style: style);
+        expectScale(
+          theme,
+          h1: 30,
+          h1Tracking: -.75,
+          h3: 20,
+          h4: 16,
+          h4Weight: FontWeight.w500,
+          p: 14,
+          large: 14,
+          small: 13,
+        );
+        expect(theme.textTheme.h1.height, 36 / 30, reason: style.name);
+        expect(theme.textTheme.h3.height, 28 / 20, reason: style.name);
+        expect(theme.textTheme.h3.letterSpacing, -.4, reason: style.name);
+        expect(theme.textTheme.large.height, 20 / 14, reason: style.name);
+        expect(theme.textTheme.small.height, 18 / 13, reason: style.name);
+        expect(theme.textTheme.muted.height, 18 / 13, reason: style.name);
+      }
+
+      // lyra is a step smaller throughout: display 24/32, headline 18/24,
+      // subtitle 13/18 and small 12/16, over a 14-point title and 12-point
+      // body.
+      final lyra = ThemeData(style: StyleTokens.lyra);
+      expectScale(
+        lyra,
+        h1: 24,
+        h1Tracking: -.6,
+        h3: 18,
+        h4: 14,
+        h4Weight: FontWeight.w500,
+        p: 12,
+        large: 13,
+        small: 12,
+      );
+      expect(lyra.textTheme.h1.height, 32 / 24);
+      expect(lyra.textTheme.h3.height, 24 / 18);
+      expect(lyra.textTheme.large.height, 18 / 13);
+      expect(lyra.textTheme.small.height, 16 / 12);
+      expect(lyra.textTheme.muted.height, 16 / 12);
+
+      // finesse is unchanged, on a desktop and on a phone.
+      expectScale(
+        ThemeData(),
+        h1: 30,
+        h1Tracking: -.75,
+        h3: 20,
+        h4: 16,
+        h4Weight: FontWeight.w600,
+        p: 14,
+        large: 15,
+        small: 13,
+      );
+      final phone = ThemeData(formFactor: FormFactor.mobile);
+      expect(phone.textTheme.h1.fontSize, 28);
+      expect(phone.textTheme.p.fontSize, 15);
+      expect(phone.textTheme.h3.fontSize, 20);
+      expect(phone.textTheme.large.fontSize, 15);
+      expect(phone.textTheme.small.fontSize, 13);
+      expect(phone.textTheme.muted.fontSize, 13);
     });
 
     test('a textarea keeps a moderate radius in the round styles', () {

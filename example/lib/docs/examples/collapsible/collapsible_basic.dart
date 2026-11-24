@@ -15,14 +15,16 @@ class CollapsibleBasicExample extends StatelessWidget {
           children: [
             Flexible(
               child: Text(
-                '@peduarte starred 3 repositories',
+                '@noor starred 3 repositories',
                 style: theme.textTheme.small,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
             IconButton.ghost(
               icon: Icon(
-                open ? PhosphorIconsRegular.arrowsInLineVertical : PhosphorIconsRegular.caretUpDown,
+                open
+                    ? PhosphorIconsRegular.arrowsInLineVertical
+                    : PhosphorIconsRegular.caretUpDown,
               ),
               semanticLabel: open ? 'Collapse' : 'Expand',
               onPressed: toggle,

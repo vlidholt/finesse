@@ -5,8 +5,8 @@ Scrolls its content with a thin themed scrollbar. Scrollbar puts the same scroll
 ## Default
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class ScrollAreaBasicExample extends StatelessWidget {
   const ScrollAreaBasicExample({super.key});
@@ -47,8 +47,8 @@ class ScrollAreaBasicExample extends StatelessWidget {
 Wrap a ListView, GridView or CustomScrollView in Scrollbar.
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 /// Scrollbar gives any scrollable — here a lazily built list — the same
 /// scrollbar as ScrollArea.

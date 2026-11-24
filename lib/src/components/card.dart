@@ -204,8 +204,8 @@ class Card extends StatelessWidget {
   /// to the theme's, which is the card padding.
   final double? sectionGap;
 
-  /// What assistive technology reads for a tappable card, in place of its
-  /// content.
+  /// What assistive technology reads for a tappable card. The card's content,
+  /// including any buttons inside it, is still read after it.
   final String? semanticLabel;
 
   @override
@@ -217,7 +217,7 @@ class Card extends StatelessWidget {
     final effectiveSectionGap =
         sectionGap ?? theme.cardTheme.sectionGap ?? effectiveGap;
 
-    final effectivePadding =
+    final themePadding =
         padding ?? theme.cardTheme.padding ?? const EdgeInsets.all(24);
     final effectiveBackgroundColor = selected
         ? backgroundColor ?? theme.colorScheme.accent
@@ -231,6 +231,21 @@ class Card extends StatelessWidget {
               theme.cardTheme.border ??
               FinesseBorder.all(color: theme.colorScheme.border, width: 1);
     final effectiveShadows = shadows ?? theme.cardTheme.shadows;
+
+    // A `Container` lays its border out as padding, so the heavier outline
+    // of a selected card would push its content inwards and make the card
+    // taller than its neighbours. Take the difference back out of the
+    // padding so selecting a card moves nothing.
+    var effectivePadding = themePadding;
+    if (selected) {
+      final restingBorder =
+          theme.cardTheme.border ??
+          FinesseBorder.all(color: theme.colorScheme.border, width: 1);
+      effectivePadding = themePadding
+          .add(restingBorder.toBorder().dimensions)
+          .subtract(effectiveBorder.toBorder().dimensions)
+          .clamp(EdgeInsets.zero, EdgeInsetsGeometry.infinity);
+    }
 
     final effectiveRowMainAxisSize =
         rowMainAxisSize ?? theme.cardTheme.rowMainAxisSize ?? MainAxisSize.min;
@@ -299,7 +314,11 @@ class Card extends StatelessWidget {
               children: [
                 if (title != null || description != null)
                   Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    // A lone title is centred on its action; with a
+                    // description below it, the action stays at the top.
+                    crossAxisAlignment: description == null
+                        ? CrossAxisAlignment.center
+                        : CrossAxisAlignment.start,
                     children: [
                       Expanded(
                         child: Column(
@@ -370,8 +389,10 @@ class Card extends StatelessWidget {
       onPressed: onPressed,
       selected: selected ? true : null,
       semanticLabel: semanticLabel,
-      // A translucent card must not swallow taps meant for buttons inside
-      // it; those win the gesture arena on their own.
+      // The card's content stays in the semantics tree under its label: a
+      // card usually holds buttons of its own, and they must stay reachable.
+      excludeSemantics: false,
+      // Buttons inside the card win the gesture arena over it on their own.
       behavior: HitTestBehavior.opaque,
       builder: (context, states) => FocusRing(
         visible: states.contains(WidgetState.focused),

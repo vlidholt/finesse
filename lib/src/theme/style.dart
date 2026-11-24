@@ -1405,6 +1405,27 @@ class StyleTokens {
   /// shadcn's default style: its `vega` one size down and a step rounder.
   static const nova = StyleTokens(
     name: 'nova',
+    // The app-level type scale. Without it `Theme.of(context).textTheme` is
+    // shadcn's prose scale — 16-point paragraphs, an 18-point `large` — and
+    // a screen written against it comes out a size too big.
+    display: TextRole(
+      fontSize: 30,
+      fontWeight: FontWeight.w700,
+      letterSpacing: -.75,
+      height: 36 / 30,
+    ),
+    headline: TextRole(
+      fontSize: 20,
+      fontWeight: FontWeight.w600,
+      letterSpacing: -.4,
+      height: 28 / 20,
+    ),
+    subtitle: TextRole(
+      fontSize: 14,
+      fontWeight: FontWeight.w600,
+      height: 20 / 14,
+    ),
+    small: TextRole(fontSize: 13, height: 18 / 13),
     calendarCellSize: 28,
     calendarPadding: 8,
     calendarCaptionHeight: 24,
@@ -1449,6 +1470,27 @@ class StyleTokens {
   /// Pill-shaped and roomy.
   static const maia = StyleTokens(
     name: 'maia',
+    // The app-level type scale. Without it `Theme.of(context).textTheme` is
+    // shadcn's prose scale — 16-point paragraphs, an 18-point `large` — and
+    // a screen written against it comes out a size too big.
+    display: TextRole(
+      fontSize: 30,
+      fontWeight: FontWeight.w700,
+      letterSpacing: -.75,
+      height: 36 / 30,
+    ),
+    headline: TextRole(
+      fontSize: 20,
+      fontWeight: FontWeight.w600,
+      letterSpacing: -.4,
+      height: 28 / 20,
+    ),
+    subtitle: TextRole(
+      fontSize: 14,
+      fontWeight: FontWeight.w600,
+      height: 20 / 14,
+    ),
+    small: TextRole(fontSize: 13, height: 18 / 13),
     calendarCellRadius: RadiusToken.xl4,
     commandItemDialogRadius: RadiusToken.xl2,
     commandSearchRadius: RadiusToken.xl4,
@@ -1500,6 +1542,24 @@ class StyleTokens {
   /// Square and compact.
   static const lyra = StyleTokens(
     name: 'lyra',
+    // The app-level type scale, a step smaller like the rest of the style.
+    display: TextRole(
+      fontSize: 24,
+      fontWeight: FontWeight.w700,
+      letterSpacing: -.6,
+      height: 32 / 24,
+    ),
+    headline: TextRole(
+      fontSize: 18,
+      fontWeight: FontWeight.w600,
+      height: 24 / 18,
+    ),
+    subtitle: TextRole(
+      fontSize: 13,
+      fontWeight: FontWeight.w600,
+      height: 18 / 13,
+    ),
+    small: TextRole(fontSize: 12, height: 16 / 12),
     calendarCellSize: 28,
     calendarCellRadius: RadiusToken.none,
     calendarPadding: 8,
@@ -1609,7 +1669,23 @@ class StyleTokens {
     );
   }
 
+  static T? _shared<T>(T? value, T? desktop, T? mobile) {
+    if (value == null) return null;
+    final same = desktop is List && mobile is List
+        ? listEquals<Object?>(desktop, mobile)
+        : desktop == mobile;
+    return same ? value : null;
+  }
+
   /// Creates a copy of this style with the given fields replaced.
+  ///
+  /// The replacement reaches the phone metrics too: [mobile] takes each new
+  /// value whose field it had in common with this style, so
+  /// `StyleTokens.finesse.copyWith(glassBlur: 12)` changes the blur on both
+  /// form factors. A field the phone sets differently on purpose (button
+  /// height, body text size, page margins) keeps its phone value; change
+  /// those with `mobile: style.mobile!.copyWith(...)`, which is used as
+  /// given.
   StyleTokens copyWith({
     String? name,
     RadiusToken? buttonRadius,
@@ -1806,6 +1882,891 @@ class StyleTokens {
     double? tabsGap,
     StyleTokens? mobile,
   }) {
+    // The phone metrics follow an override wherever they did not differ from
+    // the desktop ones to begin with. A field the phone sets on purpose — a
+    // 44-point button against 36 — keeps its phone value.
+    final currentMobile = this.mobile;
+    final nextMobile =
+        mobile ??
+        currentMobile?.copyWith(
+          name: name,
+          buttonRadius: _shared(
+            buttonRadius,
+            this.buttonRadius,
+            currentMobile.buttonRadius,
+          ),
+          cardRadius: _shared(
+            cardRadius,
+            this.cardRadius,
+            currentMobile.cardRadius,
+          ),
+          dialogRadius: _shared(
+            dialogRadius,
+            this.dialogRadius,
+            currentMobile.dialogRadius,
+          ),
+          popoverRadius: _shared(
+            popoverRadius,
+            this.popoverRadius,
+            currentMobile.popoverRadius,
+          ),
+          tooltipRadius: _shared(
+            tooltipRadius,
+            this.tooltipRadius,
+            currentMobile.tooltipRadius,
+          ),
+          commandRadius: _shared(
+            commandRadius,
+            this.commandRadius,
+            currentMobile.commandRadius,
+          ),
+          commandItemDialogRadius: _shared(
+            commandItemDialogRadius,
+            this.commandItemDialogRadius,
+            currentMobile.commandItemDialogRadius,
+          ),
+          commandSearchRadius: _shared(
+            commandSearchRadius,
+            this.commandSearchRadius,
+            currentMobile.commandSearchRadius,
+          ),
+          textareaRadius: _shared(
+            textareaRadius,
+            this.textareaRadius,
+            currentMobile.textareaRadius,
+          ),
+          itemRadius: _shared(
+            itemRadius,
+            this.itemRadius,
+            currentMobile.itemRadius,
+          ),
+          checkboxRadius: _shared(
+            checkboxRadius,
+            this.checkboxRadius,
+            currentMobile.checkboxRadius,
+          ),
+          cardBorderOpacity: _shared(
+            cardBorderOpacity,
+            this.cardBorderOpacity,
+            currentMobile.cardBorderOpacity,
+          ),
+          cardBorderOpacityDark: _shared(
+            cardBorderOpacityDark,
+            this.cardBorderOpacityDark,
+            currentMobile.cardBorderOpacityDark,
+          ),
+          surfaceBorderOpacity: _shared(
+            surfaceBorderOpacity,
+            this.surfaceBorderOpacity,
+            currentMobile.surfaceBorderOpacity,
+          ),
+          surfaceBorderOpacityDark: _shared(
+            surfaceBorderOpacityDark,
+            this.surfaceBorderOpacityDark,
+            currentMobile.surfaceBorderOpacityDark,
+          ),
+          dialogBorderOpacity: _shared(
+            dialogBorderOpacity,
+            this.dialogBorderOpacity,
+            currentMobile.dialogBorderOpacity,
+          ),
+          dialogBorderOpacityDark: _shared(
+            dialogBorderOpacityDark,
+            this.dialogBorderOpacityDark,
+            currentMobile.dialogBorderOpacityDark,
+          ),
+          surfaceRadiusCap: _shared(
+            surfaceRadiusCap,
+            this.surfaceRadiusCap,
+            currentMobile.surfaceRadiusCap,
+          ),
+          ringWidth: _shared(
+            ringWidth,
+            this.ringWidth,
+            currentMobile.ringWidth,
+          ),
+          ringOpacity: _shared(
+            ringOpacity,
+            this.ringOpacity,
+            currentMobile.ringOpacity,
+          ),
+          title: _shared(title, this.title, currentMobile.title),
+          label: _shared(label, this.label, currentMobile.label),
+          body: _shared(body, this.body, currentMobile.body),
+          caption: _shared(caption, this.caption, currentMobile.caption),
+          overline: _shared(overline, this.overline, currentMobile.overline),
+          field: _shared(field, this.field, currentMobile.field),
+          cardShadow: _shared(
+            cardShadow,
+            this.cardShadow,
+            currentMobile.cardShadow,
+          ),
+          popoverShadow: _shared(
+            popoverShadow,
+            this.popoverShadow,
+            currentMobile.popoverShadow,
+          ),
+          dialogShadow: _shared(
+            dialogShadow,
+            this.dialogShadow,
+            currentMobile.dialogShadow,
+          ),
+          sheetShadow: _shared(
+            sheetShadow,
+            this.sheetShadow,
+            currentMobile.sheetShadow,
+          ),
+          outlineButtonFill: _shared(
+            outlineButtonFill,
+            this.outlineButtonFill,
+            currentMobile.outlineButtonFill,
+          ),
+          outlineButtonFillDark: _shared(
+            outlineButtonFillDark,
+            this.outlineButtonFillDark,
+            currentMobile.outlineButtonFillDark,
+          ),
+          outlineButtonHoverFill: _shared(
+            outlineButtonHoverFill,
+            this.outlineButtonHoverFill,
+            currentMobile.outlineButtonHoverFill,
+          ),
+          outlineButtonHoverFillDark: _shared(
+            outlineButtonHoverFillDark,
+            this.outlineButtonHoverFillDark,
+            currentMobile.outlineButtonHoverFillDark,
+          ),
+          outlineButtonDarkInputBorder: _shared(
+            outlineButtonDarkInputBorder,
+            this.outlineButtonDarkInputBorder,
+            currentMobile.outlineButtonDarkInputBorder,
+          ),
+          linkUnderline: _shared(
+            linkUnderline,
+            this.linkUnderline,
+            currentMobile.linkUnderline,
+          ),
+          flatBadges: _shared(
+            flatBadges,
+            this.flatBadges,
+            currentMobile.flatBadges,
+          ),
+          controlShadow: _shared(
+            controlShadow,
+            this.controlShadow,
+            currentMobile.controlShadow,
+          ),
+          buttonHeight: _shared(
+            buttonHeight,
+            this.buttonHeight,
+            currentMobile.buttonHeight,
+          ),
+          buttonHeightSm: _shared(
+            buttonHeightSm,
+            this.buttonHeightSm,
+            currentMobile.buttonHeightSm,
+          ),
+          buttonHeightLg: _shared(
+            buttonHeightLg,
+            this.buttonHeightLg,
+            currentMobile.buttonHeightLg,
+          ),
+          buttonPaddingX: _shared(
+            buttonPaddingX,
+            this.buttonPaddingX,
+            currentMobile.buttonPaddingX,
+          ),
+          buttonPaddingXSm: _shared(
+            buttonPaddingXSm,
+            this.buttonPaddingXSm,
+            currentMobile.buttonPaddingXSm,
+          ),
+          buttonPaddingXLg: _shared(
+            buttonPaddingXLg,
+            this.buttonPaddingXLg,
+            currentMobile.buttonPaddingXLg,
+          ),
+          buttonGap: _shared(
+            buttonGap,
+            this.buttonGap,
+            currentMobile.buttonGap,
+          ),
+          buttonIconSize: _shared(
+            buttonIconSize,
+            this.buttonIconSize,
+            currentMobile.buttonIconSize,
+          ),
+          buttonIconSizeSm: _shared(
+            buttonIconSizeSm,
+            this.buttonIconSizeSm,
+            currentMobile.buttonIconSizeSm,
+          ),
+          buttonIconSizeLg: _shared(
+            buttonIconSizeLg,
+            this.buttonIconSizeLg,
+            currentMobile.buttonIconSizeLg,
+          ),
+          toggleIconSize: _shared(
+            toggleIconSize,
+            this.toggleIconSize,
+            currentMobile.toggleIconSize,
+          ),
+          badgeIconSize: _shared(
+            badgeIconSize,
+            this.badgeIconSize,
+            currentMobile.badgeIconSize,
+          ),
+          iconButtonSize: _shared(
+            iconButtonSize,
+            this.iconButtonSize,
+            currentMobile.iconButtonSize,
+          ),
+          iconButtonSizeSm: _shared(
+            iconButtonSizeSm,
+            this.iconButtonSizeSm,
+            currentMobile.iconButtonSizeSm,
+          ),
+          iconButtonSizeLg: _shared(
+            iconButtonSizeLg,
+            this.iconButtonSizeLg,
+            currentMobile.iconButtonSizeLg,
+          ),
+          iconButtonIconSize: _shared(
+            iconButtonIconSize,
+            this.iconButtonIconSize,
+            currentMobile.iconButtonIconSize,
+          ),
+          iconButtonIconSizeSm: _shared(
+            iconButtonIconSizeSm,
+            this.iconButtonIconSizeSm,
+            currentMobile.iconButtonIconSizeSm,
+          ),
+          iconButtonIconSizeLg: _shared(
+            iconButtonIconSizeLg,
+            this.iconButtonIconSizeLg,
+            currentMobile.iconButtonIconSizeLg,
+          ),
+          inputHeight: _shared(
+            inputHeight,
+            this.inputHeight,
+            currentMobile.inputHeight,
+          ),
+          inputPaddingX: _shared(
+            inputPaddingX,
+            this.inputPaddingX,
+            currentMobile.inputPaddingX,
+          ),
+          inputPaddingY: _shared(
+            inputPaddingY,
+            this.inputPaddingY,
+            currentMobile.inputPaddingY,
+          ),
+          textareaPaddingX: _shared(
+            textareaPaddingX,
+            this.textareaPaddingX,
+            currentMobile.textareaPaddingX,
+          ),
+          textareaPaddingY: _shared(
+            textareaPaddingY,
+            this.textareaPaddingY,
+            currentMobile.textareaPaddingY,
+          ),
+          underlinedFields: _shared(
+            underlinedFields,
+            this.underlinedFields,
+            currentMobile.underlinedFields,
+          ),
+          fieldFill: _shared(
+            fieldFill,
+            this.fieldFill,
+            currentMobile.fieldFill,
+          ),
+          fieldFillDark: _shared(
+            fieldFillDark,
+            this.fieldFillDark,
+            currentMobile.fieldFillDark,
+          ),
+          fieldBorderless: _shared(
+            fieldBorderless,
+            this.fieldBorderless,
+            currentMobile.fieldBorderless,
+          ),
+          selectPaddingX: _shared(
+            selectPaddingX,
+            this.selectPaddingX,
+            currentMobile.selectPaddingX,
+          ),
+          menuPadding: _shared(
+            menuPadding,
+            this.menuPadding,
+            currentMobile.menuPadding,
+          ),
+          menuMinWidth: _shared(
+            menuMinWidth,
+            this.menuMinWidth,
+            currentMobile.menuMinWidth,
+          ),
+          itemPaddingX: _shared(
+            itemPaddingX,
+            this.itemPaddingX,
+            currentMobile.itemPaddingX,
+          ),
+          itemPaddingY: _shared(
+            itemPaddingY,
+            this.itemPaddingY,
+            currentMobile.itemPaddingY,
+          ),
+          menubarHeight: _shared(
+            menubarHeight,
+            this.menubarHeight,
+            currentMobile.menubarHeight,
+          ),
+          menubarPadding: _shared(
+            menubarPadding,
+            this.menubarPadding,
+            currentMobile.menubarPadding,
+          ),
+          calendarCellSize: _shared(
+            calendarCellSize,
+            this.calendarCellSize,
+            currentMobile.calendarCellSize,
+          ),
+          calendarCellRadius: _shared(
+            calendarCellRadius,
+            this.calendarCellRadius,
+            currentMobile.calendarCellRadius,
+          ),
+          calendarPadding: _shared(
+            calendarPadding,
+            this.calendarPadding,
+            currentMobile.calendarPadding,
+          ),
+          calendarCaptionHeight: _shared(
+            calendarCaptionHeight,
+            this.calendarCaptionHeight,
+            currentMobile.calendarCaptionHeight,
+          ),
+          commandPadding: _shared(
+            commandPadding,
+            this.commandPadding,
+            currentMobile.commandPadding,
+          ),
+          commandGroupPadding: _shared(
+            commandGroupPadding,
+            this.commandGroupPadding,
+            currentMobile.commandGroupPadding,
+          ),
+          commandSearchHeight: _shared(
+            commandSearchHeight,
+            this.commandSearchHeight,
+            currentMobile.commandSearchHeight,
+          ),
+          commandSearchFill: _shared(
+            commandSearchFill,
+            this.commandSearchFill,
+            currentMobile.commandSearchFill,
+          ),
+          commandSearchFillDark: _shared(
+            commandSearchFillDark,
+            this.commandSearchFillDark,
+            currentMobile.commandSearchFillDark,
+          ),
+          commandSearchBorderOpacity: _shared(
+            commandSearchBorderOpacity,
+            this.commandSearchBorderOpacity,
+            currentMobile.commandSearchBorderOpacity,
+          ),
+          commandSearchUnderline: _shared(
+            commandSearchUnderline,
+            this.commandSearchUnderline,
+            currentMobile.commandSearchUnderline,
+          ),
+          sidebarItemHeight: _shared(
+            sidebarItemHeight,
+            this.sidebarItemHeight,
+            currentMobile.sidebarItemHeight,
+          ),
+          sidebarItemHeightSm: _shared(
+            sidebarItemHeightSm,
+            this.sidebarItemHeightSm,
+            currentMobile.sidebarItemHeightSm,
+          ),
+          sidebarItemHeightLg: _shared(
+            sidebarItemHeightLg,
+            this.sidebarItemHeightLg,
+            currentMobile.sidebarItemHeightLg,
+          ),
+          sidebarItemPaddingX: _shared(
+            sidebarItemPaddingX,
+            this.sidebarItemPaddingX,
+            currentMobile.sidebarItemPaddingX,
+          ),
+          sidebarSubItemPaddingX: _shared(
+            sidebarSubItemPaddingX,
+            this.sidebarSubItemPaddingX,
+            currentMobile.sidebarSubItemPaddingX,
+          ),
+          controlFill: _shared(
+            controlFill,
+            this.controlFill,
+            currentMobile.controlFill,
+          ),
+          controlFillDark: _shared(
+            controlFillDark,
+            this.controlFillDark,
+            currentMobile.controlFillDark,
+          ),
+          controlBorderless: _shared(
+            controlBorderless,
+            this.controlBorderless,
+            currentMobile.controlBorderless,
+          ),
+          radioCheckedOutline: _shared(
+            radioCheckedOutline,
+            this.radioCheckedOutline,
+            currentMobile.radioCheckedOutline,
+          ),
+          checkboxSize: _shared(
+            checkboxSize,
+            this.checkboxSize,
+            currentMobile.checkboxSize,
+          ),
+          radioSize: _shared(
+            radioSize,
+            this.radioSize,
+            currentMobile.radioSize,
+          ),
+          switchWidth: _shared(
+            switchWidth,
+            this.switchWidth,
+            currentMobile.switchWidth,
+          ),
+          switchHeight: _shared(
+            switchHeight,
+            this.switchHeight,
+            currentMobile.switchHeight,
+          ),
+          switchThumbSize: _shared(
+            switchThumbSize,
+            this.switchThumbSize,
+            currentMobile.switchThumbSize,
+          ),
+          sliderTrackHeight: _shared(
+            sliderTrackHeight,
+            this.sliderTrackHeight,
+            currentMobile.sliderTrackHeight,
+          ),
+          sliderThumbSize: _shared(
+            sliderThumbSize,
+            this.sliderThumbSize,
+            currentMobile.sliderThumbSize,
+          ),
+          sliderTrackFill: _shared(
+            sliderTrackFill,
+            this.sliderTrackFill,
+            currentMobile.sliderTrackFill,
+          ),
+          sliderThumbFilled: _shared(
+            sliderThumbFilled,
+            this.sliderThumbFilled,
+            currentMobile.sliderThumbFilled,
+          ),
+          cardPadding: _shared(
+            cardPadding,
+            this.cardPadding,
+            currentMobile.cardPadding,
+          ),
+          cardGap: _shared(cardGap, this.cardGap, currentMobile.cardGap),
+          dialogPadding: _shared(
+            dialogPadding,
+            this.dialogPadding,
+            currentMobile.dialogPadding,
+          ),
+          dialogGap: _shared(
+            dialogGap,
+            this.dialogGap,
+            currentMobile.dialogGap,
+          ),
+          popoverPadding: _shared(
+            popoverPadding,
+            this.popoverPadding,
+            currentMobile.popoverPadding,
+          ),
+          tabsListPadding: _shared(
+            tabsListPadding,
+            this.tabsListPadding,
+            currentMobile.tabsListPadding,
+          ),
+          tabsListRadius: _shared(
+            tabsListRadius,
+            this.tabsListRadius,
+            currentMobile.tabsListRadius,
+          ),
+          tabRadius: _shared(
+            tabRadius,
+            this.tabRadius,
+            currentMobile.tabRadius,
+          ),
+          tabSelectedShadow: _shared(
+            tabSelectedShadow,
+            this.tabSelectedShadow,
+            currentMobile.tabSelectedShadow,
+          ),
+          tabPaddingX: _shared(
+            tabPaddingX,
+            this.tabPaddingX,
+            currentMobile.tabPaddingX,
+          ),
+          tabPaddingY: _shared(
+            tabPaddingY,
+            this.tabPaddingY,
+            currentMobile.tabPaddingY,
+          ),
+          accordionTitlePaddingY: _shared(
+            accordionTitlePaddingY,
+            this.accordionTitlePaddingY,
+            currentMobile.accordionTitlePaddingY,
+          ),
+          alertRadius: _shared(
+            alertRadius,
+            this.alertRadius,
+            currentMobile.alertRadius,
+          ),
+          alertPaddingX: _shared(
+            alertPaddingX,
+            this.alertPaddingX,
+            currentMobile.alertPaddingX,
+          ),
+          alertPaddingY: _shared(
+            alertPaddingY,
+            this.alertPaddingY,
+            currentMobile.alertPaddingY,
+          ),
+          alertGap: _shared(alertGap, this.alertGap, currentMobile.alertGap),
+          alertIconGap: _shared(
+            alertIconGap,
+            this.alertIconGap,
+            currentMobile.alertIconGap,
+          ),
+          alertIconSize: _shared(
+            alertIconSize,
+            this.alertIconSize,
+            currentMobile.alertIconSize,
+          ),
+          alertIconOffset: _shared(
+            alertIconOffset,
+            this.alertIconOffset,
+            currentMobile.alertIconOffset,
+          ),
+          alertAccentBar: _shared(
+            alertAccentBar,
+            this.alertAccentBar,
+            currentMobile.alertAccentBar,
+          ),
+          tableCellPadding: _shared(
+            tableCellPadding,
+            this.tableCellPadding,
+            currentMobile.tableCellPadding,
+          ),
+          kbdHeight: _shared(
+            kbdHeight,
+            this.kbdHeight,
+            currentMobile.kbdHeight,
+          ),
+          kbdPaddingX: _shared(
+            kbdPaddingX,
+            this.kbdPaddingX,
+            currentMobile.kbdPaddingX,
+          ),
+          progressHeight: _shared(
+            progressHeight,
+            this.progressHeight,
+            currentMobile.progressHeight,
+          ),
+          radius: _shared(radius, this.radius, currentMobile.radius),
+          radiusScale: _shared(
+            radiusScale,
+            this.radiusScale,
+            currentMobile.radiusScale,
+          ),
+          iconButtonRadius: _shared(
+            iconButtonRadius,
+            this.iconButtonRadius,
+            currentMobile.iconButtonRadius,
+          ),
+          badgeRadius: _shared(
+            badgeRadius,
+            this.badgeRadius,
+            currentMobile.badgeRadius,
+          ),
+          badgeHeight: _shared(
+            badgeHeight,
+            this.badgeHeight,
+            currentMobile.badgeHeight,
+          ),
+          badgePaddingX: _shared(
+            badgePaddingX,
+            this.badgePaddingX,
+            currentMobile.badgePaddingX,
+          ),
+          outlineButtonStrongBorder: _shared(
+            outlineButtonStrongBorder,
+            this.outlineButtonStrongBorder,
+            currentMobile.outlineButtonStrongBorder,
+          ),
+          glassBlur: _shared(
+            glassBlur,
+            this.glassBlur,
+            currentMobile.glassBlur,
+          ),
+          glassSaturation: _shared(
+            glassSaturation,
+            this.glassSaturation,
+            currentMobile.glassSaturation,
+          ),
+          glassOpacity: _shared(
+            glassOpacity,
+            this.glassOpacity,
+            currentMobile.glassOpacity,
+          ),
+          glassOpacityDark: _shared(
+            glassOpacityDark,
+            this.glassOpacityDark,
+            currentMobile.glassOpacityDark,
+          ),
+          glassStrongOpacity: _shared(
+            glassStrongOpacity,
+            this.glassStrongOpacity,
+            currentMobile.glassStrongOpacity,
+          ),
+          barOpacity: _shared(
+            barOpacity,
+            this.barOpacity,
+            currentMobile.barOpacity,
+          ),
+          barOpacityDark: _shared(
+            barOpacityDark,
+            this.barOpacityDark,
+            currentMobile.barOpacityDark,
+          ),
+          cardOpacity: _shared(
+            cardOpacity,
+            this.cardOpacity,
+            currentMobile.cardOpacity,
+          ),
+          cardOpacityDark: _shared(
+            cardOpacityDark,
+            this.cardOpacityDark,
+            currentMobile.cardOpacityDark,
+          ),
+          cardBlur: _shared(cardBlur, this.cardBlur, currentMobile.cardBlur),
+          cardShadowDark: _shared(
+            cardShadowDark,
+            this.cardShadowDark,
+            currentMobile.cardShadowDark,
+          ),
+          floatingShadow: _shared(
+            floatingShadow,
+            this.floatingShadow,
+            currentMobile.floatingShadow,
+          ),
+          pagePaddingX: _shared(
+            pagePaddingX,
+            this.pagePaddingX,
+            currentMobile.pagePaddingX,
+          ),
+          pagePaddingY: _shared(
+            pagePaddingY,
+            this.pagePaddingY,
+            currentMobile.pagePaddingY,
+          ),
+          pageMaxWidth: _shared(
+            pageMaxWidth,
+            this.pageMaxWidth,
+            currentMobile.pageMaxWidth,
+          ),
+          gapXs: _shared(gapXs, this.gapXs, currentMobile.gapXs),
+          gapSm: _shared(gapSm, this.gapSm, currentMobile.gapSm),
+          gapMd: _shared(gapMd, this.gapMd, currentMobile.gapMd),
+          gapLg: _shared(gapLg, this.gapLg, currentMobile.gapLg),
+          gapXl: _shared(gapXl, this.gapXl, currentMobile.gapXl),
+          appBarHeight: _shared(
+            appBarHeight,
+            this.appBarHeight,
+            currentMobile.appBarHeight,
+          ),
+          navigationItemWidth: _shared(
+            navigationItemWidth,
+            this.navigationItemWidth,
+            currentMobile.navigationItemWidth,
+          ),
+          navigationIconSize: _shared(
+            navigationIconSize,
+            this.navigationIconSize,
+            currentMobile.navigationIconSize,
+          ),
+          navigationIndicatorHeight: _shared(
+            navigationIndicatorHeight,
+            this.navigationIndicatorHeight,
+            currentMobile.navigationIndicatorHeight,
+          ),
+          bottomNavigationItemWidth: _shared(
+            bottomNavigationItemWidth,
+            this.bottomNavigationItemWidth,
+            currentMobile.bottomNavigationItemWidth,
+          ),
+          bottomNavigationItemHeight: _shared(
+            bottomNavigationItemHeight,
+            this.bottomNavigationItemHeight,
+            currentMobile.bottomNavigationItemHeight,
+          ),
+          bottomNavigationIconSize: _shared(
+            bottomNavigationIconSize,
+            this.bottomNavigationIconSize,
+            currentMobile.bottomNavigationIconSize,
+          ),
+          bottomNavigationPadding: _shared(
+            bottomNavigationPadding,
+            this.bottomNavigationPadding,
+            currentMobile.bottomNavigationPadding,
+          ),
+          bottomNavigationFloating: _shared(
+            bottomNavigationFloating,
+            this.bottomNavigationFloating,
+            currentMobile.bottomNavigationFloating,
+          ),
+          chipHeight: _shared(
+            chipHeight,
+            this.chipHeight,
+            currentMobile.chipHeight,
+          ),
+          chipPaddingX: _shared(
+            chipPaddingX,
+            this.chipPaddingX,
+            currentMobile.chipPaddingX,
+          ),
+          chipGap: _shared(chipGap, this.chipGap, currentMobile.chipGap),
+          chipIconSize: _shared(
+            chipIconSize,
+            this.chipIconSize,
+            currentMobile.chipIconSize,
+          ),
+          chipRadius: _shared(
+            chipRadius,
+            this.chipRadius,
+            currentMobile.chipRadius,
+          ),
+          listTilePaddingX: _shared(
+            listTilePaddingX,
+            this.listTilePaddingX,
+            currentMobile.listTilePaddingX,
+          ),
+          listTilePaddingY: _shared(
+            listTilePaddingY,
+            this.listTilePaddingY,
+            currentMobile.listTilePaddingY,
+          ),
+          listTileGap: _shared(
+            listTileGap,
+            this.listTileGap,
+            currentMobile.listTileGap,
+          ),
+          chatBubbleRadius: _shared(
+            chatBubbleRadius,
+            this.chatBubbleRadius,
+            currentMobile.chatBubbleRadius,
+          ),
+          chatBubbleTailRadius: _shared(
+            chatBubbleTailRadius,
+            this.chatBubbleTailRadius,
+            currentMobile.chatBubbleTailRadius,
+          ),
+          chatBubblePaddingX: _shared(
+            chatBubblePaddingX,
+            this.chatBubblePaddingX,
+            currentMobile.chatBubblePaddingX,
+          ),
+          chatBubblePaddingY: _shared(
+            chatBubblePaddingY,
+            this.chatBubblePaddingY,
+            currentMobile.chatBubblePaddingY,
+          ),
+          tabHeight: _shared(
+            tabHeight,
+            this.tabHeight,
+            currentMobile.tabHeight,
+          ),
+          underlineTabHeight: _shared(
+            underlineTabHeight,
+            this.underlineTabHeight,
+            currentMobile.underlineTabHeight,
+          ),
+          avatarSize: _shared(
+            avatarSize,
+            this.avatarSize,
+            currentMobile.avatarSize,
+          ),
+          display: _shared(display, this.display, currentMobile.display),
+          headline: _shared(headline, this.headline, currentMobile.headline),
+          subtitle: _shared(subtitle, this.subtitle, currentMobile.subtitle),
+          small: _shared(small, this.small, currentMobile.small),
+          concentricTabs: _shared(
+            concentricTabs,
+            this.concentricTabs,
+            currentMobile.concentricTabs,
+          ),
+          secondaryButtonFill: _shared(
+            secondaryButtonFill,
+            this.secondaryButtonFill,
+            currentMobile.secondaryButtonFill,
+          ),
+          secondaryBadgeFill: _shared(
+            secondaryBadgeFill,
+            this.secondaryBadgeFill,
+            currentMobile.secondaryBadgeFill,
+          ),
+          secondaryBadgeSubtle: _shared(
+            secondaryBadgeSubtle,
+            this.secondaryBadgeSubtle,
+            currentMobile.secondaryBadgeSubtle,
+          ),
+          progressTrackFill: _shared(
+            progressTrackFill,
+            this.progressTrackFill,
+            currentMobile.progressTrackFill,
+          ),
+          progressTinted: _shared(
+            progressTinted,
+            this.progressTinted,
+            currentMobile.progressTinted,
+          ),
+          dividerMargin: _shared(
+            dividerMargin,
+            this.dividerMargin,
+            currentMobile.dividerMargin,
+          ),
+          timelineLineGap: _shared(
+            timelineLineGap,
+            this.timelineLineGap,
+            currentMobile.timelineLineGap,
+          ),
+          tabsListFill: _shared(
+            tabsListFill,
+            this.tabsListFill,
+            currentMobile.tabsListFill,
+          ),
+          tabSelectedFill: _shared(
+            tabSelectedFill,
+            this.tabSelectedFill,
+            currentMobile.tabSelectedFill,
+          ),
+          tabUnselectedMuted: _shared(
+            tabUnselectedMuted,
+            this.tabUnselectedMuted,
+            currentMobile.tabUnselectedMuted,
+          ),
+          tabsGap: _shared(tabsGap, this.tabsGap, currentMobile.tabsGap),
+        );
     return StyleTokens(
       name: name ?? this.name,
       buttonRadius: buttonRadius ?? this.buttonRadius,
@@ -2021,7 +2982,7 @@ class StyleTokens {
       tabSelectedFill: tabSelectedFill ?? this.tabSelectedFill,
       tabUnselectedMuted: tabUnselectedMuted ?? this.tabUnselectedMuted,
       tabsGap: tabsGap ?? this.tabsGap,
-      mobile: mobile ?? this.mobile,
+      mobile: nextMobile,
     );
   }
 

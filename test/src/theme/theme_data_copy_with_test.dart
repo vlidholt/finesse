@@ -86,9 +86,16 @@ void main() {
     expect(finesse.cardTheme.blur, greaterThan(0));
     expect(copy.cardTheme.blur, 0);
     expect(copy.cardTheme.backgroundColor, copy.colorScheme.card);
-    // nova's prose scale comes back.
+    // The published type scale becomes nova's: paragraphs are 14 in both,
+    // but `large` drops from finesse's 15-point subtitle to nova's 14, and
+    // `h4` from finesse's semibold title to nova's medium one.
     expect(finesse.textTheme.p.fontSize, 14);
-    expect(copy.textTheme.p.fontSize, 16);
+    expect(copy.textTheme.p.fontSize, 14);
+    expect(finesse.textTheme.large.fontSize, 15);
+    expect(copy.textTheme.large.fontSize, 14);
+    expect(finesse.textTheme.h4.fontWeight, FontWeight.w600);
+    expect(copy.textTheme.h4.fontWeight, FontWeight.w500);
+    expect(copy.textTheme, direct.textTheme);
     expect(copy, direct);
   });
 

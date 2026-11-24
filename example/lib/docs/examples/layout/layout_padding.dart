@@ -1,7 +1,7 @@
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
-/// `FinessePadding` mirrors Tailwind step-based inset utilities.
+/// `FinessePadding` takes theme spacing steps, not logical pixels.
 class LayoutPaddingExample extends StatelessWidget {
   const LayoutPaddingExample({super.key});
 

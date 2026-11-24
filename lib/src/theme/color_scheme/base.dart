@@ -600,7 +600,42 @@ class ColorScheme {
   ///     .applyAccentScheme(AccentScheme.violetLight)
   /// ```
   ColorScheme applyAccentScheme(AccentScheme accent) {
+    // The tint is the accent drawn *on* a surface — a selected icon, a link, a
+    // progress fill — so it has to read against the page and against a card.
+    // An accent's primary is tuned as a button fill and, in the dark
+    // palettes, is often too dim for that. So: of the primary and the chart
+    // ramp, take the step nearest the primary's own lightness that reaches
+    // 4.5:1 on both surfaces, or failing that the most legible one.
+    double legibility(Color color) {
+      final onPage = _contrast(color, background);
+      final onCard = _contrast(color, card);
+      return onPage < onCard ? onPage : onCard;
+    }
+
+    final candidates = [
+      accent.primary,
+      ?accent.chart1,
+      ?accent.chart2,
+      ?accent.chart3,
+      ?accent.chart4,
+      ?accent.chart5,
+    ];
+    final primaryLuminance = accent.primary.computeLuminance();
+    double distance(Color color) =>
+        (color.computeLuminance() - primaryLuminance).abs();
+    final legible = [
+      for (final candidate in candidates)
+        if (legibility(candidate) >= 4.5) candidate,
+    ]..sort((a, b) => distance(a).compareTo(distance(b)));
+    final tint = legible.isNotEmpty
+        ? legible.first
+        : candidates.reduce((a, b) => legibility(a) >= legibility(b) ? a : b);
     return copyWith(
+      tint: tint,
+      tintForeground: tint == accent.primary
+          ? accent.primaryForeground
+          : contrastingForeground(tint),
+      accentBorder: tint.withValues(alpha: .32),
       primary: accent.primary,
       primaryForeground: accent.primaryForeground,
       secondary: accent.secondary,
@@ -622,9 +657,20 @@ class ColorScheme {
   /// Uses the relative luminance rather than a naive average so that, say,
   /// a saturated yellow correctly gets dark text.
   static Color contrastingForeground(Color background) {
-    return background.computeLuminance() > 0.45
+    // 0.18 is where near-black and near-white text have the same WCAG
+    // contrast against the fill; above it dark text reads better.
+    return background.computeLuminance() > 0.18
         ? const Color(0xff09090b)
         : const Color(0xfffafafa);
+  }
+
+  /// The WCAG contrast ratio between two colours, ignoring their alpha.
+  static double _contrast(Color a, Color b) {
+    final la = a.withValues(alpha: 1).computeLuminance();
+    final lb = b.withValues(alpha: 1).computeLuminance();
+    final lighter = la > lb ? la : lb;
+    final darker = la > lb ? lb : la;
+    return (lighter + .05) / (darker + .05);
   }
 
   /// Merges this [ColorScheme] with [other].

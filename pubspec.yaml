@@ -14,7 +14,7 @@ topics:
   - material-alternative
   - widgets
 screenshots:
-  - description: The finesse component browser and theme editor.
+  - description: Strand, the demo app built with finesse.
     path: assets/screenshot.png
 
 environment:

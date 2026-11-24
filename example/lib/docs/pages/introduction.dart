@@ -4,16 +4,18 @@ final introductionDoc = ComponentDoc(
   slug: 'introduction',
   title: 'Introduction',
   description:
-      'shadcn/ui, built for Flutter. The components, the eight styles, and '
-      'the theme system match the reference down to the pixel.',
+      'A design system for Flutter: more than sixty components, four '
+      'styles and one theme, laid out for desktop and phone alike.',
   body: (context) => const DocProse(
     children: [
       DocParagraph(
-        'finesse is a Flutter implementation of shadcn/ui. It is a port in the '
-        'strict sense. Every color, radius, padding, shadow, and type size '
-        'comes from the reference CSS instead of an approximation, so a '
-        'screen built with finesse sits next to its web counterpart without a '
-        'seam.',
+        'finesse is a Flutter implementation of a complete design system. '
+        'It began as a port of shadcn/ui and still carries its component '
+        'set and three of its styles, measured from the reference CSS. On '
+        'top of that it has its own default look, soft teal glass, and '
+        'the pieces an app needs beyond a web component kit: app and '
+        'navigation bars, a scaffold, list rows, chat bubbles, and a '
+        'theme that knows whether it is on a phone.',
       ),
       DocParagraph(
         'The library is self-contained. Components use the Flutter widgets '
@@ -27,17 +29,24 @@ final introductionDoc = ComponentDoc(
         children: [
           DocBullets(
             items: [
-              'The shadcn/ui component set: buttons, forms, and menus, '
-                  'plus the command palette, data table, calendar, and '
-                  'sidebar.',
-              'The eight shadcn styles (vega, nova, maia, lyra, mira, '
-                  'luma, sera, and rhea) as complete presets: geometry, '
-                  'typography, and shadows, switchable with one setting.',
-              'Sixteen color schemes, each in light and dark, plus the '
-                  'menu finishes from the shadcn theme editor: inverted, '
-                  'translucent, and bold accent.',
-              'Phosphor icons through `PhosphorIconsRegular` and `flutter_animate` '
-                  'effects, both re-exported so a single import covers '
+              'Components: buttons, forms, menus, dialogs and sheets, '
+                  'the command palette, data table, calendar and '
+                  'sidebar, plus app structure (`Scaffold`, `AppBar`, '
+                  '`NavigationBar`) and content pieces (`ListTile`, '
+                  '`Chip`, `ChatBubble`, `Timeline`).',
+              'Four styles (`finesse`, the default, and `nova`, `maia`, '
+                  '`lyra`) as complete presets: geometry, typography, '
+                  'shadows and translucency, switchable with one '
+                  'setting.',
+              'Two form factors per style. The same widgets come out '
+                  'with 36-point buttons in a desktop window and '
+                  '44-point ones on a phone.',
+              'Four base color schemes (`teal`, the default, `neutral`, '
+                  '`zinc` and `stone`), each in light and dark, with '
+                  'seventeen accent overlays and three menu finishes: '
+                  'inverted, translucent, and bold accent.',
+              'The Phosphor icon set in six weights, bundled, and '
+                  '`flutter_animate` effects, so a single import covers '
                   'them.',
             ],
           ),
@@ -52,10 +61,12 @@ final introductionDoc = ComponentDoc(
             'the app as an asset, so the two can never drift apart.',
           ),
           DocParagraph(
-            'This documentation app is itself built with finesse. Open the '
+            'This app is itself built with finesse. It opens on Strand, a '
+            'small social network that the default theme was designed '
+            'for; this component library is its other half. Open the '
             'theme editor with the paintbrush button in the top bar and '
             'change the style, palette, or radius. The whole app '
-            'restyles, including these pages.',
+            'restyles, Strand and these pages included.',
           ),
         ],
       ),

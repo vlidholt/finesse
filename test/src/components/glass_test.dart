@@ -101,6 +101,72 @@ void main() {
       expect(tint.a, lessThan(1));
     });
 
+    testWidgets("a translucent card colour keeps its own alpha: the level's "
+        'opacity multiplies it', (tester) async {
+      const card = Color(0x80ffffff);
+      for (final (level, opacity) in [
+        (GlassLevel.regular, .7),
+        (GlassLevel.strong, .9),
+      ]) {
+        await pumpFinesse(
+          tester,
+          Center(
+            child: Glass(level: level, child: const Text('Hi')),
+          ),
+          theme: ThemeData(
+            colorScheme: const TealColorScheme.light().copyWith(card: card),
+          ),
+        );
+        final theme = themeOf(tester, find.byType(Glass));
+        expect(theme.colorScheme.card, card);
+        expect(theme.glassTheme.color, card);
+
+        final tint = surfaceOf(tester).color!;
+        // Half of the level's opacity, not the level's opacity outright.
+        expect(tint.a, closeTo(card.a * opacity, 1e-6), reason: level.name);
+        expect(tint.a, lessThan(card.a), reason: level.name);
+        expect(tint.withValues(alpha: 1), card.withValues(alpha: 1));
+      }
+    });
+
+    testWidgets("a translucent GlassTheme colour is multiplied by the theme's "
+        'opacities too', (tester) async {
+      const colour = Color(0x40102030);
+      for (final (level, opacity) in [
+        (GlassLevel.regular, .5),
+        (GlassLevel.strong, .8),
+      ]) {
+        await pumpFinesse(
+          tester,
+          Center(
+            child: Glass(level: level, child: const Text('Hi')),
+          ),
+          theme: ThemeData(
+            glassTheme: const GlassTheme(
+              color: colour,
+              opacity: .5,
+              strongOpacity: .8,
+            ),
+          ),
+        );
+        final tint = surfaceOf(tester).color!;
+        expect(tint.a, closeTo(colour.a * opacity, 1e-6), reason: level.name);
+        expect(tint.withValues(alpha: 1), colour.withValues(alpha: 1));
+      }
+    });
+
+    testWidgets('an opaque card colour gives exactly the level opacity', (
+      tester,
+    ) async {
+      await pumpFinesse(tester, const Center(child: Glass(child: Text('Hi'))));
+      final theme = themeOf(tester, find.byType(Glass));
+      expect(theme.colorScheme.card.a, 1);
+      expect(
+        surfaceOf(tester).color!.a,
+        closeTo(theme.glassTheme.opacity!, 1e-6),
+      );
+    });
+
     testWidgets('an explicit colour is used at its own alpha', (tester) async {
       const scrim = Color(0x52090909);
       await pumpFinesse(

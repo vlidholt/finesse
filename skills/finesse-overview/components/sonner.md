@@ -7,8 +7,8 @@ An opinionated toast stack: notifications collect and expand on hover.
 ```dart
 import 'dart:math';
 
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class SonnerBasicExample extends StatelessWidget {
   const SonnerBasicExample({super.key});

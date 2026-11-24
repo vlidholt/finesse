@@ -26,8 +26,9 @@ final installationDoc = ComponentDoc(
           DocParagraph(
             '`FinesseApp` takes the place of `MaterialApp`. It installs the '
             'theme, localizations, navigation, and the overlay layer the '
-            'floating components use. With no arguments it uses the slate '
-            'color scheme and the nova style.',
+            'floating components use. With no arguments it uses the teal '
+            'color scheme and the finesse style, and lays itself out for '
+            'a desktop or a phone from the window width.',
           ),
           CodeBlock(
             code: '''
@@ -92,9 +93,37 @@ Button(
 )''',
           ),
           DocParagraph(
+            'A screen is usually a `Scaffold` with an `AppBar`, and its '
+            'content a `PageContainer`, which supplies the page margins:',
+          ),
+          CodeBlock(
+            code: '''
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: const AppBar(title: Text('Home')),
+      body: PageContainer(
+        scrollable: true,
+        child: FinesseColumn(
+          gap: GapSize.lg,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: const [
+            Card(title: Text('Welcome')),
+          ],
+        ),
+      ),
+    );
+  }
+}''',
+          ),
+          DocParagraph(
             'From here, the Theming and Styles pages cover how to make it '
-            'yours, and each component page pairs a live preview with the '
-            'code that renders it.',
+            'yours, Form Factors and Layout and Spacing how it adapts to '
+            'a phone, and each component page pairs a live preview with '
+            'the code that renders it.',
           ),
         ],
       ),

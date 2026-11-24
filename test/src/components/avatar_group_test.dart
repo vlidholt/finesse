@@ -22,6 +22,12 @@ void main() {
     ),
   );
 
+  /// Avatar [i] itself: the clipped circle inside its ring.
+  Finder avatarOf(int i) => find.ancestor(
+    of: find.byKey(Key('face$i')),
+    matching: find.byType(ClipOval),
+  );
+
   group('AvatarGroup', () {
     testWidgets('renders in both form factors and text directions', (
       tester,
@@ -37,9 +43,8 @@ void main() {
       );
     });
 
-    testWidgets('is as wide as its overlapping avatars and their rings', (
-      tester,
-    ) async {
+    testWidgets('is as wide as its overlapping avatars; the rings are '
+        'painted outside the box', (tester) async {
       await pumpFinesse(
         tester,
         Center(
@@ -47,19 +52,58 @@ void main() {
         ),
       );
       // 24px avatars, each sliding a quarter under the one before: a step of
-      // 18. Plus a 2px ring all round.
+      // 18. The 2px ring is not part of the layout box.
+      expect(
+        tester.getSize(find.byType(AvatarGroup)),
+        const Size(24 + 18 * 2, 24),
+      );
+      // The stack must not clip what it paints outside itself.
+      final stack = tester.widget<Stack>(
+        find.descendant(
+          of: find.byType(AvatarGroup),
+          matching: find.byType(Stack),
+        ),
+      );
+      expect(stack.clipBehavior, Clip.none);
+    });
+
+    testWidgets('ringInLayout: true makes room for the rings', (tester) async {
+      await pumpFinesse(
+        tester,
+        Center(
+          child: AvatarGroup(
+            ringInLayout: true,
+            children: [for (var i = 0; i < 3; i++) face(i)],
+          ),
+        ),
+      );
       expect(
         tester.getSize(find.byType(AvatarGroup)),
         const Size(24 + 18 * 2 + 4, 24 + 4),
       );
     });
 
-    testWidgets('one avatar is just that avatar and its ring', (tester) async {
+    testWidgets('one avatar is just that avatar; with ringInLayout, that '
+        'avatar and its ring', (tester) async {
       await pumpFinesse(
         tester,
         Center(child: AvatarGroup(children: [face(0)])),
       );
+      expect(tester.getSize(find.byType(AvatarGroup)), const Size.square(24));
+      expect(
+        tester.getRect(avatarOf(0)),
+        tester.getRect(find.byType(AvatarGroup)),
+      );
+
+      await pumpFinesse(
+        tester,
+        Center(child: AvatarGroup(ringInLayout: true, children: [face(0)])),
+      );
       expect(tester.getSize(find.byType(AvatarGroup)), const Size.square(28));
+      expect(
+        tester.getRect(ringOf(0)),
+        tester.getRect(find.byType(AvatarGroup)),
+      );
     });
 
     testWidgets('no avatars take no space', (tester) async {
@@ -106,9 +150,8 @@ void main() {
       expect(tester.getSize(find.byType(ClipOval)), const Size.square(24));
     });
 
-    testWidgets('lays the avatars out in reading order, a step apart', (
-      tester,
-    ) async {
+    testWidgets('lays the avatars out in reading order, a step apart, with '
+        "the first avatar's edge on the group's edge", (tester) async {
       for (final direction in TextDirection.values) {
         await pumpFinesse(
           tester,
@@ -123,20 +166,81 @@ void main() {
         );
         final group = tester.getRect(find.byType(AvatarGroup));
         final rings = [for (var i = 0; i < 3; i++) tester.getRect(ringOf(i))];
+        final avatars = [
+          for (var i = 0; i < 3; i++) tester.getRect(avatarOf(i)),
+        ];
 
-        expect(group.width, 40 + 30 * 2 + 4);
-        for (final ring in rings) {
-          expect(ring.size, const Size.square(44));
-          expect(ring.top, group.top);
+        // `size + step * (n - 1)` wide and `size` tall: no ring in the box.
+        expect(group.size, const Size(40 + 30 * 2, 40), reason: '$direction');
+        for (final (i, ring) in rings.indexed) {
+          // Each ring sits 2px outside its avatar all round, so the rings
+          // stick out of the group's box by their own width.
+          expect(ring.size, const Size.square(44), reason: '$direction $i');
+          expect(ring.top, group.top - 2, reason: '$direction $i');
+          expect(ring, avatars[i].inflate(2), reason: '$direction $i');
+          expect(avatars[i].top, group.top, reason: '$direction $i');
+          expect(avatars[i].bottom, group.bottom, reason: '$direction $i');
+        }
+        if (direction == TextDirection.ltr) {
+          expect(avatars[0].left, group.left);
+          expect(avatars[1].left, group.left + 30);
+          expect(avatars[2].left, group.left + 60);
+          expect(avatars[2].right, group.right);
+          expect(rings[0].left, group.left - 2);
+          expect(rings[2].right, group.right + 2);
+        } else {
+          expect(avatars[0].right, group.right);
+          expect(avatars[1].right, group.right - 30);
+          expect(avatars[2].right, group.right - 60);
+          expect(avatars[2].left, group.left);
+          expect(rings[0].right, group.right + 2);
+          expect(rings[2].left, group.left - 2);
+        }
+      }
+    });
+
+    testWidgets('ringInLayout: true keeps every ring inside the box, in both '
+        'directions', (tester) async {
+      for (final direction in TextDirection.values) {
+        await pumpFinesse(
+          tester,
+          Center(
+            child: AvatarGroup(
+              size: 40,
+              overlap: 10,
+              ringInLayout: true,
+              children: [for (var i = 0; i < 3; i++) face(i)],
+            ),
+          ),
+          textDirection: direction,
+        );
+        final group = tester.getRect(find.byType(AvatarGroup));
+        final rings = [for (var i = 0; i < 3; i++) tester.getRect(ringOf(i))];
+        final avatars = [
+          for (var i = 0; i < 3; i++) tester.getRect(avatarOf(i)),
+        ];
+
+        expect(
+          group.size,
+          const Size(40 + 30 * 2 + 4, 40 + 4),
+          reason: '$direction',
+        );
+        for (final (i, ring) in rings.indexed) {
+          expect(ring.size, const Size.square(44), reason: '$direction $i');
+          expect(ring.top, group.top, reason: '$direction $i');
+          expect(ring.bottom, group.bottom, reason: '$direction $i');
+          expect(ring, avatars[i].inflate(2), reason: '$direction $i');
         }
         if (direction == TextDirection.ltr) {
           expect(rings[0].left, group.left);
           expect(rings[1].left, group.left + 30);
           expect(rings[2].left, group.left + 60);
+          expect(rings[2].right, group.right);
         } else {
           expect(rings[0].right, group.right);
           expect(rings[1].right, group.right - 30);
           expect(rings[2].right, group.right - 60);
+          expect(rings[2].left, group.left);
         }
       }
     });
@@ -226,6 +330,26 @@ void main() {
       expect((ring.decoration! as BoxDecoration).color, colour);
       expect(ring.padding, const EdgeInsets.all(4));
       expect(tester.getSize(ringOf(0)), const Size.square(32));
+      // A wider ring does not change the default box…
+      final group = tester.getRect(find.byType(AvatarGroup));
+      expect(group.size, const Size(24 + 18, 24));
+      expect(
+        tester.getRect(ringOf(0)).topLeft,
+        group.topLeft.translate(-4, -4),
+      );
+
+      // …but it does when the ring is laid out.
+      await pumpFinesse(
+        tester,
+        Center(
+          child: AvatarGroup(
+            ringColor: colour,
+            ringWidth: 4,
+            ringInLayout: true,
+            children: [face(0), face(1)],
+          ),
+        ),
+      );
       expect(
         tester.getSize(find.byType(AvatarGroup)),
         const Size(24 + 18 + 8, 24 + 8),
@@ -246,7 +370,8 @@ void main() {
         ),
       );
       await tester.pump(const Duration(milliseconds: 100));
-      expect(tester.getSize(find.byType(AvatarGroup)), const Size(39, 24));
+      // 20 + a step of 15; the ring is outside the box.
+      expect(tester.getSize(find.byType(AvatarGroup)), const Size(35, 20));
     });
 
     testWidgets('fits in a row without asking for more than its width', (

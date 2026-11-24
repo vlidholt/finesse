@@ -5,8 +5,8 @@ Displays a list of options for the user to pick from, triggered by a button.
 ## Default
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 const _fruits = {
   'apple': 'Apple',
@@ -42,8 +42,8 @@ class SelectBasicExample extends StatelessWidget {
 Filter a long list of Dart frameworks and tools — Serverpod, Relic, Flutter, and more.
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 const _dartFrameworks = {
   'serverpod': 'Serverpod',

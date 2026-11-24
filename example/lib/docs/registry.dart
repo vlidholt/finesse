@@ -1,13 +1,17 @@
 import 'package:example/docs/docs.dart';
 import 'package:example/docs/pages/accordion.dart';
 import 'package:example/docs/pages/alert.dart';
+import 'package:example/docs/pages/app_bar.dart';
 import 'package:example/docs/pages/avatar.dart';
+import 'package:example/docs/pages/avatar_group.dart';
 import 'package:example/docs/pages/badge.dart';
 import 'package:example/docs/pages/breadcrumb.dart';
 import 'package:example/docs/pages/button.dart';
 import 'package:example/docs/pages/calendar.dart';
 import 'package:example/docs/pages/card.dart';
+import 'package:example/docs/pages/chat_bubble.dart';
 import 'package:example/docs/pages/checkbox.dart';
+import 'package:example/docs/pages/chip.dart';
 import 'package:example/docs/pages/collapsible.dart';
 import 'package:example/docs/pages/command.dart';
 import 'package:example/docs/pages/context_menu.dart';
@@ -19,22 +23,32 @@ import 'package:example/docs/pages/dropdown_menu.dart';
 import 'package:example/docs/pages/empty.dart';
 import 'package:example/docs/pages/fonts.dart';
 import 'package:example/docs/pages/form.dart';
+import 'package:example/docs/pages/form_factors.dart';
+import 'package:example/docs/pages/glass.dart';
 import 'package:example/docs/pages/icon_button.dart';
+import 'package:example/docs/pages/icon_tile.dart';
+import 'package:example/docs/pages/icons.dart';
+import 'package:example/docs/pages/indicator_badge.dart';
 import 'package:example/docs/pages/installation.dart';
 import 'package:example/docs/pages/introduction.dart';
 import 'package:example/docs/pages/kbd.dart';
 import 'package:example/docs/pages/keyboard_toolbar.dart';
 import 'package:example/docs/pages/layout.dart';
+import 'package:example/docs/pages/list_tile.dart';
 import 'package:example/docs/pages/menubar.dart';
+import 'package:example/docs/pages/navigation_bar.dart';
 import 'package:example/docs/pages/otp_field.dart';
 import 'package:example/docs/pages/overview.dart';
+import 'package:example/docs/pages/page_container.dart';
 import 'package:example/docs/pages/pagination.dart';
 import 'package:example/docs/pages/popover.dart';
 import 'package:example/docs/pages/portal.dart';
+import 'package:example/docs/pages/pressable.dart';
 import 'package:example/docs/pages/progress_bar.dart';
 import 'package:example/docs/pages/radio_group.dart';
 import 'package:example/docs/pages/resizable.dart';
 import 'package:example/docs/pages/responsive.dart';
+import 'package:example/docs/pages/scaffold.dart';
 import 'package:example/docs/pages/scroll_area.dart';
 import 'package:example/docs/pages/select.dart';
 import 'package:example/docs/pages/sheet.dart';
@@ -46,12 +60,14 @@ import 'package:example/docs/pages/spinner.dart';
 import 'package:example/docs/pages/styles.dart';
 import 'package:example/docs/pages/surface.dart';
 import 'package:example/docs/pages/switch.dart';
+import 'package:example/docs/pages/tab_bar.dart';
 import 'package:example/docs/pages/table.dart';
 import 'package:example/docs/pages/tabs.dart';
 import 'package:example/docs/pages/text_field.dart';
 import 'package:example/docs/pages/textarea.dart';
 import 'package:example/docs/pages/theming.dart';
 import 'package:example/docs/pages/time_picker.dart';
+import 'package:example/docs/pages/timeline.dart';
 import 'package:example/docs/pages/toast.dart';
 import 'package:example/docs/pages/toggle.dart';
 import 'package:example/docs/pages/toggle_group.dart';
@@ -74,7 +90,9 @@ final docGroups = <DocGroup>[
     items: [
       typographyDoc,
       fontsDoc,
+      iconsDoc,
       layoutDoc,
+      formFactorsDoc,
       responsiveDoc,
       formDoc,
       portalDoc,
@@ -89,39 +107,50 @@ final docGroups = <DocGroup>[
   ),
 ];
 
-/// Every component reference page, in sidebar order.
+/// Every component reference page, in sidebar order: alphabetical by title.
 final componentDocs = [
   accordionDoc,
   alertDoc,
+  appBarDoc,
   avatarDoc,
+  avatarGroupDoc,
   badgeDoc,
   breadcrumbDoc,
   buttonDoc,
   calendarDoc,
   cardDoc,
+  chatBubbleDoc,
   checkboxDoc,
+  chipDoc,
   collapsibleDoc,
   commandDoc,
   contextMenuDoc,
   dataTableDoc,
   datePickerDoc,
   dialogDoc,
+  dividerDoc,
   dropdownMenuDoc,
   emptyDoc,
+  glassDoc,
   iconButtonDoc,
-  inputDoc,
-  inputOtpDoc,
+  iconTileDoc,
+  indicatorBadgeDoc,
   kbdDoc,
   keyboardToolbarDoc,
+  listTileDoc,
   menubarDoc,
+  navigationBarDoc,
+  otpFieldDoc,
+  pageContainerDoc,
   paginationDoc,
   popoverDoc,
-  progressDoc,
+  pressableDoc,
+  progressBarDoc,
   radioGroupDoc,
   resizableDoc,
+  scaffoldDoc,
   scrollAreaDoc,
   selectDoc,
-  separatorDoc,
   sheetDoc,
   sidebarDoc,
   skeletonDoc,
@@ -130,10 +159,13 @@ final componentDocs = [
   spinnerDoc,
   surfaceDoc,
   switchDoc,
+  tabBarDoc,
   tableDoc,
   tabsDoc,
+  textFieldDoc,
   textareaDoc,
   timePickerDoc,
+  timelineDoc,
   toastDoc,
   toggleDoc,
   toggleGroupDoc,

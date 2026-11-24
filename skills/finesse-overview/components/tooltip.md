@@ -5,8 +5,8 @@ A popup that displays information related to an element on hover or focus.
 ## Basic
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class TooltipBasicExample extends StatelessWidget {
   const TooltipBasicExample({super.key});
@@ -29,8 +29,8 @@ class TooltipBasicExample extends StatelessWidget {
 An anchor places the tooltip on any side of its trigger; the arrow direction follows it.
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class TooltipSidesExample extends StatelessWidget {
   const TooltipSidesExample({super.key});
@@ -102,8 +102,8 @@ class _SideTooltip extends StatelessWidget {
 ## With icon
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class TooltipIconExample extends StatelessWidget {
   const TooltipIconExample({super.key});
@@ -126,8 +126,8 @@ class TooltipIconExample extends StatelessWidget {
 Long content wraps at the tooltip’s max width.
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class TooltipLongContentExample extends StatelessWidget {
   const TooltipLongContentExample({super.key});
@@ -154,8 +154,8 @@ class TooltipLongContentExample extends StatelessWidget {
 A disabled control absorbs pointer events, so a gesture wrapper reports the hover on its behalf.
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class TooltipDisabledExample extends StatelessWidget {
   const TooltipDisabledExample({super.key});
@@ -182,8 +182,8 @@ class TooltipDisabledExample extends StatelessWidget {
 ## With keyboard shortcut
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class TooltipKeyboardExample extends StatelessWidget {
   const TooltipKeyboardExample({super.key});
@@ -211,8 +211,8 @@ class TooltipKeyboardExample extends StatelessWidget {
 ## On link
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class TooltipLinkExample extends StatelessWidget {
   const TooltipLinkExample({super.key});
@@ -233,8 +233,8 @@ class TooltipLinkExample extends StatelessWidget {
 ## Formatted content
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class TooltipFormattedExample extends StatelessWidget {
   const TooltipFormattedExample({super.key});

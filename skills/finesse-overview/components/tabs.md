@@ -5,8 +5,8 @@ A set of layered sections of content displayed one at a time.
 ## Default
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class TabsBasicExample extends StatelessWidget {
   const TabsBasicExample({super.key});
@@ -84,8 +84,8 @@ class TabsBasicExample extends StatelessWidget {
 With no content, only the list renders: a segmented control.
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 /// Tabs with no content render only their list: a segmented control that
 /// switches something elsewhere on the page.

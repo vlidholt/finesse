@@ -5,8 +5,8 @@ A modal window overlaid on the page, rendering the content underneath inert.
 ## With a form
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 const _profile = [
   (title: 'Name', value: 'Alexandru'),
@@ -72,8 +72,8 @@ class DialogFormExample extends StatelessWidget {
 Interrupts the user with an important question and explicit actions.
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class DialogAlertExample extends StatelessWidget {
   const DialogAlertExample({super.key});

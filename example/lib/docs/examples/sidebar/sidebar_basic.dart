@@ -71,7 +71,7 @@ class _SidebarBasicExampleState extends State<SidebarBasicExample> {
               trailing: const Icon(PhosphorIconsRegular.caretUpDown),
               tooltip: 'Account',
               onPressed: () {},
-              child: const Text('shadcn'),
+              child: const Text('Noor Haddad'),
             ),
             children: [
               SidebarGroup(

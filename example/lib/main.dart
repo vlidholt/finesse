@@ -71,12 +71,16 @@ class _AppState extends State<App> {
   late ThemeData _darkTheme;
 
   void _buildThemes(ThemeEditorConfig config) {
-    if (config == _builtFrom) return;
-    _builtFrom = config;
-    _theme = config
+    // The text scale is applied through `MediaQuery` below, not through the
+    // theme; leaving it out of the key keeps a drag of that slider from
+    // building two themes per tick.
+    final key = config.copyWith(textScale: 1);
+    if (key == _builtFrom) return;
+    _builtFrom = key;
+    _theme = key
         .copyWith(brightness: Brightness.light)
         .build(customTextStyles: appCustomTextStyles(Brightness.light));
-    _darkTheme = config
+    _darkTheme = key
         .copyWith(brightness: Brightness.dark)
         .build(customTextStyles: appCustomTextStyles(Brightness.dark));
   }
@@ -103,18 +107,19 @@ class _AppState extends State<App> {
               // docked editor takes a slice of it, so pick from the width
               // the page is left with: docking the panel beside a
               // medium-width window shows the phone layout it has room for.
-              final pageWidth = AppShell.pageWidth(
-                constraints.maxWidth,
-                editorOpen: editorOpen,
-              );
+              // The editor can also pin one; `AppShell` then gives that
+              // layout a box it fits in.
               return FinesseApp(
                 debugShowCheckedModeBanner: false,
                 themeMode: themeMode,
                 theme: theme,
                 darkTheme: darkTheme,
-                formFactor: pageWidth < theme.breakpoints.md.value
-                    ? FormFactor.mobile
-                    : FormFactor.desktop,
+                formFactor: AppShell.formFactorFor(
+                  constraints.maxWidth,
+                  editorOpen: editorOpen,
+                  mode: config.formFactor,
+                  breakpoint: theme.breakpoints.md.value,
+                ),
                 home: const AppShell(),
                 builder: (context, child) {
                   // The docs and the theme editor use a few Material widgets

@@ -5,8 +5,8 @@ Resizable panel groups and layouts, with nesting and drag handles.
 ## Default
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class ResizableBasicExample extends StatelessWidget {
   const ResizableBasicExample({super.key});

@@ -5,8 +5,8 @@ A two-state button that can be either on or off.
 ## Default
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class ToggleBasicExample extends StatefulWidget {
   const ToggleBasicExample({super.key});
@@ -48,8 +48,8 @@ class _ToggleBasicExampleState extends State<ToggleBasicExample> {
 A bordered toggle with a subtle shadow.
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class ToggleOutlineExample extends StatefulWidget {
   const ToggleOutlineExample({super.key});

@@ -1,8 +1,8 @@
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
-class ProgressBasicExample extends StatelessWidget {
-  const ProgressBasicExample({super.key});
+class ProgressBarBasicExample extends StatelessWidget {
+  const ProgressBarBasicExample({super.key});
 
   @override
   Widget build(BuildContext context) {

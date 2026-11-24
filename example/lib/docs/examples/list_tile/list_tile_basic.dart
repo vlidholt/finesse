@@ -1,0 +1,52 @@
+import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
+
+/// People to follow: an avatar, a name, a quieter second line and a trailing
+/// action. Long text truncates instead of pushing the button out.
+class ListTileBasicExample extends StatelessWidget {
+  const ListTileBasicExample({super.key});
+
+  static const _people = [
+    (
+      'assets/strand/avatar_omar_rahimi.jpg',
+      'Omar Rahimi',
+      'Design lead at Birchline',
+    ),
+    (
+      'assets/strand/avatar_mei_tanaka.jpg',
+      'Mei Tanaka',
+      'Staff researcher at Lumen Labs',
+    ),
+    (
+      'assets/strand/avatar_claire_dubois.jpg',
+      'Claire Dubois',
+      'Founder of the Accessibility Collective',
+    ),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 420),
+      child: Card(
+        padding: const EdgeInsets.all(8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final (photo, name, role) in _people)
+              ListTile(
+                leading: Avatar(photo, fallback: Text(name[0])),
+                title: Text(name),
+                subtitle: Text(role),
+                trailing: Button.outline(
+                  size: ButtonSize.sm,
+                  onPressed: () {},
+                  child: const Text('Follow'),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}

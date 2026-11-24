@@ -129,7 +129,8 @@ void main() {
       }
     });
 
-    testWidgets('spans the width and is the theme height', (tester) async {
+    testWidgets('spans the width and is the theme height plus its '
+        'hairline', (tester) async {
       for (final formFactor in FormFactor.values) {
         await pumpFinesse(
           tester,
@@ -138,7 +139,12 @@ void main() {
         );
         final size = tester.getSize(find.byType(AppBar));
         expect(size.width, kSurfaceSizes[formFactor]!.width);
-        expect(size.height, formFactor == FormFactor.mobile ? 60 : 64);
+        final themed = themeOf(
+          tester,
+          find.byType(AppBar),
+        ).appBarTheme.height!;
+        expect(themed, formFactor == FormFactor.mobile ? 60 : 64);
+        expect(size.height, themed + 1);
       }
     });
 
@@ -158,13 +164,14 @@ void main() {
         ),
       );
       final bar = tester.getRect(find.byType(AppBar));
-      expect(bar.height, 64 + 44);
+      // Status bar, the bar's own 64, and the hairline under it.
+      expect(bar.height, 44 + 64 + 1);
       expect(reported, bar.height);
-      // The content is centred in the 64 below the status bar (less the
-      // hairline).
+      // The content has the whole 64 below the status bar: the hairline is
+      // added under it, not taken out of it.
       final logoRect = tester.getRect(find.byKey(const Key('logo')));
       expect(logoRect.top, greaterThanOrEqualTo(44));
-      expect(logoRect.center.dy, closeTo(44 + 63 / 2, .5));
+      expect(logoRect.center.dy, closeTo(44 + 64 / 2, .01));
     });
 
     testWidgets('primary: false ignores the status bar', (tester) async {
@@ -181,14 +188,24 @@ void main() {
           statusBar: 44,
         ),
       );
-      expect(tester.getSize(find.byType(AppBar)).height, 64);
-      expect(reported, 64);
+      expect(tester.getSize(find.byType(AppBar)).height, 65);
+      expect(reported, 65);
     });
 
     testWidgets('height overrides the theme', (tester) async {
       await pumpFinesse(
         tester,
         top(const AppBar(height: 80, title: Text('Jobs')), statusBar: 20),
+      );
+      // 80 for the content, 20 of status bar, 1 of hairline.
+      expect(tester.getSize(find.byType(AppBar)).height, 101);
+
+      await pumpFinesse(
+        tester,
+        top(
+          const AppBar(height: 80, showBorder: false, title: Text('Jobs')),
+          statusBar: 20,
+        ),
       );
       expect(tester.getSize(find.byType(AppBar)).height, 100);
     });
@@ -331,7 +348,7 @@ void main() {
     testWidgets('an empty bar builds', (tester) async {
       await pumpFinesse(tester, top(const AppBar()));
       expect(tester.takeException(), isNull);
-      expect(tester.getSize(find.byType(AppBar)).height, 64);
+      expect(tester.getSize(find.byType(AppBar)).height, 65);
     });
 
     testWidgets('on a very wide window the content is capped and centred', (
@@ -402,17 +419,65 @@ void main() {
       }
     });
 
-    testWidgets('the hairline is inside the height, not added to it', (
+    testWidgets('the hairline is added to the height, not taken out of it', (
       tester,
     ) async {
-      await pumpFinesse(tester, top(const AppBar(title: Text('Jobs'))));
-      final withBorder = tester.getSize(find.byType(AppBar));
+      const content = SizedBox.expand(key: Key('content'));
       await pumpFinesse(
         tester,
-        top(const AppBar(showBorder: false, title: Text('Jobs'))),
+        top(const AppBar(padding: EdgeInsets.zero, title: content)),
+      );
+      // A 64-point bar is 65 tall with its hairline…
+      expect(tester.getSize(find.byType(AppBar)).height, 65);
+      // …and its content still gets all 64.
+      expect(tester.getSize(find.byKey(const Key('content'))).height, 64);
+
+      await pumpFinesse(
+        tester,
+        top(
+          const AppBar(
+            showBorder: false,
+            padding: EdgeInsets.zero,
+            title: content,
+          ),
+        ),
       );
       expect(decorationOf(tester).border, isNull);
-      expect(tester.getSize(find.byType(AppBar)), withBorder);
+      expect(tester.getSize(find.byType(AppBar)).height, 64);
+      expect(tester.getSize(find.byKey(const Key('content'))).height, 64);
+    });
+
+    testWidgets('heightOf is the theme height, the hairline and — for a '
+        'primary bar — the status bar, on both form factors', (tester) async {
+      for (final formFactor in FormFactor.values) {
+        late double primary;
+        late double secondary;
+        await pumpFinesse(
+          tester,
+          top(
+            Builder(
+              builder: (context) {
+                primary = AppBar.heightOf(context);
+                secondary = AppBar.heightOf(context, primary: false);
+                return const AppBar(title: Text('Jobs'));
+              },
+            ),
+            statusBar: 30,
+          ),
+          formFactor: formFactor,
+        );
+        final themed = themeOf(
+          tester,
+          find.byType(AppBar),
+        ).appBarTheme.height!;
+        expect(secondary, themed + 1, reason: formFactor.name);
+        expect(primary, themed + 1 + 30, reason: formFactor.name);
+        expect(
+          tester.getSize(find.byType(AppBar)).height,
+          primary,
+          reason: formFactor.name,
+        );
+      }
     });
 
     testWidgets('backgroundColor overrides the fill', (tester) async {
@@ -501,7 +566,7 @@ void main() {
           ),
         ),
       );
-      expect(tester.getSize(find.byType(AppBar)).height, 52);
+      expect(tester.getSize(find.byType(AppBar)).height, 52 + 1);
       expect(decorationOf(tester).color, fill);
       expect(
         DefaultTextStyle.of(tester.element(find.text('Jobs'))).style.color,
@@ -551,6 +616,17 @@ void main() {
             .first,
       );
       expect(semantics.container, isTrue);
+      // A bar is chrome, not a heading: announcing it as a header made every
+      // title in it one.
+      expect(semantics.properties.header, isNull);
+      expect(
+        tester
+            .getSemantics(find.text('Messages'))
+            .getSemanticsData()
+            .flagsCollection
+            .isHeader,
+        isFalse,
+      );
       expect(
         tester
             .getSemantics(find.text('Messages'))

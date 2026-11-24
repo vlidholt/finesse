@@ -177,6 +177,199 @@ void main() {
       expect(tester.getSize(bubbleBox()).width, lessThanOrEqualTo(200));
     });
 
+    testWidgets('maxWidth caps the bubble in logical pixels, in place of the '
+        "theme's share of the width", (tester) async {
+      const message = Text(
+        'A long message that has to wrap on to several lines because '
+        'it is far wider than the bubble is allowed to grow',
+      );
+      // Narrower than the theme's 78% of 400…
+      await pumpFinesse(
+        tester,
+        conversation(const [ChatBubble(maxWidth: 180, child: message)]),
+      );
+      expect(tester.takeException(), isNull);
+      final narrow = tester.getSize(bubbleBox());
+      expect(narrow.width, lessThanOrEqualTo(180));
+      expect(narrow.width, greaterThan(120));
+
+      // …and wider than it.
+      await pumpFinesse(
+        tester,
+        conversation(const [ChatBubble(maxWidth: 380, child: message)]),
+      );
+      final wide = tester.getSize(bubbleBox());
+      expect(wide.width, greaterThan(312));
+      expect(wide.width, lessThanOrEqualTo(380));
+      expect(wide.height, lessThan(narrow.height));
+
+      // It wins over a theme override too.
+      await pumpFinesse(
+        tester,
+        conversation(const [ChatBubble(maxWidth: 380, child: message)]),
+        theme: ThemeData(
+          chatBubbleTheme: const ChatBubbleTheme(maxWidthFactor: .3),
+        ),
+      );
+      expect(tester.getSize(bubbleBox()).width, greaterThan(312));
+    });
+
+    testWidgets('maxWidth is a cap, not a width', (tester) async {
+      // A short message still hugs its text…
+      await pumpFinesse(
+        tester,
+        conversation(const [ChatBubble(maxWidth: 300, child: Text('Hi'))]),
+      );
+      expect(
+        tester.getSize(bubbleBox()).width,
+        tester.getSize(find.text('Hi')).width + 28,
+      );
+
+      // …and a cap wider than the conversation cannot push the bubble out
+      // of it.
+      await pumpFinesse(
+        tester,
+        conversation(const [
+          ChatBubble(
+            maxWidth: 1000,
+            child: Text(
+              'A long message that has to wrap on to several lines because '
+              'it is far wider than the bubble is allowed to grow',
+            ),
+          ),
+        ]),
+      );
+      expect(tester.takeException(), isNull);
+      expect(tester.getSize(bubbleBox()).width, lessThanOrEqualTo(400));
+      expect(tester.getSize(bubbleBox()).width, greaterThan(312));
+    });
+
+    testWidgets('lays out with unbounded width: the bubble is as wide as its '
+        'message', (tester) async {
+      for (final direction in ChatBubbleDirection.values) {
+        await pumpFinesse(
+          tester,
+          Align(
+            alignment: Alignment.topLeft,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: ChatBubble(
+                direction: direction,
+                child: const SizedBox(width: 500, height: 30),
+              ),
+            ),
+          ),
+        );
+        expect(tester.takeException(), isNull, reason: direction.name);
+        // No share of an infinite width to take: the content sets it.
+        expect(tester.getSize(bubbleBox()), const Size(528, 50));
+        expect(tester.getSize(find.byType(ChatBubble)), const Size(528, 50));
+      }
+    });
+
+    testWidgets('maxWidth still caps a bubble laid out with unbounded width', (
+      tester,
+    ) async {
+      await pumpFinesse(
+        tester,
+        const Align(
+          alignment: Alignment.topLeft,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: ChatBubble(
+              maxWidth: 200,
+              child: Text(
+                'A long message that has to wrap on to several lines because '
+                'it is far wider than the bubble is allowed to grow',
+              ),
+            ),
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      final box = tester.getSize(bubbleBox());
+      expect(box.width, lessThanOrEqualTo(200));
+      expect(box.height, greaterThan(22 * 2));
+    });
+
+    testWidgets('hugs its message in a parent of fixed height', (tester) async {
+      for (final direction in ChatBubbleDirection.values) {
+        await pumpFinesse(
+          tester,
+          Align(
+            alignment: Alignment.topCenter,
+            child: SizedBox(
+              width: 400,
+              height: 300,
+              child: ChatBubble(direction: direction, child: const Text('Hi')),
+            ),
+          ),
+        );
+        final text = tester.getSize(find.text('Hi'));
+        final box = tester.getRect(bubbleBox());
+        // The fill is the message plus its padding, not a 300-tall slab.
+        expect(box.height, text.height + 20, reason: direction.name);
+        expect(box.width, text.width + 28, reason: direction.name);
+        // It keeps its side.
+        final parent = tester.getRect(find.byType(ChatBubble));
+        expect(
+          direction == ChatBubbleDirection.outgoing ? box.right : box.left,
+          direction == ChatBubbleDirection.outgoing
+              ? parent.right
+              : parent.left,
+        );
+      }
+    });
+
+    testWidgets('hugs its message in a row that stretches its children', (
+      tester,
+    ) async {
+      await pumpFinesse(
+        tester,
+        const Align(
+          alignment: Alignment.topCenter,
+          child: SizedBox(
+            width: 400,
+            height: 120,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SizedBox(width: 40),
+                Expanded(child: ChatBubble(child: Text('Hi'))),
+              ],
+            ),
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      expect(
+        tester.getSize(bubbleBox()).height,
+        tester.getSize(find.text('Hi')).height + 20,
+      );
+    });
+
+    testWidgets('in a column it is exactly as tall as its box', (tester) async {
+      await pumpFinesse(
+        tester,
+        conversation(const [
+          ChatBubble(child: Text('Hi')),
+          ChatBubble(
+            direction: ChatBubbleDirection.outgoing,
+            child: Text('Hello'),
+          ),
+        ]),
+      );
+      for (final bubble in find.byType(ChatBubble).evaluate()) {
+        final box = find.descendant(
+          of: find.byWidget(bubble.widget),
+          matching: find.byType(Container),
+        );
+        expect(bubble.size!.height, tester.getSize(box).height);
+        // And spans the conversation, so it can align itself to a side.
+        expect(bubble.size!.width, 400);
+      }
+    });
+
     testWidgets('padding can be set per bubble', (tester) async {
       await pumpFinesse(
         tester,
@@ -542,6 +735,34 @@ void main() {
       final handle = tester.ensureSemantics();
       await pumpFinesse(tester, const Center(child: TypingIndicator()));
       expect(find.bySemanticsLabel('Typing'), findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets('semanticLabel replaces what is announced', (tester) async {
+      final handle = tester.ensureSemantics();
+      await pumpFinesse(
+        tester,
+        const Center(child: TypingIndicator(semanticLabel: 'Omar is typing')),
+      );
+      expect(find.bySemanticsLabel('Omar is typing'), findsOneWidget);
+      expect(find.bySemanticsLabel('Typing'), findsNothing);
+      expect(const TypingIndicator().semanticLabel, 'Typing');
+      // The label is still there half a cycle later: it is not rebuilt
+      // away by the animation.
+      await tester.pump(const Duration(milliseconds: 600));
+      expect(find.bySemanticsLabel('Omar is typing'), findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets('the label is read for the bubble it sits in', (tester) async {
+      final handle = tester.ensureSemantics();
+      await pumpFinesse(
+        tester,
+        conversation(const [
+          ChatBubble(child: TypingIndicator(semanticLabel: 'Omar is typing')),
+        ]),
+      );
+      expect(find.bySemanticsLabel('Omar is typing'), findsOneWidget);
       handle.dispose();
     });
 

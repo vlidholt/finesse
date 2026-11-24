@@ -7,8 +7,8 @@ An image element with a fallback for representing the user.
 The placeholder shows while the image loads, or when it fails.
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class AvatarDefaultExample extends StatelessWidget {
   const AvatarDefaultExample({super.key});

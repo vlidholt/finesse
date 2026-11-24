@@ -1,14 +1,14 @@
 # Pagination
 
-Page navigation with previous and next links. [Pagination] shows a windowed run of page numbers; [PaginationCompact] fits toolbars and table footers.
+Page navigation with previous and next links. `Pagination` shows a windowed run of page numbers; `PaginationCompact` fits toolbars, table footers and phones.
 
 ## Default
 
 Previous and next labels with a windowed run of page numbers. An ellipsis marks pages that were skipped.
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class PaginationBasicExample extends StatefulWidget {
   const PaginationBasicExample({super.key});
@@ -22,10 +22,16 @@ class _PaginationBasicExampleState extends State<PaginationBasicExample> {
 
   @override
   Widget build(BuildContext context) {
-    return Pagination(
-      page: page,
-      pageCount: 20,
-      onPageChanged: (value) => setState(() => page = value),
+    // The full run is wider than a phone, where controls are 44 points
+    // across; there it scrolls. `PaginationCompact` is the form made for
+    // narrow screens.
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Pagination(
+        page: page,
+        pageCount: 20,
+        onPageChanged: (value) => setState(() => page = value),
+      ),
     );
   }
 }
@@ -36,8 +42,8 @@ class _PaginationBasicExampleState extends State<PaginationBasicExample> {
 Page numbers only — set `showEdges: false` when every page fits without an ellipsis.
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class PaginationSimpleExample extends StatefulWidget {
   const PaginationSimpleExample({super.key});
@@ -67,8 +73,8 @@ class _PaginationSimpleExampleState extends State<PaginationSimpleExample> {
 Previous and next icon buttons with a `Page n / m` counter, useful beneath a data table.
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class PaginationCompactExample extends StatefulWidget {
   const PaginationCompactExample({super.key});
@@ -97,8 +103,8 @@ class _PaginationCompactExampleState extends State<PaginationCompactExample> {
 Drop the counter with `labelBuilder` when space is tight, for example beside a rows-per-page control.
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class PaginationIconsOnlyExample extends StatefulWidget {
   const PaginationIconsOnlyExample({super.key});

@@ -5,8 +5,8 @@ An input where the user selects a value from within a given range.
 ## Default
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class SliderBasicExample extends StatelessWidget {
   const SliderBasicExample({super.key});
@@ -29,8 +29,8 @@ class SliderBasicExample extends StatelessWidget {
 RangeSlider takes one value per thumb. The values stay in ascending order — a thumb stops where its neighbour is rather than crossing it.
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class SliderRangeExample extends StatefulWidget {
   const SliderRangeExample({super.key});
@@ -75,8 +75,8 @@ class _SliderRangeExampleState extends State<SliderRangeExample> {
 With divisions the slider snaps; set showDivisionMarks to false to snap without drawing the ticks.
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class SliderStepsExample extends StatelessWidget {
   const SliderStepsExample({super.key});

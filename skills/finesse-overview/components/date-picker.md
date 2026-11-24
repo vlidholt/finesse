@@ -5,8 +5,8 @@ A date picker with the calendar in a popover.
 ## Single
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class DatePickerSingleExample extends StatelessWidget {
   const DatePickerSingleExample({super.key});
@@ -21,8 +21,8 @@ class DatePickerSingleExample extends StatelessWidget {
 ## Range
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class DatePickerRangeExample extends StatelessWidget {
   const DatePickerRangeExample({super.key});

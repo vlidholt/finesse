@@ -1,8 +1,8 @@
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
-class InputOtpBasicExample extends StatelessWidget {
-  const InputOtpBasicExample({super.key});
+class OtpFieldBasicExample extends StatelessWidget {
+  const OtpFieldBasicExample({super.key});
 
   @override
   Widget build(BuildContext context) {

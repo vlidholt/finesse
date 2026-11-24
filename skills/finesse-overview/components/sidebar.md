@@ -7,8 +7,8 @@ A composable, collapsible side navigation panel. Collapses to an icon rail or of
 With collapsible: icon the sidebar shrinks to a rail of icons. Menu buttons show their label as a tooltip, and with rail: true the inner edge becomes a grab rail — click it to toggle. This docs app itself runs on SidebarScaffold.
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class SidebarBasicExample extends StatefulWidget {
   const SidebarBasicExample({super.key});
@@ -80,7 +80,7 @@ class _SidebarBasicExampleState extends State<SidebarBasicExample> {
               trailing: const Icon(PhosphorIconsRegular.caretUpDown),
               tooltip: 'Account',
               onPressed: () {},
-              child: const Text('shadcn'),
+              child: const Text('Noor Haddad'),
             ),
             children: [
               SidebarGroup(
@@ -136,8 +136,8 @@ class _SidebarBasicExampleState extends State<SidebarBasicExample> {
 ## Floating, with sub-menus
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class SidebarSubmenuExample extends StatefulWidget {
   const SidebarSubmenuExample({super.key});

@@ -5,8 +5,8 @@ A succinct message that is displayed temporarily.
 ## Default
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class ToastBasicExample extends StatelessWidget {
   const ToastBasicExample({super.key});
@@ -36,8 +36,8 @@ class ToastBasicExample extends StatelessWidget {
 ## Destructive
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class ToastDestructiveExample extends StatelessWidget {
   const ToastDestructiveExample({super.key});

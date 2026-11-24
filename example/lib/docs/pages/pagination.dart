@@ -9,8 +9,8 @@ final paginationDoc = ComponentDoc(
   title: 'Pagination',
   description:
       'Page navigation with previous and next links. '
-      '[Pagination] shows a windowed run of page numbers; '
-      '[PaginationCompact] fits toolbars and table footers.',
+      '`Pagination` shows a windowed run of page numbers; '
+      '`PaginationCompact` fits toolbars, table footers and phones.',
   examples: [
     ComponentExample(
       id: 'pagination_basic',

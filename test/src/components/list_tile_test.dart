@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../finesse_harness.dart';
+import '../../fixture_styles.dart';
 
 void main() {
   TextStyle styleOf(WidgetTester tester, String text) =>
@@ -66,10 +67,24 @@ void main() {
     });
 
     test('a style without those roles falls back to label and body', () {
-      final tile = ThemeData(style: StyleTokens.nova).listTileTheme;
+      // vega names neither `subtitle` nor `small`.
+      expect(FixtureStyles.vega.subtitle, isNull);
+      expect(FixtureStyles.vega.small, isNull);
+      final tile = ThemeData(style: FixtureStyles.vega).listTileTheme;
       expect(tile.titleStyle!.fontSize, 14);
       expect(tile.titleStyle!.fontWeight, FontWeight.w500);
       expect(tile.subtitleStyle!.fontSize, 14);
+    });
+
+    test("the shadcn styles' own subtitle and small roles reach it too", () {
+      final nova = ThemeData(style: StyleTokens.nova).listTileTheme;
+      expect(nova.titleStyle!.fontSize, 14);
+      expect(nova.titleStyle!.fontWeight, FontWeight.w600);
+      expect(nova.subtitleStyle!.fontSize, 13);
+      final lyra = ThemeData(style: StyleTokens.lyra).listTileTheme;
+      expect(lyra.titleStyle!.fontSize, 13);
+      expect(lyra.titleStyle!.fontWeight, FontWeight.w600);
+      expect(lyra.subtitleStyle!.fontSize, 12);
     });
   });
 
@@ -426,6 +441,138 @@ void main() {
       expect(node.hasFocus, isFalse);
     });
 
+    testWidgets('a selected tile with no onTap is highlighted, and still not '
+        'a control', (tester) async {
+      final node = FocusNode();
+      addTearDown(node.dispose);
+      for (final brightness in Brightness.values) {
+        await pumpFinesse(
+          tester,
+          tile(selected: true, focusNode: node),
+          theme: ThemeData(brightness: brightness),
+        );
+        final theme = themeOf(tester, find.byType(ListTile));
+
+        // The accent fill, on the tile's own radius…
+        final fill = tester.widget<DecoratedBox>(
+          find.descendant(
+            of: find.byType(ListTile),
+            matching: find.byType(DecoratedBox),
+          ),
+        );
+        final decoration = fill.decoration as BoxDecoration;
+        expect(
+          decoration.color,
+          theme.colorScheme.accent,
+          reason: '$brightness',
+        );
+        expect(decoration.color, theme.listTileTheme.selectedColor);
+        expect(decoration.borderRadius, theme.listTileTheme.radius);
+        expect(
+          tester.getRect(find.byWidget(fill)),
+          tester.getRect(find.byType(ListTile)),
+        );
+
+        // …and none of a button's machinery.
+        for (final type in [Pressable, FocusRing, AnimatedContainer]) {
+          expect(
+            find.descendant(
+              of: find.byType(ListTile),
+              matching: find.byType(type),
+            ),
+            findsNothing,
+            reason: '$type',
+          );
+        }
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        expect(node.hasFocus, isFalse);
+      }
+    });
+
+    testWidgets('an inert selected tile does not react to the pointer', (
+      tester,
+    ) async {
+      await pumpFinesse(tester, tile(selected: true));
+      Color fill() =>
+          (tester
+                      .widget<DecoratedBox>(
+                        find.descendant(
+                          of: find.byType(ListTile),
+                          matching: find.byType(DecoratedBox),
+                        ),
+                      )
+                      .decoration
+                  as BoxDecoration)
+              .color!;
+      final before = fill();
+      await hoverAt(tester, tester.getCenter(find.byType(ListTile)));
+      await settle(tester);
+      expect(fill(), before);
+      await tester.tap(find.byType(ListTile), warnIfMissed: false);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('an inert selected tile is laid out like any other', (
+      tester,
+    ) async {
+      await pumpFinesse(tester, tile());
+      final plain = tester.getRect(find.byType(ListTile));
+      final title = tester.getRect(find.text('Title'));
+
+      await pumpFinesse(tester, tile(selected: true));
+      expect(tester.getRect(find.byType(ListTile)), plain);
+      expect(tester.getRect(find.text('Title')), title);
+
+      await pumpFinesse(tester, tile(selected: true, onTap: () {}));
+      expect(tester.getRect(find.byType(ListTile)), plain);
+    });
+
+    testWidgets("an inert selected tile takes the theme's selected colour "
+        'and the radius it is given', (tester) async {
+      const colour = Color(0xff224466);
+      const radius = BorderRadius.all(Radius.circular(3));
+      await pumpFinesse(
+        tester,
+        const Center(
+          child: SizedBox(
+            width: 320,
+            child: ListTile(
+              title: Text('Title'),
+              selected: true,
+              borderRadius: radius,
+            ),
+          ),
+        ),
+        theme: ThemeData(
+          listTileTheme: const ListTileTheme(selectedColor: colour),
+        ),
+      );
+      final decoration =
+          tester
+                  .widget<DecoratedBox>(
+                    find.descendant(
+                      of: find.byType(ListTile),
+                      matching: find.byType(DecoratedBox),
+                    ),
+                  )
+                  .decoration
+              as BoxDecoration;
+      expect(decoration.color, colour);
+      expect(decoration.borderRadius, radius);
+    });
+
+    testWidgets('an inert unselected tile paints no fill', (tester) async {
+      await pumpFinesse(tester, tile());
+      expect(
+        find.descendant(
+          of: find.byType(ListTile),
+          matching: find.byType(DecoratedBox),
+        ),
+        findsNothing,
+      );
+    });
+
     testWidgets('hover highlights an interactive row in the muted colour', (
       tester,
     ) async {
@@ -539,11 +686,41 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('an unselected interactive row is a plain button: no '
+        'selected state', (tester) async {
+      final handle = tester.ensureSemantics();
+      await pumpFinesse(tester, tile(onTap: () {}));
+      expect(
+        tester
+            .getSemantics(find.byType(Pressable))
+            .getSemanticsData()
+            .flagsCollection
+            .isSelected,
+        ui.Tristate.none,
+      );
+      handle.dispose();
+    });
+
+    testWidgets('an inert selected row is announced as selected, and not as '
+        'a button', (tester) async {
+      final handle = tester.ensureSemantics();
+      await pumpFinesse(tester, tile(selected: true, trailing: null));
+      final data = tester.getSemantics(find.text('Title')).getSemanticsData();
+      expect(data.label, 'Title\nSub');
+      expect(data.flagsCollection.isSelected, ui.Tristate.isTrue);
+      expect(data.flagsCollection.isButton, isFalse);
+      expect(data.flagsCollection.isEnabled, ui.Tristate.none);
+      expect(data.hasAction(ui.SemanticsAction.focus), isFalse);
+      expect(data.hasAction(ui.SemanticsAction.tap), isFalse);
+      handle.dispose();
+    });
+
     testWidgets('an inert row is plain text', (tester) async {
       final handle = tester.ensureSemantics();
       await pumpFinesse(tester, tile());
       final data = tester.getSemantics(find.text('Title')).getSemanticsData();
       expect(data.flagsCollection.isButton, isFalse);
+      expect(data.flagsCollection.isSelected, ui.Tristate.none);
       expect(data.hasAction(ui.SemanticsAction.tap), isFalse);
       handle.dispose();
     });

@@ -5,8 +5,8 @@ A control that allows the user to toggle between checked and not checked.
 ## With label
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class CheckboxBasicExample extends StatefulWidget {
   const CheckboxBasicExample({super.key});
@@ -35,8 +35,8 @@ class _CheckboxBasicExampleState extends State<CheckboxBasicExample> {
 ## Disabled
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class CheckboxDisabledExample extends StatelessWidget {
   const CheckboxDisabledExample({super.key});

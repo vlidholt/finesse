@@ -48,7 +48,8 @@ class TabBar extends StatelessWidget {
   /// Whether the tabs share the available width equally.
   final bool expand;
 
-  /// The bar's height. Defaults to the style's underline tab height.
+  /// The tabs' height, not counting the hairline under them. Defaults to
+  /// the style's underline tab height.
   final double? height;
 
   /// Horizontal padding around each label when the tabs do not [expand].
@@ -114,10 +115,9 @@ class TabBar extends StatelessWidget {
                     Positioned(
                       left: 0,
                       right: 0,
-                      // Over the bar's own hairline, which a `DecoratedBox`
-                      // paints inside the bar's height rather than adding
-                      // to it — so the bottom edge is already the hairline.
-                      bottom: 0,
+                      // Over the bar's own hairline, which sits just below
+                      // the tabs.
+                      bottom: showBorder ? -1 : 0,
                       height: 2,
                       child: DecoratedBox(
                         decoration: BoxDecoration(
@@ -140,15 +140,24 @@ class TabBar extends StatelessWidget {
       children: [for (var i = 0; i < tabs.length; i++) tab(i)],
     );
     if (!expand) {
-      row = SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: row,
+      // Clipped at the sides, but one pixel taller than the tabs so the
+      // indicator can reach over the hairline.
+      row = ClipRect(
+        clipper: const _BelowByOneClipper(),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          clipBehavior: Clip.none,
+          child: row,
+        ),
       );
     }
     return Semantics(
       container: true,
       explicitChildNodes: true,
-      child: DecoratedBox(
+      // A `Container`, not a `DecoratedBox`: its border is laid out under
+      // the tabs, so the hairline adds to the bar's height as it does in CSS
+      // rather than eating into it.
+      child: Container(
         decoration: BoxDecoration(
           border: showBorder
               ? Border(bottom: BorderSide(color: scheme.border))
@@ -158,4 +167,14 @@ class TabBar extends StatelessWidget {
       ),
     );
   }
+}
+
+class _BelowByOneClipper extends CustomClipper<Rect> {
+  const _BelowByOneClipper();
+
+  @override
+  Rect getClip(Size size) => Rect.fromLTRB(0, 0, size.width, size.height + 1);
+
+  @override
+  bool shouldReclip(_BelowByOneClipper oldClipper) => false;
 }

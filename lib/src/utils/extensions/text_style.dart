@@ -31,41 +31,44 @@ extension TextStyleExtension on TextStyle {
     List<String>? fontFamilyFallback,
     TextOverflow? overflow,
   }) {
-    T? fallback<T>(T? currentValue, T? newValue) {
-      return currentValue == null && newValue != null ? newValue : currentValue;
-    }
+    // Only the values this style is missing are passed on, and through
+    // `copyWith` rather than a new `TextStyle`: a style that resolves its
+    // family per weight (`BuilderTextStyle`) has to stay one, and `inherit`
+    // has to survive.
+    T? missing<T>(T? currentValue, T? newValue) =>
+        currentValue == null ? newValue : null;
 
-    return TextStyle(
-      color: fallback(this.color, color),
-      backgroundColor: fallback(this.backgroundColor, backgroundColor),
-      fontSize: fallback(this.fontSize, fontSize),
-      fontWeight: fallback(this.fontWeight, fontWeight),
-      fontStyle: fallback(this.fontStyle, fontStyle),
-      letterSpacing: fallback(this.letterSpacing, letterSpacing),
-      wordSpacing: fallback(this.wordSpacing, wordSpacing),
-      textBaseline: fallback(this.textBaseline, textBaseline),
-      height: fallback(this.height, height),
-      leadingDistribution: fallback(
+    return copyWith(
+      color: missing(this.color, color),
+      backgroundColor: missing(this.backgroundColor, backgroundColor),
+      fontSize: missing(this.fontSize, fontSize),
+      fontWeight: missing(this.fontWeight, fontWeight),
+      fontStyle: missing(this.fontStyle, fontStyle),
+      letterSpacing: missing(this.letterSpacing, letterSpacing),
+      wordSpacing: missing(this.wordSpacing, wordSpacing),
+      textBaseline: missing(this.textBaseline, textBaseline),
+      height: missing(this.height, height),
+      leadingDistribution: missing(
         this.leadingDistribution,
         leadingDistribution,
       ),
-      locale: fallback(this.locale, locale),
-      foreground: fallback(this.foreground, foreground),
-      background: fallback(this.background, background),
-      shadows: fallback(this.shadows, shadows),
-      fontFeatures: fallback(this.fontFeatures, fontFeatures),
-      fontVariations: fallback(this.fontVariations, fontVariations),
-      decoration: fallback(this.decoration, decoration),
-      decorationColor: fallback(this.decorationColor, decorationColor),
-      decorationStyle: fallback(this.decorationStyle, decorationStyle),
-      decorationThickness: fallback(
+      locale: missing(this.locale, locale),
+      foreground: missing(this.foreground, foreground),
+      background: missing(this.background, background),
+      shadows: missing(this.shadows, shadows),
+      fontFeatures: missing(this.fontFeatures, fontFeatures),
+      fontVariations: missing(this.fontVariations, fontVariations),
+      decoration: missing(this.decoration, decoration),
+      decorationColor: missing(this.decorationColor, decorationColor),
+      decorationStyle: missing(this.decorationStyle, decorationStyle),
+      decorationThickness: missing(
         this.decorationThickness,
         decorationThickness,
       ),
-      debugLabel: fallback(this.debugLabel, debugLabel),
-      fontFamily: fallback(this.fontFamily, fontFamily),
-      fontFamilyFallback: fallback(this.fontFamilyFallback, fontFamilyFallback),
-      overflow: fallback(this.overflow, overflow),
+      debugLabel: missing(this.debugLabel, debugLabel),
+      fontFamily: missing(this.fontFamily, fontFamily),
+      fontFamilyFallback: missing(this.fontFamilyFallback, fontFamilyFallback),
+      overflow: missing(this.overflow, overflow),
     );
   }
 }

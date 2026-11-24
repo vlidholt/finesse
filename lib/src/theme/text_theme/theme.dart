@@ -180,7 +180,7 @@ class BuilderTextStyle extends TextStyle {
         fontStyle: effectiveStyle,
       ).fontFamily;
     }
-    return super.copyWith(
+    final copied = super.copyWith(
       inherit: inherit,
       color: color,
       backgroundColor: backgroundColor,
@@ -207,6 +207,18 @@ class BuilderTextStyle extends TextStyle {
       fontFamilyFallback: fontFamilyFallback,
       package: package,
       overflow: overflow,
+    );
+    // An explicit family opts the copy out of the builder. Otherwise the copy
+    // stays a `BuilderTextStyle`: a per-weight font keeps one family name
+    // per weight, so every later change of weight has to ask the builder
+    // again. Returning a plain `TextStyle` here meant only the *first* copy
+    // got the right face; `small.copyWith(...).copyWith(fontWeight: w400)`
+    // kept the medium file under a regular weight.
+    if (fontFamily != null) return copied;
+    return BuilderTextStyle(
+      copied,
+      builder: builder,
+      overrideFamilyWithBuilder: overrideFamilyWithBuilder,
     );
   }
 }
@@ -517,6 +529,39 @@ class TextTheme {
       family: other.family,
       googleFontBuilder: other.googleFontBuilder,
       custom: {...custom, ...other.custom},
+    )._boundToBuilder();
+  }
+
+  /// Makes every style a [BuilderTextStyle] when the theme has a font
+  /// builder.
+  ///
+  /// `TextStyle.merge` returns a plain `TextStyle` whenever the receiver is
+  /// one, so merging a builder-made theme into the default one — which is
+  /// what `ThemeData` does with every text theme it is given — dropped the
+  /// builder from each style. From then on a change of weight (a text role,
+  /// a `copyWith` in app code) kept the old weight's family, and a font that
+  /// ships one file per weight drew the wrong face: a 700 heading in the 800
+  /// file, 400 text in the 500 file.
+  TextTheme _boundToBuilder() {
+    final builder = googleFontBuilder;
+    if (builder == null) return this;
+    TextStyle bind(TextStyle style) => style is BuilderTextStyle
+        ? style
+        : BuilderTextStyle(style, builder: builder);
+    return copyWith(
+      h1Large: bind(h1Large),
+      h1: bind(h1),
+      h2: bind(h2),
+      h3: bind(h3),
+      h4: bind(h4),
+      p: bind(p),
+      blockquote: bind(blockquote),
+      table: bind(table),
+      list: bind(list),
+      lead: bind(lead),
+      large: bind(large),
+      small: bind(small),
+      muted: bind(muted),
     );
   }
 

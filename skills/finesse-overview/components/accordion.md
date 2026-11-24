@@ -7,8 +7,8 @@ A vertically stacked set of interactive headings that each reveal a section of c
 Opening a section closes the previous one.
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 const _items = [
   (
@@ -56,8 +56,8 @@ class AccordionSingleExample extends StatelessWidget {
 Sections open and close independently.
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 const _items = [
   (title: 'First section', content: 'Multiple sections can be open at once.'),

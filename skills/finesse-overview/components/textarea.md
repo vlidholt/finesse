@@ -5,8 +5,8 @@ A multi-line text input, optionally user-resizable.
 ## Default
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class TextareaBasicExample extends StatelessWidget {
   const TextareaBasicExample({super.key});

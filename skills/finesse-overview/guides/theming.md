@@ -13,11 +13,15 @@ theme.colorScheme.primary;   // the palette
 theme.textTheme.p;           // the type scale
 theme.radius;                // the base corner radius
 theme.style;                 // the active style preset
+theme.formFactor;            // FormFactor.desktop or FormFactor.mobile
+theme.layoutTheme;           // page margins and the gap scale
 ```
+
+Beyond shadcn's tokens, the color scheme has `tint` and `tintForeground` (the brand hue, for selected icons and outgoing chat bubbles), `foregroundSubtle`, `borderStrong`, `accentBorder`, `success`, `successMuted`, `warning` and `bar` (the solid color under app and navigation bars).
 
 ## Color schemes
 
-Sixteen schemes ship in light and dark: blue, gray, green, mauve, mist, neutral, olive, orange, red, rose, slate (the default), stone, taupe, violet, yellow, and zinc.
+Four base schemes ship in light and dark: `TealColorScheme` (the default), `NeutralColorScheme`, `ZincColorScheme` and `StoneColorScheme`. A base scheme supplies the whole palette: backgrounds, borders, muted tones and a primary. With no `colorScheme`, `ThemeData` uses teal in the theme's brightness.
 
 ```dart
 FinesseApp(
@@ -35,10 +39,29 @@ To let users pick a palette at runtime, resolve one by name with `ColorScheme.fr
 
 ```dart
 final scheme = ColorScheme.fromName(
-  'rose',
+  'stone', // teal, neutral, stone or zinc
   brightness: Brightness.dark,
 );
 ```
+
+## Accents
+
+An `AccentScheme` is an overlay: it replaces only the tokens that carry the hue (the primary pair, the focus ring, the selection, the chart ramp) and leaves the base palette alone. Seventeen ship, each in light and dark: amber, blue, cyan, emerald, fuchsia, green, indigo, lime, orange, pink, purple, red, rose, sky, teal, violet and yellow.
+
+```dart
+ThemeData(
+  colorScheme: const ZincColorScheme.light()
+      .applyAccentScheme(AccentScheme.violetLight),
+)
+
+// By name, for a picker:
+AccentScheme.fromName('violet', brightness: Brightness.dark);
+
+// Or any one color, with a readable foreground derived for it:
+const NeutralColorScheme.light().applyAccent(const Color(0xFF3B82F6));
+```
+
+There is no `BlueColorScheme`, `RoseColorScheme` or `SlateColorScheme`: a colored theme is a base scheme plus an accent.
 
 ## Customizing a scheme
 
@@ -46,7 +69,7 @@ A scheme is a value. Override individual slots where you construct it, and carry
 
 ```dart
 ThemeData(
-  colorScheme: const SlateColorScheme.light(
+  colorScheme: const TealColorScheme.light(
     primary: Color(0xFF16A34A),
     custom: {
       'highlight': Color(0xFFFACC15),
@@ -80,21 +103,21 @@ ThemeData(
 
 ## Radius
 
-The theme carries one base radius, the `md` step of the scale. Everything else derives from it: at the default 8 the scale runs sm 6, md 8, lg 10, xl 14, 2xl 16, 3xl 24, 4xl 32, and each component picks the step its style prescribes.
+The theme carries one base radius, the `md` step of the scale. Everything else derives from it through the style: in the default style the base is 10 and the scale runs sm 6, md 10, lg 12, xl 16, 2xl 18, 3xl 20, 4xl 24 (the shadcn styles use a base of 8 and Tailwind's factors). Each component picks the step its style prescribes. Read the scale with `Theme.of(context).radii` (`radii.lg`, `radii.xl2`, `radii.full`).
 
 ```dart
 ThemeData(
-  radius: const BorderRadius.all(Radius.circular(10)),
+  radius: const BorderRadius.all(Radius.circular(14)),
 )
 ```
 
 ## Menu appearance
 
-The shadcn theme editor's menu options are theme settings here too. `menuColorScheme` renders menu surfaces on another palette (pass the dark counterpart for the "Inverted" look), `menuTranslucent` gives them the blurred 70% finish, and `menuAccent` picks how strongly rows highlight.
+How menus look is a theme setting. `menuColorScheme` renders menu surfaces on another palette (pass the dark counterpart for the "Inverted" look), `menuTranslucent` gives them the blurred 70% finish, and `menuAccent` picks how strongly rows highlight.
 
 ```dart
 ThemeData(
-  menuColorScheme: const SlateColorScheme.dark(),
+  menuColorScheme: const TealColorScheme.dark(),
   menuTranslucent: true,
   menuAccent: MenuAccent.bold,
 )
@@ -102,7 +125,7 @@ ThemeData(
 
 ## Focus rings
 
-Focus is shown as an outward ring, like shadcn/ui. Set `disableSecondaryBorder: true` to switch to the alternative treatment: a 2px border inside the control, which keeps focus visible where an outward ring would be clipped.
+Focus is shown as an outward ring. Set `disableSecondaryBorder: true` to switch to the alternative treatment: a 2px border inside the control, which keeps focus visible where an outward ring would be clipped.
 
 ```dart
 ThemeData(
@@ -144,7 +167,7 @@ class MyApp extends StatelessWidget {
       themeMode: ThemeMode.dark,
       darkTheme: ThemeData(
         brightness: Brightness.dark,
-        colorScheme: const SlateColorScheme.dark(),
+        colorScheme: const TealColorScheme.dark(),
       ),
       appBuilder: (context) {
         return MaterialApp(

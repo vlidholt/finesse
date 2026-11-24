@@ -5,8 +5,8 @@ Displays a badge or a component that looks like a badge.
 ## Variants
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class BadgeVariantsExample extends StatelessWidget {
   const BadgeVariantsExample({super.key});

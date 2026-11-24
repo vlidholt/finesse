@@ -77,8 +77,9 @@ ThemeData(
         title: 'Which font',
         children: [
           DocParagraph(
-            "shadcn/ui's default font is Inter. Geist and Geist Mono give "
-            "the Vercel look. Controls keep their heights whatever the font, "
+            'This app uses Geist, which is what the default style was '
+            'designed around; Inter is a close and widely available '
+            'alternative. Controls keep their heights whatever the font, '
             'because heights come from the style tokens.',
           ),
         ],

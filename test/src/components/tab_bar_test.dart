@@ -1,6 +1,7 @@
 import 'dart:ui' as ui;
 
 import 'package:finesse/finesse.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -19,6 +20,7 @@ void main() {
     double? height,
     Color? indicatorColor,
     EdgeInsetsGeometry? tabPadding,
+    TextStyle? labelStyle,
     List<String> tabs = labels,
   }) {
     return Align(
@@ -33,6 +35,7 @@ void main() {
           height: height,
           indicatorColor: indicatorColor,
           tabPadding: tabPadding,
+          labelStyle: labelStyle,
           tabs: [for (final label in tabs) Text(label)],
         ),
       ),
@@ -44,6 +47,15 @@ void main() {
     of: find.byType(Positioned),
     matching: find.byType(DecoratedBox),
   );
+
+  /// The padding around a tab's label.
+  EdgeInsetsGeometry paddingOf(WidgetTester tester, String label) => tester
+      .widget<Padding>(
+        find
+            .ancestor(of: find.text(label), matching: find.byType(Padding))
+            .first,
+      )
+      .padding;
 
   TextStyle styleOf(WidgetTester tester, String label) =>
       DefaultTextStyle.of(tester.element(find.text(label))).style;
@@ -72,18 +84,45 @@ void main() {
       );
     });
 
-    testWidgets("is the style's underline tab height tall", (tester) async {
+    testWidgets("is the style's underline tab height tall, plus the hairline "
+        'under the tabs', (tester) async {
       for (final formFactor in FormFactor.values) {
         await pumpFinesse(tester, bar(), formFactor: formFactor);
         final theme = themeOf(tester, find.byType(TabBar));
         expect(theme.style.underlineTabHeight, 48);
+        expect(tester.getSize(find.byType(TabBar)), const Size(360, 49));
+        // The tabs themselves keep the whole 48.
+        for (var i = 0; i < 3; i++) {
+          expect(tester.getSize(find.byType(Pressable).at(i)).height, 48);
+        }
+
+        await pumpFinesse(
+          tester,
+          bar(showBorder: false),
+          formFactor: formFactor,
+        );
         expect(tester.getSize(find.byType(TabBar)), const Size(360, 48));
       }
     });
 
-    testWidgets('height overrides it', (tester) async {
+    testWidgets('height sets the height of the tabs; the hairline is added '
+        'to it', (tester) async {
       await pumpFinesse(tester, bar(height: 40));
+      expect(tester.getSize(find.byType(TabBar)).height, 41);
+      expect(tester.getSize(find.byType(Pressable).first).height, 40);
+
+      await pumpFinesse(tester, bar(height: 40, showBorder: false));
       expect(tester.getSize(find.byType(TabBar)).height, 40);
+      expect(tester.getSize(find.byType(Pressable).first).height, 40);
+    });
+
+    testWidgets('hugging tabs are the same heights as shared ones', (
+      tester,
+    ) async {
+      await pumpFinesse(tester, bar(expand: false));
+      expect(tester.getSize(find.byType(TabBar)).height, 49);
+      await pumpFinesse(tester, bar(expand: false, showBorder: false));
+      expect(tester.getSize(find.byType(TabBar)).height, 48);
     });
 
     testWidgets('expanded tabs share the width equally, in reading order', (
@@ -135,6 +174,72 @@ void main() {
       );
     });
 
+    testWidgets('the default tab padding is 4 for tabs that share the width '
+        'and 16 for tabs that hug their label', (tester) async {
+      for (final formFactor in FormFactor.values) {
+        await pumpFinesse(tester, bar(), formFactor: formFactor);
+        for (final label in labels) {
+          expect(
+            paddingOf(tester, label),
+            const EdgeInsets.symmetric(horizontal: 4),
+            reason: 'expanded, ${formFactor.name}',
+          );
+        }
+
+        await pumpFinesse(tester, bar(expand: false), formFactor: formFactor);
+        for (final label in labels) {
+          expect(
+            paddingOf(tester, label),
+            const EdgeInsets.symmetric(horizontal: 16),
+            reason: 'hugging, ${formFactor.name}',
+          );
+        }
+      }
+    });
+
+    testWidgets('an expanded label has its whole tab less 4 on each side', (
+      tester,
+    ) async {
+      // Four tabs of 60: a label that needs more than 52 truncates, one
+      // that needs less does not.
+      await pumpFinesse(
+        tester,
+        bar(
+          width: 240,
+          tabs: const ['Overview', 'Experience', 'Education', 'Portfolio'],
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      for (var i = 0; i < 4; i++) {
+        final tab = tester.getRect(find.byType(Pressable).at(i));
+        expect(tab.width, 60);
+        final label = tester.getRect(
+          find.descendant(
+            of: find.byType(Pressable).at(i),
+            matching: find.byType(RichText),
+          ),
+        );
+        expect(label.width, lessThanOrEqualTo(52));
+        expect(label.left, greaterThanOrEqualTo(tab.left + 4));
+        expect(label.right, lessThanOrEqualTo(tab.right - 4));
+      }
+    });
+
+    testWidgets('tabPadding overrides the default of expanded tabs too', (
+      tester,
+    ) async {
+      await pumpFinesse(
+        tester,
+        bar(tabPadding: const EdgeInsets.symmetric(horizontal: 20)),
+      );
+      expect(
+        paddingOf(tester, 'Posts'),
+        const EdgeInsets.symmetric(horizontal: 20),
+      );
+      // The tabs still share the width; only the label's room changes.
+      expect(tester.getSize(find.byType(Pressable).first).width, 120);
+    });
+
     testWidgets('tabPadding sets the padding of unexpanded tabs', (
       tester,
     ) async {
@@ -162,6 +267,26 @@ void main() {
       expect(tester.takeException(), isNull);
       expect(find.byType(SingleChildScrollView), findsOneWidget);
       expect(tester.getSize(find.byType(TabBar)).width, 200);
+      // The tabs that do not fit are clipped at the bar's sides, not
+      // painted over whatever sits beside it — by a clip one pixel taller
+      // than the tabs, so the indicator can still reach over the hairline.
+      final clip = find.ancestor(
+        of: find.byType(SingleChildScrollView),
+        matching: find.descendant(
+          of: find.byType(TabBar),
+          matching: find.byType(ClipRect),
+        ),
+      );
+      expect(clip, findsOneWidget);
+      expect(tester.getSize(clip), const Size(200, 48));
+      expect(
+        tester.widget<ClipRect>(clip).clipper!.getClip(const Size(200, 48)),
+        const Rect.fromLTWH(0, 0, 200, 49),
+      );
+      expect(
+        clip,
+        paints..clipRect(rect: const Rect.fromLTWH(0, 0, 200, 49)),
+      );
 
       final box = tester.getRect(find.byType(TabBar));
       final last = find.text('Portfolio');
@@ -175,6 +300,99 @@ void main() {
         closeTo(box.right, .5),
       );
       expect(tester.getRect(find.text('Overview')).right, lessThan(box.left));
+    });
+
+    testWidgets('scrolled, a tab is cut off at the side of the bar while its '
+        'indicator still covers the hairline', (tester) async {
+      const red = Color(0xffff0000);
+      const white = Color(0xffffffff);
+      final boundary = GlobalKey();
+      await pumpFinesse(
+        tester,
+        Align(
+          alignment: Alignment.topLeft,
+          child: RepaintBoundary(
+            key: boundary,
+            child: ColoredBox(
+              color: white,
+              child: Padding(
+                // Room on every side for anything that escapes the bar.
+                padding: const EdgeInsets.all(40),
+                child: SizedBox(
+                  width: 200,
+                  child: TabBar(
+                    selectedIndex: 0,
+                    expand: false,
+                    indicatorColor: red,
+                    onSelected: (_) {},
+                    tabs: const [
+                      Text('Overview'),
+                      Text('Experience'),
+                      Text('Education'),
+                      Text('Portfolio'),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      final bar = tester.getRect(find.byType(TabBar));
+      expect(bar, const Rect.fromLTWH(40, 40, 200, 49));
+
+      // Scroll the selected tab half way out of the bar's start edge.
+      final width = tester.getSize(find.byType(Pressable).first).width;
+      await tester.drag(find.byType(TabBar), Offset(-width / 2, 0));
+      await tester.pump();
+      final tab = tester.getRect(find.byType(Pressable).first);
+      expect(tab.left, lessThan(bar.left - 10));
+      expect(tab.right, greaterThan(bar.left + 10));
+
+      late final ui.Image image;
+      await tester.runAsync(() async {
+        image =
+            await (boundary.currentContext!.findRenderObject()!
+                    as RenderRepaintBoundary)
+                .toImage();
+      });
+      final data = (await tester.runAsync(() => image.toByteData()))!;
+      addTearDown(image.dispose);
+      Color pixel(double x, double y) {
+        final index = (y.floor() * image.width + x.floor()) * 4;
+        return Color.fromARGB(
+          data.getUint8(index + 3),
+          data.getUint8(index),
+          data.getUint8(index + 1),
+          data.getUint8(index + 2),
+        );
+      }
+
+      // The indicator is two rows: the last of the tabs and the hairline's.
+      final lastTabRow = bar.top + 47.5;
+      final hairlineRow = bar.top + 48.5;
+      // Inside the bar both are the indicator's colour…
+      expect(pixel(bar.left + 4.5, lastTabRow), red);
+      expect(pixel(bar.left + 4.5, hairlineRow), red, reason: 'over hairline');
+      // …and outside it, where the rest of the tab would be, nothing is.
+      for (final y in [bar.top + 24, lastTabRow, hairlineRow]) {
+        for (final x in [bar.left - 4.5, bar.left - .5, tab.left + 4.5]) {
+          expect(pixel(x, y), white, reason: 'left of the bar at ($x, $y)');
+        }
+      }
+      // Past the selected tab the hairline shows, and stops with the bar.
+      final theme = themeOf(tester, find.byType(TabBar));
+      final hairline = pixel(bar.right - 4.5, hairlineRow);
+      expect(hairline, isNot(white));
+      expect(hairline, isNot(red));
+      expect(
+        hairline,
+        isSameColorAs(Color.alphaBlend(theme.colorScheme.border, white)),
+      );
+      expect(pixel(bar.right + 4.5, hairlineRow), white);
+      expect(pixel(bar.right + 4.5, bar.top + 24), white);
+      // And nothing is painted below the bar's own height.
+      expect(pixel(bar.left + 4.5, bar.bottom + .5), white);
     });
 
     testWidgets('expanded labels truncate when the bar is narrow', (
@@ -341,6 +559,34 @@ void main() {
       expect(styleOf(tester, 'Posts').fontSize, theme.textTheme.large.fontSize);
       expect(styleOf(tester, 'Posts').height, 1);
     });
+
+    testWidgets('labelStyle replaces the base style; weight and colour are '
+        'still set per tab', (tester) async {
+      const style = TextStyle(
+        fontSize: 13,
+        letterSpacing: .4,
+        height: 1.6,
+        fontWeight: FontWeight.w900,
+        color: Color(0xffff00ff),
+      );
+      await pumpFinesse(
+        tester,
+        bar(selectedIndex: 1, labelStyle: style, onSelected: (_) {}),
+      );
+      final s = themeOf(tester, find.byType(TabBar)).colorScheme;
+      for (final label in labels) {
+        expect(styleOf(tester, label).fontSize, 13, reason: label);
+        expect(styleOf(tester, label).letterSpacing, .4, reason: label);
+        // Still a tight line, so the label stays centred in the bar.
+        expect(styleOf(tester, label).height, 1, reason: label);
+      }
+      expect(styleOf(tester, 'About').fontWeight, FontWeight.w600);
+      expect(styleOf(tester, 'About').color, s.foreground);
+      expect(styleOf(tester, 'Posts').fontWeight, FontWeight.w500);
+      expect(styleOf(tester, 'Posts').color, s.mutedForeground);
+      // The bar's height does not follow the font size.
+      expect(tester.getSize(find.byType(TabBar)).height, 48 + 1);
+    });
   });
 
   group('TabBar indicator', () {
@@ -384,56 +630,81 @@ void main() {
       expect(decoration().color, colour);
     });
 
-    testWidgets("sits on the bar's bottom edge, inside the bar", (
-      tester,
-    ) async {
-      for (final showBorder in [true, false]) {
-        await pumpFinesse(tester, bar(showBorder: showBorder));
-        final box = tester.getRect(find.byType(TabBar));
-        final line = tester.getRect(indicator());
+    testWidgets("sits on the bar's bottom edge, over the hairline, and "
+        'never below it', (tester) async {
+      for (final expand in [true, false]) {
+        for (final showBorder in [true, false]) {
+          await pumpFinesse(
+            tester,
+            bar(showBorder: showBorder, expand: expand),
+          );
+          final reason = 'showBorder: $showBorder, expand: $expand';
+          final box = tester.getRect(find.byType(TabBar));
+          final tab = tester.getRect(find.byType(Pressable).first);
+          final line = tester.getRect(indicator());
 
-        // Flush with the bottom — over the hairline when there is one — and
-        // never below it: a bar in a clipped card or a list would lose the
-        // part that hangs out, and anything under the bar would be painted
-        // over.
-        expect(line.bottom, box.bottom, reason: 'showBorder: $showBorder');
-        expect(line.top, box.bottom - 2, reason: 'showBorder: $showBorder');
+          // Flush with the bottom of the bar: a bar in a clipped card or a
+          // list would lose any part that hung out, and anything under the
+          // bar would be painted over.
+          expect(line.bottom, box.bottom, reason: reason);
+          expect(line.height, 2, reason: reason);
+          if (showBorder) {
+            // One row in the tab, one over the hairline beneath it.
+            expect(line.bottom, tab.bottom + 1, reason: reason);
+            expect(box.bottom, tab.bottom + 1, reason: reason);
+          } else {
+            // No hairline to cover: both rows are inside the tab.
+            expect(line.bottom, tab.bottom, reason: reason);
+            expect(box.bottom, tab.bottom, reason: reason);
+          }
+        }
       }
     });
 
-    testWidgets('the hairline runs under the whole bar', (tester) async {
+    testWidgets('the hairline runs under the whole bar, below the tabs', (
+      tester,
+    ) async {
       await pumpFinesse(tester, bar());
       final s = themeOf(tester, find.byType(TabBar)).colorScheme;
-      final box = tester.widget<DecoratedBox>(
+      final container = tester.widget<Container>(
         find
             .descendant(
               of: find.byType(TabBar),
-              matching: find.byType(DecoratedBox),
+              matching: find.byType(Container),
             )
             .first,
       );
-      final border = (box.decoration as BoxDecoration).border! as Border;
+      final border = (container.decoration! as BoxDecoration).border! as Border;
       expect(border.bottom.color, s.border);
       expect(border.bottom.width, 1);
       expect(border.top, BorderSide.none);
-      // The hairline is painted inside the bar's height, not added to it.
-      expect(tester.getSize(find.byType(TabBar)).height, 48);
+      // The hairline is added under the tabs, not taken out of them: it is
+      // the row between the tabs' bottom edge and the bar's.
+      final box = tester.getRect(find.byType(TabBar));
+      expect(box.height, 49);
+      for (var i = 0; i < 3; i++) {
+        final tab = tester.getRect(find.byType(Pressable).at(i));
+        expect(tab.top, box.top);
+        expect(tab.bottom, box.bottom - 1);
+      }
     });
 
-    testWidgets('showBorder: false removes the hairline, not the height', (
+    testWidgets('showBorder: false removes the hairline and its row', (
       tester,
     ) async {
       await pumpFinesse(tester, bar(showBorder: false));
-      final box = tester.widget<DecoratedBox>(
+      final container = tester.widget<Container>(
         find
             .descendant(
               of: find.byType(TabBar),
-              matching: find.byType(DecoratedBox),
+              matching: find.byType(Container),
             )
             .first,
       );
-      expect((box.decoration as BoxDecoration).border, isNull);
-      expect(tester.getSize(find.byType(TabBar)).height, 48);
+      expect((container.decoration! as BoxDecoration).border, isNull);
+      final box = tester.getRect(find.byType(TabBar));
+      expect(box.height, 48);
+      expect(tester.getRect(find.byType(Pressable).first).bottom, box.bottom);
     });
   });
 
@@ -471,9 +742,10 @@ void main() {
         expect(data.flagsCollection.isButton, isTrue);
         expect(data.flagsCollection.isEnabled, ui.Tristate.isTrue);
         expect(data.hasAction(ui.SemanticsAction.tap), isTrue);
+        // A tab is one of a set: each says whether it is the selected one.
         expect(
           data.flagsCollection.isSelected,
-          i == 1 ? ui.Tristate.isTrue : ui.Tristate.none,
+          i == 1 ? ui.Tristate.isTrue : ui.Tristate.isFalse,
         );
       }
       handle.dispose();

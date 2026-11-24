@@ -39,6 +39,7 @@ class Pressable extends StatefulWidget {
     this.cursor = SystemMouseCursors.click,
     this.semanticLabel,
     this.semanticValue,
+    this.excludeSemantics,
     this.behavior = HitTestBehavior.opaque,
     super.key,
   });
@@ -74,6 +75,12 @@ class Pressable extends StatefulWidget {
   /// A value read after the label, such as an unread count.
   final String? semanticValue;
 
+  /// Whether the content's own semantics are dropped in favour of
+  /// [semanticLabel]. Defaults to true when there is a label — an icon and
+  /// its label would otherwise both be read — and false without one. Set it
+  /// to false for a labelled region that contains controls of its own.
+  final bool? excludeSemantics;
+
   /// How the region behaves in hit testing.
   final HitTestBehavior behavior;
 
@@ -106,14 +113,13 @@ class _PressableState extends State<Pressable> {
       if (enabled && _pressed) WidgetState.pressed,
       if (selected) WidgetState.selected,
     };
+    final content = widget.builder(context, states);
     return Semantics(
       button: true,
       enabled: enabled,
       selected: widget.selected,
       label: widget.semanticLabel,
       value: widget.semanticValue,
-      // A label stands in for the content; reading both says it twice.
-      excludeSemantics: widget.semanticLabel != null,
       // Hover comes from a MouseRegion rather than the action detector's
       // highlight callback: that one only fires in the traditional highlight
       // mode, so on a touch-first platform a connected mouse got no hover
@@ -148,7 +154,14 @@ class _PressableState extends State<Pressable> {
             onTapDown: enabled ? (_) => _setPressed(true) : null,
             onTapUp: enabled ? (_) => _setPressed(false) : null,
             onTapCancel: enabled ? () => _setPressed(false) : null,
-            child: widget.builder(context, states),
+            // A label stands in for the content; reading both says it
+            // twice. Only the content is excluded: the tap and focus
+            // actions of the detectors above have to stay on the node, or
+            // assistive technology could read the region but not activate
+            // it.
+            child: (widget.excludeSemantics ?? widget.semanticLabel != null)
+                ? ExcludeSemantics(child: content)
+                : content,
           ),
         ),
       ),

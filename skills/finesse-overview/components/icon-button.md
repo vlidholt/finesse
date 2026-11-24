@@ -5,8 +5,8 @@ A square button holding a single icon.
 ## Variants
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class IconButtonVariantsExample extends StatelessWidget {
   const IconButtonVariantsExample({super.key});

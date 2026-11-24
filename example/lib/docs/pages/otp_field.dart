@@ -1,15 +1,17 @@
 import 'package:example/docs/docs.dart';
 import 'package:example/docs/examples/otp_field/otp_field_basic.dart';
 
-final inputOtpDoc = ComponentDoc(
-  slug: 'input_otp',
-  title: 'Input OTP',
-  description: 'A one-time password input with copy-paste support.',
+final otpFieldDoc = ComponentDoc(
+  slug: 'otp_field',
+  title: 'OTP Field',
+  description:
+      'An `OtpField` takes a one-time password a character per slot, with '
+      'copy-paste support.',
   examples: [
     ComponentExample(
-      id: 'input_otp_basic',
+      id: 'otp_field_basic',
       title: 'Default',
-      builder: (_) => const InputOtpBasicExample(),
+      builder: (_) => const OtpFieldBasicExample(),
     ),
   ],
 );

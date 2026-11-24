@@ -91,10 +91,21 @@ class EditorFont {
 
   /// The regular face, for showing the font's own name in a picker.
   ///
-  /// Building a `Text` with it is what makes `google_fonts` fetch the face, so
-  /// a picker list loads only the rows it renders.
+  /// **Asking for it is what starts the download**: `GoogleFonts.getFont`
+  /// begins fetching a face the moment it is called, whether or not anything
+  /// is ever drawn with the result. So this must be called from the `build`
+  /// of the row that shows it, never while assembling a list of options —
+  /// that fetched all twenty-six families every time the panel opened.
   TextStyle previewStyle() => _previews[family] ??= GoogleFonts.getFont(family);
   static final _previews = <String, TextStyle>{};
+
+  /// The families [previewStyle] has been asked for so far, in order.
+  @visibleForTesting
+  static List<String> get debugPreviewedFamilies => _previews.keys.toList();
+
+  /// Forgets which previews were requested, so a test can count its own.
+  @visibleForTesting
+  static void debugResetPreviews() => _previews.clear();
 
   /// The weights the text roles use. Fetching them up front means switching
   /// fonts reflows the text once, not once per weight as each arrives.
@@ -115,6 +126,11 @@ class EditorFont {
       for (final weight in _weights) {
         GoogleFonts.getFont(family, fontWeight: weight);
       }
+      // …and whatever else the text theme itself asks for: its blockquote
+      // is italic, which no weight above covers. Building the theme is what
+      // requests those faces; left out, the italic arrived after the font
+      // had been applied and reflowed the page a second time.
+      textTheme();
       await GoogleFonts.pendingFonts().timeout(timeout);
     } on Object {
       // Offline, blocked or runtime fetching disabled: keep the fallback.

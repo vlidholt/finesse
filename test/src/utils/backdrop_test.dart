@@ -110,6 +110,79 @@ void main() {
       expect(Backdrop.filterFor(blur: 24), isNot(same(a)));
     });
 
+    test('the filter cache is bounded: it is cleared once it holds more '
+        'than 32 pairs', () {
+      // Sigmas nothing else in this file asks for.
+      var next = 5000.0;
+      ui.ImageFilter fresh() => Backdrop.filterFor(blur: next += 1)!;
+      const probe = 4999.5;
+      ui.ImageFilter probed() => Backdrop.filterFor(blur: probe)!;
+
+      // Whatever the cache held, enough new pairs push the probe out. An
+      // animated blur asks for a new sigma every frame; without the bound
+      // each would stay cached for the life of the app.
+      final first = probed();
+      expect(probed(), same(first));
+      for (var i = 0; i < 40; i++) {
+        fresh();
+      }
+      final second = probed();
+      expect(second, isNot(same(first)));
+      // The same filter by value, though: only the instance was dropped.
+      expect(second, first);
+
+      // Now count. Add pairs until the probe is dropped again: the lookup
+      // that notices is the one that cleared the cache, so it holds the
+      // probe and nothing else.
+      var held = probed();
+      while (identical(probed(), held)) {
+        fresh();
+        if (next > 6000) fail('the cache never dropped the probe');
+      }
+      held = probed();
+      // The probe and 31 others make 32, which is kept…
+      for (var i = 0; i < 31; i++) {
+        fresh();
+      }
+      expect(probed(), same(held), reason: '32 pairs fit');
+      // …and one more is past the bound.
+      fresh();
+      expect(probed(), isNot(same(held)), reason: 'the 33rd clears it');
+    });
+
+    test('a cleared cache goes back to sharing one filter per pair', () {
+      for (var i = 0; i < 80; i++) {
+        Backdrop.filterFor(blur: 7000.0 + i, saturation: 1.3);
+      }
+      final a = Backdrop.filterFor(blur: 24, saturation: 1.6);
+      expect(Backdrop.filterFor(blur: 24, saturation: 1.6), same(a));
+      expect(Backdrop.filterFor(blur: 0), isNull);
+    });
+
+    testWidgets('a backdrop still filters after the cache has overflowed', (
+      tester,
+    ) async {
+      for (var i = 0; i < 80; i++) {
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Center(
+              child: Backdrop(blur: 8000.0 + i, child: marker),
+            ),
+          ),
+        );
+        expect(
+          tester.widget<BackdropFilter>(find.byType(BackdropFilter)).filter,
+          ui.ImageFilter.blur(
+            sigmaX: 8000.0 + i,
+            sigmaY: 8000.0 + i,
+            tileMode: TileMode.mirror,
+          ),
+        );
+      }
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('reports blur and saturation to the inspector', (tester) async {
       await pumpFinesse(
         tester,

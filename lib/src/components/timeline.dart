@@ -79,10 +79,9 @@ class Timeline extends StatelessWidget {
                       Expanded(
                         child: Container(
                           width: timeline.lineWidth ?? 2,
-                          margin: EdgeInsets.only(
-                            top: lineGap,
-                            bottom: lineGap,
-                          ),
+                          // The line leaves a gap under its own marker and
+                          // runs flush to the next one.
+                          margin: EdgeInsets.only(top: lineGap),
                           decoration: BoxDecoration(
                             color:
                                 lineColor ??

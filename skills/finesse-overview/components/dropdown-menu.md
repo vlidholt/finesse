@@ -5,8 +5,8 @@ A menu that opens from a trigger. It flips to stay on screen, scrolls when long,
 ## Default
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class DropdownMenuBasicExample extends StatelessWidget {
   const DropdownMenuBasicExample({super.key});
@@ -28,9 +28,22 @@ class DropdownMenuBasicExample extends StatelessWidget {
         ),
         ContextMenuItem(
           leading: Icon(PhosphorIconsRegular.users),
+          trailing: Icon(PhosphorIconsRegular.caretRight),
           items: [
             ContextMenuItem(child: Text('Email')),
             ContextMenuItem(child: Text('Message')),
+            Divider.horizontal(
+              margin: EdgeInsets.symmetric(vertical: 4),
+            ),
+            ContextMenuItem(
+              trailing: Icon(PhosphorIconsRegular.caretRight),
+              items: [
+                ContextMenuItem(child: Text('Slack')),
+                ContextMenuItem(child: Text('Discord')),
+                ContextMenuItem(child: Text('Copy Invite Link')),
+              ],
+              child: Text('More...'),
+            ),
           ],
           child: Text('Invite users'),
         ),

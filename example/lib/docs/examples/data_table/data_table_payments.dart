@@ -118,11 +118,17 @@ class _DataTablePaymentsExampleState extends State<DataTablePaymentsExample> {
             const SizedBox(height: 12),
             Row(
               children: [
-                Text(
-                  '${controller.selectedKeys.length} of $total row(s) selected.',
-                  style: theme.textTheme.muted,
+                // Expanded, so on a narrow screen the count truncates
+                // rather than pushing the pager out.
+                Expanded(
+                  child: Text(
+                    '${controller.selectedKeys.length} of $total row(s) '
+                    'selected.',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.muted,
+                  ),
                 ),
-                const Spacer(),
                 PaginationCompact(
                   page: controller.page,
                   pageCount: controller.pageCount,

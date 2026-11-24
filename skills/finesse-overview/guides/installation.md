@@ -14,7 +14,7 @@ import 'package:finesse/finesse.dart';
 
 ## Set up FinesseApp
 
-`FinesseApp` takes the place of `MaterialApp`. It installs the theme, localizations, navigation, and the overlay layer the floating components use. With no arguments it uses the slate color scheme and the nova style.
+`FinesseApp` takes the place of `MaterialApp`. It installs the theme, localizations, navigation, and the overlay layer the floating components use. With no arguments it uses the teal color scheme and the `finesse` style, and lays itself out for a desktop or a phone from the window width (see [form-factors.md](form-factors.md)).
 
 ```dart
 import 'package:flutter/widgets.dart';
@@ -65,18 +65,49 @@ Button(
 )
 ```
 
-## Padding
+Icon constants are named after the icon, in a class per weight. `PhosphorIconsFill.envelopeSimple` is the same icon filled, for a selected state. See [icons.md](icons.md).
 
-Use `FinessePadding` instead of Flutter's `Padding` to keep insets on the theme's spacing scale. It has no plain constructor, only `FinessePadding.all`, `.symmetric`, `.only`, and `.directional`, and their arguments are steps, not logical pixels:
+## A first screen
+
+A screen is a `Scaffold` with an `AppBar`. Its content goes in a `PageContainer`, which supplies the page margins and the maximum width, and its vertical rhythm comes from the gap scale:
+
+```dart
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: const AppBar(title: Text('Home')),
+      body: PageContainer(
+        scrollable: true,
+        child: FinesseColumn(
+          gap: GapSize.lg,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: const [
+            Card(title: Text('Welcome')),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
+The bars are laid over the body, and the body's `MediaQuery` padding includes their heights, so a `PageContainer`, a `ListView` or a `SafeArea` clears them without being told. An app with several top-level destinations uses `NavigationScaffold` instead: destinations in the app bar on a desktop, in a bottom bar on a phone. See [scaffold.md](../components/scaffold.md).
+
+## Spacing
+
+Use the named gaps between components, `FinesseColumn(gap: GapSize.lg)` or `const Gap.md()`, rather than pixel counts: they follow the form factor. `FinessePadding` keeps insets on the theme's spacing scale. It has no plain constructor, only `FinessePadding.all`, `.symmetric`, `.only`, and `.directional`, and their arguments are steps, not logical pixels:
 
 ```dart
 FinessePadding.symmetric(
-  horizontal: 6, // px-6
-  vertical: 4, // py-4
+  horizontal: 6, // 24 at the default 4px step
+  vertical: 4, // 16
   child: const Text('Inset by the theme spacing scale'),
 )
 ```
 
-See [layout.md](layout.md#padding) for a full example.
+See [layout.md](layout.md) for both scales.
 
 From here, [theming.md](theming.md) and [styles.md](styles.md) cover how to make it yours, and each page under `components/` pairs a description with the actual example source that ships in the example app.

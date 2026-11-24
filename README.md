@@ -4,18 +4,21 @@
 [![Flutter test](https://github.com/vlidholt/finesse/actions/workflows/flutter-test.yaml/badge.svg)](https://github.com/vlidholt/finesse/actions/workflows/flutter-test.yaml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-A Flutter port of [shadcn/ui](https://ui.shadcn.com). `finesse` provides more than 40 components as plain Flutter widgets, themed by one `ThemeData`, with no dependency on Material or Cupertino.
+A design system for Flutter: more than 60 widgets themed by one `ThemeData`, with frosted-glass surfaces, desktop and phone metrics in the same theme, and no dependency on Material or Cupertino.
 
-[![Live demo](https://raw.githubusercontent.com/vlidholt/finesse/main/assets/screenshot.png)](https://vlidholt.github.io/finesse/)
+![The Strand demo app built with finesse](https://raw.githubusercontent.com/vlidholt/finesse/main/assets/screenshot.png)
 
-Live component browser and docs: **<https://vlidholt.github.io/finesse/>**
+`finesse` is a fork of [shad](https://pub.dev/packages/shad), a Flutter port of [shadcn/ui](https://ui.shadcn.com). It keeps that component set and theming model, drops the `Shad` prefix, and adds its own default look and the pieces an app needs around the components: app and navigation bars, a scaffold, page layout, and theme-driven spacing.
 
 ## Features
 
-- **Components.** Buttons, forms, dialogs, sheets, menus, a sidebar, a data table, and more. Every component is a regular `StatelessWidget` or `StatefulWidget`, so it composes with the rest of your widget tree.
-- **Styles.** The eight named shadcn/ui styles (`vega`, `nova`, `maia`, `lyra`, `mira`, `luma`, `sera`, `rhea`) are complete presets for control size, radius, shadows, and type. You switch between them with one line.
-- **Color schemes.** 16 palettes ship in light and dark, and you can define your own.
-- **Theming.** One `ThemeData` resolves color, typography, radius, spacing, and every component's own theme. You can override any level without losing the rest.
+- **Components.** Buttons, text fields, forms, dialogs, sheets, menus, tabs, a sidebar, a data table, a calendar, chips, list tiles, chat bubbles, avatars and badges, and more. Every one is a regular widget and composes with the rest of your tree.
+- **One theme, two form factors.** Every style carries metrics for a desktop and for a phone. `FinesseApp` picks between them from the window width, so the same `Button` is 36 points tall in a desktop window and 44 on a phone, body text grows from 14 to 15, and page margins tighten, with no `if (isMobile)` in your code.
+- **App structure.** `Scaffold`, `AppBar`, a top `NavigationBar` and a floating `BottomNavigationBar`, and `NavigationScaffold`, which switches between the two.
+- **Glass.** Translucent cards and bars over a blurred, saturated backdrop are part of the style, with tokens for blur and for the opacity of each kind of surface. `Glass` puts the same surface anywhere.
+- **Spacing from the theme.** A named gap scale (`Gap.md()`, `FinesseRow(gap: GapSize.lg)`) and `PageContainer` keep screens consistent and let a theme change their rhythm.
+- **Styles and colour schemes.** Four styles (`finesse`, `nova`, `maia`, `lyra`) and four base palettes (`teal`, `neutral`, `zinc`, `stone`) in light and dark, 17 accent overlays, and every token overridable through `copyWith`.
+- **Icons included.** The [Phosphor](https://phosphoricons.com) icon set ships in the package in six weights.
 - **Forms.** `FinesseForm` and a `*FormField` widget for every input, with per-field validation.
 - **Localization.** 82 locales, built on `slang`.
 - **Material and Cupertino interop, opt-in.** `package:finesse/material.dart` themes Material and Cupertino widgets from the `finesse` theme, so both widget sets can share one page.
@@ -42,16 +45,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FinesseApp(
-      theme: ThemeData(
-        brightness: Brightness.light,
-        colorScheme: const ZincColorScheme.light(),
-        style: StyleTokens.nova,
-      ),
-      darkTheme: ThemeData(
-        brightness: Brightness.dark,
-        colorScheme: const ZincColorScheme.dark(),
-        style: StyleTokens.nova,
-      ),
+      theme: ThemeData(),
+      darkTheme: ThemeData(brightness: Brightness.dark),
       themeMode: ThemeMode.system,
       home: const HomePage(),
     );
@@ -79,11 +74,90 @@ class HomePage extends StatelessWidget {
 }
 ```
 
-The [live docs](https://vlidholt.github.io/finesse/) give the full component reference. Each page pairs a live preview with the exact source that renders it. The site also has guides on theming, styles, layout, forms, and responsive design.
+The example app's component library gives the full reference. Each page pairs a live preview with the exact source that renders it, and there are guides on theming, styles, form factors, layout, forms, and icons. Run it with `cd example && flutter run`.
+
+## Names
+
+Widgets have no prefix: `Button`, `Card`, `Theme`, `ThemeData`. A name that would clash with Flutter's own widgets layer has a `Finesse` prefix instead (`FinesseApp`, `FinesseRow`, `FinesseColumn`, `FinessePadding`, `FinesseForm`, `FinesseTable`, `FinesseBorder`, `FinesseDecoration`). Some names are shared with Material (`Card`, `Switch`, `Dialog`, `Scaffold`, `AppBar`); in a file that imports both libraries, hide one side or import one with a prefix.
+
+## Theming
+
+`ThemeData()` is the default look: the `finesse` style on the teal palette. A theme is a style, a colour scheme and a text theme, and each can be replaced on its own:
+
+```dart
+ThemeData(
+  style: StyleTokens.nova,
+  colorScheme: const NeutralColorScheme.light().applyAccentScheme(
+    AccentScheme.violetLight,
+  ),
+  radius: const BorderRadius.all(Radius.circular(6)),
+)
+```
+
+A style is a set of measured tokens (control heights, radii, shadows, type roles, glass, spacing). Change any of them with `copyWith`; the change applies to the phone metrics too wherever they did not already differ:
+
+```dart
+ThemeData(
+  style: StyleTokens.finesse.copyWith(
+    cardBlur: false, // opaque cards
+    cardOpacity: 1,
+    gapLg: 20,
+  ),
+)
+```
+
+Every component also has its own theme on `ThemeData` (`cardTheme`, `chipTheme`, `appBarTheme`, …) for overrides that go beyond the tokens.
+
+## Form factors
+
+`FinesseApp` uses the phone metrics when the window is narrower than the theme's `md` breakpoint (768) and the desktop metrics otherwise; `formFactor:` pins one. Widgets size themselves from the theme, so most screens need no branching. Where a screen is *arranged* differently on a phone, branch on the theme rather than on the window:
+
+```dart
+FormFactorBuilder(
+  mobile: (context) => const ConversationList(),
+  desktop: (context) => const Row(
+    children: [ConversationList(), Expanded(child: Conversation())],
+  ),
+)
+```
+
+## Layout
+
+Name the relationship between two things and let the theme decide the number:
+
+```dart
+PageContainer(
+  scrollable: true,
+  child: FinesseColumn(
+    gap: GapSize.lg, // 16 on a desktop, 12 on a phone
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      const Text('Jobs'),
+      FinesseRow(gap: GapSize.md, children: stats),
+      const Gap.xl(),
+      results,
+    ],
+  ),
+)
+```
+
+`PageContainer` adds the theme's page margins, caps the width, and keeps content clear of a `Scaffold`'s bars while letting it scroll beneath them.
+
+## Icons
+
+The Phosphor icons are bundled, with no extra dependency:
+
+```dart
+const Icon(PhosphorIconsRegular.house)
+const Icon(PhosphorIconsFill.house) // a selected state
+const PhosphorDuotoneIcon(PhosphorIconsDuotone.bell)
+```
+
+Regular, bold, fill, light, thin and duotone weights are available. A release build keeps only the glyphs your app uses. Phosphor Icons are MIT licensed; the notice is part of this package's `LICENSE`, which Flutter adds to your app's licence page.
 
 ## Fonts
 
-`finesse` bundles no fonts. Text uses the platform's font (SF on Apple platforms, Roboto on Android, Segoe UI on Windows) until you choose another one. There are two ways to choose:
+`finesse` bundles no text fonts. Text uses the platform's font (SF on Apple platforms, Roboto on Android, Segoe UI on Windows) until you choose another one. There are two ways to choose:
 
 **Google Fonts, fetched at runtime:**
 
@@ -115,7 +189,7 @@ ThemeData(
 )
 ```
 
-shadcn/ui's own default font is [Inter](https://rsms.me/inter/). The Vercel look is [Geist and Geist Mono](https://vercel.com/font).
+The default look was designed around [Geist](https://vercel.com/font); the example app loads it with `GoogleFonts.geist`.
 
 ## Material and Cupertino
 
@@ -139,23 +213,15 @@ Android, iOS, macOS, Windows, Linux and the web, including WebAssembly. The pack
 
 ## Versioning
 
-`finesse` follows [semantic versioning](https://semver.org/) from 1.0:
-
-- A breaking API change happens only in a major version. A renamed or removed member first stays as `@Deprecated` for at least the rest of that major version, with a data-driven fix, so `dart fix --apply` migrates your code.
-- A visual change that brings a component closer to shadcn/ui is a bug fix, not a breaking change.
-
-Upgrading from 0.x? See [MIGRATION.md](MIGRATION.md).
-
-## Not yet available
-
-These shadcn/ui components have no `finesse` equivalent yet: navigation menu, hover card, drawer, carousel, chart, combobox (partly covered by `Select.withSearch`), aspect ratio, native select, and the layout primitives button group, input group, field and item. The [issue tracker](https://github.com/vlidholt/finesse/issues) is the place to ask for one.
+`finesse` is at 0.x: the API can still change between minor versions, and each change is listed under "Changed" in the [changelog](CHANGELOG.md). There are no deprecation shims.
 
 ## Repository layout
 
 | Path | Contents |
 | --- | --- |
 | `lib/` | The `finesse` package. |
-| `example/` | The live docs site and component browser deployed to GitHub Pages. It is also a reference for how to structure an app around `finesse`. |
+| `fonts/phosphor/` | The bundled Phosphor icon fonts and their licence. |
+| `example/` | The demo app: Strand, a social network built entirely from `finesse` widgets, plus the component library and a theme editor. |
 | `test/` | The package's test suite. |
 | `skills/finesse-overview/` | An [Agent Skill](https://agentskills.io) describing `finesse`'s API, for coding agents. |
 

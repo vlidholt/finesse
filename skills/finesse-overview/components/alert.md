@@ -5,8 +5,8 @@ Displays a callout for user attention.
 ## Default
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class AlertDefaultExample extends StatelessWidget {
   const AlertDefaultExample({super.key});
@@ -56,8 +56,8 @@ class AlertDefaultExample extends StatelessWidget {
 ## Destructive
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class AlertDestructiveExample extends StatelessWidget {
   const AlertDestructiveExample({super.key});

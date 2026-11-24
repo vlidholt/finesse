@@ -67,7 +67,7 @@ ThemeData(
 
 Pass a static tear-off such as `GoogleFonts.inter`. A closure around `GoogleFonts.getFont(name)` must be created once and reused: a new closure on every build makes the theme unequal to itself, and the theme transition restarts on every rebuild.
 
-shadcn/ui's default font is Inter; Geist and Geist Mono give the Vercel look.
+The default style was designed around Geist; Inter is a close and widely available alternative. Controls keep their heights whatever the font, because heights come from the style tokens. On a phone the body and field roles grow to 15 (see [form-factors.md](form-factors.md)).
 
 ## Custom styles
 
@@ -80,7 +80,7 @@ ThemeData(
       'myCustomStyle': const TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.w400,
-        color: Colors.blue,
+        color: Color(0xFF2563EB),
       ),
     },
   ),

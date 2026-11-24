@@ -185,7 +185,8 @@ void main() {
         // The app bar's height including the 44 of status bar it extends
         // under; the bottom bar's including its margin and the 34 of home
         // indicator.
-        expect(seen.top, (formFactor == FormFactor.mobile ? 60 : 64) + 44);
+        // …and the hairline under the app bar, which is added to its height.
+        expect(seen.top, (formFactor == FormFactor.mobile ? 60 : 64) + 1 + 44);
         expect(seen.top, appBar.height);
         expect(seen.bottom, 84 + 34);
         expect(seen.bottom, bar.height);
@@ -216,7 +217,7 @@ void main() {
         ),
         padding: const EdgeInsets.fromLTRB(10, 44, 12, 34),
       );
-      expect(seen, const EdgeInsets.fromLTRB(10, 64 + 44, 12, 34));
+      expect(seen, const EdgeInsets.fromLTRB(10, 64 + 1 + 44, 12, 34));
 
       await pump(
         tester,
@@ -245,6 +246,249 @@ void main() {
       );
       expect(seen.top, 30);
       expect(seen.bottom, 50);
+    });
+
+    testWidgets('appBarHeight wins over the measurement of a real bar, on '
+        'every frame', (tester) async {
+      final seen = <EdgeInsets>[];
+      await pump(
+        tester,
+        Scaffold(
+          appBar: const AppBar(height: 80, title: Text('Messages')),
+          appBarHeight: 20,
+          bottomNavigationBar: bottomBar(),
+          bottomNavigationBarHeight: 0,
+          body: probe(seen.add),
+        ),
+        formFactor: FormFactor.mobile,
+      );
+      // The bars really are another size…
+      expect(tester.getSize(find.byType(AppBar)).height, 80 + 1 + 44);
+      expect(tester.getSize(find.byType(BottomNavigationBar)).height, 84 + 34);
+      // …and the body never saw it.
+      expect(seen, isNotEmpty);
+      for (final padding in seen) {
+        expect(padding.top, 20);
+        expect(padding.bottom, 0);
+      }
+    });
+
+    testWidgets('an AppBar and a BottomNavigationBar are inset exactly on the '
+        'first frame: the measurement changes nothing', (tester) async {
+      for (final formFactor in FormFactor.values) {
+        final seen = <EdgeInsets>[];
+        // A fresh app each time: a form factor changing under a mounted
+        // scaffold is a theme animation, and a different test.
+        await tester.pumpWidget(const SizedBox.shrink());
+        await pump(
+          tester,
+          Scaffold(
+            appBar: const AppBar(title: Text('Messages')),
+            bottomNavigationBar: bottomBar(),
+            body: probe(seen.add),
+          ),
+          formFactor: formFactor,
+        );
+        await tester.pump();
+        expect(seen, isNotEmpty);
+        expect(seen.toSet(), hasLength(1), reason: formFactor.name);
+        expect(seen.first.top, tester.getSize(find.byType(AppBar)).height);
+        expect(
+          seen.first.bottom,
+          tester.getSize(find.byType(BottomNavigationBar)).height,
+        );
+      }
+    });
+
+    testWidgets('measures an app bar of its own height: the inset is right '
+        'on the frame after the first layout', (tester) async {
+      for (final showBorder in [true, false]) {
+        final seen = <EdgeInsets>[];
+        tester.view.devicePixelRatio = 1;
+        tester.view.physicalSize = kSurfaceSizes[FormFactor.desktop]!;
+        addTearDown(tester.view.reset);
+        // A fresh scaffold each time, so the first frame is a first frame.
+        await tester.pumpWidget(const SizedBox.shrink());
+        late double themed;
+        await tester.pumpWidget(
+          FinesseApp(
+            formFactor: FormFactor.desktop,
+            home: MediaQuery(
+              data: const MediaQueryData(
+                padding: EdgeInsets.only(top: 44, bottom: 34),
+              ),
+              child: Builder(
+                builder: (context) {
+                  themed = AppBar.heightOf(context);
+                  return Scaffold(
+                    appBar: AppBar(
+                      height: 96,
+                      showBorder: showBorder,
+                      title: const Text('Messages'),
+                    ),
+                    body: probe(seen.add),
+                  );
+                },
+              ),
+            ),
+          ),
+        );
+        // First frame: nothing is measured yet, so the theme's height.
+        expect(themed, 64 + 1 + 44);
+        expect(seen.last.top, themed);
+
+        await tester.pump();
+        final bar = tester.getSize(find.byType(AppBar)).height;
+        expect(bar, 96 + 44 + (showBorder ? 1 : 0));
+        expect(seen.last.top, bar, reason: 'showBorder: $showBorder');
+        // No bottom bar: the home indicator is all there is.
+        expect(seen.last.bottom, 34);
+
+        // And it stays there.
+        await settle(tester);
+        expect(seen.last.top, bar);
+      }
+    });
+
+    testWidgets('measures any widget used as a bar', (tester) async {
+      final seen = <EdgeInsets>[];
+      await pump(
+        tester,
+        Scaffold(
+          // A two-row header and a message composer: neither is an AppBar
+          // or a BottomNavigationBar, so neither height is in the theme.
+          appBar: const Column(
+            key: Key('header'),
+            mainAxisSize: MainAxisSize.min,
+            children: [SizedBox(height: 40), SizedBox(height: 33)],
+          ),
+          bottomNavigationBar: const Glass(
+            key: Key('composer'),
+            height: 57,
+            child: SizedBox.expand(),
+          ),
+          body: probe(seen.add),
+        ),
+        formFactor: FormFactor.mobile,
+      );
+      expect(tester.getSize(find.byKey(const Key('header'))).height, 73);
+      expect(tester.getSize(find.byKey(const Key('composer'))).height, 57);
+      expect(seen.last.top, 73);
+      expect(seen.last.bottom, 57);
+      // The bars still span the width, at the top and the bottom.
+      expect(
+        tester.getRect(find.byKey(const Key('header'))),
+        const Rect.fromLTWH(0, 0, 390, 73),
+      );
+      expect(
+        tester.getRect(find.byKey(const Key('composer'))),
+        const Rect.fromLTWH(0, 844 - 57, 390, 57),
+      );
+    });
+
+    testWidgets('an arbitrary bottom widget is corrected on the frame after '
+        'the first layout', (tester) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = kSurfaceSizes[FormFactor.mobile]!;
+      addTearDown(tester.view.reset);
+      final seen = <EdgeInsets>[];
+      late double themed;
+      await tester.pumpWidget(
+        FinesseApp(
+          formFactor: FormFactor.mobile,
+          home: MediaQuery(
+            data: const MediaQueryData(
+              padding: EdgeInsets.only(top: 44, bottom: 34),
+            ),
+            child: Builder(
+              builder: (context) {
+                themed = BottomNavigationBar.heightOf(context);
+                return Scaffold(
+                  bottomNavigationBar: const SizedBox(
+                    key: Key('composer'),
+                    height: 50,
+                  ),
+                  body: probe(seen.add),
+                );
+              },
+            ),
+          ),
+        ),
+      );
+      // The only guess available before layout.
+      expect(seen.last.bottom, themed);
+      expect(themed, 84 + 34);
+      // No app bar: the status bar is all there is.
+      expect(seen.last.top, 44);
+
+      await tester.pump();
+      expect(seen.last.bottom, 50);
+      expect(seen.last.top, 44);
+    });
+
+    testWidgets('follows a bar that changes height while on screen', (
+      tester,
+    ) async {
+      final height = ValueNotifier<double>(48);
+      addTearDown(height.dispose);
+      final seen = <EdgeInsets>[];
+      await pump(
+        tester,
+        Scaffold(
+          bottomNavigationBar: ValueListenableBuilder<double>(
+            valueListenable: height,
+            builder: (context, value, _) => SizedBox(height: value),
+          ),
+          body: probe(seen.add),
+        ),
+        formFactor: FormFactor.mobile,
+      );
+      expect(seen.last.bottom, 48);
+
+      // A composer growing as the message wraps.
+      height.value = 96;
+      await tester.pump();
+      await tester.pump();
+      expect(seen.last.bottom, 96);
+
+      height.value = 48;
+      await tester.pump();
+      await tester.pump();
+      expect(seen.last.bottom, 48);
+    });
+
+    testWidgets('removing a bar hands its edge back, and a new bar is '
+        'measured afresh', (tester) async {
+      final seen = <EdgeInsets>[];
+      Widget scaffold(Widget? appBar) =>
+          Scaffold(appBar: appBar, body: probe(seen.add));
+
+      await pump(tester, scaffold(const SizedBox(height: 30)));
+      expect(seen.last.top, 30);
+
+      await pump(tester, scaffold(null));
+      expect(seen.last.top, 44);
+
+      await pump(tester, scaffold(const SizedBox(height: 70)));
+      expect(seen.last.top, 70);
+    });
+
+    testWidgets('the body keeps its state while the bars are measured', (
+      tester,
+    ) async {
+      await pump(
+        tester,
+        const Scaffold(appBar: SizedBox(height: 30), body: _Counter()),
+      );
+      await tester.tap(find.text('count 0'));
+      await tester.pump();
+      expect(find.text('count 1'), findsOneWidget);
+
+      await pump(
+        tester,
+        const Scaffold(appBar: SizedBox(height: 90), body: _Counter()),
+      );
+      expect(find.text('count 1'), findsOneWidget);
     });
 
     testWidgets('a list in the body starts below the app bar and can scroll '
@@ -524,14 +768,17 @@ void main() {
       late EdgeInsets seen;
       await pump(tester, scaffold(body: probe((p) => seen = p)));
       // A desktop has no bottom bar, so only the home indicator remains.
-      expect(seen, const EdgeInsets.only(top: 64 + 44, bottom: 34));
+      expect(seen, const EdgeInsets.only(top: 64 + 1 + 44, bottom: 34));
 
       await pump(
         tester,
         scaffold(body: probe((p) => seen = p)),
         formFactor: FormFactor.mobile,
       );
-      expect(seen, const EdgeInsets.only(top: 60 + 44, bottom: 84 + 34));
+      expect(
+        seen,
+        const EdgeInsets.only(top: 60 + 1 + 44, bottom: 84 + 34),
+      );
     });
 
     testWidgets('taps report indices into the full list, on both bars', (
@@ -697,6 +944,22 @@ void main() {
       expect(find.byType(BottomNavigationBar), findsOneWidget);
     });
 
+    testWidgets('a mobileAppBar of any height insets the body by what it '
+        'measures', (tester) async {
+      late EdgeInsets seen;
+      await pump(
+        tester,
+        scaffold(
+          mobileAppBar: const SizedBox(key: Key('thread'), height: 72),
+          body: probe((p) => seen = p),
+        ),
+        formFactor: FormFactor.mobile,
+      );
+      expect(tester.getSize(find.byKey(const Key('thread'))).height, 72);
+      expect(seen.top, 72);
+      expect(seen.bottom, 84 + 34);
+    });
+
     testWidgets('showMobileAppBar: false drops the app bar and its inset', (
       tester,
     ) async {
@@ -725,7 +988,7 @@ void main() {
       );
       expect(find.byType(BottomNavigationBar), findsNothing);
       expect(seen.bottom, 34);
-      expect(seen.top, 60 + 44);
+      expect(seen.top, 60 + 1 + 44);
     });
 
     testWidgets('five destinations, a logo, a search field and two actions '

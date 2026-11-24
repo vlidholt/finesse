@@ -5,8 +5,8 @@ An interactive component that expands and collapses a panel.
 ## Default
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class CollapsibleBasicExample extends StatelessWidget {
   const CollapsibleBasicExample({super.key});
@@ -22,14 +22,16 @@ class CollapsibleBasicExample extends StatelessWidget {
           children: [
             Flexible(
               child: Text(
-                '@peduarte starred 3 repositories',
+                '@noor starred 3 repositories',
                 style: theme.textTheme.small,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
             IconButton.ghost(
               icon: Icon(
-                open ? PhosphorIconsRegular.arrowsInLineVertical : PhosphorIconsRegular.caretUpDown,
+                open
+                    ? PhosphorIconsRegular.arrowsInLineVertical
+                    : PhosphorIconsRegular.caretUpDown,
               ),
               semanticLabel: open ? 'Collapse' : 'Expand',
               onPressed: toggle,

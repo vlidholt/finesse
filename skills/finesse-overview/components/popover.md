@@ -5,8 +5,8 @@ Displays rich content in a portal, triggered by a button.
 ## Default
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 const _layer = [
   (name: 'Width', initialValue: '100%'),

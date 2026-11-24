@@ -1,6 +1,8 @@
 # Responsive
 
-Tailwind's breakpoint scale, carried on the theme: a builder widget and a context extension.
+A scale of six breakpoints, carried on the theme: a builder widget and a context extension.
+
+Breakpoints are for layouts that change with the width of the window. Sizes that change between a desktop and a phone (control heights, text, page margins, gaps) are not a breakpoint question: the theme already carries them, switched at the `md` breakpoint. See [form-factors.md](form-factors.md), and use `FormFactorBuilder` rather than a breakpoint test for a phone-versus-desktop arrangement.
 
 ## Breakpoints
 

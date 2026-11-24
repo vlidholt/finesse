@@ -22,7 +22,8 @@ final theme = Theme.of(context);
 theme.colorScheme.primary;   // the palette
 theme.textTheme.p;           // the type scale
 theme.radius;                // the base corner radius
-theme.style;                 // the active style preset''',
+theme.style;                 // the active style preset
+theme.formFactor;            // desktop or mobile''',
           ),
         ],
       ),
@@ -30,9 +31,10 @@ theme.style;                 // the active style preset''',
         title: 'Color schemes',
         children: [
           DocParagraph(
-            'Sixteen schemes ship in light and dark: blue, gray, green, '
-            'mauve, mist, neutral, olive, orange, red, rose, slate '
-            '(the default), stone, taupe, violet, yellow, and zinc.',
+            'Four base schemes ship in light and dark: `teal` (the '
+            'default), `neutral`, `zinc` and `stone`. A base scheme '
+            'supplies the whole palette: backgrounds, borders, muted '
+            'tones and a primary.',
           ),
           CodeBlock(
             code: '''
@@ -53,9 +55,36 @@ FinesseApp(
           CodeBlock(
             code: '''
 final scheme = ColorScheme.fromName(
-  'rose',
+  'stone',
   brightness: Brightness.dark,
 );''',
+          ),
+        ],
+      ),
+      DocSection(
+        title: 'Accents',
+        children: [
+          DocParagraph(
+            'An `AccentScheme` is an overlay: it replaces only the '
+            'tokens that carry the hue (the primary pair, the focus '
+            'ring, the selection and the chart ramp) and leaves the '
+            'base palette alone. Seventeen ship, each in light and dark: '
+            'amber, blue, cyan, emerald, fuchsia, green, indigo, lime, '
+            'orange, pink, purple, red, rose, sky, teal, violet and '
+            'yellow.',
+          ),
+          CodeBlock(
+            code: '''
+ThemeData(
+  colorScheme: const ZincColorScheme.light()
+      .applyAccentScheme(AccentScheme.violetLight),
+)
+
+// By name, for a picker:
+AccentScheme.fromName('violet', brightness: Brightness.dark);
+
+// Or any one color, with a readable foreground derived for it:
+const NeutralColorScheme.light().applyAccent(const Color(0xFF3B82F6));''',
           ),
         ],
       ),
@@ -70,7 +99,7 @@ final scheme = ColorScheme.fromName(
           CodeBlock(
             code: '''
 ThemeData(
-  colorScheme: const SlateColorScheme.light(
+  colorScheme: const TealColorScheme.light(
     primary: Color(0xFF16A34A),
     custom: {
       'highlight': Color(0xFFFACC15),
@@ -117,14 +146,16 @@ ThemeData(
         children: [
           DocParagraph(
             'The theme carries one base radius, the `md` step of the '
-            'scale. Everything else derives from it: at the default 8 the '
-            'scale runs sm 6, md 8, lg 10, xl 14, 2xl 16, 3xl 24, 4xl 32, '
-            'and each component picks the step its style prescribes.',
+            'scale. Everything else derives from it through the style: in '
+            'the default style the base is 10 and the scale runs sm 6, '
+            'md 10, lg 12, xl 16, 2xl 18, 3xl 20, 4xl 24. Each component '
+            'picks the step its style prescribes, so one setting keeps '
+            'cards, dialogs and menu rows in proportion.',
           ),
           CodeBlock(
             code: '''
 ThemeData(
-  radius: const BorderRadius.all(Radius.circular(10)),
+  radius: const BorderRadius.all(Radius.circular(14)),
 )''',
           ),
         ],
@@ -133,8 +164,8 @@ ThemeData(
         title: 'Menu appearance',
         children: [
           DocParagraph(
-            "The shadcn theme editor's menu options are theme settings "
-            'here too. `menuColorScheme` renders menu surfaces on another '
+            'How menus look is a theme setting. `menuColorScheme` '
+            'renders menu surfaces on another '
             'palette (pass the dark counterpart for the "Inverted" look), '
             '`menuTranslucent` gives them the blurred 70% finish, and '
             '`menuAccent` picks how strongly rows highlight.',
@@ -142,7 +173,7 @@ ThemeData(
           CodeBlock(
             code: '''
 ThemeData(
-  menuColorScheme: const SlateColorScheme.dark(),
+  menuColorScheme: const TealColorScheme.dark(),
   menuTranslucent: true,
   menuAccent: MenuAccent.bold,
 )''',
@@ -153,7 +184,7 @@ ThemeData(
         title: 'Focus rings',
         children: [
           DocParagraph(
-            'Focus is shown as an outward ring, like shadcn/ui. Set '
+            'Focus is shown as an outward ring. Set '
             '`disableSecondaryBorder: true` to switch to the alternative '
             'treatment: a 2px border inside the control, which keeps '
             'focus visible where an outward ring would be clipped.',

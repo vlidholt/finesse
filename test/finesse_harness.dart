@@ -98,14 +98,17 @@ Future<void> expectBuildsInEveryLayout(
   }
 }
 
-/// Makes hover and focus highlights show for the rest of the test.
+/// Makes focus highlights show for the rest of the test.
 ///
-/// `Pressable` reports [WidgetState.hovered] and [WidgetState.focused]
-/// through a `FocusableActionDetector`, which only shows highlights while the
-/// focus manager is in its traditional (pointer-and-keyboard) mode. A test
-/// runs as Android, where the mode starts as touch and — since a mouse event
-/// no longer flips it — stays there until a key is pressed. On a desktop the
+/// `Pressable` reports [WidgetState.focused] through a
+/// `FocusableActionDetector`, which only shows highlights while the focus
+/// manager is in its traditional (pointer-and-keyboard) mode. A test runs as
+/// Android, where the mode starts as touch and — since a mouse event no
+/// longer flips it — stays there until a key is pressed. On a desktop the
 /// mode is traditional from the start, which is what this reproduces.
+///
+/// Hover needs none of this: `Pressable` takes it from a `MouseRegion`,
+/// which reports in every highlight mode.
 void useTraditionalHighlights() {
   FocusManager.instance.highlightStrategy =
       FocusHighlightStrategy.alwaysTraditional;

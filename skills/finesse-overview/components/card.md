@@ -5,8 +5,8 @@ Displays a card with title, description, content, and footer.
 ## With a form
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 const _frameworks = {
   'next': 'Next.js',

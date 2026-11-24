@@ -1,8 +1,8 @@
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
-class SeparatorBasicExample extends StatelessWidget {
-  const SeparatorBasicExample({super.key});
+class DividerBasicExample extends StatelessWidget {
+  const DividerBasicExample({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -13,10 +13,10 @@ class SeparatorBasicExample extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Radix Primitives', style: theme.textTheme.small),
+          Text('Finesse', style: theme.textTheme.small),
           const SizedBox(height: 4),
           Text(
-            'An open-source UI component library.',
+            'A design system for Flutter.',
             style: theme.textTheme.muted,
           ),
           const Divider.horizontal(

@@ -9,10 +9,10 @@ class SurfaceBasicExample extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Wrap(
       spacing: 24,
+      runSpacing: 24,
+      alignment: WrapAlignment.center,
       children: [
         Surface(
           child: SizedBox(

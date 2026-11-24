@@ -424,6 +424,14 @@ void main() {
             .map((r) => r.visible),
         [false, true, false, false],
       );
+      // Inside the destination's bounds: the app bar clips for its backdrop
+      // blur, which would cut an outside ring off.
+      expect(
+        tester
+            .widgetList<FocusRing>(find.byType(FocusRing))
+            .every((r) => r.inset),
+        isTrue,
+      );
     });
 
     testWidgets('each destination is a labelled button; the selected one '
@@ -440,9 +448,11 @@ void main() {
         expect(data.flagsCollection.isButton, isTrue);
         expect(data.flagsCollection.isEnabled, ui.Tristate.isTrue);
         expect(data.hasAction(ui.SemanticsAction.tap), isTrue);
+        // A destination is one of a set: each says whether it is the
+        // selected one.
         expect(
           data.flagsCollection.isSelected,
-          i == 2 ? ui.Tristate.isTrue : ui.Tristate.none,
+          i == 2 ? ui.Tristate.isTrue : ui.Tristate.isFalse,
         );
       }
       handle.dispose();
@@ -994,26 +1004,103 @@ void main() {
         formFactor: FormFactor.mobile,
       );
       for (final (label, selected) in [
-        ('Home', false),
-        ('Jobs', true),
-        ('Chat', false),
-        ('Me', false),
-        ('Create post', false),
+        ('Home', ui.Tristate.isFalse),
+        ('Jobs', ui.Tristate.isTrue),
+        ('Chat', ui.Tristate.isFalse),
+        ('Me', ui.Tristate.isFalse),
+        // The action is not one of the set: a plain button, with no
+        // selected state at all.
+        ('Create post', ui.Tristate.none),
       ]) {
         final data = tester
             .getSemantics(find.bySemanticsLabel(label))
             .getSemanticsData();
         // The label alone: the icon adds nothing to it.
         expect(data.label, label);
+        expect(data.value, isEmpty, reason: label);
         expect(data.flagsCollection.isButton, isTrue);
         expect(data.flagsCollection.isEnabled, ui.Tristate.isTrue);
         expect(data.hasAction(ui.SemanticsAction.tap), isTrue);
-        expect(
-          data.flagsCollection.isSelected,
-          selected ? ui.Tristate.isTrue : ui.Tristate.none,
-        );
+        expect(data.flagsCollection.isSelected, selected, reason: label);
       }
       handle.dispose();
+    });
+
+    testWidgets("a destination's badge count is its semantic value", (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await pumpFinesse(
+        tester,
+        MediaQuery(
+          data: const MediaQueryData(),
+          child: Align(
+            alignment: Alignment.bottomCenter,
+            child: BottomNavigationBar(
+              selectedIndex: 0,
+              onDestinationSelected: (_) {},
+              action: action(),
+              destinations: [
+                ...destinations(3, badgeCounts: const {1: 4, 2: 0}),
+                // A dot says "something new", not how much.
+                const NavigationDestination(
+                  icon: Icon(PhosphorIconsRegular.bell),
+                  label: 'Alerts',
+                  showBadge: true,
+                ),
+                const NavigationDestination(
+                  icon: Icon(PhosphorIconsRegular.chatCircleDots),
+                  label: 'Inbox',
+                  badgeCount: 300,
+                ),
+              ],
+            ),
+          ),
+        ),
+        formFactor: FormFactor.mobile,
+      );
+      String valueOf(String label) => tester
+          .getSemantics(find.bySemanticsLabel(label))
+          .getSemanticsData()
+          .value;
+
+      expect(valueOf('Home'), isEmpty);
+      expect(valueOf('Jobs'), '4');
+      expect(valueOf('Chat'), isEmpty, reason: 'a zero count shows no badge');
+      expect(valueOf('Alerts'), isEmpty);
+      // The real number, not the "99+" the badge is capped at.
+      expect(valueOf('Inbox'), '300');
+      expect(valueOf('Create post'), isEmpty);
+      // The badge's own text is not read a second time.
+      expect(
+        tester
+            .getSemantics(find.bySemanticsLabel('Jobs'))
+            .getSemanticsData()
+            .label,
+        'Jobs',
+      );
+      handle.dispose();
+    });
+
+    testWidgets('keyboard focus rings the focused item, inside its bounds', (
+      tester,
+    ) async {
+      useTraditionalHighlights();
+      await pumpFinesse(
+        tester,
+        bar(onDestinationSelected: (_) {}, action: action()),
+        formFactor: FormFactor.mobile,
+      );
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      final rings = tester
+          .widgetList<FocusRing>(find.byType(FocusRing))
+          .toList();
+      expect(rings.map((r) => r.visible), [true, false, false, false, false]);
+      // The pill clips for its backdrop blur; an outside ring would be cut.
+      expect(rings.every((r) => r.inset), isTrue);
+      final theme = themeOf(tester, find.byType(BottomNavigationBar));
+      expect(rings.every((r) => r.borderRadius == theme.radii.full), isTrue);
     });
 
     testWidgets('five destinations and an action fit a 360-point phone', (
@@ -1026,28 +1113,72 @@ void main() {
         surfaceSize: const Size(360, 780),
       );
       expect(tester.takeException(), isNull);
-      expect(tester.getSize(surface()).width, lessThanOrEqualTo(360));
+      // With the 16px margin the bar keeps on each side.
+      expect(tester.getSize(surface()).width, lessThanOrEqualTo(360 - 32));
     });
 
-    testWidgets(
-      'five destinations and an action fit a 320-point phone',
-      (
+    testWidgets('five destinations and an action fit a 320-point phone: the '
+        'items give up width evenly rather than overflow', (tester) async {
+      await pumpFinesse(
         tester,
-      ) async {
-        await pumpFinesse(
-          tester,
-          bar(count: 5, action: action()),
-          formFactor: FormFactor.mobile,
-          surfaceSize: const Size(320, 568),
-        );
-        expect(tester.takeException(), isNull);
-      },
-      // TODO(finesse): a floating bar gives every item a fixed 52px, so six
-      // of them need 346px and overflow the smallest phones (320pt wide)
-      // with a RenderFlex error. The items would have to be allowed to
-      // shrink — or the bar to dock — below that width.
-      skip: true,
-    );
+        bar(count: 5, action: action()),
+        formFactor: FormFactor.mobile,
+        surfaceSize: const Size(320, 568),
+      );
+      expect(tester.takeException(), isNull);
+      final theme = themeOf(tester, find.byType(BottomNavigationBar));
+      final themed = theme.bottomNavigationBarTheme.itemWidth!;
+      expect(themed, 52);
+
+      // Six items in 320 less two 16px margins, 6 + 6 of padding, a 1px
+      // outline each side and five 4px gaps.
+      const fit = (320 - 32 - 12 - 2 - 4 * 5) / 6;
+      expect(items(), findsNWidgets(6));
+      for (var i = 0; i < 6; i++) {
+        final size = tester.getSize(items().at(i));
+        expect(size.width, lessThan(themed), reason: 'item $i');
+        expect(size.width, closeTo(fit, .01), reason: 'item $i');
+        // Only the width gives: the touch height stays.
+        expect(size.height, 48, reason: 'item $i');
+      }
+      final pill = tester.getRect(surface());
+      expect(pill.width, closeTo(320 - 32, .01));
+      expect(pill.left, closeTo(16, .01));
+      expect(pill.right, closeTo(320 - 16, .01));
+    });
+
+    testWidgets('at 390 points the same six items are exactly the theme '
+        'width', (tester) async {
+      await pumpFinesse(
+        tester,
+        bar(count: 5, action: action()),
+        formFactor: FormFactor.mobile,
+        surfaceSize: const Size(390, 844),
+      );
+      expect(tester.takeException(), isNull);
+      final themed = themeOf(
+        tester,
+        find.byType(BottomNavigationBar),
+      ).bottomNavigationBarTheme.itemWidth!;
+      expect(items(), findsNWidgets(6));
+      for (var i = 0; i < 6; i++) {
+        expect(tester.getSize(items().at(i)), Size(themed, 48));
+      }
+      expect(tester.getSize(surface()).width, 52 * 6 + 4 * 5 + 12 + 2);
+    });
+
+    testWidgets('a docked bar never shrinks its items below their share', (
+      tester,
+    ) async {
+      await pumpFinesse(
+        tester,
+        bar(count: 5, action: action(), floating: false),
+        formFactor: FormFactor.mobile,
+        surfaceSize: const Size(320, 568),
+      );
+      expect(tester.takeException(), isNull);
+      expect(tester.getSize(surface()).width, 320);
+    });
 
     testWidgets('follows a theme override', (tester) async {
       const colour = Color(0xffcc5500);

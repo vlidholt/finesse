@@ -17,16 +17,17 @@ const mobileSize = Size(390, 844);
 /// the log lines it prints for each face it cannot fetch are noise — and
 /// loads the one editor font it *can* find.
 ///
-/// The editor's font picker builds a preview style for every font it
-/// offers, and `GoogleFonts.getFont` starts loading a face as soon as it is
-/// asked for a style. For JetBrains Mono that succeeds without a network,
-/// because the example bundles the same files for its code blocks. The load
-/// is real I/O, so it finishes at an arbitrary point after the panel first
-/// opens, and the engine's "fonts changed" message then schedules a frame.
-/// When that lands after a test's last pump, the test fails with "An
-/// animation is still running even after the widget tree was disposed" —
-/// which is what made the first panel-opening test of each file fail.
-/// Loading the face once, up front, leaves nothing to arrive later.
+/// `GoogleFonts.getFont` starts loading a face as soon as it is asked for a
+/// style — by a font picker row showing a font in its own face, or by a
+/// theme being built in that font (the Press preset is set in JetBrains
+/// Mono). For JetBrains Mono that succeeds without a network, because the
+/// example bundles the same files for its code blocks. The load is real
+/// I/O, so it finishes at an arbitrary point, and the engine's "fonts
+/// changed" message then schedules a frame. When that lands after a test's
+/// last pump, the test fails with "An animation is still running even
+/// after the widget tree was disposed". Loading every face of it once, up
+/// front — the italic included, which a text theme's blockquote asks for —
+/// leaves nothing to arrive later.
 Future<void> setUpFonts() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   GoogleFonts.config.allowRuntimeFetching = false;

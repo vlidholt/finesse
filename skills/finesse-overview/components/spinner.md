@@ -5,8 +5,8 @@ An animated loading indicator.
 ## Sizes
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 
 class SpinnerBasicExample extends StatelessWidget {
   const SpinnerBasicExample({super.key});

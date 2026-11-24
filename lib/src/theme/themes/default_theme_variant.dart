@@ -1683,7 +1683,9 @@ class DefaultThemeVariant extends ThemeVariant {
     // `muted` is a colour as much as a size: shadcn's is
     // `text-sm text-muted-foreground`. Components build on the raw
     // `effectiveTextTheme`, so this only reaches `Theme.of(context).textTheme`.
-    final muted = (small?.apply(t.muted) ?? t.muted).copyWith(
+    // The scheme's colour is a default: a text theme that states its own
+    // muted colour keeps it.
+    final muted = (small?.apply(t.muted) ?? t.muted).fallback(
       color: colorScheme.mutedForeground,
     );
     if (display == null &&

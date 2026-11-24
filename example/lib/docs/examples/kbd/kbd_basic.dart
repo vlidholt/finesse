@@ -12,8 +12,11 @@ class KbdBasicExample extends StatelessWidget {
       children: [
         Kbd('K'),
         Kbd.group(['⌘', 'K']),
-        Row(
-          mainAxisSize: MainAxisSize.min,
+        // A Wrap, so the sentence breaks around the keys on a narrow screen.
+        Wrap(
+          alignment: WrapAlignment.center,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          runSpacing: 4,
           children: [
             Text('Press '),
             Kbd.group(['Ctrl', 'Shift', 'P']),
