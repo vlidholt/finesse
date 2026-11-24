@@ -15,12 +15,16 @@ own default look and its own rules.
   `Finesse` prefix — `FinesseApp`, `FinesseRow`, `FinesseColumn`,
   `FinessePadding`, `FinesseForm`, `FinesseFormField`, `FinesseTable`,
   `FinesseBorder`, `FinesseBorderSide`, `FinesseDecoration`,
-  `FinesseGestureDetector`, `FinesseRadioGroup`, `FinesseState`,
+  `FinesseGestureDetector`, `FinesseRadioGroup`,
   `FinessePageRoute`, `FinesseLocalizations`, `FinesseMaterial`. A clash with
   *Material* only (`Card`, `Switch`, `Dialog`, `Tooltip`, `Scaffold`,
   `AppBar`, `ListTile`, `Chip`) is fine: the package is Material-free, and a
   file that imports both hides one side. Before adding a public name, check
   it against `package:flutter/widgets.dart`.
+- **Flutter's own types where one exists.** Interaction state is
+  `WidgetState` and `WidgetStatesController`, not an enum of ours;
+  `WidgetStatesController.update` mutates its set in place, so a listener
+  that needs to know what changed keeps its own copy of the last value.
 - **Flutter vocabulary where it exists.** `TextField`/`TextFormField` (was
   Input), `OtpField`, `Divider` (was Separator), `ProgressBar`,
   `SelectOption`. Components with no Flutter counterpart keep shadcn's name
