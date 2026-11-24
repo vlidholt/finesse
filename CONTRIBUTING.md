@@ -139,4 +139,4 @@ class Alert extends StatelessWidget {
 5. Open a pull request describing what changed and why, and link the issue it fixes, if any.
 6. Make sure CI passes. It runs `flutter analyze` and `flutter test` against the package and the example app, plus an import check and a check that generated files are up to date.
 
-A maintainer merges your pull request once it is approved and CI passes. The example app deploys to GitHub Pages from `main`. A release is published when a maintainer bumps the version: the tests pass on `main`, `create-release.yaml` tags `v<version>`, and `publish.yaml` publishes that tag to pub.dev.
+A maintainer merges your pull request once it is approved and CI passes. The example app deploys to GitHub Pages from `main`. Releases are cut by hand for now: a maintainer bumps the version in `pubspec.yaml` and `CHANGELOG.md`; there is no workflow that tags or publishes.

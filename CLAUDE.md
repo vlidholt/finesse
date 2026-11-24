@@ -490,9 +490,10 @@ load. Ours are plain `const IconData(code, fontFamily:, fontPackage:
 - `test/readme_snippet_test.dart` and `example/test/example_md_test.dart` hold
   verbatim copies of the README and `example/example.md` snippets and check
   they still match.
-- Releases: bump `pubspec.yaml` + `CHANGELOG.md` on main; after tests pass
-  `create-release.yaml` tags `v<version>`, and `publish.yaml` publishes that
-  tag to pub.dev (OIDC).
+- Releases are manual: bump `pubspec.yaml` + `CHANGELOG.md` on main. The
+  workflows shad used to tag a release, post it to Discord and publish to
+  pub.dev (`create-release.yaml`, `publish.yaml`) were removed with the fork;
+  nothing tags or publishes on its own.
 - Verify with: `flutter analyze` and `flutter test` at the root, then the same
   in `example/`. The example consumes the
   package through the public barrel, so it catches export breakage that the
