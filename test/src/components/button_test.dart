@@ -9,9 +9,9 @@ import 'package:finesse/src/theme/components/button.dart';
 import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/style.dart';
 import 'package:finesse/src/theme/theme.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart'
     hide ButtonTheme, IconButton, Theme, ThemeData;
-import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
