@@ -74,6 +74,7 @@ flutter:
     - lib/docs/examples/sidebar/
     - lib/docs/examples/skeleton/
     - lib/docs/examples/slider/
+    - lib/docs/examples/sliver_app_bar/
     - lib/docs/examples/sonner/
     - lib/docs/examples/spinner/
     - lib/docs/examples/switch/

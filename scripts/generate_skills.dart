@@ -68,6 +68,7 @@ const _slugs = [
   'sidebar',
   'skeleton',
   'slider',
+  'sliver_app_bar',
   'sonner',
   'spinner',
   'streaming_text',

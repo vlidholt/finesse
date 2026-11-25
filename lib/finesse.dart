@@ -104,6 +104,7 @@ export 'src/components/sheet.dart'
 export 'src/components/sidebar.dart';
 export 'src/components/skeleton.dart';
 export 'src/components/slider.dart';
+export 'src/components/sliver_app_bar.dart';
 export 'src/components/sonner.dart' hide ToastInfo;
 export 'src/components/spinner.dart';
 export 'src/components/streaming_text.dart';

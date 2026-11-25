@@ -101,7 +101,9 @@ class AppBarToolbar extends StatelessWidget {
     // name, and the bar is chrome, not a heading.
     final heading = title == null || middle != null
         ? title
-        : Semantics(header: true, child: title);
+        // A node of its own: merged into the bar's, it would make a
+        // heading of everything else that is read there.
+        : Semantics(header: true, container: true, child: title);
 
     final actionsRow = actions.isEmpty
         ? null
@@ -273,7 +275,7 @@ class AppBarSurface extends StatelessWidget {
     final filter = Backdrop.filterFor(blur: blur, saturation: saturation);
     if (filter != null) {
       surface = ClipRect(
-        child: _FadingBackdrop(
+        child: FadingBackdrop(
           visibility: visibility,
           filter: filter,
           child: surface,
@@ -378,14 +380,19 @@ class _RenderFadingFill extends RenderProxyBox {
 ///
 /// Not an opacity around a filter: under an opacity layer a backdrop filter
 /// samples that layer, which is empty. The filter's own output is faded.
-class _FadingBackdrop extends SingleChildRenderObjectWidget {
-  const _FadingBackdrop({
+class FadingBackdrop extends SingleChildRenderObjectWidget {
+  /// Creates a backdrop filter shown by [visibility].
+  const FadingBackdrop({
     required this.visibility,
     required this.filter,
     required super.child,
+    super.key,
   });
 
+  /// How much of the filter's result shows, from 0 to 1.
   final Animation<double> visibility;
+
+  /// The filter at full strength.
   final ImageFilter filter;
 
   @override
@@ -395,9 +402,9 @@ class _FadingBackdrop extends SingleChildRenderObjectWidget {
   @override
   void updateRenderObject(
     BuildContext context,
-    _RenderFadingBackdrop renderObject,
+    covariant RenderBackdropFilter renderObject,
   ) {
-    renderObject
+    (renderObject as _RenderFadingBackdrop)
       ..visibility = visibility
       ..base = filter;
   }

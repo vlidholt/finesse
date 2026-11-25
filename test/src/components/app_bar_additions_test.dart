@@ -1,4 +1,5 @@
 import 'package:finesse/finesse.dart';
+import 'package:finesse/src/components/app_bar_layout.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -376,11 +377,7 @@ void main() {
       RenderBackdropFilter filter() => tester.renderObject(
         find.descendant(
           of: find.byType(AppBar),
-          matching: find.byWidgetPredicate(
-            (widget) =>
-                widget is SingleChildRenderObjectWidget &&
-                widget.runtimeType.toString() == '_FadingBackdrop',
-          ),
+          matching: find.byType(FadingBackdrop),
         ),
       );
       expect(filter().enabled, isFalse);
