@@ -91,6 +91,7 @@ export 'src/components/radio.dart';
 export 'src/components/resizable.dart';
 export 'src/components/scaffold.dart';
 export 'src/components/scroll_area.dart';
+export 'src/components/segmented_control.dart';
 export 'src/components/select.dart';
 export 'src/components/sheet.dart'
     hide
@@ -107,8 +108,10 @@ export 'src/components/streaming_text.dart';
 export 'src/components/surface.dart';
 export 'src/components/switch.dart';
 export 'src/components/tab_bar.dart';
+export 'src/components/tab_bar_view.dart' hide TabPages;
+export 'src/components/tab_list.dart' show TabBarVariant;
 export 'src/components/table.dart';
-export 'src/components/tabs.dart';
+export 'src/components/tabs.dart' hide tabListItems;
 export 'src/components/text_field.dart';
 export 'src/components/textarea.dart' hide ResizeGripPainter;
 export 'src/components/time_picker.dart' hide TimePickerTextEditingController;

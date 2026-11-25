@@ -17,7 +17,7 @@ class _TabBarExpandedExampleState extends State<TabBarExpandedExample> {
     'Experience': 'Halcyon, Birchline and Lumen Labs.',
   };
 
-  int section = 0;
+  String section = 'Posts';
 
   @override
   Widget build(BuildContext context) {
@@ -28,15 +28,18 @@ class _TabBarExpandedExampleState extends State<TabBarExpandedExample> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          TabBar(
-            selectedIndex: section,
-            onSelected: (i) => setState(() => section = i),
-            tabs: [for (final name in _sections.keys) Text(name)],
+          TabBar<String>(
+            value: section,
+            onChanged: (value) => setState(() => section = value),
+            tabs: [
+              for (final name in _sections.keys)
+                Tab(value: name, child: Text(name)),
+            ],
           ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 24),
             child: Text(
-              _sections.values.elementAt(section),
+              _sections[section]!,
               textAlign: TextAlign.center,
               style: theme.textTheme.muted,
             ),

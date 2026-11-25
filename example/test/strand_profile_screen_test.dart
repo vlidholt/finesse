@@ -64,8 +64,10 @@ Future<void> _settle(WidgetTester tester, {int frames = 12}) async {
 BuildContext _context(WidgetTester tester) =>
     tester.element(find.byType(ProfileScreen));
 
-Finder _tab(String label) =>
-    find.descendant(of: find.byType(TabBar), matching: find.text(label));
+Finder _tab(String label) => find.descendant(
+  of: find.byType(TabBar<ProfileTab>),
+  matching: find.text(label),
+);
 
 Finder _coverButton(String label) => find.byWidgetPredicate(
   (widget) => widget is ProfileCoverButton && widget.semanticLabel == label,
@@ -151,7 +153,12 @@ void main() {
       for (final tab in ProfileTab.values) {
         expect(_tab(tab.label), findsOneWidget, reason: tab.label);
       }
-      expect(tester.widget<TabBar>(find.byType(TabBar)).selectedIndex, 1);
+      expect(
+        tester
+            .widget<TabBar<ProfileTab>>(find.byType(TabBar<ProfileTab>))
+            .value,
+        ProfileTab.about,
+      );
     });
 
     testWidgets('shows the About tab\'s cards', (tester) async {
@@ -394,7 +401,10 @@ void main() {
       }
 
       // Four tabs and five skills; none of the desktop-only sections.
-      expect(tester.widget<TabBar>(find.byType(TabBar)).tabs, hasLength(4));
+      expect(
+        tester.widget<TabBar<ProfileTab>>(find.byType(TabBar<ProfileTab>)).tabs,
+        hasLength(4),
+      );
       expect(_tab('Activity'), findsNothing);
       expect(find.byType(Chip), findsNWidgets(5));
       for (final text in [
@@ -581,7 +591,7 @@ void main() {
       final theme = Theme.of(tester.element(find.byType(AvatarGroup)));
       expect(tester.getSize(find.byType(AvatarGroup)).height, theme.avatarXs);
 
-      final tabs = tester.getRect(find.byType(TabBar));
+      final tabs = tester.getRect(find.byType(TabBar<ProfileTab>));
       // 48 of tabs and the hairline under them.
       expect(tabs.height, 49);
       for (final label in ['Posts', 'About']) {
@@ -604,7 +614,10 @@ void main() {
     await _settle(tester, frames: 4);
     expect(find.byType(ProfileMobileHeader), findsOneWidget);
     expect(find.byType(ProfileMediaCard), findsOneWidget);
-    expect(tester.widget<TabBar>(find.byType(TabBar)).selectedIndex, 3);
+    expect(
+      tester.widget<TabBar<ProfileTab>>(find.byType(TabBar<ProfileTab>)).value,
+      ProfileTab.media,
+    );
 
     // Activity has no tab on a phone: About stands in for it.
     tester.view.physicalSize = _desktop;
@@ -613,7 +626,10 @@ void main() {
     await _settle(tester, frames: 2);
     tester.view.physicalSize = _phone;
     await _settle(tester, frames: 4);
-    expect(tester.widget<TabBar>(find.byType(TabBar)).selectedIndex, 1);
+    expect(
+      tester.widget<TabBar<ProfileTab>>(find.byType(TabBar<ProfileTab>)).value,
+      ProfileTab.about,
+    );
     expect(find.text(ProfileData.aboutShort), findsOneWidget);
   });
 }

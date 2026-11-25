@@ -81,7 +81,7 @@ void main() {
     /// From the leading edge of the first tab to the trailing edge of the
     /// last.
     double tabsWidth(WidgetTester tester) {
-      final tabs = find.byType(Tab<int>);
+      final tabs = find.byType(MovingIndicatorTarget);
       return tester
           .getRect(tabs.first)
           .expandToInclude(tester.getRect(tabs.last))
@@ -243,7 +243,7 @@ void main() {
         Tab(value: 1, child: Text('My applications')),
       ]);
       expect(tester.takeException(), isNull);
-      final tabs = find.byType(Tab<int>);
+      final tabs = find.byType(MovingIndicatorTarget);
       final first = tester.getRect(tabs.first);
       final second = tester.getRect(tabs.last);
       expect(first.width, closeTo(second.width, .5));
@@ -265,7 +265,7 @@ void main() {
         Tab(value: 0, child: Text('A')),
         Tab(value: 1, child: Text('B')),
       ]);
-      final tab = tester.getRect(find.byType(Tab<int>).first);
+      final tab = tester.getRect(find.byType(MovingIndicatorTarget).first);
       final label = tester.getRect(find.text('A'));
       expect(label.center.dx, closeTo(tab.center.dx, .5));
       expect(
@@ -287,7 +287,7 @@ void main() {
         Tab(value: 1, child: Text('B')),
       ]);
       expect(tester.takeException(), isNull);
-      final tab = tester.getRect(find.byType(Tab<int>).first);
+      final tab = tester.getRect(find.byType(MovingIndicatorTarget).first);
       expect(
         tester.getRect(find.byKey(const Key('leading'))).left,
         greaterThan(tab.left),
@@ -314,7 +314,7 @@ void main() {
         Tab(value: 1, child: Text('B')),
       ]);
       expect(tester.takeException(), isNull);
-      final tab = tester.getRect(find.byType(Tab<int>).first);
+      final tab = tester.getRect(find.byType(MovingIndicatorTarget).first);
       final label = tester.getRect(find.byType(FittedBox));
       expect(label.left, greaterThanOrEqualTo(tab.left));
       expect(label.right, lessThanOrEqualTo(tab.right));

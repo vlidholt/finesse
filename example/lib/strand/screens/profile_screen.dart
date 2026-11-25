@@ -206,10 +206,13 @@ class _MobileProfile extends StatelessWidget {
               ),
             ),
             const Gap.sm(),
-            TabBar(
-              selectedIndex: ProfileTab.mobile.indexOf(selected),
-              onSelected: (index) => onTabSelected(ProfileTab.mobile[index]),
-              tabs: [for (final tab in ProfileTab.mobile) Text(tab.label)],
+            TabBar<ProfileTab>(
+              value: selected,
+              onChanged: onTabSelected,
+              tabs: [
+                for (final tab in ProfileTab.mobile)
+                  Tab(value: tab, child: Text(tab.label)),
+              ],
             ),
             Padding(
               padding: pagePadding.add(EdgeInsets.only(bottom: bottomInset)),

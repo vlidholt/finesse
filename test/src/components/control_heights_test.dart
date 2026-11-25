@@ -237,7 +237,10 @@ void main() {
         }
         // A tab is `tabHeight` tall where the style pins one, and the
         // historical 32 where it does not.
-        final tabs = find.byType(Tab<String>);
+        final tabs = find.descendant(
+          of: find.byType(Tabs<String>),
+          matching: find.byType(MovingIndicatorTarget),
+        );
         for (var i = 0; i < 2; i++) {
           expect(
             tester.getSize(tabs.at(i)).height,
@@ -425,7 +428,10 @@ void main() {
               reason: 'icon button #$i in $label',
             );
           }
-          final tabs = find.byType(Tab<String>);
+          final tabs = find.descendant(
+            of: find.byType(Tabs<String>),
+            matching: find.byType(MovingIndicatorTarget),
+          );
           for (var i = 0; i < 2; i++) {
             expect(
               tester.getSize(tabs.at(i)).height,
@@ -503,11 +509,14 @@ void main() {
               Tab(value: 'b', child: Text('Other')),
             ],
           ),
-          'underline tabs': TabBar(
-            tabs: const [Text('Label'), Text('Other')],
-            selectedIndex: 0,
+          'underline tabs': TabBar<int>(
+            tabs: const [
+              Tab(value: 0, child: Text('Label')),
+              Tab(value: 1, child: Text('Other')),
+            ],
+            value: 0,
             expand: false,
-            onSelected: (_) {},
+            onChanged: (_) {},
           ),
           'icon button': IconButton(
             icon: const Icon(PhosphorIconsRegular.plus),
