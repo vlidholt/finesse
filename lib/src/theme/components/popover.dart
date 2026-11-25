@@ -65,7 +65,9 @@ class PopoverTheme with _$PopoverTheme {
   final bool? showArrow;
 
   /// The edge length of the arrow's square, which is turned 45° and sunk
-  /// into the popover's edge. The tooltip's `size-2.5` by default.
+  /// into the popover's edge: the tip stands about half of this proud of
+  /// it. 14 in the built-in styles, a step up from the tooltip's
+  /// `size-2.5`.
   final double? arrowSize;
 
   /// The corner radius of the arrow's tip, `rounded-[2px]` — zero in the
