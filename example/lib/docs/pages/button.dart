@@ -34,6 +34,12 @@ final buttonDoc = ComponentDoc(
     ComponentExample(
       id: 'button_loading',
       title: 'Loading',
+      description:
+          '`loading: true` shows a spinner in the place of the leading '
+          'widget, or over the label when there is none, without changing '
+          'the size of the button. A loading button ignores presses, keeps '
+          'the focus and is announced as busy; it is not dimmed like a '
+          'disabled one.',
       builder: (_) => const ButtonLoadingExample(),
     ),
   ],

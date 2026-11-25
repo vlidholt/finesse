@@ -1,3 +1,6 @@
+import 'package:finesse/src/components/button_group.dart';
+import 'package:finesse/src/components/spinner.dart';
+import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/raw_components/focusable.dart';
 import 'package:finesse/src/theme/components/button.dart';
 import 'package:finesse/src/theme/components/button_sizes.dart';
@@ -8,6 +11,7 @@ import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/debug_check.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:finesse/src/utils/motion_color.dart';
+import 'package:finesse/src/utils/pop_in.dart';
 import 'package:finesse/src/utils/separated_iterable.dart';
 import 'package:finesse/src/utils/spring.dart';
 import 'package:finesse/src/utils/text_scaled_height.dart';
@@ -95,6 +99,7 @@ class Button extends StatefulWidget {
     this.hoverTextDecoration,
     this.decoration,
     this.enabled = true,
+    this.loading = false,
     this.onLongPress,
     this.statesController,
     this.mainAxisAlignment,
@@ -157,6 +162,7 @@ class Button extends StatefulWidget {
     this.hoverTextDecoration,
     this.decoration,
     this.enabled = true,
+    this.loading = false,
     this.onLongPress,
     this.statesController,
     this.mainAxisAlignment,
@@ -218,6 +224,7 @@ class Button extends StatefulWidget {
     this.hoverTextDecoration,
     this.decoration,
     this.enabled = true,
+    this.loading = false,
     this.onLongPress,
     this.statesController,
     this.mainAxisAlignment,
@@ -279,6 +286,7 @@ class Button extends StatefulWidget {
     this.hoverTextDecoration,
     this.decoration,
     this.enabled = true,
+    this.loading = false,
     this.onLongPress,
     this.statesController,
     this.mainAxisAlignment,
@@ -340,6 +348,7 @@ class Button extends StatefulWidget {
     this.hoverTextDecoration,
     this.decoration,
     this.enabled = true,
+    this.loading = false,
     this.onLongPress,
     this.statesController,
     this.mainAxisAlignment,
@@ -400,6 +409,7 @@ class Button extends StatefulWidget {
     this.hoverTextDecoration,
     this.decoration,
     this.enabled = true,
+    this.loading = false,
     this.onLongPress,
     this.statesController,
     this.mainAxisAlignment,
@@ -458,6 +468,7 @@ class Button extends StatefulWidget {
     this.hoverTextDecoration,
     this.decoration,
     this.enabled = true,
+    this.loading = false,
     this.onLongPress,
     this.statesController,
     this.mainAxisAlignment,
@@ -663,6 +674,25 @@ class Button extends StatefulWidget {
   /// If false, the button is disabled, visually dimmed, and non-responsive.
   /// {@endtemplate}
   final bool enabled;
+
+  /// {@template Button.loading}
+  /// Whether the button's action is in progress.
+  ///
+  /// A loading button shows a spinner in the place of its [leading] widget
+  /// or, when it has none, over its label, which keeps its room: the button
+  /// is exactly as wide as it was. It ignores presses, by pointer and by
+  /// keyboard, without dimming or giving up the focus, and assistive
+  /// technology is told that it is busy.
+  ///
+  /// ```dart
+  /// Button(
+  ///   loading: _saving,
+  ///   onPressed: _save,
+  ///   child: const Text('Save'),
+  /// )
+  /// ```
+  /// {@endtemplate}
+  final bool loading;
 
   /// {@template Button.statesController}
   /// The controller that holds the button's interaction states
@@ -1094,10 +1124,15 @@ class _ButtonState extends State<Button> {
   int _taps = 0;
 
   void onTap() {
-    if (widget.onPressed == null) return;
+    if (widget.onPressed == null || widget.loading) return;
     if (mounted) setState(() => _taps++);
     widget.onPressed!();
   }
+
+  /// Whether the button has been built in its loading state. From then on
+  /// the label keeps the wrapper the spinner is swapped in under, so it is
+  /// not re-parented — and its state lost — each time loading ends.
+  bool _hasLoaded = false;
 
   @override
   Widget build(BuildContext context) {
@@ -1112,10 +1147,20 @@ class _ButtonState extends State<Button> {
         widget.pressedForegroundColor != null ||
         buttonTheme(theme).pressedForegroundColor != null;
 
-    final effectiveDecoration =
+    var effectiveDecoration =
         (buttonTheme(theme).decoration ?? const FinesseDecoration()).merge(
           widget.decoration,
         );
+    // In a `ButtonGroup` the corners and the edge towards a neighbour are
+    // the group's to decide.
+    final group = ButtonGroupScope.maybeOf(context);
+    if (group != null) {
+      effectiveDecoration = group.join(
+        effectiveDecoration,
+        Directionality.of(context),
+        fallback: theme.decoration,
+      );
+    }
 
     final effectiveMainAxisAlignment =
         widget.mainAxisAlignment ??
@@ -1183,8 +1228,9 @@ class _ButtonState extends State<Button> {
       child: ValueListenableBuilder(
         valueListenable: statesController,
         builder: (context, states, _) {
-          final pressed = states.contains(WidgetState.pressed);
-          final hovered = states.contains(WidgetState.hovered);
+          final loading = widget.loading;
+          final pressed = !loading && states.contains(WidgetState.pressed);
+          final hovered = !loading && states.contains(WidgetState.hovered);
           final enabled =
               widget.enabled && !states.contains(WidgetState.disabled);
 
@@ -1218,6 +1264,29 @@ class _ButtonState extends State<Button> {
             child = Expanded(child: widget.child!);
           }
 
+          // The spinner takes the place of the leading widget, or lies over
+          // the label when there is none. What it replaces stays in the
+          // layout, unseen, so the button does not change size.
+          var leading = widget.leading;
+          if (loading) _hasLoaded = true;
+          if (_hasLoaded) {
+            final spinnerSize = effectiveIconSize ?? 16;
+            if (leading != null) {
+              leading = _LoadingSwap(
+                loading: loading,
+                spinnerSize: spinnerSize,
+                child: leading,
+              );
+            } else if (widget.child != null) {
+              final swapped = _LoadingSwap(
+                loading: loading,
+                spinnerSize: spinnerSize,
+                child: widget.child!,
+              );
+              child = child is Expanded ? Expanded(child: swapped) : swapped;
+            }
+          }
+
           // shadcn/ui nudges a button down a pixel while active
           // (`active:translate-y-px`), animated by its `transition-all`.
           final effectivePressedOffset =
@@ -1233,7 +1302,8 @@ class _ButtonState extends State<Button> {
           // with no onPressed does nothing, so it should not appear to
           // depress. `enabled` here tracks Button.enabled, which is
           // independent of whether a callback was supplied.
-          final depressed = pressed && enabled && widget.onPressed != null;
+          final depressed =
+              pressed && enabled && !loading && widget.onPressed != null;
 
           Widget withForeground(Color? color, Widget? child) {
             return IconTheme(
@@ -1261,7 +1331,7 @@ class _ButtonState extends State<Button> {
           // the button's box, and so its height, never changes.
           return PressScale(
             pressed: depressed,
-            taps: enabled ? _taps : 0,
+            taps: enabled && !loading ? _taps : 0,
             scale: effectivePressScale,
             child: AnimatedSlide(
               // AnimatedSlide takes a fraction of the child's size, so
@@ -1287,7 +1357,9 @@ class _ButtonState extends State<Button> {
                   container: true,
                   button: true,
                   focusable: enabled,
-                  enabled: enabled,
+                  // Busy: there, and in the focus order, but not to be
+                  // pressed. The spinner's label says why.
+                  enabled: enabled && !loading,
                   child: Opacity(
                     opacity: enabled ? 1 : .5,
                     child: AbsorbPointer(
@@ -1344,9 +1416,11 @@ class _ButtonState extends State<Button> {
                             widget.onHoverChange?.call(value);
                           },
                           hoverStrategies: effectiveHoverStrategies,
-                          cursor: cursor(theme),
-                          onLongPress: widget.onLongPress,
-                          onTap: widget.onPressed == null ? null : onTap,
+                          cursor: loading ? MouseCursor.defer : cursor(theme),
+                          onLongPress: loading ? null : widget.onLongPress,
+                          onTap: widget.onPressed == null || loading
+                              ? null
+                              : onTap,
                           onTapDown: (details) {
                             statesController.update(WidgetState.pressed, true);
                             widget.onTapDown?.call(details);
@@ -1392,9 +1466,9 @@ class _ButtonState extends State<Button> {
                                 mainAxisAlignment: effectiveMainAxisAlignment,
                                 textDirection: effectiveTextDirection,
                                 children: [
-                                  if (widget.leading != null) widget.leading!,
-                                  if (widget.child != null) child!,
-                                  if (widget.trailing != null) widget.trailing!,
+                                  ?leading,
+                                  ?child,
+                                  ?widget.trailing,
                                 ].separatedBy(SizedBox(width: effectiveGap)),
                               ),
                             ),
@@ -1409,6 +1483,76 @@ class _ButtonState extends State<Button> {
           );
         },
       ),
+    );
+  }
+}
+
+/// Shows a spinner in the place of [child] while [loading]: the child stays
+/// in the layout, unseen, so nothing around it moves.
+class _LoadingSwap extends StatefulWidget {
+  const _LoadingSwap({
+    required this.loading,
+    required this.spinnerSize,
+    required this.child,
+  });
+
+  final bool loading;
+  final double spinnerSize;
+  final Widget child;
+
+  @override
+  State<_LoadingSwap> createState() => _LoadingSwapState();
+}
+
+class _LoadingSwapState extends State<_LoadingSwap> {
+  /// What is shown. It follows the widget, except that a swap created
+  /// already loading — the button's first time — starts out not loading
+  /// and turns in its first frame, so that time is animated like the rest.
+  bool _loading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.loading) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() => _loading = widget.loading);
+      });
+    }
+  }
+
+  @override
+  void didUpdateWidget(_LoadingSwap oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _loading = widget.loading;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final motion = Motion.of(context);
+    return Stack(
+      alignment: Alignment.center,
+      // A spinner larger than a one-letter label still shows whole.
+      clipBehavior: Clip.none,
+      children: [
+        AnimatedOpacity(
+          opacity: _loading ? 0 : 1,
+          duration: motion.fast,
+          curve: motion.standard,
+          child: widget.child,
+        ),
+        // Out of the tree when it is not showing: a spinner never rests.
+        Positioned.fill(
+          child: Center(
+            child: PopIn(
+              visible: _loading,
+              child: Spinner(
+                size: widget.spinnerSize,
+                semanticLabel: FinesseLocalizations.of(context).button.loading,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

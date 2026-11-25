@@ -467,11 +467,11 @@ void main() {
                   floatingShadowDark: const [],
                 ),
           // Room under the toast for its shadow to be read.
-          sonnerTheme: const SonnerTheme(padding: EdgeInsets.all(40)),
+          toasterTheme: const ToasterTheme(padding: EdgeInsets.all(40)),
         ),
         build: ({required shadow}) => const SizedBox(key: Key('host')),
         open: (tester) async {
-          Sonner.of(tester.element(find.byKey(const Key('host')))).show(
+          Toaster.of(tester.element(find.byKey(const Key('host')))).show(
             const Toast(
               title: Text('Invitation sent'),
               description: Text('She will see it in her network tab.'),
@@ -479,7 +479,7 @@ void main() {
           );
         },
         surface: find.byType(BackdropSurface),
-        tint: (theme) => theme.primaryToastTheme.backgroundColor!,
+        tint: (theme) => theme.toastTheme.backgroundColor!,
         // Wide enough for the toast to sit in a corner with room under it.
         size: const Size(900, 500),
       );

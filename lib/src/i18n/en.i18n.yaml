@@ -1,6 +1,9 @@
 actionSheet:
   cancel: "Cancel"
 
+alert:
+  dismiss: "Dismiss"
+
 timePicker:
   hours: "Hours"
   minutes: "Minutes"
@@ -56,6 +59,17 @@ keyboardToolbar:
 empty:
   title: "No results"
 
+stepper:
+  position: "Step $step of $count"
+  complete: "Completed"
+  error: "Needs attention"
+  next: "Continue"
+  finish: "Finish"
+  cancel: "Cancel"
+
+toast:
+  dismiss: "Dismiss"
+
 command:
   noResults: "No results found."
 
@@ -75,6 +89,12 @@ menu:
   end: "End"
   pageUp: "PgUp"
   pageDown: "PgDn"
+
+licensePage:
+  title: "Licenses"
+  oneLicense: "1 license"
+  licenses: "$count licenses"
+  back: "Back"
 
 pagination:
   previous: "Previous"
@@ -112,6 +132,9 @@ dialog:
 
 sheet:
   resize: "Resize"
+
+button:
+  loading: "Loading"
 
 board:
   moveUp: "Move up"

@@ -1,3 +1,4 @@
+import 'package:finesse/src/components/button_group.dart';
 import 'package:finesse/src/components/disabled.dart';
 import 'package:finesse/src/raw_components/focusable.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
@@ -10,7 +11,6 @@ import 'package:finesse/src/utils/moving_indicator.dart';
 import 'package:finesse/src/utils/provider.dart';
 import 'package:finesse/src/utils/spring.dart';
 import 'package:finesse/src/utils/text_scaled_height.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 /// Variants available for the [Toggle] widget.
@@ -277,10 +277,20 @@ class _ToggleState extends State<Toggle> {
         const EdgeInsets.symmetric(horizontal: 12);
     final effectiveHeight = widget.height ?? toggleTheme.height ?? 40.0;
     final effectiveGap = widget.gap ?? toggleTheme.gap ?? 8.0;
-    final effectiveDecoration =
+    var effectiveDecoration =
         (toggleTheme.decoration ?? const FinesseDecoration()).merge(
           widget.decoration,
         );
+    // In a `ButtonGroup` — a toggle group with no gap is one — the corners
+    // and the edge towards a neighbour are the group's to decide.
+    final joined = ButtonGroupScope.maybeOf(context);
+    if (joined != null) {
+      effectiveDecoration = joined.join(
+        effectiveDecoration,
+        Directionality.of(context),
+        fallback: theme.decoration,
+      );
+    }
 
     Color? backgroundFor({required bool hovered}) {
       if (selected) {
@@ -490,65 +500,6 @@ enum ToggleGroupVariant {
   multiple,
 }
 
-/// A controller for the selection of a [ToggleGroup].
-class ToggleGroupController<T> extends ChangeNotifier {
-  /// Creates a controller for a group of the given [variant].
-  ///
-  /// A single-variant group can start with at most one value selected.
-  ToggleGroupController({
-    required this.variant,
-    Set<T>? initialValue,
-    this.allowDeselection = true,
-  }) : _value = {...?initialValue} {
-    assert(
-      variant == ToggleGroupVariant.multiple || _value.length <= 1,
-      'A single-variant ToggleGroup cannot start with more than one '
-      'selected value',
-    );
-  }
-
-  /// Whether one or many items can be selected.
-  final ToggleGroupVariant variant;
-
-  /// Whether tapping the selected item in a [ToggleGroupVariant.single]
-  /// group clears the selection. Defaults to `true`, matching Radix.
-  final bool allowDeselection;
-
-  Set<T> _value;
-
-  /// The currently selected values.
-  Set<T> get value => Set.unmodifiable(_value);
-
-  set value(Set<T> newValue) {
-    if (setEquals(_value, newValue)) return;
-    _value = {...newValue};
-    notifyListeners();
-  }
-
-  /// Whether [item] is selected.
-  bool isSelected(T item) => _value.contains(item);
-
-  /// Selects [item], or removes it from the selection.
-  ///
-  /// In a single-variant group, selecting an item replaces the selection, and
-  /// toggling the selected item clears it only when [allowDeselection] is
-  /// true.
-  void toggle(T item) {
-    final selected = _value.contains(item);
-    switch (variant) {
-      case ToggleGroupVariant.single:
-        if (selected) {
-          if (!allowDeselection) return;
-          value = {};
-        } else {
-          value = {item};
-        }
-      case ToggleGroupVariant.multiple:
-        value = selected ? ({..._value}..remove(item)) : {..._value, item};
-    }
-  }
-}
-
 /// {@template ToggleGroup}
 /// A set of [Toggle]s sharing a selection.
 ///
@@ -556,7 +507,7 @@ class ToggleGroupController<T> extends ChangeNotifier {
 ///
 /// ```dart
 /// ToggleGroup<String>(
-///   values: const {'bold'},
+///   values: selected,
 ///   onChanged: (values) => setState(() => selected = values),
 ///   children: const [
 ///     ToggleGroupItem(
@@ -570,6 +521,11 @@ class ToggleGroupController<T> extends ChangeNotifier {
 ///   ],
 /// )
 /// ```
+///
+/// The group is controlled: it shows [values] and reports what a tap would
+/// make of them through [onChanged]; the parent decides. Give
+/// [initialValues] instead, and no [values], for a group that keeps its own
+/// selection.
 /// {@endtemplate}
 class ToggleGroup<T> extends StatefulWidget {
   /// {@macro ToggleGroup}
@@ -577,30 +533,42 @@ class ToggleGroup<T> extends StatefulWidget {
     super.key,
     required this.children,
     this.values,
+    this.initialValues,
     this.onChanged,
-    this.controller,
     this.allowDeselection = true,
     this.enabled = true,
     this.toggleVariant = ToggleVariant.primary,
     this.gap,
     this.axis = Axis.horizontal,
     this.mainAxisSize = MainAxisSize.min,
-  }) : variant = ToggleGroupVariant.single;
+  }) : variant = ToggleGroupVariant.single,
+       assert(
+         values == null || initialValues == null,
+         'Give values (controlled) or initialValues (uncontrolled), not both',
+       ),
+       assert(
+         (values ?? initialValues ?? const {}).length <= 1,
+         'A single-selection ToggleGroup has at most one value selected',
+       );
 
   /// A group where any number of items may be selected.
   const ToggleGroup.multiple({
     super.key,
     required this.children,
     this.values,
+    this.initialValues,
     this.onChanged,
-    this.controller,
     this.enabled = true,
     this.toggleVariant = ToggleVariant.primary,
     this.gap,
     this.axis = Axis.horizontal,
     this.mainAxisSize = MainAxisSize.min,
   }) : variant = ToggleGroupVariant.multiple,
-       allowDeselection = true;
+       allowDeselection = true,
+       assert(
+         values == null || initialValues == null,
+         'Give values (controlled) or initialValues (uncontrolled), not both',
+       );
 
   /// Whether one or many items can be selected. Set by the constructor:
   /// [ToggleGroupVariant.single] for [ToggleGroup.new] and
@@ -613,14 +581,16 @@ class ToggleGroup<T> extends StatefulWidget {
   /// The items in the group.
   final List<ToggleGroupItem<T>> children;
 
-  /// The selected values. Ignored when [controller] is provided.
+  /// The selected values, for a controlled group: a tap changes nothing
+  /// until the parent passes the new set back.
   final Set<T>? values;
 
-  /// Called with the new selection whenever it changes.
-  final ValueChanged<Set<T>>? onChanged;
+  /// The values selected at first, for a group that keeps its own
+  /// selection. Give this or [values], not both.
+  final Set<T>? initialValues;
 
-  /// An external controller for the selection.
-  final ToggleGroupController<T>? controller;
+  /// Called with what the selection becomes when an item is tapped.
+  final ValueChanged<Set<T>>? onChanged;
 
   /// Whether tapping the selected item of a single-variant group clears it.
   final bool allowDeselection;
@@ -628,7 +598,12 @@ class ToggleGroup<T> extends StatefulWidget {
   /// Whether the whole group responds to input.
   final bool enabled;
 
-  /// The gap between items.
+  /// The gap between items, 4 by default.
+  ///
+  /// With a gap of 0 the items are joined into one bar, as in a
+  /// `ButtonGroup`: the corners between them are squared and, in the
+  /// outline variant, neighbours share one hairline. A joined group is as
+  /// small as its items, whatever [mainAxisSize] says.
   final double? gap;
 
   /// The direction the items are laid out in.
@@ -643,57 +618,29 @@ class ToggleGroup<T> extends StatefulWidget {
 }
 
 class _ToggleGroupState<T> extends State<ToggleGroup<T>> {
-  ToggleGroupController<T>? _internalController;
+  /// The selection of a group that keeps its own.
+  late Set<T> _own = {...?widget.initialValues};
 
-  ToggleGroupController<T> get controller =>
-      widget.controller ?? _internalController!;
+  Set<T> get _values => widget.values ?? _own;
 
-  @override
-  void initState() {
-    super.initState();
-    if (widget.controller == null) {
-      _internalController = ToggleGroupController<T>(
-        variant: widget.variant,
-        initialValue: widget.values,
-        allowDeselection: widget.allowDeselection,
-      );
+  /// Selects [item], or takes it out of the selection.
+  ///
+  /// In a single-selection group, selecting an item replaces the selection,
+  /// and tapping the selected item clears it only when deselection is
+  /// allowed.
+  void _toggle(T item) {
+    final current = _values;
+    final selected = current.contains(item);
+    final Set<T> next;
+    switch (widget.variant) {
+      case ToggleGroupVariant.single:
+        if (selected && !widget.allowDeselection) return;
+        next = selected ? {} : {item};
+      case ToggleGroupVariant.multiple:
+        next = selected ? ({...current}..remove(item)) : {...current, item};
     }
-    controller.addListener(_onSelectionChanged);
-  }
-
-  @override
-  void didUpdateWidget(ToggleGroup<T> oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.controller != oldWidget.controller) {
-      (oldWidget.controller ?? _internalController)?.removeListener(
-        _onSelectionChanged,
-      );
-      controller.addListener(_onSelectionChanged);
-    }
-    if (widget.controller == null &&
-        widget.values != null &&
-        !setEquals(widget.values, controller.value)) {
-      // The parent already knows: it passed these values. Reporting them
-      // back would call its onChanged — and its setState — mid-build.
-      _syncing = true;
-      controller.value = widget.values!;
-      _syncing = false;
-    }
-  }
-
-  @override
-  void dispose() {
-    controller.removeListener(_onSelectionChanged);
-    _internalController?.dispose();
-    super.dispose();
-  }
-
-  bool _syncing = false;
-
-  void _onSelectionChanged() {
-    if (_syncing) return;
-    widget.onChanged?.call(controller.value);
-    if (mounted) setState(() {});
+    if (widget.values == null) setState(() => _own = next);
+    widget.onChanged?.call(next);
   }
 
   @override
@@ -701,9 +648,11 @@ class _ToggleGroupState<T> extends State<ToggleGroup<T>> {
     assert(debugCheckHasTheme(context));
     final effectiveGap = widget.gap ?? 4.0;
 
+    // Without a gap the items are one bar: joined corners, shared edges.
+    final joined = effectiveGap == 0;
     final items = <Widget>[];
     for (var i = 0; i < widget.children.length; i++) {
-      if (i > 0) {
+      if (i > 0 && !joined) {
         items.add(
           widget.axis == Axis.horizontal
               ? SizedBox(width: effectiveGap)
@@ -714,9 +663,9 @@ class _ToggleGroupState<T> extends State<ToggleGroup<T>> {
       items.add(
         Toggle.raw(
           variant: widget.toggleVariant,
-          value: controller.isSelected(item.value),
+          value: _values.contains(item.value),
           enabled: widget.enabled && item.enabled,
-          onChanged: (_) => controller.toggle(item.value),
+          onChanged: (_) => _toggle(item.value),
           leading: item.leading,
           semanticLabel: item.semanticLabel,
           child: item.child,
@@ -728,7 +677,9 @@ class _ToggleGroupState<T> extends State<ToggleGroup<T>> {
       ToggleVariant.primary => Theme.of(context).toggleTheme,
       ToggleVariant.outline => Theme.of(context).outlineToggleTheme,
     };
-    final Widget list = widget.axis == Axis.horizontal
+    final list = joined
+        ? ButtonGroup(axis: widget.axis, children: items)
+        : widget.axis == Axis.horizontal
         ? Row(mainAxisSize: widget.mainAxisSize, children: items)
         : Column(mainAxisSize: widget.mainAxisSize, children: items);
 

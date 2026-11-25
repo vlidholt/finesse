@@ -59,8 +59,8 @@ import 'package:finesse/src/theme/components/sheet.dart';
 import 'package:finesse/src/theme/components/sidebar.dart';
 import 'package:finesse/src/theme/components/skeleton.dart';
 import 'package:finesse/src/theme/components/slider.dart';
-import 'package:finesse/src/theme/components/sonner.dart';
 import 'package:finesse/src/theme/components/spinner.dart';
+import 'package:finesse/src/theme/components/stepper.dart';
 import 'package:finesse/src/theme/components/streaming_text.dart';
 import 'package:finesse/src/theme/components/switch.dart';
 import 'package:finesse/src/theme/components/table.dart';
@@ -1408,11 +1408,57 @@ class DefaultThemeVariant extends ThemeVariant {
     );
   }
 
+  /// [color] as the icon of a toast: itself where it reads on the toast's
+  /// surface, and otherwise moved towards the surface's ink until it does.
+  ///
+  /// A status colour is tuned as a fill — the dark palette's destructive
+  /// carries white text — and a glass toast takes on whatever is behind it,
+  /// so the same red that reads on a dark popover is lost on one lying over
+  /// a white photograph. 3:1, WCAG's figure for a graphic, over the page,
+  /// over black and over white.
+  Color _toastIconColor(Color color) {
+    final surface = popoverSurfaceColor;
+    final fills = [
+      Color.alphaBlend(surface, colorScheme.background),
+      Color.alphaBlend(surface, const Color(0xff000000)),
+      Color.alphaBlend(surface, const Color(0xffffffff)),
+    ];
+    double contrast(Color a, Color b) {
+      final la = a.computeLuminance();
+      final lb = b.computeLuminance();
+      return (math.max(la, lb) + .05) / (math.min(la, lb) + .05);
+    }
+
+    final ink = colorScheme.popoverForeground;
+    for (var step = 0; step < 10; step++) {
+      final candidate = Color.lerp(color, ink, step / 10)!;
+      if (fills.every((fill) => contrast(candidate, fill) >= 3)) {
+        return candidate;
+      }
+    }
+    return ink;
+  }
+
   @override
-  ToastTheme primaryToastTheme() {
+  ToastTheme toastTheme() {
     return ToastTheme(
-      alignment: Alignment.bottomRight,
-      closeIconData: PhosphorIconsRegular.x,
+      // A toast is a popover surface (sonner's `bg-popover
+      // text-popover-foreground`), not the page's: on the page colour a
+      // toast is text adrift on the page. In a style whose popovers are
+      // glass, so is the toast.
+      backgroundColor: popoverSurfaceColor,
+      filter: popoverFilter,
+      border: FinesseBorder.all(color: surfaceBorderColor, width: 1),
+      // Sonner's `--border-radius: var(--radius)`.
+      borderRadius: _capped(radii.resolve(RadiusToken.lg)),
+      // shadcn gives a toast the sheet's shadow. On a dark page that shadow
+      // is all but lost, so a style with a deeper one for dark floating
+      // chrome lends it here.
+      shadows: _isDark
+          ? style.floatingShadowDark ?? style.sheetShadow
+          : style.sheetShadow,
+      padding: spacing.all(4),
+      gap: scaled(12),
       titleStyle: style.label
           .apply(effectiveTextTheme.muted)
           .copyWith(
@@ -1423,53 +1469,14 @@ class DefaultThemeVariant extends ThemeVariant {
           .copyWith(
             color: colorScheme.popoverForeground.withValues(alpha: .9),
           ),
-      actionPadding: spacing.directional(start: 4),
-      border: FinesseBorder.all(color: surfaceBorderColor, width: 1),
-      // A toast is a floating surface; shadcn gives it the sheet's shadow.
-      // On a dark page that shadow is all but lost, so a style with a
-      // deeper one for dark floating chrome lends it here.
-      shadows: _isDark
-          ? style.floatingShadowDark ?? style.sheetShadow
-          : style.sheetShadow,
-      // …and the popover's fill (sonner's `bg-popover
-      // text-popover-foreground`), not the page's: on the page colour a
-      // toast is text adrift on the page. In a style whose popovers are
-      // glass, so is the toast.
-      backgroundColor: popoverSurfaceColor,
-      filter: popoverFilter,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      showCloseIconOnlyWhenHovered: true,
-      padding: const EdgeInsetsGeometry.fromSTEB(24, 24, 32, 24),
-      mainAxisSize: MainAxisSize.max,
-    );
-  }
-
-  @override
-  ToastTheme destructiveToastTheme() {
-    return ToastTheme(
-      alignment: Alignment.bottomRight,
-      closeIconData: PhosphorIconsRegular.x,
-      titleStyle: style.label
-          .apply(effectiveTextTheme.muted)
-          .copyWith(
-            color: colorScheme.destructiveForeground,
-          ),
-      descriptionStyle: style.body
-          .apply(effectiveTextTheme.muted)
-          .copyWith(
-            color: colorScheme.destructiveForeground.withValues(alpha: .9),
-          ),
-      actionPadding: spacing.directional(start: 4),
-      border: FinesseBorder.all(color: surfaceBorderColor, width: 1),
-      // A toast is a floating surface; shadcn gives it the sheet's shadow.
-      shadows: style.sheetShadow,
-      backgroundColor: colorScheme.destructive,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      showCloseIconOnlyWhenHovered: true,
-      padding: const EdgeInsetsDirectional.fromSTEB(24, 24, 32, 24),
-      mainAxisSize: MainAxisSize.max,
+      // Every variant shares the surface and says what it is with its
+      // icon, as sonner does without `richColors`.
+      iconSize: 18,
+      successColor: _toastIconColor(colorScheme.success),
+      warningColor: _toastIconColor(colorScheme.warning),
+      destructiveColor: _toastIconColor(colorScheme.destructive),
+      loadingColor: _toastIconColor(colorScheme.mutedForeground),
+      duration: const Duration(seconds: 5),
     );
   }
 
@@ -1532,6 +1539,23 @@ class DefaultThemeVariant extends ThemeVariant {
       descriptionStyle: style.body
           .apply(effectiveTextTheme.muted)
           .copyWith(color: colorScheme.mutedForeground),
+      // The tinted variants are this alert in another colour: an icon in
+      // the scheme's status colour on an opaque wash of it over the card.
+      successColor: colorScheme.success,
+      successBackgroundColor: Color.alphaBlend(
+        colorScheme.successMuted,
+        colorScheme.card,
+      ),
+      warningColor: colorScheme.warning,
+      warningBackgroundColor: Color.alphaBlend(
+        _wash(colorScheme.warning, .1),
+        colorScheme.card,
+      ),
+      infoColor: colorScheme.tint,
+      infoBackgroundColor: Color.alphaBlend(
+        _wash(colorScheme.tint, .1),
+        colorScheme.card,
+      ),
     );
   }
 
@@ -2747,15 +2771,54 @@ class DefaultThemeVariant extends ThemeVariant {
   }
 
   @override
-  SonnerTheme sonnerTheme() {
-    return SonnerTheme(
-      alignment: Alignment.bottomRight,
-      padding: spacing.all(4),
-      collapsedGap: 16,
-      expandedGap: 8,
-      scaleFactor: 0.05,
-      animationDuration: const Duration(milliseconds: 300),
-      animationCurve: const Cubic(0.215, 0.61, 0.355, 1),
+  StepperTheme stepperTheme() {
+    final mobile = formFactor == FormFactor.mobile;
+    return StepperTheme(
+      indicatorSize: scaled(mobile ? 32 : 28),
+      indicatorColor: colorScheme.muted,
+      indicatorBorderColor: colorScheme.border,
+      indicatorForegroundColor: colorScheme.mutedForeground,
+      // Drawn straight on the page or a card, so the tint, not the primary:
+      // that one is tuned as a fill and can be too dim to draw with.
+      activeColor: colorScheme.tint,
+      completeColor: colorScheme.primary,
+      completeForegroundColor: colorScheme.primaryForeground,
+      errorColor: colorScheme.destructive,
+      // The timeline's line: a stepper is one laid on its side.
+      connectorColor: colorScheme.borderStrong,
+      connectorThickness: 2,
+      connectorGap: scaled(style.timelineLineGap),
+      indicatorTextStyle: style.caption
+          .apply(effectiveTextTheme.small)
+          .copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
+      titleStyle: style.label
+          .apply(effectiveTextTheme.small)
+          .copyWith(color: colorScheme.foreground),
+      subtitleStyle: style.caption
+          .apply(effectiveTextTheme.muted)
+          .copyWith(color: colorScheme.mutedForeground),
+      gap: scaled(12),
+      spacing: scaled(20),
+      contentPadding: EdgeInsets.only(top: scaled(12), bottom: scaled(4)),
+    );
+  }
+
+  @override
+  ToasterTheme toasterTheme() {
+    final mobile = formFactor == FormFactor.mobile;
+    return ToasterTheme(
+      // A phone shows a toast across the bottom, as wide as the page (up
+      // to a width that still reads as a toast in landscape); a desktop in
+      // the corner, at sonner's width.
+      alignment: mobile
+          ? Alignment.bottomCenter
+          : AlignmentDirectional.bottomEnd,
+      padding: EdgeInsets.all(scaled(style.pagePaddingX)),
+      width: mobile ? 560 : 356,
+      maxVisible: 3,
+      gap: scaled(8),
+      stackOffset: scaled(12),
+      stackScale: 0.05,
     );
   }
 

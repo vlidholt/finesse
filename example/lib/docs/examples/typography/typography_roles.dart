@@ -97,16 +97,8 @@ class TypographyRolesExample extends StatelessWidget {
       ('textField.placeholderStyle', theme.textFieldTheme.placeholderStyle),
       ('textarea.style', theme.textareaTheme.style),
       ('textarea.placeholderStyle', theme.textareaTheme.placeholderStyle),
-      ('toast.primary.titleStyle', theme.primaryToastTheme.titleStyle),
-      (
-        'toast.primary.descriptionStyle',
-        theme.primaryToastTheme.descriptionStyle,
-      ),
-      ('toast.destructive.titleStyle', theme.destructiveToastTheme.titleStyle),
-      (
-        'toast.destructive.descriptionStyle',
-        theme.destructiveToastTheme.descriptionStyle,
-      ),
+      ('toast.titleStyle', theme.toastTheme.titleStyle),
+      ('toast.descriptionStyle', theme.toastTheme.descriptionStyle),
       ('alert.primary.titleStyle', theme.primaryAlertTheme.titleStyle),
       (
         'alert.primary.descriptionStyle',

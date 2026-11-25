@@ -11,6 +11,7 @@ import 'package:example/docs/pages/badge.dart';
 import 'package:example/docs/pages/board.dart';
 import 'package:example/docs/pages/breadcrumb.dart';
 import 'package:example/docs/pages/button.dart';
+import 'package:example/docs/pages/button_group.dart';
 import 'package:example/docs/pages/calendar.dart';
 import 'package:example/docs/pages/card.dart';
 import 'package:example/docs/pages/carousel.dart';
@@ -43,6 +44,7 @@ import 'package:example/docs/pages/kbd.dart';
 import 'package:example/docs/pages/keyboard_toolbar.dart';
 import 'package:example/docs/pages/list_detail_layout.dart';
 import 'package:example/docs/pages/layout.dart';
+import 'package:example/docs/pages/license_page.dart';
 import 'package:example/docs/pages/list_section.dart';
 import 'package:example/docs/pages/list_tile.dart';
 import 'package:example/docs/pages/menubar.dart';
@@ -78,8 +80,8 @@ import 'package:example/docs/pages/sidebar.dart';
 import 'package:example/docs/pages/skeleton.dart';
 import 'package:example/docs/pages/slider.dart';
 import 'package:example/docs/pages/sliver_app_bar.dart';
-import 'package:example/docs/pages/sonner.dart';
 import 'package:example/docs/pages/spinner.dart';
+import 'package:example/docs/pages/stepper.dart';
 import 'package:example/docs/pages/streaming_text.dart';
 import 'package:example/docs/pages/styles.dart';
 import 'package:example/docs/pages/surface.dart';
@@ -149,6 +151,7 @@ final componentDocs = [
   boardDoc,
   breadcrumbDoc,
   buttonDoc,
+  buttonGroupDoc,
   calendarDoc,
   cardDoc,
   carouselDoc,
@@ -173,6 +176,7 @@ final componentDocs = [
   indicatorBadgeDoc,
   kbdDoc,
   keyboardToolbarDoc,
+  licensePageDoc,
   listDetailLayoutDoc,
   listSectionDoc,
   listTileDoc,
@@ -205,8 +209,8 @@ final componentDocs = [
   skeletonDoc,
   sliderDoc,
   sliverAppBarDoc,
-  sonnerDoc,
   spinnerDoc,
+  stepperDoc,
   streamingTextDoc,
   surfaceDoc,
   swipeActionsDoc,

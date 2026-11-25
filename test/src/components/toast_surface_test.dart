@@ -1,4 +1,5 @@
 import 'package:finesse/finesse.dart';
+import 'package:finesse/src/components/toast.dart' show RenderToastStack;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
@@ -9,11 +10,11 @@ import '../../frame_sampler.dart';
 /// A toast is a floating surface, and has to look like one: told from the
 /// page it floats over by its fill, its hairline and its shadow.
 ///
-/// It did not. Its fill was the *page* colour, and in a `Sonner` — where
-/// every toast in an app goes — a `ClipRect` around each toast cut its
-/// shadow off, so "Invitation sent" was a line of text adrift on the page
-/// inside a hairline nobody could see. These read the screen: what the
-/// toast was given says nothing about what a clip left of it.
+/// It did not. Its fill was the *page* colour, and the clip that crops each
+/// toast in the stack to its slot cut its shadow off, so "Invitation sent"
+/// was a line of text adrift on the page inside a hairline nobody could
+/// see. These read the screen: what the toast was given says nothing about
+/// what a clip left of it.
 void main() {
   double contrast(Color a, Color b) {
     final la = a.computeLuminance();
@@ -41,7 +42,7 @@ void main() {
     test('a toast is a popover surface: glass in the finesse style', () {
       for (final brightness in Brightness.values) {
         final theme = themeOf(StyleTokens.finesse, brightness);
-        final toast = theme.primaryToastTheme;
+        final toast = theme.toastTheme;
         expect(toast.backgroundColor, theme.popoverTheme.decoration!.color);
         expect(toast.backgroundColor!.a, lessThan(1));
         expect(toast.filter, theme.popoverTheme.filter);
@@ -62,7 +63,7 @@ void main() {
       for (final style in shadcn) {
         for (final brightness in Brightness.values) {
           final theme = themeOf(style, brightness);
-          final toast = theme.primaryToastTheme;
+          final toast = theme.toastTheme;
           final where = '${style.name} $brightness';
           expect(
             toast.backgroundColor,
@@ -80,17 +81,32 @@ void main() {
       }
     });
 
-    test('a destructive toast stays a solid destructive fill', () {
+    test('every variant shares that surface and says what it is with an '
+        'icon that reads on it', () {
       for (final style in [StyleTokens.finesse, ...shadcn]) {
         for (final brightness in Brightness.values) {
           final theme = themeOf(style, brightness);
-          final toast = theme.destructiveToastTheme;
-          expect(toast.backgroundColor, theme.colorScheme.destructive);
-          expect(toast.filter, isNull);
-          expect(
-            contrast(toast.titleStyle!.color!, toast.backgroundColor!),
-            greaterThanOrEqualTo(4.5),
-          );
+          final toast = theme.toastTheme;
+          for (final backdrop in [
+            theme.colorScheme.background,
+            black,
+            white,
+          ]) {
+            final fill = over(toast.backgroundColor!, backdrop);
+            for (final (name, colour) in [
+              ('success', toast.successColor!),
+              ('warning', toast.warningColor!),
+              ('destructive', toast.destructiveColor!),
+              ('loading', toast.loadingColor!),
+            ]) {
+              // A graphic, not text: WCAG's 3:1.
+              expect(
+                contrast(over(colour, fill), fill),
+                greaterThanOrEqualTo(3),
+                reason: '$name: ${style.name} $brightness over $backdrop',
+              );
+            }
+          }
         }
       }
     });
@@ -99,7 +115,7 @@ void main() {
       for (final style in [StyleTokens.finesse, ...shadcn]) {
         for (final brightness in Brightness.values) {
           final theme = themeOf(style, brightness);
-          final toast = theme.primaryToastTheme;
+          final toast = theme.toastTheme;
           for (final backdrop in [
             theme.colorScheme.background,
             black,
@@ -148,7 +164,7 @@ void main() {
           FinesseApp(
             theme: theme.copyWith(
               // Room under the toast for its shadow to be read.
-              sonnerTheme: const SonnerTheme(padding: EdgeInsets.all(40)),
+              toasterTheme: const ToasterTheme(padding: EdgeInsets.all(40)),
             ),
             darkTheme: theme,
             home: ColoredBox(
@@ -162,8 +178,8 @@ void main() {
       return sampler;
     }
 
-    SonnerState sonnerOf(WidgetTester tester) =>
-        Sonner.of(tester.element(find.byKey(const Key('host'))));
+    ToasterState toasterOf(WidgetTester tester) =>
+        Toaster.of(tester.element(find.byKey(const Key('host'))));
 
     Future<void> settle(WidgetTester tester) async {
       for (var i = 0; i < 50; i++) {
@@ -191,7 +207,7 @@ void main() {
           ]) {
             final where = '${style.name} ${brightness.name} over $name';
             final sampler = await pump(tester, theme, backdrop);
-            sonnerOf(tester).show(
+            toasterOf(tester).show(
               const Toast(
                 title: Text('Invitation sent'),
                 description: Text('She will see it in her network tab.'),
@@ -235,7 +251,7 @@ void main() {
               greaterThan(dark ? 1.3 : 1.03),
               reason: 'the bottom edge, $where',
             );
-            // The shadow: the `Sonner` used to clip it off. (On the shadcn
+            // The shadow: the stack used to clip it off. (On the shadcn
             // styles' near-black page no shadow can show; there the fill
             // and the hairline carry the toast.)
             expect(
@@ -275,19 +291,22 @@ void main() {
         themeOf(StyleTokens.finesse, Brightness.light),
         const Color(0xfff3f5f7),
       );
-      final sonner = sonnerOf(tester);
+      final toaster = toasterOf(tester);
       for (final title in ['One', 'Two', 'Three']) {
-        sonner.show(Toast(title: Text(title)));
+        toaster.show(Toast(title: Text(title)));
         await settle(tester);
       }
       // The clip around each toast: its slot, plus the room it leaves the
       // shadow.
       double room(String title) {
-        final clip = find
-            .ancestor(of: find.text(title), matching: find.byType(ClipRect))
-            .first;
-        final box = tester.renderObject<RenderClipRect>(clip);
-        return -box.clipper!.getClip(box.size).left;
+        final stack = tester.renderObject<RenderToastStack>(
+          find.byWidgetPredicate(
+            (widget) => '${widget.runtimeType}' == '_ToastStack',
+          ),
+        );
+        return stack.debugShadowRoomOf(
+          tester.renderObject<RenderBox>(find.text(title)),
+        );
       }
 
       expect(room('Three'), greaterThan(20));
@@ -310,20 +329,15 @@ void main() {
       await expire(tester);
     });
 
-    for (final legacy in [false, true]) {
+    {
       testWidgets('a glass toast fades inside its filter, not under an '
-          'opacity layer — ${legacy ? 'Toaster' : 'Sonner'}', (tester) async {
+          'opacity layer', (tester) async {
         await pump(
           tester,
           themeOf(StyleTokens.finesse, Brightness.light),
           const Color(0xfff3f5f7),
         );
-        const toast = Toast(title: Text('Saved'));
-        if (legacy) {
-          Toaster.of(tester.element(find.byKey(const Key('host')))).show(toast);
-        } else {
-          sonnerOf(tester).show(toast);
-        }
+        toasterOf(tester).show(const Toast(title: Text('Saved')));
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 16));
         await tester.pump(const Duration(milliseconds: 40));

@@ -53,8 +53,8 @@ import 'package:finesse/src/theme/components/sheet.dart';
 import 'package:finesse/src/theme/components/sidebar.dart';
 import 'package:finesse/src/theme/components/skeleton.dart';
 import 'package:finesse/src/theme/components/slider.dart';
-import 'package:finesse/src/theme/components/sonner.dart';
 import 'package:finesse/src/theme/components/spinner.dart';
+import 'package:finesse/src/theme/components/stepper.dart';
 import 'package:finesse/src/theme/components/streaming_text.dart';
 import 'package:finesse/src/theme/components/switch.dart';
 import 'package:finesse/src/theme/components/table.dart';
@@ -135,8 +135,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     TextFieldTheme? textFieldTheme,
     TextSelectionTheme? textSelectionTheme,
     RadioTheme? radioTheme,
-    ToastTheme? primaryToastTheme,
-    ToastTheme? destructiveToastTheme,
+    ToastTheme? toastTheme,
     Breakpoints? breakpoints,
     AlertTheme? primaryAlertTheme,
     AlertTheme? destructiveAlertTheme,
@@ -190,7 +189,8 @@ class ThemeData extends BaseTheme with _$ThemeData {
     OtpFieldTheme? otpFieldTheme,
     MenubarTheme? menubarTheme,
     DividerTheme? dividerTheme,
-    SonnerTheme? sonnerTheme,
+    StepperTheme? stepperTheme,
+    ToasterTheme? toasterTheme,
     TextareaTheme? textareaTheme,
     DefaultKeyboardToolbarTheme? defaultKeyboardToolbarTheme,
 
@@ -410,8 +410,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
         textFieldTheme: textFieldTheme,
         textSelectionTheme: textSelectionTheme,
         radioTheme: radioTheme,
-        primaryToastTheme: primaryToastTheme,
-        destructiveToastTheme: destructiveToastTheme,
+        toastTheme: toastTheme,
         breakpoints: breakpoints,
         primaryAlertTheme: primaryAlertTheme,
         destructiveAlertTheme: destructiveAlertTheme,
@@ -465,7 +464,8 @@ class ThemeData extends BaseTheme with _$ThemeData {
         otpFieldTheme: otpFieldTheme,
         menubarTheme: menubarTheme,
         dividerTheme: dividerTheme,
-        sonnerTheme: sonnerTheme,
+        stepperTheme: stepperTheme,
+        toasterTheme: toasterTheme,
         textareaTheme: textareaTheme,
         defaultKeyboardToolbarTheme: defaultKeyboardToolbarTheme,
         style: style,
@@ -537,12 +537,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
         textSelectionTheme,
       ),
       radioTheme: effectiveVariant.radioTheme().merge(radioTheme),
-      primaryToastTheme: effectiveVariant.primaryToastTheme().merge(
-        primaryToastTheme,
-      ),
-      destructiveToastTheme: effectiveVariant.destructiveToastTheme().merge(
-        destructiveToastTheme,
-      ),
+      toastTheme: effectiveVariant.toastTheme().merge(toastTheme),
       breakpoints: breakpoints ?? Breakpoints(),
       primaryAlertTheme: effectiveVariant.primaryAlertTheme().merge(
         primaryAlertTheme,
@@ -586,7 +581,8 @@ class ThemeData extends BaseTheme with _$ThemeData {
       otpFieldTheme: effectiveVariant.otpFieldTheme().merge(otpFieldTheme),
       menubarTheme: effectiveVariant.menubarTheme().merge(menubarTheme),
       dividerTheme: effectiveVariant.dividerTheme().merge(dividerTheme),
-      sonnerTheme: effectiveVariant.sonnerTheme().merge(sonnerTheme),
+      stepperTheme: effectiveVariant.stepperTheme().merge(stepperTheme),
+      toasterTheme: effectiveVariant.toasterTheme().merge(toasterTheme),
       textareaTheme: effectiveVariant.textareaTheme().merge(textareaTheme),
       defaultKeyboardToolbarTheme: effectiveVariant
           .defaultKeyboardToolbarTheme()
@@ -682,8 +678,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     required super.textFieldTheme,
     required super.textSelectionTheme,
     required super.radioTheme,
-    required super.primaryToastTheme,
-    required super.destructiveToastTheme,
+    required super.toastTheme,
     required super.breakpoints,
     required super.primaryAlertTheme,
     required super.destructiveAlertTheme,
@@ -707,7 +702,8 @@ class ThemeData extends BaseTheme with _$ThemeData {
     required super.otpFieldTheme,
     required super.menubarTheme,
     required super.dividerTheme,
-    required super.sonnerTheme,
+    required super.stepperTheme,
+    required super.toasterTheme,
     required super.textareaTheme,
     required super.defaultKeyboardToolbarTheme,
     required super.skeletonTheme,
@@ -787,8 +783,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     TextFieldTheme? textFieldTheme,
     TextSelectionTheme? textSelectionTheme,
     RadioTheme? radioTheme,
-    ToastTheme? primaryToastTheme,
-    ToastTheme? destructiveToastTheme,
+    ToastTheme? toastTheme,
     Breakpoints? breakpoints,
     AlertTheme? primaryAlertTheme,
     AlertTheme? destructiveAlertTheme,
@@ -842,7 +837,8 @@ class ThemeData extends BaseTheme with _$ThemeData {
     OtpFieldTheme? otpFieldTheme,
     MenubarTheme? menubarTheme,
     DividerTheme? dividerTheme,
-    SonnerTheme? sonnerTheme,
+    StepperTheme? stepperTheme,
+    ToasterTheme? toasterTheme,
     TextareaTheme? textareaTheme,
     DefaultKeyboardToolbarTheme? defaultKeyboardToolbarTheme,
     StyleTokens? style,
@@ -886,8 +882,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
       textFieldTheme: textFieldTheme ?? i.textFieldTheme,
       textSelectionTheme: textSelectionTheme ?? i.textSelectionTheme,
       radioTheme: radioTheme ?? i.radioTheme,
-      primaryToastTheme: primaryToastTheme ?? i.primaryToastTheme,
-      destructiveToastTheme: destructiveToastTheme ?? i.destructiveToastTheme,
+      toastTheme: toastTheme ?? i.toastTheme,
       breakpoints: breakpoints ?? i.breakpoints,
       primaryAlertTheme: primaryAlertTheme ?? i.primaryAlertTheme,
       destructiveAlertTheme: destructiveAlertTheme ?? i.destructiveAlertTheme,
@@ -944,7 +939,8 @@ class ThemeData extends BaseTheme with _$ThemeData {
       otpFieldTheme: otpFieldTheme ?? i.otpFieldTheme,
       menubarTheme: menubarTheme ?? i.menubarTheme,
       dividerTheme: dividerTheme ?? i.dividerTheme,
-      sonnerTheme: sonnerTheme ?? i.sonnerTheme,
+      stepperTheme: stepperTheme ?? i.stepperTheme,
+      toasterTheme: toasterTheme ?? i.toasterTheme,
       textareaTheme: textareaTheme ?? i.textareaTheme,
       defaultKeyboardToolbarTheme:
           defaultKeyboardToolbarTheme ?? i.defaultKeyboardToolbarTheme,
@@ -1084,8 +1080,7 @@ final class _ThemeInputs {
     this.textFieldTheme,
     this.textSelectionTheme,
     this.radioTheme,
-    this.primaryToastTheme,
-    this.destructiveToastTheme,
+    this.toastTheme,
     this.breakpoints,
     this.primaryAlertTheme,
     this.destructiveAlertTheme,
@@ -1139,7 +1134,8 @@ final class _ThemeInputs {
     this.otpFieldTheme,
     this.menubarTheme,
     this.dividerTheme,
-    this.sonnerTheme,
+    this.stepperTheme,
+    this.toasterTheme,
     this.textareaTheme,
     this.defaultKeyboardToolbarTheme,
     this.style,
@@ -1181,8 +1177,7 @@ final class _ThemeInputs {
   final TextFieldTheme? textFieldTheme;
   final TextSelectionTheme? textSelectionTheme;
   final RadioTheme? radioTheme;
-  final ToastTheme? primaryToastTheme;
-  final ToastTheme? destructiveToastTheme;
+  final ToastTheme? toastTheme;
   final Breakpoints? breakpoints;
   final AlertTheme? primaryAlertTheme;
   final AlertTheme? destructiveAlertTheme;
@@ -1236,7 +1231,8 @@ final class _ThemeInputs {
   final OtpFieldTheme? otpFieldTheme;
   final MenubarTheme? menubarTheme;
   final DividerTheme? dividerTheme;
-  final SonnerTheme? sonnerTheme;
+  final StepperTheme? stepperTheme;
+  final ToasterTheme? toasterTheme;
   final TextareaTheme? textareaTheme;
   final DefaultKeyboardToolbarTheme? defaultKeyboardToolbarTheme;
   final StyleTokens? style;

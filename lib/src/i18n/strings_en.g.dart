@@ -36,6 +36,7 @@ class FinesseLocalizationsData with BaseTranslations<FinesseLocale, FinesseLocal
 
 	// Translations
 	late final FinesseLocalizationsData$actionSheet$en actionSheet = FinesseLocalizationsData$actionSheet$en.internal(_root);
+	late final FinesseLocalizationsData$alert$en alert = FinesseLocalizationsData$alert$en.internal(_root);
 	late final FinesseLocalizationsData$timePicker$en timePicker = FinesseLocalizationsData$timePicker$en.internal(_root);
 	late final FinesseLocalizationsData$datePicker$en datePicker = FinesseLocalizationsData$datePicker$en.internal(_root);
 	late final FinesseLocalizationsData$input$en input = FinesseLocalizationsData$input$en.internal(_root);
@@ -45,8 +46,11 @@ class FinesseLocalizationsData with BaseTranslations<FinesseLocale, FinesseLocal
 	late final FinesseLocalizationsData$tagField$en tagField = FinesseLocalizationsData$tagField$en.internal(_root);
 	late final FinesseLocalizationsData$keyboardToolbar$en keyboardToolbar = FinesseLocalizationsData$keyboardToolbar$en.internal(_root);
 	late final FinesseLocalizationsData$empty$en empty = FinesseLocalizationsData$empty$en.internal(_root);
+	late final FinesseLocalizationsData$stepper$en stepper = FinesseLocalizationsData$stepper$en.internal(_root);
+	late final FinesseLocalizationsData$toast$en toast = FinesseLocalizationsData$toast$en.internal(_root);
 	late final FinesseLocalizationsData$command$en command = FinesseLocalizationsData$command$en.internal(_root);
 	late final FinesseLocalizationsData$menu$en menu = FinesseLocalizationsData$menu$en.internal(_root);
+	late final FinesseLocalizationsData$licensePage$en licensePage = FinesseLocalizationsData$licensePage$en.internal(_root);
 	late final FinesseLocalizationsData$pagination$en pagination = FinesseLocalizationsData$pagination$en.internal(_root);
 	late final FinesseLocalizationsData$carousel$en carousel = FinesseLocalizationsData$carousel$en.internal(_root);
 	late final FinesseLocalizationsData$refreshIndicator$en refreshIndicator = FinesseLocalizationsData$refreshIndicator$en.internal(_root);
@@ -54,6 +58,7 @@ class FinesseLocalizationsData with BaseTranslations<FinesseLocale, FinesseLocal
 	late final FinesseLocalizationsData$swipeActions$en swipeActions = FinesseLocalizationsData$swipeActions$en.internal(_root);
 	late final FinesseLocalizationsData$dialog$en dialog = FinesseLocalizationsData$dialog$en.internal(_root);
 	late final FinesseLocalizationsData$sheet$en sheet = FinesseLocalizationsData$sheet$en.internal(_root);
+	late final FinesseLocalizationsData$button$en button = FinesseLocalizationsData$button$en.internal(_root);
 	late final FinesseLocalizationsData$board$en board = FinesseLocalizationsData$board$en.internal(_root);
 	late final FinesseLocalizationsData$navigation$en navigation = FinesseLocalizationsData$navigation$en.internal(_root);
 }
@@ -68,6 +73,18 @@ class FinesseLocalizationsData$actionSheet$en {
 
 	/// en: 'Cancel'
 	String get cancel => 'Cancel';
+}
+
+// Path: alert
+class FinesseLocalizationsData$alert$en {
+	FinesseLocalizationsData$alert$en.internal(this._root);
+
+	final FinesseLocalizationsData _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Dismiss'
+	String get dismiss => 'Dismiss';
 }
 
 // Path: timePicker
@@ -262,6 +279,45 @@ class FinesseLocalizationsData$empty$en {
 	String get title => 'No results';
 }
 
+// Path: stepper
+class FinesseLocalizationsData$stepper$en {
+	FinesseLocalizationsData$stepper$en.internal(this._root);
+
+	final FinesseLocalizationsData _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Step $step of $count'
+	String position({required Object step, required Object count}) => 'Step ${step} of ${count}';
+
+	/// en: 'Completed'
+	String get complete => 'Completed';
+
+	/// en: 'Needs attention'
+	String get error => 'Needs attention';
+
+	/// en: 'Continue'
+	String get next => 'Continue';
+
+	/// en: 'Finish'
+	String get finish => 'Finish';
+
+	/// en: 'Cancel'
+	String get cancel => 'Cancel';
+}
+
+// Path: toast
+class FinesseLocalizationsData$toast$en {
+	FinesseLocalizationsData$toast$en.internal(this._root);
+
+	final FinesseLocalizationsData _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Dismiss'
+	String get dismiss => 'Dismiss';
+}
+
 // Path: command
 class FinesseLocalizationsData$command$en {
 	FinesseLocalizationsData$command$en.internal(this._root);
@@ -326,6 +382,27 @@ class FinesseLocalizationsData$menu$en {
 
 	/// en: 'PgDn'
 	String get pageDown => 'PgDn';
+}
+
+// Path: licensePage
+class FinesseLocalizationsData$licensePage$en {
+	FinesseLocalizationsData$licensePage$en.internal(this._root);
+
+	final FinesseLocalizationsData _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Licenses'
+	String get title => 'Licenses';
+
+	/// en: '1 license'
+	String get oneLicense => '1 license';
+
+	/// en: '$count licenses'
+	String licenses({required Object count}) => '${count} licenses';
+
+	/// en: 'Back'
+	String get back => 'Back';
 }
 
 // Path: pagination
@@ -460,6 +537,18 @@ class FinesseLocalizationsData$sheet$en {
 	String get resize => 'Resize';
 }
 
+// Path: button
+class FinesseLocalizationsData$button$en {
+	FinesseLocalizationsData$button$en.internal(this._root);
+
+	final FinesseLocalizationsData _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Loading'
+	String get loading => 'Loading';
+}
+
 // Path: board
 class FinesseLocalizationsData$board$en {
 	FinesseLocalizationsData$board$en.internal(this._root);
@@ -523,6 +612,7 @@ extension on FinesseLocalizationsData {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
 			'actionSheet.cancel' => 'Cancel',
+			'alert.dismiss' => 'Dismiss',
 			'timePicker.hours' => 'Hours',
 			'timePicker.minutes' => 'Minutes',
 			'timePicker.seconds' => 'Seconds',
@@ -560,6 +650,13 @@ extension on FinesseLocalizationsData {
 			'tagField.removed' => ({required Object tag}) => '${tag} removed',
 			'keyboardToolbar.done' => 'Done',
 			'empty.title' => 'No results',
+			'stepper.position' => ({required Object step, required Object count}) => 'Step ${step} of ${count}',
+			'stepper.complete' => 'Completed',
+			'stepper.error' => 'Needs attention',
+			'stepper.next' => 'Continue',
+			'stepper.finish' => 'Finish',
+			'stepper.cancel' => 'Cancel',
+			'toast.dismiss' => 'Dismiss',
 			'command.noResults' => 'No results found.',
 			'menu.control' => 'Ctrl',
 			'menu.alt' => 'Alt',
@@ -576,6 +673,10 @@ extension on FinesseLocalizationsData {
 			'menu.end' => 'End',
 			'menu.pageUp' => 'PgUp',
 			'menu.pageDown' => 'PgDn',
+			'licensePage.title' => 'Licenses',
+			'licensePage.oneLicense' => '1 license',
+			'licensePage.licenses' => ({required Object count}) => '${count} licenses',
+			'licensePage.back' => 'Back',
 			'pagination.previous' => 'Previous',
 			'pagination.next' => 'Next',
 			'pagination.morePages' => 'More pages',
@@ -599,6 +700,7 @@ extension on FinesseLocalizationsData {
 			'dialog.close' => 'Close',
 			'dialog.dismiss' => 'Dismiss',
 			'sheet.resize' => 'Resize',
+			'button.loading' => 'Loading',
 			'board.moveUp' => 'Move up',
 			'board.moveDown' => 'Move down',
 			'board.moveTo' => ({required Object column}) => 'Move to ${column}',

@@ -7,11 +7,11 @@ import 'package:flutter_test/flutter_test.dart';
 /// A toast has to leave: be taken out of the tree when its exit has played,
 /// whatever the motion, and never sit there invisible in front of the page.
 ///
-/// Both ways it failed were found in review. `Toaster.hide` awaited a
-/// controller future that the animate widget cancelled as soon as the exit
-/// effects were a different length from the entrance's — in every shipped
-/// style — so the toast stayed mounted at opacity 0 for ever, taking taps.
-/// And with `Motion.none` a `Sonner` toast's zero-length entrance met a
+/// Both ways it failed were found in review, in the two toast hosts the
+/// `Toaster` has since replaced. One awaited a controller future that was
+/// cancelled as soon as the exit was a different length from the entrance —
+/// in every shipped style — so the toast stayed mounted at opacity 0 for
+/// ever, taking taps. And with `Motion.none` a zero-length entrance met a
 /// controller that was already running, and asserted on every frame.
 void main() {
   group('Toaster', () {
@@ -20,7 +20,7 @@ void main() {
       ('calm', Motion.calm),
       ('none', Motion.none),
     ]) {
-      testWidgets('Toaster.hide() completes and removes the toast — $name', (
+      testWidgets('dismiss() completes and removes the toast — $name', (
         tester,
       ) async {
         late BuildContext ctx;
@@ -36,18 +36,18 @@ void main() {
           ),
         );
         final toaster = Toaster.of(ctx);
-        toaster.show(const Toast(title: Text('Saved')));
+        final id = toaster.show(const Toast(title: Text('Saved')));
         await tester.pump();
         await tester.pump(const Duration(seconds: 1));
         expect(find.text('Saved'), findsOneWidget);
 
         var done = false;
-        unawaited(toaster.hide().then((_) => done = true));
+        unawaited(toaster.dismiss(id).then((_) => done = true));
         for (var i = 0; i < 120; i++) {
           await tester.pump(const Duration(milliseconds: 16));
         }
         expect(tester.takeException(), isNull);
-        expect(done, isTrue, reason: 'hide() never completed');
+        expect(done, isTrue, reason: 'dismiss() never completed');
         expect(find.text('Saved'), findsNothing);
       });
 
@@ -69,7 +69,7 @@ void main() {
         Toaster.of(ctx).show(
           const Toast(
             title: Text('Saved'),
-            displayDuration: Duration(seconds: 1),
+            duration: Duration(seconds: 1),
           ),
         );
         await tester.pump();
@@ -106,7 +106,7 @@ void main() {
         Toast(
           title: const Text('Saved'),
           description: const Text('Your changes have been saved.'),
-          displayDuration: const Duration(seconds: 1),
+          duration: const Duration(seconds: 1),
           action: Button.outline(onPressed: () {}, child: const Text('Undo')),
         ),
       );
@@ -125,13 +125,13 @@ void main() {
     });
   });
 
-  group('Sonner', () {
+  group('whatever the motion', () {
     for (final (name, motion, reduce) in <(String, Motion?, bool)>[
       ('Motion.none', Motion.none, false),
       ('reduced motion', null, true),
       ('default', null, false),
     ]) {
-      testWidgets('a sonner toast shows and hides without an error — $name', (
+      testWidgets('a toast shows and hides without an error — $name', (
         tester,
       ) async {
         late BuildContext ctx;
@@ -153,8 +153,8 @@ void main() {
             ),
           ),
         );
-        final sonner = Sonner.of(ctx);
-        final id = sonner.show(const Toast(title: Text('Saved')));
+        final toaster = Toaster.of(ctx);
+        final id = toaster.show(const Toast(title: Text('Saved')));
         final errors = <Object>[];
         for (var i = 0; i < 40; i++) {
           await tester.pump(const Duration(milliseconds: 16));
@@ -163,7 +163,7 @@ void main() {
         }
         expect(errors, isEmpty, reason: 'while showing');
         expect(find.text('Saved'), findsOneWidget);
-        unawaited(sonner.hide(id));
+        unawaited(toaster.dismiss(id));
         for (var i = 0; i < 60; i++) {
           await tester.pump(const Duration(milliseconds: 16));
           final e = tester.takeException();
