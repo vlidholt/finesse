@@ -32,6 +32,9 @@ class BottomNavigationBarTheme with _$BottomNavigationBarTheme {
     this.selectedBackgroundColor,
     this.actionBackgroundColor,
     this.actionForegroundColor,
+    this.showLabels,
+    this.labelStyle,
+    this.labeledItemWidth,
   }) : _canMerge = canMerge;
 
   @ignore
@@ -106,6 +109,18 @@ class BottomNavigationBarTheme with _$BottomNavigationBarTheme {
 
   /// The colour of the central action's icon.
   final Color? actionForegroundColor;
+
+  /// Whether each destination shows its label under its icon. Without
+  /// it — the default — the bar is icons only and the labels are read to
+  /// assistive technology.
+  final bool? showLabels;
+
+  /// The style of a destination's label, when labels are shown.
+  final TextStyle? labelStyle;
+
+  /// The width of a destination in a floating bar that shows labels: wider
+  /// than an icon needs, so that a short word fits under it.
+  final double? labeledItemWidth;
 
   /// Linearly interpolates between two themes.
   static BottomNavigationBarTheme? lerp(

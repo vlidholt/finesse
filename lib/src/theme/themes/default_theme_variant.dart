@@ -39,6 +39,7 @@ import 'package:finesse/src/theme/components/layout.dart';
 import 'package:finesse/src/theme/components/list_tile.dart';
 import 'package:finesse/src/theme/components/menubar.dart';
 import 'package:finesse/src/theme/components/navigation_bar.dart';
+import 'package:finesse/src/theme/components/navigation_rail.dart';
 import 'package:finesse/src/theme/components/otp_field.dart';
 import 'package:finesse/src/theme/components/pagination.dart';
 import 'package:finesse/src/theme/components/phosphor_icon.dart';
@@ -1873,6 +1874,40 @@ class DefaultThemeVariant extends ThemeVariant {
   }
 
   @override
+  NavigationRailTheme navigationRailTheme() {
+    // The top bar's destinations, turned on their side: the same icon,
+    // label and line, on the same bar surface.
+    final opacity = _barOpacity;
+    return NavigationRailTheme(
+      width: scaled(72),
+      extendedWidth: scaled(220),
+      itemHeight: scaled(style.appBarHeight),
+      extendedItemHeight: math.max(scaled(44), scaled(style.buttonHeight)),
+      iconSize: scaled(style.navigationIconSize),
+      gap: scaled(4),
+      padding: scaled(style.gapSm),
+      labelStyle: style.caption
+          .apply(effectiveTextTheme.small)
+          .copyWith(height: 1),
+      extendedLabelStyle: style.body.apply(effectiveTextTheme.small),
+      foregroundColor: colorScheme.mutedForeground,
+      selectedIconColor: colorScheme.tint,
+      selectedLabelColor: colorScheme.foreground,
+      hoverColor: colorScheme.foreground,
+      indicatorColor: colorScheme.tint,
+      indicatorWidth: style.navigationIndicatorHeight,
+      indicatorInset: scaled(12),
+      backgroundColor: _wash(colorScheme.bar, opacity),
+      borderColor: colorScheme.border,
+      blur: opacity < 1 ? style.glassBlur : 0,
+      saturation: opacity < 1 ? style.glassSaturation : 1,
+      actionSize: math.max(scaled(44), scaled(style.buttonHeight)),
+      actionBackgroundColor: colorScheme.primary,
+      actionForegroundColor: colorScheme.primaryForeground,
+    );
+  }
+
+  @override
   BottomNavigationBarTheme bottomNavigationBarTheme() {
     // The bars' opacity, or thinner where the style asks for it — never
     // thicker, and solid when the bars are: `barOpacity` stays the one
@@ -1929,6 +1964,12 @@ class DefaultThemeVariant extends ThemeVariant {
       selectedBackgroundColor: colorScheme.accent,
       actionBackgroundColor: colorScheme.primary,
       actionForegroundColor: colorScheme.primaryForeground,
+      showLabels: false,
+      labelStyle: style.caption
+          .apply(effectiveTextTheme.small)
+          .copyWith(height: 1),
+      // Room for a short word under the icon.
+      labeledItemWidth: scaled(style.bottomNavigationItemWidth + 16),
     );
   }
 

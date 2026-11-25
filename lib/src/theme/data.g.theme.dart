@@ -38,6 +38,11 @@ mixin _$ThemeData {
         b.navigationBarTheme,
         t,
       )!,
+      navigationRailTheme: NavigationRailTheme.lerp(
+        a.navigationRailTheme,
+        b.navigationRailTheme,
+        t,
+      )!,
       bottomNavigationBarTheme: BottomNavigationBarTheme.lerp(
         a.bottomNavigationBarTheme,
         b.bottomNavigationBarTheme,
@@ -269,6 +274,7 @@ mixin _$ThemeData {
     GlassTheme? glassTheme,
     AppBarTheme? appBarTheme,
     NavigationBarTheme? navigationBarTheme,
+    NavigationRailTheme? navigationRailTheme,
     BottomNavigationBarTheme? bottomNavigationBarTheme,
     ChipTheme? chipTheme,
     ListTileTheme? listTileTheme,
@@ -354,6 +360,7 @@ mixin _$ThemeData {
       glassTheme: glassTheme ?? _this.glassTheme,
       appBarTheme: appBarTheme ?? _this.appBarTheme,
       navigationBarTheme: navigationBarTheme ?? _this.navigationBarTheme,
+      navigationRailTheme: navigationRailTheme ?? _this.navigationRailTheme,
       bottomNavigationBarTheme:
           bottomNavigationBarTheme ?? _this.bottomNavigationBarTheme,
       chipTheme: chipTheme ?? _this.chipTheme,
@@ -458,6 +465,9 @@ mixin _$ThemeData {
       appBarTheme: _this.appBarTheme.merge(other.appBarTheme),
       navigationBarTheme: _this.navigationBarTheme.merge(
         other.navigationBarTheme,
+      ),
+      navigationRailTheme: _this.navigationRailTheme.merge(
+        other.navigationRailTheme,
       ),
       bottomNavigationBarTheme: _this.bottomNavigationBarTheme.merge(
         other.bottomNavigationBarTheme,
@@ -584,6 +594,7 @@ mixin _$ThemeData {
         _other.glassTheme == _this.glassTheme &&
         _other.appBarTheme == _this.appBarTheme &&
         _other.navigationBarTheme == _this.navigationBarTheme &&
+        _other.navigationRailTheme == _this.navigationRailTheme &&
         _other.bottomNavigationBarTheme == _this.bottomNavigationBarTheme &&
         _other.chipTheme == _this.chipTheme &&
         _other.listTileTheme == _this.listTileTheme &&
@@ -673,6 +684,7 @@ mixin _$ThemeData {
       _this.glassTheme,
       _this.appBarTheme,
       _this.navigationBarTheme,
+      _this.navigationRailTheme,
       _this.bottomNavigationBarTheme,
       _this.chipTheme,
       _this.listTileTheme,

@@ -33,6 +33,7 @@ import 'package:finesse/src/theme/components/layout.dart';
 import 'package:finesse/src/theme/components/list_tile.dart';
 import 'package:finesse/src/theme/components/menubar.dart';
 import 'package:finesse/src/theme/components/navigation_bar.dart';
+import 'package:finesse/src/theme/components/navigation_rail.dart';
 import 'package:finesse/src/theme/components/otp_field.dart';
 import 'package:finesse/src/theme/components/pagination.dart';
 import 'package:finesse/src/theme/components/phosphor_icon.dart';
@@ -147,6 +148,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     GlassTheme? glassTheme,
     AppBarTheme? appBarTheme,
     NavigationBarTheme? navigationBarTheme,
+    NavigationRailTheme? navigationRailTheme,
     BottomNavigationBarTheme? bottomNavigationBarTheme,
     ChipTheme? chipTheme,
     ListTileTheme? listTileTheme,
@@ -415,6 +417,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
         glassTheme: glassTheme,
         appBarTheme: appBarTheme,
         navigationBarTheme: navigationBarTheme,
+        navigationRailTheme: navigationRailTheme,
         bottomNavigationBarTheme: bottomNavigationBarTheme,
         chipTheme: chipTheme,
         listTileTheme: listTileTheme,
@@ -567,6 +570,9 @@ class ThemeData extends BaseTheme with _$ThemeData {
       navigationBarTheme: effectiveVariant.navigationBarTheme().merge(
         navigationBarTheme,
       ),
+      navigationRailTheme: effectiveVariant.navigationRailTheme().merge(
+        navigationRailTheme,
+      ),
       bottomNavigationBarTheme: effectiveVariant
           .bottomNavigationBarTheme()
           .merge(bottomNavigationBarTheme),
@@ -671,6 +677,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     required super.glassTheme,
     required super.appBarTheme,
     required super.navigationBarTheme,
+    required super.navigationRailTheme,
     required super.bottomNavigationBarTheme,
     required super.chipTheme,
     required super.listTileTheme,
@@ -759,6 +766,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     GlassTheme? glassTheme,
     AppBarTheme? appBarTheme,
     NavigationBarTheme? navigationBarTheme,
+    NavigationRailTheme? navigationRailTheme,
     BottomNavigationBarTheme? bottomNavigationBarTheme,
     ChipTheme? chipTheme,
     ListTileTheme? listTileTheme,
@@ -852,6 +860,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
       glassTheme: glassTheme ?? i.glassTheme,
       appBarTheme: appBarTheme ?? i.appBarTheme,
       navigationBarTheme: navigationBarTheme ?? i.navigationBarTheme,
+      navigationRailTheme: navigationRailTheme ?? i.navigationRailTheme,
       bottomNavigationBarTheme:
           bottomNavigationBarTheme ?? i.bottomNavigationBarTheme,
       chipTheme: chipTheme ?? i.chipTheme,
@@ -1041,6 +1050,7 @@ final class _ThemeInputs {
     this.glassTheme,
     this.appBarTheme,
     this.navigationBarTheme,
+    this.navigationRailTheme,
     this.bottomNavigationBarTheme,
     this.chipTheme,
     this.listTileTheme,
@@ -1131,6 +1141,7 @@ final class _ThemeInputs {
   final GlassTheme? glassTheme;
   final AppBarTheme? appBarTheme;
   final NavigationBarTheme? navigationBarTheme;
+  final NavigationRailTheme? navigationRailTheme;
   final BottomNavigationBarTheme? bottomNavigationBarTheme;
   final ChipTheme? chipTheme;
   final ListTileTheme? listTileTheme;

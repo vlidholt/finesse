@@ -328,6 +328,7 @@ void main() {
       t.glassTheme,
       t.appBarTheme,
       t.navigationBarTheme,
+      t.navigationRailTheme,
       t.bottomNavigationBarTheme,
       t.chipTheme,
       t.listTileTheme,
