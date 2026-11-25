@@ -677,11 +677,12 @@ class _SheetState extends State<Sheet> with TickerProviderStateMixin {
 
   _SheetRoute<Object?>? _route;
   SheetSide? _scopeSide;
-  late Listenable _ticks = Listenable.merge([
-    _size.animation,
-    _over.animation,
-  ]);
-  late Animation<double> _fade = _SheetFade(this, _ticks);
+
+  /// What slides the sheet without resizing it: its route's animation and
+  /// the pull on a sheet that cannot go. Sliding is paint only, so the
+  /// render object listens to this itself and nothing is rebuilt for it.
+  late Listenable _slides = _over.animation;
+  late Animation<double> _fade = _SheetFade(this, _slides);
 
   Motion _motion = Motion.none;
   late SheetSide _side;
@@ -775,12 +776,10 @@ class _SheetState extends State<Sheet> with TickerProviderStateMixin {
     _presence = animation?.status == AnimationStatus.reverse
         ? _Presence.exiting
         : _Presence.entering;
-    _ticks = Listenable.merge([
-      ?animation,
-      _size.animation,
-      _over.animation,
-    ]);
-    _fade = _SheetFade(this, _ticks);
+    _slides = animation == null
+        ? _over.animation
+        : Listenable.merge([animation, _over.animation]);
+    _fade = _SheetFade(this, _slides);
   }
 
   @override
@@ -1490,7 +1489,8 @@ class _SheetState extends State<Sheet> with TickerProviderStateMixin {
         final naturalMin = math.min(axisMin, _naturalCap);
 
         return ListenableBuilder(
-          listenable: _ticks,
+          // Only a change of size builds anything: see [_slides].
+          listenable: _size.animation,
           child: content,
           builder: (context, child) {
             double? extent;
@@ -1522,8 +1522,9 @@ class _SheetState extends State<Sheet> with TickerProviderStateMixin {
               naturalMax: _naturalCap,
               crossMax: crossMax,
               measureNatural: _hasContentDetent && !_isNatural,
-              hiddenFraction: _hiddenFraction,
-              hiddenPixels: _over.value,
+              slides: _slides,
+              hiddenFraction: () => _hiddenFraction,
+              hiddenPixels: () => _over.value,
               child: BackdropFadeHost(
                 opacity: _fade,
                 child: RepaintBoundary(
@@ -1948,6 +1949,10 @@ class _SheetHandleState extends State<_SheetHandle> {
             ActivateIntent: CallbackAction<ActivateIntent>(
               onInvoke: (_) => widget.onTap(),
             ),
+            // What Enter is bound to on the web.
+            ButtonActivateIntent: CallbackAction<ButtonActivateIntent>(
+              onInvoke: (_) => widget.onTap(),
+            ),
           },
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
@@ -2111,6 +2116,7 @@ class _SheetLayout extends SingleChildRenderObjectWidget {
     required this.naturalMax,
     required this.crossMax,
     required this.measureNatural,
+    required this.slides,
     required this.hiddenFraction,
     required this.hiddenPixels,
     required super.child,
@@ -2138,11 +2144,14 @@ class _SheetLayout extends SingleChildRenderObjectWidget {
   /// somewhere else.
   final bool measureNatural;
 
+  /// Notifies when [hiddenFraction] or [hiddenPixels] may have changed.
+  final Listenable slides;
+
   /// The share of the sheet slid off its edge.
-  final double hiddenFraction;
+  final ValueGetter<double> hiddenFraction;
 
   /// Pixels slid off its edge on top of that.
-  final double hiddenPixels;
+  final ValueGetter<double> hiddenPixels;
 
   @override
   _RenderSheetLayout createRenderObject(BuildContext context) =>
@@ -2154,6 +2163,7 @@ class _SheetLayout extends SingleChildRenderObjectWidget {
         naturalMax: naturalMax,
         crossMax: crossMax,
         measureNatural: measureNatural,
+        slides: slides,
         hiddenFraction: hiddenFraction,
         hiddenPixels: hiddenPixels,
       );
@@ -2171,6 +2181,7 @@ class _SheetLayout extends SingleChildRenderObjectWidget {
       ..naturalMax = naturalMax
       ..crossMax = crossMax
       ..measureNatural = measureNatural
+      ..slides = slides
       ..hiddenFraction = hiddenFraction
       ..hiddenPixels = hiddenPixels;
   }
@@ -2185,17 +2196,17 @@ class _RenderSheetLayout extends RenderShiftedBox {
     required double naturalMax,
     required double crossMax,
     required bool measureNatural,
-    required double hiddenFraction,
-    required double hiddenPixels,
+    required Listenable slides,
+    required this.hiddenFraction,
+    required this.hiddenPixels,
   }) : _side = side,
+       _slides = slides,
        _fill = fill,
        _extent = extent,
        _naturalMin = naturalMin,
        _naturalMax = naturalMax,
        _crossMax = crossMax,
        _measureNatural = measureNatural,
-       _hiddenFraction = hiddenFraction,
-       _hiddenPixels = hiddenPixels,
        super(null);
 
   /// The child's size along the sheet's axis after the last layout.
@@ -2260,23 +2271,39 @@ class _RenderSheetLayout extends RenderShiftedBox {
     markNeedsLayout();
   }
 
-  // Sliding is paint only: the sheet is laid out where it rests.
-  double get hiddenFraction => _hiddenFraction;
-  double _hiddenFraction;
-  set hiddenFraction(double value) {
-    if (_hiddenFraction == value) return;
-    _hiddenFraction = value;
+  // Sliding is paint only: the sheet is laid out where it rests, and a
+  // tick of what slides it repaints this box without rebuilding anything.
+  Listenable get slides => _slides;
+  Listenable _slides;
+  set slides(Listenable value) {
+    if (identical(_slides, value)) return;
+    if (attached) _slides.removeListener(_slid);
+    _slides = value;
+    if (attached) value.addListener(_slid);
+    _slid();
+  }
+
+  /// The share of the sheet slid off its edge.
+  ValueGetter<double> hiddenFraction;
+
+  /// Pixels slid off its edge on top of that.
+  ValueGetter<double> hiddenPixels;
+
+  void _slid() {
     markNeedsPaint();
     markNeedsSemanticsUpdate();
   }
 
-  double get hiddenPixels => _hiddenPixels;
-  double _hiddenPixels;
-  set hiddenPixels(double value) {
-    if (_hiddenPixels == value) return;
-    _hiddenPixels = value;
-    markNeedsPaint();
-    markNeedsSemanticsUpdate();
+  @override
+  void attach(PipelineOwner owner) {
+    super.attach(owner);
+    _slides.addListener(_slid);
+  }
+
+  @override
+  void detach() {
+    _slides.removeListener(_slid);
+    super.detach();
   }
 
   bool get _vertical => _side.isVertical;
@@ -2364,7 +2391,7 @@ class _RenderSheetLayout extends RenderShiftedBox {
 
   /// How far the child is painted from where it was laid out.
   Offset get _slide {
-    final distance = _hiddenFraction * childExtent + _hiddenPixels;
+    final distance = hiddenFraction() * childExtent + hiddenPixels();
     return switch (_side) {
       SheetSide.bottom => Offset(0, distance),
       SheetSide.top => Offset(0, -distance),
@@ -2381,7 +2408,7 @@ class _RenderSheetLayout extends RenderShiftedBox {
     final child = this.child;
     if (child == null) return;
     // All the way out: nothing to draw, and no shadow left on the edge.
-    if (_hiddenFraction >= 1) return;
+    if (hiddenFraction() >= 1) return;
     context.paintChild(child, offset + _childOffset);
   }
 

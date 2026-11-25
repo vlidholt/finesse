@@ -33,6 +33,9 @@ WidgetBuilder routeThemedBuilder({
     } else {
       data = ambientTheme;
     }
-    return ThemeScope(data: data, child: Builder(builder: builder));
+    return ThemeScope(
+      data: data,
+      child: Builder(builder: builder),
+    );
   };
 }

@@ -618,6 +618,54 @@ void main() {
       expect(find.byType(Sheet), findsNothing);
     });
 
+    testWidgets('sliding in, out and under a finger builds nothing', (
+      tester,
+    ) async {
+      var builds = 0;
+      var frames = 0;
+      await _open(
+        tester,
+        settleAfter: false,
+        builder: (context) => Sheet(
+          title: const Text('Title'),
+          child: Builder(
+            builder: (context) {
+              builds++;
+              return const SizedBox(height: 200);
+            },
+          ),
+        ),
+      );
+      await tester.pump();
+      final element = tester.element(find.byType(Sheet));
+      // Anything under the sheet that is rebuilt would mark its element.
+      void countDirty(Element e) {
+        if (e.dirty) frames++;
+        e.visitChildren(countDirty);
+      }
+
+      for (var i = 0; i < 20; i++) {
+        await tester.pump(const Duration(milliseconds: 16));
+        countDirty(element);
+      }
+      await tester.pumpAndSettle();
+      expect(builds, 1);
+
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.text('Title')),
+      );
+      await gesture.moveBy(const Offset(0, 30));
+      for (var i = 0; i < 10; i++) {
+        await gesture.moveBy(const Offset(0, 8));
+        countDirty(element);
+        await tester.pump();
+      }
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(builds, 1);
+      expect(frames, 0);
+    });
+
     testWidgets('with reduced motion it fades in place', (tester) async {
       tester.platformDispatcher.accessibilityFeaturesTestValue =
           const FakeAccessibilityFeatures(disableAnimations: true);

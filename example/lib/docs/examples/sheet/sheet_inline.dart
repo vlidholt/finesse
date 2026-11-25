@@ -40,7 +40,7 @@ class _SheetInlineExampleState extends State<SheetInlineExample> {
             const Align(
               alignment: Alignment.bottomCenter,
               child: Sheet(
-                detents: [SheetDetent.height(96), SheetDetent.fraction(.7)],
+                detents: [SheetDetent.height(112), SheetDetent.fraction(.7)],
                 // Draggable by a mouse too, anywhere on it.
                 draggable: true,
                 showDragHandle: true,
