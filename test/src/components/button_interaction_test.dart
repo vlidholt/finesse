@@ -17,7 +17,7 @@ void main() {
         wrap(
           Button(
             onPressed: () {},
-            onHoverChange: changes.add,
+            onHover: changes.add,
             child: const Text('Click me'),
           ),
         ),
@@ -55,7 +55,7 @@ void main() {
         wrap(
           Button(
             onPressed: () {},
-            onHoverChange: changes.add,
+            onHover: changes.add,
             child: const Text('Tap me'),
           ),
         ),

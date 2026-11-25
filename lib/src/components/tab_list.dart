@@ -582,7 +582,7 @@ class _TabListState extends State<TabList> {
           onPressed: () => _select(index),
           enabled: _enabled(index),
           size: tabsTheme.tabSize,
-          cursor: tabsTheme.tabCursor,
+          mouseCursor: tabsTheme.tabMouseCursor,
           hoverForegroundColor: tabsTheme.tabHoverForegroundColor,
           pressedBackgroundColor: tabsTheme.tabPressedBackgroundColor,
           pressedForegroundColor: tabsTheme.tabPressedForegroundColor,

@@ -1326,7 +1326,7 @@ class SelectState<T> extends State<Select<T>> {
                   );
                 },
                 child: FinesseGestureDetector(
-                  cursor: SystemMouseCursors.click,
+                  mouseCursor: SystemMouseCursors.click,
                   behavior: HitTestBehavior.opaque,
                   onTapDown: (details) {
                     if (widget.onPressed != null) {
@@ -1745,8 +1745,8 @@ class _OptionState<T> extends State<SelectOption<T>> {
         focusNode: focusNode,
         child: FinesseGestureDetector(
           behavior: HitTestBehavior.opaque,
-          cursor: SystemMouseCursors.click,
-          onHoverChange: (value) {
+          mouseCursor: SystemMouseCursors.click,
+          onHover: (value) {
             hovered.value = value;
           },
           onTap: () => inheritedSelect.select(widget.value),

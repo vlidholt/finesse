@@ -479,7 +479,7 @@ class _Section extends StatelessWidget {
           button: true,
           expanded: expanded,
           child: FinesseGestureDetector(
-            cursor: SystemMouseCursors.click,
+            mouseCursor: SystemMouseCursors.click,
             behavior: HitTestBehavior.opaque,
             onTap: onToggle,
             child: SizedBox(
@@ -630,12 +630,12 @@ class _PresetTileState extends State<_PresetTile> {
       button: widget.onTap != null,
       selected: widget.selected,
       child: FinesseGestureDetector(
-        cursor: widget.onTap == null
+        mouseCursor: widget.onTap == null
             ? SystemMouseCursors.basic
             : SystemMouseCursors.click,
         behavior: HitTestBehavior.opaque,
         onTap: widget.selected ? null : widget.onTap,
-        onHoverChange: (v) => setState(() => hovered = v),
+        onHover: (v) => setState(() => hovered = v),
         child: Container(
           height: touch ? 48 : 42,
           padding: const EdgeInsets.symmetric(horizontal: 8),

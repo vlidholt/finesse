@@ -484,8 +484,8 @@ class _AccordionItemState<T> extends State<AccordionItem<T>>
             ];
 
         final header = FinesseGestureDetector(
-          cursor: SystemMouseCursors.click,
-          onHoverChange: (value) => hovered.value = value,
+          mouseCursor: SystemMouseCursors.click,
+          onHover: (value) => hovered.value = value,
           behavior: HitTestBehavior.opaque,
           onTap: () => inherited.effectiveController.toggle(widget.value),
           child: Padding(

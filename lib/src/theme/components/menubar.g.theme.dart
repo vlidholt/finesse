@@ -47,7 +47,7 @@ mixin _$MenubarTheme {
       anchor: t < 0.5 ? a.anchor : b.anchor,
       buttonVariant: t < 0.5 ? a.buttonVariant : b.buttonVariant,
       buttonSize: t < 0.5 ? a.buttonSize : b.buttonSize,
-      buttonCursor: t < 0.5 ? a.buttonCursor : b.buttonCursor,
+      buttonMouseCursor: t < 0.5 ? a.buttonMouseCursor : b.buttonMouseCursor,
       buttonWidth: lerpDouble$(a.buttonWidth, b.buttonWidth, t),
       buttonHeight: lerpDouble$(a.buttonHeight, b.buttonHeight, t),
       buttonPadding: EdgeInsetsGeometry.lerp(
@@ -136,7 +136,7 @@ mixin _$MenubarTheme {
     AnchorBase? anchor,
     ButtonVariant? buttonVariant,
     ButtonSize? buttonSize,
-    MouseCursor? buttonCursor,
+    MouseCursor? buttonMouseCursor,
     double? buttonWidth,
     double? buttonHeight,
     EdgeInsetsGeometry? buttonPadding,
@@ -177,7 +177,7 @@ mixin _$MenubarTheme {
       anchor: anchor ?? _this.anchor,
       buttonVariant: buttonVariant ?? _this.buttonVariant,
       buttonSize: buttonSize ?? _this.buttonSize,
-      buttonCursor: buttonCursor ?? _this.buttonCursor,
+      buttonMouseCursor: buttonMouseCursor ?? _this.buttonMouseCursor,
       buttonWidth: buttonWidth ?? _this.buttonWidth,
       buttonHeight: buttonHeight ?? _this.buttonHeight,
       buttonPadding: buttonPadding ?? _this.buttonPadding,
@@ -240,7 +240,7 @@ mixin _$MenubarTheme {
       anchor: other.anchor,
       buttonVariant: other.buttonVariant,
       buttonSize: other.buttonSize,
-      buttonCursor: other.buttonCursor,
+      buttonMouseCursor: other.buttonMouseCursor,
       buttonWidth: other.buttonWidth,
       buttonHeight: other.buttonHeight,
       buttonPadding: other.buttonPadding,
@@ -295,7 +295,7 @@ mixin _$MenubarTheme {
         _other.anchor == _this.anchor &&
         _other.buttonVariant == _this.buttonVariant &&
         _other.buttonSize == _this.buttonSize &&
-        _other.buttonCursor == _this.buttonCursor &&
+        _other.buttonMouseCursor == _this.buttonMouseCursor &&
         _other.buttonWidth == _this.buttonWidth &&
         _other.buttonHeight == _this.buttonHeight &&
         _other.buttonPadding == _this.buttonPadding &&
@@ -343,7 +343,7 @@ mixin _$MenubarTheme {
       _this.anchor,
       _this.buttonVariant,
       _this.buttonSize,
-      _this.buttonCursor,
+      _this.buttonMouseCursor,
       _this.buttonWidth,
       _this.buttonHeight,
       _this.buttonPadding,

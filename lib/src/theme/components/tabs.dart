@@ -44,7 +44,7 @@ class TabsTheme with _$TabsTheme {
     this.tabSelectedShadows,
     this.tabSize,
     this.tabHeight,
-    this.tabCursor,
+    this.tabMouseCursor,
     this.tabHoverForegroundColor,
     this.tabPressedBackgroundColor,
     this.tabPressedForegroundColor,
@@ -158,7 +158,7 @@ class TabsTheme with _$TabsTheme {
   final double? tabHeight;
 
   /// The mouse cursor over a tab.
-  final MouseCursor? tabCursor;
+  final MouseCursor? tabMouseCursor;
 
   /// The colour of a hovered tab's label and icons.
   final Color? tabHoverForegroundColor;

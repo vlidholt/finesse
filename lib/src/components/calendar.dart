@@ -910,7 +910,7 @@ class _CalendarState extends State<Calendar> {
             height: effectiveNavigationButtonSize,
             padding: effectiveNavigationButtonPadding,
             enabled: !isPreviousMonthButtonDisabled,
-            onHoverChange: (hovered) => backMonthButtonHovered.value = hovered,
+            onHover: (hovered) => backMonthButtonHovered.value = hovered,
             icon: PhosphorIcon(
               effectiveBackNavigationButtonSrc,
               size: effectiveNavigationButtonIconSize,
@@ -931,8 +931,7 @@ class _CalendarState extends State<Calendar> {
             height: effectiveNavigationButtonSize,
             padding: effectiveNavigationButtonPadding,
             enabled: !isNextMonthButtonDisabled,
-            onHoverChange: (hovered) =>
-                forwardMonthButtonHovered.value = hovered,
+            onHover: (hovered) => forwardMonthButtonHovered.value = hovered,
             onPressed: () => goToMonth(currentMonth.nextMonth),
             icon: PhosphorIcon(
               effectiveForwardNavigationButtonSrc,

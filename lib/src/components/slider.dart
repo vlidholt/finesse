@@ -1026,7 +1026,7 @@ class _SliderCoreState extends State<_SliderCore> {
                       width: effectiveThumbRadius * 2,
                       height: effectiveThumbRadius * 2,
                       child: FinesseGestureDetector(
-                        cursor: widget.enabled
+                        mouseCursor: widget.enabled
                             ? effectiveMouseCursor
                             : effectiveDisabledMouseCursor,
                         onPanUpdate: canSlideThumb
@@ -1139,7 +1139,7 @@ class _SliderCoreState extends State<_SliderCore> {
             children: [
               // Track with gesture handling based on interaction mode
               FinesseGestureDetector(
-                cursor: widget.enabled
+                mouseCursor: widget.enabled
                     ? effectiveMouseCursor
                     : effectiveDisabledMouseCursor,
                 onTapDown: canTap && values.isNotEmpty

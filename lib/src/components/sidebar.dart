@@ -849,8 +849,8 @@ class _SidebarTriggerState extends State<SidebarTrigger> {
       button: true,
       label: 'Toggle sidebar',
       child: FinesseGestureDetector(
-        cursor: SystemMouseCursors.click,
-        onHoverChange: (value) => setState(() => hovered = value),
+        mouseCursor: SystemMouseCursors.click,
+        onHover: (value) => setState(() => hovered = value),
         onTap: () {
           widget.onPressed?.call();
           scope.toggle();
@@ -911,11 +911,11 @@ class _SidebarRailState extends State<_SidebarRail> {
         : SystemMouseCursors.resizeRight;
 
     return FinesseGestureDetector(
-      cursor: cursor,
+      mouseCursor: cursor,
       // The whole strip toggles, not just the 2px line it highlights —
       // deferring to the child left everything but the hairline untappable.
       behavior: HitTestBehavior.opaque,
-      onHoverChange: (value) => setState(() => hovered = value),
+      onHover: (value) => setState(() => hovered = value),
       onTap: scope.toggle,
       child: Center(
         child: AnimatedContainer(
@@ -1260,8 +1260,10 @@ class _SidebarMenuButtonState extends State<SidebarMenuButton> {
         );
       },
       child: FinesseGestureDetector(
-        cursor: widget.enabled ? SystemMouseCursors.click : MouseCursor.defer,
-        onHoverChange: widget.enabled
+        mouseCursor: widget.enabled
+            ? SystemMouseCursors.click
+            : MouseCursor.defer,
+        onHover: widget.enabled
             ? (value) => setState(() => hovered = value)
             : null,
         onTapDown: widget.enabled
@@ -1427,8 +1429,8 @@ class _SidebarMenuActionState extends State<SidebarMenuAction> {
       button: true,
       label: widget.semanticLabel,
       child: FinesseGestureDetector(
-        cursor: SystemMouseCursors.click,
-        onHoverChange: (value) => setState(() => hovered = value),
+        mouseCursor: SystemMouseCursors.click,
+        onHover: (value) => setState(() => hovered = value),
         onTap: widget.onPressed,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 100),
@@ -1576,8 +1578,8 @@ class _SidebarMenuSubButtonState extends State<SidebarMenuSubButton> {
           );
         },
         child: FinesseGestureDetector(
-          cursor: SystemMouseCursors.click,
-          onHoverChange: (value) => setState(() => hovered = value),
+          mouseCursor: SystemMouseCursors.click,
+          onHover: (value) => setState(() => hovered = value),
           onTap: widget.onPressed,
           child: Container(
             height: sidebarTheme.subButtonHeight ?? 28,

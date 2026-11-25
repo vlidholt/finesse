@@ -638,12 +638,12 @@ class _CommandItemView extends StatelessWidget {
       label: item.label,
       child: ExcludeSemantics(
         child: FinesseGestureDetector(
-          cursor: item.enabled
+          mouseCursor: item.enabled
               ? SystemMouseCursors.click
               : SystemMouseCursors.forbidden,
           behavior: HitTestBehavior.opaque,
           onTap: item.enabled ? onTap : null,
-          onHoverChange: (hovered) {
+          onHover: (hovered) {
             if (hovered && item.enabled) onHover();
           },
           // The highlight is the item's own fill, there or not: it does

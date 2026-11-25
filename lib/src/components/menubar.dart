@@ -375,7 +375,7 @@ class _MenubarItemState extends State<MenubarItem> {
                     menubarController.selectedIndex = index;
                   }
                 },
-                onHoverChange: (hovered) {
+                onHover: (hovered) {
                   if (!hovered) return;
                   if (!effectiveSelectOnHover) return;
                   // Hover only *switches* menus: a closed menubar opens on
@@ -394,7 +394,7 @@ class _MenubarItemState extends State<MenubarItem> {
                 leading: widget.leading,
                 trailing: widget.trailing,
                 size: menubarTheme.buttonSize,
-                cursor: menubarTheme.buttonCursor,
+                mouseCursor: menubarTheme.buttonMouseCursor,
                 width: menubarTheme.buttonWidth,
                 padding: menubarTheme.buttonPadding,
                 hoverBackgroundColor: menubarTheme.buttonHoverBackgroundColor,

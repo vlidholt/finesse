@@ -26,7 +26,7 @@ mixin _$ButtonTheme {
     }
 
     return ButtonTheme(
-      cursor: t < 0.5 ? a.cursor : b.cursor,
+      mouseCursor: t < 0.5 ? a.mouseCursor : b.mouseCursor,
       size: t < 0.5 ? a.size : b.size,
       sizesTheme: ButtonSizesTheme.lerp(a.sizesTheme, b.sizesTheme, t),
       backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
@@ -88,7 +88,7 @@ mixin _$ButtonTheme {
   }
 
   ButtonTheme copyWith({
-    MouseCursor? cursor,
+    MouseCursor? mouseCursor,
     ButtonSize? size,
     ButtonSizesTheme? sizesTheme,
     Color? backgroundColor,
@@ -120,7 +120,7 @@ mixin _$ButtonTheme {
     final _this = (this as ButtonTheme);
 
     return ButtonTheme(
-      cursor: cursor ?? _this.cursor,
+      mouseCursor: mouseCursor ?? _this.mouseCursor,
       size: size ?? _this.size,
       sizesTheme: sizesTheme ?? _this.sizesTheme,
       backgroundColor: backgroundColor ?? _this.backgroundColor,
@@ -166,7 +166,7 @@ mixin _$ButtonTheme {
     }
 
     return copyWith(
-      cursor: other.cursor,
+      mouseCursor: other.mouseCursor,
       size: other.size,
       sizesTheme: _this.sizesTheme?.merge(other.sizesTheme) ?? other.sizesTheme,
       backgroundColor: other.backgroundColor,
@@ -210,7 +210,7 @@ mixin _$ButtonTheme {
     final _this = (this as ButtonTheme);
     final _other = (other as ButtonTheme);
 
-    return _other.cursor == _this.cursor &&
+    return _other.mouseCursor == _this.mouseCursor &&
         _other.size == _this.size &&
         _other.sizesTheme == _this.sizesTheme &&
         _other.backgroundColor == _this.backgroundColor &&
@@ -246,7 +246,7 @@ mixin _$ButtonTheme {
 
     return Object.hashAll([
       runtimeType,
-      _this.cursor,
+      _this.mouseCursor,
       _this.size,
       _this.sizesTheme,
       _this.backgroundColor,

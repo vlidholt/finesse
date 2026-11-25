@@ -463,7 +463,7 @@ class _DataTableState<T> extends State<DataTable<T>> {
     if (!column.sortable) return label;
 
     return FinesseGestureDetector(
-      cursor: SystemMouseCursors.click,
+      mouseCursor: SystemMouseCursors.click,
       behavior: HitTestBehavior.opaque,
       onTap: () => controller.sortBy(column.id),
       child: Row(

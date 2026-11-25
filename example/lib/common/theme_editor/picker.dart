@@ -85,7 +85,7 @@ class _SettingBox extends StatelessWidget {
     return Opacity(
       opacity: enabled ? 1 : .5,
       child: FinesseGestureDetector(
-        cursor: enabled && onTap != null
+        mouseCursor: enabled && onTap != null
             ? SystemMouseCursors.click
             : SystemMouseCursors.basic,
         behavior: HitTestBehavior.opaque,
@@ -344,10 +344,10 @@ class _PickerItemState extends State<_PickerItem> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return FinesseGestureDetector(
-      cursor: SystemMouseCursors.click,
+      mouseCursor: SystemMouseCursors.click,
       behavior: HitTestBehavior.opaque,
       onTap: widget.onTap,
-      onHoverChange: (v) => setState(() => hovered = v),
+      onHover: (v) => setState(() => hovered = v),
       child: Container(
         height: _itemExtent(theme),
         padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -483,7 +483,7 @@ class ThemeSlider extends StatelessWidget {
                 ),
                 if (onReset != null)
                   FinesseGestureDetector(
-                    cursor: SystemMouseCursors.click,
+                    mouseCursor: SystemMouseCursors.click,
                     behavior: HitTestBehavior.opaque,
                     onTap: onReset,
                     child: Padding(

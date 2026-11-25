@@ -258,14 +258,14 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
   }
 
   /// The hover strategies this tooltip was configured with, before the
-  /// tooltip's own onHoverChange is layered on top.
+  /// tooltip's own onHover is layered on top.
   HoverStrategies? _baseHoverStrategies;
 
   /// The theme handed to [Tooltip.child], with the merged hover strategies
   /// applied.
   ///
   /// Computed here rather than in build(). Building it per build allocated a
-  /// fresh `onHoverChange` closure, and HoverStrategies compares that
+  /// fresh `onHover` closure, and HoverStrategies compares that
   /// closure in `==`, so the copied theme was never equal to the previous one.
   /// FinesseInheritedTheme then reported a change and rebuilt the tooltip's
   /// entire child subtree on every tooltip rebuild — and `ThemeData.copyWith`
@@ -273,7 +273,7 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
   late ThemeData _childTheme;
 
   void _handleHoverChange(bool value) {
-    _baseHoverStrategies?.onHoverChange?.call(value);
+    _baseHoverStrategies?.onHover?.call(value);
     onHoverChange(value);
   }
 
@@ -288,7 +288,7 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
       hoverStrategies: base.copyWith(
         // A tear-off of an instance method is canonicalized per receiver, so
         // this keeps a stable identity across rebuilds.
-        onHoverChange: _handleHoverChange,
+        onHover: _handleHoverChange,
         longPressDuration:
             widget.longPressDuration ?? theme.tooltipTheme.longPressDuration,
       ),

@@ -32,7 +32,7 @@ void main() {
         autofocus: autofocus,
         semanticLabel: semanticLabel,
         semanticValue: semanticValue,
-        cursor: cursor,
+        mouseCursor: cursor,
         builder: (context, states) {
           log.add({...states});
           return SizedBox.fromSize(size: size, child: const Text('Go'));

@@ -92,7 +92,7 @@ mixin _$TabsTheme {
       tabSelectedShadows: t < 0.5 ? a.tabSelectedShadows : b.tabSelectedShadows,
       tabSize: t < 0.5 ? a.tabSize : b.tabSize,
       tabHeight: lerpDouble$(a.tabHeight, b.tabHeight, t),
-      tabCursor: t < 0.5 ? a.tabCursor : b.tabCursor,
+      tabMouseCursor: t < 0.5 ? a.tabMouseCursor : b.tabMouseCursor,
       tabHoverForegroundColor: Color.lerp(
         a.tabHoverForegroundColor,
         b.tabHoverForegroundColor,
@@ -179,7 +179,7 @@ mixin _$TabsTheme {
     List<BoxShadow>? tabSelectedShadows,
     ButtonSize? tabSize,
     double? tabHeight,
-    MouseCursor? tabCursor,
+    MouseCursor? tabMouseCursor,
     Color? tabHoverForegroundColor,
     Color? tabPressedBackgroundColor,
     Color? tabPressedForegroundColor,
@@ -234,7 +234,7 @@ mixin _$TabsTheme {
       tabSelectedShadows: tabSelectedShadows ?? _this.tabSelectedShadows,
       tabSize: tabSize ?? _this.tabSize,
       tabHeight: tabHeight ?? _this.tabHeight,
-      tabCursor: tabCursor ?? _this.tabCursor,
+      tabMouseCursor: tabMouseCursor ?? _this.tabMouseCursor,
       tabHoverForegroundColor:
           tabHoverForegroundColor ?? _this.tabHoverForegroundColor,
       tabPressedBackgroundColor:
@@ -306,7 +306,7 @@ mixin _$TabsTheme {
       tabSelectedShadows: other.tabSelectedShadows,
       tabSize: other.tabSize,
       tabHeight: other.tabHeight,
-      tabCursor: other.tabCursor,
+      tabMouseCursor: other.tabMouseCursor,
       tabHoverForegroundColor: other.tabHoverForegroundColor,
       tabPressedBackgroundColor: other.tabPressedBackgroundColor,
       tabPressedForegroundColor: other.tabPressedForegroundColor,
@@ -370,7 +370,7 @@ mixin _$TabsTheme {
         _other.tabSelectedShadows == _this.tabSelectedShadows &&
         _other.tabSize == _this.tabSize &&
         _other.tabHeight == _this.tabHeight &&
-        _other.tabCursor == _this.tabCursor &&
+        _other.tabMouseCursor == _this.tabMouseCursor &&
         _other.tabHoverForegroundColor == _this.tabHoverForegroundColor &&
         _other.tabPressedBackgroundColor == _this.tabPressedBackgroundColor &&
         _other.tabPressedForegroundColor == _this.tabPressedForegroundColor &&
@@ -423,7 +423,7 @@ mixin _$TabsTheme {
       _this.tabSelectedShadows,
       _this.tabSize,
       _this.tabHeight,
-      _this.tabCursor,
+      _this.tabMouseCursor,
       _this.tabHoverForegroundColor,
       _this.tabPressedBackgroundColor,
       _this.tabPressedForegroundColor,

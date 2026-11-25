@@ -17,7 +17,7 @@ class BadgeTheme with _$BadgeTheme {
     this.hoverBackgroundColor,
     this.foregroundColor,
     this.padding,
-    this.cursor,
+    this.mouseCursor,
     this.textStyle,
     this.iconSize,
   }) : _canMerge = canMerge;
@@ -43,8 +43,8 @@ class BadgeTheme with _$BadgeTheme {
   /// {@macro Badge.padding}
   final EdgeInsetsGeometry? padding;
 
-  /// {@macro Badge.cursor}
-  final MouseCursor? cursor;
+  /// {@macro Badge.mouseCursor}
+  final MouseCursor? mouseCursor;
 
   /// {@macro Badge.textStyle}
   final TextStyle? textStyle;

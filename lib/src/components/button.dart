@@ -82,7 +82,7 @@ class Button extends StatefulWidget {
     this.onPressed,
     this.size,
     this.iconSize,
-    this.cursor,
+    this.mouseCursor,
     this.width,
     this.height,
     this.padding,
@@ -106,7 +106,7 @@ class Button extends StatefulWidget {
     this.mainAxisAlignment,
     this.crossAxisAlignment,
     this.hoverStrategies,
-    this.onHoverChange,
+    this.onHover,
     this.onTapDown,
     this.onTapUp,
     this.onTapCancel,
@@ -144,7 +144,7 @@ class Button extends StatefulWidget {
     this.onPressed,
     this.size,
     this.iconSize,
-    this.cursor,
+    this.mouseCursor,
     this.width,
     this.height,
     this.padding,
@@ -168,7 +168,7 @@ class Button extends StatefulWidget {
     this.mainAxisAlignment,
     this.crossAxisAlignment,
     this.hoverStrategies,
-    this.onHoverChange,
+    this.onHover,
     this.onTapDown,
     this.onTapUp,
     this.onTapCancel,
@@ -206,7 +206,7 @@ class Button extends StatefulWidget {
     this.onPressed,
     this.size,
     this.iconSize,
-    this.cursor,
+    this.mouseCursor,
     this.width,
     this.height,
     this.padding,
@@ -230,7 +230,7 @@ class Button extends StatefulWidget {
     this.mainAxisAlignment,
     this.crossAxisAlignment,
     this.hoverStrategies,
-    this.onHoverChange,
+    this.onHover,
     this.onTapDown,
     this.onTapUp,
     this.onTapCancel,
@@ -268,7 +268,7 @@ class Button extends StatefulWidget {
     this.onPressed,
     this.size,
     this.iconSize,
-    this.cursor,
+    this.mouseCursor,
     this.width,
     this.height,
     this.padding,
@@ -292,7 +292,7 @@ class Button extends StatefulWidget {
     this.mainAxisAlignment,
     this.crossAxisAlignment,
     this.hoverStrategies,
-    this.onHoverChange,
+    this.onHover,
     this.onTapDown,
     this.onTapUp,
     this.onTapCancel,
@@ -329,7 +329,7 @@ class Button extends StatefulWidget {
     this.onPressed,
     this.size,
     this.iconSize,
-    this.cursor,
+    this.mouseCursor,
     this.width,
     this.height,
     this.padding,
@@ -353,7 +353,7 @@ class Button extends StatefulWidget {
     this.mainAxisAlignment,
     this.crossAxisAlignment,
     this.hoverStrategies,
-    this.onHoverChange,
+    this.onHover,
     this.onTapDown,
     this.onTapUp,
     this.onTapCancel,
@@ -388,7 +388,7 @@ class Button extends StatefulWidget {
     this.onPressed,
     this.size,
     this.iconSize,
-    this.cursor,
+    this.mouseCursor,
     this.width,
     this.height,
     this.padding,
@@ -412,7 +412,7 @@ class Button extends StatefulWidget {
     this.mainAxisAlignment,
     this.crossAxisAlignment,
     this.hoverStrategies,
-    this.onHoverChange,
+    this.onHover,
     this.onTapDown,
     this.onTapUp,
     this.onTapCancel,
@@ -494,11 +494,11 @@ class Button extends StatefulWidget {
   /// {@endtemplate}
   final double? iconSize;
 
-  /// {@template Button.cursor}
+  /// {@template Button.mouseCursor}
   /// The mouse cursor displayed over the button, overriding the theme default
   /// if specified. Typically [SystemMouseCursors.click] when enabled.
   /// {@endtemplate}
-  final MouseCursor? cursor;
+  final MouseCursor? mouseCursor;
 
   /// {@template Button.width}
   /// The explicit minimum width of the button, overriding size-based defaults.
@@ -668,11 +668,11 @@ class Button extends StatefulWidget {
   /// {@endtemplate}
   final HoverStrategies? hoverStrategies;
 
-  /// {@template Button.onHoverChange}
+  /// {@template Button.onHover}
   /// Callback invoked when the hover state changes, providing the new hover
   /// value. Complements internal hover state management.
   /// {@endtemplate}
-  final ValueChanged<bool>? onHoverChange;
+  final ValueChanged<bool>? onHover;
 
   /// {@template Button.onTapDown}
   /// Callback invoked when a tap begins, providing tap details.
@@ -1042,9 +1042,9 @@ class _ButtonState extends State<Button> {
   }
 
   MouseCursor cursor(ThemeData theme) {
-    if (widget.cursor != null) return widget.cursor!;
+    if (widget.mouseCursor != null) return widget.mouseCursor!;
     return (widget.enabled
-        ? buttonTheme(theme).cursor ?? SystemMouseCursors.click
+        ? buttonTheme(theme).mouseCursor ?? SystemMouseCursors.click
         : MouseCursor.defer);
   }
 
@@ -1340,15 +1340,17 @@ class _ButtonState extends State<Button> {
                         ),
                         child: FinesseGestureDetector(
                           behavior: HitTestBehavior.opaque,
-                          onHoverChange: (value) {
+                          onHover: (value) {
                             statesController.update(
                               WidgetState.hovered,
                               value,
                             );
-                            widget.onHoverChange?.call(value);
+                            widget.onHover?.call(value);
                           },
                           hoverStrategies: effectiveHoverStrategies,
-                          cursor: loading ? MouseCursor.defer : cursor(theme),
+                          mouseCursor: loading
+                              ? MouseCursor.defer
+                              : cursor(theme),
                           onLongPress: loading ? null : widget.onLongPress,
                           onTap: widget.onPressed == null || loading
                               ? null

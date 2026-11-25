@@ -37,7 +37,7 @@ class IconButton extends StatelessWidget {
     this.semanticLabel,
     this.tooltip,
     this.onPressed,
-    this.cursor,
+    this.mouseCursor,
     this.width,
     this.height,
     this.padding,
@@ -57,7 +57,7 @@ class IconButton extends StatelessWidget {
     this.onLongPress,
     this.statesController,
     this.hoverStrategies,
-    this.onHoverChange,
+    this.onHover,
     this.onTapDown,
     this.onTapUp,
     this.onTapCancel,
@@ -89,7 +89,7 @@ class IconButton extends StatelessWidget {
     this.semanticLabel,
     this.tooltip,
     this.onPressed,
-    this.cursor,
+    this.mouseCursor,
     this.width,
     this.height,
     this.padding,
@@ -110,7 +110,7 @@ class IconButton extends StatelessWidget {
     this.onLongPress,
     this.statesController,
     this.hoverStrategies,
-    this.onHoverChange,
+    this.onHover,
     this.onTapDown,
     this.onTapUp,
     this.onTapCancel,
@@ -138,7 +138,7 @@ class IconButton extends StatelessWidget {
     this.semanticLabel,
     this.tooltip,
     this.onPressed,
-    this.cursor,
+    this.mouseCursor,
     this.width,
     this.height,
     this.padding,
@@ -158,7 +158,7 @@ class IconButton extends StatelessWidget {
     this.onLongPress,
     this.statesController,
     this.hoverStrategies,
-    this.onHoverChange,
+    this.onHover,
     this.onTapDown,
     this.onTapUp,
     this.onTapCancel,
@@ -187,7 +187,7 @@ class IconButton extends StatelessWidget {
     this.semanticLabel,
     this.tooltip,
     this.onPressed,
-    this.cursor,
+    this.mouseCursor,
     this.width,
     this.height,
     this.padding,
@@ -207,7 +207,7 @@ class IconButton extends StatelessWidget {
     this.onLongPress,
     this.statesController,
     this.hoverStrategies,
-    this.onHoverChange,
+    this.onHover,
     this.onTapDown,
     this.onTapUp,
     this.onTapCancel,
@@ -236,7 +236,7 @@ class IconButton extends StatelessWidget {
     this.semanticLabel,
     this.tooltip,
     this.onPressed,
-    this.cursor,
+    this.mouseCursor,
     this.width,
     this.height,
     this.padding,
@@ -256,7 +256,7 @@ class IconButton extends StatelessWidget {
     this.onLongPress,
     this.statesController,
     this.hoverStrategies,
-    this.onHoverChange,
+    this.onHover,
     this.onTapDown,
     this.onTapUp,
     this.onTapCancel,
@@ -326,8 +326,8 @@ class IconButton extends StatelessWidget {
   /// On an icon button the spinner takes the place of the icon.
   final bool loading;
 
-  /// {@macro Button.cursor}
-  final MouseCursor? cursor;
+  /// {@macro Button.mouseCursor}
+  final MouseCursor? mouseCursor;
 
   /// {@macro Button.width}
   final double? width;
@@ -380,8 +380,8 @@ class IconButton extends StatelessWidget {
   /// {@macro Button.hoverStrategies}
   final HoverStrategies? hoverStrategies;
 
-  /// {@macro Button.onHoverChange}
-  final ValueChanged<bool>? onHoverChange;
+  /// {@macro Button.onHover}
+  final ValueChanged<bool>? onHover;
 
   /// {@macro Button.onTapDown}
   final ValueChanged<TapDownDetails>? onTapDown;
@@ -501,7 +501,7 @@ class IconButton extends StatelessWidget {
       iconSize: iconSize ?? defaultSize.iconSize,
       onPressed: onPressed,
       onLongPress: onLongPress,
-      cursor: cursor,
+      mouseCursor: mouseCursor,
       backgroundColor: backgroundColor,
       hoverBackgroundColor: hoverBackgroundColor,
       foregroundColor: foregroundColor,
@@ -517,7 +517,7 @@ class IconButton extends StatelessWidget {
       loading: loading,
       statesController: statesController,
       hoverStrategies: hoverStrategies,
-      onHoverChange: onHoverChange,
+      onHover: onHover,
       onTapDown: onTapDown,
       onTapUp: onTapUp,
       onTapCancel: onTapCancel,

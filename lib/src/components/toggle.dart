@@ -336,10 +336,10 @@ class _ToggleState extends State<Toggle> {
         );
       },
       child: FinesseGestureDetector(
-        cursor: enabled ? SystemMouseCursors.click : MouseCursor.defer,
+        mouseCursor: enabled ? SystemMouseCursors.click : MouseCursor.defer,
         behavior: HitTestBehavior.opaque,
         onTap: _toggle,
-        onHoverChange: (hovered) =>
+        onHover: (hovered) =>
             statesController.update(WidgetState.hovered, hovered),
         onTapDown: (_) => statesController.update(WidgetState.pressed, true),
         onTapUp: (_) => statesController.update(WidgetState.pressed, false),

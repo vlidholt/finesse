@@ -16,7 +16,7 @@ class HoverStrategies {
     this.hover = const {},
     this.unhover = const {},
     this.longPressDuration,
-    this.onHoverChange,
+    this.onHover,
   });
 
   /// The gestures that turn the hover state on. Defaults to none.
@@ -34,7 +34,7 @@ class HoverStrategies {
   final Duration? longPressDuration;
 
   /// Called with the new hover state each time it changes.
-  final ValueChanged<bool>? onHoverChange;
+  final ValueChanged<bool>? onHover;
 
   @override
   bool operator ==(Object other) {
@@ -44,7 +44,7 @@ class HoverStrategies {
         setEquals(other.hover, hover) &&
         setEquals(other.unhover, unhover) &&
         other.longPressDuration == longPressDuration &&
-        other.onHoverChange == onHoverChange;
+        other.onHover == onHover;
   }
 
   @override
@@ -52,7 +52,7 @@ class HoverStrategies {
     return hover.hashCode ^
         unhover.hashCode ^
         longPressDuration.hashCode ^
-        onHoverChange.hashCode;
+        onHover.hashCode;
   }
 
   /// Returns a copy with the given fields replaced.
@@ -60,13 +60,13 @@ class HoverStrategies {
     Set<HoverStrategy>? hover,
     Set<HoverStrategy>? unhover,
     Duration? longPressDuration,
-    ValueChanged<bool>? onHoverChange,
+    ValueChanged<bool>? onHover,
   }) {
     return HoverStrategies(
       hover: hover ?? this.hover,
       unhover: unhover ?? this.unhover,
       longPressDuration: longPressDuration ?? this.longPressDuration,
-      onHoverChange: onHoverChange ?? this.onHoverChange,
+      onHover: onHover ?? this.onHover,
     );
   }
 }
@@ -134,10 +134,10 @@ class FinesseGestureDetector extends StatefulWidget {
   const FinesseGestureDetector({
     super.key,
     required this.child,
-    this.cursor = MouseCursor.defer,
+    this.mouseCursor = MouseCursor.defer,
     this.hoverStrategies,
     this.behavior,
-    this.onHoverChange,
+    this.onHover,
     this.onTap,
     this.onTapDown,
     this.onTapUp,
@@ -184,10 +184,10 @@ class FinesseGestureDetector extends StatefulWidget {
   ///
   /// The hover state comes from the mouse when there is one, and from
   /// [hoverStrategies] when there is not.
-  final ValueChanged<bool>? onHoverChange;
+  final ValueChanged<bool>? onHover;
 
   /// The mouse cursor shown over the widget. Defaults to [MouseCursor.defer].
-  final MouseCursor cursor;
+  final MouseCursor mouseCursor;
 
   /// The widget below this widget in the tree.
   final Widget child;
@@ -438,18 +438,18 @@ class _GestureDetectorState extends State<FinesseGestureDetector> {
       // unhover sets.
       if (presentInHover && presentInUnhover) {
         hovered = !hovered;
-        widget.onHoverChange?.call(hovered);
-        effectiveHoverStrategies.onHoverChange?.call(hovered);
+        widget.onHover?.call(hovered);
+        effectiveHoverStrategies.onHover?.call(hovered);
         return;
       }
 
       if (presentInHover) {
-        widget.onHoverChange?.call(true);
-        effectiveHoverStrategies.onHoverChange?.call(true);
+        widget.onHover?.call(true);
+        effectiveHoverStrategies.onHover?.call(true);
         hovered = true;
       } else if (presentInUnhover) {
-        widget.onHoverChange?.call(false);
-        effectiveHoverStrategies.onHoverChange?.call(false);
+        widget.onHover?.call(false);
+        effectiveHoverStrategies.onHover?.call(false);
         hovered = false;
       }
     }
@@ -704,18 +704,18 @@ class _GestureDetectorState extends State<FinesseGestureDetector> {
       onTapOutside: effectiveOnTapOutside,
       groupId: widget.groupId,
       child: MouseRegion(
-        cursor: widget.cursor,
+        cursor: widget.mouseCursor,
         onEnter: (_) {
           mouseInside = true;
           hovered = true;
-          widget.onHoverChange?.call(true);
-          effectiveHoverStrategies.onHoverChange?.call(true);
+          widget.onHover?.call(true);
+          effectiveHoverStrategies.onHover?.call(true);
         },
         onExit: (_) {
           mouseInside = false;
           hovered = false;
-          widget.onHoverChange?.call(false);
-          effectiveHoverStrategies.onHoverChange?.call(false);
+          widget.onHover?.call(false);
+          effectiveHoverStrategies.onHover?.call(false);
         },
         child: RawGestureDetector(
           gestures: gestures,

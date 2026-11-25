@@ -45,7 +45,7 @@ class Badge extends StatefulWidget {
     this.padding,
     this.onPressed,
     this.enabled = true,
-    this.cursor,
+    this.mouseCursor,
     this.textStyle,
   });
 
@@ -61,7 +61,7 @@ class Badge extends StatefulWidget {
     this.padding,
     this.onPressed,
     this.enabled = true,
-    this.cursor,
+    this.mouseCursor,
     this.textStyle,
   }) : variant = BadgeVariant.secondary;
 
@@ -77,7 +77,7 @@ class Badge extends StatefulWidget {
     this.padding,
     this.onPressed,
     this.enabled = true,
-    this.cursor,
+    this.mouseCursor,
     this.textStyle,
   }) : variant = BadgeVariant.outline;
 
@@ -93,7 +93,7 @@ class Badge extends StatefulWidget {
     this.padding,
     this.onPressed,
     this.enabled = true,
-    this.cursor,
+    this.mouseCursor,
     this.textStyle,
   }) : variant = BadgeVariant.destructive;
 
@@ -166,12 +166,12 @@ class Badge extends StatefulWidget {
   /// {@endtemplate}
   final bool enabled;
 
-  /// {@template Badge.cursor}
+  /// {@template Badge.mouseCursor}
   /// The cursor displayed when hovering over the badge, providing feedback
   /// when the badge is interactive. Defaults to [SystemMouseCursors.click] if
   /// [onPressed] is provided, otherwise [MouseCursor.defer].
   /// {@endtemplate}
-  final MouseCursor? cursor;
+  final MouseCursor? mouseCursor;
 
   @override
   State<Badge> createState() => _BadgeState();
@@ -226,7 +226,7 @@ class _BadgeState extends State<Badge> {
     final defaultCursor = widget.onPressed != null
         ? SystemMouseCursors.click
         : MouseCursor.defer;
-    return widget.cursor ?? badgeTheme(theme).cursor ?? defaultCursor;
+    return widget.mouseCursor ?? badgeTheme(theme).mouseCursor ?? defaultCursor;
   }
 
   @override

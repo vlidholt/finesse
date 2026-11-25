@@ -17,7 +17,7 @@ class ButtonTheme with _$ButtonTheme {
   /// Creates a [ButtonTheme].
   const ButtonTheme({
     bool canMerge = true,
-    this.cursor,
+    this.mouseCursor,
     this.size,
     this.sizesTheme,
     this.backgroundColor,
@@ -53,8 +53,8 @@ class ButtonTheme with _$ButtonTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro Button.cursor}
-  final MouseCursor? cursor;
+  /// {@macro Button.mouseCursor}
+  final MouseCursor? mouseCursor;
 
   /// {@macro Button.size}
   final ButtonSize? size;

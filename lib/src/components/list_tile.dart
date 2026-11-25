@@ -292,7 +292,7 @@ class ListTile extends StatelessWidget {
       onLongPress: enabled ? onLongPress : null,
       selected: selected ? true : null,
       focusNode: focusNode,
-      cursor: mouseCursor ?? SystemMouseCursors.click,
+      mouseCursor: mouseCursor ?? SystemMouseCursors.click,
       // The press gives a little, as a surface does; see `Card`. A row of a
       // section fills its card from edge to edge, where shrinking would
       // open a gap along the sides: it darkens instead.

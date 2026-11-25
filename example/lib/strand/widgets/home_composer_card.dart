@@ -42,7 +42,7 @@ class HomeComposerCard extends StatelessWidget {
                   foregroundColor: scheme.mutedForeground,
                   hoverForegroundColor: scheme.mutedForeground,
                   mainAxisAlignment: MainAxisAlignment.start,
-                  cursor: SystemMouseCursors.text,
+                  mouseCursor: SystemMouseCursors.text,
                   pressedOffset: Offset.zero,
                   // The size of the theme's `large`, at the weight of
                   // running text: a placeholder, not a label.

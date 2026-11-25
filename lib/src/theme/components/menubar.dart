@@ -34,7 +34,7 @@ class MenubarTheme with _$MenubarTheme {
     this.anchor,
     this.buttonVariant,
     this.buttonSize,
-    this.buttonCursor,
+    this.buttonMouseCursor,
     this.buttonWidth,
     this.buttonHeight,
     this.buttonPadding,
@@ -105,8 +105,8 @@ class MenubarTheme with _$MenubarTheme {
   /// {@macro Button.size}
   final ButtonSize? buttonSize;
 
-  /// {@macro Button.cursor}
-  final MouseCursor? buttonCursor;
+  /// {@macro Button.mouseCursor}
+  final MouseCursor? buttonMouseCursor;
 
   /// {@macro Button.width}
   final double? buttonWidth;

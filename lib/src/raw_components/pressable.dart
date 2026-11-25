@@ -46,7 +46,7 @@ class Pressable extends StatefulWidget {
     this.selected,
     this.focusNode,
     this.autofocus = false,
-    this.cursor = SystemMouseCursors.click,
+    this.mouseCursor = SystemMouseCursors.click,
     this.semanticLabel,
     this.semanticValue,
     this.excludeSemantics,
@@ -77,7 +77,7 @@ class Pressable extends StatefulWidget {
   final bool autofocus;
 
   /// The cursor shown over an enabled region.
-  final MouseCursor cursor;
+  final MouseCursor mouseCursor;
 
   /// What assistive technology reads for the region, in place of its
   /// content. Needed when the content is only an icon.
@@ -159,7 +159,7 @@ class _PressableState extends State<Pressable> {
       // mode, so on a touch-first platform a connected mouse got no hover
       // feedback until a key was pressed.
       child: MouseRegion(
-        cursor: enabled ? widget.cursor : MouseCursor.defer,
+        cursor: enabled ? widget.mouseCursor : MouseCursor.defer,
         onEnter: (_) {
           if (!_hovered) setState(() => _hovered = true);
         },

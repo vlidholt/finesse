@@ -35,7 +35,7 @@ mixin _$BadgeTheme {
       ),
       foregroundColor: Color.lerp(a.foregroundColor, b.foregroundColor, t),
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
-      cursor: t < 0.5 ? a.cursor : b.cursor,
+      mouseCursor: t < 0.5 ? a.mouseCursor : b.mouseCursor,
       textStyle: TextStyle.lerp(a.textStyle, b.textStyle, t),
       iconSize: lerpDouble$(a.iconSize, b.iconSize, t),
     );
@@ -47,7 +47,7 @@ mixin _$BadgeTheme {
     Color? hoverBackgroundColor,
     Color? foregroundColor,
     EdgeInsetsGeometry? padding,
-    MouseCursor? cursor,
+    MouseCursor? mouseCursor,
     TextStyle? textStyle,
     double? iconSize,
   }) {
@@ -59,7 +59,7 @@ mixin _$BadgeTheme {
       hoverBackgroundColor: hoverBackgroundColor ?? _this.hoverBackgroundColor,
       foregroundColor: foregroundColor ?? _this.foregroundColor,
       padding: padding ?? _this.padding,
-      cursor: cursor ?? _this.cursor,
+      mouseCursor: mouseCursor ?? _this.mouseCursor,
       textStyle: textStyle ?? _this.textStyle,
       iconSize: iconSize ?? _this.iconSize,
     );
@@ -82,7 +82,7 @@ mixin _$BadgeTheme {
       hoverBackgroundColor: other.hoverBackgroundColor,
       foregroundColor: other.foregroundColor,
       padding: other.padding,
-      cursor: other.cursor,
+      mouseCursor: other.mouseCursor,
       textStyle: _this.textStyle?.merge(other.textStyle) ?? other.textStyle,
       iconSize: other.iconSize,
     );
@@ -106,7 +106,7 @@ mixin _$BadgeTheme {
         _other.hoverBackgroundColor == _this.hoverBackgroundColor &&
         _other.foregroundColor == _this.foregroundColor &&
         _other.padding == _this.padding &&
-        _other.cursor == _this.cursor &&
+        _other.mouseCursor == _this.mouseCursor &&
         _other.textStyle == _this.textStyle &&
         _other.iconSize == _this.iconSize;
   }
@@ -122,7 +122,7 @@ mixin _$BadgeTheme {
       _this.hoverBackgroundColor,
       _this.foregroundColor,
       _this.padding,
-      _this.cursor,
+      _this.mouseCursor,
       _this.textStyle,
       _this.iconSize,
     );

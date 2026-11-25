@@ -155,7 +155,7 @@ class BreadcrumbLink extends StatefulWidget {
     this.normalColor,
     this.hoverColor,
     this.textStyle,
-    this.onHoverChange,
+    this.onHover,
   });
 
   /// The widget to display as the link content.
@@ -183,7 +183,7 @@ class BreadcrumbLink extends StatefulWidget {
   final TextStyle? textStyle;
 
   /// Called when the hover state changes.
-  final void Function(bool)? onHoverChange;
+  final void Function(bool)? onHover;
 
   @override
   State<BreadcrumbLink> createState() => _BreadcrumbLinkState();
@@ -220,8 +220,8 @@ class _BreadcrumbLinkState extends State<BreadcrumbLink> {
     return Button(
       variant: ButtonVariant.link,
       pressScale: 1,
-      onHoverChange:
-          widget.onHoverChange ??
+      onHover:
+          widget.onHover ??
           (isHovered) => setState(() => this.isHovered = isHovered),
       padding: EdgeInsets.zero,
       // Use zero dimensions; Button's minWidth/minHeight constraints
@@ -475,8 +475,7 @@ class _BreadcrumbDropdownState extends State<BreadcrumbDropdown> {
       ),
       child: BreadcrumbLink(
         normalColor: effectiveTextColor,
-        onHoverChange: (isHovered) =>
-            setState(() => this.isHovered = isHovered),
+        onHover: (isHovered) => setState(() => this.isHovered = isHovered),
         onPressed: controller.toggle,
         child: Row(
           mainAxisSize: MainAxisSize.min,
