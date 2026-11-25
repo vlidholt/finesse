@@ -341,6 +341,7 @@ void main() {
       t.appBarTheme,
       t.floatingActionButtonTheme,
       t.navigationBarTheme,
+      t.navigationRailTheme,
       t.bottomNavigationBarTheme,
       t.chipTheme,
       t.listTileTheme,

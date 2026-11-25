@@ -137,6 +137,18 @@ mixin _$TabsTheme {
         b.contentTransitionOffset,
         t,
       ),
+      underlineHeight: lerpDouble$(a.underlineHeight, b.underlineHeight, t),
+      underlinePadding: EdgeInsetsGeometry.lerp(
+        a.underlinePadding,
+        b.underlinePadding,
+        t,
+      ),
+      underlineTextStyle: TextStyle.lerp(
+        a.underlineTextStyle,
+        b.underlineTextStyle,
+        t,
+      ),
+      underlineColor: Color.lerp(a.underlineColor, b.underlineColor, t),
     );
   }
 
@@ -182,6 +194,10 @@ mixin _$TabsTheme {
     double? indicatorStretch,
     Duration? contentTransitionDuration,
     double? contentTransitionOffset,
+    double? underlineHeight,
+    EdgeInsetsGeometry? underlinePadding,
+    TextStyle? underlineTextStyle,
+    Color? underlineColor,
   }) {
     final _this = (this as TabsTheme);
 
@@ -240,6 +256,10 @@ mixin _$TabsTheme {
           contentTransitionDuration ?? _this.contentTransitionDuration,
       contentTransitionOffset:
           contentTransitionOffset ?? _this.contentTransitionOffset,
+      underlineHeight: underlineHeight ?? _this.underlineHeight,
+      underlinePadding: underlinePadding ?? _this.underlinePadding,
+      underlineTextStyle: underlineTextStyle ?? _this.underlineTextStyle,
+      underlineColor: underlineColor ?? _this.underlineColor,
     );
   }
 
@@ -301,6 +321,12 @@ mixin _$TabsTheme {
       indicatorStretch: other.indicatorStretch,
       contentTransitionDuration: other.contentTransitionDuration,
       contentTransitionOffset: other.contentTransitionOffset,
+      underlineHeight: other.underlineHeight,
+      underlinePadding: other.underlinePadding,
+      underlineTextStyle:
+          _this.underlineTextStyle?.merge(other.underlineTextStyle) ??
+          other.underlineTextStyle,
+      underlineColor: other.underlineColor,
     );
   }
 
@@ -358,7 +384,11 @@ mixin _$TabsTheme {
         _other.indicatorSpring == _this.indicatorSpring &&
         _other.indicatorStretch == _this.indicatorStretch &&
         _other.contentTransitionDuration == _this.contentTransitionDuration &&
-        _other.contentTransitionOffset == _this.contentTransitionOffset;
+        _other.contentTransitionOffset == _this.contentTransitionOffset &&
+        _other.underlineHeight == _this.underlineHeight &&
+        _other.underlinePadding == _this.underlinePadding &&
+        _other.underlineTextStyle == _this.underlineTextStyle &&
+        _other.underlineColor == _this.underlineColor;
   }
 
   @override
@@ -408,6 +438,10 @@ mixin _$TabsTheme {
       _this.indicatorStretch,
       _this.contentTransitionDuration,
       _this.contentTransitionOffset,
+      _this.underlineHeight,
+      _this.underlinePadding,
+      _this.underlineTextStyle,
+      _this.underlineColor,
     ]);
   }
 }

@@ -33,10 +33,10 @@ void main() {
   test('a restorable tabs controller saves the current tab', () {
     final restorable = RestorableTabsController(value: 'a');
     final controller = restorable.createDefaultValue()..select('b');
-    expect(controller.selected, 'b');
+    expect(controller.value, 'b');
     // toPrimitives reads the live value once registered; mimic that here.
     expect(
-      RestorableTabsController.fromValue('a').fromPrimitives('b').selected,
+      RestorableTabsController(value: 'a').fromPrimitives('b').value,
       'b',
     );
   });

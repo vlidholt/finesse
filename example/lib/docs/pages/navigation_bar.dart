@@ -1,6 +1,7 @@
 import 'package:example/docs/docs.dart';
 import 'package:example/docs/examples/navigation_bar/navigation_bar_bottom.dart';
 import 'package:example/docs/examples/navigation_bar/navigation_bar_docked.dart';
+import 'package:example/docs/examples/navigation_bar/navigation_bar_labels.dart';
 import 'package:example/docs/examples/navigation_bar/navigation_bar_top.dart';
 import 'package:flutter/widgets.dart';
 
@@ -10,9 +11,9 @@ final navigationBarDoc = ComponentDoc(
   description:
       'The destinations of an app. `NavigationBar` is the row of icons over '
       'labels for the top of a wide screen; `BottomNavigationBar` is the '
-      'icon-only bar at the bottom of a phone. Both take the same '
-      '`NavigationDestination`s, and `NavigationScaffold` switches between '
-      'them.',
+      'bar at the bottom of a phone, icons only unless it is asked for '
+      'labels. Both take the same `NavigationDestination`s, as does a '
+      '`NavigationRail`, and `NavigationScaffold` switches between them.',
   examples: [
     ComponentExample(
       id: 'navigation_bar_top',
@@ -42,6 +43,17 @@ final navigationBarDoc = ComponentDoc(
           'them either way.',
       minPreviewHeight: 280,
       builder: (_) => const NavigationBarDockedExample(),
+    ),
+    ComponentExample(
+      id: 'navigation_bar_labels',
+      title: 'With labels',
+      description:
+          '`showLabels` puts each label under its icon, in the caption '
+          'style; the selection stays behind the icon. Set it for a whole '
+          "app with the theme's `bottomNavigationBarTheme`.",
+      minPreviewHeight: 280,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 32),
+      builder: (_) => const NavigationBarLabelsExample(),
     ),
   ],
 );

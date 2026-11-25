@@ -37,14 +37,17 @@ import 'package:example/docs/pages/installation.dart';
 import 'package:example/docs/pages/introduction.dart';
 import 'package:example/docs/pages/kbd.dart';
 import 'package:example/docs/pages/keyboard_toolbar.dart';
+import 'package:example/docs/pages/list_detail_layout.dart';
 import 'package:example/docs/pages/layout.dart';
 import 'package:example/docs/pages/list_tile.dart';
 import 'package:example/docs/pages/menubar.dart';
 import 'package:example/docs/pages/motion.dart';
 import 'package:example/docs/pages/navigation_bar.dart';
+import 'package:example/docs/pages/navigation_rail.dart';
 import 'package:example/docs/pages/otp_field.dart';
 import 'package:example/docs/pages/overview.dart';
 import 'package:example/docs/pages/page_container.dart';
+import 'package:example/docs/pages/page_route.dart';
 import 'package:example/docs/pages/pagination.dart';
 import 'package:example/docs/pages/popover.dart';
 import 'package:example/docs/pages/portal.dart';
@@ -55,6 +58,7 @@ import 'package:example/docs/pages/resizable.dart';
 import 'package:example/docs/pages/responsive.dart';
 import 'package:example/docs/pages/scaffold.dart';
 import 'package:example/docs/pages/scroll_area.dart';
+import 'package:example/docs/pages/segmented_control.dart';
 import 'package:example/docs/pages/select.dart';
 import 'package:example/docs/pages/sheet.dart';
 import 'package:example/docs/pages/sidebar.dart';
@@ -78,6 +82,7 @@ import 'package:example/docs/pages/timeline.dart';
 import 'package:example/docs/pages/toast.dart';
 import 'package:example/docs/pages/toggle.dart';
 import 'package:example/docs/pages/toggle_group.dart';
+import 'package:example/docs/pages/toolbar.dart';
 import 'package:example/docs/pages/tooltip.dart';
 import 'package:example/docs/pages/typography.dart';
 
@@ -149,11 +154,14 @@ final componentDocs = [
   indicatorBadgeDoc,
   kbdDoc,
   keyboardToolbarDoc,
+  listDetailLayoutDoc,
   listTileDoc,
   menubarDoc,
   navigationBarDoc,
+  navigationRailDoc,
   otpFieldDoc,
   pageContainerDoc,
+  pageRouteDoc,
   paginationDoc,
   popoverDoc,
   pressableDoc,
@@ -162,6 +170,7 @@ final componentDocs = [
   resizableDoc,
   scaffoldDoc,
   scrollAreaDoc,
+  segmentedControlDoc,
   selectDoc,
   sheetDoc,
   sidebarDoc,
@@ -183,6 +192,7 @@ final componentDocs = [
   toastDoc,
   toggleDoc,
   toggleGroupDoc,
+  toolbarDoc,
   tooltipDoc,
 ];
 

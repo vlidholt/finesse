@@ -57,6 +57,7 @@ export 'src/components/context_menu.dart' hide ContextMenuItemController;
 export 'src/components/data_table.dart';
 export 'src/components/date_picker.dart';
 export 'src/components/default_keyboard_toolbar.dart';
+export 'src/components/destination_stack.dart';
 export 'src/components/dialog.dart';
 export 'src/components/disabled.dart';
 export 'src/components/divider.dart';
@@ -69,6 +70,7 @@ export 'src/components/form/fields/date_picker.dart';
 export 'src/components/form/fields/date_range_picker.dart';
 export 'src/components/form/fields/otp_field.dart';
 export 'src/components/form/fields/radio.dart';
+export 'src/components/form/fields/segmented_control.dart';
 export 'src/components/form/fields/select.dart';
 export 'src/components/form/fields/switch.dart';
 export 'src/components/form/fields/text_field.dart';
@@ -81,9 +83,12 @@ export 'src/components/icon_tile.dart';
 export 'src/components/indicator_badge.dart';
 export 'src/components/kbd.dart';
 export 'src/components/layout.dart';
+export 'src/components/list_detail_layout.dart';
 export 'src/components/list_tile.dart';
 export 'src/components/menubar.dart';
-export 'src/components/navigation_bar.dart';
+export 'src/components/navigation_bar.dart'
+    hide DestinationIcon, badgedDestinationIcon;
+export 'src/components/navigation_rail.dart';
 export 'src/components/navigation_scaffold.dart';
 export 'src/components/otp_field.dart' hide kInvisibleCharCode;
 export 'src/components/page_container.dart';
@@ -94,6 +99,7 @@ export 'src/components/radio.dart';
 export 'src/components/resizable.dart';
 export 'src/components/scaffold.dart';
 export 'src/components/scroll_area.dart';
+export 'src/components/segmented_control.dart';
 export 'src/components/select.dart';
 export 'src/components/sheet.dart'
     hide
@@ -111,14 +117,17 @@ export 'src/components/streaming_text.dart';
 export 'src/components/surface.dart';
 export 'src/components/switch.dart';
 export 'src/components/tab_bar.dart';
+export 'src/components/tab_bar_view.dart' hide TabPages;
+export 'src/components/tab_list.dart' show TabBarVariant;
 export 'src/components/table.dart';
-export 'src/components/tabs.dart';
+export 'src/components/tabs.dart' hide tabListItems;
 export 'src/components/text_field.dart';
 export 'src/components/textarea.dart' hide ResizeGripPainter;
 export 'src/components/time_picker.dart' hide TimePickerTextEditingController;
 export 'src/components/timeline.dart';
 export 'src/components/toast.dart';
 export 'src/components/toggle.dart';
+export 'src/components/toolbar.dart';
 export 'src/components/tooltip.dart';
 // Localizations
 export 'src/i18n/localizations_delegate.dart';
@@ -128,6 +137,8 @@ export 'src/i18n/localizations_delegate.dart';
 export 'src/i18n/strings.g.dart'
     show FinesseLocale, FinesseLocalizationsData, FinesseLocalizationsDataEn;
 export 'src/icons/phosphor_icons.dart';
+// Routes
+export 'src/page_route.dart';
 // Raw Components
 export 'src/raw_components/focusable.dart';
 export 'src/raw_components/keyboard_toolbar.dart';
@@ -177,6 +188,7 @@ export 'src/theme/components/layout.dart';
 export 'src/theme/components/list_tile.dart';
 export 'src/theme/components/menubar.dart';
 export 'src/theme/components/navigation_bar.dart';
+export 'src/theme/components/navigation_rail.dart';
 export 'src/theme/components/otp_field.dart';
 export 'src/theme/components/pagination.dart';
 export 'src/theme/components/phosphor_icon.dart';

@@ -43,6 +43,11 @@ mixin _$ThemeData {
         b.navigationBarTheme,
         t,
       )!,
+      navigationRailTheme: NavigationRailTheme.lerp(
+        a.navigationRailTheme,
+        b.navigationRailTheme,
+        t,
+      )!,
       bottomNavigationBarTheme: BottomNavigationBarTheme.lerp(
         a.bottomNavigationBarTheme,
         b.bottomNavigationBarTheme,
@@ -275,6 +280,7 @@ mixin _$ThemeData {
     AppBarTheme? appBarTheme,
     FloatingActionButtonTheme? floatingActionButtonTheme,
     NavigationBarTheme? navigationBarTheme,
+    NavigationRailTheme? navigationRailTheme,
     BottomNavigationBarTheme? bottomNavigationBarTheme,
     ChipTheme? chipTheme,
     ListTileTheme? listTileTheme,
@@ -362,6 +368,7 @@ mixin _$ThemeData {
       floatingActionButtonTheme:
           floatingActionButtonTheme ?? _this.floatingActionButtonTheme,
       navigationBarTheme: navigationBarTheme ?? _this.navigationBarTheme,
+      navigationRailTheme: navigationRailTheme ?? _this.navigationRailTheme,
       bottomNavigationBarTheme:
           bottomNavigationBarTheme ?? _this.bottomNavigationBarTheme,
       chipTheme: chipTheme ?? _this.chipTheme,
@@ -469,6 +476,9 @@ mixin _$ThemeData {
       ),
       navigationBarTheme: _this.navigationBarTheme.merge(
         other.navigationBarTheme,
+      ),
+      navigationRailTheme: _this.navigationRailTheme.merge(
+        other.navigationRailTheme,
       ),
       bottomNavigationBarTheme: _this.bottomNavigationBarTheme.merge(
         other.bottomNavigationBarTheme,
@@ -596,6 +606,7 @@ mixin _$ThemeData {
         _other.appBarTheme == _this.appBarTheme &&
         _other.floatingActionButtonTheme == _this.floatingActionButtonTheme &&
         _other.navigationBarTheme == _this.navigationBarTheme &&
+        _other.navigationRailTheme == _this.navigationRailTheme &&
         _other.bottomNavigationBarTheme == _this.bottomNavigationBarTheme &&
         _other.chipTheme == _this.chipTheme &&
         _other.listTileTheme == _this.listTileTheme &&
@@ -686,6 +697,7 @@ mixin _$ThemeData {
       _this.appBarTheme,
       _this.floatingActionButtonTheme,
       _this.navigationBarTheme,
+      _this.navigationRailTheme,
       _this.bottomNavigationBarTheme,
       _this.chipTheme,
       _this.listTileTheme,

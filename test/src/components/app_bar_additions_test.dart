@@ -170,10 +170,14 @@ void main() {
         (layout) => Scaffold(
           appBar: AppBar(
             title: const Text('Library'),
-            bottom: TabBar(
-              tabs: const [Text('Albums'), Text('Artists'), Text('Songs')],
-              selectedIndex: 0,
-              onSelected: (_) {},
+            bottom: TabBar<int>(
+              tabs: const [
+                Tab(value: 0, child: Text('Albums')),
+                Tab(value: 1, child: Text('Artists')),
+                Tab(value: 2, child: Text('Songs')),
+              ],
+              value: 0,
+              onChanged: (_) {},
             ),
           ),
           body: const SizedBox.expand(),

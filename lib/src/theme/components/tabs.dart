@@ -59,6 +59,10 @@ class TabsTheme with _$TabsTheme {
     this.indicatorStretch,
     this.contentTransitionDuration,
     this.contentTransitionOffset,
+    this.underlineHeight,
+    this.underlinePadding,
+    this.underlineTextStyle,
+    this.underlineColor,
   }) : _canMerge = canMerge;
 
   @ignore
@@ -67,104 +71,111 @@ class TabsTheme with _$TabsTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro Tabs.gap}
+  /// The gap between the tab bar and the content under it in a `Tabs`.
   final double? gap;
 
-  /// {@macro Tabs.tabsGap}
+  /// The gap between two tabs of a segmented strip.
   final double? tabsGap;
 
-  /// {@macro Tabs.expandTabs}
+  /// Whether the tabs of a segmented strip share its full width. Defaults
+  /// to false: a tab is as wide as its label plus its padding, and the strip
+  /// as wide as its tabs.
   final bool? expandTabs;
 
-  /// {@macro Tabs.tabBarAlignment}
+  /// Where a segmented strip sits in a place wider than it. Defaults to the
+  /// start.
   final Alignment? tabBarAlignment;
 
-  /// {@macro Tabs.dragStartBehavior}
+  /// When a drag of a scrolling strip is taken to start. Defaults to
+  /// [DragStartBehavior.start].
   final DragStartBehavior? dragStartBehavior;
 
-  /// {@macro Tabs.physics}
+  /// The scroll physics of a strip that scrolls.
   final ScrollPhysics? physics;
 
-  /// {@macro Tabs.padding}
+  /// The padding of a segmented strip, between its edge and its tabs.
   final EdgeInsetsGeometry? padding;
 
-  /// {@macro Tabs.decoration}
+  /// The decoration of a segmented strip: its fill and corners.
   final FinesseDecoration? decoration;
 
-  /// {@macro Tabs.tabBarConstraints}
+  /// Constraints on the row of tabs in a segmented strip.
   final BoxConstraints? tabBarConstraints;
 
-  /// {@macro Tabs.contentConstraints}
+  /// Constraints on the content under the bar of a `Tabs`.
   final BoxConstraints? contentConstraints;
 
-  /// {@macro Tab.expand}
+  /// Whether the content of a `Tabs` fills the height left under its bar.
+  /// Defaults to false: the content is as tall as it needs to be.
   final bool? expandContent;
 
-  /// {@macro Tab.width}
+  /// The width of each tab of a segmented strip. By default a tab is as
+  /// wide as its content, or shares the strip's width when the tabs expand.
   final double? tabWidth;
 
-  /// {@macro Tab.backgroundColor}
+  /// The fill of a tab that is not selected. Defaults to none.
   final Color? tabBackgroundColor;
 
-  /// {@macro Tab.selectedBackgroundColor}
+  /// The fill of the pill on the selected tab.
   final Color? tabSelectedBackgroundColor;
 
-  /// {@macro Tab.hoverBackgroundColor}
+  /// The fill of a hovered tab that is not selected.
   final Color? tabHoverBackgroundColor;
 
-  /// {@macro Tab.selectedHoverBackgroundColor}
+  /// The fill of the selected tab while it is hovered.
   final Color? tabSelectedHoverBackgroundColor;
 
-  /// {@macro Tab.padding}
+  /// The padding inside a tab of a segmented strip.
   final EdgeInsetsGeometry? tabPadding;
 
-  /// {@macro Tab.decoration}
+  /// The decoration of a tab of a segmented strip: its corners and focus
+  /// ring.
   final FinesseDecoration? tabDecoration;
 
-  /// {@macro Tab.selectedDecoration}
+  /// The decoration of the selected tab. Defaults to [tabDecoration].
   final FinesseDecoration? tabSelectedDecoration;
 
-  /// {@macro Tab.foregroundColor}
+  /// The colour of the label and icons of a tab that is not selected.
   final Color? tabForegroundColor;
 
-  /// {@macro Tab.selectedForegroundColor}
+  /// The colour of the selected tab's label and icons.
   final Color? tabSelectedForegroundColor;
 
-  /// {@macro Tab.textStyle}
+  /// The style of a segmented tab's label.
   final TextStyle? tabTextStyle;
 
-  /// {@macro Tab.shadows}
+  /// The shadows of a tab that is not selected.
   final List<BoxShadow>? tabShadows;
 
-  /// {@macro Tab.selectedShadows}
+  /// The shadows of the pill on the selected tab.
   final List<BoxShadow>? tabSelectedShadows;
 
-  /// {@macro Tab.size}
+  /// The button size a segmented tab is built at.
   final ButtonSize? tabSize;
 
   /// The height of each tab. A `Tab`'s own `height` wins; with neither, a tab
   /// is 32 logical pixels tall.
   final double? tabHeight;
 
-  /// {@macro Tab.cursor}
+  /// The mouse cursor over a tab.
   final MouseCursor? tabCursor;
 
-  /// {@macro Tab.hoverForegroundColor}
+  /// The colour of a hovered tab's label and icons.
   final Color? tabHoverForegroundColor;
 
-  /// {@macro Tab.pressedBackgroundColor}
+  /// The fill of a tab while it is pressed.
   final Color? tabPressedBackgroundColor;
 
-  /// {@macro Tab.pressedForegroundColor}
+  /// The colour of a tab's label and icons while it is pressed.
   final Color? tabPressedForegroundColor;
 
-  /// {@macro Tab.gradient}
+  /// A gradient that fills a tab in place of its fill colour.
   final Gradient? tabGradient;
 
-  /// {@macro Tab.textDecoration}
+  /// The decoration of a tab's label, such as an underline.
   final TextDecoration? tabTextDecoration;
 
-  /// {@macro Tab.hoverTextDecoration}
+  /// The decoration of a hovered tab's label.
   final TextDecoration? tabHoverTextDecoration;
 
   /// {@macro Button.mainAxisAlignment}
@@ -205,6 +216,24 @@ class TabsTheme with _$TabsTheme {
   /// a plain fade.
   /// {@endtemplate}
   final double? contentTransitionOffset;
+
+  /// The height of an underline tab (`TabBarVariant.underline`), not
+  /// counting the hairline under the row. Defaults to the style's
+  /// `underlineTabHeight`.
+  final double? underlineHeight;
+
+  /// The padding around an underline tab's label. Defaults to 4 on each
+  /// side for tabs that share the width and 16 for tabs that hug their
+  /// label.
+  final EdgeInsetsGeometry? underlinePadding;
+
+  /// The style of an underline tab's label; weight and colour are set per
+  /// tab on top of it. Defaults to the text theme's `large`.
+  final TextStyle? underlineTextStyle;
+
+  /// The colour of the line under the selected underline tab. Defaults to
+  /// the foreground colour.
+  final Color? underlineColor;
 
   /// Linearly interpolates between [a] and [b] by [t].
   static TabsTheme? lerp(

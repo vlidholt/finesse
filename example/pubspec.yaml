@@ -58,8 +58,10 @@ flutter:
     - lib/docs/examples/kbd/
     - lib/docs/examples/surface/
     - lib/docs/examples/scroll_area/
+    - lib/docs/examples/segmented_control/
     - lib/docs/examples/dropdown_menu/
     - lib/docs/examples/keyboard_toolbar/
+    - lib/docs/examples/list_detail_layout/
     - lib/docs/examples/layout/
     - lib/docs/examples/menubar/
     - lib/docs/examples/pagination/
@@ -85,11 +87,13 @@ flutter:
     - lib/docs/examples/toast/
     - lib/docs/examples/toggle/
     - lib/docs/examples/toggle_group/
+    - lib/docs/examples/toolbar/
     - lib/docs/examples/tooltip/
     - lib/docs/examples/typography/
     - lib/docs/examples/glass/
     - lib/docs/examples/app_bar/
     - lib/docs/examples/navigation_bar/
+    - lib/docs/examples/navigation_rail/
     - lib/docs/examples/scaffold/
     - lib/docs/examples/board/
     - lib/docs/examples/chip/
@@ -106,6 +110,7 @@ flutter:
     - lib/docs/examples/pressable/
     - lib/docs/examples/motion/
     - lib/docs/examples/page_container/
+    - lib/docs/examples/page_route/
     - lib/docs/examples/form_factors/
     - lib/docs/examples/icons/
 

@@ -896,10 +896,11 @@ void main() {
       final opacity = <double>[];
       var arriving = 0;
       for (var i = 0; i < 40; i++) {
+        // Its entrance, not the stretch a scrollable has on Android.
         final transforms = find.ancestor(
           of: find.text('Title'),
           matching: find.byWidgetPredicate(
-            (w) => w is Transform && w.alignment != null,
+            (w) => w.runtimeType.toString() == '_EntranceTransition',
           ),
         );
         if (transforms.evaluate().isEmpty) break;

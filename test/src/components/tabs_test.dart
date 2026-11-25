@@ -15,6 +15,12 @@ void main() {
   // Helper method to create a test widget wrapped in FinesseApp and Scaffold
   Widget createTestWidget(Widget child) {
     return FinesseApp(
+      theme: ThemeData(
+        tabsTheme: const TabsTheme(
+          tabBarConstraints: BoxConstraints(maxWidth: 400),
+          contentConstraints: BoxConstraints(maxWidth: 400),
+        ),
+      ),
       builder: (context, child) => FinesseMaterial(child: child!),
       home: Scaffold(body: child),
     );
@@ -22,30 +28,25 @@ void main() {
 
   Widget createColorTestWidget({
     ({Color selected, Color unselected})? themeForegroundColor,
-    ({Color selected, Color unselected})? tabForegroundColor,
   }) {
     return FinesseApp(
       builder: (context, child) => FinesseMaterial(child: child!),
       theme: ThemeData(
         colorScheme: const ZincColorScheme.light(),
         brightness: Brightness.light,
-        tabsTheme: themeForegroundColor == null
-            ? null
-            : TabsTheme(
-                tabSelectedForegroundColor: themeForegroundColor.selected,
-                tabForegroundColor: themeForegroundColor.unselected,
-              ),
+        tabsTheme: TabsTheme(
+          tabBarConstraints: const BoxConstraints(maxWidth: 400),
+          contentConstraints: const BoxConstraints(maxWidth: 400),
+          tabSelectedForegroundColor: themeForegroundColor?.selected,
+          tabForegroundColor: themeForegroundColor?.unselected,
+        ),
       ),
       home: Scaffold(
         body: Tabs<String>(
           value: 'account',
-          tabBarConstraints: const BoxConstraints(maxWidth: 400),
-          contentConstraints: const BoxConstraints(maxWidth: 400),
           tabs: [
             Tab(
               value: 'account',
-              foregroundColor: tabForegroundColor?.unselected,
-              selectedForegroundColor: tabForegroundColor?.selected,
               content: Card(
                 title: const Text('Account'),
                 description: const Text(
@@ -73,8 +74,6 @@ void main() {
             ),
             Tab(
               value: 'password',
-              foregroundColor: tabForegroundColor?.unselected,
-              selectedForegroundColor: tabForegroundColor?.selected,
               content: Card(
                 title: const Text('Password'),
                 description: const Text(
@@ -111,8 +110,6 @@ void main() {
         createTestWidget(
           Tabs<String>(
             value: 'account',
-            tabBarConstraints: const BoxConstraints(maxWidth: 400),
-            contentConstraints: const BoxConstraints(maxWidth: 400),
             tabs: [
               Tab(
                 value: 'account',
@@ -180,29 +177,6 @@ void main() {
     });
 
     testWidgets('Tab applies the correct color to the button when provided '
-        'from Tab', (tester) async {
-      const redColor = Color(0xFFFF0000);
-      const blueColor = Color(0xFF0000FF);
-      await tester.pumpWidget(
-        createColorTestWidget(
-          tabForegroundColor: (selected: blueColor, unselected: redColor),
-        ),
-      );
-
-      // Test the color of the tab buttons
-      final accountTextStyle = tester.widget<DefaultTextStyle>(
-        find.widgetWithText(DefaultTextStyle, 'AccountTab').first,
-      );
-      final passwordTextStyle = tester.widget<DefaultTextStyle>(
-        find.widgetWithText(DefaultTextStyle, 'PasswordTab').first,
-      );
-      expect(accountTextStyle.style.color, blueColor);
-      expect(passwordTextStyle.style.color, redColor);
-
-      await tester.pumpAndSettle();
-    });
-
-    testWidgets('Tab applies the correct color to the button when provided '
         'from Theme', (tester) async {
       const redColor = Color(0xFFFF0000);
       const blueColor = Color(0xFF0000FF);
@@ -221,32 +195,6 @@ void main() {
       );
       expect(accountTextStyle.style.color, blueColor);
       expect(passwordTextStyle.style.color, redColor);
-
-      await tester.pumpAndSettle();
-    });
-
-    testWidgets('Tab provided color overrides Theme color', (
-      tester,
-    ) async {
-      const redColor = Color(0xFFFF0000);
-      const blueColor = Color(0xFF0000FF);
-      const greenColor = Color(0xFF00FF00);
-      await tester.pumpWidget(
-        createColorTestWidget(
-          themeForegroundColor: (selected: redColor, unselected: redColor),
-          tabForegroundColor: (selected: blueColor, unselected: greenColor),
-        ),
-      );
-
-      // Test the color of the tab buttons
-      final accountTextStyle = tester.widget<DefaultTextStyle>(
-        find.widgetWithText(DefaultTextStyle, 'AccountTab').first,
-      );
-      final passwordTextStyle = tester.widget<DefaultTextStyle>(
-        find.widgetWithText(DefaultTextStyle, 'PasswordTab').first,
-      );
-      expect(accountTextStyle.style.color, blueColor);
-      expect(passwordTextStyle.style.color, greenColor);
 
       await tester.pumpAndSettle();
     });

@@ -66,6 +66,9 @@ mixin _$BottomNavigationBarTheme {
         b.actionForegroundColor,
         t,
       ),
+      showLabels: t < 0.5 ? a.showLabels : b.showLabels,
+      labelStyle: TextStyle.lerp(a.labelStyle, b.labelStyle, t),
+      labeledItemWidth: lerpDouble$(a.labeledItemWidth, b.labeledItemWidth, t),
     );
   }
 
@@ -90,6 +93,9 @@ mixin _$BottomNavigationBarTheme {
     Color? selectedBackgroundColor,
     Color? actionBackgroundColor,
     Color? actionForegroundColor,
+    bool? showLabels,
+    TextStyle? labelStyle,
+    double? labeledItemWidth,
   }) {
     final _this = (this as BottomNavigationBarTheme);
 
@@ -118,6 +124,9 @@ mixin _$BottomNavigationBarTheme {
           actionBackgroundColor ?? _this.actionBackgroundColor,
       actionForegroundColor:
           actionForegroundColor ?? _this.actionForegroundColor,
+      showLabels: showLabels ?? _this.showLabels,
+      labelStyle: labelStyle ?? _this.labelStyle,
+      labeledItemWidth: labeledItemWidth ?? _this.labeledItemWidth,
     );
   }
 
@@ -153,6 +162,9 @@ mixin _$BottomNavigationBarTheme {
       selectedBackgroundColor: other.selectedBackgroundColor,
       actionBackgroundColor: other.actionBackgroundColor,
       actionForegroundColor: other.actionForegroundColor,
+      showLabels: other.showLabels,
+      labelStyle: _this.labelStyle?.merge(other.labelStyle) ?? other.labelStyle,
+      labeledItemWidth: other.labeledItemWidth,
     );
   }
 
@@ -188,7 +200,10 @@ mixin _$BottomNavigationBarTheme {
         _other.selectedForegroundColor == _this.selectedForegroundColor &&
         _other.selectedBackgroundColor == _this.selectedBackgroundColor &&
         _other.actionBackgroundColor == _this.actionBackgroundColor &&
-        _other.actionForegroundColor == _this.actionForegroundColor;
+        _other.actionForegroundColor == _this.actionForegroundColor &&
+        _other.showLabels == _this.showLabels &&
+        _other.labelStyle == _this.labelStyle &&
+        _other.labeledItemWidth == _this.labeledItemWidth;
   }
 
   @override
@@ -217,6 +232,9 @@ mixin _$BottomNavigationBarTheme {
       _this.selectedBackgroundColor,
       _this.actionBackgroundColor,
       _this.actionForegroundColor,
+      _this.showLabels,
+      _this.labelStyle,
+      _this.labeledItemWidth,
     ]);
   }
 }

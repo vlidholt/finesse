@@ -245,10 +245,14 @@ void main() {
     Widget bar(int index) => _app(
       SizedBox(
         width: 300,
-        child: TabBar(
-          selectedIndex: index,
-          onSelected: (_) {},
-          tabs: const [Text('One'), Text('Two'), Text('Three')],
+        child: TabBar<int>(
+          value: index,
+          onChanged: (_) {},
+          tabs: const [
+            Tab(value: 0, child: Text('One')),
+            Tab(value: 1, child: Text('Two')),
+            Tab(value: 2, child: Text('Three')),
+          ],
         ),
       ),
     );
@@ -258,7 +262,7 @@ void main() {
     ) async {
       await tester.pumpWidget(bar(0));
       await tester.pumpAndSettle();
-      final indicator = _indicator(tester, find.byType(TabBar));
+      final indicator = _indicator(tester, find.byType(TabBar<int>));
       expect(indicator.indicatorRect!.width, 100);
       expect(indicator.indicatorRect!.height, 2);
 

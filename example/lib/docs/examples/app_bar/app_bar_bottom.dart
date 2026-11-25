@@ -14,7 +14,7 @@ class AppBarBottomExample extends StatefulWidget {
 class _AppBarBottomExampleState extends State<AppBarBottomExample> {
   static const _tabs = ['Albums', 'Artists', 'Songs'];
 
-  int _index = 0;
+  String _tab = _tabs.first;
 
   @override
   Widget build(BuildContext context) {
@@ -33,15 +33,14 @@ class _AppBarBottomExampleState extends State<AppBarBottomExample> {
           bottom: TabBar(
             // The bar draws the hairline under both rows.
             showBorder: false,
-            tabs: [for (final tab in _tabs) Text(tab)],
-            selectedIndex: _index,
-            onSelected: (index) => setState(() => _index = index),
+            tabs: [for (final tab in _tabs) Tab(value: tab, child: Text(tab))],
+            value: _tab,
+            onChanged: (tab) => setState(() => _tab = tab),
           ),
         ),
         body: ListView(
           children: [
-            for (var i = 1; i <= 12; i++)
-              ListTile(title: Text('${_tabs[_index]} $i')),
+            for (var i = 1; i <= 12; i++) ListTile(title: Text('$_tab $i')),
           ],
         ),
       ),

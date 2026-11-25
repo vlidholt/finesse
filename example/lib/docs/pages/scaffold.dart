@@ -17,8 +17,9 @@ final scaffoldDoc = ComponentDoc(
       'the page how far to inset itself; floats an action button over its '
       'corner; slides drawers in from its edges; keeps everything clear of '
       'the keyboard; and styles the status bar. `NavigationScaffold` '
-      'builds both bars from one list of destinations and moves them with '
-      'the form factor.',
+      'builds the navigation from one list of destinations and moves it '
+      'with the form factor; `DestinationStack` keeps each destination\'s '
+      'page alive.',
   examples: [
     ComponentExample(
       id: 'scaffold_basic',
@@ -115,9 +116,13 @@ final scaffoldDoc = ComponentDoc(
           'On a desktop the destinations sit in the middle of the app '
           'bar. On a phone they move to a bottom bar with the `action` in '
           'its middle, and the app bar keeps `leading` and '
-          '`mobileActions`. A destination can opt out of either bar: '
-          'Notifications is `showInBottomBar: false` here, and is '
-          'reached from the bell instead.',
+          '`mobileActions`. `layout` overrides the choice, or asks for '
+          'the third: `NavigationLayout.rail` puts a `NavigationRail` '
+          'down the start edge under the app bar, for a tablet. A '
+          'destination can opt out of a bar: Notifications is '
+          '`showInBottomBar: false` here, and is reached from the bell '
+          'instead. The body is a `DestinationStack`: scroll a page, '
+          'visit another, and come back to where you were.',
       minPreviewHeight: 560,
       padding: const EdgeInsets.all(16),
       builder: (_) => const ScaffoldNavigationExample(),

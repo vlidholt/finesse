@@ -1,66 +1,70 @@
-import 'dart:math' as math;
-
-import 'package:finesse/src/components/button.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/motion.dart';
+import 'package:finesse/src/components/tab_bar_view.dart';
+import 'package:finesse/src/components/tab_list.dart';
 import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/theme/themes/shadows.dart';
-import 'package:finesse/src/utils/border.dart';
-import 'package:finesse/src/utils/gesture_detector.dart';
-import 'package:finesse/src/utils/moving_indicator.dart';
-import 'package:finesse/src/utils/provider.dart';
-import 'package:finesse/src/utils/shadow.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 
-/// A controller for [Tabs] to manage tab selection.
+/// Holds the selected tab for a `TabBar`, a [Tabs] or a `TabBarView`, in
+/// place of their `value` and `onChanged`.
 ///
-/// Extends [ChangeNotifier] to provide reactive updates when the selected tab
-/// changes.
+/// There are two reasons to use one. A `TabBar` and a `TabBarView` that are
+/// placed apart — the bar in an `AppBar`, the pages in the body — share
+/// one, so they agree on the selection and the bar's indicator follows the
+/// finger while a page is dragged. And a [RestorableTabsController] keeps
+/// the selection across state restoration.
+///
+/// ```dart
+/// final tabs = TabsController<String>(value: 'posts');
+/// // ...
+/// tabs.value = 'about';
+/// ```
 class TabsController<T> extends ChangeNotifier {
-  /// Creates a [TabsController] with an initial selected value.
-  TabsController({required T value}) : _selected = value;
+  /// Creates a controller with [value] selected.
+  TabsController({required T value}) : _value = value;
 
-  T _selected;
+  T _value;
 
-  /// The selected tab's value. Setting it selects that tab, as [select] does.
-  T get selected => _selected;
-  set selected(T value) => select(value);
+  /// The selected tab's value. Setting it selects that tab, as [select]
+  /// does.
+  T get value => _value;
+  set value(T value) => select(value);
 
-  /// Selects the given [value].
-  ///
-  /// Returns true if the value was changed, false otherwise.
+  /// Selects [value]. Returns whether that changed the selection.
   bool select(T value) {
-    if (value == _selected) return false;
-    _selected = value;
+    if (value == _value) return false;
+    _value = value;
     notifyListeners();
     return true;
   }
+
+  /// Where a swipe has dragged the pages: a fractional index into the
+  /// pages, or null while nothing is being dragged.
+  ///
+  /// Written by the pages of a `TabBarView` or a [Tabs] on this controller,
+  /// and listened to by the tab bar, which holds its indicator there.
+  final ValueNotifier<double?> swipePosition = ValueNotifier<double?>(null);
+
+  @override
+  void dispose() {
+    swipePosition.dispose();
+    super.dispose();
+  }
 }
 
-/// A restorable version of [TabsController] for state persistence.
+/// A [TabsController] that is saved and brought back by state restoration.
 ///
-/// Useful for maintaining tab selection across widget rebuilds and state
-/// restoration.
+/// Register it in a `RestorationMixin`'s `restoreState` and pass its
+/// `value` — the controller — to the tabs.
 class RestorableTabsController<T>
     extends RestorableChangeNotifier<TabsController<T>> {
-  /// Creates a [RestorableTabsController].
-  factory RestorableTabsController({required T value}) =>
-      RestorableTabsController.fromValue(value);
+  /// Creates a restorable controller that starts on [value].
+  RestorableTabsController({required T value}) : initialValue = value;
 
-  /// Creates a [RestorableTabsController] from a given value.
-  RestorableTabsController.fromValue(T value) : selected = value;
-
-  /// The value used to create the default controller and saved for state
-  /// restoration.
-  ///
-  /// It is the initial value. Selecting another tab does not change it.
-  T selected;
+  /// The tab selected before anything was restored.
+  final T initialValue;
 
   @override
   TabsController<T> createDefaultValue() {
-    return TabsController<T>(value: selected);
+    return TabsController<T>(value: initialValue);
   }
 
   @override
@@ -69,224 +73,193 @@ class RestorableTabsController<T>
   }
 
   @override
-  Object? toPrimitives() {
-    // The live selection; `selected` is only the initial value, so
-    // restoration always brought back the first tab.
-    return value.selected;
-  }
+  Object? toPrimitives() => value.value;
 }
 
-/// {@template Tabs}
-/// A widget that displays a horizontal series of tabs with associated content.
+/// One tab of a `TabBar` or a [Tabs]: its [value], its label and — in a
+/// [Tabs] — the [content] shown while it is selected.
 ///
-/// When no [Tab] has `content`, only the tab list is shown, with no gap
-/// below it. That is the standalone tabs list, or segmented control, that
-/// switches something elsewhere on the page through `onChanged`.
+/// ```dart
+/// Tab(
+///   value: 'account',
+///   leading: PhosphorIcon(PhosphorIconsRegular.user),
+///   child: Text('Account'),
+///   content: AccountForm(),
+/// )
+/// ```
+@immutable
+class Tab<T> {
+  /// Creates a tab.
+  const Tab({
+    required this.value,
+    required this.child,
+    this.leading,
+    this.trailing,
+    this.content,
+    this.enabled = true,
+    this.tooltip,
+    this.semanticLabel,
+  });
+
+  /// What this tab stands for: the tab bar's `value` when it is selected.
+  final T value;
+
+  /// The label, usually a [Text].
+  ///
+  /// A text label is one line. It is the part of the tab that gives way: in
+  /// a tab narrower than its content — an expanded tab in a narrow strip —
+  /// it is cut short with an ellipsis, next to [leading] and [trailing] at
+  /// their full size. Give the [Text] its own `maxLines` or `overflow` to
+  /// change that.
+  final Widget child;
+
+  /// Shown before the label, usually an icon.
+  final Widget? leading;
+
+  /// Shown after the label: a count, a badge.
+  final Widget? trailing;
+
+  /// What a [Tabs] shows under its bar while this tab is selected. A
+  /// `TabBar` ignores it.
+  final Widget? content;
+
+  /// Whether the tab can be selected.
+  final bool enabled;
+
+  /// Shown when the pointer rests on the tab.
+  final String? tooltip;
+
+  /// Read by a screen reader in place of the label.
+  final String? semanticLabel;
+
+  /// This tab as an entry of the shared tab list.
+  TabListItem _toItem() => TabListItem(
+    leading: leading,
+    trailing: trailing,
+    enabled: enabled,
+    tooltip: tooltip,
+    semanticLabel: semanticLabel,
+    child: child,
+  );
+}
+
+/// The entries of the shared tab list for [tabs]. Internal.
+List<TabListItem> tabListItems<T>(List<Tab<T>> tabs) => [
+  for (final tab in tabs) tab._toItem(),
+];
+
+/// A tab bar with the selected tab's content under it.
 ///
-/// Supports scrollable and non-scrollable layouts, custom styling, and state
-/// management.
-/// {@endtemplate}
-class Tabs<T> extends StatefulWidget implements PreferredSizeWidget {
-  /// {@macro Tabs}
+/// ```dart
+/// Tabs<String>(
+///   value: tab,
+///   onChanged: (value) => setState(() => tab = value),
+///   tabs: const [
+///     Tab(value: 'account', content: AccountForm(), child: Text('Account')),
+///     Tab(value: 'billing', content: BillingForm(), child: Text('Billing')),
+///   ],
+/// )
+/// ```
+///
+/// It is a `TabBar` and a `TabBarView` put together, and the two are
+/// linked: on a touch screen the content can be swiped to the next tab's,
+/// and the bar's selection follows the finger. When no [Tab] has `content`
+/// only the bar is shown, with no gap below it.
+///
+/// The bar is the [TabBarVariant.segmented] strip by default — as wide as
+/// its tabs unless [expandTabs] is set — and the underline row with
+/// [variant] set to [TabBarVariant.underline]. To pick a value rather than
+/// show a view, use a `SegmentedControl`.
+///
+/// Controlled with [value] and [onChanged], or by a [controller].
+class Tabs<T> extends StatefulWidget {
+  /// Creates a tab bar with the selected tab's content under it.
   const Tabs({
-    super.key,
-    this.value,
     required this.tabs,
-    this.controller,
-    this.tabBarAlignment,
-    this.tabsGap,
-    this.expandTabs,
-    this.gap,
-    this.scrollable,
-    this.dragStartBehavior,
-    this.physics,
-    this.padding,
-    this.decoration,
-    this.tabBarConstraints,
-    this.contentConstraints,
-    this.restorationId,
+    this.value,
     this.onChanged,
-    this.maintainState,
+    this.controller,
+    this.variant = TabBarVariant.segmented,
+    this.expandTabs,
+    this.scrollable = false,
+    this.tabBarAlignment,
+    this.gap,
+    this.maintainState = true,
+    this.swipeable = true,
+    this.expandContent,
+    this.restorationId,
+    super.key,
   }) : assert(
          (value != null) ^ (controller != null),
          'Either value or controller must be provided',
        );
 
-  /// {@template Tabs.value}
-  /// The currently selected tab.
-  /// {@endtemplate}
-  final T? value;
-
-  /// {@template Tabs.tabs}
-  /// The tabs to display.
-  /// {@endtemplate}
+  /// The tabs, in order.
   final List<Tab<T>> tabs;
 
-  /// {@template Tabs.controller}
-  /// The controller of the tabs.
-  /// {@endtemplate}
-  final TabsController<T>? controller;
+  /// The value of the selected tab, when there is no [controller].
+  final T? value;
 
-  /// {@template Tabs.expandTabs}
-  /// Whether the tabs share the full width of the bar.
-  ///
-  /// Defaults to false, matching shadcn/ui's `w-fit` list: a tab is as wide as
-  /// its label plus its padding, and the bar is as wide as its tabs.
-  /// {@endtemplate}
-  final bool? expandTabs;
-
-  /// {@template Tabs.tabsGap}
-  /// The horizontal gap between the tabs in the tabBar.
-  /// {@endtemplate}
-  final double? tabsGap;
-
-  /// {@template Tabs.tabBarAlignment}
-  /// Where the strip of tabs sits in the width [Tabs] has, when the strip is
-  /// narrower than it. Defaults to the start.
-  ///
-  /// The strip is as wide as its tabs — shadcn/ui's `w-fit` list — so above
-  /// its panels, or in a parent that stretches it, there is room to place
-  /// it. It has no effect when the tabs expand (see [expandTabs]) or when a
-  /// [Tabs] without panels is free to be as small as its strip.
-  /// {@endtemplate}
-  final Alignment? tabBarAlignment;
-
-  /// {@template Tabs.gap}
-  /// The gap between the tabBar and the content.
-  /// {@endtemplate}
-  final double? gap;
-
-  /// {@template Tabs.scrollable}
-  /// Whether the tabs should be scrollable, defaults to false.
-  /// {@endtemplate}
-  final bool? scrollable;
-
-  /// {@template Tabs.dragStartBehavior}
-  /// The drag start behavior of the tabs, defaults to [DragStartBehavior.start]
-  /// {@endtemplate}
-  final DragStartBehavior? dragStartBehavior;
-
-  /// {@template Tabs.physics}
-  /// The physics of the tabs, defaults to null.
-  /// {@endtemplate}
-  final ScrollPhysics? physics;
-
-  /// {@template Tabs.padding}
-  /// The padding of the tabs, defaults to `EdgeInsets.zero`.
-  /// {@endtemplate}
-  final EdgeInsetsGeometry? padding;
-
-  /// {@template Tabs.decoration}
-  /// The decoration of the tabs.
-  /// {@endtemplate}
-  final FinesseDecoration? decoration;
-
-  /// {@template Tabs.tabBarConstraints}
-  /// The constraints of the tab bar, defaults to `null`.
-  /// {@endtemplate}
-  final BoxConstraints? tabBarConstraints;
-
-  /// {@template Tabs.contentConstraints}
-  /// The constraints of the content, defaults to `null`.
-  /// {@endtemplate}
-  final BoxConstraints? contentConstraints;
-
-  /// {@template Tabs.restorationId}
-  /// The restoration id, defaults to `null`.
-  /// {@endtemplate}
-  final String? restorationId;
-
-  /// {@template Tabs.onChanged}
-  /// The callback that is called when the value of the tabs changes.
-  /// {@endtemplate}
+  /// Called with the value of the tab the user selected, by a tap, a key
+  /// or a swipe.
   final ValueChanged<T>? onChanged;
 
-  /// {@template Tabs.maintainState}
-  /// Whether to maintain the state of the tabs when switching between them.
-  /// Defaults to true.
-  /// {@endtemplate}
-  final bool? maintainState;
+  /// Holds the selection in place of [value]; see [TabsController].
+  final TabsController<T>? controller;
 
-  @override
-  State<Tabs<T>> createState() => TabsState<T>();
-
-  @override
-  Size get preferredSize {
-    var maxHeight = 0.0;
-    for (final tab in tabs) {
-      final itemHeight = tab.preferredSize.height;
-      maxHeight = math.max(itemHeight, maxHeight);
-    }
-    return Size.fromHeight(maxHeight);
-  }
-}
-
-/// The state of a [Tabs].
-class TabsState<T> extends State<Tabs<T>>
-    with RestorationMixin, SingleTickerProviderStateMixin {
-  late List<GlobalKey> _tabKeys;
-
-  // Plays once per selection: the incoming panel fades in, sliding from the
-  // side its tab is on. At rest on 1, so nothing animates on first build.
-  late final _contentTransition = AnimationController(vsync: this, value: 1);
-
-  // +1 when the newly selected tab is after the previous one, -1 before.
-  double _contentDirection = 1;
-  T? _lastSelected;
-  TabsController<T>? _listenedController;
-
-  void _onSelectionChanged() {
-    final selected = controller.selected;
-    final previous = _lastSelected;
-    _lastSelected = selected;
-    if (previous == null || previous == selected) return;
-    final from = orderedValues.indexOf(previous);
-    final to = orderedValues.indexOf(selected);
-    _contentDirection = to < from ? -1 : 1;
-    final tabsTheme = Theme.of(context).tabsTheme;
-    _contentTransition
-      ..duration =
-          tabsTheme.contentTransitionDuration ?? Motion.of(context).normal
-      ..forward(from: 0);
-  }
-
-  void _syncControllerListener() {
-    final current = controller;
-    if (identical(current, _listenedController)) return;
-    _listenedController?.removeListener(_onSelectionChanged);
-    _listenedController = current..addListener(_onSelectionChanged);
-    _lastSelected = current.selected;
-  }
-
-  /// The values of the tabs, in the order of [Tabs.tabs].
-  @protected
-  late List<T> orderedValues;
-
-  RestorableTabsController<T>? _controller;
-
-  /// The controller in use: [Tabs.controller], or an internal restorable
-  /// one when that is null.
-  TabsController<T> get controller => widget.controller ?? _controller!.value;
-
-  /// Scrolls the tab list when [scrollable] is true.
-  @protected
-  late final scrollController = ScrollController();
+  /// How the bar is drawn. Defaults to the segmented strip.
+  final TabBarVariant variant;
 
   /// Whether the tabs share the full width of the bar.
-  bool expandTabs(BuildContext context) =>
-      widget.expandTabs ?? Theme.of(context).tabsTheme.expandTabs ?? false;
+  ///
+  /// The segmented strip defaults to false: a tab is as wide as its label
+  /// plus its padding, and the strip is as wide as its tabs. Underline tabs
+  /// default to true.
+  final bool? expandTabs;
 
-  /// Whether the tab list scrolls horizontally. Defaults to false.
-  bool get scrollable => widget.scrollable ?? false;
+  /// Whether the bar scrolls sideways when its tabs do not fit.
+  final bool scrollable;
+
+  /// Where the segmented strip sits in the width [Tabs] has, when the
+  /// strip is narrower than it. Defaults to the start.
+  ///
+  /// It has no effect when the tabs expand (see [expandTabs]) or when a
+  /// [Tabs] without content is free to be as small as its strip.
+  final AlignmentGeometry? tabBarAlignment;
+
+  /// The gap between the bar and the content. Defaults to the theme's.
+  final double? gap;
+
+  /// Whether the content of a tab that is not selected stays built, keeping
+  /// its state. Defaults to true.
+  final bool maintainState;
+
+  /// Whether dragging the content changes the tab. A mouse never does.
+  /// Defaults to true.
+  final bool swipeable;
+
+  /// Whether the content fills the height left under the bar, for a
+  /// [Tabs] that is given one. By default the content is as tall as it
+  /// needs to be.
+  final bool? expandContent;
+
+  /// Restores the selection under this id, when there is no [controller].
+  final String? restorationId;
+
+  @override
+  State<Tabs<T>> createState() => _TabsState<T>();
+}
+
+class _TabsState<T> extends State<Tabs<T>> with RestorationMixin {
+  RestorableTabsController<T>? _local;
+  TabsController<T>? _listened;
+
+  TabsController<T> get _controller => widget.controller ?? _local!.value;
 
   @override
   void initState() {
     super.initState();
-    _tabKeys = widget.tabs.map((_) => GlobalKey()).toList();
-    if (widget.controller == null) {
-      _createLocalController(widget.value as T);
-    }
-    orderedValues = widget.tabs.map((e) => e.value).toList();
+    if (widget.controller == null) _createLocal(widget.value as T);
   }
 
   @override
@@ -294,902 +267,123 @@ class TabsState<T> extends State<Tabs<T>>
     super.didChangeDependencies();
     // After RestorationMixin has had the chance to create or restore the
     // local controller.
-    _syncControllerListener();
+    _listen();
   }
 
   @override
   void didUpdateWidget(covariant Tabs<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
-
     if (widget.controller == null && oldWidget.controller != null) {
-      _createLocalController(oldWidget.controller!.selected);
+      _createLocal(oldWidget.controller!.value);
     } else if (widget.controller != null && oldWidget.controller == null) {
-      unregisterFromRestoration(_controller!);
-      _controller!.dispose();
-      _controller = null;
+      unregisterFromRestoration(_local!);
+      _local!.dispose();
+      _local = null;
     }
-
-    if (widget.tabs.length > _tabKeys.length) {
-      final delta = widget.tabs.length - _tabKeys.length;
-      _tabKeys.addAll(List<GlobalKey>.generate(delta, (int n) => GlobalKey()));
-    } else if (widget.tabs.length < _tabKeys.length) {
-      _tabKeys.removeRange(widget.tabs.length, _tabKeys.length);
-    }
-    if (!listEquals(widget.tabs, oldWidget.tabs)) {
-      orderedValues = widget.tabs.map((e) => e.value).toList();
-    }
-
-    _syncControllerListener();
-
-    // Update the controller if the value has changed.
-    if (widget.value is T &&
-        widget.controller == null &&
-        controller.selected != widget.value) {
-      controller.select(widget.value as T);
+    _listen();
+    if (widget.controller == null && widget.value is T) {
+      _controller.select(widget.value as T);
     }
   }
 
   @override
   void dispose() {
-    _listenedController?.removeListener(_onSelectionChanged);
-    _contentTransition.dispose();
-    scrollController.dispose();
-    _controller?.dispose();
+    _listened?.removeListener(_changed);
+    _local?.dispose();
     super.dispose();
   }
 
-  void _registerController() {
-    assert(_controller != null);
-    registerForRestoration(_controller!, 'controller');
+  void _createLocal(T value) {
+    assert(_local == null);
+    _local = RestorableTabsController<T>(value: value);
+    if (!restorePending) registerForRestoration(_local!, 'controller');
   }
 
-  void _createLocalController(T value) {
-    assert(_controller == null);
-    _controller = RestorableTabsController<T>.fromValue(value);
-    if (!restorePending) {
-      _registerController();
-    }
+  void _listen() {
+    final current = _controller;
+    if (identical(current, _listened)) return;
+    _listened?.removeListener(_changed);
+    _listened = current..addListener(_changed);
   }
+
+  void _changed() => setState(() {});
 
   @override
   String? get restorationId => widget.restorationId;
 
   @override
   void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
-    if (_controller != null) _registerController();
-    // A restored selection is where the tabs start, not a change to animate.
-    _listenedController = null;
-    _syncControllerListener();
+    if (_local != null) registerForRestoration(_local!, 'controller');
+    _listened = null;
+    _listen();
+  }
+
+  void _select(int index) {
+    final value = widget.tabs[index].value;
+    if (_controller.select(value)) widget.onChanged?.call(value);
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final tabsTheme = theme.tabsTheme;
+    final tabs = widget.tabs;
+    final selected = tabs.indexWhere((tab) => tab.value == _controller.value);
+    final segmented = widget.variant == TabBarVariant.segmented;
+    final expandTabs =
+        widget.expandTabs ?? (!segmented || (tabsTheme.expandTabs ?? false));
+    // With no content, Tabs is just its list: the strip of a toolbar or a
+    // settings row.
+    final listOnly = tabs.every((tab) => tab.content == null);
 
-    final effectiveDragStartBehavior =
-        widget.dragStartBehavior ??
-        tabsTheme.dragStartBehavior ??
-        DragStartBehavior.start;
-
-    final effectivePadding =
-        widget.padding ?? tabsTheme.padding ?? EdgeInsets.zero;
-
-    final effectiveDecoration = FinesseDecoration(
-      color: theme.colorScheme.muted,
-      border: FinesseBorder.all(radius: theme.radius, width: 0),
-    ).merge(tabsTheme.decoration).merge(widget.decoration);
-
-    final effectiveGap = widget.gap ?? tabsTheme.gap ?? 8;
-
-    final effectiveTabBarConstraints =
-        widget.tabBarConstraints ?? tabsTheme.tabBarConstraints;
-
-    final effectiveContentConstraints =
-        widget.contentConstraints ?? tabsTheme.contentConstraints;
-
-    final effectiveMaintainState = widget.maintainState ?? true;
-    final expandTabs = this.expandTabs(context);
-
-    final motion = Motion.of(context);
-    final contentOffset =
-        (tabsTheme.contentTransitionOffset ?? motion.overlayTravel * 2) *
-        (motion.reduced ? 0 : 1);
-    // Driven, not a `CurvedAnimation`: that registers a listener on its
-    // parent and would need disposing on every build.
-    final contentCurve = _contentTransition.drive(
-      CurveTween(curve: motion.emphasized),
+    final bar = TabList(
+      items: tabListItems(tabs),
+      selectedIndex: selected < 0 ? null : selected,
+      onSelected: _select,
+      variant: widget.variant,
+      expand: expandTabs,
+      scrollable: widget.scrollable,
+      track: _controller.swipePosition,
+      alignment: widget.tabBarAlignment,
+      // Above its content the strip is placed across the content's width;
+      // on its own the list is as small as its strip wherever its parent
+      // lets it be.
+      shrinkWrap: listOnly,
     );
-    final isRtl = Directionality.of(context) == TextDirection.rtl;
-
-    // One selection pill for the whole list, travelling between the tabs,
-    // in place of each tab painting its own. Around the row itself — inside
-    // the scroll view — so the tabs' rectangles do not move as it scrolls.
-    Widget tabBar = MovingIndicator(
-      spring: tabsTheme.indicatorSpring,
-      stretch: tabsTheme.indicatorStretch,
-      child: Row(
-        mainAxisSize: expandTabs ? MainAxisSize.max : MainAxisSize.min,
-        spacing: widget.tabsGap ?? tabsTheme.tabsGap ?? 0,
-        children: widget.tabs,
-      ),
-    );
-
-    if (effectiveTabBarConstraints != null) {
-      tabBar = ConstrainedBox(
-        constraints: effectiveTabBarConstraints,
-        child: tabBar,
-      );
-    }
-
-    if (scrollable) {
-      tabBar = ScrollConfiguration(
-        // The scrolling tabs should not show an overscroll indicator.
-        behavior: ScrollConfiguration.of(context).copyWith(overscroll: false),
-        child: SingleChildScrollView(
-          dragStartBehavior: effectiveDragStartBehavior,
-          scrollDirection: Axis.horizontal,
-          controller: scrollController,
-          padding: effectivePadding,
-          physics: widget.physics,
-          child: tabBar,
-        ),
-      );
-    } else {
-      tabBar = Padding(padding: effectivePadding, child: tabBar);
-    }
-
-    final effectiveTabBarAlignment =
-        widget.tabBarAlignment ??
-        tabsTheme.tabBarAlignment ??
-        AlignmentDirectional.centerStart;
-    // With no panels, Tabs is just its list: shadcn's TabsList on its own,
-    // the segmented control of a toolbar or settings row.
-    final listOnly = widget.tabs.every((tab) => tab.content == null);
-
-    return Provider(
-      data: this as TabsState<dynamic>,
-      notifyUpdate: (_) => true,
-      child: ListenableBuilder(
-        listenable: controller,
-        builder: (context, _) {
-          // A `w-fit` strip has to be told where to sit, or a parent that
-          // stretches it pulls the decoration out to the full width behind
-          // the tabs. So the alignment goes *around* the decoration: inside
-          // it, the strip still took the whole width and only the tabs were
-          // placed. Above its panels the strip is placed across their
-          // width; on its own the list is as big as its strip wherever its
-          // parent lets it be, and placed only where the parent insists on
-          // more. Expanded tabs fill whatever width there is, so for them
-          // this changes nothing — it is built all the same, to keep one
-          // tree shape when a theme turns `expandTabs` on or off.
-          final decoratedBar = Align(
-            alignment: effectiveTabBarAlignment,
-            widthFactor: listOnly && !expandTabs ? 1 : null,
-            heightFactor: 1,
-            child: Decorator(
-              decoration: effectiveDecoration,
-              child: tabBar,
-            ),
-          );
-          if (listOnly) return decoratedBar;
-          return Column(
-            children: [
-              decoratedBar,
-              SizedBox(height: effectiveGap),
-              ...List<Widget>.generate(widget.tabs.length, (int index) {
-                final tab = widget.tabs[index];
-                final selected = tab.value == controller.selected;
-                final effectiveTabMaintainState =
-                    tab.maintainState ?? effectiveMaintainState;
-                if (!selected && !effectiveTabMaintainState) {
-                  return const SizedBox.shrink();
-                }
-                Widget content = Offstage(
-                  offstage: !selected,
-                  child: _TabContentTransition(
-                    animation: contentCurve,
-                    // Only the panel coming in moves; the others are
-                    // offstage and stay put.
-                    offset: selected
-                        ? contentOffset * _contentDirection * (isRtl ? -1 : 1)
-                        : 0,
-                    child: FocusTraversalGroup(
-                      descendantsAreFocusable: selected,
-                      policy: WidgetOrderTraversalPolicy(),
-                      child: KeyedSubtree(
-                        key: _tabKeys[index],
-                        child: tab.content ?? const SizedBox.shrink(),
-                      ),
-                    ),
-                  ),
-                );
-
-                if (effectiveContentConstraints != null) {
-                  content = ConstrainedBox(
-                    constraints: effectiveContentConstraints,
-                    child: content,
-                  );
-                }
-
-                final effectiveExpandContent =
-                    tab.expandContent ?? theme.tabsTheme.expandContent ?? false;
-                if (effectiveExpandContent && selected) {
-                  content = Expanded(child: content);
-                }
-
-                return content;
-              }),
-            ],
-          );
-        },
-      ),
-    );
-  }
-}
-
-/// Fades a tab's content in, sliding it [offset] logical pixels into place.
-///
-/// Paint only: the panel is laid out where it will rest from the first
-/// frame, so the transition never moves anything around it.
-class _TabContentTransition extends StatelessWidget {
-  const _TabContentTransition({
-    required this.animation,
-    required this.offset,
-    required this.child,
-  });
-
-  final Animation<double> animation;
-  final double offset;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return FadeTransition(
-      opacity: animation,
-      child: AnimatedBuilder(
-        animation: animation,
-        builder: (context, child) => Transform.translate(
-          offset: Offset(offset * (1 - animation.value), 0),
-          child: child,
-        ),
-        child: child,
-      ),
-    );
-  }
-}
-
-/// {@template Tab}
-/// Represents a single tab item within a [Tabs] widget.
-///
-/// Includes properties for styling, content, and interaction handling.
-/// {@endtemplate}
-class Tab<T> extends StatefulWidget implements PreferredSizeWidget {
-  /// {@macro Tab}
-  const Tab({
-    super.key,
-    required this.value,
-    required this.child,
-    this.content,
-    this.leading,
-    this.trailing,
-    this.enabled = true,
-    this.flex = 1,
-    this.height,
-    this.width,
-    this.backgroundColor,
-    this.selectedBackgroundColor,
-    this.hoverBackgroundColor,
-    this.selectedHoverBackgroundColor,
-    this.padding,
-    this.decoration,
-    this.selectedDecoration,
-    this.foregroundColor,
-    this.selectedForegroundColor,
-    this.textStyle,
-    this.shadows,
-    this.selectedShadows,
-    this.focusNode,
-    this.onPressed,
-    this.onLongPress,
-    this.size,
-    this.cursor,
-    this.hoverForegroundColor,
-    this.autofocus = false,
-    this.pressedBackgroundColor,
-    this.pressedForegroundColor,
-    this.gradient,
-    this.textDecoration,
-    this.hoverTextDecoration,
-    this.statesController,
-    this.mainAxisAlignment,
-    this.crossAxisAlignment,
-    this.hoverStrategies,
-    this.onHoverChange,
-    this.onTapDown,
-    this.onTapUp,
-    this.onTapCancel,
-    this.onLongPressStart,
-    this.onLongPressCancel,
-    this.onLongPressUp,
-    this.onLongPressDown,
-    this.onLongPressEnd,
-    this.onDoubleTap,
-    this.onDoubleTapDown,
-    this.onDoubleTapCancel,
-    this.longPressDuration,
-    this.expandContent,
-    this.maintainState,
-  });
-
-  /// {@template Tab.value}
-  /// The value associated with this tab, used for selection and identification.
-  /// {@endtemplate}
-  final T value;
-
-  /// {@template Tab.child}
-  /// The widget to display as the tab's label, typically a [Text] widget.
-  ///
-  /// A text label is one line. It is the part of the tab that gives way: in
-  /// a tab narrower than its content — an expanded tab in a narrow strip —
-  /// it is cut short with an ellipsis, next to [leading] and [trailing] at
-  /// their full size. Give the [Text] its own `maxLines` or `overflow` to
-  /// change that.
-  /// {@endtemplate}
-  final Widget child;
-
-  /// {@template Tab.content}
-  /// The widget to display as the content associated with this tab.
-  ///
-  /// Displayed when the tab is selected.
-  /// {@endtemplate}
-  final Widget? content;
-
-  /// {@template Tab.leading}
-  /// A widget to display at the start of the tab, often an [Icon].
-  /// {@endtemplate}
-  final Widget? leading;
-
-  /// {@template Tab.trailing}
-  /// A widget to display at the end of the tab.
-  /// {@endtemplate}
-  final Widget? trailing;
-
-  /// {@template Tab.enabled}
-  /// Whether the tab is enabled and can be selected.
-  ///
-  /// Defaults to true.
-  /// {@endtemplate}
-  final bool enabled;
-
-  /// {@template Tab.flex}
-  /// Flex factor for the tab when it's part of a [Row] in a non-scrollable
-  /// [Tabs].
-  ///
-  /// Ignored when [Tabs] is scrollable. Defaults to 1.
-  /// {@endtemplate}
-  final int flex;
-
-  /// {@template Tab.height}
-  /// Height of the tab.
-  ///
-  /// Defaults to 32.
-  /// {@endtemplate}
-  final double? height;
-
-  /// {@template Tab.width}
-  /// Width of the tab.
-  ///
-  /// In non-scrollable [Tabs], defaults to `double.infinity`. In scrollable
-  /// [Tabs], defaults to null, allowing the tab to size to its content.
-  /// {@endtemplate}
-  final double? width;
-
-  /// {@template Tab.backgroundColor}
-  /// Background color of the tab when unselected.
-  ///
-  /// Defaults to `Colors.transparent`.
-  /// {@endtemplate}
-  final Color? backgroundColor;
-
-  /// {@template Tab.selectedBackgroundColor}
-  /// Background color of the tab when selected.
-  ///
-  /// Defaults to theme's background color.
-  /// {@endtemplate}
-  final Color? selectedBackgroundColor;
-
-  /// {@template Tab.hoverBackgroundColor}
-  /// Background color when hovered.
-  ///
-  /// Defaults to [backgroundColor].
-  /// {@endtemplate}
-  final Color? hoverBackgroundColor;
-
-  /// {@template Tab.selectedHoverBackgroundColor}
-  /// Background color when selected and hovered.
-  ///
-  /// Defaults to [selectedBackgroundColor].
-  /// {@endtemplate}
-  final Color? selectedHoverBackgroundColor;
-
-  /// {@template Tab.padding}
-  /// Padding within the tab.
-  ///
-  /// Defaults to `EdgeInsets.symmetric(horizontal: 12, vertical: 6)`.
-  /// {@endtemplate}
-  final EdgeInsetsGeometry? padding;
-
-  /// {@template Tab.decoration}
-  /// Decoration for the tab when unselected.
-  ///
-  /// Uses [FinesseDecoration].
-  /// {@endtemplate}
-  final FinesseDecoration? decoration;
-
-  /// {@template Tab.selectedDecoration}
-  /// Decoration for the tab when selected.
-  ///
-  /// Defaults to [decoration]. Uses [FinesseDecoration].
-  /// {@endtemplate}
-  final FinesseDecoration? selectedDecoration;
-
-  /// {@template Tab.foregroundColor}
-  /// Foreground color (text/icon color) when unselected.
-  ///
-  /// Defaults to theme's foreground color.
-  /// {@endtemplate}
-  final Color? foregroundColor;
-
-  /// {@template Tab.selectedForegroundColor}
-  /// Foreground color when selected.
-  ///
-  /// Defaults to [foregroundColor].
-  /// {@endtemplate}
-  final Color? selectedForegroundColor;
-
-  /// {@template Tab.textStyle}
-  /// Text style for the tab label.
-  ///
-  /// Defaults to theme's small text style.
-  /// {@endtemplate}
-  final TextStyle? textStyle;
-
-  /// {@template Tab.shadows}
-  /// Shadows for the tab when unselected.
-  ///
-  /// Defaults to small shadows ([Shadows.sm]).
-  /// {@endtemplate}
-  final List<BoxShadow>? shadows;
-
-  /// {@template Tab.selectedShadows}
-  /// Shadows for the tab when selected.
-  ///
-  /// Defaults to small shadows ([Shadows.sm]).
-  /// {@endtemplate}
-  final List<BoxShadow>? selectedShadows;
-
-  /// {@template Tab.focusNode}
-  /// Focus node to control the focus state of the tab.
-  ///
-  /// If null, an internal [FocusNode] is created.
-  /// {@endtemplate}
-  final FocusNode? focusNode;
-
-  /// {@template Tab.onPressed}
-  /// Callback for tap events on the tab.
-  /// {@endtemplate}
-  final VoidCallback? onPressed;
-
-  /// {@template Tab.onLongPress}
-  /// Callback for long-press events on the tab.
-  /// {@endtemplate}
-  final VoidCallback? onLongPress;
-
-  /// {@template Tab.size}
-  /// Size configuration for the tab, uses [ButtonSize].
-  /// {@endtemplate}
-  final ButtonSize? size;
-
-  /// {@template Tab.cursor}
-  /// Mouse cursor when hovering over the tab.
-  /// {@endtemplate}
-  final MouseCursor? cursor;
-
-  /// {@template Tab.hoverForegroundColor}
-  /// Foreground color when hovered.
-  /// {@endtemplate}
-  final Color? hoverForegroundColor;
-
-  /// {@template Tab.autofocus}
-  /// Whether the tab should automatically focus on build.
-  ///
-  /// Defaults to false.
-  /// {@endtemplate}
-  final bool autofocus;
-
-  /// {@template Tab.pressedBackgroundColor}
-  /// Background color when pressed.
-  /// {@endtemplate}
-  final Color? pressedBackgroundColor;
-
-  /// {@template Tab.pressedForegroundColor}
-  /// Foreground color when pressed.
-  /// {@endtemplate}
-  final Color? pressedForegroundColor;
-
-  /// {@template Tab.gradient}
-  /// Background gradient for the tab.
-  /// {@endtemplate}
-  final Gradient? gradient;
-
-  /// {@template Tab.textDecoration}
-  /// Text decoration for the tab label.
-  /// {@endtemplate}
-  final TextDecoration? textDecoration;
-
-  /// {@template Tab.hoverTextDecoration}
-  /// Text decoration when hovered.
-  /// {@endtemplate}
-  final TextDecoration? hoverTextDecoration;
-
-  /// {@template Tab.statesController}
-  /// Custom states controller for managing tab states.
-  /// {@endtemplate}
-  final WidgetStatesController? statesController;
-
-  /// {@macro Button.mainAxisAlignment}
-  final MainAxisAlignment? mainAxisAlignment;
-
-  /// {@macro Button.crossAxisAlignment}
-  final CrossAxisAlignment? crossAxisAlignment;
-
-  /// {@macro Button.hoverStrategies}
-  final HoverStrategies? hoverStrategies;
-
-  /// {@macro Button.onHoverChange}
-  final ValueChanged<bool>? onHoverChange;
-
-  /// {@macro Button.onTapDown}
-  final ValueChanged<TapDownDetails>? onTapDown;
-
-  /// {@macro Button.onTapUp}
-  final ValueChanged<TapUpDetails>? onTapUp;
-
-  /// {@macro Button.onTapCancel}
-  final VoidCallback? onTapCancel;
-
-  /// {@macro Button.onLongPressStart}
-  final ValueChanged<LongPressStartDetails>? onLongPressStart;
-
-  /// {@macro Button.onLongPressCancel}
-  final VoidCallback? onLongPressCancel;
-
-  /// {@macro Button.onLongPressUp}
-  final VoidCallback? onLongPressUp;
-
-  /// {@macro Button.onLongPressDown}
-  final ValueChanged<LongPressDownDetails>? onLongPressDown;
-
-  /// {@macro Button.onLongPressEnd}
-  final ValueChanged<LongPressEndDetails>? onLongPressEnd;
-
-  /// {@macro Button.onDoubleTap}
-  final VoidCallback? onDoubleTap;
-
-  /// {@macro Button.onDoubleTapDown}
-  final ValueChanged<TapDownDetails>? onDoubleTapDown;
-
-  /// {@macro Button.onDoubleTapCancel}
-  final VoidCallback? onDoubleTapCancel;
-
-  /// {@macro Button.longPressDuration}
-  final Duration? longPressDuration;
-
-  /// {@template Tab.expand}
-  /// Whether the tab content should be expanded, defaults to `false`.
-  /// {@endtemplate}
-  final bool? expandContent;
-
-  /// {@template Tab.maintainState}
-  /// Whether to maintain the state of this tab when switching away from it.
-  ///
-  /// When set, overrides the global [Tabs.maintainState] for this specific
-  /// tab. When null, falls back to [Tabs.maintainState] (which defaults to
-  /// true).
-  /// {@endtemplate}
-  final bool? maintainState;
-
-  @override
-  State<Tab<T>> createState() => _TabState<T>();
-
-  @override
-  Size get preferredSize {
-    return Size.fromHeight(height ?? 32);
-  }
-}
-
-class _TabState<T> extends State<Tab<T>> {
-  FocusNode? _focusNode;
-
-  FocusNode get focusNode => widget.focusNode ?? _focusNode!;
-
-  late bool focused = focusNode.hasFocus;
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.focusNode == null) _focusNode = FocusNode();
-    focusNode.addListener(focusNodeListener);
-  }
-
-  @override
-  void didUpdateWidget(covariant Tab<T> oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.focusNode == null && oldWidget.focusNode != null) {
-      focusNode.removeListener(focusNodeListener);
-      _focusNode = FocusNode();
-      focusNode.addListener(focusNodeListener);
-    } else if (widget.focusNode != null && oldWidget.focusNode == null) {
-      focusNode.removeListener(focusNodeListener);
-      _focusNode?.dispose();
-      _focusNode = null;
-      focusNode.addListener(focusNodeListener);
-    }
-  }
-
-  @override
-  void dispose() {
-    _focusNode?.dispose();
-    super.dispose();
-  }
-
-  void focusNodeListener() {
-    setState(() => focused = focusNode.hasFocus);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final inherited = context.watch<TabsState<dynamic>>() as TabsState<T>;
-
-    void onMayChanged() {
-      final hasChanged = inherited.controller.select(widget.value);
-      if (hasChanged) {
-        inherited.widget.onChanged?.call(widget.value);
-      }
-    }
-
-    final tabsTheme = theme.tabsTheme;
-
-    final expandTabs = inherited.expandTabs(context);
-    final defaultWidth = inherited.scrollable || !expandTabs
-        ? null
-        : double.infinity;
-    final effectiveWidth = widget.width ?? tabsTheme.tabWidth ?? defaultWidth;
-    final effectiveBackgroundColor =
-        widget.backgroundColor ??
-        tabsTheme.tabBackgroundColor ??
-        const Color(0x00000000);
-
-    final effectiveSelectedBackgroundColor =
-        widget.selectedBackgroundColor ??
-        tabsTheme.tabSelectedBackgroundColor ??
-        theme.colorScheme.background;
-
-    final effectiveHoverBackgroundColor =
-        widget.hoverBackgroundColor ??
-        tabsTheme.tabHoverBackgroundColor ??
-        effectiveBackgroundColor;
-
-    final effectiveSelectedHoverBackgroundColor =
-        widget.selectedHoverBackgroundColor ??
-        tabsTheme.tabSelectedHoverBackgroundColor ??
-        effectiveSelectedBackgroundColor;
-
-    final effectivePadding =
-        widget.padding ??
-        tabsTheme.tabPadding ??
-        const EdgeInsets.symmetric(horizontal: 12, vertical: 6);
-
-    final effectiveForegroundColor =
-        widget.foregroundColor ??
-        tabsTheme.tabForegroundColor ??
-        theme.colorScheme.foreground;
-
-    final effectiveSelectedForegroundColor =
-        widget.selectedForegroundColor ??
-        tabsTheme.tabSelectedForegroundColor ??
-        effectiveForegroundColor;
-
-    final effectiveShadows = widget.shadows ?? tabsTheme.tabShadows;
-    final effectiveSelectedShadows =
-        widget.selectedShadows ?? tabsTheme.tabSelectedShadows ?? Shadows.sm;
-
-    final effectiveMainAxisAlignment =
-        widget.mainAxisAlignment ?? tabsTheme.tabMainAxisAlignment;
-    final effectiveCrossAxisAlignment =
-        widget.crossAxisAlignment ?? tabsTheme.tabCrossAxisAlignment;
-    final effectiveHoverStrategies =
-        widget.hoverStrategies ?? tabsTheme.tabHoverStrategies;
-
-    final effectiveTextDecoration =
-        widget.textDecoration ?? tabsTheme.tabTextDecoration;
-    final effectiveHoverTextDecoration =
-        widget.hoverTextDecoration ?? tabsTheme.tabHoverTextDecoration;
-    final effectiveGradient = widget.gradient ?? tabsTheme.tabGradient;
-    final effectiveSize = widget.size ?? tabsTheme.tabSize;
-    final effectiveHoverForegroundColor =
-        widget.hoverForegroundColor ?? tabsTheme.tabHoverForegroundColor;
-    final effectiveCursor = widget.cursor ?? tabsTheme.tabCursor;
-    final effectivePressedBackgroundColor =
-        widget.pressedBackgroundColor ?? tabsTheme.tabPressedBackgroundColor;
-    final effectivePressedForegroundColor =
-        widget.pressedForegroundColor ?? tabsTheme.tabPressedForegroundColor;
-
-    final effectiveTextStyle =
-        widget.textStyle ?? tabsTheme.tabTextStyle ?? theme.textTheme.small;
-
-    const clear = Color(0x00000000);
-
-    // A tab's label is one line, as `whitespace-nowrap` makes it in the
-    // reference, and it is the part of the tab that gives way: in a tab
-    // narrower than its content — an expanded one in a narrow strip — the
-    // label is cut short with an ellipsis instead of overflowing the row it
-    // shares with `leading` and `trailing`. A tab that sizes to its content
-    // hands the label all the width it asks for, so nothing changes there.
-    // A child that brings its own `Flexible` keeps it (two of them around
-    // one child is an error).
-    var label = DefaultTextStyle.merge(
-      style: effectiveTextStyle,
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
-      child: widget.child,
-    );
-    if (widget.child is! Flexible) label = Flexible(child: label);
-
-    Widget tab = ListenableBuilder(
-      listenable: inherited.controller,
-      builder: (context, _) {
-        final selected = inherited.controller.selected == widget.value;
-
-        final defaultDecoration = switch (theme.disableSecondaryBorder) {
-          true => FinesseDecoration(
-            border: FinesseBorder.all(
-              radius: BorderRadius.circular(2),
-              width: 0,
-              padding: const EdgeInsets.all(2),
-            ),
-            focusedBorder: FinesseBorder.all(
-              width: 2,
-              radius: BorderRadius.circular(2),
-              color: theme.colorScheme.ring,
+    if (listOnly) return bar;
+
+    final expandContent =
+        widget.expandContent ?? tabsTheme.expandContent ?? false;
+    final contentConstraints =
+        tabsTheme.contentConstraints ?? const BoxConstraints();
+    final Widget pages = TabPages(
+      count: tabs.length,
+      index: selected < 0 ? 0 : selected,
+      onIndexChanged: _select,
+      builder: (context, index) =>
+          // The content is as wide as it asks to be, in the middle of the
+          // page, as it would be in a column.
+          Align(
+            alignment: Alignment.topCenter,
+            heightFactor: expandContent ? null : 1,
+            child: ConstrainedBox(
+              constraints: contentConstraints,
+              child: tabs[index].content ?? const SizedBox.shrink(),
             ),
           ),
-          false => FinesseDecoration(
-            border: FinesseBorder.all(
-              radius: BorderRadius.circular(2),
-              width: 0,
-            ),
-            // No inner gutter around a tab: the strip's own `p-[3px]` is the
-            // only inset in the reference. The old 4px secondary padding
-            // shrank every tab inside its box, which read as too much space
-            // between the tabs and the strip's border. The focus ring is the
-            // standard outward ring; like shadcn's, it may overlap the strip.
-            secondaryFocusedBorder: FinesseBorder.all(
-              width: 2,
-              radius: theme.radius,
-              offset: 2,
-              color: theme.colorScheme.ring,
-            ),
-          ),
-        };
-
-        final effectiveDecoration = defaultDecoration
-            .merge(
-              selected
-                  ? tabsTheme.tabSelectedDecoration ?? tabsTheme.tabDecoration
-                  : tabsTheme.tabDecoration,
-            )
-            .merge(widget.decoration)
-            .merge(selected ? widget.selectedDecoration : null);
-
-        // The selected tab's fill, radius and shadow are the travelling
-        // indicator's, painted once by the list. The tab itself stays
-        // clear, so two pills never show at once.
-        final selectedFill = effectiveSelectedBackgroundColor;
-        final selectedHoverFill =
-            effectiveSelectedHoverBackgroundColor == selectedFill
-            ? clear
-            : effectiveSelectedHoverBackgroundColor;
-        final border = effectiveDecoration.border;
-        final pillFill = effectiveGradient == null ? selectedFill : null;
-        final pill = ShadowDecoration(
-          shadows: effectiveSelectedShadows,
-          decoration: border is FinesseRoundedSuperellipseBorder
-              ? ShapeDecoration(
-                  color: pillFill,
-                  gradient: effectiveGradient,
-                  shape: border.toBorder(
-                    textDirection: Directionality.of(context),
-                    defaultRadius: theme.radius,
-                  ),
-                )
-              : BoxDecoration(
-                  color: pillFill,
-                  gradient: effectiveGradient,
-                  borderRadius: border?.radius ?? theme.radius,
-                ),
-        );
-
-        return MovingIndicatorTarget(
-          selected: selected,
-          decoration: pill,
-          child: Button.secondary(
-            canRequestFocus: selected,
-            leading: widget.leading,
-            trailing: widget.trailing,
-            focusNode: focusNode,
-            height: widget.height ?? tabsTheme.tabHeight ?? 32,
-            width: effectiveWidth,
-            backgroundColor: selected ? clear : effectiveBackgroundColor,
-            hoverBackgroundColor: selected
-                ? selectedHoverFill
-                : effectiveHoverBackgroundColor,
-            padding: effectivePadding,
-            decoration: effectiveDecoration,
-            foregroundColor: selected
-                ? effectiveSelectedForegroundColor
-                : effectiveForegroundColor,
-            shadows: selected ? const [] : effectiveShadows,
-            // The gradient belongs to the pill as well.
-            gradient: selected ? null : effectiveGradient,
-            // The label does not shrink away from a pill that stays put.
-            pressScale: 1,
-            onPressed: () {
-              onMayChanged();
-              widget.onPressed?.call();
-            },
-            enabled: widget.enabled,
-            onLongPress: widget.onLongPress,
-            size: effectiveSize,
-            cursor: effectiveCursor,
-            hoverForegroundColor: effectiveHoverForegroundColor,
-            autofocus: widget.autofocus,
-            pressedBackgroundColor: effectivePressedBackgroundColor,
-            pressedForegroundColor: effectivePressedForegroundColor,
-            textDecoration: effectiveTextDecoration,
-            hoverTextDecoration: effectiveHoverTextDecoration,
-            statesController: widget.statesController,
-            mainAxisAlignment: effectiveMainAxisAlignment,
-            crossAxisAlignment: effectiveCrossAxisAlignment,
-            hoverStrategies: effectiveHoverStrategies,
-            onHoverChange: widget.onHoverChange,
-            onTapDown: widget.onTapDown,
-            onTapUp: widget.onTapUp,
-            onTapCancel: widget.onTapCancel,
-            onLongPressStart: widget.onLongPressStart,
-            onLongPressCancel: widget.onLongPressCancel,
-            onLongPressUp: widget.onLongPressUp,
-            onLongPressDown: widget.onLongPressDown,
-            onLongPressEnd: widget.onLongPressEnd,
-            onDoubleTap: widget.onDoubleTap,
-            onDoubleTapDown: widget.onDoubleTapDown,
-            onDoubleTapCancel: widget.onDoubleTapCancel,
-            longPressDuration: widget.longPressDuration,
-            onFocusChange: (focused) {
-              if (focused) onMayChanged();
-            },
-            child: label,
-          ),
-        );
-      },
+      maintainState: widget.maintainState,
+      swipeable: widget.swipeable,
+      fill: expandContent,
+      track: _controller.swipePosition,
+      canShow: (index) => tabs[index].enabled,
     );
 
-    if (!inherited.scrollable && expandTabs) {
-      tab = Expanded(flex: widget.flex, child: tab);
-    }
-
-    return tab;
+    return Column(
+      children: [
+        bar,
+        SizedBox(height: widget.gap ?? tabsTheme.gap ?? 8),
+        if (expandContent) Expanded(child: pages) else pages,
+      ],
+    );
   }
 }

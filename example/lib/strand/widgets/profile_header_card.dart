@@ -79,10 +79,13 @@ class ProfileHeaderCard extends StatelessWidget {
           ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: layout.gap(GapSize.lg)),
-            child: TabBar(
-              selectedIndex: tab.index,
-              onSelected: (index) => onTabSelected(ProfileTab.values[index]),
-              tabs: [for (final tab in ProfileTab.values) Text(tab.label)],
+            child: TabBar<ProfileTab>(
+              value: tab,
+              onChanged: onTabSelected,
+              tabs: [
+                for (final tab in ProfileTab.values)
+                  Tab(value: tab, child: Text(tab.label)),
+              ],
             ),
           ),
         ],
