@@ -271,6 +271,32 @@ void main() {
       expect(controller.page, 0);
     });
 
+    testWidgets('a second step while the first is under way goes one page '
+        'further', (tester) async {
+      for (final loop in [false, true]) {
+        final controller = CarouselController();
+        addTearDown(controller.dispose);
+        changes.clear();
+        await pumpFinesse(tester, const SizedBox());
+        await pumpFinesse(
+          tester,
+          carousel(controller: controller, count: 5, loop: loop),
+        );
+        controller.nextPage();
+        await tester.pump(const Duration(milliseconds: 50));
+        controller.nextPage();
+        await tester.pumpAndSettle();
+        expect(controller.page, 2, reason: 'loop: $loop');
+        // Only the arrival is reported.
+        expect(changes, [2], reason: 'loop: $loop');
+        controller.previousPage();
+        await tester.pump(const Duration(milliseconds: 50));
+        controller.previousPage();
+        await tester.pumpAndSettle();
+        expect(controller.page, 0, reason: 'loop: $loop');
+      }
+    });
+
     testWidgets('a programmatic move is monotone and settles; under '
         'Motion.none it jumps', (tester) async {
       final controller = CarouselController();

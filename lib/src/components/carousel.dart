@@ -326,9 +326,13 @@ class _CarouselState extends State<Carousel> {
   void _step(int delta) {
     final count = widget.itemCount;
     if (count == 0 || !_pages.hasClients) return;
-    if (_loops) return _animateRaw(_rawPage + delta);
-    final target = (_page + delta).clamp(0, count - 1);
-    if (target != _page) _animateRaw(target);
+    // A step taken while a move is under way goes on from where that one
+    // is heading, so two quick presses move two pages.
+    final travelling = _travellingTo;
+    if (_loops) return _animateRaw((travelling ?? _rawPage) + delta);
+    final from = travelling ?? _page;
+    final target = (from + delta).clamp(0, count - 1);
+    if (target != from) _animateRaw(target);
   }
 
   void _animateRaw(int raw, {bool animate = true}) {
