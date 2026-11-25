@@ -535,6 +535,71 @@ void main() {
       }
     });
 
+    testWidgets('a glass button pops in and out with its blur: nothing above '
+        'the filter is translucent', (tester) async {
+      // An opacity layer around a backdrop filter takes the blur away on
+      // some renderers, the web's among them.
+      double opacityAbove(RenderObject? node) {
+        var lowest = 1.0;
+        for (; node != null; node = node.parent) {
+          if (node is RenderAnimatedOpacity) {
+            lowest = lowest < node.opacity.value ? lowest : node.opacity.value;
+          } else if (node is RenderOpacity) {
+            lowest = lowest < node.opacity ? lowest : node.opacity;
+          }
+        }
+        return lowest;
+      }
+
+      var shown = false;
+      late StateSetter setShown;
+      await pumpFinesse(
+        tester,
+        StatefulBuilder(
+          builder: (context, setState) {
+            setShown = setState;
+            return Scaffold(
+              floatingActionButton: shown
+                  ? FloatingActionButton(
+                      icon: _icon,
+                      variant: FloatingActionButtonVariant.glass,
+                      semanticLabel: 'New post',
+                      onPressed: () {},
+                    )
+                  : null,
+              body: const SizedBox.expand(),
+            );
+          },
+        ),
+      );
+      final filter = find.descendant(
+        of: fab(),
+        matching: find.byType(BackdropFilter),
+      );
+      final opacities = <double>[];
+      setShown(() => shown = true);
+      await tester.pump();
+      // It does pop in: small and faint at first. The fade is the
+      // surface's own, inside its filter.
+      final rest = tester.getSize(fab());
+      expect(tester.getRect(fab()).width, lessThan(rest.width));
+      final fades = tester.widgetList<FadeTransition>(
+        find.descendant(of: fab(), matching: find.byType(FadeTransition)),
+      );
+      expect(fades.map((fade) => fade.opacity.value), contains(lessThan(1)));
+      for (var i = 0; i < 8; i++) {
+        opacities.add(opacityAbove(tester.renderObject(filter).parent));
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      setShown(() => shown = false);
+      await tester.pump();
+      for (var i = 0; i < 8 && filter.evaluate().isNotEmpty; i++) {
+        opacities.add(opacityAbove(tester.renderObject(filter).parent));
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      expect(opacities, everyElement(1.0));
+    });
+
     testWidgets('in a scaffold the button stays on its corner while it '
         'collapses: the scaffold does not chase its width', (tester) async {
       tester.view.devicePixelRatio = 1;

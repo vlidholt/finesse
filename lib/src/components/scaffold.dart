@@ -7,6 +7,7 @@ import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/backdrop.dart';
 import 'package:finesse/src/utils/expand_reveal.dart';
 import 'package:finesse/src/utils/overlay_insets.dart';
 import 'package:finesse/src/utils/spring.dart';
@@ -1104,11 +1105,24 @@ class _FabSwitcherState extends State<_FabSwitcher>
     with SingleTickerProviderStateMixin {
   late Widget? _shown = widget.child;
 
-  // 0 gone, 1 there.
-  late final _presence = SpringController(
-    vsync: this,
-    value: widget.child == null ? 0 : 1,
-  );
+  // 0 gone, 1 there. Made at once: made on first use, the first button a
+  // scaffold is given would be made already there, and not pop in.
+  late final SpringController _presence;
+
+  // Through a host that a glass button takes the fade over from: an
+  // opacity layer around a backdrop filter takes its blur away on some
+  // renderers.
+  late final Animation<double> _opacity;
+
+  @override
+  void initState() {
+    super.initState();
+    _presence = SpringController(
+      vsync: this,
+      value: widget.child == null ? 0 : 1,
+    );
+    _opacity = _presence.animation.drive(const _FabOpacity());
+  }
 
   @override
   void didUpdateWidget(_FabSwitcher oldWidget) {
@@ -1147,19 +1161,28 @@ class _FabSwitcherState extends State<_FabSwitcher>
         widget.child == null || !Widget.canUpdate(shown, widget.child!);
     return IgnorePointer(
       ignoring: leaving,
-      child: AnimatedBuilder(
-        animation: _presence.animation,
-        // One tree for the whole pop: a full opacity and an identity
-        // transform cost no layer.
-        builder: (context, child) {
-          final t = _presence.value;
-          return Opacity(
-            opacity: (t * 2).clamp(0.0, 1.0),
-            child: Transform.scale(scale: .6 + .4 * t, child: child),
-          );
-        },
-        child: shown,
+      // One tree for the whole pop: a full opacity and an identity
+      // transform cost no layer.
+      child: BackdropFadeHost(
+        opacity: _opacity,
+        child: AnimatedBuilder(
+          animation: _presence.animation,
+          builder: (context, child) => Transform.scale(
+            scale: .6 + .4 * _presence.value,
+            child: child,
+          ),
+          child: shown,
+        ),
       ),
     );
   }
+}
+
+/// The floating action button's opacity for its presence: there by half
+/// way.
+class _FabOpacity extends Animatable<double> {
+  const _FabOpacity();
+
+  @override
+  double transform(double t) => (t * 2).clamp(0.0, 1.0);
 }
