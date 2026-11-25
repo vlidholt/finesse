@@ -578,14 +578,13 @@ void main() {
           appBar: AppBar(
             title: const Text('Messages'),
             actions: [
+              // The key on what takes the tap: a SizedBox with no child
+              // is not hit itself.
               GestureDetector(
+                key: const Key('action'),
                 behavior: HitTestBehavior.opaque,
                 onTap: () => barTaps++,
-                child: const SizedBox(
-                  key: Key('action'),
-                  width: 40,
-                  height: 40,
-                ),
+                child: const SizedBox(width: 40, height: 40),
               ),
             ],
           ),
