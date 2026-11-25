@@ -539,5 +539,54 @@ void main() {
         1,
       );
     });
+
+    testWidgets('the page keeps its state when the layout changes to or '
+        'from the rail', (tester) async {
+      var layout = NavigationLayout.topBar;
+      late StateSetter setLayout;
+      await pumpFinesse(
+        tester,
+        StatefulBuilder(
+          builder: (context, setState) {
+            setLayout = setState;
+            return NavigationScaffold(
+              layout: layout,
+              destinations: _destinations,
+              selectedIndex: 0,
+              body: const _Counter(),
+            );
+          },
+        ),
+      );
+      tester.state<_CounterState>(find.byType(_Counter)).count = 7;
+      for (final next in [
+        NavigationLayout.rail,
+        NavigationLayout.bottomBar,
+        NavigationLayout.rail,
+        NavigationLayout.topBar,
+      ]) {
+        setLayout(() => layout = next);
+        await tester.pump();
+        expect(
+          tester.state<_CounterState>(find.byType(_Counter)).count,
+          7,
+          reason: 'after switching to $next',
+        );
+      }
+    });
   });
+}
+
+class _Counter extends StatefulWidget {
+  const _Counter();
+
+  @override
+  State<_Counter> createState() => _CounterState();
+}
+
+class _CounterState extends State<_Counter> {
+  int count = 0;
+
+  @override
+  Widget build(BuildContext context) => const SizedBox.expand();
 }

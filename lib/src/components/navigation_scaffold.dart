@@ -160,6 +160,35 @@ class NavigationScaffold extends StatelessWidget {
         ? null
         : (i) => onDestinationSelected!(indices[i]);
 
+    // The page is in the same place in the tree whatever the layout, so a
+    // change of layout — a window narrowed past a breakpoint — keeps its
+    // state. Only the rail's slot beside it is filled or not.
+    Widget page({Widget? rail}) => Builder(
+      // Under the scaffold's own media query, which says how far the app
+      // bar reaches down.
+      builder: (context) {
+        final direction = Directionality.of(context);
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // The rail is part of the page as far as the scaffold goes: it
+            // sits under the app bar, and keeps clear of it by the padding
+            // the scaffold hands down.
+            rail ?? const SizedBox.shrink(),
+            Expanded(
+              // The start edge is the rail's to keep clear of.
+              child: MediaQuery.removePadding(
+                context: context,
+                removeLeft: rail != null && direction == TextDirection.ltr,
+                removeRight: rail != null && direction == TextDirection.rtl,
+                child: body,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
     switch (resolved) {
       case NavigationLayout.auto:
       case NavigationLayout.topBar:
@@ -176,7 +205,7 @@ class NavigationScaffold extends StatelessWidget {
             ),
             actions: actions,
           ),
-          body: body,
+          body: page(),
         );
       case NavigationLayout.rail:
         final (indices, selected) = shown(
@@ -185,34 +214,14 @@ class NavigationScaffold extends StatelessWidget {
         return Scaffold(
           backgroundColor: backgroundColor,
           appBar: AppBar(leading: leading, title: title, actions: actions),
-          // The rail is part of the page as far as the scaffold goes: it
-          // sits under the app bar, and keeps clear of it by the padding
-          // the scaffold hands down.
-          body: Builder(
-            // Under the scaffold's own media query, which says how far the
-            // app bar reaches down.
-            builder: (context) => Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                NavigationRail(
-                  destinations: [for (final i in indices) destinations[i]],
-                  selectedIndex: selected,
-                  onDestinationSelected: selects(indices),
-                  action: action,
-                  extended: railExtended,
-                  trailing: railTrailing,
-                ),
-                Expanded(
-                  // The start edge is the rail's to keep clear of.
-                  child: MediaQuery.removePadding(
-                    context: context,
-                    removeLeft: Directionality.of(context) == TextDirection.ltr,
-                    removeRight:
-                        Directionality.of(context) == TextDirection.rtl,
-                    child: body,
-                  ),
-                ),
-              ],
+          body: page(
+            rail: NavigationRail(
+              destinations: [for (final i in indices) destinations[i]],
+              selectedIndex: selected,
+              onDestinationSelected: selects(indices),
+              action: action,
+              extended: railExtended,
+              trailing: railTrailing,
             ),
           ),
         );
@@ -232,7 +241,7 @@ class NavigationScaffold extends StatelessWidget {
                   onDestinationSelected: selects(indices),
                   action: action,
                 ),
-          body: body,
+          body: page(),
         );
     }
   }
