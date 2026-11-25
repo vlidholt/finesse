@@ -509,4 +509,80 @@ void main() {
     final decoration = target.decoration as ShadowDecoration;
     expect((decoration.decoration as BoxDecoration).color, fill);
   });
+  group('SegmentedControlFormField', () {
+    testWidgets('holds its value, validates, saves and resets with the '
+        'form, and Tab reaches it', (tester) async {
+      final form = GlobalKey<FinesseFormState>();
+      final changes = <_Size>[];
+      await pumpFinesse(
+        tester,
+        FinesseForm(
+          key: form,
+          child: Align(
+            alignment: Alignment.topLeft,
+            child: SizedBox(
+              width: 360,
+              child: SegmentedControlFormField<_Size>(
+                id: 'size',
+                label: const Text('Size'),
+                description: const Text('How big'),
+                onChanged: changes.add,
+                validator: (value) => value == null ? 'Choose a size' : null,
+                segments: const [
+                  Segment(value: _Size.small, label: Text('S')),
+                  Segment(value: _Size.medium, label: Text('M')),
+                  Segment(value: _Size.large, label: Text('L')),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+      expect(find.text('Size'), findsOneWidget);
+      expect(find.text('How big'), findsOneWidget);
+      // Nothing chosen yet.
+      expect(form.currentState!.validate(), isFalse);
+      await tester.pump();
+      expect(find.text('Choose a size'), findsOneWidget);
+
+      await tester.tap(find.text('M'));
+      await tester.pumpAndSettle();
+      expect(changes, [_Size.medium]);
+      expect(form.currentState!.saveAndValidate(), isTrue);
+      expect(form.currentState!.value, {'size': _Size.medium});
+
+      // The keyboard works through the field.
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pumpAndSettle();
+      expect(changes.last, _Size.large);
+
+      form.currentState!.reset();
+      await tester.pumpAndSettle();
+      expect(form.currentState!.validate(), isFalse);
+    });
+
+    testWidgets('disabled, it cannot be changed', (tester) async {
+      final changes = <_Size>[];
+      await pumpFinesse(
+        tester,
+        FinesseForm(
+          child: SegmentedControlFormField<_Size>(
+            id: 'size',
+            enabled: false,
+            initialValue: _Size.small,
+            onChanged: changes.add,
+            segments: const [
+              Segment(value: _Size.small, label: Text('S')),
+              Segment(value: _Size.large, label: Text('L')),
+            ],
+          ),
+        ),
+      );
+      await tester.tap(find.text('L'), warnIfMissed: false);
+      await tester.pump();
+      expect(changes, isEmpty);
+    });
+  });
 }

@@ -67,6 +67,7 @@ export 'src/components/form/fields/date_picker.dart';
 export 'src/components/form/fields/date_range_picker.dart';
 export 'src/components/form/fields/otp_field.dart';
 export 'src/components/form/fields/radio.dart';
+export 'src/components/form/fields/segmented_control.dart';
 export 'src/components/form/fields/select.dart';
 export 'src/components/form/fields/switch.dart';
 export 'src/components/form/fields/text_field.dart';
