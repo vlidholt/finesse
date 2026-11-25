@@ -92,6 +92,7 @@ flutter:
     - lib/docs/examples/scaffold/
     - lib/docs/examples/board/
     - lib/docs/examples/chip/
+    - lib/docs/examples/license_page/
     - lib/docs/examples/list_tile/
     - lib/docs/examples/tab_bar/
     - lib/docs/examples/chat_bubble/

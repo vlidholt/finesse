@@ -44,6 +44,7 @@ class FinesseLocalizationsData with BaseTranslations<FinesseLocale, FinesseLocal
 	late final FinesseLocalizationsData$stepper$en stepper = FinesseLocalizationsData$stepper$en.internal(_root);
 	late final FinesseLocalizationsData$toast$en toast = FinesseLocalizationsData$toast$en.internal(_root);
 	late final FinesseLocalizationsData$command$en command = FinesseLocalizationsData$command$en.internal(_root);
+	late final FinesseLocalizationsData$licensePage$en licensePage = FinesseLocalizationsData$licensePage$en.internal(_root);
 	late final FinesseLocalizationsData$pagination$en pagination = FinesseLocalizationsData$pagination$en.internal(_root);
 	late final FinesseLocalizationsData$dialog$en dialog = FinesseLocalizationsData$dialog$en.internal(_root);
 	late final FinesseLocalizationsData$button$en button = FinesseLocalizationsData$button$en.internal(_root);
@@ -194,6 +195,27 @@ class FinesseLocalizationsData$command$en {
 	String get noResults => 'No results found.';
 }
 
+// Path: licensePage
+class FinesseLocalizationsData$licensePage$en {
+	FinesseLocalizationsData$licensePage$en.internal(this._root);
+
+	final FinesseLocalizationsData _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Licenses'
+	String get title => 'Licenses';
+
+	/// en: '1 license'
+	String get oneLicense => '1 license';
+
+	/// en: '$count licenses'
+	String licenses({required Object count}) => '${count} licenses';
+
+	/// en: 'Back'
+	String get back => 'Back';
+}
+
 // Path: pagination
 class FinesseLocalizationsData$pagination$en {
 	FinesseLocalizationsData$pagination$en.internal(this._root);
@@ -307,6 +329,10 @@ extension on FinesseLocalizationsData {
 			'stepper.cancel' => 'Cancel',
 			'toast.dismiss' => 'Dismiss',
 			'command.noResults' => 'No results found.',
+			'licensePage.title' => 'Licenses',
+			'licensePage.oneLicense' => '1 license',
+			'licensePage.licenses' => ({required Object count}) => '${count} licenses',
+			'licensePage.back' => 'Back',
 			'pagination.previous' => 'Previous',
 			'pagination.next' => 'Next',
 			'pagination.morePages' => 'More pages',

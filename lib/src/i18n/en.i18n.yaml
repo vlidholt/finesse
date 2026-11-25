@@ -37,6 +37,12 @@ toast:
 command:
   noResults: "No results found."
 
+licensePage:
+  title: "Licenses"
+  oneLicense: "1 license"
+  licenses: "$count licenses"
+  back: "Back"
+
 pagination:
   previous: "Previous"
   next: "Next"

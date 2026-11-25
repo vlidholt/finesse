@@ -49,6 +49,7 @@ const _slugs = [
   'indicator_badge',
   'kbd',
   'keyboard_toolbar',
+  'license_page',
   'list_tile',
   'menubar',
   'navigation_bar',
