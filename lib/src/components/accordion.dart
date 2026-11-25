@@ -86,7 +86,7 @@ class Accordion<T> extends StatefulWidget {
     this.maintainState,
     this.controller,
   }) : variant = AccordionVariant.single,
-       initialValue = <T>[?initialValue],
+       initialValues = <T>[?initialValue],
        assert(
          controller == null || controller._variant == AccordionVariant.single,
          'Pass a single-mode AccordionController to Accordion(...)',
@@ -97,7 +97,7 @@ class Accordion<T> extends StatefulWidget {
   Accordion.multiple({
     super.key,
     required this.children,
-    this.initialValue,
+    this.initialValues,
     this.maintainState,
     this.controller,
   }) : variant = AccordionVariant.multiple,
@@ -121,12 +121,11 @@ class Accordion<T> extends StatefulWidget {
   /// {@endtemplate}
   final Iterable<Widget> children;
 
-  /// {@template Accordion.initialValue}
-  /// The initial list of values for items that should be expanded on creation.
-  /// For single type, only the first value is used; for multiple, all values
-  /// are used.
+  /// {@template Accordion.initialValues}
+  /// The values of the items expanded at first: the `initialValue` of an
+  /// [Accordion], or every value of an [Accordion.multiple].
   /// {@endtemplate}
-  final List<T>? initialValue;
+  final List<T>? initialValues;
 
   /// {@template Accordion.maintainState}
   /// Whether to maintain the state of closed items in the widget tree.
@@ -149,19 +148,19 @@ class _AccordionState<T> extends State<Accordion<T>> {
   AccordionController<T>? _controller;
 
   /// The controller in use: [Accordion.controller] when given, otherwise
-  /// an internal one created from [Accordion.initialValue].
+  /// an internal one created from [Accordion.initialValues].
   AccordionController<T> get effectiveController {
     if (widget.controller != null) return widget.controller!;
     if (_controller != null) return _controller!;
     return switch (widget.variant) {
       AccordionVariant.single => _controller ??= AccordionController<T>(
-        widget.initialValue != null && widget.initialValue!.isNotEmpty
-            ? widget.initialValue!.first
+        widget.initialValues != null && widget.initialValues!.isNotEmpty
+            ? widget.initialValues!.first
             : null,
       ),
       AccordionVariant.multiple =>
         _controller ??= AccordionController<T>.multiple(
-          widget.initialValue,
+          widget.initialValues,
         ),
     };
   }

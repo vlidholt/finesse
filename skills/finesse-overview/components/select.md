@@ -117,7 +117,7 @@ class _SelectSearchExampleState extends State<SelectSearchExample> {
 
 ## Multiple, in a sheet
 
-`Select.multipleWithSearch` with `values` and `onChanged`. `PickerPresentation.auto`, the default, opens the sheet on a phone and a popover on a desktop; a plain single select stays a popover everywhere.
+`Select.multipleWithSearch` with `values` and `onValuesChanged`. `PickerPresentation.auto`, the default, opens the sheet on a phone and a popover on a desktop; a plain single select stays a popover everywhere.
 
 ```dart
 import 'package:finesse/finesse.dart';
@@ -163,7 +163,7 @@ class _SelectMultipleExampleState extends State<SelectMultipleExample> {
         placeholder: const Text('Skills'),
         searchPlaceholder: const Text('Search skills'),
         values: skills,
-        onChanged: (values) => setState(() => skills = values),
+        onValuesChanged: (values) => setState(() => skills = values),
         onSearchChanged: (value) => setState(() => query = value),
         allowDeselection: true,
         options: [

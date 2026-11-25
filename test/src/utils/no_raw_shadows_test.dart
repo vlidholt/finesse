@@ -35,6 +35,7 @@ void main() {
     Switch(value: true, onChanged: (_) {}),
     const Slider(initialValue: 50, max: 100),
     Select<String>(
+      onChanged: (_) {},
       options: const [SelectOption(value: 'a', child: Text('A'))],
       selectedOptionBuilder: (context, value) => Text(value),
       placeholder: const Text('Select'),

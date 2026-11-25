@@ -198,8 +198,7 @@ class Toggle extends StatelessWidget {
     // travels between the items, painted by the group; the item itself only
     // marks where it belongs.
     final group = context.maybeRead<_ToggleGroupState<dynamic>>();
-    final travelling =
-        group != null && group.widget.variant == ToggleGroupVariant.single;
+    final travelling = group != null && !group.widget._multiple;
 
     return Pressable(
       onPressed: enabled ? () => onChanged!(!value) : null,
@@ -306,111 +305,121 @@ class Toggle extends StatelessWidget {
   }
 }
 
-/// Whether a [ToggleGroup] allows one or many selections.
-enum ToggleGroupVariant {
-  /// At most one item may be selected.
-  single,
-
-  /// Any number of items may be selected.
-  multiple,
-}
-
 /// {@template ToggleGroup}
 /// A set of [Toggle]s sharing a selection.
 ///
-/// Mirrors shadcn/ui's `ToggleGroup`, in `single` or `multiple` mode.
+/// Mirrors shadcn/ui's `ToggleGroup`. The unnamed constructor holds one
+/// value, [ToggleGroup.multiple] a set of them.
 ///
 /// ```dart
 /// ToggleGroup<String>(
-///   values: selected,
-///   onChanged: (values) => setState(() => selected = values),
-///   children: const [
+///   value: alignment,
+///   onChanged: (value) => setState(() => alignment = value),
+///   items: const [
 ///     ToggleGroupItem(
-///       value: 'bold',
-///       child: PhosphorIcon(PhosphorIconsRegular.textB),
+///       value: 'left',
+///       child: PhosphorIcon(PhosphorIconsRegular.textAlignLeft),
 ///     ),
 ///     ToggleGroupItem(
-///       value: 'italic',
-///       child: PhosphorIcon(PhosphorIconsRegular.textItalic),
+///       value: 'center',
+///       child: PhosphorIcon(PhosphorIconsRegular.textAlignCenter),
 ///     ),
 ///   ],
 /// )
 /// ```
 ///
-/// The group is controlled: it shows [values] and reports what a tap would
-/// make of them through [onChanged]; the parent decides. Give
-/// [initialValues] instead, and no [values], for a group that keeps its own
-/// selection.
+/// The group is controlled: it shows [value] (or [values]) and reports what
+/// a tap would make of it through [onChanged] (or [onValuesChanged]); the
+/// parent decides. Give [initialValue] (or [initialValues]) instead, and no
+/// value, for a group that keeps its own selection. With no callback the
+/// group is disabled.
 /// {@endtemplate}
 class ToggleGroup<T> extends StatefulWidget {
-  /// {@macro ToggleGroup}
+  /// A group where at most one item is selected.
   const ToggleGroup({
     super.key,
-    required this.children,
-    this.values,
-    this.initialValues,
+    required this.items,
+    this.value,
+    this.initialValue,
     this.onChanged,
     this.allowDeselection = true,
     this.enabled = true,
-    this.toggleVariant = ToggleVariant.primary,
+    this.variant = ToggleVariant.primary,
     this.gap,
     this.axis = Axis.horizontal,
     this.mainAxisSize = MainAxisSize.min,
-  }) : variant = ToggleGroupVariant.single,
+  }) : _multiple = false,
+       values = null,
+       initialValues = null,
+       onValuesChanged = null,
        assert(
-         values == null || initialValues == null,
-         'Give values (controlled) or initialValues (uncontrolled), not both',
-       ),
-       assert(
-         (values ?? initialValues ?? const {}).length <= 1,
-         'A single-selection ToggleGroup has at most one value selected',
+         value == null || initialValue == null,
+         'Give value (controlled) or initialValue (uncontrolled), not both',
        );
 
   /// A group where any number of items may be selected.
   const ToggleGroup.multiple({
     super.key,
-    required this.children,
+    required this.items,
     this.values,
     this.initialValues,
-    this.onChanged,
+    this.onValuesChanged,
+    this.allowDeselection = true,
     this.enabled = true,
-    this.toggleVariant = ToggleVariant.primary,
+    this.variant = ToggleVariant.primary,
     this.gap,
     this.axis = Axis.horizontal,
     this.mainAxisSize = MainAxisSize.min,
-  }) : variant = ToggleGroupVariant.multiple,
-       allowDeselection = true,
+  }) : _multiple = true,
+       value = null,
+       initialValue = null,
+       onChanged = null,
        assert(
          values == null || initialValues == null,
          'Give values (controlled) or initialValues (uncontrolled), not both',
        );
 
-  /// Whether one or many items can be selected. Set by the constructor:
-  /// [ToggleGroupVariant.single] for [ToggleGroup.new] and
-  /// [ToggleGroupVariant.multiple] for [ToggleGroup.multiple].
-  final ToggleGroupVariant variant;
+  /// Whether the group was made by [ToggleGroup.multiple].
+  final bool _multiple;
 
   /// The visual style shared by every toggle in the group.
-  final ToggleVariant toggleVariant;
+  final ToggleVariant variant;
 
   /// The items in the group.
-  final List<ToggleGroupItem<T>> children;
+  final List<ToggleGroupItem<T>> items;
 
-  /// The selected values, for a controlled group: a tap changes nothing
-  /// until the parent passes the new set back.
+  /// The selected value of a single-selection group, for a controlled
+  /// group: a tap changes nothing until the parent passes the new value
+  /// back. Null leaves the selection to the group, from [initialValue].
+  final T? value;
+
+  /// The value selected at first, for a single-selection group that keeps
+  /// its own selection. Give this or [value], not both.
+  final T? initialValue;
+
+  /// Called with what the selection of a single-selection group becomes
+  /// when an item is tapped: its value, or null when the selected item is
+  /// tapped again and [allowDeselection] is true. Null disables the group.
+  final ValueChanged<T?>? onChanged;
+
+  /// The selected values of a [ToggleGroup.multiple], for a controlled
+  /// group: a tap changes nothing until the parent passes the new set back.
   final Set<T>? values;
 
-  /// The values selected at first, for a group that keeps its own
-  /// selection. Give this or [values], not both.
+  /// The values selected at first, for a [ToggleGroup.multiple] that keeps
+  /// its own selection. Give this or [values], not both.
   final Set<T>? initialValues;
 
-  /// Called with what the selection becomes when an item is tapped.
-  final ValueChanged<Set<T>>? onChanged;
+  /// Called with what the selection of a [ToggleGroup.multiple] becomes
+  /// when an item is tapped. Null disables the group.
+  final ValueChanged<Set<T>>? onValuesChanged;
 
-  /// Whether tapping the selected item of a single-variant group clears it.
+  /// Whether the selection may become empty: whether tapping the only
+  /// selected item clears it.
   final bool allowDeselection;
 
-  /// Whether the whole group responds to input.
+  /// Whether the whole group responds to input. A group with no callback
+  /// does not either.
   final bool enabled;
 
   /// The gap between items, 4 by default.
@@ -434,28 +443,54 @@ class ToggleGroup<T> extends StatefulWidget {
 
 class _ToggleGroupState<T> extends State<ToggleGroup<T>> {
   /// The selection of a group that keeps its own.
-  late Set<T> _own = {...?widget.initialValues};
+  late Set<T> _own = widget._multiple
+      ? {...?widget.initialValues}
+      : {?widget.initialValue};
 
-  Set<T> get _values => widget.values ?? _own;
+  bool get _controlled =>
+      widget._multiple ? widget.values != null : widget.value != null;
+
+  Set<T> get _values => widget._multiple
+      ? (widget.values ?? _own)
+      : (widget.value == null ? _own : {widget.value as T});
+
+  @override
+  void didUpdateWidget(ToggleGroup<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // A value taken away by the parent is an empty selection, as in a
+    // `Select`: the group does not fall back on what it held before.
+    if (!widget._multiple && widget.value != oldWidget.value) {
+      _own = {?widget.value};
+    }
+  }
+
+  bool get _enabled =>
+      widget.enabled &&
+      (widget._multiple
+          ? widget.onValuesChanged != null
+          : widget.onChanged != null);
 
   /// Selects [item], or takes it out of the selection.
   ///
-  /// In a single-selection group, selecting an item replaces the selection,
-  /// and tapping the selected item clears it only when deselection is
+  /// In a single-selection group, selecting an item replaces the selection.
+  /// Either way, the only selected item is cleared only when deselection is
   /// allowed.
   void _toggle(T item) {
     final current = _values;
     final selected = current.contains(item);
+    if (selected && current.length == 1 && !widget.allowDeselection) return;
     final Set<T> next;
-    switch (widget.variant) {
-      case ToggleGroupVariant.single:
-        if (selected && !widget.allowDeselection) return;
-        next = selected ? {} : {item};
-      case ToggleGroupVariant.multiple:
-        next = selected ? ({...current}..remove(item)) : {...current, item};
+    if (widget._multiple) {
+      next = selected ? ({...current}..remove(item)) : {...current, item};
+    } else {
+      next = selected ? {} : {item};
     }
-    if (widget.values == null) setState(() => _own = next);
-    widget.onChanged?.call(next);
+    if (!_controlled) setState(() => _own = next);
+    if (widget._multiple) {
+      widget.onValuesChanged?.call(next);
+    } else {
+      widget.onChanged?.call(next.isEmpty ? null : next.single);
+    }
   }
 
   @override
@@ -466,7 +501,7 @@ class _ToggleGroupState<T> extends State<ToggleGroup<T>> {
     // Without a gap the items are one bar: joined corners, shared edges.
     final joined = effectiveGap == 0;
     final items = <Widget>[];
-    for (var i = 0; i < widget.children.length; i++) {
+    for (var i = 0; i < widget.items.length; i++) {
       if (i > 0 && !joined) {
         items.add(
           widget.axis == Axis.horizontal
@@ -474,12 +509,12 @@ class _ToggleGroupState<T> extends State<ToggleGroup<T>> {
               : SizedBox(height: effectiveGap),
         );
       }
-      final item = widget.children[i];
+      final item = widget.items[i];
       items.add(
         Toggle(
-          variant: widget.toggleVariant,
+          variant: widget.variant,
           value: _values.contains(item.value),
-          enabled: widget.enabled && item.enabled,
+          enabled: _enabled && item.enabled,
           onChanged: (_) => _toggle(item.value),
           leading: item.leading,
           semanticLabel: item.semanticLabel,
@@ -488,7 +523,7 @@ class _ToggleGroupState<T> extends State<ToggleGroup<T>> {
       );
     }
 
-    final toggleTheme = switch (widget.toggleVariant) {
+    final toggleTheme = switch (widget.variant) {
       ToggleVariant.primary => Theme.of(context).toggleTheme,
       ToggleVariant.outline => Theme.of(context).outlineToggleTheme,
     };

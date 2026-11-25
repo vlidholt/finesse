@@ -22,7 +22,7 @@ import 'package:flutter/widgets.dart';
 /// It is the counterpart of `DatePicker`. In the popover the time is typed
 /// and taken as it is typed. In the sheet the wheels turn a draft:
 /// Done reports it, Cancel — or a tap outside — leaves the time as it was,
-/// and with [allowClear] there is a Clear that reports null.
+/// and with [allowDeselection] there is a Clear that reports null.
 ///
 /// [presentation] forces one or the other. The trigger is a field, or the
 /// button [variant] names; [triggerBuilder] replaces it.
@@ -40,7 +40,7 @@ class TimePicker extends StatefulWidget {
     this.placeholder,
     this.title,
     this.formatTime,
-    this.allowClear = false,
+    this.allowDeselection,
     this.leading,
     this.trailing,
     this.variant,
@@ -93,8 +93,9 @@ class TimePicker extends StatefulWidget {
   /// `2:05 PM`, by [use24HourFormat].
   final String Function(TimeOfDay time)? formatTime;
 
-  /// Whether the sheet offers to clear the time.
-  final bool allowClear;
+  /// Whether the time can be cleared: the sheet offers a Clear that
+  /// reports null. Defaults to the theme's, which is true.
+  final bool? allowDeselection;
 
   /// The widget before the time. Defaults to a clock.
   final Widget? leading;
@@ -210,7 +211,9 @@ class _TimePickerState extends State<TimePicker> {
         max: widget.max,
         showSeconds: widget.showSeconds,
         use24HourFormat: widget.use24HourFormat,
-        allowClear: widget.allowClear && value != null,
+        allowClear:
+            (widget.allowDeselection ?? picker.allowDeselection ?? true) &&
+            value != null,
         onDone: (time) {
           close();
           if (time != value) widget.onChanged?.call(time);

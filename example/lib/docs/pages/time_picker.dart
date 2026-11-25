@@ -30,7 +30,8 @@ final timePickerDoc = ComponentDoc(
           '`PickerPresentation.sheet` shows on any screen what a phone '
           'gets. The wheels turn a draft: Done reports it, Cancel or a '
           'tap outside drops it. `minuteInterval`, `min` and `max` shape '
-          'the wheels and `allowClear` adds Clear.',
+          'the wheels, and Clear empties the time unless '
+          '`allowDeselection` is false.',
       builder: (_) => const TimePickerSheetExample(),
     ),
     ComponentExample(

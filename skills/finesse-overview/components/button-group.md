@@ -166,10 +166,10 @@ class _ButtonGroupVerticalExampleState
         // A toggle group with no gap is joined the same way.
         ToggleGroup<String>.multiple(
           gap: 0,
-          toggleVariant: ToggleVariant.outline,
+          variant: ToggleVariant.outline,
           values: _marks,
-          onChanged: (marks) => setState(() => _marks = marks),
-          children: const [
+          onValuesChanged: (marks) => setState(() => _marks = marks),
+          items: const [
             ToggleGroupItem(
               value: 'bold',
               semanticLabel: 'Bold',

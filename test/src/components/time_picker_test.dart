@@ -11,7 +11,7 @@ class _Host extends StatefulWidget {
   const _Host({
     this.initial,
     this.presentation = PickerPresentation.auto,
-    this.allowClear = false,
+    this.allowDeselection,
     this.minuteInterval = 1,
     this.use24HourFormat = true,
     this.controller,
@@ -21,7 +21,7 @@ class _Host extends StatefulWidget {
 
   final TimeOfDay? initial;
   final PickerPresentation presentation;
-  final bool allowClear;
+  final bool? allowDeselection;
   final int minuteInterval;
   final bool use24HourFormat;
   final PopoverController? controller;
@@ -41,7 +41,7 @@ class _HostState extends State<_Host> {
       child: TimePicker(
         value: value,
         presentation: widget.presentation,
-        allowClear: widget.allowClear,
+        allowDeselection: widget.allowDeselection,
         minuteInterval: widget.minuteInterval,
         use24HourFormat: widget.use24HourFormat,
         controller: widget.controller,
@@ -275,12 +275,10 @@ void main() {
     testWidgets('Clear reports null, when there is something to clear', (
       tester,
     ) async {
+      // Offered by default, as the date picker's is.
       await pumpFinesse(
         tester,
-        const _Host(
-          initial: TimeOfDay(hour: 7, minute: 45),
-          allowClear: true,
-        ),
+        const _Host(initial: TimeOfDay(hour: 7, minute: 45)),
         formFactor: FormFactor.mobile,
       );
       await open(tester);
@@ -288,6 +286,19 @@ void main() {
       await rest(tester);
       expect(host(tester).changes, [null]);
       expect(find.text('Select time'), findsOneWidget);
+      await open(tester);
+      expect(find.widgetWithText(Button, 'Clear'), findsNothing);
+    });
+
+    testWidgets('allowDeselection false offers no Clear', (tester) async {
+      await pumpFinesse(
+        tester,
+        const _Host(
+          initial: TimeOfDay(hour: 7, minute: 45),
+          allowDeselection: false,
+        ),
+        formFactor: FormFactor.mobile,
+      );
       await open(tester);
       expect(find.widgetWithText(Button, 'Clear'), findsNothing);
     });
@@ -405,7 +416,7 @@ void main() {
         (_) => const _Host(
           initial: TimeOfDay(hour: 7, minute: 45),
           use24HourFormat: false,
-          allowClear: true,
+          allowDeselection: true,
         ),
         check: (layout) async {
           await open(tester);
@@ -431,7 +442,7 @@ void main() {
           child: _Host(
             initial: TimeOfDay(hour: 7, minute: 45),
             use24HourFormat: false,
-            allowClear: true,
+            allowDeselection: true,
             presentation: PickerPresentation.sheet,
           ),
         ),

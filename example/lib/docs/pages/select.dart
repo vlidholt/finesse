@@ -35,7 +35,8 @@ final selectDoc = ComponentDoc(
       id: 'select_multiple',
       title: 'Multiple, in a sheet',
       description:
-          '`Select.multipleWithSearch` with `values` and `onChanged`. '
+          '`Select.multipleWithSearch` with `values` and '
+          '`onValuesChanged`. '
           '`PickerPresentation.auto`, the default, opens the sheet on a '
           'phone and a popover on a desktop; a plain single select stays '
           'a popover everywhere.',

@@ -61,8 +61,8 @@ class TimePickerFormField extends FinesseFormField<TimeOfDay> {
     /// Turns the time into the button's text.
     String Function(TimeOfDay time)? formatTime,
 
-    /// Whether the sheet offers to clear the time.
-    bool allowClear = false,
+    /// Whether the time can be cleared. Defaults to the theme's.
+    bool? allowDeselection,
 
     /// The widget before the time.
     Widget? leading,
@@ -97,7 +97,7 @@ class TimePickerFormField extends FinesseFormField<TimeOfDay> {
              placeholder: placeholder,
              title: title,
              formatTime: formatTime,
-             allowClear: allowClear,
+             allowDeselection: allowDeselection,
              leading: leading,
              trailing: trailing,
              variant: variant,

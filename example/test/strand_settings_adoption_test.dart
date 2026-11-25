@@ -398,8 +398,10 @@ void main() {
     expect(group, findsOneWidget);
     final widget = tester.widget<ChipGroup<SettingsSection>>(group);
     expect(widget.wrap, isFalse);
-    expect(widget.multiple, isFalse);
-    expect(widget.allowEmpty, isFalse);
+    // The unnamed constructor holds one value.
+    expect(widget.onChanged, isNotNull);
+    expect(widget.onValuesChanged, isNull);
+    expect(widget.allowDeselection, isFalse);
 
     await tester.tap(find.widgetWithText(Chip, 'Privacy'));
     await settleFrames(tester, frames: 4);

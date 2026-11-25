@@ -34,13 +34,13 @@ class ChipGroupItem<T> {
   final String? semanticLabel;
 }
 
-/// A set of chips of which some are chosen: filters above a list, the
-/// choices of a field.
+/// A set of chips of which one or some are chosen: filters above a list,
+/// the choices of a field.
 ///
 /// ```dart
-/// ChipGroup<String>(
+/// ChipGroup<String>.multiple(
 ///   values: _filters,
-///   onChanged: (values) => setState(() => _filters = values),
+///   onValuesChanged: (values) => setState(() => _filters = values),
 ///   items: const [
 ///     ChipGroupItem(value: 'remote', label: Text('Remote')),
 ///     ChipGroupItem(value: 'full', label: Text('Full-time')),
@@ -48,9 +48,12 @@ class ChipGroupItem<T> {
 /// )
 /// ```
 ///
-/// It is controlled: [values] are the chosen chips and [onChanged] reports
-/// the set a tap would make. With [multiple] false it holds at most one,
-/// and with [allowEmpty] false the last chosen chip cannot be unchosen.
+/// It is controlled. The unnamed constructor holds one chosen chip:
+/// [value], reported through [onChanged]. [ChipGroup.multiple] holds a set:
+/// [values], reported through [onValuesChanged]. Either way the callback
+/// gets what a tap would make of the selection and the parent decides;
+/// with no callback the group is disabled. With [allowDeselection] false
+/// the last chosen chip cannot be unchosen.
 ///
 /// By default the chips wrap onto as many rows as they need. With [wrap]
 /// false they stay on one row that scrolls sideways, fading at an edge
@@ -65,13 +68,12 @@ class ChipGroupItem<T> {
 /// The group is one Tab stop; the arrow keys, Home and End move the focus
 /// between its chips. [leading] and [trailing] are Tab stops of their own.
 class ChipGroup<T> extends StatefulWidget {
-  /// Creates a group of chips.
+  /// Creates a group of chips of which at most one is chosen.
   const ChipGroup({
     required this.items,
-    required this.values,
+    this.value,
     required this.onChanged,
-    this.multiple = true,
-    this.allowEmpty = true,
+    this.allowDeselection = true,
     this.wrap = true,
     this.showCheckmark,
     this.variant = ChipVariant.outline,
@@ -81,23 +83,53 @@ class ChipGroup<T> extends StatefulWidget {
     this.leading,
     this.trailing,
     super.key,
-  });
+  }) : _multiple = false,
+       values = const {},
+       onValuesChanged = null;
+
+  /// Creates a group of chips of which any number are chosen.
+  const ChipGroup.multiple({
+    required this.items,
+    required this.values,
+    required this.onValuesChanged,
+    this.allowDeselection = true,
+    this.wrap = true,
+    this.showCheckmark,
+    this.variant = ChipVariant.outline,
+    this.alignment = WrapAlignment.start,
+    this.padding,
+    this.semanticLabel,
+    this.leading,
+    this.trailing,
+    super.key,
+  }) : _multiple = true,
+       value = null,
+       onChanged = null;
+
+  /// Whether the group was made by [ChipGroup.multiple].
+  final bool _multiple;
 
   /// The chips, in order.
   final List<ChipGroupItem<T>> items;
 
-  /// The values of the chosen chips.
+  /// The value of the chosen chip, or null for none.
+  final T? value;
+
+  /// Called with the value of the chip a tap chooses, or with null when
+  /// the chosen chip is tapped again and [allowDeselection] is true. Null
+  /// disables the group.
+  final ValueChanged<T?>? onChanged;
+
+  /// The values of the chosen chips of a [ChipGroup.multiple].
   final Set<T> values;
 
-  /// Called with the new set when a chip is tapped. Null disables the
-  /// group.
-  final ValueChanged<Set<T>>? onChanged;
+  /// Called with the new set when a chip of a [ChipGroup.multiple] is
+  /// tapped. Null disables the group.
+  final ValueChanged<Set<T>>? onValuesChanged;
 
-  /// Whether more than one chip can be chosen at a time.
-  final bool multiple;
-
-  /// Whether the set may be left empty.
-  final bool allowEmpty;
+  /// Whether the selection may become empty: whether the last chosen chip
+  /// can be unchosen.
+  final bool allowDeselection;
 
   /// Whether the chips wrap onto further rows. False keeps them on one row
   /// that scrolls.
@@ -145,7 +177,7 @@ class _ChipGroupState<T> extends State<ChipGroup<T>> {
     super.initState();
     _syncNodes();
     final first = widget.items.indexWhere(
-      (item) => widget.values.contains(item.value),
+      (item) => _chosen.contains(item.value),
     );
     if (first >= 0) _current = first;
   }
@@ -184,20 +216,30 @@ class _ChipGroupState<T> extends State<ChipGroup<T>> {
     if (_current >= count) _current = count == 0 ? 0 : count - 1;
   }
 
-  bool _enabled(int index) =>
-      widget.onChanged != null && widget.items[index].enabled;
+  /// What is chosen, as a set whichever constructor made the group.
+  Set<T> get _chosen => widget._multiple ? widget.values : {?widget.value};
+
+  bool get _interactive => widget._multiple
+      ? widget.onValuesChanged != null
+      : widget.onChanged != null;
+
+  bool _enabled(int index) => _interactive && widget.items[index].enabled;
 
   void _toggle(ChipGroupItem<T> item) {
-    final values = widget.values;
+    final values = _chosen;
     final chosen = values.contains(item.value);
     final Set<T> next;
     if (chosen) {
-      if (!widget.allowEmpty && values.length == 1) return;
+      if (!widget.allowDeselection && values.length == 1) return;
       next = {...values}..remove(item.value);
     } else {
-      next = widget.multiple ? {...values, item.value} : {item.value};
+      next = widget._multiple ? {...values, item.value} : {item.value};
     }
-    widget.onChanged?.call(next);
+    if (widget._multiple) {
+      widget.onValuesChanged?.call(next);
+    } else {
+      widget.onChanged?.call(next.firstOrNull);
+    }
   }
 
   /// Moves the focus [step] chips on, skipping the ones that cannot take
@@ -258,7 +300,7 @@ class _ChipGroupState<T> extends State<ChipGroup<T>> {
               label: item.label,
               leading: item.leading,
               semanticLabel: item.semanticLabel,
-              selected: widget.values.contains(item.value),
+              selected: _chosen.contains(item.value),
               showCheckmark: widget.showCheckmark,
               variant: widget.variant,
               focusNode: _nodes[index],

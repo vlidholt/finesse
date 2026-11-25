@@ -22,6 +22,7 @@ void main() {
       ),
       const TextField(placeholder: Text('Empty field')),
       Select<String>(
+        onChanged: (_) {},
         initialValue: value,
         placeholder: const Text('Pick one'),
         options: const [

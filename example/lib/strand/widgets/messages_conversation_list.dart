@@ -271,10 +271,9 @@ class _ListHeader extends StatelessWidget {
         ChipGroup<MessageFilter>(
           semanticLabel: 'Show conversations',
           wrap: false,
-          multiple: false,
-          allowEmpty: false,
-          values: {controller.filter},
-          onChanged: (values) => controller.filter = values.single,
+          allowDeselection: false,
+          value: controller.filter,
+          onChanged: (filter) => controller.filter = filter!,
           items: [
             for (final filter in MessageFilter.values)
               ChipGroupItem(

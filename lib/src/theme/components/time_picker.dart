@@ -17,6 +17,7 @@ class TimePickerTheme with _$TimePickerTheme {
     this.width,
     this.popoverPadding,
     this.anchor,
+    this.allowDeselection,
     this.sheetWheelItems,
   }) : _canMerge = canMerge;
 
@@ -37,6 +38,9 @@ class TimePickerTheme with _$TimePickerTheme {
 
   /// Where the popover sits against the button.
   final AnchorBase? anchor;
+
+  /// Whether the time can be cleared: the sheet offers a Clear.
+  final bool? allowDeselection;
 
   /// How many rows of the wheels show in the sheet.
   final int? sheetWheelItems;

@@ -38,6 +38,7 @@ void main() {
         tester,
         Center(
           child: Select<String>(
+            onChanged: (_) {},
             initialValue: 'Cherry',
             placeholder: const Text('A fruit'),
             options: _options(),
@@ -67,6 +68,7 @@ void main() {
         tester,
         Center(
           child: Select<String>.multiple(
+            onValuesChanged: (_) {},
             initialValues: const {'Apple', 'Grape'},
             placeholder: const Text('Fruit'),
             options: _options(),
@@ -130,7 +132,7 @@ void main() {
               values: values,
               placeholder: const Text('Fruit'),
               closeOnSelect: false,
-              onChanged: (v) => setState(() => values = v),
+              onValuesChanged: (v) => setState(() => values = v),
               options: _options(),
             ),
           ),
@@ -157,7 +159,7 @@ void main() {
               builder: (context, setState) => Select<String>.multiple(
                 placeholder: const Text('Fruit'),
                 initialValues: constant ? const {'Apple'} : {'Apple'},
-                onChanged: (values) => setState(() => reported = values),
+                onValuesChanged: (values) => setState(() => reported = values),
                 options: _options(),
               ),
             ),
@@ -182,6 +184,7 @@ void main() {
         tester,
         Center(
           child: Select<String>.withSearch(
+            onChanged: (_) {},
             placeholder: const Text('City'),
             search: TextField(
               controller: search,
@@ -215,6 +218,7 @@ void main() {
         tester,
         Center(
           child: Select<String>.withSearch(
+            onChanged: (_) {},
             placeholder: const Text('Fruit'),
             onSearchChanged: (_) {},
             options: _options(),
@@ -251,7 +255,7 @@ void main() {
         searchPlaceholder: const Text('Search fruit'),
         closeOnSelect: false,
         onSearchChanged: (_) {},
-        onChanged: onChanged ?? (_) {},
+        onValuesChanged: onChanged ?? (_) {},
         options: _options(),
       ),
     );
@@ -349,6 +353,7 @@ void main() {
         tester,
         Center(
           child: Select<String>(
+            onChanged: (_) {},
             placeholder: const Text('A fruit'),
             options: _options(),
           ),
@@ -365,6 +370,7 @@ void main() {
         tester,
         Center(
           child: Select<String>(
+            onChanged: (_) {},
             presentation: PickerPresentation.sheet,
             placeholder: const Text('A fruit'),
             options: _options(),
@@ -397,6 +403,7 @@ void main() {
         tester,
         Center(
           child: Select<String>.multiple(
+            onValuesChanged: (_) {},
             controller: controller,
             placeholder: const Text('Fruit'),
             options: _options(),

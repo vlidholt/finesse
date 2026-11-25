@@ -10,14 +10,14 @@ class ToggleGroupBasicExample extends StatefulWidget {
 }
 
 class _ToggleGroupBasicExampleState extends State<ToggleGroupBasicExample> {
-  Set<String> alignment = {'left'};
+  String? alignment = 'left';
 
   @override
   Widget build(BuildContext context) {
     return ToggleGroup<String>(
-      values: alignment,
-      onChanged: (values) => setState(() => alignment = values),
-      children: const [
+      value: alignment,
+      onChanged: (value) => setState(() => alignment = value),
+      items: const [
         ToggleGroupItem(
           value: 'left',
           semanticLabel: 'Align left',

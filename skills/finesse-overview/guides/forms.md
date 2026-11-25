@@ -154,7 +154,9 @@ class _SignUpState extends State<SignUp> {
 | `TextField`, `Textarea` | `TextFormField` (and `TextFormField.password`), `TextareaFormField` |
 | `Autocomplete`, `TagField`, `NumberField`, `OtpField` | `AutocompleteFormField`, `TagFormField`, `NumberFormField`, `OtpFormField` |
 | `Checkbox`, `Switch` | `CheckboxFormField`, `SwitchFormField` |
-| `FinesseRadioGroup`, `SegmentedControl`, `ToggleGroup`, `ChipGroup` | `RadioGroupFormField`, `SegmentedControlFormField`, `ToggleGroupFormField`, `ChipGroupFormField` |
+| `FinesseRadioGroup`, `SegmentedControl` | `RadioGroupFormField`, `SegmentedControlFormField` |
+| `ToggleGroup`, `ToggleGroup.multiple` | `ToggleGroupFormField`, `ToggleGroupMultipleFormField` |
+| `ChipGroup`, `ChipGroup.multiple` | `ChipGroupFormField`, `ChipGroupMultipleFormField` |
 | `Select`, `Select.multiple` | `SelectFormField`, `SelectMultipleFormField` (both with `.withSearch`) |
 | `Slider`, `RangeSlider`, `Rating` | `SliderFormField`, `RangeSliderFormField`, `RatingFormField` |
 | `DatePicker`, `DateRangePicker`, `DateField` | `DatePickerFormField`, `DateRangePickerFormField`, `DateFormField` |

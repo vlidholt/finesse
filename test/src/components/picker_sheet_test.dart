@@ -95,7 +95,7 @@ void main() {
       Center(
         child: TimePicker(
           value: const TimeOfDay(hour: 9, minute: 30),
-          allowClear: true,
+          allowDeselection: true,
           onChanged: (_) {},
         ),
       ),

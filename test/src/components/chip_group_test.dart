@@ -10,7 +10,7 @@ class _Host extends StatefulWidget {
   const _Host({
     this.initial = const {},
     this.multiple = true,
-    this.allowEmpty = true,
+    this.allowDeselection = true,
     this.wrap = true,
     this.count = 4,
     this.disabled = const {},
@@ -22,7 +22,7 @@ class _Host extends StatefulWidget {
 
   final Set<int> initial;
   final bool multiple;
-  final bool allowEmpty;
+  final bool allowDeselection;
   final bool wrap;
   final int count;
   final Set<int> disabled;
@@ -39,33 +39,47 @@ class _HostState extends State<_Host> {
   late Set<int> values = widget.initial;
   final changes = <Set<int>>[];
 
+  void _changed(Set<int> v) {
+    changes.add(v);
+    setState(() => values = v);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final items = [
+      for (var i = 0; i < widget.count; i++)
+        ChipGroupItem(
+          value: i,
+          label: Text('c$i'),
+          enabled: !widget.disabled.contains(i),
+        ),
+    ];
     return Center(
       child: SizedBox(
         width: widget.width,
-        child: ChipGroup<int>(
-          semanticLabel: 'Filters',
-          values: values,
-          multiple: widget.multiple,
-          allowEmpty: widget.allowEmpty,
-          wrap: widget.wrap,
-          showCheckmark: widget.showCheckmark,
-          leading: widget.leading,
-          trailing: widget.trailing,
-          onChanged: (v) {
-            changes.add(v);
-            setState(() => values = v);
-          },
-          items: [
-            for (var i = 0; i < widget.count; i++)
-              ChipGroupItem(
-                value: i,
-                label: Text('c$i'),
-                enabled: !widget.disabled.contains(i),
+        child: widget.multiple
+            ? ChipGroup<int>.multiple(
+                semanticLabel: 'Filters',
+                values: values,
+                allowDeselection: widget.allowDeselection,
+                wrap: widget.wrap,
+                showCheckmark: widget.showCheckmark,
+                leading: widget.leading,
+                trailing: widget.trailing,
+                onValuesChanged: _changed,
+                items: items,
+              )
+            : ChipGroup<int>(
+                semanticLabel: 'Filters',
+                value: values.firstOrNull,
+                allowDeselection: widget.allowDeselection,
+                wrap: widget.wrap,
+                showCheckmark: widget.showCheckmark,
+                leading: widget.leading,
+                trailing: widget.trailing,
+                onChanged: (v) => _changed({?v}),
+                items: items,
               ),
-          ],
-        ),
       ),
     );
   }
@@ -379,10 +393,12 @@ void main() {
       expect(chip(tester, 1).selected, isFalse);
     });
 
-    testWidgets('allowEmpty false keeps the last one chosen', (tester) async {
+    testWidgets('allowDeselection false keeps the last one chosen', (
+      tester,
+    ) async {
       await pumpFinesse(
         tester,
-        const _Host(initial: {1}, multiple: false, allowEmpty: false),
+        const _Host(initial: {1}, multiple: false, allowDeselection: false),
       );
       await tester.tap(find.text('c1'));
       await settle(tester);
@@ -407,7 +423,6 @@ void main() {
         tester,
         const Center(
           child: ChipGroup<int>(
-            values: {},
             onChanged: null,
             items: [ChipGroupItem(value: 0, label: Text('only'))],
           ),

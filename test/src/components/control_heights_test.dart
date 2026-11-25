@@ -87,6 +87,7 @@ void main() {
                     SizedBox(
                       width: 140,
                       child: Select<String>(
+                        onChanged: (_) {},
                         placeholder: const Text('Pick'),
                         options: const [
                           SelectOption(value: 'a', child: Text('A')),
@@ -308,6 +309,7 @@ void main() {
                     SizedBox(
                       width: 140,
                       child: Select<String>(
+                        onChanged: (_) {},
                         placeholder: const Text('Pick'),
                         options: const [
                           SelectOption(value: 'a', child: Text('A')),

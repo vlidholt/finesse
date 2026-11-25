@@ -17,6 +17,7 @@ void main() {
   );
 
   Widget select(GlobalKey<SelectState<String>> key) => Select<String>(
+    onChanged: (_) {},
     key: key,
     placeholder: const Text('Pick one'),
     maxHeight: 120,

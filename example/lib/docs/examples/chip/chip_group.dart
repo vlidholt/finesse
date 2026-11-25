@@ -27,10 +27,10 @@ class _ChipGroupExampleState extends State<ChipGroupExample> {
   Widget build(BuildContext context) {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 420),
-      child: ChipGroup<String>(
+      child: ChipGroup<String>.multiple(
         semanticLabel: 'Toppings',
         values: chosen,
-        onChanged: (values) => setState(() => chosen = values),
+        onValuesChanged: (values) => setState(() => chosen = values),
         showCheckmark: true,
         alignment: WrapAlignment.center,
         items: [

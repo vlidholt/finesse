@@ -43,6 +43,17 @@ own default look and its own rules.
     non-null `value` is controlled, null means the widget's own state. A
     `controller` exists only where there is more to do than hold the value
     (open and close, scroll, text editing).
+  - Choosing from a set: the unnamed constructor holds one value (`value`,
+    `initialValue`, `onChanged`) and `.multiple` a set (`values`,
+    `initialValues`, `onValuesChanged`) — `Select`, `Calendar`,
+    `ToggleGroup`, `ChipGroup`, and their form fields are two classes
+    (`SelectFormField`/`SelectMultipleFormField`, and so on). A widget
+    with only a list value keeps `onChanged` (`RangeSlider.values`,
+    `TagField`). `allowDeselection` says whether the selection may become
+    empty, on pickers too (`DatePicker`, `TimePicker`, from their themes).
+    **A null callback disables the control** — `Button`, `IconButton`,
+    `Toggle`, `Chip`, `ToggleGroup`, `ChipGroup`, `Select` (unless it has
+    an `onTap`), `SegmentedControl`, the pickers.
   - Open state is `open`, `initiallyOpen`, `onOpenChanged`; every
     controller has `isOpen`, `open()`, `close()`, `toggle()`,
     `setOpen(bool)`.
@@ -1706,7 +1717,7 @@ disco providers in `common/app_state.dart`, provided above `FinesseApp`.
   `Clip.antiAliasWithSaveLayer` cost a save layer and a filter per card.
   A story's name sits on a scrim with no filter (`home_stories.dart`).
 - **A row of chips choosing one of several** is a
-  `ChipGroup(multiple: false, allowEmpty: false, wrap: false)`, which
+  `ChipGroup(value:, allowDeselection: false, wrap: false)`, which
   fades at the edge it scrolls beyond; an action held at the start or end
   of the row ("All filters", "Filters") is `ChipGroup.leading`/`trailing`,
   outside the choices and the scroll view, with Tab stops of its own (it

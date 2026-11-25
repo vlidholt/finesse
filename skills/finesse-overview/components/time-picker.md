@@ -34,7 +34,7 @@ class _TimePickerBasicExampleState extends State<TimePickerBasicExample> {
 
 ## Wheels in a sheet
 
-`PickerPresentation.sheet` shows on any screen what a phone gets. The wheels turn a draft: Done reports it, Cancel or a tap outside drops it. `minuteInterval`, `min` and `max` shape the wheels and `allowClear` adds Clear.
+`PickerPresentation.sheet` shows on any screen what a phone gets. The wheels turn a draft: Done reports it, Cancel or a tap outside drops it. `minuteInterval`, `min` and `max` shape the wheels, and Clear empties the time unless `allowDeselection` is false.
 
 ```dart
 import 'package:finesse/finesse.dart';
@@ -64,7 +64,6 @@ class _TimePickerSheetExampleState extends State<TimePickerSheetExample> {
       minuteInterval: 5,
       min: const TimeOfDay(hour: 11, minute: 30),
       max: const TimeOfDay(hour: 22, minute: 0),
-      allowClear: true,
     );
   }
 }

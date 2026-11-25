@@ -31,10 +31,9 @@ class _ChipGroupScrollExampleState extends State<ChipGroupScrollExample> {
       constraints: const BoxConstraints(maxWidth: 360),
       child: ChipGroup<String>(
         semanticLabel: 'Show',
-        values: {filter},
-        onChanged: (values) => setState(() => filter = values.single),
-        multiple: false,
-        allowEmpty: false,
+        value: filter,
+        onChanged: (value) => setState(() => filter = value!),
+        allowDeselection: false,
         wrap: false,
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
         leading: Padding(

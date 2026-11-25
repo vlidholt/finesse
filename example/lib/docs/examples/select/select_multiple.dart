@@ -41,7 +41,7 @@ class _SelectMultipleExampleState extends State<SelectMultipleExample> {
         placeholder: const Text('Skills'),
         searchPlaceholder: const Text('Search skills'),
         values: skills,
-        onChanged: (values) => setState(() => skills = values),
+        onValuesChanged: (values) => setState(() => skills = values),
         onSearchChanged: (value) => setState(() => query = value),
         allowDeselection: true,
         options: [

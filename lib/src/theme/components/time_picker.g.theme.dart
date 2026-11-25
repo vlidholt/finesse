@@ -38,6 +38,7 @@ mixin _$TimePickerTheme {
         t,
       ),
       anchor: t < 0.5 ? a.anchor : b.anchor,
+      allowDeselection: t < 0.5 ? a.allowDeselection : b.allowDeselection,
       sheetWheelItems: t < 0.5 ? a.sheetWheelItems : b.sheetWheelItems,
     );
   }
@@ -47,6 +48,7 @@ mixin _$TimePickerTheme {
     double? width,
     EdgeInsetsGeometry? popoverPadding,
     AnchorBase? anchor,
+    bool? allowDeselection,
     int? sheetWheelItems,
   }) {
     final _this = (this as TimePickerTheme);
@@ -56,6 +58,7 @@ mixin _$TimePickerTheme {
       width: width ?? _this.width,
       popoverPadding: popoverPadding ?? _this.popoverPadding,
       anchor: anchor ?? _this.anchor,
+      allowDeselection: allowDeselection ?? _this.allowDeselection,
       sheetWheelItems: sheetWheelItems ?? _this.sheetWheelItems,
     );
   }
@@ -76,6 +79,7 @@ mixin _$TimePickerTheme {
       width: other.width,
       popoverPadding: other.popoverPadding,
       anchor: other.anchor,
+      allowDeselection: other.allowDeselection,
       sheetWheelItems: other.sheetWheelItems,
     );
   }
@@ -97,6 +101,7 @@ mixin _$TimePickerTheme {
         _other.width == _this.width &&
         _other.popoverPadding == _this.popoverPadding &&
         _other.anchor == _this.anchor &&
+        _other.allowDeselection == _this.allowDeselection &&
         _other.sheetWheelItems == _this.sheetWheelItems;
   }
 
@@ -110,6 +115,7 @@ mixin _$TimePickerTheme {
       _this.width,
       _this.popoverPadding,
       _this.anchor,
+      _this.allowDeselection,
       _this.sheetWheelItems,
     );
   }

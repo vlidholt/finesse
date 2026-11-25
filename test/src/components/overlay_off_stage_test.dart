@@ -92,6 +92,7 @@ void main() {
         'a Select': (
           controller: PopoverController.new,
           build: (controller) => Select<String>(
+            onChanged: (_) {},
             controller: controller as PopoverController,
             placeholder: const Text('Pick'),
             options: const [

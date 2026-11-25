@@ -898,6 +898,7 @@ void main() {
           Align(
             alignment: const Alignment(0, -.6),
             child: Select<String>(
+              onChanged: (_) {},
               placeholder: const Text('Fruit'),
               options: const [
                 SelectOption(value: 'apple', child: Text('Apple')),

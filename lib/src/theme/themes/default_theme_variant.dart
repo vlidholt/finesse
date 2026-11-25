@@ -2732,6 +2732,7 @@ class DefaultThemeVariant extends ThemeVariant {
   TimePickerTheme timePickerTheme() {
     return TimePickerTheme(
       popoverPadding: EdgeInsets.all(scaled(style.popoverPadding)),
+      allowDeselection: true,
       sheetWheelItems: 5,
     );
   }

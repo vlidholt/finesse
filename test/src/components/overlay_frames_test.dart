@@ -348,6 +348,7 @@ void main() {
       _app(
         Center(
           child: Select<String>(
+            onChanged: (_) {},
             placeholder: const Text('Pick'),
             options: const [
               SelectOption(value: 'a', child: Text('Apple')),

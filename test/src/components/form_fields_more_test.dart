@@ -143,22 +143,21 @@ void main() {
     });
   });
 
-  group('ChipGroupFormField', () {
-    Widget field({bool enabled = true, bool multiple = true}) =>
-        ChipGroupFormField<String>(
-          id: 'interests',
-          label: const Text('Interests'),
-          enabled: enabled,
-          multiple: multiple,
-          initialValue: const {'data'},
-          items: const [
-            ChipGroupItem(value: 'design', label: Text('Design')),
-            ChipGroupItem(value: 'data', label: Text('Data')),
-            ChipGroupItem(value: 'mobile', label: Text('Mobile')),
-          ],
-          onChanged: changes.add,
-          validator: (chosen) => chosen.length < 2 ? 'Pick two' : null,
-        );
+  group('ChipGroupMultipleFormField', () {
+    const items = [
+      ChipGroupItem(value: 'design', label: Text('Design')),
+      ChipGroupItem(value: 'data', label: Text('Data')),
+      ChipGroupItem(value: 'mobile', label: Text('Mobile')),
+    ];
+    Widget field({bool enabled = true}) => ChipGroupMultipleFormField<String>(
+      id: 'interests',
+      label: const Text('Interests'),
+      enabled: enabled,
+      initialValue: const {'data'},
+      items: items,
+      onChanged: changes.add,
+      validator: (chosen) => chosen.length < 2 ? 'Pick two' : null,
+    );
 
     testWidgets('its value is the set of chosen chips', (tester) async {
       await pumpField(tester, field());
@@ -170,11 +169,25 @@ void main() {
       expect(form.currentState!.validate(), isTrue);
     });
 
-    testWidgets('single choice replaces the chosen chip', (tester) async {
-      await pumpField(tester, field(multiple: false));
+    testWidgets('ChipGroupFormField holds one value, which a tap '
+        'replaces', (tester) async {
+      await pumpField(
+        tester,
+        ChipGroupFormField<String>(
+          id: 'interests',
+          label: const Text('Interests'),
+          initialValue: 'data',
+          items: items,
+          onChanged: changes.add,
+        ),
+      );
       await tester.tap(find.text('Design'));
       await tester.pumpAndSettle();
-      expect(valueOf('interests'), {'design'});
+      expect(valueOf('interests'), 'design');
+      await tester.tap(find.text('Design'));
+      await tester.pumpAndSettle();
+      expect(valueOf('interests'), isNull);
+      expect(changes, ['design', null]);
     });
 
     testWidgets('an invalid choice shows the error and focuses a chip; a '
@@ -182,7 +195,7 @@ void main() {
       await pumpField(tester, field());
       await expectInvalidAndFocused(
         tester,
-        find.byType(ChipGroupFormField<String>),
+        find.byType(ChipGroupMultipleFormField<String>),
         'Pick two',
       );
       await tester.tap(find.text('Design'));

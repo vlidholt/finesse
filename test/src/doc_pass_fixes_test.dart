@@ -68,6 +68,7 @@ void main() {
   testWidgets('a select shows a value written from outside', (tester) async {
     Widget build(String? value) => FinesseApp(
       home: Select<String>(
+        onChanged: (_) {},
         value: value,
         placeholder: const Text('pick'),
         options: const [

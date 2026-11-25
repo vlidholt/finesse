@@ -518,10 +518,10 @@ void main() {
         tester,
         ToggleGroup<String>.multiple(
           gap: 0,
-          toggleVariant: ToggleVariant.outline,
+          variant: ToggleVariant.outline,
           values: const {'b'},
-          onChanged: (_) {},
-          children: const [
+          onValuesChanged: (_) {},
+          items: const [
             ToggleGroupItem(value: 'a', child: Text('A')),
             ToggleGroupItem(value: 'b', child: Text('B')),
             ToggleGroupItem(value: 'c', child: Text('C')),
@@ -541,9 +541,9 @@ void main() {
       await pump(
         tester,
         ToggleGroup<String>.multiple(
-          toggleVariant: ToggleVariant.outline,
-          onChanged: (_) {},
-          children: const [
+          variant: ToggleVariant.outline,
+          onValuesChanged: (_) {},
+          items: const [
             ToggleGroupItem(value: 'a', child: Text('A')),
             ToggleGroupItem(value: 'b', child: Text('B')),
           ],

@@ -46,7 +46,7 @@ class _FormMoreFieldsExampleState extends State<FormMoreFieldsExample> {
               min: DateTime.now(),
               validator: (date) => date == null ? 'Enter a date' : null,
             ),
-            ChipGroupFormField<String>(
+            ChipGroupMultipleFormField<String>(
               id: 'interests',
               label: const Text('Interests'),
               items: const [

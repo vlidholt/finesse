@@ -67,7 +67,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           Accordion.multiple(
-            initialValue: const ['item1'],
+            initialValues: const ['item1'],
             children: const [
               AccordionItem(
                 value: 'item1',

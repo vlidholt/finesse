@@ -299,9 +299,9 @@ void main() {
   group('ToggleGroup', () {
     Widget group(String value) => _app(
       ToggleGroup<String>(
-        values: {value},
+        value: value,
         onChanged: (_) {},
-        children: const [
+        items: const [
           ToggleGroupItem(value: 'a', child: Text('A')),
           ToggleGroupItem(value: 'b', child: Text('B')),
           ToggleGroupItem(value: 'c', child: Text('C')),
@@ -333,8 +333,8 @@ void main() {
         _app(
           ToggleGroup<String>.multiple(
             values: const {'a', 'c'},
-            onChanged: (_) {},
-            children: const [
+            onValuesChanged: (_) {},
+            items: const [
               ToggleGroupItem(value: 'a', child: Text('A')),
               ToggleGroupItem(value: 'b', child: Text('B')),
               ToggleGroupItem(value: 'c', child: Text('C')),

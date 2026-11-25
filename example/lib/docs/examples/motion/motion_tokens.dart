@@ -50,12 +50,12 @@ class _MotionTokensExampleState extends State<MotionTokensExample> {
       spacing: 20,
       children: [
         ToggleGroup<String>(
-          values: {choice},
+          value: choice,
           // One vocabulary is always chosen: without this, tapping the
           // selected item would clear the selection.
           allowDeselection: false,
-          onChanged: (values) => choose(values.single),
-          children: [
+          onChanged: (value) => choose(value!),
+          items: [
             for (final name in choices.keys)
               ToggleGroupItem(value: name, child: Text(name)),
           ],

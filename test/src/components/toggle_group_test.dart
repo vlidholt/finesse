@@ -2,7 +2,7 @@ import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// `ToggleGroup` as a controlled value control, and its form field.
+/// `ToggleGroup` as a controlled value control, and its form fields.
 void main() {
   const items = [
     ToggleGroupItem(value: 'a', child: Text('A')),
@@ -26,6 +26,10 @@ void main() {
       if (toggle.value) items[index].value,
   };
 
+  bool allEnabled(WidgetTester tester) => tester
+      .widgetList<Toggle>(find.byType(Toggle))
+      .every((toggle) => toggle.enabled && toggle.onChanged != null);
+
   group('controlled', () {
     testWidgets('a tap is reported and changes nothing until the parent '
         'passes the new values back', (tester) async {
@@ -39,8 +43,8 @@ void main() {
             rebuild = setState;
             return ToggleGroup<String>.multiple(
               values: values,
-              onChanged: reported.add,
-              children: items,
+              onValuesChanged: reported.add,
+              items: items,
             );
           },
         ),
@@ -64,26 +68,91 @@ void main() {
 
     testWidgets('one at a time: a tap replaces, a tap on the selected one '
         'clears it unless that is not allowed', (tester) async {
-      final reported = <Set<String>>[];
+      final reported = <String?>[];
       for (final allow in [true, false]) {
         reported.clear();
         await pump(
           tester,
           ToggleGroup<String>(
-            values: const {'a'},
+            value: 'a',
             allowDeselection: allow,
             onChanged: reported.add,
-            children: items,
+            items: items,
           ),
         );
         await tester.tap(find.text('B'));
         await tester.tap(find.text('A'));
         await tester.pump();
-        expect(reported, [
-          {'b'},
-          if (allow) <String>{},
-        ]);
+        expect(reported, ['b', if (allow) null]);
       }
+    });
+
+    testWidgets('several: the last one stays selected when deselection is '
+        'not allowed', (tester) async {
+      final reported = <Set<String>>[];
+      await pump(
+        tester,
+        ToggleGroup<String>.multiple(
+          values: const {'a'},
+          allowDeselection: false,
+          onValuesChanged: reported.add,
+          items: items,
+        ),
+      );
+      await tester.tap(find.text('A'));
+      await tester.tap(find.text('B'));
+      await tester.pump();
+      expect(reported, [
+        {'a', 'b'},
+      ]);
+    });
+
+    testWidgets('a value taken away by the parent is an empty selection', (
+      tester,
+    ) async {
+      String? value = 'a';
+      late StateSetter rebuild;
+      await pump(
+        tester,
+        StatefulBuilder(
+          builder: (context, setState) {
+            rebuild = setState;
+            return ToggleGroup<String>(
+              value: value,
+              onChanged: (_) {},
+              items: items,
+            );
+          },
+        ),
+      );
+      expect(selected(tester), {'a'});
+      rebuild(() => value = null);
+      await tester.pump();
+      expect(selected(tester), isEmpty);
+    });
+
+    testWidgets('with no callback the group is disabled', (tester) async {
+      await pump(tester, const ToggleGroup<String>(value: 'a', items: items));
+      expect(allEnabled(tester), isFalse);
+      await tester.tap(toggle('B'));
+      await tester.pump();
+      expect(selected(tester), {'a'});
+
+      await pump(
+        tester,
+        const ToggleGroup<String>.multiple(values: {'a'}, items: items),
+      );
+      expect(allEnabled(tester), isFalse);
+
+      await pump(
+        tester,
+        ToggleGroup<String>.multiple(
+          values: const {'a'},
+          onValuesChanged: (_) {},
+          items: items,
+        ),
+      );
+      expect(allEnabled(tester), isTrue);
     });
   });
 
@@ -96,8 +165,8 @@ void main() {
         tester,
         ToggleGroup<String>.multiple(
           initialValues: const {'b'},
-          onChanged: reported.add,
-          children: items,
+          onValuesChanged: reported.add,
+          items: items,
         ),
       );
       expect(selected(tester), {'b'});
@@ -113,19 +182,39 @@ void main() {
       ]);
     });
 
-    test('values and initialValues together are refused', () {
+    testWidgets('initialValue starts a single group that keeps its own', (
+      tester,
+    ) async {
+      final reported = <String?>[];
+      await pump(
+        tester,
+        ToggleGroup<String>(
+          initialValue: 'b',
+          onChanged: reported.add,
+          items: items,
+        ),
+      );
+      expect(selected(tester), {'b'});
+      await tester.tap(find.text('C'));
+      await tester.pump();
+      expect(selected(tester), {'c'});
+      expect(reported, ['c']);
+    });
+
+    test('a value and an initial value together are refused', () {
       expect(
         () => ToggleGroup<String>(
-          values: const {'a'},
-          initialValues: const {'a'},
-          children: items,
+          value: 'a',
+          initialValue: 'a',
+          items: items,
         ),
         throwsAssertionError,
       );
       expect(
-        () => ToggleGroup<String>(
-          initialValues: const {'a', 'b'},
-          children: items,
+        () => ToggleGroup<String>.multiple(
+          values: const {'a'},
+          initialValues: const {'a'},
+          items: items,
         ),
         throwsAssertionError,
       );
@@ -138,8 +227,8 @@ void main() {
       await pump(
         tester,
         ToggleGroup<String>.multiple(
-          onChanged: reported.add,
-          children: const [
+          onValuesChanged: reported.add,
+          items: const [
             ToggleGroupItem(value: 'a', child: Text('A')),
             ToggleGroupItem(value: 'b', enabled: false, child: Text('B')),
           ],
@@ -148,13 +237,11 @@ void main() {
       await tester.tap(toggle('B'));
       await tester.tap(toggle('A'));
       await tester.pump();
-      expect(reported, [
-        {'a'},
-      ]);
+      expect(selected(tester), {'a'});
     });
   });
 
-  group('ToggleGroupFormField', () {
+  group('ToggleGroupMultipleFormField', () {
     testWidgets('holds the selection for the form: validated, saved and '
         'reset with it', (tester) async {
       final formKey = GlobalKey<FinesseFormState>();
@@ -163,14 +250,13 @@ void main() {
         tester,
         FinesseForm(
           key: formKey,
-          child: ToggleGroupFormField<String>(
+          child: ToggleGroupMultipleFormField<String>(
             id: 'days',
             label: const Text('Delivery days'),
-            multiple: true,
             initialValue: const {'a'},
             onChanged: changes.add,
             validator: (days) => days.length < 2 ? 'Pick two days' : null,
-            children: items,
+            items: items,
           ),
         ),
       );
@@ -192,31 +278,15 @@ void main() {
       expect(selected(tester), {'a'});
     });
 
-    testWidgets('one at a time by default', (tester) async {
-      await pump(
-        tester,
-        FinesseForm(
-          child: ToggleGroupFormField<String>(
-            id: 'size',
-            initialValue: const {'a'},
-            children: items,
-          ),
-        ),
-      );
-      await tester.tap(find.text('B'));
-      await tester.pump();
-      expect(selected(tester), {'b'});
-    });
-
     testWidgets('disabled, it takes no taps', (tester) async {
       await pump(
         tester,
         FinesseForm(
-          child: ToggleGroupFormField<String>(
+          child: ToggleGroupMultipleFormField<String>(
             id: 'size',
             enabled: false,
             initialValue: const {'a'},
-            children: items,
+            items: items,
           ),
         ),
       );
@@ -226,67 +296,53 @@ void main() {
     });
   });
 
-  group('ToggleGroup', () {
-    Widget wrap(Widget child) => FinesseApp(home: Center(child: child));
-
-    testWidgets('single variant replaces the selection', (tester) async {
-      Set<String>? latest;
-      await tester.pumpWidget(
-        wrap(
-          ToggleGroup<String>(
-            values: const {'a'},
-            onChanged: (v) => latest = v,
-            children: const [
-              ToggleGroupItem(value: 'a', child: Text('A')),
-              ToggleGroupItem(value: 'b', child: Text('B')),
-            ],
+  group('ToggleGroupFormField', () {
+    testWidgets('holds one value: a tap replaces it, a second tap clears '
+        'it, and a reset brings it back', (tester) async {
+      final formKey = GlobalKey<FinesseFormState>();
+      await pump(
+        tester,
+        FinesseForm(
+          key: formKey,
+          child: ToggleGroupFormField<String>(
+            id: 'size',
+            initialValue: 'a',
+            validator: (size) => size == null ? 'Pick a size' : null,
+            items: items,
           ),
         ),
       );
+      await tester.tap(find.text('B'));
+      await tester.pump();
+      expect(selected(tester), {'b'});
+      expect(formKey.currentState!.saveAndValidate(), isTrue);
+      expect(formKey.currentState!.value['size'], 'b');
 
       await tester.tap(find.text('B'));
-      await tester.pumpAndSettle();
-      expect(latest, {'b'});
+      await tester.pump();
+      expect(selected(tester), isEmpty);
+      expect(formKey.currentState!.saveAndValidate(), isFalse);
+
+      formKey.currentState!.reset();
+      await tester.pump();
+      expect(selected(tester), {'a'});
     });
 
-    testWidgets('single variant deselects on re-tap', (tester) async {
-      Set<String>? latest;
-      await tester.pumpWidget(
-        wrap(
-          ToggleGroup<String>(
-            values: const {'a'},
-            onChanged: (v) => latest = v,
-            children: const [
-              ToggleGroupItem(value: 'a', child: Text('A')),
-              ToggleGroupItem(value: 'b', child: Text('B')),
-            ],
+    testWidgets('disabled, it takes no taps', (tester) async {
+      await pump(
+        tester,
+        FinesseForm(
+          child: ToggleGroupFormField<String>(
+            id: 'size',
+            enabled: false,
+            initialValue: 'a',
+            items: items,
           ),
         ),
       );
-
-      await tester.tap(find.text('A'));
-      await tester.pumpAndSettle();
-      expect(latest, isEmpty);
-    });
-
-    testWidgets('multiple variant accumulates', (tester) async {
-      Set<String>? latest;
-      await tester.pumpWidget(
-        wrap(
-          ToggleGroup<String>.multiple(
-            values: const {'a'},
-            onChanged: (v) => latest = v,
-            children: const [
-              ToggleGroupItem(value: 'a', child: Text('A')),
-              ToggleGroupItem(value: 'b', child: Text('B')),
-            ],
-          ),
-        ),
-      );
-
-      await tester.tap(find.text('B'));
-      await tester.pumpAndSettle();
-      expect(latest, {'a', 'b'});
+      await tester.tap(toggle('B'));
+      await tester.pump();
+      expect(selected(tester), {'a'});
     });
   });
 }

@@ -105,10 +105,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ChipGroup<SettingsSection>(
                     semanticLabel: 'Settings pages',
                     wrap: false,
-                    multiple: false,
-                    allowEmpty: false,
-                    values: {settings.section},
-                    onChanged: (values) => select(values.single),
+                    allowDeselection: false,
+                    value: settings.section,
+                    onChanged: (section) => select(section!),
                     items: [
                       for (final section in SettingsSection.values)
                         ChipGroupItem(

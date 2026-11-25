@@ -17,8 +17,8 @@ class _ToggleGroupMultipleExampleState
   Widget build(BuildContext context) {
     return ToggleGroup<String>.multiple(
       values: formatting,
-      onChanged: (values) => setState(() => formatting = values),
-      children: const [
+      onValuesChanged: (values) => setState(() => formatting = values),
+      items: const [
         ToggleGroupItem(
           value: 'bold',
           semanticLabel: 'Bold',

@@ -218,7 +218,7 @@ class Select<T> extends StatefulWidget {
     this.placeholderStyle,
     this.values,
     this.initialValues = const {},
-    ValueChanged<Set<T>>? onChanged,
+    this.onValuesChanged,
     this.focusNode,
     this.autofocus = false,
     this.onFocusChange,
@@ -258,7 +258,6 @@ class Select<T> extends StatefulWidget {
        initialValue = null,
        selectedOptionBuilder = null,
        onChanged = null,
-       onValuesChanged = onChanged,
        assert(
          variant == SelectVariant.multiple ||
              variant == SelectVariant.multipleWithSearch,
@@ -284,7 +283,7 @@ class Select<T> extends StatefulWidget {
     this.optionsBuilder,
     this.onSearchChanged,
     this.selectedOptionsBuilder,
-    ValueChanged<Set<T>>? onChanged,
+    this.onValuesChanged,
     this.controller,
     this.searchDivider,
     this.searchInputLeading,
@@ -330,7 +329,6 @@ class Select<T> extends StatefulWidget {
   }) : variant = SelectVariant.multipleWithSearch,
        selectedOptionBuilder = null,
        onChanged = null,
-       onValuesChanged = onChanged,
        value = null,
        initialValue = null,
        assert(
@@ -373,21 +371,24 @@ class Select<T> extends StatefulWidget {
   final Widget? title;
 
   /// {@template Select.onChanged}
-  /// The callback that is called when the value of the [Select] changes.
-  ///
-  /// This is used for single selection [Select] variants.
+  /// Called with the value of a single select when the user chooses an
+  /// option, or with null when deselecting. With no callback (and no
+  /// [onTap]) the select is disabled.
   /// {@endtemplate}
   final ValueChanged<T?>? onChanged;
 
   /// {@template Select.onValuesChanged}
-  /// The callback that is called when the values of the [Select] changes.
-  /// Called only the variant is [Select.multiple].
+  /// Called with the values of a [Select.multiple] when the user adds or
+  /// removes one. With no callback (and no [onTap]) the select is
+  /// disabled.
   /// {@endtemplate}
   final ValueChanged<Set<T>>? onValuesChanged;
 
   /// {@template Select.allowDeselection}
-  /// Whether the [Select] allows deselection, defaults to
-  /// `false`.
+  /// Whether the selection may become empty: whether choosing the selected
+  /// option of a single select clears it, and whether the last option of a
+  /// multiple select can be removed. False by default for a single select
+  /// and true for a multiple one.
   /// {@endtemplate}
   final bool allowDeselection;
 
@@ -1003,11 +1004,19 @@ class SelectState<T> extends State<Select<T>> {
     }
   }
 
+  /// Whether the select takes input: [Select.enabled], and a callback to
+  /// report a choice to ([Select.onTap] counts, as it replaces the list).
+  bool get _enabled =>
+      widget.enabled &&
+      (widget.onChanged != null ||
+          widget.onValuesChanged != null ||
+          widget.onTap != null);
+
   /// Selects [value], or removes it from the selection.
   ///
   /// Single-selection variants replace the selection. Multiple-selection
-  /// variants add to it. A selected value is removed when
-  /// [Select.allowDeselection] is true. Calls [Select.onChanged] or
+  /// variants add to it. A selected value is removed, except the last one
+  /// when [Select.allowDeselection] is false. Calls [Select.onChanged] or
   /// [Select.onValuesChanged] when the selection changes.
   void select(T value) {
     final isMultiSelection =
@@ -1016,7 +1025,8 @@ class SelectState<T> extends State<Select<T>> {
 
     final before = _selection.value;
     final next = isMultiSelection ? {...before} : <T>{};
-    if (widget.allowDeselection && before.contains(value)) {
+    final last = before.length == 1 && before.contains(value);
+    if (before.contains(value) && (widget.allowDeselection || !last)) {
       next.remove(value);
     } else {
       next.add(value);
@@ -1277,11 +1287,11 @@ class SelectState<T> extends State<Select<T>> {
             }
 
             final Widget select = Disabled(
-              disabled: !widget.enabled,
+              disabled: !_enabled,
               child: Focusable(
                 autofocus: widget.autofocus,
                 onFocusChange: widget.onFocusChange,
-                canRequestFocus: widget.enabled,
+                canRequestFocus: _enabled,
                 focusNode: focusNode,
                 builder: (context, focused, child) {
                   final decorated = Decorator(

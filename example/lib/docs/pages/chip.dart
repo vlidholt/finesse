@@ -13,7 +13,8 @@ final chipDoc = ComponentDoc(
       'it toggles, with `onPressed` it is a button, and with neither it '
       'is a static tag. Its height follows the form factor. `onDeleted` '
       'adds a cross that removes it, `showCheckmark` a check while it is '
-      'selected, and `ChipGroup` holds the set of chosen chips.',
+      'selected, and `ChipGroup` holds the chosen chip (`ChipGroup.multiple` '
+      'the chosen set).',
   examples: [
     ComponentExample(
       id: 'chip_filters',
@@ -46,8 +47,9 @@ final chipDoc = ComponentDoc(
       id: 'chip_group',
       title: 'A group',
       description:
-          '`ChipGroup` is controlled: `values` is the chosen set and '
-          '`onChanged` reports the set a tap would make. It is one Tab '
+          '`ChipGroup.multiple` is controlled: `values` is the chosen set '
+          'and `onValuesChanged` reports the set a tap would make. It is '
+          'one Tab '
           'stop; the arrow keys, Home and End move between its chips. '
           '`showCheckmark` marks the chosen ones.',
       builder: (_) => const ChipGroupExample(),
@@ -57,8 +59,9 @@ final chipDoc = ComponentDoc(
       title: 'A scrolling filter bar',
       description:
           '`wrap: false` keeps the chips on one row that scrolls and '
-          'fades at an edge it continues beyond. `multiple: false` with '
-          '`allowEmpty: false` makes it a choice of exactly one. Give the '
+          'fades at an edge it continues beyond. `ChipGroup` with `value` '
+          'and `allowDeselection: false` makes it a choice of exactly one. '
+          'Give the '
           "page's margin as `padding` so the chips scroll to the screen's "
           'edge. `leading` and `trailing` hold an action beside the '
           'chips — here the order — that stays put while they scroll.',

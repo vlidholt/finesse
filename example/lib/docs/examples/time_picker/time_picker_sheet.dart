@@ -25,7 +25,6 @@ class _TimePickerSheetExampleState extends State<TimePickerSheetExample> {
       minuteInterval: 5,
       min: const TimeOfDay(hour: 11, minute: 30),
       max: const TimeOfDay(hour: 22, minute: 0),
-      allowClear: true,
     );
   }
 }

@@ -246,12 +246,26 @@ package as it is, compared with shad.
   `initialValue` for a widget that holds its own state: `Slider` and
   `RangeSlider` (their controllers are gone; `Slider.label` is
   `semanticLabel`), `FinesseRadioGroup` (`RadioController` is gone),
-  `ToggleGroup` (`ToggleGroupController` is gone; `values`/`initialValues`),
-  `Select` (`SelectController` is gone, `popoverController` is
-  `controller`), `Calendar` (`selected` is `value`, `.multiple` takes
-  `values`, `.range` takes `range`, `fromMonth`/`toMonth` are `min`/`max`),
-  `DatePicker` (`selected` is `value`) and `OtpField` (`onChanged` reports
-  the user's edits only).
+  `ToggleGroup` (`ToggleGroupController` is gone), `Select`
+  (`SelectController` is gone, `popoverController` is `controller`),
+  `Calendar` (`selected` is `value`, `.range` takes `range`,
+  `fromMonth`/`toMonth` are `min`/`max`), `DatePicker` (`selected` is
+  `value`) and `OtpField` (`onChanged` reports the user's edits only).
+- **One value, or a set.** The unnamed constructor of `Select`,
+  `Calendar`, `ToggleGroup` and `ChipGroup` holds one value (`value`,
+  `initialValue`, `onChanged`) and `.multiple` a set (`values`,
+  `initialValues`, `onValuesChanged`): `Select.multiple` reports through
+  `onValuesChanged`, and a single `ToggleGroup` takes a `T?`, not a set of
+  at most one; `Accordion.multiple` takes `initialValues`. `ToggleGroup`
+  takes `items` (was `children`) and `variant` (was `toggleVariant`);
+  `ToggleGroupVariant` is gone. Whether the selection may become empty is
+  `allowDeselection` everywhere, on
+  `TimePicker` (from `TimePickerTheme.allowDeselection`, true in every
+  style, so a time can be cleared by default) as on `DatePicker`; in a
+  `Select.multiple` it keeps the last option rather than every one.
+- **A null callback disables a control.** A `ToggleGroup` or a `Select`
+  with no callback (a select with an `onTap` excepted) is drawn disabled
+  and takes no input, as a `Toggle`, a `Chip` or a `SegmentedControl` is.
 - **Pickers.** The inline time picker is `TimeField` (`TimeFieldTheme`,
   `TimeFormField`); `TimePicker` is now a trigger that opens it in a
   popover, or wheels in a sheet on a phone, and `TimePickerFormField` is
@@ -374,17 +388,18 @@ package as it is, compared with shad.
 - `Slider` and `RangeSlider` value indicators (`SliderValueIndicator`),
   `Checkbox(tristate:)`, `FinesseRadioGroup(child:)`, `RadioGroupScope`.
 - `Chip` (`onDeleted`, `showCheckmark`, `enabled`) and `ChipGroup`
-  (`ChipGroupItem`; one or several, wrapping or scrolling, with `leading`
-  and `trailing` actions).
+  (`ChipGroupItem`; one, or several with `ChipGroup.multiple`, wrapping or
+  scrolling, with `leading` and `trailing` actions).
 - `Rating`, `ColorPicker`, `ColorPickerButton`, `colorToHex`,
   `colorFromHex`.
 - `OtpField(value:, initialValue:, onCompleted:, autofillHints:)`: a paste
   or autofill spreads from the slot it lands in.
 - Form fields for the new controls: `AutocompleteFormField`,
-  `ChipGroupFormField`, `ColorPickerFormField`, `DateFormField`,
-  `NumberFormField`, `RangeSliderFormField`, `RatingFormField`,
-  `SegmentedControlFormField`, `SliderFormField`, `TagFormField`,
-  `TimeFormField` and `ToggleGroupFormField`.
+  `ChipGroupFormField` and `ChipGroupMultipleFormField`,
+  `ColorPickerFormField`, `DateFormField`, `NumberFormField`,
+  `RangeSliderFormField`, `RatingFormField`, `SegmentedControlFormField`,
+  `SliderFormField`, `TagFormField`, `TimeFormField`, and
+  `ToggleGroupFormField` and `ToggleGroupMultipleFormField`.
 
 #### Lists and data
 

@@ -26,7 +26,7 @@ void main() {
     expect(_scoped(tester).motion, Motion.lively);
 
     // A single-selection ToggleGroup lets its selected item be switched
-    // off unless told otherwise, and would then report an empty set.
+    // off unless told otherwise, and would then report null.
     await tester.tap(find.text('Lively'));
     for (var i = 0; i < 10; i++) {
       await tester.pump(const Duration(milliseconds: 50));
@@ -35,8 +35,8 @@ void main() {
     expect(
       tester
           .widget<ToggleGroup<String>>(find.byType(ToggleGroup<String>))
-          .values,
-      {'Lively'},
+          .value,
+      'Lively',
     );
     expect(_scoped(tester).motion, Motion.lively);
   });

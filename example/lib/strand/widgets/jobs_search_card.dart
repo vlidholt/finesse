@@ -206,11 +206,11 @@ class JobsFilterChips extends StatelessWidget {
       semanticLabel: 'All filters',
       onPressed: () => showJobFiltersDialog(context, state),
     );
-    final group = ChipGroup<String>(
+    final group = ChipGroup<String>.multiple(
       semanticLabel: 'Job filters',
       wrap: !scrolls,
       values: state.filters,
-      onChanged: state.setFilters,
+      onValuesChanged: state.setFilters,
       padding: scrolls ? EdgeInsetsDirectional.only(end: end) : EdgeInsets.zero,
       // Held at the start of the phone's bar while the chips scroll past
       // it; at the end of the first row when they wrap, however many rows
