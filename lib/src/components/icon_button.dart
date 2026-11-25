@@ -1,4 +1,7 @@
 import 'package:finesse/src/components/button.dart';
+import 'package:finesse/src/components/button_group.dart';
+import 'package:finesse/src/components/tooltip.dart';
+import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/theme/components/button.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/data.dart';
@@ -30,6 +33,7 @@ class IconButton extends StatelessWidget {
     this.iconSize,
     this.size,
     this.semanticLabel,
+    this.tooltip,
     this.onPressed,
     this.cursor,
     this.width,
@@ -47,6 +51,7 @@ class IconButton extends StatelessWidget {
     this.gradient,
     this.decoration,
     this.enabled = true,
+    this.loading = false,
     this.onLongPress,
     this.statesController,
     this.hoverStrategies,
@@ -78,6 +83,7 @@ class IconButton extends StatelessWidget {
     this.iconSize,
     this.size,
     this.semanticLabel,
+    this.tooltip,
     this.onPressed,
     this.cursor,
     this.width,
@@ -96,6 +102,7 @@ class IconButton extends StatelessWidget {
     this.gradient,
     this.decoration,
     this.enabled = true,
+    this.loading = false,
     this.onLongPress,
     this.statesController,
     this.hoverStrategies,
@@ -128,6 +135,7 @@ class IconButton extends StatelessWidget {
     this.iconSize,
     this.size,
     this.semanticLabel,
+    this.tooltip,
     this.onPressed,
     this.cursor,
     this.width,
@@ -146,6 +154,7 @@ class IconButton extends StatelessWidget {
     this.gradient,
     this.decoration,
     this.enabled = true,
+    this.loading = false,
     this.onLongPress,
     this.statesController,
     this.hoverStrategies,
@@ -175,6 +184,7 @@ class IconButton extends StatelessWidget {
     this.iconSize,
     this.size,
     this.semanticLabel,
+    this.tooltip,
     this.onPressed,
     this.cursor,
     this.width,
@@ -192,6 +202,7 @@ class IconButton extends StatelessWidget {
     this.gradient,
     this.decoration,
     this.enabled = true,
+    this.loading = false,
     this.onLongPress,
     this.statesController,
     this.hoverStrategies,
@@ -222,6 +233,7 @@ class IconButton extends StatelessWidget {
     this.iconSize,
     this.size,
     this.semanticLabel,
+    this.tooltip,
     this.onPressed,
     this.cursor,
     this.width,
@@ -239,6 +251,7 @@ class IconButton extends StatelessWidget {
     this.gradient,
     this.decoration,
     this.enabled = true,
+    this.loading = false,
     this.onLongPress,
     this.statesController,
     this.hoverStrategies,
@@ -269,6 +282,7 @@ class IconButton extends StatelessWidget {
     this.iconSize,
     this.size,
     this.semanticLabel,
+    this.tooltip,
     this.onPressed,
     this.cursor,
     this.width,
@@ -286,6 +300,7 @@ class IconButton extends StatelessWidget {
     this.gradient,
     this.decoration,
     this.enabled = true,
+    this.loading = false,
     this.onLongPress,
     this.statesController,
     this.hoverStrategies,
@@ -346,6 +361,18 @@ class IconButton extends StatelessWidget {
   /// `sr-only` span shadcn/ui puts inside `<Button size="icon">`.
   /// {@endtemplate}
   final String? semanticLabel;
+
+  /// What the button does, in a word or two: "Archive", "More options".
+  ///
+  /// Shown in a `Tooltip` when the button is hovered, focused or, on a
+  /// touch screen, held, and used as the [semanticLabel] when that is not
+  /// given — so an icon button with a tooltip is named for everyone.
+  final String? tooltip;
+
+  /// {@macro Button.loading}
+  ///
+  /// On an icon button the spinner takes the place of the icon.
+  final bool loading;
 
   /// {@macro Button.cursor}
   final MouseCursor? cursor;
@@ -503,12 +530,17 @@ class IconButton extends StatelessWidget {
     // new radius or it stays a rounded square around a round button.
     var effectiveDecoration = decoration;
     final radiusToken = theme.style.iconButtonRadius;
-    if (radiusToken != null && decoration == null) {
+    // Not in a group: joined to its neighbours an icon button is one
+    // segment of a bar, and takes the bar's corners.
+    if (radiusToken != null &&
+        decoration == null &&
+        !ButtonGroupScope.isWithin(context)) {
       effectiveDecoration = theme.buttonDecoration(
         radius: theme.radii.resolve(radiusToken),
       );
     }
 
+    final label = semanticLabel ?? tooltip;
     Widget button = Button.raw(
       variant: variant,
       width: effectiveWidth,
@@ -530,6 +562,7 @@ class IconButton extends StatelessWidget {
       gradient: gradient,
       decoration: effectiveDecoration,
       enabled: enabled,
+      loading: loading,
       statesController: statesController,
       hoverStrategies: hoverStrategies,
       onHoverChange: onHoverChange,
@@ -552,18 +585,32 @@ class IconButton extends StatelessWidget {
       // A raw button does not scale unless asked; an icon button is a
       // button, so it follows the variant's theme like the others.
       pressScale: null,
-      child: icon,
+      // The label stands in for the icon; both would be read otherwise.
+      child: label == null ? icon : ExcludeSemantics(child: icon),
     );
 
-    if (semanticLabel != null) {
+    if (label != null) {
       // An icon-only button carries no text, so without this a screen reader
-      // announces nothing at all.
-      button = Semantics(
-        label: semanticLabel,
-        button: true,
-        enabled: enabled,
-        container: true,
-        child: ExcludeSemantics(child: button),
+      // announces nothing at all. Merged with the button's own node rather
+      // than put in its place: excluding the button would take its tap and
+      // focus actions away with it, and the control could be read but not
+      // pressed.
+      button = MergeSemantics(
+        child: Semantics(
+          label: label,
+          value: loading
+              ? FinesseLocalizations.of(context).button.loading
+              : null,
+          child: button,
+        ),
+      );
+    }
+
+    if (tooltip != null) {
+      button = Tooltip(
+        focusNode: focusNode,
+        builder: (context) => Text(tooltip!),
+        child: button,
       );
     }
 

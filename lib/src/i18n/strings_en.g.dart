@@ -44,6 +44,7 @@ class FinesseLocalizationsData with BaseTranslations<FinesseLocale, FinesseLocal
 	late final FinesseLocalizationsData$command$en command = FinesseLocalizationsData$command$en.internal(_root);
 	late final FinesseLocalizationsData$pagination$en pagination = FinesseLocalizationsData$pagination$en.internal(_root);
 	late final FinesseLocalizationsData$dialog$en dialog = FinesseLocalizationsData$dialog$en.internal(_root);
+	late final FinesseLocalizationsData$button$en button = FinesseLocalizationsData$button$en.internal(_root);
 	late final FinesseLocalizationsData$board$en board = FinesseLocalizationsData$board$en.internal(_root);
 }
 
@@ -188,6 +189,18 @@ class FinesseLocalizationsData$dialog$en {
 	String get dismiss => 'Dismiss';
 }
 
+// Path: button
+class FinesseLocalizationsData$button$en {
+	FinesseLocalizationsData$button$en.internal(this._root);
+
+	final FinesseLocalizationsData _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Loading'
+	String get loading => 'Loading';
+}
+
 // Path: board
 class FinesseLocalizationsData$board$en {
 	FinesseLocalizationsData$board$en.internal(this._root);
@@ -252,6 +265,7 @@ extension on FinesseLocalizationsData {
 			'pagination.page' => 'Page',
 			'dialog.close' => 'Close',
 			'dialog.dismiss' => 'Dismiss',
+			'button.loading' => 'Loading',
 			'board.moveUp' => 'Move up',
 			'board.moveDown' => 'Move down',
 			'board.moveTo' => ({required Object column}) => 'Move to ${column}',

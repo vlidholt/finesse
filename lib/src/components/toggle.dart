@@ -1,3 +1,4 @@
+import 'package:finesse/src/components/button_group.dart';
 import 'package:finesse/src/components/disabled.dart';
 import 'package:finesse/src/raw_components/focusable.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
@@ -277,10 +278,20 @@ class _ToggleState extends State<Toggle> {
         const EdgeInsets.symmetric(horizontal: 12);
     final effectiveHeight = widget.height ?? toggleTheme.height ?? 40.0;
     final effectiveGap = widget.gap ?? toggleTheme.gap ?? 8.0;
-    final effectiveDecoration =
+    var effectiveDecoration =
         (toggleTheme.decoration ?? const FinesseDecoration()).merge(
           widget.decoration,
         );
+    // In a `ButtonGroup` — a toggle group with no gap is one — the corners
+    // and the edge towards a neighbour are the group's to decide.
+    final joined = ButtonGroupScope.maybeOf(context);
+    if (joined != null) {
+      effectiveDecoration = joined.join(
+        effectiveDecoration,
+        Directionality.of(context),
+        fallback: theme.decoration,
+      );
+    }
 
     Color? backgroundFor({required bool hovered}) {
       if (selected) {
@@ -628,7 +639,12 @@ class ToggleGroup<T> extends StatefulWidget {
   /// Whether the whole group responds to input.
   final bool enabled;
 
-  /// The gap between items.
+  /// The gap between items, 4 by default.
+  ///
+  /// With a gap of 0 the items are joined into one bar, as in a
+  /// `ButtonGroup`: the corners between them are squared and, in the
+  /// outline variant, neighbours share one hairline. A joined group is as
+  /// small as its items, whatever [mainAxisSize] says.
   final double? gap;
 
   /// The direction the items are laid out in.
@@ -701,9 +717,11 @@ class _ToggleGroupState<T> extends State<ToggleGroup<T>> {
     assert(debugCheckHasTheme(context));
     final effectiveGap = widget.gap ?? 4.0;
 
+    // Without a gap the items are one bar: joined corners, shared edges.
+    final joined = effectiveGap == 0;
     final items = <Widget>[];
     for (var i = 0; i < widget.children.length; i++) {
-      if (i > 0) {
+      if (i > 0 && !joined) {
         items.add(
           widget.axis == Axis.horizontal
               ? SizedBox(width: effectiveGap)
@@ -728,7 +746,9 @@ class _ToggleGroupState<T> extends State<ToggleGroup<T>> {
       ToggleVariant.primary => Theme.of(context).toggleTheme,
       ToggleVariant.outline => Theme.of(context).outlineToggleTheme,
     };
-    final Widget list = widget.axis == Axis.horizontal
+    final list = joined
+        ? ButtonGroup(axis: widget.axis, children: items)
+        : widget.axis == Axis.horizontal
         ? Row(mainAxisSize: widget.mainAxisSize, children: items)
         : Column(mainAxisSize: widget.mainAxisSize, children: items);
 

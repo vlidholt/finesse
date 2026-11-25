@@ -8,6 +8,7 @@ import 'package:example/docs/pages/badge.dart';
 import 'package:example/docs/pages/board.dart';
 import 'package:example/docs/pages/breadcrumb.dart';
 import 'package:example/docs/pages/button.dart';
+import 'package:example/docs/pages/button_group.dart';
 import 'package:example/docs/pages/calendar.dart';
 import 'package:example/docs/pages/card.dart';
 import 'package:example/docs/pages/chat_bubble.dart';
@@ -122,6 +123,7 @@ final componentDocs = [
   boardDoc,
   breadcrumbDoc,
   buttonDoc,
+  buttonGroupDoc,
   calendarDoc,
   cardDoc,
   chatBubbleDoc,

@@ -44,6 +44,7 @@ export 'src/components/badge.dart';
 export 'src/components/board.dart';
 export 'src/components/breadcrumb.dart';
 export 'src/components/button.dart';
+export 'src/components/button_group.dart' hide RenderButtonGroup;
 export 'src/components/calendar.dart' hide CalendarModel;
 export 'src/components/card.dart';
 export 'src/components/chat_bubble.dart';

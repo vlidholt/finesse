@@ -36,6 +36,9 @@ dialog:
   close: "Close"
   dismiss: "Dismiss"
 
+button:
+  loading: "Loading"
+
 board:
   moveUp: "Move up"
   moveDown: "Move down"

@@ -40,6 +40,7 @@ flutter:
     - lib/docs/examples/badge/
     - lib/docs/examples/breadcrumb/
     - lib/docs/examples/button/
+    - lib/docs/examples/button_group/
     - lib/docs/examples/calendar/
     - lib/docs/examples/card/
     - lib/docs/examples/checkbox/

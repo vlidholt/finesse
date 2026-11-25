@@ -27,6 +27,7 @@ const _slugs = [
   'board',
   'breadcrumb',
   'button',
+  'button_group',
   'calendar',
   'card',
   'chat_bubble',
