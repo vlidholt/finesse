@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui' show lerpDouble;
 
 import 'package:finesse/src/components/tabs.dart';
+import 'package:finesse/src/theme/components/layout.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/spring.dart';
@@ -295,7 +296,8 @@ class _TabPagesState extends State<TabPages> with TickerProviderStateMixin {
       index < widget.count &&
       (widget.canShow?.call(index) ?? true);
 
-  /// How wide a page is, as last laid out.
+  /// How far apart two pages are, as last laid out: a page's width and
+  /// the gutter.
   double _width = 1;
 
   double get _forward =>
@@ -433,6 +435,9 @@ class _TabPagesState extends State<TabPages> with TickerProviderStateMixin {
         position: _position.animation,
         textDirection: Directionality.of(context),
         fill: widget.fill,
+        // A little air between two pages while one is dragged past the
+        // other, so that two cards do not touch.
+        gutter: theme.layoutTheme.gap(GapSize.lg),
         onWidth: (width) => _width = math.max(width, 1),
         children: children,
       ),
@@ -507,6 +512,7 @@ class _TabPagesBody extends MultiChildRenderObjectWidget {
     required this.position,
     required this.textDirection,
     required this.fill,
+    required this.gutter,
     required this.onWidth,
     required super.children,
   });
@@ -514,8 +520,9 @@ class _TabPagesBody extends MultiChildRenderObjectWidget {
   final Animation<double> position;
   final TextDirection textDirection;
   final bool fill;
+  final double gutter;
 
-  /// Told how wide a page is, at each layout.
+  /// Told how far apart two pages are, at each layout.
   final ValueChanged<double> onWidth;
 
   @override
@@ -526,6 +533,7 @@ class _TabPagesBody extends MultiChildRenderObjectWidget {
     position: position,
     textDirection: textDirection,
     fill: fill,
+    gutter: gutter,
     onWidth: onWidth,
   );
 
@@ -535,6 +543,7 @@ class _TabPagesBody extends MultiChildRenderObjectWidget {
       ..position = position
       ..textDirection = textDirection
       ..fill = fill
+      ..gutter = gutter
       ..onWidth = onWidth;
   }
 }
@@ -566,12 +575,14 @@ class _RenderTabPages extends RenderBox
     required Animation<double> position,
     required TextDirection textDirection,
     required bool fill,
+    required double gutter,
     required this.onWidth,
   }) : _position = position,
        _textDirection = textDirection,
-       _fill = fill;
+       _fill = fill,
+       _gutter = gutter;
 
-  /// Told how wide a page is, at each layout.
+  /// Told how far apart two pages are, at each layout.
   ValueChanged<double> onWidth;
 
   Animation<double> get position => _position;
@@ -600,6 +611,14 @@ class _RenderTabPages extends RenderBox
     if (value == _fill) return;
     _fill = value;
     markNeedsLayout();
+  }
+
+  double get gutter => _gutter;
+  double _gutter;
+  set gutter(double value) {
+    if (value == _gutter) return;
+    _gutter = value;
+    markNeedsPaint();
   }
 
   /// Whether the pager's height is its pages': it changes as one page is
@@ -674,7 +693,7 @@ class _RenderTabPages extends RenderBox
   double _dx(int index) {
     final at = _at;
     final sign = _textDirection == TextDirection.rtl ? -1.0 : 1.0;
-    return (index - (at.low + at.t) - at.over) * size.width * sign;
+    return (index - (at.low + at.t) - at.over) * (size.width + _gutter) * sign;
   }
 
   bool _showing(int index) {
@@ -708,7 +727,7 @@ class _RenderTabPages extends RenderBox
         ? 0.0
         : lerpDouble(heights[at.low], heights[at.high], at.t)!;
     size = constraints.constrain(Size(width, height));
-    onWidth(size.width);
+    onWidth(size.width + _gutter);
   }
 
   double _widest(double Function(RenderBox child) of) {
@@ -768,6 +787,10 @@ class _RenderTabPages extends RenderBox
 
   final _clipLayer = LayerHandle<ClipRectLayer>();
 
+  /// How far above and below the pager a page may paint while it is
+  /// dragged: room for a shadow.
+  static const _overflow = 64.0;
+
   @override
   void paint(PaintingContext context, Offset offset) {
     final at = _at;
@@ -779,10 +802,12 @@ class _RenderTabPages extends RenderBox
       _paintPages(context, offset);
       return;
     }
+    // Only at the sides, where the pages come and go: above and below,
+    // what a page paints beyond its box shows as it does at rest.
     _clipLayer.layer = context.pushClipRect(
       needsCompositing,
       offset,
-      Offset.zero & size,
+      Rect.fromLTRB(0, -_overflow, size.width, size.height + _overflow),
       _paintPages,
       oldLayer: _clipLayer.layer,
     );

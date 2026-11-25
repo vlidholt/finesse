@@ -419,8 +419,10 @@ class FinessePageRoute<T> extends PageRoute<T> {
         fade = kAlwaysCompleteAnimation;
         progress = kAlwaysCompleteAnimation;
         pull = _pull;
+        edgeShadow = _edgeShadow(theme.brightness);
       case _BackPhase.committed:
         pull = _pull;
+        edgeShadow = _edgeShadow(theme.brightness);
     }
 
     return _BackGestureDetector(
@@ -438,6 +440,7 @@ class FinessePageRoute<T> extends PageRoute<T> {
           // With the finger, away from the edge it came from.
           pullShift: _edge == SwipeEdge.left ? _pullShift : -_pullShift,
           pullRadius: theme.radii.xl3.topLeft.x,
+          pullRim: theme.colorScheme.border,
           edgeShadow: edgeShadow,
           child: child,
         ),
@@ -771,6 +774,7 @@ class _PageShift extends SingleChildRenderObjectWidget {
     required this.pull,
     required this.pullShift,
     required this.pullRadius,
+    required this.pullRim,
     required this.edgeShadow,
     super.child,
   });
@@ -783,6 +787,7 @@ class _PageShift extends SingleChildRenderObjectWidget {
   final Animation<double>? pull;
   final double pullShift;
   final double pullRadius;
+  final Color pullRim;
   final Color? edgeShadow;
 
   @override
@@ -795,6 +800,7 @@ class _PageShift extends SingleChildRenderObjectWidget {
     pull: pull,
     pullShift: pullShift,
     pullRadius: pullRadius,
+    pullRim: pullRim,
     edgeShadow: edgeShadow,
   );
 
@@ -812,6 +818,7 @@ class _PageShift extends SingleChildRenderObjectWidget {
       ..pull = pull
       ..pullShift = pullShift
       ..pullRadius = pullRadius
+      ..pullRim = pullRim
       ..edgeShadow = edgeShadow;
   }
 }
@@ -826,6 +833,7 @@ class _RenderPageShift extends RenderProxyBox {
     required Animation<double>? pull,
     required double pullShift,
     required double pullRadius,
+    required Color pullRim,
     required Color? edgeShadow,
   }) : _progress = progress,
        _covered = covered,
@@ -835,6 +843,7 @@ class _RenderPageShift extends RenderProxyBox {
        _pull = pull,
        _pullShift = pullShift,
        _pullRadius = pullRadius,
+       _pullRim = pullRim,
        _edgeShadow = edgeShadow;
 
   /// How wide the shadow of a dragged page is.
@@ -914,6 +923,14 @@ class _RenderPageShift extends RenderProxyBox {
     if (value == _pullRadius) return;
     _pullRadius = value;
     _moved();
+  }
+
+  Color get pullRim => _pullRim;
+  Color _pullRim;
+  set pullRim(Color value) {
+    if (value == _pullRim) return;
+    _pullRim = value;
+    if (_pulled > 0) markNeedsPaint();
   }
 
   Color? get edgeShadow => _edgeShadow;
@@ -996,17 +1013,38 @@ class _RenderPageShift extends RenderProxyBox {
     }
     final radius = Radius.circular(_pullRadius * pulled);
     final bounds = Offset.zero & size;
+    final shape = RRect.fromRectAndRadius(bounds, radius);
     layer = context.pushTransform(
       needsCompositing,
       offset,
       _transform,
-      (context, offset) => context.pushClipRRect(
-        needsCompositing,
-        offset,
-        bounds,
-        RRect.fromRectAndRadius(bounds, radius),
-        super.paint,
-      ),
+      (context, offset) {
+        // Lifted off the page under it: a soft shadow around the sheet,
+        // and a rim that still tells the two apart where both are dark.
+        final shadow = _edgeShadow;
+        if (shadow != null) {
+          context.canvas.drawRRect(
+            shape.shift(offset + const Offset(0, 8)),
+            Paint()
+              ..color = shadow.withValues(alpha: shadow.a * pulled)
+              ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 24),
+          );
+        }
+        context.pushClipRRect(
+          needsCompositing,
+          offset,
+          bounds,
+          shape,
+          super.paint,
+        );
+        context.canvas.drawRRect(
+          shape.shift(offset).deflate(.5),
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 1
+            ..color = _pullRim.withValues(alpha: _pullRim.a * pulled),
+        );
+      },
       oldLayer: layer is TransformLayer ? layer as TransformLayer? : null,
     );
   }

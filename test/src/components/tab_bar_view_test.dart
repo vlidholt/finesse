@@ -86,6 +86,14 @@ List<Rect> _targets(WidgetTester tester) {
   ];
 }
 
+/// How far apart two pages are: a page's width and the gutter between
+/// two.
+double _apart(WidgetTester tester) =>
+    300 +
+    Theme.of(
+      tester.element(find.byType(MovingIndicatorTarget).first),
+    ).layoutTheme.gap(GapSize.lg);
+
 void _expectMonotone(List<double> values, {required String reason}) {
   final rising = values.last >= values.first;
   for (var i = 1; i < values.length; i++) {
@@ -134,10 +142,13 @@ void main() {
         );
         expect(
           tester.getTopLeft(_page('b')).dx,
-          moreOrLessEquals(pageLeft - dragged + 300, epsilon: .01),
+          moreOrLessEquals(
+            pageLeft - dragged + _apart(tester),
+            epsilon: .01,
+          ),
         );
         // …and the line as far between the two tabs as the pages are.
-        final t = dragged / 300;
+        final t = dragged / _apart(tester);
         expect(controller.swipePosition.value, moreOrLessEquals(t));
         expect(
           indicator.indicatorRect!.left,
@@ -242,7 +253,7 @@ void main() {
       expect(tester.getTopLeft(_page('a')).dx, moreOrLessEquals(rest + 200));
       expect(
         tester.getTopLeft(_page('b')).dx,
-        moreOrLessEquals(rest + 200 - 300),
+        moreOrLessEquals(rest + 200 - _apart(tester)),
       );
       await tester.pump(const Duration(milliseconds: 300));
       await gesture.up();
@@ -309,8 +320,11 @@ void main() {
         heights.add(tester.getSize(view).height);
       }
       _expectMonotone(heights, reason: 'the height');
-      // Half way across, half way between the two heights.
-      expect(heights.last, moreOrLessEquals(200, epsilon: .01));
+      // As far between the two heights as the pages are between them.
+      expect(
+        heights.last,
+        moreOrLessEquals(100 + 200 * 150 / _apart(tester), epsilon: .01),
+      );
       await gesture.moveBy(const Offset(-30, 0));
       await tester.pump(const Duration(milliseconds: 300));
       await gesture.up();
@@ -335,7 +349,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
       expect(tester.getTopLeft(_page('b')).dx, held);
       // Back to where it came from.
-      await gesture.moveBy(Offset(300 - held, 0));
+      await gesture.moveBy(Offset(_apart(tester) - held, 0));
       await tester.pump(const Duration(milliseconds: 300));
       await gesture.up();
       await tester.pumpAndSettle();
@@ -585,7 +599,8 @@ void main() {
       expect(
         indicator.indicatorRect!.left,
         moreOrLessEquals(
-          (targets[0].left + targets[1].left) / 2,
+          targets[0].left +
+              (targets[1].left - targets[0].left) * 150 / _apart(tester),
           epsilon: .01,
         ),
       );

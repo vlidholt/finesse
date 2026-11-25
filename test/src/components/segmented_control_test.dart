@@ -344,6 +344,49 @@ void main() {
     expect(changes, isEmpty);
   });
 
+  testWidgets('too wide for its place it scrolls instead of overflowing, '
+      'and brings the chosen segment into view', (tester) async {
+    var value = 0;
+    await pumpFinesse(
+      tester,
+      StatefulBuilder(
+        builder: (context, setState) => Align(
+          alignment: Alignment.topLeft,
+          child: SizedBox(
+            width: 160,
+            child: SegmentedControl<int>(
+              value: value,
+              onChanged: (next) => setState(() => value = next),
+              segments: [
+                for (var i = 0; i < 8; i++)
+                  Segment(value: i, label: Text('Item $i')),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    expect(tester.takeException(), isNull);
+    expect(tester.getSize(find.byType(SegmentedControl<int>)).width, 160);
+    expect(tester.getRect(find.text('Item 7')).left, greaterThan(160));
+    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    await tester.pump();
+    await tester.sendKeyEvent(LogicalKeyboardKey.end);
+    await tester.pumpAndSettle();
+    expect(value, 7);
+    final last = tester.getRect(find.text('Item 7'));
+    expect(last.left, greaterThanOrEqualTo(0));
+    expect(last.right, lessThanOrEqualTo(160));
+    // One further back comes into the middle.
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+    await tester.pump();
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+    await tester.pumpAndSettle();
+    expect(value, 5);
+    final picked = tester.getRect(find.text('Item 5'));
+    expect(picked.center.dx, moreOrLessEquals(80, epsilon: 1));
+  });
+
   testWidgets('disabled, or without onChanged, it is inert', (tester) async {
     final changes = <_Size>[];
     await pumpFinesse(

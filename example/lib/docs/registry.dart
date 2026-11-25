@@ -54,6 +54,7 @@ import 'package:example/docs/pages/resizable.dart';
 import 'package:example/docs/pages/responsive.dart';
 import 'package:example/docs/pages/scaffold.dart';
 import 'package:example/docs/pages/scroll_area.dart';
+import 'package:example/docs/pages/segmented_control.dart';
 import 'package:example/docs/pages/select.dart';
 import 'package:example/docs/pages/sheet.dart';
 import 'package:example/docs/pages/sidebar.dart';
@@ -159,6 +160,7 @@ final componentDocs = [
   resizableDoc,
   scaffoldDoc,
   scrollAreaDoc,
+  segmentedControlDoc,
   selectDoc,
   sheetDoc,
   sidebarDoc,

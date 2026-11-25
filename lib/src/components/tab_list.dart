@@ -145,6 +145,30 @@ class _TabListState extends State<TabList> {
   void didUpdateWidget(TabList oldWidget) {
     super.didUpdateWidget(oldWidget);
     _syncNodes();
+    if (widget.selectedIndex != oldWidget.selectedIndex) _reveal();
+  }
+
+  /// Brings the chosen entry into view in a row that scrolls.
+  void _reveal() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final index = _selected;
+      final scroll = _scrollController;
+      if (index == null || scroll == null || !scroll.hasClients) return;
+      final position = scroll.position;
+      if (position.maxScrollExtent <= position.minScrollExtent) return;
+      final target = _nodes[index].context?.findRenderObject();
+      if (target == null || !target.attached) return;
+      final motion = Motion.of(context);
+      // This row only: `Scrollable.ensureVisible` would scroll the page
+      // around it as well.
+      position.ensureVisible(
+        target,
+        alignment: .5,
+        duration: motion.normal,
+        curve: motion.standard,
+      );
+    });
   }
 
   @override
@@ -314,8 +338,11 @@ class _TabListState extends State<TabList> {
   Widget _describeItem(
     int index, {
     required bool selected,
-    required Widget child,
+    required Widget button,
   }) {
+    // The tooltip goes inside: what it adds for a screen reader is part of
+    // the entry, and a tab bar may hold nothing but tabs.
+    final child = _withTooltip(widget.items[index], button);
     return MergeSemantics(
       child: widget.radioGroup
           ? Semantics(
@@ -392,7 +419,9 @@ class _TabListState extends State<TabList> {
       row = ConstrainedBox(constraints: constraints, child: row);
     }
 
-    if (widget.scrollable) {
+    // A strip that hugs its tabs scrolls when they do not fit, rather than
+    // overflowing; one whose tabs share the width never needs to.
+    if (!expand) {
       row = ScrollConfiguration(
         // The scrolling tabs should not show an overscroll indicator.
         behavior: ScrollConfiguration.of(context).copyWith(overscroll: false),
@@ -520,14 +549,14 @@ class _TabListState extends State<TabList> {
             ),
     );
 
-    Widget tab = MovingIndicatorTarget(
+    final Widget tab = MovingIndicatorTarget(
       selected: selected,
       index: index,
       decoration: pill,
       child: _describeItem(
         index,
         selected: selected,
-        child: Button.secondary(
+        button: Button.secondary(
           leading: item.leading,
           trailing: item.trailing,
           focusNode: _nodes[index],
@@ -564,7 +593,6 @@ class _TabListState extends State<TabList> {
         ),
       ),
     );
-    tab = _withTooltip(item, tab);
     return expand ? Expanded(child: tab) : tab;
   }
 
@@ -727,10 +755,7 @@ class _TabListState extends State<TabList> {
         );
       },
     );
-    tab = _withTooltip(
-      item,
-      _describeItem(index, selected: selected, child: tab),
-    );
+    tab = _describeItem(index, selected: selected, button: tab);
     return expand ? Expanded(child: tab) : tab;
   }
 }

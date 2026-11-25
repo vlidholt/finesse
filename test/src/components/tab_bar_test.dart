@@ -850,6 +850,61 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('is a tab bar of tabs to a screen reader in both looks, '
+        'with a tooltip, a leading icon and a disabled tab', (tester) async {
+      final handle = tester.ensureSemantics();
+      for (final variant in TabBarVariant.values) {
+        await pumpFinesse(
+          tester,
+          Align(
+            alignment: Alignment.topLeft,
+            child: SizedBox(
+              width: 360,
+              child: TabBar<String>(
+                variant: variant,
+                value: 'b',
+                onChanged: (_) {},
+                tabs: const [
+                  Tab(
+                    value: 'a',
+                    tooltip: 'First',
+                    leading: PhosphorIcon(PhosphorIconsRegular.tray),
+                    child: Text('A'),
+                  ),
+                  Tab(value: 'b', semanticLabel: 'Second', child: Text('B')),
+                  Tab(value: 'c', enabled: false, child: Text('C')),
+                ],
+              ),
+            ),
+          ),
+        );
+        expect(tester.takeException(), isNull, reason: '$variant');
+        final bar = tester.getSemantics(
+          find.byWidgetPredicate(
+            (w) =>
+                w is Semantics && w.properties.role == ui.SemanticsRole.tabBar,
+          ),
+        );
+        final roles = <ui.SemanticsRole>[];
+        bar.visitChildren((child) {
+          roles.add(child.getSemanticsData().role);
+          return true;
+        });
+        expect(roles, List.filled(3, ui.SemanticsRole.tab), reason: '$variant');
+        final second = tester
+            .getSemantics(find.bySemanticsLabel('Second'))
+            .getSemanticsData();
+        expect(second.flagsCollection.isSelected, ui.Tristate.isTrue);
+        expect(second.hasAction(ui.SemanticsAction.tap), isTrue);
+        final third = tester
+            .getSemantics(find.bySemanticsLabel('C'))
+            .getSemanticsData();
+        expect(third.flagsCollection.isEnabled, ui.Tristate.isFalse);
+        await tester.pumpWidget(const SizedBox.shrink());
+      }
+      handle.dispose();
+    });
+
     testWidgets('inert tabs are disabled buttons', (tester) async {
       final handle = tester.ensureSemantics();
       await pumpFinesse(tester, bar());
