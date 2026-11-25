@@ -1095,9 +1095,13 @@ class SelectState<T> extends State<Select<T>> {
           // menu: `selectOptionTheme.selectedTextStyle` carries the menu
           // palette's highlight foreground, which is unreadable on the trigger
           // the moment menus are inverted or bold.
-          resultDefaultTextStyle = theme.textTheme.muted.fallback(
-            color: theme.colorScheme.foreground,
-          );
+          //
+          // It is a value in a field, so it is set as a text field sets
+          // what is typed into it: the field's text role in the foreground,
+          // not the muted role a placeholder uses.
+          resultDefaultTextStyle = theme.textTheme.muted
+              .copyWith(color: theme.colorScheme.foreground)
+              .merge(theme.textFieldTheme.style);
           switch (isMultiSelect) {
             case true:
               result =
@@ -1127,12 +1131,13 @@ class SelectState<T> extends State<Select<T>> {
             widget.placeholder != null,
             'placeholder must not be null when value is null',
           );
+          // A text field's placeholder: the same size as a value, muted.
           resultDefaultTextStyle =
               widget.placeholderStyle ??
               theme.selectTheme.placeholderStyle ??
-              theme.textTheme.muted.fallback(
-                color: theme.colorScheme.foreground,
-              );
+              theme.textTheme.muted
+                  .merge(theme.textFieldTheme.placeholderStyle)
+                  .fallback(color: theme.colorScheme.mutedForeground);
           result = widget.placeholder!;
         }
         return DefaultTextStyle(style: resultDefaultTextStyle, child: result);
