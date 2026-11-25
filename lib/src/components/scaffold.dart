@@ -801,6 +801,7 @@ class _FabTravel {
   /// Where the button rested at the last layout, and what that layout was
   /// given: the scaffold's size and the keyboard's height.
   Offset? target;
+  Offset? anchor;
   Size? size;
   double? keyboard;
 
@@ -956,17 +957,29 @@ class _ScaffoldLayout extends MultiChildLayoutDelegate {
       (FloatingActionButtonLocation.end, TextDirection.ltr) => right,
       (FloatingActionButtonLocation.end, TextDirection.rtl) => left,
     };
-    final target = Offset(x, size.height - clear - fabMargin - fab.height);
+    final bottom = size.height - clear - fabMargin;
+    final target = Offset(x, bottom - fab.height);
+    // The corner the button hangs from: what does not move when the button
+    // itself changes size.
+    final anchor = Offset(
+      fabLocation == FloatingActionButtonLocation.center
+          ? size.width / 2
+          : x == left
+          ? left
+          : right + fab.width,
+      bottom,
+    );
     final travel = fabTravel;
     final previous = travel.target;
     // Its place changed because something at the bottom did — a footer
     // appeared, the bar went away, it was sent to the other corner. That is
     // travelled. A window that is being resized and a keyboard on its way
-    // up are followed rigidly: they are moving already.
+    // up are followed rigidly: they are moving already. So is a button
+    // that is growing or shrinking from its corner.
     if (animateFab &&
         !fab.isEmpty &&
         previous != null &&
-        previous != target &&
+        travel.anchor != anchor &&
         travel.size == size &&
         travel.keyboard == keyboard) {
       travel.pending += previous - target;
@@ -980,6 +993,7 @@ class _ScaffoldLayout extends MultiChildLayoutDelegate {
     }
     travel
       ..target = fab.isEmpty ? null : target
+      ..anchor = anchor
       ..size = size
       ..keyboard = keyboard;
     positionChild(_Slot.fab, target + travel.pending + travel.remaining());
