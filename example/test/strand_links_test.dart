@@ -187,7 +187,15 @@ void main() {
       await tapAndSettle(tester, inHome(find.text('Privacy')));
       expect(find.byType(SettingsScreen), findsOneWidget);
       expect(session(tester).settings.section, SettingsSection.privacy);
-      expect(find.text('Profile visibility'), findsOneWidget);
+      // A section header, in the style's overline case.
+      expect(
+        find.text(
+          Theme.of(
+            tester.element(find.byType(SettingsScreen)),
+          ).style.overline.applyCase('Profile visibility'),
+        ),
+        findsOneWidget,
+      );
       expect(tester.takeException(), isNull);
     });
 
@@ -288,7 +296,7 @@ void main() {
 
       expect(find.text('You are going to 2 events'), findsOneWidget);
       expect(find.byType(BottomNavigationBar), findsNothing);
-      await tester.tap(find.byIcon(PhosphorIconsRegular.arrowLeft));
+      await tester.tap(find.byType(BackButton));
       await settle(tester);
       expect(find.byType(HomeScreen), findsOneWidget);
       expect(tester.takeException(), isNull);

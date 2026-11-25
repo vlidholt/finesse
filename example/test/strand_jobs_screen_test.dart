@@ -13,6 +13,8 @@ import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'strand_support.dart';
+
 const _desktop = Size(1440, 1000);
 const _laptop = Size(1024, 800);
 const _narrow = Size(768, 900);
@@ -456,9 +458,10 @@ void main() {
       await _pumpJobs(tester);
 
       await tester.tap(_inDetail(find.widgetWithText(Button, 'Easy Apply')));
-      await tester.pump();
+      await _settle(tester);
+      await completeEasyApply(tester);
 
-      expect(_inDetail(find.text('Applied')), findsOneWidget);
+      expect(_inDetail(find.text('View application')), findsOneWidget);
       expect(
         find.descendant(
           of: find.widgetWithText(StatTile, 'Applications sent'),
@@ -466,6 +469,7 @@ void main() {
         ),
         findsOneWidget,
       );
+      await dismissToasts(tester);
     });
 
     testWidgets('the sort menu reorders the list', (tester) async {
@@ -567,14 +571,20 @@ void main() {
         JobsData.tidewater,
       ]);
 
-      // No filter chips on a phone: the list follows the search panel, the
-      // design's 28 below it.
-      expect(find.byType(Chip), findsNothing);
+      // The filter chips are a bar between the search panel and the list,
+      // which scrolls sideways out to the screen's edges.
+      final bar = find.byType(ChipGroup<String>);
+      expect(bar, findsOneWidget);
+      expect(tester.widget<ChipGroup<String>>(bar).wrap, isFalse);
       expect(
-        tester.getTopLeft(find.text('Top picks for you')).dy -
-            tester.getBottomLeft(find.byType(Glass)).dy,
-        28,
+        tester.getTopLeft(bar).dy,
+        greaterThan(tester.getBottomLeft(find.byType(Glass)).dy),
       );
+      expect(
+        tester.getTopLeft(find.text('Top picks for you')).dy,
+        greaterThan(tester.getBottomLeft(bar).dy),
+      );
+      expect(tester.getTopRight(bar).dx, _phone.width);
     });
 
     testWidgets('a card opens the detail page, which pops back', (
@@ -595,7 +605,7 @@ void main() {
 
       expect(page, findsOneWidget);
       expect(inBar(find.text('Quill')), findsOneWidget);
-      expect(inBar(find.byIcon(PhosphorIconsRegular.arrowLeft)), findsOne);
+      expect(inBar(find.byType(BackButton)), findsOne);
       expect(inBar(find.byIcon(PhosphorIconsRegular.bookmarkSimple)), findsOne);
       expect(inBar(find.byIcon(PhosphorIconsRegular.export)), findsOne);
       expect(_inDetail(find.text('Product designer, Editor')), findsOneWidget);
@@ -609,8 +619,10 @@ void main() {
       );
       expect(apply, findsOneWidget);
       await tester.tap(apply);
-      await tester.pump();
-      expect(inPage(find.text('Applied')), findsOneWidget);
+      await _settle(tester);
+      await completeEasyApply(tester);
+      expect(inPage(find.text('View application')), findsOneWidget);
+      await dismissToasts(tester);
 
       // Saving from the app bar reaches the card underneath.
       await tester.tap(inBar(find.byIcon(PhosphorIconsRegular.bookmarkSimple)));
@@ -628,7 +640,7 @@ void main() {
         lessThan(tester.getTopLeft(inPage(find.byType(Glass))).dy),
       );
 
-      await tester.tap(inBar(find.byIcon(PhosphorIconsRegular.arrowLeft)));
+      await tester.tap(inBar(find.byType(BackButton)));
       await _settle(tester);
 
       expect(find.byType(JobDetailPage), findsNothing);

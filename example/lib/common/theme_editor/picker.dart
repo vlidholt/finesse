@@ -1,16 +1,11 @@
-// The example shows Material widgets beside finesse's through the SDK's own
-// Material library, as `package:finesse/material.dart` does; Flutter
-// deprecated it in 3.47 in favour of the `material_ui` package. The list's
-// `cacheExtent` is deprecated too, but its replacement does not exist on
-// the minimum Flutter the package supports (3.41).
+// The list's `cacheExtent` is deprecated, but its replacement does not
+// exist on the minimum Flutter the package supports (3.41).
 // ignore_for_file: deprecated_member_use
 
 import 'dart:math' as math;
 
 import 'package:finesse/finesse.dart';
-import 'package:flutter/material.dart'
-    hide Divider, Slider, SliderTheme, Switch, Theme, ThemeData;
-import 'package:flutter/material.dart' as m;
+import 'package:flutter/widgets.dart';
 
 /// One option in a [ThemePicker].
 @immutable
@@ -512,38 +507,91 @@ class ThemeSlider extends StatelessWidget {
           ),
           SizedBox(
             height: _touch(theme) ? 32 : 24,
-            child: m.SliderTheme(
-              // Straight from the theme's slider, so the panel's control
-              // matches the ones in the app. The thumb used to be the page
-              // background — near-black, and invisible on this deliberately
-              // dark panel.
-              data: SliderThemeData(
-                trackHeight: theme.sliderTheme.trackHeight ?? 4,
-                activeTrackColor:
-                    theme.sliderTheme.activeTrackColor ??
-                    theme.colorScheme.primary,
-                inactiveTrackColor:
-                    theme.sliderTheme.inactiveTrackColor ??
-                    theme.colorScheme.muted,
-                thumbColor:
-                    theme.sliderTheme.thumbColor ??
-                    theme.colorScheme.foreground,
-                overlayShape: SliderComponentShape.noOverlay,
-                thumbShape: RoundSliderThumbShape(
-                  enabledThumbRadius: theme.sliderTheme.thumbRadius ?? 8,
-                ),
-              ),
-              child: m.Slider(
+            // The package's own slider, in the panel's theme, with the
+            // value in a bubble above the thumb while it is dragged.
+            child: Center(
+              child: Slider(
                 value: value.clamp(min, max),
                 min: min,
                 max: max,
-                onChanged: enabled
-                    ? (raw) {
-                        final next = _snapped(raw);
-                        if (next != value) onChanged(next);
-                      }
-                    : null,
+                divisions: ((max - min) / step).round(),
+                showDivisionMarks: false,
+                enabled: enabled,
+                semanticLabel: label,
+                valueIndicator: SliderValueIndicator.whileDragging,
+                valueLabel: (v) => format?.call(v) ?? v.toStringAsFixed(2),
+                onChanged: (raw) {
+                  final next = _snapped(raw);
+                  if (next != value) onChanged(next);
+                },
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A setting of two or three choices, all in view: the small label above a
+/// `SegmentedControl` that fills the panel's width.
+///
+/// A choice this short reads better laid out than behind a popover: the
+/// row says what the other options are without being opened, and one tap
+/// changes it.
+class ThemeSegments<T> extends StatelessWidget {
+  const ThemeSegments({
+    super.key,
+    required this.label,
+    required this.value,
+    required this.options,
+    required this.onChanged,
+    this.enabled = true,
+  });
+
+  final String label;
+  final T value;
+  final List<PickerOption<T>> options;
+  final ValueChanged<T> onChanged;
+
+  /// When false the row is dimmed and its segments do nothing.
+  final bool enabled;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Opacity(
+      opacity: enabled ? 1 : .5,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            height: 20,
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: Text(
+                label,
+                style: _labelStyle(theme),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+          Semantics(
+            label: label,
+            container: true,
+            child: SegmentedControl<T>(
+              expand: true,
+              enabled: enabled,
+              value: value,
+              onChanged: (next) {
+                if (next != value) onChanged(next);
+              },
+              segments: [
+                for (final option in options)
+                  Segment(value: option.value, label: Text(option.label)),
+              ],
             ),
           ),
         ],

@@ -396,7 +396,7 @@ void main() {
       );
 
       // Back, and the search is among the recent ones.
-      await tester.tap(find.byIcon(PhosphorIconsRegular.arrowLeft));
+      await tester.tap(find.byType(BackButton));
       await settleFrames(tester);
       expect(page, findsNothing);
       await tester.tap(find.byType(SearchField));

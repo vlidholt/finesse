@@ -474,12 +474,18 @@ class StrandDateTile extends StatelessWidget {
 ///
 /// With an [actionLabel] the toast carries a button — usually "Undo" —
 /// that calls [onAction] and closes it.
+///
+/// The [variant] says what kind of news it is: [ToastVariant.success] for
+/// something the user asked for that is now done and kept (saved, sent,
+/// published), [ToastVariant.destructive] for something taken away
+/// (deleted, withdrawn, declined), and the neutral default for the rest.
 void showStrandToast(
   BuildContext context,
   String title, {
   String? description,
   String? actionLabel,
   VoidCallback? onAction,
+  ToastVariant variant = ToastVariant.neutral,
 }) {
   // Not every host has a toaster (a widget test that pumps one piece).
   final toaster = Toaster.maybeOf(context);
@@ -488,6 +494,7 @@ void showStrandToast(
   toaster.show(
     Toast(
       id: id,
+      variant: variant,
       title: Text(title),
       description: description == null ? null : Text(description),
       action: actionLabel == null

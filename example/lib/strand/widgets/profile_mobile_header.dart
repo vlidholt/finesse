@@ -11,14 +11,20 @@ import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
-/// The top of the profile on a phone: the cover photo under the status bar
-/// with the round glass buttons on it, then who the person is.
+/// The bar of the profile on a phone: a `SliverAppBar.large` whose expanded
+/// area is the cover photo, running up under the status bar, with the
+/// person's name set large on it and the headline under the name.
 ///
-/// The shell shows no app bar over the profile on a phone, so the area under
-/// the status bar belongs to the cover: it grows by the top safe-area inset
-/// and the buttons start below it.
-class ProfileMobileHeader extends StatelessWidget {
-  const ProfileMobileHeader({
+/// As the page scrolls the name slides under the toolbar and comes back
+/// small in it, and the bar takes its surface: the profile's own header
+/// becomes the screen's app bar. The shell shows no app bar of its own over
+/// the profile on a phone.
+///
+/// The three buttons are the theme's outline icon buttons — a solid disc
+/// with a hairline — because they have to read on the photograph while the
+/// bar is expanded and on the bar's surface once it has collapsed.
+class ProfileMobileBar extends StatelessWidget {
+  const ProfileMobileBar({
     required this.onBack,
     required this.onSearch,
     super.key,
@@ -27,78 +33,116 @@ class ProfileMobileHeader extends StatelessWidget {
   final VoidCallback onBack;
   final VoidCallback onSearch;
 
-  /// The cover's height below the status bar, and the portrait that
-  /// straddles its bottom edge: the profile's own picture sizes, on no
-  /// scale.
-  static const _coverHeight = 190.0;
-  static const _avatarSize = 96.0;
+  /// The height of the cover under the toolbar: the profile's own picture
+  /// size, on no scale.
+  static const coverHeight = 132.0;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final layout = theme.layoutTheme;
-    final topInset = MediaQuery.paddingOf(context).top;
-    final margin = (layout.pagePadding ?? const EdgeInsets.all(16))
-        .resolve(Directionality.of(context))
-        .left;
-    final cover = _coverHeight + topInset;
+    const person = ProfileData.person;
     // The buttons sit 12 from the edges, inside the page's 16 margin.
-    final buttonInset = layout.gap(GapSize.md);
+    final inset = theme.gap(GapSize.md);
 
-    return Stack(
-      children: [
-        Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
-          height: cover,
-          child: const Image(
-            image: AssetImage(StrandAssets.photoCoverMountainLake),
-            fit: BoxFit.cover,
-            semanticLabel: ProfileData.coverLabel,
+    // The bar follows the scroll in paint, so every frame of its collapse
+    // paints it again. Its buttons do not change with it: each is a layer
+    // of its own, and a frame moves them instead of painting them.
+    return SliverAppBar.large(
+      padding: EdgeInsets.symmetric(horizontal: inset),
+      actionsGap: theme.gap(GapSize.sm),
+      // The profile is a destination, not a pushed page: its back button
+      // is its own, and goes Home.
+      leading: RepaintBoundary(
+        child: IconButton.outline(
+          icon: PhosphorIcon(
+            Directionality.of(context) == TextDirection.rtl
+                ? PhosphorIconsRegular.arrowRight
+                : PhosphorIconsRegular.arrowLeft,
+          ),
+          semanticLabel: 'Back',
+          onPressed: onBack,
+        ),
+      ),
+      title: Text.rich(
+        TextSpan(
+          children: [
+            TextSpan(text: person.name),
+            if (person.verified)
+              const WidgetSpan(
+                alignment: PlaceholderAlignment.middle,
+                child: _TitleSeal(),
+              ),
+          ],
+        ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      subtitle: Text(person.headline),
+      expandedHeight: coverHeight,
+      background: const Image(
+        image: AssetImage(StrandAssets.photoCoverMountainLake),
+        fit: BoxFit.cover,
+        semanticLabel: ProfileData.coverLabel,
+      ),
+      actions: [
+        RepaintBoundary(
+          child: IconButton.outline(
+            icon: const PhosphorIcon(PhosphorIconsRegular.magnifyingGlass),
+            semanticLabel: 'Search',
+            onPressed: onSearch,
           ),
         ),
-        Padding(
-          padding: EdgeInsets.fromLTRB(
-            margin,
-            cover - _avatarSize / 2,
-            margin,
-            0,
-          ),
-          child: const _Identity(),
-        ),
-        Positioned(
-          top: topInset + buttonInset,
-          left: buttonInset,
-          right: buttonInset,
-          child: Row(
-            children: [
-              ProfileCoverButton(
-                icon: PhosphorIconsRegular.arrowLeft,
-                semanticLabel: 'Back',
-                onPressed: onBack,
-              ),
-              const Spacer(),
-              ProfileCoverButton(
-                icon: PhosphorIconsRegular.magnifyingGlass,
-                semanticLabel: 'Search',
-                onPressed: onSearch,
-              ),
-              const Gap.sm(),
-              // On a phone this is the way from Strand to the component
-              // library and the theme editor.
-              UserMenu(
-                showProfile: false,
-                builder: (context, controller, _) => ProfileCoverButton(
-                  icon: PhosphorIconsRegular.dotsThree,
-                  semanticLabel: 'More options',
-                  onPressed: controller.toggle,
-                ),
-              ),
-            ],
+        // On a phone this is the way from Strand to the component library
+        // and the theme editor.
+        RepaintBoundary(
+          child: UserMenu(
+            showProfile: false,
+            builder: (context, controller, _) => IconButton.outline(
+              icon: const PhosphorIcon(PhosphorIconsRegular.dotsThree),
+              semanticLabel: 'More options',
+              onPressed: controller.toggle,
+            ),
           ),
         ),
       ],
+    );
+  }
+}
+
+/// The verified seal after the name in the bar's title, sized to whichever
+/// of the two titles — large or small — it is drawn in.
+class _TitleSeal extends StatelessWidget {
+  const _TitleSeal();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsetsDirectional.only(
+        start: Theme.of(context).gap(GapSize.xs),
+      ),
+      child: VerifiedBadge(style: DefaultTextStyle.of(context).style),
+    );
+  }
+}
+
+/// Who the person is, under the [ProfileMobileBar]: the portrait beside the
+/// numbers, then the actions and the "Open to work" tile.
+class ProfileMobileHeader extends StatelessWidget {
+  const ProfileMobileHeader({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final margin = (theme.layoutTheme.pagePadding ?? const EdgeInsets.all(16))
+        .resolve(Directionality.of(context));
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        margin.left,
+        theme.gap(GapSize.sm),
+        margin.right,
+        0,
+      ),
+      child: const _Identity(),
     );
   }
 }
@@ -110,7 +154,6 @@ class _Identity extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final layout = theme.layoutTheme;
     const person = ProfileData.person;
     // The diameter of the mutual connections' faces.
     final mutualSize = theme.avatarXs;
@@ -129,41 +172,82 @@ class _Identity extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             PersonAvatar(
               person,
-              size: ProfileMobileHeader._avatarSize,
+              size: theme.avatarXl,
               // The portrait sits on the page here, not on a card.
               ringColor: scheme.background,
-              ringWidth: 4,
             ),
-            const Spacer(),
-            Padding(
-              padding: EdgeInsets.only(bottom: layout.gap(GapSize.xs)),
-              child: Row(
+            const Gap.md(),
+            Expanded(
+              child: Column(
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: theme.gap(GapSize.xs),
                 children: [
-                  ExcludeSemantics(
-                    child: AvatarGroup(
-                      size: mutualSize,
-                      // The same 6 as the desktop's 24-point faces.
-                      overlap: theme.gap(GapSize.xs),
+                  Text.rich(
+                    TextSpan(
                       children: [
-                        for (final person in ProfileData.mutuals.take(3))
-                          Image.asset(
-                            person.avatar,
-                            width: mutualSize,
-                            height: mutualSize,
-                            fit: BoxFit.cover,
-                          ),
+                        TextSpan(text: ProfileData.followers, style: strong),
+                        gap,
+                        const TextSpan(text: ' followers ·'),
+                        gap,
+                        TextSpan(text: ProfileData.connections, style: strong),
+                        gap,
+                        const TextSpan(text: ' connections'),
                       ],
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.muted,
                   ),
-                  const Gap.sm(),
-                  Text(
-                    ProfileData.mutualCount,
-                    style: theme.textTheme.caption,
+                  Row(
+                    children: [
+                      PhosphorIcon(
+                        PhosphorIconsRegular.mapPin,
+                        size: theme.iconBeside(theme.textTheme.muted),
+                        color: scheme.mutedForeground,
+                      ),
+                      const Gap.xs(),
+                      Expanded(
+                        child: Text(
+                          ProfileData.city,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.muted,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      ExcludeSemantics(
+                        child: AvatarGroup(
+                          size: mutualSize,
+                          // The same 6 as the desktop's 24-point faces.
+                          overlap: theme.gap(GapSize.xs),
+                          children: [
+                            for (final person in ProfileData.mutuals.take(3))
+                              Image.asset(
+                                person.avatar,
+                                width: mutualSize,
+                                height: mutualSize,
+                                fit: BoxFit.cover,
+                              ),
+                          ],
+                        ),
+                      ),
+                      const Gap.sm(),
+                      Expanded(
+                        child: Text(
+                          ProfileData.mutualCount,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.caption,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -171,93 +255,50 @@ class _Identity extends StatelessWidget {
           ],
         ),
         const Gap.md(),
-        Row(
-          children: [
-            Flexible(
-              child: Semantics(
-                header: true,
-                child: Text(
-                  person.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.h1.copyWith(color: scheme.foreground),
-                ),
-              ),
-            ),
-            const Gap.xs(),
-            if (person.verified) VerifiedBadge(style: theme.textTheme.h3),
-          ],
-        ),
-        const Gap.xs(),
-        Text(
-          person.headline,
-          style: theme.textTheme.p.copyWith(color: scheme.foregroundSubtle),
-        ),
-        const Gap.sm(),
-        Row(
-          children: [
-            PhosphorIcon(
-              PhosphorIconsRegular.mapPin,
-              size: theme.iconBeside(theme.textTheme.muted),
-              color: scheme.mutedForeground,
-            ),
-            const Gap.xs(),
-            Expanded(
-              child: Text.rich(
-                TextSpan(
-                  children: [
-                    const TextSpan(text: '${ProfileData.city} ·'),
-                    gap,
-                    TextSpan(text: ProfileData.followers, style: strong),
-                    gap,
-                    const TextSpan(text: '\u00A0followers ·'),
-                    gap,
-                    TextSpan(text: ProfileData.connections, style: strong),
-                    gap,
-                    const TextSpan(text: '\u00A0connections'),
-                  ],
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.muted,
-              ),
-            ),
-          ],
-        ),
-        const Gap.md(),
-        FinesseRow(
-          gap: GapSize.sm,
-          children: [
-            Expanded(
-              child: Button(
-                leading: const PhosphorIcon(PhosphorIconsRegular.plusCircle),
-                onPressed: () => openSettings(context, SettingsSection.privacy),
-                child: const _ButtonLabel('Open to'),
-              ),
-            ),
-            Expanded(
-              child: Button.outline(
-                onPressed: () => openSettings(context, SettingsSection.account),
-                child: const _ButtonLabel('Edit profile'),
-              ),
-            ),
-            IconButton.secondary(
-              icon: const PhosphorIcon(PhosphorIconsRegular.export),
-              style: ButtonTheme(
-                // Squared to the text buttons' radius, as on the desktop.
-                decoration: theme.buttonDecoration(radius: theme.radius),
-              ),
-              semanticLabel: 'Share profile',
-              onPressed: () => copyLink(
-                context,
-                ProfileData.publicUrl,
-                title: 'Profile link copied',
-              ),
-            ),
-          ],
-        ),
+        const _Actions(),
         const Gap.md(),
         const ProfileStatusTile(ProfileData.openToWork, compact: true),
+      ],
+    );
+  }
+}
+
+/// "Open to", "Edit profile" and the share button, sharing the width.
+class _Actions extends StatelessWidget {
+  const _Actions();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return FinesseRow(
+      gap: GapSize.sm,
+      children: [
+        Expanded(
+          child: Button(
+            leading: const PhosphorIcon(PhosphorIconsRegular.plusCircle),
+            onPressed: () => openSettings(context, SettingsSection.privacy),
+            child: const _ButtonLabel('Open to'),
+          ),
+        ),
+        Expanded(
+          child: Button.outline(
+            onPressed: () => openSettings(context, SettingsSection.account),
+            child: const _ButtonLabel('Edit profile'),
+          ),
+        ),
+        IconButton.secondary(
+          icon: const PhosphorIcon(PhosphorIconsRegular.export),
+          style: ButtonTheme(
+            // Squared to the text buttons' radius, as on the desktop.
+            decoration: theme.buttonDecoration(radius: theme.radius),
+          ),
+          semanticLabel: 'Share profile',
+          onPressed: () => copyLink(
+            context,
+            ProfileData.publicUrl,
+            title: 'Profile link copied',
+          ),
+        ),
       ],
     );
   }

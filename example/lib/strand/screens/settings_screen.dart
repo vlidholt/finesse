@@ -57,11 +57,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton.ghost(
-          icon: const PhosphorIcon(PhosphorIconsRegular.arrowLeft),
-          semanticLabel: 'Back',
-          onPressed: () => Navigator.of(context).pop(),
-        ),
         title: const Text('Settings'),
       ),
       body: PageContainer(
@@ -105,22 +100,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 spacing: theme.gap(GapSize.md),
                 children: [
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      spacing: theme.gap(GapSize.xs),
-                      children: [
-                        for (final section in SettingsSection.values)
-                          Chip(
-                            leading: PhosphorIcon(
-                              SettingsScreen._icons[section],
-                            ),
-                            label: Text(section.label),
-                            selected: section == settings.section,
-                            onSelected: (_) => select(section),
+                  // One page at a time, on a row that scrolls and fades at
+                  // the edge it continues beyond.
+                  ChipGroup<SettingsSection>(
+                    semanticLabel: 'Settings pages',
+                    wrap: false,
+                    multiple: false,
+                    allowEmpty: false,
+                    values: {settings.section},
+                    onChanged: (values) => select(values.single),
+                    items: [
+                      for (final section in SettingsSection.values)
+                        ChipGroupItem(
+                          value: section,
+                          leading: PhosphorIcon(
+                            SettingsScreen._icons[section],
                           ),
-                      ],
-                    ),
+                          label: Text(section.label),
+                        ),
+                    ],
                   ),
                   page,
                 ],

@@ -37,6 +37,136 @@ Future<void> showCompanyPreview(BuildContext context, Company company) async {
   if (destination != null && context.mounted) context.leaveTo(destination);
 }
 
+/// Says who [person] is when the pointer rests on [child] — their name,
+/// usually — on a desktop: a `HoverCard` with the portrait, the headline
+/// and how the user knows them.
+///
+/// It is for looking, not for doing: the card has no buttons, and what a
+/// click on the name leads to ([showPersonPreview]) offers the same and
+/// more. On a phone, and for the signed-in user, it is [child] alone; a
+/// finger has the tap.
+class PersonHoverCard extends StatelessWidget {
+  const PersonHoverCard(this.person, {required this.child, super.key});
+
+  final Person person;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    if (theme.formFactor == FormFactor.mobile || person == People.me) {
+      return child;
+    }
+    return HoverCard(
+      builder: (context) => _PersonCard(person),
+      child: child,
+    );
+  }
+}
+
+/// What a [PersonHoverCard] shows.
+class _PersonCard extends StatelessWidget {
+  const _PersonCard(this.person);
+
+  final Person person;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final network = context.strand.network;
+    final mutuals = _mutualsOf(person);
+
+    return ConstrainedBox(
+      constraints: _hoverConstraints,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              PersonAvatar(
+                person,
+                size: theme.avatarLg,
+                showOnline: person.online,
+                onlineRingColor: scheme.popover,
+              ),
+              const Gap.md(),
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    PersonName(person),
+                    Text(
+                      person.headline,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.muted.copyWith(
+                        color: scheme.foregroundSubtle,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const Gap.md(),
+          if (person.location case final location?) ...[
+            Row(
+              children: [
+                PhosphorIcon(
+                  PhosphorIconsRegular.mapPin,
+                  size: theme.iconBeside(theme.textTheme.muted),
+                  color: scheme.mutedForeground,
+                ),
+                const Gap.xs(),
+                Flexible(
+                  child: Text(
+                    location,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.muted,
+                  ),
+                ),
+              ],
+            ),
+            const Gap.sm(),
+          ],
+          if (network.isConnected(person))
+            Text('1st · In your network', style: theme.textTheme.caption)
+          else if (mutuals != null)
+            MutualsLine(
+              people: mutuals.mutuals,
+              label: '${mutuals.count} mutual connections',
+            )
+          else
+            Text('2nd · Not connected yet', style: theme.textTheme.caption),
+        ],
+      ),
+    );
+  }
+}
+
+/// The width a hover card is capped at: a note beside a name.
+const _hoverConstraints = BoxConstraints(minWidth: 240, maxWidth: 280);
+
+/// How the user knows [person], from the Network screen's lists.
+({List<Person> mutuals, int count})? _mutualsOf(Person person) {
+  for (final entry in NetworkData.suggestions) {
+    if (entry.person == person) {
+      return (mutuals: entry.mutuals, count: entry.mutualCount);
+    }
+  }
+  for (final entry in NetworkData.invitations) {
+    if (entry.person == person) {
+      return (mutuals: entry.mutuals, count: entry.mutualCount);
+    }
+  }
+  return null;
+}
+
 /// The width the previews are capped at: a card, not a page.
 const _previewConstraints = BoxConstraints(maxWidth: 400);
 
@@ -71,21 +201,6 @@ class _PersonPreview extends StatelessWidget {
 
   final Person person;
 
-  /// How the user knows [person], from the Network screen's lists.
-  ({List<Person> mutuals, int count})? get _mutuals {
-    for (final entry in NetworkData.suggestions) {
-      if (entry.person == person) {
-        return (mutuals: entry.mutuals, count: entry.mutualCount);
-      }
-    }
-    for (final entry in NetworkData.invitations) {
-      if (entry.person == person) {
-        return (mutuals: entry.mutuals, count: entry.mutualCount);
-      }
-    }
-    return null;
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -96,7 +211,7 @@ class _PersonPreview extends StatelessWidget {
       listenable: network,
       builder: (context, _) {
         final connected = network.isConnected(person);
-        final mutuals = _mutuals;
+        final mutuals = _mutualsOf(person);
         return Dialog(
           constraints: _previewConstraints,
           showCloseButton: true,

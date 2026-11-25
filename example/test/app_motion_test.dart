@@ -26,7 +26,8 @@ void _expectMonotone(List<double> values, {required String reason}) {
   }
 }
 
-/// The cover and the slide of the [PageSwitch] found by [finder].
+/// The cover and the slide of the [PageSwitch] — or of the package's
+/// `DestinationStack`, which is built the same way — found by [finder].
 ({double cover, Offset offset}) _switchOf(WidgetTester tester, Finder finder) {
   // The cover is a box of the page colour painted at the cover's opacity,
   // after the page: the last box in the switch that takes no pointers.
@@ -149,7 +150,7 @@ void main() {
       final home = tester.element(find.byType(HomeScreen));
       final shell = find.descendant(
         of: find.byType(StrandShell),
-        matching: find.byType(PageSwitch),
+        matching: find.byType(DestinationStack),
       );
 
       strandDestinationProvider.of(context).value = StrandDestination.jobs;

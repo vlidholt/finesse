@@ -1,5 +1,6 @@
 import 'package:example/strand/data.dart';
 import 'package:example/strand/data/profile_data.dart';
+import 'package:finesse/finesse.dart' show TimeOfDay;
 import 'package:flutter/foundation.dart';
 
 /// The pages of the Settings screen.
@@ -59,6 +60,24 @@ enum Autoplay {
   final String label;
 }
 
+/// What the user lets Strand use what it knows about them for.
+enum Personalisation {
+  jobs('Suggest jobs from my activity', 'Roles like the ones you look at'),
+  people(
+    'Suggest people from my network',
+    'Colleagues, classmates and friends of connections',
+  ),
+  research(
+    'Invite me to research',
+    'A few short studies a year about Strand itself',
+  );
+
+  const Personalisation(this.label, this.detail);
+
+  final String label;
+  final String detail;
+}
+
 /// A kind of activity the user can be told about, on two channels.
 enum NotificationTopic {
   reactions('Reactions and comments', 'On your posts and articles'),
@@ -90,6 +109,15 @@ class SettingsController extends ChangeNotifier {
   String language = ProfileData.language;
   bool twoStep = true;
 
+  /// The skills listed on the profile, in the user's order.
+  List<String> skills = [
+    for (final skill in ProfileData.skills.take(ProfileData.mobileSkillCount))
+      skill,
+  ];
+
+  /// Shown to connections on the day, without the year.
+  DateTime? birthday = DateTime(1992, 3, 14);
+
   // Privacy.
   ProfileVisibility visibility = ProfileVisibility.public;
   MessagePolicy messages = MessagePolicy.secondDegree;
@@ -97,6 +125,10 @@ class SettingsController extends ChangeNotifier {
   bool readReceipts = true;
   bool shareProfileViews = false;
   bool openToRecruitersOnly = true;
+  final personalisation = <Personalisation>{
+    Personalisation.jobs,
+    Personalisation.people,
+  };
 
   // Notifications.
   final push = <NotificationTopic>{
@@ -117,6 +149,15 @@ class SettingsController extends ChangeNotifier {
   double jobMatch = .8;
   bool pauseAll = false;
 
+  /// The most job emails in a week; 0 is none.
+  int jobEmailsPerWeek = 3;
+
+  /// Nothing is pushed between [quietFrom] and [quietUntil] while this is
+  /// on.
+  bool quietHours = true;
+  TimeOfDay quietFrom = const TimeOfDay(hour: 22, minute: 0);
+  TimeOfDay quietUntil = const TimeOfDay(hour: 7, minute: 0);
+
   // Appearance.
   bool reduceMotion = false;
   bool compactFeed = false;
@@ -131,6 +172,9 @@ class SettingsController extends ChangeNotifier {
     'Deutsch',
     'Français',
   ];
+
+  /// Skills the field suggests while one is typed.
+  static const skillSuggestions = ProfileData.skills;
 
   /// Applies [change] to the fields above and notifies listeners.
   void update(VoidCallback change) {

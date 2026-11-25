@@ -75,6 +75,37 @@ Future<void> _tabAway(WidgetTester tester) async {
 void main() {
   setUpAll(setUpFonts);
 
+  testWidgets('the panel is a popover that leaves the focus in the field, '
+      'as wide as the design draws it', (tester) async {
+    await pumpApp(tester);
+    await tester.tap(find.byType(SearchField));
+    await settle(tester);
+    final popover = tester.widget<Popover>(
+      find.descendant(of: _bar, matching: find.byType(Popover)),
+    );
+    expect(popover.requestFocus, isFalse);
+    expect(_focusIsInside(find.byType(SearchField)), isTrue);
+    // The popover's surface, its padding included.
+    expect(
+      tester.getSize(_panel).width + 2 * 4,
+      StrandSearchBar.panelWidth,
+    );
+
+    // Typing keeps the caret where it is while the results change.
+    await tester.enterText(
+      find.descendant(
+        of: find.byType(SearchField),
+        matching: find.byType(EditableText),
+      ),
+      'design',
+    );
+    await settle(tester);
+    expect(_panel, findsOneWidget);
+    expect(_focusIsInside(find.byType(SearchField)), isTrue);
+    expect(find.textContaining('results'), findsWidgets);
+    expect(tester.takeException(), isNull);
+  });
+
   group('the panel is open while the focus is in the field or the panel', () {
     testWidgets(
       'tapping the field again after a tap outside reopens it',

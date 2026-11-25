@@ -1,3 +1,4 @@
+import 'package:example/strand/data.dart';
 import 'package:example/strand/data/home_data.dart';
 import 'package:example/strand/widgets/home_feed_scope.dart';
 import 'package:example/strand/widgets/home_pieces.dart';
@@ -143,11 +144,15 @@ class _PostHeader extends StatelessWidget {
               Row(
                 children: [
                   Flexible(
-                    child: HomeTextLink(
-                      author.name,
-                      onPressed: () => showPersonPreview(context, author),
-                      style: theme.textTheme.large.copyWith(
-                        color: scheme.foreground,
+                    // With a mouse, resting on the name says who it is.
+                    child: PersonHoverCard(
+                      author,
+                      child: HomeTextLink(
+                        author.name,
+                        onPressed: () => showPersonPreview(context, author),
+                        style: theme.textTheme.large.copyWith(
+                          color: scheme.foreground,
+                        ),
                       ),
                     ),
                   ),
@@ -208,61 +213,125 @@ class _FollowChip extends StatelessWidget {
   }
 }
 
-/// The "More options" button and its menu.
+/// One thing the "More options" button offers for a post.
+typedef _PostAction = ({
+  IconData icon,
+  String label,
+  VoidCallback onPressed,
+  bool destructive,
+});
+
+/// The "More options" button: a menu under the button on a desktop, and on
+/// a phone an action sheet that comes up from the bottom edge, where a
+/// thumb reaches it.
 class _PostMenu extends StatelessWidget {
   const _PostMenu(this.post);
 
   final FeedPost post;
 
-  @override
-  Widget build(BuildContext context) {
-    final model = HomeFeedScope.of(context);
+  List<_PostAction> _actions(BuildContext context, HomeFeedModel model) {
     final author = post.author;
-    return DropdownMenu(
-      itemsBuilder: (_) => [
-        MenuItem(
-          leading: const PhosphorIcon(PhosphorIconsRegular.bookmarkSimple),
-          onPressed: () => showStrandToast(
-            context,
-            'Post saved',
-            description: 'Find it under Saved items in your menu.',
-          ),
-          child: const Text('Save post'),
+    final own = author == People.me;
+    return [
+      (
+        icon: PhosphorIconsRegular.bookmarkSimple,
+        label: 'Save post',
+        destructive: false,
+        onPressed: () => showStrandToast(
+          context,
+          'Post saved',
+          description: 'Find it under Saved items in your menu.',
+          variant: ToastVariant.success,
         ),
-        MenuItem(
-          leading: const PhosphorIcon(PhosphorIconsRegular.link),
-          onPressed: () => copyLink(context, 'strand.app/posts/${post.id}'),
-          child: const Text('Copy link'),
-        ),
-        if (post.followable)
-          MenuItem(
-            leading: PhosphorIcon(
-              model.isFollowing(author)
-                  ? PhosphorIconsRegular.userMinus
-                  : PhosphorIconsRegular.userPlus,
-            ),
-            onPressed: () => model.toggleFollow(author),
-            child: Text(
+      ),
+      (
+        icon: PhosphorIconsRegular.link,
+        label: 'Copy link',
+        destructive: false,
+        onPressed: () => copyLink(context, 'strand.app/posts/${post.id}'),
+      ),
+      if (post.followable)
+        (
+          icon: model.isFollowing(author)
+              ? PhosphorIconsRegular.userMinus
+              : PhosphorIconsRegular.userPlus,
+          label:
               '${model.isFollowing(author) ? 'Unfollow' : 'Follow'} '
               '${author.firstName}',
-            ),
-          ),
-        MenuItem(
-          leading: const PhosphorIcon(PhosphorIconsRegular.eyeSlash),
+          destructive: false,
+          onPressed: () => model.toggleFollow(author),
+        ),
+      if (own)
+        (
+          icon: PhosphorIconsRegular.trash,
+          label: 'Delete post',
+          destructive: true,
+          onPressed: () {
+            model.unpublish(post);
+            showStrandToast(
+              context,
+              'Post deleted',
+              variant: ToastVariant.destructive,
+              actionLabel: 'Undo',
+              onAction: () => model.restore(post),
+            );
+          },
+        )
+      else
+        (
+          icon: PhosphorIconsRegular.eyeSlash,
+          label: 'Not interested',
+          destructive: false,
           onPressed: () => showStrandToast(
             context,
             'Thanks, noted',
             description: 'You will see fewer posts like this one.',
           ),
-          child: const Text('Not interested'),
         ),
+    ];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final model = HomeFeedScope.of(context);
+    final author = post.author;
+
+    Widget button(VoidCallback onPressed) => IconButton.ghost(
+      size: ButtonSize.sm,
+      icon: const PhosphorIcon(PhosphorIconsRegular.dotsThree),
+      semanticLabel: 'More options',
+      onPressed: onPressed,
+    );
+
+    if (Theme.of(context).formFactor == FormFactor.mobile) {
+      return button(
+        () => showActionSheet<void>(
+          context: context,
+          title: Text('Post by ${author.name}'),
+          actions: [
+            for (final action in _actions(context, model))
+              ActionSheetAction(
+                icon: PhosphorIcon(action.icon),
+                label: Text(action.label),
+                destructive: action.destructive,
+                onPressed: action.onPressed,
+              ),
+          ],
+        ),
+      );
+    }
+
+    return DropdownMenu(
+      itemsBuilder: (_) => [
+        for (final action in _actions(context, model))
+          MenuItem(
+            leading: PhosphorIcon(action.icon),
+            destructive: action.destructive,
+            onPressed: action.onPressed,
+            child: Text(action.label),
+          ),
       ],
-      builder: (context, controller, _) => IconButton.ghost(
-        size: ButtonSize.sm,
-        icon: const PhosphorIcon(PhosphorIconsRegular.dotsThree),
-        semanticLabel: 'More options',
-        onPressed: controller.toggle,
-      ),
+      builder: (context, controller, _) => button(controller.toggle),
     );
   }
 }
@@ -282,34 +351,43 @@ class _ReactionSummary extends StatelessWidget {
     final others = formatCount(model.otherReactions(post));
     final name = compact ? post.reactedBy.firstName : post.reactedBy.name;
     final size = theme.avatarXs;
+    // A post of the user's own, a moment old: nobody has reacted yet.
+    final none = post.reactions.isEmpty;
+    final summary = !none
+        ? '$name and $others others'
+        : model.isLiked(post)
+        ? 'You reacted'
+        : 'Be the first to react';
 
     return Row(
       children: [
-        ExcludeSemantics(
-          child: AvatarGroup(
-            size: size,
-            overlap: size / 4,
-            children: [
-              for (final reaction in post.reactions)
-                SizedBox.square(
-                  dimension: size,
-                  child: ColoredBox(
-                    color: reaction.background,
-                    child: PhosphorIcon(
-                      reaction.icon,
-                      // The disc's own glyph, fitted to it.
-                      size: size * .6,
-                      color: reaction.foreground,
+        if (!none) ...[
+          ExcludeSemantics(
+            child: AvatarGroup(
+              size: size,
+              overlap: size / 4,
+              children: [
+                for (final reaction in post.reactions)
+                  SizedBox.square(
+                    dimension: size,
+                    child: ColoredBox(
+                      color: reaction.background,
+                      child: PhosphorIcon(
+                        reaction.icon,
+                        // The disc's own glyph, fitted to it.
+                        size: size * .6,
+                        color: reaction.foreground,
+                      ),
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
-        ),
-        const Gap.sm(),
+          const Gap.sm(),
+        ],
         Expanded(
           child: Text(
-            '$name and $others others',
+            summary,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: theme.textTheme.muted,

@@ -2,6 +2,7 @@ import 'package:example/strand/data/applications_data.dart';
 import 'package:example/strand/widgets/jobs_board_card.dart';
 import 'package:example/strand/widgets/jobs_board_controller.dart';
 import 'package:example/strand/widgets/strand_metrics.dart';
+import 'package:example/strand/widgets/strand_pieces.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -92,6 +93,27 @@ class _StageMenu extends StatelessWidget {
   final ApplicationStage stage;
   final ApplicationsController applications;
 
+  static String _count(int count) =>
+      count == 1 ? '1 application' : '$count applications';
+
+  /// Says what a menu action did, with an "Undo" that puts the board back.
+  void _offerUndo(
+    BuildContext context,
+    ApplicationsSnapshot before, {
+    required String title,
+    required String description,
+    ToastVariant variant = ToastVariant.neutral,
+  }) {
+    showStrandToast(
+      context,
+      title,
+      description: description,
+      variant: variant,
+      actionLabel: 'Undo',
+      onAction: () => applications.restore(before),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final empty = applications.at(stage).isEmpty;
@@ -112,20 +134,37 @@ class _StageMenu extends StatelessWidget {
           onPressed: () => applications.sort(stage, ApplicationSort.company),
           child: const Text('Sort by company'),
         ),
-        const Divider(margin: EdgeInsets.symmetric(vertical: 4)),
+        const MenuDivider(),
         if (stage == ApplicationStage.archived)
           MenuItem(
             leading: const PhosphorIcon(PhosphorIconsRegular.trash),
             enabled: !empty,
             destructive: true,
-            onPressed: applications.clearArchive,
+            onPressed: () {
+              final count = applications.at(stage).length;
+              _offerUndo(
+                context,
+                applications.clearArchive(),
+                title: 'Archive cleared',
+                description: _count(count),
+                variant: ToastVariant.destructive,
+              );
+            },
             child: const Text('Clear the archive'),
           )
         else
           MenuItem(
             leading: const PhosphorIcon(PhosphorIconsRegular.archive),
             enabled: !empty,
-            onPressed: () => applications.archiveAll(stage),
+            onPressed: () {
+              final count = applications.at(stage).length;
+              _offerUndo(
+                context,
+                applications.archiveAll(stage),
+                title: 'Moved to Archived',
+                description: '${_count(count)} from ${stage.label}',
+              );
+            },
             child: const Text('Archive all'),
           ),
       ],

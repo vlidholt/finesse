@@ -52,11 +52,6 @@ class JobDetailPage extends StatelessWidget {
           // panels are washes that need a card under them.
           backgroundColor: colors.card,
           appBar: AppBar(
-            leading: IconButton.ghost(
-              icon: const PhosphorIcon(PhosphorIconsRegular.arrowLeft),
-              semanticLabel: 'Back',
-              onPressed: () => Navigator.of(context).pop(),
-            ),
             title: Text(job.company.name),
             actionsGap: 0,
             actions: [

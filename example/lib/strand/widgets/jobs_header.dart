@@ -72,6 +72,7 @@ class JobsHeader extends StatelessWidget {
                     context,
                     'Draft saved',
                     description: '$title at Halcyon',
+                    variant: ToastVariant.success,
                   );
                 }
               },

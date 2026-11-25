@@ -69,9 +69,17 @@ Finder _tab(String label) => find.descendant(
   matching: find.text(label),
 );
 
-Finder _coverButton(String label) => find.byWidgetPredicate(
-  (widget) => widget is ProfileCoverButton && widget.semanticLabel == label,
+/// One of the phone bar's three round buttons.
+Finder _coverButton(String label) => find.descendant(
+  of: find.byType(ProfileMobileBar),
+  matching: find.byWidgetPredicate(
+    (widget) => widget is IconButton && widget.semanticLabel == label,
+  ),
 );
+
+/// The page's scroll position on a phone.
+ScrollPosition _pagePosition(WidgetTester tester) =>
+    tester.state<ScrollableState>(find.byType(Scrollable).first).position;
 
 /// A run of text that mixes weights, such as "1,284 followers".
 Finder _richText(String pattern) =>
@@ -86,7 +94,12 @@ void main() {
           await _pumpProfile(tester, size: size, brightness: brightness);
 
           expect(tester.takeException(), isNull);
-          expect(find.text('Noor Haddad'), findsOneWidget);
+          // On a phone the name is the bar's title, which draws it twice:
+          // large on the cover and small in the toolbar.
+          expect(
+            _richText('Noor Haddad'),
+            size == _phone ? findsNWidgets(2) : findsOneWidget,
+          );
 
           // Every tab, not only the designed one.
           final tabs = size == _phone ? ProfileTab.mobile : ProfileTab.values;
@@ -372,10 +385,20 @@ void main() {
     testWidgets('shows the designed screen', (tester) async {
       await _pumpProfile(tester, size: const Size(390, 1400));
 
+      expect(find.byType(ProfileMobileBar), findsOneWidget);
       expect(find.byType(ProfileMobileHeader), findsOneWidget);
       expect(find.byType(ProfileHeaderCard), findsNothing);
+      // The name is the bar's title: large on the cover, small in the
+      // toolbar.
+      expect(
+        find.descendant(
+          of: find.byType(SliverAppBar),
+          matching: _richText('Noor Haddad'),
+        ),
+        findsNWidgets(2),
+      );
       for (final text in [
-        'Noor Haddad',
+        'Copenhagen',
         '+18 mutual',
         'Product designer at Halcyon. Building calmer tools for busy teams.',
         'Open to',
@@ -394,7 +417,6 @@ void main() {
       ]) {
         expect(find.text(text), findsOneWidget, reason: text);
       }
-      expect(_richText('Copenhagen ·'), findsOneWidget);
       expect(_richText('followers ·'), findsOneWidget);
       for (final label in ['Back', 'Search', 'More options']) {
         expect(_coverButton(label), findsOneWidget, reason: label);
@@ -433,19 +455,100 @@ void main() {
 
       final cover = tester.getRect(
         find.descendant(
-          of: find.byType(ProfileMobileHeader),
+          of: find.byType(ProfileMobileBar),
           matching: find.bySemanticsLabel(ProfileData.coverLabel),
         ),
       );
       expect(cover.topLeft, Offset.zero);
       expect(cover.width, 390);
-      expect(cover.height, 190 + 47);
+      // The status bar, the toolbar and the cover's own height under it.
+      expect(
+        cover.height,
+        greaterThan(47 + ProfileMobileBar.coverHeight + 44),
+      );
 
-      // The buttons clear the status bar.
+      // The buttons clear the status bar, 12 in from the edge.
       final back = tester.getRect(_coverButton('Back'));
-      expect(back.top, 47 + 12);
+      expect(back.top, greaterThanOrEqualTo(47));
       expect(back.left, 12);
       expect(back.size, const Size.square(44));
+      final more = tester.getRect(_coverButton('More options'));
+      expect(more.right, 390 - 12);
+    });
+
+    testWidgets('scrolling collapses the name into the toolbar, and the '
+        'buttons stay', (tester) async {
+      await _pumpProfile(tester, size: _phone);
+      // The two titles of the bar: large first, as it is laid out.
+      Finder names() => find.descendant(
+        of: find.byType(SliverAppBar),
+        matching: _richText('Noor Haddad'),
+      );
+      double opacityOf(Finder finder) {
+        var opacity = 1.0;
+        finder.evaluate().single.visitAncestorElements((element) {
+          final widget = element.widget;
+          if (widget is Opacity) opacity *= widget.opacity;
+          if (widget is FadeTransition) opacity *= widget.opacity.value;
+          return widget is! SliverAppBar;
+        });
+        return opacity;
+      }
+
+      final expandedTop = tester.getTopLeft(names().first).dy;
+      expect(expandedTop, greaterThan(60), reason: 'under the toolbar');
+
+      _pagePosition(tester).jumpTo(500);
+      await _settle(tester, frames: 8);
+
+      // The toolbar is still at the top, with its buttons, and the page
+      // has moved under it.
+      for (final label in ['Back', 'Search', 'More options']) {
+        final button = tester.getRect(_coverButton(label));
+        expect(button.top, greaterThanOrEqualTo(0), reason: label);
+        expect(button.bottom, lessThan(70), reason: label);
+      }
+      expect(
+        tester.getTopLeft(find.byType(ProfileMobileHeader)).dy,
+        lessThan(0),
+      );
+      // A title is in the toolbar's row now.
+      final inToolbar = [
+        for (final element in names().evaluate())
+          tester.getRect(find.byElementPredicate((e) => e == element)),
+      ].where((rect) => rect.top >= 0 && rect.bottom < 70);
+      expect(inToolbar, isNotEmpty);
+      expect(opacityOf(names().last), greaterThan(0));
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('a swipe turns to the next tab, and the bar follows', (
+      tester,
+    ) async {
+      await _pumpProfile(tester, size: const Size(390, 1400));
+      TabsController<ProfileTab> controller() => tester
+          .widget<TabBar<ProfileTab>>(find.byType(TabBar<ProfileTab>))
+          .controller!;
+      expect(controller().value, ProfileTab.about);
+
+      await tester.fling(
+        find.text(ProfileData.aboutShort),
+        const Offset(-300, 0),
+        1200,
+      );
+      await _settle(tester);
+      expect(controller().value, ProfileTab.experience);
+      expect(find.byType(ProfileEducationCard), findsOneWidget);
+
+      // And back.
+      await tester.fling(
+        find.byType(TabBarView<ProfileTab>),
+        const Offset(300, 0),
+        1200,
+      );
+      await _settle(tester);
+      expect(controller().value, ProfileTab.about);
+      expect(tester.takeException(), isNull);
     });
 
     testWidgets('leaves room for the bottom bar', (tester) async {
@@ -456,10 +559,8 @@ void main() {
         padding: const FakeViewPadding(bottom: barInset),
       );
 
-      await tester.drag(
-        find.byType(SingleChildScrollView),
-        const Offset(0, -3000),
-      );
+      final position = _pagePosition(tester);
+      position.jumpTo(position.maxScrollExtent);
       await _settle(tester, frames: 4);
 
       final card = tester.getRect(find.byType(ProfileExperienceCard));
@@ -615,7 +716,10 @@ void main() {
     expect(find.byType(ProfileMobileHeader), findsOneWidget);
     expect(find.byType(ProfileMediaCard), findsOneWidget);
     expect(
-      tester.widget<TabBar<ProfileTab>>(find.byType(TabBar<ProfileTab>)).value,
+      tester
+          .widget<TabBar<ProfileTab>>(find.byType(TabBar<ProfileTab>))
+          .controller!
+          .value,
       ProfileTab.media,
     );
 
@@ -627,7 +731,10 @@ void main() {
     tester.view.physicalSize = _phone;
     await _settle(tester, frames: 4);
     expect(
-      tester.widget<TabBar<ProfileTab>>(find.byType(TabBar<ProfileTab>)).value,
+      tester
+          .widget<TabBar<ProfileTab>>(find.byType(TabBar<ProfileTab>))
+          .controller!
+          .value,
       ProfileTab.about,
     );
     expect(find.text(ProfileData.aboutShort), findsOneWidget);

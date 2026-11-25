@@ -19,6 +19,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'strand_support.dart';
+
 import 'support.dart' show pumpApp, setUpFonts;
 
 const _desktop = Size(1440, 1000);
@@ -688,7 +690,8 @@ void main() {
       final job = JobsData.jobs.first;
       // The first listing is selected: apply to it from the detail pane.
       await tester.tap(find.text('Easy Apply').first);
-      await _settle(tester, frames: 4);
+      await _settle(tester);
+      await completeEasyApply(tester);
       await tester.tap(find.text(ApplicationsData.boardTab));
       await _settle(tester, frames: 8);
       expect(_stageOf(tester, job.title), ApplicationStage.applied);
@@ -709,6 +712,7 @@ void main() {
 
       expect(tester.takeException(), isNull);
       expect(_stageOf(tester, job.title), ApplicationStage.saved);
+      await dismissToasts(tester);
     });
   });
 }

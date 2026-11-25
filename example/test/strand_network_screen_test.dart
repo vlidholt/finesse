@@ -557,7 +557,7 @@ void main() {
       await scrollToAndTap(tester, _pillFor('Calm Software Club', 'Join'));
       expect(find.text('You are in 4 groups'), findsOneWidget);
 
-      await tester.tap(find.byIcon(PhosphorIconsRegular.arrowLeft));
+      await tester.tap(find.byType(BackButton));
       await settleFrames(tester);
       expect(page, findsNothing);
       // The page and the list under it are one state.

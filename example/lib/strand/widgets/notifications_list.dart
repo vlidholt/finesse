@@ -50,56 +50,64 @@ class NotificationsList extends StatelessWidget {
       );
     }
 
-    return FinesseColumn(
-      gap: GapSize.lg,
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        for (final (period, notifications) in groups)
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              StrandSectionHeading(
-                period.label,
-                trailing: switch (notifications
-                    .where(controller.isUnread)
-                    .length) {
-                  0 => null,
-                  final unread => Text(
-                    '$unread new',
-                    style: theme.textTheme.muted,
-                  ),
-                },
-              ),
-              const Gap.md(),
-              Card(
-                // The rows bring their own inset, as a conversation's do.
-                padding: EdgeInsets.all(inset),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  // The Messages list's 2 between rows.
-                  spacing: 2,
-                  children: [
-                    for (final notification in notifications)
-                      _NotificationRow(
-                        notification,
-                        key: ValueKey(notification.id),
-                        controller: controller,
-                      ),
-                  ],
+    // One row open at a time: uncovering a second closes the first.
+    return SwipeActionsScope(
+      child: FinesseColumn(
+        gap: GapSize.lg,
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (final (period, notifications) in groups)
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                StrandSectionHeading(
+                  period.label,
+                  trailing: switch (notifications
+                      .where(controller.isUnread)
+                      .length) {
+                    0 => null,
+                    final unread => Text(
+                      '$unread new',
+                      style: theme.textTheme.muted,
+                    ),
+                  },
                 ),
-              ),
-            ],
-          ),
-      ],
+                const Gap.md(),
+                Card(
+                  // The rows bring their own inset, as a conversation's do.
+                  padding: EdgeInsets.all(inset),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    // The Messages list's 2 between rows.
+                    spacing: 2,
+                    children: [
+                      for (final notification in notifications)
+                        _NotificationRow(
+                          notification,
+                          key: ValueKey(notification.id),
+                          controller: controller,
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+        ],
+      ),
     );
   }
 }
 
 /// One notification: who or what it is from, the sentence, what was
 /// written, a button where one makes sense, its age and its menu.
+///
+/// The row has its menu's actions behind it too (`SwipeActions`): a finger
+/// swipes from the start edge to mark it read or unread and from the end
+/// edge to remove it or to see fewer like it, and a secondary click opens
+/// them as a context menu.
 class _NotificationRow extends StatelessWidget {
   const _NotificationRow(
     this.notification, {
@@ -152,12 +160,17 @@ class _NotificationRow extends StatelessWidget {
     }
   }
 
-  void _remove(BuildContext context, String message) {
+  void _remove(
+    BuildContext context,
+    String message, {
+    ToastVariant variant = ToastVariant.neutral,
+  }) {
     final unread = controller.isUnread(notification);
     controller.remove(notification);
     showStrandToast(
       context,
       message,
+      variant: variant,
       actionLabel: 'Undo',
       onAction: () => controller.restore(notification, unread: unread),
     );
@@ -165,9 +178,6 @@ class _NotificationRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    final layout = theme.layoutTheme;
     final unread = controller.isUnread(notification);
     final action = notification.action;
     // An invitation accepted on the Network screen is answered here too.
@@ -177,6 +187,68 @@ class _NotificationRow extends StatelessWidget {
             notification.people.isNotEmpty &&
             context.strand.network.isConnected(notification.people.first));
 
+    // Clipped to the row's own rounded shape, so the actions come out from
+    // behind it with its corners. A clip in paint: no layer.
+    return ClipRRect(
+      borderRadius: Theme.of(context).radii.lg,
+      child: SwipeActions(
+        // The row has a menu of its own, behind "More options", and a
+        // secondary click opens that one (see [_RowMenuHost]): a menu
+        // inside the child of another menu's region takes the outer one
+        // for its parent, and then opens only every other time.
+        contextMenu: false,
+        leading: [
+          SwipeAction(
+            icon: PhosphorIcon(
+              unread
+                  ? PhosphorIconsRegular.envelopeSimpleOpen
+                  : PhosphorIconsRegular.envelopeSimple,
+            ),
+            label: unread ? 'Read' : 'Unread',
+            onPressed: () {
+              controller.toggleRead(notification);
+              return false;
+            },
+          ),
+        ],
+        trailing: [
+          SwipeAction(
+            icon: const PhosphorIcon(PhosphorIconsRegular.trash),
+            label: 'Remove',
+            destructive: true,
+            // The row leaves; `onRemoved` takes it out of the list.
+            onPressed: () => true,
+          ),
+          SwipeAction(
+            icon: const PhosphorIcon(PhosphorIconsRegular.bellSimpleSlash),
+            label: 'Fewer',
+            onPressed: () {
+              _remove(context, 'You will see fewer notifications like this');
+              return false;
+            },
+          ),
+        ],
+        onRemoved: () => _remove(
+          context,
+          'Notification removed',
+          variant: ToastVariant.destructive,
+        ),
+        child: _RowMenuHost(
+          child: _buildRow(context, unread: unread, answered: answered),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRow(
+    BuildContext context, {
+    required bool unread,
+    required bool answered,
+  }) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final layout = theme.layoutTheme;
+    final action = notification.action;
     // The accent, thinned: a dozen unread rows are a tint, not a block.
     final wash = Color.alphaBlend(
       scheme.accent.withValues(
@@ -296,8 +368,11 @@ class _NotificationRow extends StatelessWidget {
                           context,
                           'You will see fewer notifications like this',
                         ),
-                        onRemove: () =>
-                            _remove(context, 'Notification removed'),
+                        onRemove: () => _remove(
+                          context,
+                          'Notification removed',
+                          variant: ToastVariant.destructive,
+                        ),
                       ),
                     ],
                   ),
@@ -501,7 +576,7 @@ class _RowMenu extends StatelessWidget {
           onPressed: () => openSettings(context, SettingsSection.notifications),
           child: const Text('Notification settings'),
         ),
-        const Divider(margin: EdgeInsets.symmetric(vertical: 4)),
+        const MenuDivider(),
         MenuItem(
           destructive: true,
           leading: const PhosphorIcon(PhosphorIconsRegular.trash),
@@ -509,12 +584,47 @@ class _RowMenu extends StatelessWidget {
           child: const Text('Remove'),
         ),
       ],
-      builder: (context, menu, _) => IconButton.ghost(
-        size: ButtonSize.sm,
-        icon: const PhosphorIcon(PhosphorIconsRegular.dotsThree),
-        semanticLabel: 'More options',
-        onPressed: menu.toggle,
-      ),
+      builder: (context, menu, _) {
+        // A secondary click on the row opens this menu too.
+        _RowMenuHost.of(context)?.openMenu = menu.open;
+        return IconButton.ghost(
+          size: ButtonSize.sm,
+          icon: const PhosphorIcon(PhosphorIconsRegular.dotsThree),
+          semanticLabel: 'More options',
+          onPressed: menu.toggle,
+        );
+      },
+    );
+  }
+}
+
+/// Makes a secondary click anywhere on a row open the row's own "More
+/// options" menu: the context menu of a notification, for a mouse.
+///
+/// The menu is the one under the button, opened from there, so there is
+/// one menu to keep right. Its trigger hands this host the way to open it.
+class _RowMenuHost extends StatefulWidget {
+  const _RowMenuHost({required this.child});
+
+  final Widget child;
+
+  static _RowMenuHostState? of(BuildContext context) =>
+      context.findAncestorStateOfType<_RowMenuHostState>();
+
+  @override
+  State<_RowMenuHost> createState() => _RowMenuHostState();
+}
+
+class _RowMenuHostState extends State<_RowMenuHost> {
+  /// Opens the row's menu; set by the menu's trigger when it is built.
+  VoidCallback? openMenu;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onSecondaryTapUp: (_) => openMenu?.call(),
+      child: widget.child,
     );
   }
 }

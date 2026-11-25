@@ -1,5 +1,6 @@
 import 'package:disco/disco.dart';
 import 'package:example/strand/data/jobs_data.dart';
+import 'package:example/strand/widgets/home_feed_scope.dart';
 import 'package:example/strand/widgets/jobs_board_controller.dart';
 import 'package:example/strand/widgets/jobs_state.dart';
 import 'package:example/strand/widgets/messages_assistant.dart';
@@ -13,9 +14,11 @@ import 'package:flutter/widgets.dart';
 /// The state Strand's screens share for as long as the app runs: what has
 /// been read, answered, requested, searched for and switched on.
 ///
-/// A screen's own state stays in the screen (`HomeFeedModel`). These are
-/// here instead because more than one place shows them:
+/// A screen's own state stays in the screen. These are here instead
+/// because more than one place shows them:
 ///
+/// * [feed] — the composer is opened from the shell's bars on any screen,
+///   and what it publishes is a post in the home feed.
 /// * [notifications] — the shell's bell counts the unread ones.
 /// * [messages] — the shell's Messages badge counts the conversations with
 ///   something unread, and a reply goes on arriving after the user has left
@@ -40,6 +43,7 @@ class StrandSession {
     jobs.addListener(_trackListings);
   }
 
+  final feed = HomeFeedModel();
   final notifications = NotificationsController();
   final MessagesController messages;
   final network = NetworkController();
@@ -74,6 +78,7 @@ class StrandSession {
       ..removeListener(_trackListings)
       ..dispose();
     applications.dispose();
+    feed.dispose();
     notifications.dispose();
     messages.dispose();
     network.dispose();

@@ -1,4 +1,6 @@
+import 'package:example/strand/session.dart';
 import 'package:example/strand/widgets/home_composer_card.dart';
+import 'package:example/strand/widgets/home_feed_refresh.dart';
 import 'package:example/strand/widgets/home_feed_scope.dart';
 import 'package:example/strand/widgets/home_feed_tabs.dart';
 import 'package:example/strand/widgets/home_groups_card.dart';
@@ -21,26 +23,13 @@ import 'package:flutter/widgets.dart';
 ///   feed gets tight.
 /// * **Phone** — one column: a stories row that scrolls sideways, a
 ///   full-width segmented control and compact post cards.
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  final _model = HomeFeedModel();
-
-  @override
-  void dispose() {
-    _model.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     return HomeFeedScope(
-      model: _model,
+      model: context.strand.feed,
       child: FormFactorBuilder(
         mobile: (context) => const _MobileHome(),
         desktop: (context) => const _DesktopHome(),
@@ -78,64 +67,67 @@ class _DesktopHomeState extends State<_DesktopHome> {
   Widget build(BuildContext context) {
     final gap = Theme.of(context).layoutTheme.gap(GapSize.xl);
 
-    return PageContainer(
-      scrollable: true,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final width = constraints.maxWidth;
-          final showRight = width >= _rightRailFrom;
-          final showLeft = width >= _leftRailFrom;
+    return HomeFeedRefresh(
+      child: PageContainer(
+        scrollable: true,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final width = constraints.maxWidth;
+            final showRight = width >= _rightRailFrom;
+            final showLeft = width >= _leftRailFrom;
 
-          // How far the rails have shrunk towards their minimum: 0 where
-          // all three columns fit at full width, 1 where they no longer do.
-          final full = _leftWidth + _rightWidth + _feedWidth + gap * 2;
-          final least = _leftMinWidth + _rightMinWidth + _feedWidth + gap * 2;
-          final squeeze = showRight
-              ? ((full - width) / (full - least)).clamp(0.0, 1.0)
-              : 0.0;
+            // How far the rails have shrunk towards their minimum: 0 where
+            // all three columns fit at full width, 1 where they no longer do.
+            final full = _leftWidth + _rightWidth + _feedWidth + gap * 2;
+            final least = _leftMinWidth + _rightMinWidth + _feedWidth + gap * 2;
+            final squeeze = showRight
+                ? ((full - width) / (full - least)).clamp(0.0, 1.0)
+                : 0.0;
 
-          // Each column is keyed: the rails come and go with the width,
-          // and without keys the feed between them is matched by position
-          // — dropping both rails at once would rebuild it from nothing,
-          // with the focus and everything else its cards hold.
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: gap,
-            children: [
-              if (showLeft)
-                SizedBox(
-                  key: const ValueKey(_Column.left),
-                  width: _leftWidth - (_leftWidth - _leftMinWidth) * squeeze,
-                  child: const FinesseColumn(
-                    gap: GapSize.lg,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [HomeProfileCard(), HomeGroupsCard()],
+            // Each column is keyed: the rails come and go with the width,
+            // and without keys the feed between them is matched by position
+            // — dropping both rails at once would rebuild it from nothing,
+            // with the focus and everything else its cards hold.
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: gap,
+              children: [
+                if (showLeft)
+                  SizedBox(
+                    key: const ValueKey(_Column.left),
+                    width: _leftWidth - (_leftWidth - _leftMinWidth) * squeeze,
+                    child: const FinesseColumn(
+                      gap: GapSize.lg,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [HomeProfileCard(), HomeGroupsCard()],
+                    ),
                   ),
-                ),
-              const Expanded(key: ValueKey(_Column.feed), child: _Feed()),
-              if (showRight)
-                SizedBox(
-                  key: const ValueKey(_Column.right),
-                  width: _rightWidth - (_rightWidth - _rightMinWidth) * squeeze,
-                  child: FinesseColumn(
-                    gap: GapSize.lg,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (!_suggestionsDismissed)
-                        HomeSuggestionsCard(
-                          onDismissed: () =>
-                              setState(() => _suggestionsDismissed = true),
-                        ),
-                      const HomeTrendingCard(),
-                      const HomeFooterLinks(),
-                    ],
+                const Expanded(key: ValueKey(_Column.feed), child: _Feed()),
+                if (showRight)
+                  SizedBox(
+                    key: const ValueKey(_Column.right),
+                    width:
+                        _rightWidth - (_rightWidth - _rightMinWidth) * squeeze,
+                    child: FinesseColumn(
+                      gap: GapSize.lg,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (!_suggestionsDismissed)
+                          HomeSuggestionsCard(
+                            onDismissed: () =>
+                                setState(() => _suggestionsDismissed = true),
+                          ),
+                        const HomeTrendingCard(),
+                        const HomeFooterLinks(),
+                      ],
+                    ),
                   ),
-                ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -173,31 +165,33 @@ class _MobileHome extends StatelessWidget {
     final margin = (theme.layoutTheme.pagePadding ?? const EdgeInsets.all(16))
         .resolve(Directionality.of(context));
 
-    return PageContainer(
-      scrollable: true,
-      // The phone design starts 14 below the app bar and spaces the
-      // stories, the control and the posts 14 apart: between the theme's
-      // 12 and 16.
-      padding: EdgeInsets.symmetric(vertical: theme.gap(GapSize.md)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        spacing: theme.gap(GapSize.md),
-        children: [
-          const HomeStories(),
-          Padding(
-            padding: EdgeInsets.only(left: margin.left, right: margin.right),
-            child: const HomeFeedTabs(),
-          ),
-          Padding(
-            // Post cards sit 4 closer to the screen's edges than the page
-            // margin the stories and the control keep.
-            padding: EdgeInsets.symmetric(
-              horizontal: theme.gap(GapSize.md),
+    return HomeFeedRefresh(
+      child: PageContainer(
+        scrollable: true,
+        // The phone design starts 14 below the app bar and spaces the
+        // stories, the control and the posts 14 apart: between the theme's
+        // 12 and 16.
+        padding: EdgeInsets.symmetric(vertical: theme.gap(GapSize.md)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          spacing: theme.gap(GapSize.md),
+          children: [
+            const HomeStories(),
+            Padding(
+              padding: EdgeInsets.only(left: margin.left, right: margin.right),
+              child: const HomeFeedTabs(),
             ),
-            child: const _Posts(),
-          ),
-        ],
+            Padding(
+              // Post cards sit 4 closer to the screen's edges than the page
+              // margin the stories and the control keep.
+              padding: EdgeInsets.symmetric(
+                horizontal: theme.gap(GapSize.md),
+              ),
+              child: const _Posts(),
+            ),
+          ],
+        ),
       ),
     );
   }

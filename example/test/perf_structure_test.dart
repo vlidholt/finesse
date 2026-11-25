@@ -91,7 +91,36 @@ void main() {
         addTearDown(() => debugDisableShadows = true);
         await tester.pump();
         final structure = measureStructure(tester);
+        // The phone's profile is under a large app bar that collapses as
+        // the page scrolls. The bar follows the scroll in paint, so the
+        // frames of its collapse paint its own few boxes — and nothing
+        // else: its buttons are layers and so is the page. That stretch
+        // is measured by itself, and the page from where the bar has
+        // settled, like every other page.
+        FrameWork? collapse;
+        if (phone && destination == StrandDestination.profile) {
+          collapse = await measureScroll(tester);
+          pageScrollPosition(tester)!.jumpTo(400);
+          await tester.pump();
+        }
         final scroll = await measureScroll(tester);
+        if (collapse != null) {
+          pageScrollPosition(tester)!.jumpTo(0);
+          await tester.pump();
+          expect(collapse.buildsPerFrame, 0, reason: collapse.topBuilds());
+          expect(
+            collapse.paintsPerFrame,
+            lessThan(40),
+            reason: collapse.topPaints(),
+          );
+          // Nothing of the page is among them.
+          expect(
+            collapse.paintsByType.keys.where(
+              (type) => type == 'RenderParagraph',
+            ),
+            hasLength(lessThanOrEqualTo(1)),
+          );
+        }
         final idle = await measureWork(tester, (pump) async {
           for (var i = 0; i < 30; i++) {
             await pump();
@@ -147,13 +176,29 @@ void main() {
         expect(structure.blurredDraws, lessThan(200), reason: name);
 
         // A scroll moves a layer. It builds nothing, and it paints nothing
-        // but the thread of a conversation, whose list is lazy.
+        // but the thread of a conversation, whose list is lazy — and the
+        // pinned toolbar of the phone profile's `SliverAppBar`, which the
+        // package paints again on every scroll frame even once it has
+        // collapsed: its own sixteen boxes, with the buttons in layers.
         expect(scroll.buildsPerFrame, lessThan(6), reason: '$name\n$details');
         expect(
           scroll.paintsPerFrame,
-          lessThan(destination == StrandDestination.messages ? 80 : 4),
+          lessThan(
+            destination == StrandDestination.messages
+                ? 80
+                : collapse != null
+                ? 20
+                : 4,
+          ),
           reason: '$name\n$details',
         );
+        if (collapse != null) {
+          expect(
+            scroll.paintsByType.keys,
+            isNot(contains('RenderImage')),
+            reason: 'the page is painted with the bar: $details',
+          );
+        }
 
         // At rest nothing is built, and nothing is painted or even
         // scheduled — except the three dots of somebody typing, which are
