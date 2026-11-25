@@ -260,9 +260,8 @@ class _SettingsState extends State<_Settings> {
                 config.copyWith(radius: v, clearCustomRadius: true),
               ),
             ),
-            ThemePicker<FocusRingPlacement>(
+            ThemeSegments<FocusRingPlacement>(
               label: 'Focus Ring',
-              icon: PhosphorIconsRegular.selection,
               value: config.focusRing,
               options: [
                 for (final f in FocusRingPlacement.values)
@@ -356,13 +355,16 @@ class _SettingsState extends State<_Settings> {
                   ? null
                   : () => onChanged(config.copyWith(cardPaddingScale: 1)),
             ),
-            ThemeSwitch(
+            ThemeSegments<bool>(
               label: 'Bottom Bar',
-              onLabel: 'Floating',
-              offLabel: 'Docked',
               value: config.effectiveBottomBarFloating,
+              options: const [
+                PickerOption(value: true, label: 'Floating'),
+                PickerOption(value: false, label: 'Docked'),
+              ],
               onChanged: (v) => onChanged(
                 config.copyWith(
+                  // Back on the style's own value is not an override.
                   bottomBarFloating: () =>
                       v == tokens.bottomNavigationFloating ? null : v,
                 ),
@@ -402,9 +404,8 @@ class _SettingsState extends State<_Settings> {
                 ),
               ],
             ),
-            ThemePicker<EditorMenuAccent>(
+            ThemeSegments<EditorMenuAccent>(
               label: 'Menu Accent',
-              icon: PhosphorIconsRegular.highlighter,
               // shadcn's translucent finish highlights with a foreground
               // wash, so the accent has no effect there; the picker is
               // locked to make that visible, as shadcn's editor does. A
@@ -423,9 +424,8 @@ class _SettingsState extends State<_Settings> {
           // How the theme is being looked at, not part of it: neither
           // leaves a preset, and neither is exported as theme code.
           _section(_SectionId.preview, [
-            ThemePicker<EditorFormFactor>(
+            ThemeSegments<EditorFormFactor>(
               label: 'Form Factor',
-              icon: PhosphorIconsRegular.devices,
               value: config.formFactor,
               options: [
                 for (final f in EditorFormFactor.values)
