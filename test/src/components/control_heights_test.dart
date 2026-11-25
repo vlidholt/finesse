@@ -683,4 +683,85 @@ void main() {
       }
     }
   });
+
+  testWidgets('calendar cells follow the text scale, and keep their size at '
+      '1x', (tester) async {
+    // Room for six weeks of 80-point cells.
+    tester.view.physicalSize = const Size(1200, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    // Two Ahem digits at 12 are 24 wide: inside the smallest style's
+    // 28-point cell at 1x, so whether they still fit when scaled is down to
+    // the cell alone.
+    const day = TextStyle(fontSize: 12);
+    for (final combination in combinations()) {
+      final style = combination.metrics;
+      final theme = ThemeData(
+        brightness: Brightness.light,
+        colorScheme: const NeutralColorScheme.light(),
+        style: combination.style,
+        formFactor: combination.formFactor,
+        disableSecondaryBorder: combination.disableSecondaryBorder,
+      );
+      for (final scale in const [1.0, .85, 1.3, 2.0]) {
+        await tester.pumpWidget(
+          FinesseApp(
+            theme: theme,
+            formFactor: combination.formFactor,
+            builder: (context, child) => MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                textScaler: TextScaler.linear(scale),
+              ),
+              child: child!,
+            ),
+            home: Center(
+              child: Calendar(
+                value: DateTime(2024, 5, 15),
+                calendarTheme: const CalendarTheme(
+                  dayButtonTextStyle: day,
+                  selectedDayButtonTextStyle: day,
+                  insideRangeDayButtonTextStyle: day,
+                  dayButtonOutsideMonthTextStyle: day,
+                ),
+              ),
+            ),
+          ),
+        );
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 250));
+
+        final reason = '${scale}x in ${combination.label}';
+        final cell = find.widgetWithText(Button, '28').first;
+        // Exactly the style's cell at 1x and below; in proportion above.
+        final side = style.calendarCellSize * (scale < 1 ? 1 : scale);
+        expect(
+          tester.getSize(cell),
+          Size.square(side),
+          reason: 'day cell at $reason',
+        );
+        final paragraph = tester.renderObject<RenderParagraph>(
+          find.descendant(of: cell, matching: find.byType(RichText)),
+        );
+        // On one line, inside its cell.
+        expect(
+          paragraph.size.height,
+          lessThanOrEqualTo(
+            paragraph.getMinIntrinsicHeight(double.infinity) + .01,
+          ),
+          reason: 'a two-digit day wraps at $reason',
+        );
+        final cellRect = tester.getRect(cell);
+        final textRect = tester.getRect(
+          find.descendant(of: cell, matching: find.byType(RichText)),
+        );
+        expect(
+          textRect.left >= cellRect.left - .01 &&
+              textRect.right <= cellRect.right + .01,
+          isTrue,
+          reason: 'a two-digit day leaves its cell at $reason',
+        );
+        expect(tester.takeException(), isNull, reason: reason);
+      }
+    }
+  });
 }

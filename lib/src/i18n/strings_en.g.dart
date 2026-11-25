@@ -52,6 +52,7 @@ class FinesseLocalizationsData with BaseTranslations<FinesseLocale, FinesseLocal
 	late final FinesseLocalizationsData$command$en command = FinesseLocalizationsData$command$en.internal(_root);
 	late final FinesseLocalizationsData$menu$en menu = FinesseLocalizationsData$menu$en.internal(_root);
 	late final FinesseLocalizationsData$licensePage$en licensePage = FinesseLocalizationsData$licensePage$en.internal(_root);
+	late final FinesseLocalizationsData$dataTable$en dataTable = FinesseLocalizationsData$dataTable$en.internal(_root);
 	late final FinesseLocalizationsData$pagination$en pagination = FinesseLocalizationsData$pagination$en.internal(_root);
 	late final FinesseLocalizationsData$carousel$en carousel = FinesseLocalizationsData$carousel$en.internal(_root);
 	late final FinesseLocalizationsData$refreshIndicator$en refreshIndicator = FinesseLocalizationsData$refreshIndicator$en.internal(_root);
@@ -447,6 +448,27 @@ class FinesseLocalizationsData$licensePage$en {
 	String licenses({required Object count}) => '${count} licenses';
 }
 
+// Path: dataTable
+class FinesseLocalizationsData$dataTable$en {
+	FinesseLocalizationsData$dataTable$en.internal(this._root);
+
+	final FinesseLocalizationsData _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Loading rows'
+	String get loading => 'Loading rows';
+
+	/// en: 'These rows could not be loaded.'
+	String get loadFailed => 'These rows could not be loaded.';
+
+	/// en: 'Try again'
+	String get retry => 'Try again';
+
+	/// en: '$selected of $total row(s) selected.'
+	String selectedCount({required Object selected, required Object total}) => '${selected} of ${total} row(s) selected.';
+}
+
 // Path: pagination
 class FinesseLocalizationsData$pagination$en {
 	FinesseLocalizationsData$pagination$en.internal(this._root);
@@ -765,6 +787,10 @@ extension on FinesseLocalizationsData {
 			'licensePage.title' => 'Licenses',
 			'licensePage.oneLicense' => '1 license',
 			'licensePage.licenses' => ({required Object count}) => '${count} licenses',
+			'dataTable.loading' => 'Loading rows',
+			'dataTable.loadFailed' => 'These rows could not be loaded.',
+			'dataTable.retry' => 'Try again',
+			'dataTable.selectedCount' => ({required Object selected, required Object total}) => '${selected} of ${total} row(s) selected.',
 			'pagination.previous' => 'Previous',
 			'pagination.next' => 'Next',
 			'pagination.morePages' => 'More pages',

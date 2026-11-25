@@ -125,6 +125,8 @@ CrossFadeTheme
 DataTable
 DataTableColumn
 DataTableController
+DataTablePage
+DataTablePageRequest
 DateFormat
 DatePicker
 DatePickerFormField
