@@ -1171,6 +1171,16 @@ class _SheetState extends State<Sheet> with TickerProviderStateMixin {
     return !_settled;
   }
 
+  /// The end of a drag the sheet was offered and took none of: a scrollable
+  /// inside used all of it. The sheet stays where it is; a spring that
+  /// finished while the drag was held settles now.
+  void _dragUntaken() {
+    if (!_dragging) return;
+    _dragging = false;
+    if (_over.value > 0) _over.animateTo(0, spring: _motion.smooth);
+    if (!_settled && !_size.isAnimating) _goTo(_index);
+  }
+
   /// Lets go at [closingVelocity] pixels per second towards the edge.
   void _dragEnd(double closingVelocity) {
     _dragging = false;
@@ -2045,6 +2055,12 @@ class _SheetScrollPosition extends ScrollPositionWithSingleContext {
 
   final _SheetState sheet;
   PointerDeviceKind? _kind;
+
+  /// Whether the sheet was told that the drag under way started, and so
+  /// has to be told that it ended — whether or not it took any of it.
+  bool _offered = false;
+
+  /// Whether the sheet moved for the drag under way.
   bool _handedOff = false;
 
   bool get _handsOff {
@@ -2070,7 +2086,8 @@ class _SheetScrollPosition extends ScrollPositionWithSingleContext {
   Drag drag(DragStartDetails details, VoidCallback dragCancelCallback) {
     _kind = details.kind;
     _handedOff = false;
-    if (_handsOff) sheet._dragStart(details.kind);
+    _offered = _handsOff;
+    if (_offered) sheet._dragStart(details.kind);
     return super.drag(details, dragCancelCallback);
   }
 
@@ -2117,6 +2134,13 @@ class _SheetScrollPosition extends ScrollPositionWithSingleContext {
 
   @override
   void goBallistic(double velocity) {
+    final offered = _offered;
+    _offered = false;
+    if (offered && !_handedOff && sheet.mounted) {
+      // Only the content moved: the fling is the content's, and the sheet
+      // stays where it is, but it is no longer being dragged.
+      sheet._dragUntaken();
+    }
     if (_handedOff && sheet.mounted) {
       _handedOff = false;
       final moving = sheet._displaced;

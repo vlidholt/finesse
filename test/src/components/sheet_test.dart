@@ -1238,6 +1238,67 @@ void main() {
       expect(find.byType(Sheet), findsNothing);
     });
 
+    Future<SheetController> scrolledAtLarge(WidgetTester tester) async {
+      final controller = SheetController();
+      addTearDown(controller.dispose);
+      await _open(
+        tester,
+        builder: (context) => Sheet(
+          controller: controller,
+          detents: const [SheetDetent.medium, SheetDetent.large],
+          initialDetent: SheetDetent.large,
+          builder: (context, scroll) => _rows(scroll),
+        ),
+      );
+      // At its largest detent a pull up only scrolls the list: the sheet
+      // is offered the drag and takes none of it.
+      await tester.drag(
+        find.text('Row 3'),
+        const Offset(0, -200),
+        kind: PointerDeviceKind.touch,
+      );
+      await tester.pumpAndSettle();
+      expect(offset(tester), greaterThan(100));
+      return controller;
+    }
+
+    testWidgets('after a drag that only scrolled the list, the sheet '
+        'settles on a detent it is sent to', (tester) async {
+      final controller = await scrolledAtLarge(tester);
+      final scrolled = offset(tester);
+      controller.animateTo(SheetDetent.medium);
+      await tester.pumpAndSettle();
+      expect(_surface(tester).height, _phone.height / 2);
+
+      // A short pull down on a list scrolled into the middle scrolls it
+      // back; the sheet stays where it is.
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.byType(ListView)),
+        kind: PointerDeviceKind.touch,
+      );
+      for (var i = 0; i < 6; i++) {
+        await gesture.moveBy(const Offset(0, 10));
+        await tester.pump();
+      }
+      expect(offset(tester), lessThan(scrolled));
+      expect(_surface(tester).height, _phone.height / 2);
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(_surface(tester).height, _phone.height / 2);
+    });
+
+    testWidgets('after a drag that only scrolled the list, a detent the '
+        'controller chose follows a resize', (tester) async {
+      final controller = await scrolledAtLarge(tester);
+      controller.animateTo(SheetDetent.medium);
+      await tester.pumpAndSettle();
+      expect(_surface(tester).height, _phone.height / 2);
+
+      tester.view.physicalSize = const Size(390, 700);
+      await tester.pumpAndSettle();
+      expect(_surface(tester).height, 350);
+    });
+
     testWidgets('a wheel scrolls the list and leaves the sheet alone', (
       tester,
     ) async {
