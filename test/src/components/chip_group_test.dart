@@ -567,6 +567,36 @@ void main() {
       expect(still.debugLayer, isNull);
     });
 
+    testWidgets('a row that stops fitting by a layout alone fades', (
+      tester,
+    ) async {
+      await pumpFinesse(
+        tester,
+        const _Host(count: 4, width: 600, wrap: false),
+      );
+      final fade = tester.renderObject(
+        find.byWidgetPredicate((w) => '${w.runtimeType}' == '_EdgeFade'),
+      );
+      expect(fade.debugLayer, isNull);
+      // The fade's compositing bit is not updated when a layout starts it;
+      // it needs none, as the scroll view below is a repaint boundary.
+      expect(fade.needsCompositing, isTrue);
+      // Narrower, with no scroll: only the layout finds the row overflows.
+      await pumpFinesse(
+        tester,
+        const _Host(count: 4, width: 120, wrap: false),
+      );
+      expect(
+        tester.renderObject(
+          find.byWidgetPredicate((w) => '${w.runtimeType}' == '_EdgeFade'),
+        ),
+        same(fade),
+      );
+      expect(fade.debugLayer, isA<ShaderMaskLayer>());
+      expect(fade.needsCompositing, isTrue);
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('is one Tab stop; arrows, Home and End move inside it', (
       tester,
     ) async {
