@@ -430,7 +430,10 @@ class _ChipDelete extends StatelessWidget {
         );
       },
     );
-    return focusable ? button : ExcludeFocus(child: button);
+    // A node of its own wherever the chip is put: "Remove" is a button
+    // beside the chip's name, never part of it.
+    final node = Semantics(container: true, child: button);
+    return focusable ? node : ExcludeFocus(child: node);
   }
 }
 

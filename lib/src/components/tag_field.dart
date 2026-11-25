@@ -2,12 +2,10 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:finesse/src/components/autocomplete.dart';
+import 'package:finesse/src/components/chip.dart';
 import 'package:finesse/src/components/popover.dart';
 import 'package:finesse/src/components/text_field.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/icons/phosphor_icon.dart';
-import 'package:finesse/src/icons/phosphor_icons_regular.dart';
-import 'package:finesse/src/raw_components/pressable.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
@@ -430,6 +428,14 @@ class _TagFieldState<T extends Object> extends State<TagField<T>> {
     final tagHeight = restingTagHeight * (scale > 1 ? scale : 1);
     final inset = ((inner - restingTagHeight) / 2).clamp(2.0, 12.0);
     final gap = inset.clamp(4.0, 6.0);
+    // A tag is smaller than a chip, and so is its padding.
+    final chipPadding =
+        (chip.padding ?? const EdgeInsets.symmetric(horizontal: 10)).resolve(
+          direction,
+        );
+    final tagPadding = EdgeInsets.symmetric(
+      horizontal: chipPadding.left * .8,
+    );
     final decoration = (fieldTheme.decoration ?? const FinesseDecoration())
         .merge(widget.decoration);
     final hasTags = widget.values.isNotEmpty;
@@ -486,19 +492,34 @@ class _TagFieldState<T extends Object> extends State<TagField<T>> {
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           for (final (index, tag) in widget.values.indexed)
-            _Tag(
+            // The field is the one Tab stop and the keyboard removes tags
+            // from it: the crosses are for a pointer, and for assistive
+            // technology, which meets "Remove design" as a button beside
+            // the tag.
+            ExcludeFocus(
               key: ValueKey(tag),
-              height: tagHeight,
-              // Only a tag the user just added arrives; the ones the field
-              // was built with are simply there.
-              appear: _fresh.contains(tag),
-              marked: _marked == index,
-              enabled: _enabled,
-              removeLabel: FinesseLocalizations.of(
-                context,
-              ).tagField.remove(tag: _display(tag)),
-              onRemove: () => _remove(index),
-              child: widget.labelBuilder(context, tag),
+              child: Entrance(
+                // Only a tag the user just added arrives; the ones the
+                // field was built with are simply there.
+                appear: _fresh.contains(tag),
+                spring: Motion.of(context).snappy,
+                child: Semantics(
+                  container: true,
+                  child: Chip(
+                    variant: ChipVariant.soft,
+                    height: tagHeight,
+                    padding: tagPadding,
+                    // The marked tag is the one Backspace removes next.
+                    selected: _marked == index,
+                    onDeleted: () => _remove(index),
+                    deleteSemanticLabel: FinesseLocalizations.of(
+                      context,
+                    ).tagField.remove(tag: _display(tag)),
+                    enabled: _enabled,
+                    label: widget.labelBuilder(context, tag),
+                  ),
+                ),
+              ),
             ),
           if (hasTags)
             // As wide as what is typed, and never too narrow to tap: it
@@ -606,134 +627,6 @@ class _TagFieldState<T extends Object> extends State<TagField<T>> {
           child: labelled,
         );
       },
-    );
-  }
-}
-
-/// One tag: a small chip with a remove button, in the theme's chip look.
-///
-/// Stands in for `Chip(onDeleted:)` until the chip has a delete target of
-/// its own.
-class _Tag extends StatelessWidget {
-  const _Tag({
-    required this.height,
-    required this.appear,
-    required this.marked,
-    required this.enabled,
-    required this.removeLabel,
-    required this.onRemove,
-    required this.child,
-    super.key,
-  });
-
-  final double height;
-  final bool appear;
-  final bool marked;
-  final bool enabled;
-  final String removeLabel;
-  final VoidCallback onRemove;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final chip = theme.chipTheme;
-    final colors = theme.colorScheme;
-    final radius = (chip.radius ?? theme.radius).resolve(
-      Directionality.of(context),
-    );
-    final foreground = marked
-        ? chip.selectedForegroundColor ?? colors.accentForeground
-        : chip.foregroundColor ?? colors.foreground;
-    final textStyle = (chip.textStyle ?? theme.textTheme.small).copyWith(
-      color: foreground,
-    );
-    final padding = (chip.padding ?? const EdgeInsets.symmetric(horizontal: 10))
-        .resolve(Directionality.of(context));
-    return Entrance(
-      appear: appear,
-      spring: Motion.of(context).snappy,
-      child: Semantics(
-        container: true,
-        selected: marked,
-        child: AnimatedFill(
-          color: marked
-              ? chip.selectedBackgroundColor ?? colors.accent
-              : colors.muted,
-          borderColor: marked ? colors.ring : chip.borderColor ?? colors.border,
-          borderWidth: chip.borderWidth ?? 1,
-          borderRadius: radius,
-          child: SizedBox(
-            height: height - 2 * (chip.borderWidth ?? 1),
-            child: Padding(
-              padding: EdgeInsetsDirectional.only(
-                start: padding.left * .8,
-                end: 2,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Flexible(
-                    child: DefaultTextStyle.merge(
-                      style: textStyle,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      child: IconTheme.merge(
-                        data: IconThemeData(
-                          color: foreground,
-                          size: chip.iconSize,
-                        ),
-                        child: child,
-                      ),
-                    ),
-                  ),
-                  // A node of its own: "Remove design" is a button beside
-                  // the tag, not part of the tag's name.
-                  ExcludeFocus(
-                    child: Semantics(
-                      container: true,
-                      child: Pressable(
-                        onPressed: enabled ? onRemove : null,
-                        semanticLabel: removeLabel,
-                        builder: (context, states) {
-                          final lit =
-                              states.contains(WidgetState.hovered) ||
-                              states.contains(WidgetState.pressed);
-                          final side = height - 2 * (chip.borderWidth ?? 1) - 4;
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 2),
-                            child: AnimatedFill(
-                              color: colors.foreground.withValues(
-                                alpha: lit ? .1 : 0,
-                              ),
-                              borderWidth: 0,
-                              borderRadius: const BorderRadius.all(
-                                Radius.circular(9999),
-                              ),
-                              child: SizedBox.square(
-                                dimension: side,
-                                child: Center(
-                                  child: PhosphorIcon(
-                                    PhosphorIconsRegular.x,
-                                    size: side * .62,
-                                    color: lit
-                                        ? foreground
-                                        : colors.mutedForeground,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

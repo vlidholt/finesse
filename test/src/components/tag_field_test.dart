@@ -510,9 +510,16 @@ void main() {
         _Host(initial: const ['design'], enabled: false, changes: changes),
       ),
     );
-    await tester.tap(_remove('design'), warnIfMissed: false);
+    // Its tags have no remove button, as a disabled `Chip` has none, and
+    // neither a tap nor the keyboard takes one away.
+    expect(_remove('design'), findsNothing);
+    expect(find.byIcon(PhosphorIconsBold.x), findsNothing);
+    await tester.tap(find.text('design'), warnIfMissed: false);
+    await tester.sendKeyEvent(LogicalKeyboardKey.backspace);
+    await tester.sendKeyEvent(LogicalKeyboardKey.backspace);
     await _settle(tester);
     expect(changes, isEmpty);
+    expect(find.text('design'), findsOneWidget);
   });
 
   testWidgets('announces what was added and removed', (tester) async {
