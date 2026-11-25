@@ -172,9 +172,15 @@ void main() {
               fill.color,
               variant == FloatingActionButtonVariant.primary
                   ? scheme.primary
-                  : scheme.secondary,
+                  // Over the card: a scheme's secondary may be a wash, and
+                  // the page must not show through a floating button.
+                  : Color.alphaBlend(
+                      scheme.secondary,
+                      scheme.card.withValues(alpha: 1),
+                    ),
               reason: '$brightness $variant',
             );
+            expect(fill.color!.a, 1, reason: '$brightness $variant');
             expect(fill.borderRadius, theme.radii.full);
           }
         }

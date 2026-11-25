@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math' as math;
 
 import 'package:example/strand/data/messages_data.dart';
 import 'package:example/strand/widgets/messages_common.dart';
@@ -214,48 +213,59 @@ class _MessagesConversationViewState extends State<MessagesConversationView> {
 
   @override
   Widget build(BuildContext context) {
-    final media = MediaQuery.of(context);
-    // The home indicator's inset gives way to the keyboard's when it is up.
-    final bottom = math.max(media.viewInsets.bottom, media.padding.bottom);
     final composerInset = widget.composerInset;
-    // The designs keep 96 under the last message: the composer, its 16 from
-    // the bottom, and a little air between the two.
-    final reserve =
-        composerInset.bottom +
-        MessagesComposer.heightOf(context) +
-        _composerClearance;
     final conversation = widget.conversation;
 
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        MessagesThread(
-          conversation: conversation,
-          messages: widget.controller.messagesOf(conversation),
-          metrics: widget.metrics,
-          controller: _thread,
-          insets: EdgeInsets.only(
-            top: media.padding.top,
-            bottom: bottom + reserve,
-          ),
-        ),
-        Positioned(
-          left: composerInset.left + media.padding.left,
-          right: composerInset.right + media.padding.right,
-          bottom: composerInset.bottom + bottom,
-          child: MessagesComposer(
-            onSend: _send,
-            // While the assistant is answering, the send button stops it.
-            onStop: widget.controller.isStreaming(conversation)
-                ? () => widget.controller.stopStreaming(conversation)
-                : null,
-            placeholder: conversation.assistant
-                ? 'Ask the assistant…'
-                : 'Write a message…',
-            borderRadius: widget.composerRadius,
-          ),
-        ),
-      ],
+    // A scaffold inside whatever the view is in — the pane's card, the
+    // page's own scaffold — for its footer: the composer rides above the
+    // keyboard and the home indicator, and the thread is told how far it
+    // reaches in, with nothing measured or added up here.
+    return Scaffold(
+      backgroundColor: const Color(0x00000000),
+      footer: Builder(
+        builder: (context) {
+          // The safe area under a footer is the footer's to keep clear of.
+          final safe = MediaQuery.paddingOf(context);
+          return Padding(
+            padding: EdgeInsets.fromLTRB(
+              composerInset.left + safe.left,
+              0,
+              composerInset.right + safe.right,
+              composerInset.bottom + safe.bottom,
+            ),
+            child: MessagesComposer(
+              onSend: _send,
+              // While the assistant is answering, the send button stops it.
+              onStop: widget.controller.isStreaming(conversation)
+                  ? () => widget.controller.stopStreaming(conversation)
+                  : null,
+              placeholder: conversation.assistant
+                  ? 'Ask the assistant…'
+                  : 'Write a message…',
+              borderRadius: widget.composerRadius,
+            ),
+          );
+        },
+      ),
+      body: Builder(
+        builder: (context) {
+          // The top is whatever covers the view — on the full-screen page,
+          // its glass app bar; the bottom is the composer. The designs keep
+          // 96 under the last message: the composer, its 16 from the
+          // bottom, and a little air between the two.
+          final covered = MediaQuery.paddingOf(context);
+          return MessagesThread(
+            conversation: conversation,
+            messages: widget.controller.messagesOf(conversation),
+            metrics: widget.metrics,
+            controller: _thread,
+            insets: EdgeInsets.only(
+              top: covered.top,
+              bottom: covered.bottom + _composerClearance,
+            ),
+          );
+        },
+      ),
     );
   }
 }
@@ -303,11 +313,7 @@ class MessagesConversationPage extends StatelessWidget {
           gap: GapSize.xs,
           mainAxisSize: MainAxisSize.min,
           children: [
-            IconButton.ghost(
-              icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft),
-              semanticLabel: 'Back',
-              onPressed: () => Navigator.of(context).pop(),
-            ),
+            const BackButton(),
             ConversationAvatar(
               conversation,
               // The bar is the surface here, not a card.
