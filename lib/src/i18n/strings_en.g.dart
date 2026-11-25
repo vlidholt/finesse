@@ -35,6 +35,7 @@ class FinesseLocalizationsData with BaseTranslations<FinesseLocale, FinesseLocal
 	FinesseLocalizationsData $copyWith({TranslationMetadata<FinesseLocale, FinesseLocalizationsData>? meta}) => FinesseLocalizationsData(meta: meta ?? this.$meta);
 
 	// Translations
+	late final FinesseLocalizationsData$actionSheet$en actionSheet = FinesseLocalizationsData$actionSheet$en.internal(_root);
 	late final FinesseLocalizationsData$timePicker$en timePicker = FinesseLocalizationsData$timePicker$en.internal(_root);
 	late final FinesseLocalizationsData$datePicker$en datePicker = FinesseLocalizationsData$datePicker$en.internal(_root);
 	late final FinesseLocalizationsData$input$en input = FinesseLocalizationsData$input$en.internal(_root);
@@ -46,6 +47,18 @@ class FinesseLocalizationsData with BaseTranslations<FinesseLocale, FinesseLocal
 	late final FinesseLocalizationsData$dialog$en dialog = FinesseLocalizationsData$dialog$en.internal(_root);
 	late final FinesseLocalizationsData$sheet$en sheet = FinesseLocalizationsData$sheet$en.internal(_root);
 	late final FinesseLocalizationsData$board$en board = FinesseLocalizationsData$board$en.internal(_root);
+}
+
+// Path: actionSheet
+class FinesseLocalizationsData$actionSheet$en {
+	FinesseLocalizationsData$actionSheet$en.internal(this._root);
+
+	final FinesseLocalizationsData _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Cancel'
+	String get cancel => 'Cancel';
 }
 
 // Path: timePicker
@@ -287,6 +300,7 @@ class FinesseLocalizationsData$board$en {
 extension on FinesseLocalizationsData {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
+			'actionSheet.cancel' => 'Cancel',
 			'timePicker.hours' => 'Hours',
 			'timePicker.minutes' => 'Minutes',
 			'timePicker.seconds' => 'Seconds',

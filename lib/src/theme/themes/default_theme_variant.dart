@@ -7,6 +7,7 @@ import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/raw_components/portal.dart';
 import 'package:finesse/src/theme/color_scheme/base.dart';
 import 'package:finesse/src/theme/components/accordion.dart';
+import 'package:finesse/src/theme/components/action_sheet.dart';
 import 'package:finesse/src/theme/components/alert.dart';
 import 'package:finesse/src/theme/components/app_bar.dart';
 import 'package:finesse/src/theme/components/avatar.dart';
@@ -1599,6 +1600,49 @@ class DefaultThemeVariant extends ThemeVariant {
       dragHandleColor: _wash(colorScheme.foreground, .2),
       dragHandleWidth: 36,
       dragHandleHeight: 4,
+    );
+  }
+
+  @override
+  ActionSheetTheme actionSheetTheme() {
+    final label = style.body
+        .apply(effectiveTextTheme.p)
+        .copyWith(color: colorScheme.foreground);
+    return ActionSheetTheme(
+      padding: EdgeInsets.all(scaled(8)),
+      // A row is a touch target first: a control's height and a little
+      // air, never under 44.
+      rowHeight: math.max(scaled(style.buttonHeight) + scaled(8), 44),
+      rowPadding: EdgeInsets.symmetric(
+        horizontal: scaled(style.listTilePaddingX),
+        vertical: scaled(8),
+      ),
+      rowRadius: itemRadius,
+      gap: scaled(style.listTileGap),
+      iconSize: scaled(20),
+      labelStyle: label,
+      // The default action, and Cancel, stand out by weight.
+      defaultLabelStyle: label.copyWith(fontWeight: FontWeight.w600),
+      titleStyle: style.label
+          .apply(effectiveTextTheme.small)
+          .copyWith(color: colorScheme.foreground),
+      messageStyle: style.body
+          .apply(effectiveTextTheme.muted)
+          .copyWith(color: colorScheme.mutedForeground),
+      headerPadding: EdgeInsets.fromLTRB(
+        scaled(16),
+        scaled(8),
+        scaled(16),
+        scaled(12),
+      ),
+      foregroundColor: colorScheme.foreground,
+      destructiveColor: colorScheme.destructive,
+      // As a ghost button's hover: `bg-muted`.
+      highlightColor: colorScheme.muted,
+      dividerColor: colorScheme.border,
+      cancelColor: colorScheme.secondary,
+      cancelGap: scaled(8),
+      dialogConstraints: const BoxConstraints(maxWidth: 320),
     );
   }
 

@@ -210,6 +210,11 @@ mixin _$ThemeData {
       )!,
       sliderTheme: SliderTheme.lerp(a.sliderTheme, b.sliderTheme, t)!,
       sheetTheme: SheetTheme.lerp(a.sheetTheme, b.sheetTheme, t)!,
+      actionSheetTheme: ActionSheetTheme.lerp(
+        a.actionSheetTheme,
+        b.actionSheetTheme,
+        t,
+      )!,
       progressBarTheme: ProgressBarTheme.lerp(
         a.progressBarTheme,
         b.progressBarTheme,
@@ -325,6 +330,7 @@ mixin _$ThemeData {
     DialogTheme? alertDialogTheme,
     SliderTheme? sliderTheme,
     SheetTheme? sheetTheme,
+    ActionSheetTheme? actionSheetTheme,
     ProgressBarTheme? progressBarTheme,
     AccordionTheme? accordionTheme,
     TableTheme? tableTheme,
@@ -415,6 +421,7 @@ mixin _$ThemeData {
       alertDialogTheme: alertDialogTheme ?? _this.alertDialogTheme,
       sliderTheme: sliderTheme ?? _this.sliderTheme,
       sheetTheme: sheetTheme ?? _this.sheetTheme,
+      actionSheetTheme: actionSheetTheme ?? _this.actionSheetTheme,
       progressBarTheme: progressBarTheme ?? _this.progressBarTheme,
       accordionTheme: accordionTheme ?? _this.accordionTheme,
       tableTheme: tableTheme ?? _this.tableTheme,
@@ -541,6 +548,7 @@ mixin _$ThemeData {
       alertDialogTheme: _this.alertDialogTheme.merge(other.alertDialogTheme),
       sliderTheme: _this.sliderTheme.merge(other.sliderTheme),
       sheetTheme: _this.sheetTheme.merge(other.sheetTheme),
+      actionSheetTheme: _this.actionSheetTheme.merge(other.actionSheetTheme),
       progressBarTheme: _this.progressBarTheme.merge(other.progressBarTheme),
       accordionTheme: _this.accordionTheme.merge(other.accordionTheme),
       tableTheme: _this.tableTheme.merge(other.tableTheme),
@@ -640,6 +648,7 @@ mixin _$ThemeData {
         _other.alertDialogTheme == _this.alertDialogTheme &&
         _other.sliderTheme == _this.sliderTheme &&
         _other.sheetTheme == _this.sheetTheme &&
+        _other.actionSheetTheme == _this.actionSheetTheme &&
         _other.progressBarTheme == _this.progressBarTheme &&
         _other.accordionTheme == _this.accordionTheme &&
         _other.tableTheme == _this.tableTheme &&
@@ -729,6 +738,7 @@ mixin _$ThemeData {
       _this.alertDialogTheme,
       _this.sliderTheme,
       _this.sheetTheme,
+      _this.actionSheetTheme,
       _this.progressBarTheme,
       _this.accordionTheme,
       _this.tableTheme,

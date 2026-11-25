@@ -36,6 +36,7 @@ export 'package:two_dimensional_scrollables/two_dimensional_scrollables.dart'
 export 'src/app.dart';
 // Components
 export 'src/components/accordion.dart';
+export 'src/components/action_sheet.dart';
 export 'src/components/alert.dart';
 export 'src/components/app_bar.dart';
 export 'src/components/avatar.dart';
@@ -135,6 +136,7 @@ export 'src/theme/color_scheme/teal.dart';
 export 'src/theme/color_scheme/zinc.dart';
 // Component Themes
 export 'src/theme/components/accordion.dart';
+export 'src/theme/components/action_sheet.dart';
 export 'src/theme/components/alert.dart';
 export 'src/theme/components/app_bar.dart';
 export 'src/theme/components/avatar.dart';
