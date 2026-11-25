@@ -45,6 +45,7 @@ class Surface extends StatelessWidget {
     this.shadows,
     this.filter,
     this.textStyle,
+    this.arrow,
   });
 
   /// The content.
@@ -67,6 +68,10 @@ class Surface extends StatelessWidget {
 
   /// Merged into the default text style, which is the popover foreground.
   final TextStyle? textStyle;
+
+  /// An arrow pointing at what the surface is anchored to; see
+  /// [SurfacePainter.arrow].
+  final SurfaceArrow? arrow;
 
   @override
   Widget build(BuildContext context) {
@@ -100,6 +105,7 @@ class Surface extends StatelessWidget {
       filter:
           filter ?? (isMenu ? menuTheme.filter : null) ?? popoverTheme.filter,
       textStyle: (popoverTheme.textStyle ?? const TextStyle()).merge(textStyle),
+      arrow: arrow,
       child: child,
     );
   }
@@ -111,8 +117,9 @@ class Surface extends StatelessWidget {
 /// It is for a surface shown by a [Portal] — `Popover(showArrow: true)`
 /// passes one — because the portal is what knows where the surface ended
 /// up: on which side of its anchor, and how far it was pushed along the
-/// edge of the screen. The arrow reads both and keeps pointing at the
-/// anchor.
+/// edge of the screen. The arrow reads both, from the [PortalPlacement]
+/// above it, and keeps pointing at the anchor. `showPopover` publishes the
+/// same for the rectangle it is given.
 @immutable
 class SurfaceArrow {
   /// Creates the arrow of a surface that its portal placed by [anchor].

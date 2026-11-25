@@ -1,10 +1,10 @@
 import 'dart:async';
-import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:finesse/src/components/surface.dart';
 import 'package:finesse/src/raw_components/portal.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/components/layout.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/theme/themes/shadows.dart';
@@ -758,13 +758,19 @@ class PopoverTapGroups extends InheritedWidget {
 /// to: a text selection, a table cell, a hit on a canvas.
 ///
 /// The popover opens [gap] below the rectangle, centred on it, and moves
-/// above when there is not enough room below; it is shifted to stay on
-/// screen. It closes on a tap outside or on Escape, and the returned future
-/// completes with the value it was popped with.
+/// above when there is not enough room below; one that would cross a side
+/// of the screen is moved in, the theme's small gap clear of it. It closes
+/// on a tap outside or on Escape, and the returned future completes with
+/// the value it was popped with.
 ///
 /// The content is wrapped in a [Surface] of [kind]; pass
 /// [Surface.new]'s parameters through [padding] and [decoration], or set
 /// [surface] to false to draw your own.
+///
+/// [showArrow] puts an arrow on the edge that faces the rectangle, pointing
+/// at its middle wherever the popover had to go, as `Popover.showArrow`
+/// does; it defaults to `PopoverTheme.showArrow`. The surface draws it, so
+/// it needs [surface].
 ///
 /// The popover takes the keyboard focus when it opens, like any route. Set
 /// [requestFocus] to false — it is `ModalRoute.requestFocus` — to leave the
@@ -781,6 +787,7 @@ Future<T?> showPopover<T>({
   EdgeInsetsGeometry? padding,
   FinesseDecoration? decoration,
   double gap = 4,
+  bool? showArrow,
   bool barrierDismissible = true,
   String? barrierLabel,
   bool useRootNavigator = false,
@@ -788,16 +795,37 @@ Future<T?> showPopover<T>({
   RouteSettings? routeSettings,
 }) {
   final navigator = Navigator.of(context, rootNavigator: useRootNavigator);
+  // The popover is laid out in the navigator's overlay, which is not the
+  // whole screen when the navigator is nested beside something.
+  final overlay = navigator.overlay?.context.findRenderObject();
+  final localRect = overlay is RenderBox && overlay.hasSize
+      ? Rect.fromPoints(
+          overlay.globalToLocal(anchorRect.topLeft),
+          overlay.globalToLocal(anchorRect.bottomRight),
+        )
+      : anchorRect;
   // The route is built under the navigator; republish a theme applied to the
   // subtree the popover was opened from (see ThemeScope).
   final theme = Theme.of(context, listen: false);
+  final popoverTheme = theme.popoverTheme;
+  final arrow = surface && (showArrow ?? popoverTheme.showArrow ?? false)
+      ? SurfaceArrow(
+          anchor: _AnchoredPopoverRoute.anchor,
+          size: popoverTheme.arrowSize ?? 10,
+          radius: popoverTheme.arrowRadius ?? 2,
+          targetSize: () => anchorRect.size,
+        )
+      : null;
   // It arrives and leaves like a `Popover`: on the motion tokens, and
   // faster out than in.
   final motion = Motion.of(context);
   return navigator.push(
     _AnchoredPopoverRoute<T>(
-      anchorRect: anchorRect,
-      gap: gap,
+      anchorRect: localRect,
+      // The arrow stands in the gap; the popover makes room for it.
+      gap: gap + (arrow?.protrusion ?? 0),
+      margin: theme.layoutTheme.gap(GapSize.sm),
+      placesArrow: arrow != null,
       transitionDuration: motion.reduced
           ? motion.fast
           : motion.snappy.settleDuration,
@@ -813,6 +841,7 @@ Future<T?> showPopover<T>({
             kind: kind,
             padding: padding,
             decoration: decoration,
+            arrow: arrow,
             child: content,
           );
         }
@@ -826,6 +855,8 @@ class _AnchoredPopoverRoute<T> extends PopupRoute<T> {
   _AnchoredPopoverRoute({
     required this.anchorRect,
     required this.gap,
+    required this.margin,
+    required this.placesArrow,
     required this.builder,
     required this.barrierDismissible,
     required this.barrierLabel,
@@ -837,7 +868,50 @@ class _AnchoredPopoverRoute<T> extends PopupRoute<T> {
 
   final Rect anchorRect;
   final double gap;
+
+  /// The gap kept from the edges of the screen by a popover moved in.
+  final double margin;
+
+  /// Whether the content has an arrow, which has to be told where the
+  /// popover went; see [_placement].
+  final bool placesArrow;
+
   final WidgetBuilder builder;
+
+  /// Where [_AnchorRectLayout] puts the popover, said the way a [Portal]
+  /// with this anchor would: below the rectangle and centred on it, or
+  /// above it as the fallback. A `SurfaceArrow` reads the placement against
+  /// it.
+  static const anchor = AnchorAuto(
+    fallback: AnchorAuto(
+      followerAnchor: Alignment.topCenter,
+      targetAnchor: Alignment.topCenter,
+    ),
+  );
+
+  /// Where the popover was put, as the [PortalPlacement] its arrow reads;
+  /// null until it has been laid out once.
+  ///
+  /// The arrow is built and the popover's place is only known at layout, so
+  /// the popover is first laid out unseen, as a portal's overlay is, and
+  /// shown from the next frame with its arrow where it belongs. Later
+  /// changes (the window resized) reach the arrow a frame late.
+  late final ValueNotifier<_RectPlacement?> _placement = ValueNotifier(null);
+  _RectPlacement? _pendingPlacement;
+  bool _disposed = false;
+
+  void _placed(_RectPlacement placement) {
+    if (placement == (_pendingPlacement ?? _placement.value)) return;
+    final scheduled = _pendingPlacement != null;
+    _pendingPlacement = placement;
+    if (scheduled) return;
+    // Layout may not rebuild; the frame after it does.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final pending = _pendingPlacement;
+      _pendingPlacement = null;
+      if (!_disposed) _placement.value = pending;
+    });
+  }
 
   /// Whether the route takes the focus when it is pushed. Without it the
   /// route's own Escape binding is out of reach — the key goes to whatever
@@ -854,6 +928,8 @@ class _AnchoredPopoverRoute<T> extends PopupRoute<T> {
   @override
   void dispose() {
     if (!takesFocus) FocusManager.instance.removeEarlyKeyEventHandler(_onKey);
+    _disposed = true;
+    _placement.dispose();
     super.dispose();
   }
 
@@ -903,13 +979,33 @@ class _AnchoredPopoverRoute<T> extends PopupRoute<T> {
     Animation<double> animation,
     Animation<double> secondaryAnimation,
   ) {
+    Widget content = Builder(builder: builder);
+    if (placesArrow) {
+      content = ValueListenableBuilder(
+        valueListenable: _placement,
+        builder: (context, placement, child) => Visibility.maintain(
+          visible: placement != null,
+          child: IgnorePointer(
+            ignoring: placement == null,
+            child: PortalPlacement(
+              usedFallback: placement?.above ?? false,
+              shift: Offset(placement?.shift ?? 0, 0),
+              child: child!,
+            ),
+          ),
+        ),
+        child: content,
+      );
+    }
     return CustomSingleChildLayout(
       delegate: _AnchorRectLayout(
         anchorRect: anchorRect,
         gap: gap,
+        margin: margin,
         padding: MediaQuery.paddingOf(context),
+        onPlaced: placesArrow ? _placed : null,
       ),
-      child: Builder(builder: builder),
+      child: content,
     );
   }
 
@@ -990,16 +1086,42 @@ class _FadeInBy extends Animatable<double> {
   double transform(double t) => (t / end).clamp(0.0, 1.0);
 }
 
+/// Where an anchored popover went: above its rectangle or below, and how
+/// far its centre was moved across to stay on screen.
+@immutable
+class _RectPlacement {
+  const _RectPlacement({required this.above, required this.shift});
+
+  final bool above;
+  final double shift;
+
+  @override
+  bool operator ==(Object other) =>
+      other is _RectPlacement && other.above == above && other.shift == shift;
+
+  @override
+  int get hashCode => Object.hash(above, shift);
+}
+
 class _AnchorRectLayout extends SingleChildLayoutDelegate {
   _AnchorRectLayout({
     required this.anchorRect,
     required this.gap,
+    required this.margin,
     required this.padding,
+    this.onPlaced,
   });
 
   final Rect anchorRect;
   final double gap;
+
+  /// The gap kept from the edges of the screen by a popover moved in.
+  final double margin;
+
   final EdgeInsets padding;
+
+  /// Told where the popover went, for its arrow.
+  final ValueChanged<_RectPlacement>? onPlaced;
 
   @override
   BoxConstraints getConstraintsForChild(BoxConstraints constraints) =>
@@ -1011,20 +1133,38 @@ class _AnchorRectLayout extends SingleChildLayoutDelegate {
     final bottom = size.height - padding.bottom;
     final below = anchorRect.bottom + gap;
     final above = anchorRect.top - gap - childSize.height;
-    final y = below + childSize.height <= bottom || above < top ? below : above;
-    final x = anchorRect.center.dx - childSize.width / 2;
-    return Offset(
-      x.clamp(
-        padding.left,
-        math.max(padding.left, size.width - padding.right - childSize.width),
-      ),
-      y.clamp(top, math.max(top, bottom - childSize.height)),
+    final goesBelow = below + childSize.height <= bottom || above < top;
+    // Left where it is when it fits between the insets, and otherwise
+    // moved in, [margin] clear of them.
+    double placed(double start, double extent, double from, double to) =>
+        from +
+        PositionDelegate.clearOfEdges(start - from, extent, to - from, margin);
+    final x = placed(
+      anchorRect.center.dx - childSize.width / 2,
+      childSize.width,
+      padding.left,
+      size.width - padding.right,
     );
+    final y = placed(
+      goesBelow ? below : above,
+      childSize.height,
+      top,
+      bottom,
+    );
+    onPlaced?.call(
+      _RectPlacement(
+        above: !goesBelow,
+        shift: x + childSize.width / 2 - anchorRect.center.dx,
+      ),
+    );
+    return Offset(x, y);
   }
 
   @override
   bool shouldRelayout(_AnchorRectLayout oldDelegate) =>
       anchorRect != oldDelegate.anchorRect ||
       gap != oldDelegate.gap ||
-      padding != oldDelegate.padding;
+      margin != oldDelegate.margin ||
+      padding != oldDelegate.padding ||
+      (onPlaced == null) != (oldDelegate.onPlaced == null);
 }
