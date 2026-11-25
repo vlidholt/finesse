@@ -164,8 +164,8 @@ class _SearchInput extends StatelessWidget {
 /// The filter chips of the Jobs search, a `ChipGroup` of the filters and
 /// the "All filters" chip that opens every one of them as a switch.
 ///
-/// Under the desktop search fields they wrap, ending in "All filters"
-/// ([JobsFilterChips.new]). On a phone they are one row that scrolls
+/// Under the desktop search fields they wrap, with "All filters" at the
+/// end of the first row ([JobsFilterChips.new]). On a phone they are one row that scrolls
 /// sideways under the search panel, with "All filters" held at the start
 /// and the chips running out to the screen's edge
 /// ([JobsFilterChips.bar]): give it the page's margin as [margin], and no
@@ -233,13 +233,14 @@ class JobsFilterChips extends StatelessWidget {
       );
     }
 
-    // The group is as wide as its widest row, so while its chips fit on
-    // one, "All filters" follows the last of them.
-    final gap = theme.chipTheme.groupSpacing ?? theme.gap(GapSize.sm);
-    return Wrap(
-      spacing: gap,
-      runSpacing: theme.chipTheme.groupRunSpacing ?? gap,
-      children: [group, allFilters],
+    // "All filters" ends the first row, however many the filters wrap to.
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: theme.chipTheme.groupSpacing ?? theme.gap(GapSize.sm),
+      children: [
+        Expanded(child: group),
+        allFilters,
+      ],
     );
   }
 }

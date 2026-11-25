@@ -390,4 +390,35 @@ void main() {
       expect(settings.reduceMotion, isTrue);
     });
   });
+
+  testWidgets('on a phone the pages are a chip group of one choice that '
+      'scrolls, and the arrow keys walk it', (tester) async {
+    await _pump(tester, size: strandPhone);
+    final group = find.byType(ChipGroup<SettingsSection>);
+    expect(group, findsOneWidget);
+    final widget = tester.widget<ChipGroup<SettingsSection>>(group);
+    expect(widget.wrap, isFalse);
+    expect(widget.multiple, isFalse);
+    expect(widget.allowEmpty, isFalse);
+
+    await tester.tap(find.widgetWithText(Chip, 'Privacy'));
+    await settleFrames(tester, frames: 4);
+    expect(_settings(tester).section, SettingsSection.privacy);
+    // Tapping the chosen page again keeps it.
+    await tester.tap(find.widgetWithText(Chip, 'Privacy'));
+    await settleFrames(tester, frames: 4);
+    expect(_settings(tester).section, SettingsSection.privacy);
+
+    // From the keyboard: one Tab stop, the arrows between pages.
+    tester
+        .widget<Chip>(find.widgetWithText(Chip, 'Privacy'))
+        .focusNode!
+        .requestFocus();
+    await tester.pump();
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+    await tester.sendKeyEvent(LogicalKeyboardKey.space);
+    await settleFrames(tester, frames: 4);
+    expect(_settings(tester).section, SettingsSection.notifications);
+    expect(tester.takeException(), isNull);
+  });
 }

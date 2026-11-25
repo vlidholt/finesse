@@ -66,7 +66,7 @@ void main() {
   setUpAll(loadStrandTestFont);
 
   group('the filter chips', () {
-    testWidgets('wrap under the desktop search, ending in "All filters"', (
+    testWidgets('wrap under the desktop search, "All filters" ending the row', (
       tester,
     ) async {
       await _pumpJobs(tester);
@@ -74,7 +74,7 @@ void main() {
       final group = find.byType(ChipGroup<String>);
       expect(group, findsOneWidget);
       expect(tester.widget<ChipGroup<String>>(group).wrap, isTrue);
-      // "All filters" is not a filter of the group but follows its last.
+      // "All filters" is not a filter of the group but ends its first row.
       expect(
         find.descendant(of: group, matching: _chip('All filters')),
         findsNothing,
@@ -82,6 +82,10 @@ void main() {
       expect(
         tester.getTopLeft(_chip('All filters')).dx,
         greaterThan(tester.getTopRight(_chip('Under 50 applicants')).dx),
+      );
+      expect(
+        tester.getTopLeft(_chip('All filters')).dy,
+        tester.getTopLeft(_chip('Remote')).dy,
       );
 
       // A tap reports the new set, which the session keeps.

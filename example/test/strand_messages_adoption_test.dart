@@ -210,4 +210,26 @@ void main() {
       expect(messages.selected, aisha);
     });
   });
+
+  testWidgets('the filters are a chip group of one choice that scrolls', (
+    tester,
+  ) async {
+    await pumpStrandScreen(tester, const MessagesScreen(), size: strandPhone);
+    final group = find.byType(ChipGroup<MessageFilter>);
+    expect(group, findsOneWidget);
+    expect(tester.widget<ChipGroup<MessageFilter>>(group).wrap, isFalse);
+
+    final list = tester.widget<MessagesConversationList>(
+      find.byType(MessagesConversationList),
+    );
+    expect(list.controller.filter, MessageFilter.focused);
+    await tester.tap(find.widgetWithText(Chip, 'Unread'));
+    await settleFrames(tester, frames: 4);
+    expect(list.controller.filter, MessageFilter.unread);
+    // One is always chosen.
+    await tester.tap(find.widgetWithText(Chip, 'Unread'));
+    await settleFrames(tester, frames: 4);
+    expect(list.controller.filter, MessageFilter.unread);
+    expect(tester.takeException(), isNull);
+  });
 }

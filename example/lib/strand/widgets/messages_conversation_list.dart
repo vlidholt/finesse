@@ -266,24 +266,26 @@ class _ListHeader extends StatelessWidget {
           placeholder: 'Search messages',
           controller: controller.search,
         ),
-        // The chips do not wrap: the ones that do not fit scroll into view.
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            spacing: messagesTightGap,
-            children: [
-              for (final filter in MessageFilter.values)
-                Chip(
-                  label: Text(
-                    filter == MessageFilter.requests
-                        ? '${filter.label} · ${controller.requestCount}'
-                        : filter.label,
-                  ),
-                  selected: controller.filter == filter,
-                  onSelected: (_) => controller.filter = filter,
+        // One filter at a time, on a row that does not wrap: the chips
+        // that do not fit scroll into view, fading at the edge.
+        ChipGroup<MessageFilter>(
+          semanticLabel: 'Show conversations',
+          wrap: false,
+          multiple: false,
+          allowEmpty: false,
+          values: {controller.filter},
+          onChanged: (values) => controller.filter = values.single,
+          items: [
+            for (final filter in MessageFilter.values)
+              ChipGroupItem(
+                value: filter,
+                label: Text(
+                  filter == MessageFilter.requests
+                      ? '${filter.label} · ${controller.requestCount}'
+                      : filter.label,
                 ),
-            ],
-          ),
+              ),
+          ],
         ),
       ],
     );

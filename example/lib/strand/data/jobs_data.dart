@@ -342,8 +342,8 @@ abstract final class JobsData {
 
   /// The files the user can send, with when each last changed.
   static const resumes = <(String, String)>[
-    ('Noor Haddad – CV 2026.pdf', 'Updated 3 days ago'),
-    ('Noor Haddad – Portfolio.pdf', 'Updated last month'),
+    ('CV 2026.pdf', 'Updated 3 days ago'),
+    ('Portfolio.pdf', 'Updated last month'),
   ];
 
   static const companyFacts = <(IconData, String)>[
