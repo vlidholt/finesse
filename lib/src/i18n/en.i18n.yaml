@@ -113,6 +113,8 @@ dataTable:
   loadFailed: "These rows could not be loaded."
   retry: "Try again"
   selectedCount: "$selected of $total row(s) selected."
+  sortedAscending: "Sorted ascending"
+  sortedDescending: "Sorted descending"
 
 pagination:
   previous: "Previous"

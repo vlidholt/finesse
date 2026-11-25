@@ -8,9 +8,9 @@ import 'package:finesse/src/components/skeleton.dart';
 import 'package:finesse/src/components/table.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
+import 'package:finesse/src/raw_components/pressable.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/debug_check.dart';
-import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:two_dimensional_scrollables/two_dimensional_scrollables.dart';
@@ -845,27 +845,40 @@ class _DataTableState<T> extends State<DataTable<T>> {
     final label = Text(column.header, overflow: TextOverflow.ellipsis);
     if (!column.sortable) return label;
 
-    return FinesseGestureDetector(
-      mouseCursor: SystemMouseCursors.click,
-      behavior: HitTestBehavior.opaque,
-      onTap: () => controller.sortBy(column.id),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Flexible so a narrow column ellipsizes the label instead of
-          // overflowing past the sort indicator.
-          Flexible(child: label),
-          if (isSorted) ...[
-            const SizedBox(width: 4),
-            PhosphorIcon(
-              controller.sortDirection == SortDirection.ascending
-                  ? PhosphorIconsRegular.arrowDown
-                  : PhosphorIconsRegular.arrowUp,
-              size: 14,
-              color: theme.colorScheme.foreground,
-            ),
-          ],
+    final strings = FinesseLocalizations.of(context).dataTable;
+    final ascending = controller.sortDirection == SortDirection.ascending;
+    final content = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Flexible so a narrow column ellipsizes the label instead of
+        // overflowing past the sort indicator.
+        Flexible(child: label),
+        if (isSorted) ...[
+          const SizedBox(width: 4),
+          PhosphorIcon(
+            ascending
+                ? PhosphorIconsRegular.arrowDown
+                : PhosphorIconsRegular.arrowUp,
+            size: 14,
+            color: theme.colorScheme.foreground,
+          ),
         ],
+      ],
+    );
+
+    // A button, in the focus order, that says how the table is sorted by
+    // it. It looks as it did: the ring is all it adds, and only for the
+    // keyboard.
+    return Pressable(
+      onPressed: () => controller.sortBy(column.id),
+      semanticValue: isSorted
+          ? (ascending ? strings.sortedAscending : strings.sortedDescending)
+          : null,
+      pressScale: 1,
+      builder: (context, states) => FocusRing(
+        visible: states.contains(WidgetState.focused),
+        borderRadius: theme.radii.sm,
+        child: content,
       ),
     );
   }

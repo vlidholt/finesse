@@ -799,14 +799,14 @@ void main() {
 
       await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
       await tester.pumpAndSettle();
-      expect(said.last, 'B, Position 2 of 5');
+      expect(said.last, 'A, Position 2 of 5');
       // The list is the parent's: nothing has moved in it yet.
       expect(moves, isEmpty);
 
       await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
       await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
       await tester.pumpAndSettle();
-      expect(said.last, 'B, Position 2 of 5');
+      expect(said.last, 'A, Position 2 of 5');
 
       await tester.sendKeyEvent(LogicalKeyboardKey.space);
       await tester.pumpAndSettle();

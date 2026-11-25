@@ -3,7 +3,10 @@ import 'package:finesse/src/app.dart';
 import 'package:finesse/src/components/accordion.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../../finesse_harness.dart';
 
 void main() {
   /// Wraps a widget with necessary providers and material app structure for
@@ -255,6 +258,94 @@ void main() {
         find.byType(Accordion<String>),
         matchesGoldenFile('goldens/accordion.png'),
       );
+    });
+  });
+
+  group('Accordion focus and semantics', () {
+    testWidgets('a header is a button that says whether it is expanded', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await pumpFinesse(
+        tester,
+        Accordion<String>(
+          children: const [
+            AccordionItem(
+              value: 'a',
+              title: Text('Shipping'),
+              child: Text('Content'),
+            ),
+          ],
+        ),
+      );
+      expect(
+        tester.getSemantics(find.text('Shipping')),
+        containsSemantics(
+          label: 'Shipping',
+          isButton: true,
+          hasExpandedState: true,
+          isExpanded: false,
+          isFocusable: true,
+          hasTapAction: true,
+        ),
+      );
+      await tester.tap(find.text('Shipping'));
+      await tester.pumpAndSettle();
+      expect(
+        tester.getSemantics(find.text('Shipping')),
+        containsSemantics(isButton: true, isExpanded: true),
+      );
+      handle.dispose();
+    });
+
+    testWidgets('a closed item with maintainState is not a Tab stop, takes '
+        'no tap and says nothing', (tester) async {
+      final handle = tester.ensureSemantics();
+      final inner = FocusNode(debugLabel: 'inner');
+      addTearDown(inner.dispose);
+      var tapped = 0;
+      await pumpFinesse(
+        tester,
+        Accordion<String>(
+          maintainState: true,
+          children: [
+            AccordionItem(
+              value: 'a',
+              title: const Text('Shipping'),
+              child: GestureDetector(
+                onTap: () => tapped++,
+                child: Focus(focusNode: inner, child: const Text('Content')),
+              ),
+            ),
+            const AccordionItem(
+              value: 'b',
+              title: Text('Returns'),
+              child: Text('More'),
+            ),
+          ],
+        ),
+      );
+      for (var i = 0; i < 4; i++) {
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        expect(inner.hasFocus, isFalse, reason: 'Tab $i');
+      }
+      await tester.tap(
+        find.text('Content', skipOffstage: false),
+        warnIfMissed: false,
+      );
+      expect(tapped, 0);
+      expect(find.bySemanticsLabel('Content'), findsNothing);
+
+      // Open, the content is there to use again.
+      await tester.tap(find.text('Shipping'));
+      await tester.pumpAndSettle();
+      inner.requestFocus();
+      await tester.pump();
+      expect(inner.hasFocus, isTrue);
+      await tester.tap(find.text('Content'));
+      expect(tapped, 1);
+      handle.dispose();
     });
   });
 }

@@ -294,7 +294,20 @@ class _PageIndicatorState extends State<PageIndicator>
                             ))
                         .resolve(direction)
                   : EdgeInsets.zero;
-              final start = horizontal ? inset.left : inset.top;
+              // A parent that stretches the indicator centres the strip.
+              final box = context.size!;
+              final content =
+                  geometry.extent +
+                  (horizontal ? inset.horizontal : inset.vertical);
+              final centring =
+                  math.max(0, (horizontal ? box.width : box.height) - content) /
+                  2;
+              final before = !horizontal
+                  ? inset.top
+                  : direction == TextDirection.ltr
+                  ? inset.left
+                  : inset.right;
+              final start = centring + before;
               final index = geometry.indexAt(along - start, _page());
               if (index != current) onSelected(index);
             },
@@ -467,7 +480,8 @@ class _DotsPainter extends CustomPainter {
       final rect = horizontal
           ? Rect.fromLTWH(along, across, scaled, thickness)
           : Rect.fromLTWH(across, along, thickness, scaled);
-      paint.color = Color.lerp(
+      // A cross-fade: one of the two may be translucent.
+      paint.color = AnimatedFill.lerp(
         color,
         activeColor,
         geometry.activity(index, page),

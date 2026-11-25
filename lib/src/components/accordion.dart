@@ -396,74 +396,80 @@ class _AccordionItemState<T> extends State<AccordionItem<T>>
             theme.accordionTheme.padding ??
             const EdgeInsets.symmetric(vertical: 16);
 
-        final header = FinesseGestureDetector(
-          mouseCursor: SystemMouseCursors.click,
-          onHover: (value) => hovered.value = value,
-          behavior: HitTestBehavior.opaque,
-          onTap: () => inherited.effectiveController.toggle(widget.value),
-          child: Padding(
-            padding: effectivePadding,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: CallbackShortcuts(
-                    bindings: {
-                      for (final trigger in activationKeys)
-                        trigger: () {
-                          inherited.effectiveController.toggle(
-                            widget.value,
-                          );
-                        },
-                    },
-                    child: Focusable(
-                      focusNode: focusNode,
-                      builder: (context, focused, child) {
-                        return ValueListenableBuilder(
-                          valueListenable: hovered,
-                          builder: (context, hovered, child) {
-                            return DefaultTextStyle(
-                              style: effectiveTitleStyle.copyWith(
-                                decoration:
-                                    hovered && effectiveUnderlineTitleOnHover
-                                    ? TextDecoration.underline
-                                    : null,
-                              ),
-                              child: child!,
+        // A button that says whether its content is open, as a disclosure
+        // is announced on the web.
+        final header = Semantics(
+          button: true,
+          expanded: expanded,
+          child: FinesseGestureDetector(
+            mouseCursor: SystemMouseCursors.click,
+            onHover: (value) => hovered.value = value,
+            behavior: HitTestBehavior.opaque,
+            onTap: () => inherited.effectiveController.toggle(widget.value),
+            child: Padding(
+              padding: effectivePadding,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: CallbackShortcuts(
+                      bindings: {
+                        for (final trigger in activationKeys)
+                          trigger: () {
+                            inherited.effectiveController.toggle(
+                              widget.value,
                             );
                           },
-                          child: widget.title,
-                        );
                       },
+                      child: Focusable(
+                        focusNode: focusNode,
+                        builder: (context, focused, child) {
+                          return ValueListenableBuilder(
+                            valueListenable: hovered,
+                            builder: (context, hovered, child) {
+                              return DefaultTextStyle(
+                                style: effectiveTitleStyle.copyWith(
+                                  decoration:
+                                      hovered && effectiveUnderlineTitleOnHover
+                                      ? TextDecoration.underline
+                                      : null,
+                                ),
+                                child: child!,
+                              );
+                            },
+                            child: widget.title,
+                          );
+                        },
+                      ),
                     ),
                   ),
-                ),
-                if (widget.trailing != null)
-                  Padding(
-                    padding: const EdgeInsetsDirectional.only(
-                      start: 8,
-                      end: 8,
+                  if (widget.trailing != null)
+                    Padding(
+                      padding: const EdgeInsetsDirectional.only(
+                        start: 8,
+                        end: 8,
+                      ),
+                      // Its own gesture arena entry, so a tap on the
+                      // action does not also toggle the item.
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () {},
+                        child: widget.trailing,
+                      ),
                     ),
-                    // Its own gesture arena entry, so a tap on the
-                    // action does not also toggle the item.
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () {},
-                      child: widget.trailing,
+                  // The chevron turns on the same spring as the content
+                  // opens.
+                  SpringBuilder(
+                    value: expanded ? 1 : 0,
+                    spring: spring,
+                    builder: (context, t, child) => Transform.rotate(
+                      angle: t * math.pi,
+                      child: child,
                     ),
+                    child: effectiveIcon,
                   ),
-                // The chevron turns on the same spring as the content
-                // opens.
-                SpringBuilder(
-                  value: expanded ? 1 : 0,
-                  spring: spring,
-                  builder: (context, t, child) => Transform.rotate(
-                    angle: t * math.pi,
-                    child: child,
-                  ),
-                  child: effectiveIcon,
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
@@ -488,9 +494,20 @@ class _AccordionItemState<T> extends State<AccordionItem<T>>
                   child: child!,
                 );
               },
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: widget.child,
+              // Kept while closed, it is still not there to be used: not a
+              // Tab stop, not a target and not read out.
+              child: ExcludeFocus(
+                excluding: !expanded,
+                child: IgnorePointer(
+                  ignoring: !expanded,
+                  child: ExcludeSemantics(
+                    excluding: !expanded,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: widget.child,
+                    ),
+                  ),
+                ),
               ),
             ),
             effectiveSeparator,

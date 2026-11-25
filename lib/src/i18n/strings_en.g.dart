@@ -467,6 +467,12 @@ class FinesseLocalizationsData$dataTable$en {
 
 	/// en: '$selected of $total row(s) selected.'
 	String selectedCount({required Object selected, required Object total}) => '${selected} of ${total} row(s) selected.';
+
+	/// en: 'Sorted ascending'
+	String get sortedAscending => 'Sorted ascending';
+
+	/// en: 'Sorted descending'
+	String get sortedDescending => 'Sorted descending';
 }
 
 // Path: pagination
@@ -791,6 +797,8 @@ extension on FinesseLocalizationsData {
 			'dataTable.loadFailed' => 'These rows could not be loaded.',
 			'dataTable.retry' => 'Try again',
 			'dataTable.selectedCount' => ({required Object selected, required Object total}) => '${selected} of ${total} row(s) selected.',
+			'dataTable.sortedAscending' => 'Sorted ascending',
+			'dataTable.sortedDescending' => 'Sorted descending',
 			'pagination.previous' => 'Previous',
 			'pagination.next' => 'Next',
 			'pagination.morePages' => 'More pages',

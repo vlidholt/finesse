@@ -179,6 +179,10 @@ class _StepperState extends State<Stepper> with TickerProviderStateMixin {
   /// is still closing it.
   int? _leaving;
 
+  /// The current step's controls: they move from one step to the next with
+  /// their state, so a Continue pressed from the keyboard keeps the focus.
+  final _controlsKey = GlobalKey(debugLabel: 'Stepper controls');
+
   @override
   void initState() {
     super.initState();
@@ -292,9 +296,15 @@ class _StepperState extends State<Stepper> with TickerProviderStateMixin {
 
   /// The content of the step at [index] with the controls under it, or
   /// null when there is neither.
-  Widget? _body(BuildContext context, int index) {
+  ///
+  /// Only the current step's body is [live]: its controls are the ones that
+  /// carry the focus from step to step.
+  Widget? _body(BuildContext context, int index, {bool live = true}) {
     final content = widget.steps[index].content;
-    final controls = _controls(context, index);
+    var controls = _controls(context, index);
+    if (live && controls != null) {
+      controls = KeyedSubtree(key: _controlsKey, child: controls);
+    }
     if (content == null && controls == null) return null;
     final theme = Theme.of(context).stepperTheme;
     return Padding(
@@ -399,7 +409,7 @@ class _StepperState extends State<Stepper> with TickerProviderStateMixin {
     final leaving = _leaving;
     final leavingBody = leaving == null || leaving == _current
         ? null
-        : _body(context, leaving);
+        : _body(context, leaving, live: false);
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,

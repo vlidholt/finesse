@@ -320,5 +320,46 @@ void main() {
       expect(indices, [0, 1, 2, 3, 4]);
       handle.dispose();
     });
+
+    testWidgets('a row may have a GlobalKey, and keeps its state when the '
+        'rows are reordered', (tester) async {
+      final keys = [for (var i = 0; i < 3; i++) GlobalKey(debugLabel: '$i')];
+      var order = [0, 1, 2];
+      late StateSetter rebuild;
+      await pumpFinesse(
+        tester,
+        StatefulBuilder(
+          builder: (context, setState) {
+            rebuild = setState;
+            return CustomScrollView(
+              slivers: [
+                SliverListSection.builder(
+                  itemCount: order.length,
+                  findChildIndexCallback: (key) {
+                    final index = order.indexWhere((i) => keys[i] == key);
+                    return index < 0 ? null : index;
+                  },
+                  itemBuilder: (context, index) => ListTile(
+                    key: keys[order[index]],
+                    title: Text('Row ${order[index]}'),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      expect(find.text('Row 0'), findsOneWidget);
+      final element = keys[0].currentContext;
+      rebuild(() => order = [2, 1, 0]);
+      await tester.pump();
+      expect(tester.takeException(), isNull);
+      expect(keys[0].currentContext, same(element));
+      expect(
+        tester.getTopLeft(find.text('Row 0')).dy,
+        greaterThan(tester.getTopLeft(find.text('Row 2')).dy),
+      );
+    });
   });
 }
