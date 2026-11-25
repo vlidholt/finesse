@@ -100,6 +100,10 @@ class AppBar extends StatelessWidget {
 
   /// The toolbar's height, not counting the safe area, [bottom] or the
   /// hairline under the bar. Defaults to the theme's.
+  ///
+  /// It is the height at the platform's own text size. With the text
+  /// scaled up far enough that a line of the title no longer fits, the
+  /// toolbar is as tall as that line; [heightOf] reports the result.
   final double? height;
 
   /// Padding around the toolbar's content. Defaults to the theme's page
@@ -138,10 +142,11 @@ class AppBar extends StatelessWidget {
   final bool primary;
 
   /// The height an [AppBar] without a `bottom` takes in [context],
-  /// including the status bar when [primary].
+  /// including the status bar when [primary], at the text scale of
+  /// [context].
   static double heightOf(BuildContext context, {bool primary = true}) {
     final theme = Theme.of(context);
-    return (theme.appBarTheme.height ?? 64) +
+    return appBarToolbarHeight(context, theme.appBarTheme.height ?? 64) +
         // The hairline under the bar.
         1 +
         (primary ? MediaQuery.paddingOf(context).top : 0);
@@ -152,7 +157,10 @@ class AppBar extends StatelessWidget {
     final theme = Theme.of(context);
     final bar = theme.appBarTheme;
     final topInset = primary ? MediaQuery.paddingOf(context).top : 0.0;
-    final toolbarHeight = height ?? bar.height ?? 64;
+    final toolbarHeight = appBarToolbarHeight(
+      context,
+      height ?? bar.height ?? 64,
+    );
     final fill =
         backgroundColor ?? bar.backgroundColor ?? theme.colorScheme.card;
     final behavior =

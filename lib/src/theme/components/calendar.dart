@@ -103,16 +103,19 @@ class CalendarTheme with _$CalendarTheme {
   /// The navigation button icon size, defaults to 16
   final double? navigationButtonIconSize;
 
-  /// The icon of the back navigation button, defaults to a
-  /// `PhosphorIconsRegular.caretLeft`, drawn at [navigationButtonIconSize].
+  /// The icon of the back navigation button, drawn at
+  /// [navigationButtonIconSize]. Null, the default, is a caret that points
+  /// towards the start: left in a left-to-right layout, right in a
+  /// right-to-left one. An icon given here is drawn as it is in both.
   ///
   /// A theme is compared on every rebuild, so a widget given here has to be
   /// a constant.
   final Widget? backNavigationButtonIcon;
 
-  /// The icon of the forward navigation button, defaults to a
-  /// `PhosphorIconsRegular.caretRight`, drawn at
-  /// [navigationButtonIconSize].
+  /// The icon of the forward navigation button, drawn at
+  /// [navigationButtonIconSize]. Null, the default, is a caret that points
+  /// towards the end: right in a left-to-right layout, left in a
+  /// right-to-left one. An icon given here is drawn as it is in both.
   ///
   /// A theme is compared on every rebuild, so a widget given here has to be
   /// a constant.

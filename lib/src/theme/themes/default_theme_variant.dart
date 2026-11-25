@@ -2582,12 +2582,6 @@ class DefaultThemeVariant extends ThemeVariant {
     // row all share the cell size.
     navigationButtonSize: scaled(style.calendarCellSize),
     navigationButtonIconSize: scaled(style.iconButtonIconSize),
-    backNavigationButtonIcon: const PhosphorIcon(
-      PhosphorIconsRegular.caretLeft,
-    ),
-    forwardNavigationButtonIcon: const PhosphorIcon(
-      PhosphorIconsRegular.caretRight,
-    ),
     navigationButtonPadding: EdgeInsets.zero,
     navigationButtonDisabledOpacity: .5,
     decoration: FinesseDecoration(
