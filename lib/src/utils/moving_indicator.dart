@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/utils/shadow.dart';
 import 'package:finesse/src/utils/spring.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
@@ -48,6 +49,9 @@ import 'package:flutter/widgets.dart';
 /// * When the *same* target moves or resizes — the window was resized, a
 ///   label changed — it follows rigidly, with no animation.
 /// * With no target selected it fades out, and fades in on the next one.
+/// * While [track] has a value it is held between two targets — those whose
+///   [MovingIndicatorTarget.index] the value lies between — and follows the
+///   value rigidly: a finger dragging the pages the targets stand for.
 ///
 /// A scrolling row belongs *inside* the scroll view: put the
 /// [MovingIndicator] around the scrolled content, not around the viewport,
@@ -62,8 +66,19 @@ class MovingIndicator extends StatefulWidget {
     this.spring,
     this.stretch,
     this.fadeDuration,
+    this.track,
     super.key,
   });
+
+  /// Where to hold the indicator while something drags the selection: a
+  /// fractional index among the targets that carry an
+  /// [MovingIndicatorTarget.index], so 1.25 is a quarter of the way from
+  /// the target with index 1 to the one with index 2.
+  ///
+  /// While its value is null — at rest — the indicator is on the selected
+  /// target as usual, and springs there from wherever it was held if the
+  /// two differ.
+  final ValueListenable<double?>? track;
 
   /// Whether the indicator is painted behind [child] or in front of it.
   final DecorationPosition position;
@@ -134,6 +149,64 @@ class _MovingIndicatorState extends State<MovingIndicator>
   void _targetChanged() {
     // Not from a detached tree: the group itself is going away.
     if (_renderObject?.attached ?? false) _renderObject!.markNeedsPaint();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    widget.track?.addListener(_targetChanged);
+  }
+
+  @override
+  void didUpdateWidget(MovingIndicator oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!identical(widget.track, oldWidget.track)) {
+      oldWidget.track?.removeListener(_targetChanged);
+      widget.track?.addListener(_targetChanged);
+      _targetChanged();
+    }
+  }
+
+  /// The targets on either side of the fractional index [at], and how far
+  /// between them it is. Null when no target carries an index.
+  ({
+    RenderMovingIndicatorTarget from,
+    RenderMovingIndicatorTarget to,
+    double t,
+  })?
+  _around(double at) {
+    RenderMovingIndicatorTarget? below;
+    RenderMovingIndicatorTarget? above;
+    for (final target in _targets) {
+      final index = target.index;
+      if (index == null || !target.attached || !target.hasSize) continue;
+      if (index <= at && (below == null || index > below.index!)) {
+        below = target;
+      }
+      if (index >= at && (above == null || index < above.index!)) {
+        above = target;
+      }
+    }
+    // Past either end: on the last target that way.
+    below ??= above;
+    above ??= below;
+    if (below == null || above == null) return null;
+    final span = above.index! - below.index!;
+    return (
+      from: below,
+      to: above,
+      t: span <= 0 ? 0 : (at - below.index!) / span,
+    );
+  }
+
+  /// Called by the render object before it paints while the widget's
+  /// `track` holds the indicator on [rect], nearest to [target].
+  void _resolveTracked(RenderMovingIndicatorTarget target, Rect rect) {
+    _resolved = true;
+    _current = target;
+    _targetRect = rect;
+    _jumpTo(rect);
+    _opacity.value = 1;
   }
 
   RenderMovingIndicatorTarget? get _selected {
@@ -210,6 +283,7 @@ class _MovingIndicatorState extends State<MovingIndicator>
 
   @override
   void dispose() {
+    widget.track?.removeListener(_targetChanged);
     _left.dispose();
     _top.dispose();
     _right.dispose();
@@ -349,20 +423,36 @@ class RenderMovingIndicator extends RenderProxyBox {
   void _resolve() {
     _resolving = true;
     try {
+      final at = _state.widget.track?.value;
+      final around = at == null ? null : _state._around(at);
+      if (around != null) {
+        final rect = Rect.lerp(
+          _rectOf(around.from),
+          _rectOf(around.to),
+          around.t,
+        )!;
+        _state._resolveTracked(
+          around.t < .5 ? around.from : around.to,
+          rect,
+        );
+        return;
+      }
       final target = _state._selected;
       if (target == null) {
         _state._resolve(null, null);
         return;
       }
-      final rect = MatrixUtils.transformRect(
-        target.getTransformTo(this),
-        target.padding.inflateRect(Offset.zero & target.size),
-      );
-      _state._resolve(target, rect);
+      _state._resolve(target, _rectOf(target));
     } finally {
       _resolving = false;
     }
   }
+
+  /// Where the indicator goes on [target], in this object's coordinates.
+  Rect _rectOf(RenderMovingIndicatorTarget target) => MatrixUtils.transformRect(
+    target.getTransformTo(this),
+    target.padding.inflateRect(Offset.zero & target.size),
+  );
 
   void _paintIndicator(PaintingContext context, Offset offset) {
     final opacity = _state._opacity.value;
@@ -467,6 +557,7 @@ class MovingIndicatorTarget extends SingleChildRenderObjectWidget {
     required this.selected,
     required this.decoration,
     this.padding = EdgeInsets.zero,
+    this.index,
     super.child,
     super.key,
   });
@@ -482,6 +573,11 @@ class MovingIndicatorTarget extends SingleChildRenderObjectWidget {
   /// keep it inside.
   final EdgeInsets padding;
 
+  /// This target's place among its siblings, for [MovingIndicator.track]:
+  /// a tracked indicator is held between the targets whose indices its
+  /// value lies between. Not needed otherwise.
+  final int? index;
+
   @override
   RenderMovingIndicatorTarget createRenderObject(BuildContext context) {
     final scope = context
@@ -492,7 +588,7 @@ class MovingIndicatorTarget extends SingleChildRenderObjectWidget {
       decoration,
       padding,
       Directionality.maybeOf(context),
-    );
+    )..index = index;
   }
 
   @override
@@ -507,6 +603,7 @@ class MovingIndicatorTarget extends SingleChildRenderObjectWidget {
       ..selected = selected
       ..decoration = decoration
       ..padding = padding
+      ..index = index
       ..textDirection = Directionality.maybeOf(context);
   }
 }
@@ -566,6 +663,16 @@ class RenderMovingIndicatorTarget extends RenderProxyBox {
     } else if (_selected) {
       _group!._targetChanged();
     }
+  }
+
+  /// This target's place among its siblings; see
+  /// [MovingIndicatorTarget.index].
+  int? get index => _index;
+  int? _index;
+  set index(int? value) {
+    if (value == _index) return;
+    _index = value;
+    _group?._targetChanged();
   }
 
   /// The direction the decoration is resolved with when the target paints

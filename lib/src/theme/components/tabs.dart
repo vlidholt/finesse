@@ -59,6 +59,10 @@ class TabsTheme with _$TabsTheme {
     this.indicatorStretch,
     this.contentTransitionDuration,
     this.contentTransitionOffset,
+    this.underlineHeight,
+    this.underlinePadding,
+    this.underlineTextStyle,
+    this.underlineColor,
   }) : _canMerge = canMerge;
 
   @ignore
@@ -205,6 +209,24 @@ class TabsTheme with _$TabsTheme {
   /// a plain fade.
   /// {@endtemplate}
   final double? contentTransitionOffset;
+
+  /// The height of an underline tab (`TabBarVariant.underline`), not
+  /// counting the hairline under the row. Defaults to the style's
+  /// `underlineTabHeight`.
+  final double? underlineHeight;
+
+  /// The padding around an underline tab's label. Defaults to 4 on each
+  /// side for tabs that share the width and 16 for tabs that hug their
+  /// label.
+  final EdgeInsetsGeometry? underlinePadding;
+
+  /// The style of an underline tab's label; weight and colour are set per
+  /// tab on top of it. Defaults to the text theme's `large`.
+  final TextStyle? underlineTextStyle;
+
+  /// The colour of the line under the selected underline tab. Defaults to
+  /// the foreground colour.
+  final Color? underlineColor;
 
   /// Linearly interpolates between [a] and [b] by [t].
   static TabsTheme? lerp(
