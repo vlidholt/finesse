@@ -1,7 +1,7 @@
 # finesse example
 
-A minimal app: a themed `FinesseApp` with a card, an input, a select and a
-button.
+A minimal app: a themed `FinesseApp` with a card, a text field, a select
+and a button that shows a toast.
 
 ```dart
 import 'package:flutter/widgets.dart';
@@ -17,8 +17,8 @@ class App extends StatelessWidget {
     return FinesseApp(
       theme: ThemeData(
         colorScheme: const ZincColorScheme.light(),
-        // One of shadcn/ui's eight styles: vega, nova, maia, lyra, mira,
-        // luma, sera or rhea.
+        // One of the four styles: finesse (the default), or shadcn/ui's
+        // nova, maia or lyra.
         style: StyleTokens.nova,
       ),
       darkTheme: ThemeData(
