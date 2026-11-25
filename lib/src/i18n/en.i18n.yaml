@@ -43,3 +43,8 @@ board:
   cancelled: "Move cancelled"
   refused: "$column does not accept this item"
   dragHandle: "Drag to move"
+
+navigation:
+  back: "Back"
+  openMenu: "Open menu"
+  menu: "Navigation menu"
