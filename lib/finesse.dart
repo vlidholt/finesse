@@ -95,6 +95,7 @@ export 'src/components/resizable.dart';
 export 'src/components/scaffold.dart';
 export 'src/components/scroll_area.dart';
 export 'src/components/search_field.dart';
+export 'src/components/search_view.dart';
 export 'src/components/select.dart';
 export 'src/components/selection_area.dart';
 export 'src/components/sheet.dart'

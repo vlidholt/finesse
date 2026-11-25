@@ -56,6 +56,7 @@ import 'package:example/docs/pages/responsive.dart';
 import 'package:example/docs/pages/scaffold.dart';
 import 'package:example/docs/pages/scroll_area.dart';
 import 'package:example/docs/pages/search_field.dart';
+import 'package:example/docs/pages/search_view.dart';
 import 'package:example/docs/pages/select.dart';
 import 'package:example/docs/pages/selection_area.dart';
 import 'package:example/docs/pages/sheet.dart';
@@ -164,6 +165,7 @@ final componentDocs = [
   scaffoldDoc,
   scrollAreaDoc,
   searchFieldDoc,
+  searchViewDoc,
   selectDoc,
   selectionAreaDoc,
   sheetDoc,

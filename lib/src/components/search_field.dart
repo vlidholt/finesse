@@ -63,6 +63,8 @@ class SearchField extends StatefulWidget {
     this.autofocus = false,
     this.enabled = true,
     this.decoration,
+    this.constraints,
+    this.padding,
     this.groupId,
     this.semanticLabel,
   }) : assert(
@@ -138,6 +140,13 @@ class SearchField extends StatefulWidget {
 
   /// Merged over the theme's text field decoration.
   final FinesseDecoration? decoration;
+
+  /// The constraints of the field, in place of the theme's text field
+  /// height: a search box set into a denser surface.
+  final BoxConstraints? constraints;
+
+  /// The padding inside the field, in place of the theme's.
+  final EdgeInsetsGeometry? padding;
 
   /// The tap-region group of the field: a tap in another region of the
   /// same group — a panel of suggestions under the field — is not a tap
@@ -301,6 +310,8 @@ class _SearchFieldState extends State<SearchField> {
           autofocus: widget.autofocus,
           enabled: widget.enabled,
           decoration: widget.decoration,
+          constraints: widget.constraints,
+          padding: widget.padding,
           groupId: widget.groupId,
           onChanged: widget.onChanged,
           onSubmitted: widget.onSubmitted,

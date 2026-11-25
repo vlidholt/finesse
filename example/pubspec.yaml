@@ -58,6 +58,7 @@ flutter:
     - lib/docs/examples/surface/
     - lib/docs/examples/scroll_area/
     - lib/docs/examples/search_field/
+    - lib/docs/examples/search_view/
     - lib/docs/examples/dropdown_menu/
     - lib/docs/examples/keyboard_toolbar/
     - lib/docs/examples/layout/

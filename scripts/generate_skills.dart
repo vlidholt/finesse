@@ -64,6 +64,7 @@ const _slugs = [
   'scaffold',
   'scroll_area',
   'search_field',
+  'search_view',
   'select',
   'selection_area',
   'sheet',
