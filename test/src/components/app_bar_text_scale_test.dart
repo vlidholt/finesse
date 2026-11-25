@@ -1,4 +1,5 @@
 import 'package:finesse/finesse.dart';
+import 'package:finesse/src/components/app_bar_layout.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -144,6 +145,50 @@ void main() {
       final reported = await pumpBar(tester, 3, statusBar: 47);
       expect(reported, plain + 47);
       expect(barHeight(tester), plain + 47);
+    });
+
+    testWidgets('a SliverAppBar grows its toolbar as an AppBar does', (
+      tester,
+    ) async {
+      Future<double> toolbarOf(Widget bar) async {
+        await tester.pumpWidget(const SizedBox.shrink());
+        await pumpFinesse(
+          tester,
+          Builder(
+            builder: (context) => MediaQuery(
+              data: MediaQuery.of(
+                context,
+              ).copyWith(textScaler: const TextScaler.linear(3)),
+              child: Scaffold(body: bar),
+            ),
+          ),
+        );
+        return tester
+            .getSize(
+              find.ancestor(
+                of: find.text('Inbox').first,
+                matching: find.byType(AppBarToolbar),
+              ),
+            )
+            .height;
+      }
+
+      final plain = await toolbarOf(
+        const Align(
+          alignment: Alignment.topCenter,
+          child: AppBar(title: Text('Inbox')),
+        ),
+      );
+      final sliver = await toolbarOf(
+        const CustomScrollView(
+          slivers: [
+            SliverAppBar(title: Text('Inbox')),
+            SliverToBoxAdapter(child: SizedBox(height: 2000)),
+          ],
+        ),
+      );
+      expect(plain, greaterThan(64));
+      expect(sliver, plain);
     });
   });
 }

@@ -434,6 +434,48 @@ void main() {
       expect(await sampler.pixel(tester, inBar), pageColor);
     });
 
+    testWidgets('a list in a page of a TabBarView is the page scrolling '
+        'under the bar', (tester) async {
+      final tabs = TabsController<String>(value: 'a');
+      addTearDown(tabs.dispose);
+      await pumpHome(
+        tester,
+        sampler.wrap(
+          Scaffold(
+            backgroundColor: pageColor,
+            appBar: AppBar(
+              title: const Text('Feed'),
+              backgroundColor: fill,
+              surfaceBehavior: AppBarSurfaceBehavior.whenScrolled,
+              bottom: TabBar<String>(
+                controller: tabs,
+                tabs: const [
+                  Tab(value: 'a', child: Text('A')),
+                  Tab(value: 'b', child: Text('B')),
+                ],
+              ),
+            ),
+            body: TabBarView<String>(
+              controller: tabs,
+              pages: {
+                'a': (context) => ListView(
+                  controller: controller,
+                  children: const [SizedBox(height: 3000)],
+                ),
+                'b': (context) => const SizedBox.expand(),
+              },
+            ),
+          ),
+        ),
+      );
+      expect(await sampler.pixel(tester, inBar), pageColor);
+      controller.jumpTo(40);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 16));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(await sampler.pixel(tester, inBar), fill);
+    });
+
     testWidgets('a reversed list starts at the bottom: the bar is bare '
         'there', (tester) async {
       await pumpHome(tester, scaffold(reverse: true));

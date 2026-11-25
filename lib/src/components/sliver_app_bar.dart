@@ -292,7 +292,9 @@ class _SliverAppBarState extends State<SliverAppBar>
     final toolbar = Padding(
       padding: EdgeInsets.only(top: topInset),
       child: AppBarToolbar(
-        height: widget.height ?? bar.height ?? 64,
+        // A floor, as in an `AppBar`: a line of scaled text that needs more
+        // room gets it.
+        height: appBarToolbarHeight(context, widget.height ?? bar.height ?? 64),
         leading: widget.leading ?? implied,
         alignLeadingGlyph: implied != null,
         // In a large bar the small title is there for assistive technology
