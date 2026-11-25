@@ -17,6 +17,8 @@ import 'package:example/docs/examples/tab_bar/tab_bar_segmented.dart';
 import 'package:example/docs/examples/tab_bar/tab_bar_view.dart';
 import 'package:example/docs/examples/tabs/tabs_basic.dart';
 import 'package:example/docs/examples/tabs/tabs_underline.dart';
+import 'package:example/docs/examples/toolbar/toolbar_basic.dart';
+import 'package:example/docs/examples/toolbar/toolbar_docked.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
@@ -384,6 +386,26 @@ void main() {
           const NavigationBarLabelsExample(),
           size: const Size(420, 300),
           formFactor: FormFactor.mobile,
+          brightness: brightness,
+          style: style,
+        );
+      });
+    }
+    for (final (brightness, style) in [
+      (Brightness.light, StylePreset.finesse),
+      (Brightness.dark, StylePreset.finesse),
+      (Brightness.light, StylePreset.nova),
+    ]) {
+      testWidgets('toolbar ${style.name} ${brightness.name}', (tester) async {
+        await render(
+          tester,
+          'toolbar_${style.name}_${brightness.name}',
+          const Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 24,
+            children: [ToolbarBasicExample(), ToolbarDockedExample()],
+          ),
+          size: const Size(820, 480),
           brightness: brightness,
           style: style,
         );

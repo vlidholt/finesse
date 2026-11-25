@@ -123,6 +123,7 @@ export 'src/components/time_picker.dart' hide TimePickerTextEditingController;
 export 'src/components/timeline.dart';
 export 'src/components/toast.dart';
 export 'src/components/toggle.dart';
+export 'src/components/toolbar.dart';
 export 'src/components/tooltip.dart';
 // Localizations
 export 'src/i18n/localizations_delegate.dart';

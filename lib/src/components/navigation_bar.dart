@@ -1,13 +1,10 @@
-import 'dart:ui' as ui;
-
+import 'package:finesse/src/components/bottom_bar_surface.dart';
 import 'package:finesse/src/components/indicator_badge.dart';
 import 'package:finesse/src/raw_components/pressable.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/backdrop.dart';
 import 'package:finesse/src/utils/motion_color.dart';
 import 'package:finesse/src/utils/moving_indicator.dart';
-import 'package:finesse/src/utils/shadow.dart';
 import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/widgets.dart';
 
@@ -432,25 +429,13 @@ class BottomNavigationBar extends StatelessWidget {
   /// The height a [BottomNavigationBar] takes in [context], including its
   /// margin and the bottom safe area. A `Scaffold` uses it to inset its body.
   static double heightOf(BuildContext context) {
-    final theme = Theme.of(context);
-    final bar = theme.bottomNavigationBarTheme;
-    final padding = (bar.padding ?? const EdgeInsets.all(6)).resolve(
-      Directionality.of(context),
-    );
-    final floating = bar.floating ?? true;
-    final margin = floating
-        ? (bar.margin ?? const EdgeInsets.only(bottom: 22)).resolve(
-            Directionality.of(context),
-          )
-        : EdgeInsets.zero;
+    final bar = Theme.of(context).bottomNavigationBarTheme;
     return (bar.itemHeight ?? 48) +
         ((bar.showLabels ?? false) ? _labelExtent(context) : 0) +
-        padding.vertical +
-        margin.vertical +
-        MediaQuery.paddingOf(context).bottom +
-        // The outline: all round a floating pill, along the top of a docked
-        // bar.
-        (floating ? 2 : 1);
+        BottomBarSurface.extentAround(
+          context,
+          floating: BottomBarSurface.floatsIn(context),
+        );
   }
 
   @override
@@ -488,11 +473,7 @@ class BottomNavigationBar extends StatelessWidget {
       final fit = available / itemCount;
       if (fit < itemWidth) itemWidth = fit < 0 ? 0 : fit;
     }
-    final radius = isFloating
-        ? bar.radius ?? theme.radii.full
-        : BorderRadius.zero;
     final itemRadius = isFloating ? theme.radii.full : theme.radii.lg;
-    final bottomInset = MediaQuery.paddingOf(context).bottom;
 
     // The lens: one pill behind the selected destination, painted by the
     // row and travelling between them.
@@ -670,25 +651,8 @@ class BottomNavigationBar extends StatelessWidget {
         ),
     ];
 
-    final borderColor = bar.borderColor ?? theme.colorScheme.border;
-    // A floating bar's hairline can catch the light along its top edge;
-    // see [BottomNavigationBarTheme.rimColor].
-    final rimColor = isFloating ? bar.rimColor : null;
-    Widget content = Container(
-      padding: (bar.padding ?? const EdgeInsets.all(6)).add(
-        EdgeInsets.only(bottom: isFloating ? 0 : bottomInset),
-      ),
-      decoration: BoxDecoration(
-        color: bar.backgroundColor ?? theme.colorScheme.card,
-        borderRadius: radius,
-        border: isFloating
-            // With a rim the hairline is painted over the bar, below; the
-            // border still takes its point of layout.
-            ? Border.all(
-                color: rimColor == null ? borderColor : const Color(0x00000000),
-              )
-            : Border(top: BorderSide(color: borderColor)),
-      ),
+    return BottomBarSurface(
+      floating: isFloating,
       child: MovingIndicator(
         child: Row(
           mainAxisSize: isFloating ? MainAxisSize.min : MainAxisSize.max,
@@ -698,87 +662,5 @@ class BottomNavigationBar extends StatelessWidget {
         ),
       ),
     );
-    if (rimColor != null) {
-      content = CustomPaint(
-        foregroundPainter: _RimPainter(
-          radius: radius,
-          color: borderColor,
-          rimColor: rimColor,
-        ),
-        child: content,
-      );
-    }
-    final surface = Backdrop(
-      blur: bar.blur ?? 0,
-      saturation: bar.saturation ?? 1,
-      borderRadius: radius,
-      child: content,
-    );
-
-    final semantic = Semantics(
-      container: true,
-      explicitChildNodes: true,
-      child: surface,
-    );
-    if (!isFloating) return semantic;
-    return Padding(
-      padding: (bar.margin ?? const EdgeInsets.only(bottom: 22)).add(
-        EdgeInsets.only(bottom: bottomInset),
-      ),
-      child: Center(
-        heightFactor: 1,
-        child: DecoratedBox(
-          // Outside the clip, and after the bar: a shadow painted first
-          // would be sampled by the filter and blurred back into the glass.
-          position: DecorationPosition.foreground,
-          decoration: ShadowDecoration.box(
-            borderRadius: radius,
-            shadows: bar.shadows ?? theme.style.floatingShadow,
-          ),
-          child: semantic,
-        ),
-      ),
-    );
   }
-}
-
-/// The hairline of a floating bar, brighter along its top edge: [rimColor]
-/// at the top, fading into [color] by the middle of the bar — the way light
-/// from above catches the rim of a sheet of glass.
-class _RimPainter extends CustomPainter {
-  const _RimPainter({
-    required this.radius,
-    required this.color,
-    required this.rimColor,
-  });
-
-  final BorderRadius radius;
-  final Color color;
-  final Color rimColor;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (size.isEmpty) return;
-    // A one-point stroke centred half a point inside the edge: where
-    // `Border.all` paints its hairline.
-    final outline = radius.toRRect(Offset.zero & size).deflate(.5);
-    canvas.drawRRect(
-      outline,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1
-        ..shader = ui.Gradient.linear(
-          Offset.zero,
-          Offset(0, size.height),
-          [rimColor, color],
-          const [0, .55],
-        ),
-    );
-  }
-
-  @override
-  bool shouldRepaint(_RimPainter oldDelegate) =>
-      oldDelegate.radius != radius ||
-      oldDelegate.color != color ||
-      oldDelegate.rimColor != rimColor;
 }

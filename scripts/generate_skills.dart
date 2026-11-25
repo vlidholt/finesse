@@ -84,6 +84,7 @@ const _slugs = [
   'toast',
   'toggle',
   'toggle_group',
+  'toolbar',
   'tooltip',
 ];
 

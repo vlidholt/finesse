@@ -78,6 +78,7 @@ import 'package:example/docs/pages/timeline.dart';
 import 'package:example/docs/pages/toast.dart';
 import 'package:example/docs/pages/toggle.dart';
 import 'package:example/docs/pages/toggle_group.dart';
+import 'package:example/docs/pages/toolbar.dart';
 import 'package:example/docs/pages/tooltip.dart';
 import 'package:example/docs/pages/typography.dart';
 
@@ -183,6 +184,7 @@ final componentDocs = [
   toastDoc,
   toggleDoc,
   toggleGroupDoc,
+  toolbarDoc,
   tooltipDoc,
 ];
 

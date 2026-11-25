@@ -84,6 +84,7 @@ flutter:
     - lib/docs/examples/toast/
     - lib/docs/examples/toggle/
     - lib/docs/examples/toggle_group/
+    - lib/docs/examples/toolbar/
     - lib/docs/examples/tooltip/
     - lib/docs/examples/typography/
     - lib/docs/examples/glass/
