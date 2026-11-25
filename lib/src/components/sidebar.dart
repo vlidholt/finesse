@@ -5,15 +5,18 @@ import 'package:finesse/src/components/divider.dart';
 import 'package:finesse/src/components/sheet.dart';
 import 'package:finesse/src/components/skeleton.dart';
 import 'package:finesse/src/components/tooltip.dart';
+import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/raw_components/focusable.dart';
 import 'package:finesse/src/raw_components/portal.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/border.dart';
 import 'package:finesse/src/utils/debug_check.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:finesse/src/utils/shadow.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
@@ -217,8 +220,12 @@ class SidebarScope extends InheritedWidget {
 ///
 /// Above the `md` breakpoint the sidebar renders inline and collapses
 /// according to its `collapsible` mode; below it the sidebar disappears and
-/// [SidebarTrigger] (or the controller) presents it as a modal sheet.
-/// `⌘B`/`Ctrl+B` toggles it.
+/// [SidebarTrigger] (or the controller) presents it as a modal sheet. The
+/// breakpoint is the theme's form factor: `FormFactor.mobile` is below it.
+///
+/// `⌘B` on an Apple platform, `Ctrl+B` elsewhere, toggles it — when nothing
+/// that has the focus takes the key itself, and only while the scaffold is
+/// showing and nothing, a dialog say, covers its route.
 ///
 /// ```dart
 /// SidebarScaffold(
@@ -260,7 +267,8 @@ class SidebarScaffold extends StatefulWidget {
   /// Called whenever the desktop open state changes.
   final ValueChanged<bool>? onOpenChanged;
 
-  /// Whether `⌘B`/`Ctrl+B` toggles the sidebar.
+  /// Whether `⌘B` on an Apple platform, `Ctrl+B` elsewhere, toggles the
+  /// sidebar.
   final bool keyboardShortcut;
 
   /// Rounds and clips the scaffold's corners.
@@ -296,7 +304,7 @@ class _SidebarScaffoldState extends State<SidebarScaffold> {
     _lastOpen = controller.isOpen;
     controller.addListener(_onControllerChanged);
     if (widget.keyboardShortcut) {
-      HardwareKeyboard.instance.addHandler(_onKeyEvent);
+      FocusManager.instance.addLateKeyEventHandler(_onKeyEvent);
     }
   }
 
@@ -311,15 +319,15 @@ class _SidebarScaffoldState extends State<SidebarScaffold> {
     }
     if (widget.keyboardShortcut != oldWidget.keyboardShortcut) {
       widget.keyboardShortcut
-          ? HardwareKeyboard.instance.addHandler(_onKeyEvent)
-          : HardwareKeyboard.instance.removeHandler(_onKeyEvent);
+          ? FocusManager.instance.addLateKeyEventHandler(_onKeyEvent)
+          : FocusManager.instance.removeLateKeyEventHandler(_onKeyEvent);
     }
   }
 
   @override
   void dispose() {
     if (widget.keyboardShortcut) {
-      HardwareKeyboard.instance.removeHandler(_onKeyEvent);
+      FocusManager.instance.removeLateKeyEventHandler(_onKeyEvent);
     }
     controller.removeListener(_onControllerChanged);
     // The drawer is a pushed route, so it would outlive its scaffold — the
@@ -335,10 +343,32 @@ class _SidebarScaffoldState extends State<SidebarScaffold> {
     super.dispose();
   }
 
-  bool get _isMobile {
-    final breakpoints = Theme.of(context).breakpoints;
-    return MediaQuery.sizeOf(context).width < breakpoints.md.value;
+  bool get _isMobile => Theme.of(context).formFactor == FormFactor.mobile;
+
+  /// Whether the scaffold is showing, as of its last build: not under a
+  /// covered route, nor in a hidden child of an `IndexedStack`, which keeps
+  /// its tickers running.
+  bool _onStage = true;
+
+  /// Whether no route covers this one, in this navigator or in any that
+  /// hosts it. A dialog is often pushed on the root navigator, above the
+  /// route that hosts a nested one, which stays current under it.
+  bool get _onTopRoute {
+    BuildContext? at = context;
+    while (at != null && at.mounted) {
+      final route = ModalRoute.of(at);
+      if (route == null) return true;
+      if (!route.isCurrent) return false;
+      // The navigator's own context is inside the route that hosts it.
+      at = route.navigator?.context;
+    }
+    return true;
   }
+
+  static bool get _apple => switch (defaultTargetPlatform) {
+    TargetPlatform.macOS || TargetPlatform.iOS => true,
+    _ => false,
+  };
 
   @override
   void didChangeDependencies() {
@@ -361,13 +391,27 @@ class _SidebarScaffoldState extends State<SidebarScaffold> {
       Theme.of(context).sidebarTheme.collapsedWidth ??
       48;
 
-  bool _onKeyEvent(KeyEvent event) {
-    if (event is! KeyDownEvent) return false;
-    if (event.logicalKey != LogicalKeyboardKey.keyB) return false;
-    final pressed = HardwareKeyboard.instance;
-    if (!pressed.isMetaPressed && !pressed.isControlPressed) return false;
+  /// Heard after the focus tree has passed on the key, so a focused
+  /// widget that binds the same chord keeps it.
+  KeyEventResult _onKeyEvent(KeyEvent event) {
+    if (event is! KeyDownEvent || event.logicalKey != LogicalKeyboardKey.keyB) {
+      return KeyEventResult.ignored;
+    }
+    // One modifier per platform and no other with it: Control+B moves the
+    // caret back in a Mac's text fields, and AltGr is reported as
+    // Control+Alt on Windows.
+    final keyboard = HardwareKeyboard.instance;
+    final chord =
+        !keyboard.isAltPressed &&
+        !keyboard.isShiftPressed &&
+        (_apple
+            ? keyboard.isMetaPressed && !keyboard.isControlPressed
+            : keyboard.isControlPressed && !keyboard.isMetaPressed);
+    if (!chord || !mounted || !_onStage || !_onTopRoute) {
+      return KeyEventResult.ignored;
+    }
     controller.toggle(isMobile: _isMobile);
-    return true;
+    return KeyEventResult.handled;
   }
 
   void _onControllerChanged() {
@@ -461,6 +505,7 @@ class _SidebarScaffoldState extends State<SidebarScaffold> {
     final sidebar = widget.sidebar;
     final isMobile = _isMobile;
     final open = controller.isOpen;
+    _onStage = TickerMode.valuesOf(context).enabled && Visibility.of(context);
 
     var content = widget.child;
 
@@ -941,7 +986,7 @@ class _SidebarTriggerState extends State<SidebarTrigger> {
     final scope = SidebarScope.of(context);
     return Semantics(
       button: true,
-      label: 'Toggle sidebar',
+      label: FinesseLocalizations.of(context).navigation.toggleSidebar,
       child: FinesseGestureDetector(
         mouseCursor: SystemMouseCursors.click,
         onHover: (value) => setState(() => hovered = value),

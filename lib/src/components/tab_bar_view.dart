@@ -67,8 +67,8 @@ class TabBarView<T> extends StatefulWidget {
     this.swipeable = true,
     super.key,
   }) : assert(
-         value == null || controller == null,
-         'Give either a value or a controller, not both.',
+         (value != null) ^ (controller != null),
+         'Give either a value or a controller.',
        );
 
   /// Builds the page of each value, in the order they are swiped through.
@@ -305,24 +305,31 @@ class _TabPagesState extends State<TabPages> with TickerProviderStateMixin {
 
   void _handlePointerDown(PointerDownEvent event) {
     if (!widget.swipeable || widget.count < 2) return;
-    (_recognizer ??=
-            HorizontalDragGestureRecognizer(
-                debugOwner: this,
-                // A finger, a pen or two fingers on a trackpad. A mouse
-                // drags to select.
-                supportedDevices: const {
-                  PointerDeviceKind.touch,
-                  PointerDeviceKind.stylus,
-                  PointerDeviceKind.invertedStylus,
-                  PointerDeviceKind.trackpad,
-                },
-              )
-              ..onStart = _handleDragStart
-              ..onUpdate = _handleDragUpdate
-              ..onEnd = _handleDragEnd
-              ..onCancel = (() => _settle(0)))
-        .addPointer(event);
+    _dragRecognizer.addPointer(event);
   }
+
+  /// Two fingers on a trackpad: a pan, not a pointer that goes down.
+  void _handlePanZoomStart(PointerPanZoomStartEvent event) {
+    if (!widget.swipeable || widget.count < 2) return;
+    _dragRecognizer.addPointerPanZoom(event);
+  }
+
+  HorizontalDragGestureRecognizer get _dragRecognizer => _recognizer ??=
+      HorizontalDragGestureRecognizer(
+          debugOwner: this,
+          // A finger, a pen or two fingers on a trackpad. A mouse
+          // drags to select.
+          supportedDevices: const {
+            PointerDeviceKind.touch,
+            PointerDeviceKind.stylus,
+            PointerDeviceKind.invertedStylus,
+            PointerDeviceKind.trackpad,
+          },
+        )
+        ..onStart = _handleDragStart
+        ..onUpdate = _handleDragUpdate
+        ..onEnd = _handleDragEnd
+        ..onCancel = (() => _settle(0));
 
   void _handleDragStart(DragStartDetails details) {
     // Caught mid-flight, the pages stop under the finger.
@@ -429,6 +436,7 @@ class _TabPagesState extends State<TabPages> with TickerProviderStateMixin {
 
     return Listener(
       onPointerDown: _handlePointerDown,
+      onPointerPanZoomStart: _handlePanZoomStart,
       // A swipe may start on a part of the page that has nothing on it.
       behavior: HitTestBehavior.translucent,
       child: _TabPagesBody(

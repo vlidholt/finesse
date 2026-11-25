@@ -1,8 +1,15 @@
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
-class TabsBasicExample extends StatelessWidget {
+class TabsBasicExample extends StatefulWidget {
   const TabsBasicExample({super.key});
+
+  @override
+  State<TabsBasicExample> createState() => _TabsBasicExampleState();
+}
+
+class _TabsBasicExampleState extends State<TabsBasicExample> {
+  String tab = 'account';
 
   @override
   Widget build(BuildContext context) {
@@ -11,7 +18,8 @@ class TabsBasicExample extends StatelessWidget {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 400),
       child: Tabs<String>(
-        value: 'account',
+        value: tab,
+        onChanged: (value) => setState(() => tab = value),
         tabs: [
           Tab(
             value: 'account',

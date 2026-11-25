@@ -398,6 +398,29 @@ void main() {
       expect((target.decoration as BoxDecoration).color, colour);
       expect(tester.getSize(find.byWidget(target)).width, 5);
     });
+
+    testWidgets('lies on the flat page, translucent and with no backdrop '
+        'filter, unless a theme asks for one', (tester) async {
+      Finder filter() => find.descendant(
+        of: find.byType(NavigationRail),
+        matching: find.byType(BackdropFilter),
+      );
+      // The default style's bars are glass; the rail is beside the page,
+      // not over it, and a blur of a flat fill costs a layer per frame for
+      // nothing.
+      final theme = ThemeData();
+      expect(theme.navigationRailTheme.backgroundColor!.a, lessThan(1));
+      await pumpFinesse(tester, _rail(onSelected: (_) {}), theme: theme);
+      expect(filter(), findsNothing);
+      await pumpFinesse(
+        tester,
+        _rail(onSelected: (_) {}),
+        theme: ThemeData(
+          navigationRailTheme: const NavigationRailTheme(blur: 12),
+        ),
+      );
+      expect(filter(), findsOneWidget);
+    });
   });
 
   group('NavigationScaffold layouts', () {
@@ -539,5 +562,54 @@ void main() {
         1,
       );
     });
+
+    testWidgets('the page keeps its state when the layout changes to or '
+        'from the rail', (tester) async {
+      var layout = NavigationLayout.topBar;
+      late StateSetter setLayout;
+      await pumpFinesse(
+        tester,
+        StatefulBuilder(
+          builder: (context, setState) {
+            setLayout = setState;
+            return NavigationScaffold(
+              layout: layout,
+              destinations: _destinations,
+              selectedIndex: 0,
+              body: const _Counter(),
+            );
+          },
+        ),
+      );
+      tester.state<_CounterState>(find.byType(_Counter)).count = 7;
+      for (final next in [
+        NavigationLayout.rail,
+        NavigationLayout.bottomBar,
+        NavigationLayout.rail,
+        NavigationLayout.topBar,
+      ]) {
+        setLayout(() => layout = next);
+        await tester.pump();
+        expect(
+          tester.state<_CounterState>(find.byType(_Counter)).count,
+          7,
+          reason: 'after switching to $next',
+        );
+      }
+    });
   });
+}
+
+class _Counter extends StatefulWidget {
+  const _Counter();
+
+  @override
+  State<_Counter> createState() => _CounterState();
+}
+
+class _CounterState extends State<_Counter> {
+  int count = 0;
+
+  @override
+  Widget build(BuildContext context) => const SizedBox.expand();
 }

@@ -614,10 +614,36 @@ void main() {
         page(plain(behavior: AppBarSurfaceBehavior.whenScrolled)),
       );
       expect(await sampler.pixel(tester, const Offset(300, 20)), _page);
+      // The surface fades: see below.
       await scrollTo(tester, 10);
+      await tester.pump(const Duration(milliseconds: 300));
       expect(await sampler.pixel(tester, const Offset(300, 20)), _fill);
       await scrollTo(tester, 0);
+      await tester.pump(const Duration(milliseconds: 300));
       expect(await sampler.pixel(tester, const Offset(300, 20)), _page);
+    });
+
+    testWidgets('whenScrolled: the surface fades in and out, as an AppBar '
+        'does', (tester) async {
+      await pump(
+        tester,
+        page(plain(behavior: AppBarSurfaceBehavior.whenScrolled)),
+      );
+      const inToolbar = Offset(300, 20);
+      await scrollTo(tester, 10);
+      final frames = await sampler.record(tester, inToolbar, frames: 16);
+      expectMonotone(frames, reason: 'appearing');
+      expect(frames.first, isNot(_fill), reason: 'snapped in');
+      expect(frames.last, _fill);
+      // Scrolling on changes nothing more.
+      await scrollTo(tester, 300);
+      expect(await sampler.pixel(tester, inToolbar), _fill);
+      await scrollTo(tester, 0);
+      final back = await sampler.record(tester, inToolbar, frames: 16);
+      expectMonotone(back, reason: 'leaving');
+      expect(back.first, isNot(_page), reason: 'snapped out');
+      expect(back.last, _page);
+      expect(tester.binding.hasScheduledFrame, isFalse);
     });
 
     testWidgets('unpinned, it scrolls away with the page and only comes '

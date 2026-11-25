@@ -53,7 +53,9 @@ class TabsController<T> extends ChangeNotifier {
 /// A [TabsController] that is saved and brought back by state restoration.
 ///
 /// Register it in a `RestorationMixin`'s `restoreState` and pass its
-/// `value` — the controller — to the tabs.
+/// `value` — the controller — to the tabs. The selected value is saved as
+/// it is, so it has to be one the restoration framework can store: a
+/// string, a number, a bool or null.
 class RestorableTabsController<T>
     extends RestorableChangeNotifier<TabsController<T>> {
   /// Creates a restorable controller that starts on [value].
@@ -74,6 +76,30 @@ class RestorableTabsController<T>
 
   @override
   Object? toPrimitives() => value.value;
+}
+
+/// The local controller of a [Tabs], saved as the index of its tab, so
+/// that a value of any type — an enum — can be restored.
+class _RestorableTabIndex<T> extends RestorableTabsController<T> {
+  _RestorableTabIndex({required super.value, required this.values});
+
+  /// The values of the tabs, in order, as they are now.
+  final List<T> Function() values;
+
+  @override
+  TabsController<T> fromPrimitives(Object? data) {
+    final values = this.values();
+    final index = data is int ? data : -1;
+    return TabsController<T>(
+      value: index >= 0 && index < values.length ? values[index] : initialValue,
+    );
+  }
+
+  @override
+  Object? toPrimitives() {
+    final index = values().indexOf(value.value);
+    return index < 0 ? null : index;
+  }
 }
 
 /// One tab of a `TabBar` or a [Tabs]: its [value], its label and — in a
@@ -171,7 +197,10 @@ List<TabListItem> tabListItems<T>(List<Tab<T>> tabs) => [
 /// [variant] set to [TabBarVariant.underline]. To pick a value rather than
 /// show a view, use a `SegmentedControl`.
 ///
-/// Controlled with [value] and [onChanged], or by a [controller].
+/// Controlled with [value] and [onChanged], or by a [controller]. With a
+/// [value] the selection is the value: a tab the user chooses is reported
+/// to [onChanged] and selected once the value names it. Without
+/// [onChanged] the tabs are inert, as a `TabBar`'s are.
 class Tabs<T> extends StatefulWidget {
   /// Creates a tab bar with the selected tab's content under it.
   const Tabs({
@@ -201,7 +230,8 @@ class Tabs<T> extends StatefulWidget {
   final T? value;
 
   /// Called with the value of the tab the user selected, by a tap, a key
-  /// or a swipe.
+  /// or a swipe. Without it, and without a [controller], the tabs are
+  /// inert.
   final ValueChanged<T>? onChanged;
 
   /// Holds the selection in place of [value]; see [TabsController].
@@ -239,11 +269,13 @@ class Tabs<T> extends StatefulWidget {
   final bool swipeable;
 
   /// Whether the content fills the height left under the bar, for a
-  /// [Tabs] that is given one. By default the content is as tall as it
+  /// [Tabs] that is given one. By default — and in a parent that leaves
+  /// its height open, a scrolling page — the content is as tall as it
   /// needs to be.
   final bool? expandContent;
 
   /// Restores the selection under this id, when there is no [controller].
+  /// It is saved as the index of the selected tab.
   final String? restorationId;
 
   @override
@@ -295,7 +327,10 @@ class _TabsState<T> extends State<Tabs<T>> with RestorationMixin {
 
   void _createLocal(T value) {
     assert(_local == null);
-    _local = RestorableTabsController<T>(value: value);
+    _local = _RestorableTabIndex<T>(
+      value: value,
+      values: () => [for (final tab in widget.tabs) tab.value],
+    );
     if (!restorePending) registerForRestoration(_local!, 'controller');
   }
 
@@ -318,9 +353,18 @@ class _TabsState<T> extends State<Tabs<T>> with RestorationMixin {
     _listen();
   }
 
+  /// Whether the user can change the tab: there is a [Tabs.controller] to
+  /// change, or an [Tabs.onChanged] to ask.
+  bool get _interactive =>
+      widget.controller != null || widget.onChanged != null;
+
   void _select(int index) {
     final value = widget.tabs[index].value;
-    if (_controller.select(value)) widget.onChanged?.call(value);
+    if (value == _controller.value) return;
+    // Controlled by a value, the selection moves when the value does: the
+    // local controller follows it in didUpdateWidget.
+    widget.controller?.select(value);
+    widget.onChanged?.call(value);
   }
 
   @override
@@ -339,7 +383,7 @@ class _TabsState<T> extends State<Tabs<T>> with RestorationMixin {
     final bar = TabList(
       items: tabListItems(tabs),
       selectedIndex: selected < 0 ? null : selected,
-      onSelected: _select,
+      onSelected: _interactive ? _select : null,
       variant: widget.variant,
       expand: expandTabs,
       scrollable: widget.scrollable,
@@ -372,18 +416,27 @@ class _TabsState<T> extends State<Tabs<T>> with RestorationMixin {
             ),
           ),
       maintainState: widget.maintainState,
-      swipeable: widget.swipeable,
+      swipeable: widget.swipeable && _interactive,
       fill: expandContent,
       track: _controller.swipePosition,
       canShow: (index) => tabs[index].enabled,
     );
 
-    return Column(
+    Widget column({required bool fill}) => Column(
       children: [
         bar,
         SizedBox(height: widget.gap ?? tabsTheme.gap ?? 8),
-        if (expandContent) Expanded(child: pages) else pages,
+        // A flex of 0 is no flex at all: the pages keep their place in the
+        // tree whether they fill the column or not.
+        Flexible(flex: fill ? 1 : 0, fit: FlexFit.tight, child: pages),
       ],
+    );
+    if (!expandContent) return column(fill: false);
+    // Only a height that is given can be filled: in a scrolling page the
+    // content is as tall as it is.
+    return LayoutBuilder(
+      builder: (context, constraints) =>
+          column(fill: constraints.hasBoundedHeight),
     );
   }
 }

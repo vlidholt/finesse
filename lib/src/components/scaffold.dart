@@ -7,6 +7,7 @@ import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/backdrop.dart';
 import 'package:finesse/src/utils/expand_reveal.dart';
 import 'package:finesse/src/utils/overlay_insets.dart';
 import 'package:finesse/src/utils/spring.dart';
@@ -268,6 +269,24 @@ class ScaffoldState extends State<Scaffold> with TickerProviderStateMixin {
   /// Closes the [Scaffold.endDrawer] if it is open.
   void closeEndDrawer() => _endDrawerRoute?.close();
 
+  /// A drawer's [content] under this scaffold's scope. The drawer is a
+  /// route, built in the navigator's overlay and not under the scaffold,
+  /// so without it `Scaffold.of` would find nothing there — and a menu
+  /// item could not close the drawer it is in.
+  Widget? _scoped(Widget? content, {required bool atEnd}) {
+    if (content == null) return null;
+    return _ScaffoldScope(
+      state: this,
+      hasDrawer: hasDrawer,
+      hasEndDrawer: hasEndDrawer,
+      // Shown, its own drawer is open; the scaffold's state says when it
+      // is closing.
+      isDrawerOpen: !atEnd,
+      isEndDrawerOpen: atEnd,
+      child: content,
+    );
+  }
+
   /// The scaffold's theme if a drawer has to carry it: under the
   /// navigator's own theme the drawer follows that one live — a switch to
   /// dark while it is open included.
@@ -289,7 +308,10 @@ class ScaffoldState extends State<Scaffold> with TickerProviderStateMixin {
     );
     if (navigator == null) return;
 
-    (atEnd ? _endDrawerContent : _drawerContent).value = content;
+    (atEnd ? _endDrawerContent : _drawerContent).value = _scoped(
+      content,
+      atEnd: atEnd,
+    );
     final strings = FinesseLocalizations.of(context);
     final route = ScaffoldDrawerRoute(
       content: atEnd ? _endDrawerContent : _drawerContent,
@@ -349,7 +371,7 @@ class ScaffoldState extends State<Scaffold> with TickerProviderStateMixin {
         return;
       }
       final notifier = atEnd ? _endDrawerContent : _drawerContent;
-      notifier.value = content;
+      notifier.value = _scoped(content, atEnd: atEnd);
       final controller = AnimationController(vsync: this);
       final theme = _drawerTheme(navigator);
       final created = pull = _pull = _DrawerPull(atEnd, controller)
@@ -421,8 +443,8 @@ class ScaffoldState extends State<Scaffold> with TickerProviderStateMixin {
       // elsewhere in the tree, so it is told once this build is over.
       SchedulerBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        _drawerContent.value = widget.drawer;
-        _endDrawerContent.value = widget.endDrawer;
+        _drawerContent.value = _scoped(widget.drawer, atEnd: false);
+        _endDrawerContent.value = _scoped(widget.endDrawer, atEnd: true);
         if (widget.drawer == null) _drawerRoute?.close();
         if (widget.endDrawer == null) _endDrawerRoute?.close();
       });
@@ -548,7 +570,10 @@ class ScaffoldState extends State<Scaffold> with TickerProviderStateMixin {
     final background = widget.backgroundColor ?? theme.colorScheme.background;
 
     _geometry.viewHeight = media.size.height;
-    final onStage = TickerMode.valuesOf(context).enabled;
+    // Off stage under a covered route, and in a hidden child of an
+    // IndexedStack, which keeps its tickers running.
+    final onStage =
+        TickerMode.valuesOf(context).enabled && Visibility.of(context);
     if (onStage != _geometry.onStage) {
       _geometry.onStage = onStage;
       if (_overlayInsets != null) _scheduleReport();
@@ -1080,11 +1105,24 @@ class _FabSwitcherState extends State<_FabSwitcher>
     with SingleTickerProviderStateMixin {
   late Widget? _shown = widget.child;
 
-  // 0 gone, 1 there.
-  late final _presence = SpringController(
-    vsync: this,
-    value: widget.child == null ? 0 : 1,
-  );
+  // 0 gone, 1 there. Made at once: made on first use, the first button a
+  // scaffold is given would be made already there, and not pop in.
+  late final SpringController _presence;
+
+  // Through a host that a glass button takes the fade over from: an
+  // opacity layer around a backdrop filter takes its blur away on some
+  // renderers.
+  late final Animation<double> _opacity;
+
+  @override
+  void initState() {
+    super.initState();
+    _presence = SpringController(
+      vsync: this,
+      value: widget.child == null ? 0 : 1,
+    );
+    _opacity = _presence.animation.drive(const _FabOpacity());
+  }
 
   @override
   void didUpdateWidget(_FabSwitcher oldWidget) {
@@ -1123,19 +1161,28 @@ class _FabSwitcherState extends State<_FabSwitcher>
         widget.child == null || !Widget.canUpdate(shown, widget.child!);
     return IgnorePointer(
       ignoring: leaving,
-      child: AnimatedBuilder(
-        animation: _presence.animation,
-        // One tree for the whole pop: a full opacity and an identity
-        // transform cost no layer.
-        builder: (context, child) {
-          final t = _presence.value;
-          return Opacity(
-            opacity: (t * 2).clamp(0.0, 1.0),
-            child: Transform.scale(scale: .6 + .4 * t, child: child),
-          );
-        },
-        child: shown,
+      // One tree for the whole pop: a full opacity and an identity
+      // transform cost no layer.
+      child: BackdropFadeHost(
+        opacity: _opacity,
+        child: AnimatedBuilder(
+          animation: _presence.animation,
+          builder: (context, child) => Transform.scale(
+            scale: .6 + .4 * _presence.value,
+            child: child,
+          ),
+          child: shown,
+        ),
       ),
     );
   }
+}
+
+/// The floating action button's opacity for its presence: there by half
+/// way.
+class _FabOpacity extends Animatable<double> {
+  const _FabOpacity();
+
+  @override
+  double transform(double t) => (t * 2).clamp(0.0, 1.0);
 }

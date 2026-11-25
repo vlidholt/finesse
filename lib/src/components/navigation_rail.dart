@@ -39,8 +39,9 @@ import 'package:flutter/widgets.dart';
 /// on the theme's `Motion.smooth`. The line beside the selected destination
 /// is one shape that travels, as it does in the other bars.
 ///
-/// The rail has the bars' surface — translucent over a blurred page in a
-/// glass style — with a hairline along its inner edge, and keeps clear of
+/// The rail has the bars' fill — translucent in a glass style, though not
+/// frosted: it lies beside the page, not over it, unless its theme gives it
+/// a `blur` — with a hairline along its inner edge, and keeps clear of
 /// the safe area. Destinations that do not fit scroll; [leading], [action]
 /// and [trailing] stay put. Up and Down move the focus between the
 /// destinations.
@@ -304,7 +305,7 @@ class _RailItem extends StatelessWidget {
                 return FocusRing(
                   visible: states.contains(WidgetState.focused),
                   borderRadius: theme.radius,
-                  // The rail clips for its backdrop blur.
+                  // The rail clips when it has a backdrop blur.
                   inset: true,
                   child: AnimatedColorBuilder(
                     color: labelColor,

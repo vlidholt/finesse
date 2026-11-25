@@ -302,6 +302,37 @@ void main() {
       expect(seen.last, 'true false');
     });
 
+    testWidgets('the drawer finds its scaffold, so an item can close it', (
+      tester,
+    ) async {
+      ScaffoldState? found;
+      await pumpApp(
+        tester,
+        Scaffold(
+          key: scaffoldKey,
+          drawer: Builder(
+            builder: (context) {
+              found = Scaffold.maybeOf(context);
+              return GestureDetector(
+                key: _panel,
+                behavior: HitTestBehavior.opaque,
+                onTap: () => Scaffold.of(context).closeDrawer(),
+              );
+            },
+          ),
+          body: const SizedBox.expand(),
+        ),
+      );
+      state().openDrawer();
+      await tester.pumpAndSettle();
+      expect(state().isDrawerOpen, isTrue);
+      expect(found, same(state()));
+      await tester.tap(find.byKey(_panel));
+      await tester.pumpAndSettle();
+      expect(state().isDrawerOpen, isFalse);
+      expect(find.byKey(_panel), findsNothing);
+    });
+
     testWidgets('maybeOf is null with no scaffold above; of says why', (
       tester,
     ) async {

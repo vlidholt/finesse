@@ -4,6 +4,7 @@ import 'package:finesse/src/components/glass.dart';
 import 'package:finesse/src/raw_components/pressable.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/backdrop.dart';
 import 'package:finesse/src/utils/shadow.dart';
 import 'package:finesse/src/utils/spring.dart';
 import 'package:finesse/src/utils/text_scaled_height.dart';
@@ -246,11 +247,27 @@ class FloatingActionButton extends StatelessWidget {
         );
         final Widget surface;
         if (glass) {
-          surface = Glass(
-            level: GlassLevel.strong,
+          // The glass's tint and border, over a filter of the button's own:
+          // a surface that takes over the fade of the scaffold's pop, so
+          // that the button keeps its blur while it comes and goes.
+          final glassTheme = theme.glassTheme;
+          final card = glassTheme.color ?? scheme.card;
+          surface = BackdropSurface(
+            filter: Backdrop.filterFor(
+              blur: glassTheme.blur ?? 0,
+              saturation: glassTheme.saturation ?? 1,
+            ),
+            tintOpacity: card.a * (glassTheme.strongOpacity ?? .9),
             borderRadius: radius,
-            shadows: shadows,
-            child: box,
+            shadow: shadows.isEmpty
+                ? null
+                : ShadowDecoration.box(borderRadius: radius, shadows: shadows),
+            child: Glass(
+              level: GlassLevel.strong,
+              frosted: false,
+              borderRadius: radius,
+              child: box,
+            ),
           );
         } else {
           // After the fill, and clipped to outside it: a shadow under a
