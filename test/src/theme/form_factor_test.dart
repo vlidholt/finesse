@@ -558,8 +558,6 @@ void main() {
         expect(theme.buttonSizesTheme.regular!.height, 44);
       }
       // Settled exactly on the mobile theme, not somewhere between the two.
-      // (The whole theme is not compared: below the sonner, `Theme.of`
-      // carries the sonner's own toast themes.)
       expectSameMetrics(seen.last, ThemeData(formFactor: FormFactor.mobile));
 
       // And nothing moves afterwards: two form factors are two layouts, not

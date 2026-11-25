@@ -177,16 +177,7 @@ mixin _$ThemeData {
         t,
       )!,
       radioTheme: RadioTheme.lerp(a.radioTheme, b.radioTheme, t)!,
-      primaryToastTheme: ToastTheme.lerp(
-        a.primaryToastTheme,
-        b.primaryToastTheme,
-        t,
-      )!,
-      destructiveToastTheme: ToastTheme.lerp(
-        a.destructiveToastTheme,
-        b.destructiveToastTheme,
-        t,
-      )!,
+      toastTheme: ToastTheme.lerp(a.toastTheme, b.toastTheme, t)!,
       breakpoints: Breakpoints.lerp(a.breakpoints, b.breakpoints, t)!,
       primaryAlertTheme: AlertTheme.lerp(
         a.primaryAlertTheme,
@@ -250,7 +241,7 @@ mixin _$ThemeData {
       otpFieldTheme: OtpFieldTheme.lerp(a.otpFieldTheme, b.otpFieldTheme, t)!,
       menubarTheme: MenubarTheme.lerp(a.menubarTheme, b.menubarTheme, t)!,
       dividerTheme: DividerTheme.lerp(a.dividerTheme, b.dividerTheme, t)!,
-      sonnerTheme: SonnerTheme.lerp(a.sonnerTheme, b.sonnerTheme, t)!,
+      toasterTheme: ToasterTheme.lerp(a.toasterTheme, b.toasterTheme, t)!,
       textareaTheme: TextareaTheme.lerp(a.textareaTheme, b.textareaTheme, t)!,
       defaultKeyboardToolbarTheme: DefaultKeyboardToolbarTheme.lerp(
         a.defaultKeyboardToolbarTheme,
@@ -316,8 +307,7 @@ mixin _$ThemeData {
     CheckboxTheme? checkboxTheme,
     TextFieldTheme? textFieldTheme,
     RadioTheme? radioTheme,
-    ToastTheme? primaryToastTheme,
-    ToastTheme? destructiveToastTheme,
+    ToastTheme? toastTheme,
     Breakpoints? breakpoints,
     AlertTheme? primaryAlertTheme,
     AlertTheme? destructiveAlertTheme,
@@ -339,7 +329,7 @@ mixin _$ThemeData {
     OtpFieldTheme? otpFieldTheme,
     MenubarTheme? menubarTheme,
     DividerTheme? dividerTheme,
-    SonnerTheme? sonnerTheme,
+    ToasterTheme? toasterTheme,
     TextareaTheme? textareaTheme,
     DefaultKeyboardToolbarTheme? defaultKeyboardToolbarTheme,
   }) {
@@ -404,9 +394,7 @@ mixin _$ThemeData {
       checkboxTheme: checkboxTheme ?? _this.checkboxTheme,
       textFieldTheme: textFieldTheme ?? _this.textFieldTheme,
       radioTheme: radioTheme ?? _this.radioTheme,
-      primaryToastTheme: primaryToastTheme ?? _this.primaryToastTheme,
-      destructiveToastTheme:
-          destructiveToastTheme ?? _this.destructiveToastTheme,
+      toastTheme: toastTheme ?? _this.toastTheme,
       breakpoints: breakpoints ?? _this.breakpoints,
       primaryAlertTheme: primaryAlertTheme ?? _this.primaryAlertTheme,
       destructiveAlertTheme:
@@ -430,7 +418,7 @@ mixin _$ThemeData {
       otpFieldTheme: otpFieldTheme ?? _this.otpFieldTheme,
       menubarTheme: menubarTheme ?? _this.menubarTheme,
       dividerTheme: dividerTheme ?? _this.dividerTheme,
-      sonnerTheme: sonnerTheme ?? _this.sonnerTheme,
+      toasterTheme: toasterTheme ?? _this.toasterTheme,
       textareaTheme: textareaTheme ?? _this.textareaTheme,
       defaultKeyboardToolbarTheme:
           defaultKeyboardToolbarTheme ?? _this.defaultKeyboardToolbarTheme,
@@ -526,10 +514,7 @@ mixin _$ThemeData {
       checkboxTheme: _this.checkboxTheme.merge(other.checkboxTheme),
       textFieldTheme: _this.textFieldTheme.merge(other.textFieldTheme),
       radioTheme: _this.radioTheme.merge(other.radioTheme),
-      primaryToastTheme: _this.primaryToastTheme.merge(other.primaryToastTheme),
-      destructiveToastTheme: _this.destructiveToastTheme.merge(
-        other.destructiveToastTheme,
-      ),
+      toastTheme: _this.toastTheme.merge(other.toastTheme),
       breakpoints: other.breakpoints,
       primaryAlertTheme: _this.primaryAlertTheme.merge(other.primaryAlertTheme),
       destructiveAlertTheme: _this.destructiveAlertTheme.merge(
@@ -555,7 +540,7 @@ mixin _$ThemeData {
       otpFieldTheme: _this.otpFieldTheme.merge(other.otpFieldTheme),
       menubarTheme: _this.menubarTheme.merge(other.menubarTheme),
       dividerTheme: _this.dividerTheme.merge(other.dividerTheme),
-      sonnerTheme: _this.sonnerTheme.merge(other.sonnerTheme),
+      toasterTheme: _this.toasterTheme.merge(other.toasterTheme),
       textareaTheme: _this.textareaTheme.merge(other.textareaTheme),
       defaultKeyboardToolbarTheme: _this.defaultKeyboardToolbarTheme.merge(
         other.defaultKeyboardToolbarTheme,
@@ -631,8 +616,7 @@ mixin _$ThemeData {
         _other.checkboxTheme == _this.checkboxTheme &&
         _other.textFieldTheme == _this.textFieldTheme &&
         _other.radioTheme == _this.radioTheme &&
-        _other.primaryToastTheme == _this.primaryToastTheme &&
-        _other.destructiveToastTheme == _this.destructiveToastTheme &&
+        _other.toastTheme == _this.toastTheme &&
         _other.breakpoints == _this.breakpoints &&
         _other.primaryAlertTheme == _this.primaryAlertTheme &&
         _other.destructiveAlertTheme == _this.destructiveAlertTheme &&
@@ -654,7 +638,7 @@ mixin _$ThemeData {
         _other.otpFieldTheme == _this.otpFieldTheme &&
         _other.menubarTheme == _this.menubarTheme &&
         _other.dividerTheme == _this.dividerTheme &&
-        _other.sonnerTheme == _this.sonnerTheme &&
+        _other.toasterTheme == _this.toasterTheme &&
         _other.textareaTheme == _this.textareaTheme &&
         _other.defaultKeyboardToolbarTheme == _this.defaultKeyboardToolbarTheme;
   }
@@ -720,8 +704,7 @@ mixin _$ThemeData {
       _this.checkboxTheme,
       _this.textFieldTheme,
       _this.radioTheme,
-      _this.primaryToastTheme,
-      _this.destructiveToastTheme,
+      _this.toastTheme,
       _this.breakpoints,
       _this.primaryAlertTheme,
       _this.destructiveAlertTheme,
@@ -743,7 +726,7 @@ mixin _$ThemeData {
       _this.otpFieldTheme,
       _this.menubarTheme,
       _this.dividerTheme,
-      _this.sonnerTheme,
+      _this.toasterTheme,
       _this.textareaTheme,
       _this.defaultKeyboardToolbarTheme,
     ]);

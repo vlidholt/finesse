@@ -101,7 +101,6 @@ export 'src/components/sheet.dart'
 export 'src/components/sidebar.dart';
 export 'src/components/skeleton.dart';
 export 'src/components/slider.dart';
-export 'src/components/sonner.dart' hide ToastInfo;
 export 'src/components/spinner.dart';
 export 'src/components/streaming_text.dart';
 export 'src/components/surface.dart';
@@ -113,7 +112,7 @@ export 'src/components/text_field.dart';
 export 'src/components/textarea.dart' hide ResizeGripPainter;
 export 'src/components/time_picker.dart' hide TimePickerTextEditingController;
 export 'src/components/timeline.dart';
-export 'src/components/toast.dart';
+export 'src/components/toast.dart' hide RenderToastStack;
 export 'src/components/toggle.dart';
 export 'src/components/tooltip.dart';
 // Localizations
@@ -186,7 +185,6 @@ export 'src/theme/components/sheet.dart';
 export 'src/theme/components/sidebar.dart';
 export 'src/theme/components/skeleton.dart';
 export 'src/theme/components/slider.dart';
-export 'src/theme/components/sonner.dart';
 export 'src/theme/components/spinner.dart';
 export 'src/theme/components/streaming_text.dart';
 export 'src/theme/components/switch.dart';

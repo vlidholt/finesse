@@ -50,7 +50,7 @@ void main() {
     test('copyWith preserves a custom variant', () {
       // Regression: `variant` was constructor-only and never stored, so
       // copyWith silently reset it to DefaultThemeVariant. Dialog,
-      // Tooltip and Sonner all call copyWith in build().
+      // Tooltip and the board all call copyWith in build().
       final variant = DefaultThemeNoSecondaryBorderVariant(
         colorScheme: const NeutralColorScheme.light(),
         radius: const BorderRadius.all(Radius.circular(6)),

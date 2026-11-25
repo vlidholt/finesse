@@ -1,7 +1,6 @@
 // ignore_for_file: lines_longer_than_80_chars
 
 import 'package:finesse/src/components/scroll_area.dart';
-import 'package:finesse/src/components/sonner.dart';
 import 'package:finesse/src/components/toast.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/theme/cross_fade_theme.dart';
@@ -43,9 +42,8 @@ enum FinesseAppType {
 
 /// The root widget of a finesse app.
 ///
-/// It provides the [Theme], the localizations, the toaster and the
-/// sonner. Below them it builds a [WidgetsApp], or calls [appBuilder] for
-/// [FinesseApp.custom].
+/// It provides the [Theme], the localizations and the toaster. Below them
+/// it builds a [WidgetsApp], or calls [appBuilder] for [FinesseApp.custom].
 ///
 /// finesse does not depend on Material or Cupertino. To use their widgets in the
 /// same app, wrap them in a `FinesseMaterial` from `package:finesse/material.dart`,
@@ -143,7 +141,7 @@ class FinesseApp extends StatefulWidget {
   /// Use it to put a `MaterialApp` or a `CupertinoApp` below the finesse theme.
   /// Theme it with `materialThemeFrom(Theme.of(context))` from
   /// `package:finesse/material.dart`, and return a [FinesseAppBuilder] from its
-  /// `builder` to get the toaster and the sonner.
+  /// `builder` to get the toaster.
   const FinesseApp.custom({
     super.key,
     required WidgetBuilder this.appBuilder,
@@ -357,7 +355,7 @@ class FinesseApp extends StatefulWidget {
   /// Wraps the widget below the [Navigator] or [Router].
   ///
   /// Use it to insert widgets above every route, such as an inherited widget.
-  /// The child it receives already contains the toaster and the sonner.
+  /// The child it receives already contains the toaster.
   /// See [WidgetsApp.builder].
   final TransitionBuilder? builder;
 
@@ -1162,12 +1160,10 @@ class FinesseAppBuilder extends StatelessWidget {
     // resolves to the theme we passed to AnimatedTheme.
     return Builder(
       builder: (BuildContext context) {
-        // The reason for wrapping the [child] with `Toaster` and `Sonner`
-        // is to ensures that any `InheritedWidget`s introduced by the [builder]
-        // (such as `Directionality`) are inherited by the toaster and sonner.
-        final effectiveChild = child != null
-            ? Toaster(child: Sonner(child: child!))
-            : child;
+        // The `Toaster` goes around the [child], inside [builder], so that
+        // any `InheritedWidget` the [builder] introduces (such as a
+        // `Directionality`) is inherited by the toasts.
+        final effectiveChild = child != null ? Toaster(child: child!) : child;
         return ColoredBox(
           color: backgroundColor ?? Theme.of(context).colorScheme.background,
           child: builder?.call(context, effectiveChild) ?? effectiveChild,

@@ -66,7 +66,6 @@ const _slugs = [
   'sidebar',
   'skeleton',
   'slider',
-  'sonner',
   'spinner',
   'streaming_text',
   'surface',

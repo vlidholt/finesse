@@ -479,10 +479,10 @@ void showStrandToast(
   VoidCallback? onAction,
 }) {
   // Not every host has a toaster (a widget test that pumps one piece).
-  final sonner = Sonner.maybeOf(context);
-  if (sonner == null) return;
+  final toaster = Toaster.maybeOf(context);
+  if (toaster == null) return;
   final id = UniqueKey();
-  sonner.show(
+  toaster.show(
     Toast(
       id: id,
       title: Text(title),
@@ -493,7 +493,7 @@ void showStrandToast(
               size: ButtonSize.sm,
               onPressed: () {
                 onAction?.call();
-                sonner.hide(id);
+                toaster.dismiss(id);
               },
               child: Text(actionLabel),
             ),

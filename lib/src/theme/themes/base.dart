@@ -46,7 +46,6 @@ import 'package:finesse/src/theme/components/sheet.dart';
 import 'package:finesse/src/theme/components/sidebar.dart';
 import 'package:finesse/src/theme/components/skeleton.dart';
 import 'package:finesse/src/theme/components/slider.dart';
-import 'package:finesse/src/theme/components/sonner.dart';
 import 'package:finesse/src/theme/components/spinner.dart';
 import 'package:finesse/src/theme/components/streaming_text.dart';
 import 'package:finesse/src/theme/components/switch.dart';
@@ -123,8 +122,7 @@ abstract class BaseTheme {
     required this.checkboxTheme,
     required this.textFieldTheme,
     required this.radioTheme,
-    required this.primaryToastTheme,
-    required this.destructiveToastTheme,
+    required this.toastTheme,
     required this.breakpoints,
     required this.primaryAlertTheme,
     required this.destructiveAlertTheme,
@@ -146,7 +144,7 @@ abstract class BaseTheme {
     required this.otpFieldTheme,
     required this.menubarTheme,
     required this.dividerTheme,
-    required this.sonnerTheme,
+    required this.toasterTheme,
     required this.textareaTheme,
     required this.defaultKeyboardToolbarTheme,
     required this.skeletonTheme,
@@ -349,11 +347,8 @@ abstract class BaseTheme {
   /// The theme of `Radio`.
   final RadioTheme radioTheme;
 
-  /// The theme of default toasts, `Toast`.
-  final ToastTheme primaryToastTheme;
-
-  /// The theme of destructive toasts, `Toast.destructive`.
-  final ToastTheme destructiveToastTheme;
+  /// The theme of `Toast`.
+  final ToastTheme toastTheme;
 
   /// The screen widths at which the layout changes.
   final Breakpoints breakpoints;
@@ -421,8 +416,8 @@ abstract class BaseTheme {
   /// The theme of `Divider`.
   final DividerTheme dividerTheme;
 
-  /// The theme of `Sonner`.
-  final SonnerTheme sonnerTheme;
+  /// The theme of `Toaster`.
+  final ToasterTheme toasterTheme;
 
   /// The theme of `Textarea`.
   final TextareaTheme textareaTheme;
@@ -555,11 +550,8 @@ abstract class ThemeVariant {
   /// Builds the theme of `Radio`.
   RadioTheme radioTheme();
 
-  /// Builds the theme of default toasts, `Toast`.
-  ToastTheme primaryToastTheme();
-
-  /// Builds the theme of destructive toasts, `Toast.destructive`.
-  ToastTheme destructiveToastTheme();
+  /// Builds the theme of `Toast`.
+  ToastTheme toastTheme();
 
   /// Builds the theme of default alerts, `Alert`.
   AlertTheme primaryAlertTheme();
@@ -618,8 +610,8 @@ abstract class ThemeVariant {
   /// Builds the theme of `Divider`.
   DividerTheme dividerTheme();
 
-  /// Builds the theme of `Sonner`.
-  SonnerTheme sonnerTheme();
+  /// Builds the theme of `Toaster`.
+  ToasterTheme toasterTheme();
 
   /// Builds the theme of `Textarea`.
   TextareaTheme textareaTheme();

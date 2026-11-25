@@ -58,7 +58,6 @@ import 'package:example/docs/pages/sheet.dart';
 import 'package:example/docs/pages/sidebar.dart';
 import 'package:example/docs/pages/skeleton.dart';
 import 'package:example/docs/pages/slider.dart';
-import 'package:example/docs/pages/sonner.dart';
 import 'package:example/docs/pages/spinner.dart';
 import 'package:example/docs/pages/streaming_text.dart';
 import 'package:example/docs/pages/styles.dart';
@@ -162,7 +161,6 @@ final componentDocs = [
   sidebarDoc,
   skeletonDoc,
   sliderDoc,
-  sonnerDoc,
   spinnerDoc,
   streamingTextDoc,
   surfaceDoc,

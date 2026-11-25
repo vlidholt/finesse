@@ -20,6 +20,9 @@ keyboardToolbar:
 empty:
   title: "No results"
 
+toast:
+  dismiss: "Dismiss"
+
 command:
   noResults: "No results found."
 

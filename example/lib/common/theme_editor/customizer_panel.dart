@@ -776,8 +776,11 @@ class _Actions extends StatelessWidget {
   Future<void> _copy(BuildContext context, ThemeEditorConfig config) async {
     await Clipboard.setData(ClipboardData(text: config.toAppSnippet()));
     if (!context.mounted) return;
-    Sonner.of(context).show(
-      const Toast(title: Text('Theme copied to clipboard')),
+    Toaster.of(context).show(
+      const Toast(
+        variant: ToastVariant.success,
+        title: Text('Theme copied to clipboard'),
+      ),
     );
   }
 

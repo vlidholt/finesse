@@ -40,6 +40,7 @@ class FinesseLocalizationsData with BaseTranslations<FinesseLocale, FinesseLocal
 	late final FinesseLocalizationsData$input$en input = FinesseLocalizationsData$input$en.internal(_root);
 	late final FinesseLocalizationsData$keyboardToolbar$en keyboardToolbar = FinesseLocalizationsData$keyboardToolbar$en.internal(_root);
 	late final FinesseLocalizationsData$empty$en empty = FinesseLocalizationsData$empty$en.internal(_root);
+	late final FinesseLocalizationsData$toast$en toast = FinesseLocalizationsData$toast$en.internal(_root);
 	late final FinesseLocalizationsData$command$en command = FinesseLocalizationsData$command$en.internal(_root);
 	late final FinesseLocalizationsData$pagination$en pagination = FinesseLocalizationsData$pagination$en.internal(_root);
 	late final FinesseLocalizationsData$dialog$en dialog = FinesseLocalizationsData$dialog$en.internal(_root);
@@ -125,6 +126,18 @@ class FinesseLocalizationsData$empty$en {
 
 	/// en: 'No results'
 	String get title => 'No results';
+}
+
+// Path: toast
+class FinesseLocalizationsData$toast$en {
+	FinesseLocalizationsData$toast$en.internal(this._root);
+
+	final FinesseLocalizationsData _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Dismiss'
+	String get dismiss => 'Dismiss';
 }
 
 // Path: command
@@ -231,6 +244,7 @@ extension on FinesseLocalizationsData {
 			'input.selectAll' => 'Select All',
 			'keyboardToolbar.done' => 'Done',
 			'empty.title' => 'No results',
+			'toast.dismiss' => 'Dismiss',
 			'command.noResults' => 'No results found.',
 			'pagination.previous' => 'Previous',
 			'pagination.next' => 'Next',
