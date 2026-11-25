@@ -336,9 +336,10 @@ class FinesseApp extends StatefulWidget {
   /// correctly animate between pages, and to represent the "return value" of
   /// a route (e.g. which button a user selected in a modal dialog).
   ///
-  /// Defaults to a short fade. Pass a `MaterialPageRoute` or a
-  /// `CupertinoPageRoute` here for their platform transitions, such as the
-  /// iOS back swipe.
+  /// Defaults to a [FinessePageRoute]: a short slide and fade, with the
+  /// iOS back swipe and the preview of the predictive back gesture on
+  /// Android. Pass a `MaterialPageRoute` or a `CupertinoPageRoute` here for
+  /// their platform transitions instead.
   ///
   /// The [PageRouteFactory] type is generic, meaning the provided function must
   /// itself be generic. For example (with special emphasis on the `<T>` at the

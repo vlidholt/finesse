@@ -163,6 +163,7 @@ void main() {
     const dark = TealColorScheme.dark();
     expect(copy.brightness, Brightness.dark);
     expect(copy.navigationBarTheme.selectedIconColor, dark.tint);
+    expect(copy.navigationRailTheme.selectedIconColor, dark.tint);
     expect(copy.chipTheme.selectedBorderColor, dark.accentBorder);
     expect(copy.glassTheme.color, dark.card);
     // The dark-only opacities are picked up with the scheme.
@@ -212,5 +213,23 @@ void main() {
       );
       expect(theme.brightness, Brightness.light);
     });
+  });
+
+  test('copyWith keeps and replaces a navigation rail theme', () {
+    const rail = NavigationRailTheme(width: 96);
+    final theme = ThemeData(navigationRailTheme: rail);
+    expect(theme.navigationRailTheme.width, 96);
+    // An input that is not named in the copy survives it.
+    expect(
+      theme.copyWith(radius: BorderRadius.zero).navigationRailTheme.width,
+      96,
+    );
+    expect(
+      theme
+          .copyWith(navigationRailTheme: const NavigationRailTheme(width: 80))
+          .navigationRailTheme
+          .width,
+      80,
+    );
   });
 }
