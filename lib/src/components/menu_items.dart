@@ -22,6 +22,16 @@ class _MenuCheckable extends InheritedWidget {
       checked != oldWidget.checked || radio != oldWidget.radio;
 }
 
+/// The side of the indicator column's box: the theme's
+/// `ContextMenuTheme.indicatorSize`, grown with the text.
+///
+/// The mark says what state the row is in, so unlike an ornamental icon it
+/// keeps its size beside the label when the user enlarges the text.
+double _menuIndicatorSize(BuildContext context, ThemeData theme) =>
+    MediaQuery.textScalerOf(
+      context,
+    ).scale(theme.contextMenuTheme.indicatorSize ?? 16);
+
 /// Tells a screen reader that the row below is checked or not, as one node
 /// with the row's label and its tap action.
 class _CheckableSemantics extends StatelessWidget {
@@ -355,7 +365,7 @@ class MenuLabel extends StatelessWidget {
     final indicatorColumn = level?.indicatorColumn ?? false
         ? EdgeInsetsDirectional.only(
             start:
-                (menuTheme.indicatorSize ?? 16) +
+                _menuIndicatorSize(context, theme) +
                 (menuTheme.leadingPadding ??
                         const EdgeInsetsDirectional.only(end: 8))
                     .horizontal,
@@ -534,6 +544,10 @@ class MenuShortcut extends StatelessWidget {
     final activator = this.activator;
     return Text(
       activator == null ? text! : describe(context, activator),
+      // Keys are read in the order they are pressed, whatever the
+      // direction of the text around them; the glyphs have no direction of
+      // their own and would be reordered.
+      textDirection: TextDirection.ltr,
       maxLines: 1,
       softWrap: false,
     );

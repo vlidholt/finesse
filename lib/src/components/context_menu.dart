@@ -1333,7 +1333,7 @@ class _ContextMenuItemState extends State<ContextMenuItem> {
                 .dependOnInheritedWidgetOfExactType<_MenuLevel>()
                 ?.indicatorColumn ??
             false);
-    final effectiveIndicatorSize = theme.contextMenuTheme.indicatorSize ?? 16;
+    final effectiveIndicatorSize = _menuIndicatorSize(context, theme);
 
     final effectivePadding =
         widget.padding ??

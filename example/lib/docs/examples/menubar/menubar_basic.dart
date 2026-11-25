@@ -1,27 +1,51 @@
 import 'package:finesse/finesse.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-class MenubarBasicExample extends StatelessWidget {
+class MenubarBasicExample extends StatefulWidget {
   const MenubarBasicExample({super.key});
 
   @override
+  State<MenubarBasicExample> createState() => _MenubarBasicExampleState();
+}
+
+class _MenubarBasicExampleState extends State<MenubarBasicExample> {
+  bool bookmarksBar = false;
+  bool fullUrls = true;
+  String profile = 'benoit';
+
+  @override
   Widget build(BuildContext context) {
-    const divider = Divider.horizontal(
-      margin: EdgeInsets.symmetric(vertical: 4),
-    );
+    // ⌘ on Apple's platforms, Ctrl everywhere else.
+    final apple =
+        defaultTargetPlatform == TargetPlatform.macOS ||
+        defaultTargetPlatform == TargetPlatform.iOS;
+    MenuShortcut keys(LogicalKeyboardKey key, {bool shift = false}) =>
+        MenuShortcut(
+          SingleActivator(key, meta: apple, control: !apple, shift: shift),
+        );
+    const more = PhosphorIcon(PhosphorIconsRegular.caretRight);
+
     return Menubar(
-      items: const [
+      items: [
         MenubarItem(
           items: [
-            ContextMenuItem(child: Text('New Tab')),
-            ContextMenuItem(child: Text('New Window')),
             ContextMenuItem(
+              shortcut: keys(LogicalKeyboardKey.keyT),
+              child: const Text('New Tab'),
+            ),
+            ContextMenuItem(
+              shortcut: keys(LogicalKeyboardKey.keyN),
+              child: const Text('New Window'),
+            ),
+            const ContextMenuItem(
               enabled: false,
               child: Text('New Incognito Window'),
             ),
-            divider,
-            ContextMenuItem(
-              trailing: PhosphorIcon(PhosphorIconsRegular.caretRight),
+            const MenuDivider(),
+            const ContextMenuItem(
+              trailing: more,
               items: [
                 ContextMenuItem(child: Text('Email Link')),
                 ContextMenuItem(child: Text('Messages')),
@@ -29,53 +53,81 @@ class MenubarBasicExample extends StatelessWidget {
               ],
               child: Text('Share'),
             ),
+            const MenuDivider(),
             ContextMenuItem(
-              trailing: PhosphorIcon(PhosphorIconsRegular.caretRight),
-              items: [
-                ContextMenuItem(child: Text('PDF')),
-                ContextMenuItem(child: Text('HTML')),
-                ContextMenuItem(child: Text('Plain Text')),
-              ],
-              child: Text('Export As'),
+              shortcut: keys(LogicalKeyboardKey.keyP),
+              child: const Text('Print...'),
             ),
-            divider,
-            ContextMenuItem(child: Text('Print...')),
           ],
-          child: Text('File'),
+          child: const Text('File'),
         ),
         MenubarItem(
           items: [
-            ContextMenuItem(child: Text('Undo')),
-            ContextMenuItem(child: Text('Redo')),
-            divider,
             ContextMenuItem(
-              trailing: PhosphorIcon(PhosphorIconsRegular.caretRight),
+              shortcut: keys(LogicalKeyboardKey.keyZ),
+              child: const Text('Undo'),
+            ),
+            ContextMenuItem(
+              shortcut: keys(LogicalKeyboardKey.keyZ, shift: true),
+              child: const Text('Redo'),
+            ),
+            const MenuDivider(),
+            const ContextMenuItem(
+              trailing: more,
               items: [
                 ContextMenuItem(child: Text('Search the Web')),
-                divider,
+                MenuDivider(),
                 ContextMenuItem(child: Text('Find...')),
                 ContextMenuItem(child: Text('Find Next')),
                 ContextMenuItem(child: Text('Find Previous')),
               ],
               child: Text('Find'),
             ),
-            divider,
-            ContextMenuItem(child: Text('Cut')),
-            ContextMenuItem(child: Text('Copy')),
-            ContextMenuItem(child: Text('Paste')),
+            const MenuDivider(),
+            const ContextMenuItem(child: Text('Cut')),
+            const ContextMenuItem(child: Text('Copy')),
+            const ContextMenuItem(child: Text('Paste')),
           ],
-          child: Text('Edit'),
+          child: const Text('Edit'),
         ),
         MenubarItem(
           items: [
-            ContextMenuItem(
-              leading: PhosphorIcon(PhosphorIconsRegular.check),
-              child: Text('Always Show Full URLs'),
+            MenuCheckboxItem(
+              checked: bookmarksBar,
+              onChanged: (value) => setState(() => bookmarksBar = value),
+              child: const Text('Always Show Bookmarks Bar'),
             ),
-            ContextMenuItem.inset(child: Text('Reload')),
-            ContextMenuItem.inset(child: Text('Toggle Full Screen')),
+            MenuCheckboxItem(
+              checked: fullUrls,
+              onChanged: (value) => setState(() => fullUrls = value),
+              child: const Text('Always Show Full URLs'),
+            ),
+            const MenuDivider(),
+            // Lined up with the rows above without `ContextMenuItem.inset`.
+            ContextMenuItem(
+              shortcut: keys(LogicalKeyboardKey.keyR),
+              child: const Text('Reload'),
+            ),
+            const ContextMenuItem(child: Text('Toggle Full Screen')),
           ],
-          child: Text('View'),
+          child: const Text('View'),
+        ),
+        MenubarItem(
+          items: [
+            MenuRadioGroup<String>(
+              value: profile,
+              onChanged: (value) => setState(() => profile = value),
+              children: const [
+                MenuRadioItem(value: 'andy', child: Text('Andy')),
+                MenuRadioItem(value: 'benoit', child: Text('Benoit')),
+                MenuRadioItem(value: 'luis', child: Text('Luis')),
+              ],
+            ),
+            const MenuDivider(),
+            const ContextMenuItem(child: Text('Edit...')),
+            const ContextMenuItem(child: Text('Add Profile...')),
+          ],
+          child: const Text('Profiles'),
         ),
       ],
     );
