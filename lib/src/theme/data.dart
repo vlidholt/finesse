@@ -37,6 +37,7 @@ import 'package:finesse/src/theme/components/list_section.dart';
 import 'package:finesse/src/theme/components/list_tile.dart';
 import 'package:finesse/src/theme/components/menubar.dart';
 import 'package:finesse/src/theme/components/navigation_bar.dart';
+import 'package:finesse/src/theme/components/navigation_menu.dart';
 import 'package:finesse/src/theme/components/navigation_rail.dart';
 import 'package:finesse/src/theme/components/otp_field.dart';
 import 'package:finesse/src/theme/components/pagination.dart';
@@ -165,6 +166,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     AppBarTheme? appBarTheme,
     FloatingActionButtonTheme? floatingActionButtonTheme,
     NavigationBarTheme? navigationBarTheme,
+    NavigationMenuTheme? navigationMenuTheme,
     NavigationRailTheme? navigationRailTheme,
     BottomNavigationBarTheme? bottomNavigationBarTheme,
     ChipTheme? chipTheme,
@@ -443,6 +445,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
         appBarTheme: appBarTheme,
         floatingActionButtonTheme: floatingActionButtonTheme,
         navigationBarTheme: navigationBarTheme,
+        navigationMenuTheme: navigationMenuTheme,
         navigationRailTheme: navigationRailTheme,
         bottomNavigationBarTheme: bottomNavigationBarTheme,
         chipTheme: chipTheme,
@@ -614,6 +617,9 @@ class ThemeData extends BaseTheme with _$ThemeData {
       navigationBarTheme: effectiveVariant.navigationBarTheme().merge(
         navigationBarTheme,
       ),
+      navigationMenuTheme: effectiveVariant.navigationMenuTheme().merge(
+        navigationMenuTheme,
+      ),
       navigationRailTheme: effectiveVariant.navigationRailTheme().merge(
         navigationRailTheme,
       ),
@@ -732,6 +738,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     required super.appBarTheme,
     required super.floatingActionButtonTheme,
     required super.navigationBarTheme,
+    required super.navigationMenuTheme,
     required super.navigationRailTheme,
     required super.bottomNavigationBarTheme,
     required super.chipTheme,
@@ -827,6 +834,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     AppBarTheme? appBarTheme,
     FloatingActionButtonTheme? floatingActionButtonTheme,
     NavigationBarTheme? navigationBarTheme,
+    NavigationMenuTheme? navigationMenuTheme,
     NavigationRailTheme? navigationRailTheme,
     BottomNavigationBarTheme? bottomNavigationBarTheme,
     ChipTheme? chipTheme,
@@ -931,6 +939,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
       floatingActionButtonTheme:
           floatingActionButtonTheme ?? i.floatingActionButtonTheme,
       navigationBarTheme: navigationBarTheme ?? i.navigationBarTheme,
+      navigationMenuTheme: navigationMenuTheme ?? i.navigationMenuTheme,
       navigationRailTheme: navigationRailTheme ?? i.navigationRailTheme,
       bottomNavigationBarTheme:
           bottomNavigationBarTheme ?? i.bottomNavigationBarTheme,
@@ -1132,6 +1141,7 @@ final class _ThemeInputs {
     this.appBarTheme,
     this.floatingActionButtonTheme,
     this.navigationBarTheme,
+    this.navigationMenuTheme,
     this.navigationRailTheme,
     this.bottomNavigationBarTheme,
     this.chipTheme,
@@ -1232,6 +1242,7 @@ final class _ThemeInputs {
   final AppBarTheme? appBarTheme;
   final FloatingActionButtonTheme? floatingActionButtonTheme;
   final NavigationBarTheme? navigationBarTheme;
+  final NavigationMenuTheme? navigationMenuTheme;
   final NavigationRailTheme? navigationRailTheme;
   final BottomNavigationBarTheme? bottomNavigationBarTheme;
   final ChipTheme? chipTheme;

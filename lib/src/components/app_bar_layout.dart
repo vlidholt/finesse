@@ -33,6 +33,21 @@ Widget? impliedLeading(BuildContext context) {
   return null;
 }
 
+/// [actions], or — when there are none and the scaffold has an end drawer
+/// — the button that opens it.
+List<Widget> impliedActions(BuildContext context, List<Widget> actions) {
+  if (actions.isNotEmpty) return actions;
+  final scaffold = Scaffold.maybeOf(context);
+  if (scaffold == null || !scaffold.hasEndDrawer) return actions;
+  return [
+    IconButton.ghost(
+      icon: const PhosphorIcon(PhosphorIconsRegular.list),
+      semanticLabel: FinesseLocalizations.of(context).navigation.openMenu,
+      onPressed: scaffold.openEndDrawer,
+    ),
+  ];
+}
+
 /// The least a pulled-out leading button keeps from the edge of the bar.
 const _minLeadingMargin = 4.0;
 

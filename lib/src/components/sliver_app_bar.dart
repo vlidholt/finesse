@@ -56,6 +56,7 @@ class SliverAppBar extends StatefulWidget {
     this.centerTitle,
     this.middle,
     this.actions = const [],
+    this.automaticallyImplyActions = true,
     this.bottom,
     this.pinned = true,
     this.floating = false,
@@ -84,6 +85,7 @@ class SliverAppBar extends StatefulWidget {
     this.automaticallyImplyLeading = true,
     this.centerTitle,
     this.actions = const [],
+    this.automaticallyImplyActions = true,
     this.bottom,
     this.background,
     this.expandedHeight,
@@ -129,6 +131,10 @@ class SliverAppBar extends StatefulWidget {
 
   /// The widgets at the end of the toolbar.
   final List<Widget> actions;
+
+  /// Whether a bar without [actions] over a scaffold with an end drawer
+  /// shows the button that opens it. See `AppBar.automaticallyImplyActions`.
+  final bool automaticallyImplyActions;
 
   /// A row at the bottom of the bar that stays when the bar collapses: a
   /// search field, a `TabBar`, filter chips. Any height.
@@ -299,7 +305,9 @@ class _SliverAppBarState extends State<SliverAppBar>
               )
             : title,
         middle: widget.middle,
-        actions: widget.actions,
+        actions: widget.automaticallyImplyActions
+            ? impliedActions(context, widget.actions)
+            : widget.actions,
         centerTitle: widget.centerTitle ?? bar.centerTitle ?? false,
         padding: widget.padding,
         maxWidth: widget.maxWidth,

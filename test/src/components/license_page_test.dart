@@ -213,9 +213,15 @@ void main() {
     await settle(tester);
     var theme = Theme.of(tester.element(find.byType(LicensePage)));
     final margin = theme.layoutTheme.pagePadding!.resolve(TextDirection.ltr);
+    // The rows are on the section's card, which keeps to the margins; a
+    // row is inside the card's hairline.
     var tile = tester.getRect(find.byType(ListTile).first);
-    expect(tile.left, margin.left);
-    expect(tile.right, 390 - margin.right);
+    expect(find.byType(SliverListSection), findsOneWidget);
+    expect(tile.left, inInclusiveRange(margin.left, margin.left + 2));
+    expect(
+      tile.right,
+      inInclusiveRange(388 - margin.right, 390 - margin.right),
+    );
     final bar = tester.getRect(find.byType(AppBar));
     expect(
       tester.getRect(find.text('Strand').first).top,

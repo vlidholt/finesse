@@ -25,11 +25,13 @@ import 'package:example/docs/pages/color_picker.dart';
 import 'package:example/docs/pages/command.dart';
 import 'package:example/docs/pages/context_menu.dart';
 import 'package:example/docs/pages/data_table.dart';
+import 'package:example/docs/pages/date_field.dart';
 import 'package:example/docs/pages/date_picker.dart';
 import 'package:example/docs/pages/dialog.dart';
 import 'package:example/docs/pages/divider.dart';
 import 'package:example/docs/pages/dropdown_menu.dart';
 import 'package:example/docs/pages/empty.dart';
+import 'package:example/docs/pages/expansion_tile.dart';
 import 'package:example/docs/pages/floating_action_button.dart';
 import 'package:example/docs/pages/fonts.dart';
 import 'package:example/docs/pages/form.dart';
@@ -52,6 +54,7 @@ import 'package:example/docs/pages/list_tile.dart';
 import 'package:example/docs/pages/menubar.dart';
 import 'package:example/docs/pages/motion.dart';
 import 'package:example/docs/pages/navigation_bar.dart';
+import 'package:example/docs/pages/navigation_menu.dart';
 import 'package:example/docs/pages/navigation_rail.dart';
 import 'package:example/docs/pages/number_field.dart';
 import 'package:example/docs/pages/otp_field.dart';
@@ -170,11 +173,13 @@ final componentDocs = [
   commandDoc,
   contextMenuDoc,
   dataTableDoc,
+  dateFieldDoc,
   datePickerDoc,
   dialogDoc,
   dividerDoc,
   dropdownMenuDoc,
   emptyDoc,
+  expansionTileDoc,
   floatingActionButtonDoc,
   glassDoc,
   hoverCardDoc,
@@ -189,6 +194,7 @@ final componentDocs = [
   listTileDoc,
   menubarDoc,
   navigationBarDoc,
+  navigationMenuDoc,
   navigationRailDoc,
   numberFieldDoc,
   otpFieldDoc,

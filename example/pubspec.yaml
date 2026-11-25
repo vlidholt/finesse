@@ -51,9 +51,11 @@ flutter:
     - lib/docs/examples/command/
     - lib/docs/examples/context_menu/
     - lib/docs/examples/data_table/
+    - lib/docs/examples/date_field/
     - lib/docs/examples/date_picker/
     - lib/docs/examples/dialog/
     - lib/docs/examples/empty/
+    - lib/docs/examples/expansion_tile/
     - lib/docs/examples/floating_action_button/
     - lib/docs/examples/form/
     - lib/docs/examples/hover_card/
@@ -111,6 +113,7 @@ flutter:
     - lib/docs/examples/app_bar/
     - lib/docs/examples/autocomplete/
     - lib/docs/examples/navigation_bar/
+    - lib/docs/examples/navigation_menu/
     - lib/docs/examples/navigation_rail/
     - lib/docs/examples/number_field/
     - lib/docs/examples/scaffold/

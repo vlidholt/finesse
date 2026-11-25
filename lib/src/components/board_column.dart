@@ -750,7 +750,7 @@ class _BoardItemState<T extends Object> extends State<_BoardItem<T>> {
     );
 
     child = FocusRing(
-      visible: _showFocus,
+      visible: _showFocus && board._ringsFocus(this),
       borderRadius: style.itemRadius,
       child: child,
     );
@@ -789,6 +789,7 @@ class _BoardItemState<T extends Object> extends State<_BoardItem<T>> {
                     label: strings.moveTo(column: other.label),
                   ): () =>
                       board._moveDirect(id, other.id, null),
+              ...board._moreItemActions(this),
             },
       child: child,
     );

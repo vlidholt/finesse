@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:finesse/src/components/app_bar.dart';
 import 'package:finesse/src/components/divider.dart';
+import 'package:finesse/src/components/list_section.dart';
 import 'package:finesse/src/components/list_tile.dart';
 import 'package:finesse/src/components/scaffold.dart';
 import 'package:finesse/src/components/spinner.dart';
@@ -207,32 +208,37 @@ class _LicensePageState extends State<LicensePage> {
       appBar: AppBar(
         title: Text(strings.title),
       ),
-      body: _PageList(
-        // The header, then a row and a hairline per package.
-        itemCount:
-            1 + (packages == null ? 1 : math.max(0, packages.length * 2 - 1)),
-        itemBuilder: (context, index) {
-          if (index == 0) return header;
-          if (packages == null) {
-            return Padding(
-              padding: EdgeInsets.all(theme.layoutTheme.gap(GapSize.xl)),
-              child: const Center(child: Spinner()),
-            );
-          }
-          if (index.isEven) {
-            return const Divider(margin: EdgeInsets.zero);
-          }
-          final package = packages[(index - 1) ~/ 2];
-          final count = package.licenses.length;
-          return ListTile(
-            title: Text(package.name),
-            subtitle: Text(
-              count == 1 ? strings.oneLicense : strings.licenses(count: count),
+      body: _PageScroll(
+        slivers: [
+          SliverToBoxAdapter(child: header),
+          if (packages == null)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.all(theme.layoutTheme.gap(GapSize.xl)),
+                child: const Center(child: Spinner()),
+              ),
+            )
+          else
+            // Hundreds of packages: a section that builds the rows in view.
+            SliverListSection.builder(
+              margin: EdgeInsets.zero,
+              itemCount: packages.length,
+              itemBuilder: (context, index) {
+                final package = packages[index];
+                final count = package.licenses.length;
+                return ListTile(
+                  title: Text(package.name),
+                  subtitle: Text(
+                    count == 1
+                        ? strings.oneLicense
+                        : strings.licenses(count: count),
+                  ),
+                  showChevron: true,
+                  onTap: () => _open(package),
+                );
+              },
             ),
-            showChevron: true,
-            onTap: () => _open(package),
-          );
-        },
+        ],
       ),
     );
   }
@@ -260,40 +266,42 @@ class _PackageLicensePage extends StatelessWidget {
       appBar: AppBar(
         title: Text(package.name, overflow: TextOverflow.ellipsis),
       ),
-      body: _PageList(
-        itemCount: rows.length,
-        itemBuilder: (context, index) {
-          final paragraph = rows[index];
-          if (paragraph == null) {
-            return Divider(
-              margin: EdgeInsets.symmetric(vertical: gap),
-            );
-          }
-          final centred = paragraph.indent == LicenseParagraph.centeredIndent;
-          return Padding(
-            padding: EdgeInsetsDirectional.only(
-              start: centred ? 0 : gap * math.max(0, paragraph.indent),
-              bottom: gap,
-            ),
-            child: Text(
-              paragraph.text,
-              style: theme.textTheme.muted,
-              textAlign: centred ? TextAlign.center : TextAlign.start,
-            ),
-          );
-        },
+      body: _PageScroll(
+        slivers: [
+          SliverList.builder(
+            itemCount: rows.length,
+            itemBuilder: (context, index) {
+              final paragraph = rows[index];
+              if (paragraph == null) {
+                return Divider(margin: EdgeInsets.symmetric(vertical: gap));
+              }
+              final centred =
+                  paragraph.indent == LicenseParagraph.centeredIndent;
+              return Padding(
+                padding: EdgeInsetsDirectional.only(
+                  start: centred ? 0 : gap * math.max(0, paragraph.indent),
+                  bottom: gap,
+                ),
+                child: Text(
+                  paragraph.text,
+                  style: theme.textTheme.muted,
+                  textAlign: centred ? TextAlign.center : TextAlign.start,
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }
 }
 
-/// A lazy list laid out like a page: inside the page margins, no wider
+/// Lazy content laid out like a page: inside the page margins, no wider
 /// than the page's width, and clear of the scaffold's bars.
-class _PageList extends StatelessWidget {
-  const _PageList({required this.itemCount, required this.itemBuilder});
+class _PageScroll extends StatelessWidget {
+  const _PageScroll({required this.slivers});
 
-  final int itemCount;
-  final IndexedWidgetBuilder itemBuilder;
+  final List<Widget> slivers;
 
   @override
   Widget build(BuildContext context) {
@@ -309,15 +317,18 @@ class _PageList extends StatelessWidget {
         // middle.
         final maxWidth = math.min(layout.pageMaxWidth ?? 720, 720);
         final side = math.max(0, (constraints.maxWidth - maxWidth) / 2);
-        return ListView.builder(
-          padding: EdgeInsets.fromLTRB(
-            math.max(margin.left, side + margin.left),
-            margin.top + bars.top,
-            math.max(margin.right, side + margin.right),
-            margin.bottom + bars.bottom,
-          ),
-          itemCount: itemCount,
-          itemBuilder: itemBuilder,
+        return CustomScrollView(
+          slivers: [
+            SliverPadding(
+              padding: EdgeInsets.fromLTRB(
+                math.max(margin.left, side + margin.left),
+                margin.top + bars.top,
+                math.max(margin.right, side + margin.right),
+                margin.bottom + bars.bottom,
+              ),
+              sliver: SliverMainAxisGroup(slivers: slivers),
+            ),
+          ],
         );
       },
     );

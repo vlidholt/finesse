@@ -51,13 +51,14 @@ class _ReorderableListViewHandlesExampleState
           padding: const EdgeInsets.all(8),
           longPressToDrag: false,
           itemCount: sections.length,
+          // Which item is at an index, without building its row.
+          itemId: (index) => sections[index].name,
           onReorder: (from, to) =>
               setState(() => sections.insert(to, sections.removeAt(from))),
           itemSemanticLabel: (index) => sections[index].name,
           itemBuilder: (context, index) {
             final section = sections[index];
             return ListTile(
-              key: ValueKey(section.name),
               leading: const ReorderableDragHandle(),
               title: Text(section.name),
               trailing: ValueListenableBuilder(

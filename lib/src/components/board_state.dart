@@ -461,6 +461,16 @@ class _BoardState<T extends Object> extends State<Board<T>>
 
   bool _hasFocus(Object id) => _items[id]?._focusNode.hasFocus ?? false;
 
+  /// Whether [item] shows the focus ring while the focus is on it or on
+  /// something inside it.
+  bool _ringsFocus(_BoardItemState<T> item) => true;
+
+  /// What assistive technology can do to [item] besides moving it up, down
+  /// and to another column.
+  Map<CustomSemanticsAction, VoidCallback> _moreItemActions(
+    _BoardItemState<T> item,
+  ) => const {};
+
   void _itemFocusChanged(Object id, {required bool focused}) {
     if (!focused) _itemBlurred(id);
     final slot = _slots[id];

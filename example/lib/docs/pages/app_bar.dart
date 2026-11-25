@@ -5,6 +5,7 @@ import 'package:example/docs/examples/app_bar/app_bar_center_title.dart';
 import 'package:example/docs/examples/app_bar/app_bar_leading.dart';
 import 'package:example/docs/examples/app_bar/app_bar_middle.dart';
 import 'package:example/docs/examples/app_bar/app_bar_scrolled.dart';
+import 'package:example/docs/examples/app_bar/app_bar_tabs.dart';
 import 'package:flutter/widgets.dart';
 
 final appBarDoc = ComponentDoc(
@@ -62,6 +63,17 @@ final appBarDoc = ComponentDoc(
       minPreviewHeight: 480,
       padding: const EdgeInsets.all(24),
       builder: (_) => const AppBarBottomExample(),
+    ),
+    ComponentExample(
+      id: 'app_bar_tabs',
+      title: 'Tabs and their pages',
+      description:
+          'A `TabBar` in `bottom` and a `TabBarView` as the body share one '
+          '`TabsController`: tap a tab or swipe the page, and the line '
+          'under the tabs follows.',
+      minPreviewHeight: 520,
+      padding: const EdgeInsets.all(24),
+      builder: (_) => const AppBarTabsExample(),
     ),
     ComponentExample(
       id: 'app_bar_scrolled',

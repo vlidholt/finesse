@@ -43,6 +43,11 @@ mixin _$ThemeData {
         b.navigationBarTheme,
         t,
       )!,
+      navigationMenuTheme: NavigationMenuTheme.lerp(
+        a.navigationMenuTheme,
+        b.navigationMenuTheme,
+        t,
+      )!,
       navigationRailTheme: NavigationRailTheme.lerp(
         a.navigationRailTheme,
         b.navigationRailTheme,
@@ -304,6 +309,7 @@ mixin _$ThemeData {
     AppBarTheme? appBarTheme,
     FloatingActionButtonTheme? floatingActionButtonTheme,
     NavigationBarTheme? navigationBarTheme,
+    NavigationMenuTheme? navigationMenuTheme,
     NavigationRailTheme? navigationRailTheme,
     BottomNavigationBarTheme? bottomNavigationBarTheme,
     ChipTheme? chipTheme,
@@ -400,6 +406,7 @@ mixin _$ThemeData {
       floatingActionButtonTheme:
           floatingActionButtonTheme ?? _this.floatingActionButtonTheme,
       navigationBarTheme: navigationBarTheme ?? _this.navigationBarTheme,
+      navigationMenuTheme: navigationMenuTheme ?? _this.navigationMenuTheme,
       navigationRailTheme: navigationRailTheme ?? _this.navigationRailTheme,
       bottomNavigationBarTheme:
           bottomNavigationBarTheme ?? _this.bottomNavigationBarTheme,
@@ -516,6 +523,9 @@ mixin _$ThemeData {
       ),
       navigationBarTheme: _this.navigationBarTheme.merge(
         other.navigationBarTheme,
+      ),
+      navigationMenuTheme: _this.navigationMenuTheme.merge(
+        other.navigationMenuTheme,
       ),
       navigationRailTheme: _this.navigationRailTheme.merge(
         other.navigationRailTheme,
@@ -656,6 +666,7 @@ mixin _$ThemeData {
         _other.appBarTheme == _this.appBarTheme &&
         _other.floatingActionButtonTheme == _this.floatingActionButtonTheme &&
         _other.navigationBarTheme == _this.navigationBarTheme &&
+        _other.navigationMenuTheme == _this.navigationMenuTheme &&
         _other.navigationRailTheme == _this.navigationRailTheme &&
         _other.bottomNavigationBarTheme == _this.bottomNavigationBarTheme &&
         _other.chipTheme == _this.chipTheme &&
@@ -755,6 +766,7 @@ mixin _$ThemeData {
       _this.appBarTheme,
       _this.floatingActionButtonTheme,
       _this.navigationBarTheme,
+      _this.navigationMenuTheme,
       _this.navigationRailTheme,
       _this.bottomNavigationBarTheme,
       _this.chipTheme,
