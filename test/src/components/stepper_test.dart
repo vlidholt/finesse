@@ -426,6 +426,46 @@ void main() {
           .toList();
       expect(rings, [false, true, false, false]);
     });
+
+    for (final axis in Axis.values) {
+      testWidgets('${axis.name}: Continue from the keyboard keeps the focus '
+          "on the next step's Continue", (tester) async {
+        await pump(
+          tester,
+          StatefulBuilder(
+            builder: (context, setState) => Stepper(
+              axis: axis,
+              currentStep: step,
+              onContinue: () => setState(() => step++),
+              onCancel: () {},
+              steps: steps(),
+            ),
+          ),
+        );
+        Focus.of(tester.element(find.text('Continue'))).requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await settle(tester);
+        expect(step, 1);
+        final focused = FocusManager.instance.primaryFocus!.context!;
+        expect(
+          find.ancestor(
+            of: find.byElementPredicate((e) => e == focused),
+            matching: find.byType(Stepper),
+          ),
+          findsOneWidget,
+          reason: 'the focus left the stepper',
+        );
+        expect(
+          Focus.of(tester.element(find.text('Continue'))).hasPrimaryFocus,
+          isTrue,
+        );
+        // And Enter goes on.
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await settle(tester);
+        expect(step, 2);
+      });
+    }
   });
 
   group('motion', () {
