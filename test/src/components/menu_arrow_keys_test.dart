@@ -89,6 +89,62 @@ void main() {
       expect(focused(tester, 'One'), isTrue);
     });
 
+    testWidgets('the arrows walk a menu shown at a point, past its labels '
+        'and dividers and through its checkable rows — $where', (tester) async {
+      late BuildContext page;
+      await tester.pumpWidget(
+        FinesseApp(
+          shortcuts: web ? _webShortcuts : null,
+          home: Builder(
+            builder: (context) {
+              page = context;
+              return const SizedBox.expand();
+            },
+          ),
+        ),
+      );
+      showMenu<void>(
+        context: page,
+        position: const Offset(40, 40),
+        items: [
+          const MenuLabel(child: Text('View')),
+          MenuCheckboxItem(
+            checked: true,
+            onChanged: (_) {},
+            child: const Text('Grid'),
+          ),
+          const MenuDivider(),
+          MenuRadioGroup<int>(
+            value: 1,
+            onChanged: (_) {},
+            children: const [
+              MenuRadioItem(value: 1, child: Text('Small')),
+              MenuRadioItem(value: 2, child: Text('Large')),
+            ],
+          ),
+          ContextMenuItem(onPressed: () {}, child: const Text('Reset')),
+        ],
+      ).ignore();
+      await settle(tester);
+
+      await press(tester, LogicalKeyboardKey.arrowDown);
+      expect(focused(tester, 'Grid'), isTrue);
+      await press(tester, LogicalKeyboardKey.arrowDown);
+      expect(focused(tester, 'Small'), isTrue);
+      await press(tester, LogicalKeyboardKey.arrowDown);
+      expect(focused(tester, 'Large'), isTrue);
+      await press(tester, LogicalKeyboardKey.arrowDown);
+      expect(focused(tester, 'Reset'), isTrue);
+      await press(tester, LogicalKeyboardKey.arrowUp);
+      await press(tester, LogicalKeyboardKey.arrowUp);
+      await press(tester, LogicalKeyboardKey.arrowUp);
+      expect(focused(tester, 'Grid'), isTrue);
+
+      await press(tester, LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      expect(find.text('Grid'), findsNothing);
+    });
+
     testWidgets("the arrows walk a select's options — $where", (tester) async {
       final popover = PopoverController();
       addTearDown(popover.dispose);

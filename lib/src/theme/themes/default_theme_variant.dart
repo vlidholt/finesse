@@ -2239,6 +2239,31 @@ class DefaultThemeVariant extends ThemeVariant {
     destructiveSelectedBackgroundColor: menuTranslucent ?? false
         ? menuItemHighlight
         : _wash(menuScheme.destructive, _menuIsDark ? .2 : .1),
+    // The box of a check mark; an icon's size in a row, so a checkable row
+    // and one with a leading icon keep their labels on one line.
+    indicatorSize: 16,
+    // A group's heading: the caption role in the menu's muted colour, on
+    // the rows' own horizontal padding so it lines up with their labels.
+    // A phone's rows are padded to be touch targets; a heading is not one.
+    labelTextStyle: style.caption
+        .apply(effectiveTextTheme.muted)
+        .copyWith(color: menuScheme.mutedForeground),
+    labelPadding: EdgeInsets.symmetric(
+      horizontal: scaled(style.itemPaddingX),
+      vertical: scaled(math.min(style.itemPaddingY, 8)),
+    ),
+    // shadcn's `tracking-widest` (.1em) on the trailing text.
+    shortcutTextStyle: style.caption
+        .apply(effectiveTextTheme.muted)
+        .copyWith(
+          height: 1,
+          letterSpacing: style.caption.fontSize * .1,
+          color: menuScheme.mutedForeground,
+        ),
+    // The hairline between groups, on the menu's palette, with the
+    // surface's own padding above and below (`my-1` under `p-1`).
+    dividerColor: menuScheme.border,
+    dividerMargin: EdgeInsets.symmetric(vertical: scaled(style.menuPadding)),
   );
 
   @override

@@ -9,6 +9,9 @@ final menubarDoc = ComponentDoc(
     ComponentExample(
       id: 'menubar_basic',
       title: 'Default',
+      description:
+          'Each menu takes the rows of any other menu: shortcuts, checkbox '
+          'rows under View, a radio group under Profiles.',
       minPreviewHeight: 320,
       builder: (_) => const MenubarBasicExample(),
     ),

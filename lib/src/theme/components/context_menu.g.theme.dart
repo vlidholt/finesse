@@ -105,6 +105,20 @@ mixin _$ContextMenuTheme {
       shadows: t < 0.5 ? a.shadows : b.shadows,
       decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
       filter: t < 0.5 ? a.filter : b.filter,
+      indicatorSize: lerpDouble$(a.indicatorSize, b.indicatorSize, t),
+      labelTextStyle: TextStyle.lerp(a.labelTextStyle, b.labelTextStyle, t),
+      labelPadding: EdgeInsetsGeometry.lerp(a.labelPadding, b.labelPadding, t),
+      shortcutTextStyle: TextStyle.lerp(
+        a.shortcutTextStyle,
+        b.shortcutTextStyle,
+        t,
+      ),
+      dividerColor: Color.lerp(a.dividerColor, b.dividerColor, t),
+      dividerMargin: EdgeInsetsGeometry.lerp(
+        a.dividerMargin,
+        b.dividerMargin,
+        t,
+      ),
     );
   }
 
@@ -136,6 +150,12 @@ mixin _$ContextMenuTheme {
     List<BoxShadow>? shadows,
     FinesseDecoration? decoration,
     ImageFilter? filter,
+    double? indicatorSize,
+    TextStyle? labelTextStyle,
+    EdgeInsetsGeometry? labelPadding,
+    TextStyle? shortcutTextStyle,
+    Color? dividerColor,
+    EdgeInsetsGeometry? dividerMargin,
   }) {
     final _this = (this as ContextMenuTheme);
 
@@ -173,6 +193,12 @@ mixin _$ContextMenuTheme {
       shadows: shadows ?? _this.shadows,
       decoration: decoration ?? _this.decoration,
       filter: filter ?? _this.filter,
+      indicatorSize: indicatorSize ?? _this.indicatorSize,
+      labelTextStyle: labelTextStyle ?? _this.labelTextStyle,
+      labelPadding: labelPadding ?? _this.labelPadding,
+      shortcutTextStyle: shortcutTextStyle ?? _this.shortcutTextStyle,
+      dividerColor: dividerColor ?? _this.dividerColor,
+      dividerMargin: dividerMargin ?? _this.dividerMargin,
     );
   }
 
@@ -226,6 +252,16 @@ mixin _$ContextMenuTheme {
       shadows: other.shadows,
       decoration: _this.decoration?.merge(other.decoration) ?? other.decoration,
       filter: other.filter,
+      indicatorSize: other.indicatorSize,
+      labelTextStyle:
+          _this.labelTextStyle?.merge(other.labelTextStyle) ??
+          other.labelTextStyle,
+      labelPadding: other.labelPadding,
+      shortcutTextStyle:
+          _this.shortcutTextStyle?.merge(other.shortcutTextStyle) ??
+          other.shortcutTextStyle,
+      dividerColor: other.dividerColor,
+      dividerMargin: other.dividerMargin,
     );
   }
 
@@ -269,7 +305,13 @@ mixin _$ContextMenuTheme {
         _other.effects == _this.effects &&
         _other.shadows == _this.shadows &&
         _other.decoration == _this.decoration &&
-        _other.filter == _this.filter;
+        _other.filter == _this.filter &&
+        _other.indicatorSize == _this.indicatorSize &&
+        _other.labelTextStyle == _this.labelTextStyle &&
+        _other.labelPadding == _this.labelPadding &&
+        _other.shortcutTextStyle == _this.shortcutTextStyle &&
+        _other.dividerColor == _this.dividerColor &&
+        _other.dividerMargin == _this.dividerMargin;
   }
 
   @override
@@ -305,6 +347,12 @@ mixin _$ContextMenuTheme {
       _this.shadows,
       _this.decoration,
       _this.filter,
+      _this.indicatorSize,
+      _this.labelTextStyle,
+      _this.labelPadding,
+      _this.shortcutTextStyle,
+      _this.dividerColor,
+      _this.dividerMargin,
     ]);
   }
 }

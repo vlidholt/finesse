@@ -7,9 +7,6 @@ class ContextMenuSubmenusExample extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    const divider = Divider.horizontal(
-      margin: EdgeInsets.symmetric(vertical: 4),
-    );
     const more = PhosphorIcon(PhosphorIconsRegular.caretRight);
     return ContextMenuRegion(
       constraints: const BoxConstraints(minWidth: 220),
@@ -25,7 +22,7 @@ class ContextMenuSubmenusExample extends StatelessWidget {
             ContextMenuItem(child: Text('Preview')),
             ContextMenuItem(child: Text('Text Editor')),
             ContextMenuItem(child: Text('Code')),
-            divider,
+            MenuDivider(),
             ContextMenuItem(child: Text('Other...')),
           ],
           child: Text('Open With'),
@@ -76,7 +73,7 @@ class ContextMenuSubmenusExample extends StatelessWidget {
             ContextMenuItem(child: Text('Orange')),
             ContextMenuItem(child: Text('Green')),
             ContextMenuItem(child: Text('Blue')),
-            divider,
+            MenuDivider(),
             ContextMenuItem(child: Text('Edit Tags...')),
           ],
           child: Text('Tags'),
@@ -124,7 +121,7 @@ class ContextMenuSubmenusExample extends StatelessWidget {
           ],
           child: Text('Quick Actions'),
         ),
-        divider,
+        MenuDivider(),
         ContextMenuItem(
           leading: PhosphorIcon(PhosphorIconsRegular.trash),
           destructive: true,
