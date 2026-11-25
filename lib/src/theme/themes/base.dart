@@ -1,5 +1,6 @@
 import 'package:finesse/src/theme/color_scheme/base.dart';
 import 'package:finesse/src/theme/components/accordion.dart';
+import 'package:finesse/src/theme/components/action_sheet.dart';
 import 'package:finesse/src/theme/components/alert.dart';
 import 'package:finesse/src/theme/components/app_bar.dart';
 import 'package:finesse/src/theme/components/avatar.dart';
@@ -134,6 +135,7 @@ abstract class BaseTheme {
     required this.alertDialogTheme,
     required this.sliderTheme,
     required this.sheetTheme,
+    required this.actionSheetTheme,
     required this.progressBarTheme,
     required this.accordionTheme,
     required this.tableTheme,
@@ -386,6 +388,9 @@ abstract class BaseTheme {
   /// The theme of `Sheet`.
   final SheetTheme sheetTheme;
 
+  /// The theme of `ActionSheet`.
+  final ActionSheetTheme actionSheetTheme;
+
   /// The theme of `ProgressBar`.
   final ProgressBarTheme progressBarTheme;
 
@@ -588,6 +593,9 @@ abstract class ThemeVariant {
 
   /// Builds the theme of `Sheet`.
   SheetTheme sheetTheme();
+
+  /// Builds the [ActionSheetTheme].
+  ActionSheetTheme actionSheetTheme();
 
   /// Builds the theme of `ProgressBar`.
   ProgressBarTheme progressBarTheme();

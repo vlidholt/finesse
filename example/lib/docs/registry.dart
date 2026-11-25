@@ -1,5 +1,6 @@
 import 'package:example/docs/docs.dart';
 import 'package:example/docs/pages/accordion.dart';
+import 'package:example/docs/pages/action_sheet.dart';
 import 'package:example/docs/pages/alert.dart';
 import 'package:example/docs/pages/app_bar.dart';
 import 'package:example/docs/pages/avatar.dart';
@@ -29,6 +30,7 @@ import 'package:example/docs/pages/fonts.dart';
 import 'package:example/docs/pages/form.dart';
 import 'package:example/docs/pages/form_factors.dart';
 import 'package:example/docs/pages/glass.dart';
+import 'package:example/docs/pages/hover_card.dart';
 import 'package:example/docs/pages/icon_button.dart';
 import 'package:example/docs/pages/icon_tile.dart';
 import 'package:example/docs/pages/icons.dart';
@@ -123,6 +125,7 @@ final docGroups = <DocGroup>[
 /// Every component reference page, in sidebar order: alphabetical by title.
 final componentDocs = [
   accordionDoc,
+  actionSheetDoc,
   alertDoc,
   appBarDoc,
   avatarDoc,
@@ -149,6 +152,7 @@ final componentDocs = [
   emptyDoc,
   floatingActionButtonDoc,
   glassDoc,
+  hoverCardDoc,
   iconButtonDoc,
   iconTileDoc,
   indicatorBadgeDoc,

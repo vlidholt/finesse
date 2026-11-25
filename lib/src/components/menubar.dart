@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:collection/collection.dart';
 import 'package:finesse/src/components/button.dart';
 import 'package:finesse/src/components/context_menu.dart';
@@ -10,14 +8,11 @@ import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/border.dart';
 import 'package:finesse/src/utils/entrance.dart';
-import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:finesse/src/utils/moving_indicator.dart';
 import 'package:finesse/src/utils/provider.dart';
 import 'package:finesse/src/utils/provider_index.dart';
 import 'package:finesse/src/utils/shadow.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
 /// {@template MenubarController}
 /// The controller for managing the selected item of the menubar
@@ -187,121 +182,47 @@ class _MenubarState extends State<Menubar> {
   }
 }
 
-/// A menubar item that contains a list of items, typically a list of
-/// [ContextMenuItem].
+/// {@template MenubarItem}
+/// One menu of a [Menubar]: a trigger in the strip and the menu that opens
+/// under it.
+///
+/// The [items] are a menu's rows — [ContextMenuItem], [MenuCheckboxItem],
+/// [MenuRadioGroup], [MenuLabel], [MenuDivider], submenus. How the trigger
+/// and its menu look is the theme's (`MenubarTheme`); re-theme the subtree
+/// for a menubar that looks different.
+///
+/// ```dart
+/// Menubar(
+///   items: [
+///     MenubarItem(
+///       items: [
+///         ContextMenuItem(child: const Text('New tab'), onPressed: () {}),
+///         const MenuDivider(),
+///         ContextMenuItem(child: const Text('Print…'), onPressed: () {}),
+///       ],
+///       child: const Text('File'),
+///     ),
+///   ],
+/// )
+/// ```
+/// {@endtemplate}
 class MenubarItem extends StatefulWidget {
-  /// Creates the menubar item with the given [items].
+  /// {@macro MenubarItem}
   const MenubarItem({
     super.key,
     required this.child,
     required this.items,
-    this.constraints,
-    this.onHoverArea,
-    this.padding,
-    this.groupId,
-    this.effects,
-    this.shadows,
-    this.decoration,
-    this.filter,
-    this.controller,
-    this.anchor,
-    this.onLongPress,
     this.leading,
     this.trailing,
-    this.variant,
-    this.size,
-    this.cursor,
-    this.width,
-    this.height,
-    this.buttonPadding,
-    this.backgroundColor,
-    this.selectedBackgroundColor,
-    this.hoverBackgroundColor,
-    this.foregroundColor,
-    this.hoverForegroundColor,
-    this.autofocus = false,
-    this.focusNode,
-    this.pressedBackgroundColor,
-    this.pressedForegroundColor,
-    this.buttonShadows,
-    this.gradient,
-    this.textDecoration,
-    this.hoverTextDecoration,
-    this.buttonDecoration,
     this.enabled = true,
-    this.statesController,
-    this.gap,
-    this.mainAxisAlignment,
-    this.crossAxisAlignment,
-    this.hoverStrategies,
-    this.onHoverChange,
-    this.onTapDown,
-    this.onTapUp,
-    this.onTapCancel,
-    this.onSecondaryTapDown,
-    this.onSecondaryTapUp,
-    this.onSecondaryTapCancel,
-    this.onLongPressStart,
-    this.onLongPressCancel,
-    this.onLongPressUp,
-    this.onLongPressDown,
-    this.onLongPressEnd,
-    this.onDoubleTap,
-    this.onDoubleTapDown,
-    this.onDoubleTapCancel,
-    this.longPressDuration,
-    this.textDirection,
-    this.onFocusChange,
-    this.expands,
+    this.focusNode,
   });
 
-  /// The child of the menubar item
+  /// The trigger's label.
   final Widget child;
 
   /// {@macro ContextMenu.items}
   final List<Widget> items;
-
-  /// {@macro ContextMenu.constraints}
-  final BoxConstraints? constraints;
-
-  /// {@macro ContextMenu.onHoverArea}
-  final ValueChanged<bool>? onHoverArea;
-
-  /// {@macro ContextMenu.padding}
-  final EdgeInsetsGeometry? padding;
-
-  /// {@macro MouseArea.groupId}
-  final Object? groupId;
-
-  /// {@macro Popover.effects}
-  final List<Effect<dynamic>>? effects;
-
-  /// {@macro Popover.shadows}
-  final List<BoxShadow>? shadows;
-
-  /// {@macro Popover.decoration}
-  final FinesseDecoration? decoration;
-
-  /// {@macro Popover.filter}
-  final ImageFilter? filter;
-
-  /// {@macro Popover.controller}
-  final PopoverController? controller;
-
-  /// {@template MenubarItem.anchor}
-  /// The anchor of the context menu shown by the item, defaults to
-  /// ```dart
-  /// const AnchorAuto(
-  ///   offset: Offset(-4, 8),
-  ///   followerAnchor: Alignment.bottomRight,
-  ///   targetAnchor: Alignment.bottomLeft,
-  /// );
-  /// ```
-  /// {@endtemplate}
-  final AnchorBase? anchor;
-
-  /// {@macro Button.onLongPress}
-  final VoidCallback? onLongPress;
 
   /// {@macro Button.leading}
   final Widget? leading;
@@ -309,173 +230,24 @@ class MenubarItem extends StatefulWidget {
   /// {@macro Button.trailing}
   final Widget? trailing;
 
-  /// {@macro Button.variant}
-  ///
-  /// Defaults to `ButtonVariant.ghost`.
-  final ButtonVariant? variant;
-
-  /// {@macro Button.size}
-  final ButtonSize? size;
-
-  /// {@macro Button.cursor}
-  final MouseCursor? cursor;
-
-  /// {@macro Button.width}
-  final double? width;
-
-  /// {@template MenubarItem.height}
-  /// {@macro Button.height}
-  ///
-  /// Defaults to `32`.
-  /// {@endtemplate}
-  final double? height;
-
-  /// {@macro Button.padding}
-  final EdgeInsetsGeometry? buttonPadding;
-
-  /// {@macro Button.backgroundColor}
-  final Color? backgroundColor;
-
-  /// {@template MenubarItem.selectedBackgroundColor}
-  /// The background color of the button when the item is selected, defaults to
-  /// `theme.colorScheme.accent`.
-  /// {@endtemplate}
-  final Color? selectedBackgroundColor;
-
-  /// {@macro Button.hoverBackgroundColor}
-  final Color? hoverBackgroundColor;
-
-  /// {@macro Button.foregroundColor}
-  final Color? foregroundColor;
-
-  /// {@macro Button.hoverForegroundColor}
-  final Color? hoverForegroundColor;
-
-  /// {@macro Button.autofocus}
-  final bool autofocus;
+  /// Whether the trigger can be pressed and focused. Defaults to true.
+  final bool enabled;
 
   /// {@macro Button.focusNode}
   final FocusNode? focusNode;
-
-  /// {@macro Button.pressedBackgroundColor}
-  final Color? pressedBackgroundColor;
-
-  /// {@macro Button.pressedForegroundColor}
-  final Color? pressedForegroundColor;
-
-  /// {@macro Button.shadows}
-  final List<BoxShadow>? buttonShadows;
-
-  /// {@macro Button.gradient}
-  final Gradient? gradient;
-
-  /// {@macro Button.textDecoration}
-  final TextDecoration? textDecoration;
-
-  /// {@macro Button.hoverTextDecoration}
-  final TextDecoration? hoverTextDecoration;
-
-  /// {@macro Button.decoration}
-  final FinesseDecoration? buttonDecoration;
-
-  /// {@macro Button.enabled}
-  final bool enabled;
-
-  /// {@macro Button.statesController}
-  final WidgetStatesController? statesController;
-
-  /// {@macro Button.gap}
-  final double? gap;
-
-  /// {@macro Button.mainAxisAlignment}
-  final MainAxisAlignment? mainAxisAlignment;
-
-  /// {@macro Button.crossAxisAlignment}
-  final CrossAxisAlignment? crossAxisAlignment;
-
-  /// {@macro Button.hoverStrategies}
-  final HoverStrategies? hoverStrategies;
-
-  /// {@macro Button.onHoverChange}
-  final ValueChanged<bool>? onHoverChange;
-
-  /// {@macro Button.onTapDown}
-  final ValueChanged<TapDownDetails>? onTapDown;
-
-  /// {@macro Button.onTapUp}
-  final ValueChanged<TapUpDetails>? onTapUp;
-
-  /// {@macro Button.onTapCancel}
-  final VoidCallback? onTapCancel;
-
-  /// {@macro Button.onSecondaryTapDown}
-  final ValueChanged<TapDownDetails>? onSecondaryTapDown;
-
-  /// {@macro Button.onSecondaryTapUp}
-  final ValueChanged<TapUpDetails>? onSecondaryTapUp;
-
-  /// {@macro Button.onSecondaryTapCancel}
-  final VoidCallback? onSecondaryTapCancel;
-
-  /// {@macro Button.onLongPressStart}
-  final ValueChanged<LongPressStartDetails>? onLongPressStart;
-
-  /// {@macro Button.onLongPressCancel}
-  final VoidCallback? onLongPressCancel;
-
-  /// {@macro Button.onLongPressUp}
-  final VoidCallback? onLongPressUp;
-
-  /// {@macro Button.onLongPressDown}
-  final ValueChanged<LongPressDownDetails>? onLongPressDown;
-
-  /// {@macro Button.onLongPressEnd}
-  final ValueChanged<LongPressEndDetails>? onLongPressEnd;
-
-  /// {@macro Button.onDoubleTap}
-  final VoidCallback? onDoubleTap;
-
-  /// {@macro Button.onDoubleTapDown}
-  final ValueChanged<TapDownDetails>? onDoubleTapDown;
-
-  /// {@macro Button.onDoubleTapCancel}
-  final VoidCallback? onDoubleTapCancel;
-
-  /// {@macro Button.longPressDuration}
-  final Duration? longPressDuration;
-
-  /// {@macro Button.textDirection}
-  final TextDirection? textDirection;
-
-  /// {@macro Button.onFocusChange}
-  final ValueChanged<bool>? onFocusChange;
-
-  /// {@macro Button.expands}
-  final bool? expands;
 
   @override
   State<MenubarItem> createState() => _MenubarItemState();
 }
 
 class _MenubarItemState extends State<MenubarItem> {
-  PopoverController? _popoverController;
-
-  PopoverController get popoverController =>
-      widget.controller ?? _popoverController!;
+  final PopoverController popoverController = PopoverController();
 
   MenubarController? _menubarController;
 
   MenubarController get menubarController => _menubarController!;
 
   late int index;
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.controller == null) {
-      _popoverController = PopoverController();
-    }
-  }
 
   /// The menubar's selection when this item last heard of a change.
   int? _lastSelectedIndex;
@@ -518,7 +290,7 @@ class _MenubarItemState extends State<MenubarItem> {
   @override
   void dispose() {
     _menubarController?.removeListener(onSelectedIndexChange);
-    _popoverController?.dispose();
+    popoverController.dispose();
     super.dispose();
   }
 
@@ -526,28 +298,22 @@ class _MenubarItemState extends State<MenubarItem> {
   Widget build(BuildContext context) {
     final inherited = context.watch<_MenubarState>();
     final theme = Theme.of(context);
+    final menubarTheme = theme.menubarTheme;
     final effectiveAnchor =
-        widget.anchor ??
-        theme.menubarTheme.anchor ??
+        menubarTheme.anchor ??
         const Anchor(
           offset: Offset(-4, 8),
           childAlignment: AlignmentDirectional.bottomStart,
           overlayAlignment: AlignmentDirectional.topStart,
         );
 
-    final effectiveHeight =
-        widget.height ?? theme.menubarTheme.buttonHeight ?? 32;
-    final effectiveVariant =
-        widget.variant ??
-        theme.menubarTheme.buttonVariant ??
-        ButtonVariant.ghost;
+    final effectiveHeight = menubarTheme.buttonHeight ?? 32;
+    final effectiveVariant = menubarTheme.buttonVariant ?? ButtonVariant.ghost;
     final effectiveSelectedBackgroundColor =
-        widget.selectedBackgroundColor ??
-        theme.menubarTheme.buttonSelectedBackgroundColor ??
-        theme.colorScheme.accent;
+        menubarTheme.buttonSelectedBackgroundColor ?? theme.colorScheme.accent;
     final effectiveButtonDecoration = const FinesseDecoration(
       disableSecondaryBorder: true,
-    ).merge(theme.menubarTheme.buttonDecoration).merge(widget.buttonDecoration);
+    ).merge(menubarTheme.buttonDecoration);
     // The shape of the trigger, for the fill that marks the open menu.
     final variantDecoration = switch (effectiveVariant) {
       ButtonVariant.primary => theme.primaryButtonTheme,
@@ -558,9 +324,7 @@ class _MenubarItemState extends State<MenubarItem> {
       ButtonVariant.link => theme.linkButtonTheme,
     }.decoration;
     final effectiveSelectOnHover =
-        inherited.widget.selectOnHover ??
-        theme.menubarTheme.selectOnHover ??
-        true;
+        inherited.widget.selectOnHover ?? menubarTheme.selectOnHover ?? true;
 
     return ListenableBuilder(
       listenable: menubarController,
@@ -570,17 +334,14 @@ class _MenubarItemState extends State<MenubarItem> {
           anchor: effectiveAnchor,
           controller: popoverController,
           items: widget.items,
-          constraints: widget.constraints ?? theme.menubarTheme.constraints,
-          onHoverArea: widget.onHoverArea,
-          padding: widget.padding ?? theme.menubarTheme.contextMenuPadding,
-          groupId: widget.groupId,
+          constraints: menubarTheme.constraints,
+          padding: menubarTheme.contextMenuPadding,
           effects:
-              widget.effects ??
-              theme.menubarTheme.effects ??
+              menubarTheme.effects ??
               (_tookOver ? EntranceEffect.fadeFor(Motion.of(context)) : null),
-          shadows: widget.shadows ?? theme.menubarTheme.shadows,
-          decoration: widget.decoration ?? theme.menubarTheme.decoration,
-          filter: widget.filter ?? theme.menubarTheme.filter,
+          shadows: menubarTheme.shadows,
+          decoration: menubarTheme.decoration,
+          filter: menubarTheme.filter,
           onTapUpInside: (_) {
             menubarController.selectedIndex = index;
           },
@@ -605,19 +366,15 @@ class _MenubarItemState extends State<MenubarItem> {
               child: Button.raw(
                 variant: effectiveVariant,
                 height: effectiveHeight,
-                backgroundColor:
-                    widget.backgroundColor ??
-                    theme.menubarTheme.buttonBackgroundColor,
+                backgroundColor: menubarTheme.buttonBackgroundColor,
                 focusNode: widget.focusNode,
                 onFocusChange: (focused) {
-                  widget.onFocusChange?.call(focused);
                   // Set the selected index
                   if (focused) {
                     menubarController.selectedIndex = index;
                   }
                 },
                 onHoverChange: (hovered) {
-                  widget.onHoverChange?.call(hovered);
                   if (!hovered) return;
                   if (!effectiveSelectOnHover) return;
                   // Hover only *switches* menus: a closed menubar opens on
@@ -633,71 +390,31 @@ class _MenubarItemState extends State<MenubarItem> {
                     popoverController.show();
                   }
                 },
-                onLongPress: widget.onLongPress,
                 leading: widget.leading,
                 trailing: widget.trailing,
-                size: widget.size ?? theme.menubarTheme.buttonSize,
-                cursor: widget.cursor ?? theme.menubarTheme.buttonCursor,
-                width: widget.width ?? theme.menubarTheme.buttonWidth,
-                padding:
-                    widget.buttonPadding ?? theme.menubarTheme.buttonPadding,
-                hoverBackgroundColor:
-                    widget.hoverBackgroundColor ??
-                    theme.menubarTheme.buttonHoverBackgroundColor,
-                foregroundColor:
-                    widget.foregroundColor ??
-                    theme.menubarTheme.buttonForegroundColor,
-                hoverForegroundColor:
-                    widget.hoverForegroundColor ??
-                    theme.menubarTheme.buttonHoverForegroundColor,
-                autofocus: widget.autofocus,
+                size: menubarTheme.buttonSize,
+                cursor: menubarTheme.buttonCursor,
+                width: menubarTheme.buttonWidth,
+                padding: menubarTheme.buttonPadding,
+                hoverBackgroundColor: menubarTheme.buttonHoverBackgroundColor,
+                foregroundColor: menubarTheme.buttonForegroundColor,
+                hoverForegroundColor: menubarTheme.buttonHoverForegroundColor,
                 pressedBackgroundColor:
-                    widget.pressedBackgroundColor ??
-                    theme.menubarTheme.buttonPressedBackgroundColor,
+                    menubarTheme.buttonPressedBackgroundColor,
                 pressedForegroundColor:
-                    widget.pressedForegroundColor ??
-                    theme.menubarTheme.buttonPressedForegroundColor,
-                shadows:
-                    widget.buttonShadows ?? theme.menubarTheme.buttonShadows,
-                gradient: widget.gradient ?? theme.menubarTheme.buttonGradient,
-                textDecoration:
-                    widget.textDecoration ??
-                    theme.menubarTheme.buttonTextDecoration,
-                hoverTextDecoration:
-                    widget.hoverTextDecoration ??
-                    theme.menubarTheme.buttonHoverTextDecoration,
+                    menubarTheme.buttonPressedForegroundColor,
+                shadows: menubarTheme.buttonShadows,
+                gradient: menubarTheme.buttonGradient,
+                textDecoration: menubarTheme.buttonTextDecoration,
+                hoverTextDecoration: menubarTheme.buttonHoverTextDecoration,
                 decoration: effectiveButtonDecoration,
                 enabled: widget.enabled,
-                statesController: widget.statesController,
-                gap: widget.gap ?? theme.menubarTheme.buttonGap,
-                mainAxisAlignment:
-                    widget.mainAxisAlignment ??
-                    theme.menubarTheme.buttonMainAxisAlignment,
-                crossAxisAlignment:
-                    widget.crossAxisAlignment ??
-                    theme.menubarTheme.buttonCrossAxisAlignment,
-                hoverStrategies:
-                    widget.hoverStrategies ??
-                    theme.menubarTheme.buttonHoverStrategies,
-                onTapDown: widget.onTapDown,
-                onTapUp: widget.onTapUp,
-                onTapCancel: widget.onTapCancel,
-                onSecondaryTapDown: widget.onSecondaryTapDown,
-                onSecondaryTapUp: widget.onSecondaryTapUp,
-                onSecondaryTapCancel: widget.onSecondaryTapCancel,
-                onLongPressStart: widget.onLongPressStart,
-                onLongPressCancel: widget.onLongPressCancel,
-                onLongPressUp: widget.onLongPressUp,
-                onLongPressDown: widget.onLongPressDown,
-                onLongPressEnd: widget.onLongPressEnd,
-                onDoubleTap: widget.onDoubleTap,
-                onDoubleTapDown: widget.onDoubleTapDown,
-                onDoubleTapCancel: widget.onDoubleTapCancel,
-                longPressDuration: widget.longPressDuration,
-                textDirection:
-                    widget.textDirection ??
-                    theme.menubarTheme.buttonTextDirection,
-                expands: widget.expands ?? theme.menubarTheme.buttonExpands,
+                gap: menubarTheme.buttonGap,
+                mainAxisAlignment: menubarTheme.buttonMainAxisAlignment,
+                crossAxisAlignment: menubarTheme.buttonCrossAxisAlignment,
+                hoverStrategies: menubarTheme.buttonHoverStrategies,
+                textDirection: menubarTheme.buttonTextDirection,
+                expands: menubarTheme.buttonExpands,
                 child: child,
               ),
             ),

@@ -46,6 +46,12 @@ class ContextMenuTheme with _$ContextMenuTheme {
     this.itemDecoration,
     this.filter,
     this.popoverReverseDuration,
+    this.indicatorSize,
+    this.labelTextStyle,
+    this.labelPadding,
+    this.shortcutTextStyle,
+    this.dividerColor,
+    this.dividerMargin,
   }) : _canMerge = canMerge;
 
   @ignore
@@ -139,6 +145,31 @@ class ContextMenuTheme with _$ContextMenuTheme {
 
   /// {@macro Popover.filter}
   final ImageFilter? filter;
+
+  /// The side of the box a checkable row keeps for its check mark or dot,
+  /// and every other row of the same menu keeps empty. Defaults to 16.
+  ///
+  /// The check mark is drawn at this size and the dot at half of it; the
+  /// gap to the label is [leadingPadding]. The box grows with the text
+  /// scale, so the mark keeps its size beside an enlarged label.
+  final double? indicatorSize;
+
+  /// The style of a `MenuLabel`, the heading of a group of rows.
+  final TextStyle? labelTextStyle;
+
+  /// The space around a `MenuLabel`, inside [itemPadding].
+  final EdgeInsetsGeometry? labelPadding;
+
+  /// The style of a row's `MenuShortcut`. Its colour is taken from
+  /// [trailingTextStyle], or from [selectedTrailingTextStyle] while the
+  /// row is highlighted.
+  final TextStyle? shortcutTextStyle;
+
+  /// The colour of a `MenuDivider`.
+  final Color? dividerColor;
+
+  /// The space around a `MenuDivider`.
+  final EdgeInsetsGeometry? dividerMargin;
 
   /// Linearly interpolates between [a] and [b] by [t].
   static ContextMenuTheme? lerp(

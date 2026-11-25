@@ -334,56 +334,38 @@ class DrawerPanel extends StatelessWidget {
       builder: (context, constraints) {
         final width = drawerWidthFor(constraints.maxWidth);
         onWidth?.call(width);
-        final radius = (sheet.radius ?? BorderRadius.zero).resolve(direction);
-        // Only the corners that face the page are rounded.
-        final corners = onRight
-            ? BorderRadius.only(
-                topLeft: radius.topLeft,
-                bottomLeft: radius.bottomLeft,
-              )
-            : BorderRadius.only(
-                topRight: radius.topRight,
-                bottomRight: radius.bottomRight,
-              );
-        final square = corners == BorderRadius.zero;
         final edge = BorderSide(color: theme.colorScheme.border);
         final media = MediaQuery.of(context);
 
+        // Square, as a sheet from a side is: the sheet theme's radius is for
+        // the sheets that come from the top and the bottom.
         Widget panel = DecoratedBox(
           decoration: BoxDecoration(
             color: sheet.backgroundColor ?? theme.colorScheme.background,
-            borderRadius: square ? null : corners,
           ),
           // A hairline where the panel meets the page, drawn over the
-          // content's last point. A rounded panel is outlined by its shadow
-          // instead: a one-sided border cannot follow a radius.
+          // content's last point.
           child: DecoratedBox(
             position: DecorationPosition.foreground,
             decoration: BoxDecoration(
-              border: square
-                  ? Border(
-                      left: onRight ? edge : BorderSide.none,
-                      right: onRight ? BorderSide.none : edge,
-                    )
-                  : null,
+              border: Border(
+                left: onRight ? edge : BorderSide.none,
+                right: onRight ? BorderSide.none : edge,
+              ),
             ),
-            child: ClipRRect(
-              borderRadius: corners,
-              clipBehavior: square ? Clip.none : Clip.antiAlias,
-              // The content is inset from the screen's edge the panel is
-              // on, and from nothing on the side that faces the page.
-              child: MediaQuery(
-                data: media.copyWith(
-                  padding: media.padding.copyWith(
-                    left: onRight ? 0 : media.padding.left,
-                    right: onRight ? media.padding.right : 0,
-                  ),
+            // The content is inset from the screen's edge the panel is on,
+            // and from nothing on the side that faces the page.
+            child: MediaQuery(
+              data: media.copyWith(
+                padding: media.padding.copyWith(
+                  left: onRight ? 0 : media.padding.left,
+                  right: onRight ? media.padding.right : 0,
                 ),
-                child: ValueListenableBuilder<Widget?>(
-                  valueListenable: content,
-                  builder: (context, content, _) =>
-                      content ?? const SizedBox.shrink(),
-                ),
+              ),
+              child: ValueListenableBuilder<Widget?>(
+                valueListenable: content,
+                builder: (context, content, _) =>
+                    content ?? const SizedBox.shrink(),
               ),
             ),
           ),
@@ -393,10 +375,7 @@ class DrawerPanel extends StatelessWidget {
         if (shadows.isNotEmpty) {
           panel = DecoratedBox(
             position: DecorationPosition.foreground,
-            decoration: ShadowDecoration.box(
-              borderRadius: corners,
-              shadows: shadows,
-            ),
+            decoration: ShadowDecoration.box(shadows: shadows),
             child: panel,
           );
         }

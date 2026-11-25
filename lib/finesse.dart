@@ -36,6 +36,7 @@ export 'package:two_dimensional_scrollables/two_dimensional_scrollables.dart'
 export 'src/app.dart';
 // Components
 export 'src/components/accordion.dart';
+export 'src/components/action_sheet.dart';
 export 'src/components/alert.dart';
 export 'src/components/app_bar.dart';
 export 'src/components/avatar.dart';
@@ -78,6 +79,7 @@ export 'src/components/form/fields/textarea.dart';
 export 'src/components/form/fields/time_picker.dart';
 export 'src/components/form/form.dart';
 export 'src/components/glass.dart';
+export 'src/components/hover_card.dart';
 export 'src/components/icon_button.dart';
 export 'src/components/icon_tile.dart';
 export 'src/components/indicator_badge.dart';
@@ -101,12 +103,7 @@ export 'src/components/scaffold.dart';
 export 'src/components/scroll_area.dart';
 export 'src/components/segmented_control.dart';
 export 'src/components/select.dart';
-export 'src/components/sheet.dart'
-    hide
-        RenderSheetLayoutWithSizeListener,
-        SheetGestureDetector,
-        SheetLayoutWithSizeListener,
-        SizeChangeCallback;
+export 'src/components/sheet.dart';
 export 'src/components/sidebar.dart';
 export 'src/components/skeleton.dart';
 export 'src/components/slider.dart';
@@ -154,6 +151,7 @@ export 'src/theme/color_scheme/teal.dart';
 export 'src/theme/color_scheme/zinc.dart';
 // Component Themes
 export 'src/theme/components/accordion.dart';
+export 'src/theme/components/action_sheet.dart';
 export 'src/theme/components/alert.dart';
 export 'src/theme/components/app_bar.dart';
 export 'src/theme/components/avatar.dart';

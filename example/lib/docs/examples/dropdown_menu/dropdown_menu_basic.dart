@@ -1,4 +1,6 @@
 import 'package:finesse/finesse.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 class DropdownMenuBasicExample extends StatelessWidget {
@@ -6,28 +8,35 @@ class DropdownMenuBasicExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ⌘ on Apple's platforms, Ctrl everywhere else. `MenuShortcut` writes
+    // either the way the platform does; binding the keys is the app's job.
+    final apple =
+        defaultTargetPlatform == TargetPlatform.macOS ||
+        defaultTargetPlatform == TargetPlatform.iOS;
+    SingleActivator keys(LogicalKeyboardKey key, {bool shift = false}) =>
+        SingleActivator(key, meta: apple, control: !apple, shift: shift);
+
     return DropdownMenu(
       constraints: const BoxConstraints(minWidth: 224),
-      items: const [
+      items: [
+        const MenuLabel(child: Text('My account')),
         ContextMenuItem(
-          leading: PhosphorIcon(PhosphorIconsRegular.user),
-          trailing: Text('⇧⌘P'),
-          child: Text('Profile'),
+          leading: const PhosphorIcon(PhosphorIconsRegular.user),
+          shortcut: MenuShortcut(keys(LogicalKeyboardKey.keyP, shift: true)),
+          child: const Text('Profile'),
         ),
         ContextMenuItem(
-          leading: PhosphorIcon(PhosphorIconsRegular.gear),
-          trailing: Text('⌘S'),
-          child: Text('Settings'),
+          leading: const PhosphorIcon(PhosphorIconsRegular.gear),
+          shortcut: MenuShortcut(keys(LogicalKeyboardKey.comma)),
+          child: const Text('Settings'),
         ),
-        ContextMenuItem(
+        const ContextMenuItem(
           leading: PhosphorIcon(PhosphorIconsRegular.users),
           trailing: PhosphorIcon(PhosphorIconsRegular.caretRight),
           items: [
             ContextMenuItem(child: Text('Email')),
             ContextMenuItem(child: Text('Message')),
-            Divider.horizontal(
-              margin: EdgeInsets.symmetric(vertical: 4),
-            ),
+            MenuDivider(),
             ContextMenuItem(
               trailing: PhosphorIcon(PhosphorIconsRegular.caretRight),
               items: [
@@ -40,11 +49,12 @@ class DropdownMenuBasicExample extends StatelessWidget {
           ],
           child: Text('Invite users'),
         ),
-        Divider.horizontal(margin: EdgeInsets.symmetric(vertical: 4)),
+        const MenuDivider(),
         ContextMenuItem(
-          leading: PhosphorIcon(PhosphorIconsRegular.signOut),
+          leading: const PhosphorIcon(PhosphorIconsRegular.signOut),
+          shortcut: MenuShortcut(keys(LogicalKeyboardKey.keyQ, shift: true)),
           destructive: true,
-          child: Text('Log out'),
+          child: const Text('Log out'),
         ),
       ],
       builder: (context, controller, _) => Button.outline(

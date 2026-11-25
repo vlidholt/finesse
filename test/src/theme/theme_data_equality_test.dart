@@ -310,10 +310,12 @@ void main() {
       );
       // Deliberately non-const: const lists would be identical anyway.
       expect(
-        // ignore: prefer_const_constructors, prefer_const_literals_to_create_immutables
-        SheetTheme(snapSizes: [0.5, 1]),
-        // ignore: prefer_const_constructors, prefer_const_literals_to_create_immutables
-        SheetTheme(snapSizes: [0.5, 1]),
+        SheetTheme(shadows: shadows()),
+        SheetTheme(shadows: shadows()),
+      );
+      expect(
+        SheetTheme(shadows: shadows()).hashCode,
+        SheetTheme(shadows: shadows()).hashCode,
       );
     });
 

@@ -346,6 +346,84 @@ void main() {
       );
     });
 
+    // A popover with an arrow is one outline too, with a line round it: its
+    // shadow is cut out of box and arrow alike — through the clip over
+    // glass, and by being covered under a solid fill.
+    for (final (finish, style) in [
+      ('glass', StyleTokens.finesse),
+      ('solid', StyleTokens.nova),
+    ]) {
+      testWidgets('$mode: a $finish popover and its arrow', (tester) async {
+        late PopoverController controller;
+        Offset arrowTip(WidgetTester tester) {
+          // In the arrow and outside the box, as for the tooltip: the
+          // popover hangs below its trigger, the arrow on its top edge.
+          final arrow = tester.getRect(find.byKey(SurfacePainter.arrowKey));
+          return arrow.center - Offset(0, .45 * arrow.height);
+        }
+
+        await expectShadowOutside(
+          tester,
+          name: '$finish popover',
+          theme: ({required shadow}) => ThemeData(
+            brightness: brightness,
+            style: shadow ? style : style.copyWith(popoverShadow: const []),
+          ),
+          build: ({required shadow}) {
+            controller = PopoverController();
+            addTearDown(controller.dispose);
+            return Align(
+              alignment: const Alignment(0, -.5),
+              child: Popover(
+                controller: controller,
+                showArrow: true,
+                // As heavy as the tooltip's, so the solid styles' faint
+                // one does not make the check under the surface vacuous.
+                shadows: shadow ? heavy : null,
+                popover: (context) => const SizedBox(width: 180, height: 80),
+                child: const SizedBox(width: 40, height: 20),
+              ),
+            );
+          },
+          open: (tester) async => controller.show(),
+          surface: find.byType(BackdropSurface),
+          tint: (theme) => theme.popoverTheme.decoration!.color!,
+          extraInside: (tester) => [arrowTip(tester)],
+        );
+
+        final theme = ThemeData(brightness: brightness, style: style);
+        expect(theme.popoverTheme.filter, finish == 'glass' ? isNotNull : null);
+        expect(
+          theme.popoverTheme.decoration!.color!.a,
+          finish == 'glass' ? lessThan(1) : 1,
+        );
+
+        // And the arrow is there: the surface's colour, not the backdrop's.
+        final sampler = await pump(
+          tester,
+          theme: theme,
+          backdrop: const ColoredBox(color: white),
+          child: Align(
+            alignment: const Alignment(0, -.5),
+            child: Popover(
+              controller: controller = PopoverController(),
+              showArrow: true,
+              popover: (context) => const SizedBox(width: 180, height: 80),
+              child: const SizedBox(width: 40, height: 20),
+            ),
+          ),
+        );
+        addTearDown(controller.dispose);
+        controller.show();
+        await advance(tester, settled: true);
+        expectSame(
+          await sampler.pixel(tester, arrowTip(tester)),
+          over(theme.popoverTheme.decoration!.color!, white),
+          reason: 'the arrow is not painted',
+        );
+      });
+    }
+
     testWidgets('$mode: a glass command palette', (tester) async {
       await expectShadowOutside(
         tester,

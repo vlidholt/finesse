@@ -35,16 +35,31 @@ class FinesseLocalizationsData with BaseTranslations<FinesseLocale, FinesseLocal
 	FinesseLocalizationsData $copyWith({TranslationMetadata<FinesseLocale, FinesseLocalizationsData>? meta}) => FinesseLocalizationsData(meta: meta ?? this.$meta);
 
 	// Translations
+	late final FinesseLocalizationsData$actionSheet$en actionSheet = FinesseLocalizationsData$actionSheet$en.internal(_root);
 	late final FinesseLocalizationsData$timePicker$en timePicker = FinesseLocalizationsData$timePicker$en.internal(_root);
 	late final FinesseLocalizationsData$datePicker$en datePicker = FinesseLocalizationsData$datePicker$en.internal(_root);
 	late final FinesseLocalizationsData$input$en input = FinesseLocalizationsData$input$en.internal(_root);
 	late final FinesseLocalizationsData$keyboardToolbar$en keyboardToolbar = FinesseLocalizationsData$keyboardToolbar$en.internal(_root);
 	late final FinesseLocalizationsData$empty$en empty = FinesseLocalizationsData$empty$en.internal(_root);
 	late final FinesseLocalizationsData$command$en command = FinesseLocalizationsData$command$en.internal(_root);
+	late final FinesseLocalizationsData$menu$en menu = FinesseLocalizationsData$menu$en.internal(_root);
 	late final FinesseLocalizationsData$pagination$en pagination = FinesseLocalizationsData$pagination$en.internal(_root);
 	late final FinesseLocalizationsData$dialog$en dialog = FinesseLocalizationsData$dialog$en.internal(_root);
+	late final FinesseLocalizationsData$sheet$en sheet = FinesseLocalizationsData$sheet$en.internal(_root);
 	late final FinesseLocalizationsData$board$en board = FinesseLocalizationsData$board$en.internal(_root);
 	late final FinesseLocalizationsData$navigation$en navigation = FinesseLocalizationsData$navigation$en.internal(_root);
+}
+
+// Path: actionSheet
+class FinesseLocalizationsData$actionSheet$en {
+	FinesseLocalizationsData$actionSheet$en.internal(this._root);
+
+	final FinesseLocalizationsData _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Cancel'
+	String get cancel => 'Cancel';
 }
 
 // Path: timePicker
@@ -140,6 +155,60 @@ class FinesseLocalizationsData$command$en {
 	String get noResults => 'No results found.';
 }
 
+// Path: menu
+class FinesseLocalizationsData$menu$en {
+	FinesseLocalizationsData$menu$en.internal(this._root);
+
+	final FinesseLocalizationsData _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Ctrl'
+	String get control => 'Ctrl';
+
+	/// en: 'Alt'
+	String get alt => 'Alt';
+
+	/// en: 'Shift'
+	String get shift => 'Shift';
+
+	/// en: 'Meta'
+	String get meta => 'Meta';
+
+	/// en: 'Enter'
+	String get enter => 'Enter';
+
+	/// en: 'Esc'
+	String get escape => 'Esc';
+
+	/// en: 'Space'
+	String get space => 'Space';
+
+	/// en: 'Tab'
+	String get tab => 'Tab';
+
+	/// en: 'Backspace'
+	String get backspace => 'Backspace';
+
+	/// en: 'Del'
+	String get delete => 'Del';
+
+	/// en: 'Ins'
+	String get insert => 'Ins';
+
+	/// en: 'Home'
+	String get home => 'Home';
+
+	/// en: 'End'
+	String get end => 'End';
+
+	/// en: 'PgUp'
+	String get pageUp => 'PgUp';
+
+	/// en: 'PgDn'
+	String get pageDown => 'PgDn';
+}
+
 // Path: pagination
 class FinesseLocalizationsData$pagination$en {
 	FinesseLocalizationsData$pagination$en.internal(this._root);
@@ -174,6 +243,18 @@ class FinesseLocalizationsData$dialog$en {
 
 	/// en: 'Dismiss'
 	String get dismiss => 'Dismiss';
+}
+
+// Path: sheet
+class FinesseLocalizationsData$sheet$en {
+	FinesseLocalizationsData$sheet$en.internal(this._root);
+
+	final FinesseLocalizationsData _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Resize'
+	String get resize => 'Resize';
 }
 
 // Path: board
@@ -238,6 +319,7 @@ class FinesseLocalizationsData$navigation$en {
 extension on FinesseLocalizationsData {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
+			'actionSheet.cancel' => 'Cancel',
 			'timePicker.hours' => 'Hours',
 			'timePicker.minutes' => 'Minutes',
 			'timePicker.seconds' => 'Seconds',
@@ -251,12 +333,28 @@ extension on FinesseLocalizationsData {
 			'keyboardToolbar.done' => 'Done',
 			'empty.title' => 'No results',
 			'command.noResults' => 'No results found.',
+			'menu.control' => 'Ctrl',
+			'menu.alt' => 'Alt',
+			'menu.shift' => 'Shift',
+			'menu.meta' => 'Meta',
+			'menu.enter' => 'Enter',
+			'menu.escape' => 'Esc',
+			'menu.space' => 'Space',
+			'menu.tab' => 'Tab',
+			'menu.backspace' => 'Backspace',
+			'menu.delete' => 'Del',
+			'menu.insert' => 'Ins',
+			'menu.home' => 'Home',
+			'menu.end' => 'End',
+			'menu.pageUp' => 'PgUp',
+			'menu.pageDown' => 'PgDn',
 			'pagination.previous' => 'Previous',
 			'pagination.next' => 'Next',
 			'pagination.morePages' => 'More pages',
 			'pagination.page' => 'Page',
 			'dialog.close' => 'Close',
 			'dialog.dismiss' => 'Dismiss',
+			'sheet.resize' => 'Resize',
 			'board.moveUp' => 'Move up',
 			'board.moveDown' => 'Move down',
 			'board.moveTo' => ({required Object column}) => 'Move to ${column}',

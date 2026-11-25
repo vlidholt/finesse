@@ -27,12 +27,13 @@ void main() {
     await settle(tester);
   }
 
-  test('no built-in dialog theme carries a close icon; the sheet does', () {
+  test('no built-in dialog theme carries a close icon; the sheet shows its '
+      'close button', () {
     for (final style in StyleTokens.all) {
       final theme = ThemeData(style: style);
       expect(theme.primaryDialogTheme.closeIconData, isNull);
       expect(theme.alertDialogTheme.closeIconData, isNull);
-      expect(theme.sheetTheme.closeIconData, PhosphorIconsRegular.x);
+      expect(theme.sheetTheme.showCloseButton, isTrue);
     }
   });
 

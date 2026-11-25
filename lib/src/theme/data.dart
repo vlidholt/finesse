@@ -1,6 +1,7 @@
 import 'package:finesse/src/theme/color_scheme/base.dart';
 import 'package:finesse/src/theme/color_scheme/teal.dart';
 import 'package:finesse/src/theme/components/accordion.dart';
+import 'package:finesse/src/theme/components/action_sheet.dart';
 import 'package:finesse/src/theme/components/alert.dart';
 import 'package:finesse/src/theme/components/app_bar.dart';
 import 'package:finesse/src/theme/components/avatar.dart';
@@ -137,6 +138,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     DialogTheme? alertDialogTheme,
     SliderTheme? sliderTheme,
     SheetTheme? sheetTheme,
+    ActionSheetTheme? actionSheetTheme,
     ProgressBarTheme? progressBarTheme,
     AccordionTheme? accordionTheme,
     TableTheme? tableTheme,
@@ -407,6 +409,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
         alertDialogTheme: alertDialogTheme,
         sliderTheme: sliderTheme,
         sheetTheme: sheetTheme,
+        actionSheetTheme: actionSheetTheme,
         progressBarTheme: progressBarTheme,
         accordionTheme: accordionTheme,
         tableTheme: tableTheme,
@@ -539,6 +542,9 @@ class ThemeData extends BaseTheme with _$ThemeData {
       ),
       sliderTheme: effectiveVariant.sliderTheme().merge(sliderTheme),
       sheetTheme: effectiveVariant.sheetTheme().merge(sheetTheme),
+      actionSheetTheme: effectiveVariant.actionSheetTheme().merge(
+        actionSheetTheme,
+      ),
       progressBarTheme: effectiveVariant.progressBarTheme().merge(
         progressBarTheme,
       ),
@@ -661,6 +667,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     required super.alertDialogTheme,
     required super.sliderTheme,
     required super.sheetTheme,
+    required super.actionSheetTheme,
     required super.progressBarTheme,
     required super.accordionTheme,
     required super.tableTheme,
@@ -761,6 +768,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     DialogTheme? alertDialogTheme,
     SliderTheme? sliderTheme,
     SheetTheme? sheetTheme,
+    ActionSheetTheme? actionSheetTheme,
     ProgressBarTheme? progressBarTheme,
     AccordionTheme? accordionTheme,
     TableTheme? tableTheme,
@@ -855,6 +863,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
       alertDialogTheme: alertDialogTheme ?? i.alertDialogTheme,
       sliderTheme: sliderTheme ?? i.sliderTheme,
       sheetTheme: sheetTheme ?? i.sheetTheme,
+      actionSheetTheme: actionSheetTheme ?? i.actionSheetTheme,
       progressBarTheme: progressBarTheme ?? i.progressBarTheme,
       accordionTheme: accordionTheme ?? i.accordionTheme,
       tableTheme: tableTheme ?? i.tableTheme,
@@ -1048,6 +1057,7 @@ final class _ThemeInputs {
     this.alertDialogTheme,
     this.sliderTheme,
     this.sheetTheme,
+    this.actionSheetTheme,
     this.progressBarTheme,
     this.accordionTheme,
     this.tableTheme,
@@ -1140,6 +1150,7 @@ final class _ThemeInputs {
   final DialogTheme? alertDialogTheme;
   final SliderTheme? sliderTheme;
   final SheetTheme? sheetTheme;
+  final ActionSheetTheme? actionSheetTheme;
   final ProgressBarTheme? progressBarTheme;
   final AccordionTheme? accordionTheme;
   final TableTheme? tableTheme;

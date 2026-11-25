@@ -35,6 +35,7 @@ flutter:
     # Each docs example directory is bundled so the doc pages can show the
     # exact source file that renders the preview.
     - lib/docs/examples/accordion/
+    - lib/docs/examples/action_sheet/
     - lib/docs/examples/alert/
     - lib/docs/examples/avatar/
     - lib/docs/examples/badge/
@@ -52,6 +53,7 @@ flutter:
     - lib/docs/examples/empty/
     - lib/docs/examples/floating_action_button/
     - lib/docs/examples/form/
+    - lib/docs/examples/hover_card/
     - lib/docs/examples/icon_button/
     - lib/docs/examples/text_field/
     - lib/docs/examples/otp_field/

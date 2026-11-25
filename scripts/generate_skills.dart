@@ -19,6 +19,7 @@ import 'dart:io';
 /// component only appears here once it has a real docs page.
 const _slugs = [
   'accordion',
+  'action_sheet',
   'alert',
   'app_bar',
   'avatar',
@@ -45,6 +46,7 @@ const _slugs = [
   'empty',
   'floating_action_button',
   'glass',
+  'hover_card',
   'icon_button',
   'icon_tile',
   'indicator_badge',

@@ -7,6 +7,7 @@ import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/raw_components/portal.dart';
 import 'package:finesse/src/theme/color_scheme/base.dart';
 import 'package:finesse/src/theme/components/accordion.dart';
+import 'package:finesse/src/theme/components/action_sheet.dart';
 import 'package:finesse/src/theme/components/alert.dart';
 import 'package:finesse/src/theme/components/app_bar.dart';
 import 'package:finesse/src/theme/components/avatar.dart';
@@ -1001,6 +1002,11 @@ class DefaultThemeVariant extends ThemeVariant {
         ),
       ),
       filter: popoverFilter,
+      // For a popover that asks for an arrow (`Popover(showArrow: true)`,
+      // `HoverCard`): the tooltip's shape a step larger, for a surface
+      // with wider corners — about 7 tall on a foot of 16.
+      arrowSize: scaled(14),
+      arrowRadius: style.itemRadius == RadiusToken.none ? 0 : 2,
       anchor: const AnchorAuto(
         offset: Offset(0, 4),
         fallback: AnchorAuto(
@@ -1574,12 +1580,71 @@ class DefaultThemeVariant extends ThemeVariant {
 
   @override
   SheetTheme sheetTheme() {
-    return const SheetTheme(
-      radius: BorderRadius.zero,
-      expandCrossSide: true,
-      // A sheet is built on a dialog, which has no close button by
-      // default; a sheet has one.
-      closeIconData: PhosphorIconsRegular.x,
+    return SheetTheme(
+      // shadcn's sheet and drawer are `bg-background` with a `border`
+      // hairline, not the popover surface a dialog sits on.
+      backgroundColor: colorScheme.background,
+      border: Border.all(color: colorScheme.border),
+      // The open edge of a sheet from the top or bottom (the drawer's
+      // `rounded-t-*`); a sheet from a side stays square.
+      borderRadius: dialogRadius,
+      shadows: _isDark
+          ? style.floatingShadowDark ?? style.sheetShadow
+          : style.sheetShadow,
+      // Laid out like a dialog.
+      padding: EdgeInsets.all(scaled(style.dialogPadding)),
+      gap: scaled(style.dialogGap),
+      actionsGap: 8,
+      titleStyle: style.title.apply(effectiveTextTheme.large),
+      descriptionStyle: style.body.apply(effectiveTextTheme.muted),
+      // A dialog has no close button by default; a sheet has one.
+      showCloseButton: true,
+      dragHandleColor: _wash(colorScheme.foreground, .2),
+      dragHandleWidth: 36,
+      dragHandleHeight: 4,
+    );
+  }
+
+  @override
+  ActionSheetTheme actionSheetTheme() {
+    final label = style.body
+        .apply(effectiveTextTheme.p)
+        .copyWith(color: colorScheme.foreground);
+    return ActionSheetTheme(
+      padding: EdgeInsets.all(scaled(8)),
+      // A row is a touch target first: a control's height and a little
+      // air, never under 44.
+      rowHeight: math.max(scaled(style.buttonHeight) + scaled(8), 44),
+      rowPadding: EdgeInsets.symmetric(
+        horizontal: scaled(style.listTilePaddingX),
+        vertical: scaled(8),
+      ),
+      rowRadius: itemRadius,
+      gap: scaled(style.listTileGap),
+      iconSize: scaled(20),
+      labelStyle: label,
+      // The default action, and Cancel, stand out by weight.
+      defaultLabelStyle: label.copyWith(fontWeight: FontWeight.w600),
+      titleStyle: style.label
+          .apply(effectiveTextTheme.small)
+          .copyWith(color: colorScheme.foreground),
+      messageStyle: style.body
+          .apply(effectiveTextTheme.muted)
+          .copyWith(color: colorScheme.mutedForeground),
+      headerPadding: EdgeInsets.fromLTRB(
+        scaled(16),
+        scaled(8),
+        scaled(16),
+        scaled(12),
+      ),
+      foregroundColor: colorScheme.foreground,
+      destructiveColor: colorScheme.destructive,
+      // As a ghost button's hover: `bg-muted`.
+      highlightColor: colorScheme.muted,
+      dividerColor: colorScheme.border,
+      cancelColor: colorScheme.secondary,
+      cancelGap: scaled(8),
+      dialogConstraints: const BoxConstraints(maxWidth: 320),
     );
   }
 
@@ -2300,6 +2365,31 @@ class DefaultThemeVariant extends ThemeVariant {
     destructiveSelectedBackgroundColor: menuTranslucent ?? false
         ? menuItemHighlight
         : _wash(menuScheme.destructive, _menuIsDark ? .2 : .1),
+    // The box of a check mark; an icon's size in a row, so a checkable row
+    // and one with a leading icon keep their labels on one line.
+    indicatorSize: 16,
+    // A group's heading: the caption role in the menu's muted colour, on
+    // the rows' own horizontal padding so it lines up with their labels.
+    // A phone's rows are padded to be touch targets; a heading is not one.
+    labelTextStyle: style.caption
+        .apply(effectiveTextTheme.muted)
+        .copyWith(color: menuScheme.mutedForeground),
+    labelPadding: EdgeInsets.symmetric(
+      horizontal: scaled(style.itemPaddingX),
+      vertical: scaled(math.min(style.itemPaddingY, 8)),
+    ),
+    // shadcn's `tracking-widest` (.1em) on the trailing text.
+    shortcutTextStyle: style.caption
+        .apply(effectiveTextTheme.muted)
+        .copyWith(
+          height: 1,
+          letterSpacing: style.caption.fontSize * .1,
+          color: menuScheme.mutedForeground,
+        ),
+    // The hairline between groups, on the menu's palette, with the
+    // surface's own padding above and below (`my-1` under `p-1`).
+    dividerColor: menuScheme.border,
+    dividerMargin: EdgeInsets.symmetric(vertical: scaled(style.menuPadding)),
   );
 
   @override

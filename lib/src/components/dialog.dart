@@ -4,45 +4,21 @@ import 'package:boxy/flex.dart';
 import 'package:finesse/src/components/icon_button.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
-import 'package:finesse/src/theme/components/button.dart';
-import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/theme/theme_scope.dart';
 import 'package:finesse/src/theme/themes/shadows.dart';
 import 'package:finesse/src/utils/animate.dart';
 import 'package:finesse/src/utils/backdrop.dart';
 import 'package:finesse/src/utils/entrance.dart';
+import 'package:finesse/src/utils/expanded_actions_theme.dart';
 import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:finesse/src/utils/position.dart';
 import 'package:finesse/src/utils/responsive.dart';
+import 'package:finesse/src/utils/route_theme.dart';
 import 'package:finesse/src/utils/separated_iterable.dart';
 import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-
-final _expandedActionsThemes = Expando<ThemeData>();
-
-/// [theme] with every button variant as wide as its parent: what the actions
-/// of a dialog on a narrow screen are built under.
-///
-/// `ThemeData.copyWith` runs the theme factory again, so the result is kept
-/// per theme. Deriving it in `build` paid for every component theme on each
-/// build of each open dialog, and handed the actions a new `ThemeData` to
-/// compare against the last one.
-ThemeData _expandedActionsThemeOf(ThemeData theme) {
-  return _expandedActionsThemes[theme] ??= () {
-    ButtonTheme expanded(ButtonTheme button) =>
-        button.copyWith(width: double.infinity, expands: true);
-    return theme.copyWith(
-      primaryButtonTheme: expanded(theme.primaryButtonTheme),
-      secondaryButtonTheme: expanded(theme.secondaryButtonTheme),
-      outlineButtonTheme: expanded(theme.outlineButtonTheme),
-      ghostButtonTheme: expanded(theme.ghostButtonTheme),
-      destructiveButtonTheme: expanded(theme.destructiveButtonTheme),
-    );
-  }();
-}
 
 /// {@template DialogRoute}
 /// A custom dialog route that allows specifying a `reverseTransitionDuration`.
@@ -369,33 +345,18 @@ Future<T?> showDialog<T>({
     );
   }
 
-  // A route is built under the Navigator, so it does not see a Theme that
-  // was applied to a subtree — only the app-level one. When the call site is
-  // re-themed (see ThemeScope), republish its theme inside the route so
-  // the dialog matches its surroundings. Otherwise follow the app-level theme
-  // live: capturing it here froze an open dialog or sheet in the theme it was
-  // opened with, so a light/dark switch left it behind.
   final ambientTheme = Theme.of(context, listen: false);
   final navigator = Navigator.of(context, rootNavigator: useRootNavigator);
-  final themedLocally =
-      ambientTheme != Theme.maybeOf(navigator.context, listen: false);
-  final opener = context;
 
   return navigator.push(
     DialogRoute(
-      pageBuilder: (routeContext) {
-        // Depend on the app-level theme in both cases, so the route rebuilds
-        // when it changes; a re-themed opener is re-read at that point.
-        final appTheme = Theme.maybeOf(routeContext);
-        return ThemeScope(
-          data: !themedLocally && appTheme != null
-              ? appTheme
-              : opener.mounted
-              ? Theme.of(opener, listen: false)
-              : ambientTheme,
-          child: Builder(builder: builder),
-        );
-      },
+      // Themed like the place it was opened from, or following the app's
+      // theme live; see [routeThemedBuilder].
+      pageBuilder: routeThemedBuilder(
+        opener: context,
+        navigator: navigator,
+        builder: builder,
+      ),
       barrierColor:
           barrierColor ??
           ambientTheme.primaryDialogTheme.barrierColor ??
@@ -999,7 +960,7 @@ class Dialog extends StatelessWidget {
               effectiveExpandActionsWhenTiny &&
               effectiveActions != null) {
             effectiveActions = Theme(
-              data: _expandedActionsThemeOf(theme),
+              data: expandedActionsThemeOf(theme),
               // Full-width buttons give their labels the button's width, so
               // a long label ellipsizes instead of overflowing the button.
               child: DefaultTextStyle.merge(
