@@ -61,8 +61,10 @@ class _BoardLimitExampleState extends State<BoardLimitExample> {
               limit: name == 'In review' ? 2 : null,
               footer: name == 'Backlog'
                   ? Button.ghost(
-                      width: double.infinity,
-                      mainAxisAlignment: MainAxisAlignment.start,
+                      style: ButtonTheme(
+                        width: double.infinity,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                      ),
                       leading: const PhosphorIcon(PhosphorIconsRegular.plus),
                       onPressed: addTicket,
                       child: const Text('Add a ticket'),

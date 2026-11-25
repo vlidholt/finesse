@@ -770,7 +770,6 @@ class DefaultThemeVariant extends ThemeVariant {
       // `[&>svg]:size-3`.
       iconSize: scaled(style.badgeIconSize),
       backgroundColor: colorScheme.primary,
-      hoverBackgroundColor: colorScheme.primary,
       foregroundColor: colorScheme.primaryForeground,
       shape: _badgeShape,
       padding: _badgePadding,
@@ -789,7 +788,6 @@ class DefaultThemeVariant extends ThemeVariant {
       // `[&>svg]:size-3`.
       iconSize: scaled(style.badgeIconSize),
       backgroundColor: fill,
-      hoverBackgroundColor: fill,
       foregroundColor: style.secondaryBadgeSubtle
           ? colorScheme.foregroundSubtle
           : colorScheme.secondaryForeground,
@@ -810,7 +808,6 @@ class DefaultThemeVariant extends ThemeVariant {
       // `[&>svg]:size-3`.
       iconSize: scaled(style.badgeIconSize),
       backgroundColor: _wash(colorScheme.destructive, _isDark ? .2 : .1),
-      hoverBackgroundColor: _wash(colorScheme.destructive, _isDark ? .2 : .1),
       foregroundColor: colorScheme.destructive,
       shape: _badgeShape,
       padding: _badgePadding,

@@ -73,9 +73,11 @@ class ProfileHeaderAction extends StatelessWidget {
   Widget build(BuildContext context) {
     return IconButton.ghost(
       size: ButtonSize.sm,
-      // The designs draw a text button's 18-point glyph in the small icon
-      // button, not the icon button's own 20.
-      iconSize: Theme.of(context).buttonSizesTheme.regular?.iconSize,
+      style: ButtonTheme(
+        // The designs draw a text button's 18-point glyph in the small icon
+        // button, not the icon button's own 20.
+        iconSize: Theme.of(context).buttonSizesTheme.regular?.iconSize,
+      ),
       icon: PhosphorIcon(icon),
       semanticLabel: label,
       // Editing lives in one place: the Account page of Settings.

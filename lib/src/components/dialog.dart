@@ -4,6 +4,7 @@ import 'package:boxy/flex.dart';
 import 'package:finesse/src/components/icon_button.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
+import 'package:finesse/src/theme/components/button.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/theme/themes/shadows.dart';
@@ -770,15 +771,17 @@ class Dialog extends StatelessWidget {
                     closeIcon ??
                     effectiveDialogTheme.closeIcon ??
                     const PhosphorIcon(PhosphorIconsRegular.x, size: 16),
-                width: 20,
-                height: 20,
-                padding: EdgeInsets.zero,
-                foregroundColor: theme.colorScheme.foreground.withValues(
-                  alpha: .5,
+                style: ButtonTheme(
+                  width: 20,
+                  height: 20,
+                  padding: EdgeInsets.zero,
+                  foregroundColor: theme.colorScheme.foreground.withValues(
+                    alpha: .5,
+                  ),
+                  hoverBackgroundColor: const Color(0x00000000),
+                  hoverForegroundColor: theme.colorScheme.foreground,
+                  pressedForegroundColor: theme.colorScheme.foreground,
                 ),
-                hoverBackgroundColor: const Color(0x00000000),
-                hoverForegroundColor: theme.colorScheme.foreground,
-                pressedForegroundColor: theme.colorScheme.foreground,
                 semanticLabel: FinesseLocalizations.of(context).dialog.close,
                 onPressed: onClose ?? () => Navigator.of(context).maybePop(),
               ));

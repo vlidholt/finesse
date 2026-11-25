@@ -3,6 +3,7 @@ import 'package:finesse/src/components/icon_button.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/theme/components/alert.dart';
+import 'package:finesse/src/theme/components/button.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/components/layout.dart';
 import 'package:finesse/src/theme/data.dart';
@@ -407,7 +408,9 @@ class _AlertState extends State<Alert> {
                     child: IconButton.ghost(
                       size: ButtonSize.sm,
                       tooltip: FinesseLocalizations.of(context).alert.dismiss,
-                      foregroundColor: effectiveDescriptionStyle.color,
+                      style: ButtonTheme(
+                        foregroundColor: effectiveDescriptionStyle.color,
+                      ),
                       enabled: !_dismissing,
                       onPressed: () => setState(() => _dismissing = true),
                       icon: const PhosphorIcon(PhosphorIconsRegular.x),

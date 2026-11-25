@@ -144,10 +144,12 @@ class _Identity extends StatelessWidget {
                   ),
                   IconButton.secondary(
                     icon: const PhosphorIcon(PhosphorIconsRegular.pencilSimple),
-                    iconSize: theme.buttonSizesTheme.regular?.iconSize,
-                    // A square that takes the text button's radius to sit
-                    // beside one, where the style's icon buttons are round.
-                    decoration: theme.buttonDecoration(radius: theme.radius),
+                    style: ButtonTheme(
+                      iconSize: theme.buttonSizesTheme.regular?.iconSize,
+                      // A square that takes the text button's radius to sit
+                      // beside one, where the style's icon buttons are round.
+                      decoration: theme.buttonDecoration(radius: theme.radius),
+                    ),
                     semanticLabel: 'Edit profile',
                     onPressed: () =>
                         openSettings(context, SettingsSection.account),

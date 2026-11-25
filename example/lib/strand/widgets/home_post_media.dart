@@ -329,23 +329,27 @@ class _EventMediaState extends State<_EventMedia> {
                     // No room for the label beside the event's name.
                     IconButton(
                       size: ButtonSize.sm,
-                      backgroundColor: _onPhoto,
-                      hoverBackgroundColor: _onPhotoHover,
-                      foregroundColor: _ink,
-                      hoverForegroundColor: _ink,
+                      style: ButtonTheme(
+                        backgroundColor: _onPhoto,
+                        hoverBackgroundColor: _onPhotoHover,
+                        foregroundColor: _ink,
+                        hoverForegroundColor: _ink,
+                      ),
                       icon: star,
                       semanticLabel: 'Interested',
                       onPressed: _toggle,
                     )
                   else
                     Button(
-                      gap: theme.gap(GapSize.xs),
-                      backgroundColor: _onPhoto,
-                      hoverBackgroundColor: _onPhotoHover,
-                      foregroundColor: _ink,
-                      hoverForegroundColor: _ink,
-                      textStyle: theme.textTheme.small.copyWith(
-                        fontWeight: FontWeight.w600,
+                      style: ButtonTheme(
+                        gap: theme.gap(GapSize.xs),
+                        backgroundColor: _onPhoto,
+                        hoverBackgroundColor: _onPhotoHover,
+                        foregroundColor: _ink,
+                        hoverForegroundColor: _ink,
+                        textStyle: theme.textTheme.small.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       leading: star,
                       onPressed: _toggle,

@@ -413,8 +413,8 @@ void main() {
       );
       expect(dayButtonFinder, findsOneWidget);
       final dayButton = tester.widget<Button>(dayButtonFinder);
-      expect(dayButton.width, customDayButtonSize);
-      expect(dayButton.height, customDayButtonSize);
+      expect(dayButton.style?.width, customDayButtonSize);
+      expect(dayButton.style?.height, customDayButtonSize);
     });
 
     testWidgets('displays week numbers when enabled', (

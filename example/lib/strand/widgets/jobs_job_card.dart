@@ -146,7 +146,9 @@ class _SaveButton extends StatelessWidget {
             ? PhosphorIconsFill.bookmarkSimple
             : PhosphorIconsRegular.bookmarkSimple,
       ),
-      foregroundColor: saved ? colors.tint : colors.foreground,
+      style: ButtonTheme(
+        foregroundColor: saved ? colors.tint : colors.foreground,
+      ),
       semanticLabel: saved ? 'Remove from saved jobs' : 'Save job',
       onPressed: onPressed,
     );
@@ -171,7 +173,6 @@ class JobTag extends StatelessWidget {
     return Badge.secondary(
       // No badge variant is green: the success pair goes on by hand.
       backgroundColor: colors.successMuted,
-      hoverBackgroundColor: colors.successMuted,
       foregroundColor: colors.success,
       child: FinesseRow(
         gap: GapSize.xs,

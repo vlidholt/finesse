@@ -1,7 +1,6 @@
 import 'package:finesse/src/components/button.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
@@ -53,8 +52,6 @@ class TabsTheme with _$TabsTheme {
     this.tabHoverTextDecoration,
     this.tabMainAxisAlignment,
     this.tabCrossAxisAlignment,
-    this.tabHoverStrategies,
-    this.longPressDuration,
     this.indicatorSpring,
     this.indicatorStretch,
     this.contentTransitionDuration,
@@ -183,12 +180,6 @@ class TabsTheme with _$TabsTheme {
 
   /// {@macro Button.crossAxisAlignment}
   final CrossAxisAlignment? tabCrossAxisAlignment;
-
-  /// {@macro Button.hoverStrategies}
-  final HoverStrategies? tabHoverStrategies;
-
-  /// {@macro Button.longPressDuration}
-  final Duration? longPressDuration;
 
   /// {@template TabsTheme.indicatorSpring}
   /// The spring the selection indicator travels between tabs with. Defaults

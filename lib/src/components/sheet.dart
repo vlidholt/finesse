@@ -8,6 +8,7 @@ import 'package:finesse/src/components/icon_button.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/raw_components/pressable.dart';
+import 'package:finesse/src/theme/components/button.dart';
 import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
@@ -1861,12 +1862,14 @@ class _SheetCloseButton extends StatelessWidget {
     final size = mobile ? 32.0 : 24.0;
     return IconButton.ghost(
       icon: icon ?? const PhosphorIcon(PhosphorIconsRegular.x, size: 16),
-      width: size,
-      height: size,
-      padding: EdgeInsets.zero,
-      foregroundColor: theme.colorScheme.foreground.withValues(alpha: .5),
-      hoverForegroundColor: theme.colorScheme.foreground,
-      pressedForegroundColor: theme.colorScheme.foreground,
+      style: ButtonTheme(
+        width: size,
+        height: size,
+        padding: EdgeInsets.zero,
+        foregroundColor: theme.colorScheme.foreground.withValues(alpha: .5),
+        hoverForegroundColor: theme.colorScheme.foreground,
+        pressedForegroundColor: theme.colorScheme.foreground,
+      ),
       semanticLabel: FinesseLocalizations.of(context).dialog.close,
       onPressed: onPressed,
     );

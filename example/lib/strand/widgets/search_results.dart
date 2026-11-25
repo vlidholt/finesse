@@ -452,7 +452,9 @@ class SearchSuggestions extends StatelessWidget {
                   trailing: IconButton.ghost(
                     size: ButtonSize.sm,
                     icon: const PhosphorIcon(PhosphorIconsRegular.x),
-                    foregroundColor: scheme.mutedForeground,
+                    style: ButtonTheme(
+                      foregroundColor: scheme.mutedForeground,
+                    ),
                     semanticLabel: 'Remove $recent',
                     onPressed: () => history.remove(recent),
                   ),

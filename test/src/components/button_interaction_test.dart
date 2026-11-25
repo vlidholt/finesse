@@ -3,6 +3,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../decoration_finders.dart';
+
 void main() {
   Widget wrap(Widget child) => FinesseApp(home: Center(child: child));
 
@@ -48,24 +50,48 @@ void main() {
       expect(changes, [true, false]);
     });
 
-    testWidgets('touch still gets synthesised hover', (tester) async {
-      // With no mouse, the strategies remain the only source of hover.
+    testWidgets('a finger held on the button shows what a pointer over it '
+        'shows, and onHover is for the mouse', (tester) async {
+      // A touch screen has no hover: the press is what answers the finger.
+      const rest = Color(0xff102030);
+      const hover = Color(0xffa0b0c0);
       final changes = <bool>[];
       await tester.pumpWidget(
         wrap(
           Button(
+            style: const ButtonTheme(
+              backgroundColor: rest,
+              hoverBackgroundColor: hover,
+            ),
             onPressed: () {},
             onHover: changes.add,
             child: const Text('Tap me'),
           ),
         ),
       );
+      Color? fill() => tester
+          .widgetList<DecoratedBox>(
+            find.descendant(
+              of: find.byType(Button),
+              matching: find.byType(DecoratedBox),
+            ),
+          )
+          .map((box) => boxDecorationOf(box.decoration)?.color)
+          .nonNulls
+          .first;
+      expect(fill(), rest);
 
-      await tester.tap(find.byType(Button));
+      final gesture = await tester.press(find.byType(Button));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(fill(), hover);
+
+      await gesture.up();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(fill(), rest);
+      expect(changes, isEmpty);
       await tester.pumpAndSettle();
-
-      expect(changes, contains(true));
-      expect(changes.last, isFalse);
     });
   });
 
@@ -103,7 +129,7 @@ void main() {
         wrap(
           Button(
             onPressed: () {},
-            pressedOffset: Offset.zero,
+            style: const ButtonTheme(pressedOffset: Offset.zero),
             child: const Text('Press'),
           ),
         ),

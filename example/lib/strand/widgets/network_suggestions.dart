@@ -96,8 +96,10 @@ class _NetworkSuggestionsState extends State<NetworkSuggestions> {
                     ),
                   if (shown < suggestions.length)
                     Button.secondary(
-                      gap: theme.gap(GapSize.xs),
-                      textStyle: theme.textTheme.small,
+                      style: ButtonTheme(
+                        gap: theme.gap(GapSize.xs),
+                        textStyle: theme.textTheme.small,
+                      ),
                       trailing: const PhosphorIcon(
                         PhosphorIconsRegular.caretDown,
                       ),
@@ -213,7 +215,9 @@ class _PersonCard extends StatelessWidget {
             child: IconButton.ghost(
               size: ButtonSize.sm,
               icon: const PhosphorIcon(PhosphorIconsRegular.x),
-              foregroundColor: scheme.mutedForeground,
+              style: ButtonTheme(
+                foregroundColor: scheme.mutedForeground,
+              ),
               semanticLabel: 'Dismiss ${person.name}',
               onPressed: () => controller.dismiss(suggestion),
             ),

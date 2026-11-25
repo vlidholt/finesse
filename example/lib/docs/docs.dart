@@ -6,7 +6,7 @@
 import 'package:example/common/code_style.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/material.dart'
-    hide IconButton, SelectionArea, Tab, Theme;
+    hide ButtonTheme, IconButton, SelectionArea, Tab, Theme;
 import 'package:flutter/services.dart';
 import 'package:syntax_highlight/syntax_highlight.dart';
 
@@ -232,12 +232,14 @@ class _CopyButtonState extends State<_CopyButton> {
   @override
   Widget build(BuildContext context) {
     return IconButton.ghost(
-      width: 28,
-      height: 28,
-      iconSize: 14,
-      foregroundColor: const Color(0xFFA1A1AA),
-      hoverBackgroundColor: const Color(0x1AFFFFFF),
-      hoverForegroundColor: const Color(0xFFFAFAFA),
+      style: ButtonTheme(
+        width: 28,
+        height: 28,
+        iconSize: 14,
+        foregroundColor: const Color(0xFFA1A1AA),
+        hoverBackgroundColor: const Color(0x1AFFFFFF),
+        hoverForegroundColor: const Color(0xFFFAFAFA),
+      ),
       icon: PhosphorIcon(
         copied ? PhosphorIconsRegular.check : PhosphorIconsRegular.copy,
       ),

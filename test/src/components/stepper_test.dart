@@ -354,14 +354,18 @@ void main() {
 
     testWidgets('without onStepTapped the steps are labels', (tester) async {
       await pump(tester, driven(tappable: false));
-      expect(
-        find.descendant(
-          of: find.byType(Stepper),
-          matching: find.byWidgetPredicate(
-            (widget) => widget is Pressable && widget.onPressed != null,
-          ),
+      final pressables = find.descendant(
+        of: find.byType(Stepper),
+        matching: find.byWidgetPredicate(
+          (widget) => widget is Pressable && widget.onPressed != null,
         ),
-        findsNothing,
+      );
+      // Continue and Cancel are buttons, and pressed; no header is.
+      expect(
+        pressables.evaluate().where(
+          (element) => element.findAncestorWidgetOfExactType<Button>() == null,
+        ),
+        isEmpty,
       );
     });
 

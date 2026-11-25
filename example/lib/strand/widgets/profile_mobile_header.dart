@@ -243,8 +243,10 @@ class _Identity extends StatelessWidget {
             ),
             IconButton.secondary(
               icon: const PhosphorIcon(PhosphorIconsRegular.export),
-              // Squared to the text buttons' radius, as on the desktop.
-              decoration: theme.buttonDecoration(radius: theme.radius),
+              style: ButtonTheme(
+                // Squared to the text buttons' radius, as on the desktop.
+                decoration: theme.buttonDecoration(radius: theme.radius),
+              ),
               semanticLabel: 'Share profile',
               onPressed: () => copyLink(
                 context,

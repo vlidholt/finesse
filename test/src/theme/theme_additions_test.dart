@@ -340,19 +340,11 @@ void main() {
             finesse.colorScheme.muted,
           );
           expect(
-            finesse.secondaryBadgeTheme.hoverBackgroundColor,
-            finesse.colorScheme.muted,
-          );
-          expect(
             finesse.secondaryBadgeTheme.foregroundColor,
             finesse.colorScheme.foregroundSubtle,
           );
           expect(
             nova.secondaryBadgeTheme.backgroundColor,
-            nova.colorScheme.secondary,
-          );
-          expect(
-            nova.secondaryBadgeTheme.hoverBackgroundColor,
             nova.colorScheme.secondary,
           );
           expect(
@@ -878,7 +870,11 @@ void main() {
             builder: (context) {
               theme = Theme.of(context);
               return Button.outline(
-                decoration: theme.buttonDecoration(radius: theme.radii.full),
+                style: ButtonTheme(
+                  decoration: theme.buttonDecoration(
+                    radius: theme.radii.full,
+                  ),
+                ),
                 onPressed: () {},
                 child: const Text('Follow'),
               );

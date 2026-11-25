@@ -119,12 +119,6 @@ mixin _$TabsTheme {
       tabCrossAxisAlignment: t < 0.5
           ? a.tabCrossAxisAlignment
           : b.tabCrossAxisAlignment,
-      tabHoverStrategies: t < 0.5 ? a.tabHoverStrategies : b.tabHoverStrategies,
-      longPressDuration: lerpDuration$(
-        a.longPressDuration,
-        b.longPressDuration,
-        t,
-      ),
       indicatorSpring: t < 0.5 ? a.indicatorSpring : b.indicatorSpring,
       indicatorStretch: lerpDouble$(a.indicatorStretch, b.indicatorStretch, t),
       contentTransitionDuration: lerpDuration$(
@@ -188,8 +182,6 @@ mixin _$TabsTheme {
     TextDecoration? tabHoverTextDecoration,
     MainAxisAlignment? tabMainAxisAlignment,
     CrossAxisAlignment? tabCrossAxisAlignment,
-    HoverStrategies? tabHoverStrategies,
-    Duration? longPressDuration,
     MotionSpring? indicatorSpring,
     double? indicatorStretch,
     Duration? contentTransitionDuration,
@@ -248,8 +240,6 @@ mixin _$TabsTheme {
       tabMainAxisAlignment: tabMainAxisAlignment ?? _this.tabMainAxisAlignment,
       tabCrossAxisAlignment:
           tabCrossAxisAlignment ?? _this.tabCrossAxisAlignment,
-      tabHoverStrategies: tabHoverStrategies ?? _this.tabHoverStrategies,
-      longPressDuration: longPressDuration ?? _this.longPressDuration,
       indicatorSpring: indicatorSpring ?? _this.indicatorSpring,
       indicatorStretch: indicatorStretch ?? _this.indicatorStretch,
       contentTransitionDuration:
@@ -315,8 +305,6 @@ mixin _$TabsTheme {
       tabHoverTextDecoration: other.tabHoverTextDecoration,
       tabMainAxisAlignment: other.tabMainAxisAlignment,
       tabCrossAxisAlignment: other.tabCrossAxisAlignment,
-      tabHoverStrategies: other.tabHoverStrategies,
-      longPressDuration: other.longPressDuration,
       indicatorSpring: other.indicatorSpring,
       indicatorStretch: other.indicatorStretch,
       contentTransitionDuration: other.contentTransitionDuration,
@@ -379,8 +367,6 @@ mixin _$TabsTheme {
         _other.tabHoverTextDecoration == _this.tabHoverTextDecoration &&
         _other.tabMainAxisAlignment == _this.tabMainAxisAlignment &&
         _other.tabCrossAxisAlignment == _this.tabCrossAxisAlignment &&
-        _other.tabHoverStrategies == _this.tabHoverStrategies &&
-        _other.longPressDuration == _this.longPressDuration &&
         _other.indicatorSpring == _this.indicatorSpring &&
         _other.indicatorStretch == _this.indicatorStretch &&
         _other.contentTransitionDuration == _this.contentTransitionDuration &&
@@ -432,8 +418,6 @@ mixin _$TabsTheme {
       _this.tabHoverTextDecoration,
       _this.tabMainAxisAlignment,
       _this.tabCrossAxisAlignment,
-      _this.tabHoverStrategies,
-      _this.longPressDuration,
       _this.indicatorSpring,
       _this.indicatorStretch,
       _this.contentTransitionDuration,

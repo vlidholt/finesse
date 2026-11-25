@@ -168,13 +168,15 @@ class HomeProfileCard extends StatelessWidget {
               children: [
                 for (final shortcut in HomeData.shortcuts)
                   Button.ghost(
-                    width: double.infinity,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: theme.gap(GapSize.sm),
+                    style: ButtonTheme(
+                      width: double.infinity,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: theme.gap(GapSize.sm),
+                      ),
+                      gap: theme.gap(GapSize.sm),
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      foregroundColor: scheme.foregroundSubtle,
                     ),
-                    gap: theme.gap(GapSize.sm),
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    foregroundColor: scheme.foregroundSubtle,
                     leading: PhosphorIcon(shortcut.icon),
                     onPressed: () => switch (shortcut.label) {
                       'Groups' => openNetworkSection(

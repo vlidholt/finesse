@@ -48,8 +48,10 @@ class NetworkSectionView extends StatelessWidget {
               detail: entry.since,
               trailing: Button.outline(
                 size: ButtonSize.sm,
-                decoration: theme.buttonDecoration(radius: theme.radii.full),
-                textStyle: theme.textTheme.small,
+                style: ButtonTheme(
+                  decoration: theme.buttonDecoration(radius: theme.radii.full),
+                  textStyle: theme.textTheme.small,
+                ),
                 leading: const PhosphorIcon(
                   PhosphorIconsRegular.paperPlaneTilt,
                 ),

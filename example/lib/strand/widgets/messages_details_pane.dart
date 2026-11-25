@@ -111,10 +111,12 @@ class MessagesDetailsPane extends StatelessWidget {
                           ),
                   ),
                   IconButton.secondary(
-                    // A rounded square beside the button rather than the
-                    // theme's round icon button.
-                    decoration: theme.buttonDecoration(radius: theme.radius),
-                    iconSize: theme.glyph,
+                    style: ButtonTheme(
+                      // A rounded square beside the button rather than the
+                      // theme's round icon button.
+                      decoration: theme.buttonDecoration(radius: theme.radius),
+                      iconSize: theme.glyph,
+                    ),
                     icon: PhosphorIcon(
                       muted
                           ? PhosphorIconsRegular.bellSlash

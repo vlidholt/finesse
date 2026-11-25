@@ -103,9 +103,11 @@ class NotificationsManageCard extends StatelessWidget {
             ),
             const Gap.lg(),
             Button.secondary(
-              width: double.infinity,
-              gap: theme.gap(GapSize.xs),
-              textStyle: theme.textTheme.small,
+              style: ButtonTheme(
+                width: double.infinity,
+                gap: theme.gap(GapSize.xs),
+                textStyle: theme.textTheme.small,
+              ),
               trailing: const PhosphorIcon(PhosphorIconsRegular.caretRight),
               onPressed: () =>
                   openSettings(context, SettingsSection.notifications),

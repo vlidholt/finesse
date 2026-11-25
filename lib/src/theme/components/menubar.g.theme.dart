@@ -111,9 +111,6 @@ mixin _$MenubarTheme {
       buttonCrossAxisAlignment: t < 0.5
           ? a.buttonCrossAxisAlignment
           : b.buttonCrossAxisAlignment,
-      buttonHoverStrategies: t < 0.5
-          ? a.buttonHoverStrategies
-          : b.buttonHoverStrategies,
       buttonExpands: t < 0.5 ? a.buttonExpands : b.buttonExpands,
       selectOnHover: t < 0.5 ? a.selectOnHover : b.selectOnHover,
     );
@@ -153,7 +150,6 @@ mixin _$MenubarTheme {
     double? buttonGap,
     MainAxisAlignment? buttonMainAxisAlignment,
     CrossAxisAlignment? buttonCrossAxisAlignment,
-    HoverStrategies? buttonHoverStrategies,
     bool? buttonExpands,
     bool? selectOnHover,
   }) {
@@ -203,8 +199,6 @@ mixin _$MenubarTheme {
           buttonMainAxisAlignment ?? _this.buttonMainAxisAlignment,
       buttonCrossAxisAlignment:
           buttonCrossAxisAlignment ?? _this.buttonCrossAxisAlignment,
-      buttonHoverStrategies:
-          buttonHoverStrategies ?? _this.buttonHoverStrategies,
       buttonExpands: buttonExpands ?? _this.buttonExpands,
       selectOnHover: selectOnHover ?? _this.selectOnHover,
     );
@@ -257,7 +251,6 @@ mixin _$MenubarTheme {
       buttonGap: other.buttonGap,
       buttonMainAxisAlignment: other.buttonMainAxisAlignment,
       buttonCrossAxisAlignment: other.buttonCrossAxisAlignment,
-      buttonHoverStrategies: other.buttonHoverStrategies,
       buttonExpands: other.buttonExpands,
       selectOnHover: other.selectOnHover,
     );
@@ -312,7 +305,6 @@ mixin _$MenubarTheme {
         _other.buttonGap == _this.buttonGap &&
         _other.buttonMainAxisAlignment == _this.buttonMainAxisAlignment &&
         _other.buttonCrossAxisAlignment == _this.buttonCrossAxisAlignment &&
-        _other.buttonHoverStrategies == _this.buttonHoverStrategies &&
         _other.buttonExpands == _this.buttonExpands &&
         _other.selectOnHover == _this.selectOnHover;
   }
@@ -356,7 +348,6 @@ mixin _$MenubarTheme {
       _this.buttonGap,
       _this.buttonMainAxisAlignment,
       _this.buttonCrossAxisAlignment,
-      _this.buttonHoverStrategies,
       _this.buttonExpands,
       _this.selectOnHover,
     ]);

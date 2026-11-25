@@ -58,6 +58,7 @@ mixin _$ToggleTheme {
       textStyle: TextStyle.lerp(a.textStyle, b.textStyle, t),
       gap: lerpDouble$(a.gap, b.gap, t),
       height: lerpDouble$(a.height, b.height, t),
+      width: lerpDouble$(a.width, b.width, t),
       iconSize: lerpDouble$(a.iconSize, b.iconSize, t),
       pressScale: lerpDouble$(a.pressScale, b.pressScale, t),
       transitionDuration: lerpDuration$(
@@ -83,6 +84,7 @@ mixin _$ToggleTheme {
     TextStyle? textStyle,
     double? gap,
     double? height,
+    double? width,
     double? iconSize,
     double? pressScale,
     Duration? transitionDuration,
@@ -107,6 +109,7 @@ mixin _$ToggleTheme {
       textStyle: textStyle ?? _this.textStyle,
       gap: gap ?? _this.gap,
       height: height ?? _this.height,
+      width: width ?? _this.width,
       iconSize: iconSize ?? _this.iconSize,
       pressScale: pressScale ?? _this.pressScale,
       transitionDuration: transitionDuration ?? _this.transitionDuration,
@@ -139,6 +142,7 @@ mixin _$ToggleTheme {
       textStyle: _this.textStyle?.merge(other.textStyle) ?? other.textStyle,
       gap: other.gap,
       height: other.height,
+      width: other.width,
       iconSize: other.iconSize,
       pressScale: other.pressScale,
       transitionDuration: other.transitionDuration,
@@ -173,6 +177,7 @@ mixin _$ToggleTheme {
         _other.textStyle == _this.textStyle &&
         _other.gap == _this.gap &&
         _other.height == _this.height &&
+        _other.width == _this.width &&
         _other.iconSize == _this.iconSize &&
         _other.pressScale == _this.pressScale &&
         _other.transitionDuration == _this.transitionDuration &&
@@ -198,6 +203,7 @@ mixin _$ToggleTheme {
       _this.textStyle,
       _this.gap,
       _this.height,
+      _this.width,
       _this.iconSize,
       _this.pressScale,
       _this.transitionDuration,

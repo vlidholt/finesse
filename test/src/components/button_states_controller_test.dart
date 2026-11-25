@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../decoration_finders.dart';
+import '../../finesse_harness.dart';
 
 void main() {
   testWidgets(
@@ -62,6 +63,8 @@ void main() {
 
   testWidgets('an external WidgetStatesController follows hover, press, focus '
       'and disabled, and its listeners are told of each', (tester) async {
+    // As on a desktop: `focused` is the focus that shows.
+    useTraditionalHighlights();
     final controller = WidgetStatesController();
     addTearDown(controller.dispose);
     final focusNode = FocusNode();
@@ -160,8 +163,10 @@ void main() {
         home: Center(
           child: Button(
             statesController: controller,
-            backgroundColor: rest,
-            hoverBackgroundColor: hover,
+            style: const ButtonTheme(
+              backgroundColor: rest,
+              hoverBackgroundColor: hover,
+            ),
             onPressed: () {},
             child: const Text('button'),
           ),

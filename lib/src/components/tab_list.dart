@@ -3,6 +3,7 @@ import 'dart:ui' show SemanticsRole;
 import 'package:finesse/src/components/button.dart';
 import 'package:finesse/src/components/tooltip.dart';
 import 'package:finesse/src/raw_components/pressable.dart';
+import 'package:finesse/src/theme/components/button.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/components/layout.dart';
 import 'package:finesse/src/theme/data.dart';
@@ -563,35 +564,35 @@ class _TabListState extends State<TabList> {
           leading: item.leading,
           trailing: item.trailing,
           focusNode: _nodes[index],
-          height: tabsTheme.tabHeight ?? 32,
-          width: tabsTheme.tabWidth ?? (expand ? double.infinity : null),
-          backgroundColor: selected ? clear : background,
-          hoverBackgroundColor: selected
-              ? (selectedHover == selectedFill ? clear : selectedHover)
-              : hoverBackground,
-          padding:
-              tabsTheme.tabPadding ??
-              const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: decoration,
-          foregroundColor: selected ? selectedForeground : foreground,
-          shadows: selected ? const [] : tabsTheme.tabShadows,
-          // The gradient belongs to the pill as well.
-          gradient: selected ? null : gradient,
-          // The label does not shrink away from a pill that stays put.
-          pressScale: 1,
+          style: ButtonTheme(
+            height: tabsTheme.tabHeight ?? 32,
+            width: tabsTheme.tabWidth ?? (expand ? double.infinity : null),
+            backgroundColor: selected ? clear : background,
+            hoverBackgroundColor: selected
+                ? (selectedHover == selectedFill ? clear : selectedHover)
+                : hoverBackground,
+            padding:
+                tabsTheme.tabPadding ??
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: decoration,
+            foregroundColor: selected ? selectedForeground : foreground,
+            shadows: selected ? const <BoxShadow>[] : tabsTheme.tabShadows,
+            // The gradient belongs to the pill as well.
+            gradient: selected ? null : gradient,
+            // The label does not shrink away from a pill that stays put.
+            pressScale: 1,
+            hoverForegroundColor: tabsTheme.tabHoverForegroundColor,
+            pressedBackgroundColor: tabsTheme.tabPressedBackgroundColor,
+            pressedForegroundColor: tabsTheme.tabPressedForegroundColor,
+            textDecoration: tabsTheme.tabTextDecoration,
+            hoverTextDecoration: tabsTheme.tabHoverTextDecoration,
+            mainAxisAlignment: tabsTheme.tabMainAxisAlignment,
+            crossAxisAlignment: tabsTheme.tabCrossAxisAlignment,
+          ),
           onPressed: () => _select(index),
           enabled: _enabled(index),
           size: tabsTheme.tabSize,
           mouseCursor: tabsTheme.tabMouseCursor,
-          hoverForegroundColor: tabsTheme.tabHoverForegroundColor,
-          pressedBackgroundColor: tabsTheme.tabPressedBackgroundColor,
-          pressedForegroundColor: tabsTheme.tabPressedForegroundColor,
-          textDecoration: tabsTheme.tabTextDecoration,
-          hoverTextDecoration: tabsTheme.tabHoverTextDecoration,
-          mainAxisAlignment: tabsTheme.tabMainAxisAlignment,
-          crossAxisAlignment: tabsTheme.tabCrossAxisAlignment,
-          hoverStrategies: tabsTheme.tabHoverStrategies,
-          longPressDuration: tabsTheme.longPressDuration,
           child: label,
         ),
       ),

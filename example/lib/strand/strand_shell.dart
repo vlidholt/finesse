@@ -162,10 +162,12 @@ class StrandShell extends StatelessWidget {
             actions: [
               IconButton.secondary(
                 size: ButtonSize.lg,
-                // The design's `--fill`, one step quieter than the secondary
-                // button's own fill.
-                backgroundColor: colors.muted,
-                hoverBackgroundColor: colors.secondary,
+                style: ButtonTheme(
+                  // The design's `--fill`, one step quieter than the secondary
+                  // button's own fill.
+                  backgroundColor: colors.muted,
+                  hoverBackgroundColor: colors.secondary,
+                ),
                 icon: PhosphorIcon(
                   dark ? PhosphorIconsRegular.sun : PhosphorIconsRegular.moon,
                 ),
@@ -281,7 +283,9 @@ class _MobileAppBar extends StatelessWidget {
         semanticLabel: '$count unread',
         child: IconButton.ghost(
           icon: PhosphorIcon(selected ? selectedIcon : icon),
-          foregroundColor: selected ? theme.colorScheme.tint : null,
+          style: ButtonTheme(
+            foregroundColor: selected ? theme.colorScheme.tint : null,
+          ),
           semanticLabel: label,
           onPressed: () => onSelected(target),
         ),

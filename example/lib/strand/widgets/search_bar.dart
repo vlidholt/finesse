@@ -396,10 +396,12 @@ class _Panel extends StatelessWidget {
           ),
           const Divider(margin: EdgeInsets.symmetric(vertical: 4)),
           Button.ghost(
-            width: double.infinity,
-            gap: theme.gap(GapSize.xs),
-            textStyle: theme.textTheme.small,
-            foregroundColor: theme.colorScheme.tint,
+            style: ButtonTheme(
+              width: double.infinity,
+              gap: theme.gap(GapSize.xs),
+              textStyle: theme.textTheme.small,
+              foregroundColor: theme.colorScheme.tint,
+            ),
             trailing: const PhosphorIcon(PhosphorIconsRegular.arrowRight),
             onPressed: onSeeAll,
             child: Flexible(

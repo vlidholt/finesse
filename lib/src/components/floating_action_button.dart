@@ -208,6 +208,7 @@ class FloatingActionButton extends StatelessWidget {
       focusNode: focusNode,
       autofocus: autofocus,
       semanticLabel: semanticLabel,
+      semanticContainer: true,
       builder: (context, states) {
         final hovered = states.contains(WidgetState.hovered);
         final pressed = states.contains(WidgetState.pressed);

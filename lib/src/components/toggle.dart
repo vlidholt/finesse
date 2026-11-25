@@ -1,15 +1,14 @@
 import 'package:finesse/src/components/button_group.dart';
 import 'package:finesse/src/components/disabled.dart';
-import 'package:finesse/src/raw_components/focusable.dart';
+import 'package:finesse/src/raw_components/pressable.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/components/toggle.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/debug_check.dart';
-import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:finesse/src/utils/motion_color.dart';
 import 'package:finesse/src/utils/moving_indicator.dart';
 import 'package:finesse/src/utils/provider.dart';
-import 'package:finesse/src/utils/spring.dart';
 import 'package:finesse/src/utils/text_scaled_height.dart';
 import 'package:flutter/widgets.dart';
 
@@ -40,35 +39,28 @@ enum ToggleVariant {
 /// Prefer `Switch` when the control turns a *setting* on and off, and
 /// `Checkbox` when it selects an item. This is for a formatting-style
 /// action.
+///
+/// How it looks comes from the variant's `ToggleTheme` in the theme; a
+/// [style] restyles one toggle, merged over it.
 /// {@endtemplate}
-class Toggle extends StatefulWidget {
+class Toggle extends StatelessWidget {
   /// {@macro Toggle}
   const Toggle({
     super.key,
     this.variant = ToggleVariant.primary,
     required this.value,
     required this.child,
+    this.leading,
     this.onChanged,
     this.enabled = true,
-    this.leading,
-    this.backgroundColor,
-    this.hoverBackgroundColor,
-    this.selectedBackgroundColor,
-    this.selectedHoverBackgroundColor,
-    this.foregroundColor,
-    this.hoverForegroundColor,
-    this.selectedForegroundColor,
-    this.padding,
-    this.decoration,
-    this.textStyle,
-    this.gap,
-    this.height,
-    this.width,
     this.focusNode,
     this.autofocus = false,
-    this.onFocusChange,
     this.statesController,
+    this.onHover,
+    this.onFocusChange,
+    this.mouseCursor,
     this.semanticLabel,
+    this.style,
   });
 
   /// A bordered toggle, matching shadcn/ui's `variant="outline"`.
@@ -76,27 +68,17 @@ class Toggle extends StatefulWidget {
     super.key,
     required this.value,
     required this.child,
+    this.leading,
     this.onChanged,
     this.enabled = true,
-    this.leading,
-    this.backgroundColor,
-    this.hoverBackgroundColor,
-    this.selectedBackgroundColor,
-    this.selectedHoverBackgroundColor,
-    this.foregroundColor,
-    this.hoverForegroundColor,
-    this.selectedForegroundColor,
-    this.padding,
-    this.decoration,
-    this.textStyle,
-    this.gap,
-    this.height,
-    this.width,
     this.focusNode,
     this.autofocus = false,
-    this.onFocusChange,
     this.statesController,
+    this.onHover,
+    this.onFocusChange,
+    this.mouseCursor,
     this.semanticLabel,
+    this.style,
   }) : variant = ToggleVariant.outline;
 
   /// The visual style of the toggle. Set by the constructor:
@@ -121,65 +103,6 @@ class Toggle extends StatefulWidget {
   /// Whether the toggle responds to input, defaults to `true`.
   final bool enabled;
 
-  /// {@template Toggle.backgroundColor}
-  /// The background color when off.
-  /// {@endtemplate}
-  final Color? backgroundColor;
-
-  /// {@template Toggle.hoverBackgroundColor}
-  /// The background color when off and hovered.
-  /// {@endtemplate}
-  final Color? hoverBackgroundColor;
-
-  /// {@template Toggle.selectedBackgroundColor}
-  /// The background color when on.
-  /// {@endtemplate}
-  final Color? selectedBackgroundColor;
-
-  /// {@template Toggle.selectedHoverBackgroundColor}
-  /// The background color when on and hovered.
-  /// {@endtemplate}
-  final Color? selectedHoverBackgroundColor;
-
-  /// {@template Toggle.foregroundColor}
-  /// The content color when off.
-  /// {@endtemplate}
-  final Color? foregroundColor;
-
-  /// {@template Toggle.hoverForegroundColor}
-  /// The content color when off and hovered.
-  /// {@endtemplate}
-  final Color? hoverForegroundColor;
-
-  /// {@template Toggle.selectedForegroundColor}
-  /// The content color when on.
-  /// {@endtemplate}
-  final Color? selectedForegroundColor;
-
-  /// {@template Toggle.padding}
-  /// The padding inside the toggle.
-  /// {@endtemplate}
-  final EdgeInsetsGeometry? padding;
-
-  /// {@template Toggle.decoration}
-  /// The decoration of the toggle.
-  /// {@endtemplate}
-  final FinesseDecoration? decoration;
-
-  /// {@template Toggle.textStyle}
-  /// The text style of the label.
-  /// {@endtemplate}
-  final TextStyle? textStyle;
-
-  /// The gap between [leading] and [child].
-  final double? gap;
-
-  /// The height of the toggle.
-  final double? height;
-
-  /// The width of the toggle. Null sizes to the content.
-  final double? width;
-
   /// The focus node of the toggle. When null, the toggle creates its own.
   final FocusNode? focusNode;
 
@@ -187,78 +110,55 @@ class Toggle extends StatefulWidget {
   /// Defaults to false.
   final bool autofocus;
 
+  /// Holds the interaction states of the toggle — hovered, pressed, focused,
+  /// selected while it is on, and disabled — for whoever else wants to
+  /// follow them.
+  final WidgetStatesController? statesController;
+
+  /// Called when a mouse pointer enters or leaves the enabled toggle.
+  final ValueChanged<bool>? onHover;
+
   /// Called with the new focus state each time it changes.
   final ValueChanged<bool>? onFocusChange;
 
-  /// Holds the interaction states of the toggle, such as hovered and pressed.
-  /// When null, the toggle creates its own.
-  final WidgetStatesController? statesController;
+  /// The cursor over the enabled toggle. Defaults to
+  /// [SystemMouseCursors.click].
+  final MouseCursor? mouseCursor;
 
   /// The accessible name, needed when [child] is icon-only.
   final String? semanticLabel;
 
-  @override
-  State<Toggle> createState() => _ToggleState();
-}
-
-class _ToggleState extends State<Toggle> {
-  WidgetStatesController? _internalStatesController;
-
-  WidgetStatesController get statesController =>
-      widget.statesController ?? _internalStatesController!;
-
-  bool get enabled => widget.enabled && widget.onChanged != null;
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.statesController == null) {
-      _internalStatesController = WidgetStatesController();
-    }
-  }
-
-  @override
-  void dispose() {
-    _internalStatesController?.dispose();
-    super.dispose();
-  }
-
-  // Counted for the press response; see `PressScale.taps`.
-  int _taps = 0;
-
-  void _toggle() {
-    if (!enabled) return;
-    setState(() => _taps++);
-    widget.onChanged!(!widget.value);
-  }
+  /// Overrides of the variant's look for this one toggle: colours, padding,
+  /// decoration, size, text style.
+  ///
+  /// It is merged over the variant's `ToggleTheme` from the theme, so only
+  /// the fields that are set change anything.
+  final ToggleTheme? style;
 
   @override
   Widget build(BuildContext context) {
     assert(debugCheckHasTheme(context));
     final theme = Theme.of(context);
-    final toggleTheme = switch (widget.variant) {
+    final toggleTheme = switch (variant) {
       ToggleVariant.primary => theme.toggleTheme,
       ToggleVariant.outline => theme.outlineToggleTheme,
-    };
+    }.merge(style);
 
-    final selected = widget.value;
+    final enabled = this.enabled && onChanged != null;
+    final selected = value;
 
-    final effectivePadding =
-        widget.padding ??
-        toggleTheme.padding ??
-        const EdgeInsets.symmetric(horizontal: 12);
-    final effectiveHeight = widget.height ?? toggleTheme.height ?? 40.0;
-    final effectiveGap = widget.gap ?? toggleTheme.gap ?? 8.0;
-    var effectiveDecoration =
-        (toggleTheme.decoration ?? const FinesseDecoration()).merge(
-          widget.decoration,
-        );
+    final padding =
+        toggleTheme.padding ?? const EdgeInsets.symmetric(horizontal: 12);
+    final height = toggleTheme.height ?? 40.0;
+    final width = toggleTheme.width;
+    final gap = toggleTheme.gap ?? 8.0;
+    var decoration = toggleTheme.decoration ?? const FinesseDecoration();
     // In a `ButtonGroup` — a toggle group with no gap is one — the corners
     // and the edge towards a neighbour are the group's to decide.
     final joined = ButtonGroupScope.maybeOf(context);
     if (joined != null) {
-      effectiveDecoration = joined.join(
-        effectiveDecoration,
+      decoration = joined.join(
+        decoration,
         Directionality.of(context),
         fallback: theme.decoration,
       );
@@ -267,42 +167,32 @@ class _ToggleState extends State<Toggle> {
     Color? backgroundFor({required bool hovered}) {
       if (selected) {
         return hovered
-            ? widget.selectedHoverBackgroundColor ??
-                  toggleTheme.selectedHoverBackgroundColor ??
+            ? toggleTheme.selectedHoverBackgroundColor ??
                   theme.colorScheme.accent
-            : widget.selectedBackgroundColor ??
-                  toggleTheme.selectedBackgroundColor ??
-                  theme.colorScheme.accent;
+            : toggleTheme.selectedBackgroundColor ?? theme.colorScheme.accent;
       }
       return hovered
-          ? widget.hoverBackgroundColor ??
-                toggleTheme.hoverBackgroundColor ??
-                theme.colorScheme.muted
-          : widget.backgroundColor ?? toggleTheme.backgroundColor;
+          ? toggleTheme.hoverBackgroundColor ?? theme.colorScheme.muted
+          : toggleTheme.backgroundColor;
     }
 
     Color foregroundFor({required bool hovered}) {
       if (selected) {
-        return widget.selectedForegroundColor ??
-            toggleTheme.selectedForegroundColor ??
+        return toggleTheme.selectedForegroundColor ??
             theme.colorScheme.accentForeground;
       }
       return hovered
-          ? widget.hoverForegroundColor ??
-                toggleTheme.hoverForegroundColor ??
+          ? toggleTheme.hoverForegroundColor ??
                 theme.colorScheme.mutedForeground
-          : widget.foregroundColor ??
-                toggleTheme.foregroundColor ??
-                theme.colorScheme.foreground;
+          : toggleTheme.foregroundColor ?? theme.colorScheme.foreground;
     }
 
-    final effectiveIconSize = toggleTheme.iconSize ?? 16;
-    final effectiveTextStyle = (toggleTheme.textStyle ?? theme.textTheme.small)
-        .merge(widget.textStyle);
+    final iconSize = toggleTheme.iconSize ?? 16;
+    final textStyle = toggleTheme.textStyle ?? theme.textTheme.small;
 
     final motion = Motion.of(context);
     final transitionDuration = toggleTheme.transitionDuration ?? motion.fast;
-    final fillRadius = effectiveDecoration.border?.borderRadius ?? theme.radius;
+    final fillRadius = decoration.border?.borderRadius ?? theme.radius;
     // In a single-selection group the selected fill is one shape that
     // travels between the items, painted by the group; the item itself only
     // marks where it belongs.
@@ -310,156 +200,108 @@ class _ToggleState extends State<Toggle> {
     final travelling =
         group != null && group.widget.variant == ToggleGroupVariant.single;
 
-    Widget toggle = Focusable(
-      focusNode: widget.focusNode,
-      autofocus: widget.autofocus,
-      onFocusChange: widget.onFocusChange,
-      canRequestFocus: enabled,
-      builder: (context, focused, child) {
-        // The size constraints sit *outside* the decorator so the outline
-        // variant's border — and the no-secondary-border variant's focus
-        // reserve — is counted into the toggle's height, the way CSS `h-9`
-        // is border-box. Constraining inside made an outline toggle 2px
-        // taller than a default one.
-        // The height is a floor once text is scaled up, so the label is
-        // never cut off; at a scale of 1 the two are the same.
-        return ConstrainedBox(
-          constraints: BoxConstraints.tightFor(width: widget.width).copyWith(
-            minHeight: effectiveHeight,
-            maxHeight: textScaledMaxHeight(context, effectiveHeight),
+    return Pressable(
+      onPressed: enabled ? () => onChanged!(!value) : null,
+      enabled: enabled,
+      toggled: selected,
+      focusNode: focusNode,
+      autofocus: autofocus,
+      statesController: statesController,
+      onHover: onHover,
+      onFocusChange: onFocusChange,
+      mouseCursor: mouseCursor ?? SystemMouseCursors.click,
+      // With an explicit label the child's own semantics are dropped rather
+      // than merged — otherwise an icon-only toggle announces "Bold B".
+      semanticLabel: semanticLabel,
+      semanticContainer: true,
+      // The press response takes the whole toggle, outline and all. Not in
+      // a single-selection group: there the selection is the group's
+      // travelling shape, and a label shrinking away from it would come
+      // apart.
+      pressScale: travelling ? 1 : toggleTheme.pressScale,
+      builder: (context, states) {
+        // A finger has no hover: while it is down the toggle looks as it
+        // does under a pointer.
+        final hovered =
+            states.contains(WidgetState.hovered) ||
+            states.contains(WidgetState.pressed);
+        final foreground = foregroundFor(hovered: hovered);
+        final fill = backgroundFor(hovered: hovered);
+        final content = Padding(
+          padding: padding,
+          // As tall as the label, centred in whatever the toggle's height
+          // leaves: a plain `Center` takes all the height it is offered,
+          // which under a text scale is more than it needs — and all the
+          // width, which in a `Wrap` or a `Column` is the whole line.
+          child: Center(
+            heightFactor: 1,
+            widthFactor: width == null ? 1 : null,
+            child: AnimatedColorBuilder(
+              color: foreground,
+              duration: transitionDuration,
+              curve: motion.standard,
+              builder: (context, color, child) => IconTheme(
+                data: IconThemeData(size: iconSize, color: color),
+                child: DefaultTextStyle(
+                  style: textStyle.copyWith(color: color),
+                  child: child!,
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (leading != null) ...[leading!, SizedBox(width: gap)],
+                  child,
+                ],
+              ),
+            ),
           ),
-          child: Decorator(
-            focused: focused,
-            decoration: effectiveDecoration,
+        );
+        // The hover fill of an unselected item is always the item's own;
+        // in a single-selection group the selected fill is the group's
+        // travelling shape.
+        Widget filled = AnimatedColorBuilder(
+          color: travelling && selected ? null : fill,
+          duration: transitionDuration,
+          curve: motion.standard,
+          builder: (context, color, child) => DecoratedBox(
+            decoration: BoxDecoration(color: color, borderRadius: fillRadius),
             child: child,
+          ),
+          child: content,
+        );
+        if (travelling) {
+          filled = MovingIndicatorTarget(
+            selected: selected,
+            decoration: BoxDecoration(color: fill, borderRadius: fillRadius),
+            child: filled,
+          );
+        }
+        // Dimmed and deaf while disabled; the same widgets either way, so
+        // the toggle keeps its state when it is enabled again.
+        return Disabled(
+          disabled: !enabled,
+          // The size constraints sit *outside* the decorator so the outline
+          // variant's border — and the no-secondary-border variant's focus
+          // reserve — is counted into the toggle's height, the way CSS
+          // `h-9` is border-box. Constraining inside made an outline toggle
+          // 2px taller than a default one.
+          // The height is a floor once text is scaled up, so the label is
+          // never cut off; at a scale of 1 the two are the same.
+          child: ConstrainedBox(
+            constraints: BoxConstraints.tightFor(width: width).copyWith(
+              minHeight: height,
+              maxHeight: textScaledMaxHeight(context, height),
+            ),
+            child: Decorator(
+              focused: states.contains(WidgetState.focused),
+              decoration: decoration,
+              child: filled,
+            ),
           ),
         );
       },
-      child: FinesseGestureDetector(
-        mouseCursor: enabled ? SystemMouseCursors.click : MouseCursor.defer,
-        behavior: HitTestBehavior.opaque,
-        onTap: _toggle,
-        onHover: (hovered) =>
-            statesController.update(WidgetState.hovered, hovered),
-        onTapDown: (_) => statesController.update(WidgetState.pressed, true),
-        onTapUp: (_) => statesController.update(WidgetState.pressed, false),
-        onTapCancel: () => statesController.update(WidgetState.pressed, false),
-        child: ValueListenableBuilder(
-          valueListenable: statesController,
-          builder: (context, states, _) {
-            final hovered = enabled && states.contains(WidgetState.hovered);
-            final foreground = foregroundFor(hovered: hovered);
-            final fill = backgroundFor(hovered: hovered);
-            final content = Padding(
-              padding: effectivePadding,
-              // As tall as the label, centred in whatever the toggle's
-              // height leaves: a plain `Center` takes all the height it is
-              // offered, which under a text scale is more than it needs.
-              child: Center(
-                heightFactor: 1,
-                child: AnimatedColorBuilder(
-                  color: foreground,
-                  duration: transitionDuration,
-                  curve: motion.standard,
-                  builder: (context, color, child) => IconTheme(
-                    data: IconThemeData(
-                      size: effectiveIconSize,
-                      color: color,
-                    ),
-                    child: DefaultTextStyle(
-                      style: effectiveTextStyle.copyWith(color: color),
-                      child: child!,
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (widget.leading != null) ...[
-                        widget.leading!,
-                        SizedBox(width: effectiveGap),
-                      ],
-                      widget.child,
-                    ],
-                  ),
-                ),
-              ),
-            );
-            final Widget filled;
-            if (travelling) {
-              // The hover fill of an unselected item is still the item's
-              // own; the selected fill is the group's travelling shape.
-              filled = MovingIndicatorTarget(
-                selected: selected,
-                decoration: BoxDecoration(
-                  color: fill,
-                  borderRadius: fillRadius,
-                ),
-                child: AnimatedColorBuilder(
-                  color: selected ? null : fill,
-                  duration: transitionDuration,
-                  curve: motion.standard,
-                  builder: (context, color, child) => DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: color,
-                      borderRadius: fillRadius,
-                    ),
-                    child: child,
-                  ),
-                  child: content,
-                ),
-              );
-            } else {
-              filled = AnimatedColorBuilder(
-                color: fill,
-                duration: transitionDuration,
-                curve: motion.standard,
-                builder: (context, color, child) => DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: color,
-                    borderRadius: fillRadius,
-                  ),
-                  child: child,
-                ),
-                child: content,
-              );
-            }
-            return filled;
-          },
-        ),
-      ),
     );
-
-    // The press response takes the whole toggle, outline and all. Not in a
-    // single-selection group: there the selection is the group's travelling
-    // shape, and a label shrinking away from it would come apart.
-    toggle = ValueListenableBuilder(
-      valueListenable: statesController,
-      builder: (context, states, child) => PressScale(
-        pressed: enabled && !travelling && states.contains(WidgetState.pressed),
-        taps: travelling ? 0 : _taps,
-        scale: toggleTheme.pressScale,
-        child: child!,
-      ),
-      child: toggle,
-    );
-
-    toggle = Semantics(
-      label: widget.semanticLabel,
-      button: true,
-      toggled: selected,
-      enabled: enabled,
-      container: true,
-      // With an explicit label, drop the child's own semantics rather than
-      // merging — otherwise an icon-only toggle announces "Bold B".
-      child: widget.semanticLabel == null
-          ? toggle
-          : ExcludeSemantics(child: toggle),
-    );
-
-    if (!enabled) {
-      toggle = Disabled(disabled: true, child: toggle);
-    }
-    return toggle;
   }
 }
 

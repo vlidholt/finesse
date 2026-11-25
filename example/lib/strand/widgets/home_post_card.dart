@@ -352,12 +352,14 @@ class _Actions extends StatelessWidget {
     }) {
       return Expanded(
         child: Button.ghost(
-          width: double.infinity,
-          padding: EdgeInsets.symmetric(
-            horizontal: theme.gap(GapSize.xs),
+          style: ButtonTheme(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(
+              horizontal: theme.gap(GapSize.xs),
+            ),
+            foregroundColor: color ?? scheme.foregroundSubtle,
+            hoverForegroundColor: color ?? scheme.foreground,
           ),
-          foregroundColor: color ?? scheme.foregroundSubtle,
-          hoverForegroundColor: color ?? scheme.foreground,
           leading: PhosphorIcon(icon),
           onPressed: onPressed,
           child: Flexible(
@@ -421,15 +423,17 @@ class _CompactActions extends StatelessWidget {
       return Semantics(
         label: label,
         child: Button.ghost(
-          // Hugs its count, so four of them fit a phone with room to
-          // spare.
-          padding: EdgeInsets.symmetric(horizontal: theme.gap(GapSize.sm)),
-          gap: theme.gap(GapSize.xs),
-          iconSize: theme.buttonSizesTheme.icon?.iconSize,
-          decoration: pill,
-          textStyle: theme.textTheme.small,
-          foregroundColor: color ?? scheme.foregroundSubtle,
-          hoverForegroundColor: color ?? scheme.foreground,
+          style: ButtonTheme(
+            // Hugs its count, so four of them fit a phone with room to
+            // spare.
+            padding: EdgeInsets.symmetric(horizontal: theme.gap(GapSize.sm)),
+            gap: theme.gap(GapSize.xs),
+            iconSize: theme.buttonSizesTheme.icon?.iconSize,
+            decoration: pill,
+            textStyle: theme.textTheme.small,
+            foregroundColor: color ?? scheme.foregroundSubtle,
+            hoverForegroundColor: color ?? scheme.foreground,
+          ),
           leading: PhosphorIcon(icon),
           onPressed: onPressed,
           child: Text(formatCount(count)),
@@ -479,13 +483,17 @@ class _CompactActions extends StatelessWidget {
             else
               IconButton.ghost(
                 icon: const PhosphorIcon(PhosphorIconsRegular.repeat),
-                foregroundColor: scheme.foregroundSubtle,
+                style: ButtonTheme(
+                  foregroundColor: scheme.foregroundSubtle,
+                ),
                 semanticLabel: 'Repost',
                 onPressed: () => repostWithToast(context, post.author),
               ),
             IconButton.ghost(
               icon: const PhosphorIcon(PhosphorIconsRegular.paperPlaneTilt),
-              foregroundColor: scheme.foregroundSubtle,
+              style: ButtonTheme(
+                foregroundColor: scheme.foregroundSubtle,
+              ),
               semanticLabel: 'Send',
               onPressed: () => showSendDialog(context, what: 'this post'),
             ),
