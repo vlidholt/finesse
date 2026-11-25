@@ -97,7 +97,6 @@ class _ListDetailLayoutBasicExampleState
                           key: ValueKey(open),
                           name: open!,
                           message: _people[open]!,
-                          onBack: () => setState(() => open = null),
                         ),
                   // The user went back on a phone: forget the choice.
                   onDetailClosed: () => setState(() => open = null),
@@ -115,28 +114,22 @@ class _Conversation extends StatelessWidget {
   const _Conversation({
     required this.name,
     required this.message,
-    required this.onBack,
     super.key,
   });
 
   final String name;
   final String message;
-  final VoidCallback onBack;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    // Over the list, the detail is a page and needs a way back.
+    // Over the list, the detail is a page: the bar shows the way back by
+    // itself, and going back calls `onDetailClosed`. Beside the list it is
+    // a pane, with nowhere to go back to.
     final phone = theme.formFactor == FormFactor.mobile;
     return Scaffold(
       appBar: AppBar(
-        leading: phone
-            ? IconButton.ghost(
-                icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft),
-                semanticLabel: 'Back',
-                onPressed: onBack,
-              )
-            : null,
+        automaticallyImplyLeading: phone,
         title: Text(name),
       ),
       body: PageContainer(

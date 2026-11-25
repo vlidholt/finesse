@@ -1,13 +1,11 @@
 import 'dart:async';
 
 import 'package:finesse/src/components/app_bar.dart';
+import 'package:finesse/src/components/back_button.dart';
 import 'package:finesse/src/components/dialog.dart';
-import 'package:finesse/src/components/icon_button.dart';
 import 'package:finesse/src/components/scaffold.dart';
 import 'package:finesse/src/components/search_field.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/icons/phosphor_icon.dart';
-import 'package:finesse/src/icons/phosphor_icons_regular.dart';
 import 'package:finesse/src/page_route.dart';
 import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/theme.dart';
@@ -213,7 +211,6 @@ class _SearchViewState<T> extends State<_SearchView<T>> {
     final theme = Theme.of(context);
     final l = FinesseLocalizations.of(context);
     final commandTheme = theme.commandTheme;
-    final rtl = Directionality.of(context) == TextDirection.rtl;
 
     final results = Builder(
       builder: (context) => widget.builder(context, _query, _close),
@@ -247,12 +244,7 @@ class _SearchViewState<T> extends State<_SearchView<T>> {
       );
       view = Scaffold(
         appBar: AppBar(
-          leading: IconButton.ghost(
-            icon: PhosphorIcon(
-              rtl
-                  ? PhosphorIconsRegular.arrowRight
-                  : PhosphorIconsRegular.arrowLeft,
-            ),
+          leading: BackButton(
             semanticLabel: l.search.close,
             onPressed: _leave,
           ),

@@ -241,8 +241,21 @@ void main() {
     );
     await open(tester);
     expect(tester.takeException(), isNull);
-    expect(find.byIcon(PhosphorIconsRegular.caretLeft), findsWidgets);
-    expect(find.byIcon(PhosphorIconsRegular.arrowRight), findsOneWidget);
+    // The rows' chevrons, and the app bar's back button.
+    expect(
+      find.descendant(
+        of: find.byType(ListTile),
+        matching: find.byIcon(PhosphorIconsRegular.caretLeft),
+      ),
+      findsWidgets,
+    );
+    expect(
+      find.descendant(
+        of: find.byType(BackButton),
+        matching: find.byIcon(PhosphorIconsRegular.caretRight),
+      ),
+      findsOneWidget,
+    );
     await tester.tap(find.text('Alpha'));
     await settle(tester);
     expect(tester.takeException(), isNull);

@@ -65,16 +65,9 @@ class _PageRoutePagesExampleState extends State<PageRoutePagesExample> {
                   key: ValueKey(person),
                   backGesture: true,
                   child: Scaffold(
-                    appBar: AppBar(
-                      leading: IconButton.ghost(
-                        icon: const PhosphorIcon(
-                          PhosphorIconsRegular.caretLeft,
-                        ),
-                        semanticLabel: 'Back',
-                        onPressed: () => setState(() => open = null),
-                      ),
-                      title: Text(person),
-                    ),
+                    // The bar's back button pops the page, and
+                    // `onDidRemovePage` below clears the state.
+                    appBar: AppBar(title: Text(person)),
                     body: PageContainer(
                       child: Card(
                         title: Text(person),

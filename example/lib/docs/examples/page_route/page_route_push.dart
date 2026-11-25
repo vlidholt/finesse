@@ -59,17 +59,8 @@ class _Page extends StatelessWidget {
     final canPop = Navigator.of(context).canPop();
     return Scaffold(
       appBar: AppBar(
-        leading: canPop
-            ? IconButton.ghost(
-                icon: PhosphorIcon(
-                  dialog
-                      ? PhosphorIconsRegular.x
-                      : PhosphorIconsRegular.caretLeft,
-                ),
-                semanticLabel: dialog ? 'Close' : 'Back',
-                onPressed: () => Navigator.of(context).pop(),
-              )
-            : null,
+        // The bar shows the way back by itself: a caret on a page that
+        // can be popped, a cross on a full-screen dialog.
         title: Text(dialog ? 'New note' : 'Page $depth'),
       ),
       body: PageContainer(

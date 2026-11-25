@@ -275,7 +275,13 @@ void main() {
       ),
     );
     await _open(tester);
-    expect(find.byIcon(PhosphorIconsRegular.arrowRight), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(BackButton),
+        matching: find.byIcon(PhosphorIconsRegular.caretRight),
+      ),
+      findsOneWidget,
+    );
     expect(
       tester.getRect(find.bySemanticsLabel('Close search')).left,
       greaterThanOrEqualTo(tester.getRect(find.byType(SearchField)).right),

@@ -445,9 +445,6 @@ class FinesseLocalizationsData$licensePage$en {
 
 	/// en: '$count licenses'
 	String licenses({required Object count}) => '${count} licenses';
-
-	/// en: 'Back'
-	String get back => 'Back';
 }
 
 // Path: pagination
@@ -768,7 +765,6 @@ extension on FinesseLocalizationsData {
 			'licensePage.title' => 'Licenses',
 			'licensePage.oneLicense' => '1 license',
 			'licensePage.licenses' => ({required Object count}) => '${count} licenses',
-			'licensePage.back' => 'Back',
 			'pagination.previous' => 'Previous',
 			'pagination.next' => 'Next',
 			'pagination.morePages' => 'More pages',

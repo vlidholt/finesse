@@ -3,12 +3,10 @@ import 'dart:math' as math;
 
 import 'package:finesse/src/components/app_bar.dart';
 import 'package:finesse/src/components/divider.dart';
-import 'package:finesse/src/components/icon_button.dart';
 import 'package:finesse/src/components/list_tile.dart';
 import 'package:finesse/src/components/scaffold.dart';
 import 'package:finesse/src/components/spinner.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/page_route.dart';
 import 'package:finesse/src/theme/components/layout.dart';
 import 'package:finesse/src/theme/theme.dart';
@@ -168,7 +166,6 @@ class _LicensePageState extends State<LicensePage> {
     final strings = FinesseLocalizations.of(context).licensePage;
     final packages = _packages;
     final name = _applicationName;
-    final rtl = Directionality.of(context) == TextDirection.rtl;
 
     final header = Padding(
       padding: EdgeInsets.only(bottom: theme.layoutTheme.gap(GapSize.xl)),
@@ -208,7 +205,6 @@ class _LicensePageState extends State<LicensePage> {
 
     return Scaffold(
       appBar: AppBar(
-        leading: const _BackButton(),
         title: Text(strings.title),
       ),
       body: _PageList(
@@ -233,12 +229,7 @@ class _LicensePageState extends State<LicensePage> {
             subtitle: Text(
               count == 1 ? strings.oneLicense : strings.licenses(count: count),
             ),
-            trailing: PhosphorIcon(
-              rtl
-                  ? PhosphorIconsRegular.caretLeft
-                  : PhosphorIconsRegular.caretRight,
-              color: theme.colorScheme.mutedForeground,
-            ),
+            showChevron: true,
             onTap: () => _open(package),
           );
         },
@@ -267,7 +258,6 @@ class _PackageLicensePage extends StatelessWidget {
     final gap = theme.layoutTheme.gap(GapSize.md);
     return Scaffold(
       appBar: AppBar(
-        leading: const _BackButton(),
         title: Text(package.name, overflow: TextOverflow.ellipsis),
       ),
       body: _PageList(
@@ -330,25 +320,6 @@ class _PageList extends StatelessWidget {
           itemBuilder: itemBuilder,
         );
       },
-    );
-  }
-}
-
-/// Pops the page, when there is one to go back to.
-class _BackButton extends StatelessWidget {
-  const _BackButton();
-
-  @override
-  Widget build(BuildContext context) {
-    final route = ModalRoute.of(context);
-    if (route == null || !route.canPop) return const SizedBox.shrink();
-    final rtl = Directionality.of(context) == TextDirection.rtl;
-    return IconButton.ghost(
-      tooltip: FinesseLocalizations.of(context).licensePage.back,
-      onPressed: () => Navigator.of(context).maybePop(),
-      icon: PhosphorIcon(
-        rtl ? PhosphorIconsRegular.arrowRight : PhosphorIconsRegular.arrowLeft,
-      ),
     );
   }
 }

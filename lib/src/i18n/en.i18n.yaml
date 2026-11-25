@@ -107,7 +107,6 @@ licensePage:
   title: "Licenses"
   oneLicense: "1 license"
   licenses: "$count licenses"
-  back: "Back"
 
 pagination:
   previous: "Previous"
