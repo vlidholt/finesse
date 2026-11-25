@@ -521,7 +521,7 @@ void main() {
               Tab(value: 1, child: Text('Other')),
             ],
             value: 0,
-            expand: false,
+            expandTabs: false,
             onChanged: (_) {},
           ),
           'icon button': IconButton(

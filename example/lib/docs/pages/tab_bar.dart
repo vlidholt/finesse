@@ -30,7 +30,7 @@ final tabBarDoc = ComponentDoc(
       id: 'tab_bar_scrollable',
       title: 'Scrollable',
       description:
-          'With `expand: false` each tab hugs its label, and the row '
+          'With `expandTabs: false` each tab hugs its label, and the row '
           'scrolls sideways when the tabs do not fit.',
       minPreviewHeight: 160,
       builder: (_) => const TabBarScrollableExample(),

@@ -211,7 +211,8 @@ class Tabs<T> extends StatefulWidget {
     this.variant = TabBarVariant.segmented,
     this.expandTabs,
     this.scrollable = false,
-    this.tabBarAlignment,
+    this.tabAlignment,
+    this.showBorder = true,
     this.gap,
     this.maintainState = true,
     this.swipeable = true,
@@ -255,7 +256,10 @@ class Tabs<T> extends StatefulWidget {
   ///
   /// It has no effect when the tabs expand (see [expandTabs]) or when a
   /// [Tabs] without content is free to be as small as its strip.
-  final AlignmentGeometry? tabBarAlignment;
+  final AlignmentGeometry? tabAlignment;
+
+  /// Whether a hairline runs under the whole of an underline bar.
+  final bool showBorder;
 
   /// The gap between the bar and the content. Defaults to the theme's.
   final double? gap;
@@ -388,7 +392,8 @@ class _TabsState<T> extends State<Tabs<T>> with RestorationMixin {
       expand: expandTabs,
       scrollable: widget.scrollable,
       track: _controller.swipePosition,
-      alignment: widget.tabBarAlignment,
+      alignment: widget.tabAlignment,
+      showBorder: widget.showBorder,
       // Above its content the strip is placed across the content's width;
       // on its own the list is as small as its strip wherever its parent
       // lets it be.

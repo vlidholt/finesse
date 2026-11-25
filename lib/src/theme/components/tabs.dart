@@ -20,7 +20,7 @@ class TabsTheme with _$TabsTheme {
     this.gap,
     this.tabsGap,
     this.expandTabs,
-    this.tabBarAlignment,
+    this.tabAlignment,
     this.dragStartBehavior,
     this.physics,
     this.padding,
@@ -81,7 +81,7 @@ class TabsTheme with _$TabsTheme {
 
   /// Where a segmented strip sits in a place wider than it. Defaults to the
   /// start.
-  final Alignment? tabBarAlignment;
+  final Alignment? tabAlignment;
 
   /// When a drag of a scrolling strip is taken to start. Defaults to
   /// [DragStartBehavior.start].

@@ -29,7 +29,7 @@ mixin _$TabsTheme {
       gap: lerpDouble$(a.gap, b.gap, t),
       tabsGap: lerpDouble$(a.tabsGap, b.tabsGap, t),
       expandTabs: t < 0.5 ? a.expandTabs : b.expandTabs,
-      tabBarAlignment: Alignment.lerp(a.tabBarAlignment, b.tabBarAlignment, t),
+      tabAlignment: Alignment.lerp(a.tabAlignment, b.tabAlignment, t),
       dragStartBehavior: t < 0.5 ? a.dragStartBehavior : b.dragStartBehavior,
       physics: t < 0.5 ? a.physics : b.physics,
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
@@ -150,7 +150,7 @@ mixin _$TabsTheme {
     double? gap,
     double? tabsGap,
     bool? expandTabs,
-    Alignment? tabBarAlignment,
+    Alignment? tabAlignment,
     DragStartBehavior? dragStartBehavior,
     ScrollPhysics? physics,
     EdgeInsetsGeometry? padding,
@@ -197,7 +197,7 @@ mixin _$TabsTheme {
       gap: gap ?? _this.gap,
       tabsGap: tabsGap ?? _this.tabsGap,
       expandTabs: expandTabs ?? _this.expandTabs,
-      tabBarAlignment: tabBarAlignment ?? _this.tabBarAlignment,
+      tabAlignment: tabAlignment ?? _this.tabAlignment,
       dragStartBehavior: dragStartBehavior ?? _this.dragStartBehavior,
       physics: physics ?? _this.physics,
       padding: padding ?? _this.padding,
@@ -268,7 +268,7 @@ mixin _$TabsTheme {
       gap: other.gap,
       tabsGap: other.tabsGap,
       expandTabs: other.expandTabs,
-      tabBarAlignment: other.tabBarAlignment,
+      tabAlignment: other.tabAlignment,
       dragStartBehavior: other.dragStartBehavior,
       physics: other.physics,
       padding: other.padding,
@@ -334,7 +334,7 @@ mixin _$TabsTheme {
     return _other.gap == _this.gap &&
         _other.tabsGap == _this.tabsGap &&
         _other.expandTabs == _this.expandTabs &&
-        _other.tabBarAlignment == _this.tabBarAlignment &&
+        _other.tabAlignment == _this.tabAlignment &&
         _other.dragStartBehavior == _this.dragStartBehavior &&
         _other.physics == _this.physics &&
         _other.padding == _this.padding &&
@@ -386,7 +386,7 @@ mixin _$TabsTheme {
       _this.gap,
       _this.tabsGap,
       _this.expandTabs,
-      _this.tabBarAlignment,
+      _this.tabAlignment,
       _this.dragStartBehavior,
       _this.physics,
       _this.padding,

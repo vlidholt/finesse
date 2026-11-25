@@ -47,7 +47,8 @@ class TabBar<T> extends StatefulWidget {
     this.onChanged,
     this.controller,
     this.variant = TabBarVariant.underline,
-    this.expand,
+    this.expandTabs,
+    this.tabAlignment,
     this.scrollable = false,
     this.showBorder = true,
     super.key,
@@ -78,8 +79,14 @@ class TabBar<T> extends StatefulWidget {
   ///
   /// Underline tabs do by default; without it each is as wide as its label
   /// plus its padding and the row scrolls when it does not fit. The
-  /// segmented strip is as wide as its tabs by default.
-  final bool? expand;
+  /// segmented strip is as wide as its tabs by default, or as the theme's
+  /// `TabsTheme.expandTabs` says.
+  final bool? expandTabs;
+
+  /// Where a segmented strip that does not [expandTabs] sits in a parent
+  /// that makes the bar wider than it. Defaults to the theme's, and then to
+  /// the start.
+  final AlignmentGeometry? tabAlignment;
 
   /// Whether the row scrolls sideways when the tabs do not fit, instead of
   /// the tabs sharing the width.
@@ -136,10 +143,11 @@ class _TabBarState<T> extends State<TabBar<T>> {
           : _select,
       variant: widget.variant,
       expand:
-          widget.expand ??
+          widget.expandTabs ??
           (!segmented || (Theme.of(context).tabsTheme.expandTabs ?? false)),
       scrollable: widget.scrollable,
       showBorder: widget.showBorder,
+      alignment: widget.tabAlignment,
       track: controller?.swipePosition,
     );
   }

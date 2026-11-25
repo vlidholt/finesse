@@ -145,7 +145,7 @@ void main() {
       expect(pill.center.dx, closeTo(400, .5));
     });
 
-    testWidgets('tabBarAlignment places it in the width it was given', (
+    testWidgets('tabAlignment places it in the width it was given', (
       tester,
     ) async {
       for (final (alignment, panelled) in [
@@ -162,7 +162,7 @@ void main() {
               Tabs<int>(
                 value: 0,
                 onChanged: (_) {},
-                tabBarAlignment: alignment,
+                tabAlignment: alignment,
                 tabs: panelled ? panels : two,
               ),
             ],
@@ -181,6 +181,42 @@ void main() {
           expect(pill.right, 780, reason: reason);
         }
       }
+    });
+
+    testWidgets('a TabBar takes tabAlignment and expandTabs the same way', (
+      tester,
+    ) async {
+      Rect pill() => tester.getRect(
+        find
+            .descendant(
+              of: find.byType(TabBar<int>),
+              matching: find.byType(Decorator),
+            )
+            .first,
+      );
+      Future<void> bar({AlignmentGeometry? alignment, bool? expand}) => pump(
+        tester,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TabBar<int>(
+              value: 0,
+              onChanged: (_) {},
+              variant: TabBarVariant.segmented,
+              tabAlignment: alignment,
+              expandTabs: expand,
+              tabs: two,
+            ),
+          ],
+        ),
+      );
+      await bar();
+      expect(pill().left, 20);
+      await bar(alignment: Alignment.center);
+      expect(pill().center.dx, closeTo(400, .5));
+      expect(pill().width, lessThan(400));
+      await bar(alignment: Alignment.center, expand: true);
+      expect(pill().width, 760);
     });
 
     testWidgets('unless the tabs expand: then it fills the width', (

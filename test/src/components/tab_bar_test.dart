@@ -47,7 +47,7 @@ void main() {
             child: TabBar<int>(
               value: selectedIndex,
               onChanged: onSelected,
-              expand: expand,
+              expandTabs: expand,
               showBorder: showBorder,
               tabs: tabsOf(tabs),
             ),
@@ -90,7 +90,7 @@ void main() {
             ),
             TabBar<int>(
               value: 0,
-              expand: false,
+              expandTabs: false,
               onChanged: (_) {},
               tabs: tabsOf(const ['One', 'Two']),
             ),
@@ -138,6 +138,31 @@ void main() {
       expect(tester.getSize(find.byType(TabBar<int>)).height, 49);
       await pumpFinesse(tester, bar(expand: false, showBorder: false));
       expect(tester.getSize(find.byType(TabBar<int>)).height, 48);
+    });
+
+    testWidgets('Tabs drops the hairline under an underline bar as TabBar '
+        'does', (tester) async {
+      Future<double> height({required bool showBorder}) async {
+        await pumpFinesse(
+          tester,
+          Align(
+            alignment: Alignment.topCenter,
+            child: Tabs<int>(
+              value: 0,
+              onChanged: (_) {},
+              variant: TabBarVariant.underline,
+              showBorder: showBorder,
+              tabs: tabsOf(labels),
+            ),
+          ),
+        );
+        return tester.getSize(find.byType(Tabs<int>)).height;
+      }
+
+      expect(
+        await height(showBorder: true) - await height(showBorder: false),
+        1,
+      );
     });
 
     testWidgets('expanded tabs share the width equally, in reading order', (
@@ -342,7 +367,7 @@ void main() {
                       ),
                       child: TabBar<int>(
                         value: 0,
-                        expand: false,
+                        expandTabs: false,
                         onChanged: (_) {},
                         tabs: tabsOf(const [
                           'Overview',

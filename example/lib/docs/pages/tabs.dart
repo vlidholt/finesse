@@ -18,7 +18,7 @@ final tabsDoc = ComponentDoc(
       title: 'Default',
       description:
           'The segmented strip is as wide as its tabs; `expandTabs` makes '
-          'them share the width, and `tabBarAlignment` places a strip that '
+          'them share the width, and `tabAlignment` places a strip that '
           'is narrower than its content. A tab that is not showing keeps '
           'its state unless `maintainState` is false.',
       minPreviewHeight: 480,

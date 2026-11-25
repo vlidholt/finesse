@@ -296,9 +296,11 @@ package as it is, compared with shad.
   `dragStartBehavior`, `physics`, `padding`, `decoration`,
   `tabBarConstraints` and `contentConstraints`. `TabsController.selected`
   is `value`. A tab bar is one Tab stop; the arrows move the selection. A
-  `Tabs` strip is as wide as its tabs unless `expandTabs` is set
-  (`tabBarAlignment` places it), and a tab's label ends in an ellipsis when
-  its tab is too narrow.
+  segmented strip is as wide as its tabs unless `expandTabs` is set, and
+  `tabAlignment` places it — on `TabBar`, `Tabs` and `TabsTheme` alike
+  (`TabsTheme.tabBarAlignment` is `tabAlignment`); `showBorder` drops the
+  hairline under an underline bar on both. A tab's label ends in an
+  ellipsis when its tab is too narrow.
 
 ### Added
 

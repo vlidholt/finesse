@@ -451,7 +451,7 @@ class _TabListState extends State<TabList> {
     return Align(
       alignment:
           widget.alignment ??
-          tabsTheme.tabBarAlignment ??
+          tabsTheme.tabAlignment ??
           AlignmentDirectional.centerStart,
       widthFactor: widget.shrinkWrap && !widget.expand ? 1 : null,
       heightFactor: 1,

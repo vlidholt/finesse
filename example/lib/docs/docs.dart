@@ -504,7 +504,7 @@ class _DocExampleState extends State<DocExample> {
         Tabs<String>(
           value: _tab,
           onChanged: (value) => setState(() => _tab = value),
-          tabBarAlignment: Alignment.centerLeft,
+          tabAlignment: Alignment.centerLeft,
           tabs: [
             Tab(
               value: 'preview',
