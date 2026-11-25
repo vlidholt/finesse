@@ -52,6 +52,7 @@ class TimePicker extends StatefulWidget {
     this.autofocus = false,
     this.controller,
     this.triggerBuilder,
+    this.requestFocus = true,
     super.key,
   });
 
@@ -133,6 +134,11 @@ class TimePicker extends StatefulWidget {
   /// Builds the control that opens the picker, in place of the button.
   final PickerTriggerBuilder<TimeOfDay?>? triggerBuilder;
 
+  /// Whether the popover takes the focus when it opens, on the hours.
+  /// False leaves the focus where it is and makes the time's fields the
+  /// next Tab stops, as `DatePicker.requestFocus` does.
+  final bool requestFocus;
+
   @override
   State<TimePicker> createState() => _TimePickerState();
 }
@@ -169,6 +175,7 @@ class _TimePickerState extends State<TimePicker> {
     return PickerHost(
       presentation: widget.presentation,
       controller: widget.controller,
+      requestFocus: widget.requestFocus,
       popoverPadding: picker.popoverPadding,
       anchor: picker.anchor,
       triggerBuilder: (context, toggle) {
@@ -190,10 +197,8 @@ class _TimePickerState extends State<TimePicker> {
           autofocus: widget.autofocus,
         );
       },
-      // The hours take the focus, so a time can be typed straight away.
-      popoverBuilder: (context, close) => PickerFocusOnOpen(
-        focusNode: _fieldNode,
-        child: TimeField(
+      popoverBuilder: (context, close) {
+        final field = TimeField(
           value: value,
           onChanged: widget.onChanged,
           min: widget.min,
@@ -201,8 +206,11 @@ class _TimePickerState extends State<TimePicker> {
           showSeconds: widget.showSeconds,
           use24HourFormat: widget.use24HourFormat,
           focusNode: _fieldNode,
-        ),
-      ),
+        );
+        if (!widget.requestFocus) return field;
+        // The hours take the focus, so a time can be typed straight away.
+        return PickerFocusOnOpen(focusNode: _fieldNode, child: field);
+      },
       sheetBuilder: (context, close) => _TimeSheet(
         initial: value,
         title: widget.title ?? Text(l.timePicker.selectTime),

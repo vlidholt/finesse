@@ -796,8 +796,8 @@ weight, another font, at or above the reference — is a plain `Icon`.
   `FocusManager.instance.addEarlyKeyEventHandler`, and stands back when the
   focus is inside the popover so its own bindings act first.
 - **Focus and popovers.** `Popover.requestFocus` (also on `ContextMenu`,
-  `ContextMenuRegion`, `DropdownMenu`, `DatePicker` and `showPopover`; not
-  on `Select` or the menubar) says whether the popover takes the focus when
+  `ContextMenuRegion`, `DropdownMenu`, `DatePicker`, `DateRangePicker`,
+  `TimePicker` and `showPopover`; not on `Select` or the menubar) says whether the popover takes the focus when
   it opens. True traps Tab in a `FocusScope`; false leaves the caret where
   it is and makes the popover's controls the Tab stops after its child.
   Either way child and overlay are one `FocusTraversalGroup` under an

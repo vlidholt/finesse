@@ -16,6 +16,7 @@ class _Host extends StatefulWidget {
     this.use24HourFormat = true,
     this.controller,
     this.triggerBuilder,
+    this.requestFocus = true,
     super.key,
   });
 
@@ -26,6 +27,7 @@ class _Host extends StatefulWidget {
   final bool use24HourFormat;
   final PopoverController? controller;
   final PickerTriggerBuilder<TimeOfDay?>? triggerBuilder;
+  final bool requestFocus;
 
   @override
   State<_Host> createState() => _HostState();
@@ -46,6 +48,7 @@ class _HostState extends State<_Host> {
         use24HourFormat: widget.use24HourFormat,
         controller: widget.controller,
         triggerBuilder: widget.triggerBuilder,
+        requestFocus: widget.requestFocus,
         onChanged: (v) {
           changes.add(v);
           setState(() => value = v);
@@ -180,6 +183,39 @@ void main() {
       await tester.sendKeyEvent(LogicalKeyboardKey.escape);
       await rest(tester);
       expect(find.byType(TimeField), findsNothing);
+    });
+
+    testWidgets('with requestFocus false the popover leaves the focus on '
+        'the trigger, and Tab goes on into the time', (tester) async {
+      useTraditionalHighlights();
+      await pumpFinesse(
+        tester,
+        const _Host(
+          initial: TimeOfDay(hour: 7, minute: 45),
+          requestFocus: false,
+        ),
+      );
+      // Opened from the keyboard, with the focus on the trigger.
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      await rest(tester);
+      expect(find.byType(TimeField), findsOneWidget);
+      bool inField() {
+        final focus = FocusManager.instance.primaryFocus?.context;
+        return focus != null &&
+            find
+                .descendant(
+                  of: find.byType(TimeField),
+                  matching: find.byWidget(focus.widget),
+                )
+                .evaluate()
+                .isNotEmpty;
+      }
+
+      expect(inField(), isFalse);
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      expect(inField(), isTrue);
     });
 
     testWidgets("emptying the popover's field clears the time", (

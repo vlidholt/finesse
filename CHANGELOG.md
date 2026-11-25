@@ -369,7 +369,8 @@ package as it is, compared with shad.
   `showPopover(showArrow:)`, `Surface(arrow:)`,
   `PopoverController.openAt`.
 - `Popover.requestFocus`, also on `ContextMenu`, `ContextMenuRegion`,
-  `DropdownMenu`, `DatePicker` and `showPopover`: with false the caret
+  `DropdownMenu`, `DatePicker`, `DateRangePicker`, `TimePicker` and
+  `showPopover`: with false the caret
   stays in the field the popover hangs under, Tab moves on into the
   popover and Escape closes it from either.
 - The `Toaster`: toasts stack, expand on hover, pause while hovered,
