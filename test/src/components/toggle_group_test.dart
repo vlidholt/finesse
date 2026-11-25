@@ -14,6 +14,12 @@ void main() {
     FinesseApp(home: Center(child: child)),
   );
 
+  /// The toggle labelled [label]. A disabled toggle absorbs pointers below
+  /// it, so a tap aimed at its label would not reach anything: aim at the
+  /// toggle itself, whose own region a tap still reaches.
+  Finder toggle(String label) =>
+      find.ancestor(of: find.text(label), matching: find.byType(Toggle));
+
   Set<String> selected(WidgetTester tester) => {
     for (final (index, toggle)
         in tester.widgetList<Toggle>(find.byType(Toggle)).indexed)
@@ -139,8 +145,8 @@ void main() {
           ],
         ),
       );
-      await tester.tap(find.text('B'));
-      await tester.tap(find.text('A'));
+      await tester.tap(toggle('B'));
+      await tester.tap(toggle('A'));
       await tester.pump();
       expect(reported, [
         {'a'},
@@ -214,7 +220,7 @@ void main() {
           ),
         ),
       );
-      await tester.tap(find.text('B'));
+      await tester.tap(toggle('B'));
       await tester.pump();
       expect(selected(tester), {'a'});
     });
