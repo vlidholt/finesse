@@ -1,4 +1,5 @@
 import 'package:finesse/finesse.dart';
+import 'package:finesse/src/components/picker.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -16,7 +17,7 @@ void main() {
   }
 
   Future<void> open(WidgetTester tester, [Finder? trigger]) async {
-    await tester.tap(trigger ?? find.byType(Button).first);
+    await tester.tap(trigger ?? find.byType(PickerTrigger).first);
     await rest(tester);
   }
 
@@ -221,7 +222,7 @@ void main() {
         ),
         formFactor: FormFactor.mobile,
       );
-      await open(tester);
+      await open(tester, find.text('Open'));
     }
 
     testWidgets('a row of buttons lays out its own: a compact one beside '

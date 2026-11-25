@@ -8,7 +8,7 @@ import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
 
-/// A button that shows a time and opens a way to change it: a [TimeField]
+/// A field that shows a time and opens a way to change it: a [TimeField]
 /// in a popover on a desktop, wheels in a bottom sheet on a phone.
 ///
 /// ```dart
@@ -24,8 +24,8 @@ import 'package:flutter/widgets.dart';
 /// Done reports it, Cancel — or a tap outside — leaves the time as it was,
 /// and with [allowClear] there is a Clear that reports null.
 ///
-/// [presentation] forces one or the other; [triggerBuilder] replaces the
-/// button.
+/// [presentation] forces one or the other. The trigger is a field, or the
+/// button [variant] names; [triggerBuilder] replaces it.
 class TimePicker extends StatefulWidget {
   /// Creates a time picker.
   const TimePicker({
@@ -82,14 +82,14 @@ class TimePicker extends StatefulWidget {
   /// theme's form factor.
   final PickerPresentation presentation;
 
-  /// Shown in the button while [value] is null. Defaults to the localized
+  /// Shown in the trigger while [value] is null. Defaults to the localized
   /// "Select time".
   final Widget? placeholder;
 
   /// The title of the sheet. Defaults to the localized "Select time".
   final Widget? title;
 
-  /// Turns the time into the button's text. Defaults to `14:05` or
+  /// Turns the time into the trigger's text. Defaults to `14:05` or
   /// `2:05 PM`, by [use24HourFormat].
   final String Function(TimeOfDay time)? formatTime;
 
@@ -102,26 +102,28 @@ class TimePicker extends StatefulWidget {
   /// A widget after the time.
   final Widget? trailing;
 
-  /// The look of the button. Defaults to the theme's, an outline.
+  /// The button the trigger is. Null (the default, and the theme's) makes
+  /// it a field, like a text field or a select, to sit among the fields of
+  /// a form; a variant makes it that button.
   final ButtonVariant? variant;
 
-  /// The size of the button.
+  /// The size of the button, when [variant] makes it one.
   final ButtonSize? size;
 
-  /// The width of the button. Defaults to the theme's; null there makes it
+  /// The width of the trigger. Defaults to the theme's; null there makes it
   /// as wide as its content.
   final double? width;
 
-  /// Whether the button fills the width it is given.
+  /// Whether the trigger fills the width it is given.
   final bool expands;
 
   /// Whether the picker can be opened.
   final bool enabled;
 
-  /// The focus node of the button.
+  /// The focus node of the trigger.
   final FocusNode? focusNode;
 
-  /// Whether the button takes the focus when it first appears.
+  /// Whether the trigger takes the focus when it first appears.
   final bool autofocus;
 
   /// Opens and closes the picker from outside.

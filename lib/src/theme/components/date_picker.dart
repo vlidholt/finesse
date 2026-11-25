@@ -32,10 +32,10 @@ class DatePickerTheme with _$DatePickerTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// The look of the button.
+  /// The button the trigger is; null makes it a field.
   final ButtonVariant? buttonVariant;
 
-  /// The width of the button; null makes it as wide as its content.
+  /// The width of the trigger; null makes it as wide as its content.
   final double? width;
 
   /// The padding inside the popover.

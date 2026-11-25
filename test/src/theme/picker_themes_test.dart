@@ -39,7 +39,8 @@ void main() {
             a.colorScheme.foreground,
           );
           expect(a.timeFieldTheme.fieldDecoration, isNotNull);
-          expect(a.datePickerTheme.buttonVariant, ButtonVariant.outline);
+          // The trigger is a field unless a theme names a button.
+          expect(a.datePickerTheme.buttonVariant, isNull);
           expect(a.chipTheme.showCheckmark, isFalse);
         });
       }

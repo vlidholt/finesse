@@ -179,10 +179,14 @@ void main() {
           expected,
           reason: 'select trigger height in $label',
         );
-        // The date picker trigger is itself a Button, so it is covered by
-        // the loop.
+        // The date picker's trigger is a field, as tall as one.
+        expect(
+          tester.getSize(find.byType(DatePicker)).height,
+          expected,
+          reason: 'date picker trigger height in $label',
+        );
         final buttons = find.byType(Button, skipOffstage: false);
-        for (var i = 0; i < 5; i++) {
+        for (var i = 0; i < 4; i++) {
           expect(
             tester.getSize(buttons.at(i)).height,
             style.buttonHeight,

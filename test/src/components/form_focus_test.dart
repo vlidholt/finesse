@@ -1,5 +1,6 @@
 import 'package:finesse/finesse.dart';
 import 'package:finesse/src/components/form/fields/text_field.dart';
+import 'package:finesse/src/components/picker.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -169,7 +170,7 @@ void main() {
       await leaveForm(tester, showForm);
     });
 
-    testWidgets('time picker: its button, and the form can be disposed', (
+    testWidgets('time picker: its trigger, and the form can be disposed', (
       tester,
     ) async {
       final formKey = GlobalKey<FinesseFormState>();
@@ -191,7 +192,7 @@ void main() {
       final button = tester.element(
         find.descendant(
           of: find.byType(TimePickerFormField),
-          matching: find.byType(Button),
+          matching: find.byType(PickerTrigger),
         ),
       );
       var inButton = false;
@@ -199,7 +200,7 @@ void main() {
         inButton = ancestor == button;
         return !inButton;
       });
-      expect(inButton, isTrue, reason: 'the focus is not on the button');
+      expect(inButton, isTrue, reason: 'the focus is not on the trigger');
 
       await leaveForm(tester, showForm);
     });

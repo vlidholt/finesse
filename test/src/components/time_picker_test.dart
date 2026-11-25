@@ -1,4 +1,5 @@
 import 'package:finesse/finesse.dart';
+import 'package:finesse/src/components/picker.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -58,7 +59,7 @@ void main() {
   _HostState host(WidgetTester tester) => tester.state(find.byType(_Host));
 
   Future<void> open(WidgetTester tester) async {
-    await tester.tap(find.byType(Button).first);
+    await tester.tap(find.byType(PickerTrigger).first);
     for (var i = 0; i < 14; i++) {
       await tester.pump(const Duration(milliseconds: 50));
     }
@@ -89,8 +90,8 @@ void main() {
   }
 
   group('TimePickerTheme', () {
-    test('is an outline button', () {
-      expect(ThemeData().timePickerTheme.buttonVariant, ButtonVariant.outline);
+    test('is a field', () {
+      expect(ThemeData().timePickerTheme.buttonVariant, isNull);
       expect(ThemeData().timePickerTheme.sheetWheelItems, 5);
     });
   });
@@ -145,13 +146,15 @@ void main() {
       expect(find.text('7:45 PM'), findsOneWidget);
     });
 
-    testWidgets('is as tall as a button on each form factor', (tester) async {
+    testWidgets('is as tall as a text field on each form factor', (
+      tester,
+    ) async {
       for (final formFactor in FormFactor.values) {
         await pumpFinesse(tester, const _Host(), formFactor: formFactor);
         final theme = themeOf(tester, find.byType(TimePicker));
         expect(
-          tester.getSize(find.byType(Button)).height,
-          theme.style.buttonHeight,
+          tester.getSize(find.byType(PickerTrigger)).height,
+          theme.style.inputHeight,
         );
       }
     });
@@ -374,7 +377,7 @@ void main() {
         tester,
         const Center(child: TimePicker(value: null, onChanged: null)),
       );
-      await tester.tap(find.byType(Button), warnIfMissed: false);
+      await tester.tap(find.byType(PickerTrigger), warnIfMissed: false);
       await rest(tester);
       expect(find.byType(TimeField), findsNothing);
     });

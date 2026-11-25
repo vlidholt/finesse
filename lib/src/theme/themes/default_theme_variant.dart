@@ -2644,7 +2644,6 @@ class DefaultThemeVariant extends ThemeVariant {
   @override
   DatePickerTheme datePickerTheme() {
     return DatePickerTheme(
-      buttonVariant: ButtonVariant.outline,
       width: 276,
       popoverPadding: EdgeInsets.all(scaled(style.calendarPadding)),
       allowDeselection: true,
@@ -2728,7 +2727,6 @@ class DefaultThemeVariant extends ThemeVariant {
   @override
   TimePickerTheme timePickerTheme() {
     return TimePickerTheme(
-      buttonVariant: ButtonVariant.outline,
       popoverPadding: EdgeInsets.all(scaled(style.popoverPadding)),
       sheetWheelItems: 5,
     );

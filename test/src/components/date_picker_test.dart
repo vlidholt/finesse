@@ -1,5 +1,7 @@
 import 'package:finesse/finesse.dart';
+import 'package:finesse/src/components/picker.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -105,7 +107,7 @@ void main() {
   }
 
   Future<void> open(WidgetTester tester) async {
-    await tester.tap(find.byType(Button).first);
+    await tester.tap(find.byType(PickerTrigger).first);
     await rest(tester);
   }
 
@@ -118,12 +120,126 @@ void main() {
   final may = DateTime(2024, 5, 15);
 
   group('DatePickerTheme', () {
-    test('an outline button that closes on a choice', () {
+    test('a field that closes on a choice', () {
       final picker = ThemeData().datePickerTheme;
-      expect(picker.buttonVariant, ButtonVariant.outline);
+      expect(picker.buttonVariant, isNull);
       expect(picker.width, 276);
       expect(picker.closeOnSelection, isTrue);
       expect(picker.allowDeselection, isTrue);
+    });
+  });
+
+  group('the trigger', () {
+    Widget form({ButtonVariant? variant, DateTime? value}) => Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        TextField(controller: TextEditingController(text: 'Typed')),
+        DatePicker(
+          value: value,
+          onChanged: (_) {},
+          variant: variant,
+          expands: true,
+        ),
+      ],
+    );
+
+    for (final (name, style) in [
+      ('finesse', StyleTokens.finesse),
+      ('nova', StyleTokens.nova),
+      ('maia', StyleTokens.maia),
+      ('lyra', StyleTokens.lyra),
+    ]) {
+      testWidgets('$name: is a field among fields, a value as a field '
+          'value and a placeholder as a field placeholder', (tester) async {
+        for (final formFactor in FormFactor.values) {
+          final theme = ThemeData(style: style);
+          await pumpFinesse(
+            tester,
+            Center(
+              child: SizedBox(width: 320, child: form(value: may)),
+            ),
+            theme: theme,
+            formFactor: formFactor,
+          );
+          final resolved = themeOf(tester, find.byType(DatePicker));
+          final field = tester.getSize(find.byType(TextField));
+          final trigger = tester.getSize(find.byType(PickerTrigger));
+          expect(trigger.height, field.height, reason: '$formFactor');
+          expect(trigger.height, resolved.style.inputHeight);
+          expect(trigger.width, field.width);
+          expect(find.byType(Button), findsNothing);
+          final typed = tester
+              .widget<EditableText>(find.byType(EditableText))
+              .style;
+          final value = tester
+              .renderObject<RenderParagraph>(find.text('May 15th, 2024'))
+              .text
+              .style!;
+          expect(value.fontSize, typed.fontSize);
+          expect(value.color, resolved.colorScheme.foreground);
+
+          await tester.pumpWidget(const SizedBox.shrink());
+          await pumpFinesse(
+            tester,
+            Center(child: SizedBox(width: 320, child: form())),
+            theme: theme,
+            formFactor: formFactor,
+          );
+          final placeholder = tester
+              .renderObject<RenderParagraph>(find.text('Select date'))
+              .text
+              .style!;
+          expect(placeholder.fontSize, typed.fontSize);
+          expect(placeholder.color, resolved.colorScheme.mutedForeground);
+          expect(tester.takeException(), isNull);
+          await tester.pumpWidget(const SizedBox.shrink());
+        }
+      });
+    }
+
+    testWidgets('a variant makes it that button', (tester) async {
+      await pumpFinesse(
+        tester,
+        Center(child: form(variant: ButtonVariant.outline)),
+      );
+      final button = tester.widget<Button>(
+        find.descendant(
+          of: find.byType(PickerTrigger),
+          matching: find.byType(Button),
+        ),
+      );
+      expect(button.variant, ButtonVariant.outline);
+      await open(tester);
+      expect(find.byType(Calendar), findsOneWidget);
+    });
+
+    testWidgets('the field is one button node, named by what it shows, '
+        'and opens from the keyboard', (tester) async {
+      final handle = tester.ensureSemantics();
+      await pumpFinesse(tester, Center(child: form(value: may)));
+      final node = find.bySemanticsLabel(RegExp('May 15th, 2024'));
+      expect(node, findsOneWidget);
+      final data = tester.getSemantics(node).getSemanticsData();
+      expect(data.flagsCollection.isButton, isTrue);
+      handle.dispose();
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await rest(tester);
+      expect(find.byType(Calendar), findsOneWidget);
+    });
+
+    testWidgets('disabled, it does not open', (tester) async {
+      await pumpFinesse(
+        tester,
+        const Center(child: DatePicker(value: null, onChanged: null)),
+      );
+      await tester.tap(find.byType(PickerTrigger), warnIfMissed: false);
+      await rest(tester);
+      expect(find.byType(Calendar), findsNothing);
     });
   });
 

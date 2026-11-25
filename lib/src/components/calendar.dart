@@ -847,6 +847,13 @@ class _CalendarState extends State<Calendar> {
     final effectiveAllowDeselection =
         widget.allowDeselection ?? calendar.allowDeselection ?? false;
 
+    // A caption, not a field: the dropdowns keep the small text that sits
+    // within the caption's height (`.cn-calendar-caption-label`), where a
+    // select's value is otherwise set as a field's.
+    final captionStyle = theme.textTheme.muted.copyWith(
+      color: theme.colorScheme.foreground,
+    );
+
     final yearSelector = Select<int>(
       initialValue: currentMonth.year,
       padding: effectiveYearSelectorPadding,
@@ -863,6 +870,7 @@ class _CalendarState extends State<Calendar> {
       selectedOptionBuilder: (context, value) {
         return Text(
           effectiveDropdownFormatYear(DateTime(value, currentMonth.month)),
+          style: captionStyle,
         );
       },
       options: availableYears.map(
@@ -892,6 +900,7 @@ class _CalendarState extends State<Calendar> {
       selectedOptionBuilder: (context, value) {
         return Text(
           effectiveDropdownFormatMonth(DateTime(currentMonth.year, value)),
+          style: captionStyle,
         );
       },
       options: List.generate(

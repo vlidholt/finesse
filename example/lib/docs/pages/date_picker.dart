@@ -9,7 +9,7 @@ final datePickerDoc = ComponentDoc(
   slug: 'date_picker',
   title: 'Date Picker',
   description:
-      'A button that shows a date and opens a way to change it: a '
+      'A field that shows a date and opens a way to change it: a '
       'calendar in a popover on a desktop, a calendar or wheels in a '
       'bottom sheet on a phone. `presentation` forces either one and '
       '`mode` chooses calendar or wheels. `DateRangePicker` picks a '
@@ -57,7 +57,10 @@ final datePickerDoc = ComponentDoc(
       id: 'date_picker_trigger',
       title: 'Another trigger',
       description:
-          'The calendar inside is configured on the picker too: '
+          'The trigger is a field, to sit among the fields of a form; '
+          '`variant` makes it that button instead, and `triggerBuilder` '
+          'any other control. The calendar inside is configured on the '
+          'picker too: '
           '`captionLayout`, `numberOfMonths`, `weekStartsOn`, '
           '`showWeekNumbers`, `selectableDayPredicate` and '
           '`calendarTheme`.',

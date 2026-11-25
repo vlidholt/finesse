@@ -1,8 +1,9 @@
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
-/// The button restyled, and replaced: `formatDate`, `variant` and `leading`
-/// change the default one; `triggerBuilder` builds any other control.
+/// The trigger restyled, and replaced: `variant` makes the default field a
+/// button and `formatDate` writes the date; `triggerBuilder` builds any
+/// other control.
 class DatePickerTriggerExample extends StatefulWidget {
   const DatePickerTriggerExample({super.key});
 

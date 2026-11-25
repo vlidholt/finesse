@@ -1,6 +1,7 @@
 import 'dart:ui' show PointerDeviceKind;
 
 import 'package:finesse/finesse.dart';
+import 'package:finesse/src/components/picker.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -503,7 +504,7 @@ void main() {
     });
 
     testWidgets("a date picker form field's focus node is its trigger's: a "
-        'failed validation focuses the button', (tester) async {
+        'failed validation focuses the trigger', (tester) async {
       for (final range in [false, true]) {
         final formKey = GlobalKey<FinesseFormState>();
         final node = FocusNode(debugLabel: 'form field');
@@ -533,12 +534,12 @@ void main() {
         // The node is a widget's, not an orphan under the route's scope.
         expect(node.context, isNotNull, reason: 'range: $range');
         expect(node.hasPrimaryFocus, isTrue, reason: 'range: $range');
-        var inButton = false;
+        var inTrigger = false;
         node.context!.visitAncestorElements((element) {
-          inButton = element.widget is Button;
-          return !inButton;
+          inTrigger = element.widget is PickerTrigger;
+          return !inTrigger;
         });
-        expect(inButton, isTrue, reason: 'range: $range');
+        expect(inTrigger, isTrue, reason: 'range: $range');
         await tester.pumpWidget(const SizedBox());
       }
     });

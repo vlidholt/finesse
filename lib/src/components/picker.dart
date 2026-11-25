@@ -1,16 +1,20 @@
 import 'dart:ui' show ImageFilter;
 
 import 'package:finesse/src/components/button.dart';
+import 'package:finesse/src/components/decorator.dart';
 import 'package:finesse/src/components/layout.dart';
 import 'package:finesse/src/components/popover.dart';
 import 'package:finesse/src/components/sheet.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/raw_components/portal.dart';
+import 'package:finesse/src/raw_components/pressable.dart';
 import 'package:finesse/src/theme/components/button.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/components/layout.dart';
+import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:flutter/widgets.dart';
 
 /// How a picker — `DatePicker`, `TimePicker`, `Select`, `ColorPickerButton`
@@ -279,8 +283,12 @@ class _PickerFocusOnOpenState extends State<PickerFocusOnOpen> {
   Widget build(BuildContext context) => widget.child;
 }
 
-/// The button a picker shows: the formatted value, or a placeholder in the
-/// muted colour, between an icon and whatever trails it.
+/// What a picker shows to open it: the formatted value, or a placeholder in
+/// the muted colour, between an icon and whatever trails it.
+///
+/// With no [variant] it is a field, as a text field or a select is: their
+/// outline, fill, height, padding and text, so a picker sits level with the
+/// other fields of a form. With a [variant] it is that button.
 ///
 /// Internal to the package.
 class PickerTrigger extends StatelessWidget {
@@ -316,25 +324,25 @@ class PickerTrigger extends StatelessWidget {
   /// The widget after the label.
   final Widget? trailing;
 
-  /// The look of the button.
+  /// The button it is; null makes it a field.
   final ButtonVariant? variant;
 
-  /// The size of the button.
+  /// The size of the button. A field is a field's height.
   final ButtonSize? size;
 
   /// A fixed width.
   final double? width;
 
-  /// Whether the button fills the width it is given.
+  /// Whether it fills the width it is given.
   final bool expands;
 
-  /// Whether the button can be pressed.
+  /// Whether it can be pressed.
   final bool enabled;
 
-  /// The focus node of the button.
+  /// Its focus node.
   final FocusNode? focusNode;
 
-  /// Whether the button takes the focus when it first appears.
+  /// Whether it takes the focus when it first appears.
   final bool autofocus;
 
   @override
@@ -342,6 +350,8 @@ class PickerTrigger extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final label = this.label;
+    final variant = this.variant;
+    if (variant == null) return _field(context, theme);
     final iconColor = label == null
         ? scheme.mutedForeground
         : scheme.foreground;
@@ -352,7 +362,7 @@ class PickerTrigger extends StatelessWidget {
             child: icon,
           );
     return Button(
-      variant: variant ?? ButtonVariant.outline,
+      variant: variant,
       style: ButtonTheme(
         pressScale: 1,
         width: width,
@@ -382,6 +392,85 @@ class PickerTrigger extends StatelessWidget {
                 child: placeholder,
               ),
       ),
+    );
+  }
+
+  /// The field look: a text field's decoration, height, padding and text.
+  Widget _field(BuildContext context, ThemeData theme) {
+    final scheme = theme.colorScheme;
+    final field = theme.textFieldTheme;
+    final label = this.label;
+    final decoration = field.decoration ?? const FinesseDecoration();
+    final padding =
+        field.padding ??
+        const EdgeInsets.symmetric(horizontal: 12, vertical: 8);
+    // What is typed into a text field, and its placeholder.
+    final valueStyle = theme.textTheme.muted
+        .copyWith(color: scheme.foreground)
+        .merge(field.style);
+    final placeholderStyle = theme.textTheme.muted
+        .merge(field.placeholderStyle)
+        .fallback(color: scheme.mutedForeground);
+    final gap = theme.layoutTheme.gap(GapSize.sm);
+
+    Widget? icon(Widget? icon) => icon == null
+        ? null
+        : IconTheme.merge(
+            // A field's icons are quiet, whatever it holds.
+            data: IconThemeData(color: scheme.mutedForeground, size: 16),
+            child: icon,
+          );
+    final leading = icon(this.leading);
+    final trailing = icon(this.trailing);
+
+    final row = Row(
+      mainAxisSize: expands || width != null
+          ? MainAxisSize.max
+          : MainAxisSize.min,
+      children: [
+        if (leading != null) ...[leading, SizedBox(width: gap)],
+        Flexible(
+          child: DefaultTextStyle(
+            style: label == null ? placeholderStyle : valueStyle,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            child: label == null ? placeholder : Text(label),
+          ),
+        ),
+        if (trailing != null) ...[SizedBox(width: gap), trailing],
+      ],
+    );
+
+    Widget trigger = Pressable(
+      onPressed: onPressed,
+      enabled: enabled,
+      focusNode: focusNode,
+      autofocus: autofocus,
+      semanticContainer: true,
+      pressScale: 1,
+      builder: (context, states) => ConstrainedBox(
+        // Outside the decorator, so the height counts the border in, as a
+        // text field's does.
+        constraints: field.constraints ?? const BoxConstraints(),
+        child: Decorator(
+          decoration: decoration,
+          focused: states.contains(WidgetState.focused),
+          child: Padding(
+            padding: padding,
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              widthFactor: expands || width != null ? null : 1,
+              heightFactor: 1,
+              child: row,
+            ),
+          ),
+        ),
+      ),
+    );
+    if (width != null) trigger = SizedBox(width: width, child: trigger);
+    return Opacity(
+      opacity: enabled ? 1 : theme.disabledOpacity,
+      child: trigger,
     );
   }
 }

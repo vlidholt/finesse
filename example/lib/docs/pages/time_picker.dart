@@ -8,7 +8,7 @@ final timePickerDoc = ComponentDoc(
   slug: 'time_picker',
   title: 'Time Picker',
   description:
-      'A button that shows a time and opens a way to change it: a '
+      'A field that shows a time and opens a way to change it: a '
       '`TimeField` in a popover on a desktop, wheels in a bottom sheet on '
       'a phone. It is the counterpart of `DatePicker`. `presentation` '
       'forces either one, `TimeWheelPicker` is the wheels on their own, '

@@ -46,7 +46,7 @@ String formatPickedDateRange(BuildContext context, DateTimeRange range) {
       : '${format.format(start)} - ${format.format(end)}';
 }
 
-/// A button that shows a date and opens a way to change it: a calendar in
+/// A field that shows a date and opens a way to change it: a calendar in
 /// a popover on a desktop, a calendar or wheels in a bottom sheet on a
 /// phone.
 ///
@@ -63,11 +63,11 @@ String formatPickedDateRange(BuildContext context, DateTimeRange range) {
 /// with [closeOnSelection], closes the picker; the wheels in a sheet turn a
 /// draft that Done reports and Cancel drops.
 ///
-/// The button is set by [placeholder], [formatDate], [leading],
-/// [trailing], [variant] and [size], or replaced by [triggerBuilder]. How
-/// the calendar looks is the theme's `CalendarTheme`; [calendarTheme]
-/// overrides it for this picker. `DateRangePicker` picks a first and a last
-/// day.
+/// The trigger is a field by default, set by [placeholder], [formatDate],
+/// [leading] and [trailing]; [variant] and [size] make it a button, and
+/// [triggerBuilder] replaces it. How the calendar looks is the theme's
+/// `CalendarTheme`; [calendarTheme] overrides it for this picker.
+/// `DateRangePicker` picks a first and a last day.
 class DatePicker extends StatefulWidget {
   /// Creates a date picker.
   const DatePicker({
@@ -148,16 +148,18 @@ class DatePicker extends StatefulWidget {
   /// A widget after the date.
   final Widget? trailing;
 
-  /// The look of the button. Defaults to the theme's, an outline.
+  /// The button the trigger is. Null (the default, and the theme's) makes
+  /// it a field, like a text field or a select, to sit among the fields of
+  /// a form; a variant makes it that button.
   final ButtonVariant? variant;
 
-  /// The size of the button.
+  /// The size of the button, when [variant] makes it one.
   final ButtonSize? size;
 
-  /// The width of the button. Defaults to the theme's.
+  /// The width of the trigger. Defaults to the theme's.
   final double? width;
 
-  /// Whether the button fills the width it is given.
+  /// Whether the trigger fills the width it is given.
   final bool expands;
 
   /// Whether the picker can be opened.
@@ -450,7 +452,7 @@ class _DateSheetState extends State<_DateSheet> {
   }
 }
 
-/// A button that shows a range of dates and opens a calendar to change it:
+/// A field that shows a range of dates and opens a calendar to change it:
 /// in a popover on a desktop, in a bottom sheet on a phone.
 ///
 /// ```dart
@@ -464,7 +466,7 @@ class _DateSheetState extends State<_DateSheet> {
 /// The first tap sets the first day and the second the last. In a popover
 /// each tap is reported, and the picker closes on the second when
 /// [closeOnSelection] is true; in a sheet the range is a draft that Done
-/// reports. See [DatePicker] for the button and the calendar.
+/// reports. See [DatePicker] for the trigger and the calendar.
 class DateRangePicker extends StatefulWidget {
   /// Creates a date range picker.
   const DateRangePicker({
@@ -550,16 +552,18 @@ class DateRangePicker extends StatefulWidget {
   /// A widget after the range.
   final Widget? trailing;
 
-  /// The look of the button. Defaults to the theme's, an outline.
+  /// The button the trigger is. Null (the default, and the theme's) makes
+  /// it a field, like a text field or a select, to sit among the fields of
+  /// a form; a variant makes it that button.
   final ButtonVariant? variant;
 
-  /// The size of the button.
+  /// The size of the button, when [variant] makes it one.
   final ButtonSize? size;
 
-  /// The width of the button. Defaults to the theme's.
+  /// The width of the trigger. Defaults to the theme's.
   final double? width;
 
-  /// Whether the button fills the width it is given.
+  /// Whether the trigger fills the width it is given.
   final bool expands;
 
   /// Whether the picker can be opened.
