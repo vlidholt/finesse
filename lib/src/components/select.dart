@@ -30,11 +30,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 /// Builder for the selected option widget in [Select].
-typedef SelectedOptionBuilder<T> =
-    Widget Function(
-      BuildContext context,
-      T value,
-    );
+typedef SelectedOptionBuilder<T> = Widget Function(
+  BuildContext context,
+  T value,
+);
 
 /// Defines the different variants of the [Select] widget.
 enum SelectVariant {

@@ -89,9 +89,11 @@ void main() {
           AnimatedContainer(:final decoration) => decoration,
           _ => null,
         };
-        if (decoration case BoxDecoration(
-          boxShadow: final shadows?,
-        ) when shadows.isNotEmpty) {
+        if (decoration
+            case BoxDecoration(
+              boxShadow: final shadows?,
+            )
+            when shadows.isNotEmpty) {
           offenders.add('${widget.runtimeType}: $shadows');
         }
       }

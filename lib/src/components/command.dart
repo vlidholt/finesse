@@ -81,11 +81,10 @@ class CommandGroup {
 /// Filters items against the current query.
 ///
 /// Return the items to show, in the order to show them.
-typedef CommandFilter =
-    List<CommandItem> Function(
-      List<CommandItem> items,
-      String query,
-    );
+typedef CommandFilter = List<CommandItem> Function(
+  List<CommandItem> items,
+  String query,
+);
 
 /// {@template Command}
 /// A searchable command palette.

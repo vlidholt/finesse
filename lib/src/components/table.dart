@@ -7,11 +7,10 @@ import 'package:flutter/widgets.dart';
 import 'package:two_dimensional_scrollables/two_dimensional_scrollables.dart';
 
 /// Builder function for creating [FinesseTableCell] widgets.
-typedef TableCellBuilder =
-    FinesseTableCell Function(
-      BuildContext context,
-      TableVicinity vicinity,
-    );
+typedef TableCellBuilder = FinesseTableCell Function(
+  BuildContext context,
+  TableVicinity vicinity,
+);
 
 /// Enum representing different variants of [FinesseTableCell].
 enum TableCellVariant {

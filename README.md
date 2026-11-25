@@ -209,7 +209,7 @@ FinesseApp(
 
 ## Platform support
 
-Android, iOS, macOS, Windows, Linux and the web, including WebAssembly. The package needs Flutter 3.41 or later.
+Android, iOS, macOS, Windows, Linux and the web, including WebAssembly. The package needs Flutter 3.50 or later.
 
 ## Versioning
 

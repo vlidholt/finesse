@@ -34,8 +34,11 @@ class CollapsibleController extends ChangeNotifier {
 /// Builds the trigger of a [Collapsible].
 ///
 /// [open] is the current state and [toggle] flips it.
-typedef CollapsibleTriggerBuilder =
-    Widget Function(BuildContext context, bool open, VoidCallback toggle);
+typedef CollapsibleTriggerBuilder = Widget Function(
+  BuildContext context,
+  bool open,
+  VoidCallback toggle,
+);
 
 /// {@template Collapsible}
 /// An expandable/collapsible section.

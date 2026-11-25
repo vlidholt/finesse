@@ -43,28 +43,27 @@ extension OmitFamilyAndPackageExtension on TextStyle {
 
 /// Builds a [TextStyle] in a given font, with the same signature as the
 /// `google_fonts` style functions such as `GoogleFonts.inter`.
-typedef FontBuilder =
-    TextStyle Function({
-      TextStyle? textStyle,
-      Color? color,
-      Color? backgroundColor,
-      double? fontSize,
-      FontWeight? fontWeight,
-      FontStyle? fontStyle,
-      double? letterSpacing,
-      double? wordSpacing,
-      TextBaseline? textBaseline,
-      double? height,
-      Locale? locale,
-      Paint? foreground,
-      Paint? background,
-      List<ui.Shadow>? shadows,
-      List<ui.FontFeature>? fontFeatures,
-      TextDecoration? decoration,
-      Color? decorationColor,
-      TextDecorationStyle? decorationStyle,
-      double? decorationThickness,
-    });
+typedef FontBuilder = TextStyle Function({
+  TextStyle? textStyle,
+  Color? color,
+  Color? backgroundColor,
+  double? fontSize,
+  FontWeight? fontWeight,
+  FontStyle? fontStyle,
+  double? letterSpacing,
+  double? wordSpacing,
+  TextBaseline? textBaseline,
+  double? height,
+  Locale? locale,
+  Paint? foreground,
+  Paint? background,
+  List<ui.Shadow>? shadows,
+  List<ui.FontFeature>? fontFeatures,
+  TextDecoration? decoration,
+  Color? decorationColor,
+  TextDecorationStyle? decorationStyle,
+  double? decorationThickness,
+});
 
 /// A [TextStyle] whose family follows its weight and style through a
 /// [FontBuilder].

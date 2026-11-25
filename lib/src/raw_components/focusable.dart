@@ -4,12 +4,11 @@ import 'package:flutter/widgets.dart';
 ///
 /// [focused] is true while the node has focus. [child] is the
 /// [Focusable.child], passed through so it does not rebuild.
-typedef FocusWidgetBuilder =
-    Widget Function(
-      BuildContext context,
-      bool focused,
-      Widget? child,
-    );
+typedef FocusWidgetBuilder = Widget Function(
+  BuildContext context,
+  bool focused,
+  Widget? child,
+);
 
 /// A [Focus] widget that rebuilds its [builder] when the focus changes.
 class Focusable extends StatefulWidget {

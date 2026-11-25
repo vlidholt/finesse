@@ -1004,7 +1004,7 @@ weight, another font, at or above the reference — is a plain `Icon`.
   the package through the public barrel, so it catches export breakage that
   the root analyzer does not. There is no separate `playground/` app any
   more; the example app replaced it.
-- **The Flutter floor is 3.41.** Before depending on a recent widgets-layer
+- **The Flutter floor is 3.50.** Before depending on a recent widgets-layer
   API (`SemanticsRole`, `flagsCollection`, `Matrix4.translateByDouble`,
   `RawMenuAnchor`, `Expansible`) check that it exists there; the
   minimum-Flutter CI job fails otherwise.

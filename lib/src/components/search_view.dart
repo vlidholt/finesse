@@ -19,8 +19,11 @@ import 'package:flutter/widgets.dart';
 ///
 /// Call [close] with a value to dismiss the view and complete the
 /// `showSearch` future with it.
-typedef SearchViewBuilder<T> =
-    Widget Function(BuildContext context, String query, ValueChanged<T> close);
+typedef SearchViewBuilder<T> = Widget Function(
+  BuildContext context,
+  String query,
+  ValueChanged<T> close,
+);
 
 /// Shows a search: a field and, under it, whatever [builder] makes of what
 /// is typed. The future completes with the value the builder closed the

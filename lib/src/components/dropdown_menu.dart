@@ -5,12 +5,11 @@ import 'package:flutter/widgets.dart';
 
 /// Builds a [DropdownMenu]'s trigger. Call `controller.toggle` from the
 /// trigger's `onPressed`.
-typedef DropdownMenuTriggerBuilder =
-    Widget Function(
-      BuildContext context,
-      PopoverController controller,
-      Widget? child,
-    );
+typedef DropdownMenuTriggerBuilder = Widget Function(
+  BuildContext context,
+  PopoverController controller,
+  Widget? child,
+);
 
 /// {@template DropdownMenu}
 /// shadcn/ui's DropdownMenu: a menu that opens from a trigger, below it and

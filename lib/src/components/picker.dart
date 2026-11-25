@@ -35,8 +35,11 @@ enum PickerPresentation {
 ///
 /// [value] is what the picker holds and [toggle] opens it, or closes it
 /// when it is open.
-typedef PickerTriggerBuilder<T> =
-    Widget Function(BuildContext context, T value, VoidCallback toggle);
+typedef PickerTriggerBuilder<T> = Widget Function(
+  BuildContext context,
+  T value,
+  VoidCallback toggle,
+);
 
 /// Whether [presentation] is a sheet under the theme of [context].
 bool pickerOpensSheet(BuildContext context, PickerPresentation presentation) {

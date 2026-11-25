@@ -24,3 +24,8 @@ linter:
     document_ignores: false
     avoid_types_on_closure_parameters: false
     remove_deprecations_in_breaking_versions: false
+    # Dart 3.14 allows private initializing formals (`{this._x}`), and the
+    # rule then flags every constructor that assigns a private field from a
+    # parameter of the same name. That is a style change across ~220
+    # constructors, not a fix; adopt it separately if wanted.
+    prefer_initializing_formals: false

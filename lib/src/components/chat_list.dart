@@ -118,12 +118,11 @@ class ChatListController {
 ///
 /// [unseenCount] is the number of messages that arrived while the reader
 /// was scrolled away; [onPressed] scrolls to the newest.
-typedef ChatListJumpBuilder =
-    Widget Function(
-      BuildContext context,
-      int unseenCount,
-      VoidCallback onPressed,
-    );
+typedef ChatListJumpBuilder = Widget Function(
+  BuildContext context,
+  int unseenCount,
+  VoidCallback onPressed,
+);
 
 /// A conversation: a lazily built, scrolling list of messages that is
 /// anchored to its newest one, and that moves when it changes.

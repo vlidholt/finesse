@@ -1,7 +1,3 @@
-// The list's `cacheExtent` is deprecated, but its replacement does not
-// exist on the minimum Flutter the package supports (3.41).
-// ignore_for_file: deprecated_member_use
-
 import 'dart:math' as math;
 
 import 'package:finesse/finesse.dart';
@@ -295,7 +291,7 @@ class _PickerListState<T> extends State<_PickerList<T>> {
           primary: false,
           padding: EdgeInsets.zero,
           itemExtent: extent,
-          cacheExtent: extent,
+          scrollCacheExtent: ScrollCacheExtent.pixels(extent),
           itemCount: widget.options.length,
           itemBuilder: (context, index) {
             final option = widget.options[index];

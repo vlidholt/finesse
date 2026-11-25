@@ -5,8 +5,10 @@ import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/widgets.dart';
 
 /// Builds a widget from the interaction states of a [Pressable].
-typedef PressableBuilder =
-    Widget Function(BuildContext context, Set<WidgetState> states);
+typedef PressableBuilder = Widget Function(
+  BuildContext context,
+  Set<WidgetState> states,
+);
 
 /// A tappable, focusable, hoverable region that reports its interaction
 /// state to a builder.
@@ -611,20 +613,16 @@ class _AnimatedFillState extends AnimatedWidgetBaseState<_AnimatedFill> {
 
   @override
   void forEachTween(TweenVisitor<dynamic> visitor) {
-    _color =
-        visitor(
-              _color,
-              widget.color ?? _none,
-              (dynamic value) => _FillTween(begin: value as Color?),
-            )
-            as _FillTween?;
-    _borderColor =
-        visitor(
-              _borderColor,
-              widget.borderColor ?? _none,
-              (dynamic value) => _FillTween(begin: value as Color?),
-            )
-            as _FillTween?;
+    _color = visitor(
+      _color,
+      widget.color ?? _none,
+      (dynamic value) => _FillTween(begin: value as Color?),
+    ) as _FillTween?;
+    _borderColor = visitor(
+      _borderColor,
+      widget.borderColor ?? _none,
+      (dynamic value) => _FillTween(begin: value as Color?),
+    ) as _FillTween?;
   }
 
   @override

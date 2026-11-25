@@ -18,8 +18,8 @@ screenshots:
     path: assets/screenshot.png
 
 environment:
-  sdk: ">=3.11.0 <4.0.0"
-  flutter: ">=3.41.0"
+  sdk: ">=3.14.0 <4.0.0"
+  flutter: ">=3.50.0"
 
 dependencies:
   boxy: ^2.1.2
@@ -31,7 +31,6 @@ dependencies:
   intl: ^0.20.0
   slang: ^4.19.0
   slang_flutter: ^4.19.0
-  # Not ^7.5: that needs Dart 3.13, above this package's Flutter 3.41 floor.
   theme_extensions_builder_annotation: ^7.1.0
   # Re-exported in part: FinesseTableCell extends TableViewCell.
   two_dimensional_scrollables: ^0.5.3

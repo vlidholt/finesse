@@ -327,8 +327,11 @@ DateTime _initialDay(DateTime? min, DateTime? max) {
 
 /// Builds the calendar of a sheet around a draft, with the theme values
 /// that make it as wide as the sheet.
-typedef _SheetCalendarBuilder<T> =
-    Widget Function(T draft, ValueChanged<T> onChanged, CalendarTheme override);
+typedef _SheetCalendarBuilder<T> = Widget Function(
+  T draft,
+  ValueChanged<T> onChanged,
+  CalendarTheme override,
+);
 
 /// A calendar laid out as wide as the room it is given, with square cells.
 ///

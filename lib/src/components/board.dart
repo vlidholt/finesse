@@ -27,12 +27,11 @@ part 'reorderable_list_view.dart';
 /// It is called for the item in its column and, while the item is being
 /// dragged, a second time for the lifted copy that follows the pointer; see
 /// [BoardItemDetails.dragging].
-typedef BoardItemBuilder<T> =
-    Widget Function(
-      BuildContext context,
-      T item,
-      BoardItemDetails<T> details,
-    );
+typedef BoardItemBuilder<T> = Widget Function(
+  BuildContext context,
+  T item,
+  BoardItemDetails<T> details,
+);
 
 /// What starts a drag in a [Board].
 enum BoardDragTrigger {

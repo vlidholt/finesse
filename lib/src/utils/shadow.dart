@@ -372,10 +372,12 @@ Path _spreadPath(
   BoxShadow shadow,
   TextDirection textDirection,
 ) {
-  if (decoration case BoxDecoration(
-    shape: BoxShape.rectangle,
-    :final borderRadius?,
-  ) when shadow.spreadRadius != 0) {
+  if (decoration
+      case BoxDecoration(
+        shape: BoxShape.rectangle,
+        :final borderRadius?,
+      )
+      when shadow.spreadRadius != 0) {
     final radius = borderRadius.resolve(textDirection);
     Radius grow(Radius r) => Radius.elliptical(
       math.max(0, r.x + shadow.spreadRadius),

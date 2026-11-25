@@ -479,9 +479,11 @@ class _ScreensState extends State<_Screens> {
     ScrollPosition? page;
     void visit(Element element) {
       if (page != null) return;
-      if (element case StatefulElement(
-        :final ScrollableState state,
-      ) when state.axisDirection == AxisDirection.down) {
+      if (element
+          case StatefulElement(
+            :final ScrollableState state,
+          )
+          when state.axisDirection == AxisDirection.down) {
         page = state.position;
         return;
       }
