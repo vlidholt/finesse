@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:finesse/src/liquid_glass/liquid_glass.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
@@ -50,6 +52,11 @@ class LiquidGlassTabAction {
 /// stretches from tab to tab, with an optional [action] on a capsule of its
 /// own beside it.
 ///
+/// As on iOS 26 the capsule is as wide as its tabs, not as the screen: with
+/// an [action] the tabs sit at the start and the action at the end with the
+/// free space between them, and without one the capsule is centred. Only
+/// when the tabs do not fit do they share what there is.
+///
 /// Built by `BottomNavigationBar` when Liquid Glass is active; not public.
 class LiquidGlassTabBar extends StatelessWidget {
   /// Creates a Liquid Glass tab bar.
@@ -71,8 +78,9 @@ class LiquidGlassTabBar extends StatelessWidget {
   /// The tabs.
   final List<LiquidGlassTab> tabs;
 
-  /// The index of the selected tab.
-  final int selectedIndex;
+  /// The index of the selected tab, or null when none is: no lens shows,
+  /// and every tab is drawn unselected.
+  final int? selectedIndex;
 
   /// Called with the index of the tab tapped; null disables the bar.
   final ValueChanged<int>? onSelected;
@@ -101,26 +109,56 @@ class LiquidGlassTabBar extends StatelessWidget {
   /// The space between the bar and the bottom safe area.
   final double bottomMargin;
 
+  /// The width of one tab: an icon with room for the lens around it, or a
+  /// label with its own padding, whichever is wider.
+  @visibleForTesting
+  double naturalTabWidth(BuildContext context) {
+    // The lens is a capsule round the icon; iOS leaves about an icon's
+    // width either side of it.
+    var width = math.max(iconSize * 2.3, barHeight - 8);
+    if (showLabels) {
+      final style = Theme.of(context).textTheme.caption;
+      final scaler = MediaQuery.textScalerOf(context);
+      for (final tab in tabs) {
+        final painter = TextPainter(
+          text: TextSpan(text: tab.label, style: style),
+          textDirection: TextDirection.ltr,
+          textScaler: scaler,
+          maxLines: 1,
+        )..layout();
+        width = math.max(width, painter.width + 24);
+        painter.dispose();
+      }
+    }
+    return width.ceilToDouble();
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final label = theme.textTheme.caption;
     final action = this.action;
     final onSelected = this.onSelected;
+    final selected = selectedIndex;
     // The lens grows past the bar while it moves; the bar keeps that much
     // room above and below itself, taken out of its margin.
     const lensRoom = 8.0;
-    final bar = lg.GlassTabBar.bottom(
+    final tabWidth = naturalTabWidth(context);
+    Widget bar = lg.GlassTabBar.bottom(
       tabs: [
         for (final tab in tabs)
           lg.GlassTab(
             icon: tab.icon,
-            activeIcon: tab.activeIcon,
+            // With nothing selected the first tab stands in for the
+            // package's selection, drawn as it is at rest.
+            activeIcon: selected == null ? tab.icon : tab.activeIcon,
             label: showLabels ? tab.label : null,
             semanticLabel: tab.label,
           ),
       ],
-      selectedIndex: selectedIndex,
+      selectedIndex: selected ?? 0,
+      showIndicator: selected != null,
+      tabWidth: tabWidth,
       onTabSelected: onSelected ?? (_) {},
       extraButton: action == null
           ? null
@@ -137,11 +175,21 @@ class LiquidGlassTabBar extends StatelessWidget {
       iconSize: iconSize,
       labelFontSize: label.fontSize ?? 11,
       textStyle: label,
-      selectedIconColor: selectedColor,
+      selectedIconColor: selected == null ? unselectedColor : selectedColor,
       unselectedIconColor: unselectedColor,
-      selectedLabelColor: selectedColor,
+      selectedLabelColor: selected == null ? unselectedColor : selectedColor,
       unselectedLabelColor: unselectedColor,
     );
+    if (action == null) {
+      // The package puts the capsule at the start of the width it is
+      // given; given only the capsule's, it is centred.
+      bar = Center(
+        child: SizedBox(
+          width: tabWidth * tabs.length + 2 * horizontalMargin,
+          child: bar,
+        ),
+      );
+    }
     final bottom =
         MediaQuery.paddingOf(context).bottom +
         (bottomMargin - lensRoom).clamp(0.0, double.infinity);

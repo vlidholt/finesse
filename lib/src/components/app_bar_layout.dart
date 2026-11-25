@@ -10,6 +10,7 @@ import 'package:finesse/src/icons/phosphor_icon.dart';
 import 'package:finesse/src/icons/phosphor_icons_regular.dart';
 import 'package:finesse/src/liquid_glass/liquid_glass.dart';
 import 'package:finesse/src/liquid_glass/liquid_glass_theme.dart';
+import 'package:finesse/src/theme/components/layout.dart';
 import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/backdrop.dart';
@@ -34,13 +35,26 @@ bool appBarUsesLiquidGlass(BuildContext context, LiquidGlassMode? mode) {
   return LiquidGlass.isActive(context, mode);
 }
 
+/// The space above a primary bar's toolbar in [context]: the status bar,
+/// or — for a bar of floating glass where there is none (a browser, a
+/// desktop window, a simulator's frame) — a small margin, so its capsules
+/// do not touch the top of the window as they never touch a phone's
+/// status bar.
+double appBarTopInset(BuildContext context, {required bool liquid}) {
+  final top = MediaQuery.paddingOf(context).top;
+  if (!liquid || top > 0) return top;
+  return Theme.of(context).layoutTheme.gap(GapSize.sm);
+}
+
 /// Whether [leading] is a button, which iOS 26 puts on a capsule of glass:
 /// a logo or a title at the start of the bar stands on the page bare.
-bool _isBarButton(Widget leading) =>
-    leading is IconButton ||
-    leading is Button ||
-    leading is BackButton ||
-    leading is CloseButton;
+bool _isBarButton(Widget leading) => switch (leading) {
+  IconButton() || Button() || BackButton() || CloseButton() => true,
+  // A button kept on a layer of its own, as a bar that repaints while it
+  // scrolls keeps its buttons.
+  RepaintBoundary(:final child?) => _isBarButton(child),
+  _ => false,
+};
 
 /// A bar's [leading] and [actions] as iOS 26 puts them on Liquid Glass:
 /// the leading button on a capsule of its own and all the actions on one

@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:finesse/finesse.dart';
 import 'package:finesse/src/liquid_glass/liquid_glass.dart'
     show
@@ -7,7 +5,8 @@ import 'package:finesse/src/liquid_glass/liquid_glass.dart'
         LiquidGlassScrollEdge,
         glassThemeDataOf,
         legibleOverlaySettings,
-        overlayEdgeColor;
+        overlayEdgeColor,
+        withoutInvisibleBlur;
 import 'package:finesse/src/liquid_glass/menu.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
@@ -341,7 +340,9 @@ void main() {
       });
     });
 
-    testWidgets('a bar with nothing selected stays frosted', (tester) async {
+    testWidgets('a bar with nothing selected keeps the glass, with no lens', (
+      tester,
+    ) async {
       await onPlatform(TargetPlatform.iOS, () async {
         await pump(
           tester,
@@ -356,7 +357,67 @@ void main() {
             ),
           ),
         );
-        expect(find.byType(lg.GlassTabBar), findsNothing);
+        final bar = tester.widget<lg.GlassTabBar>(find.byType(lg.GlassTabBar));
+        expect(bar.showIndicator, isFalse);
+      });
+    });
+
+    testWidgets('the tabs keep their own width; the action takes the end', (
+      tester,
+    ) async {
+      await onPlatform(TargetPlatform.iOS, () async {
+        Widget bottomBar({NavigationAction? action}) => Align(
+          alignment: Alignment.bottomCenter,
+          child: BottomNavigationBar(
+            selectedIndex: 0,
+            onDestinationSelected: (_) {},
+            action: action,
+            destinations: const [
+              NavigationDestination(icon: SizedBox(), label: 'Home'),
+              NavigationDestination(icon: SizedBox(), label: 'Jobs'),
+            ],
+          ),
+        );
+        await pump(
+          tester,
+          bottomBar(
+            action: NavigationAction(
+              icon: const SizedBox(),
+              label: 'Compose',
+              onPressed: () {},
+            ),
+          ),
+        );
+        final bar = tester.widget<lg.GlassTabBar>(find.byType(lg.GlassTabBar));
+        expect(bar.tabWidth, isNotNull);
+        // Two tabs on a phone leave room: they are not stretched to it.
+        final screen = tester.getSize(find.byType(lg.GlassTabBar));
+        expect(bar.tabWidth! * 2, lessThan(screen.width / 2));
+
+        // Without an action the capsule is centred.
+        await pump(tester, bottomBar());
+        final rect = tester.getRect(find.byType(lg.GlassTabBar));
+        final window = tester.view.physicalSize / tester.view.devicePixelRatio;
+        expect(rect.center.dx, closeTo(window.width / 2, 1));
+        expect(rect.width, lessThan(window.width / 2));
+      });
+    });
+
+    testWidgets('a glass bar with no status bar keeps a margin above it', (
+      tester,
+    ) async {
+      await onPlatform(TargetPlatform.iOS, () async {
+        await pump(
+          tester,
+          const Column(children: [AppBar(title: Text('Title'))]),
+        );
+        // The test window has no status bar.
+        final bar = tester.getRect(find.byType(AppBar));
+        final title = tester.getRect(find.text('Title'));
+        final frosted = AppBar.heightOf(tester.element(find.byType(AppBar)));
+        expect(bar.height, frosted);
+        expect(bar.height, greaterThan(44 + 1));
+        expect(title.top, greaterThan(bar.top + 8));
       });
     });
 
@@ -531,7 +592,7 @@ void main() {
       });
     });
 
-    testWidgets('the scroll edge reaches below its box, in fine bands', (
+    testWidgets('the scroll edge reaches below its box, in fine strips', (
       tester,
     ) async {
       await pump(
@@ -545,13 +606,14 @@ void main() {
         ),
       );
       // No shader filters in a test, as on the web: the graduated blur is
-      // nested bands rather than the package's single pass, which would
-      // blur uniformly and stop on a line.
+      // strips rather than the package's single pass, which would blur
+      // uniformly and stop on a line.
       expect(find.byType(lg.ProgressiveBlur), findsNothing);
-      final bands = find.byType(BackdropFilter);
-      expect(bands, findsNWidgets(6));
-      // The widest band covers the box and its overhang.
-      expect(tester.getRect(bands.first).height, 50 + 24);
+      final strips = find.byType(BackdropFilter);
+      expect(strips, findsNWidgets(6));
+      // Together they cover the box and its overhang.
+      final top = tester.getRect(strips.first).top;
+      expect(tester.getRect(strips.last).bottom - top, 50 + 24);
     });
 
     testWidgets('a menu on a phone morphs out of its trigger', (tester) async {
@@ -628,15 +690,27 @@ void main() {
       expect(legibleOverlaySettings(preset, dark).whitenStrength, 0);
     });
 
-    test("the scroll edge's bands make a straight ramp", () {
-      const n = 4;
-      final sigmas = LiquidGlassScrollEdge.bandSigmas(12, n);
-      expect(sigmas, hasLength(n));
-      // Slice j from the top is covered by the last n - j bands.
-      for (var j = 0; j < n; j++) {
-        final covering = sigmas.sublist(0, n - j);
-        final composed = covering.fold<double>(0, (a, s) => a + s * s);
-        expect(composed, closeTo(math.pow(12 * (n - j) / n, 2), 1e-9));
+    test('a blur too faint to see is dropped, not paid for', () {
+      const faint = lg.GlassThemeSettings(blur: .6);
+      expect(withoutInvisibleBlur(faint).blur, 0);
+      const real = lg.GlassThemeSettings(blur: 8);
+      expect(withoutInvisibleBlur(real).blur, 8);
+      // The derived theme carries it.
+      expect(glassThemeDataOf(ThemeData()).light.settings!.blur, 0);
+    });
+
+    test("the scroll edge's strips fall smoothly to nothing", () {
+      final sigmas = LiquidGlassScrollEdge.stripSigmas(12);
+      expect(sigmas, hasLength(6));
+      expect(sigmas.first, greaterThan(10));
+      expect(sigmas.last, lessThan(.5));
+      // Each step is smaller than the one above it: smallest where the
+      // blur is lightest and a step would show.
+      for (var j = 2; j < sigmas.length; j++) {
+        expect(
+          sigmas[j - 1] - sigmas[j],
+          lessThan(sigmas[j - 2] - sigmas[j - 1]),
+        );
       }
     });
   });

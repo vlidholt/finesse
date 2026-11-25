@@ -454,12 +454,12 @@ class BottomNavigationBar extends StatelessWidget {
     );
     final gap = bar.gap ?? 4;
     final selected = selectedIndex;
-    if (isFloating &&
-        selected != null &&
-        selected >= 0 &&
-        selected < destinations.length &&
-        LiquidGlass.isActive(context, bar.liquidGlass)) {
-      return _buildLiquid(context, selected, barPadding);
+    if (isFloating && LiquidGlass.isActive(context, bar.liquidGlass)) {
+      // A screen that is none of the destinations (a page reached from
+      // the app bar) keeps the same bar, with no lens on any tab.
+      final valid =
+          selected != null && selected >= 0 && selected < destinations.length;
+      return _buildLiquid(context, valid ? selected : null, barPadding);
     }
     // A floating bar is as wide as its items, but never wider than the
     // screen: on a narrow phone the items give up width evenly rather than
@@ -681,7 +681,7 @@ extension on BottomNavigationBar {
   /// beside them rather than between them.
   Widget _buildLiquid(
     BuildContext context,
-    int selected,
+    int? selected,
     EdgeInsets barPadding,
   ) {
     final theme = Theme.of(context);

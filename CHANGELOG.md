@@ -358,7 +358,8 @@ was measured from (Strand, until it moved), is its own repository,
   hairline; the content under it is blurred more the nearer the top and
   faded into the page, a little past the bar's bottom; a leading button and
   the actions on glass capsules, a logo bare — a desktop's top bar stays
-  solid unless `AppBarTheme.liquidGlass` is `always`), the floating `BottomNavigationBar` (the package's tab bar,
+  solid unless `AppBarTheme.liquidGlass` is `always`), the floating
+  `BottomNavigationBar` (the package's tab bar,
   with a lens that slides between tabs and the `action` on its own capsule
   beside them), `Toolbar`, `NavigationRail`, a glass `FloatingActionButton`,
   `Glass`, popovers, menus, a select's list, `Surface`, `Command` in a
@@ -379,7 +380,16 @@ was measured from (Strand, until it moved), is its own repository,
   lighter glass whose blur and rim do little over a light page. finesse
   gives overlays there a stronger blur and a whitened body and keeps its
   own hairline round them, and builds the app bar's graduated blur from
-  nested bands instead of the package's uniform fallback.
+  strips whose blur falls with the square of the distance from the bottom,
+  instead of the package's uniform fallback. A blur too faint to see (the
+  iOS presets' 0.6) is dropped there rather than costing a backdrop pass
+  under every capsule, bar and control.
+- **The bottom bar's tabs keep their own width**: the capsule hugs them,
+  with the free space between it and the `action`, as on iOS 26, and it is
+  centred when there is no action. A screen that is none of the
+  destinations keeps the glass bar, with no lens.
+- A bar on glass with no status bar above it (a browser, a desktop
+  window) keeps a small gap above its buttons.
 - `LiquidGlass.initialize()` keeps the package's progress messages
   (`[LiquidGlass] Initializing library...`, `Created web shader...`) out
   of the console.

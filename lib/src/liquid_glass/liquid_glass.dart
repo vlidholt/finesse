@@ -188,6 +188,7 @@ lg.GlassThemeData _deriveGlassTheme(ThemeData theme) {
       );
     }
     if (custom != null) settings = _merge(settings, custom);
+    settings = withoutInvisibleBlur(settings);
     return preset.copyWith(
       settings: settings,
       quality: config.quality,
@@ -201,6 +202,26 @@ lg.GlassThemeData _deriveGlassTheme(ThemeData theme) {
     light: variant(base.light, Brightness.light, config.light),
     dark: variant(base.dark, Brightness.dark, config.dark),
   );
+}
+
+/// [settings] without a blur too faint to see when there are no shader
+/// filters (the web, Skia).
+///
+/// The iOS presets blur the page under the glass by 0.6, leaving the
+/// frosting to the package's `frost`, which only its Impeller tier draws.
+/// Its lighter tier still pushes a backdrop filter for that 0.6 — a copy of
+/// the page under every capsule, bar and control, on every frame —
+/// and a blur that faint changes nothing anyone sees. At 0 the surface
+/// draws its tint, rim and highlights straight onto the page. An overlay,
+/// which does need its blur there, gets one of its own
+/// ([legibleOverlaySettings]).
+@visibleForTesting
+lg.GlassThemeSettings withoutInvisibleBlur(lg.GlassThemeSettings settings) {
+  final blur = settings.blur;
+  if (ui.ImageFilter.isShaderFilterSupported || blur == null || blur >= 1) {
+    return settings;
+  }
+  return settings.copyWith(blur: 0);
 }
 
 lg.GlassThemeSettings _merge(lg.GlassThemeSettings a, lg.GlassThemeSettings b) {
@@ -517,8 +538,8 @@ class LiquidGlassBarGroup extends StatelessWidget {
 /// blur is the package's `ProgressiveBlur`, one graduated pass. Without
 /// them — the web, Skia — the package would blur uniformly and end on a
 /// hard edge, which reads as a solid bar; there the blur is built from a
-/// few nested bands instead, each blurring a little more of the top, in
-/// steps too small to see.
+/// strips side by side instead, their blur falling with the square of the
+/// distance from the bottom so no step between them shows.
 class LiquidGlassScrollEdge extends StatelessWidget {
   /// Creates the scroll edge of a bar, faded in by [visibility].
   const LiquidGlassScrollEdge({
@@ -541,43 +562,41 @@ class LiquidGlassScrollEdge extends StatelessWidget {
   /// How far the edge reaches below the box it is given.
   final double overhang;
 
-  /// How many nested bands make the graduated blur without shader filters.
-  static const _bands = 6;
+  /// How many strips make the graduated blur without shader filters.
+  static const _strips = 6;
 
-  /// The sigma of each band of the graduated blur without shader filters,
-  /// the band reaching furthest down first.
+  /// The sigma of each strip of the graduated blur without shader filters,
+  /// top first.
   ///
-  /// Band `k` covers the top `(k + 1) / n` of the edge. Blurs compose as
-  /// the root of the sum of their squares, so the slice `j` from the top,
-  /// covered by bands `j` to `n - 1`, is blurred by
-  /// `maxSigma × (n − j) / n`: a straight ramp down to a last step of
-  /// `maxSigma / n`.
+  /// The strips lie side by side, each blurring the page under it once.
+  /// The sigma falls with the square of the distance from the bottom, so
+  /// the steps between neighbours are tiny where the blur is light, where
+  /// a step would show as a line through sharp content, and larger only
+  /// where the content is a soft wash anyway. Nested bands whose blurs
+  /// compose — this edge's first fallback — step evenly and showed as
+  /// stripes on a photograph.
   @visibleForTesting
-  static List<double> bandSigmas(double maxSigma, [int n = _bands]) => [
-    for (var k = n - 1; k >= 0; k--)
-      math.sqrt(
-        math.pow(maxSigma * (n - k) / n, 2) -
-            math.pow(maxSigma * (n - k - 1) / n, 2),
-      ),
+  static List<double> stripSigmas(double maxSigma, [int n = _strips]) => [
+    for (var j = 0; j < n; j++)
+      maxSigma * math.pow(1 - (j + .5) / n, 2).toDouble(),
   ];
 
   Widget _blur(double sigma) {
     if (ui.ImageFilter.isShaderFilterSupported) {
       return lg.ProgressiveBlur(maxSigma: sigma);
     }
-    final sigmas = bandSigmas(sigma);
-    return Stack(
-      fit: StackFit.expand,
+    return Column(
       children: [
-        for (var i = 0; i < sigmas.length; i++)
-          FractionallySizedBox(
-            alignment: Alignment.topCenter,
-            heightFactor: (_bands - i) / _bands,
+        for (final s in stripSigmas(sigma))
+          Expanded(
             child: ClipRect(
               child: BackdropFilter(
                 filter: ui.ImageFilter.blur(
-                  sigmaX: sigmas[i],
-                  sigmaY: sigmas[i],
+                  sigmaX: s,
+                  sigmaY: s,
+                  // Each strip reads the page beyond its own edges, not a
+                  // transparent border, or its ends would darken.
+                  tileMode: TileMode.mirror,
                 ),
                 child: const SizedBox.expand(),
               ),

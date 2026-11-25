@@ -205,9 +205,8 @@ componentTheme.liquidGlass)` at build: never a window width, never cached.
   `BottomNavigationBar` build the package's widget. Each delegation has a
   frosted fallback for what the package cannot express: a slider with an
   always-shown bubble or division marks, a segmented control with no
-  selection or an unnamed non-`Text` label, a bar with nothing selected or
-  docked, a popover with an arrow, a desktop top bar. Tooltips never
-  switch.
+  selection or an unnamed non-`Text` label, a docked bar, a popover with
+  an arrow, a desktop top bar. Tooltips never switch.
 - **A Liquid Glass surface claims the entrance fade too**, like a
   `BackdropSurface`, and fades the glass by `LiquidGlassSettings.visibility`
   with its content in a `FadeTransition`: the shader does not survive an
@@ -222,13 +221,32 @@ componentTheme.liquidGlass)` at build: never a window width, never cached.
   not an opacity, follows the bar's `visibility` — and no hairline. The
   package's `ProgressiveBlur` needs shader filters: **without them (the
   web, Skia) it blurs uniformly and stops on a line, which reads as a
-  solid bar**, so there the edge is six nested `BackdropFilter` bands
-  whose sigmas compose to a straight ramp (`bandSigmas`). A leading
-  *button* (`IconButton`, `Button`, `BackButton`, `CloseButton`, or the
-  implied one) goes on a `LiquidGlassBarGroup` capsule; a logo or title
-  stands bare. All actions share one capsule. A bar on glass is always
+  solid bar**, so there the edge is six `BackdropFilter` strips side by
+  side, each blurring the page once, their sigma falling with the square
+  of the distance from the bottom (`stripSigmas`): the steps are tiny
+  where the blur is light, where a step shows as a line. Nested bands
+  whose blurs compose stepped evenly, showed as stripes on a photograph
+  and blurred the top of the edge six times over (29 % of a phone screen
+  blurred, against 9 %). Tried and not working on the web: a
+  `ShaderMask` over a `BackdropFilter` (the mask is ignored and the blur
+  still ends on a line), a perspective `ImageFilter.matrix` around one
+  blur (smears and streaks), and blurs mixed in by a colour filter's
+  alpha. A leading *button* (`IconButton`, `Button`, `BackButton`,
+  `CloseButton`, also inside a `RepaintBoundary`, or the implied one)
+  goes on a `LiquidGlassBarGroup` capsule; a logo or title stands bare.
+  All actions share one capsule. A bar on glass is always
   `whenScrolled`: the edge would otherwise blur the page's first lines at
-  rest.
+  rest. With no status bar above it (a browser, a desktop window) a
+  primary bar on glass keeps a small gap above its toolbar
+  (`appBarTopInset`), which `AppBar.heightOf` counts.
+- **Invisible blurs are not paid for off Impeller.** The iOS presets blur
+  by 0.6 and leave the frosting to `frost`; the package's lighter tier
+  still pushes a `BackdropFilterLayer` for that 0.6 under every glass
+  surface — a copy of the page per capsule, bar and control, every frame.
+  `withoutInvisibleBlur` sets a blur under 1 to 0 in the derived
+  `GlassThemeData` when there are no shader filters, so those surfaces
+  draw tint, rim and highlights straight onto the page. Overlays get
+  their own blur back from `legibleOverlaySettings`.
 - **Overlays have to be made legible off Impeller.** The iOS presets get
   an overlay's legibility from the package's `frost`, which only its
   premium tier draws; the standard tier (every browser, Skia) keeps their
@@ -254,7 +272,13 @@ componentTheme.liquidGlass)` at build: never a window width, never cached.
   around `debugPrint`. Not from `FinesseApp`: a test binding fails any
   test that leaves `debugPrint` changed.
 - **The bottom bar's `action` floats beside the tabs** on the glass bar
-  (`GlassTabBarExtraButton`, iOS 26's split bar), not between them.
+  (`GlassTabBarExtraButton`, iOS 26's split bar), not between them. The
+  tab capsule is as wide as its tabs (`tabWidth`, from
+  `LiquidGlassTabBar.naturalTabWidth`: 2.3 icons or a label's width),
+  with the free space between it and the action; with no action it is
+  centred. A bar with nothing selected (a page that is none of the
+  destinations) stays glass with the lens hidden (`showIndicator:
+  false`), so it looks the same on every screen.
 - **Haptics stay finesse's rule**: the switch gets
   `enableHaptics: Haptics.enabledOf(context)`. `GlassSlider` ticks on
   division changes by itself and cannot be told not to.

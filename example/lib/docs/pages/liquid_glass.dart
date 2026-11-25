@@ -124,7 +124,7 @@ final liquidGlassDoc = ComponentDoc(
             'of the same glass by itself: blur, rim and highlights without '
             'refraction, and a uniform blur where the top edge would be '
             'graduated. finesse builds the app bar\'s graduated blur from '
-            'a few nested bands there instead, and gives menus, popovers and '
+            'strips that fall off smoothly there instead, and gives menus, popovers and '
             'dialogs a stronger blur, a lighter body and a hairline edge, '
             'so they read over a white page and a busy one. When the system '
             'asks for more contrast, finesse '

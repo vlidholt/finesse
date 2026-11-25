@@ -304,9 +304,11 @@ class _SliverAppBarState extends State<SliverAppBar>
     final motion = Motion.of(context);
     final large = widget._large;
     final direction = Directionality.of(context);
-    final topInset = widget.primary ? MediaQuery.paddingOf(context).top : 0.0;
     final fill = widget.backgroundColor ?? bar.backgroundColor ?? scheme.card;
     final liquid = appBarUsesLiquidGlass(context, bar.liquidGlass);
+    final topInset = widget.primary
+        ? appBarTopInset(context, liquid: liquid)
+        : 0.0;
     // On Liquid Glass the scroll edge shows once content is under the bar,
     // as on iOS: at the top it would only blur the page's own first lines.
     final behavior = large || liquid

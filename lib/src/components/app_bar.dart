@@ -158,17 +158,20 @@ class AppBar extends StatelessWidget {
   /// [context].
   static double heightOf(BuildContext context, {bool primary = true}) {
     final theme = Theme.of(context);
+    final liquid = appBarUsesLiquidGlass(
+      context,
+      theme.appBarTheme.liquidGlass,
+    );
     return appBarToolbarHeight(context, theme.appBarTheme.height ?? 64) +
         // The hairline under the bar.
         1 +
-        (primary ? MediaQuery.paddingOf(context).top : 0);
+        (primary ? appBarTopInset(context, liquid: liquid) : 0);
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final bar = theme.appBarTheme;
-    final topInset = primary ? MediaQuery.paddingOf(context).top : 0.0;
     final toolbarHeight = appBarToolbarHeight(
       context,
       height ?? bar.height ?? 64,
@@ -176,6 +179,7 @@ class AppBar extends StatelessWidget {
     final fill =
         backgroundColor ?? bar.backgroundColor ?? theme.colorScheme.card;
     final liquid = appBarUsesLiquidGlass(context, bar.liquidGlass);
+    final topInset = primary ? appBarTopInset(context, liquid: liquid) : 0.0;
     // On Liquid Glass the scroll edge shows once content is under the bar,
     // as on iOS: at the top it would only blur the page's own first lines.
     final behavior = liquid
