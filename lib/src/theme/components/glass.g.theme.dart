@@ -26,6 +26,7 @@ mixin _$GlassTheme {
     }
 
     return GlassTheme(
+      liquidGlass: t < 0.5 ? a.liquidGlass : b.liquidGlass,
       blur: lerpDouble$(a.blur, b.blur, t),
       saturation: lerpDouble$(a.saturation, b.saturation, t),
       color: Color.lerp(a.color, b.color, t),
@@ -38,6 +39,7 @@ mixin _$GlassTheme {
   }
 
   GlassTheme copyWith({
+    LiquidGlassMode? liquidGlass,
     double? blur,
     double? saturation,
     Color? color,
@@ -50,6 +52,7 @@ mixin _$GlassTheme {
     final _this = (this as GlassTheme);
 
     return GlassTheme(
+      liquidGlass: liquidGlass ?? _this.liquidGlass,
       blur: blur ?? _this.blur,
       saturation: saturation ?? _this.saturation,
       color: color ?? _this.color,
@@ -73,6 +76,7 @@ mixin _$GlassTheme {
     }
 
     return copyWith(
+      liquidGlass: other.liquidGlass,
       blur: other.blur,
       saturation: other.saturation,
       color: other.color,
@@ -97,7 +101,8 @@ mixin _$GlassTheme {
     final _this = (this as GlassTheme);
     final _other = (other as GlassTheme);
 
-    return _other.blur == _this.blur &&
+    return _other.liquidGlass == _this.liquidGlass &&
+        _other.blur == _this.blur &&
         _other.saturation == _this.saturation &&
         _other.color == _this.color &&
         _other.opacity == _this.opacity &&
@@ -113,6 +118,7 @@ mixin _$GlassTheme {
 
     return Object.hash(
       runtimeType,
+      _this.liquidGlass,
       _this.blur,
       _this.saturation,
       _this.color,

@@ -37,6 +37,7 @@ const guidePages = {
   'form_factors': 'guides/form-factors.md',
   'responsive': 'guides/form-factors.md',
   'motion': 'guides/motion.md',
+  'liquid_glass': 'guides/liquid-glass.md',
   'form': 'guides/forms.md',
   'portal': 'guides/overlays.md',
   'building_blocks': 'guides/building-blocks.md',

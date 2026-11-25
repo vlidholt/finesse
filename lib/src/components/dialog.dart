@@ -5,6 +5,7 @@ import 'package:boxy/flex.dart';
 import 'package:finesse/src/components/icon_button.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
+import 'package:finesse/src/liquid_glass/liquid_glass.dart';
 import 'package:finesse/src/theme/components/button.dart';
 import 'package:finesse/src/theme/components/dialog.dart';
 import 'package:finesse/src/theme/form_factor.dart';
@@ -950,6 +951,25 @@ class Dialog extends StatelessWidget {
         }
 
         final surfaceRadius = edgeToEdge ? null : effectiveRadius;
+        if (surfaceRadius != null &&
+            LiquidGlass.isActive(context, effectiveDialogTheme.liquidGlass)) {
+          // The glass has its own tint, rim and shadow; the border stays as
+          // padding only. It claims the route's entrance fade itself.
+          return ConstrainedBox(
+            constraints: constraints,
+            child: LiquidGlassSurface(
+              radius: surfaceRadius
+                  .resolve(Directionality.of(context))
+                  .topLeft
+                  .x,
+              overlay: true,
+              child: Padding(
+                padding: effectiveBorder.dimensions,
+                child: widget,
+              ),
+            ),
+          );
+        }
         // Through a `BackdropSurface` even without a filter, so the
         // route's entrance fade has one place to go either way.
         return ConstrainedBox(

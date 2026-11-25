@@ -131,6 +131,7 @@ flutter:
     - lib/docs/examples/icon_tile/
     - lib/docs/examples/timeline/
     - lib/docs/examples/pressable/
+    - lib/docs/examples/liquid_glass/
     - lib/docs/examples/motion/
     - lib/docs/examples/page_container/
     - lib/docs/examples/page_route/

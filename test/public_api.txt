@@ -213,7 +213,10 @@ Gap
 GapSize
 Glass
 GlassLevel
+GlassQuality
+GlassStyle
 GlassTheme
+GlassThemeSettings
 GlobalAnchor
 GlobalFinesseLocalizations
 HapticImpact
@@ -230,6 +233,9 @@ KbdTheme
 KeyboardToolbar
 LayoutTheme
 LicensePage
+LiquidGlass
+LiquidGlassMode
+LiquidGlassTheme
 ListDetailLayout
 ListDividerAnchor
 ListSection

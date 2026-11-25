@@ -1,6 +1,7 @@
 import 'dart:ui' show ImageFilter;
 
 import 'package:finesse/src/components/sheet.dart';
+import 'package:finesse/src/liquid_glass/liquid_glass_theme.dart';
 import 'package:finesse/src/utils/position.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
@@ -17,6 +18,7 @@ class SheetTheme with _$SheetTheme {
   /// {@macro SheetTheme}
   const SheetTheme({
     bool canMerge = true,
+    this.liquidGlass,
     this.side,
     this.constraints,
     this.backgroundColor,
@@ -50,6 +52,10 @@ class SheetTheme with _$SheetTheme {
 
   @override
   bool get canMerge => _canMerge;
+
+  /// Whether sheets draw with Liquid Glass, over
+  /// `ThemeData.liquidGlass.mode`; null follows the theme.
+  final LiquidGlassMode? liquidGlass;
 
   /// {@macro Sheet.side}
   final SheetSide? side;

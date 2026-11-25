@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 
 import 'package:finesse/src/components/app_bar_layout.dart';
+import 'package:finesse/src/liquid_glass/liquid_glass.dart';
+import 'package:finesse/src/liquid_glass/liquid_glass_theme.dart';
 import 'package:finesse/src/theme/components/app_bar.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
@@ -316,14 +318,27 @@ class _SliverAppBarState extends State<SliverAppBar>
     final implied = widget.leading == null && widget.automaticallyImplyLeading
         ? impliedLeading(context)
         : null;
+    final liquid = LiquidGlass.isActive(context, bar.liquidGlass);
+    var leading = widget.leading ?? implied;
+    var actions = widget.automaticallyImplyActions
+        ? impliedActions(context, widget.actions)
+        : widget.actions;
+    if (liquid) {
+      (leading, actions) = liquidGlassBarSlots(
+        context,
+        leading: leading,
+        actions: actions,
+        actionsGap: widget.actionsGap,
+      );
+    }
     final toolbar = Padding(
       padding: EdgeInsets.only(top: topInset),
       child: AppBarToolbar(
         // A floor, as in an `AppBar`: a line of scaled text that needs more
         // room gets it.
         height: appBarToolbarHeight(context, widget.height ?? bar.height ?? 64),
-        leading: widget.leading ?? implied,
-        alignLeadingGlyph: implied != null,
+        leading: leading,
+        alignLeadingGlyph: implied != null && !liquid,
         // In a large bar the small title is there for assistive technology
         // all along, and for the eye once the large one has gone under.
         title: large && title != null
@@ -334,9 +349,7 @@ class _SliverAppBarState extends State<SliverAppBar>
               )
             : title,
         middle: widget.middle,
-        actions: widget.automaticallyImplyActions
-            ? impliedActions(context, widget.actions)
-            : widget.actions,
+        actions: actions,
         centerTitle: widget.centerTitle ?? bar.centerTitle ?? false,
         padding: widget.padding,
         maxWidth: widget.maxWidth,
@@ -437,11 +450,17 @@ class _SliverAppBarState extends State<SliverAppBar>
       blur: bar.blur ?? 0,
       saturation: bar.saturation ?? 1,
     );
+    // On Liquid Glass the bar has no fill: the page scrolled under it is
+    // blurred and faded into the page colour, and the hairline shows only
+    // in the iOS 27 style.
+    final hairline =
+        widget.showBorder &&
+        (!liquid || theme.liquidGlass.style == GlassStyle.ios27);
     Widget body = _SliverBarFill(
       scroll: _scroll,
       visibility: always ? null : _surface,
-      color: fill,
-      borderColor: widget.showBorder ? bar.borderColor ?? scheme.border : null,
+      color: liquid ? const Color(0x00000000) : fill,
+      borderColor: hairline ? bar.borderColor ?? scheme.border : null,
       child: _SliverBarBody(
         scroll: _scroll,
         hairline: widget.showBorder ? 1 : 0,
@@ -458,7 +477,19 @@ class _SliverAppBarState extends State<SliverAppBar>
         ],
       ),
     );
-    if (filter != null) {
+    if (liquid) {
+      body = Stack(
+        children: [
+          Positioned.fill(
+            child: LiquidGlassScrollEdge(
+              color: scheme.background,
+              visibility: always ? null : _surface,
+            ),
+          ),
+          body,
+        ],
+      );
+    } else if (filter != null) {
       body = always
           ? BackdropFilter(filter: filter, child: body)
           : FadingBackdrop(visibility: _surface, filter: filter, child: body);

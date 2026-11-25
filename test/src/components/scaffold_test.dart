@@ -186,9 +186,9 @@ void main() {
         // under; the bottom bar's including its margin and the 34 of home
         // indicator.
         // …and the hairline under the app bar, which is added to its height.
-        expect(seen.top, (formFactor == FormFactor.mobile ? 60 : 64) + 1 + 44);
+        expect(seen.top, (formFactor == FormFactor.mobile ? 44 : 64) + 1 + 44);
         expect(seen.top, appBar.height);
-        expect(seen.bottom, 84 + 34);
+        expect(seen.bottom, (formFactor == FormFactor.mobile ? 88 : 84) + 34);
         expect(seen.bottom, bar.height);
         expect(seen.left, 0);
         expect(seen.right, 0);
@@ -228,7 +228,7 @@ void main() {
         formFactor: FormFactor.mobile,
         padding: const EdgeInsets.fromLTRB(10, 44, 12, 34),
       );
-      expect(seen, const EdgeInsets.fromLTRB(10, 44, 12, 84 + 34));
+      expect(seen, const EdgeInsets.fromLTRB(10, 44, 12, 88 + 34));
     });
 
     testWidgets('appBarHeight and bottomNavigationBarHeight replace the '
@@ -264,7 +264,7 @@ void main() {
       );
       // The bars really are another size…
       expect(tester.getSize(find.byType(AppBar)).height, 80 + 1 + 44);
-      expect(tester.getSize(find.byType(BottomNavigationBar)).height, 84 + 34);
+      expect(tester.getSize(find.byType(BottomNavigationBar)).height, 88 + 34);
       // …and the body never saw it.
       expect(seen, isNotEmpty);
       for (final padding in seen) {
@@ -418,7 +418,7 @@ void main() {
       );
       // Measured in the frame it is laid out in: the theme's height for a
       // `BottomNavigationBar` is never used as a guess.
-      expect(themed, 84 + 34);
+      expect(themed, 88 + 34);
       expect(seen.last.bottom, 50);
       // No app bar: the status bar is all there is.
       expect(seen.last.top, 44);
@@ -780,7 +780,7 @@ void main() {
       );
       expect(
         seen,
-        const EdgeInsets.only(top: 60 + 1 + 44, bottom: 84 + 34),
+        const EdgeInsets.only(top: 44 + 1 + 44, bottom: 88 + 34),
       );
     });
 
@@ -960,7 +960,7 @@ void main() {
       );
       expect(tester.getSize(find.byKey(const Key('thread'))).height, 72);
       expect(seen.top, 72);
-      expect(seen.bottom, 84 + 34);
+      expect(seen.bottom, 88 + 34);
     });
 
     testWidgets('showMobileAppBar: false drops the app bar and its inset', (
@@ -974,7 +974,7 @@ void main() {
       );
       expect(find.byType(AppBar), findsNothing);
       expect(seen.top, 44);
-      expect(seen.bottom, 84 + 34);
+      expect(seen.bottom, 88 + 34);
 
       // A desktop always has its app bar: that is where navigation lives.
       await pump(tester, scaffold(showMobileAppBar: false));
@@ -991,7 +991,7 @@ void main() {
       );
       expect(find.byType(BottomNavigationBar), findsNothing);
       expect(seen.bottom, 34);
-      expect(seen.top, 60 + 1 + 44);
+      expect(seen.top, 44 + 1 + 44);
     });
 
     testWidgets('five destinations, a logo, a search field and two actions '

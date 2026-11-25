@@ -30,6 +30,7 @@ mixin _$NavigationRailTheme {
     }
 
     return NavigationRailTheme(
+      liquidGlass: t < 0.5 ? a.liquidGlass : b.liquidGlass,
       width: lerpDouble$(a.width, b.width, t),
       extendedWidth: lerpDouble$(a.extendedWidth, b.extendedWidth, t),
       itemHeight: lerpDouble$(a.itemHeight, b.itemHeight, t),
@@ -81,6 +82,7 @@ mixin _$NavigationRailTheme {
   }
 
   NavigationRailTheme copyWith({
+    LiquidGlassMode? liquidGlass,
     double? width,
     double? extendedWidth,
     double? itemHeight,
@@ -108,6 +110,7 @@ mixin _$NavigationRailTheme {
     final _this = (this as NavigationRailTheme);
 
     return NavigationRailTheme(
+      liquidGlass: liquidGlass ?? _this.liquidGlass,
       width: width ?? _this.width,
       extendedWidth: extendedWidth ?? _this.extendedWidth,
       itemHeight: itemHeight ?? _this.itemHeight,
@@ -148,6 +151,7 @@ mixin _$NavigationRailTheme {
     }
 
     return copyWith(
+      liquidGlass: other.liquidGlass,
       width: other.width,
       extendedWidth: other.extendedWidth,
       itemHeight: other.itemHeight,
@@ -189,7 +193,8 @@ mixin _$NavigationRailTheme {
     final _this = (this as NavigationRailTheme);
     final _other = (other as NavigationRailTheme);
 
-    return _other.width == _this.width &&
+    return _other.liquidGlass == _this.liquidGlass &&
+        _other.width == _this.width &&
         _other.extendedWidth == _this.extendedWidth &&
         _other.itemHeight == _this.itemHeight &&
         _other.extendedItemHeight == _this.extendedItemHeight &&
@@ -220,6 +225,7 @@ mixin _$NavigationRailTheme {
 
     return Object.hashAll([
       runtimeType,
+      _this.liquidGlass,
       _this.width,
       _this.extendedWidth,
       _this.itemHeight,

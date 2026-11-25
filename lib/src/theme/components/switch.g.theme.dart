@@ -26,6 +26,7 @@ mixin _$SwitchTheme {
     }
 
     return SwitchTheme(
+      liquidGlass: t < 0.5 ? a.liquidGlass : b.liquidGlass,
       thumbColor: Color.lerp(a.thumbColor, b.thumbColor, t),
       uncheckedTrackColor: Color.lerp(
         a.uncheckedTrackColor,
@@ -47,6 +48,7 @@ mixin _$SwitchTheme {
   }
 
   SwitchTheme copyWith({
+    LiquidGlassMode? liquidGlass,
     Color? thumbColor,
     Color? uncheckedTrackColor,
     Color? checkedTrackColor,
@@ -60,6 +62,7 @@ mixin _$SwitchTheme {
     final _this = (this as SwitchTheme);
 
     return SwitchTheme(
+      liquidGlass: liquidGlass ?? _this.liquidGlass,
       thumbColor: thumbColor ?? _this.thumbColor,
       uncheckedTrackColor: uncheckedTrackColor ?? _this.uncheckedTrackColor,
       checkedTrackColor: checkedTrackColor ?? _this.checkedTrackColor,
@@ -84,6 +87,7 @@ mixin _$SwitchTheme {
     }
 
     return copyWith(
+      liquidGlass: other.liquidGlass,
       thumbColor: other.thumbColor,
       uncheckedTrackColor: other.uncheckedTrackColor,
       checkedTrackColor: other.checkedTrackColor,
@@ -109,7 +113,8 @@ mixin _$SwitchTheme {
     final _this = (this as SwitchTheme);
     final _other = (other as SwitchTheme);
 
-    return _other.thumbColor == _this.thumbColor &&
+    return _other.liquidGlass == _this.liquidGlass &&
+        _other.thumbColor == _this.thumbColor &&
         _other.uncheckedTrackColor == _this.uncheckedTrackColor &&
         _other.checkedTrackColor == _this.checkedTrackColor &&
         _other.width == _this.width &&
@@ -126,6 +131,7 @@ mixin _$SwitchTheme {
 
     return Object.hash(
       runtimeType,
+      _this.liquidGlass,
       _this.thumbColor,
       _this.uncheckedTrackColor,
       _this.checkedTrackColor,

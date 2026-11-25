@@ -2,9 +2,11 @@ import 'dart:ui' show ImageFilter;
 
 import 'package:finesse/src/components/decorator.dart';
 import 'package:finesse/src/components/dialog.dart';
+import 'package:finesse/src/components/surface.dart' show glassFreeDecoration;
 import 'package:finesse/src/components/text_field.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
+import 'package:finesse/src/liquid_glass/liquid_glass.dart';
 import 'package:finesse/src/raw_components/roving_focus.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/components/dialog.dart';
@@ -566,7 +568,18 @@ class _CommandState extends State<Command> {
     final outerShadows = surfaceFilter == null
         ? const <BoxShadow>[]
         : effectiveDecoration.shadows ?? const <BoxShadow>[];
-    final child = ownsSurface
+    final liquid =
+        ownsSurface && LiquidGlass.isActive(context, commandTheme.liquidGlass);
+    final child = liquid
+        ? LiquidGlassSurface(
+            radius: borderRadius.topLeft.x,
+            overlay: true,
+            child: Decorator(
+              decoration: glassFreeDecoration(effectiveDecoration),
+              child: ClipRRect(borderRadius: borderRadius, child: content),
+            ),
+          )
+        : ownsSurface
         ? BackdropSurface(
             filter: surfaceFilter,
             tintOpacity: effectiveBackgroundColor.a,

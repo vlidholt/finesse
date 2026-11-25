@@ -4,7 +4,7 @@
 [![Flutter test](https://github.com/vlidholt/finesse/actions/workflows/flutter-test.yaml/badge.svg)](https://github.com/vlidholt/finesse/actions/workflows/flutter-test.yaml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-A design system for Flutter: more than a hundred widgets themed by one `ThemeData`, with frosted-glass surfaces, desktop and phone metrics in the same theme, motion on springs, and no dependency on Material or Cupertino.
+A design system for Flutter: more than a hundred widgets themed by one `ThemeData`, with frosted-glass surfaces that become Liquid Glass on iOS and macOS, desktop and phone metrics in the same theme, motion on springs, and no dependency on Material.
 
 ![The Strand demo app built with finesse](https://raw.githubusercontent.com/vlidholt/finesse/main/assets/screenshot.png)
 
@@ -16,6 +16,7 @@ A design system for Flutter: more than a hundred widgets themed by one `ThemeDat
 - **One theme, two form factors.** Every style carries metrics for a desktop and for a phone. `FinesseApp` picks between them from the window width, so the same `Button` is 36 points tall in a desktop window and 44 on a phone, body text grows from 14 to 15, and page margins tighten, with no `if (isMobile)` in your code.
 - **App structure.** `Scaffold` with drawers, a footer, a bottom sheet and a floating action button; `AppBar` and a collapsing `SliverAppBar`; a top `NavigationBar`, a floating `BottomNavigationBar` and a `NavigationRail`, with `NavigationScaffold` to switch between them; page routes with the iOS back swipe and Android's predictive back.
 - **Glass.** Translucent cards, and bars, menus, popovers, tooltips and toasts that blur and saturate what is behind them, are part of the style, with tokens for blur and for the opacity of each kind of surface. `Glass` puts the same surface anywhere.
+- **Liquid Glass on Apple platforms.** On iOS and macOS, natively and on the web, the bars, menus, popovers, dialogs, sheets, toasts, switches, sliders and segmented controls are drawn with Liquid Glass through [`liquid_glass_widgets`](https://pub.dev/packages/liquid_glass_widgets), with no change to your code; `ThemeData(liquidGlass: LiquidGlassTheme(mode: ...))` turns it on everywhere or off. Call `await LiquidGlass.initialize()` in `main()` to load its shaders before the first frame.
 - **Motion from the theme.** Durations, curves and springs come from one `Motion` on the style: overlays grow from their anchor, selections travel, controls respond to a press, and the platform's reduced-motion setting is honoured everywhere. No component takes its own effects or durations.
 - **Spacing from the theme.** A named gap scale (`Gap.md()`, `FinesseRow(gap: GapSize.lg)`) and `PageContainer` keep screens consistent and let a theme change their rhythm.
 - **Styles and colour schemes.** Four styles (`finesse`, `nova`, `maia`, `lyra`) and four base palettes (`teal`, `neutral`, `zinc`, `stone`) in light and dark, 17 accent overlays, and every token overridable through `copyWith`.
@@ -193,7 +194,7 @@ The default look was designed around [Geist](https://vercel.com/font); the examp
 
 ## Material and Cupertino
 
-`package:finesse/finesse.dart` does not import Material or Cupertino, which Flutter is moving out of the SDK into the [`material_ui`](https://pub.dev/packages/material_ui) and [`cupertino_ui`](https://pub.dev/packages/cupertino_ui) packages. To use Material or Cupertino widgets in a `finesse` app, also import `package:finesse/material.dart` and wrap the app in a `FinesseMaterial`:
+`package:finesse/finesse.dart` does not import Material, and imports Cupertino only through its Liquid Glass adapter (`liquid_glass_widgets` reads the SDK's `CupertinoTheme`); Flutter is moving both out of the SDK into the [`material_ui`](https://pub.dev/packages/material_ui) and [`cupertino_ui`](https://pub.dev/packages/cupertino_ui) packages. To use Material or Cupertino widgets in a `finesse` app, also import `package:finesse/material.dart` and wrap the app in a `FinesseMaterial`:
 
 ```dart
 import 'package:finesse/material.dart';

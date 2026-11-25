@@ -198,7 +198,8 @@ rebuilt and re-faded for nothing.
 
 ## Interop with Material and Cupertino
 
-`package:finesse/finesse.dart` does not import Material or Cupertino. To use
+`package:finesse/finesse.dart` does not import Material, and Cupertino only
+through its Liquid Glass adapter ([liquid-glass.md](liquid-glass.md)). To use
 their widgets in a finesse app, import `package:finesse/material.dart` too and
 wrap the app in a `FinesseMaterial`. It derives a Material theme from the
 finesse theme (Cupertino widgets read theirs from it), adds a transparent

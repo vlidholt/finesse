@@ -1,3 +1,4 @@
+import 'package:finesse/src/liquid_glass/liquid_glass.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/backdrop.dart';
 import 'package:finesse/src/utils/shadow.dart';
@@ -112,6 +113,33 @@ class Glass extends StatelessWidget {
     final theme = Theme.of(context);
     final glass = theme.glassTheme;
     final radius = borderRadius ?? glass.borderRadius ?? theme.radius;
+    // A scrim (an explicit colour) and unfrosted glass stay as they are:
+    // Liquid Glass is a frosted surface with the theme's own tint.
+    final effectiveBorder =
+        border ??
+        Border.all(
+          color: glass.borderColor ?? theme.colorScheme.border,
+          width: glass.borderWidth ?? 1,
+        );
+    if (frosted &&
+        color == null &&
+        LiquidGlass.isActive(context, glass.liquidGlass)) {
+      return LiquidGlassSurface(
+        radius: radius.topLeft.x,
+        child: Container(
+          width: width,
+          height: height,
+          constraints: constraints,
+          alignment: alignment,
+          // The border's point stays as padding, as a decoration's border
+          // takes it, so the content sits where it does on frosted glass.
+          padding: effectiveBorder.dimensions.add(
+            padding ?? EdgeInsets.zero,
+          ),
+          child: child,
+        ),
+      );
+    }
     final base = glass.color ?? theme.colorScheme.card;
     final tint =
         color ??
@@ -124,12 +152,6 @@ class Glass extends StatelessWidget {
                 GlassLevel.regular => glass.opacity ?? .7,
                 GlassLevel.strong => glass.strongOpacity ?? .9,
               },
-        );
-    final effectiveBorder =
-        border ??
-        Border.all(
-          color: glass.borderColor ?? theme.colorScheme.border,
-          width: glass.borderWidth ?? 1,
         );
 
     Widget surface = Backdrop(

@@ -3,6 +3,8 @@ import 'dart:math' as math;
 import 'package:finesse/src/components/control_affinity.dart';
 import 'package:finesse/src/components/decorator.dart';
 import 'package:finesse/src/components/disabled.dart';
+import 'package:finesse/src/liquid_glass/controls.dart';
+import 'package:finesse/src/liquid_glass/liquid_glass.dart';
 import 'package:finesse/src/raw_components/focusable.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/motion.dart';
@@ -254,7 +256,108 @@ class _SwitchState extends State<Switch> with SingleTickerProviderStateMixin {
         theme.switchTheme.padding ??
         const EdgeInsetsDirectional.only(start: 8);
 
-    final switchWidget = Semantics(
+    final liquid = LiquidGlass.isActive(context, theme.switchTheme.liquidGlass);
+    final switchWidget = liquid
+        ? LiquidGlassSwitch(
+            value: widget.value,
+            onChanged: widget.enabled ? widget.onChanged : null,
+            width: effectiveWidth,
+            height: effectiveHeight,
+            activeColor: effectiveCheckedTrackColor,
+            inactiveColor: effectiveUncheckedTrackColor,
+            thumbColor: effectiveThumbColor,
+            focusNode: focusNode,
+            autofocus: widget.autofocus,
+          )
+        : _buildSwitch(
+            context,
+            direction: direction,
+            thumbColor: effectiveThumbColor,
+            uncheckedTrackColor: effectiveUncheckedTrackColor,
+            checkedTrackColor: effectiveCheckedTrackColor,
+            width: effectiveWidth,
+            height: effectiveHeight,
+            margin: effectiveMargin,
+            thumbSize: effectiveThumbSize,
+            transitionStep: transitionStep,
+            stretch: effectiveStretch,
+            baseDecoration: baseDecoration,
+          );
+
+    return Disabled(
+      showForbiddenCursor: true,
+      enabled: widget.enabled,
+      disabledOpacity: 1,
+      child: GestureDetector(
+        // The glass switch takes its own taps and drags.
+        onTap: widget.onChanged == null || liquid ? null : onTap,
+        child: ControlLabelRow(
+          affinity: widget.controlAffinity,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          labelPadding: effectivePadding,
+          control: switchWidget,
+          label: widget.label == null
+              ? null
+              : Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        onTap: widget.onChanged == null || !liquid
+                            ? null
+                            : onTap,
+                        child: DefaultTextStyle(
+                          style: theme.textTheme.muted.copyWith(
+                            fontWeight: FontWeight.w500,
+                            color: theme.colorScheme.foreground,
+                          ),
+                          child: widget.label!,
+                        ),
+                      ),
+                    ),
+                    if (widget.description != null)
+                      MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: DefaultTextStyle(
+                          style: theme.textTheme.muted.fallback(
+                            color: theme.colorScheme.mutedForeground,
+                          ),
+                          child: widget.description!,
+                        ),
+                      ),
+                  ],
+                ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSwitch(
+    BuildContext context, {
+    required TextDirection direction,
+    required Color thumbColor,
+    required Color uncheckedTrackColor,
+    required Color checkedTrackColor,
+    required double width,
+    required double height,
+    required double margin,
+    required double thumbSize,
+    required double transitionStep,
+    required double stretch,
+    required FinesseDecoration baseDecoration,
+  }) {
+    final effectiveThumbColor = thumbColor;
+    final effectiveUncheckedTrackColor = uncheckedTrackColor;
+    final effectiveCheckedTrackColor = checkedTrackColor;
+    final effectiveWidth = width;
+    final effectiveHeight = height;
+    final effectiveMargin = margin;
+    final effectiveThumbSize = thumbSize;
+    final effectiveStretch = stretch;
+    return Semantics(
       toggled: widget.value,
       child: Disabled(
         showForbiddenCursor: true,
@@ -347,50 +450,6 @@ class _SwitchState extends State<Switch> with SingleTickerProviderStateMixin {
               ),
             ),
           ),
-        ),
-      ),
-    );
-
-    return Disabled(
-      showForbiddenCursor: true,
-      enabled: widget.enabled,
-      disabledOpacity: 1,
-      child: GestureDetector(
-        onTap: widget.onChanged == null ? null : onTap,
-        child: ControlLabelRow(
-          affinity: widget.controlAffinity,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          labelPadding: effectivePadding,
-          control: switchWidget,
-          label: widget.label == null
-              ? null
-              : Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    MouseRegion(
-                      cursor: SystemMouseCursors.click,
-                      child: DefaultTextStyle(
-                        style: theme.textTheme.muted.copyWith(
-                          fontWeight: FontWeight.w500,
-                          color: theme.colorScheme.foreground,
-                        ),
-                        child: widget.label!,
-                      ),
-                    ),
-                    if (widget.description != null)
-                      MouseRegion(
-                        cursor: SystemMouseCursors.click,
-                        child: DefaultTextStyle(
-                          style: theme.textTheme.muted.fallback(
-                            color: theme.colorScheme.mutedForeground,
-                          ),
-                          child: widget.description!,
-                        ),
-                      ),
-                  ],
-                ),
         ),
       ),
     );

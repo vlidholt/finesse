@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:finesse/src/components/decorator.dart';
+import 'package:finesse/src/liquid_glass/liquid_glass.dart';
 import 'package:finesse/src/raw_components/portal.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/theme.dart';
@@ -167,6 +168,34 @@ class SurfaceArrow {
   int get hashCode => Object.hash(anchor, size, radius, targetSize);
 }
 
+/// [decoration] with nothing left that a surface drawn separately — an
+/// arrow's outline, Liquid Glass — paints instead: no fill, no shadow, and
+/// a border of the same widths in no colour, so the content keeps its place.
+FinesseDecoration glassFreeDecoration(FinesseDecoration decoration) {
+  FinesseBorderSide? cleared(FinesseBorderSide? side) => side == null
+      ? null
+      : FinesseBorderSide(
+          canMerge: side.canMerge,
+          color: const Color(0x00000000),
+          width: side.width,
+          style: side.style,
+          strokeAlign: side.strokeAlign,
+        );
+  final border = decoration.border;
+  return decoration.copyWith(
+    color: const Color(0x00000000),
+    shadows: const [],
+    border: border == null || border is FinesseRoundedSuperellipseBorder
+        ? border
+        : border.copyWith(
+            top: cleared(border.top),
+            right: cleared(border.right),
+            bottom: cleared(border.bottom),
+            left: cleared(border.left),
+          ),
+  );
+}
+
 /// Paints a resolved popover-style surface: [decoration], [padding], the
 /// popover foreground for text and icons, and an optional backdrop [filter].
 ///
@@ -238,11 +267,27 @@ class SurfacePainter extends StatelessWidget {
     final arrow = this.arrow;
     if (arrow != null) return _buildArrowed(context, arrow, content);
 
+    final radius = decoration.border?.borderRadius ?? BorderRadius.zero;
+
+    // Liquid Glass brings its own tint, rim and shadow: the decoration keeps
+    // only its layout (a border is padding around the content) and whatever
+    // else it paints. A surface with an arrow stays frosted, as the glass
+    // has no shape for one.
+    if (LiquidGlass.isActive(context, theme.popoverTheme.liquidGlass)) {
+      return LiquidGlassSurface(
+        radius: radius.resolve(Directionality.of(context)).topLeft.x,
+        overlay: true,
+        child: Decorator(
+          decoration: glassFreeDecoration(decoration),
+          child: content,
+        ),
+      );
+    }
+
     // A filter has to be clipped, and the clip would cut off the surface's
     // own shadow, which is painted outside the box — so with a filter the
     // shadow is painted by the `BackdropSurface`, outside the clip, and not
     // by the decoration.
-    final radius = decoration.border?.borderRadius ?? BorderRadius.zero;
     final outerShadows = filter == null
         ? const <BoxShadow>[]
         : decoration.shadows ?? const <BoxShadow>[];
@@ -297,15 +342,6 @@ class SurfacePainter extends StatelessWidget {
     // The box keeps its layout — a border is padding around the content —
     // and whatever else it paints, a gradient or an image. Its fill, its
     // line and its shadow are the outline's.
-    FinesseBorderSide? cleared(FinesseBorderSide? side) => side == null
-        ? null
-        : FinesseBorderSide(
-            canMerge: side.canMerge,
-            color: const Color(0x00000000),
-            width: side.width,
-            style: side.style,
-            strokeAlign: side.strokeAlign,
-          );
     Widget surface = CustomPaint(
       painter: ArrowShapePainter(
         shape: shape,
@@ -315,18 +351,7 @@ class SurfacePainter extends StatelessWidget {
         shadows: covered ? shadows : const [],
       ),
       child: Decorator(
-        decoration: decoration.copyWith(
-          color: const Color(0x00000000),
-          shadows: const [],
-          border: border == null || border is FinesseRoundedSuperellipseBorder
-              ? border
-              : border.copyWith(
-                  top: cleared(border.top),
-                  right: cleared(border.right),
-                  bottom: cleared(border.bottom),
-                  left: cleared(border.left),
-                ),
-        ),
+        decoration: glassFreeDecoration(decoration),
         child: content,
       ),
     );

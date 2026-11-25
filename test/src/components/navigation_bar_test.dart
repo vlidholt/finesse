@@ -148,7 +148,7 @@ void main() {
       for (final formFactor in FormFactor.values) {
         await pumpFinesse(tester, bar(), formFactor: formFactor);
         final theme = themeOf(tester, find.byType(NavigationBar));
-        final height = formFactor == FormFactor.mobile ? 60.0 : 64.0;
+        final height = formFactor == FormFactor.mobile ? 44.0 : 64.0;
         expect(theme.appBarTheme.height, height);
         expect(
           tester.getSize(find.byType(NavigationBar)),
@@ -526,7 +526,7 @@ void main() {
         final s = theme.colorScheme;
         expect(bar.floating, isTrue);
         expect(bar.itemWidth, 52);
-        expect(bar.itemHeight, 48);
+        expect(bar.itemHeight, 52);
         expect(bar.iconSize, 26);
         expect(bar.actionIconSize, 22);
         expect(bar.padding, const EdgeInsets.all(6));
@@ -913,12 +913,12 @@ void main() {
       // Four 52px items, three 4px gaps, 6 of padding and a 1px outline all
       // round.
       expect(pill.width, 52 * 4 + 4 * 3 + 12 + 2);
-      expect(pill.height, 48 + 12 + 2);
+      expect(pill.height, 52 + 12 + 2);
       expect(pill.center.dx, closeTo(screen.center.dx, .5));
       // The theme's 22px margin under it.
       expect(pill.bottom, 844 - 22);
       for (var i = 0; i < 4; i++) {
-        expect(tester.getSize(items().at(i)), const Size(52, 48));
+        expect(tester.getSize(items().at(i)), const Size(52, 52));
       }
     });
 
@@ -1013,8 +1013,8 @@ void main() {
           ),
           formFactor: FormFactor.mobile,
         );
-        // 48 + 12 of padding + 2 of outline + 22 of margin, plus the inset.
-        expect(reported, 84 + bottomInset);
+        // 52 + 12 of padding + 2 of outline + 22 of margin, plus the inset.
+        expect(reported, 88 + bottomInset);
         expect(
           tester.getSize(find.byType(BottomNavigationBar)).height,
           reported,
@@ -1069,7 +1069,7 @@ void main() {
       expect(strip.width, 390);
       expect(strip.bottom, 844);
       // Items, padding, a top hairline and the inset inside the strip.
-      expect(strip.height, 48 + 12 + 1 + 34);
+      expect(strip.height, 52 + 12 + 1 + 34);
 
       final widths = [
         for (var i = 0; i < 4; i++) tester.getSize(items().at(i)).width,
@@ -1449,7 +1449,7 @@ void main() {
         expect(size.width, lessThan(themed), reason: 'item $i');
         expect(size.width, closeTo(fit, .01), reason: 'item $i');
         // Only the width gives: the touch height stays.
-        expect(size.height, 48, reason: 'item $i');
+        expect(size.height, 52, reason: 'item $i');
       }
       final pill = tester.getRect(surface());
       expect(pill.width, closeTo(320 - 32, .01));
@@ -1472,7 +1472,7 @@ void main() {
       ).bottomNavigationBarTheme.itemWidth!;
       expect(items(), findsNWidgets(6));
       for (var i = 0; i < 6; i++) {
-        expect(tester.getSize(items().at(i)), Size(themed, 48));
+        expect(tester.getSize(items().at(i)), Size(themed, 52));
       }
       expect(tester.getSize(surface()).width, 52 * 6 + 4 * 5 + 12 + 2);
     });

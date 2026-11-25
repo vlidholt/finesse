@@ -271,6 +271,18 @@ class _SettingsState extends State<_Settings> {
             ),
           ]),
           _section(_SectionId.glass, [
+            // Auto draws Liquid Glass on iOS and macOS only; On shows it on
+            // whatever this runs on. Kept across presets, like the preview
+            // settings below.
+            ThemeSegments<EditorLiquidGlass>(
+              label: 'Liquid Glass',
+              value: config.liquidGlass,
+              options: [
+                for (final m in EditorLiquidGlass.values)
+                  PickerOption(value: m, label: m.label),
+              ],
+              onChanged: (v) => onChanged(config.copyWith(liquidGlass: v)),
+            ),
             ThemeSlider(
               label: 'Card Opacity',
               value: config.effectiveCardOpacity,

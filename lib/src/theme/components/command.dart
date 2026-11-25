@@ -1,5 +1,6 @@
 import 'dart:ui' show ImageFilter;
 
+import 'package:finesse/src/liquid_glass/liquid_glass_theme.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
@@ -15,6 +16,7 @@ class CommandTheme with _$CommandTheme {
   /// {@macro CommandTheme}
   const CommandTheme({
     bool canMerge = true,
+    this.liquidGlass,
     this.backgroundColor,
     this.decoration,
     this.padding,
@@ -51,6 +53,10 @@ class CommandTheme with _$CommandTheme {
 
   @override
   bool get canMerge => _canMerge;
+
+  /// Whether the command palette in a dialog draws with Liquid Glass, over
+  /// `ThemeData.liquidGlass.mode`; null follows the theme.
+  final LiquidGlassMode? liquidGlass;
 
   /// {@macro Command.backgroundColor}
   final Color? backgroundColor;

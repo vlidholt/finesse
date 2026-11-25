@@ -1429,8 +1429,11 @@ class StyleTokens {
       xl4: 2.4,
     ),
     cardRadius: RadiusToken.xl3,
-    dialogRadius: RadiusToken.xl3,
-    popoverRadius: RadiusToken.lg,
+    // The phone metrics are Liquid Glass's (iOS 26 and 27), so a surface
+    // is the same size frosted or liquid: menus and popovers 24 (the
+    // package's popover; its menus are 32), dialogs 24.
+    dialogRadius: RadiusToken.xl4,
+    popoverRadius: RadiusToken.xl4,
     tooltipRadius: RadiusToken.sm,
     commandItemDialogRadius: RadiusToken.md,
     commandSearchRadius: RadiusToken.md,
@@ -1539,10 +1542,11 @@ class StyleTokens {
     controlFillDark: SurfaceFill.none,
     checkboxSize: 20,
     radioSize: 20,
-    switchWidth: 44,
-    switchHeight: 24,
-    switchThumbSize: 20,
-    sliderThumbSize: 22,
+    // Liquid Glass's switch (58 × 26) and a thumb near its slider's.
+    switchWidth: 58,
+    switchHeight: 26,
+    switchThumbSize: 22,
+    sliderThumbSize: 28,
     cardPadding: 16,
     cardGap: 4,
     dialogPadding: 20,
@@ -1597,7 +1601,10 @@ class StyleTokens {
     avatarSize: 40,
     chipHeight: 36,
     underlineTabHeight: 48,
-    appBarHeight: 60,
+    // iOS's navigation bar, whose glass buttons are 44 tall, and its 64-point
+    // tab bar (52 and the bar's padding of 6).
+    appBarHeight: 44,
+    bottomNavigationItemHeight: 52,
     fabSize: 56,
     fabSizeSm: 44,
     fabSizeLg: 72,
@@ -1865,7 +1872,9 @@ class StyleTokens {
       chipHeight: atLeast(chipHeight, 36),
       checkboxSize: atLeast(checkboxSize, 20),
       radioSize: atLeast(radioSize, 20),
-      appBarHeight: 60,
+      // At most 60: a style whose bar is already a phone's (finesse's
+      // 44, Liquid Glass's) keeps it, so a phone style is a fixed point.
+      appBarHeight: appBarHeight < 60 ? appBarHeight : 60,
       fabSize: atLeast(fabSize, 56),
       fabSizeSm: atLeast(fabSizeSm, 44),
       fabSizeLg: atLeast(fabSizeLg, 72),

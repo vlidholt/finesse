@@ -190,6 +190,7 @@ several sections uses `NavigationScaffold`
 | [typography.md](guides/typography.md) | Text roles, weights, fonts, Google Fonts, custom styles. |
 | [icons.md](guides/icons.md) | Phosphor classes, `PhosphorIcon` and optical weight, selected states, duotone, sizing. |
 | [surfaces.md](guides/surfaces.md) | `Card`, `Surface`, `Glass`, `Backdrop`, `ShadowDecoration`: when each. |
+| [liquid-glass.md](guides/liquid-glass.md) | Liquid Glass on iOS and macOS: `LiquidGlassTheme`, what switches, sizes, fallbacks. |
 | [overlays.md](guides/overlays.md) | Popovers, anchors, menus, tooltips, dialogs, sheets and detents, action sheets, toasts, command palette, `Portal`. |
 | [lists.md](guides/lists.md) | `ListTile`, sections, lazy lists, reordering, swipe actions, pull to refresh, tables. |
 | [forms.md](guides/forms.md) | Controlled values, pickers, `FinesseForm` and every `*FormField`. |

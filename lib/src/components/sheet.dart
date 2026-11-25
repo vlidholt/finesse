@@ -7,6 +7,7 @@ import 'package:finesse/src/components/dialog.dart';
 import 'package:finesse/src/components/icon_button.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
+import 'package:finesse/src/liquid_glass/liquid_glass.dart';
 import 'package:finesse/src/raw_components/pressable.dart';
 import 'package:finesse/src/theme/components/button.dart';
 import 'package:finesse/src/theme/components/sheet.dart';
@@ -1277,6 +1278,7 @@ class _SheetState extends State<Sheet> with TickerProviderStateMixin {
     final backgroundColor =
         sheetTheme.backgroundColor ?? theme.colorScheme.background;
     final filter = sheetTheme.filter;
+    final liquid = LiquidGlass.isActive(context, sheetTheme.liquidGlass);
     final border =
         sheetTheme.border ?? Border.all(color: theme.colorScheme.border);
     final shadows = sheetTheme.shadows ?? Shadows.lg;
@@ -1483,31 +1485,54 @@ class _SheetState extends State<Sheet> with TickerProviderStateMixin {
               child: BackdropFadeHost(
                 opacity: _fade,
                 child: RepaintBoundary(
-                  child: BackdropSurface(
-                    filter: filter,
-                    tintOpacity: backgroundColor.a,
-                    borderRadius: borderRadius,
-                    // A filter is clipped, which would cut the shadow off;
-                    // it is painted outside the clip instead.
-                    shadow: filter == null ? null : surfaceShadow,
-                    child: DecoratedBox(
-                      decoration: ShadowDecoration.box(
-                        color: backgroundColor,
-                        borderRadius: borderRadius,
-                        border: border,
-                        shadows: filter == null ? shadows : const [],
-                      ),
-                      child: Padding(
-                        // CSS's border-box: the content starts inside the
-                        // outline.
-                        padding: border.dimensions,
-                        child: ClipRRect(
+                  child: liquid
+                      ? LiquidGlassSurface(
+                          // A side sheet's corners differ across, which the
+                          // glass's shapes cannot draw: it stays square.
+                          radius:
+                              borderRadius.bottomLeft ==
+                                      borderRadius.bottomRight &&
+                                  borderRadius.topLeft == borderRadius.topRight
+                              ? borderRadius.bottomLeft.x
+                              : 0,
+                          topRadius:
+                              borderRadius.topLeft == borderRadius.topRight
+                              ? borderRadius.topLeft.x
+                              : 0,
+                          overlay: true,
+                          child: Padding(
+                            padding: border.dimensions,
+                            child: ClipRRect(
+                              borderRadius: borderRadius,
+                              child: Padding(padding: inset, child: child),
+                            ),
+                          ),
+                        )
+                      : BackdropSurface(
+                          filter: filter,
+                          tintOpacity: backgroundColor.a,
                           borderRadius: borderRadius,
-                          child: Padding(padding: inset, child: child),
+                          // A filter is clipped, which would cut the shadow
+                          // off; it is painted outside the clip instead.
+                          shadow: filter == null ? null : surfaceShadow,
+                          child: DecoratedBox(
+                            decoration: ShadowDecoration.box(
+                              color: backgroundColor,
+                              borderRadius: borderRadius,
+                              border: border,
+                              shadows: filter == null ? shadows : const [],
+                            ),
+                            child: Padding(
+                              // CSS's border-box: the content starts inside the
+                              // outline.
+                              padding: border.dimensions,
+                              child: ClipRRect(
+                                borderRadius: borderRadius,
+                                child: Padding(padding: inset, child: child),
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                  ),
                 ),
               ),
             );

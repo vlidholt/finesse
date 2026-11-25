@@ -19,6 +19,48 @@ void main() {
   // default face for rendering.
   setUpAll(setUpFonts);
 
+  group('ThemeEditorConfig Liquid Glass', () {
+    test('auto leaves the theme at the package default', () {
+      expect(
+        const ThemeEditorConfig().build().liquidGlass,
+        const LiquidGlassTheme(),
+      );
+    });
+
+    test('on and off force the mode on every platform', () {
+      const on = ThemeEditorConfig(liquidGlass: EditorLiquidGlass.on);
+      const off = ThemeEditorConfig(liquidGlass: EditorLiquidGlass.off);
+      expect(on.build().liquidGlass.mode, LiquidGlassMode.always);
+      expect(off.build().liquidGlass.mode, LiquidGlassMode.never);
+      // A value: the same configuration builds an equal theme.
+      expect(on.build(), on.build());
+    });
+
+    test('is a preview setting: kept across presets, not part of the look', () {
+      const on = ThemeEditorConfig(liquidGlass: EditorLiquidGlass.on);
+      expect(on.look, const ThemeEditorConfig());
+      expect(ThemePreset.of(on), ThemePreset.strand);
+      for (final preset in ThemePreset.values) {
+        expect(preset.applyTo(on).liquidGlass, EditorLiquidGlass.on);
+      }
+    });
+
+    test('is exported when it is not auto', () {
+      expect(
+        const ThemeEditorConfig().toDartSnippet(),
+        isNot(contains('liquidGlass')),
+      );
+      expect(
+        const ThemeEditorConfig(
+          liquidGlass: EditorLiquidGlass.on,
+        ).toDartSnippet(),
+        contains(
+          'liquidGlass: const LiquidGlassTheme(mode: LiquidGlassMode.always),',
+        ),
+      );
+    });
+  });
+
   group('ThemeEditorConfig', () {
     test('the default config is the package default look', () {
       const config = ThemeEditorConfig();

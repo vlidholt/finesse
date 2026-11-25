@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:finesse/src/liquid_glass/liquid_glass_theme.dart';
 import 'package:finesse/src/raw_components/portal.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:flutter/foundation.dart';
@@ -17,6 +18,7 @@ class PopoverTheme with _$PopoverTheme {
   /// {@macro PopoverTheme}
   const PopoverTheme({
     bool canMerge = true,
+    this.liquidGlass,
     this.shadows,
     this.textStyle,
     this.padding,
@@ -33,6 +35,11 @@ class PopoverTheme with _$PopoverTheme {
 
   @override
   bool get canMerge => _canMerge;
+
+  /// Whether popovers, menus, a select's list and `Surface` draw with
+  /// Liquid Glass, over
+  /// `ThemeData.liquidGlass.mode`; null follows the theme.
+  final LiquidGlassMode? liquidGlass;
 
   /// {@macro Popover.shadows}
   final List<BoxShadow>? shadows;

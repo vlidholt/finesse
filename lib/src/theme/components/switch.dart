@@ -1,3 +1,4 @@
+import 'package:finesse/src/liquid_glass/liquid_glass_theme.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
@@ -13,6 +14,7 @@ class SwitchTheme with _$SwitchTheme {
   /// {@macro SwitchTheme}
   const SwitchTheme({
     bool canMerge = true,
+    this.liquidGlass,
     this.thumbColor,
     this.uncheckedTrackColor,
     this.checkedTrackColor,
@@ -29,6 +31,10 @@ class SwitchTheme with _$SwitchTheme {
 
   @override
   bool get canMerge => _canMerge;
+
+  /// Whether the switch draws with Liquid Glass, over
+  /// `ThemeData.liquidGlass.mode`; null follows the theme.
+  final LiquidGlassMode? liquidGlass;
 
   /// {@macro Switch.thumbColor}
   final Color? thumbColor;

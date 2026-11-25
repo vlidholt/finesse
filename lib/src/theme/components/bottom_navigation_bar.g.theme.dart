@@ -30,6 +30,7 @@ mixin _$BottomNavigationBarTheme {
     }
 
     return BottomNavigationBarTheme(
+      liquidGlass: t < 0.5 ? a.liquidGlass : b.liquidGlass,
       floating: t < 0.5 ? a.floating : b.floating,
       itemWidth: lerpDouble$(a.itemWidth, b.itemWidth, t),
       itemHeight: lerpDouble$(a.itemHeight, b.itemHeight, t),
@@ -73,6 +74,7 @@ mixin _$BottomNavigationBarTheme {
   }
 
   BottomNavigationBarTheme copyWith({
+    LiquidGlassMode? liquidGlass,
     bool? floating,
     double? itemWidth,
     double? itemHeight,
@@ -100,6 +102,7 @@ mixin _$BottomNavigationBarTheme {
     final _this = (this as BottomNavigationBarTheme);
 
     return BottomNavigationBarTheme(
+      liquidGlass: liquidGlass ?? _this.liquidGlass,
       floating: floating ?? _this.floating,
       itemWidth: itemWidth ?? _this.itemWidth,
       itemHeight: itemHeight ?? _this.itemHeight,
@@ -142,6 +145,7 @@ mixin _$BottomNavigationBarTheme {
     }
 
     return copyWith(
+      liquidGlass: other.liquidGlass,
       floating: other.floating,
       itemWidth: other.itemWidth,
       itemHeight: other.itemHeight,
@@ -181,7 +185,8 @@ mixin _$BottomNavigationBarTheme {
     final _this = (this as BottomNavigationBarTheme);
     final _other = (other as BottomNavigationBarTheme);
 
-    return _other.floating == _this.floating &&
+    return _other.liquidGlass == _this.liquidGlass &&
+        _other.floating == _this.floating &&
         _other.itemWidth == _this.itemWidth &&
         _other.itemHeight == _this.itemHeight &&
         _other.iconSize == _this.iconSize &&
@@ -212,6 +217,7 @@ mixin _$BottomNavigationBarTheme {
 
     return Object.hashAll([
       runtimeType,
+      _this.liquidGlass,
       _this.floating,
       _this.itemWidth,
       _this.itemHeight,

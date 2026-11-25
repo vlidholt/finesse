@@ -144,7 +144,7 @@ export 'src/components/sliver_app_bar.dart';
 export 'src/components/spinner.dart';
 export 'src/components/stepper.dart';
 export 'src/components/streaming_text.dart';
-export 'src/components/surface.dart' hide SurfacePainter;
+export 'src/components/surface.dart' hide SurfacePainter, glassFreeDecoration;
 export 'src/components/swipe_actions.dart';
 export 'src/components/switch.dart';
 export 'src/components/tab_bar.dart';
@@ -174,6 +174,10 @@ export 'src/i18n/localizations_delegate.dart';
 export 'src/i18n/strings.g.dart'
     show FinesseLocale, FinesseLocalizationsData, FinesseLocalizationsDataEn;
 export 'src/icons/phosphor_icons.dart';
+// Liquid Glass: the switch and its setup. The widgets that draw it are
+// internal; components build them.
+export 'src/liquid_glass/liquid_glass.dart' show LiquidGlass;
+export 'src/liquid_glass/liquid_glass_theme.dart';
 // Routes
 export 'src/page_route.dart';
 // Raw Components

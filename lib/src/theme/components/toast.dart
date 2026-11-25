@@ -1,5 +1,6 @@
 import 'dart:ui' show ImageFilter;
 
+import 'package:finesse/src/liquid_glass/liquid_glass_theme.dart';
 import 'package:finesse/src/utils/border.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
@@ -20,6 +21,7 @@ class ToastTheme with _$ToastTheme {
   /// {@macro ToastTheme}
   const ToastTheme({
     bool canMerge = true,
+    this.liquidGlass,
     this.backgroundColor,
     this.filter,
     this.border,
@@ -42,6 +44,10 @@ class ToastTheme with _$ToastTheme {
 
   @override
   bool get canMerge => _canMerge;
+
+  /// Whether toasts draw with Liquid Glass, over
+  /// `ThemeData.liquidGlass.mode`; null follows the theme.
+  final LiquidGlassMode? liquidGlass;
 
   /// The fill of the toast. Translucent in a style with glass popovers.
   final Color? backgroundColor;

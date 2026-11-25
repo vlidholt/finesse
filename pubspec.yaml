@@ -1,8 +1,8 @@
 name: finesse
 description: >-
   A themeable Flutter design system: 60+ widgets, frosted-glass surfaces,
-  desktop and mobile metrics in one theme, and no Material or Cupertino
-  dependency.
+  desktop and mobile metrics in one theme, Liquid Glass on iOS and macOS,
+  and no Material dependency.
 version: 0.1.0
 homepage: https://github.com/vlidholt/finesse
 repository: https://github.com/vlidholt/finesse
@@ -24,11 +24,17 @@ environment:
 dependencies:
   boxy: ^2.1.2
   collection: ^1.18.0
+  # The package's glyphs (chevrons, the search field's magnifier) are
+  # CupertinoIcons; without the font they draw as boxes.
+  cupertino_icons: ^1.0.8
   flutter:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
   intl: ^0.20.0
+  # Liquid Glass on iOS and macOS. Only lib/src/liquid_glass/ imports it
+  # (and, through it, Cupertino): see CLAUDE.md, "Liquid Glass".
+  liquid_glass_widgets: ^1.21.0
   slang: ^4.19.0
   slang_flutter: ^4.19.0
   theme_extensions_builder_annotation: ^7.1.0

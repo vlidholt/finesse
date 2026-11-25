@@ -1,3 +1,4 @@
+import 'package:finesse/src/liquid_glass/liquid_glass_theme.dart';
 import 'package:finesse/src/theme/color_scheme/base.dart';
 import 'package:finesse/src/theme/color_scheme/teal.dart';
 import 'package:finesse/src/theme/components/accordion.dart';
@@ -133,6 +134,11 @@ class ThemeData extends BaseTheme with _$ThemeData {
     /// of a wheel, a slider's stops, a switch. Defaults to true. False
     /// silences every call made through `Haptics` below this theme.
     bool? haptics,
+
+    /// Where components are drawn with Liquid Glass, and how. Defaults to
+    /// `LiquidGlassTheme()`: Liquid Glass on iOS and macOS (natively and in
+    /// a browser), finesse's frosted glass elsewhere.
+    LiquidGlassTheme? liquidGlass,
     SelectTheme? selectTheme,
     SelectOptionTheme? selectOptionTheme,
     CardTheme? cardTheme,
@@ -411,6 +417,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
         textTheme: textTheme,
         disabledOpacity: disabledOpacity,
         haptics: haptics,
+        liquidGlass: liquidGlass,
         selectTheme: selectTheme,
         selectOptionTheme: selectOptionTheme,
         cardTheme: cardTheme,
@@ -537,6 +544,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
       textTheme: effectiveVariant.textTheme(),
       disabledOpacity: disabledOpacity ?? .5,
       haptics: haptics ?? true,
+      liquidGlass: liquidGlass ?? const LiquidGlassTheme(),
       selectTheme: effectiveVariant.selectTheme().merge(selectTheme),
       selectOptionTheme: effectiveVariant.selectOptionTheme().merge(
         selectOptionTheme,
@@ -689,6 +697,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     required super.textTheme,
     required super.disabledOpacity,
     required super.haptics,
+    required super.liquidGlass,
     required super.selectTheme,
     required super.selectOptionTheme,
     required super.cardTheme,
@@ -797,6 +806,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     TextTheme? textTheme,
     double? disabledOpacity,
     bool? haptics,
+    LiquidGlassTheme? liquidGlass,
     SelectTheme? selectTheme,
     SelectOptionTheme? selectOptionTheme,
     CardTheme? cardTheme,
@@ -899,6 +909,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
       textTheme: textTheme ?? i.textTheme,
       disabledOpacity: disabledOpacity ?? i.disabledOpacity,
       haptics: haptics ?? i.haptics,
+      liquidGlass: liquidGlass ?? i.liquidGlass,
       selectTheme: selectTheme ?? i.selectTheme,
       selectOptionTheme: selectOptionTheme ?? i.selectOptionTheme,
       cardTheme: cardTheme ?? i.cardTheme,
@@ -1102,6 +1113,7 @@ final class _ThemeInputs {
     this.textTheme,
     this.disabledOpacity,
     this.haptics,
+    this.liquidGlass,
     this.selectTheme,
     this.selectOptionTheme,
     this.cardTheme,
@@ -1202,6 +1214,7 @@ final class _ThemeInputs {
   final TextTheme? textTheme;
   final double? disabledOpacity;
   final bool? haptics;
+  final LiquidGlassTheme? liquidGlass;
   final SelectTheme? selectTheme;
   final SelectOptionTheme? selectOptionTheme;
   final CardTheme? cardTheme;

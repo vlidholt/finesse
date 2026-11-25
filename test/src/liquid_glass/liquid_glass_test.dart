@@ -1,0 +1,460 @@
+import 'package:finesse/finesse.dart';
+import 'package:finesse/src/liquid_glass/liquid_glass.dart'
+    show LiquidGlassBarGroup, LiquidGlassScrollEdge, glassThemeDataOf;
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lg;
+
+import '../../finesse_harness.dart';
+
+/// Runs [body] with Flutter reporting [platform], and puts it back.
+Future<void> onPlatform(
+  TargetPlatform platform,
+  Future<void> Function() body,
+) async {
+  debugDefaultTargetPlatformOverride = platform;
+  try {
+    await body();
+  } finally {
+    debugDefaultTargetPlatformOverride = null;
+  }
+}
+
+void main() {
+  group('LiquidGlass.resolve', () {
+    test('auto means Liquid Glass on iOS and macOS only', () {
+      for (final platform in TargetPlatform.values) {
+        expect(
+          LiquidGlass.resolve(mode: LiquidGlassMode.auto, platform: platform),
+          platform == TargetPlatform.iOS || platform == TargetPlatform.macOS,
+          reason: '$platform',
+        );
+        expect(
+          LiquidGlass.resolve(mode: LiquidGlassMode.always, platform: platform),
+          isTrue,
+          reason: '$platform',
+        );
+        expect(
+          LiquidGlass.resolve(mode: LiquidGlassMode.never, platform: platform),
+          isFalse,
+          reason: '$platform',
+        );
+      }
+    });
+
+    test('gives way to high contrast and to shaders that did not load', () {
+      expect(
+        LiquidGlass.resolve(
+          mode: LiquidGlassMode.always,
+          platform: TargetPlatform.iOS,
+          highContrast: true,
+        ),
+        isFalse,
+      );
+      LiquidGlass.debugUnavailable = true;
+      addTearDown(() => LiquidGlass.debugUnavailable = false);
+      expect(
+        LiquidGlass.resolve(
+          mode: LiquidGlassMode.always,
+          platform: TargetPlatform.iOS,
+        ),
+        isFalse,
+      );
+    });
+  });
+
+  group('LiquidGlassTheme', () {
+    test('defaults to auto with the iOS 27 material', () {
+      final theme = ThemeData();
+      expect(theme.liquidGlass, const LiquidGlassTheme());
+      expect(theme.liquidGlass.mode, LiquidGlassMode.auto);
+      expect(theme.liquidGlass.style, GlassStyle.ios27);
+    });
+
+    test('survives copyWith and keeps theme equality', () {
+      const config = LiquidGlassTheme(
+        mode: LiquidGlassMode.always,
+        style: GlassStyle.ios26,
+        quality: GlassQuality.standard,
+        light: GlassThemeSettings(blur: 8),
+      );
+      final theme = ThemeData(liquidGlass: config);
+      expect(theme.liquidGlass, config);
+      expect(ThemeData(liquidGlass: config), theme);
+      expect(theme.copyWith(radius: BorderRadius.zero).liquidGlass, config);
+      expect(
+        theme.copyWith(liquidGlass: const LiquidGlassTheme()).liquidGlass,
+        const LiquidGlassTheme(),
+      );
+      expect(ThemeData.lerp(ThemeData(), theme, 1)!.liquidGlass, config);
+    });
+
+    test("tints the package's glass from the scheme, once per theme", () {
+      final theme = ThemeData();
+      final data = glassThemeDataOf(theme);
+      expect(identical(glassThemeDataOf(theme), data), isTrue);
+      expect(data.style, lg.GlassStyle.ios27);
+      expect(data.brightness, Brightness.light);
+      final glass = data.light.settings!.glassColor!;
+      expect(glass.r, theme.colorScheme.bar.r);
+      expect(glass.g, theme.colorScheme.bar.g);
+      expect(glass.b, theme.colorScheme.bar.b);
+      expect(glass.a, lessThan(1));
+      expect(data.light.glowColors!.primary, theme.colorScheme.primary);
+    });
+
+    test("lays the caller's settings over the scheme's", () {
+      final data = glassThemeDataOf(
+        ThemeData(
+          liquidGlass: const LiquidGlassTheme(
+            style: GlassStyle.ios26,
+            tintFromColorScheme: false,
+            dark: GlassThemeSettings(blur: 11),
+          ),
+        ),
+      );
+      expect(data.style, lg.GlassStyle.ios26);
+      expect(data.dark.settings!.blur, 11);
+      expect(
+        data.light.settings!.glassColor,
+        lg.GlassThemeVariant.ios26Light.settings!.glassColor,
+      );
+    });
+  });
+
+  group('components', () {
+    Future<void> pump(
+      WidgetTester tester,
+      Widget child, {
+      LiquidGlassTheme liquidGlass = const LiquidGlassTheme(),
+      FormFactor formFactor = FormFactor.mobile,
+    }) => pumpFinesse(
+      tester,
+      child,
+      formFactor: formFactor,
+      theme: ThemeData(liquidGlass: liquidGlass),
+    );
+
+    final cases = <String, (Widget, Type)>{
+      'Switch': (Switch(value: true, onChanged: (_) {}), lg.GlassSwitch),
+      'Slider': (Slider(value: .5, onChanged: (_) {}), lg.GlassSlider),
+      'SegmentedControl': (
+        SegmentedControl<int>(
+          value: 0,
+          onChanged: (_) {},
+          segments: const [
+            Segment(value: 0, label: Text('Day')),
+            Segment(value: 1, label: Text('Week')),
+          ],
+        ),
+        lg.GlassSegmentedControl,
+      ),
+      'BottomNavigationBar': (
+        BottomNavigationBar(
+          selectedIndex: 0,
+          onDestinationSelected: (_) {},
+          destinations: const [
+            NavigationDestination(
+              icon: SizedBox.square(dimension: 20),
+              label: 'Home',
+            ),
+            NavigationDestination(
+              icon: SizedBox.square(dimension: 20),
+              label: 'Jobs',
+            ),
+          ],
+        ),
+        lg.GlassTabBar,
+      ),
+      'Glass': (
+        const Glass(child: SizedBox(width: 80, height: 40)),
+        lg.GlassContainer,
+      ),
+      'Toast': (const Toast(title: Text('Saved')), lg.GlassContainer),
+      'AppBar': (
+        AppBar(
+          title: const Text('Title'),
+          actions: [IconButton(icon: const SizedBox(), onPressed: () {})],
+        ),
+        LiquidGlassBarGroup,
+      ),
+      'SliverAppBar': (
+        const SizedBox(
+          height: 400,
+          child: CustomScrollView(
+            slivers: [
+              SliverAppBar(title: Text('Title')),
+              SliverToBoxAdapter(child: SizedBox(height: 800)),
+            ],
+          ),
+        ),
+        LiquidGlassScrollEdge,
+      ),
+    };
+
+    for (final MapEntry(key: name, value: (widget, type)) in cases.entries) {
+      testWidgets('$name draws with Liquid Glass on iOS', (tester) async {
+        await onPlatform(TargetPlatform.iOS, () async {
+          await pump(tester, Center(child: widget));
+          expect(find.byType(type), findsWidgets);
+          expect(tester.takeException(), isNull);
+        });
+      });
+
+      testWidgets('$name stays frosted on Android', (tester) async {
+        await onPlatform(TargetPlatform.android, () async {
+          await pump(tester, Center(child: widget));
+          expect(find.byType(type), findsNothing);
+        });
+      });
+
+      testWidgets('$name stays frosted under LiquidGlassMode.never', (
+        tester,
+      ) async {
+        await onPlatform(TargetPlatform.iOS, () async {
+          await pump(
+            tester,
+            Center(child: widget),
+            liquidGlass: const LiquidGlassTheme(mode: LiquidGlassMode.never),
+          );
+          expect(find.byType(type), findsNothing);
+        });
+      });
+    }
+
+    testWidgets('a component theme overrides the theme', (tester) async {
+      await onPlatform(TargetPlatform.android, () async {
+        await pumpFinesse(
+          tester,
+          Center(child: Switch(value: true, onChanged: (_) {})),
+          theme: ThemeData(
+            switchTheme: const SwitchTheme(liquidGlass: LiquidGlassMode.always),
+          ),
+        );
+        expect(find.byType(lg.GlassSwitch), findsOneWidget);
+      });
+      await onPlatform(TargetPlatform.iOS, () async {
+        await pumpFinesse(
+          tester,
+          Center(child: Switch(value: true, onChanged: (_) {})),
+          theme: ThemeData(
+            switchTheme: const SwitchTheme(liquidGlass: LiquidGlassMode.never),
+          ),
+        );
+        expect(find.byType(lg.GlassSwitch), findsNothing);
+      });
+    });
+
+    testWidgets('gives way to high contrast', (tester) async {
+      await onPlatform(TargetPlatform.iOS, () async {
+        await tester.pumpWidget(
+          MediaQuery(
+            data: const MediaQueryData(highContrast: true),
+            child: FinesseApp(
+              home: Center(child: Switch(value: true, onChanged: (_) {})),
+            ),
+          ),
+        );
+        expect(find.byType(lg.GlassSwitch), findsNothing);
+      });
+    });
+
+    testWidgets('the app bar blurs the scroll edge and groups its actions', (
+      tester,
+    ) async {
+      await onPlatform(TargetPlatform.iOS, () async {
+        await pump(
+          tester,
+          Column(
+            children: [
+              AppBar(
+                title: const Text('Title'),
+                actions: [
+                  IconButton(icon: const SizedBox(), onPressed: () {}),
+                  IconButton(icon: const SizedBox(), onPressed: () {}),
+                ],
+              ),
+            ],
+          ),
+        );
+        expect(find.byType(LiquidGlassScrollEdge), findsOneWidget);
+        expect(find.byType(lg.ProgressiveBlur), findsOneWidget);
+        // Both actions share one capsule.
+        expect(find.byType(LiquidGlassBarGroup), findsOneWidget);
+        expect(
+          find.descendant(
+            of: find.byType(LiquidGlassBarGroup),
+            matching: find.byType(IconButton),
+          ),
+          findsNWidgets(2),
+        );
+      });
+    });
+
+    testWidgets('the bottom bar puts its action beside the tabs', (
+      tester,
+    ) async {
+      await onPlatform(TargetPlatform.iOS, () async {
+        await pump(
+          tester,
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: BottomNavigationBar(
+              selectedIndex: 1,
+              onDestinationSelected: (_) {},
+              action: NavigationAction(
+                icon: const SizedBox.square(dimension: 20),
+                label: 'Compose',
+                onPressed: () {},
+              ),
+              destinations: const [
+                NavigationDestination(icon: SizedBox(), label: 'Home'),
+                NavigationDestination(icon: SizedBox(), label: 'Jobs'),
+                NavigationDestination(icon: SizedBox(), label: 'Me'),
+              ],
+            ),
+          ),
+        );
+        final bar = tester.widget<lg.GlassTabBar>(find.byType(lg.GlassTabBar));
+        expect(bar.tabs, hasLength(3));
+        expect(bar.selectedIndex, 1);
+        expect(bar.extraButton, isNotNull);
+        expect(bar.extraButton!.label, 'Compose');
+        expect(tester.takeException(), isNull);
+      });
+    });
+
+    testWidgets('a bar with nothing selected stays frosted', (tester) async {
+      await onPlatform(TargetPlatform.iOS, () async {
+        await pump(
+          tester,
+          Center(
+            child: BottomNavigationBar(
+              selectedIndex: null,
+              onDestinationSelected: (_) {},
+              destinations: const [
+                NavigationDestination(icon: SizedBox(), label: 'Home'),
+                NavigationDestination(icon: SizedBox(), label: 'Jobs'),
+              ],
+            ),
+          ),
+        );
+        expect(find.byType(lg.GlassTabBar), findsNothing);
+      });
+    });
+
+    testWidgets('a switch is the same size frosted and liquid', (tester) async {
+      Future<Size> sizeOn(TargetPlatform platform, Type type) async {
+        late Size size;
+        await onPlatform(platform, () async {
+          await pump(
+            tester,
+            Center(child: Switch(value: true, onChanged: (_) {})),
+          );
+          size = tester.getSize(find.byType(type).first);
+        });
+        await tester.pumpWidget(const SizedBox.shrink());
+        return size;
+      }
+
+      final liquid = await sizeOn(TargetPlatform.iOS, lg.GlassSwitch);
+      final frosted = await sizeOn(TargetPlatform.android, Switch);
+      expect(liquid, const Size(58, 26));
+      expect(frosted, const Size(58, 26));
+    });
+
+    testWidgets('Glass lays its content out the same frosted and liquid', (
+      tester,
+    ) async {
+      const content = Key('content');
+      Future<(Rect, Rect)> rectsOn(TargetPlatform platform) async {
+        late (Rect, Rect) rects;
+        await onPlatform(platform, () async {
+          await pump(
+            tester,
+            const Center(
+              child: Glass(
+                padding: EdgeInsets.all(12),
+                child: SizedBox(key: content, width: 80, height: 40),
+              ),
+            ),
+          );
+          rects = (
+            tester.getRect(find.byType(Glass)),
+            tester.getRect(find.byKey(content)),
+          );
+        });
+        await tester.pumpWidget(const SizedBox.shrink());
+        return rects;
+      }
+
+      final liquid = await rectsOn(TargetPlatform.iOS);
+      final frosted = await rectsOn(TargetPlatform.android);
+      expect(liquid, frosted);
+    });
+
+    testWidgets('a switch on glass still toggles', (tester) async {
+      await onPlatform(TargetPlatform.iOS, () async {
+        var value = false;
+        await pump(
+          tester,
+          Center(
+            child: StatefulBuilder(
+              builder: (context, setState) => Switch(
+                value: value,
+                onChanged: (next) => setState(() => value = next),
+              ),
+            ),
+          ),
+        );
+        await tester.tap(find.byType(lg.GlassSwitch));
+        await tester.pump(const Duration(milliseconds: 500));
+        expect(value, isTrue);
+      });
+    });
+
+    testWidgets('a segmented control on glass reports its value', (
+      tester,
+    ) async {
+      await onPlatform(TargetPlatform.iOS, () async {
+        int? chosen;
+        await pump(
+          tester,
+          Center(
+            child: SegmentedControl<int>(
+              value: 0,
+              onChanged: (value) => chosen = value,
+              segments: const [
+                Segment(value: 0, label: Text('Day')),
+                Segment(value: 1, label: Text('Week')),
+              ],
+            ),
+          ),
+        );
+        final control = tester.widget<lg.GlassSegmentedControl>(
+          find.byType(lg.GlassSegmentedControl),
+        );
+        expect(control.segments.map((s) => s.label), ['Day', 'Week']);
+        control.onSegmentSelected(1);
+        expect(chosen, 1);
+      });
+    });
+  });
+
+  group('phone metrics', () {
+    test('are close to the Liquid Glass sizes', () {
+      const phone = StyleTokens.finesseMobile;
+      expect(phone.appBarHeight, 44);
+      expect(phone.bottomNavigationItemHeight + 2 * 6, 64);
+      expect(phone.switchWidth, 58);
+      expect(phone.switchHeight, 26);
+      expect(phone.sliderThumbSize, 28);
+    });
+
+    test('leave the desktop style alone', () {
+      expect(StyleTokens.finesse.appBarHeight, 64);
+      expect(StyleTokens.finesse.switchWidth, 36);
+    });
+  });
+}
