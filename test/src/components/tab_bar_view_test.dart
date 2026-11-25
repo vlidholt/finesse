@@ -433,6 +433,29 @@ void main() {
       expect(_page('b'), findsNothing);
     });
 
+    testWidgets('two fingers on a trackpad swipe the pages', (tester) async {
+      await pumpFinesse(tester, _Apart(controller: controller), theme: _theme);
+      final start = tester.getCenter(_page('a'));
+      final gesture = await tester.createGesture(
+        kind: PointerDeviceKind.trackpad,
+      );
+      await gesture.panZoomStart(start);
+      for (var i = 1; i <= 10; i++) {
+        await gesture.panZoomUpdate(start, pan: Offset(-20.0 * i, 0));
+        await tester.pump(_frame);
+      }
+      await gesture.panZoomEnd();
+      await tester.pumpAndSettle();
+      expect(controller.value, 'b');
+    });
+
+    test('takes a value or a controller', () {
+      final pages = <String, WidgetBuilder>{
+        'a': (context) => const SizedBox.shrink(),
+      };
+      expect(() => TabBarView<String>(pages: pages), throwsAssertionError);
+    });
+
     testWidgets('given a height it fills it and so does each page', (
       tester,
     ) async {
