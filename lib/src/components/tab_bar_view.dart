@@ -257,11 +257,10 @@ class _TabPagesState extends State<TabPages> with TickerProviderStateMixin {
     _position.animation.removeListener(_moved);
     _position.dispose();
     _transition.dispose();
-    // Not during the frame that tears this down.
+    // Gone mid-swipe: let go of the indicator. Left alone at rest, when
+    // whoever owns the notifier may already have disposed of it.
     final track = widget.track;
-    if (track != null && track.value != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => track.value = null);
-    }
+    if (track != null && track.value != null) track.value = null;
     super.dispose();
   }
 
@@ -296,7 +295,8 @@ class _TabPagesState extends State<TabPages> with TickerProviderStateMixin {
       index < widget.count &&
       (widget.canShow?.call(index) ?? true);
 
-  double get _width => math.max(context.size?.width ?? 1, 1);
+  /// How wide a page is, as last laid out.
+  double _width = 1;
 
   double get _forward =>
       Directionality.of(context) == TextDirection.rtl ? -1 : 1;
@@ -427,10 +427,13 @@ class _TabPagesState extends State<TabPages> with TickerProviderStateMixin {
 
     return Listener(
       onPointerDown: _handlePointerDown,
+      // A swipe may start on a part of the page that has nothing on it.
+      behavior: HitTestBehavior.translucent,
       child: _TabPagesBody(
         position: _position.animation,
         textDirection: Directionality.of(context),
         fill: widget.fill,
+        onWidth: (width) => _width = math.max(width, 1),
         children: children,
       ),
     );
@@ -444,7 +447,8 @@ class _TabPagesState extends State<TabPages> with TickerProviderStateMixin {
   }) {
     final content = KeyedSubtree(
       key: _keys[index],
-      child: widget.builder(context, index),
+      // A context of its own, under what tells the page whether it shows.
+      child: Builder(builder: (context) => widget.builder(context, index)),
     );
     return _TabContentTransition(
       animation: animation,
@@ -503,6 +507,7 @@ class _TabPagesBody extends MultiChildRenderObjectWidget {
     required this.position,
     required this.textDirection,
     required this.fill,
+    required this.onWidth,
     required super.children,
   });
 
@@ -510,11 +515,18 @@ class _TabPagesBody extends MultiChildRenderObjectWidget {
   final TextDirection textDirection;
   final bool fill;
 
+  /// Told how wide a page is, at each layout.
+  final ValueChanged<double> onWidth;
+
+  @override
+  MultiChildRenderObjectElement createElement() => _TabPagesElement(this);
+
   @override
   RenderObject createRenderObject(BuildContext context) => _RenderTabPages(
     position: position,
     textDirection: textDirection,
     fill: fill,
+    onWidth: onWidth,
   );
 
   @override
@@ -522,7 +534,23 @@ class _TabPagesBody extends MultiChildRenderObjectWidget {
     renderObject
       ..position = position
       ..textDirection = textDirection
-      ..fill = fill;
+      ..fill = fill
+      ..onWidth = onWidth;
+  }
+}
+
+/// Tells a finder which pages are on stage, as an `IndexedStack` does.
+class _TabPagesElement extends MultiChildRenderObjectElement {
+  _TabPagesElement(_TabPagesBody super.widget);
+
+  @override
+  void debugVisitOnstageChildren(ElementVisitor visitor) {
+    final pages = renderObject as _RenderTabPages;
+    var index = 0;
+    for (final child in children) {
+      if (pages._showing(index)) visitor(child);
+      index++;
+    }
   }
 }
 
@@ -538,9 +566,13 @@ class _RenderTabPages extends RenderBox
     required Animation<double> position,
     required TextDirection textDirection,
     required bool fill,
+    required this.onWidth,
   }) : _position = position,
        _textDirection = textDirection,
        _fill = fill;
+
+  /// Told how wide a page is, at each layout.
+  ValueChanged<double> onWidth;
 
   Animation<double> get position => _position;
   Animation<double> _position;
@@ -676,6 +708,7 @@ class _RenderTabPages extends RenderBox
         ? 0.0
         : lerpDouble(heights[at.low], heights[at.high], at.t)!;
     size = constraints.constrain(Size(width, height));
+    onWidth(size.width);
   }
 
   double _widest(double Function(RenderBox child) of) {

@@ -521,7 +521,9 @@ void main() {
 
       // At the end the last row clears the bottom bar.
       await tester.drag(find.byType(ListView), const Offset(0, -5000));
-      await tester.pump();
+      // Past the end the list stretches for a moment, as it does on
+      // Android.
+      await tester.pumpAndSettle();
       final bar = tester.getRect(find.byType(BottomNavigationBar));
       expect(tester.getRect(find.byKey(const Key('row39'))).bottom, bar.top);
     });
