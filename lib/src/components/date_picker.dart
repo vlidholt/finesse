@@ -5,7 +5,6 @@ import 'package:finesse/src/components/calendar.dart';
 import 'package:finesse/src/components/date_wheel_picker.dart';
 import 'package:finesse/src/components/picker.dart';
 import 'package:finesse/src/components/popover.dart';
-import 'package:finesse/src/components/sheet.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/theme/components/calendar.dart';
@@ -435,24 +434,22 @@ class _DateSheetState extends State<_DateSheet> {
           ),
         );
     }
-    return Sheet(
+    return PickerSheet(
       title: widget.title,
-      child: PickerSheetBody(
-        maxWidth: picker.sheetMaxWidth,
-        // Wheels always rest on a date, so Done has one to report even
-        // when nothing was turned.
-        onDone: widget.commitOnTap
-            ? null
-            : () => widget.onDone(
-                _draft ??
-                    (widget.mode == DatePickerMode.wheel
-                        ? _initialDay(widget.min, widget.max)
-                        : null),
-              ),
-        onCancel: widget.onCancel,
-        onClear: widget.allowClear ? () => widget.onDone(null) : null,
-        child: content,
-      ),
+      maxWidth: picker.sheetMaxWidth,
+      // Wheels always rest on a date, so Done has one to report even
+      // when nothing was turned.
+      onDone: widget.commitOnTap
+          ? null
+          : () => widget.onDone(
+              _draft ??
+                  (widget.mode == DatePickerMode.wheel
+                      ? _initialDay(widget.min, widget.max)
+                      : null),
+            ),
+      onCancel: widget.onCancel,
+      onClear: widget.allowClear ? () => widget.onDone(null) : null,
+      child: content,
     );
   }
 }
@@ -749,20 +746,18 @@ class _DateRangeSheetState extends State<_DateRangeSheet> {
   @override
   Widget build(BuildContext context) {
     final picker = Theme.of(context).datePickerTheme;
-    return Sheet(
+    return PickerSheet(
       title: widget.title,
-      child: PickerSheetBody(
-        maxWidth: picker.sheetMaxWidth,
-        onDone: () => widget.onDone(_draft),
-        onCancel: widget.onCancel,
-        onClear: widget.allowClear ? () => widget.onDone(null) : null,
-        child: _WideCalendar(
-          showWeekNumbers: widget.showWeekNumbers,
-          builder: (override) => widget.calendarBuilder(
-            _draft,
-            (range) => setState(() => _draft = range),
-            override,
-          ),
+      maxWidth: picker.sheetMaxWidth,
+      onDone: () => widget.onDone(_draft),
+      onCancel: widget.onCancel,
+      onClear: widget.allowClear ? () => widget.onDone(null) : null,
+      child: _WideCalendar(
+        showWeekNumbers: widget.showWeekNumbers,
+        builder: (override) => widget.calendarBuilder(
+          _draft,
+          (range) => setState(() => _draft = range),
+          override,
         ),
       ),
     );

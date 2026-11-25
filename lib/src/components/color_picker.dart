@@ -3,7 +3,6 @@ import 'dart:math' as math;
 import 'package:finesse/src/components/layout.dart';
 import 'package:finesse/src/components/picker.dart';
 import 'package:finesse/src/components/popover.dart';
-import 'package:finesse/src/components/sheet.dart';
 import 'package:finesse/src/components/text_field.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/raw_components/pressable.dart';
@@ -833,17 +832,15 @@ class _ColorSheetState extends State<_ColorSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Sheet(
+    return PickerSheet(
       title: widget.title,
-      child: PickerSheetBody(
-        onDone: () => widget.onDone(_draft),
-        onCancel: widget.onCancel,
-        child: ColorPicker(
-          value: _draft,
-          swatches: widget.swatches,
-          showAlpha: widget.showAlpha,
-          onChanged: (color) => setState(() => _draft = color),
-        ),
+      onDone: () => widget.onDone(_draft),
+      onCancel: widget.onCancel,
+      child: ColorPicker(
+        value: _draft,
+        swatches: widget.swatches,
+        showAlpha: widget.showAlpha,
+        onChanged: (color) => setState(() => _draft = color),
       ),
     );
   }

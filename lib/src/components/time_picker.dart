@@ -1,7 +1,6 @@
 import 'package:finesse/src/components/button.dart';
 import 'package:finesse/src/components/picker.dart';
 import 'package:finesse/src/components/popover.dart';
-import 'package:finesse/src/components/sheet.dart';
 import 'package:finesse/src/components/time_field.dart';
 import 'package:finesse/src/components/time_wheel_picker.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
@@ -289,24 +288,22 @@ class _TimeSheetState extends State<_TimeSheet> {
   @override
   Widget build(BuildContext context) {
     final wheels = Theme.of(context).timePickerTheme.sheetWheelItems ?? 5;
-    return Sheet(
+    return PickerSheet(
       title: widget.title,
-      child: PickerSheetBody(
-        onDone: () => widget.onDone(_draft),
-        onCancel: widget.onCancel,
-        onClear: widget.allowClear ? () => widget.onDone(null) : null,
-        child: Center(
-          child: TimeWheelPicker(
-            value: _draft,
-            onChanged: (time) => setState(() => _draft = time),
-            minuteInterval: widget.minuteInterval,
-            min: widget.min,
-            max: widget.max,
-            showSeconds: widget.showSeconds,
-            use24HourFormat: widget.use24HourFormat,
-            visibleItems: wheels,
-            mainAxisSize: MainAxisSize.max,
-          ),
+      onDone: () => widget.onDone(_draft),
+      onCancel: widget.onCancel,
+      onClear: widget.allowClear ? () => widget.onDone(null) : null,
+      child: Center(
+        child: TimeWheelPicker(
+          value: _draft,
+          onChanged: (time) => setState(() => _draft = time),
+          minuteInterval: widget.minuteInterval,
+          min: widget.min,
+          max: widget.max,
+          showSeconds: widget.showSeconds,
+          use24HourFormat: widget.use24HourFormat,
+          visibleItems: wheels,
+          mainAxisSize: MainAxisSize.max,
         ),
       ),
     );

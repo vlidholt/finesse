@@ -393,24 +393,28 @@ class PickerTrigger extends StatelessWidget {
   }
 }
 
-/// The body of a picker's sheet: the choices, and under them one row with
-/// Cancel and Done side by side, each half the width, and Clear before them
-/// when there is something to clear.
+/// A picker's sheet: the choices, and for its actions one row with Cancel
+/// and Done side by side, each half the width, and Clear before them when
+/// there is something to clear.
 ///
-/// The row is part of the sheet's content rather than its `actions`: a
-/// sheet stacks its actions one above the other in a narrow window, and
-/// three full-width buttons under a wheel push the wheel off a small
-/// screen. Internal to the package.
-class PickerSheetBody extends StatelessWidget {
-  /// Creates the body of a picker's sheet.
-  const PickerSheetBody({
+/// The row is one action of the sheet, so it stays put under choices that
+/// have to scroll. It is a row on a phone too, where a sheet stacks its
+/// buttons: three full-width buttons under a wheel push the wheel off a
+/// small screen. Internal to the package.
+class PickerSheet extends StatelessWidget {
+  /// Creates a picker's sheet.
+  const PickerSheet({
     required this.child,
     required this.onDone,
+    this.title,
     this.onCancel,
     this.onClear,
     this.maxWidth,
     super.key,
   });
+
+  /// The sheet's title.
+  final Widget? title;
 
   /// The choices.
   final Widget child;
@@ -419,8 +423,9 @@ class PickerSheetBody extends StatelessWidget {
   /// which a tap on a choice is the choice.
   final VoidCallback? onDone;
 
-  /// The widest the body is laid out. A bottom sheet is as wide as the
-  /// window, which on a desktop is far wider than a picker reads well.
+  /// The widest the choices and the buttons are laid out. A bottom sheet
+  /// is as wide as the window, which on a desktop is far wider than a
+  /// picker reads well.
   final double? maxWidth;
 
   /// Drops it. Null leaves the button out, for a sheet whose choices take
@@ -433,15 +438,19 @@ class PickerSheetBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = FinesseLocalizations.of(context);
-    return Center(
+    // As wide as the sheet, up to the cap, in its middle.
+    Widget capped(Widget child) => Center(
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: maxWidth ?? 420),
-        child: FinesseColumn(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          gap: GapSize.lg,
-          children: [
-            child,
+        child: SizedBox(width: double.infinity, child: child),
+      ),
+    );
+    final hasActions = onClear != null || onCancel != null || onDone != null;
+    return Sheet(
+      title: title,
+      actions: [
+        if (hasActions)
+          capped(
             FinesseRow(
               gap: GapSize.sm,
               children: [
@@ -468,9 +477,9 @@ class PickerSheetBody extends StatelessWidget {
                   ),
               ],
             ),
-          ],
-        ),
-      ),
+          ),
+      ],
+      child: capped(child),
     );
   }
 }

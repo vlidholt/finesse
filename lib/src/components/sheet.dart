@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' show ImageFilter, lerpDouble;
 
+import 'package:finesse/src/components/button.dart';
 import 'package:finesse/src/components/dialog.dart';
 import 'package:finesse/src/components/icon_button.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
@@ -476,6 +477,10 @@ class Sheet extends StatefulWidget {
   /// The buttons that end the sheet: in a row at its end on a desktop,
   /// stacked and as wide as the sheet on a phone, the first one at the
   /// bottom.
+  ///
+  /// An action that is not a `Button` — a row of them, say, for two
+  /// choices side by side on a phone too — is given the sheet's width and
+  /// lays out its own children.
   /// {@endtemplate}
   final List<Widget> actions;
 
@@ -1687,21 +1692,29 @@ class _SheetContent extends StatelessWidget {
     Widget? actionsWidget;
     if (actions.isNotEmpty) {
       actionsWidget = mobile
-          ? Theme(
-              data: expandedActionsThemeOf(theme),
-              // Full-width buttons give their labels the button's width, so
-              // a long label ellipsizes instead of overflowing the button.
-              child: DefaultTextStyle.merge(
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                softWrap: false,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  verticalDirection: VerticalDirection.up,
-                  spacing: actionsGap,
-                  children: actions,
-                ),
+          ? DefaultTextStyle.merge(
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              softWrap: false,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                verticalDirection: VerticalDirection.up,
+                spacing: actionsGap,
+                children: [
+                  for (final action in actions)
+                    // A button fills the sheet's width and gives its label
+                    // that width, so a long label ellipsizes instead of
+                    // overflowing. The theme that does it reaches every
+                    // button below it, so it goes around a button only:
+                    // any other action — a row of buttons — is handed the
+                    // width and lays out its own, where a button asked to
+                    // be as wide as a row would have no width to take.
+                    if (action is Button)
+                      Theme(data: expandedActionsThemeOf(theme), child: action)
+                    else
+                      action,
+                ],
               ),
             )
           : Wrap(
