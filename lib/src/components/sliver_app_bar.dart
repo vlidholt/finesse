@@ -201,16 +201,22 @@ class SliverAppBar extends StatefulWidget {
 }
 
 class _SliverAppBarState extends State<SliverAppBar>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   final _scroll = _BarScroll();
+
+  // A bar with no expanded area takes its surface when the page has
+  // scrolled at all: in one fade, as an `AppBar` does, rather than at
+  // once. A bar that collapses fades its surface with the collapse.
+  late final _scrolledUnder = AnimationController(vsync: this);
+  bool? _wasScrolled;
 
   // The settle of a floating bar that the reader left half shown.
   late final _snap = SpringController(vsync: this, tolerance: .05);
   ScrollPosition? _position;
 
   late final Animation<double> _surface = _ScrollAnimation(
-    _scroll,
-    () => _scroll.surface,
+    Listenable.merge([_scroll, _scrolledUnder]),
+    () => _scroll.expandedExtent <= 0 ? _scrolledUnder.value : _scroll.surface,
   );
   late final Animation<double> _smallTitle = _ScrollAnimation(
     _scroll,
@@ -221,6 +227,25 @@ class _SliverAppBarState extends State<SliverAppBar>
   void initState() {
     super.initState();
     _snap.animation.addListener(_onSnapTick);
+    _scroll.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    final scrolled = _scroll.scrolled;
+    if (scrolled == _wasScrolled) return;
+    final first = _wasScrolled == null;
+    _wasScrolled = scrolled;
+    // As it is laid out the first time: nothing to fade from.
+    if (first) {
+      _scrolledUnder.value = scrolled ? 1 : 0;
+      return;
+    }
+    final motion = Motion.of(context);
+    _scrolledUnder.animateTo(
+      scrolled ? 1 : 0,
+      duration: motion.fast,
+      curve: motion.standard,
+    );
   }
 
   @override
@@ -264,7 +289,9 @@ class _SliverAppBarState extends State<SliverAppBar>
   void dispose() {
     _position?.isScrollingNotifier.removeListener(_onScrollingChanged);
     _snap.dispose();
+    _scroll.removeListener(_onScroll);
     _scroll.dispose();
+    _scrolledUnder.dispose();
     super.dispose();
   }
 
@@ -563,7 +590,7 @@ class _BarScroll extends ChangeNotifier {
 class _ScrollAnimation extends Animation<double> {
   _ScrollAnimation(this._scroll, this._read);
 
-  final _BarScroll _scroll;
+  final Listenable _scroll;
   final double Function() _read;
 
   @override
