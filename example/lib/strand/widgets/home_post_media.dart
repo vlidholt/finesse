@@ -64,8 +64,9 @@ class _ImageGrid extends StatelessWidget {
   }
 }
 
-/// The phone card's photographs: one at a time, with a "1 / 2" counter.
-/// Tapping the photograph moves to the next one.
+/// The phone card's photographs: one at a time in a `Carousel`, with a
+/// "1 / 2" counter. A swipe turns the page, and so does a tap on the
+/// photograph.
 class _ImagePager extends StatefulWidget {
   const _ImagePager(this.images);
 
@@ -76,33 +77,50 @@ class _ImagePager extends StatefulWidget {
 }
 
 class _ImagePagerState extends State<_ImagePager> {
+  final _controller = CarouselController();
   int _index = 0;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final images = widget.images;
-    final image = images[_index % images.length];
-    return ClipRRect(
-      borderRadius: HomePostMedia.radiusOf(theme),
-      child: Stack(
-        children: [
-          GestureDetector(
-            onTap: images.length < 2
-                ? null
-                : () => setState(() => _index = (_index + 1) % images.length),
-            child: Image.asset(
-              image.asset,
-              height: 220,
-              width: double.infinity,
-              fit: BoxFit.cover,
-              semanticLabel: image.alt,
-            ),
-          ),
-          if (images.length > 1)
-            PositionedDirectional(
-              top: theme.gap(GapSize.sm),
-              end: theme.gap(GapSize.sm),
+    final several = images.length > 1;
+    return Stack(
+      children: [
+        Carousel(
+          controller: _controller,
+          height: 220,
+          // Round and round: the tap that turns the last page shows the
+          // first again.
+          loop: several,
+          borderRadius: HomePostMedia.radiusOf(theme),
+          semanticLabel: 'Photos',
+          onPageChanged: (index) => setState(() => _index = index),
+          children: [
+            for (final image in images)
+              GestureDetector(
+                onTap: several ? _controller.nextPage : null,
+                child: Image.asset(
+                  image.asset,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  semanticLabel: image.alt,
+                ),
+              ),
+          ],
+        ),
+        if (several)
+          PositionedDirectional(
+            top: theme.gap(GapSize.sm),
+            end: theme.gap(GapSize.sm),
+            // The count is read with the carousel ("Page 1 of 2").
+            child: ExcludeSemantics(
               child: Glass(
                 frosted: false,
                 color: _scrim,
@@ -121,8 +139,8 @@ class _ImagePagerState extends State<_ImagePager> {
                 ),
               ),
             ),
-        ],
-      ),
+          ),
+      ],
     );
   }
 }

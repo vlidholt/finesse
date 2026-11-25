@@ -15,7 +15,8 @@ import 'package:flutter_solidart/flutter_solidart.dart';
 /// Each page is a column of cards; each card a heading, a line about it and
 /// its controls — the package's own `TextField`, `Select`, `Switch`,
 /// `Checkbox`, `FinesseRadioGroup`, `Slider` and `Tabs`, with nothing
-/// restyled.
+/// restyled. A group that is nothing but switches is a `ListSection` of
+/// `SwitchListTile`s instead: the grouped list of a settings page.
 class SettingsSectionView extends StatelessWidget {
   const SettingsSectionView({
     required this.section,
@@ -506,46 +507,46 @@ class _ActivityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _SettingsCard(
-      title: 'Activity',
-      description: 'What other people can tell about what you do here.',
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _SwitchRow(
-            title: 'Show when you are active',
-            detail: 'The dot on your portrait in Messages',
-            value: settings.showOnline,
-            onChanged: (value) =>
-                settings.update(() => settings.showOnline = value),
+    // Nothing but switches: a grouped list, its heading over the card and
+    // its explanation under it. Each row is one control — the whole row
+    // takes the tap.
+    return ListSection(
+      header: Text(Theme.of(context).style.overline.applyCase('Activity')),
+      footer: const Text('What other people can tell about what you do here.'),
+      children: [
+        SwitchListTile(
+          title: const Text('Show when you are active'),
+          subtitle: const Text('The dot on your portrait in Messages'),
+          value: settings.showOnline,
+          onChanged: (value) =>
+              settings.update(() => settings.showOnline = value),
+        ),
+        SwitchListTile(
+          title: const Text('Read receipts'),
+          subtitle: const Text(
+            'Let people see when you have read their message',
           ),
-          const _RowDivider(),
-          _SwitchRow(
-            title: 'Read receipts',
-            detail: 'Let people see when you have read their message',
-            value: settings.readReceipts,
-            onChanged: (value) =>
-                settings.update(() => settings.readReceipts = value),
+          value: settings.readReceipts,
+          onChanged: (value) =>
+              settings.update(() => settings.readReceipts = value),
+        ),
+        SwitchListTile(
+          title: const Text('Share profile views'),
+          subtitle: const Text(
+            'Show your name when you look at someone’s profile',
           ),
-          const _RowDivider(),
-          _SwitchRow(
-            title: 'Share profile views',
-            detail: 'Show your name when you look at someone’s profile',
-            value: settings.shareProfileViews,
-            onChanged: (value) =>
-                settings.update(() => settings.shareProfileViews = value),
-          ),
-          const _RowDivider(),
-          _SwitchRow(
-            title: 'Open to work, recruiters only',
-            detail: 'Hide the status from people at Halcyon',
-            value: settings.openToRecruitersOnly,
-            onChanged: (value) =>
-                settings.update(() => settings.openToRecruitersOnly = value),
-          ),
-        ],
-      ),
+          value: settings.shareProfileViews,
+          onChanged: (value) =>
+              settings.update(() => settings.shareProfileViews = value),
+        ),
+        SwitchListTile(
+          title: const Text('Open to work, recruiters only'),
+          subtitle: const Text('Hide the status from people at Halcyon'),
+          value: settings.openToRecruitersOnly,
+          onChanged: (value) =>
+              settings.update(() => settings.openToRecruitersOnly = value),
+        ),
+      ],
     );
   }
 }
@@ -598,30 +599,29 @@ class _PauseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      rowMainAxisSize: MainAxisSize.max,
-      // One control to a screen reader, as a [_SwitchRow] is.
-      child: MergeSemantics(
-        child: _SettingRow(
-          leading: IconTile(
+    return ListSection(
+      children: [
+        SwitchListTile(
+          secondary: IconTile(
             icon: PhosphorIcon(
               settings.pauseAll
                   ? PhosphorIconsRegular.bellSimpleSlash
                   : PhosphorIconsRegular.bellSimpleRinging,
             ),
           ),
-          title: 'Pause all notifications',
-          detail: settings.pauseAll
-              ? 'Paused. Nothing new will reach you until you switch this '
-                    'off.'
-              : 'Take a break without changing what you are told about.',
-          trailing: Switch(
-            value: settings.pauseAll,
-            onChanged: (value) =>
-                settings.update(() => settings.pauseAll = value),
+          title: const Text('Pause all notifications'),
+          subtitle: Text(
+            settings.pauseAll
+                ? 'Paused. Nothing new will reach you until you switch this '
+                      'off.'
+                : 'Take a break without changing what you are told about.',
           ),
+          subtitleMaxLines: 3,
+          value: settings.pauseAll,
+          onChanged: (value) =>
+              settings.update(() => settings.pauseAll = value),
         ),
-      ),
+      ],
     );
   }
 }
