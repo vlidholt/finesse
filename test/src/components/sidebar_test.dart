@@ -159,7 +159,7 @@ void main() {
                 SidebarMenu(
                   children: [
                     SidebarMenuButton(
-                      isActive: true,
+                      selected: true,
                       onPressed: () => pressed = true,
                       child: const Text('Home'),
                     ),

@@ -23,7 +23,7 @@ class _SidebarBasicExampleState extends State<SidebarBasicExample> {
   SidebarMenuButton item(String label, IconData icon) {
     return SidebarMenuButton(
       leading: PhosphorIcon(icon),
-      isActive: selected == label,
+      selected: selected == label,
       tooltip: label,
       onPressed: () => setState(() => selected = label),
       child: Text(label),
@@ -187,7 +187,7 @@ class _SidebarSubmenuExampleState extends State<SidebarSubmenuExample> {
                           children: [
                             for (final page in entry.value)
                               SidebarMenuSubButton(
-                                isActive: selected == page,
+                                selected: selected == page,
                                 onPressed: () =>
                                     setState(() => selected = page),
                                 child: Text(page),

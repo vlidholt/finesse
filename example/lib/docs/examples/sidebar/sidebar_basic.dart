@@ -14,7 +14,7 @@ class _SidebarBasicExampleState extends State<SidebarBasicExample> {
   SidebarMenuButton item(String label, IconData icon) {
     return SidebarMenuButton(
       leading: PhosphorIcon(icon),
-      isActive: selected == label,
+      selected: selected == label,
       tooltip: label,
       onPressed: () => setState(() => selected = label),
       child: Text(label),

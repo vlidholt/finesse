@@ -49,7 +49,7 @@ class _SidebarSubmenuExampleState extends State<SidebarSubmenuExample> {
                           children: [
                             for (final page in entry.value)
                               SidebarMenuSubButton(
-                                isActive: selected == page,
+                                selected: selected == page,
                                 onPressed: () =>
                                     setState(() => selected = page),
                                 child: Text(page),

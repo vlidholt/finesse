@@ -1069,7 +1069,7 @@ class SidebarMenu extends StatelessWidget {
 /// A row in a sidebar menu, shadcn/ui's `SidebarMenuButton`.
 ///
 /// Renders an icon, a label and an optional trailing widget; highlights with
-/// the sidebar accent on hover, press and when [isActive]. In the icon rail
+/// the sidebar accent on hover, press and when [selected]. In the icon rail
 /// it shrinks to a square and, when [tooltip] is given, shows the label as a
 /// tooltip instead.
 /// {@endtemplate}
@@ -1081,7 +1081,7 @@ class SidebarMenuButton extends StatefulWidget {
     this.leading,
     required this.child,
     this.trailing,
-    this.isActive = false,
+    this.selected = false,
     this.size = SidebarMenuButtonSize.regular,
     this.variant = SidebarMenuButtonVariant.standard,
     this.tooltip,
@@ -1102,7 +1102,7 @@ class SidebarMenuButton extends StatefulWidget {
   final Widget? trailing;
 
   /// Whether this row is the current one; keeps the accent highlight.
-  final bool isActive;
+  final bool selected;
 
   /// The height and text size of the row. Defaults to
   /// [SidebarMenuButtonSize.regular].
@@ -1181,7 +1181,7 @@ class _SidebarMenuButtonState extends State<SidebarMenuButton> {
         sidebarTheme.foregroundColor ?? theme.colorScheme.sidebarForeground;
 
     final highlighted =
-        widget.enabled && (hovered || pressed || widget.isActive);
+        widget.enabled && (hovered || pressed || widget.selected);
     final contentColor = highlighted ? accentForeground : foreground;
     final radius = sidebarTheme.menuButtonBorderRadius ?? theme.radii.sm;
     final gap = sidebarTheme.menuButtonGap ?? 8;
@@ -1215,7 +1215,7 @@ class _SidebarMenuButtonState extends State<SidebarMenuButton> {
           child: DefaultTextStyle.merge(
             style: textStyle.copyWith(
               color: contentColor,
-              fontWeight: widget.isActive ? FontWeight.w500 : null,
+              fontWeight: widget.selected ? FontWeight.w500 : null,
             ),
             maxLines: 1,
             softWrap: false,
@@ -1334,7 +1334,7 @@ class _SidebarMenuButtonState extends State<SidebarMenuButton> {
     button = Semantics(
       button: true,
       enabled: widget.enabled,
-      selected: widget.isActive,
+      selected: widget.selected,
       child: button,
     );
 
@@ -1516,7 +1516,7 @@ class SidebarMenuSubButton extends StatefulWidget {
     this.onPressed,
     this.leading,
     required this.child,
-    this.isActive = false,
+    this.selected = false,
     this.small = false,
     this.focusNode,
   });
@@ -1532,7 +1532,7 @@ class SidebarMenuSubButton extends StatefulWidget {
 
   /// Whether this row is the current one; keeps the accent highlight.
   /// Defaults to false.
-  final bool isActive;
+  final bool selected;
 
   /// Whether to render at the `sm` (text-xs) size.
   final bool small;
@@ -1558,7 +1558,7 @@ class _SidebarMenuSubButtonState extends State<SidebarMenuSubButton> {
         theme.colorScheme.sidebarAccentForeground;
     final foreground =
         sidebarTheme.foregroundColor ?? theme.colorScheme.sidebarForeground;
-    final highlighted = hovered || widget.isActive;
+    final highlighted = hovered || widget.selected;
     final contentColor = highlighted ? accentForeground : foreground;
 
     var textStyle = sidebarTheme.subButtonTextStyle ?? theme.textTheme.small;
@@ -1571,7 +1571,7 @@ class _SidebarMenuSubButtonState extends State<SidebarMenuSubButton> {
 
     return Semantics(
       button: true,
-      selected: widget.isActive,
+      selected: widget.selected,
       child: Focusable(
         focusNode: widget.focusNode,
         builder: (context, focused, child) {

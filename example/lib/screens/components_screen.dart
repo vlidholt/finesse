@@ -134,7 +134,7 @@ class ComponentsScreenState extends State<ComponentsScreen> {
                   children: [
                     for (final item in group.items)
                       SidebarMenuButton(
-                        isActive: item.slug == doc.slug,
+                        selected: item.slug == doc.slug,
                         onPressed: () => _select(item.slug),
                         child: Text(item.title),
                       ),
