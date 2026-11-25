@@ -94,6 +94,7 @@ export 'src/components/progress_bar.dart';
 export 'src/components/progress_ring.dart';
 export 'src/components/radio.dart';
 export 'src/components/refresh_indicator.dart';
+export 'src/components/reorderable_list_view.dart';
 export 'src/components/resizable.dart';
 export 'src/components/scaffold.dart';
 export 'src/components/scroll_area.dart';

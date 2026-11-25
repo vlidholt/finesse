@@ -54,6 +54,7 @@ import 'package:example/docs/pages/progress_bar.dart';
 import 'package:example/docs/pages/progress_ring.dart';
 import 'package:example/docs/pages/radio_group.dart';
 import 'package:example/docs/pages/refresh_indicator.dart';
+import 'package:example/docs/pages/reorderable_list_view.dart';
 import 'package:example/docs/pages/resizable.dart';
 import 'package:example/docs/pages/responsive.dart';
 import 'package:example/docs/pages/scaffold.dart';
@@ -165,6 +166,7 @@ final componentDocs = [
   progressRingDoc,
   radioGroupDoc,
   refreshIndicatorDoc,
+  reorderableListViewDoc,
   resizableDoc,
   scaffoldDoc,
   scrollAreaDoc,
