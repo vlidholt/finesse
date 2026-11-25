@@ -42,6 +42,16 @@ pagination:
   morePages: "More pages"
   page: "Page"
 
+rating:
+  value: "$value of $count"
+
+colorPicker:
+  hex: "Hex"
+  hue: "Hue"
+  opacity: "Opacity"
+  saturationAndBrightness: "Saturation and brightness"
+  selectColor: "Select colour"
+
 dialog:
   close: "Close"
   dismiss: "Dismiss"

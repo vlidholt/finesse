@@ -351,6 +351,7 @@ class _ChipCheck extends StatelessWidget {
           child: Align(
             alignment: AlignmentDirectional.centerStart,
             widthFactor: shown,
+            heightFactor: 1,
             child: Opacity(
               opacity: shown,
               child: Transform.scale(

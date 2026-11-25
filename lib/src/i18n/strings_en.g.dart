@@ -43,6 +43,8 @@ class FinesseLocalizationsData with BaseTranslations<FinesseLocale, FinesseLocal
 	late final FinesseLocalizationsData$chip$en chip = FinesseLocalizationsData$chip$en.internal(_root);
 	late final FinesseLocalizationsData$command$en command = FinesseLocalizationsData$command$en.internal(_root);
 	late final FinesseLocalizationsData$pagination$en pagination = FinesseLocalizationsData$pagination$en.internal(_root);
+	late final FinesseLocalizationsData$rating$en rating = FinesseLocalizationsData$rating$en.internal(_root);
+	late final FinesseLocalizationsData$colorPicker$en colorPicker = FinesseLocalizationsData$colorPicker$en.internal(_root);
 	late final FinesseLocalizationsData$dialog$en dialog = FinesseLocalizationsData$dialog$en.internal(_root);
 	late final FinesseLocalizationsData$board$en board = FinesseLocalizationsData$board$en.internal(_root);
 }
@@ -203,6 +205,42 @@ class FinesseLocalizationsData$pagination$en {
 	String get page => 'Page';
 }
 
+// Path: rating
+class FinesseLocalizationsData$rating$en {
+	FinesseLocalizationsData$rating$en.internal(this._root);
+
+	final FinesseLocalizationsData _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: '$value of $count'
+	String value({required Object value, required Object count}) => '${value} of ${count}';
+}
+
+// Path: colorPicker
+class FinesseLocalizationsData$colorPicker$en {
+	FinesseLocalizationsData$colorPicker$en.internal(this._root);
+
+	final FinesseLocalizationsData _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Hex'
+	String get hex => 'Hex';
+
+	/// en: 'Hue'
+	String get hue => 'Hue';
+
+	/// en: 'Opacity'
+	String get opacity => 'Opacity';
+
+	/// en: 'Saturation and brightness'
+	String get saturationAndBrightness => 'Saturation and brightness';
+
+	/// en: 'Select colour'
+	String get selectColor => 'Select colour';
+}
+
 // Path: dialog
 class FinesseLocalizationsData$dialog$en {
 	FinesseLocalizationsData$dialog$en.internal(this._root);
@@ -290,6 +328,12 @@ extension on FinesseLocalizationsData {
 			'pagination.next' => 'Next',
 			'pagination.morePages' => 'More pages',
 			'pagination.page' => 'Page',
+			'rating.value' => ({required Object value, required Object count}) => '${value} of ${count}',
+			'colorPicker.hex' => 'Hex',
+			'colorPicker.hue' => 'Hue',
+			'colorPicker.opacity' => 'Opacity',
+			'colorPicker.saturationAndBrightness' => 'Saturation and brightness',
+			'colorPicker.selectColor' => 'Select colour',
 			'dialog.close' => 'Close',
 			'dialog.dismiss' => 'Dismiss',
 			'board.moveUp' => 'Move up',

@@ -52,6 +52,7 @@ export 'src/components/checkbox.dart';
 export 'src/components/chip.dart';
 export 'src/components/chip_group.dart';
 export 'src/components/collapsible.dart';
+export 'src/components/color_picker.dart';
 export 'src/components/command.dart';
 export 'src/components/context_menu.dart' hide ContextMenuItemController;
 export 'src/components/control_affinity.dart' show ControlAffinity;
@@ -95,6 +96,7 @@ export 'src/components/picker.dart'
 export 'src/components/popover.dart';
 export 'src/components/progress_bar.dart';
 export 'src/components/radio.dart';
+export 'src/components/rating.dart';
 export 'src/components/resizable.dart';
 export 'src/components/scaffold.dart';
 export 'src/components/scroll_area.dart';

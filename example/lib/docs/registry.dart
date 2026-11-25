@@ -15,6 +15,7 @@ import 'package:example/docs/pages/chat_list.dart';
 import 'package:example/docs/pages/checkbox.dart';
 import 'package:example/docs/pages/chip.dart';
 import 'package:example/docs/pages/collapsible.dart';
+import 'package:example/docs/pages/color_picker.dart';
 import 'package:example/docs/pages/command.dart';
 import 'package:example/docs/pages/context_menu.dart';
 import 'package:example/docs/pages/data_table.dart';
@@ -49,6 +50,7 @@ import 'package:example/docs/pages/portal.dart';
 import 'package:example/docs/pages/pressable.dart';
 import 'package:example/docs/pages/progress_bar.dart';
 import 'package:example/docs/pages/radio_group.dart';
+import 'package:example/docs/pages/rating.dart';
 import 'package:example/docs/pages/resizable.dart';
 import 'package:example/docs/pages/responsive.dart';
 import 'package:example/docs/pages/scaffold.dart';
@@ -132,6 +134,7 @@ final componentDocs = [
   checkboxDoc,
   chipDoc,
   collapsibleDoc,
+  colorPickerDoc,
   commandDoc,
   contextMenuDoc,
   dataTableDoc,
@@ -156,6 +159,7 @@ final componentDocs = [
   pressableDoc,
   progressBarDoc,
   radioGroupDoc,
+  ratingDoc,
   resizableDoc,
   scaffoldDoc,
   scrollAreaDoc,
