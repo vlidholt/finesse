@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:finesse/src/components/decorator.dart';
 import 'package:finesse/src/components/divider.dart';
 import 'package:finesse/src/components/sheet.dart';
 import 'package:finesse/src/components/skeleton.dart';

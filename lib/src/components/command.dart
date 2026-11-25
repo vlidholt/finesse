@@ -1,5 +1,6 @@
 import 'dart:ui' show ImageFilter;
 
+import 'package:finesse/src/components/decorator.dart';
 import 'package:finesse/src/components/dialog.dart';
 import 'package:finesse/src/components/text_field.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';

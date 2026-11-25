@@ -1,5 +1,6 @@
 import 'package:finesse/src/components/checkbox.dart';
 import 'package:finesse/src/components/control_affinity.dart';
+import 'package:finesse/src/components/decorator.dart';
 import 'package:finesse/src/components/list_tile.dart';
 import 'package:finesse/src/components/radio.dart';
 import 'package:finesse/src/components/switch.dart';

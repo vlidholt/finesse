@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:finesse/src/components/autocomplete.dart';
 import 'package:finesse/src/components/chip.dart';
+import 'package:finesse/src/components/decorator.dart';
 import 'package:finesse/src/components/popover.dart';
 import 'package:finesse/src/components/text_field.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';

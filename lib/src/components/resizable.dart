@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:finesse/src/components/decorator.dart';
 import 'package:finesse/src/components/divider.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/theme/components/decorator.dart';

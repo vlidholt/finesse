@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:finesse/src/components/decorator.dart';
 import 'package:finesse/src/raw_components/portal.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/theme.dart';

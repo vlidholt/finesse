@@ -1,7 +1,7 @@
 import 'package:finesse/material.dart';
 import 'package:finesse/src/app.dart';
 import 'package:finesse/src/components/button.dart'; // Adjust import path based on your project structure
-import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/components/decorator.dart';
 import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/style.dart';
 import 'package:finesse/src/theme/theme.dart';

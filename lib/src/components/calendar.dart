@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:collection/collection.dart';
 import 'package:finesse/src/components/button.dart';
+import 'package:finesse/src/components/decorator.dart';
 import 'package:finesse/src/components/icon_button.dart';
 import 'package:finesse/src/components/select.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
