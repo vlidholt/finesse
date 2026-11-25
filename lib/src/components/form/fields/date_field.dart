@@ -80,9 +80,10 @@ class DateFormField extends FinesseFormField<DateTime> {
              widthFactor: 1,
              heightFactor: 1,
              child: DateField(
-               // A reset writes the initial value back into the fields.
+               // A reset writes the initial value back into the fields,
+               // even over a half-typed date the form holds as null.
                key: ValueKey(state._generation),
-               initialValue: state.value,
+               value: state.value,
                onChanged: state.didChange,
                enabled: state.enabled,
                focusNode: state.focusNode,
