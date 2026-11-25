@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:finesse/finesse.dart';
 import 'package:finesse/src/components/surface.dart';
 import 'package:flutter/gestures.dart';
@@ -429,6 +431,77 @@ void main() {
       await play(tester);
       expect(card, findsNothing);
       expect(changes, [true, false]);
+    });
+
+    Future<void> holdOpen(WidgetTester tester) async {
+      final finger = await tester.startGesture(
+        tester.getCenter(find.text('Name')),
+      );
+      await tester.pump(kLongPressTimeout + const Duration(milliseconds: 20));
+      await finger.up();
+      await play(tester);
+      expect(card, findsOneWidget);
+    }
+
+    testWidgets('held open in a tab that is then hidden, it leaves Escape '
+        'to the tab that is shown', (tester) async {
+      var shown = true;
+      late StateSetter setState;
+      final heard = <LogicalKeyboardKey>[];
+      final other = FocusNode();
+      addTearDown(other.dispose);
+      await pumpFinesse(
+        tester,
+        StatefulBuilder(
+          builder: (context, set) {
+            setState = set;
+            return IndexedStack(
+              index: shown ? 0 : 1,
+              children: [
+                Center(child: hoverCard()),
+                Focus(
+                  focusNode: other,
+                  onKeyEvent: (node, event) {
+                    if (event is KeyDownEvent) heard.add(event.logicalKey);
+                    return KeyEventResult.handled;
+                  },
+                  child: const Center(child: Text('Other')),
+                ),
+              ],
+            );
+          },
+        ),
+        formFactor: FormFactor.mobile,
+      );
+      await holdOpen(tester);
+      setState(() => shown = false);
+      await play(tester);
+      other.requestFocus();
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      expect(heard, [LogicalKeyboardKey.escape]);
+    });
+
+    testWidgets('held open under a dialog, Escape is the dialog\'s', (
+      tester,
+    ) async {
+      await pumpFinesse(
+        tester,
+        Center(child: hoverCard()),
+        formFactor: FormFactor.mobile,
+      );
+      await holdOpen(tester);
+      unawaited(
+        showDialog<void>(
+          context: tester.element(find.text('Name')),
+          builder: (_) => const Dialog(child: Text('Dialog')),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Dialog'), findsOneWidget);
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      expect(find.text('Dialog'), findsNothing);
     });
 
     testWidgets('a tap opens nothing and reaches the trigger', (tester) async {
