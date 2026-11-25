@@ -49,6 +49,7 @@ import 'package:example/docs/pages/popover.dart';
 import 'package:example/docs/pages/portal.dart';
 import 'package:example/docs/pages/pressable.dart';
 import 'package:example/docs/pages/progress_bar.dart';
+import 'package:example/docs/pages/progress_ring.dart';
 import 'package:example/docs/pages/radio_group.dart';
 import 'package:example/docs/pages/resizable.dart';
 import 'package:example/docs/pages/responsive.dart';
@@ -155,6 +156,7 @@ final componentDocs = [
   popoverDoc,
   pressableDoc,
   progressBarDoc,
+  progressRingDoc,
   radioGroupDoc,
   resizableDoc,
   scaffoldDoc,

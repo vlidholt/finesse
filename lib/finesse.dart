@@ -89,6 +89,7 @@ export 'src/components/page_container.dart';
 export 'src/components/pagination.dart';
 export 'src/components/popover.dart';
 export 'src/components/progress_bar.dart';
+export 'src/components/progress_ring.dart';
 export 'src/components/radio.dart';
 export 'src/components/resizable.dart';
 export 'src/components/scaffold.dart';

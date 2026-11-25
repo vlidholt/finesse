@@ -58,6 +58,7 @@ const _slugs = [
   'popover',
   'pressable',
   'progress_bar',
+  'progress_ring',
   'radio_group',
   'resizable',
   'scaffold',

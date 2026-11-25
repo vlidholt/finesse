@@ -66,6 +66,7 @@ flutter:
     - lib/docs/examples/popover/
     - lib/docs/examples/portal/
     - lib/docs/examples/progress_bar/
+    - lib/docs/examples/progress_ring/
     - lib/docs/examples/radio_group/
     - lib/docs/examples/resizable/
     - lib/docs/examples/select/
