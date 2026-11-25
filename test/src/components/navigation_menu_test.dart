@@ -602,7 +602,7 @@ void main() {
       expect(find.text('Pricing'), findsNothing);
     });
 
-    testWidgets('under a dialog, Escape is the dialog\'s', (tester) async {
+    testWidgets("under a dialog, Escape is the dialog's", (tester) async {
       await pumpFinesse(tester, menu());
       await tester.tap(find.text('Products'));
       await tester.pumpAndSettle();

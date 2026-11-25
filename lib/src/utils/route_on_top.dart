@@ -19,7 +19,7 @@ import 'package:flutter/widgets.dart';
 /// found. A context that is not in a route at all counts as on top.
 bool isInTopRoute(BuildContext context) {
   if (!context.mounted) return false;
-  BuildContext at = context;
+  var at = context;
   while (true) {
     final navigator = at.findAncestorStateOfType<NavigatorState>();
     if (navigator == null) return true;

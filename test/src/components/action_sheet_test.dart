@@ -372,7 +372,6 @@ void main() {
             return const SizedBox.expand();
           },
         ),
-        formFactor: FormFactor.desktop,
       );
       unawaited(
         showActionSheet<_Choice>(

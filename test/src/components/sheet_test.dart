@@ -1252,11 +1252,7 @@ void main() {
       );
       // At its largest detent a pull up only scrolls the list: the sheet
       // is offered the drag and takes none of it.
-      await tester.drag(
-        find.text('Row 3'),
-        const Offset(0, -200),
-        kind: PointerDeviceKind.touch,
-      );
+      await tester.drag(find.text('Row 3'), const Offset(0, -200));
       await tester.pumpAndSettle();
       expect(offset(tester), greaterThan(100));
       return controller;
@@ -1274,7 +1270,6 @@ void main() {
       // back; the sheet stays where it is.
       final gesture = await tester.startGesture(
         tester.getCenter(find.byType(ListView)),
-        kind: PointerDeviceKind.touch,
       );
       for (var i = 0; i < 6; i++) {
         await gesture.moveBy(const Offset(0, 10));

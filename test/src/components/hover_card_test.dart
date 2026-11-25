@@ -482,7 +482,7 @@ void main() {
       expect(heard, [LogicalKeyboardKey.escape]);
     });
 
-    testWidgets('held open under a dialog, Escape is the dialog\'s', (
+    testWidgets("held open under a dialog, Escape is the dialog's", (
       tester,
     ) async {
       await pumpFinesse(
