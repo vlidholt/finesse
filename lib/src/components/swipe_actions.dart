@@ -193,6 +193,9 @@ class _SwipeActionsState extends State<SwipeActions>
   bool _fullArmed = false;
   bool _busy = false;
   bool _removing = false;
+
+  /// Whether the row has gone and [SwipeActions.onRemoved] was called.
+  bool _removed = false;
   ScrollPosition? _scrollPosition;
   _SwipeActionsScopeState? _scope;
 
@@ -236,6 +239,17 @@ class _SwipeActionsState extends State<SwipeActions>
   void didUpdateWidget(SwipeActions oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (!widget.enabled && oldWidget.enabled) _close(animate: false);
+    // A list without keys hands the State of a removed row to the row that
+    // took its place: that one is shown, where it belongs.
+    if (_removed) {
+      _removed = false;
+      _removing = false;
+      _open = false;
+      _fullArmed = false;
+      _spread.jumpTo(0);
+      _shift.jumpTo(0);
+      _height.jumpTo(1);
+    }
   }
 
   @override
@@ -435,7 +449,9 @@ class _SwipeActionsState extends State<SwipeActions>
     } on TickerCanceled {
       return;
     }
-    if (mounted) widget.onRemoved?.call();
+    if (!mounted) return;
+    _removed = true;
+    widget.onRemoved?.call();
   }
 
   // --- Keyboard and menu ----------------------------------------------------

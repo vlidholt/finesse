@@ -395,6 +395,49 @@ void main() {
       await tester.pump();
       expect(removed, 1);
     });
+
+    testWidgets('in a list without keys the row that takes a removed '
+        "row's place is shown", (tester) async {
+      final messages = ['M0', 'M1', 'M2'];
+      await pumpFinesse(
+        tester,
+        StatefulBuilder(
+          builder: (context, setState) => host(
+            SizedBox(
+              height: 400,
+              child: ListView.builder(
+                itemCount: messages.length,
+                itemBuilder: (context, index) {
+                  final message = messages[index];
+                  // No key: the State of the removed row is given the next
+                  // one's widget.
+                  return SwipeActions(
+                    trailing: [action('Delete', onPressed: () => true)],
+                    onRemoved: () => setState(() => messages.remove(message)),
+                    child: ListTile(title: Text(message)),
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+      await swipe(tester, -80, on: find.text('M0'));
+      await tester.tap(find.text('Delete'));
+      await tester.pumpAndSettle();
+      expect(messages, ['M1', 'M2']);
+      final first = find.byType(SwipeActions, skipOffstage: false).first;
+      expect(tester.getSize(first).height, greaterThan(0));
+      expect(find.text('M1'), findsOneWidget);
+      expect(
+        tester.getTopLeft(find.text('M1')).dx,
+        greaterThan(0),
+        reason: 'the row is still slid out',
+      );
+      // And it can be swiped like any other.
+      await swipe(tester, -80, on: find.text('M1'));
+      expect(find.text('Delete'), findsOneWidget);
+    });
   });
 
   group('SwipeActions and other gestures', () {
