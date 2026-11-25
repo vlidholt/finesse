@@ -74,14 +74,14 @@ class TextareaFormField extends FinesseFormField<String> {
     /// {@macro Textarea.showCursor}
     bool? showCursor,
 
-    /// {@macro Textarea.onPressedAlwaysCalled}
-    bool onPressedAlwaysCalled = false,
+    /// {@macro Textarea.onTapAlwaysCalled}
+    bool onTapAlwaysCalled = false,
 
-    /// {@macro Textarea.onPressedOutside}
-    TapRegionCallback? onPressedOutside,
+    /// {@macro Textarea.onTapOutside}
+    TapRegionCallback? onTapOutside,
 
-    /// {@macro Textarea.onPressed}
-    GestureTapCallback? onPressed,
+    /// {@macro Textarea.onTap}
+    GestureTapCallback? onTap,
 
     /// {@macro Textarea.scrollController}
     ScrollController? scrollController,
@@ -282,9 +282,9 @@ class TextareaFormField extends FinesseFormField<String> {
              selectionWidthStyle: selectionWidthStyle,
              clipBehavior: clipBehavior,
              dragStartBehavior: dragStartBehavior,
-             onPressed: onPressed,
-             onPressedAlwaysCalled: onPressedAlwaysCalled,
-             onPressedOutside: onPressedOutside,
+             onTap: onTap,
+             onTapAlwaysCalled: onTapAlwaysCalled,
+             onTapOutside: onTapOutside,
              minHeight: minHeight,
              maxHeight: maxHeight,
              resizable: resizable,

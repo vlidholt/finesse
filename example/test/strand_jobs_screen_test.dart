@@ -223,7 +223,7 @@ void main() {
           tester.widget<Card>(_inCard(job, find.byType(Card)));
       expect(card(JobsData.kestrel).selected, isTrue);
       expect(card(JobsData.quill).selected, isFalse);
-      expect(card(JobsData.quill).onPressed, isNotNull);
+      expect(card(JobsData.quill).onTap, isNotNull);
 
       final node = tester.getSemantics(
         find.byKey(ValueKey(JobsData.kestrel.id)),

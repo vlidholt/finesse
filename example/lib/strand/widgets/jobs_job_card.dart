@@ -116,7 +116,7 @@ class JobCard extends StatelessWidget {
     );
 
     return Card(
-      onPressed: onPressed,
+      onTap: onPressed,
       selected: selected,
       // No `semanticLabel`: it would stand in for everything inside the
       // card, the bookmark button included. The card reads its own text.

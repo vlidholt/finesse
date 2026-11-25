@@ -118,9 +118,9 @@ class TextField extends StatefulWidget {
     this.dragStartBehavior = DragStartBehavior.start,
     bool? enableInteractiveSelection,
     this.selectionControls,
-    this.onPressed,
-    this.onPressedAlwaysCalled = false,
-    this.onPressedOutside,
+    this.onTap,
+    this.onTapAlwaysCalled = false,
+    this.onTapOutside,
     this.mouseCursor,
     this.scrollController,
     this.scrollPhysics,
@@ -530,23 +530,23 @@ class TextField extends StatefulWidget {
   /// {@endtemplate}
   final TextSelectionControls? selectionControls;
 
-  /// {@template TextField.onPressed}
+  /// {@template TextField.onTap}
   /// Callback invoked when the input field is tapped.
   /// Useful for custom tap handling, e.g., in read-only mode.
   /// {@endtemplate}
-  final GestureTapCallback? onPressed;
+  final GestureTapCallback? onTap;
 
-  /// {@template TextField.onPressedAlwaysCalled}
-  /// Whether [onPressed] is called even when selection is active.
+  /// {@template TextField.onTapAlwaysCalled}
+  /// Whether [onTap] is called even when selection is active.
   /// Defaults to false; if true, always triggers on tap.
   /// {@endtemplate}
-  final bool onPressedAlwaysCalled;
+  final bool onTapAlwaysCalled;
 
-  /// {@template TextField.onPressedOutside}
+  /// {@template TextField.onTapOutside}
   /// Callback invoked when tapping outside the input field.
   /// Useful for handling focus dismissal or other actions.
   /// {@endtemplate}
-  final TapRegionCallback? onPressedOutside;
+  final TapRegionCallback? onTapOutside;
 
   /// {@template TextField.mouseCursor}
   /// The cursor displayed when hovering over the input.
@@ -1499,7 +1499,7 @@ class TextFieldState extends State<TextField>
                         undoController: widget.undoController,
                         spellCheckConfiguration: widget.spellCheckConfiguration,
                         textAlign: widget.textAlign,
-                        onTapOutside: widget.onPressedOutside,
+                        onTapOutside: widget.onTapOutside,
                         rendererIgnoresPointer: true,
                         showCursor: widget.showCursor,
                         groupId: effectiveGroupId,
@@ -1705,11 +1705,11 @@ class _InputSelectionGestureDetectorBuilder
 
   @override
   void onUserTap() {
-    _state.widget.onPressed?.call();
+    _state.widget.onTap?.call();
   }
 
   @override
-  bool get onUserTapAlwaysCalled => _state.widget.onPressedAlwaysCalled;
+  bool get onUserTapAlwaysCalled => _state.widget.onTapAlwaysCalled;
 
   @override
   void onSingleLongTapStart(LongPressStartDetails details) {

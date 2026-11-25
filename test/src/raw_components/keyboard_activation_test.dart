@@ -53,7 +53,7 @@ void main() {
       onChanged: (_) => activate(),
     ),
     'Card': (activate) => Card(
-      onPressed: activate,
+      onTap: activate,
       child: const Text('Open'),
     ),
   };

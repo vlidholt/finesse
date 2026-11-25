@@ -106,7 +106,7 @@ class Select<T> extends StatefulWidget {
     this.shrinkWrap,
     this.popoverReverseDuration,
     this.ensureSelectedVisible,
-    this.onPressed,
+    this.onTap,
     this.onSearchChanged,
     this.searchDivider,
     this.searchInputLeading,
@@ -189,7 +189,7 @@ class Select<T> extends StatefulWidget {
     this.ensureSelectedVisible,
     this.searchFocusNode,
     this.onSearchSubmitted,
-    this.onPressed,
+    this.onTap,
   }) : variant = SelectVariant.search,
        selectedOptionsBuilder = null,
        onValuesChanged = null,
@@ -253,7 +253,7 @@ class Select<T> extends StatefulWidget {
     this.shrinkWrap,
     this.popoverReverseDuration,
     this.ensureSelectedVisible,
-    this.onPressed,
+    this.onTap,
     this.onSearchChanged,
     this.searchDivider,
     this.searchInputLeading,
@@ -338,7 +338,7 @@ class Select<T> extends StatefulWidget {
     this.ensureSelectedVisible,
     this.searchFocusNode,
     this.onSearchSubmitted,
-    this.onPressed,
+    this.onTap,
   }) : variant = SelectVariant.multipleWithSearch,
        selectedOptionBuilder = null,
        onChanged = null,
@@ -741,13 +741,13 @@ class Select<T> extends StatefulWidget {
   /// {@endtemplate}
   final ValueChanged<String>? onSearchSubmitted;
 
-  /// {@template Select.onPressed}
+  /// {@template Select.onTap}
   /// Callback function invoked when the select input is pressed.
   ///
   /// If provided, this callback will be called instead of toggling the
   /// popover.
   /// {@endtemplate}
-  final VoidCallback? onPressed;
+  final VoidCallback? onTap;
 
   /// The minimum width of the trigger and the options when none is set:
   /// shadcn's `min-w-32`.
@@ -1329,8 +1329,8 @@ class SelectState<T> extends State<Select<T>> {
                   mouseCursor: SystemMouseCursors.click,
                   behavior: HitTestBehavior.opaque,
                   onTapDown: (details) {
-                    if (widget.onPressed != null) {
-                      widget.onPressed!();
+                    if (widget.onTap != null) {
+                      widget.onTap!();
                       return;
                     }
                     FocusScope.of(context).unfocus();

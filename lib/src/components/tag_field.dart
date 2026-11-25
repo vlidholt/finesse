@@ -466,10 +466,10 @@ class _TagFieldState<T extends Object> extends State<TagField<T>> {
           // Enter adds a tag and stays for the next one.
           if (_focusNode.canRequestFocus) _focusNode.requestFocus();
         },
-        onPressed: () {
+        onTap: () {
           if (_marked != null) setState(() => _marked = null);
         },
-        onPressedAlwaysCalled: true,
+        onTapAlwaysCalled: true,
       ),
     );
 

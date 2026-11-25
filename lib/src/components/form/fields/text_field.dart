@@ -153,14 +153,14 @@ class TextFormField extends FinesseFormField<String> {
     /// {@macro TextField.dragStartBehavior}
     DragStartBehavior dragStartBehavior = DragStartBehavior.start,
 
-    /// {@macro TextField.onPressed}
-    GestureTapCallback? onPressed,
+    /// {@macro TextField.onTap}
+    GestureTapCallback? onTap,
 
-    /// {@macro TextField.onPressedAlwaysCalled}
-    bool onPressedAlwaysCalled = false,
+    /// {@macro TextField.onTapAlwaysCalled}
+    bool onTapAlwaysCalled = false,
 
-    /// {@macro TextField.onPressedOutside}
-    TapRegionCallback? onPressedOutside,
+    /// {@macro TextField.onTapOutside}
+    TapRegionCallback? onTapOutside,
 
     /// {@macro TextField.mouseCursor}
     MouseCursor? mouseCursor,
@@ -324,9 +324,9 @@ class TextFormField extends FinesseFormField<String> {
              undoController: undoController,
              spellCheckConfiguration: spellCheckConfiguration,
              placeholder: placeholder,
-             onPressed: onPressed,
-             onPressedAlwaysCalled: onPressedAlwaysCalled,
-             onPressedOutside: onPressedOutside,
+             onTap: onTap,
+             onTapAlwaysCalled: onTapAlwaysCalled,
+             onTapOutside: onTapOutside,
              keyboardAppearance: keyboardAppearance,
              cursorOpacityAnimates: cursorOpacityAnimates,
              readOnly: readOnly,

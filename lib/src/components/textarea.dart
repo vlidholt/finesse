@@ -57,9 +57,9 @@ class Textarea extends StatefulWidget {
     this.dragStartBehavior = DragStartBehavior.start,
     bool? enableInteractiveSelection,
     this.selectionControls,
-    this.onPressed,
-    this.onPressedAlwaysCalled = false,
-    this.onPressedOutside,
+    this.onTap,
+    this.onTapAlwaysCalled = false,
+    this.onTapOutside,
     this.mouseCursor,
     this.scrollController,
     this.scrollPhysics,
@@ -302,20 +302,20 @@ class Textarea extends StatefulWidget {
   /// {@endtemplate}
   final TextSelectionControls? selectionControls;
 
-  /// {@template Textarea.onPressed}
+  /// {@template Textarea.onTap}
   /// Called when the user taps the textarea.
   /// {@endtemplate}
-  final GestureTapCallback? onPressed;
+  final GestureTapCallback? onTap;
 
-  /// {@template Textarea.onPressedOutside}
+  /// {@template Textarea.onTapOutside}
   /// Called when a pointer tap happens outside this widget.
   /// {@endtemplate}
-  final TapRegionCallback? onPressedOutside;
+  final TapRegionCallback? onTapOutside;
 
-  /// {@template Textarea.onPressedAlwaysCalled}
-  /// Whether [onPressed] is called even when text is selected.
+  /// {@template Textarea.onTapAlwaysCalled}
+  /// Whether [onTap] is called even when text is selected.
   /// {@endtemplate}
-  final bool onPressedAlwaysCalled;
+  final bool onTapAlwaysCalled;
 
   /// {@template Textarea.mouseCursor}
   /// The mouse cursor to use when hovering over this widget.
@@ -654,9 +654,9 @@ class _TextareaState extends State<Textarea> {
             dragStartBehavior: widget.dragStartBehavior,
             enableInteractiveSelection: widget.enableInteractiveSelection,
             selectionControls: widget.selectionControls,
-            onPressed: widget.onPressed,
-            onPressedAlwaysCalled: widget.onPressedAlwaysCalled,
-            onPressedOutside: widget.onPressedOutside,
+            onTap: widget.onTap,
+            onTapAlwaysCalled: widget.onTapAlwaysCalled,
+            onTapOutside: widget.onTapOutside,
             mouseCursor: effectiveMouseCursor,
             scrollController: widget.scrollController,
             scrollPhysics: widget.scrollPhysics,

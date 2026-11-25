@@ -18,7 +18,7 @@ class Card extends StatelessWidget {
   /// Creates a card widget with optional content and styling.
   const Card({
     super.key,
-    this.onPressed,
+    this.onTap,
     this.selected = false,
     this.sectionGap,
     this.semanticLabel,
@@ -194,7 +194,7 @@ class Card extends StatelessWidget {
 
   /// Called when the card is tapped. Makes the whole card a button: it takes
   /// keyboard focus, shows the theme's focus ring and the click cursor.
-  final VoidCallback? onPressed;
+  final VoidCallback? onTap;
 
   /// Whether the card is the selected one of a set — the open item of a
   /// master-detail list. A selected card takes the theme's accent fill and a
@@ -394,11 +394,11 @@ class Card extends StatelessWidget {
           : content,
     );
 
-    if (onPressed == null) {
+    if (onTap == null) {
       return selected ? Semantics(selected: true, child: card) : card;
     }
     return Pressable(
-      onPressed: onPressed,
+      onPressed: onTap,
       selected: selected ? true : null,
       semanticLabel: semanticLabel,
       // The card's content stays in the semantics tree under its label: a

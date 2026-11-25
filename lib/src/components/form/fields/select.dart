@@ -145,8 +145,8 @@ class SelectFormField<T> extends FinesseFormField<T> {
     /// {@macro Select.onSearchSubmitted}
     ValueChanged<String>? onSearchSubmitted,
 
-    /// {@macro Select.onPressed}
-    VoidCallback? onPressed,
+    /// {@macro Select.onTap}
+    VoidCallback? onTap,
   }) : assert(
          variant == SelectVariant.primary || variant == SelectVariant.search,
          '''The variant is not supported. Use primary or search or use SelectMultipleFormField instead.''',
@@ -200,7 +200,7 @@ class SelectFormField<T> extends FinesseFormField<T> {
              ensureSelectedVisible: ensureSelectedVisible,
              searchFocusNode: searchFocusNode,
              onSearchSubmitted: onSearchSubmitted,
-             onPressed: onPressed,
+             onTap: onTap,
            );
          },
        );
@@ -281,8 +281,8 @@ class SelectFormField<T> extends FinesseFormField<T> {
     /// {@macro Select.onSearchSubmitted}
     ValueChanged<String>? onSearchSubmitted,
 
-    /// {@macro Select.onPressed}
-    VoidCallback? onPressed,
+    /// {@macro Select.onTap}
+    VoidCallback? onTap,
   }) : super(
          decorationBuilder: (context) =>
              (Theme.of(context).selectTheme.decoration ??
@@ -331,7 +331,7 @@ class SelectFormField<T> extends FinesseFormField<T> {
              ensureSelectedVisible: ensureSelectedVisible,
              searchFocusNode: searchFocusNode,
              onSearchSubmitted: onSearchSubmitted,
-             onPressed: onPressed,
+             onTap: onTap,
            );
          },
        );
@@ -472,8 +472,8 @@ class SelectMultipleFormField<T> extends FinesseFormField<Set<T>> {
     /// {@macro Select.onSearchSubmitted}
     ValueChanged<String>? onSearchSubmitted,
 
-    /// {@macro Select.onPressed}
-    VoidCallback? onPressed,
+    /// {@macro Select.onTap}
+    VoidCallback? onTap,
 
     /// {@macro Popover.groupId}
     Object? groupId,
@@ -528,7 +528,7 @@ class SelectMultipleFormField<T> extends FinesseFormField<Set<T>> {
              ensureSelectedVisible: ensureSelectedVisible,
              searchFocusNode: searchFocusNode,
              onSearchSubmitted: onSearchSubmitted,
-             onPressed: onPressed,
+             onTap: onTap,
              groupId: groupId,
            );
          },
@@ -603,8 +603,8 @@ class SelectMultipleFormField<T> extends FinesseFormField<Set<T>> {
     /// {@macro Select.onSearchSubmitted}
     ValueChanged<String>? onSearchSubmitted,
 
-    /// {@macro Select.onPressed}
-    VoidCallback? onPressed,
+    /// {@macro Select.onTap}
+    VoidCallback? onTap,
 
     /// {@macro Popover.groupId}
     Object? groupId,
@@ -653,7 +653,7 @@ class SelectMultipleFormField<T> extends FinesseFormField<Set<T>> {
              ensureSelectedVisible: ensureSelectedVisible,
              searchFocusNode: searchFocusNode,
              onSearchSubmitted: onSearchSubmitted,
-             onPressed: onPressed,
+             onTap: onTap,
              groupId: groupId,
            );
          },

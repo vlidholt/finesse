@@ -315,9 +315,9 @@ class _SearchFieldState extends State<SearchField> {
           groupId: widget.groupId,
           onChanged: widget.onChanged,
           onSubmitted: widget.onSubmitted,
-          onPressed: widget.onTap,
+          onTap: widget.onTap,
           // A tap on a field that has the focus already is one too.
-          onPressedAlwaysCalled: widget.onTap != null,
+          onTapAlwaysCalled: widget.onTap != null,
           textInputAction: TextInputAction.search,
           keyboardType: TextInputType.text,
           autocorrect: false,

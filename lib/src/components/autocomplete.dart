@@ -548,8 +548,8 @@ class _AutocompleteState<T extends Object> extends State<Autocomplete<T>> {
               onSubmitted: _onSubmitted,
               // A tap brings back a list closed by a tap outside, which on
               // a touch screen leaves the focus where it was.
-              onPressed: _reopen,
-              onPressedAlwaysCalled: true,
+              onTap: _reopen,
+              onTapAlwaysCalled: true,
             ),
           ),
         );

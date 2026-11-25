@@ -102,7 +102,7 @@ class _HostState extends State<_Host> {
             _builds[name] = (_builds[name] ?? 0) + 1;
             return Card(
               padding: EdgeInsets.zero,
-              onPressed: widget.onItemPressed == null
+              onTap: widget.onItemPressed == null
                   ? null
                   : () => widget.onItemPressed!(context, item),
               child: _Probe(

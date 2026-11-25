@@ -90,7 +90,7 @@ class _HostState extends State<_Host> {
       itemBuilder: (context, item, details) => Card(
         padding: EdgeInsets.zero,
         // Every other card is a button: a focus node inside the item.
-        onPressed: item.hashCode.isEven ? () {} : null,
+        onTap: item.hashCode.isEven ? () {} : null,
         child: SizedBox(
           key: ValueKey('${details.dragging ? 'lifted' : 'item'}-$item'),
           height: 40 + (item.hashCode % 3) * 14,

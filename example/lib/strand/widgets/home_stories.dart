@@ -176,7 +176,7 @@ class _AddStoryCard extends StatelessWidget {
     final scheme = theme.colorScheme;
     final sideInset = theme.gap(GapSize.sm);
     return Card(
-      onPressed: () => showComposeDialog(context),
+      onTap: () => showComposeDialog(context),
       padding: EdgeInsets.zero,
       borderRadius: metrics.borderRadius(theme),
       height: metrics.addHeight,

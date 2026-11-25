@@ -34,7 +34,7 @@ void main() {
       child: SizedBox(
         width: 320,
         child: Card(
-          onPressed: onPressed,
+          onTap: onPressed,
           selected: selected,
           semanticLabel: semanticLabel,
           backgroundColor: backgroundColor,
@@ -695,7 +695,7 @@ void main() {
           child: SizedBox(
             width: 320,
             child: Card(
-              onPressed: () => cardPresses++,
+              onTap: () => cardPresses++,
               semanticLabel: 'Open job',
               title: const Text('Senior designer'),
               description: const Text('Halcyon'),
