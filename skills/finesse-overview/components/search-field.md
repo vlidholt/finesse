@@ -39,7 +39,7 @@ class _SearchFieldBasicExampleState extends State<SearchFieldBasicExample> {
         children: [
           // The clear button and Escape both empty the field.
           SearchField(
-            placeholder: 'Search fruit',
+            placeholder: const Text('Search fruit'),
             onChanged: (value) => setState(() => query = value),
           ),
           const Gap.sm(),
@@ -167,7 +167,7 @@ class SearchFieldCancelExample extends StatelessWidget {
       // The phone pattern: focus the field and "Cancel" slides in beside
       // it. It clears the field and puts the keyboard away.
       child: const SearchField(
-        placeholder: 'Search messages',
+        placeholder: Text('Search messages'),
         showCancel: true,
       ),
     );

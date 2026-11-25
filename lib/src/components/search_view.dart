@@ -33,7 +33,7 @@ typedef SearchViewBuilder<T> =
 /// ```dart
 /// final person = await showSearch<Person>(
 ///   context: context,
-///   placeholder: 'Search people',
+///   placeholder: const Text('Search people'),
 ///   builder: (context, query, close) {
 ///     if (query.isEmpty) return const RecentSearches();
 ///     return Column(
@@ -63,7 +63,7 @@ typedef SearchViewBuilder<T> =
 Future<T?> showSearch<T>({
   required BuildContext context,
   required SearchViewBuilder<T> builder,
-  String? placeholder,
+  Widget? placeholder,
   String initialQuery = '',
   Duration debounce = const Duration(milliseconds: 200),
   bool useRootNavigator = true,
@@ -129,7 +129,7 @@ class _SearchView<T> extends StatefulWidget {
   });
 
   final SearchViewBuilder<T> builder;
-  final String? placeholder;
+  final Widget? placeholder;
   final String initialQuery;
   final Duration debounce;
   final bool fullScreen;

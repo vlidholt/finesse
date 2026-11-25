@@ -30,7 +30,7 @@ class _SearchFieldBasicExampleState extends State<SearchFieldBasicExample> {
         children: [
           // The clear button and Escape both empty the field.
           SearchField(
-            placeholder: 'Search fruit',
+            placeholder: const Text('Search fruit'),
             onChanged: (value) => setState(() => query = value),
           ),
           const Gap.sm(),

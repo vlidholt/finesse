@@ -55,7 +55,7 @@ void main() {
 
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpWidget(
-      _app(const SearchField(placeholder: 'Search people')),
+      _app(const SearchField(placeholder: Text('Search people'))),
     );
     expect(find.text('Search people'), findsOneWidget);
   });

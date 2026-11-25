@@ -104,7 +104,7 @@ class _DataTableRemoteExampleState extends State<DataTableRemoteExample> {
         gap: GapSize.md,
         children: [
           SearchField(
-            placeholder: 'Search by city',
+            placeholder: const Text('Search by city'),
             // Handed to the source with every request; back to page one.
             onChanged: (text) => _controller.query = text,
             onCleared: () => _controller.query = '',

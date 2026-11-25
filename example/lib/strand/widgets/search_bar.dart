@@ -269,7 +269,7 @@ class _StrandSearchBarState extends State<StrandSearchBar> {
       child: SearchField(
         controller: _controller,
         focusNode: _focusNode,
-        placeholder: StrandSearchBar.placeholder,
+        placeholder: const Text(StrandSearchBar.placeholder),
         // The panel is in the field's tap-region group, so a click
         // on it leaves the focus in the field.
         groupId: _group,

@@ -263,7 +263,7 @@ class _ListHeader extends StatelessWidget {
           ],
         ),
         SearchField(
-          placeholder: 'Search messages',
+          placeholder: const Text('Search messages'),
           controller: controller.search,
         ),
         // One filter at a time, on a row that does not wrap: the chips

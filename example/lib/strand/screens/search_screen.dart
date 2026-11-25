@@ -143,7 +143,7 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
             child: SearchField(
               controller: _controller,
-              placeholder: StrandSearchBar.placeholder,
+              placeholder: const Text(StrandSearchBar.placeholder),
               autofocus: widget.initialQuery.isEmpty,
               onSubmitted: (_) => _remember(),
             ),

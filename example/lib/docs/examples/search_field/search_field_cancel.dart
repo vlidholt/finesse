@@ -11,7 +11,7 @@ class SearchFieldCancelExample extends StatelessWidget {
       // The phone pattern: focus the field and "Cancel" slides in beside
       // it. It clears the field and puts the keyboard away.
       child: const SearchField(
-        placeholder: 'Search messages',
+        placeholder: Text('Search messages'),
         showCancel: true,
       ),
     );

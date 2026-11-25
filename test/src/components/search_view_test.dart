@@ -40,7 +40,7 @@ class _OpenerState extends State<_Opener> {
             onPressed: () async {
               final person = await showSearch<String>(
                 context: context,
-                placeholder: 'Search people',
+                placeholder: const Text('Search people'),
                 debounce: widget.debounce,
                 initialQuery: widget.initialQuery,
                 builder: (context, query, close) {

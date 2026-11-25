@@ -33,7 +33,7 @@ class _SearchViewBasicExampleState extends State<SearchViewBasicExample> {
     // completes with what the builder closed the view with.
     final person = await showSearch<String>(
       context: context,
-      placeholder: 'Search people',
+      placeholder: const Text('Search people'),
       builder: (context, query, close) {
         final theme = Theme.of(context);
         final matches = [

@@ -22,7 +22,7 @@ import 'package:flutter/widgets.dart';
 ///
 /// ```dart
 /// SearchField(
-///   placeholder: 'Search people',
+///   placeholder: const Text('Search people'),
 ///   onChanged: (query) => setState(() => results = search(query)),
 ///   onSubmitted: openResults,
 /// )
@@ -82,9 +82,9 @@ class SearchField extends StatefulWidget {
   /// The focus node of the field. One is created when null.
   final FocusNode? focusNode;
 
-  /// The prompt shown while the field is empty. Defaults to the localized
-  /// "Search".
-  final String? placeholder;
+  /// The prompt shown while the field is empty, usually a [Text], on one
+  /// line. Defaults to the localized "Search".
+  final Widget? placeholder;
 
   /// Called when the query changes: as the user types, and with an empty
   /// string when the field is cleared.
@@ -276,7 +276,6 @@ class _SearchFieldState extends State<SearchField> {
     final theme = Theme.of(context);
     final l = FinesseLocalizations.of(context);
     final colors = theme.colorScheme;
-    final label = widget.placeholder ?? l.search.placeholder;
     // A glyph a little larger than the text beside it, as the designs set
     // an icon in a line of text.
     final iconSize = (theme.textFieldTheme.style?.fontSize ?? 14) + 2;
@@ -324,10 +323,10 @@ class _SearchFieldState extends State<SearchField> {
           autocorrect: false,
           clearable: widget.clearable,
           onCleared: widget.onCleared,
-          placeholder: Text(
-            label,
+          placeholder: DefaultTextStyle.merge(
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
+            child: widget.placeholder ?? Text(l.search.placeholder),
           ),
           leading: leading,
           trailing: widget.trailing,
