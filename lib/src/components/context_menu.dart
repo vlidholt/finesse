@@ -1403,7 +1403,8 @@ class _MenuItemState extends State<MenuItem> {
           onDismissed: _onSubmenuDismissed,
           anchor: effectiveAnchor,
           constraints: widget.constraints,
-          padding: widget.subMenuPadding,
+          padding:
+              widget.subMenuPadding ?? theme.contextMenuTheme.subMenuPadding,
           areaGroupId: effectiveGroupId,
           onHoverArea: (hovered) => _onHoverArea(hovered, effectiveShowDelay),
           items: widget.items,
