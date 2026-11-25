@@ -68,26 +68,26 @@ void main() {
               (controller as PopoverController).setOpen(open),
         ),
         'a Tooltip': (
-          controller: TooltipController.new,
+          controller: PopoverController.new,
           build: (controller) => Tooltip(
-            controller: controller as TooltipController,
+            controller: controller as PopoverController,
             builder: (context) => const Text('Floating'),
             child: const SizedBox(width: 80, height: 40),
           ),
           set: (controller, {required open}) =>
-              (controller as TooltipController).setOpen(open),
+              (controller as PopoverController).setOpen(open),
         ),
         'a DropdownMenu': (
-          controller: FinesseContextMenuController.new,
+          controller: PopoverController.new,
           build: (controller) => DropdownMenu(
-            controller: controller as FinesseContextMenuController,
+            controller: controller as PopoverController,
             items: [
               MenuItem(onPressed: () {}, child: const Text('Floating')),
             ],
             builder: (context, controller, _) => const Text('Anchor'),
           ),
           set: (controller, {required open}) =>
-              (controller as FinesseContextMenuController).setOpen(open),
+              (controller as PopoverController).setOpen(open),
         ),
         'a Select': (
           controller: PopoverController.new,

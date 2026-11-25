@@ -1,10 +1,9 @@
 import 'package:finesse/finesse.dart';
-import 'package:finesse/src/utils/animate.dart';
+import 'package:finesse/src/utils/entrance.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../decoration_finders.dart';
@@ -134,13 +133,11 @@ void main() {
 
   Widget popoverAt(
     Alignment alignment,
-    PopoverController controller, {
-    List<Effect<dynamic>>? effects,
-  }) => Align(
+    PopoverController controller,
+  ) => Align(
     alignment: alignment,
     child: Popover(
       controller: controller,
-      effects: effects,
       builder: (context) =>
           const SizedBox(key: content, width: 200, height: 120),
       child: const SizedBox(width: 60, height: 30),
@@ -391,7 +388,7 @@ void main() {
       expect(
         find.ancestor(
           of: find.byKey(content),
-          matching: find.byType(FinesseAnimate),
+          matching: find.byType(OverlayEntrance),
         ),
         findsNothing,
       );
@@ -400,66 +397,6 @@ void main() {
       await tester.pump();
       await tester.pump();
       expect(find.byKey(content), findsNothing);
-    });
-
-    testWidgets('its own effects still win, and an empty list plays none', (
-      tester,
-    ) async {
-      final controller = PopoverController();
-      addTearDown(controller.dispose);
-      await tester.pumpWidget(
-        _app(
-          popoverAt(
-            const Alignment(0, -.5),
-            controller,
-            effects: const [
-              FadeEffect(duration: Duration(milliseconds: 80)),
-            ],
-          ),
-        ),
-      );
-      await open(tester, controller);
-      await tester.pump(const Duration(milliseconds: 40));
-      expect(
-        find.ancestor(
-          of: find.byKey(content),
-          matching: find.byWidgetPredicate(
-            (w) => w is Transform && w.alignment != null,
-          ),
-        ),
-        findsNothing,
-      );
-      await tester.pump(const Duration(milliseconds: 80));
-      controller.close();
-      await tester.pump(const Duration(milliseconds: 300));
-      await tester.pump();
-
-      await tester.pumpWidget(
-        _app(
-          popoverAt(const Alignment(0, -.5), controller, effects: const []),
-        ),
-      );
-      await open(tester, controller);
-      expect(
-        find.ancestor(
-          of: find.byKey(content),
-          matching: find.byType(FinesseAnimate),
-        ),
-        findsNothing,
-      );
-      expect(find.byKey(content), findsOneWidget);
-    });
-
-    testWidgets('the theme carries no effects of its own: the motion tokens '
-        'decide', (tester) async {
-      for (final style in [StyleTokens.finesse, StyleTokens.nova]) {
-        final theme = ThemeData(style: style);
-        expect(theme.popoverTheme.effects, isNull);
-        expect(theme.popoverTheme.reverseDuration, isNull);
-        expect(theme.tooltipTheme.effects, isNull);
-        expect(theme.primaryDialogTheme.animateIn, isNull);
-        expect(theme.alertDialogTheme.animateOut, isNull);
-      }
     });
   });
 
@@ -508,7 +445,7 @@ void main() {
       final menu = tester.getRect(
         find.ancestor(
           of: find.text('Back'),
-          matching: find.byType(FinesseAnimate),
+          matching: find.byType(OverlayEntrance),
         ),
       );
       expect(menu.topLeft.dx, closeTo(at.dx, 1));
@@ -566,7 +503,7 @@ void main() {
         await tester.pump(const Duration(milliseconds: 600));
         final menu = find.ancestor(
           of: find.text('Back'),
-          matching: find.byType(FinesseAnimate),
+          matching: find.byType(OverlayEntrance),
         );
         // No shared highlight to glide: each row paints its own.
         expect(
@@ -986,7 +923,7 @@ void main() {
         find.descendant(
           of: find.ancestor(
             of: find.text('Apple'),
-            matching: find.byType(FinesseAnimate),
+            matching: find.byType(OverlayEntrance),
           ),
           matching: find.byType(MovingIndicator),
         ),

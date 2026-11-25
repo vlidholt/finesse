@@ -26,11 +26,6 @@ mixin _$SelectTheme {
     }
 
     return SelectTheme(
-      popoverReverseDuration: lerpDuration$(
-        a.popoverReverseDuration,
-        b.popoverReverseDuration,
-        t,
-      ),
       decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
       placeholderStyle: TextStyle.lerp(
         a.placeholderStyle,
@@ -66,13 +61,11 @@ mixin _$SelectTheme {
         b.popoverDecoration,
         t,
       ),
-      effects: t < 0.5 ? a.effects : b.effects,
       shadows: t < 0.5 ? a.shadows : b.shadows,
     );
   }
 
   SelectTheme copyWith({
-    Duration? popoverReverseDuration,
     FinesseDecoration? decoration,
     TextStyle? placeholderStyle,
     double? minWidth,
@@ -88,14 +81,11 @@ mixin _$SelectTheme {
     bool? clearSearchOnClose,
     ImageFilter? filter,
     FinesseDecoration? popoverDecoration,
-    List<Effect<dynamic>>? effects,
     List<BoxShadow>? shadows,
   }) {
     final _this = (this as SelectTheme);
 
     return SelectTheme(
-      popoverReverseDuration:
-          popoverReverseDuration ?? _this.popoverReverseDuration,
       decoration: decoration ?? _this.decoration,
       placeholderStyle: placeholderStyle ?? _this.placeholderStyle,
       minWidth: minWidth ?? _this.minWidth,
@@ -113,7 +103,6 @@ mixin _$SelectTheme {
       clearSearchOnClose: clearSearchOnClose ?? _this.clearSearchOnClose,
       filter: filter ?? _this.filter,
       popoverDecoration: popoverDecoration ?? _this.popoverDecoration,
-      effects: effects ?? _this.effects,
       shadows: shadows ?? _this.shadows,
     );
   }
@@ -130,7 +119,6 @@ mixin _$SelectTheme {
     }
 
     return copyWith(
-      popoverReverseDuration: other.popoverReverseDuration,
       decoration: _this.decoration?.merge(other.decoration) ?? other.decoration,
       placeholderStyle:
           _this.placeholderStyle?.merge(other.placeholderStyle) ??
@@ -150,7 +138,6 @@ mixin _$SelectTheme {
       popoverDecoration:
           _this.popoverDecoration?.merge(other.popoverDecoration) ??
           other.popoverDecoration,
-      effects: other.effects,
       shadows: other.shadows,
     );
   }
@@ -168,8 +155,7 @@ mixin _$SelectTheme {
     final _this = (this as SelectTheme);
     final _other = (other as SelectTheme);
 
-    return _other.popoverReverseDuration == _this.popoverReverseDuration &&
-        _other.decoration == _this.decoration &&
+    return _other.decoration == _this.decoration &&
         _other.placeholderStyle == _this.placeholderStyle &&
         _other.minWidth == _this.minWidth &&
         _other.maxWidth == _this.maxWidth &&
@@ -184,7 +170,6 @@ mixin _$SelectTheme {
         _other.clearSearchOnClose == _this.clearSearchOnClose &&
         _other.filter == _this.filter &&
         _other.popoverDecoration == _this.popoverDecoration &&
-        _other.effects == _this.effects &&
         _other.shadows == _this.shadows;
   }
 
@@ -194,7 +179,6 @@ mixin _$SelectTheme {
 
     return Object.hash(
       runtimeType,
-      _this.popoverReverseDuration,
       _this.decoration,
       _this.placeholderStyle,
       _this.minWidth,
@@ -210,7 +194,6 @@ mixin _$SelectTheme {
       _this.clearSearchOnClose,
       _this.filter,
       _this.popoverDecoration,
-      _this.effects,
       _this.shadows,
     );
   }

@@ -1,4 +1,5 @@
 import 'package:finesse/finesse.dart';
+import 'package:finesse/src/utils/entrance.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -109,36 +110,27 @@ void main() {
       );
     });
 
-    test('the entrance of equal motions is one list, and the lists kept '
-        'are bounded', () {
+    test('the entrance of equal motions is one value', () {
       // ignore: prefer_const_constructors
       final a = Motion.lively.copyWith(standard: Cubic(.2, 0, 0, 1));
       // ignore: prefer_const_constructors
       final b = Motion.lively.copyWith(standard: Cubic(.2, 0, 0, 1));
-      expect(EntranceEffect.forMotion(a), same(EntranceEffect.forMotion(b)));
-      expect(EntranceEffect.fadeFor(a), same(EntranceEffect.fadeFor(b)));
-
-      // A motion that is in use — asked for again and again — keeps its
-      // list however many others come and go around it.
-      final kept = EntranceEffect.forMotion(Motion.lively);
-      final keptFade = EntranceEffect.fadeFor(Motion.lively);
-      Motion passing(int i) =>
-          Motion.lively.copyWith(fast: Duration(microseconds: 120000 + i));
-      final first = EntranceEffect.forMotion(passing(1));
-      final firstFade = EntranceEffect.fadeFor(passing(1));
-      for (var i = 1; i <= 200; i++) {
-        expect(EntranceEffect.forMotion(passing(i)), hasLength(1));
-        expect(EntranceEffect.fadeFor(passing(i)), hasLength(1));
-        expect(EntranceEffect.forMotion(Motion.lively), same(kept));
-        expect(EntranceEffect.fadeFor(Motion.lively), same(keptFade));
-      }
-      // One that has not been asked for since was let go of, rather than
-      // kept for ever: asked for again, it is built again.
-      expect(EntranceEffect.forMotion(passing(1)), isNot(same(first)));
-      expect(EntranceEffect.fadeFor(passing(1)), isNot(same(firstFade)));
+      // Compared by value, so a theme built twice from the same tokens
+      // plays the same entrance without anything being kept.
+      expect(EntranceSpec.of(a), EntranceSpec.of(b));
+      expect(EntranceSpec.fade(a), EntranceSpec.fade(b));
+      expect(EntranceSpec.of(a).hashCode, EntranceSpec.of(b).hashCode);
       expect(
-        EntranceEffect.forMotion(passing(200)),
-        same(EntranceEffect.forMotion(passing(200))),
+        EntranceSpec.of(a),
+        isNot(
+          EntranceSpec.of(
+            a.copyWith(snappy: a.snappy.copyWith(bounce: .3)),
+          ),
+        ),
+      );
+      expect(
+        EntranceSpec.fade(a),
+        isNot(EntranceSpec.fade(a.copyWith(standard: Curves.linear))),
       );
     });
 

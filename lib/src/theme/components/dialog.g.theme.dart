@@ -35,13 +35,8 @@ mixin _$DialogTheme {
       ),
       borderRadius: BorderRadius.lerp(a.borderRadius, b.borderRadius, t),
       backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
-      expandActionsWhenTiny: t < 0.5
-          ? a.expandActionsWhenTiny
-          : b.expandActionsWhenTiny,
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
       gap: lerpDouble$(a.gap, b.gap, t),
-      animateIn: t < 0.5 ? a.animateIn : b.animateIn,
-      animateOut: t < 0.5 ? a.animateOut : b.animateOut,
       constraints: BoxConstraints.lerp(a.constraints, b.constraints, t),
       actionsAxis: t < 0.5 ? a.actionsAxis : b.actionsAxis,
       actionsMainAxisSize: t < 0.5
@@ -55,9 +50,6 @@ mixin _$DialogTheme {
           : b.actionsVerticalDirection,
       border: BoxBorder.lerp(a.border, b.border, t),
       shadows: t < 0.5 ? a.shadows : b.shadows,
-      removeBorderRadiusWhenTiny: t < 0.5
-          ? a.removeBorderRadiusWhenTiny
-          : b.removeBorderRadiusWhenTiny,
       titleStyle: TextStyle.lerp(a.titleStyle, b.titleStyle, t),
       descriptionStyle: TextStyle.lerp(
         a.descriptionStyle,
@@ -93,11 +85,8 @@ mixin _$DialogTheme {
     Position? closeIconPosition,
     BorderRadius? borderRadius,
     Color? backgroundColor,
-    bool? expandActionsWhenTiny,
     EdgeInsetsGeometry? padding,
     double? gap,
-    List<Effect<dynamic>>? animateIn,
-    List<Effect<dynamic>>? animateOut,
     BoxConstraints? constraints,
     Axis? actionsAxis,
     MainAxisSize? actionsMainAxisSize,
@@ -105,7 +94,6 @@ mixin _$DialogTheme {
     VerticalDirection? actionsVerticalDirection,
     BoxBorder? border,
     List<BoxShadow>? shadows,
-    bool? removeBorderRadiusWhenTiny,
     TextStyle? titleStyle,
     TextStyle? descriptionStyle,
     TextAlign? titleTextAlign,
@@ -131,12 +119,8 @@ mixin _$DialogTheme {
       closeIconPosition: closeIconPosition ?? _this.closeIconPosition,
       borderRadius: borderRadius ?? _this.borderRadius,
       backgroundColor: backgroundColor ?? _this.backgroundColor,
-      expandActionsWhenTiny:
-          expandActionsWhenTiny ?? _this.expandActionsWhenTiny,
       padding: padding ?? _this.padding,
       gap: gap ?? _this.gap,
-      animateIn: animateIn ?? _this.animateIn,
-      animateOut: animateOut ?? _this.animateOut,
       constraints: constraints ?? _this.constraints,
       actionsAxis: actionsAxis ?? _this.actionsAxis,
       actionsMainAxisSize: actionsMainAxisSize ?? _this.actionsMainAxisSize,
@@ -146,8 +130,6 @@ mixin _$DialogTheme {
           actionsVerticalDirection ?? _this.actionsVerticalDirection,
       border: border ?? _this.border,
       shadows: shadows ?? _this.shadows,
-      removeBorderRadiusWhenTiny:
-          removeBorderRadiusWhenTiny ?? _this.removeBorderRadiusWhenTiny,
       titleStyle: titleStyle ?? _this.titleStyle,
       descriptionStyle: descriptionStyle ?? _this.descriptionStyle,
       titleTextAlign: titleTextAlign ?? _this.titleTextAlign,
@@ -184,11 +166,8 @@ mixin _$DialogTheme {
       closeIconPosition: other.closeIconPosition,
       borderRadius: other.borderRadius,
       backgroundColor: other.backgroundColor,
-      expandActionsWhenTiny: other.expandActionsWhenTiny,
       padding: other.padding,
       gap: other.gap,
-      animateIn: other.animateIn,
-      animateOut: other.animateOut,
       constraints: other.constraints,
       actionsAxis: other.actionsAxis,
       actionsMainAxisSize: other.actionsMainAxisSize,
@@ -196,7 +175,6 @@ mixin _$DialogTheme {
       actionsVerticalDirection: other.actionsVerticalDirection,
       border: other.border,
       shadows: other.shadows,
-      removeBorderRadiusWhenTiny: other.removeBorderRadiusWhenTiny,
       titleStyle: _this.titleStyle?.merge(other.titleStyle) ?? other.titleStyle,
       descriptionStyle:
           _this.descriptionStyle?.merge(other.descriptionStyle) ??
@@ -236,11 +214,8 @@ mixin _$DialogTheme {
         _other.closeIconPosition == _this.closeIconPosition &&
         _other.borderRadius == _this.borderRadius &&
         _other.backgroundColor == _this.backgroundColor &&
-        _other.expandActionsWhenTiny == _this.expandActionsWhenTiny &&
         _other.padding == _this.padding &&
         _other.gap == _this.gap &&
-        _other.animateIn == _this.animateIn &&
-        _other.animateOut == _this.animateOut &&
         _other.constraints == _this.constraints &&
         _other.actionsAxis == _this.actionsAxis &&
         _other.actionsMainAxisSize == _this.actionsMainAxisSize &&
@@ -248,7 +223,6 @@ mixin _$DialogTheme {
         _other.actionsVerticalDirection == _this.actionsVerticalDirection &&
         _other.border == _this.border &&
         _other.shadows == _this.shadows &&
-        _other.removeBorderRadiusWhenTiny == _this.removeBorderRadiusWhenTiny &&
         _other.titleStyle == _this.titleStyle &&
         _other.descriptionStyle == _this.descriptionStyle &&
         _other.titleTextAlign == _this.titleTextAlign &&
@@ -278,11 +252,8 @@ mixin _$DialogTheme {
       _this.closeIconPosition,
       _this.borderRadius,
       _this.backgroundColor,
-      _this.expandActionsWhenTiny,
       _this.padding,
       _this.gap,
-      _this.animateIn,
-      _this.animateOut,
       _this.constraints,
       _this.actionsAxis,
       _this.actionsMainAxisSize,
@@ -290,7 +261,6 @@ mixin _$DialogTheme {
       _this.actionsVerticalDirection,
       _this.border,
       _this.shadows,
-      _this.removeBorderRadiusWhenTiny,
       _this.titleStyle,
       _this.descriptionStyle,
       _this.titleTextAlign,

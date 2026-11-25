@@ -127,9 +127,6 @@ class SelectFormField<T> extends FinesseFormField<T> {
     /// {@macro Select.closeOnSelect}
     bool closeOnSelect = true,
 
-    /// {@macro Popover.groupId}
-    Object? groupId,
-
     /// {@macro Select.itemCount}
     int? itemCount,
 
@@ -194,7 +191,6 @@ class SelectFormField<T> extends FinesseFormField<T> {
              footer: footer,
              allowDeselection: allowDeselection,
              closeOnSelect: closeOnSelect,
-             groupId: groupId,
              itemCount: itemCount,
              shrinkWrap: shrinkWrap,
              ensureSelectedVisible: ensureSelectedVisible,
@@ -263,9 +259,6 @@ class SelectFormField<T> extends FinesseFormField<T> {
     bool allowDeselection = false,
     bool closeOnSelect = true,
 
-    /// {@macro Popover.groupId}
-    Object? groupId,
-
     /// {@macro Select.itemCount}
     int? itemCount,
 
@@ -325,7 +318,6 @@ class SelectFormField<T> extends FinesseFormField<T> {
              header: header,
              footer: footer,
              closeOnSelect: closeOnSelect,
-             groupId: groupId,
              itemCount: itemCount,
              shrinkWrap: shrinkWrap,
              ensureSelectedVisible: ensureSelectedVisible,
@@ -474,9 +466,6 @@ class SelectMultipleFormField<T> extends FinesseFormField<Set<T>> {
 
     /// {@macro Select.onTap}
     VoidCallback? onTap,
-
-    /// {@macro Popover.groupId}
-    Object? groupId,
   }) : assert(
          variant == SelectVariant.multiple ||
              variant == SelectVariant.multipleWithSearch,
@@ -529,7 +518,6 @@ class SelectMultipleFormField<T> extends FinesseFormField<Set<T>> {
              searchFocusNode: searchFocusNode,
              onSearchSubmitted: onSearchSubmitted,
              onTap: onTap,
-             groupId: groupId,
            );
          },
        );
@@ -605,9 +593,6 @@ class SelectMultipleFormField<T> extends FinesseFormField<Set<T>> {
 
     /// {@macro Select.onTap}
     VoidCallback? onTap,
-
-    /// {@macro Popover.groupId}
-    Object? groupId,
   }) : super(
          decorationBuilder: (context) =>
              (Theme.of(context).selectTheme.decoration ??
@@ -654,7 +639,6 @@ class SelectMultipleFormField<T> extends FinesseFormField<Set<T>> {
              searchFocusNode: searchFocusNode,
              onSearchSubmitted: onSearchSubmitted,
              onTap: onTap,
-             groupId: groupId,
            );
          },
        );

@@ -1,4 +1,5 @@
 import 'package:finesse/src/components/context_menu.dart';
+import 'package:finesse/src/components/popover.dart';
 import 'package:finesse/src/raw_components/portal.dart';
 import 'package:flutter/widgets.dart';
 
@@ -7,7 +8,7 @@ import 'package:flutter/widgets.dart';
 typedef DropdownMenuTriggerBuilder =
     Widget Function(
       BuildContext context,
-      FinesseContextMenuController controller,
+      PopoverController controller,
       Widget? child,
     );
 
@@ -64,7 +65,7 @@ class DropdownMenu extends StatefulWidget {
   final Widget? child;
 
   /// Controls whether the menu is open. One is created when not given.
-  final FinesseContextMenuController? controller;
+  final PopoverController? controller;
 
   /// Where the menu opens. Defaults to below the trigger at its start edge,
   /// falling back to its end edge and then to above it.
@@ -111,11 +112,11 @@ class DropdownMenu extends StatefulWidget {
 }
 
 class _DropdownMenuState extends State<DropdownMenu> {
-  FinesseContextMenuController? _ownController;
-  FinesseContextMenuController get _controller =>
-      widget.controller ?? (_ownController ??= FinesseContextMenuController());
+  PopoverController? _ownController;
+  PopoverController get _controller =>
+      widget.controller ?? (_ownController ??= PopoverController());
 
-  FinesseContextMenuController? _listened;
+  PopoverController? _listened;
   bool _wasOpen = false;
 
   void _listen() {

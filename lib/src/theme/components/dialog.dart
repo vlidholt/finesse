@@ -1,7 +1,6 @@
 import 'package:finesse/src/utils/position.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
 part 'dialog.g.theme.dart';
@@ -20,15 +19,11 @@ class DialogTheme with _$DialogTheme {
     this.closeIconPosition,
     this.borderRadius,
     this.backgroundColor,
-    this.expandActionsWhenTiny,
     this.padding,
     this.gap,
-    this.animateIn,
-    this.animateOut,
     this.constraints,
     this.border,
     this.shadows,
-    this.removeBorderRadiusWhenTiny,
     this.actionsAxis,
     this.actionsMainAxisSize,
     this.actionsMainAxisAlignment,
@@ -75,22 +70,11 @@ class DialogTheme with _$DialogTheme {
   /// {@macro Dialog.backgroundColor}
   final Color? backgroundColor;
 
-  /// {@macro Dialog.expandActionsWhenTiny}
-  final bool? expandActionsWhenTiny;
-
   /// {@macro Dialog.padding}
   final EdgeInsetsGeometry? padding;
 
   /// {@macro Dialog.gap}
   final double? gap;
-
-  /// The effects played when the dialog appears. Null, the default, is a
-  /// fade and zoom in on the theme's motion tokens.
-  final List<Effect<dynamic>>? animateIn;
-
-  /// The effects played when the dialog disappears. Null, the default, is
-  /// a quicker fade and zoom out on the theme's motion tokens.
-  final List<Effect<dynamic>>? animateOut;
 
   /// {@macro Dialog.constraints}
   final BoxConstraints? constraints;
@@ -112,9 +96,6 @@ class DialogTheme with _$DialogTheme {
 
   /// {@macro Dialog.shadows}
   final List<BoxShadow>? shadows;
-
-  /// {@macro Dialog.removeBorderRadiusWhenTiny}
-  final bool? removeBorderRadiusWhenTiny;
 
   /// {@macro Dialog.titleStyle}
   final TextStyle? titleStyle;
@@ -179,22 +160,13 @@ class DialogTheme with _$DialogTheme {
   @override
   bool operator ==(Object other) =>
       other is DialogTheme &&
-      listEquals(animateIn, other.animateIn) &&
-      listEquals(animateOut, other.animateOut) &&
       listEquals(shadows, other.shadows) &&
-      super ==
-          other.copyWith(
-            animateIn: animateIn,
-            animateOut: animateOut,
-            shadows: shadows,
-          );
+      super == other.copyWith(shadows: shadows);
 
   // Equal themes must hash alike, and the lists may differ in identity.
   @override
   int get hashCode => Object.hash(
     runtimeType,
-    Object.hashAll(animateIn ?? const []),
-    Object.hashAll(animateOut ?? const []),
     Object.hashAll(shadows ?? const []),
   );
 }

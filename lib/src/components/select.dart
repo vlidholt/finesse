@@ -26,7 +26,6 @@ import 'package:finesse/src/utils/provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
 /// Builder for the selected option widget in [Select].
 typedef SelectedOptionBuilder<T> =
@@ -94,17 +93,14 @@ class Select<T> extends StatefulWidget {
     this.showScrollToTopChevron,
     this.scrollController,
     this.anchor,
-    this.effects,
     this.shadows,
     this.filter,
     this.header,
     this.footer,
     this.closeOnSelect = true,
     this.allowDeselection = false,
-    this.groupId,
     this.itemCount,
     this.shrinkWrap,
-    this.popoverReverseDuration,
     this.ensureSelectedVisible,
     this.onTap,
     this.onSearchChanged,
@@ -175,17 +171,14 @@ class Select<T> extends StatefulWidget {
     this.showScrollToTopChevron,
     this.scrollController,
     this.anchor,
-    this.effects,
     this.shadows,
     this.filter,
     this.header,
     this.footer,
     this.closeOnSelect = true,
     this.allowDeselection = false,
-    this.groupId,
     this.itemCount,
     this.shrinkWrap,
-    this.popoverReverseDuration,
     this.ensureSelectedVisible,
     this.searchFocusNode,
     this.onSearchSubmitted,
@@ -241,17 +234,14 @@ class Select<T> extends StatefulWidget {
     this.showScrollToTopChevron,
     this.scrollController,
     this.anchor,
-    this.effects,
     this.shadows,
     this.filter,
     this.header,
     this.footer,
     this.allowDeselection = true,
     this.closeOnSelect = true,
-    this.groupId,
     this.itemCount,
     this.shrinkWrap,
-    this.popoverReverseDuration,
     this.ensureSelectedVisible,
     this.onTap,
     this.onSearchChanged,
@@ -324,17 +314,14 @@ class Select<T> extends StatefulWidget {
     this.showScrollToTopChevron,
     this.scrollController,
     this.anchor,
-    this.effects,
     this.shadows,
     this.filter,
     this.header,
     this.footer,
     this.allowDeselection = true,
     this.closeOnSelect = true,
-    this.groupId,
     this.itemCount,
     this.shrinkWrap,
-    this.popoverReverseDuration,
     this.ensureSelectedVisible,
     this.searchFocusNode,
     this.onSearchSubmitted,
@@ -653,9 +640,6 @@ class Select<T> extends StatefulWidget {
   /// {@endtemplate}
   final bool? clearSearchOnClose;
 
-  /// {@macro Popover.effects}
-  final List<Effect<dynamic>>? effects;
-
   /// {@macro Popover.shadows}
   final List<BoxShadow>? shadows;
 
@@ -690,13 +674,6 @@ class Select<T> extends StatefulWidget {
   /// {@endtemplate}
   final bool closeOnSelect;
 
-  /// {@template Select.groupId}
-  /// Group ID for the popover, used for managing popover visibility in groups.
-  ///
-  /// See [Popover.groupId] for more details.
-  /// {@endtemplate}
-  final Object? groupId;
-
   /// {@template Select.itemCount}
   /// The number of items to display when using [optionsBuilder].
   ///
@@ -711,13 +688,6 @@ class Select<T> extends StatefulWidget {
   /// size.
   /// {@endtemplate}
   final bool? shrinkWrap;
-
-  /// {@template Select.popoverReverseDuration}
-  /// The duration of the popover's exit animation.
-  ///
-  /// Defaults to [Duration.zero ].
-  /// {@endtemplate}
-  final Duration? popoverReverseDuration;
 
   /// {@template Select.ensureSelectedVisible}
   /// Whether to automatically scroll the options list to ensure the selected
@@ -1091,11 +1061,6 @@ class SelectState<T> extends State<Select<T>> {
         theme.selectTheme.showScrollToBottomChevron ??
         true;
 
-    final effectivePopoverReverseDuration =
-        widget.popoverReverseDuration ??
-        theme.selectTheme.popoverReverseDuration ??
-        Duration.zero;
-
     final effectiveAnchor =
         widget.anchor ??
         theme.selectTheme.anchor ??
@@ -1107,8 +1072,6 @@ class SelectState<T> extends State<Select<T>> {
             targetAnchor: Alignment.topCenter,
           ),
         );
-
-    final effectiveEffects = widget.effects ?? theme.selectTheme.effects;
 
     final effectiveShadows = widget.shadows ?? theme.selectTheme.shadows;
 
@@ -1425,13 +1388,13 @@ class SelectState<T> extends State<Select<T>> {
                         widget.variant == SelectVariant.primary
                     ? PickerPresentation.popover
                     : widget.presentation,
-                groupId: widget.groupId,
                 popoverPadding: EdgeInsets.zero,
                 controller: popoverController,
                 anchor: effectiveAnchor,
                 closeOnTapOutside: widget.closeOnTapOutside,
-                effects: effectiveEffects,
-                reverseDuration: effectivePopoverReverseDuration,
+                // The choice shows in the trigger at once, and the list
+                // is gone with it rather than fading over it.
+                exitDuration: Duration.zero,
                 shadows: effectiveShadows,
                 filter: effectiveFilter,
                 // The options surface is a menu, and menus can carry their

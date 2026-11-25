@@ -433,6 +433,7 @@ class Sheet extends StatefulWidget {
     this.descriptionStyle,
     this.showCloseButton,
     this.closeIcon,
+    this.closeButton,
     this.closeIconPosition,
     this.onClose,
     this.useSafeArea,
@@ -608,6 +609,13 @@ class Sheet extends StatefulWidget {
   /// The icon of the close button; a cross by default.
   /// {@endtemplate}
   final Widget? closeIcon;
+
+  /// {@template Sheet.closeButton}
+  /// A widget that stands in for the close button, shown in the sheet's top
+  /// end corner whatever [showCloseButton] says. It closes the sheet
+  /// itself; [closeIcon] is not used.
+  /// {@endtemplate}
+  final Widget? closeButton;
 
   /// {@template Sheet.closeIconPosition}
   /// Where the close button sits in the sheet; 8 from the top and from the
@@ -1403,13 +1411,15 @@ class _SheetState extends State<Sheet> with TickerProviderStateMixin {
           widget.descriptionPinned ?? sheetTheme.descriptionPinned ?? false,
       actionsPinned: widget.actionsPinned ?? sheetTheme.actionsPinned ?? true,
       semanticLabel: widget.semanticLabel,
-      closeButton: showClose
-          ? _SheetCloseButton(
-              icon: widget.closeIcon ?? sheetTheme.closeIcon,
-              mobile: mobile,
-              onPressed: _requestClose,
-            )
-          : null,
+      closeButton:
+          widget.closeButton ??
+          (showClose
+              ? _SheetCloseButton(
+                  icon: widget.closeIcon ?? sheetTheme.closeIcon,
+                  mobile: mobile,
+                  onPressed: _requestClose,
+                )
+              : null),
       closeIconPosition:
           widget.closeIconPosition ??
           sheetTheme.closeIconPosition ??

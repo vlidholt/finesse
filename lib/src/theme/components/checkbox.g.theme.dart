@@ -29,7 +29,6 @@ mixin _$CheckboxTheme {
       color: Color.lerp(a.color, b.color, t),
       uncheckedColor: Color.lerp(a.uncheckedColor, b.uncheckedColor, t),
       size: lerpDouble$(a.size, b.size, t),
-      duration: lerpDuration$(a.duration, b.duration, t),
       decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
       checkedDecoration: FinesseDecoration.lerp(
         a.checkedDecoration,
@@ -50,7 +49,6 @@ mixin _$CheckboxTheme {
     Color? color,
     Color? uncheckedColor,
     double? size,
-    Duration? duration,
     FinesseDecoration? decoration,
     FinesseDecoration? checkedDecoration,
     EdgeInsetsGeometry? padding,
@@ -63,7 +61,6 @@ mixin _$CheckboxTheme {
       color: color ?? _this.color,
       uncheckedColor: uncheckedColor ?? _this.uncheckedColor,
       size: size ?? _this.size,
-      duration: duration ?? _this.duration,
       decoration: decoration ?? _this.decoration,
       checkedDecoration: checkedDecoration ?? _this.checkedDecoration,
       padding: padding ?? _this.padding,
@@ -87,7 +84,6 @@ mixin _$CheckboxTheme {
       color: other.color,
       uncheckedColor: other.uncheckedColor,
       size: other.size,
-      duration: other.duration,
       decoration: _this.decoration?.merge(other.decoration) ?? other.decoration,
       checkedDecoration:
           _this.checkedDecoration?.merge(other.checkedDecoration) ??
@@ -114,7 +110,6 @@ mixin _$CheckboxTheme {
     return _other.color == _this.color &&
         _other.uncheckedColor == _this.uncheckedColor &&
         _other.size == _this.size &&
-        _other.duration == _this.duration &&
         _other.decoration == _this.decoration &&
         _other.checkedDecoration == _this.checkedDecoration &&
         _other.padding == _this.padding &&
@@ -131,7 +126,6 @@ mixin _$CheckboxTheme {
       _this.color,
       _this.uncheckedColor,
       _this.size,
-      _this.duration,
       _this.decoration,
       _this.checkedDecoration,
       _this.padding,

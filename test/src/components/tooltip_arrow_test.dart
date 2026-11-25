@@ -24,7 +24,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
 
-    final controller = TooltipController(isOpen: true);
+    final controller = PopoverController(isOpen: true);
     addTearDown(controller.dispose);
 
     await tester.pumpWidget(

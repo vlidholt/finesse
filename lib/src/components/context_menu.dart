@@ -18,6 +18,7 @@ import 'package:finesse/src/theme/theme_scope.dart';
 import 'package:finesse/src/utils/arrow_key_focus.dart';
 import 'package:finesse/src/utils/border.dart';
 import 'package:finesse/src/utils/browser_context_menu/browser_context_menu.dart';
+import 'package:finesse/src/utils/entrance.dart';
 import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:finesse/src/utils/mouse_area.dart';
@@ -26,7 +27,6 @@ import 'package:finesse/src/utils/provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
 part 'menu_items.dart';
 part 'show_menu.dart';
@@ -48,10 +48,7 @@ class ContextMenuRegion extends StatefulWidget {
     this.itemsBuilder,
     this.open,
     this.constraints,
-    this.onHoverArea,
     this.padding,
-    this.groupId,
-    this.effects,
     this.shadows,
     this.decoration,
     this.filter,
@@ -60,12 +57,8 @@ class ContextMenuRegion extends StatefulWidget {
     this.longPressEnabled,
     this.tapEnabled,
     this.hitTestBehavior = HitTestBehavior.opaque,
-    this.popoverReverseDuration,
     this.requestFocus = true,
   });
-
-  /// {@macro Popover.reverseDuration}
-  final Duration? popoverReverseDuration;
 
   /// {@macro ContextMenu.requestFocus}
   final bool requestFocus;
@@ -87,17 +80,8 @@ class ContextMenuRegion extends StatefulWidget {
   /// {@macro ContextMenu.constraints}
   final BoxConstraints? constraints;
 
-  /// {@macro ContextMenu.onHoverArea}
-  final ValueChanged<bool>? onHoverArea;
-
   /// {@macro ContextMenu.padding}
   final EdgeInsetsGeometry? padding;
-
-  /// {@macro MouseArea.groupId}
-  final Object? groupId;
-
-  /// {@macro Popover.effects}
-  final List<Effect<dynamic>>? effects;
 
   /// {@macro Popover.shadows}
   final List<BoxShadow>? shadows;
@@ -143,12 +127,10 @@ class ContextMenuRegion extends StatefulWidget {
 }
 
 class _ContextMenuRegionState extends State<ContextMenuRegion> {
-  FinesseContextMenuController? _controller;
+  PopoverController? _controller;
   PopoverController get controller =>
       widget.controller ??
-      (_controller ??= FinesseContextMenuController(
-        isOpen: widget.open ?? false,
-      ));
+      (_controller ??= PopoverController(isOpen: widget.open ?? false));
   Offset? offset;
 
   @override
@@ -169,6 +151,16 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
     if (!mounted) return;
     setState(() => this.offset = offset);
     controller.open();
+  }
+
+  /// The global position of a point of the region's own box.
+  ///
+  /// Worked out from the gesture's local position rather than read from
+  /// its details: the menu's anchor is a point on the screen, wherever the
+  /// navigator around the region begins.
+  Offset _global(Offset local) {
+    final box = context.findRenderObject();
+    return box is RenderBox && box.attached ? box.localToGlobal(local) : local;
   }
 
   void hide() {
@@ -211,14 +203,10 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
       items: widget.items,
       itemsBuilder: widget.itemsBuilder,
       constraints: widget.constraints,
-      onHoverArea: widget.onHoverArea,
       padding: widget.padding,
-      groupId: widget.groupId,
-      effects: widget.effects,
       shadows: widget.shadows,
       decoration: widget.decoration,
       filter: widget.filter,
-      popoverReverseDuration: widget.popoverReverseDuration,
       requestFocus: widget.requestFocus,
       child: FinesseGestureDetector(
         behavior: widget.hitTestBehavior,
@@ -228,7 +216,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
             if (controller.isOpen) {
               hide();
             } else {
-              show(d.globalPosition);
+              show(_global(d.localPosition));
             }
           } else {
             hide();
@@ -241,18 +229,18 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         // `assert(_selectable == null)`. See suppressBrowserContextMenu.
         onSecondaryTapDown: (d) {
           if (kIsWeb) suppressBrowserContextMenu();
-          if (!isWindows) show(d.globalPosition);
+          if (!isWindows) show(_global(d.localPosition));
         },
         onSecondaryTapUp: (d) {
           // On Windows the browser fires `contextmenu` on button up, which
           // can be arbitrarily long after the down — re-arm so a slow click
           // stays covered, and only then open the menu.
           if (kIsWeb) suppressBrowserContextMenu();
-          if (isWindows) show(d.globalPosition);
+          if (isWindows) show(_global(d.localPosition));
         },
         onLongPressStart: effectiveLongPressEnabled
             ? (d) {
-                offset = d.globalPosition;
+                offset = _global(d.localPosition);
               }
             : null,
         onLongPress: effectiveLongPressEnabled ? onLongPress : null,
@@ -262,47 +250,14 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
   }
 }
 
-/// Controls a [ContextMenu]: whether it is open and, optionally, the
-/// point it opens at.
-///
-/// Any [PopoverController] works as a context menu controller; this one
-/// adds [openAt].
-class FinesseContextMenuController extends PopoverController {
-  /// Creates a controller. [isOpen] sets whether the menu starts open.
-  FinesseContextMenuController({super.isOpen});
-
-  Offset? _position;
-
-  /// The global point the menu opens at, set by [openAt]. Null means the
-  /// menu's own anchor.
-  Offset? get position => _position;
-
-  /// Opens the menu with its corner at [globalPosition], as a context menu
-  /// opens at the pointer. The menu is mirrored or shifted to stay on screen.
-  void openAt(Offset globalPosition) {
-    final moved = _position != globalPosition;
-    _position = globalPosition;
-    if (isOpen) {
-      if (moved) notifyListeners();
-    } else {
-      super.open();
-    }
-  }
-
-  /// Opens the menu at its own anchor, forgetting any [openAt] position.
-  @override
-  void open() {
-    _position = null;
-    super.open();
-  }
-}
-
 /// A menu of [MenuItem]s shown in a popover next to [child].
 ///
 /// This is the menu surface behind shadcn's `DropdownMenuContent` and
-/// `ContextMenuContent`. It opens when [open] or [controller] says so; use
-/// [ContextMenuRegion] to open it on a right click or long press. With no
-/// [items] and no [itemsBuilder], it builds only [child].
+/// `ContextMenuContent`. It opens when [open] or [controller] says so —
+/// `controller.openAt(point)` opens it with its corner at a point, as a
+/// context menu opens at the pointer — and [ContextMenuRegion] opens it on a
+/// right click or long press. With no [items] and no [itemsBuilder], it
+/// builds only [child].
 class ContextMenu extends StatefulWidget {
   /// Creates a context menu anchored to [child].
   const ContextMenu({
@@ -313,24 +268,44 @@ class ContextMenu extends StatefulWidget {
     this.anchor,
     this.open,
     this.constraints,
-    this.onHoverArea,
     this.padding,
-    this.groupId,
-    this.effects,
     this.shadows,
     this.decoration,
     this.filter,
     this.controller,
-    this.onTapOutside,
-    this.onTapInside,
-    this.onTapUpInside,
-    this.onTapUpOutside,
-    this.popoverReverseDuration,
     this.requestFocus = true,
-  });
+  }) : areaGroupId = null,
+       onHoverArea = null,
+       entrance = null,
+       onTapOutside = null,
+       onTapUpInside = null,
+       onDismissed = null;
 
-  /// {@macro Popover.reverseDuration}
-  final Duration? popoverReverseDuration;
+  /// Creates a context menu with the plumbing the package's own menus need:
+  /// the hover group and tap callbacks that tie a submenu to its row and a
+  /// menubar's menu to its trigger, and an entrance of its own.
+  @internal
+  const ContextMenu.internal({
+    super.key,
+    required this.child,
+    this.items = const [],
+    this.itemsBuilder,
+    this.anchor,
+    this.open,
+    this.constraints,
+    this.padding,
+    this.shadows,
+    this.decoration,
+    this.filter,
+    this.controller,
+    this.requestFocus = true,
+    this.areaGroupId,
+    this.onHoverArea,
+    this.entrance,
+    this.onTapOutside,
+    this.onTapUpInside,
+    this.onDismissed,
+  });
 
   /// {@template ContextMenu.requestFocus}
   /// Whether the menu takes the keyboard focus when it opens, defaults to
@@ -380,9 +355,9 @@ class ContextMenu extends StatefulWidget {
   /// {@endtemplate}
   final BoxConstraints? constraints;
 
-  /// {@template ContextMenu.onHoverArea}
-  /// The callback called when the hover area changes.
-  /// {@endtemplate}
+  /// Called when the pointer enters or leaves the menu's hover area: its
+  /// child, its surface and every area that shares [areaGroupId].
+  @internal
   final ValueChanged<bool>? onHoverArea;
 
   /// {@template ContextMenu.padding}
@@ -391,11 +366,15 @@ class ContextMenu extends StatefulWidget {
   /// {@endtemplate}
   final EdgeInsetsGeometry? padding;
 
-  /// {@macro MouseArea.groupId}
-  final Object? groupId;
+  /// The hover group of the menu: the row a submenu hangs from and the
+  /// submenu itself are one area to the pointer.
+  @internal
+  final Object? areaGroupId;
 
-  /// {@macro Popover.effects}
-  final List<Effect<dynamic>>? effects;
+  /// The entrance, when it is not the theme's: the plain fade of a menu
+  /// that takes over from the one beside it.
+  @internal
+  final EntranceSpec? entrance;
 
   /// {@macro Popover.shadows}
   final List<BoxShadow>? shadows;
@@ -407,69 +386,23 @@ class ContextMenu extends StatefulWidget {
   final ImageFilter? filter;
 
   /// {@template ContextMenu.controller}
-  /// The controller of the context menu, starts from isOpen set to false.
+  /// Opens and closes the menu. `openAt` opens it with its corner at a
+  /// point in global coordinates instead of at its [anchor].
   /// {@endtemplate}
   final PopoverController? controller;
 
-  /// {@template ContextMenu.onTapOutside}
-  /// A callback to be invoked when a tap down is detected outside of this
-  /// [TapRegion] and any other region with the same [groupId], if any.
-  ///
-  /// The [PointerDownEvent] passed to the function is the event that caused the
-  /// notification. If this region is part of a group (i.e. [groupId] is set),
-  /// then it's possible that the event may be outside of this immediate region,
-  /// although it will be within the region of one of the group members.
-  ///
-  /// See also:
-  /// * [onTapUpOutside], which is called when a tap up is detected outside
-  ///   of this region.
-  /// {@endtemplate}
+  /// Called when a tap down lands outside the menu tree.
+  @internal
   final TapRegionCallback? onTapOutside;
 
-  /// {@template ContextMenu.onTapInside}
-  /// A callback to be invoked when a tap down is detected inside of this
-  /// [TapRegion], or any other tap region with the same [groupId], if any.
-  ///
-  /// The [PointerDownEvent] passed to the function is the event that caused the
-  /// notification. If this region is part of a group (i.e. [groupId] is set),
-  /// then it's possible that the event may be outside of this immediate region,
-  /// although it will be within the region of one of the group members.
-  ///
-  /// See also:
-  /// * [onTapUpInside], which is called when a tap up is detected inside
-  ///   of this region.
-  /// {@endtemplate}
-  final TapRegionCallback? onTapInside;
-
-  /// {@template ContextMenu.onTapUpInside}
-  /// A callback to be invoked when a tap up is detected inside of this
-  /// [TapRegion], or any other tap region with the same [groupId], if any.
-  ///
-  /// The [PointerUpEvent] passed to the function is the event that caused the
-  /// notification. If this region is part of a group (i.e. [groupId] is set),
-  /// then it's possible that the event may be outside of this immediate region,
-  /// although it will be within the region of one of the group members.
-  ///
-  /// See also:
-  /// * [onTapInside], which is called when a tap down is detected inside
-  ///   of this region.
-  /// {@endtemplate}
+  /// Called when a tap is released inside the menu tree.
+  @internal
   final TapRegionUpCallback? onTapUpInside;
 
-  /// {@template ContextMenu.onTapUpOutside}
-  /// A callback to be invoked when a tap up is detected outside of this
-  /// [TapRegion] and any other region with the same [groupId], if any.
-  ///
-  /// The [PointerUpEvent] passed to the function is the event that caused the
-  /// notification. If this region is part of a group (i.e. [groupId] is set),
-  /// then it's possible that the event may be outside of this immediate region,
-  /// although it will be within the region of one of the group members.
-  ///
-  /// See also:
-  /// * [onTapOutside], which is called when a tap down is detected outside
-  ///   of this region.
-  /// {@endtemplate}
-  final TapRegionUpCallback? onTapUpOutside;
+  /// Called when a menu that [open] holds open closes itself: Escape, with
+  /// the focus in it. A row uses it to keep the submenu it dismissed shut.
+  @internal
+  final VoidCallback? onDismissed;
 
   @override
   State<ContextMenu> createState() => ContextMenuState();
@@ -479,7 +412,7 @@ class ContextMenu extends StatefulWidget {
 ///
 /// Its items and submenus find it in the widget tree.
 class ContextMenuState extends State<ContextMenu> {
-  FinesseContextMenuController? _controller;
+  PopoverController? _controller;
 
   /// This menu's tap-region group when it is a root menu.
   final Object _ownTapRegionGroupId = Object();
@@ -557,16 +490,11 @@ class ContextMenuState extends State<ContextMenu> {
     _listened = controller..addListener(_onOpenChanged);
   }
 
-  /// The [FinesseContextMenuController.position] this menu was last built for.
-  Offset? _builtPosition;
-
   void _onOpenChanged() {
     final controller = this.controller;
-    // The anchor is resolved in build, so a new showAt point needs one.
-    if (controller is FinesseContextMenuController &&
-        controller.position != _builtPosition &&
-        mounted) {
-      setState(() {});
+    // Closed from inside while its parent still says open.
+    if (!controller.isOpen && (widget.open ?? false)) {
+      widget.onDismissed?.call();
     }
     // A hover-opened submenu leaves focus where it is, and so does a menu
     // that was asked to.
@@ -678,13 +606,10 @@ class ContextMenuState extends State<ContextMenu> {
       _root?.tapRegionGroupId ?? _ownTapRegionGroupId;
 
   /// The controller in use: [ContextMenu.controller] when given, otherwise
-  /// an internal [FinesseContextMenuController] that starts open when
-  /// [ContextMenu.open] is true.
+  /// an internal one that starts open when [ContextMenu.open] is true.
   PopoverController get controller =>
       widget.controller ??
-      (_controller ??= FinesseContextMenuController(
-        isOpen: widget.open ?? false,
-      ));
+      (_controller ??= PopoverController(isOpen: widget.open ?? false));
 
   @override
   void initState() {
@@ -754,23 +679,9 @@ class ContextMenuState extends State<ContextMenu> {
 
     final effectiveFilter = widget.filter ?? theme.contextMenuTheme.filter;
 
-    final effectiveEffects = widget.effects ?? theme.contextMenuTheme.effects;
-
     final effectiveShadows = widget.shadows ?? theme.contextMenuTheme.shadows;
 
-    // A point set through FinesseContextMenuController.showAt wins over the
-    // menu's own anchor; the menu opens with its corner there.
     final controller = this.controller;
-    final position = controller is FinesseContextMenuController
-        ? controller.position
-        : null;
-    _builtPosition = position;
-    final effectiveAnchor = position != null
-        ? GlobalAnchor(
-            position,
-            followerAnchor: AlignmentDirectional.topStart,
-          )
-        : widget.anchor;
 
     // Long menus scroll instead of running off screen; Radix caps them at
     // the available height the same way.
@@ -784,23 +695,22 @@ class ContextMenuState extends State<ContextMenu> {
         )
         .toDouble();
 
-    Widget child = Popover(
+    Widget child = Popover.internal(
       controller: controller,
       padding: effectivePadding,
-      areaGroupId: widget.groupId,
+      areaGroupId: widget.areaGroupId,
       groupId: tapRegionGroupId,
-      anchor: effectiveAnchor,
+      // A point given to the controller's `openAt` wins over this; the
+      // popover sees to that.
+      anchor: widget.anchor,
       decoration: effectiveDecoration,
-      effects: effectiveEffects,
+      entrance: widget.entrance,
       shadows: effectiveShadows,
       filter: effectiveFilter,
       // A submenu that closes is being replaced by a sibling's, or the
       // pointer has left the menu: it goes at once rather than fading out
       // over the one that replaces it.
-      reverseDuration:
-          widget.popoverReverseDuration ??
-          theme.contextMenuTheme.popoverReverseDuration ??
-          (_root != null ? Duration.zero : null),
+      exitDuration: _root != null ? Duration.zero : null,
       useSameGroupIdForChild: false,
       requestFocus: widget.requestFocus,
       builder: (context) {
@@ -808,16 +718,14 @@ class ContextMenuState extends State<ContextMenu> {
         final indicatorColumn = _checkables > 0 || _anyCheckable(items);
         _builtIndicatorColumn = indicatorColumn;
         return MouseArea(
-          groupId: widget.groupId,
-          key: ValueKey(widget.groupId),
+          groupId: widget.areaGroupId,
+          key: ValueKey(widget.areaGroupId),
           child: ConstrainedBox(
             constraints: effectiveConstraints,
             child: IntrinsicWidth(
               child: TapRegion(
-                onTapInside: widget.onTapInside,
                 onTapOutside: widget.onTapOutside,
                 onTapUpInside: widget.onTapUpInside,
-                onTapUpOutside: widget.onTapUpOutside,
                 groupId: tapRegionGroupId,
                 // The arrows walk the rows wherever the app runs; the
                 // web's default shortcuts would scroll the page instead.
@@ -834,10 +742,17 @@ class ContextMenuState extends State<ContextMenu> {
                           child: _MenuLevel(
                             menu: this,
                             indicatorColumn: indicatorColumn,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: items,
+                            // A menu to a screen reader: its rows are menu
+                            // items, and a submenu is a menu of its own.
+                            child: Semantics(
+                              container: true,
+                              explicitChildNodes: true,
+                              role: items.isEmpty ? null : SemanticsRole.menu,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: items,
+                              ),
                             ),
                           ),
                         ),
@@ -851,7 +766,7 @@ class ContextMenuState extends State<ContextMenu> {
         );
       },
       child: MouseArea(
-        groupId: widget.groupId,
+        groupId: widget.areaGroupId,
         onEnter: (_) => widget.onHoverArea?.call(true),
         onExit: (_) => widget.onHoverArea?.call(false),
         child: TapRegion(groupId: tapRegionGroupId, child: widget.child),
@@ -1216,6 +1131,38 @@ class _MenuItemState extends State<MenuItem> {
     controller.clearHovered();
   }
 
+  /// Whether this row's submenu was closed with Escape. It stays shut,
+  /// though the row is still highlighted, until the pointer or the focus
+  /// has left the row, or the arrow key that leads into it asks for it
+  /// again: one press of Escape closes one layer, and it would not be
+  /// closed if the row it returns the focus to opened it straight away.
+  bool _submenuDismissed = false;
+
+  void _onSubmenuDismissed() {
+    if (!mounted || _submenuDismissed) return;
+    setState(() => _submenuDismissed = true);
+  }
+
+  /// The row is done with: the next time it is reached its submenu opens.
+  void _onSelectionChanged() {
+    if (_submenuDismissed && !controller.hovered && !controller.focused) {
+      setState(() => _submenuDismissed = false);
+    }
+  }
+
+  /// The arrow that leads into the submenu opens it again.
+  KeyEventResult _onRowKey(FocusNode node, KeyEvent event) {
+    if (!_submenuDismissed || event is! KeyDownEvent) {
+      return KeyEventResult.ignored;
+    }
+    final towards = Directionality.of(context) == TextDirection.ltr
+        ? LogicalKeyboardKey.arrowRight
+        : LogicalKeyboardKey.arrowLeft;
+    if (event.logicalKey != towards) return KeyEventResult.ignored;
+    setState(() => _submenuDismissed = false);
+    return KeyEventResult.handled;
+  }
+
   bool _buttonHovered = false;
 
   /// Tells the menu level when the pointer reaches this row, so the row it
@@ -1255,6 +1202,7 @@ class _MenuItemState extends State<MenuItem> {
   void initState() {
     super.initState();
     statesController.addListener(_onStatesChanged);
+    controller.addListener(_onSelectionChanged);
     // register the subitem controller if this item is a submenu
     parentItemController?.registerSubItem(controller);
     if (context.getInheritedWidgetOfExactType<_MenuCheckable>() != null) {
@@ -1455,12 +1403,13 @@ class _MenuItemState extends State<MenuItem> {
         // in the button's own states — selection alone cannot see it.
         final highlighted = selected || hovered;
 
-        return ContextMenu(
-          open: selected,
+        return ContextMenu.internal(
+          open: selected && !_submenuDismissed,
+          onDismissed: _onSubmenuDismissed,
           anchor: effectiveAnchor,
           constraints: widget.constraints,
           padding: widget.subMenuPadding,
-          groupId: effectiveGroupId,
+          areaGroupId: effectiveGroupId,
           onHoverArea: (hovered) => _onHoverArea(hovered, effectiveShowDelay),
           items: widget.items,
           child: Padding(
@@ -1575,6 +1524,17 @@ class _MenuItemState extends State<MenuItem> {
         );
       },
     );
+
+    if (widget.items.isNotEmpty) {
+      // Above the row's own focus, so it hears the key the row has no use
+      // for.
+      child = Focus(
+        canRequestFocus: false,
+        skipTraversal: true,
+        onKeyEvent: _onRowKey,
+        child: child,
+      );
+    }
 
     final itemConstraints = theme.contextMenuTheme.itemConstraints;
     if (itemConstraints != null) {

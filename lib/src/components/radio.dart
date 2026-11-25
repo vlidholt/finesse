@@ -47,13 +47,32 @@ class RadioGroupScope<T> {
 /// ```
 ///
 /// Give [value] to hold the selection yourself, changing it in [onChanged],
-/// or [initialValue] to let the group keep it. The radios may sit anywhere
-/// under the group; [items] are laid out in a wrap along [axis].
+/// or [initialValue] to let the group keep it.
+///
+/// [items] are laid out in a wrap along [axis]. To lay the radios out any
+/// other way — in a `ListSection`, a grid, a row, with other widgets
+/// between them — give the group a [child] instead and put the radios
+/// wherever they belong in it:
+///
+/// ```dart
+/// FinesseRadioGroup<Plan>(
+///   value: _plan,
+///   onChanged: (plan) => setState(() => _plan = plan),
+///   child: ListSection(
+///     children: const [
+///       RadioListTile(value: Plan.free, title: Text('Free')),
+///       RadioListTile(value: Plan.pro, title: Text('Pro')),
+///     ],
+///   ),
+/// )
+/// ```
 class FinesseRadioGroup<T> extends StatefulWidget {
-  /// Creates a radio group around [items].
+  /// Creates a radio group around [items], laid out in a wrap, or around a
+  /// [child] that lays out its own radios.
   const FinesseRadioGroup({
     super.key,
-    required this.items,
+    this.items,
+    this.child,
     this.value,
     this.initialValue,
     this.onChanged,
@@ -68,6 +87,11 @@ class FinesseRadioGroup<T> extends StatefulWidget {
          value == null || initialValue == null,
          'Give value to control the group or initialValue to seed it, not '
          'both.',
+       ),
+       assert(
+         (items == null) != (child == null),
+         'Give a radio group either items, which it lays out in a wrap, or '
+         'a child that lays out its own radios.',
        );
 
   /// {@template FinesseRadioGroup.value}
@@ -83,9 +107,18 @@ class FinesseRadioGroup<T> extends StatefulWidget {
   final T? initialValue;
 
   /// {@template FinesseRadioGroup.items}
-  /// The items of the radio group, any Widget can be used.
+  /// The radios, laid out in a wrap along [axis]; any widget can stand
+  /// among them. Give this or a [child], not both.
   /// {@endtemplate}
-  final Iterable<Widget> items;
+  final Iterable<Widget>? items;
+
+  /// {@template FinesseRadioGroup.child}
+  /// The content of the group, for radios laid out freely: every `Radio`
+  /// and `RadioListTile` below it, however deep, belongs to the group. The
+  /// group adds no layout of its own, so [axis], [spacing] and the other
+  /// wrap parameters do not apply. Give this or [items], not both.
+  /// {@endtemplate}
+  final Widget? child;
 
   /// {@template FinesseRadioGroup.onChanged}
   /// Called with the value of the radio the user selects.
@@ -171,6 +204,16 @@ class _RadioGroupState<T> extends State<FinesseRadioGroup<T>> {
 
   @override
   Widget build(BuildContext context) {
+    final child = widget.child;
+    if (child != null) {
+      return _RadioGroupMarker(
+        value: widget.value ?? _value,
+        enabled: widget.enabled,
+        select: _select,
+        child: child,
+      );
+    }
+
     final theme = Theme.of(context);
     final effectiveAxis = widget.axis ?? theme.radioTheme.axis ?? Axis.vertical;
     final effectiveSpacing = widget.spacing ?? theme.radioTheme.spacing ?? 4;
@@ -198,7 +241,7 @@ class _RadioGroupState<T> extends State<FinesseRadioGroup<T>> {
         alignment: effectiveAlignment,
         runAlignment: effectiveRunAlignment,
         crossAxisAlignment: effectiveWrapCrossAlignment,
-        children: widget.items.toList(),
+        children: widget.items!.toList(),
       ),
     );
   }
@@ -244,7 +287,6 @@ class Radio<T> extends StatefulWidget {
     this.decoration,
     this.size,
     this.circleSize,
-    this.duration,
     this.color,
     this.label,
     this.description,
@@ -293,13 +335,6 @@ class Radio<T> extends StatefulWidget {
   /// The circle size of the radio, defaults to 10.
   /// {@endtemplate}
   final double? circleSize;
-
-  /// {@template Radio.duration}
-  /// How long the dot takes to appear. It pops in on a spring — the theme's
-  /// `Motion.bouncy` — and this replaces that spring's duration; when null
-  /// the spring is used as it is.
-  /// {@endtemplate}
-  final Duration? duration;
 
   /// {@template Radio.color}
   /// The color of the radio.
@@ -397,11 +432,9 @@ class _RadioState<T> extends State<Radio<T>> {
         widget.color ??
         theme.radioTheme.color ??
         theme.colorScheme.primaryForeground;
+    // The dot pops in on the small-delight spring; the fill fades.
     final motion = Motion.of(context);
-    final duration = widget.duration ?? theme.radioTheme.duration;
-    final dotSpring = duration == null || motion.bouncy.isInstant
-        ? motion.bouncy
-        : motion.bouncy.copyWith(duration: duration);
+    final dotSpring = motion.bouncy;
     final effectivePadding =
         widget.padding ??
         theme.radioTheme.padding ??

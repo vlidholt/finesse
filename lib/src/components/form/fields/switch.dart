@@ -50,9 +50,6 @@ class SwitchFormField extends FinesseFormField<bool> {
     /// {@macro Switch.margin}
     double? margin,
 
-    /// {@macro Switch.duration}
-    Duration? duration,
-
     /// {@macro Switch.label}
     Widget? inputLabel,
 
@@ -87,7 +84,6 @@ class SwitchFormField extends FinesseFormField<bool> {
              enabled: state.enabled,
              focusNode: state.focusNode,
              decoration: state.decoration,
-             duration: duration,
              label: inputLabel,
              description: inputDescription,
              padding: padding,

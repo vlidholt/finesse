@@ -1,56 +1,91 @@
 import 'dart:async';
-import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:finesse/src/components/surface.dart';
 import 'package:finesse/src/raw_components/portal.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/components/layout.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/theme/themes/shadows.dart';
 import 'package:finesse/src/utils/anchor_stage.dart';
-import 'package:finesse/src/utils/animate.dart';
 import 'package:finesse/src/utils/backdrop.dart';
 import 'package:finesse/src/utils/border.dart';
 import 'package:finesse/src/utils/dismiss_shortcut.dart';
 import 'package:finesse/src/utils/entrance.dart';
 import 'package:finesse/src/utils/mouse_area.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
-/// Opens and closes a [Popover].
+/// Opens and closes an overlay anchored to a widget: a [Popover], a
+/// `Tooltip`, a `HoverCard`, a `ContextMenu`, a `DropdownMenu`.
+///
+/// [open] shows the overlay where its widget anchors it. [openAt] shows it
+/// with its corner at a point instead, as a context menu opens at the
+/// pointer:
+///
+/// ```dart
+/// GestureDetector(
+///   onSecondaryTapDown: (details) => menu.openAt(details.globalPosition),
+///   child: ContextMenu(controller: menu, items: items, child: canvas),
+/// )
+/// ```
 class PopoverController extends ChangeNotifier {
-  /// Creates a controller. The popover starts closed unless [isOpen] is true.
+  /// Creates a controller. The overlay starts closed unless [isOpen] is
+  /// true.
   PopoverController({bool isOpen = false}) : _isOpen = isOpen;
 
   bool _isOpen = false;
 
-  /// Whether the popover is open.
+  /// Whether the overlay is open.
   bool get isOpen => _isOpen;
 
-  /// Opens the popover.
+  Offset? _position;
+
+  /// The point in global coordinates the overlay was opened at with
+  /// [openAt]. Null when it is at its own anchor.
+  Offset? get position => _position;
+
+  /// Opens the overlay at its own anchor, forgetting any [openAt] point.
   void open() {
+    _position = null;
     if (_isOpen) return;
     _isOpen = true;
     notifyListeners();
   }
 
-  /// Closes the popover.
+  /// Opens the overlay with its top start corner at [globalPosition],
+  /// mirrored or shifted to stay on screen. Called while it is open, it
+  /// moves the overlay there.
+  void openAt(Offset globalPosition) {
+    final moved = _position != globalPosition;
+    _position = globalPosition;
+    if (_isOpen) {
+      if (moved) notifyListeners();
+      return;
+    }
+    _isOpen = true;
+    notifyListeners();
+  }
+
+  /// Closes the overlay.
   void close() {
     if (!_isOpen) return;
     _isOpen = false;
     notifyListeners();
   }
 
-  /// Opens the popover when [open] is true and closes it otherwise.
+  /// Opens the overlay when [open] is true and closes it otherwise. An
+  /// overlay that is already open stays where it is.
   void setOpen(bool open) {
     if (_isOpen == open) return;
+    if (open) _position = null;
     _isOpen = open;
     notifyListeners();
   }
 
-  /// Opens the popover if it is closed and closes it if it is open.
+  /// Opens the overlay if it is closed and closes it if it is open.
   void toggle() => _isOpen ? close() : open();
 }
 
@@ -85,8 +120,35 @@ class Popover extends StatefulWidget {
     this.closeOnTapOutside = true,
     this.requestFocus = true,
     this.anchor,
-    this.effects,
-    this.reverseDuration,
+    this.shadows,
+    this.padding,
+    this.decoration,
+    this.filter,
+    this.groupId,
+    this.textStyle,
+    this.showArrow,
+  }) : areaGroupId = null,
+       useSameGroupIdForChild = true,
+       entrance = null,
+       exitDuration = null,
+       assert(
+         (controller != null) ^ (open != null),
+         'Either controller or open must be provided',
+       );
+
+  /// Creates a popover with the plumbing the package's own overlays need:
+  /// a hover group, a tap region that leaves the child out, an entrance and
+  /// an exit of their own.
+  @internal
+  const Popover.internal({
+    super.key,
+    required this.child,
+    required this.builder,
+    this.controller,
+    this.open,
+    this.closeOnTapOutside = true,
+    this.requestFocus = true,
+    this.anchor,
     this.shadows,
     this.padding,
     this.decoration,
@@ -94,11 +156,13 @@ class Popover extends StatefulWidget {
     this.groupId,
     this.areaGroupId,
     this.useSameGroupIdForChild = true,
+    this.entrance,
+    this.exitDuration,
     this.textStyle,
     this.showArrow,
   }) : assert(
          (controller != null) ^ (open != null),
-         'Either controller or visible must be provided',
+         'Either controller or open must be provided',
        );
 
   /// {@template Popover.builder}
@@ -112,7 +176,8 @@ class Popover extends StatefulWidget {
   final Widget child;
 
   /// {@template Popover.controller}
-  /// The controller that controls the visibility of the [builder].
+  /// Opens and closes the popover. Its `openAt` opens the popover with its
+  /// corner at a point in global coordinates instead of at its [anchor].
   /// {@endtemplate}
   final PopoverController? controller;
 
@@ -160,14 +225,6 @@ class Popover extends StatefulWidget {
   /// {@endtemplate}
   final AnchorBase? anchor;
 
-  /// {@template Popover.effects}
-  /// The animation effects applied to the [builder]. Defaults to the
-  /// theme's, and then to `EntranceEffect.forMotion`: a fade with a little
-  /// growth out of the edge that faces the trigger, on the theme's motion
-  /// tokens. An empty list shows the popover at once.
-  /// {@endtemplate}
-  final List<Effect<dynamic>>? effects;
-
   /// {@template Popover.shadows}
   /// The shadows applied to the [builder], defaults to
   /// [Shadows.md].
@@ -191,21 +248,36 @@ class Popover extends StatefulWidget {
   final ImageFilter? filter;
 
   /// {@template Popover.groupId}
-  /// The group id of the [builder], defaults to `UniqueKey()`.
+  /// The `TapRegion` group of the popover, for a widget outside it that
+  /// should count as inside: a tap on anything in the group does not close
+  /// the popover, and a text field given the same `groupId` keeps its
+  /// focus through a tap on the popover. Defaults to a group of its own.
   ///
-  /// Used to determine it the tap is inside the [builder] or not.
+  /// A popover opened from inside this one needs none of it: its surface
+  /// joins this popover's group by itself.
   /// {@endtemplate}
   final Object? groupId;
 
-  /// {@macro MouseArea.groupId}
+  /// The hover group of the popover's surface: every `MouseArea` with the
+  /// same id counts as one area. A menu uses it to keep a submenu open
+  /// while the pointer travels between it and its row.
+  @internal
   final Object? areaGroupId;
 
-  /// {@template Popover.useSameGroupIdForChild}
-  /// Whether the [groupId] should be used for the child widget, defaults to
-  /// `true`. This teams that taps on the child widget will be handled as inside
-  /// the popover.
-  /// {@endtemplate}
+  /// Whether a tap on the child counts as a tap inside the popover. A menu
+  /// says no and wraps its trigger itself.
+  @internal
   final bool useSameGroupIdForChild;
+
+  /// The entrance, when it is not the theme's: the plain fade of a menu
+  /// that takes over from the one beside it.
+  @internal
+  final EntranceSpec? entrance;
+
+  /// How long the exit takes, when it is not the theme's `Motion.fast`:
+  /// zero for a list that is gone the moment a choice was made.
+  @internal
+  final Duration? exitDuration;
 
   /// {@template Popover.textStyle}
   /// The default text style of the popover's content.
@@ -229,17 +301,6 @@ class Popover extends StatefulWidget {
   /// popover would have been.
   /// {@endtemplate}
   final bool? showArrow;
-
-  /// {@template Popover.reverseDuration}
-  /// The duration of the popover's exit animation.
-  ///
-  /// Defaults to the theme's, and then to its `Motion.fast`: a popover
-  /// leaves faster than it arrives.
-  ///
-  /// To customize the opening animation duration,
-  /// use [Effect.duration] in specified [effects].
-  /// {@endtemplate}
-  final Duration? reverseDuration;
 
   @override
   State<Popover> createState() => _PopoverState();
@@ -329,9 +390,8 @@ class _PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
     }
     animationController = AnimationController(
       vsync: this,
-      // This duration will be overridden later
-      // by the [Animate] widget based on the effects.
-      duration: Animate.defaultDuration,
+      // Replaced by the entrance in the overlay, with its own length.
+      duration: const Duration(milliseconds: 300),
     );
     animationController.addStatusListener(_onAnimationStatusChanged);
     controller.addListener(_onPopoverToggle);
@@ -404,7 +464,7 @@ class _PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _syncReverseDuration();
+    _syncExitDuration();
     if (_stage.resolve()) _stageChanged();
   }
 
@@ -416,10 +476,9 @@ class _PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
   }
 
   /// Mutating the controller belongs in a lifecycle callback, not in build().
-  void _syncReverseDuration() {
+  void _syncExitDuration() {
     animationController.reverseDuration =
-        widget.reverseDuration ??
-        Theme.of(context).popoverTheme.reverseDuration ??
+        widget.exitDuration ??
         // It leaves faster than it arrives.
         Motion.of(context).fast;
   }
@@ -427,8 +486,8 @@ class _PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
   @override
   void didUpdateWidget(covariant Popover oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.reverseDuration != oldWidget.reverseDuration) {
-      _syncReverseDuration();
+    if (widget.exitDuration != oldWidget.exitDuration) {
+      _syncExitDuration();
     }
     if (widget.controller != null &&
         widget.controller != oldWidget.controller) {
@@ -463,7 +522,16 @@ class _PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
     super.dispose();
   }
 
+  /// The [PopoverController.position] the popover was last built for, and
+  /// whether it has been built at all.
+  Offset? _builtPosition;
+  bool _built = false;
+
   void _onPopoverToggle() {
+    // The anchor is resolved in build, so a new `openAt` point needs one.
+    if (_built && mounted && controller.position != _builtPosition) {
+      setState(() {});
+    }
     if (controller.isOpen) {
       // Opened behind the scenes, it stays there until its anchor shows.
       _stage.watch();
@@ -497,10 +565,7 @@ class _PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
     final theme = Theme.of(context);
 
     // Grows out of the edge that faces the trigger; the portal says which.
-    final effectiveEffects =
-        widget.effects ??
-        theme.popoverTheme.effects ??
-        EntranceEffect.forMotion(Motion.of(context));
+    final entrance = widget.entrance ?? EntranceSpec.of(Motion.of(context));
 
     final effectivePadding =
         widget.padding ??
@@ -521,17 +586,24 @@ class _PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
       ),
     );
 
-    var effectiveAnchor =
-        widget.anchor ??
-        theme.popoverTheme.anchor ??
-        const AnchorAuto(
-          offset: Offset(0, 4),
-          fallback: AnchorAuto(
-            offset: Offset(0, -4),
-            followerAnchor: Alignment.topCenter,
-            targetAnchor: Alignment.topCenter,
-          ),
-        );
+    // A point given to the controller's `openAt` wins over the popover's
+    // own anchor: it opens with its corner there, as a context menu opens
+    // at the pointer.
+    final position = controller.position;
+    _built = true;
+    _builtPosition = position;
+    var effectiveAnchor = position != null
+        ? GlobalAnchor(position, followerAnchor: AlignmentDirectional.topStart)
+        : widget.anchor ??
+              theme.popoverTheme.anchor ??
+              const AnchorAuto(
+                offset: Offset(0, 4),
+                fallback: AnchorAuto(
+                  offset: Offset(0, -4),
+                  followerAnchor: Alignment.topCenter,
+                  targetAnchor: Alignment.topCenter,
+                ),
+              );
 
     final effectiveFilter = widget.filter ?? theme.popoverTheme.filter;
 
@@ -547,6 +619,12 @@ class _PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
       effectiveAnchor = arrow.spaced(Directionality.of(context));
     }
 
+    // The popovers this one was opened from inside of. Its surface is part
+    // of each of them — a tap on the list of a select in a popover is not a
+    // tap outside that popover — while a tap on one of them is still a tap
+    // outside this one.
+    final outerGroups = PopoverTapGroups.of(context);
+
     Widget popover = MouseArea(
       groupId: widget.areaGroupId,
       child: SurfacePainter(
@@ -555,17 +633,23 @@ class _PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
         filter: effectiveFilter,
         textStyle: widget.textStyle ?? theme.popoverTheme.textStyle,
         arrow: arrow,
-        child: Builder(builder: widget.builder),
+        child: PopoverTapGroups(
+          groups: [...outerGroups, groupId],
+          child: Builder(builder: widget.builder),
+        ),
       ),
     );
+    for (final outer in outerGroups) {
+      if (outer != groupId) popover = TapRegion(groupId: outer, child: popover);
+    }
 
-    if (effectiveEffects.isNotEmpty) {
-      popover = FinesseAnimate(
+    if (!entrance.isInstant) {
+      // Started when the portal reports the overlay shown. Its fade goes
+      // through a host, for a surface that is glass; see [BackdropFade].
+      popover = OverlayEntrance(
         controller: animationController,
-        effects: effectiveEffects,
+        spec: entrance,
         autoPlay: false,
-        // The surface may be glass; see [BackdropFade].
-        fadeThroughBackdrop: true,
         child: popover,
       );
     }
@@ -639,18 +723,54 @@ class _PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
   }
 }
 
+/// The tap-region groups of the popovers a widget is inside of, outermost
+/// first.
+///
+/// A popover opened from inside another one — the list of a select in a
+/// popover, a menu in a date picker — is drawn in the overlay, outside the
+/// first one's box. Its surface joins every group listed here, so a tap on
+/// it is not a tap outside the popovers around it.
+///
+/// Internal: it is not exported from `package:finesse/finesse.dart`.
+class PopoverTapGroups extends InheritedWidget {
+  /// Publishes [groups] to [child].
+  const PopoverTapGroups({
+    required this.groups,
+    required super.child,
+    super.key,
+  });
+
+  /// The `TapRegion` group ids, outermost popover first.
+  final List<Object> groups;
+
+  /// The groups of the popovers around [context], or none.
+  static List<Object> of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<PopoverTapGroups>()?.groups ??
+      const [];
+
+  @override
+  bool updateShouldNotify(PopoverTapGroups oldWidget) =>
+      !listEquals(groups, oldWidget.groups);
+}
+
 /// Shows a popover anchored to [anchorRect], a rectangle in global
 /// coordinates, for UI that has a rectangle rather than a widget to anchor
 /// to: a text selection, a table cell, a hit on a canvas.
 ///
 /// The popover opens [gap] below the rectangle, centred on it, and moves
-/// above when there is not enough room below; it is shifted to stay on
-/// screen. It closes on a tap outside or on Escape, and the returned future
-/// completes with the value it was popped with.
+/// above when there is not enough room below; one that would cross a side
+/// of the screen is moved in, the theme's small gap clear of it. It closes
+/// on a tap outside or on Escape, and the returned future completes with
+/// the value it was popped with.
 ///
 /// The content is wrapped in a [Surface] of [kind]; pass
 /// [Surface.new]'s parameters through [padding] and [decoration], or set
 /// [surface] to false to draw your own.
+///
+/// [showArrow] puts an arrow on the edge that faces the rectangle, pointing
+/// at its middle wherever the popover had to go, as `Popover.showArrow`
+/// does; it defaults to `PopoverTheme.showArrow`. The surface draws it, so
+/// it needs [surface].
 ///
 /// The popover takes the keyboard focus when it opens, like any route. Set
 /// [requestFocus] to false — it is `ModalRoute.requestFocus` — to leave the
@@ -667,6 +787,7 @@ Future<T?> showPopover<T>({
   EdgeInsetsGeometry? padding,
   FinesseDecoration? decoration,
   double gap = 4,
+  bool? showArrow,
   bool barrierDismissible = true,
   String? barrierLabel,
   bool useRootNavigator = false,
@@ -674,16 +795,37 @@ Future<T?> showPopover<T>({
   RouteSettings? routeSettings,
 }) {
   final navigator = Navigator.of(context, rootNavigator: useRootNavigator);
+  // The popover is laid out in the navigator's overlay, which is not the
+  // whole screen when the navigator is nested beside something.
+  final overlay = navigator.overlay?.context.findRenderObject();
+  final localRect = overlay is RenderBox && overlay.hasSize
+      ? Rect.fromPoints(
+          overlay.globalToLocal(anchorRect.topLeft),
+          overlay.globalToLocal(anchorRect.bottomRight),
+        )
+      : anchorRect;
   // The route is built under the navigator; republish a theme applied to the
   // subtree the popover was opened from (see ThemeScope).
   final theme = Theme.of(context, listen: false);
+  final popoverTheme = theme.popoverTheme;
+  final arrow = surface && (showArrow ?? popoverTheme.showArrow ?? false)
+      ? SurfaceArrow(
+          anchor: _AnchoredPopoverRoute.anchor,
+          size: popoverTheme.arrowSize ?? 10,
+          radius: popoverTheme.arrowRadius ?? 2,
+          targetSize: () => anchorRect.size,
+        )
+      : null;
   // It arrives and leaves like a `Popover`: on the motion tokens, and
   // faster out than in.
   final motion = Motion.of(context);
   return navigator.push(
     _AnchoredPopoverRoute<T>(
-      anchorRect: anchorRect,
-      gap: gap,
+      anchorRect: localRect,
+      // The arrow stands in the gap; the popover makes room for it.
+      gap: gap + (arrow?.protrusion ?? 0),
+      margin: theme.layoutTheme.gap(GapSize.sm),
+      placesArrow: arrow != null,
       transitionDuration: motion.reduced
           ? motion.fast
           : motion.snappy.settleDuration,
@@ -699,6 +841,7 @@ Future<T?> showPopover<T>({
             kind: kind,
             padding: padding,
             decoration: decoration,
+            arrow: arrow,
             child: content,
           );
         }
@@ -712,6 +855,8 @@ class _AnchoredPopoverRoute<T> extends PopupRoute<T> {
   _AnchoredPopoverRoute({
     required this.anchorRect,
     required this.gap,
+    required this.margin,
+    required this.placesArrow,
     required this.builder,
     required this.barrierDismissible,
     required this.barrierLabel,
@@ -723,7 +868,50 @@ class _AnchoredPopoverRoute<T> extends PopupRoute<T> {
 
   final Rect anchorRect;
   final double gap;
+
+  /// The gap kept from the edges of the screen by a popover moved in.
+  final double margin;
+
+  /// Whether the content has an arrow, which has to be told where the
+  /// popover went; see [_placement].
+  final bool placesArrow;
+
   final WidgetBuilder builder;
+
+  /// Where [_AnchorRectLayout] puts the popover, said the way a [Portal]
+  /// with this anchor would: below the rectangle and centred on it, or
+  /// above it as the fallback. A `SurfaceArrow` reads the placement against
+  /// it.
+  static const anchor = AnchorAuto(
+    fallback: AnchorAuto(
+      followerAnchor: Alignment.topCenter,
+      targetAnchor: Alignment.topCenter,
+    ),
+  );
+
+  /// Where the popover was put, as the [PortalPlacement] its arrow reads;
+  /// null until it has been laid out once.
+  ///
+  /// The arrow is built and the popover's place is only known at layout, so
+  /// the popover is first laid out unseen, as a portal's overlay is, and
+  /// shown from the next frame with its arrow where it belongs. Later
+  /// changes (the window resized) reach the arrow a frame late.
+  late final ValueNotifier<_RectPlacement?> _placement = ValueNotifier(null);
+  _RectPlacement? _pendingPlacement;
+  bool _disposed = false;
+
+  void _placed(_RectPlacement placement) {
+    if (placement == (_pendingPlacement ?? _placement.value)) return;
+    final scheduled = _pendingPlacement != null;
+    _pendingPlacement = placement;
+    if (scheduled) return;
+    // Layout may not rebuild; the frame after it does.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final pending = _pendingPlacement;
+      _pendingPlacement = null;
+      if (!_disposed) _placement.value = pending;
+    });
+  }
 
   /// Whether the route takes the focus when it is pushed. Without it the
   /// route's own Escape binding is out of reach — the key goes to whatever
@@ -740,6 +928,8 @@ class _AnchoredPopoverRoute<T> extends PopupRoute<T> {
   @override
   void dispose() {
     if (!takesFocus) FocusManager.instance.removeEarlyKeyEventHandler(_onKey);
+    _disposed = true;
+    _placement.dispose();
     super.dispose();
   }
 
@@ -789,13 +979,33 @@ class _AnchoredPopoverRoute<T> extends PopupRoute<T> {
     Animation<double> animation,
     Animation<double> secondaryAnimation,
   ) {
+    Widget content = Builder(builder: builder);
+    if (placesArrow) {
+      content = ValueListenableBuilder(
+        valueListenable: _placement,
+        builder: (context, placement, child) => Visibility.maintain(
+          visible: placement != null,
+          child: IgnorePointer(
+            ignoring: placement == null,
+            child: PortalPlacement(
+              usedFallback: placement?.above ?? false,
+              shift: Offset(placement?.shift ?? 0, 0),
+              child: child!,
+            ),
+          ),
+        ),
+        child: content,
+      );
+    }
     return CustomSingleChildLayout(
       delegate: _AnchorRectLayout(
         anchorRect: anchorRect,
         gap: gap,
+        margin: margin,
         padding: MediaQuery.paddingOf(context),
+        onPlaced: placesArrow ? _placed : null,
       ),
-      child: Builder(builder: builder),
+      child: content,
     );
   }
 
@@ -876,16 +1086,42 @@ class _FadeInBy extends Animatable<double> {
   double transform(double t) => (t / end).clamp(0.0, 1.0);
 }
 
+/// Where an anchored popover went: above its rectangle or below, and how
+/// far its centre was moved across to stay on screen.
+@immutable
+class _RectPlacement {
+  const _RectPlacement({required this.above, required this.shift});
+
+  final bool above;
+  final double shift;
+
+  @override
+  bool operator ==(Object other) =>
+      other is _RectPlacement && other.above == above && other.shift == shift;
+
+  @override
+  int get hashCode => Object.hash(above, shift);
+}
+
 class _AnchorRectLayout extends SingleChildLayoutDelegate {
   _AnchorRectLayout({
     required this.anchorRect,
     required this.gap,
+    required this.margin,
     required this.padding,
+    this.onPlaced,
   });
 
   final Rect anchorRect;
   final double gap;
+
+  /// The gap kept from the edges of the screen by a popover moved in.
+  final double margin;
+
   final EdgeInsets padding;
+
+  /// Told where the popover went, for its arrow.
+  final ValueChanged<_RectPlacement>? onPlaced;
 
   @override
   BoxConstraints getConstraintsForChild(BoxConstraints constraints) =>
@@ -897,20 +1133,38 @@ class _AnchorRectLayout extends SingleChildLayoutDelegate {
     final bottom = size.height - padding.bottom;
     final below = anchorRect.bottom + gap;
     final above = anchorRect.top - gap - childSize.height;
-    final y = below + childSize.height <= bottom || above < top ? below : above;
-    final x = anchorRect.center.dx - childSize.width / 2;
-    return Offset(
-      x.clamp(
-        padding.left,
-        math.max(padding.left, size.width - padding.right - childSize.width),
-      ),
-      y.clamp(top, math.max(top, bottom - childSize.height)),
+    final goesBelow = below + childSize.height <= bottom || above < top;
+    // Left where it is when it fits between the insets, and otherwise
+    // moved in, [margin] clear of them.
+    double placed(double start, double extent, double from, double to) =>
+        from +
+        PositionDelegate.clearOfEdges(start - from, extent, to - from, margin);
+    final x = placed(
+      anchorRect.center.dx - childSize.width / 2,
+      childSize.width,
+      padding.left,
+      size.width - padding.right,
     );
+    final y = placed(
+      goesBelow ? below : above,
+      childSize.height,
+      top,
+      bottom,
+    );
+    onPlaced?.call(
+      _RectPlacement(
+        above: !goesBelow,
+        shift: x + childSize.width / 2 - anchorRect.center.dx,
+      ),
+    );
+    return Offset(x, y);
   }
 
   @override
   bool shouldRelayout(_AnchorRectLayout oldDelegate) =>
       anchorRect != oldDelegate.anchorRect ||
       gap != oldDelegate.gap ||
-      padding != oldDelegate.padding;
+      margin != oldDelegate.margin ||
+      padding != oldDelegate.padding ||
+      (onPlaced == null) != (oldDelegate.onPlaced == null);
 }

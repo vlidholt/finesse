@@ -6,16 +6,12 @@ import 'package:finesse/src/raw_components/focusable.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/activation_keys.dart';
-import 'package:finesse/src/utils/animate.dart';
-import 'package:finesse/src/utils/animation_builder.dart';
-import 'package:finesse/src/utils/effects.dart';
 import 'package:finesse/src/utils/expand_reveal.dart';
 import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:finesse/src/utils/provider.dart';
 import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
 /// {@template AccordionController}
 /// A controller for managing the state of a [Accordion] widget.
@@ -231,14 +227,10 @@ class AccordionItem<T> extends StatefulWidget {
     required this.child,
     this.separator,
     this.icon,
-    this.iconEffects,
     this.padding,
     this.underlineTitleOnHover,
     this.titleStyle,
-    this.curve,
-    this.duration,
     this.focusNode,
-    this.effects,
     this.trailing,
   });
 
@@ -256,8 +248,9 @@ class AccordionItem<T> extends StatefulWidget {
   final Widget title;
 
   /// {@template AccordionItem.child}
-  /// The content widget displayed when the item is expanded.
-  /// Animated in and out based on [effects].
+  /// The content widget displayed when the item is expanded. It opens and
+  /// closes on the theme's `Motion.smooth` spring, which keeps its velocity
+  /// when interrupted.
   /// {@endtemplate}
   final Widget child;
 
@@ -268,17 +261,10 @@ class AccordionItem<T> extends StatefulWidget {
   final Widget? separator;
 
   /// {@template AccordionItem.icon}
-  /// The item's icon, a caret pointing down by default.
-  /// Displayed in the header and animated based on [iconEffects].
+  /// The item's icon, a caret pointing down by default. It is shown in the
+  /// header and turns half a turn as the item opens.
   /// {@endtemplate}
   final Widget? icon;
-
-  /// {@template AccordionItem.iconEffects}
-  /// The animation effects applied to the icon when the item expands or
-  /// collapses.
-  /// Defaults to a rotation effect if not specified.
-  /// {@endtemplate}
-  final List<Effect<dynamic>>? iconEffects;
 
   /// {@template AccordionItem.padding}
   /// Padding around the header content, defaults to vertical padding of 16 if
@@ -300,34 +286,12 @@ class AccordionItem<T> extends StatefulWidget {
   /// {@endtemplate}
   final TextStyle? titleStyle;
 
-  /// {@template AccordionItem.curve}
-  /// The curve for animations. When null — and no [effects] are given — the
-  /// item opens and closes on a spring, the theme's `Motion.smooth`, which
-  /// keeps its velocity when interrupted. Giving a curve switches to a
-  /// fixed-duration animation with that curve.
-  /// {@endtemplate}
-  final Curve? curve;
-
-  /// {@template AccordionItem.duration}
-  /// The duration of animations. With the default spring it replaces the
-  /// spring's duration; with a [curve] or [effects] it is the animation's
-  /// length, 300ms when null.
-  /// {@endtemplate}
-  final Duration? duration;
-
   /// {@template AccordionItem.focusNode}
   /// The focus node for keyboard navigation, created internally if not
   /// provided.
   /// Enables focus handling and shortcuts like Enter key toggling.
   /// {@endtemplate}
   final FocusNode? focusNode;
-
-  /// {@template AccordionItem.effects}
-  /// The animation effects applied to the content when expanding or
-  /// collapsing, in place of the default: the content's height growing
-  /// while it fades in.
-  /// {@endtemplate}
-  final List<Effect<dynamic>>? effects;
 
   /// {@template AccordionItem.trailing}
   /// An action in the header, between the title and the chevron: a
@@ -396,20 +360,9 @@ class _AccordionItemState<T> extends State<AccordionItem<T>>
         final theme = Theme.of(context);
         final effectiveSeparator = widget.separator ?? const Divider();
 
+        // The content opens and the chevron turns on one spring.
         final motion = Motion.of(context);
-        final customEffects = widget.effects ?? theme.accordionTheme.effects;
-        final customCurve = widget.curve ?? theme.accordionTheme.curve;
-        final customDuration = widget.duration ?? theme.accordionTheme.duration;
-        // A spring unless the caller asked for a particular curve or set of
-        // effects, which need a fixed duration to run over.
-        final sprung = customEffects == null && customCurve == null;
-        final spring = customDuration == null || motion.smooth.isInstant
-            ? motion.smooth
-            : motion.smooth.copyWith(duration: customDuration);
-
-        final effectiveDuration = customDuration ?? 300.milliseconds;
-
-        final effectiveCurve = customCurve ?? const Cubic(0.87, 0, 0.13, 1);
+        final spring = motion.smooth;
 
         final effectiveTitleStyle =
             (widget.titleStyle ??
@@ -423,19 +376,6 @@ class _AccordionItemState<T> extends State<AccordionItem<T>>
             widget.underlineTitleOnHover ??
             theme.accordionTheme.underlineTitleOnHover ??
             true;
-
-        final customIconEffects =
-            widget.iconEffects ?? theme.accordionTheme.iconEffects;
-        final effectiveIconEffects =
-            customIconEffects ??
-            [
-              RotateEffect(
-                begin: 0,
-                end: .5,
-                duration: 300.milliseconds,
-                curve: effectiveCurve,
-              ),
-            ];
 
         // The theme's icon is drawn as the default one is; an icon given
         // to the item itself is the caller's to size and colour.
@@ -455,26 +395,6 @@ class _AccordionItemState<T> extends State<AccordionItem<T>>
             widget.padding ??
             theme.accordionTheme.padding ??
             const EdgeInsets.symmetric(vertical: 16);
-
-        final effectiveEffects =
-            customEffects ??
-            [
-              PaddingEffect(
-                padding: const EdgeInsets.only(bottom: 8),
-                curve: effectiveCurve,
-                duration: effectiveDuration,
-              ),
-              SlideEffect(
-                curve: effectiveCurve,
-                begin: const Offset(0, -1),
-                end: Offset.zero,
-                duration: effectiveDuration,
-              ),
-              SizeEffect(
-                curve: effectiveCurve,
-                duration: effectiveDuration,
-              ),
-            ];
 
         final header = FinesseGestureDetector(
           mouseCursor: SystemMouseCursors.click,
@@ -532,89 +452,49 @@ class _AccordionItemState<T> extends State<AccordionItem<T>>
                       child: widget.trailing,
                     ),
                   ),
-                if (sprung && customIconEffects == null)
-                  // The chevron turns on the same spring as the
-                  // content opens.
-                  SpringBuilder(
-                    value: expanded ? 1 : 0,
-                    spring: spring,
-                    builder: (context, t, child) => Transform.rotate(
-                      angle: t * math.pi,
-                      child: child,
-                    ),
-                    child: effectiveIcon,
-                  )
-                else
-                  FinesseAnimate(
-                    target: expanded ? 1 : 0,
-                    effects: effectiveIconEffects,
-                    child: effectiveIcon,
+                // The chevron turns on the same spring as the content
+                // opens.
+                SpringBuilder(
+                  value: expanded ? 1 : 0,
+                  spring: spring,
+                  builder: (context, t, child) => Transform.rotate(
+                    angle: t * math.pi,
+                    child: child,
                   ),
+                  child: effectiveIcon,
+                ),
               ],
             ),
           ),
         );
 
-        if (sprung) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              header,
-              SpringBuilder(
-                value: expanded ? 1 : 0,
-                spring: spring,
-                builder: (context, t, child) {
-                  // Gone once fully closed, unless its state is to be kept.
-                  if (t <= 0 && !expanded && !inherited.maintainState) {
-                    return const SizedBox.shrink();
-                  }
-                  return ExpandReveal(
-                    factor: t,
-                    travel: motion.overlayTravel,
-                    alignment: Alignment.topCenter,
-                    child: child!,
-                  );
-                },
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: widget.child,
-                ),
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            header,
+            SpringBuilder(
+              value: expanded ? 1 : 0,
+              spring: spring,
+              builder: (context, t, child) {
+                // Gone once fully closed, unless its state is to be kept.
+                if (t <= 0 && !expanded && !inherited.maintainState) {
+                  return const SizedBox.shrink();
+                }
+                return ExpandReveal(
+                  factor: t,
+                  travel: motion.overlayTravel,
+                  alignment: Alignment.topCenter,
+                  child: child!,
+                );
+              },
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: widget.child,
               ),
-              effectiveSeparator,
-            ],
-          );
-        }
-
-        return AnimationBuilder(
-          duration: effectiveDuration,
-          builder: (context, controller) {
-            if (expanded && !controller.isCompleted) {
-              // animates the opened item, to show it
-              controller.forward();
-            } else if (!expanded && !controller.isDismissed) {
-              // animates the closed item, to hide it
-              controller.reverse();
-            }
-
-            final closed = !expanded && controller.isDismissed;
-            final shouldRemoveChild = closed && !inherited.maintainState;
-
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                header,
-                if (!shouldRemoveChild)
-                  FinesseAnimate(
-                    controller: controller,
-                    effects: effectiveEffects,
-                    child: widget.child,
-                  ),
-                effectiveSeparator,
-              ],
-            );
-          },
+            ),
+            effectiveSeparator,
+          ],
         );
       },
     );

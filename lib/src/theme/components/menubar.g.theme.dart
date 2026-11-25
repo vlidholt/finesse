@@ -40,7 +40,6 @@ mixin _$MenubarTheme {
         b.contextMenuPadding,
         t,
       ),
-      effects: t < 0.5 ? a.effects : b.effects,
       shadows: t < 0.5 ? a.shadows : b.shadows,
       decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
       filter: t < 0.5 ? a.filter : b.filter,
@@ -126,7 +125,6 @@ mixin _$MenubarTheme {
     FinesseBorder? border,
     BoxConstraints? constraints,
     EdgeInsetsGeometry? contextMenuPadding,
-    List<Effect<dynamic>>? effects,
     List<BoxShadow>? shadows,
     FinesseDecoration? decoration,
     ImageFilter? filter,
@@ -166,7 +164,6 @@ mixin _$MenubarTheme {
       border: border ?? _this.border,
       constraints: constraints ?? _this.constraints,
       contextMenuPadding: contextMenuPadding ?? _this.contextMenuPadding,
-      effects: effects ?? _this.effects,
       shadows: shadows ?? _this.shadows,
       decoration: decoration ?? _this.decoration,
       filter: filter ?? _this.filter,
@@ -228,7 +225,6 @@ mixin _$MenubarTheme {
       border: _this.border?.merge(other.border) ?? other.border,
       constraints: other.constraints,
       contextMenuPadding: other.contextMenuPadding,
-      effects: other.effects,
       shadows: other.shadows,
       decoration: _this.decoration?.merge(other.decoration) ?? other.decoration,
       filter: other.filter,
@@ -282,7 +278,6 @@ mixin _$MenubarTheme {
         _other.border == _this.border &&
         _other.constraints == _this.constraints &&
         _other.contextMenuPadding == _this.contextMenuPadding &&
-        _other.effects == _this.effects &&
         _other.shadows == _this.shadows &&
         _other.decoration == _this.decoration &&
         _other.filter == _this.filter &&
@@ -329,7 +324,6 @@ mixin _$MenubarTheme {
       _this.border,
       _this.constraints,
       _this.contextMenuPadding,
-      _this.effects,
       _this.shadows,
       _this.decoration,
       _this.filter,

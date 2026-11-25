@@ -197,6 +197,43 @@ void main() {
     expect(find.text('Filters'), findsNothing);
   });
 
+  testWidgets('the closeButton of a sheet stands in for the whole button', (
+    tester,
+  ) async {
+    var pressed = 0;
+    await pumpFinesse(
+      tester,
+      Builder(
+        builder: (context) => Center(
+          child: Button(
+            onPressed: () => showSheet<void>(
+              context: context,
+              side: SheetSide.right,
+              builder: (context) => Sheet(
+                title: const Text('Filters'),
+                // Shown even with the built-in button switched off.
+                showCloseButton: false,
+                closeButton: Button.ghost(
+                  onPressed: () => pressed++,
+                  child: const Text('Done'),
+                ),
+              ),
+            ),
+            child: const Text('Open'),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('Open'));
+    await settle(tester);
+    expect(closeIcon, findsNothing);
+    await tester.tap(find.text('Done'));
+    await settle(tester);
+    // It is the caller's button: the sheet does not close on its behalf.
+    expect(pressed, 1);
+    expect(find.text('Filters'), findsOneWidget);
+  });
+
   testWidgets('the command palette has no close button', (tester) async {
     await pumpFinesse(
       tester,

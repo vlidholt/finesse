@@ -1,6 +1,7 @@
 import 'package:finesse/material.dart';
 import 'package:finesse/src/app.dart';
 import 'package:finesse/src/components/context_menu.dart';
+import 'package:finesse/src/components/popover.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +18,7 @@ void main() {
 
   group('ContextMenuRegion tapEnabled', () {
     Widget buildRegion({
-      FinesseContextMenuController? controller,
+      PopoverController? controller,
       bool? tapEnabled,
     }) {
       return FinesseApp(
@@ -36,7 +37,7 @@ void main() {
     testWidgets(
       'tap opens menu by default on mobile platforms',
       (tester) async {
-        final controller = FinesseContextMenuController();
+        final controller = PopoverController();
         addTearDown(controller.dispose);
         await tester.pumpWidget(buildRegion(controller: controller));
         await tester.pumpAndSettle();
@@ -58,7 +59,7 @@ void main() {
     testWidgets(
       'tap does not open menu by default on desktop platforms',
       (tester) async {
-        final controller = FinesseContextMenuController();
+        final controller = PopoverController();
         addTearDown(controller.dispose);
         await tester.pumpWidget(buildRegion(controller: controller));
         await tester.pumpAndSettle();
@@ -81,7 +82,7 @@ void main() {
     testWidgets(
       'tapEnabled: true opens menu on desktop',
       (tester) async {
-        final controller = FinesseContextMenuController();
+        final controller = PopoverController();
         addTearDown(controller.dispose);
         await tester.pumpWidget(
           buildRegion(controller: controller, tapEnabled: true),
@@ -106,7 +107,7 @@ void main() {
     testWidgets(
       'tapEnabled: false prevents tap from opening menu on mobile',
       (tester) async {
-        final controller = FinesseContextMenuController();
+        final controller = PopoverController();
         addTearDown(controller.dispose);
         await tester.pumpWidget(
           buildRegion(controller: controller, tapEnabled: false),
@@ -130,7 +131,7 @@ void main() {
     testWidgets(
       'opening a menu with a disabled item does not assert during build',
       (tester) async {
-        final controller = FinesseContextMenuController();
+        final controller = PopoverController();
         addTearDown(controller.dispose);
         await tester.pumpWidget(
           createTestWidget(

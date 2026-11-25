@@ -12,10 +12,6 @@ class CollapsibleTheme with _$CollapsibleTheme {
   /// {@macro CollapsibleTheme}
   const CollapsibleTheme({
     bool canMerge = true,
-    this.duration,
-    this.curve,
-    this.reverseDuration,
-    this.reverseCurve,
     this.crossAxisAlignment,
   }) : _canMerge = canMerge;
 
@@ -24,18 +20,6 @@ class CollapsibleTheme with _$CollapsibleTheme {
 
   @override
   bool get canMerge => _canMerge;
-
-  /// {@macro Collapsible.duration}
-  final Duration? duration;
-
-  /// {@macro Collapsible.curve}
-  final Curve? curve;
-
-  /// {@macro Collapsible.reverseDuration}
-  final Duration? reverseDuration;
-
-  /// {@macro Collapsible.reverseCurve}
-  final Curve? reverseCurve;
 
   /// {@macro Collapsible.crossAxisAlignment}
   final CrossAxisAlignment? crossAxisAlignment;

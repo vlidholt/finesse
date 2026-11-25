@@ -135,7 +135,6 @@ class TimePicker extends StatefulWidget {
 }
 
 class _TimePickerState extends State<TimePicker> {
-  final _groupId = UniqueKey();
   final _fieldNode = FocusNode(debugLabel: 'TimePicker field');
 
   @override
@@ -167,7 +166,6 @@ class _TimePickerState extends State<TimePicker> {
     return PickerHost(
       presentation: widget.presentation,
       controller: widget.controller,
-      groupId: _groupId,
       popoverPadding: picker.popoverPadding,
       anchor: picker.anchor,
       triggerBuilder: (context, toggle) {
@@ -200,7 +198,6 @@ class _TimePickerState extends State<TimePicker> {
           showSeconds: widget.showSeconds,
           use24HourFormat: widget.use24HourFormat,
           focusNode: _fieldNode,
-          groupId: _groupId,
         ),
       ),
       sheetBuilder: (context, close) => _TimeSheet(

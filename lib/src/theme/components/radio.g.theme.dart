@@ -28,7 +28,6 @@ mixin _$RadioTheme {
     return RadioTheme(
       color: Color.lerp(a.color, b.color, t),
       size: lerpDouble$(a.size, b.size, t),
-      duration: lerpDuration$(a.duration, b.duration, t),
       decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
       checkedDecoration: FinesseDecoration.lerp(
         a.checkedDecoration,
@@ -50,7 +49,6 @@ mixin _$RadioTheme {
   RadioTheme copyWith({
     Color? color,
     double? size,
-    Duration? duration,
     FinesseDecoration? decoration,
     FinesseDecoration? checkedDecoration,
     EdgeInsetsGeometry? padding,
@@ -68,7 +66,6 @@ mixin _$RadioTheme {
     return RadioTheme(
       color: color ?? _this.color,
       size: size ?? _this.size,
-      duration: duration ?? _this.duration,
       decoration: decoration ?? _this.decoration,
       checkedDecoration: checkedDecoration ?? _this.checkedDecoration,
       padding: padding ?? _this.padding,
@@ -97,7 +94,6 @@ mixin _$RadioTheme {
     return copyWith(
       color: other.color,
       size: other.size,
-      duration: other.duration,
       decoration: _this.decoration?.merge(other.decoration) ?? other.decoration,
       checkedDecoration:
           _this.checkedDecoration?.merge(other.checkedDecoration) ??
@@ -129,7 +125,6 @@ mixin _$RadioTheme {
 
     return _other.color == _this.color &&
         _other.size == _this.size &&
-        _other.duration == _this.duration &&
         _other.decoration == _this.decoration &&
         _other.checkedDecoration == _this.checkedDecoration &&
         _other.padding == _this.padding &&
@@ -151,7 +146,6 @@ mixin _$RadioTheme {
       runtimeType,
       _this.color,
       _this.size,
-      _this.duration,
       _this.decoration,
       _this.checkedDecoration,
       _this.padding,

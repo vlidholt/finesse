@@ -53,7 +53,7 @@ void main() {
     testWidgets('the arrows walk a menu, stopping at either end — $where', (
       tester,
     ) async {
-      final menu = FinesseContextMenuController();
+      final menu = PopoverController();
       addTearDown(menu.dispose);
       await tester.pumpWidget(
         FinesseApp(

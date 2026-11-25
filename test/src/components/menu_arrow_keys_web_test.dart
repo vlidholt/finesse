@@ -15,7 +15,7 @@ void main() {
   testWidgets('the arrow keys walk a menu and a select in the browser', (
     tester,
   ) async {
-    final menu = FinesseContextMenuController();
+    final menu = PopoverController();
     final select = PopoverController();
     addTearDown(menu.dispose);
     addTearDown(select.dispose);

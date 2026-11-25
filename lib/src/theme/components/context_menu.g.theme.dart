@@ -30,11 +30,6 @@ mixin _$ContextMenuTheme {
     }
 
     return ContextMenuTheme(
-      popoverReverseDuration: lerpDuration$(
-        a.popoverReverseDuration,
-        b.popoverReverseDuration,
-        t,
-      ),
       constraints: BoxConstraints.lerp(a.constraints, b.constraints, t),
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
       leadingPadding: EdgeInsetsGeometry.lerp(
@@ -101,7 +96,6 @@ mixin _$ContextMenuTheme {
         t,
       ),
       closeOnTap: t < 0.5 ? a.closeOnTap : b.closeOnTap,
-      effects: t < 0.5 ? a.effects : b.effects,
       shadows: t < 0.5 ? a.shadows : b.shadows,
       decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
       filter: t < 0.5 ? a.filter : b.filter,
@@ -123,7 +117,6 @@ mixin _$ContextMenuTheme {
   }
 
   ContextMenuTheme copyWith({
-    Duration? popoverReverseDuration,
     BoxConstraints? constraints,
     EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? leadingPadding,
@@ -146,7 +139,6 @@ mixin _$ContextMenuTheme {
     Color? backgroundColor,
     Color? selectedBackgroundColor,
     bool? closeOnTap,
-    List<Effect<dynamic>>? effects,
     List<BoxShadow>? shadows,
     FinesseDecoration? decoration,
     ImageFilter? filter,
@@ -160,8 +152,6 @@ mixin _$ContextMenuTheme {
     final _this = (this as ContextMenuTheme);
 
     return ContextMenuTheme(
-      popoverReverseDuration:
-          popoverReverseDuration ?? _this.popoverReverseDuration,
       constraints: constraints ?? _this.constraints,
       padding: padding ?? _this.padding,
       leadingPadding: leadingPadding ?? _this.leadingPadding,
@@ -189,7 +179,6 @@ mixin _$ContextMenuTheme {
       selectedBackgroundColor:
           selectedBackgroundColor ?? _this.selectedBackgroundColor,
       closeOnTap: closeOnTap ?? _this.closeOnTap,
-      effects: effects ?? _this.effects,
       shadows: shadows ?? _this.shadows,
       decoration: decoration ?? _this.decoration,
       filter: filter ?? _this.filter,
@@ -214,7 +203,6 @@ mixin _$ContextMenuTheme {
     }
 
     return copyWith(
-      popoverReverseDuration: other.popoverReverseDuration,
       constraints: other.constraints,
       padding: other.padding,
       leadingPadding: other.leadingPadding,
@@ -248,7 +236,6 @@ mixin _$ContextMenuTheme {
       backgroundColor: other.backgroundColor,
       selectedBackgroundColor: other.selectedBackgroundColor,
       closeOnTap: other.closeOnTap,
-      effects: other.effects,
       shadows: other.shadows,
       decoration: _this.decoration?.merge(other.decoration) ?? other.decoration,
       filter: other.filter,
@@ -278,8 +265,7 @@ mixin _$ContextMenuTheme {
     final _this = (this as ContextMenuTheme);
     final _other = (other as ContextMenuTheme);
 
-    return _other.popoverReverseDuration == _this.popoverReverseDuration &&
-        _other.constraints == _this.constraints &&
+    return _other.constraints == _this.constraints &&
         _other.padding == _this.padding &&
         _other.leadingPadding == _this.leadingPadding &&
         _other.trailingPadding == _this.trailingPadding &&
@@ -302,7 +288,6 @@ mixin _$ContextMenuTheme {
         _other.backgroundColor == _this.backgroundColor &&
         _other.selectedBackgroundColor == _this.selectedBackgroundColor &&
         _other.closeOnTap == _this.closeOnTap &&
-        _other.effects == _this.effects &&
         _other.shadows == _this.shadows &&
         _other.decoration == _this.decoration &&
         _other.filter == _this.filter &&
@@ -320,7 +305,6 @@ mixin _$ContextMenuTheme {
 
     return Object.hashAll([
       runtimeType,
-      _this.popoverReverseDuration,
       _this.constraints,
       _this.padding,
       _this.leadingPadding,
@@ -343,7 +327,6 @@ mixin _$ContextMenuTheme {
       _this.backgroundColor,
       _this.selectedBackgroundColor,
       _this.closeOnTap,
-      _this.effects,
       _this.shadows,
       _this.decoration,
       _this.filter,

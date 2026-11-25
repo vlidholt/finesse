@@ -8,7 +8,6 @@ import 'package:finesse/src/icons/phosphor_icons_regular.dart';
 import 'package:finesse/src/raw_components/pressable.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/animate.dart';
 import 'package:finesse/src/utils/entrance.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
@@ -384,14 +383,11 @@ class TextSelectionToolbar extends StatelessWidget {
       ),
     );
 
-    final effects = EntranceEffect.forMotion(motion);
-    if (effects.isNotEmpty) {
-      toolbar = FinesseAnimate(
-        effects: effects,
-        // The surface may be glass, which an opacity layer would hide.
-        fadeThroughBackdrop: true,
-        child: toolbar,
-      );
+    final entrance = EntranceSpec.of(motion);
+    if (!entrance.isInstant) {
+      // The surface may be glass, which an opacity layer would hide: the
+      // fade goes through a host.
+      toolbar = OverlayEntrance(spec: entrance, child: toolbar);
     }
 
     return Padding(

@@ -19,7 +19,6 @@ class SwitchTheme with _$SwitchTheme {
     this.width,
     this.height,
     this.margin,
-    this.duration,
     this.thumbStretch,
     this.decoration,
     this.padding,
@@ -48,9 +47,6 @@ class SwitchTheme with _$SwitchTheme {
 
   /// {@macro Switch.margin}
   final double? margin;
-
-  /// {@macro Switch.duration}
-  final Duration? duration;
 
   /// How far the thumb stretches as it crosses the track, as a fraction of
   /// its size: 0.25 makes it a quarter wider mid-travel. Defaults to 0.25, and

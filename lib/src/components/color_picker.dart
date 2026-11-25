@@ -752,8 +752,6 @@ class ColorPickerButton extends StatefulWidget {
 }
 
 class _ColorPickerButtonState extends State<ColorPickerButton> {
-  final _groupId = UniqueKey();
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -763,7 +761,6 @@ class _ColorPickerButtonState extends State<ColorPickerButton> {
     return PickerHost(
       presentation: widget.presentation,
       controller: widget.controller,
-      groupId: _groupId,
       triggerBuilder: (context, toggle) => Opacity(
         opacity: enabled ? 1 : theme.disabledOpacity,
         child: Pressable(

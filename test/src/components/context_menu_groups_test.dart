@@ -7,8 +7,8 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   Future<void> pumpMenus(
     WidgetTester tester,
-    FinesseContextMenuController a,
-    FinesseContextMenuController b,
+    PopoverController a,
+    PopoverController b,
   ) async {
     await tester.pumpWidget(
       FinesseApp(
@@ -34,8 +34,8 @@ void main() {
   testWidgets("a tap on another menu's trigger closes the open menu", (
     tester,
   ) async {
-    final a = FinesseContextMenuController();
-    final b = FinesseContextMenuController();
+    final a = PopoverController();
+    final b = PopoverController();
     addTearDown(a.dispose);
     addTearDown(b.dispose);
     await pumpMenus(tester, a, b);

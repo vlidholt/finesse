@@ -423,9 +423,7 @@ class _RadioMark extends StatelessWidget {
         const FinesseDecoration();
     final size = radio.size ?? 16;
     final dot = radio.circleSize ?? 8;
-    final spring = radio.duration == null || motion.bouncy.isInstant
-        ? motion.bouncy
-        : motion.bouncy.copyWith(duration: radio.duration);
+    final spring = motion.bouncy;
     final mark = AnimatedColorBuilder(
       color: decoration.color,
       duration: motion.fast,

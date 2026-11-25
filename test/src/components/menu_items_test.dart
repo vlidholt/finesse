@@ -18,7 +18,7 @@ void main() {
   }
 
   /// Pumps an open `DropdownMenu` with [items], rebuilt by [rebuild].
-  Future<FinesseContextMenuController> pumpMenu(
+  Future<PopoverController> pumpMenu(
     WidgetTester tester, {
     required List<Widget> Function(StateSetter setState) items,
     ThemeData? theme,
@@ -30,7 +30,7 @@ void main() {
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
-    final controller = FinesseContextMenuController();
+    final controller = PopoverController();
     addTearDown(controller.dispose);
     await tester.pumpWidget(
       FinesseApp(

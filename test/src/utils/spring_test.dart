@@ -1,4 +1,5 @@
 import 'package:finesse/finesse.dart';
+import 'package:finesse/src/utils/entrance.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -349,25 +350,25 @@ void main() {
     });
   });
 
-  group('EntranceEffect', () {
-    test('forMotion returns the identical list for equal tokens', () {
-      final a = EntranceEffect.forMotion(Motion.lively);
-      final b = EntranceEffect.forMotion(Motion.lively.copyWith());
-      expect(identical(a, b), isTrue);
-      expect(
-        identical(a, EntranceEffect.forMotion(Motion.calm)),
-        isFalse,
-      );
-      expect(a.single.duration, Motion.lively.snappy.settleDuration);
+  group('EntranceSpec', () {
+    test('specs of equal tokens are equal', () {
+      final a = EntranceSpec.of(Motion.lively);
+      final b = EntranceSpec.of(Motion.lively.copyWith());
+      expect(a, b);
+      expect(a.hashCode, b.hashCode);
+      expect(a, isNot(EntranceSpec.of(Motion.calm)));
+      expect(a.duration, Motion.lively.snappy.settleDuration);
     });
 
-    testWidgets('plays in an Animate, grows from the origin', (tester) async {
+    testWidgets('plays in an OverlayEntrance, grows from the origin', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         _app(
           MotionOrigin(
             alignment: Alignment.bottomCenter,
-            child: Animate(
-              effects: EntranceEffect.forMotion(Motion.lively),
+            child: OverlayEntrance(
+              spec: EntranceSpec.of(Motion.lively),
               child: const SizedBox(width: 100, height: 40),
             ),
           ),

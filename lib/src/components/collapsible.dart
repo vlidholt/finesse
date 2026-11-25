@@ -66,10 +66,6 @@ class Collapsible extends StatefulWidget {
     this.controller,
     this.initiallyOpen = false,
     this.onOpenChanged,
-    this.duration,
-    this.curve,
-    this.reverseDuration,
-    this.reverseCurve,
     this.crossAxisAlignment,
     this.maintainState = false,
   });
@@ -96,29 +92,6 @@ class Collapsible extends StatefulWidget {
 
   /// Called whenever the open state changes.
   final ValueChanged<bool>? onOpenChanged;
-
-  /// {@template Collapsible.duration}
-  /// The duration of the expand animation. Defaults to the time the theme's
-  /// `Motion.smooth` spring takes to settle.
-  /// {@endtemplate}
-  final Duration? duration;
-
-  /// {@template Collapsible.curve}
-  /// The curve of the expand animation. Defaults to the theme's
-  /// `Motion.smooth` spring, and the collapse runs the same curve the other
-  /// way round, so both decelerate into place.
-  /// {@endtemplate}
-  final Curve? curve;
-
-  /// {@template Collapsible.reverseDuration}
-  /// The duration of the collapse animation, defaults to [duration].
-  /// {@endtemplate}
-  final Duration? reverseDuration;
-
-  /// {@template Collapsible.reverseCurve}
-  /// The curve of the collapse animation, defaults to [curve].
-  /// {@endtemplate}
-  final Curve? reverseCurve;
 
   /// {@template Collapsible.crossAxisAlignment}
   /// How the trigger and content are aligned horizontally.
@@ -204,21 +177,16 @@ class CollapsibleState extends State<Collapsible>
     final theme = Theme.of(context);
     final collapsibleTheme = theme.collapsibleTheme;
 
+    // Open and shut on the surface spring, for as long as it takes to
+    // settle.
     final motion = Motion.of(context);
-    final curve = widget.curve ?? collapsibleTheme.curve ?? motion.smooth.curve;
-    _animationController
-      ..duration =
-          widget.duration ??
-          collapsibleTheme.duration ??
-          motion.smooth.settleDuration
-      ..reverseDuration =
-          widget.reverseDuration ?? collapsibleTheme.reverseDuration;
+    final curve = motion.smooth.curve;
+    _animationController.duration = motion.smooth.settleDuration;
     _sizeFactor
       ..curve = curve
       // Flipped, the same curve decelerates into the closed state too
       // instead of running backwards and stopping dead.
-      ..reverseCurve =
-          widget.reverseCurve ?? collapsibleTheme.reverseCurve ?? curve.flipped;
+      ..reverseCurve = curve.flipped;
 
     final effectiveCrossAxisAlignment =
         widget.crossAxisAlignment ??
