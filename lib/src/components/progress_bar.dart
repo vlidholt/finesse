@@ -20,8 +20,8 @@ class ProgressBar extends StatefulWidget {
     this.color,
     this.valueColor,
     this.minHeight,
-    this.semanticsLabel,
-    this.semanticsValue,
+    this.semanticLabel,
+    this.semanticValue,
     this.borderRadius,
     this.innerBorderRadius,
   });
@@ -57,17 +57,17 @@ class ProgressBar extends StatefulWidget {
   /// {@endtemplate}
   final double? minHeight;
 
-  /// {@template ProgressBar.semanticsLabel}
+  /// {@template ProgressBar.semanticLabel}
   /// The accessibility label for the progress bar.
   /// Provides context to screen readers; defaults to null.
   /// {@endtemplate}
-  final String? semanticsLabel;
+  final String? semanticLabel;
 
-  /// {@template ProgressBar.semanticsValue}
+  /// {@template ProgressBar.semanticValue}
   /// The accessibility value for the progress bar (e.g., percentage).
   /// Provides current progress to screen readers; defaults to null.
   /// {@endtemplate}
-  final String? semanticsValue;
+  final String? semanticValue;
 
   /// {@template ProgressBar.borderRadius}
   /// The border radius of the progress bar's outer container.
@@ -182,8 +182,8 @@ class _ProgressState extends State<ProgressBar>
         BorderRadius.zero;
 
     return Semantics(
-      label: widget.semanticsLabel,
-      value: widget.semanticsValue,
+      label: widget.semanticLabel,
+      value: widget.semanticValue,
       child: SizedBox(
         width: double.infinity,
         height: effectiveMinHeight,

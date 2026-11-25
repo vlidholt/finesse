@@ -168,8 +168,8 @@ class JobMatchPanel extends StatelessWidget {
             value: JobsData.matchScore,
             // A hair slimmer than the theme's bar.
             minHeight: 6,
-            semanticsLabel: 'Skills match',
-            semanticsValue: JobsData.matchScoreLabel,
+            semanticLabel: 'Skills match',
+            semanticValue: JobsData.matchScoreLabel,
           ),
           const Gap.md(),
           Wrap(

@@ -232,7 +232,7 @@ class StreamingText extends StatefulWidget {
     this.textScaler,
     this.textWidthBasis,
     this.textHeightBehavior,
-    this.semanticsLabel,
+    this.semanticLabel,
     this.placeholder,
     this.showCaret,
     this.caretColor,
@@ -262,7 +262,7 @@ class StreamingText extends StatefulWidget {
     this.textScaler,
     this.textWidthBasis,
     this.textHeightBehavior,
-    this.semanticsLabel,
+    this.semanticLabel,
     this.placeholder,
     this.showCaret,
     this.caretColor,
@@ -295,7 +295,7 @@ class StreamingText extends StatefulWidget {
     this.textScaler,
     this.textWidthBasis,
     this.textHeightBehavior,
-    this.semanticsLabel,
+    this.semanticLabel,
     this.placeholder,
     this.showCaret,
     this.caretColor,
@@ -318,7 +318,7 @@ class StreamingText extends StatefulWidget {
     this.textScaler,
     this.textWidthBasis,
     this.textHeightBehavior,
-    this.semanticsLabel,
+    this.semanticLabel,
     this.placeholder,
     this.showCaret,
     this.caretColor,
@@ -380,7 +380,7 @@ class StreamingText extends StatefulWidget {
   final ui.TextHeightBehavior? textHeightBehavior;
 
   /// What assistive technology reads instead of the text.
-  final String? semanticsLabel;
+  final String? semanticLabel;
 
   /// What is shown while nothing has arrived yet and more is expected: a
   /// `TypingIndicator`, usually. It gives way to the first text with a
@@ -744,7 +744,7 @@ class _StreamingTextState extends State<StreamingText>
     if (!widget.announce || !mounted) return;
     if (!SemanticsBinding.instance.semanticsEnabled) return;
     if (!MediaQuery.supportsAnnounceOf(context)) return;
-    final message = widget.semanticsLabel ?? _display;
+    final message = widget.semanticLabel ?? _display;
     if (message.isEmpty) return;
     unawaited(
       SemanticsService.sendAnnouncement(
@@ -929,7 +929,7 @@ class _StreamingTextState extends State<StreamingText>
               textScaler: widget.textScaler,
               textWidthBasis: textWidthBasis,
               textHeightBehavior: textHeightBehavior,
-              semanticsLabel: widget.semanticsLabel,
+              semanticsLabel: widget.semanticLabel,
             )
           : Text.rich(
               span,
@@ -941,7 +941,7 @@ class _StreamingTextState extends State<StreamingText>
               textScaler: widget.textScaler,
               textWidthBasis: textWidthBasis,
               textHeightBehavior: textHeightBehavior,
-              semanticsLabel: widget.semanticsLabel,
+              semanticsLabel: widget.semanticLabel,
             );
     }
 
@@ -983,7 +983,7 @@ class _StreamingTextState extends State<StreamingText>
       textScaler: widget.textScaler ?? MediaQuery.textScalerOf(context),
       textWidthBasis: textWidthBasis,
       textHeightBehavior: textHeightBehavior,
-      semanticsLabel: widget.semanticsLabel ?? _display,
+      semanticsLabel: widget.semanticLabel ?? _display,
       reveal: _reveal,
       caretColor: caretColor,
       caretWidth: theme.caretWidth ?? 2,
