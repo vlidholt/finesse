@@ -8,6 +8,7 @@ import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/activation_keys.dart';
 import 'package:finesse/src/utils/debug_check.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:finesse/src/utils/motion_color.dart';
@@ -16,7 +17,6 @@ import 'package:finesse/src/utils/separated_iterable.dart';
 import 'package:finesse/src/utils/spring.dart';
 import 'package:finesse/src/utils/text_scaled_height.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 /// Variants available for the [Button] widget.
@@ -1190,11 +1190,6 @@ class _ButtonState extends State<Button> {
 
     final effectiveCanRequestFocus = widget.canRequestFocus ?? widget.enabled;
 
-    final keyboardTriggers = <ShortcutActivator>[
-      const SingleActivator(LogicalKeyboardKey.enter),
-      const SingleActivator(LogicalKeyboardKey.space),
-    ];
-
     final effectiveTextStyle =
         widget.textStyle ??
         buttonTheme(theme).textStyle ??
@@ -1219,7 +1214,7 @@ class _ButtonState extends State<Button> {
 
     return CallbackShortcuts(
       bindings: {
-        for (final trigger in keyboardTriggers)
+        for (final trigger in activationKeys)
           trigger: () {
             if (!widget.enabled) return;
             onTap();

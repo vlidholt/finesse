@@ -180,6 +180,14 @@ class _PressableState extends State<Pressable> {
                 return null;
               },
             ),
+            // What Enter is bound to on the web, where the app's default
+            // shortcuts keep `ActivateIntent` for Space.
+            ButtonActivateIntent: CallbackAction<ButtonActivateIntent>(
+              onInvoke: (_) {
+                _activate();
+                return null;
+              },
+            ),
           },
           child: GestureDetector(
             behavior: widget.behavior,

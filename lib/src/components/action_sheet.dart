@@ -7,7 +7,6 @@ import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/arrow_key_focus.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 /// One of the choices of an [ActionSheet].
@@ -246,14 +245,6 @@ class ActionSheet<T> extends StatelessWidget {
   /// takes the focus when the sheet is built. Defaults to true.
   final bool autofocus;
 
-  // On the web the app's default shortcuts bind Enter to
-  // `ButtonActivateIntent`, which a row does not answer; here Enter chooses
-  // the focused row on every platform.
-  static const _enterActivates = <ShortcutActivator, Intent>{
-    SingleActivator(LogicalKeyboardKey.enter): ActivateIntent(),
-    SingleActivator(LogicalKeyboardKey.numpadEnter): ActivateIntent(),
-  };
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -304,68 +295,65 @@ class ActionSheet<T> extends StatelessWidget {
     return FocusTraversalGroup(
       // Up and Down walk the rows on every platform; see [ArrowKeyFocus].
       child: ArrowKeyFocus(
-        child: Shortcuts(
-          shortcuts: _enterActivates,
-          child: Padding(
-            padding: padding,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (title != null || message != null)
-                  Padding(
-                    padding:
-                        sheetTheme.headerPadding ??
-                        const EdgeInsets.fromLTRB(16, 8, 16, 12),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (title != null)
-                          Semantics(
-                            header: true,
-                            namesRoute: true,
-                            container: true,
-                            child: DefaultTextStyle.merge(
-                              style: sheetTheme.titleStyle,
-                              textAlign: TextAlign.center,
-                              child: title,
-                            ),
-                          ),
-                        if (title != null && message != null)
-                          const SizedBox(height: 2),
-                        if (message != null)
-                          DefaultTextStyle.merge(
-                            style: sheetTheme.messageStyle,
+        child: Padding(
+          padding: padding,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (title != null || message != null)
+                Padding(
+                  padding:
+                      sheetTheme.headerPadding ??
+                      const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (title != null)
+                        Semantics(
+                          header: true,
+                          namesRoute: true,
+                          container: true,
+                          child: DefaultTextStyle.merge(
+                            style: sheetTheme.titleStyle,
                             textAlign: TextAlign.center,
-                            child: message,
+                            child: title,
                           ),
-                      ],
-                    ),
-                  ),
-                if ((title != null || message != null) && rows.isNotEmpty)
-                  _Hairline(color: dividerColor, inset: 0),
-                ...rows,
-                if (showCancel) ...[
-                  SizedBox(height: sheetTheme.cancelGap ?? 8),
-                  _ActionRow(
-                    label:
-                        cancelLabel ??
-                        Text(
-                          FinesseLocalizations.of(context).actionSheet.cancel,
                         ),
-                    icon: null,
-                    centered: true,
-                    emphasized: true,
-                    color:
-                        sheetTheme.foregroundColor ??
-                        theme.colorScheme.foreground,
-                    fill: sheetTheme.cancelColor ?? theme.colorScheme.secondary,
-                    autofocus: focusIndex < 0 && autofocus,
-                    onPressed: onCancel,
+                      if (title != null && message != null)
+                        const SizedBox(height: 2),
+                      if (message != null)
+                        DefaultTextStyle.merge(
+                          style: sheetTheme.messageStyle,
+                          textAlign: TextAlign.center,
+                          child: message,
+                        ),
+                    ],
                   ),
-                ],
+                ),
+              if ((title != null || message != null) && rows.isNotEmpty)
+                _Hairline(color: dividerColor, inset: 0),
+              ...rows,
+              if (showCancel) ...[
+                SizedBox(height: sheetTheme.cancelGap ?? 8),
+                _ActionRow(
+                  label:
+                      cancelLabel ??
+                      Text(
+                        FinesseLocalizations.of(context).actionSheet.cancel,
+                      ),
+                  icon: null,
+                  centered: true,
+                  emphasized: true,
+                  color:
+                      sheetTheme.foregroundColor ??
+                      theme.colorScheme.foreground,
+                  fill: sheetTheme.cancelColor ?? theme.colorScheme.secondary,
+                  autofocus: focusIndex < 0 && autofocus,
+                  onPressed: onCancel,
+                ),
               ],
-            ),
+            ],
           ),
         ),
       ),

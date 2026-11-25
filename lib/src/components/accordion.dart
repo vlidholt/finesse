@@ -5,6 +5,7 @@ import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/raw_components/focusable.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/activation_keys.dart';
 import 'package:finesse/src/utils/animate.dart';
 import 'package:finesse/src/utils/animation_builder.dart';
 import 'package:finesse/src/utils/effects.dart';
@@ -13,7 +14,6 @@ import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:finesse/src/utils/provider.dart';
 import 'package:finesse/src/utils/spring.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
@@ -397,11 +397,6 @@ class _AccordionItemState<T> extends State<AccordionItem<T>>
     final inherited =
         context.watch<AccordionState<dynamic>>() as AccordionState<T>;
 
-    final keyboardTriggers = <ShortcutActivator>[
-      const SingleActivator(LogicalKeyboardKey.enter),
-      const SingleActivator(LogicalKeyboardKey.space),
-    ];
-
     return ValueListenableBuilder(
       valueListenable: inherited.effectiveController,
       builder: (context, value, child) {
@@ -502,7 +497,7 @@ class _AccordionItemState<T> extends State<AccordionItem<T>>
                 Expanded(
                   child: CallbackShortcuts(
                     bindings: {
-                      for (final trigger in keyboardTriggers)
+                      for (final trigger in activationKeys)
                         trigger: () {
                           inherited.effectiveController.toggle(
                             widget.value,

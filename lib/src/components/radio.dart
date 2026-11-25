@@ -4,10 +4,10 @@ import 'package:finesse/src/raw_components/focusable.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/activation_keys.dart';
 import 'package:finesse/src/utils/debug_check.dart';
 import 'package:finesse/src/utils/motion_color.dart';
 import 'package:finesse/src/utils/pop_in.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 /// What a radio reads from the [FinesseRadioGroup] around it: the selected
@@ -412,11 +412,6 @@ class _RadioState<T> extends State<Radio<T>> {
         theme.radioTheme.radioPadding ??
         const EdgeInsets.only(top: 1);
 
-    final keyboardTriggers = <ShortcutActivator>[
-      const SingleActivator(LogicalKeyboardKey.enter),
-      const SingleActivator(LogicalKeyboardKey.space),
-    ];
-
     final selected = group != null && group.value == widget.value;
     final enabled = widget.enabled && (group?.enabled ?? false);
 
@@ -427,7 +422,7 @@ class _RadioState<T> extends State<Radio<T>> {
         disabled: !enabled,
         child: CallbackShortcuts(
           bindings: {
-            for (final trigger in keyboardTriggers)
+            for (final trigger in activationKeys)
               trigger: () {
                 if (!enabled) return;
                 onTap();

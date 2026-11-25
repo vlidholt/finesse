@@ -5,11 +5,11 @@ import 'package:finesse/src/raw_components/focusable.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/activation_keys.dart';
 import 'package:finesse/src/utils/debug_check.dart';
 import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:finesse/src/utils/motion_color.dart';
 import 'package:finesse/src/utils/pop_in.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 /// A box that is checked or not, with an optional label and description
@@ -270,11 +270,6 @@ class _CheckboxState extends State<Checkbox> {
         theme.checkboxTheme.checkboxPadding ??
         const EdgeInsets.only(top: 1);
 
-    final keyboardTriggers = <ShortcutActivator>[
-      const SingleActivator(LogicalKeyboardKey.enter),
-      const SingleActivator(LogicalKeyboardKey.space),
-    ];
-
     final checkbox = Semantics(
       checked: value ?? false,
       mixed: widget.tristate ? value == null : null,
@@ -283,7 +278,7 @@ class _CheckboxState extends State<Checkbox> {
         disabled: !widget.enabled,
         child: CallbackShortcuts(
           bindings: {
-            for (final trigger in keyboardTriggers)
+            for (final trigger in activationKeys)
               trigger: () {
                 if (!widget.enabled) return;
                 onTap();
