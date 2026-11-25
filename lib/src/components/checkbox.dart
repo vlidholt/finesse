@@ -39,7 +39,6 @@ class Checkbox extends StatefulWidget {
     this.onFocusChange,
     this.decoration,
     this.size,
-    this.duration,
     this.icon,
     this.color,
     this.uncheckedColor,
@@ -107,14 +106,6 @@ class Checkbox extends StatefulWidget {
   /// Defaults to 16 if not specified.
   /// {@endtemplate}
   final double? size;
-
-  /// {@template Checkbox.duration}
-  /// How long the check mark takes to appear. It pops in on a spring — the
-  /// theme's `Motion.bouncy` — and this replaces that spring's duration;
-  /// when null the spring is used as it is. The fill fades over the theme's
-  /// `Motion.fast`.
-  /// {@endtemplate}
-  final Duration? duration;
 
   /// {@template Checkbox.icon}
   /// The icon displayed when the checkbox is checked.
@@ -255,11 +246,9 @@ class _CheckboxState extends State<Checkbox> {
           size: effectiveSize - 4,
         );
 
+    // The check pops in on the small-delight spring; the fill fades.
     final motion = Motion.of(context);
-    final duration = widget.duration ?? theme.checkboxTheme.duration;
-    final checkSpring = duration == null || motion.bouncy.isInstant
-        ? motion.bouncy
-        : motion.bouncy.copyWith(duration: duration);
+    final checkSpring = motion.bouncy;
     final effectivePadding =
         widget.padding ??
         theme.checkboxTheme.padding ??

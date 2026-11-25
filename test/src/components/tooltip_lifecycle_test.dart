@@ -4,7 +4,6 @@ import 'package:finesse/finesse.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Future<TestGesture> _mouse(WidgetTester tester) async {
@@ -45,18 +44,11 @@ double _opacity(WidgetTester tester, Finder content) {
   return opacity;
 }
 
-Widget _app(
-  FocusNode focus, {
-  ThemeData? theme,
-  List<Effect<dynamic>>? effects,
-  Duration? reverseDuration,
-}) => FinesseApp(
-  theme: theme ?? ThemeData(style: StyleTokens.nova),
+Widget _app(FocusNode focus, {Motion? motion}) => FinesseApp(
+  theme: ThemeData(style: StyleTokens.nova, motion: motion),
   home: Center(
     child: Tooltip(
       focusNode: focus,
-      effects: effects,
-      reverseDuration: reverseDuration,
       builder: (context) => const Text('Tip'),
       child: Button(
         focusNode: focus,
@@ -147,9 +139,9 @@ void main() {
       await tester.pumpWidget(
         _app(
           focus,
-          effects: const [
-            FadeEffect(duration: Duration(seconds: 1), curve: Curves.linear),
-          ],
+          motion: Motion.lively.copyWith(
+            snappy: const MotionSpring(duration: Duration(seconds: 1)),
+          ),
         ),
       );
       focus.requestFocus();
@@ -169,20 +161,15 @@ void main() {
       await tester.pump(const Duration(seconds: 2));
     });
 
-    testWidgets('an exit cut short by something other than the pointer '
-        'still closes it', (tester) async {
+    testWidgets('a motion that changes while it leaves does not keep it '
+        'up', (tester) async {
       final focus = FocusNode();
       addTearDown(focus.dispose);
-      const slow = [
-        FadeEffect(duration: Duration(seconds: 1), curve: Curves.linear),
-      ];
-      const slower = [
-        FadeEffect(duration: Duration(seconds: 2), curve: Curves.linear),
-      ];
-      const leave = Duration(milliseconds: 400);
-      await tester.pumpWidget(
-        _app(focus, effects: slow, reverseDuration: leave),
+      Motion motion(int seconds) => Motion.lively.copyWith(
+        snappy: MotionSpring(duration: Duration(seconds: seconds)),
+        fast: const Duration(milliseconds: 400),
       );
+      await tester.pumpWidget(_app(focus, motion: motion(1)));
       final mouse = await _mouse(tester);
       await mouse.moveTo(tester.getCenter(find.text('Trigger')));
       await _settle(tester);
@@ -192,32 +179,32 @@ void main() {
       await mouse.moveTo(const Offset(1, 1));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
-      // Effects of another length restart the animate widget, which takes
-      // the controller away from the exit.
-      await tester.pumpWidget(
-        _app(focus, effects: slower, reverseDuration: leave),
-      );
+      // An entrance of another length, part-way out: the controller is
+      // given the new length and the exit goes on.
+      await tester.pumpWidget(_app(focus, motion: motion(2)));
       await tester.pump(const Duration(seconds: 3));
       await tester.pump();
       expect(find.text('Tip'), findsNothing);
     });
   });
 
-  // `Tooltip.duration` and `TooltipTheme.duration` were written to the
-  // controller and overwritten by the animate widget; they are gone. The
-  // entrance is as long as its effects, the exit is `reverseDuration`.
+  // A tooltip has no durations of its own: the entrance is as long as the
+  // motion's spring (a short fade with reduced motion), and the exit takes
+  // `Motion.fast`.
   group('the length of a tooltip’s animations', () {
-    testWidgets('the entrance takes the duration of its effects', (
-      tester,
-    ) async {
+    testWidgets('the entrance takes the motion’s length', (tester) async {
       final focus = FocusNode();
       addTearDown(focus.dispose);
       await tester.pumpWidget(
         _app(
           focus,
-          effects: const [
-            FadeEffect(duration: Duration(seconds: 2), curve: Curves.linear),
-          ],
+          // Reduced, the entrance is a fade over `fast` on `standard`.
+          motion: Motion.lively
+              .copyWith(
+                fast: const Duration(seconds: 2),
+                standard: Curves.linear,
+              )
+              .reduce(),
         ),
       );
       final mouse = await _mouse(tester);
@@ -226,58 +213,34 @@ void main() {
       await tester.pump();
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 600));
-      expect(_opacity(tester, find.text('Tip')), closeTo(.3, .05));
+      // The fade is done by six tenths of the way: half-way there at three.
+      expect(_opacity(tester, find.text('Tip')), closeTo(.5, .05));
       await tester.pump(const Duration(seconds: 3));
       expect(_opacity(tester, find.text('Tip')), 1);
     });
 
-    testWidgets('the exit takes reverseDuration, from the widget or the '
-        'theme', (tester) async {
-      for (final fromTheme in [false, true]) {
-        final focus = FocusNode();
-        addTearDown(focus.dispose);
-        const leave = Duration(seconds: 1);
-        final base = ThemeData(style: StyleTokens.nova);
-        await tester.pumpWidget(
-          _app(
-            focus,
-            theme: fromTheme
-                ? base.copyWith(
-                    tooltipTheme: const TooltipTheme(reverseDuration: leave),
-                  )
-                : base,
-            effects: const [
-              FadeEffect(
-                duration: Duration(milliseconds: 100),
-                curve: Curves.linear,
-              ),
-            ],
-            reverseDuration: fromTheme ? null : leave,
-          ),
-        );
-        final mouse = await tester.createGesture(
-          kind: PointerDeviceKind.mouse,
-        );
-        await mouse.addPointer(location: const Offset(1, 1));
-        await mouse.moveTo(tester.getCenter(find.text('Trigger')));
-        await _settle(tester);
-        await tester.pump(const Duration(seconds: 1));
-        expect(_opacity(tester, find.text('Tip')), 1);
+    testWidgets('the exit takes Motion.fast', (tester) async {
+      final focus = FocusNode();
+      addTearDown(focus.dispose);
+      await tester.pumpWidget(
+        _app(
+          focus,
+          motion: Motion.lively.copyWith(fast: const Duration(seconds: 1)),
+        ),
+      );
+      final mouse = await _mouse(tester);
+      await mouse.moveTo(tester.getCenter(find.text('Trigger')));
+      await _settle(tester);
+      await tester.pump(const Duration(seconds: 1));
+      expect(_opacity(tester, find.text('Tip')), 1);
 
-        await mouse.moveTo(const Offset(1, 1));
-        await tester.pump();
-        await tester.pump(const Duration(milliseconds: 500));
-        expect(
-          _opacity(tester, find.text('Tip')),
-          closeTo(.5, .05),
-          reason: fromTheme ? 'from the theme' : 'from the widget',
-        );
-        await tester.pump(const Duration(seconds: 1));
-        await tester.pump();
-        expect(find.text('Tip'), findsNothing);
-        await mouse.removePointer();
-        await tester.pumpWidget(const SizedBox());
-      }
+      await mouse.moveTo(const Offset(1, 1));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(_opacity(tester, find.text('Tip')), closeTo(.5, .05));
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pump();
+      expect(find.text('Tip'), findsNothing);
     });
   });
 }

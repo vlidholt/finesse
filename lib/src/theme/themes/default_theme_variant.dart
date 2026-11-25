@@ -934,8 +934,8 @@ class DefaultThemeVariant extends ThemeVariant {
   @override
   TooltipTheme tooltipTheme() {
     return TooltipTheme(
-      // No effects or durations: the tooltip pops out of its trigger on the
-      // motion tokens, read where it is built.
+      // The tooltip pops out of its trigger on the motion tokens, read
+      // where it is built.
       // `px-3 py-1.5` — fixed across the styles, unlike the popover's.
       padding: spacing.symmetric(horizontal: 3, vertical: 1.5),
       // The inverted surface: `bg-foreground text-background`, with no
@@ -993,10 +993,9 @@ class DefaultThemeVariant extends ThemeVariant {
   @override
   PopoverTheme popoverTheme() {
     return PopoverTheme(
-      // No effects and no reverse duration: a popover — and every menu,
-      // select list and picker built on one — arrives and leaves on the
-      // motion tokens, read where it is built so `ThemeData(motion:)` and
-      // reduced motion reach it.
+      // A popover — and every menu, select list and picker built on one —
+      // arrives and leaves on the motion tokens, read where it is built so
+      // `ThemeData(motion:)` and reduced motion reach it.
       shadows: style.popoverShadow,
       textStyle: style.body.apply(effectiveTextTheme.muted),
       padding: EdgeInsets.all(scaled(style.popoverPadding)),
@@ -1113,7 +1112,6 @@ class DefaultThemeVariant extends ThemeVariant {
       optionsPadding: EdgeInsets.all(scaled(style.menuPadding)),
       showScrollToTopChevron: true,
       showScrollToBottomChevron: true,
-      popoverReverseDuration: Duration.zero,
       anchor: const AnchorAuto(
         offset: Offset(0, 4),
         fallback: AnchorAuto(
@@ -1602,8 +1600,8 @@ class DefaultThemeVariant extends ThemeVariant {
       border: Border.all(color: dialogBorderColor),
       removeBorderRadiusWhenTiny: true,
       expandActionsWhenTiny: true,
-      // No `animateIn`/`animateOut`: a dialog scales up and leaves on the
-      // motion tokens, read by `showDialog`.
+      // A dialog scales up and leaves on the motion tokens, read by
+      // `showDialog`.
       constraints: const BoxConstraints(maxWidth: 512),
       // shadcn's overlay is `bg-black/10` with `backdrop-blur-xs`: the blur is
       // what separates the dialog from the page, so the tint can stay light
@@ -1630,8 +1628,8 @@ class DefaultThemeVariant extends ThemeVariant {
       borderRadius: dialogRadius,
       removeBorderRadiusWhenTiny: true,
       expandActionsWhenTiny: true,
-      // No `animateIn`/`animateOut`: a dialog scales up and leaves on the
-      // motion tokens, read by `showDialog`.
+      // A dialog scales up and leaves on the motion tokens, read by
+      // `showDialog`.
       constraints: const BoxConstraints(maxWidth: 512),
       // shadcn's overlay is `bg-black/10` with `backdrop-blur-xs`: the blur is
       // what separates the dialog from the page, so the tint can stay light
@@ -1784,8 +1782,7 @@ class DefaultThemeVariant extends ThemeVariant {
 
   @override
   AccordionTheme accordionTheme() {
-    // No duration, curve or effects: an item opens on the motion tokens'
-    // spring unless a theme or the item itself says otherwise.
+    // An item opens on the motion tokens' surface spring.
     return AccordionTheme(
       icon: const PhosphorIcon(PhosphorIconsRegular.caretDown),
       padding: spacing.symmetric(vertical: 4),
@@ -3044,7 +3041,7 @@ class DefaultThemeVariant extends ThemeVariant {
 
   @override
   CollapsibleTheme collapsibleTheme() {
-    // The duration and curve are left to the motion tokens.
+    // It opens and shuts on the motion tokens' surface spring.
     return const CollapsibleTheme(
       crossAxisAlignment: CrossAxisAlignment.stretch,
     );

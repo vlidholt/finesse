@@ -7,7 +7,6 @@ import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/theme/themes/shadows.dart';
-import 'package:finesse/src/utils/animate.dart';
 import 'package:finesse/src/utils/backdrop.dart';
 import 'package:finesse/src/utils/entrance.dart';
 import 'package:finesse/src/utils/expanded_actions_theme.dart';
@@ -18,7 +17,6 @@ import 'package:finesse/src/utils/route_theme.dart';
 import 'package:finesse/src/utils/separated_iterable.dart';
 import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
 /// {@template DialogRoute}
 /// A custom dialog route that allows specifying a `reverseTransitionDuration`.
@@ -145,28 +143,64 @@ class DialogRoute<T> extends PopupRoute<T> {
   }
 }
 
-/// Plays a dialog's entrance and exit effects around the route's content.
+/// How a dialog leaves: a fade, and a slight shrink, on the exit curve.
+@immutable
+class _DialogExit {
+  const _DialogExit({
+    required this.duration,
+    required this.curve,
+    required this.scale,
+  });
+
+  /// The exit for [motion]: quicker than the entrance, and with reduced
+  /// motion a short fade.
+  factory _DialogExit.of(Motion motion) => _DialogExit(
+    duration: motion.normal <= Duration.zero
+        ? Duration.zero
+        : (motion.reduced ? motion.fast : motion.normal),
+    curve: motion.exit,
+    scale: motion.reduced ? 1 : (1 + motion.overlayScale) / 2,
+  );
+
+  final Duration duration;
+  final Curve curve;
+
+  /// The scale the dialog shrinks to while it fades.
+  final double scale;
+
+  @override
+  bool operator ==(Object other) =>
+      other is _DialogExit &&
+      other.duration == duration &&
+      other.curve == curve &&
+      other.scale == scale;
+
+  @override
+  int get hashCode => Object.hash(duration, curve, scale);
+}
+
+/// Plays a dialog's entrance and exit around the route's content.
 ///
 /// A route's transition is rebuilt on every tick of its animation, each
-/// time around a new [child]. Building the animate widget there re-added
-/// every effect and rebuilt every effect's animation sixty times a second.
-/// Here it is made once per direction and kept, with a [_RouteChildSlot]
-/// where the content goes: a tick reaches the slot through [_RouteChild] and
-/// leaves the effects alone.
+/// time around a new [child]. Building the animation there made every
+/// render object below drop its listener and subscribe again sixty times a
+/// second. Here it is made once per direction and kept, with a
+/// [_RouteChildSlot] where the content goes: a tick reaches the slot through
+/// [_RouteChild] and leaves the motion alone.
 class _DialogTransition extends StatefulWidget {
   const _DialogTransition({
     required this.animation,
-    required this.animateIn,
-    required this.animateOut,
+    required this.enter,
+    required this.exit,
     required this.child,
   });
 
-  /// The route's animation. Only its status is read: the effects play on
-  /// their own controller, for the lengths the route was given.
+  /// The route's animation. Only its status is read: the dialog moves on a
+  /// controller of its own, for the lengths the route was given.
   final Animation<double> animation;
 
-  final List<Effect<dynamic>> animateIn;
-  final List<Effect<dynamic>> animateOut;
+  final EntranceSpec enter;
+  final _DialogExit exit;
   final Widget child;
 
   @override
@@ -180,9 +214,7 @@ class _DialogTransitionState extends State<_DialogTransition> {
   @override
   void didUpdateWidget(_DialogTransition oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Effects have no `==`; a list is the same when it is the same list.
-    if (!identical(widget.animateIn, oldWidget.animateIn) ||
-        !identical(widget.animateOut, oldWidget.animateOut)) {
+    if (widget.enter != oldWidget.enter || widget.exit != oldWidget.exit) {
       _animated = null;
     }
   }
@@ -194,21 +226,115 @@ class _DialogTransitionState extends State<_DialogTransition> {
     final status = widget.animation.status;
     var content = _animated;
     if (status == AnimationStatus.completed) {
-      // At rest the dialog is under no effect at all.
+      // At rest the dialog is under no transform at all.
       content = const _RouteChildSlot();
     } else {
       final entering = status == AnimationStatus.forward;
       if (content == null || entering != _entering) {
         _entering = entering;
-        content = _animated = FinesseAnimate(
-          effects: entering ? widget.animateIn : widget.animateOut,
-          // A glass dialog takes the fade over; see [BackdropFade].
-          fadeThroughBackdrop: true,
+        content = _animated = _DialogMotion(
+          entering: entering,
+          enter: widget.enter,
+          exit: widget.exit,
           child: const _RouteChildSlot(),
         );
       }
     }
     return _RouteChild(routeChild: widget.child, child: content);
+  }
+}
+
+/// The dialog on its way in or on its way out.
+///
+/// One controller for both: it starts after the frame that first builds
+/// this widget, and starts over at once when the direction changes — a
+/// dialog closed before it had arrived.
+class _DialogMotion extends StatefulWidget {
+  const _DialogMotion({
+    required this.entering,
+    required this.enter,
+    required this.exit,
+    required this.child,
+  });
+
+  final bool entering;
+  final EntranceSpec enter;
+  final _DialogExit exit;
+  final Widget child;
+
+  @override
+  State<_DialogMotion> createState() => _DialogMotionState();
+}
+
+class _DialogMotionState extends State<_DialogMotion>
+    with SingleTickerProviderStateMixin {
+  late final _controller = AnimationController(
+    vsync: this,
+    duration: _duration,
+  );
+
+  Duration get _duration =>
+      widget.entering ? widget.enter.duration : widget.exit.duration;
+
+  /// The exit's fade and shrink, made when the exit they are for changes:
+  /// an animation made in `build` is a new listener on every build.
+  _DialogExit? _exitFor;
+  late Animation<double> _exitFade;
+  late Animation<double> _exitScale;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _controller.forward(from: 0);
+    });
+  }
+
+  @override
+  void didUpdateWidget(_DialogMotion oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final duration = _duration;
+    if (widget.entering != oldWidget.entering ||
+        duration != _controller.duration) {
+      _controller
+        ..duration = duration
+        ..forward(from: 0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Either way the fade goes through a host: a glass dialog takes it
+    // over; see [BackdropFade].
+    if (widget.entering) {
+      if (widget.enter.isInstant) return widget.child;
+      return OverlayEntrance(
+        controller: _controller,
+        spec: widget.enter,
+        autoPlay: false,
+        child: widget.child,
+      );
+    }
+    final exit = widget.exit;
+    if (exit.duration <= Duration.zero) return widget.child;
+    if (exit != _exitFor) {
+      _exitFor = exit;
+      final progress = _controller.drive(CurveTween(curve: exit.curve));
+      _exitFade = progress.drive(Tween<double>(begin: 1, end: 0));
+      _exitScale = progress.drive(Tween<double>(begin: 1, end: exit.scale));
+    }
+    final Widget faded = BackdropFadeHost(
+      opacity: _exitFade,
+      child: widget.child,
+    );
+    if (exit.scale == 1) return faded;
+    return ScaleTransition(scale: _exitScale, child: faded);
   }
 }
 
@@ -232,10 +358,16 @@ class _RouteChildSlot extends StatelessWidget {
       context.dependOnInheritedWidgetOfExactType<_RouteChild>()!.routeChild;
 }
 
-/// Displays a [Dialog] as a modal dialog with animation.
+/// Shows a [Dialog] as a modal route.
 ///
-/// Shows a dialog with customizable barrier and animation properties, returning
-/// a [Future] with the result when the dialog is dismissed.
+/// The dialog scales up out of the middle of the screen and leaves faster
+/// than it came, on the theme's motion tokens (`Motion.of`); the barrier's
+/// tint and blur ramp with the route. The future completes with the value
+/// the route was popped with.
+///
+/// The [builder] returns the dialog — `Dialog(...)` or `Dialog.alert(...)`;
+/// the variant is the widget's to state. The barrier is styled by
+/// `ThemeData.primaryDialogTheme` for both.
 Future<T?> showDialog<T>({
   /// The build context in which to show the dialog.
   required BuildContext context,
@@ -272,78 +404,18 @@ Future<T?> showDialog<T>({
   /// The anchor point for positioning the dialog.
   Offset? anchorPoint,
 
-  /// The animation effects when the dialog appears.
-  /// Defaults to the theme's, and then to `EntranceEffect.forMotion`: a fade
-  /// with a little growth, on the theme's motion tokens.
-  List<Effect<dynamic>>? animateIn,
-
-  /// The animation effects when the dialog disappears.
-  /// Defaults to the theme's, and then to a quicker fade and shrink on the
-  /// theme's motion tokens.
-  List<Effect<dynamic>>? animateOut,
-
-  /// The variant of the dialog to display.
-  /// Defaults to [DialogVariant.primary].
-  DialogVariant variant = DialogVariant.primary,
-
   /// Whether the route occludes the routes behind it.
   /// When false, [MediaQuery.viewInsetsOf] from the host scaffold will be
   /// available in the dialog context, allowing keyboard-aware content.
   /// Defaults to true (standard dialog behavior).
   bool opaque = false,
 }) {
-  final theme = Theme.of(context);
-  final effectiveDialogTheme = switch (variant) {
-    DialogVariant.primary => theme.primaryDialogTheme,
-    DialogVariant.alert => theme.alertDialogTheme,
-  };
-
   // The dialog scales up out of the middle of the screen while the route
   // ramps the barrier's tint and blur behind it, and leaves faster than it
   // came. With reduced motion both are a short fade; with none, nothing.
   final motion = Motion.of(context);
-  final effectiveAnimateIn =
-      animateIn ??
-      effectiveDialogTheme.animateIn ??
-      EntranceEffect.forMotion(motion);
-
-  final exitScale = motion.reduced ? 1.0 : (1 + motion.overlayScale) / 2;
-  final effectiveAnimateOut =
-      animateOut ??
-      effectiveDialogTheme.animateOut ??
-      <Effect<dynamic>>[
-        if (motion.normal > Duration.zero) ...[
-          FadeEffect(
-            begin: 1,
-            end: 0,
-            duration: motion.reduced ? motion.fast : motion.normal,
-            curve: motion.exit,
-          ),
-          if (exitScale != 1)
-            ScaleEffect(
-              begin: const Offset(1, 1),
-              end: Offset(exitScale, exitScale),
-              duration: motion.normal,
-              curve: motion.exit,
-            ),
-        ],
-      ];
-
-  /// Returns the maximum duration(including delay) from
-  /// the list of [Effect]s.
-  Duration maxCompletionDuration(List<Effect<dynamic>> effects) {
-    if (effects.isEmpty) return Duration.zero;
-
-    return effects.fold<Duration>(
-      Duration.zero, // start with zero
-      (max, effect) {
-        final effectTotal =
-            (effect.delay ?? Duration.zero) +
-            (effect.duration ?? Animate.defaultDuration);
-        return effectTotal > max ? effectTotal : max;
-      },
-    );
-  }
+  final enter = EntranceSpec.of(motion);
+  final exit = _DialogExit.of(motion);
 
   final ambientTheme = Theme.of(context, listen: false);
   final navigator = Navigator.of(context, rootNavigator: useRootNavigator);
@@ -371,13 +443,14 @@ Future<T?> showDialog<T>({
       anchorPoint: anchorPoint,
       settings: routeSettings,
       opaque: opaque,
-      transitionDuration: maxCompletionDuration(effectiveAnimateIn),
-      reverseTransitionDuration: maxCompletionDuration(effectiveAnimateOut),
+      // The route lasts as long as the dialog takes either way.
+      transitionDuration: enter.duration,
+      reverseTransitionDuration: exit.duration,
       transitionBuilder: (context, animation, secondaryAnimation, child) {
         return _DialogTransition(
           animation: animation,
-          animateIn: effectiveAnimateIn,
-          animateOut: effectiveAnimateOut,
+          enter: enter,
+          exit: exit,
           child: child,
         );
       },

@@ -336,7 +336,7 @@ void main() {
 
       testWidgets("a menu's highlight is on its row at once: no glide and "
           'no fade', (tester) async {
-        final controller = FinesseContextMenuController();
+        final controller = PopoverController();
         addTearDown(controller.dispose);
         final sampler = await pump(
           tester,

@@ -8,9 +8,6 @@
 // into the caller's namespace. Depend on those packages directly if you need
 // them.
 
-// Required by the `effects:` parameter on Popover, Select,
-// Accordion, Menubar and friends.
-export 'package:flutter_animate/flutter_animate.dart' hide Effect;
 // DateFormat/NumberFormat are what the calendar, date picker and pagination
 // docs use. The rest of `intl` (Intl, Bidi, plural/gender helpers, …) is not
 // part of this package's API.
@@ -113,7 +110,7 @@ export 'src/components/page_indicator.dart' hide debugPageIndicatorDots;
 export 'src/components/pagination.dart';
 export 'src/components/picker.dart'
     show PickerPresentation, PickerTriggerBuilder;
-export 'src/components/popover.dart';
+export 'src/components/popover.dart' hide PopoverTapGroups;
 export 'src/components/progress_bar.dart';
 export 'src/components/progress_ring.dart';
 export 'src/components/radio.dart';
@@ -274,8 +271,7 @@ export 'src/utils/border.dart';
 export 'src/utils/clipboard/clipboard_service.dart';
 export 'src/utils/content_switch.dart';
 export 'src/utils/dismiss_shortcut.dart';
-export 'src/utils/effects.dart';
-export 'src/utils/entrance.dart';
+export 'src/utils/entrance.dart' hide EntranceSpec, OverlayEntrance;
 export 'src/utils/expand_reveal.dart';
 // Extensions on core Dart/Flutter types (double, Duration, List, Map, Set,
 // TextStyle, TapDownDetails) are no longer re-exported. They silently added

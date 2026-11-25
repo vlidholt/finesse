@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   Future<void> pumpMenu(
     WidgetTester tester, {
-    required FinesseContextMenuController controller,
+    required PopoverController controller,
     List<Widget> items = const [],
     List<Widget> Function(BuildContext)? itemsBuilder,
     Size size = const Size(800, 600),
@@ -41,7 +41,7 @@ void main() {
 
   group('showAt', () {
     testWidgets('opens with its corner at the point', (tester) async {
-      final controller = FinesseContextMenuController();
+      final controller = PopoverController();
       addTearDown(controller.dispose);
       await pumpMenu(
         tester,
@@ -59,7 +59,7 @@ void main() {
     testWidgets('mirrors to stay on screen near the far corner', (
       tester,
     ) async {
-      final controller = FinesseContextMenuController();
+      final controller = PopoverController();
       addTearDown(controller.dispose);
       await pumpMenu(
         tester,
@@ -81,7 +81,7 @@ void main() {
   testWidgets('a long menu is capped to the screen and scrolls', (
     tester,
   ) async {
-    final controller = FinesseContextMenuController();
+    final controller = PopoverController();
     addTearDown(controller.dispose);
     await pumpMenu(
       tester,
@@ -108,7 +108,7 @@ void main() {
   testWidgets('itemsBuilder runs only while the menu is open', (
     tester,
   ) async {
-    final controller = FinesseContextMenuController();
+    final controller = PopoverController();
     addTearDown(controller.dispose);
     var builds = 0;
     await pumpMenu(
@@ -128,8 +128,8 @@ void main() {
   });
 
   group('keyboard', () {
-    Future<FinesseContextMenuController> openMenu(WidgetTester tester) async {
-      final controller = FinesseContextMenuController();
+    Future<PopoverController> openMenu(WidgetTester tester) async {
+      final controller = PopoverController();
       addTearDown(controller.dispose);
       await pumpMenu(
         tester,
@@ -220,7 +220,7 @@ void main() {
   testWidgets('a submenu near the right edge opens on the left', (
     tester,
   ) async {
-    final controller = FinesseContextMenuController();
+    final controller = PopoverController();
     addTearDown(controller.dispose);
     await pumpMenu(
       tester,
@@ -260,7 +260,7 @@ void main() {
 
   group('moving to another row', () {
     Future<TestGesture> openFirst(WidgetTester tester) async {
-      final controller = FinesseContextMenuController();
+      final controller = PopoverController();
       addTearDown(controller.dispose);
       await pumpMenu(
         tester,
@@ -332,7 +332,7 @@ void main() {
   testWidgets('a submenu closes on time while the pointer keeps moving', (
     tester,
   ) async {
-    final controller = FinesseContextMenuController();
+    final controller = PopoverController();
     addTearDown(controller.dispose);
     await pumpMenu(
       tester,

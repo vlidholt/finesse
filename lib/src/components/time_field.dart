@@ -183,7 +183,6 @@ class TimeField extends StatefulWidget {
     this.enabled = true,
     this.focusNode,
     this.autofocus = false,
-    this.groupId,
     this.keyboardToolbarBuilder,
     super.key,
   }) : assert(
@@ -247,10 +246,6 @@ class TimeField extends StatefulWidget {
 
   /// Whether the first field takes the focus when it first appears.
   final bool autofocus;
-
-  /// The tap-region group the day period's menu joins, so that choosing a
-  /// period inside a popover does not count as a tap outside it.
-  final Object? groupId;
 
   /// {@macro KeyboardToolbar.toolbarBuilder}
   final WidgetBuilder? keyboardToolbarBuilder;
@@ -507,7 +502,6 @@ class _TimeFieldState extends State<TimeField> {
                 // select holds its own value.
                 key: ValueKey(_period),
                 focusNode: _periodNode,
-                groupId: widget.groupId,
                 minWidth: field.periodMinWidth ?? 65,
                 placeholder: Text(
                   l.timePicker.periodPlaceholder,

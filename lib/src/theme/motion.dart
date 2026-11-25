@@ -83,7 +83,7 @@ class MotionSpring {
   }
 
   /// This spring as a [Curve] over [settleDuration], for an animation that
-  /// has to take a curve and a duration — a `flutter_animate` effect, an
+  /// has to take a curve and a duration — an `AnimationController`, an
   /// implicit Flutter animation.
   ///
   /// A curve cannot carry velocity over an interruption; drive the motion
@@ -150,8 +150,8 @@ class MotionSpring {
 /// A [MotionSpring] as a [Curve]: the spring's position from 0 to 1 over its
 /// `settleDuration`, ending exactly on 1.
 ///
-/// Const and compared by value, so it can be the `curve` of a const effect in
-/// a theme.
+/// Const and compared by value, so it can be the `curve` of a const value in a
+/// theme.
 @immutable
 class MotionSpringCurve extends Curve {
   /// Creates the curve of [spring].

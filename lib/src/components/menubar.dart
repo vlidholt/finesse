@@ -330,15 +330,15 @@ class _MenubarItemState extends State<MenubarItem> {
       listenable: menubarController,
       builder: (context, child) {
         final selected = menubarController.selectedIndex == index;
-        return ContextMenu(
+        return ContextMenu.internal(
           anchor: effectiveAnchor,
           controller: popoverController,
           items: widget.items,
           constraints: menubarTheme.constraints,
           padding: menubarTheme.contextMenuPadding,
-          effects:
-              menubarTheme.effects ??
-              (_tookOver ? EntranceEffect.fadeFor(Motion.of(context)) : null),
+          // The menu that replaces its neighbour only fades in: a second
+          // pop right beside the first reads as a flicker.
+          entrance: _tookOver ? EntranceSpec.fade(Motion.of(context)) : null,
           shadows: menubarTheme.shadows,
           decoration: menubarTheme.decoration,
           filter: menubarTheme.filter,

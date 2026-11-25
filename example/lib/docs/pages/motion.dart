@@ -127,12 +127,12 @@ final motionDoc = ComponentDoc(
             'little growth out of the edge that faces what opened them — '
             '`overlayScale` and `overlayTravel` on the `snappy` spring — and '
             'they leave over `fast`, sooner than they came. The portal '
-            'publishes that edge as a `MotionOrigin`, and '
-            '`EntranceEffect.forMotion(motion)` is the effect that reads '
-            'it; pass your own `effects:` to a component, or set them on '
-            'its theme, to replace it, and an empty list to show it at '
-            'once. A menu of a `Menubar` or a tooltip that takes over from '
-            'its neighbour only fades (`EntranceEffect.fadeFor`).',
+            'publishes that edge as a `MotionOrigin`, which the entrance '
+            'reads. No component takes a duration, a curve or a list of '
+            'effects of its own: to move something differently, give its '
+            'subtree another `Motion` with `ThemeData(motion:)`, and '
+            '`Motion.none` to show it at once. A menu of a `Menubar` or a '
+            'tooltip that takes over from its neighbour only fades.',
           ),
           DocParagraph(
             '`FinessePageRoute` brings a page in on the same tokens: from '

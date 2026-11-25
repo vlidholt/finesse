@@ -245,7 +245,7 @@ class Portal extends StatefulWidget {
   /// before it can be placed, so it reaches the screen a frame or two after
   /// [visible] flips. Start an entrance animation from here and none of it
   /// is spent on frames nobody sees — and whatever the overlay's own widgets
-  /// set up when they are first built (an animate widget giving a shared
+  /// set up when they are first built (an entrance widget giving a shared
   /// controller its duration) is in place when it starts.
   final VoidCallback? onShown;
 
@@ -293,7 +293,7 @@ class _PortalState extends State<Portal> {
   ///
   /// Not at `show()`: the overlay's subtree does not exist yet then, and
   /// what [Portal.onShown] starts usually lives in it. A popover's entrance
-  /// runs on a controller whose duration is set by the animate widget inside
+  /// runs on a controller whose duration is set by the entrance widget inside
   /// the overlay, so an entrance started before that widget was built ran on
   /// the controller's previous duration. An auto-anchored overlay has the
   /// same order for free: it is built once to be measured, then reported.

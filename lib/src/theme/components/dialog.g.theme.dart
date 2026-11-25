@@ -40,8 +40,6 @@ mixin _$DialogTheme {
           : b.expandActionsWhenTiny,
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
       gap: lerpDouble$(a.gap, b.gap, t),
-      animateIn: t < 0.5 ? a.animateIn : b.animateIn,
-      animateOut: t < 0.5 ? a.animateOut : b.animateOut,
       constraints: BoxConstraints.lerp(a.constraints, b.constraints, t),
       actionsAxis: t < 0.5 ? a.actionsAxis : b.actionsAxis,
       actionsMainAxisSize: t < 0.5
@@ -96,8 +94,6 @@ mixin _$DialogTheme {
     bool? expandActionsWhenTiny,
     EdgeInsetsGeometry? padding,
     double? gap,
-    List<Effect<dynamic>>? animateIn,
-    List<Effect<dynamic>>? animateOut,
     BoxConstraints? constraints,
     Axis? actionsAxis,
     MainAxisSize? actionsMainAxisSize,
@@ -135,8 +131,6 @@ mixin _$DialogTheme {
           expandActionsWhenTiny ?? _this.expandActionsWhenTiny,
       padding: padding ?? _this.padding,
       gap: gap ?? _this.gap,
-      animateIn: animateIn ?? _this.animateIn,
-      animateOut: animateOut ?? _this.animateOut,
       constraints: constraints ?? _this.constraints,
       actionsAxis: actionsAxis ?? _this.actionsAxis,
       actionsMainAxisSize: actionsMainAxisSize ?? _this.actionsMainAxisSize,
@@ -187,8 +181,6 @@ mixin _$DialogTheme {
       expandActionsWhenTiny: other.expandActionsWhenTiny,
       padding: other.padding,
       gap: other.gap,
-      animateIn: other.animateIn,
-      animateOut: other.animateOut,
       constraints: other.constraints,
       actionsAxis: other.actionsAxis,
       actionsMainAxisSize: other.actionsMainAxisSize,
@@ -239,8 +231,6 @@ mixin _$DialogTheme {
         _other.expandActionsWhenTiny == _this.expandActionsWhenTiny &&
         _other.padding == _this.padding &&
         _other.gap == _this.gap &&
-        _other.animateIn == _this.animateIn &&
-        _other.animateOut == _this.animateOut &&
         _other.constraints == _this.constraints &&
         _other.actionsAxis == _this.actionsAxis &&
         _other.actionsMainAxisSize == _this.actionsMainAxisSize &&
@@ -281,8 +271,6 @@ mixin _$DialogTheme {
       _this.expandActionsWhenTiny,
       _this.padding,
       _this.gap,
-      _this.animateIn,
-      _this.animateOut,
       _this.constraints,
       _this.actionsAxis,
       _this.actionsMainAxisSize,

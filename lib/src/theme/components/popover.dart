@@ -4,7 +4,6 @@ import 'package:finesse/src/raw_components/portal.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
 part 'popover.g.theme.dart';
@@ -18,9 +17,7 @@ class PopoverTheme with _$PopoverTheme {
   /// {@macro PopoverTheme}
   const PopoverTheme({
     bool canMerge = true,
-    this.effects,
     this.shadows,
-    this.reverseDuration,
     this.textStyle,
     this.padding,
     this.decoration,
@@ -37,9 +34,6 @@ class PopoverTheme with _$PopoverTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro Popover.effects}
-  final List<Effect<dynamic>>? effects;
-
   /// {@macro Popover.shadows}
   final List<BoxShadow>? shadows;
 
@@ -54,9 +48,6 @@ class PopoverTheme with _$PopoverTheme {
 
   /// {@macro Popover.filter}
   final ImageFilter? filter;
-
-  /// {@macro Popover.reverseDuration}
-  final Duration? reverseDuration;
 
   /// {@macro Popover.textStyle}
   final TextStyle? textStyle;
@@ -88,15 +79,13 @@ class PopoverTheme with _$PopoverTheme {
   @override
   bool operator ==(Object other) =>
       other is PopoverTheme &&
-      listEquals(effects, other.effects) &&
       listEquals(shadows, other.shadows) &&
-      super == other.copyWith(effects: effects, shadows: shadows);
+      super == other.copyWith(shadows: shadows);
 
   // Equal themes must hash alike, and the lists may differ in identity.
   @override
   int get hashCode => Object.hash(
     runtimeType,
-    Object.hashAll(effects ?? const []),
     Object.hashAll(shadows ?? const []),
   );
 }

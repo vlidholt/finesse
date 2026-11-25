@@ -160,7 +160,6 @@ class Calendar extends StatefulWidget {
     this.showNavigation,
     this.reverseMonths = false,
     this.onMonthChanged,
-    this.groupId,
     this.calendarTheme,
   }) : variant = CalendarVariant.single,
        values = null,
@@ -193,7 +192,6 @@ class Calendar extends StatefulWidget {
     this.showNavigation,
     this.reverseMonths = false,
     this.onMonthChanged,
-    this.groupId,
     this.calendarTheme,
   }) : variant = CalendarVariant.multiple,
        value = null,
@@ -226,7 +224,6 @@ class Calendar extends StatefulWidget {
     this.showNavigation,
     this.reverseMonths = false,
     this.onMonthChanged,
-    this.groupId,
     this.calendarTheme,
   }) : variant = CalendarVariant.range,
        value = null,
@@ -327,10 +324,6 @@ class Calendar extends StatefulWidget {
 
   /// Called with the first month shown when the calendar moves to another.
   final ValueChanged<DateTime>? onMonthChanged;
-
-  /// The tap-region group the caption's dropdowns join, so that choosing a
-  /// month inside a popover does not count as a tap outside it.
-  final Object? groupId;
 
   /// Values that replace the theme's `CalendarTheme` for this calendar:
   /// cell size, text styles, button variants, paddings and label formats.
@@ -847,7 +840,6 @@ class _CalendarState extends State<Calendar> {
 
     final yearSelector = Select<int>(
       initialValue: currentMonth.year,
-      groupId: widget.groupId,
       padding: effectiveYearSelectorPadding,
       minHeight: effectiveSelectorMinHeight,
       decoration: FinesseDecoration(
@@ -879,7 +871,6 @@ class _CalendarState extends State<Calendar> {
 
     final monthSelector = Select<int>(
       initialValue: currentMonth.month,
-      groupId: widget.groupId,
       minHeight: effectiveSelectorMinHeight,
       decoration: FinesseDecoration(
         border: FinesseBorder(borderRadius: effectiveDayButtonRadius),

@@ -1,15 +1,15 @@
 import 'package:finesse/src/theme/motion.dart';
+import 'package:finesse/src/utils/backdrop.dart';
 import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
 /// Says where the content below it grows from: the point of its own box that
 /// faces whatever opened it.
 ///
 /// An overlay places one around its content — a popover that opens below
 /// its trigger grows from [Alignment.topCenter], a submenu to the right of
-/// its parent from [Alignment.centerLeft] — and an [EntranceEffect] or an
-/// [Entrance] inside reads it. Without one they grow from the centre.
+/// its parent from [Alignment.centerLeft] — and the overlay's entrance or
+/// an [Entrance] inside reads it. Without one they grow from the centre.
 class MotionOrigin extends InheritedWidget {
   /// Places the origin [alignment] above [child].
   const MotionOrigin({
@@ -33,10 +33,10 @@ class MotionOrigin extends InheritedWidget {
 /// Paints [child] part of the way into view: faded, scaled about [origin]
 /// and pulled towards it.
 ///
-/// The one transform behind [EntranceEffect] and [Entrance]. [progress] runs
-/// from 0 (hidden) to 1 (in place) and may overshoot; the fade is finished
-/// by `fadeEnd` of the way, so the content is readable well before it
-/// settles.
+/// The one transform behind [OverlayEntrance] and [Entrance]. [progress]
+/// runs from 0 (hidden) to 1 (in place) and may overshoot; the fade is
+/// finished by `fadeEnd` of the way, so the content is readable well before
+/// it settles.
 class _EntranceTransition extends StatelessWidget {
   const _EntranceTransition({
     required this.progress,
@@ -102,191 +102,203 @@ class _FadeTween extends Animatable<double> {
   double transform(double t) => (t / end).clamp(0.0, 1.0);
 }
 
-/// The entrance of an overlay, as a `flutter_animate` effect: the content
-/// fades in while it grows from the edge that faces its anchor and travels
-/// a few pixels away from it.
+/// What stands for [curve] where curves are compared: the four numbers of
+/// a [Cubic], which has no equality of its own, and the curve itself
+/// otherwise. `Motion` compares its curves the same way.
+Object _comparable(Curve curve) =>
+    curve is Cubic ? (curve.a, curve.b, curve.c, curve.d) : curve;
+
+/// How an overlay arrives: for how long, on which curve, from what scale and
+/// how far.
 ///
-/// It is const and reads everything else when it builds, so it can sit in a
-/// theme's `effects:` list:
+/// The package's overlays — popovers, menus, tooltips, dialogs — build one
+/// from the theme's [Motion] and hand it to an [OverlayEntrance]. It is a
+/// value: two built from equal tokens are equal, so nothing has to be kept
+/// to tell whether the entrance changed.
 ///
-/// * the origin from the nearest [MotionOrigin] (or [origin], or the
-///   centre);
-/// * the starting scale and the travel from the theme's `Motion.overlayScale`
-///   and `Motion.overlayTravel`, unless [scale] and [travel] are given;
-/// * and with reduced motion it is a plain fade.
-///
-/// Played in reverse it is the exit. Give the controller a shorter
-/// `reverseDuration` so the overlay leaves faster than it arrives.
-///
-/// ```dart
-/// const [
-///   EntranceEffect(
-///     duration: Duration(milliseconds: 220),
-///     curve: MotionSpringCurve(MotionSpring()),
-///   ),
-/// ]
-/// ```
-///
-/// A duration and a curve in a const list cannot follow the theme's motion
-/// tokens; [EntranceEffect.forMotion] returns a list that does, and returns
-/// the *same* list for equal tokens, which a theme needs (effects have no
-/// `==`).
+/// Internal: it is not exported from `package:finesse/finesse.dart`. An app
+/// animates its own content with [Entrance].
 @immutable
-class EntranceEffect extends Effect<double> {
-  /// Creates an entrance effect.
-  const EntranceEffect({
-    super.delay,
-    super.duration,
-    super.curve,
-    this.origin,
+class EntranceSpec {
+  /// Creates the description of an entrance.
+  const EntranceSpec({
+    required this.duration,
+    required this.curve,
     this.scale,
     this.travel,
-    this.fade = true,
-  }) : super(begin: 0, end: 1);
+  });
 
-  /// The point of the content's box it grows from. Defaults to the nearest
-  /// [MotionOrigin], then to the centre.
-  final Alignment? origin;
-
-  /// The scale the content starts at. Defaults to the theme's
-  /// `Motion.overlayScale`.
-  final double? scale;
-
-  /// How far, in logical pixels, the content travels away from its origin.
-  /// Defaults to the theme's `Motion.overlayTravel`.
-  final double? travel;
-
-  /// Whether the content fades in as well.
-  final bool fade;
-
-  static final _cache = <(Motion, MotionSpring?), List<Effect<dynamic>>>{};
-
-  /// How many effect lists each cache keeps. An app has a handful of motion
-  /// vocabularies; one that makes them up as it goes — a slider in a theme
-  /// editor, a `Motion` with a curve that has no `==` created on every
-  /// build — would otherwise add an entry per value for as long as it runs.
-  static const _cacheSize = 32;
-
-  /// Looks [key] up in [cache], building the entry with [create] when it is
-  /// not there, and keeps the cache to [_cacheSize] entries by dropping the
-  /// ones that have gone longest without being asked for. An entry in use
-  /// is asked for on every build, so it is never the one dropped.
-  static List<Effect<dynamic>> _cached<K>(
-    Map<K, List<Effect<dynamic>>> cache,
-    K key,
-    List<Effect<dynamic>> Function() create,
-  ) {
-    final effects = cache.remove(key) ?? List.unmodifiable(create());
-    cache[key] = effects;
-    if (cache.length > _cacheSize) cache.remove(cache.keys.first);
-    return effects;
-  }
-
-  /// The entrance for [motion]: one [EntranceEffect] on [spring] (the
-  /// motion's `snappy` spring when null), as long as the spring takes to
-  /// settle.
-  ///
-  /// Equal arguments return the identical list, so a theme built twice from
-  /// the same style compares equal.
-  static List<Effect<dynamic>> forMotion(
-    Motion motion, {
-    MotionSpring? spring,
-  }) {
-    return _cached(
-      _cache,
-      (motion, spring),
-      () => _entrance(motion, spring ?? motion.snappy),
+  /// The entrance for [motion]: a fade with a little growth and travel on
+  /// [spring] (the motion's `snappy` spring when null), as long as the
+  /// spring takes to settle. With reduced motion, or an instant spring, it
+  /// is a short fade; with no motion at all it is [isInstant].
+  factory EntranceSpec.of(Motion motion, {MotionSpring? spring}) {
+    final effectiveSpring = spring ?? motion.snappy;
+    final reduced = motion.reduced || effectiveSpring.isInstant;
+    return EntranceSpec(
+      duration: reduced ? motion.fast : effectiveSpring.settleDuration,
+      curve: reduced ? motion.standard : effectiveSpring.curve,
+      // A reduced entrance is a fade wherever it ends up being built.
+      scale: reduced ? 1 : null,
+      travel: reduced ? 0 : null,
     );
   }
-
-  static List<Effect<dynamic>> _entrance(Motion motion, MotionSpring spring) {
-    final reduced = motion.reduced || spring.isInstant;
-    final duration = reduced ? motion.fast : spring.settleDuration;
-    // No motion at all leaves nothing to play, rather than an effect of no
-    // length.
-    if (duration <= Duration.zero) return const [];
-    return [
-      EntranceEffect(
-        duration: duration,
-        curve: reduced ? motion.standard : spring.curve,
-        // A reduced entrance is a fade wherever it ends up being built.
-        scale: reduced ? 1 : null,
-        travel: reduced ? 0 : null,
-      ),
-    ];
-  }
-
-  static final _fadeCache = <Motion, List<Effect<dynamic>>>{};
 
   /// A plain short fade for [motion], with no growth and no travel: the
   /// entrance of an overlay that *replaces* one already showing — the next
   /// menu of a menubar, the tooltip of the neighbouring button — where a
   /// second full entrance would read as a flicker.
-  ///
-  /// Like [forMotion] it returns the identical list for equal tokens.
-  static List<Effect<dynamic>> fadeFor(Motion motion) {
-    return _cached(
-      _fadeCache,
-      motion,
-      () => [
-        if (motion.fast > Duration.zero)
-          EntranceEffect(
-            duration: motion.fast,
-            curve: motion.standard,
-            scale: 1,
-            travel: 0,
-          ),
-      ],
-    );
-  }
+  factory EntranceSpec.fade(Motion motion) => EntranceSpec(
+    duration: motion.fast,
+    curve: motion.standard,
+    scale: 1,
+    travel: 0,
+  );
 
-  /// The fade of this entrance on its own, or null when it does not
-  /// [fade].
-  ///
-  /// For a host that applies the fade some other way than an opacity layer
-  /// around the child — `FinesseAnimate.fadeThroughBackdrop` hands it to a
-  /// glass surface — and builds the rest with [buildMotion].
-  Animation<double>? fadeAnimation(
-    AnimationController controller,
-    EffectEntry entry,
-  ) {
-    if (!fade) return null;
-    return EntranceProgress._entry(
-      controller,
-      entry,
-      _FadeCurve(entry.curve, _EntranceTransition._fadeEnd),
-    );
-  }
+  /// How long the entrance takes.
+  final Duration duration;
 
-  /// Builds the growth and travel of this entrance without its fade; see
-  /// [fadeAnimation].
-  Widget buildMotion(
-    BuildContext context,
-    Widget child,
-    AnimationController controller,
-    EffectEntry entry,
-  ) {
-    return _EntranceTransition(
-      progress: EntranceProgress._entry(controller, entry, entry.curve),
-      origin: origin,
-      scale: scale,
-      travel: travel,
-      fade: false,
-      child: child,
-    );
+  /// The curve of the way in. The way out is a straight line; see
+  /// [EntranceProgress].
+  final Curve curve;
+
+  /// The scale the content starts at. Null is the theme's
+  /// `Motion.overlayScale`, read where the entrance is built.
+  final double? scale;
+
+  /// How far, in logical pixels, the content travels away from its origin.
+  /// Null is the theme's `Motion.overlayTravel`.
+  final double? travel;
+
+  /// Whether there is nothing to play: the overlay is simply there.
+  bool get isInstant => duration <= Duration.zero;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is EntranceSpec &&
+          other.duration == duration &&
+          _comparable(other.curve) == _comparable(curve) &&
+          other.scale == scale &&
+          other.travel == travel;
+
+  @override
+  int get hashCode => Object.hash(duration, _comparable(curve), scale, travel);
+
+  @override
+  String toString() =>
+      'EntranceSpec(${duration.inMilliseconds}ms, $curve, '
+      'scale: $scale, travel: $travel)';
+}
+
+/// Plays an [EntranceSpec] around an overlay: the content fades in while it
+/// grows from the edge that faces its anchor (the nearest [MotionOrigin])
+/// and travels a few pixels away from it. Run backwards it is the exit — a
+/// straight line from wherever it was, on the controller's
+/// `reverseDuration`.
+///
+/// The fade is not an opacity layer around [child]. A backdrop filter does
+/// not survive under one on every renderer, so the fade is offered through
+/// a [BackdropFadeHost]: a glass surface in [child] takes it over and fades
+/// itself inside its own filter, and when there is none the host fades the
+/// child as usual.
+///
+/// With a [controller] the entrance plays on it, and this widget gives it
+/// the length of the [spec] — an entrance started before this widget was
+/// built ran on whatever length the controller had before. Without one it
+/// keeps its own. Either way, [autoPlay] starts the entrance after the
+/// frame that first builds this widget; an owner that starts it itself
+/// passes false.
+///
+/// Internal: it is not exported from `package:finesse/finesse.dart`.
+class OverlayEntrance extends StatefulWidget {
+  /// Creates the entrance of an overlay.
+  const OverlayEntrance({
+    required this.spec,
+    required this.child,
+    this.controller,
+    this.autoPlay = true,
+    super.key,
+  });
+
+  /// What to play.
+  final EntranceSpec spec;
+
+  /// The controller the entrance plays on, or null for one of its own.
+  final AnimationController? controller;
+
+  /// Whether the entrance starts by itself, after the first frame.
+  final bool autoPlay;
+
+  /// The overlay.
+  final Widget child;
+
+  @override
+  State<OverlayEntrance> createState() => _OverlayEntranceState();
+}
+
+class _OverlayEntranceState extends State<OverlayEntrance>
+    with SingleTickerProviderStateMixin {
+  AnimationController? _own;
+
+  AnimationController get _controller => widget.controller ?? _own!;
+
+  EntranceProgress? _progress;
+  EntranceProgress? _fade;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.controller == null) _own = AnimationController(vsync: this);
+    _controller.duration = widget.spec.duration;
+    if (widget.autoPlay) {
+      // After the frame: the overlay is on screen before any of the
+      // entrance has played.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _controller.forward(from: 0);
+      });
+    }
   }
 
   @override
-  Widget build(
-    BuildContext context,
-    Widget child,
-    AnimationController controller,
-    EffectEntry entry,
-  ) {
-    final motion = buildMotion(context, child, controller, entry);
-    final opacity = fadeAnimation(controller, entry);
-    if (opacity == null) return motion;
-    return FadeTransition(opacity: opacity, child: motion);
+  void didUpdateWidget(OverlayEntrance oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!identical(widget.controller, oldWidget.controller)) {
+      if (widget.controller != null) {
+        _own?.dispose();
+        _own = null;
+      } else {
+        _own = AnimationController(vsync: this);
+      }
+      _progress = _fade = null;
+    }
+    if (_comparable(widget.spec.curve) != _comparable(oldWidget.spec.curve)) {
+      _progress = _fade = null;
+    }
+    _controller.duration = widget.spec.duration;
+  }
+
+  @override
+  void dispose() {
+    _own?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final curve = widget.spec.curve;
+    final progress = _progress ??= EntranceProgress(_controller, curve: curve);
+    final fade = _fade ??= EntranceProgress(
+      _controller,
+      curve: _FadeCurve(curve, _EntranceTransition._fadeEnd),
+    );
+    return _EntranceTransition(
+      progress: progress,
+      scale: widget.spec.scale,
+      travel: widget.spec.travel,
+      fade: false,
+      child: BackdropFadeHost(opacity: fade, child: widget.child),
+    );
   }
 }
 
@@ -304,10 +316,12 @@ class _FadeCurve extends Curve {
 
   @override
   bool operator ==(Object other) =>
-      other is _FadeCurve && other.curve == curve && other.end == end;
+      other is _FadeCurve &&
+      _comparable(other.curve) == _comparable(curve) &&
+      other.end == end;
 
   @override
-  int get hashCode => Object.hash(curve, end);
+  int get hashCode => Object.hash(_comparable(curve), end);
 }
 
 /// One leg of an entrance: where its progress was when the controller last
@@ -369,8 +383,8 @@ class _Leg {
 /// the way in, and a straight line back from wherever it had got to on the
 /// way out — without a jump when the animation turns around mid-flight.
 ///
-/// It is what an [EntranceEffect] plays on its controller, and it does the
-/// same for a route's `animation`:
+/// It is what the package's overlays play on their controllers, and it does
+/// the same for a route's `animation`:
 ///
 /// ```dart
 /// final progress = EntranceProgress(
@@ -404,30 +418,10 @@ class EntranceProgress extends Animation<double>
   }) : _begin = begin,
        _end = end {
     final legs = _legs[parent] ??= {};
-    _leg = legs[(curve, _begin, _end)] ??= _Leg();
+    _leg = legs[(_comparable(curve), _begin, _end)] ??= _Leg();
   }
 
-  EntranceProgress._entry(
-    AnimationController controller,
-    EffectEntry entry,
-    Curve curve,
-  ) : this(
-        controller,
-        curve: curve,
-        begin: _ratio(controller, entry.begin, 0),
-        end: _ratio(controller, entry.end, 1),
-      );
-
-  static final _legs = Expando<Map<(Curve, double, double), _Leg>>();
-
-  static double _ratio(
-    AnimationController controller,
-    Duration at,
-    double fallback,
-  ) {
-    final total = controller.duration?.inMicroseconds ?? 0;
-    return total <= 0 ? fallback : at.inMicroseconds / total;
-  }
+  static final _legs = Expando<Map<(Object, double, double), _Leg>>();
 
   @override
   final Animation<double> parent;

@@ -203,8 +203,6 @@ class DatePicker extends StatefulWidget {
 }
 
 class _DatePickerState extends State<DatePicker> {
-  final _groupId = UniqueKey();
-
   bool get _enabled => widget.enabled && widget.onChanged != null;
 
   @override
@@ -228,7 +226,6 @@ class _DatePickerState extends State<DatePicker> {
       return Calendar(
         value: value,
         onChanged: onChanged,
-        groupId: _groupId,
         allowDeselection: allowDeselection,
         initialMonth: value ?? _initialDay(widget.min, widget.max),
         numberOfMonths: numberOfMonths,
@@ -248,7 +245,6 @@ class _DatePickerState extends State<DatePicker> {
     return PickerHost(
       presentation: widget.presentation,
       controller: widget.controller,
-      groupId: _groupId,
       requestFocus: widget.requestFocus,
       popoverPadding: picker.popoverPadding,
       anchor: picker.anchor,
@@ -608,8 +604,6 @@ class DateRangePicker extends StatefulWidget {
 }
 
 class _DateRangePickerState extends State<DateRangePicker> {
-  final _groupId = UniqueKey();
-
   bool get _enabled => widget.enabled && widget.onChanged != null;
 
   @override
@@ -635,7 +629,6 @@ class _DateRangePickerState extends State<DateRangePicker> {
       return Calendar.range(
         range: range,
         onRangeChanged: onChanged,
-        groupId: _groupId,
         allowDeselection: allowDeselection,
         initialMonth: range?.start ?? _initialDay(widget.min, widget.max),
         numberOfMonths: numberOfMonths,
@@ -656,7 +649,6 @@ class _DateRangePickerState extends State<DateRangePicker> {
     return PickerHost(
       presentation: widget.presentation,
       controller: widget.controller,
-      groupId: _groupId,
       requestFocus: widget.requestFocus,
       popoverPadding: picker.popoverPadding,
       anchor: picker.anchor,

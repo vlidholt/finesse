@@ -6,10 +6,10 @@ import 'package:flutter_test/flutter_test.dart';
 /// When [Portal.onShown] fires.
 ///
 /// A popover starts its entrance from it, on a controller whose duration is
-/// set by the animate widget *inside* the overlay. A report that comes before
-/// the overlay has been built therefore starts the entrance on whatever
-/// duration the controller had before — the framework default the first
-/// time, the previous effects' length after that.
+/// set by the entrance widget *inside* the overlay. A report that comes
+/// before the overlay has been built therefore starts the entrance on
+/// whatever duration the controller had before — its initial one the first
+/// time, the previous entrance's length after that.
 void main() {
   const anchors = <(String, AnchorBase)>[
     ('Anchor', Anchor(childAlignment: Alignment.bottomCenter)),
@@ -107,18 +107,21 @@ void main() {
       addTearDown(controller.dispose);
       await tester.pumpWidget(
         FinesseApp(
-          theme: ThemeData(style: StyleTokens.nova),
+          theme: ThemeData(
+            style: StyleTokens.nova,
+            // Reduced, the entrance is a fade over `fast` on `standard`:
+            // one second, linear, and done by six tenths of the way.
+            motion: Motion.lively
+                .copyWith(
+                  fast: const Duration(seconds: 1),
+                  standard: Curves.linear,
+                )
+                .reduce(),
+          ),
           home: Center(
             child: Popover(
               controller: controller,
               anchor: anchor,
-              // One second, linear: the opacity is the elapsed time.
-              effects: const [
-                FadeEffect(
-                  duration: Duration(seconds: 1),
-                  curve: Curves.linear,
-                ),
-              ],
               builder: (context) => const Text('Content'),
               child: const Text('Trigger'),
             ),
@@ -144,9 +147,9 @@ void main() {
 
       final first = await openAndSample();
       final second = await openAndSample();
-      // 200 ms into a one-second linear fade.
-      expect(second, closeTo(.2, .05), reason: 'second opening');
-      expect(first, closeTo(.2, .05), reason: 'first opening');
+      // 200 ms into a one-second entrance whose fade ends at 600 ms.
+      expect(second, closeTo(.2 / .6, .05), reason: 'second opening');
+      expect(first, closeTo(.2 / .6, .05), reason: 'first opening');
     });
   }
 }

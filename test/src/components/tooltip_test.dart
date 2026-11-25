@@ -1,6 +1,7 @@
 import 'package:finesse/material.dart';
 import 'package:finesse/src/app.dart';
 import 'package:finesse/src/components/kbd.dart';
+import 'package:finesse/src/components/popover.dart';
 import 'package:finesse/src/components/tooltip.dart';
 import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/style.dart';
@@ -174,7 +175,7 @@ void main() {
   group('content inversion', () {
     testWidgets('the builder context sees the inverted text style and the '
         'kbd re-theme', (tester) async {
-      final controller = TooltipController();
+      final controller = PopoverController();
       addTearDown(controller.dispose);
       TextStyle? seenStyle;
       await tester.pumpWidget(
@@ -216,7 +217,7 @@ void main() {
     testWidgets('rides the bottom edge when the tooltip sits above', (
       tester,
     ) async {
-      final controller = TooltipController();
+      final controller = PopoverController();
       addTearDown(controller.dispose);
       await tester.pumpWidget(
         createTestWidget(
@@ -247,7 +248,7 @@ void main() {
     testWidgets('flips above when the portal falls back below', (
       tester,
     ) async {
-      final controller = TooltipController();
+      final controller = PopoverController();
       addTearDown(controller.dispose);
       await tester.pumpWidget(
         createTestWidget(
@@ -276,7 +277,7 @@ void main() {
     });
 
     testWidgets('can be turned off', (tester) async {
-      final controller = TooltipController();
+      final controller = PopoverController();
       addTearDown(controller.dispose);
       await tester.pumpWidget(
         createTestWidget(

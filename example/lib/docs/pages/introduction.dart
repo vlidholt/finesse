@@ -45,9 +45,9 @@ final introductionDoc = ComponentDoc(
                   '`zinc` and `stone`), each in light and dark, with '
                   'seventeen accent overlays and three menu finishes: '
                   'inverted, translucent, and bold accent.',
-              'The Phosphor icon set in six weights, bundled, and '
-                  '`flutter_animate` effects, so a single import covers '
-                  'them.',
+              'The Phosphor icon set in six weights, bundled, and one '
+                  'motion vocabulary — springs, entrances and moving '
+                  'indicators — so a single import covers them.',
             ],
           ),
         ],

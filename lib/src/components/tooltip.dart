@@ -7,7 +7,6 @@ import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/anchor_stage.dart';
-import 'package:finesse/src/utils/animate.dart';
 import 'package:finesse/src/utils/arrow_surface.dart';
 import 'package:finesse/src/utils/backdrop.dart';
 import 'package:finesse/src/utils/dismiss_shortcut.dart';
@@ -16,16 +15,14 @@ import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:finesse/src/utils/mouse_area.dart';
 import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-
-/// Controls the visibility of a [Tooltip].
-typedef TooltipController = PopoverController;
 
 /// {@template Tooltip}
 /// A widget that displays a tooltip on hover or focus, styled to match the
 /// Shadcn UI design system.
 ///
-/// Provides customizable delay, duration, animation effects, and styling.
+/// It pops out of the side that faces its trigger on the theme's motion
+/// tokens (`Motion.of`), and only fades in when it takes over from the
+/// tooltip of a neighbouring trigger.
 /// {@endtemplate}
 class Tooltip extends StatefulWidget {
   /// {@macro Tooltip}
@@ -36,14 +33,12 @@ class Tooltip extends StatefulWidget {
     this.focusNode,
     this.waitDuration,
     this.showDuration,
-    this.effects,
     this.padding,
     this.decoration,
     this.anchor,
     this.hoverStrategies,
     this.controller,
     this.longPressDuration,
-    this.reverseDuration,
     this.showArrow,
     this.arrowDirection,
     this.filter,
@@ -88,20 +83,6 @@ class Tooltip extends StatefulWidget {
   /// {@endtemplate}
   final Duration? showDuration;
 
-  /// {@template Tooltip.effects}
-  /// The animation effects applied to the tooltip.
-  ///
-  /// Defaults to the theme's, and then to a quick `EntranceEffect` on the
-  /// theme's motion tokens: the bubble pops out of the side that faces its
-  /// trigger. A tooltip that takes over from another one — the pointer moved
-  /// to the next button — only fades in.
-  ///
-  /// The entrance lasts as long as its effects do: to change its length,
-  /// give the effects a duration ([Effect.duration]). An empty list shows
-  /// the tooltip at once.
-  /// {@endtemplate}
-  final List<Effect<dynamic>>? effects;
-
   /// {@template Tooltip.padding}
   /// The padding of the tooltip content.
   ///
@@ -142,9 +123,9 @@ class Tooltip extends StatefulWidget {
   /// The controller that manages the visibility of the [Tooltip].
   ///
   /// Allows programmatic control over showing and hiding the tooltip. If null,
-  /// a default [TooltipController] is created internally.
+  /// a default [PopoverController] is created internally.
   /// {@endtemplate}
-  final TooltipController? controller;
+  final PopoverController? controller;
 
   /// {@template Tooltip.longPressDuration}
   /// The duration for a long press to be recognized, triggering the tooltip on
@@ -154,14 +135,6 @@ class Tooltip extends StatefulWidget {
   /// interactions.
   /// {@endtemplate}
   final Duration? longPressDuration;
-
-  /// {@template Tooltip.reverseDuration}
-  /// The duration of the tooltip's exit animation: its [effects] played
-  /// backwards over this long.
-  ///
-  /// Defaults to the theme's, and then to its `Motion.fast`.
-  /// {@endtemplate}
-  final Duration? reverseDuration;
 
   /// {@template Tooltip.showArrow}
   /// Whether the tooltip draws the arrow pointing at its trigger, defaults
@@ -192,23 +165,23 @@ class Tooltip extends StatefulWidget {
 
 class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
   late final AnimationController animationController;
-  TooltipController? _controller;
+  PopoverController? _controller;
   bool hovered = false;
   bool get hasFocus => widget.focusNode?.hasFocus ?? false;
 
-  TooltipController get controller => widget.controller ?? _controller!;
+  PopoverController get controller => widget.controller ?? _controller!;
 
   @override
   void initState() {
     super.initState();
     animationController = AnimationController(
       vsync: this,
-      // Replaced by the animate widget, with the length of its effects,
-      // each time the tooltip is built.
-      duration: Animate.defaultDuration,
+      // Replaced by the entrance in the overlay, with its own length, each
+      // time the tooltip is built.
+      duration: const Duration(milliseconds: 300),
       reverseDuration: Duration.zero,
     );
-    if (widget.controller == null) _controller = TooltipController();
+    if (widget.controller == null) _controller = PopoverController();
     widget.focusNode?.addListener(onFocusChange);
     controller.addListener(_onOpenChanged);
     // A controller that arrives open.
@@ -293,10 +266,8 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
             widget.longPressDuration ?? theme.tooltipTheme.longPressDuration,
       ),
     );
-    animationController.reverseDuration =
-        widget.reverseDuration ??
-        theme.tooltipTheme.reverseDuration ??
-        Motion.of(context).fast;
+    // It leaves faster than it arrives.
+    animationController.reverseDuration = Motion.of(context).fast;
   }
 
   /// Whether the trigger is in a part of the tree that is shown; see the
@@ -329,14 +300,13 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
     if (widget.controller != oldWidget.controller) {
       (oldWidget.controller ?? _controller)?.removeListener(_onOpenChanged);
       if (widget.controller == null) {
-        _controller ??= TooltipController();
+        _controller ??= PopoverController();
       }
       controller.addListener(_onOpenChanged);
       _onOpenChanged();
     }
     if (widget.hoverStrategies != oldWidget.hoverStrategies ||
-        widget.longPressDuration != oldWidget.longPressDuration ||
-        widget.reverseDuration != oldWidget.reverseDuration) {
+        widget.longPressDuration != oldWidget.longPressDuration) {
       _syncEffectiveTheme();
     }
   }
@@ -390,9 +360,8 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
         // Something else took the controller over. If that was the pointer
         // coming back, the check below keeps the tooltip; anything else —
         // the entrance of an overlay built after the pointer had already
-        // left, effects that changed length mid-exit — must not leave the
-        // tooltip up with nothing to close it. A bare `await reverse()`
-        // never returns from a cancelled run.
+        // left — must not leave the tooltip up with nothing to close it.
+        // A bare `await reverse()` never returns from a cancelled run.
       }
     }
     if (!mounted) return;
@@ -561,21 +530,19 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
               // popover, which is a larger surface — or a plain fade when
               // it takes over from another tooltip. Resolved here, where
               // the tooltip is built for this showing.
-              final effectiveEffects =
-                  widget.effects ??
-                  theme.tooltipTheme.effects ??
-                  (_warm
-                      ? EntranceEffect.fadeFor(motion)
-                      : EntranceEffect.forMotion(
-                          motion,
-                          spring: motion.snappy.scaled(.8),
-                        ));
-              if (effectiveEffects.isNotEmpty) {
-                tooltip = FinesseAnimate(
+              final entrance = _warm
+                  ? EntranceSpec.fade(motion)
+                  : EntranceSpec.of(
+                      motion,
+                      spring: motion.snappy.scaled(.8),
+                    );
+              if (!entrance.isInstant) {
+                // It starts by itself, after the frame that first builds
+                // the bubble. The fade goes through a host, for a bubble
+                // that is glass; see [BackdropFade].
+                tooltip = OverlayEntrance(
                   controller: animationController,
-                  effects: effectiveEffects,
-                  // The bubble may be glass; see [BackdropFade].
-                  fadeThroughBackdrop: true,
+                  spec: entrance,
                   child: tooltip,
                 );
               }

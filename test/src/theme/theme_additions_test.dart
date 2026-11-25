@@ -611,10 +611,18 @@ void main() {
           reason: '${style.name} progress track',
         );
         expect(
-          tester
-              .widget<DeterminateProgressBar>(
-                find.byType(DeterminateProgressBar),
-              )
+          (tester
+                      .widget<DecoratedBox>(
+                        find.descendant(
+                          of: find.descendant(
+                            of: find.byType(ProgressBar),
+                            matching: find.byType(FractionallySizedBox),
+                          ),
+                          matching: find.byType(DecoratedBox),
+                        ),
+                      )
+                      .decoration
+                  as BoxDecoration)
               .color,
           finesse ? scheme.tint : scheme.primary,
           reason: '${style.name} progress fill',

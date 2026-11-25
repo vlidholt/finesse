@@ -36,9 +36,6 @@ class CheckboxFormField extends FinesseFormField<bool> {
     /// {@macro Checkbox.size}
     double? size,
 
-    /// {@macro Checkbox.duration}
-    Duration? duration,
-
     /// {@macro Checkbox.icon}
     Widget? icon,
 
@@ -77,7 +74,6 @@ class CheckboxFormField extends FinesseFormField<bool> {
              enabled: state.enabled,
              focusNode: state.focusNode,
              size: size,
-             duration: duration,
              icon: icon,
              color: color,
              label: inputLabel,

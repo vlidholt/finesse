@@ -244,7 +244,6 @@ class Radio<T> extends StatefulWidget {
     this.decoration,
     this.size,
     this.circleSize,
-    this.duration,
     this.color,
     this.label,
     this.description,
@@ -293,13 +292,6 @@ class Radio<T> extends StatefulWidget {
   /// The circle size of the radio, defaults to 10.
   /// {@endtemplate}
   final double? circleSize;
-
-  /// {@template Radio.duration}
-  /// How long the dot takes to appear. It pops in on a spring — the theme's
-  /// `Motion.bouncy` — and this replaces that spring's duration; when null
-  /// the spring is used as it is.
-  /// {@endtemplate}
-  final Duration? duration;
 
   /// {@template Radio.color}
   /// The color of the radio.
@@ -397,11 +389,9 @@ class _RadioState<T> extends State<Radio<T>> {
         widget.color ??
         theme.radioTheme.color ??
         theme.colorScheme.primaryForeground;
+    // The dot pops in on the small-delight spring; the fill fades.
     final motion = Motion.of(context);
-    final duration = widget.duration ?? theme.radioTheme.duration;
-    final dotSpring = duration == null || motion.bouncy.isInstant
-        ? motion.bouncy
-        : motion.bouncy.copyWith(duration: duration);
+    final dotSpring = motion.bouncy;
     final effectivePadding =
         widget.padding ??
         theme.radioTheme.padding ??

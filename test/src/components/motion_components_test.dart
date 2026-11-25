@@ -764,31 +764,6 @@ void main() {
       }
       expect(previous, closed + 108);
     });
-
-    testWidgets('custom effects still drive the content', (tester) async {
-      await tester.pumpWidget(
-        _app(
-          SizedBox(
-            width: 300,
-            child: Accordion<int>(
-              children: const [
-                AccordionItem(
-                  value: 1,
-                  title: Text('Title'),
-                  effects: [SizeEffect(duration: Duration(milliseconds: 100))],
-                  child: SizedBox(height: 100, child: Text('Body')),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-      await tester.tap(find.text('Title'));
-      await tester.pumpAndSettle();
-      expect(find.byType(ExpandReveal), findsNothing);
-      expect(find.byType(SizeTransition), findsOneWidget);
-      expect(find.text('Body'), findsOneWidget);
-    });
   });
 
   group('ProgressBar', () {
@@ -798,9 +773,7 @@ void main() {
     testWidgets('glides to a new value', (tester) async {
       await tester.pumpWidget(bar(.2));
       await tester.pumpAndSettle();
-      double fraction() => tester
-          .widget<DeterminateProgressBar>(find.byType(DeterminateProgressBar))
-          .value;
+      double fraction() => _progressFraction(tester);
       expect(fraction(), .2);
 
       await tester.pumpWidget(bar(.8));
@@ -829,14 +802,7 @@ void main() {
         ),
       );
       await tester.pump(_frame);
-      expect(
-        tester
-            .widget<DeterminateProgressBar>(
-              find.byType(DeterminateProgressBar),
-            )
-            .value,
-        .8,
-      );
+      expect(_progressFraction(tester), .8);
     });
   });
 
@@ -1022,3 +988,13 @@ void main() {
     });
   });
 }
+
+/// How much of a determinate [ProgressBar] is filled.
+double _progressFraction(WidgetTester tester) => tester
+    .widget<FractionallySizedBox>(
+      find.descendant(
+        of: find.byType(ProgressBar),
+        matching: find.byType(FractionallySizedBox),
+      ),
+    )
+    .widthFactor!;

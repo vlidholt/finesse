@@ -7,7 +7,6 @@ import 'package:finesse/src/utils/border.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
 part 'menubar.g.theme.dart';
@@ -27,7 +26,6 @@ class MenubarTheme with _$MenubarTheme {
     this.border,
     this.constraints,
     this.contextMenuPadding,
-    this.effects,
     this.shadows,
     this.decoration,
     this.filter,
@@ -82,9 +80,6 @@ class MenubarTheme with _$MenubarTheme {
 
   /// {@macro ContextMenu.padding}
   final EdgeInsetsGeometry? contextMenuPadding;
-
-  /// {@macro Popover.effects}
-  final List<Effect<dynamic>>? effects;
 
   /// {@macro Popover.shadows}
   final List<BoxShadow>? shadows;
@@ -187,13 +182,11 @@ class MenubarTheme with _$MenubarTheme {
   @override
   bool operator ==(Object other) =>
       other is MenubarTheme &&
-      listEquals(effects, other.effects) &&
       listEquals(shadows, other.shadows) &&
       listEquals(buttonShadows, other.buttonShadows) &&
       listEquals(stripShadows, other.stripShadows) &&
       super ==
           other.copyWith(
-            effects: effects,
             shadows: shadows,
             buttonShadows: buttonShadows,
             stripShadows: stripShadows,
@@ -203,7 +196,6 @@ class MenubarTheme with _$MenubarTheme {
   @override
   int get hashCode => Object.hash(
     runtimeType,
-    Object.hashAll(effects ?? const []),
     Object.hashAll(shadows ?? const []),
     Object.hashAll(buttonShadows ?? const []),
     Object.hashAll(stripShadows ?? const []),

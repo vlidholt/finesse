@@ -36,7 +36,6 @@ class Switch extends StatefulWidget {
     this.width,
     this.height,
     this.margin,
-    this.duration,
     this.decoration,
     this.controlAffinity = ControlAffinity.leading,
     this.label,
@@ -127,13 +126,6 @@ class Switch extends StatefulWidget {
   /// {@endtemplate}
   final double? margin;
 
-  /// {@template Switch.duration}
-  /// How long the thumb takes to travel. It moves on a spring — the theme's
-  /// `Motion.bouncy` — and this replaces that spring's duration; when null
-  /// the spring is used as it is. `Duration.zero` moves the thumb at once.
-  /// {@endtemplate}
-  final Duration? duration;
-
   /// {@template Switch.decoration}
   /// Custom decoration for the switch track.
   ///
@@ -180,12 +172,8 @@ class _SwitchState extends State<Switch> with SingleTickerProviderStateMixin {
     value: widget.value ? 1 : 0,
   );
 
-  MotionSpring get _spring {
-    final motion = Motion.of(context);
-    final duration = widget.duration ?? Theme.of(context).switchTheme.duration;
-    if (duration == null || motion.bouncy.isInstant) return motion.bouncy;
-    return motion.bouncy.copyWith(duration: duration);
-  }
+  /// The thumb travels on the small-delight spring.
+  MotionSpring get _spring => Motion.of(context).bouncy;
 
   FocusNode get focusNode => widget.focusNode ?? _focusNode!;
 

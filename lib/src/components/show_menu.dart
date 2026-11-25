@@ -77,10 +77,7 @@ Future<T?> showMenu<T>({
       barrierLabel:
           barrierLabel ?? FinesseLocalizations.of(context).dialog.dismiss,
       // The menu plays its own exit; the route stays for as long.
-      reverseTransitionDuration:
-          ambientTheme.contextMenuTheme.popoverReverseDuration ??
-          ambientTheme.popoverTheme.reverseDuration ??
-          Motion.of(context).fast,
+      reverseTransitionDuration: Motion.of(context).fast,
       themeOf: (routeContext) {
         final appTheme = Theme.maybeOf(routeContext);
         return !themedLocally && appTheme != null
@@ -140,7 +137,7 @@ class _MenuRoute<T> extends PopupRoute<T> {
   final BoxConstraints? constraints;
   final ThemeData Function(BuildContext context) themeOf;
 
-  final _controller = FinesseContextMenuController(isOpen: true);
+  final _controller = PopoverController(isOpen: true);
   final _result = _MenuResultHolder();
 
   /// Whether the route has been popped or removed, by the menu or by

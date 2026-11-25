@@ -129,7 +129,7 @@ void main() {
 
   testWidgets('a tooltip does not stay over the section that replaced its '
       'trigger', (tester) async {
-    final controller = TooltipController();
+    final controller = PopoverController();
     addTearDown(controller.dispose);
     Widget app(int index) => sections(
       index: index,

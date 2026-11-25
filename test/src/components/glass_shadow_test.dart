@@ -235,7 +235,7 @@ void main() {
     final mode = brightness.name;
 
     testWidgets('$mode: a glass menu', (tester) async {
-      late FinesseContextMenuController controller;
+      late PopoverController controller;
       await expectShadowOutside(
         tester,
         name: 'menu',
@@ -246,7 +246,7 @@ void main() {
               : StyleTokens.finesse.copyWith(popoverShadow: const []),
         ),
         build: ({required shadow}) {
-          controller = FinesseContextMenuController();
+          controller = PopoverController();
           addTearDown(controller.dispose);
           return Align(
             alignment: const Alignment(0, -.5),

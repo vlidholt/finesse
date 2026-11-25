@@ -385,11 +385,11 @@ void main() {
       }
     }
 
-    Future<FinesseContextMenuController> pumpMenu(
+    Future<PopoverController> pumpMenu(
       WidgetTester tester, {
       required bool requestFocus,
     }) async {
-      final menu = FinesseContextMenuController();
+      final menu = PopoverController();
       addTearDown(menu.dispose);
       await tester.pumpWidget(
         FinesseApp(

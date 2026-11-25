@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:finesse/src/components/context_menu.dart';
+import 'package:finesse/src/components/popover.dart';
 import 'package:finesse/src/raw_components/pressable.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
@@ -179,7 +180,7 @@ class _SwipeActionsState extends State<SwipeActions>
 
   late final _frame = Listenable.merge([_shift.animation, _spread.animation]);
 
-  final _menu = FinesseContextMenuController();
+  final _menu = PopoverController();
 
   /// Which action of the uncovered side spreads over the others: the first
   /// on a full swipe, the one that removed the row otherwise.

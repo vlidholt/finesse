@@ -11,7 +11,6 @@ import 'package:finesse/src/theme/components/layout.dart';
 import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
 /// How a picker — `DatePicker`, `TimePicker`, `Select`, `ColorPickerButton`
 /// — shows its choices when it is opened.
@@ -60,10 +59,8 @@ class PickerHost extends StatefulWidget {
     this.closeOnTapOutside = true,
     this.popoverPadding,
     this.anchor,
-    this.groupId,
     this.onOpenChanged,
-    this.effects,
-    this.reverseDuration,
+    this.exitDuration,
     this.shadows,
     this.filter,
     this.decoration,
@@ -99,18 +96,12 @@ class PickerHost extends StatefulWidget {
   /// Where the popover sits against the trigger.
   final AnchorBase? anchor;
 
-  /// The tap-region group of the popover, for content that opens popovers
-  /// of its own.
-  final Object? groupId;
-
   /// Called when the picker opens or closes.
   final ValueChanged<bool>? onOpenChanged;
 
-  /// The popover's entrance effects, when the picker has its own.
-  final List<Effect<dynamic>>? effects;
-
-  /// How long the popover takes to leave, when the picker says.
-  final Duration? reverseDuration;
+  /// How long the popover takes to leave, when it is not the theme's
+  /// `Motion.fast`.
+  final Duration? exitDuration;
 
   /// The popover's shadows, when the picker has its own.
   final List<BoxShadow>? shadows;
@@ -233,15 +224,13 @@ class _PickerHostState extends State<PickerHost> {
       builder: (context) => widget.triggerBuilder(context, _controller.toggle),
     );
     if (_sheet) return trigger;
-    return Popover(
+    return Popover.internal(
       controller: _controller,
-      groupId: widget.groupId,
       requestFocus: widget.requestFocus,
       closeOnTapOutside: widget.closeOnTapOutside,
       padding: widget.popoverPadding,
       anchor: widget.anchor,
-      effects: widget.effects,
-      reverseDuration: widget.reverseDuration,
+      exitDuration: widget.exitDuration,
       shadows: widget.shadows,
       filter: widget.filter,
       decoration: widget.decoration,
