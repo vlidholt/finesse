@@ -191,9 +191,34 @@ void main() {
     });
 
     testWidgets('a disabled entry does nothing', (tester) async {
-      await pumpFinesse(tester, menu());
-      await tester.tap(find.text('Soon'));
-      await tester.pumpAndSettle();
+      await pumpFinesse(
+        tester,
+        Align(
+          alignment: Alignment.topCenter,
+          child: NavigationMenu(
+            onOpenChanged: (index) => log.add('open $index'),
+            items: [
+              NavigationMenuItem(
+                label: const Text('Products'),
+                enabled: false,
+                builder: (_) => products(),
+              ),
+              NavigationMenuItem(
+                label: const Text('Pricing'),
+                enabled: false,
+                onPressed: () => log.add('pricing'),
+              ),
+            ],
+          ),
+        ),
+      );
+      // A press where each entry is: a disabled entry takes no pointer,
+      // so `tap` on its finder would land on whatever is below it.
+      for (final label in ['Products', 'Pricing']) {
+        await tester.tapAt(tester.getCenter(find.text(label)));
+        await tester.pumpAndSettle();
+      }
+      expect(find.text('Analytics'), findsNothing);
       expect(log, isEmpty);
     });
 
