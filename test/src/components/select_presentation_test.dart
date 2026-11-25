@@ -1,4 +1,5 @@
 import 'package:finesse/finesse.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -143,6 +144,93 @@ void main() {
       await rest(tester);
       expect(values, {'Cherry'});
       expect(find.text('Cherry'), findsWidgets);
+    });
+
+    for (final constant in [true, false]) {
+      testWidgets('an uncontrolled multiple select keeps its choice when its '
+          'parent rebuilds (initialValues const: $constant)', (tester) async {
+        Set<String>? reported;
+        await pumpFinesse(
+          tester,
+          Center(
+            child: StatefulBuilder(
+              builder: (context, setState) => Select<String>.multiple(
+                placeholder: const Text('Fruit'),
+                initialValues: constant ? const {'Apple'} : {'Apple'},
+                onChanged: (values) => setState(() => reported = values),
+                options: _options(),
+              ),
+            ),
+          ),
+        );
+        await open(tester);
+        await tester.tap(optionOf('Banana'));
+        await rest(tester);
+        expect(reported, {'Apple', 'Banana'});
+        expect(find.text('Apple, Banana'), findsOneWidget);
+      });
+    }
+
+    testWidgets('a search field of its own in a searchable select takes '
+        'Space and Enter', (tester) async {
+      final search = TextEditingController();
+      addTearDown(search.dispose);
+      final node = FocusNode();
+      addTearDown(node.dispose);
+      var submitted = 0;
+      await pumpFinesse(
+        tester,
+        Center(
+          child: Select<String>.withSearch(
+            placeholder: const Text('City'),
+            search: TextField(
+              controller: search,
+              focusNode: node,
+              onSubmitted: (_) => submitted++,
+            ),
+            options: const [
+              SelectOption(value: 'New York', label: 'New York'),
+              SelectOption(value: 'Oslo', label: 'Oslo'),
+            ],
+          ),
+        ),
+      );
+      await open(tester);
+      node.requestFocus();
+      await rest(tester);
+      await tester.enterText(find.byType(EditableText), 'New');
+      await rest(tester);
+      expect(node.hasFocus, isTrue);
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      await rest(tester);
+      expect(find.text('Oslo'), findsOneWidget, reason: 'still open');
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await rest(tester);
+      expect(find.text('Oslo'), findsOneWidget, reason: 'still open');
+    });
+
+    testWidgets('Escape with the search field focused closes a searchable '
+        'select', (tester) async {
+      await pumpFinesse(
+        tester,
+        Center(
+          child: Select<String>.withSearch(
+            placeholder: const Text('Fruit'),
+            onSearchChanged: (_) {},
+            options: _options(),
+          ),
+        ),
+      );
+      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await mouse.addPointer(location: const Offset(1, 1));
+      addTearDown(mouse.removePointer);
+      await mouse.down(tester.getCenter(find.text('Fruit')));
+      await mouse.up();
+      await rest(tester);
+      expect(find.text('Banana'), findsOneWidget);
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await rest(tester);
+      expect(find.text('Banana'), findsNothing);
     });
 
     test('an option needs a child or a label', () {

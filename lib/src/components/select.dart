@@ -908,7 +908,9 @@ class SelectState<T> extends State<Select<T>> {
         widget.initialValue is T) {
       next = {widget.initialValue as T};
     }
-    if (widget.initialValues != oldWidget.initialValues) {
+    // By value: a parent that writes the set out in its build passes a
+    // new one every time, and the choice made since would be thrown away.
+    if (!setEquals(widget.initialValues, oldWidget.initialValues)) {
       next = {...widget.initialValues};
     }
     // What the parent holds comes last and wins; a value taken away is an
@@ -1206,14 +1208,17 @@ class SelectState<T> extends State<Select<T>> {
       ),
     };
 
+    // Enter and Space open and close the list from the trigger only: they
+    // would also reach these bindings from inside the list, where a search
+    // field — this select's own or one the app passed — has to take them.
     return ListenableBuilder(
-      listenable: searchFocusNode,
+      listenable: focusNode,
       builder: (context, child) {
         return DismissShortcut(
           isActive: () => popoverController.isOpen,
           onDismiss: popoverController.close,
           child: CallbackShortcuts(
-            bindings: searchFocusNode.hasFocus
+            bindings: !focusNode.hasFocus
                 ? const {}
                 : {
                     const SingleActivator(LogicalKeyboardKey.enter):
