@@ -51,6 +51,7 @@ flutter:
     - lib/docs/examples/dialog/
     - lib/docs/examples/empty/
     - lib/docs/examples/form/
+    - lib/docs/examples/hover_card/
     - lib/docs/examples/icon_button/
     - lib/docs/examples/text_field/
     - lib/docs/examples/otp_field/
