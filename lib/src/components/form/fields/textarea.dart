@@ -232,7 +232,7 @@ class TextareaFormField extends FinesseFormField<String> {
                      const FinesseDecoration())
                  .merge(decoration),
          builder: (state) {
-           state as TextareaFormFieldState;
+           state as _TextareaFormFieldState;
            return Textarea(
              key: state.textareaKey,
              controller: state.controller,
@@ -312,11 +312,11 @@ class TextareaFormField extends FinesseFormField<String> {
 
   @override
   FinesseFormFieldState<TextareaFormField, String> createState() =>
-      TextareaFormFieldState();
+      _TextareaFormFieldState();
 }
 
 /// The state of a [TextareaFormField].
-class TextareaFormFieldState
+class _TextareaFormFieldState
     extends FinesseFormFieldState<TextareaFormField, String> {
   /// The key of the inner [Textarea].
   final GlobalKey<State<StatefulWidget>> textareaKey = GlobalKey();

@@ -60,9 +60,9 @@ class SegmentedControlFormField<T> extends FinesseFormField<T> {
 
   @override
   FinesseFormFieldState<SegmentedControlFormField<T>, T> createState() =>
-      SegmentedControlFormFieldState<T>();
+      _SegmentedControlFormFieldState<T>();
 }
 
 /// The state of a [SegmentedControlFormField].
-class SegmentedControlFormFieldState<T>
+class _SegmentedControlFormFieldState<T>
     extends FinesseFormFieldState<SegmentedControlFormField<T>, T> {}

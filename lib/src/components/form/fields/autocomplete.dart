@@ -113,7 +113,7 @@ class AutocompleteFormField<T extends Object> extends FinesseFormField<String> {
                      const FinesseDecoration())
                  .merge(decoration),
          builder: (field) {
-           final state = field as AutocompleteFormFieldState<T>;
+           final state = field as _AutocompleteFormFieldState<T>;
            return Autocomplete<T>(
              optionsBuilder: optionsBuilder,
              controller: state.controller,
@@ -142,11 +142,11 @@ class AutocompleteFormField<T extends Object> extends FinesseFormField<String> {
 
   @override
   FinesseFormFieldState<AutocompleteFormField<T>, String> createState() =>
-      AutocompleteFormFieldState<T>();
+      _AutocompleteFormFieldState<T>();
 }
 
 /// The state of an [AutocompleteFormField].
-class AutocompleteFormFieldState<T extends Object>
+class _AutocompleteFormFieldState<T extends Object>
     extends FinesseFormFieldState<AutocompleteFormField<T>, String> {
   /// The controller of the field's text.
   late final TextEditingController controller = TextEditingController(

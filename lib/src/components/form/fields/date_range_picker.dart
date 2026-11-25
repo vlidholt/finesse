@@ -102,7 +102,7 @@ class DateRangePickerFormField extends FinesseFormField<DateTimeRange> {
     CalendarTheme? calendarTheme,
   }) : super(
          builder: (state) {
-           state as DateRangePickerFormFieldState;
+           state as _DateRangePickerFormFieldState;
            return DateRangePicker(
              value: state.value,
              onChanged: state.enabled ? state.didChange : null,
@@ -135,9 +135,9 @@ class DateRangePickerFormField extends FinesseFormField<DateTimeRange> {
 
   @override
   FinesseFormFieldState<DateRangePickerFormField, DateTimeRange>
-  createState() => DateRangePickerFormFieldState();
+  createState() => _DateRangePickerFormFieldState();
 }
 
 /// The state of a [DateRangePickerFormField].
-class DateRangePickerFormFieldState
+class _DateRangePickerFormFieldState
     extends FinesseFormFieldState<DateRangePickerFormField, DateTimeRange> {}

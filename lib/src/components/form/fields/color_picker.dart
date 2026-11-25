@@ -70,7 +70,7 @@ class ColorPickerFormField extends FinesseFormField<Color> {
              ? null
              : (color) => onChanged(color ?? initialValue),
          builder: (field) {
-           final state = field as ColorPickerFormFieldState;
+           final state = field as _ColorPickerFormFieldState;
            return Align(
              alignment: AlignmentDirectional.centerStart,
              widthFactor: 1,
@@ -93,9 +93,9 @@ class ColorPickerFormField extends FinesseFormField<Color> {
 
   @override
   FinesseFormFieldState<ColorPickerFormField, Color> createState() =>
-      ColorPickerFormFieldState();
+      _ColorPickerFormFieldState();
 }
 
 /// The state of a [ColorPickerFormField].
-class ColorPickerFormFieldState
+class _ColorPickerFormFieldState
     extends FinesseFormFieldState<ColorPickerFormField, Color> {}

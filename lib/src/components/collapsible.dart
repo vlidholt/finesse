@@ -105,11 +105,11 @@ class Collapsible extends StatefulWidget {
   final bool maintainState;
 
   @override
-  State<Collapsible> createState() => CollapsibleState();
+  State<Collapsible> createState() => _CollapsibleState();
 }
 
 /// The state of a [Collapsible].
-class CollapsibleState extends State<Collapsible>
+class _CollapsibleState extends State<Collapsible>
     with SingleTickerProviderStateMixin {
   CollapsibleController? _internalController;
 

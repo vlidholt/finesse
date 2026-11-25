@@ -69,7 +69,7 @@ class TimeFormField extends FinesseFormField<TimeOfDay> {
   }) : super(
          decorationBuilder: (context) => decoration,
          builder: (state) {
-           state as TimeFormFieldState;
+           state as _TimeFormFieldState;
            return TimeField(
              // A reset writes the initial value back into the fields.
              key: ValueKey(state._generation),
@@ -94,11 +94,11 @@ class TimeFormField extends FinesseFormField<TimeOfDay> {
 
   @override
   FinesseFormFieldState<TimeFormField, TimeOfDay> createState() =>
-      TimeFormFieldState();
+      _TimeFormFieldState();
 }
 
 /// The state of a [TimeFormField].
-class TimeFormFieldState
+class _TimeFormFieldState
     extends FinesseFormFieldState<TimeFormField, TimeOfDay> {
   int _generation = 0;
 

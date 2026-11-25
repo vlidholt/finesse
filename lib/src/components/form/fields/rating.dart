@@ -66,7 +66,7 @@ class RatingFormField extends FinesseFormField<double> {
          validator: validator == null ? null : (value) => validator(value ?? 0),
          onChanged: onChanged == null ? null : (value) => onChanged(value ?? 0),
          builder: (field) {
-           final state = field as RatingFormFieldState;
+           final state = field as _RatingFormFieldState;
            return Align(
              alignment: AlignmentDirectional.centerStart,
              widthFactor: 1,
@@ -89,9 +89,9 @@ class RatingFormField extends FinesseFormField<double> {
 
   @override
   FinesseFormFieldState<RatingFormField, double> createState() =>
-      RatingFormFieldState();
+      _RatingFormFieldState();
 }
 
 /// The state of a [RatingFormField].
-class RatingFormFieldState
+class _RatingFormFieldState
     extends FinesseFormFieldState<RatingFormField, double> {}

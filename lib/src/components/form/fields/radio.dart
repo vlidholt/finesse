@@ -58,7 +58,7 @@ class RadioGroupFormField<T> extends FinesseFormField<T> {
              Theme.of(context).radioTheme.decoration ??
              const FinesseDecoration(),
          builder: (state) {
-           state as RadioGroupFormFieldState<T>;
+           state as _RadioGroupFormFieldState<T>;
            return FinesseRadioGroup<T>(
              items: items,
              // The form holds the value; a key remakes the group when a
@@ -80,11 +80,11 @@ class RadioGroupFormField<T> extends FinesseFormField<T> {
 
   @override
   FinesseFormFieldState<RadioGroupFormField<T>, T> createState() =>
-      RadioGroupFormFieldState<T>();
+      _RadioGroupFormFieldState<T>();
 }
 
 /// The state of a [RadioGroupFormField].
-class RadioGroupFormFieldState<T>
+class _RadioGroupFormFieldState<T>
     extends FinesseFormFieldState<RadioGroupFormField<T>, T> {
   int _generation = 0;
 

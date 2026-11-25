@@ -99,7 +99,7 @@ class DatePickerFormField extends FinesseFormField<DateTime> {
     CalendarTheme? calendarTheme,
   }) : super(
          builder: (state) {
-           state as DatePickerFormFieldState;
+           state as _DatePickerFormFieldState;
            return DatePicker(
              value: state.value,
              onChanged: state.enabled ? state.didChange : null,
@@ -131,9 +131,9 @@ class DatePickerFormField extends FinesseFormField<DateTime> {
 
   @override
   FinesseFormFieldState<DatePickerFormField, DateTime> createState() =>
-      DatePickerFormFieldState();
+      _DatePickerFormFieldState();
 }
 
 /// The state of a [DatePickerFormField].
-class DatePickerFormFieldState
+class _DatePickerFormFieldState
     extends FinesseFormFieldState<DatePickerFormField, DateTime> {}

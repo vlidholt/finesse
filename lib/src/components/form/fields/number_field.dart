@@ -81,7 +81,7 @@ class NumberFormField extends FinesseFormField<num> {
                      const FinesseDecoration())
                  .merge(decoration),
          builder: (state) {
-           state as NumberFormFieldState;
+           state as _NumberFormFieldState;
            return NumberField(
              value: state.value,
              onChanged: state.enabled ? state.didChange : null,
@@ -105,9 +105,9 @@ class NumberFormField extends FinesseFormField<num> {
 
   @override
   FinesseFormFieldState<NumberFormField, num> createState() =>
-      NumberFormFieldState();
+      _NumberFormFieldState();
 }
 
 /// The state of a [NumberFormField].
-class NumberFormFieldState
+class _NumberFormFieldState
     extends FinesseFormFieldState<NumberFormField, num> {}

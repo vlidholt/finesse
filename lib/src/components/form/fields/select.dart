@@ -154,7 +154,7 @@ class SelectFormField<T> extends FinesseFormField<T> {
                      const FinesseDecoration())
                  .merge(decoration),
          builder: (state) {
-           state as SelectFormFieldState<T>;
+           state as _SelectFormFieldState<T>;
 
            return Select<T>(
              variant: variant,
@@ -282,7 +282,7 @@ class SelectFormField<T> extends FinesseFormField<T> {
                      const FinesseDecoration())
                  .merge(decoration),
          builder: (state) {
-           state as SelectFormFieldState<T>;
+           state as _SelectFormFieldState<T>;
 
            return Select<T>.withSearch(
              options: options,
@@ -330,11 +330,11 @@ class SelectFormField<T> extends FinesseFormField<T> {
 
   @override
   FinesseFormFieldState<SelectFormField<T>, T> createState() =>
-      SelectFormFieldState<T>();
+      _SelectFormFieldState<T>();
 }
 
 /// The state of a [SelectFormField].
-class SelectFormFieldState<T>
+class _SelectFormFieldState<T>
     extends FinesseFormFieldState<SelectFormField<T>, T> {}
 
 /// A multiple-choice [Select] that takes part in a `FinesseForm`, with a
@@ -477,7 +477,7 @@ class SelectMultipleFormField<T> extends FinesseFormField<Set<T>> {
                      const FinesseDecoration())
                  .merge(decoration),
          builder: (state) {
-           state as SelectMultipleFormFieldState<T>;
+           state as _SelectMultipleFormFieldState<T>;
 
            return Select<T>.multiple(
              variant: variant,
@@ -599,7 +599,7 @@ class SelectMultipleFormField<T> extends FinesseFormField<Set<T>> {
                      const FinesseDecoration())
                  .merge(decoration),
          builder: (state) {
-           state as SelectMultipleFormFieldState<T>;
+           state as _SelectMultipleFormFieldState<T>;
 
            return Select<T>.multipleWithSearch(
              options: options,
@@ -645,9 +645,9 @@ class SelectMultipleFormField<T> extends FinesseFormField<Set<T>> {
 
   @override
   FinesseFormFieldState<SelectMultipleFormField<T>, Set<T>> createState() =>
-      SelectMultipleFormFieldState<T>();
+      _SelectMultipleFormFieldState<T>();
 }
 
 /// The state of a [SelectMultipleFormField].
-class SelectMultipleFormFieldState<T>
+class _SelectMultipleFormFieldState<T>
     extends FinesseFormFieldState<SelectMultipleFormField<T>, Set<T>> {}

@@ -71,7 +71,7 @@ class ToggleGroupFormField<T> extends FinesseFormField<Set<T>> {
              ? null
              : (values) => validator(values ?? const {}),
          builder: (field) {
-           final state = field as ToggleGroupFormFieldState<T>;
+           final state = field as _ToggleGroupFormFieldState<T>;
            final values = state.value ?? <T>{};
            // The label names the group for assistive technology.
            final group = multiple
@@ -105,9 +105,9 @@ class ToggleGroupFormField<T> extends FinesseFormField<Set<T>> {
 
   @override
   FinesseFormFieldState<ToggleGroupFormField<T>, Set<T>> createState() =>
-      ToggleGroupFormFieldState<T>();
+      _ToggleGroupFormFieldState<T>();
 }
 
 /// The state of a [ToggleGroupFormField].
-class ToggleGroupFormFieldState<T>
+class _ToggleGroupFormFieldState<T>
     extends FinesseFormFieldState<ToggleGroupFormField<T>, Set<T>> {}

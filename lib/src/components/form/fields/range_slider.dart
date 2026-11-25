@@ -81,7 +81,7 @@ class RangeSliderFormField extends FinesseFormField<List<double>> {
              ? null
              : (values) => onChanged(values ?? initialValue),
          builder: (field) {
-           final state = field as RangeSliderFormFieldState;
+           final state = field as _RangeSliderFormFieldState;
            return RangeSlider(
              values: state.value ?? initialValue,
              onChanged: state.didChange,
@@ -101,9 +101,9 @@ class RangeSliderFormField extends FinesseFormField<List<double>> {
 
   @override
   FinesseFormFieldState<RangeSliderFormField, List<double>> createState() =>
-      RangeSliderFormFieldState();
+      _RangeSliderFormFieldState();
 }
 
 /// The state of a [RangeSliderFormField].
-class RangeSliderFormFieldState
+class _RangeSliderFormFieldState
     extends FinesseFormFieldState<RangeSliderFormField, List<double>> {}

@@ -81,7 +81,7 @@ class ChipGroupFormField<T> extends FinesseFormField<Set<T>> {
              ? null
              : (values) => onChanged(values ?? const {}),
          builder: (field) {
-           final state = field as ChipGroupFormFieldState<T>;
+           final state = field as _ChipGroupFormFieldState<T>;
            return ChipGroup<T>(
              items: items,
              values: state.value ?? <T>{},
@@ -99,9 +99,9 @@ class ChipGroupFormField<T> extends FinesseFormField<Set<T>> {
 
   @override
   FinesseFormFieldState<ChipGroupFormField<T>, Set<T>> createState() =>
-      ChipGroupFormFieldState<T>();
+      _ChipGroupFormFieldState<T>();
 }
 
 /// The state of a [ChipGroupFormField].
-class ChipGroupFormFieldState<T>
+class _ChipGroupFormFieldState<T>
     extends FinesseFormFieldState<ChipGroupFormField<T>, Set<T>> {}

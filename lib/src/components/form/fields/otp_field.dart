@@ -69,7 +69,7 @@ class OtpFormField extends FinesseFormField<String> {
              ? null
              : (v) => onChanged((v ?? '').padRight(maxLength)),
          builder: (state) {
-           state as OtpFormFieldState;
+           state as _OtpFormFieldState;
            return OtpField(
              enabled: state.enabled,
              keyboardType: keyboardType,
@@ -90,8 +90,8 @@ class OtpFormField extends FinesseFormField<String> {
 
   @override
   FinesseFormFieldState<OtpFormField, String> createState() =>
-      OtpFormFieldState();
+      _OtpFormFieldState();
 }
 
 /// The state of a [OtpFormField].
-class OtpFormFieldState extends FinesseFormFieldState<OtpFormField, String> {}
+class _OtpFormFieldState extends FinesseFormFieldState<OtpFormField, String> {}

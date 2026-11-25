@@ -83,7 +83,7 @@ class TimePickerFormField extends FinesseFormField<TimeOfDay> {
     bool expands = false,
   }) : super(
          builder: (state) {
-           state as TimePickerFormFieldState;
+           state as _TimePickerFormFieldState;
            return TimePicker(
              value: state.value,
              onChanged: state.enabled ? state.didChange : null,
@@ -110,9 +110,9 @@ class TimePickerFormField extends FinesseFormField<TimeOfDay> {
 
   @override
   FinesseFormFieldState<TimePickerFormField, TimeOfDay> createState() =>
-      TimePickerFormFieldState();
+      _TimePickerFormFieldState();
 }
 
 /// The state of a [TimePickerFormField].
-class TimePickerFormFieldState
+class _TimePickerFormFieldState
     extends FinesseFormFieldState<TimePickerFormField, TimeOfDay> {}

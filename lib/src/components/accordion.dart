@@ -138,14 +138,14 @@ class Accordion<T> extends StatefulWidget {
   final AccordionController<T>? controller;
 
   @override
-  State<Accordion<T>> createState() => AccordionState<T>();
+  State<Accordion<T>> createState() => _AccordionState<T>();
 }
 
 /// The state of a [Accordion].
 ///
 /// Its items find it in the widget tree to read the controller and
 /// [maintainState].
-class AccordionState<T> extends State<Accordion<T>> {
+class _AccordionState<T> extends State<Accordion<T>> {
   AccordionController<T>? _controller;
 
   /// The controller in use: [Accordion.controller] when given, otherwise
@@ -200,7 +200,7 @@ class AccordionState<T> extends State<Accordion<T>> {
   @override
   Widget build(BuildContext context) {
     return Provider(
-      data: this as AccordionState<dynamic>,
+      data: this as _AccordionState<dynamic>,
       notifyUpdate: (_) => true,
       child: FocusTraversalGroup(
         child: Column(
@@ -236,7 +236,7 @@ class AccordionItem<T> extends StatefulWidget {
 
   /// {@template AccordionItem.value}
   /// The unique value identifying this item within the accordion.
-  /// Used to track its expansion state in the [AccordionState].
+  /// Used to track its expansion state in the [_AccordionState].
   /// {@endtemplate}
   final T value;
 
@@ -351,7 +351,7 @@ class _AccordionItemState<T> extends State<AccordionItem<T>>
   @override
   Widget build(BuildContext context) {
     final inherited =
-        context.watch<AccordionState<dynamic>>() as AccordionState<T>;
+        context.watch<_AccordionState<dynamic>>() as _AccordionState<T>;
 
     return ValueListenableBuilder(
       valueListenable: inherited.effectiveController,

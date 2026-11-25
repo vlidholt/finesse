@@ -76,7 +76,7 @@ class SwitchFormField extends FinesseFormField<bool> {
                      const FinesseDecoration())
                  .merge(decoration),
          builder: (state) {
-           state as SwitchFormFieldState;
+           state as _SwitchFormFieldState;
 
            return Switch(
              value: state.value!,
@@ -99,9 +99,9 @@ class SwitchFormField extends FinesseFormField<bool> {
 
   @override
   FinesseFormFieldState<SwitchFormField, bool> createState() =>
-      SwitchFormFieldState();
+      _SwitchFormFieldState();
 }
 
 /// The state of a [SwitchFormField].
-class SwitchFormFieldState
+class _SwitchFormFieldState
     extends FinesseFormFieldState<SwitchFormField, bool> {}

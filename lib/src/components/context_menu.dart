@@ -400,20 +400,20 @@ class ContextMenu extends StatefulWidget {
   final VoidCallback? onDismissed;
 
   @override
-  State<ContextMenu> createState() => ContextMenuState();
+  State<ContextMenu> createState() => _ContextMenuState();
 }
 
 /// The state of a [ContextMenu].
 ///
 /// Its items and submenus find it in the widget tree.
-class ContextMenuState extends State<ContextMenu> {
+class _ContextMenuState extends State<ContextMenu> {
   PopoverController? _controller;
 
   /// This menu's tap-region group when it is a root menu.
   final Object _ownTapRegionGroupId = Object();
 
   /// The root menu above this one, if this is a submenu.
-  ContextMenuState? _root;
+  _ContextMenuState? _root;
 
   /// The menu's content, which takes focus when a root menu opens so that
   /// arrow keys, Home/End and type-ahead work straight away, as in Radix.
@@ -648,7 +648,7 @@ class ContextMenuState extends State<ContextMenu> {
   Widget build(BuildContext context) {
     // A submenu is built below its root menu's provider; a root menu finds
     // none, since it puts its own provider below itself.
-    _root = context.maybeRead<ContextMenuState>();
+    _root = context.maybeRead<_ContextMenuState>();
 
     // if the context menu has no items, just return the child
     if (widget.items.isEmpty && widget.itemsBuilder == null) {
@@ -781,9 +781,9 @@ class ContextMenuState extends State<ContextMenu> {
 /// for the items in its submenu.
 ///
 /// Used internally. It is not exported from `package:finesse/finesse.dart`.
-class MenuItemController extends ChangeNotifier {
+class _MenuItemController extends ChangeNotifier {
   /// Creates a controller for the item identified by [itemKey].
-  MenuItemController({
+  _MenuItemController({
     required this.itemKey,
     bool hovered = false,
     bool focused = false,
@@ -818,7 +818,7 @@ class MenuItemController extends ChangeNotifier {
   final Key itemKey;
 
   /// Maps the item key to the item controller
-  final Map<Key, MenuItemController> items = {};
+  final Map<Key, _MenuItemController> items = {};
 
   /// Whether the item is highlighted: it is hovered or focused, or an item in
   /// its submenu is.
@@ -834,12 +834,12 @@ class MenuItemController extends ChangeNotifier {
   }
 
   /// Adds [controller] to the items of this item's submenu.
-  void registerSubItem(MenuItemController controller) {
+  void registerSubItem(_MenuItemController controller) {
     items[controller.itemKey] = controller;
   }
 
   /// Removes [controller] from the items of this item's submenu.
-  void unregisterSubItem(MenuItemController controller) {
+  void unregisterSubItem(_MenuItemController controller) {
     items.remove(controller.itemKey);
   }
 }
@@ -1103,14 +1103,14 @@ class MenuItem extends StatefulWidget {
 
 class _MenuItemState extends State<MenuItem> {
   final itemKey = UniqueKey();
-  late final controller = MenuItemController(itemKey: itemKey);
+  late final controller = _MenuItemController(itemKey: itemKey);
 
   /// Shared with the item's button so the trailing widget and text colours
   /// can follow the button's own hover state — a leaf item is only ever
   /// hovered, never "selected", so selection alone cannot drive them.
   final statesController = WidgetStatesController();
   // get the parent item controller, if any, meaning this item is a submenu
-  late final parentItemController = context.maybeRead<MenuItemController>();
+  late final parentItemController = context.maybeRead<_MenuItemController>();
 
   bool get hasTrailingIcon => widget.items.isNotEmpty;
 
@@ -1191,7 +1191,7 @@ class _MenuItemState extends State<MenuItem> {
   }
 
   /// The menu level this row told that it is checkable.
-  ContextMenuState? _registeredWith;
+  _ContextMenuState? _registeredWith;
 
   @override
   void initState() {
@@ -1210,7 +1210,7 @@ class _MenuItemState extends State<MenuItem> {
 
   /// Closes the whole menu after this row was chosen, handing its value to
   /// [showMenu] when that is what opened the menu.
-  void _close(ContextMenuState contextMenu) {
+  void _close(_ContextMenuState contextMenu) {
     context.getInheritedWidgetOfExactType<_MenuResult>()?.holder.value =
         widget.value;
     contextMenu.setOpen(false);
@@ -1233,7 +1233,7 @@ class _MenuItemState extends State<MenuItem> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    final contextMenu = context.read<ContextMenuState>();
+    final contextMenu = context.read<_ContextMenuState>();
 
     // Set by `MenuCheckboxItem` and `MenuRadioItem` around their row.
     final checkable = context
@@ -1576,7 +1576,7 @@ class _MenuLevel extends InheritedWidget {
     required super.child,
   });
 
-  final ContextMenuState menu;
+  final _ContextMenuState menu;
 
   /// Whether a row of this level is checkable. Every row then keeps the
   /// column of the check marks free, so the labels line up.

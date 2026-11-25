@@ -67,7 +67,7 @@ class CheckboxFormField extends FinesseFormField<bool> {
                      const FinesseDecoration())
                  .merge(decoration),
          builder: (state) {
-           state as CheckboxFormFieldState;
+           state as _CheckboxFormFieldState;
            return Checkbox(
              value: state.value ?? false,
              onChanged: state.didChange,
@@ -89,9 +89,9 @@ class CheckboxFormField extends FinesseFormField<bool> {
 
   @override
   FinesseFormFieldState<CheckboxFormField, bool> createState() =>
-      CheckboxFormFieldState();
+      _CheckboxFormFieldState();
 }
 
 /// The state of a [CheckboxFormField].
-class CheckboxFormFieldState
+class _CheckboxFormFieldState
     extends FinesseFormFieldState<CheckboxFormField, bool> {}

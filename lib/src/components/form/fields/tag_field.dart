@@ -88,7 +88,7 @@ class TagFormField<T extends Object> extends FinesseFormField<List<T>> {
                      const FinesseDecoration())
                  .merge(decoration),
          builder: (field) {
-           final state = field as TagFormFieldState<T>;
+           final state = field as _TagFormFieldState<T>;
            return TagField<T>(
              values: state.value ?? <T>[],
              onChanged: state.enabled ? state.didChange : null,
@@ -111,9 +111,9 @@ class TagFormField<T extends Object> extends FinesseFormField<List<T>> {
 
   @override
   FinesseFormFieldState<TagFormField<T>, List<T>> createState() =>
-      TagFormFieldState<T>();
+      _TagFormFieldState<T>();
 }
 
 /// The state of a [TagFormField].
-class TagFormFieldState<T extends Object>
+class _TagFormFieldState<T extends Object>
     extends FinesseFormFieldState<TagFormField<T>, List<T>> {}

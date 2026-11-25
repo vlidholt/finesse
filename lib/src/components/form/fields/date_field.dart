@@ -74,7 +74,7 @@ class DateFormField extends FinesseFormField<DateTime> {
   }) : super(
          decorationBuilder: (context) => decoration,
          builder: (state) {
-           state as DateFormFieldState;
+           state as _DateFormFieldState;
            return Align(
              alignment: AlignmentDirectional.centerStart,
              widthFactor: 1,
@@ -102,11 +102,11 @@ class DateFormField extends FinesseFormField<DateTime> {
 
   @override
   FinesseFormFieldState<DateFormField, DateTime> createState() =>
-      DateFormFieldState();
+      _DateFormFieldState();
 }
 
 /// The state of a [DateFormField].
-class DateFormFieldState
+class _DateFormFieldState
     extends FinesseFormFieldState<DateFormField, DateTime> {
   int _generation = 0;
 

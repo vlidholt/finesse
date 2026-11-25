@@ -69,7 +69,7 @@ class SliderFormField extends FinesseFormField<double> {
                  if (value != null) onChanged(value);
                },
          builder: (state) {
-           state as SliderFormFieldState;
+           state as _SliderFormFieldState;
            return Slider(
              value: state.value ?? min ?? 0,
              onChanged: state.didChange,
@@ -90,9 +90,9 @@ class SliderFormField extends FinesseFormField<double> {
 
   @override
   FinesseFormFieldState<SliderFormField, double> createState() =>
-      SliderFormFieldState();
+      _SliderFormFieldState();
 }
 
 /// The state of a [SliderFormField].
-class SliderFormFieldState
+class _SliderFormFieldState
     extends FinesseFormFieldState<SliderFormField, double> {}
