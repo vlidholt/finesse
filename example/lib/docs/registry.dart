@@ -40,6 +40,7 @@ import 'package:example/docs/pages/list_tile.dart';
 import 'package:example/docs/pages/menubar.dart';
 import 'package:example/docs/pages/motion.dart';
 import 'package:example/docs/pages/navigation_bar.dart';
+import 'package:example/docs/pages/navigation_rail.dart';
 import 'package:example/docs/pages/otp_field.dart';
 import 'package:example/docs/pages/overview.dart';
 import 'package:example/docs/pages/page_container.dart';
@@ -149,6 +150,7 @@ final componentDocs = [
   listTileDoc,
   menubarDoc,
   navigationBarDoc,
+  navigationRailDoc,
   otpFieldDoc,
   pageContainerDoc,
   pageRouteDoc,

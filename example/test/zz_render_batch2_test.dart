@@ -4,8 +4,10 @@ import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:example/common/theme_editor/editor_config.dart';
-import 'package:example/docs/examples/navigation_bar/navigation_bar_bottom.dart';
+import 'package:example/docs/examples/navigation_bar/navigation_bar_labels.dart';
+import 'package:example/docs/examples/navigation_rail/navigation_rail_basic.dart';
 import 'package:example/docs/examples/page_route/page_route_push.dart';
+import 'package:example/docs/examples/scaffold/scaffold_navigation.dart';
 import 'package:example/docs/examples/segmented_control/segmented_control_basic.dart';
 import 'package:example/docs/examples/segmented_control/segmented_control_expanded.dart';
 import 'package:example/docs/examples/segmented_control/segmented_control_icons.dart';
@@ -350,13 +352,58 @@ void main() {
   }
 
   if (on('nav')) {
-    testWidgets('bottom bar', (tester) async {
+    for (final (brightness, style) in [
+      (Brightness.light, StylePreset.finesse),
+      (Brightness.dark, StylePreset.finesse),
+      (Brightness.light, StylePreset.nova),
+    ]) {
+      final tag = '${style.name}_${brightness.name}';
+      testWidgets('rail $tag', (tester) async {
+        await render(
+          tester,
+          'rail_$tag',
+          const NavigationRailBasicExample(),
+          size: const Size(620, 480),
+          brightness: brightness,
+          style: style,
+          act: (tester, name) async {
+            await capture(tester, name);
+            await tester.tap(find.bySemanticsLabel('Expand'));
+            await tester.pump();
+            await tester.pump(const Duration(milliseconds: 90));
+            await capture(tester, '${name}_morph');
+            await tester.pumpAndSettle();
+            await capture(tester, '${name}_extended');
+          },
+        );
+      });
+      testWidgets('bottom bar labels $tag', (tester) async {
+        await render(
+          tester,
+          'nav_labels_$tag',
+          const NavigationBarLabelsExample(),
+          size: const Size(420, 300),
+          formFactor: FormFactor.mobile,
+          brightness: brightness,
+          style: style,
+        );
+      });
+    }
+    testWidgets('scaffold layouts', (tester) async {
       await render(
         tester,
-        'nav_bottom',
-        const NavigationBarBottomExample(),
-        size: const Size(420, 300),
-        formFactor: FormFactor.mobile,
+        'scaffold_layouts',
+        const ScaffoldNavigationExample(),
+        size: const Size(820, 560),
+        act: (tester, name) async {
+          await capture(tester, '${name}_desktop');
+          await tester.tap(find.text('Tablet'));
+          await tester.pumpAndSettle();
+          await capture(tester, '${name}_tablet');
+          await tester.tap(find.text('Phone'));
+          await tester.pumpAndSettle();
+          await capture(tester, '${name}_phone');
+        },
       );
     });
   }

@@ -423,7 +423,8 @@ class BottomNavigationBar extends StatelessWidget {
         theme.bottomNavigationBarTheme.labelStyle ?? theme.textTheme.caption;
     return _labelGap +
         MediaQuery.textScalerOf(context).scale(style.fontSize ?? 12) *
-            (style.height ?? 1.2);
+            (style.height ?? 1.2) +
+        _labelGap;
   }
 
   static const _labelGap = 2.0;
@@ -560,8 +561,11 @@ class BottomNavigationBar extends StatelessWidget {
                       box,
                       // Under the lens, not on it. The action has none: it
                       // is a button, not a place.
-                      SizedBox(
+                      Container(
                         width: isFloating ? itemWidth : null,
+                        // A little air between the label and the bar's
+                        // rounded edge.
+                        padding: const EdgeInsets.only(bottom: _labelGap),
                         child: AnimatedColorBuilder(
                           color: selected == null
                               ? const Color(0x00000000)

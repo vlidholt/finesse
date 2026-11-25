@@ -51,6 +51,7 @@ const _slugs = [
   'list_tile',
   'menubar',
   'navigation_bar',
+  'navigation_rail',
   'otp_field',
   'page_container',
   'page_route',
