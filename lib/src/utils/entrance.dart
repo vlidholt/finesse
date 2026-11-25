@@ -483,6 +483,14 @@ class EntranceProgress extends Animation<double>
 /// should close too. While it is hidden or leaving it ignores pointers.
 ///
 /// With reduced motion it is a plain short fade.
+///
+/// The fade is an opacity layer around the whole [child]. A backdrop filter
+/// inside — `Glass`, a blurred `Card`, a glass `Surface` — does not survive
+/// under one on every renderer (the web draws no blur until the fade ends),
+/// so frosted glass reads as a plain tint while it arrives and leaves. The
+/// package's overlays avoid this by letting their own surface take the fade
+/// over, which works because the surface is all they show; [child] here can
+/// be anything, so nothing in it is offered the fade.
 class Entrance extends StatefulWidget {
   /// Creates an entrance around [child].
   const Entrance({
