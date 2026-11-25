@@ -439,6 +439,80 @@ void main() {
       expect(row, expected);
     });
 
+    testWidgets('a child replaced by one of another type takes the place '
+        'in the same frame', (tester) async {
+      // The control it replaces is still mounted, deactivated, while the
+      // new one is built; it gave the place up when it was deactivated.
+      final icon = ValueNotifier(false);
+      addTearDown(icon.dispose);
+      await pump(
+        tester,
+        ValueListenableBuilder<bool>(
+          valueListenable: icon,
+          builder: (context, value, _) => ButtonGroup(
+            children: [
+              outline('A'),
+              if (value)
+                IconButton.outline(
+                  onPressed: () {},
+                  icon: const PhosphorIcon(PhosphorIconsRegular.plus),
+                )
+              else
+                outline('B'),
+            ],
+          ),
+        ),
+      );
+      expect(radiusOf(tester, buttonOf('B')).topLeft, Radius.zero);
+      icon.value = true;
+      await tester.pump();
+      final last = radiusOf(tester, find.byType(IconButton));
+      expect(last.topLeft, Radius.zero);
+      expect(last.topRight, isNot(Radius.zero));
+      // And back.
+      icon.value = false;
+      await tester.pump();
+      expect(radiusOf(tester, buttonOf('B')).topLeft, Radius.zero);
+    });
+
+    testWidgets('so does a Toggle that replaces a Button', (tester) async {
+      final toggle = ValueNotifier(false);
+      addTearDown(toggle.dispose);
+      await pump(
+        tester,
+        ValueListenableBuilder<bool>(
+          valueListenable: toggle,
+          builder: (context, value, _) => ButtonGroup(
+            children: [
+              outline('A'),
+              if (value)
+                Toggle(
+                  variant: ToggleVariant.outline,
+                  value: false,
+                  onChanged: (_) {},
+                  child: const Text('B'),
+                )
+              else
+                outline('B'),
+            ],
+          ),
+        ),
+      );
+      toggle.value = true;
+      await tester.pump();
+      final decorator = tester.widget<Decorator>(
+        find
+            .descendant(
+              of: find.byType(Toggle),
+              matching: find.byType(Decorator),
+            )
+            .first,
+      );
+      final radius =
+          decorator.decoration!.border!.borderRadius! as BorderRadius;
+      expect(radius.topLeft, Radius.zero);
+    });
+
     testWidgets('a toggle group with no gap is one bar', (tester) async {
       await pump(
         tester,
