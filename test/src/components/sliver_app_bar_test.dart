@@ -231,6 +231,38 @@ void main() {
       expect(builds, before);
     });
 
+    testWidgets('collapsed and pinned, a scroll paints nothing of the bar; '
+        'while it collapses, the bar is painted', (tester) async {
+      var paints = 0;
+      await pump(
+        tester,
+        page(
+          SliverAppBar.large(
+            title: const Text('Library'),
+            actions: [
+              CustomPaint(
+                size: const Size(20, 20),
+                painter: _CountingPainter(() => paints++),
+              ),
+            ],
+          ),
+        ),
+      );
+      // Under way: the bar is painted as it collapses.
+      var before = paints;
+      for (final offset in [10.0, 20.0, 30.0]) {
+        await scrollTo(tester, offset);
+      }
+      expect(paints, greaterThan(before));
+      // Collapsed: the page goes on under a bar that stays as it is.
+      await scrollTo(tester, 400);
+      before = paints;
+      for (final offset in [450.0, 600.0, 900.0, 700.0]) {
+        await scrollTo(tester, offset);
+      }
+      expect(paints, before);
+    });
+
     testWidgets('bottom stays under the toolbar when the title has gone, '
         'inside the surface, and still takes taps', (tester) async {
       var taps = 0;
@@ -699,4 +731,17 @@ void main() {
       expect(inBar(find.byType(BackdropFilter)), findsNothing);
     });
   });
+}
+
+/// Counts how often it is painted.
+class _CountingPainter extends CustomPainter {
+  _CountingPainter(this.onPaint);
+
+  final VoidCallback onPaint;
+
+  @override
+  void paint(Canvas canvas, Size size) => onPaint();
+
+  @override
+  bool shouldRepaint(_CountingPainter oldDelegate) => false;
 }

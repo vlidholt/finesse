@@ -176,20 +176,12 @@ void main() {
         expect(structure.blurredDraws, lessThan(200), reason: name);
 
         // A scroll moves a layer. It builds nothing, and it paints nothing
-        // but the thread of a conversation, whose list is lazy — and the
-        // pinned toolbar of the phone profile's `SliverAppBar`, which the
-        // package paints again on every scroll frame even once it has
-        // collapsed: its own sixteen boxes, with the buttons in layers.
+        // but the thread of a conversation, whose list is lazy. A collapsed
+        // `SliverAppBar` is a layer of its own and is not painted again.
         expect(scroll.buildsPerFrame, lessThan(6), reason: '$name\n$details');
         expect(
           scroll.paintsPerFrame,
-          lessThan(
-            destination == StrandDestination.messages
-                ? 80
-                : collapse != null
-                ? 20
-                : 4,
-          ),
+          lessThan(destination == StrandDestination.messages ? 80 : 4),
           reason: '$name\n$details',
         );
         if (collapse != null) {

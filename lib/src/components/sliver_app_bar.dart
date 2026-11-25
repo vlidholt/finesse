@@ -457,7 +457,10 @@ class _SliverAppBarState extends State<SliverAppBar>
       pinned: widget.pinned,
       floating: _floats,
       stretch: widget.stretch && !motion.reduced,
-      child: Semantics(container: true, child: body),
+      // A layer of its own: the viewport paints its slivers again on every
+      // scroll frame, and without one the bar went with them, collapsed and
+      // still or not. Its pieces repaint themselves when the bar moves.
+      child: RepaintBoundary(child: Semantics(container: true, child: body)),
     );
   }
 }
