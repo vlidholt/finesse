@@ -158,6 +158,46 @@ void main() {
     }
   });
 
+  testWidgets('with tags or without, it is as wide as a text field where '
+      'its parent lets it be narrower; unbounded, as wide as its tags', (
+    tester,
+  ) async {
+    for (final initial in [
+      <String>[],
+      ['dart', 'flutter'],
+    ]) {
+      // A column that does not stretch hands its children loose
+      // constraints, as a form field's does.
+      await tester.pumpWidget(
+        _app(
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const TextField(key: Key('plain')),
+              _Host(initial: initial),
+            ],
+          ),
+        ),
+      );
+      expect(
+        tester.getSize(find.byType(TagField<String>)).width,
+        tester.getSize(find.byKey(const Key('plain'))).width,
+        reason: '$initial',
+      );
+      await tester.pumpWidget(const SizedBox.shrink());
+    }
+    await tester.pumpWidget(
+      _app(
+        const SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: _Host(initial: ['dart']),
+        ),
+      ),
+    );
+    expect(tester.getSize(find.byType(TagField<String>)).width, lessThan(320));
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('Enter turns the text into a tag and stays for the next', (
     tester,
   ) async {

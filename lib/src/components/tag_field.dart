@@ -487,56 +487,64 @@ class _TagFieldState<T extends Object> extends State<TagField<T>> {
         top: inset,
         bottom: inset,
       ),
-      child: Wrap(
-        spacing: gap,
-        runSpacing: gap,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        children: [
-          for (final (index, tag) in widget.values.indexed)
-            // The field is the one Tab stop and the keyboard removes tags
-            // from it: the crosses are for a pointer, and for assistive
-            // technology, which meets "Remove design" as a button beside
-            // the tag.
-            ExcludeFocus(
-              key: ValueKey(tag),
-              child: Entrance(
-                // Only a tag the user just added arrives; the ones the
-                // field was built with are simply there.
-                appear: _fresh.contains(tag),
-                spring: Motion.of(context).snappy,
-                child: Semantics(
-                  container: true,
-                  child: Chip(
-                    variant: ChipVariant.soft,
-                    height: tagHeight,
-                    padding: tagPadding,
-                    // The marked tag is the one Backspace removes next.
-                    selected: _marked == index,
-                    onDeleted: () => _remove(index),
-                    deleteSemanticLabel: FinesseLocalizations.of(
-                      context,
-                    ).tagField.remove(tag: _display(tag)),
-                    enabled: _enabled,
-                    label: widget.labelBuilder(context, tag),
+      // As wide as it may be, like a text field: a Wrap on its own is only
+      // as wide as its tags, so a field with tags in it shrank to them
+      // wherever its parent let it (a form field's column). Unbounded, it is
+      // as wide as its tags.
+      child: Align(
+        alignment: AlignmentDirectional.topStart,
+        heightFactor: 1,
+        child: Wrap(
+          spacing: gap,
+          runSpacing: gap,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            for (final (index, tag) in widget.values.indexed)
+              // The field is the one Tab stop and the keyboard removes tags
+              // from it: the crosses are for a pointer, and for assistive
+              // technology, which meets "Remove design" as a button beside
+              // the tag.
+              ExcludeFocus(
+                key: ValueKey(tag),
+                child: Entrance(
+                  // Only a tag the user just added arrives; the ones the
+                  // field was built with are simply there.
+                  appear: _fresh.contains(tag),
+                  spring: Motion.of(context).snappy,
+                  child: Semantics(
+                    container: true,
+                    child: Chip(
+                      variant: ChipVariant.soft,
+                      height: tagHeight,
+                      padding: tagPadding,
+                      // The marked tag is the one Backspace removes next.
+                      selected: _marked == index,
+                      onDeleted: () => _remove(index),
+                      deleteSemanticLabel: FinesseLocalizations.of(
+                        context,
+                      ).tagField.remove(tag: _display(tag)),
+                      enabled: _enabled,
+                      label: widget.labelBuilder(context, tag),
+                    ),
                   ),
                 ),
               ),
-            ),
-          if (hasTags)
-            // As wide as what is typed, and never too narrow to tap: it
-            // wraps onto a line of its own when the tags leave no room.
-            IntrinsicWidth(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minWidth: _full ? 0 : 40),
-                child: Padding(
-                  padding: const EdgeInsetsDirectional.only(start: 2),
-                  child: input,
+            if (hasTags)
+              // As wide as what is typed, and never too narrow to tap: it
+              // wraps onto a line of its own when the tags leave no room.
+              IntrinsicWidth(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minWidth: _full ? 0 : 40),
+                  child: Padding(
+                    padding: const EdgeInsetsDirectional.only(start: 2),
+                    child: input,
+                  ),
                 ),
-              ),
-            )
-          else
-            input,
-        ],
+              )
+            else
+              input,
+          ],
+        ),
       ),
     );
 
