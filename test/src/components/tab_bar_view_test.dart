@@ -1,4 +1,5 @@
 import 'package:finesse/finesse.dart';
+import 'package:finesse/src/components/tab_bar_view.dart' show TabPages;
 import 'package:finesse/src/utils/moving_indicator.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
@@ -712,6 +713,104 @@ void main() {
       await tester.tap(find.text('B'));
       await tester.pumpAndSettle();
       expect(controller.value, 'b');
+    });
+
+    testWidgets('controlled by value: a parent that does not follow keeps '
+        'its tab', (tester) async {
+      final changes = <String>[];
+      await pumpFinesse(tester, tabs(onChanged: changes.add), theme: _theme);
+      await tester.tap(find.text('B'));
+      await tester.pumpAndSettle();
+      expect(changes, ['b']);
+      expect(find.text('page a').hitTestable(), findsOneWidget);
+      expect(find.text('page b').hitTestable(), findsNothing);
+      // Swiped, the pages come back to the tab the value names.
+      await tester.flingFrom(
+        tester.getCenter(_page('a')),
+        const Offset(-80, 0),
+        900,
+      );
+      await tester.pumpAndSettle();
+      expect(changes, ['b', 'b']);
+      expect(tester.getTopLeft(_page('a')).dx, 0);
+      expect(find.text('page b').hitTestable(), findsNothing);
+    });
+
+    testWidgets('with a value and no onChanged is inert, as TabBar is', (
+      tester,
+    ) async {
+      await pumpFinesse(tester, tabs(), theme: _theme);
+      await tester.tap(find.text('B'));
+      await tester.pumpAndSettle();
+      expect(find.text('page a').hitTestable(), findsOneWidget);
+      await tester.flingFrom(
+        tester.getCenter(_page('a')),
+        const Offset(-80, 0),
+        900,
+      );
+      await tester.pumpAndSettle();
+      expect(tester.getTopLeft(_page('a')).dx, 0);
+      expect(find.text('page b').hitTestable(), findsNothing);
+    });
+
+    testWidgets('restores a selection whose values are not primitives', (
+      tester,
+    ) async {
+      var value = TabBarVariant.segmented;
+      await tester.pumpWidget(
+        FinesseApp(
+          restorationScopeId: 'app',
+          home: StatefulBuilder(
+            builder: (context, setState) => Tabs<TabBarVariant>(
+              value: value,
+              onChanged: (next) => setState(() => value = next),
+              restorationId: 'tabs',
+              tabs: const [
+                Tab(
+                  value: TabBarVariant.segmented,
+                  content: Text('page segmented'),
+                  child: Text('Segmented'),
+                ),
+                Tab(
+                  value: TabBarVariant.underline,
+                  content: Text('page underline'),
+                  child: Text('Underline'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Underline'));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.text('page underline').hitTestable(), findsOneWidget);
+      value = TabBarVariant.segmented;
+      await tester.restartAndRestore();
+      expect(find.text('page underline').hitTestable(), findsOneWidget);
+    });
+
+    testWidgets('expandContent in a scrolling page is as tall as its '
+        'content', (tester) async {
+      await pumpFinesse(
+        tester,
+        SingleChildScrollView(
+          child: Tabs<String>(
+            value: 'a',
+            expandContent: true,
+            tabs: const [
+              Tab(
+                value: 'a',
+                content: SizedBox(height: 120, child: Text('page a')),
+                child: Text('A'),
+              ),
+              Tab(value: 'b', content: Text('page b'), child: Text('B')),
+            ],
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      expect(tester.getSize(find.byType(TabPages)).height, 120);
     });
 
     testWidgets('the underline variant is the same widget with the other '

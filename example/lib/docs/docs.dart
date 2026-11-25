@@ -463,7 +463,7 @@ class ExamplePreview extends StatelessWidget {
 
 /// A titled example section: heading, optional description, and a
 /// Preview / Code tab pair.
-class DocExample extends StatelessWidget {
+class DocExample extends StatefulWidget {
   const DocExample({
     super.key,
     required this.slug,
@@ -472,6 +472,16 @@ class DocExample extends StatelessWidget {
 
   final String slug;
   final ComponentExample example;
+
+  @override
+  State<DocExample> createState() => _DocExampleState();
+}
+
+class _DocExampleState extends State<DocExample> {
+  String _tab = 'preview';
+
+  String get slug => widget.slug;
+  ComponentExample get example => widget.example;
 
   @override
   Widget build(BuildContext context) {
@@ -492,7 +502,8 @@ class DocExample extends StatelessWidget {
         ],
         const SizedBox(height: 12),
         Tabs<String>(
-          value: 'preview',
+          value: _tab,
+          onChanged: (value) => setState(() => _tab = value),
           tabBarAlignment: Alignment.centerLeft,
           tabs: [
             Tab(
