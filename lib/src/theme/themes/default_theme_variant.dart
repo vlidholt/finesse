@@ -2698,7 +2698,9 @@ class DefaultThemeVariant extends ThemeVariant {
       jumpToNextFieldWhenFilled: true,
       alignment: WrapAlignment.center,
       runAlignment: WrapAlignment.center,
-      crossAxisAlignment: WrapCrossAlignment.center,
+      // The fields stand on one line, under their names; what is beside
+      // them is centred on a field.
+      crossAxisAlignment: WrapCrossAlignment.end,
       gap: 4,
       // The reference has no time picker; its fields take the same text,
       // outline, fill and height as a text field so a picker sits level with

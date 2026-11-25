@@ -461,8 +461,14 @@ class _TimeFieldState extends State<TimeField> {
 
     final showPeriod = widget.showHours && !twentyFour;
     var slot = 0;
+    // Beside the fields, not beside their names: centred on a field's
+    // height at the foot of the row.
+    Widget besideFields(Widget child) => ConstrainedBox(
+      constraints: BoxConstraints(minHeight: theme.style.inputHeight),
+      child: Align(widthFactor: 1, child: child),
+    );
     final children = <Widget>[
-      ?widget.leading,
+      if (widget.leading case final leading?) besideFields(leading),
       if (widget.showHours)
         unit(
           label: l.timePicker.hours,
@@ -485,56 +491,59 @@ class _TimeFieldState extends State<TimeField> {
           last: !showPeriod,
         ),
       if (showPeriod)
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (widget.showLabels) ...[
-              DefaultTextStyle(
-                style: labelStyle,
-                child: Text(l.timePicker.period),
-              ),
-              SizedBox(height: gap),
-            ],
-            SizedBox(
-              height: field.periodHeight ?? 36,
-              child: Select<DayPeriod>(
-                // Rebuilt when a new time is written from outside: the
-                // select holds its own value.
-                key: ValueKey(_period),
-                focusNode: _periodNode,
-                minWidth: field.periodMinWidth ?? 65,
-                placeholder: Text(
-                  l.timePicker.periodPlaceholder,
-                  style: theme.textTheme.muted,
+        MergeSemantics(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (widget.showLabels) ...[
+                DefaultTextStyle(
+                  style: labelStyle,
+                  child: Text(l.timePicker.period),
                 ),
-                initialValue: _period,
-                decoration:
-                    (field.periodDecoration ?? const FinesseDecoration()).merge(
-                      widget.decoration,
+                SizedBox(height: gap),
+              ],
+              SizedBox(
+                height: field.periodHeight ?? 36,
+                child: Select<DayPeriod>(
+                  // Rebuilt when a new time is written from outside: the
+                  // select holds its own value.
+                  key: ValueKey(_period),
+                  focusNode: _periodNode,
+                  minWidth: field.periodMinWidth ?? 65,
+                  placeholder: Text(
+                    l.timePicker.periodPlaceholder,
+                    style: theme.textTheme.muted,
+                  ),
+                  initialValue: _period,
+                  decoration:
+                      (field.periodDecoration ?? const FinesseDecoration())
+                          .merge(
+                            widget.decoration,
+                          ),
+                  enabled: widget.enabled,
+                  options: [
+                    SelectOption(
+                      value: DayPeriod.am,
+                      child: Text(l.timePicker.am),
                     ),
-                enabled: widget.enabled,
-                options: [
-                  SelectOption(
-                    value: DayPeriod.am,
-                    child: Text(l.timePicker.am),
+                    SelectOption(
+                      value: DayPeriod.pm,
+                      child: Text(l.timePicker.pm),
+                    ),
+                  ],
+                  selectedOptionBuilder: (context, value) => Text(
+                    value == DayPeriod.am ? l.timePicker.am : l.timePicker.pm,
                   ),
-                  SelectOption(
-                    value: DayPeriod.pm,
-                    child: Text(l.timePicker.pm),
-                  ),
-                ],
-                selectedOptionBuilder: (context, value) => Text(
-                  value == DayPeriod.am ? l.timePicker.am : l.timePicker.pm,
+                  onChanged: (value) {
+                    _period = value;
+                    _changed();
+                  },
                 ),
-                onChanged: (value) {
-                  _period = value;
-                  _changed();
-                },
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ?widget.trailing,
+      if (widget.trailing case final trailing?) besideFields(trailing),
     ];
 
     return Focus(
@@ -547,8 +556,8 @@ class _TimeFieldState extends State<TimeField> {
         runSpacing: field.runSpacing ?? 4,
         alignment: field.alignment ?? WrapAlignment.center,
         runAlignment: field.runAlignment ?? WrapAlignment.center,
-        crossAxisAlignment:
-            field.crossAxisAlignment ?? WrapCrossAlignment.center,
+        // The fields stand on one line, whatever is above them.
+        crossAxisAlignment: field.crossAxisAlignment ?? WrapCrossAlignment.end,
         // Hours, then minutes, then seconds, whichever way text runs.
         textDirection: TextDirection.ltr,
         children: children,
@@ -600,43 +609,47 @@ class _TimeUnitField extends StatelessWidget {
     // A fixed box around two digits: like an OTP slot it has to grow with
     // the text scale or the glyphs are clipped.
     final textScale = MediaQuery.textScalerOf(context).scale(1);
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (label != null) ...[
-          DefaultTextStyle(style: labelStyle, child: label!),
-          SizedBox(height: gap),
-        ],
-        SizedBox(
-          width: width * textScale,
-          child: Semantics(
-            label: label == null ? semanticLabel : null,
-            child: TextField(
-              enabled: enabled,
-              focusNode: focusNode,
-              autofocus: autofocus,
-              style: style,
-              placeholderStyle: placeholderStyle,
-              controller: controller,
-              decoration: decoration,
-              placeholder: const Text('00'),
-              // The digits sit in the middle of the fixed box, like an OTP
-              // slot.
-              textAlign: TextAlign.center,
-              placeholderAlignment: Alignment.center,
-              keyboardType: TextInputType.number,
-              textInputAction: textInputAction,
-              maxLength: 2,
-              showCursor: false,
-              maxLengthEnforcement: MaxLengthEnforcement.none,
-              padding: padding,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              onChanged: onChanged,
-              keyboardToolbarBuilder: keyboardToolbarBuilder,
+    // One node per field, named by its label: a screen reader stops on
+    // "Hours" once, not on a label and then a nameless text field.
+    return MergeSemantics(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (label != null) ...[
+            DefaultTextStyle(style: labelStyle, child: label!),
+            SizedBox(height: gap),
+          ],
+          SizedBox(
+            width: width * textScale,
+            child: Semantics(
+              label: label == null ? semanticLabel : null,
+              child: TextField(
+                enabled: enabled,
+                focusNode: focusNode,
+                autofocus: autofocus,
+                style: style,
+                placeholderStyle: placeholderStyle,
+                controller: controller,
+                decoration: decoration,
+                placeholder: const Text('00'),
+                // The digits sit in the middle of the fixed box, like an OTP
+                // slot.
+                textAlign: TextAlign.center,
+                placeholderAlignment: Alignment.center,
+                keyboardType: TextInputType.number,
+                textInputAction: textInputAction,
+                maxLength: 2,
+                showCursor: false,
+                maxLengthEnforcement: MaxLengthEnforcement.none,
+                padding: padding,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                onChanged: onChanged,
+                keyboardToolbarBuilder: keyboardToolbarBuilder,
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

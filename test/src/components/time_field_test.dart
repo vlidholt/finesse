@@ -293,6 +293,62 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
+    testWidgets('every field has a name, shown or not, and is one node', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      for (final showLabels in [true, false]) {
+        await pumpFinesse(
+          tester,
+          Center(
+            child: TimeField(
+              use24HourFormat: true,
+              showSeconds: true,
+              showLabels: showLabels,
+            ),
+          ),
+        );
+        for (final name in ['Hours', 'Minutes', 'Seconds']) {
+          // The label is the text field's name, not a node of its own
+          // beside a nameless field.
+          final node = find.bySemanticsLabel(RegExp('^$name'));
+          expect(node, findsOneWidget, reason: '$name, labels $showLabels');
+          expect(
+            tester
+                .getSemantics(node)
+                .getSemanticsData()
+                .flagsCollection
+                .isTextField,
+            isTrue,
+            reason: '$name, labels $showLabels',
+          );
+        }
+      }
+      handle.dispose();
+    });
+
+    testWidgets('leading and trailing are centred on the fields, not on the '
+        'fields and their names', (tester) async {
+      await pumpFinesse(
+        tester,
+        const Center(
+          child: TimeField(
+            use24HourFormat: true,
+            leading: Text('From'),
+            trailing: Text('UTC'),
+          ),
+        ),
+      );
+      final field = tester.getCenter(fields().first).dy;
+      expect(tester.getCenter(find.text('From')).dy, closeTo(field, .5));
+      expect(tester.getCenter(find.text('UTC')).dy, closeTo(field, .5));
+      // And the names still stand above their fields.
+      expect(
+        tester.getBottomLeft(find.text('Hours')).dy,
+        lessThanOrEqualTo(tester.getTopLeft(fields().first).dy),
+      );
+    });
+
     testWidgets('disabled fields take no text', (tester) async {
       await pumpFinesse(
         tester,
