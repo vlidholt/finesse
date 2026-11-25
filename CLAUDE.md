@@ -1747,9 +1747,16 @@ disco providers in `common/app_state.dart`, provided above `FinesseApp`.
   snippet share), highlighted by `syntax_highlight`, whose grammar loads
   in `main()` via `CodeHighlighter.ensureInitialized()` **before** `runApp`.
 - `skills/finesse-overview/components/*.md` are generated from the docs
-  pages by `dart run scripts/generate_skills.dart`, which reads only
-  single-quoted string literals; the pages it covers have to be the ones
-  in `docs/registry.dart`. Regenerate after changing a docs page.
+  pages by `dart run scripts/generate_skills.dart`. It takes the component
+  pages from `componentDocs` in `docs/registry.dart` (each found by its
+  `final xDoc = ComponentDoc(` declaration), deletes pages that left the
+  registry, and requires every guide page in the registry to have an
+  entry in its `guidePages` map naming the hand-written guide that covers
+  it. It also fails on a `.md` link that goes nowhere and on a component
+  page `SKILL.md` does not link. `--check` changes nothing and exits 1
+  when a page is stale, and `test/scripts/generate_skills_test.dart` runs
+  it, so **changing a docs page's text without regenerating fails the
+  root suite**, as does adding a guide page without a `guidePages` entry.
 - `example/test_driver/app.dart` wraps `main()` in
   `enableFlutterDriverExtension()`; run with
   `flutter run -t test_driver/app.dart` to drive the app from tooling
