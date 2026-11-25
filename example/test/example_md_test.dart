@@ -14,8 +14,8 @@ class App extends StatelessWidget {
     return FinesseApp(
       theme: ThemeData(
         colorScheme: const ZincColorScheme.light(),
-        // One of shadcn/ui's eight styles: vega, nova, maia, lyra, mira,
-        // luma, sera or rhea.
+        // One of the four styles: finesse (the default), or shadcn/ui's
+        // nova, maia or lyra.
         style: StyleTokens.nova,
       ),
       darkTheme: ThemeData(
