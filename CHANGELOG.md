@@ -208,6 +208,12 @@ package as it is, compared with shad.
   standing in for hover on a touch screen is built into
   `FinesseGestureDetector`, and the tooltip has its own long press.
   `Button.canRequestFocus` is gone (pass a `focusNode`, or `ExcludeFocus`).
+- **A button with nothing to do is disabled.** A `Button` or `IconButton`
+  with no `onPressed`, no `onLongPress` and not loading is dimmed by
+  `ThemeData.disabledOpacity`, is no Tab stop and has no hover or click
+  cursor, as a `Toggle`, `Chip`, `ListTile` or FAB with no callback. The
+  current page of a `Pagination` keeps a callback, so it stays a Tab stop.
+  `IconButton` is a `StatefulWidget`.
 - **`ButtonSize.icon` is removed**: use `IconButton`, sized from the
   theme's square sizes for `sm`, `regular` and `lg`.
 - **`Badge` is a static pill.** `onPressed`, `enabled`,
@@ -302,6 +308,8 @@ package as it is, compared with shad.
   `closeOnSelection` defaults to true and `DatePickerTheme` has eight
   fields. `TimeOfDay` has no `period` argument and its `second` is
   optional. The calendar's styling moved to `CalendarTheme`.
+  `TimeField.onChanged` takes a `TimeOfDay?`: it reports null when a field
+  of a complete time is emptied.
 - **Picker triggers are fields.** `DatePicker`, `DateRangePicker` and
   `TimePicker` look like a text field by default; `variant:` (or the
   theme's `buttonVariant`, now null by default) makes them a button.
@@ -322,7 +330,9 @@ package as it is, compared with shad.
   `tabAlignment` places it — on `TabBar`, `Tabs` and `TabsTheme` alike
   (`TabsTheme.tabBarAlignment` is `tabAlignment`); `showBorder` drops the
   hairline under an underline bar on both. A tab's label ends in an
-  ellipsis when its tab is too narrow.
+  ellipsis when its tab is too narrow. A `Tabs` controlled by `value`
+  selects a tab only once the value names it, and without `onChanged` (or
+  a `controller`) its tabs are inert, as a `TabBar`'s are.
 
 ### Added
 
@@ -356,7 +366,8 @@ package as it is, compared with shad.
 
 - `NavigationBar` for the top of a wide screen, a floating
   `BottomNavigationBar` for a phone (`showLabels`), `NavigationRail`
-  (`NavigationRailTheme`) and `NavigationScaffold`, which places them by
+  (`NavigationRailTheme`; translucent, and frosted only with `blur`) and
+  `NavigationScaffold`, which places them by
   `layout` (`NavigationLayout.auto`, `bottomBar`, `topBar`, `rail`).
   `NavigationDestination.showInRail`.
 - `DestinationStack`: the destinations' pages, each built on first visit
@@ -417,6 +428,7 @@ package as it is, compared with shad.
   and `DateRangePicker` with a full-width calendar or wheels, `TimePicker`
   with wheels, and a searchable or multiple `Select`. `SelectOption.label`.
 - `Slider` and `RangeSlider` value indicators (`SliderValueIndicator`),
+  `RangeSlider.focusNode` (its lowest thumb's),
   `Checkbox(tristate:)`, `FinesseRadioGroup(child:)`, `RadioGroupScope`.
 - `Chip` (`onDeleted`, `showCheckmark`, `enabled`) and `ChipGroup`
   (`ChipGroupItem`; one, or several with `ChipGroup.multiple`, wrapping or
@@ -576,7 +588,36 @@ Problems inherited from shad:
   toggles; their style height is now a minimum once the text scale is
   above 1. Calendar cells grow with the text scale, and a month wider than
   the room is scaled down.
-- The calendar's header did not mirror in a right-to-left locale.
+- The calendar's header and the ends of a selected range did not mirror in
+  a right-to-left locale, and neither did `Slider` and `RangeSlider`,
+  which assistive technology could not adjust either.
+- An accordion's header was not announced as a button with its expanded
+  state, and a closed item kept by `maintainState` was a Tab stop, a tap
+  target and read out.
+- A sortable `DataTable` column's header could not be reached from the
+  keyboard and did not announce how the column is sorted.
+- A disabled `Button` was dimmed by a fixed half instead of
+  `ThemeData.disabledOpacity`; `ButtonTheme.pressedOffset` moved a pressed
+  button sideways by a hundredth of its width instead of in logical
+  pixels, and shifted one with no height out of sight; an `IconButton`
+  ignored the size of its variant's `ButtonTheme`.
+- `ProgressBar` threw when it went indeterminate a second time.
+- `Tabs(restorationId:)` threw for a value that is not a string, a number
+  or a bool, and `Tabs(expandContent: true)` threw in a scroll view.
+- `SidebarScaffold`'s keyboard shortcut toggled a sidebar under a dialog
+  or in a hidden tab, took Ctrl+B from a focused text field (which moves
+  the caret back on a Mac) and answered both modifiers everywhere: it is
+  ⌘B on Apple platforms and Ctrl+B elsewhere, heard after the focused
+  widget has passed on the key. Its label is localized, and it follows
+  the form factor rather than the window's width.
+- An uncontrolled `Select.multiple` lost its choice when rebuilt with equal
+  `initialValues`, and a custom search field of `Select.withSearch` did
+  not take Space or Enter.
+- A menubar menu closed by a choice or by Escape left the menubar open.
+- A `Popover` could not switch between `controller:` and `open:`, and
+  `ContextMenuTheme.subMenuPadding` did not reach submenus.
+- A reset of a `FinesseForm` called a text form field's `onChanged` and
+  the form's `onReset` twice.
 - A calendar or date picker whose value was set to null from outside kept
   its selection, and a picker trigger's long label overflowed.
 - A button was not one semantics node (the text beside it joined its

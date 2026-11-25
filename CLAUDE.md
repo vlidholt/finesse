@@ -1038,7 +1038,10 @@ web ends when commands reach the GPU, so GPU-bound work does not show in it.
   `Glass(frosted: false)`; a label on a photograph is a plain scrim, not an
   isolated backdrop (that was a save layer and a filter per card). A theme
   opts in with `StyleTokens.finesse.copyWith(cardBlur: true)` or
-  `CardTheme(blur: …)`; the example's Frost preset does.
+  `CardTheme(blur: …)`; the example's Frost preset does. The navigation
+  rail is the same case: it lies beside the page on a flat fill, so it is
+  translucent but not frosted by default, and `NavigationRailTheme(blur:)`
+  opts in.
 - **A scrolling page is a layer, and so is a card.** `PageContainer` and
   `Card` each add a `RepaintBoundary`: a scroll paints nothing, and an
   animation on the page repaints the page's own few boxes. A hand-rolled
@@ -1087,6 +1090,12 @@ web ends when commands reach the GPU, so GPU-bound work does not show in it.
   the widgets themselves. `Card`, `Dialog` and `Sheet` are styled the same
   way (`style: CardTheme(...)`, even for a card's `padding` or a dialog's
   `constraints`); what they show and how they behave stay parameters.
+- **A `Button` or `IconButton` with no `onPressed`, no `onLongPress` and
+  not `loading` is disabled** — dimmed by `ThemeData.disabledOpacity`, no
+  Tab stop, no hover, no click cursor — as a `Toggle`, `Chip`, `ListTile`
+  or FAB with no callback is. A control that must stay a Tab stop with
+  nothing to do (the current page of a `Pagination`, which keeps
+  `aria-current`) passes a no-op callback.
 - **Rarer gestures are a `FinesseGestureDetector` around the control**
   (double tap, secondary tap, tap down, long-press phases, pan). The
   control keeps its own tap, so a second `onTap`/`onTapDown` there loses
@@ -1203,6 +1212,9 @@ ticks only for a finger's changes, as the board and the wheel do.
   selected tab takes the focus, the others `skipTraversal` — and the arrows
   move the selection. `SemanticsRole.tabBar` throws if a direct child is
   not a tab, so a tooltip or label goes inside the tab's `MergeSemantics`.
+  A `Tabs` or `TabBar` controlled by `value` selects a tab only once the
+  parent's value names it, and **with a `value` and no `onChanged` (nor a
+  `controller`) it is inert**: its tabs are drawn disabled.
 - **`TabPages` is not a `PageView`**: one render object with the hidden
   pages off stage, the drag divisor a page plus its gutter. A page's
   builder context sits under the `TickerMode`/`Visibility` (a `Builder`),
@@ -1352,7 +1364,11 @@ ticks only for a finger's changes, as the board and the wheel do.
   all six borders, and a non-first child's leading side is width 0 with
   that width added to the border's padding: neighbours must not overlap,
   or a translucent hairline doubles. The first control built under a
-  child claims its place, and the focused child is painted last.
+  child claims its place, and the focused child is painted last. A
+  control replaced by one of another type is still mounted (deactivated)
+  while its successor builds, so `Element.mounted` cannot tell a stale
+  claim from a live one: `ButtonGroupScope` frees a claim in its
+  element's `removeDependent`, which `Element.deactivate` calls.
 - `Button(loading:)` wraps the label only once it has been loading
   (`_hasLoaded`), so the label is not re-parented each time loading ends.
 - `Stepper` draws two half-lines per connector on one spring, and builds
