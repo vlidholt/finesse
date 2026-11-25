@@ -365,6 +365,8 @@ package as it is, compared with shad.
   `NavigationMenuTheme`: a site navigation bar with panels.
 - `TabBar`, `Tab`, `TabBarView` (swipeable pages keyed by value),
   `TabsController` (shared by a bar and its view, with `swipePosition`),
+  `RestorableTabsController` (saved as the index of its tab, so a value of
+  any type is restored),
   `SegmentedControl`, `Segment`, `SegmentedControlFormField`.
 - Back gestures on `FinessePageRoute`: the iOS edge swipe and Android's
   predictive back preview (`backGesture`), and `FinessePage` for the

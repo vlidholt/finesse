@@ -53,16 +53,37 @@ class TabsController<T> extends ChangeNotifier {
 /// A [TabsController] that is saved and brought back by state restoration.
 ///
 /// Register it in a `RestorationMixin`'s `restoreState` and pass its
-/// `value` — the controller — to the tabs. The selected value is saved as
-/// it is, so it has to be one the restoration framework can store: a
-/// string, a number, a bool or null.
+/// `value` — the controller — to the tab bar and its view. The selection is
+/// saved as the index of its tab in [values], so a value of any type — an
+/// enum — can be restored; a saved index that no tab has any more restores
+/// [initialValue].
+///
+/// ```dart
+/// final _tabs = RestorableTabsController<Section>(
+///   value: Section.posts,
+///   values: Section.values,
+/// );
+///
+/// @override
+/// void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
+///   registerForRestoration(_tabs, 'tabs');
+/// }
+/// ```
 class RestorableTabsController<T>
     extends RestorableChangeNotifier<TabsController<T>> {
-  /// Creates a restorable controller that starts on [value].
-  RestorableTabsController({required T value}) : initialValue = value;
+  /// Creates a restorable controller that starts on [value], one of
+  /// [values].
+  RestorableTabsController({required T value, required List<T> values})
+    : initialValue = value,
+      _values = values;
 
   /// The tab selected before anything was restored.
   final T initialValue;
+
+  final List<T> _values;
+
+  /// The values of the tabs, in order: what the saved index counts.
+  List<T> get values => _values;
 
   @override
   TabsController<T> createDefaultValue() {
@@ -71,24 +92,7 @@ class RestorableTabsController<T>
 
   @override
   TabsController<T> fromPrimitives(Object? data) {
-    return TabsController<T>(value: data! as T);
-  }
-
-  @override
-  Object? toPrimitives() => value.value;
-}
-
-/// The local controller of a [Tabs], saved as the index of its tab, so
-/// that a value of any type — an enum — can be restored.
-class _RestorableTabIndex<T> extends RestorableTabsController<T> {
-  _RestorableTabIndex({required super.value, required this.values});
-
-  /// The values of the tabs, in order, as they are now.
-  final List<T> Function() values;
-
-  @override
-  TabsController<T> fromPrimitives(Object? data) {
-    final values = this.values();
+    final values = this.values;
     final index = data is int ? data : -1;
     return TabsController<T>(
       value: index >= 0 && index < values.length ? values[index] : initialValue,
@@ -97,9 +101,22 @@ class _RestorableTabIndex<T> extends RestorableTabsController<T> {
 
   @override
   Object? toPrimitives() {
-    final index = values().indexOf(value.value);
+    final index = values.indexOf(value.value);
     return index < 0 ? null : index;
   }
+}
+
+/// The local controller of a [Tabs], whose tabs are the widget's as they
+/// are now.
+class _RestorableTabIndex<T> extends RestorableTabsController<T> {
+  _RestorableTabIndex({required super.value, required this.currentValues})
+    : super(values: const []);
+
+  /// The values of the tabs, in order, as they are now.
+  final List<T> Function() currentValues;
+
+  @override
+  List<T> get values => currentValues();
 }
 
 /// One tab of a `TabBar` or a [Tabs]: its [value], its label and — in a
@@ -333,7 +350,7 @@ class _TabsState<T> extends State<Tabs<T>> with RestorationMixin {
     assert(_local == null);
     _local = _RestorableTabIndex<T>(
       value: value,
-      values: () => [for (final tab in widget.tabs) tab.value],
+      currentValues: () => [for (final tab in widget.tabs) tab.value],
     );
     if (!restorePending) registerForRestoration(_local!, 'controller');
   }
