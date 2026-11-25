@@ -20,6 +20,7 @@ AppBar
 AppBarSurfaceBehavior
 AppBarTheme
 Autocomplete
+AutocompleteFormField
 Avatar
 AvatarGroup
 AvatarTheme
@@ -97,6 +98,7 @@ CheckboxListTile
 CheckboxTheme
 Chip
 ChipGroup
+ChipGroupFormField
 ChipGroupItem
 ChipTheme
 ChipVariant
@@ -108,6 +110,7 @@ CollapsibleTheme
 CollapsibleTriggerBuilder
 ColorPicker
 ColorPickerButton
+ColorPickerFormField
 ColorScheme
 Command
 CommandFilter
@@ -125,6 +128,8 @@ DataTableColumn
 DataTableController
 DataTablePage
 DataTablePageRequest
+DateField
+DateFormField
 DateFormat
 DatePicker
 DatePickerFormField
@@ -158,6 +163,7 @@ EmptyTheme
 Entrance
 EntranceProgress
 ExpandReveal
+ExpansionTile
 FinesseApp
 FinesseAppBuilder
 FinesseAppType
@@ -264,6 +270,10 @@ NavigationBar
 NavigationBarTheme
 NavigationDestination
 NavigationLayout
+NavigationMenu
+NavigationMenuItem
+NavigationMenuLink
+NavigationMenuTheme
 NavigationRail
 NavigationRailTheme
 NavigationScaffold
@@ -322,7 +332,9 @@ RadioTheme
 RadiusScale
 RadiusToken
 RangeSlider
+RangeSliderFormField
 Rating
+RatingFormField
 RefreshIndicator
 RefreshIndicatorState
 RefreshIndicatorTheme
@@ -396,6 +408,8 @@ SliderInteraction
 SliderTheme
 SliderValueIndicator
 SliverAppBar
+SliverListSection
+SliverReorderableListView
 SortDirection
 Spacing
 SpanDecoration
@@ -444,6 +458,7 @@ Tabs
 TabsController
 TabsTheme
 TagField
+TagFormField
 TealColorScheme
 TextDefaultTheme
 TextField
