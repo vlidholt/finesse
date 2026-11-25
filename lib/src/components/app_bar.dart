@@ -158,11 +158,15 @@ class AppBar extends StatelessWidget {
     final behavior =
         surfaceBehavior ?? bar.surfaceBehavior ?? AppBarSurfaceBehavior.always;
 
+    final implied = leading == null && automaticallyImplyLeading
+        ? impliedLeading(context)
+        : null;
     final toolbar = AppBarToolbar(
       height: toolbarHeight,
-      leading:
-          leading ??
-          (automaticallyImplyLeading ? impliedLeading(context) : null),
+      leading: leading ?? implied,
+      // The bar's own button lines its glyph up with the page margin, as
+      // the title of a bar without one does.
+      alignLeadingGlyph: implied != null,
       title: title,
       middle: middle,
       actions: actions,

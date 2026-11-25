@@ -32,6 +32,9 @@ Widget? impliedLeading(BuildContext context) {
   return null;
 }
 
+/// The least a pulled-out leading button keeps from the edge of the bar.
+const _minLeadingMargin = 4.0;
+
 /// The row of a bar: [leading], [title], [middle] and [actions], in the
 /// bar's text and icon styles, inside the bar's margins.
 class AppBarToolbar extends StatelessWidget {
@@ -43,6 +46,7 @@ class AppBarToolbar extends StatelessWidget {
     this.middle,
     this.actions = const [],
     this.centerTitle = false,
+    this.alignLeadingGlyph = false,
     this.padding,
     this.maxWidth,
     this.gap,
@@ -68,6 +72,11 @@ class AppBarToolbar extends StatelessWidget {
   /// Whether [title] is centred in the bar. A [middle] has the centre
   /// first.
   final bool centerTitle;
+
+  /// Whether [leading] is an icon button whose *glyph*, not its box, should
+  /// stand on the row's margin: the box is then moved out towards the edge
+  /// by its own inner inset, as far as the margin allows.
+  final bool alignLeadingGlyph;
 
   /// Padding around the row. Defaults to the theme's.
   final EdgeInsetsGeometry? padding;
@@ -145,6 +154,24 @@ class AppBarToolbar extends StatelessWidget {
       );
     }
 
+    final direction = Directionality.of(context);
+    var effectivePadding =
+        (padding ?? bar.padding ?? const EdgeInsets.symmetric(horizontal: 24))
+            .resolve(direction);
+    if (alignLeadingGlyph && leading != null) {
+      final ltr = direction == TextDirection.ltr;
+      final margin = ltr ? effectivePadding.left : effectivePadding.right;
+      final inset =
+          (theme.style.iconButtonSize - theme.style.iconButtonIconSize) / 2;
+      // Never right up against the edge.
+      final room = margin - _minLeadingMargin;
+      final pulled = margin - inset.clamp(0.0, room < 0 ? 0.0 : room);
+      effectivePadding = effectivePadding.copyWith(
+        left: ltr ? pulled : null,
+        right: ltr ? null : pulled,
+      );
+    }
+
     return SizedBox(
       height: height,
       child: Center(
@@ -153,10 +180,7 @@ class AppBarToolbar extends StatelessWidget {
             maxWidth: maxWidth ?? bar.maxWidth ?? double.infinity,
           ),
           child: Padding(
-            padding:
-                padding ??
-                bar.padding ??
-                const EdgeInsets.symmetric(horizontal: 24),
+            padding: effectivePadding,
             child: DefaultTextStyle.merge(
               style: (bar.titleStyle ?? theme.textTheme.large).copyWith(
                 color: foreground,

@@ -1879,7 +1879,12 @@ class DefaultThemeVariant extends ThemeVariant {
       radius: square ? BorderRadius.zero : radii.full,
       backgroundColor: colorScheme.primary,
       foregroundColor: colorScheme.primaryForeground,
-      secondaryBackgroundColor: colorScheme.secondary,
+      // Over the card: a scheme's secondary may be a translucent wash, and
+      // a floating button is not something to read the page through.
+      secondaryBackgroundColor: Color.alphaBlend(
+        colorScheme.secondary,
+        colorScheme.card.withValues(alpha: 1),
+      ),
       secondaryForegroundColor: colorScheme.secondaryForeground,
       glassForegroundColor: colorScheme.foreground,
       shadows: _isDark
