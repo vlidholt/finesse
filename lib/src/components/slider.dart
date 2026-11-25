@@ -5,6 +5,7 @@ import 'package:finesse/src/theme/components/slider.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
+import 'package:finesse/src/utils/haptics.dart';
 import 'package:finesse/src/utils/shadow.dart';
 import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/gestures.dart';
@@ -756,9 +757,14 @@ class _SliderCoreState extends State<_SliderCore> {
     if (index < values.length - 1) value = math.min(value, values[index + 1]);
 
     if (values[index] == value) return;
-    // A finger feels each stop of a stepped slider as it passes.
-    if (_touchDrag && (widget.divisions ?? 0) > 0) {
-      HapticFeedback.selectionClick();
+    // A finger feels each stop of a stepped slider as it passes, and
+    // either end of any slider as the thumb arrives there.
+    if (_touchDrag) {
+      if (value == _min || value == _max) {
+        Haptics.impact(context);
+      } else if ((widget.divisions ?? 0) > 0) {
+        Haptics.selection(context);
+      }
     }
     widget.onValuesChanged(List<double>.of(values)..[index] = value);
   }

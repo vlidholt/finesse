@@ -177,6 +177,7 @@ mixin _$ThemeData {
       decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t)!,
       textTheme: TextTheme.lerp(a.textTheme, b.textTheme, t)!,
       disabledOpacity: lerpDouble$(a.disabledOpacity, b.disabledOpacity, t)!,
+      haptics: t < 0.5 ? a.haptics : b.haptics,
       selectTheme: SelectTheme.lerp(a.selectTheme, b.selectTheme, t)!,
       selectOptionTheme: SelectOptionTheme.lerp(
         a.selectOptionTheme,
@@ -345,6 +346,7 @@ mixin _$ThemeData {
     FinesseDecoration? decoration,
     TextTheme? textTheme,
     double? disabledOpacity,
+    bool? haptics,
     SelectTheme? selectTheme,
     SelectOptionTheme? selectOptionTheme,
     CardTheme? cardTheme,
@@ -443,6 +445,7 @@ mixin _$ThemeData {
       decoration: decoration ?? _this.decoration,
       textTheme: textTheme ?? _this.textTheme,
       disabledOpacity: disabledOpacity ?? _this.disabledOpacity,
+      haptics: haptics ?? _this.haptics,
       selectTheme: selectTheme ?? _this.selectTheme,
       selectOptionTheme: selectOptionTheme ?? _this.selectOptionTheme,
       cardTheme: cardTheme ?? _this.cardTheme,
@@ -578,6 +581,7 @@ mixin _$ThemeData {
       decoration: _this.decoration.merge(other.decoration),
       textTheme: _this.textTheme.merge(other.textTheme),
       disabledOpacity: other.disabledOpacity,
+      haptics: other.haptics,
       selectTheme: _this.selectTheme.merge(other.selectTheme),
       selectOptionTheme: _this.selectOptionTheme.merge(other.selectOptionTheme),
       cardTheme: _this.cardTheme.merge(other.cardTheme),
@@ -694,6 +698,7 @@ mixin _$ThemeData {
         _other.decoration == _this.decoration &&
         _other.textTheme == _this.textTheme &&
         _other.disabledOpacity == _this.disabledOpacity &&
+        _other.haptics == _this.haptics &&
         _other.selectTheme == _this.selectTheme &&
         _other.selectOptionTheme == _this.selectOptionTheme &&
         _other.cardTheme == _this.cardTheme &&
@@ -792,6 +797,7 @@ mixin _$ThemeData {
       _this.decoration,
       _this.textTheme,
       _this.disabledOpacity,
+      _this.haptics,
       _this.selectTheme,
       _this.selectOptionTheme,
       _this.cardTheme,

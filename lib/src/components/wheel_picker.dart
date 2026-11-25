@@ -6,6 +6,7 @@ import 'package:finesse/src/components/glass.dart';
 import 'package:finesse/src/raw_components/pressable.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/haptics.dart';
 import 'package:finesse/src/utils/text_scaled_height.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -482,7 +483,7 @@ class _WheelPickerState<T> extends State<WheelPicker<T>>
     final index = _wrap(raw);
     // Past either end of a wheel that does not loop there is no new row.
     if (index == before || _correcting) return;
-    if (_touch && _userDriven) HapticFeedback.selectionClick();
+    if (_touch && _userDriven) Haptics.selection(context);
     if (index == _reported || !enabledAt(index)) return;
     _reported = index;
     final value = _itemAt(index).value;

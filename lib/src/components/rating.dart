@@ -3,6 +3,7 @@ import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/raw_components/pressable.dart';
 import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/haptics.dart';
 import 'package:finesse/src/utils/pop_in.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
@@ -103,7 +104,7 @@ class _RatingState extends State<Rating> {
     final next = value.clamp(0, widget.count).toDouble();
     if (next == widget.value) return;
     if (pop && next > 0) _pops[next.ceil() - 1]++;
-    if (_touch) HapticFeedback.selectionClick();
+    if (_touch) Haptics.selection(context);
     widget.onChanged?.call(next);
   }
 

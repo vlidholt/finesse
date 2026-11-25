@@ -211,6 +211,8 @@ GlassLevel
 GlassTheme
 GlobalAnchor
 GlobalFinesseLocalizations
+HapticImpact
+Haptics
 HoverCard
 HoverStrategies
 HoverStrategy

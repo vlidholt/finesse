@@ -11,6 +11,7 @@ import 'package:finesse/src/utils/activation_keys.dart';
 import 'package:finesse/src/utils/border.dart';
 import 'package:finesse/src/utils/debug_check.dart';
 import 'package:finesse/src/utils/extensions/text_style.dart';
+import 'package:finesse/src/utils/haptics.dart';
 import 'package:finesse/src/utils/motion_color.dart';
 import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/widgets.dart';
@@ -220,6 +221,7 @@ class _SwitchState extends State<Switch> with SingleTickerProviderStateMixin {
   }
 
   void onTap() {
+    Haptics.impact(context);
     widget.onChanged!(!widget.value);
     if (!focusNode.hasFocus) {
       FocusScope.of(context).unfocus();

@@ -292,6 +292,7 @@ export 'src/utils/expand_reveal.dart';
 // every file that imported this package. They remain internal.
 export 'src/utils/extensions/breakpoints.dart';
 export 'src/utils/gesture_detector.dart';
+export 'src/utils/haptics.dart';
 export 'src/utils/input_formatters.dart';
 export 'src/utils/motion_color.dart';
 export 'src/utils/mouse_area.dart' show MouseArea;

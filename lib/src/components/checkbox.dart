@@ -9,6 +9,7 @@ import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/activation_keys.dart';
 import 'package:finesse/src/utils/debug_check.dart';
 import 'package:finesse/src/utils/extensions/text_style.dart';
+import 'package:finesse/src/utils/haptics.dart';
 import 'package:finesse/src/utils/motion_color.dart';
 import 'package:finesse/src/utils/pop_in.dart';
 import 'package:flutter/widgets.dart';
@@ -201,6 +202,7 @@ class _CheckboxState extends State<Checkbox> {
     if (widget.onChanged == null) return;
 
     // A mixed box becomes a checked one.
+    Haptics.selection(context);
     widget.onChanged!(!(widget.value ?? false));
     if (!focusNode.hasFocus) {
       FocusScope.of(context).unfocus();

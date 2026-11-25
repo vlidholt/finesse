@@ -6,6 +6,7 @@ import 'package:finesse/src/theme/components/board.dart';
 import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/haptics.dart';
 import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';

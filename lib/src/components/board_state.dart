@@ -746,7 +746,7 @@ class _BoardState<T extends Object> extends State<Board<T>>
       touch: touch,
     );
     if (drag == null) return null;
-    if (touch) HapticFeedback.mediumImpact();
+    if (touch) Haptics.impact(context, HapticImpact.medium);
     HardwareKeyboard.instance.addHandler(_handleDragKey);
     return _PointerDrag<T>(this, drag);
   }
@@ -883,7 +883,7 @@ class _BoardState<T extends Object> extends State<Board<T>>
     }
     drag.refused = refused;
     drag.proxy.forbidden = refused;
-    if (drag.touch) HapticFeedback.selectionClick();
+    if (drag.touch) Haptics.selection(context);
     _applyShiftTargets();
     _refreshDragVisuals(restart: true);
   }
@@ -1012,7 +1012,7 @@ class _BoardState<T extends Object> extends State<Board<T>>
     // laid out, and the lists changing lays it out anew in the same frame.
     if (move == null || _style.reduced) _applyShiftTargets();
 
-    if (drag.touch) HapticFeedback.lightImpact();
+    if (drag.touch) Haptics.impact(context);
     _reportDragEnd(drag);
 
     if (move != null) {

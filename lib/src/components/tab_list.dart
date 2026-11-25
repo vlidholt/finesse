@@ -11,6 +11,7 @@ import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/theme/themes/shadows.dart';
 import 'package:finesse/src/utils/border.dart';
+import 'package:finesse/src/utils/haptics.dart';
 import 'package:finesse/src/utils/motion_color.dart';
 import 'package:finesse/src/utils/moving_indicator.dart';
 import 'package:finesse/src/utils/shadow.dart';
@@ -288,7 +289,7 @@ class _TabListState extends State<TabList> {
       // strip keeps hold of it.
       if (local.dx < 0 || local.dx >= box.size.width) continue;
       if (i != _selected && _enabled(i)) {
-        HapticFeedback.selectionClick();
+        Haptics.selection(context);
         _select(i);
       }
       return;
