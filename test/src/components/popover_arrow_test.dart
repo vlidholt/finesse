@@ -246,7 +246,7 @@ void main() {
       );
       final box = tester.getRect(surface());
       final theme = Theme.of(tester.element(find.byType(Popover)));
-      final radius = theme.popoverTheme.decoration!.border!.radius!
+      final radius = theme.popoverTheme.decoration!.border!.borderRadius!
           .resolve(TextDirection.ltr)
           .topRight
           .x;

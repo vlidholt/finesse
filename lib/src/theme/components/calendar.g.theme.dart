@@ -125,9 +125,9 @@ mixin _$CalendarTheme {
           ? a.weekNumbersTextAlign
           : b.weekNumbersTextAlign,
       dayButtonSize: lerpDouble$(a.dayButtonSize, b.dayButtonSize, t),
-      dayButtonRadius: BorderRadius.lerp(
-        a.dayButtonRadius,
-        b.dayButtonRadius,
+      dayButtonBorderRadius: BorderRadius.lerp(
+        a.dayButtonBorderRadius,
+        b.dayButtonBorderRadius,
         t,
       ),
       selectorMinHeight: lerpDouble$(
@@ -240,7 +240,7 @@ mixin _$CalendarTheme {
     TextStyle? weekNumbersTextStyle,
     TextAlign? weekNumbersTextAlign,
     double? dayButtonSize,
-    BorderRadius? dayButtonRadius,
+    BorderRadius? dayButtonBorderRadius,
     double? selectorMinHeight,
     double? dayButtonOutsideMonthOpacity,
     EdgeInsetsGeometry? dayButtonPadding,
@@ -312,7 +312,8 @@ mixin _$CalendarTheme {
       weekNumbersTextStyle: weekNumbersTextStyle ?? _this.weekNumbersTextStyle,
       weekNumbersTextAlign: weekNumbersTextAlign ?? _this.weekNumbersTextAlign,
       dayButtonSize: dayButtonSize ?? _this.dayButtonSize,
-      dayButtonRadius: dayButtonRadius ?? _this.dayButtonRadius,
+      dayButtonBorderRadius:
+          dayButtonBorderRadius ?? _this.dayButtonBorderRadius,
       selectorMinHeight: selectorMinHeight ?? _this.selectorMinHeight,
       dayButtonOutsideMonthOpacity:
           dayButtonOutsideMonthOpacity ?? _this.dayButtonOutsideMonthOpacity,
@@ -404,7 +405,7 @@ mixin _$CalendarTheme {
           other.weekNumbersTextStyle,
       weekNumbersTextAlign: other.weekNumbersTextAlign,
       dayButtonSize: other.dayButtonSize,
-      dayButtonRadius: other.dayButtonRadius,
+      dayButtonBorderRadius: other.dayButtonBorderRadius,
       selectorMinHeight: other.selectorMinHeight,
       dayButtonOutsideMonthOpacity: other.dayButtonOutsideMonthOpacity,
       dayButtonPadding: other.dayButtonPadding,
@@ -497,7 +498,7 @@ mixin _$CalendarTheme {
         _other.weekNumbersTextStyle == _this.weekNumbersTextStyle &&
         _other.weekNumbersTextAlign == _this.weekNumbersTextAlign &&
         _other.dayButtonSize == _this.dayButtonSize &&
-        _other.dayButtonRadius == _this.dayButtonRadius &&
+        _other.dayButtonBorderRadius == _this.dayButtonBorderRadius &&
         _other.selectorMinHeight == _this.selectorMinHeight &&
         _other.dayButtonOutsideMonthOpacity ==
             _this.dayButtonOutsideMonthOpacity &&
@@ -568,7 +569,7 @@ mixin _$CalendarTheme {
       _this.weekNumbersTextStyle,
       _this.weekNumbersTextAlign,
       _this.dayButtonSize,
-      _this.dayButtonRadius,
+      _this.dayButtonBorderRadius,
       _this.selectorMinHeight,
       _this.dayButtonOutsideMonthOpacity,
       _this.dayButtonPadding,

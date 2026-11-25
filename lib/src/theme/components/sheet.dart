@@ -42,7 +42,7 @@ class SheetTheme with _$SheetTheme {
     this.dragHandleColor,
     this.dragHandleWidth,
     this.dragHandleHeight,
-    this.dragHandleRadius,
+    this.dragHandleBorderRadius,
   }) : _canMerge = canMerge;
 
   @ignore
@@ -132,7 +132,7 @@ class SheetTheme with _$SheetTheme {
   final double? dragHandleHeight;
 
   /// The corners of the drag handle's pill. Defaults to a full pill.
-  final BorderRadius? dragHandleRadius;
+  final BorderRadius? dragHandleBorderRadius;
 
   /// Linearly interpolates between [a] and [b] by [t].
   static SheetTheme? lerp(

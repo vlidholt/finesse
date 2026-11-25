@@ -38,7 +38,7 @@ mixin _$BottomNavigationBarTheme {
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
       margin: EdgeInsetsGeometry.lerp(a.margin, b.margin, t),
       gap: lerpDouble$(a.gap, b.gap, t),
-      radius: BorderRadius.lerp(a.radius, b.radius, t),
+      borderRadius: BorderRadius.lerp(a.borderRadius, b.borderRadius, t),
       backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
       borderColor: Color.lerp(a.borderColor, b.borderColor, t),
       rimColor: Color.lerp(a.rimColor, b.rimColor, t),
@@ -81,7 +81,7 @@ mixin _$BottomNavigationBarTheme {
     EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? margin,
     double? gap,
-    BorderRadius? radius,
+    BorderRadius? borderRadius,
     Color? backgroundColor,
     Color? borderColor,
     Color? rimColor,
@@ -108,7 +108,7 @@ mixin _$BottomNavigationBarTheme {
       padding: padding ?? _this.padding,
       margin: margin ?? _this.margin,
       gap: gap ?? _this.gap,
-      radius: radius ?? _this.radius,
+      borderRadius: borderRadius ?? _this.borderRadius,
       backgroundColor: backgroundColor ?? _this.backgroundColor,
       borderColor: borderColor ?? _this.borderColor,
       rimColor: rimColor ?? _this.rimColor,
@@ -150,7 +150,7 @@ mixin _$BottomNavigationBarTheme {
       padding: other.padding,
       margin: other.margin,
       gap: other.gap,
-      radius: other.radius,
+      borderRadius: other.borderRadius,
       backgroundColor: other.backgroundColor,
       borderColor: other.borderColor,
       rimColor: other.rimColor,
@@ -189,7 +189,7 @@ mixin _$BottomNavigationBarTheme {
         _other.padding == _this.padding &&
         _other.margin == _this.margin &&
         _other.gap == _this.gap &&
-        _other.radius == _this.radius &&
+        _other.borderRadius == _this.borderRadius &&
         _other.backgroundColor == _this.backgroundColor &&
         _other.borderColor == _this.borderColor &&
         _other.rimColor == _this.rimColor &&
@@ -220,7 +220,7 @@ mixin _$BottomNavigationBarTheme {
       _this.padding,
       _this.margin,
       _this.gap,
-      _this.radius,
+      _this.borderRadius,
       _this.backgroundColor,
       _this.borderColor,
       _this.rimColor,

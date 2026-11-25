@@ -255,7 +255,7 @@ class DefaultThemeVariant extends ThemeVariant {
     return FinesseBorder.all(
       width: style.ringWidth,
       color: colorScheme.ring.withValues(alpha: style.ringOpacity),
-      radius: BorderRadius.only(
+      borderRadius: BorderRadius.only(
         topLeft: inflate(elementRadius.topLeft),
         topRight: inflate(elementRadius.topRight),
         bottomLeft: inflate(elementRadius.bottomLeft),
@@ -486,7 +486,7 @@ class DefaultThemeVariant extends ThemeVariant {
       : FinesseBorder.all(
           width: 1,
           color: fieldBorderColor,
-          radius: radii.resolve(style.textareaRadius),
+          borderRadius: radii.resolve(style.textareaRadius),
         );
 
   /// The border a single-line field draws: `border-input` on the control
@@ -494,12 +494,12 @@ class DefaultThemeVariant extends ThemeVariant {
   FinesseBorder get fieldBorder => style.underlinedFields
       ? FinesseBorder(
           bottom: FinesseBorderSide(width: 1, color: colorScheme.input),
-          radius: BorderRadius.zero,
+          borderRadius: BorderRadius.zero,
         )
       : FinesseBorder.all(
           width: 1,
           color: fieldBorderColor,
-          radius: controlRadius,
+          borderRadius: controlRadius,
         );
 
   /// The inner inset the focus treatment reserves inside a control's border.
@@ -559,7 +559,7 @@ class DefaultThemeVariant extends ThemeVariant {
       hoverForegroundColor: colorScheme.primaryForeground,
       decoration: FinesseDecoration(
         border: FinesseBorder.all(
-          radius: controlRadius,
+          borderRadius: controlRadius,
           width: 0,
           padding: focusReserve(0),
         ),
@@ -588,7 +588,7 @@ class DefaultThemeVariant extends ThemeVariant {
       hoverForegroundColor: colorScheme.secondaryForeground,
       decoration: FinesseDecoration(
         border: FinesseBorder.all(
-          radius: controlRadius,
+          borderRadius: controlRadius,
           width: 0,
           padding: focusReserve(0),
         ),
@@ -611,7 +611,7 @@ class DefaultThemeVariant extends ThemeVariant {
       hoverForegroundColor: colorScheme.destructive,
       decoration: FinesseDecoration(
         border: FinesseBorder.all(
-          radius: controlRadius,
+          borderRadius: controlRadius,
           width: 0,
           padding: focusReserve(0),
         ),
@@ -619,7 +619,9 @@ class DefaultThemeVariant extends ThemeVariant {
         secondaryFocusedBorder: FinesseBorder.all(
           width: style.ringWidth,
           color: _wash(colorScheme.destructive, _isDark ? .4 : .2),
-          radius: controlRadius.add(BorderRadius.circular(style.ringWidth)),
+          borderRadius: controlRadius.add(
+            BorderRadius.circular(style.ringWidth),
+          ),
           offset: style.ringWidth,
         ),
       ),
@@ -657,7 +659,7 @@ class DefaultThemeVariant extends ThemeVariant {
       shadows: style.controlShadow,
       decoration: FinesseDecoration(
         border: FinesseBorder.all(
-          radius: controlRadius,
+          borderRadius: controlRadius,
           color: style.outlineButtonStrongBorder
               ? colorScheme.borderStrong
               : _isDark && style.outlineButtonDarkInputBorder
@@ -686,7 +688,7 @@ class DefaultThemeVariant extends ThemeVariant {
       hoverForegroundColor: colorScheme.foreground,
       decoration: FinesseDecoration(
         border: FinesseBorder.all(
-          radius: controlRadius,
+          borderRadius: controlRadius,
           width: 0,
           padding: focusReserve(0),
         ),
@@ -941,7 +943,7 @@ class DefaultThemeVariant extends ThemeVariant {
       // tighter than the popover's in most styles).
       decoration: FinesseDecoration(
         border: FinesseBorder.all(
-          radius: radii.resolve(style.tooltipRadius),
+          borderRadius: radii.resolve(style.tooltipRadius),
           width: 0,
         ),
         // Glass in a style with a tooltip opacity below 1.
@@ -1002,7 +1004,7 @@ class DefaultThemeVariant extends ThemeVariant {
         color: popoverSurfaceColor,
         shadows: style.popoverShadow,
         border: FinesseBorder.all(
-          radius: popoverRadius,
+          borderRadius: popoverRadius,
           color: surfaceBorderColor,
           width: 1,
         ),
@@ -1127,7 +1129,7 @@ class DefaultThemeVariant extends ThemeVariant {
         color: menuSurfaceColor,
         shadows: style.popoverShadow,
         border: FinesseBorder.all(
-          radius: popoverRadius,
+          borderRadius: popoverRadius,
           color: menuSurfaceBorderColor,
           width: 1,
         ),
@@ -1145,7 +1147,7 @@ class DefaultThemeVariant extends ThemeVariant {
         horizontal: scaled(style.itemPaddingX),
         vertical: scaled(style.itemPaddingY),
       ),
-      radius: itemRadius,
+      borderRadius: itemRadius,
       textStyle: style.body
           .apply(effectiveTextTheme.muted)
           .copyWith(color: menuScheme.popoverForeground),
@@ -1171,7 +1173,7 @@ class DefaultThemeVariant extends ThemeVariant {
       saturation: style.cardBlur ? style.glassSaturation : 1,
       padding: EdgeInsets.all(scaled(style.cardPadding)),
       border: FinesseBorder.all(color: cardBorderColor, width: 1),
-      radius: cardRadius,
+      borderRadius: cardRadius,
       shadows: _isDark
           ? style.cardShadowDark ?? style.cardShadow
           : style.cardShadow,
@@ -1240,12 +1242,15 @@ class DefaultThemeVariant extends ThemeVariant {
       checkedTrackColor: colorScheme.primary,
       padding: spacing.directional(start: 2),
       decoration: FinesseDecoration(
-        border: FinesseBorder.all(radius: radius.add(radius / 2), width: 0),
+        border: FinesseBorder.all(
+          borderRadius: radius.add(radius / 2),
+          width: 0,
+        ),
         // FinesseBorder.merge takes `other`'s radius and offset
         // unconditionally, so an override has to restate both or they fall
         // back to null.
         secondaryFocusedBorder: FinesseBorder.all(
-          radius: radius
+          borderRadius: radius
               .add(radius / 2)
               .add(
                 const BorderRadius.all(Radius.circular(3)),
@@ -1272,7 +1277,7 @@ class DefaultThemeVariant extends ThemeVariant {
         shadows: style.controlShadow,
         border: FinesseBorder.all(
           color: controlBorderColor,
-          radius: checkboxRadius,
+          borderRadius: checkboxRadius,
           width: 1,
         ),
       ),
@@ -1282,7 +1287,7 @@ class DefaultThemeVariant extends ThemeVariant {
         shadows: style.controlShadow,
         border: FinesseBorder.all(
           color: colorScheme.primary,
-          radius: checkboxRadius,
+          borderRadius: checkboxRadius,
           width: 1,
         ),
       ),
@@ -1329,7 +1334,7 @@ class DefaultThemeVariant extends ThemeVariant {
       toolbarHeight: math.max(menuItemHeight, 40),
       toolbarDecoration: FinesseDecoration(
         border: FinesseBorder.all(
-          radius: popoverRadius,
+          borderRadius: popoverRadius,
           color: menuSurfaceBorderColor,
           width: 1,
         ),
@@ -1361,7 +1366,7 @@ class DefaultThemeVariant extends ThemeVariant {
   RadioTheme radioTheme() {
     // The radio itself is a circle, so its ring is fully rounded too.
     final focusRing = FinesseBorder.all(
-      radius: const BorderRadius.all(Radius.circular(9999)),
+      borderRadius: const BorderRadius.all(Radius.circular(9999)),
       width: style.ringWidth,
       color: colorScheme.ring.withValues(alpha: style.ringOpacity),
       offset: style.ringWidth,
@@ -1500,7 +1505,7 @@ class DefaultThemeVariant extends ThemeVariant {
       color: colorScheme.card,
       border: style.alertAccentBar
           ? FinesseBorder(
-              radius: radius,
+              borderRadius: radius,
               padding: padding,
               top: side,
               right: side,
@@ -1509,7 +1514,7 @@ class DefaultThemeVariant extends ThemeVariant {
             )
           : FinesseBorder.all(
               color: colorScheme.border,
-              radius: radius,
+              borderRadius: radius,
               padding: padding,
               width: 1,
             ),
@@ -1589,7 +1594,7 @@ class DefaultThemeVariant extends ThemeVariant {
     return DialogTheme(
       // No `closeIconData`: a dialog has no close button unless it asks for
       // one. A sheet keeps its own; see [sheetTheme].
-      radius: dialogRadius,
+      borderRadius: dialogRadius,
       // A dialog sits on the popover surface (`bg-popover`), which in dark
       // mode is a step lighter than the page, with the same hairline ring as
       // the other floating surfaces.
@@ -1622,7 +1627,7 @@ class DefaultThemeVariant extends ThemeVariant {
     return DialogTheme(
       backgroundColor: colorScheme.popover,
       border: Border.all(color: dialogBorderColor),
-      radius: dialogRadius,
+      borderRadius: dialogRadius,
       removeBorderRadiusWhenTiny: true,
       expandActionsWhenTiny: true,
       // No `animateIn`/`animateOut`: a dialog scales up and leaves on the
@@ -1720,7 +1725,7 @@ class DefaultThemeVariant extends ThemeVariant {
         horizontal: scaled(style.listTilePaddingX),
         vertical: scaled(8),
       ),
-      rowRadius: itemRadius,
+      rowBorderRadius: itemRadius,
       gap: scaled(style.listTileGap),
       iconSize: scaled(20),
       labelStyle: label,
@@ -1842,7 +1847,7 @@ class DefaultThemeVariant extends ThemeVariant {
       handleDecoration: FinesseDecoration(
         color: colorScheme.border,
         border: FinesseBorder.all(
-          radius: const BorderRadius.all(Radius.circular(4)),
+          borderRadius: const BorderRadius.all(Radius.circular(4)),
           width: 0,
         ),
         disableSecondaryBorder: true,
@@ -1911,13 +1916,13 @@ class DefaultThemeVariant extends ThemeVariant {
       decoration: FinesseDecoration(
         color: _fill(style.tabsListFill, colorScheme) ?? colorScheme.muted,
         border: FinesseBorder.all(
-          radius: listRadius,
+          borderRadius: listRadius,
           width: 0,
           color: colorScheme.ring,
         ),
       ),
       tabDecoration: FinesseDecoration(
-        border: FinesseBorder.all(radius: tabRadius, width: 0),
+        border: FinesseBorder.all(borderRadius: tabRadius, width: 0),
       ),
       gap: 8,
       tabsGap: scaled(style.tabsGap),
@@ -2011,7 +2016,7 @@ class DefaultThemeVariant extends ThemeVariant {
       strongOpacity: style.glassStrongOpacity,
       borderColor: colorScheme.border,
       borderWidth: 1,
-      radius: cardRadius,
+      borderRadius: cardRadius,
     );
   }
 
@@ -2058,7 +2063,7 @@ class DefaultThemeVariant extends ThemeVariant {
       iconSizeLg: scaled(style.navigationIconSize + 4),
       padding: scaled(style.gapLg + style.gapXs),
       gap: scaled(style.gapSm),
-      radius: square ? BorderRadius.zero : radii.full,
+      borderRadius: square ? BorderRadius.zero : radii.full,
       backgroundColor: colorScheme.primary,
       foregroundColor: colorScheme.primaryForeground,
       // Over the card: a scheme's secondary may be a translucent wash, and
@@ -2168,7 +2173,7 @@ class DefaultThemeVariant extends ThemeVariant {
       padding: EdgeInsets.all(scaled(style.bottomNavigationPadding)),
       margin: EdgeInsets.only(bottom: scaled(22)),
       gap: scaled(4),
-      radius: radii.full,
+      borderRadius: radii.full,
       backgroundColor: _wash(fill, opacity),
       borderColor: borderOpacity == null
           ? colorScheme.border
@@ -2202,7 +2207,7 @@ class DefaultThemeVariant extends ThemeVariant {
       padding: EdgeInsets.symmetric(horizontal: scaled(style.chipPaddingX)),
       gap: scaled(style.chipGap),
       iconSize: scaled(style.chipIconSize),
-      radius: radii.resolve(style.chipRadius),
+      borderRadius: radii.resolve(style.chipRadius),
       borderWidth: 1,
       textStyle: (style.small ?? style.body)
           .apply(effectiveTextTheme.small)
@@ -2265,7 +2270,7 @@ class DefaultThemeVariant extends ThemeVariant {
       ),
       gap: scaled(style.listTileGap),
       titleGap: 0,
-      radius: radii.lg,
+      borderRadius: radii.lg,
       titleStyle: (style.subtitle ?? style.label).apply(
         effectiveTextTheme.large,
       ),
@@ -2353,7 +2358,7 @@ class DefaultThemeVariant extends ThemeVariant {
     return IconTileTheme(
       size: scaled(40),
       iconSize: scaled(22),
-      radius: radii.lg,
+      borderRadius: radii.lg,
       backgroundColor: colorScheme.accent,
       foregroundColor: colorScheme.tint,
     );
@@ -2409,7 +2414,7 @@ class DefaultThemeVariant extends ThemeVariant {
         scaled(8),
       ),
       footerPadding: EdgeInsets.fromLTRB(inset, 0, inset, inset),
-      columnRadius: columnRadius,
+      columnBorderRadius: columnRadius,
       // A soft well for the cards to sit in: a wash of the foreground, so
       // it reads on the page and on a card alike, in both brightnesses.
       columnColor: _wash(colorScheme.foreground, _isDark ? .06 : .04),
@@ -2437,7 +2442,7 @@ class DefaultThemeVariant extends ThemeVariant {
       fullCountForegroundColor: destructive,
       itemColor: colorScheme.card.withValues(alpha: 1),
       itemPadding: EdgeInsets.all(scaled(12)),
-      itemRadius: itemRadius,
+      itemBorderRadius: itemRadius,
       itemShadows: _isDark ? Shadows.none : Shadows.xs,
       placeholderColor: colorScheme.tint.withValues(alpha: _isDark ? .14 : .08),
       placeholderBorderColor: colorScheme.tint.withValues(alpha: .4),
@@ -2485,7 +2490,7 @@ class DefaultThemeVariant extends ThemeVariant {
     height: menuItemHeight,
     buttonVariant: ButtonVariant.ghost,
     itemDecoration: FinesseDecoration(
-      border: FinesseBorder.all(radius: itemRadius, width: 0),
+      border: FinesseBorder.all(borderRadius: itemRadius, width: 0),
       secondaryBorder: FinesseBorder.none,
       secondaryFocusedBorder: FinesseBorder.none,
     ),
@@ -2493,7 +2498,7 @@ class DefaultThemeVariant extends ThemeVariant {
       color: menuSurfaceColor,
       shadows: style.popoverShadow,
       border: FinesseBorder.all(
-        radius: popoverRadius,
+        borderRadius: popoverRadius,
         color: menuSurfaceBorderColor,
         width: 1,
       ),
@@ -2559,7 +2564,7 @@ class DefaultThemeVariant extends ThemeVariant {
       secondaryFocusedBorder: FinesseBorder.all(
         width: 2,
         offset: 2,
-        radius: _calendarCellRadius.add(
+        borderRadius: _calendarCellRadius.add(
           const BorderRadius.all(Radius.circular(2)),
         ),
         color: colorScheme.ring.withValues(alpha: .5),
@@ -2583,7 +2588,7 @@ class DefaultThemeVariant extends ThemeVariant {
     navigationButtonDisabledOpacity: .5,
     decoration: FinesseDecoration(
       border: FinesseBorder.all(
-        radius: radius,
+        borderRadius: radius,
         padding: EdgeInsets.all(scaled(style.calendarPadding)),
         color: colorScheme.border,
         width: 1,
@@ -2602,7 +2607,7 @@ class DefaultThemeVariant extends ThemeVariant {
     headerTextStyle: style.label.apply(effectiveTextTheme.small),
     // No monthConstraints here: the widget derives the month width from the
     // day cell size — and widens it when week numbers add a column.
-    dayButtonRadius: _calendarCellRadius,
+    dayButtonBorderRadius: _calendarCellRadius,
     selectorMinHeight: scaled(style.calendarCaptionHeight),
     weekdaysPadding: spacing.only(bottom: 2),
     weekNumbersHeaderText: '#',
@@ -2680,7 +2685,7 @@ class DefaultThemeVariant extends ThemeVariant {
           ? const Color(0x00000000)
           : colorScheme.border,
       lensBorderWidth: wash == null ? 0 : 1,
-      lensRadius: itemRadius,
+      lensBorderRadius: itemRadius,
       lensMagnification: 1.12,
       curvature: .5,
       edgeFade: .6,
@@ -2743,16 +2748,16 @@ class DefaultThemeVariant extends ThemeVariant {
       ),
       // shadcn rounds only the outer corners of the strip, at the control
       // radius: `first:rounded-l-md last:rounded-r-md`.
-      firstRadius: BorderRadius.only(
+      firstBorderRadius: BorderRadius.only(
         topLeft: controlRadius.topLeft,
         bottomLeft: controlRadius.bottomLeft,
       ),
-      lastRadius: BorderRadius.only(
+      lastBorderRadius: BorderRadius.only(
         topRight: controlRadius.topRight,
         bottomRight: controlRadius.bottomRight,
       ),
-      singleRadius: controlRadius,
-      middleRadius: BorderRadius.zero,
+      singleBorderRadius: controlRadius,
+      middleBorderRadius: BorderRadius.zero,
       decoration: FinesseDecoration(
         focusedBorder: FinesseBorder.all(color: colorScheme.ring, width: 1),
         // Same ring as every other field; the slot supplies the radius, since
@@ -2785,7 +2790,7 @@ class DefaultThemeVariant extends ThemeVariant {
     // (`aria-expanded:bg-muted`) — not with the accent, which belongs to the
     // rows inside the menus.
     return MenubarTheme(
-      radius: controlRadius,
+      borderRadius: controlRadius,
       padding: EdgeInsets.all(style.menubarPadding),
       border: FinesseBorder.all(color: colorScheme.border, width: 1),
       anchor: const Anchor(
@@ -2801,7 +2806,7 @@ class DefaultThemeVariant extends ThemeVariant {
       buttonHoverBackgroundColor: colorScheme.muted,
       buttonSelectedBackgroundColor: colorScheme.muted,
       buttonDecoration: FinesseDecoration(
-        border: FinesseBorder.all(radius: itemRadius, width: 0),
+        border: FinesseBorder.all(borderRadius: itemRadius, width: 0),
         disableSecondaryBorder: true,
       ),
     );
@@ -2914,7 +2919,7 @@ class DefaultThemeVariant extends ThemeVariant {
     return SkeletonTheme(
       color: colorScheme.muted,
       highlightColor: colorScheme.muted.withValues(alpha: .4),
-      radius: radius,
+      borderRadius: radius,
       duration: const Duration(milliseconds: 1500),
       curve: Curves.easeInOut,
       animate: true,
@@ -2947,7 +2952,7 @@ class DefaultThemeVariant extends ThemeVariant {
       backgroundColor: colorScheme.muted,
       foregroundColor: colorScheme.mutedForeground,
       // No outline: shadcn's kbd is a plain `bg-muted rounded-sm` chip.
-      border: FinesseBorder.all(width: 0, radius: itemRadius),
+      border: FinesseBorder.all(width: 0, borderRadius: itemRadius),
       padding: EdgeInsets.symmetric(horizontal: scaled(style.kbdPaddingX)),
       // `font-sans text-xs font-medium` — a key cap is not code.
       textStyle: style.caption.apply(effectiveTextTheme.muted),
@@ -2991,7 +2996,7 @@ class DefaultThemeVariant extends ThemeVariant {
       padding: EdgeInsets.symmetric(horizontal: scaled(style.buttonPaddingX)),
       decoration: FinesseDecoration(
         border: FinesseBorder.all(
-          radius: controlRadius,
+          borderRadius: controlRadius,
           color: borderWidth == 0 ? null : colorScheme.input,
           width: borderWidth,
           padding: focusReserve(borderWidth),
@@ -3099,7 +3104,7 @@ class DefaultThemeVariant extends ThemeVariant {
       menuButtonHeightLg: scaled(style.sidebarItemHeightLg),
       menuButtonPadding: EdgeInsets.symmetric(horizontal: itemPaddingX),
       menuButtonGap: scaled(8),
-      menuButtonRadius: itemRadius,
+      menuButtonBorderRadius: itemRadius,
       menuButtonTextStyle: itemTextStyle,
       // The sm size is `text-xs` in every style.
       menuButtonTextStyleSm: itemTextStyle.copyWith(fontSize: 12),
@@ -3121,10 +3126,10 @@ class DefaultThemeVariant extends ThemeVariant {
       duration: const Duration(milliseconds: 200),
       curve: Curves.linear,
       floatingMargin: EdgeInsets.all(scaled(8)),
-      floatingRadius: _sidebarSurfaceRadius,
+      floatingBorderRadius: _sidebarSurfaceRadius,
       floatingShadows: Shadows.sm,
       insetMargin: EdgeInsets.all(scaled(8)),
-      insetRadius: _sidebarSurfaceRadius,
+      insetBorderRadius: _sidebarSurfaceRadius,
       insetShadows: Shadows.sm,
     );
   }
@@ -3149,11 +3154,11 @@ class DefaultThemeVariant extends ThemeVariant {
       ),
       border: style.commandSearchUnderline
           ? FinesseBorder(
-              radius: searchRadius,
+              borderRadius: searchRadius,
               bottom: FinesseBorderSide(color: colorScheme.input, width: 1),
             )
           : FinesseBorder.all(
-              radius: searchRadius,
+              borderRadius: searchRadius,
               color: searchBorderColor,
               width: 1,
             ),
@@ -3166,7 +3171,7 @@ class DefaultThemeVariant extends ThemeVariant {
       // inline demo's `shadow-md`, not from the base style block.
       decoration: FinesseDecoration(
         border: FinesseBorder.all(
-          radius: commandRadius,
+          borderRadius: commandRadius,
           color: surfaceBorderColor,
           width: 1,
         ),
@@ -3215,8 +3220,8 @@ class DefaultThemeVariant extends ThemeVariant {
       },
       itemSelectedForegroundColor: colorScheme.foreground,
       itemForegroundColor: colorScheme.popoverForeground,
-      itemRadius: itemRadius,
-      dialogItemRadius: radii.resolve(style.commandItemDialogRadius),
+      itemBorderRadius: itemRadius,
+      dialogItemBorderRadius: radii.resolve(style.commandItemDialogRadius),
       itemGap: 8,
       // The base glyph, `size-4` — 3.5 in the two styles whose buttons also
       // drop to it, which is what [StyleTokens.buttonIconSize] measures.

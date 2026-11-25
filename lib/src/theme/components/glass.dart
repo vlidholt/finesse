@@ -17,7 +17,7 @@ class GlassTheme with _$GlassTheme {
     this.strongOpacity,
     this.borderColor,
     this.borderWidth,
-    this.radius,
+    this.borderRadius,
   }) : _canMerge = canMerge;
 
   @ignore
@@ -48,7 +48,7 @@ class GlassTheme with _$GlassTheme {
   final double? borderWidth;
 
   /// The corner radius.
-  final BorderRadius? radius;
+  final BorderRadius? borderRadius;
 
   /// Linearly interpolates between two themes.
   static GlassTheme? lerp(GlassTheme? a, GlassTheme? b, double t) =>

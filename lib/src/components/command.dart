@@ -131,7 +131,7 @@ class Command extends StatefulWidget {
     this.width,
     this.showSearch = true,
     this.leadingSearchIcon,
-    this.itemRadius,
+    this.itemBorderRadius,
   });
 
   /// The grouped items.
@@ -211,9 +211,9 @@ class Command extends StatefulWidget {
 
   /// The corner radius of an item, overriding the theme's.
   ///
-  /// [showCommandDialog] passes the theme's `dialogItemRadius` here —
+  /// [showCommandDialog] passes the theme's `dialogItemBorderRadius` here —
   /// shadcn rounds items a step further inside a dialog than inline.
-  final BorderRadiusGeometry? itemRadius;
+  final BorderRadiusGeometry? itemBorderRadius;
 
   /// The default filter: a case-insensitive substring match over the label and
   /// keywords, preserving the declared order.
@@ -401,8 +401,8 @@ class CommandState extends State<Command> {
     final effectiveGroupPadding =
         commandTheme.groupPadding ?? const EdgeInsets.all(4);
     final effectiveItemRadius =
-        widget.itemRadius ??
-        commandTheme.itemRadius ??
+        widget.itemBorderRadius ??
+        commandTheme.itemBorderRadius ??
         const BorderRadius.all(Radius.circular(4));
     final effectiveItemIconSize = commandTheme.itemIconSize ?? 16.0;
 
@@ -492,10 +492,10 @@ class CommandState extends State<Command> {
     }
 
     final borderRadius =
-        effectiveDecoration.border?.radius?.resolve(
+        effectiveDecoration.border?.borderRadius?.resolve(
           Directionality.of(context),
         ) ??
-        theme.commandTheme.decoration?.border?.radius?.resolve(
+        theme.commandTheme.decoration?.border?.borderRadius?.resolve(
           Directionality.of(context),
         ) ??
         theme.radius;
@@ -511,7 +511,7 @@ class CommandState extends State<Command> {
         FinesseDecoration(
           color: theme.colorScheme.input.withValues(alpha: .3),
           border: FinesseBorder.all(
-            radius: const BorderRadius.all(Radius.circular(10)),
+            borderRadius: const BorderRadius.all(Radius.circular(10)),
             color: theme.colorScheme.input.withValues(alpha: .3),
             width: 1,
           ),
@@ -712,7 +712,7 @@ Future<T?> showCommandDialog<T>({
       // The dialog takes the palette's own radius
       // (`.cn-command-dialog rounded-xl!`), its theme's hairline, and no
       // shadow — `.cn-dialog-content` casts none.
-      final radius = commandTheme.decoration?.border?.radius?.resolve(
+      final radius = commandTheme.decoration?.border?.borderRadius?.resolve(
         Directionality.of(context),
       );
       return Padding(
@@ -723,7 +723,7 @@ Future<T?> showCommandDialog<T>({
           // `calc(100%-2rem)` margins on narrow screens.
           constraints: const BoxConstraints(maxWidth: 448),
           removeBorderRadiusWhenTiny: false,
-          radius: radius,
+          borderRadius: radius,
           padding: EdgeInsets.zero,
           scrollable: false,
           shadows: Shadows.none,
@@ -739,7 +739,7 @@ Future<T?> showCommandDialog<T>({
             height: height,
             decoration: FinesseDecoration.none,
             backgroundColor: const Color(0x00000000),
-            itemRadius: commandTheme.dialogItemRadius,
+            itemBorderRadius: commandTheme.dialogItemBorderRadius,
             onEscape: () => Navigator.of(context).maybePop(),
             onItemSelected: (item) {
               Navigator.of(context).pop(item.value as T?);

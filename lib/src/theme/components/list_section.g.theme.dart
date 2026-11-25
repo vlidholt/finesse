@@ -32,7 +32,7 @@ mixin _$ListSectionTheme {
     return ListSectionTheme(
       margin: EdgeInsetsGeometry.lerp(a.margin, b.margin, t),
       backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
-      radius: BorderRadius.lerp(a.radius, b.radius, t),
+      borderRadius: BorderRadius.lerp(a.borderRadius, b.borderRadius, t),
       headerStyle: TextStyle.lerp(a.headerStyle, b.headerStyle, t),
       footerStyle: TextStyle.lerp(a.footerStyle, b.footerStyle, t),
       headerPadding: EdgeInsetsGeometry.lerp(
@@ -56,7 +56,7 @@ mixin _$ListSectionTheme {
   ListSectionTheme copyWith({
     EdgeInsetsGeometry? margin,
     Color? backgroundColor,
-    BorderRadius? radius,
+    BorderRadius? borderRadius,
     TextStyle? headerStyle,
     TextStyle? footerStyle,
     EdgeInsetsGeometry? headerPadding,
@@ -72,7 +72,7 @@ mixin _$ListSectionTheme {
     return ListSectionTheme(
       margin: margin ?? _this.margin,
       backgroundColor: backgroundColor ?? _this.backgroundColor,
-      radius: radius ?? _this.radius,
+      borderRadius: borderRadius ?? _this.borderRadius,
       headerStyle: headerStyle ?? _this.headerStyle,
       footerStyle: footerStyle ?? _this.footerStyle,
       headerPadding: headerPadding ?? _this.headerPadding,
@@ -99,7 +99,7 @@ mixin _$ListSectionTheme {
     return copyWith(
       margin: other.margin,
       backgroundColor: other.backgroundColor,
-      radius: other.radius,
+      borderRadius: other.borderRadius,
       headerStyle:
           _this.headerStyle?.merge(other.headerStyle) ?? other.headerStyle,
       footerStyle:
@@ -129,7 +129,7 @@ mixin _$ListSectionTheme {
 
     return _other.margin == _this.margin &&
         _other.backgroundColor == _this.backgroundColor &&
-        _other.radius == _this.radius &&
+        _other.borderRadius == _this.borderRadius &&
         _other.headerStyle == _this.headerStyle &&
         _other.footerStyle == _this.footerStyle &&
         _other.headerPadding == _this.headerPadding &&
@@ -149,7 +149,7 @@ mixin _$ListSectionTheme {
       runtimeType,
       _this.margin,
       _this.backgroundColor,
-      _this.radius,
+      _this.borderRadius,
       _this.headerStyle,
       _this.footerStyle,
       _this.headerPadding,

@@ -285,7 +285,7 @@ class _StrandSearchBarState extends State<StrandSearchBar> {
                 border: FinesseBorder.all(
                   color: theme.colorScheme.borderStrong,
                   width: 1,
-                  radius: theme.radii.sm,
+                  borderRadius: theme.radii.sm,
                 ),
               )
             : null,

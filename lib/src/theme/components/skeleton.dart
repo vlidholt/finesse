@@ -14,7 +14,7 @@ class SkeletonTheme with _$SkeletonTheme {
     bool canMerge = true,
     this.color,
     this.highlightColor,
-    this.radius,
+    this.borderRadius,
     this.duration,
     this.curve,
     this.animate,
@@ -33,8 +33,8 @@ class SkeletonTheme with _$SkeletonTheme {
   /// {@macro Skeleton.highlightColor}
   final Color? highlightColor;
 
-  /// {@macro Skeleton.radius}
-  final BorderRadiusGeometry? radius;
+  /// {@macro Skeleton.borderRadius}
+  final BorderRadiusGeometry? borderRadius;
 
   /// {@macro Skeleton.duration}
   final Duration? duration;

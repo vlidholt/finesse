@@ -415,7 +415,7 @@ void main() {
             iconSize: 30,
             backgroundColor: fill,
             foregroundColor: ink,
-            radius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(12),
             shadows: const [],
           ),
         ),

@@ -1557,7 +1557,7 @@ class SelectOption<T> extends StatefulWidget {
     this.hoveredBackgroundColor,
     this.padding,
     this.selectedIcon,
-    this.radius,
+    this.borderRadius,
     this.direction,
     this.backgroundColor,
     this.selectedBackgroundColor,
@@ -1590,7 +1590,7 @@ class SelectOption<T> extends StatefulWidget {
   final Widget? selectedIcon;
 
   /// The radius of the [SelectOption], defaults to `ThemeData.radius`.
-  final BorderRadius? radius;
+  final BorderRadius? borderRadius;
 
   /// The background color of the [SelectOption], defaults to
   /// `ThemeData.selectOptionTheme.backgroundColor`.
@@ -1708,7 +1708,9 @@ class _OptionState<T> extends State<SelectOption<T>> {
         widget.backgroundColor ?? theme.selectOptionTheme.backgroundColor;
 
     final effectiveRadius =
-        widget.radius ?? theme.selectOptionTheme.radius ?? theme.radius;
+        widget.borderRadius ??
+        theme.selectOptionTheme.borderRadius ??
+        theme.radius;
 
     final effectiveSelectedIconColor = inSheet
         ? theme.colorScheme.tint

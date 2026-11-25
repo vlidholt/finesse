@@ -149,11 +149,11 @@ void main() {
 
       // Square styles really are square, all the way out to the card.
       final lyra = const ThemeEditorConfig(style: StylePreset.lyra).build();
-      expect(lyra.cardTheme.radius, BorderRadius.zero);
+      expect(lyra.cardTheme.borderRadius, BorderRadius.zero);
       // ...and a rounded one scales the card past the control radius.
       final finesse = const ThemeEditorConfig().build();
       expect(
-        finesse.cardTheme.radius!.topLeft.x,
+        finesse.cardTheme.borderRadius!.topLeft.x,
         greaterThan(finesse.radius.topLeft.x),
       );
     });

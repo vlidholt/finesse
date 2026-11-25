@@ -59,9 +59,9 @@ mixin _$SheetTheme {
       dragHandleColor: Color.lerp(a.dragHandleColor, b.dragHandleColor, t),
       dragHandleWidth: lerpDouble$(a.dragHandleWidth, b.dragHandleWidth, t),
       dragHandleHeight: lerpDouble$(a.dragHandleHeight, b.dragHandleHeight, t),
-      dragHandleRadius: BorderRadius.lerp(
-        a.dragHandleRadius,
-        b.dragHandleRadius,
+      dragHandleBorderRadius: BorderRadius.lerp(
+        a.dragHandleBorderRadius,
+        b.dragHandleBorderRadius,
         t,
       ),
     );
@@ -93,7 +93,7 @@ mixin _$SheetTheme {
     Color? dragHandleColor,
     double? dragHandleWidth,
     double? dragHandleHeight,
-    BorderRadius? dragHandleRadius,
+    BorderRadius? dragHandleBorderRadius,
   }) {
     final _this = (this as SheetTheme);
 
@@ -123,7 +123,8 @@ mixin _$SheetTheme {
       dragHandleColor: dragHandleColor ?? _this.dragHandleColor,
       dragHandleWidth: dragHandleWidth ?? _this.dragHandleWidth,
       dragHandleHeight: dragHandleHeight ?? _this.dragHandleHeight,
-      dragHandleRadius: dragHandleRadius ?? _this.dragHandleRadius,
+      dragHandleBorderRadius:
+          dragHandleBorderRadius ?? _this.dragHandleBorderRadius,
     );
   }
 
@@ -166,7 +167,7 @@ mixin _$SheetTheme {
       dragHandleColor: other.dragHandleColor,
       dragHandleWidth: other.dragHandleWidth,
       dragHandleHeight: other.dragHandleHeight,
-      dragHandleRadius: other.dragHandleRadius,
+      dragHandleBorderRadius: other.dragHandleBorderRadius,
     );
   }
 
@@ -208,7 +209,7 @@ mixin _$SheetTheme {
         _other.dragHandleColor == _this.dragHandleColor &&
         _other.dragHandleWidth == _this.dragHandleWidth &&
         _other.dragHandleHeight == _this.dragHandleHeight &&
-        _other.dragHandleRadius == _this.dragHandleRadius;
+        _other.dragHandleBorderRadius == _this.dragHandleBorderRadius;
   }
 
   @override
@@ -242,7 +243,7 @@ mixin _$SheetTheme {
       _this.dragHandleColor,
       _this.dragHandleWidth,
       _this.dragHandleHeight,
-      _this.dragHandleRadius,
+      _this.dragHandleBorderRadius,
     ]);
   }
 }

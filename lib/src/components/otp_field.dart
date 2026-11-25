@@ -367,10 +367,10 @@ class OtpFieldSlot extends StatefulWidget {
     this.height,
     this.padding,
     this.decoration,
-    this.firstRadius,
-    this.lastRadius,
-    this.singleRadius,
-    this.middleRadius,
+    this.firstBorderRadius,
+    this.lastBorderRadius,
+    this.singleBorderRadius,
+    this.middleBorderRadius,
     this.initialValue,
     this.textInputAction,
     this.keyboardToolbarBuilder,
@@ -429,27 +429,27 @@ class OtpFieldSlot extends StatefulWidget {
   /// {@endtemplate}
   final FinesseDecoration? decoration;
 
-  /// {@template OtpFieldSlot.firstRadius}
+  /// {@template OtpFieldSlot.firstBorderRadius}
   /// The radius applied to the first slot of each group
   /// {@endtemplate}
-  final BorderRadius? firstRadius;
+  final BorderRadius? firstBorderRadius;
 
-  /// {@template OtpFieldSlot.lastRadius}
+  /// {@template OtpFieldSlot.lastBorderRadius}
   /// The radius applied to the last slot of each group
   /// {@endtemplate}
-  final BorderRadius? lastRadius;
+  final BorderRadius? lastBorderRadius;
 
-  /// {@template OtpFieldSlot.singleRadius}
+  /// {@template OtpFieldSlot.singleBorderRadius}
   /// The radius applied to the single slot of each group.
   /// Used only if the group has only one slot
   /// {@endtemplate}
-  final BorderRadius? singleRadius;
+  final BorderRadius? singleBorderRadius;
 
-  /// {@template OtpFieldSlot.middleRadius}
+  /// {@template OtpFieldSlot.middleBorderRadius}
   /// The radius applied to the middle slots of each group.
   /// If there are 4 slots in a group, the middle slots are the 2nd and 3rd
   /// {@endtemplate}
-  final BorderRadius? middleRadius;
+  final BorderRadius? middleBorderRadius;
 
   /// {@template OtpFieldSlot.initialValue}
   /// The initial value of the slot.
@@ -564,27 +564,29 @@ class _OtpFieldSlotState extends State<OtpFieldSlot> {
         );
 
     final firstRadius =
-        widget.firstRadius ??
-        theme.otpFieldTheme.firstRadius ??
+        widget.firstBorderRadius ??
+        theme.otpFieldTheme.firstBorderRadius ??
         BorderRadius.only(
           topLeft: theme.radius.topLeft,
           bottomLeft: theme.radius.bottomLeft,
         );
 
     final lastRadius =
-        widget.lastRadius ??
-        theme.otpFieldTheme.lastRadius ??
+        widget.lastBorderRadius ??
+        theme.otpFieldTheme.lastBorderRadius ??
         BorderRadius.only(
           topRight: theme.radius.topRight,
           bottomRight: theme.radius.bottomRight,
         );
 
     final singleRadius =
-        widget.singleRadius ?? theme.otpFieldTheme.singleRadius ?? theme.radius;
+        widget.singleBorderRadius ??
+        theme.otpFieldTheme.singleBorderRadius ??
+        theme.radius;
 
     final middleRadius =
-        widget.middleRadius ??
-        theme.otpFieldTheme.middleRadius ??
+        widget.middleBorderRadius ??
+        theme.otpFieldTheme.middleBorderRadius ??
         BorderRadius.zero;
 
     final lastIndexForGroup = otpProvider.widget.maxLength / otpProvider.groups;
@@ -649,7 +651,7 @@ class _OtpFieldSlotState extends State<OtpFieldSlot> {
     final effectiveDecoration = mergedDecoration.merge(
       FinesseDecoration(
         border: FinesseBorder(
-          radius: effectiveRadius,
+          borderRadius: effectiveRadius,
           // Same colour whether or not it is drawn: `Border` requires
           // colour-uniform sides before it will paint a radius, and only the
           // ends of the strip are rounded.
@@ -658,7 +660,7 @@ class _OtpFieldSlotState extends State<OtpFieldSlot> {
             width: isFirstInGroup ? 1 : 0,
           ),
         ),
-        focusedBorder: FinesseBorder(radius: effectiveRadius),
+        focusedBorder: FinesseBorder(borderRadius: effectiveRadius),
         // Outside the slot, flush against it, like every other field
         // (`data-[active=true]:ring-3`).
         //
@@ -670,7 +672,7 @@ class _OtpFieldSlotState extends State<OtpFieldSlot> {
         // unconditionally: supplying only the radius here would silently
         // collapse the ring onto the slot's own border.
         secondaryFocusedBorder: FinesseBorder(
-          radius: _inflateCorners(effectiveRadius, theme.style.ringWidth),
+          borderRadius: _inflateCorners(effectiveRadius, theme.style.ringWidth),
           offset: theme.style.ringWidth,
         ),
       ),
@@ -712,7 +714,8 @@ class _OtpFieldSlotState extends State<OtpFieldSlot> {
             slotContext: context,
             border: ringBorder.toBorder(),
             radius:
-                ringBorder.radius?.resolve(textDirection) ?? BorderRadius.zero,
+                ringBorder.borderRadius?.resolve(textDirection) ??
+                BorderRadius.zero,
             offset: ringBorder.offset ?? 0,
             textDirection: textDirection,
           )

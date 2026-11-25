@@ -81,9 +81,9 @@ mixin _$SidebarTheme {
         t,
       ),
       menuButtonGap: lerpDouble$(a.menuButtonGap, b.menuButtonGap, t),
-      menuButtonRadius: BorderRadius.lerp(
-        a.menuButtonRadius,
-        b.menuButtonRadius,
+      menuButtonBorderRadius: BorderRadius.lerp(
+        a.menuButtonBorderRadius,
+        b.menuButtonBorderRadius,
         t,
       ),
       menuButtonTextStyle: TextStyle.lerp(
@@ -126,10 +126,18 @@ mixin _$SidebarTheme {
         b.floatingMargin,
         t,
       ),
-      floatingRadius: BorderRadius.lerp(a.floatingRadius, b.floatingRadius, t),
+      floatingBorderRadius: BorderRadius.lerp(
+        a.floatingBorderRadius,
+        b.floatingBorderRadius,
+        t,
+      ),
       floatingShadows: t < 0.5 ? a.floatingShadows : b.floatingShadows,
       insetMargin: EdgeInsetsGeometry.lerp(a.insetMargin, b.insetMargin, t),
-      insetRadius: BorderRadius.lerp(a.insetRadius, b.insetRadius, t),
+      insetBorderRadius: BorderRadius.lerp(
+        a.insetBorderRadius,
+        b.insetBorderRadius,
+        t,
+      ),
       insetShadows: t < 0.5 ? a.insetShadows : b.insetShadows,
     );
   }
@@ -158,7 +166,7 @@ mixin _$SidebarTheme {
     double? menuButtonHeightLg,
     EdgeInsetsGeometry? menuButtonPadding,
     double? menuButtonGap,
-    BorderRadius? menuButtonRadius,
+    BorderRadius? menuButtonBorderRadius,
     TextStyle? menuButtonTextStyle,
     TextStyle? menuButtonTextStyleSm,
     double? iconSize,
@@ -171,10 +179,10 @@ mixin _$SidebarTheme {
     Duration? duration,
     Curve? curve,
     EdgeInsetsGeometry? floatingMargin,
-    BorderRadius? floatingRadius,
+    BorderRadius? floatingBorderRadius,
     List<BoxShadow>? floatingShadows,
     EdgeInsetsGeometry? insetMargin,
-    BorderRadius? insetRadius,
+    BorderRadius? insetBorderRadius,
     List<BoxShadow>? insetShadows,
   }) {
     final _this = (this as SidebarTheme);
@@ -204,7 +212,8 @@ mixin _$SidebarTheme {
       menuButtonHeightLg: menuButtonHeightLg ?? _this.menuButtonHeightLg,
       menuButtonPadding: menuButtonPadding ?? _this.menuButtonPadding,
       menuButtonGap: menuButtonGap ?? _this.menuButtonGap,
-      menuButtonRadius: menuButtonRadius ?? _this.menuButtonRadius,
+      menuButtonBorderRadius:
+          menuButtonBorderRadius ?? _this.menuButtonBorderRadius,
       menuButtonTextStyle: menuButtonTextStyle ?? _this.menuButtonTextStyle,
       menuButtonTextStyleSm:
           menuButtonTextStyleSm ?? _this.menuButtonTextStyleSm,
@@ -218,10 +227,10 @@ mixin _$SidebarTheme {
       duration: duration ?? _this.duration,
       curve: curve ?? _this.curve,
       floatingMargin: floatingMargin ?? _this.floatingMargin,
-      floatingRadius: floatingRadius ?? _this.floatingRadius,
+      floatingBorderRadius: floatingBorderRadius ?? _this.floatingBorderRadius,
       floatingShadows: floatingShadows ?? _this.floatingShadows,
       insetMargin: insetMargin ?? _this.insetMargin,
-      insetRadius: insetRadius ?? _this.insetRadius,
+      insetBorderRadius: insetBorderRadius ?? _this.insetBorderRadius,
       insetShadows: insetShadows ?? _this.insetShadows,
     );
   }
@@ -263,7 +272,7 @@ mixin _$SidebarTheme {
       menuButtonHeightLg: other.menuButtonHeightLg,
       menuButtonPadding: other.menuButtonPadding,
       menuButtonGap: other.menuButtonGap,
-      menuButtonRadius: other.menuButtonRadius,
+      menuButtonBorderRadius: other.menuButtonBorderRadius,
       menuButtonTextStyle:
           _this.menuButtonTextStyle?.merge(other.menuButtonTextStyle) ??
           other.menuButtonTextStyle,
@@ -284,10 +293,10 @@ mixin _$SidebarTheme {
       duration: other.duration,
       curve: other.curve,
       floatingMargin: other.floatingMargin,
-      floatingRadius: other.floatingRadius,
+      floatingBorderRadius: other.floatingBorderRadius,
       floatingShadows: other.floatingShadows,
       insetMargin: other.insetMargin,
-      insetRadius: other.insetRadius,
+      insetBorderRadius: other.insetBorderRadius,
       insetShadows: other.insetShadows,
     );
   }
@@ -328,7 +337,7 @@ mixin _$SidebarTheme {
         _other.menuButtonHeightLg == _this.menuButtonHeightLg &&
         _other.menuButtonPadding == _this.menuButtonPadding &&
         _other.menuButtonGap == _this.menuButtonGap &&
-        _other.menuButtonRadius == _this.menuButtonRadius &&
+        _other.menuButtonBorderRadius == _this.menuButtonBorderRadius &&
         _other.menuButtonTextStyle == _this.menuButtonTextStyle &&
         _other.menuButtonTextStyleSm == _this.menuButtonTextStyleSm &&
         _other.iconSize == _this.iconSize &&
@@ -341,10 +350,10 @@ mixin _$SidebarTheme {
         _other.duration == _this.duration &&
         _other.curve == _this.curve &&
         _other.floatingMargin == _this.floatingMargin &&
-        _other.floatingRadius == _this.floatingRadius &&
+        _other.floatingBorderRadius == _this.floatingBorderRadius &&
         _other.floatingShadows == _this.floatingShadows &&
         _other.insetMargin == _this.insetMargin &&
-        _other.insetRadius == _this.insetRadius &&
+        _other.insetBorderRadius == _this.insetBorderRadius &&
         _other.insetShadows == _this.insetShadows;
   }
 
@@ -377,7 +386,7 @@ mixin _$SidebarTheme {
       _this.menuButtonHeightLg,
       _this.menuButtonPadding,
       _this.menuButtonGap,
-      _this.menuButtonRadius,
+      _this.menuButtonBorderRadius,
       _this.menuButtonTextStyle,
       _this.menuButtonTextStyleSm,
       _this.iconSize,
@@ -390,10 +399,10 @@ mixin _$SidebarTheme {
       _this.duration,
       _this.curve,
       _this.floatingMargin,
-      _this.floatingRadius,
+      _this.floatingBorderRadius,
       _this.floatingShadows,
       _this.insetMargin,
-      _this.insetRadius,
+      _this.insetBorderRadius,
       _this.insetShadows,
     ]);
   }

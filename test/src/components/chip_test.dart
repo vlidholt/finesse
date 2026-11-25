@@ -43,7 +43,7 @@ void main() {
       );
       expect(desktop.chipTheme.gap, 6);
       expect(desktop.chipTheme.iconSize, 16);
-      expect(desktop.chipTheme.radius, desktop.radii.full);
+      expect(desktop.chipTheme.borderRadius, desktop.radii.full);
       expect(desktop.chipTheme.borderWidth, 1);
       // A 13px medium label on a single line.
       expect(desktop.chipTheme.textStyle!.fontSize, 13);
@@ -344,7 +344,7 @@ void main() {
       await pumpFinesse(
         tester,
         const Center(child: Chip(label: Text('Hi'))),
-        theme: ThemeData(chipTheme: const ChipTheme(radius: radius)),
+        theme: ThemeData(chipTheme: const ChipTheme(borderRadius: radius)),
       );
       expect(boxOf(tester).borderRadius, radius);
     });

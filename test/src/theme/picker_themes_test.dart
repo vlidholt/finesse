@@ -30,7 +30,7 @@ void main() {
           expect(wheel.textStyle, isNotNull);
           expect(wheel.selectedTextStyle, isNotNull);
           expect(wheel.lensColor, isNotNull);
-          expect(wheel.lensRadius, isNotNull);
+          expect(wheel.lensBorderRadius, isNotNull);
           expect(wheel.lensMagnification, greaterThanOrEqualTo(1));
           // The row under the lens reads against the surface; the others
           // recede.
@@ -53,7 +53,7 @@ void main() {
     expect(theme.wheelPickerTheme.itemExtent, 52);
     expect(theme.wheelPickerTheme.curvature, 0);
     // What the override leaves out is still the style's.
-    expect(theme.wheelPickerTheme.lensRadius, isNotNull);
+    expect(theme.wheelPickerTheme.lensBorderRadius, isNotNull);
     expect(theme.timeFieldTheme.fieldWidth, 60);
 
     final copied = ThemeData().copyWith(

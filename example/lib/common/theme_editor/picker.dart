@@ -209,7 +209,7 @@ class _ThemePickerState<T> extends State<ThemePicker<T>> {
       decoration: FinesseDecoration(
         border: FinesseBorder.all(
           color: theme.colorScheme.foreground.withValues(alpha: .1),
-          radius: theme.radii.lg,
+          borderRadius: theme.radii.lg,
           width: 1,
         ),
       ),

@@ -266,7 +266,7 @@ class ButtonGroupScope extends InheritedWidget {
         bottom: border.bottom,
         left: border.left,
         padding: border.padding,
-        radius: squared(border.radius),
+        borderRadius: squared(border.borderRadius),
         offset: border.offset,
       );
     }
@@ -293,7 +293,7 @@ class ButtonGroupScope extends InheritedWidget {
         bottom: joined.bottom,
         left: horizontal && ltr ? given : joined.left,
         padding: (joined.padding ?? none).add(reserve),
-        radius: joined.radius,
+        borderRadius: joined.borderRadius,
         offset: joined.offset,
       );
     }

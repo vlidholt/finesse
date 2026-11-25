@@ -36,7 +36,7 @@ class ProfileHeaderCard extends StatelessWidget {
     return Card(
       padding: EdgeInsets.zero,
       // A step rounder than the cards under it.
-      radius: theme.radii.xl3,
+      borderRadius: theme.radii.xl3,
       rowMainAxisSize: MainAxisSize.max,
       columnCrossAxisAlignment: CrossAxisAlignment.stretch,
       child: Column(

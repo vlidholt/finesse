@@ -1008,7 +1008,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
   FinesseDecoration buttonDecoration({required BorderRadius radius}) {
     final themeVariant = variant;
     return FinesseDecoration(
-      border: FinesseBorder(radius: radius),
+      border: FinesseBorder(borderRadius: radius),
       secondaryFocusedBorder:
           themeVariant is DefaultThemeVariant && !disableSecondaryBorder
           ? themeVariant.ringFor(radius)

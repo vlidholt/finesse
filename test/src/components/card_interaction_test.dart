@@ -39,7 +39,7 @@ void main() {
           semanticLabel: semanticLabel,
           backgroundColor: backgroundColor,
           border: border,
-          radius: radius,
+          borderRadius: radius,
           title: const Text('Senior designer'),
           description: const Text('Halcyon'),
           footer: footer,
@@ -127,7 +127,7 @@ void main() {
       final theme = themeOf(tester, find.byType(Card));
       var ring = tester.widget<FocusRing>(find.byType(FocusRing));
       expect(ring.visible, isFalse);
-      expect(ring.borderRadius, theme.cardTheme.radius);
+      expect(ring.borderRadius, theme.cardTheme.borderRadius);
       expect(ring.inset, isFalse);
 
       await tester.sendKeyEvent(LogicalKeyboardKey.tab);

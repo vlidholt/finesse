@@ -194,7 +194,7 @@ List<_Sample> _measure(WidgetTester tester) {
       },
       Card() => {
         _Kind.inset: _insets(widget.padding),
-        _Kind.radius: _radii(widget.radius),
+        _Kind.radius: _radii(widget.borderRadius),
         _Kind.gap: [widget.gap, widget.sectionGap],
       },
       SizedBox() => {

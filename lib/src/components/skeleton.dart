@@ -25,7 +25,7 @@ class Skeleton extends StatefulWidget {
     this.height,
     this.color,
     this.highlightColor,
-    this.radius,
+    this.borderRadius,
     this.duration,
     this.curve,
     this.animate,
@@ -46,7 +46,7 @@ class Skeleton extends StatefulWidget {
     this.child,
   }) : width = size,
        height = size,
-       radius = const BorderRadius.all(Radius.circular(9999));
+       borderRadius = const BorderRadius.all(Radius.circular(9999));
 
   /// The width of the skeleton. Null means "as wide as the parent allows".
   final double? width;
@@ -64,10 +64,10 @@ class Skeleton extends StatefulWidget {
   /// {@endtemplate}
   final Color? highlightColor;
 
-  /// {@template Skeleton.radius}
+  /// {@template Skeleton.borderRadius}
   /// The corner radius of the skeleton.
   /// {@endtemplate}
-  final BorderRadiusGeometry? radius;
+  final BorderRadiusGeometry? borderRadius;
 
   /// {@template Skeleton.duration}
   /// The duration of one full pulse.
@@ -176,7 +176,7 @@ class _SkeletonState extends State<Skeleton>
         skeletonTheme.highlightColor ??
         effectiveColor.withValues(alpha: .4);
     final effectiveRadius =
-        widget.radius ?? skeletonTheme.radius ?? theme.radius;
+        widget.borderRadius ?? skeletonTheme.borderRadius ?? theme.radius;
     final effectiveCurve =
         widget.curve ?? skeletonTheme.curve ?? Curves.easeInOut;
 

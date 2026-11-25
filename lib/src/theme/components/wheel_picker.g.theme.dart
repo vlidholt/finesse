@@ -42,7 +42,11 @@ mixin _$WheelPickerTheme {
       lensColor: Color.lerp(a.lensColor, b.lensColor, t),
       lensBorderColor: Color.lerp(a.lensBorderColor, b.lensBorderColor, t),
       lensBorderWidth: lerpDouble$(a.lensBorderWidth, b.lensBorderWidth, t),
-      lensRadius: BorderRadius.lerp(a.lensRadius, b.lensRadius, t),
+      lensBorderRadius: BorderRadius.lerp(
+        a.lensBorderRadius,
+        b.lensBorderRadius,
+        t,
+      ),
       lensMagnification: lerpDouble$(
         a.lensMagnification,
         b.lensMagnification,
@@ -64,7 +68,7 @@ mixin _$WheelPickerTheme {
     Color? lensColor,
     Color? lensBorderColor,
     double? lensBorderWidth,
-    BorderRadius? lensRadius,
+    BorderRadius? lensBorderRadius,
     double? lensMagnification,
     double? curvature,
     double? edgeFade,
@@ -82,7 +86,7 @@ mixin _$WheelPickerTheme {
       lensColor: lensColor ?? _this.lensColor,
       lensBorderColor: lensBorderColor ?? _this.lensBorderColor,
       lensBorderWidth: lensBorderWidth ?? _this.lensBorderWidth,
-      lensRadius: lensRadius ?? _this.lensRadius,
+      lensBorderRadius: lensBorderRadius ?? _this.lensBorderRadius,
       lensMagnification: lensMagnification ?? _this.lensMagnification,
       curvature: curvature ?? _this.curvature,
       edgeFade: edgeFade ?? _this.edgeFade,
@@ -113,7 +117,7 @@ mixin _$WheelPickerTheme {
       lensColor: other.lensColor,
       lensBorderColor: other.lensBorderColor,
       lensBorderWidth: other.lensBorderWidth,
-      lensRadius: other.lensRadius,
+      lensBorderRadius: other.lensBorderRadius,
       lensMagnification: other.lensMagnification,
       curvature: other.curvature,
       edgeFade: other.edgeFade,
@@ -143,7 +147,7 @@ mixin _$WheelPickerTheme {
         _other.lensColor == _this.lensColor &&
         _other.lensBorderColor == _this.lensBorderColor &&
         _other.lensBorderWidth == _this.lensBorderWidth &&
-        _other.lensRadius == _this.lensRadius &&
+        _other.lensBorderRadius == _this.lensBorderRadius &&
         _other.lensMagnification == _this.lensMagnification &&
         _other.curvature == _this.curvature &&
         _other.edgeFade == _this.edgeFade &&
@@ -165,7 +169,7 @@ mixin _$WheelPickerTheme {
       _this.lensColor,
       _this.lensBorderColor,
       _this.lensBorderWidth,
-      _this.lensRadius,
+      _this.lensBorderRadius,
       _this.lensMagnification,
       _this.curvature,
       _this.edgeFade,

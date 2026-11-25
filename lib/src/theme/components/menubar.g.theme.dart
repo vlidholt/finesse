@@ -26,7 +26,11 @@ mixin _$MenubarTheme {
     }
 
     return MenubarTheme(
-      radius: BorderRadiusGeometry.lerp(a.radius, b.radius, t),
+      borderRadius: BorderRadiusGeometry.lerp(
+        a.borderRadius,
+        b.borderRadius,
+        t,
+      ),
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
       backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
       border: FinesseBorder.lerp(a.border, b.border, t),
@@ -119,7 +123,7 @@ mixin _$MenubarTheme {
   }
 
   MenubarTheme copyWith({
-    BorderRadiusGeometry? radius,
+    BorderRadiusGeometry? borderRadius,
     EdgeInsetsGeometry? padding,
     Color? backgroundColor,
     FinesseBorder? border,
@@ -160,7 +164,7 @@ mixin _$MenubarTheme {
     final _this = (this as MenubarTheme);
 
     return MenubarTheme(
-      radius: radius ?? _this.radius,
+      borderRadius: borderRadius ?? _this.borderRadius,
       padding: padding ?? _this.padding,
       backgroundColor: backgroundColor ?? _this.backgroundColor,
       border: border ?? _this.border,
@@ -223,7 +227,7 @@ mixin _$MenubarTheme {
     }
 
     return copyWith(
-      radius: other.radius,
+      borderRadius: other.borderRadius,
       padding: other.padding,
       backgroundColor: other.backgroundColor,
       border: _this.border?.merge(other.border) ?? other.border,
@@ -278,7 +282,7 @@ mixin _$MenubarTheme {
     final _this = (this as MenubarTheme);
     final _other = (other as MenubarTheme);
 
-    return _other.radius == _this.radius &&
+    return _other.borderRadius == _this.borderRadius &&
         _other.padding == _this.padding &&
         _other.backgroundColor == _this.backgroundColor &&
         _other.border == _this.border &&
@@ -326,7 +330,7 @@ mixin _$MenubarTheme {
 
     return Object.hashAll([
       runtimeType,
-      _this.radius,
+      _this.borderRadius,
       _this.padding,
       _this.backgroundColor,
       _this.border,

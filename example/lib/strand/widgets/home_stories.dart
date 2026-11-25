@@ -178,7 +178,7 @@ class _AddStoryCard extends StatelessWidget {
     return Card(
       onPressed: () => showComposeDialog(context),
       padding: EdgeInsets.zero,
-      radius: metrics.borderRadius(theme),
+      borderRadius: metrics.borderRadius(theme),
       height: metrics.addHeight,
       columnCrossAxisAlignment: CrossAxisAlignment.stretch,
       child: SizedBox(

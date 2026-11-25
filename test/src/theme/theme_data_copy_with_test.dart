@@ -117,7 +117,8 @@ void main() {
     expect(nova.radii.scale, const RadiusScale());
     // lg on the Tailwind scale: 8 * 1.25.
     expect(
-      (nova.primaryButtonTheme.decoration!.border!.radius! as BorderRadius)
+      (nova.primaryButtonTheme.decoration!.border!.borderRadius!
+              as BorderRadius)
           .topLeft
           .x,
       10,

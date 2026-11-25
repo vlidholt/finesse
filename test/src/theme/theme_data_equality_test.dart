@@ -123,13 +123,13 @@ void main() {
 
     test('superellipse borders compare all fields', () {
       const a = FinesseRoundedSuperellipseBorder(
-        radius: BorderRadius.all(Radius.circular(4)),
+        borderRadius: BorderRadius.all(Radius.circular(4)),
       );
       const b = FinesseRoundedSuperellipseBorder(
-        radius: BorderRadius.all(Radius.circular(4)),
+        borderRadius: BorderRadius.all(Radius.circular(4)),
       );
       const c = FinesseRoundedSuperellipseBorder(
-        radius: BorderRadius.all(Radius.circular(8)),
+        borderRadius: BorderRadius.all(Radius.circular(8)),
       );
 
       expect(a, equals(b));
@@ -481,7 +481,7 @@ void main() {
       final theme = build();
       expect(theme.chipTheme.height, 28);
       // Merged over the derived theme, not replacing it.
-      expect(theme.chipTheme.radius, ThemeData().chipTheme.radius);
+      expect(theme.chipTheme.borderRadius, ThemeData().chipTheme.borderRadius);
       expect(theme.layoutTheme.gap(GapSize.lg), 20);
       expect(theme.layoutTheme.gap(GapSize.md), 12);
       expect(theme.glassTheme.blur, 8);

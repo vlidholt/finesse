@@ -33,7 +33,7 @@ mixin _$GlassTheme {
       strongOpacity: lerpDouble$(a.strongOpacity, b.strongOpacity, t),
       borderColor: Color.lerp(a.borderColor, b.borderColor, t),
       borderWidth: lerpDouble$(a.borderWidth, b.borderWidth, t),
-      radius: BorderRadius.lerp(a.radius, b.radius, t),
+      borderRadius: BorderRadius.lerp(a.borderRadius, b.borderRadius, t),
     );
   }
 
@@ -45,7 +45,7 @@ mixin _$GlassTheme {
     double? strongOpacity,
     Color? borderColor,
     double? borderWidth,
-    BorderRadius? radius,
+    BorderRadius? borderRadius,
   }) {
     final _this = (this as GlassTheme);
 
@@ -57,7 +57,7 @@ mixin _$GlassTheme {
       strongOpacity: strongOpacity ?? _this.strongOpacity,
       borderColor: borderColor ?? _this.borderColor,
       borderWidth: borderWidth ?? _this.borderWidth,
-      radius: radius ?? _this.radius,
+      borderRadius: borderRadius ?? _this.borderRadius,
     );
   }
 
@@ -80,7 +80,7 @@ mixin _$GlassTheme {
       strongOpacity: other.strongOpacity,
       borderColor: other.borderColor,
       borderWidth: other.borderWidth,
-      radius: other.radius,
+      borderRadius: other.borderRadius,
     );
   }
 
@@ -104,7 +104,7 @@ mixin _$GlassTheme {
         _other.strongOpacity == _this.strongOpacity &&
         _other.borderColor == _this.borderColor &&
         _other.borderWidth == _this.borderWidth &&
-        _other.radius == _this.radius;
+        _other.borderRadius == _this.borderRadius;
   }
 
   @override
@@ -120,7 +120,7 @@ mixin _$GlassTheme {
       _this.strongOpacity,
       _this.borderColor,
       _this.borderWidth,
-      _this.radius,
+      _this.borderRadius,
     );
   }
 }

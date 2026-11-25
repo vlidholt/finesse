@@ -128,7 +128,7 @@ class FloatingActionButton extends StatelessWidget {
         fab.iconSizeLg ?? 28.0,
       ),
     };
-    final radius = fab.radius ?? theme.radii.full;
+    final radius = fab.borderRadius ?? theme.radii.full;
     final glass = variant == FloatingActionButtonVariant.glass;
     final (Color? fill, Color foreground) = switch (variant) {
       FloatingActionButtonVariant.primary => (

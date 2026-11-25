@@ -16,7 +16,7 @@ class CardTheme with _$CardTheme {
     bool canMerge = true,
     this.backgroundColor,
     this.padding,
-    this.radius,
+    this.borderRadius,
     this.border,
     this.shadows,
     this.width,
@@ -49,8 +49,8 @@ class CardTheme with _$CardTheme {
   /// {@macro Card.backgroundColor}
   final Color? backgroundColor;
 
-  /// {@macro Card.radius}
-  final BorderRadius? radius;
+  /// {@macro Card.borderRadius}
+  final BorderRadius? borderRadius;
 
   /// {@macro Card.border}
   final FinesseBorder? border;

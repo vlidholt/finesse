@@ -137,7 +137,7 @@ class _PersonCard extends StatelessWidget {
     void open() => showPersonPreview(context, person);
 
     return Card(
-      radius: theme.radii.xl,
+      borderRadius: theme.radii.xl,
       child: Stack(
         clipBehavior: Clip.none,
         children: [

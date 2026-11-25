@@ -28,7 +28,7 @@ class Card extends StatelessWidget {
     this.footer,
     this.padding,
     this.backgroundColor,
-    this.radius,
+    this.borderRadius,
     this.border,
     this.shadows,
     this.width,
@@ -84,11 +84,11 @@ class Card extends StatelessWidget {
   /// {@endtemplate}
   final Color? backgroundColor;
 
-  /// {@template Card.radius}
+  /// {@template Card.borderRadius}
   /// The border radius of the card’s corners.
   /// Defaults to the theme’s radius if not specified.
   /// {@endtemplate}
-  final BorderRadius? radius;
+  final BorderRadius? borderRadius;
 
   /// {@template Card.border}
   /// The border surrounding the card.
@@ -225,7 +225,8 @@ class Card extends StatelessWidget {
         : backgroundColor ??
               theme.cardTheme.backgroundColor ??
               theme.colorScheme.card;
-    final effectiveRadius = radius ?? theme.cardTheme.radius ?? theme.radius;
+    final effectiveRadius =
+        borderRadius ?? theme.cardTheme.borderRadius ?? theme.radius;
     final effectiveBorder = selected
         ? border ?? FinesseBorder.all(color: theme.colorScheme.tint, width: 1.5)
         : border ??

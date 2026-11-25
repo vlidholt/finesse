@@ -20,7 +20,7 @@ class BottomNavigationBarTheme with _$BottomNavigationBarTheme {
     this.padding,
     this.margin,
     this.gap,
-    this.radius,
+    this.borderRadius,
     this.backgroundColor,
     this.borderColor,
     this.rimColor,
@@ -69,7 +69,7 @@ class BottomNavigationBarTheme with _$BottomNavigationBarTheme {
   final double? gap;
 
   /// The bar's corner radius when it floats.
-  final BorderRadius? radius;
+  final BorderRadius? borderRadius;
 
   /// The bar's fill.
   final Color? backgroundColor;

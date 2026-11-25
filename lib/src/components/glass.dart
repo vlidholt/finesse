@@ -111,7 +111,7 @@ class Glass extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final glass = theme.glassTheme;
-    final radius = borderRadius ?? glass.radius ?? theme.radius;
+    final radius = borderRadius ?? glass.borderRadius ?? theme.radius;
     final base = glass.color ?? theme.colorScheme.card;
     final tint =
         color ??

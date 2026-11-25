@@ -122,7 +122,8 @@ class ListSection extends StatelessWidget {
     final direction = Directionality.of(context);
     final isCard = variant == ListSectionVariant.card;
 
-    final cardRadius = section.radius ?? theme.cardTheme.radius ?? theme.radius;
+    final cardRadius =
+        section.borderRadius ?? theme.cardTheme.borderRadius ?? theme.radius;
     final borderWidth = isCard
         ? (theme.cardTheme.border?.top?.width ?? 1)
         : 0.0;
@@ -185,7 +186,7 @@ class ListSection extends StatelessWidget {
       body = Card(
         padding: EdgeInsets.zero,
         backgroundColor: section.backgroundColor,
-        radius: section.radius,
+        borderRadius: section.borderRadius,
         rowMainAxisSize: MainAxisSize.max,
         columnCrossAxisAlignment: CrossAxisAlignment.stretch,
         child: body,

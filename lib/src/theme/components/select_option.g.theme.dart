@@ -36,7 +36,7 @@ mixin _$SelectOptionTheme {
         t,
       ),
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
-      radius: BorderRadius.lerp(a.radius, b.radius, t),
+      borderRadius: BorderRadius.lerp(a.borderRadius, b.borderRadius, t),
       backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
       textStyle: TextStyle.lerp(a.textStyle, b.textStyle, t),
       selectedBackgroundColor: Color.lerp(
@@ -65,7 +65,7 @@ mixin _$SelectOptionTheme {
   SelectOptionTheme copyWith({
     Color? hoveredBackgroundColor,
     EdgeInsetsGeometry? padding,
-    BorderRadius? radius,
+    BorderRadius? borderRadius,
     Color? backgroundColor,
     TextStyle? textStyle,
     Color? selectedBackgroundColor,
@@ -79,7 +79,7 @@ mixin _$SelectOptionTheme {
       hoveredBackgroundColor:
           hoveredBackgroundColor ?? _this.hoveredBackgroundColor,
       padding: padding ?? _this.padding,
-      radius: radius ?? _this.radius,
+      borderRadius: borderRadius ?? _this.borderRadius,
       backgroundColor: backgroundColor ?? _this.backgroundColor,
       textStyle: textStyle ?? _this.textStyle,
       selectedBackgroundColor:
@@ -105,7 +105,7 @@ mixin _$SelectOptionTheme {
     return copyWith(
       hoveredBackgroundColor: other.hoveredBackgroundColor,
       padding: other.padding,
-      radius: other.radius,
+      borderRadius: other.borderRadius,
       backgroundColor: other.backgroundColor,
       textStyle: _this.textStyle?.merge(other.textStyle) ?? other.textStyle,
       selectedBackgroundColor: other.selectedBackgroundColor,
@@ -132,7 +132,7 @@ mixin _$SelectOptionTheme {
 
     return _other.hoveredBackgroundColor == _this.hoveredBackgroundColor &&
         _other.padding == _this.padding &&
-        _other.radius == _this.radius &&
+        _other.borderRadius == _this.borderRadius &&
         _other.backgroundColor == _this.backgroundColor &&
         _other.textStyle == _this.textStyle &&
         _other.selectedBackgroundColor == _this.selectedBackgroundColor &&
@@ -149,7 +149,7 @@ mixin _$SelectOptionTheme {
       runtimeType,
       _this.hoveredBackgroundColor,
       _this.padding,
-      _this.radius,
+      _this.borderRadius,
       _this.backgroundColor,
       _this.textStyle,
       _this.selectedBackgroundColor,

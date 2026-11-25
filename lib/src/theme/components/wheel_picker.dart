@@ -19,7 +19,7 @@ class WheelPickerTheme with _$WheelPickerTheme {
     this.lensColor,
     this.lensBorderColor,
     this.lensBorderWidth,
-    this.lensRadius,
+    this.lensBorderRadius,
     this.lensMagnification,
     this.curvature,
     this.edgeFade,
@@ -59,7 +59,7 @@ class WheelPickerTheme with _$WheelPickerTheme {
   final double? lensBorderWidth;
 
   /// The corners of the lens.
-  final BorderRadius? lensRadius;
+  final BorderRadius? lensBorderRadius;
 
   /// How much larger the row under the lens is drawn; 1 is no
   /// magnification.

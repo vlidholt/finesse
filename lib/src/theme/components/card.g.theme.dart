@@ -28,7 +28,7 @@ mixin _$CardTheme {
     return CardTheme(
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
       backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
-      radius: BorderRadius.lerp(a.radius, b.radius, t),
+      borderRadius: BorderRadius.lerp(a.borderRadius, b.borderRadius, t),
       border: FinesseBorder.lerp(a.border, b.border, t),
       shadows: t < 0.5 ? a.shadows : b.shadows,
       width: lerpDouble$(a.width, b.width, t),
@@ -65,7 +65,7 @@ mixin _$CardTheme {
   CardTheme copyWith({
     EdgeInsetsGeometry? padding,
     Color? backgroundColor,
-    BorderRadius? radius,
+    BorderRadius? borderRadius,
     FinesseBorder? border,
     List<BoxShadow>? shadows,
     double? width,
@@ -90,7 +90,7 @@ mixin _$CardTheme {
     return CardTheme(
       padding: padding ?? _this.padding,
       backgroundColor: backgroundColor ?? _this.backgroundColor,
-      radius: radius ?? _this.radius,
+      borderRadius: borderRadius ?? _this.borderRadius,
       border: border ?? _this.border,
       shadows: shadows ?? _this.shadows,
       width: width ?? _this.width,
@@ -129,7 +129,7 @@ mixin _$CardTheme {
     return copyWith(
       padding: other.padding,
       backgroundColor: other.backgroundColor,
-      radius: other.radius,
+      borderRadius: other.borderRadius,
       border: _this.border?.merge(other.border) ?? other.border,
       shadows: other.shadows,
       width: other.width,
@@ -168,7 +168,7 @@ mixin _$CardTheme {
 
     return _other.padding == _this.padding &&
         _other.backgroundColor == _this.backgroundColor &&
-        _other.radius == _this.radius &&
+        _other.borderRadius == _this.borderRadius &&
         _other.border == _this.border &&
         _other.shadows == _this.shadows &&
         _other.width == _this.width &&
@@ -197,7 +197,7 @@ mixin _$CardTheme {
       runtimeType,
       _this.padding,
       _this.backgroundColor,
-      _this.radius,
+      _this.borderRadius,
       _this.border,
       _this.shadows,
       _this.width,

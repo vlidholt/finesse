@@ -357,8 +357,8 @@ class TextSelectionToolbar extends StatelessWidget {
 
     final decoration = selection.toolbarDecoration;
     final radius =
-        (decoration?.border?.radius ??
-                theme.popoverTheme.decoration?.border?.radius ??
+        (decoration?.border?.borderRadius ??
+                theme.popoverTheme.decoration?.border?.borderRadius ??
                 BorderRadius.zero)
             .resolve(direction);
 

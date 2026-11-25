@@ -38,7 +38,7 @@ class Menubar extends StatefulWidget {
   const Menubar({
     super.key,
     required this.items,
-    this.radius,
+    this.borderRadius,
     this.controller,
     this.padding,
     this.backgroundColor,
@@ -61,10 +61,10 @@ class Menubar extends StatefulWidget {
   /// {@endtemplate}
   final Iterable<Widget> items;
 
-  /// {@template Menubar.radius}
+  /// {@template Menubar.borderRadius}
   /// The radius of the menubar, default to `theme.radius`
   /// {@endtemplate}
-  final BorderRadiusGeometry? radius;
+  final BorderRadiusGeometry? borderRadius;
 
   /// {@macro MenubarController}
   final MenubarController? controller;
@@ -131,7 +131,7 @@ class _MenubarState extends State<Menubar> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final effectiveRadius =
-        widget.radius ?? theme.menubarTheme.radius ?? theme.radius;
+        widget.borderRadius ?? theme.menubarTheme.borderRadius ?? theme.radius;
     final effectivePadding =
         widget.padding ?? theme.menubarTheme.padding ?? const EdgeInsets.all(4);
     final effectiveBackgroundColor =
@@ -356,8 +356,8 @@ class _MenubarItemState extends State<MenubarItem> {
             decoration: BoxDecoration(
               color: effectiveSelectedBackgroundColor,
               borderRadius:
-                  effectiveButtonDecoration.border?.radius ??
-                  variantDecoration?.border?.radius,
+                  effectiveButtonDecoration.border?.borderRadius ??
+                  variantDecoration?.border?.borderRadius,
             ),
             child: Listener(
               onPointerDown: widget.enabled

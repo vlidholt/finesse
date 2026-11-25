@@ -741,7 +741,7 @@ class _AutocompleteOptionRowState extends State<AutocompleteOptionRow> {
               color: _highlighted
                   ? option.hoveredBackgroundColor ?? theme.colorScheme.accent
                   : option.backgroundColor,
-              borderRadius: option.radius ?? theme.radius,
+              borderRadius: option.borderRadius ?? theme.radius,
             ),
             child: Padding(
               padding:

@@ -337,7 +337,7 @@ class _InvitationsTeaser extends StatelessWidget {
     final scheme = theme.colorScheme;
     return Card(
       onPressed: onPressed,
-      radius: theme.radii.xl,
+      borderRadius: theme.radii.xl,
       padding: EdgeInsets.all(theme.gap(GapSize.md)),
       rowMainAxisSize: MainAxisSize.max,
       child: Row(

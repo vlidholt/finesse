@@ -16,7 +16,7 @@ class DividerTheme with _$DividerTheme {
     this.horizontalMargin,
     this.thickness,
     this.color,
-    this.radius,
+    this.borderRadius,
   }) : _canMerge = canMerge;
 
   @ignore
@@ -37,8 +37,8 @@ class DividerTheme with _$DividerTheme {
   /// The margin (or space) around the horizontal divider.
   final EdgeInsetsGeometry? horizontalMargin;
 
-  /// {@macro Divider.radius}
-  final BorderRadiusGeometry? radius;
+  /// {@macro Divider.borderRadius}
+  final BorderRadiusGeometry? borderRadius;
 
   /// Linearly interpolates between [a] and [b] by [t].
   static DividerTheme? lerp(

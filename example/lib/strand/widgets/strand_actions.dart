@@ -66,7 +66,7 @@ class _StoryViewer extends StatelessWidget {
     final radius = theme.radii.xl2;
     return Dialog(
       padding: EdgeInsets.zero,
-      radius: radius,
+      borderRadius: radius,
       constraints: const BoxConstraints(maxWidth: 380),
       // The profile's round glass button: white on a dark scrim, where the
       // dialog's own would be dark on the photograph.

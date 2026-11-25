@@ -99,7 +99,9 @@ Future<T?> showSearch<T>({
           alignment: Alignment.topCenter,
           constraints: const BoxConstraints(maxWidth: 560),
           removeBorderRadiusWhenTiny: false,
-          radius: commandTheme.decoration?.border?.radius?.resolve(direction),
+          borderRadius: commandTheme.decoration?.border?.borderRadius?.resolve(
+            direction,
+          ),
           padding: EdgeInsets.zero,
           scrollable: false,
           shadows: Shadows.none,

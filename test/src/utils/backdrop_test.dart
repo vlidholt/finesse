@@ -256,7 +256,7 @@ void main() {
         final clip = tester.widget<ClipRRect>(
           find.descendant(of: card, matching: find.byType(ClipRRect)).first,
         );
-        expect(clip.borderRadius, theme.cardTheme.radius);
+        expect(clip.borderRadius, theme.cardTheme.borderRadius);
         expect(tester.getSize(filterIn(card)), tester.getSize(card));
       }
     });
@@ -380,7 +380,7 @@ void main() {
       final decoration = surface.decoration! as BoxDecoration;
       expect(decoration.boxShadow, isNull);
       expect(decoration.color, theme.cardTheme.backgroundColor);
-      expect(decoration.borderRadius, theme.cardTheme.radius);
+      expect(decoration.borderRadius, theme.cardTheme.borderRadius);
     });
 
     testWidgets('blurred or not, a card is the same size', (tester) async {

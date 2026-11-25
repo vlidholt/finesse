@@ -23,7 +23,7 @@ class FloatingActionButtonTheme with _$FloatingActionButtonTheme {
     this.iconSizeLg,
     this.padding,
     this.gap,
-    this.radius,
+    this.borderRadius,
     this.backgroundColor,
     this.foregroundColor,
     this.secondaryBackgroundColor,
@@ -66,7 +66,7 @@ class FloatingActionButtonTheme with _$FloatingActionButtonTheme {
 
   /// The button's corners. A fully round radius makes a circle of a button
   /// without a label and a pill of one with.
-  final BorderRadius? radius;
+  final BorderRadius? borderRadius;
 
   /// The fill of the primary variant.
   final Color? backgroundColor;

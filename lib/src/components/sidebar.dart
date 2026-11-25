@@ -468,7 +468,7 @@ class _SidebarScaffoldState extends State<SidebarScaffold> {
         clipBehavior: Clip.antiAlias,
         decoration: ShadowDecoration.box(
           color: theme.colorScheme.background,
-          borderRadius: sidebarTheme.insetRadius,
+          borderRadius: sidebarTheme.insetBorderRadius,
           shadows: sidebarTheme.insetShadows ?? const [],
         ),
         child: content,
@@ -713,7 +713,7 @@ class Sidebar extends StatelessWidget {
             clipBehavior: Clip.antiAlias,
             decoration: ShadowDecoration.box(
               color: effectiveBackgroundColor,
-              borderRadius: sidebarTheme.floatingRadius,
+              borderRadius: sidebarTheme.floatingBorderRadius,
               border: Border.all(color: effectiveBorderColor),
               shadows: sidebarTheme.floatingShadows ?? const [],
             ),
@@ -1171,7 +1171,7 @@ class _SidebarMenuButtonState extends State<SidebarMenuButton> {
     final highlighted =
         widget.enabled && (hovered || pressed || widget.isActive);
     final contentColor = highlighted ? accentForeground : foreground;
-    final radius = sidebarTheme.menuButtonRadius ?? theme.radii.sm;
+    final radius = sidebarTheme.menuButtonBorderRadius ?? theme.radii.sm;
     final gap = sidebarTheme.menuButtonGap ?? 8;
 
     final outline = widget.variant == SidebarMenuButtonVariant.outline;
@@ -1248,9 +1248,9 @@ class _SidebarMenuButtonState extends State<SidebarMenuButton> {
         return Decorator(
           focused: focused,
           decoration: FinesseDecoration(
-            border: FinesseBorder.all(radius: radius, width: 0),
+            border: FinesseBorder.all(borderRadius: radius, width: 0),
             secondaryFocusedBorder: FinesseBorder.all(
-              radius: radius.add(BorderRadius.circular(ringWidth)),
+              borderRadius: radius.add(BorderRadius.circular(ringWidth)),
               width: ringWidth,
               offset: ringWidth,
               color: ringColor,
@@ -1436,7 +1436,7 @@ class _SidebarMenuActionState extends State<SidebarMenuAction> {
           height: 20,
           decoration: BoxDecoration(
             color: hovered ? accent : null,
-            borderRadius: sidebarTheme.menuButtonRadius ?? theme.radii.sm,
+            borderRadius: sidebarTheme.menuButtonBorderRadius ?? theme.radii.sm,
           ),
           child: IconTheme.merge(
             data: IconThemeData(
@@ -1552,7 +1552,7 @@ class _SidebarMenuSubButtonState extends State<SidebarMenuSubButton> {
 
     final ringColor = sidebarTheme.ringColor ?? theme.colorScheme.sidebarRing;
     final ringWidth = sidebarTheme.ringWidth ?? 2;
-    final radius = sidebarTheme.menuButtonRadius ?? theme.radii.sm;
+    final radius = sidebarTheme.menuButtonBorderRadius ?? theme.radii.sm;
     final gap = sidebarTheme.menuButtonGap ?? 8;
 
     return Semantics(
@@ -1564,9 +1564,9 @@ class _SidebarMenuSubButtonState extends State<SidebarMenuSubButton> {
           return Decorator(
             focused: focused,
             decoration: FinesseDecoration(
-              border: FinesseBorder.all(radius: radius, width: 0),
+              border: FinesseBorder.all(borderRadius: radius, width: 0),
               secondaryFocusedBorder: FinesseBorder.all(
-                radius: radius.add(BorderRadius.circular(ringWidth)),
+                borderRadius: radius.add(BorderRadius.circular(ringWidth)),
                 width: ringWidth,
                 offset: ringWidth,
                 color: ringColor,

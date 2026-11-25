@@ -137,7 +137,7 @@ class _CalendarThemeExampleState extends State<CalendarThemeExample> {
       weekStartsOn: DateTime.sunday,
       calendarTheme: CalendarTheme(
         dayButtonSize: 44,
-        dayButtonRadius: theme.radii.full,
+        dayButtonBorderRadius: theme.radii.full,
         todayButtonVariant: ButtonVariant.outline,
         formatWeekday: (date) => _letters[date.weekday - 1],
       ),

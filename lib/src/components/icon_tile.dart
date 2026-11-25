@@ -54,7 +54,7 @@ class IconTile extends StatelessWidget {
       decoration: BoxDecoration(
         color:
             backgroundColor ?? tile.backgroundColor ?? theme.colorScheme.accent,
-        borderRadius: borderRadius ?? tile.radius ?? theme.radii.lg,
+        borderRadius: borderRadius ?? tile.borderRadius ?? theme.radii.lg,
       ),
       child: IconTheme.merge(
         data: IconThemeData(
@@ -115,7 +115,7 @@ class StatTile extends StatelessWidget {
     final theme = Theme.of(context);
     final layout = theme.layoutTheme;
     final card = Card(
-      radius: theme.radii.xl,
+      borderRadius: theme.radii.xl,
       padding:
           padding ??
           EdgeInsets.symmetric(

@@ -21,7 +21,7 @@ class MenubarTheme with _$MenubarTheme {
   /// {@macro MenubarTheme}
   const MenubarTheme({
     bool canMerge = true,
-    this.radius,
+    this.borderRadius,
     this.padding,
     this.backgroundColor,
     this.border,
@@ -66,8 +66,8 @@ class MenubarTheme with _$MenubarTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro Menubar.radius}
-  final BorderRadiusGeometry? radius;
+  /// {@macro Menubar.borderRadius}
+  final BorderRadiusGeometry? borderRadius;
 
   /// {@macro Menubar.padding}
   final EdgeInsetsGeometry? padding;

@@ -531,7 +531,7 @@ void main() {
         expect(bar.padding, const EdgeInsets.all(6));
         expect(bar.margin, const EdgeInsets.only(bottom: 22));
         expect(bar.gap, 4);
-        expect(bar.radius, theme.radii.full);
+        expect(bar.borderRadius, theme.radii.full);
         expect(bar.backgroundColor!.a, lessThan(1));
         expect(bar.blur, 24);
         expect(bar.saturation, 1.6);

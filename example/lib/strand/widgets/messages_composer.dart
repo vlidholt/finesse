@@ -120,7 +120,7 @@ class _MessagesComposerState extends State<MessagesComposer> {
                   border: FinesseBorder.all(
                     width: 0,
                     color: const Color(0x00000000),
-                    radius: theme.radii.full,
+                    borderRadius: theme.radii.full,
                   ),
                   disableSecondaryBorder: true,
                 ),

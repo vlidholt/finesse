@@ -1916,7 +1916,7 @@ class _SheetHandleState extends State<_SheetHandle> {
     final length = sheetTheme.dragHandleWidth ?? 36.0;
     final thickness = sheetTheme.dragHandleHeight ?? 4.0;
     final radius =
-        sheetTheme.dragHandleRadius ?? BorderRadius.circular(thickness);
+        sheetTheme.dragHandleBorderRadius ?? BorderRadius.circular(thickness);
 
     final pill =
         widget.child ??

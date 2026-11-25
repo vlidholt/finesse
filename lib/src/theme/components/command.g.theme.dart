@@ -66,7 +66,11 @@ mixin _$CommandTheme {
         b.itemForegroundColor,
         t,
       ),
-      itemRadius: BorderRadiusGeometry.lerp(a.itemRadius, b.itemRadius, t),
+      itemBorderRadius: BorderRadiusGeometry.lerp(
+        a.itemBorderRadius,
+        b.itemBorderRadius,
+        t,
+      ),
       itemGap: lerpDouble$(a.itemGap, b.itemGap, t),
       height: lerpDouble$(a.height, b.height, t),
       width: lerpDouble$(a.width, b.width, t),
@@ -88,9 +92,9 @@ mixin _$CommandTheme {
       ),
       listMaxHeight: lerpDouble$(a.listMaxHeight, b.listMaxHeight, t),
       groupPadding: EdgeInsetsGeometry.lerp(a.groupPadding, b.groupPadding, t),
-      dialogItemRadius: BorderRadiusGeometry.lerp(
-        a.dialogItemRadius,
-        b.dialogItemRadius,
+      dialogItemBorderRadius: BorderRadiusGeometry.lerp(
+        a.dialogItemBorderRadius,
+        b.dialogItemBorderRadius,
         t,
       ),
       itemIconSize: lerpDouble$(a.itemIconSize, b.itemIconSize, t),
@@ -111,7 +115,7 @@ mixin _$CommandTheme {
     Color? itemSelectedBackgroundColor,
     Color? itemSelectedForegroundColor,
     Color? itemForegroundColor,
-    BorderRadiusGeometry? itemRadius,
+    BorderRadiusGeometry? itemBorderRadius,
     double? itemGap,
     double? height,
     double? width,
@@ -125,7 +129,7 @@ mixin _$CommandTheme {
     EdgeInsetsGeometry? searchInputPadding,
     double? listMaxHeight,
     EdgeInsetsGeometry? groupPadding,
-    BorderRadiusGeometry? dialogItemRadius,
+    BorderRadiusGeometry? dialogItemBorderRadius,
     double? itemIconSize,
     ImageFilter? surfaceFilter,
   }) {
@@ -146,7 +150,7 @@ mixin _$CommandTheme {
       itemSelectedForegroundColor:
           itemSelectedForegroundColor ?? _this.itemSelectedForegroundColor,
       itemForegroundColor: itemForegroundColor ?? _this.itemForegroundColor,
-      itemRadius: itemRadius ?? _this.itemRadius,
+      itemBorderRadius: itemBorderRadius ?? _this.itemBorderRadius,
       itemGap: itemGap ?? _this.itemGap,
       height: height ?? _this.height,
       width: width ?? _this.width,
@@ -160,7 +164,8 @@ mixin _$CommandTheme {
       searchInputPadding: searchInputPadding ?? _this.searchInputPadding,
       listMaxHeight: listMaxHeight ?? _this.listMaxHeight,
       groupPadding: groupPadding ?? _this.groupPadding,
-      dialogItemRadius: dialogItemRadius ?? _this.dialogItemRadius,
+      dialogItemBorderRadius:
+          dialogItemBorderRadius ?? _this.dialogItemBorderRadius,
       itemIconSize: itemIconSize ?? _this.itemIconSize,
       surfaceFilter: surfaceFilter ?? _this.surfaceFilter,
     );
@@ -194,7 +199,7 @@ mixin _$CommandTheme {
       itemSelectedBackgroundColor: other.itemSelectedBackgroundColor,
       itemSelectedForegroundColor: other.itemSelectedForegroundColor,
       itemForegroundColor: other.itemForegroundColor,
-      itemRadius: other.itemRadius,
+      itemBorderRadius: other.itemBorderRadius,
       itemGap: other.itemGap,
       height: other.height,
       width: other.width,
@@ -212,7 +217,7 @@ mixin _$CommandTheme {
       searchInputPadding: other.searchInputPadding,
       listMaxHeight: other.listMaxHeight,
       groupPadding: other.groupPadding,
-      dialogItemRadius: other.dialogItemRadius,
+      dialogItemBorderRadius: other.dialogItemBorderRadius,
       itemIconSize: other.itemIconSize,
       surfaceFilter: other.surfaceFilter,
     );
@@ -245,7 +250,7 @@ mixin _$CommandTheme {
         _other.itemSelectedForegroundColor ==
             _this.itemSelectedForegroundColor &&
         _other.itemForegroundColor == _this.itemForegroundColor &&
-        _other.itemRadius == _this.itemRadius &&
+        _other.itemBorderRadius == _this.itemBorderRadius &&
         _other.itemGap == _this.itemGap &&
         _other.height == _this.height &&
         _other.width == _this.width &&
@@ -259,7 +264,7 @@ mixin _$CommandTheme {
         _other.searchInputPadding == _this.searchInputPadding &&
         _other.listMaxHeight == _this.listMaxHeight &&
         _other.groupPadding == _this.groupPadding &&
-        _other.dialogItemRadius == _this.dialogItemRadius &&
+        _other.dialogItemBorderRadius == _this.dialogItemBorderRadius &&
         _other.itemIconSize == _this.itemIconSize &&
         _other.surfaceFilter == _this.surfaceFilter;
   }
@@ -282,7 +287,7 @@ mixin _$CommandTheme {
       _this.itemSelectedBackgroundColor,
       _this.itemSelectedForegroundColor,
       _this.itemForegroundColor,
-      _this.itemRadius,
+      _this.itemBorderRadius,
       _this.itemGap,
       _this.height,
       _this.width,
@@ -296,7 +301,7 @@ mixin _$CommandTheme {
       _this.searchInputPadding,
       _this.listMaxHeight,
       _this.groupPadding,
-      _this.dialogItemRadius,
+      _this.dialogItemBorderRadius,
       _this.itemIconSize,
       _this.surfaceFilter,
     ]);

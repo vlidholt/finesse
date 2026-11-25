@@ -299,7 +299,7 @@ class BoardController<T extends Object> extends ChangeNotifier {
 /// columns leaves the others, and how far each is scrolled, as they were.
 ///
 /// A `Card` returned by [itemBuilder] takes the board's own, tighter
-/// metrics (`BoardTheme.itemPadding`, `itemRadius`) and an opaque fill.
+/// metrics (`BoardTheme.itemPadding`, `itemBorderRadius`) and an opaque fill.
 ///
 /// The lifted copy is built by the same builder, as an overlay child of
 /// the board: it inherits everything the board inherits, and it is painted

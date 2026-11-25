@@ -302,7 +302,7 @@ class _ToggleState extends State<Toggle> {
 
     final motion = Motion.of(context);
     final transitionDuration = toggleTheme.transitionDuration ?? motion.fast;
-    final fillRadius = effectiveDecoration.border?.radius ?? theme.radius;
+    final fillRadius = effectiveDecoration.border?.borderRadius ?? theme.radius;
     // In a single-selection group the selected fill is one shape that
     // travels between the items, painted by the group; the item itself only
     // marks where it belongs.

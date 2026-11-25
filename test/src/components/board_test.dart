@@ -218,12 +218,12 @@ void main() {
     test('wraps its items concentrically, and stays square in lyra', () {
       final theme = ThemeData().boardTheme;
       expect(
-        theme.columnRadius!.topLeft.x,
-        theme.itemRadius!.topLeft.x + theme.columnPadding!.horizontal / 2,
+        theme.columnBorderRadius!.topLeft.x,
+        theme.itemBorderRadius!.topLeft.x + theme.columnPadding!.horizontal / 2,
       );
       final lyra = ThemeData(style: StyleTokens.lyra).boardTheme;
-      expect(lyra.columnRadius, BorderRadius.zero);
-      expect(lyra.itemRadius, BorderRadius.zero);
+      expect(lyra.columnBorderRadius, BorderRadius.zero);
+      expect(lyra.itemBorderRadius, BorderRadius.zero);
     });
 
     test('items are opaque in every style and brightness', () {
@@ -509,7 +509,7 @@ void main() {
       );
       final theme = Theme.of(tester.element(_item('a1')));
       final board = ThemeData().boardTheme;
-      expect(theme.cardTheme.radius, board.itemRadius);
+      expect(theme.cardTheme.borderRadius, board.itemBorderRadius);
       expect(theme.cardTheme.padding, board.itemPadding);
       expect(theme.cardTheme.backgroundColor, board.itemColor);
       expect(theme.cardTheme.blur, 0);

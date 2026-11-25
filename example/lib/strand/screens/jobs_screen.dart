@@ -244,7 +244,7 @@ class _JobsScreenState extends State<JobsScreen> {
             ),
             Expanded(
               child: Card(
-                radius: theme.radii.xl3,
+                borderRadius: theme.radii.xl3,
                 // Roomier than the theme's card inset, for a pane that is
                 // read rather than scanned.
                 padding: EdgeInsets.all(columnGap),

@@ -417,7 +417,7 @@ class Dialog extends StatelessWidget {
     this.onClose,
     this.semanticLabel,
     this.closeIconPosition,
-    this.radius,
+    this.borderRadius,
     this.backgroundColor,
     this.expandActionsWhenTiny,
     this.padding,
@@ -460,7 +460,7 @@ class Dialog extends StatelessWidget {
     this.onClose,
     this.semanticLabel,
     this.closeIconPosition,
-    this.radius,
+    this.borderRadius,
     this.backgroundColor,
     this.expandActionsWhenTiny,
     this.padding,
@@ -562,11 +562,11 @@ class Dialog extends StatelessWidget {
   /// {@endtemplate}
   final Position? closeIconPosition;
 
-  /// {@template Dialog.radius}
+  /// {@template Dialog.borderRadius}
   /// The border radius of the dialog’s corners.
   /// Defaults to the theme’s radius if not specified.
   /// {@endtemplate}
-  final BorderRadius? radius;
+  final BorderRadius? borderRadius;
 
   /// {@template Dialog.backgroundColor}
   /// The background color of the dialog.
@@ -787,7 +787,7 @@ class Dialog extends StatelessWidget {
         );
 
     final effectiveRadius =
-        radius ?? effectiveDialogTheme.radius ?? theme.radius;
+        borderRadius ?? effectiveDialogTheme.borderRadius ?? theme.radius;
 
     final effectiveExpandActionsWhenTiny =
         expandActionsWhenTiny ??

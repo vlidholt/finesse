@@ -17,7 +17,7 @@ class DialogTheme with _$DialogTheme {
     bool canMerge = true,
     this.closeIconData,
     this.closeIconPosition,
-    this.radius,
+    this.borderRadius,
     this.backgroundColor,
     this.expandActionsWhenTiny,
     this.padding,
@@ -62,8 +62,8 @@ class DialogTheme with _$DialogTheme {
   /// {@macro Dialog.closeIconPosition}
   final Position? closeIconPosition;
 
-  /// {@macro Dialog.radius}
-  final BorderRadius? radius;
+  /// {@macro Dialog.borderRadius}
+  final BorderRadius? borderRadius;
 
   /// {@macro Dialog.backgroundColor}
   final Color? backgroundColor;

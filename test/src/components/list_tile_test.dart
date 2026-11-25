@@ -63,7 +63,7 @@ void main() {
       );
       expect(tile.gap, 12);
       expect(tile.titleGap, 0);
-      expect(tile.radius, theme.radii.lg);
+      expect(tile.borderRadius, theme.radii.lg);
       // finesse's subtitle and small roles.
       expect(tile.titleStyle!.fontSize, 15);
       expect(tile.titleStyle!.fontWeight, FontWeight.w600);
@@ -473,7 +473,7 @@ void main() {
           reason: '$brightness',
         );
         expect(decoration.color, theme.listTileTheme.selectedColor);
-        expect(decoration.borderRadius, theme.listTileTheme.radius);
+        expect(decoration.borderRadius, theme.listTileTheme.borderRadius);
         expect(
           tester.getRect(find.byWidget(fill)),
           tester.getRect(find.byType(ListTile)),
@@ -593,7 +593,10 @@ void main() {
       );
       await settle(tester);
       expect(highlightOf(tester).color, theme.colorScheme.muted);
-      expect(highlightOf(tester).borderRadius, theme.listTileTheme.radius);
+      expect(
+        highlightOf(tester).borderRadius,
+        theme.listTileTheme.borderRadius,
+      );
 
       await gesture.moveTo(Offset.zero);
       await settle(tester);

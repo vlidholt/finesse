@@ -1336,7 +1336,7 @@ class _SliderValueBubbleState extends State<_SliderValueBubble> {
     final motion = Motion.of(context);
     final color = tooltip.decoration?.color ?? theme.colorScheme.foreground;
     final radius =
-        tooltip.decoration?.border?.radius?.resolve(
+        tooltip.decoration?.border?.borderRadius?.resolve(
           Directionality.of(context),
         ) ??
         theme.radius;

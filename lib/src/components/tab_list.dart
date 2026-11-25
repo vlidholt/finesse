@@ -390,7 +390,7 @@ class _TabListState extends State<TabList> {
     final padding = tabsTheme.padding ?? EdgeInsets.zero;
     final decoration = FinesseDecoration(
       color: theme.colorScheme.muted,
-      border: FinesseBorder.all(radius: theme.radius, width: 0),
+      border: FinesseBorder.all(borderRadius: theme.radius, width: 0),
     ).merge(tabsTheme.decoration);
     final expand = widget.expand && !widget.scrollable;
     final selected = _selected;
@@ -497,24 +497,27 @@ class _TabListState extends State<TabList> {
     final defaultDecoration = switch (theme.disableSecondaryBorder) {
       true => FinesseDecoration(
         border: FinesseBorder.all(
-          radius: BorderRadius.circular(2),
+          borderRadius: BorderRadius.circular(2),
           width: 0,
           padding: const EdgeInsets.all(2),
         ),
         focusedBorder: FinesseBorder.all(
           width: 2,
-          radius: BorderRadius.circular(2),
+          borderRadius: BorderRadius.circular(2),
           color: theme.colorScheme.ring,
         ),
       ),
       false => FinesseDecoration(
-        border: FinesseBorder.all(radius: BorderRadius.circular(2), width: 0),
+        border: FinesseBorder.all(
+          borderRadius: BorderRadius.circular(2),
+          width: 0,
+        ),
         // No inner gutter around a tab: the strip's own padding is the only
         // inset. The focus ring is the standard outward ring; it may
         // overlap the strip.
         secondaryFocusedBorder: FinesseBorder.all(
           width: 2,
-          radius: theme.radius,
+          borderRadius: theme.radius,
           offset: 2,
           color: theme.colorScheme.ring,
         ),
@@ -539,13 +542,13 @@ class _TabListState extends State<TabList> {
               gradient: gradient,
               shape: border.toBorder(
                 textDirection: Directionality.of(context),
-                defaultRadius: theme.radius,
+                defaultBorderRadius: theme.radius,
               ),
             )
           : BoxDecoration(
               color: pillFill,
               gradient: gradient,
-              borderRadius: border?.radius ?? theme.radius,
+              borderRadius: border?.borderRadius ?? theme.radius,
             ),
     );
 

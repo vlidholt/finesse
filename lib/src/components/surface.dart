@@ -234,7 +234,7 @@ class SurfacePainter extends StatelessWidget {
     // own shadow, which is painted outside the box — so with a filter the
     // shadow is painted by the `BackdropSurface`, outside the clip, and not
     // by the decoration.
-    final radius = decoration.border?.radius ?? BorderRadius.zero;
+    final radius = decoration.border?.borderRadius ?? BorderRadius.zero;
     final outerShadows = filter == null
         ? const <BoxShadow>[]
         : decoration.shadows ?? const <BoxShadow>[];
@@ -273,7 +273,7 @@ class SurfacePainter extends StatelessWidget {
     );
     final border = decoration.border;
     final shape = ArrowShape(
-      radius: border?.radius?.resolve(textDirection) ?? BorderRadius.zero,
+      radius: border?.borderRadius?.resolve(textDirection) ?? BorderRadius.zero,
       direction: placement.direction,
       arrowSize: arrow.size,
       arrowRadius: arrow.radius,

@@ -33,7 +33,7 @@ void main() {
       expect(dark.glassTheme.strongOpacity, .9);
       expect(light.glassTheme.borderColor, light.colorScheme.border);
       expect(light.glassTheme.borderWidth, 1);
-      expect(light.glassTheme.radius, light.cardTheme.radius);
+      expect(light.glassTheme.borderRadius, light.cardTheme.borderRadius);
     });
 
     test('lerps', () {
@@ -230,8 +230,8 @@ void main() {
           matching: find.byType(ClipRRect),
         ),
       );
-      expect(clip.borderRadius, theme.glassTheme.radius);
-      expect(surfaceOf(tester).borderRadius, theme.glassTheme.radius);
+      expect(clip.borderRadius, theme.glassTheme.borderRadius);
+      expect(surfaceOf(tester).borderRadius, theme.glassTheme.borderRadius);
 
       const custom = BorderRadius.all(Radius.circular(3));
       await pumpFinesse(
@@ -393,7 +393,7 @@ void main() {
       expect(shadowsOf(outer.decoration), shadows);
       expect(
         boxDecorationOf(outer.decoration)!.borderRadius,
-        theme.glassTheme.radius,
+        theme.glassTheme.borderRadius,
       );
       // The tinted surface itself carries none.
       expect(surfaceOf(tester).boxShadow, isNull);
@@ -411,7 +411,7 @@ void main() {
             opacity: .5,
             borderColor: Color(0xff405060),
             borderWidth: 3,
-            radius: BorderRadius.all(Radius.circular(7)),
+            borderRadius: BorderRadius.all(Radius.circular(7)),
             blur: 0,
             saturation: 1,
           ),

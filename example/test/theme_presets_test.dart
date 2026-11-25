@@ -55,7 +55,7 @@ void main() {
       expect(press.style, StylePreset.lyra);
       expect(press.baseColor, BaseColor.zinc);
       expect(press.build().radius, BorderRadius.zero);
-      expect(press.build().cardTheme.radius, BorderRadius.zero);
+      expect(press.build().cardTheme.borderRadius, BorderRadius.zero);
       expect(press.font.category, FontCategory.mono);
       expect(press.headingFont!.category, FontCategory.serif);
     });

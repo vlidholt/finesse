@@ -14,7 +14,7 @@ class ChipTheme with _$ChipTheme {
     this.padding,
     this.gap,
     this.iconSize,
-    this.radius,
+    this.borderRadius,
     this.borderWidth,
     this.textStyle,
     this.backgroundColor,
@@ -49,7 +49,7 @@ class ChipTheme with _$ChipTheme {
   final double? iconSize;
 
   /// The corner radius.
-  final BorderRadius? radius;
+  final BorderRadius? borderRadius;
 
   /// The width of the chip's outline.
   final double? borderWidth;

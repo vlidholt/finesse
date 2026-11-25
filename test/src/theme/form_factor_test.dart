@@ -104,8 +104,8 @@ void main() {
         );
       }
       // Cards round a step further on a phone: 2xl (18) against 3xl (20).
-      expect(desktop.cardTheme.radius!.topLeft.x, closeTo(18, 1e-9));
-      expect(mobile.cardTheme.radius!.topLeft.x, closeTo(20, 1e-9));
+      expect(desktop.cardTheme.borderRadius!.topLeft.x, closeTo(18, 1e-9));
+      expect(mobile.cardTheme.borderRadius!.topLeft.x, closeTo(20, 1e-9));
       expect(desktop.cardTheme.padding, const EdgeInsets.all(20));
       expect(mobile.cardTheme.padding, const EdgeInsets.all(16));
       expect(desktop.tabsTheme.tabHeight, 32);

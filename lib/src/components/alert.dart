@@ -278,7 +278,7 @@ class _AlertState extends State<Alert> {
     final defaultDecoration = FinesseDecoration(
       border: FinesseBorder.all(
         color: theme.colorScheme.border,
-        radius: theme.radius,
+        borderRadius: theme.radius,
         padding: const EdgeInsets.all(16),
       ),
     );

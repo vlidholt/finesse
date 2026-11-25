@@ -13,7 +13,7 @@ class ActionSheetTheme with _$ActionSheetTheme {
     this.padding,
     this.rowHeight,
     this.rowPadding,
-    this.rowRadius,
+    this.rowBorderRadius,
     this.gap,
     this.iconSize,
     this.labelStyle,
@@ -46,7 +46,7 @@ class ActionSheetTheme with _$ActionSheetTheme {
   final EdgeInsetsGeometry? rowPadding;
 
   /// The corners of a row's highlight and of the cancel row.
-  final BorderRadius? rowRadius;
+  final BorderRadius? rowBorderRadius;
 
   /// The space between a row's icon and its label.
   final double? gap;

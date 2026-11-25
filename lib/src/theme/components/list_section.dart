@@ -16,7 +16,7 @@ class ListSectionTheme with _$ListSectionTheme {
     bool canMerge = true,
     this.margin,
     this.backgroundColor,
-    this.radius,
+    this.borderRadius,
     this.headerStyle,
     this.footerStyle,
     this.headerPadding,
@@ -41,7 +41,7 @@ class ListSectionTheme with _$ListSectionTheme {
   final Color? backgroundColor;
 
   /// The corners of the card under the rows. Null uses the card theme's.
-  final BorderRadius? radius;
+  final BorderRadius? borderRadius;
 
   /// The style of the header: the theme's overline role in the muted
   /// colour.

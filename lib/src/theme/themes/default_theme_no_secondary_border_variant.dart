@@ -102,7 +102,7 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
       border: FinesseBorder.all(width: 2, color: const Color(0x00000000)),
       focusedBorder: FinesseBorder.all(
         color: colorScheme.ring,
-        radius: radius,
+        borderRadius: radius,
         width: 2,
       ),
     );
@@ -113,7 +113,7 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
     SelectTheme(
       decoration: FinesseDecoration(
         border: FinesseBorder.all(
-          radius: controlRadius,
+          borderRadius: controlRadius,
           color: colorScheme.input,
           padding: focusReserve(1),
           width: 1,
@@ -130,11 +130,11 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
       SwitchTheme(
         decoration: FinesseDecoration(
           border: FinesseBorder.all(
-            radius: radius,
+            borderRadius: radius,
             width: 0,
             padding: focusReserve(0),
           ),
-          focusedBorder: FinesseBorder.all(radius: radius, width: 2),
+          focusedBorder: FinesseBorder.all(borderRadius: radius, width: 2),
         ),
       ),
     );
@@ -149,7 +149,7 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
       shadows: style.controlShadow,
       border: FinesseBorder.all(
         color: borderColor,
-        radius: checkboxRadius,
+        borderRadius: checkboxRadius,
         padding: focusReserve(1),
         width: 1,
       ),
@@ -173,7 +173,7 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
         (decoration ?? const FinesseDecoration()).copyWith(
           border: decoration?.border?.copyWith(padding: focusReserve(1)),
           focusedBorder: FinesseBorder.all(
-            radius: circleRadius.add(circleRadius / 2),
+            borderRadius: circleRadius.add(circleRadius / 2),
             width: 2,
           ),
         );
@@ -202,11 +202,11 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
                   .clamp(EdgeInsets.zero, EdgeInsetsGeometry.infinity),
         tabDecoration: FinesseDecoration(
           border: FinesseBorder.all(
-            radius: const BorderRadius.all(Radius.circular(4)),
+            borderRadius: const BorderRadius.all(Radius.circular(4)),
             width: 0,
           ),
           focusedBorder: FinesseBorder.all(
-            radius: const BorderRadius.all(Radius.circular(4)),
+            borderRadius: const BorderRadius.all(Radius.circular(4)),
           ),
         ),
       ),
@@ -217,7 +217,7 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
   ContextMenuTheme contextMenuTheme() => super.contextMenuTheme().merge(
     ContextMenuTheme(
       itemDecoration: FinesseDecoration(
-        border: FinesseBorder.all(radius: itemRadius, width: 0),
+        border: FinesseBorder.all(borderRadius: itemRadius, width: 0),
         focusedBorder: decorationTheme().border,
       ),
     ),
@@ -242,12 +242,12 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
         border: FinesseBorder.all(
           width: 2,
           color: colorScheme.border,
-          radius: radius,
+          borderRadius: radius,
         ),
         focusedBorder: FinesseBorder.all(
           width: 2,
           color: colorScheme.ring,
-          radius: radius,
+          borderRadius: radius,
           padding: spacing.symmetric(horizontal: 0.25),
         ),
       ),

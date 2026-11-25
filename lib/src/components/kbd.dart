@@ -131,7 +131,7 @@ class Kbd extends StatelessWidget {
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color: effectiveBackgroundColor,
-            borderRadius: effectiveBorder.radius,
+            borderRadius: effectiveBorder.borderRadius,
             border: effectiveBorder.hasBorder
                 ? effectiveBorder.toBorder()
                 : null,

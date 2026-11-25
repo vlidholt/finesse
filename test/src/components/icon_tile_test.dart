@@ -27,7 +27,7 @@ void main() {
         final tile = theme.iconTileTheme;
         expect(tile.size, 40);
         expect(tile.iconSize, 22);
-        expect(tile.radius, theme.radii.lg);
+        expect(tile.borderRadius, theme.radii.lg);
         expect(tile.backgroundColor, theme.colorScheme.accent);
         expect(tile.foregroundColor, theme.colorScheme.tint);
       }
@@ -223,7 +223,10 @@ void main() {
       expect(find.byType(Card), findsOneWidget);
       expect(find.byType(IconTile), findsOneWidget);
       expect(tester.getSize(find.byType(StatTile)).width, 300);
-      expect(tester.widget<Card>(find.byType(Card)).radius, theme.radii.xl);
+      expect(
+        tester.widget<Card>(find.byType(Card)).borderRadius,
+        theme.radii.xl,
+      );
       // The number is a headline, the label a muted line under it.
       final value = DefaultTextStyle.of(tester.element(find.text('6'))).style;
       final label = DefaultTextStyle.of(

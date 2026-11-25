@@ -22,7 +22,7 @@ class Divider extends StatelessWidget {
     this.margin,
     this.thickness,
     this.color,
-    this.radius,
+    this.borderRadius,
     super.key,
   });
 
@@ -32,7 +32,7 @@ class Divider extends StatelessWidget {
     this.margin,
     this.thickness,
     this.color,
-    this.radius,
+    this.borderRadius,
     super.key,
   }) : variant = DividerVariant.vertical;
 
@@ -63,12 +63,12 @@ class Divider extends StatelessWidget {
   /// Whether the line is horizontal, the default, or vertical.
   final DividerVariant variant;
 
-  /// {@template Divider.radius}
+  /// {@template Divider.borderRadius}
   /// The amount of radius for the border of the separator.
   ///
   /// If this is null, then the default radius of [BoxDecoration] will be used.
   /// {@endtemplate}
-  final BorderRadiusGeometry? radius;
+  final BorderRadiusGeometry? borderRadius;
 
   @override
   Widget build(BuildContext context) {
@@ -97,14 +97,14 @@ class Divider extends StatelessWidget {
         DividerVariant.vertical => DecoratedBox(
           decoration: BoxDecoration(
             border: Border(left: borderSide),
-            borderRadius: radius,
+            borderRadius: borderRadius,
           ),
           child: SizedBox(width: effectiveThickness, height: double.infinity),
         ),
         DividerVariant.horizontal => DecoratedBox(
           decoration: BoxDecoration(
             border: Border(bottom: borderSide),
-            borderRadius: radius,
+            borderRadius: borderRadius,
           ),
           child: SizedBox(height: effectiveThickness, width: double.infinity),
         ),

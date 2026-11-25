@@ -32,7 +32,7 @@ mixin _$DialogTheme {
         b.closeIconPosition,
         t,
       ),
-      radius: BorderRadius.lerp(a.radius, b.radius, t),
+      borderRadius: BorderRadius.lerp(a.borderRadius, b.borderRadius, t),
       backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
       expandActionsWhenTiny: t < 0.5
           ? a.expandActionsWhenTiny
@@ -89,7 +89,7 @@ mixin _$DialogTheme {
   DialogTheme copyWith({
     IconData? closeIconData,
     Position? closeIconPosition,
-    BorderRadius? radius,
+    BorderRadius? borderRadius,
     Color? backgroundColor,
     bool? expandActionsWhenTiny,
     EdgeInsetsGeometry? padding,
@@ -126,7 +126,7 @@ mixin _$DialogTheme {
     return DialogTheme(
       closeIconData: closeIconData ?? _this.closeIconData,
       closeIconPosition: closeIconPosition ?? _this.closeIconPosition,
-      radius: radius ?? _this.radius,
+      borderRadius: borderRadius ?? _this.borderRadius,
       backgroundColor: backgroundColor ?? _this.backgroundColor,
       expandActionsWhenTiny:
           expandActionsWhenTiny ?? _this.expandActionsWhenTiny,
@@ -178,7 +178,7 @@ mixin _$DialogTheme {
     return copyWith(
       closeIconData: other.closeIconData,
       closeIconPosition: other.closeIconPosition,
-      radius: other.radius,
+      borderRadius: other.borderRadius,
       backgroundColor: other.backgroundColor,
       expandActionsWhenTiny: other.expandActionsWhenTiny,
       padding: other.padding,
@@ -229,7 +229,7 @@ mixin _$DialogTheme {
 
     return _other.closeIconData == _this.closeIconData &&
         _other.closeIconPosition == _this.closeIconPosition &&
-        _other.radius == _this.radius &&
+        _other.borderRadius == _this.borderRadius &&
         _other.backgroundColor == _this.backgroundColor &&
         _other.expandActionsWhenTiny == _this.expandActionsWhenTiny &&
         _other.padding == _this.padding &&
@@ -270,7 +270,7 @@ mixin _$DialogTheme {
       runtimeType,
       _this.closeIconData,
       _this.closeIconPosition,
-      _this.radius,
+      _this.borderRadius,
       _this.backgroundColor,
       _this.expandActionsWhenTiny,
       _this.padding,

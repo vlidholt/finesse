@@ -711,7 +711,7 @@ class ResizablePanelGroupState extends State<ResizablePanelGroup> {
         FinesseDecoration(
               color: theme.colorScheme.border,
               border: FinesseBorder.all(
-                radius: const BorderRadius.all(Radius.circular(4)),
+                borderRadius: const BorderRadius.all(Radius.circular(4)),
                 width: 0,
               ),
               disableSecondaryBorder: true,

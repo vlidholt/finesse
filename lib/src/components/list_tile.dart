@@ -271,7 +271,7 @@ class ListTile extends StatelessWidget {
     // their focus ring is drawn inside, along the card's corners.
     final radius =
         borderRadius ??
-        (scope != null ? BorderRadius.zero : tile.radius ?? theme.radius);
+        (scope != null ? BorderRadius.zero : tile.borderRadius ?? theme.radius);
     final ringRadius = scope?.rowBorderRadius ?? radius;
     final selectedColor = tile.selectedColor ?? theme.colorScheme.accent;
 

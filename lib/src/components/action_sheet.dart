@@ -412,7 +412,7 @@ class _ActionRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final sheetTheme = theme.actionSheetTheme;
-    final radius = sheetTheme.rowRadius ?? theme.radius;
+    final radius = sheetTheme.rowBorderRadius ?? theme.radius;
     final labelStyle =
         (emphasized ? sheetTheme.defaultLabelStyle : null) ??
         sheetTheme.labelStyle ??

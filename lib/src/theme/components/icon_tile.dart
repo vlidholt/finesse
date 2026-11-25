@@ -12,7 +12,7 @@ class IconTileTheme with _$IconTileTheme {
     bool canMerge = true,
     this.size,
     this.iconSize,
-    this.radius,
+    this.borderRadius,
     this.backgroundColor,
     this.foregroundColor,
   }) : _canMerge = canMerge;
@@ -30,7 +30,7 @@ class IconTileTheme with _$IconTileTheme {
   final double? iconSize;
 
   /// The corner radius.
-  final BorderRadius? radius;
+  final BorderRadius? borderRadius;
 
   /// The tile's fill.
   final Color? backgroundColor;

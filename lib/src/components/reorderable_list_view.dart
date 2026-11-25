@@ -752,7 +752,7 @@ class _Lifted extends StatelessWidget {
     final board = theme.boardTheme;
     final motion = Motion.of(context);
     final scale = motion.reduced ? 1.0 : board.dragScale ?? 1.03;
-    final radius = board.itemRadius ?? theme.radius;
+    final radius = board.itemBorderRadius ?? theme.radius;
     // The same widgets at rest and in the air, so the row keeps its state.
     return Transform.scale(
       scale: 1 + (scale - 1) * amount,

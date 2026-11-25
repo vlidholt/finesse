@@ -504,7 +504,7 @@ class _NumberFieldState extends State<NumberField> {
             .resolve(direction);
     final border = theme.textFieldTheme.decoration?.border;
     final borderWidth = border?.top?.width ?? 1;
-    final radius = (border?.radius ?? theme.radius).resolve(direction);
+    final radius = (border?.borderRadius ?? theme.radius).resolve(direction);
     // On a phone the buttons are touch targets as wide as the field is
     // tall; on a desktop a slim column of two carets.
     final extent = mobile ? height : (height * 2 / 3).roundToDouble();
@@ -650,7 +650,7 @@ class _NumberFieldState extends State<NumberField> {
         );
     final border = decoration.border;
     final borderWidth = border?.top?.width ?? 1;
-    final radius = (border?.radius ?? theme.radius).resolve(direction);
+    final radius = (border?.borderRadius ?? theme.radius).resolve(direction);
     final textStyle = theme.textTheme.muted
         .copyWith(color: theme.colorScheme.foreground)
         .merge(theme.textFieldTheme.style)

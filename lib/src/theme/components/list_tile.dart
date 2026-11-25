@@ -13,7 +13,7 @@ class ListTileTheme with _$ListTileTheme {
     this.padding,
     this.gap,
     this.titleGap,
-    this.radius,
+    this.borderRadius,
     this.titleStyle,
     this.subtitleStyle,
     this.hoverColor,
@@ -42,7 +42,7 @@ class ListTileTheme with _$ListTileTheme {
   final double? titleGap;
 
   /// The corner radius of the hover and selection highlight.
-  final BorderRadius? radius;
+  final BorderRadius? borderRadius;
 
   /// The title's style.
   final TextStyle? titleStyle;

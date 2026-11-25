@@ -457,7 +457,7 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
               // continuous area.
               final shape = ArrowShape(
                 radius:
-                    effectiveDecoration.border?.radius?.resolve(
+                    effectiveDecoration.border?.borderRadius?.resolve(
                       textDirection,
                     ) ??
                     BorderRadius.zero,

@@ -98,7 +98,7 @@ void main() {
 
     final bubble = bubbleRect(tester);
     final theme = Theme.of(tester.element(find.byType(Tooltip)));
-    final cornerRadius = theme.tooltipTheme.decoration!.border!.radius!
+    final cornerRadius = theme.tooltipTheme.decoration!.border!.borderRadius!
         .resolve(TextDirection.ltr)
         .topRight
         .x;

@@ -33,7 +33,11 @@ mixin _$ActionSheetTheme {
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
       rowHeight: lerpDouble$(a.rowHeight, b.rowHeight, t),
       rowPadding: EdgeInsetsGeometry.lerp(a.rowPadding, b.rowPadding, t),
-      rowRadius: BorderRadius.lerp(a.rowRadius, b.rowRadius, t),
+      rowBorderRadius: BorderRadius.lerp(
+        a.rowBorderRadius,
+        b.rowBorderRadius,
+        t,
+      ),
       gap: lerpDouble$(a.gap, b.gap, t),
       iconSize: lerpDouble$(a.iconSize, b.iconSize, t),
       labelStyle: TextStyle.lerp(a.labelStyle, b.labelStyle, t),
@@ -67,7 +71,7 @@ mixin _$ActionSheetTheme {
     EdgeInsetsGeometry? padding,
     double? rowHeight,
     EdgeInsetsGeometry? rowPadding,
-    BorderRadius? rowRadius,
+    BorderRadius? rowBorderRadius,
     double? gap,
     double? iconSize,
     TextStyle? labelStyle,
@@ -89,7 +93,7 @@ mixin _$ActionSheetTheme {
       padding: padding ?? _this.padding,
       rowHeight: rowHeight ?? _this.rowHeight,
       rowPadding: rowPadding ?? _this.rowPadding,
-      rowRadius: rowRadius ?? _this.rowRadius,
+      rowBorderRadius: rowBorderRadius ?? _this.rowBorderRadius,
       gap: gap ?? _this.gap,
       iconSize: iconSize ?? _this.iconSize,
       labelStyle: labelStyle ?? _this.labelStyle,
@@ -122,7 +126,7 @@ mixin _$ActionSheetTheme {
       padding: other.padding,
       rowHeight: other.rowHeight,
       rowPadding: other.rowPadding,
-      rowRadius: other.rowRadius,
+      rowBorderRadius: other.rowBorderRadius,
       gap: other.gap,
       iconSize: other.iconSize,
       labelStyle: _this.labelStyle?.merge(other.labelStyle) ?? other.labelStyle,
@@ -159,7 +163,7 @@ mixin _$ActionSheetTheme {
     return _other.padding == _this.padding &&
         _other.rowHeight == _this.rowHeight &&
         _other.rowPadding == _this.rowPadding &&
-        _other.rowRadius == _this.rowRadius &&
+        _other.rowBorderRadius == _this.rowBorderRadius &&
         _other.gap == _this.gap &&
         _other.iconSize == _this.iconSize &&
         _other.labelStyle == _this.labelStyle &&
@@ -185,7 +189,7 @@ mixin _$ActionSheetTheme {
       _this.padding,
       _this.rowHeight,
       _this.rowPadding,
-      _this.rowRadius,
+      _this.rowBorderRadius,
       _this.gap,
       _this.iconSize,
       _this.labelStyle,

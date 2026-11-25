@@ -68,7 +68,7 @@ void main() {
       .decoration!;
 
   BorderRadius radiusOf(WidgetTester tester, Finder button) =>
-      decorationOf(tester, button).border!.radius! as BorderRadius;
+      decorationOf(tester, button).border!.borderRadius! as BorderRadius;
 
   Finder buttonOf(String label) => find.widgetWithText(Button, label);
 
@@ -358,9 +358,12 @@ void main() {
           final focused = decoration.focusedBorder!;
           expect(focused.left!.width, 2);
           expect(focused.right!.width, 2);
-          expect(focused.radius, BorderRadius.zero);
+          expect(focused.borderRadius, BorderRadius.zero);
         } else {
-          expect(decoration.secondaryFocusedBorder!.radius, BorderRadius.zero);
+          expect(
+            decoration.secondaryFocusedBorder!.borderRadius,
+            BorderRadius.zero,
+          );
         }
 
         await tester.sendKeyEvent(LogicalKeyboardKey.tab);
@@ -458,7 +461,7 @@ void main() {
         tester.getRect(toggles.at(0)).right,
       );
       final middle = decorationOf(tester, toggles.at(1));
-      expect(middle.border!.radius, BorderRadius.zero);
+      expect(middle.border!.borderRadius, BorderRadius.zero);
       expect(middle.border!.left!.width, 0);
       // With a gap they are separate again.
       await pump(
@@ -477,7 +480,7 @@ void main() {
         tester.getRect(find.byType(Toggle).at(0)).right + 4,
       );
       expect(
-        (decorationOf(tester, find.byType(Toggle).at(1)).border!.radius!
+        (decorationOf(tester, find.byType(Toggle).at(1)).border!.borderRadius!
                 as BorderRadius)
             .topLeft,
         isNot(Radius.zero),

@@ -38,7 +38,7 @@ mixin _$FloatingActionButtonTheme {
       iconSizeLg: lerpDouble$(a.iconSizeLg, b.iconSizeLg, t),
       padding: lerpDouble$(a.padding, b.padding, t),
       gap: lerpDouble$(a.gap, b.gap, t),
-      radius: BorderRadius.lerp(a.radius, b.radius, t),
+      borderRadius: BorderRadius.lerp(a.borderRadius, b.borderRadius, t),
       backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
       foregroundColor: Color.lerp(a.foregroundColor, b.foregroundColor, t),
       secondaryBackgroundColor: Color.lerp(
@@ -70,7 +70,7 @@ mixin _$FloatingActionButtonTheme {
     double? iconSizeLg,
     double? padding,
     double? gap,
-    BorderRadius? radius,
+    BorderRadius? borderRadius,
     Color? backgroundColor,
     Color? foregroundColor,
     Color? secondaryBackgroundColor,
@@ -90,7 +90,7 @@ mixin _$FloatingActionButtonTheme {
       iconSizeLg: iconSizeLg ?? _this.iconSizeLg,
       padding: padding ?? _this.padding,
       gap: gap ?? _this.gap,
-      radius: radius ?? _this.radius,
+      borderRadius: borderRadius ?? _this.borderRadius,
       backgroundColor: backgroundColor ?? _this.backgroundColor,
       foregroundColor: foregroundColor ?? _this.foregroundColor,
       secondaryBackgroundColor:
@@ -123,7 +123,7 @@ mixin _$FloatingActionButtonTheme {
       iconSizeLg: other.iconSizeLg,
       padding: other.padding,
       gap: other.gap,
-      radius: other.radius,
+      borderRadius: other.borderRadius,
       backgroundColor: other.backgroundColor,
       foregroundColor: other.foregroundColor,
       secondaryBackgroundColor: other.secondaryBackgroundColor,
@@ -155,7 +155,7 @@ mixin _$FloatingActionButtonTheme {
         _other.iconSizeLg == _this.iconSizeLg &&
         _other.padding == _this.padding &&
         _other.gap == _this.gap &&
-        _other.radius == _this.radius &&
+        _other.borderRadius == _this.borderRadius &&
         _other.backgroundColor == _this.backgroundColor &&
         _other.foregroundColor == _this.foregroundColor &&
         _other.secondaryBackgroundColor == _this.secondaryBackgroundColor &&
@@ -179,7 +179,7 @@ mixin _$FloatingActionButtonTheme {
       _this.iconSizeLg,
       _this.padding,
       _this.gap,
-      _this.radius,
+      _this.borderRadius,
       _this.backgroundColor,
       _this.foregroundColor,
       _this.secondaryBackgroundColor,

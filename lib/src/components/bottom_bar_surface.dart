@@ -53,7 +53,7 @@ class BottomBarSurface extends StatelessWidget {
   static BorderRadius radiusIn(BuildContext context, {required bool floating}) {
     final theme = Theme.of(context);
     return floating
-        ? theme.bottomNavigationBarTheme.radius ?? theme.radii.full
+        ? theme.bottomNavigationBarTheme.borderRadius ?? theme.radii.full
         : BorderRadius.zero;
   }
 

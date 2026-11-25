@@ -717,7 +717,8 @@ class _CalendarState extends State<Calendar> {
     // `--cell-radius` and `.cn-calendar-caption-label`'s height; theme-driven
     // (the variant derives both from the style tokens), with the theme's
     // global radius and the select's own height as the standalone fallbacks.
-    final effectiveDayButtonRadius = calendar.dayButtonRadius ?? theme.radius;
+    final effectiveDayButtonRadius =
+        calendar.dayButtonBorderRadius ?? theme.radius;
     final effectiveSelectorMinHeight = calendar.selectorMinHeight;
 
     // Seven day columns, plus one more of the same width when week numbers
@@ -841,7 +842,7 @@ class _CalendarState extends State<Calendar> {
       decoration: FinesseDecoration(
         // The dropdown trigger rounds with the cells
         // (`rounded-(--cell-radius)`), not with the field radius.
-        border: FinesseBorder(radius: effectiveDayButtonRadius),
+        border: FinesseBorder(borderRadius: effectiveDayButtonRadius),
         secondaryFocusedBorder: FinesseBorder.all(
           color: theme.colorScheme.ring.withValues(alpha: .5),
         ),
@@ -870,7 +871,7 @@ class _CalendarState extends State<Calendar> {
       groupId: widget.groupId,
       minHeight: effectiveSelectorMinHeight,
       decoration: FinesseDecoration(
-        border: FinesseBorder(radius: effectiveDayButtonRadius),
+        border: FinesseBorder(borderRadius: effectiveDayButtonRadius),
         secondaryFocusedBorder: FinesseBorder.all(
           color: theme.colorScheme.ring.withValues(alpha: .5),
         ),
@@ -1248,7 +1249,7 @@ class _CalendarState extends State<Calendar> {
                                         !isLastDateInRange
                                     ? isFirstOfRow
                                           ? FinesseBorder(
-                                              radius: BorderRadius.only(
+                                              borderRadius: BorderRadius.only(
                                                 topLeft: cellRadius.topLeft,
                                                 bottomLeft:
                                                     cellRadius.bottomLeft,
@@ -1256,16 +1257,16 @@ class _CalendarState extends State<Calendar> {
                                             )
                                           : isLastOfRow
                                           ? FinesseBorder(
-                                              radius: BorderRadius.only(
+                                              borderRadius: BorderRadius.only(
                                                 topRight: cellRadius.topRight,
                                                 bottomRight:
                                                     cellRadius.bottomRight,
                                               ),
                                             )
                                           : const FinesseBorder(
-                                              radius: BorderRadius.zero,
+                                              borderRadius: BorderRadius.zero,
                                             )
-                                    : FinesseBorder(radius: cellRadius),
+                                    : FinesseBorder(borderRadius: cellRadius),
                                 secondaryFocusedBorder: FinesseBorder.all(
                                   offset: 2,
                                   color: theme.colorScheme.ring.withValues(

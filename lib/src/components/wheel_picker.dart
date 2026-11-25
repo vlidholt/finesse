@@ -760,7 +760,7 @@ class _WheelPickerState<T> extends State<WheelPicker<T>>
     final padding = (wheel.itemPadding ?? EdgeInsets.zero).resolve(direction);
     final magnification = wheel.lensMagnification ?? 1;
     final curvature = wheel.curvature ?? 0;
-    final radius = wheel.lensRadius ?? theme.radius;
+    final radius = wheel.lensBorderRadius ?? theme.radius;
     final width =
         widget.width ??
         _widthFor(selectedStyle, scaler, magnification, padding, direction);
@@ -906,7 +906,7 @@ class _WheelLens extends StatelessWidget {
       height: height,
       width: double.infinity,
       color: wheel.lensColor ?? theme.colorScheme.muted,
-      borderRadius: wheel.lensRadius ?? theme.radius,
+      borderRadius: wheel.lensBorderRadius ?? theme.radius,
       border: Border.fromBorderSide(
         borderWidth > 0
             ? BorderSide(

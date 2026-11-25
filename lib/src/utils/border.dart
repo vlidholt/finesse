@@ -131,7 +131,7 @@ class FinesseBorder {
   const FinesseBorder({
     this.canMerge = true,
     this.padding,
-    this.radius,
+    this.borderRadius,
     this.top,
     this.right,
     this.bottom,
@@ -144,7 +144,7 @@ class FinesseBorder {
     FinesseBorderSide side, {
     this.canMerge = true,
     this.padding,
-    this.radius,
+    this.borderRadius,
     this.offset,
   }) : top = side,
        right = side,
@@ -160,7 +160,7 @@ class FinesseBorder {
     FinesseBorderSide? horizontal,
     this.canMerge = true,
     this.padding,
-    this.radius,
+    this.borderRadius,
     this.offset,
   }) : left = vertical,
        top = horizontal,
@@ -177,7 +177,7 @@ class FinesseBorder {
     BorderStyle? style,
     double? strokeAlign,
     EdgeInsetsGeometry? padding,
-    BorderRadiusGeometry? radius,
+    BorderRadiusGeometry? borderRadius,
     double? offset,
   }) {
     final side = FinesseBorderSide(
@@ -190,7 +190,7 @@ class FinesseBorder {
       side,
       padding: padding,
       canMerge: canMerge,
-      radius: radius,
+      borderRadius: borderRadius,
       offset: offset,
     );
   }
@@ -203,7 +203,11 @@ class FinesseBorder {
     return FinesseBorder(
       canMerge: b?.canMerge ?? a?.canMerge ?? true,
       padding: EdgeInsetsGeometry.lerp(a?.padding, b?.padding, t),
-      radius: BorderRadiusGeometry.lerp(a?.radius, b?.radius, t),
+      borderRadius: BorderRadiusGeometry.lerp(
+        a?.borderRadius,
+        b?.borderRadius,
+        t,
+      ),
       top: FinesseBorderSide.lerp(
         a?.top,
         b?.top,
@@ -250,7 +254,7 @@ class FinesseBorder {
             border.side?.merge(other.side) ?? other.side,
           _ => other.side,
         },
-        radius: other.radius ?? radius,
+        borderRadius: other.borderRadius ?? borderRadius,
       );
     }
     return copyWith(
@@ -263,7 +267,7 @@ class FinesseBorder {
       bottom: bottom?.merge(other.bottom) ?? other.bottom,
       left: left?.merge(other.left) ?? other.left,
       padding: other.padding,
-      radius: other.radius,
+      borderRadius: other.borderRadius,
       offset: other.offset,
     );
   }
@@ -276,7 +280,7 @@ class FinesseBorder {
     FinesseBorderSide? right,
     FinesseBorderSide? bottom,
     FinesseBorderSide? left,
-    BorderRadiusGeometry? radius,
+    BorderRadiusGeometry? borderRadius,
     double? offset,
   }) {
     return FinesseBorder(
@@ -286,7 +290,7 @@ class FinesseBorder {
       bottom: bottom ?? this.bottom,
       left: left ?? this.left,
       padding: padding ?? this.padding,
-      radius: radius ?? this.radius,
+      borderRadius: borderRadius ?? this.borderRadius,
       offset: offset ?? this.offset,
     );
   }
@@ -298,7 +302,7 @@ class FinesseBorder {
   final EdgeInsetsGeometry? padding;
 
   /// The border radius of the border, defaults to null.
-  final BorderRadiusGeometry? radius;
+  final BorderRadiusGeometry? borderRadius;
 
   /// The top side of this border.
   final FinesseBorderSide? top;
@@ -320,7 +324,7 @@ class FinesseBorder {
 
   @override
   String toString() {
-    return '''FinesseBorder(canMerge: $canMerge, padding: $padding, radius: $radius, top: $top, right: $right, bottom: $bottom, left: $left, offset: $offset)''';
+    return '''FinesseBorder(canMerge: $canMerge, padding: $padding, borderRadius: $borderRadius, top: $top, right: $right, bottom: $bottom, left: $left, offset: $offset)''';
   }
 
   @override
@@ -332,7 +336,7 @@ class FinesseBorder {
     return other is FinesseBorder &&
         other.canMerge == canMerge &&
         other.padding == padding &&
-        other.radius == radius &&
+        other.borderRadius == borderRadius &&
         other.top == top &&
         other.right == right &&
         other.bottom == bottom &&
@@ -344,7 +348,7 @@ class FinesseBorder {
   int get hashCode => Object.hash(
     canMerge,
     padding,
-    radius,
+    borderRadius,
     top,
     right,
     bottom,
@@ -529,15 +533,17 @@ extension RoundedSuperellipseBorderExt on FinesseRoundedSuperellipseBorder {
   /// border.
   ///
   /// [textDirection] resolves a directional radius and defaults to
-  /// [TextDirection.ltr]. [defaultRadius] is used when [radius] is null.
+  /// [TextDirection.ltr]. [defaultBorderRadius] is used when [borderRadius]
+  /// is null.
   ShapeBorder toBorder({
     TextDirection? textDirection,
-    BorderRadius defaultRadius = BorderRadius.zero,
+    BorderRadius defaultBorderRadius = BorderRadius.zero,
   }) {
     final effectiveTextDirection = textDirection ?? TextDirection.ltr;
     return RoundedSuperellipseBorder(
       side: side?.toBorderSide() ?? BorderSide.none,
-      borderRadius: radius?.resolve(effectiveTextDirection) ?? defaultRadius,
+      borderRadius:
+          borderRadius?.resolve(effectiveTextDirection) ?? defaultBorderRadius,
     );
   }
 }
@@ -550,7 +556,7 @@ class FinesseRoundedSuperellipseBorder extends FinesseBorder {
   const FinesseRoundedSuperellipseBorder({
     super.canMerge,
     this.side,
-    super.radius,
+    super.borderRadius,
   });
 
   /// The side drawn on every edge.
@@ -558,7 +564,7 @@ class FinesseRoundedSuperellipseBorder extends FinesseBorder {
 
   @override
   String toString() {
-    return '''FinesseRoundedSuperellipseBorder(canMerge: $canMerge, side: $side, radius: $radius)''';
+    return '''FinesseRoundedSuperellipseBorder(canMerge: $canMerge, side: $side, borderRadius: $borderRadius)''';
   }
 
   @override
@@ -568,9 +574,9 @@ class FinesseRoundedSuperellipseBorder extends FinesseBorder {
     return other is FinesseRoundedSuperellipseBorder &&
         other.canMerge == canMerge &&
         other.side == side &&
-        other.radius == radius;
+        other.borderRadius == borderRadius;
   }
 
   @override
-  int get hashCode => Object.hash(canMerge, side, radius);
+  int get hashCode => Object.hash(canMerge, side, borderRadius);
 }

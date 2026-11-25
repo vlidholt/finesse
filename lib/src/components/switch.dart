@@ -340,7 +340,7 @@ class _SwitchState extends State<Switch> with SingleTickerProviderStateMixin {
                             decoration: FinesseDecoration(
                               color: effectiveThumbColor,
                               border: FinesseBorder.all(
-                                radius: BorderRadius.circular(
+                                borderRadius: BorderRadius.circular(
                                   effectiveThumbSize / 2,
                                 ),
                                 width: 0,

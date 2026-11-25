@@ -29,7 +29,7 @@ mixin _$ListTileTheme {
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
       gap: lerpDouble$(a.gap, b.gap, t),
       titleGap: lerpDouble$(a.titleGap, b.titleGap, t),
-      radius: BorderRadius.lerp(a.radius, b.radius, t),
+      borderRadius: BorderRadius.lerp(a.borderRadius, b.borderRadius, t),
       titleStyle: TextStyle.lerp(a.titleStyle, b.titleStyle, t),
       subtitleStyle: TextStyle.lerp(a.subtitleStyle, b.subtitleStyle, t),
       hoverColor: Color.lerp(a.hoverColor, b.hoverColor, t),
@@ -46,7 +46,7 @@ mixin _$ListTileTheme {
     EdgeInsetsGeometry? padding,
     double? gap,
     double? titleGap,
-    BorderRadius? radius,
+    BorderRadius? borderRadius,
     TextStyle? titleStyle,
     TextStyle? subtitleStyle,
     Color? hoverColor,
@@ -63,7 +63,7 @@ mixin _$ListTileTheme {
       padding: padding ?? _this.padding,
       gap: gap ?? _this.gap,
       titleGap: titleGap ?? _this.titleGap,
-      radius: radius ?? _this.radius,
+      borderRadius: borderRadius ?? _this.borderRadius,
       titleStyle: titleStyle ?? _this.titleStyle,
       subtitleStyle: subtitleStyle ?? _this.subtitleStyle,
       hoverColor: hoverColor ?? _this.hoverColor,
@@ -91,7 +91,7 @@ mixin _$ListTileTheme {
       padding: other.padding,
       gap: other.gap,
       titleGap: other.titleGap,
-      radius: other.radius,
+      borderRadius: other.borderRadius,
       titleStyle: _this.titleStyle?.merge(other.titleStyle) ?? other.titleStyle,
       subtitleStyle:
           _this.subtitleStyle?.merge(other.subtitleStyle) ??
@@ -122,7 +122,7 @@ mixin _$ListTileTheme {
     return _other.padding == _this.padding &&
         _other.gap == _this.gap &&
         _other.titleGap == _this.titleGap &&
-        _other.radius == _this.radius &&
+        _other.borderRadius == _this.borderRadius &&
         _other.titleStyle == _this.titleStyle &&
         _other.subtitleStyle == _this.subtitleStyle &&
         _other.hoverColor == _this.hoverColor &&
@@ -143,7 +143,7 @@ mixin _$ListTileTheme {
       _this.padding,
       _this.gap,
       _this.titleGap,
-      _this.radius,
+      _this.borderRadius,
       _this.titleStyle,
       _this.subtitleStyle,
       _this.hoverColor,

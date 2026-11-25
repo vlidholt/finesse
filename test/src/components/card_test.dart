@@ -109,7 +109,7 @@ void main() {
         createTestWidget(
           const Card(
             backgroundColor: customBackgroundColor,
-            radius: customRadius,
+            borderRadius: customRadius,
             child: Text('Styled Card'),
           ),
         ),
@@ -235,7 +235,7 @@ void main() {
       expect(decoration?.color, theme.cardTheme.backgroundColor);
       expect(
         decoration?.borderRadius,
-        Theme.of(tester.element(containerFinder)).cardTheme.radius,
+        Theme.of(tester.element(containerFinder)).cardTheme.borderRadius,
       );
       expect(decoration?.border, isNotNull);
     });

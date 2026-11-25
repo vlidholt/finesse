@@ -120,7 +120,7 @@ void main() {
       );
       expect(mobile.wheelPickerTheme.itemExtent, mobile.style.inputHeight);
       expect(mobile.wheelPickerTheme.itemExtent, greaterThanOrEqualTo(44));
-      expect(desktop.wheelPickerTheme.lensRadius, isNotNull);
+      expect(desktop.wheelPickerTheme.lensBorderRadius, isNotNull);
       expect(
         desktop.wheelPickerTheme.selectedTextStyle!.color,
         desktop.colorScheme.foreground,

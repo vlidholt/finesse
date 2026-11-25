@@ -252,14 +252,14 @@ class Decorator extends StatelessWidget {
           gradient: effectiveDecoration.gradient,
           shape: border.toBorder(
             textDirection: textDirection,
-            defaultRadius: theme.radius,
+            defaultBorderRadius: theme.radius,
           ),
         ),
         final FinesseBorder? border => BoxDecoration(
           border: true == border?.hasBorder ? border?.toBorder() : null,
           borderRadius: effectiveDecoration.shape == BoxShape.circle
               ? null
-              : border?.radius,
+              : border?.borderRadius,
           color: effectiveDecoration.color,
           shape: effectiveDecoration.shape ?? BoxShape.rectangle,
           backgroundBlendMode: effectiveDecoration.backgroundBlendMode,
@@ -283,7 +283,7 @@ class Decorator extends StatelessWidget {
             border: secondaryBorder.toBorder(),
             offset: secondaryBorder.offset ?? 0,
             radius:
-                secondaryBorder.radius?.resolve(textDirection) ??
+                secondaryBorder.borderRadius?.resolve(textDirection) ??
                 BorderRadius.zero,
             textDirection: textDirection,
           ),

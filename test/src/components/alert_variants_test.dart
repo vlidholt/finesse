@@ -151,7 +151,10 @@ void main() {
         expect(iconTheme.size, alert.iconSize);
         final decoration = decoratorOf(tester).decoration!;
         expect(decoration.color, fill);
-        expect(decoration.border!.radius, alert.decoration!.border!.radius);
+        expect(
+          decoration.border!.borderRadius,
+          alert.decoration!.border!.borderRadius,
+        );
         expect(decoration.border!.padding, alert.decoration!.border!.padding);
         // The edge carries the accent.
         final edge = decoration.border!.top!.color!;

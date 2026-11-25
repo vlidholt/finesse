@@ -30,7 +30,7 @@ mixin _$ChipTheme {
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
       gap: lerpDouble$(a.gap, b.gap, t),
       iconSize: lerpDouble$(a.iconSize, b.iconSize, t),
-      radius: BorderRadius.lerp(a.radius, b.radius, t),
+      borderRadius: BorderRadius.lerp(a.borderRadius, b.borderRadius, t),
       borderWidth: lerpDouble$(a.borderWidth, b.borderWidth, t),
       textStyle: TextStyle.lerp(a.textStyle, b.textStyle, t),
       backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
@@ -68,7 +68,7 @@ mixin _$ChipTheme {
     EdgeInsetsGeometry? padding,
     double? gap,
     double? iconSize,
-    BorderRadius? radius,
+    BorderRadius? borderRadius,
     double? borderWidth,
     TextStyle? textStyle,
     Color? backgroundColor,
@@ -90,7 +90,7 @@ mixin _$ChipTheme {
       padding: padding ?? _this.padding,
       gap: gap ?? _this.gap,
       iconSize: iconSize ?? _this.iconSize,
-      radius: radius ?? _this.radius,
+      borderRadius: borderRadius ?? _this.borderRadius,
       borderWidth: borderWidth ?? _this.borderWidth,
       textStyle: textStyle ?? _this.textStyle,
       backgroundColor: backgroundColor ?? _this.backgroundColor,
@@ -125,7 +125,7 @@ mixin _$ChipTheme {
       padding: other.padding,
       gap: other.gap,
       iconSize: other.iconSize,
-      radius: other.radius,
+      borderRadius: other.borderRadius,
       borderWidth: other.borderWidth,
       textStyle: _this.textStyle?.merge(other.textStyle) ?? other.textStyle,
       backgroundColor: other.backgroundColor,
@@ -159,7 +159,7 @@ mixin _$ChipTheme {
         _other.padding == _this.padding &&
         _other.gap == _this.gap &&
         _other.iconSize == _this.iconSize &&
-        _other.radius == _this.radius &&
+        _other.borderRadius == _this.borderRadius &&
         _other.borderWidth == _this.borderWidth &&
         _other.textStyle == _this.textStyle &&
         _other.backgroundColor == _this.backgroundColor &&
@@ -185,7 +185,7 @@ mixin _$ChipTheme {
       _this.padding,
       _this.gap,
       _this.iconSize,
-      _this.radius,
+      _this.borderRadius,
       _this.borderWidth,
       _this.textStyle,
       _this.backgroundColor,

@@ -18,7 +18,7 @@ class SelectOptionTheme with _$SelectOptionTheme {
     this.textStyle,
     this.selectedTextStyle,
     this.padding,
-    this.radius,
+    this.borderRadius,
     this.selectedIconColor,
     this.selectedHoveredIconColor,
   }) : _canMerge = canMerge;
@@ -37,7 +37,7 @@ class SelectOptionTheme with _$SelectOptionTheme {
   final EdgeInsetsGeometry? padding;
 
   /// The row's corner radius. Defaults to `ThemeData.radius`.
-  final BorderRadius? radius;
+  final BorderRadius? borderRadius;
 
   /// The row's background at rest.
   final Color? backgroundColor;

@@ -148,9 +148,12 @@ void main() {
     });
 
     test('the radius follows the style, and square styles sharpen the tip', () {
-      BorderRadius radiusOf(StyleTokens style) => ThemeData(
-        style: style,
-      ).tooltipTheme.decoration!.border!.radius!.resolve(TextDirection.ltr);
+      BorderRadius radiusOf(StyleTokens style) =>
+          ThemeData(
+            style: style,
+          ).tooltipTheme.decoration!.border!.borderRadius!.resolve(
+            TextDirection.ltr,
+          );
 
       // vega `rounded-md` 8, maia `rounded-2xl` 16, luma `rounded-xl` 14.
       expect(radiusOf(FixtureStyles.vega).topLeft.x, 8);

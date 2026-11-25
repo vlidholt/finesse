@@ -134,7 +134,7 @@ class Chip extends StatelessWidget {
     final theme = Theme.of(context);
     final chip = theme.chipTheme;
     final scheme = theme.colorScheme;
-    final radius = chip.radius ?? theme.radii.full;
+    final radius = chip.borderRadius ?? theme.radii.full;
     // What a tap would do, were the chip enabled.
     final action = onSelected != null
         ? () => onSelected!(!selected)
