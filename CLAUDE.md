@@ -993,6 +993,16 @@ weight, another font, at or above the reference — is a plain `Icon`.
 - `test/readme_snippet_test.dart` and `example/test/example_md_test.dart` hold
   verbatim copies of the README and `example/example.md` snippets and check
   they still match.
+- **The README's images are rendered, not screenshotted.**
+  `flutter test scripts/readme_images/readme_images_test.dart` (add
+  `--name hero` for one) builds each scene in `scripts/readme_images/scenes/`
+  in Geist (vendored there, OFL) with the real Phosphor fonts, writes the
+  PNG to `build/readme_images/` and encodes `doc/images/<name>.webp` with
+  `cwebp` (`brew install webp`). Regenerate them when the look changes and
+  look at every one before committing. The README links them by absolute
+  `raw.githubusercontent.com` URL on `main` (pub.dev does not resolve
+  relative images), and `.pubignore` keeps `doc/` out of the package. The
+  scenes use only the package, not the example app.
 - Releases are manual: bump `pubspec.yaml` + `CHANGELOG.md` on main. The
   workflows shad used to tag a release, post it to Discord and publish to
   pub.dev (`create-release.yaml`, `publish.yaml`) were removed with the fork;
