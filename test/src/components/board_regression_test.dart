@@ -260,7 +260,11 @@ void main() {
       );
       await _dropA1BelowA2(tester);
 
-      await tester.tap(_item('b1'));
+      // The card: the centre of the item's own box is the empty middle of
+      // its row, which nothing in the item answers.
+      await tester.tap(
+        find.ancestor(of: _item('b1'), matching: find.byType(Card)),
+      );
       await tester.pump();
       await tester.pumpAndSettle();
       expect(find.text('details'), findsOneWidget);

@@ -137,6 +137,14 @@ class _ButtonGroupSlotState extends State<_ButtonGroupSlot> {
     return false;
   }
 
+  /// Gives the place up when its control is deactivated. A control replaced
+  /// by one of another type is still mounted while its successor is built,
+  /// and would otherwise keep the place from it until something rebuilt the
+  /// successor again.
+  void _release(Element element) {
+    if (identical(_claimant, element)) _claimant = null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Focus(
@@ -191,6 +199,9 @@ class ButtonGroupScope extends InheritedWidget {
   final bool isLast;
 
   final _ButtonGroupSlotState _slot;
+
+  @override
+  InheritedElement createElement() => _ButtonGroupScopeElement(this);
 
   /// The place of the control at [context] in the nearest [ButtonGroup], or
   /// null when it is not in one, or its place is already taken.
@@ -316,6 +327,18 @@ class ButtonGroupScope extends InheritedWidget {
       axis != oldWidget.axis ||
       isFirst != oldWidget.isFirst ||
       isLast != oldWidget.isLast;
+}
+
+/// Hears of each control under a group's child being deactivated, which is
+/// when the control's place is free again.
+class _ButtonGroupScopeElement extends InheritedElement {
+  _ButtonGroupScopeElement(ButtonGroupScope super.widget);
+
+  @override
+  void removeDependent(Element dependent) {
+    (widget as ButtonGroupScope)._slot._release(dependent);
+    super.removeDependent(dependent);
+  }
 }
 
 /// A hairline between two children of a [ButtonGroup] that have no outline

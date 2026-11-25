@@ -231,8 +231,9 @@ class Button extends StatefulWidget {
   /// Called when the button is tapped, or activated from the keyboard with
   /// Enter or Space while it has the focus.
   ///
-  /// A button with no callback keeps its look and does nothing; [enabled]
-  /// is what dims it.
+  /// A button with neither this nor [onLongPress], and not [loading], is
+  /// disabled, as if [enabled] were false: dimmed, out of the focus order
+  /// and deaf to presses.
   /// {@endtemplate}
   final VoidCallback? onPressed;
 
@@ -290,8 +291,10 @@ class Button extends StatefulWidget {
   final FocusNode? focusNode;
 
   /// {@template Button.enabled}
-  /// Whether the button responds. A disabled button is dimmed, takes no
-  /// focus and ignores presses.
+  /// Whether the button responds. A disabled button is dimmed by the
+  /// theme's `disabledOpacity`, takes no focus and ignores presses. A button
+  /// with no [onPressed] or [onLongPress] that is not [loading] is disabled
+  /// whatever this says.
   /// {@endtemplate}
   final bool enabled;
 
@@ -447,12 +450,17 @@ class _ButtonState extends State<Button> {
         style.pressAnimationDuration ?? const Duration(milliseconds: 100);
 
     final loading = widget.loading;
+    // A loading button is busy, not disabled: it keeps the focus and its
+    // look while it has no callback to offer.
+    final enabled =
+        widget.enabled &&
+        (loading || widget.onPressed != null || widget.onLongPress != null);
 
     return Pressable(
       // Busy: there, and in the focus order, but not to be pressed.
       onPressed: loading ? null : widget.onPressed,
       onLongPress: loading ? null : widget.onLongPress,
-      enabled: widget.enabled,
+      enabled: enabled,
       focusNode: widget.focusNode,
       autofocus: widget.autofocus,
       statesController: widget.statesController,
@@ -496,14 +504,6 @@ class _ButtonState extends State<Button> {
 
         var child = widget.child;
 
-        // A child that is already Flexible (or Expanded) brings its own
-        // flex. Wrapping it in Expanded would put it under the Expanded
-        // instead of directly under the Row, which Flutter rejects as an
-        // incorrect use of ParentDataWidget.
-        if (child != null && expands && child is! Flexible) {
-          child = Expanded(child: child);
-        }
-
         // The spinner takes the place of the leading widget, or lies over
         // the label when there is none. What it replaces stays in the
         // layout, unseen, so the button does not change size.
@@ -517,14 +517,32 @@ class _ButtonState extends State<Button> {
               spinnerSize: spinnerSize,
               child: leading,
             );
-          } else if (widget.child != null) {
+          } else if (child != null) {
+            // A Flexible label has to stay directly under the Row, so the
+            // swap goes inside it and the label's own flex is kept.
+            final flexible = child is Flexible ? child : null;
             final swapped = _LoadingSwap(
               loading: loading,
               spinnerSize: spinnerSize,
-              child: widget.child!,
+              child: flexible?.child ?? child,
             );
-            child = child is Expanded ? Expanded(child: swapped) : swapped;
+            child = flexible == null
+                ? swapped
+                : Flexible(
+                    key: flexible.key,
+                    flex: flexible.flex,
+                    fit: flexible.fit,
+                    child: swapped,
+                  );
           }
+        }
+
+        // A child that is already Flexible (or Expanded) brings its own
+        // flex. Wrapping it in Expanded would put it under the Expanded
+        // instead of directly under the Row, which Flutter rejects as an
+        // incorrect use of ParentDataWidget.
+        if (child != null && expands && child is! Flexible) {
+          child = Expanded(child: child);
         }
 
         // Requires a real handler as well as the enabled state: a button
@@ -532,14 +550,9 @@ class _ButtonState extends State<Button> {
         // depress.
         final depressed = pressed && widget.onPressed != null;
 
-        return AnimatedSlide(
-          // AnimatedSlide takes a fraction of the child's size, so convert
-          // the pixel offset once the height is known.
-          offset: depressed
-              ? Offset(pressedOffset.dx / 100, pressedOffset.dy / height)
-              : Offset.zero,
+        return _PressShift(
+          offset: depressed ? pressedOffset : Offset.zero,
           duration: pressDuration,
-          curve: Curves.easeOut,
           // Hover and press change the colours over a short fade rather
           // than at once. Each fade starts from the colour on screen, so
           // leaving mid-fade turns around without a flash.
@@ -563,7 +576,7 @@ class _ButtonState extends State<Button> {
               ),
             ),
             child: Opacity(
-              opacity: enabled ? 1 : .5,
+              opacity: enabled ? 1 : theme.disabledOpacity,
               child: AbsorbPointer(
                 absorbing: !enabled,
                 // The size constraints sit *outside* the decorator so the
@@ -619,6 +632,34 @@ class _ButtonState extends State<Button> {
           ),
         );
       },
+    );
+  }
+}
+
+/// Moves [child] by [offset], in logical pixels, easing to each new one.
+///
+/// A translation in paint: the button's box stays where it is, and a pure
+/// translation costs no layer.
+class _PressShift extends StatelessWidget {
+  const _PressShift({
+    required this.offset,
+    required this.duration,
+    required this.child,
+  });
+
+  final Offset offset;
+  final Duration duration;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<Offset>(
+      tween: Tween<Offset>(end: offset),
+      duration: duration,
+      curve: Curves.easeOut,
+      builder: (context, value, child) =>
+          Transform.translate(offset: value, child: child),
+      child: child,
     );
   }
 }

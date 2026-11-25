@@ -3,12 +3,16 @@ import 'package:finesse/src/app.dart';
 import 'package:finesse/src/components/button.dart';
 import 'package:finesse/src/components/decorator.dart';
 import 'package:finesse/src/components/icon_button.dart';
+import 'package:finesse/src/icons/phosphor_icon.dart';
+import 'package:finesse/src/icons/phosphor_icons_regular.dart';
 import 'package:finesse/src/theme/components/button.dart';
 import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/style.dart';
 import 'package:finesse/src/theme/theme.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart'
     hide ButtonTheme, IconButton, Theme, ThemeData;
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -296,6 +300,101 @@ void main() {
       expect(absorbPointer.absorbing, true);
     });
 
+    testWidgets("a disabled button is dimmed by the theme's disabledOpacity", (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        createTestWidget(
+          Button(enabled: false, onPressed: () {}, child: const Text('X')),
+          theme: ThemeData(disabledOpacity: .3),
+        ),
+      );
+      final opacity = tester.widget<Opacity>(
+        find.descendant(
+          of: find.byType(Button),
+          matching: find.byType(Opacity),
+        ),
+      );
+      expect(opacity.opacity, .3);
+    });
+
+    group('with no onPressed, no onLongPress and not loading', () {
+      for (final (name, button) in <(String, Widget Function(FocusNode))>[
+        ('Button', (node) => Button(focusNode: node, child: const Text('X'))),
+        (
+          'IconButton',
+          (node) => IconButton(
+            focusNode: node,
+            icon: const PhosphorIcon(PhosphorIconsRegular.archive),
+          ),
+        ),
+      ]) {
+        testWidgets('$name is disabled: no Tab stop, no click cursor, '
+            'dimmed', (tester) async {
+          final node = FocusNode();
+          addTearDown(node.dispose);
+          await tester.pumpWidget(
+            createTestWidget(Center(child: button(node))),
+          );
+          await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+          await tester.pump();
+          expect(node.hasFocus, isFalse);
+
+          final mouse = await tester.createGesture(
+            kind: PointerDeviceKind.mouse,
+          );
+          await mouse.addPointer(location: Offset.zero);
+          addTearDown(mouse.removePointer);
+          await mouse.moveTo(tester.getCenter(find.byType(Button)));
+          await tester.pump();
+          expect(
+            RendererBinding.instance.mouseTracker.debugDeviceActiveCursor(1),
+            isNot(SystemMouseCursors.click),
+          );
+          final opacity = tester.widget<Opacity>(
+            find.descendant(
+              of: find.byType(Button),
+              matching: find.byType(Opacity),
+            ),
+          );
+          expect(opacity.opacity, ThemeData().disabledOpacity);
+        });
+      }
+
+      testWidgets('a long press alone, or loading, keeps it enabled', (
+        tester,
+      ) async {
+        final nodes = [FocusNode(), FocusNode()];
+        for (final n in nodes) {
+          addTearDown(n.dispose);
+        }
+        await tester.pumpWidget(
+          createTestWidget(
+            Column(
+              children: [
+                Button(
+                  focusNode: nodes[0],
+                  onLongPress: () {},
+                  child: const Text('Hold'),
+                ),
+                Button(
+                  focusNode: nodes[1],
+                  loading: true,
+                  child: const Text('Busy'),
+                ),
+              ],
+            ),
+          ),
+        );
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        expect(nodes[0].hasFocus, isTrue);
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        expect(nodes[1].hasFocus, isTrue);
+      });
+    });
+
     testWidgets('handles focus correctly', (WidgetTester tester) async {
       // As on a desktop, where the focus shows.
       useTraditionalHighlights();
@@ -305,6 +404,7 @@ void main() {
         createTestWidget(
           Button(
             focusNode: focusNode,
+            onPressed: () {},
             child: const Text('Focusable Button'),
           ),
         ),
@@ -461,6 +561,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const Button(
+            onPressed: _noop,
             leading: Icon(Icons.star),
             trailing: Icon(Icons.arrow_forward),
             child: Text('Button'),
@@ -478,6 +579,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const Button.destructive(
+            onPressed: _noop,
             leading: Icon(Icons.star),
             trailing: Icon(Icons.arrow_forward),
             child: Text('Button'),
@@ -495,6 +597,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const Button.outline(
+            onPressed: _noop,
             leading: Icon(Icons.star),
             trailing: Icon(Icons.arrow_forward),
             child: Text('Button'),
@@ -512,6 +615,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const Button.secondary(
+            onPressed: _noop,
             leading: Icon(Icons.star),
             trailing: Icon(Icons.arrow_forward),
             child: Text('Button'),
@@ -529,6 +633,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const Button.ghost(
+            onPressed: _noop,
             leading: Icon(Icons.star),
             trailing: Icon(Icons.arrow_forward),
             child: Text('Button'),
@@ -546,6 +651,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const Button.link(
+            onPressed: _noop,
             leading: Icon(Icons.star),
             trailing: Icon(Icons.arrow_forward),
             child: Text('Button'),
@@ -654,3 +760,6 @@ void main() {
     });
   });
 }
+
+/// A callback, so a button is enabled.
+void _noop() {}

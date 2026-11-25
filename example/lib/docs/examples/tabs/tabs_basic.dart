@@ -21,7 +21,10 @@ class TabsBasicExample extends StatelessWidget {
                 "Make changes to your account here. Click save when you're "
                 'done.',
               ),
-              footer: const Button(child: Text('Save changes')),
+              footer: Button(
+                onPressed: () {},
+                child: const Text('Save changes'),
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -49,7 +52,10 @@ class TabsBasicExample extends StatelessWidget {
                 "Change your password here. After saving, you'll be logged "
                 'out.',
               ),
-              footer: const Button(child: Text('Save password')),
+              footer: Button(
+                onPressed: () {},
+                child: const Text('Save password'),
+              ),
               child: Column(
                 children: [
                   const SizedBox(height: 16),

@@ -314,6 +314,45 @@ void main() {
       await tester.pump();
       expect(find.byType(Spinner), findsNothing);
     });
+
+    for (final expands in [false, true]) {
+      testWidgets('a Flexible label keeps its flex while loading '
+          '(expands: $expands)', (tester) async {
+        var loading = false;
+        late StateSetter rebuild;
+        await pump(
+          tester,
+          SizedBox(
+            width: 160,
+            child: StatefulBuilder(
+              builder: (context, setState) {
+                rebuild = setState;
+                return Button(
+                  loading: loading,
+                  expands: expands,
+                  style: const ButtonTheme(width: double.infinity),
+                  onPressed: () {},
+                  child: const Flexible(
+                    child: Text(
+                      'A label far too long for the button',
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+        final rest = tester.getSize(find.byType(Button));
+        rebuild(() => loading = true);
+        expect(await frames(tester, find.byType(Button)), everyElement(rest));
+        expect(tester.takeException(), isNull);
+        expect(find.byType(Spinner), findsOneWidget);
+        rebuild(() => loading = false);
+        expect(await frames(tester, find.byType(Button)), everyElement(rest));
+        expect(tester.takeException(), isNull);
+      });
+    }
   });
 
   group('IconButton', () {
@@ -405,6 +444,46 @@ void main() {
       await tester.pump();
       expect(presses, 2);
       handle.dispose();
+    });
+
+    testWidgets('tooltip: shown when Tab reaches a button given no focus '
+        'node', (tester) async {
+      await pump(
+        tester,
+        IconButton(
+          tooltip: 'Archive',
+          onPressed: () {},
+          icon: const PhosphorIcon(PhosphorIconsRegular.archive),
+        ),
+      );
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      for (var i = 0; i < 20; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+      expect(find.text('Archive'), findsOneWidget);
+      FocusManager.instance.primaryFocus?.unfocus();
+      for (var i = 0; i < 20; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+      expect(find.text('Archive'), findsNothing);
+      // And a focus node given later takes over from the button's own.
+      final node = FocusNode();
+      addTearDown(node.dispose);
+      await pump(
+        tester,
+        IconButton(
+          tooltip: 'Archive',
+          focusNode: node,
+          onPressed: () {},
+          icon: const PhosphorIcon(PhosphorIconsRegular.archive),
+        ),
+      );
+      node.requestFocus();
+      for (var i = 0; i < 20; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+      expect(node.hasFocus, isTrue);
+      expect(find.text('Archive'), findsOneWidget);
     });
 
     testWidgets('a semantic label of its own wins over the tooltip, and a '

@@ -52,7 +52,10 @@ void main() {
                 description: const Text(
                   """Make changes to your account here. Click save when you're done.""",
                 ),
-                footer: const Button(child: Text('Save changes')),
+                footer: const Button(
+                  onPressed: _noop,
+                  child: Text('Save changes'),
+                ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -79,7 +82,10 @@ void main() {
                 description: const Text(
                   """Change your password here. After saving, you'll be logged out.""",
                 ),
-                footer: const Button(child: Text('Save password')),
+                footer: const Button(
+                  onPressed: _noop,
+                  child: Text('Save password'),
+                ),
                 child: Column(
                   children: [
                     const SizedBox(height: 16),
@@ -118,7 +124,10 @@ void main() {
                   description: const Text(
                     """Make changes to your account here. Click save when you're done.""",
                   ),
-                  footer: const Button(child: Text('Save changes')),
+                  footer: const Button(
+                    onPressed: _noop,
+                    child: Text('Save changes'),
+                  ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -145,7 +154,10 @@ void main() {
                   description: const Text(
                     """Change your password here. After saving, you'll be logged out.""",
                   ),
-                  footer: const Button(child: Text('Save password')),
+                  footer: const Button(
+                    onPressed: _noop,
+                    child: Text('Save password'),
+                  ),
                   child: Column(
                     children: [
                       const SizedBox(height: 16),
@@ -200,3 +212,6 @@ void main() {
     });
   });
 }
+
+/// A callback, so a button is enabled.
+void _noop() {}

@@ -380,10 +380,12 @@ void main() {
 
     double scale(WidgetTester tester) => tester
         .widget<Transform>(
-          find.descendant(
-            of: find.byType(PressScale),
-            matching: find.byType(Transform),
-          ),
+          find
+              .descendant(
+                of: find.byType(PressScale),
+                matching: find.byType(Transform),
+              )
+              .first,
         )
         .transform
         .storage[0];
@@ -500,10 +502,15 @@ void main() {
       await tester.pumpAndSettle();
       double scaleIn(Finder of) => tester
           .widget<Transform>(
-            find.descendant(
-              of: find.descendant(of: of, matching: find.byType(PressScale)),
-              matching: find.byType(Transform),
-            ),
+            find
+                .descendant(
+                  of: find.descendant(
+                    of: of,
+                    matching: find.byType(PressScale),
+                  ),
+                  matching: find.byType(Transform),
+                )
+                .first,
           )
           .transform
           .storage[0];

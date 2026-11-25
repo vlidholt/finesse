@@ -13,7 +13,11 @@ import 'package:flutter/widgets.dart';
 /// AppBar(
 ///   title: const Text('Settings'),
 ///   actions: [
-///     IconButton.ghost(icon: const PhosphorIcon(PhosphorIconsRegular.bell)),
+///     IconButton.ghost(
+///       tooltip: 'Notifications',
+///       onPressed: _openNotifications,
+///       icon: const PhosphorIcon(PhosphorIconsRegular.bell),
+///     ),
 ///   ],
 /// )
 /// ```
