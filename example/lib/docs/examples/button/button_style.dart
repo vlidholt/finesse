@@ -8,6 +8,8 @@ class ButtonStyleExample extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    // The green is dark in a light theme and pale in a dark one.
+    final onSuccess = ColorScheme.contrastingForeground(scheme.success);
     return Wrap(
       spacing: 8,
       runSpacing: 8,
@@ -26,6 +28,8 @@ class ButtonStyleExample extends StatelessWidget {
           style: ButtonTheme(
             backgroundColor: scheme.success,
             hoverBackgroundColor: scheme.success.withValues(alpha: .85),
+            foregroundColor: onSuccess,
+            hoverForegroundColor: onSuccess,
           ),
           onPressed: () {},
           leading: const PhosphorIcon(PhosphorIconsRegular.check),
