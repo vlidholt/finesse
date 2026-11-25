@@ -122,7 +122,6 @@ class Button extends StatefulWidget {
     this.onDoubleTapDown,
     this.onDoubleTapCancel,
     this.longPressDuration,
-    this.textDirection,
     this.gap,
     this.onFocusChange,
     this.pressedOffset,
@@ -184,7 +183,6 @@ class Button extends StatefulWidget {
     this.onDoubleTapDown,
     this.onDoubleTapCancel,
     this.longPressDuration,
-    this.textDirection,
     this.gap,
     this.onFocusChange,
     this.pressedOffset,
@@ -246,7 +244,6 @@ class Button extends StatefulWidget {
     this.onDoubleTapDown,
     this.onDoubleTapCancel,
     this.longPressDuration,
-    this.textDirection,
     this.gap,
     this.onFocusChange,
     this.pressedOffset,
@@ -308,7 +305,6 @@ class Button extends StatefulWidget {
     this.onDoubleTapDown,
     this.onDoubleTapCancel,
     this.longPressDuration,
-    this.textDirection,
     this.gap,
     this.onFocusChange,
     this.pressedOffset,
@@ -369,7 +365,6 @@ class Button extends StatefulWidget {
     this.onDoubleTapDown,
     this.onDoubleTapCancel,
     this.longPressDuration,
-    this.textDirection,
     this.gap,
     this.onFocusChange,
     this.pressedOffset,
@@ -428,7 +423,6 @@ class Button extends StatefulWidget {
     this.onDoubleTapDown,
     this.onDoubleTapCancel,
     this.longPressDuration,
-    this.textDirection,
     this.gap,
     this.onFocusChange,
     this.pressedOffset,
@@ -455,7 +449,8 @@ class Button extends StatefulWidget {
 
   /// {@template Button.leading}
   /// The widget displayed before the main [child], typically an icon or small
-  /// graphic. Positioned according to [mainAxisAlignment] and [textDirection].
+  /// graphic. Positioned according to [mainAxisAlignment] and the ambient
+  /// text direction.
   /// {@endtemplate}
   final Widget? leading;
 
@@ -467,7 +462,8 @@ class Button extends StatefulWidget {
 
   /// {@template Button.trailing}
   /// The widget displayed after the main [child], typically an icon or small
-  /// graphic. Positioned according to [mainAxisAlignment] and [textDirection].
+  /// graphic. Positioned according to [mainAxisAlignment] and the ambient
+  /// text direction.
   /// {@endtemplate}
   final Widget? trailing;
 
@@ -764,12 +760,6 @@ class Button extends StatefulWidget {
   /// callbacks.
   /// {@endtemplate}
   final Duration? longPressDuration;
-
-  /// {@template Button.textDirection}
-  /// The text direction for the button's content, overriding the default if
-  /// specified. Can be set to [TextDirection.ltr] or [TextDirection.rtl].
-  /// {@endtemplate}
-  final TextDirection? textDirection;
 
   /// {@template Button.onFocusChange}
   /// Callback invoked when the focus state changes, providing the new focus
@@ -1117,9 +1107,6 @@ class _ButtonState extends State<Button> {
         buttonTheme(theme).hoverStrategies ??
         theme.hoverStrategies;
 
-    final effectiveTextDirection =
-        widget.textDirection ?? buttonTheme(theme).textDirection;
-
     final effectiveGap = widget.gap ?? buttonTheme(theme).gap ?? 8;
 
     final effectiveExpands =
@@ -1398,7 +1385,6 @@ class _ButtonState extends State<Button> {
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: effectiveCrossAxisAlignment,
                                 mainAxisAlignment: effectiveMainAxisAlignment,
-                                textDirection: effectiveTextDirection,
                                 children: [
                                   ?leading,
                                   ?child,

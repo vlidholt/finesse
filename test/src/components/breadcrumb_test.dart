@@ -131,29 +131,31 @@ void main() {
       expect(find.byIcon(PhosphorIconsRegular.dotsThree), findsOneWidget);
     });
 
-    testWidgets('handles text direction correctly', (
+    testWidgets('follows the ambient text direction', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
         createTestWidget(
           FinesseApp(
             builder: (context, child) => FinesseMaterial(child: child!),
-            home: const Breadcrumb(
+            home: const Directionality(
               textDirection: TextDirection.rtl,
-              children: [
-                Text('Home'),
-                Text('Library'),
-              ],
+              child: Breadcrumb(
+                children: [
+                  Text('Home'),
+                  Text('Library'),
+                ],
+              ),
             ),
           ),
         ),
       );
 
-      // Check Wrap reflects RTL text direction
-      final wrapFinder = find.byType(Wrap);
-      expect(wrapFinder, findsOneWidget);
-      final wrap = tester.widget<Wrap>(wrapFinder);
-      expect(wrap.textDirection, TextDirection.rtl);
+      // The trail starts at the right in RTL.
+      expect(
+        tester.getCenter(find.text('Home')).dx,
+        greaterThan(tester.getCenter(find.text('Library')).dx),
+      );
     });
   });
 

@@ -22,7 +22,6 @@ class Breadcrumb extends StatelessWidget {
     this.separator,
     this.mainAxisAlignment,
     this.crossAxisAlignment,
-    this.textDirection,
     this.verticalDirection,
     this.spacing,
     this.textStyle,
@@ -45,11 +44,6 @@ class Breadcrumb extends StatelessWidget {
   /// How the children should be placed along the wraps cross axis.
   /// {@endtemplate}
   final WrapCrossAlignment? crossAxisAlignment;
-
-  /// {@template Breadcrumb.textDirection}
-  /// The text direction to use for the breadcrumb.
-  /// {@endtemplate}
-  final TextDirection? textDirection;
 
   /// {@template Breadcrumb.verticalDirection}
   /// The vertical direction to use for the breadcrumb.
@@ -110,7 +104,6 @@ class Breadcrumb extends StatelessWidget {
       alignment: effectiveMainAxisAlignment,
       crossAxisAlignment: effectiveCrossAxisAlignment,
       runSpacing: effectiveSpacing,
-      textDirection: textDirection,
       verticalDirection: verticalDirection ?? VerticalDirection.down,
       children: List.generate(
         children.length,

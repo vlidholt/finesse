@@ -116,7 +116,6 @@ class RovingFocus extends StatefulWidget {
     this.orientation = RovingFocusOrientation.horizontal,
     this.onActivate,
     this.onEscape,
-    this.textDirection,
     this.typeaheadLabelAt,
     this.typeaheadResetDelay = const Duration(milliseconds: 1000),
     this.autofocus = false,
@@ -137,9 +136,6 @@ class RovingFocus extends StatefulWidget {
 
   /// Called when Escape is pressed.
   final VoidCallback? onEscape;
-
-  /// Used to flip Left/Right in RTL. Defaults to the ambient direction.
-  final TextDirection? textDirection;
 
   /// Supplies the label used for type-to-select.
   ///
@@ -171,8 +167,8 @@ class _RovingFocusState extends State<RovingFocus> {
   bool get _handlesVertical =>
       widget.orientation != RovingFocusOrientation.horizontal;
 
-  TextDirection get _textDirection =>
-      widget.textDirection ?? Directionality.of(context);
+  /// Flips Left/Right in RTL.
+  TextDirection get _textDirection => Directionality.of(context);
 
   /// Advances the type-to-select buffer and returns the matching index.
   ///

@@ -316,31 +316,42 @@ void main() {
       expect(decorator.focused, true);
     });
 
-    testWidgets('handles text direction correctly', (
+    testWidgets('follows the ambient text direction', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          const Button(
+          const Directionality(
             textDirection: TextDirection.rtl,
-            leading: Icon(Icons.arrow_back),
-            trailing: Icon(Icons.arrow_forward),
-            child: Text('RTL Button'),
+            child: Button(
+              leading: Icon(Icons.arrow_back),
+              trailing: Icon(Icons.arrow_forward),
+              child: Text('RTL Button'),
+            ),
           ),
         ),
       );
 
-      // Check Row reflects RTL text direction
       final rowFinder = find.byType(Row);
       expect(rowFinder, findsOneWidget);
       final row = tester.widget<Row>(rowFinder);
-      expect(row.textDirection, TextDirection.rtl);
-
-      expect(row.children.elementAt(0), isA<Icon>()); // trailing
+      expect(row.children.elementAt(0), isA<Icon>()); // leading
       expect(row.children.elementAt(1), isA<SizedBox>()); // space
       expect(row.children.elementAt(2), isA<Text>()); // child
       expect(row.children.elementAt(3), isA<SizedBox>()); // space
-      expect(row.children.elementAt(4), isA<Icon>()); // leading
+      expect(row.children.elementAt(4), isA<Icon>()); // trailing
+
+      // In RTL the leading widget is at the right and the trailing one at
+      // the left.
+      final label = tester.getCenter(find.text('RTL Button')).dx;
+      expect(
+        tester.getCenter(find.byIcon(Icons.arrow_back)).dx,
+        greaterThan(label),
+      );
+      expect(
+        tester.getCenter(find.byIcon(Icons.arrow_forward)).dx,
+        lessThan(label),
+      );
     });
 
     testWidgets('handles size variations correctly', (

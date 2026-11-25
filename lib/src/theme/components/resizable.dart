@@ -16,7 +16,6 @@ class ResizableTheme with _$ResizableTheme {
     this.mainAxisAlignment,
     this.crossAxisAlignment,
     this.mainAxisSize,
-    this.textDirection,
     this.verticalDirection,
     this.showHandle,
     this.handleIconData,
@@ -43,9 +42,6 @@ class ResizableTheme with _$ResizableTheme {
 
   /// {@macro ResizablePanelGroup.mainAxisSize}
   final MainAxisSize? mainAxisSize;
-
-  /// {@macro ResizablePanelGroup.textDirection}
-  final TextDirection? textDirection;
 
   /// {@macro ResizablePanelGroup.verticalDirection}
   final VerticalDirection? verticalDirection;

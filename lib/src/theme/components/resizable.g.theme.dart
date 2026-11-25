@@ -29,7 +29,6 @@ mixin _$ResizableTheme {
       mainAxisAlignment: t < 0.5 ? a.mainAxisAlignment : b.mainAxisAlignment,
       crossAxisAlignment: t < 0.5 ? a.crossAxisAlignment : b.crossAxisAlignment,
       mainAxisSize: t < 0.5 ? a.mainAxisSize : b.mainAxisSize,
-      textDirection: t < 0.5 ? a.textDirection : b.textDirection,
       verticalDirection: t < 0.5 ? a.verticalDirection : b.verticalDirection,
       showHandle: t < 0.5 ? a.showHandle : b.showHandle,
       handleIconData: t < 0.5 ? a.handleIconData : b.handleIconData,
@@ -55,7 +54,6 @@ mixin _$ResizableTheme {
     MainAxisAlignment? mainAxisAlignment,
     CrossAxisAlignment? crossAxisAlignment,
     MainAxisSize? mainAxisSize,
-    TextDirection? textDirection,
     VerticalDirection? verticalDirection,
     bool? showHandle,
     IconData? handleIconData,
@@ -73,7 +71,6 @@ mixin _$ResizableTheme {
       mainAxisAlignment: mainAxisAlignment ?? _this.mainAxisAlignment,
       crossAxisAlignment: crossAxisAlignment ?? _this.crossAxisAlignment,
       mainAxisSize: mainAxisSize ?? _this.mainAxisSize,
-      textDirection: textDirection ?? _this.textDirection,
       verticalDirection: verticalDirection ?? _this.verticalDirection,
       showHandle: showHandle ?? _this.showHandle,
       handleIconData: handleIconData ?? _this.handleIconData,
@@ -102,7 +99,6 @@ mixin _$ResizableTheme {
       mainAxisAlignment: other.mainAxisAlignment,
       crossAxisAlignment: other.crossAxisAlignment,
       mainAxisSize: other.mainAxisSize,
-      textDirection: other.textDirection,
       verticalDirection: other.verticalDirection,
       showHandle: other.showHandle,
       handleIconData: other.handleIconData,
@@ -134,7 +130,6 @@ mixin _$ResizableTheme {
     return _other.mainAxisAlignment == _this.mainAxisAlignment &&
         _other.crossAxisAlignment == _this.crossAxisAlignment &&
         _other.mainAxisSize == _this.mainAxisSize &&
-        _other.textDirection == _this.textDirection &&
         _other.verticalDirection == _this.verticalDirection &&
         _other.showHandle == _this.showHandle &&
         _other.handleIconData == _this.handleIconData &&
@@ -156,7 +151,6 @@ mixin _$ResizableTheme {
       _this.mainAxisAlignment,
       _this.crossAxisAlignment,
       _this.mainAxisSize,
-      _this.textDirection,
       _this.verticalDirection,
       _this.showHandle,
       _this.handleIconData,

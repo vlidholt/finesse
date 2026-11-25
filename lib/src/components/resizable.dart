@@ -374,7 +374,6 @@ class ResizablePanelGroup extends StatefulWidget {
     this.mainAxisAlignment,
     this.crossAxisAlignment,
     this.mainAxisSize,
-    this.textDirection,
     this.verticalDirection,
     this.controller,
     this.showHandle,
@@ -415,12 +414,6 @@ class ResizablePanelGroup extends StatefulWidget {
   /// The size of the main axis for the panels.
   /// {@endtemplate}
   final MainAxisSize? mainAxisSize;
-
-  /// {@template ResizablePanelGroup.textDirection}
-  /// The text direction for the panels' content.
-  /// Can be set to [TextDirection.ltr] or [TextDirection.rtl].
-  /// {@endtemplate}
-  final TextDirection? textDirection;
 
   /// {@template ResizablePanelGroup.verticalDirection}
   /// The vertical direction for the panels' layout.
@@ -740,8 +733,6 @@ class ResizablePanelGroupState extends State<ResizablePanelGroup> {
         widget.verticalDirection ??
         theme.resizableTheme.verticalDirection ??
         VerticalDirection.down;
-    final effectiveTextDirection =
-        widget.textDirection ?? theme.resizableTheme.textDirection;
 
     return ListenableBuilder(
       listenable: controller,
@@ -781,7 +772,6 @@ class ResizablePanelGroupState extends State<ResizablePanelGroup> {
               mainAxisAlignment: effectiveMainAxisAlignment,
               crossAxisAlignment: effectiveCrossAxisAlignment,
               mainAxisSize: effectiveMainAxisSize,
-              textDirection: effectiveTextDirection,
               verticalDirection: effectiveVerticalDirection,
               children: widget.children.mapIndexed(
                 (i, e) {

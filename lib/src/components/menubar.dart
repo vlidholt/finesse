@@ -414,7 +414,6 @@ class _MenubarItemState extends State<MenubarItem> {
                 mainAxisAlignment: menubarTheme.buttonMainAxisAlignment,
                 crossAxisAlignment: menubarTheme.buttonCrossAxisAlignment,
                 hoverStrategies: menubarTheme.buttonHoverStrategies,
-                textDirection: menubarTheme.buttonTextDirection,
                 expands: menubarTheme.buttonExpands,
                 child: child,
               ),

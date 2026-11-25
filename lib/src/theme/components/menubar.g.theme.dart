@@ -114,9 +114,6 @@ mixin _$MenubarTheme {
       buttonHoverStrategies: t < 0.5
           ? a.buttonHoverStrategies
           : b.buttonHoverStrategies,
-      buttonTextDirection: t < 0.5
-          ? a.buttonTextDirection
-          : b.buttonTextDirection,
       buttonExpands: t < 0.5 ? a.buttonExpands : b.buttonExpands,
       selectOnHover: t < 0.5 ? a.selectOnHover : b.selectOnHover,
     );
@@ -157,7 +154,6 @@ mixin _$MenubarTheme {
     MainAxisAlignment? buttonMainAxisAlignment,
     CrossAxisAlignment? buttonCrossAxisAlignment,
     HoverStrategies? buttonHoverStrategies,
-    TextDirection? buttonTextDirection,
     bool? buttonExpands,
     bool? selectOnHover,
   }) {
@@ -209,7 +205,6 @@ mixin _$MenubarTheme {
           buttonCrossAxisAlignment ?? _this.buttonCrossAxisAlignment,
       buttonHoverStrategies:
           buttonHoverStrategies ?? _this.buttonHoverStrategies,
-      buttonTextDirection: buttonTextDirection ?? _this.buttonTextDirection,
       buttonExpands: buttonExpands ?? _this.buttonExpands,
       selectOnHover: selectOnHover ?? _this.selectOnHover,
     );
@@ -263,7 +258,6 @@ mixin _$MenubarTheme {
       buttonMainAxisAlignment: other.buttonMainAxisAlignment,
       buttonCrossAxisAlignment: other.buttonCrossAxisAlignment,
       buttonHoverStrategies: other.buttonHoverStrategies,
-      buttonTextDirection: other.buttonTextDirection,
       buttonExpands: other.buttonExpands,
       selectOnHover: other.selectOnHover,
     );
@@ -319,7 +313,6 @@ mixin _$MenubarTheme {
         _other.buttonMainAxisAlignment == _this.buttonMainAxisAlignment &&
         _other.buttonCrossAxisAlignment == _this.buttonCrossAxisAlignment &&
         _other.buttonHoverStrategies == _this.buttonHoverStrategies &&
-        _other.buttonTextDirection == _this.buttonTextDirection &&
         _other.buttonExpands == _this.buttonExpands &&
         _other.selectOnHover == _this.selectOnHover;
   }
@@ -364,7 +357,6 @@ mixin _$MenubarTheme {
       _this.buttonMainAxisAlignment,
       _this.buttonCrossAxisAlignment,
       _this.buttonHoverStrategies,
-      _this.buttonTextDirection,
       _this.buttonExpands,
       _this.selectOnHover,
     ]);

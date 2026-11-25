@@ -55,7 +55,6 @@ class MenubarTheme with _$MenubarTheme {
     this.buttonMainAxisAlignment,
     this.buttonCrossAxisAlignment,
     this.buttonHoverStrategies,
-    this.buttonTextDirection,
     this.buttonExpands,
     this.selectOnHover,
   }) : _canMerge = canMerge;
@@ -167,9 +166,6 @@ class MenubarTheme with _$MenubarTheme {
 
   /// {@macro Button.hoverStrategies}
   final HoverStrategies? buttonHoverStrategies;
-
-  /// {@macro Button.textDirection}
-  final TextDirection? buttonTextDirection;
 
   /// {@macro Button.expands}
   final bool? buttonExpands;

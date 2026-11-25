@@ -63,7 +63,6 @@ class Alert extends StatefulWidget {
     this.icon,
     this.title,
     this.description,
-    this.textDirection,
     this.decoration,
     this.iconPadding,
     this.iconColor,
@@ -87,7 +86,6 @@ class Alert extends StatefulWidget {
     this.icon,
     this.title,
     this.description,
-    this.textDirection,
     this.decoration,
     this.iconPadding,
     this.iconColor,
@@ -133,13 +131,6 @@ class Alert extends StatefulWidget {
   /// Displayed with the style defined by [descriptionStyle] or theme defaults.
   /// {@endtemplate}
   final Widget? description;
-
-  /// {@template Alert.textDirection}
-  /// The text direction for the alert's content, overrides the default
-  /// direction if specified. Can be set to [TextDirection.ltr] or
-  /// [TextDirection.rtl].
-  /// {@endtemplate}
-  final TextDirection? textDirection;
 
   /// {@template Alert.decoration}
   /// Custom decoration for the alert, merged with theme defaults if provided.
@@ -378,7 +369,6 @@ class _AlertState extends State<Alert> {
           Row(
             crossAxisAlignment: effectiveCrossAxisAlignment,
             mainAxisAlignment: effectiveMainAxisAlignment,
-            textDirection: widget.textDirection,
             children: [
               ?widget.leading,
               ?effectiveIcon,

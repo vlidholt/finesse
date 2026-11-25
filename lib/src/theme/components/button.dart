@@ -37,7 +37,6 @@ class ButtonTheme with _$ButtonTheme {
     this.crossAxisAlignment,
     this.longPressDuration,
     this.hoverStrategies,
-    this.textDirection,
     this.gap,
     this.expands,
     this.pressedOffset,
@@ -112,9 +111,6 @@ class ButtonTheme with _$ButtonTheme {
 
   /// {@macro Button.crossAxisAlignment}
   final CrossAxisAlignment? crossAxisAlignment;
-
-  /// {@macro Button.textDirection}
-  final TextDirection? textDirection;
 
   /// {@macro Button.gap}
   final double? gap;

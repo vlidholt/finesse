@@ -68,7 +68,6 @@ mixin _$ButtonTheme {
       hoverStrategies: t < 0.5 ? a.hoverStrategies : b.hoverStrategies,
       mainAxisAlignment: t < 0.5 ? a.mainAxisAlignment : b.mainAxisAlignment,
       crossAxisAlignment: t < 0.5 ? a.crossAxisAlignment : b.crossAxisAlignment,
-      textDirection: t < 0.5 ? a.textDirection : b.textDirection,
       gap: lerpDouble$(a.gap, b.gap, t),
       expands: t < 0.5 ? a.expands : b.expands,
       pressedOffset: Offset.lerp(a.pressedOffset, b.pressedOffset, t),
@@ -108,7 +107,6 @@ mixin _$ButtonTheme {
     HoverStrategies? hoverStrategies,
     MainAxisAlignment? mainAxisAlignment,
     CrossAxisAlignment? crossAxisAlignment,
-    TextDirection? textDirection,
     double? gap,
     bool? expands,
     Offset? pressedOffset,
@@ -142,7 +140,6 @@ mixin _$ButtonTheme {
       hoverStrategies: hoverStrategies ?? _this.hoverStrategies,
       mainAxisAlignment: mainAxisAlignment ?? _this.mainAxisAlignment,
       crossAxisAlignment: crossAxisAlignment ?? _this.crossAxisAlignment,
-      textDirection: textDirection ?? _this.textDirection,
       gap: gap ?? _this.gap,
       expands: expands ?? _this.expands,
       pressedOffset: pressedOffset ?? _this.pressedOffset,
@@ -186,7 +183,6 @@ mixin _$ButtonTheme {
       hoverStrategies: other.hoverStrategies,
       mainAxisAlignment: other.mainAxisAlignment,
       crossAxisAlignment: other.crossAxisAlignment,
-      textDirection: other.textDirection,
       gap: other.gap,
       expands: other.expands,
       pressedOffset: other.pressedOffset,
@@ -230,7 +226,6 @@ mixin _$ButtonTheme {
         _other.hoverStrategies == _this.hoverStrategies &&
         _other.mainAxisAlignment == _this.mainAxisAlignment &&
         _other.crossAxisAlignment == _this.crossAxisAlignment &&
-        _other.textDirection == _this.textDirection &&
         _other.gap == _this.gap &&
         _other.expands == _this.expands &&
         _other.pressedOffset == _this.pressedOffset &&
@@ -266,7 +261,6 @@ mixin _$ButtonTheme {
       _this.hoverStrategies,
       _this.mainAxisAlignment,
       _this.crossAxisAlignment,
-      _this.textDirection,
       _this.gap,
       _this.expands,
       _this.pressedOffset,

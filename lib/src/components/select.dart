@@ -1558,7 +1558,6 @@ class SelectOption<T> extends StatefulWidget {
     this.padding,
     this.selectedIcon,
     this.borderRadius,
-    this.direction,
     this.backgroundColor,
     this.selectedBackgroundColor,
     this.textStyle,
@@ -1607,11 +1606,6 @@ class SelectOption<T> extends StatefulWidget {
   /// The text style of the [SelectOption] when selected, defaults to
   /// `ThemeData.selectOptionTheme.selectedTextStyle`.
   final TextStyle? selectedTextStyle;
-
-  /// {@template SelectOption.direction}
-  /// The direction of the ambient.
-  /// {@endtemplate}
-  final TextDirection? direction;
 
   @override
   State<SelectOption<T>> createState() => _OptionState<T>();
@@ -1800,7 +1794,6 @@ class _OptionState<T> extends State<SelectOption<T>> {
               );
             },
             child: Row(
-              textDirection: widget.direction,
               children: [
                 Expanded(child: widget.child ?? Text(widget.label!)),
                 effectiveSelectedIcon,

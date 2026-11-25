@@ -188,20 +188,26 @@ void main() {
       expect(defaultTextStyle.style.fontSize, 20);
     });
 
-    testWidgets('handles text direction correctly', (
+    testWidgets('follows the ambient text direction', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          const Alert(
-            title: Text('RTL Alert'),
+          const Directionality(
             textDirection: TextDirection.rtl,
+            child: Alert(
+              icon: Icon(Icons.info),
+              title: Text('RTL Alert'),
+            ),
           ),
         ),
       );
 
-      final row = tester.widget<Row>(find.byType(Row));
-      expect(row.textDirection, TextDirection.rtl);
+      // The icon leads, so in RTL it is to the right of the title.
+      expect(
+        tester.getCenter(find.byIcon(Icons.info)).dx,
+        greaterThan(tester.getCenter(find.text('RTL Alert')).dx),
+      );
     });
 
     testWidgets('handles null title and description', (
