@@ -1,45 +1,24 @@
-import 'package:finesse/src/components/time_picker.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/components/button.dart';
+import 'package:finesse/src/raw_components/portal.dart';
 import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
 part 'time_picker.g.theme.dart';
 
-/// {@template TimePickerTheme}
-/// Theme for the `TimePicker` widget.
-/// {@endtemplate}
+/// The theme of `TimePicker`: the button that shows a time, and the popover
+/// it opens on a desktop.
 @themeGen
 @immutable
 class TimePickerTheme with _$TimePickerTheme {
-  /// {@macro TimePickerTheme}
+  /// Creates a theme; a null field falls back to the app theme's.
   const TimePickerTheme({
     bool canMerge = true,
-    this.axis,
-    this.spacing,
-    this.runSpacing,
-    this.jumpToNextFieldWhenFilled,
-    this.alignment,
-    this.runAlignment,
-    this.crossAxisAlignment,
-    this.initialDayPeriod,
-    this.periodHeight,
-    this.periodMinWidth,
-    this.gap,
-    this.style,
-    this.placeholderStyle,
-    this.labelStyle,
-    this.fieldWidth,
-    this.fieldPadding,
-    this.fieldDecoration,
-    this.periodDecoration,
-    this.hourLabel,
-    this.minuteLabel,
-    this.secondLabel,
-    this.hourPlaceholder,
-    this.minutePlaceholder,
-    this.secondPlaceholder,
-    this.periodLabel,
-    this.periodPlaceholder,
+    this.buttonVariant,
+    this.width,
+    this.popoverPadding,
+    this.anchor,
+    this.allowDeselection,
+    this.sheetWheelItems,
   }) : _canMerge = canMerge;
 
   @ignore
@@ -48,85 +27,25 @@ class TimePickerTheme with _$TimePickerTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro TimePicker.axis}
-  final Axis? axis;
+  /// The button the trigger is; null makes it a field.
+  final ButtonVariant? buttonVariant;
 
-  /// {@macro TimePicker.spacing}
-  final double? spacing;
+  /// The width of the trigger; null makes it as wide as its content.
+  final double? width;
 
-  /// {@macro TimePicker.runSpacing}
-  final double? runSpacing;
+  /// The padding inside the popover.
+  final EdgeInsetsGeometry? popoverPadding;
 
-  /// {@macro TimePicker.jumpToNextFieldWhenFilled}
-  final bool? jumpToNextFieldWhenFilled;
+  /// Where the popover sits against the button.
+  final AnchorBase? anchor;
 
-  /// {@macro TimePicker.alignment}
-  final WrapAlignment? alignment;
+  /// Whether the time can be cleared: the sheet offers a Clear.
+  final bool? allowDeselection;
 
-  /// {@macro TimePicker.runAlignment}
-  final WrapAlignment? runAlignment;
+  /// How many rows of the wheels show in the sheet.
+  final int? sheetWheelItems;
 
-  /// {@macro TimePicker.crossAxisAlignment}
-  final WrapCrossAlignment? crossAxisAlignment;
-
-  /// {@macro TimePicker.initialDayPeriod}
-  final DayPeriod? initialDayPeriod;
-
-  /// {@macro TimePicker.periodHeight}
-  final double? periodHeight;
-
-  /// {@macro TimePicker.periodMinWidth}
-  final double? periodMinWidth;
-
-  /// {@macro TimePicker.gap}
-  final double? gap;
-
-  /// {@macro TimePicker.style}
-  final TextStyle? style;
-
-  /// {@macro TimePicker.placeholderStyle}
-  final TextStyle? placeholderStyle;
-
-  /// {@macro TimePicker.labelStyle}
-  final TextStyle? labelStyle;
-
-  /// {@macro TimePicker.fieldWidth}
-  final double? fieldWidth;
-
-  /// {@macro TimePicker.fieldPadding}
-  final EdgeInsetsGeometry? fieldPadding;
-
-  /// {@macro TimePicker.fieldDecoration}
-  final FinesseDecoration? fieldDecoration;
-
-  /// {@macro TimePicker.periodDecoration}
-  final FinesseDecoration? periodDecoration;
-
-  /// {@macro TimePicker.hourLabel}
-  final Widget? hourLabel;
-
-  /// {@macro TimePicker.minuteLabel}
-  final Widget? minuteLabel;
-
-  /// {@macro TimePicker.secondLabel}
-  final Widget? secondLabel;
-
-  /// {@macro TimePicker.periodLabel}
-  final Widget? periodLabel;
-
-  /// {@macro TimePicker.hourPlaceholder}
-  final Widget? hourPlaceholder;
-
-  /// {@macro TimePicker.minutePlaceholder}
-  final Widget? minutePlaceholder;
-
-  /// {@macro TimePicker.secondPlaceholder}
-  final Widget? secondPlaceholder;
-
-  /// {@macro TimePicker.periodPlaceholder}
-  final Widget? periodPlaceholder;
-
-  /// Linearly interpolates between [a] and [b] by [t].
+  /// Linearly interpolates between two themes.
   static TimePickerTheme? lerp(
     TimePickerTheme? a,
     TimePickerTheme? b,

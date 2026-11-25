@@ -1,4 +1,6 @@
 import 'package:finesse/finesse.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 class DropdownMenuBasicExample extends StatelessWidget {
@@ -6,45 +8,53 @@ class DropdownMenuBasicExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ⌘ on Apple's platforms, Ctrl everywhere else. `MenuShortcut` writes
+    // either the way the platform does; binding the keys is the app's job.
+    final apple =
+        defaultTargetPlatform == TargetPlatform.macOS ||
+        defaultTargetPlatform == TargetPlatform.iOS;
+    SingleActivator keys(LogicalKeyboardKey key, {bool shift = false}) =>
+        SingleActivator(key, meta: apple, control: !apple, shift: shift);
+
     return DropdownMenu(
       constraints: const BoxConstraints(minWidth: 224),
-      items: const [
-        ContextMenuItem(
-          leading: Icon(PhosphorIconsRegular.user),
-          trailing: Text('⇧⌘P'),
-          child: Text('Profile'),
+      items: [
+        const MenuLabel(child: Text('My account')),
+        MenuItem(
+          leading: const PhosphorIcon(PhosphorIconsRegular.user),
+          shortcut: MenuShortcut(keys(LogicalKeyboardKey.keyP, shift: true)),
+          child: const Text('Profile'),
         ),
-        ContextMenuItem(
-          leading: Icon(PhosphorIconsRegular.gear),
-          trailing: Text('⌘S'),
-          child: Text('Settings'),
+        MenuItem(
+          leading: const PhosphorIcon(PhosphorIconsRegular.gear),
+          shortcut: MenuShortcut(keys(LogicalKeyboardKey.comma)),
+          child: const Text('Settings'),
         ),
-        ContextMenuItem(
-          leading: Icon(PhosphorIconsRegular.users),
-          trailing: Icon(PhosphorIconsRegular.caretRight),
+        const MenuItem(
+          leading: PhosphorIcon(PhosphorIconsRegular.users),
+          trailing: PhosphorIcon(PhosphorIconsRegular.caretRight),
           items: [
-            ContextMenuItem(child: Text('Email')),
-            ContextMenuItem(child: Text('Message')),
-            Divider.horizontal(
-              margin: EdgeInsets.symmetric(vertical: 4),
-            ),
-            ContextMenuItem(
-              trailing: Icon(PhosphorIconsRegular.caretRight),
+            MenuItem(child: Text('Email')),
+            MenuItem(child: Text('Message')),
+            MenuDivider(),
+            MenuItem(
+              trailing: PhosphorIcon(PhosphorIconsRegular.caretRight),
               items: [
-                ContextMenuItem(child: Text('Slack')),
-                ContextMenuItem(child: Text('Discord')),
-                ContextMenuItem(child: Text('Copy Invite Link')),
+                MenuItem(child: Text('Slack')),
+                MenuItem(child: Text('Discord')),
+                MenuItem(child: Text('Copy Invite Link')),
               ],
               child: Text('More...'),
             ),
           ],
           child: Text('Invite users'),
         ),
-        Divider.horizontal(margin: EdgeInsets.symmetric(vertical: 4)),
-        ContextMenuItem(
-          leading: Icon(PhosphorIconsRegular.signOut),
+        const MenuDivider(),
+        MenuItem(
+          leading: const PhosphorIcon(PhosphorIconsRegular.signOut),
+          shortcut: MenuShortcut(keys(LogicalKeyboardKey.keyQ, shift: true)),
           destructive: true,
-          child: Text('Log out'),
+          child: const Text('Log out'),
         ),
       ],
       builder: (context, controller, _) => Button.outline(

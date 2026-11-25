@@ -38,7 +38,7 @@ class GlassToolbarExample extends StatelessWidget {
             children: [
               for (final (icon, name, size) in _files)
                 ListTile(
-                  leading: IconTile(icon: Icon(icon)),
+                  leading: IconTile(icon: PhosphorIcon(icon)),
                   title: Text(name),
                   subtitle: Text(size),
                 ),
@@ -58,17 +58,21 @@ class GlassToolbarExample extends StatelessWidget {
                   spacing: 4,
                   children: [
                     IconButton.ghost(
-                      icon: const Icon(PhosphorIconsRegular.shareNetwork),
+                      icon: const PhosphorIcon(
+                        PhosphorIconsRegular.shareNetwork,
+                      ),
                       semanticLabel: 'Share',
                       onPressed: () {},
                     ),
                     IconButton.ghost(
-                      icon: const Icon(PhosphorIconsRegular.downloadSimple),
+                      icon: const PhosphorIcon(
+                        PhosphorIconsRegular.downloadSimple,
+                      ),
                       semanticLabel: 'Download',
                       onPressed: () {},
                     ),
                     IconButton.ghost(
-                      icon: const Icon(PhosphorIconsRegular.trash),
+                      icon: const PhosphorIcon(PhosphorIconsRegular.trash),
                       semanticLabel: 'Delete',
                       onPressed: () {},
                     ),

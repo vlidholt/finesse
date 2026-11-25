@@ -1,4 +1,5 @@
 import 'package:example/strand/widgets/strand_actions.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -8,15 +9,26 @@ import 'package:flutter/widgets.dart';
 ///
 /// Enter and the send button both call [onSend] with the field's text; the
 /// field is cleared, and keeps the focus, when [onSend] returns true.
+///
+/// While a reply is being streamed the send button is a stop button: give
+/// [onStop] and it calls that instead. Enter still sends.
 class MessagesComposer extends StatefulWidget {
   const MessagesComposer({
     required this.onSend,
     required this.borderRadius,
+    this.onStop,
+    this.placeholder = 'Write a message…',
     super.key,
   });
 
   /// Called with what was typed. Returns whether it was sent.
   final bool Function(String text) onSend;
+
+  /// Stops the reply that is arriving. Null while none is.
+  final VoidCallback? onStop;
+
+  /// What the empty field says.
+  final String placeholder;
 
   /// The corners of the glass bar.
   final BorderRadius borderRadius;
@@ -25,7 +37,7 @@ class MessagesComposer extends StatefulWidget {
   /// hairline. The thread reserves this much, and a margin, under its last
   /// message.
   static double heightOf(BuildContext context) =>
-      _sendSize + 2 * Theme.of(context).layoutTheme.gap(GapSize.sm) + 2;
+      _sendSize + 2 * Theme.of(context).gap(GapSize.sm) + 2;
 
   // The designs keep the composer's controls the same size on a desktop and
   // on a phone — 40-point buttons and field, a 44-point send button — so
@@ -57,25 +69,27 @@ class _MessagesComposerState extends State<MessagesComposer> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
-    final layout = theme.layoutTheme;
+    final onStop = widget.onStop;
     // What is typed is set like the message it will become.
     final messageStyle = theme.chatBubbleTheme.textStyle ?? theme.textTheme.p;
 
     Widget tool(IconData icon, String label) => IconButton.ghost(
-      width: MessagesComposer._controlSize,
-      height: MessagesComposer._controlSize,
-      iconSize: 22,
-      icon: Icon(icon),
+      style: ButtonTheme(
+        width: MessagesComposer._controlSize,
+        height: MessagesComposer._controlSize,
+        iconSize: theme.glyphLg,
+      ),
+      icon: PhosphorIcon(icon),
       semanticLabel: label,
       onPressed: () => showNothingToAttach(context),
     );
 
     return Glass(
       borderRadius: widget.borderRadius,
-      padding: EdgeInsets.all(layout.gap(GapSize.sm)),
+      padding: EdgeInsets.all(theme.gap(GapSize.sm)),
       shadows: theme.cardTheme.shadows ?? const [],
       child: Row(
-        spacing: layout.gap(GapSize.xs),
+        spacing: theme.gap(GapSize.xs),
         children: [
           tool(PhosphorIconsRegular.plusCircle, 'Add'),
           tool(PhosphorIconsRegular.image, 'Add photo'),
@@ -89,8 +103,8 @@ class _MessagesComposerState extends State<MessagesComposer> {
                 placeholderStyle: messageStyle.copyWith(
                   color: colors.mutedForeground,
                 ),
-                placeholder: const Text(
-                  'Write a message…',
+                placeholder: Text(
+                  widget.placeholder,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -108,31 +122,42 @@ class _MessagesComposerState extends State<MessagesComposer> {
                   border: FinesseBorder.all(
                     width: 0,
                     color: const Color(0x00000000),
-                    radius: theme.radii.full,
+                    borderRadius: theme.radii.full,
                   ),
                   disableSecondaryBorder: true,
                 ),
-                trailing: Icon(
+                trailing: PhosphorIcon(
                   PhosphorIconsRegular.smiley,
-                  size: 20,
+                  size: theme.glyphLg,
                   color: colors.mutedForeground,
                 ),
               ),
             ),
           ),
           IconButton(
-            width: MessagesComposer._sendSize,
-            height: MessagesComposer._sendSize,
-            iconSize: 20,
-            // The design's `--accent`: the tint, not the primary button's
-            // fill, which stays dark teal in the dark theme.
-            backgroundColor: colors.tint,
-            hoverBackgroundColor: colors.tint.withValues(alpha: .9),
-            foregroundColor: colors.tintForeground,
-            hoverForegroundColor: colors.tintForeground,
-            icon: const Icon(PhosphorIconsRegular.paperPlaneTilt),
-            semanticLabel: 'Send',
-            onPressed: _send,
+            style: ButtonTheme(
+              width: MessagesComposer._sendSize,
+              height: MessagesComposer._sendSize,
+              iconSize: theme.glyphLg,
+              // The design's `--accent`: the tint, not the primary button's
+              // fill, which stays dark teal in the dark theme.
+              backgroundColor: colors.tint,
+              hoverBackgroundColor: colors.tint.withValues(alpha: .9),
+              foregroundColor: colors.tintForeground,
+              hoverForegroundColor: colors.tintForeground,
+            ),
+            // The plane gives way to a square while a reply can be stopped.
+            icon: ContentSwitch(
+              value: onStop != null,
+              direction: 0,
+              child: PhosphorIcon(
+                onStop != null
+                    ? PhosphorIconsFill.stop
+                    : PhosphorIconsRegular.paperPlaneTilt,
+              ),
+            ),
+            semanticLabel: onStop != null ? 'Stop' : 'Send',
+            onPressed: onStop ?? _send,
           ),
         ],
       ),

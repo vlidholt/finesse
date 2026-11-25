@@ -1,6 +1,6 @@
 # Slider
 
-An input where the user selects a value from within a given range.
+An input where the user selects a value from within a given range. Give `value` to hold it yourself or `initialValue` to let the slider keep it; `RangeSlider` has a thumb per value. `SliderFormField` puts a slider in a form.
 
 ## Default
 
@@ -104,3 +104,119 @@ class SliderStepsExample extends StatelessWidget {
 }
 ```
 
+## Value indicator
+
+`valueIndicator` shows the value in a bubble above the thumb: `whileDragging` (also on hover and keyboard focus) or `always`. `valueLabel` formats it, for the bubble and for assistive technology. On a touch screen a stepped slider ticks at each stop.
+
+```dart
+import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
+
+/// The value in a bubble above the thumb: while the thumb is dragged,
+/// hovered or focused, or always. `valueLabel` writes it.
+class SliderValueIndicatorExample extends StatefulWidget {
+  const SliderValueIndicatorExample({super.key});
+
+  @override
+  State<SliderValueIndicatorExample> createState() =>
+      _SliderValueIndicatorExampleState();
+}
+
+class _SliderValueIndicatorExampleState
+    extends State<SliderValueIndicatorExample> {
+  double volume = 40;
+  List<double> price = const [200, 650];
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 360),
+      child: FinesseColumn(
+        mainAxisSize: MainAxisSize.min,
+        gap: GapSize.xl,
+        children: [
+          const Gap.lg(),
+          Slider(
+            semanticLabel: 'Volume',
+            value: volume,
+            max: 100,
+            valueIndicator: SliderValueIndicator.whileDragging,
+            valueLabel: (value) => '${value.round()}%',
+            onChanged: (value) => setState(() => volume = value),
+          ),
+          RangeSlider(
+            semanticLabel: 'Price',
+            values: price,
+            max: 1000,
+            divisions: 20,
+            showDivisionMarks: false,
+            valueIndicator: SliderValueIndicator.always,
+            valueLabel: (value) => '\$${value.round()}',
+            onChanged: (values) => setState(() => price = values),
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
+
+## Controlled
+
+With `value` the slider shows what the parent holds and reports a change without making it.
+
+```dart
+import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
+
+/// A controlled slider: the parent holds the value, so buttons beside it
+/// can move the thumb too, and a value the parent rounds stays rounded.
+class SliderControlledExample extends StatefulWidget {
+  const SliderControlledExample({super.key});
+
+  @override
+  State<SliderControlledExample> createState() =>
+      _SliderControlledExampleState();
+}
+
+class _SliderControlledExampleState extends State<SliderControlledExample> {
+  double brightness = 60;
+
+  void _set(double value) =>
+      setState(() => brightness = value.clamp(0, 100).roundToDouble());
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 360),
+      child: FinesseRow(
+        gap: GapSize.sm,
+        children: [
+          IconButton.ghost(
+            semanticLabel: 'Dimmer',
+            icon: const PhosphorIcon(PhosphorIconsRegular.sunDim),
+            onPressed: () => _set(brightness - 10),
+          ),
+          Expanded(
+            child: Slider(
+              semanticLabel: 'Brightness',
+              value: brightness,
+              max: 100,
+              onChanged: _set,
+            ),
+          ),
+          IconButton.ghost(
+            semanticLabel: 'Brighter',
+            icon: const PhosphorIcon(PhosphorIconsRegular.sun),
+            onPressed: () => _set(brightness + 10),
+          ),
+          SizedBox(
+            width: 44,
+            child: Text('${brightness.round()}%', textAlign: TextAlign.end),
+          ),
+        ],
+      ),
+    );
+  }
+}
+```

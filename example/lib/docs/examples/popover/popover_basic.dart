@@ -29,7 +29,7 @@ class _PopoverBasicExampleState extends State<PopoverBasicExample> {
     final textTheme = Theme.of(context).textTheme;
     return Popover(
       controller: controller,
-      popover: (_) => SizedBox(
+      builder: (_) => SizedBox(
         width: 288,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,6 +1,7 @@
 import 'package:finesse/src/theme/color_scheme/base.dart';
 import 'package:finesse/src/theme/color_scheme/teal.dart';
 import 'package:finesse/src/theme/components/accordion.dart';
+import 'package:finesse/src/theme/components/action_sheet.dart';
 import 'package:finesse/src/theme/components/alert.dart';
 import 'package:finesse/src/theme/components/app_bar.dart';
 import 'package:finesse/src/theme/components/avatar.dart';
@@ -12,7 +13,9 @@ import 'package:finesse/src/theme/components/button.dart';
 import 'package:finesse/src/theme/components/button_sizes.dart';
 import 'package:finesse/src/theme/components/calendar.dart';
 import 'package:finesse/src/theme/components/card.dart';
+import 'package:finesse/src/theme/components/carousel.dart';
 import 'package:finesse/src/theme/components/chat_bubble.dart';
+import 'package:finesse/src/theme/components/chat_list.dart';
 import 'package:finesse/src/theme/components/checkbox.dart';
 import 'package:finesse/src/theme/components/chip.dart';
 import 'package:finesse/src/theme/components/collapsible.dart';
@@ -24,19 +27,25 @@ import 'package:finesse/src/theme/components/default_keyboard_toolbar.dart';
 import 'package:finesse/src/theme/components/dialog.dart';
 import 'package:finesse/src/theme/components/divider.dart';
 import 'package:finesse/src/theme/components/empty.dart';
+import 'package:finesse/src/theme/components/floating_action_button.dart';
 import 'package:finesse/src/theme/components/glass.dart';
 import 'package:finesse/src/theme/components/icon_tile.dart';
 import 'package:finesse/src/theme/components/indicator_badge.dart';
 import 'package:finesse/src/theme/components/kbd.dart';
 import 'package:finesse/src/theme/components/layout.dart';
+import 'package:finesse/src/theme/components/list_section.dart';
 import 'package:finesse/src/theme/components/list_tile.dart';
 import 'package:finesse/src/theme/components/menubar.dart';
 import 'package:finesse/src/theme/components/navigation_bar.dart';
+import 'package:finesse/src/theme/components/navigation_menu.dart';
+import 'package:finesse/src/theme/components/navigation_rail.dart';
 import 'package:finesse/src/theme/components/otp_field.dart';
 import 'package:finesse/src/theme/components/pagination.dart';
+import 'package:finesse/src/theme/components/phosphor_icon.dart';
 import 'package:finesse/src/theme/components/popover.dart';
 import 'package:finesse/src/theme/components/progress_bar.dart';
 import 'package:finesse/src/theme/components/radio.dart';
+import 'package:finesse/src/theme/components/refresh_indicator.dart';
 import 'package:finesse/src/theme/components/resizable.dart';
 import 'package:finesse/src/theme/components/scroll_area.dart';
 import 'package:finesse/src/theme/components/select.dart';
@@ -45,18 +54,22 @@ import 'package:finesse/src/theme/components/sheet.dart';
 import 'package:finesse/src/theme/components/sidebar.dart';
 import 'package:finesse/src/theme/components/skeleton.dart';
 import 'package:finesse/src/theme/components/slider.dart';
-import 'package:finesse/src/theme/components/sonner.dart';
 import 'package:finesse/src/theme/components/spinner.dart';
+import 'package:finesse/src/theme/components/stepper.dart';
+import 'package:finesse/src/theme/components/streaming_text.dart';
 import 'package:finesse/src/theme/components/switch.dart';
 import 'package:finesse/src/theme/components/table.dart';
 import 'package:finesse/src/theme/components/tabs.dart';
 import 'package:finesse/src/theme/components/text_field.dart';
+import 'package:finesse/src/theme/components/text_selection.dart';
 import 'package:finesse/src/theme/components/textarea.dart';
+import 'package:finesse/src/theme/components/time_field.dart';
 import 'package:finesse/src/theme/components/time_picker.dart';
 import 'package:finesse/src/theme/components/timeline.dart';
 import 'package:finesse/src/theme/components/toast.dart';
 import 'package:finesse/src/theme/components/toggle.dart';
 import 'package:finesse/src/theme/components/tooltip.dart';
+import 'package:finesse/src/theme/components/wheel_picker.dart';
 import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/radii.dart';
@@ -67,25 +80,11 @@ import 'package:finesse/src/theme/themes/base.dart';
 import 'package:finesse/src/theme/themes/default_theme_no_secondary_border_variant.dart';
 import 'package:finesse/src/theme/themes/default_theme_variant.dart';
 import 'package:finesse/src/utils/border.dart';
-import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:finesse/src/utils/responsive.dart';
 import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
 part 'data.g.theme.dart';
-
-/// How strongly menus highlight their hovered row, shadcn's "Menu Accent".
-///
-/// The reference implements "bold" by pointing `--accent` at `--primary` in
-/// the theme itself, so it is a *scheme* transformation, not a per-menu one:
-/// everything that highlights with the accent follows.
-enum MenuAccent {
-  /// The accent pair as the palette defines it.
-  subtle,
-
-  /// The primary pair takes over the accent slots.
-  bold,
-}
 
 /// The complete visual configuration of a Finesse app: colour scheme, text
 /// theme, radius, style, spacing and every component theme.
@@ -129,15 +128,21 @@ class ThemeData extends BaseTheme with _$ThemeData {
     FinesseDecoration? decoration,
     TextTheme? textTheme,
     double? disabledOpacity,
+
+    /// Whether controls give haptic feedback on a touch platform: the tick
+    /// of a wheel, a slider's stops, a switch. Defaults to true. False
+    /// silences every call made through `Haptics` below this theme.
+    bool? haptics,
     SelectTheme? selectTheme,
     SelectOptionTheme? selectOptionTheme,
     CardTheme? cardTheme,
+    CarouselTheme? carouselTheme,
     SwitchTheme? switchTheme,
     CheckboxTheme? checkboxTheme,
     TextFieldTheme? textFieldTheme,
+    TextSelectionTheme? textSelectionTheme,
     RadioTheme? radioTheme,
-    ToastTheme? primaryToastTheme,
-    ToastTheme? destructiveToastTheme,
+    ToastTheme? toastTheme,
     Breakpoints? breakpoints,
     AlertTheme? primaryAlertTheme,
     AlertTheme? destructiveAlertTheme,
@@ -145,24 +150,32 @@ class ThemeData extends BaseTheme with _$ThemeData {
     DialogTheme? alertDialogTheme,
     SliderTheme? sliderTheme,
     SheetTheme? sheetTheme,
+    ActionSheetTheme? actionSheetTheme,
     ProgressBarTheme? progressBarTheme,
+    RefreshIndicatorTheme? refreshIndicatorTheme,
     AccordionTheme? accordionTheme,
     TableTheme? tableTheme,
     ResizableTheme? resizableTheme,
-    HoverStrategies? hoverStrategies,
     bool? disableSecondaryBorder,
     TabsTheme? tabsTheme,
     SkeletonTheme? skeletonTheme,
     KbdTheme? kbdTheme,
     GlassTheme? glassTheme,
     AppBarTheme? appBarTheme,
+    FloatingActionButtonTheme? floatingActionButtonTheme,
     NavigationBarTheme? navigationBarTheme,
+    NavigationMenuTheme? navigationMenuTheme,
+    NavigationRailTheme? navigationRailTheme,
     BottomNavigationBarTheme? bottomNavigationBarTheme,
     ChipTheme? chipTheme,
+    ListSectionTheme? listSectionTheme,
     ListTileTheme? listTileTheme,
     ChatBubbleTheme? chatBubbleTheme,
+    ChatListTheme? chatListTheme,
+    StreamingTextTheme? streamingTextTheme,
     IndicatorBadgeTheme? indicatorBadgeTheme,
     IconTileTheme? iconTileTheme,
+    PhosphorIconTheme? phosphorIconTheme,
     TimelineTheme? timelineTheme,
     BoardTheme? boardTheme,
     LayoutTheme? layoutTheme,
@@ -180,10 +193,13 @@ class ThemeData extends BaseTheme with _$ThemeData {
     CalendarTheme? calendarTheme,
     DatePickerTheme? datePickerTheme,
     TimePickerTheme? timePickerTheme,
+    TimeFieldTheme? timeFieldTheme,
+    WheelPickerTheme? wheelPickerTheme,
     OtpFieldTheme? otpFieldTheme,
     MenubarTheme? menubarTheme,
     DividerTheme? dividerTheme,
-    SonnerTheme? sonnerTheme,
+    StepperTheme? stepperTheme,
+    ToasterTheme? toasterTheme,
     TextareaTheme? textareaTheme,
     DefaultKeyboardToolbarTheme? defaultKeyboardToolbarTheme,
 
@@ -223,8 +239,11 @@ class ThemeData extends BaseTheme with _$ThemeData {
 
     /// How strongly menus highlight their rows; see [MenuAccent].
     ///
-    /// Bold rewrites the scheme's accent pair with its primary pair before
-    /// anything is derived from it, exactly as the reference does.
+    /// Bold fills the highlighted row of a menu or a select with the menu
+    /// palette's primary pair. Only menus change: [colorScheme] keeps its
+    /// accent, and so does everything else that is drawn with it. Null
+    /// keeps the [variant]'s, which is [MenuAccent.subtle] unless it was
+    /// built otherwise.
     MenuAccent? menuAccent,
 
     /// The motion vocabulary every component animates with, in place of the
@@ -275,28 +294,13 @@ class ThemeData extends BaseTheme with _$ThemeData {
         (schemeForBrightness == null
             ? Brightness.light
             : _brightnessOf(schemeForBrightness.background));
-    var effectiveColorScheme =
+    final effectiveColorScheme =
         colorScheme ??
         variant?.colorScheme ??
         switch (effectiveBrightness) {
           Brightness.light => const TealColorScheme.light(),
           Brightness.dark => const TealColorScheme.dark(),
         };
-
-    // A bold menu accent is a scheme transformation in the reference —
-    // `accent = primary` in the generated theme vars — so it is applied to
-    // the scheme(s) before any component theme is derived.
-    var effectiveMenuColorScheme = menuColorScheme;
-    if (menuAccent == MenuAccent.bold) {
-      effectiveColorScheme = effectiveColorScheme.copyWith(
-        accent: effectiveColorScheme.primary,
-        accentForeground: effectiveColorScheme.primaryForeground,
-      );
-      effectiveMenuColorScheme = effectiveMenuColorScheme?.copyWith(
-        accent: effectiveMenuColorScheme.primary,
-        accentForeground: effectiveMenuColorScheme.primaryForeground,
-      );
-    }
 
     // A supplied variant already baked the colour scheme, radius and text
     // theme into its component themes, so any of those that arrived separately
@@ -309,9 +313,10 @@ class ThemeData extends BaseTheme with _$ThemeData {
     final menuOptionsChanged =
         variant is DefaultThemeVariant &&
         ((menuColorScheme != null &&
-                effectiveMenuColorScheme != variant.menuColorScheme) ||
+                menuColorScheme != variant.menuColorScheme) ||
             (menuTranslucent != null &&
-                menuTranslucent != variant.menuTranslucent));
+                menuTranslucent != variant.menuTranslucent) ||
+            (menuAccent != null && menuAccent != variant.menuAccent));
 
     final rebuiltVariant = variant == null
         ? null
@@ -338,12 +343,13 @@ class ThemeData extends BaseTheme with _$ThemeData {
                   style: effectiveStyle,
                   formFactor: formFactor,
                   spacing: spacing,
-                  menuColorScheme: menuColorScheme != null
-                      ? effectiveMenuColorScheme
-                      : DefaultThemeVariant.unsetMenuColorScheme,
+                  menuColorScheme:
+                      menuColorScheme ??
+                      DefaultThemeVariant.unsetMenuColorScheme,
                   menuTranslucent:
                       menuTranslucent ??
                       DefaultThemeVariant.unsetMenuTranslucent,
+                  menuAccent: menuAccent,
                 )
               : variant.rebuild(
                   colorScheme: effectiveColorScheme,
@@ -364,8 +370,9 @@ class ThemeData extends BaseTheme with _$ThemeData {
             style: defaultStyle,
             formFactor: formFactor ?? FormFactor.desktop,
             spacing: spacing ?? const Spacing(),
-            menuColorScheme: effectiveMenuColorScheme,
+            menuColorScheme: menuColorScheme,
             menuTranslucent: menuTranslucent,
+            menuAccent: menuAccent ?? MenuAccent.subtle,
           ),
           true => DefaultThemeNoSecondaryBorderVariant(
             colorScheme: effectiveColorScheme,
@@ -374,8 +381,9 @@ class ThemeData extends BaseTheme with _$ThemeData {
             style: defaultStyle,
             formFactor: formFactor ?? FormFactor.desktop,
             spacing: spacing ?? const Spacing(),
-            menuColorScheme: effectiveMenuColorScheme,
+            menuColorScheme: menuColorScheme,
             menuTranslucent: menuTranslucent,
+            menuAccent: menuAccent ?? MenuAccent.subtle,
           ),
         };
 
@@ -402,15 +410,17 @@ class ThemeData extends BaseTheme with _$ThemeData {
         decoration: decoration,
         textTheme: textTheme,
         disabledOpacity: disabledOpacity,
+        haptics: haptics,
         selectTheme: selectTheme,
         selectOptionTheme: selectOptionTheme,
         cardTheme: cardTheme,
+        carouselTheme: carouselTheme,
         switchTheme: switchTheme,
         checkboxTheme: checkboxTheme,
         textFieldTheme: textFieldTheme,
+        textSelectionTheme: textSelectionTheme,
         radioTheme: radioTheme,
-        primaryToastTheme: primaryToastTheme,
-        destructiveToastTheme: destructiveToastTheme,
+        toastTheme: toastTheme,
         breakpoints: breakpoints,
         primaryAlertTheme: primaryAlertTheme,
         destructiveAlertTheme: destructiveAlertTheme,
@@ -418,24 +428,32 @@ class ThemeData extends BaseTheme with _$ThemeData {
         alertDialogTheme: alertDialogTheme,
         sliderTheme: sliderTheme,
         sheetTheme: sheetTheme,
+        actionSheetTheme: actionSheetTheme,
         progressBarTheme: progressBarTheme,
+        refreshIndicatorTheme: refreshIndicatorTheme,
         accordionTheme: accordionTheme,
         tableTheme: tableTheme,
         resizableTheme: resizableTheme,
-        hoverStrategies: hoverStrategies,
         disableSecondaryBorder: disableSecondaryBorder,
         tabsTheme: tabsTheme,
         skeletonTheme: skeletonTheme,
         kbdTheme: kbdTheme,
         glassTheme: glassTheme,
         appBarTheme: appBarTheme,
+        floatingActionButtonTheme: floatingActionButtonTheme,
         navigationBarTheme: navigationBarTheme,
+        navigationMenuTheme: navigationMenuTheme,
+        navigationRailTheme: navigationRailTheme,
         bottomNavigationBarTheme: bottomNavigationBarTheme,
         chipTheme: chipTheme,
+        listSectionTheme: listSectionTheme,
         listTileTheme: listTileTheme,
         chatBubbleTheme: chatBubbleTheme,
+        chatListTheme: chatListTheme,
+        streamingTextTheme: streamingTextTheme,
         indicatorBadgeTheme: indicatorBadgeTheme,
         iconTileTheme: iconTileTheme,
+        phosphorIconTheme: phosphorIconTheme,
         timelineTheme: timelineTheme,
         boardTheme: boardTheme,
         layoutTheme: layoutTheme,
@@ -453,10 +471,13 @@ class ThemeData extends BaseTheme with _$ThemeData {
         calendarTheme: calendarTheme,
         datePickerTheme: datePickerTheme,
         timePickerTheme: timePickerTheme,
+        timeFieldTheme: timeFieldTheme,
+        wheelPickerTheme: wheelPickerTheme,
         otpFieldTheme: otpFieldTheme,
         menubarTheme: menubarTheme,
         dividerTheme: dividerTheme,
-        sonnerTheme: sonnerTheme,
+        stepperTheme: stepperTheme,
+        toasterTheme: toasterTheme,
         textareaTheme: textareaTheme,
         defaultKeyboardToolbarTheme: defaultKeyboardToolbarTheme,
         style: style,
@@ -515,21 +536,21 @@ class ThemeData extends BaseTheme with _$ThemeData {
       // make a style change leave every font size untouched.
       textTheme: effectiveVariant.textTheme(),
       disabledOpacity: disabledOpacity ?? .5,
+      haptics: haptics ?? true,
       selectTheme: effectiveVariant.selectTheme().merge(selectTheme),
       selectOptionTheme: effectiveVariant.selectOptionTheme().merge(
         selectOptionTheme,
       ),
       cardTheme: effectiveVariant.cardTheme().merge(cardTheme),
+      carouselTheme: effectiveVariant.carouselTheme().merge(carouselTheme),
       switchTheme: effectiveVariant.switchTheme().merge(switchTheme),
       checkboxTheme: effectiveVariant.checkboxTheme().merge(checkboxTheme),
       textFieldTheme: effectiveVariant.textFieldTheme().merge(textFieldTheme),
+      textSelectionTheme: effectiveVariant.textSelectionTheme().merge(
+        textSelectionTheme,
+      ),
       radioTheme: effectiveVariant.radioTheme().merge(radioTheme),
-      primaryToastTheme: effectiveVariant.primaryToastTheme().merge(
-        primaryToastTheme,
-      ),
-      destructiveToastTheme: effectiveVariant.destructiveToastTheme().merge(
-        destructiveToastTheme,
-      ),
+      toastTheme: effectiveVariant.toastTheme().merge(toastTheme),
       breakpoints: breakpoints ?? Breakpoints(),
       primaryAlertTheme: effectiveVariant.primaryAlertTheme().merge(
         primaryAlertTheme,
@@ -545,13 +566,18 @@ class ThemeData extends BaseTheme with _$ThemeData {
       ),
       sliderTheme: effectiveVariant.sliderTheme().merge(sliderTheme),
       sheetTheme: effectiveVariant.sheetTheme().merge(sheetTheme),
+      actionSheetTheme: effectiveVariant.actionSheetTheme().merge(
+        actionSheetTheme,
+      ),
       progressBarTheme: effectiveVariant.progressBarTheme().merge(
         progressBarTheme,
+      ),
+      refreshIndicatorTheme: effectiveVariant.refreshIndicatorTheme().merge(
+        refreshIndicatorTheme,
       ),
       accordionTheme: effectiveVariant.accordionTheme().merge(accordionTheme),
       tableTheme: effectiveVariant.tableTheme().merge(tableTheme),
       resizableTheme: effectiveVariant.resizableTheme().merge(resizableTheme),
-      hoverStrategies: hoverStrategies ?? effectiveVariant.hoverStrategies(),
       disableSecondaryBorder: effectiveDisableSecondaryBorder,
       tabsTheme: effectiveVariant.tabsTheme().merge(tabsTheme),
       contextMenuTheme: effectiveVariant.contextMenuTheme().merge(
@@ -564,10 +590,15 @@ class ThemeData extends BaseTheme with _$ThemeData {
       timePickerTheme: effectiveVariant.timePickerTheme().merge(
         timePickerTheme,
       ),
+      timeFieldTheme: effectiveVariant.timeFieldTheme().merge(timeFieldTheme),
+      wheelPickerTheme: effectiveVariant.wheelPickerTheme().merge(
+        wheelPickerTheme,
+      ),
       otpFieldTheme: effectiveVariant.otpFieldTheme().merge(otpFieldTheme),
       menubarTheme: effectiveVariant.menubarTheme().merge(menubarTheme),
       dividerTheme: effectiveVariant.dividerTheme().merge(dividerTheme),
-      sonnerTheme: effectiveVariant.sonnerTheme().merge(sonnerTheme),
+      stepperTheme: effectiveVariant.stepperTheme().merge(stepperTheme),
+      toasterTheme: effectiveVariant.toasterTheme().merge(toasterTheme),
       textareaTheme: effectiveVariant.textareaTheme().merge(textareaTheme),
       defaultKeyboardToolbarTheme: effectiveVariant
           .defaultKeyboardToolbarTheme()
@@ -576,21 +607,40 @@ class ThemeData extends BaseTheme with _$ThemeData {
       kbdTheme: effectiveVariant.kbdTheme().merge(kbdTheme),
       glassTheme: effectiveVariant.glassTheme().merge(glassTheme),
       appBarTheme: effectiveVariant.appBarTheme().merge(appBarTheme),
+      floatingActionButtonTheme: effectiveVariant
+          .floatingActionButtonTheme()
+          .merge(floatingActionButtonTheme),
       navigationBarTheme: effectiveVariant.navigationBarTheme().merge(
         navigationBarTheme,
+      ),
+      navigationMenuTheme: effectiveVariant.navigationMenuTheme().merge(
+        navigationMenuTheme,
+      ),
+      navigationRailTheme: effectiveVariant.navigationRailTheme().merge(
+        navigationRailTheme,
       ),
       bottomNavigationBarTheme: effectiveVariant
           .bottomNavigationBarTheme()
           .merge(bottomNavigationBarTheme),
       chipTheme: effectiveVariant.chipTheme().merge(chipTheme),
+      listSectionTheme: effectiveVariant.listSectionTheme().merge(
+        listSectionTheme,
+      ),
       listTileTheme: effectiveVariant.listTileTheme().merge(listTileTheme),
       chatBubbleTheme: effectiveVariant.chatBubbleTheme().merge(
         chatBubbleTheme,
+      ),
+      chatListTheme: effectiveVariant.chatListTheme().merge(chatListTheme),
+      streamingTextTheme: effectiveVariant.streamingTextTheme().merge(
+        streamingTextTheme,
       ),
       indicatorBadgeTheme: effectiveVariant.indicatorBadgeTheme().merge(
         indicatorBadgeTheme,
       ),
       iconTileTheme: effectiveVariant.iconTileTheme().merge(iconTileTheme),
+      phosphorIconTheme: effectiveVariant.phosphorIconTheme().merge(
+        phosphorIconTheme,
+      ),
       timelineTheme: effectiveVariant.timelineTheme().merge(timelineTheme),
       boardTheme: effectiveVariant.boardTheme().merge(boardTheme),
       layoutTheme: effectiveVariant.layoutTheme().merge(layoutTheme),
@@ -638,15 +688,17 @@ class ThemeData extends BaseTheme with _$ThemeData {
     required super.decoration,
     required super.textTheme,
     required super.disabledOpacity,
+    required super.haptics,
     required super.selectTheme,
     required super.selectOptionTheme,
     required super.cardTheme,
+    required super.carouselTheme,
     required super.switchTheme,
     required super.checkboxTheme,
     required super.textFieldTheme,
+    required super.textSelectionTheme,
     required super.radioTheme,
-    required super.primaryToastTheme,
-    required super.destructiveToastTheme,
+    required super.toastTheme,
     required super.breakpoints,
     required super.primaryAlertTheme,
     required super.destructiveAlertTheme,
@@ -654,34 +706,45 @@ class ThemeData extends BaseTheme with _$ThemeData {
     required super.alertDialogTheme,
     required super.sliderTheme,
     required super.sheetTheme,
+    required super.actionSheetTheme,
     required super.progressBarTheme,
+    required super.refreshIndicatorTheme,
     required super.accordionTheme,
     required super.tableTheme,
     required super.resizableTheme,
-    required super.hoverStrategies,
     required super.disableSecondaryBorder,
     required super.tabsTheme,
     required super.contextMenuTheme,
     required super.calendarTheme,
     required super.datePickerTheme,
     required super.timePickerTheme,
+    required super.timeFieldTheme,
+    required super.wheelPickerTheme,
     required super.otpFieldTheme,
     required super.menubarTheme,
     required super.dividerTheme,
-    required super.sonnerTheme,
+    required super.stepperTheme,
+    required super.toasterTheme,
     required super.textareaTheme,
     required super.defaultKeyboardToolbarTheme,
     required super.skeletonTheme,
     required super.kbdTheme,
     required super.glassTheme,
     required super.appBarTheme,
+    required super.floatingActionButtonTheme,
     required super.navigationBarTheme,
+    required super.navigationMenuTheme,
+    required super.navigationRailTheme,
     required super.bottomNavigationBarTheme,
     required super.chipTheme,
+    required super.listSectionTheme,
     required super.listTileTheme,
     required super.chatBubbleTheme,
+    required super.chatListTheme,
+    required super.streamingTextTheme,
     required super.indicatorBadgeTheme,
     required super.iconTileTheme,
+    required super.phosphorIconTheme,
     required super.timelineTheme,
     required super.boardTheme,
     required super.layoutTheme,
@@ -733,15 +796,17 @@ class ThemeData extends BaseTheme with _$ThemeData {
     FinesseDecoration? decoration,
     TextTheme? textTheme,
     double? disabledOpacity,
+    bool? haptics,
     SelectTheme? selectTheme,
     SelectOptionTheme? selectOptionTheme,
     CardTheme? cardTheme,
+    CarouselTheme? carouselTheme,
     SwitchTheme? switchTheme,
     CheckboxTheme? checkboxTheme,
     TextFieldTheme? textFieldTheme,
+    TextSelectionTheme? textSelectionTheme,
     RadioTheme? radioTheme,
-    ToastTheme? primaryToastTheme,
-    ToastTheme? destructiveToastTheme,
+    ToastTheme? toastTheme,
     Breakpoints? breakpoints,
     AlertTheme? primaryAlertTheme,
     AlertTheme? destructiveAlertTheme,
@@ -749,24 +814,32 @@ class ThemeData extends BaseTheme with _$ThemeData {
     DialogTheme? alertDialogTheme,
     SliderTheme? sliderTheme,
     SheetTheme? sheetTheme,
+    ActionSheetTheme? actionSheetTheme,
     ProgressBarTheme? progressBarTheme,
+    RefreshIndicatorTheme? refreshIndicatorTheme,
     AccordionTheme? accordionTheme,
     TableTheme? tableTheme,
     ResizableTheme? resizableTheme,
-    HoverStrategies? hoverStrategies,
     bool? disableSecondaryBorder,
     TabsTheme? tabsTheme,
     SkeletonTheme? skeletonTheme,
     KbdTheme? kbdTheme,
     GlassTheme? glassTheme,
     AppBarTheme? appBarTheme,
+    FloatingActionButtonTheme? floatingActionButtonTheme,
     NavigationBarTheme? navigationBarTheme,
+    NavigationMenuTheme? navigationMenuTheme,
+    NavigationRailTheme? navigationRailTheme,
     BottomNavigationBarTheme? bottomNavigationBarTheme,
     ChipTheme? chipTheme,
+    ListSectionTheme? listSectionTheme,
     ListTileTheme? listTileTheme,
     ChatBubbleTheme? chatBubbleTheme,
+    ChatListTheme? chatListTheme,
+    StreamingTextTheme? streamingTextTheme,
     IndicatorBadgeTheme? indicatorBadgeTheme,
     IconTileTheme? iconTileTheme,
+    PhosphorIconTheme? phosphorIconTheme,
     TimelineTheme? timelineTheme,
     BoardTheme? boardTheme,
     LayoutTheme? layoutTheme,
@@ -784,10 +857,13 @@ class ThemeData extends BaseTheme with _$ThemeData {
     CalendarTheme? calendarTheme,
     DatePickerTheme? datePickerTheme,
     TimePickerTheme? timePickerTheme,
+    TimeFieldTheme? timeFieldTheme,
+    WheelPickerTheme? wheelPickerTheme,
     OtpFieldTheme? otpFieldTheme,
     MenubarTheme? menubarTheme,
     DividerTheme? dividerTheme,
-    SonnerTheme? sonnerTheme,
+    StepperTheme? stepperTheme,
+    ToasterTheme? toasterTheme,
     TextareaTheme? textareaTheme,
     DefaultKeyboardToolbarTheme? defaultKeyboardToolbarTheme,
     StyleTokens? style,
@@ -822,15 +898,17 @@ class ThemeData extends BaseTheme with _$ThemeData {
       decoration: decoration ?? i.decoration,
       textTheme: textTheme ?? i.textTheme,
       disabledOpacity: disabledOpacity ?? i.disabledOpacity,
+      haptics: haptics ?? i.haptics,
       selectTheme: selectTheme ?? i.selectTheme,
       selectOptionTheme: selectOptionTheme ?? i.selectOptionTheme,
       cardTheme: cardTheme ?? i.cardTheme,
+      carouselTheme: carouselTheme ?? i.carouselTheme,
       switchTheme: switchTheme ?? i.switchTheme,
       checkboxTheme: checkboxTheme ?? i.checkboxTheme,
       textFieldTheme: textFieldTheme ?? i.textFieldTheme,
+      textSelectionTheme: textSelectionTheme ?? i.textSelectionTheme,
       radioTheme: radioTheme ?? i.radioTheme,
-      primaryToastTheme: primaryToastTheme ?? i.primaryToastTheme,
-      destructiveToastTheme: destructiveToastTheme ?? i.destructiveToastTheme,
+      toastTheme: toastTheme ?? i.toastTheme,
       breakpoints: breakpoints ?? i.breakpoints,
       primaryAlertTheme: primaryAlertTheme ?? i.primaryAlertTheme,
       destructiveAlertTheme: destructiveAlertTheme ?? i.destructiveAlertTheme,
@@ -838,11 +916,12 @@ class ThemeData extends BaseTheme with _$ThemeData {
       alertDialogTheme: alertDialogTheme ?? i.alertDialogTheme,
       sliderTheme: sliderTheme ?? i.sliderTheme,
       sheetTheme: sheetTheme ?? i.sheetTheme,
+      actionSheetTheme: actionSheetTheme ?? i.actionSheetTheme,
       progressBarTheme: progressBarTheme ?? i.progressBarTheme,
+      refreshIndicatorTheme: refreshIndicatorTheme ?? i.refreshIndicatorTheme,
       accordionTheme: accordionTheme ?? i.accordionTheme,
       tableTheme: tableTheme ?? i.tableTheme,
       resizableTheme: resizableTheme ?? i.resizableTheme,
-      hoverStrategies: hoverStrategies ?? i.hoverStrategies,
       disableSecondaryBorder:
           disableSecondaryBorder ?? i.disableSecondaryBorder,
       tabsTheme: tabsTheme ?? i.tabsTheme,
@@ -850,14 +929,22 @@ class ThemeData extends BaseTheme with _$ThemeData {
       kbdTheme: kbdTheme ?? i.kbdTheme,
       glassTheme: glassTheme ?? i.glassTheme,
       appBarTheme: appBarTheme ?? i.appBarTheme,
+      floatingActionButtonTheme:
+          floatingActionButtonTheme ?? i.floatingActionButtonTheme,
       navigationBarTheme: navigationBarTheme ?? i.navigationBarTheme,
+      navigationMenuTheme: navigationMenuTheme ?? i.navigationMenuTheme,
+      navigationRailTheme: navigationRailTheme ?? i.navigationRailTheme,
       bottomNavigationBarTheme:
           bottomNavigationBarTheme ?? i.bottomNavigationBarTheme,
       chipTheme: chipTheme ?? i.chipTheme,
+      listSectionTheme: listSectionTheme ?? i.listSectionTheme,
       listTileTheme: listTileTheme ?? i.listTileTheme,
       chatBubbleTheme: chatBubbleTheme ?? i.chatBubbleTheme,
+      chatListTheme: chatListTheme ?? i.chatListTheme,
+      streamingTextTheme: streamingTextTheme ?? i.streamingTextTheme,
       indicatorBadgeTheme: indicatorBadgeTheme ?? i.indicatorBadgeTheme,
       iconTileTheme: iconTileTheme ?? i.iconTileTheme,
+      phosphorIconTheme: phosphorIconTheme ?? i.phosphorIconTheme,
       timelineTheme: timelineTheme ?? i.timelineTheme,
       boardTheme: boardTheme ?? i.boardTheme,
       layoutTheme: layoutTheme ?? i.layoutTheme,
@@ -875,10 +962,13 @@ class ThemeData extends BaseTheme with _$ThemeData {
       calendarTheme: calendarTheme ?? i.calendarTheme,
       datePickerTheme: datePickerTheme ?? i.datePickerTheme,
       timePickerTheme: timePickerTheme ?? i.timePickerTheme,
+      timeFieldTheme: timeFieldTheme ?? i.timeFieldTheme,
+      wheelPickerTheme: wheelPickerTheme ?? i.wheelPickerTheme,
       otpFieldTheme: otpFieldTheme ?? i.otpFieldTheme,
       menubarTheme: menubarTheme ?? i.menubarTheme,
       dividerTheme: dividerTheme ?? i.dividerTheme,
-      sonnerTheme: sonnerTheme ?? i.sonnerTheme,
+      stepperTheme: stepperTheme ?? i.stepperTheme,
+      toasterTheme: toasterTheme ?? i.toasterTheme,
       textareaTheme: textareaTheme ?? i.textareaTheme,
       defaultKeyboardToolbarTheme:
           defaultKeyboardToolbarTheme ?? i.defaultKeyboardToolbarTheme,
@@ -922,7 +1012,9 @@ class ThemeData extends BaseTheme with _$ThemeData {
   ///
   /// ```dart
   /// Button.outline(
-  ///   decoration: theme.buttonDecoration(radius: theme.radii.full),
+  ///   style: ButtonTheme(
+  ///     decoration: theme.buttonDecoration(radius: theme.radii.full),
+  ///   ),
   ///   onPressed: _follow,
   ///   child: const Text('Follow'),
   /// )
@@ -930,7 +1022,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
   FinesseDecoration buttonDecoration({required BorderRadius radius}) {
     final themeVariant = variant;
     return FinesseDecoration(
-      border: FinesseBorder(radius: radius),
+      border: FinesseBorder(borderRadius: radius),
       secondaryFocusedBorder:
           themeVariant is DefaultThemeVariant && !disableSecondaryBorder
           ? themeVariant.ringFor(radius)
@@ -1009,15 +1101,17 @@ final class _ThemeInputs {
     this.decoration,
     this.textTheme,
     this.disabledOpacity,
+    this.haptics,
     this.selectTheme,
     this.selectOptionTheme,
     this.cardTheme,
+    this.carouselTheme,
     this.switchTheme,
     this.checkboxTheme,
     this.textFieldTheme,
+    this.textSelectionTheme,
     this.radioTheme,
-    this.primaryToastTheme,
-    this.destructiveToastTheme,
+    this.toastTheme,
     this.breakpoints,
     this.primaryAlertTheme,
     this.destructiveAlertTheme,
@@ -1025,24 +1119,32 @@ final class _ThemeInputs {
     this.alertDialogTheme,
     this.sliderTheme,
     this.sheetTheme,
+    this.actionSheetTheme,
     this.progressBarTheme,
+    this.refreshIndicatorTheme,
     this.accordionTheme,
     this.tableTheme,
     this.resizableTheme,
-    this.hoverStrategies,
     this.disableSecondaryBorder,
     this.tabsTheme,
     this.skeletonTheme,
     this.kbdTheme,
     this.glassTheme,
     this.appBarTheme,
+    this.floatingActionButtonTheme,
     this.navigationBarTheme,
+    this.navigationMenuTheme,
+    this.navigationRailTheme,
     this.bottomNavigationBarTheme,
     this.chipTheme,
+    this.listSectionTheme,
     this.listTileTheme,
     this.chatBubbleTheme,
+    this.chatListTheme,
+    this.streamingTextTheme,
     this.indicatorBadgeTheme,
     this.iconTileTheme,
+    this.phosphorIconTheme,
     this.timelineTheme,
     this.boardTheme,
     this.layoutTheme,
@@ -1060,10 +1162,13 @@ final class _ThemeInputs {
     this.calendarTheme,
     this.datePickerTheme,
     this.timePickerTheme,
+    this.timeFieldTheme,
+    this.wheelPickerTheme,
     this.otpFieldTheme,
     this.menubarTheme,
     this.dividerTheme,
-    this.sonnerTheme,
+    this.stepperTheme,
+    this.toasterTheme,
     this.textareaTheme,
     this.defaultKeyboardToolbarTheme,
     this.style,
@@ -1096,15 +1201,17 @@ final class _ThemeInputs {
   final FinesseDecoration? decoration;
   final TextTheme? textTheme;
   final double? disabledOpacity;
+  final bool? haptics;
   final SelectTheme? selectTheme;
   final SelectOptionTheme? selectOptionTheme;
   final CardTheme? cardTheme;
+  final CarouselTheme? carouselTheme;
   final SwitchTheme? switchTheme;
   final CheckboxTheme? checkboxTheme;
   final TextFieldTheme? textFieldTheme;
+  final TextSelectionTheme? textSelectionTheme;
   final RadioTheme? radioTheme;
-  final ToastTheme? primaryToastTheme;
-  final ToastTheme? destructiveToastTheme;
+  final ToastTheme? toastTheme;
   final Breakpoints? breakpoints;
   final AlertTheme? primaryAlertTheme;
   final AlertTheme? destructiveAlertTheme;
@@ -1112,24 +1219,32 @@ final class _ThemeInputs {
   final DialogTheme? alertDialogTheme;
   final SliderTheme? sliderTheme;
   final SheetTheme? sheetTheme;
+  final ActionSheetTheme? actionSheetTheme;
   final ProgressBarTheme? progressBarTheme;
+  final RefreshIndicatorTheme? refreshIndicatorTheme;
   final AccordionTheme? accordionTheme;
   final TableTheme? tableTheme;
   final ResizableTheme? resizableTheme;
-  final HoverStrategies? hoverStrategies;
   final bool? disableSecondaryBorder;
   final TabsTheme? tabsTheme;
   final SkeletonTheme? skeletonTheme;
   final KbdTheme? kbdTheme;
   final GlassTheme? glassTheme;
   final AppBarTheme? appBarTheme;
+  final FloatingActionButtonTheme? floatingActionButtonTheme;
   final NavigationBarTheme? navigationBarTheme;
+  final NavigationMenuTheme? navigationMenuTheme;
+  final NavigationRailTheme? navigationRailTheme;
   final BottomNavigationBarTheme? bottomNavigationBarTheme;
   final ChipTheme? chipTheme;
+  final ListSectionTheme? listSectionTheme;
   final ListTileTheme? listTileTheme;
   final ChatBubbleTheme? chatBubbleTheme;
+  final ChatListTheme? chatListTheme;
+  final StreamingTextTheme? streamingTextTheme;
   final IndicatorBadgeTheme? indicatorBadgeTheme;
   final IconTileTheme? iconTileTheme;
+  final PhosphorIconTheme? phosphorIconTheme;
   final TimelineTheme? timelineTheme;
   final BoardTheme? boardTheme;
   final LayoutTheme? layoutTheme;
@@ -1147,10 +1262,13 @@ final class _ThemeInputs {
   final CalendarTheme? calendarTheme;
   final DatePickerTheme? datePickerTheme;
   final TimePickerTheme? timePickerTheme;
+  final TimeFieldTheme? timeFieldTheme;
+  final WheelPickerTheme? wheelPickerTheme;
   final OtpFieldTheme? otpFieldTheme;
   final MenubarTheme? menubarTheme;
   final DividerTheme? dividerTheme;
-  final SonnerTheme? sonnerTheme;
+  final StepperTheme? stepperTheme;
+  final ToasterTheme? toasterTheme;
   final TextareaTheme? textareaTheme;
   final DefaultKeyboardToolbarTheme? defaultKeyboardToolbarTheme;
   final StyleTokens? style;

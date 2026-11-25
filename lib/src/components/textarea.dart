@@ -53,13 +53,13 @@ class Textarea extends StatefulWidget {
     this.selectionHeightStyle = ui.BoxHeightStyle.tight,
     this.selectionWidthStyle = ui.BoxWidthStyle.tight,
     this.keyboardAppearance,
-    this.scrollPadding = const EdgeInsets.all(20),
+    this.scrollPadding,
     this.dragStartBehavior = DragStartBehavior.start,
     bool? enableInteractiveSelection,
     this.selectionControls,
-    this.onPressed,
-    this.onPressedAlwaysCalled = false,
-    this.onPressedOutside,
+    this.onTap,
+    this.onTapAlwaysCalled = false,
+    this.onTapOutside,
     this.mouseCursor,
     this.scrollController,
     this.scrollPhysics,
@@ -70,7 +70,7 @@ class Textarea extends StatefulWidget {
     this.enableIMEPersonalizedLearning = true,
     this.contextMenuBuilder,
     this.spellCheckConfiguration,
-    this.magnifierConfiguration = TextMagnifierConfiguration.disabled,
+    this.magnifierConfiguration,
     this.selectionColor,
     this.padding,
     this.mainAxisAlignment,
@@ -102,6 +102,7 @@ class Textarea extends StatefulWidget {
     this.useBrowserContextMenu,
     this.onPasteFiles,
     this.onPasteFilesError,
+    this.showCounter = false,
   }) : enableInteractiveSelection = enableInteractiveSelection ?? !readOnly,
        assert(
          initialValue == null || controller == null,
@@ -268,10 +269,8 @@ class Textarea extends StatefulWidget {
   /// {@endtemplate}
   final ui.BoxWidthStyle selectionWidthStyle;
 
-  /// {@template Textarea.scrollPadding}
-  /// Insets to apply to the input when it's scrolled into view.
-  /// {@endtemplate}
-  final EdgeInsets scrollPadding;
+  /// {@macro TextField.scrollPadding}
+  final EdgeInsets? scrollPadding;
 
   /// {@template Textarea.scrollController}
   /// Optional controller for managing scroll position.
@@ -303,20 +302,20 @@ class Textarea extends StatefulWidget {
   /// {@endtemplate}
   final TextSelectionControls? selectionControls;
 
-  /// {@template Textarea.onPressed}
+  /// {@template Textarea.onTap}
   /// Called when the user taps the textarea.
   /// {@endtemplate}
-  final GestureTapCallback? onPressed;
+  final GestureTapCallback? onTap;
 
-  /// {@template Textarea.onPressedOutside}
+  /// {@template Textarea.onTapOutside}
   /// Called when a pointer tap happens outside this widget.
   /// {@endtemplate}
-  final TapRegionCallback? onPressedOutside;
+  final TapRegionCallback? onTapOutside;
 
-  /// {@template Textarea.onPressedAlwaysCalled}
-  /// Whether [onPressed] is called even when text is selected.
+  /// {@template Textarea.onTapAlwaysCalled}
+  /// Whether [onTap] is called even when text is selected.
   /// {@endtemplate}
-  final bool onPressedAlwaysCalled;
+  final bool onTapAlwaysCalled;
 
   /// {@template Textarea.mouseCursor}
   /// The mouse cursor to use when hovering over this widget.
@@ -335,9 +334,11 @@ class Textarea extends StatefulWidget {
   final SpellCheckConfiguration? spellCheckConfiguration;
 
   /// {@template Textarea.magnifierConfiguration}
-  /// Configuration for the text magnifier shown during selection.
+  /// The magnifier shown above the finger while the caret or a selection
+  /// handle is dragged. Defaults to `TextMagnifier.adaptiveConfiguration`:
+  /// this system's loupe on iOS and Android, none on a desktop.
   /// {@endtemplate}
-  final TextMagnifierConfiguration magnifierConfiguration;
+  final TextMagnifierConfiguration? magnifierConfiguration;
 
   /// {@template Textarea.contentInsertionConfiguration}
   /// Platform-specific configuration for handling content insertion.
@@ -467,6 +468,9 @@ class Textarea extends StatefulWidget {
 
   /// {@macro TextField.onPasteFilesError}
   final ValueChanged<Object>? onPasteFilesError;
+
+  /// {@macro TextField.showCounter}
+  final bool showCounter;
 
   @override
   State<Textarea> createState() => _TextareaState();
@@ -650,9 +654,9 @@ class _TextareaState extends State<Textarea> {
             dragStartBehavior: widget.dragStartBehavior,
             enableInteractiveSelection: widget.enableInteractiveSelection,
             selectionControls: widget.selectionControls,
-            onPressed: widget.onPressed,
-            onPressedAlwaysCalled: widget.onPressedAlwaysCalled,
-            onPressedOutside: widget.onPressedOutside,
+            onTap: widget.onTap,
+            onTapAlwaysCalled: widget.onTapAlwaysCalled,
+            onTapOutside: widget.onTapOutside,
             mouseCursor: effectiveMouseCursor,
             scrollController: widget.scrollController,
             scrollPhysics: widget.scrollPhysics,
@@ -687,6 +691,7 @@ class _TextareaState extends State<Textarea> {
             useBrowserContextMenu: widget.useBrowserContextMenu,
             onPasteFiles: widget.onPasteFiles,
             onPasteFilesError: widget.onPasteFilesError,
+            showCounter: widget.showCounter,
           ),
         ),
         if (widget.resizable)
@@ -700,7 +705,7 @@ class _TextareaState extends State<Textarea> {
                 behavior: HitTestBehavior.translucent,
                 child: widget.resizeHandleBuilder != null
                     ? Builder(builder: widget.resizeHandleBuilder!)
-                    : const DefaultResizeGrip(),
+                    : const _DefaultResizeGrip(),
               ),
             ),
           ),
@@ -714,9 +719,9 @@ class _TextareaState extends State<Textarea> {
 ///
 /// This widget appears in the bottom-right corner and allows
 /// the user to drag and resize the textarea vertically.
-class DefaultResizeGrip extends StatelessWidget {
+class _DefaultResizeGrip extends StatelessWidget {
   /// Creates the default resize grip.
-  const DefaultResizeGrip({super.key});
+  const _DefaultResizeGrip();
 
   @override
   Widget build(BuildContext context) {
@@ -726,40 +731,28 @@ class DefaultResizeGrip extends StatelessWidget {
       width: 8,
       height: 8,
       child: CustomPaint(
-        painter: ResizeGripPainter(color: theme.colorScheme.ring),
+        painter: _ResizeGripPainter(color: theme.colorScheme.ring),
       ),
     );
   }
 }
 
-/// A customizable painter for drawing diagonal resize grip lines,
-/// typically used in the bottom-right corner of a resizable widget.
-class ResizeGripPainter extends CustomPainter {
-  /// Creates a painter that draws multiple diagonal lines to represent a resize
-  /// grip.
-  ///
-  /// - [color]: The color of the lines.
-  /// - [strokeWidth]: Thickness of each grip line. Default is 0.8.
-  /// - [lineCount]: Number of diagonal lines to draw. Default is 3.
-  /// - [spacing]: Spacing between each line. Default is 4.0.
-  const ResizeGripPainter({
-    required this.color,
-    this.strokeWidth = 0.8,
-    this.lineCount = 3,
-    this.spacing = 4.0,
-  });
+/// Paints the diagonal lines of the resize grip in the bottom-right corner
+/// of a resizable [Textarea].
+class _ResizeGripPainter extends CustomPainter {
+  const _ResizeGripPainter({required this.color});
 
   /// The color of the grip lines.
   final Color color;
 
   /// The thickness of the lines.
-  final double strokeWidth;
+  static const strokeWidth = 0.8;
 
   /// The number of diagonal lines in the grip.
-  final int lineCount;
+  static const lineCount = 3;
 
   /// The spacing between each grip line.
-  final double spacing;
+  static const spacing = 4.0;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -778,10 +771,7 @@ class ResizeGripPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant ResizeGripPainter oldDelegate) {
-    return oldDelegate.color != color ||
-        oldDelegate.strokeWidth != strokeWidth ||
-        oldDelegate.lineCount != lineCount ||
-        oldDelegate.spacing != spacing;
+  bool shouldRepaint(covariant _ResizeGripPainter oldDelegate) {
+    return oldDelegate.color != color;
   }
 }

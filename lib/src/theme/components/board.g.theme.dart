@@ -52,7 +52,11 @@ mixin _$BoardTheme {
         b.footerPadding,
         t,
       ),
-      columnRadius: BorderRadius.lerp(a.columnRadius, b.columnRadius, t),
+      columnBorderRadius: BorderRadius.lerp(
+        a.columnBorderRadius,
+        b.columnBorderRadius,
+        t,
+      ),
       columnColor: Color.lerp(a.columnColor, b.columnColor, t),
       columnBorderColor: Color.lerp(
         a.columnBorderColor,
@@ -95,7 +99,11 @@ mixin _$BoardTheme {
       ),
       itemColor: Color.lerp(a.itemColor, b.itemColor, t),
       itemPadding: EdgeInsetsGeometry.lerp(a.itemPadding, b.itemPadding, t),
-      itemRadius: BorderRadius.lerp(a.itemRadius, b.itemRadius, t),
+      itemBorderRadius: BorderRadius.lerp(
+        a.itemBorderRadius,
+        b.itemBorderRadius,
+        t,
+      ),
       itemShadows: t < 0.5 ? a.itemShadows : b.itemShadows,
       placeholderColor: Color.lerp(a.placeholderColor, b.placeholderColor, t),
       placeholderBorderColor: Color.lerp(
@@ -135,7 +143,7 @@ mixin _$BoardTheme {
     EdgeInsetsGeometry? columnPadding,
     EdgeInsetsGeometry? headerPadding,
     EdgeInsetsGeometry? footerPadding,
-    BorderRadius? columnRadius,
+    BorderRadius? columnBorderRadius,
     Color? columnColor,
     Color? columnBorderColor,
     Color? targetColumnColor,
@@ -150,7 +158,7 @@ mixin _$BoardTheme {
     Color? fullCountForegroundColor,
     Color? itemColor,
     EdgeInsetsGeometry? itemPadding,
-    BorderRadius? itemRadius,
+    BorderRadius? itemBorderRadius,
     List<BoxShadow>? itemShadows,
     Color? placeholderColor,
     Color? placeholderBorderColor,
@@ -183,7 +191,7 @@ mixin _$BoardTheme {
       columnPadding: columnPadding ?? _this.columnPadding,
       headerPadding: headerPadding ?? _this.headerPadding,
       footerPadding: footerPadding ?? _this.footerPadding,
-      columnRadius: columnRadius ?? _this.columnRadius,
+      columnBorderRadius: columnBorderRadius ?? _this.columnBorderRadius,
       columnColor: columnColor ?? _this.columnColor,
       columnBorderColor: columnBorderColor ?? _this.columnBorderColor,
       targetColumnColor: targetColumnColor ?? _this.targetColumnColor,
@@ -201,7 +209,7 @@ mixin _$BoardTheme {
           fullCountForegroundColor ?? _this.fullCountForegroundColor,
       itemColor: itemColor ?? _this.itemColor,
       itemPadding: itemPadding ?? _this.itemPadding,
-      itemRadius: itemRadius ?? _this.itemRadius,
+      itemBorderRadius: itemBorderRadius ?? _this.itemBorderRadius,
       itemShadows: itemShadows ?? _this.itemShadows,
       placeholderColor: placeholderColor ?? _this.placeholderColor,
       placeholderBorderColor:
@@ -245,7 +253,7 @@ mixin _$BoardTheme {
       columnPadding: other.columnPadding,
       headerPadding: other.headerPadding,
       footerPadding: other.footerPadding,
-      columnRadius: other.columnRadius,
+      columnBorderRadius: other.columnBorderRadius,
       columnColor: other.columnColor,
       columnBorderColor: other.columnBorderColor,
       targetColumnColor: other.targetColumnColor,
@@ -264,7 +272,7 @@ mixin _$BoardTheme {
       fullCountForegroundColor: other.fullCountForegroundColor,
       itemColor: other.itemColor,
       itemPadding: other.itemPadding,
-      itemRadius: other.itemRadius,
+      itemBorderRadius: other.itemBorderRadius,
       itemShadows: other.itemShadows,
       placeholderColor: other.placeholderColor,
       placeholderBorderColor: other.placeholderBorderColor,
@@ -308,7 +316,7 @@ mixin _$BoardTheme {
         _other.columnPadding == _this.columnPadding &&
         _other.headerPadding == _this.headerPadding &&
         _other.footerPadding == _this.footerPadding &&
-        _other.columnRadius == _this.columnRadius &&
+        _other.columnBorderRadius == _this.columnBorderRadius &&
         _other.columnColor == _this.columnColor &&
         _other.columnBorderColor == _this.columnBorderColor &&
         _other.targetColumnColor == _this.targetColumnColor &&
@@ -323,7 +331,7 @@ mixin _$BoardTheme {
         _other.fullCountForegroundColor == _this.fullCountForegroundColor &&
         _other.itemColor == _this.itemColor &&
         _other.itemPadding == _this.itemPadding &&
-        _other.itemRadius == _this.itemRadius &&
+        _other.itemBorderRadius == _this.itemBorderRadius &&
         _other.itemShadows == _this.itemShadows &&
         _other.placeholderColor == _this.placeholderColor &&
         _other.placeholderBorderColor == _this.placeholderBorderColor &&
@@ -359,7 +367,7 @@ mixin _$BoardTheme {
       _this.columnPadding,
       _this.headerPadding,
       _this.footerPadding,
-      _this.columnRadius,
+      _this.columnBorderRadius,
       _this.columnColor,
       _this.columnBorderColor,
       _this.targetColumnColor,
@@ -374,7 +382,7 @@ mixin _$BoardTheme {
       _this.fullCountForegroundColor,
       _this.itemColor,
       _this.itemPadding,
-      _this.itemRadius,
+      _this.itemBorderRadius,
       _this.itemShadows,
       _this.placeholderColor,
       _this.placeholderBorderColor,

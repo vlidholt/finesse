@@ -30,8 +30,9 @@ ThemeData(
             items: [
               '`finesse`: the default. Soft glass: 36px buttons and 40px '
                   'fields, controls rounded to 10 and cards to 18, with '
-                  'cards, bars and outline buttons translucent over a '
-                  'blurred backdrop. It has hand-measured phone metrics.',
+                  'translucent cards and outline buttons, and bars, menus '
+                  'and popovers over a blurred backdrop. It has '
+                  'hand-measured phone metrics.',
               '`nova`: compact and neutral. 32px controls, moderate '
                   'radii, opaque surfaces.',
               '`maia`: pill-shaped and roomy, with fully rounded '
@@ -120,7 +121,6 @@ ThemeData(
 StyleTokens opaque(StyleTokens style) => style.copyWith(
   cardOpacity: 1,
   cardOpacityDark: 1,
-  cardBlur: false,
   barOpacity: 1,
   barOpacityDark: 1,
 );
@@ -129,6 +129,20 @@ ThemeData(
   style: opaque(StyleTokens.finesse).copyWith(
     mobile: opaque(StyleTokens.finesseMobile),
   ),
+)''',
+          ),
+          DocParagraph(
+            'Bars, popovers, menus, tooltips, toasts and `Glass` filter '
+            'their backdrop. Cards do not, in any shipped style: a card '
+            'lies on the flat page, where a blur shows nothing and still '
+            'costs a backdrop filter for every card on every frame. A '
+            'style whose cards float over imagery turns it on with '
+            '`cardBlur`, on both sets of metrics:',
+          ),
+          CodeBlock(
+            code: '''
+ThemeData(
+  style: StyleTokens.finesse.copyWith(cardBlur: true),
 )''',
           ),
         ],

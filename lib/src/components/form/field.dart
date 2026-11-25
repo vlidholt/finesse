@@ -1,6 +1,6 @@
 import 'package:finesse/src/components/form/form.dart';
+import 'package:finesse/src/components/input_decorator.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/components/input_decorator.dart';
 import 'package:flutter/widgets.dart';
 
 /// A function that transforms the value of a form field into a different
@@ -158,6 +158,9 @@ class FinesseFormFieldState<F extends FinesseFormField<T>, T>
   FinesseFormState? _parentForm;
 
   /// The effective focus node, either provided or internally managed.
+  ///
+  /// It is attached only when the field's builder hands it to a widget; see
+  /// [focus] for what happens when none does.
   FocusNode get focusNode => widget.focusNode ?? _focusNode!;
 
   /// The decoration applied to the field, reflecting error state.
@@ -266,9 +269,9 @@ class FinesseFormFieldState<F extends FinesseFormField<T>, T>
 
   @override
   void reset() {
+    // FormFieldState.reset calls onReset already.
     super.reset();
     didChange(initialValue);
-    widget.onReset?.call();
   }
 
   @override
@@ -278,9 +281,47 @@ class FinesseFormFieldState<F extends FinesseFormField<T>, T>
     super.dispose();
   }
 
-  /// Requests focus for the field's focus node.
+  /// Moves the keyboard focus into the field.
+  ///
+  /// A field that hands [focusNode] to a widget is focused through it. One
+  /// made of several controls that attaches the node to none of them (an OTP
+  /// field, a radio group, a time picker, or a custom [FinesseFormField]
+  /// whose builder ignores it) gets the focus on its first focusable
+  /// control instead; with no such control the focus stays where it is.
   void focus() {
-    FocusScope.of(context).requestFocus(focusNode);
+    final node = focusNode;
+    // Only a node some widget owns may be asked: requesting the focus for an
+    // unattached one reparents it under the route's scope, where it becomes
+    // a primary focus that no key event or traversal can reach, and that
+    // outlives its own disposal.
+    if (node.context != null) {
+      node.requestFocus();
+    } else {
+      _firstFocusableControl()?.requestFocus();
+    }
+  }
+
+  /// The first control under this field that can take the focus, in the
+  /// order the field builds its controls.
+  ///
+  /// The order is the element tree's, not the focus tree's: a [FocusNode]'s
+  /// children are in the order they were attached, which a rebuild can
+  /// shuffle.
+  FocusNode? _firstFocusableControl() {
+    final candidates = <BuildContext, FocusNode>{
+      for (final node in FocusScope.of(context).traversalDescendants)
+        ?node.context: node,
+    };
+    if (candidates.isEmpty) return null;
+    FocusNode? first;
+    void visit(Element element) {
+      if (first != null) return;
+      first = candidates[element];
+      if (first == null) element.visitChildren(visit);
+    }
+
+    context.visitChildElements(visit);
+    return first;
   }
 
   /// Ensures the field is visible by scrolling if necessary.

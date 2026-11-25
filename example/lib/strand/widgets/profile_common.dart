@@ -2,50 +2,9 @@ import 'package:example/strand/data/profile_data.dart';
 import 'package:example/strand/navigation.dart';
 import 'package:example/strand/widgets/settings_controller.dart';
 import 'package:example/strand/widgets/settings_links.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
-
-// The designs' off-scale steps, each halfway between two steps of the
-// theme's gap scale (4 / 8 / 12 / 16). The theme has no such steps, so they
-// are literal, and the same on a phone.
-
-/// 6, between `xs` and `sm`: an icon and its text, a name and the line
-/// under it.
-const double profileInlineGap = 6;
-
-/// 10, between `sm` and `md`: a label and what it heads, a small mark and
-/// its name.
-const double profileTightGap = 10;
-
-/// 14, between `md` and `lg`: a tile's inset, the space under a card's
-/// heading, the breaks between the phone's sections.
-const double profileSnugGap = 14;
-
-/// 18, past `lg`: the rail cards' padding and the larger breaks inside a
-/// card.
-const double profileRoomyGap = 18;
-
-/// 44: the logo or portrait that leads a row inside a card.
-const double profileMarkSize = 44;
-
-/// The corner radius of a tile nested inside a card: the status tiles, the
-/// analytics boxes, the featured cards.
-///
-/// The designs use 14, between the scale's `lg` (12) and `xl` (16), so it is
-/// derived from the base radius rather than hard-coded and still goes square
-/// under a square style.
-BorderRadius profileTileRadius(ThemeData theme) => theme.radii.md * 1.4;
-
-/// The designs' 14/20 line where it does not grow on a phone: a tile's
-/// title, a position's employer. (`textTheme.p` is 14/20 on a desktop and
-/// 15/22 on a phone.)
-TextStyle profileBodyStyle(ThemeData theme) =>
-    theme.textTheme.p.copyWith(fontSize: 14, height: 20 / 14);
-
-/// The designs' 12/16 caption, a size under the theme's muted style: a
-/// featured item's source, a group's member count.
-TextStyle profileCaptionStyle(ThemeData theme) =>
-    theme.textTheme.muted.copyWith(fontSize: 12, height: 16 / 12);
 
 /// A card of the profile: a heading row, then content.
 ///
@@ -82,11 +41,12 @@ class ProfileSection extends StatelessWidget {
       child: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
     );
     return Card(
-      padding: padding,
-      // Under the heading, where the theme's cards leave a full padding.
-      sectionGap: profileSnugGap,
-      rowMainAxisSize: MainAxisSize.max,
-      columnCrossAxisAlignment: CrossAxisAlignment.stretch,
+      style: CardTheme(
+        padding: padding,
+        sectionGap: Theme.of(context).gap(GapSize.md),
+        rowMainAxisSize: MainAxisSize.max,
+        columnCrossAxisAlignment: CrossAxisAlignment.stretch,
+      ),
       title: heading,
       action: trailing,
       child: child,
@@ -114,10 +74,12 @@ class ProfileHeaderAction extends StatelessWidget {
   Widget build(BuildContext context) {
     return IconButton.ghost(
       size: ButtonSize.sm,
-      // The designs draw a text button's 18-point glyph in the small icon
-      // button, not the icon button's own 20.
-      iconSize: Theme.of(context).buttonSizesTheme.regular?.iconSize,
-      icon: Icon(icon),
+      style: ButtonTheme(
+        // The designs draw a text button's 18-point glyph in the small icon
+        // button, not the icon button's own 20.
+        iconSize: Theme.of(context).buttonSizesTheme.regular?.iconSize,
+      ),
+      icon: PhosphorIcon(icon),
       semanticLabel: label,
       // Editing lives in one place: the Account page of Settings.
       onPressed:
@@ -131,7 +93,7 @@ class ProfileLogo extends StatelessWidget {
   const ProfileLogo(
     this.asset, {
     required this.label,
-    this.size = profileMarkSize,
+    this.size,
     this.radius,
     super.key,
   });
@@ -142,7 +104,8 @@ class ProfileLogo extends StatelessWidget {
   /// The image's description: "Halcyon logo".
   final String label;
 
-  final double size;
+  /// The mark's side. Defaults to the theme's avatar.
+  final double? size;
 
   /// The corner radius. Defaults to the theme's `lg` step.
   final BorderRadius? radius;
@@ -150,6 +113,7 @@ class ProfileLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final size = this.size ?? theme.avatarMd;
     final effectiveRadius = radius ?? theme.radii.lg;
     return Container(
       width: size,
@@ -192,23 +156,22 @@ class ProfileStatusTile extends StatelessWidget {
     final accent = status.positive ? scheme.success : scheme.foreground;
     final layout = theme.layoutTheme;
     return Container(
-      // The designs' own inset: 16 by 14, and a step tighter on a phone.
       padding: EdgeInsets.symmetric(
-        horizontal: compact ? profileSnugGap : layout.gap(GapSize.lg),
-        vertical: compact ? layout.gap(GapSize.md) : profileSnugGap,
+        horizontal: layout.gap(GapSize.lg),
+        vertical: layout.gap(GapSize.md),
       ),
       decoration: BoxDecoration(
         color: status.positive ? scheme.successMuted : scheme.muted,
-        borderRadius: profileTileRadius(theme),
+        borderRadius: theme.radii.lg,
         border: Border.all(color: scheme.border),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: layout.gap(GapSize.md),
         children: [
-          Icon(
+          PhosphorIcon(
             status.icon,
-            size: 22,
+            size: theme.glyphLg,
             color: status.positive ? scheme.success : scheme.foregroundSubtle,
           ),
           Expanded(
@@ -220,7 +183,7 @@ class ProfileStatusTile extends StatelessWidget {
                   status.title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: profileBodyStyle(theme).copyWith(
+                  style: theme.textTheme.p.copyWith(
                     fontWeight: FontWeight.w600,
                     color: scheme.foreground,
                   ),
@@ -229,10 +192,7 @@ class ProfileStatusTile extends StatelessWidget {
                   compact ? status.shortBody ?? status.body : status.body,
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
-                  // The 13/18 regular style, in the secondary ink; the
-                  // desktop design opens its lines to 19.
                   style: theme.textTheme.muted.copyWith(
-                    height: compact ? null : 19 / 13,
                     color: scheme.foregroundSubtle,
                   ),
                 ),
@@ -248,7 +208,6 @@ class ProfileStatusTile extends StatelessWidget {
                             ? openSettings(context, SettingsSection.privacy)
                             : context.goTo(StrandDestination.messages),
                     style: theme.textTheme.small.copyWith(
-                      height: 19 / 13,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -369,12 +328,12 @@ class ProfileCoverButton extends StatelessWidget {
             padding: round ? null : size.padding,
             alignment: round ? Alignment.center : null,
             child: round
-                ? Icon(icon, size: size.iconSize, color: _white)
+                ? PhosphorIcon(icon, size: size.iconSize, color: _white)
                 : Row(
                     mainAxisSize: MainAxisSize.min,
-                    spacing: theme.layoutTheme.gap(GapSize.sm),
+                    spacing: theme.gap(GapSize.sm),
                     children: [
-                      Icon(icon, size: size.iconSize, color: _white),
+                      PhosphorIcon(icon, size: size.iconSize, color: _white),
                       Text(
                         text,
                         style: theme.textTheme.small.copyWith(
@@ -400,19 +359,18 @@ class ProfileMetaItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    // A size up from the 13-point styles it is set in.
-    final style =
-        (meta.link
-                ? theme.textTheme.small.copyWith(
-                    color: theme.colorScheme.tint,
-                  )
-                : theme.textTheme.muted)
-            .copyWith(fontSize: 14);
+    final style = meta.link
+        ? theme.textTheme.small.copyWith(color: theme.colorScheme.tint)
+        : theme.textTheme.muted;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(meta.icon, size: 16, color: style.color),
-        const Gap.raw(profileInlineGap),
+        PhosphorIcon(
+          meta.icon,
+          size: theme.iconBeside(style),
+          color: style.color,
+        ),
+        const Gap.xs(),
         Flexible(
           child: Text(
             meta.text,

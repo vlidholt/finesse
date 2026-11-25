@@ -26,26 +26,26 @@ class _NavigationBarTopExampleState extends State<NavigationBarTopExample> {
         onDestinationSelected: (i) => setState(() => index = i),
         destinations: const [
           NavigationDestination(
-            icon: Icon(PhosphorIconsRegular.house),
-            selectedIcon: Icon(PhosphorIconsFill.house),
+            icon: PhosphorIcon(PhosphorIconsRegular.house),
+            selectedIcon: PhosphorIcon(PhosphorIconsFill.house),
             label: 'Home',
           ),
           NavigationDestination(
-            icon: Icon(PhosphorIconsRegular.usersThree),
-            selectedIcon: Icon(PhosphorIconsFill.usersThree),
+            icon: PhosphorIcon(PhosphorIconsRegular.usersThree),
+            selectedIcon: PhosphorIcon(PhosphorIconsFill.usersThree),
             label: 'Network',
             // A dot: something is new, without saying how much.
             showBadge: true,
           ),
           NavigationDestination(
-            icon: Icon(PhosphorIconsRegular.chatCircleDots),
-            selectedIcon: Icon(PhosphorIconsFill.chatCircleDots),
+            icon: PhosphorIcon(PhosphorIconsRegular.chatCircleDots),
+            selectedIcon: PhosphorIcon(PhosphorIconsFill.chatCircleDots),
             label: 'Messages',
             badgeCount: 3,
           ),
           NavigationDestination(
-            icon: Icon(PhosphorIconsRegular.bell),
-            selectedIcon: Icon(PhosphorIconsFill.bell),
+            icon: PhosphorIcon(PhosphorIconsRegular.bell),
+            selectedIcon: PhosphorIcon(PhosphorIconsFill.bell),
             label: 'Notifications',
             badgeCount: 128,
           ),

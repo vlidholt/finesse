@@ -1,23 +1,25 @@
+import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:boxy/flex.dart';
 import 'package:finesse/src/components/icon_button.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
+import 'package:finesse/src/theme/components/button.dart';
+import 'package:finesse/src/theme/components/dialog.dart';
+import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/theme/theme_scope.dart';
 import 'package:finesse/src/theme/themes/shadows.dart';
-import 'package:finesse/src/utils/animate.dart';
 import 'package:finesse/src/utils/backdrop.dart';
 import 'package:finesse/src/utils/entrance.dart';
+import 'package:finesse/src/utils/expanded_actions_theme.dart';
 import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:finesse/src/utils/position.dart';
-import 'package:finesse/src/utils/responsive.dart';
+import 'package:finesse/src/utils/route_theme.dart';
 import 'package:finesse/src/utils/separated_iterable.dart';
 import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
 /// {@template DialogRoute}
 /// A custom dialog route that allows specifying a `reverseTransitionDuration`.
@@ -100,42 +102,297 @@ class DialogRoute<T> extends PopupRoute<T> {
 
     if (barrierBlurSigma <= 0) return content;
 
-    // The filter sits above the barrier and below the dialog, and grows with
-    // the route so the page does not snap out of focus. It is not faded in:
-    // under an opacity layer a backdrop filter samples that layer, which is
-    // empty, so on some renderers the blur was missing for the whole
-    // transition and appeared at its end. It must not hit-test either: the
-    // ColoredBox that gives the filter its extent is opaque to taps even
-    // when fully transparent, and without the IgnorePointer it eats the
-    // outside tap that should reach the ModalBarrier and dismiss the route.
-    return Stack(
-      children: [
-        Positioned.fill(
-          child: IgnorePointer(
-            child: AnimatedBuilder(
-              animation: animation,
-              child: const ColoredBox(color: Color(0x00000000)),
-              builder: (context, child) {
-                final sigma = barrierBlurSigma * animation.value;
-                return BackdropFilter(
-                  enabled: sigma > 0,
-                  filter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
-                  child: child,
-                );
-              },
-            ),
-          ),
+    return Stack(children: [_barrierBlur(animation), content]);
+  }
+
+  Widget? _blurLayer;
+  Animation<double>? _blurAnimation;
+
+  /// The blur behind the dialog, growing with [animation].
+  ///
+  /// The framework calls [buildTransitions] on every tick; the layer is made
+  /// once per animation and handed back as the same widget, so a tick
+  /// rebuilds it through its own listener only, not a second time from
+  /// above.
+  ///
+  /// The filter sits above the barrier and below the dialog, and grows with
+  /// the route so the page does not snap out of focus. It is not faded in:
+  /// under an opacity layer a backdrop filter samples that layer, which is
+  /// empty, so on some renderers the blur was missing for the whole
+  /// transition and appeared at its end. It must not hit-test either: the
+  /// ColoredBox that gives the filter its extent is opaque to taps even
+  /// when fully transparent, and without the IgnorePointer it eats the
+  /// outside tap that should reach the ModalBarrier and dismiss the route.
+  Widget _barrierBlur(Animation<double> animation) {
+    final cached = _blurLayer;
+    if (cached != null && identical(animation, _blurAnimation)) return cached;
+    _blurAnimation = animation;
+    return _blurLayer = Positioned.fill(
+      child: IgnorePointer(
+        child: AnimatedBuilder(
+          animation: animation,
+          child: const ColoredBox(color: Color(0x00000000)),
+          builder: (context, child) {
+            final sigma = barrierBlurSigma * animation.value;
+            return BackdropFilter(
+              enabled: sigma > 0,
+              filter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
+              child: child,
+            );
+          },
         ),
-        content,
-      ],
+      ),
     );
   }
 }
 
-/// Displays a [Dialog] as a modal dialog with animation.
+/// How a dialog leaves: a fade, and a slight shrink, on the exit curve.
+@immutable
+class _DialogExit {
+  const _DialogExit({
+    required this.duration,
+    required this.curve,
+    required this.scale,
+  });
+
+  /// The exit for [motion]: quicker than the entrance, and with reduced
+  /// motion a short fade.
+  factory _DialogExit.of(Motion motion) => _DialogExit(
+    duration: motion.normal <= Duration.zero
+        ? Duration.zero
+        : (motion.reduced ? motion.fast : motion.normal),
+    curve: motion.exit,
+    scale: motion.reduced ? 1 : (1 + motion.overlayScale) / 2,
+  );
+
+  final Duration duration;
+  final Curve curve;
+
+  /// The scale the dialog shrinks to while it fades.
+  final double scale;
+
+  @override
+  bool operator ==(Object other) =>
+      other is _DialogExit &&
+      other.duration == duration &&
+      other.curve == curve &&
+      other.scale == scale;
+
+  @override
+  int get hashCode => Object.hash(duration, curve, scale);
+}
+
+/// Plays a dialog's entrance and exit around the route's content.
 ///
-/// Shows a dialog with customizable barrier and animation properties, returning
-/// a [Future] with the result when the dialog is dismissed.
+/// A route's transition is rebuilt on every tick of its animation, each
+/// time around a new [child]. Building the animation there made every
+/// render object below drop its listener and subscribe again sixty times a
+/// second. Here it is made once per direction and kept, with a
+/// [_RouteChildSlot] where the content goes: a tick reaches the slot through
+/// [_RouteChild] and leaves the motion alone.
+class _DialogTransition extends StatefulWidget {
+  const _DialogTransition({
+    required this.animation,
+    required this.enter,
+    required this.exit,
+    required this.child,
+  });
+
+  /// The route's animation. Only its status is read: the dialog moves on a
+  /// controller of its own, for the lengths the route was given.
+  final Animation<double> animation;
+
+  final EntranceSpec enter;
+  final _DialogExit exit;
+  final Widget child;
+
+  @override
+  State<_DialogTransition> createState() => _DialogTransitionState();
+}
+
+class _DialogTransitionState extends State<_DialogTransition> {
+  Widget? _animated;
+  bool _entering = false;
+
+  @override
+  void didUpdateWidget(_DialogTransition oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.enter != oldWidget.enter || widget.exit != oldWidget.exit) {
+      _animated = null;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // The status changes on a tick, so the rebuild that tick causes is
+    // enough to see it; no listener of its own.
+    final status = widget.animation.status;
+    var content = _animated;
+    if (status == AnimationStatus.completed) {
+      // At rest the dialog is under no transform at all.
+      content = const _RouteChildSlot();
+    } else {
+      final entering = status == AnimationStatus.forward;
+      if (content == null || entering != _entering) {
+        _entering = entering;
+        content = _animated = _DialogMotion(
+          entering: entering,
+          enter: widget.enter,
+          exit: widget.exit,
+          child: const _RouteChildSlot(),
+        );
+      }
+    }
+    return _RouteChild(routeChild: widget.child, child: content);
+  }
+}
+
+/// The dialog on its way in or on its way out.
+///
+/// One controller for both: it starts after the frame that first builds
+/// this widget, and starts over at once when the direction changes — a
+/// dialog closed before it had arrived.
+class _DialogMotion extends StatefulWidget {
+  const _DialogMotion({
+    required this.entering,
+    required this.enter,
+    required this.exit,
+    required this.child,
+  });
+
+  final bool entering;
+  final EntranceSpec enter;
+  final _DialogExit exit;
+  final Widget child;
+
+  @override
+  State<_DialogMotion> createState() => _DialogMotionState();
+}
+
+class _DialogMotionState extends State<_DialogMotion>
+    with SingleTickerProviderStateMixin {
+  late final _controller = AnimationController(
+    vsync: this,
+    duration: _duration,
+  );
+
+  Duration get _duration =>
+      widget.entering ? widget.enter.duration : widget.exit.duration;
+
+  /// How far in the entrance had got when the exit took over: the exit
+  /// starts there rather than jumping back into full view.
+  ({double opacity, double scale}) _exitFrom = (opacity: 1, scale: 1);
+
+  /// The exit's fade and shrink, made when the exit they are for changes:
+  /// an animation made in `build` is a new listener on every build.
+  _DialogExit? _exitFor;
+  late Animation<double> _exitFade;
+  late Animation<double> _exitScale;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _controller.forward(from: 0);
+    });
+  }
+
+  @override
+  void didUpdateWidget(_DialogMotion oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.entering && !widget.entering) {
+      _exitFrom = oldWidget.enter.isInstant
+          ? (opacity: 1, scale: 1)
+          : OverlayEntrance.paintedAt(
+              _controller,
+              oldWidget.enter,
+              Motion.of(context),
+            );
+      _exitFor = null;
+    }
+    final duration = _duration;
+    if (widget.entering != oldWidget.entering ||
+        duration != _controller.duration) {
+      _controller
+        ..duration = duration
+        ..forward(from: 0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Either way the fade goes through a host: a glass dialog takes it
+    // over; see [BackdropFade].
+    if (widget.entering) {
+      if (widget.enter.isInstant) return widget.child;
+      return OverlayEntrance(
+        controller: _controller,
+        spec: widget.enter,
+        autoPlay: false,
+        child: widget.child,
+      );
+    }
+    final exit = widget.exit;
+    if (exit.duration <= Duration.zero) return widget.child;
+    if (exit != _exitFor) {
+      _exitFor = exit;
+      final from = _exitFrom;
+      final progress = _controller.drive(CurveTween(curve: exit.curve));
+      _exitFade = progress.drive(Tween<double>(begin: from.opacity, end: 0));
+      // A dialog that had not grown as far as the exit shrinks to stays
+      // the size it was.
+      _exitScale = progress.drive(
+        Tween<double>(
+          begin: from.scale,
+          end: math.min(from.scale, exit.scale),
+        ),
+      );
+    }
+    final Widget faded = BackdropFadeHost(
+      opacity: _exitFade,
+      child: widget.child,
+    );
+    if (exit.scale == 1 && _exitFrom.scale == 1) return faded;
+    return ScaleTransition(scale: _exitScale, child: faded);
+  }
+}
+
+/// Carries a route's content past widgets that must not be rebuilt for it.
+class _RouteChild extends InheritedWidget {
+  const _RouteChild({required this.routeChild, required super.child});
+
+  final Widget routeChild;
+
+  @override
+  bool updateShouldNotify(_RouteChild oldWidget) =>
+      routeChild != oldWidget.routeChild;
+}
+
+/// Where the content carried by the nearest [_RouteChild] is built.
+class _RouteChildSlot extends StatelessWidget {
+  const _RouteChildSlot();
+
+  @override
+  Widget build(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<_RouteChild>()!.routeChild;
+}
+
+/// Shows a [Dialog] as a modal route.
+///
+/// The dialog scales up out of the middle of the screen and leaves faster
+/// than it came, on the theme's motion tokens (`Motion.of`); the barrier's
+/// tint and blur ramp with the route. The future completes with the value
+/// the route was popped with.
+///
+/// The [builder] returns the dialog — `Dialog(...)` or `Dialog.alert(...)`;
+/// the variant is the widget's to state. The barrier is styled by
+/// `ThemeData.primaryDialogTheme` for both.
 Future<T?> showDialog<T>({
   /// The build context in which to show the dialog.
   required BuildContext context,
@@ -172,106 +429,31 @@ Future<T?> showDialog<T>({
   /// The anchor point for positioning the dialog.
   Offset? anchorPoint,
 
-  /// The animation effects when the dialog appears.
-  /// Defaults to the theme's, and then to `EntranceEffect.forMotion`: a fade
-  /// with a little growth, on the theme's motion tokens.
-  List<Effect<dynamic>>? animateIn,
-
-  /// The animation effects when the dialog disappears.
-  /// Defaults to the theme's, and then to a quicker fade and shrink on the
-  /// theme's motion tokens.
-  List<Effect<dynamic>>? animateOut,
-
-  /// The variant of the dialog to display.
-  /// Defaults to [DialogVariant.primary].
-  DialogVariant variant = DialogVariant.primary,
-
   /// Whether the route occludes the routes behind it.
   /// When false, [MediaQuery.viewInsetsOf] from the host scaffold will be
   /// available in the dialog context, allowing keyboard-aware content.
   /// Defaults to true (standard dialog behavior).
   bool opaque = false,
 }) {
-  final theme = Theme.of(context);
-  final effectiveDialogTheme = switch (variant) {
-    DialogVariant.primary => theme.primaryDialogTheme,
-    DialogVariant.alert => theme.alertDialogTheme,
-  };
-
   // The dialog scales up out of the middle of the screen while the route
   // ramps the barrier's tint and blur behind it, and leaves faster than it
   // came. With reduced motion both are a short fade; with none, nothing.
   final motion = Motion.of(context);
-  final effectiveAnimateIn =
-      animateIn ??
-      effectiveDialogTheme.animateIn ??
-      EntranceEffect.forMotion(motion);
+  final enter = EntranceSpec.of(motion);
+  final exit = _DialogExit.of(motion);
 
-  final exitScale = motion.reduced ? 1.0 : (1 + motion.overlayScale) / 2;
-  final effectiveAnimateOut =
-      animateOut ??
-      effectiveDialogTheme.animateOut ??
-      <Effect<dynamic>>[
-        if (motion.normal > Duration.zero) ...[
-          FadeEffect(
-            begin: 1,
-            end: 0,
-            duration: motion.reduced ? motion.fast : motion.normal,
-            curve: motion.exit,
-          ),
-          if (exitScale != 1)
-            ScaleEffect(
-              begin: const Offset(1, 1),
-              end: Offset(exitScale, exitScale),
-              duration: motion.normal,
-              curve: motion.exit,
-            ),
-        ],
-      ];
-
-  /// Returns the maximum duration(including delay) from
-  /// the list of [Effect]s.
-  Duration maxCompletionDuration(List<Effect<dynamic>> effects) {
-    if (effects.isEmpty) return Duration.zero;
-
-    return effects.fold<Duration>(
-      Duration.zero, // start with zero
-      (max, effect) {
-        final effectTotal =
-            (effect.delay ?? Duration.zero) +
-            (effect.duration ?? Animate.defaultDuration);
-        return effectTotal > max ? effectTotal : max;
-      },
-    );
-  }
-
-  // A route is built under the Navigator, so it does not see a Theme that
-  // was applied to a subtree — only the app-level one. When the call site is
-  // re-themed (see ThemeScope), republish its theme inside the route so
-  // the dialog matches its surroundings. Otherwise follow the app-level theme
-  // live: capturing it here froze an open dialog or sheet in the theme it was
-  // opened with, so a light/dark switch left it behind.
   final ambientTheme = Theme.of(context, listen: false);
   final navigator = Navigator.of(context, rootNavigator: useRootNavigator);
-  final themedLocally =
-      ambientTheme != Theme.maybeOf(navigator.context, listen: false);
-  final opener = context;
 
   return navigator.push(
     DialogRoute(
-      pageBuilder: (routeContext) {
-        // Depend on the app-level theme in both cases, so the route rebuilds
-        // when it changes; a re-themed opener is re-read at that point.
-        final appTheme = Theme.maybeOf(routeContext);
-        return ThemeScope(
-          data: !themedLocally && appTheme != null
-              ? appTheme
-              : opener.mounted
-              ? Theme.of(opener, listen: false)
-              : ambientTheme,
-          child: Builder(builder: builder),
-        );
-      },
+      // Themed like the place it was opened from, or following the app's
+      // theme live; see [routeThemedBuilder].
+      pageBuilder: routeThemedBuilder(
+        opener: context,
+        navigator: navigator,
+        builder: builder,
+      ),
       barrierColor:
           barrierColor ??
           ambientTheme.primaryDialogTheme.barrierColor ??
@@ -286,17 +468,14 @@ Future<T?> showDialog<T>({
       anchorPoint: anchorPoint,
       settings: routeSettings,
       opaque: opaque,
-      transitionDuration: maxCompletionDuration(effectiveAnimateIn),
-      reverseTransitionDuration: maxCompletionDuration(effectiveAnimateOut),
+      // The route lasts as long as the dialog takes either way.
+      transitionDuration: enter.duration,
+      reverseTransitionDuration: exit.duration,
       transitionBuilder: (context, animation, secondaryAnimation, child) {
-        if (animation.status == AnimationStatus.completed) {
-          return child;
-        }
-        final animateIn = animation.status == AnimationStatus.forward;
-        return FinesseAnimate(
-          effects: animateIn ? effectiveAnimateIn : effectiveAnimateOut,
-          // A glass dialog takes the fade over; see [BackdropFade].
-          fadeThroughBackdrop: true,
+        return _DialogTransition(
+          animation: animation,
+          enter: enter,
+          exit: exit,
           child: child,
         );
       },
@@ -307,8 +486,8 @@ Future<T?> showDialog<T>({
 /// Variants available for the [Dialog] widget.
 enum DialogVariant {
   /// A standard dialog. Like an alert it has no close button unless it is
-  /// given one (`closeIconData` or `closeIcon`): it is dismissed by a tap on
-  /// the barrier, by Escape, or by one of its actions.
+  /// given one (`showCloseButton` or `closeButton`): it is dismissed by a tap
+  /// on the barrier, by Escape, or by one of its actions.
   primary,
 
   /// A dialog that needs a response. It has no close button by default, so the
@@ -321,50 +500,28 @@ enum DialogVariant {
 /// The [Dialog] widget provides a styled container for presenting a title,
 /// description, custom content, and actions in a modal format. It supports
 /// variants (primary and alert) and integrates with [Theme] for styling.
-/// Use named constructors like [Dialog.alert] for alert-specific styling or
-/// [Dialog.raw] for full control.
+/// Pass `variant:` or use [Dialog.alert], the shortcut for the alert variant.
 class Dialog extends StatelessWidget {
-  /// Creates a primary variant dialog widget.
+  /// Creates a dialog: the primary variant unless [variant] says otherwise.
   const Dialog({
     super.key,
+    this.variant = DialogVariant.primary,
     this.title,
     this.description,
     this.child,
     this.actions = const [],
+    this.showCloseButton,
     this.closeIcon,
-    this.closeIconData,
-    this.onClose,
+    this.closeButton,
+    this.onDismissed,
     this.semanticLabel,
-    this.closeIconPosition,
-    this.radius,
-    this.backgroundColor,
-    this.expandActionsWhenTiny,
-    this.padding,
-    this.gap,
-    this.constraints,
-    this.border,
-    this.shadows,
-    this.filter,
-    this.removeBorderRadiusWhenTiny,
-    this.actionsAxis,
-    this.actionsMainAxisSize,
-    this.actionsMainAxisAlignment,
-    this.actionsVerticalDirection,
-    this.titleStyle,
-    this.descriptionStyle,
-    this.titleTextAlign,
-    this.descriptionTextAlign,
-    this.alignment,
-    this.mainAxisAlignment,
-    this.crossAxisAlignment,
     this.scrollable,
-    this.scrollPadding,
-    this.actionsGap,
     this.useSafeArea,
     this.titlePinned,
     this.descriptionPinned,
     this.actionsPinned,
-  }) : variant = DialogVariant.primary;
+    this.style,
+  });
 
   /// Creates an alert variant dialog widget, typically for warnings or
   /// critical messages.
@@ -374,84 +531,18 @@ class Dialog extends StatelessWidget {
     this.description,
     this.child,
     this.actions = const [],
+    this.showCloseButton,
     this.closeIcon,
-    this.closeIconData,
-    this.onClose,
+    this.closeButton,
+    this.onDismissed,
     this.semanticLabel,
-    this.closeIconPosition,
-    this.radius,
-    this.backgroundColor,
-    this.expandActionsWhenTiny,
-    this.padding,
-    this.gap,
-    this.constraints,
-    this.border,
-    this.shadows,
-    this.filter,
-    this.removeBorderRadiusWhenTiny,
-    this.actionsAxis,
-    this.actionsMainAxisSize,
-    this.actionsMainAxisAlignment,
-    this.actionsVerticalDirection,
-    this.titleStyle,
-    this.descriptionStyle,
-    this.titleTextAlign,
-    this.descriptionTextAlign,
-    this.alignment,
-    this.mainAxisAlignment,
-    this.crossAxisAlignment,
     this.scrollable,
-    this.scrollPadding,
-    this.actionsGap,
     this.useSafeArea,
     this.titlePinned,
     this.descriptionPinned,
     this.actionsPinned,
+    this.style,
   }) : variant = DialogVariant.alert;
-
-  /// Creates a dialog widget with a specified [variant], offering full
-  /// customization.
-  const Dialog.raw({
-    super.key,
-    required this.variant,
-    this.title,
-    this.description,
-    this.child,
-    this.actions = const [],
-    this.closeIcon,
-    this.closeIconData,
-    this.onClose,
-    this.semanticLabel,
-    this.closeIconPosition,
-    this.radius,
-    this.backgroundColor,
-    this.expandActionsWhenTiny,
-    this.padding,
-    this.gap,
-    this.constraints,
-    this.border,
-    this.shadows,
-    this.filter,
-    this.removeBorderRadiusWhenTiny,
-    this.actionsAxis,
-    this.actionsMainAxisSize,
-    this.actionsMainAxisAlignment,
-    this.actionsVerticalDirection,
-    this.titleStyle,
-    this.descriptionStyle,
-    this.titleTextAlign,
-    this.descriptionTextAlign,
-    this.alignment,
-    this.mainAxisAlignment,
-    this.crossAxisAlignment,
-    this.scrollable,
-    this.scrollPadding,
-    this.actionsGap,
-    this.useSafeArea,
-    this.titlePinned,
-    this.descriptionPinned,
-    this.actionsPinned,
-  });
 
   /// {@template Dialog.title}
   /// The title widget displayed at the top of the dialog.
@@ -480,36 +571,39 @@ class Dialog extends StatelessWidget {
 
   /// {@template Dialog.actions}
   /// The list of action widgets displayed at the bottom of the dialog.
-  /// Typically buttons, arranged based on [actionsAxis].
+  /// Typically buttons, laid out along the theme's `actionsAxis`.
   /// Defaults to an empty list if not specified.
   /// {@endtemplate}
   final List<Widget> actions;
 
-  /// {@template Dialog.closeIcon}
-  /// A custom widget for the close button, shown in the dialog's top end
-  /// corner. Overrides [closeIconData].
+  /// {@template Dialog.showCloseButton}
+  /// Whether the dialog has a close button in its top end corner.
   ///
-  /// A dialog has no close button by default: give it an action that
-  /// closes it — a Cancel or Close button — or pass [closeIconData] to get
-  /// the ghost button with that icon.
+  /// Null, the default, follows the theme, and the built-in themes say no:
+  /// a dialog is closed by one of its actions — a Cancel or Close button —
+  /// by Escape or by a tap outside.
+  /// {@endtemplate}
+  final bool? showCloseButton;
+
+  /// {@template Dialog.closeIcon}
+  /// The icon of the close button; a cross by default. Shown when
+  /// [showCloseButton] is true.
   /// {@endtemplate}
   final Widget? closeIcon;
 
-  /// {@template Dialog.closeIconData}
-  /// The icon of the close button, such as [PhosphorIconsRegular.x].
-  ///
-  /// Null, the default, falls back to the theme's `closeIconData`, and when
-  /// that is null too — as it is in the built-in themes — the dialog has no
-  /// close button. Not used when [closeIcon] is given.
+  /// {@template Dialog.closeButton}
+  /// A widget that stands in for the close button, shown in the dialog's
+  /// top end corner whatever [showCloseButton] says. It closes the dialog
+  /// itself; [closeIcon] and [onDismissed] are not used.
   /// {@endtemplate}
-  final IconData? closeIconData;
+  final Widget? closeButton;
 
-  /// {@template Dialog.onClose}
-  /// Called when the default close button is pressed. Defaults to
-  /// `Navigator.maybePop`, which respects a `PopScope` around the dialog.
-  /// Not used when [closeIcon] replaces the button.
+  /// {@template Dialog.onDismissed}
+  /// Called when the user dismisses the dialog with the default close
+  /// button, in place of `Navigator.maybePop`, which respects a `PopScope`
+  /// around the dialog. Not used when [closeButton] replaces the button.
   /// {@endtemplate}
-  final VoidCallback? onClose;
+  final VoidCallback? onDismissed;
 
   /// {@template Dialog.semanticLabel}
   /// The accessible name of the dialog, announced when it opens.
@@ -519,138 +613,12 @@ class Dialog extends StatelessWidget {
   /// {@endtemplate}
   final String? semanticLabel;
 
-  /// {@template Dialog.closeIconPosition}
-  /// The position of the close icon within the dialog.
-  /// Defaults to top-end (8, 8) if not specified.
-  /// {@endtemplate}
-  final Position? closeIconPosition;
-
-  /// {@template Dialog.radius}
-  /// The border radius of the dialog’s corners.
-  /// Defaults to the theme’s radius if not specified.
-  /// {@endtemplate}
-  final BorderRadius? radius;
-
-  /// {@template Dialog.backgroundColor}
-  /// The background color of the dialog.
-  /// Defaults to the theme’s background color if not specified.
-  /// {@endtemplate}
-  final Color? backgroundColor;
-
-  /// {@template Dialog.expandActionsWhenTiny}
-  /// Whether actions expand to full width on small screens.
-  /// Defaults to true if not specified.
-  /// {@endtemplate}
-  final bool? expandActionsWhenTiny;
-
-  /// {@template Dialog.padding}
-  /// The padding inside the dialog, surrounding all content.
-  /// Defaults to EdgeInsets.all(24) if not specified.
-  /// {@endtemplate}
-  final EdgeInsetsGeometry? padding;
-
-  /// {@template Dialog.gap}
-  /// The gap between content elements (title, description, child, actions).
-  /// Defaults to 8 if not specified.
-  /// {@endtemplate}
-  final double? gap;
-
-  /// {@template Dialog.constraints}
-  /// Constraints applied to the dialog’s layout.
-  /// Defaults to a max width of 512 if not specified.
-  /// {@endtemplate}
-  final BoxConstraints? constraints;
-
-  /// {@template Dialog.border}
-  /// The border surrounding the dialog.
-  /// Defaults to a border with the theme’s border color if not specified.
-  /// {@endtemplate}
-  final BoxBorder? border;
-
-  /// {@template Dialog.shadows}
-  /// The list of box shadows applied to the dialog for elevation.
-  /// Defaults to large shadows if not specified.
-  /// {@endtemplate}
-  final List<BoxShadow>? shadows;
-
-  /// {@template Dialog.filter}
-  /// A filter applied to what is behind the dialog, for a translucent
-  /// [backgroundColor]: the blur of a glass surface. Null, the default,
-  /// applies none.
-  /// {@endtemplate}
-  final ImageFilter? filter;
-
-  /// {@template Dialog.removeBorderRadiusWhenTiny}
-  /// Whether to remove the border radius on small screens.
-  /// Defaults to true if not specified.
-  /// {@endtemplate}
-  final bool? removeBorderRadiusWhenTiny;
-
-  /// {@template Dialog.actionsAxis}
-  /// The axis along which actions are arranged (horizontal or vertical).
-  /// Responsive to screen size if not specified.
-  /// {@endtemplate}
-  final Axis? actionsAxis;
-
-  /// {@template Dialog.actionsMainAxisSize}
-  /// The main axis size of the actions layout.
-  /// Defaults to [MainAxisSize.max] if not specified.
-  /// {@endtemplate}
-  final MainAxisSize? actionsMainAxisSize;
-
-  /// {@template Dialog.actionsMainAxisAlignment}
-  /// The main axis alignment of the actions.
-  /// Defaults to [MainAxisAlignment.end] if not specified.
-  /// {@endtemplate}
-  final MainAxisAlignment? actionsMainAxisAlignment;
-
-  /// {@template Dialog.actionsVerticalDirection}
-  /// The vertical direction of the actions layout when vertical.
-  /// Responsive to screen size if not specified.
-  /// {@endtemplate}
-  final VerticalDirection? actionsVerticalDirection;
-
-  /// {@template Dialog.titleStyle}
-  /// The text style for the title.
-  /// Defaults to the theme’s large text style if not specified.
-  /// {@endtemplate}
-  final TextStyle? titleStyle;
-
-  /// {@template Dialog.descriptionStyle}
-  /// The text style for the description.
-  /// Defaults to the theme’s muted text style if not specified.
-  /// {@endtemplate}
-  final TextStyle? descriptionStyle;
-
-  /// {@template Dialog.titleTextAlign}
-  /// The text alignment for the title.
-  /// Responsive to screen size if not specified.
-  /// {@endtemplate}
-  final TextAlign? titleTextAlign;
-
-  /// {@template Dialog.descriptionTextAlign}
-  /// The text alignment for the description.
-  /// Responsive to screen size if not specified.
-  /// {@endtemplate}
-  final TextAlign? descriptionTextAlign;
-
-  /// {@template Dialog.alignment}
-  /// The alignment of the dialog within its parent container.
-  /// Defaults to [Alignment.center] if not specified.
-  /// {@endtemplate}
-  final Alignment? alignment;
-
-  /// {@template Dialog.mainAxisAlignment}
-  /// The main axis alignment of the dialog’s column content.
-  /// Defaults to [MainAxisAlignment.start] if not specified.
-  /// {@endtemplate}
-  final MainAxisAlignment? mainAxisAlignment;
-
-  /// {@template Dialog.crossAxisAlignment}
-  /// The cross axis alignment of the dialog’s column content.
-  /// Defaults to [CrossAxisAlignment.start] if not specified.
-  /// {@endtemplate}
-  final CrossAxisAlignment? crossAxisAlignment;
+  /// Overrides of the variant's `DialogTheme` for this dialog: its size
+  /// and placement, padding and gaps, fill, filter, border, corners,
+  /// shadows, the styles and alignment of its text, how its actions are
+  /// laid out and where its close button sits. It is merged over the
+  /// theme, so only the fields that are set change anything.
+  final DialogTheme? style;
 
   /// {@template Dialog.scrollable}
   /// Whether the dialog content is scrollable.
@@ -658,21 +626,6 @@ class Dialog extends StatelessWidget {
   /// Defaults to true if not specified.
   /// {@endtemplate}
   final bool? scrollable;
-
-  /// {@template Dialog.scrollPadding}
-  /// The padding applied when the dialog content is scrollable.
-  ///
-  /// If not specified, no additional padding is applied to the scrollable
-  /// content.
-  /// {@endtemplate}
-  final EdgeInsetsGeometry? scrollPadding;
-
-  /// {@template Dialog.actionsGap}
-  /// The gap between action buttons.
-
-  /// Defaults to 8 if not specified.
-  /// {@endtemplate}
-  final double? actionsGap;
 
   /// {@template Dialog.useSafeArea}
   /// Whether to wrap the dialog in a SafeArea widget to avoid system UI
@@ -703,45 +656,53 @@ class Dialog extends StatelessWidget {
   /// {@endtemplate}
   final bool? actionsPinned;
 
+  /// Whether [action] lays buttons out side by side: a [Flex] across, or
+  /// one in a [Flexible].
+  static bool _isRow(Widget action) {
+    final inner = action is Flexible ? action.child : action;
+    return inner is Flex && inner.direction == Axis.horizontal;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final effectiveDialogTheme = switch (variant) {
       DialogVariant.primary => theme.primaryDialogTheme,
       DialogVariant.alert => theme.alertDialogTheme,
-    };
+    }.merge(style);
 
     final effectiveBackgroundColor =
-        backgroundColor ??
-        effectiveDialogTheme.backgroundColor ??
-        theme.colorScheme.background;
+        effectiveDialogTheme.backgroundColor ?? theme.colorScheme.background;
+
+    final effectiveShowCloseButton =
+        showCloseButton ?? effectiveDialogTheme.showCloseButton ?? false;
 
     final effectiveCloseIcon =
-        closeIcon ??
-        (closeIconData == null && effectiveDialogTheme.closeIconData == null
+        closeButton ??
+        (!effectiveShowCloseButton
             ? null
             : IconButton.ghost(
-                icon: Icon(
-                  size: 16,
-                  closeIconData ??
-                      effectiveDialogTheme.closeIconData ??
-                      PhosphorIconsRegular.x,
+                icon:
+                    closeIcon ??
+                    effectiveDialogTheme.closeIcon ??
+                    const PhosphorIcon(PhosphorIconsRegular.x, size: 16),
+                style: ButtonTheme(
+                  width: 20,
+                  height: 20,
+                  padding: EdgeInsets.zero,
+                  foregroundColor: theme.colorScheme.foreground.withValues(
+                    alpha: .5,
+                  ),
+                  hoverBackgroundColor: const Color(0x00000000),
+                  hoverForegroundColor: theme.colorScheme.foreground,
+                  pressedForegroundColor: theme.colorScheme.foreground,
                 ),
-                width: 20,
-                height: 20,
-                padding: EdgeInsets.zero,
-                foregroundColor: theme.colorScheme.foreground.withValues(
-                  alpha: .5,
-                ),
-                hoverBackgroundColor: const Color(0x00000000),
-                hoverForegroundColor: theme.colorScheme.foreground,
-                pressedForegroundColor: theme.colorScheme.foreground,
                 semanticLabel: FinesseLocalizations.of(context).dialog.close,
-                onPressed: onClose ?? () => Navigator.of(context).maybePop(),
+                onPressed:
+                    onDismissed ?? () => Navigator.of(context).maybePop(),
               ));
 
     final effectiveCloseIconPosition =
-        closeIconPosition ??
         effectiveDialogTheme.closeIconPosition ??
         Position.directional(
           top: 8,
@@ -749,69 +710,48 @@ class Dialog extends StatelessWidget {
           textDirection: Directionality.of(context),
         );
 
-    final effectiveRadius =
-        radius ?? effectiveDialogTheme.radius ?? theme.radius;
-
-    final effectiveExpandActionsWhenTiny =
-        expandActionsWhenTiny ??
-        effectiveDialogTheme.expandActionsWhenTiny ??
-        true;
+    final effectiveRadius = effectiveDialogTheme.borderRadius ?? theme.radius;
 
     final effectiveConstraints =
-        constraints ??
-        effectiveDialogTheme.constraints ??
-        const BoxConstraints(maxWidth: 512);
+        effectiveDialogTheme.constraints ?? const BoxConstraints(maxWidth: 512);
 
     final effectiveBorder =
-        border ??
         effectiveDialogTheme.border ??
         Border.all(color: theme.colorScheme.border);
 
-    final effectiveShadows =
-        shadows ?? effectiveDialogTheme.shadows ?? Shadows.lg;
+    final effectiveShadows = effectiveDialogTheme.shadows ?? Shadows.lg;
 
-    final effectiveRemoveBorderRadiusWhenTiny =
-        removeBorderRadiusWhenTiny ??
-        effectiveDialogTheme.removeBorderRadiusWhenTiny ??
-        true;
     final effectivePadding =
-        padding ?? effectiveDialogTheme.padding ?? const EdgeInsets.all(24);
+        effectiveDialogTheme.padding ?? const EdgeInsets.all(24);
 
-    final effectiveGap = gap ?? effectiveDialogTheme.gap ?? 8;
+    final effectiveGap = effectiveDialogTheme.gap ?? 8;
 
     final effectiveTitleStyle =
-        (titleStyle ?? effectiveDialogTheme.titleStyle ?? theme.textTheme.large)
-            .fallback(color: theme.colorScheme.foreground);
+        (effectiveDialogTheme.titleStyle ?? theme.textTheme.large).fallback(
+          color: theme.colorScheme.foreground,
+        );
 
     final effectiveDescriptionStyle =
-        (descriptionStyle ??
-                effectiveDialogTheme.descriptionStyle ??
-                theme.textTheme.muted)
+        (effectiveDialogTheme.descriptionStyle ?? theme.textTheme.muted)
             .fallback(
               color: theme.colorScheme.mutedForeground,
             );
 
     final effectiveAlignment =
-        alignment ?? effectiveDialogTheme.alignment ?? Alignment.center;
+        effectiveDialogTheme.alignment ?? Alignment.center;
 
     final effectiveMainAxisAlignment =
-        mainAxisAlignment ??
-        effectiveDialogTheme.mainAxisAlignment ??
-        MainAxisAlignment.start;
+        effectiveDialogTheme.mainAxisAlignment ?? MainAxisAlignment.start;
 
     final effectiveCrossAxisAlignment =
-        crossAxisAlignment ??
-        effectiveDialogTheme.crossAxisAlignment ??
-        CrossAxisAlignment.start;
+        effectiveDialogTheme.crossAxisAlignment ?? CrossAxisAlignment.start;
 
     final effectiveScrollable =
         scrollable ?? effectiveDialogTheme.scrollable ?? true;
 
-    final effectiveScrollPadding =
-        scrollPadding ?? effectiveDialogTheme.scrollPadding;
+    final effectiveScrollPadding = effectiveDialogTheme.scrollPadding;
 
-    final effectiveActionsGap =
-        actionsGap ?? effectiveDialogTheme.actionsGap ?? 8;
+    final effectiveActionsGap = effectiveDialogTheme.actionsGap ?? 8;
 
     final effectiveUseSafeArea =
         useSafeArea ?? effectiveDialogTheme.useSafeArea ?? true;
@@ -825,191 +765,202 @@ class Dialog extends StatelessWidget {
     final effectiveActionsPinned =
         actionsPinned ?? effectiveDialogTheme.actionsPinned ?? true;
 
-    final dialog = ConstrainedBox(
-      constraints: effectiveConstraints,
-      child: ResponsiveBuilder(
-        builder: (context, breakpoint) {
-          final sm = breakpoint >= theme.breakpoints.sm;
+    // The phone layout follows the theme's form factor, not the window:
+    // actions stacked and as wide as the dialog, text centred.
+    final mobile = theme.formFactor == FormFactor.mobile;
+    final sm = !mobile;
 
-          final effectiveActionsAxis =
-              actionsAxis ??
-              effectiveDialogTheme.actionsAxis ??
-              (sm ? Axis.horizontal : Axis.vertical);
-
-          final effectiveActionsMainAxisSize =
-              actionsMainAxisSize ??
-              effectiveDialogTheme.actionsMainAxisSize ??
-              MainAxisSize.min;
-
-          final effectiveActionsMainAxisAlignment =
-              actionsMainAxisAlignment ??
-              effectiveDialogTheme.actionsMainAxisAlignment ??
-              MainAxisAlignment.end;
-
-          final effectiveActionsVerticalDirection =
-              actionsVerticalDirection ??
-              effectiveDialogTheme.actionsVerticalDirection ??
-              (sm ? VerticalDirection.down : VerticalDirection.up);
-
-          final effectiveTitleTextAlign =
-              titleTextAlign ??
-              effectiveDialogTheme.titleTextAlign ??
-              (sm ? TextAlign.start : TextAlign.center);
-
-          final effectiveDescriptionTextAlign =
-              descriptionTextAlign ??
-              effectiveDialogTheme.descriptionTextAlign ??
-              (sm ? TextAlign.start : TextAlign.center);
-
-          Widget? effectiveActions = actions.isEmpty
-              ? null
-              : BoxyFlexible.align(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  child: Flex(
-                    direction: effectiveActionsAxis,
-                    mainAxisSize: effectiveActionsMainAxisSize,
-                    mainAxisAlignment: effectiveActionsMainAxisAlignment,
-                    verticalDirection: effectiveActionsVerticalDirection,
-                    spacing: effectiveActionsGap,
-                    children: actions,
-                  ),
-                );
-
-          if (!sm &&
-              effectiveExpandActionsWhenTiny &&
-              effectiveActions != null) {
-            effectiveActions = Theme(
-              data: theme.copyWith(
-                primaryButtonTheme: theme.primaryButtonTheme.copyWith(
-                  width: double.infinity,
-                  expands: true,
+    final dialog = LayoutBuilder(
+      builder: (context, available) {
+        // On a phone a dialog that has the whole width of the screen, and
+        // could take it, does: it is a band across the screen, with no
+        // corners to round. One that floats — on a wider screen, inside
+        // margins — is as wide as its content and keeps them.
+        final screenWidth = MediaQuery.sizeOf(context).width;
+        final edgeToEdge =
+            mobile &&
+            available.maxWidth >= screenWidth - .5 &&
+            screenWidth <= effectiveConstraints.maxWidth;
+        final constraints = edgeToEdge
+            ? effectiveConstraints.copyWith(
+                minWidth: math.max(
+                  effectiveConstraints.minWidth,
+                  available.maxWidth,
                 ),
-                secondaryButtonTheme: theme.secondaryButtonTheme.copyWith(
-                  width: double.infinity,
-                  expands: true,
-                ),
-                outlineButtonTheme: theme.outlineButtonTheme.copyWith(
-                  width: double.infinity,
-                  expands: true,
-                ),
-                ghostButtonTheme: theme.ghostButtonTheme.copyWith(
-                  width: double.infinity,
-                  expands: true,
-                ),
-                destructiveButtonTheme: theme.destructiveButtonTheme.copyWith(
-                  width: double.infinity,
-                  expands: true,
-                ),
-              ),
-              // Full-width buttons give their labels the button's width, so
-              // a long label ellipsizes instead of overflowing the button.
-              child: DefaultTextStyle.merge(
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                softWrap: false,
-                child: effectiveActions,
-              ),
-            );
-          }
+              )
+            : effectiveConstraints;
 
-          final effectiveTitle = title != null
-              ? DefaultTextStyle(
-                  style: effectiveTitleStyle,
-                  textAlign: effectiveTitleTextAlign,
-                  child: title!,
-                )
-              : null;
+        final effectiveActionsAxis =
+            effectiveDialogTheme.actionsAxis ??
+            (sm ? Axis.horizontal : Axis.vertical);
 
-          final effectiveDescription = description != null
-              ? DefaultTextStyle(
-                  style: effectiveDescriptionStyle,
-                  textAlign: effectiveDescriptionTextAlign,
-                  child: description!,
-                )
-              : null;
+        final effectiveActionsMainAxisSize =
+            effectiveDialogTheme.actionsMainAxisSize ?? MainAxisSize.min;
 
-          final effectiveChild = child != null
-              ? DefaultTextStyle(
-                  style: effectiveDescriptionStyle,
-                  child: child!,
-                )
-              : null;
+        final effectiveActionsMainAxisAlignment =
+            effectiveDialogTheme.actionsMainAxisAlignment ??
+            MainAxisAlignment.end;
 
-          Widget widget = BoxyColumn(
+        final effectiveActionsVerticalDirection =
+            effectiveDialogTheme.actionsVerticalDirection ??
+            (sm ? VerticalDirection.down : VerticalDirection.up);
+
+        final effectiveTitleTextAlign =
+            effectiveDialogTheme.titleTextAlign ??
+            (sm ? TextAlign.start : TextAlign.center);
+
+        final effectiveDescriptionTextAlign =
+            effectiveDialogTheme.descriptionTextAlign ??
+            (sm ? TextAlign.start : TextAlign.center);
+
+        // Stacked on a phone, the actions are as wide as the dialog.
+        final expandActions = mobile && effectiveActionsAxis == Axis.vertical;
+        final expandedTheme = expandActions
+            ? expandedActionsThemeOf(theme)
+            : null;
+
+        Widget? effectiveActions = actions.isEmpty
+            ? null
+            : BoxyFlexible.align(
+                crossAxisAlignment: expandActions
+                    ? CrossAxisAlignment.stretch
+                    : CrossAxisAlignment.end,
+                child: Flex(
+                  direction: effectiveActionsAxis,
+                  mainAxisSize: effectiveActionsMainAxisSize,
+                  mainAxisAlignment: effectiveActionsMainAxisAlignment,
+                  crossAxisAlignment: expandActions
+                      ? CrossAxisAlignment.stretch
+                      : CrossAxisAlignment.center,
+                  verticalDirection: effectiveActionsVerticalDirection,
+                  spacing: effectiveActionsGap,
+                  children: [
+                    for (final action in actions)
+                      // A button fills the dialog's width and gives its
+                      // label that width. The theme that does it reaches
+                      // every button below it, so it goes around any
+                      // action but a row: a button asked to be as wide as
+                      // a row has no width to take, so a row of buttons
+                      // is handed the width and lays out its own. In a
+                      // wrap each button takes a run of its own.
+                      if (expandedTheme != null && !_isRow(action))
+                        Theme(data: expandedTheme, child: action)
+                      else
+                        action,
+                  ],
+                ),
+              );
+
+        if (expandActions && effectiveActions != null) {
+          // A long label ellipsizes instead of overflowing its button.
+          effectiveActions = DefaultTextStyle.merge(
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            softWrap: false,
+            child: effectiveActions,
+          );
+        }
+
+        final effectiveTitle = title != null
+            ? DefaultTextStyle(
+                style: effectiveTitleStyle,
+                textAlign: effectiveTitleTextAlign,
+                child: title!,
+              )
+            : null;
+
+        final effectiveDescription = description != null
+            ? DefaultTextStyle(
+                style: effectiveDescriptionStyle,
+                textAlign: effectiveDescriptionTextAlign,
+                child: description!,
+              )
+            : null;
+
+        final effectiveChild = child != null
+            ? DefaultTextStyle(
+                style: effectiveDescriptionStyle,
+                child: child!,
+              )
+            : null;
+
+        Widget widget = BoxyColumn(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: effectiveMainAxisAlignment,
+          crossAxisAlignment: effectiveCrossAxisAlignment,
+          children: [
+            // Only show title if not scrollable or scrollable but not pinned
+            if (effectiveTitle != null &&
+                (!effectiveScrollable || !effectiveTitlePinned))
+              effectiveTitle,
+            // Only show description if not scrollable or scrollable but not
+            // pinned
+            if (effectiveDescription != null &&
+                (!effectiveScrollable || !effectiveDescriptionPinned))
+              effectiveDescription,
+            if (effectiveChild != null) Flexible(child: effectiveChild),
+            // Only show actions if not scrollable or scrollable but not
+            // pinned
+            if (effectiveActions != null &&
+                (!effectiveScrollable || !effectiveActionsPinned))
+              effectiveActions,
+          ].separatedBy(SizedBox(height: effectiveGap)),
+        );
+
+        if (effectiveScrollable) {
+          widget = BoxyColumn(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: effectiveMainAxisAlignment,
             crossAxisAlignment: effectiveCrossAxisAlignment,
             children: [
-              // Only show title if not scrollable or scrollable but not pinned
-              if (effectiveTitle != null &&
-                  (!effectiveScrollable || !effectiveTitlePinned))
+              // Pinned title
+              if (effectiveTitle != null && effectiveTitlePinned)
                 effectiveTitle,
-              // Only show description if not scrollable or scrollable but not
-              // pinned
-              if (effectiveDescription != null &&
-                  (!effectiveScrollable || !effectiveDescriptionPinned))
+              // Pinned description
+              if (effectiveDescription != null && effectiveDescriptionPinned)
                 effectiveDescription,
-              if (effectiveChild != null) Flexible(child: effectiveChild),
-              // Only show actions if not scrollable or scrollable but not
-              // pinned
-              if (effectiveActions != null &&
-                  (!effectiveScrollable || !effectiveActionsPinned))
+              Flexible(
+                child: SingleChildScrollView(
+                  padding: effectiveScrollPadding,
+                  child: widget,
+                ),
+              ),
+              // Pinned actions
+              if (effectiveActions != null && effectiveActionsPinned)
                 effectiveActions,
             ].separatedBy(SizedBox(height: effectiveGap)),
           );
+        }
 
-          if (effectiveScrollable) {
-            widget = BoxyColumn(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: effectiveMainAxisAlignment,
-              crossAxisAlignment: effectiveCrossAxisAlignment,
-              children: [
-                // Pinned title
-                if (effectiveTitle != null && effectiveTitlePinned)
-                  effectiveTitle,
-                // Pinned description
-                if (effectiveDescription != null && effectiveDescriptionPinned)
-                  effectiveDescription,
-                Flexible(
-                  child: SingleChildScrollView(
-                    padding: effectiveScrollPadding,
-                    child: widget,
-                  ),
-                ),
-                // Pinned actions
-                if (effectiveActions != null && effectiveActionsPinned)
-                  effectiveActions,
-              ].separatedBy(SizedBox(height: effectiveGap)),
-            );
-          }
-
-          widget = Stack(
-            children: [
-              Padding(
-                padding: effectivePadding,
-                child: widget,
+        widget = Stack(
+          children: [
+            Padding(
+              padding: effectivePadding,
+              child: widget,
+            ),
+            if (effectiveCloseIcon != null)
+              effectiveCloseIcon.positionedWith(
+                effectiveCloseIconPosition,
               ),
-              if (effectiveCloseIcon != null)
-                effectiveCloseIcon.positionedWith(effectiveCloseIconPosition),
-            ],
-          );
+          ],
+        );
 
-          if (effectiveUseSafeArea) {
-            widget = SafeArea(child: widget);
-          }
+        if (effectiveUseSafeArea) {
+          widget = SafeArea(child: widget);
+        }
 
-          final surfaceRadius = (!sm && effectiveRemoveBorderRadiusWhenTiny)
-              ? null
-              : effectiveRadius;
-          // Through a `BackdropSurface` even without a filter, so the
-          // route's entrance fade has one place to go either way.
-          return BackdropSurface(
-            filter: filter,
+        final surfaceRadius = edgeToEdge ? null : effectiveRadius;
+        // Through a `BackdropSurface` even without a filter, so the
+        // route's entrance fade has one place to go either way.
+        return ConstrainedBox(
+          constraints: constraints,
+          child: BackdropSurface(
+            filter: effectiveDialogTheme.filter,
             tintOpacity: effectiveBackgroundColor.a,
             borderRadius: surfaceRadius ?? BorderRadius.zero,
             // A filter is clipped, which would cut the shadow off; it is
             // painted outside the clip instead.
-            shadow: filter == null
+            shadow: effectiveDialogTheme.filter == null
                 ? null
                 : ShadowDecoration.box(
                     borderRadius: surfaceRadius,
@@ -1020,13 +971,15 @@ class Dialog extends StatelessWidget {
                 color: effectiveBackgroundColor,
                 borderRadius: surfaceRadius,
                 border: effectiveBorder,
-                shadows: filter == null ? effectiveShadows : const [],
+                shadows: effectiveDialogTheme.filter == null
+                    ? effectiveShadows
+                    : const [],
               ),
               child: widget,
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
 
     // Get the current view padding

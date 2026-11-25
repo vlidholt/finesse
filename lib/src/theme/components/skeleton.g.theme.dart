@@ -28,7 +28,11 @@ mixin _$SkeletonTheme {
     return SkeletonTheme(
       color: Color.lerp(a.color, b.color, t),
       highlightColor: Color.lerp(a.highlightColor, b.highlightColor, t),
-      radius: BorderRadiusGeometry.lerp(a.radius, b.radius, t),
+      borderRadius: BorderRadiusGeometry.lerp(
+        a.borderRadius,
+        b.borderRadius,
+        t,
+      ),
       duration: lerpDuration$(a.duration, b.duration, t),
       curve: t < 0.5 ? a.curve : b.curve,
       animate: t < 0.5 ? a.animate : b.animate,
@@ -39,7 +43,7 @@ mixin _$SkeletonTheme {
   SkeletonTheme copyWith({
     Color? color,
     Color? highlightColor,
-    BorderRadiusGeometry? radius,
+    BorderRadiusGeometry? borderRadius,
     Duration? duration,
     Curve? curve,
     bool? animate,
@@ -50,7 +54,7 @@ mixin _$SkeletonTheme {
     return SkeletonTheme(
       color: color ?? _this.color,
       highlightColor: highlightColor ?? _this.highlightColor,
-      radius: radius ?? _this.radius,
+      borderRadius: borderRadius ?? _this.borderRadius,
       duration: duration ?? _this.duration,
       curve: curve ?? _this.curve,
       animate: animate ?? _this.animate,
@@ -72,7 +76,7 @@ mixin _$SkeletonTheme {
     return copyWith(
       color: other.color,
       highlightColor: other.highlightColor,
-      radius: other.radius,
+      borderRadius: other.borderRadius,
       duration: other.duration,
       curve: other.curve,
       animate: other.animate,
@@ -95,7 +99,7 @@ mixin _$SkeletonTheme {
 
     return _other.color == _this.color &&
         _other.highlightColor == _this.highlightColor &&
-        _other.radius == _this.radius &&
+        _other.borderRadius == _this.borderRadius &&
         _other.duration == _this.duration &&
         _other.curve == _this.curve &&
         _other.animate == _this.animate &&
@@ -110,7 +114,7 @@ mixin _$SkeletonTheme {
       runtimeType,
       _this.color,
       _this.highlightColor,
-      _this.radius,
+      _this.borderRadius,
       _this.duration,
       _this.curve,
       _this.animate,

@@ -14,18 +14,18 @@ class AlertDefaultExample extends StatelessWidget {
         spacing: 16,
         children: [
           Alert(
-            icon: Icon(PhosphorIconsRegular.checkCircle),
+            icon: PhosphorIcon(PhosphorIconsRegular.checkCircle),
             title: Text('Success! Your changes have been saved'),
             description: Text(
               'This is an alert with icon, title and description.',
             ),
           ),
           Alert(
-            icon: Icon(PhosphorIconsRegular.popcorn),
+            icon: PhosphorIcon(PhosphorIconsRegular.popcorn),
             title: Text('This Alert has a title and an icon. No description.'),
           ),
           Alert.destructive(
-            icon: Icon(PhosphorIconsRegular.warningCircle),
+            icon: PhosphorIcon(PhosphorIconsRegular.warningCircle),
             title: Text('Unable to process your payment.'),
             description: Column(
               mainAxisSize: MainAxisSize.min,

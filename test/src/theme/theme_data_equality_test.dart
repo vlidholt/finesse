@@ -50,7 +50,7 @@ void main() {
     test('copyWith preserves a custom variant', () {
       // Regression: `variant` was constructor-only and never stored, so
       // copyWith silently reset it to DefaultThemeVariant. Dialog,
-      // Tooltip and Sonner all call copyWith in build().
+      // Tooltip and the board all call copyWith in build().
       final variant = DefaultThemeNoSecondaryBorderVariant(
         colorScheme: const NeutralColorScheme.light(),
         radius: const BorderRadius.all(Radius.circular(6)),
@@ -123,13 +123,13 @@ void main() {
 
     test('superellipse borders compare all fields', () {
       const a = FinesseRoundedSuperellipseBorder(
-        radius: BorderRadius.all(Radius.circular(4)),
+        borderRadius: BorderRadius.all(Radius.circular(4)),
       );
       const b = FinesseRoundedSuperellipseBorder(
-        radius: BorderRadius.all(Radius.circular(4)),
+        borderRadius: BorderRadius.all(Radius.circular(4)),
       );
       const c = FinesseRoundedSuperellipseBorder(
-        radius: BorderRadius.all(Radius.circular(8)),
+        borderRadius: BorderRadius.all(Radius.circular(8)),
       );
 
       expect(a, equals(b));
@@ -192,6 +192,7 @@ void main() {
           large: base.large,
           small: base.small,
           muted: base.muted,
+          caption: base.caption,
           family: base.family,
           googleFontBuilder: base.googleFontBuilder,
           custom: base.custom,
@@ -283,12 +284,47 @@ void main() {
         CardTheme(shadows: shadows()),
         CardTheme(shadows: shadows()),
       );
+      expect(
+        BottomNavigationBarTheme(shadows: shadows()),
+        BottomNavigationBarTheme(shadows: shadows()),
+      );
+      expect(ToastTheme(shadows: shadows()), ToastTheme(shadows: shadows()));
+      expect(
+        ToastTheme(shadows: shadows()).hashCode,
+        ToastTheme(shadows: shadows()).hashCode,
+      );
+      expect(
+        ToastTheme(shadows: shadows()),
+        isNot(const ToastTheme(shadows: [])),
+      );
+      expect(
+        BottomNavigationBarTheme(shadows: shadows()).hashCode,
+        BottomNavigationBarTheme(shadows: shadows()).hashCode,
+      );
+      expect(
+        BottomNavigationBarTheme(shadows: shadows()),
+        isNot(const BottomNavigationBarTheme(shadows: [])),
+      );
+      expect(
+        FloatingActionButtonTheme(shadows: shadows()),
+        FloatingActionButtonTheme(shadows: shadows()),
+      );
+      expect(
+        FloatingActionButtonTheme(shadows: shadows()).hashCode,
+        FloatingActionButtonTheme(shadows: shadows()).hashCode,
+      );
+      expect(
+        FloatingActionButtonTheme(shadows: shadows()),
+        isNot(const FloatingActionButtonTheme(shadows: [])),
+      );
       // Deliberately non-const: const lists would be identical anyway.
       expect(
-        // ignore: prefer_const_constructors, prefer_const_literals_to_create_immutables
-        SheetTheme(snapSizes: [0.5, 1]),
-        // ignore: prefer_const_constructors, prefer_const_literals_to_create_immutables
-        SheetTheme(snapSizes: [0.5, 1]),
+        SheetTheme(shadows: shadows()),
+        SheetTheme(shadows: shadows()),
+      );
+      expect(
+        SheetTheme(shadows: shadows()).hashCode,
+        SheetTheme(shadows: shadows()).hashCode,
       );
     });
 
@@ -314,15 +350,23 @@ void main() {
     List<Object?> finesseThemes(ThemeData t) => [
       t.glassTheme,
       t.appBarTheme,
+      t.floatingActionButtonTheme,
       t.navigationBarTheme,
+      t.navigationMenuTheme,
+      t.navigationRailTheme,
       t.bottomNavigationBarTheme,
       t.chipTheme,
+      t.carouselTheme,
+      t.listSectionTheme,
       t.listTileTheme,
+      t.refreshIndicatorTheme,
       t.chatBubbleTheme,
       t.indicatorBadgeTheme,
       t.iconTileTheme,
       t.timelineTheme,
       t.layoutTheme,
+      t.stepperTheme,
+      t.toastTheme,
     ];
 
     test('two separately built default themes are equal', () {
@@ -398,6 +442,13 @@ void main() {
         ThemeData().layoutTheme,
         isNot(ThemeData(formFactor: FormFactor.mobile).layoutTheme),
       );
+      // The toaster theme is all metrics too: where the stack sits and how
+      // wide a toast is follow the form factor.
+      expect(ThemeData().toasterTheme, ThemeData().toasterTheme);
+      expect(
+        ThemeData().toasterTheme,
+        isNot(ThemeData(formFactor: FormFactor.mobile).toasterTheme),
+      );
     });
 
     test('a form factor, a style or a scheme makes a different theme', () {
@@ -431,7 +482,7 @@ void main() {
       final theme = build();
       expect(theme.chipTheme.height, 28);
       // Merged over the derived theme, not replacing it.
-      expect(theme.chipTheme.radius, ThemeData().chipTheme.radius);
+      expect(theme.chipTheme.borderRadius, ThemeData().chipTheme.borderRadius);
       expect(theme.layoutTheme.gap(GapSize.lg), 20);
       expect(theme.layoutTheme.gap(GapSize.md), 12);
       expect(theme.glassTheme.blur, 8);

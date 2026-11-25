@@ -44,6 +44,99 @@ void main() {
     expect(tester.getTopLeft(find.text('Previous')), previousBefore);
     expect(tester.getTopLeft(find.text('Next')), nextBefore);
   });
+
+  group('Pagination.buildPageWindow', () {
+    test('returns every page when they all fit', () {
+      expect(
+        Pagination.buildPageWindow(page: 1, pageCount: 5),
+        [1, 2, 3, 4, 5],
+      );
+    });
+
+    test('inserts an ellipsis for a skipped run', () {
+      expect(
+        Pagination.buildPageWindow(page: 1, pageCount: 20),
+        [1, 2, null, 20],
+      );
+    });
+
+    test('windows around the current page', () {
+      expect(
+        Pagination.buildPageWindow(page: 10, pageCount: 20),
+        [1, null, 9, 10, 11, null, 20],
+      );
+    });
+
+    test('renders the page itself rather than hiding a single one', () {
+      // A gap of exactly one page would make the ellipsis longer than the
+      // number it replaces.
+      expect(
+        Pagination.buildPageWindow(page: 4, pageCount: 7),
+        [1, 2, 3, 4, 5, 6, 7],
+      );
+    });
+
+    test('handles the degenerate cases', () {
+      expect(Pagination.buildPageWindow(page: 1, pageCount: 0), isEmpty);
+      expect(Pagination.buildPageWindow(page: 1, pageCount: 1), [1]);
+      // An out-of-range page is clamped rather than throwing.
+      expect(
+        Pagination.buildPageWindow(page: 99, pageCount: 3),
+        [1, 2, 3],
+      );
+    });
+  });
+
+  group('Pagination', () {
+    Widget wrap(Widget child) => FinesseApp(home: Center(child: child));
+
+    testWidgets('navigates with the previous/next buttons', (tester) async {
+      final visited = <int>[];
+      await tester.pumpWidget(
+        wrap(
+          Pagination(
+            page: 5,
+            pageCount: 20,
+            onPageChanged: visited.add,
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Next'));
+      await tester.pumpAndSettle();
+      expect(visited, [6]);
+
+      await tester.tap(find.text('Previous'));
+      await tester.pumpAndSettle();
+      expect(visited, [6, 4]);
+    });
+
+    testWidgets('does not go before the first page', (tester) async {
+      final visited = <int>[];
+      await tester.pumpWidget(
+        wrap(
+          Pagination(page: 1, pageCount: 5, onPageChanged: visited.add),
+        ),
+      );
+
+      await tester.tap(find.text('Previous'), warnIfMissed: false);
+      await tester.pumpAndSettle();
+      expect(visited, isEmpty);
+    });
+
+    testWidgets('jumps to a tapped page number', (tester) async {
+      final visited = <int>[];
+      await tester.pumpWidget(
+        wrap(
+          Pagination(page: 1, pageCount: 5, onPageChanged: visited.add),
+        ),
+      );
+
+      await tester.tap(find.text('3'));
+      await tester.pumpAndSettle();
+      expect(visited, [3]);
+    });
+  });
 }
 
 void _noop(int _) {}

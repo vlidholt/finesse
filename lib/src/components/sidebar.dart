@@ -1,18 +1,24 @@
 import 'dart:math' as math;
 
+import 'package:finesse/src/components/decorator.dart';
 import 'package:finesse/src/components/divider.dart';
 import 'package:finesse/src/components/sheet.dart';
 import 'package:finesse/src/components/skeleton.dart';
 import 'package:finesse/src/components/tooltip.dart';
+import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/raw_components/focusable.dart';
 import 'package:finesse/src/raw_components/portal.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/components/sheet.dart';
+import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/border.dart';
 import 'package:finesse/src/utils/debug_check.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
+import 'package:finesse/src/utils/route_on_top.dart';
 import 'package:finesse/src/utils/shadow.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
@@ -75,42 +81,54 @@ enum SidebarMenuButtonVariant {
 
 /// Controls the open state of a [Sidebar].
 ///
-/// Desktop and mobile are independent, exactly as in shadcn/ui: [open] drives
-/// the inline sidebar, [openMobile] the modal sheet shown under the
+/// Desktop and mobile are independent, exactly as in shadcn/ui: [isOpen] is
+/// the inline sidebar, [isMobileOpen] the modal sheet shown under the
 /// breakpoint.
 class SidebarController extends ChangeNotifier {
-  /// Creates a controller. The desktop sidebar starts expanded when [open] is
-  /// true, the default. The mobile sheet starts closed.
-  SidebarController({bool open = true}) : _open = open;
+  /// Creates a controller. The desktop sidebar starts expanded when [isOpen]
+  /// is true, the default. The mobile sheet starts closed.
+  SidebarController({bool isOpen = true}) : _open = isOpen;
 
   bool _open;
 
   /// Whether the inline (desktop) sidebar is expanded.
-  bool get open => _open;
-
-  /// The same as [open], under the name `PopoverController` uses.
   bool get isOpen => _open;
 
-  set open(bool value) {
-    if (_open == value) return;
-    _open = value;
+  /// Expands the inline sidebar.
+  void open() => setOpen(true);
+
+  /// Collapses the inline sidebar.
+  void close() => setOpen(false);
+
+  /// Expands the inline sidebar when [open] is true and collapses it
+  /// otherwise.
+  void setOpen(bool open) {
+    if (_open == open) return;
+    _open = open;
     notifyListeners();
   }
 
-  bool _openMobile = false;
+  bool _mobileOpen = false;
 
   /// Whether the mobile sheet is shown.
-  bool get openMobile => _openMobile;
+  bool get isMobileOpen => _mobileOpen;
 
-  set openMobile(bool value) {
-    if (_openMobile == value) return;
-    _openMobile = value;
+  /// Shows the mobile sheet.
+  void openMobile() => setMobileOpen(true);
+
+  /// Hides the mobile sheet.
+  void closeMobile() => setMobileOpen(false);
+
+  /// Shows the mobile sheet when [open] is true and hides it otherwise.
+  void setMobileOpen(bool open) {
+    if (_mobileOpen == open) return;
+    _mobileOpen = open;
     notifyListeners();
   }
 
   /// Flips the state for the given form factor.
   void toggle({required bool isMobile}) {
-    isMobile ? openMobile = !openMobile : open = !open;
+    isMobile ? setMobileOpen(!_mobileOpen) : setOpen(!_open);
   }
 }
 
@@ -173,12 +191,15 @@ class SidebarScope extends InheritedWidget {
 
   /// Returns the nearest scope.
   ///
-  /// Asserts that a [SidebarScaffold] is an ancestor.
+  /// Asserts that there is one: a [SidebarScaffold] provides it, and so
+  /// does a [Sidebar] used on its own.
   static SidebarScope of(BuildContext context) {
     final scope = maybeOf(context);
     assert(
       scope != null,
-      'SidebarScope.of() called outside of a SidebarScaffold',
+      'SidebarScope.of() found no SidebarScope. The sidebar widgets '
+      '(SidebarMenuButton, SidebarGroup, SidebarTrigger…) belong inside a '
+      'Sidebar, or under a SidebarScaffold.',
     );
     return scope!;
   }
@@ -201,8 +222,12 @@ class SidebarScope extends InheritedWidget {
 ///
 /// Above the `md` breakpoint the sidebar renders inline and collapses
 /// according to its `collapsible` mode; below it the sidebar disappears and
-/// [SidebarTrigger] (or the controller) presents it as a modal sheet.
-/// `⌘B`/`Ctrl+B` toggles it.
+/// [SidebarTrigger] (or the controller) presents it as a modal sheet. The
+/// breakpoint is the theme's form factor: `FormFactor.mobile` is below it.
+///
+/// `⌘B` on an Apple platform, `Ctrl+B` elsewhere, toggles it — when nothing
+/// that has the focus takes the key itself, and only while the scaffold is
+/// showing and nothing, a dialog say, covers its route.
 ///
 /// ```dart
 /// SidebarScaffold(
@@ -221,8 +246,8 @@ class SidebarScaffold extends StatefulWidget {
     required this.sidebar,
     required this.child,
     this.controller,
-    this.defaultOpen = true,
-    this.onOpenChange,
+    this.initiallyOpen = true,
+    this.onOpenChanged,
     this.keyboardShortcut = true,
     this.borderRadius,
   });
@@ -235,16 +260,17 @@ class SidebarScaffold extends StatefulWidget {
 
   /// An external controller for the open state.
   ///
-  /// When null an internal one is created, seeded from [defaultOpen].
+  /// When null an internal one is created, seeded from [initiallyOpen].
   final SidebarController? controller;
 
   /// Whether the sidebar starts open. Ignored when [controller] is set.
-  final bool defaultOpen;
+  final bool initiallyOpen;
 
   /// Called whenever the desktop open state changes.
-  final ValueChanged<bool>? onOpenChange;
+  final ValueChanged<bool>? onOpenChanged;
 
-  /// Whether `⌘B`/`Ctrl+B` toggles the sidebar.
+  /// Whether `⌘B` on an Apple platform, `Ctrl+B` elsewhere, toggles the
+  /// sidebar.
   final bool keyboardShortcut;
 
   /// Rounds and clips the scaffold's corners.
@@ -275,12 +301,12 @@ class _SidebarScaffoldState extends State<SidebarScaffold> {
   void initState() {
     super.initState();
     if (widget.controller == null) {
-      _internalController = SidebarController(open: widget.defaultOpen);
+      _internalController = SidebarController(isOpen: widget.initiallyOpen);
     }
-    _lastOpen = controller.open;
+    _lastOpen = controller.isOpen;
     controller.addListener(_onControllerChanged);
     if (widget.keyboardShortcut) {
-      HardwareKeyboard.instance.addHandler(_onKeyEvent);
+      FocusManager.instance.addLateKeyEventHandler(_onKeyEvent);
     }
   }
 
@@ -295,15 +321,15 @@ class _SidebarScaffoldState extends State<SidebarScaffold> {
     }
     if (widget.keyboardShortcut != oldWidget.keyboardShortcut) {
       widget.keyboardShortcut
-          ? HardwareKeyboard.instance.addHandler(_onKeyEvent)
-          : HardwareKeyboard.instance.removeHandler(_onKeyEvent);
+          ? FocusManager.instance.addLateKeyEventHandler(_onKeyEvent)
+          : FocusManager.instance.removeLateKeyEventHandler(_onKeyEvent);
     }
   }
 
   @override
   void dispose() {
     if (widget.keyboardShortcut) {
-      HardwareKeyboard.instance.removeHandler(_onKeyEvent);
+      FocusManager.instance.removeLateKeyEventHandler(_onKeyEvent);
     }
     controller.removeListener(_onControllerChanged);
     // The drawer is a pushed route, so it would outlive its scaffold — the
@@ -319,10 +345,12 @@ class _SidebarScaffoldState extends State<SidebarScaffold> {
     super.dispose();
   }
 
-  bool get _isMobile {
-    final breakpoints = Theme.of(context).breakpoints;
-    return MediaQuery.sizeOf(context).width < breakpoints.md.value;
-  }
+  bool get _isMobile => Theme.of(context).formFactor == FormFactor.mobile;
+
+  static bool get _apple => switch (defaultTargetPlatform) {
+    TargetPlatform.macOS || TargetPlatform.iOS => true,
+    _ => false,
+  };
 
   @override
   void didChangeDependencies() {
@@ -330,10 +358,10 @@ class _SidebarScaffoldState extends State<SidebarScaffold> {
     // The reference renders the sheet only in its mobile branch, so growing
     // past the breakpoint unmounts it. Here it is a pushed route, which has
     // to be popped explicitly — after the frame, since this runs mid-build.
-    if (!_isMobile && controller.openMobile) {
+    if (!_isMobile && controller.isMobileOpen) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted && !_isMobile && controller.openMobile) {
-          controller.openMobile = false;
+        if (mounted && !_isMobile && controller.isMobileOpen) {
+          controller.closeMobile();
         }
       });
     }
@@ -345,19 +373,35 @@ class _SidebarScaffoldState extends State<SidebarScaffold> {
       Theme.of(context).sidebarTheme.collapsedWidth ??
       48;
 
-  bool _onKeyEvent(KeyEvent event) {
-    if (event is! KeyDownEvent) return false;
-    if (event.logicalKey != LogicalKeyboardKey.keyB) return false;
-    final pressed = HardwareKeyboard.instance;
-    if (!pressed.isMetaPressed && !pressed.isControlPressed) return false;
+  /// Heard after the focus tree has passed on the key, so a focused
+  /// widget that binds the same chord keeps it.
+  KeyEventResult _onKeyEvent(KeyEvent event) {
+    if (event is! KeyDownEvent || event.logicalKey != LogicalKeyboardKey.keyB) {
+      return KeyEventResult.ignored;
+    }
+    // One modifier per platform and no other with it: Control+B moves the
+    // caret back in a Mac's text fields, and AltGr is reported as
+    // Control+Alt on Windows.
+    final keyboard = HardwareKeyboard.instance;
+    final chord =
+        !keyboard.isAltPressed &&
+        !keyboard.isShiftPressed &&
+        (_apple
+            ? keyboard.isMetaPressed && !keyboard.isControlPressed
+            : keyboard.isControlPressed && !keyboard.isMetaPressed);
+    // Heard wherever the focus is: under a dialog, or in a part of the tree
+    // that is not shown, the chord is someone else's.
+    if (!chord || !mounted || !isShownOnTop(context)) {
+      return KeyEventResult.ignored;
+    }
     controller.toggle(isMobile: _isMobile);
-    return true;
+    return KeyEventResult.handled;
   }
 
   void _onControllerChanged() {
-    if (controller.open != _lastOpen) {
-      _lastOpen = controller.open;
-      widget.onOpenChange?.call(controller.open);
+    if (controller.isOpen != _lastOpen) {
+      _lastOpen = controller.isOpen;
+      widget.onOpenChanged?.call(controller.isOpen);
     }
     _syncMobileSheet();
     if (mounted) setState(() {});
@@ -365,10 +409,10 @@ class _SidebarScaffoldState extends State<SidebarScaffold> {
 
   void _syncMobileSheet() {
     if (!mounted) return;
-    if (controller.openMobile && !_sheetShowing) {
+    if (controller.isMobileOpen && !_sheetShowing) {
       _sheetShowing = true;
       _showMobileSheet();
-    } else if (!controller.openMobile && _sheetShowing) {
+    } else if (!controller.isMobileOpen && _sheetShowing) {
       _sheetShowing = false;
       final route = _sheetRoute;
       if (route != null && route.isActive) {
@@ -387,13 +431,12 @@ class _SidebarScaffoldState extends State<SidebarScaffold> {
     final theme = Theme.of(context).sidebarTheme;
     final effectiveMobileWidth =
         sidebar.mobileWidth ?? theme.mobileWidth ?? 288;
-    final textDirection = Directionality.of(context);
-    final sheetSide = switch ((sidebar.side, textDirection)) {
-      (SidebarSide.start, TextDirection.ltr) => SheetSide.left,
-      (SidebarSide.start, TextDirection.rtl) => SheetSide.right,
-      (SidebarSide.end, TextDirection.ltr) => SheetSide.right,
-      (SidebarSide.end, TextDirection.rtl) => SheetSide.left,
-    };
+    // Resolved here rather than by the sheet: the route is built under the
+    // navigator, which need not share this subtree's text direction.
+    final sheetSide = switch (sidebar.side) {
+      SidebarSide.start => SheetSide.start,
+      SidebarSide.end => SheetSide.end,
+    }.resolve(Directionality.of(context));
     // The route can outlive this State (dispose removes it a frame later),
     // and its builder re-runs on MediaQuery changes in the meantime — so
     // everything it needs is captured here rather than read through `this`,
@@ -415,16 +458,18 @@ class _SidebarScaffoldState extends State<SidebarScaffold> {
           collapsible: sidebar.collapsible,
           collapsedWidth: collapsedWidth,
           child: Sheet(
-            padding: EdgeInsets.zero,
-            gap: 0,
-            closeIcon: const SizedBox.shrink(),
+            style: SheetTheme(
+              padding: EdgeInsets.zero,
+              gap: 0,
+              backgroundColor:
+                  sidebar.backgroundColor ??
+                  Theme.of(sheetContext).sidebarTheme.backgroundColor,
+              constraints: BoxConstraints.tightFor(width: effectiveMobileWidth),
+            ),
+            showCloseButton: false,
             // The sidebar owns its scrolling; the sheet's own scroll view
             // would hand it unbounded height and break its Expanded column.
             scrollable: false,
-            backgroundColor:
-                sidebar.backgroundColor ??
-                Theme.of(sheetContext).sidebarTheme.backgroundColor,
-            constraints: BoxConstraints.tightFor(width: effectiveMobileWidth),
             child: sidebar,
           ),
         );
@@ -434,7 +479,7 @@ class _SidebarScaffoldState extends State<SidebarScaffold> {
       // controller, dispose cleanup — so this is where the state resyncs.
       _sheetShowing = false;
       _sheetRoute = null;
-      if (mounted && controller.openMobile) controller.openMobile = false;
+      if (mounted && controller.isMobileOpen) controller.closeMobile();
     });
   }
 
@@ -445,7 +490,7 @@ class _SidebarScaffoldState extends State<SidebarScaffold> {
     final sidebarTheme = theme.sidebarTheme;
     final sidebar = widget.sidebar;
     final isMobile = _isMobile;
-    final open = controller.open;
+    final open = controller.isOpen;
 
     var content = widget.child;
 
@@ -469,7 +514,7 @@ class _SidebarScaffoldState extends State<SidebarScaffold> {
         clipBehavior: Clip.antiAlias,
         decoration: ShadowDecoration.box(
           color: theme.colorScheme.background,
-          borderRadius: sidebarTheme.insetRadius,
+          borderRadius: sidebarTheme.insetBorderRadius,
           shadows: sidebarTheme.insetShadows ?? const [],
         ),
         child: content,
@@ -624,9 +669,16 @@ class Sidebar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     assert(debugCheckHasTheme(context));
+    final scope = SidebarScope.maybeOf(context);
+    // On its own — a `Scaffold`'s drawer, the content of a sheet, a panel
+    // of a split view — the sidebar is its own host.
+    if (scope == null) return _StandaloneSidebar(sidebar: this);
+    return _buildIn(context, scope);
+  }
+
+  Widget _buildIn(BuildContext context, SidebarScope scope) {
     final theme = Theme.of(context);
     final sidebarTheme = theme.sidebarTheme;
-    final scope = SidebarScope.of(context);
 
     final effectiveBackgroundColor =
         backgroundColor ??
@@ -714,7 +766,7 @@ class Sidebar extends StatelessWidget {
             clipBehavior: Clip.antiAlias,
             decoration: ShadowDecoration.box(
               color: effectiveBackgroundColor,
-              borderRadius: sidebarTheme.floatingRadius,
+              borderRadius: sidebarTheme.floatingBorderRadius,
               border: Border.all(color: effectiveBorderColor),
               shadows: sidebarTheme.floatingShadows ?? const [],
             ),
@@ -767,6 +819,77 @@ class Sidebar extends StatelessWidget {
       clipBehavior: Clip.hardEdge,
       decoration: const BoxDecoration(),
       child: content,
+    );
+  }
+}
+
+/// Hosts a [Sidebar] that has no [SidebarScaffold] above it, so that its
+/// menu widgets find the [SidebarScope] they read.
+///
+/// The sidebar is shown the way the scaffold's own sheet shows it: its
+/// column on its surface, expanded, as large as it is allowed to be. A
+/// [SidebarTrigger] inside closes the panel the sidebar is in — a drawer, a
+/// sheet — and does nothing in a page.
+class _StandaloneSidebar extends StatefulWidget {
+  const _StandaloneSidebar({required this.sidebar});
+
+  final Sidebar sidebar;
+
+  @override
+  State<_StandaloneSidebar> createState() => _StandaloneSidebarState();
+}
+
+class _StandaloneSidebarState extends State<_StandaloneSidebar> {
+  late final SidebarController _controller = SidebarController()
+    ..setMobileOpen(true)
+    ..addListener(_handleToggle);
+
+  ModalRoute<Object?>? _route;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _route = ModalRoute.of(context);
+  }
+
+  void _handleToggle() {
+    if (_controller.isMobileOpen) return;
+    // It is always open; being asked to close means leaving.
+    _controller.setMobileOpen(true);
+    final route = _route;
+    if (route is! PopupRoute || !route.isActive) return;
+    if (route.isCurrent) {
+      route.navigator?.pop();
+    } else {
+      route.navigator?.removeRoute(route);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final sidebar = widget.sidebar;
+    return SidebarScope(
+      controller: _controller,
+      isMobile: true,
+      inSheet: true,
+      open: true,
+      side: sidebar.side,
+      variant: sidebar.variant,
+      collapsible: sidebar.collapsible,
+      collapsedWidth:
+          sidebar.collapsedWidth ??
+          Theme.of(context).sidebarTheme.collapsedWidth ??
+          48,
+      child: Builder(
+        builder: (context) =>
+            sidebar._buildIn(context, SidebarScope.of(context)),
+      ),
     );
   }
 }
@@ -848,10 +971,10 @@ class _SidebarTriggerState extends State<SidebarTrigger> {
     final scope = SidebarScope.of(context);
     return Semantics(
       button: true,
-      label: 'Toggle sidebar',
+      label: FinesseLocalizations.of(context).navigation.toggleSidebar,
       child: FinesseGestureDetector(
-        cursor: SystemMouseCursors.click,
-        onHoverChange: (value) => setState(() => hovered = value),
+        mouseCursor: SystemMouseCursors.click,
+        onHover: (value) => setState(() => hovered = value),
         onTap: () {
           widget.onPressed?.call();
           scope.toggle();
@@ -873,7 +996,8 @@ class _SidebarTriggerState extends State<SidebarTrigger> {
             ),
             child: Center(
               child:
-                  widget.icon ?? const Icon(PhosphorIconsRegular.sidebarSimple),
+                  widget.icon ??
+                  const PhosphorIcon(PhosphorIconsRegular.sidebarSimple),
             ),
           ),
         ),
@@ -911,11 +1035,11 @@ class _SidebarRailState extends State<_SidebarRail> {
         : SystemMouseCursors.resizeRight;
 
     return FinesseGestureDetector(
-      cursor: cursor,
+      mouseCursor: cursor,
       // The whole strip toggles, not just the 2px line it highlights —
       // deferring to the child left everything but the hairline untappable.
       behavior: HitTestBehavior.opaque,
-      onHoverChange: (value) => setState(() => hovered = value),
+      onHover: (value) => setState(() => hovered = value),
       onTap: scope.toggle,
       child: Center(
         child: AnimatedContainer(
@@ -1057,7 +1181,7 @@ class SidebarMenu extends StatelessWidget {
 /// A row in a sidebar menu, shadcn/ui's `SidebarMenuButton`.
 ///
 /// Renders an icon, a label and an optional trailing widget; highlights with
-/// the sidebar accent on hover, press and when [isActive]. In the icon rail
+/// the sidebar accent on hover, press and when [selected]. In the icon rail
 /// it shrinks to a square and, when [tooltip] is given, shows the label as a
 /// tooltip instead.
 /// {@endtemplate}
@@ -1069,7 +1193,7 @@ class SidebarMenuButton extends StatefulWidget {
     this.leading,
     required this.child,
     this.trailing,
-    this.isActive = false,
+    this.selected = false,
     this.size = SidebarMenuButtonSize.regular,
     this.variant = SidebarMenuButtonVariant.standard,
     this.tooltip,
@@ -1090,7 +1214,7 @@ class SidebarMenuButton extends StatefulWidget {
   final Widget? trailing;
 
   /// Whether this row is the current one; keeps the accent highlight.
-  final bool isActive;
+  final bool selected;
 
   /// The height and text size of the row. Defaults to
   /// [SidebarMenuButtonSize.regular].
@@ -1169,9 +1293,9 @@ class _SidebarMenuButtonState extends State<SidebarMenuButton> {
         sidebarTheme.foregroundColor ?? theme.colorScheme.sidebarForeground;
 
     final highlighted =
-        widget.enabled && (hovered || pressed || widget.isActive);
+        widget.enabled && (hovered || pressed || widget.selected);
     final contentColor = highlighted ? accentForeground : foreground;
-    final radius = sidebarTheme.menuButtonRadius ?? theme.radii.sm;
+    final radius = sidebarTheme.menuButtonBorderRadius ?? theme.radii.sm;
     final gap = sidebarTheme.menuButtonGap ?? 8;
 
     final outline = widget.variant == SidebarMenuButtonVariant.outline;
@@ -1203,7 +1327,7 @@ class _SidebarMenuButtonState extends State<SidebarMenuButton> {
           child: DefaultTextStyle.merge(
             style: textStyle.copyWith(
               color: contentColor,
-              fontWeight: widget.isActive ? FontWeight.w500 : null,
+              fontWeight: widget.selected ? FontWeight.w500 : null,
             ),
             maxLines: 1,
             softWrap: false,
@@ -1248,9 +1372,9 @@ class _SidebarMenuButtonState extends State<SidebarMenuButton> {
         return Decorator(
           focused: focused,
           decoration: FinesseDecoration(
-            border: FinesseBorder.all(radius: radius, width: 0),
+            border: FinesseBorder.all(borderRadius: radius, width: 0),
             secondaryFocusedBorder: FinesseBorder.all(
-              radius: radius.add(BorderRadius.circular(ringWidth)),
+              borderRadius: radius.add(BorderRadius.circular(ringWidth)),
               width: ringWidth,
               offset: ringWidth,
               color: ringColor,
@@ -1260,8 +1384,10 @@ class _SidebarMenuButtonState extends State<SidebarMenuButton> {
         );
       },
       child: FinesseGestureDetector(
-        cursor: widget.enabled ? SystemMouseCursors.click : MouseCursor.defer,
-        onHoverChange: widget.enabled
+        mouseCursor: widget.enabled
+            ? SystemMouseCursors.click
+            : MouseCursor.defer,
+        onHover: widget.enabled
             ? (value) => setState(() => hovered = value)
             : null,
         onTapDown: widget.enabled
@@ -1320,7 +1446,7 @@ class _SidebarMenuButtonState extends State<SidebarMenuButton> {
     button = Semantics(
       button: true,
       enabled: widget.enabled,
-      selected: widget.isActive,
+      selected: widget.selected,
       child: button,
     );
 
@@ -1427,8 +1553,8 @@ class _SidebarMenuActionState extends State<SidebarMenuAction> {
       button: true,
       label: widget.semanticLabel,
       child: FinesseGestureDetector(
-        cursor: SystemMouseCursors.click,
-        onHoverChange: (value) => setState(() => hovered = value),
+        mouseCursor: SystemMouseCursors.click,
+        onHover: (value) => setState(() => hovered = value),
         onTap: widget.onPressed,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 100),
@@ -1436,7 +1562,7 @@ class _SidebarMenuActionState extends State<SidebarMenuAction> {
           height: 20,
           decoration: BoxDecoration(
             color: hovered ? accent : null,
-            borderRadius: sidebarTheme.menuButtonRadius ?? theme.radii.sm,
+            borderRadius: sidebarTheme.menuButtonBorderRadius ?? theme.radii.sm,
           ),
           child: IconTheme.merge(
             data: IconThemeData(
@@ -1502,7 +1628,7 @@ class SidebarMenuSubButton extends StatefulWidget {
     this.onPressed,
     this.leading,
     required this.child,
-    this.isActive = false,
+    this.selected = false,
     this.small = false,
     this.focusNode,
   });
@@ -1518,7 +1644,7 @@ class SidebarMenuSubButton extends StatefulWidget {
 
   /// Whether this row is the current one; keeps the accent highlight.
   /// Defaults to false.
-  final bool isActive;
+  final bool selected;
 
   /// Whether to render at the `sm` (text-xs) size.
   final bool small;
@@ -1544,7 +1670,7 @@ class _SidebarMenuSubButtonState extends State<SidebarMenuSubButton> {
         theme.colorScheme.sidebarAccentForeground;
     final foreground =
         sidebarTheme.foregroundColor ?? theme.colorScheme.sidebarForeground;
-    final highlighted = hovered || widget.isActive;
+    final highlighted = hovered || widget.selected;
     final contentColor = highlighted ? accentForeground : foreground;
 
     var textStyle = sidebarTheme.subButtonTextStyle ?? theme.textTheme.small;
@@ -1552,21 +1678,21 @@ class _SidebarMenuSubButtonState extends State<SidebarMenuSubButton> {
 
     final ringColor = sidebarTheme.ringColor ?? theme.colorScheme.sidebarRing;
     final ringWidth = sidebarTheme.ringWidth ?? 2;
-    final radius = sidebarTheme.menuButtonRadius ?? theme.radii.sm;
+    final radius = sidebarTheme.menuButtonBorderRadius ?? theme.radii.sm;
     final gap = sidebarTheme.menuButtonGap ?? 8;
 
     return Semantics(
       button: true,
-      selected: widget.isActive,
+      selected: widget.selected,
       child: Focusable(
         focusNode: widget.focusNode,
         builder: (context, focused, child) {
           return Decorator(
             focused: focused,
             decoration: FinesseDecoration(
-              border: FinesseBorder.all(radius: radius, width: 0),
+              border: FinesseBorder.all(borderRadius: radius, width: 0),
               secondaryFocusedBorder: FinesseBorder.all(
-                radius: radius.add(BorderRadius.circular(ringWidth)),
+                borderRadius: radius.add(BorderRadius.circular(ringWidth)),
                 width: ringWidth,
                 offset: ringWidth,
                 color: ringColor,
@@ -1576,8 +1702,8 @@ class _SidebarMenuSubButtonState extends State<SidebarMenuSubButton> {
           );
         },
         child: FinesseGestureDetector(
-          cursor: SystemMouseCursors.click,
-          onHoverChange: (value) => setState(() => hovered = value),
+          mouseCursor: SystemMouseCursors.click,
+          onHover: (value) => setState(() => hovered = value),
           onTap: widget.onPressed,
           child: Container(
             height: sidebarTheme.subButtonHeight ?? 28,
@@ -1674,7 +1800,7 @@ class SidebarDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Divider.horizontal(
+    return Divider(
       margin: const EdgeInsets.symmetric(horizontal: 8),
       color: theme.sidebarTheme.borderColor ?? theme.colorScheme.sidebarBorder,
     );

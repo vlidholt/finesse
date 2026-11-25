@@ -1,9 +1,9 @@
 import 'package:example/strand/data/network_data.dart';
-import 'package:example/strand/widgets/home_pieces.dart';
 import 'package:example/strand/widgets/network_controller.dart';
 import 'package:example/strand/widgets/person_avatar.dart';
 import 'package:example/strand/widgets/strand_pieces.dart';
 import 'package:example/strand/widgets/strand_previews.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -24,7 +24,7 @@ class NetworkInvitationsCard extends StatelessWidget {
       context,
       'You and ${invitation.person.firstName} are now connected',
       actionLabel: 'Undo',
-      onAction: () => controller.restore(invitation),
+      onAction: () => controller.undoAccept(invitation),
     );
   }
 
@@ -35,7 +35,7 @@ class NetworkInvitationsCard extends StatelessWidget {
       'Invitation from ${invitation.person.firstName} ignored',
       description: 'They will not be told.',
       actionLabel: 'Undo',
-      onAction: () => controller.restore(invitation),
+      onAction: () => controller.undoIgnore(invitation),
     );
   }
 
@@ -46,9 +46,11 @@ class NetworkInvitationsCard extends StatelessWidget {
     final pending = controller.pending;
 
     return Card(
-      sectionGap: homeLooseGap,
-      rowMainAxisSize: MainAxisSize.max,
-      columnCrossAxisAlignment: CrossAxisAlignment.stretch,
+      style: CardTheme(
+        sectionGap: theme.gap(GapSize.md),
+        rowMainAxisSize: MainAxisSize.max,
+        columnCrossAxisAlignment: CrossAxisAlignment.stretch,
+      ),
       title: Row(
         children: [
           const Flexible(
@@ -62,7 +64,6 @@ class NetworkInvitationsCard extends StatelessWidget {
             const Gap.sm(),
             IndicatorBadge(
               count: pending.length,
-              size: 20,
               ringWidth: 0,
               semanticLabel: '${pending.length} waiting',
             ),
@@ -73,7 +74,7 @@ class NetworkInvitationsCard extends StatelessWidget {
           ? Row(
               children: [
                 IconTile(
-                  icon: const Icon(PhosphorIconsRegular.checkCircle),
+                  icon: const PhosphorIcon(PhosphorIconsRegular.checkCircle),
                   backgroundColor: scheme.successMuted,
                   foregroundColor: scheme.success,
                 ),
@@ -104,8 +105,10 @@ class NetworkInvitationsCard extends StatelessWidget {
               children: [
                 for (final (index, invitation) in pending.indexed) ...[
                   if (index > 0)
-                    const Divider.horizontal(
-                      margin: EdgeInsets.symmetric(vertical: homeLooseGap),
+                    Divider(
+                      margin: EdgeInsets.symmetric(
+                        vertical: theme.gap(GapSize.md),
+                      ),
                     ),
                   _InvitationRow(
                     invitation,
@@ -171,7 +174,7 @@ class _InvitationRow extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           style: theme.textTheme.muted,
         ),
-        const Gap.raw(homeTightGap),
+        const Gap.xs(),
         MutualsLine(
           people: invitation.mutuals,
           label: '${invitation.mutualCount} mutual · ${invitation.age}',
@@ -196,7 +199,7 @@ class _InvitationRow extends StatelessWidget {
                   builder: (context, states) => FocusRing(
                     visible: states.contains(WidgetState.focused),
                     borderRadius: theme.radii.full,
-                    child: PersonAvatar(person, size: 48),
+                    child: PersonAvatar(person),
                   ),
                 ),
                 Expanded(child: text),
@@ -207,13 +210,13 @@ class _InvitationRow extends StatelessWidget {
               Padding(
                 // Under the text, not under the portrait.
                 padding: EdgeInsetsDirectional.only(
-                  start: 48 + theme.layoutTheme.gap(GapSize.md),
-                  top: homeSnugGap,
+                  start: theme.avatarMd + theme.gap(GapSize.md),
+                  top: theme.gap(GapSize.sm),
                 ),
                 child: Container(
                   padding: EdgeInsets.symmetric(
-                    horizontal: theme.layoutTheme.gap(GapSize.md),
-                    vertical: homeSnugGap,
+                    horizontal: theme.gap(GapSize.md),
+                    vertical: theme.gap(GapSize.sm),
                   ),
                   decoration: BoxDecoration(
                     color: scheme.muted,
@@ -222,7 +225,6 @@ class _InvitationRow extends StatelessWidget {
                   child: Text(
                     note,
                     style: theme.textTheme.muted.copyWith(
-                      height: 19 / 13,
                       color: scheme.foregroundSubtle,
                     ),
                   ),
@@ -231,8 +233,8 @@ class _InvitationRow extends StatelessWidget {
             if (stacked)
               Padding(
                 padding: EdgeInsetsDirectional.only(
-                  start: 48 + theme.layoutTheme.gap(GapSize.md),
-                  top: theme.layoutTheme.gap(GapSize.md),
+                  start: theme.avatarMd + theme.gap(GapSize.md),
+                  top: theme.gap(GapSize.md),
                 ),
                 child: Align(
                   alignment: AlignmentDirectional.centerStart,

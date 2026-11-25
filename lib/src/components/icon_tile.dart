@@ -1,5 +1,6 @@
 import 'package:finesse/src/components/card.dart';
 import 'package:finesse/src/raw_components/pressable.dart';
+import 'package:finesse/src/theme/components/card.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
 
@@ -7,7 +8,7 @@ import 'package:flutter/widgets.dart';
 /// type, a setting.
 ///
 /// ```dart
-/// const IconTile(icon: Icon(PhosphorIconsRegular.bookmarkSimple))
+/// const IconTile(icon: PhosphorIcon(PhosphorIconsRegular.bookmarkSimple))
 /// ```
 ///
 /// The tile takes the theme's accent fill and tint colour, which is what
@@ -54,7 +55,7 @@ class IconTile extends StatelessWidget {
       decoration: BoxDecoration(
         color:
             backgroundColor ?? tile.backgroundColor ?? theme.colorScheme.accent,
-        borderRadius: borderRadius ?? tile.radius ?? theme.radii.lg,
+        borderRadius: borderRadius ?? tile.borderRadius ?? theme.radii.lg,
       ),
       child: IconTheme.merge(
         data: IconThemeData(
@@ -72,7 +73,7 @@ class IconTile extends StatelessWidget {
 ///
 /// ```dart
 /// StatTile(
-///   icon: const Icon(PhosphorIconsRegular.bookmarkSimple),
+///   icon: const PhosphorIcon(PhosphorIconsRegular.bookmarkSimple),
 ///   value: const Text('6'),
 ///   label: const Text('Saved jobs'),
 ///   onTap: _openSaved,
@@ -115,15 +116,17 @@ class StatTile extends StatelessWidget {
     final theme = Theme.of(context);
     final layout = theme.layoutTheme;
     final card = Card(
-      radius: theme.radii.xl,
-      padding:
-          padding ??
-          EdgeInsets.symmetric(
-            horizontal: layout.gapLg ?? 16,
-            vertical: (layout.gapLg ?? 16) - 2,
-          ),
-      rowMainAxisSize: MainAxisSize.max,
-      rowCrossAxisAlignment: CrossAxisAlignment.center,
+      style: CardTheme(
+        borderRadius: theme.radii.xl,
+        padding:
+            padding ??
+            EdgeInsets.symmetric(
+              horizontal: layout.gapLg ?? 16,
+              vertical: (layout.gapLg ?? 16) - 2,
+            ),
+        rowMainAxisSize: MainAxisSize.max,
+        rowCrossAxisAlignment: CrossAxisAlignment.center,
+      ),
       child: Row(
         spacing: layout.gapMd ?? 12,
         children: [

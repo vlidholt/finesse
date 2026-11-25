@@ -1,17 +1,14 @@
 import 'package:example/strand/data.dart';
-import 'package:example/strand/widgets/home_pieces.dart';
 import 'package:example/strand/widgets/person_avatar.dart';
 import 'package:example/strand/widgets/verified_badge.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
+import 'package:example/strand/widgets/home_pieces.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
 /// Pieces the screens built after the designs share — Network,
 /// Notifications, Search and Settings — so that the four of them use one
 /// page title, one pill button and one way of saying "done".
-///
-/// The off-scale gaps are the home feed's (`homeTightGap` 6, `homeSnugGap`
-/// 10, `homeLooseGap` 14, `homeRailInset` 18): the same designer, the same
-/// in-between steps.
 
 /// A page's title, with a line under it and its actions at the end on a
 /// desktop; the title alone on a phone. The Jobs page's header, for any
@@ -57,10 +54,7 @@ class StrandPageHeader extends StatelessWidget {
               const Gap.xs(),
               Text(
                 subtitle,
-                // The Jobs page's lead: a step up from the 14-point body.
                 style: theme.textTheme.p.copyWith(
-                  fontSize: 15,
-                  height: 22 / 15,
                   color: theme.colorScheme.mutedForeground,
                 ),
               ),
@@ -93,15 +87,15 @@ class StrandSectionHeading extends StatelessWidget {
     final theme = Theme.of(context);
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: theme.layoutTheme.gap(GapSize.xs),
+        horizontal: theme.gap(GapSize.xs),
       ),
       // A wrap, so a long heading at a large text size pushes what ends
       // the line under itself instead of being cut short by it.
       child: Wrap(
         alignment: WrapAlignment.spaceBetween,
         crossAxisAlignment: WrapCrossAlignment.center,
-        spacing: theme.layoutTheme.gap(GapSize.md),
-        runSpacing: theme.layoutTheme.gap(GapSize.xs),
+        spacing: theme.gap(GapSize.md),
+        runSpacing: theme.gap(GapSize.xs),
         children: [
           Semantics(
             header: true,
@@ -115,6 +109,28 @@ class StrandSectionHeading extends StatelessWidget {
           ?trailing,
         ],
       ),
+    );
+  }
+}
+
+/// The label of a tab in a strip that fills a phone's width: "Mentions",
+/// "My applications".
+///
+/// A tab's own text gives way with an ellipsis when its tab is too narrow.
+/// In a strip of three or four across a phone that happens at the default
+/// text size, and "Mentio…" beside "Jobs" reads as a fault; here the label
+/// shrinks to fit instead, so the whole word stays. Where the strip hugs
+/// its tabs, as on a desktop, it is the plain label.
+class StrandTabLabel extends StatelessWidget {
+  const StrandTabLabel(this.label, {super.key});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Text(label, maxLines: 1, softWrap: false),
     );
   }
 }
@@ -155,7 +171,7 @@ class PersonName extends StatelessWidget {
                 ),
         ),
         if (person.verified) ...[
-          const Gap.raw(homeTightGap),
+          const Gap.xs(),
           const VerifiedBadge(),
         ],
       ],
@@ -168,7 +184,7 @@ class MutualsLine extends StatelessWidget {
   const MutualsLine({
     required this.people,
     required this.label,
-    this.size = 18,
+    this.size,
     this.alignment = MainAxisAlignment.start,
     super.key,
   });
@@ -179,14 +195,15 @@ class MutualsLine extends StatelessWidget {
   /// "14 mutual", "9 mutual connections".
   final String label;
 
-  /// A portrait's diameter.
-  final double size;
+  /// A portrait's diameter. Defaults to half the theme's avatar.
+  final double? size;
 
   final MainAxisAlignment alignment;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final size = this.size ?? theme.avatarXs;
     // Initials are unreadable at this size: only portraits are stacked.
     final faces = [
       for (final person in people)
@@ -208,14 +225,14 @@ class MutualsLine extends StatelessWidget {
               ],
             ),
           ),
-          const Gap.raw(homeTightGap),
+          const Gap.xs(),
         ],
         Flexible(
           child: Text(
             label,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: homeFinePrint(theme),
+            style: theme.textTheme.caption,
           ),
         ),
       ],
@@ -284,18 +301,21 @@ class StrandPillButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Button.raw(
+    return Button(
+      style: ButtonTheme(
+        pressScale: 1,
+        width: expand ? double.infinity : null,
+        // A pill, where the style's text buttons are rounded rectangles.
+        decoration: theme.buttonDecoration(radius: theme.radii.full),
+        textStyle: theme.textTheme.small,
+      ),
       variant: done
           ? ButtonVariant.secondary
           : primary
           ? ButtonVariant.primary
           : ButtonVariant.outline,
       size: ButtonSize.sm,
-      width: expand ? double.infinity : null,
-      // A pill, where the style's text buttons are rounded rectangles.
-      decoration: theme.buttonDecoration(radius: theme.radii.full),
-      textStyle: theme.textTheme.small,
-      leading: Icon(done ? doneIcon ?? icon : icon),
+      leading: PhosphorIcon(done ? doneIcon ?? icon : icon),
       onPressed: onPressed,
       // Flexible, so a long label in a narrow column — a phone at a large
       // text size — is cut short rather than pushed out of the pill.
@@ -319,7 +339,7 @@ class StrandMark extends StatelessWidget {
     required this.label,
     this.asset,
     this.icon,
-    this.size = 44,
+    this.size,
     super.key,
   }) : assert(asset != null || icon != null, 'A mark needs a logo or a glyph.');
 
@@ -332,18 +352,20 @@ class StrandMark extends StatelessWidget {
   /// Whose mark it is: "Halcyon".
   final String label;
 
-  final double size;
+  /// The mark's side. Defaults to the theme's avatar.
+  final double? size;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    // The designs round a 36-point mark on the control radius and a larger
+    final size = this.size ?? theme.avatarMd;
+    // The designs round a small mark on the control radius and a larger
     // one a step further.
-    final radius = size <= 36 ? theme.radius : theme.radii.lg;
+    final radius = size < theme.avatarMd ? theme.radius : theme.radii.lg;
     final logo = asset;
     if (logo == null) {
       return IconTile(
-        icon: Icon(icon, semanticLabel: label),
+        icon: PhosphorIcon(icon, semanticLabel: label),
         size: size,
         iconSize: size / 2,
         borderRadius: radius,
@@ -372,14 +394,16 @@ class StrandMark extends StatelessWidget {
 
 /// A calendar leaf: the month in small capitals over the day.
 ///
-/// The home feed's event card has the same tile in literal white, on glass
-/// over a photograph; this one sits on a card and takes the theme's accent
-/// pair.
+/// On a card it takes the theme's accent pair; the home feed's event card
+/// passes literal colours for the one that sits on glass over a photograph.
 class StrandDateTile extends StatelessWidget {
   const StrandDateTile({
     required this.month,
     required this.day,
-    this.size = 44,
+    this.size,
+    this.color,
+    this.monthColor,
+    this.dayColor,
     super.key,
   });
 
@@ -389,12 +413,26 @@ class StrandDateTile extends StatelessWidget {
   /// "28".
   final String day;
 
-  final double size;
+  /// The tile's side. Defaults to the theme's avatar.
+  final double? size;
+
+  /// The tile's fill, the month's ink and the day's: the theme's accent
+  /// pair and its foreground unless the tile sits on a photograph.
+  final Color? color;
+  final Color? monthColor;
+  final Color? dayColor;
+
+  // The tile's own type: two lines fitted to the square, as a fraction of
+  // its side (10 and 18 points in a 44-point tile). Not on the type scale.
+  static const _monthSize = .23;
+  static const _monthTracking = .06;
+  static const _daySize = .41;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final size = this.size ?? theme.avatarMd;
     final base = theme.textTheme.small.copyWith(fontWeight: FontWeight.w700);
     // The glyphs are fitted to the tile, so a larger text size does not
     // push them out of it.
@@ -403,7 +441,7 @@ class StrandDateTile extends StatelessWidget {
       width: size * scale,
       height: size * scale,
       decoration: BoxDecoration(
-        color: scheme.accent,
+        color: color ?? scheme.accent,
         borderRadius: theme.radii.md,
       ),
       child: Column(
@@ -412,18 +450,18 @@ class StrandDateTile extends StatelessWidget {
           Text(
             month,
             style: base.copyWith(
-              fontSize: 10,
+              fontSize: size * _monthSize,
               height: 1,
-              letterSpacing: .6,
-              color: scheme.tint,
+              letterSpacing: size * _monthSize * _monthTracking,
+              color: monthColor ?? scheme.tint,
             ),
           ),
           Text(
             day,
             style: base.copyWith(
-              fontSize: 18,
-              height: 20 / 18,
-              color: scheme.foreground,
+              fontSize: size * _daySize,
+              height: 1.1,
+              color: dayColor ?? scheme.foreground,
             ),
           ),
         ],
@@ -436,20 +474,27 @@ class StrandDateTile extends StatelessWidget {
 ///
 /// With an [actionLabel] the toast carries a button — usually "Undo" —
 /// that calls [onAction] and closes it.
+///
+/// The [variant] says what kind of news it is: [ToastVariant.success] for
+/// something the user asked for that is now done and kept (saved, sent,
+/// published), [ToastVariant.destructive] for something taken away
+/// (deleted, withdrawn, declined), and the neutral default for the rest.
 void showStrandToast(
   BuildContext context,
   String title, {
   String? description,
   String? actionLabel,
   VoidCallback? onAction,
+  ToastVariant variant = ToastVariant.neutral,
 }) {
   // Not every host has a toaster (a widget test that pumps one piece).
-  final sonner = Sonner.maybeOf(context);
-  if (sonner == null) return;
+  final toaster = Toaster.maybeOf(context);
+  if (toaster == null) return;
   final id = UniqueKey();
-  sonner.show(
+  toaster.show(
     Toast(
       id: id,
+      variant: variant,
       title: Text(title),
       description: description == null ? null : Text(description),
       action: actionLabel == null
@@ -458,7 +503,7 @@ void showStrandToast(
               size: ButtonSize.sm,
               onPressed: () {
                 onAction?.call();
-                sonner.hide(id);
+                toaster.dismiss(id);
               },
               child: Text(actionLabel),
             ),

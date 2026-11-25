@@ -1,8 +1,8 @@
 import 'package:finesse/material.dart';
 import 'package:finesse/src/app.dart';
 import 'package:finesse/src/components/checkbox.dart'; // Adjust import path based on your project structure
+import 'package:finesse/src/components/decorator.dart';
 import 'package:finesse/src/components/disabled.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/utils/pop_in.dart';
 import 'package:flutter/material.dart' hide Checkbox;
 import 'package:flutter_test/flutter_test.dart';
@@ -36,14 +36,13 @@ void main() {
       expect(
         find.descendant(
           of: animatedSwitcherFinder,
-          matching: find.byType(Icon),
+          matching: find.bySubtype<Icon>(),
         ),
         findsNothing,
       );
 
-      // Check basic layout (Row with checkbox)
-      final rowFinder = find.byType(Row);
-      expect(rowFinder, findsOneWidget);
+      // A bare box has no row around it: there is no label to lay out.
+      expect(find.byType(Row), findsNothing);
     });
 
     testWidgets('renders checked state correctly', (WidgetTester tester) async {
@@ -61,28 +60,31 @@ void main() {
       expect(
         find.descendant(
           of: animatedSwitcherFinder,
-          matching: find.byType(Icon),
+          matching: find.bySubtype<Icon>(),
         ),
         findsOneWidget,
       );
     });
 
-    testWidgets('renders with label and sublabel', (WidgetTester tester) async {
+    testWidgets('renders with label and description', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         createTestWidget(
           const Checkbox(
             value: false,
             label: Text('Checkbox Label'),
-            sublabel: Text('Checkbox Sublabel'),
+            description: Text('Checkbox Sublabel'),
           ),
         ),
       );
 
-      // Check label and sublabel are rendered
+      // Check label and description are rendered
       expect(find.text('Checkbox Label'), findsOneWidget);
       expect(find.text('Checkbox Sublabel'), findsOneWidget);
 
-      // Check layout includes checkbox, label, and sublabel in a Row and Column
+      // Check layout includes checkbox, label, and description in a Row and
+      // Column
       final rowFinder = find.byType(Row);
       expect(rowFinder, findsOneWidget);
       final columnFinder = find.descendant(
@@ -112,7 +114,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byType(PopIn),
-          matching: find.byType(Icon),
+          matching: find.bySubtype<Icon>(),
         ),
         findsNothing,
         reason: 'Initially unchecked, no icon should be present',
@@ -138,7 +140,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byType(PopIn),
-          matching: find.byType(Icon),
+          matching: find.bySubtype<Icon>(),
         ),
         findsOneWidget,
         reason: '''Checked state should show the checkmark icon within PopIn''',
@@ -168,7 +170,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byType(PopIn),
-          matching: find.byType(Icon),
+          matching: find.bySubtype<Icon>(),
         ),
         findsNothing,
         reason: 'Unchecked state should hide the icon',
@@ -203,7 +205,7 @@ void main() {
         findsNWidgets(2),
       ); // One for checkbox, one for outer wrapper
       final innerDisabled = tester.widget<Disabled>(disabledFinder.first);
-      expect(innerDisabled.disabled, true);
+      expect(innerDisabled.enabled, isFalse);
     });
 
     testWidgets('applies custom size correctly', (WidgetTester tester) async {
@@ -233,7 +235,7 @@ void main() {
 
       // Check icon follows the custom size: shadcn's `[&>svg]:size-3.5` puts
       // the glyph 2px inside its box.
-      final iconFinder = find.byType(Icon);
+      final iconFinder = find.bySubtype<Icon>();
       expect(iconFinder, findsOneWidget);
       final icon = tester.widget<Icon>(iconFinder);
       expect(icon.size, customSize - 2);
@@ -275,7 +277,7 @@ void main() {
       final paddingFinder = find.descendant(
         of: find.byType(Row),
         matching: find.ancestor(
-          of: find.byType(Column), // Target the Column with label/sublabel
+          of: find.byType(Column), // Target the Column with label/description
           matching: find.byType(Padding),
         ),
       );
@@ -309,7 +311,7 @@ void main() {
       expect(decorator.focused, true);
     });
 
-    testWidgets('renders without label and sublabel', (
+    testWidgets('renders without label and description', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
@@ -320,9 +322,12 @@ void main() {
         ),
       );
 
-      // Check only checkbox is rendered (no label/sublabel)
-      expect(find.byType(Row), findsOneWidget);
-      expect(find.byType(Column), findsNothing); // No Column for label/sublabel
+      // Check only checkbox is rendered (no label/description)
+      expect(find.byType(Row), findsNothing);
+      expect(
+        find.byType(Column),
+        findsNothing,
+      ); // No Column for label/description
       expect(find.text('Label'), findsNothing);
     });
 
@@ -333,7 +338,7 @@ void main() {
             value: true,
             icon: Icon(Icons.air_rounded),
             label: Text('Label'),
-            sublabel: Text('Sublabel'),
+            description: Text('Sublabel'),
           ),
         ),
       );
@@ -351,7 +356,7 @@ void main() {
             value: false,
             icon: Icon(Icons.air_rounded),
             label: Text('Label'),
-            sublabel: Text('Sublabel'),
+            description: Text('Sublabel'),
           ),
         ),
       );

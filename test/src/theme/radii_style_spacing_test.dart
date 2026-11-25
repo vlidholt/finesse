@@ -132,20 +132,29 @@ void main() {
           r!.resolve(TextDirection.ltr).topLeft.x;
 
       // Controls at the base, cards at 2xl, dialogs at 3xl, popovers at lg.
-      expect(radiusOf(theme.primaryButtonTheme.decoration!.border!.radius), 10);
-      expect(radiusOf(theme.textFieldTheme.decoration!.border!.radius), 10);
-      expect(radiusOf(theme.cardTheme.radius), closeTo(18, 1e-9));
-      expect(radiusOf(theme.primaryDialogTheme.radius), closeTo(20, 1e-9));
       expect(
-        radiusOf(theme.popoverTheme.decoration!.border!.radius),
+        radiusOf(theme.primaryButtonTheme.decoration!.border!.borderRadius),
+        10,
+      );
+      expect(
+        radiusOf(theme.textFieldTheme.decoration!.border!.borderRadius),
+        10,
+      );
+      expect(radiusOf(theme.cardTheme.borderRadius), closeTo(18, 1e-9));
+      expect(
+        radiusOf(theme.primaryDialogTheme.borderRadius),
+        closeTo(20, 1e-9),
+      );
+      expect(
+        radiusOf(theme.popoverTheme.decoration!.border!.borderRadius),
         closeTo(12, 1e-9),
       );
       expect(
-        radiusOf(theme.tooltipTheme.decoration!.border!.radius),
+        radiusOf(theme.tooltipTheme.decoration!.border!.borderRadius),
         closeTo(6, 1e-9),
       );
       // Glass panels are cards.
-      expect(theme.glassTheme.radius, theme.cardTheme.radius);
+      expect(theme.glassTheme.borderRadius, theme.cardTheme.borderRadius);
     });
 
     test('a theme radius rescales the finesse steps', () {
@@ -154,7 +163,7 @@ void main() {
       );
       expect(theme.radii.sm.topLeft.x, closeTo(12, 1e-9));
       expect(theme.radii.xl2.topLeft.x, closeTo(36, 1e-9));
-      expect(theme.cardTheme.radius!.topLeft.x, closeTo(36, 1e-9));
+      expect(theme.cardTheme.borderRadius!.topLeft.x, closeTo(36, 1e-9));
     });
 
     test('the shadcn styles keep a base of 8 on the Tailwind scale', () {
@@ -424,11 +433,12 @@ void main() {
       // on a tall box eats into the text.
       final maia = ThemeData(style: StyleTokens.maia);
       final buttonRadius =
-          (maia.primaryButtonTheme.decoration!.border!.radius! as BorderRadius)
+          (maia.primaryButtonTheme.decoration!.border!.borderRadius!
+                  as BorderRadius)
               .topLeft
               .x;
       final textareaRadius =
-          (maia.textareaTheme.decoration!.border!.radius! as BorderRadius)
+          (maia.textareaTheme.decoration!.border!.borderRadius! as BorderRadius)
               .topLeft
               .x;
 
@@ -442,10 +452,10 @@ void main() {
       () {
         final maia = ThemeData(style: StyleTokens.maia);
 
-        expect(maia.otpFieldTheme.middleRadius, BorderRadius.zero);
-        expect(maia.otpFieldTheme.firstRadius!.topLeft.x, 32);
-        expect(maia.otpFieldTheme.firstRadius!.topRight.x, 0);
-        expect(maia.otpFieldTheme.lastRadius!.topRight.x, 32);
+        expect(maia.otpFieldTheme.middleBorderRadius, BorderRadius.zero);
+        expect(maia.otpFieldTheme.firstBorderRadius!.topLeft.x, 32);
+        expect(maia.otpFieldTheme.firstBorderRadius!.topRight.x, 0);
+        expect(maia.otpFieldTheme.lastBorderRadius!.topRight.x, 32);
         // A slot is the size of a control.
         expect(
           maia.otpFieldTheme.height,
@@ -460,9 +470,9 @@ void main() {
       final maia = ThemeData(style: StyleTokens.maia);
 
       final controlRing =
-          maia.decoration.secondaryFocusedBorder!.radius! as BorderRadius;
+          maia.decoration.secondaryFocusedBorder!.borderRadius! as BorderRadius;
       final textareaRing =
-          maia.textareaTheme.decoration!.secondaryFocusedBorder!.radius!
+          maia.textareaTheme.decoration!.secondaryFocusedBorder!.borderRadius!
               as BorderRadius;
 
       // Element radius plus ring width, in both cases.
@@ -590,7 +600,7 @@ void main() {
       final seraBorder = sera.textFieldTheme.decoration!.border!;
       expect(seraBorder.bottom, isNotNull);
       expect(seraBorder.top, isNull);
-      expect(seraBorder.radius, BorderRadius.zero);
+      expect(seraBorder.borderRadius, BorderRadius.zero);
 
       expect(vega.textFieldTheme.decoration!.border!.top, isNotNull);
     });
@@ -668,8 +678,8 @@ void main() {
 
   group('ThemeData style and spacing', () {
     test('the card radius follows the theme radius', () {
-      // The bug this pins: CardTheme.radius was hardcoded to 8, so setting
-      // a radius moved buttons and inputs but left cards alone.
+      // The bug this pins: CardTheme.borderRadius was hardcoded to 8, so
+      // setting a radius moved buttons and inputs but left cards alone.
       final small = ThemeData(
         style: StyleTokens.nova,
         radius: const BorderRadius.all(Radius.circular(4)),
@@ -679,25 +689,25 @@ void main() {
         radius: const BorderRadius.all(Radius.circular(16)),
       );
 
-      expect(small.cardTheme.radius!.topLeft.x, 7); // 4 * 1.75
-      expect(large.cardTheme.radius!.topLeft.x, 28); // 16 * 1.75
+      expect(small.cardTheme.borderRadius!.topLeft.x, 7); // 4 * 1.75
+      expect(large.cardTheme.borderRadius!.topLeft.x, 28); // 16 * 1.75
       expect(
-        large.cardTheme.radius!.topLeft.x,
+        large.cardTheme.borderRadius!.topLeft.x,
         greaterThan(large.radius.topLeft.x),
       );
     });
 
     test('a style reshapes every radius at once', () {
       final lyra = ThemeData(style: StyleTokens.lyra);
-      expect(lyra.cardTheme.radius, BorderRadius.zero);
-      expect(lyra.primaryDialogTheme.radius, BorderRadius.zero);
+      expect(lyra.cardTheme.borderRadius, BorderRadius.zero);
+      expect(lyra.primaryDialogTheme.borderRadius, BorderRadius.zero);
       expect(
-        lyra.primaryButtonTheme.decoration!.border!.radius,
+        lyra.primaryButtonTheme.decoration!.border!.borderRadius,
         BorderRadius.zero,
       );
 
       final luma = ThemeData(style: FixtureStyles.luma);
-      expect(luma.cardTheme.radius!.topLeft.x, greaterThan(8));
+      expect(luma.cardTheme.borderRadius!.topLeft.x, greaterThan(8));
     });
 
     test('button labels follow the style typography', () {
@@ -745,7 +755,7 @@ void main() {
       expect(mira.sliderTheme.trackHeight, 4);
       expect(mira.sliderTheme.thumbRadius, 6);
       expect(mira.switchTheme.width, 28);
-      expect(mira.progressBarTheme.minHeight, 4);
+      expect(mira.progressBarTheme.height, 4);
       expect(
         sera.selectOptionTheme.padding,
         const EdgeInsets.symmetric(
@@ -798,7 +808,7 @@ void main() {
 
       expect(copy.style, FixtureStyles.rhea);
       expect(copy.spacing, const Spacing(step: 5));
-      expect(copy.cardTheme.radius, theme.cardTheme.radius);
+      expect(copy.cardTheme.borderRadius, theme.cardTheme.borderRadius);
     });
 
     test('an explicit radius rebuilds a supplied variant', () {
@@ -824,7 +834,7 @@ void main() {
       expect(theme.variant.radius.topLeft.x, 16);
       // rhea cards are `rounded-[min(var(--radius-4xl),24px)]`: the 4xl step
       // (64 at an md of 16) hits the 24px cap.
-      expect(theme.cardTheme.radius!.topLeft.x, 24);
+      expect(theme.cardTheme.borderRadius!.topLeft.x, 24);
       // Rebuilding keeps everything the caller did not override.
       expect(theme.style, FixtureStyles.rhea);
     });

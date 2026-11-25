@@ -8,7 +8,9 @@ import 'package:example/strand/navigation.dart';
 import 'package:example/strand/screens/home_screen.dart';
 import 'package:example/strand/session.dart';
 import 'package:example/strand/widgets/home_post_card.dart';
+import 'package:example/strand/widgets/home_post_comments.dart';
 import 'package:example/strand/widgets/home_stories.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -50,6 +52,7 @@ Future<void> _pumpHome(
   WidgetTester tester, {
   Size size = _desktop,
   Brightness brightness = Brightness.light,
+  double textScale = 1,
 }) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
@@ -67,6 +70,12 @@ Future<void> _pumpHome(
         theme: ThemeData(
           brightness: brightness,
           textTheme: TextTheme(family: _fontFamily),
+        ),
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            textScaler: TextScaler.linear(textScale),
+          ),
+          child: child!,
         ),
         home: const Scaffold(appBar: AppBar(), body: HomeScreen()),
       ),
@@ -126,6 +135,39 @@ void main() {
           expect(tester.takeException(), isNull);
         });
       }
+    }
+  });
+
+  // The theme editor's "Text Scale" goes to 1.6. In the test's monospaced
+  // font, which is wider than any the app is set in, nothing overflows at
+  // any width — the phone's included, down to the narrowest in use.
+  group('builds without overflowing at a large text size', () {
+    for (final scale in const [1.3, 1.6]) {
+      testWidgets('${scale}x, from 1440 down to 320 wide', (tester) async {
+        for (final size in const [
+          Size(1440, 1000),
+          Size(1280, 800),
+          Size(1100, 800),
+          Size(1024, 800),
+          Size(900, 800),
+          Size(768, 900),
+          Size(390, 844),
+          Size(320, 568),
+        ]) {
+          await _pumpHome(tester, size: size, textScale: scale);
+          expect(tester.takeException(), isNull, reason: '$size');
+          await tester.drag(
+            find.byType(HomeStories),
+            const Offset(0, -6000),
+            warnIfMissed: false,
+          );
+          await _settle(tester, frames: 4);
+          expect(tester.takeException(), isNull, reason: '$size, scrolled');
+          // A fresh tree for the next size: an overflow is reported once
+          // per render object.
+          await tester.pumpWidget(const SizedBox.shrink());
+        }
+      });
     }
   });
 
@@ -233,9 +275,12 @@ void main() {
         expect(tester.getTopLeft(cardOf(text)).dy, top, reason: text);
       }
 
-      // A rail card's heading starts 18 inside the card's hairline, and the
-      // widget that ends the row is centred on it: "See all" is shorter
-      // than its heading, the close button taller than its.
+      // A rail card's heading starts the theme's card padding inside the
+      // card's hairline, and the widget that ends the row is centred on it:
+      // "See all" is shorter than its heading, the close button taller
+      // than its.
+      final inset =
+          theme.cardTheme.padding!.resolve(TextDirection.ltr).left + 1;
       for (final (heading, trailing) in [
         ('Your groups', find.text('See all')),
         ('Add to your network', find.bySemanticsLabel('Dismiss')),
@@ -244,15 +289,15 @@ void main() {
         final card = tester.getRect(cardOf(heading));
         final title = tester.getRect(find.text(heading));
         final end = tester.getRect(trailing.first);
-        expect(title.left, card.left + 19, reason: heading);
+        expect(title.left, card.left + inset, reason: heading);
         expect(title.height, 22, reason: heading);
         expect(
           title.top,
-          card.top + 19 + (end.height > 22 ? (end.height - 22) / 2 : 0),
+          card.top + inset + (end.height > 22 ? (end.height - 22) / 2 : 0),
           reason: heading,
         );
         expect(end.center.dy, title.center.dy, reason: heading);
-        expect(end.right, card.right - 19, reason: heading);
+        expect(end.right, card.right - inset, reason: heading);
       }
 
       // The stacked discs take the room of the discs alone, so the first
@@ -278,7 +323,8 @@ void main() {
         tester.getTopLeft(find.text('Rafael Cruz')).dx,
         mutuals.left,
       );
-      expect(mutuals.height, 18);
+      // As tall as its portraits: half the theme's avatar.
+      expect(mutuals.height, theme.avatarXs);
       expect(tester.takeException(), isNull);
     });
 
@@ -300,6 +346,58 @@ void main() {
       // Still the desktop feed: the composer and the full post.
       expect(find.text('Start a post, Noor…'), findsOneWidget);
       expect(find.text('Sort by'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('a comment being written survives the rails dropping away '
+        'and the form factor changing', (tester) async {
+      await _pumpHome(tester, size: const Size(1130, 900));
+      const draft = 'A half-written comment';
+      final field = find.descendant(
+        of: find.byType(HomePostComments),
+        matching: find.byType(TextField),
+      );
+      bool fieldFocused() {
+        final focus = FocusManager.instance.primaryFocus?.context;
+        if (focus == null || field.evaluate().isEmpty) return false;
+        var inside = false;
+        final target = tester.element(field.first);
+        focus.visitAncestorElements((element) {
+          inside = element == target;
+          return !inside;
+        });
+        return inside;
+      }
+
+      await _tap(tester, field.first);
+      await tester.enterText(field.first, draft);
+      await _tap(tester, find.text('Like · 24'));
+      await _tap(tester, field.first);
+      await _settle(tester, frames: 4);
+      expect(find.text(draft), findsOneWidget);
+      expect(find.text('Liked · 25'), findsOneWidget);
+      expect(fieldFocused(), isTrue);
+      expect(find.text('Your groups'), findsOneWidget);
+      expect(find.text('Add to your network'), findsOneWidget);
+
+      // Both rails go in the same frame; the feed between them stays the
+      // widget it was, focus and all.
+      tester.view.physicalSize = const Size(800, 900);
+      await _settle(tester, frames: 6);
+      expect(find.text('Your groups'), findsNothing);
+      expect(find.text('Add to your network'), findsNothing);
+      expect(find.text(draft), findsOneWidget);
+      expect(fieldFocused(), isTrue);
+
+      // The phone's cards have no comment field. The draft is not theirs
+      // to throw away: it is there again when the desktop feed is.
+      tester.view.physicalSize = _mobile;
+      await _settle(tester, frames: 6);
+      expect(find.byType(HomePostComments), findsNothing);
+      tester.view.physicalSize = const Size(1130, 900);
+      await _settle(tester, frames: 6);
+      expect(find.text(draft, skipOffstage: false), findsOneWidget);
+      expect(find.text('Liked · 25', skipOffstage: false), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
 

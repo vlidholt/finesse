@@ -19,7 +19,7 @@ final surfaceDoc = ComponentDoc(
       title: 'Anchored to a rectangle',
       description:
           'showPopover takes a global Rect: a text selection, a table '
-          'cell, a point on a canvas.',
+          'cell, a point on a canvas. With showArrow, an arrow points at it.',
       minPreviewHeight: 260,
       builder: (_) => const SurfaceAnchoredExample(),
     ),

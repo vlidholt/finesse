@@ -1,5 +1,6 @@
 import 'package:finesse/finesse.dart' hide Scaffold;
 import 'package:finesse/material.dart';
+import 'package:finesse/src/components/select.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -17,6 +18,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           Select<String>(
+            onChanged: (_) {},
             placeholder: const Text('Select a fruit'),
             options: [
               const Padding(
@@ -41,6 +43,49 @@ void main() {
         find.byType(Select<String>),
         matchesGoldenFile('goldens/select.png'),
       );
+    });
+
+    testWidgets('with no callback it is disabled, and onTap enables it', (
+      tester,
+    ) async {
+      for (final multiple in [false, true]) {
+        await tester.pumpWidget(
+          createTestWidget(
+            multiple
+                ? const Select<String>.multiple(
+                    placeholder: Text('Fruit'),
+                    options: [
+                      SelectOption(value: 'apple', child: Text('Apple')),
+                    ],
+                  )
+                : const Select<String>(
+                    placeholder: Text('Fruit'),
+                    options: [
+                      SelectOption(value: 'apple', child: Text('Apple')),
+                    ],
+                  ),
+          ),
+        );
+        await tester.tap(find.text('Fruit'), warnIfMissed: false);
+        for (var i = 0; i < 12; i++) {
+          await tester.pump(const Duration(milliseconds: 50));
+        }
+        expect(find.text('Apple'), findsNothing);
+      }
+
+      var tapped = 0;
+      await tester.pumpWidget(
+        createTestWidget(
+          Select<String>(
+            placeholder: const Text('Fruit'),
+            onTap: () => tapped++,
+            options: const [SelectOption(value: 'apple', child: Text('Apple'))],
+          ),
+        ),
+      );
+      await tester.tap(find.text('Fruit'));
+      await tester.pump();
+      expect(tapped, 1);
     });
   });
 

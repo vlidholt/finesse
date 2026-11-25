@@ -13,12 +13,12 @@ class ProgressBarTheme with _$ProgressBarTheme {
   /// {@macro ProgressBarTheme}
   const ProgressBarTheme({
     bool canMerge = true,
-    this.backgroundColor,
+    this.trackColor,
     this.color,
     this.borderRadius,
     this.innerBorderRadius,
     this.spring,
-    this.minHeight,
+    this.height,
   }) : _canMerge = canMerge;
 
   @ignore
@@ -27,8 +27,8 @@ class ProgressBarTheme with _$ProgressBarTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro ProgressBar.backgroundColor}
-  final Color? backgroundColor;
+  /// {@macro ProgressBar.trackColor}
+  final Color? trackColor;
 
   /// {@macro ProgressBar.color}
   final Color? color;
@@ -43,8 +43,8 @@ class ProgressBarTheme with _$ProgressBarTheme {
   /// theme's `Motion.smooth`; `MotionSpring.instant` moves it at once.
   final MotionSpring? spring;
 
-  /// {@macro ProgressBar.minHeight}
-  final double? minHeight;
+  /// {@macro ProgressBar.height}
+  final double? height;
 
   /// Linearly interpolates between [a] and [b] by [t].
   static ProgressBarTheme? lerp(

@@ -30,7 +30,7 @@ mixin _$ProgressBarTheme {
     }
 
     return ProgressBarTheme(
-      backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
+      trackColor: Color.lerp(a.trackColor, b.trackColor, t),
       color: Color.lerp(a.color, b.color, t),
       borderRadius: BorderRadius.lerp(a.borderRadius, b.borderRadius, t),
       innerBorderRadius: BorderRadius.lerp(
@@ -39,27 +39,27 @@ mixin _$ProgressBarTheme {
         t,
       ),
       spring: t < 0.5 ? a.spring : b.spring,
-      minHeight: lerpDouble$(a.minHeight, b.minHeight, t),
+      height: lerpDouble$(a.height, b.height, t),
     );
   }
 
   ProgressBarTheme copyWith({
-    Color? backgroundColor,
+    Color? trackColor,
     Color? color,
     BorderRadius? borderRadius,
     BorderRadius? innerBorderRadius,
     MotionSpring? spring,
-    double? minHeight,
+    double? height,
   }) {
     final _this = (this as ProgressBarTheme);
 
     return ProgressBarTheme(
-      backgroundColor: backgroundColor ?? _this.backgroundColor,
+      trackColor: trackColor ?? _this.trackColor,
       color: color ?? _this.color,
       borderRadius: borderRadius ?? _this.borderRadius,
       innerBorderRadius: innerBorderRadius ?? _this.innerBorderRadius,
       spring: spring ?? _this.spring,
-      minHeight: minHeight ?? _this.minHeight,
+      height: height ?? _this.height,
     );
   }
 
@@ -75,12 +75,12 @@ mixin _$ProgressBarTheme {
     }
 
     return copyWith(
-      backgroundColor: other.backgroundColor,
+      trackColor: other.trackColor,
       color: other.color,
       borderRadius: other.borderRadius,
       innerBorderRadius: other.innerBorderRadius,
       spring: other.spring,
-      minHeight: other.minHeight,
+      height: other.height,
     );
   }
 
@@ -97,12 +97,12 @@ mixin _$ProgressBarTheme {
     final _this = (this as ProgressBarTheme);
     final _other = (other as ProgressBarTheme);
 
-    return _other.backgroundColor == _this.backgroundColor &&
+    return _other.trackColor == _this.trackColor &&
         _other.color == _this.color &&
         _other.borderRadius == _this.borderRadius &&
         _other.innerBorderRadius == _this.innerBorderRadius &&
         _other.spring == _this.spring &&
-        _other.minHeight == _this.minHeight;
+        _other.height == _this.height;
   }
 
   @override
@@ -111,12 +111,12 @@ mixin _$ProgressBarTheme {
 
     return Object.hash(
       runtimeType,
-      _this.backgroundColor,
+      _this.trackColor,
       _this.color,
       _this.borderRadius,
       _this.innerBorderRadius,
       _this.spring,
-      _this.minHeight,
+      _this.height,
     );
   }
 }

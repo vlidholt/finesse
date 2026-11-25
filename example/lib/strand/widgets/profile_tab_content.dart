@@ -3,6 +3,7 @@ import 'package:example/strand/widgets/person_avatar.dart';
 import 'package:example/strand/widgets/profile_common.dart';
 import 'package:example/strand/widgets/strand_actions.dart';
 import 'package:example/strand/widgets/verified_badge.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -31,8 +32,10 @@ class _ProfilePostCardState extends State<ProfilePostCard> {
     final reactions = post.reactions + (_liked ? 1 : 0);
 
     return Card(
-      rowMainAxisSize: MainAxisSize.max,
-      columnCrossAxisAlignment: CrossAxisAlignment.stretch,
+      style: CardTheme(
+        rowMainAxisSize: MainAxisSize.max,
+        columnCrossAxisAlignment: CrossAxisAlignment.stretch,
+      ),
       child: FinesseColumn(
         gap: GapSize.md,
         mainAxisSize: MainAxisSize.min,
@@ -40,7 +43,7 @@ class _ProfilePostCardState extends State<ProfilePostCard> {
         children: [
           ListTile(
             padding: EdgeInsets.zero,
-            leading: const PersonAvatar(person, size: profileMarkSize),
+            leading: const PersonAvatar(person),
             title: Row(
               children: [
                 Flexible(
@@ -62,7 +65,7 @@ class _ProfilePostCardState extends State<ProfilePostCard> {
           ),
           if (post.image case final image?)
             ClipRRect(
-              borderRadius: profileTileRadius(theme),
+              borderRadius: theme.radii.lg,
               // 16:9, but no taller than 340 in a wide column.
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxHeight: 340),
@@ -81,9 +84,11 @@ class _ProfilePostCardState extends State<ProfilePostCard> {
             children: [
               Button.ghost(
                 size: ButtonSize.sm,
-                foregroundColor: _liked ? scheme.tint : null,
-                hoverForegroundColor: _liked ? scheme.tint : null,
-                leading: Icon(
+                style: ButtonTheme(
+                  foregroundColor: _liked ? scheme.tint : null,
+                  hoverForegroundColor: _liked ? scheme.tint : null,
+                ),
+                leading: PhosphorIcon(
                   _liked ? PhosphorIconsFill.heart : PhosphorIconsRegular.heart,
                 ),
                 onPressed: () => setState(() => _liked = !_liked),
@@ -91,14 +96,14 @@ class _ProfilePostCardState extends State<ProfilePostCard> {
               ),
               Button.ghost(
                 size: ButtonSize.sm,
-                leading: const Icon(PhosphorIconsRegular.chatCircle),
+                leading: const PhosphorIcon(PhosphorIconsRegular.chatCircle),
                 onPressed: () => showCommentDialog(context, person),
                 child: Text('${post.comments}'),
               ),
               const Spacer(),
               Button.ghost(
                 size: ButtonSize.sm,
-                leading: const Icon(PhosphorIconsRegular.export),
+                leading: const PhosphorIcon(PhosphorIconsRegular.export),
                 onPressed: () => showSendDialog(context, what: 'this post'),
                 child: const Text('Share'),
               ),
@@ -117,7 +122,6 @@ class ProfileActivityCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    // The desktop's body size, at the weight the card was drawn with.
     final title = theme.textTheme.p.copyWith(fontWeight: FontWeight.w500);
     return ProfileSection(
       title: 'Activity',
@@ -130,7 +134,7 @@ class ProfileActivityCard extends StatelessWidget {
             ListTile(
               padding: EdgeInsets.zero,
               crossAxisAlignment: CrossAxisAlignment.start,
-              leading: IconTile(icon: Icon(item.icon)),
+              leading: IconTile(icon: PhosphorIcon(item.icon)),
               titleStyle: title,
               titleMaxLines: 2,
               title: Text.rich(
@@ -162,8 +166,8 @@ class ProfileMediaCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final gap = theme.layoutTheme.gap(GapSize.sm);
-    final radius = profileTileRadius(theme);
+    final gap = theme.gap(GapSize.sm);
+    final radius = theme.radii.lg;
     return ProfileSection(
       title: 'Media',
       child: LayoutBuilder(

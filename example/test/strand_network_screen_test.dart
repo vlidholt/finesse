@@ -228,6 +228,50 @@ void main() {
       await dismissToasts(tester);
     });
 
+    test('"Undo" on an ignored invitation does not undo a later Accept', () {
+      final network = NetworkController();
+      final invitation = NetworkData.invitations.first;
+      final person = invitation.person;
+
+      // "Ignore" on the Network screen; its toast offers Undo for a while.
+      network.ignore(invitation);
+      expect(network.pending, isNot(contains(invitation)));
+      // The notification about it still offers "Accept".
+      network.accept(invitation);
+      expect(network.isConnected(person), isTrue);
+
+      // The first toast's "Undo" takes back the ignore, and only that.
+      network.undoIgnore(invitation);
+      expect(network.isConnected(person), isTrue);
+      expect(network.pending, isNot(contains(invitation)));
+
+      // The accept's own undo puts the invitation back in the list — not
+      // back among the ignored.
+      network.undoAccept(invitation);
+      expect(network.isConnected(person), isFalse);
+      expect(network.pending, contains(invitation));
+    });
+
+    testWidgets('"Undo" on the toast puts an ignored invitation back', (
+      tester,
+    ) async {
+      await _pump(tester);
+      await tester.tap(_invitationPill('Irina Volkova', 'Ignore'));
+      await settleFrames(tester);
+      expect(
+        _in(NetworkInvitationsCard, find.text('Irina Volkova')),
+        findsNothing,
+      );
+      await tester.tap(find.widgetWithText(Button, 'Undo'));
+      await settleFrames(tester);
+      expect(
+        _in(NetworkInvitationsCard, find.text('Irina Volkova')),
+        findsOneWidget,
+      );
+      expect(_network(tester).isConnected(People.irina), isFalse);
+      await dismissToasts(tester);
+    });
+
     testWidgets('answering them all leaves a note, not a hole', (tester) async {
       await _pump(tester);
 
@@ -513,7 +557,7 @@ void main() {
       await scrollToAndTap(tester, _pillFor('Calm Software Club', 'Join'));
       expect(find.text('You are in 4 groups'), findsOneWidget);
 
-      await tester.tap(find.byIcon(PhosphorIconsRegular.arrowLeft));
+      await tester.tap(find.byType(BackButton));
       await settleFrames(tester);
       expect(page, findsNothing);
       // The page and the list under it are one state.

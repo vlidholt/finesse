@@ -75,7 +75,7 @@ class _PressableChoiceExampleState extends State<PressableChoiceExample> {
                                 ],
                               ),
                             ),
-                            Icon(
+                            PhosphorIcon(
                               isSelected
                                   ? PhosphorIconsFill.checkCircle
                                   : PhosphorIconsRegular.circle,

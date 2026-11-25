@@ -2,6 +2,7 @@ import 'package:example/strand/data/network_data.dart';
 import 'package:example/strand/widgets/home_pieces.dart';
 import 'package:example/strand/widgets/network_controller.dart';
 import 'package:example/strand/widgets/strand_pieces.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -34,28 +35,27 @@ class NetworkManageCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final inset = theme.layoutTheme.gap(GapSize.sm);
+    final inset = theme.gap(GapSize.sm);
 
     Widget row(NetworkSection section) {
       final selected = showSelection && controller.section == section;
       final count = controller.countOf(section);
       return Semantics(
         selected: selected,
-        child: Button.raw(
+        child: Button(
           variant: selected ? ButtonVariant.secondary : ButtonVariant.ghost,
-          // The home profile card's shortcut row: 38 tall and inset 10.
-          height: 38,
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: homeSnugGap),
-          gap: homeSnugGap,
-          iconSize: 20,
-          mainAxisAlignment: MainAxisAlignment.start,
-          foregroundColor: selected ? scheme.tint : scheme.foregroundSubtle,
-          leading: Icon(section.icon),
+          style: ButtonTheme(
+            pressScale: 1,
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(horizontal: theme.gap(GapSize.sm)),
+            gap: theme.gap(GapSize.sm),
+            mainAxisAlignment: MainAxisAlignment.start,
+            foregroundColor: selected ? scheme.tint : scheme.foregroundSubtle,
+          ),
+          leading: PhosphorIcon(section.icon),
           trailing: section == NetworkSection.grow
               ? IndicatorBadge(
                   count: count,
-                  size: 20,
                   ringWidth: 0,
                   semanticLabel: '$count invitations waiting',
                 )
@@ -83,17 +83,17 @@ class NetworkManageCard extends StatelessWidget {
     }
 
     return Card(
-      padding: EdgeInsets.zero,
+      style: CardTheme(padding: EdgeInsets.zero),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-              homeRailInset,
-              homeRailInset,
-              homeRailInset,
-              homeSnugGap,
+            padding: EdgeInsets.fromLTRB(
+              theme.cardInset,
+              theme.cardInset,
+              theme.cardInset,
+              theme.gap(GapSize.sm),
             ),
             child: Semantics(
               header: true,
@@ -179,7 +179,7 @@ class NetworkEventsCard extends StatelessWidget {
                         '${event.place} · ${event.time}',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: homeFinePrint(theme),
+                        style: theme.textTheme.caption,
                       ),
                       const Gap.sm(),
                       Align(
@@ -238,9 +238,9 @@ class NetworkSuggestedGroupsCard extends StatelessWidget {
                   asset: group.logo,
                   icon: group.icon,
                   label: group.name,
-                  size: 36,
+                  size: theme.avatarSm,
                 ),
-                const Gap.raw(homeSnugGap),
+                const Gap.sm(),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -250,9 +250,8 @@ class NetworkSuggestedGroupsCard extends StatelessWidget {
                         group.name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.small.copyWith(
-                          fontSize: 14,
-                          height: 18 / 14,
+                        style: theme.textTheme.p.copyWith(
+                          fontWeight: FontWeight.w600,
                           color: scheme.foreground,
                         ),
                       ),
@@ -260,7 +259,7 @@ class NetworkSuggestedGroupsCard extends StatelessWidget {
                         group.members,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: homeFinePrint(theme),
+                        style: theme.textTheme.caption,
                       ),
                     ],
                   ),

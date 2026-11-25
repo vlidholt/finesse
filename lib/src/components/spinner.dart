@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:finesse/src/components/ring_painter.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/debug_check.dart';
 import 'package:flutter/widgets.dart';
@@ -98,6 +99,14 @@ class _SpinnerState extends State<Spinner> with SingleTickerProviderStateMixin {
     super.dispose();
   }
 
+  /// How much of the circle the moving arc covers.
+  static const _sweep = math.pi * 0.6;
+
+  ({double start, double sweep}) _arc() => (
+    start: (_controller.value * 2 * math.pi) - (math.pi / 2),
+    sweep: _sweep,
+  );
+
   @override
   Widget build(BuildContext context) {
     assert(debugCheckHasTheme(context));
@@ -120,21 +129,19 @@ class _SpinnerState extends State<Spinner> with SingleTickerProviderStateMixin {
     final effectiveStrokeWidth =
         widget.strokeWidth ?? spinnerTheme.strokeWidth ?? 2.0;
 
+    // The spin is painted, not built: the painter follows the controller
+    // and nothing is rebuilt while it turns.
     Widget spinner = SizedBox.square(
       dimension: effectiveSize,
       child: RepaintBoundary(
-        child: AnimatedBuilder(
-          animation: _controller,
-          builder: (context, _) {
-            return CustomPaint(
-              painter: _SpinnerPainter(
-                progress: _controller.value,
-                color: effectiveColor,
-                trackColor: effectiveTrackColor,
-                strokeWidth: effectiveStrokeWidth,
-              ),
-            );
-          },
+        child: CustomPaint(
+          painter: RingPainter(
+            color: effectiveColor,
+            trackColor: effectiveTrackColor,
+            strokeWidth: effectiveStrokeWidth,
+            arc: _arc,
+            repaint: _controller,
+          ),
         ),
       ),
     );
@@ -147,64 +154,5 @@ class _SpinnerState extends State<Spinner> with SingleTickerProviderStateMixin {
       );
     }
     return spinner;
-  }
-}
-
-/// Paints the spinner.
-///
-/// Hand-painted rather than wrapping `CircularProgressIndicator` because
-/// nothing under `lib/` is allowed to import `material.dart`.
-class _SpinnerPainter extends CustomPainter {
-  _SpinnerPainter({
-    required this.progress,
-    required this.color,
-    required this.trackColor,
-    required this.strokeWidth,
-  });
-
-  final double progress;
-  final Color color;
-  final Color trackColor;
-  final double strokeWidth;
-
-  /// How much of the circle the moving arc covers.
-  static const _sweep = math.pi * 0.6;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final rect = Offset.zero & size;
-    final inset = strokeWidth / 2;
-    final arcRect = rect.deflate(inset);
-
-    if (trackColor.a > 0) {
-      canvas.drawCircle(
-        rect.center,
-        (math.min(size.width, size.height) / 2) - inset,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = strokeWidth
-          ..color = trackColor,
-      );
-    }
-
-    canvas.drawArc(
-      arcRect,
-      (progress * 2 * math.pi) - (math.pi / 2),
-      _sweep,
-      false,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeCap = StrokeCap.round
-        ..strokeWidth = strokeWidth
-        ..color = color,
-    );
-  }
-
-  @override
-  bool shouldRepaint(_SpinnerPainter oldDelegate) {
-    return oldDelegate.progress != progress ||
-        oldDelegate.color != color ||
-        oldDelegate.trackColor != trackColor ||
-        oldDelegate.strokeWidth != strokeWidth;
   }
 }

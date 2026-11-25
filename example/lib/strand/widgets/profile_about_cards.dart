@@ -1,6 +1,7 @@
 import 'package:example/strand/data/profile_data.dart';
 import 'package:example/strand/widgets/profile_common.dart';
 import 'package:example/strand/widgets/strand_actions.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -17,8 +18,12 @@ class ProfileAnalyticsCard extends StatelessWidget {
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(PhosphorIconsRegular.eye, size: 16, color: muted),
-          const Gap.raw(profileInlineGap),
+          PhosphorIcon(
+            PhosphorIconsRegular.eye,
+            size: theme.iconBeside(theme.textTheme.muted),
+            color: muted,
+          ),
+          const Gap.xs(),
           Text('Private to you', style: theme.textTheme.muted),
         ],
       ),
@@ -48,10 +53,10 @@ class _StatBox extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     return Container(
-      padding: const EdgeInsets.all(profileSnugGap),
+      padding: EdgeInsets.all(theme.gap(GapSize.md)),
       decoration: BoxDecoration(
         color: scheme.muted,
-        borderRadius: profileTileRadius(theme),
+        borderRadius: theme.radii.lg,
         border: Border.all(color: scheme.border),
       ),
       child: Column(
@@ -60,33 +65,34 @@ class _StatBox extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(stat.icon, size: 20, color: scheme.mutedForeground),
+              PhosphorIcon(
+                stat.icon,
+                size: theme.glyphLg,
+                color: scheme.mutedForeground,
+              ),
               const Spacer(),
-              Icon(PhosphorIconsRegular.trendUp, size: 14, color: scheme.tint),
-              const Gap.raw(2),
+              PhosphorIcon(
+                PhosphorIconsRegular.trendUp,
+                size: theme.iconBeside(theme.textTheme.caption),
+                color: scheme.tint,
+              ),
+              const Gap.xs(),
               Text(
                 stat.trend,
                 semanticsLabel: 'Up ${stat.trend}',
-                style: theme.textTheme.small.copyWith(
-                  fontSize: 12,
-                  height: 1,
+                style: theme.textTheme.caption.copyWith(
                   fontWeight: FontWeight.w600,
                   color: scheme.tint,
                 ),
               ),
             ],
           ),
-          const Gap.raw(profileTightGap),
+          const Gap.sm(),
           Text(
             stat.value,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.h3.copyWith(
-              fontSize: 24,
-              height: 30 / 24,
-              letterSpacing: -.48,
-              color: scheme.foreground,
-            ),
+            style: theme.textTheme.h3.copyWith(color: scheme.foreground),
           ),
           Text(
             stat.label,
@@ -100,14 +106,11 @@ class _StatBox extends StatelessWidget {
   }
 }
 
-/// The About text of a profile, at the designs' reading size.
+/// The About text of a profile.
 class ProfileAboutText extends StatelessWidget {
-  const ProfileAboutText(this.text, {this.lineHeight = 24, super.key});
+  const ProfileAboutText(this.text, {super.key});
 
   final String text;
-
-  /// The line height in logical pixels: 24 on a desktop, 23 on a phone.
-  final double lineHeight;
 
   @override
   Widget build(BuildContext context) {
@@ -115,8 +118,6 @@ class ProfileAboutText extends StatelessWidget {
     return Text(
       text,
       style: theme.textTheme.p.copyWith(
-        fontSize: 15,
-        height: lineHeight / 15,
         color: theme.colorScheme.foregroundSubtle,
       ),
     );
@@ -161,7 +162,7 @@ class ProfileAboutCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const ProfileAboutText(ProfileData.about),
-          const Gap.raw(profileRoomyGap),
+          const Gap.lg(),
           Text(
             'Top skills',
             style: theme.textTheme.small.copyWith(
@@ -169,7 +170,7 @@ class ProfileAboutCard extends StatelessWidget {
               color: theme.colorScheme.foreground,
             ),
           ),
-          const Gap.raw(profileTightGap),
+          const Gap.sm(),
           const ProfileSkills(ProfileData.skills),
         ],
       ),
@@ -208,15 +209,16 @@ class _FeaturedTile extends StatelessWidget {
 
   final FeaturedItem item;
 
-  /// `rgba(9,9,11,.36)`: the scrim behind a label on a photograph.
-  static const _scrim = Color(0x5C09090B);
+  /// The scrim behind a label on a photograph: denser than the designs'
+  /// 36%, which sat on a blur of the photograph.
+  static const _scrim = Color(0x8A09090B);
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final layout = theme.layoutTheme;
-    final radius = profileTileRadius(theme);
+    final radius = theme.radii.lg;
 
     return Pressable(
       onPressed: () => showArticlePreview(
@@ -269,20 +271,19 @@ class _FeaturedTile extends StatelessWidget {
                     top: layout.gap(GapSize.sm),
                     start: layout.gap(GapSize.sm),
                     child: Glass(
+                      frosted: false,
                       color: _scrim,
                       border: const Border.fromBorderSide(BorderSide.none),
                       borderRadius: theme.radii.full,
-                      height: 24,
                       padding: EdgeInsets.symmetric(
                         horizontal: layout.gap(GapSize.sm),
+                        vertical: layout.gap(GapSize.xs),
                       ),
                       child: Center(
                         widthFactor: 1,
                         child: Text(
                           item.kind,
-                          style: theme.textTheme.small.copyWith(
-                            fontSize: 11,
-                            height: 1,
+                          style: theme.textTheme.caption.copyWith(
                             fontWeight: FontWeight.w600,
                             color: const Color(0xFFFFFFFF),
                           ),
@@ -302,9 +303,7 @@ class _FeaturedTile extends StatelessWidget {
                       item.title,
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
-                      // A line tighter than the body's 20.
-                      style: profileBodyStyle(theme).copyWith(
-                        height: 19 / 14,
+                      style: theme.textTheme.p.copyWith(
                         fontWeight: FontWeight.w600,
                         color: scheme.foreground,
                       ),
@@ -314,7 +313,7 @@ class _FeaturedTile extends StatelessWidget {
                       item.meta,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: profileCaptionStyle(theme),
+                      style: theme.textTheme.caption,
                     ),
                   ],
                 ),

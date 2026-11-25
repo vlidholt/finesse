@@ -36,6 +36,7 @@ class TypographyRolesExample extends StatelessWidget {
         ('large', 'large', 'Are you absolutely sure?'),
         ('small', 'small', 'Email address'),
         ('muted', 'muted', 'Enter your email address.'),
+        ('caption', 'caption', 'Edited 2h ago · 12 comments'),
       ];
 
   static const _minContrast = 3.0;
@@ -56,6 +57,7 @@ class TypographyRolesExample extends StatelessWidget {
     'large' => text.large,
     'small' => text.small,
     'muted' => text.muted,
+    'caption' => text.caption,
     _ => text.p,
   };
 
@@ -95,16 +97,8 @@ class TypographyRolesExample extends StatelessWidget {
       ('textField.placeholderStyle', theme.textFieldTheme.placeholderStyle),
       ('textarea.style', theme.textareaTheme.style),
       ('textarea.placeholderStyle', theme.textareaTheme.placeholderStyle),
-      ('toast.primary.titleStyle', theme.primaryToastTheme.titleStyle),
-      (
-        'toast.primary.descriptionStyle',
-        theme.primaryToastTheme.descriptionStyle,
-      ),
-      ('toast.destructive.titleStyle', theme.destructiveToastTheme.titleStyle),
-      (
-        'toast.destructive.descriptionStyle',
-        theme.destructiveToastTheme.descriptionStyle,
-      ),
+      ('toast.titleStyle', theme.toastTheme.titleStyle),
+      ('toast.descriptionStyle', theme.toastTheme.descriptionStyle),
       ('alert.primary.titleStyle', theme.primaryAlertTheme.titleStyle),
       (
         'alert.primary.descriptionStyle',
@@ -166,9 +160,9 @@ class TypographyRolesExample extends StatelessWidget {
         'calendar.dayButtonOutsideMonthTextStyle',
         theme.calendarTheme.dayButtonOutsideMonthTextStyle,
       ),
-      ('timePicker.style', theme.timePickerTheme.style),
-      ('timePicker.placeholderStyle', theme.timePickerTheme.placeholderStyle),
-      ('timePicker.labelStyle', theme.timePickerTheme.labelStyle),
+      ('timeField.style', theme.timeFieldTheme.style),
+      ('timeField.placeholderStyle', theme.timeFieldTheme.placeholderStyle),
+      ('timeField.labelStyle', theme.timeFieldTheme.labelStyle),
       ('otpField.style', theme.otpFieldTheme.style),
       ('kbd.textStyle', theme.kbdTheme.textStyle),
       ('toggle.textStyle', theme.toggleTheme.textStyle),
@@ -376,7 +370,7 @@ class TypographyRolesExample extends StatelessWidget {
                   sampleText,
                   labelWidth: proseLabelWidth,
                 ),
-              const Divider.horizontal(
+              const Divider(
                 margin: EdgeInsets.symmetric(vertical: 8),
               ),
               for (final (label, style) in componentStyles)

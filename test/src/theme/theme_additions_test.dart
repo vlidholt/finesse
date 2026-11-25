@@ -340,19 +340,11 @@ void main() {
             finesse.colorScheme.muted,
           );
           expect(
-            finesse.secondaryBadgeTheme.hoverBackgroundColor,
-            finesse.colorScheme.muted,
-          );
-          expect(
             finesse.secondaryBadgeTheme.foregroundColor,
             finesse.colorScheme.foregroundSubtle,
           );
           expect(
             nova.secondaryBadgeTheme.backgroundColor,
-            nova.colorScheme.secondary,
-          );
-          expect(
-            nova.secondaryBadgeTheme.hoverBackgroundColor,
             nova.colorScheme.secondary,
           );
           expect(
@@ -375,12 +367,12 @@ void main() {
           // Track `--fill-2`, fill `--accent`.
           expect(finesse.progressBarTheme.color, finesse.colorScheme.tint);
           expect(
-            finesse.progressBarTheme.backgroundColor,
+            finesse.progressBarTheme.trackColor,
             finesse.colorScheme.secondary,
           );
           expect(nova.progressBarTheme.color, nova.colorScheme.primary);
           expect(
-            nova.progressBarTheme.backgroundColor,
+            nova.progressBarTheme.trackColor,
             nova.colorScheme.muted,
           );
         });
@@ -450,13 +442,13 @@ void main() {
       final track = withStyle(
         StyleTokens.nova.copyWith(progressTrackFill: SurfaceFill.secondary),
       ).progressBarTheme;
-      expect(track.backgroundColor, scheme.secondary);
+      expect(track.trackColor, scheme.secondary);
       expect(track.color, scheme.primary);
       final tinted = withStyle(
         StyleTokens.nova.copyWith(progressTinted: true),
       ).progressBarTheme;
       expect(tinted.color, scheme.tint);
-      expect(tinted.backgroundColor, scheme.muted);
+      expect(tinted.trackColor, scheme.muted);
 
       expect(
         withStyle(
@@ -508,7 +500,7 @@ void main() {
     testWidgets('a finesse Divider takes no room beyond its line; a nova one '
         'keeps 16 either side', (tester) async {
       Widget rule() => const Center(
-        child: SizedBox(width: 200, child: Divider.horizontal()),
+        child: SizedBox(width: 200, child: Divider()),
       );
       await pumpFinesse(tester, rule());
       expect(tester.getSize(find.byType(Divider)).height, 1);
@@ -611,10 +603,18 @@ void main() {
           reason: '${style.name} progress track',
         );
         expect(
-          tester
-              .widget<DeterminateProgressBar>(
-                find.byType(DeterminateProgressBar),
-              )
+          (tester
+                      .widget<DecoratedBox>(
+                        find.descendant(
+                          of: find.descendant(
+                            of: find.byType(ProgressBar),
+                            matching: find.byType(FractionallySizedBox),
+                          ),
+                          matching: find.byType(DecoratedBox),
+                        ),
+                      )
+                      .decoration
+                  as BoxDecoration)
               .color,
           finesse ? scheme.tint : scheme.primary,
           reason: '${style.name} progress fill',
@@ -756,10 +756,10 @@ void main() {
         final theme = ThemeData(style: style);
         for (final radius in [pill, eight, BorderRadius.zero]) {
           final decoration = theme.buttonDecoration(radius: radius);
-          expect(decoration.border!.radius, radius, reason: style.name);
+          expect(decoration.border!.borderRadius, radius, reason: style.name);
         }
         expect(
-          theme.buttonDecoration(radius: theme.radii.full).border!.radius,
+          theme.buttonDecoration(radius: theme.radii.full).border!.borderRadius,
           theme.radii.full,
           reason: style.name,
         );
@@ -778,7 +778,7 @@ void main() {
           final reason = '${style.name} $brightness';
 
           expect(
-            ring.radius,
+            ring.borderRadius,
             BorderRadius.all(Radius.circular(8 + ringWidth)),
             reason: reason,
           );
@@ -808,7 +808,7 @@ void main() {
           .buttonDecoration(radius: radius)
           .secondaryFocusedBorder!;
       expect(
-        ring.radius,
+        ring.borderRadius,
         BorderRadius.only(
           topLeft: Radius.circular(4 + ringWidth),
           topRight: Radius.circular(12 + ringWidth),
@@ -821,7 +821,7 @@ void main() {
         theme
             .buttonDecoration(radius: BorderRadius.zero)
             .secondaryFocusedBorder!
-            .radius,
+            .borderRadius,
         BorderRadius.zero,
       );
     });
@@ -838,7 +838,7 @@ void main() {
           final reason = '${style.name} ${formFactor.name}';
           expect(decoration.secondaryFocusedBorder, isNull, reason: reason);
           // The shape is still applied.
-          expect(decoration.border!.radius, pill, reason: reason);
+          expect(decoration.border!.borderRadius, pill, reason: reason);
         }
       }
     });
@@ -878,7 +878,11 @@ void main() {
             builder: (context) {
               theme = Theme.of(context);
               return Button.outline(
-                decoration: theme.buttonDecoration(radius: theme.radii.full),
+                style: ButtonTheme(
+                  decoration: theme.buttonDecoration(
+                    radius: theme.radii.full,
+                  ),
+                ),
                 onPressed: () {},
                 child: const Text('Follow'),
               );
@@ -893,13 +897,13 @@ void main() {
           matching: find.byType(Decorator),
         ),
       );
-      expect(decorator.decoration!.border!.radius, theme.radii.full);
+      expect(decorator.decoration!.border!.borderRadius, theme.radii.full);
       expect(
-        decorator.decoration!.secondaryFocusedBorder!.radius,
+        decorator.decoration!.secondaryFocusedBorder!.borderRadius,
         theme
             .buttonDecoration(radius: theme.radii.full)
             .secondaryFocusedBorder!
-            .radius,
+            .borderRadius,
       );
       // An outline button keeps its outline: only the corners changed.
       final size = tester.getSize(find.byType(Button));
@@ -933,13 +937,13 @@ void main() {
         );
         final reason = 'disableSecondaryBorder: $disableSecondaryBorder';
         expect(
-          decorator.decoration!.border!.radius,
-          expected.border!.radius,
+          decorator.decoration!.border!.borderRadius,
+          expected.border!.borderRadius,
           reason: reason,
         );
         expect(
-          decorator.decoration!.secondaryFocusedBorder?.radius,
-          expected.secondaryFocusedBorder?.radius,
+          decorator.decoration!.secondaryFocusedBorder?.borderRadius,
+          expected.secondaryFocusedBorder?.borderRadius,
           reason: reason,
         );
         if (disableSecondaryBorder) {

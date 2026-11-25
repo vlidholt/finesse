@@ -2,6 +2,7 @@ import 'package:finesse/src/components/button.dart';
 import 'package:finesse/src/components/icon_button.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
+import 'package:finesse/src/theme/components/button.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/theme.dart';
@@ -221,7 +222,7 @@ class Pagination extends StatelessWidget {
         Button.ghost(
           enabled: canGoPrevious,
           onPressed: canGoPrevious ? () => onPageChanged!(page - 1) : null,
-          leading: const Icon(PhosphorIconsRegular.caretLeft, size: 16),
+          leading: const PhosphorIcon(PhosphorIconsRegular.caretLeft, size: 16),
           child: previousLabel ?? Text(localizations.pagination.previous),
         ),
       );
@@ -253,18 +254,27 @@ class Pagination extends StatelessWidget {
               '${localizations.pagination.page} '
               '${numberFormat.format(entry)}',
           child: ExcludeSemantics(
-            child: Button.raw(
+            child: Button(
               variant: isCurrent ? ButtonVariant.outline : ButtonVariant.ghost,
-              size: ButtonSize.icon,
-              decoration: isCurrent
-                  ? null
-                  : _inactivePageButtonDecoration(theme),
+              // A square, like an icon button, around the number.
+              style: ButtonTheme(
+                width: theme.buttonSizesTheme.icon?.width,
+                height: theme.buttonSizesTheme.icon?.height,
+                padding: theme.buttonSizesTheme.icon?.padding,
+                decoration: isCurrent
+                    ? null
+                    : _inactivePageButtonDecoration(theme),
+              ),
               enabled: enabled && onPageChanged != null,
-              // A page number is a button like the arrows beside it.
-              pressScale: null,
-              onPressed: onPageChanged == null || isCurrent
+              // The current page does nothing when pressed, but stays a
+              // button, undimmed and in the focus order, as the
+              // reference's `aria-current` link does: a button with no
+              // callback is a disabled one.
+              onPressed: onPageChanged == null
                   ? null
-                  : () => onPageChanged!(entry),
+                  : () {
+                      if (!isCurrent) onPageChanged!(entry);
+                    },
               child: Text(numberFormat.format(entry)),
             ),
           ),
@@ -278,7 +288,10 @@ class Pagination extends StatelessWidget {
         Button.ghost(
           enabled: canGoNext,
           onPressed: canGoNext ? () => onPageChanged!(page + 1) : null,
-          trailing: const Icon(PhosphorIconsRegular.caretRight, size: 16),
+          trailing: const PhosphorIcon(
+            PhosphorIconsRegular.caretRight,
+            size: 16,
+          ),
           child: nextLabel ?? Text(localizations.pagination.next),
         ),
       );
@@ -349,7 +362,7 @@ class PaginationCompact extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         IconButton.ghost(
-          icon: const Icon(PhosphorIconsRegular.caretLeft),
+          icon: const PhosphorIcon(PhosphorIconsRegular.caretLeft),
           semanticLabel: localizations.pagination.previous,
           enabled: canGoPrevious,
           onPressed: canGoPrevious ? () => onPageChanged!(page - 1) : null,
@@ -364,7 +377,7 @@ class PaginationCompact extends StatelessWidget {
             ),
         SizedBox(width: effectiveGap),
         IconButton.ghost(
-          icon: const Icon(PhosphorIconsRegular.caretRight),
+          icon: const PhosphorIcon(PhosphorIconsRegular.caretRight),
           semanticLabel: localizations.pagination.next,
           enabled: canGoNext,
           onPressed: canGoNext ? () => onPageChanged!(page + 1) : null,

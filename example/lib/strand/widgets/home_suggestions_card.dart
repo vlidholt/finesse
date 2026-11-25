@@ -2,6 +2,7 @@ import 'package:example/strand/data/home_data.dart';
 import 'package:example/strand/navigation.dart';
 import 'package:example/strand/widgets/home_pieces.dart';
 import 'package:example/strand/widgets/person_avatar.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -32,12 +33,8 @@ class _HomeSuggestionsCardState extends State<HomeSuggestionsCard> {
     return HomeSectionCard(
       title: 'Add to your network',
       trailing: IconButton.ghost(
-        // A 28-point close button: smaller than the theme's smallest, so
-        // the heading row stays the height of the other rail cards'.
-        width: 28,
-        height: 28,
-        iconSize: 16,
-        icon: const Icon(PhosphorIconsRegular.x),
+        size: ButtonSize.sm,
+        icon: const PhosphorIcon(PhosphorIconsRegular.x),
         semanticLabel: 'Dismiss',
         onPressed: widget.onDismissed,
       ),
@@ -62,10 +59,12 @@ class _HomeSuggestionsCardState extends State<HomeSuggestionsCard> {
           ),
           const Gap.lg(),
           Button.secondary(
-            width: double.infinity,
-            gap: homeTightGap,
-            textStyle: theme.textTheme.small,
-            trailing: const Icon(PhosphorIconsRegular.caretRight, size: 14),
+            style: ButtonTheme(
+              width: double.infinity,
+              gap: theme.gap(GapSize.xs),
+              textStyle: theme.textTheme.small,
+            ),
+            trailing: const PhosphorIcon(PhosphorIconsRegular.caretRight),
             onPressed: () => context.goTo(StrandDestination.network),
             child: const Flexible(
               child: Text(
@@ -92,9 +91,6 @@ class _SuggestionRow extends StatelessWidget {
   final bool invited;
   final VoidCallback onPressed;
 
-  /// The diameter of a mutual connection's portrait.
-  static const _mutualSize = 18.0;
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -104,7 +100,7 @@ class _SuggestionRow extends StatelessWidget {
       gap: GapSize.md,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        PersonAvatar(person, size: homeAvatarSize),
+        PersonAvatar(person),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -125,7 +121,7 @@ class _SuggestionRow extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.muted,
               ),
-              const Gap.raw(homeTightGap),
+              const Gap.xs(),
               // Scales down rather than overflowing if the column is ever
               // narrower than the stack of portraits.
               FittedBox(
@@ -136,25 +132,25 @@ class _SuggestionRow extends StatelessWidget {
                   children: [
                     ExcludeSemantics(
                       child: AvatarGroup(
-                        size: _mutualSize,
-                        overlap: 6,
+                        size: theme.avatarXs,
+                        overlap: theme.avatarXs / 3,
                         children: [
                           for (final avatar in suggestion.mutuals)
                             Image.asset(
                               avatar,
-                              width: _mutualSize,
-                              height: _mutualSize,
+                              width: theme.avatarXs,
+                              height: theme.avatarXs,
                               fit: BoxFit.cover,
                             ),
                         ],
                       ),
                     ),
-                    const Gap.raw(homeTightGap),
+                    const Gap.xs(),
                     Text(
                       '${suggestion.mutualCount} mutual',
                       maxLines: 1,
                       softWrap: false,
-                      style: homeFinePrint(theme),
+                      style: theme.textTheme.caption,
                     ),
                   ],
                 ),
@@ -164,9 +160,11 @@ class _SuggestionRow extends StatelessWidget {
         ),
         Button.outline(
           size: ButtonSize.sm,
-          decoration: theme.buttonDecoration(radius: theme.radii.full),
-          textStyle: theme.textTheme.small,
-          leading: Icon(
+          style: ButtonTheme(
+            decoration: theme.buttonDecoration(radius: theme.radii.full),
+            textStyle: theme.textTheme.small,
+          ),
+          leading: PhosphorIcon(
             invited
                 ? PhosphorIconsRegular.clock
                 : PhosphorIconsRegular.userPlus,

@@ -1,209 +1,154 @@
-import 'package:finesse/src/raw_components/pressable.dart';
-import 'package:finesse/src/theme/motion.dart';
+import 'package:finesse/src/components/tab_list.dart';
+import 'package:finesse/src/components/tabs.dart';
 import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/motion_color.dart';
-import 'package:finesse/src/utils/moving_indicator.dart';
 import 'package:flutter/widgets.dart';
 
-/// A row of text tabs with a line under the selected one, for switching
-/// between the sections of a page.
+/// A row of tabs for switching between the views of a page. It reports
+/// which tab was chosen; showing the matching view is up to the caller, a
+/// `TabBarView` or — with the two put together — a `Tabs`.
 ///
 /// ```dart
-/// TabBar(
-///   selectedIndex: section,
-///   onSelected: (i) => setState(() => section = i),
-///   tabs: const [Text('Posts'), Text('About'), Text('Experience')],
+/// TabBar<Section>(
+///   value: section,
+///   onChanged: (value) => setState(() => section = value),
+///   tabs: const [
+///     Tab(value: Section.posts, child: Text('Posts')),
+///     Tab(value: Section.about, child: Text('About')),
+///     Tab(value: Section.experience, child: Text('Experience')),
+///   ],
 /// )
 /// ```
 ///
-/// `Tabs` is the segmented control: a filled strip with a raised selection,
-/// for a few mutually exclusive views. `TabBar` is the quieter underline
-/// form, and it only reports which tab is selected — the caller shows the
-/// matching content.
+/// It has two looks. [TabBarVariant.underline], the default, is text tabs
+/// on the page with a line under the selected one: the sections of a page,
+/// or the `bottom` of an `AppBar`. [TabBarVariant.segmented] is a filled
+/// strip with a raised pill on the selected tab: a few views of the same
+/// thing. In both the selection is one shape that slides to the tab that
+/// was chosen, stretching a little on the way — the theme's `Motion` sets
+/// the pace, and reduced motion moves it at once.
 ///
-/// The line is one shape: selecting another tab slides it there, stretching
-/// a little on the way, and the labels' colours fade — the theme's `Motion`
-/// sets the pace, and reduced motion moves it at once.
+/// The bar is one stop for the Tab key, on the selected tab; the arrow
+/// keys, Home and End move the selection within it. A screen reader is told
+/// it is a list of tabs and which one is selected.
 ///
-/// With [expand] the tabs share the width equally; without it each is as
-/// wide as its label plus [tabPadding] and the row scrolls when it does not
-/// fit.
-class TabBar extends StatelessWidget {
+/// To pick a value rather than show a view — a unit, a density, light or
+/// dark — use a `SegmentedControl`: it looks like the segmented bar and is
+/// announced as a set of radio buttons.
+///
+/// See also:
+///
+///  * `TabBarView`, the pages that go with a bar placed apart from them.
+///  * [TabsController], which links the two.
+class TabBar<T> extends StatefulWidget {
   /// Creates a tab bar.
   const TabBar({
     required this.tabs,
-    required this.selectedIndex,
-    this.onSelected,
-    this.expand = true,
-    this.height,
-    this.tabPadding,
+    this.value,
+    this.onChanged,
+    this.controller,
+    this.variant = TabBarVariant.underline,
+    this.expandTabs,
+    this.tabAlignment,
+    this.scrollable = false,
     this.showBorder = true,
-    this.indicatorColor,
-    this.labelStyle,
     super.key,
-  });
+  }) : assert(
+         value == null || controller == null,
+         'Give either a value or a controller, not both.',
+       );
 
-  /// The tabs' labels, usually [Text]s.
-  final List<Widget> tabs;
+  /// The tabs, in order. A tab's `content` is not shown here.
+  final List<Tab<T>> tabs;
 
-  /// The index of the selected tab.
-  final int selectedIndex;
+  /// The value of the selected tab, when there is no [controller]. With a
+  /// value no tab has, none is selected and the indicator fades out.
+  final T? value;
 
-  /// Called with the index of the tab that was tapped.
-  final ValueChanged<int>? onSelected;
+  /// Called with the value of the tab the user chose. Without it, and
+  /// without a [controller], the tabs are inert.
+  final ValueChanged<T>? onChanged;
+
+  /// Holds the selection in place of [value], and makes the indicator
+  /// follow a `TabBarView` on the same controller while it is dragged.
+  final TabsController<T>? controller;
+
+  /// How the bar is drawn.
+  final TabBarVariant variant;
 
   /// Whether the tabs share the available width equally.
-  final bool expand;
+  ///
+  /// Underline tabs do by default; without it each is as wide as its label
+  /// plus its padding and the row scrolls when it does not fit. The
+  /// segmented strip is as wide as its tabs by default, or as the theme's
+  /// `TabsTheme.expandTabs` says.
+  final bool? expandTabs;
 
-  /// The tabs' height, not counting the hairline under them. Defaults to
-  /// the style's underline tab height.
-  final double? height;
+  /// Where a segmented strip that does not [expandTabs] sits in a parent
+  /// that makes the bar wider than it. Defaults to the theme's, and then to
+  /// the start.
+  final AlignmentGeometry? tabAlignment;
 
-  /// Horizontal padding around each label when the tabs do not [expand].
-  final EdgeInsetsGeometry? tabPadding;
+  /// Whether the row scrolls sideways when the tabs do not fit, instead of
+  /// the tabs sharing the width.
+  final bool scrollable;
 
-  /// Whether a hairline runs under the whole bar.
+  /// Whether a hairline runs under the whole of an underline bar.
   final bool showBorder;
 
-  /// The colour of the line under the selected tab. Defaults to the
-  /// foreground colour.
-  final Color? indicatorColor;
+  @override
+  State<TabBar<T>> createState() => _TabBarState<T>();
+}
 
-  /// The labels' style. Weight and colour are set per tab on top of it.
-  /// Defaults to the theme's `large` text style.
-  final TextStyle? labelStyle;
+class _TabBarState<T> extends State<TabBar<T>> {
+  @override
+  void initState() {
+    super.initState();
+    widget.controller?.addListener(_changed);
+  }
+
+  @override
+  void didUpdateWidget(TabBar<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!identical(widget.controller, oldWidget.controller)) {
+      oldWidget.controller?.removeListener(_changed);
+      widget.controller?.addListener(_changed);
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.controller?.removeListener(_changed);
+    super.dispose();
+  }
+
+  void _changed() => setState(() {});
+
+  void _select(int index) {
+    final value = widget.tabs[index].value;
+    widget.controller?.select(value);
+    widget.onChanged?.call(value);
+  }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    final barHeight = height ?? theme.style.underlineTabHeight;
-    final baseStyle = (labelStyle ?? theme.textTheme.large).copyWith(
-      height: 1,
-    );
-    final motion = Motion.of(context);
-    final indicator = BoxDecoration(
-      color: indicatorColor ?? scheme.foreground,
-      borderRadius: BorderRadius.circular(2),
-    );
-
-    Widget tab(int index) {
-      final selected = index == selectedIndex;
-      final child = Pressable(
-        selected: selected,
-        onPressed: onSelected == null ? null : () => onSelected!(index),
-        // The travelling line is the response; a tab that shrank would
-        // take its end of the line with it.
-        pressScale: 1,
-        builder: (context, states) {
-          final active = selected || states.contains(WidgetState.hovered);
-          return FocusRing(
-            visible: states.contains(WidgetState.focused),
-            borderRadius: theme.radius,
-            child: SizedBox(
-              height: barHeight,
-              child: Stack(
-                clipBehavior: Clip.none,
-                alignment: Alignment.center,
-                children: [
-                  Padding(
-                    // Tabs that share the width need little padding of
-                    // their own; tabs that hug their label need room.
-                    padding:
-                        tabPadding ??
-                        EdgeInsets.symmetric(horizontal: expand ? 4 : 16),
-                    // The colour fades; the weight cannot (a face is one
-                    // weight, and a label that changed width every frame
-                    // would shake its neighbours), so it switches at once.
-                    child: AnimatedColorBuilder(
-                      color: active
-                          ? scheme.foreground
-                          : scheme.mutedForeground,
-                      duration: motion.fast,
-                      curve: motion.standard,
-                      builder: (context, color, child) =>
-                          DefaultTextStyle.merge(
-                            style: baseStyle.copyWith(
-                              fontWeight: selected
-                                  ? FontWeight.w600
-                                  : FontWeight.w500,
-                              color: color,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            child: child!,
-                          ),
-                      child: tabs[index],
-                    ),
-                  ),
-                  // Where the line goes when this tab is selected. The line
-                  // itself is painted once, by the bar, and travels.
-                  Positioned(
-                    left: 0,
-                    right: 0,
-                    // Over the bar's own hairline, which sits just below
-                    // the tabs.
-                    bottom: showBorder ? -1 : 0,
-                    height: 2,
-                    child: MovingIndicatorTarget(
-                      selected: selected,
-                      decoration: indicator,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      );
-      return expand ? Expanded(child: child) : child;
-    }
-
-    // Around the row, inside the scroll view: the line scrolls with the
-    // tabs. In front of them, so it also covers the hairline.
-    Widget row = MovingIndicator(
-      position: DecorationPosition.foreground,
-      child: Row(
-        mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
-        children: [for (var i = 0; i < tabs.length; i++) tab(i)],
-      ),
-    );
-    if (!expand) {
-      // Clipped at the sides, but one pixel taller than the tabs so the
-      // indicator can reach over the hairline.
-      row = ClipRect(
-        clipper: const _BelowByOneClipper(),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          clipBehavior: Clip.none,
-          child: row,
-        ),
-      );
-    }
-    return Semantics(
-      container: true,
-      explicitChildNodes: true,
-      // A `Container`, not a `DecoratedBox`: its border is laid out under
-      // the tabs, so the hairline adds to the bar's height as it does in CSS
-      // rather than eating into it.
-      child: Container(
-        decoration: BoxDecoration(
-          border: showBorder
-              ? Border(bottom: BorderSide(color: scheme.border))
-              : null,
-        ),
-        child: row,
-      ),
+    final controller = widget.controller;
+    final value = controller != null ? controller.value : widget.value;
+    final selected = widget.tabs.indexWhere((tab) => tab.value == value);
+    final segmented = widget.variant == TabBarVariant.segmented;
+    return TabList(
+      items: tabListItems(widget.tabs),
+      selectedIndex: selected < 0 ? null : selected,
+      onSelected: controller == null && widget.onChanged == null
+          ? null
+          : _select,
+      variant: widget.variant,
+      expand:
+          widget.expandTabs ??
+          (!segmented || (Theme.of(context).tabsTheme.expandTabs ?? false)),
+      scrollable: widget.scrollable,
+      showBorder: widget.showBorder,
+      alignment: widget.tabAlignment,
+      track: controller?.swipePosition,
     );
   }
-}
-
-class _BelowByOneClipper extends CustomClipper<Rect> {
-  const _BelowByOneClipper();
-
-  @override
-  Rect getClip(Size size) => Rect.fromLTRB(0, 0, size.width, size.height + 1);
-
-  @override
-  bool shouldReclip(_BelowByOneClipper oldClipper) => false;
 }

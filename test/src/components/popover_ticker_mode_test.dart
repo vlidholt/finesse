@@ -50,7 +50,7 @@ void main() {
             index: index,
             first: DropdownMenu(
               items: [
-                ContextMenuItem(
+                MenuItem(
                   // The item switches section and the menu then closes
                   // itself — in that order, as `onPressed` runs first.
                   onPressed: () => setState(() => index = 1),
@@ -91,13 +91,13 @@ void main() {
       index: index,
       first: Popover(
         controller: controller,
-        popover: (context) => const Text('Popover content'),
+        builder: (context) => const Text('Popover content'),
         child: const Text('Anchor'),
       ),
     );
 
     await pumpFinesse(tester, app(0));
-    controller.show();
+    controller.open();
     for (var i = 0; i < 12; i++) {
       await tester.pump(const Duration(milliseconds: 50));
     }
@@ -108,12 +108,12 @@ void main() {
 
     // Closing it while it is away takes effect at once: there is no ticker
     // to run the exit animation.
-    controller.hide();
+    controller.close();
     await tester.pump();
     await pumpFinesse(tester, app(0));
     expect(shown('Popover content'), findsNothing);
 
-    controller.show();
+    controller.open();
     for (var i = 0; i < 12; i++) {
       await tester.pump(const Duration(milliseconds: 50));
     }
@@ -129,7 +129,7 @@ void main() {
 
   testWidgets('a tooltip does not stay over the section that replaced its '
       'trigger', (tester) async {
-    final controller = TooltipController();
+    final controller = PopoverController();
     addTearDown(controller.dispose);
     Widget app(int index) => sections(
       index: index,
@@ -141,7 +141,7 @@ void main() {
     );
 
     await pumpFinesse(tester, app(0));
-    controller.show();
+    controller.open();
     for (var i = 0; i < 12; i++) {
       await tester.pump(const Duration(milliseconds: 50));
     }

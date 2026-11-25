@@ -143,11 +143,16 @@ void main() {
 
   group('AnimatedFill', () {
     testWidgets('starts at its colours and eases to new ones', (tester) async {
-      Widget fill(Color color, Color? border) => Center(
-        child: AnimatedFill(
-          color: color,
-          borderColor: border,
-          child: const SizedBox(width: 40, height: 20),
+      // A theme and nothing else: the fade is its `Motion.fast`, 120 ms.
+      final theme = ThemeData();
+      Widget fill(Color color, Color? border) => Theme(
+        data: theme,
+        child: Center(
+          child: AnimatedFill(
+            color: color,
+            borderColor: border,
+            child: const SizedBox(width: 40, height: 20),
+          ),
         ),
       );
       const red = Color(0xffff0000);
@@ -173,11 +178,15 @@ void main() {
     testWidgets('an outline keeps its place while it fades out', (
       tester,
     ) async {
-      Widget fill(Color? border) => Center(
-        child: AnimatedFill(
-          color: const Color(0xffffffff),
-          borderColor: border,
-          child: const SizedBox(width: 40, height: 20),
+      final theme = ThemeData();
+      Widget fill(Color? border) => Theme(
+        data: theme,
+        child: Center(
+          child: AnimatedFill(
+            color: const Color(0xffffffff),
+            borderColor: border,
+            child: const SizedBox(width: 40, height: 20),
+          ),
         ),
       );
       await tester.pumpWidget(fill(const Color(0xff000000)));
@@ -325,8 +334,9 @@ void main() {
         );
       });
 
-      testWidgets("a menu's highlight gliding from row to row", (tester) async {
-        final controller = FinesseContextMenuController();
+      testWidgets("a menu's highlight is on its row at once: no glide and "
+          'no fade', (tester) async {
+        final controller = PopoverController();
         addTearDown(controller.dispose);
         final sampler = await pump(
           tester,
@@ -338,56 +348,59 @@ void main() {
               constraints: const BoxConstraints(minWidth: 200),
               items: [
                 for (final label in ['One', 'Two', 'Three', 'Four'])
-                  ContextMenuItem(onPressed: () {}, child: Text(label)),
+                  MenuItem(onPressed: () {}, child: Text(label)),
               ],
               child: const SizedBox(width: 40, height: 20),
             ),
           ),
         );
-        controller.show();
+        controller.open();
         for (var i = 0; i < 40; i++) {
           await tester.pump(const Duration(milliseconds: 16));
         }
         final gesture = await mouse(tester);
         // Past the label, where only the row's fill is painted.
         Offset row(String label) {
-          final menu = tester.getRect(
+          final item = tester.getRect(
             find.ancestor(
               of: find.text(label),
-              matching: find.byType(MovingIndicatorTarget),
+              matching: find.byType(MenuItem),
             ),
           );
-          return Offset(menu.right - 12, menu.center.dy);
+          return Offset(item.right - 12, item.center.dy);
         }
 
-        await gesture.moveTo(row('One'));
-        expectMonotone(
-          await sampler.record(tester, row('One')),
-          reason: '$name highlight in',
-        );
-        // To the row after next: the highlight passes over the one between
-        // and comes to rest on the third.
-        await gesture.moveTo(row('Three'));
-        final frames = <List<Color>>[[], []];
-        for (var i = 0; i < 24; i++) {
-          final seen = await sampler.pixels(tester, [
-            row('One'),
-            row('Three'),
-          ]);
-          frames[0].add(seen[0]);
-          frames[1].add(seen[1]);
+        final rows = [row('One'), row('Two'), row('Three')];
+        final rest = await sampler.pixels(tester, rows);
+
+        // The frame after the pointer arrives already shows the highlight
+        // at full strength, and it never changes after that.
+        await gesture.moveTo(rows[0]);
+        await tester.pump();
+        final lit = await sampler.pixel(tester, rows[0]);
+        expect(lit, isNot(rest[0]), reason: '$name: no highlight');
+        for (final frame in await sampler.record(tester, rows[0])) {
+          expect(frame, lit, reason: '$name: the highlight fades in');
+        }
+
+        // To the row after next: on the next frame the highlight is there,
+        // gone from where it was, and it never crossed the row between.
+        await gesture.moveTo(rows[2]);
+        await tester.pump();
+        for (var i = 0; i < 14; i++) {
+          final seen = await sampler.pixels(tester, rows);
+          expect(seen[0], rest[0], reason: '$name: frame $i, left behind');
+          expect(seen[1], rest[1], reason: '$name: frame $i, passing over');
+          expect(seen[2], lit, reason: '$name: frame $i, not arrived');
           await tester.pump(const Duration(milliseconds: 16));
         }
-        expectMonotone(frames[0], reason: '$name highlight leaves');
-        expectMonotone(frames[1], reason: '$name highlight arrives');
-        expect(frames[1].last, isNot(frames[1].first));
-        expect(frames[0].last, isNot(frames[0].first));
 
+        // And it is gone the frame after the pointer leaves.
         await gesture.moveTo(const Offset(1, 1));
-        expectMonotone(
-          await sampler.record(tester, row('Three')),
-          reason: '$name highlight out',
-        );
+        await tester.pump();
+        for (final frame in await sampler.record(tester, rows[2])) {
+          expect(frame, rest[2], reason: '$name: the highlight fades out');
+        }
       });
     });
   }

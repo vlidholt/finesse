@@ -43,28 +43,27 @@ extension OmitFamilyAndPackageExtension on TextStyle {
 
 /// Builds a [TextStyle] in a given font, with the same signature as the
 /// `google_fonts` style functions such as `GoogleFonts.inter`.
-typedef FontBuilder =
-    TextStyle Function({
-      TextStyle? textStyle,
-      Color? color,
-      Color? backgroundColor,
-      double? fontSize,
-      FontWeight? fontWeight,
-      FontStyle? fontStyle,
-      double? letterSpacing,
-      double? wordSpacing,
-      TextBaseline? textBaseline,
-      double? height,
-      Locale? locale,
-      Paint? foreground,
-      Paint? background,
-      List<ui.Shadow>? shadows,
-      List<ui.FontFeature>? fontFeatures,
-      TextDecoration? decoration,
-      Color? decorationColor,
-      TextDecorationStyle? decorationStyle,
-      double? decorationThickness,
-    });
+typedef FontBuilder = TextStyle Function({
+  TextStyle? textStyle,
+  Color? color,
+  Color? backgroundColor,
+  double? fontSize,
+  FontWeight? fontWeight,
+  FontStyle? fontStyle,
+  double? letterSpacing,
+  double? wordSpacing,
+  TextBaseline? textBaseline,
+  double? height,
+  Locale? locale,
+  Paint? foreground,
+  Paint? background,
+  List<ui.Shadow>? shadows,
+  List<ui.FontFeature>? fontFeatures,
+  TextDecoration? decoration,
+  Color? decorationColor,
+  TextDecorationStyle? decorationStyle,
+  double? decorationThickness,
+});
 
 /// A [TextStyle] whose family follows its weight and style through a
 /// [FontBuilder].
@@ -226,7 +225,7 @@ class BuilderTextStyle extends TextStyle {
 /// The text styles of a theme, one per shadcn/ui typography element.
 ///
 /// Components read these styles, and the theme variant applies its style's text
-/// roles to [small], [muted], [p], [list] and [large]. Use
+/// roles to [small], [muted], [caption], [p], [list] and [large]. Use
 /// [TextTheme.fromGoogleFont] to set every style in one font.
 @immutable
 class TextTheme {
@@ -249,6 +248,7 @@ class TextTheme {
     TextStyle? large,
     TextStyle? small,
     TextStyle? muted,
+    TextStyle? caption,
     String? family,
     String? package,
     FontBuilder? googleFontBuilder,
@@ -276,6 +276,7 @@ class TextTheme {
       large: large ?? TextDefaultTheme.large(family: effectiveFamily),
       small: small ?? TextDefaultTheme.small(family: effectiveFamily),
       muted: muted ?? TextDefaultTheme.muted(family: effectiveFamily),
+      caption: caption ?? TextDefaultTheme.caption(family: effectiveFamily),
       family: effectiveFamily,
       googleFontBuilder: googleFontBuilder,
       custom: custom,
@@ -301,6 +302,7 @@ class TextTheme {
     required this.large,
     required this.small,
     required this.muted,
+    required this.caption,
     this.family,
     this.custom = const {},
     this.googleFontBuilder,
@@ -373,6 +375,10 @@ class TextTheme {
         effectiveTextTheme.muted.omitFamilyAndPackage,
         builder: fontBuilder,
       ),
+      caption: BuilderTextStyle(
+        effectiveTextTheme.caption.omitFamilyAndPackage,
+        builder: fontBuilder,
+      ),
       family: p.fontFamily,
       googleFontBuilder: fontBuilder,
       custom: {
@@ -429,6 +435,15 @@ class TextTheme {
   /// The muted text style, for descriptions and supporting text.
   final TextStyle muted;
 
+  /// The fine-print style, a size under [muted]: counts, timestamps,
+  /// sources and footers.
+  ///
+  /// The theme variant gives it the size, line height and tracking of its
+  /// style's `caption` role in the muted colour and at this style's own
+  /// (regular) weight — the role's medium weight is for the components that
+  /// label things with it, such as badges and navigation items.
+  final TextStyle caption;
+
   /// Extra styles an app defines, by name.
   ///
   /// [lerp], [merge] and [apply] carry them along. Empty by default.
@@ -467,6 +482,7 @@ class TextTheme {
     TextStyle? large,
     TextStyle? small,
     TextStyle? muted,
+    TextStyle? caption,
     String? family,
     String? package,
     FontBuilder? googleFontBuilder,
@@ -499,6 +515,7 @@ class TextTheme {
       large: large ?? this.large,
       small: small ?? this.small,
       muted: muted ?? this.muted,
+      caption: caption ?? this.caption,
       family: effectiveFamily,
       googleFontBuilder: googleFontBuilder ?? this.googleFontBuilder,
       custom: custom ?? this.custom,
@@ -526,6 +543,7 @@ class TextTheme {
       large: large.merge(other.large),
       small: small.merge(other.small),
       muted: muted.merge(other.muted),
+      caption: caption.merge(other.caption),
       family: other.family,
       googleFontBuilder: other.googleFontBuilder,
       custom: {...custom, ...other.custom},
@@ -562,6 +580,7 @@ class TextTheme {
       large: bind(large),
       small: bind(small),
       muted: bind(muted),
+      caption: bind(caption),
     );
   }
 
@@ -728,6 +747,17 @@ class TextTheme {
         decorationColor: decorationColor,
         decorationStyle: decorationStyle,
       ),
+      caption: caption.apply(
+        fontFamily: effectiveFamily,
+        fontFamilyFallback: fontFamilyFallback,
+        package: package,
+        fontSizeFactor: fontSizeFactor,
+        fontSizeDelta: fontSizeDelta,
+        color: bodyColor,
+        decoration: decoration,
+        decorationColor: decorationColor,
+        decorationStyle: decorationStyle,
+      ),
       googleFontBuilder: googleFontBuilder,
       custom: {
         for (final entry in custom.entries)
@@ -773,6 +803,7 @@ class TextTheme {
       large: TextStyle.lerp(a.large, b.large, t)!,
       small: TextStyle.lerp(a.small, b.small, t)!,
       muted: TextStyle.lerp(a.muted, b.muted, t)!,
+      caption: TextStyle.lerp(a.caption, b.caption, t)!,
       family: t < 0.5 ? a.family : b.family,
       googleFontBuilder: t < 0.5 ? a.googleFontBuilder : b.googleFontBuilder,
       custom: {
@@ -804,6 +835,7 @@ class TextTheme {
         other.large == large &&
         other.small == small &&
         other.muted == muted &&
+        other.caption == caption &&
         other.family == family &&
         other.googleFontBuilder == googleFontBuilder &&
         mapEquals(other.custom, custom);
@@ -829,6 +861,7 @@ class TextTheme {
       large,
       small,
       muted,
+      caption,
       family,
       googleFontBuilder,
       Object.hashAllUnordered([

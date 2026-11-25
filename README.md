@@ -4,18 +4,19 @@
 [![Flutter test](https://github.com/vlidholt/finesse/actions/workflows/flutter-test.yaml/badge.svg)](https://github.com/vlidholt/finesse/actions/workflows/flutter-test.yaml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-A design system for Flutter: more than 60 widgets themed by one `ThemeData`, with frosted-glass surfaces, desktop and phone metrics in the same theme, and no dependency on Material or Cupertino.
+A design system for Flutter: more than a hundred widgets themed by one `ThemeData`, with frosted-glass surfaces, desktop and phone metrics in the same theme, motion on springs, and no dependency on Material or Cupertino.
 
 ![The Strand demo app built with finesse](https://raw.githubusercontent.com/vlidholt/finesse/main/assets/screenshot.png)
 
-`finesse` is a fork of [shad](https://pub.dev/packages/shad), a Flutter port of [shadcn/ui](https://ui.shadcn.com). It keeps that component set and theming model, drops the `Shad` prefix, and adds its own default look and the pieces an app needs around the components: app and navigation bars, a scaffold, page layout, and theme-driven spacing.
+`finesse` is a fork of [shad](https://pub.dev/packages/shad), a Flutter port of [shadcn/ui](https://ui.shadcn.com). It keeps that component set and theming model, drops the `Shad` prefix, and adds its own default look and the pieces an app needs around the components: a scaffold, app and navigation bars, sheets, pickers, lists, page layout, and theme-driven spacing and motion.
 
 ## Features
 
-- **Components.** Buttons, text fields, forms, dialogs, sheets, menus, tabs, a sidebar, a data table, a calendar, chips, list tiles, chat bubbles, avatars and badges, and more. Every one is a regular widget and composes with the rest of your tree.
+- **Components.** Buttons, text fields, search and autocomplete, forms, dialogs, sheets on detents, action sheets, menus, popovers, toasts, tabs, a sidebar, a data table, a calendar, date, time and wheel pickers, sliders, chips, list sections and tiles, swipe actions, a reorderable list, a kanban board, a chat list with streaming text, avatars and badges, and more. Every one is a regular widget and composes with the rest of your tree.
 - **One theme, two form factors.** Every style carries metrics for a desktop and for a phone. `FinesseApp` picks between them from the window width, so the same `Button` is 36 points tall in a desktop window and 44 on a phone, body text grows from 14 to 15, and page margins tighten, with no `if (isMobile)` in your code.
-- **App structure.** `Scaffold`, `AppBar`, a top `NavigationBar` and a floating `BottomNavigationBar`, and `NavigationScaffold`, which switches between the two.
-- **Glass.** Translucent cards and bars over a blurred, saturated backdrop are part of the style, with tokens for blur and for the opacity of each kind of surface. `Glass` puts the same surface anywhere.
+- **App structure.** `Scaffold` with drawers, a footer, a bottom sheet and a floating action button; `AppBar` and a collapsing `SliverAppBar`; a top `NavigationBar`, a floating `BottomNavigationBar` and a `NavigationRail`, with `NavigationScaffold` to switch between them; page routes with the iOS back swipe and Android's predictive back.
+- **Glass.** Translucent cards, and bars, menus, popovers, tooltips and toasts that blur and saturate what is behind them, are part of the style, with tokens for blur and for the opacity of each kind of surface. `Glass` puts the same surface anywhere.
+- **Motion from the theme.** Durations, curves and springs come from one `Motion` on the style: overlays grow from their anchor, selections travel, controls respond to a press, and the platform's reduced-motion setting is honoured everywhere. No component takes its own effects or durations.
 - **Spacing from the theme.** A named gap scale (`Gap.md()`, `FinesseRow(gap: GapSize.lg)`) and `PageContainer` keep screens consistent and let a theme change their rhythm.
 - **Styles and colour schemes.** Four styles (`finesse`, `nova`, `maia`, `lyra`) and four base palettes (`teal`, `neutral`, `zinc`, `stone`) in light and dark, 17 accent overlays, and every token overridable through `copyWith`.
 - **Icons included.** The [Phosphor](https://phosphoricons.com) icon set ships in the package in six weights.
@@ -60,7 +61,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Card(
-        width: 320,
+        style: const CardTheme(width: 320),
         title: const Text('Create project'),
         description: const Text('Deploy your new project in one click.'),
         footer: Button(
@@ -74,7 +75,7 @@ class HomePage extends StatelessWidget {
 }
 ```
 
-The example app's component library gives the full reference. Each page pairs a live preview with the exact source that renders it, and there are guides on theming, styles, form factors, layout, forms, and icons. Run it with `cd example && flutter run`.
+The example app's component library gives the full reference. Each page pairs a live preview with the exact source that renders it, and there are guides on theming, styles, typography, fonts, icons, layout, form factors, motion, forms, overlays, and the building blocks for your own widgets. Run it with `cd example && flutter run`.
 
 ## Names
 
@@ -99,8 +100,7 @@ A style is a set of measured tokens (control heights, radii, shadows, type roles
 ```dart
 ThemeData(
   style: StyleTokens.finesse.copyWith(
-    cardBlur: false, // opaque cards
-    cardOpacity: 1,
+    cardOpacity: 1, // opaque cards
     gapLg: 20,
   ),
 )
@@ -148,12 +148,12 @@ PageContainer(
 The Phosphor icons are bundled, with no extra dependency:
 
 ```dart
-const Icon(PhosphorIconsRegular.house)
-const Icon(PhosphorIconsFill.house) // a selected state
+const PhosphorIcon(PhosphorIconsRegular.house)
+const PhosphorIcon(PhosphorIconsFill.house) // a selected state
 const PhosphorDuotoneIcon(PhosphorIconsDuotone.bell)
 ```
 
-Regular, bold, fill, light, thin and duotone weights are available. A release build keeps only the glyphs your app uses. Phosphor Icons are MIT licensed; the notice is part of this package's `LICENSE`, which Flutter adds to your app's licence page.
+Regular, bold, fill, light, thin and duotone weights are available. `PhosphorIcon` is an `Icon` that draws a small regular icon with a slightly thicker line, so a 16-point icon does not look thin beside a 24-point one; a plain `Icon` works too. A release build keeps only the glyphs your app uses. Phosphor Icons are MIT licensed; the notice is part of this package's `LICENSE`, which Flutter adds to your app's licence page.
 
 ## Fonts
 
@@ -171,7 +171,7 @@ ThemeData(
 )
 ```
 
-Pass a static tear-off such as `GoogleFonts.inter`. If you wrap `GoogleFonts.getFont(name)` in a closure, create it once and reuse it. A new closure on every build makes the theme unequal to itself, which restarts the theme animation on every rebuild.
+Pass a static tear-off such as `GoogleFonts.inter`. Avoid `GoogleFonts.getFont(name)`: it keeps every Google font family in a web build. A closure made on every build would also make the theme unequal to itself, so every rebuild would count as a theme change.
 
 **Your own font files:** add the files to your app, declare them in your `pubspec.yaml`, and name the family:
 
@@ -209,7 +209,7 @@ FinesseApp(
 
 ## Platform support
 
-Android, iOS, macOS, Windows, Linux and the web, including WebAssembly. The package needs Flutter 3.41 or later.
+Android, iOS, macOS, Windows, Linux and the web, including WebAssembly. The package needs Flutter 3.50 or later.
 
 ## Versioning
 

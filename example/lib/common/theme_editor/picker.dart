@@ -1,16 +1,7 @@
-// The example shows Material widgets beside finesse's through the SDK's own
-// Material library, as `package:finesse/material.dart` does; Flutter
-// deprecated it in 3.47 in favour of the `material_ui` package. The list's
-// `cacheExtent` is deprecated too, but its replacement does not exist on
-// the minimum Flutter the package supports (3.41).
-// ignore_for_file: deprecated_member_use
-
 import 'dart:math' as math;
 
 import 'package:finesse/finesse.dart';
-import 'package:flutter/material.dart'
-    hide Divider, Slider, SliderTheme, Switch, Theme, ThemeData;
-import 'package:flutter/material.dart' as m;
+import 'package:flutter/widgets.dart';
 
 /// One option in a [ThemePicker].
 @immutable
@@ -85,7 +76,7 @@ class _SettingBox extends StatelessWidget {
     return Opacity(
       opacity: enabled ? 1 : .5,
       child: FinesseGestureDetector(
-        cursor: enabled && onTap != null
+        mouseCursor: enabled && onTap != null
             ? SystemMouseCursors.click
             : SystemMouseCursors.basic,
         behavior: HitTestBehavior.opaque,
@@ -142,7 +133,7 @@ class _RowIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Icon(
+    return PhosphorIcon(
       icon,
       size: 15,
       color: Theme.of(context).colorScheme.mutedForeground,
@@ -209,18 +200,18 @@ class _ThemePickerState<T> extends State<ThemePicker<T>> {
       decoration: FinesseDecoration(
         border: FinesseBorder.all(
           color: theme.colorScheme.foreground.withValues(alpha: .1),
-          radius: theme.radii.lg,
+          borderRadius: theme.radii.lg,
           width: 1,
         ),
       ),
-      popover: (context) => _PickerList<T>(
+      builder: (context) => _PickerList<T>(
         options: widget.options,
         selectedIndex: selectedIndex,
         onSelected: (option) {
           // Re-picking the current option would otherwise rebuild both app
           // themes to arrive back where it started.
           if (option.value != widget.value) widget.onChanged(option.value);
-          controller.hide();
+          controller.close();
         },
       ),
       child: _SettingBox(
@@ -300,7 +291,7 @@ class _PickerListState<T> extends State<_PickerList<T>> {
           primary: false,
           padding: EdgeInsets.zero,
           itemExtent: extent,
-          cacheExtent: extent,
+          scrollCacheExtent: ScrollCacheExtent.pixels(extent),
           itemCount: widget.options.length,
           itemBuilder: (context, index) {
             final option = widget.options[index];
@@ -344,10 +335,10 @@ class _PickerItemState extends State<_PickerItem> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return FinesseGestureDetector(
-      cursor: SystemMouseCursors.click,
+      mouseCursor: SystemMouseCursors.click,
       behavior: HitTestBehavior.opaque,
       onTap: widget.onTap,
-      onHoverChange: (v) => setState(() => hovered = v),
+      onHover: (v) => setState(() => hovered = v),
       child: Container(
         height: _itemExtent(theme),
         padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -372,7 +363,7 @@ class _PickerItemState extends State<_PickerItem> {
               ),
             ),
             if (widget.selected)
-              Icon(
+              PhosphorIcon(
                 PhosphorIconsRegular.check,
                 size: 14,
                 color: theme.colorScheme.foreground,
@@ -483,12 +474,12 @@ class ThemeSlider extends StatelessWidget {
                 ),
                 if (onReset != null)
                   FinesseGestureDetector(
-                    cursor: SystemMouseCursors.click,
+                    mouseCursor: SystemMouseCursors.click,
                     behavior: HitTestBehavior.opaque,
                     onTap: onReset,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 6),
-                      child: Icon(
+                      child: PhosphorIcon(
                         PhosphorIconsRegular.arrowCounterClockwise,
                         size: 13,
                         color: theme.colorScheme.mutedForeground,
@@ -512,38 +503,91 @@ class ThemeSlider extends StatelessWidget {
           ),
           SizedBox(
             height: _touch(theme) ? 32 : 24,
-            child: m.SliderTheme(
-              // Straight from the theme's slider, so the panel's control
-              // matches the ones in the app. The thumb used to be the page
-              // background — near-black, and invisible on this deliberately
-              // dark panel.
-              data: SliderThemeData(
-                trackHeight: theme.sliderTheme.trackHeight ?? 4,
-                activeTrackColor:
-                    theme.sliderTheme.activeTrackColor ??
-                    theme.colorScheme.primary,
-                inactiveTrackColor:
-                    theme.sliderTheme.inactiveTrackColor ??
-                    theme.colorScheme.muted,
-                thumbColor:
-                    theme.sliderTheme.thumbColor ??
-                    theme.colorScheme.foreground,
-                overlayShape: SliderComponentShape.noOverlay,
-                thumbShape: RoundSliderThumbShape(
-                  enabledThumbRadius: theme.sliderTheme.thumbRadius ?? 8,
-                ),
-              ),
-              child: m.Slider(
+            // The package's own slider, in the panel's theme, with the
+            // value in a bubble above the thumb while it is dragged.
+            child: Center(
+              child: Slider(
                 value: value.clamp(min, max),
                 min: min,
                 max: max,
-                onChanged: enabled
-                    ? (raw) {
-                        final next = _snapped(raw);
-                        if (next != value) onChanged(next);
-                      }
-                    : null,
+                divisions: ((max - min) / step).round(),
+                showDivisionMarks: false,
+                enabled: enabled,
+                semanticLabel: label,
+                valueIndicator: SliderValueIndicator.whileDragging,
+                valueLabel: (v) => format?.call(v) ?? v.toStringAsFixed(2),
+                onChanged: (raw) {
+                  final next = _snapped(raw);
+                  if (next != value) onChanged(next);
+                },
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A setting of two or three choices, all in view: the small label above a
+/// `SegmentedControl` that fills the panel's width.
+///
+/// A choice this short reads better laid out than behind a popover: the
+/// row says what the other options are without being opened, and one tap
+/// changes it.
+class ThemeSegments<T> extends StatelessWidget {
+  const ThemeSegments({
+    super.key,
+    required this.label,
+    required this.value,
+    required this.options,
+    required this.onChanged,
+    this.enabled = true,
+  });
+
+  final String label;
+  final T value;
+  final List<PickerOption<T>> options;
+  final ValueChanged<T> onChanged;
+
+  /// When false the row is dimmed and its segments do nothing.
+  final bool enabled;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Opacity(
+      opacity: enabled ? 1 : .5,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            height: 20,
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: Text(
+                label,
+                style: _labelStyle(theme),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+          Semantics(
+            label: label,
+            container: true,
+            child: SegmentedControl<T>(
+              expand: true,
+              enabled: enabled,
+              value: value,
+              onChanged: (next) {
+                if (next != value) onChanged(next);
+              },
+              segments: [
+                for (final option in options)
+                  Segment(value: option.value, label: Text(option.label)),
+              ],
             ),
           ),
         ],
@@ -658,7 +702,7 @@ class _ThemeGroupPickerState extends State<ThemeGroupPicker> {
       controller: controller,
       padding: const EdgeInsets.all(4),
       anchor: const AnchorAuto(offset: Offset(0, 4)),
-      popover: (context) => ConstrainedBox(
+      builder: (context) => ConstrainedBox(
         constraints: const BoxConstraints(
           maxHeight: 360,
           minWidth: 232,
@@ -671,7 +715,7 @@ class _ThemeGroupPickerState extends State<ThemeGroupPicker> {
             children: [
               for (var g = 0; g < widget.groups.length; g++) ...[
                 if (g > 0)
-                  const Divider.horizontal(
+                  const Divider(
                     margin: EdgeInsets.symmetric(vertical: 4),
                   ),
                 Padding(

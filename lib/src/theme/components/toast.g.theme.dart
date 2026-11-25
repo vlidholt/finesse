@@ -27,94 +27,62 @@ mixin _$ToastTheme {
 
     return ToastTheme(
       backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
-      closeIconData: t < 0.5 ? a.closeIconData : b.closeIconData,
-      alignment: Alignment.lerp(a.alignment, b.alignment, t),
-      offset: Offset.lerp(a.offset, b.offset, t),
-      displayDuration: lerpDuration$(a.displayDuration, b.displayDuration, t),
-      animateIn: t < 0.5 ? a.animateIn : b.animateIn,
-      animateOut: t < 0.5 ? a.animateOut : b.animateOut,
-      textDirection: t < 0.5 ? a.textDirection : b.textDirection,
-      crossAxisAlignment: t < 0.5 ? a.crossAxisAlignment : b.crossAxisAlignment,
-      showCloseIconOnlyWhenHovered: t < 0.5
-          ? a.showCloseIconOnlyWhenHovered
-          : b.showCloseIconOnlyWhenHovered,
+      filter: t < 0.5 ? a.filter : b.filter,
+      border: FinesseBorder.lerp(a.border, b.border, t),
+      borderRadius: BorderRadius.lerp(a.borderRadius, b.borderRadius, t),
+      shadows: t < 0.5 ? a.shadows : b.shadows,
+      padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
+      gap: lerpDouble$(a.gap, b.gap, t),
       titleStyle: TextStyle.lerp(a.titleStyle, b.titleStyle, t),
       descriptionStyle: TextStyle.lerp(
         a.descriptionStyle,
         b.descriptionStyle,
         t,
       ),
-      actionPadding: EdgeInsetsGeometry.lerp(
-        a.actionPadding,
-        b.actionPadding,
-        t,
-      ),
-      border: FinesseBorder.lerp(a.border, b.border, t),
-      radius: BorderRadius.lerp(a.radius, b.radius, t),
-      shadows: t < 0.5 ? a.shadows : b.shadows,
-      padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
-      closeIconPosition: Position.lerp(
-        a.closeIconPosition,
-        b.closeIconPosition,
-        t,
-      ),
-      constraints: BoxConstraints.lerp(a.constraints, b.constraints, t),
-      closeIcon: t < 0.5 ? a.closeIcon : b.closeIcon,
-      mainAxisAlignment: t < 0.5 ? a.mainAxisAlignment : b.mainAxisAlignment,
-      mainAxisSize: t < 0.5 ? a.mainAxisSize : b.mainAxisSize,
+      iconSize: lerpDouble$(a.iconSize, b.iconSize, t),
+      successColor: Color.lerp(a.successColor, b.successColor, t),
+      warningColor: Color.lerp(a.warningColor, b.warningColor, t),
+      destructiveColor: Color.lerp(a.destructiveColor, b.destructiveColor, t),
+      loadingColor: Color.lerp(a.loadingColor, b.loadingColor, t),
+      duration: lerpDuration$(a.duration, b.duration, t),
     );
   }
 
   ToastTheme copyWith({
     Color? backgroundColor,
-    IconData? closeIconData,
-    Alignment? alignment,
-    Offset? offset,
-    Duration? displayDuration,
-    List<Effect<dynamic>>? animateIn,
-    List<Effect<dynamic>>? animateOut,
-    TextDirection? textDirection,
-    CrossAxisAlignment? crossAxisAlignment,
-    bool? showCloseIconOnlyWhenHovered,
-    TextStyle? titleStyle,
-    TextStyle? descriptionStyle,
-    EdgeInsetsGeometry? actionPadding,
+    ImageFilter? filter,
     FinesseBorder? border,
-    BorderRadius? radius,
+    BorderRadius? borderRadius,
     List<BoxShadow>? shadows,
     EdgeInsetsGeometry? padding,
-    Position? closeIconPosition,
-    BoxConstraints? constraints,
-    Widget? closeIcon,
-    MainAxisAlignment? mainAxisAlignment,
-    MainAxisSize? mainAxisSize,
+    double? gap,
+    TextStyle? titleStyle,
+    TextStyle? descriptionStyle,
+    double? iconSize,
+    Color? successColor,
+    Color? warningColor,
+    Color? destructiveColor,
+    Color? loadingColor,
+    Duration? duration,
   }) {
     final _this = (this as ToastTheme);
 
     return ToastTheme(
       backgroundColor: backgroundColor ?? _this.backgroundColor,
-      closeIconData: closeIconData ?? _this.closeIconData,
-      alignment: alignment ?? _this.alignment,
-      offset: offset ?? _this.offset,
-      displayDuration: displayDuration ?? _this.displayDuration,
-      animateIn: animateIn ?? _this.animateIn,
-      animateOut: animateOut ?? _this.animateOut,
-      textDirection: textDirection ?? _this.textDirection,
-      crossAxisAlignment: crossAxisAlignment ?? _this.crossAxisAlignment,
-      showCloseIconOnlyWhenHovered:
-          showCloseIconOnlyWhenHovered ?? _this.showCloseIconOnlyWhenHovered,
-      titleStyle: titleStyle ?? _this.titleStyle,
-      descriptionStyle: descriptionStyle ?? _this.descriptionStyle,
-      actionPadding: actionPadding ?? _this.actionPadding,
+      filter: filter ?? _this.filter,
       border: border ?? _this.border,
-      radius: radius ?? _this.radius,
+      borderRadius: borderRadius ?? _this.borderRadius,
       shadows: shadows ?? _this.shadows,
       padding: padding ?? _this.padding,
-      closeIconPosition: closeIconPosition ?? _this.closeIconPosition,
-      constraints: constraints ?? _this.constraints,
-      closeIcon: closeIcon ?? _this.closeIcon,
-      mainAxisAlignment: mainAxisAlignment ?? _this.mainAxisAlignment,
-      mainAxisSize: mainAxisSize ?? _this.mainAxisSize,
+      gap: gap ?? _this.gap,
+      titleStyle: titleStyle ?? _this.titleStyle,
+      descriptionStyle: descriptionStyle ?? _this.descriptionStyle,
+      iconSize: iconSize ?? _this.iconSize,
+      successColor: successColor ?? _this.successColor,
+      warningColor: warningColor ?? _this.warningColor,
+      destructiveColor: destructiveColor ?? _this.destructiveColor,
+      loadingColor: loadingColor ?? _this.loadingColor,
+      duration: duration ?? _this.duration,
     );
   }
 
@@ -131,29 +99,22 @@ mixin _$ToastTheme {
 
     return copyWith(
       backgroundColor: other.backgroundColor,
-      closeIconData: other.closeIconData,
-      alignment: other.alignment,
-      offset: other.offset,
-      displayDuration: other.displayDuration,
-      animateIn: other.animateIn,
-      animateOut: other.animateOut,
-      textDirection: other.textDirection,
-      crossAxisAlignment: other.crossAxisAlignment,
-      showCloseIconOnlyWhenHovered: other.showCloseIconOnlyWhenHovered,
+      filter: other.filter,
+      border: _this.border?.merge(other.border) ?? other.border,
+      borderRadius: other.borderRadius,
+      shadows: other.shadows,
+      padding: other.padding,
+      gap: other.gap,
       titleStyle: _this.titleStyle?.merge(other.titleStyle) ?? other.titleStyle,
       descriptionStyle:
           _this.descriptionStyle?.merge(other.descriptionStyle) ??
           other.descriptionStyle,
-      actionPadding: other.actionPadding,
-      border: _this.border?.merge(other.border) ?? other.border,
-      radius: other.radius,
-      shadows: other.shadows,
-      padding: other.padding,
-      closeIconPosition: other.closeIconPosition,
-      constraints: other.constraints,
-      closeIcon: other.closeIcon,
-      mainAxisAlignment: other.mainAxisAlignment,
-      mainAxisSize: other.mainAxisSize,
+      iconSize: other.iconSize,
+      successColor: other.successColor,
+      warningColor: other.warningColor,
+      destructiveColor: other.destructiveColor,
+      loadingColor: other.loadingColor,
+      duration: other.duration,
     );
   }
 
@@ -171,58 +132,153 @@ mixin _$ToastTheme {
     final _other = (other as ToastTheme);
 
     return _other.backgroundColor == _this.backgroundColor &&
-        _other.closeIconData == _this.closeIconData &&
-        _other.alignment == _this.alignment &&
-        _other.offset == _this.offset &&
-        _other.displayDuration == _this.displayDuration &&
-        _other.animateIn == _this.animateIn &&
-        _other.animateOut == _this.animateOut &&
-        _other.textDirection == _this.textDirection &&
-        _other.crossAxisAlignment == _this.crossAxisAlignment &&
-        _other.showCloseIconOnlyWhenHovered ==
-            _this.showCloseIconOnlyWhenHovered &&
-        _other.titleStyle == _this.titleStyle &&
-        _other.descriptionStyle == _this.descriptionStyle &&
-        _other.actionPadding == _this.actionPadding &&
+        _other.filter == _this.filter &&
         _other.border == _this.border &&
-        _other.radius == _this.radius &&
+        _other.borderRadius == _this.borderRadius &&
         _other.shadows == _this.shadows &&
         _other.padding == _this.padding &&
-        _other.closeIconPosition == _this.closeIconPosition &&
-        _other.constraints == _this.constraints &&
-        _other.closeIcon == _this.closeIcon &&
-        _other.mainAxisAlignment == _this.mainAxisAlignment &&
-        _other.mainAxisSize == _this.mainAxisSize;
+        _other.gap == _this.gap &&
+        _other.titleStyle == _this.titleStyle &&
+        _other.descriptionStyle == _this.descriptionStyle &&
+        _other.iconSize == _this.iconSize &&
+        _other.successColor == _this.successColor &&
+        _other.warningColor == _this.warningColor &&
+        _other.destructiveColor == _this.destructiveColor &&
+        _other.loadingColor == _this.loadingColor &&
+        _other.duration == _this.duration;
   }
 
   @override
   int get hashCode {
     final _this = (this as ToastTheme);
 
-    return Object.hashAll([
+    return Object.hash(
       runtimeType,
       _this.backgroundColor,
-      _this.closeIconData,
-      _this.alignment,
-      _this.offset,
-      _this.displayDuration,
-      _this.animateIn,
-      _this.animateOut,
-      _this.textDirection,
-      _this.crossAxisAlignment,
-      _this.showCloseIconOnlyWhenHovered,
-      _this.titleStyle,
-      _this.descriptionStyle,
-      _this.actionPadding,
+      _this.filter,
       _this.border,
-      _this.radius,
+      _this.borderRadius,
       _this.shadows,
       _this.padding,
-      _this.closeIconPosition,
-      _this.constraints,
-      _this.closeIcon,
-      _this.mainAxisAlignment,
-      _this.mainAxisSize,
-    ]);
+      _this.gap,
+      _this.titleStyle,
+      _this.descriptionStyle,
+      _this.iconSize,
+      _this.successColor,
+      _this.warningColor,
+      _this.destructiveColor,
+      _this.loadingColor,
+      _this.duration,
+    );
+  }
+}
+
+mixin _$ToasterTheme {
+  bool get canMerge => true;
+
+  static ToasterTheme? lerp(ToasterTheme? a, ToasterTheme? b, double t) {
+    if (identical(a, b)) {
+      return a;
+    }
+
+    if (a == null) {
+      return t == 1.0 ? b : null;
+    }
+
+    if (b == null) {
+      return t == 0.0 ? a : null;
+    }
+
+    return ToasterTheme(
+      alignment: AlignmentGeometry.lerp(a.alignment, b.alignment, t),
+      padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
+      width: lerpDouble$(a.width, b.width, t),
+      maxVisible: t < 0.5 ? a.maxVisible : b.maxVisible,
+      gap: lerpDouble$(a.gap, b.gap, t),
+      stackOffset: lerpDouble$(a.stackOffset, b.stackOffset, t),
+      stackScale: lerpDouble$(a.stackScale, b.stackScale, t),
+    );
+  }
+
+  ToasterTheme copyWith({
+    AlignmentGeometry? alignment,
+    EdgeInsetsGeometry? padding,
+    double? width,
+    int? maxVisible,
+    double? gap,
+    double? stackOffset,
+    double? stackScale,
+  }) {
+    final _this = (this as ToasterTheme);
+
+    return ToasterTheme(
+      alignment: alignment ?? _this.alignment,
+      padding: padding ?? _this.padding,
+      width: width ?? _this.width,
+      maxVisible: maxVisible ?? _this.maxVisible,
+      gap: gap ?? _this.gap,
+      stackOffset: stackOffset ?? _this.stackOffset,
+      stackScale: stackScale ?? _this.stackScale,
+    );
+  }
+
+  ToasterTheme merge(ToasterTheme? other) {
+    final _this = (this as ToasterTheme);
+
+    if (other == null || identical(_this, other)) {
+      return _this;
+    }
+
+    if (!other.canMerge) {
+      return other;
+    }
+
+    return copyWith(
+      alignment: other.alignment,
+      padding: other.padding,
+      width: other.width,
+      maxVisible: other.maxVisible,
+      gap: other.gap,
+      stackOffset: other.stackOffset,
+      stackScale: other.stackScale,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    final _this = (this as ToasterTheme);
+    final _other = (other as ToasterTheme);
+
+    return _other.alignment == _this.alignment &&
+        _other.padding == _this.padding &&
+        _other.width == _this.width &&
+        _other.maxVisible == _this.maxVisible &&
+        _other.gap == _this.gap &&
+        _other.stackOffset == _this.stackOffset &&
+        _other.stackScale == _this.stackScale;
+  }
+
+  @override
+  int get hashCode {
+    final _this = (this as ToasterTheme);
+
+    return Object.hash(
+      runtimeType,
+      _this.alignment,
+      _this.padding,
+      _this.width,
+      _this.maxVisible,
+      _this.gap,
+      _this.stackOffset,
+      _this.stackScale,
+    );
   }
 }

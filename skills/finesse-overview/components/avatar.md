@@ -30,4 +30,3 @@ class AvatarDefaultExample extends StatelessWidget {
   }
 }
 ```
-

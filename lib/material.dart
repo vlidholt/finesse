@@ -115,9 +115,16 @@ class FinesseMaterial extends StatelessWidget {
   final m.ThemeData Function(BuildContext context, m.ThemeData theme)?
   themeBuilder;
 
+  /// The Material theme derived from each finesse theme. Deriving one
+  /// builds a whole Material `ThemeData`, and this widget is rebuilt
+  /// whenever what is above it is — on every frame of a window resize when
+  /// it sits in `FinesseApp.builder`.
+  static final _derived = Expando<m.ThemeData>();
+
   @override
   Widget build(BuildContext context) {
-    var theme = materialThemeFrom(Theme.of(context));
+    final source = Theme.of(context);
+    var theme = _derived[source] ??= materialThemeFrom(source);
     if (themeBuilder case final builder?) theme = builder(context, theme);
 
     Widget result = m.Theme(
@@ -127,6 +134,12 @@ class FinesseMaterial extends StatelessWidget {
       child: Material(
         type: MaterialType.transparency,
         textStyle: DefaultTextStyle.of(context).style,
+        // A Material animates a change of its text style, which here is
+        // the default text style of everything under it: for the 200 ms
+        // after a change of theme every `Text` in the subtree would be
+        // rebuilt on every frame. finesse changes theme as a whole (see
+        // `CrossFadeTheme`); the style follows at once.
+        animationDuration: Duration.zero,
         child: child,
       ),
     );

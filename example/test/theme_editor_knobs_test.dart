@@ -1,4 +1,5 @@
 import 'package:example/common/theme_editor/editor_config.dart';
+import 'package:example/common/theme_editor/presets.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -67,7 +68,7 @@ void main() {
     // checks, so its result does not depend on the answer.
     final overridden = [
       base.copyWith(cardOpacity: () => 1),
-      base.copyWith(cardBlur: () => false, glassBlur: () => 6),
+      base.copyWith(cardBlur: () => true, glassBlur: () => 6),
       base.copyWith(barOpacity: () => .5, bottomBarFloating: () => false),
       base.copyWith(pageMarginScale: 1.5),
       base.copyWith(cardPaddingScale: .7),
@@ -170,20 +171,46 @@ void main() {
   });
 
   group('Card Blur', () {
-    test('turns the backdrop blur behind a translucent card off and on', () {
-      // Finesse blurs its cards.
-      expect(base.effectiveCardBlur, isTrue);
+    test('turns the backdrop blur behind a translucent card on and off', () {
+      // Finesse's cards are translucent and do not blur: a card lies on
+      // the flat page, where a backdrop filter per card shows nothing.
+      expect(base.effectiveCardBlur, isFalse);
       everywhere(base, (theme, where) {
-        expect(theme.cardTheme.blur, theme.style.glassBlur, reason: where);
-        expect(theme.cardTheme.blur, greaterThan(0), reason: where);
-      });
-
-      everywhere(base.copyWith(cardBlur: () => false), (theme, where) {
         expect(theme.style.cardBlur, isFalse, reason: where);
         expect(theme.cardTheme.blur, 0, reason: where);
         expect(theme.cardTheme.saturation, 1, reason: where);
-        // The card is as translucent as it was.
         expect(theme.cardTheme.backgroundColor!.a, lessThan(1), reason: where);
+      });
+
+      // Switched on, a card is glass like the bars: the style's blur and
+      // saturation behind the same fill.
+      final blurred = base.copyWith(cardBlur: () => true);
+      expect(blurred.effectiveCardBlur, isTrue);
+      everywhere(blurred, (theme, where) {
+        expect(theme.style.cardBlur, isTrue, reason: where);
+        expect(theme.cardTheme.blur, theme.style.glassBlur, reason: where);
+        expect(theme.cardTheme.blur, greaterThan(0), reason: where);
+        expect(
+          theme.cardTheme.saturation,
+          theme.style.glassSaturation,
+          reason: where,
+        );
+        // The card is as translucent as it was.
+        expect(
+          theme.cardTheme.backgroundColor,
+          themed(
+            base,
+            brightness: theme.brightness,
+            formFactor: theme.formFactor,
+          ).cardTheme.backgroundColor,
+          reason: where,
+        );
+      });
+
+      // And off again is the style itself, not an override of it.
+      expect(blurred.copyWith(cardBlur: () => null), base);
+      everywhere(blurred.copyWith(cardBlur: () => false), (theme, where) {
+        expect(theme.cardTheme.blur, 0, reason: where);
       });
     });
 
@@ -227,14 +254,25 @@ void main() {
   });
 
   group('Blur Strength', () {
-    test('sets the blur behind glass, bars and cards', () {
+    test('sets the blur behind glass and bars, and behind cards that '
+        'blur', () {
       expect(base.effectiveGlassBlur, StyleTokens.finesse.glassBlur);
       everywhere(base.copyWith(glassBlur: () => 6), (theme, where) {
         expect(theme.style.glassBlur, 6, reason: where);
         expect(theme.glassTheme.blur, 6, reason: where);
-        expect(theme.cardTheme.blur, 6, reason: where);
         expect(theme.appBarTheme.blur, 6, reason: where);
         expect(theme.bottomNavigationBarTheme.blur, 6, reason: where);
+        // Card Blur is off: the strength has nothing to act on there.
+        expect(theme.cardTheme.blur, 0, reason: where);
+      });
+      everywhere(
+        base.copyWith(glassBlur: () => 6, cardBlur: () => true),
+        (theme, where) => expect(theme.cardTheme.blur, 6, reason: where),
+      );
+      // Frost is the preset that has it on, at its own strength.
+      everywhere(ThemePreset.frost.config, (theme, where) {
+        expect(theme.cardTheme.blur, 32, reason: where);
+        expect(theme.glassTheme.blur, 32, reason: where);
       });
     });
   });
@@ -478,7 +516,7 @@ void main() {
     test('copyWith can clear an override', () {
       final overridden = base.copyWith(
         cardOpacity: () => .5,
-        cardBlur: () => false,
+        cardBlur: () => true,
         barOpacity: () => .5,
         glassBlur: () => 4,
         bottomBarFloating: () => false,

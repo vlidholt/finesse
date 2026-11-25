@@ -1,25 +1,30 @@
-# Installation
+# Installation and app setup
 
-Add `finesse` to your project from the command line:
+Add `finesse` to your project:
 
 ```bash
 flutter pub add finesse
 ```
 
-Everything ships through one import: components, theme, Phosphor icons, and animation effects.
+Everything ships through one import: components, theme, motion and the
+Phosphor icons. Nothing else is needed, and a finesse app imports neither
+Material nor Cupertino.
 
 ```dart
 import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
 ```
 
-## Set up FinesseApp
+## FinesseApp
 
-`FinesseApp` takes the place of `MaterialApp`. It installs the theme, localizations, navigation, and the overlay layer the floating components use. With no arguments it uses the teal color scheme and the `finesse` style, and lays itself out for a desktop or a phone from the window width (see [form-factors.md](form-factors.md)).
+`FinesseApp` takes the place of `MaterialApp`. It installs the theme, the
+localizations, the navigator with `FinessePageRoute` transitions, the
+scroll behaviour, the toaster and the overlay layer the floating
+components use. With no theme it uses the teal colour scheme and the
+`finesse` style, and lays itself out for a desktop or a phone from the
+window width (see [form-factors.md](form-factors.md)).
 
 ```dart
-import 'package:flutter/widgets.dart';
-import 'package:finesse/finesse.dart';
-
 void main() {
   runApp(const MyApp());
 }
@@ -29,47 +34,32 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const FinesseApp(
-      home: HomePage(),
+    return FinesseApp(
+      title: 'My app',
+      theme: ThemeData(),
+      darkTheme: ThemeData(brightness: Brightness.dark),
+      themeMode: ThemeMode.system,
+      home: const HomePage(),
     );
   }
 }
 ```
 
-Apps that use the `Router` API use `FinesseApp.router` with the usual `routerConfig` or delegate parameters.
-
-## Dark mode
-
-Pass a `theme` and a `darkTheme`, and pick between them with `themeMode`. Follow the platform, or bind it to your own setting.
-
-```dart
-FinesseApp(
-  themeMode: ThemeMode.system,
-  theme: ThemeData(),
-  darkTheme: ThemeData(
-    brightness: Brightness.dark,
-  ),
-  home: const HomePage(),
-)
-```
-
-## Use the components
-
-Components are plain widgets. Icons come from the bundled Phosphor set:
-
-```dart
-Button(
-  leading: const Icon(PhosphorIconsRegular.envelopeSimple),
-  onPressed: () {},
-  child: const Text('Login with Email'),
-)
-```
-
-Icon constants are named after the icon, in a class per weight. `PhosphorIconsFill.envelopeSimple` is the same icon filled, for a selected state. See [icons.md](icons.md).
+- `themeMode` is finesse's own `ThemeMode` (`system`, `light`, `dark`).
+  A switch between themes is one rebuild and a short cross-fade.
+- An app on the `Router` API uses `FinesseApp.router(routerConfig: ...)`.
+- `FinesseApp.custom` puts finesse inside a `MaterialApp` or `CupertinoApp`
+  of your own (see [theming.md](theming.md)).
+- The package's strings (Cancel, Back, the date picker's labels...) are
+  localized into some 80 languages by `GlobalFinesseLocalizations`, which
+  `FinesseApp` adds. Pass `locale` / `supportedLocales` as usual; read a
+  string with `FinesseLocalizations.of(context)`.
 
 ## A first screen
 
-A screen is a `Scaffold` with an `AppBar`. Its content goes in a `PageContainer`, which supplies the page margins and the maximum width, and its vertical rhythm comes from the gap scale:
+A screen is a `Scaffold` with an `AppBar`. Its content goes in a
+`PageContainer`, which supplies the page margins and the maximum width,
+and its rhythm comes from the gap scale:
 
 ```dart
 class HomePage extends StatelessWidget {
@@ -84,8 +74,16 @@ class HomePage extends StatelessWidget {
         child: FinesseColumn(
           gap: GapSize.lg,
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: const [
-            Card(title: Text('Welcome')),
+          children: [
+            const Card(
+              title: Text('Welcome'),
+              description: Text('Everything here follows the theme.'),
+            ),
+            Button(
+              leading: const PhosphorIcon(PhosphorIconsRegular.plus),
+              onPressed: () {},
+              child: const Text('New post'),
+            ),
           ],
         ),
       ),
@@ -94,20 +92,17 @@ class HomePage extends StatelessWidget {
 }
 ```
 
-The bars are laid over the body, and the body's `MediaQuery` padding includes their heights, so a `PageContainer`, a `ListView` or a `SafeArea` clears them without being told. An app with several top-level destinations uses `NavigationScaffold` instead: destinations in the app bar on a desktop, in a bottom bar on a phone. See [scaffold.md](../components/scaffold.md).
+The bars are laid over the body, and the body's `MediaQuery` padding
+includes their heights, so a `PageContainer`, a `ListView` or a `SafeArea`
+clears them without being told. An app with several top-level
+destinations uses `NavigationScaffold` instead; see
+[app-structure.md](app-structure.md).
 
-## Spacing
+## Next
 
-Use the named gaps between components, `FinesseColumn(gap: GapSize.lg)` or `const Gap.md()`, rather than pixel counts: they follow the form factor. `FinessePadding` keeps insets on the theme's spacing scale. It has no plain constructor, only `FinessePadding.all`, `.symmetric`, `.only`, and `.directional`, and their arguments are steps, not logical pixels:
-
-```dart
-FinessePadding.symmetric(
-  horizontal: 6, // 24 at the default 4px step
-  vertical: 4, // 16
-  child: const Text('Inset by the theme spacing scale'),
-)
-```
-
-See [layout.md](layout.md) for both scales.
-
-From here, [theming.md](theming.md) and [styles.md](styles.md) cover how to make it yours, and each page under `components/` pairs a description with the actual example source that ships in the example app.
+- [theming.md](theming.md) and [styles.md](styles.md): colours, styles,
+  component overrides.
+- [layout.md](layout.md): the gap scale, rows, columns and padding.
+- [icons.md](icons.md): the Phosphor classes and `PhosphorIcon`.
+- Each page under `components/` pairs a description with the example
+  source that ships in the example app.

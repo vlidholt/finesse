@@ -59,6 +59,12 @@ enum ThemePreset {
 
   /// Finesse's glass turned up: thinner cards and bars over a stronger
   /// blur, on zinc with an indigo accent, set in Manrope.
+  ///
+  /// The one preset whose cards blur what is behind them. The package's
+  /// styles leave that off — a card lies on the flat page, where a blur
+  /// shows nothing and costs a backdrop filter per card per frame — and
+  /// this is where the opt-in is shown: it is the preset to pick to see
+  /// what card blur costs on a phone.
   frost(
     'Frost',
     ThemeEditorConfig(
@@ -66,6 +72,7 @@ enum ThemePreset {
       accentColor: AccentColor.indigo,
       fontTitle: 'Manrope',
       cardOpacity: .7,
+      cardBlur: true,
       barOpacity: .8,
       glassBlur: 32,
       menuFinish: MenuSurfaceFinish.translucent,

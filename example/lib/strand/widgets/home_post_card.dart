@@ -1,3 +1,4 @@
+import 'package:example/strand/data.dart';
 import 'package:example/strand/data/home_data.dart';
 import 'package:example/strand/widgets/home_feed_scope.dart';
 import 'package:example/strand/widgets/home_pieces.dart';
@@ -8,6 +9,7 @@ import 'package:example/strand/widgets/strand_actions.dart';
 import 'package:example/strand/widgets/strand_pieces.dart';
 import 'package:example/strand/widgets/strand_previews.dart';
 import 'package:example/strand/widgets/verified_badge.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -40,16 +42,9 @@ class _HomePostCardState extends State<HomePostCard> {
     final theme = Theme.of(context);
     final post = widget.post;
     final compact = theme.formFactor == FormFactor.mobile;
-    final layout = theme.layoutTheme;
-    // 14 on a desktop, 12 on a phone: between the card's blocks.
-    final blockGap = compact ? layout.gap(GapSize.md) : homeLooseGap;
     final body = Text(
       compact ? post.compactBody : post.body,
-      // The feed's reading size, 15/24: roomier than the theme's body text
-      // on either form factor.
       style: theme.textTheme.p.copyWith(
-        fontSize: 15,
-        height: 24 / 15,
         color: theme.colorScheme.foreground,
       ),
     );
@@ -60,20 +55,23 @@ class _HomePostCardState extends State<HomePostCard> {
             Directionality.of(context),
           );
       return Card(
-        // The action row's 44-point targets reach 6 into the bottom inset.
-        padding: padding.copyWith(bottom: padding.bottom - homeTightGap),
+        style: CardTheme(
+          padding: padding.copyWith(
+            bottom: padding.bottom - theme.gap(GapSize.xs),
+          ),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
           children: [
             _PostHeader(post, compact: true),
-            Gap.raw(blockGap),
+            const Gap.md(),
             body,
             if (HomePostMedia.has(post)) ...[
-              Gap.raw(blockGap),
+              const Gap.md(),
               HomePostMedia(post, compact: true),
             ],
-            Gap.raw(blockGap),
+            const Gap.md(),
             _ReactionSummary(post, compact: true),
             const Gap.xs(),
             _CompactActions(post),
@@ -88,21 +86,21 @@ class _HomePostCardState extends State<HomePostCard> {
         mainAxisSize: MainAxisSize.min,
         children: [
           _PostHeader(post, compact: false),
-          Gap.raw(blockGap),
+          const Gap.md(),
           body,
           if (HomePostMedia.has(post)) ...[
-            Gap.raw(blockGap),
+            const Gap.md(),
             HomePostMedia(post, compact: false),
           ],
           Padding(
             padding: EdgeInsets.only(
-              top: layout.gap(GapSize.md),
-              bottom: homeSnugGap,
+              top: theme.gap(GapSize.md),
+              bottom: theme.gap(GapSize.sm),
             ),
             child: _ReactionSummary(post, compact: false),
           ),
-          const Divider.horizontal(),
-          const Gap.raw(homeTightGap),
+          const Divider(margin: EdgeInsets.zero),
+          const Gap.xs(),
           _Actions(
             post,
             onComment: post.thread.isEmpty
@@ -137,7 +135,7 @@ class _PostHeader extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        PersonAvatar(author, size: compact ? 40 : homeAvatarSize),
+        PersonAvatar(author),
         const Gap.md(),
         Expanded(
           child: Column(
@@ -147,19 +145,23 @@ class _PostHeader extends StatelessWidget {
               Row(
                 children: [
                   Flexible(
-                    child: HomeTextLink(
-                      author.name,
-                      onPressed: () => showPersonPreview(context, author),
-                      style: theme.textTheme.large.copyWith(
-                        color: scheme.foreground,
+                    // With a mouse, resting on the name says who it is.
+                    child: PersonHoverCard(
+                      author,
+                      child: HomeTextLink(
+                        author.name,
+                        onPressed: () => showPersonPreview(context, author),
+                        style: theme.textTheme.large.copyWith(
+                          color: scheme.foreground,
+                        ),
                       ),
                     ),
                   ),
                   if (author.verified) ...[
-                    const Gap.raw(homeTightGap),
+                    const Gap.xs(),
                     const VerifiedBadge(),
                   ],
-                  const Gap.raw(homeTightGap),
+                  const Gap.xs(),
                   Text('· ${post.age}', style: theme.textTheme.muted),
                 ],
               ),
@@ -200,76 +202,137 @@ class _FollowChip extends StatelessWidget {
     return Chip(
       selected: following,
       onSelected: (_) => onPressed(),
-      // Tighter than a filter chip — 10 at the sides, a 14-point glyph —
-      // and outlined in the strong border on the bare card.
-      padding: const EdgeInsets.symmetric(horizontal: homeSnugGap),
+      // Outlined in the strong border on the bare card.
       backgroundColor: const Color(0x00000000),
       borderColor: scheme.borderStrong,
       foregroundColor: scheme.foreground,
-      leading: Icon(
+      leading: PhosphorIcon(
         following ? PhosphorIconsRegular.check : PhosphorIconsRegular.plus,
-        size: 14,
       ),
       label: Text(following ? 'Following' : 'Follow'),
     );
   }
 }
 
-/// The "More options" button and its menu.
+/// One thing the "More options" button offers for a post.
+typedef _PostAction = ({
+  IconData icon,
+  String label,
+  VoidCallback onPressed,
+  bool destructive,
+});
+
+/// The "More options" button: a menu under the button on a desktop, and on
+/// a phone an action sheet that comes up from the bottom edge, where a
+/// thumb reaches it.
 class _PostMenu extends StatelessWidget {
   const _PostMenu(this.post);
 
   final FeedPost post;
 
-  @override
-  Widget build(BuildContext context) {
-    final model = HomeFeedScope.of(context);
+  List<_PostAction> _actions(BuildContext context, HomeFeedModel model) {
     final author = post.author;
-    return DropdownMenu(
-      itemsBuilder: (_) => [
-        ContextMenuItem(
-          leading: const Icon(PhosphorIconsRegular.bookmarkSimple),
-          onPressed: () => showStrandToast(
-            context,
-            'Post saved',
-            description: 'Find it under Saved items in your menu.',
-          ),
-          child: const Text('Save post'),
+    final own = author == People.me;
+    return [
+      (
+        icon: PhosphorIconsRegular.bookmarkSimple,
+        label: 'Save post',
+        destructive: false,
+        onPressed: () => showStrandToast(
+          context,
+          'Post saved',
+          description: 'Find it under Saved items in your menu.',
+          variant: ToastVariant.success,
         ),
-        ContextMenuItem(
-          leading: const Icon(PhosphorIconsRegular.link),
-          onPressed: () => copyLink(context, 'strand.app/posts/${post.id}'),
-          child: const Text('Copy link'),
-        ),
-        if (post.followable)
-          ContextMenuItem(
-            leading: Icon(
-              model.isFollowing(author)
-                  ? PhosphorIconsRegular.userMinus
-                  : PhosphorIconsRegular.userPlus,
-            ),
-            onPressed: () => model.toggleFollow(author),
-            child: Text(
+      ),
+      (
+        icon: PhosphorIconsRegular.link,
+        label: 'Copy link',
+        destructive: false,
+        onPressed: () => copyLink(context, 'strand.app/posts/${post.id}'),
+      ),
+      if (post.followable)
+        (
+          icon: model.isFollowing(author)
+              ? PhosphorIconsRegular.userMinus
+              : PhosphorIconsRegular.userPlus,
+          label:
               '${model.isFollowing(author) ? 'Unfollow' : 'Follow'} '
               '${author.firstName}',
-            ),
-          ),
-        ContextMenuItem(
-          leading: const Icon(PhosphorIconsRegular.eyeSlash),
+          destructive: false,
+          onPressed: () => model.toggleFollow(author),
+        ),
+      if (own)
+        (
+          icon: PhosphorIconsRegular.trash,
+          label: 'Delete post',
+          destructive: true,
+          onPressed: () {
+            model.unpublish(post);
+            showStrandToast(
+              context,
+              'Post deleted',
+              variant: ToastVariant.destructive,
+              actionLabel: 'Undo',
+              onAction: () => model.restore(post),
+            );
+          },
+        )
+      else
+        (
+          icon: PhosphorIconsRegular.eyeSlash,
+          label: 'Not interested',
+          destructive: false,
           onPressed: () => showStrandToast(
             context,
             'Thanks, noted',
             description: 'You will see fewer posts like this one.',
           ),
-          child: const Text('Not interested'),
         ),
+    ];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final model = HomeFeedScope.of(context);
+    final author = post.author;
+
+    Widget button(VoidCallback onPressed) => IconButton.ghost(
+      size: ButtonSize.sm,
+      icon: const PhosphorIcon(PhosphorIconsRegular.dotsThree),
+      semanticLabel: 'More options',
+      onPressed: onPressed,
+    );
+
+    if (Theme.of(context).formFactor == FormFactor.mobile) {
+      return button(
+        () => showActionSheet<void>(
+          context: context,
+          title: Text('Post by ${author.name}'),
+          actions: [
+            for (final action in _actions(context, model))
+              ActionSheetAction(
+                icon: PhosphorIcon(action.icon),
+                label: Text(action.label),
+                destructive: action.destructive,
+                onPressed: action.onPressed,
+              ),
+          ],
+        ),
+      );
+    }
+
+    return DropdownMenu(
+      itemsBuilder: (_) => [
+        for (final action in _actions(context, model))
+          MenuItem(
+            leading: PhosphorIcon(action.icon),
+            destructive: action.destructive,
+            onPressed: action.onPressed,
+            child: Text(action.label),
+          ),
       ],
-      builder: (context, controller, _) => IconButton.ghost(
-        size: ButtonSize.sm,
-        icon: const Icon(PhosphorIconsRegular.dotsThree),
-        semanticLabel: 'More options',
-        onPressed: controller.toggle,
-      ),
+      builder: (context, controller, _) => button(controller.toggle),
     );
   }
 }
@@ -288,34 +351,44 @@ class _ReactionSummary extends StatelessWidget {
     final model = HomeFeedScope.of(context);
     final others = formatCount(model.otherReactions(post));
     final name = compact ? post.reactedBy.firstName : post.reactedBy.name;
-    final size = compact ? 18.0 : 20.0;
+    final size = theme.avatarXs;
+    // A post of the user's own, a moment old: nobody has reacted yet.
+    final none = post.reactions.isEmpty;
+    final summary = !none
+        ? '$name and $others others'
+        : model.isLiked(post)
+        ? 'You reacted'
+        : 'Be the first to react';
 
     return Row(
       children: [
-        ExcludeSemantics(
-          child: AvatarGroup(
-            size: size,
-            overlap: 5,
-            children: [
-              for (final reaction in post.reactions)
-                SizedBox.square(
-                  dimension: size,
-                  child: ColoredBox(
-                    color: reaction.background,
-                    child: Icon(
-                      reaction.icon,
-                      size: compact ? 10 : 12,
-                      color: reaction.foreground,
+        if (!none) ...[
+          ExcludeSemantics(
+            child: AvatarGroup(
+              size: size,
+              overlap: size / 4,
+              children: [
+                for (final reaction in post.reactions)
+                  SizedBox.square(
+                    dimension: size,
+                    child: ColoredBox(
+                      color: reaction.background,
+                      child: PhosphorIcon(
+                        reaction.icon,
+                        // The disc's own glyph, fitted to it.
+                        size: size * .6,
+                        color: reaction.foreground,
+                      ),
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
-        ),
-        const Gap.sm(),
+          const Gap.sm(),
+        ],
         Expanded(
           child: Text(
-            '$name and $others others',
+            summary,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: theme.textTheme.muted,
@@ -358,17 +431,15 @@ class _Actions extends StatelessWidget {
     }) {
       return Expanded(
         child: Button.ghost(
-          // 40: a full-width action sits between the theme's 36-point
-          // button and its 44-point large one.
-          height: 40,
-          width: double.infinity,
-          padding: EdgeInsets.symmetric(
-            horizontal: theme.layoutTheme.gap(GapSize.xs),
+          style: ButtonTheme(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(
+              horizontal: theme.gap(GapSize.xs),
+            ),
+            foregroundColor: color ?? scheme.foregroundSubtle,
+            hoverForegroundColor: color ?? scheme.foreground,
           ),
-          iconSize: 20,
-          foregroundColor: color ?? scheme.foregroundSubtle,
-          hoverForegroundColor: color ?? scheme.foreground,
-          leading: Icon(icon),
+          leading: PhosphorIcon(icon),
           onPressed: onPressed,
           child: Flexible(
             child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
@@ -431,16 +502,18 @@ class _CompactActions extends StatelessWidget {
       return Semantics(
         label: label,
         child: Button.ghost(
-          // Hugs its count: 10 at the sides and 6 from glyph to number,
-          // so four of them fit a phone with room to spare.
-          padding: const EdgeInsets.symmetric(horizontal: homeSnugGap),
-          gap: homeTightGap,
-          iconSize: theme.buttonSizesTheme.icon?.iconSize,
-          decoration: pill,
-          textStyle: theme.textTheme.small,
-          foregroundColor: color ?? scheme.foregroundSubtle,
-          hoverForegroundColor: color ?? scheme.foreground,
-          leading: Icon(icon),
+          style: ButtonTheme(
+            // Hugs its count, so four of them fit a phone with room to
+            // spare.
+            padding: EdgeInsets.symmetric(horizontal: theme.gap(GapSize.sm)),
+            gap: theme.gap(GapSize.xs),
+            iconSize: theme.buttonSizesTheme.icon?.iconSize,
+            decoration: pill,
+            textStyle: theme.textTheme.small,
+            foregroundColor: color ?? scheme.foregroundSubtle,
+            hoverForegroundColor: color ?? scheme.foreground,
+          ),
+          leading: PhosphorIcon(icon),
           onPressed: onPressed,
           child: Text(formatCount(count)),
         ),
@@ -452,47 +525,59 @@ class _CompactActions extends StatelessWidget {
     return Transform.translate(
       offset: Offset(
         Directionality.of(context) == TextDirection.rtl
-            ? homeSnugGap
-            : -homeSnugGap,
+            ? theme.gap(GapSize.sm)
+            : -theme.gap(GapSize.sm),
         0,
       ),
-      child: Row(
-        spacing: homeHairGap,
-        children: [
-          action(
-            icon: liked ? PhosphorIconsFill.heart : PhosphorIconsRegular.heart,
-            label: 'Like',
-            count: model.reactionCount(post),
-            color: liked ? scheme.tint : null,
-            onPressed: () => model.toggleLike(post),
-          ),
-          action(
-            icon: PhosphorIconsRegular.chatCircle,
-            label: 'Comment',
-            count: post.comments,
-            onPressed: () => showCommentDialog(context, post.author),
-          ),
-          if (post.reposts > 0)
+      // Scaled down rather than cut off where a theme's type and spacing
+      // make the four wider than a narrow phone.
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        alignment: AlignmentDirectional.centerStart,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
             action(
-              icon: PhosphorIconsRegular.repeat,
-              label: 'Repost',
-              count: post.reposts,
-              onPressed: () => repostWithToast(context, post.author),
-            )
-          else
-            IconButton.ghost(
-              icon: const Icon(PhosphorIconsRegular.repeat),
-              foregroundColor: scheme.foregroundSubtle,
-              semanticLabel: 'Repost',
-              onPressed: () => repostWithToast(context, post.author),
+              icon: liked
+                  ? PhosphorIconsFill.heart
+                  : PhosphorIconsRegular.heart,
+              label: 'Like',
+              count: model.reactionCount(post),
+              color: liked ? scheme.tint : null,
+              onPressed: () => model.toggleLike(post),
             ),
-          IconButton.ghost(
-            icon: const Icon(PhosphorIconsRegular.paperPlaneTilt),
-            foregroundColor: scheme.foregroundSubtle,
-            semanticLabel: 'Send',
-            onPressed: () => showSendDialog(context, what: 'this post'),
-          ),
-        ],
+            action(
+              icon: PhosphorIconsRegular.chatCircle,
+              label: 'Comment',
+              count: post.comments,
+              onPressed: () => showCommentDialog(context, post.author),
+            ),
+            if (post.reposts > 0)
+              action(
+                icon: PhosphorIconsRegular.repeat,
+                label: 'Repost',
+                count: post.reposts,
+                onPressed: () => repostWithToast(context, post.author),
+              )
+            else
+              IconButton.ghost(
+                icon: const PhosphorIcon(PhosphorIconsRegular.repeat),
+                style: ButtonTheme(
+                  foregroundColor: scheme.foregroundSubtle,
+                ),
+                semanticLabel: 'Repost',
+                onPressed: () => repostWithToast(context, post.author),
+              ),
+            IconButton.ghost(
+              icon: const PhosphorIcon(PhosphorIconsRegular.paperPlaneTilt),
+              style: ButtonTheme(
+                foregroundColor: scheme.foregroundSubtle,
+              ),
+              semanticLabel: 'Send',
+              onPressed: () => showSendDialog(context, what: 'this post'),
+            ),
+          ],
+        ),
       ),
     );
   }

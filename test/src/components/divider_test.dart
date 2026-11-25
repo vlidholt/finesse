@@ -20,7 +20,7 @@ void main() {
             dividerTheme: dividerTheme,
           ),
           home: const Column(
-            children: [SizedBox(width: 40), Divider.horizontal()],
+            children: [SizedBox(width: 40), Divider()],
           ),
         );
 
@@ -59,7 +59,7 @@ void main() {
           home: Column(
             children: [
               SizedBox(width: 40),
-              Divider.horizontal(
+              Divider(
                 thickness: 12,
                 margin: EdgeInsets.symmetric(vertical: 100),
                 color: Color(0xFFF44336),
@@ -103,7 +103,7 @@ void main() {
           home: Column(
             children: [
               SizedBox(width: 40),
-              Divider.horizontal(),
+              Divider(),
             ],
           ),
         );

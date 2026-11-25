@@ -3,7 +3,6 @@ import 'package:example/common/theme_editor/customizer_panel.dart';
 import 'package:example/strand/screens/home_screen.dart';
 import 'package:example/strand/strand_shell.dart';
 import 'package:finesse/finesse.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -27,16 +26,18 @@ void _expectMonotone(List<double> values, {required String reason}) {
   }
 }
 
-/// The cover and the slide of the [PageSwitch] found by [finder].
+/// The cover and the slide of the [PageSwitch] — or of the package's
+/// `DestinationStack`, which is built the same way — found by [finder].
 ({double cover, Offset offset}) _switchOf(WidgetTester tester, Finder finder) {
-  // The cover is the fade over a box of the page colour; the page under
-  // it has fades of its own.
-  final cover = tester.renderObject<RenderAnimatedOpacity>(
+  // The cover is a box of the page colour painted at the cover's opacity,
+  // after the page: the last box in the switch that takes no pointers.
+  final cover = tester.widget<ColoredBox>(
     find
         .descendant(
           of: finder,
-          matching: find.byWidgetPredicate(
-            (w) => w is FadeTransition && w.child is ColoredBox,
+          matching: find.descendant(
+            of: find.byType(IgnorePointer),
+            matching: find.byType(ColoredBox),
           ),
         )
         .last,
@@ -46,7 +47,7 @@ void _expectMonotone(List<double> values, {required String reason}) {
   );
   final translation = transform.transform.getTranslation();
   return (
-    cover: cover.opacity.value,
+    cover: cover.color.a,
     offset: Offset(translation.x, translation.y),
   );
 }
@@ -149,7 +150,7 @@ void main() {
       final home = tester.element(find.byType(HomeScreen));
       final shell = find.descendant(
         of: find.byType(StrandShell),
-        matching: find.byType(PageSwitch),
+        matching: find.byType(DestinationStack),
       );
 
       strandDestinationProvider.of(context).value = StrandDestination.jobs;

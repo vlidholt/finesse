@@ -16,10 +16,9 @@ class ResizableTheme with _$ResizableTheme {
     this.mainAxisAlignment,
     this.crossAxisAlignment,
     this.mainAxisSize,
-    this.textDirection,
     this.verticalDirection,
     this.showHandle,
-    this.handleIconData,
+    this.handleIcon,
     this.dividerSize,
     this.resetOnDoubleTap,
     this.handleDecoration,
@@ -44,17 +43,17 @@ class ResizableTheme with _$ResizableTheme {
   /// {@macro ResizablePanelGroup.mainAxisSize}
   final MainAxisSize? mainAxisSize;
 
-  /// {@macro ResizablePanelGroup.textDirection}
-  final TextDirection? textDirection;
-
   /// {@macro ResizablePanelGroup.verticalDirection}
   final VerticalDirection? verticalDirection;
 
   /// {@macro ResizablePanelGroup.showHandle}
   final bool? showHandle;
 
-  /// {@macro ResizablePanelGroup.handleIconData}
-  final IconData? handleIconData;
+  /// {@macro ResizablePanelGroup.handleIcon}
+  ///
+  /// Has to be a constant: a widget built anew for each theme makes two
+  /// otherwise equal themes unequal.
+  final Widget? handleIcon;
 
   /// {@macro ResizablePanelGroup.dividerSize}
   final double? dividerSize;

@@ -19,7 +19,7 @@ class DividerBasicExample extends StatelessWidget {
             'A design system for Flutter.',
             style: theme.textTheme.muted,
           ),
-          const Divider.horizontal(
+          const Divider(
             margin: EdgeInsets.symmetric(vertical: 16),
           ),
           const SizedBox(

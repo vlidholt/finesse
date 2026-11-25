@@ -2,6 +2,7 @@ import 'package:example/strand/data.dart';
 import 'package:example/strand/data/network_data.dart';
 import 'package:example/strand/widgets/home_pieces.dart';
 import 'package:example/strand/widgets/network_links.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -35,7 +36,7 @@ class HomeGroupsCard extends StatelessWidget {
                 child: Row(
                   children: [
                     _GroupLogo(group),
-                    const Gap.raw(homeSnugGap),
+                    const Gap.sm(),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,9 +46,8 @@ class HomeGroupsCard extends StatelessWidget {
                             group.name,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: theme.textTheme.small.copyWith(
-                              fontSize: 14,
-                              height: 18 / 14,
+                            style: theme.textTheme.p.copyWith(
+                              fontWeight: FontWeight.w600,
                               color: scheme.foreground,
                               decoration: states.contains(WidgetState.hovered)
                                   ? TextDecoration.underline
@@ -58,7 +58,7 @@ class HomeGroupsCard extends StatelessWidget {
                             '${group.newPosts} new posts',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: homeFinePrint(theme),
+                            style: theme.textTheme.caption,
                           ),
                         ],
                       ),
@@ -73,7 +73,7 @@ class HomeGroupsCard extends StatelessWidget {
   }
 }
 
-/// A group's mark: 36 square on the control radius, with a hairline drawn
+/// A group's mark: a small square on the control radius, with a hairline drawn
 /// inside its edge so a pale logo still has an outline on a pale card.
 class _GroupLogo extends StatelessWidget {
   const _GroupLogo(this.group);
@@ -84,8 +84,8 @@ class _GroupLogo extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Container(
-      width: 36,
-      height: 36,
+      width: theme.avatarSm,
+      height: theme.avatarSm,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(borderRadius: theme.radii.md),
       foregroundDecoration: BoxDecoration(

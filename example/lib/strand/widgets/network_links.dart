@@ -88,7 +88,7 @@ class _InviteDialogState extends State<_InviteDialog> {
         ),
         Button(
           enabled: _valid,
-          leading: const Icon(PhosphorIconsRegular.paperPlaneTilt),
+          leading: const PhosphorIcon(PhosphorIconsRegular.paperPlaneTilt),
           onPressed: _send,
           child: const Text('Send invitation'),
         ),
@@ -99,7 +99,7 @@ class _InviteDialogState extends State<_InviteDialog> {
         keyboardType: TextInputType.emailAddress,
         textInputAction: TextInputAction.send,
         placeholder: const Text('name@company.com'),
-        leading: const Icon(PhosphorIconsRegular.envelopeSimple),
+        leading: const PhosphorIcon(PhosphorIconsRegular.envelopeSimple),
         onSubmitted: (_) => _send(),
       ),
     );

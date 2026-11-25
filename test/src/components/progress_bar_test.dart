@@ -31,5 +31,58 @@ void main() {
         matchesGoldenFile('goldens/progress_determinate.png'),
       );
     });
+
+    testWidgets('announces a percentage, as a ProgressRing does, or the '
+        'value it is given', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        createTestWidget(
+          const ProgressBar(value: .42, semanticLabel: 'Upload'),
+        ),
+      );
+      expect(
+        tester.getSemantics(find.byType(ProgressBar)),
+        matchesSemantics(label: 'Upload', value: '42%'),
+      );
+      await tester.pumpWidget(
+        createTestWidget(
+          const ProgressBar(
+            value: .42,
+            semanticLabel: 'Upload',
+            semanticValue: 'Almost half',
+          ),
+        ),
+      );
+      expect(
+        tester.getSemantics(find.byType(ProgressBar)),
+        matchesSemantics(label: 'Upload', value: 'Almost half'),
+      );
+      handle.dispose();
+    });
+
+    testWidgets('goes indeterminate, determinate and indeterminate again, '
+        'and rests while determinate', (tester) async {
+      final value = ValueNotifier<double?>(null);
+      addTearDown(value.dispose);
+      await tester.pumpWidget(
+        createTestWidget(
+          ValueListenableBuilder<double?>(
+            valueListenable: value,
+            builder: (context, v, _) => ProgressBar(value: v),
+          ),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 100));
+      value.value = .5;
+      await tester.pumpAndSettle();
+      expect(tester.binding.hasScheduledFrame, isFalse);
+      value.value = null;
+      await tester.pump();
+      expect(tester.takeException(), isNull);
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(tester.binding.hasScheduledFrame, isTrue);
+      value.value = .2;
+      await tester.pumpAndSettle();
+    });
   });
 }

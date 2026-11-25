@@ -1,22 +1,22 @@
 import 'package:finesse/src/components/context_menu.dart';
+import 'package:finesse/src/components/popover.dart';
 import 'package:finesse/src/raw_components/portal.dart';
 import 'package:flutter/widgets.dart';
 
 /// Builds a [DropdownMenu]'s trigger. Call `controller.toggle` from the
 /// trigger's `onPressed`.
-typedef DropdownMenuTriggerBuilder =
-    Widget Function(
-      BuildContext context,
-      FinesseContextMenuController controller,
-      Widget? child,
-    );
+typedef DropdownMenuTriggerBuilder = Widget Function(
+  BuildContext context,
+  PopoverController controller,
+  Widget? child,
+);
 
 /// {@template DropdownMenu}
 /// shadcn/ui's DropdownMenu: a menu that opens from a trigger, below it and
 /// aligned to its start edge.
 ///
 /// The menu is a [ContextMenu], so it takes the same items
-/// ([ContextMenuItem], separators, labels, submenus), scrolls when long,
+/// ([MenuItem], separators, labels, submenus), scrolls when long,
 /// supports keyboard navigation and type-ahead, and flips to stay on screen:
 /// to the trigger's end edge near the side of the screen, above it near the
 /// bottom.
@@ -24,8 +24,8 @@ typedef DropdownMenuTriggerBuilder =
 /// ```dart
 /// DropdownMenu(
 ///   items: [
-///     ContextMenuItem(child: Text('Profile'), onPressed: () {}),
-///     ContextMenuItem(child: Text('Log out'), onPressed: () {}),
+///     MenuItem(child: Text('Profile'), onPressed: () {}),
+///     MenuItem(child: Text('Log out'), onPressed: () {}),
 ///   ],
 ///   builder: (context, controller, _) => Button.outline(
 ///     onPressed: controller.toggle,
@@ -46,7 +46,8 @@ class DropdownMenu extends StatefulWidget {
     this.anchor,
     this.constraints,
     this.padding,
-    this.onOpenChange,
+    this.onOpenChanged,
+    this.requestFocus = true,
   });
 
   /// Builds the trigger. See [DropdownMenuTriggerBuilder].
@@ -63,7 +64,7 @@ class DropdownMenu extends StatefulWidget {
   final Widget? child;
 
   /// Controls whether the menu is open. One is created when not given.
-  final FinesseContextMenuController? controller;
+  final PopoverController? controller;
 
   /// Where the menu opens. Defaults to below the trigger at its start edge,
   /// falling back to its end edge and then to above it.
@@ -76,7 +77,10 @@ class DropdownMenu extends StatefulWidget {
   final EdgeInsetsGeometry? padding;
 
   /// Called when the menu opens or closes.
-  final ValueChanged<bool>? onOpenChange;
+  final ValueChanged<bool>? onOpenChanged;
+
+  /// {@macro ContextMenu.requestFocus}
+  final bool requestFocus;
 
   /// The default anchor: Radix's `side="bottom" align="start"` with
   /// `sideOffset={4}`, trying the other alignment and then the other side
@@ -107,11 +111,11 @@ class DropdownMenu extends StatefulWidget {
 }
 
 class _DropdownMenuState extends State<DropdownMenu> {
-  FinesseContextMenuController? _ownController;
-  FinesseContextMenuController get _controller =>
-      widget.controller ?? (_ownController ??= FinesseContextMenuController());
+  PopoverController? _ownController;
+  PopoverController get _controller =>
+      widget.controller ?? (_ownController ??= PopoverController());
 
-  FinesseContextMenuController? _listened;
+  PopoverController? _listened;
   bool _wasOpen = false;
 
   void _listen() {
@@ -126,7 +130,7 @@ class _DropdownMenuState extends State<DropdownMenu> {
     final open = _controller.isOpen;
     if (open == _wasOpen) return;
     _wasOpen = open;
-    widget.onOpenChange?.call(open);
+    widget.onOpenChanged?.call(open);
   }
 
   @override
@@ -157,6 +161,7 @@ class _DropdownMenuState extends State<DropdownMenu> {
       itemsBuilder: widget.itemsBuilder,
       constraints: widget.constraints,
       padding: widget.padding,
+      requestFocus: widget.requestFocus,
       child: widget.builder(context, _controller, widget.child),
     );
   }

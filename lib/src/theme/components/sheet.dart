@@ -1,8 +1,9 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:finesse/src/components/sheet.dart';
 import 'package:finesse/src/utils/position.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
 part 'sheet.g.theme.dart';
@@ -16,56 +17,32 @@ class SheetTheme with _$SheetTheme {
   /// {@macro SheetTheme}
   const SheetTheme({
     bool canMerge = true,
+    this.side,
     this.constraints,
-    this.expandCrossSide,
-    this.closeIcon,
-    this.closeIconData,
-    this.closeIconPosition,
-    this.radius,
     this.backgroundColor,
-    this.expandActionsWhenTiny,
-    this.padding,
-    this.gap,
-    this.actionsAxis,
-    this.actionsMainAxisSize,
-    this.actionsMainAxisAlignment,
-    this.actionsVerticalDirection,
+    this.filter,
+    this.borderRadius,
     this.border,
     this.shadows,
-    this.removeBorderRadiusWhenTiny,
+    this.padding,
+    this.gap,
+    this.actionsGap,
     this.titleStyle,
     this.descriptionStyle,
-    this.titleTextAlign,
-    this.descriptionTextAlign,
-    this.animateIn,
-    this.animateOut,
-    this.mainAxisAlignment,
-    this.crossAxisAlignment,
     this.scrollable,
-    this.scrollPadding,
-    this.disabledScrollControlMaxRatio,
-    this.minFlingVelocity,
-    this.snapFlingVelocity,
-    this.closeProgressThreshold,
-    this.side,
     this.useSafeArea,
     this.titlePinned,
     this.descriptionPinned,
     this.actionsPinned,
-    this.expandable,
-    this.initialSize,
-    this.minSize,
-    this.maxSize,
-    this.snap,
-    this.snapSizes,
-    this.snapAnimationDuration,
-    this.snapAnimationCurve,
+    this.showCloseButton,
+    this.closeIcon,
+    this.closeIconPosition,
+    this.draggable,
     this.showDragHandle,
     this.dragHandleColor,
     this.dragHandleWidth,
     this.dragHandleHeight,
-    this.dragHandleRadius,
-    this.dragHandleExtent,
+    this.dragHandleBorderRadius,
   }) : _canMerge = canMerge;
 
   @ignore
@@ -74,157 +51,98 @@ class SheetTheme with _$SheetTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro Sheet.constraints}
+  /// {@macro Sheet.side}
+  final SheetSide? side;
+
+  /// Limits on the sheet's size. Across its axis the largest size is the
+  /// cap that keeps a sheet from the top or bottom readable on a wide
+  /// window (640 on a desktop by default) or that gives a sheet from a
+  /// side its width (three quarters of the page, at most 384, by default);
+  /// along its axis the detents decide, within these.
   final BoxConstraints? constraints;
 
-  /// {@macro Sheet.expandCrossSide}
-  final bool? expandCrossSide;
-
-  /// {@macro Sheet.closeIcon}
-  final Widget? closeIcon;
-
-  /// {@macro Sheet.closeIconData}
-  final IconData? closeIconData;
-
-  /// {@macro Sheet.closeIconPosition}
-  final Position? closeIconPosition;
-
-  /// {@macro Sheet.radius}
-  final BorderRadius? radius;
-
-  /// {@macro Sheet.backgroundColor}
+  /// The colour of the sheet's surface.
   final Color? backgroundColor;
 
-  /// {@macro Sheet.expandActionsWhenTiny}
-  final bool? expandActionsWhenTiny;
+  /// A filter applied to what is behind the sheet, for a translucent
+  /// [backgroundColor]: the blur of a glass surface. Null, the default,
+  /// applies none.
+  final ImageFilter? filter;
 
-  /// {@macro Sheet.padding}
-  final EdgeInsetsGeometry? padding;
+  /// The corners of a sheet that comes from the top or the bottom, on the
+  /// edge that faces the page. A sheet from a side is square unless it is
+  /// given a radius of its own.
+  final BorderRadius? borderRadius;
 
-  /// {@macro Sheet.gap}
-  final double? gap;
-
-  /// {@macro Sheet.actionsAxis}
-  final Axis? actionsAxis;
-
-  /// {@macro Sheet.actionsMainAxisSize}
-  final MainAxisSize? actionsMainAxisSize;
-
-  /// {@macro Sheet.actionsMainAxisAlignment}
-  final MainAxisAlignment? actionsMainAxisAlignment;
-
-  /// {@macro Sheet.actionsVerticalDirection}
-  final VerticalDirection? actionsVerticalDirection;
-
-  /// {@macro Sheet.border}
+  /// The outline of the sheet.
   final BoxBorder? border;
 
-  /// {@macro Sheet.shadows}
+  /// The shadows the sheet casts on the page.
   final List<BoxShadow>? shadows;
 
-  /// {@macro Sheet.removeBorderRadiusWhenTiny}
-  final bool? removeBorderRadiusWhenTiny;
+  /// The space around the content. The safe area — the home indicator, the
+  /// status bar under a full-height sheet — is added to it.
+  final EdgeInsetsGeometry? padding;
 
-  /// {@macro Sheet.titleStyle}
+  /// The space between the title, the description, the content and the
+  /// actions.
+  final double? gap;
+
+  /// The gap between two actions.
+  final double? actionsGap;
+
+  /// The text style of the title.
   final TextStyle? titleStyle;
 
-  /// {@macro Sheet.descriptionStyle}
+  /// The text style of the description, and of text in the content that
+  /// has none of its own.
   final TextStyle? descriptionStyle;
-
-  /// {@macro Sheet.titleTextAlign}
-  final TextAlign? titleTextAlign;
-
-  /// {@macro Sheet.descriptionTextAlign}
-  final TextAlign? descriptionTextAlign;
-
-  /// The effects played when the sheet appears. Defaults to a slide in
-  /// from its side.
-  final List<Effect<dynamic>>? animateIn;
-
-  /// The effects played when the sheet disappears. Defaults to a slide out
-  /// to its side.
-  final List<Effect<dynamic>>? animateOut;
-
-  /// {@macro Sheet.mainAxisAlignment}
-  final MainAxisAlignment? mainAxisAlignment;
-
-  /// {@macro Sheet.crossAxisAlignment}
-  final CrossAxisAlignment? crossAxisAlignment;
 
   /// {@macro Sheet.scrollable}
   final bool? scrollable;
 
-  /// {@macro Sheet.scrollPadding}
-  final EdgeInsetsGeometry? scrollPadding;
-
-  /// {@macro Sheet.disabledScrollControlMaxRatio}
-  final double? disabledScrollControlMaxRatio;
-
-  /// {@macro Sheet.minFlingVelocity}
-  final double? minFlingVelocity;
-
-  /// {@macro Sheet.snapFlingVelocity}
-  final double? snapFlingVelocity;
-
-  /// {@macro Sheet.closeProgressThreshold}
-  final double? closeProgressThreshold;
-
-  /// {@macro Sheet.side}
-  final SheetSide? side;
-
-  /// {@macro Dialog.useSafeArea}
+  /// {@macro Sheet.useSafeArea}
   final bool? useSafeArea;
 
-  /// {@macro Dialog.titlePinned}
+  /// {@macro Sheet.titlePinned}
   final bool? titlePinned;
 
-  /// {@macro Dialog.descriptionPinned}
+  /// {@macro Sheet.descriptionPinned}
   final bool? descriptionPinned;
 
-  /// {@macro Dialog.actionsPinned}
+  /// {@macro Sheet.actionsPinned}
   final bool? actionsPinned;
 
-  /// {@macro Sheet.expandable}
-  final bool? expandable;
+  /// {@macro Sheet.showCloseButton}
+  final bool? showCloseButton;
 
-  /// {@macro Sheet.initialSize}
-  final double? initialSize;
+  /// {@macro Sheet.closeIcon}
+  ///
+  /// A theme is compared on every rebuild, so a widget given here has to be
+  /// a constant.
+  final Widget? closeIcon;
 
-  /// {@macro Sheet.minSize}
-  final double? minSize;
+  /// Where the close button sits in the sheet; 8 from the top and from the
+  /// end by default.
+  final Position? closeIconPosition;
 
-  /// {@macro Sheet.maxSize}
-  final double? maxSize;
-
-  /// {@macro Sheet.snap}
-  final bool? snap;
-
-  /// {@macro Sheet.snapSizes}
-  final List<double>? snapSizes;
-
-  /// {@macro Sheet.snapAnimationDuration}
-  final Duration? snapAnimationDuration;
-
-  /// {@macro Sheet.snapAnimationCurve}
-  final Curve? snapAnimationCurve;
+  /// {@macro Sheet.draggable}
+  final bool? draggable;
 
   /// {@macro Sheet.showDragHandle}
   final bool? showDragHandle;
 
-  /// Color of the default drag handle pill.
+  /// The colour of the drag handle's pill.
   final Color? dragHandleColor;
 
-  /// Width of the default drag handle pill. Defaults to 36.0.
+  /// The length of the drag handle's pill. Defaults to 36.
   final double? dragHandleWidth;
 
-  /// Height of the default drag handle pill. Defaults to 4.0.
+  /// The thickness of the drag handle's pill. Defaults to 4.
   final double? dragHandleHeight;
 
-  /// Border radius of the default drag handle pill.
-  final BorderRadius? dragHandleRadius;
-
-  /// {@macro Sheet.dragHandleExtent}
-  final double? dragHandleExtent;
+  /// The corners of the drag handle's pill. Defaults to a full pill.
+  final BorderRadius? dragHandleBorderRadius;
 
   /// Linearly interpolates between [a] and [b] by [t].
   static SheetTheme? lerp(
@@ -234,31 +152,20 @@ class SheetTheme with _$SheetTheme {
   ) => _$SheetTheme.lerp(a, b, t);
 
   // The generated `==` compares lists by identity, so a theme built with a
-  // non-const list would never equal its own rebuild, and AnimatedTheme
-  // would re-lerp on every frame. Compare the lists by value, then let the
-  // generated `==` compare everything else against a copy that shares them.
+  // non-const list would never equal its own rebuild, and the app would
+  // rebuild under a "new" theme on every frame. Compare the list by value,
+  // then let the generated `==` compare everything else against a copy that
+  // shares it.
   @override
   bool operator ==(Object other) =>
       other is SheetTheme &&
       listEquals(shadows, other.shadows) &&
-      listEquals(animateIn, other.animateIn) &&
-      listEquals(animateOut, other.animateOut) &&
-      listEquals(snapSizes, other.snapSizes) &&
-      super ==
-          other.copyWith(
-            shadows: shadows,
-            animateIn: animateIn,
-            animateOut: animateOut,
-            snapSizes: snapSizes,
-          );
+      super == other.copyWith(shadows: shadows);
 
   // Equal themes must hash alike, and the lists may differ in identity.
   @override
   int get hashCode => Object.hash(
     runtimeType,
     Object.hashAll(shadows ?? const []),
-    Object.hashAll(animateIn ?? const []),
-    Object.hashAll(animateOut ?? const []),
-    Object.hashAll(snapSizes ?? const []),
   );
 }

@@ -10,13 +10,17 @@ class ToastBasicExample extends StatelessWidget {
       child: const Text('Add to calendar'),
       onPressed: () {
         final toaster = Toaster.of(context);
+        // The id is how the action finds its own toast again.
+        final id = UniqueKey();
         toaster.show(
           Toast(
+            id: id,
             title: const Text('Scheduled: Catch up'),
-            description: const Text('Friday, February 10, 2023 at 5:57 PM'),
+            description: const Text('Friday at 5:57 PM'),
             action: Button.outline(
+              size: ButtonSize.sm,
               child: const Text('Undo'),
-              onPressed: () => toaster.hide(),
+              onPressed: () => toaster.dismiss(id),
             ),
           ),
         );

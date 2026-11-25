@@ -22,11 +22,11 @@ class _ToggleBasicExampleState extends State<ToggleBasicExample> {
           value: bold,
           semanticLabel: 'Bold',
           onChanged: (value) => setState(() => bold = value),
-          child: const Icon(PhosphorIconsRegular.textB),
+          child: const PhosphorIcon(PhosphorIconsRegular.textB),
         ),
         Toggle(
           value: underline,
-          leading: const Icon(PhosphorIconsRegular.textUnderline),
+          leading: const PhosphorIcon(PhosphorIconsRegular.textUnderline),
           onChanged: (value) => setState(() => underline = value),
           child: const Text('Underline'),
         ),

@@ -5,6 +5,7 @@ import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/style.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart' hide Badge, ThemeData;
+import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -100,25 +101,60 @@ void main() {
       expect(containerFinder, findsOneWidget);
     });
 
-    testWidgets('applies custom shape correctly', (WidgetTester tester) async {
-      const customShape = RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(8)),
-      );
+    testWidgets('takes a borderRadius, and is a pill without one', (
+      WidgetTester tester,
+    ) async {
+      const corners = BorderRadius.all(Radius.circular(8));
       await tester.pumpWidget(
         createTestWidget(
-          const Badge(
-            shape: customShape,
-            child: Text('Custom Shape Badge'),
+          const Badge(borderRadius: corners, child: Text('Square')),
+        ),
+      );
+      ShapeBorder shape() =>
+          (tester.widget<Container>(find.byType(Container)).decoration!
+                  as ShapeDecoration)
+              .shape;
+      expect(shape(), isA<RoundedRectangleBorder>());
+      expect((shape() as RoundedRectangleBorder).borderRadius, corners);
+
+      await tester.pumpWidget(
+        createTestWidget(
+          const Badge(child: Text('Pill')),
+          theme: ThemeData(style: StyleTokens.nova),
+        ),
+      );
+      expect(shape(), isA<StadiumBorder>());
+    });
+
+    testWidgets('an outline badge has the corners of the others', (
+      WidgetTester tester,
+    ) async {
+      ShapeBorder shapeOf(String label) =>
+          (tester
+                      .widget<Container>(
+                        find.ancestor(
+                          of: find.text(label),
+                          matching: find.byType(Container),
+                        ),
+                      )
+                      .decoration!
+                  as ShapeDecoration)
+              .shape;
+      await tester.pumpWidget(
+        createTestWidget(
+          const Row(
+            children: [
+              Badge(child: Text('Primary')),
+              Badge.outline(child: Text('Outline')),
+            ],
           ),
         ),
       );
-
-      // Check Container uses ShapeDecoration with custom shape
-      final containerFinder = find.byType(Container);
-      expect(containerFinder, findsOneWidget);
-      final container = tester.widget<Container>(containerFinder);
-      final decoration = container.decoration as ShapeDecoration?;
-      expect(decoration?.shape, customShape);
+      final primary = shapeOf('Primary') as RoundedRectangleBorder;
+      final outline = shapeOf('Outline') as RoundedRectangleBorder;
+      expect(outline.borderRadius, primary.borderRadius);
+      expect(outline.side.style, BorderStyle.solid);
+      expect(primary.side, BorderSide.none);
     });
 
     testWidgets('applies custom background and foreground colors correctly', (
@@ -175,58 +211,50 @@ void main() {
       expect(container.padding, customPadding);
     });
 
-    testWidgets('changes background color on hover', (
-      WidgetTester tester,
-    ) async {
-      const customHoverBackgroundColor = Colors.red;
+    testWidgets('is a static pill: a pointer over it changes nothing, and it '
+        'is not something to press', (WidgetTester tester) async {
+      final handle = tester.ensureSemantics();
       await tester.pumpWidget(
-        createTestWidget(
-          const Badge(
-            hoverBackgroundColor: customHoverBackgroundColor,
-            child: Text('Hover Badge'),
-          ),
-        ),
+        createTestWidget(const Badge(child: Text('Status'))),
       );
 
-      // Initially, hover background shouldn’t apply
       final containerFinder = find.byType(Container);
-      expect(containerFinder, findsOneWidget);
-      var container = tester.widget<Container>(containerFinder);
-      var decoration = container.decoration as ShapeDecoration?;
-      expect(decoration?.color, isNot(customHoverBackgroundColor));
+      final before =
+          (tester.widget<Container>(containerFinder).decoration!
+                  as ShapeDecoration)
+              .color;
 
-      // Simulate hover
-      final pointer = TestPointer(1, PointerDeviceKind.mouse);
-      await tester.sendEventToBinding(
-        pointer.hover(tester.getCenter(find.text('Hover Badge'))),
-      );
+      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await mouse.addPointer(location: Offset.zero);
+      addTearDown(mouse.removePointer);
+      await mouse.moveTo(tester.getCenter(find.text('Status')));
       await tester.pumpAndSettle();
 
-      // Check hover background color applies
-      container = tester.widget<Container>(containerFinder);
-      decoration = container.decoration as ShapeDecoration?;
-      expect(decoration?.color, customHoverBackgroundColor);
-    });
-
-    testWidgets('executes onPressed callback on tap', (
-      WidgetTester tester,
-    ) async {
-      var pressed = false;
-      await tester.pumpWidget(
-        createTestWidget(
-          Badge(
-            child: const Text('Press Me'),
-            onPressed: () => pressed = true,
-          ),
+      final after =
+          (tester.widget<Container>(containerFinder).decoration!
+                  as ShapeDecoration)
+              .color;
+      expect(after, before);
+      // No cursor of its own, no gesture and no button role.
+      expect(
+        find.descendant(
+          of: find.byType(Badge),
+          matching: find.byType(MouseRegion),
         ),
+        findsNothing,
       );
-
-      // Tap the badge
-      await tester.tap(find.text('Press Me'));
-      await tester.pumpAndSettle();
-
-      // Verify onPressed was called
-      expect(pressed, true);
+      expect(
+        find.descendant(
+          of: find.byType(Badge),
+          matching: find.byType(GestureDetector),
+        ),
+        findsNothing,
+      );
+      final data = tester.getSemantics(find.text('Status')).getSemanticsData();
+      expect(data.label, 'Status');
+      expect(data.flagsCollection.isButton, isFalse);
+      expect(data.hasAction(SemanticsAction.tap), isFalse);
+      handle.dispose();
     });
 
     testWidgets('uses default shape when not specified', (

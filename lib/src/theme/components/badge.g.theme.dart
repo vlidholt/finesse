@@ -26,40 +26,33 @@ mixin _$BadgeTheme {
     }
 
     return BadgeTheme(
-      shape: ShapeBorder.lerp(a.shape, b.shape, t),
+      borderRadius: BorderRadius.lerp(a.borderRadius, b.borderRadius, t),
+      borderColor: Color.lerp(a.borderColor, b.borderColor, t),
       backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
-      hoverBackgroundColor: Color.lerp(
-        a.hoverBackgroundColor,
-        b.hoverBackgroundColor,
-        t,
-      ),
       foregroundColor: Color.lerp(a.foregroundColor, b.foregroundColor, t),
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
-      cursor: t < 0.5 ? a.cursor : b.cursor,
       textStyle: TextStyle.lerp(a.textStyle, b.textStyle, t),
       iconSize: lerpDouble$(a.iconSize, b.iconSize, t),
     );
   }
 
   BadgeTheme copyWith({
-    ShapeBorder? shape,
+    BorderRadius? borderRadius,
+    Color? borderColor,
     Color? backgroundColor,
-    Color? hoverBackgroundColor,
     Color? foregroundColor,
     EdgeInsetsGeometry? padding,
-    MouseCursor? cursor,
     TextStyle? textStyle,
     double? iconSize,
   }) {
     final _this = (this as BadgeTheme);
 
     return BadgeTheme(
-      shape: shape ?? _this.shape,
+      borderRadius: borderRadius ?? _this.borderRadius,
+      borderColor: borderColor ?? _this.borderColor,
       backgroundColor: backgroundColor ?? _this.backgroundColor,
-      hoverBackgroundColor: hoverBackgroundColor ?? _this.hoverBackgroundColor,
       foregroundColor: foregroundColor ?? _this.foregroundColor,
       padding: padding ?? _this.padding,
-      cursor: cursor ?? _this.cursor,
       textStyle: textStyle ?? _this.textStyle,
       iconSize: iconSize ?? _this.iconSize,
     );
@@ -77,12 +70,11 @@ mixin _$BadgeTheme {
     }
 
     return copyWith(
-      shape: other.shape,
+      borderRadius: other.borderRadius,
+      borderColor: other.borderColor,
       backgroundColor: other.backgroundColor,
-      hoverBackgroundColor: other.hoverBackgroundColor,
       foregroundColor: other.foregroundColor,
       padding: other.padding,
-      cursor: other.cursor,
       textStyle: _this.textStyle?.merge(other.textStyle) ?? other.textStyle,
       iconSize: other.iconSize,
     );
@@ -101,12 +93,11 @@ mixin _$BadgeTheme {
     final _this = (this as BadgeTheme);
     final _other = (other as BadgeTheme);
 
-    return _other.shape == _this.shape &&
+    return _other.borderRadius == _this.borderRadius &&
+        _other.borderColor == _this.borderColor &&
         _other.backgroundColor == _this.backgroundColor &&
-        _other.hoverBackgroundColor == _this.hoverBackgroundColor &&
         _other.foregroundColor == _this.foregroundColor &&
         _other.padding == _this.padding &&
-        _other.cursor == _this.cursor &&
         _other.textStyle == _this.textStyle &&
         _other.iconSize == _this.iconSize;
   }
@@ -117,12 +108,11 @@ mixin _$BadgeTheme {
 
     return Object.hash(
       runtimeType,
-      _this.shape,
+      _this.borderRadius,
+      _this.borderColor,
       _this.backgroundColor,
-      _this.hoverBackgroundColor,
       _this.foregroundColor,
       _this.padding,
-      _this.cursor,
       _this.textStyle,
       _this.iconSize,
     );

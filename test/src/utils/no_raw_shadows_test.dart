@@ -35,6 +35,7 @@ void main() {
     Switch(value: true, onChanged: (_) {}),
     const Slider(initialValue: 50, max: 100),
     Select<String>(
+      onChanged: (_) {},
       options: const [SelectOption(value: 'a', child: Text('A'))],
       selectedOptionBuilder: (context, value) => Text(value),
       placeholder: const Text('Select'),
@@ -88,9 +89,11 @@ void main() {
           AnimatedContainer(:final decoration) => decoration,
           _ => null,
         };
-        if (decoration case BoxDecoration(
-          boxShadow: final shadows?,
-        ) when shadows.isNotEmpty) {
+        if (decoration
+            case BoxDecoration(
+              boxShadow: final shadows?,
+            )
+            when shadows.isNotEmpty) {
           offenders.add('${widget.runtimeType}: $shadows');
         }
       }

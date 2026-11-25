@@ -27,7 +27,7 @@ class LayoutNamedGapsExample extends StatelessWidget {
                 FinesseRow(
                   gap: GapSize.xs,
                   children: [
-                    Icon(
+                    PhosphorIcon(
                       PhosphorIconsRegular.mapPin,
                       size: 16,
                       color: theme.colorScheme.mutedForeground,
@@ -37,7 +37,7 @@ class LayoutNamedGapsExample extends StatelessWidget {
                 ),
               ],
             ),
-            const Divider.horizontal(margin: EdgeInsets.zero),
+            const Divider(margin: EdgeInsets.zero),
             FinesseRow(
               gap: GapSize.sm,
               children: [

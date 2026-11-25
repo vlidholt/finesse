@@ -1,7 +1,17 @@
 import 'package:finesse/finesse.dart' hide Scaffold;
 import 'package:finesse/material.dart';
 import 'package:flutter/material.dart'
-    hide Checkbox, Chip, IconButton, Switch, Tab, TextField, Theme, ThemeData;
+    hide
+        Checkbox,
+        Chip,
+        IconButton,
+        Switch,
+        Tab,
+        TabBar,
+        TextField,
+        Theme,
+        ThemeData;
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// The reference gives fields, select triggers and every button variant the
@@ -77,6 +87,7 @@ void main() {
                     SizedBox(
                       width: 140,
                       child: Select<String>(
+                        onChanged: (_) {},
                         placeholder: const Text('Pick'),
                         options: const [
                           SelectOption(value: 'a', child: Text('A')),
@@ -104,7 +115,7 @@ void main() {
                       onChanged: (_) {},
                       child: const Text('Tg'),
                     ),
-                    const DatePicker(),
+                    DatePicker(value: null, onChanged: (_) {}),
                     const OtpField(
                       maxLength: 2,
                       children: [
@@ -113,11 +124,11 @@ void main() {
                         ),
                       ],
                     ),
-                    const TimePicker(),
+                    const TimeField(),
                     const Menubar(
                       items: [
                         MenubarItem(
-                          items: [ContextMenuItem(child: Text('New'))],
+                          items: [MenuItem(child: Text('New'))],
                           child: Text('File'),
                         ),
                       ],
@@ -169,10 +180,14 @@ void main() {
           expected,
           reason: 'select trigger height in $label',
         );
-        // The date picker trigger is itself a Button, so it is covered by
-        // the loop.
+        // The date picker's trigger is a field, as tall as one.
+        expect(
+          tester.getSize(find.byType(DatePicker)).height,
+          expected,
+          reason: 'date picker trigger height in $label',
+        );
         final buttons = find.byType(Button, skipOffstage: false);
-        for (var i = 0; i < 5; i++) {
+        for (var i = 0; i < 4; i++) {
           expect(
             tester.getSize(buttons.at(i)).height,
             style.buttonHeight,
@@ -197,7 +212,7 @@ void main() {
               .getSize(
                 find
                     .descendant(
-                      of: find.byType(TimePicker),
+                      of: find.byType(TimeField),
                       matching: find.byType(TextField),
                     )
                     .first,
@@ -227,7 +242,10 @@ void main() {
         }
         // A tab is `tabHeight` tall where the style pins one, and the
         // historical 32 where it does not.
-        final tabs = find.byType(Tab<String>);
+        final tabs = find.descendant(
+          of: find.byType(Tabs<String>),
+          matching: find.byType(MovingIndicatorTarget),
+        );
         for (var i = 0; i < 2; i++) {
           expect(
             tester.getSize(tabs.at(i)).height,
@@ -291,6 +309,7 @@ void main() {
                     SizedBox(
                       width: 140,
                       child: Select<String>(
+                        onChanged: (_) {},
                         placeholder: const Text('Pick'),
                         options: const [
                           SelectOption(value: 'a', child: Text('A')),
@@ -346,7 +365,7 @@ void main() {
                     const Menubar(
                       items: [
                         MenubarItem(
-                          items: [ContextMenuItem(child: Text('New'))],
+                          items: [MenuItem(child: Text('New'))],
                           child: Text('File'),
                         ),
                       ],
@@ -415,7 +434,10 @@ void main() {
               reason: 'icon button #$i in $label',
             );
           }
-          final tabs = find.byType(Tab<String>);
+          final tabs = find.descendant(
+            of: find.byType(Tabs<String>),
+            matching: find.byType(MovingIndicatorTarget),
+          );
           for (var i = 0; i < 2; i++) {
             expect(
               tester.getSize(tabs.at(i)).height,
@@ -439,6 +461,160 @@ void main() {
     }
   });
 
+  testWidgets('a fixed-height control grows with the text scale instead of '
+      'clipping its label, and by no more than the label needs', (
+    tester,
+  ) async {
+    // A style height is the height at the platform's text size. Scaled up,
+    // the label's line grows and the control used to stay put: the label
+    // was laid out in the room that was left and cut off at the bottom
+    // (a tab at 1.45x, a small button at 1.6x). The height is now a floor.
+    for (final combination in combinations()) {
+      final theme = ThemeData(
+        brightness: Brightness.light,
+        colorScheme: const NeutralColorScheme.light(),
+        style: combination.style,
+        formFactor: combination.formFactor,
+        disableSecondaryBorder: combination.disableSecondaryBorder,
+      );
+      final unscaled = <String, double>{};
+      // 1 first: it is what the others are measured against. Below 1 the
+      // text shrinks and the control does not.
+      for (final scale in const [1.0, .85, 1.3, 1.45, 2.0, 3.0]) {
+        final controls = <String, Widget>{
+          'button': Button(onPressed: () {}, child: const Text('Label')),
+          'small button': Button(
+            size: ButtonSize.sm,
+            onPressed: () {},
+            child: const Text('Label'),
+          ),
+          'large button': Button(
+            size: ButtonSize.lg,
+            onPressed: () {},
+            child: const Text('Label'),
+          ),
+          'outline button': Button.outline(
+            onPressed: () {},
+            child: const Text('Label'),
+          ),
+          'toggle': Toggle(
+            value: false,
+            onChanged: (_) {},
+            child: const Text('Label'),
+          ),
+          'outline toggle': Toggle.outline(
+            value: true,
+            onChanged: (_) {},
+            child: const Text('Label'),
+          ),
+          'chip': Chip(label: const Text('Label'), onPressed: () {}),
+          'tab strip': const Tabs<String>(
+            value: 'a',
+            tabs: [
+              Tab(value: 'a', child: Text('Label')),
+              Tab(value: 'b', child: Text('Other')),
+            ],
+          ),
+          'underline tabs': TabBar<int>(
+            tabs: const [
+              Tab(value: 0, child: Text('Label')),
+              Tab(value: 1, child: Text('Other')),
+            ],
+            value: 0,
+            expandTabs: false,
+            onChanged: (_) {},
+          ),
+          'icon button': IconButton(
+            icon: const Icon(PhosphorIconsRegular.plus),
+            onPressed: () {},
+          ),
+        };
+        await tester.pumpWidget(
+          FinesseApp(
+            theme: theme,
+            formFactor: combination.formFactor,
+            builder: (context, child) => MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                textScaler: TextScaler.linear(scale),
+              ),
+              child: child!,
+            ),
+            home: SingleChildScrollView(
+              child: FinesseColumn(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (final MapEntry(:key, :value) in controls.entries)
+                    KeyedSubtree(key: ValueKey(key), child: value),
+                ],
+              ),
+            ),
+          ),
+        );
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 500));
+
+        for (final name in controls.keys) {
+          final reason = '$name at ${scale}x in ${combination.label}';
+          final control = find.byKey(ValueKey(name));
+          final box = tester.getRect(control);
+          if (scale == 1) unscaled[name] = box.height;
+          final floor = unscaled[name]!;
+          expect(
+            box.height,
+            greaterThanOrEqualTo(floor),
+            reason: '$reason is never shorter than at 1x',
+          );
+          expect(
+            box.height,
+            lessThanOrEqualTo(floor * (scale < 1 ? 1 : scale) + .01),
+            reason: '$reason grows no faster than its text',
+          );
+
+          final text = find.descendant(
+            of: control,
+            matching: find.text('Label'),
+          );
+          if (text.evaluate().isEmpty) {
+            // Nothing in it scales, so nothing about it changes.
+            expect(box.height, floor, reason: reason);
+            continue;
+          }
+          final paragraph = tester.renderObject<RenderParagraph>(
+            find.descendant(of: text, matching: find.byType(RichText)),
+          );
+          // The line's own height at this scale: what it is given must be
+          // all of it.
+          final line = paragraph.getMaxIntrinsicHeight(double.infinity);
+          expect(
+            paragraph.size.height,
+            greaterThanOrEqualTo(line - .01),
+            reason: '$reason: the label is squeezed into less than its line',
+          );
+          final label = tester.getRect(text);
+          expect(
+            label.top >= box.top - .01 && label.bottom <= box.bottom + .01,
+            isTrue,
+            reason: '$reason: the label $label leaves the control $box',
+          );
+          // Room it already had is used before it grows: a control whose
+          // label still fits has not changed.
+          if (line <= paragraph.size.height + .01 && scale == 1.3) {
+            expect(
+              box.height,
+              lessThanOrEqualTo(floor + (line - line / scale) + .01),
+              reason: '$reason grew by more than its line did',
+            );
+          }
+        }
+        expect(
+          tester.takeException(),
+          isNull,
+          reason: '${scale}x in ${combination.label}',
+        );
+      }
+    }
+  });
+
   testWidgets('calendar geometry follows the style tokens', (tester) async {
     for (final combination in combinations()) {
       {
@@ -458,21 +634,28 @@ void main() {
             home: Scaffold(
               body: Center(
                 child: Calendar(
-                  selected: DateTime(2024, 5, 15),
+                  value: DateTime(2024, 5, 15),
                   captionLayout: CalendarCaptionLayout.dropdown,
-                  // Single-glyph captions: the test font (Ahem) renders every
-                  // glyph a full em wide, so a real month name wraps to two
-                  // lines inside the trigger and inflates its height.
-                  dropdownFormatMonth: (date) => 'M',
-                  dropdownFormatYear: (date) => 'Y',
-                  // Ditto for the day numbers: two Ahem digits are wider than
-                  // mira's 24px cell, though half that wide in a real font.
-                  // Every day state resolves its own style, so all four are
-                  // pinned.
-                  dayButtonTextStyle: const TextStyle(fontSize: 8),
-                  selectedDayButtonTextStyle: const TextStyle(fontSize: 8),
-                  insideRangeDayButtonTextStyle: const TextStyle(fontSize: 8),
-                  dayButtonOutsideMonthTextStyle: const TextStyle(fontSize: 8),
+                  calendarTheme: CalendarTheme(
+                    // Single-glyph captions: the test font (Ahem) renders
+                    // every glyph a full em wide, so a real month name wraps
+                    // to two lines inside the trigger and inflates its
+                    // height.
+                    dropdownFormatMonth: (date) => 'M',
+                    dropdownFormatYear: (date) => 'Y',
+                    // Ditto for the day numbers: two Ahem digits are wider
+                    // than mira's 24px cell, though half that wide in a real
+                    // font. Every day state resolves its own style, so all
+                    // four are pinned.
+                    dayButtonTextStyle: const TextStyle(fontSize: 8),
+                    selectedDayButtonTextStyle: const TextStyle(fontSize: 8),
+                    insideRangeDayButtonTextStyle: const TextStyle(
+                      fontSize: 8,
+                    ),
+                    dayButtonOutsideMonthTextStyle: const TextStyle(
+                      fontSize: 8,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -503,6 +686,87 @@ void main() {
           style.calendarCaptionHeight,
           reason: 'caption dropdown trigger height in $label',
         );
+      }
+    }
+  });
+
+  testWidgets('calendar cells follow the text scale, and keep their size at '
+      '1x', (tester) async {
+    // Room for six weeks of 80-point cells.
+    tester.view.physicalSize = const Size(1200, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    // Two Ahem digits at 12 are 24 wide: inside the smallest style's
+    // 28-point cell at 1x, so whether they still fit when scaled is down to
+    // the cell alone.
+    const day = TextStyle(fontSize: 12);
+    for (final combination in combinations()) {
+      final style = combination.metrics;
+      final theme = ThemeData(
+        brightness: Brightness.light,
+        colorScheme: const NeutralColorScheme.light(),
+        style: combination.style,
+        formFactor: combination.formFactor,
+        disableSecondaryBorder: combination.disableSecondaryBorder,
+      );
+      for (final scale in const [1.0, .85, 1.3, 2.0]) {
+        await tester.pumpWidget(
+          FinesseApp(
+            theme: theme,
+            formFactor: combination.formFactor,
+            builder: (context, child) => MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                textScaler: TextScaler.linear(scale),
+              ),
+              child: child!,
+            ),
+            home: Center(
+              child: Calendar(
+                value: DateTime(2024, 5, 15),
+                calendarTheme: const CalendarTheme(
+                  dayButtonTextStyle: day,
+                  selectedDayButtonTextStyle: day,
+                  insideRangeDayButtonTextStyle: day,
+                  dayButtonOutsideMonthTextStyle: day,
+                ),
+              ),
+            ),
+          ),
+        );
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 250));
+
+        final reason = '${scale}x in ${combination.label}';
+        final cell = find.widgetWithText(Button, '28').first;
+        // Exactly the style's cell at 1x and below; in proportion above.
+        final side = style.calendarCellSize * (scale < 1 ? 1 : scale);
+        expect(
+          tester.getSize(cell),
+          Size.square(side),
+          reason: 'day cell at $reason',
+        );
+        final paragraph = tester.renderObject<RenderParagraph>(
+          find.descendant(of: cell, matching: find.byType(RichText)),
+        );
+        // On one line, inside its cell.
+        expect(
+          paragraph.size.height,
+          lessThanOrEqualTo(
+            paragraph.getMinIntrinsicHeight(double.infinity) + .01,
+          ),
+          reason: 'a two-digit day wraps at $reason',
+        );
+        final cellRect = tester.getRect(cell);
+        final textRect = tester.getRect(
+          find.descendant(of: cell, matching: find.byType(RichText)),
+        );
+        expect(
+          textRect.left >= cellRect.left - .01 &&
+              textRect.right <= cellRect.right + .01,
+          isTrue,
+          reason: 'a two-digit day leaves its cell at $reason',
+        );
+        expect(tester.takeException(), isNull, reason: reason);
       }
     }
   });

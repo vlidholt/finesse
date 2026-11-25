@@ -226,4 +226,21 @@ abstract class TextDefaultTheme {
       leadingDistribution: TextLeadingDistribution.even,
     );
   }
+
+  /// Fine print: 12px with a 16px line height.
+  static TextStyle caption({
+    String? family,
+  }) {
+    return TextStyle(
+      fontSize: 12,
+      decoration: TextDecoration.none,
+      fontStyle: FontStyle.normal,
+      fontWeight: FontWeight.w400,
+      height: 16 / 12,
+      letterSpacing: 0,
+      fontFamily: family,
+      textBaseline: TextBaseline.alphabetic,
+      leadingDistribution: TextLeadingDistribution.even,
+    );
+  }
 }

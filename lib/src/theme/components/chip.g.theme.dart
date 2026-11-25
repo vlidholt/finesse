@@ -30,7 +30,7 @@ mixin _$ChipTheme {
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
       gap: lerpDouble$(a.gap, b.gap, t),
       iconSize: lerpDouble$(a.iconSize, b.iconSize, t),
-      radius: BorderRadius.lerp(a.radius, b.radius, t),
+      borderRadius: BorderRadius.lerp(a.borderRadius, b.borderRadius, t),
       borderWidth: lerpDouble$(a.borderWidth, b.borderWidth, t),
       textStyle: TextStyle.lerp(a.textStyle, b.textStyle, t),
       backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
@@ -56,6 +56,10 @@ mixin _$ChipTheme {
         b.selectedBorderColor,
         t,
       ),
+      showCheckmark: t < 0.5 ? a.showCheckmark : b.showCheckmark,
+      groupSpacing: lerpDouble$(a.groupSpacing, b.groupSpacing, t),
+      groupRunSpacing: lerpDouble$(a.groupRunSpacing, b.groupRunSpacing, t),
+      groupFade: lerpDouble$(a.groupFade, b.groupFade, t),
     );
   }
 
@@ -64,7 +68,7 @@ mixin _$ChipTheme {
     EdgeInsetsGeometry? padding,
     double? gap,
     double? iconSize,
-    BorderRadius? radius,
+    BorderRadius? borderRadius,
     double? borderWidth,
     TextStyle? textStyle,
     Color? backgroundColor,
@@ -74,6 +78,10 @@ mixin _$ChipTheme {
     Color? selectedBackgroundColor,
     Color? selectedForegroundColor,
     Color? selectedBorderColor,
+    bool? showCheckmark,
+    double? groupSpacing,
+    double? groupRunSpacing,
+    double? groupFade,
   }) {
     final _this = (this as ChipTheme);
 
@@ -82,7 +90,7 @@ mixin _$ChipTheme {
       padding: padding ?? _this.padding,
       gap: gap ?? _this.gap,
       iconSize: iconSize ?? _this.iconSize,
-      radius: radius ?? _this.radius,
+      borderRadius: borderRadius ?? _this.borderRadius,
       borderWidth: borderWidth ?? _this.borderWidth,
       textStyle: textStyle ?? _this.textStyle,
       backgroundColor: backgroundColor ?? _this.backgroundColor,
@@ -94,6 +102,10 @@ mixin _$ChipTheme {
       selectedForegroundColor:
           selectedForegroundColor ?? _this.selectedForegroundColor,
       selectedBorderColor: selectedBorderColor ?? _this.selectedBorderColor,
+      showCheckmark: showCheckmark ?? _this.showCheckmark,
+      groupSpacing: groupSpacing ?? _this.groupSpacing,
+      groupRunSpacing: groupRunSpacing ?? _this.groupRunSpacing,
+      groupFade: groupFade ?? _this.groupFade,
     );
   }
 
@@ -113,7 +125,7 @@ mixin _$ChipTheme {
       padding: other.padding,
       gap: other.gap,
       iconSize: other.iconSize,
-      radius: other.radius,
+      borderRadius: other.borderRadius,
       borderWidth: other.borderWidth,
       textStyle: _this.textStyle?.merge(other.textStyle) ?? other.textStyle,
       backgroundColor: other.backgroundColor,
@@ -123,6 +135,10 @@ mixin _$ChipTheme {
       selectedBackgroundColor: other.selectedBackgroundColor,
       selectedForegroundColor: other.selectedForegroundColor,
       selectedBorderColor: other.selectedBorderColor,
+      showCheckmark: other.showCheckmark,
+      groupSpacing: other.groupSpacing,
+      groupRunSpacing: other.groupRunSpacing,
+      groupFade: other.groupFade,
     );
   }
 
@@ -143,7 +159,7 @@ mixin _$ChipTheme {
         _other.padding == _this.padding &&
         _other.gap == _this.gap &&
         _other.iconSize == _this.iconSize &&
-        _other.radius == _this.radius &&
+        _other.borderRadius == _this.borderRadius &&
         _other.borderWidth == _this.borderWidth &&
         _other.textStyle == _this.textStyle &&
         _other.backgroundColor == _this.backgroundColor &&
@@ -152,7 +168,11 @@ mixin _$ChipTheme {
         _other.borderColor == _this.borderColor &&
         _other.selectedBackgroundColor == _this.selectedBackgroundColor &&
         _other.selectedForegroundColor == _this.selectedForegroundColor &&
-        _other.selectedBorderColor == _this.selectedBorderColor;
+        _other.selectedBorderColor == _this.selectedBorderColor &&
+        _other.showCheckmark == _this.showCheckmark &&
+        _other.groupSpacing == _this.groupSpacing &&
+        _other.groupRunSpacing == _this.groupRunSpacing &&
+        _other.groupFade == _this.groupFade;
   }
 
   @override
@@ -165,7 +185,7 @@ mixin _$ChipTheme {
       _this.padding,
       _this.gap,
       _this.iconSize,
-      _this.radius,
+      _this.borderRadius,
       _this.borderWidth,
       _this.textStyle,
       _this.backgroundColor,
@@ -175,6 +195,10 @@ mixin _$ChipTheme {
       _this.selectedBackgroundColor,
       _this.selectedForegroundColor,
       _this.selectedBorderColor,
+      _this.showCheckmark,
+      _this.groupSpacing,
+      _this.groupRunSpacing,
+      _this.groupFade,
     );
   }
 }

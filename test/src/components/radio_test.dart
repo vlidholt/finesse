@@ -1,8 +1,8 @@
 import 'package:finesse/material.dart';
 import 'package:finesse/src/app.dart';
+import 'package:finesse/src/components/decorator.dart';
 import 'package:finesse/src/components/disabled.dart';
 import 'package:finesse/src/components/radio.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/utils/pop_in.dart';
 import 'package:flutter/material.dart' hide Radio;
 import 'package:flutter_test/flutter_test.dart';
@@ -25,6 +25,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const FinesseRadioGroup<String>(
+            onChanged: _ignore,
             items: [
               Radio(value: 'option1', label: Text('Option 1')),
               Radio(value: 'option2', label: Text('Option 2')),
@@ -69,6 +70,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const FinesseRadioGroup<String>(
+            onChanged: _ignore,
             initialValue: 'option1',
             items: [
               Radio(value: 'option1', label: Text('Option 1')),
@@ -203,6 +205,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const FinesseRadioGroup<String>(
+            onChanged: _ignore,
             items: [
               Radio(
                 value: 'option1',
@@ -256,6 +259,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const FinesseRadioGroup<String>(
+            onChanged: _ignore,
             initialValue: 'option1',
             items: [
               Radio(
@@ -287,6 +291,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const FinesseRadioGroup<String>(
+            onChanged: _ignore,
             spacing: customSpacing,
             items: [
               Radio(value: 'option1', label: Text('Option 1')),
@@ -308,6 +313,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           FinesseRadioGroup<String>(
+            onChanged: _ignore,
             items: [
               Radio(
                 value: 'option1',
@@ -333,26 +339,29 @@ void main() {
       expect(decorator.focused, true);
     });
 
-    testWidgets('renders with label and sublabel', (WidgetTester tester) async {
+    testWidgets('renders with label and description', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         createTestWidget(
           const FinesseRadioGroup<String>(
+            onChanged: _ignore,
             items: [
               Radio(
                 value: 'option1',
                 label: Text('Option 1'),
-                sublabel: Text('Sublabel'),
+                description: Text('Sublabel'),
               ),
             ],
           ),
         ),
       );
 
-      // Check label and sublabel are rendered
+      // Check label and description are rendered
       expect(find.text('Option 1'), findsOneWidget);
       expect(find.text('Sublabel'), findsOneWidget);
 
-      // Check layout includes radio, label, and sublabel
+      // Check layout includes radio, label, and description
       final rowFinder = find.byType(Row);
       expect(rowFinder, findsOneWidget);
       final columnFinder = find.descendant(
@@ -366,6 +375,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const FinesseRadioGroup<String>(
+            onChanged: _ignore,
             key: ValueKey('initial'),
             initialValue: 'option1',
             items: [
@@ -389,6 +399,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const FinesseRadioGroup<String>(
+            onChanged: _ignore,
             key: ValueKey('updated'),
             initialValue: 'option2',
             items: [
@@ -412,12 +423,13 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           FinesseRadioGroup<bool>(
+            onChanged: _ignore,
             items: List.generate(
               3,
               (index) => Radio<bool>(
                 value: index.isEven,
                 label: Text('Label $index'),
-                sublabel: Text('Sublabel $index'),
+                description: Text('Sublabel $index'),
               ),
             ),
           ),
@@ -431,3 +443,6 @@ void main() {
     });
   });
 }
+
+/// A callback for a group that is enabled but whose choices nobody reads.
+void _ignore(Object? _) {}

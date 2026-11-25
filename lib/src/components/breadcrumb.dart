@@ -2,6 +2,7 @@ import 'package:finesse/src/components/button.dart';
 import 'package:finesse/src/components/popover.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/raw_components/portal.dart';
+import 'package:finesse/src/theme/components/button.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/extensions/text_style.dart';
@@ -22,7 +23,6 @@ class Breadcrumb extends StatelessWidget {
     this.separator,
     this.mainAxisAlignment,
     this.crossAxisAlignment,
-    this.textDirection,
     this.verticalDirection,
     this.spacing,
     this.textStyle,
@@ -45,11 +45,6 @@ class Breadcrumb extends StatelessWidget {
   /// How the children should be placed along the wraps cross axis.
   /// {@endtemplate}
   final WrapCrossAlignment? crossAxisAlignment;
-
-  /// {@template Breadcrumb.textDirection}
-  /// The text direction to use for the breadcrumb.
-  /// {@endtemplate}
-  final TextDirection? textDirection;
 
   /// {@template Breadcrumb.verticalDirection}
   /// The vertical direction to use for the breadcrumb.
@@ -110,7 +105,6 @@ class Breadcrumb extends StatelessWidget {
       alignment: effectiveMainAxisAlignment,
       crossAxisAlignment: effectiveCrossAxisAlignment,
       runSpacing: effectiveSpacing,
-      textDirection: textDirection,
       verticalDirection: verticalDirection ?? VerticalDirection.down,
       children: List.generate(
         children.length,
@@ -155,7 +149,7 @@ class BreadcrumbLink extends StatefulWidget {
     this.normalColor,
     this.hoverColor,
     this.textStyle,
-    this.onHoverChange,
+    this.onHover,
   });
 
   /// The widget to display as the link content.
@@ -183,7 +177,7 @@ class BreadcrumbLink extends StatefulWidget {
   final TextStyle? textStyle;
 
   /// Called when the hover state changes.
-  final void Function(bool)? onHoverChange;
+  final void Function(bool)? onHover;
 
   @override
   State<BreadcrumbLink> createState() => _BreadcrumbLinkState();
@@ -217,16 +211,18 @@ class _BreadcrumbLinkState extends State<BreadcrumbLink> {
             .copyWith(fontWeight: FontWeight.normal)
             .fallback(color: theme.colorScheme.mutedForeground);
 
-    return Button.raw(
+    return Button(
       variant: ButtonVariant.link,
-      onHoverChange:
-          widget.onHoverChange ??
+      // Zero dimensions: the button is as large as its child.
+      style: const ButtonTheme(
+        pressScale: 1,
+        padding: EdgeInsets.zero,
+        height: 0,
+        width: 0,
+      ),
+      onHover:
+          widget.onHover ??
           (isHovered) => setState(() => this.isHovered = isHovered),
-      padding: EdgeInsets.zero,
-      // Use zero dimensions; Button's minWidth/minHeight constraints
-      // allow the button to size to its child content
-      height: 0,
-      width: 0,
       onPressed: widget.onPressed,
       child: DefaultTextStyle(
         style: effectiveTextStyle.copyWith(
@@ -274,7 +270,7 @@ class BreadcrumbSeparator extends StatelessWidget {
         theme.breadcrumbTheme.separatorColor ??
         theme.colorScheme.mutedForeground;
 
-    return Icon(
+    return PhosphorIcon(
       PhosphorIconsRegular.caretRight,
       size: effectiveSeparatorSize,
       color: effectiveColor,
@@ -309,7 +305,7 @@ class BreadcrumbEllipsis extends StatelessWidget {
     if (custom != null) return custom;
     final effectiveSize = size ?? theme.breadcrumbTheme.ellipsisSize ?? 16.0;
 
-    return Icon(
+    return PhosphorIcon(
       PhosphorIconsRegular.dotsThree,
       size: effectiveSize,
       color: theme.colorScheme.mutedForeground,
@@ -465,7 +461,7 @@ class _BreadcrumbDropdownState extends State<BreadcrumbDropdown> {
       ),
       controller: controller,
       padding: effectiveDropdownMenuPadding,
-      popover: (context) => IntrinsicWidth(
+      builder: (context) => IntrinsicWidth(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -474,8 +470,7 @@ class _BreadcrumbDropdownState extends State<BreadcrumbDropdown> {
       ),
       child: BreadcrumbLink(
         normalColor: effectiveTextColor,
-        onHoverChange: (isHovered) =>
-            setState(() => this.isHovered = isHovered),
+        onHover: (isHovered) => setState(() => this.isHovered = isHovered),
         onPressed: controller.toggle,
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -486,7 +481,7 @@ class _BreadcrumbDropdownState extends State<BreadcrumbDropdown> {
               AnimatedRotation(
                 turns: controller.isOpen ? 0.5 : 0.0,
                 duration: const Duration(milliseconds: 200),
-                child: Icon(
+                child: PhosphorIcon(
                   PhosphorIconsRegular.caretDown,
                   size: theme.breadcrumbTheme.separatorSize ?? 14,
                   color: effectiveTextColor,
@@ -547,12 +542,15 @@ class BreadcrumbDropMenuItem extends StatelessWidget {
         theme.breadcrumbTheme.dropdownItemPadding ??
         const EdgeInsets.symmetric(horizontal: 12, vertical: 10);
 
-    return Button.raw(
+    return Button(
       variant: ButtonVariant.ghost,
-      height: 0,
-      width: 0,
-      padding: effectiveItemPadding,
-      mainAxisAlignment: MainAxisAlignment.start,
+      style: ButtonTheme(
+        pressScale: 1,
+        height: 0,
+        width: 0,
+        padding: effectiveItemPadding,
+        mainAxisAlignment: MainAxisAlignment.start,
+      ),
       onPressed: onPressed,
       child: DefaultTextStyle(
         style: effectiveTextStyle,

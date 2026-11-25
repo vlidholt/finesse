@@ -1,7 +1,8 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:finesse/src/utils/position.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
 part 'dialog.g.theme.dart';
@@ -15,19 +16,17 @@ class DialogTheme with _$DialogTheme {
   /// {@macro DialogTheme}
   const DialogTheme({
     bool canMerge = true,
-    this.closeIconData,
+    this.showCloseButton,
+    this.closeIcon,
     this.closeIconPosition,
-    this.radius,
+    this.borderRadius,
     this.backgroundColor,
-    this.expandActionsWhenTiny,
     this.padding,
     this.gap,
-    this.animateIn,
-    this.animateOut,
     this.constraints,
     this.border,
     this.shadows,
-    this.removeBorderRadiusWhenTiny,
+    this.filter,
     this.actionsAxis,
     this.actionsMainAxisSize,
     this.actionsMainAxisAlignment,
@@ -56,87 +55,108 @@ class DialogTheme with _$DialogTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro Dialog.closeIconData}
-  final IconData? closeIconData;
+  /// {@macro Dialog.showCloseButton}
+  final bool? showCloseButton;
 
-  /// {@macro Dialog.closeIconPosition}
+  /// {@macro Dialog.closeIcon}
+  ///
+  /// A theme is compared on every rebuild, so a widget given here has to be
+  /// a constant.
+  final Widget? closeIcon;
+
+  /// The position of the close icon within the dialog.
+  /// Defaults to top-end (8, 8) if not specified.
   final Position? closeIconPosition;
 
-  /// {@macro Dialog.radius}
-  final BorderRadius? radius;
+  /// The border radius of the dialog’s corners.
+  /// Defaults to the theme’s radius if not specified.
+  final BorderRadius? borderRadius;
 
-  /// {@macro Dialog.backgroundColor}
+  /// The background color of the dialog.
+  /// Defaults to the theme’s background color if not specified.
   final Color? backgroundColor;
 
-  /// {@macro Dialog.expandActionsWhenTiny}
-  final bool? expandActionsWhenTiny;
-
-  /// {@macro Dialog.padding}
+  /// The padding inside the dialog, surrounding all content.
+  /// Defaults to EdgeInsets.all(24) if not specified.
   final EdgeInsetsGeometry? padding;
 
-  /// {@macro Dialog.gap}
+  /// The gap between content elements (title, description, child, actions).
+  /// Defaults to 8 if not specified.
   final double? gap;
 
-  /// The effects played when the dialog appears. Null, the default, is a
-  /// fade and zoom in on the theme's motion tokens.
-  final List<Effect<dynamic>>? animateIn;
-
-  /// The effects played when the dialog disappears. Null, the default, is
-  /// a quicker fade and zoom out on the theme's motion tokens.
-  final List<Effect<dynamic>>? animateOut;
-
-  /// {@macro Dialog.constraints}
+  /// Constraints applied to the dialog’s layout.
+  /// Defaults to a max width of 512 if not specified.
   final BoxConstraints? constraints;
 
-  /// {@macro Dialog.actionsAxis}
+  /// The axis along which actions are arranged (horizontal or vertical).
+  /// Follows the theme's form factor if not specified.
   final Axis? actionsAxis;
 
-  /// {@macro Dialog.actionsMainAxisSize}
+  /// The main axis size of the actions layout.
+  /// Defaults to [MainAxisSize.max] if not specified.
   final MainAxisSize? actionsMainAxisSize;
 
-  /// {@macro Dialog.actionsMainAxisAlignment}
+  /// The main axis alignment of the actions.
+  /// Defaults to [MainAxisAlignment.end] if not specified.
   final MainAxisAlignment? actionsMainAxisAlignment;
 
-  /// {@macro Dialog.actionsVerticalDirection}
+  /// The vertical direction of the actions layout when vertical.
+  /// Follows the theme's form factor if not specified.
   final VerticalDirection? actionsVerticalDirection;
 
-  /// {@macro Dialog.border}
+  /// The border surrounding the dialog.
+  /// Defaults to a border with the theme’s border color if not specified.
   final BoxBorder? border;
 
-  /// {@macro Dialog.shadows}
+  /// The list of box shadows applied to the dialog for elevation.
+  /// Defaults to large shadows if not specified.
   final List<BoxShadow>? shadows;
 
-  /// {@macro Dialog.removeBorderRadiusWhenTiny}
-  final bool? removeBorderRadiusWhenTiny;
+  /// A filter applied to what is behind the dialog, for a translucent
+  /// [backgroundColor]: the blur of a glass surface. Null, the default,
+  /// applies none.
+  final ImageFilter? filter;
 
-  /// {@macro Dialog.titleStyle}
+  /// The text style for the title.
+  /// Defaults to the theme’s large text style if not specified.
   final TextStyle? titleStyle;
 
-  /// {@macro Dialog.descriptionStyle}
+  /// The text style for the description.
+  /// Defaults to the theme’s muted text style if not specified.
   final TextStyle? descriptionStyle;
 
-  /// {@macro Dialog.titleTextAlign}
+  /// The text alignment for the title.
+  /// Follows the theme's form factor if not specified.
   final TextAlign? titleTextAlign;
 
-  /// {@macro Dialog.descriptionTextAlign}
+  /// The text alignment for the description.
+  /// Follows the theme's form factor if not specified.
   final TextAlign? descriptionTextAlign;
 
-  /// {@macro Dialog.alignment}
+  /// The alignment of the dialog within its parent container.
+  /// Defaults to [Alignment.center] if not specified.
   final Alignment? alignment;
 
-  /// {@macro Dialog.mainAxisAlignment}
+  /// The main axis alignment of the dialog’s column content.
+  /// Defaults to [MainAxisAlignment.start] if not specified.
   final MainAxisAlignment? mainAxisAlignment;
 
-  /// {@macro Dialog.crossAxisAlignment}
+  /// The cross axis alignment of the dialog’s column content.
+  /// Defaults to [CrossAxisAlignment.start] if not specified.
   final CrossAxisAlignment? crossAxisAlignment;
 
   /// {@macro Dialog.scrollable}
   final bool? scrollable;
 
-  /// {@macro Dialog.scrollPadding}
+  /// The padding applied when the dialog content is scrollable.
+  ///
+  /// If not specified, no additional padding is applied to the scrollable
+  /// content.
   final EdgeInsetsGeometry? scrollPadding;
 
-  /// {@macro Dialog.actionsGap}
+  /// The gap between action buttons.
+
+  /// Defaults to 8 if not specified.
   final double? actionsGap;
 
   /// {@macro Dialog.useSafeArea}
@@ -172,22 +192,13 @@ class DialogTheme with _$DialogTheme {
   @override
   bool operator ==(Object other) =>
       other is DialogTheme &&
-      listEquals(animateIn, other.animateIn) &&
-      listEquals(animateOut, other.animateOut) &&
       listEquals(shadows, other.shadows) &&
-      super ==
-          other.copyWith(
-            animateIn: animateIn,
-            animateOut: animateOut,
-            shadows: shadows,
-          );
+      super == other.copyWith(shadows: shadows);
 
   // Equal themes must hash alike, and the lists may differ in identity.
   @override
   int get hashCode => Object.hash(
     runtimeType,
-    Object.hashAll(animateIn ?? const []),
-    Object.hashAll(animateOut ?? const []),
     Object.hashAll(shadows ?? const []),
   );
 }

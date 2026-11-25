@@ -208,11 +208,18 @@ enum _ProxyPhase {
   landing,
 }
 
+/// A listenable that is told when to notify.
+class _Signal extends ChangeNotifier {
+  void fire() => notifyListeners();
+}
+
 /// The lifted copy of an item: the card that follows the pointer, and after
 /// release flies to its slot and lands.
 ///
-/// It lives in an overlay entry and is moved with a transform; nothing
-/// rebuilds while it moves but the transform itself.
+/// It is painted in the overlay by a [_RenderProxy], which listens to it:
+/// a notification moves a layer, or repaints the shadow and the glow, and
+/// builds nothing. Only [chrome] — what the copy does with the pointer —
+/// rebuilds anything.
 class _Proxy<T extends Object> extends ChangeNotifier {
   _Proxy({
     required this.id,
@@ -245,12 +252,27 @@ class _Proxy<T extends Object> extends ChangeNotifier {
   double opacity = 1;
   _ProxyPhase phase = _ProxyPhase.held;
 
+  /// Notifies when [interactive] or [forbidden] changes.
+  final _Signal chrome = _Signal();
+
   /// Whether the pointer is dragging it, so it shows the grabbing cursor
   /// and takes the scroll wheel.
-  bool interactive = false;
+  bool get interactive => _interactive;
+  bool _interactive = false;
+  set interactive(bool value) {
+    if (value == _interactive) return;
+    _interactive = value;
+    chrome.fire();
+  }
 
   /// Whether the column under it refuses the item.
-  bool forbidden = false;
+  bool get forbidden => _forbidden;
+  bool _forbidden = false;
+  set forbidden(bool value) {
+    if (value == _forbidden) return;
+    _forbidden = value;
+    chrome.fire();
+  }
 
   /// Whether it has arrived on its slot; from then on it stays on it.
   bool settled = false;
@@ -268,12 +290,6 @@ class _Proxy<T extends Object> extends ChangeNotifier {
   int holdFrames = 0;
   Offset? predicted;
 
-  OverlayEntry? entry;
-  CapturedThemes? themes;
-  TextDirection textDirection = TextDirection.ltr;
-  MediaQueryData? mediaQuery;
-  Widget? child;
-
   Offset get position => Offset(x.value, y.value);
 
   void moveTo(Offset to) {
@@ -282,9 +298,54 @@ class _Proxy<T extends Object> extends ChangeNotifier {
   }
 
   void changed() => notifyListeners();
+
+  @override
+  void dispose() {
+    chrome.dispose();
+    super.dispose();
+  }
 }
 
-/// Paints a [_Proxy] in the overlay.
+/// Every lifted copy of a board, in the overlay.
+///
+/// It is the overlay child of the board's `OverlayPortal`, so it is painted
+/// right above the page the board is on — under anything opened over that
+/// page — and inherits what the board inherits.
+class _ProxyLayer<T extends Object> extends StatelessWidget {
+  const _ProxyLayer({required this.board});
+
+  final _BoardState<T> board;
+
+  @override
+  Widget build(BuildContext context) {
+    // A copy is a picture: it takes no focus, no selection and no part in
+    // the semantics tree, whatever the item builder puts in it.
+    return SelectionContainer.disabled(
+      child: ExcludeFocus(
+        child: ExcludeSemantics(
+          child: ListenableBuilder(
+            listenable: board._proxyLayer,
+            builder: (context, _) => Stack(
+              children: [
+                for (final proxy in board._proxies.values)
+                  _ProxyView<T>(
+                    key: ObjectKey(proxy),
+                    proxy: proxy,
+                    board: board,
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// One [_Proxy] in the overlay.
+///
+/// The tree has one shape for as long as the copy lives — held, flying,
+/// landing or fading — so the item inside it keeps its state.
 class _ProxyView<T extends Object> extends StatelessWidget {
   const _ProxyView({required this.proxy, required this.board, super.key});
 
@@ -294,110 +355,330 @@ class _ProxyView<T extends Object> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final style = board._style;
-    final size = proxy.size;
-    Widget card = SizedBox.fromSize(
-      size: size,
-      child: IgnorePointer(child: ExcludeSemantics(child: proxy.child)),
-    );
-    card = proxy.themes?.wrap(card) ?? card;
-    card = MediaQuery(
-      data: proxy.mediaQuery ?? MediaQuery.of(context),
-      child: Directionality(textDirection: proxy.textDirection, child: card),
-    );
-
+    final proxy = this.proxy;
     return Positioned(
       left: 0,
       top: 0,
-      child: ListenableBuilder(
-        listenable: proxy,
-        child: RepaintBoundary(child: card),
-        builder: (context, child) {
-          final overlay = context.findAncestorRenderObjectOfType<RenderBox>();
-          final origin = overlay != null && overlay.attached
-              ? overlay.globalToLocal(proxy.position)
-              : proxy.position;
-          final lift = proxy.lift.value;
-          final scale = 1 + (style.dragScale - 1) * lift;
-          final transform = Matrix4.identity()
-            ..translateByDouble(
-              origin.dx + size.width / 2,
-              origin.dy + size.height / 2,
-              0,
-              1,
-            )
-            ..rotateZ(proxy.tilt.value)
-            ..scaleByDouble(scale, scale, 1, 1)
-            ..translateByDouble(-size.width / 2, -size.height / 2, 0, 1);
-
-          // The glow comes up quickly and fades slowly; `highlight` runs
-          // from 1 down to 0.
-          final progress = 1 - proxy.highlight;
-          final glow = proxy.highlight <= 0
-              ? 0.0
-              : progress < .12
-              ? progress / .12
-              : Curves.easeOut.transform(proxy.highlight / .88);
-          Widget content = Stack(
-            clipBehavior: Clip.none,
-            children: [
-              // The shadow of a lifted card, faded in with the lift. It is a
-              // box of its own because the card paints its own decoration.
-              Positioned.fill(
-                child: Opacity(
-                  opacity: lift.clamp(0, 1).toDouble(),
-                  child: DecoratedBox(
-                    decoration: ShadowDecoration.box(
-                      borderRadius: style.itemRadius,
-                      shadows: style.dragShadows,
-                    ),
-                  ),
-                ),
-              ),
-              child!,
-              if (glow > 0)
-                Positioned.fill(
-                  child: IgnorePointer(
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        borderRadius: style.itemRadius,
-                        color: style.highlightColor.withValues(
-                          alpha: style.highlightColor.a * .1 * glow,
-                        ),
-                        border: Border.all(
-                          color: style.highlightColor.withValues(
-                            alpha: style.highlightColor.a * .7 * glow,
-                          ),
-                          width: 1.5,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          );
-          if (proxy.opacity < 1) {
-            content = Opacity(opacity: proxy.opacity, child: content);
-          }
-          if (proxy.interactive) {
+      child: _ProxyTransform(
+        proxy: proxy,
+        dragScale: style.dragScale,
+        radius: style.itemRadius,
+        shadows: style.dragShadows,
+        highlightColor: style.highlightColor,
+        child: SizedBox.fromSize(
+          size: proxy.size,
+          child: ListenableBuilder(
+            listenable: proxy.chrome,
             // Opaque while it is held, so nothing under the card hovers,
             // and so the wheel can be handed to the column beneath.
-            content = MouseRegion(
-              cursor: proxy.forbidden
-                  ? SystemMouseCursors.forbidden
-                  : SystemMouseCursors.grabbing,
-              child: Listener(
-                behavior: HitTestBehavior.opaque,
-                onPointerSignal: board._handleDragPointerSignal,
-                child: content,
+            builder: (context, child) => IgnorePointer(
+              ignoring: !proxy.interactive,
+              child: MouseRegion(
+                cursor: proxy.forbidden
+                    ? SystemMouseCursors.forbidden
+                    : SystemMouseCursors.grabbing,
+                child: Listener(
+                  behavior: HitTestBehavior.opaque,
+                  onPointerSignal: board._handleDragPointerSignal,
+                  child: child,
+                ),
               ),
-            );
-          } else {
-            content = IgnorePointer(child: content);
-          }
-          return Transform(transform: transform, child: content);
-        },
+            ),
+            child: RepaintBoundary(
+              child: IgnorePointer(
+                child: Theme(
+                  data: style.itemTheme,
+                  child: Builder(
+                    builder: (context) => board.widget.itemBuilder(
+                      context,
+                      proxy.item,
+                      proxy.details,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
+  }
+}
+
+class _ProxyTransform extends SingleChildRenderObjectWidget {
+  const _ProxyTransform({
+    required this.proxy,
+    required this.dragScale,
+    required this.radius,
+    required this.shadows,
+    required this.highlightColor,
+    required super.child,
+  });
+
+  final _Proxy<Object> proxy;
+  final double dragScale;
+  final BorderRadius radius;
+  final List<BoxShadow> shadows;
+  final Color highlightColor;
+
+  @override
+  _RenderProxy createRenderObject(BuildContext context) => _RenderProxy(
+    proxy: proxy,
+    dragScale: dragScale,
+    radius: radius,
+    shadows: shadows,
+    highlightColor: highlightColor,
+  );
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderProxy renderObject) {
+    renderObject
+      ..proxy = proxy
+      ..dragScale = dragScale
+      ..radius = radius
+      ..shadows = shadows
+      ..highlightColor = highlightColor;
+  }
+}
+
+/// Places, scales and tilts a lifted copy, and paints what the lift adds to
+/// it: the shadow under it and the glow of a landing.
+///
+/// The copy moves every frame, so moving it must cost next to nothing. This
+/// is a repaint boundary whose layer *is* the transform: a new position only
+/// updates that layer, and neither this object nor the card inside it is
+/// painted again. It repaints only while the shadow, the glow or the opacity
+/// is changing — the first moments of a lift and the landing.
+class _RenderProxy extends RenderProxyBox {
+  _RenderProxy({
+    required _Proxy<Object> proxy,
+    required double dragScale,
+    required BorderRadius radius,
+    required List<BoxShadow> shadows,
+    required Color highlightColor,
+  }) : _proxy = proxy,
+       _dragScale = dragScale,
+       _radius = radius,
+       _shadows = shadows,
+       _highlightColor = highlightColor;
+
+  _Proxy<Object> get proxy => _proxy;
+  _Proxy<Object> _proxy;
+  set proxy(_Proxy<Object> value) {
+    if (identical(value, _proxy)) return;
+    if (attached) _proxy.removeListener(_changed);
+    _proxy = value;
+    if (attached) {
+      _proxy.addListener(_changed);
+      markNeedsPaint();
+    }
+  }
+
+  double get dragScale => _dragScale;
+  double _dragScale;
+  set dragScale(double value) {
+    if (value == _dragScale) return;
+    _dragScale = value;
+    markNeedsCompositedLayerUpdate();
+  }
+
+  BorderRadius get radius => _radius;
+  BorderRadius _radius;
+  set radius(BorderRadius value) {
+    if (value == _radius) return;
+    _radius = value;
+    _resetShadowPainter();
+    markNeedsPaint();
+  }
+
+  List<BoxShadow> get shadows => _shadows;
+  List<BoxShadow> _shadows;
+  set shadows(List<BoxShadow> value) {
+    if (listEquals(value, _shadows)) return;
+    _shadows = value;
+    _resetShadowPainter();
+    markNeedsPaint();
+  }
+
+  Color get highlightColor => _highlightColor;
+  Color _highlightColor;
+  set highlightColor(Color value) {
+    if (value == _highlightColor) return;
+    _highlightColor = value;
+    markNeedsPaint();
+  }
+
+  BoxPainter? _shadowPainter;
+  final LayerHandle<OpacityLayer> _fade = LayerHandle<OpacityLayer>();
+
+  // What the last paint drew, to tell a move from a change of looks.
+  double _paintedShadow = -1;
+  double _paintedGlow = -1;
+  double _paintedOpacity = -1;
+
+  void _resetShadowPainter() {
+    _shadowPainter?.dispose();
+    _shadowPainter = null;
+  }
+
+  /// The shadow of a lifted card, which comes and goes with the lift.
+  double get _shadowOpacity => _proxy.lift.value.clamp(0.0, 1.0);
+
+  /// The glow comes up quickly and fades slowly; `highlight` runs from 1
+  /// down to 0.
+  double get _glow {
+    final highlight = _proxy.highlight;
+    if (highlight <= 0) return 0;
+    final progress = 1 - highlight;
+    return progress < .12
+        ? progress / .12
+        : Curves.easeOut.transform(highlight / .88);
+  }
+
+  void _changed() {
+    if (_shadowOpacity != _paintedShadow ||
+        _glow != _paintedGlow ||
+        _proxy.opacity != _paintedOpacity) {
+      markNeedsPaint();
+    } else {
+      markNeedsCompositedLayerUpdate();
+    }
+  }
+
+  @override
+  void attach(PipelineOwner owner) {
+    super.attach(owner);
+    _proxy.addListener(_changed);
+  }
+
+  @override
+  void detach() {
+    _proxy.removeListener(_changed);
+    super.detach();
+  }
+
+  @override
+  void dispose() {
+    _resetShadowPainter();
+    _fade.layer = null;
+    super.dispose();
+  }
+
+  @override
+  bool get isRepaintBoundary => true;
+
+  /// The copy's top left corner is a global position; the overlay it is
+  /// painted in need not start at the window's.
+  Matrix4 _transform() {
+    final position = _proxy.position;
+    final origin = attached ? globalToLocal(position) : position;
+    final half = hasSize ? size.center(Offset.zero) : Offset.zero;
+    final scale = 1 + (_dragScale - 1) * _proxy.lift.value;
+    return Matrix4.identity()
+      ..translateByDouble(origin.dx + half.dx, origin.dy + half.dy, 0, 1)
+      ..rotateZ(_proxy.tilt.value)
+      ..scaleByDouble(scale, scale, 1, 1)
+      ..translateByDouble(-half.dx, -half.dy, 0, 1);
+  }
+
+  @override
+  OffsetLayer updateCompositedLayer({
+    required covariant TransformLayer? oldLayer,
+  }) {
+    return (oldLayer ?? TransformLayer())..transform = _transform();
+  }
+
+  @override
+  void applyPaintTransform(RenderBox child, Matrix4 transform) {
+    transform.multiply(_transform());
+  }
+
+  @override
+  bool hitTest(BoxHitTestResult result, {required Offset position}) {
+    // As with any transform, this box's own bounds are not where the card
+    // is.
+    return hitTestChildren(result, position: position);
+  }
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
+    return result.addWithPaintTransform(
+      transform: _transform(),
+      position: position,
+      hitTest: (result, position) =>
+          super.hitTestChildren(result, position: position),
+    );
+  }
+
+  void _paintShadow(Canvas canvas, Offset offset, double opacity) {
+    if (_shadows.isEmpty) return;
+    final painter = _shadowPainter ??= ShadowDecoration.box(
+      borderRadius: _radius,
+      shadows: _shadows,
+    ).createBoxPainter(markNeedsPaint);
+    final fading = opacity < 1;
+    if (fading) {
+      var reach = 0.0;
+      for (final shadow in _shadows) {
+        reach = math.max(
+          reach,
+          shadow.offset.distance +
+              math.max(0, shadow.spreadRadius) +
+              shadow.blurSigma * 3 +
+              1,
+        );
+      }
+      canvas.saveLayer(
+        (offset & size).inflate(reach),
+        Paint()..color = Color.fromRGBO(0, 0, 0, opacity),
+      );
+    }
+    painter.paint(canvas, offset, ImageConfiguration(size: size));
+    if (fading) canvas.restore();
+  }
+
+  void _paintGlow(Canvas canvas, Offset offset, double glow) {
+    final rect = offset & size;
+    final color = _highlightColor;
+    canvas.drawRRect(
+      _radius.toRRect(rect),
+      Paint()..color = color.withValues(alpha: color.a * .1 * glow),
+    );
+    Border.all(
+      color: color.withValues(alpha: color.a * .7 * glow),
+      width: 1.5,
+    ).paint(canvas, rect, borderRadius: _radius);
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    final shadow = _paintedShadow = _shadowOpacity;
+    final glow = _paintedGlow = _glow;
+    final opacity = _paintedOpacity = _proxy.opacity;
+    if (opacity <= 0) {
+      _fade.layer = null;
+      return;
+    }
+
+    void contents(PaintingContext context, Offset offset) {
+      // The shadow is painted here, not by the card: the card paints its
+      // own decoration, at rest.
+      if (shadow > 0) _paintShadow(context.canvas, offset, shadow);
+      super.paint(context, offset);
+      if (glow > 0) _paintGlow(context.canvas, offset, glow);
+    }
+
+    if (opacity < 1) {
+      _fade.layer = context.pushOpacity(
+        offset,
+        (opacity * 255).round(),
+        contents,
+        oldLayer: _fade.layer,
+      );
+    } else {
+      _fade.layer = null;
+      contents(context, offset);
+    }
   }
 }
 

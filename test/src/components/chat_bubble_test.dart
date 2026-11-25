@@ -1,4 +1,5 @@
 import 'package:finesse/finesse.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -614,15 +615,188 @@ void main() {
     });
   });
 
-  group('TypingIndicator', () {
-    Iterable<BoxDecoration> dots(WidgetTester tester) => tester
-        .widgetList<Container>(
-          find.descendant(
-            of: find.byType(TypingIndicator),
-            matching: find.byType(Container),
+  group('ChatBubble size', () {
+    late StateSetter rebuild;
+    var text = 'Short';
+    var typing = false;
+    var animate = true;
+
+    setUp(() {
+      text = 'Short';
+      typing = false;
+      animate = true;
+    });
+
+    Widget host(ChatBubbleDirection direction) => Align(
+      alignment: Alignment.topCenter,
+      child: SizedBox(
+        width: 300,
+        child: StatefulBuilder(
+          builder: (context, setState) {
+            rebuild = setState;
+            return ChatBubble(
+              direction: direction,
+              animateSize: animate,
+              child: typing ? const TypingIndicator() : Text(text),
+            );
+          },
+        ),
+      ),
+    );
+
+    Rect box(WidgetTester tester) => tester.getRect(
+      find
+          .descendant(
+            of: find.byType(ChatBubble),
+            matching: find.byType(DecoratedBox),
+          )
+          .first,
+    );
+
+    const long =
+        'A message long enough to wrap over two or three lines of the '
+        'bubble it is in.';
+
+    testWidgets('follows its content on a spring, tail corner in place', (
+      tester,
+    ) async {
+      for (final direction in ChatBubbleDirection.values) {
+        text = 'Short';
+        await pumpFinesse(tester, host(direction));
+        final before = box(tester);
+        rebuild(() => text = long);
+        await tester.pump();
+        // Nothing has jumped in the frame the message changed.
+        expect(box(tester), before);
+
+        var last = before;
+        var frames = 0;
+        while (tester.binding.hasScheduledFrame) {
+          await tester.pump(const Duration(milliseconds: 16));
+          final rect = box(tester);
+          expect(rect.width, greaterThanOrEqualTo(last.width - 1e-6));
+          expect(rect.height, greaterThanOrEqualTo(last.height - 1e-6));
+          // The bubble stays against its side, and under its top edge.
+          expect(rect.top, before.top);
+          if (direction == ChatBubbleDirection.outgoing) {
+            expect(rect.right, closeTo(before.right, 1e-6));
+          } else {
+            expect(rect.left, before.left);
+          }
+          last = rect;
+          expect(++frames, lessThan(120));
+        }
+        expect(frames, greaterThan(6), reason: direction.name);
+        expect(last.height, greaterThan(before.height * 2));
+        // Exactly the size it would have been built at.
+        expect(last.size, tester.getSize(find.byType(SpringSize)));
+      }
+    });
+
+    testWidgets('a typing indicator gives way to the reply without a jump', (
+      tester,
+    ) async {
+      typing = true;
+      await pumpFinesse(tester, host(ChatBubbleDirection.incoming));
+      final dots = box(tester);
+      rebuild(() {
+        typing = false;
+        text = long;
+      });
+      await tester.pump();
+      expect(box(tester), dots);
+      var largest = 0.0;
+      var last = dots;
+      for (var i = 0; i < 60; i++) {
+        await tester.pump(const Duration(milliseconds: 16));
+        final rect = box(tester);
+        final step = (rect.height - last.height).abs();
+        if (step > largest) largest = step;
+        last = rect;
+      }
+      expect(last.height, greaterThan(dots.height));
+      expect(largest, lessThan((last.height - dots.height) / 3));
+    });
+
+    testWidgets('animateSize: false and reduced motion change at once', (
+      tester,
+    ) async {
+      animate = false;
+      await pumpFinesse(tester, host(ChatBubbleDirection.incoming));
+      final before = box(tester);
+      rebuild(() => text = long);
+      await tester.pump();
+      expect(box(tester).height, greaterThan(before.height * 2));
+
+      animate = true;
+      text = 'Short';
+      await pumpFinesse(
+        tester,
+        MediaQuery(
+          data: const MediaQueryData(disableAnimations: true),
+          child: host(ChatBubbleDirection.incoming),
+        ),
+      );
+      rebuild(() => text = long);
+      await tester.pump();
+      expect(box(tester).height, greaterThan(before.height * 2));
+    });
+
+    testWidgets('a resized window is followed rigidly', (tester) async {
+      text = long;
+      var width = 300.0;
+      await pumpFinesse(
+        tester,
+        Align(
+          alignment: Alignment.topCenter,
+          child: StatefulBuilder(
+            builder: (context, setState) {
+              rebuild = setState;
+              return SizedBox(
+                width: width,
+                child: const ChatBubble(child: Text(long)),
+              );
+            },
           ),
-        )
-        .map((c) => c.decoration! as BoxDecoration);
+        ),
+      );
+      final wide = box(tester);
+      rebuild(() => width = 180);
+      await tester.pump();
+      expect(box(tester).height, greaterThan(wide.height));
+      expect(tester.binding.hasScheduledFrame, isFalse);
+    });
+
+    test('sizeSpring is left to the motion unless a theme sets it', () {
+      expect(ThemeData().chatBubbleTheme.sizeSpring, isNull);
+      const spring = MotionSpring(duration: Duration(milliseconds: 500));
+      expect(
+        ThemeData(
+          chatBubbleTheme: const ChatBubbleTheme(sizeSpring: spring),
+        ).chatBubbleTheme.sizeSpring,
+        spring,
+      );
+    });
+  });
+
+  group('TypingIndicator', () {
+    // The dots are painted, not built: a frame of them rebuilds nothing.
+    // Their colours, as painted now.
+    List<Color> dots(WidgetTester tester) {
+      final paint = tester.renderObject(
+        find.descendant(
+          of: find.byType(TypingIndicator),
+          matching: find.byType(CustomPaint),
+        ),
+      );
+      final canvas = TestRecordingCanvas();
+      paint.paint(TestRecordingPaintingContext(canvas), Offset.zero);
+      return [
+        for (final call in canvas.invocations)
+          if (call.invocation.memberName == #drawCircle)
+            (call.invocation.positionalArguments[2] as Paint).color,
+      ];
+    }
 
     testWidgets('is three round dots in the muted foreground', (tester) async {
       await pumpFinesse(tester, const Center(child: TypingIndicator()));
@@ -630,10 +804,10 @@ void main() {
 
       expect(dots(tester), hasLength(3));
       for (final dot in dots(tester)) {
-        expect(dot.shape, BoxShape.circle);
+        // A `Paint` keeps its colour in 32-bit floats.
         expect(
-          dot.color!.withValues(alpha: 1),
-          theme.colorScheme.mutedForeground.withValues(alpha: 1),
+          dot.withValues(alpha: 1),
+          isSameColorAs(theme.colorScheme.mutedForeground.withValues(alpha: 1)),
         );
       }
       // Three 6px dots with 3.6px between them.
@@ -651,8 +825,9 @@ void main() {
       final size = tester.getSize(find.byType(TypingIndicator));
       expect(size.height, 10);
       expect(size.width, closeTo(10 * 3 + 6 * 2, 1e-6));
+      expect(dots(tester), hasLength(3));
       for (final dot in dots(tester)) {
-        expect(dot.color!.withValues(alpha: 1), colour);
+        expect(dot.withValues(alpha: 1), isSameColorAs(colour));
       }
     });
 
@@ -666,7 +841,7 @@ void main() {
       final frames = <List<double>>[];
       for (var i = 0; i < 12; i++) {
         await tester.pump(const Duration(milliseconds: 100));
-        frames.add([for (final dot in dots(tester)) dot.color!.a]);
+        frames.add([for (final dot in dots(tester)) dot.a]);
       }
       final muted = themeOf(
         tester,
@@ -696,6 +871,39 @@ void main() {
       expect(tester.getSize(find.byType(TypingIndicator)).height, 6);
     });
 
+    testWidgets('a frame of it builds nothing and paints only the dots', (
+      tester,
+    ) async {
+      // It runs for as long as somebody is typing; a bubble that was
+      // rebuilt and painted again on each of those frames would be the
+      // most expensive thing on an idle screen.
+      await pumpFinesse(
+        tester,
+        const Center(
+          child: ChatBubble(child: TypingIndicator()),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 100));
+
+      var builds = 0;
+      final painted = <String>[];
+      debugOnRebuildDirtyWidget = (element, builtOnce) => builds++;
+      debugOnProfilePaint = (object) {
+        if (object.isRepaintBoundary && !object.debugNeedsPaint) return;
+        painted.add('${object.runtimeType}');
+      };
+      addTearDown(() {
+        debugOnRebuildDirtyWidget = null;
+        debugOnProfilePaint = null;
+      });
+      await tester.pump(const Duration(milliseconds: 100));
+      debugOnRebuildDirtyWidget = null;
+      debugOnProfilePaint = null;
+
+      expect(builds, 0);
+      expect(painted, ['RenderCustomPaint']);
+    });
+
     testWidgets('keeps a frame scheduled while it animates', (tester) async {
       await pumpFinesse(tester, const Center(child: TypingIndicator()));
       await tester.pump(const Duration(milliseconds: 100));
@@ -710,10 +918,10 @@ void main() {
           child: Center(child: TypingIndicator()),
         ),
       );
-      final before = [for (final dot in dots(tester)) dot.color!.a];
+      final before = [for (final dot in dots(tester)) dot.a];
       await tester.pump(const Duration(milliseconds: 300));
       await tester.pump(const Duration(milliseconds: 300));
-      expect([for (final dot in dots(tester)) dot.color!.a], before);
+      expect([for (final dot in dots(tester)) dot.a], before);
       // Nothing left ticking.
       expect(tester.binding.hasScheduledFrame, isFalse);
       expect(dots(tester), hasLength(3));
@@ -726,9 +934,9 @@ void main() {
       );
       await pumpFinesse(tester, build(disabled: true));
       await pumpFinesse(tester, build(disabled: false));
-      final before = [for (final dot in dots(tester)) dot.color!.a];
+      final before = [for (final dot in dots(tester)) dot.a];
       await tester.pump(const Duration(milliseconds: 200));
-      expect([for (final dot in dots(tester)) dot.color!.a], isNot(before));
+      expect([for (final dot in dots(tester)) dot.a], isNot(before));
     });
 
     testWidgets('is announced as typing', (tester) async {

@@ -12,7 +12,6 @@ import 'package:example/strand/screens/search_screen.dart';
 import 'package:example/strand/strand_shell.dart';
 import 'package:example/strand/widgets/person_avatar.dart';
 import 'package:example/strand/session.dart';
-import 'package:example/strand/widgets/search_field.dart';
 import 'package:example/strand/widgets/strand_logo.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
@@ -61,7 +60,8 @@ void main() {
       expect(find.text('strand'), findsOneWidget);
       expect(inAppBar(find.byType(SearchField)), findsOneWidget);
       expect(find.text('Search people, posts, jobs'), findsOneWidget);
-      expect(find.text('⌘K'), findsOneWidget);
+      // The key cap names the platform's chord: Ctrl K off Apple's.
+      expect(find.text(SearchField.shortcutLabel), findsOneWidget);
       for (final label in [
         'Home',
         'Network',
@@ -72,7 +72,8 @@ void main() {
         expect(inTopBar(find.text(label)), findsOneWidget, reason: label);
       }
       expect(inTopBar(find.text('Me')), findsNothing);
-      expect(inTopBar(find.text('3')), findsOneWidget);
+      // Two conversations have something unread; twelve notifications do.
+      expect(inTopBar(find.text('2')), findsOneWidget);
       expect(inTopBar(find.text('12')), findsOneWidget);
       // Home is selected: its filled icon, the others regular.
       expect(inTopBar(find.byIcon(PhosphorIconsFill.house)), findsOneWidget);
@@ -146,9 +147,9 @@ void main() {
         tester,
         find.widgetWithText(Button, 'Mark all as read'),
       );
-      // No count, no badge; the messages' "3" is untouched.
+      // No count, no badge; the messages' "2" is untouched.
       expect(inTopBar(find.text('11')), findsNothing);
-      expect(inTopBar(find.text('3')), findsOneWidget);
+      expect(inTopBar(find.text('2')), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
 
@@ -247,7 +248,7 @@ void main() {
       );
       // …and can navigate the shell beneath it.
       route.goTo(StrandDestination.jobs);
-      await tapAndSettle(tester, find.byIcon(PhosphorIconsRegular.arrowLeft));
+      await tapAndSettle(tester, find.byType(BackButton));
       expect(find.byType(SearchScreen), findsNothing);
       expect(find.byType(JobsScreen), findsOneWidget);
       expect(tester.takeException(), isNull);
@@ -256,7 +257,9 @@ void main() {
     testWidgets('docking the editor beside a medium window lays Strand out '
         'for the space it is left with', (tester) async {
       await pumpApp(tester, size: const Size(900, 800));
-      expect(find.byType(NavigationBar), findsOneWidget);
+      // A desktop, but narrower than the top bar's destinations want.
+      expect(find.byType(NavigationRail), findsOneWidget);
+      expect(find.byType(NavigationBar), findsNothing);
 
       await openThemeEditor(tester);
       // 900 - 272 is below the phone breakpoint.
@@ -268,16 +271,138 @@ void main() {
 
     testWidgets('the app bar gives way without overflowing at every width '
         'down to the phone breakpoint', (tester) async {
-      for (final width in [1280.0, 1100.0, 960.0, 840.0, 768.0]) {
+      for (final width in [1280.0, 1100.0, 1024.0, 960.0, 840.0, 768.0]) {
         await pumpApp(tester, size: Size(width, 800));
-        expect(find.byType(NavigationBar), findsOneWidget, reason: '$width');
+        // The destinations are in the top bar while it has room for them,
+        // and in a rail down the start edge below that.
+        final inTopBar = width >= StrandShell.topBarFrom;
+        expect(
+          find.byType(NavigationBar),
+          inTopBar ? findsOneWidget : findsNothing,
+          reason: '$width',
+        );
+        expect(
+          find.byType(NavigationRail),
+          inTopBar ? findsNothing : findsOneWidget,
+          reason: '$width',
+        );
         expect(tester.takeException(), isNull, reason: 'at $width');
       }
     });
 
+    testWidgets('the rail lists the five destinations and the compose '
+        'action, switches screens, and is wide enough for its labels', (
+      tester,
+    ) async {
+      await pumpApp(tester, size: const Size(900, 1100));
+      Finder inRail(Finder finder) =>
+          find.descendant(of: find.byType(NavigationRail), matching: finder);
+
+      for (final label in [
+        'Home',
+        'Network',
+        'Jobs',
+        'Messages',
+        'Notifications',
+      ]) {
+        expect(inRail(find.text(label)), findsOneWidget, reason: label);
+      }
+      // A step wider than the package's rail, so "Notifications" fits.
+      expect(
+        tester.getSize(find.byType(NavigationRail)).width,
+        greaterThan(ThemeData().navigationRailTheme.width!),
+      );
+      expect(inRail(find.text('Me')), findsNothing);
+      // The unread counts ride along.
+      expect(inRail(find.text('2')), findsOneWidget);
+      expect(inRail(find.text('12')), findsOneWidget);
+      // With the rail, the bar has room for the search field itself.
+      expect(inAppBar(find.byType(SearchField)), findsOneWidget);
+
+      await tapAndSettle(tester, inRail(find.text('Jobs')));
+      expect(destination(tester), StrandDestination.jobs);
+      expect(find.byType(JobsScreen), findsOneWidget);
+
+      // The round button at the top of the rail composes a post.
+      await tapAndSettle(
+        tester,
+        inRail(find.byIcon(PhosphorIconsRegular.plus)),
+      );
+      expect(find.text('Create post'), findsWidgets);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('a screen keeps its state when the window is resized between '
+        'the top bar and the rail', (tester) async {
+      await pumpApp(tester, size: const Size(1280, 900));
+      final home = tester.element(find.byType(HomeScreen));
+      tester.view.physicalSize = const Size(900, 900);
+      await settle(tester);
+      expect(find.byType(NavigationRail), findsOneWidget);
+      expect(tester.element(find.byType(HomeScreen)), same(home));
+      tester.view.physicalSize = const Size(1280, 900);
+      await settle(tester);
+      expect(find.byType(NavigationBar), findsOneWidget);
+      expect(tester.element(find.byType(HomeScreen)), same(home));
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('choosing the destination that is showing scrolls it back '
+        'to the top', (tester) async {
+      await pumpApp(tester);
+      final position = tester
+          .state<ScrollableState>(
+            find
+                .descendant(
+                  of: find.byType(HomeScreen),
+                  matching: find.byType(Scrollable),
+                )
+                .first,
+          )
+          .position;
+      position.jumpTo(600);
+      await settle(tester, frames: 2);
+      expect(position.pixels, 600);
+
+      await tapAndSettle(tester, inTopBar(find.text('Home')));
+      await settle(tester);
+      expect(position.pixels, 0);
+      expect(destination(tester), StrandDestination.home);
+
+      // On a phone, from the bottom bar.
+      await pumpApp(tester, size: mobileSize);
+      final phone = tester
+          .state<ScrollableState>(
+            find
+                .descendant(
+                  of: find.byType(HomeScreen),
+                  matching: find.byType(Scrollable),
+                )
+                .first,
+          )
+          .position;
+      phone.jumpTo(400);
+      await settle(tester, frames: 2);
+      await tapAndSettle(
+        tester,
+        inBottomBar(find.byIcon(PhosphorIconsFill.house)),
+      );
+      await settle(tester);
+      expect(phone.pixels, 0);
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('search is reachable at every width: the field, then a '
         'magnifier in the bar', (tester) async {
-      for (final width in [1280.0, 1100.0, 960.0, 900.0, 840.0, 768.0]) {
+      for (final width in [
+        1280.0,
+        1100.0,
+        1024.0,
+        960.0,
+        900.0,
+        840.0,
+        768.0,
+      ]) {
         await pumpApp(tester, size: Size(width, 800));
         // Either the field itself or the magnifier that opens the page, and
         // never both.
@@ -296,8 +421,9 @@ void main() {
         expect(tester.takeException(), isNull, reason: 'at $width');
       }
 
-      // In the narrow range the magnifier opens the search page.
-      await pumpApp(tester, size: const Size(800, 800));
+      // Where the top bar is at its narrowest the field is a magnifier,
+      // which opens the search page.
+      await pumpApp(tester, size: const Size(1024, 800));
       await tapAndSettle(
         tester,
         inAppBar(
@@ -322,7 +448,7 @@ void main() {
       expect(find.byType(BottomNavigationBar), findsOneWidget);
       expect(find.byType(NavigationBar), findsNothing);
 
-      // The app bar: logo, then search, notifications (12), messages (3).
+      // The app bar: logo, then search, notifications (12), messages (2).
       expect(inAppBar(find.byType(StrandLogo)), findsOneWidget);
       expect(find.byType(SearchField), findsNothing);
       expect(
@@ -335,7 +461,7 @@ void main() {
         findsOneWidget,
       );
       expect(inAppBar(find.text('12')), findsOneWidget);
-      expect(inAppBar(find.text('3')), findsOneWidget);
+      expect(inAppBar(find.text('2')), findsOneWidget);
       expect(
         tester.getSize(
           find.ancestor(
@@ -427,7 +553,7 @@ void main() {
       expect(find.byType(SearchField), findsOneWidget);
       expect(find.byType(BottomNavigationBar), findsNothing);
 
-      await tapAndSettle(tester, find.byIcon(PhosphorIconsRegular.arrowLeft));
+      await tapAndSettle(tester, find.byType(BackButton));
       expect(find.byType(SearchScreen), findsNothing);
       expect(find.byType(BottomNavigationBar), findsOneWidget);
       expect(tester.takeException(), isNull);

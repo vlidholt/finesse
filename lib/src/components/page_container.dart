@@ -84,7 +84,14 @@ class PageContainer extends StatelessWidget {
       ),
     );
     if (!scrollable) return content;
-    return SingleChildScrollView(controller: controller, child: content);
+    return SingleChildScrollView(
+      controller: controller,
+      // A layer of its own: a single-child scroll view paints its child at
+      // the scroll offset, so without one every frame of a scroll paints the
+      // whole page again — every card, every paragraph, on screen or not —
+      // where with one it moves a layer that is already painted.
+      child: RepaintBoundary(child: content),
+    );
   }
 }
 

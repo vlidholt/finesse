@@ -2,6 +2,7 @@ import 'package:example/strand/navigation.dart';
 import 'package:example/strand/widgets/home_pieces.dart';
 import 'package:example/strand/widgets/settings_controller.dart';
 import 'package:example/strand/widgets/settings_links.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -20,43 +21,44 @@ class NotificationsManageCard extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
 
+    // Merged into one semantic node: the label and the sentence name the
+    // switch. Labelling the switch itself would leave the visible label to
+    // be read a second time.
     Widget toggle({
       required String label,
       required String detail,
       required bool value,
       required ValueChanged<bool> onChanged,
-    }) => Row(
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.small.copyWith(
-                  fontSize: 14,
-                  height: 18 / 14,
-                  color: scheme.foreground,
+    }) => MergeSemantics(
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.p.copyWith(
+                    fontWeight: FontWeight.w500,
+                    color: scheme.foreground,
+                  ),
                 ),
-              ),
-              Text(
-                detail,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: homeFinePrint(theme),
-              ),
-            ],
+                Text(
+                  detail,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.caption,
+                ),
+              ],
+            ),
           ),
-        ),
-        const Gap.md(),
-        Semantics(
-          label: label,
-          child: Switch(value: value, onChanged: onChanged),
-        ),
-      ],
+          const Gap.md(),
+          Switch(value: value, onChanged: onChanged),
+        ],
+      ),
     );
 
     return ListenableBuilder(
@@ -101,10 +103,12 @@ class NotificationsManageCard extends StatelessWidget {
             ),
             const Gap.lg(),
             Button.secondary(
-              width: double.infinity,
-              gap: homeTightGap,
-              textStyle: theme.textTheme.small,
-              trailing: const Icon(PhosphorIconsRegular.caretRight, size: 14),
+              style: ButtonTheme(
+                width: double.infinity,
+                gap: theme.gap(GapSize.xs),
+                textStyle: theme.textTheme.small,
+              ),
+              trailing: const PhosphorIcon(PhosphorIconsRegular.caretRight),
               onPressed: () =>
                   openSettings(context, SettingsSection.notifications),
               child: const Flexible(
@@ -152,8 +156,12 @@ class NotificationsWeekCard extends StatelessWidget {
           for (final (icon, value, label, change) in _stats)
             Row(
               children: [
-                IconTile(icon: Icon(icon), size: 36, iconSize: 18),
-                const Gap.raw(homeSnugGap),
+                IconTile(
+                  icon: PhosphorIcon(icon),
+                  size: theme.avatarSm,
+                  iconSize: theme.avatarSm / 2,
+                ),
+                const Gap.sm(),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -171,22 +179,20 @@ class NotificationsWeekCard extends StatelessWidget {
                         label,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: homeFinePrint(theme),
+                        style: theme.textTheme.caption,
                       ),
                     ],
                   ),
                 ),
-                Icon(
+                PhosphorIcon(
                   PhosphorIconsRegular.trendUp,
-                  size: 14,
+                  size: theme.iconBeside(theme.textTheme.caption),
                   color: scheme.tint,
                 ),
                 const Gap.xs(),
                 Text(
                   change,
-                  style: theme.textTheme.small.copyWith(
-                    fontSize: 12,
-                    height: 16 / 12,
+                  style: theme.textTheme.caption.copyWith(
                     fontWeight: FontWeight.w600,
                     color: scheme.tint,
                   ),

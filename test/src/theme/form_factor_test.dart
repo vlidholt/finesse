@@ -104,8 +104,8 @@ void main() {
         );
       }
       // Cards round a step further on a phone: 2xl (18) against 3xl (20).
-      expect(desktop.cardTheme.radius!.topLeft.x, closeTo(18, 1e-9));
-      expect(mobile.cardTheme.radius!.topLeft.x, closeTo(20, 1e-9));
+      expect(desktop.cardTheme.borderRadius!.topLeft.x, closeTo(18, 1e-9));
+      expect(mobile.cardTheme.borderRadius!.topLeft.x, closeTo(20, 1e-9));
       expect(desktop.cardTheme.padding, const EdgeInsets.all(20));
       expect(mobile.cardTheme.padding, const EdgeInsets.all(16));
       expect(desktop.tabsTheme.tabHeight, 32);
@@ -558,8 +558,6 @@ void main() {
         expect(theme.buttonSizesTheme.regular!.height, 44);
       }
       // Settled exactly on the mobile theme, not somewhere between the two.
-      // (The whole theme is not compared: below the sonner, `Theme.of`
-      // carries the sonner's own toast themes.)
       expectSameMetrics(seen.last, ThemeData(formFactor: FormFactor.mobile));
 
       // And nothing moves afterwards: two form factors are two layouts, not
@@ -608,7 +606,8 @@ void main() {
       expect(heights, {36, 44});
     });
 
-    testWidgets('a change of scheme alone still animates', (tester) async {
+    testWidgets('a change of scheme alone is applied at once, under a '
+        'cross-fade', (tester) async {
       tester.view.devicePixelRatio = 1;
       tester.view.physicalSize = const Size(1280, 800);
       addTearDown(tester.view.reset);
@@ -632,16 +631,20 @@ void main() {
       expect(seen.colorScheme.background, light.colorScheme.background);
 
       await tester.pumpWidget(app(ThemeMode.dark));
-      await tester.pump(const Duration(milliseconds: 100));
-      // Halfway through the 200ms transition the page is between the two.
-      final mid = seen.colorScheme.background;
-      expect(mid, isNot(light.colorScheme.background));
-      expect(mid, isNot(dark.colorScheme.background));
+      // The app is never built with a theme between the two: the old look
+      // fades out over the new one as a picture (`CrossFadeTheme`).
+      expect(seen.colorScheme.background, dark.colorScheme.background);
       expect(seen.formFactor, FormFactor.desktop);
       expect(seen.buttonSizesTheme.regular!.height, 36);
+      expect(tester.binding.hasScheduledFrame, isTrue, reason: 'the fade');
 
+      // The fade is timed from the frame after the rebuild.
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(seen.colorScheme.background, dark.colorScheme.background);
       await tester.pump(const Duration(milliseconds: 150));
       expect(seen.colorScheme.background, dark.colorScheme.background);
+      expect(tester.binding.hasScheduledFrame, isFalse);
     });
 
     testWidgets('a form factor and a scheme changing together snap together', (

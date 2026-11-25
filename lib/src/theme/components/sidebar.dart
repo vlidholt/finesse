@@ -36,7 +36,7 @@ class SidebarTheme with _$SidebarTheme {
     this.menuButtonHeightLg,
     this.menuButtonPadding,
     this.menuButtonGap,
-    this.menuButtonRadius,
+    this.menuButtonBorderRadius,
     this.menuButtonTextStyle,
     this.menuButtonTextStyleSm,
     this.iconSize,
@@ -49,10 +49,10 @@ class SidebarTheme with _$SidebarTheme {
     this.duration,
     this.curve,
     this.floatingMargin,
-    this.floatingRadius,
+    this.floatingBorderRadius,
     this.floatingShadows,
     this.insetMargin,
-    this.insetRadius,
+    this.insetBorderRadius,
     this.insetShadows,
   }) : _canMerge = canMerge;
 
@@ -134,7 +134,7 @@ class SidebarTheme with _$SidebarTheme {
   final double? menuButtonGap;
 
   /// Corner radius of menu buttons and group labels, shadcn's `rounded-md`.
-  final BorderRadius? menuButtonRadius;
+  final BorderRadius? menuButtonBorderRadius;
 
   /// Text style of a menu button, shadcn's `text-sm`.
   final TextStyle? menuButtonTextStyle;
@@ -173,7 +173,7 @@ class SidebarTheme with _$SidebarTheme {
   final EdgeInsetsGeometry? floatingMargin;
 
   /// Corner radius of a floating sidebar, shadcn's `rounded-lg`.
-  final BorderRadius? floatingRadius;
+  final BorderRadius? floatingBorderRadius;
 
   /// Shadows of a floating sidebar, shadcn's `shadow-sm`.
   final List<BoxShadow>? floatingShadows;
@@ -183,7 +183,7 @@ class SidebarTheme with _$SidebarTheme {
 
   /// Corner radius of the content next to an inset sidebar, shadcn's
   /// `rounded-xl`.
-  final BorderRadius? insetRadius;
+  final BorderRadius? insetBorderRadius;
 
   /// Shadows of the content next to an inset sidebar, shadcn's `shadow-sm`.
   final List<BoxShadow>? insetShadows;

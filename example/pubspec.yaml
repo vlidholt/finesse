@@ -6,8 +6,8 @@ publish_to: "none"
 version: 1.0.0+1
 
 environment:
-  sdk: ">=3.11.0 <4.0.0"
-  flutter: ">=3.41.0"
+  sdk: ">=3.14.0 <4.0.0"
+  flutter: ">=3.50.0"
 
 dependencies:
   flutter:
@@ -35,73 +35,108 @@ flutter:
     # Each docs example directory is bundled so the doc pages can show the
     # exact source file that renders the preview.
     - lib/docs/examples/accordion/
+    - lib/docs/examples/action_sheet/
     - lib/docs/examples/alert/
     - lib/docs/examples/avatar/
     - lib/docs/examples/badge/
     - lib/docs/examples/breadcrumb/
     - lib/docs/examples/button/
+    - lib/docs/examples/button_group/
     - lib/docs/examples/calendar/
     - lib/docs/examples/card/
+    - lib/docs/examples/carousel/
     - lib/docs/examples/checkbox/
     - lib/docs/examples/collapsible/
+    - lib/docs/examples/color_picker/
     - lib/docs/examples/command/
     - lib/docs/examples/context_menu/
     - lib/docs/examples/data_table/
+    - lib/docs/examples/date_field/
     - lib/docs/examples/date_picker/
     - lib/docs/examples/dialog/
     - lib/docs/examples/empty/
+    - lib/docs/examples/expansion_tile/
+    - lib/docs/examples/floating_action_button/
     - lib/docs/examples/form/
+    - lib/docs/examples/hover_card/
     - lib/docs/examples/icon_button/
     - lib/docs/examples/text_field/
     - lib/docs/examples/otp_field/
     - lib/docs/examples/kbd/
     - lib/docs/examples/surface/
+    - lib/docs/examples/swipe_actions/
     - lib/docs/examples/scroll_area/
+    - lib/docs/examples/segmented_control/
+    - lib/docs/examples/search_field/
+    - lib/docs/examples/search_view/
     - lib/docs/examples/dropdown_menu/
     - lib/docs/examples/keyboard_toolbar/
+    - lib/docs/examples/list_detail_layout/
     - lib/docs/examples/layout/
+    - lib/docs/examples/list_section/
     - lib/docs/examples/menubar/
     - lib/docs/examples/pagination/
     - lib/docs/examples/popover/
     - lib/docs/examples/portal/
     - lib/docs/examples/progress_bar/
+    - lib/docs/examples/progress_ring/
     - lib/docs/examples/radio_group/
+    - lib/docs/examples/refresh_indicator/
+    - lib/docs/examples/reorderable_list_view/
+    - lib/docs/examples/rating/
     - lib/docs/examples/resizable/
     - lib/docs/examples/select/
+    - lib/docs/examples/selection_area/
     - lib/docs/examples/divider/
     - lib/docs/examples/sheet/
     - lib/docs/examples/sidebar/
     - lib/docs/examples/skeleton/
     - lib/docs/examples/slider/
-    - lib/docs/examples/sonner/
+    - lib/docs/examples/sliver_app_bar/
     - lib/docs/examples/spinner/
+    - lib/docs/examples/stepper/
     - lib/docs/examples/switch/
     - lib/docs/examples/table/
     - lib/docs/examples/tabs/
+    - lib/docs/examples/tag_field/
     - lib/docs/examples/textarea/
+    - lib/docs/examples/time_field/
     - lib/docs/examples/time_picker/
     - lib/docs/examples/toast/
     - lib/docs/examples/toggle/
     - lib/docs/examples/toggle_group/
+    - lib/docs/examples/toolbar/
     - lib/docs/examples/tooltip/
+    - lib/docs/examples/wheel_picker/
     - lib/docs/examples/typography/
     - lib/docs/examples/glass/
     - lib/docs/examples/app_bar/
+    - lib/docs/examples/autocomplete/
     - lib/docs/examples/navigation_bar/
+    - lib/docs/examples/navigation_menu/
+    - lib/docs/examples/navigation_rail/
+    - lib/docs/examples/number_field/
     - lib/docs/examples/scaffold/
     - lib/docs/examples/board/
     - lib/docs/examples/chip/
+    - lib/docs/examples/license_page/
     - lib/docs/examples/list_tile/
     - lib/docs/examples/tab_bar/
     - lib/docs/examples/chat_bubble/
+    - lib/docs/examples/chat_list/
+    - lib/docs/examples/streaming_text/
     - lib/docs/examples/indicator_badge/
     - lib/docs/examples/avatar_group/
+    - lib/docs/examples/back_button/
     - lib/docs/examples/icon_tile/
     - lib/docs/examples/timeline/
     - lib/docs/examples/pressable/
     - lib/docs/examples/motion/
     - lib/docs/examples/page_container/
+    - lib/docs/examples/page_route/
+    - lib/docs/examples/page_indicator/
     - lib/docs/examples/form_factors/
+    - lib/docs/examples/building_blocks/
     - lib/docs/examples/icons/
 
   fonts:

@@ -1,27 +1,26 @@
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/animate.dart';
 import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
 /// A customizable linear progress indicator widget.
 ///
 /// The [ProgressBar] widget displays a styled progress bar with
 /// configurable colors, height, and border radius. It integrates with
-/// [Theme] for consistent styling and uses Container-based implementation
-/// instead of Material's LinearProgressIndicator.
+/// [Theme] for consistent styling. A determinate bar glides to a new
+/// value on the theme's motion tokens; an indeterminate one is painted, not
+/// rebuilt, for as long as it runs.
 class ProgressBar extends StatefulWidget {
   /// Creates a progress bar widget with the specified properties.
   const ProgressBar({
     super.key,
     this.value,
-    this.backgroundColor,
+    this.trackColor,
     this.color,
     this.valueColor,
-    this.minHeight,
-    this.semanticsLabel,
-    this.semanticsValue,
+    this.height,
+    this.semanticLabel,
+    this.semanticValue,
     this.borderRadius,
     this.innerBorderRadius,
   });
@@ -32,11 +31,11 @@ class ProgressBar extends StatefulWidget {
   /// {@endtemplate}
   final double? value;
 
-  /// {@template ProgressBar.backgroundColor}
-  /// The background color of the progress bar.
-  /// Defaults to the theme's secondary color if not specified.
+  /// {@template ProgressBar.trackColor}
+  /// The colour of the track the progress fills, as on a `ProgressRing`.
+  /// Defaults to the theme's.
   /// {@endtemplate}
-  final Color? backgroundColor;
+  final Color? trackColor;
 
   /// {@template ProgressBar.color}
   /// The color of the progress indicator itself.
@@ -51,23 +50,22 @@ class ProgressBar extends StatefulWidget {
   /// {@endtemplate}
   final Animation<Color?>? valueColor;
 
-  /// {@template ProgressBar.minHeight}
-  /// The minimum height of the progress bar.
-  /// Defaults to 16 if not specified.
+  /// {@template ProgressBar.height}
+  /// The height of the bar. Defaults to the theme's.
   /// {@endtemplate}
-  final double? minHeight;
+  final double? height;
 
-  /// {@template ProgressBar.semanticsLabel}
+  /// {@template ProgressBar.semanticLabel}
   /// The accessibility label for the progress bar.
   /// Provides context to screen readers; defaults to null.
   /// {@endtemplate}
-  final String? semanticsLabel;
+  final String? semanticLabel;
 
-  /// {@template ProgressBar.semanticsValue}
-  /// The accessibility value for the progress bar (e.g., percentage).
-  /// Provides current progress to screen readers; defaults to null.
+  /// {@template ProgressBar.semanticValue}
+  /// The progress as assistive technology reads it. Defaults to [value] as
+  /// a percentage, and to nothing while the bar is indeterminate.
   /// {@endtemplate}
-  final String? semanticsValue;
+  final String? semanticValue;
 
   /// {@template ProgressBar.borderRadius}
   /// The border radius of the progress bar's outer container.
@@ -113,17 +111,27 @@ class _ProgressState extends State<ProgressBar>
     curve: Cubic(0.10, 0, 0.45, 1),
   );
 
+  /// Drives the indeterminate bar. Made the first time the bar is
+  /// indeterminate and kept: a single-ticker state can make only one.
   AnimationController? _controller;
+
+  /// Runs the indeterminate loop while there is no value, and stops it
+  /// while there is one.
+  void _syncController() {
+    if (widget.value == null) {
+      (_controller ??= AnimationController(
+        duration: const Duration(milliseconds: _kIndeterminateLinearDuration),
+        vsync: this,
+      )).repeat();
+    } else {
+      _controller?.stop();
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    if (widget.value == null) {
-      _controller = AnimationController(
-        duration: const Duration(milliseconds: _kIndeterminateLinearDuration),
-        vsync: this,
-      )..repeat();
-    }
+    _syncController();
     if (widget.valueColor != null) {
       widget.valueColor!.addListener(_handleColorChange);
     }
@@ -132,14 +140,8 @@ class _ProgressState extends State<ProgressBar>
   @override
   void didUpdateWidget(ProgressBar oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.value == null && oldWidget.value != null) {
-      _controller = AnimationController(
-        duration: const Duration(milliseconds: _kIndeterminateLinearDuration),
-        vsync: this,
-      )..repeat();
-    } else if (widget.value != null && oldWidget.value == null) {
-      _controller?.dispose();
-      _controller = null;
+    if ((widget.value == null) != (oldWidget.value == null)) {
+      _syncController();
     }
     if (widget.valueColor != oldWidget.valueColor) {
       oldWidget.valueColor?.removeListener(_handleColorChange);
@@ -161,16 +163,15 @@ class _ProgressState extends State<ProgressBar>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final effectiveMinHeight =
-        widget.minHeight ?? theme.progressBarTheme.minHeight ?? 16.0;
+    final height = widget.height ?? theme.progressBarTheme.height ?? 16.0;
     final effectiveColor =
         widget.color ??
         theme.progressBarTheme.color ??
         theme.colorScheme.primary;
     final currentColor = widget.valueColor?.value ?? effectiveColor;
-    final effectiveBackgroundColor =
-        widget.backgroundColor ??
-        theme.progressBarTheme.backgroundColor ??
+    final trackColor =
+        widget.trackColor ??
+        theme.progressBarTheme.trackColor ??
         theme.colorScheme.secondary;
     final effectiveBorderRadius =
         widget.borderRadius ??
@@ -182,18 +183,23 @@ class _ProgressState extends State<ProgressBar>
         BorderRadius.zero;
 
     return Semantics(
-      label: widget.semanticsLabel,
-      value: widget.semanticsValue,
+      label: widget.semanticLabel,
+      value:
+          widget.semanticValue ??
+          switch (widget.value) {
+            final value? => '${(value.clamp(0, 1) * 100).round()}%',
+            null => null,
+          },
       child: SizedBox(
         width: double.infinity,
-        height: effectiveMinHeight,
+        height: height,
         child: ClipRRect(
           borderRadius: effectiveBorderRadius,
           child: Container(
             width: double.infinity,
-            height: effectiveMinHeight,
+            height: height,
             decoration: BoxDecoration(
-              color: effectiveBackgroundColor,
+              color: trackColor,
               borderRadius: effectiveInnerBorderRadius,
             ),
             child: widget.value != null
@@ -204,21 +210,24 @@ class _ProgressState extends State<ProgressBar>
                     spring:
                         theme.progressBarTheme.spring ??
                         Motion.of(context).smooth,
-                    builder: (context, value, _) => DeterminateProgressBar(
+                    builder: (context, value, _) => _DeterminateBar(
                       value: value,
                       color: currentColor,
                       borderRadius: effectiveInnerBorderRadius,
                     ),
                   )
-                : IndeterminateProgressBar(
-                    controller: _controller,
-                    indeterminateLinearDuration: _kIndeterminateLinearDuration,
-                    line1TailCurve: line1TailCurve,
-                    line1HeadCurve: line1HeadCurve,
-                    line2TailCurve: line2TailCurve,
-                    line2HeadCurve: line2HeadCurve,
-                    color: currentColor,
-                    borderRadius: effectiveInnerBorderRadius,
+                // It never stops, so it is painted in a layer of its own:
+                // a frame of it builds and lays out nothing.
+                : RepaintBoundary(
+                    child: CustomPaint(
+                      painter: _IndeterminateBarPainter(
+                        progress: _controller!,
+                        color: currentColor,
+                        borderRadius: effectiveInnerBorderRadius,
+                        textDirection: Directionality.of(context),
+                      ),
+                      child: const SizedBox.expand(),
+                    ),
                   ),
           ),
         ),
@@ -227,151 +236,66 @@ class _ProgressState extends State<ProgressBar>
   }
 }
 
-/// {@template IndeterminateProgressBar}
-/// A widget that represents the indeterminate state of the progress bar.
-/// {@endtemplate}
-class IndeterminateProgressBar extends StatelessWidget {
-  /// {@macro IndeterminateProgressBar}
-  const IndeterminateProgressBar({
-    super.key,
-    required this.controller,
-    required this.indeterminateLinearDuration,
-    required this.line1TailCurve,
-    required this.line1HeadCurve,
-    required this.line2TailCurve,
-    required this.line2HeadCurve,
+/// Paints the two lines of an indeterminate bar as they chase each other
+/// across it, from the start edge to the end edge.
+class _IndeterminateBarPainter extends CustomPainter {
+  _IndeterminateBarPainter({
+    required this.progress,
     required this.color,
     required this.borderRadius,
-  });
+    required this.textDirection,
+  }) : super(repaint: progress);
 
-  /// Drives the animation. When null, the animation runs on its own.
-  final AnimationController? controller;
+  /// Where one cycle has got to, from 0 to 1.
+  final Animation<double> progress;
 
-  /// The length of one animation cycle, in milliseconds.
-  final int indeterminateLinearDuration;
-
-  /// Maps the cycle progress to the position of the first bar's start edge,
-  /// as a fraction of the width.
-  final Curve line1TailCurve;
-
-  /// Maps the cycle progress to the position of the first bar's end edge, as a
-  /// fraction of the width.
-  final Curve line1HeadCurve;
-
-  /// Maps the cycle progress to the position of the second bar's start edge,
-  /// as a fraction of the width.
-  final Curve line2TailCurve;
-
-  /// Maps the cycle progress to the position of the second bar's end edge, as
-  /// a fraction of the width.
-  final Curve line2HeadCurve;
-
-  /// The color of the bars.
   final Color color;
-
-  /// The corner radius of the bars.
   final BorderRadius borderRadius;
+  final TextDirection textDirection;
 
   @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final containerWidth = constraints.maxWidth;
-        final bar = Container(
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: borderRadius,
-          ),
-        );
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..color = color;
+    void line(Curve tail, Curve head) {
+      final t = progress.value;
+      final start = tail.transform(t) * size.width;
+      final width = head.transform(t) * size.width - start;
+      if (width <= 0) return;
+      final left = textDirection == TextDirection.ltr
+          ? start
+          : size.width - start - width;
+      final rect = Rect.fromLTWH(left, 0, width, size.height);
+      if (borderRadius == BorderRadius.zero) {
+        canvas.drawRect(rect, paint);
+      } else {
+        canvas.drawRRect(borderRadius.toRRect(rect), paint);
+      }
+    }
 
-        return Stack(
-          children: [
-            FinesseAnimate(
-              controller: controller,
-              onPlay: (controller) => controller.repeat(),
-              effects: [
-                CustomEffect(
-                  duration: Duration(milliseconds: indeterminateLinearDuration),
-                  curve: Curves.linear,
-                  builder: (context, value, child) {
-                    final start =
-                        line1TailCurve.transform(value) * containerWidth;
-                    final end =
-                        line1HeadCurve.transform(value) * containerWidth;
-                    final w = (end - start)
-                        .clamp(0, double.infinity)
-                        .toDouble();
-                    if (w <= 0) {
-                      return const SizedBox.shrink();
-                    }
-                    return PositionedDirectional(
-                      start: start,
-                      top: 0,
-                      bottom: 0,
-                      width: w,
-                      child: child,
-                    );
-                  },
-                ),
-              ],
-              child: bar,
-            ),
-            FinesseAnimate(
-              controller: controller,
-              onPlay: (controller) => controller.repeat(),
-              effects: [
-                CustomEffect(
-                  duration: Duration(milliseconds: indeterminateLinearDuration),
-                  curve: Curves.linear,
-                  builder: (context, value, child) {
-                    final start =
-                        line2TailCurve.transform(value) * containerWidth;
-                    final end =
-                        line2HeadCurve.transform(value) * containerWidth;
-                    final w = (end - start)
-                        .clamp(0, double.infinity)
-                        .toDouble();
-                    if (w <= 0) {
-                      return const SizedBox.shrink();
-                    }
-                    return PositionedDirectional(
-                      start: start,
-                      top: 0,
-                      bottom: 0,
-                      width: w,
-                      child: child,
-                    );
-                  },
-                ),
-              ],
-              child: bar,
-            ),
-          ],
-        );
-      },
-    );
+    line(_ProgressState.line1TailCurve, _ProgressState.line1HeadCurve);
+    line(_ProgressState.line2TailCurve, _ProgressState.line2HeadCurve);
   }
+
+  @override
+  bool shouldRepaint(_IndeterminateBarPainter oldDelegate) =>
+      progress != oldDelegate.progress ||
+      color != oldDelegate.color ||
+      borderRadius != oldDelegate.borderRadius ||
+      textDirection != oldDelegate.textDirection;
 }
 
-/// {@template DeterminateProgressBar}
-/// A widget that represents the determinate state of the progress bar.
-/// {@endtemplate}
-class DeterminateProgressBar extends StatelessWidget {
-  /// {@macro DeterminateProgressBar}
-  const DeterminateProgressBar({
-    super.key,
+/// The filled part of a determinate bar.
+class _DeterminateBar extends StatelessWidget {
+  const _DeterminateBar({
     required this.value,
     required this.color,
     required this.borderRadius,
   });
 
-  /// The filled fraction, from 0 to 1. Values outside that range are clamped.
+  /// The progress, from 0 to 1.
   final double value;
 
-  /// The color of the filled part.
   final Color color;
-
-  /// The corner radius of the filled part.
   final BorderRadius borderRadius;
 
   @override

@@ -4,6 +4,7 @@ import 'package:example/strand/widgets/compose_dialog.dart';
 import 'package:example/strand/widgets/home_pieces.dart';
 import 'package:example/strand/widgets/person_avatar.dart';
 import 'package:example/strand/widgets/strand_actions.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -71,7 +72,6 @@ class _StoryMetrics {
     required this.width,
     required this.height,
     required this.gap,
-    required this.radius,
     required this.photoHeight,
     required this.addButtonSize,
     required this.addIconSize,
@@ -81,16 +81,18 @@ class _StoryMetrics {
     required this.inset,
     required this.labelInset,
     required this.labelPadding,
-    required this.labelRadius,
     required this.fontSize,
     required this.lineHeight,
   });
 
+  // The story rail is a picture component: a card's proportions, the
+  // portrait and the label's type are fitted to the photograph and are its
+  // own, on neither the gap nor the type scale. Only its corners and its
+  // colours come from the theme.
   static const desktop = _StoryMetrics(
     width: null,
     height: 190,
     gap: 10,
-    radius: 16,
     // 62% of the card.
     photoHeight: 190 * .62,
     addButtonSize: 36,
@@ -101,7 +103,6 @@ class _StoryMetrics {
     inset: 10,
     labelInset: 8,
     labelPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-    labelRadius: 10,
     fontSize: 12,
     lineHeight: 16,
   );
@@ -110,7 +111,6 @@ class _StoryMetrics {
     width: 92,
     height: 140,
     gap: 8,
-    radius: 14,
     photoHeight: 86,
     addButtonSize: 30,
     addIconSize: 18,
@@ -120,7 +120,6 @@ class _StoryMetrics {
     inset: 8,
     labelInset: 6,
     labelPadding: EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-    labelRadius: 8,
     fontSize: 11,
     lineHeight: 14,
   );
@@ -129,7 +128,6 @@ class _StoryMetrics {
   final double? width;
   final double height;
   final double gap;
-  final double radius;
 
   /// The height of the portrait at the top of the "Add story" card.
   final double photoHeight;
@@ -149,7 +147,6 @@ class _StoryMetrics {
   /// The name label's distance from the card's edges.
   final double labelInset;
   final EdgeInsets labelPadding;
-  final double labelRadius;
   final double fontSize;
   final double lineHeight;
 
@@ -158,7 +155,14 @@ class _StoryMetrics {
   /// photographs on every side.
   double get addHeight => height + 2;
 
-  BorderRadius get borderRadius => BorderRadius.circular(radius);
+  /// The card's corners, from the theme's scale: a step tighter on a phone,
+  /// where the card is smaller.
+  BorderRadius borderRadius(ThemeData theme) =>
+      identical(this, mobile) ? theme.radii.lg : theme.radii.xl;
+
+  /// The corners of the name label inside the card.
+  BorderRadius labelRadius(ThemeData theme) =>
+      identical(this, mobile) ? theme.radii.sm : theme.radii.md;
 }
 
 class _AddStoryCard extends StatelessWidget {
@@ -170,13 +174,15 @@ class _AddStoryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final sideInset = theme.layoutTheme.gap(GapSize.sm);
+    final sideInset = theme.gap(GapSize.sm);
     return Card(
-      onPressed: () => showComposeDialog(context),
-      padding: EdgeInsets.zero,
-      radius: metrics.borderRadius,
-      height: metrics.addHeight,
-      columnCrossAxisAlignment: CrossAxisAlignment.stretch,
+      onTap: () => showComposeDialog(context),
+      style: CardTheme(
+        padding: EdgeInsets.zero,
+        borderRadius: metrics.borderRadius(theme),
+        height: metrics.addHeight,
+        columnCrossAxisAlignment: CrossAxisAlignment.stretch,
+      ),
       child: SizedBox(
         height: metrics.height,
         child: Stack(
@@ -210,7 +216,7 @@ class _AddStoryCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  child: Icon(
+                  child: PhosphorIcon(
                     PhosphorIconsRegular.plus,
                     size: metrics.addIconSize,
                     color: scheme.tintForeground,
@@ -242,6 +248,10 @@ class _AddStoryCard extends StatelessWidget {
   }
 }
 
+/// The scrim behind a story's name: denser than the designs' 32%, which sat
+/// on a blur of the photograph.
+const _labelScrim = Color(0x8009090B);
+
 class _StoryCard extends StatelessWidget {
   const _StoryCard({
     required this.story,
@@ -264,18 +274,15 @@ class _StoryCard extends StatelessWidget {
       semanticLabel: '${person.name}’s story',
       builder: (context, states) => FocusRing(
         visible: states.contains(WidgetState.focused),
-        borderRadius: metrics.borderRadius,
+        borderRadius: metrics.borderRadius(theme),
         // The shadow sits outside the clip that rounds the photograph.
         child: DecoratedBox(
           decoration: ShadowDecoration.box(
-            borderRadius: metrics.borderRadius,
+            borderRadius: metrics.borderRadius(theme),
             shadows: theme.cardTheme.shadows ?? const [],
           ),
           child: ClipRRect(
-            borderRadius: metrics.borderRadius,
-            // Its own layer, so the label's backdrop blur samples the
-            // photograph alone and not the page around the card.
-            clipBehavior: Clip.antiAliasWithSaveLayer,
+            borderRadius: metrics.borderRadius(theme),
             child: Stack(
               fit: StackFit.expand,
               children: [
@@ -294,11 +301,15 @@ class _StoryCard extends StatelessWidget {
                   right: metrics.labelInset,
                   bottom: metrics.labelInset,
                   // A scrim on a photograph: these colours do not follow
-                  // the theme.
+                  // the theme. Not frosted: a backdrop filter per story
+                  // would need a layer per card to keep the page out of
+                  // its blur, and the rail is on screen whenever the feed
+                  // is at rest.
                   child: Glass(
-                    color: const Color(0x5209090B),
+                    frosted: false,
+                    color: _labelScrim,
                     border: Border.all(color: const Color(0x2EFFFFFF)),
-                    borderRadius: BorderRadius.circular(metrics.labelRadius),
+                    borderRadius: metrics.labelRadius(theme),
                     padding: metrics.labelPadding,
                     child: Text(
                       shortName ? person.firstName : person.name,

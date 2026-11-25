@@ -72,8 +72,10 @@ class _DataTablePaymentsExampleState extends State<DataTablePaymentsExample> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Card(
-              padding: EdgeInsets.zero,
-              clipBehavior: Clip.antiAlias,
+              style: CardTheme(
+                padding: EdgeInsets.zero,
+                clipBehavior: Clip.antiAlias,
+              ),
               child: DataTable<Payment>(
                 controller: controller,
                 selectable: true,
@@ -87,7 +89,7 @@ class _DataTablePaymentsExampleState extends State<DataTablePaymentsExample> {
                     header: 'Status',
                     extent: const FixedTableSpanExtent(140),
                     compare: (a, b) => a.status.compareTo(b.status),
-                    cellBuilder: (context, payment) => Badge.raw(
+                    cellBuilder: (context, payment) => Badge(
                       variant: switch (payment.status) {
                         'success' => BadgeVariant.primary,
                         'failed' => BadgeVariant.destructive,

@@ -1,18 +1,67 @@
+actionSheet:
+  cancel: "Cancel"
+
+alert:
+  dismiss: "Dismiss"
+
 timePicker:
   hours: "Hours"
   minutes: "Minutes"
   seconds: "Seconds"
   period: "Period"
   periodPlaceholder: "AM"
+  am: "AM"
+  pm: "PM"
+  selectTime: "Select time"
 
 datePicker:
   selectDate: "Select date"
+  selectDateRange: "Select dates"
+  done: "Done"
+  clear: "Clear"
+  cancel: "Cancel"
+  day: "Day"
+  month: "Month"
+  year: "Year"
 
 input:
   cut: "Cut"
   copy: "Copy"
   paste: "Paste"
   selectAll: "Select All"
+  delete: "Delete"
+  lookUp: "Look Up"
+  searchWeb: "Search Web"
+  share: "Share"
+  liveText: "Scan Text"
+  moreActions: "More"
+  previousActions: "Back"
+  clear: "Clear"
+  showPassword: "Show password"
+  hidePassword: "Hide password"
+  characterCount: "$count of $max characters"
+  characterLimit: "Character limit reached"
+
+autocomplete:
+  noResults: "No results"
+  oneResult: "1 result available"
+  results: "$count results available"
+  loading: "Loading…"
+
+numberField:
+  increase: "Increase"
+  decrease: "Decrease"
+
+search:
+  placeholder: "Search"
+  cancel: "Cancel"
+  clear: "Clear search"
+  close: "Close search"
+
+tagField:
+  remove: "Remove $tag"
+  added: "$tag added"
+  removed: "$tag removed"
 
 keyboardToolbar:
   done: "Done"
@@ -20,8 +69,52 @@ keyboardToolbar:
 empty:
   title: "No results"
 
+stepper:
+  position: "Step $step of $count"
+  complete: "Completed"
+  error: "Needs attention"
+  next: "Continue"
+  finish: "Finish"
+  cancel: "Cancel"
+
+toast:
+  dismiss: "Dismiss"
+
+chip:
+  remove: "Remove"
+
 command:
   noResults: "No results found."
+
+menu:
+  control: "Ctrl"
+  alt: "Alt"
+  shift: "Shift"
+  meta: "Meta"
+  enter: "Enter"
+  escape: "Esc"
+  space: "Space"
+  tab: "Tab"
+  backspace: "Backspace"
+  delete: "Del"
+  insert: "Ins"
+  home: "Home"
+  end: "End"
+  pageUp: "PgUp"
+  pageDown: "PgDn"
+
+licensePage:
+  title: "Licenses"
+  oneLicense: "1 license"
+  licenses: "$count licenses"
+
+dataTable:
+  loading: "Loading rows"
+  loadFailed: "These rows could not be loaded."
+  retry: "Try again"
+  selectedCount: "$selected of $total row(s) selected."
+  sortedAscending: "Sorted ascending"
+  sortedDescending: "Sorted descending"
 
 pagination:
   previous: "Previous"
@@ -29,9 +122,49 @@ pagination:
   morePages: "More pages"
   page: "Page"
 
+carousel:
+  previous: "Previous page"
+  next: "Next page"
+  page: "Page $page of $count"
+  item: "$index of $count"
+
+refreshIndicator:
+  refresh: "Refresh"
+  refreshing: "Refreshing"
+
+reorder:
+  moveUp: "Move up"
+  moveDown: "Move down"
+  moveToTop: "Move to top"
+  moveToBottom: "Move to bottom"
+  pickedUp: "Picked up. Use the arrow keys to move, Space to drop, Escape to cancel."
+  position: "Position $position of $count"
+  dropped: "Dropped at position $position of $count"
+  cancelled: "Move cancelled"
+  dragHandle: "Drag to reorder"
+
+swipeActions:
+  more: "More actions"
+
+rating:
+  value: "$value of $count"
+
+colorPicker:
+  hex: "Hex"
+  hue: "Hue"
+  opacity: "Opacity"
+  saturationAndBrightness: "Saturation and brightness"
+  selectColor: "Select colour"
+
 dialog:
   close: "Close"
   dismiss: "Dismiss"
+
+sheet:
+  resize: "Resize"
+
+button:
+  loading: "Loading"
 
 board:
   moveUp: "Move up"
@@ -43,3 +176,9 @@ board:
   cancelled: "Move cancelled"
   refused: "$column does not accept this item"
   dragHandle: "Drag to move"
+
+navigation:
+  back: "Back"
+  openMenu: "Open menu"
+  menu: "Navigation menu"
+  toggleSidebar: "Toggle sidebar"

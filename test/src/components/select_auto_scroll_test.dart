@@ -1,5 +1,6 @@
 import 'package:finesse/finesse.dart' hide Scaffold;
 import 'package:finesse/material.dart';
+import 'package:finesse/src/components/select.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -16,6 +17,7 @@ void main() {
   );
 
   Widget select(GlobalKey<SelectState<String>> key) => Select<String>(
+    onChanged: (_) {},
     key: key,
     placeholder: const Text('Pick one'),
     maxHeight: 120,

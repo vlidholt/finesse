@@ -12,12 +12,11 @@ class BadgeTheme with _$BadgeTheme {
   /// {@macro BadgeTheme}
   const BadgeTheme({
     bool canMerge = true,
-    this.shape,
+    this.borderRadius,
+    this.borderColor,
     this.backgroundColor,
-    this.hoverBackgroundColor,
     this.foregroundColor,
     this.padding,
-    this.cursor,
     this.textStyle,
     this.iconSize,
   }) : _canMerge = canMerge;
@@ -28,23 +27,20 @@ class BadgeTheme with _$BadgeTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro Badge.shape}
-  final ShapeBorder? shape;
+  /// {@macro Badge.borderRadius}
+  final BorderRadius? borderRadius;
+
+  /// The colour of the badge's outline; null draws none.
+  final Color? borderColor;
 
   /// {@macro Badge.backgroundColor}
   final Color? backgroundColor;
-
-  /// {@macro Badge.hoverBackgroundColor}
-  final Color? hoverBackgroundColor;
 
   /// {@macro Badge.foregroundColor}
   final Color? foregroundColor;
 
   /// {@macro Badge.padding}
   final EdgeInsetsGeometry? padding;
-
-  /// {@macro Badge.cursor}
-  final MouseCursor? cursor;
 
   /// {@macro Badge.textStyle}
   final TextStyle? textStyle;

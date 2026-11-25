@@ -1,53 +1,80 @@
+import 'package:finesse/src/components/control_affinity.dart';
+import 'package:finesse/src/components/decorator.dart';
 import 'package:finesse/src/components/disabled.dart';
 import 'package:finesse/src/raw_components/focusable.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/activation_keys.dart';
 import 'package:finesse/src/utils/debug_check.dart';
 import 'package:finesse/src/utils/motion_color.dart';
 import 'package:finesse/src/utils/pop_in.dart';
-import 'package:finesse/src/utils/provider.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-/// Holds the selected value of a [FinesseRadioGroup] and whether the group is
-/// enabled.
-class RadioController<T> extends ValueNotifier<T?> {
-  /// Creates a controller with the selected [value], null by default.
-  /// The group is enabled by default.
-  RadioController({T? value, bool enabled = true})
-    : _enabled = enabled,
-      super(value);
+/// What a radio reads from the [FinesseRadioGroup] around it: the selected
+/// value, whether the group is enabled, and how to select another value.
+///
+/// `Radio` uses it; so can a row or a card of your own that should act as
+/// one of the group's options (see [FinesseRadioGroup.maybeOf]).
+@immutable
+class RadioGroupScope<T> {
+  const RadioGroupScope._({
+    required this.value,
+    required this.enabled,
+    required this.select,
+  });
 
-  late bool _enabled;
+  /// The selected value, or null when nothing is selected.
+  final T? value;
 
-  /// Whether the radios of the group react to input. Setting it notifies
-  /// listeners.
-  bool get enabled => _enabled;
-  set enabled(bool value) {
-    if (_enabled == value) return;
-    _enabled = value;
-    notifyListeners();
-  }
+  /// Whether the group's radios react to input.
+  final bool enabled;
+
+  /// Selects [value], as a tap on its radio does.
+  final ValueChanged<T> select;
 }
 
-/// A customizable radio group widget that allows selection of one item from
-/// a list of options.
+/// A set of [Radio]s of which one is selected.
 ///
-/// The [FinesseRadioGroup] widget is designed to manage a group of radio
-/// buttons and handle their state. It supports various configurations such as
-/// alignment, spacing, and initial value selection.
+/// ```dart
+/// FinesseRadioGroup<String>(
+///   value: _plan,
+///   onChanged: (plan) => setState(() => _plan = plan),
+///   items: const [
+///     Radio(value: 'free', label: Text('Free')),
+///     Radio(value: 'pro', label: Text('Pro')),
+///   ],
+/// )
+/// ```
+///
+/// Give [value] to hold the selection yourself, changing it in [onChanged],
+/// or [initialValue] to let the group keep it.
+///
+/// [items] are laid out in a wrap along [axis]. To lay the radios out any
+/// other way — in a `ListSection`, a grid, a row, with other widgets
+/// between them — give the group a [child] instead and put the radios
+/// wherever they belong in it:
+///
+/// ```dart
+/// FinesseRadioGroup<Plan>(
+///   value: _plan,
+///   onChanged: (plan) => setState(() => _plan = plan),
+///   child: ListSection(
+///     children: const [
+///       RadioListTile(value: Plan.free, title: Text('Free')),
+///       RadioListTile(value: Plan.pro, title: Text('Pro')),
+///     ],
+///   ),
+/// )
+/// ```
 class FinesseRadioGroup<T> extends StatefulWidget {
-  /// Creates a [FinesseRadioGroup] with the given [items] and optional
-  /// parameters.
-  ///
-  /// The [items] parameter is required and should contain the list of radio
-  /// options. The [initialValue] can be used to set the initially selected
-  /// item. The [onChanged] callback is triggered when the selected value
-  /// changes.
+  /// Creates a radio group around [items], laid out in a wrap, or around a
+  /// [child] that lays out its own radios.
   const FinesseRadioGroup({
     super.key,
-    required this.items,
+    this.items,
+    this.child,
+    this.value,
     this.initialValue,
     this.onChanged,
     this.enabled = true,
@@ -57,23 +84,48 @@ class FinesseRadioGroup<T> extends StatefulWidget {
     this.crossAxisAlignment,
     this.spacing,
     this.runSpacing,
-    this.controller,
-  });
+  }) : assert(
+         value == null || initialValue == null,
+         'Give value to control the group or initialValue to seed it, not '
+         'both.',
+       ),
+       assert(
+         (items == null) != (child == null),
+         'Give a radio group either items, which it lays out in a wrap, or '
+         'a child that lays out its own radios.',
+       );
+
+  /// {@template FinesseRadioGroup.value}
+  /// The selected value, held by the parent. While it is non-null the group
+  /// shows it and reports a tap through [onChanged] without changing by
+  /// itself.
+  /// {@endtemplate}
+  final T? value;
 
   /// {@template FinesseRadioGroup.initialValue}
-  /// The initial value of the radio group.
+  /// The value selected at first, when the group keeps its own state.
   /// {@endtemplate}
   final T? initialValue;
 
   /// {@template FinesseRadioGroup.items}
-  /// The items of the radio group, any Widget can be used.
+  /// The radios, laid out in a wrap along [axis]; any widget can stand
+  /// among them. Give this or a [child], not both.
   /// {@endtemplate}
-  final Iterable<Widget> items;
+  final Iterable<Widget>? items;
+
+  /// {@template FinesseRadioGroup.child}
+  /// The content of the group, for radios laid out freely: every `Radio`
+  /// and `RadioListTile` below it, however deep, belongs to the group. The
+  /// group adds no layout of its own, so [axis], [spacing] and the other
+  /// wrap parameters do not apply. Give this or [items], not both.
+  /// {@endtemplate}
+  final Widget? child;
 
   /// {@template FinesseRadioGroup.onChanged}
-  /// Called when the user toggles a radio on.
+  /// Called with the value of the radio the user selects. Null disables
+  /// the group.
   /// {@endtemplate}
-  final ValueChanged<T?>? onChanged;
+  final ValueChanged<T>? onChanged;
 
   /// {@template FinesseRadioGroup.enabled}
   /// Whether the radio [items] are enabled, defaults to true.
@@ -113,77 +165,62 @@ class FinesseRadioGroup<T> extends StatefulWidget {
   /// {@endtemplate}
   final WrapCrossAlignment? crossAxisAlignment;
 
-  /// {@template FinesseRadioGroup.controller}
-  /// An optional controller to programmatically control the selected value.
-  /// {@endtemplate}
-  final RadioController<T>? controller;
+  /// The group around [context], or null when there is none.
+  ///
+  /// [context] is rebuilt when the selection or the enabled state changes.
+  /// `T` has to be the group's own type argument, or a supertype of it.
+  static RadioGroupScope<T>? maybeOf<T>(BuildContext context) {
+    final scope = context
+        .dependOnInheritedWidgetOfExactType<_RadioGroupMarker>();
+    if (scope == null) return null;
+    return RadioGroupScope<T>._(
+      value: scope.value as T?,
+      enabled: scope.enabled,
+      select: scope.select,
+    );
+  }
 
   @override
-  State<FinesseRadioGroup<T>> createState() => RadioGroupState<T>();
+  State<FinesseRadioGroup<T>> createState() => _RadioGroupState<T>();
 }
 
-/// The state of a [FinesseRadioGroup].
-class RadioGroupState<T> extends State<FinesseRadioGroup<T>> {
-  RadioController<T>? _controller;
-
-  /// The controller in use: [FinesseRadioGroup.controller], or an internal one
-  /// when that is null.
-  RadioController<T> get effectiveController =>
-      widget.controller ??
-      (_controller ??= RadioController<T>(
-        value: widget.initialValue,
-        enabled: widget.enabled,
-      ));
-
-  @override
-  void initState() {
-    super.initState();
-    effectiveController.addListener(onValueChanged);
-  }
-
-  @override
-  void dispose() {
-    effectiveController.removeListener(onValueChanged);
-    _controller?.dispose();
-    super.dispose();
-  }
+class _RadioGroupState<T> extends State<FinesseRadioGroup<T>> {
+  late T? _value = widget.value ?? widget.initialValue;
 
   @override
   void didUpdateWidget(covariant FinesseRadioGroup<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
-
-    if (oldWidget.controller != widget.controller) {
-      // The old controller, not effectiveController: that already resolves
-      // to the new one, which left the listener on the old controller.
-      (oldWidget.controller ?? _controller)?.removeListener(onValueChanged);
-      if (oldWidget.controller == null && widget.controller != null) {
-        _controller?.dispose();
-        _controller = null;
-      }
-      effectiveController.addListener(onValueChanged);
-    }
-
-    if (oldWidget.initialValue != widget.initialValue) {
-      effectiveController.value = widget.initialValue;
-    }
-
-    if (oldWidget.enabled != widget.enabled) {
-      effectiveController.enabled = widget.enabled;
-    }
+    // A value written from outside — null included, which clears the
+    // selection — replaces what the group shows.
+    if (widget.value != oldWidget.value) _value = widget.value;
   }
 
-  /// Calls [FinesseRadioGroup.onChanged] with the value of the controller.
-  ///
-  /// It runs on every change of the controller, including changes made in
-  /// code.
-  void onValueChanged() {
-    widget.onChanged?.call(effectiveController.value);
+  /// Whether the radios take input: [FinesseRadioGroup.enabled], and an
+  /// [FinesseRadioGroup.onChanged] to report to.
+  bool get _enabled => widget.enabled && widget.onChanged != null;
+
+  void _select(Object? value) {
+    if (value is! T || !_enabled) return;
+    // A controlled group waits for its parent to hand the value back.
+    if (widget.value == null && value != _value) {
+      setState(() => _value = value);
+    }
+    widget.onChanged?.call(value);
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final child = widget.child;
+    if (child != null) {
+      return _RadioGroupMarker(
+        value: widget.value ?? _value,
+        enabled: _enabled,
+        select: _select,
+        child: child,
+      );
+    }
 
+    final theme = Theme.of(context);
     final effectiveAxis = widget.axis ?? theme.radioTheme.axis ?? Axis.vertical;
     final effectiveSpacing = widget.spacing ?? theme.radioTheme.spacing ?? 4;
     final effectiveRunSpacing =
@@ -199,8 +236,10 @@ class RadioGroupState<T> extends State<FinesseRadioGroup<T>> {
         theme.radioTheme.crossAxisAlignment ??
         WrapCrossAlignment.start;
 
-    return Provider(
-      data: effectiveController as RadioController<dynamic>,
+    return _RadioGroupMarker(
+      value: widget.value ?? _value,
+      enabled: _enabled,
+      select: _select,
       child: Wrap(
         direction: effectiveAxis,
         spacing: effectiveSpacing,
@@ -208,10 +247,28 @@ class RadioGroupState<T> extends State<FinesseRadioGroup<T>> {
         alignment: effectiveAlignment,
         runAlignment: effectiveRunAlignment,
         crossAxisAlignment: effectiveWrapCrossAlignment,
-        children: widget.items.toList(),
+        children: widget.items!.toList(),
       ),
     );
   }
+}
+
+/// Carries a group's selection to the radios under it.
+class _RadioGroupMarker extends InheritedWidget {
+  const _RadioGroupMarker({
+    required this.value,
+    required this.enabled,
+    required this.select,
+    required super.child,
+  });
+
+  final Object? value;
+  final bool enabled;
+  final ValueChanged<Object?> select;
+
+  @override
+  bool updateShouldNotify(_RadioGroupMarker oldWidget) =>
+      oldWidget.value != value || oldWidget.enabled != enabled;
 }
 
 /// A customizable radio button widget that represents a single option in a
@@ -236,12 +293,11 @@ class Radio<T> extends StatefulWidget {
     this.decoration,
     this.size,
     this.circleSize,
-    this.duration,
     this.color,
     this.label,
-    this.sublabel,
+    this.description,
     this.padding,
-    this.direction,
+    this.controlAffinity = ControlAffinity.leading,
     this.radioPadding,
   });
 
@@ -286,28 +342,21 @@ class Radio<T> extends StatefulWidget {
   /// {@endtemplate}
   final double? circleSize;
 
-  /// {@template Radio.duration}
-  /// How long the dot takes to appear. It pops in on a spring — the theme's
-  /// `Motion.bouncy` — and this replaces that spring's duration; when null
-  /// the spring is used as it is.
-  /// {@endtemplate}
-  final Duration? duration;
-
   /// {@template Radio.color}
   /// The color of the radio.
   /// {@endtemplate}
   final Color? color;
 
   /// {@template Radio.label}
-  /// An optional label for the radio, displayed on the right side if
-  /// the [direction] is `TextDirection.ltr`.
+  /// An optional label for the radio, on the side [controlAffinity] leaves
+  /// free.
   /// {@endtemplate}
   final Widget? label;
 
-  /// {@template Radio.sublabel}
-  /// An optional sublabel for the radio, displayed below the label.
+  /// {@template Radio.description}
+  /// An optional line under the label, in the muted colour.
   /// {@endtemplate}
-  final Widget? sublabel;
+  final Widget? description;
 
   /// {@template Radio.padding}
   /// The padding between the radio and the label, defaults to
@@ -322,10 +371,10 @@ class Radio<T> extends StatefulWidget {
   /// {@endtemplate}
   final EdgeInsetsGeometry? radioPadding;
 
-  /// {@template Radio.direction}
-  /// The direction of the radio.
+  /// {@template Radio.controlAffinity}
+  /// Whether the radio comes before the label or after it.
   /// {@endtemplate}
-  final TextDirection? direction;
+  final ControlAffinity controlAffinity;
 
   @override
   State<Radio<T>> createState() => _RadioState<T>();
@@ -352,11 +401,16 @@ class _RadioState<T> extends State<Radio<T>> {
   Widget build(BuildContext context) {
     assert(debugCheckHasTheme(context));
     final theme = Theme.of(context);
-    final inheritedController =
-        context.watch<RadioController<dynamic>>() as RadioController<T>;
+    final group = context
+        .dependOnInheritedWidgetOfExactType<_RadioGroupMarker>();
+    assert(
+      group != null,
+      'A Radio has to be inside a FinesseRadioGroup, which holds the '
+      'selection.',
+    );
 
     void onTap() {
-      inheritedController.value = widget.value;
+      group?.select(widget.value);
       if (!focusNode.hasFocus) {
         FocusScope.of(context).unfocus();
       }
@@ -384,11 +438,9 @@ class _RadioState<T> extends State<Radio<T>> {
         widget.color ??
         theme.radioTheme.color ??
         theme.colorScheme.primaryForeground;
+    // The dot pops in on the small-delight spring; the fill fades.
     final motion = Motion.of(context);
-    final duration = widget.duration ?? theme.radioTheme.duration;
-    final dotSpring = duration == null || motion.bouncy.isInstant
-        ? motion.bouncy
-        : motion.bouncy.copyWith(duration: duration);
+    final dotSpring = motion.bouncy;
     final effectivePadding =
         widget.padding ??
         theme.radioTheme.padding ??
@@ -399,72 +451,62 @@ class _RadioState<T> extends State<Radio<T>> {
         theme.radioTheme.radioPadding ??
         const EdgeInsets.only(top: 1);
 
-    final keyboardTriggers = <ShortcutActivator>[
-      const SingleActivator(LogicalKeyboardKey.enter),
-      const SingleActivator(LogicalKeyboardKey.space),
-    ];
+    final selected = group != null && group.value == widget.value;
+    final enabled = widget.enabled && (group?.enabled ?? false);
 
-    return ValueListenableBuilder(
-      valueListenable: inheritedController,
-      builder: (context, value, child) {
-        final selected = value == widget.value;
-        final enabled = widget.enabled && inheritedController.enabled;
-
-        final radio = Semantics(
-          checked: selected,
-          child: Disabled(
-            showForbiddenCursor: true,
-            disabled: !enabled,
-            child: CallbackShortcuts(
-              bindings: {
-                for (final trigger in keyboardTriggers)
-                  trigger: () {
-                    if (!enabled) return;
-                    onTap();
-                  },
+    final radio = Semantics(
+      checked: selected,
+      child: Disabled(
+        showForbiddenCursor: true,
+        enabled: enabled,
+        child: CallbackShortcuts(
+          bindings: {
+            for (final trigger in activationKeys)
+              trigger: () {
+                if (!enabled) return;
+                onTap();
               },
-              child: Focusable(
-                autofocus: widget.autofocus,
-                onFocusChange: widget.onFocusChange,
-                focusNode: focusNode,
-                builder: (context, focused, child) {
-                  final decoration = selected
-                      ? effectiveCheckedDecoration
-                      : effectiveDecoration;
-                  // The fill fades between the two states; the outline
-                  // swaps with the decoration.
-                  return AnimatedColorBuilder(
-                    color: decoration.color,
-                    duration: motion.fast,
-                    curve: motion.standard,
-                    builder: (context, color, child) => Decorator(
-                      focused: focused,
-                      decoration: color == null
-                          ? decoration
-                          : decoration.copyWith(color: color),
-                      child: child,
-                    ),
-                    child: child,
-                  );
-                },
-                child: MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: SizedBox.square(
-                    dimension: effectiveSize,
-                    child: Center(
-                      // The dot grows out of the centre and settles.
-                      child: PopIn(
-                        visible: selected,
-                        scale: .2,
-                        spring: dotSpring,
-                        child: SizedBox.square(
-                          dimension: effectiveCircleSize,
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: effectiveColor,
-                            ),
-                          ),
+          },
+          child: Focusable(
+            autofocus: widget.autofocus,
+            onFocusChange: widget.onFocusChange,
+            focusNode: focusNode,
+            builder: (context, focused, child) {
+              final decoration = selected
+                  ? effectiveCheckedDecoration
+                  : effectiveDecoration;
+              // The fill fades between the two states; the outline
+              // swaps with the decoration.
+              return AnimatedColorBuilder(
+                color: decoration.color,
+                duration: motion.fast,
+                curve: motion.standard,
+                builder: (context, color, child) => Decorator(
+                  focused: focused,
+                  decoration: color == null
+                      ? decoration
+                      : decoration.copyWith(color: color),
+                  child: child,
+                ),
+                child: child,
+              );
+            },
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: SizedBox.square(
+                dimension: effectiveSize,
+                child: Center(
+                  // The dot grows out of the centre and settles.
+                  child: PopIn(
+                    visible: selected,
+                    scale: .2,
+                    spring: dotSpring,
+                    child: SizedBox.square(
+                      dimension: effectiveCircleSize,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: effectiveColor,
                         ),
                       ),
                     ),
@@ -473,56 +515,51 @@ class _RadioState<T> extends State<Radio<T>> {
               ),
             ),
           ),
-        );
-        return Disabled(
-          showForbiddenCursor: true,
-          disabled: !enabled,
-          disabledOpacity: 1,
-          child: GestureDetector(
-            onTap: enabled ? onTap : null,
-            child: Row(
-              textDirection: widget.direction,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Padding(
-                  padding: effectiveRadioPadding,
-                  child: radio,
-                ),
-                if (widget.label != null)
-                  Flexible(
-                    child: Padding(
-                      padding: effectivePadding,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          MouseRegion(
-                            cursor: SystemMouseCursors.click,
-                            child: DefaultTextStyle(
-                              style: theme.textTheme.muted.copyWith(
-                                fontWeight: FontWeight.w500,
-                                color: theme.colorScheme.foreground,
-                              ),
-                              child: widget.label!,
-                            ),
-                          ),
-                          if (widget.sublabel != null)
-                            MouseRegion(
-                              cursor: SystemMouseCursors.click,
-                              child: DefaultTextStyle(
-                                style: theme.textTheme.muted,
-                                child: widget.sublabel!,
-                              ),
-                            ),
-                        ],
+        ),
+      ),
+    );
+    return Disabled(
+      showForbiddenCursor: true,
+      enabled: enabled,
+      disabledOpacity: 1,
+      child: GestureDetector(
+        onTap: enabled ? onTap : null,
+        child: ControlLabelRow(
+          affinity: widget.controlAffinity,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          labelPadding: effectivePadding,
+          control: Padding(
+            padding: effectiveRadioPadding,
+            child: radio,
+          ),
+          label: widget.label == null
+              ? null
+              : Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: DefaultTextStyle(
+                        style: theme.textTheme.muted.copyWith(
+                          fontWeight: FontWeight.w500,
+                          color: theme.colorScheme.foreground,
+                        ),
+                        child: widget.label!,
                       ),
                     ),
-                  ),
-              ],
-            ),
-          ),
-        );
-      },
+                    if (widget.description != null)
+                      MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: DefaultTextStyle(
+                          style: theme.textTheme.muted,
+                          child: widget.description!,
+                        ),
+                      ),
+                  ],
+                ),
+        ),
+      ),
     );
   }
 }

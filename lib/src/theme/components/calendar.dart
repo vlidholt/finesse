@@ -15,15 +15,15 @@ class CalendarTheme with _$CalendarTheme {
   /// {@macro CalendarTheme}
   const CalendarTheme({
     bool canMerge = true,
-    this.hideNavigation,
+    this.showNavigation,
     this.yearSelectorMinWidth,
     this.monthSelectorMinWidth,
     this.yearSelectorPadding,
     this.monthSelectorPadding,
     this.navigationButtonSize,
     this.navigationButtonIconSize,
-    this.backNavigationButtonIconData,
-    this.forwardNavigationButtonIconData,
+    this.backNavigationButtonIcon,
+    this.forwardNavigationButtonIcon,
     this.navigationButtonPadding,
     this.navigationButtonDisabledOpacity,
     this.decoration,
@@ -40,7 +40,7 @@ class CalendarTheme with _$CalendarTheme {
     this.weekNumbersTextStyle,
     this.weekNumbersTextAlign,
     this.dayButtonSize,
-    this.dayButtonRadius,
+    this.dayButtonBorderRadius,
     this.selectorMinHeight,
     this.dayButtonOutsideMonthOpacity,
     this.dayButtonPadding,
@@ -60,7 +60,7 @@ class CalendarTheme with _$CalendarTheme {
     this.gridCrossAxisSpacing,
     this.selectedDayButtonOutsideMonthVariant,
     this.captionLayout,
-    this.hideWeekdayNames,
+    this.showWeekdayNames,
     this.showOutsideDays,
     this.formatMonthYear,
     this.formatMonth,
@@ -80,179 +80,268 @@ class CalendarTheme with _$CalendarTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro Calendar.hideNavigation}
-  final bool? hideNavigation;
+  /// Whether to show the navigation buttons, defaults to true.
+  final bool? showNavigation;
 
-  /// {@macro Calendar.yearSelectorMinWidth}
+  /// The minimum width of the year selector, defaults to 64
   final double? yearSelectorMinWidth;
 
-  /// {@macro Calendar.monthSelectorMinWidth}
+  /// The minimum width of the month selector, defaults to 64
   final double? monthSelectorMinWidth;
 
-  /// {@macro Calendar.yearSelectorPadding}
+  /// The padding of the year selector, defaults to
+  /// `EdgeInsets.symmetric(horizontal: 8, vertical: 4)`
   final EdgeInsetsGeometry? yearSelectorPadding;
 
-  /// {@macro Calendar.monthSelectorPadding}
+  /// The padding of the month selector, defaults to
+  /// `EdgeInsets.symmetric(horizontal: 8, vertical: 4)`
   final EdgeInsetsGeometry? monthSelectorPadding;
 
-  /// {@macro Calendar.navigationButtonSize}
+  /// The navigation button size, defaults to 28
   final double? navigationButtonSize;
 
-  /// {@macro Calendar.navigationButtonIconSize}
+  /// The navigation button icon size, defaults to 16
   final double? navigationButtonIconSize;
 
-  /// {@macro Calendar.backNavigationButtonIconData}
-  final IconData? backNavigationButtonIconData;
+  /// The icon of the back navigation button, drawn at
+  /// [navigationButtonIconSize]. Null, the default, is a caret that points
+  /// towards the start: left in a left-to-right layout, right in a
+  /// right-to-left one. An icon given here is drawn as it is in both.
+  ///
+  /// A theme is compared on every rebuild, so a widget given here has to be
+  /// a constant.
+  final Widget? backNavigationButtonIcon;
 
-  /// {@macro Calendar.forwardNavigationButtonIconData}
-  final IconData? forwardNavigationButtonIconData;
+  /// The icon of the forward navigation button, drawn at
+  /// [navigationButtonIconSize]. Null, the default, is a caret that points
+  /// towards the end: right in a left-to-right layout, left in a
+  /// right-to-left one. An icon given here is drawn as it is in both.
+  ///
+  /// A theme is compared on every rebuild, so a widget given here has to be
+  /// a constant.
+  final Widget? forwardNavigationButtonIcon;
 
-  /// {@macro Calendar.navigationButtonPadding}
+  /// The padding of the navigation button, defaults to [EdgeInsets.zero]
   final EdgeInsetsGeometry? navigationButtonPadding;
 
-  /// {@macro Calendar.navigationButtonDisabledOpacity}
+  /// The opacity of the navigation button when disabled, defaults to .5
   final double? navigationButtonDisabledOpacity;
 
-  /// {@macro Calendar.decoration}
+  /// The decoration of the calendar, defaults to
+  /// ```dart
+  /// FinesseDecoration(
+  ///   border: FinesseBorder.all(
+  ///     borderRadius: radius,
+  ///     padding: const EdgeInsets.all(12),
+  ///     color: colorScheme.border
+  ///   ),
+  /// )
+  /// ```
   final FinesseDecoration? decoration;
 
-  /// {@macro Calendar.spacingBetweenMonths}
+  /// The spacing between months, defaults to 16
   final double? spacingBetweenMonths;
 
-  /// {@macro Calendar.runSpacingBetweenMonths}
+  /// The run spacing between months, defaults to 16
   final double? runSpacingBetweenMonths;
 
-  /// {@macro Calendar.monthConstraints}
+  /// The month constraints, defaults to `BoxConstraints(maxWidth: 252)`
+  /// or `BoxConstraints(maxWidth: 310)` depending on the [showNavigation] and
+  /// [captionLayout] values.
   final BoxConstraints? monthConstraints;
 
-  /// {@macro Calendar.headerHeight}
+  /// The height of the header, defaults to 38
   final double? headerHeight;
 
-  /// {@macro Calendar.headerPadding}
+  /// The padding of the header, defaults to `EdgeInsets.only(bottom: 16)`
   final EdgeInsetsGeometry? headerPadding;
 
-  /// {@macro Calendar.captionLayoutGap}
+  /// The gap between the caption layout elements, defaults to 8
   final double? captionLayoutGap;
 
-  /// {@macro Calendar.headerTextStyle}
+  /// The text style of the header, defaults to `effectiveTextTheme.small`
   final TextStyle? headerTextStyle;
 
-  /// {@macro Calendar.weekdaysPadding}
+  /// The padding of the weekdays, defaults to `EdgeInsets.only(bottom: 8)`
   final EdgeInsetsGeometry? weekdaysPadding;
 
-  /// {@macro Calendar.weekdaysTextStyle}
+  /// The text style of the weekdays, defaults to
+  /// `textTheme.muted.copyWith(fontSize: 12.8)`
   final TextStyle? weekdaysTextStyle;
 
-  /// {@macro Calendar.weekdaysTextAlign}
+  /// The text align of the weekdays, defaults to [TextAlign.center]
   final TextAlign? weekdaysTextAlign;
 
-  /// {@macro Calendar.weekNumbersHeaderText}
+  /// The header text of the week numbers, defaults to `#`
   final String? weekNumbersHeaderText;
 
-  /// {@macro Calendar.weekNumbersHeaderTextStyle}
+  /// The header text style of the week numbers, defaults to
+  /// `textTheme.muted.copyWith(fontSize: 12.8)`
   final TextStyle? weekNumbersHeaderTextStyle;
 
-  /// {@macro Calendar.weekNumbersTextStyle}
+  /// The text style of the week numbers, defaults to
+  /// `textTheme.muted.copyWith(fontSize: 12.8)`
   final TextStyle? weekNumbersTextStyle;
 
-  /// {@macro Calendar.weekNumbersTextAlign}
+  /// The text align of the week numbers, defaults to [TextAlign.center]
   final TextAlign? weekNumbersTextAlign;
 
-  /// {@macro Calendar.dayButtonSize}
+  /// The size of the day buttons, defaults to 36
   final double? dayButtonSize;
 
   /// The corner radius of day cells and of the month/year dropdown triggers,
   /// shadcn's `--cell-radius`. Its own knob because the styles keep it apart
   /// from the button radius (`vega` buttons are `lg`, its cells `md`).
-  final BorderRadius? dayButtonRadius;
+  final BorderRadius? dayButtonBorderRadius;
 
   /// The minimum height of the month/year dropdown triggers,
   /// `.cn-calendar-caption-label`'s `h-8`. Without it the triggers would take
   /// the select theme's field height, which is taller than a calendar row.
   final double? selectorMinHeight;
 
-  /// {@macro Calendar.dayButtonOutsideMonthOpacity}
+  /// The opacity of the day buttons outside the month, defaults to .5
   final double? dayButtonOutsideMonthOpacity;
 
-  /// {@macro Calendar.dayButtonPadding}
+  /// The padding of the day buttons, defaults to [EdgeInsets.zero]
   final EdgeInsetsGeometry? dayButtonPadding;
 
-  /// {@macro Calendar.dayButtonDecoration}
+  /// The decoration of the day buttons, defaults to
+  /// ```dart
+  /// FinesseDecoration(
+  ///   secondaryBorder:
+  ///       const FinesseBorder(padding: EdgeInsets.zero),
+  ///   border: isInRange &&
+  ///           !isFirstDateInRange &&
+  ///           !isLastDateInRange
+  ///       ? isFirstOfRow
+  ///           ? FinesseBorder(
+  ///               borderRadius: BorderRadius.only(
+  ///                 topLeft: theme.radius.topLeft,
+  ///                 bottomLeft: theme.radius.bottomLeft,
+  ///               ),
+  ///             )
+  ///           : isLastOfRow
+  ///               ? FinesseBorder(
+  ///                   borderRadius: BorderRadius.only(
+  ///                     topRight: theme.radius.topRight,
+  ///                     bottomRight:
+  ///                         theme.radius.bottomRight,
+  ///                   ),
+  ///                 )
+  ///               : const FinesseBorder(
+  ///                   borderRadius: BorderRadius.zero,
+  ///                 )
+  ///       : null,
+  ///    secondaryFocusedBorder: FinesseBorder.all(
+  ///       offset: 2,
+  ///       color: theme.colorScheme.ring.withValues(alpha: .5),
+  ///     ),
+  ///   ),
+  /// ```
   final FinesseDecoration? dayButtonDecoration;
 
-  /// {@macro Calendar.selectedDayButtonTextStyle}
+  /// The text style of the selected day button, defaults to
+  /// ```dart
+  /// textTheme.small.copyWith(
+  ///   fontWeight: FontWeight.normal,
+  ///   color: colorScheme.primaryForeground,
+  /// )
+  /// ```
   final TextStyle? selectedDayButtonTextStyle;
 
-  /// {@macro Calendar.insideRangeDayButtonTextStyle}
+  /// The text style of the inside range day button, defaults to
+  /// ```dart
+  /// textTheme.small.copyWith(
+  ///   color: colorScheme.foreground,
+  /// )
+  /// ```
   final TextStyle? insideRangeDayButtonTextStyle;
 
-  /// {@macro Calendar.dayButtonTextStyle}
+  /// The text style of the day button, defaults to
+  /// ```dart
+  /// textTheme.small.copyWith(
+  ///   fontWeight: FontWeight.normal,
+  ///   color: colorScheme.foreground,
+  /// )
+  /// ```
   final TextStyle? dayButtonTextStyle;
 
-  /// {@macro Calendar.dayButtonVariant}
+  /// The variant of the day button, defaults to [ButtonVariant.ghost]
   final ButtonVariant? dayButtonVariant;
 
-  /// {@macro Calendar.selectedDayButtonVariant}
+  /// The variant of the selected day button, defaults to
+  /// [ButtonVariant.primary]
   final ButtonVariant? selectedDayButtonVariant;
 
-  /// {@macro Calendar.insideRangeDayButtonVariant}
+  /// The variant of the inside range day button, defaults to
+  /// [ButtonVariant.secondary]
   final ButtonVariant? insideRangeDayButtonVariant;
 
-  /// {@macro Calendar.todayButtonVariant}
+  /// The variant of the today button, defaults to [ButtonVariant.secondary]
   final ButtonVariant? todayButtonVariant;
 
-  /// {@macro Calendar.gridMainAxisSpacing}
+  /// The main axis spacing of the grid, defaults to 8
   final double? gridMainAxisSpacing;
 
-  /// {@macro Calendar.gridCrossAxisSpacing}
+  /// The cross axis spacing of the grid, defaults to 0
   final double? gridCrossAxisSpacing;
 
-  /// {@macro Calendar.dayButtonOutsideMonthTextStyle}
+  /// The text style of the day buttons outside the month, defaults to
+  /// `textTheme.muted`
   final TextStyle? dayButtonOutsideMonthTextStyle;
 
-  /// {@macro Calendar.dayButtonOutsideMonthVariant}
+  /// The variant of the day buttons outside the month, defaults to
+  /// [ButtonVariant.ghost]
   final ButtonVariant? dayButtonOutsideMonthVariant;
 
-  /// {@macro Calendar.selectedDayButtonOutsideMonthVariant}
+  /// The variant of the selected day buttons outside the month, defaults to
+  /// [ButtonVariant.secondary]
   final ButtonVariant? selectedDayButtonOutsideMonthVariant;
 
-  /// {@macro Calendar.captionLayout}
+  /// The layout of the caption, defaults to [CalendarCaptionLayout.label].
   final CalendarCaptionLayout? captionLayout;
 
-  /// {@macro Calendar.hideWeekdayNames}
-  final bool? hideWeekdayNames;
+  /// Whether to show the month’s head with the weekday names, defaults to
+  /// true.
+  final bool? showWeekdayNames;
 
-  /// {@macro Calendar.showOutsideDays}
+  /// Whether to show days outside the current month, defaults to true.
   final bool? showOutsideDays;
 
-  /// {@macro Calendar.formatMonthYear}
+  /// The format to use for the month, defaults to 'LLLL y'.
   final String Function(DateTime date)? formatMonthYear;
 
-  /// {@macro Calendar.formatMonth}
+  /// The format to use for the month, defaults to 'LLLL'.
   final String Function(DateTime date)? formatMonth;
 
-  /// {@macro Calendar.formatYear}
+  /// The format to use for the year, defaults to 'y'.
   final String Function(DateTime date)? formatYear;
 
-  /// {@macro Calendar.formatWeekday}
+  /// The format to use for the weekday, defaults to 'EE'.
   final String Function(DateTime date)? formatWeekday;
 
-  /// {@macro Calendar.dropdownFormatMonth}
+  /// The format to use for the month in dropdowns, defaults to 'MMM'.
   final String Function(DateTime date)? dropdownFormatMonth;
 
-  /// {@macro Calendar.dropdownFormatYear}
+  /// The format to use for the year in dropdowns, defaults to 'y'.
   final String Function(DateTime date)? dropdownFormatYear;
 
-  /// {@macro Calendar.showWeekNumbers}
+  /// Whether to show week numbers, defaults to false.
   final bool? showWeekNumbers;
 
-  /// {@macro Calendar.weekStartsOn}
+  /// Which day of the week is the first day of the week.
+  ///
+  /// In accordance with ISO 8601 a week starts with Monday, which
+  /// has the value 1, while Sunday has the value 7. Defaults to 1 (Monday).
   final int? weekStartsOn;
 
-  /// {@macro Calendar.fixedWeeks}
+  /// Display six weeks per months, regardless the month’s number of weeks.
+  ///
+  /// To use this [showOutsideDays] must be set to true.
+  /// Defaults to false.
   final bool? fixedWeeks;
 
-  /// {@macro Calendar.allowDeselection}
+  /// Whether to allow deselection of the selected date, defaults to false.
   final bool? allowDeselection;
 
   /// Linearly interpolates between [a] and [b] by [t].

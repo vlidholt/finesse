@@ -1,12 +1,22 @@
 import 'package:finesse/material.dart';
 import 'package:finesse/src/app.dart';
-import 'package:finesse/src/components/button.dart'; // Adjust import path based on your project structure
-import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/components/button.dart';
+import 'package:finesse/src/components/decorator.dart';
+import 'package:finesse/src/components/icon_button.dart';
+import 'package:finesse/src/icons/phosphor_icon.dart';
+import 'package:finesse/src/icons/phosphor_icons_regular.dart';
+import 'package:finesse/src/theme/components/button.dart';
 import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/style.dart';
 import 'package:finesse/src/theme/theme.dart';
-import 'package:flutter/material.dart' hide Theme, ThemeData;
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart'
+    hide ButtonTheme, IconButton, Theme, ThemeData;
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../../finesse_harness.dart';
 
 void main() {
   // Helper method to create a test widget wrapped in FinesseApp and Scaffold
@@ -29,7 +39,7 @@ void main() {
           const SizedBox(
             width: 120,
             child: Button(
-              width: double.infinity,
+              style: ButtonTheme(width: double.infinity),
               expands: true,
               child: Flexible(
                 child: Text(
@@ -203,9 +213,11 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const Button(
-            backgroundColor: customBackgroundColor,
-            padding: customPadding,
-            width: customWidth,
+            style: ButtonTheme(
+              backgroundColor: customBackgroundColor,
+              padding: customPadding,
+              width: customWidth,
+            ),
             child: Text('Styled Button'),
           ),
         ),
@@ -288,12 +300,111 @@ void main() {
       expect(absorbPointer.absorbing, true);
     });
 
+    testWidgets("a disabled button is dimmed by the theme's disabledOpacity", (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        createTestWidget(
+          Button(enabled: false, onPressed: () {}, child: const Text('X')),
+          theme: ThemeData(disabledOpacity: .3),
+        ),
+      );
+      final opacity = tester.widget<Opacity>(
+        find.descendant(
+          of: find.byType(Button),
+          matching: find.byType(Opacity),
+        ),
+      );
+      expect(opacity.opacity, .3);
+    });
+
+    group('with no onPressed, no onLongPress and not loading', () {
+      for (final (name, button) in <(String, Widget Function(FocusNode))>[
+        ('Button', (node) => Button(focusNode: node, child: const Text('X'))),
+        (
+          'IconButton',
+          (node) => IconButton(
+            focusNode: node,
+            icon: const PhosphorIcon(PhosphorIconsRegular.archive),
+          ),
+        ),
+      ]) {
+        testWidgets('$name is disabled: no Tab stop, no click cursor, '
+            'dimmed', (tester) async {
+          final node = FocusNode();
+          addTearDown(node.dispose);
+          await tester.pumpWidget(
+            createTestWidget(Center(child: button(node))),
+          );
+          await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+          await tester.pump();
+          expect(node.hasFocus, isFalse);
+
+          final mouse = await tester.createGesture(
+            kind: PointerDeviceKind.mouse,
+          );
+          await mouse.addPointer(location: Offset.zero);
+          addTearDown(mouse.removePointer);
+          await mouse.moveTo(tester.getCenter(find.byType(Button)));
+          await tester.pump();
+          expect(
+            RendererBinding.instance.mouseTracker.debugDeviceActiveCursor(1),
+            isNot(SystemMouseCursors.click),
+          );
+          final opacity = tester.widget<Opacity>(
+            find.descendant(
+              of: find.byType(Button),
+              matching: find.byType(Opacity),
+            ),
+          );
+          expect(opacity.opacity, ThemeData().disabledOpacity);
+        });
+      }
+
+      testWidgets('a long press alone, or loading, keeps it enabled', (
+        tester,
+      ) async {
+        final nodes = [FocusNode(), FocusNode()];
+        for (final n in nodes) {
+          addTearDown(n.dispose);
+        }
+        await tester.pumpWidget(
+          createTestWidget(
+            Column(
+              children: [
+                Button(
+                  focusNode: nodes[0],
+                  onLongPress: () {},
+                  child: const Text('Hold'),
+                ),
+                Button(
+                  focusNode: nodes[1],
+                  loading: true,
+                  child: const Text('Busy'),
+                ),
+              ],
+            ),
+          ),
+        );
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        expect(nodes[0].hasFocus, isTrue);
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        expect(nodes[1].hasFocus, isTrue);
+      });
+    });
+
     testWidgets('handles focus correctly', (WidgetTester tester) async {
+      // As on a desktop, where the focus shows.
+      useTraditionalHighlights();
       final focusNode = FocusNode();
+      addTearDown(focusNode.dispose);
       await tester.pumpWidget(
         createTestWidget(
           Button(
             focusNode: focusNode,
+            onPressed: () {},
             child: const Text('Focusable Button'),
           ),
         ),
@@ -316,31 +427,85 @@ void main() {
       expect(decorator.focused, true);
     });
 
-    testWidgets('handles text direction correctly', (
+    testWidgets('a focus that came from code on a touch screen does not '
+        'show until a key is pressed', (WidgetTester tester) async {
+      // CSS's `:focus-visible`, as for every control built on Pressable.
+      final focusNode = FocusNode();
+      addTearDown(focusNode.dispose);
+      final changes = <bool>[];
+      await tester.pumpWidget(
+        createTestWidget(
+          Column(
+            children: [
+              Button(
+                focusNode: focusNode,
+                onFocusChange: changes.add,
+                onPressed: () {},
+                child: const Text('First'),
+              ),
+              Button(onPressed: () {}, child: const Text('Second')),
+            ],
+          ),
+        ),
+      );
+      bool ringed(String label) => tester
+          .widget<Decorator>(
+            find.ancestor(
+              of: find.text(label),
+              matching: find.byType(Decorator),
+            ),
+          )
+          .focused;
+
+      focusNode.requestFocus();
+      await tester.pumpAndSettle();
+      expect(focusNode.hasFocus, isTrue);
+      // The caller hears of it either way.
+      expect(changes, [true]);
+      expect(ringed('First'), isFalse);
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pumpAndSettle();
+      expect(ringed('First'), isFalse);
+      expect(ringed('Second'), isTrue);
+    });
+
+    testWidgets('follows the ambient text direction', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          const Button(
+          const Directionality(
             textDirection: TextDirection.rtl,
-            leading: Icon(Icons.arrow_back),
-            trailing: Icon(Icons.arrow_forward),
-            child: Text('RTL Button'),
+            child: Button(
+              leading: Icon(Icons.arrow_back),
+              trailing: Icon(Icons.arrow_forward),
+              child: Text('RTL Button'),
+            ),
           ),
         ),
       );
 
-      // Check Row reflects RTL text direction
       final rowFinder = find.byType(Row);
       expect(rowFinder, findsOneWidget);
       final row = tester.widget<Row>(rowFinder);
-      expect(row.textDirection, TextDirection.rtl);
-
-      expect(row.children.elementAt(0), isA<Icon>()); // trailing
+      expect(row.children.elementAt(0), isA<Icon>()); // leading
       expect(row.children.elementAt(1), isA<SizedBox>()); // space
       expect(row.children.elementAt(2), isA<Text>()); // child
       expect(row.children.elementAt(3), isA<SizedBox>()); // space
-      expect(row.children.elementAt(4), isA<Icon>()); // leading
+      expect(row.children.elementAt(4), isA<Icon>()); // trailing
+
+      // In RTL the leading widget is at the right and the trailing one at
+      // the left.
+      final label = tester.getCenter(find.text('RTL Button')).dx;
+      expect(
+        tester.getCenter(find.byIcon(Icons.arrow_back)).dx,
+        greaterThan(label),
+      );
+      expect(
+        tester.getCenter(find.byIcon(Icons.arrow_forward)).dx,
+        lessThan(label),
+      );
     });
 
     testWidgets('handles size variations correctly', (
@@ -396,6 +561,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const Button(
+            onPressed: _noop,
             leading: Icon(Icons.star),
             trailing: Icon(Icons.arrow_forward),
             child: Text('Button'),
@@ -413,6 +579,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const Button.destructive(
+            onPressed: _noop,
             leading: Icon(Icons.star),
             trailing: Icon(Icons.arrow_forward),
             child: Text('Button'),
@@ -430,6 +597,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const Button.outline(
+            onPressed: _noop,
             leading: Icon(Icons.star),
             trailing: Icon(Icons.arrow_forward),
             child: Text('Button'),
@@ -447,6 +615,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const Button.secondary(
+            onPressed: _noop,
             leading: Icon(Icons.star),
             trailing: Icon(Icons.arrow_forward),
             child: Text('Button'),
@@ -464,6 +633,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const Button.ghost(
+            onPressed: _noop,
             leading: Icon(Icons.star),
             trailing: Icon(Icons.arrow_forward),
             child: Text('Button'),
@@ -481,6 +651,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const Button.link(
+            onPressed: _noop,
             leading: Icon(Icons.star),
             trailing: Icon(Icons.arrow_forward),
             child: Text('Button'),
@@ -553,11 +724,13 @@ void main() {
         expect(tester.getSize(find.byIcon(Icons.star)), const Size.square(22));
       });
 
-      testWidgets('Button.iconSize overrides the style', (tester) async {
+      testWidgets("a style's iconSize overrides the size's", (
+        tester,
+      ) async {
         await tester.pumpWidget(
           createTestWidget(
             const Button(
-              iconSize: 10,
+              style: ButtonTheme(iconSize: 10),
               leading: Icon(Icons.star),
               child: Text('Button'),
             ),
@@ -567,16 +740,15 @@ void main() {
         expect(tester.getSize(find.byIcon(Icons.star)), const Size.square(10));
       });
 
-      testWidgets('size: icon is the icon button, without the wrapper', (
-        tester,
-      ) async {
-        // shadcn has no separate IconButton — `<Button size="icon">` is the
-        // whole of it, and IconButton is a convenience over this.
+      testWidgets('an icon-only button is an IconButton: the square size '
+          'with its own glyph size', (tester) async {
+        // shadcn has no separate IconButton — it is `<Button size="icon">`.
+        // Here that size is IconButton's alone.
         await tester.pumpWidget(
           createTestWidget(
-            const Button(
-              size: ButtonSize.icon,
-              child: Icon(Icons.star),
+            const IconButton(
+              semanticLabel: 'Favourite',
+              icon: Icon(Icons.star),
             ),
             theme: nova,
           ),
@@ -588,3 +760,6 @@ void main() {
     });
   });
 }
+
+/// A callback, so a button is enabled.
+void _noop() {}

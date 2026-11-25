@@ -14,34 +14,90 @@ import 'package:flutter/widgets.dart';
 /// A zero-width space. An empty slot holds it, so that a backspace in an
 /// empty slot still changes the text and can move focus to the previous
 /// slot.
-const kInvisibleCharCode = '\u200b';
+const kInvisibleCharCode = '​';
 
-/// A customizable one-time password (OTP) input widget with multiple fields.
+/// A one-time password field: one box per character, with the focus moving
+/// from slot to slot as the code is typed, pasted or filled in by the
+/// platform.
 ///
-/// The [OtpField] widget provides a series of input fields for entering an
-/// OTP, managing focus and input across multiple single-character inputs. It
-/// integrates with [Theme] for consistent styling and supports custom
-/// formatting and behavior.
+/// The value is a string of [maxLength] characters in which a space stands
+/// for an empty slot, so a code typed out of order keeps its positions.
+/// Like the other fields it is **controlled** when given a [value] — it
+/// shows that value, reports edits through [onChanged] and waits to be given
+/// the new one — and holds its own state when [value] is null, starting
+/// from [initialValue]:
+///
+/// ```dart
+/// OtpField(
+///   maxLength: 6,
+///   value: _code,
+///   onChanged: (code) => setState(() => _code = code),
+///   children: const [
+///     OtpFieldGroup(
+///       children: [OtpFieldSlot(), OtpFieldSlot(), OtpFieldSlot()],
+///     ),
+///     OtpFieldGroup(
+///       children: [OtpFieldSlot(), OtpFieldSlot(), OtpFieldSlot()],
+///     ),
+///   ],
+/// )
+/// ```
+///
+/// Setting the value to `''` from outside clears every slot.
 class OtpField extends StatefulWidget {
-  /// Creates an OTP input widget with the specified number of fields and
-  /// children.
+  /// Creates a one-time password field of [maxLength] slots, laid out by
+  /// [children].
   const OtpField({
     super.key,
     required this.maxLength,
     required this.children,
+    this.value,
+    this.initialValue,
+    this.onChanged,
+    this.onCompleted,
     this.enabled = true,
     this.gap,
     this.jumpToNextWhenFilled = true,
-    this.onChanged,
     this.inputFormatters,
     this.keyboardType,
-    this.initialValue,
-  });
+    this.autofillHints = const [AutofillHints.oneTimeCode],
+  }) : assert(
+         value == null || initialValue == null,
+         'Give an OtpField a value (controlled) or an initialValue '
+         '(uncontrolled), not both.',
+       );
 
   /// {@template OtpField.maxLength}
-  /// The maximum length of the OTP
+  /// The number of characters in the code, and of slots among [children].
   /// {@endtemplate}
   final int maxLength;
+
+  /// {@template OtpField.value}
+  /// The code to show, which makes the field controlled: an edit is
+  /// reported through [onChanged] and shown once it is handed back here.
+  /// Shorter than [maxLength], the remaining slots are empty; a space is an
+  /// empty slot. Null lets the field hold its own value.
+  /// {@endtemplate}
+  final String? value;
+
+  /// {@template OtpField.initialValue}
+  /// The code an uncontrolled field starts with. To skip a slot, pass a
+  /// space in its place. May not be combined with [value].
+  /// {@endtemplate}
+  final String? initialValue;
+
+  /// {@template OtpField.onChanged}
+  /// Called when the user changes the code, with all [maxLength]
+  /// characters: a space stands for an empty slot. A pasted or autofilled
+  /// code is reported once, not slot by slot, and a value set from outside
+  /// is not reported at all.
+  /// {@endtemplate}
+  final ValueChanged<String>? onChanged;
+
+  /// {@template OtpField.onCompleted}
+  /// Called with the code when the user fills the last empty slot.
+  /// {@endtemplate}
+  final ValueChanged<String>? onCompleted;
 
   /// {@template OtpField.enabled}
   /// Whether the input is enabled, defaults to true
@@ -54,7 +110,9 @@ class OtpField extends StatefulWidget {
   final double? gap;
 
   /// {@template OtpField.children}
-  /// The children of the input otp
+  /// The layout of the field: [OtpFieldGroup]s of [OtpFieldSlot]s, with any
+  /// separators between them. Always laid out left to right, as a code is
+  /// read, whatever the text direction.
   /// {@endtemplate}
   final List<Widget> children;
 
@@ -63,11 +121,6 @@ class OtpField extends StatefulWidget {
   /// defaults to true
   /// {@endtemplate}
   final bool jumpToNextWhenFilled;
-
-  /// {@template OtpField.onChanged}
-  /// Called when the value of the OTP changes
-  /// {@endtemplate}
-  final ValueChanged<String>? onChanged;
 
   /// {@template OtpField.inputFormatters}
   /// The input formatters for the input of each slot, unless overridden in the
@@ -81,20 +134,24 @@ class OtpField extends StatefulWidget {
   /// {@endtemplate}
   final TextInputType? keyboardType;
 
-  /// {@template OtpField.initialValue}
-  /// The initial value of the OTP, to skip one slot pass an empty space
+  /// {@template OtpField.autofillHints}
+  /// What the platform may fill the slots with. Defaults to
+  /// [AutofillHints.oneTimeCode], which is what offers the code from a text
+  /// message above the keyboard; the whole code lands in the focused slot
+  /// and is spread over the slots like a paste. Pass an empty list to opt
+  /// out.
   /// {@endtemplate}
-  final String? initialValue;
+  final Iterable<String> autofillHints;
 
   @override
-  State<OtpField> createState() => OtpFieldState();
+  State<OtpField> createState() => _OtpFieldState();
 }
 
-/// The state of a [OtpField].
+/// The state of an [OtpField].
 ///
 /// Its slots and groups register with it to share the value and to move
 /// focus between slots.
-class OtpFieldState extends State<OtpField> {
+class _OtpFieldState extends State<OtpField> {
   /// The focus node and controller of each registered slot, in order.
   final registeredOTPs =
       <({FocusNode focusNode, TextEditingController controller})>[];
@@ -124,26 +181,35 @@ class OtpFieldState extends State<OtpField> {
     }
   }
 
-  /// The character in each slot. An empty slot holds an empty string or a
-  /// space.
+  /// The character in each slot; an empty slot holds an empty string.
   late final values = List<String>.filled(widget.maxLength, '');
 
-  /// The value of all slots together, padded with spaces to
-  /// [OtpField.maxLength]. A change calls [OtpField.onChanged].
-  late final ValueNotifier<String> result;
+  /// The code the slots show, padded with spaces to [OtpField.maxLength]:
+  /// what was last reported, or last taken from outside.
+  late String _shown;
+
+  /// While true the slots are being written as a whole — a value from
+  /// outside, a paste — and their listeners record without reporting.
+  bool _silent = false;
+
+  bool _syncScheduled = false;
 
   /// The number of registered [OtpFieldGroup]s.
   int groups = 0;
 
+  bool get _controlled => widget.value != null;
+
+  String _pad(String? value) {
+    final padded = (value ?? '').padRight(widget.maxLength);
+    return padded.length > widget.maxLength
+        ? padded.substring(0, widget.maxLength)
+        : padded;
+  }
+
   @override
   void initState() {
     super.initState();
-    result = ValueNotifier(
-      (widget.initialValue ?? '').padRight(widget.maxLength),
-    );
-    result.addListener(() {
-      widget.onChanged?.call(result.value);
-    });
+    _shown = _pad(widget.value ?? widget.initialValue);
   }
 
   @override
@@ -151,13 +217,11 @@ class OtpFieldState extends State<OtpField> {
     // Slots are unmounted before the strip's own dispose runs, so the
     // notifier is no longer listened to nor written at this point.
     _focusedRing.dispose();
-    result.dispose();
     super.dispose();
   }
 
-  // Call this method to register a slot, returns the index of the slot
   /// Registers a slot and returns its index. The slot takes its character
-  /// from [OtpField.initialValue].
+  /// from the field's value.
   int registerSlot({
     required FocusNode focusNode,
     required TextEditingController controller,
@@ -166,9 +230,12 @@ class OtpFieldState extends State<OtpField> {
 
     final index = registeredOTPs.length - 1;
 
-    // Set the initial value of the slot
-    if (controller.text == kInvisibleCharCode && result.value[index] != ' ') {
-      controller.text = result.value[index];
+    if (index < _shown.length) {
+      if (controller.text == kInvisibleCharCode && _shown[index] != ' ') {
+        controller.text = _shown[index];
+      }
+      // A slot can come with a character of its own.
+      values[index] = _characterOf(controller);
     }
 
     listenToSlot(index);
@@ -191,21 +258,11 @@ class OtpFieldState extends State<OtpField> {
   @override
   void didUpdateWidget(covariant OtpField oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.initialValue != widget.initialValue) {
-      final value = (widget.initialValue ?? '').padRight(widget.maxLength);
-      for (var index = 0; index < registeredOTPs.length; index++) {
-        final slot = registeredOTPs[index];
-        // Set the initial value of the slot
-        if (slot.controller.text == kInvisibleCharCode && value[index] != ' ') {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            slot.controller.text = value[index];
-          });
-        }
-      }
-    }
+    // Whatever the parent now says is shown: the value it accepted, the one
+    // it kept after refusing an edit, or one it set by itself.
+    if (_controlled && _pad(widget.value) != _shown) _scheduleSync();
   }
 
-  // Call this method to register a group, returns the index of the group
   /// Registers a group and returns its index; the pair of [unregisterGroup].
   int registerGroup() {
     groups++;
@@ -220,8 +277,14 @@ class OtpFieldState extends State<OtpField> {
     if (groups > 0) groups--;
   }
 
-  /// Starts copying the text of the slot at [index] into [values] and
-  /// [result].
+  static String _characterOf(TextEditingController controller) {
+    final text = controller.text.replaceAll(kInvisibleCharCode, '');
+    if (text.isEmpty || text.trim().isEmpty) return '';
+    return text.characters.last;
+  }
+
+  /// Starts copying the text of the slot at [index] into [values], and
+  /// reporting the change.
   void listenToSlot(int index) {
     final slot = registeredOTPs[index];
 
@@ -232,21 +295,76 @@ class OtpFieldState extends State<OtpField> {
         (s) => identical(s.controller, slot.controller),
       );
       if (currentIndex < 0 || currentIndex >= values.length) return;
-
-      final text =
-          (slot.controller.text.split('').lastOrNull ?? kInvisibleCharCode)
-              .replaceAll(kInvisibleCharCode, ' ');
-      values[currentIndex] = text;
-
-      final wholeValue = values.reduce((value, element) {
-        final parsedElement = element.isEmpty ? ' ' : element;
-        return value + parsedElement;
-      });
-      result.value = wholeValue;
+      // Anything but an empty slot or a single character is an edit in
+      // flight — a key beside the placeholder, a pasted code, a character
+      // the formatters may refuse — which the slot settles before anything
+      // is recorded: see [settle].
+      final text = slot.controller.text;
+      final settled =
+          text == kInvisibleCharCode ||
+          (!text.contains(kInvisibleCharCode) && text.characters.length == 1);
+      if (!settled) return;
+      values[currentIndex] = _characterOf(slot.controller);
+      if (!_silent) _report();
     }
 
     _slotListeners[slot.controller] = listener;
     slot.controller.addListener(listener);
+  }
+
+  /// Called by a slot once it has settled an edit: reads every slot again
+  /// and reports. The listeners alone miss an edit that left a slot's text
+  /// as it was.
+  void settle() {
+    for (var i = 0; i < registeredOTPs.length && i < values.length; i++) {
+      values[i] = _characterOf(registeredOTPs[i].controller);
+    }
+    if (!_silent) _report();
+  }
+
+  /// Tells the parent what the slots now hold, if that is news.
+  void _report() {
+    final whole = values.map((value) => value.isEmpty ? ' ' : value).join();
+    if (whole == _shown) return;
+    final completed = _shown.contains(' ') && !whole.contains(' ');
+    _shown = whole;
+    widget.onChanged?.call(whole);
+    if (completed) widget.onCompleted?.call(whole);
+    // A controlled field shows what it is given. The parent usually hands
+    // the reported value straight back; if it keeps the old one, the slots
+    // go back to it after this frame.
+    if (_controlled) _scheduleSync();
+  }
+
+  /// After the frame, writes the controlled value into the slots unless
+  /// they show it already.
+  ///
+  /// Not during the build that brings the value: a text field told to
+  /// change while its parent is building marks widgets outside that build
+  /// dirty (its selection overlay), which the framework refuses.
+  void _scheduleSync() {
+    if (_syncScheduled) return;
+    _syncScheduled = true;
+    WidgetsBinding.instance
+      ..addPostFrameCallback((_) {
+        _syncScheduled = false;
+        if (!mounted || !_controlled) return;
+        final wanted = _pad(widget.value);
+        if (wanted != _shown) _show(wanted);
+      })
+      ..ensureVisualUpdate();
+  }
+
+  /// Writes [padded] into the slots without reporting it.
+  void _show(String padded) {
+    _silent = true;
+    for (var i = 0; i < registeredOTPs.length && i < padded.length; i++) {
+      final text = padded[i] == ' ' ? kInvisibleCharCode : padded[i];
+      final controller = registeredOTPs[i].controller;
+      if (controller.text != text) controller.text = text;
+    }
+    _silent = false;
+    _shown = padded;
   }
 
   /// Focuses the slot at [index], and empties it when [clear] is true.
@@ -254,7 +372,7 @@ class OtpFieldState extends State<OtpField> {
   /// Does nothing when [OtpField.jumpToNextWhenFilled] is false.
   void jumpToSlot(int index, {bool clear = false}) {
     if (!widget.jumpToNextWhenFilled) return;
-    if (index < registeredOTPs.length) {
+    if (index >= 0 && index < registeredOTPs.length) {
       final nextSlot = registeredOTPs[index];
       nextSlot.focusNode.requestFocus();
       if (clear) nextSlot.controller.text = kInvisibleCharCode;
@@ -280,13 +398,23 @@ class OtpFieldState extends State<OtpField> {
     jumpToSlot(focusedSlotIndex - 1, clear: clear);
   }
 
-  /// Writes [values] into the slots, one character each, from the first slot.
-  /// Used when a whole code is pasted into the first slot.
-  void setValues(String values) {
-    for (var i = 0; i < values.length; i++) {
-      final slot = registeredOTPs[i];
-      slot.controller.text = values[i];
+  /// Writes [code] into the slots, one character each, starting at the slot
+  /// at [from], and moves the focus to the last slot written: what a paste
+  /// or an autofilled code does. Characters past the last slot are dropped.
+  /// Reported once.
+  void spread(String code, {required int from}) {
+    final characters = code.characters.toList();
+    var last = from;
+    _silent = true;
+    for (var i = 0; i < characters.length; i++) {
+      final index = from + i;
+      if (index >= registeredOTPs.length) break;
+      registeredOTPs[index].controller.text = characters[i];
+      last = index;
     }
+    _silent = false;
+    _report();
+    jumpToSlot(last);
   }
 
   @override
@@ -295,7 +423,7 @@ class OtpFieldState extends State<OtpField> {
     return Provider(
       data: this,
       child: Disabled(
-        disabled: !widget.enabled,
+        enabled: widget.enabled,
         child: _OtpFieldRingOverlay(
           ring: _focusedRing,
           child: Row(
@@ -329,7 +457,7 @@ class OtpFieldGroup extends StatefulWidget {
 }
 
 class _OtpFieldGroupState extends State<OtpFieldGroup> {
-  late final otpProvider = context.read<OtpFieldState>();
+  late final otpProvider = context.read<_OtpFieldState>();
 
   @override
   void initState() {
@@ -367,10 +495,10 @@ class OtpFieldSlot extends StatefulWidget {
     this.height,
     this.padding,
     this.decoration,
-    this.firstRadius,
-    this.lastRadius,
-    this.singleRadius,
-    this.middleRadius,
+    this.firstBorderRadius,
+    this.lastBorderRadius,
+    this.singleBorderRadius,
+    this.middleBorderRadius,
     this.initialValue,
     this.textInputAction,
     this.keyboardToolbarBuilder,
@@ -429,27 +557,27 @@ class OtpFieldSlot extends StatefulWidget {
   /// {@endtemplate}
   final FinesseDecoration? decoration;
 
-  /// {@template OtpFieldSlot.firstRadius}
+  /// {@template OtpFieldSlot.firstBorderRadius}
   /// The radius applied to the first slot of each group
   /// {@endtemplate}
-  final BorderRadius? firstRadius;
+  final BorderRadius? firstBorderRadius;
 
-  /// {@template OtpFieldSlot.lastRadius}
+  /// {@template OtpFieldSlot.lastBorderRadius}
   /// The radius applied to the last slot of each group
   /// {@endtemplate}
-  final BorderRadius? lastRadius;
+  final BorderRadius? lastBorderRadius;
 
-  /// {@template OtpFieldSlot.singleRadius}
+  /// {@template OtpFieldSlot.singleBorderRadius}
   /// The radius applied to the single slot of each group.
   /// Used only if the group has only one slot
   /// {@endtemplate}
-  final BorderRadius? singleRadius;
+  final BorderRadius? singleBorderRadius;
 
-  /// {@template OtpFieldSlot.middleRadius}
+  /// {@template OtpFieldSlot.middleBorderRadius}
   /// The radius applied to the middle slots of each group.
   /// If there are 4 slots in a group, the middle slots are the 2nd and 3rd
   /// {@endtemplate}
-  final BorderRadius? middleRadius;
+  final BorderRadius? middleBorderRadius;
 
   /// {@template OtpFieldSlot.initialValue}
   /// The initial value of the slot.
@@ -469,7 +597,7 @@ class OtpFieldSlot extends StatefulWidget {
 }
 
 class _OtpFieldSlotState extends State<OtpFieldSlot> {
-  late final otpProvider = context.read<OtpFieldState>();
+  late final otpProvider = context.read<_OtpFieldState>();
 
   /// Grows each rounded corner of [radius] by [delta], leaving square
   /// corners square — what keeps an outward ring concentric with a box that
@@ -553,7 +681,7 @@ class _OtpFieldSlotState extends State<OtpFieldSlot> {
     final theme = Theme.of(context);
 
     // Watching the OTP provider for changes
-    final otpProvider = context.watch<OtpFieldState>();
+    final otpProvider = context.watch<_OtpFieldState>();
 
     final defaultStyle =
         widget.style ??
@@ -564,27 +692,29 @@ class _OtpFieldSlotState extends State<OtpFieldSlot> {
         );
 
     final firstRadius =
-        widget.firstRadius ??
-        theme.otpFieldTheme.firstRadius ??
+        widget.firstBorderRadius ??
+        theme.otpFieldTheme.firstBorderRadius ??
         BorderRadius.only(
           topLeft: theme.radius.topLeft,
           bottomLeft: theme.radius.bottomLeft,
         );
 
     final lastRadius =
-        widget.lastRadius ??
-        theme.otpFieldTheme.lastRadius ??
+        widget.lastBorderRadius ??
+        theme.otpFieldTheme.lastBorderRadius ??
         BorderRadius.only(
           topRight: theme.radius.topRight,
           bottomRight: theme.radius.bottomRight,
         );
 
     final singleRadius =
-        widget.singleRadius ?? theme.otpFieldTheme.singleRadius ?? theme.radius;
+        widget.singleBorderRadius ??
+        theme.otpFieldTheme.singleBorderRadius ??
+        theme.radius;
 
     final middleRadius =
-        widget.middleRadius ??
-        theme.otpFieldTheme.middleRadius ??
+        widget.middleBorderRadius ??
+        theme.otpFieldTheme.middleBorderRadius ??
         BorderRadius.zero;
 
     final lastIndexForGroup = otpProvider.widget.maxLength / otpProvider.groups;
@@ -649,7 +779,7 @@ class _OtpFieldSlotState extends State<OtpFieldSlot> {
     final effectiveDecoration = mergedDecoration.merge(
       FinesseDecoration(
         border: FinesseBorder(
-          radius: effectiveRadius,
+          borderRadius: effectiveRadius,
           // Same colour whether or not it is drawn: `Border` requires
           // colour-uniform sides before it will paint a radius, and only the
           // ends of the strip are rounded.
@@ -658,7 +788,7 @@ class _OtpFieldSlotState extends State<OtpFieldSlot> {
             width: isFirstInGroup ? 1 : 0,
           ),
         ),
-        focusedBorder: FinesseBorder(radius: effectiveRadius),
+        focusedBorder: FinesseBorder(borderRadius: effectiveRadius),
         // Outside the slot, flush against it, like every other field
         // (`data-[active=true]:ring-3`).
         //
@@ -670,7 +800,7 @@ class _OtpFieldSlotState extends State<OtpFieldSlot> {
         // unconditionally: supplying only the radius here would silently
         // collapse the ring onto the slot's own border.
         secondaryFocusedBorder: FinesseBorder(
-          radius: _inflateCorners(effectiveRadius, theme.style.ringWidth),
+          borderRadius: _inflateCorners(effectiveRadius, theme.style.ringWidth),
           offset: theme.style.ringWidth,
         ),
       ),
@@ -712,7 +842,8 @@ class _OtpFieldSlotState extends State<OtpFieldSlot> {
             slotContext: context,
             border: ringBorder.toBorder(),
             radius:
-                ringBorder.radius?.resolve(textDirection) ?? BorderRadius.zero,
+                ringBorder.borderRadius?.resolve(textDirection) ??
+                BorderRadius.zero,
             offset: ringBorder.offset ?? 0,
             textDirection: textDirection,
           )
@@ -760,21 +891,29 @@ class _OtpFieldSlotState extends State<OtpFieldSlot> {
           final hasBeenFormatted = formattedValue.text != sanitizedV;
           sanitizedV = formattedValue.text;
 
-          // if the value is more than 1 and the slot is not the first
-          // get the last character from the value
-          if (index != 0 && sanitizedV.length > 1) {
-            sanitizedV = sanitizedV[sanitizedV.length - 1];
+          final previousText = controller.previousValue?.text ?? '';
+          // In a slot that already held a character, what counts is what
+          // was added to it, before or after.
+          final held = previousText.replaceAll(kInvisibleCharCode, '');
+          if (held.isNotEmpty && sanitizedV.length > held.length) {
+            if (sanitizedV.startsWith(held)) {
+              sanitizedV = sanitizedV.substring(held.length);
+            } else if (sanitizedV.endsWith(held)) {
+              sanitizedV = sanitizedV.substring(
+                0,
+                sanitizedV.length - held.length,
+              );
+            }
           }
-          // if the max length is entered, set the values
-          // to all the slots
-          // this condition happens only for the first slot
-          if (sanitizedV.length > 1) {
-            otpProvider
-              ..setValues(sanitizedV)
-              ..jumpToSlot(sanitizedV.length - 1);
+
+          if (sanitizedV.characters.length > 1) {
+            // A pasted or autofilled code. A whole one starts at the first
+            // slot wherever the caret was; a shorter one where it was put.
+            final whole =
+                sanitizedV.characters.length >= otpProvider.widget.maxLength;
+            otpProvider.spread(sanitizedV, from: whole ? 0 : index);
           } else {
             if (sanitizedV.isEmpty) {
-              final previousText = controller.previousValue?.text ?? '';
               controller.text = kInvisibleCharCode;
               // Jump to the previous slot only if the formatter was not
               // applied
@@ -784,16 +923,17 @@ class _OtpFieldSlotState extends State<OtpFieldSlot> {
                 );
               }
             } else {
-              final newText = sanitizedV[sanitizedV.length - 1];
               controller.value = controller.value.copyWith(
-                text: newText,
-                selection: TextSelection.collapsed(offset: newText.length),
+                text: sanitizedV,
+                selection: TextSelection.collapsed(offset: sanitizedV.length),
                 composing: TextRange.empty,
               );
               otpProvider.jumpToNextSlot();
             }
+            otpProvider.settle();
           }
         },
+        autofillHints: otpProvider.widget.autofillHints,
         maxLength: otpProvider.widget.maxLength + 1,
         maxLengthEnforcement: MaxLengthEnforcement.truncateAfterCompositionEnds,
         padding: effectivePadding,

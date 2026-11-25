@@ -1,9 +1,7 @@
-import 'dart:math' as math;
-
-import 'package:example/strand/data.dart';
 import 'package:example/strand/data/messages_data.dart';
 import 'package:example/strand/widgets/messages_common.dart';
 import 'package:example/strand/widgets/person_avatar.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:example/strand/widgets/strand_pieces.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
@@ -24,7 +22,7 @@ class ThreadMetrics {
   /// The conversation pane of the desktop card: the theme's widest gap at
   /// the sides and the card's padding under the header.
   factory ThreadMetrics.pane(ThemeData theme) {
-    final side = theme.layoutTheme.gap(GapSize.xl);
+    final side = theme.gap(GapSize.xl);
     return ThreadMetrics(
       padding: EdgeInsets.fromLTRB(side, messagesPaneInset(theme), side, 0),
       // Between the theme's `sm` and `md` gaps.
@@ -38,11 +36,10 @@ class ThreadMetrics {
 
   /// The conversation as a page of its own: tighter all round.
   factory ThreadMetrics.page(ThemeData theme) {
-    final layout = theme.layoutTheme;
-    final inset = layout.gap(GapSize.md);
+    final inset = theme.gap(GapSize.md);
     return ThreadMetrics(
       padding: EdgeInsets.fromLTRB(inset, inset, inset, 0),
-      gap: layout.gap(GapSize.sm),
+      gap: theme.gap(GapSize.sm),
       maxBubbleWidth: 268,
       imageSize: const Size(260, 170),
       attachmentWidth: 300,
@@ -73,11 +70,13 @@ class ThreadMetrics {
 }
 
 /// The messages of one conversation: the day divider, bubbles, attachments
-/// and pictures, the read receipt and the typing indicator.
+/// and pictures, the read receipt and whoever is typing.
 ///
-/// The list is anchored to its end, as a chat is: it opens on the newest
-/// message, and [controller] is at offset zero when that message is in view.
-class MessagesThread extends StatefulWidget {
+/// It is a `ChatList`: anchored to its newest message, which a new one
+/// pushes up as it arrives; following a reply that is still being written;
+/// and holding still, with a button back to the end, once the reader has
+/// scrolled away.
+class MessagesThread extends StatelessWidget {
   const MessagesThread({
     required this.conversation,
     required this.messages,
@@ -89,84 +88,50 @@ class MessagesThread extends StatefulWidget {
 
   final Conversation conversation;
 
-  /// The thread; `conversation.messages` and anything sent since.
+  /// The thread, oldest first; every message has its `id`.
   final List<ChatMessage> messages;
 
   final ThreadMetrics metrics;
 
-  final ScrollController? controller;
+  /// Scrolls the thread back to its end, and says whether it is there.
+  final ChatListController? controller;
 
   /// Space to keep clear around the messages on top of the metrics' own
   /// padding: the header and the composer the thread scrolls under.
   final EdgeInsets insets;
 
   @override
-  State<MessagesThread> createState() => _MessagesThreadState();
-}
-
-class _MessagesThreadState extends State<MessagesThread> {
-  // The avatar beside the last incoming bubble of a run, and the gutter the
-  // other bubbles keep free for it.
-  static const _avatarSize = 28.0;
-
-  @override
   Widget build(BuildContext context) {
-    final layout = Theme.of(context).layoutTheme;
-    final metrics = widget.metrics;
-    final conversation = widget.conversation;
-    final messages = widget.messages;
-    final padding = metrics.padding + widget.insets;
-
-    final children = <Widget>[_DayDivider(conversation.day)];
-    for (final (index, message) in messages.indexed) {
-      final next = index + 1 < messages.length ? messages[index + 1] : null;
-      // The receipt hangs closer to its message than the next message
-      // would; a reaction pill overhangs its bubble and needs more room.
-      children
-        ..add(SizedBox(height: metrics.gap))
-        ..add(
-          _MessageRow(
-            message: message,
-            sender: message.sender ?? conversation.person,
-            metrics: metrics,
-            avatarSize: _avatarSize,
-            showAvatar:
-                next == null || next.outgoing || next.sender != message.sender,
-          ),
-        );
-      if (message.receipt case final receipt?) {
-        children
-          ..add(SizedBox(height: metrics.gap - layout.gap(GapSize.xs)))
-          ..add(_Receipt(receipt));
-      }
-      if (message.reactions > 0) {
-        children.add(const SizedBox(height: _Reacted.margin));
-      }
-    }
-    final typist = conversation.person;
-    if (conversation.typing && typist != null) {
-      children
-        ..add(SizedBox(height: metrics.gap))
-        ..add(_TypingRow(person: typist, avatarSize: _avatarSize));
-    }
-
-    return LayoutBuilder(
-      builder: (context, constraints) => SingleChildScrollView(
-        controller: widget.controller,
-        reverse: true,
-        padding: padding,
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            minHeight: math.max(0, constraints.maxHeight - padding.vertical),
-          ),
-          child: Column(
-            mainAxisAlignment: metrics.alignToEnd
-                ? MainAxisAlignment.end
-                : MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: children,
-          ),
-        ),
+    return ChatList<ChatMessage>(
+      messages: messages,
+      idOf: (message) => message.id,
+      controller: controller,
+      alignment: metrics.alignToEnd
+          ? ChatListAlignment.bottom
+          : ChatListAlignment.top,
+      padding: metrics.padding + insets,
+      // The designs set every message the same distance from the last; a
+      // run only decides who carries the portrait.
+      spacing: metrics.gap,
+      groupSpacing: metrics.gap,
+      directionOf: (message) => message.outgoing
+          ? ChatBubbleDirection.outgoing
+          : ChatBubbleDirection.incoming,
+      // A reply being written is a run of its own: the designs show the
+      // portrait beside the dots and beside the message above them.
+      sameGroup: (a, b) =>
+          !a.outgoing &&
+          !b.outgoing &&
+          !a.pending &&
+          !b.pending &&
+          a.sender == b.sender,
+      separatorBuilder: (context, previous, message) =>
+          previous == null ? _DayDivider(conversation.day) : null,
+      itemBuilder: (context, item) => _MessageItem(
+        conversation: conversation,
+        message: item.message,
+        metrics: metrics,
+        showAvatar: item.isLastInGroup,
       ),
     );
   }
@@ -182,13 +147,11 @@ class _DayDivider extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Padding(
-      padding: EdgeInsets.symmetric(
-        vertical: theme.layoutTheme.gap(GapSize.xs),
-      ),
+      padding: EdgeInsets.symmetric(vertical: theme.gap(GapSize.xs)),
       child: FinesseRow(
         gap: GapSize.md,
         children: [
-          const Expanded(child: Divider.horizontal()),
+          const Expanded(child: Divider()),
           Text(
             label,
             style: theme.messagesCaption.copyWith(
@@ -196,7 +159,55 @@ class _DayDivider extends StatelessWidget {
               height: 1,
             ),
           ),
-          const Expanded(child: Divider.horizontal()),
+          const Expanded(child: Divider()),
+        ],
+      ),
+    );
+  }
+}
+
+/// A message and what hangs under it: the delivery line, the room a
+/// reaction pill needs.
+class _MessageItem extends StatelessWidget {
+  const _MessageItem({
+    required this.conversation,
+    required this.message,
+    required this.metrics,
+    required this.showAvatar,
+  });
+
+  final Conversation conversation;
+  final ChatMessage message;
+  final ThreadMetrics metrics;
+  final bool showAvatar;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final receipt = message.receipt;
+    // The delivery line moves to the newest message when another is sent:
+    // the one that loses it closes up instead of jumping.
+    return SpringSize(
+      clipBehavior: Clip.none,
+      // A bubble below that is already growing smoothly is followed as it
+      // is.
+      rigidDistance: theme.gap(GapSize.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _MessageRow(
+            conversation: conversation,
+            message: message,
+            metrics: metrics,
+            showAvatar: showAvatar,
+          ),
+          // The receipt hangs closer to its message than the next message
+          // would; a reaction pill overhangs its bubble and needs more room.
+          if (receipt != null) ...[
+            SizedBox(height: metrics.gap - theme.gap(GapSize.xs)),
+            _Receipt(receipt),
+          ],
+          if (message.reactions > 0) const SizedBox(height: _Reacted.margin),
         ],
       ),
     );
@@ -207,20 +218,15 @@ class _DayDivider extends StatelessWidget {
 /// edge, an incoming one after the avatar gutter.
 class _MessageRow extends StatelessWidget {
   const _MessageRow({
+    required this.conversation,
     required this.message,
-    required this.sender,
     required this.metrics,
-    required this.avatarSize,
     required this.showAvatar,
   });
 
+  final Conversation conversation;
   final ChatMessage message;
-
-  /// Who sent an incoming message.
-  final Person? sender;
-
   final ThreadMetrics metrics;
-  final double avatarSize;
 
   /// Whether this is the last incoming message of a run, which carries the
   /// sender's portrait.
@@ -236,7 +242,9 @@ class _MessageRow extends StatelessWidget {
         (theme.chatBubbleTheme.padding ??
                 const EdgeInsets.symmetric(horizontal: 14, vertical: 10))
             .resolve(Directionality.of(context));
-    final gutter = theme.layoutTheme.gap(GapSize.sm);
+    final gutter = theme.gap(GapSize.sm);
+    final sender = message.sender ?? conversation.person;
+    final text = message.text;
 
     // Each kind of content caps its own width, the way the designs measure
     // it: the whole box for a card or a picture; for a bubble, the text of
@@ -256,25 +264,45 @@ class _MessageRow extends StatelessWidget {
         child: _Picture(image, size: metrics.imageSize),
       );
     } else {
+      final Widget body;
+      if (message.outgoing) {
+        body = Text(text!);
+      } else if (message.reactions > 0) {
+        body = _Reacted(
+          count: message.reactions,
+          bubblePadding: bubblePadding,
+          child: Text(text!),
+        );
+      } else {
+        // A reply is three dots until it arrives, and then is revealed
+        // rather than swapped in. The assistant's keeps arriving, with a
+        // caret at its end; a message that was always there is plain text.
+        body = StreamingText(
+          text ?? '',
+          streaming: message.pending || message.streaming,
+          showCaret: conversation.assistant,
+          placeholder: TypingIndicator(
+            dotSize: _typingDot,
+            semanticLabel: conversation.assistant
+                ? 'The assistant is writing'
+                : '${sender?.firstName ?? 'Someone'} is typing',
+          ),
+        );
+      }
       content = ChatBubble(
         direction: direction,
+        padding: message.pending ? messagesTypingPadding : null,
         maxWidth: message.outgoing
             ? metrics.maxBubbleWidth + bubblePadding.horizontal
-            : metrics.maxBubbleWidth - avatarSize - gutter,
-        child: message.reactions > 0
-            ? _Reacted(
-                count: message.reactions,
-                bubblePadding: bubblePadding,
-                child: Text(message.text!),
-              )
-            : Text(message.text!),
+            : metrics.maxBubbleWidth - messagesThreadAvatar - gutter,
+        child: body,
       );
     }
 
     if (message.outgoing) {
       return Padding(
         // An outgoing message stays out of the avatar gutter.
-        padding: EdgeInsetsDirectional.only(start: avatarSize),
+        padding: const EdgeInsetsDirectional.only(start: messagesThreadAvatar),
         child: Align(
           alignment: AlignmentDirectional.centerEnd,
           child: content,
@@ -282,19 +310,32 @@ class _MessageRow extends StatelessWidget {
       );
     }
 
-    final person = sender;
+    final Widget avatar;
+    if (!showAvatar) {
+      avatar = const SizedBox(width: messagesThreadAvatar);
+    } else if (conversation.assistant) {
+      avatar = const AssistantMark(size: messagesThreadAvatar);
+    } else if (sender != null) {
+      // The bubble, or the indicator in it, says who is writing.
+      avatar = ExcludeSemantics(
+        child: PersonAvatar(sender, size: messagesThreadAvatar),
+      );
+    } else {
+      avatar = const SizedBox(width: messagesThreadAvatar);
+    }
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        if (showAvatar && person != null)
-          ExcludeSemantics(child: PersonAvatar(person, size: avatarSize))
-        else
-          SizedBox(width: avatarSize),
+        avatar,
         SizedBox(width: gutter),
         Flexible(child: content),
       ],
     );
   }
+
+  // A little larger than the indicator's own default, as the designs draw
+  // the dots.
+  static const _typingDot = 7.0;
 }
 
 /// A message with the reaction pill hanging off its bottom end corner.
@@ -347,15 +388,14 @@ class _Reacted extends StatelessWidget {
                 spacing: 2,
                 children: [
                   // The designs' coral, in both themes.
-                  const Icon(
+                  PhosphorIcon(
                     PhosphorIconsFill.heart,
-                    size: 12,
-                    color: Color(0xFFC8432F),
+                    size: theme.messagesCaption.fontSize,
+                    color: const Color(0xFFC8432F),
                   ),
                   Text(
                     '$count',
                     style: theme.messagesCaption.copyWith(
-                      fontSize: 11,
                       height: 1,
                       fontWeight: FontWeight.w600,
                       color: colors.foregroundSubtle,
@@ -382,6 +422,8 @@ class _Attachment extends StatelessWidget {
     final theme = Theme.of(context);
     final radius = theme.radii.xl;
     return Glass(
+      // On a bubble's flat fill, and one per attachment down the thread.
+      frosted: false,
       level: GlassLevel.strong,
       borderRadius: radius,
       child: ListTile(
@@ -390,20 +432,19 @@ class _Attachment extends StatelessWidget {
           'Opening ${file.name}',
           description: file.attachmentCaption,
         ),
-        padding: EdgeInsets.all(theme.layoutTheme.gap(GapSize.md)),
+        padding: EdgeInsets.all(theme.gap(GapSize.md)),
         borderRadius: radius,
         leading: IconTile(
-          size: 44,
-          iconSize: 26,
+          size: theme.avatarMd,
           borderRadius: theme.radius,
-          icon: Icon(file.icon),
+          icon: PhosphorIcon(file.icon),
         ),
         title: Text(file.name),
         titleStyle: theme.messagesName,
         subtitle: Text(file.attachmentCaption),
-        trailing: Icon(
+        trailing: PhosphorIcon(
           PhosphorIconsRegular.arrowUpRight,
-          size: 18,
+          size: theme.glyph,
           color: theme.colorScheme.mutedForeground,
         ),
       ),
@@ -470,9 +511,9 @@ class _Receipt extends StatelessWidget {
         gap: GapSize.xs,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
+          PhosphorIcon(
             PhosphorIconsRegular.check,
-            size: 14,
+            size: theme.iconBeside(theme.messagesCaption),
             color: theme.colorScheme.tint,
           ),
           Text(
@@ -484,38 +525,6 @@ class _Receipt extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-/// The other person's portrait beside three pulsing dots.
-class _TypingRow extends StatelessWidget {
-  const _TypingRow({required this.person, required this.avatarSize});
-
-  final Person person;
-  final double avatarSize;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        // The indicator says who is typing.
-        ExcludeSemantics(child: PersonAvatar(person, size: avatarSize)),
-        const Gap.sm(),
-        Flexible(
-          child: ChatBubble(
-            // Rounder than a text bubble's padding, so the dots sit in a
-            // pill. The designs keep both values on a phone, so neither
-            // follows the gap scale.
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            child: TypingIndicator(
-              dotSize: 7,
-              semanticLabel: '${person.firstName} is typing',
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

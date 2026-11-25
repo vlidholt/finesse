@@ -7,6 +7,7 @@ import 'package:example/strand/widgets/network_controller.dart';
 import 'package:example/strand/widgets/person_avatar.dart';
 import 'package:example/strand/widgets/strand_pieces.dart';
 import 'package:example/strand/widgets/strand_previews.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -47,9 +48,13 @@ class NetworkSectionView extends StatelessWidget {
               detail: entry.since,
               trailing: Button.outline(
                 size: ButtonSize.sm,
-                decoration: theme.buttonDecoration(radius: theme.radii.full),
-                textStyle: theme.textTheme.small,
-                leading: const Icon(PhosphorIconsRegular.paperPlaneTilt),
+                style: ButtonTheme(
+                  decoration: theme.buttonDecoration(radius: theme.radii.full),
+                  textStyle: theme.textTheme.small,
+                ),
+                leading: const PhosphorIcon(
+                  PhosphorIconsRegular.paperPlaneTilt,
+                ),
                 onPressed: () => context.leaveTo(StrandDestination.messages),
                 child: const Text('Message'),
               ),
@@ -79,7 +84,6 @@ class NetworkSectionView extends StatelessWidget {
                 asset: group.logo,
                 icon: group.icon,
                 label: group.name,
-                size: 48,
               ),
               title: group.name,
               subtitle: group.about,
@@ -107,7 +111,6 @@ class NetworkSectionView extends StatelessWidget {
               mark: StrandDateTile(
                 month: event.month,
                 day: event.day,
-                size: 48,
               ),
               title: event.title,
               subtitle: '${event.place} · ${event.time}',
@@ -134,7 +137,6 @@ class NetworkSectionView extends StatelessWidget {
               mark: StrandMark(
                 asset: page.company.logo,
                 label: page.company.name,
-                size: 48,
               ),
               title: page.company.name,
               subtitle: page.tagline,
@@ -151,9 +153,11 @@ class NetworkSectionView extends StatelessWidget {
     };
 
     return Card(
-      sectionGap: homeLooseGap,
-      rowMainAxisSize: MainAxisSize.max,
-      columnCrossAxisAlignment: CrossAxisAlignment.stretch,
+      style: CardTheme(
+        sectionGap: theme.gap(GapSize.md),
+        rowMainAxisSize: MainAxisSize.max,
+        columnCrossAxisAlignment: CrossAxisAlignment.stretch,
+      ),
       title: showTitle
           ? Semantics(
               header: true,
@@ -185,8 +189,8 @@ class NetworkSectionView extends StatelessWidget {
             ],
           ),
           for (final row in rows) ...[
-            const Divider.horizontal(
-              margin: EdgeInsets.symmetric(vertical: homeLooseGap),
+            Divider(
+              margin: EdgeInsets.symmetric(vertical: theme.gap(GapSize.md)),
             ),
             row,
           ],
@@ -212,11 +216,6 @@ class NetworkSectionPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton.ghost(
-          icon: const Icon(PhosphorIconsRegular.arrowLeft),
-          semanticLabel: 'Back',
-          onPressed: () => Navigator.of(context).pop(),
-        ),
         title: Text(section.label),
       ),
       body: PageContainer(
@@ -256,9 +255,9 @@ class _SortMenu extends StatelessWidget {
       anchor: _anchor,
       items: [
         for (final sort in ConnectionSort.values)
-          ContextMenuItem(
+          MenuItem(
             trailing: controller.sort == sort
-                ? const Icon(PhosphorIconsRegular.check)
+                ? const PhosphorIcon(PhosphorIconsRegular.check)
                 : null,
             onPressed: () => controller.sort = sort,
             child: Text(sort.label),
@@ -278,10 +277,10 @@ class _SortMenu extends StatelessWidget {
                   color: scheme.foreground,
                 ),
               ),
-              const Gap.raw(homeTightGap),
-              Icon(
+              const Gap.xs(),
+              PhosphorIcon(
                 PhosphorIconsRegular.caretDown,
-                size: 14,
+                size: theme.iconBeside(theme.textTheme.small),
                 color: scheme.mutedForeground,
               ),
             ],
@@ -319,7 +318,7 @@ class _PersonRow extends StatelessWidget {
           builder: (context, states) => FocusRing(
             visible: states.contains(WidgetState.focused),
             borderRadius: theme.radii.full,
-            child: PersonAvatar(person, size: 48, showOnline: person.online),
+            child: PersonAvatar(person, showOnline: person.online),
           ),
         ),
         Expanded(
@@ -338,7 +337,7 @@ class _PersonRow extends StatelessWidget {
                 detail,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: homeFinePrint(theme),
+                style: theme.textTheme.caption,
               ),
             ],
           ),
@@ -406,14 +405,14 @@ class _MarkRow extends StatelessWidget {
                 style: theme.textTheme.muted,
               ),
               if (detailWidget case final widget?) ...[
-                const Gap.raw(homeTightGap),
+                const Gap.xs(),
                 widget,
               ] else if (detail case final detail?)
                 Text(
                   detail,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: homeFinePrint(theme),
+                  style: theme.textTheme.caption,
                 ),
             ],
           ),

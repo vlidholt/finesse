@@ -1,8 +1,9 @@
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
-/// Chips as buttons: `onPressed` instead of `onSelected`, with a trailing
-/// icon that says what the tap does.
+/// Chips that can be removed: `onDeleted` adds a cross that is a target of
+/// its own, so the chip itself can still do something else. Backspace and
+/// Delete on a focused chip remove it too.
 class ChipRemovableExample extends StatefulWidget {
   const ChipRemovableExample({super.key});
 
@@ -14,33 +15,47 @@ class _ChipRemovableExampleState extends State<ChipRemovableExample> {
   static const _all = ['Product design', 'Copenhagen', 'Remote', 'Senior'];
 
   late final terms = [..._all];
+  String? opened;
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      alignment: WrapAlignment.center,
-      crossAxisAlignment: WrapCrossAlignment.center,
+    final theme = Theme.of(context);
+    return FinesseColumn(
+      mainAxisSize: MainAxisSize.min,
+      gap: GapSize.md,
       children: [
-        for (final term in terms)
-          Chip(
-            label: Text(term),
-            trailing: const Icon(PhosphorIconsRegular.x),
-            semanticLabel: 'Remove $term',
-            onPressed: () => setState(() => terms.remove(term)),
-          ),
-        if (terms.length < _all.length)
-          Chip(
-            label: const Text('Reset'),
-            leading: const Icon(PhosphorIconsRegular.arrowCounterClockwise),
-            variant: ChipVariant.dashed,
-            onPressed: () => setState(
-              () => terms
-                ..clear()
-                ..addAll(_all),
-            ),
-          ),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          alignment: WrapAlignment.center,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            for (final term in terms)
+              Chip(
+                label: Text(term),
+                onPressed: () => setState(() => opened = term),
+                onDeleted: () => setState(() => terms.remove(term)),
+                deleteSemanticLabel: 'Remove $term',
+              ),
+            if (terms.length < _all.length)
+              Chip(
+                label: const Text('Reset'),
+                leading: const PhosphorIcon(
+                  PhosphorIconsRegular.arrowCounterClockwise,
+                ),
+                variant: ChipVariant.dashed,
+                onPressed: () => setState(
+                  () => terms
+                    ..clear()
+                    ..addAll(_all),
+                ),
+              ),
+          ],
+        ),
+        Text(
+          opened == null ? 'Tap a chip, or its cross' : 'Opened "$opened"',
+          style: theme.textTheme.muted,
+        ),
       ],
     );
   }

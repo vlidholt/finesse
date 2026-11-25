@@ -1,14 +1,19 @@
+import 'dart:ui' show Tristate;
+
 import 'package:disco/disco.dart';
 import 'package:example/common/app_state.dart';
 import 'package:example/strand/data/jobs_data.dart';
 import 'package:example/strand/navigation.dart';
 import 'package:example/strand/screens/jobs_screen.dart';
+import 'package:example/strand/session.dart';
 import 'package:example/strand/widgets/jobs_detail.dart';
 import 'package:example/strand/widgets/jobs_detail_page.dart';
 import 'package:example/strand/widgets/jobs_job_card.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'strand_support.dart';
 
 const _desktop = Size(1440, 1000);
 const _laptop = Size(1024, 800);
@@ -37,7 +42,11 @@ Future<void> _pumpJobs(
 
   await tester.pumpWidget(
     ProviderScope(
-      providers: [...appProviders, strandDestinationProvider],
+      providers: [
+        ...appProviders,
+        strandDestinationProvider,
+        strandSessionProvider,
+      ],
       child: FinesseApp(
         theme: ThemeData(brightness: brightness),
         home: const Scaffold(body: JobsScreen()),
@@ -216,7 +225,7 @@ void main() {
           tester.widget<Card>(_inCard(job, find.byType(Card)));
       expect(card(JobsData.kestrel).selected, isTrue);
       expect(card(JobsData.quill).selected, isFalse);
-      expect(card(JobsData.quill).onPressed, isNotNull);
+      expect(card(JobsData.quill).onTap, isNotNull);
 
       final node = tester.getSemantics(
         find.byKey(ValueKey(JobsData.kestrel.id)),
@@ -311,6 +320,61 @@ void main() {
       expect(find.byType(JobDetailPage), findsNothing);
     });
 
+    testWidgets('"All filters" lists a switch per filter, each announced '
+        'once and live', (tester) async {
+      final handle = tester.ensureSemantics();
+      await _pumpJobs(tester);
+      await tester.tap(find.widgetWithText(Chip, 'All filters'));
+      for (var i = 0; i < 12; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+      final dialog = find.byType(Dialog);
+      expect(dialog, findsOneWidget);
+
+      for (final filter in JobsData.filters) {
+        // The chip behind the dialog is hidden from the semantics by the
+        // modal barrier; what is left is the dialog's row.
+        final row = find.ancestor(
+          of: find.descendant(of: dialog, matching: find.text(filter.label)),
+          matching: find.byType(MergeSemantics),
+        );
+        expect(row, findsOneWidget, reason: filter.label);
+        final node = tester.getSemantics(row);
+        expect(node.label, filter.label);
+        expect(
+          node.getSemanticsData().flagsCollection.isToggled,
+          isNot(Tristate.none),
+          reason: filter.label,
+        );
+        expect(
+          find.descendant(of: row, matching: find.byType(Switch)),
+          findsOneWidget,
+        );
+        // Nothing else in the dialog carries the same name.
+        expect(
+          find.descendant(
+            of: dialog,
+            matching: find.bySemanticsLabel(filter.label),
+          ),
+          findsOneWidget,
+          reason: filter.label,
+        );
+      }
+
+      final hybrid = find.descendant(
+        of: find.ancestor(
+          of: find.descendant(of: dialog, matching: find.text('Hybrid')),
+          matching: find.byType(MergeSemantics),
+        ),
+        matching: find.byType(Switch),
+      );
+      expect(tester.widget<Switch>(hybrid).value, isFalse);
+      await tester.tap(hybrid);
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(tester.widget<Switch>(hybrid).value, isTrue);
+      handle.dispose();
+    });
+
     testWidgets('filter chips toggle', (tester) async {
       await _pumpJobs(tester);
 
@@ -394,9 +458,10 @@ void main() {
       await _pumpJobs(tester);
 
       await tester.tap(_inDetail(find.widgetWithText(Button, 'Easy Apply')));
-      await tester.pump();
+      await _settle(tester);
+      await completeEasyApply(tester);
 
-      expect(_inDetail(find.text('Applied')), findsOneWidget);
+      expect(_inDetail(find.text('View application')), findsOneWidget);
       expect(
         find.descendant(
           of: find.widgetWithText(StatTile, 'Applications sent'),
@@ -404,6 +469,7 @@ void main() {
         ),
         findsOneWidget,
       );
+      await dismissToasts(tester);
     });
 
     testWidgets('the sort menu reorders the list', (tester) async {
@@ -505,14 +571,20 @@ void main() {
         JobsData.tidewater,
       ]);
 
-      // No filter chips on a phone: the list follows the search panel, the
-      // design's 28 below it.
-      expect(find.byType(Chip), findsNothing);
+      // The filter chips are a bar between the search panel and the list,
+      // which scrolls sideways out to the screen's edges.
+      final bar = find.byType(ChipGroup<String>);
+      expect(bar, findsOneWidget);
+      expect(tester.widget<ChipGroup<String>>(bar).wrap, isFalse);
       expect(
-        tester.getTopLeft(find.text('Top picks for you')).dy -
-            tester.getBottomLeft(find.byType(Glass)).dy,
-        28,
+        tester.getTopLeft(bar).dy,
+        greaterThan(tester.getBottomLeft(find.byType(Glass)).dy),
       );
+      expect(
+        tester.getTopLeft(find.text('Top picks for you')).dy,
+        greaterThan(tester.getBottomLeft(bar).dy),
+      );
+      expect(tester.getTopRight(bar).dx, _phone.width);
     });
 
     testWidgets('a card opens the detail page, which pops back', (
@@ -533,7 +605,7 @@ void main() {
 
       expect(page, findsOneWidget);
       expect(inBar(find.text('Quill')), findsOneWidget);
-      expect(inBar(find.byIcon(PhosphorIconsRegular.arrowLeft)), findsOne);
+      expect(inBar(find.byType(BackButton)), findsOne);
       expect(inBar(find.byIcon(PhosphorIconsRegular.bookmarkSimple)), findsOne);
       expect(inBar(find.byIcon(PhosphorIconsRegular.export)), findsOne);
       expect(_inDetail(find.text('Product designer, Editor')), findsOneWidget);
@@ -547,8 +619,10 @@ void main() {
       );
       expect(apply, findsOneWidget);
       await tester.tap(apply);
-      await tester.pump();
-      expect(inPage(find.text('Applied')), findsOneWidget);
+      await _settle(tester);
+      await completeEasyApply(tester);
+      expect(inPage(find.text('View application')), findsOneWidget);
+      await dismissToasts(tester);
 
       // Saving from the app bar reaches the card underneath.
       await tester.tap(inBar(find.byIcon(PhosphorIconsRegular.bookmarkSimple)));
@@ -566,7 +640,7 @@ void main() {
         lessThan(tester.getTopLeft(inPage(find.byType(Glass))).dy),
       );
 
-      await tester.tap(inBar(find.byIcon(PhosphorIconsRegular.arrowLeft)));
+      await tester.tap(inBar(find.byType(BackButton)));
       await _settle(tester);
 
       expect(find.byType(JobDetailPage), findsNothing);

@@ -55,7 +55,7 @@ void main() {
       expect(press.style, StylePreset.lyra);
       expect(press.baseColor, BaseColor.zinc);
       expect(press.build().radius, BorderRadius.zero);
-      expect(press.build().cardTheme.radius, BorderRadius.zero);
+      expect(press.build().cardTheme.borderRadius, BorderRadius.zero);
       expect(press.font.category, FontCategory.mono);
       expect(press.headingFont!.category, FontCategory.serif);
     });
@@ -166,6 +166,44 @@ void main() {
       }
     });
 
+    test('carry the whole type scale the screens read, fine print '
+        'included, in their own font', () {
+      for (final preset in ThemePreset.values) {
+        for (final formFactor in FormFactor.values) {
+          final theme = preset.config.build().withFormFactor(formFactor);
+          final reason = '${preset.label}, ${formFactor.name}';
+          final text = theme.textTheme;
+          final style = theme.style;
+
+          // Each style a Strand screen uses is the preset style's role —
+          // nothing is left at the package's prose defaults.
+          expect(text.h1.fontSize, style.display!.fontSize, reason: reason);
+          expect(text.h3.fontSize, style.headline!.fontSize, reason: reason);
+          expect(text.h4.fontSize, style.title.fontSize, reason: reason);
+          expect(text.large.fontSize, style.subtitle!.fontSize, reason: reason);
+          expect(text.p.fontSize, style.body.fontSize, reason: reason);
+          expect(text.small.fontSize, style.small!.fontSize, reason: reason);
+          expect(text.muted.fontSize, style.small!.fontSize, reason: reason);
+          expect(text.caption.fontSize, style.caption.fontSize, reason: reason);
+
+          // Fine print is regular and muted, and in the body face: a
+          // copy with another weight asks the font for that weight's file.
+          expect(text.caption.fontWeight, FontWeight.w400, reason: reason);
+          expect(
+            text.caption.color,
+            theme.colorScheme.mutedForeground,
+            reason: reason,
+          );
+          expect(text.caption, isA<BuilderTextStyle>(), reason: reason);
+          expect(
+            text.caption.fontFamily,
+            text.muted.fontFamily,
+            reason: reason,
+          );
+        }
+      }
+    });
+
     test('an accent carries the tint with it, and keeps it legible', () {
       // TealColorScheme names its own tint; `applyAccentScheme` leaves it,
       // which would put a teal selected-tab icon beside rose buttons.
@@ -269,7 +307,7 @@ void main() {
         'radius': base.copyWith(radius: RadiusPreset.large),
         'focus ring': base.copyWith(focusRing: FocusRingPlacement.inside),
         'card opacity': base.copyWith(cardOpacity: () => 1),
-        'card blur': base.copyWith(cardBlur: () => false),
+        'card blur': base.copyWith(cardBlur: () => true),
         'bar opacity': base.copyWith(barOpacity: () => .6),
         'blur strength': base.copyWith(glassBlur: () => 8),
         'density': base.copyWith(density: Density.compact),
@@ -314,7 +352,7 @@ void main() {
         // Every override at once, built from separate instances.
         const ThemeEditorConfig().copyWith(
           cardOpacity: () => .6,
-          cardBlur: () => false,
+          cardBlur: () => true,
           barOpacity: () => .7,
           glassBlur: () => 12,
           pageMarginScale: 1.5,
@@ -468,6 +506,7 @@ ThemeData(
   style: StyleTokens.finesse.copyWith(
     cardOpacity: 0.7,
     cardOpacityDark: 0.7,
+    cardBlur: true,
     barOpacity: 0.8,
     barOpacityDark: 0.8,
     glassBlur: 32,
@@ -483,12 +522,14 @@ ThemeData(
   style: StyleTokens.finesse.copyWith(
     cardOpacity: 0.7,
     cardOpacityDark: 0.7,
+    cardBlur: true,
     barOpacity: 0.8,
     barOpacityDark: 0.8,
     glassBlur: 32,
     mobile: StyleTokens.finesse.forFormFactor(FormFactor.mobile).copyWith(
       cardOpacity: 0.7,
       cardOpacityDark: 0.7,
+      cardBlur: true,
       barOpacity: 0.8,
       barOpacityDark: 0.8,
       glassBlur: 32,
@@ -504,6 +545,7 @@ ThemeData(
           ? StyleTokens.finesse.copyWith(
               cardOpacity: 0.7,
               cardOpacityDark: 0.7,
+              cardBlur: true,
               barOpacity: 0.8,
               barOpacityDark: 0.8,
               glassBlur: 32,
@@ -511,6 +553,7 @@ ThemeData(
           : StyleTokens.finesse.copyWith(
               cardOpacity: 0.7,
               cardOpacityDark: 0.7,
+              cardBlur: true,
               barOpacity: 0.8,
               barOpacityDark: 0.8,
               glassBlur: 32,
@@ -519,6 +562,7 @@ ThemeData(
                   .copyWith(
                     cardOpacity: 0.7,
                     cardOpacityDark: 0.7,
+                    cardBlur: true,
                     barOpacity: 0.8,
                     barOpacityDark: 0.8,
                     glassBlur: 32,

@@ -13,8 +13,8 @@ void main() {
           alignment: alignment,
           child: DropdownMenu(
             items: const [
-              ContextMenuItem(child: Text('Profile')),
-              ContextMenuItem(child: Text('Log out')),
+              MenuItem(child: Text('Profile')),
+              MenuItem(child: Text('Log out')),
             ],
             builder: (context, controller, _) => Button(
               onPressed: controller.toggle,

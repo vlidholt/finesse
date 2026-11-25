@@ -1,4 +1,5 @@
 import 'package:finesse/finesse.dart';
+import 'package:finesse/src/utils/moving_indicator.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -243,5 +244,120 @@ void main() {
         color: const Color(0xff000000),
       ),
     );
+  });
+  group('while it fades, the layer it fades through', () {
+    /// The bounds of the `saveLayer` the indicator paints through.
+    List<Rect?> layers(WidgetTester tester) {
+      final bounds = <Rect?>[];
+      expect(
+        find.byType(MovingIndicator),
+        paints..everything((method, arguments) {
+          if (method == #saveLayer) bounds.add(arguments.first as Rect?);
+          return true;
+        }),
+      );
+      return bounds;
+    }
+
+    Widget segments({required int? selected, required Decoration pill}) =>
+        FinesseApp(
+          home: Align(
+            alignment: Alignment.topLeft,
+            child: MovingIndicator(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (var i = 0; i < 3; i++)
+                    MovingIndicatorTarget(
+                      selected: i == selected,
+                      decoration: pill,
+                      child: const SizedBox(width: 100, height: 30),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        );
+
+    Future<void> fadeOut(WidgetTester tester, Decoration pill) async {
+      await tester.pumpWidget(segments(selected: 1, pill: pill));
+      await tester.pumpAndSettle();
+      expect(layers(tester), isEmpty, reason: 'no layer at full opacity');
+      await tester.pumpWidget(segments(selected: null, pill: pill));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 48));
+      final opacity = _render(tester).indicatorOpacity;
+      expect(opacity, greaterThan(0));
+      expect(opacity, lessThan(1));
+    }
+
+    const box = Rect.fromLTWH(100, 0, 100, 30);
+
+    testWidgets('is the size of a plain pill, not of the window', (
+      tester,
+    ) async {
+      await fadeOut(tester, _pill);
+      final bounds = layers(tester).single!;
+      expect(bounds.contains(box.topLeft), isTrue);
+      expect(bounds.contains(box.bottomRight), isTrue);
+      expect(box.inflate(2).contains(bounds.topLeft), isTrue);
+      expect(box.inflate(2).contains(bounds.bottomRight), isTrue);
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('reaches as far as its shadows and its border do', (
+      tester,
+    ) async {
+      const shadow = BoxShadow(
+        color: Color(0x40000000),
+        blurRadius: 12,
+        spreadRadius: 2,
+        offset: Offset(0, 4),
+      );
+      // The far edge of the shadow: its offset, its spread and three
+      // sigmas of blur.
+      final reach = 4 + 2 + shadow.blurSigma * 3;
+      for (final pill in <Decoration>[
+        const BoxDecoration(color: Color(0xff000000), boxShadow: [shadow]),
+        ShadowDecoration.box(
+          color: const Color(0xff000000),
+          shadows: const [shadow],
+        ),
+        const ShapeDecoration(
+          color: Color(0xff000000),
+          shape: StadiumBorder(),
+          shadows: [shadow],
+        ),
+      ]) {
+        await fadeOut(tester, pill);
+        final bounds = layers(tester).single!;
+        expect(bounds.bottom, greaterThanOrEqualTo(box.bottom + reach));
+        expect(bounds.left, lessThanOrEqualTo(box.left - (reach - 4)));
+        expect(bounds.width, lessThan(200), reason: '$pill');
+        await tester.pumpAndSettle();
+        await tester.pumpWidget(const SizedBox());
+      }
+
+      await fadeOut(
+        tester,
+        BoxDecoration(
+          border: Border.all(
+            width: 6,
+            strokeAlign: BorderSide.strokeAlignOutside,
+          ),
+        ),
+      );
+      final bounds = layers(tester).single!;
+      expect(bounds.left, lessThanOrEqualTo(box.left - 6));
+      expect(bounds.bottom, greaterThanOrEqualTo(box.bottom + 6));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('is left unbounded for a decoration it knows nothing '
+        'about', (tester) async {
+      await fadeOut(tester, const FlutterLogoDecoration());
+      expect(layers(tester).single, isNull);
+      await tester.pumpAndSettle();
+    });
   });
 }

@@ -22,6 +22,12 @@ class AlertTheme with _$AlertTheme {
     this.mainAxisAlignment,
     this.crossAxisAlignment,
     this.gap,
+    this.successColor,
+    this.successBackgroundColor,
+    this.warningColor,
+    this.warningBackgroundColor,
+    this.infoColor,
+    this.infoBackgroundColor,
   }) : _canMerge = canMerge;
 
   @ignore
@@ -56,6 +62,25 @@ class AlertTheme with _$AlertTheme {
 
   /// {@macro Alert.gap}
   final double? gap;
+
+  /// The colour of a success alert's icon and edge. Read from the primary
+  /// alert theme: the tinted variants are that alert in another colour.
+  final Color? successColor;
+
+  /// The fill of a success alert.
+  final Color? successBackgroundColor;
+
+  /// The colour of a warning alert's icon and edge.
+  final Color? warningColor;
+
+  /// The fill of a warning alert.
+  final Color? warningBackgroundColor;
+
+  /// The colour of an info alert's icon and edge.
+  final Color? infoColor;
+
+  /// The fill of an info alert.
+  final Color? infoBackgroundColor;
 
   /// Linearly interpolates between [a] and [b] by [t].
   static AlertTheme? lerp(

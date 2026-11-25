@@ -1,6 +1,8 @@
 import 'package:example/strand/data/applications_data.dart';
 import 'package:example/strand/widgets/jobs_board_card.dart';
 import 'package:example/strand/widgets/jobs_board_controller.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
+import 'package:example/strand/widgets/strand_pieces.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -40,20 +42,22 @@ class JobsBoard extends StatelessWidget {
               id: stage,
               label: stage.label,
               items: applications.at(stage),
-              leading: Icon(
+              leading: PhosphorIcon(
                 stage.icon,
-                size: 16,
+                size: Theme.of(context).glyph,
                 color: Theme.of(context).colorScheme.mutedForeground,
               ),
               trailing: _StageMenu(stage: stage, applications: applications),
               footer: stage == ApplicationStage.saved
                   ? Button.ghost(
-                      width: double.infinity,
+                      style: ButtonTheme(
+                        width: double.infinity,
+                      ),
                       // The label takes the width that is left and gives
                       // way when a wide font or a large text size needs
                       // more than the column has.
                       expands: true,
-                      leading: Icon(
+                      leading: PhosphorIcon(
                         applications.hasSuggestions
                             ? PhosphorIconsRegular.plus
                             : PhosphorIconsRegular.magnifyingGlass,
@@ -89,46 +93,84 @@ class _StageMenu extends StatelessWidget {
   final ApplicationStage stage;
   final ApplicationsController applications;
 
+  static String _count(int count) =>
+      count == 1 ? '1 application' : '$count applications';
+
+  /// Says what a menu action did, with an "Undo" that puts the board back.
+  void _offerUndo(
+    BuildContext context,
+    ApplicationsSnapshot before, {
+    required String title,
+    required String description,
+    ToastVariant variant = ToastVariant.neutral,
+  }) {
+    showStrandToast(
+      context,
+      title,
+      description: description,
+      variant: variant,
+      actionLabel: 'Undo',
+      onAction: () => applications.restore(before),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final empty = applications.at(stage).isEmpty;
     return DropdownMenu(
       constraints: const BoxConstraints(minWidth: 208),
       items: [
-        ContextMenuItem(
-          leading: const Icon(PhosphorIconsRegular.clockCounterClockwise),
+        MenuItem(
+          leading: const PhosphorIcon(
+            PhosphorIconsRegular.clockCounterClockwise,
+          ),
           enabled: !empty,
           onPressed: () => applications.sort(stage, ApplicationSort.updated),
           child: const Text('Sort by last updated'),
         ),
-        ContextMenuItem(
-          leading: const Icon(PhosphorIconsRegular.sortAscending),
+        MenuItem(
+          leading: const PhosphorIcon(PhosphorIconsRegular.sortAscending),
           enabled: !empty,
           onPressed: () => applications.sort(stage, ApplicationSort.company),
           child: const Text('Sort by company'),
         ),
-        const Divider.horizontal(margin: EdgeInsets.symmetric(vertical: 4)),
+        const MenuDivider(),
         if (stage == ApplicationStage.archived)
-          ContextMenuItem(
-            leading: const Icon(PhosphorIconsRegular.trash),
+          MenuItem(
+            leading: const PhosphorIcon(PhosphorIconsRegular.trash),
             enabled: !empty,
             destructive: true,
-            onPressed: applications.clearArchive,
+            onPressed: () {
+              final count = applications.at(stage).length;
+              _offerUndo(
+                context,
+                applications.clearArchive(),
+                title: 'Archive cleared',
+                description: _count(count),
+                variant: ToastVariant.destructive,
+              );
+            },
             child: const Text('Clear the archive'),
           )
         else
-          ContextMenuItem(
-            leading: const Icon(PhosphorIconsRegular.archive),
+          MenuItem(
+            leading: const PhosphorIcon(PhosphorIconsRegular.archive),
             enabled: !empty,
-            onPressed: () => applications.archiveAll(stage),
+            onPressed: () {
+              final count = applications.at(stage).length;
+              _offerUndo(
+                context,
+                applications.archiveAll(stage),
+                title: 'Moved to Archived',
+                description: '${_count(count)} from ${stage.label}',
+              );
+            },
             child: const Text('Archive all'),
           ),
       ],
       builder: (context, controller, _) => IconButton.ghost(
-        width: 32,
-        height: 32,
-        iconSize: 18,
-        icon: const Icon(PhosphorIconsRegular.dotsThree),
+        size: ButtonSize.sm,
+        icon: const PhosphorIcon(PhosphorIconsRegular.dotsThree),
         semanticLabel: '${stage.label} options',
         onPressed: controller.toggle,
       ),

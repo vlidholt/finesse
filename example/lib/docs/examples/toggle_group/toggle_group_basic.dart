@@ -10,28 +10,28 @@ class ToggleGroupBasicExample extends StatefulWidget {
 }
 
 class _ToggleGroupBasicExampleState extends State<ToggleGroupBasicExample> {
-  Set<String> alignment = {'left'};
+  String? alignment = 'left';
 
   @override
   Widget build(BuildContext context) {
     return ToggleGroup<String>(
-      values: alignment,
-      onChanged: (values) => setState(() => alignment = values),
-      children: const [
+      value: alignment,
+      onChanged: (value) => setState(() => alignment = value),
+      items: const [
         ToggleGroupItem(
           value: 'left',
           semanticLabel: 'Align left',
-          child: Icon(PhosphorIconsRegular.textAlignLeft),
+          child: PhosphorIcon(PhosphorIconsRegular.textAlignLeft),
         ),
         ToggleGroupItem(
           value: 'center',
           semanticLabel: 'Align center',
-          child: Icon(PhosphorIconsRegular.textAlignCenter),
+          child: PhosphorIcon(PhosphorIconsRegular.textAlignCenter),
         ),
         ToggleGroupItem(
           value: 'right',
           semanticLabel: 'Align right',
-          child: Icon(PhosphorIconsRegular.textAlignRight),
+          child: PhosphorIcon(PhosphorIconsRegular.textAlignRight),
         ),
       ],
     );

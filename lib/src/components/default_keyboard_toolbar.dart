@@ -83,14 +83,14 @@ class DefaultKeyboardToolbar extends StatelessWidget {
           children: [
             if (effectiveShowPreviousButton)
               IconButton.ghost(
-                icon: const Icon(PhosphorIconsRegular.caretUp),
+                icon: const PhosphorIcon(PhosphorIconsRegular.caretUp),
                 onPressed: () {
                   FocusScope.of(context).previousFocus();
                 },
               ),
             if (effectiveShowNextButton)
               IconButton.ghost(
-                icon: const Icon(PhosphorIconsRegular.caretDown),
+                icon: const PhosphorIcon(PhosphorIconsRegular.caretDown),
                 onPressed: () {
                   FocusScope.of(context).nextFocus();
                 },

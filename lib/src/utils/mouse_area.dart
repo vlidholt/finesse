@@ -505,6 +505,7 @@ class MouseAreaRenderBox extends RenderProxyBoxWithHitTestBehavior {
 /// A widget that provides notification of a hover inside or outside of a set of
 /// registered regions, grouped by [MouseArea.groupId], without
 /// participating in the [gesture disambiguation](https://flutter.dev/to/gesture-disambiguation) system.
+@internal
 class MouseAreaSurface extends SingleChildRenderObjectWidget {
   /// Creates a const [MouseAreaSurface].
   ///

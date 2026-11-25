@@ -34,12 +34,14 @@ void main() {
       child: SizedBox(
         width: 320,
         child: Card(
-          onPressed: onPressed,
+          onTap: onPressed,
           selected: selected,
           semanticLabel: semanticLabel,
-          backgroundColor: backgroundColor,
-          border: border,
-          radius: radius,
+          style: CardTheme(
+            backgroundColor: backgroundColor,
+            border: border,
+            borderRadius: radius,
+          ),
           title: const Text('Senior designer'),
           description: const Text('Halcyon'),
           footer: footer,
@@ -127,7 +129,7 @@ void main() {
       final theme = themeOf(tester, find.byType(Card));
       var ring = tester.widget<FocusRing>(find.byType(FocusRing));
       expect(ring.visible, isFalse);
-      expect(ring.borderRadius, theme.cardTheme.radius);
+      expect(ring.borderRadius, theme.cardTheme.borderRadius);
       expect(ring.inset, isFalse);
 
       await tester.sendKeyEvent(LogicalKeyboardKey.tab);
@@ -396,7 +398,7 @@ void main() {
           width: 320,
           child: Card(
             selected: selected,
-            padding: const EdgeInsets.fromLTRB(8, 4, 12, 6),
+            style: const CardTheme(padding: EdgeInsets.fromLTRB(8, 4, 12, 6)),
             child: const SizedBox(key: Key('body'), height: 30),
           ),
         ),
@@ -418,7 +420,7 @@ void main() {
             width: 320,
             child: Card(
               selected: true,
-              padding: EdgeInsets.zero,
+              style: CardTheme(padding: EdgeInsets.zero),
               child: SizedBox(key: Key('body'), height: 30),
             ),
           ),
@@ -432,11 +434,15 @@ void main() {
     testWidgets('an opaque selected fill stops the card blurring', (
       tester,
     ) async {
-      await pumpFinesse(tester, card());
-      // The finesse card is translucent glass…
+      // A style whose cards are glass: finesse's own are translucent
+      // without a blur.
+      final glass = ThemeData(
+        style: StyleTokens.finesse.copyWith(cardBlur: true),
+      );
+      await pumpFinesse(tester, card(), theme: glass);
       expect(find.byType(BackdropFilter), findsOneWidget);
 
-      await pumpFinesse(tester, card(selected: true));
+      await pumpFinesse(tester, card(selected: true), theme: glass);
       final accent = themeOf(tester, find.byType(Card)).colorScheme.accent;
       // …and a backdrop layer is only paid for while the fill shows it.
       expect(
@@ -551,8 +557,10 @@ void main() {
       child: SizedBox(
         width: 320,
         child: Card(
-          sectionGap: sectionGap,
-          gap: gap,
+          style: CardTheme(
+            sectionGap: sectionGap,
+            gap: gap,
+          ),
           title: const Text('Title'),
           description: const Text('Description'),
           footer: footer,
@@ -691,7 +699,7 @@ void main() {
           child: SizedBox(
             width: 320,
             child: Card(
-              onPressed: () => cardPresses++,
+              onTap: () => cardPresses++,
               semanticLabel: 'Open job',
               title: const Text('Senior designer'),
               description: const Text('Halcyon'),

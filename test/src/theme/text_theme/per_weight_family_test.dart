@@ -81,6 +81,7 @@ void main() {
             ('large', t.large),
             ('small', t.small),
             ('muted', t.muted),
+            ('caption', t.caption),
             ('button', theme.primaryButtonTheme.textStyle!),
             ('outline button', theme.outlineButtonTheme.textStyle!),
             ('badge', theme.secondaryBadgeTheme.textStyle!),

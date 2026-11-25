@@ -3,42 +3,37 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:collection/collection.dart';
+import 'package:finesse/src/components/button.dart';
+import 'package:finesse/src/components/decorator.dart';
 import 'package:finesse/src/components/disabled.dart';
 import 'package:finesse/src/components/divider.dart';
+import 'package:finesse/src/components/picker.dart';
 import 'package:finesse/src/components/popover.dart';
+import 'package:finesse/src/components/sheet.dart';
 import 'package:finesse/src/components/text_field.dart';
+import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/raw_components/focusable.dart';
 import 'package:finesse/src/raw_components/portal.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/motion.dart';
+import 'package:finesse/src/theme/components/layout.dart';
+import 'package:finesse/src/theme/components/sheet.dart';
 import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/arrow_key_focus.dart';
 import 'package:finesse/src/utils/debug_check.dart';
 import 'package:finesse/src/utils/dismiss_shortcut.dart';
 import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
-import 'package:finesse/src/utils/moving_indicator.dart';
 import 'package:finesse/src/utils/provider.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
 /// Builder for the selected option widget in [Select].
-typedef SelectedOptionBuilder<T> =
-    Widget Function(
-      BuildContext context,
-      T value,
-    );
-
-/// Controls the selection state of a [Select] widget.
-///
-/// It extends [ValueNotifier] to provide reactive updates when the selected
-/// values change.
-class SelectController<T> extends ValueNotifier<Set<T>> {
-  /// Creates a controller with [initialValue] selected. Defaults to an empty
-  /// selection.
-  SelectController({Set<T>? initialValue}) : super(initialValue ?? {});
-}
+typedef SelectedOptionBuilder<T> = Widget Function(
+  BuildContext context,
+  T value,
+);
 
 /// Defines the different variants of the [Select] widget.
 enum SelectVariant {
@@ -62,16 +57,25 @@ enum SelectVariant {
 /// It supports single and multiple selection, search functionality, and
 /// extensive customization through various properties.
 class Select<T> extends StatefulWidget {
-  /// Creates a [Select] with the primary variant.
+  /// Creates a select that holds one value.
+  ///
+  /// [variant] is [SelectVariant.primary], the default, or
+  /// [SelectVariant.search], which adds a search field and needs [search]
+  /// or [onSearchChanged]; [Select.withSearch] is the shortcut for it. For
+  /// several values, use [Select.multiple].
   const Select({
     super.key,
-    required this.selectedOptionBuilder,
+    this.variant = SelectVariant.primary,
+    this.selectedOptionBuilder,
     this.options,
     this.optionsBuilder,
-    this.popoverController,
+    this.controller,
     this.enabled = true,
+    this.presentation = PickerPresentation.auto,
+    this.title,
     this.placeholder,
     this.placeholderStyle,
+    this.value,
     this.initialValue,
     this.onChanged,
     this.focusNode,
@@ -90,36 +94,44 @@ class Select<T> extends StatefulWidget {
     this.showScrollToTopChevron,
     this.scrollController,
     this.anchor,
-    this.effects,
     this.shadows,
     this.filter,
     this.header,
     this.footer,
     this.closeOnSelect = true,
     this.allowDeselection = false,
-    this.groupId,
     this.itemCount,
     this.shrinkWrap,
-    this.controller,
-    this.popoverReverseDuration,
     this.ensureSelectedVisible,
-    this.onPressed,
-  }) : variant = SelectVariant.primary,
+    this.onTap,
+    this.onSearchChanged,
+    this.searchDivider,
+    this.searchInputLeading,
+    this.searchPlaceholder,
+    this.searchPadding,
+    this.search,
+    this.clearSearchOnClose,
+    this.searchFocusNode,
+    this.onSearchSubmitted,
+  }) : values = null,
        initialValues = const {},
-       onSearchChanged = null,
-       searchDivider = null,
-       searchPlaceholder = null,
-       searchInputLeading = null,
-       onMultipleChanged = null,
-       searchPadding = null,
+       onValuesChanged = null,
        selectedOptionsBuilder = null,
-       search = null,
-       clearSearchOnClose = false,
-       searchFocusNode = null,
-       onSearchSubmitted = null,
+       assert(
+         variant == SelectVariant.primary || variant == SelectVariant.search,
+         'Select() holds one value: use Select.multiple for the multiple '
+         'variants',
+       ),
        assert(
          options != null || optionsBuilder != null,
          'Either options or optionsBuilder must be provided',
+       ),
+       assert(
+         variant != SelectVariant.search ||
+             search != null ||
+             onSearchChanged != null,
+         'Either search or onSearchChanged must be provided for the search '
+         'variant',
        );
 
   /// Creates a [Select] with the search variant.
@@ -127,10 +139,10 @@ class Select<T> extends StatefulWidget {
     super.key,
     this.options,
     this.optionsBuilder,
-    required this.selectedOptionBuilder,
+    this.selectedOptionBuilder,
     this.onSearchChanged,
     this.onChanged,
-    this.popoverController,
+    this.controller,
     this.searchDivider,
     this.searchInputLeading,
     this.searchPlaceholder,
@@ -138,8 +150,11 @@ class Select<T> extends StatefulWidget {
     this.search,
     this.clearSearchOnClose,
     this.enabled = true,
+    this.presentation = PickerPresentation.auto,
+    this.title,
     this.placeholder,
     this.placeholderStyle,
+    this.value,
     this.initialValue,
     this.focusNode,
     this.autofocus = false,
@@ -157,25 +172,22 @@ class Select<T> extends StatefulWidget {
     this.showScrollToTopChevron,
     this.scrollController,
     this.anchor,
-    this.effects,
     this.shadows,
     this.filter,
     this.header,
     this.footer,
     this.closeOnSelect = true,
     this.allowDeselection = false,
-    this.groupId,
     this.itemCount,
     this.shrinkWrap,
-    this.controller,
-    this.popoverReverseDuration,
     this.ensureSelectedVisible,
     this.searchFocusNode,
     this.onSearchSubmitted,
-    this.onPressed,
+    this.onTap,
   }) : variant = SelectVariant.search,
        selectedOptionsBuilder = null,
-       onMultipleChanged = null,
+       onValuesChanged = null,
+       values = null,
        initialValues = const {},
        assert(
          options != null || optionsBuilder != null,
@@ -186,18 +198,27 @@ class Select<T> extends StatefulWidget {
          'Either search or onSearchChanged must be provided',
        );
 
-  /// Creates a [Select] with the multiple select variant.
+  /// Creates a select that holds several values.
+  ///
+  /// [variant] is [SelectVariant.multiple], the default, or
+  /// [SelectVariant.multipleWithSearch], which adds a search field and
+  /// needs [search] or [onSearchChanged]; [Select.multipleWithSearch] is the
+  /// shortcut for it.
   const Select.multiple({
     super.key,
+    this.variant = SelectVariant.multiple,
     this.options,
     this.optionsBuilder,
-    required this.selectedOptionsBuilder,
-    this.popoverController,
+    this.selectedOptionsBuilder,
+    this.controller,
     this.enabled = true,
+    this.presentation = PickerPresentation.auto,
+    this.title,
     this.placeholder,
     this.placeholderStyle,
+    this.values,
     this.initialValues = const {},
-    ValueChanged<Set<T>>? onChanged,
+    this.onValuesChanged,
     this.focusNode,
     this.autofocus = false,
     this.onFocusChange,
@@ -214,37 +235,45 @@ class Select<T> extends StatefulWidget {
     this.showScrollToTopChevron,
     this.scrollController,
     this.anchor,
-    this.effects,
     this.shadows,
     this.filter,
     this.header,
     this.footer,
     this.allowDeselection = true,
     this.closeOnSelect = true,
-    this.groupId,
     this.itemCount,
     this.shrinkWrap,
-    this.controller,
-    this.popoverReverseDuration,
     this.ensureSelectedVisible,
-    this.onPressed,
-  }) : variant = SelectVariant.multiple,
-       onSearchChanged = null,
+    this.onTap,
+    this.onSearchChanged,
+    this.searchDivider,
+    this.searchInputLeading,
+    this.searchPlaceholder,
+    this.searchPadding,
+    this.search,
+    this.clearSearchOnClose,
+    this.searchFocusNode,
+    this.onSearchSubmitted,
+  }) : value = null,
        initialValue = null,
        selectedOptionBuilder = null,
-       searchDivider = null,
-       searchPlaceholder = null,
-       searchInputLeading = null,
-       searchPadding = null,
-       search = null,
-       clearSearchOnClose = false,
        onChanged = null,
-       onMultipleChanged = onChanged,
-       searchFocusNode = null,
-       onSearchSubmitted = null,
+       assert(
+         variant == SelectVariant.multiple ||
+             variant == SelectVariant.multipleWithSearch,
+         'Select.multiple holds several values: use Select() for the single '
+         'variants',
+       ),
        assert(
          options != null || optionsBuilder != null,
          'Either options or optionsBuilder must be provided',
+       ),
+       assert(
+         variant != SelectVariant.multipleWithSearch ||
+             search != null ||
+             onSearchChanged != null,
+         'Either search or onSearchChanged must be provided for the search '
+         'variant',
        );
 
   /// Creates a [Select] with the multiple select and search variant.
@@ -253,9 +282,9 @@ class Select<T> extends StatefulWidget {
     this.options,
     this.optionsBuilder,
     this.onSearchChanged,
-    required this.selectedOptionsBuilder,
-    ValueChanged<Set<T>>? onChanged,
-    this.popoverController,
+    this.selectedOptionsBuilder,
+    this.onValuesChanged,
+    this.controller,
     this.searchDivider,
     this.searchInputLeading,
     this.searchPlaceholder,
@@ -263,8 +292,11 @@ class Select<T> extends StatefulWidget {
     this.search,
     this.clearSearchOnClose,
     this.enabled = true,
+    this.presentation = PickerPresentation.auto,
+    this.title,
     this.placeholder,
     this.placeholderStyle,
+    this.values,
     this.initialValues = const {},
     this.focusNode,
     this.autofocus = false,
@@ -282,26 +314,22 @@ class Select<T> extends StatefulWidget {
     this.showScrollToTopChevron,
     this.scrollController,
     this.anchor,
-    this.effects,
     this.shadows,
     this.filter,
     this.header,
     this.footer,
     this.allowDeselection = true,
     this.closeOnSelect = true,
-    this.groupId,
     this.itemCount,
     this.shrinkWrap,
-    this.controller,
-    this.popoverReverseDuration,
     this.ensureSelectedVisible,
     this.searchFocusNode,
     this.onSearchSubmitted,
-    this.onPressed,
+    this.onTap,
   }) : variant = SelectVariant.multipleWithSearch,
        selectedOptionBuilder = null,
        onChanged = null,
-       onMultipleChanged = onChanged,
+       value = null,
        initialValue = null,
        assert(
          options != null || optionsBuilder != null,
@@ -312,95 +340,55 @@ class Select<T> extends StatefulWidget {
          'Either search or onSearchChanged must be provided',
        );
 
-  /// Creates a [Select] with a raw variant, allowing full customization.
-  const Select.raw({
-    super.key,
-    required this.variant,
-    this.options,
-    this.optionsBuilder,
-    this.selectedOptionBuilder,
-    this.selectedOptionsBuilder,
-    this.popoverController,
-    this.onSearchChanged,
-    this.searchDivider,
-    this.searchInputLeading,
-    this.searchPlaceholder,
-    this.searchPadding,
-    this.search,
-    this.clearSearchOnClose,
-    this.enabled = true,
-    this.placeholder,
-    this.placeholderStyle,
-    this.initialValue,
-    this.initialValues = const {},
-    this.onChanged,
-    this.onMultipleChanged,
-    this.focusNode,
-    this.autofocus = false,
-    this.onFocusChange,
-    this.closeOnTapOutside = true,
-    this.minWidth,
-    this.maxWidth,
-    this.maxHeight,
-    this.minHeight,
-    this.decoration,
-    this.trailing,
-    this.padding,
-    this.optionsPadding,
-    this.showScrollToBottomChevron,
-    this.showScrollToTopChevron,
-    this.scrollController,
-    this.anchor,
-    this.effects,
-    this.shadows,
-    this.filter,
-    this.header,
-    this.footer,
-    this.allowDeselection = false,
-    this.closeOnSelect = true,
-    this.groupId,
-    this.itemCount,
-    this.shrinkWrap,
-    this.controller,
-    this.popoverReverseDuration,
-    this.ensureSelectedVisible,
-    this.searchFocusNode,
-    this.onSearchSubmitted,
-    this.onPressed,
-  }) : assert(
-         variant == SelectVariant.primary || onSearchChanged != null,
-         'onSearchChanged must be provided when variant is search',
-       ),
-       assert(
-         options != null || optionsBuilder != null,
-         'Either options or optionsBuilder must be provided',
-       ),
-       assert(
-         (selectedOptionBuilder != null) ^ (selectedOptionsBuilder != null),
-         '''Either selectedOptionBuilder or selectedOptionsBuilder must be provided''',
-       );
-
-  /// {@template Select.controller}
-  /// The controller of the [Select].
+  /// {@template Select.value}
+  /// The selected value of a single select, held by the parent: the select
+  /// shows it and reports a choice through [onChanged] without changing by
+  /// itself. Leave it null and give [initialValue] to let the select keep
+  /// its own state.
   /// {@endtemplate}
-  final SelectController<T>? controller;
+  final T? value;
+
+  /// {@template Select.values}
+  /// The selected values of a multiple select, held by the parent. Leave
+  /// them null and give [initialValues] to let the select keep its own
+  /// state.
+  /// {@endtemplate}
+  final Set<T>? values;
+
+  /// {@template Select.presentation}
+  /// Whether the options open in a popover or in a bottom sheet.
+  ///
+  /// With [PickerPresentation.auto] the searchable and the multiple
+  /// variants open a sheet on a phone — the search pinned at its top, rows
+  /// at touch height, Done for a multiple choice — while a plain single
+  /// select stays a popover everywhere, as a menu does.
+  /// {@endtemplate}
+  final PickerPresentation presentation;
+
+  /// {@template Select.title}
+  /// The title of the sheet. Defaults to the [placeholder].
+  /// {@endtemplate}
+  final Widget? title;
 
   /// {@template Select.onChanged}
-  /// The callback that is called when the value of the [Select] changes.
-  ///
-  /// This is used for single selection [Select] variants.
+  /// Called with the value of a single select when the user chooses an
+  /// option, or with null when deselecting. With no callback (and no
+  /// [onTap]) the select is disabled.
   /// {@endtemplate}
   final ValueChanged<T?>? onChanged;
 
-  /// {@template Select.onMultipleChanged}
-  /// The callback that is called when the values of the [Select] changes.
-  /// Called only the variant is [Select.multiple].
+  /// {@template Select.onValuesChanged}
+  /// Called with the values of a [Select.multiple] when the user adds or
+  /// removes one. With no callback (and no [onTap]) the select is
+  /// disabled.
   /// {@endtemplate}
-  final ValueChanged<Set<T>>? onMultipleChanged;
+  final ValueChanged<Set<T>>? onValuesChanged;
 
   /// {@template Select.allowDeselection}
-  /// Whether the [Select] allows deselection, defaults to
-  /// `false`.
+  /// Whether the selection may become empty: whether choosing the selected
+  /// option of a single select clears it, and whether the last option of a
+  /// multiple select can be removed. False by default for a single select
+  /// and true for a multiple one.
   /// {@endtemplate}
   final bool allowDeselection;
 
@@ -439,20 +427,21 @@ class Select<T> extends StatefulWidget {
   final TextStyle? placeholderStyle;
 
   /// {@template Select.selectedOptionBuilder}
-  /// Builder function for rendering the currently selected option in single
-  /// select [Select] variants.
+  /// Builds what the trigger shows for the selected value of a single
+  /// select.
   ///
-  /// This function is called with the current [BuildContext] and the selected
-  /// value of type `T`.
+  /// Optional: without it the trigger shows the [SelectOption.label] of
+  /// the selected option (found among [options], or once its option has
+  /// been built), and failing that the value's `toString()`.
   /// {@endtemplate}
   final SelectedOptionBuilder<T>? selectedOptionBuilder;
 
   /// {@template Select.selectedOptionsBuilder}
-  /// Builder function for rendering the currently selected options in multiple
-  /// select [Select] variants.
+  /// Builds what the trigger shows for the selected values of a multiple
+  /// select.
   ///
-  /// This function is called with the current [BuildContext] and a list of
-  /// selected values of type `T`.
+  /// Optional: without it the trigger shows their labels (see
+  /// [selectedOptionBuilder]), separated by commas.
   /// {@endtemplate}
   final SelectedOptionBuilder<List<T>>? selectedOptionsBuilder;
 
@@ -596,8 +585,8 @@ class Select<T> extends StatefulWidget {
   /// The variant of the [Select] widget, determining its behavior and
   /// appearance.
   ///
-  /// See [SelectVariant] for available variants.
-  /// Defaults to [SelectVariant.primary] for the default constructor.
+  /// See [SelectVariant] for available variants. [Select.new] takes the two
+  /// single ones and [Select.multiple] the two multiple ones.
   /// {@endtemplate}
   final SelectVariant variant;
 
@@ -653,21 +642,18 @@ class Select<T> extends StatefulWidget {
   /// {@endtemplate}
   final bool? clearSearchOnClose;
 
-  /// {@macro Popover.effects}
-  final List<Effect<dynamic>>? effects;
-
   /// {@macro Popover.shadows}
   final List<BoxShadow>? shadows;
 
   /// {@macro Popover.filter}
   final ImageFilter? filter;
 
-  /// {@template Select.popoverController}
-  /// Controller for managing the visibility and behavior of the popover.
+  /// {@template Select.controller}
+  /// Opens and closes the options from outside, in a popover or a sheet.
   ///
-  /// If null, a default [PopoverController] is created internally.
+  /// If null, a [PopoverController] is created internally.
   /// {@endtemplate}
-  final PopoverController? popoverController;
+  final PopoverController? controller;
 
   /// {@template Select.header}
   /// Widget to display at the top of the popover, above the options list.
@@ -690,13 +676,6 @@ class Select<T> extends StatefulWidget {
   /// {@endtemplate}
   final bool closeOnSelect;
 
-  /// {@template Select.groupId}
-  /// Group ID for the popover, used for managing popover visibility in groups.
-  ///
-  /// See [Popover.groupId] for more details.
-  /// {@endtemplate}
-  final Object? groupId;
-
   /// {@template Select.itemCount}
   /// The number of items to display when using [optionsBuilder].
   ///
@@ -711,13 +690,6 @@ class Select<T> extends StatefulWidget {
   /// size.
   /// {@endtemplate}
   final bool? shrinkWrap;
-
-  /// {@template Select.popoverReverseDuration}
-  /// The duration of the popover's exit animation.
-  ///
-  /// Defaults to [Duration.zero ].
-  /// {@endtemplate}
-  final Duration? popoverReverseDuration;
 
   /// {@template Select.ensureSelectedVisible}
   /// Whether to automatically scroll the options list to ensure the selected
@@ -741,13 +713,13 @@ class Select<T> extends StatefulWidget {
   /// {@endtemplate}
   final ValueChanged<String>? onSearchSubmitted;
 
-  /// {@template Select.onPressed}
+  /// {@template Select.onTap}
   /// Callback function invoked when the select input is pressed.
   ///
   /// If provided, this callback will be called instead of toggling the
   /// popover.
   /// {@endtemplate}
-  final VoidCallback? onPressed;
+  final VoidCallback? onTap;
 
   /// The minimum width of the trigger and the options when none is set:
   /// shadcn's `min-w-32`.
@@ -767,21 +739,54 @@ class SelectState<T> extends State<Select<T>> {
   FocusNode? internalFocusNode;
   FocusNode? _internalSearchFocusNode;
 
-  // ignore: use_late_for_private_fields_and_variables
-  SelectController<T>? _controller;
+  /// The selected values. A single select holds at most one.
+  late final _selection = _Selection<T>({
+    ...?_given,
+    if (_given == null) ...{
+      if (widget.initialValue is T) widget.initialValue as T,
+      ...widget.initialValues,
+    },
+  });
 
-  /// The selection controller in use: [Select.controller], or an internal
-  /// one when that is null.
-  SelectController<T> get controller => widget.controller ?? _controller!;
+  /// The selection the parent holds, or null when the select keeps its
+  /// own.
+  Set<T>? get _given {
+    final values = widget.values;
+    if (values != null) return values;
+    final value = widget.value;
+    return value is T ? {value} : null;
+  }
+
+  /// The selected values.
+  Set<T> get selection => _selection.value;
+
+  /// The labels of the options built so far, by value: what the trigger
+  /// shows when it is given no builder.
+  final _labels = <T, String>{};
+
+  /// The label of the option for [value]: among [Select.options], or of an
+  /// option that has been built; failing both, the value itself.
+  String labelOf(T value) {
+    final known = _labels[value];
+    if (known != null) return known;
+    for (final option in widget.options ?? const <Widget>[]) {
+      if (option is SelectOption<T> &&
+          option.value == value &&
+          option.label != null) {
+        return _labels[value] = option.label!;
+      }
+    }
+    return '$value';
+  }
 
   VoidCallback? _popoverControllerListener;
 
   PopoverController? _popoverController;
 
-  /// The popover controller in use: [Select.popoverController], or an
+  /// The popover controller in use: [Select.controller], or an
   /// internal one when that is null.
   PopoverController get popoverController =>
-      widget.popoverController ?? (_popoverController ??= PopoverController());
+      widget.controller ?? (_popoverController ??= PopoverController());
 
   VoidCallback? _scrollControllerListener;
 
@@ -838,15 +843,6 @@ class SelectState<T> extends State<Select<T>> {
   @override
   void initState() {
     super.initState();
-    if (widget.controller == null) {
-      _controller = SelectController<T>(
-        initialValue: {
-          if (widget.initialValue is T) widget.initialValue as T,
-          ...widget.initialValues,
-        },
-      );
-    }
-
     if (widget.scrollController == null) {
       _scrollController = ScrollController();
     }
@@ -913,22 +909,25 @@ class SelectState<T> extends State<Select<T>> {
         widget.initialValue is T) {
       next = {widget.initialValue as T};
     }
-    if (widget.initialValues != oldWidget.initialValues) {
+    // By value: a parent that writes the set out in its build passes a
+    // new one every time, and the choice made since would be thrown away.
+    if (!setEquals(widget.initialValues, oldWidget.initialValues)) {
       next = {...widget.initialValues};
     }
-    if (next != null) {
-      // Assign a new set rather than mutating the controller's own: changing
-      // it in place notified no listener, so nothing watching the controller
-      // saw the new selection. An external controller may have listeners
-      // outside this subtree, which must not be notified mid-build.
-      if (widget.controller == null) {
-        controller.value = next;
-      } else {
-        final value = next;
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) controller.value = value;
-        });
-      }
+    // What the parent holds comes last and wins; a value taken away is an
+    // empty selection.
+    if (widget.value != oldWidget.value) {
+      next = {if (widget.value is T) widget.value as T};
+    }
+    if (!setEquals(widget.values, oldWidget.values) && widget.values != null) {
+      next = {...widget.values!};
+    }
+    if (next != null && !setEquals(next, _selection.value)) {
+      // This select's own subtree is being rebuilt with the new selection
+      // as it is. A sheet is a route elsewhere in the tree and may not be
+      // marked for a rebuild in the middle of this one: it hears after
+      // the frame.
+      _selection.replaceDuringBuild(next);
     }
   }
 
@@ -949,6 +948,7 @@ class SelectState<T> extends State<Select<T>> {
     }
 
     _internalSearchFocusNode?.dispose();
+    _selection.dispose();
     _popoverController?.dispose();
     internalFocusNode?.dispose();
     _scrollController?.dispose();
@@ -1004,44 +1004,45 @@ class SelectState<T> extends State<Select<T>> {
     }
   }
 
+  /// Whether the select takes input: [Select.enabled], and a callback to
+  /// report a choice to ([Select.onTap] counts, as it replaces the list).
+  bool get _enabled =>
+      widget.enabled &&
+      (widget.onChanged != null ||
+          widget.onValuesChanged != null ||
+          widget.onTap != null);
+
   /// Selects [value], or removes it from the selection.
   ///
   /// Single-selection variants replace the selection. Multiple-selection
-  /// variants add to it. A selected value is removed when
-  /// [Select.allowDeselection] is true. Calls [Select.onChanged] or
-  /// [Select.onMultipleChanged] when the selection changes.
+  /// variants add to it. A selected value is removed, except the last one
+  /// when [Select.allowDeselection] is false. Calls [Select.onChanged] or
+  /// [Select.onValuesChanged] when the selection changes.
   void select(T value) {
     final isMultiSelection =
         widget.variant == SelectVariant.multiple ||
         widget.variant == SelectVariant.multipleWithSearch;
 
-    final prevList = controller.value.toList(growable: false);
-    if (widget.closeOnSelect) popoverController.hide();
-    setState(() {
-      final newSet = isMultiSelection ? Set<T>.from(controller.value) : <T>{};
-      if (widget.allowDeselection && prevList.contains(value)) {
-        newSet.remove(value);
-      } else {
-        newSet.add(value);
-      }
-      controller.value = newSet;
-    });
-
-    final newList = controller.value.toList(growable: false);
-    final changed = !ListEquality<T>().equals(prevList, newList);
-
+    final before = _selection.value;
+    final next = isMultiSelection ? {...before} : <T>{};
+    final last = before.length == 1 && before.contains(value);
+    if (before.contains(value) && (widget.allowDeselection || !last)) {
+      next.remove(value);
+    } else {
+      next.add(value);
+    }
     if (widget.closeOnSelect) {
+      popoverController.close();
       focusNode.requestFocus();
     }
-
-    if (changed) {
-      // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
-      controller.notifyListeners();
-      if (isMultiSelection) {
-        widget.onMultipleChanged?.call(controller.value.toSet());
-      } else {
-        widget.onChanged?.call(controller.value.firstOrNull);
-      }
+    if (setEquals(before, next)) return;
+    // A select whose parent holds the selection waits to be handed it
+    // back.
+    if (_given == null) setState(() => _selection.value = next);
+    if (isMultiSelection) {
+      widget.onValuesChanged?.call(next);
+    } else {
+      widget.onChanged?.call(next.firstOrNull);
     }
   }
 
@@ -1073,11 +1074,6 @@ class SelectState<T> extends State<Select<T>> {
         theme.selectTheme.showScrollToBottomChevron ??
         true;
 
-    final effectivePopoverReverseDuration =
-        widget.popoverReverseDuration ??
-        theme.selectTheme.popoverReverseDuration ??
-        Duration.zero;
-
     final effectiveAnchor =
         widget.anchor ??
         theme.selectTheme.anchor ??
@@ -1090,52 +1086,70 @@ class SelectState<T> extends State<Select<T>> {
           ),
         );
 
-    final effectiveEffects = widget.effects ?? theme.selectTheme.effects;
-
     final effectiveShadows = widget.shadows ?? theme.selectTheme.shadows;
 
     final effectiveFilter = widget.filter ?? theme.selectTheme.filter;
 
-    final isMultiSelect = widget.selectedOptionsBuilder != null;
+    final isMultiSelect =
+        widget.variant == SelectVariant.multiple ||
+        widget.variant == SelectVariant.multipleWithSearch;
 
     // make effectiveText listen to controller changes
     final effectiveText = ListenableBuilder(
-      listenable: controller,
+      listenable: _selection,
       builder: (context, child) {
         final Widget result;
         final TextStyle resultDefaultTextStyle;
+        final selected = _selection.value;
 
-        if (controller.value.isNotEmpty) {
+        if (selected.isNotEmpty) {
           // The value shown in the trigger belongs to the *page*, not the
           // menu: `selectOptionTheme.selectedTextStyle` carries the menu
           // palette's highlight foreground, which is unreadable on the trigger
           // the moment menus are inverted or bold.
-          resultDefaultTextStyle = theme.textTheme.muted.fallback(
-            color: theme.colorScheme.foreground,
-          );
+          //
+          // It is a value in a field, so it is set as a text field sets
+          // what is typed into it: the field's text role in the foreground,
+          // not the muted role a placeholder uses.
+          resultDefaultTextStyle = theme.textTheme.muted
+              .copyWith(color: theme.colorScheme.foreground)
+              .merge(theme.textFieldTheme.style);
           switch (isMultiSelect) {
             case true:
-              result = widget.selectedOptionsBuilder!(
-                context,
-                controller.value.toList(),
-              );
+              result =
+                  widget.selectedOptionsBuilder?.call(
+                    context,
+                    selected.toList(),
+                  ) ??
+                  Text(
+                    selected.map(labelOf).join(', '),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  );
             case false:
-              result = widget.selectedOptionBuilder!(
-                context,
-                controller.value.first,
-              );
+              result =
+                  widget.selectedOptionBuilder?.call(
+                    context,
+                    selected.first,
+                  ) ??
+                  Text(
+                    labelOf(selected.first),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  );
           }
         } else {
           assert(
             widget.placeholder != null,
             'placeholder must not be null when value is null',
           );
+          // A text field's placeholder: the same size as a value, muted.
           resultDefaultTextStyle =
               widget.placeholderStyle ??
               theme.selectTheme.placeholderStyle ??
-              theme.textTheme.muted.fallback(
-                color: theme.colorScheme.foreground,
-              );
+              theme.textTheme.muted
+                  .merge(theme.textFieldTheme.placeholderStyle)
+                  .fallback(color: theme.colorScheme.mutedForeground);
           result = widget.placeholder!;
         }
         return DefaultTextStyle(style: resultDefaultTextStyle, child: result);
@@ -1145,7 +1159,7 @@ class SelectState<T> extends State<Select<T>> {
     // `cn-select-trigger-icon`: `text-muted-foreground size-4`.
     final effectiveTrailing =
         widget.trailing ??
-        Icon(
+        PhosphorIcon(
           PhosphorIconsRegular.caretDown,
           size: 16,
           color: theme.colorScheme.mutedForeground,
@@ -1182,7 +1196,7 @@ class SelectState<T> extends State<Select<T>> {
                 focusNode: searchFocusNode,
                 leading: Padding(
                   padding: const EdgeInsets.only(right: 8),
-                  child: Icon(
+                  child: PhosphorIcon(
                     PhosphorIconsRegular.magnifyingGlass,
                     size: 16,
                     color: menuForeground,
@@ -1199,20 +1213,22 @@ class SelectState<T> extends State<Select<T>> {
                 onChanged: widget.onSearchChanged,
                 onSubmitted: widget.onSearchSubmitted,
               ),
-          widget.searchDivider ??
-              const Divider.horizontal(margin: EdgeInsets.zero),
+          widget.searchDivider ?? const Divider(margin: EdgeInsets.zero),
         ],
       ),
     };
 
+    // Enter and Space open and close the list from the trigger only: they
+    // would also reach these bindings from inside the list, where a search
+    // field — this select's own or one the app passed — has to take them.
     return ListenableBuilder(
-      listenable: searchFocusNode,
+      listenable: focusNode,
       builder: (context, child) {
         return DismissShortcut(
           isActive: () => popoverController.isOpen,
-          onDismiss: popoverController.hide,
+          onDismiss: popoverController.close,
           child: CallbackShortcuts(
-            bindings: searchFocusNode.hasFocus
+            bindings: !focusNode.hasFocus
                 ? const {}
                 : {
                     const SingleActivator(LogicalKeyboardKey.enter):
@@ -1237,43 +1253,22 @@ class SelectState<T> extends State<Select<T>> {
               maxWidth: effectiveMaxWidth,
             );
 
-            // Built lazily inside the `popover:` builder below rather than
+            // Built lazily inside the `builder:` callback below rather than
             // here. This LayoutBuilder wraps the whole select — anchor
             // included — so it re-runs on every layout pass of the *closed*
             // select. `widget.options` is a lazy Iterable, so materialising it
             // eagerly meant constructing every option widget on each of those
             // passes. Calendar's year dropdown passes 201 options, each
             // building a DateFormat.
-            Widget buildOptions() {
-              // The glide is only right when an option's highlighted text
-              // also reads on the bare list; see `ContextMenu`.
-              final optionTheme = theme.selectOptionTheme;
-              final highlightGlides =
-                  ((optionTheme.textStyle?.color ??
-                                  theme.colorScheme.popoverForeground)
-                              .computeLuminance() -
-                          (optionTheme.selectedTextStyle?.color ??
-                                  theme.colorScheme.accentForeground)
-                              .computeLuminance())
-                      .abs() <
-                  .4;
+            Widget buildOptions({bool sheet = false}) {
               if (widget.options != null) {
                 return SingleChildScrollView(
                   padding: effectiveOptionsPadding,
                   controller: scrollController,
-                  // The highlight is one shape that glides from option to
-                  // option with the pointer or the arrow keys. Inside the
-                  // scroll view, so it scrolls with its option. (A lazily
-                  // built list has no common parent to paint it from:
-                  // there each option paints its own.)
-                  child: MovingIndicator(
-                    spring: highlightGlides ? null : MotionSpring.instant,
-                    stretch: 0,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      mainAxisSize: MainAxisSize.min,
-                      children: widget.options!.toList(),
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisSize: MainAxisSize.min,
+                    children: widget.options!.toList(),
                   ),
                 );
               }
@@ -1281,7 +1276,10 @@ class SelectState<T> extends State<Select<T>> {
                 padding: effectiveOptionsPadding,
                 controller: scrollController,
                 itemCount: widget.itemCount,
-                shrinkWrap: widget.shrinkWrap ?? false,
+                // A sheet is as tall as a short list needs.
+                shrinkWrap:
+                    widget.shrinkWrap ??
+                    (sheet && (widget.itemCount ?? 1000) <= 40),
                 itemBuilder: (context, index) {
                   return widget.optionsBuilder?.call(context, index);
                 },
@@ -1289,11 +1287,11 @@ class SelectState<T> extends State<Select<T>> {
             }
 
             final Widget select = Disabled(
-              disabled: !widget.enabled,
+              enabled: _enabled,
               child: Focusable(
                 autofocus: widget.autofocus,
                 onFocusChange: widget.onFocusChange,
-                canRequestFocus: widget.enabled,
+                canRequestFocus: _enabled,
                 focusNode: focusNode,
                 builder: (context, focused, child) {
                   final decorated = Decorator(
@@ -1312,11 +1310,11 @@ class SelectState<T> extends State<Select<T>> {
                   );
                 },
                 child: FinesseGestureDetector(
-                  cursor: SystemMouseCursors.click,
+                  mouseCursor: SystemMouseCursors.click,
                   behavior: HitTestBehavior.opaque,
                   onTapDown: (details) {
-                    if (widget.onPressed != null) {
-                      widget.onPressed!();
+                    if (widget.onTap != null) {
+                      widget.onTap!();
                       return;
                     }
                     FocusScope.of(context).unfocus();
@@ -1359,7 +1357,7 @@ class SelectState<T> extends State<Select<T>> {
                                   padding: const EdgeInsets.symmetric(
                                     vertical: 4,
                                   ),
-                                  child: Icon(
+                                  child: PhosphorIcon(
                                     PhosphorIconsRegular.caretUp,
                                     size: 16,
                                     color: menuForeground,
@@ -1387,7 +1385,7 @@ class SelectState<T> extends State<Select<T>> {
                                   padding: const EdgeInsets.symmetric(
                                     vertical: 4,
                                   ),
-                                  child: Icon(
+                                  child: PhosphorIcon(
                                     PhosphorIconsRegular.caretDown,
                                     size: 16,
                                     color: menuForeground,
@@ -1403,21 +1401,76 @@ class SelectState<T> extends State<Select<T>> {
             return Provider(
               data: this as SelectState<dynamic>,
               notifyUpdate: (_) => true,
-              child: Popover(
-                groupId: widget.groupId,
-                padding: EdgeInsets.zero,
+              child: PickerHost(
+                // A plain single select is a menu, and stays one on a
+                // phone; the others have a search field or need a Done.
+                presentation:
+                    widget.presentation == PickerPresentation.auto &&
+                        widget.variant == SelectVariant.primary
+                    ? PickerPresentation.popover
+                    : widget.presentation,
+                popoverPadding: EdgeInsets.zero,
                 controller: popoverController,
                 anchor: effectiveAnchor,
                 closeOnTapOutside: widget.closeOnTapOutside,
-                effects: effectiveEffects,
-                reverseDuration: effectivePopoverReverseDuration,
+                // The choice shows in the trigger at once, and the list
+                // is gone with it rather than fading over it.
+                exitDuration: Duration.zero,
                 shadows: effectiveShadows,
                 filter: effectiveFilter,
                 // The options surface is a menu, and menus can carry their
                 // own palette; without this it would inherit the page
                 // popover's decoration.
                 decoration: theme.selectTheme.popoverDecoration,
-                popover: (_) {
+                triggerBuilder: (_, _) => select,
+                sheetBuilder: (sheetContext, close) => ListenableBuilder(
+                  // The sheet is a route of its own: nothing rebuilds it
+                  // when the selection changes but this.
+                  listenable: _selection,
+                  builder: (context, _) => Provider(
+                    data: this as SelectState<dynamic>,
+                    notifyUpdate: (_) => true,
+                    child: _SelectSheetScope(
+                      child: Sheet(
+                        title: widget.title ?? widget.placeholder,
+                        // The search stays put and the list scrolls.
+                        scrollable: false,
+                        style: SheetTheme(
+                          constraints: BoxConstraints(
+                            maxWidth: 560,
+                            maxHeight: MediaQuery.sizeOf(context).height * .8,
+                          ),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            ?search,
+                            ?widget.header,
+                            Flexible(child: buildOptions(sheet: true)),
+                            ?widget.footer,
+                            if (isMultiSelect)
+                              Padding(
+                                padding: EdgeInsets.only(
+                                  top: theme.layoutTheme.gap(GapSize.md),
+                                ),
+                                child: Button(
+                                  expands: true,
+                                  onPressed: close,
+                                  child: Text(
+                                    FinesseLocalizations.of(
+                                      context,
+                                    ).datePicker.done,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                popoverBuilder: (_, _) {
                   // Seed showScrollToBottom/showScrollToTop once the popover
                   // has been laid out. Guarded: this builder can run many
                   // times per open, and an unguarded callback queued one
@@ -1461,10 +1514,12 @@ class SelectState<T> extends State<Select<T>> {
                       minWidth: calculatedMinWidth,
                       maxWidth: effectiveMaxWidth,
                     ),
-                    child: effectiveColumn,
+                    // The arrows walk the options wherever the app runs;
+                    // the web's default shortcuts would scroll the page
+                    // instead.
+                    child: ArrowKeyFocus(child: effectiveColumn),
                   );
                 },
-                child: select,
               ),
             );
           },
@@ -1483,23 +1538,30 @@ class SelectOption<T> extends StatefulWidget {
   const SelectOption({
     super.key,
     required this.value,
-    required this.child,
+    this.child,
+    this.label,
     this.hoveredBackgroundColor,
     this.padding,
     this.selectedIcon,
-    this.radius,
-    this.direction,
+    this.borderRadius,
     this.backgroundColor,
     this.selectedBackgroundColor,
     this.textStyle,
     this.selectedTextStyle,
-  });
+  }) : assert(
+         child != null || label != null,
+         'A SelectOption needs a child or a label.',
+       );
 
   /// The value of the [SelectOption], it must be unique above the options.
   final T value;
 
-  /// The child widget.
-  final Widget child;
+  /// What the option shows. Defaults to its [label] as text.
+  final Widget? child;
+
+  /// The option as text: what the select's trigger shows for it when the
+  /// select has no `selectedOptionBuilder`.
+  final String? label;
 
   /// The background color of the [SelectOption] when hovered, defaults to
   /// `ThemeData.accent`.
@@ -1513,7 +1575,7 @@ class SelectOption<T> extends StatefulWidget {
   final Widget? selectedIcon;
 
   /// The radius of the [SelectOption], defaults to `ThemeData.radius`.
-  final BorderRadius? radius;
+  final BorderRadius? borderRadius;
 
   /// The background color of the [SelectOption], defaults to
   /// `ThemeData.selectOptionTheme.backgroundColor`.
@@ -1531,11 +1593,6 @@ class SelectOption<T> extends StatefulWidget {
   /// `ThemeData.selectOptionTheme.selectedTextStyle`.
   final TextStyle? selectedTextStyle;
 
-  /// {@template SelectOption.direction}
-  /// The direction of the ambient.
-  /// {@endtemplate}
-  final TextDirection? direction;
-
   @override
   State<SelectOption<T>> createState() => _OptionState<T>();
 }
@@ -1550,7 +1607,9 @@ class _OptionState<T> extends State<SelectOption<T>> {
     focusNode.addListener(onFocusChange);
 
     final inherited = context.read<SelectState<dynamic>>() as SelectState<T>;
-    final selected = inherited.controller.value.contains(widget.value);
+    final selected = inherited.selection.contains(widget.value);
+    final label = widget.label;
+    if (label != null) inherited._labels[widget.value] = label;
     if (selected && inherited.ensureSelectedVisible) {
       focusNode.requestFocus();
       // scroll to the selected option
@@ -1581,31 +1640,45 @@ class _OptionState<T> extends State<SelectOption<T>> {
     final theme = Theme.of(context);
     final inheritedSelect =
         context.watch<SelectState<dynamic>>() as SelectState<T>;
-    final selected = inheritedSelect.controller.value.contains(widget.value);
+    final selected = inheritedSelect.selection.contains(widget.value);
+    final label = widget.label;
+    if (label != null) inheritedSelect._labels[widget.value] = label;
+    // In a sheet the options lie on the page's surface, not a menu's, and
+    // are rows for a finger.
+    final inSheet = _SelectSheetScope.isAround(context);
 
     final effectiveHoveredBackgroundColor =
         widget.hoveredBackgroundColor ??
-        theme.selectOptionTheme.hoveredBackgroundColor ??
-        theme.colorScheme.accent;
+        (inSheet
+            ? theme.colorScheme.muted
+            : theme.selectOptionTheme.hoveredBackgroundColor ??
+                  theme.colorScheme.accent);
 
     final effectivePadding =
         widget.padding ??
         theme.selectOptionTheme.padding ??
         const EdgeInsets.symmetric(horizontal: 8, vertical: 6);
 
+    final sheetTextStyle = theme.textTheme.p.copyWith(
+      color: theme.colorScheme.foreground,
+    );
     final effectiveTextStyle =
         widget.textStyle ??
-        theme.selectOptionTheme.textStyle ??
-        theme.textTheme.muted.fallback(
-          color: theme.colorScheme.popoverForeground,
-        );
+        (inSheet
+            ? sheetTextStyle
+            : theme.selectOptionTheme.textStyle ??
+                  theme.textTheme.muted.fallback(
+                    color: theme.colorScheme.popoverForeground,
+                  ));
 
     final effectiveSelectedTextStyle =
         widget.selectedTextStyle ??
-        theme.selectOptionTheme.selectedTextStyle ??
-        theme.textTheme.muted.fallback(
-          color: theme.colorScheme.popoverForeground,
-        );
+        (inSheet
+            ? sheetTextStyle
+            : theme.selectOptionTheme.selectedTextStyle ??
+                  theme.textTheme.muted.fallback(
+                    color: theme.colorScheme.popoverForeground,
+                  ));
 
     final effectiveSelectedBackgroundColor =
         widget.selectedBackgroundColor ??
@@ -1615,15 +1688,19 @@ class _OptionState<T> extends State<SelectOption<T>> {
         widget.backgroundColor ?? theme.selectOptionTheme.backgroundColor;
 
     final effectiveRadius =
-        widget.radius ?? theme.selectOptionTheme.radius ?? theme.radius;
+        widget.borderRadius ??
+        theme.selectOptionTheme.borderRadius ??
+        theme.radius;
 
-    final effectiveSelectedIconColor =
-        theme.selectOptionTheme.selectedIconColor ??
-        theme.colorScheme.popoverForeground;
+    final effectiveSelectedIconColor = inSheet
+        ? theme.colorScheme.tint
+        : theme.selectOptionTheme.selectedIconColor ??
+              theme.colorScheme.popoverForeground;
 
-    final effectiveSelectedHoveredIconColor =
-        theme.selectOptionTheme.selectedHoveredIconColor ??
-        theme.colorScheme.accentForeground;
+    final effectiveSelectedHoveredIconColor = inSheet
+        ? theme.colorScheme.tint
+        : theme.selectOptionTheme.selectedHoveredIconColor ??
+              theme.colorScheme.accentForeground;
 
     // No explicit colour here: the icon inherits it from the IconTheme below,
     // which follows the hover state — shadcn's
@@ -1634,7 +1711,7 @@ class _OptionState<T> extends State<SelectOption<T>> {
           widget.selectedIcon ??
           const Padding(
             padding: EdgeInsets.only(right: 8),
-            child: Icon(PhosphorIconsRegular.check, size: 16),
+            child: PhosphorIcon(PhosphorIconsRegular.check, size: 16),
           ),
     );
 
@@ -1648,18 +1725,18 @@ class _OptionState<T> extends State<SelectOption<T>> {
         focusNode: focusNode,
         child: FinesseGestureDetector(
           behavior: HitTestBehavior.opaque,
-          cursor: SystemMouseCursors.click,
-          onHoverChange: (value) {
+          mouseCursor: SystemMouseCursors.click,
+          onHover: (value) {
             hovered.value = value;
           },
           onTap: () => inheritedSelect.select(widget.value),
           child: ValueListenableBuilder(
             valueListenable: hovered,
             builder: (context, hovered, child) {
-              // The hover highlight is not this row's own fill: the list
-              // paints one and moves it between the options.
+              // The highlight is this row's own fill, there or not: it
+              // does not fade or travel between the options.
               final resolvedBackgroundColor = hovered
-                  ? null
+                  ? effectiveHoveredBackgroundColor
                   : selected
                   ? effectiveSelectedBackgroundColor
                   : effectiveBackgroundColor;
@@ -1673,41 +1750,38 @@ class _OptionState<T> extends State<SelectOption<T>> {
                   hovered ||
                   (selected && effectiveSelectedBackgroundColor != null);
 
-              return MovingIndicatorTarget(
-                selected: hovered,
+              return Container(
+                padding: effectivePadding,
+                // A touch target in a sheet: as tall as a control.
+                constraints: inSheet
+                    ? BoxConstraints(minHeight: theme.style.inputHeight)
+                    : null,
+                alignment: inSheet ? AlignmentDirectional.centerStart : null,
                 decoration: BoxDecoration(
-                  color: effectiveHoveredBackgroundColor,
+                  color: resolvedBackgroundColor,
                   borderRadius: effectiveRadius,
                 ),
-                child: Container(
-                  padding: effectivePadding,
-                  decoration: BoxDecoration(
-                    color: resolvedBackgroundColor,
-                    borderRadius: effectiveRadius,
+                // The icon theme mirrors the text: the check indicator and
+                // any icons in the row follow the highlight's foreground
+                // while it is painted.
+                child: IconTheme.merge(
+                  data: IconThemeData(
+                    color: hovered
+                        ? effectiveSelectedHoveredIconColor
+                        : effectiveSelectedIconColor,
                   ),
-                  // The icon theme mirrors the text: the check indicator and
-                  // any icons in the row follow the highlight's foreground
-                  // while it is painted.
-                  child: IconTheme.merge(
-                    data: IconThemeData(
-                      color: hovered
-                          ? effectiveSelectedHoveredIconColor
-                          : effectiveSelectedIconColor,
-                    ),
-                    child: DefaultTextStyle(
-                      style: highlighted
-                          ? effectiveSelectedTextStyle
-                          : effectiveTextStyle,
-                      child: child!,
-                    ),
+                  child: DefaultTextStyle(
+                    style: highlighted
+                        ? effectiveSelectedTextStyle
+                        : effectiveTextStyle,
+                    child: child!,
                   ),
                 ),
               );
             },
             child: Row(
-              textDirection: widget.direction,
               children: [
-                Expanded(child: widget.child),
+                Expanded(child: widget.child ?? Text(widget.label!)),
                 effectiveSelectedIcon,
               ],
             ),
@@ -1716,4 +1790,46 @@ class _OptionState<T> extends State<SelectOption<T>> {
       ),
     );
   }
+}
+
+/// The selected values of a select: a set its listeners are told about.
+class _Selection<T> extends ChangeNotifier implements ValueListenable<Set<T>> {
+  _Selection(this._value);
+
+  Set<T> _value;
+  bool _disposed = false;
+
+  @override
+  Set<T> get value => _value;
+
+  set value(Set<T> next) {
+    _value = next;
+    notifyListeners();
+  }
+
+  /// Replaces the set while widgets are being built, and tells the
+  /// listeners once the frame is over.
+  void replaceDuringBuild(Set<T> next) {
+    _value = next;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_disposed) notifyListeners();
+    });
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
+}
+
+/// Marks the options below it as lying in a sheet.
+class _SelectSheetScope extends InheritedWidget {
+  const _SelectSheetScope({required super.child});
+
+  static bool isAround(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<_SelectSheetScope>() != null;
+
+  @override
+  bool updateShouldNotify(_SelectSheetScope oldWidget) => false;
 }

@@ -1,6 +1,7 @@
 import 'package:disco/disco.dart';
 import 'package:example/strand/data/applications_data.dart';
 import 'package:example/strand/navigation.dart';
+import 'package:example/strand/widgets/strand_pieces.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_solidart/flutter_solidart.dart';
@@ -40,7 +41,9 @@ extension JobsNavigation on BuildContext {
 
 /// The switch at the top of Jobs: "Find jobs" / "My applications".
 ///
-/// On a desktop it hugs its two labels; on a phone it fills the width.
+/// On a desktop it hugs its two labels; on a phone it fills the width, and
+/// a label that does not fit its half — a wide font, a large text size —
+/// shrinks to it (`StrandTabLabel`).
 class JobsViewSwitch extends StatelessWidget {
   const JobsViewSwitch({
     required this.view,
@@ -53,57 +56,19 @@ class JobsViewSwitch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final mobile = theme.formFactor == FormFactor.mobile;
-
-    Widget tabs({double? labelWidth}) {
-      return Semantics(
-        label: 'Jobs view',
-        container: true,
-        child: Tabs<JobsView>(
-          value: view,
-          expandTabs: mobile,
-          onChanged: onChanged,
-          tabs: [
-            for (final view in JobsView.values)
-              Tab(
-                value: view,
-                child: labelWidth == null
-                    ? Text(view.label)
-                    : ConstrainedBox(
-                        constraints: BoxConstraints(maxWidth: labelWidth),
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(view.label, maxLines: 1, softWrap: false),
-                        ),
-                      ),
-              ),
-          ],
-        ),
-      );
-    }
-
-    if (mobile) {
-      // A tab lays its label out at its natural width, so in a strip that
-      // halves a narrow screen a long label in a wide font would overflow
-      // its half. Work out what each label has and let it shrink to that.
-      return LayoutBuilder(
-        builder: (context, constraints) {
-          final tabsTheme = theme.tabsTheme;
-          final count = JobsView.values.length;
-          final strip = (tabsTheme.padding ?? EdgeInsets.zero).horizontal;
-          final gaps = (tabsTheme.tabsGap ?? 0) * (count - 1);
-          final inset = (tabsTheme.tabPadding ?? EdgeInsets.zero).horizontal;
-          final labelWidth =
-              (constraints.maxWidth - strip - gaps) / count - inset;
-          return tabs(
-            labelWidth: labelWidth.floorToDouble().clamp(0, double.infinity),
-          );
-        },
-      );
-    }
-    // In a row the control is as wide as its tabs; stretched by a column,
-    // its strip would run the width of the page behind them.
-    return Row(children: [tabs()]);
+    final mobile = Theme.of(context).formFactor == FormFactor.mobile;
+    return Semantics(
+      label: 'Jobs view',
+      container: true,
+      child: Tabs<JobsView>(
+        value: view,
+        expandTabs: mobile,
+        onChanged: onChanged,
+        tabs: [
+          for (final view in JobsView.values)
+            Tab(value: view, child: StrandTabLabel(view.label)),
+        ],
+      ),
+    );
   }
 }

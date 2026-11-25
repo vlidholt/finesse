@@ -8,9 +8,6 @@
 // into the caller's namespace. Depend on those packages directly if you need
 // them.
 
-// Required by the `effects:` parameter on Popover, Select,
-// Accordion, Menubar and friends.
-export 'package:flutter_animate/flutter_animate.dart' hide Effect;
 // DateFormat/NumberFormat are what the calendar, date picker and pagination
 // docs use. The rest of `intl` (Intl, Bidi, plural/gender helpers, …) is not
 // part of this package's API.
@@ -36,84 +33,139 @@ export 'package:two_dimensional_scrollables/two_dimensional_scrollables.dart'
 export 'src/app.dart';
 // Components
 export 'src/components/accordion.dart';
+export 'src/components/action_sheet.dart';
 export 'src/components/alert.dart';
 export 'src/components/app_bar.dart';
+export 'src/components/autocomplete.dart' hide AutocompleteOptionRow;
 export 'src/components/avatar.dart';
 export 'src/components/avatar_group.dart';
+export 'src/components/back_button.dart';
 export 'src/components/badge.dart';
 export 'src/components/board.dart';
 export 'src/components/breadcrumb.dart';
 export 'src/components/button.dart';
+export 'src/components/button_group.dart' hide RenderButtonGroup;
 export 'src/components/calendar.dart' hide CalendarModel;
 export 'src/components/card.dart';
+export 'src/components/carousel.dart';
 export 'src/components/chat_bubble.dart';
+export 'src/components/chat_list.dart';
 export 'src/components/checkbox.dart';
 export 'src/components/chip.dart';
+export 'src/components/chip_group.dart';
 export 'src/components/collapsible.dart';
+export 'src/components/color_picker.dart';
 export 'src/components/command.dart';
-export 'src/components/context_menu.dart' hide ContextMenuItemController;
+export 'src/components/context_menu.dart';
+export 'src/components/control_affinity.dart' show ControlAffinity;
+export 'src/components/control_list_tiles.dart';
 export 'src/components/data_table.dart';
+export 'src/components/date_field.dart';
 export 'src/components/date_picker.dart';
+export 'src/components/date_wheel_picker.dart';
+export 'src/components/decorator.dart' hide OutwardBorderPainter;
 export 'src/components/default_keyboard_toolbar.dart';
+export 'src/components/destination_stack.dart';
 export 'src/components/dialog.dart';
 export 'src/components/disabled.dart';
 export 'src/components/divider.dart';
 export 'src/components/dropdown_menu.dart';
 export 'src/components/empty.dart';
+export 'src/components/expansion_tile.dart';
+export 'src/components/floating_action_button.dart';
 export 'src/components/form/field.dart';
+export 'src/components/form/fields/autocomplete.dart';
 export 'src/components/form/fields/checkbox.dart';
+export 'src/components/form/fields/chip_group.dart';
+export 'src/components/form/fields/color_picker.dart';
+export 'src/components/form/fields/date_field.dart';
 export 'src/components/form/fields/date_picker.dart';
 export 'src/components/form/fields/date_range_picker.dart';
+export 'src/components/form/fields/number_field.dart';
 export 'src/components/form/fields/otp_field.dart';
 export 'src/components/form/fields/radio.dart';
+export 'src/components/form/fields/range_slider.dart';
+export 'src/components/form/fields/rating.dart';
+export 'src/components/form/fields/segmented_control.dart';
 export 'src/components/form/fields/select.dart';
+export 'src/components/form/fields/slider.dart';
 export 'src/components/form/fields/switch.dart';
+export 'src/components/form/fields/tag_field.dart';
 export 'src/components/form/fields/text_field.dart';
 export 'src/components/form/fields/textarea.dart';
+export 'src/components/form/fields/time_field.dart';
 export 'src/components/form/fields/time_picker.dart';
+export 'src/components/form/fields/toggle_group.dart';
 export 'src/components/form/form.dart';
 export 'src/components/glass.dart';
+export 'src/components/hover_card.dart';
 export 'src/components/icon_button.dart';
 export 'src/components/icon_tile.dart';
 export 'src/components/indicator_badge.dart';
+export 'src/components/input_decorator.dart';
 export 'src/components/kbd.dart';
 export 'src/components/layout.dart';
+export 'src/components/license_page.dart';
+export 'src/components/list_detail_layout.dart';
+export 'src/components/list_section.dart' hide debugListSectionDivider;
 export 'src/components/list_tile.dart';
 export 'src/components/menubar.dart';
-export 'src/components/navigation_bar.dart';
+export 'src/components/navigation_bar.dart'
+    hide DestinationIcon, badgedDestinationIcon;
+export 'src/components/navigation_menu.dart';
+export 'src/components/navigation_rail.dart';
+export 'src/components/navigation_scaffold.dart';
+export 'src/components/number_field.dart';
 export 'src/components/otp_field.dart' hide kInvisibleCharCode;
 export 'src/components/page_container.dart';
+export 'src/components/page_indicator.dart' hide debugPageIndicatorDots;
 export 'src/components/pagination.dart';
-export 'src/components/popover.dart';
+export 'src/components/picker.dart'
+    show PickerPresentation, PickerTriggerBuilder;
+export 'src/components/popover.dart' hide PopoverTapGroups;
 export 'src/components/progress_bar.dart';
+export 'src/components/progress_ring.dart';
 export 'src/components/radio.dart';
-export 'src/components/resizable.dart';
+export 'src/components/rating.dart';
+export 'src/components/refresh_indicator.dart';
+export 'src/components/resizable.dart' hide PanelInfo, ResizeResult;
 export 'src/components/scaffold.dart';
 export 'src/components/scroll_area.dart';
-export 'src/components/select.dart';
-export 'src/components/sheet.dart'
-    hide
-        RenderSheetLayoutWithSizeListener,
-        SheetGestureDetector,
-        SheetLayoutWithSizeListener,
-        SizeChangeCallback;
+export 'src/components/search_field.dart';
+export 'src/components/search_view.dart';
+export 'src/components/segmented_control.dart';
+export 'src/components/select.dart' hide SelectState;
+export 'src/components/selection_area.dart';
+export 'src/components/sheet.dart';
 export 'src/components/sidebar.dart';
 export 'src/components/skeleton.dart';
 export 'src/components/slider.dart';
-export 'src/components/sonner.dart' hide ToastInfo;
+export 'src/components/sliver_app_bar.dart';
 export 'src/components/spinner.dart';
-export 'src/components/surface.dart';
+export 'src/components/stepper.dart';
+export 'src/components/streaming_text.dart';
+export 'src/components/surface.dart' hide SurfacePainter;
+export 'src/components/swipe_actions.dart';
 export 'src/components/switch.dart';
 export 'src/components/tab_bar.dart';
+export 'src/components/tab_bar_view.dart' hide TabPages;
+export 'src/components/tab_list.dart' show TabBarVariant;
 export 'src/components/table.dart';
-export 'src/components/tabs.dart';
+export 'src/components/tabs.dart' hide tabListItems;
+export 'src/components/tag_field.dart';
 export 'src/components/text_field.dart';
-export 'src/components/textarea.dart' hide ResizeGripPainter;
-export 'src/components/time_picker.dart' hide TimePickerTextEditingController;
+export 'src/components/text_magnifier.dart';
+export 'src/components/text_selection.dart';
+export 'src/components/textarea.dart';
+export 'src/components/time_field.dart';
+export 'src/components/time_picker.dart';
+export 'src/components/time_wheel_picker.dart';
 export 'src/components/timeline.dart';
-export 'src/components/toast.dart';
+export 'src/components/toast.dart' hide RenderToastStack;
 export 'src/components/toggle.dart';
+export 'src/components/toolbar.dart';
 export 'src/components/tooltip.dart';
+export 'src/components/wheel_picker.dart' hide RenderWheel;
 // Localizations
 export 'src/i18n/localizations_delegate.dart';
 // The generated strings file re-exports all of slang and declares an
@@ -122,6 +174,8 @@ export 'src/i18n/localizations_delegate.dart';
 export 'src/i18n/strings.g.dart'
     show FinesseLocale, FinesseLocalizationsData, FinesseLocalizationsDataEn;
 export 'src/icons/phosphor_icons.dart';
+// Routes
+export 'src/page_route.dart';
 // Raw Components
 export 'src/raw_components/focusable.dart';
 export 'src/raw_components/keyboard_toolbar.dart';
@@ -137,6 +191,7 @@ export 'src/theme/color_scheme/teal.dart';
 export 'src/theme/color_scheme/zinc.dart';
 // Component Themes
 export 'src/theme/components/accordion.dart';
+export 'src/theme/components/action_sheet.dart';
 export 'src/theme/components/alert.dart';
 export 'src/theme/components/app_bar.dart';
 export 'src/theme/components/avatar.dart';
@@ -148,32 +203,39 @@ export 'src/theme/components/button.dart';
 export 'src/theme/components/button_sizes.dart';
 export 'src/theme/components/calendar.dart';
 export 'src/theme/components/card.dart';
+export 'src/theme/components/carousel.dart';
 export 'src/theme/components/chat_bubble.dart';
+export 'src/theme/components/chat_list.dart';
 export 'src/theme/components/checkbox.dart';
 export 'src/theme/components/chip.dart';
 export 'src/theme/components/collapsible.dart';
 export 'src/theme/components/command.dart';
 export 'src/theme/components/context_menu.dart';
 export 'src/theme/components/date_picker.dart';
-export 'src/theme/components/decorator.dart' hide OutwardBorderPainter;
+export 'src/theme/components/decorator.dart';
 export 'src/theme/components/default_keyboard_toolbar.dart';
 export 'src/theme/components/dialog.dart';
 export 'src/theme/components/divider.dart';
 export 'src/theme/components/empty.dart';
+export 'src/theme/components/floating_action_button.dart';
 export 'src/theme/components/glass.dart';
 export 'src/theme/components/icon_tile.dart';
 export 'src/theme/components/indicator_badge.dart';
-export 'src/theme/components/input_decorator.dart';
 export 'src/theme/components/kbd.dart';
 export 'src/theme/components/layout.dart';
+export 'src/theme/components/list_section.dart';
 export 'src/theme/components/list_tile.dart';
 export 'src/theme/components/menubar.dart';
 export 'src/theme/components/navigation_bar.dart';
+export 'src/theme/components/navigation_menu.dart';
+export 'src/theme/components/navigation_rail.dart';
 export 'src/theme/components/otp_field.dart';
 export 'src/theme/components/pagination.dart';
+export 'src/theme/components/phosphor_icon.dart';
 export 'src/theme/components/popover.dart';
 export 'src/theme/components/progress_bar.dart';
 export 'src/theme/components/radio.dart';
+export 'src/theme/components/refresh_indicator.dart';
 export 'src/theme/components/resizable.dart';
 export 'src/theme/components/scroll_area.dart';
 export 'src/theme/components/select.dart';
@@ -182,18 +244,23 @@ export 'src/theme/components/sheet.dart';
 export 'src/theme/components/sidebar.dart';
 export 'src/theme/components/skeleton.dart';
 export 'src/theme/components/slider.dart';
-export 'src/theme/components/sonner.dart';
 export 'src/theme/components/spinner.dart';
+export 'src/theme/components/stepper.dart';
+export 'src/theme/components/streaming_text.dart';
 export 'src/theme/components/switch.dart';
 export 'src/theme/components/table.dart';
 export 'src/theme/components/tabs.dart';
 export 'src/theme/components/text_field.dart';
+export 'src/theme/components/text_selection.dart';
 export 'src/theme/components/textarea.dart';
+export 'src/theme/components/time_field.dart';
 export 'src/theme/components/time_picker.dart';
 export 'src/theme/components/timeline.dart';
 export 'src/theme/components/toast.dart';
 export 'src/theme/components/toggle.dart';
 export 'src/theme/components/tooltip.dart';
+export 'src/theme/components/wheel_picker.dart';
+export 'src/theme/cross_fade_theme.dart';
 export 'src/theme/data.dart';
 export 'src/theme/form_factor.dart';
 export 'src/theme/motion.dart';
@@ -214,8 +281,8 @@ export 'src/utils/backdrop.dart';
 export 'src/utils/border.dart';
 export 'src/utils/clipboard/clipboard_service.dart';
 export 'src/utils/content_switch.dart';
-export 'src/utils/effects.dart';
-export 'src/utils/entrance.dart';
+export 'src/utils/dismiss_shortcut.dart';
+export 'src/utils/entrance.dart' hide EntranceSpec, OverlayEntrance;
 export 'src/utils/expand_reveal.dart';
 // Extensions on core Dart/Flutter types (double, Duration, List, Map, Set,
 // TextStyle, TapDownDetails) are no longer re-exported. They silently added
@@ -223,12 +290,17 @@ export 'src/utils/expand_reveal.dart';
 // every file that imported this package. They remain internal.
 export 'src/utils/extensions/breakpoints.dart';
 export 'src/utils/gesture_detector.dart';
+export 'src/utils/haptics.dart';
 export 'src/utils/input_formatters.dart';
 export 'src/utils/motion_color.dart';
-export 'src/utils/mouse_area.dart' show MouseArea, MouseAreaSurface;
-export 'src/utils/moving_indicator.dart';
+export 'src/utils/mouse_area.dart' show MouseArea;
+export 'src/utils/moving_indicator.dart'
+    hide RenderMovingIndicator, RenderMovingIndicatorTarget;
+export 'src/utils/overlay_insets.dart';
 export 'src/utils/pop_in.dart';
 export 'src/utils/position.dart' hide PositionedExt;
 export 'src/utils/responsive.dart';
+export 'src/utils/route_on_top.dart';
 export 'src/utils/shadow.dart' hide paintOuterShadows;
 export 'src/utils/spring.dart';
+export 'src/utils/spring_size.dart';

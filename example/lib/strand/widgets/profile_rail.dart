@@ -2,24 +2,13 @@ import 'package:example/strand/data.dart';
 import 'package:example/strand/data/profile_data.dart';
 import 'package:example/strand/widgets/person_avatar.dart';
 import 'package:example/strand/widgets/profile_common.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
-/// The rail's cards are padded a notch under the theme's card padding.
-const _railPadding = EdgeInsets.all(profileRoomyGap);
-
-// The rail's rows are set a size under a `ListTile`'s own (a 15/20 title
-// over a 13/18 subtitle), and the package has no dense tile. These are the
-// rows' styles, in one place. The rail only exists in the desktop layout,
-// where the theme's body style is the designs' 14/20.
-
-/// The title of a setting or a person: 14/20, semibold.
+/// The title of a setting, a person or a group: body text, semibold.
 TextStyle _rowTitleStyle(ThemeData theme) =>
     theme.textTheme.p.copyWith(fontWeight: FontWeight.w600);
-
-/// The name of a group: 14/18, medium.
-TextStyle _groupTitleStyle(ThemeData theme) =>
-    theme.textTheme.p.copyWith(height: 18 / 14, fontWeight: FontWeight.w500);
 
 /// "Profile language" and "Public profile and URL".
 class ProfileSettingsCard extends StatelessWidget {
@@ -42,16 +31,17 @@ class ProfileSettingsCard extends StatelessWidget {
     );
 
     return Card(
-      padding: _railPadding,
-      rowMainAxisSize: MainAxisSize.max,
-      columnCrossAxisAlignment: CrossAxisAlignment.stretch,
+      style: CardTheme(
+        rowMainAxisSize: MainAxisSize.max,
+        columnCrossAxisAlignment: CrossAxisAlignment.stretch,
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: profileSnugGap,
+        spacing: theme.gap(GapSize.md),
         children: [
           setting('Profile language', ProfileData.language, 'Edit language'),
-          const Divider.horizontal(),
+          const Divider(margin: EdgeInsets.zero),
           setting('Public profile and URL', ProfileData.publicUrl, 'Edit URL'),
         ],
       ),
@@ -79,7 +69,6 @@ class ProfilePeopleCard extends StatelessWidget {
     final theme = Theme.of(context);
     return ProfileSection(
       title: 'People also viewed',
-      padding: _railPadding,
       child: FinesseColumn(
         gap: GapSize.lg,
         mainAxisSize: MainAxisSize.min,
@@ -91,7 +80,6 @@ class ProfilePeopleCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               leading: PersonAvatar(
                 suggestion.person,
-                size: profileMarkSize,
               ),
               titleStyle: _rowTitleStyle(theme),
               title: Text(suggestion.person.name),
@@ -131,14 +119,17 @@ class _ActionButton extends StatelessWidget {
       SuggestionAction.connect =>
         done ? PhosphorIconsRegular.clock : PhosphorIconsRegular.userPlus,
     };
-    return Button.raw(
+    return Button(
+      style: ButtonTheme(
+        pressScale: 1,
+        // A pill, where the style's text buttons are rounded rectangles.
+        decoration: theme.buttonDecoration(radius: theme.radii.full),
+        textStyle: theme.textTheme.small,
+      ),
       // Pressed, it fills in: "Following", "Pending".
       variant: done ? ButtonVariant.secondary : ButtonVariant.outline,
       size: ButtonSize.sm,
-      // A pill, where the style's text buttons are rounded rectangles.
-      decoration: theme.buttonDecoration(radius: theme.radii.full),
-      textStyle: theme.textTheme.small,
-      leading: Icon(icon),
+      leading: PhosphorIcon(icon),
       onPressed: onPressed,
       child: Text(done ? action.doneLabel : action.label),
     );
@@ -154,7 +145,6 @@ class ProfileGroupsCard extends StatelessWidget {
     final theme = Theme.of(context);
     return ProfileSection(
       title: 'Your groups',
-      padding: _railPadding,
       child: FinesseColumn(
         gap: GapSize.md,
         mainAxisSize: MainAxisSize.min,
@@ -164,16 +154,16 @@ class ProfileGroupsCard extends StatelessWidget {
             ListTile(
               padding: EdgeInsets.zero,
               // A step under a `ListTile`'s own gap.
-              gap: profileTightGap,
+              gap: theme.gap(GapSize.sm),
               leading: ProfileLogo(
                 group.logo,
                 label: '${group.name} logo',
-                size: 36,
+                size: theme.avatarSm,
                 radius: theme.radius,
               ),
-              titleStyle: _groupTitleStyle(theme),
+              titleStyle: _rowTitleStyle(theme),
               title: Text(group.name),
-              subtitleStyle: profileCaptionStyle(theme),
+              subtitleStyle: theme.textTheme.caption,
               subtitle: Text(group.members),
             ),
         ],

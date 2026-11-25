@@ -131,29 +131,31 @@ void main() {
       expect(find.byIcon(PhosphorIconsRegular.dotsThree), findsOneWidget);
     });
 
-    testWidgets('handles text direction correctly', (
+    testWidgets('follows the ambient text direction', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
         createTestWidget(
           FinesseApp(
             builder: (context, child) => FinesseMaterial(child: child!),
-            home: const Breadcrumb(
+            home: const Directionality(
               textDirection: TextDirection.rtl,
-              children: [
-                Text('Home'),
-                Text('Library'),
-              ],
+              child: Breadcrumb(
+                children: [
+                  Text('Home'),
+                  Text('Library'),
+                ],
+              ),
             ),
           ),
         ),
       );
 
-      // Check Wrap reflects RTL text direction
-      final wrapFinder = find.byType(Wrap);
-      expect(wrapFinder, findsOneWidget);
-      final wrap = tester.widget<Wrap>(wrapFinder);
-      expect(wrap.textDirection, TextDirection.rtl);
+      // The trail starts at the right in RTL.
+      expect(
+        tester.getCenter(find.text('Home')).dx,
+        greaterThan(tester.getCenter(find.text('Library')).dx),
+      );
     });
   });
 
@@ -198,7 +200,7 @@ void main() {
       final button = find.widgetWithText(Button, 'Hoverable');
       expect(
         find.descendant(of: button, matching: find.byType(MouseRegion)),
-        findsOneWidget,
+        findsWidgets,
       );
     });
   });
@@ -450,7 +452,7 @@ void main() {
       );
 
       // Should not throw error when tapped with null onPressed
-      await tester.tap(find.text('Non-clickable Item'));
+      await tester.tap(find.text('Non-clickable Item'), warnIfMissed: false);
       await tester.pumpAndSettle();
 
       expect(find.text('Non-clickable Item'), findsOneWidget);
@@ -470,7 +472,7 @@ void main() {
 
       final button = tester.widget<Button>(find.byType(Button));
       expect(
-        button.padding,
+        button.style?.padding,
         const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       );
     });
@@ -491,7 +493,7 @@ void main() {
       );
 
       final button = tester.widget<Button>(find.byType(Button));
-      expect(button.padding, customPadding);
+      expect(button.style?.padding, customPadding);
     });
 
     testWidgets('uses ghost button variant', (tester) async {

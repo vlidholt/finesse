@@ -14,7 +14,6 @@ class RadioTheme with _$RadioTheme {
   const RadioTheme({
     bool canMerge = true,
     this.color,
-    this.duration,
     this.decoration,
     this.checkedDecoration,
     this.size,
@@ -40,9 +39,6 @@ class RadioTheme with _$RadioTheme {
 
   /// {@macro Radio.size}
   final double? size;
-
-  /// {@macro Radio.duration}
-  final Duration? duration;
 
   /// {@macro Radio.decoration}
   final FinesseDecoration? decoration;

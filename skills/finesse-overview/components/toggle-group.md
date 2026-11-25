@@ -1,10 +1,10 @@
 # Toggle Group
 
-A set of two-state buttons that can be toggled on or off.
+A set of two-state buttons that can be toggled on or off. `ToggleGroup` holds one value and `ToggleGroup.multiple` a set. The group is controlled: it shows `value` (or `values`) and reports a tap through `onChanged` (or `onValuesChanged`); `initialValue` (or `initialValues`) instead makes a group that keeps its own selection, and with no callback it is disabled. With `gap: 0` the items are joined into one bar, as in a `ButtonGroup`, and `ToggleGroupFormField` and `ToggleGroupMultipleFormField` put a group in a `FinesseForm`.
 
 ## Single
 
-Selecting one value clears the others.
+Selecting one value clears the others; `allowDeselection: false` keeps the last one selected.
 
 ```dart
 import 'package:finesse/finesse.dart';
@@ -19,28 +19,28 @@ class ToggleGroupBasicExample extends StatefulWidget {
 }
 
 class _ToggleGroupBasicExampleState extends State<ToggleGroupBasicExample> {
-  Set<String> alignment = {'left'};
+  String? alignment = 'left';
 
   @override
   Widget build(BuildContext context) {
     return ToggleGroup<String>(
-      values: alignment,
-      onChanged: (values) => setState(() => alignment = values),
-      children: const [
+      value: alignment,
+      onChanged: (value) => setState(() => alignment = value),
+      items: const [
         ToggleGroupItem(
           value: 'left',
           semanticLabel: 'Align left',
-          child: Icon(PhosphorIconsRegular.textAlignLeft),
+          child: PhosphorIcon(PhosphorIconsRegular.textAlignLeft),
         ),
         ToggleGroupItem(
           value: 'center',
           semanticLabel: 'Align center',
-          child: Icon(PhosphorIconsRegular.textAlignCenter),
+          child: PhosphorIcon(PhosphorIconsRegular.textAlignCenter),
         ),
         ToggleGroupItem(
           value: 'right',
           semanticLabel: 'Align right',
-          child: Icon(PhosphorIconsRegular.textAlignRight),
+          child: PhosphorIcon(PhosphorIconsRegular.textAlignRight),
         ),
       ],
     );
@@ -70,22 +70,22 @@ class _ToggleGroupMultipleExampleState
   Widget build(BuildContext context) {
     return ToggleGroup<String>.multiple(
       values: formatting,
-      onChanged: (values) => setState(() => formatting = values),
-      children: const [
+      onValuesChanged: (values) => setState(() => formatting = values),
+      items: const [
         ToggleGroupItem(
           value: 'bold',
           semanticLabel: 'Bold',
-          child: Icon(PhosphorIconsRegular.textB),
+          child: PhosphorIcon(PhosphorIconsRegular.textB),
         ),
         ToggleGroupItem(
           value: 'italic',
           semanticLabel: 'Italic',
-          child: Icon(PhosphorIconsRegular.textItalic),
+          child: PhosphorIcon(PhosphorIconsRegular.textItalic),
         ),
         ToggleGroupItem(
           value: 'underline',
           semanticLabel: 'Underline',
-          child: Icon(PhosphorIconsRegular.textUnderline),
+          child: PhosphorIcon(PhosphorIconsRegular.textUnderline),
         ),
       ],
     );
@@ -110,33 +110,32 @@ class ToggleGroupOutlineExample extends StatefulWidget {
 }
 
 class _ToggleGroupOutlineExampleState extends State<ToggleGroupOutlineExample> {
-  Set<String> values = const {'bold'};
+  String? value = 'bold';
 
   @override
   Widget build(BuildContext context) {
     return ToggleGroup<String>(
-      values: values,
-      toggleVariant: ToggleVariant.outline,
-      onChanged: (next) => setState(() => values = next),
-      children: const [
+      value: value,
+      variant: ToggleVariant.outline,
+      onChanged: (next) => setState(() => value = next),
+      items: const [
         ToggleGroupItem(
           value: 'bold',
           semanticLabel: 'Bold',
-          child: Icon(PhosphorIconsRegular.textB),
+          child: PhosphorIcon(PhosphorIconsRegular.textB),
         ),
         ToggleGroupItem(
           value: 'italic',
           semanticLabel: 'Italic',
-          child: Icon(PhosphorIconsRegular.textItalic),
+          child: PhosphorIcon(PhosphorIconsRegular.textItalic),
         ),
         ToggleGroupItem(
           value: 'underline',
           semanticLabel: 'Underline',
-          child: Icon(PhosphorIconsRegular.textUnderline),
+          child: PhosphorIcon(PhosphorIconsRegular.textUnderline),
         ),
       ],
     );
   }
 }
 ```
-

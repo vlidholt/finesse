@@ -9,7 +9,7 @@ class AlertDestructiveExample extends StatelessWidget {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 576),
       child: const Alert.destructive(
-        icon: Icon(PhosphorIconsRegular.warningCircle),
+        icon: PhosphorIcon(PhosphorIconsRegular.warningCircle),
         title: Text('Error'),
         description: Text('Your session has expired. Please log in again.'),
       ),

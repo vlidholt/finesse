@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui' as ui;
 
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
@@ -10,80 +9,39 @@ import 'package:google_fonts/google_fonts.dart';
 /// Every face is resolved through `google_fonts` at runtime: finesse bundles no
 /// fonts, and neither does this app, which is why the list can be as long as
 /// the original's without shipping any font assets.
+///
+/// Each font names its own `GoogleFonts` method ([builder]) and nothing
+/// looks a family up by name. `GoogleFonts.getFont` and `GoogleFonts.asMap`
+/// reach every one of the package's 1,700 families, so a single call to
+/// either keeps all of them — their file names and hashes — in the compiled
+/// app: 8.5 MB of the web build's 13 MB of JavaScript, before this was
+/// changed, for twenty-six fonts.
 @immutable
 class EditorFont {
   const EditorFont({
     required this.title,
     required this.family,
+    required this.builder,
     this.category = FontCategory.sans,
   });
 
   /// The display name, and the Google Fonts family name.
   final String title;
 
-  /// The Google Fonts family name, as `GoogleFonts.getFont` takes it.
+  /// The Google Fonts family name.
   final String family;
+
+  /// The `GoogleFonts` method for this family, as a `FontBuilder`.
+  ///
+  /// A static tear-off, so it is the same object every time: `TextTheme`
+  /// compares `googleFontBuilder` by identity, and theme equality is
+  /// load-bearing (see CLAUDE.md).
+  final FontBuilder builder;
 
   final FontCategory category;
 
-  /// One builder and one text theme per family.
-  ///
-  /// `TextTheme` compares `googleFontBuilder` by closure identity, and two
-  /// closure literals are never `==`. Minting a fresh one per access made
-  /// `ThemeData` unequal to itself, which restarts `AnimatedTheme`'s
-  /// 200 ms lerp across ~54 component themes on every rebuild and drags every
-  /// `Theme.of` dependent along with it — the equality invariant CLAUDE.md
-  /// calls load-bearing. Keyed by family, since `EditorFont` is const.
-  static final _builders = <String, FontBuilder>{};
+  /// One text theme per family.
   static final _textThemes = <String, TextTheme>{};
-
-  /// Wraps `GoogleFonts.getFont` into the all-named shape `FontBuilder`
-  /// expects.
-  ///
-  /// `getFont` takes the family positionally, so it cannot be passed directly.
-  FontBuilder get builder => _builders[family] ??=
-      ({
-        TextStyle? textStyle,
-        Color? color,
-        Color? backgroundColor,
-        double? fontSize,
-        FontWeight? fontWeight,
-        FontStyle? fontStyle,
-        double? letterSpacing,
-        double? wordSpacing,
-        TextBaseline? textBaseline,
-        double? height,
-        Locale? locale,
-        Paint? foreground,
-        Paint? background,
-        List<ui.Shadow>? shadows,
-        List<ui.FontFeature>? fontFeatures,
-        TextDecoration? decoration,
-        Color? decorationColor,
-        TextDecorationStyle? decorationStyle,
-        double? decorationThickness,
-      }) => GoogleFonts.getFont(
-        family,
-        textStyle: textStyle,
-        color: color,
-        backgroundColor: backgroundColor,
-        fontSize: fontSize,
-        fontWeight: fontWeight,
-        fontStyle: fontStyle,
-        letterSpacing: letterSpacing,
-        wordSpacing: wordSpacing,
-        textBaseline: textBaseline,
-        height: height,
-        locale: locale,
-        foreground: foreground,
-        background: background,
-        shadows: shadows,
-        fontFeatures: fontFeatures,
-        decoration: decoration,
-        decorationColor: decorationColor,
-        decorationStyle: decorationStyle,
-        decorationThickness: decorationThickness,
-      );
 
   /// Builds the text theme for this font.
   TextTheme textTheme() =>
@@ -91,12 +49,12 @@ class EditorFont {
 
   /// The regular face, for showing the font's own name in a picker.
   ///
-  /// **Asking for it is what starts the download**: `GoogleFonts.getFont`
+  /// **Asking for it is what starts the download**: a `GoogleFonts` method
   /// begins fetching a face the moment it is called, whether or not anything
   /// is ever drawn with the result. So this must be called from the `build`
   /// of the row that shows it, never while assembling a list of options —
   /// that fetched all twenty-six families every time the panel opened.
-  TextStyle previewStyle() => _previews[family] ??= GoogleFonts.getFont(family);
+  TextStyle previewStyle() => _previews[family] ??= builder();
   static final _previews = <String, TextStyle>{};
 
   /// The families [previewStyle] has been asked for so far, in order.
@@ -124,7 +82,7 @@ class EditorFont {
   Future<void> load({Duration timeout = const Duration(seconds: 5)}) async {
     try {
       for (final weight in _weights) {
-        GoogleFonts.getFont(family, fontWeight: weight);
+        builder(fontWeight: weight);
       }
       // …and whatever else the text theme itself asks for: its blockquote
       // is italic, which no weight above covers. Building the theme is what
@@ -139,66 +97,143 @@ class EditorFont {
 
   /// shadcn/ui's font list, in its order.
   static const all = <EditorFont>[
-    EditorFont(title: 'Inter', family: 'Inter'),
-    EditorFont(title: 'Geist', family: 'Geist'),
-    EditorFont(title: 'Noto Sans', family: 'Noto Sans'),
-    EditorFont(title: 'Nunito Sans', family: 'Nunito Sans'),
-    EditorFont(title: 'Figtree', family: 'Figtree'),
-    EditorFont(title: 'Roboto', family: 'Roboto'),
-    EditorFont(title: 'Raleway', family: 'Raleway'),
-    EditorFont(title: 'DM Sans', family: 'DM Sans'),
-    EditorFont(title: 'Public Sans', family: 'Public Sans'),
-    EditorFont(title: 'Outfit', family: 'Outfit'),
-    EditorFont(title: 'Oxanium', family: 'Oxanium'),
-    EditorFont(title: 'Manrope', family: 'Manrope'),
-    EditorFont(title: 'Space Grotesk', family: 'Space Grotesk'),
-    EditorFont(title: 'Montserrat', family: 'Montserrat'),
-    EditorFont(title: 'IBM Plex Sans', family: 'IBM Plex Sans'),
-    EditorFont(title: 'Source Sans 3', family: 'Source Sans 3'),
-    EditorFont(title: 'Instrument Sans', family: 'Instrument Sans'),
+    EditorFont(
+      title: 'Inter',
+      family: 'Inter',
+      builder: GoogleFonts.inter,
+    ),
+    EditorFont(
+      title: 'Geist',
+      family: 'Geist',
+      builder: GoogleFonts.geist,
+    ),
+    EditorFont(
+      title: 'Noto Sans',
+      family: 'Noto Sans',
+      builder: GoogleFonts.notoSans,
+    ),
+    EditorFont(
+      title: 'Nunito Sans',
+      family: 'Nunito Sans',
+      builder: GoogleFonts.nunitoSans,
+    ),
+    EditorFont(
+      title: 'Figtree',
+      family: 'Figtree',
+      builder: GoogleFonts.figtree,
+    ),
+    EditorFont(
+      title: 'Roboto',
+      family: 'Roboto',
+      builder: GoogleFonts.roboto,
+    ),
+    EditorFont(
+      title: 'Raleway',
+      family: 'Raleway',
+      builder: GoogleFonts.raleway,
+    ),
+    EditorFont(
+      title: 'DM Sans',
+      family: 'DM Sans',
+      builder: GoogleFonts.dmSans,
+    ),
+    EditorFont(
+      title: 'Public Sans',
+      family: 'Public Sans',
+      builder: GoogleFonts.publicSans,
+    ),
+    EditorFont(
+      title: 'Outfit',
+      family: 'Outfit',
+      builder: GoogleFonts.outfit,
+    ),
+    EditorFont(
+      title: 'Oxanium',
+      family: 'Oxanium',
+      builder: GoogleFonts.oxanium,
+    ),
+    EditorFont(
+      title: 'Manrope',
+      family: 'Manrope',
+      builder: GoogleFonts.manrope,
+    ),
+    EditorFont(
+      title: 'Space Grotesk',
+      family: 'Space Grotesk',
+      builder: GoogleFonts.spaceGrotesk,
+    ),
+    EditorFont(
+      title: 'Montserrat',
+      family: 'Montserrat',
+      builder: GoogleFonts.montserrat,
+    ),
+    EditorFont(
+      title: 'IBM Plex Sans',
+      family: 'IBM Plex Sans',
+      builder: GoogleFonts.ibmPlexSans,
+    ),
+    EditorFont(
+      title: 'Source Sans 3',
+      family: 'Source Sans 3',
+      builder: GoogleFonts.sourceSans3,
+    ),
+    EditorFont(
+      title: 'Instrument Sans',
+      family: 'Instrument Sans',
+      builder: GoogleFonts.instrumentSans,
+    ),
     EditorFont(
       title: 'JetBrains Mono',
       family: 'JetBrains Mono',
+      builder: GoogleFonts.jetBrainsMono,
       category: FontCategory.mono,
     ),
     EditorFont(
       title: 'Geist Mono',
       family: 'Geist Mono',
+      builder: GoogleFonts.geistMono,
       category: FontCategory.mono,
     ),
     EditorFont(
       title: 'Noto Serif',
       family: 'Noto Serif',
+      builder: GoogleFonts.notoSerif,
       category: FontCategory.serif,
     ),
     EditorFont(
       title: 'Roboto Slab',
       family: 'Roboto Slab',
+      builder: GoogleFonts.robotoSlab,
       category: FontCategory.serif,
     ),
     EditorFont(
       title: 'Merriweather',
       family: 'Merriweather',
+      builder: GoogleFonts.merriweather,
       category: FontCategory.serif,
     ),
     EditorFont(
       title: 'Lora',
       family: 'Lora',
+      builder: GoogleFonts.lora,
       category: FontCategory.serif,
     ),
     EditorFont(
       title: 'Playfair Display',
       family: 'Playfair Display',
+      builder: GoogleFonts.playfairDisplay,
       category: FontCategory.serif,
     ),
     EditorFont(
       title: 'EB Garamond',
       family: 'EB Garamond',
+      builder: GoogleFonts.ebGaramond,
       category: FontCategory.serif,
     ),
     EditorFont(
       title: 'Instrument Serif',
       family: 'Instrument Serif',
+      builder: GoogleFonts.instrumentSerif,
       category: FontCategory.serif,
     ),
   ];

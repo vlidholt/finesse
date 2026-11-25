@@ -1,9 +1,9 @@
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
-/// One `NavigationScaffold`, two arrangements. The frame's theme is switched
-/// between form factors, which is what `FinesseApp` does from the window
-/// width.
+/// One `NavigationScaffold`, three arrangements. Desktop and Phone switch
+/// the frame's form factor, which is what `FinesseApp` does from the window
+/// width, and leave the layout to it; Tablet asks for the rail.
 class ScaffoldNavigationExample extends StatefulWidget {
   const ScaffoldNavigationExample({super.key});
 
@@ -15,53 +15,60 @@ class ScaffoldNavigationExample extends StatefulWidget {
 class _ScaffoldNavigationExampleState extends State<ScaffoldNavigationExample> {
   static const _destinations = [
     NavigationDestination(
-      icon: Icon(PhosphorIconsRegular.house),
-      selectedIcon: Icon(PhosphorIconsFill.house),
+      icon: PhosphorIcon(PhosphorIconsRegular.house),
+      selectedIcon: PhosphorIcon(PhosphorIconsFill.house),
       label: 'Home',
     ),
     NavigationDestination(
-      icon: Icon(PhosphorIconsRegular.usersThree),
-      selectedIcon: Icon(PhosphorIconsFill.usersThree),
+      icon: PhosphorIcon(PhosphorIconsRegular.usersThree),
+      selectedIcon: PhosphorIcon(PhosphorIconsFill.usersThree),
       label: 'Network',
     ),
     NavigationDestination(
-      icon: Icon(PhosphorIconsRegular.chatCircleDots),
-      selectedIcon: Icon(PhosphorIconsFill.chatCircleDots),
+      icon: PhosphorIcon(PhosphorIconsRegular.chatCircleDots),
+      selectedIcon: PhosphorIcon(PhosphorIconsFill.chatCircleDots),
       label: 'Messages',
       badgeCount: 3,
     ),
     // In the top bar on a desktop; behind an app bar button on a phone.
     NavigationDestination(
-      icon: Icon(PhosphorIconsRegular.bell),
-      selectedIcon: Icon(PhosphorIconsFill.bell),
+      icon: PhosphorIcon(PhosphorIconsRegular.bell),
+      selectedIcon: PhosphorIcon(PhosphorIconsFill.bell),
       label: 'Notifications',
       showInBottomBar: false,
     ),
   ];
 
-  /// Null until a tab is chosen: the frame starts as whatever the app is.
-  FormFactor? chosen;
+  /// Null until one is chosen: the frame starts as whatever the app is.
+  String? chosen;
   int index = 0;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final formFactor = chosen ?? theme.formFactor;
-    final isDesktop = formFactor == FormFactor.desktop;
+    final frame =
+        chosen ??
+        (theme.formFactor == FormFactor.desktop ? 'desktop' : 'phone');
+    final isDesktop = frame == 'desktop';
+    final isTablet = frame == 'tablet';
+    final formFactor = frame == 'phone'
+        ? FormFactor.mobile
+        : FormFactor.desktop;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       spacing: 16,
       children: [
-        SizedBox(
-          width: 220,
-          child: Tabs<FormFactor>(
-            value: formFactor,
-            expandTabs: true,
+        Semantics(
+          label: 'Frame',
+          container: true,
+          child: SegmentedControl<String>(
+            value: frame,
             onChanged: (value) => setState(() => chosen = value),
-            tabs: const [
-              Tab(value: FormFactor.desktop, child: Text('Desktop')),
-              Tab(value: FormFactor.mobile, child: Text('Phone')),
+            segments: const [
+              Segment(value: 'desktop', label: Text('Desktop')),
+              Segment(value: 'tablet', label: Text('Tablet')),
+              Segment(value: 'phone', label: Text('Phone')),
             ],
           ),
         ),
@@ -71,7 +78,11 @@ class _ScaffoldNavigationExampleState extends State<ScaffoldNavigationExample> {
           child: Theme(
             data: theme.withFormFactor(formFactor),
             child: Container(
-              width: isDesktop ? 760 : 340,
+              width: isDesktop
+                  ? 760
+                  : isTablet
+                  ? 560
+                  : 340,
               height: 460,
               clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
@@ -87,10 +98,14 @@ class _ScaffoldNavigationExampleState extends State<ScaffoldNavigationExample> {
                 removeTop: true,
                 removeBottom: true,
                 child: NavigationScaffold(
+                  // Auto follows the form factor; the rail is asked for.
+                  layout: isTablet
+                      ? NavigationLayout.rail
+                      : NavigationLayout.auto,
                   destinations: _destinations,
                   selectedIndex: index,
                   onDestinationSelected: (i) => setState(() => index = i),
-                  leading: Icon(
+                  leading: PhosphorIcon(
                     PhosphorIconsFill.waves,
                     size: 28,
                     color: theme.colorScheme.tint,
@@ -98,38 +113,47 @@ class _ScaffoldNavigationExampleState extends State<ScaffoldNavigationExample> {
                   title: const Text('Strand'),
                   actions: [
                     IconButton.ghost(
-                      icon: const Icon(PhosphorIconsRegular.gear),
+                      icon: const PhosphorIcon(PhosphorIconsRegular.gear),
                       semanticLabel: 'Settings',
                       onPressed: () {},
                     ),
                   ],
                   mobileActions: [
                     IconButton.ghost(
-                      icon: const Icon(PhosphorIconsRegular.bell),
+                      icon: const PhosphorIcon(PhosphorIconsRegular.bell),
                       semanticLabel: 'Notifications',
                       onPressed: () => setState(() => index = 3),
                     ),
                   ],
                   action: NavigationAction(
-                    icon: const Icon(PhosphorIconsBold.plus),
+                    icon: const PhosphorIcon(PhosphorIconsBold.plus),
                     label: 'Create post',
                     onPressed: () {},
                   ),
-                  body: PageContainer(
-                    scrollable: true,
-                    child: FinesseColumn(
-                      gap: GapSize.lg,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        for (var i = 1; i <= 4; i++)
-                          Card(
-                            title: Text('${_destinations[index].label} $i'),
-                            description: const Text(
-                              'The page scrolls beneath both bars.',
-                            ),
+                  // Each destination's page is built when it is first
+                  // shown and kept, with its scroll offset, after that.
+                  body: DestinationStack(
+                    index: index,
+                    axis: isTablet ? Axis.vertical : Axis.horizontal,
+                    builders: [
+                      for (final destination in _destinations)
+                        (context) => PageContainer(
+                          scrollable: true,
+                          child: FinesseColumn(
+                            gap: GapSize.lg,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              for (var i = 1; i <= 4; i++)
+                                Card(
+                                  title: Text('${destination.label} $i'),
+                                  description: const Text(
+                                    'The page scrolls beneath the bars.',
+                                  ),
+                                ),
+                            ],
                           ),
-                      ],
-                    ),
+                        ),
+                    ],
                   ),
                 ),
               ),

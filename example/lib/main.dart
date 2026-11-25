@@ -19,13 +19,18 @@ export 'package:example/strand/navigation.dart'
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SolidartConfig.devToolsEnabled = false;
-  // The docs' code blocks need the Dart grammar and highlighter theme.
-  await CodeHighlighter.ensureInitialized();
-  // finesse bundles no fonts. Fetch the editor's default face before the first
-  // frame, so the app does not open in the fallback font and then reflow.
-  await EditorFont.byTitle(const ThemeEditorConfig().fontTitle).load(
-    timeout: const Duration(seconds: 3),
-  );
+  // Together, not one after the other: each is a round trip to the
+  // network, and the first frame waits for both.
+  await Future.wait([
+    // The docs' code blocks need the Dart grammar and highlighter theme.
+    CodeHighlighter.ensureInitialized(),
+    // finesse bundles no fonts. Fetch the editor's default face before the
+    // first frame, so the app does not open in the fallback font and then
+    // reflow.
+    EditorFont.byTitle(const ThemeEditorConfig().fontTitle).load(
+      timeout: const Duration(seconds: 3),
+    ),
+  ]);
   runApp(const App());
 }
 

@@ -3,8 +3,11 @@ import 'package:finesse/src/components/otp_field.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-/// A [OtpField] that takes part in a `FinesseForm`, with a label, a
+/// An [OtpField] that takes part in a `FinesseForm`, with a label, a
 /// description and validation.
+///
+/// The form field holds the value: it starts from `initialValue`, and
+/// `reset()` or `didChange` on its state changes what the slots show.
 class OtpFormField extends FinesseFormField<String> {
   /// Creates a one-time password form field with [maxLength] characters.
   OtpFormField({
@@ -14,6 +17,7 @@ class OtpFormField extends FinesseFormField<String> {
     super.forceErrorText,
 
     /// Returns an error message for the value, or null when it is valid.
+    /// The value has all `maxLength` characters, a space for an empty slot.
     String? Function(String)? validator,
 
     /// {@macro OtpField.initialValue}
@@ -51,15 +55,21 @@ class OtpFormField extends FinesseFormField<String> {
 
     /// {@macro OtpField.keyboardType}
     TextInputType? keyboardType,
+
+    /// {@macro OtpField.autofillHints}
+    Iterable<String> autofillHints = const [AutofillHints.oneTimeCode],
+
+    /// {@macro OtpField.onCompleted}
+    ValueChanged<String>? onCompleted,
   }) : super(
          validator: validator == null
              ? null
-             : (v) => validator(v ?? ''.padRight(maxLength)),
+             : (v) => validator((v ?? '').padRight(maxLength)),
          onChanged: onChanged == null
              ? null
-             : (v) => onChanged(v ?? ''.padRight(maxLength)),
+             : (v) => onChanged((v ?? '').padRight(maxLength)),
          builder: (state) {
-           state as OtpFormFieldState;
+           state as _OtpFormFieldState;
            return OtpField(
              enabled: state.enabled,
              keyboardType: keyboardType,
@@ -67,8 +77,12 @@ class OtpFormField extends FinesseFormField<String> {
              gap: gap,
              maxLength: maxLength,
              jumpToNextWhenFilled: jumpToNextWhenFilled,
+             autofillHints: autofillHints,
              onChanged: state.didChange,
-             initialValue: state.initialValue,
+             onCompleted: onCompleted,
+             // The form field's state holds the value, so that a reset or
+             // a value set through the form reaches the slots.
+             value: state.value ?? '',
              children: children,
            );
          },
@@ -76,8 +90,8 @@ class OtpFormField extends FinesseFormField<String> {
 
   @override
   FinesseFormFieldState<OtpFormField, String> createState() =>
-      OtpFormFieldState();
+      _OtpFormFieldState();
 }
 
 /// The state of a [OtpFormField].
-class OtpFormFieldState extends FinesseFormFieldState<OtpFormField, String> {}
+class _OtpFormFieldState extends FinesseFormFieldState<OtpFormField, String> {}

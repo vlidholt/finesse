@@ -1,6 +1,7 @@
 import 'package:example/strand/data.dart';
 import 'package:example/strand/data/messages_data.dart';
 import 'package:example/strand/widgets/person_avatar.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -13,24 +14,34 @@ const messagesTightGap = 6.0;
 double messagesPaneInset(ThemeData theme) =>
     (theme.cardTheme.padding ?? const EdgeInsets.all(24)).horizontal / 2;
 
-/// The text styles the Messages designs use that the theme has no slot for.
-extension MessagesTextStyles on ThemeData {
-  /// The theme's muted text at 12/16: timestamps, receipts, the day divider,
-  /// a shared file's size. The theme's smallest text style is 13/18.
-  TextStyle get messagesCaption =>
-      textTheme.muted.copyWith(fontSize: 12, height: 16 / 12);
+/// The portrait beside the last message of a run, and the gutter the other
+/// messages of the run keep free for it. Smaller than any step of the
+/// theme's avatar scale: it has to sit beside a single line of text.
+const messagesThreadAvatar = 28.0;
 
-  /// 600 14/20: a name in the conversation list, an attachment's file name.
-  /// One size under the theme's `large`, which a 48-point avatar's two lines
-  /// of text would crowd.
-  TextStyle get messagesName => textTheme.large.copyWith(
-    fontSize: 14,
-    height: 20 / 14,
+/// The typing bubble's padding: rounder than a text bubble's, so the dots
+/// sit in a pill. The designs keep it on a phone too.
+const messagesTypingPadding = EdgeInsets.symmetric(
+  horizontal: 16,
+  vertical: 14,
+);
+
+/// The text styles of the Messages screen, each a theme style with at most
+/// its weight or its colour changed.
+extension MessagesTextStyles on ThemeData {
+  /// The theme's fine print: timestamps, receipts, the day divider, a
+  /// shared file's size.
+  TextStyle get messagesCaption => textTheme.caption;
+
+  /// The body style, semibold: a name in the conversation list, an
+  /// attachment's file name.
+  TextStyle get messagesName => textTheme.p.copyWith(
+    fontWeight: FontWeight.w600,
     color: colorScheme.foreground,
   );
 
-  /// 500 13/18 in the foreground colour: section titles and file names in
-  /// the details pane, an unread row's preview.
+  /// The label style in the foreground colour: section titles and file
+  /// names in the details pane, an unread row's preview.
   TextStyle get messagesLabel => textTheme.small.copyWith(
     fontWeight: FontWeight.w500,
     color: colorScheme.foreground,
@@ -82,14 +93,16 @@ class GroupLogo extends StatelessWidget {
 class ConversationAvatar extends StatelessWidget {
   const ConversationAvatar(
     this.conversation, {
-    required this.size,
+    this.size,
     this.showOnline = true,
     this.surfaceColor,
     super.key,
   });
 
   final Conversation conversation;
-  final double size;
+
+  /// The picture's side. Defaults to the theme's avatar.
+  final double? size;
 
   /// Whether someone who is active gets the presence dot.
   final bool showOnline;
@@ -100,6 +113,8 @@ class ConversationAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = this.size ?? Theme.of(context).avatarMd;
+    if (conversation.assistant) return AssistantMark(size: size);
     final group = conversation.group;
     if (group != null) return GroupLogo(group, size: size);
     return PersonAvatar(
@@ -107,6 +122,35 @@ class ConversationAvatar extends StatelessWidget {
       size: size,
       showOnline: showOnline && conversation.online,
       onlineRingColor: surfaceColor,
+    );
+  }
+}
+
+/// The assistant's picture: a spark on the theme's tint, where a person has
+/// a portrait.
+class AssistantMark extends StatelessWidget {
+  const AssistantMark({required this.size, super.key});
+
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return ExcludeSemantics(
+      child: Container(
+        width: size,
+        height: size,
+        alignment: Alignment.center,
+        decoration: ShapeDecoration(
+          shape: const CircleBorder(),
+          color: colors.tint,
+        ),
+        child: PhosphorIcon(
+          PhosphorIconsFill.sparkle,
+          size: (size * .5).roundToDouble(),
+          color: colors.tintForeground,
+        ),
+      ),
     );
   }
 }

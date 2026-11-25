@@ -35,7 +35,7 @@ void main() {
   /// the Strand section — which is off stage once the library shows, and a
   /// finder that skipped it would call a menu still on screen "gone".
   void expectMenuGone(WidgetTester tester) {
-    expect(find.byType(ContextMenuItem, skipOffstage: false), findsNothing);
+    expect(find.byType(MenuItem, skipOffstage: false), findsNothing);
     expect(tester.takeException(), isNull);
   }
 

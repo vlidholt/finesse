@@ -390,6 +390,42 @@ void main() {
     );
   });
 
+  group('FinesseForm - reset', () {
+    testWidgets('a reset tells a field once that it changed and was reset', (
+      tester,
+    ) async {
+      final formKey = GlobalKey<FinesseFormState>();
+      final changes = <String>[];
+      var resets = 0;
+      await tester.pumpWidget(
+        createTestWidget(
+          FinesseForm(
+            key: formKey,
+            child: TextFormField(
+              id: 'username',
+              initialValue: 'ada',
+              onChanged: changes.add,
+              onReset: () => resets++,
+            ),
+          ),
+        ),
+      );
+      await tester.enterText(find.byType(TextField), 'grace');
+      await tester.pump();
+      expect(changes, ['grace']);
+
+      formKey.currentState!.reset();
+      await tester.pump();
+      expect(changes, ['grace', 'ada']);
+      expect(resets, 1);
+      expect(
+        tester.widget<EditableText>(find.byType(EditableText)).controller.text,
+        'ada',
+      );
+      expect(formKey.currentState!.value['username'], 'ada');
+    });
+  });
+
   group('FinesseForm - Value Transformers with Dot Notation', () {
     testWidgets('applies transformers to nested values', (tester) async {
       final formKey = GlobalKey<FinesseFormState>();

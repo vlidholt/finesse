@@ -7,6 +7,7 @@ import 'package:example/strand/widgets/network_links.dart';
 import 'package:example/strand/widgets/person_avatar.dart';
 import 'package:example/strand/widgets/saved_items_sheet.dart';
 import 'package:example/strand/widgets/verified_badge.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -15,21 +16,21 @@ import 'package:flutter/widgets.dart';
 class HomeProfileCard extends StatelessWidget {
   const HomeProfileCard({super.key});
 
+  /// The cover photograph's height: the card's own picture, not a step of
+  /// any scale.
   static const _coverHeight = 76.0;
-  static const _avatarSize = 68.0;
-
-  /// How far the portrait rises over the cover photo.
-  static const _avatarOverlap = 34.0;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     const me = People.me;
+    final inset = theme.cardInset;
+    final avatarSize = theme.avatarXl;
     void openProfile() => context.goTo(StrandDestination.profile);
 
     return Card(
-      padding: EdgeInsets.zero,
+      style: CardTheme(padding: EdgeInsets.zero),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
@@ -44,11 +45,12 @@ class HomeProfileCard extends StatelessWidget {
                 excludeFromSemantics: true,
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  homeRailInset,
-                  _coverHeight - _avatarOverlap,
-                  homeRailInset,
-                  homeRailInset,
+                // The portrait rises half its height over the cover.
+                padding: EdgeInsets.fromLTRB(
+                  inset,
+                  _coverHeight - avatarSize / 2,
+                  inset,
+                  inset,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -62,41 +64,34 @@ class HomeProfileCard extends StatelessWidget {
                         borderRadius: theme.radii.full,
                         child: PersonAvatar(
                           me,
-                          size: _avatarSize,
+                          size: avatarSize,
                           ringColor: scheme.card,
                           ringWidth: 3,
                         ),
                       ),
                     ),
-                    // 10 in the design, plus the sliver a portrait set on a
-                    // text baseline leaves beneath it.
-                    const Gap.raw(15),
+                    const Gap.md(),
                     Row(
                       children: [
                         Flexible(
                           child: HomeTextLink(
                             me.name,
                             onPressed: openProfile,
-                            style: theme.textTheme.large.copyWith(
-                              fontSize: 17,
-                              height: 22 / 17,
+                            style: theme.textTheme.h4.copyWith(
                               color: scheme.foreground,
                             ),
                           ),
                         ),
                         if (me.verified) ...[
-                          const Gap.raw(homeTightGap),
+                          const Gap.xs(),
                           const VerifiedBadge(),
                         ],
                       ],
                     ),
-                    const Gap.raw(homeHairGap),
                     Text(
                       me.headline,
-                      // The muted line a point looser, in the stronger of
-                      // the two secondary inks.
+                      // The stronger of the two secondary inks.
                       style: theme.textTheme.muted.copyWith(
-                        height: 19 / 13,
                         color: scheme.foregroundSubtle,
                       ),
                     ),
@@ -104,9 +99,9 @@ class HomeProfileCard extends StatelessWidget {
                       const Gap.sm(),
                       Row(
                         children: [
-                          Icon(
+                          PhosphorIcon(
                             PhosphorIconsRegular.mapPin,
-                            size: 14,
+                            size: theme.iconBeside(theme.textTheme.muted),
                             color: scheme.mutedForeground,
                           ),
                           const Gap.xs(),
@@ -126,11 +121,13 @@ class HomeProfileCard extends StatelessWidget {
               ),
             ],
           ),
-          const Divider.horizontal(),
+          // Flush rules: the blocks on either side carry the space, whatever
+          // margin the style gives a divider.
+          const Divider(margin: EdgeInsets.zero),
           Padding(
             padding: EdgeInsets.symmetric(
-              horizontal: homeRailInset,
-              vertical: theme.layoutTheme.gap(GapSize.md),
+              horizontal: inset,
+              vertical: theme.gap(GapSize.md),
             ),
             child: FinesseColumn(
               gap: GapSize.sm,
@@ -162,27 +159,25 @@ class HomeProfileCard extends StatelessWidget {
               ],
             ),
           ),
-          const Divider.horizontal(),
+          const Divider(margin: EdgeInsets.zero),
           Padding(
-            padding: EdgeInsets.all(theme.layoutTheme.gap(GapSize.sm)),
+            padding: EdgeInsets.all(theme.gap(GapSize.sm)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisSize: MainAxisSize.min,
               children: [
                 for (final shortcut in HomeData.shortcuts)
                   Button.ghost(
-                    // 38 tall and inset 10: a list row, a little roomier
-                    // than the theme's 36-point button.
-                    height: 38,
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: homeSnugGap,
+                    style: ButtonTheme(
+                      width: double.infinity,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: theme.gap(GapSize.sm),
+                      ),
+                      gap: theme.gap(GapSize.sm),
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      foregroundColor: scheme.foregroundSubtle,
                     ),
-                    gap: homeSnugGap,
-                    iconSize: 20,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    foregroundColor: scheme.foregroundSubtle,
-                    leading: Icon(shortcut.icon),
+                    leading: PhosphorIcon(shortcut.icon),
                     onPressed: () => switch (shortcut.label) {
                       'Groups' => openNetworkSection(
                         context,

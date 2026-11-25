@@ -1,15 +1,14 @@
 // ignore_for_file: lines_longer_than_80_chars
 
 import 'package:finesse/src/components/scroll_area.dart';
-import 'package:finesse/src/components/sonner.dart';
 import 'package:finesse/src/components/toast.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
+import 'package:finesse/src/page_route.dart';
+import 'package:finesse/src/theme/cross_fade_theme.dart';
 import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/form_factor.dart';
-import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/theme/theme_scope.dart';
-import 'package:finesse/src/utils/entrance.dart';
 import 'package:finesse/src/utils/mouse_area.dart';
 import 'package:finesse/src/utils/mouse_cursor_provider.dart';
 import 'package:flutter/widgets.dart';
@@ -41,9 +40,8 @@ enum FinesseAppType {
 
 /// The root widget of a finesse app.
 ///
-/// It provides the [Theme], the localizations, the toaster and the
-/// sonner. Below them it builds a [WidgetsApp], or calls [appBuilder] for
-/// [FinesseApp.custom].
+/// It provides the [Theme], the localizations and the toaster. Below them
+/// it builds a [WidgetsApp], or calls [appBuilder] for [FinesseApp.custom].
 ///
 /// finesse does not depend on Material or Cupertino. To use their widgets in the
 /// same app, wrap them in a `FinesseMaterial` from `package:finesse/material.dart`,
@@ -141,7 +139,7 @@ class FinesseApp extends StatefulWidget {
   /// Use it to put a `MaterialApp` or a `CupertinoApp` below the finesse theme.
   /// Theme it with `materialThemeFrom(Theme.of(context))` from
   /// `package:finesse/material.dart`, and return a [FinesseAppBuilder] from its
-  /// `builder` to get the toaster and the sonner.
+  /// `builder` to get the toaster.
   const FinesseApp.custom({
     super.key,
     required WidgetBuilder this.appBuilder,
@@ -336,9 +334,10 @@ class FinesseApp extends StatefulWidget {
   /// correctly animate between pages, and to represent the "return value" of
   /// a route (e.g. which button a user selected in a modal dialog).
   ///
-  /// Defaults to a short fade. Pass a `MaterialPageRoute` or a
-  /// `CupertinoPageRoute` here for their platform transitions, such as the
-  /// iOS back swipe.
+  /// Defaults to a [FinessePageRoute]: a short slide and fade, with the
+  /// iOS back swipe and the preview of the predictive back gesture on
+  /// Android. Pass a `MaterialPageRoute` or a `CupertinoPageRoute` here for
+  /// their platform transitions instead.
   ///
   /// The [PageRouteFactory] type is generic, meaning the provided function must
   /// itself be generic. For example (with special emphasis on the `<T>` at the
@@ -355,7 +354,7 @@ class FinesseApp extends StatefulWidget {
   /// Wraps the widget below the [Navigator] or [Router].
   ///
   /// Use it to insert widgets above every route, such as an inherited widget.
-  /// The child it receives already contains the toaster and the sonner.
+  /// The child it receives already contains the toaster.
   /// See [WidgetsApp.builder].
   final TransitionBuilder? builder;
 
@@ -513,8 +512,8 @@ class FinesseApp extends StatefulWidget {
   ///    in a subtree.
   final ScrollBehavior scrollBehavior;
 
-  /// The curve used to animated from one [ThemeData] to another, defaults
-  /// to [Curves.linear].
+  /// The curve of the cross-fade from one [ThemeData] to another (see
+  /// [CrossFadeTheme]), defaults to [Curves.linear].
   final Curve themeCurve;
 
   /// A custom app widget builder.
@@ -556,7 +555,10 @@ class _AppState extends State<FinesseApp> {
       behavior: widget.scrollBehavior,
       child: HeroControllerScope(
         controller: heroController,
-        child: AnimatedTheme(
+        // Applied at once, with the previous frame faded out over it:
+        // interpolating the theme instead rebuilds the whole app on every
+        // frame of the transition.
+        child: CrossFadeTheme(
           data: theme(context),
           curve: widget.themeCurve,
           child: MouseAreaSurface(
@@ -571,8 +573,14 @@ class _AppState extends State<FinesseApp> {
     );
   }
 
-  ThemeData get effectiveLightTheme =>
-      widget.theme ?? ThemeData(brightness: Brightness.light);
+  // One instance, not one per build: constructing a `ThemeData` derives
+  // every component theme, and a new one each time is also a miss in the
+  // form-factor cache and a full comparison in `CrossFadeTheme`.
+  static final ThemeData _defaultLightTheme = ThemeData(
+    brightness: Brightness.light,
+  );
+
+  ThemeData get effectiveLightTheme => widget.theme ?? _defaultLightTheme;
 
   ThemeData? get effectiveDarkTheme => widget.darkTheme;
 
@@ -699,7 +707,9 @@ class _AppState extends State<FinesseApp> {
 /// Describes how [Scrollable] widgets behave for [FinesseApp]s.
 ///
 /// Vertical scrollables get a [Scrollbar] on every platform but Android
-/// and Fuchsia, where scrollbars are not shown.
+/// and Fuchsia, where scrollbars are not shown. On those two a scrollable
+/// dragged past its end stretches, as it has on Android since version 12,
+/// instead of showing the glow the widgets layer falls back to.
 ///
 /// See also:
 ///
@@ -731,162 +741,28 @@ class FinesseScrollBehavior extends ScrollBehavior {
         }
     }
   }
-}
-
-/// The page route [FinesseApp] uses by default: the new page fades in while
-/// it moves a short way into place, and leaves the same way, faster.
-///
-/// On a phone it comes in from the end side — the right, in a left-to-right
-/// layout — and the page under it gives way a little; a [fullscreenDialog]
-/// rises from below. On a desktop, where a page is not a sheet of paper,
-/// it only rises a few pixels. The timing is the theme's `Motion`: with
-/// reduced motion the page only fades, and with `Motion.none` it is simply
-/// there.
-///
-/// It is a quick transition, not a platform one: there is no back swipe.
-/// For the platform transitions pass a `MaterialPageRoute` or a
-/// `CupertinoPageRoute` to [FinesseApp.pageRouteBuilder].
-class FinessePageRoute<T> extends PageRoute<T> {
-  /// Creates a page route that builds its page with [builder].
-  FinessePageRoute({
-    required this.builder,
-    super.settings,
-    this.maintainState = true,
-    super.fullscreenDialog,
-  });
-
-  /// Builds the page.
-  final WidgetBuilder builder;
 
   @override
-  final bool maintainState;
-
-  /// The motion tokens where the route was pushed, without making the
-  /// navigator depend on them. Null before the route has a navigator.
-  Motion? get _motion {
-    final context = navigator?.context;
-    if (context == null) return null;
-    final motion = Theme.maybeOf(context, listen: false)?.motion;
-    if (motion == null) return null;
-    final reduce =
-        context
-            .getInheritedWidgetOfExactType<MediaQuery>()
-            ?.data
-            .disableAnimations ??
-        false;
-    return reduce ? motion.reduce() : motion;
-  }
-
-  @override
-  Duration get transitionDuration {
-    final motion = _motion;
-    if (motion == null) return const Duration(milliseconds: 200);
-    return motion.reduced ? motion.fast : motion.snappy.settleDuration;
-  }
-
-  // It leaves faster than it arrives.
-  @override
-  Duration get reverseTransitionDuration {
-    final motion = _motion;
-    if (motion == null) return const Duration(milliseconds: 200);
-    return motion.reduced ? motion.fast : motion.normal;
-  }
-
-  @override
-  Color? get barrierColor => null;
-
-  @override
-  String? get barrierLabel => null;
-
-  /// Whether the route over this one rises from below rather than coming
-  /// in from the side: this page then stays where it is.
-  bool _coveredByDialog = false;
-
-  @override
-  void didChangeNext(Route<dynamic>? nextRoute) {
-    _coveredByDialog = nextRoute is PageRoute && nextRoute.fullscreenDialog;
-    super.didChangeNext(nextRoute);
-  }
-
-  @override
-  Widget buildPage(
+  Widget buildOverscrollIndicator(
     BuildContext context,
-    Animation<double> animation,
-    Animation<double> secondaryAnimation,
-  ) {
-    return Semantics(
-      scopesRoute: true,
-      explicitChildNodes: true,
-      child: builder(context),
-    );
-  }
-
-  @override
-  Widget buildTransitions(
-    BuildContext context,
-    Animation<double> animation,
-    Animation<double> secondaryAnimation,
     Widget child,
+    ScrollableDetails details,
   ) {
-    final motion = Motion.of(context);
-    final mobile = Theme.of(context).formFactor == FormFactor.mobile;
-    final rtl = Directionality.maybeOf(context) == TextDirection.rtl;
-    // In on the spring, and back out in a straight line from wherever it
-    // is, so a pop in the middle of a push does not jump.
-    final progress = EntranceProgress(
-      animation,
-      curve: motion.reduced ? motion.standard : motion.snappy.curve,
-    );
-    // The page under this one gives way as the next is pushed over it.
-    final covered = secondaryAnimation.drive(
-      CurveTween(curve: motion.standard),
-    );
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        // Where the page comes from, in logical pixels: a fifth of the
-        // width from the end side on a phone, from below for a dialog, and
-        // a short rise on a desktop.
-        final Offset from;
-        if (motion.reduced) {
-          from = Offset.zero;
-        } else if (fullscreenDialog) {
-          from = Offset(0, mobile ? 48 : motion.overlayTravel * 2);
-        } else if (mobile && constraints.hasBoundedWidth) {
-          from = Offset(constraints.maxWidth * .2 * (rtl ? -1 : 1), 0);
-        } else {
-          from = Offset(0, motion.overlayTravel * 2);
-        }
-        final giveWay = motion.reduced || !mobile || _coveredByDialog
-            ? Offset.zero
-            : Offset(
-                -constraints.maxWidth * .06 * (rtl ? -1 : 1),
-                0,
-              );
-        return FadeTransition(
-          opacity: progress.drive(const _FadeInBy(.6)),
-          child: AnimatedBuilder(
-            animation: Listenable.merge([progress, covered]),
-            builder: (context, child) => Transform.translate(
-              offset: from * (1 - progress.value) + giveWay * covered.value,
-              child: child,
-            ),
-            child: child,
-          ),
+    switch (getPlatform(context)) {
+      case TargetPlatform.iOS:
+      case TargetPlatform.linux:
+      case TargetPlatform.macOS:
+      case TargetPlatform.windows:
+        return child;
+      case TargetPlatform.android:
+      case TargetPlatform.fuchsia:
+        return StretchingOverscrollIndicator(
+          axisDirection: details.direction,
+          clipBehavior: details.decorationClipBehavior ?? Clip.hardEdge,
+          child: child,
         );
-      },
-    );
+    }
   }
-}
-
-/// A fade that is finished by [end] of the way: the page is readable well
-/// before it has settled.
-class _FadeInBy extends Animatable<double> {
-  const _FadeInBy(this.end);
-
-  final double end;
-
-  @override
-  double transform(double t) => (t / end).clamp(0.0, 1.0);
 }
 
 // The WidgetsApp colour used for the app in the task switcher; Material's
@@ -924,21 +800,19 @@ class FinesseAppBuilder extends StatelessWidget {
     //
     // The widget.builder may contain code that invokes
     // Theme.of(), which should return the theme we selected
-    // above in AnimatedTheme. However, if we invoke
-    // widget.builder() directly as the child of AnimatedTheme
+    // above in CrossFadeTheme. However, if we invoke
+    // widget.builder() directly as the child of CrossFadeTheme
     // then there is no Context separating them, and the
     // widget.builder() will not find the theme. Therefore, we
     // surround widget.builder with yet another builder so that
     // a context separates them and Theme.of() correctly
-    // resolves to the theme we passed to AnimatedTheme.
+    // resolves to the theme we passed to CrossFadeTheme.
     return Builder(
       builder: (BuildContext context) {
-        // The reason for wrapping the [child] with `Toaster` and `Sonner`
-        // is to ensures that any `InheritedWidget`s introduced by the [builder]
-        // (such as `Directionality`) are inherited by the toaster and sonner.
-        final effectiveChild = child != null
-            ? Toaster(child: Sonner(child: child!))
-            : child;
+        // The `Toaster` goes around the [child], inside [builder], so that
+        // any `InheritedWidget` the [builder] introduces (such as a
+        // `Directionality`) is inherited by the toasts.
+        final effectiveChild = child != null ? Toaster(child: child!) : child;
         return ColoredBox(
           color: backgroundColor ?? Theme.of(context).colorScheme.background,
           child: builder?.call(context, effectiveChild) ?? effectiveChild,

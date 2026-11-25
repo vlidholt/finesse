@@ -1,34 +1,8 @@
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
 /// Small pieces several home-feed cards share.
-
-// The steps the home designs use between the stops of the theme's gap
-// scale (4 / 8 / 12 / 16 / 24). They hold on both form factors.
-
-/// 2: between a name and the line under it.
-const homeHairGap = 2.0;
-
-/// 6: between a label and the glyph, mark or count beside it.
-const homeTightGap = 6.0;
-
-/// 10: between a small portrait or logo and its text, and the side inset of
-/// a compact control.
-const homeSnugGap = 10.0;
-
-/// 14: between the rows and blocks of a card.
-const homeLooseGap = 14.0;
-
-/// 18: the inset of the side-rail cards, between the theme's 16 and 20.
-const homeRailInset = 18.0;
-
-/// 44: the portrait that leads a post, the composer and a suggestion.
-const homeAvatarSize = 44.0;
-
-/// The feed's fine print — 12/16 in the muted colour: counts under a name,
-/// the footer links. Lighter than the theme's caption role, which is medium.
-TextStyle homeFinePrint(ThemeData theme) =>
-    theme.textTheme.muted.copyWith(fontSize: 12, height: 16 / 12);
 
 /// The designs' `--coral`: the unseen-story ring and the "love" reaction.
 /// It has no theme token.
@@ -100,8 +74,7 @@ class HomeSectionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      padding: const EdgeInsets.all(homeRailInset),
-      sectionGap: homeLooseGap,
+      style: CardTheme(sectionGap: Theme.of(context).gap(GapSize.md)),
       title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
       action: trailing,
       child: child,

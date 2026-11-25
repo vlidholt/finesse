@@ -74,14 +74,14 @@ class TextareaFormField extends FinesseFormField<String> {
     /// {@macro Textarea.showCursor}
     bool? showCursor,
 
-    /// {@macro Textarea.onPressedAlwaysCalled}
-    bool onPressedAlwaysCalled = false,
+    /// {@macro Textarea.onTapAlwaysCalled}
+    bool onTapAlwaysCalled = false,
 
-    /// {@macro Textarea.onPressedOutside}
-    TapRegionCallback? onPressedOutside,
+    /// {@macro Textarea.onTapOutside}
+    TapRegionCallback? onTapOutside,
 
-    /// {@macro Textarea.onPressed}
-    GestureTapCallback? onPressed,
+    /// {@macro Textarea.onTap}
+    GestureTapCallback? onTap,
 
     /// {@macro Textarea.scrollController}
     ScrollController? scrollController,
@@ -93,8 +93,7 @@ class TextareaFormField extends FinesseFormField<String> {
     MouseCursor? mouseCursor,
 
     /// {@macro Textarea.magnifierConfiguration}
-    TextMagnifierConfiguration magnifierConfiguration =
-        TextMagnifierConfiguration.disabled,
+    TextMagnifierConfiguration? magnifierConfiguration,
 
     /// {@macro Textarea.cursorWidth}
     double? cursorWidth,
@@ -221,6 +220,9 @@ class TextareaFormField extends FinesseFormField<String> {
 
     /// {@macro TextField.onPasteFilesError}
     ValueChanged<Object>? onPasteFilesError,
+
+    /// {@macro TextField.showCounter}
+    bool showCounter = false,
   }) : super(
          initialValue: controller != null ? controller.text : initialValue,
          validator: validator == null ? null : (v) => validator(v ?? ''),
@@ -230,7 +232,7 @@ class TextareaFormField extends FinesseFormField<String> {
                      const FinesseDecoration())
                  .merge(decoration),
          builder: (state) {
-           state as TextareaFormFieldState;
+           state as _TextareaFormFieldState;
            return Textarea(
              key: state.textareaKey,
              controller: state.controller,
@@ -280,9 +282,9 @@ class TextareaFormField extends FinesseFormField<String> {
              selectionWidthStyle: selectionWidthStyle,
              clipBehavior: clipBehavior,
              dragStartBehavior: dragStartBehavior,
-             onPressed: onPressed,
-             onPressedAlwaysCalled: onPressedAlwaysCalled,
-             onPressedOutside: onPressedOutside,
+             onTap: onTap,
+             onTapAlwaysCalled: onTapAlwaysCalled,
+             onTapOutside: onTapOutside,
              minHeight: minHeight,
              maxHeight: maxHeight,
              resizable: resizable,
@@ -300,6 +302,7 @@ class TextareaFormField extends FinesseFormField<String> {
              useBrowserContextMenu: useBrowserContextMenu,
              onPasteFiles: onPasteFiles,
              onPasteFilesError: onPasteFilesError,
+             showCounter: showCounter,
            );
          },
        );
@@ -309,11 +312,11 @@ class TextareaFormField extends FinesseFormField<String> {
 
   @override
   FinesseFormFieldState<TextareaFormField, String> createState() =>
-      TextareaFormFieldState();
+      _TextareaFormFieldState();
 }
 
 /// The state of a [TextareaFormField].
-class TextareaFormFieldState
+class _TextareaFormFieldState
     extends FinesseFormFieldState<TextareaFormField, String> {
   /// The key of the inner [Textarea].
   final GlobalKey<State<StatefulWidget>> textareaKey = GlobalKey();

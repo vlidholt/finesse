@@ -77,7 +77,7 @@ FinesseColumn(
 
 Row(
   children: [
-    const Icon(PhosphorIconsRegular.mapPin),
+    const PhosphorIcon(PhosphorIconsRegular.mapPin),
     const Gap.xs(),
     const Text('Copenhagen'),
     const Gap.md(),

@@ -179,11 +179,10 @@ class BreakpointXXL extends Breakpoint {
 }
 
 /// Builds a widget for the current [Breakpoint].
-typedef ResponsiveWidgetBuilder =
-    Widget Function(
-      BuildContext context,
-      Breakpoint breakpoint,
-    );
+typedef ResponsiveWidgetBuilder = Widget Function(
+  BuildContext context,
+  Breakpoint breakpoint,
+);
 
 /// Builds its child for the breakpoint that matches the screen width.
 ///

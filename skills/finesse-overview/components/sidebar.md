@@ -22,8 +22,8 @@ class _SidebarBasicExampleState extends State<SidebarBasicExample> {
 
   SidebarMenuButton item(String label, IconData icon) {
     return SidebarMenuButton(
-      leading: Icon(icon),
-      isActive: selected == label,
+      leading: PhosphorIcon(icon),
+      selected: selected == label,
       tooltip: label,
       onPressed: () => setState(() => selected = label),
       child: Text(label),
@@ -57,7 +57,7 @@ class _SidebarBasicExampleState extends State<SidebarBasicExample> {
                     color: theme.colorScheme.primary,
                     borderRadius: theme.radii.md,
                   ),
-                  child: Icon(
+                  child: PhosphorIcon(
                     PhosphorIconsRegular.stack,
                     size: 16,
                     color: theme.colorScheme.primaryForeground,
@@ -76,8 +76,8 @@ class _SidebarBasicExampleState extends State<SidebarBasicExample> {
               ],
             ),
             footer: SidebarMenuButton(
-              leading: const Icon(PhosphorIconsRegular.userCircle),
-              trailing: const Icon(PhosphorIconsRegular.caretUpDown),
+              leading: const PhosphorIcon(PhosphorIconsRegular.userCircle),
+              trailing: const PhosphorIcon(PhosphorIconsRegular.caretUpDown),
               tooltip: 'Account',
               onPressed: () {},
               child: const Text('Noor Haddad'),
@@ -177,7 +177,9 @@ class _SidebarSubmenuExampleState extends State<SidebarSubmenuExample> {
                     children: [
                       for (final entry in _sections.entries) ...[
                         SidebarMenuButton(
-                          leading: const Icon(PhosphorIconsRegular.bookOpen),
+                          leading: const PhosphorIcon(
+                            PhosphorIconsRegular.bookOpen,
+                          ),
                           onPressed: () {},
                           child: Text(entry.key),
                         ),
@@ -185,7 +187,7 @@ class _SidebarSubmenuExampleState extends State<SidebarSubmenuExample> {
                           children: [
                             for (final page in entry.value)
                               SidebarMenuSubButton(
-                                isActive: selected == page,
+                                selected: selected == page,
                                 onPressed: () =>
                                     setState(() => selected = page),
                                 child: Text(page),
@@ -206,4 +208,3 @@ class _SidebarSubmenuExampleState extends State<SidebarSubmenuExample> {
   }
 }
 ```
-

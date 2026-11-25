@@ -1,6 +1,9 @@
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
+/// A sheet comes from any edge. `start` and `end` follow the text direction;
+/// the other four are physical. A sheet from the top or bottom is as tall as
+/// its content, one from a side as tall as the page.
 class SheetSidesExample extends StatelessWidget {
   const SheetSidesExample({super.key});
 
@@ -9,18 +12,22 @@ class SheetSidesExample extends StatelessWidget {
       context: context,
       side: side,
       builder: (context) => Sheet(
-        title: const Text('Edit Profile'),
+        title: const Text('Edit profile'),
         description: const Text(
-          "Make changes to your profile here. Click save when you're done.",
+          "Make changes to your profile here. Save when you're done.",
         ),
         actions: [
-          Button(
-            child: const Text('Save changes'),
+          Button.outline(
             onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          Button(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Save changes'),
           ),
         ],
         child: const Padding(
-          padding: EdgeInsets.symmetric(vertical: 20),
+          padding: EdgeInsets.symmetric(vertical: 12),
           child: TextField(placeholder: Text('Name')),
         ),
       ),

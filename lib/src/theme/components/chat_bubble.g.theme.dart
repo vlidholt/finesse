@@ -47,6 +47,7 @@ mixin _$ChatBubbleTheme {
         t,
       ),
       maxWidthFactor: lerpDouble$(a.maxWidthFactor, b.maxWidthFactor, t),
+      sizeSpring: t < 0.5 ? a.sizeSpring : b.sizeSpring,
     );
   }
 
@@ -60,6 +61,7 @@ mixin _$ChatBubbleTheme {
     Color? outgoingColor,
     Color? outgoingForegroundColor,
     double? maxWidthFactor,
+    MotionSpring? sizeSpring,
   }) {
     final _this = (this as ChatBubbleTheme);
 
@@ -75,6 +77,7 @@ mixin _$ChatBubbleTheme {
       outgoingForegroundColor:
           outgoingForegroundColor ?? _this.outgoingForegroundColor,
       maxWidthFactor: maxWidthFactor ?? _this.maxWidthFactor,
+      sizeSpring: sizeSpring ?? _this.sizeSpring,
     );
   }
 
@@ -99,6 +102,7 @@ mixin _$ChatBubbleTheme {
       outgoingColor: other.outgoingColor,
       outgoingForegroundColor: other.outgoingForegroundColor,
       maxWidthFactor: other.maxWidthFactor,
+      sizeSpring: other.sizeSpring,
     );
   }
 
@@ -123,7 +127,8 @@ mixin _$ChatBubbleTheme {
         _other.incomingForegroundColor == _this.incomingForegroundColor &&
         _other.outgoingColor == _this.outgoingColor &&
         _other.outgoingForegroundColor == _this.outgoingForegroundColor &&
-        _other.maxWidthFactor == _this.maxWidthFactor;
+        _other.maxWidthFactor == _this.maxWidthFactor &&
+        _other.sizeSpring == _this.sizeSpring;
   }
 
   @override
@@ -141,6 +146,7 @@ mixin _$ChatBubbleTheme {
       _this.outgoingColor,
       _this.outgoingForegroundColor,
       _this.maxWidthFactor,
+      _this.sizeSpring,
     );
   }
 }

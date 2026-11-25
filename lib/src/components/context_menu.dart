@@ -3,23 +3,37 @@ import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:finesse/src/components/button.dart';
+import 'package:finesse/src/components/divider.dart';
+import 'package:finesse/src/components/dropdown_menu.dart';
 import 'package:finesse/src/components/popover.dart';
 import 'package:finesse/src/components/scroll_area.dart';
+import 'package:finesse/src/i18n/localizations_delegate.dart';
+import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/raw_components/portal.dart';
+import 'package:finesse/src/theme/components/button.dart';
+import 'package:finesse/src/theme/components/context_menu.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/theme/theme_scope.dart';
+import 'package:finesse/src/utils/arrow_key_focus.dart';
 import 'package:finesse/src/utils/border.dart';
 import 'package:finesse/src/utils/browser_context_menu/browser_context_menu.dart';
+import 'package:finesse/src/utils/entrance.dart';
 import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
+import 'package:finesse/src/utils/haptics.dart';
 import 'package:finesse/src/utils/mouse_area.dart';
-import 'package:finesse/src/utils/moving_indicator.dart';
+import 'package:finesse/src/utils/pop_in.dart';
 import 'package:finesse/src/utils/provider.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_animate/flutter_animate.dart';
+
+part 'menu_items.dart';
+part 'show_menu.dart';
 
 /// {@template ContextMenuRegion}
 /// A widget that shows the context menu when the user right clicks the [child]
@@ -36,12 +50,9 @@ class ContextMenuRegion extends StatefulWidget {
     required this.child,
     this.items = const [],
     this.itemsBuilder,
-    this.visible,
+    this.open,
     this.constraints,
-    this.onHoverArea,
     this.padding,
-    this.groupId,
-    this.effects,
     this.shadows,
     this.decoration,
     this.filter,
@@ -50,11 +61,11 @@ class ContextMenuRegion extends StatefulWidget {
     this.longPressEnabled,
     this.tapEnabled,
     this.hitTestBehavior = HitTestBehavior.opaque,
-    this.popoverReverseDuration,
+    this.requestFocus = true,
   });
 
-  /// {@macro Popover.reverseDuration}
-  final Duration? popoverReverseDuration;
+  /// {@macro ContextMenu.requestFocus}
+  final bool requestFocus;
 
   /// {@template ContextMenuRegion.child}
   /// The child that triggers the visibility of the context menu.
@@ -67,23 +78,14 @@ class ContextMenuRegion extends StatefulWidget {
   /// {@macro ContextMenu.itemsBuilder}
   final List<Widget> Function(BuildContext context)? itemsBuilder;
 
-  /// {@macro ContextMenu.visible}
-  final bool? visible;
+  /// {@macro ContextMenu.open}
+  final bool? open;
 
   /// {@macro ContextMenu.constraints}
   final BoxConstraints? constraints;
 
-  /// {@macro ContextMenu.onHoverArea}
-  final ValueChanged<bool>? onHoverArea;
-
   /// {@macro ContextMenu.padding}
   final EdgeInsetsGeometry? padding;
-
-  /// {@macro MouseArea.groupId}
-  final Object? groupId;
-
-  /// {@macro Popover.effects}
-  final List<Effect<dynamic>>? effects;
 
   /// {@macro Popover.shadows}
   final List<BoxShadow>? shadows;
@@ -129,19 +131,17 @@ class ContextMenuRegion extends StatefulWidget {
 }
 
 class _ContextMenuRegionState extends State<ContextMenuRegion> {
-  FinesseContextMenuController? _controller;
+  PopoverController? _controller;
   PopoverController get controller =>
       widget.controller ??
-      (_controller ??= FinesseContextMenuController(
-        isOpen: widget.visible ?? false,
-      ));
+      (_controller ??= PopoverController(isOpen: widget.open ?? false));
   Offset? offset;
 
   @override
   void didUpdateWidget(covariant ContextMenuRegion oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.visible != null) {
-      controller.setOpen(widget.visible!);
+    if (widget.open != null) {
+      controller.setOpen(widget.open!);
     }
   }
 
@@ -154,11 +154,11 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
   void showAtOffset(Offset offset) {
     if (!mounted) return;
     setState(() => this.offset = offset);
-    controller.show();
+    controller.open();
   }
 
   void hide() {
-    controller.hide();
+    controller.close();
   }
 
   void show(Offset offset) {
@@ -167,6 +167,8 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
 
   void onLongPress() {
     assert(offset != null, 'offset must not be null');
+    // A held finger is answered with a firm tick as the menu comes up.
+    Haptics.impact(context, HapticImpact.medium);
     showAtOffset(offset!);
   }
 
@@ -197,14 +199,11 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
       items: widget.items,
       itemsBuilder: widget.itemsBuilder,
       constraints: widget.constraints,
-      onHoverArea: widget.onHoverArea,
       padding: widget.padding,
-      groupId: widget.groupId,
-      effects: widget.effects,
       shadows: widget.shadows,
       decoration: widget.decoration,
       filter: widget.filter,
-      popoverReverseDuration: widget.popoverReverseDuration,
+      requestFocus: widget.requestFocus,
       child: FinesseGestureDetector(
         behavior: widget.hitTestBehavior,
         supportedDevices: widget.supportedDevices,
@@ -247,47 +246,14 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
   }
 }
 
-/// Controls a [ContextMenu]: whether it is open and, optionally, the
-/// point it opens at.
-///
-/// Any [PopoverController] works as a context menu controller; this one
-/// adds [showAt].
-class FinesseContextMenuController extends PopoverController {
-  /// Creates a controller. [isOpen] sets whether the menu starts open.
-  FinesseContextMenuController({super.isOpen});
-
-  Offset? _position;
-
-  /// The global point the menu opens at, set by [showAt]. Null means the
-  /// menu's own anchor.
-  Offset? get position => _position;
-
-  /// Opens the menu with its corner at [globalPosition], as a context menu
-  /// opens at the pointer. The menu is mirrored or shifted to stay on screen.
-  void showAt(Offset globalPosition) {
-    final moved = _position != globalPosition;
-    _position = globalPosition;
-    if (isOpen) {
-      if (moved) notifyListeners();
-    } else {
-      super.show();
-    }
-  }
-
-  /// Opens the menu at its own anchor, forgetting any [showAt] position.
-  @override
-  void show() {
-    _position = null;
-    super.show();
-  }
-}
-
-/// A menu of [ContextMenuItem]s shown in a popover next to [child].
+/// A menu of [MenuItem]s shown in a popover next to [child].
 ///
 /// This is the menu surface behind shadcn's `DropdownMenuContent` and
-/// `ContextMenuContent`. It opens when [visible] or [controller] says so; use
-/// [ContextMenuRegion] to open it on a right click or long press. With no
-/// [items] and no [itemsBuilder], it builds only [child].
+/// `ContextMenuContent`. It opens when [open] or [controller] says so —
+/// `controller.openAt(point)` opens it with its corner at a point, as a
+/// context menu opens at the pointer — and [ContextMenuRegion] opens it on a
+/// right click or long press. With no [items] and no [itemsBuilder], it
+/// builds only [child].
 class ContextMenu extends StatefulWidget {
   /// Creates a context menu anchored to [child].
   const ContextMenu({
@@ -296,25 +262,58 @@ class ContextMenu extends StatefulWidget {
     this.items = const [],
     this.itemsBuilder,
     this.anchor,
-    this.visible,
+    this.open,
     this.constraints,
-    this.onHoverArea,
     this.padding,
-    this.groupId,
-    this.effects,
     this.shadows,
     this.decoration,
     this.filter,
     this.controller,
+    this.requestFocus = true,
+  }) : areaGroupId = null,
+       onHoverArea = null,
+       entrance = null,
+       onTapOutside = null,
+       onTapUpInside = null,
+       onDismissed = null;
+
+  /// Creates a context menu with the plumbing the package's own menus need:
+  /// the hover group and tap callbacks that tie a submenu to its row and a
+  /// menubar's menu to its trigger, and an entrance of its own.
+  @internal
+  const ContextMenu.internal({
+    super.key,
+    required this.child,
+    this.items = const [],
+    this.itemsBuilder,
+    this.anchor,
+    this.open,
+    this.constraints,
+    this.padding,
+    this.shadows,
+    this.decoration,
+    this.filter,
+    this.controller,
+    this.requestFocus = true,
+    this.areaGroupId,
+    this.onHoverArea,
+    this.entrance,
     this.onTapOutside,
-    this.onTapInside,
     this.onTapUpInside,
-    this.onTapUpOutside,
-    this.popoverReverseDuration,
+    this.onDismissed,
   });
 
-  /// {@macro Popover.reverseDuration}
-  final Duration? popoverReverseDuration;
+  /// {@template ContextMenu.requestFocus}
+  /// Whether the menu takes the keyboard focus when it opens, defaults to
+  /// true: the arrow keys, Home, End and type-ahead then work straight
+  /// away, and the focus goes back to where it was when the menu closes.
+  ///
+  /// Set it to false for a menu that assists what it is anchored to — the
+  /// completions under a text field — so the caret stays put. Tab then
+  /// moves from the anchor into the menu, where the arrow keys take over,
+  /// and Escape closes the menu from either. See `Popover.requestFocus`.
+  /// {@endtemplate}
+  final bool requestFocus;
 
   /// {@template ContextMenu.child}
   /// The child of the context menu.
@@ -340,10 +339,11 @@ class ContextMenu extends StatefulWidget {
   /// {@endtemplate}
   final AnchorBase? anchor;
 
-  /// {@template ContextMenu.visible}
-  /// Whether the context menu is visible, defaults to null.
+  /// {@template ContextMenu.open}
+  /// Whether the context menu is open. Null, the default, leaves that to
+  /// the controller.
   /// {@endtemplate}
-  final bool? visible;
+  final bool? open;
 
   /// {@template ContextMenu.constraints}
   /// The constraints of the context menu, defaults to
@@ -351,9 +351,9 @@ class ContextMenu extends StatefulWidget {
   /// {@endtemplate}
   final BoxConstraints? constraints;
 
-  /// {@template ContextMenu.onHoverArea}
-  /// The callback called when the hover area changes.
-  /// {@endtemplate}
+  /// Called when the pointer enters or leaves the menu's hover area: its
+  /// child, its surface and every area that shares [areaGroupId].
+  @internal
   final ValueChanged<bool>? onHoverArea;
 
   /// {@template ContextMenu.padding}
@@ -362,11 +362,15 @@ class ContextMenu extends StatefulWidget {
   /// {@endtemplate}
   final EdgeInsetsGeometry? padding;
 
-  /// {@macro MouseArea.groupId}
-  final Object? groupId;
+  /// The hover group of the menu: the row a submenu hangs from and the
+  /// submenu itself are one area to the pointer.
+  @internal
+  final Object? areaGroupId;
 
-  /// {@macro Popover.effects}
-  final List<Effect<dynamic>>? effects;
+  /// The entrance, when it is not the theme's: the plain fade of a menu
+  /// that takes over from the one beside it.
+  @internal
+  final EntranceSpec? entrance;
 
   /// {@macro Popover.shadows}
   final List<BoxShadow>? shadows;
@@ -378,97 +382,51 @@ class ContextMenu extends StatefulWidget {
   final ImageFilter? filter;
 
   /// {@template ContextMenu.controller}
-  /// The controller of the context menu, starts from isOpen set to false.
+  /// Opens and closes the menu. `openAt` opens it with its corner at a
+  /// point in global coordinates instead of at its [anchor].
   /// {@endtemplate}
   final PopoverController? controller;
 
-  /// {@template ContextMenu.onTapOutside}
-  /// A callback to be invoked when a tap down is detected outside of this
-  /// [TapRegion] and any other region with the same [groupId], if any.
-  ///
-  /// The [PointerDownEvent] passed to the function is the event that caused the
-  /// notification. If this region is part of a group (i.e. [groupId] is set),
-  /// then it's possible that the event may be outside of this immediate region,
-  /// although it will be within the region of one of the group members.
-  ///
-  /// See also:
-  /// * [onTapUpOutside], which is called when a tap up is detected outside
-  ///   of this region.
-  /// {@endtemplate}
+  /// Called when a tap down lands outside the menu tree.
+  @internal
   final TapRegionCallback? onTapOutside;
 
-  /// {@template ContextMenu.onTapInside}
-  /// A callback to be invoked when a tap down is detected inside of this
-  /// [TapRegion], or any other tap region with the same [groupId], if any.
-  ///
-  /// The [PointerDownEvent] passed to the function is the event that caused the
-  /// notification. If this region is part of a group (i.e. [groupId] is set),
-  /// then it's possible that the event may be outside of this immediate region,
-  /// although it will be within the region of one of the group members.
-  ///
-  /// See also:
-  /// * [onTapUpInside], which is called when a tap up is detected inside
-  ///   of this region.
-  /// {@endtemplate}
-  final TapRegionCallback? onTapInside;
-
-  /// {@template ContextMenu.onTapUpInside}
-  /// A callback to be invoked when a tap up is detected inside of this
-  /// [TapRegion], or any other tap region with the same [groupId], if any.
-  ///
-  /// The [PointerUpEvent] passed to the function is the event that caused the
-  /// notification. If this region is part of a group (i.e. [groupId] is set),
-  /// then it's possible that the event may be outside of this immediate region,
-  /// although it will be within the region of one of the group members.
-  ///
-  /// See also:
-  /// * [onTapInside], which is called when a tap down is detected inside
-  ///   of this region.
-  /// {@endtemplate}
+  /// Called when a tap is released inside the menu tree.
+  @internal
   final TapRegionUpCallback? onTapUpInside;
 
-  /// {@template ContextMenu.onTapUpOutside}
-  /// A callback to be invoked when a tap up is detected outside of this
-  /// [TapRegion] and any other region with the same [groupId], if any.
-  ///
-  /// The [PointerUpEvent] passed to the function is the event that caused the
-  /// notification. If this region is part of a group (i.e. [groupId] is set),
-  /// then it's possible that the event may be outside of this immediate region,
-  /// although it will be within the region of one of the group members.
-  ///
-  /// See also:
-  /// * [onTapOutside], which is called when a tap down is detected outside
-  ///   of this region.
-  /// {@endtemplate}
-  final TapRegionUpCallback? onTapUpOutside;
+  /// Called when a menu that [open] holds open closes itself: Escape, with
+  /// the focus in it. A row uses it to keep the submenu it dismissed shut.
+  @internal
+  final VoidCallback? onDismissed;
 
   @override
-  State<ContextMenu> createState() => ContextMenuState();
+  State<ContextMenu> createState() => _ContextMenuState();
 }
 
 /// The state of a [ContextMenu].
 ///
 /// Its items and submenus find it in the widget tree.
-class ContextMenuState extends State<ContextMenu> {
-  FinesseContextMenuController? _controller;
+class _ContextMenuState extends State<ContextMenu> {
+  PopoverController? _controller;
 
   /// This menu's tap-region group when it is a root menu.
   final Object _ownTapRegionGroupId = Object();
 
   /// The root menu above this one, if this is a submenu.
-  ContextMenuState? _root;
+  _ContextMenuState? _root;
 
   /// The menu's content, which takes focus when a root menu opens so that
   /// arrow keys, Home/End and type-ahead work straight away, as in Radix.
   final _contentFocusNode = FocusNode(debugLabel: 'ContextMenu content');
 
   /// The row of this menu level the pointer was last over.
-  _ContextMenuItemState? _hoveredItem;
+  _MenuItemState? _hoveredItem;
 
   /// Called when the pointer reaches [item], a row of this menu level. The
   /// row it left gives up its highlight and closes its submenu at once,
   /// without waiting for its grace period, so only one submenu is ever open.
-  void _itemHovered(_ContextMenuItemState item) {
+  void _itemHovered(_MenuItemState item) {
     final previous = _hoveredItem;
     _hoveredItem = item;
     if (previous == null || identical(previous, item) || !previous.mounted) {
@@ -476,6 +434,45 @@ class ContextMenuState extends State<ContextMenu> {
     }
     previous._unhoverNow();
   }
+
+  /// How many checkable rows of this menu level are mounted. Rows that are
+  /// direct children of the menu are seen in its item list; this finds the
+  /// ones a wrapper hides.
+  int _checkables = 0;
+
+  /// Whether the last build gave this level an indicator column.
+  bool _builtIndicatorColumn = false;
+
+  void _checkableMounted() {
+    _checkables++;
+    _syncIndicatorColumn();
+  }
+
+  void _checkableUnmounted() {
+    _checkables--;
+    _syncIndicatorColumn();
+  }
+
+  /// Rebuilds once the frame is over when the rows that registered
+  /// disagree with what the item list said: a row is mounted during the
+  /// build that would have to change.
+  void _syncIndicatorColumn() {
+    if ((_checkables > 0) == _builtIndicatorColumn) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && (_checkables > 0) != _builtIndicatorColumn) {
+        setState(() {});
+      }
+    });
+  }
+
+  /// Whether any of [items] is a checkable row, so that every row of the
+  /// level reserves the indicator column and the labels line up.
+  static bool _anyCheckable(List<Widget> items) => items.any(
+    (item) =>
+        item is MenuCheckboxItem ||
+        item is MenuRadioGroup ||
+        item is MenuRadioItem,
+  );
 
   /// The characters typed in quick succession, for type-ahead.
   String _typeAhead = '';
@@ -489,19 +486,15 @@ class ContextMenuState extends State<ContextMenu> {
     _listened = controller..addListener(_onOpenChanged);
   }
 
-  /// The [FinesseContextMenuController.position] this menu was last built for.
-  Offset? _builtPosition;
-
   void _onOpenChanged() {
     final controller = this.controller;
-    // The anchor is resolved in build, so a new showAt point needs one.
-    if (controller is FinesseContextMenuController &&
-        controller.position != _builtPosition &&
-        mounted) {
-      setState(() {});
+    // Closed from inside while its parent still says open.
+    if (!controller.isOpen && (widget.open ?? false)) {
+      widget.onDismissed?.call();
     }
-    // A hover-opened submenu leaves focus where it is.
-    if (!controller.isOpen || _root != null) return;
+    // A hover-opened submenu leaves focus where it is, and so does a menu
+    // that was asked to.
+    if (!controller.isOpen || _root != null || !widget.requestFocus) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted && controller.isOpen && !_hasFocusedItem) {
         _contentFocusNode.requestFocus();
@@ -609,26 +602,32 @@ class ContextMenuState extends State<ContextMenu> {
       _root?.tapRegionGroupId ?? _ownTapRegionGroupId;
 
   /// The controller in use: [ContextMenu.controller] when given, otherwise
-  /// an internal [FinesseContextMenuController] that starts open when
-  /// [ContextMenu.visible] is true.
+  /// an internal one that starts open when [ContextMenu.open] is true.
   PopoverController get controller =>
       widget.controller ??
-      (_controller ??= FinesseContextMenuController(
-        isOpen: widget.visible ?? false,
-      ));
+      (_controller ??= PopoverController(isOpen: widget.open ?? false));
 
   @override
   void initState() {
     super.initState();
     _listenTo(controller);
+    // A menu that is open from the start — `visible: true`, or the route of
+    // `showMenu` — gets no change to hear of, and takes the focus like one
+    // that was opened later. After the frame: whether it is a submenu is
+    // only known once it has been built.
+    if (controller.isOpen) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _onOpenChanged();
+      });
+    }
   }
 
   @override
   void didUpdateWidget(covariant ContextMenu oldWidget) {
     super.didUpdateWidget(oldWidget);
     _listenTo(controller);
-    if (widget.visible != null) {
-      controller.setOpen(widget.visible!);
+    if (widget.open != null) {
+      controller.setOpen(widget.open!);
     }
   }
 
@@ -641,16 +640,16 @@ class ContextMenuState extends State<ContextMenu> {
     super.dispose();
   }
 
-  /// Opens the menu when [visible] is true, and closes it otherwise.
-  void setVisible(bool visible) {
-    controller.setOpen(visible);
+  /// Opens the menu when [open] is true, and closes it otherwise.
+  void setOpen(bool open) {
+    controller.setOpen(open);
   }
 
   @override
   Widget build(BuildContext context) {
     // A submenu is built below its root menu's provider; a root menu finds
     // none, since it puts its own provider below itself.
-    _root = context.maybeRead<ContextMenuState>();
+    _root = context.maybeRead<_ContextMenuState>();
 
     // if the context menu has no items, just return the child
     if (widget.items.isEmpty && widget.itemsBuilder == null) {
@@ -676,40 +675,9 @@ class ContextMenuState extends State<ContextMenu> {
 
     final effectiveFilter = widget.filter ?? theme.contextMenuTheme.filter;
 
-    final effectiveEffects = widget.effects ?? theme.contextMenuTheme.effects;
-
     final effectiveShadows = widget.shadows ?? theme.contextMenuTheme.shadows;
 
-    // The highlight is one shape that glides from row to row with the
-    // pointer or the arrow keys. A row's text takes its highlighted colour
-    // at once, though, so the glide is only right when that colour also
-    // reads on the bare menu: with a bold accent (white text on a primary
-    // fill) the text would sit unreadable on the surface until the fill
-    // caught up, and the highlight jumps instead.
-    final restColor =
-        theme.contextMenuTheme.textStyle?.color ??
-        theme.colorScheme.popoverForeground;
-    final highlightColor =
-        theme.contextMenuTheme.selectedTextStyle?.color ??
-        theme.colorScheme.accentForeground;
-    final highlightGlides =
-        (restColor.computeLuminance() - highlightColor.computeLuminance())
-            .abs() <
-        .4;
-
-    // A point set through FinesseContextMenuController.showAt wins over the
-    // menu's own anchor; the menu opens with its corner there.
     final controller = this.controller;
-    final position = controller is FinesseContextMenuController
-        ? controller.position
-        : null;
-    _builtPosition = position;
-    final effectiveAnchor = position != null
-        ? GlobalAnchor(
-            position,
-            followerAnchor: AlignmentDirectional.topStart,
-          )
-        : widget.anchor;
 
     // Long menus scroll instead of running off screen; Radix caps them at
     // the available height the same way.
@@ -723,63 +691,64 @@ class ContextMenuState extends State<ContextMenu> {
         )
         .toDouble();
 
-    Widget child = Popover(
+    Widget child = Popover.internal(
       controller: controller,
       padding: effectivePadding,
-      areaGroupId: widget.groupId,
+      areaGroupId: widget.areaGroupId,
       groupId: tapRegionGroupId,
-      anchor: effectiveAnchor,
+      // A point given to the controller's `openAt` wins over this; the
+      // popover sees to that.
+      anchor: widget.anchor,
       decoration: effectiveDecoration,
-      effects: effectiveEffects,
+      entrance: widget.entrance,
       shadows: effectiveShadows,
       filter: effectiveFilter,
       // A submenu that closes is being replaced by a sibling's, or the
       // pointer has left the menu: it goes at once rather than fading out
       // over the one that replaces it.
-      reverseDuration:
-          widget.popoverReverseDuration ??
-          theme.contextMenuTheme.popoverReverseDuration ??
-          (_root != null ? Duration.zero : null),
+      exitDuration: _root != null ? Duration.zero : null,
       useSameGroupIdForChild: false,
-      popover: (context) {
+      requestFocus: widget.requestFocus,
+      builder: (context) {
+        final items = widget.itemsBuilder?.call(context) ?? widget.items;
+        final indicatorColumn = _checkables > 0 || _anyCheckable(items);
+        _builtIndicatorColumn = indicatorColumn;
         return MouseArea(
-          groupId: widget.groupId,
-          key: ValueKey(widget.groupId),
+          groupId: widget.areaGroupId,
+          key: ValueKey(widget.areaGroupId),
           child: ConstrainedBox(
             constraints: effectiveConstraints,
             child: IntrinsicWidth(
               child: TapRegion(
-                onTapInside: widget.onTapInside,
                 onTapOutside: widget.onTapOutside,
                 onTapUpInside: widget.onTapUpInside,
-                onTapUpOutside: widget.onTapUpOutside,
                 groupId: tapRegionGroupId,
-                child: Focus(
-                  focusNode: _contentFocusNode,
-                  skipTraversal: true,
-                  onKeyEvent: _handleKey,
-                  child: FocusTraversalGroup(
-                    policy: OrderedTraversalPolicy(),
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(maxHeight: maxHeight),
-                      child: ScrollArea(
-                        child: _MenuLevel(
-                          menu: this,
-                          // Inside the scroll view, so the highlight
-                          // scrolls with its row.
-                          child: MovingIndicator(
-                            spring: highlightGlides
-                                ? null
-                                : MotionSpring.instant,
-                            // A row's highlight is its full width: there
-                            // is nothing to stretch along.
-                            stretch: 0,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children:
-                                  widget.itemsBuilder?.call(context) ??
-                                  widget.items,
+                // The arrows walk the rows wherever the app runs; the
+                // web's default shortcuts would scroll the page instead.
+                child: ArrowKeyFocus(
+                  child: Focus(
+                    focusNode: _contentFocusNode,
+                    skipTraversal: true,
+                    onKeyEvent: _handleKey,
+                    child: FocusTraversalGroup(
+                      policy: OrderedTraversalPolicy(),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(maxHeight: maxHeight),
+                        child: ScrollArea(
+                          child: _MenuLevel(
+                            menu: this,
+                            indicatorColumn: indicatorColumn,
+                            // A menu to a screen reader: its rows are menu
+                            // items, and a submenu is a menu of its own.
+                            child: Semantics(
+                              container: true,
+                              explicitChildNodes: true,
+                              role: items.isEmpty ? null : SemanticsRole.menu,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: items,
+                              ),
                             ),
                           ),
                         ),
@@ -793,7 +762,7 @@ class ContextMenuState extends State<ContextMenu> {
         );
       },
       child: MouseArea(
-        groupId: widget.groupId,
+        groupId: widget.areaGroupId,
         onEnter: (_) => widget.onHoverArea?.call(true),
         onExit: (_) => widget.onHoverArea?.call(false),
         child: TapRegion(groupId: tapRegionGroupId, child: widget.child),
@@ -809,13 +778,13 @@ class ContextMenuState extends State<ContextMenu> {
   }
 }
 
-/// Tracks whether a [ContextMenuItem] is hovered or focused, and the same
+/// Tracks whether a [MenuItem] is hovered or focused, and the same
 /// for the items in its submenu.
 ///
 /// Used internally. It is not exported from `package:finesse/finesse.dart`.
-class ContextMenuItemController extends ChangeNotifier {
+class _MenuItemController extends ChangeNotifier {
   /// Creates a controller for the item identified by [itemKey].
-  ContextMenuItemController({
+  _MenuItemController({
     required this.itemKey,
     bool hovered = false,
     bool focused = false,
@@ -850,7 +819,7 @@ class ContextMenuItemController extends ChangeNotifier {
   final Key itemKey;
 
   /// Maps the item key to the item controller
-  final Map<Key, ContextMenuItemController> items = {};
+  final Map<Key, _MenuItemController> items = {};
 
   /// Whether the item is highlighted: it is hovered or focused, or an item in
   /// its submenu is.
@@ -866,18 +835,18 @@ class ContextMenuItemController extends ChangeNotifier {
   }
 
   /// Adds [controller] to the items of this item's submenu.
-  void registerSubItem(ContextMenuItemController controller) {
+  void registerSubItem(_MenuItemController controller) {
     items[controller.itemKey] = controller;
   }
 
   /// Removes [controller] from the items of this item's submenu.
-  void unregisterSubItem(ContextMenuItemController controller) {
+  void unregisterSubItem(_MenuItemController controller) {
     items.remove(controller.itemKey);
   }
 }
 
 /// The variant of the context menu item.
-enum ContextMenuItemVariant {
+enum MenuItemVariant {
   /// A regular row.
   primary,
 
@@ -889,272 +858,135 @@ enum ContextMenuItemVariant {
 /// A row in a [ContextMenu], shadcn's `DropdownMenuItem`.
 ///
 /// When [items] is not empty, the row opens a submenu with them on hover.
-class ContextMenuItem extends StatefulWidget {
-  /// Creates a regular menu item.
-  const ContextMenuItem({
+class MenuItem extends StatefulWidget {
+  /// Creates a menu item: a regular row unless [variant] says otherwise.
+  const MenuItem({
     super.key,
+    this.variant = MenuItemVariant.primary,
     required this.child,
     this.items = const [],
     this.enabled = true,
     this.leading,
     this.trailing,
-    this.leadingPadding,
-    this.trailingPadding,
-    this.padding,
     this.onPressed,
     this.onTapDown,
-    this.anchor,
-    this.showDelay,
-    this.height,
-    this.buttonVariant,
-    this.decoration,
-    this.textStyle,
-    this.selectedTextStyle,
-    this.trailingTextStyle,
-    this.constraints,
-    this.subMenuPadding,
-    this.backgroundColor,
-    this.selectedBackgroundColor,
+    this.style,
     this.closeOnTap,
     this.destructive = false,
-  }) : variant = ContextMenuItemVariant.primary,
-       insetPadding = null;
-
-  /// Creates a menu item with an explicit [variant].
-  const ContextMenuItem.raw({
-    super.key,
-    required this.variant,
-    required this.child,
-    this.items = const [],
-    this.enabled = true,
-    this.leading,
-    this.trailing,
-    this.leadingPadding,
-    this.trailingPadding,
-    this.padding,
-    this.insetPadding,
-    this.onPressed,
-    this.onTapDown,
-    this.anchor,
-    this.showDelay,
-    this.height,
-    this.buttonVariant,
-    this.decoration,
-    this.textStyle,
-    this.selectedTextStyle,
-    this.trailingTextStyle,
-    this.constraints,
-    this.subMenuPadding,
-    this.backgroundColor,
-    this.selectedBackgroundColor,
-    this.closeOnTap,
-    this.destructive = false,
+    this.shortcut,
+    this.value,
   });
 
   /// Creates an inset menu item, whose label lines up with items that have a
   /// leading icon.
-  const ContextMenuItem.inset({
+  const MenuItem.inset({
     super.key,
     required this.child,
     this.items = const [],
     this.enabled = true,
     this.leading,
     this.trailing,
-    this.leadingPadding,
-    this.trailingPadding,
-    this.padding,
-    this.insetPadding,
     this.onPressed,
     this.onTapDown,
-    this.anchor,
-    this.showDelay,
-    this.height,
-    this.buttonVariant,
-    this.decoration,
-    this.textStyle,
-    this.selectedTextStyle,
-    this.trailingTextStyle,
-    this.constraints,
-    this.subMenuPadding,
-    this.backgroundColor,
-    this.selectedBackgroundColor,
+    this.style,
     this.closeOnTap,
     this.destructive = false,
-  }) : variant = ContextMenuItemVariant.inset;
+    this.shortcut,
+    this.value,
+  }) : variant = MenuItemVariant.inset;
 
-  /// {@template ContextMenuItem.variant}
+  /// {@template MenuItem.variant}
   /// The variant of the context menu item, defaults to
-  /// [ContextMenuItemVariant.primary].
+  /// [MenuItemVariant.primary].
   /// {@endtemplate}
-  final ContextMenuItemVariant variant;
+  final MenuItemVariant variant;
 
-  /// {@template ContextMenuItem.child}
+  /// {@template MenuItem.child}
   /// The child of the context menu item.
   /// {@endtemplate}
   final Widget child;
 
-  /// {@template ContextMenuItem.enabled}
+  /// {@template MenuItem.enabled}
   /// Whether the context menu item is enabled, defaults to true.
   /// {@endtemplate}
   final bool enabled;
 
-  /// {@template ContextMenuItem.leading}
+  /// {@template MenuItem.leading}
   /// The leading widget of the context menu item.
   /// {@endtemplate}
   final Widget? leading;
 
-  /// {@template ContextMenuItem.trailing}
+  /// {@template MenuItem.trailing}
   /// The trailing widget of the context menu item.
   /// {@endtemplate}
   final Widget? trailing;
 
-  /// {@template ContextMenuItem.leadingPadding}
-  /// The padding of the leading widget, defaults to
-  /// `EdgeInsets.only(right: 8)`.
-  /// {@endtemplate}
-  final EdgeInsetsGeometry? leadingPadding;
-
-  /// {@template ContextMenuItem.trailingPadding}
-  /// The padding of the trailing widget, defaults to
-  /// `EdgeInsets.only(left: 8)`.
-  /// {@endtemplate}
-  final EdgeInsetsGeometry? trailingPadding;
-
-  /// {@template ContextMenuItem.padding}
-  /// The padding of the context menu item, defaults to
-  /// `EdgeInsets.symmetric(horizontal: 4)`.
-  /// {@endtemplate}
-  final EdgeInsetsGeometry? padding;
-
-  /// {@template ContextMenuItem.insetPadding}
-  /// The row's own padding. Defaults to the style's item padding
-  /// (`StyleTokens.itemPaddingX`, shadcn's `px-2`) on both sides, plus a
-  /// 24px icon column at the start when the variant is inset.
-  /// {@endtemplate}
-  final EdgeInsetsGeometry? insetPadding;
-
-  /// {@template ContextMenuItem.onPressed}
+  /// {@template MenuItem.onPressed}
   /// The callback called when the context menu item is pressed.
   /// {@endtemplate}
   final VoidCallback? onPressed;
 
-  /// {@template ContextMenuItem.onTapDown}
+  /// {@template MenuItem.onTapDown}
   /// The callback called when a pointer down event is detected on the context
   /// menu item. Useful when the action must fire immediately before the
   /// overlay is dismissed (e.g. text selection context menus).
   /// {@endtemplate}
   final ValueChanged<TapDownDetails>? onTapDown;
 
-  /// {@template ContextMenuItem.anchor}
-  /// The anchor of the context menu item, defaults to
-  /// ```dart
-  /// AnchorAuto(
-  ///   offset: Offset(-8, parentItemController != null ? -5 : -3),
-  ///   targetAnchor: Alignment.topRight,
-  ///   followerAnchor: Alignment.bottomRight,
-  /// )
-  /// ```
-  /// {@endtemplate}
-  final AnchorBase? anchor;
+  /// Overrides of the theme's `ContextMenuTheme` for this row: its
+  /// padding, height, decoration, colours, text styles and the anchor and
+  /// delay of its submenu. It is merged over the theme, so only the fields
+  /// that are set change anything; the fields about the menu itself
+  /// (`constraints`, `subMenuPadding`) apply to this row's submenu.
+  final ContextMenuTheme? style;
 
-  /// {@template ContextMenuItem.showDelay}
-  /// How long an item with a submenu stays highlighted, with its submenu
-  /// open, after the pointer leaves it. Defaults to 100ms.
-  ///
-  /// The grace period lets the pointer cross the gap to the submenu without
-  /// the submenu closing under it. Reaching another row of the same menu
-  /// ends it at once.
-  /// {@endtemplate}
-  final Duration? showDelay;
-
-  /// {@template ContextMenuItem.height}
-  /// The height of the context menu item, defaults to 32.
-  /// {@endtemplate}
-  final double? height;
-
-  /// {@template ContextMenuItem.buttonVariant}
-  /// The variant of the button of the context menu item, defaults to
-  /// [ButtonVariant.ghost].
-  /// {@endtemplate}
-  final ButtonVariant? buttonVariant;
-
-  /// {@template ContextMenuItem.decoration}
-  /// The decoration of the context menu item, defaults to
-  /// `FinesseDecoration(secondaryBorder: FinesseBorder.none)`.
-  /// {@endtemplate}
-  final FinesseDecoration? decoration;
-
-  /// {@template ContextMenuItem.textStyle}
-  /// The text style of the context menu item, defaults to
-  /// `small.copyWith(fontWeight: FontWeight.normal)`.
-  /// {@endtemplate}
-  final TextStyle? textStyle;
-
-  /// {@template ContextMenuItem.selectedTextStyle}
-  /// The text style of the item while it is selected or hovered.
-  ///
-  /// Defaults to [textStyle]. It exists because a menu whose selection is a
-  /// strong fill needs its label to change with it.
-  /// {@endtemplate}
-  final TextStyle? selectedTextStyle;
-
-  /// {@template ContextMenuItem.trailingTextStyle}
-  /// The text style of the trailing widget, defaults to
-  /// `muted.copyWith(fontSize: 12, height: 1)`.
-  /// {@endtemplate}
-  final TextStyle? trailingTextStyle;
-
-  /// {@macro ContextMenu.constraints}
-  final BoxConstraints? constraints;
-
-  /// {@macro ContextMenu.padding}
-  final EdgeInsetsGeometry? subMenuPadding;
-
-  /// {@template ContextMenuItem.backgroundColor}
-  /// The background color of the context menu item, defaults to
-  /// `null`.
-  /// {@endtemplate}
-  final Color? backgroundColor;
-
-  /// {@template ContextMenuItem.selectedBackgroundColor}
-  /// The background color of the context menu item when it is selected,
-  /// defaults to `theme.colorScheme.accent`.
-  /// {@endtemplate}
-  final Color? selectedBackgroundColor;
-
-  /// {@template ContextMenuItem.closeOnTap}
+  /// {@template MenuItem.closeOnTap}
   /// Whether the context menu should be closed when the item is tapped,
   /// defaults to `true` when [items] is empty, otherwise `false`.
   /// {@endtemplate}
   final bool? closeOnTap;
 
-  /// {@template ContextMenuItem.items}
+  /// {@template MenuItem.items}
   /// The submenu items of the context menu item.
   /// {@endtemplate}
   final List<Widget> items;
 
-  /// {@template ContextMenuItem.destructive}
+  /// {@template MenuItem.destructive}
   /// Whether this is a destructive action, shadcn's
   /// `data-[variant=destructive]`: the label and icons take the destructive
   /// colour and the hover highlight becomes a destructive wash.
   /// {@endtemplate}
   final bool destructive;
 
+  /// {@template MenuItem.shortcut}
+  /// The keyboard shortcut shown at the end of the row, before [trailing].
+  ///
+  /// It is only displayed: binding the keys is the app's job.
+  /// {@endtemplate}
+  final MenuShortcut? shortcut;
+
+  /// {@template MenuItem.value}
+  /// What [showMenu] completes with when this item is chosen.
+  ///
+  /// It is read when the item closes its menu (see [closeOnTap]). A menu
+  /// that was not shown with [showMenu] ignores it.
+  /// {@endtemplate}
+  final Object? value;
+
   @override
-  State<ContextMenuItem> createState() => _ContextMenuItemState();
+  State<MenuItem> createState() => _MenuItemState();
 }
 
-class _ContextMenuItemState extends State<ContextMenuItem> {
+class _MenuItemState extends State<MenuItem> {
   final itemKey = UniqueKey();
-  late final controller = ContextMenuItemController(itemKey: itemKey);
+  late final controller = _MenuItemController(itemKey: itemKey);
 
   /// Shared with the item's button so the trailing widget and text colours
   /// can follow the button's own hover state — a leaf item is only ever
   /// hovered, never "selected", so selection alone cannot drive them.
   final statesController = WidgetStatesController();
   // get the parent item controller, if any, meaning this item is a submenu
-  late final parentItemController = context
-      .maybeRead<ContextMenuItemController>();
+  late final parentItemController = context.maybeRead<_MenuItemController>();
 
   bool get hasTrailingIcon => widget.items.isNotEmpty;
 
@@ -1168,6 +1000,38 @@ class _ContextMenuItemState extends State<ContextMenuItem> {
     _unhoverTimer?.cancel();
     _unhoverTimer = null;
     controller.clearHovered();
+  }
+
+  /// Whether this row's submenu was closed with Escape. It stays shut,
+  /// though the row is still highlighted, until the pointer or the focus
+  /// has left the row, or the arrow key that leads into it asks for it
+  /// again: one press of Escape closes one layer, and it would not be
+  /// closed if the row it returns the focus to opened it straight away.
+  bool _submenuDismissed = false;
+
+  void _onSubmenuDismissed() {
+    if (!mounted || _submenuDismissed) return;
+    setState(() => _submenuDismissed = true);
+  }
+
+  /// The row is done with: the next time it is reached its submenu opens.
+  void _onSelectionChanged() {
+    if (_submenuDismissed && !controller.hovered && !controller.focused) {
+      setState(() => _submenuDismissed = false);
+    }
+  }
+
+  /// The arrow that leads into the submenu opens it again.
+  KeyEventResult _onRowKey(FocusNode node, KeyEvent event) {
+    if (!_submenuDismissed || event is! KeyDownEvent) {
+      return KeyEventResult.ignored;
+    }
+    final towards = Directionality.of(context) == TextDirection.ltr
+        ? LogicalKeyboardKey.arrowRight
+        : LogicalKeyboardKey.arrowLeft;
+    if (event.logicalKey != towards) return KeyEventResult.ignored;
+    setState(() => _submenuDismissed = false);
+    return KeyEventResult.handled;
   }
 
   bool _buttonHovered = false;
@@ -1202,17 +1066,39 @@ class _ContextMenuItemState extends State<ContextMenuItem> {
     });
   }
 
+  /// The menu level this row told that it is checkable.
+  _ContextMenuState? _registeredWith;
+
   @override
   void initState() {
     super.initState();
     statesController.addListener(_onStatesChanged);
+    controller.addListener(_onSelectionChanged);
     // register the subitem controller if this item is a submenu
     parentItemController?.registerSubItem(controller);
+    if (context.getInheritedWidgetOfExactType<_MenuCheckable>() != null) {
+      _registeredWith = context
+          .getInheritedWidgetOfExactType<_MenuLevel>()
+          ?.menu;
+      _registeredWith?._checkableMounted();
+    }
+  }
+
+  /// Closes the whole menu after this row was chosen, handing its value to
+  /// [showMenu] when that is what opened the menu.
+  void _close(_ContextMenuState contextMenu) {
+    context.getInheritedWidgetOfExactType<_MenuResult>()?.holder.value =
+        widget.value;
+    contextMenu.setOpen(false);
   }
 
   @override
   void dispose() {
     _unhoverTimer?.cancel();
+    final registeredWith = _registeredWith;
+    if (registeredWith != null && registeredWith.mounted) {
+      registeredWith._checkableUnmounted();
+    }
     parentItemController?.unregisterSubItem(controller);
     controller.dispose();
     statesController.dispose();
@@ -1222,49 +1108,51 @@ class _ContextMenuItemState extends State<ContextMenuItem> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final menuTheme = theme.contextMenuTheme.merge(widget.style);
 
-    final contextMenu = context.read<ContextMenuState>();
+    final contextMenu = context.read<_ContextMenuState>();
+
+    // Set by `MenuCheckboxItem` and `MenuRadioItem` around their row.
+    final checkable = context
+        .dependOnInheritedWidgetOfExactType<_MenuCheckable>();
+    final indicatorColumn =
+        checkable != null ||
+        (context
+                .dependOnInheritedWidgetOfExactType<_MenuLevel>()
+                ?.indicatorColumn ??
+            false);
+    final effectiveIndicatorSize = _menuIndicatorSize(context, theme);
 
     final effectivePadding =
-        widget.padding ??
-        theme.contextMenuTheme.itemPadding ??
-        const EdgeInsets.symmetric(horizontal: 4);
+        menuTheme.itemPadding ?? const EdgeInsets.symmetric(horizontal: 4);
 
     // The row's own horizontal padding (`px-2`), from the style tokens so a
     // denser or roomier style moves it. An inset row reserves shadcn's
     // `pl-8`-style gutter: the base padding plus a 24px icon column.
     final itemPaddingX = theme.style.itemPaddingX * theme.spacing.step / 4;
     final defaultInsetPadding = switch (widget.variant) {
-      ContextMenuItemVariant.primary => EdgeInsets.symmetric(
+      MenuItemVariant.primary => EdgeInsets.symmetric(
         horizontal: itemPaddingX,
       ),
-      ContextMenuItemVariant.inset => EdgeInsetsDirectional.only(
+      MenuItemVariant.inset => EdgeInsetsDirectional.only(
         start: itemPaddingX + 24,
         end: itemPaddingX,
       ),
     };
 
-    final effectiveInsetPadding =
-        widget.insetPadding ??
-        theme.contextMenuTheme.insetPadding ??
-        defaultInsetPadding;
+    final effectiveInsetPadding = menuTheme.insetPadding ?? defaultInsetPadding;
 
     final effectiveLeadingPadding =
-        widget.leadingPadding ??
-        theme.contextMenuTheme.leadingPadding ??
-        const EdgeInsetsDirectional.only(end: 8);
+        menuTheme.leadingPadding ?? const EdgeInsetsDirectional.only(end: 8);
 
     final effectiveTrailingPadding =
-        widget.trailingPadding ??
-        theme.contextMenuTheme.trailingPadding ??
-        const EdgeInsetsDirectional.only(start: 8);
+        menuTheme.trailingPadding ?? const EdgeInsetsDirectional.only(start: 8);
 
     // A submenu opens beside its item and flips to the other side when it
     // would cross the screen edge, instead of sliding over its parent.
     final submenuOffsetY = parentItemController != null ? -5.0 : -3.0;
     final effectiveAnchor =
-        widget.anchor ??
-        theme.contextMenuTheme.anchor ??
+        menuTheme.anchor ??
         AnchorAuto(
           offset: Offset(-8, submenuOffsetY),
           targetAnchor: Alignment.topRight,
@@ -1276,23 +1164,18 @@ class _ContextMenuItemState extends State<ContextMenuItem> {
           ),
         );
 
-    final effectiveHeight =
-        widget.height ?? theme.contextMenuTheme.height ?? 32;
+    final effectiveHeight = menuTheme.height ?? 32;
 
     final effectiveShowDelay =
-        widget.showDelay ??
-        theme.contextMenuTheme.showDelay ??
-        const Duration(milliseconds: 100);
+        menuTheme.showDelay ?? const Duration(milliseconds: 100);
 
     final effectiveButtonVariant =
-        widget.buttonVariant ??
-        theme.contextMenuTheme.buttonVariant ??
-        ButtonVariant.ghost;
+        menuTheme.buttonVariant ?? ButtonVariant.ghost;
 
     final effectiveDecoration = const FinesseDecoration(
       secondaryBorder: FinesseBorder.none,
       secondaryFocusedBorder: FinesseBorder.none,
-    ).merge(theme.contextMenuTheme.itemDecoration).merge(widget.decoration);
+    ).merge(menuTheme.itemDecoration);
 
     // Menu rows draw their colours from the menu palette slots. shadcn's
     // states, per `cn-dropdown-menu-item`: rest is the popover foreground,
@@ -1300,20 +1183,17 @@ class _ContextMenuItemState extends State<ContextMenuItem> {
     // (icons included) following, and a destructive row keeps its destructive
     // text over a `destructive/10` wash (`/20` in dark).
     final effectiveTextStyle =
-        (widget.textStyle ??
-                theme.contextMenuTheme.textStyle ??
+        (menuTheme.textStyle ??
                 theme.textTheme.small.copyWith(fontWeight: FontWeight.normal))
             .fallback(color: theme.colorScheme.popoverForeground);
 
     final effectiveSelectedTextStyle =
-        (widget.selectedTextStyle ??
-                theme.contextMenuTheme.selectedTextStyle ??
-                effectiveTextStyle)
-            .fallback(color: theme.colorScheme.accentForeground);
+        (menuTheme.selectedTextStyle ?? effectiveTextStyle).fallback(
+          color: theme.colorScheme.accentForeground,
+        );
 
     final effectiveTrailingTextStyle =
-        (widget.trailingTextStyle ??
-                theme.contextMenuTheme.trailingTextStyle ??
+        (menuTheme.trailingTextStyle ??
                 theme.textTheme.muted.copyWith(
                   fontSize: 12,
                   height: 1,
@@ -1321,30 +1201,31 @@ class _ContextMenuItemState extends State<ContextMenuItem> {
             .fallback(color: theme.colorScheme.mutedForeground);
 
     final effectiveSelectedTrailingTextStyle =
-        theme.contextMenuTheme.selectedTrailingTextStyle ??
+        menuTheme.selectedTrailingTextStyle ??
         effectiveTrailingTextStyle.copyWith(
           color: effectiveSelectedTextStyle.color,
         );
 
-    final effectiveBackgroundColor =
-        widget.backgroundColor ?? theme.contextMenuTheme.backgroundColor;
+    // The shortcut is trailing text with the style's own spacing; its
+    // colour is the trailing style's for the row's state.
+    final effectiveShortcutTextStyle =
+        menuTheme.shortcutTextStyle ?? effectiveTrailingTextStyle;
+
+    final effectiveBackgroundColor = menuTheme.backgroundColor;
 
     var effectiveSelectedBackgroundColor =
-        widget.selectedBackgroundColor ??
-        theme.contextMenuTheme.selectedBackgroundColor ??
-        theme.colorScheme.accent;
+        menuTheme.selectedBackgroundColor ?? theme.colorScheme.accent;
 
     var foregroundColor = effectiveTextStyle.color!;
     var selectedForegroundColor = effectiveSelectedTextStyle.color!;
 
     if (widget.destructive) {
       final destructive =
-          theme.contextMenuTheme.destructiveForegroundColor ??
-          theme.colorScheme.destructive;
+          menuTheme.destructiveForegroundColor ?? theme.colorScheme.destructive;
       foregroundColor = destructive;
       selectedForegroundColor = destructive;
       effectiveSelectedBackgroundColor =
-          theme.contextMenuTheme.destructiveSelectedBackgroundColor ??
+          menuTheme.destructiveSelectedBackgroundColor ??
           destructive.withValues(
             alpha:
                 destructive.a * (theme.brightness == Brightness.dark ? .2 : .1),
@@ -1352,28 +1233,7 @@ class _ContextMenuItemState extends State<ContextMenuItem> {
     }
 
     final effectiveCloseOnTap =
-        widget.closeOnTap ??
-        theme.contextMenuTheme.closeOnTap ??
-        widget.items.isEmpty;
-
-    // The highlight is not the button's own fill: the menu paints one, on
-    // whichever row is highlighted, and moves it between them. This is what
-    // it looks like on this row — the button's shape, in this row's colour.
-    final buttonDecoration = switch (effectiveButtonVariant) {
-      ButtonVariant.primary => theme.primaryButtonTheme,
-      ButtonVariant.destructive => theme.destructiveButtonTheme,
-      ButtonVariant.secondary => theme.secondaryButtonTheme,
-      ButtonVariant.ghost => theme.ghostButtonTheme,
-      ButtonVariant.outline => theme.outlineButtonTheme,
-      ButtonVariant.link => theme.linkButtonTheme,
-    }.decoration;
-    final highlight = BoxDecoration(
-      color: effectiveSelectedBackgroundColor,
-      borderRadius:
-          effectiveDecoration.border?.radius ??
-          buttonDecoration?.border?.radius,
-    );
-    const noFill = Color(0x00000000);
+        widget.closeOnTap ?? menuTheme.closeOnTap ?? widget.items.isEmpty;
 
     /// if the item has submenu items, use the current item key,
     /// otherwise use the parent item controller's item key
@@ -1391,53 +1251,80 @@ class _ContextMenuItemState extends State<ContextMenuItem> {
         // in the button's own states — selection alone cannot see it.
         final highlighted = selected || hovered;
 
-        return ContextMenu(
-          visible: selected,
+        return ContextMenu.internal(
+          open: selected && !_submenuDismissed,
+          onDismissed: _onSubmenuDismissed,
           anchor: effectiveAnchor,
-          constraints: widget.constraints,
-          padding: widget.subMenuPadding,
-          groupId: effectiveGroupId,
+          constraints: widget.style?.constraints,
+          padding: menuTheme.subMenuPadding,
+          areaGroupId: effectiveGroupId,
           onHoverArea: (hovered) => _onHoverArea(hovered, effectiveShowDelay),
           items: widget.items,
           child: Padding(
             padding: effectivePadding,
-            child: MovingIndicatorTarget(
-              selected: highlighted && widget.enabled,
-              decoration: highlight,
-              child: Button.raw(
-                height: effectiveHeight,
+            child: _CheckableSemantics(
+              checkable: checkable,
+              child: Button(
                 enabled: widget.enabled,
                 variant: effectiveButtonVariant,
-                decoration: effectiveDecoration,
-                width: double.infinity,
-                padding: effectiveInsetPadding,
                 statesController: statesController,
-                backgroundColor: effectiveBackgroundColor ?? noFill,
-                hoverBackgroundColor: effectiveBackgroundColor ?? noFill,
-                // Through the button rather than a wrapping DefaultTextStyle,
-                // so its IconTheme recolours leading and trailing icons with
-                // the text — shadcn's `focus:**:text-accent-foreground`.
-                foregroundColor: selected
-                    ? selectedForegroundColor
-                    : foregroundColor,
-                hoverForegroundColor: selectedForegroundColor,
-                textStyle: highlighted
-                    ? effectiveSelectedTextStyle
-                    : effectiveTextStyle,
+                style: ButtonTheme(
+                  pressScale: 1,
+                  height: effectiveHeight,
+                  decoration: effectiveDecoration,
+                  width: double.infinity,
+                  padding: effectiveInsetPadding,
+                  backgroundColor: selected
+                      ? effectiveSelectedBackgroundColor
+                      : effectiveBackgroundColor,
+                  hoverBackgroundColor: effectiveSelectedBackgroundColor,
+                  // Through the button rather than a wrapping
+                  // DefaultTextStyle, so its IconTheme recolours leading and
+                  // trailing icons with the text — shadcn's
+                  // `focus:**:text-accent-foreground`.
+                  foregroundColor: selected
+                      ? selectedForegroundColor
+                      : foregroundColor,
+                  hoverForegroundColor: selectedForegroundColor,
+                  // A menu's highlight follows the pointer and the arrow
+                  // keys row by row: it is there or it is not, with no fade
+                  // and no glide between rows.
+                  transitionDuration: Duration.zero,
+                  textStyle: highlighted
+                      ? effectiveSelectedTextStyle
+                      : effectiveTextStyle,
+                ),
                 onFocusChange: controller.setFocused,
-                onTapDown: widget.onTapDown != null
-                    ? (details) {
-                        widget.onTapDown!(details);
-                        if (effectiveCloseOnTap) contextMenu.setVisible(false);
-                      }
-                    : null,
                 onPressed: () {
+                  // Space on a checkable row toggles it and leaves the menu
+                  // open, so several can be set in one visit; Enter and a
+                  // click do what the row's `closeOnTap` says. The button
+                  // binds both keys to this callback, so the key is asked.
+                  final stays =
+                      checkable != null &&
+                      HardwareKeyboard.instance.isLogicalKeyPressed(
+                        LogicalKeyboardKey.space,
+                      );
                   widget.onPressed?.call();
-                  if (effectiveCloseOnTap) contextMenu.setVisible(false);
+                  if (effectiveCloseOnTap && !stays) _close(contextMenu);
                 },
                 child: Expanded(
                   child: Row(
                     children: [
+                      if (indicatorColumn)
+                        Padding(
+                          padding: effectiveLeadingPadding,
+                          child: SizedBox.square(
+                            dimension: effectiveIndicatorSize,
+                            child: checkable == null
+                                ? null
+                                : _MenuIndicator(
+                                    checked: checkable.checked,
+                                    radio: checkable.radio,
+                                    size: effectiveIndicatorSize,
+                                  ),
+                          ),
+                        ),
                       if (widget.leading != null)
                         Padding(
                           padding: effectiveLeadingPadding,
@@ -1451,6 +1338,18 @@ class _ContextMenuItemState extends State<ContextMenuItem> {
                           child: widget.child,
                         ),
                       ),
+                      if (widget.shortcut != null)
+                        Padding(
+                          padding: effectiveTrailingPadding,
+                          child: DefaultTextStyle(
+                            style: effectiveShortcutTextStyle.copyWith(
+                              color: highlighted
+                                  ? effectiveSelectedTrailingTextStyle.color
+                                  : effectiveTrailingTextStyle.color,
+                            ),
+                            child: widget.shortcut!,
+                          ),
+                        ),
                       if (widget.trailing != null)
                         Padding(
                           padding: effectiveTrailingPadding,
@@ -1471,9 +1370,41 @@ class _ContextMenuItemState extends State<ContextMenuItem> {
       },
     );
 
-    final itemConstraints = theme.contextMenuTheme.itemConstraints;
+    if (widget.items.isNotEmpty) {
+      // Above the row's own focus, so it hears the key the row has no use
+      // for.
+      child = Focus(
+        canRequestFocus: false,
+        skipTraversal: true,
+        onKeyEvent: _onRowKey,
+        child: child,
+      );
+    }
+
+    final itemConstraints = menuTheme.itemConstraints;
     if (itemConstraints != null) {
       child = ConstrainedBox(constraints: itemConstraints, child: child);
+    }
+
+    // On the way down, before anything else hears of the press: the row's
+    // own tap comes on the way up, and by then a press that is also a tap
+    // outside what the menu belongs to has taken the menu away.
+    final onTapDown = widget.onTapDown;
+    if (onTapDown != null && widget.enabled) {
+      child = Listener(
+        onPointerDown: (event) {
+          if (event.buttons != kPrimaryButton) return;
+          onTapDown(
+            TapDownDetails(
+              globalPosition: event.position,
+              localPosition: event.localPosition,
+              kind: event.kind,
+            ),
+          );
+          if (effectiveCloseOnTap) _close(contextMenu);
+        },
+        child: child,
+      );
     }
 
     // if the item has at least one submenu item, wrap it in a provider to
@@ -1492,10 +1423,19 @@ class _ContextMenuItemState extends State<ContextMenuItem> {
 /// Marks the items built by one menu level, so a menu can tell its own items
 /// from those of a submenu below it.
 class _MenuLevel extends InheritedWidget {
-  const _MenuLevel({required this.menu, required super.child});
+  const _MenuLevel({
+    required this.menu,
+    required this.indicatorColumn,
+    required super.child,
+  });
 
-  final ContextMenuState menu;
+  final _ContextMenuState menu;
+
+  /// Whether a row of this level is checkable. Every row then keeps the
+  /// column of the check marks free, so the labels line up.
+  final bool indicatorColumn;
 
   @override
-  bool updateShouldNotify(_MenuLevel oldWidget) => menu != oldWidget.menu;
+  bool updateShouldNotify(_MenuLevel oldWidget) =>
+      menu != oldWidget.menu || indicatorColumn != oldWidget.indicatorColumn;
 }

@@ -5,7 +5,6 @@ import 'package:finesse/src/raw_components/portal.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
 part 'context_menu.g.theme.dart';
@@ -41,11 +40,15 @@ class ContextMenuTheme with _$ContextMenuTheme {
     this.backgroundColor,
     this.selectedBackgroundColor,
     this.closeOnTap,
-    this.effects,
     this.shadows,
     this.itemDecoration,
     this.filter,
-    this.popoverReverseDuration,
+    this.indicatorSize,
+    this.labelTextStyle,
+    this.labelPadding,
+    this.shortcutTextStyle,
+    this.dividerColor,
+    this.dividerMargin,
   }) : _canMerge = canMerge;
 
   @ignore
@@ -54,49 +57,70 @@ class ContextMenuTheme with _$ContextMenuTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro Popover.reverseDuration}
-  final Duration? popoverReverseDuration;
-
   /// {@macro ContextMenu.constraints}
   final BoxConstraints? constraints;
 
   /// {@macro ContextMenu.padding}
   final EdgeInsetsGeometry? padding;
 
-  /// {@macro ContextMenuItem.leadingPadding}
+  /// The padding of the leading widget, defaults to
+  /// `EdgeInsets.only(right: 8)`.
   final EdgeInsetsGeometry? leadingPadding;
 
-  /// {@macro ContextMenuItem.trailingPadding}
+  /// The padding of the trailing widget, defaults to
+  /// `EdgeInsets.only(left: 8)`.
   final EdgeInsetsGeometry? trailingPadding;
 
-  /// {@macro ContextMenuItem.padding}
+  /// The padding of the context menu item, defaults to
+  /// `EdgeInsets.symmetric(horizontal: 4)`.
   final EdgeInsetsGeometry? itemPadding;
 
-  /// {@macro ContextMenuItem.insetPadding}
+  /// The row's own padding. Defaults to the style's item padding
+  /// (`StyleTokens.itemPaddingX`, shadcn's `px-2`) on both sides, plus a
+  /// 24px icon column at the start when the variant is inset.
   final EdgeInsetsGeometry? insetPadding;
 
-  /// {@macro ContextMenuItem.anchor}
+  /// The anchor of the context menu item, defaults to
+  /// ```dart
+  /// AnchorAuto(
+  ///   offset: Offset(-8, parentItemController != null ? -5 : -3),
+  ///   targetAnchor: Alignment.topRight,
+  ///   followerAnchor: Alignment.bottomRight,
+  /// )
+  /// ```
   final AnchorBase? anchor;
 
-  /// {@macro ContextMenuItem.showDelay}
+  /// How long an item with a submenu stays highlighted, with its submenu
+  /// open, after the pointer leaves it. Defaults to 100ms.
+  ///
+  /// The grace period lets the pointer cross the gap to the submenu without
+  /// the submenu closing under it. Reaching another row of the same menu
+  /// ends it at once.
   final Duration? showDelay;
 
-  /// {@macro ContextMenuItem.height}
+  /// The height of the context menu item, defaults to 32.
   final double? height;
 
-  /// {@macro ContextMenuItem.buttonVariant}
+  /// The variant of the button of the context menu item, defaults to
+  /// [ButtonVariant.ghost].
   final ButtonVariant? buttonVariant;
 
-  /// {@macro ContextMenuItem.decoration}
+  /// The decoration of the context menu item, defaults to
+  /// `FinesseDecoration(secondaryBorder: FinesseBorder.none)`.
   final FinesseDecoration? itemDecoration;
 
-  /// {@macro ContextMenuItem.textStyle}
+  /// The text style of the context menu item, defaults to
+  /// `small.copyWith(fontWeight: FontWeight.normal)`.
   final TextStyle? textStyle;
 
-  /// {@macro ContextMenuItem.selectedTextStyle}
+  /// The text style of the item while it is selected or hovered.
+  ///
+  /// Defaults to [textStyle]. It exists because a menu whose selection is a
+  /// strong fill needs its label to change with it.
   final TextStyle? selectedTextStyle;
 
-  /// {@macro ContextMenuItem.trailingTextStyle}
+  /// The text style of the trailing widget, defaults to
+  /// `muted.copyWith(fontSize: 12, height: 1)`.
   final TextStyle? trailingTextStyle;
 
   /// The style of an item's trailing widget while the item is hovered or its
@@ -119,17 +143,16 @@ class ContextMenuTheme with _$ContextMenuTheme {
   /// {@macro ContextMenu.padding}
   final EdgeInsetsGeometry? subMenuPadding;
 
-  /// {@macro ContextMenuItem.backgroundColor}
+  /// The background color of the context menu item, defaults to
+  /// `null`.
   final Color? backgroundColor;
 
-  /// {@macro ContextMenuItem.selectedBackgroundColor}
+  /// The background color of the context menu item when it is selected,
+  /// defaults to `theme.colorScheme.accent`.
   final Color? selectedBackgroundColor;
 
-  /// {@macro ContextMenuItem.closeOnTap}
+  /// {@macro MenuItem.closeOnTap}
   final bool? closeOnTap;
-
-  /// {@macro Popover.effects}
-  final List<Effect<dynamic>>? effects;
 
   /// {@macro Popover.shadows}
   final List<BoxShadow>? shadows;
@@ -139,6 +162,31 @@ class ContextMenuTheme with _$ContextMenuTheme {
 
   /// {@macro Popover.filter}
   final ImageFilter? filter;
+
+  /// The side of the box a checkable row keeps for its check mark or dot,
+  /// and every other row of the same menu keeps empty. Defaults to 16.
+  ///
+  /// The check mark is drawn at this size and the dot at half of it; the
+  /// gap to the label is [leadingPadding]. The box grows with the text
+  /// scale, so the mark keeps its size beside an enlarged label.
+  final double? indicatorSize;
+
+  /// The style of a `MenuLabel`, the heading of a group of rows.
+  final TextStyle? labelTextStyle;
+
+  /// The space around a `MenuLabel`, inside [itemPadding].
+  final EdgeInsetsGeometry? labelPadding;
+
+  /// The style of a row's `MenuShortcut`. Its colour is taken from
+  /// [trailingTextStyle], or from [selectedTrailingTextStyle] while the
+  /// row is highlighted.
+  final TextStyle? shortcutTextStyle;
+
+  /// The colour of a `MenuDivider`.
+  final Color? dividerColor;
+
+  /// The space around a `MenuDivider`.
+  final EdgeInsetsGeometry? dividerMargin;
 
   /// Linearly interpolates between [a] and [b] by [t].
   static ContextMenuTheme? lerp(
@@ -154,15 +202,13 @@ class ContextMenuTheme with _$ContextMenuTheme {
   @override
   bool operator ==(Object other) =>
       other is ContextMenuTheme &&
-      listEquals(effects, other.effects) &&
       listEquals(shadows, other.shadows) &&
-      super == other.copyWith(effects: effects, shadows: shadows);
+      super == other.copyWith(shadows: shadows);
 
   // Equal themes must hash alike, and the lists may differ in identity.
   @override
   int get hashCode => Object.hash(
     runtimeType,
-    Object.hashAll(effects ?? const []),
     Object.hashAll(shadows ?? const []),
   );
 }

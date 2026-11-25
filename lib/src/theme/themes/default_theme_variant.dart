@@ -7,6 +7,7 @@ import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/raw_components/portal.dart';
 import 'package:finesse/src/theme/color_scheme/base.dart';
 import 'package:finesse/src/theme/components/accordion.dart';
+import 'package:finesse/src/theme/components/action_sheet.dart';
 import 'package:finesse/src/theme/components/alert.dart';
 import 'package:finesse/src/theme/components/app_bar.dart';
 import 'package:finesse/src/theme/components/avatar.dart';
@@ -18,7 +19,9 @@ import 'package:finesse/src/theme/components/button.dart';
 import 'package:finesse/src/theme/components/button_sizes.dart';
 import 'package:finesse/src/theme/components/calendar.dart';
 import 'package:finesse/src/theme/components/card.dart';
+import 'package:finesse/src/theme/components/carousel.dart';
 import 'package:finesse/src/theme/components/chat_bubble.dart';
+import 'package:finesse/src/theme/components/chat_list.dart';
 import 'package:finesse/src/theme/components/checkbox.dart';
 import 'package:finesse/src/theme/components/chip.dart';
 import 'package:finesse/src/theme/components/collapsible.dart';
@@ -30,19 +33,25 @@ import 'package:finesse/src/theme/components/default_keyboard_toolbar.dart';
 import 'package:finesse/src/theme/components/dialog.dart';
 import 'package:finesse/src/theme/components/divider.dart';
 import 'package:finesse/src/theme/components/empty.dart';
+import 'package:finesse/src/theme/components/floating_action_button.dart';
 import 'package:finesse/src/theme/components/glass.dart';
 import 'package:finesse/src/theme/components/icon_tile.dart';
 import 'package:finesse/src/theme/components/indicator_badge.dart';
 import 'package:finesse/src/theme/components/kbd.dart';
 import 'package:finesse/src/theme/components/layout.dart';
+import 'package:finesse/src/theme/components/list_section.dart';
 import 'package:finesse/src/theme/components/list_tile.dart';
 import 'package:finesse/src/theme/components/menubar.dart';
 import 'package:finesse/src/theme/components/navigation_bar.dart';
+import 'package:finesse/src/theme/components/navigation_menu.dart';
+import 'package:finesse/src/theme/components/navigation_rail.dart';
 import 'package:finesse/src/theme/components/otp_field.dart';
 import 'package:finesse/src/theme/components/pagination.dart';
+import 'package:finesse/src/theme/components/phosphor_icon.dart';
 import 'package:finesse/src/theme/components/popover.dart';
 import 'package:finesse/src/theme/components/progress_bar.dart';
 import 'package:finesse/src/theme/components/radio.dart';
+import 'package:finesse/src/theme/components/refresh_indicator.dart';
 import 'package:finesse/src/theme/components/resizable.dart';
 import 'package:finesse/src/theme/components/scroll_area.dart';
 import 'package:finesse/src/theme/components/select.dart';
@@ -51,18 +60,22 @@ import 'package:finesse/src/theme/components/sheet.dart';
 import 'package:finesse/src/theme/components/sidebar.dart';
 import 'package:finesse/src/theme/components/skeleton.dart';
 import 'package:finesse/src/theme/components/slider.dart';
-import 'package:finesse/src/theme/components/sonner.dart';
 import 'package:finesse/src/theme/components/spinner.dart';
+import 'package:finesse/src/theme/components/stepper.dart';
+import 'package:finesse/src/theme/components/streaming_text.dart';
 import 'package:finesse/src/theme/components/switch.dart';
 import 'package:finesse/src/theme/components/table.dart';
 import 'package:finesse/src/theme/components/tabs.dart';
 import 'package:finesse/src/theme/components/text_field.dart';
+import 'package:finesse/src/theme/components/text_selection.dart';
 import 'package:finesse/src/theme/components/textarea.dart';
+import 'package:finesse/src/theme/components/time_field.dart';
 import 'package:finesse/src/theme/components/time_picker.dart';
 import 'package:finesse/src/theme/components/timeline.dart';
 import 'package:finesse/src/theme/components/toast.dart';
 import 'package:finesse/src/theme/components/toggle.dart';
 import 'package:finesse/src/theme/components/tooltip.dart';
+import 'package:finesse/src/theme/components/wheel_picker.dart';
 import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/radii.dart';
 import 'package:finesse/src/theme/spacing.dart';
@@ -75,7 +88,6 @@ import 'package:finesse/src/theme/themes/shadows.dart';
 import 'package:finesse/src/utils/backdrop.dart';
 import 'package:finesse/src/utils/border.dart';
 import 'package:finesse/src/utils/extensions/text_style.dart';
-import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 
@@ -90,7 +102,8 @@ class DefaultThemeVariant extends ThemeVariant {
   /// [style] defaults to [StyleTokens.finesse], [formFactor] to
   /// [FormFactor.desktop] and [spacing] to the 4px step. A null
   /// [menuColorScheme] makes menus follow [colorScheme], and a null
-  /// [menuTranslucent] makes them follow the style.
+  /// [menuTranslucent] makes them follow the style. [menuAccent] defaults
+  /// to [MenuAccent.subtle].
   DefaultThemeVariant({
     required this.colorScheme,
     required this.radius,
@@ -100,6 +113,7 @@ class DefaultThemeVariant extends ThemeVariant {
     this.spacing = const Spacing(),
     this.menuColorScheme,
     this.menuTranslucent,
+    this.menuAccent = MenuAccent.subtle,
   }) : baseStyle = style,
        style = style.forFormFactor(formFactor);
 
@@ -149,6 +163,15 @@ class DefaultThemeVariant extends ThemeVariant {
   /// menus solid even in a glass style.
   final bool? menuTranslucent;
 
+  /// How strongly menus highlight their rows; see [MenuAccent].
+  ///
+  /// It is carried here, as a choice, and read where the menu colours are
+  /// derived ([menuItemHighlight]). It used to be written into the colour
+  /// scheme instead — `accent = primary` — which recoloured everything
+  /// else that draws with the accent: selected cards and chips, incoming
+  /// chat bubbles, icon tiles.
+  final MenuAccent menuAccent;
+
   /// The radius scale derived from [radius].
   @override
   Radii get radii => Radii(radius, style.radiusScale);
@@ -163,6 +186,7 @@ class DefaultThemeVariant extends ThemeVariant {
     Spacing? spacing,
     Object? menuColorScheme = unsetMenuColorScheme,
     Object? menuTranslucent = unsetMenuTranslucent,
+    MenuAccent? menuAccent,
   }) {
     return DefaultThemeVariant(
       colorScheme: colorScheme ?? this.colorScheme,
@@ -179,6 +203,7 @@ class DefaultThemeVariant extends ThemeVariant {
       menuTranslucent: identical(menuTranslucent, unsetMenuTranslucent)
           ? this.menuTranslucent
           : menuTranslucent as bool?,
+      menuAccent: menuAccent ?? this.menuAccent,
     );
   }
 
@@ -230,7 +255,7 @@ class DefaultThemeVariant extends ThemeVariant {
     return FinesseBorder.all(
       width: style.ringWidth,
       color: colorScheme.ring.withValues(alpha: style.ringOpacity),
-      radius: BorderRadius.only(
+      borderRadius: BorderRadius.only(
         topLeft: inflate(elementRadius.topLeft),
         topRight: inflate(elementRadius.topRight),
         bottomLeft: inflate(elementRadius.bottomLeft),
@@ -365,20 +390,52 @@ class DefaultThemeVariant extends ThemeVariant {
   /// A menu surface's hairline outline, on the menu palette.
   Color get menuSurfaceBorderColor => _surfaceBorderColorOf(menuScheme);
 
+  /// How much of [scheme]'s foreground washes a highlighted row on it, or
+  /// null when the row takes an opaque highlight instead.
+  ///
+  /// The style's [StyleTokens.menuHighlightOpacity] for the scheme's
+  /// brightness — unless [menuAccent] is bold: that asks for a filled
+  /// highlight, and gets one.
+  double? _highlightWashOf(ColorScheme scheme) {
+    if (menuAccent == MenuAccent.bold) return null;
+    return _schemeIsDark(scheme)
+        ? style.menuHighlightOpacityDark ?? style.menuHighlightOpacity
+        : style.menuHighlightOpacity;
+  }
+
+  /// The opacity of the wash behind a highlighted menu row, or null when
+  /// the row is filled with the accent.
+  ///
+  /// shadcn's translucent finish washes with `foreground/10`; otherwise it
+  /// is the style's say (see [_highlightWashOf]).
+  double? get _menuHighlightWash =>
+      menuTranslucent ?? false ? .1 : _highlightWashOf(menuScheme);
+
   /// The highlight behind a hovered or open menu row.
   ///
-  /// `focus:bg-accent` normally; with shadcn's translucent finish it
-  /// switches to a `foreground/10` wash so the highlight reads through the
-  /// glass. A style that is glass by itself keeps the accent.
-  Color get menuItemHighlight => menuTranslucent ?? false
-      ? _wash(menuScheme.foreground, .1)
-      : menuScheme.accent;
+  /// `focus:bg-accent` in a style that says nothing else, and the menu
+  /// palette's primary with a bold [menuAccent]. A style with a
+  /// [StyleTokens.menuHighlightOpacity] — `finesse`, whose menus are glass
+  /// — and shadcn's translucent finish wash the row with the menu's
+  /// foreground instead, so the highlight sits *in* the glass rather than
+  /// on it as an opaque, near-white slab.
+  Color get menuItemHighlight {
+    final wash = _menuHighlightWash;
+    if (wash != null) return _wash(menuScheme.foreground, wash);
+    return menuAccent == MenuAccent.bold
+        ? menuScheme.primary
+        : menuScheme.accent;
+  }
 
-  /// The text and icon colour on [menuItemHighlight],
-  /// `focus:text-accent-foreground`.
-  Color get menuItemHighlightForeground => menuTranslucent ?? false
-      ? menuScheme.popoverForeground
-      : menuScheme.accentForeground;
+  /// The text and icon colour on [menuItemHighlight]:
+  /// `focus:text-accent-foreground` on the accent, the primary's foreground
+  /// on a bold highlight, and the row's resting colour on a wash.
+  Color get menuItemHighlightForeground {
+    if (_menuHighlightWash != null) return menuScheme.popoverForeground;
+    return menuAccent == MenuAccent.bold
+        ? menuScheme.primaryForeground
+        : menuScheme.accentForeground;
+  }
 
   /// The backdrop filter of menu surfaces: null while they are solid, the
   /// style's glass when the style has one, and otherwise shadcn's
@@ -429,7 +486,7 @@ class DefaultThemeVariant extends ThemeVariant {
       : FinesseBorder.all(
           width: 1,
           color: fieldBorderColor,
-          radius: radii.resolve(style.textareaRadius),
+          borderRadius: radii.resolve(style.textareaRadius),
         );
 
   /// The border a single-line field draws: `border-input` on the control
@@ -437,12 +494,12 @@ class DefaultThemeVariant extends ThemeVariant {
   FinesseBorder get fieldBorder => style.underlinedFields
       ? FinesseBorder(
           bottom: FinesseBorderSide(width: 1, color: colorScheme.input),
-          radius: BorderRadius.zero,
+          borderRadius: BorderRadius.zero,
         )
       : FinesseBorder.all(
           width: 1,
           color: fieldBorderColor,
-          radius: controlRadius,
+          borderRadius: controlRadius,
         );
 
   /// The inner inset the focus treatment reserves inside a control's border.
@@ -502,7 +559,7 @@ class DefaultThemeVariant extends ThemeVariant {
       hoverForegroundColor: colorScheme.primaryForeground,
       decoration: FinesseDecoration(
         border: FinesseBorder.all(
-          radius: controlRadius,
+          borderRadius: controlRadius,
           width: 0,
           padding: focusReserve(0),
         ),
@@ -531,7 +588,7 @@ class DefaultThemeVariant extends ThemeVariant {
       hoverForegroundColor: colorScheme.secondaryForeground,
       decoration: FinesseDecoration(
         border: FinesseBorder.all(
-          radius: controlRadius,
+          borderRadius: controlRadius,
           width: 0,
           padding: focusReserve(0),
         ),
@@ -554,7 +611,7 @@ class DefaultThemeVariant extends ThemeVariant {
       hoverForegroundColor: colorScheme.destructive,
       decoration: FinesseDecoration(
         border: FinesseBorder.all(
-          radius: controlRadius,
+          borderRadius: controlRadius,
           width: 0,
           padding: focusReserve(0),
         ),
@@ -562,7 +619,9 @@ class DefaultThemeVariant extends ThemeVariant {
         secondaryFocusedBorder: FinesseBorder.all(
           width: style.ringWidth,
           color: _wash(colorScheme.destructive, _isDark ? .4 : .2),
-          radius: controlRadius.add(BorderRadius.circular(style.ringWidth)),
+          borderRadius: controlRadius.add(
+            BorderRadius.circular(style.ringWidth),
+          ),
           offset: style.ringWidth,
         ),
       ),
@@ -600,7 +659,7 @@ class DefaultThemeVariant extends ThemeVariant {
       shadows: style.controlShadow,
       decoration: FinesseDecoration(
         border: FinesseBorder.all(
-          radius: controlRadius,
+          borderRadius: controlRadius,
           color: style.outlineButtonStrongBorder
               ? colorScheme.borderStrong
               : _isDark && style.outlineButtonDarkInputBorder
@@ -629,7 +688,7 @@ class DefaultThemeVariant extends ThemeVariant {
       hoverForegroundColor: colorScheme.foreground,
       decoration: FinesseDecoration(
         border: FinesseBorder.all(
-          radius: controlRadius,
+          borderRadius: controlRadius,
           width: 0,
           padding: focusReserve(0),
         ),
@@ -711,9 +770,8 @@ class DefaultThemeVariant extends ThemeVariant {
       // `[&>svg]:size-3`.
       iconSize: scaled(style.badgeIconSize),
       backgroundColor: colorScheme.primary,
-      hoverBackgroundColor: colorScheme.primary,
       foregroundColor: colorScheme.primaryForeground,
-      shape: _badgeShape,
+      borderRadius: _badgeBorderRadius,
       padding: _badgePadding,
       textStyle: style.caption.apply(effectiveTextTheme.small),
     );
@@ -730,11 +788,10 @@ class DefaultThemeVariant extends ThemeVariant {
       // `[&>svg]:size-3`.
       iconSize: scaled(style.badgeIconSize),
       backgroundColor: fill,
-      hoverBackgroundColor: fill,
       foregroundColor: style.secondaryBadgeSubtle
           ? colorScheme.foregroundSubtle
           : colorScheme.secondaryForeground,
-      shape: _badgeShape,
+      borderRadius: _badgeBorderRadius,
       padding: _badgePadding,
       textStyle: style.caption.apply(effectiveTextTheme.small),
     );
@@ -751,9 +808,8 @@ class DefaultThemeVariant extends ThemeVariant {
       // `[&>svg]:size-3`.
       iconSize: scaled(style.badgeIconSize),
       backgroundColor: _wash(colorScheme.destructive, _isDark ? .2 : .1),
-      hoverBackgroundColor: _wash(colorScheme.destructive, _isDark ? .2 : .1),
       foregroundColor: colorScheme.destructive,
-      shape: _badgeShape,
+      borderRadius: _badgeBorderRadius,
       padding: _badgePadding,
       textStyle: style.caption.apply(effectiveTextTheme.small),
     );
@@ -768,23 +824,19 @@ class DefaultThemeVariant extends ThemeVariant {
       // `[&>svg]:size-3`.
       iconSize: scaled(style.badgeIconSize),
       foregroundColor: colorScheme.foreground,
-      shape: _badgeShape is StadiumBorder
-          ? StadiumBorder(side: BorderSide(color: colorScheme.border))
-          : RoundedRectangleBorder(side: BorderSide(color: colorScheme.border)),
+      borderRadius: _badgeBorderRadius,
+      borderColor: colorScheme.border,
       padding: _badgePadding,
       textStyle: style.caption.apply(effectiveTextTheme.small),
     );
   }
 
-  /// Badge geometry: `rounded-4xl px-2 py-0.5` — a pill in every style
-  /// except the square ones.
-  ShapeBorder get _badgeShape => switch (style.badgeRadius) {
-    final token? => RoundedRectangleBorder(
-      borderRadius: radii.resolve(token),
-    ),
-    null when style.buttonRadius == RadiusToken.none =>
-      const RoundedRectangleBorder(),
-    null => const StadiumBorder(),
+  /// Badge geometry: `rounded-4xl px-2 py-0.5` — a pill (null) in every
+  /// style except the square ones.
+  BorderRadius? get _badgeBorderRadius => switch (style.badgeRadius) {
+    final token? => radii.resolve(token),
+    null when style.buttonRadius == RadiusToken.none => BorderRadius.zero,
+    null => null,
   };
 
   EdgeInsetsGeometry get _badgePadding {
@@ -809,7 +861,7 @@ class DefaultThemeVariant extends ThemeVariant {
     // `[&>svg]:size-3`.
     iconSize: scaled(style.badgeIconSize),
     foregroundColor: foreground,
-    shape: const RoundedRectangleBorder(),
+    borderRadius: BorderRadius.zero,
     padding: EdgeInsets.zero,
     textStyle: style.caption.apply(effectiveTextTheme.small),
   );
@@ -875,8 +927,8 @@ class DefaultThemeVariant extends ThemeVariant {
   @override
   TooltipTheme tooltipTheme() {
     return TooltipTheme(
-      // No effects or durations: the tooltip pops out of its trigger on the
-      // motion tokens, read where it is built.
+      // The tooltip pops out of its trigger on the motion tokens, read
+      // where it is built.
       // `px-3 py-1.5` — fixed across the styles, unlike the popover's.
       padding: spacing.symmetric(horizontal: 3, vertical: 1.5),
       // The inverted surface: `bg-foreground text-background`, with no
@@ -884,7 +936,7 @@ class DefaultThemeVariant extends ThemeVariant {
       // tighter than the popover's in most styles).
       decoration: FinesseDecoration(
         border: FinesseBorder.all(
-          radius: radii.resolve(style.tooltipRadius),
+          borderRadius: radii.resolve(style.tooltipRadius),
           width: 0,
         ),
         // Glass in a style with a tooltip opacity below 1.
@@ -913,31 +965,15 @@ class DefaultThemeVariant extends ThemeVariant {
           offset: Offset(0, 4),
         ),
       ),
-      hoverStrategies: const HoverStrategies(
-        hover: {
-          HoverStrategy.onTap,
-          HoverStrategy.onLongPressDown,
-          HoverStrategy.onLongPressStart,
-        },
-        unhover: {
-          HoverStrategy.onTap,
-          HoverStrategy.onTapOutside,
-          HoverStrategy.onLongPressUp,
-          HoverStrategy.onLongPressEnd,
-          HoverStrategy.onLongPressCancel,
-        },
-        longPressDuration: kLongPressTimeout,
-      ),
     );
   }
 
   @override
   PopoverTheme popoverTheme() {
     return PopoverTheme(
-      // No effects and no reverse duration: a popover — and every menu,
-      // select list and picker built on one — arrives and leaves on the
-      // motion tokens, read where it is built so `ThemeData(motion:)` and
-      // reduced motion reach it.
+      // A popover — and every menu, select list and picker built on one —
+      // arrives and leaves on the motion tokens, read where it is built so
+      // `ThemeData(motion:)` and reduced motion reach it.
       shadows: style.popoverShadow,
       textStyle: style.body.apply(effectiveTextTheme.muted),
       padding: EdgeInsets.all(scaled(style.popoverPadding)),
@@ -945,12 +981,17 @@ class DefaultThemeVariant extends ThemeVariant {
         color: popoverSurfaceColor,
         shadows: style.popoverShadow,
         border: FinesseBorder.all(
-          radius: popoverRadius,
+          borderRadius: popoverRadius,
           color: surfaceBorderColor,
           width: 1,
         ),
       ),
       filter: popoverFilter,
+      // For a popover that asks for an arrow (`Popover(showArrow: true)`,
+      // `HoverCard`): the tooltip's shape a step larger, for a surface
+      // with wider corners — about 7 tall on a foot of 16.
+      arrowSize: scaled(14),
+      arrowRadius: style.itemRadius == RadiusToken.none ? 0 : 2,
       anchor: const AnchorAuto(
         offset: Offset(0, 4),
         fallback: AnchorAuto(
@@ -1022,6 +1063,7 @@ class DefaultThemeVariant extends ThemeVariant {
       large: TextDefaultTheme.large(),
       small: TextDefaultTheme.small(),
       muted: TextDefaultTheme.muted(),
+      caption: TextDefaultTheme.caption(),
     );
   }
 
@@ -1048,7 +1090,6 @@ class DefaultThemeVariant extends ThemeVariant {
       optionsPadding: EdgeInsets.all(scaled(style.menuPadding)),
       showScrollToTopChevron: true,
       showScrollToBottomChevron: true,
-      popoverReverseDuration: Duration.zero,
       anchor: const AnchorAuto(
         offset: Offset(0, 4),
         fallback: AnchorAuto(
@@ -1064,7 +1105,7 @@ class DefaultThemeVariant extends ThemeVariant {
         color: menuSurfaceColor,
         shadows: style.popoverShadow,
         border: FinesseBorder.all(
-          radius: popoverRadius,
+          borderRadius: popoverRadius,
           color: menuSurfaceBorderColor,
           width: 1,
         ),
@@ -1082,7 +1123,7 @@ class DefaultThemeVariant extends ThemeVariant {
         horizontal: scaled(style.itemPaddingX),
         vertical: scaled(style.itemPaddingY),
       ),
-      radius: itemRadius,
+      borderRadius: itemRadius,
       textStyle: style.body
           .apply(effectiveTextTheme.muted)
           .copyWith(color: menuScheme.popoverForeground),
@@ -1108,7 +1149,7 @@ class DefaultThemeVariant extends ThemeVariant {
       saturation: style.cardBlur ? style.glassSaturation : 1,
       padding: EdgeInsets.all(scaled(style.cardPadding)),
       border: FinesseBorder.all(color: cardBorderColor, width: 1),
-      radius: cardRadius,
+      borderRadius: cardRadius,
       shadows: _isDark
           ? style.cardShadowDark ?? style.cardShadow
           : style.cardShadow,
@@ -1123,6 +1164,34 @@ class DefaultThemeVariant extends ThemeVariant {
       columnMainAxisSize: MainAxisSize.min,
       columnCrossAxisAlignment: CrossAxisAlignment.start,
       columnMainAxisAlignment: MainAxisAlignment.start,
+    );
+  }
+
+  @override
+  CarouselTheme carouselTheme() {
+    return CarouselTheme(
+      spacing: scaled(style.gapMd),
+      // An icon button's size, so on a phone the arrows are touch targets.
+      arrowSize: scaled(style.iconButtonSize),
+      arrowIconSize: 16,
+      arrowInset: scaled(style.gapSm),
+      // Opaque: an arrow floats over whatever the pages show.
+      arrowColor: colorScheme.popover,
+      arrowHoverColor: Color.alphaBlend(colorScheme.muted, colorScheme.popover),
+      arrowForegroundColor: colorScheme.popoverForeground,
+      arrowBorderColor: surfaceBorderColor,
+      indicatorInset: scaled(style.gapSm),
+      dotSize: 6,
+      activeDotExtent: 18,
+      dotSpacing: 6,
+      dotColor: _wash(colorScheme.foreground, .2),
+      activeDotColor: colorScheme.tint,
+      // Over a photograph: the page's palette says nothing about what is
+      // underneath, so these are fixed.
+      overlayColor: const Color(0x8A09090B),
+      overlayDotColor: const Color(0x80FFFFFF),
+      overlayActiveDotColor: const Color(0xFFFFFFFF),
+      overlayPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
     );
   }
 
@@ -1149,12 +1218,15 @@ class DefaultThemeVariant extends ThemeVariant {
       checkedTrackColor: colorScheme.primary,
       padding: spacing.directional(start: 2),
       decoration: FinesseDecoration(
-        border: FinesseBorder.all(radius: radius.add(radius / 2), width: 0),
+        border: FinesseBorder.all(
+          borderRadius: radius.add(radius / 2),
+          width: 0,
+        ),
         // FinesseBorder.merge takes `other`'s radius and offset
         // unconditionally, so an override has to restate both or they fall
         // back to null.
         secondaryFocusedBorder: FinesseBorder.all(
-          radius: radius
+          borderRadius: radius
               .add(radius / 2)
               .add(
                 const BorderRadius.all(Radius.circular(3)),
@@ -1181,7 +1253,7 @@ class DefaultThemeVariant extends ThemeVariant {
         shadows: style.controlShadow,
         border: FinesseBorder.all(
           color: controlBorderColor,
-          radius: checkboxRadius,
+          borderRadius: checkboxRadius,
           width: 1,
         ),
       ),
@@ -1191,7 +1263,7 @@ class DefaultThemeVariant extends ThemeVariant {
         shadows: style.controlShadow,
         border: FinesseBorder.all(
           color: colorScheme.primary,
-          radius: checkboxRadius,
+          borderRadius: checkboxRadius,
           width: 1,
         ),
       ),
@@ -1224,10 +1296,53 @@ class DefaultThemeVariant extends ThemeVariant {
   }
 
   @override
+  TextSelectionTheme textSelectionTheme() {
+    return TextSelectionTheme(
+      // The tint, not the primary: a handle is drawn straight on the page
+      // and the primary is tuned as a button fill (see `ColorScheme.tint`).
+      handleColor: colorScheme.tint,
+      // Literals, like a caret's width: a handle is a mark on the text, not
+      // a control that follows the spacing step.
+      handleSize: 12,
+      handleStemWidth: 2,
+      // A touch target wherever it shows; a menu row's height when that is
+      // taller.
+      toolbarHeight: math.max(menuItemHeight, 40),
+      toolbarDecoration: FinesseDecoration(
+        border: FinesseBorder.all(
+          borderRadius: popoverRadius,
+          color: menuSurfaceBorderColor,
+          width: 1,
+        ),
+      ),
+      toolbarItemPadding: EdgeInsets.symmetric(
+        horizontal: scaled(style.itemPaddingX) + scaled(style.menuPadding),
+      ),
+      toolbarTextStyle: style.body
+          .apply(effectiveTextTheme.muted)
+          .copyWith(color: menuScheme.popoverForeground),
+      toolbarDividerColor: menuSurfaceBorderColor,
+      // The wash a menu row takes, wherever the style has one: the toolbar
+      // is a menu laid on its side.
+      toolbarPressedColor: _menuHighlightWash != null
+          ? menuItemHighlight
+          : _wash(menuScheme.foreground, _menuIsDark ? .1 : .06),
+      toolbarGap: 8,
+      magnifierSize: const Size(88, 48),
+      magnifierScale: 1.25,
+      magnifierBorderRadius: const BorderRadius.all(Radius.circular(9999)),
+      magnifierBorderColor: colorScheme.borderStrong,
+      magnifierShadows: _isDark
+          ? style.floatingShadowDark ?? style.floatingShadow
+          : style.floatingShadow,
+    );
+  }
+
+  @override
   RadioTheme radioTheme() {
     // The radio itself is a circle, so its ring is fully rounded too.
     final focusRing = FinesseBorder.all(
-      radius: const BorderRadius.all(Radius.circular(9999)),
+      borderRadius: const BorderRadius.all(Radius.circular(9999)),
       width: style.ringWidth,
       color: colorScheme.ring.withValues(alpha: style.ringOpacity),
       offset: style.ringWidth,
@@ -1276,59 +1391,75 @@ class DefaultThemeVariant extends ThemeVariant {
     );
   }
 
-  @override
-  ToastTheme primaryToastTheme() {
-    return ToastTheme(
-      alignment: Alignment.bottomRight,
-      closeIconData: PhosphorIconsRegular.x,
-      titleStyle: style.label
-          .apply(effectiveTextTheme.muted)
-          .copyWith(
-            color: colorScheme.foreground,
-          ),
-      descriptionStyle: style.body
-          .apply(effectiveTextTheme.muted)
-          .copyWith(
-            color: colorScheme.foreground.withValues(alpha: .9),
-          ),
-      actionPadding: spacing.directional(start: 4),
-      border: FinesseBorder.all(color: surfaceBorderColor, width: 1),
-      // A toast is a floating surface; shadcn gives it the sheet's shadow.
-      shadows: style.sheetShadow,
-      backgroundColor: colorScheme.background,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      showCloseIconOnlyWhenHovered: true,
-      padding: const EdgeInsetsGeometry.fromSTEB(24, 24, 32, 24),
-      mainAxisSize: MainAxisSize.max,
-    );
+  /// [color] as the icon of a toast: itself where it reads on the toast's
+  /// surface, and otherwise moved towards the surface's ink until it does.
+  ///
+  /// A status colour is tuned as a fill — the dark palette's destructive
+  /// carries white text — and a glass toast takes on whatever is behind it,
+  /// so the same red that reads on a dark popover is lost on one lying over
+  /// a white photograph. 3:1, WCAG's figure for a graphic, over the page,
+  /// over black and over white.
+  Color _toastIconColor(Color color) {
+    final surface = popoverSurfaceColor;
+    final fills = [
+      Color.alphaBlend(surface, colorScheme.background),
+      Color.alphaBlend(surface, const Color(0xff000000)),
+      Color.alphaBlend(surface, const Color(0xffffffff)),
+    ];
+    double contrast(Color a, Color b) {
+      final la = a.computeLuminance();
+      final lb = b.computeLuminance();
+      return (math.max(la, lb) + .05) / (math.min(la, lb) + .05);
+    }
+
+    final ink = colorScheme.popoverForeground;
+    for (var step = 0; step < 10; step++) {
+      final candidate = Color.lerp(color, ink, step / 10)!;
+      if (fills.every((fill) => contrast(candidate, fill) >= 3)) {
+        return candidate;
+      }
+    }
+    return ink;
   }
 
   @override
-  ToastTheme destructiveToastTheme() {
+  ToastTheme toastTheme() {
     return ToastTheme(
-      alignment: Alignment.bottomRight,
-      closeIconData: PhosphorIconsRegular.x,
+      // A toast is a popover surface (sonner's `bg-popover
+      // text-popover-foreground`), not the page's: on the page colour a
+      // toast is text adrift on the page. In a style whose popovers are
+      // glass, so is the toast.
+      backgroundColor: popoverSurfaceColor,
+      filter: popoverFilter,
+      border: FinesseBorder.all(color: surfaceBorderColor, width: 1),
+      // Sonner's `--border-radius: var(--radius)`.
+      borderRadius: _capped(radii.resolve(RadiusToken.lg)),
+      // shadcn gives a toast the sheet's shadow. On a dark page that shadow
+      // is all but lost, so a style with a deeper one for dark floating
+      // chrome lends it here.
+      shadows: _isDark
+          ? style.floatingShadowDark ?? style.sheetShadow
+          : style.sheetShadow,
+      padding: spacing.all(4),
+      gap: scaled(12),
       titleStyle: style.label
           .apply(effectiveTextTheme.muted)
           .copyWith(
-            color: colorScheme.destructiveForeground,
+            color: colorScheme.popoverForeground,
           ),
       descriptionStyle: style.body
           .apply(effectiveTextTheme.muted)
           .copyWith(
-            color: colorScheme.destructiveForeground.withValues(alpha: .9),
+            color: colorScheme.popoverForeground.withValues(alpha: .9),
           ),
-      actionPadding: spacing.directional(start: 4),
-      border: FinesseBorder.all(color: surfaceBorderColor, width: 1),
-      // A toast is a floating surface; shadcn gives it the sheet's shadow.
-      shadows: style.sheetShadow,
-      backgroundColor: colorScheme.destructive,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      showCloseIconOnlyWhenHovered: true,
-      padding: const EdgeInsetsDirectional.fromSTEB(24, 24, 32, 24),
-      mainAxisSize: MainAxisSize.max,
+      // Every variant shares the surface and says what it is with its
+      // icon, as sonner does without `richColors`.
+      iconSize: 18,
+      successColor: _toastIconColor(colorScheme.success),
+      warningColor: _toastIconColor(colorScheme.warning),
+      destructiveColor: _toastIconColor(colorScheme.destructive),
+      loadingColor: _toastIconColor(colorScheme.mutedForeground),
+      duration: const Duration(seconds: 5),
     );
   }
 
@@ -1350,7 +1481,7 @@ class DefaultThemeVariant extends ThemeVariant {
       color: colorScheme.card,
       border: style.alertAccentBar
           ? FinesseBorder(
-              radius: radius,
+              borderRadius: radius,
               padding: padding,
               top: side,
               right: side,
@@ -1359,7 +1490,7 @@ class DefaultThemeVariant extends ThemeVariant {
             )
           : FinesseBorder.all(
               color: colorScheme.border,
-              radius: radius,
+              borderRadius: radius,
               padding: padding,
               width: 1,
             ),
@@ -1391,6 +1522,23 @@ class DefaultThemeVariant extends ThemeVariant {
       descriptionStyle: style.body
           .apply(effectiveTextTheme.muted)
           .copyWith(color: colorScheme.mutedForeground),
+      // The tinted variants are this alert in another colour: an icon in
+      // the scheme's status colour on an opaque wash of it over the card.
+      successColor: colorScheme.success,
+      successBackgroundColor: Color.alphaBlend(
+        colorScheme.successMuted,
+        colorScheme.card,
+      ),
+      warningColor: colorScheme.warning,
+      warningBackgroundColor: Color.alphaBlend(
+        _wash(colorScheme.warning, .1),
+        colorScheme.card,
+      ),
+      infoColor: colorScheme.tint,
+      infoBackgroundColor: Color.alphaBlend(
+        _wash(colorScheme.tint, .1),
+        colorScheme.card,
+      ),
     );
   }
 
@@ -1420,18 +1568,16 @@ class DefaultThemeVariant extends ThemeVariant {
   @override
   DialogTheme primaryDialogTheme() {
     return DialogTheme(
-      // No `closeIconData`: a dialog has no close button unless it asks for
+      // No `showCloseButton`: a dialog has no close button unless it asks for
       // one. A sheet keeps its own; see [sheetTheme].
-      radius: dialogRadius,
+      borderRadius: dialogRadius,
       // A dialog sits on the popover surface (`bg-popover`), which in dark
       // mode is a step lighter than the page, with the same hairline ring as
       // the other floating surfaces.
       backgroundColor: colorScheme.popover,
       border: Border.all(color: dialogBorderColor),
-      removeBorderRadiusWhenTiny: true,
-      expandActionsWhenTiny: true,
-      // No `animateIn`/`animateOut`: a dialog scales up and leaves on the
-      // motion tokens, read by `showDialog`.
+      // A dialog scales up and leaves on the motion tokens, read by
+      // `showDialog`.
       constraints: const BoxConstraints(maxWidth: 512),
       // shadcn's overlay is `bg-black/10` with `backdrop-blur-xs`: the blur is
       // what separates the dialog from the page, so the tint can stay light
@@ -1455,11 +1601,9 @@ class DefaultThemeVariant extends ThemeVariant {
     return DialogTheme(
       backgroundColor: colorScheme.popover,
       border: Border.all(color: dialogBorderColor),
-      radius: dialogRadius,
-      removeBorderRadiusWhenTiny: true,
-      expandActionsWhenTiny: true,
-      // No `animateIn`/`animateOut`: a dialog scales up and leaves on the
-      // motion tokens, read by `showDialog`.
+      borderRadius: dialogRadius,
+      // A dialog scales up and leaves on the motion tokens, read by
+      // `showDialog`.
       constraints: const BoxConstraints(maxWidth: 512),
       // shadcn's overlay is `bg-black/10` with `backdrop-blur-xs`: the blur is
       // what separates the dialog from the page, so the tint can stay light
@@ -1514,34 +1658,107 @@ class DefaultThemeVariant extends ThemeVariant {
 
   @override
   SheetTheme sheetTheme() {
-    return const SheetTheme(
-      radius: BorderRadius.zero,
-      expandCrossSide: true,
-      // A sheet is built on a dialog, which has no close button by
-      // default; a sheet has one.
-      closeIconData: PhosphorIconsRegular.x,
+    return SheetTheme(
+      // shadcn's sheet and drawer are `bg-background` with a `border`
+      // hairline, not the popover surface a dialog sits on.
+      backgroundColor: colorScheme.background,
+      border: Border.all(color: colorScheme.border),
+      // The open edge of a sheet from the top or bottom (the drawer's
+      // `rounded-t-*`); a sheet from a side stays square.
+      borderRadius: dialogRadius,
+      shadows: _isDark
+          ? style.floatingShadowDark ?? style.sheetShadow
+          : style.sheetShadow,
+      // Laid out like a dialog.
+      padding: EdgeInsets.all(scaled(style.dialogPadding)),
+      gap: scaled(style.dialogGap),
+      actionsGap: 8,
+      titleStyle: style.title.apply(effectiveTextTheme.large),
+      descriptionStyle: style.body.apply(effectiveTextTheme.muted),
+      // A dialog has no close button by default; a sheet has one.
+      showCloseButton: true,
+      dragHandleColor: _wash(colorScheme.foreground, .2),
+      dragHandleWidth: 36,
+      dragHandleHeight: 4,
+    );
+  }
+
+  @override
+  ActionSheetTheme actionSheetTheme() {
+    final label = style.body
+        .apply(effectiveTextTheme.p)
+        .copyWith(color: colorScheme.foreground);
+    return ActionSheetTheme(
+      padding: EdgeInsets.all(scaled(8)),
+      // A row is a touch target first: a control's height and a little
+      // air, never under 44.
+      rowHeight: math.max(scaled(style.buttonHeight) + scaled(8), 44),
+      rowPadding: EdgeInsets.symmetric(
+        horizontal: scaled(style.listTilePaddingX),
+        vertical: scaled(8),
+      ),
+      rowBorderRadius: itemRadius,
+      gap: scaled(style.listTileGap),
+      iconSize: scaled(20),
+      labelStyle: label,
+      // The default action, and Cancel, stand out by weight.
+      defaultLabelStyle: label.copyWith(fontWeight: FontWeight.w600),
+      titleStyle: style.label
+          .apply(effectiveTextTheme.small)
+          .copyWith(color: colorScheme.foreground),
+      messageStyle: style.body
+          .apply(effectiveTextTheme.muted)
+          .copyWith(color: colorScheme.mutedForeground),
+      headerPadding: EdgeInsets.fromLTRB(
+        scaled(16),
+        scaled(8),
+        scaled(16),
+        scaled(12),
+      ),
+      foregroundColor: colorScheme.foreground,
+      destructiveColor: colorScheme.destructive,
+      // As a ghost button's hover: `bg-muted`.
+      highlightColor: colorScheme.muted,
+      dividerColor: colorScheme.border,
+      cancelColor: colorScheme.secondary,
+      cancelGap: scaled(8),
+      dialogConstraints: const BoxConstraints(maxWidth: 320),
     );
   }
 
   @override
   ProgressBarTheme progressBarTheme() {
     return ProgressBarTheme(
-      minHeight: scaled(style.progressHeight),
+      height: scaled(style.progressHeight),
       color: style.progressTinted ? colorScheme.tint : colorScheme.primary,
       // `bg-muted`, not the secondary, for the same reason as the slider —
       // unless the style says otherwise.
-      backgroundColor:
+      trackColor:
           _fill(style.progressTrackFill, colorScheme) ?? colorScheme.muted,
       borderRadius: const BorderRadius.all(Radius.circular(16)),
     );
   }
 
   @override
+  RefreshIndicatorTheme refreshIndicatorTheme() {
+    return RefreshIndicatorTheme(
+      size: scaled(40),
+      strokeWidth: 2.5,
+      color: colorScheme.tint,
+      // The popover's colour, opaque: a circle this small that travels with
+      // a finger is not worth a backdrop filter per frame.
+      backgroundColor: colorScheme.popover,
+      borderColor: surfaceBorderColor,
+      triggerDistance: 80,
+      displacement: scaled(style.gapMd),
+    );
+  }
+
+  @override
   AccordionTheme accordionTheme() {
-    // No duration, curve or effects: an item opens on the motion tokens'
-    // spring unless a theme or the item itself says otherwise.
+    // An item opens on the motion tokens' surface spring.
     return AccordionTheme(
-      iconData: PhosphorIconsRegular.caretDown,
+      icon: const PhosphorIcon(PhosphorIconsRegular.caretDown),
       padding: spacing.symmetric(vertical: 4),
       underlineTitleOnHover: true,
       maintainState: false,
@@ -1601,7 +1818,7 @@ class DefaultThemeVariant extends ThemeVariant {
       handleDecoration: FinesseDecoration(
         color: colorScheme.border,
         border: FinesseBorder.all(
-          radius: const BorderRadius.all(Radius.circular(4)),
+          borderRadius: const BorderRadius.all(Radius.circular(4)),
           width: 0,
         ),
         disableSecondaryBorder: true,
@@ -1611,26 +1828,6 @@ class DefaultThemeVariant extends ThemeVariant {
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.max,
       verticalDirection: VerticalDirection.down,
-    );
-  }
-
-  @override
-  HoverStrategies hoverStrategies() {
-    return const HoverStrategies(
-      hover: {
-        HoverStrategy.onTapDown,
-        HoverStrategy.onLongPressDown,
-        HoverStrategy.onLongPressStart,
-      },
-      unhover: {
-        HoverStrategy.onTapUp,
-        HoverStrategy.onTapOutside,
-        HoverStrategy.onTapCancel,
-        HoverStrategy.onLongPressUp,
-        HoverStrategy.onLongPressEnd,
-        HoverStrategy.onLongPressCancel,
-      },
-      longPressDuration: kLongPressTimeout,
     );
   }
 
@@ -1670,13 +1867,13 @@ class DefaultThemeVariant extends ThemeVariant {
       decoration: FinesseDecoration(
         color: _fill(style.tabsListFill, colorScheme) ?? colorScheme.muted,
         border: FinesseBorder.all(
-          radius: listRadius,
+          borderRadius: listRadius,
           width: 0,
           color: colorScheme.ring,
         ),
       ),
       tabDecoration: FinesseDecoration(
-        border: FinesseBorder.all(radius: tabRadius, width: 0),
+        border: FinesseBorder.all(borderRadius: tabRadius, width: 0),
       ),
       gap: 8,
       tabsGap: scaled(style.tabsGap),
@@ -1720,11 +1917,21 @@ class DefaultThemeVariant extends ThemeVariant {
     final muted = (small?.apply(t.muted) ?? t.muted).fallback(
       color: colorScheme.mutedForeground,
     );
+    // Fine print is the caption role's size, line height and tracking in
+    // the muted colour, at the text theme's own (regular) weight: the role's
+    // medium weight is for badges and navigation labels, and metadata set
+    // in it stops receding.
+    final captionRole = style.caption;
+    final caption = TextRole(
+      fontSize: captionRole.fontSize,
+      letterSpacing: captionRole.letterSpacing,
+      height: captionRole.height,
+    ).apply(t.caption).fallback(color: colorScheme.mutedForeground);
     if (display == null &&
         headline == null &&
         subtitle == null &&
         small == null) {
-      return t.copyWith(muted: muted);
+      return t.copyWith(muted: muted, caption: caption);
     }
     // A style that names these roles owns the whole scale, so its body role
     // sets the paragraph size too — that is what moves running text from 14
@@ -1738,6 +1945,7 @@ class DefaultThemeVariant extends ThemeVariant {
       large: subtitle?.apply(t.large),
       small: small?.apply(t.small),
       muted: muted,
+      caption: caption,
     );
   }
 
@@ -1759,7 +1967,7 @@ class DefaultThemeVariant extends ThemeVariant {
       strongOpacity: style.glassStrongOpacity,
       borderColor: colorScheme.border,
       borderWidth: 1,
-      radius: cardRadius,
+      borderRadius: cardRadius,
     );
   }
 
@@ -1781,6 +1989,46 @@ class DefaultThemeVariant extends ThemeVariant {
       maxWidth: style.pageMaxWidth + 2 * scaled(style.pagePaddingX),
       gap: scaled(style.gapXl),
       titleStyle: style.title.apply(effectiveTextTheme.large),
+      centerTitle: false,
+      surfaceBehavior: AppBarSurfaceBehavior.always,
+      // The headline of the app type scale; a style without one keeps the
+      // prose scale's third heading. `display` is too big for a bar.
+      largeTitleStyle:
+          (style.headline?.apply(effectiveTextTheme.h3) ??
+                  effectiveTextTheme.h3)
+              .copyWith(color: colorScheme.foreground),
+    );
+  }
+
+  @override
+  FloatingActionButtonTheme floatingActionButtonTheme() {
+    // As round as the action in the floating bottom bar; a square style
+    // keeps its corners.
+    final square = cardRadius == BorderRadius.zero;
+    return FloatingActionButtonTheme(
+      size: scaled(style.fabSize),
+      sizeSm: scaled(style.fabSizeSm),
+      sizeLg: scaled(style.fabSizeLg),
+      iconSize: scaled(style.navigationIconSize),
+      iconSizeSm: scaled(style.navigationIconSize - 4),
+      iconSizeLg: scaled(style.navigationIconSize + 4),
+      padding: scaled(style.gapLg + style.gapXs),
+      gap: scaled(style.gapSm),
+      borderRadius: square ? BorderRadius.zero : radii.full,
+      backgroundColor: colorScheme.primary,
+      foregroundColor: colorScheme.primaryForeground,
+      // Over the card: a scheme's secondary may be a translucent wash, and
+      // a floating button is not something to read the page through.
+      secondaryBackgroundColor: Color.alphaBlend(
+        colorScheme.secondary,
+        colorScheme.card.withValues(alpha: 1),
+      ),
+      secondaryForegroundColor: colorScheme.secondaryForeground,
+      glassForegroundColor: colorScheme.foreground,
+      shadows: _isDark
+          ? style.floatingShadowDark ?? style.floatingShadow
+          : style.floatingShadow,
+      labelStyle: style.label.apply(effectiveTextTheme.small),
     );
   }
 
@@ -1804,8 +2052,115 @@ class DefaultThemeVariant extends ThemeVariant {
   }
 
   @override
-  BottomNavigationBarTheme bottomNavigationBarTheme() {
+  NavigationMenuTheme navigationMenuTheme() {
+    // A highlight in the panel is a menu row's: a wash of the foreground
+    // where the style's floating surfaces are glass, and otherwise the
+    // `bg-muted` the reference's newer styles hover with. It is worked out
+    // in the page's palette, not the menus': the panel is a popover.
+    final wash = _isDark
+        ? style.menuHighlightOpacityDark ?? style.menuHighlightOpacity
+        : style.menuHighlightOpacity;
+    final hover = wash != null
+        ? _wash(colorScheme.popoverForeground, wash)
+        : colorScheme.muted;
+    return NavigationMenuTheme(
+      // `gap-1` between entries, `mt-1.5` under the row, `p-2` in the
+      // panel and around a link.
+      gap: scaled(4),
+      // `data-[state=open]:bg-muted/50`, or the wash on the bar.
+      selectedColor: wash != null
+          ? _wash(colorScheme.foreground, wash)
+          : _wash(colorScheme.muted, _isDark ? .5 : 1),
+      panelOffset: scaled(6),
+      panelPadding: EdgeInsets.all(scaled(8)),
+      panelMargin: scaled(8),
+      linkPadding: EdgeInsets.all(scaled(8)),
+      linkBorderRadius: itemRadius,
+      linkGap: scaled(4),
+      linkHoverColor: hover,
+      linkSelectedColor: _wash(hover, .5),
+      linkTitleStyle: effectiveTextTheme.small.copyWith(
+        color: colorScheme.popoverForeground,
+      ),
+      linkDescriptionStyle: effectiveTextTheme.muted.copyWith(
+        color: colorScheme.mutedForeground,
+      ),
+      sheetLabelStyle: style.overline
+          .apply(effectiveTextTheme.muted)
+          .copyWith(color: colorScheme.mutedForeground),
+      openDelay: const Duration(milliseconds: 120),
+      closeDelay: const Duration(milliseconds: 180),
+    );
+  }
+
+  @override
+  NavigationRailTheme navigationRailTheme() {
+    // The top bar's destinations, turned on their side: the same icon,
+    // label and line, on the same bar surface.
     final opacity = _barOpacity;
+    return NavigationRailTheme(
+      width: scaled(72),
+      extendedWidth: scaled(220),
+      itemHeight: scaled(style.appBarHeight),
+      extendedItemHeight: math.max(scaled(44), scaled(style.buttonHeight)),
+      iconSize: scaled(style.navigationIconSize),
+      gap: scaled(4),
+      padding: scaled(style.gapSm),
+      labelStyle: style.caption
+          .apply(effectiveTextTheme.small)
+          .copyWith(height: 1),
+      extendedLabelStyle: style.body.apply(effectiveTextTheme.small),
+      foregroundColor: colorScheme.mutedForeground,
+      selectedIconColor: colorScheme.tint,
+      selectedLabelColor: colorScheme.foreground,
+      hoverColor: colorScheme.foreground,
+      indicatorColor: colorScheme.tint,
+      indicatorWidth: style.navigationIndicatorHeight,
+      indicatorInset: scaled(12),
+      backgroundColor: _wash(colorScheme.bar, opacity),
+      borderColor: colorScheme.border,
+      // Translucent, as the bars are, but not frosted: the rail lies beside
+      // the page, on its flat fill, where a backdrop filter would cost a
+      // layer every frame and show nothing. Cards are left unblurred for
+      // the same reason. A theme that puts content under it opts in.
+      blur: 0,
+      saturation: 1,
+      actionSize: math.max(scaled(44), scaled(style.buttonHeight)),
+      actionBackgroundColor: colorScheme.primary,
+      actionForegroundColor: colorScheme.primaryForeground,
+    );
+  }
+
+  @override
+  BottomNavigationBarTheme bottomNavigationBarTheme() {
+    // The bars' opacity, or thinner where the style asks for it — never
+    // thicker, and solid when the bars are: `barOpacity` stays the one
+    // switch between glass bars and solid ones.
+    final barOpacity = _barOpacity;
+    final ownOpacity = _isDark
+        ? style.bottomNavigationOpacityDark ?? style.bottomNavigationOpacity
+        : style.bottomNavigationOpacity;
+    final opacity = barOpacity >= 1 || ownOpacity == null
+        ? barOpacity
+        : math.min(barOpacity, ownOpacity);
+    // On a dark scheme the bar and the page are a shade apart and a shadow
+    // does not show between them, so a style can lift the bar's fill
+    // toward the foreground, outline it in a brighter hairline and light
+    // the hairline's top edge.
+    final lift = _isDark
+        ? style.bottomNavigationLiftDark ?? style.bottomNavigationLift
+        : style.bottomNavigationLift;
+    final borderOpacity = _isDark
+        ? style.bottomNavigationBorderOpacityDark ??
+              style.bottomNavigationBorderOpacity
+        : style.bottomNavigationBorderOpacity;
+    final rimOpacity = _isDark
+        ? style.bottomNavigationRimOpacityDark ??
+              style.bottomNavigationRimOpacity
+        : style.bottomNavigationRimOpacity;
+    final fill = lift > 0
+        ? Color.alphaBlend(_wash(colorScheme.foreground, lift), colorScheme.bar)
+        : colorScheme.bar;
     return BottomNavigationBarTheme(
       floating: style.bottomNavigationFloating,
       itemWidth: scaled(style.bottomNavigationItemWidth),
@@ -1815,9 +2170,17 @@ class DefaultThemeVariant extends ThemeVariant {
       padding: EdgeInsets.all(scaled(style.bottomNavigationPadding)),
       margin: EdgeInsets.only(bottom: scaled(22)),
       gap: scaled(4),
-      radius: radii.full,
-      backgroundColor: _wash(colorScheme.bar, opacity),
-      borderColor: colorScheme.border,
+      borderRadius: radii.full,
+      backgroundColor: _wash(fill, opacity),
+      borderColor: borderOpacity == null
+          ? colorScheme.border
+          : _wash(colorScheme.foreground, borderOpacity),
+      rimColor: rimOpacity == null
+          ? null
+          : _wash(colorScheme.foreground, rimOpacity),
+      shadows: _isDark
+          ? style.floatingShadowDark ?? style.floatingShadow
+          : style.floatingShadow,
       blur: opacity < 1 ? style.glassBlur : 0,
       saturation: opacity < 1 ? style.glassSaturation : 1,
       foregroundColor: colorScheme.foregroundSubtle,
@@ -1825,6 +2188,12 @@ class DefaultThemeVariant extends ThemeVariant {
       selectedBackgroundColor: colorScheme.accent,
       actionBackgroundColor: colorScheme.primary,
       actionForegroundColor: colorScheme.primaryForeground,
+      showLabels: false,
+      labelStyle: style.caption
+          .apply(effectiveTextTheme.small)
+          .copyWith(height: 1),
+      // Room for a short word under the icon.
+      labeledItemWidth: scaled(style.bottomNavigationItemWidth + 16),
     );
   }
 
@@ -1835,7 +2204,7 @@ class DefaultThemeVariant extends ThemeVariant {
       padding: EdgeInsets.symmetric(horizontal: scaled(style.chipPaddingX)),
       gap: scaled(style.chipGap),
       iconSize: scaled(style.chipIconSize),
-      radius: radii.resolve(style.chipRadius),
+      borderRadius: radii.resolve(style.chipRadius),
       borderWidth: 1,
       textStyle: (style.small ?? style.body)
           .apply(effectiveTextTheme.small)
@@ -1847,6 +2216,45 @@ class DefaultThemeVariant extends ThemeVariant {
       selectedBackgroundColor: colorScheme.accent,
       selectedForegroundColor: colorScheme.accentForeground,
       selectedBorderColor: colorScheme.accentBorder,
+      showCheckmark: false,
+      groupSpacing: scaled(style.gapSm),
+      groupRunSpacing: scaled(style.gapSm),
+      groupFade: 24,
+    );
+  }
+
+  @override
+  ListSectionTheme listSectionTheme() {
+    final tileX = scaled(style.cardPadding);
+    return ListSectionTheme(
+      margin: EdgeInsets.zero,
+      // The card's own fill and corners: null here, so a `CardTheme`
+      // override reaches the sections too.
+      headerStyle: style.overline
+          .apply(effectiveTextTheme.muted)
+          .copyWith(color: colorScheme.mutedForeground),
+      // No footer style: the footer is the text theme's caption, which the
+      // style's roles have been applied to.
+      headerPadding: EdgeInsetsDirectional.only(
+        start: tileX,
+        end: tileX,
+        bottom: scaled(style.gapSm),
+      ),
+      footerPadding: EdgeInsetsDirectional.only(
+        start: tileX,
+        end: tileX,
+        top: scaled(style.gapSm),
+      ),
+      // Rows line up with a card's content: the card padding at the sides.
+      tilePadding: EdgeInsets.symmetric(
+        horizontal: tileX,
+        vertical: scaled(style.listTilePaddingY),
+      ),
+      // As tall as a button, which is a touch target on a phone.
+      minTileHeight: scaled(style.buttonHeight),
+      dividerColor: colorScheme.border,
+      dividerThickness: 1,
+      pressedColor: colorScheme.muted,
     );
   }
 
@@ -1859,7 +2267,7 @@ class DefaultThemeVariant extends ThemeVariant {
       ),
       gap: scaled(style.listTileGap),
       titleGap: 0,
-      radius: radii.lg,
+      borderRadius: radii.lg,
       titleStyle: (style.subtitle ?? style.label).apply(
         effectiveTextTheme.large,
       ),
@@ -1868,6 +2276,10 @@ class DefaultThemeVariant extends ThemeVariant {
       ),
       hoverColor: colorScheme.muted,
       selectedColor: colorScheme.accent,
+      valueStyle: (style.small ?? style.body).apply(effectiveTextTheme.muted),
+      chevronColor: _wash(colorScheme.mutedForeground, .7),
+      chevronSize: 16,
+      destructiveColor: colorScheme.destructive,
     );
   }
 
@@ -1895,6 +2307,31 @@ class DefaultThemeVariant extends ThemeVariant {
   }
 
   @override
+  ChatListTheme chatListTheme() {
+    return ChatListTheme(
+      padding: EdgeInsets.all(scaled(style.gapMd)),
+      spacing: scaled(style.gapSm + style.gapXs),
+      groupSpacing: scaled(style.gapXs),
+      // About two lines of text: a glance up does not let go of the end.
+      followDistance: 48,
+      maxStaggerSteps: 3,
+      jumpToLatestMargin: scaled(style.gapSm),
+    );
+  }
+
+  @override
+  StreamingTextTheme streamingTextTheme() {
+    return const StreamingTextTheme(
+      revealRate: 90,
+      catchUpDuration: Duration(milliseconds: 280),
+      showCaret: true,
+      caretWidth: 2,
+      caretGap: 2,
+      caretPulse: Duration(milliseconds: 1200),
+    );
+  }
+
+  @override
   IndicatorBadgeTheme indicatorBadgeTheme() {
     return IndicatorBadgeTheme(
       size: 18,
@@ -1918,9 +2355,20 @@ class DefaultThemeVariant extends ThemeVariant {
     return IconTileTheme(
       size: scaled(40),
       iconSize: scaled(22),
-      radius: radii.lg,
+      borderRadius: radii.lg,
       backgroundColor: colorScheme.accent,
       foregroundColor: colorScheme.tint,
+    );
+  }
+
+  @override
+  PhosphorIconTheme phosphorIconTheme() {
+    // The reference size is a size on the screen, chosen for the width of a
+    // line in logical pixels: like a hairline, it does not follow the
+    // spacing step.
+    return PhosphorIconTheme(
+      referenceSize: style.iconOpticalSize,
+      strength: style.iconOpticalStrength,
     );
   }
 
@@ -1963,7 +2411,7 @@ class DefaultThemeVariant extends ThemeVariant {
         scaled(8),
       ),
       footerPadding: EdgeInsets.fromLTRB(inset, 0, inset, inset),
-      columnRadius: columnRadius,
+      columnBorderRadius: columnRadius,
       // A soft well for the cards to sit in: a wash of the foreground, so
       // it reads on the page and on a card alike, in both brightnesses.
       columnColor: _wash(colorScheme.foreground, _isDark ? .06 : .04),
@@ -1991,7 +2439,7 @@ class DefaultThemeVariant extends ThemeVariant {
       fullCountForegroundColor: destructive,
       itemColor: colorScheme.card.withValues(alpha: 1),
       itemPadding: EdgeInsets.all(scaled(12)),
-      itemRadius: itemRadius,
+      itemBorderRadius: itemRadius,
       itemShadows: _isDark ? Shadows.none : Shadows.xs,
       placeholderColor: colorScheme.tint.withValues(alpha: _isDark ? .14 : .08),
       placeholderBorderColor: colorScheme.tint.withValues(alpha: .4),
@@ -2039,7 +2487,7 @@ class DefaultThemeVariant extends ThemeVariant {
     height: menuItemHeight,
     buttonVariant: ButtonVariant.ghost,
     itemDecoration: FinesseDecoration(
-      border: FinesseBorder.all(radius: itemRadius, width: 0),
+      border: FinesseBorder.all(borderRadius: itemRadius, width: 0),
       secondaryBorder: FinesseBorder.none,
       secondaryFocusedBorder: FinesseBorder.none,
     ),
@@ -2047,7 +2495,7 @@ class DefaultThemeVariant extends ThemeVariant {
       color: menuSurfaceColor,
       shadows: style.popoverShadow,
       border: FinesseBorder.all(
-        radius: popoverRadius,
+        borderRadius: popoverRadius,
         color: menuSurfaceBorderColor,
         width: 1,
       ),
@@ -2078,6 +2526,31 @@ class DefaultThemeVariant extends ThemeVariant {
     destructiveSelectedBackgroundColor: menuTranslucent ?? false
         ? menuItemHighlight
         : _wash(menuScheme.destructive, _menuIsDark ? .2 : .1),
+    // The box of a check mark; an icon's size in a row, so a checkable row
+    // and one with a leading icon keep their labels on one line.
+    indicatorSize: 16,
+    // A group's heading: the caption role in the menu's muted colour, on
+    // the rows' own horizontal padding so it lines up with their labels.
+    // A phone's rows are padded to be touch targets; a heading is not one.
+    labelTextStyle: style.caption
+        .apply(effectiveTextTheme.muted)
+        .copyWith(color: menuScheme.mutedForeground),
+    labelPadding: EdgeInsets.symmetric(
+      horizontal: scaled(style.itemPaddingX),
+      vertical: scaled(math.min(style.itemPaddingY, 8)),
+    ),
+    // shadcn's `tracking-widest` (.1em) on the trailing text.
+    shortcutTextStyle: style.caption
+        .apply(effectiveTextTheme.muted)
+        .copyWith(
+          height: 1,
+          letterSpacing: style.caption.fontSize * .1,
+          color: menuScheme.mutedForeground,
+        ),
+    // The hairline between groups, on the menu's palette, with the
+    // surface's own padding above and below (`my-1` under `p-1`).
+    dividerColor: menuScheme.border,
+    dividerMargin: EdgeInsets.symmetric(vertical: scaled(style.menuPadding)),
   );
 
   @override
@@ -2088,13 +2561,13 @@ class DefaultThemeVariant extends ThemeVariant {
       secondaryFocusedBorder: FinesseBorder.all(
         width: 2,
         offset: 2,
-        radius: _calendarCellRadius.add(
+        borderRadius: _calendarCellRadius.add(
           const BorderRadius.all(Radius.circular(2)),
         ),
         color: colorScheme.ring.withValues(alpha: .5),
       ),
     ),
-    hideNavigation: false,
+    showNavigation: true,
     yearSelectorMinWidth: 64,
     monthSelectorMinWidth: 64,
     // Horizontal only: the trigger height is pinned (`h-8` and friends), so
@@ -2106,13 +2579,11 @@ class DefaultThemeVariant extends ThemeVariant {
     // row all share the cell size.
     navigationButtonSize: scaled(style.calendarCellSize),
     navigationButtonIconSize: scaled(style.iconButtonIconSize),
-    backNavigationButtonIconData: PhosphorIconsRegular.caretLeft,
-    forwardNavigationButtonIconData: PhosphorIconsRegular.caretRight,
     navigationButtonPadding: EdgeInsets.zero,
     navigationButtonDisabledOpacity: .5,
     decoration: FinesseDecoration(
       border: FinesseBorder.all(
-        radius: radius,
+        borderRadius: radius,
         padding: EdgeInsets.all(scaled(style.calendarPadding)),
         color: colorScheme.border,
         width: 1,
@@ -2131,7 +2602,7 @@ class DefaultThemeVariant extends ThemeVariant {
     headerTextStyle: style.label.apply(effectiveTextTheme.small),
     // No monthConstraints here: the widget derives the month width from the
     // day cell size — and widens it when week numbers add a column.
-    dayButtonRadius: _calendarCellRadius,
+    dayButtonBorderRadius: _calendarCellRadius,
     selectorMinHeight: scaled(style.calendarCaptionHeight),
     weekdaysPadding: spacing.only(bottom: 2),
     weekNumbersHeaderText: '#',
@@ -2162,7 +2633,7 @@ class DefaultThemeVariant extends ThemeVariant {
     weekdaysTextAlign: TextAlign.center,
     gridMainAxisSpacing: 8,
     gridCrossAxisSpacing: 0,
-    hideWeekdayNames: false,
+    showWeekdayNames: true,
     showOutsideDays: true,
     showWeekNumbers: false,
     weekStartsOn: 1,
@@ -2172,26 +2643,63 @@ class DefaultThemeVariant extends ThemeVariant {
 
   @override
   DatePickerTheme datePickerTheme() {
-    return const DatePickerTheme(
-      calendarDecoration: FinesseDecoration.none,
-      allowDeselection: true,
-      buttonVariant: ButtonVariant.outline,
+    return DatePickerTheme(
       width: 276,
-      mainAxisAlignment: MainAxisAlignment.start,
-      iconData: PhosphorIconsRegular.calendarBlank,
+      popoverPadding: EdgeInsets.all(scaled(style.calendarPadding)),
+      allowDeselection: true,
+      closeOnSelection: true,
+      sheetMaxWidth: 420,
+      sheetWheelItems: 5,
     );
   }
 
   @override
-  TimePickerTheme timePickerTheme() {
-    return TimePickerTheme(
+  WheelPickerTheme wheelPickerTheme() {
+    // The lens is a piece of this system's glass laid on the surface the
+    // wheel is in: where menus are washed (`finesse`) it is the same wash
+    // of the foreground under a hairline, and in a style with solid menus
+    // it is the muted fill.
+    final wash = _isDark
+        ? style.menuHighlightOpacityDark ?? style.menuHighlightOpacity
+        : style.menuHighlightOpacity;
+    final rowStyle = style.body.apply(effectiveTextTheme.p);
+    return WheelPickerTheme(
+      // A row is a touch target on a phone: the style's control height.
+      itemExtent: scaled(style.inputHeight),
+      itemPadding: EdgeInsets.symmetric(
+        horizontal: scaled(style.itemPaddingX + style.gapXs),
+      ),
+      textStyle: rowStyle.copyWith(color: colorScheme.mutedForeground),
+      selectedTextStyle: rowStyle.copyWith(color: colorScheme.foreground),
+      disabledOpacity: .4,
+      lensColor: wash == null
+          ? colorScheme.muted
+          : _wash(colorScheme.foreground, wash),
+      lensBorderColor: wash == null
+          ? const Color(0x00000000)
+          : colorScheme.border,
+      lensBorderWidth: wash == null ? 0 : 1,
+      lensBorderRadius: itemRadius,
+      lensMagnification: 1.12,
+      curvature: .5,
+      edgeFade: .6,
+      gap: scaled(style.gapXs),
+      groupPadding: EdgeInsets.symmetric(horizontal: scaled(style.gapSm)),
+    );
+  }
+
+  @override
+  TimeFieldTheme timeFieldTheme() {
+    return TimeFieldTheme(
       axis: Axis.horizontal,
       spacing: 8,
       runSpacing: 4,
       jumpToNextFieldWhenFilled: true,
       alignment: WrapAlignment.center,
       runAlignment: WrapAlignment.center,
-      crossAxisAlignment: WrapCrossAlignment.center,
+      // The fields stand on one line, under their names; what is beside
+      // them is centred on a field.
+      crossAxisAlignment: WrapCrossAlignment.end,
       gap: 4,
       // The reference has no time picker; its fields take the same text,
       // outline, fill and height as a text field so a picker sits level with
@@ -2200,7 +2708,7 @@ class DefaultThemeVariant extends ThemeVariant {
           .apply(effectiveTextTheme.muted)
           .copyWith(color: colorScheme.foreground),
       placeholderStyle: style.field.apply(effectiveTextTheme.muted),
-      labelStyle: effectiveTextTheme.small.copyWith(fontSize: 12),
+      labelStyle: style.caption.apply(effectiveTextTheme.small),
       fieldWidth: 48,
       fieldPadding: EdgeInsets.symmetric(
         horizontal: scaled(style.inputPaddingX),
@@ -2217,6 +2725,15 @@ class DefaultThemeVariant extends ThemeVariant {
   }
 
   @override
+  TimePickerTheme timePickerTheme() {
+    return TimePickerTheme(
+      popoverPadding: EdgeInsets.all(scaled(style.popoverPadding)),
+      allowDeselection: true,
+      sheetWheelItems: 5,
+    );
+  }
+
+  @override
   OtpFieldTheme otpFieldTheme() {
     return OtpFieldTheme(
       width: scaled(style.inputHeight),
@@ -2227,16 +2744,16 @@ class DefaultThemeVariant extends ThemeVariant {
       ),
       // shadcn rounds only the outer corners of the strip, at the control
       // radius: `first:rounded-l-md last:rounded-r-md`.
-      firstRadius: BorderRadius.only(
+      firstBorderRadius: BorderRadius.only(
         topLeft: controlRadius.topLeft,
         bottomLeft: controlRadius.bottomLeft,
       ),
-      lastRadius: BorderRadius.only(
+      lastBorderRadius: BorderRadius.only(
         topRight: controlRadius.topRight,
         bottomRight: controlRadius.bottomRight,
       ),
-      singleRadius: controlRadius,
-      middleRadius: BorderRadius.zero,
+      singleBorderRadius: controlRadius,
+      middleBorderRadius: BorderRadius.zero,
       decoration: FinesseDecoration(
         focusedBorder: FinesseBorder.all(color: colorScheme.ring, width: 1),
         // Same ring as every other field; the slot supplies the radius, since
@@ -2269,7 +2786,7 @@ class DefaultThemeVariant extends ThemeVariant {
     // (`aria-expanded:bg-muted`) — not with the accent, which belongs to the
     // rows inside the menus.
     return MenubarTheme(
-      radius: controlRadius,
+      borderRadius: controlRadius,
       padding: EdgeInsets.all(style.menubarPadding),
       border: FinesseBorder.all(color: colorScheme.border, width: 1),
       anchor: const Anchor(
@@ -2285,7 +2802,7 @@ class DefaultThemeVariant extends ThemeVariant {
       buttonHoverBackgroundColor: colorScheme.muted,
       buttonSelectedBackgroundColor: colorScheme.muted,
       buttonDecoration: FinesseDecoration(
-        border: FinesseBorder.all(radius: itemRadius, width: 0),
+        border: FinesseBorder.all(borderRadius: itemRadius, width: 0),
         disableSecondaryBorder: true,
       ),
     );
@@ -2306,15 +2823,54 @@ class DefaultThemeVariant extends ThemeVariant {
   }
 
   @override
-  SonnerTheme sonnerTheme() {
-    return SonnerTheme(
-      alignment: Alignment.bottomRight,
-      padding: spacing.all(4),
-      collapsedGap: 16,
-      expandedGap: 8,
-      scaleFactor: 0.05,
-      animationDuration: const Duration(milliseconds: 300),
-      animationCurve: const Cubic(0.215, 0.61, 0.355, 1),
+  StepperTheme stepperTheme() {
+    final mobile = formFactor == FormFactor.mobile;
+    return StepperTheme(
+      indicatorSize: scaled(mobile ? 32 : 28),
+      indicatorColor: colorScheme.muted,
+      indicatorBorderColor: colorScheme.border,
+      indicatorForegroundColor: colorScheme.mutedForeground,
+      // Drawn straight on the page or a card, so the tint, not the primary:
+      // that one is tuned as a fill and can be too dim to draw with.
+      activeColor: colorScheme.tint,
+      completeColor: colorScheme.primary,
+      completeForegroundColor: colorScheme.primaryForeground,
+      errorColor: colorScheme.destructive,
+      // The timeline's line: a stepper is one laid on its side.
+      connectorColor: colorScheme.borderStrong,
+      connectorThickness: 2,
+      connectorGap: scaled(style.timelineLineGap),
+      indicatorTextStyle: style.caption
+          .apply(effectiveTextTheme.small)
+          .copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
+      titleStyle: style.label
+          .apply(effectiveTextTheme.small)
+          .copyWith(color: colorScheme.foreground),
+      subtitleStyle: style.caption
+          .apply(effectiveTextTheme.muted)
+          .copyWith(color: colorScheme.mutedForeground),
+      gap: scaled(12),
+      spacing: scaled(20),
+      contentPadding: EdgeInsets.only(top: scaled(12), bottom: scaled(4)),
+    );
+  }
+
+  @override
+  ToasterTheme toasterTheme() {
+    final mobile = formFactor == FormFactor.mobile;
+    return ToasterTheme(
+      // A phone shows a toast across the bottom, as wide as the page (up
+      // to a width that still reads as a toast in landscape); a desktop in
+      // the corner, at sonner's width.
+      alignment: mobile
+          ? Alignment.bottomCenter
+          : AlignmentDirectional.bottomEnd,
+      padding: EdgeInsets.all(scaled(style.pagePaddingX)),
+      width: mobile ? 560 : 356,
+      maxVisible: 3,
+      gap: scaled(8),
+      stackOffset: scaled(12),
+      stackScale: 0.05,
     );
   }
 
@@ -2359,7 +2915,7 @@ class DefaultThemeVariant extends ThemeVariant {
     return SkeletonTheme(
       color: colorScheme.muted,
       highlightColor: colorScheme.muted.withValues(alpha: .4),
-      radius: radius,
+      borderRadius: radius,
       duration: const Duration(milliseconds: 1500),
       curve: Curves.easeInOut,
       animate: true,
@@ -2392,7 +2948,7 @@ class DefaultThemeVariant extends ThemeVariant {
       backgroundColor: colorScheme.muted,
       foregroundColor: colorScheme.mutedForeground,
       // No outline: shadcn's kbd is a plain `bg-muted rounded-sm` chip.
-      border: FinesseBorder.all(width: 0, radius: itemRadius),
+      border: FinesseBorder.all(width: 0, borderRadius: itemRadius),
       padding: EdgeInsets.symmetric(horizontal: scaled(style.kbdPaddingX)),
       // `font-sans text-xs font-medium` — a key cap is not code.
       textStyle: style.caption.apply(effectiveTextTheme.muted),
@@ -2436,7 +2992,7 @@ class DefaultThemeVariant extends ThemeVariant {
       padding: EdgeInsets.symmetric(horizontal: scaled(style.buttonPaddingX)),
       decoration: FinesseDecoration(
         border: FinesseBorder.all(
-          radius: controlRadius,
+          borderRadius: controlRadius,
           color: borderWidth == 0 ? null : colorScheme.input,
           width: borderWidth,
           padding: focusReserve(borderWidth),
@@ -2480,7 +3036,7 @@ class DefaultThemeVariant extends ThemeVariant {
 
   @override
   CollapsibleTheme collapsibleTheme() {
-    // The duration and curve are left to the motion tokens.
+    // It opens and shuts on the motion tokens' surface spring.
     return const CollapsibleTheme(
       crossAxisAlignment: CrossAxisAlignment.stretch,
     );
@@ -2544,7 +3100,7 @@ class DefaultThemeVariant extends ThemeVariant {
       menuButtonHeightLg: scaled(style.sidebarItemHeightLg),
       menuButtonPadding: EdgeInsets.symmetric(horizontal: itemPaddingX),
       menuButtonGap: scaled(8),
-      menuButtonRadius: itemRadius,
+      menuButtonBorderRadius: itemRadius,
       menuButtonTextStyle: itemTextStyle,
       // The sm size is `text-xs` in every style.
       menuButtonTextStyleSm: itemTextStyle.copyWith(fontSize: 12),
@@ -2566,10 +3122,10 @@ class DefaultThemeVariant extends ThemeVariant {
       duration: const Duration(milliseconds: 200),
       curve: Curves.linear,
       floatingMargin: EdgeInsets.all(scaled(8)),
-      floatingRadius: _sidebarSurfaceRadius,
+      floatingBorderRadius: _sidebarSurfaceRadius,
       floatingShadows: Shadows.sm,
       insetMargin: EdgeInsets.all(scaled(8)),
-      insetRadius: _sidebarSurfaceRadius,
+      insetBorderRadius: _sidebarSurfaceRadius,
       insetShadows: Shadows.sm,
     );
   }
@@ -2594,11 +3150,11 @@ class DefaultThemeVariant extends ThemeVariant {
       ),
       border: style.commandSearchUnderline
           ? FinesseBorder(
-              radius: searchRadius,
+              borderRadius: searchRadius,
               bottom: FinesseBorderSide(color: colorScheme.input, width: 1),
             )
           : FinesseBorder.all(
-              radius: searchRadius,
+              borderRadius: searchRadius,
               color: searchBorderColor,
               width: 1,
             ),
@@ -2611,7 +3167,7 @@ class DefaultThemeVariant extends ThemeVariant {
       // inline demo's `shadow-md`, not from the base style block.
       decoration: FinesseDecoration(
         border: FinesseBorder.all(
-          radius: commandRadius,
+          borderRadius: commandRadius,
           color: surfaceBorderColor,
           width: 1,
         ),
@@ -2651,12 +3207,17 @@ class DefaultThemeVariant extends ThemeVariant {
             fontWeight: FontWeight.normal,
           ),
       // `data-selected:bg-muted data-selected:text-foreground` — the command
-      // palette highlights with the muted surface, not the accent.
-      itemSelectedBackgroundColor: colorScheme.muted,
+      // palette highlights with the muted surface, not the accent. A style
+      // that washes its menu highlights washes this one the same way, so
+      // the palette and a menu beside it highlight alike.
+      itemSelectedBackgroundColor: switch (_highlightWashOf(colorScheme)) {
+        final wash? => _wash(colorScheme.foreground, wash),
+        null => colorScheme.muted,
+      },
       itemSelectedForegroundColor: colorScheme.foreground,
       itemForegroundColor: colorScheme.popoverForeground,
-      itemRadius: itemRadius,
-      dialogItemRadius: radii.resolve(style.commandItemDialogRadius),
+      itemBorderRadius: itemRadius,
+      dialogItemBorderRadius: radii.resolve(style.commandItemDialogRadius),
       itemGap: 8,
       // The base glyph, `size-4` — 3.5 in the two styles whose buttons also
       // drop to it, which is what [StyleTokens.buttonIconSize] measures.
@@ -2686,7 +3247,8 @@ class DefaultThemeVariant extends ThemeVariant {
         other.formFactor == formFactor &&
         other.spacing == spacing &&
         other.menuColorScheme == menuColorScheme &&
-        other.menuTranslucent == menuTranslucent;
+        other.menuTranslucent == menuTranslucent &&
+        other.menuAccent == menuAccent;
   }
 
   @override
@@ -2699,6 +3261,7 @@ class DefaultThemeVariant extends ThemeVariant {
     spacing,
     menuColorScheme,
     menuTranslucent,
+    menuAccent,
   );
 }
 

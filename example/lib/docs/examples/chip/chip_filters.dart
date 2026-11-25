@@ -31,7 +31,7 @@ class _ChipFiltersExampleState extends State<ChipFiltersExample> {
         for (final MapEntry(key: label, value: icon) in _filters.entries)
           Chip(
             label: Text(label),
-            leading: Icon(icon),
+            leading: PhosphorIcon(icon),
             selected: selected.contains(label),
             onSelected: (value) => setState(
               () => value ? selected.add(label) : selected.remove(label),

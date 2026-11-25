@@ -63,7 +63,7 @@ void main() {
       );
       expect(tile.gap, 12);
       expect(tile.titleGap, 0);
-      expect(tile.radius, theme.radii.lg);
+      expect(tile.borderRadius, theme.radii.lg);
       // finesse's subtitle and small roles.
       expect(tile.titleStyle!.fontSize, 15);
       expect(tile.titleStyle!.fontWeight, FontWeight.w600);
@@ -473,7 +473,7 @@ void main() {
           reason: '$brightness',
         );
         expect(decoration.color, theme.listTileTheme.selectedColor);
-        expect(decoration.borderRadius, theme.listTileTheme.radius);
+        expect(decoration.borderRadius, theme.listTileTheme.borderRadius);
         expect(
           tester.getRect(find.byWidget(fill)),
           tester.getRect(find.byType(ListTile)),
@@ -593,7 +593,10 @@ void main() {
       );
       await settle(tester);
       expect(highlightOf(tester).color, theme.colorScheme.muted);
-      expect(highlightOf(tester).borderRadius, theme.listTileTheme.radius);
+      expect(
+        highlightOf(tester).borderRadius,
+        theme.listTileTheme.borderRadius,
+      );
 
       await gesture.moveTo(Offset.zero);
       await settle(tester);
@@ -729,6 +732,256 @@ void main() {
       expect(data.flagsCollection.isSelected, ui.Tristate.none);
       expect(data.hasAction(ui.SemanticsAction.tap), isFalse);
       handle.dispose();
+    });
+  });
+  group('ListTile value, chevron, destructive, enabled, long press', () {
+    Widget row({
+      Widget? value,
+      bool showChevron = false,
+      bool destructive = false,
+      bool enabled = true,
+      VoidCallback? onTap,
+      VoidCallback? onLongPress,
+      Widget? leading,
+      Widget? trailing,
+      String title = 'Language',
+      double width = 320,
+    }) => Center(
+      child: SizedBox(
+        width: width,
+        child: ListTile(
+          leading: leading,
+          title: Text(title),
+          value: value,
+          trailing: trailing,
+          showChevron: showChevron,
+          destructive: destructive,
+          enabled: enabled,
+          onTap: onTap,
+          onLongPress: onLongPress,
+        ),
+      ),
+    );
+
+    test('the theme carries the value style and the chevron', () {
+      final theme = ThemeData();
+      final tile = theme.listTileTheme;
+      expect(tile.valueStyle, isNotNull);
+      expect(tile.chevronSize, 16);
+      expect(tile.chevronColor, isNotNull);
+      expect(tile.destructiveColor, theme.colorScheme.destructive);
+    });
+
+    testWidgets('the value sits after the title, before the trailing widget '
+        'and the chevron, in the muted colour', (tester) async {
+      for (final direction in TextDirection.values) {
+        await pumpFinesse(
+          tester,
+          row(
+            value: const Text('English'),
+            trailing: const SizedBox(key: Key('t'), width: 20, height: 20),
+            showChevron: true,
+          ),
+          textDirection: direction,
+        );
+        final title = tester.getRect(find.text('Language'));
+        final value = tester.getRect(find.text('English'));
+        final trailing = tester.getRect(find.byKey(const Key('t')));
+        final chevron = tester.getRect(find.byType(ListTileChevron));
+        if (direction == TextDirection.ltr) {
+          expect(title.right, lessThanOrEqualTo(value.left));
+          expect(value.right, lessThan(trailing.left));
+          expect(trailing.right, lessThan(chevron.left));
+        } else {
+          expect(title.left, greaterThanOrEqualTo(value.right));
+          expect(value.left, greaterThan(trailing.right));
+          expect(trailing.left, greaterThan(chevron.right));
+        }
+        final theme = themeOf(tester, find.byType(ListTile));
+        expect(
+          styleOf(tester, 'English').color,
+          theme.colorScheme.mutedForeground,
+        );
+      }
+    });
+
+    testWidgets('a short value costs the title nothing; a long one is cut '
+        'to its share', (tester) async {
+      await pumpFinesse(
+        tester,
+        row(title: 'A fairly long title of a row', value: const Text('On')),
+      );
+      final tile = tester.getRect(find.byType(ListTile));
+      final title = tester.getRect(find.text('A fairly long title of a row'));
+      final value = tester.getRect(find.text('On'));
+      final theme = themeOf(tester, find.byType(ListTile));
+      // Title and value share the row with one gap between them.
+      expect(
+        title.right,
+        moreOrLessEquals(value.left - theme.listTileTheme.gap!),
+      );
+      expect(value.right, moreOrLessEquals(tile.right - 12, epsilon: 1));
+
+      await pumpFinesse(
+        tester,
+        row(
+          title: 'Title',
+          value: const Text('A value that goes on and on and on and on'),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      final long = tester.getRect(
+        find.text('A value that goes on and on and on and on'),
+      );
+      expect(long.width, lessThan(320 * .46));
+      expect(
+        tester.getRect(find.byType(ListDividerAnchor)).width,
+        greaterThan(320 * .4),
+      );
+    });
+
+    testWidgets('a tile with a value has intrinsic dimensions', (tester) async {
+      await pumpFinesse(
+        tester,
+        Center(
+          child: IntrinsicWidth(
+            child: IntrinsicHeight(
+              child: ListTile(
+                title: const Text('Sound'),
+                value: const Text('Chime'),
+                onTap: () {},
+              ),
+            ),
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      expect(tester.getSize(find.byType(ListTile)).width, lessThan(400));
+    });
+
+    testWidgets('the chevron points along the reading direction', (
+      tester,
+    ) async {
+      await pumpFinesse(tester, row(showChevron: true));
+      expect(find.byIcon(PhosphorIconsRegular.caretRight), findsOneWidget);
+      await pumpFinesse(
+        tester,
+        row(showChevron: true),
+        textDirection: TextDirection.rtl,
+      );
+      expect(find.byIcon(PhosphorIconsRegular.caretLeft), findsOneWidget);
+    });
+
+    testWidgets('a destructive tile takes the destructive colour on its '
+        'title and leading icon', (tester) async {
+      await pumpFinesse(
+        tester,
+        row(
+          destructive: true,
+          leading: const PhosphorIcon(PhosphorIconsRegular.signOut),
+          onTap: () {},
+        ),
+      );
+      final theme = themeOf(tester, find.byType(ListTile));
+      expect(styleOf(tester, 'Language').color, theme.colorScheme.destructive);
+      expect(
+        IconTheme.of(
+          tester.element(find.byIcon(PhosphorIconsRegular.signOut)),
+        ).color,
+        theme.colorScheme.destructive,
+      );
+    });
+
+    testWidgets('a tile that is not enabled is dimmed without a layer, '
+        'ignores taps and takes no focus', (tester) async {
+      var taps = 0;
+      await pumpFinesse(
+        tester,
+        row(
+          enabled: false,
+          value: const Text('English'),
+          showChevron: true,
+          onTap: () => taps++,
+          onLongPress: () => taps++,
+        ),
+      );
+      final theme = themeOf(tester, find.byType(ListTile));
+      expect(
+        styleOf(tester, 'Language').color!.a,
+        moreOrLessEquals(
+          theme.colorScheme.foreground.a * theme.disabledOpacity,
+        ),
+      );
+      expect(
+        styleOf(tester, 'English').color!.a,
+        moreOrLessEquals(
+          theme.colorScheme.mutedForeground.a * theme.disabledOpacity,
+        ),
+      );
+      expect(
+        find.descendant(
+          of: find.byType(ListTile),
+          matching: find.byType(Opacity),
+        ),
+        findsNothing,
+      );
+      await tester.tap(find.text('Language'));
+      await tester.longPress(find.text('Language'));
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(taps, 0);
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      expect(
+        Focus.of(tester.element(find.text('Language'))).hasFocus,
+        isFalse,
+      );
+
+      final handle = tester.ensureSemantics();
+      await tester.pump();
+      final data = tester
+          .getSemantics(find.byType(Pressable))
+          .getSemanticsData();
+      expect(data.flagsCollection.isEnabled, ui.Tristate.isFalse);
+      expect(data.hasAction(ui.SemanticsAction.tap), isFalse);
+      handle.dispose();
+    });
+
+    testWidgets('a long press is reported, also on a tile without onTap', (
+      tester,
+    ) async {
+      var long = 0;
+      await pumpFinesse(tester, row(onLongPress: () => long++));
+      await tester.longPress(find.text('Language'));
+      await tester.pumpAndSettle();
+      expect(long, 1);
+      final handle = tester.ensureSemantics();
+      await tester.pump();
+      expect(
+        tester
+            .getSemantics(find.byType(Pressable))
+            .getSemanticsData()
+            .hasAction(ui.SemanticsAction.longPress),
+        isTrue,
+      );
+      handle.dispose();
+    });
+
+    testWidgets('value and chevron survive a narrow row at twice the text '
+        'size in every layout', (tester) async {
+      await expectBuildsInEveryLayout(
+        tester,
+        (_) => MediaQuery(
+          data: const MediaQueryData(textScaler: TextScaler.linear(2)),
+          child: row(
+            width: 240,
+            title: 'Notifications and sounds',
+            value: const Text('Everything'),
+            showChevron: true,
+            leading: const SizedBox(width: 28, height: 28),
+            onTap: () {},
+          ),
+        ),
+      );
     });
   });
 }

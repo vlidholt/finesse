@@ -1,7 +1,7 @@
 import 'package:example/strand/data/jobs_data.dart';
 import 'package:example/strand/widgets/jobs_company_logo.dart';
-import 'package:example/strand/widgets/jobs_metrics.dart';
 import 'package:example/strand/widgets/person_avatar.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -29,14 +29,13 @@ class JobCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final text = theme.textTheme;
-    final mobile = theme.formFactor == FormFactor.mobile;
-    final caption = text.muted.copyWith(fontSize: 12, height: 16 / 12);
+    final caption = text.caption;
 
     final content = Row(
       crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: jobsSnugGap,
+      spacing: theme.gap(GapSize.md),
       children: [
-        JobsCompanyLogo(job.company, size: mobile ? 44 : 48),
+        JobsCompanyLogo(job.company),
         Expanded(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -59,11 +58,7 @@ class JobCard extends StatelessWidget {
               ),
               Text(
                 job.company.name,
-                style: text.small.copyWith(
-                  fontSize: 14,
-                  height: 20 / 14,
-                  color: colors.foregroundSubtle,
-                ),
+                style: text.small.copyWith(color: colors.foregroundSubtle),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -73,27 +68,27 @@ class JobCard extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: jobsTightGap),
+              const Gap.sm(),
               Wrap(
-                spacing: jobsInlineGap,
-                runSpacing: jobsInlineGap,
+                spacing: theme.gap(GapSize.xs),
+                runSpacing: theme.gap(GapSize.xs),
                 children: [
                   JobTag(job.salary),
                   if (job.easyApply) const JobTag.easyApply(),
                 ],
               ),
-              const SizedBox(height: jobsTightGap),
+              const Gap.sm(),
               Row(
-                spacing: jobsInlineGap,
+                spacing: theme.gap(GapSize.xs),
                 children: [
                   // Decorative: the label beside it says what it shows.
                   ExcludeSemantics(
                     child: AvatarGroup(
-                      size: 20,
-                      overlap: 6,
+                      size: theme.avatarXs,
+                      overlap: theme.avatarXs / 3,
                       children: [
                         for (final person in job.connections)
-                          PersonAvatar(person, size: 20),
+                          PersonAvatar(person, size: theme.avatarXs),
                       ],
                     ),
                   ),
@@ -121,13 +116,11 @@ class JobCard extends StatelessWidget {
     );
 
     return Card(
-      onPressed: onPressed,
+      onTap: onPressed,
       selected: selected,
       // No `semanticLabel`: it would stand in for everything inside the
       // card, the bookmark button included. The card reads its own text.
-      radius: theme.radii.xl,
-      // 16 on a desktop and a phone alike, unlike the theme's card inset.
-      padding: const EdgeInsets.all(16),
+      style: CardTheme(borderRadius: theme.radii.xl),
       child: content,
     );
   }
@@ -143,32 +136,21 @@ class _SaveButton extends StatelessWidget {
   final bool saved;
   final VoidCallback onPressed;
 
-  static const _size = 36.0;
-  static const _overhang = 6.0;
-
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    return SizedBox.square(
-      dimension: _size - _overhang,
-      child: OverflowBox(
-        maxWidth: _size,
-        maxHeight: _size,
-        alignment: AlignmentDirectional.bottomStart,
-        child: IconButton.ghost(
-          width: _size,
-          height: _size,
-          iconSize: 20,
-          icon: Icon(
-            saved
-                ? PhosphorIconsFill.bookmarkSimple
-                : PhosphorIconsRegular.bookmarkSimple,
-          ),
-          foregroundColor: saved ? colors.tint : colors.foreground,
-          semanticLabel: saved ? 'Remove from saved jobs' : 'Save job',
-          onPressed: onPressed,
-        ),
+    return IconButton.ghost(
+      size: ButtonSize.sm,
+      icon: PhosphorIcon(
+        saved
+            ? PhosphorIconsFill.bookmarkSimple
+            : PhosphorIconsRegular.bookmarkSimple,
       ),
+      style: ButtonTheme(
+        foregroundColor: saved ? colors.tint : colors.foreground,
+      ),
+      semanticLabel: saved ? 'Remove from saved jobs' : 'Save job',
+      onPressed: onPressed,
     );
   }
 }
@@ -191,13 +173,12 @@ class JobTag extends StatelessWidget {
     return Badge.secondary(
       // No badge variant is green: the success pair goes on by hand.
       backgroundColor: colors.successMuted,
-      hoverBackgroundColor: colors.successMuted,
       foregroundColor: colors.success,
       child: FinesseRow(
         gap: GapSize.xs,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(PhosphorIconsRegular.lightning),
+          const PhosphorIcon(PhosphorIconsRegular.lightning),
           Text(label),
         ],
       ),

@@ -29,10 +29,9 @@ mixin _$ResizableTheme {
       mainAxisAlignment: t < 0.5 ? a.mainAxisAlignment : b.mainAxisAlignment,
       crossAxisAlignment: t < 0.5 ? a.crossAxisAlignment : b.crossAxisAlignment,
       mainAxisSize: t < 0.5 ? a.mainAxisSize : b.mainAxisSize,
-      textDirection: t < 0.5 ? a.textDirection : b.textDirection,
       verticalDirection: t < 0.5 ? a.verticalDirection : b.verticalDirection,
       showHandle: t < 0.5 ? a.showHandle : b.showHandle,
-      handleIconData: t < 0.5 ? a.handleIconData : b.handleIconData,
+      handleIcon: t < 0.5 ? a.handleIcon : b.handleIcon,
       dividerSize: lerpDouble$(a.dividerSize, b.dividerSize, t),
       resetOnDoubleTap: t < 0.5 ? a.resetOnDoubleTap : b.resetOnDoubleTap,
       handleDecoration: FinesseDecoration.lerp(
@@ -55,10 +54,9 @@ mixin _$ResizableTheme {
     MainAxisAlignment? mainAxisAlignment,
     CrossAxisAlignment? crossAxisAlignment,
     MainAxisSize? mainAxisSize,
-    TextDirection? textDirection,
     VerticalDirection? verticalDirection,
     bool? showHandle,
-    IconData? handleIconData,
+    Widget? handleIcon,
     double? dividerSize,
     bool? resetOnDoubleTap,
     FinesseDecoration? handleDecoration,
@@ -73,10 +71,9 @@ mixin _$ResizableTheme {
       mainAxisAlignment: mainAxisAlignment ?? _this.mainAxisAlignment,
       crossAxisAlignment: crossAxisAlignment ?? _this.crossAxisAlignment,
       mainAxisSize: mainAxisSize ?? _this.mainAxisSize,
-      textDirection: textDirection ?? _this.textDirection,
       verticalDirection: verticalDirection ?? _this.verticalDirection,
       showHandle: showHandle ?? _this.showHandle,
-      handleIconData: handleIconData ?? _this.handleIconData,
+      handleIcon: handleIcon ?? _this.handleIcon,
       dividerSize: dividerSize ?? _this.dividerSize,
       resetOnDoubleTap: resetOnDoubleTap ?? _this.resetOnDoubleTap,
       handleDecoration: handleDecoration ?? _this.handleDecoration,
@@ -102,10 +99,9 @@ mixin _$ResizableTheme {
       mainAxisAlignment: other.mainAxisAlignment,
       crossAxisAlignment: other.crossAxisAlignment,
       mainAxisSize: other.mainAxisSize,
-      textDirection: other.textDirection,
       verticalDirection: other.verticalDirection,
       showHandle: other.showHandle,
-      handleIconData: other.handleIconData,
+      handleIcon: other.handleIcon,
       dividerSize: other.dividerSize,
       resetOnDoubleTap: other.resetOnDoubleTap,
       handleDecoration:
@@ -134,10 +130,9 @@ mixin _$ResizableTheme {
     return _other.mainAxisAlignment == _this.mainAxisAlignment &&
         _other.crossAxisAlignment == _this.crossAxisAlignment &&
         _other.mainAxisSize == _this.mainAxisSize &&
-        _other.textDirection == _this.textDirection &&
         _other.verticalDirection == _this.verticalDirection &&
         _other.showHandle == _this.showHandle &&
-        _other.handleIconData == _this.handleIconData &&
+        _other.handleIcon == _this.handleIcon &&
         _other.dividerSize == _this.dividerSize &&
         _other.resetOnDoubleTap == _this.resetOnDoubleTap &&
         _other.handleDecoration == _this.handleDecoration &&
@@ -156,10 +151,9 @@ mixin _$ResizableTheme {
       _this.mainAxisAlignment,
       _this.crossAxisAlignment,
       _this.mainAxisSize,
-      _this.textDirection,
       _this.verticalDirection,
       _this.showHandle,
-      _this.handleIconData,
+      _this.handleIcon,
       _this.dividerSize,
       _this.resetOnDoubleTap,
       _this.handleDecoration,

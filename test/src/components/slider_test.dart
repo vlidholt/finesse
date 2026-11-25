@@ -4,6 +4,7 @@ import 'package:finesse/src/components/slider.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart' hide RangeSlider, Slider, Theme;
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -398,6 +399,164 @@ void main() {
 
       expect(shadows().first, isNull);
       expect(shadows().last, isNotNull);
+    });
+
+    testWidgets('assistive technology moves each thumb by a step', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      List<double>? changed;
+      await tester.pumpWidget(
+        createTestWidget(
+          Center(
+            child: SizedBox(
+              width: 400,
+              child: RangeSlider(
+                initialValues: const [25, 75],
+                max: 100,
+                divisions: 20,
+                onChanged: (values) => changed = values,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      final sliders = <SemanticsNode>[];
+      void visit(SemanticsNode node) {
+        if (node.getSemanticsData().flagsCollection.isSlider) {
+          sliders.add(node);
+        }
+        node.visitChildren((child) {
+          visit(child);
+          return true;
+        });
+      }
+
+      visit(tester.binding.pipelineOwner.semanticsOwner!.rootSemanticsNode!);
+      expect(sliders, hasLength(2));
+      for (final node in sliders) {
+        final data = node.getSemanticsData();
+        expect(data.hasAction(SemanticsAction.increase), isTrue);
+        expect(data.hasAction(SemanticsAction.decrease), isTrue);
+      }
+      final values = {
+        for (final node in sliders)
+          node.getSemanticsData().value: node.getSemanticsData(),
+      };
+      expect(values['25.0']!.increasedValue, '30.0');
+      expect(values['25.0']!.decreasedValue, '20.0');
+
+      final owner = tester.binding.pipelineOwner.semanticsOwner!;
+      final high = sliders.firstWhere(
+        (node) => node.getSemanticsData().value == '75.0',
+      );
+      owner.performAction(high.id, SemanticsAction.decrease);
+      await tester.pump();
+      expect(changed, [25, 70]);
+      handle.dispose();
+    });
+  });
+
+  group('right to left', () {
+    Widget rtl(Widget child) => createTestWidget(
+      Directionality(
+        textDirection: TextDirection.rtl,
+        child: Center(child: SizedBox(width: 400, child: child)),
+      ),
+    );
+
+    testWidgets('a slider fills from the right and a tap there is near the '
+        'minimum', (tester) async {
+      double? changed;
+      await tester.pumpWidget(
+        rtl(
+          Slider(
+            initialValue: 25,
+            max: 100,
+            onChanged: (value) => changed = value,
+          ),
+        ),
+      );
+      final theme = Theme.of(tester.element(find.byType(Slider)));
+      final slider = tester.getRect(find.byType(Slider));
+      final track = tester.getRect(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is DecoratedBox &&
+              boxDecorationOf(widget.decoration)?.color ==
+                  theme.colorScheme.primary,
+        ),
+      );
+      expect(track.right, moreOrLessEquals(slider.right, epsilon: 1));
+      expect(track.width, moreOrLessEquals(100, epsilon: 1));
+      final thumb = tester.getCenter(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is Container &&
+              boxDecorationOf(widget.decoration)?.shape == BoxShape.circle,
+        ),
+      );
+      expect(thumb.dx, moreOrLessEquals(slider.right - 100, epsilon: 1));
+
+      await tester.tapAt(Offset(slider.right - 40, slider.center.dy));
+      await tester.pump();
+      expect(changed, moreOrLessEquals(10, epsilon: 1));
+    });
+
+    testWidgets('a drag to the left raises the value, and so does the left '
+        'arrow', (tester) async {
+      final changes = <double>[];
+      await tester.pumpWidget(
+        rtl(
+          Slider(
+            initialValue: 50,
+            max: 100,
+            divisions: 100,
+            onChanged: changes.add,
+          ),
+        ),
+      );
+      await tester.drag(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is Container &&
+              boxDecorationOf(widget.decoration)?.shape == BoxShape.circle,
+        ),
+        const Offset(-100, 0),
+      );
+      await tester.pump();
+      expect(changes.last, moreOrLessEquals(75, epsilon: 1));
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      final before = changes.last;
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+      await tester.pump();
+      expect(changes.last, greaterThan(before));
+      for (var i = 0; i < 2; i++) {
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pump();
+      }
+      expect(changes.last, lessThan(before));
+    });
+
+    testWidgets('a range spans its thumbs from the right', (tester) async {
+      await tester.pumpWidget(
+        rtl(const RangeSlider(initialValues: [25, 50], max: 100)),
+      );
+      final theme = Theme.of(tester.element(find.byType(RangeSlider)));
+      final slider = tester.getRect(find.byType(RangeSlider));
+      final track = tester.getRect(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is DecoratedBox &&
+              boxDecorationOf(widget.decoration)?.color ==
+                  theme.colorScheme.primary,
+        ),
+      );
+      expect(track.right, moreOrLessEquals(slider.right - 100, epsilon: 1));
+      expect(track.width, moreOrLessEquals(100, epsilon: 1));
     });
   });
 }

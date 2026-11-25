@@ -1,8 +1,8 @@
 import 'package:example/strand/data.dart';
 import 'package:example/strand/data/home_data.dart';
 import 'package:example/strand/widgets/compose_dialog.dart';
-import 'package:example/strand/widgets/home_pieces.dart';
 import 'package:example/strand/widgets/person_avatar.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -18,7 +18,7 @@ class HomeComposerCard extends StatelessWidget {
     void compose() => showComposeDialog(context);
 
     return Card(
-      padding: EdgeInsets.all(theme.layoutTheme.gap(GapSize.lg)),
+      style: CardTheme(padding: EdgeInsets.all(theme.gap(GapSize.lg))),
       child: FinesseColumn(
         gap: GapSize.md,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -27,29 +27,30 @@ class HomeComposerCard extends StatelessWidget {
           FinesseRow(
             gap: GapSize.md,
             children: [
-              const PersonAvatar(People.me, size: homeAvatarSize),
+              const PersonAvatar(People.me),
               Expanded(
                 // A button dressed as a field: tapping it opens the
                 // composer rather than taking text here.
                 child: Button.outline(
-                  height: 46,
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(horizontal: 18),
-                  decoration: theme.buttonDecoration(
-                    radius: theme.radii.full,
+                  size: ButtonSize.lg,
+                  style: ButtonTheme(
+                    width: double.infinity,
+                    decoration: theme.buttonDecoration(
+                      radius: theme.radii.full,
+                    ),
+                    backgroundColor: scheme.muted,
+                    hoverBackgroundColor: scheme.secondary,
+                    foregroundColor: scheme.mutedForeground,
+                    hoverForegroundColor: scheme.mutedForeground,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    pressedOffset: Offset.zero,
+                    // The size of the theme's `large`, at the weight of
+                    // running text: a placeholder, not a label.
+                    textStyle: theme.textTheme.large.copyWith(
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
-                  backgroundColor: scheme.muted,
-                  hoverBackgroundColor: scheme.secondary,
-                  foregroundColor: scheme.mutedForeground,
-                  hoverForegroundColor: scheme.mutedForeground,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  cursor: SystemMouseCursors.text,
-                  pressedOffset: Offset.zero,
-                  // The size of the theme's `large`, at the weight of
-                  // running text: a placeholder, not a label.
-                  textStyle: theme.textTheme.large.copyWith(
-                    fontWeight: FontWeight.w400,
-                  ),
+                  mouseCursor: SystemMouseCursors.text,
                   onPressed: compose,
                   child: Flexible(
                     child: Text(
@@ -69,15 +70,13 @@ class HomeComposerCard extends StatelessWidget {
               for (final action in HomeData.composerActions)
                 Flexible(
                   child: Button.ghost(
-                    // Two points taller than the theme's button, with a
-                    // larger glyph: these read as tools, not as actions.
-                    height: 38,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: theme.layoutTheme.gap(GapSize.md),
+                    style: ButtonTheme(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: theme.gap(GapSize.md),
+                      ),
+                      foregroundColor: scheme.foregroundSubtle,
                     ),
-                    iconSize: 22,
-                    foregroundColor: scheme.foregroundSubtle,
-                    leading: Icon(action.icon),
+                    leading: PhosphorIcon(action.icon),
                     onPressed: compose,
                     child: Flexible(
                       child: Text(

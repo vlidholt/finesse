@@ -7,6 +7,7 @@ import 'package:example/strand/widgets/settings_controller.dart';
 import 'package:example/strand/widgets/settings_links.dart';
 import 'package:example/strand/widgets/strand_actions.dart';
 import 'package:example/strand/widgets/verified_badge.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -22,13 +23,10 @@ class ProfileHeaderCard extends StatelessWidget {
   final ProfileTab tab;
   final ValueChanged<ProfileTab> onTabSelected;
 
-  /// The cover's height, and the portrait that straddles its bottom edge.
+  /// The cover's height, and the portrait that straddles its bottom edge:
+  /// the profile's own picture sizes, on no scale.
   static const _coverHeight = 260.0;
   static const _avatarSize = 152.0;
-
-  /// The identity block is inset further than a card's content: 28, a step
-  /// the gap scale does not have.
-  static const _inset = 28.0;
 
   @override
   Widget build(BuildContext context) {
@@ -36,11 +34,12 @@ class ProfileHeaderCard extends StatelessWidget {
     final layout = theme.layoutTheme;
 
     return Card(
-      padding: EdgeInsets.zero,
-      // A step rounder than the cards under it.
-      radius: theme.radii.xl3,
-      rowMainAxisSize: MainAxisSize.max,
-      columnCrossAxisAlignment: CrossAxisAlignment.stretch,
+      style: CardTheme(
+        padding: EdgeInsets.zero,
+        borderRadius: theme.radii.xl3,
+        rowMainAxisSize: MainAxisSize.max,
+        columnCrossAxisAlignment: CrossAxisAlignment.stretch,
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -60,9 +59,9 @@ class ProfileHeaderCard extends StatelessWidget {
               ),
               Padding(
                 padding: EdgeInsets.fromLTRB(
-                  _inset,
+                  layout.gap(GapSize.xl),
                   _coverHeight - _avatarSize / 2,
-                  _inset,
+                  layout.gap(GapSize.xl),
                   layout.gap(GapSize.xl),
                 ),
                 child: const _Identity(),
@@ -81,10 +80,13 @@ class ProfileHeaderCard extends StatelessWidget {
           ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: layout.gap(GapSize.lg)),
-            child: TabBar(
-              selectedIndex: tab.index,
-              onSelected: (index) => onTabSelected(ProfileTab.values[index]),
-              tabs: [for (final tab in ProfileTab.values) Text(tab.label)],
+            child: TabBar<ProfileTab>(
+              value: tab,
+              onChanged: onTabSelected,
+              tabs: [
+                for (final tab in ProfileTab.values)
+                  Tab(value: tab, child: Text(tab.label)),
+              ],
             ),
           ),
         ],
@@ -109,11 +111,8 @@ class _Identity extends StatelessWidget {
       fontWeight: FontWeight.w600,
       color: scheme.foreground,
     );
-    // Taller than the default button (36) and shorter than the large one
-    // (44): the designs' own size for this row.
-    const actionHeight = 40.0;
     // The diameter of the mutual connections' faces.
-    const mutualSize = 24.0;
+    final mutualSize = theme.avatarXs;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -136,7 +135,7 @@ class _Identity extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Button.outline(
-                    leading: const Icon(PhosphorIconsRegular.export),
+                    leading: const PhosphorIcon(PhosphorIconsRegular.export),
                     onPressed: () => copyLink(
                       context,
                       ProfileData.publicUrl,
@@ -145,11 +144,13 @@ class _Identity extends StatelessWidget {
                     child: const Text('Share profile'),
                   ),
                   IconButton.secondary(
-                    icon: const Icon(PhosphorIconsRegular.pencilSimple),
-                    iconSize: theme.buttonSizesTheme.regular?.iconSize,
-                    // A square that takes the text button's radius to sit
-                    // beside one, where the style's icon buttons are round.
-                    decoration: theme.buttonDecoration(radius: theme.radius),
+                    icon: const PhosphorIcon(PhosphorIconsRegular.pencilSimple),
+                    style: ButtonTheme(
+                      iconSize: theme.buttonSizesTheme.regular?.iconSize,
+                      // A square that takes the text button's radius to sit
+                      // beside one, where the style's icon buttons are round.
+                      decoration: theme.buttonDecoration(radius: theme.radius),
+                    ),
                     semanticLabel: 'Edit profile',
                     onPressed: () =>
                         openSettings(context, SettingsSection.account),
@@ -159,7 +160,7 @@ class _Identity extends StatelessWidget {
             ),
           ],
         ),
-        const Gap.raw(profileSnugGap),
+        const Gap.md(),
         Row(
           children: [
             Flexible(
@@ -174,22 +175,21 @@ class _Identity extends StatelessWidget {
               ),
             ),
             const Gap.sm(),
-            if (person.verified) const VerifiedBadge(size: 22),
+            if (person.verified) VerifiedBadge(style: theme.textTheme.h3),
             if (person.pronouns case final pronouns?) ...[
               const Gap.md(),
               Text(pronouns, style: theme.textTheme.muted),
             ],
           ],
         ),
-        const Gap.raw(profileInlineGap),
+        const Gap.xs(),
         ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 640),
           child: Text(
             ProfileData.headline,
-            // The headline is the one 17-point text in the designs.
-            style: theme.textTheme.p.copyWith(
-              fontSize: 17,
-              height: 26 / 17,
+            // The title style at the weight of running text.
+            style: theme.textTheme.h4.copyWith(
+              fontWeight: FontWeight.w400,
               color: scheme.foregroundSubtle,
             ),
           ),
@@ -197,12 +197,12 @@ class _Identity extends StatelessWidget {
         const Gap.md(),
         Wrap(
           spacing: layout.gap(GapSize.lg),
-          runSpacing: profileInlineGap,
+          runSpacing: theme.gap(GapSize.xs),
           children: [
             for (final meta in ProfileData.meta) ProfileMetaItem(meta),
           ],
         ),
-        const Gap.raw(profileSnugGap),
+        const Gap.md(),
         Row(
           children: [
             ExcludeSemantics(
@@ -219,7 +219,7 @@ class _Identity extends StatelessWidget {
                 ],
               ),
             ),
-            const Gap.raw(profileTightGap),
+            const Gap.sm(),
             Expanded(
               child: Text.rich(
                 TextSpan(
@@ -241,30 +241,27 @@ class _Identity extends StatelessWidget {
             ),
           ],
         ),
-        const Gap.raw(profileRoomyGap),
+        const Gap.lg(),
         Wrap(
           spacing: layout.gap(GapSize.sm),
           runSpacing: layout.gap(GapSize.sm),
           children: [
             Button(
-              height: actionHeight,
-              leading: const Icon(PhosphorIconsRegular.plusCircle),
+              leading: const PhosphorIcon(PhosphorIconsRegular.plusCircle),
               onPressed: () => openSettings(context, SettingsSection.privacy),
               child: const Text('Open to'),
             ),
             Button.outline(
-              height: actionHeight,
               onPressed: () => openSettings(context, SettingsSection.account),
               child: const Text('Add section'),
             ),
             Button.outline(
-              height: actionHeight,
               onPressed: () => showSavedItems(context),
               child: const Text('Resources'),
             ),
           ],
         ),
-        const Gap.raw(profileRoomyGap),
+        const Gap.lg(),
         const _StatusTiles(),
       ],
     );

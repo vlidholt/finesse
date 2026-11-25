@@ -1,11 +1,13 @@
 import 'package:finesse/finesse.dart';
-import 'package:finesse/src/utils/animate.dart';
+import 'package:finesse/src/utils/entrance.dart';
+import 'package:finesse/src/utils/moving_indicator.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../../decoration_finders.dart';
 
 /// Frame-by-frame checks of how the overlays arrive and leave: a popover,
 /// a menu, a tooltip and a dialog grow out of the edge that faces what
@@ -105,6 +107,15 @@ Future<TestGesture> _mouse(WidgetTester tester) async {
   return gesture;
 }
 
+/// The fill of the row around [label]: that of the nearest decorated box.
+Color? _rowFill(WidgetTester tester, Finder label) => boxDecorationOf(
+  tester
+      .widget<DecoratedBox>(
+        find.ancestor(of: label, matching: find.byType(DecoratedBox)).first,
+      )
+      .decoration,
+)?.color;
+
 RenderMovingIndicator _indicator(WidgetTester tester, Finder within) =>
     tester.renderObject<RenderMovingIndicator>(
       find
@@ -123,14 +134,12 @@ void main() {
 
   Widget popoverAt(
     Alignment alignment,
-    PopoverController controller, {
-    List<Effect<dynamic>>? effects,
-  }) => Align(
+    PopoverController controller,
+  ) => Align(
     alignment: alignment,
     child: Popover(
       controller: controller,
-      effects: effects,
-      popover: (context) =>
+      builder: (context) =>
           const SizedBox(key: content, width: 200, height: 120),
       child: const SizedBox(width: 60, height: 30),
     ),
@@ -139,7 +148,7 @@ void main() {
   /// Opens [controller]'s popover and pumps to the first frame it is on
   /// screen, which is the first frame of its entrance.
   Future<void> open(WidgetTester tester, PopoverController controller) async {
-    controller.show();
+    controller.open();
     // Build the portal, lay the overlay out unseen, then show it in place.
     await tester.pump();
     await tester.pump();
@@ -236,7 +245,7 @@ void main() {
       await open(tester, controller);
       await tester.pump(const Duration(milliseconds: 600));
 
-      controller.hide();
+      controller.close();
       await tester.pump();
       final opacity = <double>[];
       final scale = <double>[];
@@ -285,13 +294,13 @@ void main() {
         sample();
       }
       final turnedAt = scale.length;
-      controller.hide();
+      controller.close();
       for (var i = 0; i < 2; i++) {
         await tester.pump(_frame);
         sample();
       }
       final reopenedAt = scale.length;
-      controller.show();
+      controller.open();
       for (var i = 0; i < 30; i++) {
         await tester.pump(_frame);
         sample();
@@ -321,7 +330,7 @@ void main() {
             alignment: const Alignment(0, -.5),
             child: Popover(
               controller: controller,
-              popover: (context) => Button(
+              builder: (context) => Button(
                 onPressed: () => taps++,
                 child: const Text('Inside'),
               ),
@@ -330,7 +339,7 @@ void main() {
           ),
         ),
       );
-      controller.show();
+      controller.open();
       // 100 ms after it was asked for, counting the frames the portal
       // needs.
       for (var i = 0; i < 6; i++) {
@@ -380,75 +389,15 @@ void main() {
       expect(
         find.ancestor(
           of: find.byKey(content),
-          matching: find.byType(FinesseAnimate),
+          matching: find.byType(OverlayEntrance),
         ),
         findsNothing,
       );
       expect(find.byKey(content), findsOneWidget);
-      controller.hide();
+      controller.close();
       await tester.pump();
       await tester.pump();
       expect(find.byKey(content), findsNothing);
-    });
-
-    testWidgets('its own effects still win, and an empty list plays none', (
-      tester,
-    ) async {
-      final controller = PopoverController();
-      addTearDown(controller.dispose);
-      await tester.pumpWidget(
-        _app(
-          popoverAt(
-            const Alignment(0, -.5),
-            controller,
-            effects: const [
-              FadeEffect(duration: Duration(milliseconds: 80)),
-            ],
-          ),
-        ),
-      );
-      await open(tester, controller);
-      await tester.pump(const Duration(milliseconds: 40));
-      expect(
-        find.ancestor(
-          of: find.byKey(content),
-          matching: find.byWidgetPredicate(
-            (w) => w is Transform && w.alignment != null,
-          ),
-        ),
-        findsNothing,
-      );
-      await tester.pump(const Duration(milliseconds: 80));
-      controller.hide();
-      await tester.pump(const Duration(milliseconds: 300));
-      await tester.pump();
-
-      await tester.pumpWidget(
-        _app(
-          popoverAt(const Alignment(0, -.5), controller, effects: const []),
-        ),
-      );
-      await open(tester, controller);
-      expect(
-        find.ancestor(
-          of: find.byKey(content),
-          matching: find.byType(FinesseAnimate),
-        ),
-        findsNothing,
-      );
-      expect(find.byKey(content), findsOneWidget);
-    });
-
-    testWidgets('the theme carries no effects of its own: the motion tokens '
-        'decide', (tester) async {
-      for (final style in [StyleTokens.finesse, StyleTokens.nova]) {
-        final theme = ThemeData(style: style);
-        expect(theme.popoverTheme.effects, isNull);
-        expect(theme.popoverTheme.reverseDuration, isNull);
-        expect(theme.tooltipTheme.effects, isNull);
-        expect(theme.primaryDialogTheme.animateIn, isNull);
-        expect(theme.alertDialogTheme.animateOut, isNull);
-      }
     });
   });
 
@@ -457,12 +406,12 @@ void main() {
       alignment: alignment,
       child: ContextMenuRegion(
         items: [
-          ContextMenuItem(onPressed: () {}, child: const Text('Back')),
-          ContextMenuItem(onPressed: () {}, child: const Text('Forward')),
-          ContextMenuItem(onPressed: () {}, child: const Text('Reload')),
-          ContextMenuItem(
+          MenuItem(onPressed: () {}, child: const Text('Back')),
+          MenuItem(onPressed: () {}, child: const Text('Forward')),
+          MenuItem(onPressed: () {}, child: const Text('Reload')),
+          MenuItem(
             items: [
-              ContextMenuItem(onPressed: () {}, child: const Text('Save')),
+              MenuItem(onPressed: () {}, child: const Text('Save')),
             ],
             child: const Text('More'),
           ),
@@ -497,7 +446,7 @@ void main() {
       final menu = tester.getRect(
         find.ancestor(
           of: find.text('Back'),
-          matching: find.byType(FinesseAnimate),
+          matching: find.byType(OverlayEntrance),
         ),
       );
       expect(menu.topLeft.dx, closeTo(at.dx, 1));
@@ -540,69 +489,77 @@ void main() {
       await tester.pump(const Duration(milliseconds: 600));
     });
 
-    testWidgets('the highlight is one shape that glides between the rows', (
-      tester,
-    ) async {
-      await tester.pumpWidget(_app(region(const Alignment(-.5, -.5))));
-      await rightClick(
+    for (final style in [StyleTokens.nova, StyleTokens.finesse]) {
+      testWidgets("${style.name}: a row's highlight is its own fill — there at "
+          'once, gone at once, and nothing travels between the rows', (
         tester,
-        tester.getCenter(find.byKey(const Key('area'))),
-      );
-      await tester.pump(const Duration(milliseconds: 600));
-      final menu = find.ancestor(
-        of: find.text('Back'),
-        matching: find.byType(FinesseAnimate),
-      );
-      final indicator = _indicator(tester, menu);
-      expect(indicator.indicatorRect, isNull);
+      ) async {
+        await tester.pumpWidget(
+          _app(region(const Alignment(-.5, -.5)), style: style),
+        );
+        await rightClick(
+          tester,
+          tester.getCenter(find.byKey(const Key('area'))),
+        );
+        await tester.pump(const Duration(milliseconds: 600));
+        final menu = find.ancestor(
+          of: find.text('Back'),
+          matching: find.byType(OverlayEntrance),
+        );
+        // No shared highlight to glide: each row paints its own.
+        expect(
+          find.descendant(of: menu, matching: find.byType(MovingIndicator)),
+          findsNothing,
+        );
+        final highlight = Theme.of(
+          tester.element(find.text('Back')),
+        ).contextMenuTheme.selectedBackgroundColor!;
+        List<String> lit() => [
+          for (final label in ['Back', 'Forward', 'Reload', 'More'])
+            if (_rowFill(tester, find.text(label)) == highlight) label,
+        ];
+        expect(lit(), isEmpty);
 
-      final mouse = await _mouse(tester);
-      await mouse.moveTo(tester.getCenter(find.text('Back')));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 300));
-      final onBack = indicator.indicatorRect!;
-      expect(indicator.indicatorOpacity, 1);
+        // On the frame after the pointer arrives, at full strength…
+        final mouse = await _mouse(tester);
+        await mouse.moveTo(tester.getCenter(find.text('Back')));
+        await tester.pump();
+        expect(lit(), ['Back']);
 
-      await mouse.moveTo(tester.getCenter(find.text('Reload')));
-      await tester.pump();
-      final tops = <double>[];
-      for (var i = 0; i < 30; i++) {
-        tops.add(indicator.indicatorRect!.top);
-        // One highlight, fully there the whole way: nothing fades out here
-        // and in there.
-        expect(indicator.indicatorOpacity, 1);
-        await tester.pump(_frame);
-      }
-      _expectMonotone(tops, reason: 'the highlight');
-      expect(tops.first, closeTo(onBack.top, 1));
-      // Two rows down, having passed through the row between.
-      final rowHeight = onBack.height;
-      expect(tops.last, closeTo(onBack.top + 2 * rowHeight, 1));
-      expect(
-        tops.where((t) => t > onBack.top + 1 && t < tops.last - 1),
-        isNotEmpty,
-      );
-      // It keeps its size: a row's highlight does not stretch.
-      expect(indicator.indicatorRect!.size, onBack.size);
+        // …and on the frame after it moves two rows down it is there and
+        // only there: nothing passes over the row between, and nothing is
+        // left fading on the row it came from.
+        await mouse.moveTo(tester.getCenter(find.text('Reload')));
+        await tester.pump();
+        for (var i = 0; i < 12; i++) {
+          expect(lit(), ['Reload'], reason: 'frame $i');
+          await tester.pump(_frame);
+        }
 
-      // The arrow keys move the same highlight.
-      await mouse.moveTo(const Offset(1, 1));
-      await tester.pump(const Duration(milliseconds: 300));
-      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
-      await tester.pump(const Duration(milliseconds: 300));
-      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
-      await tester.pump();
-      await tester.pump(_frame);
-      await tester.pump(_frame);
-      final between = indicator.indicatorRect!.top;
-      expect(between, greaterThan(onBack.top));
-      expect(between, lessThan(onBack.top + rowHeight));
-      await tester.pump(const Duration(milliseconds: 600));
-      expect(indicator.indicatorRect!.top, closeTo(onBack.top + rowHeight, 1));
-    });
+        // Gone at once when the pointer leaves.
+        await mouse.moveTo(const Offset(1, 1));
+        await tester.pump();
+        expect(lit(), isEmpty);
 
-    testWidgets('with a bold accent the highlight jumps, so a row is never '
-        'white on white', (tester) async {
+        // The arrow keys move it the same way: a row at a time, at once.
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pump();
+        final first = lit();
+        expect(first, hasLength(1));
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pump();
+        final second = lit();
+        expect(second, hasLength(1));
+        expect(second, isNot(first));
+        for (var i = 0; i < 12; i++) {
+          await tester.pump(_frame);
+          expect(lit(), second, reason: 'frame $i');
+        }
+      });
+    }
+
+    testWidgets('with a bold accent a row is filled and its text recoloured '
+        'on the same frame, so it is never white on white', (tester) async {
       await tester.pumpWidget(
         FinesseApp(
           theme: ThemeData(
@@ -618,25 +575,23 @@ void main() {
         tester.getCenter(find.byKey(const Key('area'))),
       );
       await tester.pump(const Duration(milliseconds: 600));
-      final indicator = _indicator(
-        tester,
-        find.ancestor(
-          of: find.text('Back'),
-          matching: find.byType(FinesseAnimate),
-        ),
-      );
+      final theme = Theme.of(tester.element(find.text('Back')));
+      Color textColor(String label) =>
+          DefaultTextStyle.of(tester.element(find.text(label))).style.color!;
+      expect(textColor('Reload'), theme.colorScheme.popoverForeground);
+
       final mouse = await _mouse(tester);
-      await mouse.moveTo(tester.getCenter(find.text('Back')));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 300));
-      final onBack = indicator.indicatorRect!;
       await mouse.moveTo(tester.getCenter(find.text('Reload')));
       await tester.pump();
-      await tester.pump(_frame);
+      expect(_rowFill(tester, find.text('Reload')), theme.colorScheme.primary);
+      expect(textColor('Reload'), theme.colorScheme.primaryForeground);
+      await mouse.moveTo(tester.getCenter(find.text('Back')));
+      await tester.pump();
       expect(
-        indicator.indicatorRect!.top,
-        closeTo(onBack.top + 2 * onBack.height, 1),
+        _rowFill(tester, find.text('Reload')),
+        isNot(theme.colorScheme.primary),
       );
+      expect(textColor('Reload'), theme.colorScheme.popoverForeground);
     });
   });
 
@@ -646,11 +601,11 @@ void main() {
       child: Menubar(
         items: [
           MenubarItem(
-            items: [ContextMenuItem(child: Text('New file'))],
+            items: [MenuItem(child: Text('New file'))],
             child: Text('File'),
           ),
           MenubarItem(
-            items: [ContextMenuItem(child: Text('Undo'))],
+            items: [MenuItem(child: Text('Undo'))],
             child: Text('Edit'),
           ),
         ],
@@ -879,10 +834,11 @@ void main() {
       final opacity = <double>[];
       var arriving = 0;
       for (var i = 0; i < 40; i++) {
+        // Its entrance, not the stretch a scrollable has on Android.
         final transforms = find.ancestor(
           of: find.text('Title'),
           matching: find.byWidgetPredicate(
-            (w) => w is Transform && w.alignment != null,
+            (w) => w.runtimeType.toString() == '_EntranceTransition',
           ),
         );
         if (transforms.evaluate().isEmpty) break;
@@ -935,13 +891,14 @@ void main() {
   });
 
   group('Select and Command', () {
-    testWidgets("a select's list grows from its trigger and its highlight "
-        'glides', (tester) async {
+    testWidgets("a select's list grows from its trigger, and its highlight "
+        'is on the option under the pointer at once', (tester) async {
       await tester.pumpWidget(
         _app(
           Align(
             alignment: const Alignment(0, -.6),
             child: Select<String>(
+              onChanged: (_) {},
               placeholder: const Text('Fruit'),
               options: const [
                 SelectOption(value: 'apple', child: Text('Apple')),
@@ -963,36 +920,38 @@ void main() {
       expect(entrance.scale, lessThan(1));
       await tester.pump(const Duration(milliseconds: 600));
 
-      final list = _indicator(
-        tester,
-        find.ancestor(
-          of: find.text('Apple'),
-          matching: find.byType(FinesseAnimate),
+      // The highlight is each option's own fill: nothing travels.
+      expect(
+        find.descendant(
+          of: find.ancestor(
+            of: find.text('Apple'),
+            matching: find.byType(OverlayEntrance),
+          ),
+          matching: find.byType(MovingIndicator),
         ),
+        findsNothing,
       );
+      final highlight = Theme.of(
+        tester.element(find.text('Apple')),
+      ).selectOptionTheme.hoveredBackgroundColor!;
+      List<String> lit() => [
+        for (final label in ['Apple', 'Banana', 'Cherry'])
+          if (_rowFill(tester, find.text(label)) == highlight) label,
+      ];
       final mouse = await _mouse(tester);
       await mouse.moveTo(tester.getCenter(find.text('Apple')));
       await tester.pump();
-      await tester.pump(const Duration(milliseconds: 300));
-      final onApple = list.indicatorRect!.top;
+      expect(lit(), ['Apple']);
       await mouse.moveTo(tester.getCenter(find.text('Cherry')));
       await tester.pump();
-      final tops = <double>[];
-      for (var i = 0; i < 30; i++) {
-        tops.add(list.indicatorRect!.top);
+      for (var i = 0; i < 12; i++) {
+        expect(lit(), ['Cherry'], reason: 'frame $i');
         await tester.pump(_frame);
       }
-      _expectMonotone(tops, reason: 'the highlight');
-      expect(tops.last, greaterThan(onApple + 20));
-      expect(
-        tops.where((t) => t > onApple + 1 && t < tops.last - 1),
-        isNotEmpty,
-      );
     });
 
-    testWidgets("a command palette's highlight glides with the arrow keys", (
-      tester,
-    ) async {
+    testWidgets("a command palette's highlight moves with the arrow keys, "
+        'an item at a time and at once', (tester) async {
       await tester.pumpWidget(
         _app(
           const Center(
@@ -1012,22 +971,27 @@ void main() {
         ),
       );
       await tester.pump(const Duration(milliseconds: 300));
-      final list = _indicator(tester, find.byType(Command));
-      final first = list.indicatorRect!.top;
+      expect(
+        find.descendant(
+          of: find.byType(Command),
+          matching: find.byType(MovingIndicator),
+        ),
+        findsNothing,
+      );
+      final highlight = Theme.of(
+        tester.element(find.byType(Command)),
+      ).commandTheme.itemSelectedBackgroundColor!;
+      List<String> lit() => [
+        for (final label in ['Calendar', 'Calculator', 'Settings'])
+          if (_rowFill(tester, find.text(label)) == highlight) label,
+      ];
+      expect(lit(), ['Calendar']);
       await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
       await tester.pump();
-      final tops = <double>[];
-      for (var i = 0; i < 30; i++) {
-        tops.add(list.indicatorRect!.top);
-        expect(list.indicatorOpacity, 1);
+      for (var i = 0; i < 12; i++) {
+        expect(lit(), ['Calculator'], reason: 'frame $i');
         await tester.pump(_frame);
       }
-      _expectMonotone(tops, reason: 'the highlight');
-      expect(tops.last, greaterThan(first + 10));
-      expect(
-        tops.where((t) => t > first + 1 && t < tops.last - 1),
-        isNotEmpty,
-      );
     });
   });
 }

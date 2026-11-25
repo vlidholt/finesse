@@ -1,3 +1,4 @@
+import 'package:finesse/src/components/control_affinity.dart';
 import 'package:finesse/src/components/form/field.dart';
 import 'package:finesse/src/components/switch.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
@@ -49,20 +50,17 @@ class SwitchFormField extends FinesseFormField<bool> {
     /// {@macro Switch.margin}
     double? margin,
 
-    /// {@macro Switch.duration}
-    Duration? duration,
-
     /// {@macro Switch.label}
     Widget? inputLabel,
 
-    /// {@macro Switch.sublabel}
-    Widget? inputSublabel,
+    /// {@macro Switch.description}
+    Widget? inputDescription,
 
     /// {@macro Switch.padding}
     EdgeInsetsGeometry? padding,
 
-    /// {@macro Switch.direction}
-    TextDirection? direction,
+    /// {@macro Switch.controlAffinity}
+    ControlAffinity controlAffinity = ControlAffinity.leading,
   }) : super(
          initialValue: initialValue,
          onChanged: (!enabled || onChanged == null)
@@ -78,7 +76,7 @@ class SwitchFormField extends FinesseFormField<bool> {
                      const FinesseDecoration())
                  .merge(decoration),
          builder: (state) {
-           state as SwitchFormFieldState;
+           state as _SwitchFormFieldState;
 
            return Switch(
              value: state.value!,
@@ -86,11 +84,10 @@ class SwitchFormField extends FinesseFormField<bool> {
              enabled: state.enabled,
              focusNode: state.focusNode,
              decoration: state.decoration,
-             duration: duration,
              label: inputLabel,
-             sublabel: inputSublabel,
+             description: inputDescription,
              padding: padding,
-             direction: direction,
+             controlAffinity: controlAffinity,
              width: width,
              margin: margin,
              thumbColor: thumbColor,
@@ -102,9 +99,9 @@ class SwitchFormField extends FinesseFormField<bool> {
 
   @override
   FinesseFormFieldState<SwitchFormField, bool> createState() =>
-      SwitchFormFieldState();
+      _SwitchFormFieldState();
 }
 
 /// The state of a [SwitchFormField].
-class SwitchFormFieldState
+class _SwitchFormFieldState
     extends FinesseFormFieldState<SwitchFormField, bool> {}

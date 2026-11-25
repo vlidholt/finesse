@@ -123,9 +123,11 @@ class _BoardLimitExampleState extends State<BoardLimitExample> {
               limit: name == 'In review' ? 2 : null,
               footer: name == 'Backlog'
                   ? Button.ghost(
-                      width: double.infinity,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      leading: const Icon(PhosphorIconsRegular.plus),
+                      style: ButtonTheme(
+                        width: double.infinity,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                      ),
+                      leading: const PhosphorIcon(PhosphorIconsRegular.plus),
                       onPressed: addTicket,
                       child: const Text('Add a ticket'),
                     )
@@ -136,7 +138,7 @@ class _BoardLimitExampleState extends State<BoardLimitExample> {
           leading: Padding(
             padding: const EdgeInsetsDirectional.only(end: 8),
             child: BoardDragHandle(
-              child: Icon(
+              child: PhosphorIcon(
                 PhosphorIconsRegular.dotsSixVertical,
                 size: 18,
                 color: theme.colorScheme.mutedForeground,
@@ -227,4 +229,3 @@ class _BoardManyExampleState extends State<BoardManyExample> {
   }
 }
 ```
-

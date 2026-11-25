@@ -23,7 +23,7 @@ class _IconsSelectedExampleState extends State<IconsSelectedExample> {
       spacing: 8,
       children: [
         IconButton.ghost(
-          icon: Icon(
+          icon: PhosphorIcon(
             liked ? PhosphorIconsFill.heart : PhosphorIconsRegular.heart,
             color: liked ? scheme.destructive : null,
           ),
@@ -31,7 +31,7 @@ class _IconsSelectedExampleState extends State<IconsSelectedExample> {
           onPressed: () => setState(() => liked = !liked),
         ),
         IconButton.ghost(
-          icon: Icon(
+          icon: PhosphorIcon(
             saved
                 ? PhosphorIconsFill.bookmarkSimple
                 : PhosphorIconsRegular.bookmarkSimple,
@@ -41,7 +41,7 @@ class _IconsSelectedExampleState extends State<IconsSelectedExample> {
           onPressed: () => setState(() => saved = !saved),
         ),
         IconButton.ghost(
-          icon: Icon(
+          icon: PhosphorIcon(
             following ? PhosphorIconsFill.bell : PhosphorIconsRegular.bell,
             color: following ? scheme.tint : null,
           ),

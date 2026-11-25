@@ -1,5 +1,6 @@
 import 'package:example/strand/data/profile_data.dart';
 import 'package:example/strand/widgets/profile_common.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -48,7 +49,6 @@ class ProfileExperienceCard extends StatelessWidget {
               marker: ProfileLogo(
                 entry.company.logo,
                 label: '${entry.company.name} logo',
-                size: compact ? 40 : profileMarkSize,
               ),
               child: _Lines(
                 title: entry.role,
@@ -75,13 +75,13 @@ class ProfileEducationCard extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: theme.layoutTheme.gap(GapSize.lg),
+        spacing: theme.gap(GapSize.lg),
         children: [
           for (final entry in ProfileData.education)
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               // Lined up with the Experience timeline above it.
-              spacing: theme.timelineTheme.gap ?? profileSnugGap,
+              spacing: theme.timelineTheme.gap ?? theme.gap(GapSize.md),
               children: [
                 ProfileLogo(
                   entry.school.logo,
@@ -121,9 +121,7 @@ class _Lines extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final body = profileBodyStyle(
-      theme,
-    ).copyWith(color: scheme.foregroundSubtle);
+    final body = theme.textTheme.p.copyWith(color: scheme.foregroundSubtle);
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -137,7 +135,7 @@ class _Lines extends StatelessWidget {
           Text(detail, style: theme.textTheme.muted),
         if (description case final description?) ...[
           const Gap.sm(),
-          Text(description, style: body.copyWith(height: 21 / 14)),
+          Text(description, style: body),
         ],
       ],
     );

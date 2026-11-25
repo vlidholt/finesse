@@ -1,5 +1,6 @@
 import 'package:finesse/src/theme/color_scheme/base.dart';
 import 'package:finesse/src/theme/components/accordion.dart';
+import 'package:finesse/src/theme/components/action_sheet.dart';
 import 'package:finesse/src/theme/components/alert.dart';
 import 'package:finesse/src/theme/components/app_bar.dart';
 import 'package:finesse/src/theme/components/avatar.dart';
@@ -11,7 +12,9 @@ import 'package:finesse/src/theme/components/button.dart';
 import 'package:finesse/src/theme/components/button_sizes.dart';
 import 'package:finesse/src/theme/components/calendar.dart';
 import 'package:finesse/src/theme/components/card.dart';
+import 'package:finesse/src/theme/components/carousel.dart';
 import 'package:finesse/src/theme/components/chat_bubble.dart';
+import 'package:finesse/src/theme/components/chat_list.dart';
 import 'package:finesse/src/theme/components/checkbox.dart';
 import 'package:finesse/src/theme/components/chip.dart';
 import 'package:finesse/src/theme/components/collapsible.dart';
@@ -23,19 +26,25 @@ import 'package:finesse/src/theme/components/default_keyboard_toolbar.dart';
 import 'package:finesse/src/theme/components/dialog.dart';
 import 'package:finesse/src/theme/components/divider.dart';
 import 'package:finesse/src/theme/components/empty.dart';
+import 'package:finesse/src/theme/components/floating_action_button.dart';
 import 'package:finesse/src/theme/components/glass.dart';
 import 'package:finesse/src/theme/components/icon_tile.dart';
 import 'package:finesse/src/theme/components/indicator_badge.dart';
 import 'package:finesse/src/theme/components/kbd.dart';
 import 'package:finesse/src/theme/components/layout.dart';
+import 'package:finesse/src/theme/components/list_section.dart';
 import 'package:finesse/src/theme/components/list_tile.dart';
 import 'package:finesse/src/theme/components/menubar.dart';
 import 'package:finesse/src/theme/components/navigation_bar.dart';
+import 'package:finesse/src/theme/components/navigation_menu.dart';
+import 'package:finesse/src/theme/components/navigation_rail.dart';
 import 'package:finesse/src/theme/components/otp_field.dart';
 import 'package:finesse/src/theme/components/pagination.dart';
+import 'package:finesse/src/theme/components/phosphor_icon.dart';
 import 'package:finesse/src/theme/components/popover.dart';
 import 'package:finesse/src/theme/components/progress_bar.dart';
 import 'package:finesse/src/theme/components/radio.dart';
+import 'package:finesse/src/theme/components/refresh_indicator.dart';
 import 'package:finesse/src/theme/components/resizable.dart';
 import 'package:finesse/src/theme/components/scroll_area.dart';
 import 'package:finesse/src/theme/components/select.dart';
@@ -44,26 +53,48 @@ import 'package:finesse/src/theme/components/sheet.dart';
 import 'package:finesse/src/theme/components/sidebar.dart';
 import 'package:finesse/src/theme/components/skeleton.dart';
 import 'package:finesse/src/theme/components/slider.dart';
-import 'package:finesse/src/theme/components/sonner.dart';
 import 'package:finesse/src/theme/components/spinner.dart';
+import 'package:finesse/src/theme/components/stepper.dart';
+import 'package:finesse/src/theme/components/streaming_text.dart';
 import 'package:finesse/src/theme/components/switch.dart';
 import 'package:finesse/src/theme/components/table.dart';
 import 'package:finesse/src/theme/components/tabs.dart';
 import 'package:finesse/src/theme/components/text_field.dart';
+import 'package:finesse/src/theme/components/text_selection.dart';
 import 'package:finesse/src/theme/components/textarea.dart';
+import 'package:finesse/src/theme/components/time_field.dart';
 import 'package:finesse/src/theme/components/time_picker.dart';
 import 'package:finesse/src/theme/components/timeline.dart';
 import 'package:finesse/src/theme/components/toast.dart';
 import 'package:finesse/src/theme/components/toggle.dart';
 import 'package:finesse/src/theme/components/tooltip.dart';
+import 'package:finesse/src/theme/components/wheel_picker.dart';
 import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/radii.dart';
 import 'package:finesse/src/theme/spacing.dart';
 import 'package:finesse/src/theme/style.dart';
 import 'package:finesse/src/theme/text_theme/theme.dart';
-import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:finesse/src/utils/responsive.dart';
 import 'package:flutter/widgets.dart';
+
+/// How strongly menus highlight their hovered row, shadcn's "Menu Accent".
+///
+/// It is a property of *menus*: the rows of a dropdown or context menu, a
+/// menubar's menus and a select's options. The colour scheme is left as it
+/// is — the reference implements "bold" by pointing `--accent` at
+/// `--primary` in the theme, but there the accent is all but a menu colour.
+/// Here it is also the soft wash behind a selected card or chip, an incoming
+/// chat bubble and an icon tile, none of which a menu option should turn
+/// into primary-coloured slabs.
+enum MenuAccent {
+  /// The highlight the style defines: the scheme's accent pair, or a wash
+  /// of the menu's foreground in a style with a
+  /// [StyleTokens.menuHighlightOpacity].
+  subtle,
+
+  /// A filled row in the menu palette's primary pair.
+  bold,
+}
 
 /// The resolved values of a theme: the colour scheme, the text theme, the
 /// shared settings and one theme per component.
@@ -94,15 +125,17 @@ abstract class BaseTheme {
     required this.decoration,
     required this.textTheme,
     required this.disabledOpacity,
+    required this.haptics,
     required this.selectTheme,
     required this.selectOptionTheme,
     required this.cardTheme,
+    required this.carouselTheme,
     required this.switchTheme,
     required this.checkboxTheme,
     required this.textFieldTheme,
+    required this.textSelectionTheme,
     required this.radioTheme,
-    required this.primaryToastTheme,
-    required this.destructiveToastTheme,
+    required this.toastTheme,
     required this.breakpoints,
     required this.primaryAlertTheme,
     required this.destructiveAlertTheme,
@@ -110,34 +143,45 @@ abstract class BaseTheme {
     required this.alertDialogTheme,
     required this.sliderTheme,
     required this.sheetTheme,
+    required this.actionSheetTheme,
     required this.progressBarTheme,
+    required this.refreshIndicatorTheme,
     required this.accordionTheme,
     required this.tableTheme,
     required this.resizableTheme,
-    required this.hoverStrategies,
     required this.disableSecondaryBorder,
     required this.tabsTheme,
     required this.contextMenuTheme,
     required this.calendarTheme,
     required this.datePickerTheme,
     required this.timePickerTheme,
+    required this.timeFieldTheme,
+    required this.wheelPickerTheme,
     required this.otpFieldTheme,
     required this.menubarTheme,
     required this.dividerTheme,
-    required this.sonnerTheme,
+    required this.stepperTheme,
+    required this.toasterTheme,
     required this.textareaTheme,
     required this.defaultKeyboardToolbarTheme,
     required this.skeletonTheme,
     required this.kbdTheme,
     required this.glassTheme,
     required this.appBarTheme,
+    required this.floatingActionButtonTheme,
     required this.navigationBarTheme,
+    required this.navigationMenuTheme,
+    required this.navigationRailTheme,
     required this.bottomNavigationBarTheme,
     required this.chipTheme,
+    required this.listSectionTheme,
     required this.listTileTheme,
     required this.chatBubbleTheme,
+    required this.chatListTheme,
+    required this.streamingTextTheme,
     required this.indicatorBadgeTheme,
     required this.iconTileTheme,
+    required this.phosphorIconTheme,
     required this.timelineTheme,
     required this.boardTheme,
     required this.layoutTheme,
@@ -177,8 +221,17 @@ abstract class BaseTheme {
   /// The theme of the matching widget.
   final AppBarTheme appBarTheme;
 
+  /// The theme of `FloatingActionButton`.
+  final FloatingActionButtonTheme floatingActionButtonTheme;
+
   /// The theme of the matching widget.
   final NavigationBarTheme navigationBarTheme;
+
+  /// The theme of `NavigationMenu`.
+  final NavigationMenuTheme navigationMenuTheme;
+
+  /// The theme of `NavigationRail`.
+  final NavigationRailTheme navigationRailTheme;
 
   /// The theme of the matching widget.
   final BottomNavigationBarTheme bottomNavigationBarTheme;
@@ -186,17 +239,30 @@ abstract class BaseTheme {
   /// The theme of the matching widget.
   final ChipTheme chipTheme;
 
+  /// The theme of `ListSection`.
+  final ListSectionTheme listSectionTheme;
+
   /// The theme of the matching widget.
   final ListTileTheme listTileTheme;
 
   /// The theme of the matching widget.
   final ChatBubbleTheme chatBubbleTheme;
 
+  /// The theme of `ChatList`.
+  final ChatListTheme chatListTheme;
+
+  /// The theme of `StreamingText`.
+  final StreamingTextTheme streamingTextTheme;
+
   /// The theme of the matching widget.
   final IndicatorBadgeTheme indicatorBadgeTheme;
 
   /// The theme of the matching widget.
   final IconTileTheme iconTileTheme;
+
+  /// The theme of `PhosphorIcon`: how an icon's line weight follows its
+  /// size.
+  final PhosphorIconTheme phosphorIconTheme;
 
   /// The theme of the matching widget.
   final TimelineTheme timelineTheme;
@@ -293,6 +359,11 @@ abstract class BaseTheme {
   /// The opacity of disabled components. Defaults to 0.5.
   final double disabledOpacity;
 
+  /// Whether controls give haptic feedback on a touch platform. Defaults to
+  /// true; false silences every call made through `Haptics` below this
+  /// theme.
+  final bool haptics;
+
   /// The theme of `Select`.
   final SelectTheme selectTheme;
 
@@ -301,6 +372,9 @@ abstract class BaseTheme {
 
   /// The theme of `Card`.
   final CardTheme cardTheme;
+
+  /// The theme of `Carousel` and `PageIndicator`.
+  final CarouselTheme carouselTheme;
 
   /// The theme of `Switch`.
   final SwitchTheme switchTheme;
@@ -311,14 +385,14 @@ abstract class BaseTheme {
   /// The theme of `TextField`.
   final TextFieldTheme textFieldTheme;
 
+  /// The theme of text selection on touch: handles, toolbar, magnifier.
+  final TextSelectionTheme textSelectionTheme;
+
   /// The theme of `Radio`.
   final RadioTheme radioTheme;
 
-  /// The theme of default toasts, `Toast`.
-  final ToastTheme primaryToastTheme;
-
-  /// The theme of destructive toasts, `Toast.destructive`.
-  final ToastTheme destructiveToastTheme;
+  /// The theme of `Toast`.
+  final ToastTheme toastTheme;
 
   /// The screen widths at which the layout changes.
   final Breakpoints breakpoints;
@@ -341,8 +415,14 @@ abstract class BaseTheme {
   /// The theme of `Sheet`.
   final SheetTheme sheetTheme;
 
+  /// The theme of `ActionSheet`.
+  final ActionSheetTheme actionSheetTheme;
+
   /// The theme of `ProgressBar`.
   final ProgressBarTheme progressBarTheme;
+
+  /// The theme of `RefreshIndicator`.
+  final RefreshIndicatorTheme refreshIndicatorTheme;
 
   /// The theme of `Accordion`.
   final AccordionTheme accordionTheme;
@@ -352,9 +432,6 @@ abstract class BaseTheme {
 
   /// The theme of `ResizablePanelGroup`.
   final ResizableTheme resizableTheme;
-
-  /// The gestures that give touch devices a hover state.
-  final HoverStrategies hoverStrategies;
 
   /// Whether controls show focus without the outward ring. Defaults to false.
   ///
@@ -377,6 +454,12 @@ abstract class BaseTheme {
   /// The theme of `TimePicker`.
   final TimePickerTheme timePickerTheme;
 
+  /// The theme of `TimeField`.
+  final TimeFieldTheme timeFieldTheme;
+
+  /// The theme of `WheelPicker`.
+  final WheelPickerTheme wheelPickerTheme;
+
   /// The theme of `OtpField`.
   final OtpFieldTheme otpFieldTheme;
 
@@ -386,8 +469,11 @@ abstract class BaseTheme {
   /// The theme of `Divider`.
   final DividerTheme dividerTheme;
 
-  /// The theme of `Sonner`.
-  final SonnerTheme sonnerTheme;
+  /// The theme of `Stepper`.
+  final StepperTheme stepperTheme;
+
+  /// The theme of `Toaster`.
+  final ToasterTheme toasterTheme;
 
   /// The theme of `Textarea`.
   final TextareaTheme textareaTheme;
@@ -508,6 +594,9 @@ abstract class ThemeVariant {
   /// Builds the theme of `Card`.
   CardTheme cardTheme();
 
+  /// Builds the [CarouselTheme].
+  CarouselTheme carouselTheme();
+
   /// Builds the theme of `Switch`.
   SwitchTheme switchTheme();
 
@@ -517,14 +606,14 @@ abstract class ThemeVariant {
   /// Builds the theme of `TextField`.
   TextFieldTheme textFieldTheme();
 
+  /// Builds the [TextSelectionTheme].
+  TextSelectionTheme textSelectionTheme();
+
   /// Builds the theme of `Radio`.
   RadioTheme radioTheme();
 
-  /// Builds the theme of default toasts, `Toast`.
-  ToastTheme primaryToastTheme();
-
-  /// Builds the theme of destructive toasts, `Toast.destructive`.
-  ToastTheme destructiveToastTheme();
+  /// Builds the theme of `Toast`.
+  ToastTheme toastTheme();
 
   /// Builds the theme of default alerts, `Alert`.
   AlertTheme primaryAlertTheme();
@@ -544,8 +633,14 @@ abstract class ThemeVariant {
   /// Builds the theme of `Sheet`.
   SheetTheme sheetTheme();
 
+  /// Builds the [ActionSheetTheme].
+  ActionSheetTheme actionSheetTheme();
+
   /// Builds the theme of `ProgressBar`.
   ProgressBarTheme progressBarTheme();
+
+  /// Builds the [RefreshIndicatorTheme].
+  RefreshIndicatorTheme refreshIndicatorTheme();
 
   /// Builds the theme of `Accordion`.
   AccordionTheme accordionTheme();
@@ -555,9 +650,6 @@ abstract class ThemeVariant {
 
   /// Builds the theme of `ResizablePanelGroup`.
   ResizableTheme resizableTheme();
-
-  /// Builds the gestures that give touch devices a hover state.
-  HoverStrategies hoverStrategies();
 
   /// Builds the theme of `Tabs`.
   TabsTheme tabsTheme();
@@ -574,6 +666,12 @@ abstract class ThemeVariant {
   /// Builds the theme of `TimePicker`.
   TimePickerTheme timePickerTheme();
 
+  /// Builds the theme of `TimeField`.
+  TimeFieldTheme timeFieldTheme();
+
+  /// Builds the theme of `WheelPicker`.
+  WheelPickerTheme wheelPickerTheme();
+
   /// Builds the theme of `OtpField`.
   OtpFieldTheme otpFieldTheme();
 
@@ -583,8 +681,11 @@ abstract class ThemeVariant {
   /// Builds the theme of `Divider`.
   DividerTheme dividerTheme();
 
-  /// Builds the theme of `Sonner`.
-  SonnerTheme sonnerTheme();
+  /// Builds the theme of `Stepper`.
+  StepperTheme stepperTheme();
+
+  /// Builds the theme of `Toaster`.
+  ToasterTheme toasterTheme();
 
   /// Builds the theme of `Textarea`.
   TextareaTheme textareaTheme();
@@ -607,8 +708,17 @@ abstract class ThemeVariant {
   /// Builds the [AppBarTheme].
   AppBarTheme appBarTheme();
 
+  /// Builds the [FloatingActionButtonTheme].
+  FloatingActionButtonTheme floatingActionButtonTheme();
+
   /// Builds the [NavigationBarTheme].
   NavigationBarTheme navigationBarTheme();
+
+  /// Builds the [NavigationMenuTheme].
+  NavigationMenuTheme navigationMenuTheme();
+
+  /// Builds the [NavigationRailTheme].
+  NavigationRailTheme navigationRailTheme();
 
   /// Builds the [BottomNavigationBarTheme].
   BottomNavigationBarTheme bottomNavigationBarTheme();
@@ -616,17 +726,29 @@ abstract class ThemeVariant {
   /// Builds the [ChipTheme].
   ChipTheme chipTheme();
 
+  /// Builds the [ListSectionTheme].
+  ListSectionTheme listSectionTheme();
+
   /// Builds the [ListTileTheme].
   ListTileTheme listTileTheme();
 
   /// Builds the [ChatBubbleTheme].
   ChatBubbleTheme chatBubbleTheme();
 
+  /// Builds the [ChatListTheme].
+  ChatListTheme chatListTheme();
+
+  /// Builds the [StreamingTextTheme].
+  StreamingTextTheme streamingTextTheme();
+
   /// Builds the [IndicatorBadgeTheme].
   IndicatorBadgeTheme indicatorBadgeTheme();
 
   /// Builds the [IconTileTheme].
   IconTileTheme iconTileTheme();
+
+  /// Builds the [PhosphorIconTheme].
+  PhosphorIconTheme phosphorIconTheme();
 
   /// Builds the [TimelineTheme].
   TimelineTheme timelineTheme();

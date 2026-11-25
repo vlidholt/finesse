@@ -8,6 +8,12 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../../finesse_harness.dart';
 
+/// Tabs whose values are their indices.
+List<Tab<int>> tabsOf(List<String> labels) => [
+  for (final (index, label) in labels.indexed)
+    Tab(value: index, child: Text(label)),
+];
+
 void main() {
   const labels = ['Posts', 'About', 'Jobs'];
 
@@ -27,16 +33,25 @@ void main() {
       alignment: Alignment.topCenter,
       child: SizedBox(
         width: width,
-        child: TabBar(
-          selectedIndex: selectedIndex,
-          onSelected: onSelected,
-          expand: expand,
-          showBorder: showBorder,
-          height: height,
-          indicatorColor: indicatorColor,
-          tabPadding: tabPadding,
-          labelStyle: labelStyle,
-          tabs: [for (final label in tabs) Text(label)],
+        // What used to be parameters of the bar is the theme's to say.
+        child: Builder(
+          builder: (context) => Theme(
+            data: Theme.of(context).copyWith(
+              tabsTheme: TabsTheme(
+                underlineHeight: height,
+                underlineColor: indicatorColor,
+                underlinePadding: tabPadding,
+                underlineTextStyle: labelStyle,
+              ),
+            ),
+            child: TabBar<int>(
+              value: selectedIndex,
+              onChanged: onSelected,
+              expandTabs: expand,
+              showBorder: showBorder,
+              tabs: tabsOf(tabs),
+            ),
+          ),
         ),
       ),
     );
@@ -68,16 +83,16 @@ void main() {
         tester,
         (layout) => Column(
           children: [
-            TabBar(
-              selectedIndex: 1,
-              onSelected: (_) {},
-              tabs: const [Text('Posts'), Text('About'), Text('Jobs')],
+            TabBar<int>(
+              value: 1,
+              onChanged: (_) {},
+              tabs: tabsOf(const ['Posts', 'About', 'Jobs']),
             ),
-            TabBar(
-              selectedIndex: 0,
-              expand: false,
-              onSelected: (_) {},
-              tabs: const [Text('One'), Text('Two')],
+            TabBar<int>(
+              value: 0,
+              expandTabs: false,
+              onChanged: (_) {},
+              tabs: tabsOf(const ['One', 'Two']),
             ),
           ],
         ),
@@ -88,9 +103,9 @@ void main() {
         'under the tabs', (tester) async {
       for (final formFactor in FormFactor.values) {
         await pumpFinesse(tester, bar(), formFactor: formFactor);
-        final theme = themeOf(tester, find.byType(TabBar));
+        final theme = themeOf(tester, find.byType(TabBar<int>));
         expect(theme.style.underlineTabHeight, 48);
-        expect(tester.getSize(find.byType(TabBar)), const Size(360, 49));
+        expect(tester.getSize(find.byType(TabBar<int>)), const Size(360, 49));
         // The tabs themselves keep the whole 48.
         for (var i = 0; i < 3; i++) {
           expect(tester.getSize(find.byType(Pressable).at(i)).height, 48);
@@ -101,18 +116,18 @@ void main() {
           bar(showBorder: false),
           formFactor: formFactor,
         );
-        expect(tester.getSize(find.byType(TabBar)), const Size(360, 48));
+        expect(tester.getSize(find.byType(TabBar<int>)), const Size(360, 48));
       }
     });
 
     testWidgets('height sets the height of the tabs; the hairline is added '
         'to it', (tester) async {
       await pumpFinesse(tester, bar(height: 40));
-      expect(tester.getSize(find.byType(TabBar)).height, 41);
+      expect(tester.getSize(find.byType(TabBar<int>)).height, 41);
       expect(tester.getSize(find.byType(Pressable).first).height, 40);
 
       await pumpFinesse(tester, bar(height: 40, showBorder: false));
-      expect(tester.getSize(find.byType(TabBar)).height, 40);
+      expect(tester.getSize(find.byType(TabBar<int>)).height, 40);
       expect(tester.getSize(find.byType(Pressable).first).height, 40);
     });
 
@@ -120,9 +135,34 @@ void main() {
       tester,
     ) async {
       await pumpFinesse(tester, bar(expand: false));
-      expect(tester.getSize(find.byType(TabBar)).height, 49);
+      expect(tester.getSize(find.byType(TabBar<int>)).height, 49);
       await pumpFinesse(tester, bar(expand: false, showBorder: false));
-      expect(tester.getSize(find.byType(TabBar)).height, 48);
+      expect(tester.getSize(find.byType(TabBar<int>)).height, 48);
+    });
+
+    testWidgets('Tabs drops the hairline under an underline bar as TabBar '
+        'does', (tester) async {
+      Future<double> height({required bool showBorder}) async {
+        await pumpFinesse(
+          tester,
+          Align(
+            alignment: Alignment.topCenter,
+            child: Tabs<int>(
+              value: 0,
+              onChanged: (_) {},
+              variant: TabBarVariant.underline,
+              showBorder: showBorder,
+              tabs: tabsOf(labels),
+            ),
+          ),
+        );
+        return tester.getSize(find.byType(Tabs<int>)).height;
+      }
+
+      expect(
+        await height(showBorder: true) - await height(showBorder: false),
+        1,
+      );
     });
 
     testWidgets('expanded tabs share the width equally, in reading order', (
@@ -130,7 +170,7 @@ void main() {
     ) async {
       for (final direction in TextDirection.values) {
         await pumpFinesse(tester, bar(), textDirection: direction);
-        final box = tester.getRect(find.byType(TabBar));
+        final box = tester.getRect(find.byType(TabBar<int>));
         final tabs = [
           for (var i = 0; i < 3; i++)
             tester.getRect(find.byType(Pressable).at(i)),
@@ -170,7 +210,7 @@ void main() {
       // They start at the leading edge rather than spreading out.
       expect(
         tester.getRect(find.byType(Pressable).first).left,
-        tester.getRect(find.byType(TabBar)).left,
+        tester.getRect(find.byType(TabBar<int>)).left,
       );
     });
 
@@ -266,14 +306,14 @@ void main() {
       );
       expect(tester.takeException(), isNull);
       expect(find.byType(SingleChildScrollView), findsOneWidget);
-      expect(tester.getSize(find.byType(TabBar)).width, 200);
+      expect(tester.getSize(find.byType(TabBar<int>)).width, 200);
       // The tabs that do not fit are clipped at the bar's sides, not
       // painted over whatever sits beside it — by a clip one pixel taller
       // than the tabs, so the indicator can still reach over the hairline.
       final clip = find.ancestor(
         of: find.byType(SingleChildScrollView),
         matching: find.descendant(
-          of: find.byType(TabBar),
+          of: find.byType(TabBar<int>),
           matching: find.byType(ClipRect),
         ),
       );
@@ -288,11 +328,11 @@ void main() {
         paints..clipRect(rect: const Rect.fromLTWH(0, 0, 200, 49)),
       );
 
-      final box = tester.getRect(find.byType(TabBar));
+      final box = tester.getRect(find.byType(TabBar<int>));
       final last = find.text('Portfolio');
       expect(tester.getRect(last).left, greaterThan(box.right));
 
-      await tester.drag(find.byType(TabBar), const Offset(-2000, 0));
+      await tester.drag(find.byType(TabBar<int>), const Offset(-2000, 0));
       await tester.pump();
       // Scrolled to its end, the last tab is flush with the bar's edge.
       expect(
@@ -320,17 +360,23 @@ void main() {
                 padding: const EdgeInsets.all(40),
                 child: SizedBox(
                   width: 200,
-                  child: TabBar(
-                    selectedIndex: 0,
-                    expand: false,
-                    indicatorColor: red,
-                    onSelected: (_) {},
-                    tabs: const [
-                      Text('Overview'),
-                      Text('Experience'),
-                      Text('Education'),
-                      Text('Portfolio'),
-                    ],
+                  child: Builder(
+                    builder: (context) => Theme(
+                      data: Theme.of(context).copyWith(
+                        tabsTheme: const TabsTheme(underlineColor: red),
+                      ),
+                      child: TabBar<int>(
+                        value: 0,
+                        expandTabs: false,
+                        onChanged: (_) {},
+                        tabs: tabsOf(const [
+                          'Overview',
+                          'Experience',
+                          'Education',
+                          'Portfolio',
+                        ]),
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -338,12 +384,12 @@ void main() {
           ),
         ),
       );
-      final bar = tester.getRect(find.byType(TabBar));
+      final bar = tester.getRect(find.byType(TabBar<int>));
       expect(bar, const Rect.fromLTWH(40, 40, 200, 49));
 
       // Scroll the selected tab half way out of the bar's start edge.
       final width = tester.getSize(find.byType(Pressable).first).width;
-      await tester.drag(find.byType(TabBar), Offset(-width / 2, 0));
+      await tester.drag(find.byType(TabBar<int>), Offset(-width / 2, 0));
       await tester.pump();
       final tab = tester.getRect(find.byType(Pressable).first);
       expect(tab.left, lessThan(bar.left - 10));
@@ -381,7 +427,7 @@ void main() {
         }
       }
       // Past the selected tab the hairline shows, and stops with the bar.
-      final theme = themeOf(tester, find.byType(TabBar));
+      final theme = themeOf(tester, find.byType(TabBar<int>));
       final hairline = pixel(bar.right - 4.5, hairlineRow);
       expect(hairline, isNot(white));
       expect(hairline, isNot(red));
@@ -433,8 +479,9 @@ void main() {
 
       await tester.tap(find.text('Jobs'));
       await tester.tap(find.text('About'));
+      // The selected tab has nothing to report.
       await tester.tap(find.text('Posts'));
-      expect(taps, [2, 1, 0]);
+      expect(taps, [2, 1]);
     });
 
     testWidgets('the whole tab is the target, not only its label', (
@@ -459,31 +506,93 @@ void main() {
           ),
         ),
       );
-      expect(tester.widget<TabBar>(find.byType(TabBar)).selectedIndex, 0);
+      expect(tester.widget<TabBar<int>>(find.byType(TabBar<int>)).value, 0);
 
       await tester.tap(find.text('Jobs'));
       await settle(tester);
-      expect(tester.widget<TabBar>(find.byType(TabBar)).selectedIndex, 2);
+      expect(tester.widget<TabBar<int>>(find.byType(TabBar<int>)).value, 2);
       expect(styleOf(tester, 'Jobs').fontWeight, FontWeight.w600);
       expect(styleOf(tester, 'Posts').fontWeight, FontWeight.w500);
     });
 
-    testWidgets('Tab moves between the tabs; Enter and Space select', (
-      tester,
-    ) async {
-      final taps = <int>[];
-      await pumpFinesse(tester, bar(onSelected: taps.add));
+    testWidgets('the bar is one Tab stop; the arrow keys, Home and End '
+        'move the selection', (tester) async {
+      for (final direction in TextDirection.values) {
+        var index = 1;
+        final changes = <int>[];
+        await pumpFinesse(
+          tester,
+          StatefulBuilder(
+            builder: (context, setState) => Column(
+              children: [
+                bar(
+                  selectedIndex: index,
+                  onSelected: (i) {
+                    changes.add(i);
+                    setState(() => index = i);
+                  },
+                ),
+                const Focus(child: SizedBox(width: 10, height: 10)),
+              ],
+            ),
+          ),
+          textDirection: direction,
+        );
+        Pressable focused() => FocusManager.instance.primaryFocus!.context!
+            .findAncestorWidgetOfExactType<Pressable>()!;
+        int focusedIndex() => tester
+            .widgetList<Pressable>(find.byType(Pressable))
+            .toList()
+            .indexOf(focused());
 
+        // Tab lands on the selected tab, not the first.
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        expect(focusedIndex(), 1);
+        final forward = direction == TextDirection.ltr
+            ? LogicalKeyboardKey.arrowRight
+            : LogicalKeyboardKey.arrowLeft;
+        final back = direction == TextDirection.ltr
+            ? LogicalKeyboardKey.arrowLeft
+            : LogicalKeyboardKey.arrowRight;
+        await tester.sendKeyEvent(forward);
+        await tester.pump();
+        expect((index, focusedIndex()), (2, 2));
+        // Past the end it comes round.
+        await tester.sendKeyEvent(forward);
+        await tester.pump();
+        expect((index, focusedIndex()), (0, 0));
+        await tester.sendKeyEvent(back);
+        await tester.pump();
+        expect((index, focusedIndex()), (2, 2));
+        await tester.sendKeyEvent(LogicalKeyboardKey.home);
+        await tester.pump();
+        expect((index, focusedIndex()), (0, 0));
+        await tester.sendKeyEvent(LogicalKeyboardKey.end);
+        await tester.pump();
+        expect((index, focusedIndex()), (2, 2));
+        expect(changes, [2, 0, 2, 0, 2]);
+        // And Tab leaves the bar instead of walking through it.
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        expect(
+          FocusManager.instance.primaryFocus!.context!
+              .findAncestorWidgetOfExactType<Pressable>(),
+          isNull,
+        );
+        await tester.pumpWidget(const SizedBox.shrink());
+      }
+    });
+
+    testWidgets('Enter and Space choose the focused tab', (tester) async {
+      final taps = <int>[];
+      // Nothing selected: the first tab is the stop.
+      await pumpFinesse(tester, bar(selectedIndex: -1, onSelected: taps.add));
       await tester.sendKeyEvent(LogicalKeyboardKey.tab);
       await tester.pump();
       await tester.sendKeyEvent(LogicalKeyboardKey.enter);
-      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
-      await tester.pump();
       await tester.sendKeyEvent(LogicalKeyboardKey.space);
-      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
-      await tester.pump();
-      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
-      expect(taps, [0, 1, 2]);
+      expect(taps, [0, 0]);
     });
 
     testWidgets('without onSelected the tabs are inert', (tester) async {
@@ -508,7 +617,7 @@ void main() {
           bar(selectedIndex: 1, onSelected: (_) {}),
           theme: ThemeData(brightness: brightness),
         );
-        final s = themeOf(tester, find.byType(TabBar)).colorScheme;
+        final s = themeOf(tester, find.byType(TabBar<int>)).colorScheme;
 
         expect(styleOf(tester, 'About').color, s.foreground);
         expect(styleOf(tester, 'About').fontWeight, FontWeight.w600);
@@ -535,7 +644,7 @@ void main() {
     ) async {
       useTraditionalHighlights();
       await pumpFinesse(tester, bar(onSelected: (_) {}));
-      final s = themeOf(tester, find.byType(TabBar)).colorScheme;
+      final s = themeOf(tester, find.byType(TabBar<int>)).colorScheme;
       expect(styleOf(tester, 'Jobs').color, s.mutedForeground);
 
       final gesture = await hoverAt(
@@ -558,7 +667,7 @@ void main() {
       tester,
     ) async {
       await pumpFinesse(tester, bar());
-      final theme = themeOf(tester, find.byType(TabBar));
+      final theme = themeOf(tester, find.byType(TabBar<int>));
       expect(styleOf(tester, 'Posts').fontSize, theme.textTheme.large.fontSize);
       expect(styleOf(tester, 'Posts').height, 1);
     });
@@ -576,7 +685,7 @@ void main() {
         tester,
         bar(selectedIndex: 1, labelStyle: style, onSelected: (_) {}),
       );
-      final s = themeOf(tester, find.byType(TabBar)).colorScheme;
+      final s = themeOf(tester, find.byType(TabBar<int>)).colorScheme;
       for (final label in labels) {
         expect(styleOf(tester, label).fontSize, 13, reason: label);
         expect(styleOf(tester, label).letterSpacing, .4, reason: label);
@@ -588,7 +697,7 @@ void main() {
       expect(styleOf(tester, 'Posts').fontWeight, FontWeight.w500);
       expect(styleOf(tester, 'Posts').color, s.mutedForeground);
       // The bar's height does not follow the font size.
-      expect(tester.getSize(find.byType(TabBar)).height, 48 + 1);
+      expect(tester.getSize(find.byType(TabBar<int>)).height, 48 + 1);
     });
   });
 
@@ -623,7 +732,7 @@ void main() {
       tester,
     ) async {
       await pumpFinesse(tester, bar());
-      final s = themeOf(tester, find.byType(TabBar)).colorScheme;
+      final s = themeOf(tester, find.byType(TabBar<int>)).colorScheme;
       BoxDecoration decoration() =>
           tester.widget<MovingIndicatorTarget>(indicator()).decoration
               as BoxDecoration;
@@ -643,7 +752,7 @@ void main() {
             bar(showBorder: showBorder, expand: expand),
           );
           final reason = 'showBorder: $showBorder, expand: $expand';
-          final box = tester.getRect(find.byType(TabBar));
+          final box = tester.getRect(find.byType(TabBar<int>));
           final tab = tester.getRect(find.byType(Pressable).first);
           final line = tester.getRect(indicator());
 
@@ -669,11 +778,11 @@ void main() {
       tester,
     ) async {
       await pumpFinesse(tester, bar());
-      final s = themeOf(tester, find.byType(TabBar)).colorScheme;
+      final s = themeOf(tester, find.byType(TabBar<int>)).colorScheme;
       final container = tester.widget<Container>(
         find
             .descendant(
-              of: find.byType(TabBar),
+              of: find.byType(TabBar<int>),
               matching: find.byType(Container),
             )
             .first,
@@ -684,7 +793,7 @@ void main() {
       expect(border.top, BorderSide.none);
       // The hairline is added under the tabs, not taken out of them: it is
       // the row between the tabs' bottom edge and the bar's.
-      final box = tester.getRect(find.byType(TabBar));
+      final box = tester.getRect(find.byType(TabBar<int>));
       expect(box.height, 49);
       for (var i = 0; i < 3; i++) {
         final tab = tester.getRect(find.byType(Pressable).at(i));
@@ -700,13 +809,13 @@ void main() {
       final container = tester.widget<Container>(
         find
             .descendant(
-              of: find.byType(TabBar),
+              of: find.byType(TabBar<int>),
               matching: find.byType(Container),
             )
             .first,
       );
       expect((container.decoration! as BoxDecoration).border, isNull);
-      final box = tester.getRect(find.byType(TabBar));
+      final box = tester.getRect(find.byType(TabBar<int>));
       expect(box.height, 48);
       expect(tester.getRect(find.byType(Pressable).first).bottom, box.bottom);
     });
@@ -763,6 +872,61 @@ void main() {
       expect(find.bySemanticsLabel('Posts'), findsOneWidget);
       expect(find.bySemanticsLabel('About'), findsOneWidget);
       expect(find.bySemanticsLabel('Jobs'), findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets('is a tab bar of tabs to a screen reader in both looks, '
+        'with a tooltip, a leading icon and a disabled tab', (tester) async {
+      final handle = tester.ensureSemantics();
+      for (final variant in TabBarVariant.values) {
+        await pumpFinesse(
+          tester,
+          Align(
+            alignment: Alignment.topLeft,
+            child: SizedBox(
+              width: 360,
+              child: TabBar<String>(
+                variant: variant,
+                value: 'b',
+                onChanged: (_) {},
+                tabs: const [
+                  Tab(
+                    value: 'a',
+                    tooltip: 'First',
+                    leading: PhosphorIcon(PhosphorIconsRegular.tray),
+                    child: Text('A'),
+                  ),
+                  Tab(value: 'b', semanticLabel: 'Second', child: Text('B')),
+                  Tab(value: 'c', enabled: false, child: Text('C')),
+                ],
+              ),
+            ),
+          ),
+        );
+        expect(tester.takeException(), isNull, reason: '$variant');
+        final bar = tester.getSemantics(
+          find.byWidgetPredicate(
+            (w) =>
+                w is Semantics && w.properties.role == ui.SemanticsRole.tabBar,
+          ),
+        );
+        final roles = <ui.SemanticsRole>[];
+        bar.visitChildren((child) {
+          roles.add(child.getSemanticsData().role);
+          return true;
+        });
+        expect(roles, List.filled(3, ui.SemanticsRole.tab), reason: '$variant');
+        final second = tester
+            .getSemantics(find.bySemanticsLabel('Second'))
+            .getSemanticsData();
+        expect(second.flagsCollection.isSelected, ui.Tristate.isTrue);
+        expect(second.hasAction(ui.SemanticsAction.tap), isTrue);
+        final third = tester
+            .getSemantics(find.bySemanticsLabel('C'))
+            .getSemanticsData();
+        expect(third.flagsCollection.isEnabled, ui.Tristate.isFalse);
+        await tester.pumpWidget(const SizedBox.shrink());
+      }
       handle.dispose();
     });
 

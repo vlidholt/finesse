@@ -26,7 +26,11 @@ mixin _$MenubarTheme {
     }
 
     return MenubarTheme(
-      radius: BorderRadiusGeometry.lerp(a.radius, b.radius, t),
+      borderRadius: BorderRadiusGeometry.lerp(
+        a.borderRadius,
+        b.borderRadius,
+        t,
+      ),
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
       backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
       border: FinesseBorder.lerp(a.border, b.border, t),
@@ -36,14 +40,13 @@ mixin _$MenubarTheme {
         b.contextMenuPadding,
         t,
       ),
-      effects: t < 0.5 ? a.effects : b.effects,
       shadows: t < 0.5 ? a.shadows : b.shadows,
       decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
       filter: t < 0.5 ? a.filter : b.filter,
       anchor: t < 0.5 ? a.anchor : b.anchor,
       buttonVariant: t < 0.5 ? a.buttonVariant : b.buttonVariant,
       buttonSize: t < 0.5 ? a.buttonSize : b.buttonSize,
-      buttonCursor: t < 0.5 ? a.buttonCursor : b.buttonCursor,
+      buttonMouseCursor: t < 0.5 ? a.buttonMouseCursor : b.buttonMouseCursor,
       buttonWidth: lerpDouble$(a.buttonWidth, b.buttonWidth, t),
       buttonHeight: lerpDouble$(a.buttonHeight, b.buttonHeight, t),
       buttonPadding: EdgeInsetsGeometry.lerp(
@@ -107,32 +110,25 @@ mixin _$MenubarTheme {
       buttonCrossAxisAlignment: t < 0.5
           ? a.buttonCrossAxisAlignment
           : b.buttonCrossAxisAlignment,
-      buttonHoverStrategies: t < 0.5
-          ? a.buttonHoverStrategies
-          : b.buttonHoverStrategies,
-      buttonTextDirection: t < 0.5
-          ? a.buttonTextDirection
-          : b.buttonTextDirection,
       buttonExpands: t < 0.5 ? a.buttonExpands : b.buttonExpands,
       selectOnHover: t < 0.5 ? a.selectOnHover : b.selectOnHover,
     );
   }
 
   MenubarTheme copyWith({
-    BorderRadiusGeometry? radius,
+    BorderRadiusGeometry? borderRadius,
     EdgeInsetsGeometry? padding,
     Color? backgroundColor,
     FinesseBorder? border,
     BoxConstraints? constraints,
     EdgeInsetsGeometry? contextMenuPadding,
-    List<Effect<dynamic>>? effects,
     List<BoxShadow>? shadows,
     FinesseDecoration? decoration,
     ImageFilter? filter,
     AnchorBase? anchor,
     ButtonVariant? buttonVariant,
     ButtonSize? buttonSize,
-    MouseCursor? buttonCursor,
+    MouseCursor? buttonMouseCursor,
     double? buttonWidth,
     double? buttonHeight,
     EdgeInsetsGeometry? buttonPadding,
@@ -152,28 +148,25 @@ mixin _$MenubarTheme {
     double? buttonGap,
     MainAxisAlignment? buttonMainAxisAlignment,
     CrossAxisAlignment? buttonCrossAxisAlignment,
-    HoverStrategies? buttonHoverStrategies,
-    TextDirection? buttonTextDirection,
     bool? buttonExpands,
     bool? selectOnHover,
   }) {
     final _this = (this as MenubarTheme);
 
     return MenubarTheme(
-      radius: radius ?? _this.radius,
+      borderRadius: borderRadius ?? _this.borderRadius,
       padding: padding ?? _this.padding,
       backgroundColor: backgroundColor ?? _this.backgroundColor,
       border: border ?? _this.border,
       constraints: constraints ?? _this.constraints,
       contextMenuPadding: contextMenuPadding ?? _this.contextMenuPadding,
-      effects: effects ?? _this.effects,
       shadows: shadows ?? _this.shadows,
       decoration: decoration ?? _this.decoration,
       filter: filter ?? _this.filter,
       anchor: anchor ?? _this.anchor,
       buttonVariant: buttonVariant ?? _this.buttonVariant,
       buttonSize: buttonSize ?? _this.buttonSize,
-      buttonCursor: buttonCursor ?? _this.buttonCursor,
+      buttonMouseCursor: buttonMouseCursor ?? _this.buttonMouseCursor,
       buttonWidth: buttonWidth ?? _this.buttonWidth,
       buttonHeight: buttonHeight ?? _this.buttonHeight,
       buttonPadding: buttonPadding ?? _this.buttonPadding,
@@ -203,9 +196,6 @@ mixin _$MenubarTheme {
           buttonMainAxisAlignment ?? _this.buttonMainAxisAlignment,
       buttonCrossAxisAlignment:
           buttonCrossAxisAlignment ?? _this.buttonCrossAxisAlignment,
-      buttonHoverStrategies:
-          buttonHoverStrategies ?? _this.buttonHoverStrategies,
-      buttonTextDirection: buttonTextDirection ?? _this.buttonTextDirection,
       buttonExpands: buttonExpands ?? _this.buttonExpands,
       selectOnHover: selectOnHover ?? _this.selectOnHover,
     );
@@ -223,20 +213,19 @@ mixin _$MenubarTheme {
     }
 
     return copyWith(
-      radius: other.radius,
+      borderRadius: other.borderRadius,
       padding: other.padding,
       backgroundColor: other.backgroundColor,
       border: _this.border?.merge(other.border) ?? other.border,
       constraints: other.constraints,
       contextMenuPadding: other.contextMenuPadding,
-      effects: other.effects,
       shadows: other.shadows,
       decoration: _this.decoration?.merge(other.decoration) ?? other.decoration,
       filter: other.filter,
       anchor: other.anchor,
       buttonVariant: other.buttonVariant,
       buttonSize: other.buttonSize,
-      buttonCursor: other.buttonCursor,
+      buttonMouseCursor: other.buttonMouseCursor,
       buttonWidth: other.buttonWidth,
       buttonHeight: other.buttonHeight,
       buttonPadding: other.buttonPadding,
@@ -258,8 +247,6 @@ mixin _$MenubarTheme {
       buttonGap: other.buttonGap,
       buttonMainAxisAlignment: other.buttonMainAxisAlignment,
       buttonCrossAxisAlignment: other.buttonCrossAxisAlignment,
-      buttonHoverStrategies: other.buttonHoverStrategies,
-      buttonTextDirection: other.buttonTextDirection,
       buttonExpands: other.buttonExpands,
       selectOnHover: other.selectOnHover,
     );
@@ -278,20 +265,19 @@ mixin _$MenubarTheme {
     final _this = (this as MenubarTheme);
     final _other = (other as MenubarTheme);
 
-    return _other.radius == _this.radius &&
+    return _other.borderRadius == _this.borderRadius &&
         _other.padding == _this.padding &&
         _other.backgroundColor == _this.backgroundColor &&
         _other.border == _this.border &&
         _other.constraints == _this.constraints &&
         _other.contextMenuPadding == _this.contextMenuPadding &&
-        _other.effects == _this.effects &&
         _other.shadows == _this.shadows &&
         _other.decoration == _this.decoration &&
         _other.filter == _this.filter &&
         _other.anchor == _this.anchor &&
         _other.buttonVariant == _this.buttonVariant &&
         _other.buttonSize == _this.buttonSize &&
-        _other.buttonCursor == _this.buttonCursor &&
+        _other.buttonMouseCursor == _this.buttonMouseCursor &&
         _other.buttonWidth == _this.buttonWidth &&
         _other.buttonHeight == _this.buttonHeight &&
         _other.buttonPadding == _this.buttonPadding &&
@@ -314,8 +300,6 @@ mixin _$MenubarTheme {
         _other.buttonGap == _this.buttonGap &&
         _other.buttonMainAxisAlignment == _this.buttonMainAxisAlignment &&
         _other.buttonCrossAxisAlignment == _this.buttonCrossAxisAlignment &&
-        _other.buttonHoverStrategies == _this.buttonHoverStrategies &&
-        _other.buttonTextDirection == _this.buttonTextDirection &&
         _other.buttonExpands == _this.buttonExpands &&
         _other.selectOnHover == _this.selectOnHover;
   }
@@ -326,20 +310,19 @@ mixin _$MenubarTheme {
 
     return Object.hashAll([
       runtimeType,
-      _this.radius,
+      _this.borderRadius,
       _this.padding,
       _this.backgroundColor,
       _this.border,
       _this.constraints,
       _this.contextMenuPadding,
-      _this.effects,
       _this.shadows,
       _this.decoration,
       _this.filter,
       _this.anchor,
       _this.buttonVariant,
       _this.buttonSize,
-      _this.buttonCursor,
+      _this.buttonMouseCursor,
       _this.buttonWidth,
       _this.buttonHeight,
       _this.buttonPadding,
@@ -359,8 +342,6 @@ mixin _$MenubarTheme {
       _this.buttonGap,
       _this.buttonMainAxisAlignment,
       _this.buttonCrossAxisAlignment,
-      _this.buttonHoverStrategies,
-      _this.buttonTextDirection,
       _this.buttonExpands,
       _this.selectOnHover,
     ]);

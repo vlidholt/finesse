@@ -1,15 +1,15 @@
+import 'package:finesse/src/components/bottom_bar_surface.dart';
 import 'package:finesse/src/components/indicator_badge.dart';
 import 'package:finesse/src/raw_components/pressable.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/backdrop.dart';
 import 'package:finesse/src/utils/motion_color.dart';
 import 'package:finesse/src/utils/moving_indicator.dart';
-import 'package:finesse/src/utils/shadow.dart';
 import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/widgets.dart';
 
-/// One place a [NavigationBar] or [BottomNavigationBar] can take the user.
+/// One place a [NavigationBar], a [BottomNavigationBar] or a
+/// `NavigationRail` can take the user.
 @immutable
 class NavigationDestination {
   /// Creates a destination.
@@ -21,6 +21,7 @@ class NavigationDestination {
     this.showBadge = false,
     this.showInTopBar = true,
     this.showInBottomBar = true,
+    this.showInRail,
   });
 
   /// The icon, usually an [Icon]. Any widget works — a bottom bar's "me"
@@ -31,8 +32,8 @@ class NavigationDestination {
   /// of [icon]. Defaults to [icon].
   final Widget? selectedIcon;
 
-  /// The destination's name. A top bar shows it under the icon; a bottom bar
-  /// reads it to assistive technology.
+  /// The destination's name. A top bar and a rail show it with the icon; a
+  /// bottom bar reads it to assistive technology unless it shows labels.
   final String label;
 
   /// A count shown as a badge on the icon; null or zero shows none.
@@ -46,10 +47,15 @@ class NavigationDestination {
 
   /// Whether a `NavigationScaffold` lists the destination in its bottom bar.
   final bool showInBottomBar;
+
+  /// Whether a `NavigationScaffold` lists the destination in its rail.
+  /// Defaults to [showInTopBar]: a rail is the top bar's destinations down
+  /// the side.
+  final bool? showInRail;
 }
 
-/// The primary action in the middle of a [BottomNavigationBar]: compose,
-/// create, scan.
+/// The primary action in the middle of a [BottomNavigationBar] or at the
+/// top of a `NavigationRail`: compose, create, scan.
 @immutable
 class NavigationAction {
   /// Creates an action.
@@ -69,7 +75,13 @@ class NavigationAction {
   final VoidCallback? onPressed;
 }
 
-Widget _badged(NavigationDestination destination, Widget icon, Offset offset) {
+/// [icon] with [destination]'s badge on its corner. Shared by the
+/// navigation bars and the rail; not exported.
+Widget badgedDestinationIcon(
+  NavigationDestination destination,
+  Widget icon,
+  Offset offset,
+) {
   final count = destination.badgeCount ?? 0;
   // The badge stays in the tree while it has nothing to show, so it pops
   // in when the first notification arrives and out when the last is read.
@@ -90,19 +102,32 @@ Widget _badged(NavigationDestination destination, Widget icon, Offset offset) {
 /// its state — an avatar does not reload — when the other comes or goes.
 /// Deselecting only fades: the pop belongs to the destination the user
 /// chose.
-class _DestinationIcon extends StatelessWidget {
-  const _DestinationIcon({
+///
+/// Shared by the navigation bars and the rail; not exported.
+class DestinationIcon extends StatelessWidget {
+  /// Creates a destination's icon.
+  const DestinationIcon({
     required this.selected,
     required this.icon,
     required this.selectedIcon,
     required this.color,
     required this.size,
+    super.key,
   });
 
+  /// Whether the destination is the selected one.
   final bool selected;
+
+  /// The icon at rest.
   final Widget icon;
+
+  /// The icon while selected; [icon] when null.
   final Widget? selectedIcon;
+
+  /// The icon's colour, which fades when it changes.
   final Color color;
+
+  /// The icon's size.
   final double size;
 
   static const _restKey = ValueKey('rest');
@@ -168,12 +193,12 @@ class _DestinationIcon extends StatelessWidget {
 ///   onDestinationSelected: (i) => setState(() => index = i),
 ///   destinations: const [
 ///     NavigationDestination(
-///       icon: Icon(PhosphorIconsRegular.house),
-///       selectedIcon: Icon(PhosphorIconsFill.house),
+///       icon: PhosphorIcon(PhosphorIconsRegular.house),
+///       selectedIcon: PhosphorIcon(PhosphorIconsFill.house),
 ///       label: 'Home',
 ///     ),
 ///     NavigationDestination(
-///       icon: Icon(PhosphorIconsRegular.chatCircleDots),
+///       icon: PhosphorIcon(PhosphorIconsRegular.chatCircleDots),
 ///       label: 'Messages',
 ///       badgeCount: 3,
 ///     ),
@@ -261,9 +286,9 @@ class NavigationBar extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         spacing: nav.gap ?? 4,
                         children: [
-                          _badged(
+                          badgedDestinationIcon(
                             destination,
-                            _DestinationIcon(
+                            DestinationIcon(
                               selected: selected,
                               icon: destination.icon,
                               selectedIcon: destination.selectedIcon,
@@ -341,7 +366,7 @@ class NavigationBar extends StatelessWidget {
 ///   selectedIndex: index,
 ///   onDestinationSelected: (i) => setState(() => index = i),
 ///   action: NavigationAction(
-///     icon: const Icon(PhosphorIconsRegular.plus),
+///     icon: const PhosphorIcon(PhosphorIconsRegular.plus),
 ///     label: 'Create post',
 ///     onPressed: _compose,
 ///   ),
@@ -362,6 +387,7 @@ class BottomNavigationBar extends StatelessWidget {
     this.onDestinationSelected,
     this.action,
     this.floating,
+    this.showLabels,
     super.key,
   });
 
@@ -381,27 +407,35 @@ class BottomNavigationBar extends StatelessWidget {
   /// Whether the bar floats as a pill. Defaults to the theme's.
   final bool? floating;
 
+  /// Whether each destination shows its label under its icon. Defaults to
+  /// the theme's, which is icons only. A bar with labels is as much
+  /// taller as a line of the label.
+  final bool? showLabels;
+
+  /// How much taller a bar with labels is than one without, in [context]:
+  /// the gap under the icon and one line of the label.
+  static double _labelExtent(BuildContext context) {
+    final theme = Theme.of(context);
+    final style =
+        theme.bottomNavigationBarTheme.labelStyle ?? theme.textTheme.caption;
+    return _labelGap +
+        MediaQuery.textScalerOf(context).scale(style.fontSize ?? 12) *
+            (style.height ?? 1.2) +
+        _labelGap;
+  }
+
+  static const _labelGap = 2.0;
+
   /// The height a [BottomNavigationBar] takes in [context], including its
   /// margin and the bottom safe area. A `Scaffold` uses it to inset its body.
   static double heightOf(BuildContext context) {
-    final theme = Theme.of(context);
-    final bar = theme.bottomNavigationBarTheme;
-    final padding = (bar.padding ?? const EdgeInsets.all(6)).resolve(
-      Directionality.of(context),
-    );
-    final floating = bar.floating ?? true;
-    final margin = floating
-        ? (bar.margin ?? const EdgeInsets.only(bottom: 22)).resolve(
-            Directionality.of(context),
-          )
-        : EdgeInsets.zero;
+    final bar = Theme.of(context).bottomNavigationBarTheme;
     return (bar.itemHeight ?? 48) +
-        padding.vertical +
-        margin.vertical +
-        MediaQuery.paddingOf(context).bottom +
-        // The outline: all round a floating pill, along the top of a docked
-        // bar.
-        (floating ? 2 : 1);
+        ((bar.showLabels ?? false) ? _labelExtent(context) : 0) +
+        BottomBarSurface.extentAround(
+          context,
+          floating: BottomBarSurface.floatsIn(context),
+        );
   }
 
   @override
@@ -421,7 +455,13 @@ class BottomNavigationBar extends StatelessWidget {
     // screen: on a narrow phone the items give up width evenly rather than
     // overflow.
     final itemCount = destinations.length + (action == null ? 0 : 1);
-    var itemWidth = bar.itemWidth ?? 52;
+    final labeled = showLabels ?? bar.showLabels ?? false;
+    final baseWidth = bar.itemWidth ?? 52;
+    var itemWidth = labeled
+        ? bar.labeledItemWidth ?? (baseWidth + 16)
+        : baseWidth;
+    final labelStyle = bar.labelStyle ?? theme.textTheme.caption;
+    final motion = Motion.of(context);
     if (isFloating && maxWidth.isFinite && itemCount > 0) {
       const sideMargin = 16.0;
       final available =
@@ -433,13 +473,8 @@ class BottomNavigationBar extends StatelessWidget {
       final fit = available / itemCount;
       if (fit < itemWidth) itemWidth = fit < 0 ? 0 : fit;
     }
-    final radius = isFloating
-        ? bar.radius ?? theme.radii.full
-        : BorderRadius.zero;
     final itemRadius = isFloating ? theme.radii.full : theme.radii.lg;
-    final bottomInset = MediaQuery.paddingOf(context).bottom;
 
-    final motion = Motion.of(context);
     // The lens: one pill behind the selected destination, painted by the
     // row and travelling between them.
     final lens = BoxDecoration(
@@ -473,46 +508,90 @@ class BottomNavigationBar extends StatelessWidget {
           final color =
               background ??
               (hovered ? theme.colorScheme.muted : const Color(0x00000000));
-          return FocusRing(
-            visible: states.contains(WidgetState.focused),
-            borderRadius: itemRadius,
-            inset: true,
-            child: SizedBox(
-              width: isFloating ? itemWidth : null,
-              height: bar.itemHeight ?? 48,
-              // A cross-fade, not `Color.lerp`: from nothing to the wash
-              // that one passes through a half-opaque dark grey, which is
-              // the flash a tap on a destination used to make.
-              child: AnimatedFill(
-                duration: motion.fast,
-                color: color,
-                borderRadius: itemRadius,
-                child: Center(
-                  child: ExcludeSemantics(
-                    child: icon(
-                      foreground ??
-                          (isSelected
-                              ? bar.selectedForegroundColor ??
-                                    theme.colorScheme.tint
-                              : bar.foregroundColor ??
-                                    theme.colorScheme.foregroundSubtle),
-                      iconSize ?? bar.iconSize ?? 26,
-                    ),
-                  ),
+          final ink =
+              foreground ??
+              (isSelected
+                  ? bar.selectedForegroundColor ?? theme.colorScheme.tint
+                  : bar.foregroundColor ?? theme.colorScheme.foregroundSubtle);
+          final box = SizedBox(
+            width: isFloating ? itemWidth : null,
+            height: bar.itemHeight ?? 48,
+            // A cross-fade, not `Color.lerp`: from nothing to the wash
+            // that one passes through a half-opaque dark grey, which is
+            // the flash a tap on a destination used to make.
+            child: AnimatedFill(
+              color: color,
+              borderRadius: itemRadius,
+              child: Center(
+                child: ExcludeSemantics(
+                  child: icon(ink, iconSize ?? bar.iconSize ?? 26),
                 ),
               ),
             ),
           );
+          return FocusRing(
+            visible: states.contains(WidgetState.focused),
+            borderRadius: itemRadius,
+            inset: true,
+            child: !labeled
+                ? box
+                : Column(
+                    mainAxisSize: MainAxisSize.min,
+                    spacing: _labelGap,
+                    children: [
+                      box,
+                      // Under the lens, not on it. The action has none: it
+                      // is a button, not a place.
+                      Container(
+                        width: isFloating ? itemWidth : null,
+                        // A little air between the label and the bar's
+                        // rounded edge.
+                        padding: const EdgeInsets.only(bottom: _labelGap),
+                        child: AnimatedColorBuilder(
+                          color: selected == null
+                              ? const Color(0x00000000)
+                              : ink,
+                          duration: motion.fast,
+                          curve: motion.standard,
+                          builder: (context, color, _) => Text(
+                            selected == null ? '' : label,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                            style: labelStyle.copyWith(color: color),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+          );
         },
       );
       if (selected != null) {
-        // Around the pressable, not inside it: a press shrinks the icon,
+        // Outside the pressable, not inside it: a press shrinks the icon,
         // not the lens under it.
-        child = MovingIndicatorTarget(
-          selected: isSelected,
-          decoration: lens,
-          child: child,
-        );
+        child = labeled
+            ? Stack(
+                children: [
+                  // Behind the icon only; the label sits below the lens.
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: bar.itemHeight ?? 48,
+                    child: MovingIndicatorTarget(
+                      selected: isSelected,
+                      decoration: lens,
+                    ),
+                  ),
+                  child,
+                ],
+              )
+            : MovingIndicatorTarget(
+                selected: isSelected,
+                decoration: lens,
+                child: child,
+              );
       }
       return isFloating ? child : Expanded(child: child);
     }
@@ -538,9 +617,9 @@ class BottomNavigationBar extends StatelessWidget {
             iconSize: bar.actionIconSize ?? 22,
           ),
         item(
-          icon: (color, size) => _badged(
+          icon: (color, size) => badgedDestinationIcon(
             destination,
-            _DestinationIcon(
+            DestinationIcon(
               selected: index == selectedIndex,
               icon: destination.icon,
               selectedIcon: destination.selectedIcon,
@@ -572,53 +651,14 @@ class BottomNavigationBar extends StatelessWidget {
         ),
     ];
 
-    final surface = Backdrop(
-      blur: bar.blur ?? 0,
-      saturation: bar.saturation ?? 1,
-      borderRadius: radius,
-      child: Container(
-        padding: (bar.padding ?? const EdgeInsets.all(6)).add(
-          EdgeInsets.only(bottom: isFloating ? 0 : bottomInset),
-        ),
-        decoration: BoxDecoration(
-          color: bar.backgroundColor ?? theme.colorScheme.card,
-          borderRadius: radius,
-          border: isFloating
-              ? Border.all(color: bar.borderColor ?? theme.colorScheme.border)
-              : Border(
-                  top: BorderSide(
-                    color: bar.borderColor ?? theme.colorScheme.border,
-                  ),
-                ),
-        ),
-        child: MovingIndicator(
-          child: Row(
-            mainAxisSize: isFloating ? MainAxisSize.min : MainAxisSize.max,
-            spacing: gap,
-            children: children,
-          ),
-        ),
-      ),
-    );
-
-    final semantic = Semantics(
-      container: true,
-      explicitChildNodes: true,
-      child: surface,
-    );
-    if (!isFloating) return semantic;
-    return Padding(
-      padding: (bar.margin ?? const EdgeInsets.only(bottom: 22)).add(
-        EdgeInsets.only(bottom: bottomInset),
-      ),
-      child: Center(
-        heightFactor: 1,
-        child: DecoratedBox(
-          decoration: ShadowDecoration.box(
-            borderRadius: radius,
-            shadows: theme.style.floatingShadow,
-          ),
-          child: semantic,
+    return BottomBarSurface(
+      floating: isFloating,
+      child: MovingIndicator(
+        child: Row(
+          mainAxisSize: isFloating ? MainAxisSize.min : MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: gap,
+          children: children,
         ),
       ),
     );

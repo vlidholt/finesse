@@ -1,5 +1,6 @@
 import 'package:example/strand/data/jobs_data.dart';
 import 'package:example/strand/widgets/jobs_state.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -13,7 +14,7 @@ Future<void> showJobFiltersDialog(BuildContext context, JobsState state) {
       builder: (context, _) => Dialog(
         title: const Text('All filters'),
         description: const Text('Narrow the results to roles that fit.'),
-        constraints: const BoxConstraints(maxWidth: 440),
+        style: DialogTheme(constraints: const BoxConstraints(maxWidth: 440)),
         scrollable: true,
         actions: [
           Button(
@@ -27,25 +28,26 @@ Future<void> showJobFiltersDialog(BuildContext context, JobsState state) {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             for (final filter in JobsData.filters)
-              Row(
-                children: [
-                  if (filter.icon case final icon?) ...[
-                    Icon(
-                      icon,
-                      size: 18,
-                      color: Theme.of(context).colorScheme.mutedForeground,
-                    ),
-                    const Gap.sm(),
-                  ],
-                  Expanded(child: Text(filter.label)),
-                  Semantics(
-                    label: filter.label,
-                    child: Switch(
+              // One semantic node a row: the visible label names the
+              // switch, and is read once.
+              MergeSemantics(
+                child: Row(
+                  children: [
+                    if (filter.icon case final icon?) ...[
+                      PhosphorIcon(
+                        icon,
+                        size: Theme.of(context).glyph,
+                        color: Theme.of(context).colorScheme.mutedForeground,
+                      ),
+                      const Gap.sm(),
+                    ],
+                    Expanded(child: Text(filter.label)),
+                    Switch(
                       value: state.isFilterOn(filter),
                       onChanged: (_) => state.toggleFilter(filter),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
           ],
         ),

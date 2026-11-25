@@ -61,4 +61,3 @@ class ResizableBasicExample extends StatelessWidget {
   }
 }
 ```
-

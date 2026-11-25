@@ -5,15 +5,22 @@ import 'dart:ui' as ui;
 
 import 'package:boxy/flex.dart';
 import 'package:finesse/src/components/context_menu.dart';
+import 'package:finesse/src/components/decorator.dart';
 import 'package:finesse/src/components/disabled.dart';
+import 'package:finesse/src/components/text_magnifier.dart';
+import 'package:finesse/src/components/text_selection.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/i18n/strings.g.dart';
+import 'package:finesse/src/icons/phosphor_icon.dart';
+import 'package:finesse/src/icons/phosphor_icons_regular.dart';
 import 'package:finesse/src/raw_components/keyboard_toolbar.dart';
 import 'package:finesse/src/raw_components/portal.dart';
+import 'package:finesse/src/raw_components/pressable.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/clipboard/clipboard_service.dart';
 import 'package:finesse/src/utils/extensions/text_style.dart';
+import 'package:finesse/src/utils/pop_in.dart';
 import 'package:finesse/src/utils/separated_iterable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -31,6 +38,30 @@ String? _localizedLabel(
     ContextMenuButtonType.selectAll => l.input.selectAll,
     _ => null,
   };
+}
+
+/// The `scrollPadding` of an input that is given none: 20 on every side,
+/// and at the top and the bottom what lies over the scroll view the input
+/// is in.
+EdgeInsets _defaultScrollPadding(BuildContext context) {
+  var covered = MediaQuery.paddingOf(context);
+  // A `ListView` moves the padding into its own content and takes it off
+  // for its children, so in a list the input is told of none. What lies
+  // over the viewport is what the scroll view itself is told.
+  final scrollable = Scrollable.maybeOf(context, axis: Axis.vertical);
+  if (scrollable != null) {
+    final own = context.getElementForInheritedWidgetOfExactType<MediaQuery>();
+    final outer = scrollable.context
+        .getElementForInheritedWidgetOfExactType<MediaQuery>();
+    if (outer != null && !identical(outer, own)) {
+      // The aspects of a `MediaQuery` are its own to name: this follows
+      // every change of the outer one. Under a `Scaffold` that is the
+      // page's insets and little else.
+      final media = context.dependOnInheritedElement(outer) as MediaQuery;
+      covered = media.data.padding;
+    }
+  }
+  return EdgeInsets.fromLTRB(20, 20 + covered.top, 20, 20 + covered.bottom);
 }
 
 /// A customizable text input field with optional leading and trailing widgets.
@@ -84,13 +115,13 @@ class TextField extends StatefulWidget {
     this.selectionHeightStyle = ui.BoxHeightStyle.tight,
     this.selectionWidthStyle = ui.BoxWidthStyle.tight,
     this.keyboardAppearance,
-    this.scrollPadding = const EdgeInsets.all(20),
+    this.scrollPadding,
     this.dragStartBehavior = DragStartBehavior.start,
     bool? enableInteractiveSelection,
     this.selectionControls,
-    this.onPressed,
-    this.onPressedAlwaysCalled = false,
-    this.onPressedOutside,
+    this.onTap,
+    this.onTapAlwaysCalled = false,
+    this.onTapOutside,
     this.mouseCursor,
     this.scrollController,
     this.scrollPhysics,
@@ -102,7 +133,7 @@ class TextField extends StatefulWidget {
     this.enableIMEPersonalizedLearning = true,
     this.contextMenuBuilder,
     this.spellCheckConfiguration,
-    this.magnifierConfiguration = TextMagnifierConfiguration.disabled,
+    this.magnifierConfiguration,
     this.selectionColor,
     this.padding,
     this.leading,
@@ -128,6 +159,10 @@ class TextField extends StatefulWidget {
     this.useBrowserContextMenu,
     this.onPasteFiles,
     this.onPasteFilesError,
+    this.clearable = false,
+    this.onCleared,
+    this.revealable = false,
+    this.showCounter = false,
   }) : smartDashesType =
            smartDashesType ??
            (obscureText ? SmartDashesType.disabled : SmartDashesType.enabled),
@@ -142,6 +177,76 @@ class TextField extends StatefulWidget {
        assert(
          initialValue == null || controller == null,
          'Either initialValue or controller must be specified',
+       );
+
+  /// Creates a field for a password: its text is obscured, a trailing
+  /// button shows and hides it, and autocorrect and suggestions are off.
+  ///
+  /// The keyboard is the platform's password keyboard and the field is
+  /// offered to the password manager ([AutofillHints.password]; pass
+  /// [AutofillHints.newPassword] in a sign-up form).
+  ///
+  /// ```dart
+  /// TextField.password(
+  ///   placeholder: const Text('Password'),
+  ///   onSubmitted: signIn,
+  /// )
+  /// ```
+  const TextField.password({
+    Key? key,
+    String? initialValue,
+    Widget? placeholder,
+    TextEditingController? controller,
+    FocusNode? focusNode,
+    FinesseDecoration? decoration,
+    TextInputAction? textInputAction,
+    TextStyle? style,
+    bool readOnly = false,
+    bool autofocus = false,
+    String obscuringCharacter = '•',
+    int? maxLength,
+    ValueChanged<String>? onChanged,
+    VoidCallback? onEditingComplete,
+    ValueChanged<String>? onSubmitted,
+    List<TextInputFormatter>? inputFormatters,
+    bool enabled = true,
+    Iterable<String>? autofillHints = const [AutofillHints.password],
+    Widget? leading,
+    Widget? trailing,
+    bool clearable = false,
+    bool showCounter = false,
+    Object? groupId,
+    WidgetBuilder? keyboardToolbarBuilder,
+  }) : this(
+         key: key,
+         initialValue: initialValue,
+         placeholder: placeholder,
+         controller: controller,
+         focusNode: focusNode,
+         decoration: decoration,
+         textInputAction: textInputAction,
+         style: style,
+         readOnly: readOnly,
+         autofocus: autofocus,
+         obscuringCharacter: obscuringCharacter,
+         maxLength: maxLength,
+         onChanged: onChanged,
+         onEditingComplete: onEditingComplete,
+         onSubmitted: onSubmitted,
+         inputFormatters: inputFormatters,
+         enabled: enabled,
+         autofillHints: autofillHints,
+         leading: leading,
+         trailing: trailing,
+         clearable: clearable,
+         showCounter: showCounter,
+         groupId: groupId,
+         keyboardToolbarBuilder: keyboardToolbarBuilder,
+         obscureText: true,
+         revealable: true,
+         autocorrect: false,
+         enableSuggestions: false,
+         keyboardType: TextInputType.visiblePassword,
        );
 
   /// {@template TextField.initialValue}
@@ -394,10 +499,16 @@ class TextField extends StatefulWidget {
   final Brightness? keyboardAppearance;
 
   /// {@template TextField.scrollPadding}
-  /// The padding applied around the input when scrolling to keep it visible.
-  /// Defaults to EdgeInsets.all(20).
+  /// The space kept around the input when a scroll view brings it into
+  /// view, as it does when the input takes the focus.
+  ///
+  /// Defaults to 20 on every side, and at the top and the bottom what
+  /// lies over the scroll view there as well — its `MediaQuery` padding,
+  /// which under a `Scaffold` is the app bar, the bottom bar and the
+  /// footer — so a focused input comes to rest clear of the bars, not
+  /// under them.
   /// {@endtemplate}
-  final EdgeInsets scrollPadding;
+  final EdgeInsets? scrollPadding;
 
   /// {@template TextField.dragStartBehavior}
   /// The behavior for starting a drag gesture.
@@ -412,28 +523,31 @@ class TextField extends StatefulWidget {
   final bool enableInteractiveSelection;
 
   /// {@template TextField.selectionControls}
-  /// Custom controls for text selection handles.
-  /// Defaults to platform-specific controls if not specified.
+  /// Builds the drag handles at the ends of a selection.
+  ///
+  /// Defaults to `FinesseTextSelectionControls.adaptive`: this system's
+  /// handles on iOS and Android, and none on a desktop, where a selection
+  /// is made with the pointer.
   /// {@endtemplate}
   final TextSelectionControls? selectionControls;
 
-  /// {@template TextField.onPressed}
+  /// {@template TextField.onTap}
   /// Callback invoked when the input field is tapped.
   /// Useful for custom tap handling, e.g., in read-only mode.
   /// {@endtemplate}
-  final GestureTapCallback? onPressed;
+  final GestureTapCallback? onTap;
 
-  /// {@template TextField.onPressedAlwaysCalled}
-  /// Whether [onPressed] is called even when selection is active.
+  /// {@template TextField.onTapAlwaysCalled}
+  /// Whether [onTap] is called even when selection is active.
   /// Defaults to false; if true, always triggers on tap.
   /// {@endtemplate}
-  final bool onPressedAlwaysCalled;
+  final bool onTapAlwaysCalled;
 
-  /// {@template TextField.onPressedOutside}
+  /// {@template TextField.onTapOutside}
   /// Callback invoked when tapping outside the input field.
   /// Useful for handling focus dismissal or other actions.
   /// {@endtemplate}
-  final TapRegionCallback? onPressedOutside;
+  final TapRegionCallback? onTapOutside;
 
   /// {@template TextField.mouseCursor}
   /// The cursor displayed when hovering over the input.
@@ -496,9 +610,13 @@ class TextField extends StatefulWidget {
   final bool enableIMEPersonalizedLearning;
 
   /// {@template TextField.contextMenuBuilder}
-  /// Custom builder for the context menu (e.g., copy/paste).
-  /// Defaults to a simple toolbar with copy/cut/paste buttons styled with
-  /// [Theme].
+  /// Builds the menu of a selection: cut, copy, paste and so on.
+  ///
+  /// Defaults to `TextFieldState.defaultContextMenuBuilder`, which follows
+  /// the platform: a horizontal `TextSelectionToolbar` over the selection
+  /// on iOS and Android, a `ContextMenu` at the pointer on a desktop. On
+  /// the web the browser's own menu is used instead (see
+  /// `TextField.useBrowserContextMenu`).
   /// {@endtemplate}
   final EditableTextContextMenuBuilder? contextMenuBuilder;
 
@@ -509,10 +627,14 @@ class TextField extends StatefulWidget {
   final SpellCheckConfiguration? spellCheckConfiguration;
 
   /// {@template TextField.magnifierConfiguration}
-  /// Configuration for the text magnifier.
-  /// Defaults to [TextMagnifierConfiguration.disabled].
+  /// The magnifier shown above the finger while the caret or a selection
+  /// handle is dragged.
+  ///
+  /// Defaults to `TextMagnifier.adaptiveConfiguration`: this system's loupe
+  /// on iOS and Android, none on a desktop. Pass
+  /// [TextMagnifierConfiguration.disabled] for no magnifier at all.
   /// {@endtemplate}
-  final TextMagnifierConfiguration magnifierConfiguration;
+  final TextMagnifierConfiguration? magnifierConfiguration;
 
   /// {@template TextField.selectionColor}
   /// The color of the text selection highlight.
@@ -668,6 +790,39 @@ class TextField extends StatefulWidget {
   /// {@endtemplate}
   final ValueChanged<Object>? onPasteFilesError;
 
+  /// {@template TextField.clearable}
+  /// Whether a clear button shows at the end of the field while it has
+  /// text. Defaults to false.
+  ///
+  /// The button empties the field, keeps the focus in it and reports the
+  /// change through [onChanged]. It is not shown while the field is
+  /// disabled or read-only.
+  /// {@endtemplate}
+  final bool clearable;
+
+  /// {@template TextField.onCleared}
+  /// Called after the clear button of a [clearable] field emptied it.
+  /// [onChanged] is called first, with an empty string.
+  /// {@endtemplate}
+  final VoidCallback? onCleared;
+
+  /// {@template TextField.revealable}
+  /// Whether an obscured field has a button at its end that shows the text
+  /// and hides it again. Defaults to false; [TextField.password] sets it.
+  ///
+  /// Has no effect unless [obscureText] is true.
+  /// {@endtemplate}
+  final bool revealable;
+
+  /// {@template TextField.showCounter}
+  /// Whether the number of characters typed is shown under the text, out of
+  /// [maxLength] when there is one: `12/80`. Defaults to false.
+  ///
+  /// The count is of user-perceived characters, as [maxLength] is. When the
+  /// limit is reached, assistive technology is told.
+  /// {@endtemplate}
+  final bool showCounter;
+
   /// A constant representing no maximum length for the input.
   static const int noMaxLength = -1;
 
@@ -715,6 +870,26 @@ class TextFieldState extends State<TextField>
       widget.controller ?? _controller!.value;
   bool _showSelectionHandles = false;
   final _groupId = UniqueKey();
+
+  /// Whether a [TextField.revealable] field hides its text at the moment.
+  bool _obscured = true;
+
+  /// Empties the field as the user would: through the formatters, into the
+  /// undo history, and reported by [TextField.onChanged].
+  void clear() {
+    final editable = _editableText;
+    if (editable != null) {
+      editable.userUpdateTextEditingValue(
+        TextEditingValue.empty,
+        SelectionChangedCause.toolbar,
+      );
+    } else {
+      effectiveController.clear();
+      widget.onChanged?.call('');
+    }
+    if (effectiveFocusNode.canRequestFocus) effectiveFocusNode.requestFocus();
+    widget.onCleared?.call();
+  }
 
   ScrollController? _scrollController;
 
@@ -1009,14 +1184,35 @@ class TextFieldState extends State<TextField>
     }
   }
 
-  /// The default text selection menu: a [ContextMenu] with localized cut,
-  /// copy, paste and select-all items.
+  /// The default text selection menu, which follows the platform.
   ///
-  /// Items that would do nothing, such as copy with no selection, are left out.
+  /// On iOS and Android it is a [TextSelectionToolbar]: a horizontal pill
+  /// over the selection with whatever the platform offers for it. When
+  /// `TextFieldTheme.useSystemContextMenu` is true and the platform can draw
+  /// the menu itself (iOS 16 and later), the system's own menu is shown
+  /// instead — pasting from it does not raise iOS's paste-permission
+  /// dialog.
+  ///
+  /// On a desktop it is a [ContextMenu] at the pointer with localized cut,
+  /// copy, paste and select-all items. Items that would do nothing, such as
+  /// copy with no selection, are left out.
   static Widget defaultContextMenuBuilder(
     BuildContext context,
     EditableTextState editableTextState,
   ) {
+    if (FinesseTextSelectionControls.usesTouchSelection) {
+      final useSystemMenu =
+          Theme.of(context).textFieldTheme.useSystemContextMenu ?? false;
+      if (useSystemMenu &&
+          SystemContextMenu.isSupportedByField(editableTextState)) {
+        return SystemContextMenu.editableText(
+          editableTextState: editableTextState,
+        );
+      }
+      return TextSelectionToolbar.editableText(
+        editableTextState: editableTextState,
+      );
+    }
     final l = FinesseLocalizations.of(context);
     final textValue = editableTextState.textEditingValue;
     final selection = textValue.selection;
@@ -1042,13 +1238,13 @@ class TextFieldState extends State<TextField>
       // before the menu renders.
       canRequestFocus: false,
       child: ContextMenu(
-        visible: true,
+        open: true,
         anchor: GlobalAnchor(
           editableTextState.contextMenuAnchors.primaryAnchor,
         ),
         items: [
           for (final item in buttonItems)
-            ContextMenuItem(
+            MenuItem(
               onTapDown: item.onPressed != null
                   ? (_) {
                       item.onPressed!();
@@ -1186,10 +1382,17 @@ class TextFieldState extends State<TextField>
         theme.textFieldTheme.useBrowserContextMenu ??
         kIsWeb;
 
+    final l = FinesseLocalizations.of(context);
+    final showClear = widget.clearable && widget.enabled && !widget.readOnly;
+    final showReveal = widget.revealable && widget.obscureText;
+    // As tall as a line of the field's text, so a button never makes the
+    // field taller than its style says.
+    final adornmentExtent = maxFontSizeScaled > 0 ? maxFontSizeScaled : 20.0;
+
     return ConstrainedBox(
       constraints: effectiveConstraints,
       child: Disabled(
-        disabled: !widget.enabled,
+        enabled: widget.enabled,
         child: _selectionGestureDetectorBuilder.buildGestureDetector(
           behavior: HitTestBehavior.translucent,
           child: KeyboardToolbar(
@@ -1223,7 +1426,9 @@ class TextFieldState extends State<TextField>
                             ? null
                             : (widget.contextMenuBuilder ??
                                   defaultContextMenuBuilder),
-                        selectionControls: widget.selectionControls,
+                        selectionControls:
+                            widget.selectionControls ??
+                            FinesseTextSelectionControls.adaptive,
                         // ! End of selection handler
                         // ! section
                         mouseCursor: effectiveMouseCursor,
@@ -1245,9 +1450,13 @@ class TextFieldState extends State<TextField>
                         textInputAction: widget.textInputAction,
                         textCapitalization: widget.textCapitalization,
                         autofocus: widget.autofocus,
-                        obscureText: widget.obscureText,
+                        obscureText:
+                            widget.obscureText &&
+                            !(widget.revealable && !_obscured),
                         autocorrect: widget.autocorrect,
-                        magnifierConfiguration: widget.magnifierConfiguration,
+                        magnifierConfiguration:
+                            widget.magnifierConfiguration ??
+                            TextMagnifier.adaptiveConfiguration,
                         smartDashesType: widget.smartDashesType,
                         smartQuotesType: widget.smartQuotesType,
                         enableSuggestions: widget.enableSuggestions,
@@ -1262,7 +1471,9 @@ class TextFieldState extends State<TextField>
                         onSubmitted: widget.onSubmitted,
                         onAppPrivateCommand: widget.onAppPrivateCommand,
                         inputFormatters: effectiveInputFormatters,
-                        scrollPadding: widget.scrollPadding,
+                        scrollPadding:
+                            widget.scrollPadding ??
+                            _defaultScrollPadding(context),
                         dragStartBehavior: widget.dragStartBehavior,
                         scrollPhysics: widget.scrollPhysics,
                         // Disable the internal scrollbars
@@ -1289,7 +1500,7 @@ class TextFieldState extends State<TextField>
                         undoController: widget.undoController,
                         spellCheckConfiguration: widget.spellCheckConfiguration,
                         textAlign: widget.textAlign,
-                        onTapOutside: widget.onPressedOutside,
+                        onTapOutside: widget.onTapOutside,
                         rendererIgnoresPointer: true,
                         showCursor: widget.showCursor,
                         groupId: effectiveGroupId,
@@ -1348,7 +1559,10 @@ class TextFieldState extends State<TextField>
                                 mainAxisAlignment: effectiveMainAxisAlignment,
                                 crossAxisAlignment: effectiveCrossAxisAlignment,
                                 children: [
-                                  if (widget.leading != null) widget.leading!,
+                                  if (widget.leading != null) ...[
+                                    widget.leading!,
+                                    SizedBox(width: effectiveGap),
+                                  ],
                                   Flexible(
                                     child: AbsorbPointer(
                                       // AbsorbPointer is needed when the input is
@@ -1397,12 +1611,63 @@ class TextFieldState extends State<TextField>
                                       ),
                                     ),
                                   ),
-                                  if (widget.trailing != null) widget.trailing!,
-                                ].separatedBy(SizedBox(width: effectiveGap)),
+                                  if (showClear)
+                                    // Its gap comes and goes with it.
+                                    ValueListenableBuilder(
+                                      valueListenable: _isEmpty,
+                                      builder: (context, isEmpty, child) =>
+                                          PopIn(
+                                            visible: !isEmpty,
+                                            child: child!,
+                                          ),
+                                      child: Padding(
+                                        padding: EdgeInsetsDirectional.only(
+                                          start: effectiveGap,
+                                        ),
+                                        child: ExcludeFocus(
+                                          child: _AdornmentButton(
+                                            icon: PhosphorIconsRegular.x,
+                                            semanticLabel: l.input.clear,
+                                            extent: adornmentExtent,
+                                            onPressed: clear,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  if (showReveal)
+                                    Padding(
+                                      padding: EdgeInsetsDirectional.only(
+                                        start: effectiveGap,
+                                      ),
+                                      child: _AdornmentButton(
+                                        icon: _obscured
+                                            ? PhosphorIconsRegular.eye
+                                            : PhosphorIconsRegular.eyeSlash,
+                                        semanticLabel: l.input.showPassword,
+                                        toggled: !_obscured,
+                                        extent: adornmentExtent,
+                                        onPressed: () => setState(
+                                          () => _obscured = !_obscured,
+                                        ),
+                                      ),
+                                    ),
+                                  if (widget.trailing != null) ...[
+                                    SizedBox(width: effectiveGap),
+                                    widget.trailing!,
+                                  ],
+                                ],
                               ),
                             ),
                           ),
-                          if (widget.bottom != null) widget.bottom!,
+                          if (widget.showCounter)
+                            _CounterRow(
+                              controller: effectiveController,
+                              maxLength: widget.maxLength,
+                              padding: effectivePadding,
+                              bottom: widget.bottom,
+                            )
+                          else if (widget.bottom != null)
+                            widget.bottom!,
                         ].separatedBy(SizedBox(height: effectiveVerticalGap)),
                       ),
                     );
@@ -1441,11 +1706,11 @@ class _InputSelectionGestureDetectorBuilder
 
   @override
   void onUserTap() {
-    _state.widget.onPressed?.call();
+    _state.widget.onTap?.call();
   }
 
   @override
-  bool get onUserTapAlwaysCalled => _state.widget.onPressedAlwaysCalled;
+  bool get onUserTapAlwaysCalled => _state.widget.onTapAlwaysCalled;
 
   @override
   void onSingleLongTapStart(LongPressStartDetails details) {
@@ -1462,5 +1727,131 @@ class _InputSelectionGestureDetectorBuilder
           Feedback.forLongPress(_state.context);
       }
     }
+  }
+}
+
+/// A small ghost button at the end of a field: the clear button, the
+/// password toggle.
+///
+/// It is a square the height of a line of the field's text, so it fits
+/// inside the field's own height; the icon is drawn a little smaller.
+class _AdornmentButton extends StatelessWidget {
+  const _AdornmentButton({
+    required this.icon,
+    required this.semanticLabel,
+    required this.extent,
+    required this.onPressed,
+    this.toggled,
+  });
+
+  final IconData icon;
+  final String semanticLabel;
+  final double extent;
+  final VoidCallback onPressed;
+
+  /// For a button that switches something on and off: whether it is on.
+  final bool? toggled;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    const radius = BorderRadius.all(Radius.circular(9999));
+    return Semantics(
+      toggled: toggled,
+      child: Pressable(
+        onPressed: onPressed,
+        semanticLabel: semanticLabel,
+        builder: (context, states) {
+          final lit =
+              states.contains(WidgetState.hovered) ||
+              states.contains(WidgetState.pressed);
+          return FocusRing(
+            visible: states.contains(WidgetState.focused),
+            borderRadius: radius,
+            child: AnimatedFill(
+              color: lit ? colors.muted : colors.muted.withValues(alpha: 0),
+              borderWidth: 0,
+              borderRadius: radius,
+              child: SizedBox.square(
+                dimension: extent,
+                child: Center(
+                  child: PhosphorIcon(
+                    icon,
+                    size: extent * .8,
+                    color: lit ? colors.foreground : colors.mutedForeground,
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+/// The row under the text of a field with [TextField.showCounter]: the
+/// field's own `bottom` widget, then the character count at the end.
+class _CounterRow extends StatelessWidget {
+  const _CounterRow({
+    required this.controller,
+    required this.maxLength,
+    required this.padding,
+    required this.bottom,
+  });
+
+  final TextEditingController controller;
+  final int? maxLength;
+  final EdgeInsetsGeometry padding;
+  final Widget? bottom;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l = FinesseLocalizations.of(context);
+    final resolved = padding.resolve(Directionality.of(context));
+    final max = maxLength != null && maxLength! > 0 ? maxLength : null;
+    final style = theme.textTheme.caption.copyWith(
+      // Digits of one width: the count does not jiggle as it changes.
+      fontFeatures: const [FontFeature.tabularFigures()],
+    );
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Expanded(child: bottom ?? const SizedBox.shrink()),
+        Padding(
+          // The field's own inset: the count lines up with its text.
+          padding: EdgeInsets.only(
+            left: resolved.left,
+            right: resolved.right,
+            bottom: resolved.bottom,
+          ),
+          child: ValueListenableBuilder(
+            valueListenable: controller,
+            builder: (context, value, _) {
+              final count = value.text.characters.length;
+              final atLimit = max != null && count >= max;
+              final spoken = max == null
+                  ? '$count'
+                  : l.input.characterCount(count: count, max: max);
+              return Semantics(
+                // Announced when the limit is reached, not on every key.
+                liveRegion: atLimit,
+                label: atLimit ? '${l.input.characterLimit}. $spoken' : spoken,
+                child: ExcludeSemantics(
+                  child: Text(
+                    max == null ? '$count' : '$count/$max',
+                    style: atLimit
+                        ? style.copyWith(color: theme.colorScheme.foreground)
+                        : style,
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
   }
 }

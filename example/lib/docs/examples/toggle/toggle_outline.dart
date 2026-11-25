@@ -22,13 +22,13 @@ class _ToggleOutlineExampleState extends State<ToggleOutlineExample> {
           value: bold,
           semanticLabel: 'Bold',
           onChanged: (value) => setState(() => bold = value),
-          child: const Icon(PhosphorIconsRegular.textB),
+          child: const PhosphorIcon(PhosphorIconsRegular.textB),
         ),
         Toggle.outline(
           value: italic,
           semanticLabel: 'Italic',
           onChanged: (value) => setState(() => italic = value),
-          child: const Icon(PhosphorIconsRegular.textItalic),
+          child: const PhosphorIcon(PhosphorIconsRegular.textItalic),
         ),
       ],
     );

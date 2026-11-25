@@ -26,4 +26,3 @@ class KeyboardToolbarBasicExample extends StatelessWidget {
   }
 }
 ```
-

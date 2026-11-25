@@ -1,5 +1,7 @@
 import 'dart:math' as math;
 
+import 'package:finesse/src/theme/components/layout.dart';
+import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/entrance.dart';
 import 'package:flutter/widgets.dart';
 
@@ -236,13 +238,17 @@ class Portal extends StatefulWidget {
     this.onShown,
   });
 
-  /// Called each time the overlay is about to be painted in its place for
-  /// the first time after [visible] became true.
+  /// Called each time the overlay has been built and is in its place after
+  /// [visible] became true: once per showing, after the frame that first
+  /// builds [portalBuilder], and not at all if [visible] is false again by
+  /// then.
   ///
   /// An auto-anchored overlay is laid out once, unseen, to be measured
   /// before it can be placed, so it reaches the screen a frame or two after
   /// [visible] flips. Start an entrance animation from here and none of it
-  /// is spent on frames nobody sees.
+  /// is spent on frames nobody sees — and whatever the overlay's own widgets
+  /// set up when they are first built (an entrance widget giving a shared
+  /// controller its duration) is in place when it starts.
   final VoidCallback? onShown;
 
   /// The widget that the overlay is anchored to.
@@ -282,6 +288,26 @@ class _PortalState extends State<Portal> {
     if (_shownReported) return;
     _shownReported = true;
     widget.onShown?.call();
+  }
+
+  /// Reports an overlay that needs no measuring, after the frame that
+  /// builds it.
+  ///
+  /// Not at `show()`: the overlay's subtree does not exist yet then, and
+  /// what [Portal.onShown] starts usually lives in it. A popover's entrance
+  /// runs on a controller whose duration is set by the entrance widget inside
+  /// the overlay, so an entrance started before that widget was built ran on
+  /// the controller's previous duration. An auto-anchored overlay has the
+  /// same order for free: it is built once to be measured, then reported.
+  void _reportShownOnceBuilt() {
+    if (_shownReported) return;
+    WidgetsBinding.instance
+      ..addPostFrameCallback((_) {
+        if (mounted && widget.visible && !_isAutoAnchor) _reportShown();
+      })
+      // Showing the overlay schedules that frame, except when it was showing
+      // already (an anchor swapped while visible).
+      ..scheduleFrame();
   }
 
   // When scrolling, recalculate the position
@@ -389,9 +415,9 @@ class _PortalState extends State<Portal> {
       if (shouldShow) {
         _calculatePosition();
         show();
-        // The other anchors need no measuring: the next frame paints the
+        // The other anchors need no measuring: the next frame builds the
         // overlay where it belongs.
-        if (!_isAutoAnchor) _reportShown();
+        if (!_isAutoAnchor) _reportShownOnceBuilt();
       } else {
         _shownReported = false;
         if (_calculatedTarget != null || _origin != null) {
@@ -460,6 +486,14 @@ class _PortalState extends State<Portal> {
 
     return box.localToGlobal(followerOffset, ancestor: overlayAncestor);
   }
+
+  /// The gap an overlay keeps from the edges of the screen when it is
+  /// pushed in to stay on it: the theme's small gap, so a popover moved
+  /// aside does not end up flush against the glass. One that fits where
+  /// its anchor puts it is left there, edge or not — a menu under a
+  /// trigger at the edge of the screen stays in line with the trigger.
+  double get _screenMargin =>
+      Theme.maybeOf(context)?.layoutTheme.gap(GapSize.sm) ?? 8;
 
   void _calculatePosition() {
     // Only auto-position when the overlay is visible.
@@ -551,6 +585,7 @@ class _PortalState extends State<Portal> {
             target: target,
             verticalOffset: 0,
             preferBelow: true,
+            margin: _screenMargin,
           ) -
           PositionDelegate.anchoredPositionFor(
             childSize: overlaySize,
@@ -651,6 +686,7 @@ class _PortalState extends State<Portal> {
         target: target,
         verticalOffset: 0,
         preferBelow: true,
+        margin: _screenMargin,
       ),
       child: KeyedSubtree(
         key: overlayKey,
@@ -708,10 +744,21 @@ class _PortalState extends State<Portal> {
     final followerAnchor = anchor.followerAnchor.resolve(
       Directionality.maybeOf(context) ?? TextDirection.ltr,
     );
+    // The point is in global coordinates and the overlay is laid out in
+    // its own: the two differ when the overlay does not start at the
+    // origin of the screen — a navigator beside a docked panel. Brought
+    // over here, from where the overlay was last laid out: its box may not
+    // be asked while its child is being laid out.
+    final overlayBox = Overlay.of(context).context.findRenderObject();
+    final point =
+        overlayBox is RenderBox && overlayBox.attached && overlayBox.hasSize
+        ? overlayBox.globalToLocal(anchor.offset)
+        : anchor.offset;
     return CustomSingleChildLayout(
       delegate: _PointPositionDelegate(
-        point: anchor.offset,
+        point: point,
         followerAnchor: followerAnchor,
+        margin: _screenMargin,
         onPlaced: (origin) => _globalPlaced(origin, followerAnchor),
       ),
       child: MotionOrigin(
@@ -755,6 +802,7 @@ class PositionDelegate extends SingleChildLayoutDelegate {
     required this.target,
     required this.verticalOffset,
     required this.preferBelow,
+    this.margin = 0,
   });
 
   /// The offset of the target the overlay is positioned near in the global
@@ -771,6 +819,10 @@ class PositionDelegate extends SingleChildLayoutDelegate {
   /// direction, the tooltip will be displayed in the opposite direction.
   final bool preferBelow;
 
+  /// The gap kept between the overlay and the edges of the screen when it
+  /// has to be moved to stay on it.
+  final double margin;
+
   /// Where an overlay of [childSize] lands inside [size].
   ///
   /// Exposed so [Portal] can work out how far this pushed the overlay off
@@ -781,8 +833,9 @@ class PositionDelegate extends SingleChildLayoutDelegate {
     required Offset target,
     required double verticalOffset,
     required bool preferBelow,
+    double margin = 0,
   }) {
-    return positionDependentBox(
+    final placed = positionDependentBox(
       size: size,
       childSize: childSize,
       target: target,
@@ -790,6 +843,32 @@ class PositionDelegate extends SingleChildLayoutDelegate {
       preferBelow: preferBelow,
       margin: 0,
     );
+    return Offset(
+      clearOfEdges(
+        target.dx - childSize.width / 2,
+        childSize.width,
+        size.width,
+        margin,
+      ),
+      clearOfEdges(placed.dy, childSize.height, size.height, margin),
+    );
+  }
+
+  /// Where a box of [extent] that would start at [start] is put along an
+  /// axis of length [limit]: left where it is when it fits, and otherwise
+  /// moved onto the screen, [margin] clear of its edges — centred when it
+  /// is too large for that.
+  static double clearOfEdges(
+    double start,
+    double extent,
+    double limit,
+    double margin,
+  ) {
+    if (start >= 0 && start + extent <= limit) return start;
+    final low = margin;
+    final high = limit - margin - extent;
+    if (high < low) return (limit - extent) / 2;
+    return start.clamp(low, high);
   }
 
   /// Where an overlay of [childSize] would land if the screen never ran out,
@@ -817,6 +896,7 @@ class PositionDelegate extends SingleChildLayoutDelegate {
       target: target,
       verticalOffset: verticalOffset,
       preferBelow: preferBelow,
+      margin: margin,
     );
   }
 
@@ -824,22 +904,30 @@ class PositionDelegate extends SingleChildLayoutDelegate {
   bool shouldRelayout(PositionDelegate oldDelegate) {
     return target != oldDelegate.target ||
         verticalOffset != oldDelegate.verticalOffset ||
-        preferBelow != oldDelegate.preferBelow;
+        preferBelow != oldDelegate.preferBelow ||
+        margin != oldDelegate.margin;
   }
 }
 
 /// Places an overlay so that its [followerAnchor] point sits on [point],
 /// mirrored across the point on any axis where it would leave the screen,
-/// then clamped onto the screen.
+/// and when it fits neither way moved onto the screen, [margin] clear of
+/// its edges.
 class _PointPositionDelegate extends SingleChildLayoutDelegate {
   _PointPositionDelegate({
     required this.point,
     required this.followerAnchor,
+    this.margin = 0,
     this.onPlaced,
   });
 
+  /// The point, in the coordinates of the overlay the child is laid out in.
   final Offset point;
+
   final Alignment followerAnchor;
+
+  /// The gap kept from the edges of the screen.
+  final double margin;
 
   /// Told the point of the overlay that ended up on [point]: the follower
   /// anchor, mirrored on any axis where the overlay was.
@@ -850,20 +938,17 @@ class _PointPositionDelegate extends SingleChildLayoutDelegate {
       constraints.loosen();
 
   /// The start of an overlay of [extent] along one axis, given where on it
-  /// (-1..1) the point sits, mirrored when it overflows [limit].
-  static double _place(
-    double point,
-    double align,
-    double extent,
-    double limit,
-  ) {
+  /// (-1..1) the point sits, mirrored when it does not fit between the
+  /// margins of [limit].
+  double _place(double point, double align, double extent, double limit) {
     double startFor(double a) => point - (1 + a) / 2 * extent;
     var start = startFor(align);
     if (start < 0 || start + extent > limit) {
       final mirrored = startFor(-align);
       if (mirrored >= 0 && mirrored + extent <= limit) start = mirrored;
     }
-    return start.clamp(0, math.max(0, limit - extent)).toDouble();
+    // Still off screen: moved onto it, clear of the edge.
+    return PositionDelegate.clearOfEdges(start, extent, limit, margin);
   }
 
   /// Where on an overlay of [extent] (-1..1) the point is, once the overlay
@@ -889,5 +974,6 @@ class _PointPositionDelegate extends SingleChildLayoutDelegate {
   @override
   bool shouldRelayout(_PointPositionDelegate oldDelegate) =>
       point != oldDelegate.point ||
-      followerAnchor != oldDelegate.followerAnchor;
+      followerAnchor != oldDelegate.followerAnchor ||
+      margin != oldDelegate.margin;
 }

@@ -58,14 +58,14 @@ class SurfaceBasicExample extends StatelessWidget {
 
 ## Anchored to a rectangle
 
-showPopover takes a global Rect: a text selection, a table cell, a point on a canvas.
+showPopover takes a global Rect: a text selection, a table cell, a point on a canvas. With showArrow, an arrow points at it.
 
 ```dart
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
 /// showPopover anchors a popover to a rectangle rather than a widget:
-/// here, wherever the canvas was clicked.
+/// here, wherever the canvas was clicked, with an arrow pointing at it.
 class SurfaceAnchoredExample extends StatelessWidget {
   const SurfaceAnchoredExample({super.key});
 
@@ -80,6 +80,7 @@ class SurfaceAnchoredExample extends StatelessWidget {
           width: 1,
           height: 1,
         ),
+        showArrow: true,
         builder: (context) => Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,4 +109,3 @@ class SurfaceAnchoredExample extends StatelessWidget {
   }
 }
 ```
-

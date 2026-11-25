@@ -1,5 +1,6 @@
 import 'package:example/strand/data/messages_data.dart';
 import 'package:example/strand/screens/messages_screen.dart';
+import 'package:example/strand/widgets/messages_assistant.dart';
 import 'package:example/strand/widgets/messages_composer.dart';
 import 'package:example/strand/widgets/messages_conversation.dart';
 import 'package:example/strand/widgets/messages_conversation_list.dart';
@@ -9,24 +10,35 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'strand_support.dart';
+
 /// The Messages screen on its own, under an app bar as the Strand shell
 /// gives it. Not pumped through `App`: the other screens are not this
 /// test's business.
+///
+/// Nobody answers unless a test gives [replies]: what is sent stays the
+/// newest message.
 Future<void> pumpMessages(
   WidgetTester tester, {
   required Size size,
   Brightness brightness = Brightness.light,
+  MessagesReplies replies = const MessagesReplies.none(),
 }) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
 
   await tester.pumpWidget(
-    FinesseApp(
-      theme: ThemeData(brightness: brightness),
-      home: Scaffold(
-        appBar: AppBar(title: const Text('strand')),
-        body: const MessagesScreen(),
+    // The conversations are the session's, so the screen needs one; this
+    // one answers the way the test asked.
+    StrandSessionHost(
+      replies: replies,
+      child: FinesseApp(
+        theme: ThemeData(brightness: brightness),
+        home: const Scaffold(
+          appBar: AppBar(title: Text('strand')),
+          body: MessagesScreen(),
+        ),
       ),
     ),
   );
@@ -53,6 +65,14 @@ Finder inList(Finder finder) => find.descendant(
 Finder inConversation(Finder finder) => find.descendant(
   of: find.byType(MessagesConversationView),
   matching: finder,
+);
+
+/// A message of the open thread, wherever it is: the thread is a lazy list,
+/// and what is scrolled out of view above is built but off stage.
+Finder inThread(String text) => find.descendant(
+  of: find.byType(MessagesConversationView),
+  matching: find.widgetWithText(ChatBubble, text, skipOffstage: false),
+  skipOffstage: false,
 );
 
 Finder inDetails(Finder finder) =>
@@ -183,6 +203,11 @@ void main() {
       );
 
       const rows = {
+        // Pinned above the conversations.
+        'Strand Assistant': (
+          '1m',
+          'Ask me to draft a post, tighten a message or prepare for a call.',
+        ),
         'Omar Rahimi': ('2m', 'You: Sending the deck now. Slides 12 to 18…'),
         'Sara Lindqvist': ('18m', 'Can we move the research sync to Thursday?'),
         'Design Systems Guild': (
@@ -252,27 +277,63 @@ void main() {
         expect(find.byIcon(icon), findsOneWidget);
       }
 
-      expect(inConversation(find.text('Today')), findsOneWidget);
-      for (final text in [
+      // The thread is a lazy list that opens on its newest message: what
+      // is above the fold is read after scrolling up to it.
+      final scrollable = tester.state<ScrollableState>(
+        inConversation(find.byType(Scrollable)).first,
+      );
+      const earlier = [
         'Hey Noor! Loved your talk proposal for Config Nordics. Do you have '
             'slides yet?',
         'Happy to give feedback this afternoon if that helps.',
         'Thank you! I have a rough draft. Would love a second pair of eyes '
             'before I polish it.',
+      ];
+      const later = [
         'Sending the deck now. Slides 12 to 18 are the ones I’m unsure about.',
         'This is how we mapped ours. Might help with slide 14.',
-      ]) {
-        expect(
-          inConversation(find.widgetWithText(ChatBubble, text)),
-          findsOneWidget,
-          reason: text,
-        );
+      ];
+      for (final text in later) {
+        expect(inThread(text), findsOneWidget, reason: text);
+      }
+      for (var i = 0; i < 3; i++) {
+        scrollable.position.jumpTo(scrollable.position.maxScrollExtent);
+        await tester.pump();
+      }
+      expect(inConversation(find.text('Today')), findsOneWidget);
+      for (final text in earlier) {
+        expect(inThread(text), findsOneWidget, reason: text);
       }
       expect(
-        inConversation(find.text('calm-by-default-draft.pdf')),
+        inConversation(
+          find.text('calm-by-default-draft.pdf', skipOffstage: false),
+        ),
         findsOneWidget,
       );
-      expect(inConversation(find.text('4.2 MB · 32 slides')), findsOneWidget);
+      expect(
+        inConversation(find.text('4.2 MB · 32 slides', skipOffstage: false)),
+        findsOneWidget,
+      );
+      // Outgoing bubbles sit against the end edge, incoming ones after the
+      // avatar gutter.
+      final view = tester.getRect(find.byType(MessagesConversationView));
+      Rect bubble(String start) => tester.getRect(
+        find.descendant(
+          of: inThread(start),
+          matching: find.byType(DecoratedBox, skipOffstage: false),
+        ),
+      );
+      final incoming = bubble(earlier[1]);
+      final outgoing = bubble(earlier[2]);
+      expect(incoming.left, view.left + 24 + 28 + 8);
+      expect(outgoing.right, view.right - 24);
+      // The design caps a line of outgoing text at 420, and an incoming row
+      // — avatar, gutter and bubble — at the same; each bubble carries its
+      // own cap.
+      expect(outgoing.width, 420 + 28);
+      scrollable.position.jumpTo(0);
+      await settle(tester);
+
       expect(inConversation(find.text('Seen 10:14')), findsOneWidget);
       expect(
         find.bySemanticsLabel('Whiteboard with a mapped user flow'),
@@ -284,34 +345,11 @@ void main() {
         findsOneWidget,
       );
 
-      // Outgoing bubbles sit against the end edge, incoming ones after the
-      // avatar gutter.
-      final view = tester.getRect(find.byType(MessagesConversationView));
-      Rect bubble(String start) => tester.getRect(
-        find.descendant(
-          of: find.widgetWithText(ChatBubble, start),
-          matching: find.byType(DecoratedBox),
-        ),
-      );
-      final incoming = bubble(
-        'Happy to give feedback this afternoon if that helps.',
-      );
-      final outgoing = bubble(
-        'Thank you! I have a rough draft. Would love a second pair of eyes '
-        'before I polish it.',
-      );
-      expect(incoming.left, view.left + 24 + 28 + 8);
-      expect(outgoing.right, view.right - 24);
-      // The design caps a line of outgoing text at 420, and an incoming row
-      // — avatar, gutter and bubble — at the same; each bubble carries its
-      // own cap.
-      expect(outgoing.width, 420 + 28);
       final caps = {
         for (final bubble in tester.widgetList<ChatBubble>(
-          inConversation(find.byType(ChatBubble)),
+          inConversation(find.byType(ChatBubble, skipOffstage: false)),
         ))
-          if (bubble.child is! TypingIndicator)
-            bubble.direction: bubble.maxWidth,
+          bubble.direction: bubble.maxWidth,
       };
       expect(caps, {
         ChatBubbleDirection.outgoing: 420 + 28,
@@ -437,12 +475,9 @@ void main() {
       tester,
     ) async {
       await pumpMessages(tester, size: desktop);
-      final bubbles = inConversation(find.byType(ChatBubble));
-      final before = tester.widgetList(bubbles).length;
-
       // Nothing typed: nothing sent.
       await tapAndSettle(tester, sendButton);
-      expect(tester.widgetList(bubbles), hasLength(before));
+      expect(inConversation(find.text('Delivered')), findsNothing);
 
       await tester.enterText(composerField, 'On it, thank you!');
       await tapAndSettle(tester, sendButton);
@@ -453,7 +488,6 @@ void main() {
         tester.widget<ChatBubble>(sent).direction,
         ChatBubbleDirection.outgoing,
       );
-      expect(tester.widgetList(bubbles), hasLength(before + 1));
       expect(inConversation(find.text('Delivered')), findsOneWidget);
       // The field is cleared and the list's preview follows.
       expect(tester.widget<EditableText>(composerField).controller.text, '');
@@ -468,7 +502,7 @@ void main() {
         inConversation(find.widgetWithText(ChatBubble, 'Slide 14 is next.')),
         findsOneWidget,
       );
-      expect(tester.widgetList(bubbles), hasLength(before + 2));
+      expect(inThread('On it, thank you!'), findsOneWidget);
       // Only the newest message carries the receipt, and the newest message
       // is in view above the composer.
       expect(inConversation(find.text('Delivered')), findsOneWidget);
@@ -542,7 +576,7 @@ void main() {
       expect(names(), ['Design Systems Guild']);
 
       await tapChip(tester, 'Focused');
-      expect(names(), hasLength(8));
+      expect(names(), hasLength(9));
 
       await tester.enterText(
         inList(find.byType(EditableText)),
@@ -673,7 +707,7 @@ void main() {
         tester.getSize(find.byType(MessagesConversationList)).width,
         phone.width,
       );
-      expect(inList(find.byType(ListTile)), findsNWidgets(8));
+      expect(inList(find.byType(ListTile)), findsNWidgets(9));
       // No row is highlighted: no conversation is on screen beside the list.
       expect(
         tester

@@ -10,29 +10,29 @@ class ToggleGroupOutlineExample extends StatefulWidget {
 }
 
 class _ToggleGroupOutlineExampleState extends State<ToggleGroupOutlineExample> {
-  Set<String> values = const {'bold'};
+  String? value = 'bold';
 
   @override
   Widget build(BuildContext context) {
     return ToggleGroup<String>(
-      values: values,
-      toggleVariant: ToggleVariant.outline,
-      onChanged: (next) => setState(() => values = next),
-      children: const [
+      value: value,
+      variant: ToggleVariant.outline,
+      onChanged: (next) => setState(() => value = next),
+      items: const [
         ToggleGroupItem(
           value: 'bold',
           semanticLabel: 'Bold',
-          child: Icon(PhosphorIconsRegular.textB),
+          child: PhosphorIcon(PhosphorIconsRegular.textB),
         ),
         ToggleGroupItem(
           value: 'italic',
           semanticLabel: 'Italic',
-          child: Icon(PhosphorIconsRegular.textItalic),
+          child: PhosphorIcon(PhosphorIconsRegular.textItalic),
         ),
         ToggleGroupItem(
           value: 'underline',
           semanticLabel: 'Underline',
-          child: Icon(PhosphorIconsRegular.textUnderline),
+          child: PhosphorIcon(PhosphorIconsRegular.textUnderline),
         ),
       ],
     );

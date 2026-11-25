@@ -1,21 +1,31 @@
+import 'dart:async';
+
 import 'package:example/common/app_state.dart';
 import 'package:example/strand/data.dart';
 import 'package:example/strand/data/profile_data.dart';
 import 'package:example/strand/navigation.dart';
-import 'package:example/strand/widgets/home_pieces.dart';
 import 'package:example/strand/widgets/person_avatar.dart';
 import 'package:example/strand/widgets/settings_controller.dart';
 import 'package:example/strand/widgets/strand_pieces.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_solidart/flutter_solidart.dart';
 
 /// The cards of one page of Settings.
 ///
 /// Each page is a column of cards; each card a heading, a line about it and
-/// its controls — the package's own `TextField`, `Select`, `Switch`,
-/// `Checkbox`, `FinesseRadioGroup`, `Slider` and `Tabs`, with nothing
-/// restyled.
+/// its controls — the package's own `TextField`, `TagField`, `Select`,
+/// `DatePicker`, `TimePicker`, `NumberField`, `Switch`, `Checkbox`, `Slider`
+/// and `SegmentedControl`, with nothing restyled. A group that is nothing
+/// but switches, checkboxes or one radio choice is a `ListSection` of
+/// `SwitchListTile`s, `CheckboxListTile`s or `RadioListTile`s instead: the
+/// grouped list of a settings page, where the whole row takes the tap.
+///
+/// On a phone a `Select` opens its options in a sheet from the bottom edge
+/// and the date and time pickers their wheels; on a desktop all three are
+/// popovers under their buttons.
 class SettingsSectionView extends StatelessWidget {
   const SettingsSectionView({
     required this.section,
@@ -40,10 +50,12 @@ class SettingsSectionView extends StatelessWidget {
         SettingsSection.privacy => [
           _VisibilityCard(settings: settings),
           _ActivityCard(settings: settings),
+          _PersonalisationCard(settings: settings),
           _MessagesCard(settings: settings),
         ],
         SettingsSection.notifications => [
           _PauseCard(settings: settings),
+          _QuietHoursCard(settings: settings),
           _TopicsCard(settings: settings),
           _JobMatchCard(settings: settings),
         ],
@@ -71,8 +83,10 @@ class _SettingsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      rowMainAxisSize: MainAxisSize.max,
-      columnCrossAxisAlignment: CrossAxisAlignment.stretch,
+      style: CardTheme(
+        rowMainAxisSize: MainAxisSize.max,
+        columnCrossAxisAlignment: CrossAxisAlignment.stretch,
+      ),
       title: Semantics(header: true, child: Text(title)),
       description: Text(description),
       child: child,
@@ -88,6 +102,8 @@ class _SettingRow extends StatelessWidget {
     required this.trailing,
     this.detail,
     this.leading,
+    this.trailingIsLabelled = false,
+    this.stacked = false,
   });
 
   final String title;
@@ -95,10 +111,29 @@ class _SettingRow extends StatelessWidget {
   final Widget? leading;
   final Widget trailing;
 
+  /// Whether [trailing] goes under the text, across the row's width,
+  /// instead of at its end: a control too wide to share a phone's line.
+  final bool stacked;
+
+  /// Whether [trailing] carries [title] as its own semantic label — a group
+  /// of tabs named "Mode". The visible title is then left out of the
+  /// semantics, or a screen reader would say it twice.
+  final bool trailingIsLabelled;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final row = _buildRow(theme, scheme);
+    if (!stacked) return row;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [row, const Gap.md(), trailing],
+    );
+  }
+
+  Widget _buildRow(ThemeData theme, ColorScheme scheme) {
     return Row(
       children: [
         if (leading case final leading?) ...[leading, const Gap.md()],
@@ -107,11 +142,14 @@ class _SettingRow extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                title,
-                style: theme.textTheme.p.copyWith(
-                  fontWeight: FontWeight.w500,
-                  color: scheme.foreground,
+              ExcludeSemantics(
+                excluding: trailingIsLabelled,
+                child: Text(
+                  title,
+                  style: theme.textTheme.p.copyWith(
+                    fontWeight: FontWeight.w500,
+                    color: scheme.foreground,
+                  ),
                 ),
               ),
               if (detail case final detail?)
@@ -124,8 +162,7 @@ class _SettingRow extends StatelessWidget {
             ],
           ),
         ),
-        const Gap.lg(),
-        trailing,
+        if (!stacked) ...[const Gap.lg(), trailing],
       ],
     );
   }
@@ -133,6 +170,11 @@ class _SettingRow extends StatelessWidget {
 
 /// A switch with its label and sentence: a [_SettingRow] ending in a
 /// `Switch`, read to assistive technology as one control.
+///
+/// The row is merged into one semantic node — the title and the sentence
+/// become the switch's label — rather than the switch being given the
+/// title as a label of its own, which left the visible title in the tree
+/// to be read a second time.
 class _SwitchRow extends StatelessWidget {
   const _SwitchRow({
     required this.title,
@@ -148,18 +190,21 @@ class _SwitchRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _SettingRow(
-      title: title,
-      detail: detail,
-      trailing: Semantics(
-        label: title,
-        child: Switch(value: value, onChanged: onChanged),
+    return MergeSemantics(
+      child: _SettingRow(
+        title: title,
+        detail: detail,
+        trailing: Switch(value: value, onChanged: onChanged),
       ),
     );
   }
 }
 
 /// A labelled form field: the label over the control.
+///
+/// The control carries the label in its semantics, so the visible text is
+/// left out of them: one node per field, not a label and then a field of
+/// the same name.
 class _Field extends StatelessWidget {
   const _Field({required this.label, required this.child});
 
@@ -173,13 +218,15 @@ class _Field extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          label,
-          style: theme.textTheme.small.copyWith(
-            color: theme.colorScheme.foreground,
+        ExcludeSemantics(
+          child: Text(
+            label,
+            style: theme.textTheme.small.copyWith(
+              color: theme.colorScheme.foreground,
+            ),
           ),
         ),
-        const Gap.raw(homeTightGap),
+        const Gap.xs(),
         Semantics(label: label, child: child),
       ],
     );
@@ -188,6 +235,11 @@ class _Field extends StatelessWidget {
 
 /// Lays [children] out two across where there is room, and in one column
 /// where there is not.
+///
+/// One `Wrap` either way, with the children's width worked out from the
+/// room: every field stays the same child of the same parent when the
+/// number of columns changes, so the one being typed in keeps its focus
+/// through a resize.
 class _FieldGrid extends StatelessWidget {
   const _FieldGrid({required this.children});
 
@@ -201,32 +253,16 @@ class _FieldGrid extends StatelessWidget {
     final gap = Theme.of(context).layoutTheme.gap(GapSize.lg);
     return LayoutBuilder(
       builder: (context, constraints) {
-        final two = constraints.maxWidth >= _minFieldWidth * 2 + gap;
-        if (!two) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: gap,
-            children: children,
-          );
-        }
-        return Column(
-          mainAxisSize: MainAxisSize.min,
+        final room = constraints.maxWidth;
+        final two = room >= _minFieldWidth * 2 + gap;
+        // Rounded down, so that two of them and the gap never come to a
+        // hair more than the room and wrap.
+        final width = two ? ((room - gap) / 2).floorToDouble() : room;
+        return Wrap(
           spacing: gap,
+          runSpacing: gap,
           children: [
-            for (var i = 0; i < children.length; i += 2)
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: gap,
-                children: [
-                  Expanded(child: children[i]),
-                  Expanded(
-                    child: i + 1 < children.length
-                        ? children[i + 1]
-                        : const SizedBox.shrink(),
-                  ),
-                ],
-              ),
+            for (final child in children) SizedBox(width: width, child: child),
           ],
         );
       },
@@ -234,9 +270,29 @@ class _FieldGrid extends StatelessWidget {
   }
 }
 
-const _rowDivider = Divider.horizontal(
-  margin: EdgeInsets.symmetric(vertical: homeLooseGap),
-);
+/// How a `Select` of Settings shows its options: in a sheet from the bottom
+/// edge on a phone, where a list under a field near the keyboard has no
+/// room, and in a popover under its button on a desktop.
+PickerPresentation _selectPresentation(BuildContext context) =>
+    Theme.of(context).formFactor == FormFactor.mobile
+    ? PickerPresentation.sheet
+    : PickerPresentation.popover;
+
+/// The heading over a `ListSection` of Settings, in the theme's overline.
+Widget _sectionHeader(BuildContext context, String text) =>
+    Text(Theme.of(context).style.overline.applyCase(text));
+
+/// The rule between two rows of a settings card.
+class _RowDivider extends StatelessWidget {
+  const _RowDivider();
+
+  @override
+  Widget build(BuildContext context) => Divider(
+    margin: EdgeInsets.symmetric(
+      vertical: Theme.of(context).gap(GapSize.md),
+    ),
+  );
+}
 
 // Account.
 
@@ -256,6 +312,14 @@ class _ProfileCardState extends State<_ProfileCard> {
   );
   late final _email = TextEditingController(text: widget.settings.email);
   late String _language = widget.settings.language;
+  late List<String> _skills = widget.settings.skills;
+  late DateTime? _birthday = widget.settings.birthday;
+
+  /// Runs while "Save changes" is on its way to the pretend server.
+  Timer? _saving;
+
+  /// How long that takes.
+  static const _saveDelay = Duration(milliseconds: 600);
 
   SettingsController get _settings => widget.settings;
 
@@ -263,7 +327,9 @@ class _ProfileCardState extends State<_ProfileCard> {
       _name.text != _settings.name ||
       _headline.text != _settings.headline ||
       _email.text != _settings.email ||
-      _language != _settings.language;
+      _language != _settings.language ||
+      _birthday != _settings.birthday ||
+      !listEquals(_skills, _settings.skills);
 
   @override
   void initState() {
@@ -275,6 +341,15 @@ class _ProfileCardState extends State<_ProfileCard> {
 
   @override
   void dispose() {
+    // A save that is on its way still lands: leaving the page does not
+    // take back what was sent.
+    if (_saving?.isActive ?? false) {
+      _saving!.cancel();
+      // After this frame: the tree is locked while it is being taken
+      // down, and the settings have listeners in it.
+      final apply = _changes();
+      scheduleMicrotask(() => _settings.update(apply));
+    }
     _name.dispose();
     _headline.dispose();
     _email.dispose();
@@ -283,22 +358,50 @@ class _ProfileCardState extends State<_ProfileCard> {
 
   void _onEdited() => setState(() {});
 
+  /// What the card's fields say, as a change to the settings: read now,
+  /// so that it can be applied after the fields are gone.
+  VoidCallback _changes() {
+    final settings = _settings;
+    final (name, headline, email) = (_name.text, _headline.text, _email.text);
+    final (language, skills, birthday) = (_language, _skills, _birthday);
+    return () {
+      settings
+        ..name = name
+        ..headline = headline
+        ..email = email
+        ..language = language
+        ..skills = skills
+        ..birthday = birthday;
+    };
+  }
+
+  /// Writes the card's fields to the settings.
+  void _apply() => _settings.update(_changes());
+
   void _save() {
-    _settings.update(() {
-      _settings
-        ..name = _name.text
-        ..headline = _headline.text
-        ..email = _email.text
-        ..language = _language;
+    if (_saving != null) return;
+    setState(() {
+      _saving = Timer(_saveDelay, () {
+        _apply();
+        setState(() => _saving = null);
+        showStrandToast(
+          context,
+          'Your changes are saved',
+          variant: ToastVariant.success,
+        );
+      });
     });
-    showStrandToast(context, 'Your changes are saved');
   }
 
   void _discard() {
     _name.text = _settings.name;
     _headline.text = _settings.headline;
     _email.text = _settings.email;
-    setState(() => _language = _settings.language);
+    setState(() {
+      _language = _settings.language;
+      _skills = _settings.skills;
+      _birthday = _settings.birthday;
+    });
   }
 
   @override
@@ -312,7 +415,7 @@ class _ProfileCardState extends State<_ProfileCard> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _SettingRow(
-            leading: const PersonAvatar(People.me, size: 56),
+            leading: PersonAvatar(People.me, size: theme.avatarLg),
             title: _settings.name,
             detail: ProfileData.currentRole,
             trailing: Button.outline(
@@ -321,7 +424,7 @@ class _ProfileCardState extends State<_ProfileCard> {
               child: const Text('View profile'),
             ),
           ),
-          _rowDivider,
+          const _RowDivider(),
           _FieldGrid(
             children: [
               _Field(
@@ -346,6 +449,8 @@ class _ProfileCardState extends State<_ProfileCard> {
                   key: ValueKey(_language),
                   initialValue: _language,
                   minWidth: double.infinity,
+                  presentation: _selectPresentation(context),
+                  title: const Text('Language'),
                   options: [
                     for (final language in SettingsController.languages)
                       SelectOption(value: language, child: Text(language)),
@@ -356,23 +461,67 @@ class _ProfileCardState extends State<_ProfileCard> {
                   },
                 ),
               ),
+              _Field(
+                label: 'Birthday',
+                // A calendar under the button on a desktop; wheels in a
+                // sheet on a phone, where a year long past is three flicks
+                // away instead of four hundred taps.
+                child: DatePicker(
+                  value: _birthday,
+                  expands: true,
+                  mode: theme.formFactor == FormFactor.mobile
+                      ? DatePickerMode.wheel
+                      : DatePickerMode.calendar,
+                  captionLayout: CalendarCaptionLayout.dropdown,
+                  min: DateTime(1920),
+                  max: DateTime(2012, 12, 31),
+                  title: const Text('Birthday'),
+                  placeholder: const Text('Add your birthday'),
+                  onChanged: (value) => setState(() => _birthday = value),
+                ),
+              ),
             ],
           ),
-          Gap.raw(theme.layoutTheme.gap(GapSize.xl)),
+          Gap.raw(theme.gap(GapSize.lg)),
+          _Field(
+            label: 'Skills',
+            child: TagField<String>(
+              values: _skills,
+              maxTags: 12,
+              placeholder: const Text('Add a skill'),
+              labelBuilder: (context, skill) => Text(skill),
+              parse: (text) => text.trim().isEmpty ? null : text.trim(),
+              // The skills other people list, less the ones already here.
+              optionsBuilder: (value) {
+                final typed = value.text.trim().toLowerCase();
+                if (typed.isEmpty) return const [];
+                return [
+                  for (final skill in SettingsController.skillSuggestions)
+                    if (skill.toLowerCase().contains(typed) &&
+                        !_skills.contains(skill))
+                      skill,
+                ];
+              },
+              onChanged: (value) => setState(() => _skills = value),
+            ),
+          ),
+          const Gap.xl(),
           // A wrap: in a narrow card at a large text size the two buttons
           // stack rather than overflow.
           Wrap(
             alignment: WrapAlignment.end,
-            spacing: theme.layoutTheme.gap(GapSize.sm),
-            runSpacing: theme.layoutTheme.gap(GapSize.sm),
+            spacing: theme.gap(GapSize.sm),
+            runSpacing: theme.gap(GapSize.sm),
             children: [
               Button.outline(
-                enabled: _dirty,
+                enabled: _dirty && _saving == null,
                 onPressed: _discard,
                 child: const Text('Discard'),
               ),
               Button(
                 enabled: _dirty,
+                // Spins while the changes are on their way.
+                loading: _saving != null,
                 onPressed: _save,
                 child: const Text('Save changes'),
               ),
@@ -405,7 +554,7 @@ class _SecurityCard extends StatelessWidget {
             onChanged: (value) =>
                 settings.update(() => settings.twoStep = value),
           ),
-          _rowDivider,
+          const _RowDivider(),
           _SettingRow(
             title: 'Password',
             detail: 'Last changed in August',
@@ -421,9 +570,9 @@ class _SecurityCard extends StatelessWidget {
               child: const Text('Change'),
             ),
           ),
-          _rowDivider,
+          const _RowDivider(),
           const _SettingRow(
-            leading: IconTile(icon: Icon(PhosphorIconsRegular.laptop)),
+            leading: IconTile(icon: PhosphorIcon(PhosphorIconsRegular.laptop)),
             title: 'MacBook Pro · Copenhagen',
             detail: 'This device · Active now',
             trailing: Badge.secondary(child: Text('Current')),
@@ -431,7 +580,7 @@ class _SecurityCard extends StatelessWidget {
           const Gap.md(),
           _SettingRow(
             leading: const IconTile(
-              icon: Icon(PhosphorIconsRegular.deviceMobile),
+              icon: PhosphorIcon(PhosphorIconsRegular.deviceMobile),
             ),
             title: 'iPhone · Copenhagen',
             detail: 'Strand for iOS · Active 2 hours ago',
@@ -460,22 +609,20 @@ class _VisibilityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _SettingsCard(
-      title: 'Profile visibility',
-      description: 'Who can open your profile and find it in search.',
-      child: FinesseRadioGroup<ProfileVisibility>(
-        initialValue: settings.visibility,
-        // Two-line options want more air than the group's 4.
-        spacing: Theme.of(context).layoutTheme.gap(GapSize.md),
-        onChanged: (value) {
-          if (value != null) settings.update(() => settings.visibility = value);
-        },
-        items: [
+    // One choice of three: a grouped list of radio rows, each of which
+    // takes the tap anywhere along it.
+    return FinesseRadioGroup<ProfileVisibility>(
+      value: settings.visibility,
+      onChanged: (value) => settings.update(() => settings.visibility = value),
+      child: ListSection(
+        header: _sectionHeader(context, 'Profile visibility'),
+        footer: const Text('Who can open your profile and find it in search.'),
+        children: [
           for (final option in ProfileVisibility.values)
-            Radio(
+            RadioListTile<ProfileVisibility>(
               value: option,
-              label: Text(option.label),
-              sublabel: Text(option.detail),
+              title: Text(option.label),
+              subtitle: Text(option.detail),
             ),
         ],
       ),
@@ -490,46 +637,76 @@ class _ActivityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _SettingsCard(
-      title: 'Activity',
-      description: 'What other people can tell about what you do here.',
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _SwitchRow(
-            title: 'Show when you are active',
-            detail: 'The dot on your portrait in Messages',
-            value: settings.showOnline,
-            onChanged: (value) =>
-                settings.update(() => settings.showOnline = value),
+    // Nothing but switches: a grouped list, its heading over the card and
+    // its explanation under it. Each row is one control — the whole row
+    // takes the tap.
+    return ListSection(
+      header: _sectionHeader(context, 'Activity'),
+      footer: const Text('What other people can tell about what you do here.'),
+      children: [
+        SwitchListTile(
+          title: const Text('Show when you are active'),
+          subtitle: const Text('The dot on your portrait in Messages'),
+          value: settings.showOnline,
+          onChanged: (value) =>
+              settings.update(() => settings.showOnline = value),
+        ),
+        SwitchListTile(
+          title: const Text('Read receipts'),
+          subtitle: const Text(
+            'Let people see when you have read their message',
           ),
-          _rowDivider,
-          _SwitchRow(
-            title: 'Read receipts',
-            detail: 'Let people see when you have read their message',
-            value: settings.readReceipts,
-            onChanged: (value) =>
-                settings.update(() => settings.readReceipts = value),
+          value: settings.readReceipts,
+          onChanged: (value) =>
+              settings.update(() => settings.readReceipts = value),
+        ),
+        SwitchListTile(
+          title: const Text('Share profile views'),
+          subtitle: const Text(
+            'Show your name when you look at someone’s profile',
           ),
-          _rowDivider,
-          _SwitchRow(
-            title: 'Share profile views',
-            detail: 'Show your name when you look at someone’s profile',
-            value: settings.shareProfileViews,
-            onChanged: (value) =>
-                settings.update(() => settings.shareProfileViews = value),
+          value: settings.shareProfileViews,
+          onChanged: (value) =>
+              settings.update(() => settings.shareProfileViews = value),
+        ),
+        SwitchListTile(
+          title: const Text('Open to work, recruiters only'),
+          subtitle: const Text('Hide the status from people at Halcyon'),
+          value: settings.openToRecruitersOnly,
+          onChanged: (value) =>
+              settings.update(() => settings.openToRecruitersOnly = value),
+        ),
+      ],
+    );
+  }
+}
+
+class _PersonalisationCard extends StatelessWidget {
+  const _PersonalisationCard({required this.settings});
+
+  final SettingsController settings;
+
+  @override
+  Widget build(BuildContext context) {
+    // Any number of them: a grouped list of checkbox rows.
+    return ListSection(
+      header: _sectionHeader(context, 'Personalisation'),
+      footer: const Text('What Strand may use what it knows about you for.'),
+      children: [
+        for (final use in Personalisation.values)
+          CheckboxListTile(
+            title: Text(use.label),
+            subtitle: Text(use.detail),
+            value: settings.personalisation.contains(use),
+            onChanged: (checked) => settings.update(() {
+              if (checked ?? false) {
+                settings.personalisation.add(use);
+              } else {
+                settings.personalisation.remove(use);
+              }
+            }),
           ),
-          _rowDivider,
-          _SwitchRow(
-            title: 'Open to work, recruiters only',
-            detail: 'Hide the status from people at Halcyon',
-            value: settings.openToRecruitersOnly,
-            onChanged: (value) =>
-                settings.update(() => settings.openToRecruitersOnly = value),
-          ),
-        ],
-      ),
+      ],
     );
   }
 }
@@ -551,6 +728,8 @@ class _MessagesCard extends StatelessWidget {
             child: Select<MessagePolicy>(
               initialValue: settings.messages,
               minWidth: double.infinity,
+              presentation: _selectPresentation(context),
+              title: const Text('Who can message you'),
               options: [
                 for (final policy in MessagePolicy.values)
                   SelectOption(value: policy, child: Text(policy.label)),
@@ -582,28 +761,95 @@ class _PauseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      rowMainAxisSize: MainAxisSize.max,
-      child: _SettingRow(
-        leading: IconTile(
-          icon: Icon(
+    return ListSection(
+      children: [
+        SwitchListTile(
+          secondary: IconTile(
+            icon: PhosphorIcon(
+              settings.pauseAll
+                  ? PhosphorIconsRegular.bellSimpleSlash
+                  : PhosphorIconsRegular.bellSimpleRinging,
+            ),
+          ),
+          title: const Text('Pause all notifications'),
+          subtitle: Text(
             settings.pauseAll
-                ? PhosphorIconsRegular.bellSimpleSlash
-                : PhosphorIconsRegular.bellSimpleRinging,
+                ? 'Paused. Nothing new will reach you until you switch this '
+                      'off.'
+                : 'Take a break without changing what you are told about.',
           ),
+          subtitleMaxLines: 3,
+          value: settings.pauseAll,
+          onChanged: (value) =>
+              settings.update(() => settings.pauseAll = value),
         ),
-        title: 'Pause all notifications',
-        detail: settings.pauseAll
-            ? 'Paused. Nothing new will reach you until you switch this off.'
-            : 'Take a break without changing what you are told about.',
-        trailing: Semantics(
-          label: 'Pause all notifications',
-          child: Switch(
-            value: settings.pauseAll,
+      ],
+    );
+  }
+}
+
+/// Quiet hours: a switch, and while it is on the two times between which
+/// nothing is pushed.
+class _QuietHoursCard extends StatelessWidget {
+  const _QuietHoursCard({required this.settings});
+
+  final SettingsController settings;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final enabled = settings.quietHours && !settings.pauseAll;
+
+    // A wheel in a sheet on a phone, a field in a popover on a desktop:
+    // the picker chooses by the theme's form factor.
+    Widget time(
+      String label,
+      TimeOfDay value,
+      ValueChanged<TimeOfDay> onChanged,
+    ) => _Field(
+      label: label,
+      child: TimePicker(
+        value: value,
+        expands: true,
+        enabled: enabled,
+        minuteInterval: 5,
+        title: Text(label),
+        onChanged: (time) {
+          if (time != null) settings.update(() => onChanged(time));
+        },
+      ),
+    );
+
+    return _SettingsCard(
+      title: 'Quiet hours',
+      description: 'Nothing is pushed to your devices between these times.',
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _SwitchRow(
+            title: 'Keep quiet at night',
+            detail: 'Email still arrives; it waits for the morning anyway',
+            value: settings.quietHours,
             onChanged: (value) =>
-                settings.update(() => settings.pauseAll = value),
+                settings.update(() => settings.quietHours = value),
           ),
-        ),
+          Gap.raw(theme.gap(GapSize.lg)),
+          _FieldGrid(
+            children: [
+              time(
+                'From',
+                settings.quietFrom,
+                (value) => settings.quietFrom = value,
+              ),
+              time(
+                'Until',
+                settings.quietUntil,
+                (value) => settings.quietUntil = value,
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -622,7 +868,9 @@ class _TopicsCard extends StatelessWidget {
     final theme = Theme.of(context);
     final scale = MediaQuery.textScalerOf(context).scale(1);
     final width = _columnWidth * scale;
-    final heading = homeFinePrint(theme).copyWith(fontWeight: FontWeight.w600);
+    final heading = theme.textTheme.caption.copyWith(
+      fontWeight: FontWeight.w600,
+    );
 
     Widget box(
       Set<NotificationTopic> channel,
@@ -666,9 +914,7 @@ class _TopicsCard extends StatelessWidget {
             ],
           ),
           for (final topic in NotificationTopic.values) ...[
-            const Divider.horizontal(
-              margin: EdgeInsets.symmetric(vertical: 12),
-            ),
+            const _RowDivider(),
             Row(
               children: [
                 Expanded(
@@ -742,6 +988,9 @@ class _JobMatchCard extends StatelessWidget {
               max: 100,
               divisions: 10,
               showDivisionMarks: false,
+              // The figure rides above the thumb while it is dragged.
+              valueIndicator: SliderValueIndicator.whileDragging,
+              valueLabel: (value) => '${value.round()}%',
               onChanged: (value) =>
                   settings.update(() => settings.jobMatch = value / 100),
             ),
@@ -750,11 +999,11 @@ class _JobMatchCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('50%, more roles', style: homeFinePrint(theme)),
-              Text('100%, exact fits', style: homeFinePrint(theme)),
+              Text('50%, more roles', style: theme.textTheme.caption),
+              Text('100%, exact fits', style: theme.textTheme.caption),
             ],
           ),
-          _rowDivider,
+          const _RowDivider(),
           _FieldGrid(
             children: [
               _Field(
@@ -762,6 +1011,8 @@ class _JobMatchCard extends StatelessWidget {
                 child: Select<DigestFrequency>(
                   initialValue: settings.digest,
                   minWidth: double.infinity,
+                  presentation: _selectPresentation(context),
+                  title: const Text('Summary email'),
                   options: [
                     for (final option in DigestFrequency.values)
                       SelectOption(value: option, child: Text(option.label)),
@@ -778,6 +1029,19 @@ class _JobMatchCard extends StatelessWidget {
                   },
                 ),
               ),
+              _Field(
+                label: 'Job emails a week, at most',
+                // A small whole number: minus, the figure, plus.
+                child: NumberField.stepper(
+                  value: settings.jobEmailsPerWeek,
+                  min: 0,
+                  max: 14,
+                  semanticLabel: 'Job emails a week, at most',
+                  onChanged: (value) => settings.update(
+                    () => settings.jobEmailsPerWeek = (value ?? 0).round(),
+                  ),
+                ),
+              ),
             ],
           ),
         ],
@@ -789,15 +1053,21 @@ class _JobMatchCard extends StatelessWidget {
 // Appearance.
 
 /// Light or dark, and the text size: the two settings on this page that are
-/// real. They write to the app's own state, so the whole app follows — and
-/// the theme editor shows the same values.
-class _ThemeCard extends StatelessWidget {
+/// real. They write to the app's own state, so the whole app follows, the
+/// theme editor shows the same values, and a change made in the editor
+/// shows here.
+class _ThemeCard extends StatefulWidget {
   const _ThemeCard();
 
   /// The range of the text-size slider. The theme editor's goes further.
   static const _minScale = .85;
   static const _maxScale = 1.3;
 
+  @override
+  State<_ThemeCard> createState() => _ThemeCardState();
+}
+
+class _ThemeCardState extends State<_ThemeCard> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -808,6 +1078,12 @@ class _ThemeCard extends StatelessWidget {
         final config = themeConfigProvider.of(context);
         final editorOpen = themeEditorOpenProvider.of(context).value;
         final scale = config.value.textScale;
+        // The slider is controlled: the text scale is the theme editor's
+        // too, which can change it while this card is showing. The thumb
+        // follows the setting as far as this slider's shorter range goes,
+        // and a drag here writes the value it rounds to.
+        final thumb = scale.clamp(_ThemeCard._minScale, _ThemeCard._maxScale);
+        final mobile = theme.formFactor == FormFactor.mobile;
 
         return _SettingsCard(
           title: 'Theme',
@@ -819,36 +1095,50 @@ class _ThemeCard extends StatelessWidget {
               _SettingRow(
                 title: 'Mode',
                 detail: 'Light for the day, dark for the evening',
+                trailingIsLabelled: true,
+                // On a phone the three segments take a line of their own.
+                stacked: mobile,
                 trailing: Semantics(
                   label: 'Mode',
                   container: true,
-                  child: Tabs<ThemeMode>(
+                  // One of three, all in view: a segmented control.
+                  child: SegmentedControl<ThemeMode>(
+                    expand: mobile,
                     value: mode.value,
                     onChanged: (value) => mode.value = value,
-                    tabs: const [
-                      Tab(
-                        value: ThemeMode.light,
-                        leading: Icon(PhosphorIconsRegular.sun),
-                        child: Text('Light'),
+                    segments: const [
+                      Segment(
+                        value: ThemeMode.system,
+                        icon: PhosphorIcon(PhosphorIconsRegular.circleHalf),
+                        label: Text('Auto'),
+                        tooltip: 'Follow the device',
                       ),
-                      Tab(
+                      Segment(
+                        value: ThemeMode.light,
+                        icon: PhosphorIcon(PhosphorIconsRegular.sun),
+                        label: Text('Light'),
+                      ),
+                      Segment(
                         value: ThemeMode.dark,
-                        leading: Icon(PhosphorIconsRegular.moon),
-                        child: Text('Dark'),
+                        icon: PhosphorIcon(PhosphorIconsRegular.moon),
+                        label: Text('Dark'),
                       ),
                     ],
                   ),
                 ),
               ),
-              _rowDivider,
+              const _RowDivider(),
               Row(
                 children: [
                   Expanded(
-                    child: Text(
-                      'Text size',
-                      style: theme.textTheme.p.copyWith(
-                        fontWeight: FontWeight.w500,
-                        color: scheme.foreground,
+                    // The slider below is labelled with the same words.
+                    child: ExcludeSemantics(
+                      child: Text(
+                        'Text size',
+                        style: theme.textTheme.p.copyWith(
+                          fontWeight: FontWeight.w500,
+                          color: scheme.foreground,
+                        ),
                       ),
                     ),
                   ),
@@ -861,9 +1151,10 @@ class _ThemeCard extends StatelessWidget {
               const Gap.md(),
               Row(
                 children: [
-                  Icon(
+                  PhosphorIcon(
                     PhosphorIconsRegular.textAa,
-                    size: 16,
+                    // A small letter and a large one: the slider's two ends.
+                    size: theme.iconBeside(theme.textTheme.caption),
                     color: scheme.mutedForeground,
                   ),
                   const Gap.md(),
@@ -871,11 +1162,13 @@ class _ThemeCard extends StatelessWidget {
                     child: Semantics(
                       label: 'Text size',
                       child: Slider(
-                        initialValue: scale.clamp(_minScale, _maxScale),
-                        min: _minScale,
-                        max: _maxScale,
+                        value: thumb,
+                        min: _ThemeCard._minScale,
+                        max: _ThemeCard._maxScale,
                         divisions: 9,
                         showDivisionMarks: false,
+                        valueIndicator: SliderValueIndicator.whileDragging,
+                        valueLabel: (value) => '${(value * 100).round()}%',
                         onChanged: (value) {
                           // Rounded, so that 100% is exactly the default
                           // and the theme editor shows no change.
@@ -888,20 +1181,20 @@ class _ThemeCard extends StatelessWidget {
                     ),
                   ),
                   const Gap.md(),
-                  Icon(
+                  PhosphorIcon(
                     PhosphorIconsRegular.textAa,
-                    size: 24,
+                    size: theme.iconBeside(theme.textTheme.h3),
                     color: scheme.mutedForeground,
                   ),
                 ],
               ),
-              _rowDivider,
+              const _RowDivider(),
               _SettingRow(
                 title: 'Theme editor',
                 detail: 'Restyle everything: colours, type, radii, glass',
                 trailing: Button.outline(
                   size: ButtonSize.sm,
-                  leading: const Icon(PhosphorIconsRegular.paintBrush),
+                  leading: const PhosphorIcon(PhosphorIconsRegular.paintBrush),
                   onPressed: context.toggleThemeEditor,
                   child: Text(editorOpen ? 'Close' : 'Open'),
                 ),
@@ -921,36 +1214,43 @@ class _DisplayCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _SettingsCard(
-      title: 'Feed and motion',
-      description: 'How the home feed behaves.',
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _SwitchRow(
-            title: 'Reduce motion',
-            detail: 'Fade where things would slide or scale',
-            value: settings.reduceMotion,
-            onChanged: (value) =>
-                settings.update(() => settings.reduceMotion = value),
-          ),
-          _rowDivider,
-          _SwitchRow(
-            title: 'Compact feed',
-            detail: 'Shorter posts, smaller pictures',
-            value: settings.compactFeed,
-            onChanged: (value) =>
-                settings.update(() => settings.compactFeed = value),
-          ),
-          _rowDivider,
-          _FieldGrid(
+    return FinesseColumn(
+      gap: GapSize.lg,
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ListSection(
+          header: _sectionHeader(context, 'Feed and motion'),
+          footer: const Text('How the home feed behaves.'),
+          children: [
+            SwitchListTile(
+              title: const Text('Reduce motion'),
+              subtitle: const Text('Fade where things would slide or scale'),
+              value: settings.reduceMotion,
+              onChanged: (value) =>
+                  settings.update(() => settings.reduceMotion = value),
+            ),
+            SwitchListTile(
+              title: const Text('Compact feed'),
+              subtitle: const Text('Shorter posts, smaller pictures'),
+              value: settings.compactFeed,
+              onChanged: (value) =>
+                  settings.update(() => settings.compactFeed = value),
+            ),
+          ],
+        ),
+        _SettingsCard(
+          title: 'Video',
+          description: 'Moving pictures cost data and attention.',
+          child: _FieldGrid(
             children: [
               _Field(
                 label: 'Play videos automatically',
                 child: Select<Autoplay>(
                   initialValue: settings.autoplay,
                   minWidth: double.infinity,
+                  presentation: _selectPresentation(context),
+                  title: const Text('Play videos automatically'),
                   options: [
                     for (final option in Autoplay.values)
                       SelectOption(value: option, child: Text(option.label)),
@@ -965,8 +1265,8 @@ class _DisplayCard extends StatelessWidget {
               ),
             ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

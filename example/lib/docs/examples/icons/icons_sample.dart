@@ -48,7 +48,7 @@ class IconsSampleExample extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               spacing: 6,
               children: [
-                Icon(icon, size: 24),
+                PhosphorIcon(icon, size: 24),
                 Text(
                   name,
                   maxLines: 1,

@@ -6,38 +6,39 @@ import 'package:flutter/widgets.dart';
 
 /// Controls the open state of a [Collapsible].
 class CollapsibleController extends ChangeNotifier {
-  /// Creates a controller. [open] sets whether the content starts shown.
-  CollapsibleController({bool open = false}) : _open = open;
+  /// Creates a controller. [isOpen] sets whether the content starts shown.
+  CollapsibleController({bool isOpen = false}) : _open = isOpen;
 
   bool _open;
 
   /// Whether the collapsible's content is currently shown.
-  bool get open => _open;
-
-  set open(bool value) {
-    if (_open == value) return;
-    _open = value;
-    notifyListeners();
-  }
-
-  /// The same as [open], under the name `PopoverController` uses.
   bool get isOpen => _open;
 
   /// Shows the content.
-  void show() => open = true;
+  void open() => setOpen(true);
 
   /// Hides the content.
-  void hide() => open = false;
+  void close() => setOpen(false);
 
   /// Shows the content if hidden, hides it if shown.
-  void toggle() => open = !_open;
+  void toggle() => setOpen(!_open);
+
+  /// Shows the content when [open] is true and hides it otherwise.
+  void setOpen(bool open) {
+    if (_open == open) return;
+    _open = open;
+    notifyListeners();
+  }
 }
 
 /// Builds the trigger of a [Collapsible].
 ///
 /// [open] is the current state and [toggle] flips it.
-typedef CollapsibleTriggerBuilder =
-    Widget Function(BuildContext context, bool open, VoidCallback toggle);
+typedef CollapsibleTriggerBuilder = Widget Function(
+  BuildContext context,
+  bool open,
+  VoidCallback toggle,
+);
 
 /// {@template Collapsible}
 /// An expandable/collapsible section.
@@ -67,11 +68,7 @@ class Collapsible extends StatefulWidget {
     this.trigger,
     this.controller,
     this.initiallyOpen = false,
-    this.onOpenChange,
-    this.duration,
-    this.curve,
-    this.reverseDuration,
-    this.reverseCurve,
+    this.onOpenChanged,
     this.crossAxisAlignment,
     this.maintainState = false,
   });
@@ -97,30 +94,7 @@ class Collapsible extends StatefulWidget {
   final bool initiallyOpen;
 
   /// Called whenever the open state changes.
-  final ValueChanged<bool>? onOpenChange;
-
-  /// {@template Collapsible.duration}
-  /// The duration of the expand animation. Defaults to the time the theme's
-  /// `Motion.smooth` spring takes to settle.
-  /// {@endtemplate}
-  final Duration? duration;
-
-  /// {@template Collapsible.curve}
-  /// The curve of the expand animation. Defaults to the theme's
-  /// `Motion.smooth` spring, and the collapse runs the same curve the other
-  /// way round, so both decelerate into place.
-  /// {@endtemplate}
-  final Curve? curve;
-
-  /// {@template Collapsible.reverseDuration}
-  /// The duration of the collapse animation, defaults to [duration].
-  /// {@endtemplate}
-  final Duration? reverseDuration;
-
-  /// {@template Collapsible.reverseCurve}
-  /// The curve of the collapse animation, defaults to [curve].
-  /// {@endtemplate}
-  final Curve? reverseCurve;
+  final ValueChanged<bool>? onOpenChanged;
 
   /// {@template Collapsible.crossAxisAlignment}
   /// How the trigger and content are aligned horizontally.
@@ -134,11 +108,11 @@ class Collapsible extends StatefulWidget {
   final bool maintainState;
 
   @override
-  State<Collapsible> createState() => CollapsibleState();
+  State<Collapsible> createState() => _CollapsibleState();
 }
 
 /// The state of a [Collapsible].
-class CollapsibleState extends State<Collapsible>
+class _CollapsibleState extends State<Collapsible>
     with SingleTickerProviderStateMixin {
   CollapsibleController? _internalController;
 
@@ -150,7 +124,7 @@ class CollapsibleState extends State<Collapsible>
   late final AnimationController _animationController = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 200),
-    value: controller.open ? 1 : 0,
+    value: controller.isOpen ? 1 : 0,
   );
 
   late final CurvedAnimation _sizeFactor = CurvedAnimation(
@@ -163,7 +137,7 @@ class CollapsibleState extends State<Collapsible>
     super.initState();
     if (widget.controller == null) {
       _internalController = CollapsibleController(
-        open: widget.initiallyOpen,
+        isOpen: widget.initiallyOpen,
       );
     }
     controller.addListener(_onOpenChanged);
@@ -191,12 +165,12 @@ class CollapsibleState extends State<Collapsible>
   }
 
   void _onOpenChanged() {
-    if (controller.open) {
+    if (controller.isOpen) {
       _animationController.forward();
     } else {
       _animationController.reverse();
     }
-    widget.onOpenChange?.call(controller.open);
+    widget.onOpenChanged?.call(controller.isOpen);
     if (mounted) setState(() {});
   }
 
@@ -206,28 +180,23 @@ class CollapsibleState extends State<Collapsible>
     final theme = Theme.of(context);
     final collapsibleTheme = theme.collapsibleTheme;
 
+    // Open and shut on the surface spring, for as long as it takes to
+    // settle.
     final motion = Motion.of(context);
-    final curve = widget.curve ?? collapsibleTheme.curve ?? motion.smooth.curve;
-    _animationController
-      ..duration =
-          widget.duration ??
-          collapsibleTheme.duration ??
-          motion.smooth.settleDuration
-      ..reverseDuration =
-          widget.reverseDuration ?? collapsibleTheme.reverseDuration;
+    final curve = motion.smooth.curve;
+    _animationController.duration = motion.smooth.settleDuration;
     _sizeFactor
       ..curve = curve
       // Flipped, the same curve decelerates into the closed state too
       // instead of running backwards and stopping dead.
-      ..reverseCurve =
-          widget.reverseCurve ?? collapsibleTheme.reverseCurve ?? curve.flipped;
+      ..reverseCurve = curve.flipped;
 
     final effectiveCrossAxisAlignment =
         widget.crossAxisAlignment ??
         collapsibleTheme.crossAxisAlignment ??
         CrossAxisAlignment.stretch;
 
-    final open = controller.open;
+    final open = controller.isOpen;
 
     return Column(
       mainAxisSize: MainAxisSize.min,

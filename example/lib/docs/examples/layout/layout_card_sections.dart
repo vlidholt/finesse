@@ -36,7 +36,7 @@ class _LayoutCardSectionsExampleState extends State<LayoutCardSectionsExample> {
               onChanged: (v) => setState(() => push = v),
               label: const Text('Push'),
             ),
-            const Divider.horizontal(
+            const Divider(
               margin: EdgeInsets.symmetric(vertical: 4),
             ),
             Button(onPressed: () {}, child: const Text('Save preferences')),

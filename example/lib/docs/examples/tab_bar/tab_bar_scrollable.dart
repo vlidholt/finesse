@@ -1,7 +1,7 @@
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
-/// With `expand: false` each tab is as wide as its label and the row scrolls
+/// With `expandTabs: false` each tab is as wide as its label and the row scrolls
 /// when there are more tabs than room.
 class TabBarScrollableExample extends StatefulWidget {
   const TabBarScrollableExample({super.key});
@@ -22,7 +22,7 @@ class _TabBarScrollableExampleState extends State<TabBarScrollableExample> {
     'Events',
   ];
 
-  int selected = 0;
+  String selected = _tabs.first;
 
   @override
   Widget build(BuildContext context) {
@@ -34,11 +34,13 @@ class _TabBarScrollableExampleState extends State<TabBarScrollableExample> {
       child: ClipRect(
         child: Padding(
           padding: const EdgeInsets.only(bottom: 1),
-          child: TabBar(
-            expand: false,
-            selectedIndex: selected,
-            onSelected: (i) => setState(() => selected = i),
-            tabs: [for (final name in _tabs) Text(name)],
+          child: TabBar<String>(
+            expandTabs: false,
+            value: selected,
+            onChanged: (value) => setState(() => selected = value),
+            tabs: [
+              for (final name in _tabs) Tab(value: name, child: Text(name)),
+            ],
           ),
         ),
       ),

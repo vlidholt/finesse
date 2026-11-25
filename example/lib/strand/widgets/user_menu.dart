@@ -19,7 +19,7 @@ import 'package:flutter/widgets.dart';
 /// UserMenu(
 ///   showProfile: false,
 ///   builder: (context, controller, _) => IconButton.ghost(
-///     icon: const Icon(PhosphorIconsRegular.dotsThree),
+///     icon: const PhosphorIcon(PhosphorIconsRegular.dotsThree),
 ///     semanticLabel: 'More options',
 ///     onPressed: controller.toggle,
 ///   ),
@@ -64,7 +64,7 @@ class UserMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const divider = Divider.horizontal(
+    const divider = Divider(
       margin: EdgeInsets.symmetric(vertical: 4),
     );
 
@@ -83,36 +83,36 @@ class UserMenu extends StatelessWidget {
           const _Identity(),
           divider,
           if (showProfile)
-            ContextMenuItem(
-              leading: const Icon(PhosphorIconsRegular.user),
+            MenuItem(
+              leading: const PhosphorIcon(PhosphorIconsRegular.user),
               onPressed: () => context.goTo(StrandDestination.profile),
               child: const Text('View profile'),
             ),
-          ContextMenuItem(
-            leading: const Icon(PhosphorIconsRegular.bookmarkSimple),
+          MenuItem(
+            leading: const PhosphorIcon(PhosphorIconsRegular.bookmarkSimple),
             onPressed: () => showSavedItems(context),
             child: const Text('Saved items'),
           ),
-          ContextMenuItem(
-            leading: const Icon(PhosphorIconsRegular.gearSix),
+          MenuItem(
+            leading: const PhosphorIcon(PhosphorIconsRegular.gearSix),
             onPressed: () => openSettings(context),
             child: const Text('Settings'),
           ),
-          ContextMenuItem(
-            leading: Icon(
+          MenuItem(
+            leading: PhosphorIcon(
               dark ? PhosphorIconsRegular.sun : PhosphorIconsRegular.moon,
             ),
             onPressed: () => toggleThemeMode(context),
             child: Text(dark ? 'Light mode' : 'Dark mode'),
           ),
           divider,
-          ContextMenuItem(
-            leading: const Icon(PhosphorIconsRegular.squaresFour),
+          MenuItem(
+            leading: const PhosphorIcon(PhosphorIconsRegular.squaresFour),
             onPressed: context.openComponentLibrary,
             child: const Text('Browse components'),
           ),
-          ContextMenuItem(
-            leading: const Icon(PhosphorIconsRegular.paintBrush),
+          MenuItem(
+            leading: const PhosphorIcon(PhosphorIconsRegular.paintBrush),
             onPressed: context.toggleThemeEditor,
             child: Text(
               editorOpen ? 'Close theme editor' : 'Open theme editor',

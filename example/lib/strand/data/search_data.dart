@@ -152,9 +152,39 @@ abstract final class SearchData {
     return [?company.industry, ?company.size].join(' · ');
   }
 
-  /// The words of [query], lower-cased; a result has to contain them all.
+  // The lower-case letters of Latin-1 and Latin Extended-A that are a
+  // plain letter with a mark, and the plain letter each one is.
+  static const _marked =
+      'àáâãäåçèéêëìíîïñòóôõöøùúûüýÿāăąćĉċčďđēĕėęěĝğġģĥħĩīĭįıĵķĺļľłńņňōŏőŕŗřśŝ'
+      'şšţťŧũūŭůűųŵŷźżž';
+  static const _plain =
+      'aaaaaaceeeeiiiinoooooouuuuyyaaaccccddeeeeegggghhiiiiijkllllnnnooorrrss'
+      'sstttuuuuuuwyzzz';
+
+  /// [text] as search compares it: lower-cased, and with the marks taken
+  /// off its letters, so that "sorensen" finds "Sørensen".
+  ///
+  /// The result has exactly as many code units as [text] — every one is
+  /// folded on its own, and a letter that would become two (`æ`, `ß`) is
+  /// left as it is — so an offset found in the folded text is the same
+  /// offset in the original, which is what the highlighting relies on.
+  static String fold(String text) {
+    final units = List<int>.of(text.codeUnits);
+    for (var i = 0; i < units.length; i++) {
+      // ASCII is most of any text.
+      if (units[i] < 0x41) continue;
+      final lower = String.fromCharCode(units[i]).toLowerCase();
+      if (lower.length != 1) continue;
+      final marked = _marked.indexOf(lower);
+      units[i] = marked < 0 ? lower.codeUnitAt(0) : _plain.codeUnitAt(marked);
+    }
+    return String.fromCharCodes(units);
+  }
+
+  /// The words of [query], folded as [fold] does; a result has to contain
+  /// them all.
   static List<String> termsOf(String query) => [
-    for (final term in query.toLowerCase().split(RegExp(r'\s+')))
+    for (final term in fold(query).split(RegExp(r'\s+')))
       if (term.isNotEmpty) term,
   ];
 
@@ -164,7 +194,7 @@ abstract final class SearchData {
     if (terms.isEmpty) return const SearchResults();
 
     bool matches(Iterable<String?> fields) {
-      final haystack = fields.nonNulls.join('\n').toLowerCase();
+      final haystack = fold(fields.nonNulls.join('\n'));
       return terms.every(haystack.contains);
     }
 
@@ -192,7 +222,7 @@ abstract final class SearchData {
   /// too long to show whole: "…cutting six setup screens down to two…".
   static String excerpt(String text, String query, {int radius = 70}) {
     final flat = text.replaceAll(RegExp(r'\s+'), ' ').trim();
-    final lower = flat.toLowerCase();
+    final lower = fold(flat);
     var first = -1;
     for (final term in termsOf(query)) {
       final index = lower.indexOf(term);

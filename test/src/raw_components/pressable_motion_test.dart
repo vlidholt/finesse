@@ -200,7 +200,7 @@ void main() {
           mainAxisSize: MainAxisSize.min,
           children: [
             Card(
-              onPressed: () {},
+              onTap: () {},
               child: const SizedBox(width: 200, height: 80),
             ),
             SizedBox(

@@ -26,7 +26,7 @@ class BoardTheme with _$BoardTheme {
     this.columnPadding,
     this.headerPadding,
     this.footerPadding,
-    this.columnRadius,
+    this.columnBorderRadius,
     this.columnColor,
     this.columnBorderColor,
     this.targetColumnColor,
@@ -41,7 +41,7 @@ class BoardTheme with _$BoardTheme {
     this.fullCountForegroundColor,
     this.itemColor,
     this.itemPadding,
-    this.itemRadius,
+    this.itemBorderRadius,
     this.itemShadows,
     this.placeholderColor,
     this.placeholderBorderColor,
@@ -105,7 +105,7 @@ class BoardTheme with _$BoardTheme {
   final EdgeInsetsGeometry? footerPadding;
 
   /// The corner radius of a column.
-  final BorderRadius? columnRadius;
+  final BorderRadius? columnBorderRadius;
 
   /// The fill of a column.
   final Color? columnColor;
@@ -152,7 +152,7 @@ class BoardTheme with _$BoardTheme {
 
   /// The corner radius of an item: of a `Card` inside a board, of the slot
   /// that opens for a dragged item and of the lifted item's shadow.
-  final BorderRadius? itemRadius;
+  final BorderRadius? itemBorderRadius;
 
   /// The shadows a `Card` takes inside a board.
   final List<BoxShadow>? itemShadows;

@@ -21,7 +21,7 @@ class CardProjectExample extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      width: 350,
+      style: CardTheme(width: 350),
       title: const Text('Create project'),
       description: const Text('Deploy your new project in one-click.'),
       footer: Row(
@@ -63,4 +63,3 @@ class CardProjectExample extends StatelessWidget {
   }
 }
 ```
-

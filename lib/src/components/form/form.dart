@@ -92,8 +92,10 @@ class FinesseForm extends StatefulWidget {
   /// Returns the nearest [FinesseFormState] from the widget tree or null if not
   /// found
   static FinesseFormState? maybeOf(BuildContext context) {
-    return (context.getElementForInheritedWidgetOfExactType<FormScope>()?.widget
-            as FormScope?)
+    return (context
+                .getElementForInheritedWidgetOfExactType<_FormScope>()
+                ?.widget
+            as _FormScope?)
         ?._formState;
   }
 }
@@ -363,7 +365,7 @@ class FinesseFormState extends State<FinesseForm> {
           child: child!,
         );
       },
-      child: FormScope(
+      child: _FormScope(
         formState: this,
         child: FocusTraversalGroup(
           policy: WidgetOrderTraversalPolicy(),
@@ -375,10 +377,9 @@ class FinesseFormState extends State<FinesseForm> {
 }
 
 /// An inherited widget that provides access to the [FinesseFormState]
-class FormScope extends InheritedWidget {
+class _FormScope extends InheritedWidget {
   /// Creates a scope that gives [child] access to `formState`.
-  const FormScope({
-    super.key,
+  const _FormScope({
     required super.child,
     required FinesseFormState formState,
   }) : _formState = formState;
@@ -389,6 +390,6 @@ class FormScope extends InheritedWidget {
   FinesseForm get form => _formState.widget;
 
   @override
-  bool updateShouldNotify(FormScope oldWidget) =>
+  bool updateShouldNotify(_FormScope oldWidget) =>
       oldWidget._formState != _formState;
 }

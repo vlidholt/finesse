@@ -1,3 +1,5 @@
+import 'package:finesse/src/theme/data.dart';
+import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
 
 /// Lerps between two colours without passing through a darker one when a
@@ -30,7 +32,12 @@ class MotionColorTween extends Tween<Color?> {
 /// on from where the fade is, and a null or transparent colour fades as
 /// opacity only (see [lerpColorThroughAlpha]). A zero [duration] changes it
 /// at once.
-class AnimatedColorBuilder extends StatelessWidget {
+///
+/// So does a change of theme: a colour that is different because the theme
+/// is (see [ThemeChange]) is taken at once. The fade is for a change of
+/// state; an app that changes theme transitions as a whole, and a fill
+/// chasing it would rebuild its subtree on every frame of that for nothing.
+class AnimatedColorBuilder extends StatefulWidget {
   /// Creates an animated colour.
   const AnimatedColorBuilder({
     required this.color,
@@ -57,20 +64,55 @@ class AnimatedColorBuilder extends StatelessWidget {
   final Widget? child;
 
   @override
+  State<AnimatedColorBuilder> createState() => _AnimatedColorBuilderState();
+}
+
+class _AnimatedColorBuilderState extends State<AnimatedColorBuilder> {
+  final _theme = ThemeChange();
+
+  @override
   Widget build(BuildContext context) {
-    final target = color;
+    final target = widget.color;
     return TweenAnimationBuilder<Color?>(
       // The builder asserts a non-null end; "no colour" is transparent on
       // the way and null again once it has arrived.
       tween: MotionColorTween(end: target ?? const Color(0x00000000)),
-      duration: duration,
-      curve: curve,
-      builder: (context, value, child) => builder(
+      duration: _theme.changedFor(context) ? Duration.zero : widget.duration,
+      curve: widget.curve,
+      builder: (context, value, child) => widget.builder(
         context,
         target == null && (value == null || value.a == 0) ? null : value,
         child,
       ),
-      child: child,
+      child: widget.child,
     );
+  }
+}
+
+/// Tells an implicit animation whether the build it is in was caused by a
+/// change of theme.
+///
+/// A `State` keeps one and asks [changedFor] once per build (or per
+/// `didUpdateWidget`). It answers true when the theme above is not the one
+/// it saw the time before — the moment to take new colours at once instead
+/// of fading to them.
+class ThemeChange {
+  ThemeData? _seen;
+  bool _asked = false;
+
+  /// Whether the theme above [context] has changed since this was last
+  /// asked. False the first time. Does not make [context] depend on the
+  /// theme: a widget whose colours come from it is rebuilt by whoever
+  /// passes them.
+  bool changedFor(BuildContext context) {
+    final theme = Theme.maybeOf(context, listen: false);
+    final seen = _seen;
+    final first = !_asked;
+    _asked = true;
+    _seen = theme;
+    if (first || identical(theme, seen)) return false;
+    // Two equal themes are one theme: an app that builds its `ThemeData`
+    // inline has a new instance on every rebuild.
+    return theme != seen;
   }
 }

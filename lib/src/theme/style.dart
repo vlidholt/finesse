@@ -257,10 +257,13 @@ class StyleTokens {
     this.popoverOpacityDark,
     this.tooltipOpacity = 1,
     this.tooltipOpacityDark,
+    this.menuHighlightOpacity,
+    this.menuHighlightOpacityDark,
     this.tableHoverOpacity = .5,
     this.tableSelectionTinted = false,
     this.cardShadowDark,
     this.floatingShadow = Shadows.lg,
+    this.floatingShadowDark,
     this.pagePaddingX = 24,
     this.pagePaddingY = 24,
     this.pageMaxWidth = 1280,
@@ -270,6 +273,9 @@ class StyleTokens {
     this.gapLg = 16,
     this.gapXl = 24,
     this.appBarHeight = 64,
+    this.fabSize = 48,
+    this.fabSizeSm = 40,
+    this.fabSizeLg = 64,
     this.navigationItemWidth = 88,
     this.navigationIconSize = 24,
     this.navigationIndicatorHeight = 3,
@@ -278,6 +284,14 @@ class StyleTokens {
     this.bottomNavigationIconSize = 26,
     this.bottomNavigationPadding = 6,
     this.bottomNavigationFloating = true,
+    this.bottomNavigationOpacity,
+    this.bottomNavigationOpacityDark,
+    this.bottomNavigationLift = 0,
+    this.bottomNavigationLiftDark,
+    this.bottomNavigationBorderOpacity,
+    this.bottomNavigationBorderOpacityDark,
+    this.bottomNavigationRimOpacity,
+    this.bottomNavigationRimOpacityDark,
     this.chipHeight = 32,
     this.chipPaddingX = 12,
     this.chipGap = 6,
@@ -305,6 +319,8 @@ class StyleTokens {
     this.progressTinted = false,
     this.dividerMargin = 16,
     this.timelineLineGap = 6,
+    this.iconOpticalSize = 24,
+    this.iconOpticalStrength = .5,
     this.tabsListFill = SurfaceFill.muted,
     this.tabSelectedFill = SurfaceFill.background,
     this.tabUnselectedMuted = false,
@@ -869,6 +885,13 @@ class StyleTokens {
   final double? cardOpacityDark;
 
   /// Whether a translucent card blurs what is behind it.
+  ///
+  /// Off in every shipped style. A card normally lies on the flat page,
+  /// where a blur shows nothing and still costs a backdrop filter — a
+  /// read-back and a blur of everything under the card, on every frame the
+  /// card is on screen — and a feed is a card per item. Turn it on for a
+  /// style whose cards float over imagery; the bars, popovers, menus and
+  /// `Glass` are glass regardless.
   final bool cardBlur;
 
   /// The opacity of floating surfaces: popovers, dropdown and context
@@ -891,6 +914,21 @@ class StyleTokens {
   /// [tooltipOpacity] on a dark scheme. Null uses [tooltipOpacity].
   final double? tooltipOpacityDark;
 
+  /// How much of the menu's foreground washes the highlighted row of a
+  /// menu, a select's list and the command palette, with the row's text
+  /// and icons keeping their resting colour.
+  ///
+  /// Null, the default, is shadcn's `focus:bg-accent
+  /// focus:text-accent-foreground` (`bg-muted` in the command palette): an
+  /// opaque fill, which is right on a solid menu and reads as a bright slab
+  /// on a glass one. A bold `ThemeData.menuAccent` fills the row with the
+  /// primary either way — it asks for exactly that.
+  final double? menuHighlightOpacity;
+
+  /// [menuHighlightOpacity] on a dark menu. Null uses
+  /// [menuHighlightOpacity].
+  final double? menuHighlightOpacityDark;
+
   /// How much of the scheme's `muted` colour a hovered table row is washed
   /// with. shadcn's `hover:bg-muted/50` is the default; a scheme whose
   /// `muted` is already a faint wash, like teal's, takes all of it.
@@ -905,6 +943,12 @@ class StyleTokens {
 
   /// The shadow under floating chrome such as a floating navigation bar.
   final List<BoxShadow> floatingShadow;
+
+  /// [floatingShadow] on a dark scheme. Null uses [floatingShadow].
+  ///
+  /// A shadow tuned for a light page barely registers on a dark one; this
+  /// is where a style asks for a deeper, wider one.
+  final List<BoxShadow>? floatingShadowDark;
 
   /// Horizontal padding between the window edge and page content.
   final double pagePaddingX;
@@ -933,6 +977,15 @@ class StyleTokens {
   /// The height of an app bar.
   final double appBarHeight;
 
+  /// The height of a floating action button, and its width without a label.
+  final double fabSize;
+
+  /// [fabSize] for a small floating action button.
+  final double fabSizeSm;
+
+  /// [fabSize] for a large floating action button.
+  final double fabSizeLg;
+
   /// The width of a destination in a top navigation bar.
   final double navigationItemWidth;
 
@@ -957,6 +1010,49 @@ class StyleTokens {
   /// Whether the bottom navigation bar floats as a pill above the page
   /// rather than spanning the bottom edge.
   final bool bottomNavigationFloating;
+
+  /// The opacity of the bottom navigation bar's fill, where it is to be
+  /// thinner than the other bars. Null uses [barOpacity].
+  ///
+  /// It only ever thins the bar: the lower of this and [barOpacity] is
+  /// used, and with a [barOpacity] of 1 the bottom bar is solid like the
+  /// rest.
+  final double? bottomNavigationOpacity;
+
+  /// [bottomNavigationOpacity] on a dark scheme. Null uses
+  /// [bottomNavigationOpacity].
+  final double? bottomNavigationOpacityDark;
+
+  /// How much of the scheme's foreground is mixed into the bottom
+  /// navigation bar's fill before it is made translucent: 0 leaves the
+  /// scheme's `bar` colour alone.
+  ///
+  /// It lifts a floating bar off a page of its own colour — on a dark
+  /// scheme the bar and the page are a shade apart, and no shadow shows
+  /// between them.
+  final double bottomNavigationLift;
+
+  /// [bottomNavigationLift] on a dark scheme. Null uses
+  /// [bottomNavigationLift].
+  final double? bottomNavigationLiftDark;
+
+  /// The opacity of the foreground wash a floating bottom navigation bar's
+  /// hairline is drawn in. Null draws it in the scheme's `border`.
+  final double? bottomNavigationBorderOpacity;
+
+  /// [bottomNavigationBorderOpacity] on a dark scheme. Null uses
+  /// [bottomNavigationBorderOpacity].
+  final double? bottomNavigationBorderOpacityDark;
+
+  /// The opacity of the foreground wash along the top edge of a floating
+  /// bottom navigation bar's hairline, which fades into the rest of the
+  /// hairline on the way down — the rim of a sheet of glass lit from
+  /// above. Null gives the hairline one colour all the way round.
+  final double? bottomNavigationRimOpacity;
+
+  /// [bottomNavigationRimOpacity] on a dark scheme. Null uses
+  /// [bottomNavigationRimOpacity].
+  final double? bottomNavigationRimOpacityDark;
 
   /// The height of a chip.
   final double chipHeight;
@@ -1045,6 +1141,22 @@ class StyleTokens {
   /// The gap between a timeline marker and the line that leaves it.
   final double timelineLineGap;
 
+  /// The size, in logical pixels, at which a `PhosphorIcon` draws a regular
+  /// icon exactly as the font has it. A smaller icon has its line thickened
+  /// towards the one this size has: see [iconOpticalStrength]. A
+  /// measurement on the screen, like a hairline, so it is not scaled with
+  /// the spacing step.
+  final double iconOpticalSize;
+
+  /// How far a `PhosphorIcon` smaller than [iconOpticalSize] has its line
+  /// thickened, from 0 to 1.
+  ///
+  /// The regular weight's line is a sixteenth of the icon's size, so it
+  /// thins as the icon shrinks. 1 makes up the whole difference — every
+  /// icon up to [iconOpticalSize] has that size's line — and 0 none: the
+  /// glyph as the font has it, which switches the feature off.
+  final double iconOpticalStrength;
+
   /// The fill of a tab list.
   final SurfaceFill tabsListFill;
 
@@ -1099,15 +1211,28 @@ class StyleTokens {
     ),
   ];
 
+  // A black shadow is nearly lost on a dark page, so the dark one is deeper
+  // and reaches further: enough to read as a pool under a floating bar.
+  static const _finesseFloatingShadowDark = [
+    BoxShadow(color: Color(0x4d000000), offset: Offset(0, 1), blurRadius: 2),
+    BoxShadow(
+      color: Color(0xbf000000),
+      offset: Offset(0, 16),
+      blurRadius: 40,
+      spreadRadius: -8,
+    ),
+  ];
+
   static const _finesseTabShadow = [
     BoxShadow(color: Color(0x14000000), offset: Offset(0, 1), blurRadius: 2),
   ];
 
   /// Finesse's default style: soft teal glass.
   ///
-  /// Controls round to 10, cards to 18, and cards, bars and outline buttons
-  /// are translucent over a blurred backdrop. Its [mobile] counterpart is
-  /// [finesseMobile].
+  /// Controls round to 10, cards to 18; cards and outline buttons are
+  /// translucent, and bars, popovers, menus and tooltips are glass over a
+  /// blurred backdrop. Cards do not blur theirs ([cardBlur]). Its [mobile]
+  /// counterpart is [finesseMobile].
   static const finesse = StyleTokens(
     name: 'finesse',
     radius: 10,
@@ -1181,6 +1306,7 @@ class StyleTokens {
     dialogShadow: _finesseFloatingShadow,
     sheetShadow: _finesseFloatingShadow,
     floatingShadow: _finesseFloatingShadow,
+    floatingShadowDark: _finesseFloatingShadowDark,
     outlineButtonFill: SurfaceFill.glass,
     outlineButtonFillDark: SurfaceFill.glass,
     outlineButtonHoverFillDark: SurfaceFill.muted,
@@ -1266,11 +1392,20 @@ class StyleTokens {
     barOpacityDark: .95,
     cardOpacity: .88,
     cardOpacityDark: .82,
-    cardBlur: true,
     popoverOpacity: .8,
     popoverOpacityDark: .82,
     tooltipOpacity: .8,
     tooltipOpacityDark: .84,
+    // A highlighted row is a quiet wash in the glass, not a slab on it.
+    menuHighlightOpacity: .06,
+    menuHighlightOpacityDark: .09,
+    // The floating bar on a dark page: the same glass, lifted a shade
+    // toward the foreground and a little thinner, inside a brighter
+    // hairline whose top edge catches the light.
+    bottomNavigationOpacityDark: .84,
+    bottomNavigationLiftDark: .08,
+    bottomNavigationBorderOpacityDark: .12,
+    bottomNavigationRimOpacityDark: .26,
     tableHoverOpacity: 1,
     tableSelectionTinted: true,
     pagePaddingX: 24,
@@ -1355,6 +1490,7 @@ class StyleTokens {
     dialogShadow: _finesseFloatingShadow,
     sheetShadow: _finesseFloatingShadow,
     floatingShadow: _finesseFloatingShadow,
+    floatingShadowDark: _finesseFloatingShadowDark,
     outlineButtonFill: SurfaceFill.glass,
     outlineButtonFillDark: SurfaceFill.glass,
     outlineButtonHoverFillDark: SurfaceFill.muted,
@@ -1440,11 +1576,20 @@ class StyleTokens {
     barOpacityDark: .95,
     cardOpacity: .88,
     cardOpacityDark: .82,
-    cardBlur: true,
     popoverOpacity: .8,
     popoverOpacityDark: .82,
     tooltipOpacity: .8,
     tooltipOpacityDark: .84,
+    // A highlighted row is a quiet wash in the glass, not a slab on it.
+    menuHighlightOpacity: .06,
+    menuHighlightOpacityDark: .09,
+    // The floating bar on a dark page: the same glass, lifted a shade
+    // toward the foreground and a little thinner, inside a brighter
+    // hairline whose top edge catches the light.
+    bottomNavigationOpacityDark: .84,
+    bottomNavigationLiftDark: .08,
+    bottomNavigationBorderOpacityDark: .12,
+    bottomNavigationRimOpacityDark: .26,
     tableHoverOpacity: 1,
     tableSelectionTinted: true,
     pagePaddingX: 16,
@@ -1453,6 +1598,9 @@ class StyleTokens {
     chipHeight: 36,
     underlineTabHeight: 48,
     appBarHeight: 60,
+    fabSize: 56,
+    fabSizeSm: 44,
+    fabSizeLg: 72,
     gapLg: 12,
     gapXl: 16,
     motion: Motion.lively,
@@ -1718,6 +1866,9 @@ class StyleTokens {
       checkboxSize: atLeast(checkboxSize, 20),
       radioSize: atLeast(radioSize, 20),
       appBarHeight: 60,
+      fabSize: atLeast(fabSize, 56),
+      fabSizeSm: atLeast(fabSizeSm, 44),
+      fabSizeLg: atLeast(fabSizeLg, 72),
       pagePaddingX: 16,
       pagePaddingY: 16,
       gapLg: 12,
@@ -1890,10 +2041,13 @@ class StyleTokens {
     double? popoverOpacityDark,
     double? tooltipOpacity,
     double? tooltipOpacityDark,
+    double? menuHighlightOpacity,
+    double? menuHighlightOpacityDark,
     double? tableHoverOpacity,
     bool? tableSelectionTinted,
     List<BoxShadow>? cardShadowDark,
     List<BoxShadow>? floatingShadow,
+    List<BoxShadow>? floatingShadowDark,
     double? pagePaddingX,
     double? pagePaddingY,
     double? pageMaxWidth,
@@ -1903,6 +2057,9 @@ class StyleTokens {
     double? gapLg,
     double? gapXl,
     double? appBarHeight,
+    double? fabSize,
+    double? fabSizeSm,
+    double? fabSizeLg,
     double? navigationItemWidth,
     double? navigationIconSize,
     double? navigationIndicatorHeight,
@@ -1911,6 +2068,14 @@ class StyleTokens {
     double? bottomNavigationIconSize,
     double? bottomNavigationPadding,
     bool? bottomNavigationFloating,
+    double? bottomNavigationOpacity,
+    double? bottomNavigationOpacityDark,
+    double? bottomNavigationLift,
+    double? bottomNavigationLiftDark,
+    double? bottomNavigationBorderOpacity,
+    double? bottomNavigationBorderOpacityDark,
+    double? bottomNavigationRimOpacity,
+    double? bottomNavigationRimOpacityDark,
     double? chipHeight,
     double? chipPaddingX,
     double? chipGap,
@@ -1938,6 +2103,8 @@ class StyleTokens {
     bool? progressTinted,
     double? dividerMargin,
     double? timelineLineGap,
+    double? iconOpticalSize,
+    double? iconOpticalStrength,
     SurfaceFill? tabsListFill,
     SurfaceFill? tabSelectedFill,
     bool? tabUnselectedMuted,
@@ -2643,6 +2810,16 @@ class StyleTokens {
             this.tooltipOpacityDark,
             currentMobile.tooltipOpacityDark,
           ),
+          menuHighlightOpacity: _shared(
+            menuHighlightOpacity,
+            this.menuHighlightOpacity,
+            currentMobile.menuHighlightOpacity,
+          ),
+          menuHighlightOpacityDark: _shared(
+            menuHighlightOpacityDark,
+            this.menuHighlightOpacityDark,
+            currentMobile.menuHighlightOpacityDark,
+          ),
           tableHoverOpacity: _shared(
             tableHoverOpacity,
             this.tableHoverOpacity,
@@ -2662,6 +2839,11 @@ class StyleTokens {
             floatingShadow,
             this.floatingShadow,
             currentMobile.floatingShadow,
+          ),
+          floatingShadowDark: _shared(
+            floatingShadowDark,
+            this.floatingShadowDark,
+            currentMobile.floatingShadowDark,
           ),
           pagePaddingX: _shared(
             pagePaddingX,
@@ -2687,6 +2869,17 @@ class StyleTokens {
             appBarHeight,
             this.appBarHeight,
             currentMobile.appBarHeight,
+          ),
+          fabSize: _shared(fabSize, this.fabSize, currentMobile.fabSize),
+          fabSizeSm: _shared(
+            fabSizeSm,
+            this.fabSizeSm,
+            currentMobile.fabSizeSm,
+          ),
+          fabSizeLg: _shared(
+            fabSizeLg,
+            this.fabSizeLg,
+            currentMobile.fabSizeLg,
           ),
           navigationItemWidth: _shared(
             navigationItemWidth,
@@ -2727,6 +2920,46 @@ class StyleTokens {
             bottomNavigationFloating,
             this.bottomNavigationFloating,
             currentMobile.bottomNavigationFloating,
+          ),
+          bottomNavigationOpacity: _shared(
+            bottomNavigationOpacity,
+            this.bottomNavigationOpacity,
+            currentMobile.bottomNavigationOpacity,
+          ),
+          bottomNavigationOpacityDark: _shared(
+            bottomNavigationOpacityDark,
+            this.bottomNavigationOpacityDark,
+            currentMobile.bottomNavigationOpacityDark,
+          ),
+          bottomNavigationLift: _shared(
+            bottomNavigationLift,
+            this.bottomNavigationLift,
+            currentMobile.bottomNavigationLift,
+          ),
+          bottomNavigationLiftDark: _shared(
+            bottomNavigationLiftDark,
+            this.bottomNavigationLiftDark,
+            currentMobile.bottomNavigationLiftDark,
+          ),
+          bottomNavigationBorderOpacity: _shared(
+            bottomNavigationBorderOpacity,
+            this.bottomNavigationBorderOpacity,
+            currentMobile.bottomNavigationBorderOpacity,
+          ),
+          bottomNavigationBorderOpacityDark: _shared(
+            bottomNavigationBorderOpacityDark,
+            this.bottomNavigationBorderOpacityDark,
+            currentMobile.bottomNavigationBorderOpacityDark,
+          ),
+          bottomNavigationRimOpacity: _shared(
+            bottomNavigationRimOpacity,
+            this.bottomNavigationRimOpacity,
+            currentMobile.bottomNavigationRimOpacity,
+          ),
+          bottomNavigationRimOpacityDark: _shared(
+            bottomNavigationRimOpacityDark,
+            this.bottomNavigationRimOpacityDark,
+            currentMobile.bottomNavigationRimOpacityDark,
           ),
           chipHeight: _shared(
             chipHeight,
@@ -2842,6 +3075,16 @@ class StyleTokens {
             timelineLineGap,
             this.timelineLineGap,
             currentMobile.timelineLineGap,
+          ),
+          iconOpticalSize: _shared(
+            iconOpticalSize,
+            this.iconOpticalSize,
+            currentMobile.iconOpticalSize,
+          ),
+          iconOpticalStrength: _shared(
+            iconOpticalStrength,
+            this.iconOpticalStrength,
+            currentMobile.iconOpticalStrength,
           ),
           tabsListFill: _shared(
             tabsListFill,
@@ -3024,10 +3267,14 @@ class StyleTokens {
       popoverOpacityDark: popoverOpacityDark ?? this.popoverOpacityDark,
       tooltipOpacity: tooltipOpacity ?? this.tooltipOpacity,
       tooltipOpacityDark: tooltipOpacityDark ?? this.tooltipOpacityDark,
+      menuHighlightOpacity: menuHighlightOpacity ?? this.menuHighlightOpacity,
+      menuHighlightOpacityDark:
+          menuHighlightOpacityDark ?? this.menuHighlightOpacityDark,
       tableHoverOpacity: tableHoverOpacity ?? this.tableHoverOpacity,
       tableSelectionTinted: tableSelectionTinted ?? this.tableSelectionTinted,
       cardShadowDark: cardShadowDark ?? this.cardShadowDark,
       floatingShadow: floatingShadow ?? this.floatingShadow,
+      floatingShadowDark: floatingShadowDark ?? this.floatingShadowDark,
       pagePaddingX: pagePaddingX ?? this.pagePaddingX,
       pagePaddingY: pagePaddingY ?? this.pagePaddingY,
       pageMaxWidth: pageMaxWidth ?? this.pageMaxWidth,
@@ -3037,6 +3284,9 @@ class StyleTokens {
       gapLg: gapLg ?? this.gapLg,
       gapXl: gapXl ?? this.gapXl,
       appBarHeight: appBarHeight ?? this.appBarHeight,
+      fabSize: fabSize ?? this.fabSize,
+      fabSizeSm: fabSizeSm ?? this.fabSizeSm,
+      fabSizeLg: fabSizeLg ?? this.fabSizeLg,
       navigationItemWidth: navigationItemWidth ?? this.navigationItemWidth,
       navigationIconSize: navigationIconSize ?? this.navigationIconSize,
       navigationIndicatorHeight:
@@ -3051,6 +3301,22 @@ class StyleTokens {
           bottomNavigationPadding ?? this.bottomNavigationPadding,
       bottomNavigationFloating:
           bottomNavigationFloating ?? this.bottomNavigationFloating,
+      bottomNavigationOpacity:
+          bottomNavigationOpacity ?? this.bottomNavigationOpacity,
+      bottomNavigationOpacityDark:
+          bottomNavigationOpacityDark ?? this.bottomNavigationOpacityDark,
+      bottomNavigationLift: bottomNavigationLift ?? this.bottomNavigationLift,
+      bottomNavigationLiftDark:
+          bottomNavigationLiftDark ?? this.bottomNavigationLiftDark,
+      bottomNavigationBorderOpacity:
+          bottomNavigationBorderOpacity ?? this.bottomNavigationBorderOpacity,
+      bottomNavigationBorderOpacityDark:
+          bottomNavigationBorderOpacityDark ??
+          this.bottomNavigationBorderOpacityDark,
+      bottomNavigationRimOpacity:
+          bottomNavigationRimOpacity ?? this.bottomNavigationRimOpacity,
+      bottomNavigationRimOpacityDark:
+          bottomNavigationRimOpacityDark ?? this.bottomNavigationRimOpacityDark,
       chipHeight: chipHeight ?? this.chipHeight,
       chipPaddingX: chipPaddingX ?? this.chipPaddingX,
       chipGap: chipGap ?? this.chipGap,
@@ -3078,6 +3344,8 @@ class StyleTokens {
       progressTinted: progressTinted ?? this.progressTinted,
       dividerMargin: dividerMargin ?? this.dividerMargin,
       timelineLineGap: timelineLineGap ?? this.timelineLineGap,
+      iconOpticalSize: iconOpticalSize ?? this.iconOpticalSize,
+      iconOpticalStrength: iconOpticalStrength ?? this.iconOpticalStrength,
       tabsListFill: tabsListFill ?? this.tabsListFill,
       tabSelectedFill: tabSelectedFill ?? this.tabSelectedFill,
       tabUnselectedMuted: tabUnselectedMuted ?? this.tabUnselectedMuted,
@@ -3236,10 +3504,13 @@ class StyleTokens {
     popoverOpacityDark,
     tooltipOpacity,
     tooltipOpacityDark,
+    menuHighlightOpacity,
+    menuHighlightOpacityDark,
     tableHoverOpacity,
     tableSelectionTinted,
     cardShadowDark,
     floatingShadow,
+    floatingShadowDark,
     pagePaddingX,
     pagePaddingY,
     pageMaxWidth,
@@ -3249,6 +3520,9 @@ class StyleTokens {
     gapLg,
     gapXl,
     appBarHeight,
+    fabSize,
+    fabSizeSm,
+    fabSizeLg,
     navigationItemWidth,
     navigationIconSize,
     navigationIndicatorHeight,
@@ -3257,6 +3531,14 @@ class StyleTokens {
     bottomNavigationIconSize,
     bottomNavigationPadding,
     bottomNavigationFloating,
+    bottomNavigationOpacity,
+    bottomNavigationOpacityDark,
+    bottomNavigationLift,
+    bottomNavigationLiftDark,
+    bottomNavigationBorderOpacity,
+    bottomNavigationBorderOpacityDark,
+    bottomNavigationRimOpacity,
+    bottomNavigationRimOpacityDark,
     chipHeight,
     chipPaddingX,
     chipGap,
@@ -3284,6 +3566,8 @@ class StyleTokens {
     progressTinted,
     dividerMargin,
     timelineLineGap,
+    iconOpticalSize,
+    iconOpticalStrength,
     tabsListFill,
     tabSelectedFill,
     tabUnselectedMuted,

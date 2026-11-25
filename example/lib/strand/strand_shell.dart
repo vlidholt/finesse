@@ -1,5 +1,4 @@
 import 'package:example/common/app_state.dart';
-import 'package:example/common/page_switch.dart';
 import 'package:example/strand/data.dart';
 import 'package:example/strand/navigation.dart';
 import 'package:example/strand/screens/home_screen.dart';
@@ -15,6 +14,7 @@ import 'package:example/strand/widgets/person_avatar.dart';
 import 'package:example/strand/widgets/search_bar.dart';
 import 'package:example/strand/widgets/strand_logo.dart';
 import 'package:example/strand/widgets/user_menu.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_solidart/flutter_solidart.dart';
@@ -31,9 +31,16 @@ export 'package:example/strand/navigation.dart';
 ///   top destinations, the dark-mode button and the avatar pill, which
 ///   opens the [UserMenu] (profile, saved items, settings, component
 ///   library, theme editor).
+/// * **A narrow desktop** — a tablet held upright, a small window: below
+///   [topBarFrom] the destinations leave the bar for a `NavigationRail`
+///   down the start edge, under a round "Create post" button, and the bar
+///   keeps its search field whole.
 /// * **Phone** — a short app bar with the logo and three icon buttons
 ///   (search, notifications, messages), and a floating bottom bar with Home,
 ///   Network, the "Create post" action, Jobs and Me.
+///
+/// Choosing the destination that is already showing scrolls its page back
+/// to the top.
 ///
 /// ## How a screen plugs in
 ///
@@ -50,6 +57,7 @@ export 'package:example/strand/navigation.dart';
 /// shell, `context.leaveTo(...)` closes the page on the way.
 ///
 /// What more than one screen shows — the unread notifications the bell
+/// counts, the conversations with something unread that the Messages badge
 /// counts, the invitations, the recent searches, the settings — is in the
 /// `StrandSession` (`session.dart`), reached with `context.strand`.
 ///
@@ -77,8 +85,19 @@ export 'package:example/strand/navigation.dart';
 ///
 /// On a phone the shell shows no app bar over the Profile destination,
 /// because the design's cover photo runs to the top of the screen.
-class StrandShell extends StatelessWidget {
+class StrandShell extends StatefulWidget {
   const StrandShell({super.key});
+
+  /// The width of the shell from which a desktop's destinations are in the
+  /// top bar. Below it they are in a `NavigationRail`.
+  static const topBarFrom = 1024.0;
+
+  @override
+  State<StrandShell> createState() => _StrandShellState();
+}
+
+class _StrandShellState extends State<StrandShell> {
+  final _screens = GlobalKey<_ScreensState>();
 
   @override
   Widget build(BuildContext context) {
@@ -89,13 +108,27 @@ class StrandShell extends StatelessWidget {
         final dark = themeModeProvider.of(context).value == ThemeMode.dark;
         final theme = Theme.of(context);
         final colors = theme.colorScheme;
-        void goTo(StrandDestination next) => destinationSignal.value = next;
-        final notifications = context.strand.notifications;
+        final portraitSize = (theme.navigationBarTheme.iconSize ?? 24) + 4;
+        // Choosing the destination that is showing takes its page back to
+        // the top, as a tab bar's selected tab does on a phone.
+        void goTo(StrandDestination next) {
+          if (next == destinationSignal.value) {
+            _screens.currentState?.scrollToTop();
+          } else {
+            destinationSignal.value = next;
+          }
+        }
 
-        // The bell counts the unread notifications, which are not a signal.
-        return ListenableBuilder(
-          listenable: notifications,
+        final session = context.strand;
+        final notifications = session.notifications;
+        final unreadMessages = session.messages.unreadCount;
+
+        // The bell counts the unread notifications and the Messages badge
+        // the conversations with something unread; neither is a signal.
+        Widget scaffold(NavigationLayout layout) => ListenableBuilder(
+          listenable: session.badges,
           builder: (context, _) => NavigationScaffold(
+            layout: layout,
             selectedIndex: destination.index,
             onDestinationSelected: (index) =>
                 goTo(StrandDestination.values[index]),
@@ -103,41 +136,44 @@ class StrandShell extends StatelessWidget {
             // value.
             destinations: [
               const NavigationDestination(
-                icon: Icon(PhosphorIconsRegular.house),
-                selectedIcon: Icon(PhosphorIconsFill.house),
+                icon: PhosphorIcon(PhosphorIconsRegular.house),
+                selectedIcon: PhosphorIcon(PhosphorIconsFill.house),
                 label: 'Home',
               ),
               const NavigationDestination(
-                icon: Icon(PhosphorIconsRegular.usersThree),
-                selectedIcon: Icon(PhosphorIconsFill.usersThree),
+                icon: PhosphorIcon(PhosphorIconsRegular.usersThree),
+                selectedIcon: PhosphorIcon(PhosphorIconsFill.usersThree),
                 label: 'Network',
               ),
               const NavigationDestination(
-                icon: Icon(PhosphorIconsRegular.briefcase),
-                selectedIcon: Icon(PhosphorIconsFill.briefcase),
+                icon: PhosphorIcon(PhosphorIconsRegular.briefcase),
+                selectedIcon: PhosphorIcon(PhosphorIconsFill.briefcase),
                 label: 'Jobs',
               ),
-              const NavigationDestination(
-                icon: Icon(PhosphorIconsRegular.chatCircleDots),
-                selectedIcon: Icon(PhosphorIconsFill.chatCircleDots),
+              NavigationDestination(
+                icon: const PhosphorIcon(PhosphorIconsRegular.chatCircleDots),
+                selectedIcon: const PhosphorIcon(
+                  PhosphorIconsFill.chatCircleDots,
+                ),
                 label: 'Messages',
-                badgeCount: StrandCounts.unreadMessages,
+                badgeCount: unreadMessages.value,
                 // On a phone: the app bar's button.
                 showInBottomBar: false,
               ),
               NavigationDestination(
-                icon: const Icon(PhosphorIconsRegular.bell),
-                selectedIcon: const Icon(PhosphorIconsFill.bell),
+                icon: const PhosphorIcon(PhosphorIconsRegular.bell),
+                selectedIcon: const PhosphorIcon(PhosphorIconsFill.bell),
                 label: 'Notifications',
                 badgeCount: notifications.unreadCount,
                 showInBottomBar: false,
               ),
               NavigationDestination(
-                // 28 is the design's size for the tab's portrait.
-                icon: const PersonAvatar(People.me, size: 28),
+                // A portrait reads smaller than a glyph in the same box, so
+                // it is drawn a little over the bar's icon size.
+                icon: PersonAvatar(People.me, size: portraitSize),
                 selectedIcon: PersonAvatar(
                   People.me,
-                  size: 28,
+                  size: portraitSize,
                   ringColor: colors.tint,
                 ),
                 label: 'Me',
@@ -153,11 +189,13 @@ class StrandShell extends StatelessWidget {
             actions: [
               IconButton.secondary(
                 size: ButtonSize.lg,
-                // The design's `--fill`, one step quieter than the secondary
-                // button's own fill.
-                backgroundColor: colors.muted,
-                hoverBackgroundColor: colors.secondary,
-                icon: Icon(
+                style: ButtonTheme(
+                  // The design's `--fill`, one step quieter than the secondary
+                  // button's own fill.
+                  backgroundColor: colors.muted,
+                  hoverBackgroundColor: colors.secondary,
+                ),
+                icon: PhosphorIcon(
                   dark ? PhosphorIconsRegular.sun : PhosphorIconsRegular.moon,
                 ),
                 semanticLabel: 'Toggle dark mode',
@@ -166,23 +204,60 @@ class StrandShell extends StatelessWidget {
               const _AvatarPill(),
             ],
             action: NavigationAction(
-              icon: const Icon(PhosphorIconsRegular.plus),
+              icon: const PhosphorIcon(PhosphorIconsRegular.plus),
               label: 'Create post',
               onPressed: () => showComposeDialog(context),
             ),
             mobileAppBar: _MobileAppBar(
               destination: destination,
               unreadNotifications: notifications.unreadCount,
+              unreadMessages: unreadMessages.value,
               onSelected: goTo,
             ),
             showMobileAppBar: destination != StrandDestination.profile,
-            body: _Screens(destination: destination),
+            body: _Screens(key: _screens, destination: destination),
           ),
+        );
+
+        if (theme.formFactor != FormFactor.desktop) {
+          return scaffold(NavigationLayout.auto);
+        }
+        // A desktop's top bar has room for the five destinations and a
+        // search field from about a landscape tablet's width. Narrower
+        // than that — a tablet held upright, a small window — they move
+        // to a rail down the start edge, and the bar keeps the field.
+        // Every signal is read above: a layout callback runs outside the
+        // scope the `SignalBuilder` tracks.
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            if (constraints.maxWidth >= StrandShell.topBarFrom) {
+              return scaffold(NavigationLayout.auto);
+            }
+            return Theme(
+              data: _railThemeOf(theme),
+              child: scaffold(NavigationLayout.rail),
+            );
+          },
         );
       },
     );
   }
 }
+
+/// The theme the shell is built in when its destinations are in a rail.
+///
+/// The package's rail is as wide as its icons need, and its longest label
+/// here — "Notifications" — is a few pixels wider than that leaves. The
+/// rail is given one more step of the gap scale. Derived once per ambient
+/// theme: `ThemeData.copyWith` builds every component theme again.
+final _railThemes = Expando<ThemeData>('StrandShell rail theme');
+
+ThemeData _railThemeOf(ThemeData theme) =>
+    _railThemes[theme] ??= theme.copyWith(
+      navigationRailTheme: NavigationRailTheme(
+        width: (theme.navigationRailTheme.width ?? 72) + theme.gap(GapSize.md),
+      ),
+    );
 
 /// The start of the desktop app bar: the logo, then the search field.
 ///
@@ -238,11 +313,13 @@ class _MobileAppBar extends StatelessWidget {
   const _MobileAppBar({
     required this.destination,
     required this.unreadNotifications,
+    required this.unreadMessages,
     required this.onSelected,
   });
 
   final StrandDestination destination;
   final int unreadNotifications;
+  final int unreadMessages;
   final ValueChanged<StrandDestination> onSelected;
 
   @override
@@ -268,8 +345,10 @@ class _MobileAppBar extends StatelessWidget {
         offset: const Offset(0, 2),
         semanticLabel: '$count unread',
         child: IconButton.ghost(
-          icon: Icon(selected ? selectedIcon : icon),
-          foregroundColor: selected ? theme.colorScheme.tint : null,
+          icon: PhosphorIcon(selected ? selectedIcon : icon),
+          style: ButtonTheme(
+            foregroundColor: selected ? theme.colorScheme.tint : null,
+          ),
           semanticLabel: label,
           onPressed: () => onSelected(target),
         ),
@@ -279,13 +358,13 @@ class _MobileAppBar extends StatelessWidget {
     return AppBar(
       padding: EdgeInsetsDirectional.only(
         start: start,
-        end: layout.gap(GapSize.sm),
+        end: theme.gap(GapSize.sm),
       ),
       actionsGap: 0,
       leading: StrandLogo(onPressed: () => onSelected(StrandDestination.home)),
       actions: [
         IconButton.ghost(
-          icon: const Icon(PhosphorIconsRegular.magnifyingGlass),
+          icon: const PhosphorIcon(PhosphorIconsRegular.magnifyingGlass),
           semanticLabel: 'Search',
           onPressed: () =>
               context.pushFullScreen<void>((context) => const SearchScreen()),
@@ -302,7 +381,7 @@ class _MobileAppBar extends StatelessWidget {
           icon: PhosphorIconsRegular.chatCircleDots,
           selectedIcon: PhosphorIconsFill.chatCircleDots,
           label: 'Messages',
-          count: StrandCounts.unreadMessages,
+          count: unreadMessages,
         ),
       ],
     );
@@ -325,19 +404,25 @@ class _AvatarPill extends StatelessWidget {
           visible: states.contains(WidgetState.focused),
           borderRadius: theme.radii.full,
           child: Glass(
+            // On the app bar, which has blurred the page already.
+            frosted: false,
             level: GlassLevel.strong,
             borderRadius: theme.radii.full,
-            // The pill hugs its 32-point portrait: 3 around it, 8 after the
-            // caret. Neither is on the spacing scale.
-            padding: const EdgeInsetsDirectional.fromSTEB(3, 3, 8, 3),
+            // The pill hugs its portrait.
+            padding: EdgeInsetsDirectional.fromSTEB(
+              theme.gap(GapSize.xs),
+              theme.gap(GapSize.xs),
+              theme.gap(GapSize.sm),
+              theme.gap(GapSize.xs),
+            ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const PersonAvatar(People.me, size: 32),
-                const Gap.raw(6),
-                Icon(
+                PersonAvatar(People.me, size: theme.avatarSm),
+                const Gap.xs(),
+                PhosphorIcon(
                   PhosphorIconsRegular.caretDown,
-                  size: 14,
+                  size: theme.iconBeside(theme.textTheme.caption),
                   color: theme.colorScheme.mutedForeground,
                 ),
               ],
@@ -351,17 +436,13 @@ class _AvatarPill extends StatelessWidget {
 
 /// The screens, one per destination.
 ///
-/// A screen is built the first time its destination is shown and kept alive
-/// from then on, so going back to it finds it where it was left. Screens
-/// that are not showing do not tick: an `IndexedStack` installs no
-/// `TickerMode` of its own, and an offstage spinner would otherwise keep the
-/// app from ever idling.
-///
-/// The screen that is switched to comes in from the side its destination is
-/// on (see [PageSwitch]); the stack under it is the same one throughout, so
-/// the transition costs no screen its state.
+/// A `DestinationStack`: a screen is built the first time its destination
+/// is shown and kept alive from then on, so going back to it finds it where
+/// it was left; the screens that are not showing are off stage and do not
+/// tick; and the one that is switched to comes in from the side its
+/// destination is on.
 class _Screens extends StatefulWidget {
-  const _Screens({required this.destination});
+  const _Screens({required this.destination, super.key});
 
   final StrandDestination destination;
 
@@ -370,13 +451,12 @@ class _Screens extends StatefulWidget {
 }
 
 class _ScreensState extends State<_Screens> {
-  late final _visited = <StrandDestination>{widget.destination};
-
-  @override
-  void didUpdateWidget(_Screens oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    _visited.add(widget.destination);
-  }
+  // One per destination, so the page that is showing can be found again:
+  // see [scrollToTop].
+  final _keys = [
+    for (final destination in StrandDestination.values)
+      GlobalKey(debugLabel: destination.name),
+  ];
 
   static Widget _screen(StrandDestination destination) => switch (destination) {
     StrandDestination.home => const HomeScreen(),
@@ -387,25 +467,57 @@ class _ScreensState extends State<_Screens> {
     StrandDestination.profile => const ProfileScreen(),
   };
 
+  /// Takes the screen that is showing back to its top: what choosing the
+  /// selected destination again does.
+  ///
+  /// The page's scroll view is the first vertical one in the screen — a
+  /// screen may have others inside it (a pane of a card, a list in a
+  /// column), and those keep their place.
+  void scrollToTop() {
+    final root = _keys[widget.destination.index].currentContext;
+    if (root == null) return;
+    ScrollPosition? page;
+    void visit(Element element) {
+      if (page != null) return;
+      if (element
+          case StatefulElement(
+            :final ScrollableState state,
+          )
+          when state.axisDirection == AxisDirection.down) {
+        page = state.position;
+        return;
+      }
+      element.visitChildren(visit);
+    }
+
+    root.visitChildElements(visit);
+    final position = page;
+    if (position == null || position.pixels <= position.minScrollExtent) {
+      return;
+    }
+    final motion = Motion.of(context);
+    if (motion.reduced || motion.slow == Duration.zero) {
+      position.jumpTo(position.minScrollExtent);
+    } else {
+      position.animateTo(
+        position.minScrollExtent,
+        duration: motion.slow,
+        curve: motion.emphasized,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return PageSwitch(
-      value: widget.destination.index,
-      child: IndexedStack(
-        index: widget.destination.index,
-        children: [
-          for (final destination in StrandDestination.values)
-            TickerMode(
-              enabled: destination == widget.destination,
-              child: _visited.contains(destination)
-                  ? KeyedSubtree(
-                      key: ValueKey(destination),
-                      child: _screen(destination),
-                    )
-                  : const SizedBox.shrink(),
-            ),
-        ],
-      ),
+    return DestinationStack(
+      index: widget.destination.index,
+      builders: [
+        for (final destination in StrandDestination.values)
+          (context) => KeyedSubtree(
+            key: _keys[destination.index],
+            child: _screen(destination),
+          ),
+      ],
     );
   }
 }

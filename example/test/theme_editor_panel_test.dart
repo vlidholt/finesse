@@ -271,7 +271,8 @@ void main() {
         await pumpPanel(tester, docked: docked);
         await unfoldAll(tester);
 
-        // Each picker, and an option its popover has to show.
+        // Each picker, and an option its popover has to show. A choice of
+        // two or three is a segmented control, with no popover.
         const pickers = {
           'Base Color': 'Zinc',
           'Accent': 'Amber',
@@ -279,11 +280,8 @@ void main() {
           'Font': 'Inter',
           'Style': 'Lyra',
           'Radius': 'Large',
-          'Focus Ring': 'Inside',
           'Density': 'Spacious',
           'Menu': 'Translucent',
-          'Menu Accent': 'Bold',
-          'Form Factor': 'Mobile',
         };
         final window = Offset.zero & tester.view.physicalSize;
         for (final MapEntry(key: label, value: option) in pickers.entries) {
@@ -456,15 +454,21 @@ void main() {
       await pumpPanel(tester);
       await unfoldAll(tester);
 
-      // A switch…
-      await tapInPanel(tester, find.text('Bottom Bar'));
+      // A segmented control…
+      await tapInPanel(tester, find.text('Docked'));
       expect(config.bottomBarFloating, isFalse);
-      expect(find.text('Docked'), findsOneWidget);
       expect(find.text('Custom'), findsOneWidget);
-      // …which is the preset again when flipped back.
-      await tapInPanel(tester, find.text('Bottom Bar'));
+      // …which is the preset again when set back.
+      await tapInPanel(tester, find.text('Floating'));
       expect(config.bottomBarFloating, isNull);
-      expect(find.text('Floating'), findsOneWidget);
+      expect(find.text('Custom'), findsNothing);
+
+      // A switch.
+      await tapInPanel(tester, find.text('Card Blur'));
+      expect(config.cardBlur, isTrue);
+      expect(find.text('Custom'), findsOneWidget);
+      await tapInPanel(tester, find.text('Card Blur'));
+      expect(config.cardBlur, isNull);
       expect(find.text('Custom'), findsNothing);
 
       // A slider.
@@ -517,6 +521,98 @@ void main() {
   });
 
   group('controls', () {
+    testWidgets('a choice of two or three is a segmented control, every '
+        'option in view', (tester) async {
+      await pumpPanel(tester);
+      await unfoldAll(tester);
+
+      const rows = {
+        'Focus Ring': ['Outside', 'Inside'],
+        'Bottom Bar': ['Floating', 'Docked'],
+        'Menu Accent': ['Subtle', 'Bold'],
+        'Form Factor': ['Auto', 'Desktop', 'Mobile'],
+      };
+      for (final MapEntry(key: label, value: options) in rows.entries) {
+        final row = find.ancestor(
+          of: find.text(label),
+          matching: find.byWidgetPredicate((w) => w is ThemeSegments),
+        );
+        expect(row, findsOneWidget, reason: label);
+        final control = find.descendant(
+          of: row,
+          matching: find.byWidgetPredicate((w) => w is SegmentedControl),
+        );
+        expect(control, findsOneWidget, reason: label);
+        for (final option in options) {
+          expect(
+            find.descendant(of: control, matching: find.text(option)),
+            findsOneWidget,
+            reason: '$label / $option',
+          );
+        }
+      }
+
+      // One tap sets it.
+      await tapInPanel(tester, find.text('Inside'));
+      expect(config.focusRing, FocusRingPlacement.inside);
+      await tapInPanel(tester, find.text('Mobile'));
+      expect(config.formFactor, EditorFormFactor.mobile);
+      await tapInPanel(tester, find.text('Bold'));
+      expect(config.menuAccent, EditorMenuAccent.bold);
+
+      // The accent has no effect on a translucent menu, and says so.
+      await choose(tester, 'Menu', 'Translucent');
+      final accent = find.descendant(
+        of: find.ancestor(
+          of: find.text('Menu Accent'),
+          matching: find.byWidgetPredicate((w) => w is ThemeSegments),
+        ),
+        matching: find.byWidgetPredicate((w) => w is SegmentedControl),
+      );
+      expect(
+        (tester.widget(accent) as SegmentedControl<EditorMenuAccent>).enabled,
+        isFalse,
+      );
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('sliders are the package\'s, with the value in a bubble '
+        'while dragged', (tester) async {
+      await pumpPanel(tester);
+      final slider = find.descendant(
+        of: find.ancestor(
+          of: find.text('Text Scale'),
+          matching: find.byType(ThemeSlider),
+        ),
+        matching: find.byType(Slider),
+      );
+      expect(slider, findsOneWidget);
+      final widget = tester.widget<Slider>(slider);
+      expect(widget.valueIndicator, SliderValueIndicator.whileDragging);
+      expect(widget.valueLabel!(1.2), '120%');
+      // One division per step, so a drag lands on a value the code can
+      // write back out.
+      expect(widget.divisions, 16);
+
+      await tester.ensureVisible(slider);
+      await tester.pump();
+      final gesture = await tester.startGesture(tester.getCenter(slider));
+      for (var i = 0; i < 6; i++) {
+        await gesture.moveBy(const Offset(10, 0));
+        await tester.pump();
+      }
+      await settle(tester);
+      expect(config.textScale, greaterThan(1));
+      // The bubble shows what the row says.
+      expect(
+        find.text('${(config.textScale * 100).round()}%'),
+        findsNWidgets(2),
+      );
+      await gesture.up();
+      await settle(tester);
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('Card Blur is locked off while cards are opaque', (
       tester,
     ) async {
@@ -534,11 +630,15 @@ void main() {
       await pumpPanel(tester);
       await unfoldAll(tester);
 
+      // Off in the Strand preset, as in the package's default style.
+      expect(config.effectiveCardBlur, isFalse);
       await tapInPanel(tester, find.text('Card Blur'));
-      expect(config.cardBlur, isFalse);
+      expect(config.cardBlur, isTrue);
+      expect(config.build().cardTheme.blur, StyleTokens.finesse.glassBlur);
       await tapInPanel(tester, find.text('Card Blur'));
       expect(config.cardBlur, isNull);
       expect(config, const ThemeEditorConfig());
+      expect(config.build().cardTheme.blur, 0);
     });
 
     testWidgets('pickers set what they are labelled', (tester) async {

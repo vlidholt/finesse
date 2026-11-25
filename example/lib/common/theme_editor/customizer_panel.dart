@@ -3,6 +3,7 @@
 // deprecated it in 3.47 in favour of the `material_ui` package.
 // ignore_for_file: deprecated_member_use
 
+import 'package:example/common/code_style.dart';
 import 'package:example/common/theme_editor/editor_config.dart';
 import 'package:example/common/theme_editor/fonts.dart';
 import 'package:example/common/theme_editor/picker.dart';
@@ -103,7 +104,7 @@ class ThemeCustomizerPanel extends StatelessWidget {
                     child: Text('Theme editor', style: theme.textTheme.large),
                   ),
                   IconButton.ghost(
-                    icon: const Icon(PhosphorIconsRegular.x),
+                    icon: const PhosphorIcon(PhosphorIconsRegular.x),
                     semanticLabel: 'Close the theme editor',
                     onPressed: onClose,
                   ),
@@ -113,7 +114,7 @@ class ThemeCustomizerPanel extends StatelessWidget {
           Expanded(
             child: _Settings(config: config, onChanged: onChanged),
           ),
-          const Divider.horizontal(margin: EdgeInsets.zero),
+          const Divider(margin: EdgeInsets.zero),
           Padding(
             padding: EdgeInsets.only(
               bottom: onClose == null ? 0 : safeArea.bottom,
@@ -259,9 +260,8 @@ class _SettingsState extends State<_Settings> {
                 config.copyWith(radius: v, clearCustomRadius: true),
               ),
             ),
-            ThemePicker<FocusRingPlacement>(
+            ThemeSegments<FocusRingPlacement>(
               label: 'Focus Ring',
-              icon: PhosphorIconsRegular.selection,
               value: config.focusRing,
               options: [
                 for (final f in FocusRingPlacement.values)
@@ -355,13 +355,16 @@ class _SettingsState extends State<_Settings> {
                   ? null
                   : () => onChanged(config.copyWith(cardPaddingScale: 1)),
             ),
-            ThemeSwitch(
+            ThemeSegments<bool>(
               label: 'Bottom Bar',
-              onLabel: 'Floating',
-              offLabel: 'Docked',
               value: config.effectiveBottomBarFloating,
+              options: const [
+                PickerOption(value: true, label: 'Floating'),
+                PickerOption(value: false, label: 'Docked'),
+              ],
               onChanged: (v) => onChanged(
                 config.copyWith(
+                  // Back on the style's own value is not an override.
                   bottomBarFloating: () =>
                       v == tokens.bottomNavigationFloating ? null : v,
                 ),
@@ -401,9 +404,8 @@ class _SettingsState extends State<_Settings> {
                 ),
               ],
             ),
-            ThemePicker<EditorMenuAccent>(
+            ThemeSegments<EditorMenuAccent>(
               label: 'Menu Accent',
-              icon: PhosphorIconsRegular.highlighter,
               // shadcn's translucent finish highlights with a foreground
               // wash, so the accent has no effect there; the picker is
               // locked to make that visible, as shadcn's editor does. A
@@ -422,9 +424,8 @@ class _SettingsState extends State<_Settings> {
           // How the theme is being looked at, not part of it: neither
           // leaves a preset, and neither is exported as theme code.
           _section(_SectionId.preview, [
-            ThemePicker<EditorFormFactor>(
+            ThemeSegments<EditorFormFactor>(
               label: 'Form Factor',
-              icon: PhosphorIconsRegular.devices,
               value: config.formFactor,
               options: [
                 for (final f in EditorFormFactor.values)
@@ -478,7 +479,7 @@ class _Section extends StatelessWidget {
           button: true,
           expanded: expanded,
           child: FinesseGestureDetector(
-            cursor: SystemMouseCursors.click,
+            mouseCursor: SystemMouseCursors.click,
             behavior: HitTestBehavior.opaque,
             onTap: onToggle,
             child: SizedBox(
@@ -499,7 +500,7 @@ class _Section extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Icon(
+                  PhosphorIcon(
                     expanded
                         ? PhosphorIconsRegular.caretDown
                         : PhosphorIconsRegular.caretRight,
@@ -521,7 +522,7 @@ class _Section extends StatelessWidget {
               children: children,
             ),
           ),
-        const Divider.horizontal(margin: EdgeInsets.zero),
+        const Divider(margin: EdgeInsets.zero),
       ],
     );
   }
@@ -629,12 +630,12 @@ class _PresetTileState extends State<_PresetTile> {
       button: widget.onTap != null,
       selected: widget.selected,
       child: FinesseGestureDetector(
-        cursor: widget.onTap == null
+        mouseCursor: widget.onTap == null
             ? SystemMouseCursors.basic
             : SystemMouseCursors.click,
         behavior: HitTestBehavior.opaque,
         onTap: widget.selected ? null : widget.onTap,
-        onHoverChange: (v) => setState(() => hovered = v),
+        onHover: (v) => setState(() => hovered = v),
         child: Container(
           height: touch ? 48 : 42,
           padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -740,7 +741,7 @@ class _Actions extends StatelessWidget {
             width: double.infinity,
             child: Button(
               onPressed: () => _copy(context, config),
-              leading: const Icon(PhosphorIconsRegular.clipboard),
+              leading: const PhosphorIcon(PhosphorIconsRegular.clipboard),
               child: const Text('Copy Theme'),
             ),
           ),
@@ -750,7 +751,7 @@ class _Actions extends StatelessWidget {
               Expanded(
                 child: Button.outline(
                   onPressed: () => _showCode(context, config),
-                  leading: const Icon(PhosphorIconsRegular.code),
+                  leading: const PhosphorIcon(PhosphorIconsRegular.code),
                   child: const Text('Code'),
                 ),
               ),
@@ -759,7 +760,7 @@ class _Actions extends StatelessWidget {
                   // All the way back: the Strand preset, viewed the default
                   // way.
                   onPressed: () => onChanged(const ThemeEditorConfig()),
-                  leading: const Icon(
+                  leading: const PhosphorIcon(
                     PhosphorIconsRegular.arrowCounterClockwise,
                   ),
                   child: const Text('Reset'),
@@ -775,8 +776,11 @@ class _Actions extends StatelessWidget {
   Future<void> _copy(BuildContext context, ThemeEditorConfig config) async {
     await Clipboard.setData(ClipboardData(text: config.toAppSnippet()));
     if (!context.mounted) return;
-    Sonner.of(context).show(
-      const Toast(title: Text('Theme copied to clipboard')),
+    Toaster.of(context).show(
+      const Toast(
+        variant: ToastVariant.success,
+        title: Text('Theme copied to clipboard'),
+      ),
     );
   }
 
@@ -801,7 +805,7 @@ class _Actions extends StatelessWidget {
               await Clipboard.setData(ClipboardData(text: snippet));
               if (context.mounted) Navigator.of(context).pop();
             },
-            leading: const Icon(PhosphorIconsRegular.copy),
+            leading: const PhosphorIcon(PhosphorIconsRegular.copy),
             child: const Text('Copy'),
           ),
         ],
@@ -809,10 +813,8 @@ class _Actions extends StatelessWidget {
           constraints: const BoxConstraints(maxWidth: 560),
           child: SelectableText(
             snippet,
-            style: Theme.of(context).textTheme.small.copyWith(
-              fontFamily: 'JetBrainsMono',
-              fontSize: 12,
-              height: 18 / 12,
+            style: Theme.of(context).textTheme.small.merge(
+              CodeStyle.compact,
             ),
           ),
         ),

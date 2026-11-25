@@ -16,7 +16,7 @@ class CardTheme with _$CardTheme {
     bool canMerge = true,
     this.backgroundColor,
     this.padding,
-    this.radius,
+    this.borderRadius,
     this.border,
     this.shadows,
     this.width,
@@ -43,55 +43,69 @@ class CardTheme with _$CardTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro Card.padding}
+  /// The padding inside the card, surrounding all content.
+  /// Defaults to EdgeInsets.all(24) if not specified.
   final EdgeInsetsGeometry? padding;
 
-  /// {@macro Card.backgroundColor}
+  /// The background color of the card.
+  /// Defaults to the theme’s card color if not specified.
   final Color? backgroundColor;
 
-  /// {@macro Card.radius}
-  final BorderRadius? radius;
+  /// The border radius of the card’s corners.
+  /// Defaults to the theme’s radius if not specified.
+  final BorderRadius? borderRadius;
 
-  /// {@macro Card.border}
+  /// The border surrounding the card.
+  /// Defaults to a border with the theme’s border color if not specified.
   final FinesseBorder? border;
 
-  /// {@macro Card.shadows}
+  /// The list of box shadows applied to the card for elevation.
+  /// Defaults to the theme’s card shadows if not specified.
   final List<BoxShadow>? shadows;
 
-  /// {@macro Card.width}
+  /// The explicit width of the card.
+  /// If null, the card sizes to its content or constraints.
   final double? width;
 
-  /// {@macro Card.height}
+  /// The explicit height of the card.
+  /// If null, the card sizes to its content or constraints.
   final double? height;
 
-  /// {@macro Card.rowMainAxisAlignment}
+  /// The main axis alignment of the card’s row (horizontal).
+  /// Defaults to [MainAxisAlignment.spaceBetween] if not specified.
   final MainAxisAlignment? rowMainAxisAlignment;
 
-  /// {@macro Card.rowCrossAxisAlignment}
+  /// The cross axis alignment of the card’s row (vertical).
+  /// Defaults to [CrossAxisAlignment.start] if not specified.
   final CrossAxisAlignment? rowCrossAxisAlignment;
 
-  /// {@macro Card.columnMainAxisAlignment}
+  /// The main axis alignment of the card’s column (vertical).
+  /// Defaults to [MainAxisAlignment.start] if not specified.
   final MainAxisAlignment? columnMainAxisAlignment;
 
-  /// {@macro Card.columnCrossAxisAlignment}
+  /// The cross axis alignment of the card’s column (horizontal).
+  /// Defaults to [CrossAxisAlignment.start] if not specified.
   final CrossAxisAlignment? columnCrossAxisAlignment;
 
-  /// {@macro Card.rowMainAxisSize}
+  /// The main axis size of the card’s row.
+  /// Defaults to [MainAxisSize.min] if not specified.
   final MainAxisSize? rowMainAxisSize;
 
-  /// {@macro Card.columnMainAxisSize}
+  /// The main axis size of the card’s column.
+  /// Defaults to [MainAxisSize.min] if not specified.
   final MainAxisSize? columnMainAxisSize;
 
-  /// {@macro Card.clipBehavior}
+  /// The clip behavior of the card, controlling how content is clipped.
+  /// Defaults to [Clip.antiAlias] if not specified.
   final Clip? clipBehavior;
 
-  /// {@macro Card.titleStyle}
+  /// The text style of the card's `title`.
   final TextStyle? titleStyle;
 
-  /// {@macro Card.descriptionStyle}
+  /// The text style of the card's `description`.
   final TextStyle? descriptionStyle;
 
-  /// {@macro Card.gap}
+  /// The vertical space between the title, description, content and footer.
   final double? gap;
 
   /// The space between a card's sections — header, content and footer —

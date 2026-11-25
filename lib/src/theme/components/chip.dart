@@ -14,7 +14,7 @@ class ChipTheme with _$ChipTheme {
     this.padding,
     this.gap,
     this.iconSize,
-    this.radius,
+    this.borderRadius,
     this.borderWidth,
     this.textStyle,
     this.backgroundColor,
@@ -24,6 +24,10 @@ class ChipTheme with _$ChipTheme {
     this.selectedBackgroundColor,
     this.selectedForegroundColor,
     this.selectedBorderColor,
+    this.showCheckmark,
+    this.groupSpacing,
+    this.groupRunSpacing,
+    this.groupFade,
   }) : _canMerge = canMerge;
 
   @ignore
@@ -45,7 +49,7 @@ class ChipTheme with _$ChipTheme {
   final double? iconSize;
 
   /// The corner radius.
-  final BorderRadius? radius;
+  final BorderRadius? borderRadius;
 
   /// The width of the chip's outline.
   final double? borderWidth;
@@ -73,6 +77,19 @@ class ChipTheme with _$ChipTheme {
 
   /// The outline of a selected chip.
   final Color? selectedBorderColor;
+
+  /// Whether a selected chip shows a check before its label.
+  final bool? showCheckmark;
+
+  /// The gap between two chips of a `ChipGroup`.
+  final double? groupSpacing;
+
+  /// The gap between two rows of a `ChipGroup` that wraps.
+  final double? groupRunSpacing;
+
+  /// How far, in logical pixels, the chips of a scrolling `ChipGroup` fade
+  /// out at an edge they continue beyond.
+  final double? groupFade;
 
   /// Linearly interpolates between two themes.
   static ChipTheme? lerp(ChipTheme? a, ChipTheme? b, double t) =>

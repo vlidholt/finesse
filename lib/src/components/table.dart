@@ -7,11 +7,10 @@ import 'package:flutter/widgets.dart';
 import 'package:two_dimensional_scrollables/two_dimensional_scrollables.dart';
 
 /// Builder function for creating [FinesseTableCell] widgets.
-typedef TableCellBuilder =
-    FinesseTableCell Function(
-      BuildContext context,
-      TableVicinity vicinity,
-    );
+typedef TableCellBuilder = FinesseTableCell Function(
+  BuildContext context,
+  TableVicinity vicinity,
+);
 
 /// Enum representing different variants of [FinesseTableCell].
 enum TableCellVariant {
@@ -35,12 +34,13 @@ class FinesseTableCell extends TableViewCell {
   /// {@macro FinesseTableCell}
   const FinesseTableCell({
     super.key,
+    this.variant = TableCellVariant.cell,
     required super.child,
     this.alignment,
     this.height,
     this.padding,
     this.style,
-  }) : variant = TableCellVariant.cell;
+  });
 
   /// Creates a [FinesseTableCell] with the header variant.
   ///
@@ -65,20 +65,6 @@ class FinesseTableCell extends TableViewCell {
     this.padding,
     this.style,
   }) : variant = TableCellVariant.footer;
-
-  /// Creates a [FinesseTableCell] with a raw variant, allowing explicit variant
-  /// specification.
-  ///
-  /// {@macro FinesseTableCell}
-  const FinesseTableCell.raw({
-    super.key,
-    required this.variant,
-    required super.child,
-    this.alignment,
-    this.height,
-    this.padding,
-    this.style,
-  });
 
   /// {@template FinesseTableCell.variant}
   /// The variant of the table cell, determining its styling.

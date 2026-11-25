@@ -100,8 +100,11 @@ class _HostState extends State<_Host> {
           ),
         );
         return widget.pressable
-            ? Card(onPressed: () => pressed.add(item), child: content)
-            : Card(padding: EdgeInsets.zero, child: content);
+            ? Card(onTap: () => pressed.add(item), child: content)
+            : Card(
+                style: const CardTheme(padding: EdgeInsets.zero),
+                child: content,
+              );
       },
       onMove: (move) {
         moves.add(move);
@@ -203,6 +206,10 @@ Future<void> _dragBy(
 }
 
 void main() {
+  // Haptics are silent under `flutter test` unless a test asks.
+  setUp(() => Haptics.debugEnabledInTests = true);
+  tearDown(() => Haptics.debugEnabledInTests = false);
+
   group('BoardTheme', () {
     test('follows the form factor', () {
       final desktop = ThemeData().boardTheme;
@@ -218,12 +225,12 @@ void main() {
     test('wraps its items concentrically, and stays square in lyra', () {
       final theme = ThemeData().boardTheme;
       expect(
-        theme.columnRadius!.topLeft.x,
-        theme.itemRadius!.topLeft.x + theme.columnPadding!.horizontal / 2,
+        theme.columnBorderRadius!.topLeft.x,
+        theme.itemBorderRadius!.topLeft.x + theme.columnPadding!.horizontal / 2,
       );
       final lyra = ThemeData(style: StyleTokens.lyra).boardTheme;
-      expect(lyra.columnRadius, BorderRadius.zero);
-      expect(lyra.itemRadius, BorderRadius.zero);
+      expect(lyra.columnBorderRadius, BorderRadius.zero);
+      expect(lyra.itemBorderRadius, BorderRadius.zero);
     });
 
     test('items are opaque in every style and brightness', () {
@@ -509,7 +516,7 @@ void main() {
       );
       final theme = Theme.of(tester.element(_item('a1')));
       final board = ThemeData().boardTheme;
-      expect(theme.cardTheme.radius, board.itemRadius);
+      expect(theme.cardTheme.borderRadius, board.itemBorderRadius);
       expect(theme.cardTheme.padding, board.itemPadding);
       expect(theme.cardTheme.backgroundColor, board.itemColor);
       expect(theme.cardTheme.blur, 0);
@@ -1242,14 +1249,7 @@ void main() {
       );
       final gesture = await _pickUp(tester, 'a1');
       await _dragBy(tester, gesture, const Offset(240, 0), steps: 6);
-      final transform = tester
-          .widget<Transform>(
-            find.ancestor(
-              of: _lifted('a1'),
-              matching: find.byType(Transform),
-            ),
-          )
-          .transform;
+      final transform = tester.renderObject(_lifted('a1')).getTransformTo(null);
       // A rotation: the matrix has a sine in it.
       expect(transform.storage[1].abs(), greaterThan(.002));
       await gesture.up();

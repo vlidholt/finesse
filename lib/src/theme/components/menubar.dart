@@ -4,10 +4,8 @@ import 'package:finesse/src/components/button.dart';
 import 'package:finesse/src/raw_components/portal.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/utils/border.dart';
-import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
 part 'menubar.g.theme.dart';
@@ -21,20 +19,19 @@ class MenubarTheme with _$MenubarTheme {
   /// {@macro MenubarTheme}
   const MenubarTheme({
     bool canMerge = true,
-    this.radius,
+    this.borderRadius,
     this.padding,
     this.backgroundColor,
     this.border,
     this.constraints,
     this.contextMenuPadding,
-    this.effects,
     this.shadows,
     this.decoration,
     this.filter,
     this.anchor,
     this.buttonVariant,
     this.buttonSize,
-    this.buttonCursor,
+    this.buttonMouseCursor,
     this.buttonWidth,
     this.buttonHeight,
     this.buttonPadding,
@@ -54,8 +51,6 @@ class MenubarTheme with _$MenubarTheme {
     this.buttonGap,
     this.buttonMainAxisAlignment,
     this.buttonCrossAxisAlignment,
-    this.buttonHoverStrategies,
-    this.buttonTextDirection,
     this.buttonExpands,
     this.selectOnHover,
   }) : _canMerge = canMerge;
@@ -66,8 +61,8 @@ class MenubarTheme with _$MenubarTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro Menubar.radius}
-  final BorderRadiusGeometry? radius;
+  /// {@macro Menubar.borderRadius}
+  final BorderRadiusGeometry? borderRadius;
 
   /// {@macro Menubar.padding}
   final EdgeInsetsGeometry? padding;
@@ -84,9 +79,6 @@ class MenubarTheme with _$MenubarTheme {
   /// {@macro ContextMenu.padding}
   final EdgeInsetsGeometry? contextMenuPadding;
 
-  /// {@macro Popover.effects}
-  final List<Effect<dynamic>>? effects;
-
   /// {@macro Popover.shadows}
   final List<BoxShadow>? shadows;
 
@@ -96,7 +88,8 @@ class MenubarTheme with _$MenubarTheme {
   /// {@macro Popover.filter}
   final ImageFilter? filter;
 
-  /// {@macro MenubarItem.anchor}
+  /// Where a menu opens against its trigger. Defaults to below the trigger,
+  /// aligned to its start edge.
   final AnchorBase? anchor;
 
   /// {@macro Button.variant}
@@ -105,13 +98,13 @@ class MenubarTheme with _$MenubarTheme {
   /// {@macro Button.size}
   final ButtonSize? buttonSize;
 
-  /// {@macro Button.cursor}
-  final MouseCursor? buttonCursor;
+  /// {@macro Button.mouseCursor}
+  final MouseCursor? buttonMouseCursor;
 
   /// {@macro Button.width}
   final double? buttonWidth;
 
-  /// {@macro MenubarItem.height}
+  /// The height of a trigger, 32 by default.
   final double? buttonHeight;
 
   /// {@macro Button.padding}
@@ -120,7 +113,9 @@ class MenubarTheme with _$MenubarTheme {
   /// {@macro Button.backgroundColor}
   final Color? buttonBackgroundColor;
 
-  /// {@macro MenubarItem.selectedBackgroundColor}
+  /// The fill behind the trigger whose menu is open, the scheme's accent
+  /// by default. It travels from trigger to trigger as the open menu
+  /// changes.
   final Color? buttonSelectedBackgroundColor;
 
   /// {@macro Button.hoverBackgroundColor}
@@ -165,12 +160,6 @@ class MenubarTheme with _$MenubarTheme {
   /// {@macro Button.crossAxisAlignment}
   final CrossAxisAlignment? buttonCrossAxisAlignment;
 
-  /// {@macro Button.hoverStrategies}
-  final HoverStrategies? buttonHoverStrategies;
-
-  /// {@macro Button.textDirection}
-  final TextDirection? buttonTextDirection;
-
   /// {@macro Button.expands}
   final bool? buttonExpands;
 
@@ -191,13 +180,11 @@ class MenubarTheme with _$MenubarTheme {
   @override
   bool operator ==(Object other) =>
       other is MenubarTheme &&
-      listEquals(effects, other.effects) &&
       listEquals(shadows, other.shadows) &&
       listEquals(buttonShadows, other.buttonShadows) &&
       listEquals(stripShadows, other.stripShadows) &&
       super ==
           other.copyWith(
-            effects: effects,
             shadows: shadows,
             buttonShadows: buttonShadows,
             stripShadows: stripShadows,
@@ -207,7 +194,6 @@ class MenubarTheme with _$MenubarTheme {
   @override
   int get hashCode => Object.hash(
     runtimeType,
-    Object.hashAll(effects ?? const []),
     Object.hashAll(shadows ?? const []),
     Object.hashAll(buttonShadows ?? const []),
     Object.hashAll(stripShadows ?? const []),

@@ -1,15 +1,16 @@
+import 'package:finesse/src/components/button_group.dart';
+import 'package:finesse/src/components/decorator.dart';
 import 'package:finesse/src/components/disabled.dart';
-import 'package:finesse/src/raw_components/focusable.dart';
+import 'package:finesse/src/raw_components/pressable.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/components/toggle.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/debug_check.dart';
-import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:finesse/src/utils/motion_color.dart';
 import 'package:finesse/src/utils/moving_indicator.dart';
 import 'package:finesse/src/utils/provider.dart';
-import 'package:finesse/src/utils/spring.dart';
-import 'package:flutter/foundation.dart';
+import 'package:finesse/src/utils/text_scaled_height.dart';
 import 'package:flutter/widgets.dart';
 
 /// Variants available for the [Toggle] widget.
@@ -32,99 +33,54 @@ enum ToggleVariant {
 /// Toggle(
 ///   value: bold,
 ///   onChanged: (v) => setState(() => bold = v),
-///   child: const Icon(PhosphorIconsRegular.textB),
+///   child: const PhosphorIcon(PhosphorIconsRegular.textB),
 /// )
 /// ```
 ///
 /// Prefer `Switch` when the control turns a *setting* on and off, and
 /// `Checkbox` when it selects an item. This is for a formatting-style
 /// action.
+///
+/// How it looks comes from the variant's `ToggleTheme` in the theme; a
+/// [style] restyles one toggle, merged over it.
 /// {@endtemplate}
-class Toggle extends StatefulWidget {
+class Toggle extends StatelessWidget {
   /// {@macro Toggle}
   const Toggle({
     super.key,
+    this.variant = ToggleVariant.primary,
     required this.value,
     required this.child,
+    this.leading,
     this.onChanged,
     this.enabled = true,
-    this.leading,
-    this.backgroundColor,
-    this.hoverBackgroundColor,
-    this.selectedBackgroundColor,
-    this.selectedHoverBackgroundColor,
-    this.foregroundColor,
-    this.hoverForegroundColor,
-    this.selectedForegroundColor,
-    this.padding,
-    this.decoration,
-    this.textStyle,
-    this.gap,
-    this.height,
-    this.width,
     this.focusNode,
     this.autofocus = false,
-    this.onFocusChange,
     this.statesController,
+    this.onHover,
+    this.onFocusChange,
+    this.mouseCursor,
     this.semanticLabel,
-  }) : variant = ToggleVariant.primary;
+    this.style,
+  });
 
   /// A bordered toggle, matching shadcn/ui's `variant="outline"`.
   const Toggle.outline({
     super.key,
     required this.value,
     required this.child,
+    this.leading,
     this.onChanged,
     this.enabled = true,
-    this.leading,
-    this.backgroundColor,
-    this.hoverBackgroundColor,
-    this.selectedBackgroundColor,
-    this.selectedHoverBackgroundColor,
-    this.foregroundColor,
-    this.hoverForegroundColor,
-    this.selectedForegroundColor,
-    this.padding,
-    this.decoration,
-    this.textStyle,
-    this.gap,
-    this.height,
-    this.width,
     this.focusNode,
     this.autofocus = false,
-    this.onFocusChange,
     this.statesController,
+    this.onHover,
+    this.onFocusChange,
+    this.mouseCursor,
     this.semanticLabel,
+    this.style,
   }) : variant = ToggleVariant.outline;
-
-  /// Creates a toggle with a specified [variant], allowing full control.
-  const Toggle.raw({
-    super.key,
-    required this.variant,
-    required this.value,
-    required this.child,
-    this.onChanged,
-    this.enabled = true,
-    this.leading,
-    this.backgroundColor,
-    this.hoverBackgroundColor,
-    this.selectedBackgroundColor,
-    this.selectedHoverBackgroundColor,
-    this.foregroundColor,
-    this.hoverForegroundColor,
-    this.selectedForegroundColor,
-    this.padding,
-    this.decoration,
-    this.textStyle,
-    this.gap,
-    this.height,
-    this.width,
-    this.focusNode,
-    this.autofocus = false,
-    this.onFocusChange,
-    this.statesController,
-    this.semanticLabel,
-  });
 
   /// The visual style of the toggle. Set by the constructor:
   /// [ToggleVariant.primary] for [Toggle.new] and
@@ -148,65 +104,6 @@ class Toggle extends StatefulWidget {
   /// Whether the toggle responds to input, defaults to `true`.
   final bool enabled;
 
-  /// {@template Toggle.backgroundColor}
-  /// The background color when off.
-  /// {@endtemplate}
-  final Color? backgroundColor;
-
-  /// {@template Toggle.hoverBackgroundColor}
-  /// The background color when off and hovered.
-  /// {@endtemplate}
-  final Color? hoverBackgroundColor;
-
-  /// {@template Toggle.selectedBackgroundColor}
-  /// The background color when on.
-  /// {@endtemplate}
-  final Color? selectedBackgroundColor;
-
-  /// {@template Toggle.selectedHoverBackgroundColor}
-  /// The background color when on and hovered.
-  /// {@endtemplate}
-  final Color? selectedHoverBackgroundColor;
-
-  /// {@template Toggle.foregroundColor}
-  /// The content color when off.
-  /// {@endtemplate}
-  final Color? foregroundColor;
-
-  /// {@template Toggle.hoverForegroundColor}
-  /// The content color when off and hovered.
-  /// {@endtemplate}
-  final Color? hoverForegroundColor;
-
-  /// {@template Toggle.selectedForegroundColor}
-  /// The content color when on.
-  /// {@endtemplate}
-  final Color? selectedForegroundColor;
-
-  /// {@template Toggle.padding}
-  /// The padding inside the toggle.
-  /// {@endtemplate}
-  final EdgeInsetsGeometry? padding;
-
-  /// {@template Toggle.decoration}
-  /// The decoration of the toggle.
-  /// {@endtemplate}
-  final FinesseDecoration? decoration;
-
-  /// {@template Toggle.textStyle}
-  /// The text style of the label.
-  /// {@endtemplate}
-  final TextStyle? textStyle;
-
-  /// The gap between [leading] and [child].
-  final double? gap;
-
-  /// The height of the toggle.
-  final double? height;
-
-  /// The width of the toggle. Null sizes to the content.
-  final double? width;
-
   /// The focus node of the toggle. When null, the toggle creates its own.
   final FocusNode? focusNode;
 
@@ -214,411 +111,323 @@ class Toggle extends StatefulWidget {
   /// Defaults to false.
   final bool autofocus;
 
+  /// Holds the interaction states of the toggle — hovered, pressed, focused,
+  /// selected while it is on, and disabled — for whoever else wants to
+  /// follow them.
+  final WidgetStatesController? statesController;
+
+  /// Called when a mouse pointer enters or leaves the enabled toggle.
+  final ValueChanged<bool>? onHover;
+
   /// Called with the new focus state each time it changes.
   final ValueChanged<bool>? onFocusChange;
 
-  /// Holds the interaction states of the toggle, such as hovered and pressed.
-  /// When null, the toggle creates its own.
-  final WidgetStatesController? statesController;
+  /// The cursor over the enabled toggle. Defaults to
+  /// [SystemMouseCursors.click].
+  final MouseCursor? mouseCursor;
 
   /// The accessible name, needed when [child] is icon-only.
   final String? semanticLabel;
 
-  @override
-  State<Toggle> createState() => _ToggleState();
-}
-
-class _ToggleState extends State<Toggle> {
-  WidgetStatesController? _internalStatesController;
-
-  WidgetStatesController get statesController =>
-      widget.statesController ?? _internalStatesController!;
-
-  bool get enabled => widget.enabled && widget.onChanged != null;
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.statesController == null) {
-      _internalStatesController = WidgetStatesController();
-    }
-  }
-
-  @override
-  void dispose() {
-    _internalStatesController?.dispose();
-    super.dispose();
-  }
-
-  // Counted for the press response; see `PressScale.taps`.
-  int _taps = 0;
-
-  void _toggle() {
-    if (!enabled) return;
-    setState(() => _taps++);
-    widget.onChanged!(!widget.value);
-  }
+  /// Overrides of the variant's look for this one toggle: colours, padding,
+  /// decoration, size, text style.
+  ///
+  /// It is merged over the variant's `ToggleTheme` from the theme, so only
+  /// the fields that are set change anything.
+  final ToggleTheme? style;
 
   @override
   Widget build(BuildContext context) {
     assert(debugCheckHasTheme(context));
     final theme = Theme.of(context);
-    final toggleTheme = switch (widget.variant) {
+    final toggleTheme = switch (variant) {
       ToggleVariant.primary => theme.toggleTheme,
       ToggleVariant.outline => theme.outlineToggleTheme,
-    };
+    }.merge(style);
 
-    final selected = widget.value;
+    final enabled = this.enabled && onChanged != null;
+    final selected = value;
 
-    final effectivePadding =
-        widget.padding ??
-        toggleTheme.padding ??
-        const EdgeInsets.symmetric(horizontal: 12);
-    final effectiveHeight = widget.height ?? toggleTheme.height ?? 40.0;
-    final effectiveGap = widget.gap ?? toggleTheme.gap ?? 8.0;
-    final effectiveDecoration =
-        (toggleTheme.decoration ?? const FinesseDecoration()).merge(
-          widget.decoration,
-        );
+    final padding =
+        toggleTheme.padding ?? const EdgeInsets.symmetric(horizontal: 12);
+    final height = toggleTheme.height ?? 40.0;
+    final width = toggleTheme.width;
+    final gap = toggleTheme.gap ?? 8.0;
+    var decoration = toggleTheme.decoration ?? const FinesseDecoration();
+    // In a `ButtonGroup` — a toggle group with no gap is one — the corners
+    // and the edge towards a neighbour are the group's to decide.
+    final joined = ButtonGroupScope.maybeOf(context);
+    if (joined != null) {
+      decoration = joined.join(
+        decoration,
+        Directionality.of(context),
+        fallback: theme.decoration,
+      );
+    }
 
     Color? backgroundFor({required bool hovered}) {
       if (selected) {
         return hovered
-            ? widget.selectedHoverBackgroundColor ??
-                  toggleTheme.selectedHoverBackgroundColor ??
+            ? toggleTheme.selectedHoverBackgroundColor ??
                   theme.colorScheme.accent
-            : widget.selectedBackgroundColor ??
-                  toggleTheme.selectedBackgroundColor ??
-                  theme.colorScheme.accent;
+            : toggleTheme.selectedBackgroundColor ?? theme.colorScheme.accent;
       }
       return hovered
-          ? widget.hoverBackgroundColor ??
-                toggleTheme.hoverBackgroundColor ??
-                theme.colorScheme.muted
-          : widget.backgroundColor ?? toggleTheme.backgroundColor;
+          ? toggleTheme.hoverBackgroundColor ?? theme.colorScheme.muted
+          : toggleTheme.backgroundColor;
     }
 
     Color foregroundFor({required bool hovered}) {
       if (selected) {
-        return widget.selectedForegroundColor ??
-            toggleTheme.selectedForegroundColor ??
+        return toggleTheme.selectedForegroundColor ??
             theme.colorScheme.accentForeground;
       }
       return hovered
-          ? widget.hoverForegroundColor ??
-                toggleTheme.hoverForegroundColor ??
+          ? toggleTheme.hoverForegroundColor ??
                 theme.colorScheme.mutedForeground
-          : widget.foregroundColor ??
-                toggleTheme.foregroundColor ??
-                theme.colorScheme.foreground;
+          : toggleTheme.foregroundColor ?? theme.colorScheme.foreground;
     }
 
-    final effectiveIconSize = toggleTheme.iconSize ?? 16;
-    final effectiveTextStyle = (toggleTheme.textStyle ?? theme.textTheme.small)
-        .merge(widget.textStyle);
+    final iconSize = toggleTheme.iconSize ?? 16;
+    final textStyle = toggleTheme.textStyle ?? theme.textTheme.small;
 
     final motion = Motion.of(context);
     final transitionDuration = toggleTheme.transitionDuration ?? motion.fast;
-    final fillRadius = effectiveDecoration.border?.radius ?? theme.radius;
+    final fillRadius = decoration.border?.borderRadius ?? theme.radius;
     // In a single-selection group the selected fill is one shape that
     // travels between the items, painted by the group; the item itself only
     // marks where it belongs.
     final group = context.maybeRead<_ToggleGroupState<dynamic>>();
-    final travelling =
-        group != null && group.widget.variant == ToggleGroupVariant.single;
+    final travelling = group != null && !group.widget._multiple;
 
-    Widget toggle = Focusable(
-      focusNode: widget.focusNode,
-      autofocus: widget.autofocus,
-      onFocusChange: widget.onFocusChange,
-      canRequestFocus: enabled,
-      builder: (context, focused, child) {
-        // The size constraints sit *outside* the decorator so the outline
-        // variant's border — and the no-secondary-border variant's focus
-        // reserve — is counted into the toggle's height, the way CSS `h-9`
-        // is border-box. Constraining inside made an outline toggle 2px
-        // taller than a default one.
-        return ConstrainedBox(
-          constraints: BoxConstraints.tightFor(
-            height: effectiveHeight,
-            width: widget.width,
+    return Pressable(
+      onPressed: enabled ? () => onChanged!(!value) : null,
+      enabled: enabled,
+      toggled: selected,
+      focusNode: focusNode,
+      autofocus: autofocus,
+      statesController: statesController,
+      onHover: onHover,
+      onFocusChange: onFocusChange,
+      mouseCursor: mouseCursor ?? SystemMouseCursors.click,
+      // With an explicit label the child's own semantics are dropped rather
+      // than merged — otherwise an icon-only toggle announces "Bold B".
+      semanticLabel: semanticLabel,
+      semanticContainer: true,
+      // The press response takes the whole toggle, outline and all. Not in
+      // a single-selection group: there the selection is the group's
+      // travelling shape, and a label shrinking away from it would come
+      // apart.
+      pressScale: travelling ? 1 : toggleTheme.pressScale,
+      builder: (context, states) {
+        // A finger has no hover: while it is down the toggle looks as it
+        // does under a pointer.
+        final hovered =
+            states.contains(WidgetState.hovered) ||
+            states.contains(WidgetState.pressed);
+        final foreground = foregroundFor(hovered: hovered);
+        final fill = backgroundFor(hovered: hovered);
+        final content = Padding(
+          padding: padding,
+          // As tall as the label, centred in whatever the toggle's height
+          // leaves: a plain `Center` takes all the height it is offered,
+          // which under a text scale is more than it needs — and all the
+          // width, which in a `Wrap` or a `Column` is the whole line.
+          child: Center(
+            heightFactor: 1,
+            widthFactor: width == null ? 1 : null,
+            child: AnimatedColorBuilder(
+              color: foreground,
+              duration: transitionDuration,
+              curve: motion.standard,
+              builder: (context, color, child) => IconTheme(
+                data: IconThemeData(size: iconSize, color: color),
+                child: DefaultTextStyle(
+                  style: textStyle.copyWith(color: color),
+                  child: child!,
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (leading != null) ...[leading!, SizedBox(width: gap)],
+                  child,
+                ],
+              ),
+            ),
           ),
-          child: Decorator(
-            focused: focused,
-            decoration: effectiveDecoration,
+        );
+        // The hover fill of an unselected item is always the item's own;
+        // in a single-selection group the selected fill is the group's
+        // travelling shape.
+        Widget filled = AnimatedColorBuilder(
+          color: travelling && selected ? null : fill,
+          duration: transitionDuration,
+          curve: motion.standard,
+          builder: (context, color, child) => DecoratedBox(
+            decoration: BoxDecoration(color: color, borderRadius: fillRadius),
             child: child,
+          ),
+          child: content,
+        );
+        if (travelling) {
+          filled = MovingIndicatorTarget(
+            selected: selected,
+            decoration: BoxDecoration(color: fill, borderRadius: fillRadius),
+            child: filled,
+          );
+        }
+        // Dimmed and deaf while disabled; the same widgets either way, so
+        // the toggle keeps its state when it is enabled again.
+        return Disabled(
+          enabled: enabled,
+          // The size constraints sit *outside* the decorator so the outline
+          // variant's border — and the no-secondary-border variant's focus
+          // reserve — is counted into the toggle's height, the way CSS
+          // `h-9` is border-box. Constraining inside made an outline toggle
+          // 2px taller than a default one.
+          // The height is a floor once text is scaled up, so the label is
+          // never cut off; at a scale of 1 the two are the same.
+          child: ConstrainedBox(
+            constraints: BoxConstraints.tightFor(width: width).copyWith(
+              minHeight: height,
+              maxHeight: textScaledMaxHeight(context, height),
+            ),
+            child: Decorator(
+              focused: states.contains(WidgetState.focused),
+              decoration: decoration,
+              child: filled,
+            ),
           ),
         );
       },
-      child: FinesseGestureDetector(
-        cursor: enabled ? SystemMouseCursors.click : MouseCursor.defer,
-        behavior: HitTestBehavior.opaque,
-        onTap: _toggle,
-        onHoverChange: (hovered) =>
-            statesController.update(WidgetState.hovered, hovered),
-        onTapDown: (_) => statesController.update(WidgetState.pressed, true),
-        onTapUp: (_) => statesController.update(WidgetState.pressed, false),
-        onTapCancel: () => statesController.update(WidgetState.pressed, false),
-        child: ValueListenableBuilder(
-          valueListenable: statesController,
-          builder: (context, states, _) {
-            final hovered = enabled && states.contains(WidgetState.hovered);
-            final foreground = foregroundFor(hovered: hovered);
-            final fill = backgroundFor(hovered: hovered);
-            final content = Padding(
-              padding: effectivePadding,
-              child: Center(
-                child: AnimatedColorBuilder(
-                  color: foreground,
-                  duration: transitionDuration,
-                  curve: motion.standard,
-                  builder: (context, color, child) => IconTheme(
-                    data: IconThemeData(
-                      size: effectiveIconSize,
-                      color: color,
-                    ),
-                    child: DefaultTextStyle(
-                      style: effectiveTextStyle.copyWith(color: color),
-                      child: child!,
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (widget.leading != null) ...[
-                        widget.leading!,
-                        SizedBox(width: effectiveGap),
-                      ],
-                      widget.child,
-                    ],
-                  ),
-                ),
-              ),
-            );
-            final Widget filled;
-            if (travelling) {
-              // The hover fill of an unselected item is still the item's
-              // own; the selected fill is the group's travelling shape.
-              filled = MovingIndicatorTarget(
-                selected: selected,
-                decoration: BoxDecoration(
-                  color: fill,
-                  borderRadius: fillRadius,
-                ),
-                child: AnimatedColorBuilder(
-                  color: selected ? null : fill,
-                  duration: transitionDuration,
-                  curve: motion.standard,
-                  builder: (context, color, child) => DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: color,
-                      borderRadius: fillRadius,
-                    ),
-                    child: child,
-                  ),
-                  child: content,
-                ),
-              );
-            } else {
-              filled = AnimatedColorBuilder(
-                color: fill,
-                duration: transitionDuration,
-                curve: motion.standard,
-                builder: (context, color, child) => DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: color,
-                    borderRadius: fillRadius,
-                  ),
-                  child: child,
-                ),
-                child: content,
-              );
-            }
-            return filled;
-          },
-        ),
-      ),
     );
-
-    // The press response takes the whole toggle, outline and all. Not in a
-    // single-selection group: there the selection is the group's travelling
-    // shape, and a label shrinking away from it would come apart.
-    toggle = ValueListenableBuilder(
-      valueListenable: statesController,
-      builder: (context, states, child) => PressScale(
-        pressed: enabled && !travelling && states.contains(WidgetState.pressed),
-        taps: travelling ? 0 : _taps,
-        scale: toggleTheme.pressScale,
-        child: child!,
-      ),
-      child: toggle,
-    );
-
-    toggle = Semantics(
-      label: widget.semanticLabel,
-      button: true,
-      toggled: selected,
-      enabled: enabled,
-      container: true,
-      // With an explicit label, drop the child's own semantics rather than
-      // merging — otherwise an icon-only toggle announces "Bold B".
-      child: widget.semanticLabel == null
-          ? toggle
-          : ExcludeSemantics(child: toggle),
-    );
-
-    if (!enabled) {
-      toggle = Disabled(disabled: true, child: toggle);
-    }
-    return toggle;
-  }
-}
-
-/// Whether a [ToggleGroup] allows one or many selections.
-enum ToggleGroupVariant {
-  /// At most one item may be selected.
-  single,
-
-  /// Any number of items may be selected.
-  multiple,
-}
-
-/// A controller for the selection of a [ToggleGroup].
-class ToggleGroupController<T> extends ChangeNotifier {
-  /// Creates a controller for a group of the given [variant].
-  ///
-  /// A single-variant group can start with at most one value selected.
-  ToggleGroupController({
-    required this.variant,
-    Set<T>? initialValue,
-    this.allowDeselection = true,
-  }) : _value = {...?initialValue} {
-    assert(
-      variant == ToggleGroupVariant.multiple || _value.length <= 1,
-      'A single-variant ToggleGroup cannot start with more than one '
-      'selected value',
-    );
-  }
-
-  /// Whether one or many items can be selected.
-  final ToggleGroupVariant variant;
-
-  /// Whether tapping the selected item in a [ToggleGroupVariant.single]
-  /// group clears the selection. Defaults to `true`, matching Radix.
-  final bool allowDeselection;
-
-  Set<T> _value;
-
-  /// The currently selected values.
-  Set<T> get value => Set.unmodifiable(_value);
-
-  set value(Set<T> newValue) {
-    if (setEquals(_value, newValue)) return;
-    _value = {...newValue};
-    notifyListeners();
-  }
-
-  /// Whether [item] is selected.
-  bool isSelected(T item) => _value.contains(item);
-
-  /// Selects [item], or removes it from the selection.
-  ///
-  /// In a single-variant group, selecting an item replaces the selection, and
-  /// toggling the selected item clears it only when [allowDeselection] is
-  /// true.
-  void toggle(T item) {
-    final selected = _value.contains(item);
-    switch (variant) {
-      case ToggleGroupVariant.single:
-        if (selected) {
-          if (!allowDeselection) return;
-          value = {};
-        } else {
-          value = {item};
-        }
-      case ToggleGroupVariant.multiple:
-        value = selected ? ({..._value}..remove(item)) : {..._value, item};
-    }
   }
 }
 
 /// {@template ToggleGroup}
 /// A set of [Toggle]s sharing a selection.
 ///
-/// Mirrors shadcn/ui's `ToggleGroup`, in `single` or `multiple` mode.
+/// Mirrors shadcn/ui's `ToggleGroup`. The unnamed constructor holds one
+/// value, [ToggleGroup.multiple] a set of them.
 ///
 /// ```dart
 /// ToggleGroup<String>(
-///   values: const {'bold'},
-///   onChanged: (values) => setState(() => selected = values),
-///   children: const [
-///     ToggleGroupItem(value: 'bold', child: Icon(PhosphorIconsRegular.textB)),
+///   value: alignment,
+///   onChanged: (value) => setState(() => alignment = value),
+///   items: const [
 ///     ToggleGroupItem(
-///       value: 'italic',
-///       child: Icon(PhosphorIconsRegular.textItalic),
+///       value: 'left',
+///       child: PhosphorIcon(PhosphorIconsRegular.textAlignLeft),
+///     ),
+///     ToggleGroupItem(
+///       value: 'center',
+///       child: PhosphorIcon(PhosphorIconsRegular.textAlignCenter),
 ///     ),
 ///   ],
 /// )
 /// ```
+///
+/// The group is controlled: it shows [value] (or [values]) and reports what
+/// a tap would make of it through [onChanged] (or [onValuesChanged]); the
+/// parent decides. Give [initialValue] (or [initialValues]) instead, and no
+/// value, for a group that keeps its own selection. With no callback the
+/// group is disabled.
 /// {@endtemplate}
 class ToggleGroup<T> extends StatefulWidget {
-  /// {@macro ToggleGroup}
+  /// A group where at most one item is selected.
   const ToggleGroup({
     super.key,
-    required this.children,
-    this.values,
+    required this.items,
+    this.value,
+    this.initialValue,
     this.onChanged,
-    this.controller,
     this.allowDeselection = true,
     this.enabled = true,
-    this.toggleVariant = ToggleVariant.primary,
+    this.variant = ToggleVariant.primary,
     this.gap,
     this.axis = Axis.horizontal,
     this.mainAxisSize = MainAxisSize.min,
-  }) : variant = ToggleGroupVariant.single;
+  }) : _multiple = false,
+       values = null,
+       initialValues = null,
+       onValuesChanged = null,
+       assert(
+         value == null || initialValue == null,
+         'Give value (controlled) or initialValue (uncontrolled), not both',
+       );
 
   /// A group where any number of items may be selected.
   const ToggleGroup.multiple({
     super.key,
-    required this.children,
+    required this.items,
     this.values,
-    this.onChanged,
-    this.controller,
+    this.initialValues,
+    this.onValuesChanged,
+    this.allowDeselection = true,
     this.enabled = true,
-    this.toggleVariant = ToggleVariant.primary,
+    this.variant = ToggleVariant.primary,
     this.gap,
     this.axis = Axis.horizontal,
     this.mainAxisSize = MainAxisSize.min,
-  }) : variant = ToggleGroupVariant.multiple,
-       allowDeselection = true;
+  }) : _multiple = true,
+       value = null,
+       initialValue = null,
+       onChanged = null,
+       assert(
+         values == null || initialValues == null,
+         'Give values (controlled) or initialValues (uncontrolled), not both',
+       );
 
-  /// Whether one or many items can be selected. Set by the constructor:
-  /// [ToggleGroupVariant.single] for [ToggleGroup.new] and
-  /// [ToggleGroupVariant.multiple] for [ToggleGroup.multiple].
-  final ToggleGroupVariant variant;
+  /// Whether the group was made by [ToggleGroup.multiple].
+  final bool _multiple;
 
   /// The visual style shared by every toggle in the group.
-  final ToggleVariant toggleVariant;
+  final ToggleVariant variant;
 
   /// The items in the group.
-  final List<ToggleGroupItem<T>> children;
+  final List<ToggleGroupItem<T>> items;
 
-  /// The selected values. Ignored when [controller] is provided.
+  /// The selected value of a single-selection group, for a controlled
+  /// group: a tap changes nothing until the parent passes the new value
+  /// back. Null leaves the selection to the group, from [initialValue].
+  final T? value;
+
+  /// The value selected at first, for a single-selection group that keeps
+  /// its own selection. Give this or [value], not both.
+  final T? initialValue;
+
+  /// Called with what the selection of a single-selection group becomes
+  /// when an item is tapped: its value, or null when the selected item is
+  /// tapped again and [allowDeselection] is true. Null disables the group.
+  final ValueChanged<T?>? onChanged;
+
+  /// The selected values of a [ToggleGroup.multiple], for a controlled
+  /// group: a tap changes nothing until the parent passes the new set back.
   final Set<T>? values;
 
-  /// Called with the new selection whenever it changes.
-  final ValueChanged<Set<T>>? onChanged;
+  /// The values selected at first, for a [ToggleGroup.multiple] that keeps
+  /// its own selection. Give this or [values], not both.
+  final Set<T>? initialValues;
 
-  /// An external controller for the selection.
-  final ToggleGroupController<T>? controller;
+  /// Called with what the selection of a [ToggleGroup.multiple] becomes
+  /// when an item is tapped. Null disables the group.
+  final ValueChanged<Set<T>>? onValuesChanged;
 
-  /// Whether tapping the selected item of a single-variant group clears it.
+  /// Whether the selection may become empty: whether tapping the only
+  /// selected item clears it.
   final bool allowDeselection;
 
-  /// Whether the whole group responds to input.
+  /// Whether the whole group responds to input. A group with no callback
+  /// does not either.
   final bool enabled;
 
-  /// The gap between items.
+  /// The gap between items, 4 by default.
+  ///
+  /// With a gap of 0 the items are joined into one bar, as in a
+  /// `ButtonGroup`: the corners between them are squared and, in the
+  /// outline variant, neighbours share one hairline. A joined group is as
+  /// small as its items, whatever [mainAxisSize] says.
   final double? gap;
 
   /// The direction the items are laid out in.
@@ -633,57 +442,55 @@ class ToggleGroup<T> extends StatefulWidget {
 }
 
 class _ToggleGroupState<T> extends State<ToggleGroup<T>> {
-  ToggleGroupController<T>? _internalController;
+  /// The selection of a group that keeps its own.
+  late Set<T> _own = widget._multiple
+      ? {...?widget.initialValues}
+      : {?widget.initialValue};
 
-  ToggleGroupController<T> get controller =>
-      widget.controller ?? _internalController!;
+  bool get _controlled =>
+      widget._multiple ? widget.values != null : widget.value != null;
 
-  @override
-  void initState() {
-    super.initState();
-    if (widget.controller == null) {
-      _internalController = ToggleGroupController<T>(
-        variant: widget.variant,
-        initialValue: widget.values,
-        allowDeselection: widget.allowDeselection,
-      );
-    }
-    controller.addListener(_onSelectionChanged);
-  }
+  Set<T> get _values => widget._multiple
+      ? (widget.values ?? _own)
+      : (widget.value == null ? _own : {widget.value as T});
 
   @override
   void didUpdateWidget(ToggleGroup<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.controller != oldWidget.controller) {
-      (oldWidget.controller ?? _internalController)?.removeListener(
-        _onSelectionChanged,
-      );
-      controller.addListener(_onSelectionChanged);
-    }
-    if (widget.controller == null &&
-        widget.values != null &&
-        !setEquals(widget.values, controller.value)) {
-      // The parent already knows: it passed these values. Reporting them
-      // back would call its onChanged — and its setState — mid-build.
-      _syncing = true;
-      controller.value = widget.values!;
-      _syncing = false;
+    // A value taken away by the parent is an empty selection, as in a
+    // `Select`: the group does not fall back on what it held before.
+    if (!widget._multiple && widget.value != oldWidget.value) {
+      _own = {?widget.value};
     }
   }
 
-  @override
-  void dispose() {
-    controller.removeListener(_onSelectionChanged);
-    _internalController?.dispose();
-    super.dispose();
-  }
+  bool get _enabled =>
+      widget.enabled &&
+      (widget._multiple
+          ? widget.onValuesChanged != null
+          : widget.onChanged != null);
 
-  bool _syncing = false;
-
-  void _onSelectionChanged() {
-    if (_syncing) return;
-    widget.onChanged?.call(controller.value);
-    if (mounted) setState(() {});
+  /// Selects [item], or takes it out of the selection.
+  ///
+  /// In a single-selection group, selecting an item replaces the selection.
+  /// Either way, the only selected item is cleared only when deselection is
+  /// allowed.
+  void _toggle(T item) {
+    final current = _values;
+    final selected = current.contains(item);
+    if (selected && current.length == 1 && !widget.allowDeselection) return;
+    final Set<T> next;
+    if (widget._multiple) {
+      next = selected ? ({...current}..remove(item)) : {...current, item};
+    } else {
+      next = selected ? {} : {item};
+    }
+    if (!_controlled) setState(() => _own = next);
+    if (widget._multiple) {
+      widget.onValuesChanged?.call(next);
+    } else {
+      widget.onChanged?.call(next.isEmpty ? null : next.single);
+    }
   }
 
   @override
@@ -691,22 +498,24 @@ class _ToggleGroupState<T> extends State<ToggleGroup<T>> {
     assert(debugCheckHasTheme(context));
     final effectiveGap = widget.gap ?? 4.0;
 
+    // Without a gap the items are one bar: joined corners, shared edges.
+    final joined = effectiveGap == 0;
     final items = <Widget>[];
-    for (var i = 0; i < widget.children.length; i++) {
-      if (i > 0) {
+    for (var i = 0; i < widget.items.length; i++) {
+      if (i > 0 && !joined) {
         items.add(
           widget.axis == Axis.horizontal
               ? SizedBox(width: effectiveGap)
               : SizedBox(height: effectiveGap),
         );
       }
-      final item = widget.children[i];
+      final item = widget.items[i];
       items.add(
-        Toggle.raw(
-          variant: widget.toggleVariant,
-          value: controller.isSelected(item.value),
-          enabled: widget.enabled && item.enabled,
-          onChanged: (_) => controller.toggle(item.value),
+        Toggle(
+          variant: widget.variant,
+          value: _values.contains(item.value),
+          enabled: _enabled && item.enabled,
+          onChanged: (_) => _toggle(item.value),
           leading: item.leading,
           semanticLabel: item.semanticLabel,
           child: item.child,
@@ -714,11 +523,13 @@ class _ToggleGroupState<T> extends State<ToggleGroup<T>> {
       );
     }
 
-    final toggleTheme = switch (widget.toggleVariant) {
+    final toggleTheme = switch (widget.variant) {
       ToggleVariant.primary => Theme.of(context).toggleTheme,
       ToggleVariant.outline => Theme.of(context).outlineToggleTheme,
     };
-    final Widget list = widget.axis == Axis.horizontal
+    final list = joined
+        ? ButtonGroup(axis: widget.axis, children: items)
+        : widget.axis == Axis.horizontal
         ? Row(mainAxisSize: widget.mainAxisSize, children: items)
         : Column(mainAxisSize: widget.mainAxisSize, children: items);
 

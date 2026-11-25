@@ -1,7 +1,7 @@
 import 'package:example/strand/data/jobs_data.dart';
 import 'package:example/strand/widgets/jobs_job_card.dart';
-import 'package:example/strand/widgets/jobs_metrics.dart';
 import 'package:example/strand/widgets/jobs_state.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -38,10 +38,7 @@ class JobsResults extends StatelessWidget {
         const Gap.md(),
         for (final (index, job) in jobs.indexed) ...[
           if (index > 0)
-            if (mobile)
-              const SizedBox(height: jobsTightGap)
-            else
-              const Gap.md(),
+            if (mobile) const Gap.sm() else const Gap.md(),
           JobCard(
             key: ValueKey(job.id),
             job: job,
@@ -72,12 +69,12 @@ class _ResultsHeader extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: theme.layoutTheme.gap(GapSize.xs),
+        horizontal: theme.gap(GapSize.xs),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.baseline,
         textBaseline: TextBaseline.alphabetic,
-        spacing: theme.layoutTheme.gap(GapSize.md),
+        spacing: theme.gap(GapSize.md),
         children: [
           Expanded(
             child: Text.rich(
@@ -128,9 +125,9 @@ class _SortMenu extends StatelessWidget {
       anchor: _anchor,
       items: [
         for (final sort in JobSort.values)
-          ContextMenuItem(
+          MenuItem(
             trailing: sort == state.sort
-                ? const Icon(PhosphorIconsRegular.check)
+                ? const PhosphorIcon(PhosphorIconsRegular.check)
                 : null,
             onPressed: () => state.setSort(sort),
             child: Text(sort.label),
@@ -148,7 +145,7 @@ class _SortMenu extends StatelessWidget {
             borderRadius: theme.radii.sm,
             child: Row(
               mainAxisSize: MainAxisSize.min,
-              spacing: theme.layoutTheme.gap(GapSize.xs),
+              spacing: theme.gap(GapSize.xs),
               children: [
                 Text(
                   state.sort.label,
@@ -157,7 +154,11 @@ class _SortMenu extends StatelessWidget {
                     color: color,
                   ),
                 ),
-                Icon(PhosphorIconsRegular.caretDown, size: 14, color: color),
+                PhosphorIcon(
+                  PhosphorIconsRegular.caretDown,
+                  size: theme.iconBeside(theme.textTheme.small),
+                  color: color,
+                ),
               ],
             ),
           );
@@ -176,20 +177,16 @@ class _TopPicksHeader extends StatelessWidget {
     final theme = Theme.of(context);
     return Padding(
       // The design drops the heading 4 below the section gap.
-      padding: EdgeInsets.only(top: theme.layoutTheme.gap(GapSize.xs)),
+      padding: EdgeInsets.only(top: theme.gap(GapSize.xs)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.baseline,
         textBaseline: TextBaseline.alphabetic,
-        spacing: theme.layoutTheme.gap(GapSize.md),
+        spacing: theme.gap(GapSize.md),
         children: [
           Expanded(
             child: Text(
               'Top picks for you',
-              style: theme.textTheme.h4.copyWith(
-                fontSize: 17,
-                height: 22 / 17,
-                letterSpacing: -.17,
-              ),
+              style: theme.textTheme.h4,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),

@@ -34,10 +34,7 @@ class JobsHeader extends StatelessWidget {
             const Gap.xs(),
             Text(
               JobsData.subtitle,
-              // A step up from the 14px body: the design's page lead.
               style: theme.textTheme.p.copyWith(
-                fontSize: 15,
-                height: 22 / 15,
                 color: colors.mutedForeground,
               ),
             ),
@@ -48,7 +45,7 @@ class JobsHeader extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Button.outline(
-              leading: Icon(
+              leading: PhosphorIcon(
                 state.alerts
                     ? PhosphorIconsFill.bellRinging
                     : PhosphorIconsRegular.bell,
@@ -58,7 +55,7 @@ class JobsHeader extends StatelessWidget {
               child: const Text('Job alerts'),
             ),
             Button(
-              leading: const Icon(PhosphorIconsRegular.plus),
+              leading: const PhosphorIcon(PhosphorIconsRegular.plus),
               onPressed: () async {
                 final title = await showWriteDialog(
                   context,
@@ -75,6 +72,7 @@ class JobsHeader extends StatelessWidget {
                     context,
                     'Draft saved',
                     description: '$title at Halcyon',
+                    variant: ToastVariant.success,
                   );
                 }
               },

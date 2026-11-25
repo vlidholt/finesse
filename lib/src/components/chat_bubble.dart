@@ -1,4 +1,5 @@
 import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/spring_size.dart';
 import 'package:flutter/widgets.dart';
 
 /// Which side of a conversation a [ChatBubble] belongs to.
@@ -24,6 +25,12 @@ enum ChatBubbleDirection {
 /// [showTail] to false for all but the last bubble of a run. A bubble never
 /// grows wider than the theme's fraction of the available width, so long
 /// messages wrap and short ones hug their text; it aligns itself to its side.
+///
+/// When the message in it changes size — an edit, a `TypingIndicator` giving
+/// way to the reply, a `StreamingText` reaching a new line — the bubble
+/// follows on a spring instead of jumping, its tail corner staying where it
+/// is. Nothing animates on first build or when the window is resized; set
+/// [animateSize] to false to switch it off.
 class ChatBubble extends StatelessWidget {
   /// Creates a chat bubble.
   const ChatBubble({
@@ -35,6 +42,7 @@ class ChatBubble extends StatelessWidget {
     this.padding,
     this.border,
     this.maxWidth,
+    this.animateSize = true,
     super.key,
   });
 
@@ -62,6 +70,15 @@ class ChatBubble extends StatelessWidget {
   /// The widest the bubble grows, in logical pixels. Defaults to the theme's
   /// fraction of the available width.
   final double? maxWidth;
+
+  /// Whether the bubble follows a change in its content's size on the
+  /// theme's `sizeSpring` rather than at once.
+  final bool animateSize;
+
+  // A step of the bubble's size no larger than this is followed at once:
+  // text revealed a character at a time is already smooth, and a spring
+  // behind it would only lag. A new line is more than this.
+  static const _rigidStep = 12.0;
 
   @override
   Widget build(BuildContext context) {
@@ -98,11 +115,9 @@ class ChatBubble extends StatelessWidget {
                     ? constraints.maxWidth * factor
                     : double.infinity),
           ),
+          // The fill is outside the animated box and the padding inside it,
+          // so the bubble is drawn at the size it has on the way.
           child: Container(
-            padding:
-                padding ??
-                bubble.padding ??
-                const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
               color:
                   color ??
@@ -112,13 +127,25 @@ class ChatBubble extends StatelessWidget {
               borderRadius: radius,
               border: border,
             ),
-            child: DefaultTextStyle.merge(
-              style: (bubble.textStyle ?? theme.textTheme.p).copyWith(
-                color: foreground,
-              ),
-              child: IconTheme.merge(
-                data: IconThemeData(color: foreground),
-                child: child,
+            child: SpringSize(
+              enabled: animateSize,
+              spring: bubble.sizeSpring,
+              borderRadius: radius,
+              rigidDistance: MediaQuery.textScalerOf(context).scale(_rigidStep),
+              child: Padding(
+                padding:
+                    padding ??
+                    bubble.padding ??
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                child: DefaultTextStyle.merge(
+                  style: (bubble.textStyle ?? theme.textTheme.p).copyWith(
+                    color: foreground,
+                  ),
+                  child: IconTheme.merge(
+                    data: IconThemeData(color: foreground),
+                    child: child,
+                  ),
+                ),
               ),
             ),
           ),
@@ -181,33 +208,63 @@ class _TypingIndicatorState extends State<TypingIndicator>
   @override
   Widget build(BuildContext context) {
     final color = widget.color ?? Theme.of(context).colorScheme.mutedForeground;
+    final dot = widget.dotSize;
     return Semantics(
       label: widget.semanticLabel,
-      child: AnimatedBuilder(
-        animation: _controller,
-        builder: (context, _) => Row(
-          mainAxisSize: MainAxisSize.min,
-          spacing: widget.dotSize * .6,
-          children: [
-            for (var i = 0; i < 3; i++)
-              Container(
-                width: widget.dotSize,
-                height: widget.dotSize,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: color.withValues(alpha: color.a * _opacity(i)),
-                ),
-              ),
-          ],
+      // The dots never stop while somebody is typing, so a frame of them
+      // has to cost next to nothing: they are painted, not built, and in a
+      // layer of their own, so the bubble around them is not painted again
+      // sixty times a second.
+      child: RepaintBoundary(
+        child: CustomPaint(
+          size: Size(dot * 3 + dot * _gap * 2, dot),
+          painter: _TypingDotsPainter(
+            progress: _controller,
+            color: color,
+            dotSize: dot,
+          ),
         ),
       ),
     );
   }
+}
+
+/// The space between two dots, in dot sizes.
+const _gap = .6;
+
+class _TypingDotsPainter extends CustomPainter {
+  _TypingDotsPainter({
+    required this.progress,
+    required this.color,
+    required this.dotSize,
+  }) : super(repaint: progress);
+
+  final Animation<double> progress;
+  final Color color;
+  final double dotSize;
 
   /// Each dot peaks a sixth of a cycle after the one before it.
   double _opacity(int index) {
-    final phase = (_controller.value - index / 6) % 1;
+    final phase = (progress.value - index / 6) % 1;
     final wave = phase < .5 ? phase * 2 : (1 - phase) * 2;
     return .35 + .65 * Curves.easeInOut.transform(wave);
   }
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final radius = dotSize / 2;
+    for (var i = 0; i < 3; i++) {
+      canvas.drawCircle(
+        Offset(radius + i * dotSize * (1 + _gap), radius),
+        radius,
+        Paint()..color = color.withValues(alpha: color.a * _opacity(i)),
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(_TypingDotsPainter oldDelegate) =>
+      oldDelegate.color != color ||
+      oldDelegate.dotSize != dotSize ||
+      !identical(oldDelegate.progress, progress);
 }

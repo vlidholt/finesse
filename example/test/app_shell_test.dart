@@ -2,6 +2,7 @@ import 'package:example/common/app_shell.dart';
 import 'package:example/common/theme_editor/customizer_panel.dart';
 import 'package:example/screens/components_screen.dart';
 import 'package:example/strand/strand_shell.dart';
+import 'package:example/strand/widgets/home_post_comments.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -15,6 +16,17 @@ void main() {
 
   Finder inSidebar(Finder finder) =>
       find.descendant(of: find.byType(Sidebar), matching: finder);
+
+  /// Opens the docs page called [name] from the sidebar. The list grows
+  /// with the library, so the entry is scrolled into view first: a page
+  /// added above it must not push it out of reach.
+  Future<void> openPage(WidgetTester tester, String name) async {
+    final entry = inSidebar(find.text(name));
+    await tester.ensureVisible(entry);
+    await settle(tester);
+    await tester.tap(entry);
+    await settle(tester);
+  }
 
   /// The paint-brush button in the component library's bar.
   Future<void> toggleEditor(WidgetTester tester) async {
@@ -58,8 +70,7 @@ void main() {
     ) async {
       await pumpApp(tester, size: wide);
       await openComponentLibrary(tester);
-      await tester.tap(inSidebar(find.text('Badge')));
-      await settle(tester);
+      await openPage(tester, 'Badge');
 
       await tester.tap(find.byIcon(PhosphorIconsRegular.arrowLeft));
       await settle(tester);
@@ -82,16 +93,15 @@ void main() {
       await pumpApp(tester, size: wide);
       await openComponentLibrary(tester);
 
-      await tester.tap(inSidebar(find.text('Button')));
-      await settle(tester);
+      await openPage(tester, 'Button');
 
+      // The page's description: rich text, since it names widgets in code.
       expect(
-        find.text(
-          'Displays a button or a component that looks like a button. '
-          'Six variants share one API: pick the one matching the '
-          "action's weight.",
+        find.textContaining(
+          'A label that does something when pressed.',
+          findRichText: true,
         ),
-        findsOneWidget,
+        findsWidgets,
       );
     });
 
@@ -169,6 +179,82 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
+    // Docking takes room from the page: at 1130 Strand's home loses both
+    // its rails at once, and at 1000 it becomes the phone layout, whose
+    // post cards have no comment field at all. Neither may cost the user
+    // what they were typing.
+    for (final width in const [1130.0, 1000.0]) {
+      testWidgets('docking it in a ${width.toInt()}-wide window keeps a '
+          'half-written comment on the home feed', (tester) async {
+        await pumpApp(tester, size: Size(width, 900));
+        const draft = 'A half-written comment';
+        final field = find.descendant(
+          of: find.byType(HomePostComments),
+          matching: find.byType(TextField),
+        );
+        await Scrollable.ensureVisible(
+          tester.element(field.first),
+          alignment: .5,
+        );
+        await tester.pump();
+        await tester.enterText(field.first, draft);
+        await settle(tester, frames: 4);
+        expect(find.text(draft), findsOneWidget);
+
+        editorOpenSignal(tester).value = true;
+        await settle(tester, frames: 20);
+        expect(tester.takeException(), isNull);
+        final docked = Theme.of(
+          tester.element(find.byType(StrandShell)),
+        ).formFactor;
+        expect(
+          docked,
+          width == 1130 ? FormFactor.desktop : FormFactor.mobile,
+        );
+        if (docked == FormFactor.desktop) {
+          expect(find.text(draft, skipOffstage: false), findsOneWidget);
+        }
+
+        editorOpenSignal(tester).value = false;
+        await settle(tester, frames: 20);
+        expect(find.text(draft, skipOffstage: false), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      });
+    }
+
+    testWidgets('the panel is built once for its slide, not on every frame '
+        'of it', (tester) async {
+      await pumpApp(tester);
+      editorOpenSignal(tester).value = true;
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 16));
+      final seen = <Widget>{};
+      for (var i = 0; i < 8; i++) {
+        await tester.pump(const Duration(milliseconds: 16));
+        seen.add(tester.widget(find.byType(ThemeCustomizerPanel)));
+      }
+      await settle(tester, frames: 20);
+      expect(
+        seen.length,
+        1,
+        reason: 'a new ThemeCustomizerPanel on ${seen.length} of 8 frames',
+      );
+
+      // And out again.
+      editorOpenSignal(tester).value = false;
+      await tester.pump();
+      seen.clear();
+      for (var i = 0; i < 4; i++) {
+        await tester.pump(const Duration(milliseconds: 16));
+        seen.addAll(
+          tester.widgetList(find.byType(ThemeCustomizerPanel)),
+        );
+      }
+      expect(seen.length, lessThanOrEqualTo(1));
+      await settle(tester, frames: 20);
+      expect(find.byType(ThemeCustomizerPanel), findsNothing);
+    });
+
     testWidgets('docks on the start side of nothing: it follows direction', (
       tester,
     ) async {
@@ -193,14 +279,16 @@ void main() {
       // every time the editor was opened.
       await pumpApp(tester, size: wide);
       await openComponentLibrary(tester);
-      await tester.tap(inSidebar(find.text('Badge')));
-      await settle(tester);
+      await openPage(tester, 'Badge');
       await toggleEditor(tester);
 
       expect(find.byType(ThemeCustomizerPanel), findsOneWidget);
       expect(
-        find.text('Displays a badge or a component that looks like a badge.'),
-        findsOneWidget,
+        find.textContaining(
+          'A small pill that states something',
+          findRichText: true,
+        ),
+        findsWidgets,
       );
     });
 

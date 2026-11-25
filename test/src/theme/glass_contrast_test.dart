@@ -142,6 +142,14 @@ void main() {
             );
             final menu = theme.contextMenuTheme;
             final option = theme.selectOptionTheme;
+            // The options are the menus' alone: the scheme, and what else
+            // is drawn with its accent, are as without them
+            // (`menu_accent_test.dart` walks every style and palette).
+            final plain = themeOf(brightness);
+            expect(theme.colorScheme, plain.colorScheme);
+            expect(theme.chatBubbleTheme, plain.chatBubbleTheme);
+            expect(theme.chipTheme, plain.chipTheme);
+            expect(theme.iconTileTheme, plain.iconTileTheme);
             for (final backdrop in [
               theme.colorScheme.background,
               black,
@@ -171,20 +179,41 @@ void main() {
               }
 
               // The highlighted row: its text on its highlight, and the
-              // highlight itself told apart from the surface or — where the
-              // two are close, as a pale accent on white glass is — by the
-              // text changing colour.
+              // highlight itself told apart from the surface. A wash — the
+              // default in this style, and shadcn's translucent finish —
+              // leaves the text its resting colour, so the fill alone has
+              // to show; a bold accent is a filled row whose text changes
+              // colour with it.
               final highlight = over(menu.selectedBackgroundColor!, surface);
+              final washed = menu.selectedBackgroundColor!.a < 1;
               expect(
                 contrast(menu.selectedTextStyle!.color!, highlight),
-                greaterThanOrEqualTo(onPage && !inverted ? 4.5 : 3),
+                greaterThanOrEqualTo(
+                  washed && translucent != true || (onPage && !inverted)
+                      ? 4.5
+                      : 3,
+                ),
                 reason: 'highlighted row: $where',
               );
+              if (washed) {
+                expect(
+                  contrast(highlight, surface),
+                  greaterThan(1.08),
+                  reason: 'highlight invisible: $where',
+                );
+              } else {
+                expect(
+                  menu.selectedTextStyle!.color,
+                  isNot(menu.textStyle!.color),
+                  reason: 'highlight invisible: $where',
+                );
+              }
+              // The shortcut on a highlighted row is still told from the
+              // row.
               expect(
-                contrast(highlight, surface) > 1.04 ||
-                    menu.selectedTextStyle!.color != menu.textStyle!.color,
-                isTrue,
-                reason: 'highlight invisible: $where',
+                contrast(menu.selectedTrailingTextStyle!.color!, highlight),
+                greaterThanOrEqualTo(3),
+                reason: 'highlighted shortcut: $where',
               );
 
               // A select's options use the same pair, so a menu cannot
@@ -222,6 +251,128 @@ void main() {
             }
           }
         }
+      }
+    }
+  });
+
+  test('the highlighted row on glass is a quiet wash, not an accent slab', () {
+    for (final brightness in Brightness.values) {
+      final theme = themeOf(brightness);
+      final scheme = theme.colorScheme;
+      final style = theme.style;
+      final opacity = brightness == Brightness.dark
+          ? style.menuHighlightOpacityDark!
+          : style.menuHighlightOpacity!;
+      // About what the designs use for a hover fill: 5–7% of the
+      // foreground on light, 8–10% of white on dark.
+      expect(
+        opacity,
+        brightness == Brightness.dark
+            ? inInclusiveRange(.08, .1)
+            : inInclusiveRange(.05, .07),
+      );
+      final wash = scheme.foreground.withValues(alpha: opacity);
+      final menu = theme.contextMenuTheme;
+      final option = theme.selectOptionTheme;
+      final command = theme.commandTheme;
+
+      // One wash for a menu row, a select's option and a command item…
+      expect(menu.selectedBackgroundColor, wash);
+      expect(option.hoveredBackgroundColor, wash);
+      expect(command.itemSelectedBackgroundColor, wash);
+      // …with the text, the icons and the check mark left as they were.
+      expect(menu.selectedTextStyle!.color, menu.textStyle!.color);
+      expect(menu.selectedTextStyle!.color, scheme.popoverForeground);
+      expect(option.selectedTextStyle!.color, option.textStyle!.color);
+      expect(option.selectedHoveredIconColor, option.selectedIconColor);
+      expect(command.itemSelectedForegroundColor, scheme.foreground);
+
+      // It reads on the glass over anything, and is far quieter than the
+      // accent it replaces: nearer the surface than the accent was.
+      for (final backdrop in [scheme.background, black, white]) {
+        final surface = over(menu.decoration!.color!, backdrop);
+        final highlight = over(wash, surface);
+        expect(
+          contrast(scheme.popoverForeground, highlight),
+          greaterThanOrEqualTo(4.5),
+          reason: '$brightness over $backdrop',
+        );
+        expect(
+          contrast(highlight, surface),
+          inExclusiveRange(1.08, 1.5),
+          reason: '$brightness over $backdrop',
+        );
+      }
+
+      // Solid menus in the same style take the same wash, so switching
+      // the glass off does not bring the slab back.
+      final solid = themeOf(brightness, translucent: false);
+      expect(solid.contextMenuTheme.selectedBackgroundColor, wash);
+
+      // A bold accent asks for a filled row and gets one, on glass too.
+      final bold = themeOf(brightness, accent: MenuAccent.bold);
+      expect(bold.contextMenuTheme.selectedBackgroundColor, scheme.primary);
+      expect(
+        bold.contextMenuTheme.selectedTextStyle!.color,
+        scheme.primaryForeground,
+      );
+      expect(bold.selectOptionTheme.hoveredBackgroundColor, scheme.primary);
+      expect(
+        contrast(scheme.primaryForeground, scheme.primary),
+        greaterThanOrEqualTo(4.5),
+      );
+
+      // An inverted menu washes with *its* foreground, at the opacity of
+      // its own brightness.
+      final inverted = themeOf(brightness, inverted: true);
+      final other = brightness == Brightness.light
+          ? const TealColorScheme.dark()
+          : const TealColorScheme.light();
+      expect(
+        inverted.contextMenuTheme.selectedBackgroundColor,
+        other.foreground.withValues(
+          alpha: brightness == Brightness.light
+              ? style.menuHighlightOpacityDark
+              : style.menuHighlightOpacity,
+        ),
+      );
+    }
+  });
+
+  test('the shadcn styles keep the accent highlight on their solid menus', () {
+    for (final style in [
+      StyleTokens.nova,
+      StyleTokens.maia,
+      StyleTokens.lyra,
+    ]) {
+      expect(style.menuHighlightOpacity, isNull);
+      expect(style.menuHighlightOpacityDark, isNull);
+      for (final brightness in Brightness.values) {
+        final theme = themeOf(brightness, style: style);
+        final scheme = theme.colorScheme;
+        final where = '${style.name} $brightness';
+        // `focus:bg-accent focus:text-accent-foreground`…
+        expect(
+          theme.contextMenuTheme.selectedBackgroundColor,
+          scheme.accent,
+          reason: where,
+        );
+        expect(
+          theme.contextMenuTheme.selectedTextStyle!.color,
+          scheme.accentForeground,
+          reason: where,
+        );
+        expect(
+          theme.selectOptionTheme.hoveredBackgroundColor,
+          scheme.accent,
+          reason: where,
+        );
+        // …and `data-selected:bg-muted` in the command palette.
+        expect(
+          theme.commandTheme.itemSelectedBackgroundColor,
+          scheme.muted,
+          reason: where,
+        );
       }
     }
   });

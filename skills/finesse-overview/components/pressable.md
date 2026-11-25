@@ -1,6 +1,6 @@
 # Pressable
 
-The behaviour underneath `Chip`, `ListTile` and the navigation bars, for building a control of your own. A `Pressable` handles pointer and keyboard activation, the cursor and button semantics, and hands its interaction states to a builder. It paints nothing itself. `FocusRing` draws the focus ring of the theme around whatever the builder returns.
+The behaviour underneath everything that is pressed — `Button`, `IconButton`, `Toggle`, `Chip`, `ListTile`, the navigation bars — for building a control of your own. A `Pressable` handles pointer and keyboard activation, the press response, the cursor and button semantics, and hands its interaction states to a builder. It paints nothing itself. `FocusRing` draws the focus ring of the theme around whatever the builder returns, and `AnimatedFill` fades its fill between states.
 
 ## Interaction states
 
@@ -80,7 +80,7 @@ class _PressableStatesExampleState extends State<PressableStatesExample> {
 
 ## Selected and disabled
 
-Pass `selected` for one of a set. With no `onPressed` the region is disabled: no focus, the basic cursor, and `WidgetState.disabled` in the set.
+Pass `selected` for one of a set. With no `onPressed` the region is disabled: no focus, the basic cursor, and `WidgetState.disabled` in the set; `enabled` says otherwise in either direction — true keeps a region with nothing to do in the focus order, as a button that is busy.
 
 ```dart
 import 'package:finesse/finesse.dart';
@@ -160,7 +160,7 @@ class _PressableChoiceExampleState extends State<PressableChoiceExample> {
                                 ],
                               ),
                             ),
-                            Icon(
+                            PhosphorIcon(
                               isSelected
                                   ? PhosphorIconsFill.checkCircle
                                   : PhosphorIconsRegular.circle,
@@ -184,3 +184,118 @@ class _PressableChoiceExampleState extends State<PressableChoiceExample> {
 }
 ```
 
+## Toggled, and states shared
+
+Pass `toggled` for a region that stays on: it adds `WidgetState.selected` and is announced as on or off. A `statesController` shares the states with whatever else follows them — here the hint below, which shows while the region is hovered or focused. `onHover` and `onFocusChange` report the two as callbacks, and `semanticContainer` makes the region a semantics node of its own, as a button is.
+
+```dart
+import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
+
+/// A setting that stays on. `toggled` adds `WidgetState.selected` and is
+/// announced as on or off; a `statesController` lets the hint below the
+/// region follow its hover and focus without being part of it.
+class PressableToggleExample extends StatefulWidget {
+  const PressableToggleExample({super.key});
+
+  @override
+  State<PressableToggleExample> createState() => _PressableToggleExampleState();
+}
+
+class _PressableToggleExampleState extends State<PressableToggleExample> {
+  final _states = WidgetStatesController();
+  bool quiet = false;
+
+  @override
+  void dispose() {
+    _states.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final radius = theme.radii.lg;
+
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 320),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 8,
+        children: [
+          Pressable(
+            toggled: quiet,
+            statesController: _states,
+            onPressed: () => setState(() => quiet = !quiet),
+            builder: (context, states) {
+              final on = states.contains(WidgetState.selected);
+              return FocusRing(
+                visible: states.contains(WidgetState.focused),
+                borderRadius: radius,
+                child: AnimatedFill(
+                  color: on
+                      ? scheme.accent
+                      : states.contains(WidgetState.hovered)
+                      ? scheme.muted
+                      : scheme.card,
+                  borderColor: on ? scheme.accentBorder : scheme.border,
+                  borderRadius: radius,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
+                    child: Row(
+                      spacing: 12,
+                      children: [
+                        PhosphorIcon(
+                          on
+                              ? PhosphorIconsFill.moon
+                              : PhosphorIconsRegular.moon,
+                          size: 20,
+                          color: on ? scheme.tint : scheme.mutedForeground,
+                        ),
+                        Expanded(
+                          child: Text(
+                            'Do not disturb',
+                            style: theme.textTheme.small,
+                          ),
+                        ),
+                        Text(
+                          on ? 'On' : 'Off',
+                          style: theme.textTheme.muted,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+          // Outside the region, following it through the controller.
+          ValueListenableBuilder(
+            valueListenable: _states,
+            builder: (context, states, _) {
+              final engaged =
+                  states.contains(WidgetState.hovered) ||
+                  states.contains(WidgetState.focused);
+              return AnimatedOpacity(
+                opacity: engaged ? 1 : 0,
+                duration: Motion.of(context).fast,
+                child: Text(
+                  quiet
+                      ? 'Notifications will sound again.'
+                      : 'Notifications will wait until you turn this off.',
+                  style: theme.textTheme.caption,
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+```

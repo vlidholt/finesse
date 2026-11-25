@@ -121,7 +121,7 @@ class ComponentsScreenState extends State<ComponentsScreen> {
         scrollController: _sidebarScrollController,
         header: TextField(
           placeholder: const Text('Search docs'),
-          leading: const Icon(PhosphorIconsRegular.magnifyingGlass),
+          leading: const PhosphorIcon(PhosphorIconsRegular.magnifyingGlass),
           onChanged: (value) => setState(() => query = value),
         ),
         children: [
@@ -134,7 +134,7 @@ class ComponentsScreenState extends State<ComponentsScreen> {
                   children: [
                     for (final item in group.items)
                       SidebarMenuButton(
-                        isActive: item.slug == doc.slug,
+                        selected: item.slug == doc.slug,
                         onPressed: () => _select(item.slug),
                         child: Text(item.title),
                       ),

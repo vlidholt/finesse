@@ -3,8 +3,10 @@
 // deprecated it in 3.47 in favour of the `material_ui` package.
 // ignore_for_file: deprecated_member_use
 
+import 'package:example/common/code_style.dart';
 import 'package:finesse/finesse.dart';
-import 'package:flutter/material.dart' hide IconButton, Tab, Theme;
+import 'package:flutter/material.dart'
+    hide ButtonTheme, IconButton, SelectionArea, Tab, Theme;
 import 'package:flutter/services.dart';
 import 'package:syntax_highlight/syntax_highlight.dart';
 
@@ -129,12 +131,7 @@ class CodeBlock extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         child: Text.rich(
           CodeHighlighter.highlight(code.trimRight()),
-          style: const TextStyle(
-            fontFamily: 'JetBrainsMono',
-            fontSize: 13,
-            height: 1.6,
-            color: Color(0xFFD4D4D8),
-          ),
+          style: CodeStyle.block.copyWith(color: const Color(0xFFD4D4D8)),
         ),
       ),
     );
@@ -235,13 +232,15 @@ class _CopyButtonState extends State<_CopyButton> {
   @override
   Widget build(BuildContext context) {
     return IconButton.ghost(
-      width: 28,
-      height: 28,
-      iconSize: 14,
-      foregroundColor: const Color(0xFFA1A1AA),
-      hoverBackgroundColor: const Color(0x1AFFFFFF),
-      hoverForegroundColor: const Color(0xFFFAFAFA),
-      icon: Icon(
+      style: ButtonTheme(
+        width: 28,
+        height: 28,
+        iconSize: 14,
+        foregroundColor: const Color(0xFFA1A1AA),
+        hoverBackgroundColor: const Color(0x1AFFFFFF),
+        hoverForegroundColor: const Color(0xFFFAFAFA),
+      ),
+      icon: PhosphorIcon(
         copied ? PhosphorIconsRegular.check : PhosphorIconsRegular.copy,
       ),
       onPressed: () async {
@@ -295,9 +294,7 @@ class DocParagraph extends StatelessWidget {
   /// [text] split into plain and `code` spans.
   static List<InlineSpan> spans(BuildContext context, String text) {
     final theme = Theme.of(context);
-    final code = TextStyle(
-      fontFamily: 'JetBrainsMono',
-      fontSize: 13,
+    final code = CodeStyle.inline.copyWith(
       color: theme.colorScheme.foreground,
       backgroundColor: theme.colorScheme.muted,
     );
@@ -349,6 +346,58 @@ class DocBullets extends StatelessWidget {
             ),
           ),
       ],
+    );
+  }
+}
+
+/// A small table of prose, with the same inline-code treatment as
+/// [DocParagraph]. The first column is as wide as its content; the others
+/// share the rest.
+class DocTable extends StatelessWidget {
+  const DocTable({super.key, required this.columns, required this.rows});
+
+  /// The header of each column.
+  final List<String> columns;
+
+  /// One list per row, a cell per column.
+  final List<List<String>> rows;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final border = BorderSide(color: theme.colorScheme.border);
+
+    Widget cell(String text, {required bool header}) => Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      child: Text.rich(
+        TextSpan(children: DocParagraph.spans(context, text)),
+        style: header
+            ? theme.textTheme.small.copyWith(
+                color: theme.colorScheme.mutedForeground,
+              )
+            : theme.textTheme.small,
+      ),
+    );
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        border: Border.fromBorderSide(border),
+        borderRadius: theme.radii.lg,
+      ),
+      child: Table(
+        columnWidths: const {0: IntrinsicColumnWidth()},
+        defaultVerticalAlignment: TableCellVerticalAlignment.top,
+        border: TableBorder(horizontalInside: border),
+        children: [
+          TableRow(
+            children: [for (final c in columns) cell(c, header: true)],
+          ),
+          for (final row in rows)
+            TableRow(
+              children: [for (final c in row) cell(c, header: false)],
+            ),
+        ],
+      ),
     );
   }
 }
@@ -414,7 +463,7 @@ class ExamplePreview extends StatelessWidget {
 
 /// A titled example section: heading, optional description, and a
 /// Preview / Code tab pair.
-class DocExample extends StatelessWidget {
+class DocExample extends StatefulWidget {
   const DocExample({
     super.key,
     required this.slug,
@@ -423,6 +472,16 @@ class DocExample extends StatelessWidget {
 
   final String slug;
   final ComponentExample example;
+
+  @override
+  State<DocExample> createState() => _DocExampleState();
+}
+
+class _DocExampleState extends State<DocExample> {
+  String _tab = 'preview';
+
+  String get slug => widget.slug;
+  ComponentExample get example => widget.example;
 
   @override
   Widget build(BuildContext context) {
@@ -443,8 +502,9 @@ class DocExample extends StatelessWidget {
         ],
         const SizedBox(height: 12),
         Tabs<String>(
-          value: 'preview',
-          tabBarAlignment: Alignment.centerLeft,
+          value: _tab,
+          onChanged: (value) => setState(() => _tab = value),
+          tabAlignment: Alignment.centerLeft,
           tabs: [
             Tab(
               value: 'preview',

@@ -30,11 +30,6 @@ mixin _$ContextMenuTheme {
     }
 
     return ContextMenuTheme(
-      popoverReverseDuration: lerpDuration$(
-        a.popoverReverseDuration,
-        b.popoverReverseDuration,
-        t,
-      ),
       constraints: BoxConstraints.lerp(a.constraints, b.constraints, t),
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
       leadingPadding: EdgeInsetsGeometry.lerp(
@@ -101,15 +96,27 @@ mixin _$ContextMenuTheme {
         t,
       ),
       closeOnTap: t < 0.5 ? a.closeOnTap : b.closeOnTap,
-      effects: t < 0.5 ? a.effects : b.effects,
       shadows: t < 0.5 ? a.shadows : b.shadows,
       decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
       filter: t < 0.5 ? a.filter : b.filter,
+      indicatorSize: lerpDouble$(a.indicatorSize, b.indicatorSize, t),
+      labelTextStyle: TextStyle.lerp(a.labelTextStyle, b.labelTextStyle, t),
+      labelPadding: EdgeInsetsGeometry.lerp(a.labelPadding, b.labelPadding, t),
+      shortcutTextStyle: TextStyle.lerp(
+        a.shortcutTextStyle,
+        b.shortcutTextStyle,
+        t,
+      ),
+      dividerColor: Color.lerp(a.dividerColor, b.dividerColor, t),
+      dividerMargin: EdgeInsetsGeometry.lerp(
+        a.dividerMargin,
+        b.dividerMargin,
+        t,
+      ),
     );
   }
 
   ContextMenuTheme copyWith({
-    Duration? popoverReverseDuration,
     BoxConstraints? constraints,
     EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? leadingPadding,
@@ -132,16 +139,19 @@ mixin _$ContextMenuTheme {
     Color? backgroundColor,
     Color? selectedBackgroundColor,
     bool? closeOnTap,
-    List<Effect<dynamic>>? effects,
     List<BoxShadow>? shadows,
     FinesseDecoration? decoration,
     ImageFilter? filter,
+    double? indicatorSize,
+    TextStyle? labelTextStyle,
+    EdgeInsetsGeometry? labelPadding,
+    TextStyle? shortcutTextStyle,
+    Color? dividerColor,
+    EdgeInsetsGeometry? dividerMargin,
   }) {
     final _this = (this as ContextMenuTheme);
 
     return ContextMenuTheme(
-      popoverReverseDuration:
-          popoverReverseDuration ?? _this.popoverReverseDuration,
       constraints: constraints ?? _this.constraints,
       padding: padding ?? _this.padding,
       leadingPadding: leadingPadding ?? _this.leadingPadding,
@@ -169,10 +179,15 @@ mixin _$ContextMenuTheme {
       selectedBackgroundColor:
           selectedBackgroundColor ?? _this.selectedBackgroundColor,
       closeOnTap: closeOnTap ?? _this.closeOnTap,
-      effects: effects ?? _this.effects,
       shadows: shadows ?? _this.shadows,
       decoration: decoration ?? _this.decoration,
       filter: filter ?? _this.filter,
+      indicatorSize: indicatorSize ?? _this.indicatorSize,
+      labelTextStyle: labelTextStyle ?? _this.labelTextStyle,
+      labelPadding: labelPadding ?? _this.labelPadding,
+      shortcutTextStyle: shortcutTextStyle ?? _this.shortcutTextStyle,
+      dividerColor: dividerColor ?? _this.dividerColor,
+      dividerMargin: dividerMargin ?? _this.dividerMargin,
     );
   }
 
@@ -188,7 +203,6 @@ mixin _$ContextMenuTheme {
     }
 
     return copyWith(
-      popoverReverseDuration: other.popoverReverseDuration,
       constraints: other.constraints,
       padding: other.padding,
       leadingPadding: other.leadingPadding,
@@ -222,10 +236,19 @@ mixin _$ContextMenuTheme {
       backgroundColor: other.backgroundColor,
       selectedBackgroundColor: other.selectedBackgroundColor,
       closeOnTap: other.closeOnTap,
-      effects: other.effects,
       shadows: other.shadows,
       decoration: _this.decoration?.merge(other.decoration) ?? other.decoration,
       filter: other.filter,
+      indicatorSize: other.indicatorSize,
+      labelTextStyle:
+          _this.labelTextStyle?.merge(other.labelTextStyle) ??
+          other.labelTextStyle,
+      labelPadding: other.labelPadding,
+      shortcutTextStyle:
+          _this.shortcutTextStyle?.merge(other.shortcutTextStyle) ??
+          other.shortcutTextStyle,
+      dividerColor: other.dividerColor,
+      dividerMargin: other.dividerMargin,
     );
   }
 
@@ -242,8 +265,7 @@ mixin _$ContextMenuTheme {
     final _this = (this as ContextMenuTheme);
     final _other = (other as ContextMenuTheme);
 
-    return _other.popoverReverseDuration == _this.popoverReverseDuration &&
-        _other.constraints == _this.constraints &&
+    return _other.constraints == _this.constraints &&
         _other.padding == _this.padding &&
         _other.leadingPadding == _this.leadingPadding &&
         _other.trailingPadding == _this.trailingPadding &&
@@ -266,10 +288,15 @@ mixin _$ContextMenuTheme {
         _other.backgroundColor == _this.backgroundColor &&
         _other.selectedBackgroundColor == _this.selectedBackgroundColor &&
         _other.closeOnTap == _this.closeOnTap &&
-        _other.effects == _this.effects &&
         _other.shadows == _this.shadows &&
         _other.decoration == _this.decoration &&
-        _other.filter == _this.filter;
+        _other.filter == _this.filter &&
+        _other.indicatorSize == _this.indicatorSize &&
+        _other.labelTextStyle == _this.labelTextStyle &&
+        _other.labelPadding == _this.labelPadding &&
+        _other.shortcutTextStyle == _this.shortcutTextStyle &&
+        _other.dividerColor == _this.dividerColor &&
+        _other.dividerMargin == _this.dividerMargin;
   }
 
   @override
@@ -278,7 +305,6 @@ mixin _$ContextMenuTheme {
 
     return Object.hashAll([
       runtimeType,
-      _this.popoverReverseDuration,
       _this.constraints,
       _this.padding,
       _this.leadingPadding,
@@ -301,10 +327,15 @@ mixin _$ContextMenuTheme {
       _this.backgroundColor,
       _this.selectedBackgroundColor,
       _this.closeOnTap,
-      _this.effects,
       _this.shadows,
       _this.decoration,
       _this.filter,
+      _this.indicatorSize,
+      _this.labelTextStyle,
+      _this.labelPadding,
+      _this.shortcutTextStyle,
+      _this.dividerColor,
+      _this.dividerMargin,
     ]);
   }
 }

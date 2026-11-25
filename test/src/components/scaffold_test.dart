@@ -301,7 +301,7 @@ void main() {
     });
 
     testWidgets('measures an app bar of its own height: the inset is right '
-        'on the frame after the first layout', (tester) async {
+        'on the first frame', (tester) async {
       for (final showBorder in [true, false]) {
         final seen = <EdgeInsets>[];
         tester.view.devicePixelRatio = 1;
@@ -333,9 +333,10 @@ void main() {
             ),
           ),
         );
-        // First frame: nothing is measured yet, so the theme's height.
+        // Measured in the frame it is laid out in, so the first frame is
+        // already right and the theme's height is never used as a guess.
         expect(themed, 64 + 1 + 44);
-        expect(seen.last.top, themed);
+        expect(seen.last.top, 96 + 44 + (showBorder ? 1 : 0));
 
         await tester.pump();
         final bar = tester.getSize(find.byType(AppBar)).height;
@@ -386,8 +387,8 @@ void main() {
       );
     });
 
-    testWidgets('an arbitrary bottom widget is corrected on the frame after '
-        'the first layout', (tester) async {
+    testWidgets('an arbitrary bottom widget is measured on the first '
+        'frame', (tester) async {
       tester.view.devicePixelRatio = 1;
       tester.view.physicalSize = kSurfaceSizes[FormFactor.mobile]!;
       addTearDown(tester.view.reset);
@@ -415,9 +416,10 @@ void main() {
           ),
         ),
       );
-      // The only guess available before layout.
-      expect(seen.last.bottom, themed);
+      // Measured in the frame it is laid out in: the theme's height for a
+      // `BottomNavigationBar` is never used as a guess.
       expect(themed, 84 + 34);
+      expect(seen.last.bottom, 50);
       // No app bar: the status bar is all there is.
       expect(seen.last.top, 44);
 
@@ -521,7 +523,9 @@ void main() {
 
       // At the end the last row clears the bottom bar.
       await tester.drag(find.byType(ListView), const Offset(0, -5000));
-      await tester.pump();
+      // Past the end the list stretches for a moment, as it does on
+      // Android.
+      await tester.pumpAndSettle();
       final bar = tester.getRect(find.byType(BottomNavigationBar));
       expect(tester.getRect(find.byKey(const Key('row39'))).bottom, bar.top);
     });
@@ -574,14 +578,13 @@ void main() {
           appBar: AppBar(
             title: const Text('Messages'),
             actions: [
+              // The key on what takes the tap: a SizedBox with no child
+              // is not hit itself.
               GestureDetector(
+                key: const Key('action'),
                 behavior: HitTestBehavior.opaque,
                 onTap: () => barTaps++,
-                child: const SizedBox(
-                  key: Key('action'),
-                  width: 40,
-                  height: 40,
-                ),
+                child: const SizedBox(width: 40, height: 40),
               ),
             ],
           ),

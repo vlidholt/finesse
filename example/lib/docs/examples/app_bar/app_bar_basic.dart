@@ -28,19 +28,19 @@ class AppBarBasicExample extends StatelessWidget {
             // Not at the top of the screen here, so no status bar inset.
             primary: false,
             leading: IconButton.ghost(
-              icon: const Icon(PhosphorIconsRegular.arrowLeft),
+              icon: const PhosphorIcon(PhosphorIconsRegular.arrowLeft),
               semanticLabel: 'Back',
               onPressed: () {},
             ),
             title: const Text('Messages'),
             actions: [
               IconButton.ghost(
-                icon: const Icon(PhosphorIconsRegular.magnifyingGlass),
+                icon: const PhosphorIcon(PhosphorIconsRegular.magnifyingGlass),
                 semanticLabel: 'Search',
                 onPressed: () {},
               ),
               IconButton.ghost(
-                icon: const Icon(PhosphorIconsRegular.notePencil),
+                icon: const PhosphorIcon(PhosphorIconsRegular.notePencil),
                 semanticLabel: 'New message',
                 onPressed: () {},
               ),

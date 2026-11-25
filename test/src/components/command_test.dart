@@ -228,13 +228,13 @@ void main() {
       expect(escaped, isTrue);
     });
 
-    testWidgets('onItemSelected reports the chosen item', (tester) async {
+    testWidgets('onSelected reports the chosen item', (tester) async {
       CommandItem? selected;
       await tester.pumpWidget(
         wrap(
           Command(
             groups: groups(),
-            onItemSelected: (item) => selected = item,
+            onSelected: (item) => selected = item,
           ),
         ),
       );
@@ -361,7 +361,7 @@ void main() {
     testWidgets('the dialog casts no shadow', (tester) async {
       await open(tester);
       final dialog = tester.widget<Dialog>(find.byType(Dialog));
-      expect(dialog.shadows, Shadows.none);
+      expect(dialog.style?.shadows, Shadows.none);
     });
 
     testWidgets('the empty state is a quiet text-sm line, not the Empty '

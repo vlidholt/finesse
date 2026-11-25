@@ -45,7 +45,7 @@ class _AppBarMiddleExampleState extends State<AppBarMiddleExample> {
                   color: theme.colorScheme.primary,
                   borderRadius: theme.radii.md,
                 ),
-                child: Icon(
+                child: PhosphorIcon(
                   PhosphorIconsBold.waves,
                   size: 18,
                   color: theme.colorScheme.primaryForeground,
@@ -53,32 +53,32 @@ class _AppBarMiddleExampleState extends State<AppBarMiddleExample> {
               ),
               title: const TextField(
                 placeholder: Text('Search'),
-                leading: Icon(PhosphorIconsRegular.magnifyingGlass),
+                leading: PhosphorIcon(PhosphorIconsRegular.magnifyingGlass),
               ),
               middle: NavigationBar(
                 selectedIndex: index,
                 onDestinationSelected: (i) => setState(() => index = i),
                 destinations: const [
                   NavigationDestination(
-                    icon: Icon(PhosphorIconsRegular.house),
-                    selectedIcon: Icon(PhosphorIconsFill.house),
+                    icon: PhosphorIcon(PhosphorIconsRegular.house),
+                    selectedIcon: PhosphorIcon(PhosphorIconsFill.house),
                     label: 'Home',
                   ),
                   NavigationDestination(
-                    icon: Icon(PhosphorIconsRegular.usersThree),
-                    selectedIcon: Icon(PhosphorIconsFill.usersThree),
+                    icon: PhosphorIcon(PhosphorIconsRegular.usersThree),
+                    selectedIcon: PhosphorIcon(PhosphorIconsFill.usersThree),
                     label: 'Network',
                   ),
                   NavigationDestination(
-                    icon: Icon(PhosphorIconsRegular.briefcase),
-                    selectedIcon: Icon(PhosphorIconsFill.briefcase),
+                    icon: PhosphorIcon(PhosphorIconsRegular.briefcase),
+                    selectedIcon: PhosphorIcon(PhosphorIconsFill.briefcase),
                     label: 'Jobs',
                   ),
                 ],
               ),
               actions: [
                 IconButton.ghost(
-                  icon: const Icon(PhosphorIconsRegular.bell),
+                  icon: const PhosphorIcon(PhosphorIconsRegular.bell),
                   semanticLabel: 'Notifications',
                   onPressed: () {},
                 ),

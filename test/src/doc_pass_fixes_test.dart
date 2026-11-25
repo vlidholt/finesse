@@ -30,28 +30,27 @@ void main() {
     expect(DateTime(2025, 12, 15).nextMonth, DateTime(2026, 1, 15));
   });
 
-  test('a restorable tabs controller saves the current tab', () {
-    final restorable = RestorableTabsController(value: 'a');
-    final controller = restorable.createDefaultValue()..select('b');
-    expect(controller.selected, 'b');
-    // toPrimitives reads the live value once registered; mimic that here.
-    expect(
-      RestorableTabsController.fromValue('a').fromPrimitives('b').selected,
-      'b',
+  test('a restorable tabs controller saves the index of the current tab', () {
+    final restorable = RestorableTabsController(
+      value: _Section.posts,
+      values: _Section.values,
     );
+    final controller = restorable.createDefaultValue()..select(_Section.about);
+    expect(controller.value, _Section.about);
+    // An enum is restored from the index it was saved as.
+    expect(restorable.fromPrimitives(2).value, _Section.about);
+    // An index no tab has any more falls back on the initial value.
+    expect(restorable.fromPrimitives(7).value, _Section.posts);
+    expect(restorable.fromPrimitives(null).value, _Section.posts);
   });
 
-  testWidgets('a radio group moves its listener to a swapped controller', (
+  testWidgets('a radio group follows a value written from outside', (
     tester,
   ) async {
-    final a = RadioController<int>(value: 1);
-    final b = RadioController<int>(value: 1);
-    addTearDown(a.dispose);
-    addTearDown(b.dispose);
     int? changed;
-    Widget build(RadioController<int> controller) => FinesseApp(
+    Widget build(int? value) => FinesseApp(
       home: FinesseRadioGroup<int>(
-        controller: controller,
+        value: value,
         onChanged: (v) => changed = v,
         items: const [
           Radio(value: 1, label: Text('one')),
@@ -60,41 +59,37 @@ void main() {
       ),
     );
 
-    await tester.pumpWidget(build(a));
-    await tester.pumpWidget(build(b));
-    changed = null;
-    a.value = 2;
+    await tester.pumpWidget(build(1));
+    await tester.pumpWidget(build(2));
     await tester.pump();
-    expect(changed, isNull, reason: 'the old controller is no longer heard');
-    b.value = 2;
+    expect(changed, isNull, reason: 'a change from outside is not reported');
+    await tester.tap(find.text('one'));
     await tester.pump();
-    expect(changed, 2);
+    expect(changed, 1);
   });
 
-  testWidgets('a select notifies its controller when initialValue changes', (
-    tester,
-  ) async {
-    final controller = SelectController<String>();
-    addTearDown(controller.dispose);
-    var notified = 0;
-    controller.addListener(() => notified++);
-    Widget build(String initial) => FinesseApp(
+  testWidgets('a select shows a value written from outside', (tester) async {
+    Widget build(String? value) => FinesseApp(
       home: Select<String>(
-        controller: controller,
-        initialValue: initial,
+        onChanged: (_) {},
+        value: value,
         placeholder: const Text('pick'),
         options: const [
-          SelectOption(value: 'a', child: Text('a')),
-          SelectOption(value: 'b', child: Text('b')),
+          SelectOption(value: 'a', label: 'Option a'),
+          SelectOption(value: 'b', label: 'Option b'),
         ],
-        selectedOptionBuilder: (context, value) => Text(value),
       ),
     );
     await tester.pumpWidget(build('a'));
-    notified = 0;
+    expect(find.text('Option a'), findsOneWidget);
     await tester.pumpWidget(build('b'));
     await tester.pump();
-    expect(controller.value, {'b'});
-    expect(notified, greaterThan(0));
+    expect(find.text('Option b'), findsOneWidget);
+    // A value taken away clears the selection.
+    await tester.pumpWidget(build(null));
+    await tester.pump();
+    expect(find.text('pick'), findsOneWidget);
   });
 }
+
+enum _Section { posts, jobs, about }

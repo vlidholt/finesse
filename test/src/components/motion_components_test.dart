@@ -1,4 +1,5 @@
 import 'package:finesse/finesse.dart';
+import 'package:finesse/src/utils/moving_indicator.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -245,10 +246,14 @@ void main() {
     Widget bar(int index) => _app(
       SizedBox(
         width: 300,
-        child: TabBar(
-          selectedIndex: index,
-          onSelected: (_) {},
-          tabs: const [Text('One'), Text('Two'), Text('Three')],
+        child: TabBar<int>(
+          value: index,
+          onChanged: (_) {},
+          tabs: const [
+            Tab(value: 0, child: Text('One')),
+            Tab(value: 1, child: Text('Two')),
+            Tab(value: 2, child: Text('Three')),
+          ],
         ),
       ),
     );
@@ -258,7 +263,7 @@ void main() {
     ) async {
       await tester.pumpWidget(bar(0));
       await tester.pumpAndSettle();
-      final indicator = _indicator(tester, find.byType(TabBar));
+      final indicator = _indicator(tester, find.byType(TabBar<int>));
       expect(indicator.indicatorRect!.width, 100);
       expect(indicator.indicatorRect!.height, 2);
 
@@ -294,9 +299,9 @@ void main() {
   group('ToggleGroup', () {
     Widget group(String value) => _app(
       ToggleGroup<String>(
-        values: {value},
+        value: value,
         onChanged: (_) {},
-        children: const [
+        items: const [
           ToggleGroupItem(value: 'a', child: Text('A')),
           ToggleGroupItem(value: 'b', child: Text('B')),
           ToggleGroupItem(value: 'c', child: Text('C')),
@@ -328,8 +333,8 @@ void main() {
         _app(
           ToggleGroup<String>.multiple(
             values: const {'a', 'c'},
-            onChanged: (_) {},
-            children: const [
+            onValuesChanged: (_) {},
+            items: const [
               ToggleGroupItem(value: 'a', child: Text('A')),
               ToggleGroupItem(value: 'b', child: Text('B')),
               ToggleGroupItem(value: 'c', child: Text('C')),
@@ -352,8 +357,10 @@ void main() {
 
     Widget button({bool enabled = true, VoidCallback? onPressed}) => _app(
       Button(
-        backgroundColor: rest,
-        hoverBackgroundColor: hover,
+        style: const ButtonTheme(
+          backgroundColor: rest,
+          hoverBackgroundColor: hover,
+        ),
         enabled: enabled,
         onPressed: onPressed ?? () {},
         child: const Text('Go'),
@@ -373,10 +380,12 @@ void main() {
 
     double scale(WidgetTester tester) => tester
         .widget<Transform>(
-          find.descendant(
-            of: find.byType(PressScale),
-            matching: find.byType(Transform),
-          ),
+          find
+              .descendant(
+                of: find.byType(PressScale),
+                matching: find.byType(Transform),
+              )
+              .first,
         )
         .transform
         .storage[0];
@@ -468,7 +477,7 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('Button.raw does not scale unless asked; IconButton does', (
+    testWidgets('A Button with pressScale 1 does not scale; IconButton does', (
       tester,
     ) async {
       await tester.pumpWidget(
@@ -476,8 +485,9 @@ void main() {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Button.raw(
+              Button(
                 variant: ButtonVariant.ghost,
+                style: const ButtonTheme(pressScale: 1),
                 onPressed: () {},
                 child: const Text('raw'),
               ),
@@ -492,10 +502,15 @@ void main() {
       await tester.pumpAndSettle();
       double scaleIn(Finder of) => tester
           .widget<Transform>(
-            find.descendant(
-              of: find.descendant(of: of, matching: find.byType(PressScale)),
-              matching: find.byType(Transform),
-            ),
+            find
+                .descendant(
+                  of: find.descendant(
+                    of: of,
+                    matching: find.byType(PressScale),
+                  ),
+                  matching: find.byType(Transform),
+                )
+                .first,
           )
           .transform
           .storage[0];
@@ -645,12 +660,12 @@ void main() {
     ) async {
       await tester.pumpWidget(box(value: false));
       await tester.pumpAndSettle();
-      expect(find.byType(Icon), findsNothing);
+      expect(find.bySubtype<Icon>(), findsNothing);
 
       await tester.pumpWidget(box(value: true));
       await tester.pump(_frame);
       await tester.pump(_frame);
-      expect(find.byType(Icon), findsOneWidget);
+      expect(find.bySubtype<Icon>(), findsOneWidget);
       final scales = <double>[];
       for (var i = 0; i < 40; i++) {
         scales.add(
@@ -672,12 +687,12 @@ void main() {
 
       await tester.pumpWidget(box(value: false));
       await tester.pumpAndSettle();
-      expect(find.byType(Icon), findsNothing);
+      expect(find.bySubtype<Icon>(), findsNothing);
     });
 
     testWidgets('a box that starts checked is simply checked', (tester) async {
       await tester.pumpWidget(box(value: true));
-      expect(find.byType(Icon), findsOneWidget);
+      expect(find.bySubtype<Icon>(), findsOneWidget);
       expect(
         tester
             .widget<Transform>(
@@ -759,31 +774,6 @@ void main() {
       }
       expect(previous, closed + 108);
     });
-
-    testWidgets('custom effects still drive the content', (tester) async {
-      await tester.pumpWidget(
-        _app(
-          SizedBox(
-            width: 300,
-            child: Accordion<int>(
-              children: const [
-                AccordionItem(
-                  value: 1,
-                  title: Text('Title'),
-                  effects: [SizeEffect(duration: Duration(milliseconds: 100))],
-                  child: SizedBox(height: 100, child: Text('Body')),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-      await tester.tap(find.text('Title'));
-      await tester.pumpAndSettle();
-      expect(find.byType(ExpandReveal), findsNothing);
-      expect(find.byType(SizeTransition), findsOneWidget);
-      expect(find.text('Body'), findsOneWidget);
-    });
   });
 
   group('ProgressBar', () {
@@ -793,9 +783,7 @@ void main() {
     testWidgets('glides to a new value', (tester) async {
       await tester.pumpWidget(bar(.2));
       await tester.pumpAndSettle();
-      double fraction() => tester
-          .widget<DeterminateProgressBar>(find.byType(DeterminateProgressBar))
-          .value;
+      double fraction() => _progressFraction(tester);
       expect(fraction(), .2);
 
       await tester.pumpWidget(bar(.8));
@@ -824,14 +812,7 @@ void main() {
         ),
       );
       await tester.pump(_frame);
-      expect(
-        tester
-            .widget<DeterminateProgressBar>(
-              find.byType(DeterminateProgressBar),
-            )
-            .value,
-        .8,
-      );
+      expect(_progressFraction(tester), .8);
     });
   });
 
@@ -890,7 +871,11 @@ void main() {
     ) async {
       await tester.pumpWidget(badge(3));
       expect(find.text('3'), findsOneWidget);
-      expect(find.byType(Opacity), findsNothing);
+      // On its first frame it is fully there: `PopIn` keeps its wrappers
+      // for the child's sake, at an opacity and a scale that do nothing.
+      expect(tester.widget<Opacity>(find.byType(Opacity)).opacity, 1);
+      final label = find.text('3');
+      expect(tester.getRect(label).size, tester.getSize(label));
     });
   });
 
@@ -1013,3 +998,13 @@ void main() {
     });
   });
 }
+
+/// How much of a determinate [ProgressBar] is filled.
+double _progressFraction(WidgetTester tester) => tester
+    .widget<FractionallySizedBox>(
+      find.descendant(
+        of: find.byType(ProgressBar),
+        matching: find.byType(FractionallySizedBox),
+      ),
+    )
+    .widthFactor!;

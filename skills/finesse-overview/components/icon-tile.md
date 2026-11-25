@@ -25,27 +25,27 @@ class IconTileBasicExample extends StatelessWidget {
       alignment: WrapAlignment.center,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        const IconTile(icon: Icon(PhosphorIconsRegular.bookmarkSimple)),
+        const IconTile(icon: PhosphorIcon(PhosphorIconsRegular.bookmarkSimple)),
         const IconTile(
           size: 32,
           iconSize: 18,
-          icon: Icon(PhosphorIconsRegular.fileText),
+          icon: PhosphorIcon(PhosphorIconsRegular.fileText),
         ),
         const IconTile(
           size: 56,
           iconSize: 28,
-          icon: Icon(PhosphorIconsRegular.chartLineUp),
+          icon: PhosphorIcon(PhosphorIconsRegular.chartLineUp),
         ),
         IconTile(
           backgroundColor: scheme.successMuted,
           foregroundColor: scheme.success,
-          icon: const Icon(PhosphorIconsRegular.checkCircle),
+          icon: const PhosphorIcon(PhosphorIconsRegular.checkCircle),
         ),
         IconTile(
           backgroundColor: scheme.muted,
           foregroundColor: scheme.mutedForeground,
           borderRadius: theme.radii.full,
-          icon: const Icon(PhosphorIconsRegular.gear),
+          icon: const PhosphorIcon(PhosphorIconsRegular.gear),
         ),
       ],
     );
@@ -72,12 +72,12 @@ class IconTileStatsExample extends StatelessWidget {
 
     final tiles = [
       const StatTile(
-        icon: Icon(PhosphorIconsRegular.bookmarkSimple),
+        icon: PhosphorIcon(PhosphorIconsRegular.bookmarkSimple),
         value: Text('6'),
         label: Text('Saved jobs'),
       ),
       StatTile(
-        icon: const Icon(PhosphorIconsRegular.eye),
+        icon: const PhosphorIcon(PhosphorIconsRegular.eye),
         value: const Text('248'),
         label: const Text('Profile views'),
         trailing: Badge.secondary(
@@ -87,10 +87,10 @@ class IconTileStatsExample extends StatelessWidget {
         ),
       ),
       StatTile(
-        icon: const Icon(PhosphorIconsRegular.paperPlaneTilt),
+        icon: const PhosphorIcon(PhosphorIconsRegular.paperPlaneTilt),
         value: const Text('3'),
         label: const Text('Applications'),
-        trailing: const Icon(PhosphorIconsRegular.caretRight, size: 16),
+        trailing: const PhosphorIcon(PhosphorIconsRegular.caretRight, size: 16),
         onTap: () {},
       ),
     ];
@@ -117,4 +117,3 @@ class IconTileStatsExample extends StatelessWidget {
   }
 }
 ```
-

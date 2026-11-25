@@ -38,7 +38,11 @@ mixin _$DividerTheme {
         b.horizontalMargin,
         t,
       ),
-      radius: BorderRadiusGeometry.lerp(a.radius, b.radius, t),
+      borderRadius: BorderRadiusGeometry.lerp(
+        a.borderRadius,
+        b.borderRadius,
+        t,
+      ),
     );
   }
 
@@ -47,7 +51,7 @@ mixin _$DividerTheme {
     double? thickness,
     EdgeInsetsGeometry? verticalMargin,
     EdgeInsetsGeometry? horizontalMargin,
-    BorderRadiusGeometry? radius,
+    BorderRadiusGeometry? borderRadius,
   }) {
     final _this = (this as DividerTheme);
 
@@ -56,7 +60,7 @@ mixin _$DividerTheme {
       thickness: thickness ?? _this.thickness,
       verticalMargin: verticalMargin ?? _this.verticalMargin,
       horizontalMargin: horizontalMargin ?? _this.horizontalMargin,
-      radius: radius ?? _this.radius,
+      borderRadius: borderRadius ?? _this.borderRadius,
     );
   }
 
@@ -76,7 +80,7 @@ mixin _$DividerTheme {
       thickness: other.thickness,
       verticalMargin: other.verticalMargin,
       horizontalMargin: other.horizontalMargin,
-      radius: other.radius,
+      borderRadius: other.borderRadius,
     );
   }
 
@@ -97,7 +101,7 @@ mixin _$DividerTheme {
         _other.thickness == _this.thickness &&
         _other.verticalMargin == _this.verticalMargin &&
         _other.horizontalMargin == _this.horizontalMargin &&
-        _other.radius == _this.radius;
+        _other.borderRadius == _this.borderRadius;
   }
 
   @override
@@ -110,7 +114,7 @@ mixin _$DividerTheme {
       _this.thickness,
       _this.verticalMargin,
       _this.horizontalMargin,
-      _this.radius,
+      _this.borderRadius,
     );
   }
 }

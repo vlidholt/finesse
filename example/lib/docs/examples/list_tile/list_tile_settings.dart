@@ -1,8 +1,8 @@
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
-/// Settings rows: an icon tile in front, a control or a chevron behind, and
-/// a subtitle that is allowed to wrap to two lines.
+/// Settings rows: an icon tile in front, a control, a value or a chevron
+/// behind, and a subtitle that is allowed to wrap to two lines.
 class ListTileSettingsExample extends StatefulWidget {
   const ListTileSettingsExample({super.key});
 
@@ -19,13 +19,13 @@ class _ListTileSettingsExampleState extends State<ListTileSettingsExample> {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 420),
       child: Card(
-        padding: const EdgeInsets.all(8),
+        style: CardTheme(padding: const EdgeInsets.all(8)),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
               leading: const IconTile(
-                icon: Icon(PhosphorIconsRegular.envelopeSimple),
+                icon: PhosphorIcon(PhosphorIconsRegular.envelopeSimple),
               ),
               title: const Text('Weekly digest'),
               subtitle: const Text(
@@ -40,20 +40,20 @@ class _ListTileSettingsExampleState extends State<ListTileSettingsExample> {
             ),
             ListTile(
               leading: const IconTile(
-                icon: Icon(PhosphorIconsRegular.lockSimple),
+                icon: PhosphorIcon(PhosphorIconsRegular.lockSimple),
               ),
               title: const Text('Privacy'),
               subtitle: const Text('Who can see your profile and activity'),
-              trailing: const Icon(PhosphorIconsRegular.caretRight, size: 16),
+              showChevron: true,
               onTap: () {},
             ),
             ListTile(
               leading: const IconTile(
-                icon: Icon(PhosphorIconsRegular.translate),
+                icon: PhosphorIcon(PhosphorIconsRegular.translate),
               ),
               title: const Text('Language'),
-              subtitle: const Text('English'),
-              trailing: const Icon(PhosphorIconsRegular.caretRight, size: 16),
+              value: const Text('English'),
+              showChevron: true,
               onTap: () {},
             ),
           ],

@@ -4,7 +4,7 @@ A modal window overlaid on the page, rendering the content underneath inert.
 
 ## With a form
 
-A dialog has no close button of its own. Its actions close it, as do Escape and a tap outside; pass `closeIconData` (or a `closeIcon` widget) for an x in the corner.
+A dialog has no close button of its own. Its actions close it, as do Escape and a tap outside; pass `showCloseButton: true` for an x in the corner.
 
 ```dart
 import 'package:finesse/finesse.dart';
@@ -44,7 +44,7 @@ class DialogFormExample extends StatelessWidget {
                 child: const Text('Save changes'),
               ),
             ],
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            style: DialogTheme(crossAxisAlignment: CrossAxisAlignment.stretch),
             child: Container(
               width: 375,
               padding: const EdgeInsets.symmetric(vertical: 20),
@@ -124,4 +124,3 @@ class DialogAlertExample extends StatelessWidget {
   }
 }
 ```
-

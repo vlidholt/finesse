@@ -463,9 +463,16 @@ void main() {
           theme.appBarTheme.backgroundColor,
           s.bar.withValues(alpha: barOpacity),
         );
+        // The floating bar is the bar colour too — lifted toward the
+        // foreground on the dark page, where the plain bar colour is lost.
         expect(
           theme.bottomNavigationBarTheme.backgroundColor,
-          s.bar.withValues(alpha: barOpacity),
+          brightness == Brightness.dark
+              ? Color.alphaBlend(
+                  s.foreground.withValues(alpha: .08),
+                  s.bar,
+                ).withValues(alpha: .84)
+              : s.bar.withValues(alpha: barOpacity),
         );
         expect(theme.navigationBarTheme.selectedIconColor, s.tint);
         expect(theme.navigationBarTheme.indicatorColor, s.tint);

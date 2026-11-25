@@ -110,7 +110,7 @@ class TimelineActivityExample extends StatelessWidget {
                 foregroundColor: index == _steps.length - 1
                     ? scheme.mutedForeground
                     : null,
-                icon: Icon(icon),
+                icon: PhosphorIcon(icon),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -127,4 +127,3 @@ class TimelineActivityExample extends StatelessWidget {
   }
 }
 ```
-

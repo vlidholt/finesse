@@ -13,12 +13,16 @@ class ListTileTheme with _$ListTileTheme {
     this.padding,
     this.gap,
     this.titleGap,
-    this.radius,
+    this.borderRadius,
     this.titleStyle,
     this.subtitleStyle,
     this.hoverColor,
     this.selectedColor,
     this.pressScale,
+    this.valueStyle,
+    this.chevronColor,
+    this.chevronSize,
+    this.destructiveColor,
   }) : _canMerge = canMerge;
 
   @ignore
@@ -38,7 +42,7 @@ class ListTileTheme with _$ListTileTheme {
   final double? titleGap;
 
   /// The corner radius of the hover and selection highlight.
-  final BorderRadius? radius;
+  final BorderRadius? borderRadius;
 
   /// The title's style.
   final TextStyle? titleStyle;
@@ -56,6 +60,19 @@ class ListTileTheme with _$ListTileTheme {
   /// transform that springs back on release. Defaults to the theme's
   /// `Motion.surfacePressScale`; 1 disables it.
   final double? pressScale;
+
+  /// The style of the tile's value: the quiet text before its trailing
+  /// widget.
+  final TextStyle? valueStyle;
+
+  /// The colour of a `ListTileChevron`.
+  final Color? chevronColor;
+
+  /// The size of a `ListTileChevron`.
+  final double? chevronSize;
+
+  /// The colour of a destructive tile's title and leading icon.
+  final Color? destructiveColor;
 
   /// Linearly interpolates between two themes.
   static ListTileTheme? lerp(ListTileTheme? a, ListTileTheme? b, double t) =>

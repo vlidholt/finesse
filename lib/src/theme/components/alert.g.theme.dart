@@ -39,6 +39,24 @@ mixin _$AlertTheme {
       crossAxisAlignment: t < 0.5 ? a.crossAxisAlignment : b.crossAxisAlignment,
       iconSize: lerpDouble$(a.iconSize, b.iconSize, t),
       gap: lerpDouble$(a.gap, b.gap, t),
+      successColor: Color.lerp(a.successColor, b.successColor, t),
+      successBackgroundColor: Color.lerp(
+        a.successBackgroundColor,
+        b.successBackgroundColor,
+        t,
+      ),
+      warningColor: Color.lerp(a.warningColor, b.warningColor, t),
+      warningBackgroundColor: Color.lerp(
+        a.warningBackgroundColor,
+        b.warningBackgroundColor,
+        t,
+      ),
+      infoColor: Color.lerp(a.infoColor, b.infoColor, t),
+      infoBackgroundColor: Color.lerp(
+        a.infoBackgroundColor,
+        b.infoBackgroundColor,
+        t,
+      ),
     );
   }
 
@@ -52,6 +70,12 @@ mixin _$AlertTheme {
     CrossAxisAlignment? crossAxisAlignment,
     double? iconSize,
     double? gap,
+    Color? successColor,
+    Color? successBackgroundColor,
+    Color? warningColor,
+    Color? warningBackgroundColor,
+    Color? infoColor,
+    Color? infoBackgroundColor,
   }) {
     final _this = (this as AlertTheme);
 
@@ -65,6 +89,14 @@ mixin _$AlertTheme {
       crossAxisAlignment: crossAxisAlignment ?? _this.crossAxisAlignment,
       iconSize: iconSize ?? _this.iconSize,
       gap: gap ?? _this.gap,
+      successColor: successColor ?? _this.successColor,
+      successBackgroundColor:
+          successBackgroundColor ?? _this.successBackgroundColor,
+      warningColor: warningColor ?? _this.warningColor,
+      warningBackgroundColor:
+          warningBackgroundColor ?? _this.warningBackgroundColor,
+      infoColor: infoColor ?? _this.infoColor,
+      infoBackgroundColor: infoBackgroundColor ?? _this.infoBackgroundColor,
     );
   }
 
@@ -91,6 +123,12 @@ mixin _$AlertTheme {
       crossAxisAlignment: other.crossAxisAlignment,
       iconSize: other.iconSize,
       gap: other.gap,
+      successColor: other.successColor,
+      successBackgroundColor: other.successBackgroundColor,
+      warningColor: other.warningColor,
+      warningBackgroundColor: other.warningBackgroundColor,
+      infoColor: other.infoColor,
+      infoBackgroundColor: other.infoBackgroundColor,
     );
   }
 
@@ -115,7 +153,13 @@ mixin _$AlertTheme {
         _other.mainAxisAlignment == _this.mainAxisAlignment &&
         _other.crossAxisAlignment == _this.crossAxisAlignment &&
         _other.iconSize == _this.iconSize &&
-        _other.gap == _this.gap;
+        _other.gap == _this.gap &&
+        _other.successColor == _this.successColor &&
+        _other.successBackgroundColor == _this.successBackgroundColor &&
+        _other.warningColor == _this.warningColor &&
+        _other.warningBackgroundColor == _this.warningBackgroundColor &&
+        _other.infoColor == _this.infoColor &&
+        _other.infoBackgroundColor == _this.infoBackgroundColor;
   }
 
   @override
@@ -133,6 +177,12 @@ mixin _$AlertTheme {
       _this.crossAxisAlignment,
       _this.iconSize,
       _this.gap,
+      _this.successColor,
+      _this.successBackgroundColor,
+      _this.warningColor,
+      _this.warningBackgroundColor,
+      _this.infoColor,
+      _this.infoBackgroundColor,
     );
   }
 }

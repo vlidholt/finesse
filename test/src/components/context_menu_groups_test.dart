@@ -7,8 +7,8 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   Future<void> pumpMenus(
     WidgetTester tester,
-    FinesseContextMenuController a,
-    FinesseContextMenuController b,
+    PopoverController a,
+    PopoverController b,
   ) async {
     await tester.pumpWidget(
       FinesseApp(
@@ -17,12 +17,12 @@ void main() {
           children: [
             ContextMenu(
               controller: a,
-              items: const [ContextMenuItem(child: Text('a item'))],
+              items: const [MenuItem(child: Text('a item'))],
               child: const SizedBox(width: 80, height: 40, child: Text('A')),
             ),
             ContextMenu(
               controller: b,
-              items: const [ContextMenuItem(child: Text('b item'))],
+              items: const [MenuItem(child: Text('b item'))],
               child: const SizedBox(width: 80, height: 40, child: Text('B')),
             ),
           ],
@@ -34,13 +34,13 @@ void main() {
   testWidgets("a tap on another menu's trigger closes the open menu", (
     tester,
   ) async {
-    final a = FinesseContextMenuController();
-    final b = FinesseContextMenuController();
+    final a = PopoverController();
+    final b = PopoverController();
     addTearDown(a.dispose);
     addTearDown(b.dispose);
     await pumpMenus(tester, a, b);
 
-    a.show();
+    a.open();
     await tester.pumpAndSettle();
     expect(find.text('a item'), findsOneWidget);
 

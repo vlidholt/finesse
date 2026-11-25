@@ -26,44 +26,32 @@ mixin _$AccordionTheme {
     }
 
     return AccordionTheme(
-      iconData: t < 0.5 ? a.iconData : b.iconData,
-      iconEffects: t < 0.5 ? a.iconEffects : b.iconEffects,
+      icon: t < 0.5 ? a.icon : b.icon,
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
       underlineTitleOnHover: t < 0.5
           ? a.underlineTitleOnHover
           : b.underlineTitleOnHover,
       titleStyle: TextStyle.lerp(a.titleStyle, b.titleStyle, t),
-      curve: t < 0.5 ? a.curve : b.curve,
-      duration: lerpDuration$(a.duration, b.duration, t),
       maintainState: t < 0.5 ? a.maintainState : b.maintainState,
-      effects: t < 0.5 ? a.effects : b.effects,
     );
   }
 
   AccordionTheme copyWith({
-    IconData? iconData,
-    List<Effect<dynamic>>? iconEffects,
+    Widget? icon,
     EdgeInsetsGeometry? padding,
     bool? underlineTitleOnHover,
     TextStyle? titleStyle,
-    Curve? curve,
-    Duration? duration,
     bool? maintainState,
-    List<Effect<dynamic>>? effects,
   }) {
     final _this = (this as AccordionTheme);
 
     return AccordionTheme(
-      iconData: iconData ?? _this.iconData,
-      iconEffects: iconEffects ?? _this.iconEffects,
+      icon: icon ?? _this.icon,
       padding: padding ?? _this.padding,
       underlineTitleOnHover:
           underlineTitleOnHover ?? _this.underlineTitleOnHover,
       titleStyle: titleStyle ?? _this.titleStyle,
-      curve: curve ?? _this.curve,
-      duration: duration ?? _this.duration,
       maintainState: maintainState ?? _this.maintainState,
-      effects: effects ?? _this.effects,
     );
   }
 
@@ -79,15 +67,11 @@ mixin _$AccordionTheme {
     }
 
     return copyWith(
-      iconData: other.iconData,
-      iconEffects: other.iconEffects,
+      icon: other.icon,
       padding: other.padding,
       underlineTitleOnHover: other.underlineTitleOnHover,
       titleStyle: _this.titleStyle?.merge(other.titleStyle) ?? other.titleStyle,
-      curve: other.curve,
-      duration: other.duration,
       maintainState: other.maintainState,
-      effects: other.effects,
     );
   }
 
@@ -104,15 +88,11 @@ mixin _$AccordionTheme {
     final _this = (this as AccordionTheme);
     final _other = (other as AccordionTheme);
 
-    return _other.iconData == _this.iconData &&
-        _other.iconEffects == _this.iconEffects &&
+    return _other.icon == _this.icon &&
         _other.padding == _this.padding &&
         _other.underlineTitleOnHover == _this.underlineTitleOnHover &&
         _other.titleStyle == _this.titleStyle &&
-        _other.curve == _this.curve &&
-        _other.duration == _this.duration &&
-        _other.maintainState == _this.maintainState &&
-        _other.effects == _this.effects;
+        _other.maintainState == _this.maintainState;
   }
 
   @override
@@ -121,15 +101,11 @@ mixin _$AccordionTheme {
 
     return Object.hash(
       runtimeType,
-      _this.iconData,
-      _this.iconEffects,
+      _this.icon,
       _this.padding,
       _this.underlineTitleOnHover,
       _this.titleStyle,
-      _this.curve,
-      _this.duration,
       _this.maintainState,
-      _this.effects,
     );
   }
 }

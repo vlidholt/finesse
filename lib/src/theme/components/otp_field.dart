@@ -19,10 +19,10 @@ class OtpFieldTheme with _$OtpFieldTheme {
     this.height,
     this.padding,
     this.decoration,
-    this.firstRadius,
-    this.lastRadius,
-    this.singleRadius,
-    this.middleRadius,
+    this.firstBorderRadius,
+    this.lastBorderRadius,
+    this.singleBorderRadius,
+    this.middleBorderRadius,
   }) : _canMerge = canMerge;
 
   @ignore
@@ -49,17 +49,17 @@ class OtpFieldTheme with _$OtpFieldTheme {
   /// {@macro OtpFieldSlot.decoration}
   final FinesseDecoration? decoration;
 
-  /// {@macro OtpFieldSlot.firstRadius}
-  final BorderRadius? firstRadius;
+  /// {@macro OtpFieldSlot.firstBorderRadius}
+  final BorderRadius? firstBorderRadius;
 
-  /// {@macro OtpFieldSlot.lastRadius}
-  final BorderRadius? lastRadius;
+  /// {@macro OtpFieldSlot.lastBorderRadius}
+  final BorderRadius? lastBorderRadius;
 
-  /// {@macro OtpFieldSlot.singleRadius}
-  final BorderRadius? singleRadius;
+  /// {@macro OtpFieldSlot.singleBorderRadius}
+  final BorderRadius? singleBorderRadius;
 
-  /// {@macro OtpFieldSlot.middleRadius}
-  final BorderRadius? middleRadius;
+  /// {@macro OtpFieldSlot.middleBorderRadius}
+  final BorderRadius? middleBorderRadius;
 
   /// Linearly interpolates between [a] and [b] by [t].
   static OtpFieldTheme? lerp(

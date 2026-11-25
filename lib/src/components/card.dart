@@ -1,4 +1,5 @@
 import 'package:finesse/src/raw_components/pressable.dart';
+import 'package:finesse/src/theme/components/card.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/backdrop.dart';
@@ -18,34 +19,17 @@ class Card extends StatelessWidget {
   /// Creates a card widget with optional content and styling.
   const Card({
     super.key,
-    this.onPressed,
+    this.onTap,
     this.selected = false,
-    this.sectionGap,
     this.semanticLabel,
     this.title,
     this.description,
     this.child,
     this.footer,
-    this.padding,
-    this.backgroundColor,
-    this.radius,
-    this.border,
-    this.shadows,
-    this.width,
-    this.height,
     this.leading,
     this.trailing,
-    this.rowMainAxisAlignment,
-    this.rowCrossAxisAlignment,
-    this.columnMainAxisAlignment,
-    this.columnCrossAxisAlignment,
-    this.rowMainAxisSize,
-    this.columnMainAxisSize,
-    this.clipBehavior,
-    this.titleStyle,
-    this.descriptionStyle,
-    this.gap,
     this.action,
+    this.style,
   });
 
   /// {@template Card.title}
@@ -72,48 +56,6 @@ class Card extends StatelessWidget {
   /// {@endtemplate}
   final Widget? footer;
 
-  /// {@template Card.padding}
-  /// The padding inside the card, surrounding all content.
-  /// Defaults to EdgeInsets.all(24) if not specified.
-  /// {@endtemplate}
-  final EdgeInsetsGeometry? padding;
-
-  /// {@template Card.backgroundColor}
-  /// The background color of the card.
-  /// Defaults to the theme’s card color if not specified.
-  /// {@endtemplate}
-  final Color? backgroundColor;
-
-  /// {@template Card.radius}
-  /// The border radius of the card’s corners.
-  /// Defaults to the theme’s radius if not specified.
-  /// {@endtemplate}
-  final BorderRadius? radius;
-
-  /// {@template Card.border}
-  /// The border surrounding the card.
-  /// Defaults to a border with the theme’s border color if not specified.
-  /// {@endtemplate}
-  final FinesseBorder? border;
-
-  /// {@template Card.shadows}
-  /// The list of box shadows applied to the card for elevation.
-  /// Defaults to the theme’s card shadows if not specified.
-  /// {@endtemplate}
-  final List<BoxShadow>? shadows;
-
-  /// {@template Card.width}
-  /// The explicit width of the card.
-  /// If null, the card sizes to its content or constraints.
-  /// {@endtemplate}
-  final double? width;
-
-  /// {@template Card.height}
-  /// The explicit height of the card.
-  /// If null, the card sizes to its content or constraints.
-  /// {@endtemplate}
-  final double? height;
-
   /// {@template Card.leading}
   /// The widget displayed at the start of the card’s row.
   /// Typically an icon or small graphic, positioned before the main content.
@@ -126,63 +68,6 @@ class Card extends StatelessWidget {
   /// {@endtemplate}
   final Widget? trailing;
 
-  /// {@template Card.rowMainAxisAlignment}
-  /// The main axis alignment of the card’s row (horizontal).
-  /// Defaults to [MainAxisAlignment.spaceBetween] if not specified.
-  /// {@endtemplate}
-  final MainAxisAlignment? rowMainAxisAlignment;
-
-  /// {@template Card.rowCrossAxisAlignment}
-  /// The cross axis alignment of the card’s row (vertical).
-  /// Defaults to [CrossAxisAlignment.start] if not specified.
-  /// {@endtemplate}
-  final CrossAxisAlignment? rowCrossAxisAlignment;
-
-  /// {@template Card.columnMainAxisAlignment}
-  /// The main axis alignment of the card’s column (vertical).
-  /// Defaults to [MainAxisAlignment.start] if not specified.
-  /// {@endtemplate}
-  final MainAxisAlignment? columnMainAxisAlignment;
-
-  /// {@template Card.columnCrossAxisAlignment}
-  /// The cross axis alignment of the card’s column (horizontal).
-  /// Defaults to [CrossAxisAlignment.start] if not specified.
-  /// {@endtemplate}
-  final CrossAxisAlignment? columnCrossAxisAlignment;
-
-  /// {@template Card.rowMainAxisSize}
-  /// The main axis size of the card’s row.
-  /// Defaults to [MainAxisSize.min] if not specified.
-  /// {@endtemplate}
-  final MainAxisSize? rowMainAxisSize;
-
-  /// {@template Card.columnMainAxisSize}
-  /// The main axis size of the card’s column.
-  /// Defaults to [MainAxisSize.min] if not specified.
-  /// {@endtemplate}
-  final MainAxisSize? columnMainAxisSize;
-
-  /// {@template Card.clipBehavior}
-  /// The clip behavior of the card, controlling how content is clipped.
-  /// Defaults to [Clip.antiAlias] if not specified.
-  /// {@endtemplate}
-  final Clip? clipBehavior;
-
-  /// {@template Card.titleStyle}
-  /// The text style of [title].
-  /// {@endtemplate}
-  final TextStyle? titleStyle;
-
-  /// {@template Card.descriptionStyle}
-  /// The text style of [description].
-  /// {@endtemplate}
-  final TextStyle? descriptionStyle;
-
-  /// {@template Card.gap}
-  /// The vertical space between the title, description, content and footer.
-  /// {@endtemplate}
-  final double? gap;
-
   /// {@template Card.action}
   /// A widget pinned to the end of the header row, shadcn/ui's `CardAction` —
   /// typically a dismiss or overflow button.
@@ -194,16 +79,19 @@ class Card extends StatelessWidget {
 
   /// Called when the card is tapped. Makes the whole card a button: it takes
   /// keyboard focus, shows the theme's focus ring and the click cursor.
-  final VoidCallback? onPressed;
+  final VoidCallback? onTap;
 
   /// Whether the card is the selected one of a set — the open item of a
   /// master-detail list. A selected card takes the theme's accent fill and a
   /// tint outline in place of its hairline.
   final bool selected;
 
-  /// The gap between the card's sections (header, child, footer). Defaults
-  /// to the theme's, which is the card padding.
-  final double? sectionGap;
+  /// Overrides of the theme's `CardTheme` for this card: its padding,
+  /// size, fill, border, corners, shadows, the gaps between its sections,
+  /// the styles of [title] and [description] and how its row and column
+  /// are laid out. It is merged over the theme, so only the fields that are
+  /// set change anything.
+  final CardTheme? style;
 
   /// What assistive technology reads for a tappable card. The card's content,
   /// including any buttons inside it, is still read after it.
@@ -212,26 +100,23 @@ class Card extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final effectiveGap = gap ?? theme.cardTheme.gap ?? 0;
+    final cardTheme = theme.cardTheme.merge(style);
+    final effectiveGap = cardTheme.gap ?? 0;
     // Sections sit `--card-spacing` apart; the small [gap] only separates the
     // title from its description.
-    final effectiveSectionGap =
-        sectionGap ?? theme.cardTheme.sectionGap ?? effectiveGap;
+    final effectiveSectionGap = cardTheme.sectionGap ?? effectiveGap;
 
-    final themePadding =
-        padding ?? theme.cardTheme.padding ?? const EdgeInsets.all(24);
+    final themePadding = cardTheme.padding ?? const EdgeInsets.all(24);
     final effectiveBackgroundColor = selected
-        ? backgroundColor ?? theme.colorScheme.accent
-        : backgroundColor ??
-              theme.cardTheme.backgroundColor ??
-              theme.colorScheme.card;
-    final effectiveRadius = radius ?? theme.cardTheme.radius ?? theme.radius;
+        ? style?.backgroundColor ?? theme.colorScheme.accent
+        : cardTheme.backgroundColor ?? theme.colorScheme.card;
+    final effectiveRadius = cardTheme.borderRadius ?? theme.radius;
     final effectiveBorder = selected
-        ? border ?? FinesseBorder.all(color: theme.colorScheme.tint, width: 1.5)
-        : border ??
-              theme.cardTheme.border ??
+        ? style?.border ??
+              FinesseBorder.all(color: theme.colorScheme.tint, width: 1.5)
+        : cardTheme.border ??
               FinesseBorder.all(color: theme.colorScheme.border, width: 1);
-    final effectiveShadows = shadows ?? theme.cardTheme.shadows;
+    final effectiveShadows = cardTheme.shadows;
 
     // A `Container` lays its border out as padding, so the heavier outline
     // of a selected card would push its content inwards and make the card
@@ -249,44 +134,33 @@ class Card extends StatelessWidget {
     }
 
     final effectiveRowMainAxisSize =
-        rowMainAxisSize ?? theme.cardTheme.rowMainAxisSize ?? MainAxisSize.min;
+        cardTheme.rowMainAxisSize ?? MainAxisSize.min;
 
     final effectiveRowMainAxisAlignment =
-        rowMainAxisAlignment ??
-        theme.cardTheme.rowMainAxisAlignment ??
-        MainAxisAlignment.spaceBetween;
+        cardTheme.rowMainAxisAlignment ?? MainAxisAlignment.spaceBetween;
 
     final effectiveRowCrossAxisAlignment =
-        rowCrossAxisAlignment ??
-        theme.cardTheme.rowCrossAxisAlignment ??
-        CrossAxisAlignment.start;
+        cardTheme.rowCrossAxisAlignment ?? CrossAxisAlignment.start;
 
     final effectiveColumnMainAxisSize =
-        columnMainAxisSize ??
-        theme.cardTheme.columnMainAxisSize ??
-        MainAxisSize.min;
+        cardTheme.columnMainAxisSize ?? MainAxisSize.min;
 
     final effectiveColumnMainAxisAlignment =
-        columnMainAxisAlignment ??
-        theme.cardTheme.columnMainAxisAlignment ??
-        MainAxisAlignment.start;
+        cardTheme.columnMainAxisAlignment ?? MainAxisAlignment.start;
 
     final effectiveColumnCrossAxisAlignment =
-        columnCrossAxisAlignment ??
-        theme.cardTheme.columnCrossAxisAlignment ??
-        CrossAxisAlignment.start;
+        cardTheme.columnCrossAxisAlignment ?? CrossAxisAlignment.start;
 
-    final effectiveClipBehavior =
-        clipBehavior ?? theme.cardTheme.clipBehavior ?? Clip.antiAlias;
+    final effectiveClipBehavior = cardTheme.clipBehavior ?? Clip.antiAlias;
 
-    final effectiveBlur = theme.cardTheme.blur ?? 0;
+    final effectiveBlur = cardTheme.blur ?? 0;
     // A blurred card is only worth its backdrop layer while the fill lets
     // the backdrop through.
     final blurs = effectiveBlur > 0 && effectiveBackgroundColor.a < 1;
 
     final content = Container(
-      width: width,
-      height: height,
+      width: cardTheme.width,
+      height: cardTheme.height,
       padding: effectivePadding,
       clipBehavior: effectiveClipBehavior,
       decoration: blurs
@@ -329,9 +203,7 @@ class Card extends StatelessWidget {
                             if (title != null)
                               DefaultTextStyle(
                                 style:
-                                    (titleStyle ??
-                                            theme.cardTheme.titleStyle ??
-                                            theme.textTheme.h3)
+                                    (cardTheme.titleStyle ?? theme.textTheme.h3)
                                         .copyWith(
                                           color:
                                               theme.colorScheme.cardForeground,
@@ -341,8 +213,7 @@ class Card extends StatelessWidget {
                             if (description != null)
                               DefaultTextStyle(
                                 style:
-                                    (descriptionStyle ??
-                                            theme.cardTheme.descriptionStyle ??
+                                    (cardTheme.descriptionStyle ??
                                             theme.textTheme.muted)
                                         .fallback(
                                           color:
@@ -367,27 +238,37 @@ class Card extends StatelessWidget {
     );
 
     // The clip a backdrop filter needs would cut the card's own shadow off,
-    // so the shadow is painted by a box outside it.
-    final card = blurs
-        ? DecoratedBox(
-            decoration: ShadowDecoration.box(
-              borderRadius: effectiveRadius,
-              shadows: effectiveShadows ?? const [],
-            ),
-            child: Backdrop(
-              blur: effectiveBlur,
-              saturation: theme.cardTheme.saturation ?? 1,
-              borderRadius: effectiveRadius,
-              child: content,
-            ),
-          )
-        : content;
+    // so the shadow is painted by a box outside it — after the card, so
+    // the filter does not blur the shadow back into the glass.
+    //
+    // Either way the card is a layer of its own. A page is cards, and
+    // anything that animates on it — a button's press, a hover fill, the
+    // card's own press scale — marks the page for painting on every frame
+    // it runs. With each card painted once and kept, that repaint is the
+    // page's own few boxes; without, it is every paragraph of every card.
+    final card = RepaintBoundary(
+      child: blurs
+          ? DecoratedBox(
+              position: DecorationPosition.foreground,
+              decoration: ShadowDecoration.box(
+                borderRadius: effectiveRadius,
+                shadows: effectiveShadows ?? const [],
+              ),
+              child: Backdrop(
+                blur: effectiveBlur,
+                saturation: cardTheme.saturation ?? 1,
+                borderRadius: effectiveRadius,
+                child: content,
+              ),
+            )
+          : content,
+    );
 
-    if (onPressed == null) {
+    if (onTap == null) {
       return selected ? Semantics(selected: true, child: card) : card;
     }
     return Pressable(
-      onPressed: onPressed,
+      onPressed: onTap,
       selected: selected ? true : null,
       semanticLabel: semanticLabel,
       // The card's content stays in the semantics tree under its label: a
@@ -396,8 +277,7 @@ class Card extends StatelessWidget {
       // A press is acknowledged by the whole card giving a little: far
       // less than a button, because the same factor moves a large surface
       // much further.
-      pressScale:
-          theme.cardTheme.pressScale ?? Motion.of(context).surfacePressScale,
+      pressScale: cardTheme.pressScale ?? Motion.of(context).surfacePressScale,
       builder: (context, states) => FocusRing(
         visible: states.contains(WidgetState.focused),
         borderRadius: effectiveRadius,

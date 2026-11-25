@@ -24,11 +24,13 @@ ThemeData(
 )''',
           ),
           DocParagraph(
-            'Pass a static tear-off such as `GoogleFonts.inter`. If you wrap '
-            '`GoogleFonts.getFont(name)` in a closure, create it once and '
-            'reuse it: a new closure on every build makes the theme unequal '
-            'to itself, which restarts the theme transition on every '
-            'rebuild.',
+            'Pass a static tear-off such as `GoogleFonts.inter`. It is the '
+            'same object every time, so the theme stays equal to itself, '
+            'and it is the only font the compiler keeps. '
+            '`GoogleFonts.getFont(name)` and `GoogleFonts.asMap()` look a '
+            'family up by name, which keeps the tables of all 1,700 '
+            'families of the package in the app: about 8 MB of JavaScript '
+            'in a web build. For a font picker, list a tear-off per font.',
           ),
           DocParagraph(
             'To avoid a flash of the fallback font on the first frame, fetch '

@@ -17,29 +17,29 @@ class IconsSizingExample extends StatelessWidget {
       children: [
         Button(
           size: ButtonSize.sm,
-          leading: const Icon(PhosphorIconsRegular.plus),
+          leading: const PhosphorIcon(PhosphorIconsRegular.plus),
           onPressed: () {},
           child: const Text('Small'),
         ),
         Button(
-          leading: const Icon(PhosphorIconsRegular.plus),
+          leading: const PhosphorIcon(PhosphorIconsRegular.plus),
           onPressed: () {},
           child: const Text('Regular'),
         ),
         Button(
           size: ButtonSize.lg,
-          leading: const Icon(PhosphorIconsRegular.plus),
+          leading: const PhosphorIcon(PhosphorIconsRegular.plus),
           onPressed: () {},
           child: const Text('Large'),
         ),
         IconButton.outline(
-          icon: const Icon(PhosphorIconsRegular.gear),
+          icon: const PhosphorIcon(PhosphorIconsRegular.gear),
           semanticLabel: 'Settings',
           onPressed: () {},
         ),
         // Opting out of the token for one icon.
         Button.outline(
-          leading: const Icon(PhosphorIconsRegular.sparkle, size: 22),
+          leading: const PhosphorIcon(PhosphorIconsRegular.sparkle, size: 22),
           onPressed: () {},
           child: const Text('Explicit size'),
         ),

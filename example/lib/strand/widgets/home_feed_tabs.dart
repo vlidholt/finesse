@@ -1,13 +1,16 @@
 import 'package:example/strand/data/home_data.dart';
+import 'package:example/strand/widgets/home_feed_refresh.dart';
 import 'package:example/strand/widgets/home_feed_scope.dart';
-import 'package:example/strand/widgets/home_pieces.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
+import 'package:example/strand/widgets/strand_pieces.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
 /// The feed's segmented control — For you, Following, Trending.
 ///
 /// On a desktop it hugs its labels and shares the row with the "Sort by"
-/// menu; on a phone it fills the width and the menu is left out.
+/// menu, which also refreshes the feed; on a phone it fills the width and
+/// the menu is left out (the feed is pulled down to refresh it).
 class HomeFeedTabs extends StatelessWidget {
   const HomeFeedTabs({super.key});
 
@@ -17,59 +20,29 @@ class HomeFeedTabs extends StatelessWidget {
     final model = HomeFeedScope.of(context);
     final mobile = theme.formFactor == FormFactor.mobile;
 
-    Widget tabs({double? labelWidth}) {
-      return Semantics(
-        label: 'Feed',
-        container: true,
-        child: Tabs<HomeFeed>(
-          value: model.feed,
-          expandTabs: mobile,
-          onChanged: (feed) => model.feed = feed,
-          tabs: [
-            for (final feed in HomeFeed.values)
-              Tab(
-                value: feed,
-                child: labelWidth == null
-                    ? Text(feed.label)
-                    : ConstrainedBox(
-                        constraints: BoxConstraints(maxWidth: labelWidth),
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(feed.label, maxLines: 1, softWrap: false),
-                        ),
-                      ),
-              ),
-          ],
-        ),
-      );
-    }
+    // On a phone the three tabs share the width, and a label that does
+    // not fit its third shrinks to it.
+    final tabs = Semantics(
+      label: 'Feed',
+      container: true,
+      child: Tabs<HomeFeed>(
+        value: model.feed,
+        expandTabs: mobile,
+        onChanged: (feed) => model.feed = feed,
+        tabs: [
+          for (final feed in HomeFeed.values)
+            Tab(value: feed, child: StrandTabLabel(feed.label)),
+        ],
+      ),
+    );
+    if (mobile) return tabs;
 
-    if (mobile) {
-      // A tab lays its label out at its natural width, so in a strip that
-      // divides a narrow screen a long label in a wide font would overflow
-      // its third. Work out what each label has and let it shrink to that.
-      return LayoutBuilder(
-        builder: (context, constraints) {
-          final tabsTheme = theme.tabsTheme;
-          final count = HomeFeed.values.length;
-          final strip = (tabsTheme.padding ?? EdgeInsets.zero).horizontal;
-          final gaps = (tabsTheme.tabsGap ?? 0) * (count - 1);
-          final inset = (tabsTheme.tabPadding ?? EdgeInsets.zero).horizontal;
-          final labelWidth =
-              (constraints.maxWidth - strip - gaps) / count - inset;
-          return tabs(
-            labelWidth: labelWidth.floorToDouble().clamp(0, double.infinity),
-          );
-        },
-      );
-    }
-
-    // The control is not flexible — given spare width its strip would
-    // stretch past the last tab — so the menu is what gives way.
+    // The control keeps the width of its labels; the menu is what gives
+    // way.
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        tabs(),
+        tabs,
         const Flexible(child: _SortMenu()),
       ],
     );
@@ -91,14 +64,21 @@ class _SortMenu extends StatelessWidget {
 
     return DropdownMenu(
       items: [
-        for (final sort in FeedSort.values)
-          ContextMenuItem(
-            trailing: model.sort == sort
-                ? const Icon(PhosphorIconsRegular.check)
-                : null,
-            onPressed: () => model.sort = sort,
-            child: Text(sort.label),
-          ),
+        MenuRadioGroup<FeedSort>(
+          value: model.sort,
+          onChanged: (sort) => model.sort = sort,
+          children: [
+            for (final sort in FeedSort.values)
+              MenuRadioItem(value: sort, child: Text(sort.label)),
+          ],
+        ),
+        const MenuDivider(),
+        // What pulling the feed down does, for a mouse, which cannot pull.
+        MenuItem(
+          leading: const PhosphorIcon(PhosphorIconsRegular.arrowClockwise),
+          onPressed: () => HomeFeedRefresh.show(context),
+          child: const Text('Refresh feed'),
+        ),
       ],
       builder: (context, controller, _) => Pressable(
         onPressed: controller.toggle,
@@ -117,7 +97,7 @@ class _SortMenu extends StatelessWidget {
                   style: style,
                 ),
               ),
-              const Gap.raw(homeTightGap),
+              const Gap.xs(),
               Flexible(
                 child: Text(
                   model.sort.label,
@@ -127,10 +107,10 @@ class _SortMenu extends StatelessWidget {
                   style: style.copyWith(color: scheme.foreground),
                 ),
               ),
-              const Gap.raw(homeTightGap),
-              Icon(
+              const Gap.xs(),
+              PhosphorIcon(
                 PhosphorIconsRegular.caretDown,
-                size: 14,
+                size: theme.iconBeside(style),
                 color: scheme.mutedForeground,
               ),
             ],

@@ -1,19 +1,19 @@
 import 'dart:ui' show ImageFilter;
 
+import 'package:finesse/src/components/decorator.dart';
 import 'package:finesse/src/components/dialog.dart';
 import 'package:finesse/src/components/text_field.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/raw_components/roving_focus.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/motion.dart';
+import 'package:finesse/src/theme/components/dialog.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/theme/themes/shadows.dart';
 import 'package:finesse/src/utils/backdrop.dart';
 import 'package:finesse/src/utils/border.dart';
 import 'package:finesse/src/utils/debug_check.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
-import 'package:finesse/src/utils/moving_indicator.dart';
 import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/widgets.dart';
 
@@ -54,7 +54,7 @@ class CommandItem {
   /// Whether the item can be chosen.
   final bool enabled;
 
-  /// An arbitrary payload, surfaced through [Command.onItemSelected].
+  /// An arbitrary payload, surfaced through [Command.onSelected].
   final Object? value;
 
   /// The haystack the default filter searches.
@@ -81,11 +81,10 @@ class CommandGroup {
 /// Filters items against the current query.
 ///
 /// Return the items to show, in the order to show them.
-typedef CommandFilter =
-    List<CommandItem> Function(
-      List<CommandItem> items,
-      String query,
-    );
+typedef CommandFilter = List<CommandItem> Function(
+  List<CommandItem> items,
+  String query,
+);
 
 /// {@template Command}
 /// A searchable command palette.
@@ -119,7 +118,7 @@ class Command extends StatefulWidget {
     required this.groups,
     this.placeholder,
     this.emptyBuilder,
-    this.onItemSelected,
+    this.onSelected,
     this.onQueryChanged,
     this.filter,
     this.controller,
@@ -133,7 +132,7 @@ class Command extends StatefulWidget {
     this.width,
     this.showSearch = true,
     this.leadingSearchIcon,
-    this.itemRadius,
+    this.itemBorderRadius,
   });
 
   /// The grouped items.
@@ -150,8 +149,9 @@ class Command extends StatefulWidget {
   /// shadcn's `CommandEmpty`.
   final Widget Function(BuildContext context, String query)? emptyBuilder;
 
-  /// Called with the chosen item, in addition to its own `onSelected`.
-  final ValueChanged<CommandItem>? onItemSelected;
+  /// Called with the chosen item, after the item's own
+  /// [CommandItem.onSelected].
+  final ValueChanged<CommandItem>? onSelected;
 
   /// Called whenever the query changes.
   final ValueChanged<String>? onQueryChanged;
@@ -213,9 +213,9 @@ class Command extends StatefulWidget {
 
   /// The corner radius of an item, overriding the theme's.
   ///
-  /// [showCommandDialog] passes the theme's `dialogItemRadius` here —
+  /// [showCommandDialog] passes the theme's `dialogItemBorderRadius` here —
   /// shadcn rounds items a step further inside a dialog than inline.
-  final BorderRadiusGeometry? itemRadius;
+  final BorderRadiusGeometry? itemBorderRadius;
 
   /// The default filter: a case-insensitive substring match over the label and
   /// keywords, preserving the declared order.
@@ -232,11 +232,11 @@ class Command extends StatefulWidget {
   }
 
   @override
-  State<Command> createState() => CommandState();
+  State<Command> createState() => _CommandState();
 }
 
 /// The state of a [Command].
-class CommandState extends State<Command> {
+class _CommandState extends State<Command> {
   TextEditingController? _internalController;
 
   /// The controller of the search field: [Command.controller] when given,
@@ -356,7 +356,7 @@ class CommandState extends State<Command> {
   void _select(CommandItem item) {
     if (!item.enabled) return;
     item.onSelected?.call();
-    widget.onItemSelected?.call(item);
+    widget.onSelected?.call(item);
   }
 
   void _activateAt(int index) {
@@ -403,24 +403,12 @@ class CommandState extends State<Command> {
     final effectiveGroupPadding =
         commandTheme.groupPadding ?? const EdgeInsets.all(4);
     final effectiveItemRadius =
-        widget.itemRadius ??
-        commandTheme.itemRadius ??
+        widget.itemBorderRadius ??
+        commandTheme.itemBorderRadius ??
         const BorderRadius.all(Radius.circular(4));
     final effectiveItemIconSize = commandTheme.itemIconSize ?? 16.0;
 
     var runningIndex = 0;
-    // The glide is only right when an item's highlighted text also reads
-    // on the bare surface; see `ContextMenu`.
-    final highlightGlides =
-        ((commandTheme.itemForegroundColor ??
-                        theme.colorScheme.popoverForeground)
-                    .computeLuminance() -
-                (commandTheme.itemSelectedForegroundColor ??
-                        theme.colorScheme.accentForeground)
-                    .computeLuminance())
-            .abs() <
-        .4;
-
     final groupViews = <Widget>[];
     for (final (group, items) in filteredGroups) {
       final children = <Widget>[];
@@ -488,19 +476,10 @@ class CommandState extends State<Command> {
         : SingleChildScrollView(
             controller: _scrollController,
             padding: effectiveOptionsPadding,
-            // The highlight is one shape that glides from item to item
-            // with the arrow keys or the pointer. Inside the scroll view,
-            // so it scrolls with its item.
-            child: MovingIndicator(
-              spring: highlightGlides ? null : MotionSpring.instant,
-              // An item's highlight is its full width: there is nothing
-              // to stretch along.
-              stretch: 0,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisSize: MainAxisSize.min,
-                children: groupViews,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: groupViews,
             ),
           );
 
@@ -515,10 +494,10 @@ class CommandState extends State<Command> {
     }
 
     final borderRadius =
-        effectiveDecoration.border?.radius?.resolve(
+        effectiveDecoration.border?.borderRadius?.resolve(
           Directionality.of(context),
         ) ??
-        theme.commandTheme.decoration?.border?.radius?.resolve(
+        theme.commandTheme.decoration?.border?.borderRadius?.resolve(
           Directionality.of(context),
         ) ??
         theme.radius;
@@ -534,7 +513,7 @@ class CommandState extends State<Command> {
         FinesseDecoration(
           color: theme.colorScheme.input.withValues(alpha: .3),
           border: FinesseBorder.all(
-            radius: const BorderRadius.all(Radius.circular(10)),
+            borderRadius: const BorderRadius.all(Radius.circular(10)),
             color: theme.colorScheme.input.withValues(alpha: .3),
             width: 1,
           ),
@@ -566,7 +545,7 @@ class CommandState extends State<Command> {
                 gap: commandTheme.searchGap ?? 6,
                 leading:
                     widget.leadingSearchIcon ??
-                    Icon(
+                    PhosphorIcon(
                       PhosphorIconsRegular.magnifyingGlass,
                       size: commandTheme.searchIconSize ?? 16,
                       color:
@@ -581,26 +560,27 @@ class CommandState extends State<Command> {
     );
 
     final surfaceFilter = widget.surfaceFilter ?? commandTheme.surfaceFilter;
-    final surfaceShadows = effectiveDecoration.shadows;
+    // The clip around the filter would cut the decoration's own shadow
+    // off, so with a filter the shadow is painted outside the clip instead
+    // — and only there.
+    final outerShadows = surfaceFilter == null
+        ? const <BoxShadow>[]
+        : effectiveDecoration.shadows ?? const <BoxShadow>[];
     final child = ownsSurface
         ? BackdropSurface(
             filter: surfaceFilter,
             tintOpacity: effectiveBackgroundColor.a,
             borderRadius: borderRadius,
-            // The clip around the filter cuts the decoration's own shadow
-            // off, so it is painted again outside it.
-            shadow:
-                surfaceFilter != null &&
-                    surfaceShadows != null &&
-                    surfaceShadows.isNotEmpty
+            shadow: outerShadows.isNotEmpty
                 ? ShadowDecoration.box(
                     borderRadius: borderRadius,
-                    shadows: surfaceShadows,
+                    shadows: outerShadows,
                   )
                 : null,
             child: Decorator(
               decoration: effectiveDecoration.copyWith(
                 color: effectiveBackgroundColor,
+                shadows: outerShadows.isNotEmpty ? const [] : null,
               ),
               child: ClipRRect(
                 borderRadius: borderRadius,
@@ -660,46 +640,44 @@ class _CommandItemView extends StatelessWidget {
       label: item.label,
       child: ExcludeSemantics(
         child: FinesseGestureDetector(
-          cursor: item.enabled
+          mouseCursor: item.enabled
               ? SystemMouseCursors.click
               : SystemMouseCursors.forbidden,
           behavior: HitTestBehavior.opaque,
           onTap: item.enabled ? onTap : null,
-          onHoverChange: (hovered) {
+          onHover: (hovered) {
             if (hovered && item.enabled) onHover();
           },
-          // The fill is painted by the list, once, and moves between the
-          // items; this says where it goes and what it looks like here.
-          child: MovingIndicatorTarget(
-            selected: highlighted && item.enabled,
+          // The highlight is the item's own fill, there or not: it does
+          // not fade or travel between the items.
+          child: Container(
+            padding:
+                commandTheme.itemPadding ??
+                const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             decoration: BoxDecoration(
-              color:
-                  commandTheme.itemSelectedBackgroundColor ??
-                  theme.colorScheme.accent,
+              color: highlighted && item.enabled
+                  ? commandTheme.itemSelectedBackgroundColor ??
+                        theme.colorScheme.accent
+                  : null,
               borderRadius: radius,
             ),
-            child: Padding(
-              padding:
-                  commandTheme.itemPadding ??
-                  const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-              child: IconTheme(
-                data: IconThemeData(size: iconSize, color: foreground),
-                child: DefaultTextStyle(
-                  style: (commandTheme.itemTextStyle ?? theme.textTheme.small)
-                      .copyWith(color: foreground),
-                  child: Row(
-                    children: [
-                      if (item.leading != null) ...[
-                        item.leading!,
-                        SizedBox(width: commandTheme.itemGap ?? 8),
-                      ],
-                      Expanded(child: Text(item.label)),
-                      if (item.trailing != null) ...[
-                        SizedBox(width: commandTheme.itemGap ?? 8),
-                        item.trailing!,
-                      ],
+            child: IconTheme(
+              data: IconThemeData(size: iconSize, color: foreground),
+              child: DefaultTextStyle(
+                style: (commandTheme.itemTextStyle ?? theme.textTheme.small)
+                    .copyWith(color: foreground),
+                child: Row(
+                  children: [
+                    if (item.leading != null) ...[
+                      item.leading!,
+                      SizedBox(width: commandTheme.itemGap ?? 8),
                     ],
-                  ),
+                    Expanded(child: Text(item.label)),
+                    if (item.trailing != null) ...[
+                      SizedBox(width: commandTheme.itemGap ?? 8),
+                      item.trailing!,
+                    ],
+                  ],
                 ),
               ),
             ),
@@ -736,24 +714,27 @@ Future<T?> showCommandDialog<T>({
       // The dialog takes the palette's own radius
       // (`.cn-command-dialog rounded-xl!`), its theme's hairline, and no
       // shadow — `.cn-dialog-content` casts none.
-      final radius = commandTheme.decoration?.border?.radius?.resolve(
+      final radius = commandTheme.decoration?.border?.borderRadius?.resolve(
         Directionality.of(context),
       );
       return Padding(
         padding: EdgeInsets.fromLTRB(16, topOffset, 16, 16),
         child: Dialog(
-          alignment: Alignment.topCenter,
+          style: DialogTheme(
+            alignment: Alignment.topCenter,
+            constraints: const BoxConstraints(maxWidth: 448),
+            borderRadius: radius,
+            padding: EdgeInsets.zero,
+            shadows: Shadows.none,
+            backgroundColor: commandTheme.backgroundColor,
+            filter: commandTheme.surfaceFilter,
+          ),
           // `sm:max-w-md`, with the padding above keeping the
           // `calc(100%-2rem)` margins on narrow screens.
-          constraints: const BoxConstraints(maxWidth: 448),
-          removeBorderRadiusWhenTiny: false,
-          radius: radius,
-          padding: EdgeInsets.zero,
+
           scrollable: false,
-          shadows: Shadows.none,
           // The palette's own fill and filter: glass in a glass style.
-          backgroundColor: commandTheme.backgroundColor,
-          filter: commandTheme.surfaceFilter,
+
           child: Command(
             groups: groups,
             placeholder: placeholder,
@@ -763,9 +744,9 @@ Future<T?> showCommandDialog<T>({
             height: height,
             decoration: FinesseDecoration.none,
             backgroundColor: const Color(0x00000000),
-            itemRadius: commandTheme.dialogItemRadius,
+            itemBorderRadius: commandTheme.dialogItemBorderRadius,
             onEscape: () => Navigator.of(context).maybePop(),
-            onItemSelected: (item) {
+            onSelected: (item) {
               Navigator.of(context).pop(item.value as T?);
             },
           ),

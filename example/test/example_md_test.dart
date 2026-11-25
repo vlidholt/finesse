@@ -14,8 +14,8 @@ class App extends StatelessWidget {
     return FinesseApp(
       theme: ThemeData(
         colorScheme: const ZincColorScheme.light(),
-        // One of shadcn/ui's eight styles: vega, nova, maia, lyra, mira,
-        // luma, sera or rhea.
+        // One of the four styles: finesse (the default), or shadcn/ui's
+        // nova, maia or lyra.
         style: StyleTokens.nova,
       ),
       darkTheme: ThemeData(
@@ -33,7 +33,7 @@ class SignUpCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      width: 360,
+      style: const CardTheme(width: 360),
       title: const Text('Create an account'),
       description: const Text('Enter your details to get started.'),
       footer: Row(

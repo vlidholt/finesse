@@ -32,7 +32,7 @@ class ScrollAreaBasicExample extends StatelessWidget {
             const SizedBox(height: 16),
             for (final tag in tags) ...[
               Text(tag, style: theme.textTheme.muted),
-              const Divider.horizontal(),
+              const Divider(),
             ],
           ],
         ),
@@ -90,4 +90,3 @@ class _ScrollAreaListExampleState extends State<ScrollAreaListExample> {
   }
 }
 ```
-

@@ -1,6 +1,7 @@
 import 'package:finesse/material.dart';
 import 'package:finesse/src/app.dart';
 import 'package:finesse/src/components/kbd.dart';
+import 'package:finesse/src/components/popover.dart';
 import 'package:finesse/src/components/tooltip.dart';
 import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/style.dart';
@@ -148,9 +149,12 @@ void main() {
     });
 
     test('the radius follows the style, and square styles sharpen the tip', () {
-      BorderRadius radiusOf(StyleTokens style) => ThemeData(
-        style: style,
-      ).tooltipTheme.decoration!.border!.radius!.resolve(TextDirection.ltr);
+      BorderRadius radiusOf(StyleTokens style) =>
+          ThemeData(
+            style: style,
+          ).tooltipTheme.decoration!.border!.borderRadius!.resolve(
+            TextDirection.ltr,
+          );
 
       // vega `rounded-md` 8, maia `rounded-2xl` 16, luma `rounded-xl` 14.
       expect(radiusOf(FixtureStyles.vega).topLeft.x, 8);
@@ -171,7 +175,7 @@ void main() {
   group('content inversion', () {
     testWidgets('the builder context sees the inverted text style and the '
         'kbd re-theme', (tester) async {
-      final controller = TooltipController();
+      final controller = PopoverController();
       addTearDown(controller.dispose);
       TextStyle? seenStyle;
       await tester.pumpWidget(
@@ -188,7 +192,7 @@ void main() {
           ),
         ),
       );
-      controller.show();
+      controller.open();
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
 
@@ -213,7 +217,7 @@ void main() {
     testWidgets('rides the bottom edge when the tooltip sits above', (
       tester,
     ) async {
-      final controller = TooltipController();
+      final controller = PopoverController();
       addTearDown(controller.dispose);
       await tester.pumpWidget(
         createTestWidget(
@@ -226,7 +230,7 @@ void main() {
           ),
         ),
       );
-      controller.show();
+      controller.open();
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
       await tester.pump(const Duration(milliseconds: 300));
@@ -244,7 +248,7 @@ void main() {
     testWidgets('flips above when the portal falls back below', (
       tester,
     ) async {
-      final controller = TooltipController();
+      final controller = PopoverController();
       addTearDown(controller.dispose);
       await tester.pumpWidget(
         createTestWidget(
@@ -259,7 +263,7 @@ void main() {
           ),
         ),
       );
-      controller.show();
+      controller.open();
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
       await tester.pump(const Duration(milliseconds: 300));
@@ -273,7 +277,7 @@ void main() {
     });
 
     testWidgets('can be turned off', (tester) async {
-      final controller = TooltipController();
+      final controller = PopoverController();
       addTearDown(controller.dispose);
       await tester.pumpWidget(
         createTestWidget(
@@ -287,7 +291,7 @@ void main() {
           ),
         ),
       );
-      controller.show();
+      controller.open();
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
 

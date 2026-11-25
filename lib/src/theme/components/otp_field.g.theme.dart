@@ -32,10 +32,26 @@ mixin _$OtpFieldTheme {
       height: lerpDouble$(a.height, b.height, t),
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
       decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
-      firstRadius: BorderRadius.lerp(a.firstRadius, b.firstRadius, t),
-      lastRadius: BorderRadius.lerp(a.lastRadius, b.lastRadius, t),
-      singleRadius: BorderRadius.lerp(a.singleRadius, b.singleRadius, t),
-      middleRadius: BorderRadius.lerp(a.middleRadius, b.middleRadius, t),
+      firstBorderRadius: BorderRadius.lerp(
+        a.firstBorderRadius,
+        b.firstBorderRadius,
+        t,
+      ),
+      lastBorderRadius: BorderRadius.lerp(
+        a.lastBorderRadius,
+        b.lastBorderRadius,
+        t,
+      ),
+      singleBorderRadius: BorderRadius.lerp(
+        a.singleBorderRadius,
+        b.singleBorderRadius,
+        t,
+      ),
+      middleBorderRadius: BorderRadius.lerp(
+        a.middleBorderRadius,
+        b.middleBorderRadius,
+        t,
+      ),
     );
   }
 
@@ -46,10 +62,10 @@ mixin _$OtpFieldTheme {
     double? height,
     EdgeInsetsGeometry? padding,
     FinesseDecoration? decoration,
-    BorderRadius? firstRadius,
-    BorderRadius? lastRadius,
-    BorderRadius? singleRadius,
-    BorderRadius? middleRadius,
+    BorderRadius? firstBorderRadius,
+    BorderRadius? lastBorderRadius,
+    BorderRadius? singleBorderRadius,
+    BorderRadius? middleBorderRadius,
   }) {
     final _this = (this as OtpFieldTheme);
 
@@ -60,10 +76,10 @@ mixin _$OtpFieldTheme {
       height: height ?? _this.height,
       padding: padding ?? _this.padding,
       decoration: decoration ?? _this.decoration,
-      firstRadius: firstRadius ?? _this.firstRadius,
-      lastRadius: lastRadius ?? _this.lastRadius,
-      singleRadius: singleRadius ?? _this.singleRadius,
-      middleRadius: middleRadius ?? _this.middleRadius,
+      firstBorderRadius: firstBorderRadius ?? _this.firstBorderRadius,
+      lastBorderRadius: lastBorderRadius ?? _this.lastBorderRadius,
+      singleBorderRadius: singleBorderRadius ?? _this.singleBorderRadius,
+      middleBorderRadius: middleBorderRadius ?? _this.middleBorderRadius,
     );
   }
 
@@ -85,10 +101,10 @@ mixin _$OtpFieldTheme {
       height: other.height,
       padding: other.padding,
       decoration: _this.decoration?.merge(other.decoration) ?? other.decoration,
-      firstRadius: other.firstRadius,
-      lastRadius: other.lastRadius,
-      singleRadius: other.singleRadius,
-      middleRadius: other.middleRadius,
+      firstBorderRadius: other.firstBorderRadius,
+      lastBorderRadius: other.lastBorderRadius,
+      singleBorderRadius: other.singleBorderRadius,
+      middleBorderRadius: other.middleBorderRadius,
     );
   }
 
@@ -111,10 +127,10 @@ mixin _$OtpFieldTheme {
         _other.height == _this.height &&
         _other.padding == _this.padding &&
         _other.decoration == _this.decoration &&
-        _other.firstRadius == _this.firstRadius &&
-        _other.lastRadius == _this.lastRadius &&
-        _other.singleRadius == _this.singleRadius &&
-        _other.middleRadius == _this.middleRadius;
+        _other.firstBorderRadius == _this.firstBorderRadius &&
+        _other.lastBorderRadius == _this.lastBorderRadius &&
+        _other.singleBorderRadius == _this.singleBorderRadius &&
+        _other.middleBorderRadius == _this.middleBorderRadius;
   }
 
   @override
@@ -129,10 +145,10 @@ mixin _$OtpFieldTheme {
       _this.height,
       _this.padding,
       _this.decoration,
-      _this.firstRadius,
-      _this.lastRadius,
-      _this.singleRadius,
-      _this.middleRadius,
+      _this.firstBorderRadius,
+      _this.lastBorderRadius,
+      _this.singleBorderRadius,
+      _this.middleBorderRadius,
     );
   }
 }

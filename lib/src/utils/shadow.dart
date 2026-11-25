@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:ui' show ClipOp;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
@@ -161,6 +162,8 @@ class _ShadowPainter extends BoxPainter {
         shadows: _decoration.shadows,
         decoration: _decoration.decoration,
         textDirection: configuration.textDirection,
+        // Painted next, on top, in the same shape.
+        covered: _isOpaque(_decoration.decoration),
       );
     }
     _inner.paint(canvas, offset, configuration);
@@ -173,8 +176,20 @@ class _ShadowPainter extends BoxPainter {
   }
 }
 
+/// Whether [decoration] fills its whole shape with an opaque colour, so
+/// that nothing painted under it shows.
+bool _isOpaque(Decoration decoration) =>
+    decoration is BoxDecoration &&
+    decoration.backgroundBlendMode == null &&
+    (decoration.color?.a ?? 0) >= 1;
+
 /// Paints [shadows] outside the shape [decoration] describes for [rect], the
 /// way CSS clips an outer `box-shadow` to the border box.
+///
+/// With [covered], the caller paints an opaque fill of the same shape on
+/// top straight afterwards, and the shadows are painted whole: what the
+/// clip would have removed is hidden anyway, and a clip is the expensive
+/// half of a shadow.
 ///
 /// {@macro ShadowDecoration}
 void paintOuterShadows(
@@ -183,6 +198,7 @@ void paintOuterShadows(
   required List<BoxShadow> shadows,
   required Decoration decoration,
   TextDirection? textDirection,
+  bool covered = false,
 }) {
   if (shadows.isEmpty || rect.isEmpty) return;
 
@@ -199,28 +215,148 @@ void paintOuterShadows(
   if (reach <= 0) return;
 
   final direction = textDirection ?? TextDirection.ltr;
-  final outside = Path.combine(
-    PathOperation.difference,
-    Path()..addRect(rect.inflate(reach + 1)),
-    decoration.getClipPath(rect, direction),
-  );
+
+  void paintShadows() {
+    for (final shadow in shadows) {
+      final bounds = rect.shift(shadow.offset).inflate(shadow.spreadRadius);
+      if (bounds.isEmpty) continue;
+      final paint = Paint()..color = shadow.color;
+      if (shadow.blurSigma > 0) {
+        paint.maskFilter = MaskFilter.blur(BlurStyle.normal, shadow.blurSigma);
+      }
+      assert(() {
+        if (debugDisableShadows) paint.maskFilter = null;
+        return true;
+      }());
+      canvas.drawPath(
+        _spreadPath(decoration, bounds, shadow, direction),
+        paint,
+      );
+    }
+  }
+
+  if (covered) return paintShadows();
+
+  final box = _roundedBoxOf(decoration, rect, direction);
+  if (box != null) {
+    return _paintOutsideBox(canvas, box, paintShadows);
+  }
 
   canvas.save();
-  canvas.clipPath(outside);
-  for (final shadow in shadows) {
-    final bounds = rect.shift(shadow.offset).inflate(shadow.spreadRadius);
-    if (bounds.isEmpty) continue;
-    final paint = Paint()..color = shadow.color;
-    if (shadow.blurSigma > 0) {
-      paint.maskFilter = MaskFilter.blur(BlurStyle.normal, shadow.blurSigma);
-    }
-    assert(() {
-      if (debugDisableShadows) paint.maskFilter = null;
-      return true;
-    }());
-    canvas.drawPath(_spreadPath(decoration, bounds, shadow, direction), paint);
-  }
+  // Any other shape: a tooltip with its arrow, a `ShapeDecoration`.
+  _clipOutside(
+    canvas,
+    rect.inflate(reach + 1),
+    decoration.getClipPath(rect, direction),
+  );
+  paintShadows();
   canvas.restore();
+}
+
+/// The rounded rectangle [decoration] fills in [rect], when it is a box: a
+/// rectangle, a rounded one, or a circle (a square with full corners).
+RRect? _roundedBoxOf(
+  Decoration decoration,
+  Rect rect,
+  TextDirection direction,
+) {
+  if (decoration is! BoxDecoration) return null;
+  switch (decoration.shape) {
+    case BoxShape.circle:
+      final square = Rect.fromCircle(
+        center: rect.center,
+        radius: rect.shortestSide / 2,
+      );
+      return RRect.fromRectAndRadius(
+        square,
+        Radius.circular(square.width / 2),
+      );
+    case BoxShape.rectangle:
+      final radius = decoration.borderRadius?.resolve(direction);
+      return (radius ?? BorderRadius.zero).toRRect(rect).scaleRadii();
+  }
+}
+
+/// Runs [paint] clipped to the outside of [box], without a clip the size of
+/// the shadow.
+///
+/// The obvious clip — the shadow's bounds with [box] cut out of them as one
+/// path — is the slowest thing a shadow can ask for. Skia has no analytic
+/// form for it, so on the web it rasterises a coverage mask the size of the
+/// whole shadow on the CPU and uploads it, and does so again on every frame
+/// in which the surface has moved by a fraction of a pixel: every frame of
+/// a scroll, for every card on screen. Measured on the Strand feed that
+/// clip was two thirds of the whole frame's raster time.
+///
+/// The outside of a rounded box is the outside of its bounding rectangle
+/// plus the four slivers between each square corner and its arc. The first
+/// is a rectangle clipped by difference, which every renderer does without
+/// a mask; the slivers do need one, but each is a corner radius across. So
+/// the shadows are painted five times through small or cheap clips instead
+/// of once through a huge one — and a blurred rounded rectangle is a draw
+/// Skia has a fast path for.
+void _paintOutsideBox(Canvas canvas, RRect box, VoidCallback paint) {
+  final rect = box.outerRect;
+  canvas
+    ..save()
+    ..clipRect(rect, clipOp: ClipOp.difference);
+  paint();
+  canvas.restore();
+
+  // [horizontal] and [vertical] point from the corner into the box.
+  void sliver(
+    Offset corner,
+    Radius radius,
+    double horizontal,
+    double vertical,
+  ) {
+    if (radius.x <= 0 || radius.y <= 0) return;
+    canvas
+      ..save()
+      ..clipPath(
+        Path()
+          ..moveTo(corner.dx, corner.dy)
+          ..lineTo(corner.dx + horizontal * radius.x, corner.dy)
+          ..arcToPoint(
+            Offset(corner.dx, corner.dy + vertical * radius.y),
+            radius: radius,
+            clockwise: horizontal * vertical < 0,
+          )
+          ..close(),
+      );
+    paint();
+    canvas.restore();
+  }
+
+  sliver(rect.topLeft, box.tlRadius, 1, 1);
+  sliver(rect.topRight, box.trRadius, -1, 1);
+  sliver(rect.bottomLeft, box.blRadius, 1, -1);
+  sliver(rect.bottomRight, box.brRadius, -1, -1);
+}
+
+/// Clips [canvas] to the part of [bounds] that is outside [shape], whatever
+/// the shape. A box does not come here: see [_paintOutsideBox].
+///
+/// Each contour of [shape] is cut out of [bounds] as the hole of an
+/// even-odd path. Not `Path.combine(PathOperation.difference, …)`: on the
+/// web that returns its first operand unchanged, the clip then covers the
+/// element too, and every shadow is painted behind the whole surface —
+/// exactly the grey wash through a translucent fill this file exists to
+/// prevent. `test/src/utils/shadow_web_test.dart` runs it in a browser.
+///
+/// One contour at a time, because even-odd counts an overlap twice: two
+/// contours that overlap (a tooltip's bubble and its arrow) cut out
+/// together would leave the overlap *in*. Cutting them out one after the
+/// other intersects the clips, which is the outside of their union.
+void _clipOutside(Canvas canvas, Rect bounds, Path shape) {
+  for (final contour in shape.computeMetrics()) {
+    canvas.clipPath(
+      Path()
+        ..fillType = PathFillType.evenOdd
+        ..addRect(bounds)
+        ..addPath(contour.extractPath(0, contour.length)..close(), Offset.zero),
+    );
+  }
 }
 
 /// The shadow's own shape at [bounds].
@@ -236,10 +372,12 @@ Path _spreadPath(
   BoxShadow shadow,
   TextDirection textDirection,
 ) {
-  if (decoration case BoxDecoration(
-    shape: BoxShape.rectangle,
-    :final borderRadius?,
-  ) when shadow.spreadRadius != 0) {
+  if (decoration
+      case BoxDecoration(
+        shape: BoxShape.rectangle,
+        :final borderRadius?,
+      )
+      when shadow.spreadRadius != 0) {
     final radius = borderRadius.resolve(textDirection);
     Radius grow(Radius r) => Radius.elliptical(
       math.max(0, r.x + shadow.spreadRadius),

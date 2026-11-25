@@ -149,11 +149,11 @@ void main() {
 
       // Square styles really are square, all the way out to the card.
       final lyra = const ThemeEditorConfig(style: StylePreset.lyra).build();
-      expect(lyra.cardTheme.radius, BorderRadius.zero);
+      expect(lyra.cardTheme.borderRadius, BorderRadius.zero);
       // ...and a rounded one scales the card past the control radius.
       final finesse = const ThemeEditorConfig().build();
       expect(
-        finesse.cardTheme.radius!.topLeft.x,
+        finesse.cardTheme.borderRadius!.topLeft.x,
         greaterThan(finesse.radius.topLeft.x),
       );
     });
@@ -512,6 +512,7 @@ void main() {
           final config = themeConfigProvider.of(appContext(tester));
           config.value = config.value.copyWith(
             cardOpacity: () => .5,
+            cardBlur: () => true,
             barOpacity: () => .6,
             glassBlur: () => 8,
             cardPaddingScale: 1.5,
@@ -528,6 +529,16 @@ void main() {
           expect(theme.cardTheme.backgroundColor!.a, closeTo(.5, .005));
           expect(theme.appBarTheme.backgroundColor!.a, closeTo(.6, .005));
           expect(theme.cardTheme.blur, 8);
+          expect(theme.appBarTheme.blur, 8);
+          // And it is a real filter on screen, not only a number in the
+          // theme: every card on the home feed is over a backdrop.
+          expect(
+            find.descendant(
+              of: find.byType(Card),
+              matching: find.byType(BackdropFilter),
+            ),
+            findsWidgets,
+          );
           expect(theme.cardTheme.padding, EdgeInsets.all(phone ? 24 : 30));
           expect(theme.bottomNavigationBarTheme.floating, isFalse);
           expect(tester.takeException(), isNull, reason: '$size');
@@ -646,7 +657,8 @@ void main() {
 
       expect(appTheme(tester).formFactor, FormFactor.desktop);
       expect(strandTheme(tester).style, StyleTokens.finesse);
-      expect(find.byType(NavigationBar), findsOneWidget);
+      // A desktop that narrow puts its destinations in a rail.
+      expect(find.byType(NavigationRail), findsOneWidget);
       expect(find.byType(BottomNavigationBar), findsNothing);
       // Laid out at the narrowest width a desktop layout is designed for…
       final breakpoint = appTheme(tester).breakpoints.md.value;
@@ -683,7 +695,8 @@ void main() {
       await openThemeEditor(tester);
 
       expect(appTheme(tester).formFactor, FormFactor.desktop);
-      expect(find.byType(NavigationBar), findsOneWidget);
+      // A desktop that narrow puts its destinations in a rail.
+      expect(find.byType(NavigationRail), findsOneWidget);
       final shell = find.byType(StrandShell);
       expect(
         tester.getSize(shell).width,
@@ -782,10 +795,22 @@ void main() {
         theme.selectOptionTheme.textStyle!.color,
         dark.colorScheme.popoverForeground,
       );
-      // The row highlight is the dark accent pair, icons included.
+      // The row highlight is the dark menu's, icons included: in the default
+      // style a wash of the dark foreground that leaves the row's text its
+      // resting colour, not an accent fill.
       expect(
         theme.selectOptionTheme.hoveredBackgroundColor,
-        dark.colorScheme.accent,
+        dark.colorScheme.foreground.withValues(
+          alpha: theme.style.menuHighlightOpacityDark,
+        ),
+      );
+      expect(
+        theme.selectOptionTheme.hoveredBackgroundColor,
+        dark.selectOptionTheme.hoveredBackgroundColor,
+      );
+      expect(
+        theme.selectOptionTheme.selectedTextStyle!.color,
+        dark.colorScheme.popoverForeground,
       );
       // The page's own popover is untouched: plain popovers do not invert.
       expect(
@@ -824,18 +849,20 @@ void main() {
       expect(theme.colorScheme.popover.a, 1);
     });
 
-    test('bold points the accent pair at the primary pair', () {
-      // The reference writes `accent = primary` into the generated theme, so
-      // it is a scheme transformation, and menus pick it up through their
-      // normal accent highlight.
+    test('bold fills menu rows with the primary pair, and only them', () {
+      // The reference writes `accent = primary` into the generated theme.
+      // Here the accent is also the soft wash of a selected card, a chat
+      // bubble and an icon tile, so the choice is the menus' alone and the
+      // scheme keeps its accent.
       const config = ThemeEditorConfig(menuAccent: EditorMenuAccent.bold);
       final theme = config.build();
+      final subtle = const ThemeEditorConfig().build();
 
-      expect(theme.colorScheme.accent, theme.colorScheme.primary);
-      expect(
-        theme.colorScheme.accentForeground,
-        theme.colorScheme.primaryForeground,
-      );
+      expect(theme.colorScheme, subtle.colorScheme);
+      expect(theme.colorScheme.accent, isNot(theme.colorScheme.primary));
+      expect(theme.chatBubbleTheme, subtle.chatBubbleTheme);
+      expect(theme.iconTileTheme, subtle.iconTileTheme);
+      expect(theme.chipTheme, subtle.chipTheme);
       expect(
         theme.selectOptionTheme.hoveredBackgroundColor,
         theme.colorScheme.primary,

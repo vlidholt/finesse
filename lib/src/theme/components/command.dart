@@ -27,7 +27,7 @@ class CommandTheme with _$CommandTheme {
     this.itemSelectedBackgroundColor,
     this.itemSelectedForegroundColor,
     this.itemForegroundColor,
-    this.itemRadius,
+    this.itemBorderRadius,
     this.itemGap,
     this.height,
     this.width,
@@ -41,7 +41,7 @@ class CommandTheme with _$CommandTheme {
     this.searchInputPadding,
     this.listMaxHeight,
     this.groupPadding,
-    this.dialogItemRadius,
+    this.dialogItemBorderRadius,
     this.itemIconSize,
     this.surfaceFilter,
   }) : _canMerge = canMerge;
@@ -89,7 +89,7 @@ class CommandTheme with _$CommandTheme {
   final Color? itemForegroundColor;
 
   /// The corner radius of an item.
-  final BorderRadiusGeometry? itemRadius;
+  final BorderRadiusGeometry? itemBorderRadius;
 
   /// The gap between an item's leading widget, label and trailing widget.
   final double? itemGap;
@@ -135,9 +135,9 @@ class CommandTheme with _$CommandTheme {
   final EdgeInsetsGeometry? groupPadding;
 
   /// The corner radius of an item inside a command *dialog*, where shadcn
-  /// rounds a step past the inline [itemRadius]
+  /// rounds a step past the inline [itemBorderRadius]
   /// (`in-data-[slot=dialog-content]:rounded-lg!`).
-  final BorderRadiusGeometry? dialogItemRadius;
+  final BorderRadiusGeometry? dialogItemBorderRadius;
 
   /// The size of an item's leading icon,
   /// `[&_svg:not([class*='size-'])]:size-4`.

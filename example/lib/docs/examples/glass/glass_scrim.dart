@@ -24,7 +24,7 @@ class GlassScrimExample extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           spacing: 6,
           children: [
-            Icon(icon, size: 16, color: _onScrim),
+            PhosphorIcon(icon, size: 16, color: _onScrim),
             Text(
               text,
               style: theme.textTheme.small.copyWith(color: _onScrim),

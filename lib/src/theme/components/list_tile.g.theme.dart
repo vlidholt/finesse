@@ -29,12 +29,16 @@ mixin _$ListTileTheme {
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
       gap: lerpDouble$(a.gap, b.gap, t),
       titleGap: lerpDouble$(a.titleGap, b.titleGap, t),
-      radius: BorderRadius.lerp(a.radius, b.radius, t),
+      borderRadius: BorderRadius.lerp(a.borderRadius, b.borderRadius, t),
       titleStyle: TextStyle.lerp(a.titleStyle, b.titleStyle, t),
       subtitleStyle: TextStyle.lerp(a.subtitleStyle, b.subtitleStyle, t),
       hoverColor: Color.lerp(a.hoverColor, b.hoverColor, t),
       selectedColor: Color.lerp(a.selectedColor, b.selectedColor, t),
       pressScale: lerpDouble$(a.pressScale, b.pressScale, t),
+      valueStyle: TextStyle.lerp(a.valueStyle, b.valueStyle, t),
+      chevronColor: Color.lerp(a.chevronColor, b.chevronColor, t),
+      chevronSize: lerpDouble$(a.chevronSize, b.chevronSize, t),
+      destructiveColor: Color.lerp(a.destructiveColor, b.destructiveColor, t),
     );
   }
 
@@ -42,12 +46,16 @@ mixin _$ListTileTheme {
     EdgeInsetsGeometry? padding,
     double? gap,
     double? titleGap,
-    BorderRadius? radius,
+    BorderRadius? borderRadius,
     TextStyle? titleStyle,
     TextStyle? subtitleStyle,
     Color? hoverColor,
     Color? selectedColor,
     double? pressScale,
+    TextStyle? valueStyle,
+    Color? chevronColor,
+    double? chevronSize,
+    Color? destructiveColor,
   }) {
     final _this = (this as ListTileTheme);
 
@@ -55,12 +63,16 @@ mixin _$ListTileTheme {
       padding: padding ?? _this.padding,
       gap: gap ?? _this.gap,
       titleGap: titleGap ?? _this.titleGap,
-      radius: radius ?? _this.radius,
+      borderRadius: borderRadius ?? _this.borderRadius,
       titleStyle: titleStyle ?? _this.titleStyle,
       subtitleStyle: subtitleStyle ?? _this.subtitleStyle,
       hoverColor: hoverColor ?? _this.hoverColor,
       selectedColor: selectedColor ?? _this.selectedColor,
       pressScale: pressScale ?? _this.pressScale,
+      valueStyle: valueStyle ?? _this.valueStyle,
+      chevronColor: chevronColor ?? _this.chevronColor,
+      chevronSize: chevronSize ?? _this.chevronSize,
+      destructiveColor: destructiveColor ?? _this.destructiveColor,
     );
   }
 
@@ -79,7 +91,7 @@ mixin _$ListTileTheme {
       padding: other.padding,
       gap: other.gap,
       titleGap: other.titleGap,
-      radius: other.radius,
+      borderRadius: other.borderRadius,
       titleStyle: _this.titleStyle?.merge(other.titleStyle) ?? other.titleStyle,
       subtitleStyle:
           _this.subtitleStyle?.merge(other.subtitleStyle) ??
@@ -87,6 +99,10 @@ mixin _$ListTileTheme {
       hoverColor: other.hoverColor,
       selectedColor: other.selectedColor,
       pressScale: other.pressScale,
+      valueStyle: _this.valueStyle?.merge(other.valueStyle) ?? other.valueStyle,
+      chevronColor: other.chevronColor,
+      chevronSize: other.chevronSize,
+      destructiveColor: other.destructiveColor,
     );
   }
 
@@ -106,12 +122,16 @@ mixin _$ListTileTheme {
     return _other.padding == _this.padding &&
         _other.gap == _this.gap &&
         _other.titleGap == _this.titleGap &&
-        _other.radius == _this.radius &&
+        _other.borderRadius == _this.borderRadius &&
         _other.titleStyle == _this.titleStyle &&
         _other.subtitleStyle == _this.subtitleStyle &&
         _other.hoverColor == _this.hoverColor &&
         _other.selectedColor == _this.selectedColor &&
-        _other.pressScale == _this.pressScale;
+        _other.pressScale == _this.pressScale &&
+        _other.valueStyle == _this.valueStyle &&
+        _other.chevronColor == _this.chevronColor &&
+        _other.chevronSize == _this.chevronSize &&
+        _other.destructiveColor == _this.destructiveColor;
   }
 
   @override
@@ -123,12 +143,16 @@ mixin _$ListTileTheme {
       _this.padding,
       _this.gap,
       _this.titleGap,
-      _this.radius,
+      _this.borderRadius,
       _this.titleStyle,
       _this.subtitleStyle,
       _this.hoverColor,
       _this.selectedColor,
       _this.pressScale,
+      _this.valueStyle,
+      _this.chevronColor,
+      _this.chevronSize,
+      _this.destructiveColor,
     );
   }
 }

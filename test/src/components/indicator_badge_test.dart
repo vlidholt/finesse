@@ -159,6 +159,171 @@ void main() {
     });
   });
 
+  group('IndicatorBadge on its way out', () {
+    // Pumped by hand: the harness settles, and these look at the middle of
+    // the exit.
+    Widget app(IndicatorBadge badge) => FinesseApp(home: Center(child: badge));
+
+    /// The scale of the pop a changed count plays; 1 at rest.
+    double pop(WidgetTester tester) => tester
+        .widget<Transform>(
+          find.descendant(
+            of: find.byType(PopOnChange),
+            matching: find.byType(Transform),
+          ),
+        )
+        .transform
+        .storage[0];
+
+    testWidgets('a count that drops to zero leaves as the number it was, '
+        'without the pop of a changed count', (tester) async {
+      await tester.pumpWidget(
+        app(const IndicatorBadge(count: 3, child: target)),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('3'), findsOneWidget);
+
+      await tester.pumpWidget(
+        app(const IndicatorBadge(count: 0, child: target)),
+      );
+      var frames = 0;
+      while (badgeBox().evaluate().isNotEmpty) {
+        // Still leaving: the "3" the user was looking at, not a "0".
+        expect(find.text('0'), findsNothing);
+        expect(find.text('3'), findsOneWidget);
+        // Hiding is not a change of count.
+        expect(pop(tester), 1);
+        await tester.pump(const Duration(milliseconds: 16));
+        frames++;
+        expect(frames, lessThan(120), reason: 'the badge never left');
+      }
+      expect(frames, greaterThan(2), reason: 'the badge did not animate out');
+      expect(find.text('3'), findsNothing);
+    });
+
+    testWidgets('it is not read while it leaves', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        app(
+          const IndicatorBadge(
+            count: 3,
+            semanticLabel: '3 unread',
+            child: target,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      // The semantics tree itself: a widget finder also matches a render
+      // object's stale node.
+      expect(find.semantics.byLabel('3 unread'), findsOne);
+
+      await tester.pumpWidget(
+        app(
+          const IndicatorBadge(
+            count: 0,
+            semanticLabel: '0 unread',
+            child: target,
+          ),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 32));
+      expect(find.text('3'), findsOneWidget);
+      expect(find.semantics.byLabel(RegExp('unread')), findsNothing);
+      await tester.pumpAndSettle();
+      handle.dispose();
+    });
+
+    testWidgets('a count that is taken away does not turn into a dot', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        app(const IndicatorBadge(count: 3, child: target)),
+      );
+      await tester.pumpAndSettle();
+      final pill = tester.getSize(badgeBox());
+
+      await tester.pumpWidget(
+        app(const IndicatorBadge(visible: false, child: target)),
+      );
+      await tester.pump(const Duration(milliseconds: 32));
+      expect(find.text('3'), findsOneWidget);
+      expect(tester.getSize(badgeBox()), pill);
+      await tester.pumpAndSettle();
+      expect(badgeBox(), findsNothing);
+    });
+
+    testWidgets('a label and a dot leave as themselves too', (tester) async {
+      await tester.pumpWidget(
+        app(const IndicatorBadge(label: Text('new'), child: target)),
+      );
+      await tester.pumpAndSettle();
+      await tester.pumpWidget(
+        app(const IndicatorBadge(count: 0, child: target)),
+      );
+      await tester.pump(const Duration(milliseconds: 32));
+      expect(find.text('new'), findsOneWidget);
+      expect(find.text('0'), findsNothing);
+      await tester.pumpAndSettle();
+      expect(badgeBox(), findsNothing);
+
+      await tester.pumpWidget(app(const IndicatorBadge(child: target)));
+      await tester.pumpAndSettle();
+      final dot = tester.getSize(badgeBox());
+      await tester.pumpWidget(
+        app(const IndicatorBadge(count: 0, child: target)),
+      );
+      await tester.pump(const Duration(milliseconds: 32));
+      expect(find.text('0'), findsNothing);
+      expect(tester.getSize(badgeBox()), dot);
+      await tester.pumpAndSettle();
+      expect(badgeBox(), findsNothing);
+    });
+
+    testWidgets('what comes back is the new count, popping in and no more', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        app(const IndicatorBadge(count: 3, child: target)),
+      );
+      await tester.pumpAndSettle();
+      await tester.pumpWidget(
+        app(const IndicatorBadge(count: 0, child: target)),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.pumpWidget(
+        app(const IndicatorBadge(count: 5, child: target)),
+      );
+      for (var i = 0; i < 40; i++) {
+        await tester.pump(const Duration(milliseconds: 16));
+        expect(find.text('5'), findsOneWidget);
+        expect(find.text('3'), findsNothing);
+        // The entrance is the pop; a second one on top of it would be the
+        // count "changing" from a value nobody saw.
+        expect(pop(tester), 1);
+      }
+    });
+
+    testWidgets('a count that changes while it shows still pops', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        app(const IndicatorBadge(count: 3, child: target)),
+      );
+      await tester.pumpAndSettle();
+      await tester.pumpWidget(
+        app(const IndicatorBadge(count: 4, child: target)),
+      );
+      var peak = 1.0;
+      for (var i = 0; i < 40; i++) {
+        await tester.pump(const Duration(milliseconds: 16));
+        if (pop(tester) > peak) peak = pop(tester);
+      }
+      expect(find.text('4'), findsOneWidget);
+      expect(peak, greaterThan(1.05));
+    });
+  });
+
   group('IndicatorBadge shape', () {
     testWidgets('with neither count nor label it is a dot', (tester) async {
       await pumpFinesse(

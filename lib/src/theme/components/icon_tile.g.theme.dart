@@ -28,7 +28,7 @@ mixin _$IconTileTheme {
     return IconTileTheme(
       size: lerpDouble$(a.size, b.size, t),
       iconSize: lerpDouble$(a.iconSize, b.iconSize, t),
-      radius: BorderRadius.lerp(a.radius, b.radius, t),
+      borderRadius: BorderRadius.lerp(a.borderRadius, b.borderRadius, t),
       backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
       foregroundColor: Color.lerp(a.foregroundColor, b.foregroundColor, t),
     );
@@ -37,7 +37,7 @@ mixin _$IconTileTheme {
   IconTileTheme copyWith({
     double? size,
     double? iconSize,
-    BorderRadius? radius,
+    BorderRadius? borderRadius,
     Color? backgroundColor,
     Color? foregroundColor,
   }) {
@@ -46,7 +46,7 @@ mixin _$IconTileTheme {
     return IconTileTheme(
       size: size ?? _this.size,
       iconSize: iconSize ?? _this.iconSize,
-      radius: radius ?? _this.radius,
+      borderRadius: borderRadius ?? _this.borderRadius,
       backgroundColor: backgroundColor ?? _this.backgroundColor,
       foregroundColor: foregroundColor ?? _this.foregroundColor,
     );
@@ -66,7 +66,7 @@ mixin _$IconTileTheme {
     return copyWith(
       size: other.size,
       iconSize: other.iconSize,
-      radius: other.radius,
+      borderRadius: other.borderRadius,
       backgroundColor: other.backgroundColor,
       foregroundColor: other.foregroundColor,
     );
@@ -87,7 +87,7 @@ mixin _$IconTileTheme {
 
     return _other.size == _this.size &&
         _other.iconSize == _this.iconSize &&
-        _other.radius == _this.radius &&
+        _other.borderRadius == _this.borderRadius &&
         _other.backgroundColor == _this.backgroundColor &&
         _other.foregroundColor == _this.foregroundColor;
   }
@@ -100,7 +100,7 @@ mixin _$IconTileTheme {
       runtimeType,
       _this.size,
       _this.iconSize,
-      _this.radius,
+      _this.borderRadius,
       _this.backgroundColor,
       _this.foregroundColor,
     );

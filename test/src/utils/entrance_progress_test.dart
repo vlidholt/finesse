@@ -1,4 +1,5 @@
 import 'package:finesse/finesse.dart';
+import 'package:finesse/src/utils/entrance.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -120,22 +121,18 @@ void main() {
     controller.stop();
   });
 
-  test('the entrance for no motion is no effect at all', () {
-    expect(EntranceEffect.forMotion(Motion.none), isEmpty);
-    expect(EntranceEffect.fadeFor(Motion.none), isEmpty);
+  test('the entrance for no motion is instant', () {
+    expect(EntranceSpec.of(Motion.none).isInstant, isTrue);
+    expect(EntranceSpec.fade(Motion.none).isInstant, isTrue);
     // Reduced motion leaves a short fade with nothing else in it.
-    final reduced = EntranceEffect.forMotion(Motion.lively.reduce());
-    final effect = reduced.single as EntranceEffect;
-    expect(effect.duration, Motion.lively.fast);
-    expect(effect.scale, 1);
-    expect(effect.travel, 0);
-    // And equal tokens give the identical lists a theme needs.
+    final reduced = EntranceSpec.of(Motion.lively.reduce());
+    expect(reduced.duration, Motion.lively.fast);
+    expect(reduced.scale, 1);
+    expect(reduced.travel, 0);
+    // And equal tokens give the equal values a theme needs.
     expect(
-      identical(
-        EntranceEffect.fadeFor(Motion.lively),
-        EntranceEffect.fadeFor(Motion.lively.copyWith()),
-      ),
-      isTrue,
+      EntranceSpec.fade(Motion.lively),
+      EntranceSpec.fade(Motion.lively.copyWith()),
     );
   });
 }

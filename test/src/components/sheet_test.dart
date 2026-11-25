@@ -1,2032 +1,1632 @@
 import 'dart:async';
 
-import 'package:finesse/finesse.dart' hide Scaffold;
-import 'package:finesse/material.dart';
-import 'package:flutter/material.dart' hide Dialog, IconButton, ThemeData;
+import 'package:finesse/finesse.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-// Returns the Positioned widget that directly anchors the sheet's close
-// IconButton. find.ancestor yields ancestors nearest-first, so .first
-// is the immediate Positioned parent — the one set by Dialog's
-// `closeIcon.positionedWith(...)`, not an outer layout Positioned.
-Positioned findClosePositioned(WidgetTester tester) {
-  final iconButton = find.descendant(
-    of: find.byType(Sheet),
-    matching: find.byType(IconButton),
-  );
-  final positioned = find.ancestor(
-    of: iconButton,
-    matching: find.byType(Positioned),
-  );
-  return tester.widget<Positioned>(positioned.first);
-}
+import '../../decoration_finders.dart';
+import '../../finesse_harness.dart';
 
-void main() {
-  // Helper method to create a test widget wrapped in FinesseApp and Scaffold
-  Widget createTestWidget(Widget child) {
-    return FinesseApp(
-      builder: (context, child) => FinesseMaterial(child: child!),
-      home: Scaffold(body: child),
-    );
-  }
+/// The page a sheet is opened from: a button, and the context to open with.
+class _Opener extends StatelessWidget {
+  const _Opener({required this.onOpen});
 
-  // Fixes the test view to a known size so the ratio-based expandable
-  // assertions resolve to stable pixel values. Pass [viewPadding] to
-  // simulate safe-area insets (notch / home indicator).
-  void setUpView(
-    WidgetTester tester, {
-    Size size = const Size(800, 1200),
-    FakeViewPadding? viewPadding,
-  }) {
-    tester.view.physicalSize = size;
-    tester.view.devicePixelRatio = 1.0;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-    if (viewPadding != null) {
-      tester.view.viewPadding = viewPadding;
-      addTearDown(tester.view.resetViewPadding);
-    }
-  }
+  final void Function(BuildContext context) onOpen;
 
-  // Helper to wrap a Sheet with the SheetInheritedWidget for a side.
-  Widget sheetWidget({
-    SheetSide side = SheetSide.bottom,
-    bool? expandable,
-    double? initialSize,
-    double? minSize,
-    double? maxSize,
-    bool? snap,
-    List<double>? snapSizes,
-    Duration? snapAnimationDuration,
-    Curve? snapAnimationCurve,
-    Widget? dragHandle,
-    SheetDragHandleBuilder? dragHandleBuilder,
-    double? dragHandleExtent,
-    bool? showDragHandle,
-    double? snapFlingVelocity,
-    ValueChanged<double>? onSizeChanged,
-    SheetController? controller,
-    bool? draggable,
-    bool isScrollControlled = false,
-    double? disabledScrollControlMaxRatio,
-    bool? useSafeArea,
-    VoidCallback? onClosing,
-    Widget? title,
-    Widget? description,
-    List<Widget> actions = const [],
-    Widget? child,
-    EdgeInsetsGeometry? padding,
-    Widget? closeIcon,
-    IconData? closeIconData,
-    Position? closeIconPosition,
-  }) {
-    return FinesseApp(
-      builder: (context, child) => FinesseMaterial(child: child!),
-      home: Scaffold(
-        body: SheetInheritedWidget(
-          side: side,
-          child: Sheet(
-            expandable: expandable,
-            initialSize: initialSize,
-            minSize: minSize,
-            maxSize: maxSize,
-            snap: snap,
-            snapSizes: snapSizes,
-            snapAnimationDuration: snapAnimationDuration,
-            snapAnimationCurve: snapAnimationCurve,
-            snapFlingVelocity: snapFlingVelocity,
-            dragHandle: dragHandle,
-            dragHandleBuilder: dragHandleBuilder,
-            dragHandleExtent: dragHandleExtent,
-            showDragHandle: showDragHandle,
-            onSizeChanged: onSizeChanged,
-            controller: controller,
-            draggable: draggable,
-            isScrollControlled: isScrollControlled,
-            disabledScrollControlMaxRatio: disabledScrollControlMaxRatio,
-            useSafeArea: useSafeArea,
-            onClosing: onClosing,
-            title: title,
-            description: description,
-            actions: actions,
-            padding: padding,
-            closeIcon: closeIcon,
-            closeIconData: closeIconData,
-            closeIconPosition: closeIconPosition,
-            child: child ?? const Text('Sheet Content'),
-          ),
-        ),
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.topLeft,
+      child: Button(
+        onPressed: () => onOpen(context),
+        child: const Text('Open'),
       ),
     );
   }
+}
 
-  // Rich visual content for golden tests so the captured images show
-  // the handle, title, description, body, and actions — not just an
-  // empty sheet.
-  Widget goldenSheetBody() => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          height: 40,
-          decoration: BoxDecoration(
-            color: const Color(0xFFE5E7EB),
-            borderRadius: BorderRadius.circular(6),
-          ),
-          alignment: Alignment.centerLeft,
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: const Text('Alexandru'),
-        ),
-        const SizedBox(height: 12),
-        Container(
-          height: 40,
-          decoration: BoxDecoration(
-            color: const Color(0xFFE5E7EB),
-            borderRadius: BorderRadius.circular(6),
-          ),
-          alignment: Alignment.centerLeft,
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: const Text('nank1ro'),
-        ),
-      ],
-    ),
+const _phone = Size(390, 844);
+const _desktop = Size(1280, 800);
+
+/// The rectangle the sheet's surface is painted in.
+Rect _surface(WidgetTester tester) {
+  final decorated = find.descendant(
+    of: find.byType(Sheet),
+    matching: find.byType(DecoratedBox),
   );
+  return tester.getRect(decorated.first);
+}
 
-  group('Sheet', () {
-    testWidgets('Sheet matches goldens', (tester) async {
-      await tester.pumpWidget(
-        createTestWidget(
-          const SheetInheritedWidget(
-            side: SheetSide.right,
-            child: Sheet(
-              title: Text('Title'),
-              description: Text('Description'),
-              actions: [
-                IconButton(icon: Icon(Icons.cloud_off)),
-              ],
-              child: Text('Child'),
-            ),
-          ),
+Future<void> _open(
+  WidgetTester tester, {
+  required WidgetBuilder builder,
+  FormFactor formFactor = FormFactor.mobile,
+  SheetSide? side,
+  bool dismissible = true,
+  TextDirection textDirection = TextDirection.ltr,
+  ThemeData? theme,
+  void Function(Object? result)? onResult,
+  bool settleAfter = true,
+}) async {
+  await pumpFinesse(
+    tester,
+    _Opener(
+      onOpen: (context) async {
+        final result = await showSheet<Object?>(
+          context: context,
+          side: side,
+          dismissible: dismissible,
+          builder: builder,
+        );
+        onResult?.call(result);
+      },
+    ),
+    formFactor: formFactor,
+    textDirection: textDirection,
+    theme: theme,
+  );
+  await tester.tap(find.text('Open'));
+  if (settleAfter) await tester.pumpAndSettle();
+}
+
+/// Thirty rows: more than any sheet shows at once.
+Widget _rows(ScrollController controller) => ListView.builder(
+  controller: controller,
+  itemCount: 30,
+  itemExtent: 48,
+  itemBuilder: (context, i) => Text('Row $i'),
+);
+
+void main() {
+  group('layout', () {
+    testWidgets('a phone sheet spans the bottom and is as tall as its '
+        'content', (tester) async {
+      await _open(
+        tester,
+        builder: (context) => const Sheet(
+          title: Text('Title'),
+          child: SizedBox(height: 100),
         ),
       );
-
-      await expectLater(
-        find.byType(Sheet),
-        matchesGoldenFile('goldens/sheet.png'),
-      );
-      await tester.pumpAndSettle();
+      final rect = _surface(tester);
+      expect(rect.left, 0);
+      expect(rect.right, _phone.width);
+      expect(rect.bottom, _phone.height);
+      expect(rect.height, greaterThan(100));
+      expect(rect.height, lessThan(300));
     });
 
-    testWidgets('left and right sheets use partial width, not full screen', (
+    testWidgets('a desktop sheet from the bottom is capped and centred', (
       tester,
     ) async {
-      setUpView(tester, size: const Size(800, 600));
-      for (final side in [SheetSide.left, SheetSide.right]) {
-        await tester.pumpWidget(
-          createTestWidget(
-            SheetInheritedWidget(
-              side: side,
-              child: const Sheet(
-                title: Text('Title'),
-                child: Text('Content'),
-              ),
-            ),
+      await _open(
+        tester,
+        formFactor: FormFactor.desktop,
+        builder: (context) => const Sheet(child: SizedBox(height: 100)),
+      );
+      final rect = _surface(tester);
+      expect(rect.width, 640);
+      expect(rect.center.dx, _desktop.width / 2);
+      expect(rect.bottom, _desktop.height);
+    });
+
+    testWidgets('a sheet from a side is full height and three quarters of a '
+        'narrow page, 384 at most', (tester) async {
+      await _open(
+        tester,
+        side: SheetSide.left,
+        builder: (context) => const Sheet(child: Text('Side')),
+      );
+      var rect = _surface(tester);
+      expect(rect.left, 0);
+      expect(rect.top, 0);
+      expect(rect.height, _phone.height);
+      expect(rect.width, moreOrLessEquals(_phone.width * .75));
+
+      await tester.pumpWidget(const SizedBox.shrink());
+      await _open(
+        tester,
+        formFactor: FormFactor.desktop,
+        side: SheetSide.right,
+        builder: (context) => const Sheet(child: Text('Side')),
+      );
+      rect = _surface(tester);
+      expect(rect.right, _desktop.width);
+      expect(rect.width, 384);
+      expect(rect.height, _desktop.height);
+    });
+
+    for (final direction in TextDirection.values) {
+      testWidgets('start and end follow the text direction ($direction)', (
+        tester,
+      ) async {
+        final ltr = direction == TextDirection.ltr;
+        await _open(
+          tester,
+          side: SheetSide.start,
+          textDirection: direction,
+          builder: (context) => const Sheet(child: Text('Side')),
+        );
+        var rect = _surface(tester);
+        expect(ltr ? rect.left : rect.right, ltr ? 0 : _phone.width);
+
+        await tester.pumpWidget(const SizedBox.shrink());
+        await _open(
+          tester,
+          side: SheetSide.end,
+          textDirection: direction,
+          builder: (context) => const Sheet(child: Text('Side')),
+        );
+        rect = _surface(tester);
+        expect(ltr ? rect.right : rect.left, ltr ? _phone.width : 0);
+      });
+    }
+
+    test('SheetSide.resolve leaves the physical sides alone', () {
+      for (final side in [
+        SheetSide.top,
+        SheetSide.bottom,
+        SheetSide.left,
+        SheetSide.right,
+      ]) {
+        expect(side.resolve(TextDirection.rtl), side);
+      }
+      expect(SheetSide.start.resolve(TextDirection.ltr), SheetSide.left);
+      expect(SheetSide.start.resolve(TextDirection.rtl), SheetSide.right);
+      expect(SheetSide.end.resolve(TextDirection.ltr), SheetSide.right);
+      expect(SheetSide.end.resolve(TextDirection.rtl), SheetSide.left);
+    });
+
+    testWidgets('constraints set the width of a side sheet', (tester) async {
+      await _open(
+        tester,
+        side: SheetSide.right,
+        builder: (context) => const Sheet(
+          style: SheetTheme(constraints: BoxConstraints.tightFor(width: 288)),
+          child: Text('Side'),
+        ),
+      );
+      expect(_surface(tester).width, 288);
+    });
+
+    testWidgets('each detent is measured against the room', (tester) async {
+      Future<double> heightAt(SheetDetent detent) async {
+        await tester.pumpWidget(const SizedBox.shrink());
+        await _open(
+          tester,
+          builder: (context) => Sheet(
+            detents: [detent],
+            child: const Text('Content'),
           ),
         );
-        await tester.pumpAndSettle();
-
-        final constrainedBoxFinder = find.descendant(
-          of: find.byType(Sheet),
-          matching: find.byType(ConstrainedBox),
-        );
-        final constrainedBox = tester.widget<ConstrainedBox>(
-          constrainedBoxFinder.first,
-        );
-        expect(
-          constrainedBox.constraints.maxWidth,
-          384,
-          reason: '$side sheet max width',
-        );
-        expect(
-          constrainedBox.constraints.minHeight,
-          600,
-          reason: '$side sheet min height',
-        );
-
-        final dialog = tester.renderObject<RenderBox>(
-          constrainedBoxFinder.first,
-        );
-        expect(
-          dialog.size.width,
-          lessThanOrEqualTo(384),
-          reason: '$side sheet layout width',
-        );
-        expect(dialog.size.height, 600, reason: '$side sheet layout height');
+        return _surface(tester).height;
       }
+
+      expect(await heightAt(SheetDetent.medium), _phone.height / 2);
+      expect(
+        await heightAt(const SheetDetent.fraction(.25)),
+        _phone.height / 4,
+      );
+      expect(await heightAt(const SheetDetent.height(320)), 320);
+      expect(await heightAt(SheetDetent.full), _phone.height);
+      // A strip of the page stays visible above a large sheet.
+      final large = await heightAt(SheetDetent.large);
+      expect(large, lessThan(_phone.height - 30));
+      expect(large, greaterThan(_phone.height - 80));
+      // Never more than there is.
+      expect(await heightAt(const SheetDetent.height(5000)), _phone.height);
+    });
+
+    testWidgets('initialDetent picks where it opens', (tester) async {
+      await _open(
+        tester,
+        builder: (context) => const Sheet(
+          detents: [SheetDetent.medium, SheetDetent.full],
+          initialDetent: SheetDetent.full,
+          child: Text('Content'),
+        ),
+      );
+      expect(_surface(tester).height, _phone.height);
+    });
+
+    testWidgets('content taller than the room scrolls, under a strip of the '
+        'page', (tester) async {
+      await _open(
+        tester,
+        builder: (context) => const Sheet(child: SizedBox(height: 3000)),
+      );
+      final rect = _surface(tester);
+      expect(rect.top, greaterThan(30));
+      expect(rect.bottom, _phone.height);
+      expect(find.byType(SingleChildScrollView), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('unbounded constraints are reported with a hint', (
+      tester,
+    ) async {
+      await pumpFinesse(
+        tester,
+        const SingleChildScrollView(child: Sheet(child: Text('Lost'))),
+      );
+      final error = tester.takeException();
+      expect(error, isFlutterError);
+      expect('$error', contains('unbounded'));
+    });
+
+    testWidgets('the content keeps clear of the home indicator, and of the '
+        'status bar at full height', (tester) async {
+      tester.view.padding = const FakeViewPadding(top: 47, bottom: 34);
+      tester.view.viewPadding = const FakeViewPadding(top: 47, bottom: 34);
+      await _open(
+        tester,
+        builder: (context) => const Sheet(
+          style: SheetTheme(padding: EdgeInsets.zero),
+          showCloseButton: false,
+          showDragHandle: false,
+          detents: [SheetDetent.medium, SheetDetent.full],
+          scrollable: false,
+          child: ColoredBox(
+            key: ValueKey('content'),
+            color: Color(0xff00ff00),
+            child: SizedBox.expand(),
+          ),
+        ),
+      );
+      var content = tester.getRect(find.byKey(const ValueKey('content')));
+      var surface = _surface(tester);
+      expect(surface.bottom, _phone.height);
+      expect(
+        content.bottom,
+        moreOrLessEquals(_phone.height - 34, epsilon: 1.5),
+      );
+      // At half height the status bar is far away.
+      expect(content.top, moreOrLessEquals(surface.top, epsilon: 1.5));
+
+      final sheet = tester.widget<Sheet>(find.byType(Sheet));
+      expect(sheet.detents, hasLength(2));
+      await tester.fling(
+        find.byKey(const ValueKey('content')),
+        const Offset(0, -300),
+        2000,
+      );
+      await tester.pumpAndSettle();
+      surface = _surface(tester);
+      content = tester.getRect(find.byKey(const ValueKey('content')));
+      expect(surface.top, 0);
+      expect(content.top, moreOrLessEquals(47, epsilon: 1.5));
     });
   });
 
-  group('Sheet expandable', () {
-    // Goldens use the tolerant comparator from test/flutter_test_config.dart.
+  group('haptics', () {
+    late List<String> calls;
 
-    // No resize handle unless expandable is explicitly true (false and the
-    // null default both omit it).
-    for (final expandable in [false, null]) {
-      testWidgets('no resize handle when expandable is $expandable', (
+    setUp(() {
+      calls = [];
+      Haptics.debugEnabledInTests = true;
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(SystemChannels.platform, (call) async {
+            if (call.method == 'HapticFeedback.vibrate') {
+              calls.add('${call.arguments}');
+            }
+            return null;
+          });
+    });
+
+    tearDown(() {
+      Haptics.debugEnabledInTests = false;
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(SystemChannels.platform, null);
+    });
+
+    Widget sheet(BuildContext context) => const Sheet(
+      style: SheetTheme(padding: EdgeInsets.zero),
+      showCloseButton: false,
+      detents: [SheetDetent.medium, SheetDetent.full],
+      scrollable: false,
+      // Opaque, so the sheet's own recognizer hears the drag.
+      child: ColoredBox(
+        key: ValueKey('content'),
+        color: Color(0xff00ff00),
+        child: SizedBox.expand(),
+      ),
+    );
+
+    testWidgets('a finger that moves a sheet to another detent ticks once '
+        'through Haptics', (tester) async {
+      await _open(tester, builder: sheet);
+      final top = _surface(tester).top;
+      await tester.timedDrag(
+        find.byKey(const ValueKey('content')),
+        const Offset(0, -300),
+        const Duration(milliseconds: 400),
+      );
+      await tester.pumpAndSettle();
+      expect(_surface(tester).top, lessThan(top));
+      // A browser has no haptics to give.
+      expect(calls, kIsWeb ? isEmpty : ['HapticFeedbackType.selectionClick']);
+    });
+
+    testWidgets('ThemeData(haptics: false) keeps the detent silent', (
+      tester,
+    ) async {
+      await _open(
         tester,
-      ) async {
-        await tester.pumpWidget(sheetWidget(expandable: expandable));
-        await tester.pump();
-        expect(find.byType(SheetResizeHandle), findsNothing);
-      });
-    }
-
-    testWidgets('expandable=true renders at initialSize fraction of screen', (
-      tester,
-    ) async {
-      setUpView(tester);
-
-      await tester.pumpWidget(
-        sheetWidget(
-          expandable: true,
-          initialSize: 0.5,
-        ),
+        builder: sheet,
+        theme: ThemeData(haptics: false),
       );
-      await tester.pump();
-
-      // initialSize sizes the FULL composite (handle + dialog content),
-      // so dialog alone is ~600 - handleHeight.
-      final dialogHeight = tester.getSize(find.byType(Dialog)).height;
-      final handleHeight = tester
-          .getSize(find.byType(SheetResizeHandle))
-          .height;
-      expect(dialogHeight + handleHeight, closeTo(600, 2.0));
-    });
-
-    testWidgets('drag up on bottom sheet increases size, clamped at maxSize', (
-      tester,
-    ) async {
-      setUpView(tester);
-
-      final controller = SheetController();
-      addTearDown(controller.dispose);
-
-      await tester.pumpWidget(
-        sheetWidget(
-          expandable: true,
-          initialSize: 0.5,
-          minSize: 0.25,
-          maxSize: 0.9,
-          controller: controller,
-        ),
+      await tester.timedDrag(
+        find.byKey(const ValueKey('content')),
+        const Offset(0, -300),
+        const Duration(milliseconds: 400),
       );
-      await tester.pump();
-
-      expect(controller.size, closeTo(0.5, 0.01));
-
-      // Drag handle upward by 300px on a 1200px screen = 0.25 ratio increase
-      final handleFinder = find.byType(SheetResizeHandle);
-      expect(handleFinder, findsOneWidget);
-
-      await tester.drag(handleFinder, const Offset(0, -300));
-      await tester.pump();
-
-      // Size should increase (drag up = grow for bottom sheet)
-      expect(controller.size, greaterThan(0.5));
-      expect(controller.size, lessThanOrEqualTo(0.9));
-
-      // Drag further to exceed maxSize — should clamp at maxSize
-      await tester.drag(handleFinder, const Offset(0, -1200));
-      await tester.pump();
-      expect(controller.size, closeTo(0.9, 0.01));
+      await tester.pumpAndSettle();
+      expect(calls, isEmpty);
     });
+  });
 
-    testWidgets(
-      'drag down past minSize clamps at minSize, sheet stays visible',
-      (tester) async {
-        setUpView(tester);
-
-        final controller = SheetController();
-        addTearDown(controller.dispose);
-
-        await tester.pumpWidget(
-          sheetWidget(
-            expandable: true,
-            initialSize: 0.5,
-            minSize: 0.25,
-            maxSize: 0.9,
-            controller: controller,
-          ),
-        );
-        await tester.pump();
-
-        final handleFinder = find.byType(SheetResizeHandle);
-
-        // Drag way down (shrink direction for bottom sheet)
-        await tester.drag(handleFinder, const Offset(0, 1200));
-        await tester.pump();
-
-        // Should clamp at minSize, not dismiss
-        expect(controller.size, closeTo(0.25, 0.01));
-        // Sheet should still be visible
-        expect(find.byType(Sheet), findsOneWidget);
-      },
-    );
-
-    for (final side in SheetSide.values) {
-      testWidgets('drag grow direction increases size for side=$side', (
+  group('modal', () {
+    testWidgets('pops with a value', (tester) async {
+      Object? result = 'unset';
+      await _open(
         tester,
-      ) async {
-        setUpView(tester);
-
-        final controller = SheetController();
-        addTearDown(controller.dispose);
-
-        await tester.pumpWidget(
-          sheetWidget(
-            side: side,
-            expandable: true,
-            initialSize: 0.5,
-            minSize: 0.25,
-            maxSize: 0.9,
-            controller: controller,
+        onResult: (value) => result = value,
+        builder: (context) => Sheet(
+          child: Button(
+            onPressed: () => Navigator.of(context).pop('picked'),
+            child: const Text('Pick'),
           ),
-        );
-        await tester.pump();
-
-        final handleFinder = find.byType(SheetResizeHandle);
-        expect(handleFinder, findsOneWidget);
-        final initialSize = controller.size;
-
-        // grow direction: bottom=up, top=down, left=right, right=left
-        final growOffset = switch (side) {
-          SheetSide.bottom => const Offset(0, -200),
-          SheetSide.top => const Offset(0, 200),
-          SheetSide.left => const Offset(200, 0),
-          SheetSide.right => const Offset(-200, 0),
-        };
-
-        await tester.drag(handleFinder, growOffset);
-        await tester.pump();
-
-        expect(controller.size, greaterThan(initialSize));
-        final sizeAfterGrow = controller.size;
-
-        // shrink direction should reduce size
-        final shrinkOffset = Offset(-growOffset.dx * 2, -growOffset.dy * 2);
-        await tester.drag(handleFinder, shrinkOffset);
-        await tester.pump();
-
-        expect(controller.size, lessThan(sizeAfterGrow));
-      });
-    }
-
-    testWidgets('snap=true snaps to nearest stop on release', (tester) async {
-      setUpView(tester);
-
-      final controller = SheetController();
-      addTearDown(controller.dispose);
-      // Seed the caller-owned controller before mount; initSizeController
-      // deliberately does NOT override external controllers with
-      // widget.initialSize, so the sheet inherits whatever size the
-      // controller already holds.
-      controller.jumpTo(0.3);
-
-      await tester.pumpWidget(
-        sheetWidget(
-          expandable: true,
-          initialSize: 0.3,
-          minSize: 0.3,
-          maxSize: 0.9,
-          snap: true,
-          snapSizes: [0.3, 0.6, 0.9],
-          snapAnimationDuration: const Duration(milliseconds: 200),
-          controller: controller,
         ),
       );
-      await tester.pump();
-
-      final handleFinder = find.byType(SheetResizeHandle);
-
-      // Drag 1: to between 0.3 and 0.6 stop (≈ 0.42) → snap to 0.3.
-      // From 0.3, +0.12 ratio (144px up on a 1200-tall view).
-      await tester.drag(handleFinder, const Offset(0, -144));
-      await tester.pump();
+      await tester.tap(find.text('Pick'));
       await tester.pumpAndSettle();
-      expect(controller.size, closeTo(0.3, 0.05));
+      expect(result, 'picked');
+      expect(find.byType(Sheet), findsNothing);
+    });
 
-      // Drag 2: from ~0.3 by +0.2 ratio → ~0.5, nearest stop is 0.6.
-      await tester.drag(handleFinder, const Offset(0, -240));
-      await tester.pump();
+    testWidgets('a tap on the barrier and Escape close a dismissible sheet', (
+      tester,
+    ) async {
+      await _open(
+        tester,
+        builder: (context) => const Sheet(child: Text('Content')),
+      );
+      await tester.tapAt(const Offset(200, 100));
       await tester.pumpAndSettle();
-      expect(controller.size, closeTo(0.6, 0.05));
-    });
+      expect(find.byType(Sheet), findsNothing);
 
-    testWidgets(
-      'snap=true with null snapSizes defaults to [min, initial, max]',
-      (tester) async {
-        setUpView(tester);
-
-        final controller = SheetController();
-        addTearDown(controller.dispose);
-
-        await tester.pumpWidget(
-          sheetWidget(
-            expandable: true,
-            initialSize: 0.5,
-            minSize: 0.25,
-            maxSize: 1,
-            snap: true,
-            // snapSizes intentionally null
-            snapAnimationDuration: const Duration(milliseconds: 100),
-            controller: controller,
-          ),
-        );
-        await tester.pump();
-
-        final handleFinder = find.byType(SheetResizeHandle);
-
-        // Drag to ≈ 0.6, nearest to 0.5 (initialSize) or 1.0 (maxSize)?
-        // 0.6 - 0.5 = 0.1 vs 1.0 - 0.6 = 0.4 → snap to 0.5
-        // 0.6 * 1200 = 720; drag from 0.5 (600px) up by 120px
-        await tester.drag(handleFinder, const Offset(0, -120));
-        await tester.pump();
-        await tester.pumpAndSettle();
-
-        // 0.6 is closest to 0.5 (diff 0.1) vs 0.25 (0.35) vs 1.0 (0.4);
-        // snap must land on the initialSize stop.
-        expect(controller.size, closeTo(0.5, 0.05));
-      },
-    );
-
-    testWidgets('custom dragHandle widget is rendered', (tester) async {
-      const handleKey = ValueKey('custom-handle');
-      await tester.pumpWidget(
-        sheetWidget(
-          expandable: true,
-          dragHandle: const SizedBox(key: handleKey, width: 40, height: 8),
-        ),
-      );
-      await tester.pump();
-
-      expect(find.byKey(handleKey), findsOneWidget);
-    });
-
-    testWidgets('onSizeChanged fires on size change', (tester) async {
-      setUpView(tester);
-
-      final sizeChanges = <double>[];
-
-      await tester.pumpWidget(
-        sheetWidget(
-          expandable: true,
-          initialSize: 0.5,
-          onSizeChanged: sizeChanges.add,
-        ),
-      );
-      await tester.pump();
-
-      final handleFinder = find.byType(SheetResizeHandle);
-      await tester.drag(handleFinder, const Offset(0, -100));
-      await tester.pump();
-
-      expect(sizeChanges, isNotEmpty);
-      expect(sizeChanges.last, greaterThan(0.5));
-    });
-
-    testWidgets('SheetController.animateTo animates to target size', (
-      tester,
-    ) async {
-      final controller = SheetController();
-      addTearDown(controller.dispose);
-
-      await tester.pumpWidget(
-        sheetWidget(
-          expandable: true,
-          initialSize: 0.5,
-          minSize: 0.25,
-          maxSize: 1,
-          controller: controller,
-        ),
-      );
-      await tester.pump();
-
-      expect(controller.size, closeTo(0.5, 0.01));
-
-      // Animate to 0.8
-      unawaited(
-        controller.animateTo(
-          0.8,
-          duration: const Duration(milliseconds: 200),
-        ),
-      );
+      await tester.tap(find.text('Open'));
       await tester.pumpAndSettle();
-
-      expect(controller.size, closeTo(0.8, 0.01));
+      expect(find.byType(Sheet), findsOneWidget);
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      expect(find.byType(Sheet), findsNothing);
     });
 
-    testWidgets('SheetController.jumpTo is immediate', (tester) async {
-      final controller = SheetController();
-      addTearDown(controller.dispose);
-
-      await tester.pumpWidget(
-        sheetWidget(
-          expandable: true,
-          initialSize: 0.5,
-          minSize: 0.25,
-          maxSize: 1,
-          controller: controller,
+    testWidgets('dismissible: false keeps it through a barrier tap and a '
+        'drag', (tester) async {
+      await _open(
+        tester,
+        dismissible: false,
+        builder: (context) => const Sheet(
+          title: Text('Stay'),
+          child: SizedBox(height: 200),
         ),
       );
-      await tester.pump();
+      await tester.tapAt(const Offset(200, 100));
+      await tester.pumpAndSettle();
+      expect(find.byType(Sheet), findsOneWidget);
 
-      controller.jumpTo(0.4);
-      // No pumpAndSettle — should be immediate
-      expect(controller.size, closeTo(0.4, 0.01));
+      // It gives a little under the finger and comes back.
+      final resting = tester.getTopLeft(find.text('Stay')).dy;
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.text('Stay')),
+      );
+      await gesture.moveBy(const Offset(0, 30));
+      await gesture.moveBy(const Offset(0, 200));
+      await tester.pump();
+      final pulled = tester.getTopLeft(find.text('Stay')).dy;
+      expect(pulled, greaterThan(resting + 5));
+      expect(pulled, lessThan(resting + 120));
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(find.byType(Sheet), findsOneWidget);
+      expect(tester.getTopLeft(find.text('Stay')).dy, resting);
     });
 
-    testWidgets(
-      'draggable and expandable can coexist: handle resizes, body can dismiss',
-      (tester) async {
-        setUpView(tester);
-
-        final controller = SheetController();
-        addTearDown(controller.dispose);
-        var closingCalls = 0;
-
-        await tester.pumpWidget(
-          sheetWidget(
-            expandable: true,
-            draggable: true,
-            initialSize: 0.5,
-            minSize: 0.25,
-            maxSize: 0.9,
-            controller: controller,
-            onClosing: () => closingCalls++,
-          ),
-        );
-        await tester.pump();
-
-        // Handle drag should resize (increase size).
-        final handleFinder = find.byType(SheetResizeHandle);
-        expect(handleFinder, findsOneWidget);
-
-        await tester.drag(handleFinder, const Offset(0, -200));
-        await tester.pump();
-        expect(controller.size, greaterThan(0.5));
-        expect(closingCalls, 0);
-
-        // Body drag with sufficient fling velocity must dismiss the sheet
-        // (triggers onClosing). Fling from the lower half of the fill area so
-        // the drag origin is clear of the resize handle and bodyDragStrip
-        // at the top edge (which would route to resize, not dismiss).
-        final fillRect = tester.getRect(
-          find.byKey(const ValueKey('finesse_sheet_expandable_fill')),
-        );
-        final flingOrigin = fillRect.center + const Offset(0, 100);
-        await tester.flingFrom(flingOrigin, const Offset(0, 600), 2000);
-        await tester.pumpAndSettle();
-        expect(closingCalls, greaterThanOrEqualTo(1));
-      },
-    );
-
-    testWidgets(
-      'expandable=true bypasses 9/16 cap even when isScrollControlled=false',
-      (tester) async {
-        setUpView(tester);
-
-        await tester.pumpWidget(
-          sheetWidget(
-            expandable: true,
-            initialSize: 0.95,
-            minSize: 0.25,
-            maxSize: 0.95,
-          ),
-        );
-        await tester.pump();
-
-        // 0.95 * 1200 = 1140, which exceeds the 9/16 * 1200 ≈ 675 cap.
-        // If cap is bypassed, the dialog (which excludes the handle in
-        // expandable mode) should still read well above the cap.
-        final dialogHeight = tester.getSize(find.byType(Dialog)).height;
-        expect(dialogHeight, greaterThan(900));
-      },
-    );
-
-    // Tests 14-17: expandable=true + draggable=false must anchor sheet to
-    // the configured side (regression for issue where sheet rendered at
-    // top-left instead of the expected side). For each side also assert the
-    // opposite-edge coordinate is inside the viewport to prove the sheet is
-    // partial-size (initialSize=0.5) and has not degenerated to fullscreen.
-    for (final side in SheetSide.values) {
-      testWidgets(
-        'expandable+draggable=false: sheet anchors to side=$side',
-        (tester) async {
-          setUpView(tester);
-
-          await tester.pumpWidget(
-            sheetWidget(
-              side: side,
-              expandable: true,
-              draggable: false,
-              initialSize: 0.5,
-            ),
-          );
-          await tester.pump();
-
-          final topLeft = tester.getTopLeft(find.byType(Dialog));
-          final bottomRight = tester.getBottomRight(find.byType(Dialog));
-
-          switch (side) {
-            case SheetSide.bottom:
-              expect(bottomRight.dy, closeTo(1200, 1.0));
-              expect(topLeft.dy, greaterThan(0));
-            case SheetSide.top:
-              expect(topLeft.dy, closeTo(0, 1.0));
-              expect(bottomRight.dy, lessThan(1200));
-            case SheetSide.left:
-              expect(topLeft.dx, closeTo(0, 1.0));
-              expect(bottomRight.dx, lessThan(800));
-            case SheetSide.right:
-              expect(bottomRight.dx, closeTo(800, 1.0));
-              expect(topLeft.dx, greaterThan(0));
-          }
-        },
+    testWidgets('has a close button, which the theme and the widget can '
+        'take away', (tester) async {
+      await _open(
+        tester,
+        builder: (context) => const Sheet(title: Text('Title')),
       );
-    }
+      final close = find.bySemanticsLabel('Close');
+      expect(close, findsOneWidget);
+      // In the top end corner.
+      expect(tester.getCenter(close).dx, greaterThan(_phone.width - 60));
+      await tester.tap(close);
+      await tester.pumpAndSettle();
+      expect(find.byType(Sheet), findsNothing);
 
-    // Tests 18-19: mobile touch-target ergonomics for the default drag
-    // handle. Apple HIG requires ≥ 44x44 hit area; the default handle
-    // needs to meet this on both vertical and horizontal sides, and the
-    // GestureDetector must use opaque hit-testing so the entire padded
-    // row absorbs touches (not only the visible pill).
-    testWidgets(
-      'default drag handle meets 44px minimum touch target on bottom sheet',
-      (tester) async {
-        setUpView(tester);
+      await tester.pumpWidget(const SizedBox.shrink());
+      await _open(
+        tester,
+        builder: (context) =>
+            const Sheet(title: Text('Title'), showCloseButton: false),
+      );
+      expect(find.bySemanticsLabel('Close'), findsNothing);
 
-        await tester.pumpWidget(sheetWidget(expandable: true));
-        await tester.pump();
+      await tester.pumpWidget(const SizedBox.shrink());
+      await _open(
+        tester,
+        theme: ThemeData(
+          sheetTheme: const SheetTheme(showCloseButton: false),
+        ),
+        builder: (context) => const Sheet(title: Text('Title')),
+      );
+      expect(find.bySemanticsLabel('Close'), findsNothing);
+    });
 
-        final handleSize = tester.getSize(
-          find.byType(SheetResizeHandle),
-        );
-        expect(handleSize.height, greaterThanOrEqualTo(44));
-      },
-    );
-
-    testWidgets(
-      'default drag handle meets 44px minimum touch target on left sheet',
-      (tester) async {
-        setUpView(tester, size: const Size(1200, 800));
-
-        await tester.pumpWidget(
-          sheetWidget(side: SheetSide.left, expandable: true),
-        );
-        await tester.pump();
-
-        final handleSize = tester.getSize(
-          find.byType(SheetResizeHandle),
-        );
-        expect(handleSize.width, greaterThanOrEqualTo(44));
-      },
-    );
-
-    // Dragging from the padded edge of the handle (well away from
-    // the 4px pill) must register — proves HitTestBehavior.opaque is set on
-    // the GestureDetector.
-    testWidgets('drag from handle padding edge registers (opaque hit test)', (
+    testWidgets('the close button is on the left in a right-to-left app', (
       tester,
     ) async {
-      setUpView(tester);
-
-      final controller = SheetController();
-      addTearDown(controller.dispose);
-
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = _phone;
+      addTearDown(tester.view.reset);
+      late BuildContext opener;
       await tester.pumpWidget(
-        sheetWidget(
-          expandable: true,
-          initialSize: 0.4,
-          minSize: 0.2,
-          maxSize: 0.8,
-          controller: controller,
-        ),
-      );
-      await tester.pump();
-
-      final handleFinder = find.byType(SheetResizeHandle);
-      final handleRect = tester.getRect(handleFinder);
-      // Start 1px below the top edge of the handle — inside the padding
-      // but far from the center pill. Without opaque hit-testing this
-      // point would fall through to whatever is behind.
-      final edgeStart = Offset(handleRect.center.dx, handleRect.top + 1);
-
-      await tester.dragFrom(edgeStart, const Offset(0, -200));
-      await tester.pump();
-
-      expect(controller.size, greaterThan(0.4));
-    });
-
-    // Tests 21-24: default drag handle pill should sit visually close to
-    // the sheet body. For a bottom sheet the pill should be closer to the
-    // bottom edge of the handle strip (adjacent to the sheet) than to
-    // the top edge (outer). Same logic mirrored per side.
-    for (final side in SheetSide.values) {
-      testWidgets(
-        'default drag pill sits near sheet body for side=$side',
-        (tester) async {
-          final isVertical = side == SheetSide.bottom || side == SheetSide.top;
-          tester.view.physicalSize = isVertical
-              ? const Size(800, 1200)
-              : const Size(1200, 800);
-          tester.view.devicePixelRatio = 1.0;
-          addTearDown(tester.view.resetPhysicalSize);
-          addTearDown(tester.view.resetDevicePixelRatio);
-
-          await tester.pumpWidget(
-            sheetWidget(side: side, expandable: true),
-          );
-          await tester.pump();
-
-          final handleRect = tester.getRect(
-            find.byType(SheetResizeHandle),
-          );
-          final pillRect = tester.getRect(
-            find.byKey(const ValueKey('finesse_sheet_drag_pill')),
-          );
-
-          // Upper bound guards against silent drift back toward a
-          // (nearly) symmetric 20/20 gap — the asymmetry must remain
-          // pronounced enough to read as "pill tucked next to sheet".
-          const maxSheetAdjacentGap = 16.0;
-          switch (side) {
-            case SheetSide.bottom:
-              final sheetAdjacent = handleRect.bottom - pillRect.bottom;
-              expect(sheetAdjacent, lessThan(pillRect.top - handleRect.top));
-              expect(sheetAdjacent, lessThanOrEqualTo(maxSheetAdjacentGap));
-            case SheetSide.top:
-              final sheetAdjacent = pillRect.top - handleRect.top;
-              expect(
-                sheetAdjacent,
-                lessThan(handleRect.bottom - pillRect.bottom),
-              );
-              expect(sheetAdjacent, lessThanOrEqualTo(maxSheetAdjacentGap));
-            case SheetSide.left:
-              final sheetAdjacent = pillRect.left - handleRect.left;
-              expect(
-                sheetAdjacent,
-                lessThan(handleRect.right - pillRect.right),
-              );
-              expect(sheetAdjacent, lessThanOrEqualTo(maxSheetAdjacentGap));
-            case SheetSide.right:
-              final sheetAdjacent = handleRect.right - pillRect.right;
-              expect(sheetAdjacent, lessThan(pillRect.left - handleRect.left));
-              expect(sheetAdjacent, lessThanOrEqualTo(maxSheetAdjacentGap));
-          }
-        },
-      );
-    }
-
-    testWidgets('SheetController.jumpTo clamps out-of-range values', (
-      tester,
-    ) async {
-      final controller = SheetController();
-      addTearDown(controller.dispose);
-
-      await tester.pumpWidget(
-        sheetWidget(expandable: true, controller: controller),
-      );
-      await tester.pump();
-
-      controller.jumpTo(1.8);
-      expect(controller.size, 1.0);
-
-      controller.jumpTo(-0.5);
-      expect(controller.size, 0.0);
-    });
-
-    // SheetController.animateTo clamps to [0, 1] and
-    // actually animates (not jumpTo fallback). We trigger a snap drag
-    // first so the sheet wires up an AnimationController on the
-    // controller, then animateTo exercises the animated-clamp path.
-    testWidgets(
-      'SheetController.animateTo clamps out-of-range target',
-      (tester) async {
-        setUpView(tester);
-
-        final controller = SheetController();
-        addTearDown(controller.dispose);
-
-        await tester.pumpWidget(
-          sheetWidget(
-            expandable: true,
-            initialSize: 0.5,
-            snap: true,
-            snapAnimationDuration: const Duration(milliseconds: 50),
-            controller: controller,
+        FinesseApp(
+          formFactor: FormFactor.mobile,
+          builder: (context, child) => Directionality(
+            textDirection: TextDirection.rtl,
+            child: child!,
           ),
-        );
-        await tester.pump();
-
-        // Trigger a drag-end so the sheet wires snapController into
-        // `controller._animationController`.
-        await tester.drag(
-          find.byType(SheetResizeHandle),
-          const Offset(0, -20),
-        );
-        await tester.pumpAndSettle();
-
-        // Fire-and-forget: awaiting the future would deadlock because it
-        // completes only when the AnimationController ticks, which
-        // requires pumping frames.
-        unawaited(
-          controller.animateTo(2, duration: const Duration(milliseconds: 50)),
-        );
-        await tester.pumpAndSettle();
-        expect(controller.size, 1.0);
-      },
-    );
-
-    // DidUpdateWidget must NOT mutate a caller-owned controller
-    // when `initialSize` changes on the widget.
-    testWidgets('external controller not mutated on initialSize change', (
-      tester,
-    ) async {
-      final controller = SheetController();
-      addTearDown(controller.dispose);
-      controller.jumpTo(0.3);
-
-      await tester.pumpWidget(
-        sheetWidget(
-          expandable: true,
-          initialSize: 0.3,
-          controller: controller,
-        ),
-      );
-      await tester.pump();
-
-      // Rebuild with a different initialSize. The external controller's
-      // size must remain untouched.
-      await tester.pumpWidget(
-        sheetWidget(
-          expandable: true,
-          initialSize: 0.7,
-          controller: controller,
-        ),
-      );
-      await tester.pump();
-
-      expect(controller.size, closeTo(0.3, 1e-9));
-    });
-
-    // Composite (resize handle + sheet body) must fit within
-    // the size ratio; the handle footprint should not cause overflow.
-    testWidgets(
-      'composite height equals size * screenDim (handle fits inside)',
-      (tester) async {
-        setUpView(tester);
-
-        await tester.pumpWidget(
-          sheetWidget(
-            expandable: true,
-            initialSize: 0.5,
-            minSize: 0.25,
-            maxSize: 1,
-          ),
-        );
-        await tester.pump();
-
-        final handleHeight = tester
-            .getSize(find.byType(SheetResizeHandle))
-            .height;
-        final dialogHeight = tester.getSize(find.byType(Dialog)).height;
-        // Screen = 1200; initialSize 0.5 → expected composite 600.
-        expect(
-          handleHeight + dialogHeight,
-          closeTo(600, 1.0),
-        );
-      },
-    );
-
-    // Themed initialSize is honoured when the widget does not
-    // override it and no external controller is supplied.
-    testWidgets(
-      'themed initialSize seeds the owned controller',
-      (tester) async {
-        setUpView(tester);
-
-        await tester.pumpWidget(
-          FinesseApp(
-            builder: (context, child) => FinesseMaterial(child: child!),
-            theme: ThemeData(
-              brightness: Brightness.light,
-              colorScheme: const ZincColorScheme.light(),
-              sheetTheme: const SheetTheme(initialSize: 0.8),
-            ),
-            home: const Scaffold(
-              body: SheetInheritedWidget(
-                side: SheetSide.bottom,
-                child: Sheet(
-                  expandable: true,
-                  child: Text('content'),
-                ),
-              ),
-            ),
-          ),
-        );
-        await tester.pump();
-
-        final handleHeight = tester
-            .getSize(find.byType(SheetResizeHandle))
-            .height;
-        final dialogHeight = tester.getSize(find.byType(Dialog)).height;
-        // 0.8 * 1200 = 960.
-        expect(handleHeight + dialogHeight, closeTo(960, 1.0));
-      },
-    );
-
-    // A caller-supplied controller is the single source of
-    // truth for size — widget.initialSize and themed initialSize must
-    // both be ignored on mount.
-    testWidgets(
-      'external controller size wins over widget + themed initialSize',
-      (tester) async {
-        final controller = SheetController();
-        addTearDown(controller.dispose);
-        controller.jumpTo(0.3);
-
-        await tester.pumpWidget(
-          FinesseApp(
-            builder: (context, child) => FinesseMaterial(child: child!),
-            theme: ThemeData(
-              brightness: Brightness.light,
-              colorScheme: const ZincColorScheme.light(),
-              sheetTheme: const SheetTheme(initialSize: 0.2),
-            ),
-            home: Scaffold(
-              body: SheetInheritedWidget(
-                side: SheetSide.bottom,
-                child: Sheet(
-                  expandable: true,
-                  initialSize: 0.7,
-                  controller: controller,
-                  child: const Text('content'),
-                ),
-              ),
-            ),
-          ),
-        );
-        await tester.pump();
-
-        expect(controller.size, closeTo(0.3, 1e-9));
-      },
-    );
-
-    test('Sheet constructor rejects minSize > maxSize', () {
-      expect(
-        () => Sheet(
-          minSize: 0.8,
-          maxSize: 0.2,
-          child: const Text('x'),
-        ),
-        throwsAssertionError,
-      );
-    });
-
-    // Dragging the sheet's body-edge (not the pill) resizes the
-    // sheet. Addresses the UX feedback that users naturally grab the top
-    // of the sheet, not the small pill.
-    testWidgets(
-      'drag on sheet body-edge strip resizes (dragHandleExtent > 0)',
-      (tester) async {
-        setUpView(tester);
-
-        final controller = SheetController();
-        addTearDown(controller.dispose);
-
-        await tester.pumpWidget(
-          sheetWidget(
-            expandable: true,
-            initialSize: 0.5,
-            minSize: 0.25,
-            maxSize: 0.9,
-            controller: controller,
-          ),
-        );
-        await tester.pump();
-
-        // Drag deep INSIDE the dialog (well below the pill handle) —
-        // the body-edge overlay strip should still grab the drag.
-        final dialogCenterTop =
-            tester.getTopLeft(find.byType(Dialog)) + const Offset(400, 20);
-        await tester.dragFrom(dialogCenterTop, const Offset(0, -200));
-        await tester.pump();
-
-        expect(controller.size, greaterThan(0.5));
-      },
-    );
-
-    // DragHandleBuilder wins over dragHandle and the default
-    // pill; it also receives the current sheet side.
-    testWidgets(
-      'dragHandleBuilder is invoked with the current side and its '
-      'widget is used',
-      (tester) async {
-        SheetSide? capturedSide;
-        await tester.pumpWidget(
-          sheetWidget(
-            side: SheetSide.left,
-            expandable: true,
-            // Non-null `dragHandle` to prove the builder takes precedence.
-            dragHandle: const SizedBox(
-              key: ValueKey('unused_static_handle'),
-            ),
-            dragHandleBuilder: (context, side) {
-              capturedSide = side;
-              return const SizedBox(key: ValueKey('built_handle'));
+          home: Builder(
+            builder: (context) {
+              opener = context;
+              return const SizedBox.expand();
             },
           ),
-        );
-        await tester.pump();
+        ),
+      );
+      unawaited(
+        showSheet<void>(
+          context: opener,
+          builder: (context) => const Sheet(title: Text('Title')),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final close = find.bySemanticsLabel('Close');
+      expect(tester.getCenter(close).dx, lessThan(60));
+      // And the title starts at the right.
+      expect(
+        tester.getTopRight(find.text('Title')).dx,
+        greaterThan(_phone.width - 60),
+      );
+    });
 
-        expect(capturedSide, SheetSide.left);
-        expect(find.byKey(const ValueKey('built_handle')), findsOneWidget);
-        expect(
-          find.byKey(const ValueKey('unused_static_handle')),
-          findsNothing,
-        );
-      },
-    );
+    testWidgets('names its route with the title, or the label', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await _open(
+        tester,
+        builder: (context) => const Sheet(title: Text('Share')),
+      );
+      expect(
+        tester.getSemantics(find.text('Share')),
+        isSemantics(namesRoute: true, isHeader: true, label: 'Share'),
+      );
 
-    // `dragHandleExtent: 0` disables the body-edge strip so only
-    // the pill drags. Protects the opt-out path.
-    testWidgets(
-      'dragHandleExtent:0 leaves body drag to dismiss/scroll',
-      (tester) async {
-        setUpView(tester);
+      await tester.pumpWidget(const SizedBox.shrink());
+      await _open(
+        tester,
+        builder: (context) => const Sheet(
+          title: Text('Share'),
+          semanticLabel: 'Share this post',
+        ),
+      );
+      expect(find.bySemanticsLabel('Share this post'), findsOneWidget);
+      expect(
+        tester.getSemantics(find.text('Share')),
+        isSemantics(isHeader: true, label: 'Share'),
+      );
+      handle.dispose();
+    });
 
-        final controller = SheetController();
-        addTearDown(controller.dispose);
-
-        await tester.pumpWidget(
-          sheetWidget(
-            expandable: true,
-            initialSize: 0.5,
-            minSize: 0.25,
-            maxSize: 0.9,
-            dragHandleExtent: 0,
-            controller: controller,
-          ),
-        );
-        await tester.pump();
-
-        final dialogCenterTop =
-            tester.getTopLeft(find.byType(Dialog)) + const Offset(400, 20);
-        await tester.dragFrom(dialogCenterTop, const Offset(0, -200));
-        await tester.pump();
-
-        // No resize: body drag without the strip does not move the
-        // controller.
-        expect(controller.size, closeTo(0.5, 0.01));
-      },
-    );
-
-    // Expandable sheets split safe-area handling across two layers:
-    // anchor-and-side insets are merged into the dialog's content
-    // padding (so content doesn't sit under the home indicator / side
-    // notches), and the free-edge inset is applied as outer padding
-    // around the whole composite at full size — so the resize handle
-    // stays reachable below the notch / Dynamic Island. The DecoratedBox
-    // wraps both layers so the sheet still paints behind the notch.
-    // Originally fix for issue #655 comment 4296947019; revisited for
-    // comment 4366282508 where users couldn't grab the handle at full.
-    testWidgets(
-      'expandable sheet keeps dialog padding stable across sizes',
-      (tester) async {
-        setUpView(tester, viewPadding: const FakeViewPadding(top: 40));
-
-        final controller = SheetController();
-        addTearDown(controller.dispose);
-
-        await tester.pumpWidget(
-          sheetWidget(
-            expandable: true,
-            initialSize: 0.5,
-            maxSize: 1,
-            controller: controller,
-            useSafeArea: true,
-          ),
-        );
-        await tester.pump();
-
-        EdgeInsets dialogPadding() {
-          final p = tester.widget<Dialog>(find.byType(Dialog)).padding;
-          return p?.resolve(TextDirection.ltr) ?? EdgeInsets.zero;
-        }
-
-        final halfPad = dialogPadding();
-        controller.jumpTo(1);
-        await tester.pump();
-        final fullPad = dialogPadding();
-
-        // Free-edge top inset is now applied at the composite outer
-        // (not merged into dialog padding), so the dialog padding does
-        // not change between sizes for a bottom sheet.
-        expect(fullPad, equals(halfPad));
-      },
-    );
-
-    testWidgets(
-      'expandable bottom sheet pushes resize handle below safe-area at full',
-      (tester) async {
-        setUpView(tester, viewPadding: const FakeViewPadding(top: 40));
-
-        final controller = SheetController();
-        addTearDown(controller.dispose);
-
-        await tester.pumpWidget(
-          sheetWidget(
-            expandable: true,
-            initialSize: 0.5,
-            maxSize: 1,
-            controller: controller,
-            useSafeArea: true,
-          ),
-        );
-        await tester.pump();
-        controller.jumpTo(1);
-        await tester.pump();
-
-        // Composite spans the whole screen at full size; the resize
-        // handle must sit at y == viewPadding.top so the user can reach
-        // it past the notch / Dynamic Island.
-        final handleTop = tester.getTopLeft(find.byType(SheetResizeHandle)).dy;
-        expect(handleTop, closeTo(40, 0.01));
-      },
-    );
-
-    testWidgets(
-      'expandable sheet does not touch composite outer size with SafeArea',
-      (tester) async {
-        setUpView(tester, viewPadding: const FakeViewPadding(top: 40));
-
-        await tester.pumpWidget(
-          sheetWidget(
-            expandable: true,
-            initialSize: 0.5,
-            useSafeArea: true,
-          ),
-        );
-        await tester.pump();
-
-        // No SafeArea widgets INSIDE the sheet (safe-area merged into
-        // dialog padding instead).
-        expect(
-          find.descendant(
-            of: find.byType(Sheet),
-            matching: find.byType(SafeArea),
-          ),
-          findsNothing,
-        );
-      },
-    );
-
-    testWidgets(
-      'expandable useSafeArea:false does not merge safe-area padding',
-      (tester) async {
-        setUpView(tester, viewPadding: const FakeViewPadding(top: 40));
-
-        final controller = SheetController();
-        addTearDown(controller.dispose);
-
-        await tester.pumpWidget(
-          sheetWidget(
-            expandable: true,
-            initialSize: 0.5,
-            maxSize: 1,
-            controller: controller,
-            useSafeArea: false,
-          ),
-        );
-        await tester.pump();
-
-        EdgeInsets dialogPadding() {
-          final p = tester.widget<Dialog>(find.byType(Dialog)).padding;
-          return p?.resolve(TextDirection.ltr) ?? EdgeInsets.zero;
-        }
-
-        final halfPad = dialogPadding();
-        controller.jumpTo(1);
-        await tester.pump();
-        final fullPad = dialogPadding();
-
-        // Padding never gets the safe-area bump when useSafeArea is false.
-        expect(fullPad, equals(halfPad));
-      },
-    );
-
-    // The expandable path inserts a `PrimaryScrollController
-    // .none` directly above its Dialog so the dialog's internal
-    // SingleChildScrollView cannot share a controller with a caller-
-    // provided Scrollable. Sharing triggered the "ScrollController
-    // attached to more than one ScrollPosition" assertion during snap
-    // animations (issue #655 comment 4296947019).
-    testWidgets(
-      'expandable wraps Dialog in PrimaryScrollController.none',
-      (tester) async {
-        await tester.pumpWidget(
-          sheetWidget(expandable: true, initialSize: 0.5),
-        );
-        await tester.pump();
-
-        final ancestors = find.ancestor(
-          of: find.byType(Dialog),
-          matching: find.byWidgetPredicate(
-            (w) => w is PrimaryScrollController && w.controller == null,
-          ),
-        );
-        expect(
-          ancestors,
-          findsWidgets,
-          reason:
-              'expected at least one PrimaryScrollController(null) '
-              'ancestor of Dialog',
-        );
-
-        // Verify the wrapper is inside the sheet (i.e. our isolation
-        // was added by Sheet, not just ambient framework plumbing).
-        final sheetScoped = find.descendant(
+    testWidgets('holds the focus and gives it back', (tester) async {
+      await _open(
+        tester,
+        builder: (context) => Sheet(
+          child: Button(onPressed: () {}, child: const Text('Inside')),
+        ),
+      );
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      final focused = FocusManager.instance.primaryFocus!.context!;
+      expect(
+        find.descendant(
           of: find.byType(Sheet),
-          matching: find.byWidgetPredicate(
-            (w) => w is PrimaryScrollController && w.controller == null,
-          ),
-        );
-        expect(sheetScoped, findsWidgets);
-      },
-    );
+          matching: find.byWidget(focused.widget),
+        ),
+        findsOneWidget,
+      );
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      expect(find.byType(Sheet), findsNothing);
+    });
 
-    // Golden: bottom sheet at initialSize=0.5
-    testWidgets('golden: expandable bottom sheet at initial size', (
+    testWidgets('actions stack full width on a phone, first at the bottom, '
+        'and sit in a row at the end on a desktop', (tester) async {
+      Widget sheet(BuildContext context) => Sheet(
+        title: const Text('Title'),
+        actions: [
+          Button.outline(onPressed: () {}, child: const Text('Cancel')),
+          Button(onPressed: () {}, child: const Text('Save')),
+        ],
+      );
+      await _open(tester, builder: sheet);
+      var cancel = tester.getRect(find.widgetWithText(Button, 'Cancel'));
+      var save = tester.getRect(find.widgetWithText(Button, 'Save'));
+      expect(cancel.width, save.width);
+      expect(cancel.width, greaterThan(300));
+      expect(cancel.top, greaterThan(save.bottom));
+
+      await tester.pumpWidget(const SizedBox.shrink());
+      await _open(tester, formFactor: FormFactor.desktop, builder: sheet);
+      cancel = tester.getRect(find.widgetWithText(Button, 'Cancel'));
+      save = tester.getRect(find.widgetWithText(Button, 'Save'));
+      expect(cancel.top, save.top);
+      expect(cancel.right, lessThan(save.left));
+      expect(save.right, greaterThan(_surface(tester).right - 40));
+    });
+
+    testWidgets('a side sheet pins its actions to the bottom', (tester) async {
+      await _open(
+        tester,
+        formFactor: FormFactor.desktop,
+        side: SheetSide.end,
+        builder: (context) => Sheet(
+          title: const Text('Title'),
+          actions: [Button(onPressed: () {}, child: const Text('Save'))],
+          child: const Text('Short'),
+        ),
+      );
+      final save = tester.getRect(find.widgetWithText(Button, 'Save'));
+      expect(save.bottom, greaterThan(_desktop.height - 40));
+    });
+
+    testWidgets('nothing overflows at twice the text size', (tester) async {
+      await pumpFinesse(
+        tester,
+        MediaQuery.withClampedTextScaling(
+          minScaleFactor: 2,
+          maxScaleFactor: 2,
+          child: Builder(
+            builder: (context) => _Opener(
+              onOpen: (context) => showSheet<void>(
+                context: context,
+                builder: (context) => MediaQuery.withClampedTextScaling(
+                  minScaleFactor: 2,
+                  maxScaleFactor: 2,
+                  child: Sheet(
+                    title: const Text('A longer title than usual'),
+                    description: const Text(
+                      'A description that takes more than one line of the '
+                      'sheet at this size.',
+                    ),
+                    actions: [
+                      Button.outline(
+                        onPressed: () {},
+                        child: const Text('Cancel'),
+                      ),
+                      Button(
+                        onPressed: () {},
+                        child: const Text('Save changes'),
+                      ),
+                    ],
+                    child: const TextField(placeholder: Text('Name')),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        formFactor: FormFactor.mobile,
+      );
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.text('Save changes'), findsOneWidget);
+    });
+  });
+
+  group('motion', () {
+    testWidgets('slides in from its edge without overshooting, and out '
+        'again', (tester) async {
+      await _open(
+        tester,
+        settleAfter: false,
+        builder: (context) => const Sheet(
+          title: Text('Title'),
+          child: SizedBox(height: 200),
+        ),
+      );
+      final title = find.text('Title');
+      await tester.pump();
+      final tops = <double>[];
+      for (var i = 0; i < 40; i++) {
+        tops.add(tester.getTopLeft(title).dy);
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      await tester.pumpAndSettle();
+      final resting = tester.getTopLeft(title).dy;
+      // It starts below the screen's edge region and only ever moves up.
+      expect(tops.first, greaterThan(resting + 100));
+      for (var i = 1; i < tops.length; i++) {
+        expect(tops[i], lessThanOrEqualTo(tops[i - 1] + .01));
+        expect(tops[i], greaterThanOrEqualTo(resting - .01));
+      }
+
+      await tester.tapAt(const Offset(200, 50));
+      await tester.pump();
+      final leaving = <double>[];
+      for (var i = 0; i < 30 && title.evaluate().isNotEmpty; i++) {
+        leaving.add(tester.getTopLeft(title).dy);
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      expect(leaving.length, greaterThan(3));
+      for (var i = 1; i < leaving.length; i++) {
+        expect(leaving[i], greaterThanOrEqualTo(leaving[i - 1] - .01));
+      }
+      await tester.pumpAndSettle();
+      expect(find.byType(Sheet), findsNothing);
+    });
+
+    testWidgets('sliding in, out and under a finger builds nothing', (
       tester,
     ) async {
-      setUpView(tester);
-
-      await tester.pumpWidget(
-        sheetWidget(
-          expandable: true,
-          initialSize: 0.5,
-          title: const Text('Edit profile'),
-          description: const Text('Make changes to your profile here.'),
-          actions: const [Button(child: Text('Save'))],
-          child: goldenSheetBody(),
+      var builds = 0;
+      var frames = 0;
+      await _open(
+        tester,
+        settleAfter: false,
+        builder: (context) => Sheet(
+          title: const Text('Title'),
+          child: Builder(
+            builder: (context) {
+              builds++;
+              return const SizedBox(height: 200);
+            },
+          ),
         ),
       );
       await tester.pump();
+      final element = tester.element(find.byType(Sheet));
+      // Anything under the sheet that is rebuilt would mark its element.
+      void countDirty(Element e) {
+        if (e.dirty) frames++;
+        e.visitChildren(countDirty);
+      }
 
-      await expectLater(
-        find.byType(Sheet),
-        matchesGoldenFile('goldens/sheet_expandable_bottom_initial.png'),
+      for (var i = 0; i < 20; i++) {
+        await tester.pump(const Duration(milliseconds: 16));
+        countDirty(element);
+      }
+      await tester.pumpAndSettle();
+      expect(builds, 1);
+
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.text('Title')),
       );
+      await gesture.moveBy(const Offset(0, 30));
+      for (var i = 0; i < 10; i++) {
+        await gesture.moveBy(const Offset(0, 8));
+        countDirty(element);
+        await tester.pump();
+      }
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(builds, 1);
+      expect(frames, 0);
     });
 
-    // Golden: bottom sheet dragged to maxSize
-    testWidgets('golden: expandable bottom sheet at maxSize', (tester) async {
-      setUpView(tester);
+    testWidgets('with reduced motion it fades in place', (tester) async {
+      tester.platformDispatcher.accessibilityFeaturesTestValue =
+          const FakeAccessibilityFeatures(disableAnimations: true);
+      addTearDown(
+        tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+      );
+      await _open(
+        tester,
+        settleAfter: false,
+        builder: (context) => const Sheet(
+          title: Text('Title'),
+          child: SizedBox(height: 200),
+        ),
+      );
+      await tester.pump();
+      final first = tester.getTopLeft(find.text('Title')).dy;
+      await tester.pump(const Duration(milliseconds: 30));
+      final fade = tester.widget<FadeTransition>(
+        find
+            .descendant(
+              of: find.byType(Sheet),
+              matching: find.byType(FadeTransition),
+            )
+            .first,
+      );
+      expect(fade.opacity.value, inExclusiveRange(0, 1));
+      await tester.pumpAndSettle();
+      expect(tester.getTopLeft(find.text('Title')).dy, first);
+      expect(fade.opacity.value, 1);
+    });
 
+    testWidgets('with no motion it is there at once', (tester) async {
+      await _open(
+        tester,
+        theme: ThemeData(motion: Motion.none),
+        settleAfter: false,
+        builder: (context) => const Sheet(
+          title: Text('Title'),
+          child: SizedBox(height: 200),
+        ),
+      );
+      await tester.pump();
+      final first = _surface(tester);
+      expect(first.bottom, _phone.height);
+      await tester.pumpAndSettle();
+      expect(_surface(tester), first);
+    });
+  });
+
+  group('dragging', () {
+    Widget sheet(BuildContext context) => const Sheet(
+      title: Text('Title'),
+      child: SizedBox(height: 300),
+    );
+
+    testWidgets('follows the finger, lightens the barrier, and comes back '
+        'from a short pull', (tester) async {
+      await _open(tester, builder: sheet);
+      final route = ModalRoute.of(tester.element(find.byType(Sheet)))!;
+      final resting = tester.getTopLeft(find.text('Title')).dy;
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.text('Title')),
+      );
+      await gesture.moveBy(const Offset(0, 30));
+      await gesture.moveBy(const Offset(0, 60));
+      await tester.pump();
+      expect(tester.getTopLeft(find.text('Title')).dy, resting + 60);
+      expect(route.animation!.value, lessThan(1));
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(find.byType(Sheet), findsOneWidget);
+      expect(tester.getTopLeft(find.text('Title')).dy, resting);
+      expect(route.animation!.value, 1);
+    });
+
+    testWidgets('a pull past half way closes it', (tester) async {
+      await _open(tester, builder: sheet);
+      final height = _surface(tester).height;
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.text('Title')),
+      );
+      await gesture.moveBy(const Offset(0, 30));
+      await gesture.moveBy(Offset(0, height * .6));
+      await tester.pump();
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(find.byType(Sheet), findsNothing);
+    });
+
+    testWidgets('a fling closes it from anywhere', (tester) async {
+      await _open(tester, builder: sheet);
+      await tester.fling(find.text('Title'), const Offset(0, 80), 1500);
+      await tester.pumpAndSettle();
+      expect(find.byType(Sheet), findsNothing);
+    });
+
+    testWidgets('a PopScope that refuses sends it back up', (tester) async {
+      await _open(
+        tester,
+        builder: (context) => const PopScope(
+          canPop: false,
+          child: Sheet(title: Text('Title'), child: SizedBox(height: 300)),
+        ),
+      );
+      final resting = tester.getTopLeft(find.text('Title')).dy;
+      await tester.fling(find.text('Title'), const Offset(0, 120), 1500);
+      await tester.pumpAndSettle();
+      expect(find.byType(Sheet), findsOneWidget);
+      expect(tester.getTopLeft(find.text('Title')).dy, resting);
+    });
+
+    testWidgets('a mouse drags it by the handle only, unless draggable is '
+        'true', (tester) async {
+      await _open(tester, builder: sheet);
+      final resting = tester.getTopLeft(find.text('Title')).dy;
+      var gesture = await tester.startGesture(
+        tester.getCenter(find.text('Title')),
+        kind: PointerDeviceKind.mouse,
+      );
+      await gesture.moveBy(const Offset(0, 30));
+      await gesture.moveBy(const Offset(0, 60));
+      await tester.pump();
+      expect(tester.getTopLeft(find.text('Title')).dy, resting);
+      await gesture.up();
+      await tester.pumpAndSettle();
+
+      await tester.pumpWidget(const SizedBox.shrink());
+      await _open(
+        tester,
+        builder: (context) => const Sheet(
+          draggable: true,
+          title: Text('Title'),
+          child: SizedBox(height: 300),
+        ),
+      );
+      gesture = await tester.startGesture(
+        tester.getCenter(find.text('Title')),
+        kind: PointerDeviceKind.mouse,
+      );
+      await gesture.moveBy(const Offset(0, 30));
+      await gesture.moveBy(const Offset(0, 60));
+      await tester.pump();
+      expect(tester.getTopLeft(find.text('Title')).dy, resting + 60);
+      await gesture.up();
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('draggable: false holds it still and hides the handle', (
+      tester,
+    ) async {
+      await _open(
+        tester,
+        builder: (context) => const Sheet(
+          draggable: false,
+          title: Text('Title'),
+          child: SizedBox(height: 300),
+        ),
+      );
+      expect(find.bySemanticsLabel('Resize'), findsNothing);
+      final resting = tester.getTopLeft(find.text('Title')).dy;
+      await tester.fling(find.text('Title'), const Offset(0, 200), 1500);
+      await tester.pumpAndSettle();
+      expect(find.byType(Sheet), findsOneWidget);
+      expect(tester.getTopLeft(find.text('Title')).dy, resting);
+    });
+
+    testWidgets('a side sheet is swiped back to its edge', (tester) async {
+      await _open(
+        tester,
+        side: SheetSide.left,
+        builder: (context) => const Sheet(title: Text('Title')),
+      );
+      await tester.fling(find.text('Title'), const Offset(-80, 0), 1500);
+      await tester.pumpAndSettle();
+      expect(find.byType(Sheet), findsNothing);
+    });
+  });
+
+  group('detents', () {
+    const detents = [SheetDetent.medium, SheetDetent.large];
+
+    testWidgets('a drag moves it to the nearest detent and reports it', (
+      tester,
+    ) async {
+      final changes = <SheetDetent>[];
+      await _open(
+        tester,
+        builder: (context) => Sheet(
+          detents: detents,
+          onDetentChanged: changes.add,
+          title: const Text('Title'),
+          child: const Text('Content'),
+        ),
+      );
+      expect(_surface(tester).height, _phone.height / 2);
+
+      // Most of the way up: it goes on to large.
+      var gesture = await tester.startGesture(
+        tester.getCenter(find.text('Title')),
+      );
+      await gesture.moveBy(const Offset(0, -30));
+      await gesture.moveBy(const Offset(0, -300));
+      await tester.pump();
+      expect(_surface(tester).height, _phone.height / 2 + 300);
+      await gesture.up();
+      await tester.pumpAndSettle();
+      final large = _surface(tester).height;
+      expect(large, greaterThan(_phone.height - 80));
+      expect(changes, [SheetDetent.large]);
+
+      // A little way down: it comes back.
+      gesture = await tester.startGesture(
+        tester.getCenter(find.text('Title')),
+      );
+      await gesture.moveBy(const Offset(0, 30));
+      await gesture.moveBy(const Offset(0, 40));
+      await tester.pump();
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(_surface(tester).height, large);
+      expect(changes, [SheetDetent.large]);
+
+      // A fling down: one detent, not out.
+      await tester.fling(find.text('Title'), const Offset(0, 60), 1500);
+      await tester.pumpAndSettle();
+      expect(find.byType(Sheet), findsOneWidget);
+      expect(_surface(tester).height, _phone.height / 2);
+      expect(changes, [SheetDetent.large, SheetDetent.medium]);
+    });
+
+    testWidgets('settles without overshooting and pumpAndSettle returns', (
+      tester,
+    ) async {
       final controller = SheetController();
       addTearDown(controller.dispose);
-
-      await tester.pumpWidget(
-        sheetWidget(
-          expandable: true,
-          initialSize: 0.5,
-          maxSize: 0.9,
+      await _open(
+        tester,
+        builder: (context) => Sheet(
           controller: controller,
-          title: const Text('Edit profile'),
-          description: const Text('Make changes to your profile here.'),
-          actions: const [Button(child: Text('Save'))],
-          child: goldenSheetBody(),
+          detents: detents,
+          child: const Text('Content'),
         ),
       );
+      controller.animateTo(SheetDetent.large);
       await tester.pump();
-      controller.jumpTo(0.9);
-      await tester.pump();
-
-      await expectLater(
-        find.byType(Sheet),
-        matchesGoldenFile('goldens/sheet_expandable_bottom_expanded.png'),
-      );
+      final heights = <double>[];
+      for (var i = 0; i < 40; i++) {
+        heights.add(_surface(tester).height);
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      await tester.pumpAndSettle();
+      final large = _surface(tester).height;
+      for (var i = 1; i < heights.length; i++) {
+        expect(heights[i], greaterThanOrEqualTo(heights[i - 1] - .01));
+        expect(heights[i], lessThanOrEqualTo(large + .5));
+      }
+      expect(heights.first, lessThan(large));
     });
 
-    // Golden: top sheet
-    testWidgets('golden: expandable top sheet', (tester) async {
-      setUpView(tester);
-
-      await tester.pumpWidget(
-        sheetWidget(
-          side: SheetSide.top,
-          expandable: true,
-          initialSize: 0.5,
-          title: const Text('Notifications'),
-          description: const Text('Manage your alerts.'),
-          actions: const [Button(child: Text('Done'))],
-          child: goldenSheetBody(),
-        ),
-      );
-      await tester.pump();
-
-      await expectLater(
-        find.byType(Sheet),
-        matchesGoldenFile('goldens/sheet_expandable_top.png'),
-      );
-    });
-
-    // Golden: left sheet
-    testWidgets('golden: expandable left sheet', (tester) async {
-      setUpView(tester);
-
-      await tester.pumpWidget(
-        sheetWidget(
-          side: SheetSide.left,
-          expandable: true,
-          initialSize: 0.5,
-          title: const Text('Navigation'),
-          description: const Text('Jump anywhere.'),
-          actions: const [Button(child: Text('Close'))],
-          child: goldenSheetBody(),
-        ),
-      );
-      await tester.pump();
-
-      await expectLater(
-        find.byType(Sheet),
-        matchesGoldenFile('goldens/sheet_expandable_left.png'),
-      );
-    });
-
-    // Golden: right sheet
-    testWidgets('golden: expandable right sheet', (tester) async {
-      setUpView(tester);
-
-      await tester.pumpWidget(
-        sheetWidget(
-          side: SheetSide.right,
-          expandable: true,
-          initialSize: 0.5,
-          title: const Text('Filters'),
-          description: const Text('Refine the list.'),
-          actions: const [Button(child: Text('Apply'))],
-          child: goldenSheetBody(),
-        ),
-      );
-      await tester.pump();
-
-      await expectLater(
-        find.byType(Sheet),
-        matchesGoldenFile('goldens/sheet_expandable_right.png'),
-      );
-    });
-
-    // Expandable decoration fills the entire composite (pill +
-    // dialog) so the sheet background paints behind the resize handle
-    // too — matching iOS/Material bottom-sheet visuals where the pill
-    // sits on the sheet's surface, not floating against the modal
-    // barrier.
-    testWidgets('expandable decoration fills composite on bottom', (
+    testWidgets('SheetController moves, jumps, reports and closes', (
       tester,
     ) async {
-      setUpView(tester);
-
-      await tester.pumpWidget(
-        sheetWidget(expandable: true, initialSize: 0.5),
-      );
-      await tester.pump();
-
-      final fillFinder = find.byKey(
-        const ValueKey('finesse_sheet_expandable_fill'),
-      );
-      expect(fillFinder, findsOneWidget);
-
-      final handleRect = tester.getRect(find.byType(SheetResizeHandle));
-      final fillRect = tester.getRect(fillFinder);
-
-      // Fill must contain the pill: pill is now inside the decoration.
-      expect(fillRect.top, lessThanOrEqualTo(handleRect.top + 0.01));
-      expect(fillRect.bottom, greaterThanOrEqualTo(handleRect.bottom - 0.01));
-      // Fill bottom must reach the viewport bottom.
-      expect(fillRect.bottom, closeTo(1200, 1.0));
-      // Fill width must span the full viewport.
-      expect(fillRect.width, closeTo(800, 1.0));
-      // Fill height equals size * screenDim at half size.
-      expect(fillRect.height, closeTo(600, 1.0));
-    });
-
-    for (final side in SheetSide.values) {
-      testWidgets(
-        'expandable decoration fills composite for side=$side',
-        (tester) async {
-          final isVertical = side == SheetSide.bottom || side == SheetSide.top;
-          final physicalSize = isVertical
-              ? const Size(800, 1200)
-              : const Size(1200, 800);
-          tester.view.physicalSize = physicalSize;
-          tester.view.devicePixelRatio = 1.0;
-          addTearDown(tester.view.resetPhysicalSize);
-          addTearDown(tester.view.resetDevicePixelRatio);
-
-          await tester.pumpWidget(
-            sheetWidget(side: side, expandable: true, initialSize: 0.5),
-          );
-          await tester.pump();
-
-          final fillFinder = find.byKey(
-            const ValueKey('finesse_sheet_expandable_fill'),
-          );
-          expect(fillFinder, findsOneWidget);
-
-          final handleRect = tester.getRect(find.byType(SheetResizeHandle));
-          final fillRect = tester.getRect(fillFinder);
-          final vw = physicalSize.width;
-          final vh = physicalSize.height;
-
-          // Fill always contains the pill — the decoration wraps the whole
-          // composite (pill + dialog).
-          expect(fillRect.top, lessThanOrEqualTo(handleRect.top + 0.01));
-          expect(
-            fillRect.bottom,
-            greaterThanOrEqualTo(handleRect.bottom - 0.01),
-          );
-          expect(fillRect.left, lessThanOrEqualTo(handleRect.left + 0.01));
-          expect(
-            fillRect.right,
-            greaterThanOrEqualTo(handleRect.right - 0.01),
-          );
-
-          // At the anchor edge the fill must reach the viewport edge.
-          switch (side) {
-            case SheetSide.bottom:
-              expect(fillRect.bottom, closeTo(vh, 1.0));
-            case SheetSide.top:
-              expect(fillRect.top, closeTo(0, 1.0));
-            case SheetSide.left:
-              expect(fillRect.left, closeTo(0, 1.0));
-            case SheetSide.right:
-              expect(fillRect.right, closeTo(vw, 1.0));
-          }
-        },
-      );
-    }
-
-    testWidgets('expandable pill stays adjacent to sheet after drag', (
-      tester,
-    ) async {
-      setUpView(tester);
-
-      await tester.pumpWidget(
-        sheetWidget(expandable: true, initialSize: 0.5, minSize: 0.25),
-      );
-      await tester.pump();
-
-      // Drag the pill up by 200px.
-      await tester.drag(
-        find.byType(SheetResizeHandle),
-        const Offset(0, -200),
-      );
-      await tester.pump();
-
-      final fillFinder = find.byKey(
-        const ValueKey('finesse_sheet_expandable_fill'),
-      );
-      expect(fillFinder, findsOneWidget);
-
-      final handleRect = tester.getRect(find.byType(SheetResizeHandle));
-      final fillRect = tester.getRect(fillFinder);
-
-      // After drag, the pill must still be inside the fill area.
-      expect(fillRect.top, closeTo(handleRect.top, 1.0));
-    });
-
-    testWidgets('non-expandable path has no fill key', (tester) async {
-      await tester.pumpWidget(sheetWidget(expandable: false));
-      await tester.pump();
-
-      expect(
-        find.byKey(const ValueKey('finesse_sheet_expandable_fill')),
-        findsNothing,
-      );
-    });
-
-    testWidgets('expandable + draggable: fill box contains the pill', (
-      tester,
-    ) async {
-      setUpView(tester);
-
-      await tester.pumpWidget(
-        sheetWidget(expandable: true, draggable: true, initialSize: 0.5),
-      );
-      await tester.pump();
-
-      final fillFinder = find.byKey(
-        const ValueKey('finesse_sheet_expandable_fill'),
-      );
-      expect(fillFinder, findsOneWidget);
-
-      final handleRect = tester.getRect(find.byType(SheetResizeHandle));
-      final fillRect = tester.getRect(fillFinder);
-
-      // Fill must contain the pill — decoration wraps the whole composite.
-      expect(fillRect.top, lessThanOrEqualTo(handleRect.top + 0.01));
-      expect(fillRect.bottom, greaterThanOrEqualTo(handleRect.bottom - 0.01));
-      // Fill bottom must reach the viewport bottom.
-      expect(fillRect.bottom, closeTo(1200, 1.0));
-
-      // The sheet content must be anchored near the top of the fill area
-      // (topCenter alignment), not drifting to the bottom (bottomCenter).
-      // With the wrong alignment the text sits near fillRect.bottom;
-      // with the correct alignment it sits near fillRect.top.
-      final contentRect = tester.getRect(find.text('Sheet Content'));
-      final distanceFromTop = (contentRect.top - fillRect.top).abs();
-      final distanceFromBottom = (fillRect.bottom - contentRect.bottom).abs();
-      expect(
-        distanceFromTop,
-        lessThan(distanceFromBottom),
-        reason:
-            'Sheet content should be anchored near the top of the fill area '
-            '(topCenter), not the bottom (bottomCenter).',
-      );
-    });
-
-    testWidgets(
-      'expandable keeps default 24 content padding when widget.padding is null',
-      (tester) async {
-        setUpView(tester);
-
-        await tester.pumpWidget(
-          sheetWidget(
-            expandable: true,
-            initialSize: 0.5,
-          ),
-        );
-        await tester.pump();
-
-        final dialog = tester.widget<Dialog>(find.byType(Dialog));
-        final padding = dialog.padding! as EdgeInsets;
-        // Safe-area is zero in test env, so merged padding == dialog default.
-        expect(padding.left, 24.0);
-        expect(padding.right, 24.0);
-      },
-    );
-
-    testWidgets(
-      'expandable explicit padding overrides the 24 default',
-      (tester) async {
-        setUpView(tester);
-
-        await tester.pumpWidget(
-          sheetWidget(
-            expandable: true,
-            initialSize: 0.5,
-            padding: const EdgeInsets.symmetric(horizontal: 40),
-          ),
-        );
-        await tester.pump();
-
-        final dialog = tester.widget<Dialog>(find.byType(Dialog));
-        final padding = dialog.padding! as EdgeInsets;
-        // Explicit 40px wins; must not be 40+24=64.
-        expect(padding.left, 40.0);
-        expect(padding.right, 40.0);
-      },
-    );
-
-    // Tests for close icon safe-area handling (issue #655 comments
-    // 4301645380 and 4366282508). With composite-outer safe-area, the
-    // dialog already sits below the free-edge notch at full size, so
-    // the close icon's `top` Positioned offset stays at its raw value
-    // — only side-edge insets (left/right) still bump additively.
-    testWidgets(
-      'expandable sheet keeps default close icon top at raw value at full',
-      (tester) async {
-        setUpView(tester, viewPadding: const FakeViewPadding(top: 40));
-
-        final controller = SheetController();
-        addTearDown(controller.dispose);
-
-        await tester.pumpWidget(
-          sheetWidget(
-            expandable: true,
-            initialSize: 0.5,
-            maxSize: 1,
-            controller: controller,
-            useSafeArea: true,
-            closeIconData: PhosphorIconsRegular.x,
-          ),
-        );
-        await tester.pump();
-
-        // At partial size: raw 8 (bottom sheet doesn't touch top edge).
-        expect(findClosePositioned(tester).top, 8);
-
-        controller.jumpTo(1);
-        await tester.pump();
-
-        // At full size: still 8. The composite is pushed down by
-        // viewPadding.top, so the icon lands below the notch in screen
-        // space without needing a Positioned bump.
-        expect(findClosePositioned(tester).top, 8);
-        // Verify it's actually rendered below the notch in absolute coords.
-        final iconTop = tester
-            .getTopLeft(find.byIcon(PhosphorIconsRegular.x))
-            .dy;
-        expect(iconTop, greaterThanOrEqualTo(40));
-      },
-    );
-
-    testWidgets(
-      'expandable sheet still bumps close icon by side-edge inset at full',
-      (tester) async {
-        setUpView(
-          tester,
-          viewPadding: const FakeViewPadding(top: 40, right: 10),
-        );
-
-        final controller = SheetController();
-        addTearDown(controller.dispose);
-
-        await tester.pumpWidget(
-          sheetWidget(
-            expandable: true,
-            maxSize: 1,
-            controller: controller,
-            useSafeArea: true,
-            closeIconData: PhosphorIconsRegular.x,
-            closeIconPosition: const Position(top: 16, right: 16),
-          ),
-        );
-        await tester.pump();
-        controller.jumpTo(1);
-        await tester.pump();
-
-        // top: free edge — no bump (handled by composite outer instead).
-        // right: side edge — still bumped additively (16 + 10 = 26).
-        final positioned = findClosePositioned(tester);
-        expect(positioned.top, 16);
-        expect(positioned.right, 26);
-      },
-    );
-
-    testWidgets(
-      'non-expandable sheet does not explicitly bump close icon position',
-      (tester) async {
-        setUpView(tester, viewPadding: const FakeViewPadding(top: 40));
-
-        await tester.pumpWidget(
-          sheetWidget(
-            closeIconData: PhosphorIconsRegular.x,
-          ),
-        );
-        await tester.pump();
-
-        // SafeArea inside Dialog shifts the whole stack; Positioned
-        // stays at 8.
-        expect(findClosePositioned(tester).top, 8);
-      },
-    );
-
-    testWidgets(
-      'expandable with useSafeArea:false does not bump close icon',
-      (tester) async {
-        setUpView(tester, viewPadding: const FakeViewPadding(top: 40));
-
-        final controller = SheetController();
-        addTearDown(controller.dispose);
-
-        await tester.pumpWidget(
-          sheetWidget(
-            expandable: true,
-            useSafeArea: false,
-            closeIconData: PhosphorIconsRegular.x,
-            maxSize: 1,
-            controller: controller,
-          ),
-        );
-        await tester.pump();
-        controller.jumpTo(1);
-        await tester.pump();
-
-        // useSafeArea:false — no bump expected.
-        expect(findClosePositioned(tester).top, 8);
-      },
-    );
-
-    // Golden: custom drag handle
-    testWidgets('golden: expandable sheet with custom drag handle', (
-      tester,
-    ) async {
-      setUpView(tester);
-
-      await tester.pumpWidget(
-        sheetWidget(
-          expandable: true,
-          initialSize: 0.5,
-          dragHandle: Container(
-            width: 60,
-            height: 12,
-            color: const Color(0xFFFF5733),
-          ),
-          title: const Text('Edit profile'),
-          description: const Text('Make changes to your profile here.'),
-          actions: const [Button(child: Text('Save'))],
-          child: goldenSheetBody(),
-        ),
-      );
-      await tester.pump();
-
-      await expectLater(
-        find.byType(Sheet),
-        matchesGoldenFile('goldens/sheet_expandable_custom_handle.png'),
-      );
-    });
-
-    // ── Fling-snap tests (issue #655) ──────────────────────────────────────
-    //
-    // A 150px offset at 1500 px/s gives the velocity tracker ~100ms of samples,
-    // which is needed for its least-squares fit. Smaller offsets flake out.
-
-    SheetController setUpFling(
-      WidgetTester tester, {
-      Size size = const Size(800, 1200),
-    }) {
-      tester.view.physicalSize = size;
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
       final controller = SheetController();
       addTearDown(controller.dispose);
+      var notified = 0;
+      controller.addListener(() => notified++);
+      await _open(
+        tester,
+        builder: (context) => Sheet(
+          controller: controller,
+          detents: detents,
+          child: const Text('Content'),
+        ),
+      );
+      expect(controller.isAttached, isTrue);
+      expect(controller.detent, SheetDetent.medium);
+
+      controller.animateTo(SheetDetent.large);
+      expect(controller.detent, SheetDetent.large);
+      expect(notified, 1);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+      // Under way, not there yet.
+      expect(
+        _surface(tester).height,
+        inExclusiveRange(_phone.height / 2, _phone.height - 60),
+      );
+      await tester.pumpAndSettle();
+      expect(_surface(tester).height, greaterThan(_phone.height - 80));
+
+      controller.jumpTo(SheetDetent.medium);
+      await tester.pump();
+      expect(_surface(tester).height, _phone.height / 2);
+      expect(notified, 2);
+
+      controller.close();
+      await tester.pumpAndSettle();
+      expect(find.byType(Sheet), findsNothing);
+      expect(controller.isAttached, isFalse);
+    });
+
+    testWidgets('the handle resizes with the arrow keys, a tap and a screen '
+        'reader', (tester) async {
+      final handle = tester.ensureSemantics();
+      await _open(
+        tester,
+        builder: (context) => const Sheet(
+          detents: detents,
+          child: Text('Content'),
+        ),
+      );
+      final grabber = find.bySemanticsLabel('Resize');
+      expect(grabber, findsOneWidget);
+      expect(
+        tester.getSemantics(grabber),
+        isSemantics(
+          isButton: true,
+          hasTapAction: true,
+          hasIncreaseAction: true,
+          hasDecreaseAction: true,
+          label: 'Resize',
+          isFocusable: true,
+          hasFocusAction: true,
+        ),
+      );
+
+      // Tab reaches the handle, then the close button.
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+      await tester.pumpAndSettle();
+      expect(_surface(tester).height, greaterThan(_phone.height - 80));
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pumpAndSettle();
+      expect(_surface(tester).height, _phone.height / 2);
+      // Down again does not close it: Escape does that.
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pumpAndSettle();
+      expect(find.byType(Sheet), findsOneWidget);
+
+      await tester.tap(grabber);
+      await tester.pumpAndSettle();
+      expect(_surface(tester).height, greaterThan(_phone.height - 80));
+      await tester.tap(grabber);
+      await tester.pumpAndSettle();
+      expect(_surface(tester).height, _phone.height / 2);
+
+      tester.semantics.increase(find.semantics.byLabel('Resize'));
+      await tester.pumpAndSettle();
+      expect(_surface(tester).height, greaterThan(_phone.height - 80));
+      tester.semantics.decrease(find.semantics.byLabel('Resize'));
+      await tester.pumpAndSettle();
+      expect(_surface(tester).height, _phone.height / 2);
+      handle.dispose();
+    });
+
+    testWidgets('a mouse drags the handle', (tester) async {
+      await _open(
+        tester,
+        formFactor: FormFactor.desktop,
+        builder: (context) => const Sheet(
+          detents: detents,
+          child: Text('Content'),
+        ),
+      );
+      final grabber = find.bySemanticsLabel('Resize');
+      final gesture = await tester.startGesture(
+        tester.getCenter(grabber),
+        kind: PointerDeviceKind.mouse,
+      );
+      await gesture.moveBy(const Offset(0, -30));
+      await gesture.moveBy(const Offset(0, -200));
+      await tester.pump();
+      expect(_surface(tester).height, _desktop.height / 2 + 200);
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(_surface(tester).height, greaterThan(_desktop.height - 80));
+    });
+
+    testWidgets('a content detent beside others is measured while the sheet '
+        'is elsewhere', (tester) async {
+      final controller = SheetController();
+      addTearDown(controller.dispose);
+      await _open(
+        tester,
+        builder: (context) => Sheet(
+          controller: controller,
+          detents: const [SheetDetent.content, SheetDetent.large],
+          initialDetent: SheetDetent.large,
+          showDragHandle: false,
+          showCloseButton: false,
+          style: const SheetTheme(padding: EdgeInsets.zero),
+          child: const SizedBox(height: 200),
+        ),
+      );
+      expect(_surface(tester).height, greaterThan(_phone.height - 80));
+      controller.animateTo(SheetDetent.content);
+      await tester.pumpAndSettle();
+      // The content and the sheet's hairline.
+      expect(_surface(tester).height, moreOrLessEquals(202, epsilon: .5));
+    });
+
+    testWidgets('a change of detents keeps the sheet where it was if it '
+        'can', (tester) async {
+      var list = const [SheetDetent.medium, SheetDetent.large];
+      late StateSetter rebuild;
+      await _open(
+        tester,
+        builder: (context) => StatefulBuilder(
+          builder: (context, setState) {
+            rebuild = setState;
+            return Sheet(
+              detents: list,
+              initialDetent: SheetDetent.large,
+              child: const Text('Content'),
+            );
+          },
+        ),
+      );
+      final large = _surface(tester).height;
+      rebuild(() => list = const [SheetDetent.large, SheetDetent.full]);
+      await tester.pumpAndSettle();
+      expect(_surface(tester).height, large);
+      rebuild(() => list = const [SheetDetent.medium]);
+      await tester.pumpAndSettle();
+      expect(_surface(tester).height, _phone.height / 2);
+    });
+  });
+
+  group('a list that drives the sheet', () {
+    Widget sheet(BuildContext context) => Sheet(
+      detents: const [SheetDetent.medium, SheetDetent.large],
+      title: const Text('Rows'),
+      builder: (context, controller) => _rows(controller),
+    );
+
+    double offset(WidgetTester tester) =>
+        tester.state<ScrollableState>(find.byType(Scrollable)).position.pixels;
+
+    testWidgets('a pull up grows the sheet before the list scrolls', (
+      tester,
+    ) async {
+      await _open(tester, builder: sheet);
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.text('Row 2')),
+      );
+      await gesture.moveBy(const Offset(0, -30));
+      await gesture.moveBy(const Offset(0, -100));
+      await tester.pump();
+      expect(_surface(tester).height, greaterThan(_phone.height / 2 + 90));
+      expect(offset(tester), 0);
+
+      // On up to the largest detent, and then the list takes over.
+      await gesture.moveBy(const Offset(0, -400));
+      await tester.pump();
+      final large = _surface(tester).height;
+      expect(large, greaterThan(_phone.height - 80));
+      expect(offset(tester), greaterThan(50));
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(_surface(tester).height, large);
+    });
+
+    testWidgets('a pull down scrolls the list back first, then lowers the '
+        'sheet, then closes it', (tester) async {
+      await _open(
+        tester,
+        builder: (context) => Sheet(
+          detents: const [SheetDetent.medium, SheetDetent.large],
+          initialDetent: SheetDetent.large,
+          title: const Text('Rows'),
+          builder: (context, controller) => _rows(controller),
+        ),
+      );
+      final large = _surface(tester).height;
+      await tester.drag(find.text('Row 4'), const Offset(0, -150));
+      await tester.pumpAndSettle();
+      final scrolled = offset(tester);
+      expect(scrolled, greaterThan(100));
+      expect(_surface(tester).height, large);
+
+      // Scrolled: the list moves, the sheet does not.
+      final gesture = await tester.startGesture(const Offset(200, 500));
+      await gesture.moveBy(const Offset(0, 30));
+      await gesture.moveBy(const Offset(0, 50));
+      await tester.pump();
+      expect(offset(tester), lessThan(scrolled));
+      expect(_surface(tester).height, large);
+      // At the top of the list the rest of the pull lowers the sheet.
+      await gesture.moveBy(const Offset(0, 400));
+      await tester.pump();
+      expect(offset(tester), 0);
+      expect(_surface(tester).height, lessThan(large - 100));
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(find.byType(Sheet), findsOneWidget);
+      expect(_surface(tester).height, _phone.height / 2);
+
+      // From the smallest detent a fling takes it away.
+      await tester.fling(find.text('Row 1'), const Offset(0, 120), 1500);
+      await tester.pumpAndSettle();
+      expect(find.byType(Sheet), findsNothing);
+    });
+
+    Future<SheetController> scrolledAtLarge(WidgetTester tester) async {
+      final controller = SheetController();
+      addTearDown(controller.dispose);
+      await _open(
+        tester,
+        builder: (context) => Sheet(
+          controller: controller,
+          detents: const [SheetDetent.medium, SheetDetent.large],
+          initialDetent: SheetDetent.large,
+          builder: (context, scroll) => _rows(scroll),
+        ),
+      );
+      // At its largest detent a pull up only scrolls the list: the sheet
+      // is offered the drag and takes none of it.
+      await tester.drag(find.text('Row 3'), const Offset(0, -200));
+      await tester.pumpAndSettle();
+      expect(offset(tester), greaterThan(100));
       return controller;
     }
 
-    // Reported bug: snap=false, fast flick → snaps to the bound in the flick
-    // direction (up → maxSize, down → minSize).
-    for (final c in [
-      (
-        name: 'up on bottom sheet snaps to maxSize',
-        offset: const Offset(0, -150),
-        expected: 1.0,
-      ),
-      (
-        name: 'down on bottom sheet snaps to minSize',
-        offset: const Offset(0, 150),
-        expected: 0.25,
-      ),
-    ]) {
-      testWidgets('fling ${c.name} (snap=false)', (tester) async {
-        final controller = setUpFling(tester);
-        await tester.pumpWidget(
-          sheetWidget(
-            expandable: true,
-            initialSize: 0.5,
-            minSize: 0.25,
-            maxSize: 1,
-            snap: false,
-            snapAnimationDuration: const Duration(milliseconds: 200),
-            controller: controller,
-          ),
-        );
-        await tester.pump();
+    testWidgets('after a drag that only scrolled the list, the sheet '
+        'settles on a detent it is sent to', (tester) async {
+      final controller = await scrolledAtLarge(tester);
+      final scrolled = offset(tester);
+      controller.animateTo(SheetDetent.medium);
+      await tester.pumpAndSettle();
+      expect(_surface(tester).height, _phone.height / 2);
 
-        await tester.fling(
-          find.byType(SheetResizeHandle),
-          c.offset,
-          1500,
-        );
-        await tester.pumpAndSettle();
-
-        expect(controller.size, closeTo(c.expected, 0.05));
-      });
-    }
-
-    // Test C (regression guard): snap=false, slow drag up → stays near lift.
-    testWidgets(
-      'slow drag on bottom sheet stays near lift position (snap=false)',
-      (tester) async {
-        final controller = setUpFling(tester);
-        await tester.pumpWidget(
-          sheetWidget(
-            expandable: true,
-            initialSize: 0.5,
-            minSize: 0.25,
-            maxSize: 1,
-            snap: false,
-            controller: controller,
-          ),
-        );
-        await tester.pump();
-
-        // Drag up 120px = +0.1 ratio on a 1200px screen → ~0.6, zero velocity.
-        await tester.drag(
-          find.byType(SheetResizeHandle),
-          const Offset(0, -120),
-        );
-        await tester.pump();
-
-        expect(controller.size, closeTo(0.6, 0.05));
-        expect(controller.size, lessThan(0.95));
-      },
-    );
-
-    // snap=true at 0.5, fling → the bound in the flick direction.
-    for (final c in [
-      (
-        name: 'up with snap=true snaps to maxSize',
-        offset: const Offset(0, -150),
-        expected: 0.9,
-      ),
-      (
-        name: 'down with snap=true snaps to minSize',
-        offset: const Offset(0, 150),
-        expected: 0.25,
-      ),
-    ]) {
-      testWidgets('fling ${c.name}', (tester) async {
-        final controller = setUpFling(tester);
-        controller.jumpTo(0.5);
-        await tester.pumpWidget(
-          sheetWidget(
-            expandable: true,
-            initialSize: 0.5,
-            minSize: 0.25,
-            maxSize: 0.9,
-            snap: true,
-            snapSizes: [0.25, 0.5, 0.9],
-            snapAnimationDuration: const Duration(milliseconds: 200),
-            controller: controller,
-          ),
-        );
-        await tester.pump();
-
-        await tester.fling(
-          find.byType(SheetResizeHandle),
-          c.offset,
-          1500,
-        );
-        await tester.pumpAndSettle();
-
-        expect(controller.size, closeTo(c.expected, 0.05));
-      });
-    }
-
-    // Test F (regression): snap=true, slow drag → nearest-snap still works.
-    testWidgets(
-      'slow drag with snap=true still snaps to nearest stop',
-      (tester) async {
-        final controller = setUpFling(tester);
-        controller.jumpTo(0.5);
-        await tester.pumpWidget(
-          sheetWidget(
-            expandable: true,
-            initialSize: 0.5,
-            minSize: 0.25,
-            maxSize: 0.9,
-            snap: true,
-            snapSizes: [0.25, 0.5, 0.9],
-            snapAnimationDuration: const Duration(milliseconds: 200),
-            controller: controller,
-          ),
-        );
-        await tester.pump();
-
-        // drag up 84px = +0.07 ratio → ~0.57, nearest stop is 0.5.
-        await tester.drag(
-          find.byType(SheetResizeHandle),
-          const Offset(0, -84),
-        );
-        await tester.pumpAndSettle();
-
-        expect(controller.size, closeTo(0.5, 0.05));
-      },
-    );
-
-    // Test G: fling grow direction on top/left/right sides → snaps to maxSize.
-    for (final config in [
-      (side: SheetSide.top, growOffset: const Offset(0, 150)),
-      (side: SheetSide.left, growOffset: const Offset(150, 0)),
-      (side: SheetSide.right, growOffset: const Offset(-150, 0)),
-    ]) {
-      testWidgets(
-        'fling in grow direction on ${config.side.name} sheet snaps to maxSize',
-        (tester) async {
-          final controller = setUpFling(tester, size: const Size(1200, 800));
-          await tester.pumpWidget(
-            sheetWidget(
-              side: config.side,
-              expandable: true,
-              initialSize: 0.5,
-              minSize: 0.25,
-              maxSize: 1,
-              snap: false,
-              snapAnimationDuration: const Duration(milliseconds: 200),
-              controller: controller,
-            ),
-          );
-          await tester.pump();
-
-          await tester.fling(
-            find.byType(SheetResizeHandle),
-            config.growOffset,
-            1500,
-          );
-          await tester.pumpAndSettle();
-
-          expect(controller.size, closeTo(1.0, 0.05));
-        },
+      // A short pull down on a list scrolled into the middle scrolls it
+      // back; the sheet stays where it is.
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.byType(ListView)),
       );
-    }
+      for (var i = 0; i < 6; i++) {
+        await gesture.moveBy(const Offset(0, 10));
+        await tester.pump();
+      }
+      expect(offset(tester), lessThan(scrolled));
+      expect(_surface(tester).height, _phone.height / 2);
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(_surface(tester).height, _phone.height / 2);
+    });
 
-    // Custom snapFlingVelocity=2000 gates the fling path: a sub-threshold
-    // flick stays near the lift, a super-threshold flick snaps to maxSize.
-    for (final c in [
-      (
-        name: 'sub-threshold fling stays near lift',
-        velocity: 1200.0,
-        settle: false,
-        check: (double size) => expect(size, lessThan(0.95)),
-      ),
-      (
-        name: 'super-threshold fling snaps to max',
-        velocity: 2500.0,
-        settle: true,
-        check: (double size) => expect(size, closeTo(1.0, 0.05)),
-      ),
-    ]) {
-      testWidgets('custom snapFlingVelocity respected: ${c.name}', (
+    testWidgets('after a drag that only scrolled the list, a detent the '
+        'controller chose follows a resize', (tester) async {
+      final controller = await scrolledAtLarge(tester);
+      controller.animateTo(SheetDetent.medium);
+      await tester.pumpAndSettle();
+      expect(_surface(tester).height, _phone.height / 2);
+
+      tester.view.physicalSize = const Size(390, 700);
+      await tester.pumpAndSettle();
+      expect(_surface(tester).height, 350);
+    });
+
+    testWidgets('a wheel scrolls the list and leaves the sheet alone', (
+      tester,
+    ) async {
+      await _open(tester, builder: sheet);
+      final pointer = TestPointer(1, PointerDeviceKind.mouse);
+      final where = tester.getCenter(find.text('Row 2'));
+      await tester.sendEventToBinding(pointer.hover(where));
+      await tester.sendEventToBinding(pointer.scroll(const Offset(0, 120)));
+      await tester.pumpAndSettle();
+      expect(offset(tester), greaterThan(0));
+      expect(_surface(tester).height, _phone.height / 2);
+    });
+
+    testWidgets('long content in a plain sheet is pulled down from its top '
+        'to close', (tester) async {
+      await _open(
         tester,
-      ) async {
-        final controller = setUpFling(tester);
-        await tester.pumpWidget(
-          sheetWidget(
-            expandable: true,
-            initialSize: 0.5,
-            minSize: 0.25,
-            maxSize: 1,
-            snap: false,
-            snapFlingVelocity: 2000,
-            snapAnimationDuration: const Duration(milliseconds: 200),
-            controller: controller,
+        builder: (context) => Sheet(
+          child: Column(
+            children: [for (var i = 0; i < 40; i++) Text('Line $i')],
           ),
-        );
-        await tester.pump();
+        ),
+      );
+      expect(find.byType(Sheet), findsOneWidget);
+      await tester.fling(find.text('Line 3'), const Offset(0, 150), 1500);
+      await tester.pumpAndSettle();
+      expect(find.byType(Sheet), findsNothing);
+    });
 
-        await tester.fling(
-          find.byType(SheetResizeHandle),
-          const Offset(0, -150),
-          c.velocity,
-        );
-        if (c.settle) {
-          await tester.pumpAndSettle();
-        } else {
-          await tester.pump();
-        }
+    testWidgets('a list that ends the sheet runs under the home indicator', (
+      tester,
+    ) async {
+      tester.view.padding = const FakeViewPadding(bottom: 34);
+      tester.view.viewPadding = const FakeViewPadding(bottom: 34);
+      await _open(tester, builder: sheet);
+      final list = tester.getRect(find.byType(ListView));
+      // Down to the sheet's bottom padding, not stopped above the inset.
+      expect(list.bottom, greaterThan(_phone.height - 34));
+      // And it pads its last row clear of it.
+      final scrollable = tester.state<ScrollableState>(find.byType(Scrollable));
+      scrollable.position.jumpTo(scrollable.position.maxScrollExtent);
+      await tester.pump();
+      expect(
+        tester.getRect(find.text('Row 29')).bottom,
+        lessThanOrEqualTo(_phone.height - 34),
+      );
+    });
+  });
 
-        c.check(controller.size);
-      });
-    }
-
-    // Regression for the max-size constraint: snapSizes contains 1.0 but
-    // maxSize is 0.9, so the fling must land in (0.8, 0.9] — never above the
-    // ceiling.
-    testWidgets(
-      'fling never lands above maxSize even when snapSizes goes higher',
-      (tester) async {
-        final controller = setUpFling(tester);
-        await tester.pumpWidget(
-          sheetWidget(
-            expandable: true,
-            initialSize: 0.5,
-            minSize: 0.25,
-            maxSize: 0.9,
-            snap: true,
-            snapSizes: [0.25, 0.5, 0.9, 1.0],
-            snapAnimationDuration: const Duration(milliseconds: 200),
-            controller: controller,
+  group('inline', () {
+    Widget host(Widget sheet) => Stack(
+      children: [
+        Positioned.fill(
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: Button(onPressed: () {}, child: const Text('Behind')),
           ),
-        );
-        await tester.pump();
-
-        await tester.fling(
-          find.byType(SheetResizeHandle),
-          const Offset(0, -150),
-          1500,
-        );
-        await tester.pumpAndSettle();
-
-        // Fling activated (size grew well past the 0.5 lift) but the 0.9
-        // ceiling held even though snapSizes offered 1.0.
-        expect(controller.size, greaterThan(0.8));
-        expect(controller.size, lessThanOrEqualTo(0.9));
-      },
+        ),
+        Positioned(left: 0, right: 0, bottom: 0, top: 0, child: sheet),
+      ],
     );
+
+    testWidgets('sits in the tree with no route and no barrier', (
+      tester,
+    ) async {
+      var pressed = 0;
+      await pumpFinesse(
+        tester,
+        Stack(
+          children: [
+            Align(
+              alignment: Alignment.topCenter,
+              child: Button(
+                onPressed: () => pressed++,
+                child: const Text('Behind'),
+              ),
+            ),
+            const Align(
+              alignment: Alignment.bottomCenter,
+              child: Sheet(
+                title: Text('Now playing'),
+                child: SizedBox(height: 80),
+              ),
+            ),
+          ],
+        ),
+        formFactor: FormFactor.mobile,
+      );
+      // The page's own route is the only one.
+      expect(
+        Navigator.of(tester.element(find.byType(Sheet))).canPop(),
+        isFalse,
+      );
+      final rect = _surface(tester);
+      expect(rect.bottom, _phone.height);
+      expect(rect.width, _phone.width);
+      expect(rect.height, lessThan(250));
+      // No route to close, so no close button.
+      expect(find.bySemanticsLabel('Close'), findsNothing);
+      // The page behind is still in use.
+      await tester.tap(find.text('Behind'));
+      expect(pressed, 1);
+    });
+
+    testWidgets('measures its detents against its parent and cannot be '
+        'dragged away', (tester) async {
+      await pumpFinesse(
+        tester,
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: SizedBox(
+            height: 600,
+            child: host(
+              const Align(
+                alignment: Alignment.bottomCenter,
+                child: Sheet(
+                  detents: [SheetDetent.height(120), SheetDetent.medium],
+                  title: Text('Peek'),
+                  child: Text('Content'),
+                ),
+              ),
+            ),
+          ),
+        ),
+        formFactor: FormFactor.mobile,
+      );
+      expect(_surface(tester).height, 120);
+      await tester.fling(find.text('Peek'), const Offset(0, -100), 1500);
+      await tester.pumpAndSettle();
+      expect(_surface(tester).height, 300);
+
+      // Down to the smallest detent and no further.
+      await tester.fling(find.text('Peek'), const Offset(0, 100), 1500);
+      await tester.pumpAndSettle();
+      expect(_surface(tester).height, 120);
+      await tester.fling(find.text('Peek'), const Offset(0, 100), 1500);
+      await tester.pumpAndSettle();
+      expect(find.byType(Sheet), findsOneWidget);
+      expect(_surface(tester).height, 120);
+      expect(_surface(tester).bottom, _phone.height);
+    });
+
+    testWidgets('shows a close button when it is told how to close', (
+      tester,
+    ) async {
+      var closed = 0;
+      final controller = SheetController();
+      addTearDown(controller.dispose);
+      await pumpFinesse(
+        tester,
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: Sheet(
+            controller: controller,
+            onDismissed: () => closed++,
+            title: const Text('Title'),
+          ),
+        ),
+        formFactor: FormFactor.mobile,
+      );
+      await tester.tap(find.bySemanticsLabel('Close'));
+      expect(closed, 1);
+      controller.close();
+      expect(closed, 2);
+    });
+
+    testWidgets('a sheet inside a modal sheet is an inline one', (
+      tester,
+    ) async {
+      await _open(
+        tester,
+        builder: (context) => const Sheet(
+          detents: [SheetDetent.full],
+          scrollable: false,
+          showCloseButton: false,
+          child: Align(
+            alignment: Alignment.bottomCenter,
+            child: Sheet(key: ValueKey('inner'), title: Text('Inner')),
+          ),
+        ),
+      );
+      // The inner one has no route of its own to close.
+      expect(find.bySemanticsLabel('Close'), findsNothing);
+      await tester.fling(find.text('Inner'), const Offset(0, 100), 1500);
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('inner')), findsOneWidget);
+    });
+  });
+
+  group('theme', () {
+    testWidgets('the variant gives every style a sheet surface', (
+      tester,
+    ) async {
+      for (final style in [
+        StyleTokens.finesse,
+        StyleTokens.nova,
+        StyleTokens.maia,
+        StyleTokens.lyra,
+      ]) {
+        for (final brightness in Brightness.values) {
+          final theme = ThemeData(brightness: brightness, style: style);
+          final sheet = theme.sheetTheme;
+          expect(sheet.backgroundColor, theme.colorScheme.background);
+          expect(sheet.showCloseButton, isTrue);
+          expect(sheet.padding, isNotNull);
+          expect(sheet.titleStyle, isNotNull);
+          expect(sheet.borderRadius, isNotNull);
+        }
+      }
+    });
+
+    testWidgets('a phone sheet rounds the corners of its open edge', (
+      tester,
+    ) async {
+      await _open(
+        tester,
+        builder: (context) => const Sheet(child: SizedBox(height: 100)),
+      );
+      final theme = Theme.of(tester.element(find.byType(Sheet)));
+      final clip = tester.widget<ClipRRect>(
+        find
+            .descendant(
+              of: find.byType(Sheet),
+              matching: find.byType(ClipRRect),
+            )
+            .first,
+      );
+      final radius = clip.borderRadius as BorderRadius;
+      expect(radius.topLeft, theme.sheetTheme.borderRadius!.topLeft);
+      expect(radius.topLeft.x, greaterThan(0));
+      expect(radius.bottomLeft, Radius.zero);
+      expect(radius.bottomRight, Radius.zero);
+    });
+
+    testWidgets('SheetTheme and the widget override the look', (tester) async {
+      await _open(
+        tester,
+        theme: ThemeData(
+          sheetTheme: const SheetTheme(
+            backgroundColor: Color(0xff112233),
+            showDragHandle: false,
+            side: SheetSide.top,
+          ),
+        ),
+        builder: (context) => const Sheet(child: SizedBox(height: 100)),
+      );
+      expect(_surface(tester).top, 0);
+      expect(find.bySemanticsLabel('Resize'), findsNothing);
+      final box = tester.widget<DecoratedBox>(
+        find
+            .descendant(
+              of: find.byType(Sheet),
+              matching: find.byType(DecoratedBox),
+            )
+            .first,
+      );
+      expect(
+        boxDecorationOf(box.decoration)!.color,
+        const Color(0xff112233),
+      );
+
+      await tester.pumpWidget(const SizedBox.shrink());
+      await _open(
+        tester,
+        builder: (context) => const Sheet(
+          style: SheetTheme(borderRadius: BorderRadius.all(Radius.circular(3))),
+          child: SizedBox(height: 100),
+        ),
+      );
+      final clip = tester.widget<ClipRRect>(
+        find
+            .descendant(
+              of: find.byType(Sheet),
+              matching: find.byType(ClipRRect),
+            )
+            .first,
+      );
+      expect(clip.borderRadius, const BorderRadius.all(Radius.circular(3)));
+    });
+
+    testWidgets('builds in every layout', (tester) async {
+      await expectBuildsInEveryLayout(
+        tester,
+        (layout) => Align(
+          alignment: Alignment.bottomCenter,
+          child: Sheet(
+            title: const Text('Title'),
+            description: const Text('Description'),
+            actions: [Button(onPressed: () {}, child: const Text('Done'))],
+            child: const Text('Content'),
+          ),
+        ),
+      );
+    });
+
+    testWidgets('the handle shows on a phone, and on a desktop only with '
+        'several detents', (tester) async {
+      await _open(
+        tester,
+        builder: (context) => const Sheet(child: Text('Content')),
+      );
+      // One detent: something to drag, nothing to resize.
+      expect(find.bySemanticsLabel('Resize'), findsNothing);
+      expect(
+        tester.getSize(find.byType(Sheet)).height,
+        greaterThan(0),
+      );
+
+      await tester.pumpWidget(const SizedBox.shrink());
+      await _open(
+        tester,
+        formFactor: FormFactor.desktop,
+        builder: (context) => const Sheet(
+          detents: [SheetDetent.medium, SheetDetent.large],
+          child: Text('Content'),
+        ),
+      );
+      expect(find.bySemanticsLabel('Resize'), findsOneWidget);
+    });
+  });
+
+  test('SheetDetent compares by value', () {
+    // Through a variable: written out, the analyzer asks for the constant.
+    SheetDetent fraction(double value) => SheetDetent.fraction(value);
+    expect(fraction(.5), SheetDetent.medium);
+    expect(fraction(1), SheetDetent.full);
+    expect(fraction(.5).hashCode, SheetDetent.medium.hashCode);
+    expect(const SheetDetent.height(100), const SheetDetent.height(100));
+    expect(
+      const SheetDetent.height(100),
+      isNot(const SheetDetent.height(101)),
+    );
+    expect(SheetDetent.content, isNot(SheetDetent.large));
+    expect('${SheetDetent.large}', 'SheetDetent.large');
   });
 }

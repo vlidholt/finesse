@@ -1,23 +1,40 @@
 import 'package:finesse/src/components/button.dart';
 import 'package:finesse/src/theme/components/button_sizes.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
 part 'button.g.theme.dart';
 
-/// The theme for Button.
+/// How a `Button` looks: its colours in each state, its decoration, its
+/// metrics and its press response.
 ///
-/// Use this class to override some properties to all buttons in just one place.
+/// It is used in two places. `ThemeData` holds one per variant
+/// (`primaryButtonTheme`, `outlineButtonTheme`, …), which is how a theme
+/// restyles every button of that variant. And `Button.style`,
+/// `IconButton.style` and the widgets built from them take one to restyle a
+/// single button: it is merged over the variant's theme, so only the fields
+/// that are set change anything.
+///
+/// ```dart
+/// Button(
+///   style: ButtonTheme(
+///     backgroundColor: scheme.success,
+///     hoverBackgroundColor: scheme.success.withValues(alpha: .9),
+///     padding: const EdgeInsets.symmetric(horizontal: 24),
+///   ),
+///   onPressed: _confirm,
+///   child: const Text('Confirm'),
+/// )
+/// ```
 @themeGen
 @immutable
 class ButtonTheme with _$ButtonTheme {
   /// Creates a [ButtonTheme].
   const ButtonTheme({
     bool canMerge = true,
-    this.cursor,
+    this.mouseCursor,
     this.size,
     this.sizesTheme,
     this.backgroundColor,
@@ -33,11 +50,10 @@ class ButtonTheme with _$ButtonTheme {
     this.decoration,
     this.width,
     this.height,
+    this.padding,
+    this.iconSize,
     this.mainAxisAlignment,
     this.crossAxisAlignment,
-    this.longPressDuration,
-    this.hoverStrategies,
-    this.textDirection,
     this.gap,
     this.expands,
     this.pressedOffset,
@@ -53,77 +69,125 @@ class ButtonTheme with _$ButtonTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro Button.cursor}
-  final MouseCursor? cursor;
+  /// The cursor over an enabled button. Defaults to
+  /// [SystemMouseCursors.click].
+  final MouseCursor? mouseCursor;
 
-  /// {@macro Button.size}
+  /// The size a button takes its metrics from when it is not given one.
+  /// Defaults to [ButtonSize.regular].
   final ButtonSize? size;
 
-  /// {@macro ButtonSizesTheme}
+  /// The metrics of each size, in place of the theme-wide
+  /// `ThemeData.buttonSizesTheme`.
   final ButtonSizesTheme? sizesTheme;
 
-  /// {@macro Button.backgroundColor}
+  /// {@template Button.backgroundColor}
+  /// The fill at rest. Null paints none.
+  /// {@endtemplate}
   final Color? backgroundColor;
 
-  /// {@macro Button.hoverBackgroundColor}
+  /// {@template Button.hoverBackgroundColor}
+  /// The fill while the button is hovered or held.
+  /// {@endtemplate}
   final Color? hoverBackgroundColor;
 
-  /// {@macro Button.foregroundColor}
+  /// {@template Button.foregroundColor}
+  /// The colour of the label and icons at rest.
+  /// {@endtemplate}
   final Color? foregroundColor;
 
-  /// {@macro Button.hoverForegroundColor}
+  /// {@template Button.hoverForegroundColor}
+  /// The colour of the label and icons while the button is hovered or held.
+  /// {@endtemplate}
   final Color? hoverForegroundColor;
 
-  /// {@macro Button.pressedBackgroundColor}
+  /// {@template Button.pressedBackgroundColor}
+  /// The fill while the button is held. Null, the default, keeps
+  /// [hoverBackgroundColor].
+  /// {@endtemplate}
   final Color? pressedBackgroundColor;
 
-  /// {@macro Button.pressedForegroundColor}
+  /// {@template Button.pressedForegroundColor}
+  /// The colour of the label and icons while the button is held. Null, the
+  /// default, keeps [hoverForegroundColor].
+  /// {@endtemplate}
   final Color? pressedForegroundColor;
 
-  /// {@macro Button.shadows}
+  /// {@template Button.shadows}
+  /// The shadows around the button. They are clipped to outside its
+  /// outline, so a translucent fill stays clean.
+  /// {@endtemplate}
   final List<BoxShadow>? shadows;
 
-  /// {@macro Button.gradient}
+  /// {@template Button.gradient}
+  /// A gradient painted over the fill.
+  /// {@endtemplate}
   final Gradient? gradient;
 
-  /// {@macro Button.textDecoration}
+  /// {@template Button.textDecoration}
+  /// The decoration of the label at rest: an underline, for a link.
+  /// {@endtemplate}
   final TextDecoration? textDecoration;
 
-  /// {@macro Button.hoverTextDecoration}
+  /// {@template Button.hoverTextDecoration}
+  /// The decoration of the label while the button is hovered or held.
+  /// {@endtemplate}
   final TextDecoration? hoverTextDecoration;
 
-  /// {@macro Button.decoration}
+  /// {@template Button.decoration}
+  /// The border, corners and focus treatment. A style override is merged
+  /// into the variant's, so one that only changes the corners keeps the
+  /// rest.
+  /// {@endtemplate}
   final FinesseDecoration? decoration;
 
-  /// {@macro Button.width}
+  /// {@template Button.width}
+  /// A fixed width. Null, the default, takes the size's — a text button's
+  /// is as wide as its content.
+  /// {@endtemplate}
   final double? width;
 
-  /// {@macro Button.height}
+  /// {@template Button.height}
+  /// The height, in place of the size's. It is a floor once text is
+  /// scaled up: the button grows to keep its label whole.
+  /// {@endtemplate}
   final double? height;
 
-  /// {@macro Button.longPressDuration}
-  final Duration? longPressDuration;
+  /// {@template Button.padding}
+  /// The padding around the content, in place of the size's.
+  /// {@endtemplate}
+  final EdgeInsetsGeometry? padding;
 
-  /// {@macro Button.hoverStrategies}
-  final HoverStrategies? hoverStrategies;
+  /// {@template Button.iconSize}
+  /// The size handed to icons that do not set one themselves, in place of
+  /// the size's. An `Icon` with its own `size` is left alone.
+  /// {@endtemplate}
+  final double? iconSize;
 
-  /// {@macro Button.mainAxisAlignment}
+  /// {@template Button.mainAxisAlignment}
+  /// How the content is placed along the button when it is wider than its
+  /// content. Defaults to [MainAxisAlignment.center].
+  /// {@endtemplate}
   final MainAxisAlignment? mainAxisAlignment;
 
-  /// {@macro Button.crossAxisAlignment}
+  /// {@template Button.crossAxisAlignment}
+  /// How the content is placed across the button. Defaults to
+  /// [CrossAxisAlignment.center].
+  /// {@endtemplate}
   final CrossAxisAlignment? crossAxisAlignment;
 
-  /// {@macro Button.textDirection}
-  final TextDirection? textDirection;
-
-  /// {@macro Button.gap}
+  /// {@template Button.gap}
+  /// The space between the leading widget, the label and the trailing
+  /// widget. Defaults to 8.
+  /// {@endtemplate}
   final double? gap;
 
-  /// {@macro Button.expands}
+  /// Whether the label takes all the room the button has, pushing the
+  /// leading and trailing widgets to its ends. Defaults to false.
   final bool? expands;
 
   /// {@template ButtonTheme.pressedOffset}
-  /// How far the button shifts while pressed.
+  /// How far the button shifts while pressed, in logical pixels.
   ///
   /// shadcn/ui nudges a button down by one pixel on `:active`
   /// (`active:translate-y-px`); this is the same effect. Defaults to
@@ -139,18 +203,22 @@ class ButtonTheme with _$ButtonTheme {
   /// {@template ButtonTheme.pressScale}
   /// The scale of the button while it is pressed: a paint-time transform that
   /// springs back on release and never changes the layout. Defaults to the
-  /// theme's `Motion.pressScale`; 1 disables it.
+  /// theme's `Motion.pressScale`; 1 disables it, which is what a button
+  /// used as a row — a menu item, a calendar day — passes.
   /// {@endtemplate}
   final double? pressScale;
 
   /// {@template ButtonTheme.transitionDuration}
   /// How long the background and foreground colours take to change between
   /// the idle, hovered and pressed states. Defaults to the theme's
-  /// `Motion.fast`; `Duration.zero` changes them at once.
+  /// `Motion.fast`; `Duration.zero` changes them at once, which is what a
+  /// row whose highlight follows the pointer — a menu item — passes.
   /// {@endtemplate}
   final Duration? transitionDuration;
 
-  /// {@macro Button.textStyle}
+  /// {@template Button.textStyle}
+  /// The text style of the label. Its colour comes from [foregroundColor].
+  /// {@endtemplate}
   final TextStyle? textStyle;
 
   /// Linearly interpolates between [a] and [b] by [t].

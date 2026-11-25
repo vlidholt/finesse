@@ -43,7 +43,7 @@ void main() {
       );
       expect(desktop.chipTheme.gap, 6);
       expect(desktop.chipTheme.iconSize, 16);
-      expect(desktop.chipTheme.radius, desktop.radii.full);
+      expect(desktop.chipTheme.borderRadius, desktop.radii.full);
       expect(desktop.chipTheme.borderWidth, 1);
       // A 13px medium label on a single line.
       expect(desktop.chipTheme.textStyle!.fontSize, 13);
@@ -201,12 +201,17 @@ void main() {
       await tester.pump(const Duration(milliseconds: 60));
       expect(tester.getSize(find.byType(Chip)).height, 32);
 
-      // The animated box itself carries no size at all.
+      // The animated box itself carries no size at all: the height is a
+      // box around it — a floor and a ceiling, which are the same until
+      // text is scaled up — and it says nothing about the width.
       expect(
         find.ancestor(
           of: find.byType(AnimatedFill),
           matching: find.byWidgetPredicate(
-            (w) => w is SizedBox && w.height == 32 && w.width == null,
+            (w) =>
+                w is ConstrainedBox &&
+                w.constraints ==
+                    const BoxConstraints(minHeight: 32, maxHeight: 32),
           ),
         ),
         findsOneWidget,
@@ -339,7 +344,7 @@ void main() {
       await pumpFinesse(
         tester,
         const Center(child: Chip(label: Text('Hi'))),
-        theme: ThemeData(chipTheme: const ChipTheme(radius: radius)),
+        theme: ThemeData(chipTheme: const ChipTheme(borderRadius: radius)),
       );
       expect(boxOf(tester).borderRadius, radius);
     });

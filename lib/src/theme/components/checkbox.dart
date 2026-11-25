@@ -15,7 +15,6 @@ class CheckboxTheme with _$CheckboxTheme {
     bool canMerge = true,
     this.color,
     this.uncheckedColor,
-    this.duration,
     this.decoration,
     this.checkedDecoration,
     this.size,
@@ -38,9 +37,6 @@ class CheckboxTheme with _$CheckboxTheme {
 
   /// {@macro Checkbox.size}
   final double? size;
-
-  /// {@macro Checkbox.duration}
-  final Duration? duration;
 
   /// {@macro Checkbox.decoration}
   final FinesseDecoration? decoration;

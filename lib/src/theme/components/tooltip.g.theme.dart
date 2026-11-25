@@ -28,18 +28,14 @@ mixin _$TooltipTheme {
     return TooltipTheme(
       waitDuration: lerpDuration$(a.waitDuration, b.waitDuration, t),
       showDuration: lerpDuration$(a.showDuration, b.showDuration, t),
-      effects: t < 0.5 ? a.effects : b.effects,
       anchor: t < 0.5 ? a.anchor : b.anchor,
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
       decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
-      hoverStrategies: t < 0.5 ? a.hoverStrategies : b.hoverStrategies,
       longPressDuration: lerpDuration$(
         a.longPressDuration,
         b.longPressDuration,
         t,
       ),
-      duration: lerpDuration$(a.duration, b.duration, t),
-      reverseDuration: lerpDuration$(a.reverseDuration, b.reverseDuration, t),
       textStyle: TextStyle.lerp(a.textStyle, b.textStyle, t),
       maxWidth: lerpDouble$(a.maxWidth, b.maxWidth, t),
       showArrow: t < 0.5 ? a.showArrow : b.showArrow,
@@ -52,14 +48,10 @@ mixin _$TooltipTheme {
   TooltipTheme copyWith({
     Duration? waitDuration,
     Duration? showDuration,
-    List<Effect<dynamic>>? effects,
     AnchorBase? anchor,
     EdgeInsetsGeometry? padding,
     FinesseDecoration? decoration,
-    HoverStrategies? hoverStrategies,
     Duration? longPressDuration,
-    Duration? duration,
-    Duration? reverseDuration,
     TextStyle? textStyle,
     double? maxWidth,
     bool? showArrow,
@@ -72,14 +64,10 @@ mixin _$TooltipTheme {
     return TooltipTheme(
       waitDuration: waitDuration ?? _this.waitDuration,
       showDuration: showDuration ?? _this.showDuration,
-      effects: effects ?? _this.effects,
       anchor: anchor ?? _this.anchor,
       padding: padding ?? _this.padding,
       decoration: decoration ?? _this.decoration,
-      hoverStrategies: hoverStrategies ?? _this.hoverStrategies,
       longPressDuration: longPressDuration ?? _this.longPressDuration,
-      duration: duration ?? _this.duration,
-      reverseDuration: reverseDuration ?? _this.reverseDuration,
       textStyle: textStyle ?? _this.textStyle,
       maxWidth: maxWidth ?? _this.maxWidth,
       showArrow: showArrow ?? _this.showArrow,
@@ -103,14 +91,10 @@ mixin _$TooltipTheme {
     return copyWith(
       waitDuration: other.waitDuration,
       showDuration: other.showDuration,
-      effects: other.effects,
       anchor: other.anchor,
       padding: other.padding,
       decoration: _this.decoration?.merge(other.decoration) ?? other.decoration,
-      hoverStrategies: other.hoverStrategies,
       longPressDuration: other.longPressDuration,
-      duration: other.duration,
-      reverseDuration: other.reverseDuration,
       textStyle: _this.textStyle?.merge(other.textStyle) ?? other.textStyle,
       maxWidth: other.maxWidth,
       showArrow: other.showArrow,
@@ -135,14 +119,10 @@ mixin _$TooltipTheme {
 
     return _other.waitDuration == _this.waitDuration &&
         _other.showDuration == _this.showDuration &&
-        _other.effects == _this.effects &&
         _other.anchor == _this.anchor &&
         _other.padding == _this.padding &&
         _other.decoration == _this.decoration &&
-        _other.hoverStrategies == _this.hoverStrategies &&
         _other.longPressDuration == _this.longPressDuration &&
-        _other.duration == _this.duration &&
-        _other.reverseDuration == _this.reverseDuration &&
         _other.textStyle == _this.textStyle &&
         _other.maxWidth == _this.maxWidth &&
         _other.showArrow == _this.showArrow &&
@@ -159,14 +139,10 @@ mixin _$TooltipTheme {
       runtimeType,
       _this.waitDuration,
       _this.showDuration,
-      _this.effects,
       _this.anchor,
       _this.padding,
       _this.decoration,
-      _this.hoverStrategies,
       _this.longPressDuration,
-      _this.duration,
-      _this.reverseDuration,
       _this.textStyle,
       _this.maxWidth,
       _this.showArrow,

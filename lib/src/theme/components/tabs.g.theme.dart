@@ -29,7 +29,7 @@ mixin _$TabsTheme {
       gap: lerpDouble$(a.gap, b.gap, t),
       tabsGap: lerpDouble$(a.tabsGap, b.tabsGap, t),
       expandTabs: t < 0.5 ? a.expandTabs : b.expandTabs,
-      tabBarAlignment: Alignment.lerp(a.tabBarAlignment, b.tabBarAlignment, t),
+      tabAlignment: Alignment.lerp(a.tabAlignment, b.tabAlignment, t),
       dragStartBehavior: t < 0.5 ? a.dragStartBehavior : b.dragStartBehavior,
       physics: t < 0.5 ? a.physics : b.physics,
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
@@ -92,7 +92,7 @@ mixin _$TabsTheme {
       tabSelectedShadows: t < 0.5 ? a.tabSelectedShadows : b.tabSelectedShadows,
       tabSize: t < 0.5 ? a.tabSize : b.tabSize,
       tabHeight: lerpDouble$(a.tabHeight, b.tabHeight, t),
-      tabCursor: t < 0.5 ? a.tabCursor : b.tabCursor,
+      tabMouseCursor: t < 0.5 ? a.tabMouseCursor : b.tabMouseCursor,
       tabHoverForegroundColor: Color.lerp(
         a.tabHoverForegroundColor,
         b.tabHoverForegroundColor,
@@ -119,12 +119,6 @@ mixin _$TabsTheme {
       tabCrossAxisAlignment: t < 0.5
           ? a.tabCrossAxisAlignment
           : b.tabCrossAxisAlignment,
-      tabHoverStrategies: t < 0.5 ? a.tabHoverStrategies : b.tabHoverStrategies,
-      longPressDuration: lerpDuration$(
-        a.longPressDuration,
-        b.longPressDuration,
-        t,
-      ),
       indicatorSpring: t < 0.5 ? a.indicatorSpring : b.indicatorSpring,
       indicatorStretch: lerpDouble$(a.indicatorStretch, b.indicatorStretch, t),
       contentTransitionDuration: lerpDuration$(
@@ -137,6 +131,18 @@ mixin _$TabsTheme {
         b.contentTransitionOffset,
         t,
       ),
+      underlineHeight: lerpDouble$(a.underlineHeight, b.underlineHeight, t),
+      underlinePadding: EdgeInsetsGeometry.lerp(
+        a.underlinePadding,
+        b.underlinePadding,
+        t,
+      ),
+      underlineTextStyle: TextStyle.lerp(
+        a.underlineTextStyle,
+        b.underlineTextStyle,
+        t,
+      ),
+      underlineColor: Color.lerp(a.underlineColor, b.underlineColor, t),
     );
   }
 
@@ -144,7 +150,7 @@ mixin _$TabsTheme {
     double? gap,
     double? tabsGap,
     bool? expandTabs,
-    Alignment? tabBarAlignment,
+    Alignment? tabAlignment,
     DragStartBehavior? dragStartBehavior,
     ScrollPhysics? physics,
     EdgeInsetsGeometry? padding,
@@ -167,7 +173,7 @@ mixin _$TabsTheme {
     List<BoxShadow>? tabSelectedShadows,
     ButtonSize? tabSize,
     double? tabHeight,
-    MouseCursor? tabCursor,
+    MouseCursor? tabMouseCursor,
     Color? tabHoverForegroundColor,
     Color? tabPressedBackgroundColor,
     Color? tabPressedForegroundColor,
@@ -176,12 +182,14 @@ mixin _$TabsTheme {
     TextDecoration? tabHoverTextDecoration,
     MainAxisAlignment? tabMainAxisAlignment,
     CrossAxisAlignment? tabCrossAxisAlignment,
-    HoverStrategies? tabHoverStrategies,
-    Duration? longPressDuration,
     MotionSpring? indicatorSpring,
     double? indicatorStretch,
     Duration? contentTransitionDuration,
     double? contentTransitionOffset,
+    double? underlineHeight,
+    EdgeInsetsGeometry? underlinePadding,
+    TextStyle? underlineTextStyle,
+    Color? underlineColor,
   }) {
     final _this = (this as TabsTheme);
 
@@ -189,7 +197,7 @@ mixin _$TabsTheme {
       gap: gap ?? _this.gap,
       tabsGap: tabsGap ?? _this.tabsGap,
       expandTabs: expandTabs ?? _this.expandTabs,
-      tabBarAlignment: tabBarAlignment ?? _this.tabBarAlignment,
+      tabAlignment: tabAlignment ?? _this.tabAlignment,
       dragStartBehavior: dragStartBehavior ?? _this.dragStartBehavior,
       physics: physics ?? _this.physics,
       padding: padding ?? _this.padding,
@@ -218,7 +226,7 @@ mixin _$TabsTheme {
       tabSelectedShadows: tabSelectedShadows ?? _this.tabSelectedShadows,
       tabSize: tabSize ?? _this.tabSize,
       tabHeight: tabHeight ?? _this.tabHeight,
-      tabCursor: tabCursor ?? _this.tabCursor,
+      tabMouseCursor: tabMouseCursor ?? _this.tabMouseCursor,
       tabHoverForegroundColor:
           tabHoverForegroundColor ?? _this.tabHoverForegroundColor,
       tabPressedBackgroundColor:
@@ -232,14 +240,16 @@ mixin _$TabsTheme {
       tabMainAxisAlignment: tabMainAxisAlignment ?? _this.tabMainAxisAlignment,
       tabCrossAxisAlignment:
           tabCrossAxisAlignment ?? _this.tabCrossAxisAlignment,
-      tabHoverStrategies: tabHoverStrategies ?? _this.tabHoverStrategies,
-      longPressDuration: longPressDuration ?? _this.longPressDuration,
       indicatorSpring: indicatorSpring ?? _this.indicatorSpring,
       indicatorStretch: indicatorStretch ?? _this.indicatorStretch,
       contentTransitionDuration:
           contentTransitionDuration ?? _this.contentTransitionDuration,
       contentTransitionOffset:
           contentTransitionOffset ?? _this.contentTransitionOffset,
+      underlineHeight: underlineHeight ?? _this.underlineHeight,
+      underlinePadding: underlinePadding ?? _this.underlinePadding,
+      underlineTextStyle: underlineTextStyle ?? _this.underlineTextStyle,
+      underlineColor: underlineColor ?? _this.underlineColor,
     );
   }
 
@@ -258,7 +268,7 @@ mixin _$TabsTheme {
       gap: other.gap,
       tabsGap: other.tabsGap,
       expandTabs: other.expandTabs,
-      tabBarAlignment: other.tabBarAlignment,
+      tabAlignment: other.tabAlignment,
       dragStartBehavior: other.dragStartBehavior,
       physics: other.physics,
       padding: other.padding,
@@ -286,7 +296,7 @@ mixin _$TabsTheme {
       tabSelectedShadows: other.tabSelectedShadows,
       tabSize: other.tabSize,
       tabHeight: other.tabHeight,
-      tabCursor: other.tabCursor,
+      tabMouseCursor: other.tabMouseCursor,
       tabHoverForegroundColor: other.tabHoverForegroundColor,
       tabPressedBackgroundColor: other.tabPressedBackgroundColor,
       tabPressedForegroundColor: other.tabPressedForegroundColor,
@@ -295,12 +305,16 @@ mixin _$TabsTheme {
       tabHoverTextDecoration: other.tabHoverTextDecoration,
       tabMainAxisAlignment: other.tabMainAxisAlignment,
       tabCrossAxisAlignment: other.tabCrossAxisAlignment,
-      tabHoverStrategies: other.tabHoverStrategies,
-      longPressDuration: other.longPressDuration,
       indicatorSpring: other.indicatorSpring,
       indicatorStretch: other.indicatorStretch,
       contentTransitionDuration: other.contentTransitionDuration,
       contentTransitionOffset: other.contentTransitionOffset,
+      underlineHeight: other.underlineHeight,
+      underlinePadding: other.underlinePadding,
+      underlineTextStyle:
+          _this.underlineTextStyle?.merge(other.underlineTextStyle) ??
+          other.underlineTextStyle,
+      underlineColor: other.underlineColor,
     );
   }
 
@@ -320,7 +334,7 @@ mixin _$TabsTheme {
     return _other.gap == _this.gap &&
         _other.tabsGap == _this.tabsGap &&
         _other.expandTabs == _this.expandTabs &&
-        _other.tabBarAlignment == _this.tabBarAlignment &&
+        _other.tabAlignment == _this.tabAlignment &&
         _other.dragStartBehavior == _this.dragStartBehavior &&
         _other.physics == _this.physics &&
         _other.padding == _this.padding &&
@@ -344,7 +358,7 @@ mixin _$TabsTheme {
         _other.tabSelectedShadows == _this.tabSelectedShadows &&
         _other.tabSize == _this.tabSize &&
         _other.tabHeight == _this.tabHeight &&
-        _other.tabCursor == _this.tabCursor &&
+        _other.tabMouseCursor == _this.tabMouseCursor &&
         _other.tabHoverForegroundColor == _this.tabHoverForegroundColor &&
         _other.tabPressedBackgroundColor == _this.tabPressedBackgroundColor &&
         _other.tabPressedForegroundColor == _this.tabPressedForegroundColor &&
@@ -353,12 +367,14 @@ mixin _$TabsTheme {
         _other.tabHoverTextDecoration == _this.tabHoverTextDecoration &&
         _other.tabMainAxisAlignment == _this.tabMainAxisAlignment &&
         _other.tabCrossAxisAlignment == _this.tabCrossAxisAlignment &&
-        _other.tabHoverStrategies == _this.tabHoverStrategies &&
-        _other.longPressDuration == _this.longPressDuration &&
         _other.indicatorSpring == _this.indicatorSpring &&
         _other.indicatorStretch == _this.indicatorStretch &&
         _other.contentTransitionDuration == _this.contentTransitionDuration &&
-        _other.contentTransitionOffset == _this.contentTransitionOffset;
+        _other.contentTransitionOffset == _this.contentTransitionOffset &&
+        _other.underlineHeight == _this.underlineHeight &&
+        _other.underlinePadding == _this.underlinePadding &&
+        _other.underlineTextStyle == _this.underlineTextStyle &&
+        _other.underlineColor == _this.underlineColor;
   }
 
   @override
@@ -370,7 +386,7 @@ mixin _$TabsTheme {
       _this.gap,
       _this.tabsGap,
       _this.expandTabs,
-      _this.tabBarAlignment,
+      _this.tabAlignment,
       _this.dragStartBehavior,
       _this.physics,
       _this.padding,
@@ -393,7 +409,7 @@ mixin _$TabsTheme {
       _this.tabSelectedShadows,
       _this.tabSize,
       _this.tabHeight,
-      _this.tabCursor,
+      _this.tabMouseCursor,
       _this.tabHoverForegroundColor,
       _this.tabPressedBackgroundColor,
       _this.tabPressedForegroundColor,
@@ -402,12 +418,14 @@ mixin _$TabsTheme {
       _this.tabHoverTextDecoration,
       _this.tabMainAxisAlignment,
       _this.tabCrossAxisAlignment,
-      _this.tabHoverStrategies,
-      _this.longPressDuration,
       _this.indicatorSpring,
       _this.indicatorStretch,
       _this.contentTransitionDuration,
       _this.contentTransitionOffset,
+      _this.underlineHeight,
+      _this.underlinePadding,
+      _this.underlineTextStyle,
+      _this.underlineColor,
     ]);
   }
 }

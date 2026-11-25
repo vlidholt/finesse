@@ -616,8 +616,8 @@ void main() {
             .first,
       );
       expect(semantics.container, isTrue);
-      // A bar is chrome, not a heading: announcing it as a header made every
-      // title in it one.
+      // The bar itself is chrome, not a heading: announcing it as a header
+      // made everything in it one. Its title is the page's heading.
       expect(semantics.properties.header, isNull);
       expect(
         tester
@@ -625,7 +625,7 @@ void main() {
             .getSemanticsData()
             .flagsCollection
             .isHeader,
-        isFalse,
+        isTrue,
       );
       expect(
         tester
@@ -635,6 +635,33 @@ void main() {
             .isButton,
         isFalse,
       );
+      handle.dispose();
+    });
+
+    testWidgets('in a bar that carries the navigation, what sits in the '
+        "title's place is not a heading", (tester) async {
+      final handle = tester.ensureSemantics();
+      await pumpFinesse(
+        tester,
+        top(
+          const AppBar(
+            title: Text('Search'),
+            middle: Text('Destinations'),
+            actions: [Text('Bell')],
+          ),
+        ),
+      );
+      for (final text in ['Search', 'Destinations', 'Bell']) {
+        expect(
+          tester
+              .getSemantics(find.text(text))
+              .getSemanticsData()
+              .flagsCollection
+              .isHeader,
+          isFalse,
+          reason: text,
+        );
+      }
       handle.dispose();
     });
   });

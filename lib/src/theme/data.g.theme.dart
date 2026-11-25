@@ -33,9 +33,24 @@ mixin _$ThemeData {
       kbdTheme: KbdTheme.lerp(a.kbdTheme, b.kbdTheme, t)!,
       glassTheme: GlassTheme.lerp(a.glassTheme, b.glassTheme, t)!,
       appBarTheme: AppBarTheme.lerp(a.appBarTheme, b.appBarTheme, t)!,
+      floatingActionButtonTheme: FloatingActionButtonTheme.lerp(
+        a.floatingActionButtonTheme,
+        b.floatingActionButtonTheme,
+        t,
+      )!,
       navigationBarTheme: NavigationBarTheme.lerp(
         a.navigationBarTheme,
         b.navigationBarTheme,
+        t,
+      )!,
+      navigationMenuTheme: NavigationMenuTheme.lerp(
+        a.navigationMenuTheme,
+        b.navigationMenuTheme,
+        t,
+      )!,
+      navigationRailTheme: NavigationRailTheme.lerp(
+        a.navigationRailTheme,
+        b.navigationRailTheme,
         t,
       )!,
       bottomNavigationBarTheme: BottomNavigationBarTheme.lerp(
@@ -44,10 +59,21 @@ mixin _$ThemeData {
         t,
       )!,
       chipTheme: ChipTheme.lerp(a.chipTheme, b.chipTheme, t)!,
+      listSectionTheme: ListSectionTheme.lerp(
+        a.listSectionTheme,
+        b.listSectionTheme,
+        t,
+      )!,
       listTileTheme: ListTileTheme.lerp(a.listTileTheme, b.listTileTheme, t)!,
       chatBubbleTheme: ChatBubbleTheme.lerp(
         a.chatBubbleTheme,
         b.chatBubbleTheme,
+        t,
+      )!,
+      chatListTheme: ChatListTheme.lerp(a.chatListTheme, b.chatListTheme, t)!,
+      streamingTextTheme: StreamingTextTheme.lerp(
+        a.streamingTextTheme,
+        b.streamingTextTheme,
         t,
       )!,
       indicatorBadgeTheme: IndicatorBadgeTheme.lerp(
@@ -56,6 +82,11 @@ mixin _$ThemeData {
         t,
       )!,
       iconTileTheme: IconTileTheme.lerp(a.iconTileTheme, b.iconTileTheme, t)!,
+      phosphorIconTheme: PhosphorIconTheme.lerp(
+        a.phosphorIconTheme,
+        b.phosphorIconTheme,
+        t,
+      )!,
       timelineTheme: TimelineTheme.lerp(a.timelineTheme, b.timelineTheme, t)!,
       boardTheme: BoardTheme.lerp(a.boardTheme, b.boardTheme, t)!,
       layoutTheme: LayoutTheme.lerp(a.layoutTheme, b.layoutTheme, t)!,
@@ -151,6 +182,7 @@ mixin _$ThemeData {
       decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t)!,
       textTheme: TextTheme.lerp(a.textTheme, b.textTheme, t)!,
       disabledOpacity: lerpDouble$(a.disabledOpacity, b.disabledOpacity, t)!,
+      haptics: t < 0.5 ? a.haptics : b.haptics,
       selectTheme: SelectTheme.lerp(a.selectTheme, b.selectTheme, t)!,
       selectOptionTheme: SelectOptionTheme.lerp(
         a.selectOptionTheme,
@@ -158,6 +190,7 @@ mixin _$ThemeData {
         t,
       )!,
       cardTheme: CardTheme.lerp(a.cardTheme, b.cardTheme, t)!,
+      carouselTheme: CarouselTheme.lerp(a.carouselTheme, b.carouselTheme, t)!,
       switchTheme: SwitchTheme.lerp(a.switchTheme, b.switchTheme, t)!,
       checkboxTheme: CheckboxTheme.lerp(a.checkboxTheme, b.checkboxTheme, t)!,
       textFieldTheme: TextFieldTheme.lerp(
@@ -165,17 +198,13 @@ mixin _$ThemeData {
         b.textFieldTheme,
         t,
       )!,
+      textSelectionTheme: TextSelectionTheme.lerp(
+        a.textSelectionTheme,
+        b.textSelectionTheme,
+        t,
+      )!,
       radioTheme: RadioTheme.lerp(a.radioTheme, b.radioTheme, t)!,
-      primaryToastTheme: ToastTheme.lerp(
-        a.primaryToastTheme,
-        b.primaryToastTheme,
-        t,
-      )!,
-      destructiveToastTheme: ToastTheme.lerp(
-        a.destructiveToastTheme,
-        b.destructiveToastTheme,
-        t,
-      )!,
+      toastTheme: ToastTheme.lerp(a.toastTheme, b.toastTheme, t)!,
       breakpoints: Breakpoints.lerp(a.breakpoints, b.breakpoints, t)!,
       primaryAlertTheme: AlertTheme.lerp(
         a.primaryAlertTheme,
@@ -199,9 +228,19 @@ mixin _$ThemeData {
       )!,
       sliderTheme: SliderTheme.lerp(a.sliderTheme, b.sliderTheme, t)!,
       sheetTheme: SheetTheme.lerp(a.sheetTheme, b.sheetTheme, t)!,
+      actionSheetTheme: ActionSheetTheme.lerp(
+        a.actionSheetTheme,
+        b.actionSheetTheme,
+        t,
+      )!,
       progressBarTheme: ProgressBarTheme.lerp(
         a.progressBarTheme,
         b.progressBarTheme,
+        t,
+      )!,
+      refreshIndicatorTheme: RefreshIndicatorTheme.lerp(
+        a.refreshIndicatorTheme,
+        b.refreshIndicatorTheme,
         t,
       )!,
       accordionTheme: AccordionTheme.lerp(
@@ -215,7 +254,6 @@ mixin _$ThemeData {
         b.resizableTheme,
         t,
       )!,
-      hoverStrategies: t < 0.5 ? a.hoverStrategies : b.hoverStrategies,
       disableSecondaryBorder: t < 0.5
           ? a.disableSecondaryBorder
           : b.disableSecondaryBorder,
@@ -236,10 +274,21 @@ mixin _$ThemeData {
         b.timePickerTheme,
         t,
       )!,
+      timeFieldTheme: TimeFieldTheme.lerp(
+        a.timeFieldTheme,
+        b.timeFieldTheme,
+        t,
+      )!,
+      wheelPickerTheme: WheelPickerTheme.lerp(
+        a.wheelPickerTheme,
+        b.wheelPickerTheme,
+        t,
+      )!,
       otpFieldTheme: OtpFieldTheme.lerp(a.otpFieldTheme, b.otpFieldTheme, t)!,
       menubarTheme: MenubarTheme.lerp(a.menubarTheme, b.menubarTheme, t)!,
       dividerTheme: DividerTheme.lerp(a.dividerTheme, b.dividerTheme, t)!,
-      sonnerTheme: SonnerTheme.lerp(a.sonnerTheme, b.sonnerTheme, t)!,
+      stepperTheme: StepperTheme.lerp(a.stepperTheme, b.stepperTheme, t)!,
+      toasterTheme: ToasterTheme.lerp(a.toasterTheme, b.toasterTheme, t)!,
       textareaTheme: TextareaTheme.lerp(a.textareaTheme, b.textareaTheme, t)!,
       defaultKeyboardToolbarTheme: DefaultKeyboardToolbarTheme.lerp(
         a.defaultKeyboardToolbarTheme,
@@ -257,13 +306,20 @@ mixin _$ThemeData {
     KbdTheme? kbdTheme,
     GlassTheme? glassTheme,
     AppBarTheme? appBarTheme,
+    FloatingActionButtonTheme? floatingActionButtonTheme,
     NavigationBarTheme? navigationBarTheme,
+    NavigationMenuTheme? navigationMenuTheme,
+    NavigationRailTheme? navigationRailTheme,
     BottomNavigationBarTheme? bottomNavigationBarTheme,
     ChipTheme? chipTheme,
+    ListSectionTheme? listSectionTheme,
     ListTileTheme? listTileTheme,
     ChatBubbleTheme? chatBubbleTheme,
+    ChatListTheme? chatListTheme,
+    StreamingTextTheme? streamingTextTheme,
     IndicatorBadgeTheme? indicatorBadgeTheme,
     IconTileTheme? iconTileTheme,
+    PhosphorIconTheme? phosphorIconTheme,
     TimelineTheme? timelineTheme,
     BoardTheme? boardTheme,
     LayoutTheme? layoutTheme,
@@ -295,15 +351,17 @@ mixin _$ThemeData {
     FinesseDecoration? decoration,
     TextTheme? textTheme,
     double? disabledOpacity,
+    bool? haptics,
     SelectTheme? selectTheme,
     SelectOptionTheme? selectOptionTheme,
     CardTheme? cardTheme,
+    CarouselTheme? carouselTheme,
     SwitchTheme? switchTheme,
     CheckboxTheme? checkboxTheme,
     TextFieldTheme? textFieldTheme,
+    TextSelectionTheme? textSelectionTheme,
     RadioTheme? radioTheme,
-    ToastTheme? primaryToastTheme,
-    ToastTheme? destructiveToastTheme,
+    ToastTheme? toastTheme,
     Breakpoints? breakpoints,
     AlertTheme? primaryAlertTheme,
     AlertTheme? destructiveAlertTheme,
@@ -311,21 +369,25 @@ mixin _$ThemeData {
     DialogTheme? alertDialogTheme,
     SliderTheme? sliderTheme,
     SheetTheme? sheetTheme,
+    ActionSheetTheme? actionSheetTheme,
     ProgressBarTheme? progressBarTheme,
+    RefreshIndicatorTheme? refreshIndicatorTheme,
     AccordionTheme? accordionTheme,
     TableTheme? tableTheme,
     ResizableTheme? resizableTheme,
-    HoverStrategies? hoverStrategies,
     bool? disableSecondaryBorder,
     TabsTheme? tabsTheme,
     ContextMenuTheme? contextMenuTheme,
     CalendarTheme? calendarTheme,
     DatePickerTheme? datePickerTheme,
     TimePickerTheme? timePickerTheme,
+    TimeFieldTheme? timeFieldTheme,
+    WheelPickerTheme? wheelPickerTheme,
     OtpFieldTheme? otpFieldTheme,
     MenubarTheme? menubarTheme,
     DividerTheme? dividerTheme,
-    SonnerTheme? sonnerTheme,
+    StepperTheme? stepperTheme,
+    ToasterTheme? toasterTheme,
     TextareaTheme? textareaTheme,
     DefaultKeyboardToolbarTheme? defaultKeyboardToolbarTheme,
   }) {
@@ -339,14 +401,22 @@ mixin _$ThemeData {
       kbdTheme: kbdTheme ?? _this.kbdTheme,
       glassTheme: glassTheme ?? _this.glassTheme,
       appBarTheme: appBarTheme ?? _this.appBarTheme,
+      floatingActionButtonTheme:
+          floatingActionButtonTheme ?? _this.floatingActionButtonTheme,
       navigationBarTheme: navigationBarTheme ?? _this.navigationBarTheme,
+      navigationMenuTheme: navigationMenuTheme ?? _this.navigationMenuTheme,
+      navigationRailTheme: navigationRailTheme ?? _this.navigationRailTheme,
       bottomNavigationBarTheme:
           bottomNavigationBarTheme ?? _this.bottomNavigationBarTheme,
       chipTheme: chipTheme ?? _this.chipTheme,
+      listSectionTheme: listSectionTheme ?? _this.listSectionTheme,
       listTileTheme: listTileTheme ?? _this.listTileTheme,
       chatBubbleTheme: chatBubbleTheme ?? _this.chatBubbleTheme,
+      chatListTheme: chatListTheme ?? _this.chatListTheme,
+      streamingTextTheme: streamingTextTheme ?? _this.streamingTextTheme,
       indicatorBadgeTheme: indicatorBadgeTheme ?? _this.indicatorBadgeTheme,
       iconTileTheme: iconTileTheme ?? _this.iconTileTheme,
+      phosphorIconTheme: phosphorIconTheme ?? _this.phosphorIconTheme,
       timelineTheme: timelineTheme ?? _this.timelineTheme,
       boardTheme: boardTheme ?? _this.boardTheme,
       layoutTheme: layoutTheme ?? _this.layoutTheme,
@@ -380,16 +450,17 @@ mixin _$ThemeData {
       decoration: decoration ?? _this.decoration,
       textTheme: textTheme ?? _this.textTheme,
       disabledOpacity: disabledOpacity ?? _this.disabledOpacity,
+      haptics: haptics ?? _this.haptics,
       selectTheme: selectTheme ?? _this.selectTheme,
       selectOptionTheme: selectOptionTheme ?? _this.selectOptionTheme,
       cardTheme: cardTheme ?? _this.cardTheme,
+      carouselTheme: carouselTheme ?? _this.carouselTheme,
       switchTheme: switchTheme ?? _this.switchTheme,
       checkboxTheme: checkboxTheme ?? _this.checkboxTheme,
       textFieldTheme: textFieldTheme ?? _this.textFieldTheme,
+      textSelectionTheme: textSelectionTheme ?? _this.textSelectionTheme,
       radioTheme: radioTheme ?? _this.radioTheme,
-      primaryToastTheme: primaryToastTheme ?? _this.primaryToastTheme,
-      destructiveToastTheme:
-          destructiveToastTheme ?? _this.destructiveToastTheme,
+      toastTheme: toastTheme ?? _this.toastTheme,
       breakpoints: breakpoints ?? _this.breakpoints,
       primaryAlertTheme: primaryAlertTheme ?? _this.primaryAlertTheme,
       destructiveAlertTheme:
@@ -398,11 +469,13 @@ mixin _$ThemeData {
       alertDialogTheme: alertDialogTheme ?? _this.alertDialogTheme,
       sliderTheme: sliderTheme ?? _this.sliderTheme,
       sheetTheme: sheetTheme ?? _this.sheetTheme,
+      actionSheetTheme: actionSheetTheme ?? _this.actionSheetTheme,
       progressBarTheme: progressBarTheme ?? _this.progressBarTheme,
+      refreshIndicatorTheme:
+          refreshIndicatorTheme ?? _this.refreshIndicatorTheme,
       accordionTheme: accordionTheme ?? _this.accordionTheme,
       tableTheme: tableTheme ?? _this.tableTheme,
       resizableTheme: resizableTheme ?? _this.resizableTheme,
-      hoverStrategies: hoverStrategies ?? _this.hoverStrategies,
       disableSecondaryBorder:
           disableSecondaryBorder ?? _this.disableSecondaryBorder,
       tabsTheme: tabsTheme ?? _this.tabsTheme,
@@ -410,10 +483,13 @@ mixin _$ThemeData {
       calendarTheme: calendarTheme ?? _this.calendarTheme,
       datePickerTheme: datePickerTheme ?? _this.datePickerTheme,
       timePickerTheme: timePickerTheme ?? _this.timePickerTheme,
+      timeFieldTheme: timeFieldTheme ?? _this.timeFieldTheme,
+      wheelPickerTheme: wheelPickerTheme ?? _this.wheelPickerTheme,
       otpFieldTheme: otpFieldTheme ?? _this.otpFieldTheme,
       menubarTheme: menubarTheme ?? _this.menubarTheme,
       dividerTheme: dividerTheme ?? _this.dividerTheme,
-      sonnerTheme: sonnerTheme ?? _this.sonnerTheme,
+      stepperTheme: stepperTheme ?? _this.stepperTheme,
+      toasterTheme: toasterTheme ?? _this.toasterTheme,
       textareaTheme: textareaTheme ?? _this.textareaTheme,
       defaultKeyboardToolbarTheme:
           defaultKeyboardToolbarTheme ?? _this.defaultKeyboardToolbarTheme,
@@ -439,19 +515,34 @@ mixin _$ThemeData {
       kbdTheme: _this.kbdTheme.merge(other.kbdTheme),
       glassTheme: _this.glassTheme.merge(other.glassTheme),
       appBarTheme: _this.appBarTheme.merge(other.appBarTheme),
+      floatingActionButtonTheme: _this.floatingActionButtonTheme.merge(
+        other.floatingActionButtonTheme,
+      ),
       navigationBarTheme: _this.navigationBarTheme.merge(
         other.navigationBarTheme,
+      ),
+      navigationMenuTheme: _this.navigationMenuTheme.merge(
+        other.navigationMenuTheme,
+      ),
+      navigationRailTheme: _this.navigationRailTheme.merge(
+        other.navigationRailTheme,
       ),
       bottomNavigationBarTheme: _this.bottomNavigationBarTheme.merge(
         other.bottomNavigationBarTheme,
       ),
       chipTheme: _this.chipTheme.merge(other.chipTheme),
+      listSectionTheme: _this.listSectionTheme.merge(other.listSectionTheme),
       listTileTheme: _this.listTileTheme.merge(other.listTileTheme),
       chatBubbleTheme: _this.chatBubbleTheme.merge(other.chatBubbleTheme),
+      chatListTheme: _this.chatListTheme.merge(other.chatListTheme),
+      streamingTextTheme: _this.streamingTextTheme.merge(
+        other.streamingTextTheme,
+      ),
       indicatorBadgeTheme: _this.indicatorBadgeTheme.merge(
         other.indicatorBadgeTheme,
       ),
       iconTileTheme: _this.iconTileTheme.merge(other.iconTileTheme),
+      phosphorIconTheme: _this.phosphorIconTheme.merge(other.phosphorIconTheme),
       timelineTheme: _this.timelineTheme.merge(other.timelineTheme),
       boardTheme: _this.boardTheme.merge(other.boardTheme),
       layoutTheme: _this.layoutTheme.merge(other.layoutTheme),
@@ -497,17 +588,19 @@ mixin _$ThemeData {
       decoration: _this.decoration.merge(other.decoration),
       textTheme: _this.textTheme.merge(other.textTheme),
       disabledOpacity: other.disabledOpacity,
+      haptics: other.haptics,
       selectTheme: _this.selectTheme.merge(other.selectTheme),
       selectOptionTheme: _this.selectOptionTheme.merge(other.selectOptionTheme),
       cardTheme: _this.cardTheme.merge(other.cardTheme),
+      carouselTheme: _this.carouselTheme.merge(other.carouselTheme),
       switchTheme: _this.switchTheme.merge(other.switchTheme),
       checkboxTheme: _this.checkboxTheme.merge(other.checkboxTheme),
       textFieldTheme: _this.textFieldTheme.merge(other.textFieldTheme),
-      radioTheme: _this.radioTheme.merge(other.radioTheme),
-      primaryToastTheme: _this.primaryToastTheme.merge(other.primaryToastTheme),
-      destructiveToastTheme: _this.destructiveToastTheme.merge(
-        other.destructiveToastTheme,
+      textSelectionTheme: _this.textSelectionTheme.merge(
+        other.textSelectionTheme,
       ),
+      radioTheme: _this.radioTheme.merge(other.radioTheme),
+      toastTheme: _this.toastTheme.merge(other.toastTheme),
       breakpoints: other.breakpoints,
       primaryAlertTheme: _this.primaryAlertTheme.merge(other.primaryAlertTheme),
       destructiveAlertTheme: _this.destructiveAlertTheme.merge(
@@ -519,21 +612,27 @@ mixin _$ThemeData {
       alertDialogTheme: _this.alertDialogTheme.merge(other.alertDialogTheme),
       sliderTheme: _this.sliderTheme.merge(other.sliderTheme),
       sheetTheme: _this.sheetTheme.merge(other.sheetTheme),
+      actionSheetTheme: _this.actionSheetTheme.merge(other.actionSheetTheme),
       progressBarTheme: _this.progressBarTheme.merge(other.progressBarTheme),
+      refreshIndicatorTheme: _this.refreshIndicatorTheme.merge(
+        other.refreshIndicatorTheme,
+      ),
       accordionTheme: _this.accordionTheme.merge(other.accordionTheme),
       tableTheme: _this.tableTheme.merge(other.tableTheme),
       resizableTheme: _this.resizableTheme.merge(other.resizableTheme),
-      hoverStrategies: other.hoverStrategies,
       disableSecondaryBorder: other.disableSecondaryBorder,
       tabsTheme: _this.tabsTheme.merge(other.tabsTheme),
       contextMenuTheme: _this.contextMenuTheme.merge(other.contextMenuTheme),
       calendarTheme: _this.calendarTheme.merge(other.calendarTheme),
       datePickerTheme: _this.datePickerTheme.merge(other.datePickerTheme),
       timePickerTheme: _this.timePickerTheme.merge(other.timePickerTheme),
+      timeFieldTheme: _this.timeFieldTheme.merge(other.timeFieldTheme),
+      wheelPickerTheme: _this.wheelPickerTheme.merge(other.wheelPickerTheme),
       otpFieldTheme: _this.otpFieldTheme.merge(other.otpFieldTheme),
       menubarTheme: _this.menubarTheme.merge(other.menubarTheme),
       dividerTheme: _this.dividerTheme.merge(other.dividerTheme),
-      sonnerTheme: _this.sonnerTheme.merge(other.sonnerTheme),
+      stepperTheme: _this.stepperTheme.merge(other.stepperTheme),
+      toasterTheme: _this.toasterTheme.merge(other.toasterTheme),
       textareaTheme: _this.textareaTheme.merge(other.textareaTheme),
       defaultKeyboardToolbarTheme: _this.defaultKeyboardToolbarTheme.merge(
         other.defaultKeyboardToolbarTheme,
@@ -561,13 +660,20 @@ mixin _$ThemeData {
         _other.kbdTheme == _this.kbdTheme &&
         _other.glassTheme == _this.glassTheme &&
         _other.appBarTheme == _this.appBarTheme &&
+        _other.floatingActionButtonTheme == _this.floatingActionButtonTheme &&
         _other.navigationBarTheme == _this.navigationBarTheme &&
+        _other.navigationMenuTheme == _this.navigationMenuTheme &&
+        _other.navigationRailTheme == _this.navigationRailTheme &&
         _other.bottomNavigationBarTheme == _this.bottomNavigationBarTheme &&
         _other.chipTheme == _this.chipTheme &&
+        _other.listSectionTheme == _this.listSectionTheme &&
         _other.listTileTheme == _this.listTileTheme &&
         _other.chatBubbleTheme == _this.chatBubbleTheme &&
+        _other.chatListTheme == _this.chatListTheme &&
+        _other.streamingTextTheme == _this.streamingTextTheme &&
         _other.indicatorBadgeTheme == _this.indicatorBadgeTheme &&
         _other.iconTileTheme == _this.iconTileTheme &&
+        _other.phosphorIconTheme == _this.phosphorIconTheme &&
         _other.timelineTheme == _this.timelineTheme &&
         _other.boardTheme == _this.boardTheme &&
         _other.layoutTheme == _this.layoutTheme &&
@@ -599,15 +705,17 @@ mixin _$ThemeData {
         _other.decoration == _this.decoration &&
         _other.textTheme == _this.textTheme &&
         _other.disabledOpacity == _this.disabledOpacity &&
+        _other.haptics == _this.haptics &&
         _other.selectTheme == _this.selectTheme &&
         _other.selectOptionTheme == _this.selectOptionTheme &&
         _other.cardTheme == _this.cardTheme &&
+        _other.carouselTheme == _this.carouselTheme &&
         _other.switchTheme == _this.switchTheme &&
         _other.checkboxTheme == _this.checkboxTheme &&
         _other.textFieldTheme == _this.textFieldTheme &&
+        _other.textSelectionTheme == _this.textSelectionTheme &&
         _other.radioTheme == _this.radioTheme &&
-        _other.primaryToastTheme == _this.primaryToastTheme &&
-        _other.destructiveToastTheme == _this.destructiveToastTheme &&
+        _other.toastTheme == _this.toastTheme &&
         _other.breakpoints == _this.breakpoints &&
         _other.primaryAlertTheme == _this.primaryAlertTheme &&
         _other.destructiveAlertTheme == _this.destructiveAlertTheme &&
@@ -615,21 +723,25 @@ mixin _$ThemeData {
         _other.alertDialogTheme == _this.alertDialogTheme &&
         _other.sliderTheme == _this.sliderTheme &&
         _other.sheetTheme == _this.sheetTheme &&
+        _other.actionSheetTheme == _this.actionSheetTheme &&
         _other.progressBarTheme == _this.progressBarTheme &&
+        _other.refreshIndicatorTheme == _this.refreshIndicatorTheme &&
         _other.accordionTheme == _this.accordionTheme &&
         _other.tableTheme == _this.tableTheme &&
         _other.resizableTheme == _this.resizableTheme &&
-        _other.hoverStrategies == _this.hoverStrategies &&
         _other.disableSecondaryBorder == _this.disableSecondaryBorder &&
         _other.tabsTheme == _this.tabsTheme &&
         _other.contextMenuTheme == _this.contextMenuTheme &&
         _other.calendarTheme == _this.calendarTheme &&
         _other.datePickerTheme == _this.datePickerTheme &&
         _other.timePickerTheme == _this.timePickerTheme &&
+        _other.timeFieldTheme == _this.timeFieldTheme &&
+        _other.wheelPickerTheme == _this.wheelPickerTheme &&
         _other.otpFieldTheme == _this.otpFieldTheme &&
         _other.menubarTheme == _this.menubarTheme &&
         _other.dividerTheme == _this.dividerTheme &&
-        _other.sonnerTheme == _this.sonnerTheme &&
+        _other.stepperTheme == _this.stepperTheme &&
+        _other.toasterTheme == _this.toasterTheme &&
         _other.textareaTheme == _this.textareaTheme &&
         _other.defaultKeyboardToolbarTheme == _this.defaultKeyboardToolbarTheme;
   }
@@ -647,13 +759,20 @@ mixin _$ThemeData {
       _this.kbdTheme,
       _this.glassTheme,
       _this.appBarTheme,
+      _this.floatingActionButtonTheme,
       _this.navigationBarTheme,
+      _this.navigationMenuTheme,
+      _this.navigationRailTheme,
       _this.bottomNavigationBarTheme,
       _this.chipTheme,
+      _this.listSectionTheme,
       _this.listTileTheme,
       _this.chatBubbleTheme,
+      _this.chatListTheme,
+      _this.streamingTextTheme,
       _this.indicatorBadgeTheme,
       _this.iconTileTheme,
+      _this.phosphorIconTheme,
       _this.timelineTheme,
       _this.boardTheme,
       _this.layoutTheme,
@@ -685,15 +804,17 @@ mixin _$ThemeData {
       _this.decoration,
       _this.textTheme,
       _this.disabledOpacity,
+      _this.haptics,
       _this.selectTheme,
       _this.selectOptionTheme,
       _this.cardTheme,
+      _this.carouselTheme,
       _this.switchTheme,
       _this.checkboxTheme,
       _this.textFieldTheme,
+      _this.textSelectionTheme,
       _this.radioTheme,
-      _this.primaryToastTheme,
-      _this.destructiveToastTheme,
+      _this.toastTheme,
       _this.breakpoints,
       _this.primaryAlertTheme,
       _this.destructiveAlertTheme,
@@ -701,21 +822,25 @@ mixin _$ThemeData {
       _this.alertDialogTheme,
       _this.sliderTheme,
       _this.sheetTheme,
+      _this.actionSheetTheme,
       _this.progressBarTheme,
+      _this.refreshIndicatorTheme,
       _this.accordionTheme,
       _this.tableTheme,
       _this.resizableTheme,
-      _this.hoverStrategies,
       _this.disableSecondaryBorder,
       _this.tabsTheme,
       _this.contextMenuTheme,
       _this.calendarTheme,
       _this.datePickerTheme,
       _this.timePickerTheme,
+      _this.timeFieldTheme,
+      _this.wheelPickerTheme,
       _this.otpFieldTheme,
       _this.menubarTheme,
       _this.dividerTheme,
-      _this.sonnerTheme,
+      _this.stepperTheme,
+      _this.toasterTheme,
       _this.textareaTheme,
       _this.defaultKeyboardToolbarTheme,
     ]);

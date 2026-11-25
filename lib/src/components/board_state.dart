@@ -20,7 +20,7 @@ const double _touchdown = 14;
 const double _turnDwell = .45;
 
 class _BoardState<T extends Object> extends State<Board<T>>
-    with SingleTickerProviderStateMixin
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver
     implements _SlotHost {
   // The items by id, and each column's ids in order: the board's own copy,
   // which is what a rebuild is compared against. The parent's lists are
@@ -32,11 +32,32 @@ class _BoardState<T extends Object> extends State<Board<T>>
   final Map<Object, _BoardSlotState<T>> _slots = {};
   final Map<Object, _BoardColumnState<T>> _columnStates = {};
 
+  /// The items that are built, and the key each is built under. The key is
+  /// the board's, not its slot's, so an item that changes column is moved,
+  /// state and focus and all, rather than built again.
+  final Map<Object, _BoardItemState<T>> _items = {};
+  final Map<Object, GlobalKey> _itemKeys = {};
+
   /// The translation of every item that is not where it is laid out.
   final Map<Object, _Spring> _shifts = {};
 
-  /// The lifted copies: the dragged item's, and those still flying.
+  /// The lifted copies: the dragged item's, and those still flying. They
+  /// are painted by [_ProxyLayer], the overlay child of [_portal], which is
+  /// showing exactly while there is one.
   final Map<Object, _Proxy<T>> _proxies = {};
+  final OverlayPortalController _portal = OverlayPortalController(
+    debugLabel: 'Board',
+  );
+  final _Signal _proxyLayer = _Signal();
+  bool _portalSyncScheduled = false;
+
+  /// Whether the board is somewhere it is seen and tickers run. It is not
+  /// under a route that is covered, in the hidden child of an
+  /// `IndexedStack` or a `Visibility`, or below a disabled `TickerMode`.
+  /// Nothing may be set in motion there: nothing would bring it to rest, or
+  /// it would play out over a page that has nothing to do with it — a
+  /// lifted copy is painted in the overlay, not where the board is.
+  bool _onStage = true;
 
   _Drag<T>? _drag;
   MultiDragGestureRecognizer? _recognizer;
@@ -55,11 +76,10 @@ class _BoardState<T extends Object> extends State<Board<T>>
   int _flipGeneration = 0;
   Map<Object, (Object, double)> _flipOrigins = const {};
   // Items found in another column after a rebuild, with where they were.
-  // They are hidden at once and take off after the frame, when an overlay
-  // entry can be inserted.
+  // They are hidden at once and take off after the frame: the overlay
+  // layer their copies are painted in cannot be changed during a build.
   final Map<Object, Rect> _pendingFlights = {};
   bool _afterFrameScheduled = false;
-  Object? _refocus;
 
   static final Expando<ThemeData> _itemThemes = Expando<ThemeData>();
 
@@ -77,7 +97,32 @@ class _BoardState<T extends Object> extends State<Board<T>>
     _ticker = createTicker(_tick);
     widget.controller?._state = this;
     _horizontal.addListener(_scrolled);
+    WidgetsBinding.instance.addObserver(this);
     _indexColumns();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final onStage =
+        TickerMode.valuesOf(context).enabled && Visibility.of(context);
+    if (onStage == _onStage) return;
+    _onStage = onStage;
+    if (!onStage) _settle();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // No frames are drawn in these states, and a flight that resumed
+    // whenever the app came back would be about something long past.
+    switch (state) {
+      case AppLifecycleState.hidden ||
+          AppLifecycleState.paused ||
+          AppLifecycleState.detached:
+        _settle();
+      case AppLifecycleState.resumed || AppLifecycleState.inactive:
+        break;
+    }
   }
 
   @override
@@ -100,17 +145,63 @@ class _BoardState<T extends Object> extends State<Board<T>>
     }
   }
 
+  /// Whether nothing may be set in motion: motion is reduced, or the board
+  /// is off stage.
+  bool get _still => _style.reduced || !_onStage;
+
+  /// Finishes at once everything the ticker would have finished in time: a
+  /// held item is put back, every lifted copy is taken down and every item
+  /// is drawn where it is laid out.
+  ///
+  /// Called when the board goes off stage — a page has covered its route,
+  /// its tab has been switched away — and when the app goes to the
+  /// background. A copy left in the air then would hang there for as long
+  /// as that lasts, over whatever is shown instead, and finish its flight
+  /// in front of someone who has long forgotten the drop.
+  void _settle() {
+    if (_drag == null &&
+        _proxies.isEmpty &&
+        _shifts.isEmpty &&
+        _pendingFlights.isEmpty) {
+      return;
+    }
+    final drag = _releaseDrag();
+    _proxies.values.toList().forEach(_removeProxy);
+    final flights = _pendingFlights.keys.toList();
+    _pendingFlights.clear();
+    flights.forEach(_hiddenChanged);
+    _flipOrigins = const {};
+    _zeroShifts();
+    _refreshDragVisuals();
+    if (_ticker.isActive) _ticker.stop();
+    if (drag != null) _reportDragEnd(drag);
+  }
+
+  /// Draws every item where it is laid out, at once.
+  void _zeroShifts() {
+    for (final MapEntry(key: id, value: spring) in _shifts.entries) {
+      spring.jumpTo(0);
+      final slot = _slots[id];
+      if (slot != null && slot.mounted) {
+        slot._render
+          ?..shift = 0
+          ..shiftSettled();
+      }
+    }
+    _shifts.clear();
+  }
+
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _recognizer?.dispose();
     HardwareKeyboard.instance.removeHandler(_handleDragKey);
     _outerPosition?.removeListener(_scrolled);
     for (final proxy in _proxies.values) {
-      proxy.entry?.remove();
-      proxy.entry?.dispose();
       proxy.dispose();
     }
     _proxies.clear();
+    _proxyLayer.dispose();
     _drag = null;
     _ticker.dispose();
     widget.controller?._detach(this);
@@ -151,7 +242,14 @@ class _BoardState<T extends Object> extends State<Board<T>>
     _locations = locations;
     _order = order;
     _columnIds = columnIds;
+    if (_itemKeys.length > locations.length) {
+      _itemKeys.removeWhere((id, _) => !locations.containsKey(id));
+    }
   }
+
+  /// The key the item with [id] is built under, wherever it is.
+  GlobalKey _itemKey(Object id) =>
+      _itemKeys[id] ??= GlobalKey(debugLabel: 'Board item $id');
 
   /// The item at [location], or null when the parent's lists have moved on
   /// since the board last indexed them.
@@ -180,7 +278,12 @@ class _BoardState<T extends Object> extends State<Board<T>>
 
     final changed =
         !listEquals(oldColumnIds, _columnIds) || !_sameOrder(oldOrder, _order);
-    if (changed && !_style.reduced) {
+    if (changed && _still && _drag == null) {
+      // Nothing slides: whatever a drop left displaced is in place in the
+      // very frame the lists change.
+      _zeroShifts();
+    }
+    if (changed && !_still) {
       // First: where every item on screen is now, measured in its column,
       // and a repaint for each so that it can work out where it has gone.
       final origins = <Object, (Object, double)>{};
@@ -222,8 +325,21 @@ class _BoardState<T extends Object> extends State<Board<T>>
         drag.item = item;
       }
     }
+    // The copies are built with this build, from the lists as they are now.
     for (final proxy in _proxies.values) {
-      if (!_locations.containsKey(proxy.id)) proxy.fading = true;
+      final location = _locations[proxy.id];
+      final item = _itemAt(location);
+      if (location == null || item == null) {
+        proxy.fading = true;
+        continue;
+      }
+      proxy
+        ..item = item
+        ..details = BoardItemDetails<T>(
+          column: widget.columns[location.column],
+          index: location.index,
+          dragging: true,
+        );
     }
     if (changed || _proxies.isNotEmpty || _drag != null) {
       _scheduleAfterFrame();
@@ -257,9 +373,8 @@ class _BoardState<T extends Object> extends State<Board<T>>
     _pendingFlights.clear();
     for (final MapEntry(key: id, value: rect) in flights.entries) {
       final item = _itemAt(_locations[id]);
-      if (item == null || _proxies.containsKey(id)) {
-        final slot = _slots[id];
-        if (slot != null && slot.mounted) slot._render?.hidden = _isHidden(id);
+      if (item == null || _proxies.containsKey(id) || _still) {
+        _hiddenChanged(id);
         continue;
       }
       _spawnProxy(id, item, rect)
@@ -267,25 +382,10 @@ class _BoardState<T extends Object> extends State<Board<T>>
         ..lift.target = 1;
     }
 
-    for (final proxy in _proxies.values) {
-      final location = _locations[proxy.id];
-      final item = _itemAt(location);
-      if (location == null || item == null) continue;
-      proxy
-        ..item = item
-        ..details = BoardItemDetails<T>(
-          column: widget.columns[location.column],
-          index: location.index,
-          dragging: true,
-        )
-        ..child = _proxyChild(proxy);
-      proxy.entry?.markNeedsBuild();
-    }
-
     final drag = _drag;
     if (drag != null) {
       if (drag.mode == _DragMode.pointer) {
-        _updateTarget();
+        _updateTarget(rebuilt: true);
       } else {
         final column = _columnOf(drag.targetColumn);
         if (column == null) {
@@ -299,16 +399,26 @@ class _BoardState<T extends Object> extends State<Board<T>>
             _countWithout(column, drag.id),
           );
         }
+        // The rules may have changed with the lists: a column that has
+        // filled up since the item was carried over it shows that it will
+        // not take it, as it would under a pointer.
+        final move = _moveFor(drag);
+        final refused = move != null && !_allows(move);
+        if (refused != drag.refused) {
+          drag.refused = refused;
+          final target = _columnOf(drag.targetColumn);
+          if (refused && target != null) {
+            _announce(
+              FinesseLocalizations.of(
+                context,
+              ).board.refused(column: target.label),
+            );
+          }
+        }
       }
     }
     _applyShiftTargets();
     _refreshDragVisuals();
-
-    final refocus = _refocus;
-    if (refocus != null) {
-      _refocus = null;
-      _slots[refocus]?._focusNode.requestFocus();
-    }
     _ensureTicking();
   }
 
@@ -341,6 +451,43 @@ class _BoardState<T extends Object> extends State<Board<T>>
     if (_slots[id] != slot) return;
     _slots.remove(id);
     _shifts.remove(id);
+  }
+
+  void _itemMounted(_BoardItemState<T> item) => _items[item.widget.id] = item;
+
+  void _itemUnmounted(_BoardItemState<T> item, Object id) {
+    if (_items[id] == item) _items.remove(id);
+  }
+
+  bool _hasFocus(Object id) => _items[id]?._focusNode.hasFocus ?? false;
+
+  /// Whether [item] shows the focus ring while the focus is on it or on
+  /// something inside it.
+  bool _ringsFocus(_BoardItemState<T> item) => true;
+
+  /// What assistive technology can do to [item] besides moving it up, down
+  /// and to another column.
+  Map<CustomSemanticsAction, VoidCallback> _moreItemActions(
+    _BoardItemState<T> item,
+  ) => const {};
+
+  void _itemFocusChanged(Object id, {required bool focused}) {
+    if (!focused) _itemBlurred(id);
+    final slot = _slots[id];
+    if (slot != null && slot.mounted) slot._keepAliveChanged();
+  }
+
+  /// Brings the slot and the item with [id] in line with whether a lifted
+  /// copy stands in for the item.
+  void _hiddenChanged(Object id) {
+    final slot = _slots[id];
+    if (slot != null && slot.mounted) {
+      slot
+        .._render?.hidden = _isHidden(id)
+        .._keepAliveChanged();
+    }
+    final item = _items[id];
+    if (item != null && item.mounted) item._hiddenChanged();
   }
 
   @override
@@ -432,17 +579,8 @@ class _BoardState<T extends Object> extends State<Board<T>>
 
   // --- The lifted copy -----------------------------------------------------
 
-  Widget _proxyChild(_Proxy<T> proxy) => Theme(
-    data: _style.itemTheme,
-    child: Builder(
-      builder: (context) =>
-          widget.itemBuilder(context, proxy.item, proxy.details),
-    ),
-  );
-
   _Proxy<T> _spawnProxy(Object id, T item, Rect rect) {
     final location = _locations[id]!;
-    final overlay = Overlay.of(context);
     final proxy = _Proxy<T>(
       id: id,
       item: item,
@@ -453,41 +591,43 @@ class _BoardState<T extends Object> extends State<Board<T>>
       ),
       size: rect.size,
       position: rect.topLeft,
-    );
-    proxy
-      ..origin = (_columnIds[location.column], location.index)
-      ..themes = InheritedTheme.capture(from: context, to: overlay.context)
-      ..textDirection = _style.textDirection
-      ..mediaQuery = context.getInheritedWidgetOfExactType<MediaQuery>()?.data
-      ..child = _proxyChild(proxy)
-      ..entry = OverlayEntry(
-        builder: (context) => _ProxyView<T>(proxy: proxy, board: this),
-      );
-    overlay.insert(proxy.entry!);
+    )..origin = (_columnIds[location.column], location.index);
     _proxies[id] = proxy;
-    final slot = _slots[id];
-    if (slot != null && slot.mounted) {
-      slot
-        .._render?.hidden = true
-        .._keepAliveChanged();
-    }
+    _hiddenChanged(id);
+    _syncPortal();
     return proxy;
   }
 
   void _removeProxy(_Proxy<T> proxy) {
     if (_proxies[proxy.id] == proxy) {
       _proxies.remove(proxy.id);
-      final slot = _slots[proxy.id];
-      if (slot != null && slot.mounted) {
-        slot
-          .._render?.hidden = false
-          .._keepAliveChanged();
-      }
+      _hiddenChanged(proxy.id);
     }
-    proxy.entry?.remove();
-    proxy.entry?.dispose();
-    proxy.entry = null;
     proxy.dispose();
+    _syncPortal();
+  }
+
+  /// Shows the overlay layer while there is a copy to paint in it, and
+  /// rebuilds it for the copies there are.
+  void _syncPortal() {
+    // The portal and the layer are below this widget, but they may not be
+    // marked dirty while the tree is building or being laid out.
+    if (SchedulerBinding.instance.schedulerPhase ==
+        SchedulerPhase.persistentCallbacks) {
+      if (_portalSyncScheduled) return;
+      _portalSyncScheduled = true;
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        _portalSyncScheduled = false;
+        if (mounted) _syncPortal();
+      });
+      return;
+    }
+    if (_proxies.isEmpty) {
+      if (_portal.isShowing) _portal.hide();
+    } else if (!_portal.isShowing) {
+      _portal.show();
+    }
+    _proxyLayer.fire();
   }
 
   // --- Picking up ----------------------------------------------------------
@@ -544,7 +684,9 @@ class _BoardState<T extends Object> extends State<Board<T>>
     required Offset pointer,
     required bool touch,
   }) {
-    if (_drag != null || !mounted || !widget.enabled) return null;
+    if (_drag != null || !mounted || !widget.enabled || !_onStage) {
+      return null;
+    }
     final location = _locations[id];
     final item = _itemAt(location);
     final slot = _slots[id];
@@ -614,7 +756,7 @@ class _BoardState<T extends Object> extends State<Board<T>>
       touch: touch,
     );
     if (drag == null) return null;
-    if (touch) HapticFeedback.mediumImpact();
+    if (touch) Haptics.impact(context, HapticImpact.medium);
     HardwareKeyboard.instance.addHandler(_handleDragKey);
     return _PointerDrag<T>(this, drag);
   }
@@ -663,9 +805,44 @@ class _BoardState<T extends Object> extends State<Board<T>>
     return column.canAccept?.call(item) ?? true;
   }
 
+  /// The move [drag] would make if it were dropped now, or null when it is
+  /// over nothing or back where it came from.
+  BoardMove<T>? _moveFor(_Drag<T> drag) {
+    final source = _locations[drag.id];
+    final item = _itemAt(source);
+    final target = drag.targetColumn;
+    if (source == null || item == null || target == null) return null;
+    final from = _columnIds[source.column];
+    // Staying put is not a move.
+    if (target == from && drag.targetIndex == source.index) return null;
+    return BoardMove<T>(
+      item: item,
+      fromColumn: from,
+      fromIndex: source.index,
+      toColumn: target,
+      toIndex: drag.targetIndex,
+    );
+  }
+
+  /// Whether the rules allow [move]: its column's limit and
+  /// `BoardColumn.canAccept`, then `Board.canMove`.
+  bool _allows(BoardMove<T> move) {
+    final target = _columnOf(move.toColumn);
+    return target != null &&
+        _columnAccepts(target, move.item, move.fromColumn) &&
+        (widget.canMove?.call(move) ?? true);
+  }
+
   /// Works the target out from where the pointer is. Called when the
   /// pointer moves and whenever anything under it does.
-  void _updateTarget() {
+  ///
+  /// A pointer reports many times a frame and `canMove` is the app's code,
+  /// so no more is done than what changed calls for: with only the pointer
+  /// moved, a target that stays the same needs nothing at all; with
+  /// [scrolled], its slot is measured again; and only with [rebuilt] — the
+  /// lists or the rules may be different — are the rules asked again about
+  /// a target they have already been asked about.
+  void _updateTarget({bool scrolled = false, bool rebuilt = false}) {
     final drag = _drag;
     if (drag == null || drag.mode != _DragMode.pointer) return;
     final source = _locations[drag.id];
@@ -674,7 +851,6 @@ class _BoardState<T extends Object> extends State<Board<T>>
 
     Object? column;
     var index = 0;
-    var refused = false;
     if (board.inflate(_dropSlack).contains(drag.pointer)) {
       // The column is the one under the pointer; the index comes from the
       // card's centre, which is what the eye follows.
@@ -694,44 +870,30 @@ class _BoardState<T extends Object> extends State<Board<T>>
         }
       }
       if (nearest != null) {
-        final target = nearest.widget.column;
-        final from = _columnIds[source.column];
-        column = target.id;
+        column = nearest.widget.column.id;
         final centre = drag.proxy.y.value + drag.size.height / 2;
         index = nearest._indexAt(centre, drag);
-        // Staying put is not a move, and is always allowed.
-        final stays = target.id == from && index == source.index;
-        refused =
-            !_columnAccepts(target, drag.item, from) ||
-            !(stays ||
-                (widget.canMove?.call(
-                      BoardMove<T>(
-                        item: drag.item,
-                        fromColumn: from,
-                        fromIndex: source.index,
-                        toColumn: target.id,
-                        toIndex: index,
-                      ),
-                    ) ??
-                    true));
       }
     }
 
-    if (column == drag.targetColumn &&
-        index == drag.targetIndex &&
-        refused == drag.refused) {
-      // The same slot, but it may have scrolled.
-      _refreshDragVisuals();
+    final sameTarget = column == drag.targetColumn && index == drag.targetIndex;
+    if (sameTarget && !rebuilt) {
+      if (scrolled) _refreshDragVisuals();
       return;
     }
     drag
       ..targetColumn = column
-      ..targetIndex = index
-      ..refused = refused;
-    drag.proxy
-      ..forbidden = refused
-      ..changed();
-    if (drag.touch) HapticFeedback.selectionClick();
+      ..targetIndex = index;
+    final move = _moveFor(drag);
+    final refused = move != null && !_allows(move);
+    if (sameTarget && refused == drag.refused) {
+      // The same slot, but it may have scrolled.
+      _refreshDragVisuals();
+      return;
+    }
+    drag.refused = refused;
+    drag.proxy.forbidden = refused;
+    if (drag.touch) Haptics.selection(context);
     _applyShiftTargets();
     _refreshDragVisuals(restart: true);
   }
@@ -777,7 +939,7 @@ class _BoardState<T extends Object> extends State<Board<T>>
       return;
     }
     if (_drag!.mode == _DragMode.pointer) {
-      _updateTarget();
+      _updateTarget(scrolled: true);
     } else {
       _refreshDragVisuals();
     }
@@ -785,43 +947,58 @@ class _BoardState<T extends Object> extends State<Board<T>>
 
   // --- Letting go ----------------------------------------------------------
 
+  /// Lets go of the drag in progress, if there is one, and returns it.
+  /// What becomes of its lifted copy is the caller's business.
+  _Drag<T>? _releaseDrag() {
+    final drag = _drag;
+    if (drag == null) return null;
+    _drag = null;
+    HardwareKeyboard.instance.removeHandler(_handleDragKey);
+    _outerPosition?.removeListener(_scrolled);
+    _outerPosition = null;
+    return drag;
+  }
+
+  /// Tells the parent and the controller that [drag] is over — after the
+  /// frame when the tree is building, since they may well call `setState`.
+  void _reportDragEnd(_Drag<T> drag) {
+    void report() {
+      widget.onDragEnd?.call(drag.item);
+      widget.controller?._dragChanged();
+    }
+
+    if (SchedulerBinding.instance.schedulerPhase ==
+        SchedulerPhase.persistentCallbacks) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        if (mounted) report();
+      });
+    } else {
+      report();
+    }
+  }
+
   /// Ends the drag: with [commit] the item is dropped where it is, and the
   /// parent is told if that is somewhere new; without, it goes back.
   void _endDrag({required bool commit}) {
     final drag = _drag;
     if (drag == null) return;
     final proxy = drag.proxy;
-    final source = _locations[drag.id];
-    final item = _itemAt(source);
-
-    BoardMove<T>? move;
-    Rect? landing;
-    if (commit &&
-        source != null &&
-        item != null &&
-        drag.targetColumn != null &&
-        !drag.refused) {
-      final from = _columnIds[source.column];
-      if (drag.targetColumn != from || drag.targetIndex != source.index) {
-        move = BoardMove<T>(
-          item: item,
-          fromColumn: from,
-          fromIndex: source.index,
-          toColumn: drag.targetColumn!,
-          toIndex: drag.targetIndex,
-        );
-        landing = _columnStates[drag.targetColumn]?._slotRect(
-          drag.targetIndex,
-          drag,
-        );
-      }
-    }
     final target = _columnOf(drag.targetColumn);
 
-    _drag = null;
-    HardwareKeyboard.instance.removeHandler(_handleDragKey);
-    _outerPosition?.removeListener(_scrolled);
-    _outerPosition = null;
+    // The rules are asked once more, as they are now: the column may have
+    // filled up, or the app changed its mind, since the target was last
+    // worked out — a keyboard drag works it out only when a key is pressed.
+    var move = commit ? _moveFor(drag) : null;
+    var refused = false;
+    if (move != null && (drag.refused || !_allows(move))) {
+      move = null;
+      refused = true;
+    }
+    final landing = move == null
+        ? null
+        : _columnStates[move.toColumn]?._slotRect(move.toIndex, drag);
+
+    _releaseDrag();
 
     if (_style.reduced) {
       // Nothing flies: the item is simply where the next build puts it.
@@ -841,21 +1018,23 @@ class _BoardState<T extends Object> extends State<Board<T>>
     // After a move the other items keep heading where the drag sent them:
     // that is where the parent's new lists will have them. Told to go home
     // first, they would start back for a frame and then turn round again.
-    if (move == null) _applyShiftTargets();
+    // With reduced motion nothing heads anywhere: an item is where it is
+    // laid out, and the lists changing lays it out anew in the same frame.
+    if (move == null || _style.reduced) _applyShiftTargets();
 
-    if (drag.touch) HapticFeedback.lightImpact();
-    if (item != null) widget.onDragEnd?.call(item);
-    widget.controller?._dragChanged();
+    if (drag.touch) Haptics.impact(context);
+    _reportDragEnd(drag);
 
     if (move != null) {
-      if (drag.mode == _DragMode.keyboard) _refocus = drag.id;
       widget.onMove(move);
       _scheduleAfterFrame();
     }
-    if (drag.mode == _DragMode.keyboard) {
+    if (drag.mode == _DragMode.keyboard && mounted) {
       final strings = FinesseLocalizations.of(context).board;
       _announce(
-        move == null || target == null
+        refused && target != null
+            ? strings.refused(column: target.label)
+            : move == null || target == null
             ? strings.cancelled
             : strings.dropped(
                 column: target.label,
@@ -867,25 +1046,17 @@ class _BoardState<T extends Object> extends State<Board<T>>
     _ensureTicking();
   }
 
-  /// Lets go of a dragged item that is no longer on the board.
+  /// Lets go of a dragged item that is no longer on the board. Called
+  /// while the board is building.
   void _abortDrag() {
-    final drag = _drag;
+    final drag = _releaseDrag();
     if (drag == null) return;
-    _drag = null;
-    HardwareKeyboard.instance.removeHandler(_handleDragKey);
-    _outerPosition?.removeListener(_scrolled);
-    _outerPosition = null;
     drag.proxy
       ..phase = _ProxyPhase.flying
       ..interactive = false
+      ..forbidden = false
       ..fading = true;
-    // Told after the frame: this is called while the board is building.
-    final controller = widget.controller;
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      widget.onDragEnd?.call(drag.item);
-      controller?._dragChanged();
-    });
+    _reportDragEnd(drag);
   }
 
   /// Moves an item without a drag: for assistive technology and the
@@ -915,15 +1086,14 @@ class _BoardState<T extends Object> extends State<Board<T>>
       toIndex: index,
     );
     final strings = FinesseLocalizations.of(context).board;
-    if (!_columnAccepts(to, item, from) ||
-        !(widget.canMove?.call(move) ?? true)) {
+    if (!_allows(move)) {
       if (announce) _announce(strings.refused(column: to.label));
       return false;
     }
     if (_drag?.id == id) _endDrag(commit: false);
 
     // Across columns the item flies; within one, it slides with the rest.
-    if (to.id != from && !_style.reduced && !_proxies.containsKey(id)) {
+    if (to.id != from && !_still && !_proxies.containsKey(id)) {
       final rect = _cardRect(id);
       if (rect != null) {
         _spawnProxy(id, item, rect)
@@ -932,7 +1102,6 @@ class _BoardState<T extends Object> extends State<Board<T>>
           ..lift.target = 1;
       }
     }
-    if (_slots[id]?._focusNode.hasFocus ?? false) _refocus = id;
     widget.onMove(move);
     _scheduleAfterFrame();
     if (announce) {
@@ -958,7 +1127,26 @@ class _BoardState<T extends Object> extends State<Board<T>>
 
   // --- Keyboard ------------------------------------------------------------
 
-  KeyEventResult _handleItemKey(_BoardSlotState<T> slot, KeyEvent event) {
+  /// Whether the slot of the item with [id] is being kept alive by a lazy
+  /// list without being laid out: scrolled out of view while its item has
+  /// the focus.
+  bool _keptOffScreen(Object id) {
+    final slot = _slots[id];
+    return slot != null &&
+        slot.mounted &&
+        slot._render != null &&
+        slot._box == null;
+  }
+
+  static final Set<LogicalKeyboardKey> _traversalKeys = {
+    LogicalKeyboardKey.tab,
+    LogicalKeyboardKey.arrowUp,
+    LogicalKeyboardKey.arrowDown,
+    LogicalKeyboardKey.arrowLeft,
+    LogicalKeyboardKey.arrowRight,
+  };
+
+  KeyEventResult _handleItemKey(_BoardItemState<T> item, KeyEvent event) {
     if (event is KeyUpEvent) return KeyEventResult.ignored;
     final key = event.logicalKey;
     final drag = _drag;
@@ -966,10 +1154,32 @@ class _BoardState<T extends Object> extends State<Board<T>>
         key == LogicalKeyboardKey.space ||
         key == LogicalKeyboardKey.enter ||
         key == LogicalKeyboardKey.numpadEnter;
+    // The drag, if this is the item the keyboard is carrying.
+    final held =
+        drag != null &&
+            drag.mode == _DragMode.keyboard &&
+            drag.id == item.widget.id
+        ? drag
+        : null;
 
-    if (drag != null &&
-        drag.mode == _DragMode.keyboard &&
-        drag.id == slot.widget.id) {
+    // The focus is in an item that a lazy list is keeping alive off screen.
+    // Nothing in there has a position, and a focus traversal scrolls to
+    // where it lands: one that stayed within the item — from the item to a
+    // button inside it — would throw (`getOffsetToReveal` has no offset to
+    // work with once the list has been reordered). So the key brings the
+    // item back into view instead, and the next one moves on from there.
+    if (_traversalKeys.contains(key) && _keptOffScreen(item.widget.id)) {
+      if (held != null && key == LogicalKeyboardKey.tab) {
+        _endDrag(commit: true);
+      }
+      if (held == null || key == LogicalKeyboardKey.tab) {
+        _showItem(item.widget.id);
+        return KeyEventResult.handled;
+      }
+    }
+    if (!widget.enabled) return KeyEventResult.ignored;
+
+    if (held != null) {
       if (key == LogicalKeyboardKey.escape) {
         _endDrag(commit: false);
         return KeyEventResult.handled;
@@ -979,22 +1189,23 @@ class _BoardState<T extends Object> extends State<Board<T>>
         return KeyEventResult.handled;
       }
       if (key == LogicalKeyboardKey.tab) {
+        // Dropped where it is, and the key goes on to move the focus.
         _endDrag(commit: true);
         return KeyEventResult.ignored;
       }
       final forward = _style.textDirection == TextDirection.rtl ? -1 : 1;
       if (key == LogicalKeyboardKey.arrowUp) {
-        _keyboardStep(drag, rows: -1);
+        _keyboardStep(held, rows: -1);
       } else if (key == LogicalKeyboardKey.arrowDown) {
-        _keyboardStep(drag, rows: 1);
+        _keyboardStep(held, rows: 1);
       } else if (key == LogicalKeyboardKey.arrowLeft) {
-        _keyboardStep(drag, columns: -forward);
+        _keyboardStep(held, columns: -forward);
       } else if (key == LogicalKeyboardKey.arrowRight) {
-        _keyboardStep(drag, columns: forward);
+        _keyboardStep(held, columns: forward);
       } else if (key == LogicalKeyboardKey.home) {
-        _keyboardStep(drag, rows: -drag.targetIndex);
+        _keyboardStep(held, rows: -held.targetIndex);
       } else if (key == LogicalKeyboardKey.end) {
-        _keyboardStep(drag, rows: 1 << 20);
+        _keyboardStep(held, rows: 1 << 20);
       } else {
         return KeyEventResult.ignored;
       }
@@ -1004,9 +1215,9 @@ class _BoardState<T extends Object> extends State<Board<T>>
     if (drag == null &&
         activate &&
         event is KeyDownEvent &&
-        slot._focusNode.hasPrimaryFocus) {
+        item._focusNode.hasPrimaryFocus) {
       final started = _startDrag(
-        slot.widget.id,
+        item.widget.id,
         mode: _DragMode.keyboard,
         pointer: Offset.zero,
         touch: false,
@@ -1016,6 +1227,58 @@ class _BoardState<T extends Object> extends State<Board<T>>
       return KeyEventResult.handled;
     }
     return KeyEventResult.ignored;
+  }
+
+  /// Scrolls the column of the item with [id] until its slot is laid out
+  /// and in view.
+  ///
+  /// A slot that is not laid out has no position to scroll to. It is found
+  /// by stepping: from the nearest slot that is laid out, as many average
+  /// item heights as there are items in between, and again from wherever
+  /// that leads; [attempt] counts the steps.
+  void _showItem(Object id, {int attempt = 0}) {
+    final location = _locations[id];
+    final slot = _slots[id];
+    if (location == null || slot == null || !slot.mounted) return;
+    final state = _columnStates[_columnIds[location.column]];
+    final position = state?._position;
+    final list = state?._listBox;
+    if (state == null || position == null || list == null) return;
+    if (slot._box != null) {
+      Scrollable.ensureVisible(slot.context, alignment: .5);
+      return;
+    }
+    if (attempt >= 4) return;
+
+    _BoardSlotState<T>? nearest;
+    for (final other in state._mounted) {
+      if (other._box == null) continue;
+      if (nearest == null ||
+          (other.widget.index - location.index).abs() <
+              (nearest.widget.index - location.index).abs()) {
+        nearest = other;
+      }
+    }
+    final min = position.minScrollExtent;
+    final max = position.maxScrollExtent;
+    final count = state.widget.column.items.length;
+    double to;
+    if (nearest == null) {
+      to = min + (max - min) * location.index / math.max(1, count - 1);
+    } else {
+      final box = nearest._box!;
+      final top = box.localToGlobal(Offset.zero, ancestor: list).dy;
+      to =
+          position.pixels +
+          top +
+          (location.index - nearest.widget.index) * box.size.height -
+          list.size.height / 2;
+    }
+    position.jumpTo(to.clamp(min, max));
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _showItem(id, attempt: attempt + 1);
+    });
+    SchedulerBinding.instance.ensureVisualUpdate();
   }
 
   /// An item picked up from the keyboard is put back when focus leaves it.
@@ -1074,7 +1337,8 @@ class _BoardState<T extends Object> extends State<Board<T>>
 
     drag
       ..targetColumn = column.id
-      ..targetIndex = index;
+      ..targetIndex = index
+      ..refused = false;
     _applyShiftTargets();
     _refreshDragVisuals(restart: true);
     _reveal(drag);
@@ -1089,37 +1353,78 @@ class _BoardState<T extends Object> extends State<Board<T>>
   }
 
   /// Scrolls the board and the target column until the slot is in view.
-  void _reveal(_Drag<T> drag) {
+  ///
+  /// A lazy column knows where a slot is only once its neighbours are
+  /// built. Until then the column is scrolled to about where the slot must
+  /// be — the far end for End, the start for Home, in proportion in between
+  /// — and asked again when it has built what is there; [attempt] counts
+  /// those rounds.
+  void _reveal(_Drag<T> drag, {int attempt = 0}) {
     final columnId = drag.targetColumn;
     if (columnId == null) return;
-    _showColumn(columnId);
+    if (attempt == 0) _showColumn(columnId);
     final state = _columnStates[columnId];
-    final slot = state?._slotRect(drag.targetIndex, drag);
     final position = widget.shrinkWrap ? _outerPosition : state?._position;
     final viewport = widget.shrinkWrap ? _outerViewport : state?._listRect;
-    if (slot == null || position == null || viewport == null) return;
-    final margin = _style.itemGap + _style.columnPadding.bottom;
-    var delta = 0.0;
-    if (slot.top < viewport.top + margin) {
-      delta = slot.top - viewport.top - margin;
-    } else if (slot.bottom > viewport.bottom - margin) {
-      delta = slot.bottom - viewport.bottom + margin;
+    if (state == null || position == null || viewport == null) return;
+
+    final index = drag.targetIndex;
+    final slot = state._slotRect(index, drag);
+    double to;
+    if (slot != null) {
+      final margin = _style.itemGap + _style.columnPadding.bottom;
+      var delta = 0.0;
+      if (slot.top < viewport.top + margin) {
+        delta = slot.top - viewport.top - margin;
+      } else if (slot.bottom > viewport.bottom - margin) {
+        delta = slot.bottom - viewport.bottom + margin;
+      }
+      if (delta == 0) return;
+      to = position.pixels + delta;
+    } else {
+      if (widget.shrinkWrap || attempt >= 3) return;
+      final count = _countWithout(state.widget.column, drag.id);
+      final min = position.minScrollExtent;
+      final max = position.maxScrollExtent;
+      to = index <= 0
+          ? min
+          : index >= count
+          ? max
+          : min + (max - min) * index / count;
     }
-    if (delta == 0) return;
-    _animateTo(position, position.pixels + delta);
+
+    final scrolled = _animateTo(position, to);
+    if (slot != null) return;
+    // Look again once the scroll has ended and the list has been laid out
+    // where it ended — unless the item has been taken somewhere else since.
+    scrolled.whenComplete(() {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        if (mounted &&
+            identical(_drag, drag) &&
+            drag.targetColumn == columnId &&
+            drag.targetIndex == index) {
+          _reveal(drag, attempt: attempt + 1);
+        }
+      });
+      SchedulerBinding.instance.ensureVisualUpdate();
+    });
   }
 
-  void _animateTo(ScrollPosition position, double pixels) {
+  Future<void> _animateTo(ScrollPosition position, double pixels) {
     final to = pixels.clamp(
       position.minScrollExtent,
       position.maxScrollExtent,
     );
-    if ((to - position.pixels).abs() < .5) return;
+    if ((to - position.pixels).abs() < .5) return Future<void>.value();
     if (_style.reduced) {
       position.jumpTo(to);
-    } else {
-      position.animateTo(to, duration: _style.turn, curve: _style.turnCurve);
+      return Future<void>.value();
     }
+    return position.animateTo(
+      to,
+      duration: _style.turn,
+      curve: _style.turnCurve,
+    );
   }
 
   Future<void> _showColumn(Object columnId) async {
@@ -1314,23 +1619,31 @@ class _BoardState<T extends Object> extends State<Board<T>>
     }
 
     _shifts.removeWhere((id, spring) {
+      if (spring.atRest) return spring.value == 0;
       final moving = spring.advance(dt, style.shift);
       final slot = _slots[id];
-      if (slot != null && slot.mounted) slot._render?.shift = spring.value;
-      if (moving) busy = true;
-      return !moving && spring.value == 0;
+      final render = slot != null && slot.mounted ? slot._render : null;
+      render?.shift = spring.value;
+      if (moving) {
+        busy = true;
+        return false;
+      }
+      render?.shiftSettled();
+      return spring.value == 0;
     });
 
-    for (final proxy in _proxies.values.toList()) {
+    List<_Proxy<T>>? landed;
+    for (final proxy in _proxies.values) {
       if (_advanceProxy(proxy, dt)) {
         busy = true;
         proxy.changed();
       } else if (proxy.phase == _ProxyPhase.held) {
         proxy.changed();
       } else {
-        _removeProxy(proxy);
+        (landed ??= []).add(proxy);
       }
     }
+    if (landed != null) landed.forEach(_removeProxy);
 
     final fade = style.fade.inMicroseconds / Duration.microsecondsPerSecond;
     for (final state in _columnStates.values) {
@@ -1501,14 +1814,16 @@ class _BoardState<T extends Object> extends State<Board<T>>
 
   // --- Build ---------------------------------------------------------------
 
-  _BoardStyle _resolveStyle(BuildContext context) {
+  /// The board's look. A subclass whose items are not cards passes the
+  /// [itemTheme] they are built under, so that none is derived for them.
+  _BoardStyle _resolveStyle(BuildContext context, {ThemeData? itemTheme}) {
     final theme = Theme.of(context);
     final board = theme.boardTheme;
     final scheme = theme.colorScheme;
     final motion = Motion.of(context);
     final direction = Directionality.of(context);
     final columnColor = board.columnColor ?? scheme.muted;
-    final itemRadius = board.itemRadius ?? theme.radii.xl;
+    final itemRadius = board.itemBorderRadius ?? theme.radii.xl;
     final small = theme.textTheme.small;
 
     MotionSpring spring(MotionSpring? own, MotionSpring fallback) =>
@@ -1529,7 +1844,7 @@ class _BoardState<T extends Object> extends State<Board<T>>
       footerPadding:
           (board.footerPadding ?? const EdgeInsets.fromLTRB(8, 0, 8, 8))
               .resolve(direction),
-      columnRadius: board.columnRadius ?? theme.radii.xl2,
+      columnRadius: board.columnBorderRadius ?? theme.radii.xl2,
       columnColor: columnColor,
       columnBorderColor: board.columnBorderColor ?? const Color(0x00000000),
       targetColumnColor: board.targetColumnColor ?? columnColor,
@@ -1588,7 +1903,7 @@ class _BoardState<T extends Object> extends State<Board<T>>
       autoScrollSpeed: board.autoScrollSpeed ?? 900,
       snap: widget.snap ?? board.snap ?? false,
       reduced: motion.reduced,
-      itemTheme: _itemThemeOf(theme),
+      itemTheme: itemTheme ?? _itemThemeOf(theme),
       textDirection: direction,
     );
   }
@@ -1602,7 +1917,7 @@ class _BoardState<T extends Object> extends State<Board<T>>
         cardTheme: theme.cardTheme.copyWith(
           backgroundColor: board.itemColor,
           padding: board.itemPadding,
-          radius: board.itemRadius,
+          borderRadius: board.itemBorderRadius,
           shadows: board.itemShadows,
           // An item is opaque: there is nothing for a backdrop to show, and
           // a filter per card is a great deal to pay for it.
@@ -1619,6 +1934,23 @@ class _BoardState<T extends Object> extends State<Board<T>>
     final board = Theme.of(context).boardTheme;
     final columns = widget.columns;
 
+    // The lifted copies are overlay children of the board itself, not
+    // entries of their own in the overlay: they are painted right above the
+    // board's page and under whatever is opened over it, they inherit what
+    // the board inherits, and they go when the board goes.
+    return OverlayPortal(
+      controller: _portal,
+      overlayChildBuilder: (context) => _ProxyLayer<T>(board: this),
+      child: _buildColumns(context, style, board, columns),
+    );
+  }
+
+  Widget _buildColumns(
+    BuildContext context,
+    _BoardStyle style,
+    BoardTheme board,
+    List<BoardColumn<T>> columns,
+  ) {
     return LayoutBuilder(
       builder: (context, constraints) {
         if (!constraints.hasBoundedWidth) {
@@ -1686,11 +2018,14 @@ class _BoardState<T extends Object> extends State<Board<T>>
           children: [
             for (final (index, column) in columns.indexed)
               Padding(
+                // On the row's own child, so that a column that is removed,
+                // inserted or moved takes only itself with it: the row
+                // matches its children by this key, not by position.
+                key: ValueKey<Object>(column.id),
                 padding: EdgeInsetsDirectional.only(
                   start: index == 0 ? 0 : gap,
                 ),
                 child: _BoardColumnView<T>(
-                  key: ValueKey<Object>(column.id),
                   board: this,
                   column: column,
                   index: index,

@@ -1,10 +1,14 @@
 import 'dart:math' as math;
 
 import 'package:finesse/src/i18n/localizations_delegate.dart';
+import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/raw_components/pressable.dart';
+import 'package:finesse/src/theme/components/board.dart';
 import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/debug_check.dart';
+import 'package:finesse/src/utils/haptics.dart';
 import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -16,18 +20,18 @@ import 'package:flutter/widgets.dart';
 part 'board_column.dart';
 part 'board_motion.dart';
 part 'board_state.dart';
+part 'reorderable_list_view.dart';
 
 /// Builds one item of a [Board].
 ///
 /// It is called for the item in its column and, while the item is being
 /// dragged, a second time for the lifted copy that follows the pointer; see
 /// [BoardItemDetails.dragging].
-typedef BoardItemBuilder<T> =
-    Widget Function(
-      BuildContext context,
-      T item,
-      BoardItemDetails<T> details,
-    );
+typedef BoardItemBuilder<T> = Widget Function(
+  BuildContext context,
+  T item,
+  BoardItemDetails<T> details,
+);
 
 /// What starts a drag in a [Board].
 enum BoardDragTrigger {
@@ -290,12 +294,40 @@ class BoardController<T extends Object> extends ChangeNotifier {
 /// ## Items
 ///
 /// Items are told apart by [itemId], or by `==` without one, so an item
-/// keeps its state when it moves. A `Card` returned by [itemBuilder] takes
-/// the board's own, tighter metrics (`BoardTheme.itemPadding`,
-/// `itemRadius`) and an opaque fill. The lifted copy is built by the same
-/// builder but lives in the nearest `Overlay`, above the rest of the page:
-/// it sees the board's theme, text direction and media query, and nothing
-/// else that is inherited from between the overlay and the board.
+/// keeps its state — and the keyboard focus, if it has it — when it moves,
+/// to another place in its column or to another column. (A column that
+/// scrolls builds only the items in view: an item sent somewhere that is
+/// not built starts afresh when it is scrolled to.) Columns are told apart
+/// by `BoardColumn.id` in the same way, so removing, adding or reordering
+/// columns leaves the others, and how far each is scrolled, as they were.
+///
+/// A `Card` returned by [itemBuilder] takes the board's own, tighter
+/// metrics (`BoardTheme.itemPadding`, `itemBorderRadius`) and an opaque fill.
+///
+/// The lifted copy is built by the same builder, as an overlay child of
+/// the board: it inherits everything the board inherits, and it is painted
+/// in the nearest `Overlay` right above the page the board is on — over
+/// the rest of that page, under a dialog or a page opened on top of it. It
+/// is a picture of the item: it takes no pointer, no focus and no part in
+/// the semantics tree, and it is a second instance, with a state of its
+/// own that lasts as long as the item is in the air.
+///
+/// ## When the rules are asked
+///
+/// [BoardColumn.limit], [BoardColumn.canAccept] and [canMove] are asked
+/// when the item comes over a new place, again whenever the board is
+/// rebuilt while it is held, and once more as it is dropped — not for
+/// every movement of the pointer. A drop the rules no longer allow is not
+/// reported: the item goes back.
+///
+/// ## Off stage
+///
+/// A board that cannot be seen sets nothing in motion. When a page covers
+/// its route, when it is in the hidden child of an `IndexedStack` or a
+/// `Visibility`, when a `TickerMode` above it is switched off or when the
+/// app goes to the background, a held item is put back (with
+/// [onDragEnd], and without [onMove]) and an item still flying to its
+/// slot is simply there.
 ///
 /// See also:
 ///
@@ -418,7 +450,7 @@ class Board<T extends Object> extends StatefulWidget {
 /// ```dart
 /// Card(
 ///   leading: const BoardDragHandle(
-///     child: Icon(PhosphorIconsRegular.dotsSixVertical),
+///     child: PhosphorIcon(PhosphorIconsRegular.dotsSixVertical),
 ///   ),
 ///   child: Text(task.title),
 /// )
@@ -433,15 +465,23 @@ class BoardDragHandle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scope = context.dependOnInheritedWidgetOfExactType<_BoardItemScope>();
-    // The lifted copy has no scope: its grip is only a picture.
-    if (scope == null || !scope.enabled) return child;
+    // The lifted copy has no scope, and a disabled board drags nothing:
+    // the grip is then only a picture. It is the same tree either way, so
+    // whatever is inside keeps its state when the board is switched off
+    // and on.
+    final active = scope != null && scope.enabled;
     return MouseRegion(
-      cursor: SystemMouseCursors.grab,
+      cursor: active ? SystemMouseCursors.grab : MouseCursor.defer,
+      opaque: active,
       child: Listener(
-        behavior: HitTestBehavior.opaque,
-        onPointerDown: scope.startHandleDrag,
+        behavior: active
+            ? HitTestBehavior.opaque
+            : HitTestBehavior.deferToChild,
+        onPointerDown: active ? scope.startHandleDrag : null,
         child: Semantics(
-          label: FinesseLocalizations.of(context).board.dragHandle,
+          label: active
+              ? FinesseLocalizations.of(context).board.dragHandle
+              : null,
           child: child,
         ),
       ),

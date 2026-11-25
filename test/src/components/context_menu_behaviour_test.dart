@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   Future<void> pumpMenu(
     WidgetTester tester, {
-    required FinesseContextMenuController controller,
+    required PopoverController controller,
     List<Widget> items = const [],
     List<Widget> Function(BuildContext)? itemsBuilder,
     Size size = const Size(800, 600),
@@ -41,15 +41,15 @@ void main() {
 
   group('showAt', () {
     testWidgets('opens with its corner at the point', (tester) async {
-      final controller = FinesseContextMenuController();
+      final controller = PopoverController();
       addTearDown(controller.dispose);
       await pumpMenu(
         tester,
         controller: controller,
-        items: const [ContextMenuItem(child: Text('Copy'))],
+        items: const [MenuItem(child: Text('Copy'))],
       );
 
-      controller.showAt(const Offset(200, 150));
+      controller.openAt(const Offset(200, 150));
       await tester.pumpAndSettle();
       final rect = menuRect(tester, 'Copy');
       expect(rect.topLeft.dx, moreOrLessEquals(200, epsilon: 1));
@@ -59,15 +59,15 @@ void main() {
     testWidgets('mirrors to stay on screen near the far corner', (
       tester,
     ) async {
-      final controller = FinesseContextMenuController();
+      final controller = PopoverController();
       addTearDown(controller.dispose);
       await pumpMenu(
         tester,
         controller: controller,
-        items: const [ContextMenuItem(child: Text('Copy'))],
+        items: const [MenuItem(child: Text('Copy'))],
       );
 
-      controller.showAt(const Offset(795, 595));
+      controller.openAt(const Offset(795, 595));
       await tester.pumpAndSettle();
       final rect = menuRect(tester, 'Copy');
       expect(rect.right, lessThanOrEqualTo(800));
@@ -81,17 +81,17 @@ void main() {
   testWidgets('a long menu is capped to the screen and scrolls', (
     tester,
   ) async {
-    final controller = FinesseContextMenuController();
+    final controller = PopoverController();
     addTearDown(controller.dispose);
     await pumpMenu(
       tester,
       controller: controller,
       size: const Size(400, 300),
       items: [
-        for (var i = 0; i < 40; i++) ContextMenuItem(child: Text('Item $i')),
+        for (var i = 0; i < 40; i++) MenuItem(child: Text('Item $i')),
       ],
     );
-    controller.showAt(const Offset(10, 10));
+    controller.openAt(const Offset(10, 10));
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
@@ -108,7 +108,7 @@ void main() {
   testWidgets('itemsBuilder runs only while the menu is open', (
     tester,
   ) async {
-    final controller = FinesseContextMenuController();
+    final controller = PopoverController();
     addTearDown(controller.dispose);
     var builds = 0;
     await pumpMenu(
@@ -116,36 +116,36 @@ void main() {
       controller: controller,
       itemsBuilder: (_) {
         builds++;
-        return const [ContextMenuItem(child: Text('Lazy'))];
+        return const [MenuItem(child: Text('Lazy'))];
       },
     );
     expect(builds, 0);
 
-    controller.show();
+    controller.open();
     await tester.pumpAndSettle();
     expect(builds, greaterThan(0));
     expect(find.text('Lazy'), findsOneWidget);
   });
 
   group('keyboard', () {
-    Future<FinesseContextMenuController> openMenu(WidgetTester tester) async {
-      final controller = FinesseContextMenuController();
+    Future<PopoverController> openMenu(WidgetTester tester) async {
+      final controller = PopoverController();
       addTearDown(controller.dispose);
       await pumpMenu(
         tester,
         controller: controller,
         items: const [
           // A leading icon renders a glyph as text; type-ahead must skip it.
-          ContextMenuItem(
+          MenuItem(
             leading: Icon(IconData(0x41)),
             child: Text('Back'),
           ),
-          ContextMenuItem(child: Text('Copy')),
-          ContextMenuItem(child: Text('Cut')),
-          ContextMenuItem(child: Text('Paste')),
+          MenuItem(child: Text('Copy')),
+          MenuItem(child: Text('Cut')),
+          MenuItem(child: Text('Paste')),
         ],
       );
-      controller.show();
+      controller.open();
       // Past the entrance animation, which ignores pointers and keys.
       for (var i = 0; i < 12; i++) {
         await tester.pump(const Duration(milliseconds: 50));
@@ -220,19 +220,19 @@ void main() {
   testWidgets('a submenu near the right edge opens on the left', (
     tester,
   ) async {
-    final controller = FinesseContextMenuController();
+    final controller = PopoverController();
     addTearDown(controller.dispose);
     await pumpMenu(
       tester,
       controller: controller,
       items: const [
-        ContextMenuItem(
-          items: [ContextMenuItem(child: Text('Nested'))],
+        MenuItem(
+          items: [MenuItem(child: Text('Nested'))],
           child: Text('More'),
         ),
       ],
     );
-    controller.showAt(const Offset(780, 100));
+    controller.openAt(const Offset(780, 100));
     await tester.pumpAndSettle();
 
     final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
@@ -258,31 +258,84 @@ void main() {
     expect(submenu.right, lessThanOrEqualTo(parent.left + 9));
   });
 
+  testWidgets('ContextMenuTheme.subMenuPadding pads a submenu, and only a '
+      'submenu', (tester) async {
+    final controller = PopoverController();
+    addTearDown(controller.dispose);
+    await tester.pumpWidget(
+      FinesseApp(
+        theme: ThemeData(
+          contextMenuTheme: const ContextMenuTheme(
+            padding: EdgeInsets.symmetric(vertical: 4),
+            subMenuPadding: EdgeInsets.symmetric(vertical: 20),
+          ),
+        ),
+        home: Align(
+          alignment: Alignment.topLeft,
+          child: ContextMenu(
+            controller: controller,
+            items: const [
+              MenuItem(
+                items: [MenuItem(child: Text('Nested'))],
+                child: Text('More'),
+              ),
+            ],
+            child: const SizedBox(width: 10, height: 10),
+          ),
+        ),
+      ),
+    );
+    controller.openAt(const Offset(100, 100));
+    await tester.pumpAndSettle();
+    final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    addTearDown(mouse.removePointer);
+    await mouse.addPointer(location: Offset.zero);
+    await mouse.moveTo(tester.getCenter(find.text('More')));
+    await tester.pumpAndSettle();
+
+    // From the top of a menu's surface to the top of its list.
+    double inset(String item) {
+      final list = find
+          .ancestor(
+            of: find.text(item),
+            matching: find.byType(SingleChildScrollView),
+          )
+          .first;
+      final surface = find
+          .ancestor(of: list, matching: find.byType(Decorator))
+          .first;
+      return tester.getRect(list).top - tester.getRect(surface).top;
+    }
+
+    expect(inset('More'), moreOrLessEquals(4, epsilon: 1.5));
+    expect(inset('Nested'), moreOrLessEquals(20, epsilon: 1.5));
+  });
+
   group('moving to another row', () {
     Future<TestGesture> openFirst(WidgetTester tester) async {
-      final controller = FinesseContextMenuController();
+      final controller = PopoverController();
       addTearDown(controller.dispose);
       await pumpMenu(
         tester,
         controller: controller,
         items: const [
-          ContextMenuItem(
+          MenuItem(
             items: [
-              ContextMenuItem(
-                items: [ContextMenuItem(child: Text('Deep'))],
+              MenuItem(
+                items: [MenuItem(child: Text('Deep'))],
                 child: Text('Nested'),
               ),
             ],
             child: Text('First'),
           ),
-          ContextMenuItem(
-            items: [ContextMenuItem(child: Text('Second nested'))],
+          MenuItem(
+            items: [MenuItem(child: Text('Second nested'))],
             child: Text('Second'),
           ),
-          ContextMenuItem(child: Text('Leaf')),
+          MenuItem(child: Text('Leaf')),
         ],
       );
-      controller.showAt(const Offset(100, 100));
+      controller.openAt(const Offset(100, 100));
       await tester.pumpAndSettle();
 
       final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
@@ -332,23 +385,23 @@ void main() {
   testWidgets('a submenu closes on time while the pointer keeps moving', (
     tester,
   ) async {
-    final controller = FinesseContextMenuController();
+    final controller = PopoverController();
     addTearDown(controller.dispose);
     await pumpMenu(
       tester,
       controller: controller,
       items: const [
-        ContextMenuItem(
-          items: [ContextMenuItem(child: Text('First nested'))],
+        MenuItem(
+          items: [MenuItem(child: Text('First nested'))],
           child: Text('First'),
         ),
-        ContextMenuItem(
-          items: [ContextMenuItem(child: Text('Second nested'))],
+        MenuItem(
+          items: [MenuItem(child: Text('Second nested'))],
           child: Text('Second'),
         ),
       ],
     );
-    controller.showAt(const Offset(100, 100));
+    controller.openAt(const Offset(100, 100));
     await tester.pumpAndSettle();
 
     final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);

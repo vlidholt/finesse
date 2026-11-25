@@ -44,7 +44,7 @@ void main() {
           home: const Scaffold(
             body: ContextMenuRegion(
               items: [
-                ContextMenuItem(child: Text('Copy')),
+                MenuItem(child: Text('Copy')),
               ],
               child: SizedBox(
                 key: Key('region'),

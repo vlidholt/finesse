@@ -1,10 +1,12 @@
+import 'package:example/strand/data/applications_data.dart';
 import 'package:example/strand/data/home_data.dart';
-import 'package:example/strand/data/jobs_data.dart';
 import 'package:example/strand/data/profile_data.dart';
 import 'package:example/strand/navigation.dart';
+import 'package:example/strand/session.dart';
 import 'package:example/strand/widgets/home_pieces.dart';
 import 'package:example/strand/widgets/person_avatar.dart';
 import 'package:example/strand/widgets/strand_pieces.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -13,7 +15,8 @@ import 'package:flutter/widgets.dart';
 /// on a phone.
 ///
 /// What the home feed's "Saved items" shortcut and the avatar menu lead to.
-/// A row closes the sheet and goes to where the item lives.
+/// A row closes the sheet and goes to where the item lives. The jobs are
+/// the "Saved" column of the "My applications" board, newest on top.
 Future<void> showSavedItems(BuildContext context) async {
   final mobile = Theme.of(context).formFactor == FormFactor.mobile;
   final destination = await showSheet<StrandDestination>(
@@ -27,6 +30,10 @@ Future<void> showSavedItems(BuildContext context) async {
 class _SavedItemsSheet extends StatelessWidget {
   const _SavedItemsSheet();
 
+  /// How many of the saved jobs are listed; the link under them leads to
+  /// the rest.
+  static const _jobsShown = 2;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -35,6 +42,9 @@ class _SavedItemsSheet extends StatelessWidget {
     const post = HomeData.calmWriteUp;
     const talk = HomeData.configNordics;
     final article = ProfileData.featured.last;
+    // The board's "Saved" column: what the Jobs screen's tile counts, and
+    // where a listing saved on "Find jobs" turns up.
+    final savedJobs = context.strand.applications.at(ApplicationStage.saved);
 
     Widget row({
       required Widget leading,
@@ -53,21 +63,21 @@ class _SavedItemsSheet extends StatelessWidget {
       titleMaxLines: 2,
       title: Text(title),
       subtitle: Text(detail),
-      trailing: Text(saved, style: homeFinePrint(theme)),
+      trailing: Text(saved, style: theme.textTheme.caption),
     );
 
     Widget heading(String text) => Padding(
       padding: EdgeInsets.fromLTRB(
-        theme.layoutTheme.gap(GapSize.md),
-        theme.layoutTheme.gap(GapSize.lg),
-        theme.layoutTheme.gap(GapSize.md),
-        homeTightGap,
+        theme.gap(GapSize.md),
+        theme.gap(GapSize.lg),
+        theme.gap(GapSize.md),
+        theme.gap(GapSize.xs),
       ),
       child: Semantics(
         header: true,
         child: Text(
           text,
-          style: homeFinePrint(theme).copyWith(fontWeight: FontWeight.w600),
+          style: theme.textTheme.caption.copyWith(fontWeight: FontWeight.w600),
         ),
       ),
     );
@@ -75,35 +85,38 @@ class _SavedItemsSheet extends StatelessWidget {
     return Sheet(
       title: const Text('Saved items'),
       description: const Text('Only you can see what you save.'),
-      constraints: mobile ? null : const BoxConstraints(maxWidth: 420),
+      style: SheetTheme(
+        constraints: mobile ? null : const BoxConstraints(maxWidth: 420),
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          heading('Jobs · ${JobsData.savedJobs.value}'),
-          for (final (job, saved) in [
-            (JobsData.birchline, 'Sun'),
-            (JobsData.orbital, 'Nov 18'),
-          ])
+          heading('Jobs · ${savedJobs.length}'),
+          for (final application in savedJobs.take(_jobsShown))
             row(
               leading: StrandMark(
-                asset: job.company.logo,
-                label: job.company.name,
+                asset: application.company.logo,
+                label: application.company.name,
               ),
-              title: job.title,
-              detail: '${job.company.name} · ${job.location}',
-              saved: saved,
+              title: application.title,
+              detail: '${application.company.name} · ${application.location}',
+              saved: application.updated,
               destination: StrandDestination.jobs,
             ),
           Padding(
             padding: EdgeInsets.symmetric(
-              horizontal: theme.layoutTheme.gap(GapSize.md),
-              vertical: homeTightGap,
+              horizontal: theme.gap(GapSize.md),
+              vertical: theme.gap(GapSize.xs),
             ),
             child: Align(
               alignment: AlignmentDirectional.centerStart,
               child: HomeTextLink(
-                'See all ${JobsData.savedJobs.value} saved jobs',
+                switch (savedJobs.length) {
+                  0 => 'Find jobs to save',
+                  1 => 'See your saved job',
+                  final count => 'See all $count saved jobs',
+                },
                 onPressed: () =>
                     Navigator.of(context).pop(StrandDestination.jobs),
                 style: theme.textTheme.small.copyWith(color: scheme.tint),
@@ -112,23 +125,24 @@ class _SavedItemsSheet extends StatelessWidget {
           ),
           heading('Posts and articles · 3'),
           row(
-            leading: PersonAvatar(post.author, size: 44),
+            leading: PersonAvatar(post.author),
             title: post.link?.title ?? post.compactBody,
             detail: '${post.author.name} · ${post.age}',
             saved: 'Today',
             destination: StrandDestination.home,
           ),
           row(
-            leading: PersonAvatar(talk.author, size: 44),
+            leading: PersonAvatar(talk.author),
             title: talk.event?.title ?? talk.compactBody,
             detail: '${talk.author.name} · ${talk.age}',
             saved: 'Mon',
             destination: StrandDestination.home,
           ),
           row(
-            leading: const IconTile(
-              icon: Icon(PhosphorIconsRegular.article),
-              size: 44,
+            leading: IconTile(
+              icon: const PhosphorIcon(PhosphorIconsRegular.article),
+              size: theme.avatarMd,
+              iconSize: theme.avatarMd / 2,
             ),
             title: article.title,
             detail: 'By you · ${article.meta}',

@@ -82,10 +82,17 @@ void main() {
     // 36 -> nova's h-8.
     expect(finesse.buttonSizesTheme.regular!.height, 36);
     expect(copy.buttonSizesTheme.regular!.height, 32);
-    // The card goes opaque, so it stops blurring.
-    expect(finesse.cardTheme.blur, greaterThan(0));
+    // The card goes opaque. Neither style blurs behind its cards.
+    expect(finesse.cardTheme.backgroundColor!.a, lessThan(1));
+    expect(finesse.cardTheme.blur, 0);
     expect(copy.cardTheme.blur, 0);
     expect(copy.cardTheme.backgroundColor, copy.colorScheme.card);
+    // A style that does, loses it with the style.
+    final glass = ThemeData(
+      style: StyleTokens.finesse.copyWith(cardBlur: true),
+    );
+    expect(glass.cardTheme.blur, StyleTokens.finesse.glassBlur);
+    expect(glass.copyWith(style: StyleTokens.nova).cardTheme.blur, 0);
     // The published type scale becomes nova's: paragraphs are 14 in both,
     // but `large` drops from finesse's 15-point subtitle to nova's 14, and
     // `h4` from finesse's semibold title to nova's medium one.
@@ -110,7 +117,8 @@ void main() {
     expect(nova.radii.scale, const RadiusScale());
     // lg on the Tailwind scale: 8 * 1.25.
     expect(
-      (nova.primaryButtonTheme.decoration!.border!.radius! as BorderRadius)
+      (nova.primaryButtonTheme.decoration!.border!.borderRadius!
+              as BorderRadius)
           .topLeft
           .x,
       10,
@@ -156,6 +164,7 @@ void main() {
     const dark = TealColorScheme.dark();
     expect(copy.brightness, Brightness.dark);
     expect(copy.navigationBarTheme.selectedIconColor, dark.tint);
+    expect(copy.navigationRailTheme.selectedIconColor, dark.tint);
     expect(copy.chipTheme.selectedBorderColor, dark.accentBorder);
     expect(copy.glassTheme.color, dark.card);
     // The dark-only opacities are picked up with the scheme.
@@ -177,6 +186,45 @@ void main() {
     );
     final copy = themed.copyWith(radius: BorderRadius.circular(1));
     expect(copy.cardTheme.padding, const EdgeInsets.all(3));
+  });
+
+  test('the floating action button and app bar themes survive a copy, and '
+      'can be the copy', () {
+    final themed = ThemeData(
+      floatingActionButtonTheme: const FloatingActionButtonTheme(size: 60),
+      appBarTheme: const AppBarTheme(centerTitle: true),
+    );
+    final copy = themed.copyWith(radius: BorderRadius.circular(1));
+    expect(copy.floatingActionButtonTheme.size, 60);
+    expect(copy.appBarTheme.centerTitle, isTrue);
+    // Merged over what the variant derives, not replacing it.
+    expect(
+      copy.floatingActionButtonTheme.backgroundColor,
+      copy.colorScheme.primary,
+    );
+
+    final changed = base.copyWith(
+      floatingActionButtonTheme: const FloatingActionButtonTheme(gap: 3),
+    );
+    expect(changed.floatingActionButtonTheme.gap, 3);
+    expect(
+      changed.floatingActionButtonTheme.size,
+      base.floatingActionButtonTheme.size,
+    );
+    // Recoloured with the scheme, resized with the form factor.
+    const dark = TealColorScheme.dark();
+    expect(
+      base
+          .copyWith(colorScheme: dark)
+          .floatingActionButtonTheme
+          .backgroundColor,
+      dark.primary,
+    );
+    expect(base.floatingActionButtonTheme.size, 48);
+    expect(
+      base.withFormFactor(FormFactor.mobile).floatingActionButtonTheme.size,
+      56,
+    );
   });
 
   test('a copy with no arguments equals the original', () {
@@ -205,5 +253,23 @@ void main() {
       );
       expect(theme.brightness, Brightness.light);
     });
+  });
+
+  test('copyWith keeps and replaces a navigation rail theme', () {
+    const rail = NavigationRailTheme(width: 96);
+    final theme = ThemeData(navigationRailTheme: rail);
+    expect(theme.navigationRailTheme.width, 96);
+    // An input that is not named in the copy survives it.
+    expect(
+      theme.copyWith(radius: BorderRadius.zero).navigationRailTheme.width,
+      96,
+    );
+    expect(
+      theme
+          .copyWith(navigationRailTheme: const NavigationRailTheme(width: 80))
+          .navigationRailTheme
+          .width,
+      80,
+    );
   });
 }

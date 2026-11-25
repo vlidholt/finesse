@@ -12,18 +12,18 @@ class IndicatorBadgeStandaloneExample extends StatelessWidget {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 360),
       child: Card(
-        padding: const EdgeInsets.all(8),
+        style: CardTheme(padding: const EdgeInsets.all(8)),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(PhosphorIconsRegular.tray),
+              leading: const PhosphorIcon(PhosphorIconsRegular.tray),
               title: const Text('Inbox'),
               trailing: const IndicatorBadge(count: 24),
               onTap: () {},
             ),
             ListTile(
-              leading: const Icon(PhosphorIconsRegular.userPlus),
+              leading: const PhosphorIcon(PhosphorIconsRegular.userPlus),
               title: const Text('Invitations'),
               trailing: IndicatorBadge(
                 count: 2,
@@ -33,7 +33,7 @@ class IndicatorBadgeStandaloneExample extends StatelessWidget {
               onTap: () {},
             ),
             ListTile(
-              leading: const Icon(PhosphorIconsRegular.calendarBlank),
+              leading: const PhosphorIcon(PhosphorIconsRegular.calendarBlank),
               title: const Text('Events'),
               trailing: IndicatorBadge(
                 label: const Text('New'),

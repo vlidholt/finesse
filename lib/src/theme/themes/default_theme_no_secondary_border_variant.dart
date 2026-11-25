@@ -8,12 +8,13 @@ import 'package:finesse/src/theme/components/radio.dart';
 import 'package:finesse/src/theme/components/select.dart';
 import 'package:finesse/src/theme/components/switch.dart';
 import 'package:finesse/src/theme/components/tabs.dart';
-import 'package:finesse/src/theme/components/time_picker.dart';
+import 'package:finesse/src/theme/components/time_field.dart';
 import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/spacing.dart';
 import 'package:finesse/src/theme/style.dart';
 import 'package:finesse/src/theme/text_theme/text_styles_default.dart';
 import 'package:finesse/src/theme/text_theme/theme.dart';
+import 'package:finesse/src/theme/themes/base.dart';
 import 'package:finesse/src/theme/themes/default_theme_variant.dart';
 import 'package:finesse/src/utils/border.dart';
 import 'package:flutter/widgets.dart';
@@ -37,6 +38,7 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
     super.spacing,
     super.menuColorScheme,
     super.menuTranslucent,
+    super.menuAccent,
   });
 
   @override
@@ -49,6 +51,7 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
     Spacing? spacing,
     Object? menuColorScheme = DefaultThemeVariant.unsetMenuColorScheme,
     Object? menuTranslucent = DefaultThemeVariant.unsetMenuTranslucent,
+    MenuAccent? menuAccent,
   }) {
     return DefaultThemeNoSecondaryBorderVariant(
       colorScheme: colorScheme ?? this.colorScheme,
@@ -68,6 +71,7 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
           identical(menuTranslucent, DefaultThemeVariant.unsetMenuTranslucent)
           ? this.menuTranslucent
           : menuTranslucent as bool?,
+      menuAccent: menuAccent ?? this.menuAccent,
     );
   }
 
@@ -98,7 +102,7 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
       border: FinesseBorder.all(width: 2, color: const Color(0x00000000)),
       focusedBorder: FinesseBorder.all(
         color: colorScheme.ring,
-        radius: radius,
+        borderRadius: radius,
         width: 2,
       ),
     );
@@ -109,7 +113,7 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
     SelectTheme(
       decoration: FinesseDecoration(
         border: FinesseBorder.all(
-          radius: controlRadius,
+          borderRadius: controlRadius,
           color: colorScheme.input,
           padding: focusReserve(1),
           width: 1,
@@ -126,11 +130,11 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
       SwitchTheme(
         decoration: FinesseDecoration(
           border: FinesseBorder.all(
-            radius: radius,
+            borderRadius: radius,
             width: 0,
             padding: focusReserve(0),
           ),
-          focusedBorder: FinesseBorder.all(radius: radius, width: 2),
+          focusedBorder: FinesseBorder.all(borderRadius: radius, width: 2),
         ),
       ),
     );
@@ -145,7 +149,7 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
       shadows: style.controlShadow,
       border: FinesseBorder.all(
         color: borderColor,
-        radius: checkboxRadius,
+        borderRadius: checkboxRadius,
         padding: focusReserve(1),
         width: 1,
       ),
@@ -169,7 +173,7 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
         (decoration ?? const FinesseDecoration()).copyWith(
           border: decoration?.border?.copyWith(padding: focusReserve(1)),
           focusedBorder: FinesseBorder.all(
-            radius: circleRadius.add(circleRadius / 2),
+            borderRadius: circleRadius.add(circleRadius / 2),
             width: 2,
           ),
         );
@@ -182,25 +186,38 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
   }
 
   @override
-  TabsTheme tabsTheme() => super.tabsTheme().merge(
-    TabsTheme(
-      tabDecoration: FinesseDecoration(
-        border: FinesseBorder.all(
-          radius: const BorderRadius.all(Radius.circular(4)),
-          width: 0,
-        ),
-        focusedBorder: FinesseBorder.all(
-          radius: const BorderRadius.all(Radius.circular(4)),
+  TabsTheme tabsTheme() {
+    final base = super.tabsTheme();
+    // A style with a tab height pads the label to fill it exactly, and the
+    // focus reserve is inside that height too: left as it is, the label is
+    // laid out in a line's height less the reserve and loses its
+    // descenders. The reserve comes out of the padding instead.
+    final reserve = (focusReserve(0)?.vertical ?? 0) / 2;
+    return base.merge(
+      TabsTheme(
+        tabPadding: style.tabHeight == null
+            ? null
+            : base.tabPadding
+                  ?.subtract(EdgeInsets.symmetric(vertical: reserve))
+                  .clamp(EdgeInsets.zero, EdgeInsetsGeometry.infinity),
+        tabDecoration: FinesseDecoration(
+          border: FinesseBorder.all(
+            borderRadius: const BorderRadius.all(Radius.circular(4)),
+            width: 0,
+          ),
+          focusedBorder: FinesseBorder.all(
+            borderRadius: const BorderRadius.all(Radius.circular(4)),
+          ),
         ),
       ),
-    ),
-  );
+    );
+  }
 
   @override
   ContextMenuTheme contextMenuTheme() => super.contextMenuTheme().merge(
     ContextMenuTheme(
       itemDecoration: FinesseDecoration(
-        border: FinesseBorder.all(radius: itemRadius, width: 0),
+        border: FinesseBorder.all(borderRadius: itemRadius, width: 0),
         focusedBorder: decorationTheme().border,
       ),
     ),
@@ -215,8 +232,8 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
   );
 
   @override
-  TimePickerTheme timePickerTheme() => super.timePickerTheme().merge(
-    TimePickerTheme(
+  TimeFieldTheme timeFieldTheme() => super.timeFieldTheme().merge(
+    TimeFieldTheme(
       spacing: 4,
       gap: 2,
       fieldWidth: 50,
@@ -225,12 +242,12 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
         border: FinesseBorder.all(
           width: 2,
           color: colorScheme.border,
-          radius: radius,
+          borderRadius: radius,
         ),
         focusedBorder: FinesseBorder.all(
           width: 2,
           color: colorScheme.ring,
-          radius: radius,
+          borderRadius: radius,
           padding: spacing.symmetric(horizontal: 0.25),
         ),
       ),
@@ -271,6 +288,7 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
       large: TextDefaultTheme.large(),
       small: TextDefaultTheme.small(),
       muted: TextDefaultTheme.muted(),
+      caption: TextDefaultTheme.caption(),
     );
   }
 }

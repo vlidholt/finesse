@@ -1,14 +1,17 @@
+import 'dart:math' as math;
+
 import 'package:finesse/material.dart';
 import 'package:finesse/src/app.dart';
 import 'package:finesse/src/components/button.dart';
 import 'package:finesse/src/components/calendar.dart'; // Adjust import path based on your project structure
 import 'package:finesse/src/components/icon_button.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
+import 'package:finesse/src/theme/components/calendar.dart';
 import 'package:finesse/src/utils/extensions/date_time.dart';
 import 'package:flutter/material.dart' hide DateTimeRange, IconButton;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' show DateFormat;
 
 void main() {
   // Helper method to create a test widget wrapped in FinesseApp and Scaffold
@@ -90,7 +93,7 @@ void main() {
         createTestWidget(
           Calendar.multiple(
             initialMonth: DateTime(2024),
-            selected: const [],
+            values: const [],
           ),
         ),
       );
@@ -177,7 +180,7 @@ void main() {
         createTestWidget(
           Calendar.multiple(
             initialMonth: DateTime(2024),
-            onChanged: (dates) => selectedDates = dates,
+            onValuesChanged: (dates) => selectedDates = dates,
           ),
         ),
       );
@@ -202,7 +205,7 @@ void main() {
         createTestWidget(
           Calendar.range(
             initialMonth: DateTime(2024),
-            onChanged: (range) => selectedRange = range,
+            onRangeChanged: (range) => selectedRange = range,
           ),
         ),
       );
@@ -398,7 +401,9 @@ void main() {
         createTestWidget(
           Calendar(
             initialMonth: DateTime(2024),
-            dayButtonSize: customDayButtonSize,
+            calendarTheme: const CalendarTheme(
+              dayButtonSize: customDayButtonSize,
+            ),
           ),
         ),
       );
@@ -410,8 +415,8 @@ void main() {
       );
       expect(dayButtonFinder, findsOneWidget);
       final dayButton = tester.widget<Button>(dayButtonFinder);
-      expect(dayButton.width, customDayButtonSize);
-      expect(dayButton.height, customDayButtonSize);
+      expect(dayButton.style?.width, customDayButtonSize);
+      expect(dayButton.style?.height, customDayButtonSize);
     });
 
     testWidgets('displays week numbers when enabled', (
@@ -421,7 +426,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           Calendar(
-            selected: DateTime(2024, 12),
+            value: DateTime(2024, 12),
             showWeekNumbers: true,
             initialMonth: DateTime(2024),
           ),
@@ -452,14 +457,14 @@ void main() {
         createTestWidget(
           Calendar(
             initialMonth: DateTime(2024),
-            fromMonth: DateTime(2023),
-            toMonth: DateTime(2024, 12),
-            hideNavigation: true,
+            min: DateTime(2023),
+            max: DateTime(2024, 12, 31),
+            showNavigation: false,
             captionLayout: CalendarCaptionLayout.label,
             showWeekNumbers: false,
             showOutsideDays: false,
             fixedWeeks: false,
-            hideWeekdayNames: false,
+            showWeekdayNames: true,
           ),
         ),
       );
@@ -470,16 +475,50 @@ void main() {
       );
     });
 
-    testWidgets('Calendar hideNavigation false matches goldens', (
+    testWidgets('showNavigation and showWeekdayNames default to true', (
+      tester,
+    ) async {
+      Iterable<Offstage> hidden() => tester
+          .widgetList<Offstage>(
+            find.descendant(
+              of: find.byType(Calendar),
+              matching: find.byType(Offstage, skipOffstage: false),
+            ),
+          )
+          .where((offstage) => offstage.offstage);
+
+      await tester.pumpWidget(
+        createTestWidget(Calendar(initialMonth: DateTime(2024))),
+      );
+      expect(find.byIcon(PhosphorIconsRegular.caretLeft), findsOneWidget);
+      expect(find.byIcon(PhosphorIconsRegular.caretRight), findsOneWidget);
+      expect(hidden(), isEmpty);
+
+      await tester.pumpWidget(
+        createTestWidget(
+          Calendar(
+            initialMonth: DateTime(2024),
+            showNavigation: false,
+            showWeekdayNames: false,
+          ),
+        ),
+      );
+      expect(find.byIcon(PhosphorIconsRegular.caretLeft), findsNothing);
+      expect(find.byIcon(PhosphorIconsRegular.caretRight), findsNothing);
+      // The row of weekday names is kept for the column widths, off stage.
+      expect(hidden(), hasLength(1));
+    });
+
+    testWidgets('Calendar showNavigation true matches goldens', (
       tester,
     ) async {
       await tester.pumpWidget(
         createTestWidget(
           Calendar(
             initialMonth: DateTime(2024),
-            fromMonth: DateTime(2023),
-            toMonth: DateTime(2024, 12),
-            hideNavigation: false,
+            min: DateTime(2023),
+            max: DateTime(2024, 12, 31),
+            showNavigation: true,
           ),
         ),
       );
@@ -495,8 +534,8 @@ void main() {
         createTestWidget(
           Calendar(
             initialMonth: DateTime(2024),
-            fromMonth: DateTime(2023),
-            toMonth: DateTime(2024, 12),
+            min: DateTime(2023),
+            max: DateTime(2024, 12, 31),
             showWeekNumbers: true,
           ),
         ),
@@ -513,8 +552,8 @@ void main() {
         createTestWidget(
           Calendar(
             initialMonth: DateTime(2024),
-            fromMonth: DateTime(2023),
-            toMonth: DateTime(2024, 12),
+            min: DateTime(2023),
+            max: DateTime(2024, 12, 31),
             captionLayout: CalendarCaptionLayout.label,
             fixedWeeks: true,
           ),
@@ -527,17 +566,17 @@ void main() {
       );
     });
 
-    testWidgets('Calendar hideWeekdayNames matches goldens', (
+    testWidgets('Calendar without weekday names matches goldens', (
       tester,
     ) async {
       await tester.pumpWidget(
         createTestWidget(
           Calendar(
             initialMonth: DateTime(2024),
-            fromMonth: DateTime(2023),
-            toMonth: DateTime(2024, 12),
+            min: DateTime(2023),
+            max: DateTime(2024, 12, 31),
             captionLayout: CalendarCaptionLayout.label,
-            hideWeekdayNames: true,
+            showWeekdayNames: false,
           ),
         ),
       );
@@ -554,10 +593,10 @@ void main() {
           Calendar.multiple(
             initialMonth: DateTime(2024),
             numberOfMonths: 2,
-            fromMonth: DateTime(2024),
-            toMonth: DateTime(2024, 12),
-            min: 5,
-            max: 10,
+            min: DateTime(2024),
+            max: DateTime(2024, 12, 31),
+            minSelected: 5,
+            maxSelected: 10,
           ),
         ),
       );
@@ -574,10 +613,10 @@ void main() {
           Calendar.range(
             initialMonth: DateTime(2024),
             numberOfMonths: 2,
-            fromMonth: DateTime(2024),
-            toMonth: DateTime(2024, 12),
-            min: 5,
-            max: 10,
+            min: DateTime(2024),
+            max: DateTime(2024, 12, 31),
+            minDays: 5,
+            maxDays: 10,
           ),
         ),
       );
@@ -586,6 +625,56 @@ void main() {
         find.byType(Calendar),
         matchesGoldenFile('goldens/calendar_range.png'),
       );
+    });
+
+    testWidgets('a range rounds its ends at the edges of each row, right to '
+        'left as well', (tester) async {
+      for (final direction in TextDirection.values) {
+        await tester.pumpWidget(
+          createTestWidget(
+            Directionality(
+              textDirection: direction,
+              child: Calendar.range(
+                initialMonth: DateTime(2024, 3),
+                range: DateTimeRange(
+                  start: DateTime(2024, 3, 2),
+                  end: DateTime(2024, 3, 28),
+                ),
+              ),
+            ),
+          ),
+        );
+        final days = find.descendant(
+          of: find.byType(GridView),
+          matching: find.byType(Button),
+        );
+        final rects = [
+          for (final e in days.evaluate())
+            tester.getRect(
+              find.byElementPredicate((x) => x == e),
+            ),
+        ];
+        final left = rects.map((r) => r.left).reduce(math.min);
+        final right = rects.map((r) => r.right).reduce(math.max);
+        var rounded = 0;
+        for (final (i, element) in days.evaluate().indexed) {
+          final button = element.widget as Button;
+          final radius = button.style?.decoration?.border?.borderRadius
+              ?.resolve(direction);
+          if (radius == null) continue;
+          final roundsLeft = radius.topLeft != Radius.zero;
+          final roundsRight = radius.topRight != Radius.zero;
+          // A cell rounded on one side only is a row's end in the range.
+          if (roundsLeft == roundsRight) continue;
+          rounded++;
+          if (roundsLeft) {
+            expect(rects[i].left, moreOrLessEquals(left, epsilon: 1));
+          } else {
+            expect(rects[i].right, moreOrLessEquals(right, epsilon: 1));
+          }
+        }
+        expect(rounded, greaterThan(4), reason: '$direction');
+      }
     });
   });
 }

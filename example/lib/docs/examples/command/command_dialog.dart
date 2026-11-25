@@ -20,14 +20,16 @@ class CommandDialogExample extends StatelessWidget {
                 CommandItem(
                   label: 'Calendar',
                   value: 'calendar',
-                  leading: const Icon(PhosphorIconsRegular.calendarBlank),
+                  leading: const PhosphorIcon(
+                    PhosphorIconsRegular.calendarBlank,
+                  ),
                   onSelected: () {},
                 ),
                 CommandItem(
                   label: 'Sign out',
                   value: 'signout',
                   keywords: const ['logout', 'exit'],
-                  leading: const Icon(PhosphorIconsRegular.signOut),
+                  leading: const PhosphorIcon(PhosphorIconsRegular.signOut),
                   onSelected: () {},
                 ),
               ],

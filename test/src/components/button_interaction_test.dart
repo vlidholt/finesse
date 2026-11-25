@@ -3,21 +3,22 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../decoration_finders.dart';
+
 void main() {
   Widget wrap(Widget child) => FinesseApp(home: Center(child: child));
 
   group('hover is retained across a click', () {
     testWidgets('a mouse click does not clear the hover state', (tester) async {
-      // Regression: the default hoverStrategies list onTapUp under `unhover`.
-      // Those exist to synthesise hover on touch devices, but they fired for
-      // mouse clicks too, so the highlight vanished mid-click even though the
-      // cursor had not moved.
+      // Regression: on a device with no hover a press stands in for it and
+      // a tap-up ends it. That fired for mouse clicks too, so the highlight
+      // vanished mid-click even though the cursor had not moved.
       final changes = <bool>[];
       await tester.pumpWidget(
         wrap(
           Button(
             onPressed: () {},
-            onHoverChange: changes.add,
+            onHover: changes.add,
             child: const Text('Click me'),
           ),
         ),
@@ -48,71 +49,145 @@ void main() {
       expect(changes, [true, false]);
     });
 
-    testWidgets('touch still gets synthesised hover', (tester) async {
-      // With no mouse, the strategies remain the only source of hover.
+    testWidgets('a finger held on the button shows what a pointer over it '
+        'shows, and onHover is for the mouse', (tester) async {
+      // A touch screen has no hover: the press is what answers the finger.
+      const rest = Color(0xff102030);
+      const hover = Color(0xffa0b0c0);
       final changes = <bool>[];
       await tester.pumpWidget(
         wrap(
           Button(
+            style: const ButtonTheme(
+              backgroundColor: rest,
+              hoverBackgroundColor: hover,
+            ),
             onPressed: () {},
-            onHoverChange: changes.add,
+            onHover: changes.add,
             child: const Text('Tap me'),
           ),
         ),
       );
+      Color? fill() => tester
+          .widgetList<DecoratedBox>(
+            find.descendant(
+              of: find.byType(Button),
+              matching: find.byType(DecoratedBox),
+            ),
+          )
+          .map((box) => boxDecorationOf(box.decoration)?.color)
+          .nonNulls
+          .first;
+      expect(fill(), rest);
 
-      await tester.tap(find.byType(Button));
+      final gesture = await tester.press(find.byType(Button));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(fill(), hover);
+
+      await gesture.up();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(fill(), rest);
+      expect(changes, isEmpty);
       await tester.pumpAndSettle();
-
-      expect(changes, contains(true));
-      expect(changes.last, isFalse);
     });
   });
 
   group('press effect', () {
-    Offset slideOffset(WidgetTester tester) {
-      final slide = tester.widget<AnimatedSlide>(
-        find
-            .descendant(
-              of: find.byType(Button),
-              matching: find.byType(AnimatedSlide),
-            )
-            .first,
-      );
-      return slide.offset;
+    // The press moves the button in paint, so the label's centre — which a
+    // press scale around the button's centre leaves alone — shows it. The
+    // shift is inside that scale, so it reads a few hundredths short.
+    Offset Function() shiftOf(WidgetTester tester) {
+      final rest = tester.getCenter(find.text('Press'));
+      return () => tester.getCenter(find.text('Press')) - rest;
     }
 
-    testWidgets('the button shifts down while pressed', (tester) async {
+    testWidgets('the button shifts down a pixel while pressed', (
+      tester,
+    ) async {
       // shadcn/ui applies `active:translate-y-px`.
       await tester.pumpWidget(
         wrap(Button(onPressed: () {}, child: const Text('Press'))),
       );
-      expect(slideOffset(tester), Offset.zero);
+      final shift = shiftOf(tester);
 
       final gesture = await tester.press(find.byType(Button));
       await tester.pump();
-      expect(slideOffset(tester).dy, greaterThan(0));
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(shift().dx, 0);
+      expect(shift().dy, closeTo(1, .05));
 
       await gesture.up();
       await tester.pumpAndSettle();
-      expect(slideOffset(tester), Offset.zero);
+      expect(shift(), Offset.zero);
     });
 
-    testWidgets('pressedOffset can be overridden', (tester) async {
+    testWidgets('pressedOffset is in logical pixels, on both axes', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         wrap(
           Button(
             onPressed: () {},
-            pressedOffset: Offset.zero,
+            style: const ButtonTheme(
+              pressedOffset: Offset(3, 2),
+              pressScale: 1,
+            ),
             child: const Text('Press'),
           ),
         ),
       );
-
+      final shift = shiftOf(tester);
       final gesture = await tester.press(find.byType(Button));
       await tester.pump();
-      expect(slideOffset(tester), Offset.zero);
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(shift().dx, moreOrLessEquals(3));
+      expect(shift().dy, moreOrLessEquals(2));
       await gesture.up();
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('pressedOffset can be switched off', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          Button(
+            onPressed: () {},
+            style: const ButtonTheme(pressedOffset: Offset.zero),
+            child: const Text('Press'),
+          ),
+        ),
+      );
+      final shift = shiftOf(tester);
+      final gesture = await tester.press(find.byType(Button));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(shift(), Offset.zero);
+      await gesture.up();
+    });
+
+    testWidgets('a button with a height of 0 shifts by the same pixel', (
+      tester,
+    ) async {
+      // A height of 0 sizes the button to its content; the shift was a
+      // fraction of the height, and so infinite.
+      await tester.pumpWidget(
+        wrap(
+          Button(
+            style: const ButtonTheme(height: 0),
+            onPressed: () {},
+            child: const Text('Press'),
+          ),
+        ),
+      );
+      final shift = shiftOf(tester);
+      final gesture = await tester.press(find.byType(Button));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(tester.takeException(), isNull);
+      expect(shift().dy, closeTo(1, .05));
+      await gesture.up();
+      await tester.pumpAndSettle();
     });
 
     testWidgets('a disabled button does not shift', (tester) async {
@@ -125,22 +200,25 @@ void main() {
           ),
         ),
       );
+      final shift = shiftOf(tester);
       final gesture = await tester.press(find.byType(Button));
       await tester.pump();
-      expect(slideOffset(tester), Offset.zero);
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(shift(), Offset.zero);
       await gesture.up();
     });
 
-    testWidgets('a button with no handler does not shift', (tester) async {
-      // Note: Offset.toString() rounds to one decimal, so a missed shift of
-      // 1/height reads as "Offset(0.0, 0.0)" in a failure message. Compare dy
-      // numerically.
+    testWidgets('a button with only a long press does not shift', (
+      tester,
+    ) async {
       await tester.pumpWidget(
-        wrap(const Button(child: Text('Press'))),
+        wrap(Button(onLongPress: () {}, child: const Text('Press'))),
       );
+      final shift = shiftOf(tester);
       final gesture = await tester.press(find.byType(Button));
       await tester.pump();
-      expect(slideOffset(tester).dy, 0);
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(shift(), Offset.zero);
       await gesture.up();
     });
   });

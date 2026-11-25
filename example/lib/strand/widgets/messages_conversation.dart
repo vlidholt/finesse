@@ -1,4 +1,4 @@
-import 'dart:math' as math;
+import 'dart:async';
 
 import 'package:example/strand/data/messages_data.dart';
 import 'package:example/strand/widgets/messages_common.dart';
@@ -6,6 +6,7 @@ import 'package:example/strand/widgets/messages_composer.dart';
 import 'package:example/strand/widgets/messages_controller.dart';
 import 'package:example/strand/widgets/messages_thread.dart';
 import 'package:example/strand/widgets/strand_actions.dart';
+import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -43,7 +44,7 @@ class MessagesConversationPane extends StatelessWidget {
             controller: controller,
             conversation: conversation,
             metrics: ThreadMetrics.pane(theme),
-            composerInset: EdgeInsets.all(theme.layoutTheme.gap(GapSize.lg)),
+            composerInset: EdgeInsets.all(theme.gap(GapSize.lg)),
             composerRadius: theme.radii.xl,
           ),
         ),
@@ -60,9 +61,11 @@ class _PaneHeader extends StatelessWidget {
   final Conversation conversation;
   final VoidCallback? onToggleDetails;
 
-  // Taller than the theme's app bar, for the two lines beside a 44-point
-  // avatar.
+  // Taller than the theme's app bar, for the two lines beside the avatar.
   static const _height = 72.0;
+
+  // The "active now" dot beside the headline.
+  static const _presenceDot = 8.0;
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +75,7 @@ class _PaneHeader extends StatelessWidget {
     Widget action(IconData icon, String label, VoidCallback onPressed) =>
         IconButton.ghost(
           size: ButtonSize.lg,
-          icon: Icon(icon),
+          icon: PhosphorIcon(icon),
           semanticLabel: label,
           onPressed: onPressed,
         );
@@ -86,7 +89,7 @@ class _PaneHeader extends StatelessWidget {
       ),
       child: Row(
         children: [
-          ConversationAvatar(conversation, size: 44),
+          ConversationAvatar(conversation),
           const Gap.md(),
           Expanded(
             child: Column(
@@ -105,8 +108,8 @@ class _PaneHeader extends StatelessWidget {
                   children: [
                     if (conversation.online) ...[
                       Container(
-                        width: 8,
-                        height: 8,
+                        width: _presenceDot,
+                        height: _presenceDot,
                         decoration: ShapeDecoration(
                           shape: const CircleBorder(),
                           color: theme.messagesCoral,
@@ -189,61 +192,80 @@ class MessagesConversationView extends StatefulWidget {
 }
 
 class _MessagesConversationViewState extends State<MessagesConversationView> {
-  final _scroll = ScrollController();
+  final _thread = ChatListController();
+
+  // The air between the last message and the composer over it.
+  static const _composerClearance = 18.0;
 
   @override
   void dispose() {
-    _scroll.dispose();
+    _thread.dispose();
     super.dispose();
   }
 
   bool _send(String text) {
     if (!widget.controller.send(widget.conversation, text)) return false;
-    // The thread is anchored to its end, so the newest message is offset 0.
-    if (_scroll.hasClients && _scroll.offset > 0) {
-      _scroll.animateTo(
-        0,
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOut,
-      );
-    }
+    // Whatever the reader was looking at, what they just said is at the
+    // end.
+    unawaited(_thread.scrollToEnd());
     return true;
   }
 
   @override
   Widget build(BuildContext context) {
-    final media = MediaQuery.of(context);
-    // The home indicator's inset gives way to the keyboard's when it is up.
-    final bottom = math.max(media.viewInsets.bottom, media.padding.bottom);
     final composerInset = widget.composerInset;
-    // The designs keep 96 under the last message: the composer, its 16 from
-    // the bottom, and a little air between the two.
-    final reserve =
-        composerInset.bottom + MessagesComposer.heightOf(context) + 18;
+    final conversation = widget.conversation;
 
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        MessagesThread(
-          conversation: widget.conversation,
-          messages: widget.controller.messagesOf(widget.conversation),
-          metrics: widget.metrics,
-          controller: _scroll,
-          insets: EdgeInsets.only(
-            top: media.padding.top,
-            bottom: bottom + reserve,
-          ),
-        ),
-        Positioned(
-          left: composerInset.left + media.padding.left,
-          right: composerInset.right + media.padding.right,
-          bottom: composerInset.bottom + bottom,
-          child: MessagesComposer(
-            onSend: _send,
-            borderRadius: widget.composerRadius,
-          ),
-        ),
-      ],
+    // A scaffold inside whatever the view is in — the pane's card, the
+    // page's own scaffold — for its footer: the composer rides above the
+    // keyboard and the home indicator, and the thread is told how far it
+    // reaches in, with nothing measured or added up here.
+    return Scaffold(
+      backgroundColor: const Color(0x00000000),
+      footer: Builder(
+        builder: (context) {
+          // The safe area under a footer is the footer's to keep clear of.
+          final safe = MediaQuery.paddingOf(context);
+          return Padding(
+            padding: EdgeInsets.fromLTRB(
+              composerInset.left + safe.left,
+              0,
+              composerInset.right + safe.right,
+              composerInset.bottom + safe.bottom,
+            ),
+            child: MessagesComposer(
+              onSend: _send,
+              // While the assistant is answering, the send button stops it.
+              onStop: widget.controller.isStreaming(conversation)
+                  ? () => widget.controller.stopStreaming(conversation)
+                  : null,
+              placeholder: conversation.assistant
+                  ? 'Ask the assistant…'
+                  : 'Write a message…',
+              borderRadius: widget.composerRadius,
+            ),
+          );
+        },
+      ),
+      body: Builder(
+        builder: (context) {
+          // The top is whatever covers the view — on the full-screen page,
+          // its glass app bar; the bottom is the composer. The designs keep
+          // 96 under the last message: the composer, its 16 from the
+          // bottom, and a little air between the two.
+          final covered = MediaQuery.paddingOf(context);
+          return MessagesThread(
+            conversation: conversation,
+            messages: widget.controller.messagesOf(conversation),
+            metrics: widget.metrics,
+            controller: _thread,
+            insets: EdgeInsets.only(
+              top: covered.top,
+              bottom: covered.bottom + _composerClearance,
+            ),
+          );
+        },
+      ),
     );
   }
 }
@@ -269,11 +291,14 @@ class MessagesConversationPage extends StatelessWidget {
   // the `AppBar`'s own business.
   static const _barHeight = 68.0;
 
+  // How far the composer floats from the sides of the page: between two
+  // steps of the gap scale, as the designs have it.
+  static const _composerSide = 10.0;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
-    final layout = theme.layoutTheme;
     final conversation = controller.byId(conversationId);
 
     return Scaffold(
@@ -281,22 +306,16 @@ class MessagesConversationPage extends StatelessWidget {
         height: _barHeight,
         // 8 at the sides, so the 44-point buttons' glyphs — not their boxes
         // — line up with the page margin, and 4 between everything.
-        padding: EdgeInsets.symmetric(horizontal: layout.gap(GapSize.sm)),
-        gap: 2 * layout.gap(GapSize.xs),
-        actionsGap: layout.gap(GapSize.xs),
+        padding: EdgeInsets.symmetric(horizontal: theme.gap(GapSize.sm)),
+        gap: theme.gap(GapSize.sm),
+        actionsGap: theme.gap(GapSize.xs),
         leading: FinesseRow(
           gap: GapSize.xs,
           mainAxisSize: MainAxisSize.min,
           children: [
-            IconButton.ghost(
-              icon: const Icon(PhosphorIconsRegular.caretLeft),
-              iconSize: 24,
-              semanticLabel: 'Back',
-              onPressed: () => Navigator.of(context).pop(),
-            ),
+            const BackButton(),
             ConversationAvatar(
               conversation,
-              size: 40,
               // The bar is the surface here, not a card.
               surfaceColor: colors.bar,
             ),
@@ -321,12 +340,12 @@ class MessagesConversationPage extends StatelessWidget {
         ),
         actions: [
           IconButton.ghost(
-            icon: const Icon(PhosphorIconsRegular.phone),
+            icon: const PhosphorIcon(PhosphorIconsRegular.phone),
             semanticLabel: 'Call',
             onPressed: () => startCall(context, conversation.name),
           ),
           IconButton.ghost(
-            icon: const Icon(PhosphorIconsRegular.videoCamera),
+            icon: const PhosphorIcon(PhosphorIconsRegular.videoCamera),
             semanticLabel: 'Video call',
             onPressed: () => startCall(context, conversation.name, video: true),
           ),
@@ -338,9 +357,14 @@ class MessagesConversationPage extends StatelessWidget {
           controller: controller,
           conversation: conversation,
           metrics: ThreadMetrics.page(theme),
-          // 10 from the sides — under the gap scale — and 16 from the
-          // bottom, in a bar as round as the phone's cards.
-          composerInset: const EdgeInsets.fromLTRB(10, 0, 10, 16),
+          // A little in from the sides and the page margin from the bottom,
+          // in a bar as round as the phone's cards.
+          composerInset: EdgeInsets.fromLTRB(
+            _composerSide,
+            0,
+            _composerSide,
+            theme.gap(GapSize.xl),
+          ),
           composerRadius: theme.radii.xl4,
         ),
       ),
