@@ -91,7 +91,10 @@ class OverlayInsets extends ChangeNotifier {
 /// Collects the [OverlayInsets] reported beneath it.
 ///
 /// Put it above both the reporters and the readers: around an app's
-/// navigator, say, with the toast layer inside it.
+/// navigator, say, with the toast layer inside it. A `Toaster` is one
+/// already — it collects what the screens under it report and keeps its
+/// toasts clear of it — so an app only needs a scope of its own for
+/// something else that floats over every screen.
 ///
 /// ```dart
 /// OverlayInsetsScope(
@@ -100,27 +103,34 @@ class OverlayInsets extends ChangeNotifier {
 /// ```
 class OverlayInsetsScope extends StatefulWidget {
   /// Creates a scope that collects the insets reported under [child].
-  const OverlayInsetsScope({required this.child, super.key});
+  const OverlayInsetsScope({required this.child, this.insets, super.key});
 
   /// The subtree whose reports are collected.
   final Widget child;
+
+  /// The registry to collect into, for a widget that reads it from above
+  /// the scope. The scope makes, and disposes of, one of its own without
+  /// it; one that is given stays the caller's to dispose of.
+  final OverlayInsets? insets;
 
   @override
   State<OverlayInsetsScope> createState() => _OverlayInsetsScopeState();
 }
 
 class _OverlayInsetsScopeState extends State<OverlayInsetsScope> {
-  final _insets = OverlayInsets();
+  OverlayInsets? _own;
 
   @override
   void dispose() {
-    _insets.dispose();
+    _own?.dispose();
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) =>
-      _OverlayInsetsMarker(notifier: _insets, child: widget.child);
+  Widget build(BuildContext context) => _OverlayInsetsMarker(
+    notifier: widget.insets ?? (_own ??= OverlayInsets()),
+    child: widget.child,
+  );
 }
 
 class _OverlayInsetsMarker extends InheritedNotifier<OverlayInsets> {

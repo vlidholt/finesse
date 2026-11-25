@@ -13,6 +13,7 @@ import 'package:finesse/src/theme/themes/shadows.dart';
 import 'package:finesse/src/utils/backdrop.dart';
 import 'package:finesse/src/utils/border.dart';
 import 'package:finesse/src/utils/dismiss_shortcut.dart';
+import 'package:finesse/src/utils/overlay_insets.dart';
 import 'package:finesse/src/utils/pop_in.dart';
 import 'package:finesse/src/utils/shadow.dart';
 import 'package:finesse/src/utils/spring.dart';
@@ -391,6 +392,18 @@ class ToasterState extends State<Toaster> with TickerProviderStateMixin {
   EdgeInsets _insetsFrom = EdgeInsets.zero;
   EdgeInsets _insetsTo = EdgeInsets.zero;
 
+  /// What the app asked to be kept clear, through [insets].
+  EdgeInsets _givenInsets = EdgeInsets.zero;
+
+  /// What the screens under the toaster say they cover: the registry of a
+  /// scope above the toaster when there is one, otherwise the toaster's
+  /// own, which it puts around its child.
+  OverlayInsets? _ownOverlayInsets;
+  OverlayInsets? _overlayInsets;
+
+  /// The safe area and the keyboard, which the stack is clear of already.
+  EdgeInsets _systemInsets = EdgeInsets.zero;
+
   /// The toasts' own focus scope: they are not part of any page.
   final _scope = FocusScopeNode(debugLabel: 'Toaster');
   bool _listensForShortcut = false;
@@ -404,6 +417,18 @@ class ToasterState extends State<Toaster> with TickerProviderStateMixin {
     super.didChangeDependencies();
     _theme = Theme.of(context);
     _motion = Motion.of(context);
+    final media = MediaQuery.maybeOf(context);
+    _systemInsets =
+        (media?.padding ?? EdgeInsets.zero) +
+        EdgeInsets.only(bottom: media?.viewInsets.bottom ?? 0);
+    final overlayInsets =
+        OverlayInsets.maybeOf(context) ??
+        (_ownOverlayInsets ??= OverlayInsets());
+    if (!identical(overlayInsets, _overlayInsets)) {
+      _overlayInsets?.removeListener(_syncInsets);
+      _overlayInsets = overlayInsets..addListener(_syncInsets);
+    }
+    _syncInsets();
   }
 
   @override
@@ -423,6 +448,8 @@ class ToasterState extends State<Toaster> with TickerProviderStateMixin {
     _expansion.dispose();
     _frontHeight.dispose();
     _insetsProgress.dispose();
+    _overlayInsets?.removeListener(_syncInsets);
+    _ownOverlayInsets?.dispose();
     super.dispose();
   }
 
@@ -437,13 +464,36 @@ class ToasterState extends State<Toaster> with TickerProviderStateMixin {
   ];
 
   /// The space kept clear between the stack and the edges of the toaster,
-  /// on top of the safe area and the keyboard: what a screen has put in the
-  /// way — a floating bottom bar, an action button.
+  /// on top of the safe area and the keyboard, for something in the way
+  /// that the toaster cannot know of.
+  ///
+  /// What a `Scaffold` under the toaster puts at the bottom of the screen —
+  /// a bottom bar, a footer, a floating action button — is kept clear of
+  /// without this: the scaffold reports it (see `OverlayInsets`) and the
+  /// stack sits above whichever is larger.
   ///
   /// A change moves the stack there on the theme's smooth spring.
-  EdgeInsets get insets => _insetsTo;
+  EdgeInsets get insets => _givenInsets;
 
   set insets(EdgeInsets value) {
+    if (value == _givenInsets) return;
+    _givenInsets = value;
+    _syncInsets();
+  }
+
+  /// Moves the stack to where [insets] and the screens' reports put it.
+  void _syncInsets() {
+    // A screen reports what it covers from the edge of the screen, the
+    // safe area and the keyboard included; the stack is clear of those two
+    // already. Only the bottom is followed: a toast at the top belongs
+    // over an app bar, as a notification does.
+    final reported = _overlayInsets?.insets.bottom ?? 0;
+    final value = _givenInsets.copyWith(
+      bottom: math.max(
+        _givenInsets.bottom,
+        reported - _systemInsets.bottom,
+      ),
+    );
     if (value == _insetsTo) return;
     _insetsFrom = _currentInsets;
     _insetsTo = value;
@@ -873,7 +923,9 @@ class ToasterState extends State<Toaster> with TickerProviderStateMixin {
       child: Stack(
         fit: StackFit.passthrough,
         children: [
-          widget.child,
+          // The screens under the toaster say what they cover, unless a
+          // scope further up already collects it.
+          OverlayInsetsScope(insets: _overlayInsets, child: widget.child),
           if (layer != null) Positioned.fill(child: layer),
         ],
       ),
