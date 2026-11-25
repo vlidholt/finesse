@@ -35,6 +35,10 @@ mixin _$ListTileTheme {
       hoverColor: Color.lerp(a.hoverColor, b.hoverColor, t),
       selectedColor: Color.lerp(a.selectedColor, b.selectedColor, t),
       pressScale: lerpDouble$(a.pressScale, b.pressScale, t),
+      valueStyle: TextStyle.lerp(a.valueStyle, b.valueStyle, t),
+      chevronColor: Color.lerp(a.chevronColor, b.chevronColor, t),
+      chevronSize: lerpDouble$(a.chevronSize, b.chevronSize, t),
+      destructiveColor: Color.lerp(a.destructiveColor, b.destructiveColor, t),
     );
   }
 
@@ -48,6 +52,10 @@ mixin _$ListTileTheme {
     Color? hoverColor,
     Color? selectedColor,
     double? pressScale,
+    TextStyle? valueStyle,
+    Color? chevronColor,
+    double? chevronSize,
+    Color? destructiveColor,
   }) {
     final _this = (this as ListTileTheme);
 
@@ -61,6 +69,10 @@ mixin _$ListTileTheme {
       hoverColor: hoverColor ?? _this.hoverColor,
       selectedColor: selectedColor ?? _this.selectedColor,
       pressScale: pressScale ?? _this.pressScale,
+      valueStyle: valueStyle ?? _this.valueStyle,
+      chevronColor: chevronColor ?? _this.chevronColor,
+      chevronSize: chevronSize ?? _this.chevronSize,
+      destructiveColor: destructiveColor ?? _this.destructiveColor,
     );
   }
 
@@ -87,6 +99,10 @@ mixin _$ListTileTheme {
       hoverColor: other.hoverColor,
       selectedColor: other.selectedColor,
       pressScale: other.pressScale,
+      valueStyle: _this.valueStyle?.merge(other.valueStyle) ?? other.valueStyle,
+      chevronColor: other.chevronColor,
+      chevronSize: other.chevronSize,
+      destructiveColor: other.destructiveColor,
     );
   }
 
@@ -111,7 +127,11 @@ mixin _$ListTileTheme {
         _other.subtitleStyle == _this.subtitleStyle &&
         _other.hoverColor == _this.hoverColor &&
         _other.selectedColor == _this.selectedColor &&
-        _other.pressScale == _this.pressScale;
+        _other.pressScale == _this.pressScale &&
+        _other.valueStyle == _this.valueStyle &&
+        _other.chevronColor == _this.chevronColor &&
+        _other.chevronSize == _this.chevronSize &&
+        _other.destructiveColor == _this.destructiveColor;
   }
 
   @override
@@ -129,6 +149,10 @@ mixin _$ListTileTheme {
       _this.hoverColor,
       _this.selectedColor,
       _this.pressScale,
+      _this.valueStyle,
+      _this.chevronColor,
+      _this.chevronSize,
+      _this.destructiveColor,
     );
   }
 }

@@ -13,6 +13,7 @@ import 'package:example/docs/pages/breadcrumb.dart';
 import 'package:example/docs/pages/button.dart';
 import 'package:example/docs/pages/calendar.dart';
 import 'package:example/docs/pages/card.dart';
+import 'package:example/docs/pages/carousel.dart';
 import 'package:example/docs/pages/chat_bubble.dart';
 import 'package:example/docs/pages/chat_list.dart';
 import 'package:example/docs/pages/checkbox.dart';
@@ -42,6 +43,7 @@ import 'package:example/docs/pages/kbd.dart';
 import 'package:example/docs/pages/keyboard_toolbar.dart';
 import 'package:example/docs/pages/list_detail_layout.dart';
 import 'package:example/docs/pages/layout.dart';
+import 'package:example/docs/pages/list_section.dart';
 import 'package:example/docs/pages/list_tile.dart';
 import 'package:example/docs/pages/menubar.dart';
 import 'package:example/docs/pages/motion.dart';
@@ -51,13 +53,17 @@ import 'package:example/docs/pages/number_field.dart';
 import 'package:example/docs/pages/otp_field.dart';
 import 'package:example/docs/pages/overview.dart';
 import 'package:example/docs/pages/page_container.dart';
+import 'package:example/docs/pages/page_indicator.dart';
 import 'package:example/docs/pages/page_route.dart';
 import 'package:example/docs/pages/pagination.dart';
 import 'package:example/docs/pages/popover.dart';
 import 'package:example/docs/pages/portal.dart';
 import 'package:example/docs/pages/pressable.dart';
 import 'package:example/docs/pages/progress_bar.dart';
+import 'package:example/docs/pages/progress_ring.dart';
 import 'package:example/docs/pages/radio_group.dart';
+import 'package:example/docs/pages/refresh_indicator.dart';
+import 'package:example/docs/pages/reorderable_list_view.dart';
 import 'package:example/docs/pages/resizable.dart';
 import 'package:example/docs/pages/responsive.dart';
 import 'package:example/docs/pages/scaffold.dart';
@@ -77,6 +83,7 @@ import 'package:example/docs/pages/spinner.dart';
 import 'package:example/docs/pages/streaming_text.dart';
 import 'package:example/docs/pages/styles.dart';
 import 'package:example/docs/pages/surface.dart';
+import 'package:example/docs/pages/swipe_actions.dart';
 import 'package:example/docs/pages/switch.dart';
 import 'package:example/docs/pages/tab_bar.dart';
 import 'package:example/docs/pages/table.dart';
@@ -144,6 +151,7 @@ final componentDocs = [
   buttonDoc,
   calendarDoc,
   cardDoc,
+  carouselDoc,
   chatBubbleDoc,
   chatListDoc,
   checkboxDoc,
@@ -166,6 +174,7 @@ final componentDocs = [
   kbdDoc,
   keyboardToolbarDoc,
   listDetailLayoutDoc,
+  listSectionDoc,
   listTileDoc,
   menubarDoc,
   navigationBarDoc,
@@ -173,12 +182,16 @@ final componentDocs = [
   numberFieldDoc,
   otpFieldDoc,
   pageContainerDoc,
+  pageIndicatorDoc,
   pageRouteDoc,
   paginationDoc,
   popoverDoc,
   pressableDoc,
   progressBarDoc,
+  progressRingDoc,
   radioGroupDoc,
+  refreshIndicatorDoc,
+  reorderableListViewDoc,
   resizableDoc,
   scaffoldDoc,
   scrollAreaDoc,
@@ -196,6 +209,7 @@ final componentDocs = [
   spinnerDoc,
   streamingTextDoc,
   surfaceDoc,
+  swipeActionsDoc,
   switchDoc,
   tabBarDoc,
   tableDoc,

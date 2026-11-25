@@ -35,7 +35,9 @@ Future<void> _open(WidgetTester tester, SettingsSection section) async {
   await settleFrames(tester, frames: 4);
 }
 
-/// The switch of the row titled [title]: the row is one semantic node.
+/// The switch of the row titled [title]: the row is one semantic node. In
+/// a `SwitchListTile` the row takes the tap and the switch is its picture,
+/// so those are tapped by their title.
 Finder _switch(String title) => find.descendant(
   of: find.ancestor(
     of: find.text(title),
@@ -243,7 +245,7 @@ void main() {
       expect(settings.visibility, ProfileVisibility.connections);
 
       expect(settings.readReceipts, isTrue);
-      await scrollToAndTap(tester, _switch('Read receipts'));
+      await scrollToAndTap(tester, find.text('Read receipts'));
       expect(settings.readReceipts, isFalse);
 
       await scrollToAndTap(tester, find.byType(Select<MessagePolicy>));
@@ -269,7 +271,7 @@ void main() {
       expect(settings.emailed.contains(NotificationTopic.mentions), isTrue);
 
       // Pausing disables every one of them.
-      await scrollToAndTap(tester, _switch('Pause all notifications'));
+      await scrollToAndTap(tester, find.text('Pause all notifications'));
       expect(settings.pauseAll, isTrue);
       expect(find.textContaining('Paused.'), findsOneWidget);
       expect(

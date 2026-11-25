@@ -13,6 +13,7 @@ import 'package:finesse/src/theme/components/button.dart';
 import 'package:finesse/src/theme/components/button_sizes.dart';
 import 'package:finesse/src/theme/components/calendar.dart';
 import 'package:finesse/src/theme/components/card.dart';
+import 'package:finesse/src/theme/components/carousel.dart';
 import 'package:finesse/src/theme/components/chat_bubble.dart';
 import 'package:finesse/src/theme/components/chat_list.dart';
 import 'package:finesse/src/theme/components/checkbox.dart';
@@ -32,6 +33,7 @@ import 'package:finesse/src/theme/components/icon_tile.dart';
 import 'package:finesse/src/theme/components/indicator_badge.dart';
 import 'package:finesse/src/theme/components/kbd.dart';
 import 'package:finesse/src/theme/components/layout.dart';
+import 'package:finesse/src/theme/components/list_section.dart';
 import 'package:finesse/src/theme/components/list_tile.dart';
 import 'package:finesse/src/theme/components/menubar.dart';
 import 'package:finesse/src/theme/components/navigation_bar.dart';
@@ -42,6 +44,7 @@ import 'package:finesse/src/theme/components/phosphor_icon.dart';
 import 'package:finesse/src/theme/components/popover.dart';
 import 'package:finesse/src/theme/components/progress_bar.dart';
 import 'package:finesse/src/theme/components/radio.dart';
+import 'package:finesse/src/theme/components/refresh_indicator.dart';
 import 'package:finesse/src/theme/components/resizable.dart';
 import 'package:finesse/src/theme/components/scroll_area.dart';
 import 'package:finesse/src/theme/components/select.dart';
@@ -126,6 +129,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     SelectTheme? selectTheme,
     SelectOptionTheme? selectOptionTheme,
     CardTheme? cardTheme,
+    CarouselTheme? carouselTheme,
     SwitchTheme? switchTheme,
     CheckboxTheme? checkboxTheme,
     TextFieldTheme? textFieldTheme,
@@ -142,6 +146,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     SheetTheme? sheetTheme,
     ActionSheetTheme? actionSheetTheme,
     ProgressBarTheme? progressBarTheme,
+    RefreshIndicatorTheme? refreshIndicatorTheme,
     AccordionTheme? accordionTheme,
     TableTheme? tableTheme,
     ResizableTheme? resizableTheme,
@@ -157,6 +162,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     NavigationRailTheme? navigationRailTheme,
     BottomNavigationBarTheme? bottomNavigationBarTheme,
     ChipTheme? chipTheme,
+    ListSectionTheme? listSectionTheme,
     ListTileTheme? listTileTheme,
     ChatBubbleTheme? chatBubbleTheme,
     ChatListTheme? chatListTheme,
@@ -398,6 +404,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
         selectTheme: selectTheme,
         selectOptionTheme: selectOptionTheme,
         cardTheme: cardTheme,
+        carouselTheme: carouselTheme,
         switchTheme: switchTheme,
         checkboxTheme: checkboxTheme,
         textFieldTheme: textFieldTheme,
@@ -414,6 +421,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
         sheetTheme: sheetTheme,
         actionSheetTheme: actionSheetTheme,
         progressBarTheme: progressBarTheme,
+        refreshIndicatorTheme: refreshIndicatorTheme,
         accordionTheme: accordionTheme,
         tableTheme: tableTheme,
         resizableTheme: resizableTheme,
@@ -429,6 +437,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
         navigationRailTheme: navigationRailTheme,
         bottomNavigationBarTheme: bottomNavigationBarTheme,
         chipTheme: chipTheme,
+        listSectionTheme: listSectionTheme,
         listTileTheme: listTileTheme,
         chatBubbleTheme: chatBubbleTheme,
         chatListTheme: chatListTheme,
@@ -520,6 +529,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
         selectOptionTheme,
       ),
       cardTheme: effectiveVariant.cardTheme().merge(cardTheme),
+      carouselTheme: effectiveVariant.carouselTheme().merge(carouselTheme),
       switchTheme: effectiveVariant.switchTheme().merge(switchTheme),
       checkboxTheme: effectiveVariant.checkboxTheme().merge(checkboxTheme),
       textFieldTheme: effectiveVariant.textFieldTheme().merge(textFieldTheme),
@@ -553,6 +563,9 @@ class ThemeData extends BaseTheme with _$ThemeData {
       ),
       progressBarTheme: effectiveVariant.progressBarTheme().merge(
         progressBarTheme,
+      ),
+      refreshIndicatorTheme: effectiveVariant.refreshIndicatorTheme().merge(
+        refreshIndicatorTheme,
       ),
       accordionTheme: effectiveVariant.accordionTheme().merge(accordionTheme),
       tableTheme: effectiveVariant.tableTheme().merge(tableTheme),
@@ -595,6 +608,9 @@ class ThemeData extends BaseTheme with _$ThemeData {
           .bottomNavigationBarTheme()
           .merge(bottomNavigationBarTheme),
       chipTheme: effectiveVariant.chipTheme().merge(chipTheme),
+      listSectionTheme: effectiveVariant.listSectionTheme().merge(
+        listSectionTheme,
+      ),
       listTileTheme: effectiveVariant.listTileTheme().merge(listTileTheme),
       chatBubbleTheme: effectiveVariant.chatBubbleTheme().merge(
         chatBubbleTheme,
@@ -660,6 +676,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     required super.selectTheme,
     required super.selectOptionTheme,
     required super.cardTheme,
+    required super.carouselTheme,
     required super.switchTheme,
     required super.checkboxTheme,
     required super.textFieldTheme,
@@ -676,6 +693,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     required super.sheetTheme,
     required super.actionSheetTheme,
     required super.progressBarTheme,
+    required super.refreshIndicatorTheme,
     required super.accordionTheme,
     required super.tableTheme,
     required super.resizableTheme,
@@ -701,6 +719,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     required super.navigationRailTheme,
     required super.bottomNavigationBarTheme,
     required super.chipTheme,
+    required super.listSectionTheme,
     required super.listTileTheme,
     required super.chatBubbleTheme,
     required super.chatListTheme,
@@ -762,6 +781,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     SelectTheme? selectTheme,
     SelectOptionTheme? selectOptionTheme,
     CardTheme? cardTheme,
+    CarouselTheme? carouselTheme,
     SwitchTheme? switchTheme,
     CheckboxTheme? checkboxTheme,
     TextFieldTheme? textFieldTheme,
@@ -778,6 +798,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     SheetTheme? sheetTheme,
     ActionSheetTheme? actionSheetTheme,
     ProgressBarTheme? progressBarTheme,
+    RefreshIndicatorTheme? refreshIndicatorTheme,
     AccordionTheme? accordionTheme,
     TableTheme? tableTheme,
     ResizableTheme? resizableTheme,
@@ -793,6 +814,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     NavigationRailTheme? navigationRailTheme,
     BottomNavigationBarTheme? bottomNavigationBarTheme,
     ChipTheme? chipTheme,
+    ListSectionTheme? listSectionTheme,
     ListTileTheme? listTileTheme,
     ChatBubbleTheme? chatBubbleTheme,
     ChatListTheme? chatListTheme,
@@ -858,6 +880,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
       selectTheme: selectTheme ?? i.selectTheme,
       selectOptionTheme: selectOptionTheme ?? i.selectOptionTheme,
       cardTheme: cardTheme ?? i.cardTheme,
+      carouselTheme: carouselTheme ?? i.carouselTheme,
       switchTheme: switchTheme ?? i.switchTheme,
       checkboxTheme: checkboxTheme ?? i.checkboxTheme,
       textFieldTheme: textFieldTheme ?? i.textFieldTheme,
@@ -874,6 +897,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
       sheetTheme: sheetTheme ?? i.sheetTheme,
       actionSheetTheme: actionSheetTheme ?? i.actionSheetTheme,
       progressBarTheme: progressBarTheme ?? i.progressBarTheme,
+      refreshIndicatorTheme: refreshIndicatorTheme ?? i.refreshIndicatorTheme,
       accordionTheme: accordionTheme ?? i.accordionTheme,
       tableTheme: tableTheme ?? i.tableTheme,
       resizableTheme: resizableTheme ?? i.resizableTheme,
@@ -892,6 +916,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
       bottomNavigationBarTheme:
           bottomNavigationBarTheme ?? i.bottomNavigationBarTheme,
       chipTheme: chipTheme ?? i.chipTheme,
+      listSectionTheme: listSectionTheme ?? i.listSectionTheme,
       listTileTheme: listTileTheme ?? i.listTileTheme,
       chatBubbleTheme: chatBubbleTheme ?? i.chatBubbleTheme,
       chatListTheme: chatListTheme ?? i.chatListTheme,
@@ -1053,6 +1078,7 @@ final class _ThemeInputs {
     this.selectTheme,
     this.selectOptionTheme,
     this.cardTheme,
+    this.carouselTheme,
     this.switchTheme,
     this.checkboxTheme,
     this.textFieldTheme,
@@ -1069,6 +1095,7 @@ final class _ThemeInputs {
     this.sheetTheme,
     this.actionSheetTheme,
     this.progressBarTheme,
+    this.refreshIndicatorTheme,
     this.accordionTheme,
     this.tableTheme,
     this.resizableTheme,
@@ -1084,6 +1111,7 @@ final class _ThemeInputs {
     this.navigationRailTheme,
     this.bottomNavigationBarTheme,
     this.chipTheme,
+    this.listSectionTheme,
     this.listTileTheme,
     this.chatBubbleTheme,
     this.chatListTheme,
@@ -1147,6 +1175,7 @@ final class _ThemeInputs {
   final SelectTheme? selectTheme;
   final SelectOptionTheme? selectOptionTheme;
   final CardTheme? cardTheme;
+  final CarouselTheme? carouselTheme;
   final SwitchTheme? switchTheme;
   final CheckboxTheme? checkboxTheme;
   final TextFieldTheme? textFieldTheme;
@@ -1163,6 +1192,7 @@ final class _ThemeInputs {
   final SheetTheme? sheetTheme;
   final ActionSheetTheme? actionSheetTheme;
   final ProgressBarTheme? progressBarTheme;
+  final RefreshIndicatorTheme? refreshIndicatorTheme;
   final AccordionTheme? accordionTheme;
   final TableTheme? tableTheme;
   final ResizableTheme? resizableTheme;
@@ -1178,6 +1208,7 @@ final class _ThemeInputs {
   final NavigationRailTheme? navigationRailTheme;
   final BottomNavigationBarTheme? bottomNavigationBarTheme;
   final ChipTheme? chipTheme;
+  final ListSectionTheme? listSectionTheme;
   final ListTileTheme? listTileTheme;
   final ChatBubbleTheme? chatBubbleTheme;
   final ChatListTheme? chatListTheme;

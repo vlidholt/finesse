@@ -43,6 +43,7 @@ flutter:
     - lib/docs/examples/button/
     - lib/docs/examples/calendar/
     - lib/docs/examples/card/
+    - lib/docs/examples/carousel/
     - lib/docs/examples/checkbox/
     - lib/docs/examples/collapsible/
     - lib/docs/examples/command/
@@ -59,6 +60,7 @@ flutter:
     - lib/docs/examples/otp_field/
     - lib/docs/examples/kbd/
     - lib/docs/examples/surface/
+    - lib/docs/examples/swipe_actions/
     - lib/docs/examples/scroll_area/
     - lib/docs/examples/segmented_control/
     - lib/docs/examples/search_field/
@@ -67,12 +69,16 @@ flutter:
     - lib/docs/examples/keyboard_toolbar/
     - lib/docs/examples/list_detail_layout/
     - lib/docs/examples/layout/
+    - lib/docs/examples/list_section/
     - lib/docs/examples/menubar/
     - lib/docs/examples/pagination/
     - lib/docs/examples/popover/
     - lib/docs/examples/portal/
     - lib/docs/examples/progress_bar/
+    - lib/docs/examples/progress_ring/
     - lib/docs/examples/radio_group/
+    - lib/docs/examples/refresh_indicator/
+    - lib/docs/examples/reorderable_list_view/
     - lib/docs/examples/resizable/
     - lib/docs/examples/select/
     - lib/docs/examples/selection_area/
@@ -119,6 +125,7 @@ flutter:
     - lib/docs/examples/motion/
     - lib/docs/examples/page_container/
     - lib/docs/examples/page_route/
+    - lib/docs/examples/page_indicator/
     - lib/docs/examples/form_factors/
     - lib/docs/examples/icons/
 

@@ -19,6 +19,7 @@ import 'package:finesse/src/theme/components/button.dart';
 import 'package:finesse/src/theme/components/button_sizes.dart';
 import 'package:finesse/src/theme/components/calendar.dart';
 import 'package:finesse/src/theme/components/card.dart';
+import 'package:finesse/src/theme/components/carousel.dart';
 import 'package:finesse/src/theme/components/chat_bubble.dart';
 import 'package:finesse/src/theme/components/chat_list.dart';
 import 'package:finesse/src/theme/components/checkbox.dart';
@@ -38,6 +39,7 @@ import 'package:finesse/src/theme/components/icon_tile.dart';
 import 'package:finesse/src/theme/components/indicator_badge.dart';
 import 'package:finesse/src/theme/components/kbd.dart';
 import 'package:finesse/src/theme/components/layout.dart';
+import 'package:finesse/src/theme/components/list_section.dart';
 import 'package:finesse/src/theme/components/list_tile.dart';
 import 'package:finesse/src/theme/components/menubar.dart';
 import 'package:finesse/src/theme/components/navigation_bar.dart';
@@ -48,6 +50,7 @@ import 'package:finesse/src/theme/components/phosphor_icon.dart';
 import 'package:finesse/src/theme/components/popover.dart';
 import 'package:finesse/src/theme/components/progress_bar.dart';
 import 'package:finesse/src/theme/components/radio.dart';
+import 'package:finesse/src/theme/components/refresh_indicator.dart';
 import 'package:finesse/src/theme/components/resizable.dart';
 import 'package:finesse/src/theme/components/scroll_area.dart';
 import 'package:finesse/src/theme/components/select.dart';
@@ -1185,6 +1188,34 @@ class DefaultThemeVariant extends ThemeVariant {
   }
 
   @override
+  CarouselTheme carouselTheme() {
+    return CarouselTheme(
+      spacing: scaled(style.gapMd),
+      // An icon button's size, so on a phone the arrows are touch targets.
+      arrowSize: scaled(style.iconButtonSize),
+      arrowIconSize: 16,
+      arrowInset: scaled(style.gapSm),
+      // Opaque: an arrow floats over whatever the pages show.
+      arrowColor: colorScheme.popover,
+      arrowHoverColor: Color.alphaBlend(colorScheme.muted, colorScheme.popover),
+      arrowForegroundColor: colorScheme.popoverForeground,
+      arrowBorderColor: surfaceBorderColor,
+      indicatorInset: scaled(style.gapSm),
+      dotSize: 6,
+      activeDotExtent: 18,
+      dotSpacing: 6,
+      dotColor: _wash(colorScheme.foreground, .2),
+      activeDotColor: colorScheme.tint,
+      // Over a photograph: the page's palette says nothing about what is
+      // underneath, so these are fixed.
+      overlayColor: const Color(0x8A09090B),
+      overlayDotColor: const Color(0x80FFFFFF),
+      overlayActiveDotColor: const Color(0xFFFFFFFF),
+      overlayPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+    );
+  }
+
+  @override
   SwitchTheme switchTheme() {
     final width = style.switchWidth;
     final height = style.switchHeight;
@@ -1706,6 +1737,21 @@ class DefaultThemeVariant extends ThemeVariant {
   }
 
   @override
+  RefreshIndicatorTheme refreshIndicatorTheme() {
+    return RefreshIndicatorTheme(
+      size: scaled(40),
+      strokeWidth: 2.5,
+      color: colorScheme.tint,
+      // The popover's colour, opaque: a circle this small that travels with
+      // a finger is not worth a backdrop filter per frame.
+      backgroundColor: colorScheme.popover,
+      borderColor: surfaceBorderColor,
+      triggerDistance: 80,
+      displacement: scaled(style.gapMd),
+    );
+  }
+
+  @override
   AccordionTheme accordionTheme() {
     // No duration, curve or effects: an item opens on the motion tokens'
     // spring unless a theme or the item itself says otherwise.
@@ -2146,6 +2192,41 @@ class DefaultThemeVariant extends ThemeVariant {
   }
 
   @override
+  ListSectionTheme listSectionTheme() {
+    final tileX = scaled(style.cardPadding);
+    return ListSectionTheme(
+      margin: EdgeInsets.zero,
+      // The card's own fill and corners: null here, so a `CardTheme`
+      // override reaches the sections too.
+      headerStyle: style.overline
+          .apply(effectiveTextTheme.muted)
+          .copyWith(color: colorScheme.mutedForeground),
+      // No footer style: the footer is the text theme's caption, which the
+      // style's roles have been applied to.
+      headerPadding: EdgeInsetsDirectional.only(
+        start: tileX,
+        end: tileX,
+        bottom: scaled(style.gapSm),
+      ),
+      footerPadding: EdgeInsetsDirectional.only(
+        start: tileX,
+        end: tileX,
+        top: scaled(style.gapSm),
+      ),
+      // Rows line up with a card's content: the card padding at the sides.
+      tilePadding: EdgeInsets.symmetric(
+        horizontal: tileX,
+        vertical: scaled(style.listTilePaddingY),
+      ),
+      // As tall as a button, which is a touch target on a phone.
+      minTileHeight: scaled(style.buttonHeight),
+      dividerColor: colorScheme.border,
+      dividerThickness: 1,
+      pressedColor: colorScheme.muted,
+    );
+  }
+
+  @override
   ListTileTheme listTileTheme() {
     return ListTileTheme(
       padding: EdgeInsets.symmetric(
@@ -2163,6 +2244,10 @@ class DefaultThemeVariant extends ThemeVariant {
       ),
       hoverColor: colorScheme.muted,
       selectedColor: colorScheme.accent,
+      valueStyle: (style.small ?? style.body).apply(effectiveTextTheme.muted),
+      chevronColor: _wash(colorScheme.mutedForeground, .7),
+      chevronSize: 16,
+      destructiveColor: colorScheme.destructive,
     );
   }
 

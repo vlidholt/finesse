@@ -12,6 +12,7 @@ import 'package:finesse/src/theme/components/button.dart';
 import 'package:finesse/src/theme/components/button_sizes.dart';
 import 'package:finesse/src/theme/components/calendar.dart';
 import 'package:finesse/src/theme/components/card.dart';
+import 'package:finesse/src/theme/components/carousel.dart';
 import 'package:finesse/src/theme/components/chat_bubble.dart';
 import 'package:finesse/src/theme/components/chat_list.dart';
 import 'package:finesse/src/theme/components/checkbox.dart';
@@ -31,6 +32,7 @@ import 'package:finesse/src/theme/components/icon_tile.dart';
 import 'package:finesse/src/theme/components/indicator_badge.dart';
 import 'package:finesse/src/theme/components/kbd.dart';
 import 'package:finesse/src/theme/components/layout.dart';
+import 'package:finesse/src/theme/components/list_section.dart';
 import 'package:finesse/src/theme/components/list_tile.dart';
 import 'package:finesse/src/theme/components/menubar.dart';
 import 'package:finesse/src/theme/components/navigation_bar.dart';
@@ -41,6 +43,7 @@ import 'package:finesse/src/theme/components/phosphor_icon.dart';
 import 'package:finesse/src/theme/components/popover.dart';
 import 'package:finesse/src/theme/components/progress_bar.dart';
 import 'package:finesse/src/theme/components/radio.dart';
+import 'package:finesse/src/theme/components/refresh_indicator.dart';
 import 'package:finesse/src/theme/components/resizable.dart';
 import 'package:finesse/src/theme/components/scroll_area.dart';
 import 'package:finesse/src/theme/components/select.dart';
@@ -123,6 +126,7 @@ abstract class BaseTheme {
     required this.selectTheme,
     required this.selectOptionTheme,
     required this.cardTheme,
+    required this.carouselTheme,
     required this.switchTheme,
     required this.checkboxTheme,
     required this.textFieldTheme,
@@ -139,6 +143,7 @@ abstract class BaseTheme {
     required this.sheetTheme,
     required this.actionSheetTheme,
     required this.progressBarTheme,
+    required this.refreshIndicatorTheme,
     required this.accordionTheme,
     required this.tableTheme,
     required this.resizableTheme,
@@ -164,6 +169,7 @@ abstract class BaseTheme {
     required this.navigationRailTheme,
     required this.bottomNavigationBarTheme,
     required this.chipTheme,
+    required this.listSectionTheme,
     required this.listTileTheme,
     required this.chatBubbleTheme,
     required this.chatListTheme,
@@ -224,6 +230,9 @@ abstract class BaseTheme {
 
   /// The theme of the matching widget.
   final ChipTheme chipTheme;
+
+  /// The theme of `ListSection`.
+  final ListSectionTheme listSectionTheme;
 
   /// The theme of the matching widget.
   final ListTileTheme listTileTheme;
@@ -351,6 +360,9 @@ abstract class BaseTheme {
   /// The theme of `Card`.
   final CardTheme cardTheme;
 
+  /// The theme of `Carousel` and `PageIndicator`.
+  final CarouselTheme carouselTheme;
+
   /// The theme of `Switch`.
   final SwitchTheme switchTheme;
 
@@ -398,6 +410,9 @@ abstract class BaseTheme {
 
   /// The theme of `ProgressBar`.
   final ProgressBarTheme progressBarTheme;
+
+  /// The theme of `RefreshIndicator`.
+  final RefreshIndicatorTheme refreshIndicatorTheme;
 
   /// The theme of `Accordion`.
   final AccordionTheme accordionTheme;
@@ -563,6 +578,9 @@ abstract class ThemeVariant {
   /// Builds the theme of `Card`.
   CardTheme cardTheme();
 
+  /// Builds the [CarouselTheme].
+  CarouselTheme carouselTheme();
+
   /// Builds the theme of `Switch`.
   SwitchTheme switchTheme();
 
@@ -607,6 +625,9 @@ abstract class ThemeVariant {
 
   /// Builds the theme of `ProgressBar`.
   ProgressBarTheme progressBarTheme();
+
+  /// Builds the [RefreshIndicatorTheme].
+  RefreshIndicatorTheme refreshIndicatorTheme();
 
   /// Builds the theme of `Accordion`.
   AccordionTheme accordionTheme();
@@ -682,6 +703,9 @@ abstract class ThemeVariant {
 
   /// Builds the [ChipTheme].
   ChipTheme chipTheme();
+
+  /// Builds the [ListSectionTheme].
+  ListSectionTheme listSectionTheme();
 
   /// Builds the [ListTileTheme].
   ListTileTheme listTileTheme();

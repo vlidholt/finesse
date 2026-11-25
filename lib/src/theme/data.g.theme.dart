@@ -54,6 +54,11 @@ mixin _$ThemeData {
         t,
       )!,
       chipTheme: ChipTheme.lerp(a.chipTheme, b.chipTheme, t)!,
+      listSectionTheme: ListSectionTheme.lerp(
+        a.listSectionTheme,
+        b.listSectionTheme,
+        t,
+      )!,
       listTileTheme: ListTileTheme.lerp(a.listTileTheme, b.listTileTheme, t)!,
       chatBubbleTheme: ChatBubbleTheme.lerp(
         a.chatBubbleTheme,
@@ -179,6 +184,7 @@ mixin _$ThemeData {
         t,
       )!,
       cardTheme: CardTheme.lerp(a.cardTheme, b.cardTheme, t)!,
+      carouselTheme: CarouselTheme.lerp(a.carouselTheme, b.carouselTheme, t)!,
       switchTheme: SwitchTheme.lerp(a.switchTheme, b.switchTheme, t)!,
       checkboxTheme: CheckboxTheme.lerp(a.checkboxTheme, b.checkboxTheme, t)!,
       textFieldTheme: TextFieldTheme.lerp(
@@ -233,6 +239,11 @@ mixin _$ThemeData {
       progressBarTheme: ProgressBarTheme.lerp(
         a.progressBarTheme,
         b.progressBarTheme,
+        t,
+      )!,
+      refreshIndicatorTheme: RefreshIndicatorTheme.lerp(
+        a.refreshIndicatorTheme,
+        b.refreshIndicatorTheme,
         t,
       )!,
       accordionTheme: AccordionTheme.lerp(
@@ -293,6 +304,7 @@ mixin _$ThemeData {
     NavigationRailTheme? navigationRailTheme,
     BottomNavigationBarTheme? bottomNavigationBarTheme,
     ChipTheme? chipTheme,
+    ListSectionTheme? listSectionTheme,
     ListTileTheme? listTileTheme,
     ChatBubbleTheme? chatBubbleTheme,
     ChatListTheme? chatListTheme,
@@ -334,6 +346,7 @@ mixin _$ThemeData {
     SelectTheme? selectTheme,
     SelectOptionTheme? selectOptionTheme,
     CardTheme? cardTheme,
+    CarouselTheme? carouselTheme,
     SwitchTheme? switchTheme,
     CheckboxTheme? checkboxTheme,
     TextFieldTheme? textFieldTheme,
@@ -350,6 +363,7 @@ mixin _$ThemeData {
     SheetTheme? sheetTheme,
     ActionSheetTheme? actionSheetTheme,
     ProgressBarTheme? progressBarTheme,
+    RefreshIndicatorTheme? refreshIndicatorTheme,
     AccordionTheme? accordionTheme,
     TableTheme? tableTheme,
     ResizableTheme? resizableTheme,
@@ -384,6 +398,7 @@ mixin _$ThemeData {
       bottomNavigationBarTheme:
           bottomNavigationBarTheme ?? _this.bottomNavigationBarTheme,
       chipTheme: chipTheme ?? _this.chipTheme,
+      listSectionTheme: listSectionTheme ?? _this.listSectionTheme,
       listTileTheme: listTileTheme ?? _this.listTileTheme,
       chatBubbleTheme: chatBubbleTheme ?? _this.chatBubbleTheme,
       chatListTheme: chatListTheme ?? _this.chatListTheme,
@@ -427,6 +442,7 @@ mixin _$ThemeData {
       selectTheme: selectTheme ?? _this.selectTheme,
       selectOptionTheme: selectOptionTheme ?? _this.selectOptionTheme,
       cardTheme: cardTheme ?? _this.cardTheme,
+      carouselTheme: carouselTheme ?? _this.carouselTheme,
       switchTheme: switchTheme ?? _this.switchTheme,
       checkboxTheme: checkboxTheme ?? _this.checkboxTheme,
       textFieldTheme: textFieldTheme ?? _this.textFieldTheme,
@@ -445,6 +461,8 @@ mixin _$ThemeData {
       sheetTheme: sheetTheme ?? _this.sheetTheme,
       actionSheetTheme: actionSheetTheme ?? _this.actionSheetTheme,
       progressBarTheme: progressBarTheme ?? _this.progressBarTheme,
+      refreshIndicatorTheme:
+          refreshIndicatorTheme ?? _this.refreshIndicatorTheme,
       accordionTheme: accordionTheme ?? _this.accordionTheme,
       tableTheme: tableTheme ?? _this.tableTheme,
       resizableTheme: resizableTheme ?? _this.resizableTheme,
@@ -498,6 +516,7 @@ mixin _$ThemeData {
         other.bottomNavigationBarTheme,
       ),
       chipTheme: _this.chipTheme.merge(other.chipTheme),
+      listSectionTheme: _this.listSectionTheme.merge(other.listSectionTheme),
       listTileTheme: _this.listTileTheme.merge(other.listTileTheme),
       chatBubbleTheme: _this.chatBubbleTheme.merge(other.chatBubbleTheme),
       chatListTheme: _this.chatListTheme.merge(other.chatListTheme),
@@ -557,6 +576,7 @@ mixin _$ThemeData {
       selectTheme: _this.selectTheme.merge(other.selectTheme),
       selectOptionTheme: _this.selectOptionTheme.merge(other.selectOptionTheme),
       cardTheme: _this.cardTheme.merge(other.cardTheme),
+      carouselTheme: _this.carouselTheme.merge(other.carouselTheme),
       switchTheme: _this.switchTheme.merge(other.switchTheme),
       checkboxTheme: _this.checkboxTheme.merge(other.checkboxTheme),
       textFieldTheme: _this.textFieldTheme.merge(other.textFieldTheme),
@@ -581,6 +601,9 @@ mixin _$ThemeData {
       sheetTheme: _this.sheetTheme.merge(other.sheetTheme),
       actionSheetTheme: _this.actionSheetTheme.merge(other.actionSheetTheme),
       progressBarTheme: _this.progressBarTheme.merge(other.progressBarTheme),
+      refreshIndicatorTheme: _this.refreshIndicatorTheme.merge(
+        other.refreshIndicatorTheme,
+      ),
       accordionTheme: _this.accordionTheme.merge(other.accordionTheme),
       tableTheme: _this.tableTheme.merge(other.tableTheme),
       resizableTheme: _this.resizableTheme.merge(other.resizableTheme),
@@ -627,6 +650,7 @@ mixin _$ThemeData {
         _other.navigationRailTheme == _this.navigationRailTheme &&
         _other.bottomNavigationBarTheme == _this.bottomNavigationBarTheme &&
         _other.chipTheme == _this.chipTheme &&
+        _other.listSectionTheme == _this.listSectionTheme &&
         _other.listTileTheme == _this.listTileTheme &&
         _other.chatBubbleTheme == _this.chatBubbleTheme &&
         _other.chatListTheme == _this.chatListTheme &&
@@ -668,6 +692,7 @@ mixin _$ThemeData {
         _other.selectTheme == _this.selectTheme &&
         _other.selectOptionTheme == _this.selectOptionTheme &&
         _other.cardTheme == _this.cardTheme &&
+        _other.carouselTheme == _this.carouselTheme &&
         _other.switchTheme == _this.switchTheme &&
         _other.checkboxTheme == _this.checkboxTheme &&
         _other.textFieldTheme == _this.textFieldTheme &&
@@ -684,6 +709,7 @@ mixin _$ThemeData {
         _other.sheetTheme == _this.sheetTheme &&
         _other.actionSheetTheme == _this.actionSheetTheme &&
         _other.progressBarTheme == _this.progressBarTheme &&
+        _other.refreshIndicatorTheme == _this.refreshIndicatorTheme &&
         _other.accordionTheme == _this.accordionTheme &&
         _other.tableTheme == _this.tableTheme &&
         _other.resizableTheme == _this.resizableTheme &&
@@ -720,6 +746,7 @@ mixin _$ThemeData {
       _this.navigationRailTheme,
       _this.bottomNavigationBarTheme,
       _this.chipTheme,
+      _this.listSectionTheme,
       _this.listTileTheme,
       _this.chatBubbleTheme,
       _this.chatListTheme,
@@ -761,6 +788,7 @@ mixin _$ThemeData {
       _this.selectTheme,
       _this.selectOptionTheme,
       _this.cardTheme,
+      _this.carouselTheme,
       _this.switchTheme,
       _this.checkboxTheme,
       _this.textFieldTheme,
@@ -777,6 +805,7 @@ mixin _$ThemeData {
       _this.sheetTheme,
       _this.actionSheetTheme,
       _this.progressBarTheme,
+      _this.refreshIndicatorTheme,
       _this.accordionTheme,
       _this.tableTheme,
       _this.resizableTheme,
