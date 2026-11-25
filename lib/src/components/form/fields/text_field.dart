@@ -275,7 +275,7 @@ class TextFormField extends FinesseFormField<String> {
                      const FinesseDecoration())
                  .merge(decoration),
          builder: (state) {
-           state as TextFormFieldState;
+           state as _TextFormFieldState;
            return TextField(
              key: state.inputKey,
              controller: state.controller,
@@ -449,11 +449,11 @@ class TextFormField extends FinesseFormField<String> {
 
   @override
   FinesseFormFieldState<TextFormField, String> createState() =>
-      TextFormFieldState();
+      _TextFormFieldState();
 }
 
 /// The state of a [TextFormField].
-class TextFormFieldState extends FinesseFormFieldState<TextFormField, String> {
+class _TextFormFieldState extends FinesseFormFieldState<TextFormField, String> {
   TextEditingController? _controller;
 
   /// The controller in use: [TextFormField.controller] when given,

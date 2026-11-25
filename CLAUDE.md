@@ -974,8 +974,9 @@ weight, another font, at or above the reference — is a plain `Icon`.
   the barrel's `show`/`hide` clauses or marked `@internal` (`EntranceSpec`,
   `OverlayEntrance`, `SurfacePainter`, `PickerHost`, `RenderToastStack`,
   `MouseAreaSurface`). A few are hidden rather than private because tests
-  reach them through `src/` imports (`SelectState`, `TextFormFieldState`,
-  `PanelInfo`, `ResizeResult`).
+  reach them through `src/` imports (`SelectState`, `PanelInfo`,
+  `ResizeResult`); every `*FormFieldState` is private, and a test reaches
+  one as a `FinesseFormFieldState<F, T>`.
 - `test/readme_snippet_test.dart` and `example/test/example_md_test.dart` hold
   verbatim copies of the README and `example/example.md` snippets and check
   they still match.

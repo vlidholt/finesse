@@ -91,7 +91,7 @@ export 'src/components/form/fields/select.dart';
 export 'src/components/form/fields/slider.dart';
 export 'src/components/form/fields/switch.dart';
 export 'src/components/form/fields/tag_field.dart';
-export 'src/components/form/fields/text_field.dart' hide TextFormFieldState;
+export 'src/components/form/fields/text_field.dart';
 export 'src/components/form/fields/textarea.dart';
 export 'src/components/form/fields/time_field.dart';
 export 'src/components/form/fields/time_picker.dart';

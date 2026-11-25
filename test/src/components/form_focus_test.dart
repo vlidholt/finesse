@@ -1,5 +1,4 @@
 import 'package:finesse/finesse.dart';
-import 'package:finesse/src/components/form/fields/text_field.dart';
 import 'package:finesse/src/components/picker.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -209,7 +208,8 @@ void main() {
       tester,
     ) async {
       final formKey = GlobalKey<FinesseFormState>();
-      final fieldKey = GlobalKey<TextFormFieldState>();
+      final fieldKey =
+          GlobalKey<FinesseFormFieldState<TextFormField, String>>();
       final showForm = await pumpForm(
         tester,
         formKey,
