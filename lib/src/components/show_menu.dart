@@ -43,6 +43,8 @@ Future<T?> showMenu<T>({
     (position == null) != (anchorRect == null),
     'Give showMenu either a position or an anchorRect.',
   );
+  // A menu without rows shows nothing, and nothing could close it.
+  if (items.isEmpty) return Future<T?>.value();
   final navigator = Navigator.of(context, rootNavigator: useRootNavigator);
 
   // The menu is laid out in the navigator's overlay, which is not the whole

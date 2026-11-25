@@ -264,6 +264,21 @@ void main() {
     });
   });
 
+  testWidgets('with no rows it shows nothing and completes at once', (
+    tester,
+  ) async {
+    final context = await pumpPage(tester);
+    Object? result = 'unset';
+    showMenu<String>(
+      context: context,
+      position: const Offset(100, 100),
+      items: const [],
+    ).then((value) => result = value).ignore();
+    await tester.pump();
+    expect(result, isNull);
+    expect(Navigator.of(context).canPop(), isFalse);
+  });
+
   group('dismissal', () {
     testWidgets('a tap outside closes the menu with null and does not press '
         'what is under it', (tester) async {

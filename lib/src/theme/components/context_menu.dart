@@ -150,7 +150,8 @@ class ContextMenuTheme with _$ContextMenuTheme {
   /// and every other row of the same menu keeps empty. Defaults to 16.
   ///
   /// The check mark is drawn at this size and the dot at half of it; the
-  /// gap to the label is [leadingPadding].
+  /// gap to the label is [leadingPadding]. The box grows with the text
+  /// scale, so the mark keeps its size beside an enlarged label.
   final double? indicatorSize;
 
   /// The style of a `MenuLabel`, the heading of a group of rows.
