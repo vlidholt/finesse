@@ -33,7 +33,7 @@ void main() {
               builder: (context, controller, _) => const Text('Anchor'),
             ),
             Select<String>(
-              popoverController: select,
+              controller: select,
               initialValue: 'a',
               options: const [
                 SelectOption(value: 'a', child: Text('Apple')),

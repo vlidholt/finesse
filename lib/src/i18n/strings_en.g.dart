@@ -48,6 +48,7 @@ class FinesseLocalizationsData with BaseTranslations<FinesseLocale, FinesseLocal
 	late final FinesseLocalizationsData$empty$en empty = FinesseLocalizationsData$empty$en.internal(_root);
 	late final FinesseLocalizationsData$stepper$en stepper = FinesseLocalizationsData$stepper$en.internal(_root);
 	late final FinesseLocalizationsData$toast$en toast = FinesseLocalizationsData$toast$en.internal(_root);
+	late final FinesseLocalizationsData$chip$en chip = FinesseLocalizationsData$chip$en.internal(_root);
 	late final FinesseLocalizationsData$command$en command = FinesseLocalizationsData$command$en.internal(_root);
 	late final FinesseLocalizationsData$menu$en menu = FinesseLocalizationsData$menu$en.internal(_root);
 	late final FinesseLocalizationsData$licensePage$en licensePage = FinesseLocalizationsData$licensePage$en.internal(_root);
@@ -56,6 +57,8 @@ class FinesseLocalizationsData with BaseTranslations<FinesseLocale, FinesseLocal
 	late final FinesseLocalizationsData$refreshIndicator$en refreshIndicator = FinesseLocalizationsData$refreshIndicator$en.internal(_root);
 	late final FinesseLocalizationsData$reorder$en reorder = FinesseLocalizationsData$reorder$en.internal(_root);
 	late final FinesseLocalizationsData$swipeActions$en swipeActions = FinesseLocalizationsData$swipeActions$en.internal(_root);
+	late final FinesseLocalizationsData$rating$en rating = FinesseLocalizationsData$rating$en.internal(_root);
+	late final FinesseLocalizationsData$colorPicker$en colorPicker = FinesseLocalizationsData$colorPicker$en.internal(_root);
 	late final FinesseLocalizationsData$dialog$en dialog = FinesseLocalizationsData$dialog$en.internal(_root);
 	late final FinesseLocalizationsData$sheet$en sheet = FinesseLocalizationsData$sheet$en.internal(_root);
 	late final FinesseLocalizationsData$button$en button = FinesseLocalizationsData$button$en.internal(_root);
@@ -109,6 +112,15 @@ class FinesseLocalizationsData$timePicker$en {
 
 	/// en: 'AM'
 	String get periodPlaceholder => 'AM';
+
+	/// en: 'AM'
+	String get am => 'AM';
+
+	/// en: 'PM'
+	String get pm => 'PM';
+
+	/// en: 'Select time'
+	String get selectTime => 'Select time';
 }
 
 // Path: datePicker
@@ -121,6 +133,27 @@ class FinesseLocalizationsData$datePicker$en {
 
 	/// en: 'Select date'
 	String get selectDate => 'Select date';
+
+	/// en: 'Select dates'
+	String get selectDateRange => 'Select dates';
+
+	/// en: 'Done'
+	String get done => 'Done';
+
+	/// en: 'Clear'
+	String get clear => 'Clear';
+
+	/// en: 'Cancel'
+	String get cancel => 'Cancel';
+
+	/// en: 'Day'
+	String get day => 'Day';
+
+	/// en: 'Month'
+	String get month => 'Month';
+
+	/// en: 'Year'
+	String get year => 'Year';
 }
 
 // Path: input
@@ -318,6 +351,18 @@ class FinesseLocalizationsData$toast$en {
 	String get dismiss => 'Dismiss';
 }
 
+// Path: chip
+class FinesseLocalizationsData$chip$en {
+	FinesseLocalizationsData$chip$en.internal(this._root);
+
+	final FinesseLocalizationsData _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Remove'
+	String get remove => 'Remove';
+}
+
 // Path: command
 class FinesseLocalizationsData$command$en {
 	FinesseLocalizationsData$command$en.internal(this._root);
@@ -510,6 +555,42 @@ class FinesseLocalizationsData$swipeActions$en {
 	String get more => 'More actions';
 }
 
+// Path: rating
+class FinesseLocalizationsData$rating$en {
+	FinesseLocalizationsData$rating$en.internal(this._root);
+
+	final FinesseLocalizationsData _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: '$value of $count'
+	String value({required Object value, required Object count}) => '${value} of ${count}';
+}
+
+// Path: colorPicker
+class FinesseLocalizationsData$colorPicker$en {
+	FinesseLocalizationsData$colorPicker$en.internal(this._root);
+
+	final FinesseLocalizationsData _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Hex'
+	String get hex => 'Hex';
+
+	/// en: 'Hue'
+	String get hue => 'Hue';
+
+	/// en: 'Opacity'
+	String get opacity => 'Opacity';
+
+	/// en: 'Saturation and brightness'
+	String get saturationAndBrightness => 'Saturation and brightness';
+
+	/// en: 'Select colour'
+	String get selectColor => 'Select colour';
+}
+
 // Path: dialog
 class FinesseLocalizationsData$dialog$en {
 	FinesseLocalizationsData$dialog$en.internal(this._root);
@@ -618,7 +699,17 @@ extension on FinesseLocalizationsData {
 			'timePicker.seconds' => 'Seconds',
 			'timePicker.period' => 'Period',
 			'timePicker.periodPlaceholder' => 'AM',
+			'timePicker.am' => 'AM',
+			'timePicker.pm' => 'PM',
+			'timePicker.selectTime' => 'Select time',
 			'datePicker.selectDate' => 'Select date',
+			'datePicker.selectDateRange' => 'Select dates',
+			'datePicker.done' => 'Done',
+			'datePicker.clear' => 'Clear',
+			'datePicker.cancel' => 'Cancel',
+			'datePicker.day' => 'Day',
+			'datePicker.month' => 'Month',
+			'datePicker.year' => 'Year',
 			'input.cut' => 'Cut',
 			'input.copy' => 'Copy',
 			'input.paste' => 'Paste',
@@ -657,6 +748,7 @@ extension on FinesseLocalizationsData {
 			'stepper.finish' => 'Finish',
 			'stepper.cancel' => 'Cancel',
 			'toast.dismiss' => 'Dismiss',
+			'chip.remove' => 'Remove',
 			'command.noResults' => 'No results found.',
 			'menu.control' => 'Ctrl',
 			'menu.alt' => 'Alt',
@@ -697,6 +789,12 @@ extension on FinesseLocalizationsData {
 			'reorder.cancelled' => 'Move cancelled',
 			'reorder.dragHandle' => 'Drag to reorder',
 			'swipeActions.more' => 'More actions',
+			'rating.value' => ({required Object value, required Object count}) => '${value} of ${count}',
+			'colorPicker.hex' => 'Hex',
+			'colorPicker.hue' => 'Hue',
+			'colorPicker.opacity' => 'Opacity',
+			'colorPicker.saturationAndBrightness' => 'Saturation and brightness',
+			'colorPicker.selectColor' => 'Select colour',
 			'dialog.close' => 'Close',
 			'dialog.dismiss' => 'Dismiss',
 			'sheet.resize' => 'Resize',

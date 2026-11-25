@@ -469,8 +469,10 @@ void main() {
         FinesseApp(
           home: Center(
             child: DatePicker(
-              popoverController: picker,
-              buttonFocusNode: trigger,
+              value: null,
+              onChanged: (_) {},
+              controller: picker,
+              focusNode: trigger,
               requestFocus: false,
             ),
           ),

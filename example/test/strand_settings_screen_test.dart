@@ -394,7 +394,7 @@ void main() {
         of: find.byType(SettingsScreen),
         matching: find.byType(Slider),
       );
-      double thumb() => tester.widget<Slider>(slider).controller!.value;
+      double thumb() => tester.widget<Slider>(slider).value!;
       expect(find.text('100%'), findsOneWidget);
       expect(thumb(), 1.0);
 

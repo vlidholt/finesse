@@ -62,11 +62,13 @@ import 'package:finesse/src/theme/components/tabs.dart';
 import 'package:finesse/src/theme/components/text_field.dart';
 import 'package:finesse/src/theme/components/text_selection.dart';
 import 'package:finesse/src/theme/components/textarea.dart';
+import 'package:finesse/src/theme/components/time_field.dart';
 import 'package:finesse/src/theme/components/time_picker.dart';
 import 'package:finesse/src/theme/components/timeline.dart';
 import 'package:finesse/src/theme/components/toast.dart';
 import 'package:finesse/src/theme/components/toggle.dart';
 import 'package:finesse/src/theme/components/tooltip.dart';
+import 'package:finesse/src/theme/components/wheel_picker.dart';
 import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/radii.dart';
@@ -186,6 +188,8 @@ class ThemeData extends BaseTheme with _$ThemeData {
     CalendarTheme? calendarTheme,
     DatePickerTheme? datePickerTheme,
     TimePickerTheme? timePickerTheme,
+    TimeFieldTheme? timeFieldTheme,
+    WheelPickerTheme? wheelPickerTheme,
     OtpFieldTheme? otpFieldTheme,
     MenubarTheme? menubarTheme,
     DividerTheme? dividerTheme,
@@ -461,6 +465,8 @@ class ThemeData extends BaseTheme with _$ThemeData {
         calendarTheme: calendarTheme,
         datePickerTheme: datePickerTheme,
         timePickerTheme: timePickerTheme,
+        timeFieldTheme: timeFieldTheme,
+        wheelPickerTheme: wheelPickerTheme,
         otpFieldTheme: otpFieldTheme,
         menubarTheme: menubarTheme,
         dividerTheme: dividerTheme,
@@ -577,6 +583,10 @@ class ThemeData extends BaseTheme with _$ThemeData {
       ),
       timePickerTheme: effectiveVariant.timePickerTheme().merge(
         timePickerTheme,
+      ),
+      timeFieldTheme: effectiveVariant.timeFieldTheme().merge(timeFieldTheme),
+      wheelPickerTheme: effectiveVariant.wheelPickerTheme().merge(
+        wheelPickerTheme,
       ),
       otpFieldTheme: effectiveVariant.otpFieldTheme().merge(otpFieldTheme),
       menubarTheme: effectiveVariant.menubarTheme().merge(menubarTheme),
@@ -699,6 +709,8 @@ class ThemeData extends BaseTheme with _$ThemeData {
     required super.calendarTheme,
     required super.datePickerTheme,
     required super.timePickerTheme,
+    required super.timeFieldTheme,
+    required super.wheelPickerTheme,
     required super.otpFieldTheme,
     required super.menubarTheme,
     required super.dividerTheme,
@@ -834,6 +846,8 @@ class ThemeData extends BaseTheme with _$ThemeData {
     CalendarTheme? calendarTheme,
     DatePickerTheme? datePickerTheme,
     TimePickerTheme? timePickerTheme,
+    TimeFieldTheme? timeFieldTheme,
+    WheelPickerTheme? wheelPickerTheme,
     OtpFieldTheme? otpFieldTheme,
     MenubarTheme? menubarTheme,
     DividerTheme? dividerTheme,
@@ -936,6 +950,8 @@ class ThemeData extends BaseTheme with _$ThemeData {
       calendarTheme: calendarTheme ?? i.calendarTheme,
       datePickerTheme: datePickerTheme ?? i.datePickerTheme,
       timePickerTheme: timePickerTheme ?? i.timePickerTheme,
+      timeFieldTheme: timeFieldTheme ?? i.timeFieldTheme,
+      wheelPickerTheme: wheelPickerTheme ?? i.wheelPickerTheme,
       otpFieldTheme: otpFieldTheme ?? i.otpFieldTheme,
       menubarTheme: menubarTheme ?? i.menubarTheme,
       dividerTheme: dividerTheme ?? i.dividerTheme,
@@ -1131,6 +1147,8 @@ final class _ThemeInputs {
     this.calendarTheme,
     this.datePickerTheme,
     this.timePickerTheme,
+    this.timeFieldTheme,
+    this.wheelPickerTheme,
     this.otpFieldTheme,
     this.menubarTheme,
     this.dividerTheme,
@@ -1228,6 +1246,8 @@ final class _ThemeInputs {
   final CalendarTheme? calendarTheme;
   final DatePickerTheme? datePickerTheme;
   final TimePickerTheme? timePickerTheme;
+  final TimeFieldTheme? timeFieldTheme;
+  final WheelPickerTheme? wheelPickerTheme;
   final OtpFieldTheme? otpFieldTheme;
   final MenubarTheme? menubarTheme;
   final DividerTheme? dividerTheme;

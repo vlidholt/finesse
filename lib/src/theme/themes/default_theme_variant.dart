@@ -68,11 +68,13 @@ import 'package:finesse/src/theme/components/tabs.dart';
 import 'package:finesse/src/theme/components/text_field.dart';
 import 'package:finesse/src/theme/components/text_selection.dart';
 import 'package:finesse/src/theme/components/textarea.dart';
+import 'package:finesse/src/theme/components/time_field.dart';
 import 'package:finesse/src/theme/components/time_picker.dart';
 import 'package:finesse/src/theme/components/timeline.dart';
 import 'package:finesse/src/theme/components/toast.dart';
 import 'package:finesse/src/theme/components/toggle.dart';
 import 'package:finesse/src/theme/components/tooltip.dart';
+import 'package:finesse/src/theme/components/wheel_picker.dart';
 import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/radii.dart';
 import 'package:finesse/src/theme/spacing.dart';
@@ -2212,6 +2214,10 @@ class DefaultThemeVariant extends ThemeVariant {
       selectedBackgroundColor: colorScheme.accent,
       selectedForegroundColor: colorScheme.accentForeground,
       selectedBorderColor: colorScheme.accentBorder,
+      showCheckmark: false,
+      groupSpacing: scaled(style.gapSm),
+      groupRunSpacing: scaled(style.gapSm),
+      groupFade: 24,
     );
   }
 
@@ -2637,19 +2643,55 @@ class DefaultThemeVariant extends ThemeVariant {
 
   @override
   DatePickerTheme datePickerTheme() {
-    return const DatePickerTheme(
-      calendarDecoration: FinesseDecoration.none,
-      allowDeselection: true,
+    return DatePickerTheme(
       buttonVariant: ButtonVariant.outline,
       width: 276,
-      mainAxisAlignment: MainAxisAlignment.start,
-      iconData: PhosphorIconsRegular.calendarBlank,
+      popoverPadding: EdgeInsets.all(scaled(style.calendarPadding)),
+      allowDeselection: true,
+      closeOnSelection: true,
+      sheetMaxWidth: 420,
+      sheetWheelItems: 5,
     );
   }
 
   @override
-  TimePickerTheme timePickerTheme() {
-    return TimePickerTheme(
+  WheelPickerTheme wheelPickerTheme() {
+    // The lens is a piece of this system's glass laid on the surface the
+    // wheel is in: where menus are washed (`finesse`) it is the same wash
+    // of the foreground under a hairline, and in a style with solid menus
+    // it is the muted fill.
+    final wash = _isDark
+        ? style.menuHighlightOpacityDark ?? style.menuHighlightOpacity
+        : style.menuHighlightOpacity;
+    final rowStyle = style.body.apply(effectiveTextTheme.p);
+    return WheelPickerTheme(
+      // A row is a touch target on a phone: the style's control height.
+      itemExtent: scaled(style.inputHeight),
+      itemPadding: EdgeInsets.symmetric(
+        horizontal: scaled(style.itemPaddingX + style.gapXs),
+      ),
+      textStyle: rowStyle.copyWith(color: colorScheme.mutedForeground),
+      selectedTextStyle: rowStyle.copyWith(color: colorScheme.foreground),
+      disabledOpacity: .4,
+      lensColor: wash == null
+          ? colorScheme.muted
+          : _wash(colorScheme.foreground, wash),
+      lensBorderColor: wash == null
+          ? const Color(0x00000000)
+          : colorScheme.border,
+      lensBorderWidth: wash == null ? 0 : 1,
+      lensRadius: itemRadius,
+      lensMagnification: 1.12,
+      curvature: .5,
+      edgeFade: .6,
+      gap: scaled(style.gapXs),
+      groupPadding: EdgeInsets.symmetric(horizontal: scaled(style.gapSm)),
+    );
+  }
+
+  @override
+  TimeFieldTheme timeFieldTheme() {
+    return TimeFieldTheme(
       axis: Axis.horizontal,
       spacing: 8,
       runSpacing: 4,
@@ -2678,6 +2720,15 @@ class DefaultThemeVariant extends ThemeVariant {
         shadows: style.controlShadow,
         border: fieldBorder,
       ),
+    );
+  }
+
+  @override
+  TimePickerTheme timePickerTheme() {
+    return TimePickerTheme(
+      buttonVariant: ButtonVariant.outline,
+      popoverPadding: EdgeInsets.all(scaled(style.popoverPadding)),
+      sheetWheelItems: 5,
     );
   }
 

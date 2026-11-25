@@ -269,6 +269,16 @@ mixin _$ThemeData {
         b.timePickerTheme,
         t,
       )!,
+      timeFieldTheme: TimeFieldTheme.lerp(
+        a.timeFieldTheme,
+        b.timeFieldTheme,
+        t,
+      )!,
+      wheelPickerTheme: WheelPickerTheme.lerp(
+        a.wheelPickerTheme,
+        b.wheelPickerTheme,
+        t,
+      )!,
       otpFieldTheme: OtpFieldTheme.lerp(a.otpFieldTheme, b.otpFieldTheme, t)!,
       menubarTheme: MenubarTheme.lerp(a.menubarTheme, b.menubarTheme, t)!,
       dividerTheme: DividerTheme.lerp(a.dividerTheme, b.dividerTheme, t)!,
@@ -365,6 +375,8 @@ mixin _$ThemeData {
     CalendarTheme? calendarTheme,
     DatePickerTheme? datePickerTheme,
     TimePickerTheme? timePickerTheme,
+    TimeFieldTheme? timeFieldTheme,
+    WheelPickerTheme? wheelPickerTheme,
     OtpFieldTheme? otpFieldTheme,
     MenubarTheme? menubarTheme,
     DividerTheme? dividerTheme,
@@ -464,6 +476,8 @@ mixin _$ThemeData {
       calendarTheme: calendarTheme ?? _this.calendarTheme,
       datePickerTheme: datePickerTheme ?? _this.datePickerTheme,
       timePickerTheme: timePickerTheme ?? _this.timePickerTheme,
+      timeFieldTheme: timeFieldTheme ?? _this.timeFieldTheme,
+      wheelPickerTheme: wheelPickerTheme ?? _this.wheelPickerTheme,
       otpFieldTheme: otpFieldTheme ?? _this.otpFieldTheme,
       menubarTheme: menubarTheme ?? _this.menubarTheme,
       dividerTheme: dividerTheme ?? _this.dividerTheme,
@@ -602,6 +616,8 @@ mixin _$ThemeData {
       calendarTheme: _this.calendarTheme.merge(other.calendarTheme),
       datePickerTheme: _this.datePickerTheme.merge(other.datePickerTheme),
       timePickerTheme: _this.timePickerTheme.merge(other.timePickerTheme),
+      timeFieldTheme: _this.timeFieldTheme.merge(other.timeFieldTheme),
+      wheelPickerTheme: _this.wheelPickerTheme.merge(other.wheelPickerTheme),
       otpFieldTheme: _this.otpFieldTheme.merge(other.otpFieldTheme),
       menubarTheme: _this.menubarTheme.merge(other.menubarTheme),
       dividerTheme: _this.dividerTheme.merge(other.dividerTheme),
@@ -708,6 +724,8 @@ mixin _$ThemeData {
         _other.calendarTheme == _this.calendarTheme &&
         _other.datePickerTheme == _this.datePickerTheme &&
         _other.timePickerTheme == _this.timePickerTheme &&
+        _other.timeFieldTheme == _this.timeFieldTheme &&
+        _other.wheelPickerTheme == _this.wheelPickerTheme &&
         _other.otpFieldTheme == _this.otpFieldTheme &&
         _other.menubarTheme == _this.menubarTheme &&
         _other.dividerTheme == _this.dividerTheme &&
@@ -804,6 +822,8 @@ mixin _$ThemeData {
       _this.calendarTheme,
       _this.datePickerTheme,
       _this.timePickerTheme,
+      _this.timeFieldTheme,
+      _this.wheelPickerTheme,
       _this.otpFieldTheme,
       _this.menubarTheme,
       _this.dividerTheme,

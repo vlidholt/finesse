@@ -23,7 +23,7 @@ class RadioGroupFormField<T> extends FinesseFormField<T> {
     super.enabled,
     super.autovalidateMode,
     super.restorationId,
-    T? initialValue,
+    super.initialValue,
     super.validator,
     required Iterable<Widget> items,
 
@@ -44,34 +44,29 @@ class RadioGroupFormField<T> extends FinesseFormField<T> {
 
     /// {@macro FinesseRadioGroup.crossAxisAlignment}
     WrapCrossAlignment? crossAxisAlignment,
-
-    /// {@macro FinesseRadioGroup.controller}
-    this.controller,
   }) : super(
          decorationBuilder: (context) =>
              Theme.of(context).radioTheme.decoration ??
              const FinesseDecoration(),
-         initialValue: controller?.value ?? initialValue,
          builder: (state) {
            state as RadioGroupFormFieldState<T>;
-           return FinesseRadioGroup(
+           return FinesseRadioGroup<T>(
              items: items,
+             // The form holds the value; a key remakes the group when a
+             // reset clears it, since null means "uncontrolled" there.
+             key: ValueKey(state._generation),
+             value: state.value,
              onChanged: state.didChange,
              enabled: state.enabled,
-             initialValue: initialValue,
              axis: axis,
              spacing: spacing,
              runSpacing: runSpacing,
              alignment: alignment,
              runAlignment: runAlignment,
              crossAxisAlignment: crossAxisAlignment,
-             controller: state.controller,
            );
          },
        );
-
-  /// {@macro FinesseRadioGroup.controller}
-  final RadioController<T>? controller;
 
   @override
   FinesseFormFieldState<RadioGroupFormField<T>, T> createState() =>
@@ -81,67 +76,11 @@ class RadioGroupFormField<T> extends FinesseFormField<T> {
 /// The state of a [RadioGroupFormField].
 class RadioGroupFormFieldState<T>
     extends FinesseFormFieldState<RadioGroupFormField<T>, T> {
-  RadioController<T>? _controller;
-
-  /// The controller in use: [RadioGroupFormField.controller] when given,
-  /// otherwise an internal one.
-  RadioController<T> get controller => widget.controller ?? _controller!;
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.controller == null) {
-      _controller = RadioController<T>(
-        value: initialValue,
-        enabled: enabled,
-      );
-    }
-    controller.addListener(onControllerChanged);
-  }
-
-  @override
-  void didChange(T? value) {
-    super.didChange(value);
-    if (controller.value != value) {
-      controller.value = value;
-    }
-  }
-
-  @override
-  void didUpdateWidget(covariant RadioGroupFormField<T> oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.controller == oldWidget.controller) return;
-    // Move the listener with the controller. It used to stay on the old one,
-    // and dispose() then removed it from the wrong controller.
-    (oldWidget.controller ?? _controller)?.removeListener(onControllerChanged);
-    if (widget.controller != null) {
-      _controller?.dispose();
-      _controller = null;
-    } else {
-      _controller = RadioController<T>(value: value, enabled: enabled);
-    }
-    controller.addListener(onControllerChanged);
-  }
+  int _generation = 0;
 
   @override
   void reset() {
+    _generation++;
     super.reset();
-    controller.value = initialValue;
-  }
-
-  @override
-  void dispose() {
-    controller.removeListener(onControllerChanged);
-    _controller?.dispose();
-    super.dispose();
-  }
-
-  /// Copies the controller's value into the field's value and calls
-  /// [FinesseFormField.onChanged].
-  void onControllerChanged() {
-    if (controller.value != value) {
-      didChange(controller.value);
-      widget.onChanged?.call(controller.value);
-    }
   }
 }

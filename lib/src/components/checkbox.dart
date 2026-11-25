@@ -1,3 +1,4 @@
+import 'package:finesse/src/components/control_affinity.dart';
 import 'package:finesse/src/components/disabled.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/raw_components/focusable.dart';
@@ -11,17 +12,26 @@ import 'package:finesse/src/utils/pop_in.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-/// A customizable checkbox widget with optional label and sublabel.
+/// A box that is checked or not, with an optional label and description
+/// beside it.
 ///
-/// The [Checkbox] widget allows users to toggle a boolean state, visually
-/// represented by a checkmark within a styled box. It supports enabling/disabling,
-/// focus handling, animations, and integrates with [Theme] for consistent
-/// styling.
+/// ```dart
+/// Checkbox(
+///   value: _accepted,
+///   onChanged: (value) => setState(() => _accepted = value),
+///   label: const Text('Accept the terms'),
+/// )
+/// ```
+///
+/// With [tristate] the [value] may also be null, which draws a dash: the
+/// mixed state of a box that stands for several others, some of them
+/// checked. A tap on a mixed box checks it.
 class Checkbox extends StatefulWidget {
   /// Creates a checkbox widget with the specified state and options.
   const Checkbox({
     super.key,
     required this.value,
+    this.tristate = false,
     this.enabled = true,
     this.onChanged,
     this.focusNode,
@@ -33,19 +43,28 @@ class Checkbox extends StatefulWidget {
     this.icon,
     this.color,
     this.uncheckedColor,
+    this.mixedIcon,
     this.label,
-    this.sublabel,
+    this.description,
     this.padding,
-    this.direction,
+    this.controlAffinity = ControlAffinity.leading,
     this.crossAxisAlignment,
     this.checkboxPadding,
-  });
+  }) : assert(
+         tristate || value != null,
+         'Only a tristate checkbox may have a null value.',
+       );
 
   /// {@template Checkbox.value}
-  /// Whether the checkbox is checked (true) or unchecked (false).
-  /// Required to set the initial state of the checkbox.
+  /// Whether the checkbox is checked (true) or unchecked (false). With
+  /// [tristate] it may be null: mixed, drawn as a dash.
   /// {@endtemplate}
-  final bool value;
+  final bool? value;
+
+  /// {@template Checkbox.tristate}
+  /// Whether [value] may be null, the mixed state.
+  /// {@endtemplate}
+  final bool tristate;
 
   /// {@template Checkbox.enabled}
   /// Whether the checkbox is interactive.
@@ -54,8 +73,9 @@ class Checkbox extends StatefulWidget {
   final bool enabled;
 
   /// {@template Checkbox.onChanged}
-  /// Callback invoked when the checkbox is toggled.
-  /// If null, the checkbox is non-interactive but still visible.
+  /// Called with the new state when the checkbox is tapped: true for an
+  /// unchecked or a mixed box, false for a checked one. If null, the
+  /// checkbox is non-interactive but still visible.
   /// {@endtemplate}
   final ValueChanged<bool>? onChanged;
 
@@ -116,15 +136,19 @@ class Checkbox extends StatefulWidget {
 
   /// {@template Checkbox.label}
   /// An optional label displayed next to the checkbox.
-  /// Typically a [Text] widget, positioned based on [direction].
+  /// Typically a [Text] widget, on the side [controlAffinity] leaves free.
   /// {@endtemplate}
   final Widget? label;
 
-  /// {@template Checkbox.sublabel}
-  /// An optional sublabel displayed below the label.
-  /// Typically a [Text] widget, enhancing the checkbox description.
+  /// {@template Checkbox.mixedIcon}
+  /// The icon displayed in the mixed state. Defaults to a dash.
   /// {@endtemplate}
-  final Widget? sublabel;
+  final Widget? mixedIcon;
+
+  /// {@template Checkbox.description}
+  /// An optional line under the label, in the muted colour.
+  /// {@endtemplate}
+  final Widget? description;
 
   /// {@template Checkbox.padding}
   /// The padding between the checkbox and its label/sublabel.
@@ -139,15 +163,14 @@ class Checkbox extends StatefulWidget {
   /// {@endtemplate}
   final EdgeInsetsGeometry? checkboxPadding;
 
-  /// {@template Checkbox.direction}
-  /// The text direction for arranging the checkbox and label/sublabel.
-  /// Defaults to null (inherits from context) if not specified.
+  /// {@template Checkbox.controlAffinity}
+  /// Whether the box comes before the label or after it.
   /// {@endtemplate}
-  final TextDirection? direction;
+  final ControlAffinity controlAffinity;
 
   /// {@template Checkbox.crossAxisAlignment}
   /// The cross-axis alignment of the checkbox and label/sublabel.
-  /// Defaults to [CrossAxisAlignment.start] if both label and sublabel are
+  /// Defaults to [CrossAxisAlignment.start] if both label and description are
   /// present, otherwise [CrossAxisAlignment.center].
   /// {@endtemplate}
   final CrossAxisAlignment? crossAxisAlignment;
@@ -176,7 +199,8 @@ class _CheckboxState extends State<Checkbox> {
   void onTap() {
     if (widget.onChanged == null) return;
 
-    widget.onChanged!(!widget.value);
+    // A mixed box becomes a checked one.
+    widget.onChanged!(!(widget.value ?? false));
     if (!focusNode.hasFocus) {
       FocusScope.of(context).unfocus();
     }
@@ -198,15 +222,18 @@ class _CheckboxState extends State<Checkbox> {
     // A checked box swaps its whole decoration, not just the fill: the
     // reference recolours the outline with it (`data-checked:border-primary`),
     // so keeping the unchecked border would leave a pale halo around the fill.
+    final value = widget.value;
+    // Mixed is filled like checked: it is a box with a mark in it.
+    final filled = value ?? true;
     final effectiveDecoration =
-        ((widget.value
+        ((filled
                     ? theme.checkboxTheme.checkedDecoration ??
                           theme.checkboxTheme.decoration
                     : theme.checkboxTheme.decoration) ??
                 const FinesseDecoration())
             .merge(widget.decoration)
             .copyWith(
-              color: widget.value ? effectiveColor : effectiveUncheckedColor,
+              color: filled ? effectiveColor : effectiveUncheckedColor,
             );
 
     final effectiveSize = widget.size ?? theme.checkboxTheme.size ?? 16;
@@ -218,6 +245,14 @@ class _CheckboxState extends State<Checkbox> {
           color: theme.colorScheme.primaryForeground,
           // `[&>svg]:size-3.5`: the glyph sits 2px inside its 16px box.
           size: effectiveSize - 2,
+        );
+
+    final effectiveMixedIcon =
+        widget.mixedIcon ??
+        PhosphorIcon(
+          PhosphorIconsBold.minus,
+          color: theme.colorScheme.primaryForeground,
+          size: effectiveSize - 4,
         );
 
     final motion = Motion.of(context);
@@ -241,7 +276,8 @@ class _CheckboxState extends State<Checkbox> {
     ];
 
     final checkbox = Semantics(
-      checked: widget.value,
+      checked: value ?? false,
+      mixed: widget.tristate ? value == null : null,
       child: Disabled(
         showForbiddenCursor: true,
         disabled: !widget.enabled,
@@ -282,11 +318,22 @@ class _CheckboxState extends State<Checkbox> {
                 child: Center(
                   // The mark pops in while it is wiped on from its leading
                   // edge, which reads as the stroke being drawn.
-                  child: PopIn(
-                    visible: widget.value,
-                    wipe: true,
-                    spring: checkSpring,
-                    child: effectiveIcon,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      PopIn(
+                        visible: value ?? false,
+                        wipe: true,
+                        spring: checkSpring,
+                        child: effectiveIcon,
+                      ),
+                      if (widget.tristate)
+                        PopIn(
+                          visible: value == null,
+                          spring: checkSpring,
+                          child: effectiveMixedIcon,
+                        ),
+                    ],
                   ),
                 ),
               ),
@@ -297,7 +344,7 @@ class _CheckboxState extends State<Checkbox> {
     );
 
     final defaultCrossAxisAlignment =
-        widget.label != null && widget.sublabel != null
+        widget.label != null && widget.description != null
         ? CrossAxisAlignment.start
         : CrossAxisAlignment.center;
 
@@ -312,49 +359,43 @@ class _CheckboxState extends State<Checkbox> {
       disabledOpacity: 1,
       child: GestureDetector(
         onTap: widget.onChanged == null ? null : onTap,
-        child: Row(
-          textDirection: widget.direction,
-          mainAxisSize: MainAxisSize.min,
+        child: ControlLabelRow(
+          affinity: widget.controlAffinity,
           crossAxisAlignment: effectiveCrossAxisAlignment,
-          children: [
-            Padding(
-              padding: effectiveCheckboxPadding,
-              child: checkbox,
-            ),
-            if (widget.label != null || widget.sublabel != null)
-              Flexible(
-                child: Padding(
-                  padding: effectivePadding,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (widget.label != null)
-                        MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          child: DefaultTextStyle(
-                            style: theme.textTheme.muted.copyWith(
-                              fontWeight: FontWeight.w500,
-                              color: theme.colorScheme.foreground,
-                            ),
-                            child: widget.label!,
+          labelPadding: effectivePadding,
+          control: Padding(
+            padding: effectiveCheckboxPadding,
+            child: checkbox,
+          ),
+          label: widget.label == null && widget.description == null
+              ? null
+              : Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (widget.label != null)
+                      MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: DefaultTextStyle(
+                          style: theme.textTheme.muted.copyWith(
+                            fontWeight: FontWeight.w500,
+                            color: theme.colorScheme.foreground,
                           ),
+                          child: widget.label!,
                         ),
-                      if (widget.sublabel != null)
-                        MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          child: DefaultTextStyle(
-                            style: theme.textTheme.muted.fallback(
-                              color: theme.colorScheme.mutedForeground,
-                            ),
-                            child: widget.sublabel!,
+                      ),
+                    if (widget.description != null)
+                      MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: DefaultTextStyle(
+                          style: theme.textTheme.muted.fallback(
+                            color: theme.colorScheme.mutedForeground,
                           ),
+                          child: widget.description!,
                         ),
-                    ],
-                  ),
+                      ),
+                  ],
                 ),
-              ),
-          ],
         ),
       ),
     );

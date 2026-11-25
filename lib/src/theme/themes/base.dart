@@ -61,11 +61,13 @@ import 'package:finesse/src/theme/components/tabs.dart';
 import 'package:finesse/src/theme/components/text_field.dart';
 import 'package:finesse/src/theme/components/text_selection.dart';
 import 'package:finesse/src/theme/components/textarea.dart';
+import 'package:finesse/src/theme/components/time_field.dart';
 import 'package:finesse/src/theme/components/time_picker.dart';
 import 'package:finesse/src/theme/components/timeline.dart';
 import 'package:finesse/src/theme/components/toast.dart';
 import 'package:finesse/src/theme/components/toggle.dart';
 import 'package:finesse/src/theme/components/tooltip.dart';
+import 'package:finesse/src/theme/components/wheel_picker.dart';
 import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/radii.dart';
 import 'package:finesse/src/theme/spacing.dart';
@@ -153,6 +155,8 @@ abstract class BaseTheme {
     required this.calendarTheme,
     required this.datePickerTheme,
     required this.timePickerTheme,
+    required this.timeFieldTheme,
+    required this.wheelPickerTheme,
     required this.otpFieldTheme,
     required this.menubarTheme,
     required this.dividerTheme,
@@ -444,6 +448,12 @@ abstract class BaseTheme {
   /// The theme of `TimePicker`.
   final TimePickerTheme timePickerTheme;
 
+  /// The theme of `TimeField`.
+  final TimeFieldTheme timeFieldTheme;
+
+  /// The theme of `WheelPicker`.
+  final WheelPickerTheme wheelPickerTheme;
+
   /// The theme of `OtpField`.
   final OtpFieldTheme otpFieldTheme;
 
@@ -652,6 +662,12 @@ abstract class ThemeVariant {
 
   /// Builds the theme of `TimePicker`.
   TimePickerTheme timePickerTheme();
+
+  /// Builds the theme of `TimeField`.
+  TimeFieldTheme timeFieldTheme();
+
+  /// Builds the theme of `WheelPicker`.
+  WheelPickerTheme wheelPickerTheme();
 
   /// Builds the theme of `OtpField`.
   OtpFieldTheme otpFieldTheme();

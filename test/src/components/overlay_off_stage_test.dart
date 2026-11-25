@@ -92,7 +92,7 @@ void main() {
         'a Select': (
           controller: PopoverController.new,
           build: (controller) => Select<String>(
-            popoverController: controller as PopoverController,
+            controller: controller as PopoverController,
             placeholder: const Text('Pick'),
             options: const [
               SelectOption(value: 'a', child: Text('Floating')),
@@ -105,8 +105,13 @@ void main() {
         'a DatePicker': (
           controller: PopoverController.new,
           build: (controller) => DatePicker(
-            popoverController: controller as PopoverController,
-            header: const Text('Floating'),
+            value: null,
+            onChanged: (_) {},
+            controller: controller as PopoverController,
+            // The caption is what the test looks for.
+            calendarTheme: CalendarTheme(
+              formatMonthYear: (_) => 'Floating',
+            ),
           ),
           set: (controller, {required open}) =>
               (controller as PopoverController).setOpen(open),

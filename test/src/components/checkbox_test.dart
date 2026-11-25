@@ -41,9 +41,8 @@ void main() {
         findsNothing,
       );
 
-      // Check basic layout (Row with checkbox)
-      final rowFinder = find.byType(Row);
-      expect(rowFinder, findsOneWidget);
+      // A bare box has no row around it: there is no label to lay out.
+      expect(find.byType(Row), findsNothing);
     });
 
     testWidgets('renders checked state correctly', (WidgetTester tester) async {
@@ -73,7 +72,7 @@ void main() {
           const Checkbox(
             value: false,
             label: Text('Checkbox Label'),
-            sublabel: Text('Checkbox Sublabel'),
+            description: Text('Checkbox Sublabel'),
           ),
         ),
       );
@@ -320,8 +319,8 @@ void main() {
         ),
       );
 
-      // Check only checkbox is rendered (no label/sublabel)
-      expect(find.byType(Row), findsOneWidget);
+      // Check only checkbox is rendered (no label/description)
+      expect(find.byType(Row), findsNothing);
       expect(find.byType(Column), findsNothing); // No Column for label/sublabel
       expect(find.text('Label'), findsNothing);
     });
@@ -333,7 +332,7 @@ void main() {
             value: true,
             icon: Icon(Icons.air_rounded),
             label: Text('Label'),
-            sublabel: Text('Sublabel'),
+            description: Text('Sublabel'),
           ),
         ),
       );
@@ -351,7 +350,7 @@ void main() {
             value: false,
             icon: Icon(Icons.air_rounded),
             label: Text('Label'),
-            sublabel: Text('Sublabel'),
+            description: Text('Sublabel'),
           ),
         ),
       );

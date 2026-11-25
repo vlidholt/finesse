@@ -484,15 +484,14 @@ class _VisibilityCard extends StatelessWidget {
         initialValue: settings.visibility,
         // Two-line options want more air than the group's 4.
         spacing: Theme.of(context).layoutTheme.gap(GapSize.md),
-        onChanged: (value) {
-          if (value != null) settings.update(() => settings.visibility = value);
-        },
+        onChanged: (value) =>
+            settings.update(() => settings.visibility = value),
         items: [
           for (final option in ProfileVisibility.values)
             Radio(
               value: option,
               label: Text(option.label),
-              sublabel: Text(option.detail),
+              description: Text(option.detail),
             ),
         ],
       ),
@@ -821,18 +820,6 @@ class _ThemeCard extends StatefulWidget {
 }
 
 class _ThemeCardState extends State<_ThemeCard> {
-  /// The slider's thumb. The text scale is the theme editor's too, which
-  /// can change it while this card is showing; a slider given only an
-  /// initial value would leave its thumb where it was, under a label that
-  /// says something else.
-  final _scale = SliderController(initialValue: 1);
-
-  @override
-  void dispose() {
-    _scale.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -843,11 +830,11 @@ class _ThemeCardState extends State<_ThemeCard> {
         final config = themeConfigProvider.of(context);
         final editorOpen = themeEditorOpenProvider.of(context).value;
         final scale = config.value.textScale;
-        // The thumb follows the setting, as far as this slider's shorter
-        // range goes. A drag here writes the value it rounds to, so the
-        // two never pull against each other.
+        // The slider is controlled: the text scale is the theme editor's
+        // too, which can change it while this card is showing. The thumb
+        // follows the setting as far as this slider's shorter range goes,
+        // and a drag here writes the value it rounds to.
         final thumb = scale.clamp(_ThemeCard._minScale, _ThemeCard._maxScale);
-        if ((_scale.value - thumb).abs() > .001) _scale.value = thumb;
 
         return _SettingsCard(
           title: 'Theme',
@@ -916,7 +903,7 @@ class _ThemeCardState extends State<_ThemeCard> {
                     child: Semantics(
                       label: 'Text size',
                       child: Slider(
-                        controller: _scale,
+                        value: thumb,
                         min: _ThemeCard._minScale,
                         max: _ThemeCard._maxScale,
                         divisions: 9,

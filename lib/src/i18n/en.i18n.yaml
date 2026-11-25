@@ -10,9 +10,19 @@ timePicker:
   seconds: "Seconds"
   period: "Period"
   periodPlaceholder: "AM"
+  am: "AM"
+  pm: "PM"
+  selectTime: "Select time"
 
 datePicker:
   selectDate: "Select date"
+  selectDateRange: "Select dates"
+  done: "Done"
+  clear: "Clear"
+  cancel: "Cancel"
+  day: "Day"
+  month: "Month"
+  year: "Year"
 
 input:
   cut: "Cut"
@@ -70,6 +80,9 @@ stepper:
 toast:
   dismiss: "Dismiss"
 
+chip:
+  remove: "Remove"
+
 command:
   noResults: "No results found."
 
@@ -125,6 +138,16 @@ reorder:
 
 swipeActions:
   more: "More actions"
+
+rating:
+  value: "$value of $count"
+
+colorPicker:
+  hex: "Hex"
+  hue: "Hue"
+  opacity: "Opacity"
+  saturationAndBrightness: "Saturation and brightness"
+  selectColor: "Select colour"
 
 dialog:
   close: "Close"

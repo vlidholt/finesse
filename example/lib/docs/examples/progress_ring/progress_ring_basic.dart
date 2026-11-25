@@ -47,8 +47,8 @@ class _ProgressRingBasicExampleState extends State<ProgressRingBasicExample> {
             ],
           ),
           Slider(
-            initialValue: value,
-            label: 'Progress',
+            value: value,
+            semanticLabel: 'Progress',
             onChanged: (next) => setState(() => value = next),
           ),
         ],

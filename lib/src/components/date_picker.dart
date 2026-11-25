@@ -1,1375 +1,769 @@
-import 'dart:ui';
+import 'dart:math' as math;
 
 import 'package:finesse/src/components/button.dart';
 import 'package:finesse/src/components/calendar.dart';
+import 'package:finesse/src/components/date_wheel_picker.dart';
+import 'package:finesse/src/components/picker.dart';
 import 'package:finesse/src/components/popover.dart';
+import 'package:finesse/src/components/sheet.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
-import 'package:finesse/src/raw_components/portal.dart';
+import 'package:finesse/src/theme/components/calendar.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/extensions/date_time.dart';
-import 'package:finesse/src/utils/extensions/text_style.dart';
-import 'package:finesse/src/utils/gesture_detector.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart' as intl;
 
-/// Variants available for the [DatePicker] widget.
-enum DatePickerVariant {
-  /// Picks one date.
-  single,
+/// How a [DatePicker] lets a date be chosen.
+enum DatePickerMode {
+  /// A month calendar.
+  calendar,
 
-  /// Picks a start date and an end date.
-  range,
+  /// Wheels for the day, the month and the year, as on a phone's own date
+  /// picker. Suited to dates far from today, such as a date of birth.
+  wheel,
 }
 
-/// A customizable date picker widget with a button and popover calendar.
+/// How `DatePicker` writes [date] by default: `October 1st, 2024`.
+String formatPickedDate(BuildContext context, DateTime date) {
+  final language = Localizations.localeOf(context).toLanguageTag();
+  final month = intl.DateFormat('MMMM', language).format(date);
+  final year = intl.DateFormat('y', language).format(date);
+  return '$month ${date.getOrdinalDay()}, $year';
+}
+
+/// How `DateRangePicker` writes [range] by default: `Oct 1, 2024 - Oct 8,
+/// 2024`, or the first day alone while the range has no end.
+String formatPickedDateRange(BuildContext context, DateTimeRange range) {
+  final start = range.start;
+  if (start == null) return '';
+  final format = intl.DateFormat.yMMMd(
+    Localizations.localeOf(context).toLanguageTag(),
+  );
+  final end = range.end;
+  return end == null
+      ? format.format(start)
+      : '${format.format(start)} - ${format.format(end)}';
+}
+
+/// A button that shows a date and opens a way to change it: a calendar in
+/// a popover on a desktop, a calendar or wheels in a bottom sheet on a
+/// phone.
 ///
-/// The [DatePicker] widget combines a button with a popover calendar,
-/// allowing users to select a single date or a date range. It supports
-/// extensive customization for both the button and calendar, integrating with
-/// [Theme] for consistent styling. Use named constructors like
-/// [DatePicker.range] for range selection or [DatePicker.raw] for full
-/// control.
+/// ```dart
+/// DatePicker(
+///   value: _due,
+///   onChanged: (date) => setState(() => _due = date),
+///   min: DateTime.now(),
+/// )
+/// ```
+///
+/// [presentation] forces the popover or the sheet and [mode] chooses the
+/// calendar or the wheels. With a calendar a tap on a day reports it and,
+/// with [closeOnSelection], closes the picker; the wheels in a sheet turn a
+/// draft that Done reports and Cancel drops.
+///
+/// The button is set by [placeholder], [formatDate], [leading],
+/// [trailing], [variant] and [size], or replaced by [triggerBuilder]. How
+/// the calendar looks is the theme's `CalendarTheme`; [calendarTheme]
+/// overrides it for this picker. `DateRangePicker` picks a first and a last
+/// day.
 class DatePicker extends StatefulWidget {
-  /// Creates a single-date picker widget with a button and popover calendar.
+  /// Creates a date picker.
   const DatePicker({
-    super.key,
-    this.placeholder,
-    this.popoverController,
-    this.selected,
+    required this.value,
+    required this.onChanged,
+    this.min,
+    this.max,
+    this.presentation = PickerPresentation.auto,
+    this.mode = DatePickerMode.calendar,
     this.closeOnSelection,
+    this.allowDeselection,
+    this.placeholder,
+    this.title,
     this.formatDate,
-    this.allowDeselection,
-    this.header,
-    this.footer,
-    this.groupId,
-    this.calendarDecoration,
-    this.popoverPadding,
-    this.multipleSelected,
-    this.onChanged,
-    this.showOutsideDays,
-    this.initialMonth,
-    this.formatMonthYear,
-    this.formatMonth,
-    this.formatYear,
-    this.formatWeekday,
-    this.showWeekNumbers,
-    this.weekStartsOn,
-    this.fixedWeeks,
-    this.hideWeekdayNames,
-    this.numberOfMonths = 1,
-    this.fromMonth,
-    this.toMonth,
-    this.onMonthChanged,
-    this.reverseMonths = false,
-    this.min,
-    this.max,
-    this.selectableDayPredicate,
-    this.onRangeChanged,
-    this.captionLayout,
-    this.hideNavigation,
-    this.yearSelectorMinWidth,
-    this.monthSelectorMinWidth,
-    this.yearSelectorPadding,
-    this.monthSelectorPadding,
-    this.navigationButtonSize,
-    this.navigationButtonIconSize,
-    this.backNavigationButtonIconData,
-    this.forwardNavigationButtonIconData,
-    this.navigationButtonPadding,
-    this.navigationButtonDisabledOpacity,
-    this.decoration,
-    this.spacingBetweenMonths,
-    this.runSpacingBetweenMonths,
-    this.monthConstraints,
-    this.calendarHeaderHeight,
-    this.calendarHeaderPadding,
-    this.captionLayoutGap,
-    this.calendarHeaderTextStyle,
-    this.weekdaysPadding,
-    this.weekdaysTextStyle,
-    this.weekdaysTextAlign,
-    this.weekNumbersHeaderText,
-    this.weekNumbersHeaderTextStyle,
-    this.weekNumbersTextStyle,
-    this.weekNumbersTextAlign,
-    this.dayButtonSize,
-    this.dayButtonOutsideMonthOpacity,
-    this.dayButtonPadding,
-    this.dayButtonDecoration,
-    this.selectedDayButtonTextStyle,
-    this.insideRangeDayButtonTextStyle,
-    this.dayButtonTextStyle,
-    this.dayButtonVariant,
-    this.selectedDayButtonVariant,
-    this.insideRangeDayButtonVariant,
-    this.todayButtonVariant,
-    this.gridMainAxisSpacing,
-    this.gridCrossAxisSpacing,
-    this.dayButtonOutsideMonthTextStyle,
-    this.dayButtonOutsideMonthVariant,
-    this.selectedDayButtonOutsideMonthVariant,
-    this.closeOnTapOutside = true,
-    this.requestFocus = true,
-    this.anchor,
-    this.effects,
-    this.shadows,
-    this.popoverDecoration,
-    this.filter,
-    this.areaGroupId,
-    this.useSameGroupIdForChild = true,
-    this.onPressed,
-    this.onLongPress,
     this.leading,
-    this.buttonChild,
-    this.buttonVariant,
-    this.size,
-    this.cursor,
-    this.width,
-    this.height,
-    this.buttonPadding,
-    this.backgroundColor,
-    this.hoverBackgroundColor,
-    this.foregroundColor,
-    this.hoverForegroundColor,
-    this.autofocus = false,
-    this.buttonFocusNode,
-    this.pressedBackgroundColor,
-    this.pressedForegroundColor,
-    this.buttonShadows,
-    this.gradient,
-    this.textDecoration,
-    this.hoverTextDecoration,
-    this.buttonDecoration,
-    this.enabled = true,
-    this.statesController,
-    this.gap,
-    this.mainAxisAlignment,
-    this.crossAxisAlignment,
-    this.hoverStrategies,
-    this.onHoverChange,
-    this.onTapDown,
-    this.onTapUp,
-    this.onTapCancel,
-    this.onSecondaryTapDown,
-    this.onSecondaryTapUp,
-    this.onSecondaryTapCancel,
-    this.onLongPressStart,
-    this.onLongPressCancel,
-    this.onLongPressUp,
-    this.onLongPressDown,
-    this.onLongPressEnd,
-    this.onDoubleTap,
-    this.onDoubleTapDown,
-    this.onDoubleTapCancel,
-    this.longPressDuration,
-    this.textDirection,
-    this.onFocusChange,
-    this.iconData,
-    this.expands,
-    this.popoverReverseDuration,
-    this.buttonTextStyle,
     this.trailing,
-  }) : variant = DatePickerVariant.single,
-       formatDateRange = null,
-       selectedRange = null;
-
-  /// Creates a date range picker widget with a button and popover calendar.
-  const DatePicker.range({
+    this.variant,
+    this.size,
+    this.width,
+    this.expands = false,
+    this.enabled = true,
+    this.focusNode,
+    this.autofocus = false,
+    this.controller,
+    this.triggerBuilder,
+    this.requestFocus = true,
+    this.numberOfMonths = 1,
+    this.selectableDayPredicate,
+    this.weekStartsOn,
+    this.showWeekNumbers,
+    this.captionLayout,
+    this.calendarTheme,
     super.key,
-    this.popoverController,
-    this.placeholder,
-    DateTimeRange? selected,
-    this.formatDateRange,
-    this.closeOnSelection,
-    this.allowDeselection,
-    this.header,
-    this.footer,
-    this.groupId,
-    this.calendarDecoration,
-    this.popoverPadding,
-    this.multipleSelected,
-    this.onChanged,
-    this.showOutsideDays,
-    this.initialMonth,
-    this.formatMonthYear,
-    this.formatMonth,
-    this.formatYear,
-    this.formatWeekday,
-    this.showWeekNumbers,
-    this.weekStartsOn,
-    this.fixedWeeks,
-    this.hideWeekdayNames,
-    this.numberOfMonths = 1,
-    this.fromMonth,
-    this.toMonth,
-    this.onMonthChanged,
-    this.reverseMonths = false,
-    this.min,
-    this.max,
-    this.selectableDayPredicate,
-    this.onRangeChanged,
-    this.captionLayout,
-    this.hideNavigation,
-    this.yearSelectorMinWidth,
-    this.monthSelectorMinWidth,
-    this.yearSelectorPadding,
-    this.monthSelectorPadding,
-    this.navigationButtonSize,
-    this.navigationButtonIconSize,
-    this.backNavigationButtonIconData,
-    this.forwardNavigationButtonIconData,
-    this.navigationButtonPadding,
-    this.navigationButtonDisabledOpacity,
-    this.decoration,
-    this.spacingBetweenMonths,
-    this.runSpacingBetweenMonths,
-    this.monthConstraints,
-    this.calendarHeaderHeight,
-    this.calendarHeaderPadding,
-    this.captionLayoutGap,
-    this.calendarHeaderTextStyle,
-    this.weekdaysPadding,
-    this.weekdaysTextStyle,
-    this.weekdaysTextAlign,
-    this.weekNumbersHeaderText,
-    this.weekNumbersHeaderTextStyle,
-    this.weekNumbersTextStyle,
-    this.weekNumbersTextAlign,
-    this.dayButtonSize,
-    this.dayButtonOutsideMonthOpacity,
-    this.dayButtonPadding,
-    this.dayButtonDecoration,
-    this.selectedDayButtonTextStyle,
-    this.insideRangeDayButtonTextStyle,
-    this.dayButtonTextStyle,
-    this.dayButtonVariant,
-    this.selectedDayButtonVariant,
-    this.insideRangeDayButtonVariant,
-    this.todayButtonVariant,
-    this.gridMainAxisSpacing,
-    this.gridCrossAxisSpacing,
-    this.dayButtonOutsideMonthTextStyle,
-    this.dayButtonOutsideMonthVariant,
-    this.selectedDayButtonOutsideMonthVariant,
-    this.closeOnTapOutside = true,
-    this.requestFocus = true,
-    this.anchor,
-    this.effects,
-    this.shadows,
-    this.popoverDecoration,
-    this.filter,
-    this.areaGroupId,
-    this.useSameGroupIdForChild = true,
-    this.onPressed,
-    this.onLongPress,
-    this.leading,
-    this.buttonChild,
-    this.buttonVariant,
-    this.size,
-    this.cursor,
-    this.width,
-    this.height,
-    this.buttonPadding,
-    this.backgroundColor,
-    this.hoverBackgroundColor,
-    this.foregroundColor,
-    this.hoverForegroundColor,
-    this.autofocus = false,
-    this.buttonFocusNode,
-    this.pressedBackgroundColor,
-    this.pressedForegroundColor,
-    this.buttonShadows,
-    this.gradient,
-    this.textDecoration,
-    this.hoverTextDecoration,
-    this.buttonDecoration,
-    this.enabled = true,
-    this.statesController,
-    this.gap,
-    this.mainAxisAlignment,
-    this.crossAxisAlignment,
-    this.hoverStrategies,
-    this.onHoverChange,
-    this.onTapDown,
-    this.onTapUp,
-    this.onTapCancel,
-    this.onSecondaryTapDown,
-    this.onSecondaryTapUp,
-    this.onSecondaryTapCancel,
-    this.onLongPressStart,
-    this.onLongPressCancel,
-    this.onLongPressUp,
-    this.onLongPressDown,
-    this.onLongPressEnd,
-    this.onDoubleTap,
-    this.onDoubleTapDown,
-    this.onDoubleTapCancel,
-    this.longPressDuration,
-    this.textDirection,
-    this.onFocusChange,
-    this.iconData,
-    this.expands,
-    this.popoverReverseDuration,
-    this.buttonTextStyle,
-    this.trailing,
-  }) : variant = DatePickerVariant.range,
-       selected = null,
-       formatDate = null,
-       selectedRange = selected;
-
-  /// Creates a date picker widget with a specified [variant], offering full
-  /// customization.
-  const DatePicker.raw({
-    super.key,
-    required this.variant,
-    this.popoverController,
-    this.selected,
-    this.closeOnSelection,
-    this.formatDate,
-    this.allowDeselection,
-    this.selectedRange,
-    this.header,
-    this.footer,
-    this.groupId,
-    this.calendarDecoration,
-    this.popoverPadding,
-    this.multipleSelected,
-    this.onChanged,
-    this.showOutsideDays,
-    this.initialMonth,
-    this.formatMonthYear,
-    this.formatMonth,
-    this.formatYear,
-    this.formatWeekday,
-    this.showWeekNumbers,
-    this.weekStartsOn,
-    this.fixedWeeks,
-    this.hideWeekdayNames,
-    this.numberOfMonths = 1,
-    this.fromMonth,
-    this.toMonth,
-    this.onMonthChanged,
-    this.reverseMonths = false,
-    this.min,
-    this.max,
-    this.selectableDayPredicate,
-    this.onRangeChanged,
-    this.captionLayout,
-    this.hideNavigation,
-    this.yearSelectorMinWidth,
-    this.monthSelectorMinWidth,
-    this.yearSelectorPadding,
-    this.monthSelectorPadding,
-    this.navigationButtonSize,
-    this.navigationButtonIconSize,
-    this.backNavigationButtonIconData,
-    this.forwardNavigationButtonIconData,
-    this.navigationButtonPadding,
-    this.navigationButtonDisabledOpacity,
-    this.decoration,
-    this.spacingBetweenMonths,
-    this.runSpacingBetweenMonths,
-    this.monthConstraints,
-    this.calendarHeaderHeight,
-    this.calendarHeaderPadding,
-    this.captionLayoutGap,
-    this.calendarHeaderTextStyle,
-    this.weekdaysPadding,
-    this.weekdaysTextStyle,
-    this.weekdaysTextAlign,
-    this.weekNumbersHeaderText,
-    this.weekNumbersHeaderTextStyle,
-    this.weekNumbersTextStyle,
-    this.weekNumbersTextAlign,
-    this.dayButtonSize,
-    this.dayButtonOutsideMonthOpacity,
-    this.dayButtonPadding,
-    this.dayButtonDecoration,
-    this.selectedDayButtonTextStyle,
-    this.insideRangeDayButtonTextStyle,
-    this.dayButtonTextStyle,
-    this.dayButtonVariant,
-    this.selectedDayButtonVariant,
-    this.insideRangeDayButtonVariant,
-    this.todayButtonVariant,
-    this.gridMainAxisSpacing,
-    this.gridCrossAxisSpacing,
-    this.dayButtonOutsideMonthTextStyle,
-    this.dayButtonOutsideMonthVariant,
-    this.selectedDayButtonOutsideMonthVariant,
-    this.closeOnTapOutside = true,
-    this.requestFocus = true,
-    this.anchor,
-    this.effects,
-    this.shadows,
-    this.popoverDecoration,
-    this.filter,
-    this.areaGroupId,
-    this.useSameGroupIdForChild = true,
-    this.onPressed,
-    this.onLongPress,
-    this.leading,
-    this.buttonChild,
-    this.buttonVariant,
-    this.size,
-    this.cursor,
-    this.width,
-    this.height,
-    this.buttonPadding,
-    this.backgroundColor,
-    this.hoverBackgroundColor,
-    this.foregroundColor,
-    this.hoverForegroundColor,
-    this.autofocus = false,
-    this.buttonFocusNode,
-    this.pressedBackgroundColor,
-    this.pressedForegroundColor,
-    this.buttonShadows,
-    this.gradient,
-    this.textDecoration,
-    this.hoverTextDecoration,
-    this.buttonDecoration,
-    this.enabled = true,
-    this.statesController,
-    this.gap,
-    this.mainAxisAlignment,
-    this.crossAxisAlignment,
-    this.hoverStrategies,
-    this.onHoverChange,
-    this.onTapDown,
-    this.onTapUp,
-    this.onTapCancel,
-    this.onSecondaryTapDown,
-    this.onSecondaryTapUp,
-    this.onSecondaryTapCancel,
-    this.onLongPressStart,
-    this.onLongPressCancel,
-    this.onLongPressUp,
-    this.onLongPressDown,
-    this.onLongPressEnd,
-    this.onDoubleTap,
-    this.onDoubleTapDown,
-    this.onDoubleTapCancel,
-    this.longPressDuration,
-    this.textDirection,
-    this.onFocusChange,
-    this.iconData,
-    this.formatDateRange,
-    this.placeholder,
-    this.expands,
-    this.popoverReverseDuration,
-    this.buttonTextStyle,
-    this.trailing,
   });
 
-  /// {@template DatePicker.placeholder}
-  /// The placeholder of the date picker, shown when no date is selected.
-  /// {@endtemplate}
-  final Widget? placeholder;
+  /// The date shown; null shows the [placeholder].
+  final DateTime? value;
 
-  /// {@template DatePicker.popoverController}
-  /// The [PopoverController] to use.
-  /// {@endtemplate}
-  final PopoverController? popoverController;
-
-  /// {@template DatePicker.selected}
-  /// The selected date, defaults to `null`.
-  /// {@endtemplate}
-  final DateTime? selected;
-
-  /// {@template DatePicker.selectedRange}
-  /// The selected range, defaults to `null`.
-  /// {@endtemplate}
-  final DateTimeRange? selectedRange;
-
-  /// {@template DatePicker.closeOnSelection}
-  /// Whether to close the popover when a date is selected.
-  /// Defaults to `true`.
-  /// {@endtemplate}
-  final bool? closeOnSelection;
-
-  /// {@template DatePicker.formatDate}
-  /// A function that formats the selected date.
-  /// {@endtemplate}
-  final String Function(DateTime)? formatDate;
-
-  /// {@template DatePicker.formatDateRange}
-  /// A function that formats the selected date range.
-  /// {@endtemplate}
-  final String Function(DateTimeRange)? formatDateRange;
-
-  /// {@template DatePicker.allowDeselection}
-  /// Whether to allow deselection of the selected date.
-  /// {@endtemplate}
-  final bool? allowDeselection;
-
-  /// {@template DatePicker.variant}
-  /// The variant of the date picker.
-  /// {@endtemplate}
-  final DatePickerVariant variant;
-
-  /// {@template DatePicker.header}
-  /// The header of the date picker.
-  /// {@endtemplate}
-  final Widget? header;
-
-  /// {@template DatePicker.footer}
-  /// The footer of the date picker.
-  /// {@endtemplate}
-  final Widget? footer;
-
-  /// {@macro Popover.groupId}
-  final Object? groupId;
-
-  /// {@template DatePicker.calendarDecoration}
-  /// The decoration of the calendar.
-  /// Defaults to `FinesseDecoration.none`.
-  /// {@endtemplate}
-  final FinesseDecoration? calendarDecoration;
-
-  /// {@macro Popover.padding}
-  final EdgeInsetsGeometry? popoverPadding;
-
-  /// {@macro Calendar.multipleSelected}
-  final List<DateTime>? multipleSelected;
-
-  /// {@macro Calendar.onChanged}
+  /// Called with the chosen day, or with null when the date is cleared. A
+  /// null callback disables the picker.
   final ValueChanged<DateTime?>? onChanged;
 
-  /// {@macro Calendar.showOutsideDays}
-  final bool? showOutsideDays;
+  /// The earliest day that can be chosen.
+  final DateTime? min;
 
-  /// {@macro Calendar.initialMonth}
-  final DateTime? initialMonth;
+  /// The latest day that can be chosen.
+  final DateTime? max;
 
-  /// {@macro Calendar.formatMonthYear}
-  final String Function(DateTime date)? formatMonthYear;
+  /// Whether the picker opens a popover, a sheet, or whichever suits the
+  /// theme's form factor.
+  final PickerPresentation presentation;
 
-  /// {@macro Calendar.formatMonth}
-  final String Function(DateTime date)? formatMonth;
+  /// Whether the date is chosen on a calendar or on wheels.
+  final DatePickerMode mode;
 
-  /// {@macro Calendar.formatYear}
-  final String Function(DateTime date)? formatYear;
+  /// Whether choosing a day on the calendar closes the picker. Defaults to
+  /// the theme's, which is true.
+  final bool? closeOnSelection;
 
-  /// {@macro Calendar.formatWeekday}
-  final String Function(DateTime date)? formatWeekday;
+  /// Whether the date can be cleared: by tapping the selected day again,
+  /// and with Clear in the sheet. Defaults to the theme's, which is true.
+  final bool? allowDeselection;
 
-  /// {@macro Calendar.showWeekNumbers}
-  final bool? showWeekNumbers;
+  /// Shown in the button while [value] is null. Defaults to the localized
+  /// "Select date".
+  final Widget? placeholder;
 
-  /// {@macro Calendar.weekStartsOn}
-  final int? weekStartsOn;
+  /// The title of the sheet. Defaults to the [placeholder].
+  final Widget? title;
 
-  /// {@macro Calendar.fixedWeeks}
-  final bool? fixedWeeks;
+  /// Turns the date into the button's text. Defaults to
+  /// [formatPickedDate].
+  final String Function(DateTime date)? formatDate;
 
-  /// {@macro Calendar.hideWeekdayNames}
-  final bool? hideWeekdayNames;
-
-  /// {@macro Calendar.numberOfMonths}
-  final int numberOfMonths;
-
-  /// {@macro Calendar.fromMonth}
-  final DateTime? fromMonth;
-
-  /// {@macro Calendar.toMonth}
-  final DateTime? toMonth;
-
-  /// {@macro Calendar.onMonthChanged}
-  final ValueChanged<DateTime>? onMonthChanged;
-
-  /// {@macro Calendar.reverseMonths}
-  final bool reverseMonths;
-
-  /// {@macro Calendar.min}
-  final int? min;
-
-  /// {@macro Calendar.max}
-  final int? max;
-
-  /// {@macro Calendar.selectableDayPredicate}
-  final bool Function(DateTime day)? selectableDayPredicate;
-
-  /// {@macro Calendar.onRangeChanged}
-  final ValueChanged<DateTimeRange?>? onRangeChanged;
-
-  /// {@macro Calendar.captionLayout}
-  final CalendarCaptionLayout? captionLayout;
-
-  /// {@macro Calendar.hideNavigation}
-  final bool? hideNavigation;
-
-  /// {@macro Calendar.yearSelectorMinWidth}
-  final double? yearSelectorMinWidth;
-
-  /// {@macro Calendar.monthSelectorMinWidth}
-  final double? monthSelectorMinWidth;
-
-  /// {@macro Calendar.yearSelectorPadding}
-  final EdgeInsetsGeometry? yearSelectorPadding;
-
-  /// {@macro Calendar.monthSelectorPadding}
-  final EdgeInsetsGeometry? monthSelectorPadding;
-
-  /// {@macro Calendar.navigationButtonSize}
-  final double? navigationButtonSize;
-
-  /// {@macro Calendar.navigationButtonIconSize}
-  final double? navigationButtonIconSize;
-
-  /// {@macro Calendar.backNavigationButtonIconData}
-  final IconData? backNavigationButtonIconData;
-
-  /// {@macro Calendar.forwardNavigationButtonIconData}
-  final IconData? forwardNavigationButtonIconData;
-
-  /// {@macro Calendar.navigationButtonPadding}
-  final EdgeInsetsGeometry? navigationButtonPadding;
-
-  /// {@macro Calendar.navigationButtonDisabledOpacity}
-  final double? navigationButtonDisabledOpacity;
-
-  /// {@macro Calendar.decoration}
-  final FinesseDecoration? decoration;
-
-  /// {@macro Calendar.spacingBetweenMonths}
-  final double? spacingBetweenMonths;
-
-  /// {@macro Calendar.runSpacingBetweenMonths}
-  final double? runSpacingBetweenMonths;
-
-  /// {@macro Calendar.monthConstraints}
-  final BoxConstraints? monthConstraints;
-
-  /// {@macro Calendar.headerHeight}
-  final double? calendarHeaderHeight;
-
-  /// {@macro Calendar.headerPadding}
-  final EdgeInsetsGeometry? calendarHeaderPadding;
-
-  /// {@macro Calendar.captionLayoutGap}
-  final double? captionLayoutGap;
-
-  /// {@macro Calendar.headerTextStyle}
-  final TextStyle? calendarHeaderTextStyle;
-
-  /// {@macro Calendar.weekdaysPadding}
-  final EdgeInsetsGeometry? weekdaysPadding;
-
-  /// {@macro Calendar.weekdaysTextStyle}
-  final TextStyle? weekdaysTextStyle;
-
-  /// {@macro Calendar.weekdaysTextAlign}
-  final TextAlign? weekdaysTextAlign;
-
-  /// {@macro Calendar.weekNumbersHeaderText}
-  final String? weekNumbersHeaderText;
-
-  /// {@macro Calendar.weekNumbersHeaderTextStyle}
-  final TextStyle? weekNumbersHeaderTextStyle;
-
-  /// {@macro Calendar.weekNumbersTextStyle}
-  final TextStyle? weekNumbersTextStyle;
-
-  /// {@macro Calendar.weekNumbersTextAlign}
-  final TextAlign? weekNumbersTextAlign;
-
-  /// {@macro Calendar.dayButtonSize}
-  final double? dayButtonSize;
-
-  /// {@macro Calendar.dayButtonOutsideMonthOpacity}
-  final double? dayButtonOutsideMonthOpacity;
-
-  /// {@macro Calendar.dayButtonPadding}
-  final EdgeInsetsGeometry? dayButtonPadding;
-
-  /// {@macro Calendar.dayButtonDecoration}
-  final FinesseDecoration? dayButtonDecoration;
-
-  /// {@macro Calendar.selectedDayButtonTextStyle}
-  final TextStyle? selectedDayButtonTextStyle;
-
-  /// {@macro Calendar.insideRangeDayButtonTextStyle}
-  final TextStyle? insideRangeDayButtonTextStyle;
-
-  /// {@macro Calendar.dayButtonTextStyle}
-  final TextStyle? dayButtonTextStyle;
-
-  /// {@macro Calendar.dayButtonVariant}
-  final ButtonVariant? dayButtonVariant;
-
-  /// {@macro Calendar.selectedDayButtonVariant}
-  final ButtonVariant? selectedDayButtonVariant;
-
-  /// {@macro Calendar.insideRangeDayButtonVariant}
-  final ButtonVariant? insideRangeDayButtonVariant;
-
-  /// {@macro Calendar.todayButtonVariant}
-  final ButtonVariant? todayButtonVariant;
-
-  /// {@macro Calendar.gridMainAxisSpacing}
-  final double? gridMainAxisSpacing;
-
-  /// {@macro Calendar.gridCrossAxisSpacing}
-  final double? gridCrossAxisSpacing;
-
-  /// {@macro Calendar.dayButtonOutsideMonthTextStyle}
-  final TextStyle? dayButtonOutsideMonthTextStyle;
-
-  /// {@macro Calendar.dayButtonOutsideMonthVariant}
-  final ButtonVariant? dayButtonOutsideMonthVariant;
-
-  /// {@macro Calendar.selectedDayButtonOutsideMonthVariant}
-  final ButtonVariant? selectedDayButtonOutsideMonthVariant;
-
-  // ---
-  // POPOVER
-  // ---
-
-  /// {@macro Popover.closeOnTapOutside}
-  final bool closeOnTapOutside;
-
-  /// {@macro Popover.requestFocus}
-  ///
-  /// With false the focus stays on the trigger button when the calendar
-  /// opens, and Tab moves into it from there.
-  final bool requestFocus;
-
-  ///{@macro Popover.anchor}
-  final AnchorBase? anchor;
-
-  /// {@macro Popover.effects}
-  final List<Effect<dynamic>>? effects;
-
-  /// {@macro Popover.shadows}
-  final List<BoxShadow>? shadows;
-
-  /// {@macro Popover.decoration}
-  final FinesseDecoration? popoverDecoration;
-
-  /// {@macro Popover.filter}
-  final ImageFilter? filter;
-
-  /// {@macro MouseArea.groupId}
-  final Object? areaGroupId;
-
-  /// {@macro Popover.useSameGroupIdForChild}
-  final bool useSameGroupIdForChild;
-
-  /// {@macro Popover.reverseDuration}
-  final Duration? popoverReverseDuration;
-
-  // ---
-  // BUTTON
-  // ---
-
-  /// {@macro Button.onPressed}
-  final VoidCallback? onPressed;
-
-  /// {@macro Button.onLongPress}
-  final VoidCallback? onLongPress;
-
-  /// {@macro Button.leading}
+  /// The widget before the date. Defaults to a calendar icon.
   final Widget? leading;
 
-  /// {@macro Button.trailing}
+  /// A widget after the date.
   final Widget? trailing;
 
-  /// {@template DatePicker.iconData}
-  /// The icon of the date picker button, defaults to
-  /// [PhosphorIconsRegular.calendarBlank].
-  /// {@endtemplate}
-  final IconData? iconData;
+  /// The look of the button. Defaults to the theme's, an outline.
+  final ButtonVariant? variant;
 
-  /// {@macro Button.child}
-  final Widget? buttonChild;
-
-  /// {@macro Button.variant}
-  final ButtonVariant? buttonVariant;
-
-  /// {@macro Button.size}
+  /// The size of the button.
   final ButtonSize? size;
 
-  /// {@macro Button.cursor}
-  final MouseCursor? cursor;
-
-  /// {@macro Button.width}
+  /// The width of the button. Defaults to the theme's.
   final double? width;
 
-  /// {@macro Button.height}
-  final double? height;
+  /// Whether the button fills the width it is given.
+  final bool expands;
 
-  /// {@macro Button.padding}
-  final EdgeInsetsGeometry? buttonPadding;
-
-  /// {@macro Button.backgroundColor}
-  final Color? backgroundColor;
-
-  /// {@macro Button.hoverBackgroundColor}
-  final Color? hoverBackgroundColor;
-
-  /// {@macro Button.foregroundColor}
-  final Color? foregroundColor;
-
-  /// {@macro Button.hoverForegroundColor}
-  final Color? hoverForegroundColor;
-
-  /// {@macro Button.autofocus}
-  final bool autofocus;
-
-  /// {@macro Button.focusNode}
-  final FocusNode? buttonFocusNode;
-
-  /// {@macro Button.pressedBackgroundColor}
-  final Color? pressedBackgroundColor;
-
-  /// {@macro Button.pressedForegroundColor}
-  final Color? pressedForegroundColor;
-
-  /// {@macro Button.shadows}
-  final List<BoxShadow>? buttonShadows;
-
-  /// {@macro Button.gradient}
-  final Gradient? gradient;
-
-  /// {@macro Button.textDecoration}
-  final TextDecoration? textDecoration;
-
-  /// {@macro Button.hoverTextDecoration}
-  final TextDecoration? hoverTextDecoration;
-
-  /// {@macro Button.decoration}
-  final FinesseDecoration? buttonDecoration;
-
-  /// {@macro Button.enabled}
+  /// Whether the picker can be opened.
   final bool enabled;
 
-  /// {@macro Button.statesController}
-  final WidgetStatesController? statesController;
+  /// The focus node of the button.
+  final FocusNode? focusNode;
 
-  /// {@macro Button.gap}
-  final double? gap;
+  /// Whether the button takes the focus when it first appears.
+  final bool autofocus;
 
-  /// {@macro Button.mainAxisAlignment}
-  final MainAxisAlignment? mainAxisAlignment;
+  /// Opens and closes the picker from outside.
+  final PopoverController? controller;
 
-  /// {@macro Button.crossAxisAlignment}
-  final CrossAxisAlignment? crossAxisAlignment;
+  /// Builds the control that opens the picker, in place of the button.
+  final PickerTriggerBuilder<DateTime?>? triggerBuilder;
 
-  /// {@macro Button.hoverStrategies}
-  final HoverStrategies? hoverStrategies;
+  /// Whether the popover takes the focus when it opens. False leaves the
+  /// focus where it is and makes the calendar the next Tab stops.
+  final bool requestFocus;
 
-  /// {@macro Button.onHoverChange}
-  final ValueChanged<bool>? onHoverChange;
+  /// How many months the calendar shows side by side, in a popover. The
+  /// sheet shows one.
+  final int numberOfMonths;
 
-  /// {@macro Button.onTapDown}
-  final ValueChanged<TapDownDetails>? onTapDown;
+  /// Returns whether a day can be chosen; days it rejects are disabled.
+  final bool Function(DateTime day)? selectableDayPredicate;
 
-  /// {@macro Button.onTapUp}
-  final ValueChanged<TapUpDetails>? onTapUp;
+  /// The first day of the week: 1 is Monday, 7 is Sunday.
+  final int? weekStartsOn;
 
-  /// {@macro Button.onTapCancel}
-  final VoidCallback? onTapCancel;
+  /// Whether the calendar shows week numbers.
+  final bool? showWeekNumbers;
 
-  /// {@macro Button.onSecondaryTapDown}
-  final ValueChanged<TapDownDetails>? onSecondaryTapDown;
+  /// How the calendar's caption names the month.
+  final CalendarCaptionLayout? captionLayout;
 
-  /// {@macro Button.onSecondaryTapUp}
-  final ValueChanged<TapUpDetails>? onSecondaryTapUp;
-
-  /// {@macro Button.onSecondaryTapCancel}
-  final VoidCallback? onSecondaryTapCancel;
-
-  /// {@macro Button.onLongPressStart}
-  final ValueChanged<LongPressStartDetails>? onLongPressStart;
-
-  /// {@macro Button.onLongPressCancel}
-  final VoidCallback? onLongPressCancel;
-
-  /// {@macro Button.onLongPressUp}
-  final VoidCallback? onLongPressUp;
-
-  /// {@macro Button.onLongPressDown}
-  final ValueChanged<LongPressDownDetails>? onLongPressDown;
-
-  /// {@macro Button.onLongPressEnd}
-  final ValueChanged<LongPressEndDetails>? onLongPressEnd;
-
-  /// {@macro Button.onDoubleTap}
-  final VoidCallback? onDoubleTap;
-
-  /// {@macro Button.onDoubleTapDown}
-  final ValueChanged<TapDownDetails>? onDoubleTapDown;
-
-  /// {@macro Button.onDoubleTapCancel}
-  final VoidCallback? onDoubleTapCancel;
-
-  /// {@macro Button.longPressDuration}
-  final Duration? longPressDuration;
-
-  /// {@macro Button.textDirection}
-  final TextDirection? textDirection;
-
-  /// {@macro Button.onFocusChange}
-  final ValueChanged<bool>? onFocusChange;
-
-  /// {@macro Button.expands}
-  final bool? expands;
-
-  /// {@macro Button.textStyle}
-  final TextStyle? buttonTextStyle;
+  /// Values that replace the theme's `CalendarTheme` for this picker.
+  final CalendarTheme? calendarTheme;
 
   @override
   State<DatePicker> createState() => _DatePickerState();
 }
 
 class _DatePickerState extends State<DatePicker> {
-  late DateTime? selected = widget.selected;
-  late DateTimeRange? selectedRange = widget.selectedRange;
   final _groupId = UniqueKey();
 
-  PopoverController? _popoverController;
-
-  PopoverController get popoverController =>
-      widget.popoverController ?? _popoverController!;
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.popoverController == null) {
-      _popoverController = PopoverController();
-    }
-  }
-
-  @override
-  void didUpdateWidget(covariant DatePicker oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.selected != oldWidget.selected) {
-      selected = widget.selected;
-    }
-    if (widget.selectedRange != oldWidget.selectedRange) {
-      selectedRange = widget.selectedRange;
-    }
-  }
-
-  @override
-  void dispose() {
-    _popoverController?.dispose();
-    super.dispose();
-  }
-
-  String defaultDateFormat(DateTime date, Locale locale) {
-    final ordinalDay = date.getOrdinalDay();
-    final month = intl.DateFormat(
-      'MMMM',
-      locale.toLanguageTag(),
-    ).format(date); // October
-    final year = intl.DateFormat(
-      'y',
-      locale.toLanguageTag(),
-    ).format(date); // 2024
-    return '$month $ordinalDay, $year'; // October 1st, 2024
-  }
-
-  String defaultDateRangeFormat(DateTimeRange range, Locale locale) {
-    if (range.start == null) return '';
-    final buffer = StringBuffer();
-
-    final start = intl.DateFormat.yMMMd(
-      locale.toLanguageTag(),
-    ).format(range.start!);
-    buffer.write(start);
-
-    if (range.end != null) {
-      final end = intl.DateFormat.yMMMd(
-        locale.toLanguageTag(),
-      ).format(range.end!);
-      buffer.write(' - $end');
-    }
-
-    return buffer.toString();
-  }
+  bool get _enabled => widget.enabled && widget.onChanged != null;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final picker = theme.datePickerTheme;
+    final l = FinesseLocalizations.of(context);
+    final value = widget.value;
+    final placeholder = widget.placeholder ?? Text(l.datePicker.selectDate);
+    final closeOnSelection =
+        widget.closeOnSelection ?? picker.closeOnSelection ?? true;
+    final allowDeselection =
+        widget.allowDeselection ?? picker.allowDeselection ?? true;
 
-    final isSelected = switch (widget.variant) {
-      DatePickerVariant.single => selected != null,
-      DatePickerVariant.range =>
-        selectedRange != null && selectedRange!.start != null,
-    };
+    Calendar calendar({
+      required DateTime? value,
+      required ValueChanged<DateTime?> onChanged,
+      required int numberOfMonths,
+      CalendarTheme? override,
+    }) {
+      return Calendar(
+        value: value,
+        onChanged: onChanged,
+        groupId: _groupId,
+        allowDeselection: allowDeselection,
+        initialMonth: value ?? _initialDay(widget.min, widget.max),
+        numberOfMonths: numberOfMonths,
+        min: widget.min,
+        max: widget.max,
+        selectableDayPredicate: widget.selectableDayPredicate,
+        weekStartsOn: widget.weekStartsOn,
+        showWeekNumbers: widget.showWeekNumbers,
+        captionLayout: widget.captionLayout,
+        // The popover or the sheet is the surface: no frame of its own.
+        calendarTheme: const CalendarTheme(
+          decoration: FinesseDecoration.none,
+        ).merge(widget.calendarTheme).merge(override),
+      );
+    }
 
-    final locale = Localizations.localeOf(context);
-
-    final effectiveFormatDate =
-        widget.formatDate ??
-        theme.datePickerTheme.formatDate ??
-        (date) => defaultDateFormat(date, locale);
-
-    final effectiveFormatDateRange =
-        widget.formatDateRange ??
-        theme.datePickerTheme.formatDateRange ??
-        (range) => defaultDateRangeFormat(range, locale);
-
-    final effectiveAllowDeselection =
-        widget.allowDeselection ??
-        theme.datePickerTheme.allowDeselection ??
-        true;
-    final effectiveCalendarDecoration =
-        widget.calendarDecoration ??
-        theme.datePickerTheme.calendarDecoration ??
-        FinesseDecoration.none;
-
-    final effectiveExpands =
-        widget.expands ?? theme.datePickerTheme.expands ?? false;
-
-    final effectiveGroupId = widget.groupId ?? _groupId;
-
-    final effectiveButtonTextStyle =
-        widget.buttonTextStyle ?? theme.datePickerTheme.buttonTextStyle;
-
-    final defaultIcon = PhosphorIcon(
-      widget.iconData ??
-          theme.datePickerTheme.iconData ??
-          PhosphorIconsRegular.calendarBlank,
-    );
-    final effectiveLeading = widget.trailing == null || widget.leading != null
-        ? IconTheme.merge(
-            data: IconThemeData(
-              size: 16,
-              color: isSelected
-                  ? theme.colorScheme.foreground
-                  : theme.colorScheme.mutedForeground,
-            ),
-            child: widget.leading ?? defaultIcon,
-          )
-        : null;
-    final effectiveTrailing = widget.trailing != null
-        ? IconTheme.merge(
-            data: IconThemeData(
-              size: 16,
-              color: isSelected
-                  ? theme.colorScheme.foreground
-                  : theme.colorScheme.mutedForeground,
-            ),
-            child: widget.trailing!,
-          )
-        : null;
-
-    return Popover(
-      controller: popoverController,
-      groupId: effectiveGroupId,
-      padding: widget.popoverPadding ?? theme.datePickerTheme.popoverPadding,
-      closeOnTapOutside: widget.closeOnTapOutside,
+    return PickerHost(
+      presentation: widget.presentation,
+      controller: widget.controller,
+      groupId: _groupId,
       requestFocus: widget.requestFocus,
-      anchor: widget.anchor ?? theme.datePickerTheme.anchor,
-      effects: widget.effects ?? theme.datePickerTheme.effects,
-      shadows: widget.shadows ?? theme.datePickerTheme.shadows,
-      decoration:
-          widget.popoverDecoration ?? theme.datePickerTheme.popoverDecoration,
-      filter: widget.filter ?? theme.datePickerTheme.filter,
-      areaGroupId: widget.areaGroupId,
-      useSameGroupIdForChild: widget.useSameGroupIdForChild,
-      reverseDuration:
-          widget.popoverReverseDuration ??
-          theme.datePickerTheme.popoverReverseDuration,
-      popover: (context) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (widget.header != null) widget.header!,
-            Calendar.raw(
-              variant: switch (widget.variant) {
-                DatePickerVariant.single => CalendarVariant.single,
-                DatePickerVariant.range => CalendarVariant.range,
-              },
-              selected: selected,
-              groupId: effectiveGroupId,
-              selectedRange: selectedRange,
-              allowDeselection: effectiveAllowDeselection,
-              showOutsideDays:
-                  widget.showOutsideDays ??
-                  theme.datePickerTheme.showOutsideDays,
-              decoration: effectiveCalendarDecoration,
-              initialMonth: widget.initialMonth,
-              formatMonthYear:
-                  widget.formatMonthYear ??
-                  theme.datePickerTheme.formatMonthYear,
-              formatMonth:
-                  widget.formatMonth ?? theme.datePickerTheme.formatMonth,
-              formatYear: widget.formatYear ?? theme.datePickerTheme.formatYear,
-              formatWeekday:
-                  widget.formatWeekday ?? theme.datePickerTheme.formatWeekday,
-              showWeekNumbers:
-                  widget.showWeekNumbers ??
-                  theme.datePickerTheme.showWeekNumbers,
-              weekStartsOn:
-                  widget.weekStartsOn ?? theme.datePickerTheme.weekStartsOn,
-              fixedWeeks: widget.fixedWeeks ?? theme.datePickerTheme.fixedWeeks,
-              hideWeekdayNames:
-                  widget.hideWeekdayNames ??
-                  theme.datePickerTheme.hideWeekdayNames,
-              numberOfMonths: widget.numberOfMonths,
-              fromMonth: widget.fromMonth,
-              toMonth: widget.toMonth,
-              onMonthChanged: widget.onMonthChanged,
-              reverseMonths: widget.reverseMonths,
-              min: widget.min,
-              max: widget.max,
-              selectableDayPredicate: widget.selectableDayPredicate,
-              captionLayout:
-                  widget.captionLayout ?? theme.datePickerTheme.captionLayout,
-              hideNavigation:
-                  widget.hideNavigation ?? theme.datePickerTheme.hideNavigation,
-              yearSelectorMinWidth:
-                  widget.yearSelectorMinWidth ??
-                  theme.datePickerTheme.yearSelectorMinWidth,
-              monthSelectorMinWidth:
-                  widget.monthSelectorMinWidth ??
-                  theme.datePickerTheme.monthSelectorMinWidth,
-              yearSelectorPadding:
-                  widget.yearSelectorPadding ??
-                  theme.datePickerTheme.yearSelectorPadding,
-              monthSelectorPadding:
-                  widget.monthSelectorPadding ??
-                  theme.datePickerTheme.monthSelectorPadding,
-              navigationButtonSize:
-                  widget.navigationButtonSize ??
-                  theme.datePickerTheme.navigationButtonSize,
-              navigationButtonIconSize:
-                  widget.navigationButtonIconSize ??
-                  theme.datePickerTheme.navigationButtonIconSize,
-              backNavigationButtonIconData:
-                  widget.backNavigationButtonIconData ??
-                  theme.datePickerTheme.backNavigationButtonIconData,
-              forwardNavigationButtonIconData:
-                  widget.forwardNavigationButtonIconData ??
-                  theme.datePickerTheme.forwardNavigationButtonIconData,
-              navigationButtonPadding:
-                  widget.navigationButtonPadding ??
-                  theme.datePickerTheme.navigationButtonPadding,
-              navigationButtonDisabledOpacity:
-                  widget.navigationButtonDisabledOpacity ??
-                  theme.datePickerTheme.navigationButtonDisabledOpacity,
-              spacingBetweenMonths:
-                  widget.spacingBetweenMonths ??
-                  theme.datePickerTheme.spacingBetweenMonths,
-              runSpacingBetweenMonths:
-                  widget.runSpacingBetweenMonths ??
-                  theme.datePickerTheme.runSpacingBetweenMonths,
-              monthConstraints:
-                  widget.monthConstraints ??
-                  theme.datePickerTheme.monthConstraints,
-              headerHeight:
-                  widget.calendarHeaderHeight ??
-                  theme.datePickerTheme.calendarHeaderHeight,
-              headerPadding:
-                  widget.calendarHeaderPadding ??
-                  theme.datePickerTheme.calendarHeaderPadding,
-              captionLayoutGap:
-                  widget.captionLayoutGap ??
-                  theme.datePickerTheme.captionLayoutGap,
-              headerTextStyle:
-                  widget.calendarHeaderTextStyle ??
-                  theme.datePickerTheme.calendarHeaderTextStyle,
-              weekdaysPadding:
-                  widget.weekdaysPadding ??
-                  theme.datePickerTheme.weekdaysPadding,
-              weekdaysTextStyle:
-                  widget.weekdaysTextStyle ??
-                  theme.datePickerTheme.weekdaysTextStyle,
-              weekdaysTextAlign:
-                  widget.weekdaysTextAlign ??
-                  theme.datePickerTheme.weekdaysTextAlign,
-              weekNumbersHeaderText:
-                  widget.weekNumbersHeaderText ??
-                  theme.datePickerTheme.weekNumbersHeaderText,
-              weekNumbersTextStyle:
-                  widget.weekNumbersTextStyle ??
-                  theme.datePickerTheme.weekNumbersTextStyle,
-              weekNumbersTextAlign:
-                  widget.weekNumbersTextAlign ??
-                  theme.datePickerTheme.weekNumbersTextAlign,
-              weekNumbersHeaderTextStyle:
-                  widget.weekNumbersHeaderTextStyle ??
-                  theme.datePickerTheme.weekNumbersHeaderTextStyle,
-              dayButtonSize:
-                  widget.dayButtonSize ?? theme.datePickerTheme.dayButtonSize,
-              dayButtonOutsideMonthOpacity:
-                  widget.dayButtonOutsideMonthOpacity ??
-                  theme.datePickerTheme.dayButtonOutsideMonthOpacity,
-              dayButtonPadding:
-                  widget.dayButtonPadding ??
-                  theme.datePickerTheme.dayButtonPadding,
-              dayButtonDecoration:
-                  widget.dayButtonDecoration ??
-                  theme.datePickerTheme.dayButtonDecoration,
-              dayButtonTextStyle:
-                  widget.dayButtonTextStyle ??
-                  theme.datePickerTheme.dayButtonTextStyle,
-              dayButtonVariant:
-                  widget.dayButtonVariant ??
-                  theme.datePickerTheme.dayButtonVariant,
-              dayButtonOutsideMonthVariant:
-                  widget.dayButtonOutsideMonthVariant ??
-                  theme.datePickerTheme.dayButtonOutsideMonthVariant,
-              dayButtonOutsideMonthTextStyle:
-                  widget.dayButtonOutsideMonthTextStyle ??
-                  theme.datePickerTheme.dayButtonOutsideMonthTextStyle,
-              selectedDayButtonVariant:
-                  widget.selectedDayButtonVariant ??
-                  theme.datePickerTheme.selectedDayButtonVariant,
-              selectedDayButtonTextStyle:
-                  widget.selectedDayButtonTextStyle ??
-                  theme.datePickerTheme.selectedDayButtonTextStyle,
-              selectedDayButtonOutsideMonthVariant:
-                  widget.selectedDayButtonOutsideMonthVariant ??
-                  theme.datePickerTheme.selectedDayButtonOutsideMonthVariant,
-              insideRangeDayButtonVariant:
-                  widget.insideRangeDayButtonVariant ??
-                  theme.datePickerTheme.insideRangeDayButtonVariant,
-              insideRangeDayButtonTextStyle:
-                  widget.insideRangeDayButtonTextStyle ??
-                  theme.datePickerTheme.insideRangeDayButtonTextStyle,
-              todayButtonVariant:
-                  widget.todayButtonVariant ??
-                  theme.datePickerTheme.todayButtonVariant,
-              gridMainAxisSpacing:
-                  widget.gridMainAxisSpacing ??
-                  theme.datePickerTheme.gridMainAxisSpacing,
-              gridCrossAxisSpacing:
-                  widget.gridCrossAxisSpacing ??
-                  theme.datePickerTheme.gridCrossAxisSpacing,
-              onChanged: (selected) {
-                setState(() => this.selected = selected);
-                if (true == widget.closeOnSelection) {
-                  popoverController.hide();
-                }
-                widget.onChanged?.call(selected);
-              },
-              onRangeChanged: (range) {
-                setState(() => selectedRange = range);
-                if (true == widget.closeOnSelection &&
-                    range?.start != null &&
-                    range?.end != null) {
-                  popoverController.hide();
-                }
-                widget.onRangeChanged?.call(range);
-              },
-              multipleSelected: widget.multipleSelected,
-            ),
-            if (widget.footer != null) widget.footer!,
-          ],
+      popoverPadding: picker.popoverPadding,
+      anchor: picker.anchor,
+      triggerBuilder: (context, toggle) {
+        final builder = widget.triggerBuilder;
+        if (builder != null) return builder(context, value, toggle);
+        return PickerTrigger(
+          onPressed: _enabled ? toggle : null,
+          enabled: _enabled,
+          label: value == null
+              ? null
+              : widget.formatDate?.call(value) ??
+                    formatPickedDate(context, value),
+          placeholder: placeholder,
+          leading:
+              widget.leading ??
+              const PhosphorIcon(PhosphorIconsRegular.calendarBlank),
+          trailing: widget.trailing,
+          variant: widget.variant ?? picker.buttonVariant,
+          size: widget.size,
+          width: widget.width ?? picker.width,
+          expands: widget.expands,
+          focusNode: widget.focusNode,
+          autofocus: widget.autofocus,
         );
       },
-      child: Button.raw(
-        decoration:
-            widget.buttonDecoration ?? theme.datePickerTheme.buttonDecoration,
-        variant:
-            widget.buttonVariant ??
-            theme.datePickerTheme.buttonVariant ??
-            ButtonVariant.outline,
-        width: widget.width ?? theme.datePickerTheme.width ?? 276,
-        mainAxisAlignment:
-            widget.mainAxisAlignment ??
-            theme.datePickerTheme.mainAxisAlignment ??
-            MainAxisAlignment.start,
-        leading: effectiveLeading,
-        trailing: effectiveTrailing,
-        onPressed:
-            widget.onPressed ??
-            () {
-              popoverController.toggle();
-            },
-        onLongPress: widget.onLongPress,
-        onTapUp: widget.onTapUp,
-        onTapDown: widget.onTapDown,
-        onTapCancel: widget.onTapCancel,
-        onDoubleTap: widget.onDoubleTap,
-        onHoverChange: widget.onHoverChange,
-        onSecondaryTapDown: widget.onSecondaryTapDown,
-        onLongPressUp: widget.onLongPressUp,
-        onLongPressDown: widget.onLongPressDown,
-        onLongPressEnd: widget.onLongPressEnd,
-        onLongPressStart: widget.onLongPressStart,
-        onLongPressCancel: widget.onLongPressCancel,
-        onDoubleTapDown: widget.onDoubleTapDown,
-        onFocusChange: widget.onFocusChange,
-        onSecondaryTapUp: widget.onSecondaryTapUp,
-        onSecondaryTapCancel: widget.onSecondaryTapCancel,
-        onDoubleTapCancel: widget.onDoubleTapCancel,
-        cursor: widget.cursor ?? theme.datePickerTheme.cursor,
-        height: widget.height ?? theme.datePickerTheme.height,
-        padding: widget.buttonPadding ?? theme.datePickerTheme.buttonPadding,
-        backgroundColor:
-            widget.backgroundColor ?? theme.datePickerTheme.backgroundColor,
-        hoverBackgroundColor:
-            widget.hoverBackgroundColor ??
-            theme.datePickerTheme.hoverBackgroundColor,
-        foregroundColor:
-            widget.foregroundColor ?? theme.datePickerTheme.foregroundColor,
-        hoverForegroundColor:
-            widget.hoverForegroundColor ??
-            theme.datePickerTheme.hoverForegroundColor,
-        autofocus: widget.autofocus,
-        focusNode: widget.buttonFocusNode,
-        pressedBackgroundColor:
-            widget.pressedBackgroundColor ??
-            theme.datePickerTheme.pressedBackgroundColor,
-        pressedForegroundColor:
-            widget.pressedForegroundColor ??
-            theme.datePickerTheme.pressedForegroundColor,
-        shadows: widget.buttonShadows ?? theme.datePickerTheme.buttonShadows,
-        gradient: widget.gradient ?? theme.datePickerTheme.gradient,
-        textDecoration:
-            widget.textDecoration ?? theme.datePickerTheme.textDecoration,
-        hoverTextDecoration:
-            widget.hoverTextDecoration ??
-            theme.datePickerTheme.hoverTextDecoration,
-        enabled: widget.enabled,
-        gap: widget.gap ?? theme.datePickerTheme.gap,
-        crossAxisAlignment:
-            widget.crossAxisAlignment ??
-            theme.datePickerTheme.crossAxisAlignment,
-        longPressDuration:
-            widget.longPressDuration ?? theme.datePickerTheme.longPressDuration,
-        statesController: widget.statesController,
-        hoverStrategies:
-            widget.hoverStrategies ?? theme.datePickerTheme.hoverStrategies,
-        textDirection: widget.textDirection,
-        expands: effectiveExpands,
-        textStyle: effectiveButtonTextStyle,
-        child:
-            widget.buttonChild ??
-            (isSelected
-                ? Text(
-                    switch (widget.variant) {
-                      DatePickerVariant.single => effectiveFormatDate(
-                        selected!,
-                      ),
-                      DatePickerVariant.range => effectiveFormatDateRange(
-                        selectedRange!,
-                      ),
-                    },
-                    style: effectiveButtonTextStyle,
-                  )
-                : DefaultTextStyle(
-                    style: theme.textTheme.muted.fallback(
-                      color: theme.colorScheme.mutedForeground,
-                    ),
-                    child:
-                        widget.placeholder ??
-                        Text(
-                          FinesseLocalizations.of(
-                            context,
-                          ).datePicker.selectDate,
-                        ),
-                  )),
+      popoverBuilder: (context, close) => switch (widget.mode) {
+        DatePickerMode.calendar => calendar(
+          value: value,
+          numberOfMonths: widget.numberOfMonths,
+          onChanged: (day) {
+            widget.onChanged?.call(day);
+            if (closeOnSelection && day != null) close();
+          },
+        ),
+        // In a popover the wheels are taken as they turn, like the calendar.
+        DatePickerMode.wheel => DateWheelPicker(
+          value: value ?? _initialDay(widget.min, widget.max),
+          min: widget.min,
+          max: widget.max,
+          onChanged: (day) => widget.onChanged?.call(day),
+        ),
+      },
+      sheetBuilder: (context, close) => _DateSheet(
+        initial: value,
+        title: widget.title ?? placeholder,
+        showWeekNumbers: widget.showWeekNumbers ?? false,
+        mode: widget.mode,
+        min: widget.min,
+        max: widget.max,
+        // On a calendar a tap is the choice; wheels have no such moment,
+        // so they always wait for Done.
+        commitOnTap: closeOnSelection && widget.mode == DatePickerMode.calendar,
+        allowClear: allowDeselection && value != null,
+        calendarBuilder: (draft, onChanged, override) => calendar(
+          value: draft,
+          numberOfMonths: 1,
+          onChanged: onChanged,
+          override: override,
+        ),
+        onDone: (day) {
+          close();
+          if (day != value) widget.onChanged?.call(day);
+        },
+        onCancel: close,
+      ),
+    );
+  }
+}
+
+/// The day a picker with no value opens on: today, moved inside the bounds.
+DateTime _initialDay(DateTime? min, DateTime? max) {
+  final today = DateTime.now().startOfDay;
+  if (min != null && today.isBefore(min)) return min.startOfDay;
+  if (max != null && today.isAfter(max)) return max.startOfDay;
+  return today;
+}
+
+/// Builds the calendar of a sheet around a draft, with the theme values
+/// that make it as wide as the sheet.
+typedef _SheetCalendarBuilder<T> =
+    Widget Function(T draft, ValueChanged<T> onChanged, CalendarTheme override);
+
+/// A calendar laid out as wide as the room it is given, with square cells.
+///
+/// The cells are never smaller than the theme's, and the room is capped by
+/// the sheet's content width, so on a phone they are generous touch
+/// targets.
+class _WideCalendar extends StatelessWidget {
+  const _WideCalendar({required this.showWeekNumbers, required this.builder});
+
+  final bool showWeekNumbers;
+  final Widget Function(CalendarTheme override) builder;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    // The calendar scales its cells with the text; the override is the size
+    // before that.
+    final textScale = math.max(1, MediaQuery.textScalerOf(context).scale(1));
+    final columns = showWeekNumbers ? 8 : 7;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final cell = constraints.hasBoundedWidth
+            ? (constraints.maxWidth / columns).floorToDouble() / textScale
+            : theme.calendarTheme.dayButtonSize;
+        return Center(
+          child: builder(
+            CalendarTheme(
+              dayButtonSize: cell,
+              // The row gap of a grid of large cells would spread the
+              // weeks too far apart.
+              gridMainAxisSpacing: 0,
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// The sheet of a [DatePicker].
+class _DateSheet extends StatefulWidget {
+  const _DateSheet({
+    required this.initial,
+    required this.title,
+    required this.showWeekNumbers,
+    required this.mode,
+    required this.min,
+    required this.max,
+    required this.commitOnTap,
+    required this.allowClear,
+    required this.calendarBuilder,
+    required this.onDone,
+    required this.onCancel,
+  });
+
+  final DateTime? initial;
+  final Widget title;
+  final bool showWeekNumbers;
+  final DatePickerMode mode;
+  final DateTime? min;
+  final DateTime? max;
+  final bool commitOnTap;
+  final bool allowClear;
+  final _SheetCalendarBuilder<DateTime?> calendarBuilder;
+  final ValueChanged<DateTime?> onDone;
+  final VoidCallback onCancel;
+
+  @override
+  State<_DateSheet> createState() => _DateSheetState();
+}
+
+class _DateSheetState extends State<_DateSheet> {
+  late DateTime? _draft = widget.initial;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final picker = theme.datePickerTheme;
+    final Widget content;
+    switch (widget.mode) {
+      case DatePickerMode.calendar:
+        content = _WideCalendar(
+          showWeekNumbers: widget.showWeekNumbers,
+          builder: (override) => widget.calendarBuilder(_draft, (day) {
+            if (widget.commitOnTap && day != null) {
+              widget.onDone(day);
+            } else {
+              setState(() => _draft = day);
+            }
+          }, override),
+        );
+      case DatePickerMode.wheel:
+        content = Center(
+          child: DateWheelPicker(
+            value: _draft ?? _initialDay(widget.min, widget.max),
+            min: widget.min,
+            max: widget.max,
+            visibleItems: picker.sheetWheelItems ?? 5,
+            mainAxisSize: MainAxisSize.max,
+            onChanged: (day) => setState(() => _draft = day),
+          ),
+        );
+    }
+    return Sheet(
+      title: widget.title,
+      child: PickerSheetBody(
+        maxWidth: picker.sheetMaxWidth,
+        // Wheels always rest on a date, so Done has one to report even
+        // when nothing was turned.
+        onDone: widget.commitOnTap
+            ? null
+            : () => widget.onDone(
+                _draft ??
+                    (widget.mode == DatePickerMode.wheel
+                        ? _initialDay(widget.min, widget.max)
+                        : null),
+              ),
+        onCancel: widget.onCancel,
+        onClear: widget.allowClear ? () => widget.onDone(null) : null,
+        child: content,
+      ),
+    );
+  }
+}
+
+/// A button that shows a range of dates and opens a calendar to change it:
+/// in a popover on a desktop, in a bottom sheet on a phone.
+///
+/// ```dart
+/// DateRangePicker(
+///   value: _stay,
+///   onChanged: (range) => setState(() => _stay = range),
+///   numberOfMonths: 2,
+/// )
+/// ```
+///
+/// The first tap sets the first day and the second the last. In a popover
+/// each tap is reported, and the picker closes on the second when
+/// [closeOnSelection] is true; in a sheet the range is a draft that Done
+/// reports. See [DatePicker] for the button and the calendar.
+class DateRangePicker extends StatefulWidget {
+  /// Creates a date range picker.
+  const DateRangePicker({
+    required this.value,
+    required this.onChanged,
+    this.min,
+    this.max,
+    this.minDays,
+    this.maxDays,
+    this.presentation = PickerPresentation.auto,
+    this.closeOnSelection,
+    this.allowDeselection,
+    this.placeholder,
+    this.title,
+    this.formatDateRange,
+    this.leading,
+    this.trailing,
+    this.variant,
+    this.size,
+    this.width,
+    this.expands = false,
+    this.enabled = true,
+    this.focusNode,
+    this.autofocus = false,
+    this.controller,
+    this.triggerBuilder,
+    this.requestFocus = true,
+    this.numberOfMonths = 1,
+    this.selectableDayPredicate,
+    this.weekStartsOn,
+    this.showWeekNumbers,
+    this.captionLayout,
+    this.calendarTheme,
+    super.key,
+  });
+
+  /// The range shown; null, or a range with no first day, shows the
+  /// [placeholder].
+  final DateTimeRange? value;
+
+  /// Called with the chosen range, or with null when it is cleared. A null
+  /// callback disables the picker.
+  final ValueChanged<DateTimeRange?>? onChanged;
+
+  /// The earliest day that can be chosen.
+  final DateTime? min;
+
+  /// The latest day that can be chosen.
+  final DateTime? max;
+
+  /// The shortest range accepted, in days after its first day.
+  final int? minDays;
+
+  /// The longest range accepted, in days after its first day.
+  final int? maxDays;
+
+  /// Whether the picker opens a popover, a sheet, or whichever suits the
+  /// theme's form factor.
+  final PickerPresentation presentation;
+
+  /// Whether the popover closes once the range has both its days. Defaults
+  /// to the theme's, which is true.
+  final bool? closeOnSelection;
+
+  /// Whether the range can be cleared. Defaults to the theme's, which is
+  /// true.
+  final bool? allowDeselection;
+
+  /// Shown in the button while there is no range. Defaults to the
+  /// localized "Select dates".
+  final Widget? placeholder;
+
+  /// The title of the sheet. Defaults to the [placeholder].
+  final Widget? title;
+
+  /// Turns the range into the button's text. Defaults to
+  /// [formatPickedDateRange].
+  final String Function(DateTimeRange range)? formatDateRange;
+
+  /// The widget before the range. Defaults to a calendar icon.
+  final Widget? leading;
+
+  /// A widget after the range.
+  final Widget? trailing;
+
+  /// The look of the button. Defaults to the theme's, an outline.
+  final ButtonVariant? variant;
+
+  /// The size of the button.
+  final ButtonSize? size;
+
+  /// The width of the button. Defaults to the theme's.
+  final double? width;
+
+  /// Whether the button fills the width it is given.
+  final bool expands;
+
+  /// Whether the picker can be opened.
+  final bool enabled;
+
+  /// The focus node of the button.
+  final FocusNode? focusNode;
+
+  /// Whether the button takes the focus when it first appears.
+  final bool autofocus;
+
+  /// Opens and closes the picker from outside.
+  final PopoverController? controller;
+
+  /// Builds the control that opens the picker, in place of the button.
+  final PickerTriggerBuilder<DateTimeRange?>? triggerBuilder;
+
+  /// Whether the popover takes the focus when it opens.
+  final bool requestFocus;
+
+  /// How many months the calendar shows side by side, in a popover. The
+  /// sheet shows one.
+  final int numberOfMonths;
+
+  /// Returns whether a day can be chosen; days it rejects are disabled.
+  final bool Function(DateTime day)? selectableDayPredicate;
+
+  /// The first day of the week: 1 is Monday, 7 is Sunday.
+  final int? weekStartsOn;
+
+  /// Whether the calendar shows week numbers.
+  final bool? showWeekNumbers;
+
+  /// How the calendar's caption names the month.
+  final CalendarCaptionLayout? captionLayout;
+
+  /// Values that replace the theme's `CalendarTheme` for this picker.
+  final CalendarTheme? calendarTheme;
+
+  @override
+  State<DateRangePicker> createState() => _DateRangePickerState();
+}
+
+class _DateRangePickerState extends State<DateRangePicker> {
+  final _groupId = UniqueKey();
+
+  bool get _enabled => widget.enabled && widget.onChanged != null;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final picker = theme.datePickerTheme;
+    final l = FinesseLocalizations.of(context);
+    final value = widget.value;
+    final hasValue = value?.start != null;
+    final placeholder =
+        widget.placeholder ?? Text(l.datePicker.selectDateRange);
+    final closeOnSelection =
+        widget.closeOnSelection ?? picker.closeOnSelection ?? true;
+    final allowDeselection =
+        widget.allowDeselection ?? picker.allowDeselection ?? true;
+
+    Calendar calendar({
+      required DateTimeRange? range,
+      required ValueChanged<DateTimeRange?> onChanged,
+      required int numberOfMonths,
+      CalendarTheme? override,
+    }) {
+      return Calendar.range(
+        range: range,
+        onRangeChanged: onChanged,
+        groupId: _groupId,
+        allowDeselection: allowDeselection,
+        initialMonth: range?.start ?? _initialDay(widget.min, widget.max),
+        numberOfMonths: numberOfMonths,
+        min: widget.min,
+        max: widget.max,
+        minDays: widget.minDays,
+        maxDays: widget.maxDays,
+        selectableDayPredicate: widget.selectableDayPredicate,
+        weekStartsOn: widget.weekStartsOn,
+        showWeekNumbers: widget.showWeekNumbers,
+        captionLayout: widget.captionLayout,
+        calendarTheme: const CalendarTheme(
+          decoration: FinesseDecoration.none,
+        ).merge(widget.calendarTheme).merge(override),
+      );
+    }
+
+    return PickerHost(
+      presentation: widget.presentation,
+      controller: widget.controller,
+      groupId: _groupId,
+      requestFocus: widget.requestFocus,
+      popoverPadding: picker.popoverPadding,
+      anchor: picker.anchor,
+      triggerBuilder: (context, toggle) {
+        final builder = widget.triggerBuilder;
+        if (builder != null) return builder(context, value, toggle);
+        return PickerTrigger(
+          onPressed: _enabled ? toggle : null,
+          enabled: _enabled,
+          label: !hasValue
+              ? null
+              : widget.formatDateRange?.call(value!) ??
+                    formatPickedDateRange(context, value!),
+          placeholder: placeholder,
+          leading:
+              widget.leading ??
+              const PhosphorIcon(PhosphorIconsRegular.calendarBlank),
+          trailing: widget.trailing,
+          variant: widget.variant ?? picker.buttonVariant,
+          size: widget.size,
+          width: widget.width ?? picker.width,
+          expands: widget.expands,
+          focusNode: widget.focusNode,
+          autofocus: widget.autofocus,
+        );
+      },
+      popoverBuilder: (context, close) => calendar(
+        range: value,
+        numberOfMonths: widget.numberOfMonths,
+        onChanged: (range) {
+          widget.onChanged?.call(range?.start == null ? null : range);
+          if (closeOnSelection && range?.start != null && range?.end != null) {
+            close();
+          }
+        },
+      ),
+      sheetBuilder: (context, close) => _DateRangeSheet(
+        initial: value,
+        title: widget.title ?? placeholder,
+        showWeekNumbers: widget.showWeekNumbers ?? false,
+        allowClear: allowDeselection && hasValue,
+        calendarBuilder: (draft, onChanged, override) => calendar(
+          range: draft,
+          numberOfMonths: 1,
+          onChanged: onChanged,
+          override: override,
+        ),
+        onDone: (range) {
+          close();
+          final next = range?.start == null ? null : range;
+          if (next != value) widget.onChanged?.call(next);
+        },
+        onCancel: close,
+      ),
+    );
+  }
+}
+
+/// The sheet of a [DateRangePicker]: the calendar turns a draft, since a
+/// range is not chosen until its second day is.
+class _DateRangeSheet extends StatefulWidget {
+  const _DateRangeSheet({
+    required this.initial,
+    required this.title,
+    required this.showWeekNumbers,
+    required this.allowClear,
+    required this.calendarBuilder,
+    required this.onDone,
+    required this.onCancel,
+  });
+
+  final DateTimeRange? initial;
+  final Widget title;
+  final bool showWeekNumbers;
+  final bool allowClear;
+  final _SheetCalendarBuilder<DateTimeRange?> calendarBuilder;
+  final ValueChanged<DateTimeRange?> onDone;
+  final VoidCallback onCancel;
+
+  @override
+  State<_DateRangeSheet> createState() => _DateRangeSheetState();
+}
+
+class _DateRangeSheetState extends State<_DateRangeSheet> {
+  late DateTimeRange? _draft = widget.initial;
+
+  @override
+  Widget build(BuildContext context) {
+    final picker = Theme.of(context).datePickerTheme;
+    return Sheet(
+      title: widget.title,
+      child: PickerSheetBody(
+        maxWidth: picker.sheetMaxWidth,
+        onDone: () => widget.onDone(_draft),
+        onCancel: widget.onCancel,
+        onClear: widget.allowClear ? () => widget.onDone(null) : null,
+        child: _WideCalendar(
+          showWeekNumbers: widget.showWeekNumbers,
+          builder: (override) => widget.calendarBuilder(
+            _draft,
+            (range) => setState(() => _draft = range),
+            override,
+          ),
+        ),
       ),
     );
   }

@@ -1,14 +1,27 @@
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
-class CalendarRangeExample extends StatelessWidget {
+/// A stay of two to seven nights, no earlier than today. Once the first day
+/// is chosen, the days too near and too far are disabled.
+class CalendarRangeExample extends StatefulWidget {
   const CalendarRangeExample({super.key});
+
+  @override
+  State<CalendarRangeExample> createState() => _CalendarRangeExampleState();
+}
+
+class _CalendarRangeExampleState extends State<CalendarRangeExample> {
+  DateTimeRange? stay;
 
   @override
   Widget build(BuildContext context) {
     return Calendar.range(
-      min: 2,
-      max: 7,
+      range: stay,
+      onRangeChanged: (value) => setState(() => stay = value),
+      min: DateTime.now(),
+      minDays: 2,
+      maxDays: 7,
+      numberOfMonths: 2,
     );
   }
 }

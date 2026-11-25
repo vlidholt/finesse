@@ -1,4 +1,5 @@
 import 'package:finesse/src/components/checkbox.dart';
+import 'package:finesse/src/components/control_affinity.dart';
 import 'package:finesse/src/components/list_tile.dart';
 import 'package:finesse/src/components/switch.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
@@ -8,15 +9,6 @@ import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/motion_color.dart';
 import 'package:finesse/src/utils/pop_in.dart';
 import 'package:flutter/widgets.dart';
-
-/// Which side of a list tile its control is on.
-enum ControlAffinity {
-  /// The control comes first, before the title.
-  leading,
-
-  /// The control comes last, after the title.
-  trailing,
-}
 
 /// A row with a title and a switch: the whole row is the target.
 ///

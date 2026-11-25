@@ -20,6 +20,7 @@ import 'package:example/docs/pages/chat_list.dart';
 import 'package:example/docs/pages/checkbox.dart';
 import 'package:example/docs/pages/chip.dart';
 import 'package:example/docs/pages/collapsible.dart';
+import 'package:example/docs/pages/color_picker.dart';
 import 'package:example/docs/pages/command.dart';
 import 'package:example/docs/pages/context_menu.dart';
 import 'package:example/docs/pages/data_table.dart';
@@ -64,6 +65,7 @@ import 'package:example/docs/pages/pressable.dart';
 import 'package:example/docs/pages/progress_bar.dart';
 import 'package:example/docs/pages/progress_ring.dart';
 import 'package:example/docs/pages/radio_group.dart';
+import 'package:example/docs/pages/rating.dart';
 import 'package:example/docs/pages/refresh_indicator.dart';
 import 'package:example/docs/pages/reorderable_list_view.dart';
 import 'package:example/docs/pages/resizable.dart';
@@ -93,6 +95,7 @@ import 'package:example/docs/pages/tabs.dart';
 import 'package:example/docs/pages/tag_field.dart';
 import 'package:example/docs/pages/text_field.dart';
 import 'package:example/docs/pages/textarea.dart';
+import 'package:example/docs/pages/time_field.dart';
 import 'package:example/docs/pages/theming.dart';
 import 'package:example/docs/pages/time_picker.dart';
 import 'package:example/docs/pages/timeline.dart';
@@ -101,6 +104,7 @@ import 'package:example/docs/pages/toggle.dart';
 import 'package:example/docs/pages/toggle_group.dart';
 import 'package:example/docs/pages/toolbar.dart';
 import 'package:example/docs/pages/tooltip.dart';
+import 'package:example/docs/pages/wheel_picker.dart';
 import 'package:example/docs/pages/typography.dart';
 
 /// Every documented page, in the order the sidebar shows them.
@@ -160,6 +164,7 @@ final componentDocs = [
   checkboxDoc,
   chipDoc,
   collapsibleDoc,
+  colorPickerDoc,
   commandDoc,
   contextMenuDoc,
   dataTableDoc,
@@ -194,6 +199,7 @@ final componentDocs = [
   progressBarDoc,
   progressRingDoc,
   radioGroupDoc,
+  ratingDoc,
   refreshIndicatorDoc,
   reorderableListViewDoc,
   resizableDoc,
@@ -221,6 +227,7 @@ final componentDocs = [
   tagFieldDoc,
   textFieldDoc,
   textareaDoc,
+  timeFieldDoc,
   timePickerDoc,
   timelineDoc,
   toastDoc,
@@ -228,6 +235,7 @@ final componentDocs = [
   toggleGroupDoc,
   toolbarDoc,
   tooltipDoc,
+  wheelPickerDoc,
 ];
 
 final overviewDoc = ComponentDoc(

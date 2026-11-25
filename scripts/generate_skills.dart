@@ -39,6 +39,7 @@ const _slugs = [
   'checkbox',
   'chip',
   'collapsible',
+  'color_picker',
   'command',
   'context_menu',
   'data_table',
@@ -73,6 +74,7 @@ const _slugs = [
   'progress_bar',
   'progress_ring',
   'radio_group',
+  'rating',
   'refresh_indicator',
   'reorderable_list_view',
   'resizable',
@@ -100,6 +102,7 @@ const _slugs = [
   'tag_field',
   'text_field',
   'textarea',
+  'time_field',
   'time_picker',
   'timeline',
   'toast',
@@ -107,6 +110,7 @@ const _slugs = [
   'toggle_group',
   'toolbar',
   'tooltip',
+  'wheel_picker',
 ];
 
 void main() {

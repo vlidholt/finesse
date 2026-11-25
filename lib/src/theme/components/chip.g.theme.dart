@@ -56,6 +56,10 @@ mixin _$ChipTheme {
         b.selectedBorderColor,
         t,
       ),
+      showCheckmark: t < 0.5 ? a.showCheckmark : b.showCheckmark,
+      groupSpacing: lerpDouble$(a.groupSpacing, b.groupSpacing, t),
+      groupRunSpacing: lerpDouble$(a.groupRunSpacing, b.groupRunSpacing, t),
+      groupFade: lerpDouble$(a.groupFade, b.groupFade, t),
     );
   }
 
@@ -74,6 +78,10 @@ mixin _$ChipTheme {
     Color? selectedBackgroundColor,
     Color? selectedForegroundColor,
     Color? selectedBorderColor,
+    bool? showCheckmark,
+    double? groupSpacing,
+    double? groupRunSpacing,
+    double? groupFade,
   }) {
     final _this = (this as ChipTheme);
 
@@ -94,6 +102,10 @@ mixin _$ChipTheme {
       selectedForegroundColor:
           selectedForegroundColor ?? _this.selectedForegroundColor,
       selectedBorderColor: selectedBorderColor ?? _this.selectedBorderColor,
+      showCheckmark: showCheckmark ?? _this.showCheckmark,
+      groupSpacing: groupSpacing ?? _this.groupSpacing,
+      groupRunSpacing: groupRunSpacing ?? _this.groupRunSpacing,
+      groupFade: groupFade ?? _this.groupFade,
     );
   }
 
@@ -123,6 +135,10 @@ mixin _$ChipTheme {
       selectedBackgroundColor: other.selectedBackgroundColor,
       selectedForegroundColor: other.selectedForegroundColor,
       selectedBorderColor: other.selectedBorderColor,
+      showCheckmark: other.showCheckmark,
+      groupSpacing: other.groupSpacing,
+      groupRunSpacing: other.groupRunSpacing,
+      groupFade: other.groupFade,
     );
   }
 
@@ -152,7 +168,11 @@ mixin _$ChipTheme {
         _other.borderColor == _this.borderColor &&
         _other.selectedBackgroundColor == _this.selectedBackgroundColor &&
         _other.selectedForegroundColor == _this.selectedForegroundColor &&
-        _other.selectedBorderColor == _this.selectedBorderColor;
+        _other.selectedBorderColor == _this.selectedBorderColor &&
+        _other.showCheckmark == _this.showCheckmark &&
+        _other.groupSpacing == _this.groupSpacing &&
+        _other.groupRunSpacing == _this.groupRunSpacing &&
+        _other.groupFade == _this.groupFade;
   }
 
   @override
@@ -175,6 +195,10 @@ mixin _$ChipTheme {
       _this.selectedBackgroundColor,
       _this.selectedForegroundColor,
       _this.selectedBorderColor,
+      _this.showCheckmark,
+      _this.groupSpacing,
+      _this.groupRunSpacing,
+      _this.groupFade,
     );
   }
 }
