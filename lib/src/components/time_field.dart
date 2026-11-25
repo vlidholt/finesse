@@ -413,8 +413,8 @@ class _TimeFieldState extends State<TimeField> {
     final style = theme.textTheme.muted
         .copyWith(color: theme.colorScheme.foreground)
         .merge(field.style);
-    final labelStyle = theme.textTheme.small
-        .copyWith(fontSize: 12)
+    final labelStyle = theme.style.caption
+        .apply(theme.textTheme.small)
         .merge(field.labelStyle)
         .fallback(color: theme.colorScheme.foreground);
     final placeholderStyle = theme.textTheme.muted.merge(

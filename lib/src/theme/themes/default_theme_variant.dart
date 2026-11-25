@@ -2708,7 +2708,7 @@ class DefaultThemeVariant extends ThemeVariant {
           .apply(effectiveTextTheme.muted)
           .copyWith(color: colorScheme.foreground),
       placeholderStyle: style.field.apply(effectiveTextTheme.muted),
-      labelStyle: effectiveTextTheme.small.copyWith(fontSize: 12),
+      labelStyle: style.caption.apply(effectiveTextTheme.small),
       fieldWidth: 48,
       fieldPadding: EdgeInsets.symmetric(
         horizontal: scaled(style.inputPaddingX),
