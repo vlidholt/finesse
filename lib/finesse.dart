@@ -73,6 +73,7 @@ export 'src/components/disabled.dart';
 export 'src/components/divider.dart';
 export 'src/components/dropdown_menu.dart';
 export 'src/components/empty.dart';
+export 'src/components/expansion_tile.dart';
 export 'src/components/floating_action_button.dart';
 export 'src/components/form/field.dart';
 export 'src/components/form/fields/autocomplete.dart';

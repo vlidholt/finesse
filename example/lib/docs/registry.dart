@@ -30,6 +30,7 @@ import 'package:example/docs/pages/dialog.dart';
 import 'package:example/docs/pages/divider.dart';
 import 'package:example/docs/pages/dropdown_menu.dart';
 import 'package:example/docs/pages/empty.dart';
+import 'package:example/docs/pages/expansion_tile.dart';
 import 'package:example/docs/pages/floating_action_button.dart';
 import 'package:example/docs/pages/fonts.dart';
 import 'package:example/docs/pages/form.dart';
@@ -176,6 +177,7 @@ final componentDocs = [
   dividerDoc,
   dropdownMenuDoc,
   emptyDoc,
+  expansionTileDoc,
   floatingActionButtonDoc,
   glassDoc,
   hoverCardDoc,

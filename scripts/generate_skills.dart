@@ -49,6 +49,7 @@ const _slugs = [
   'divider',
   'dropdown_menu',
   'empty',
+  'expansion_tile',
   'floating_action_button',
   'glass',
   'hover_card',

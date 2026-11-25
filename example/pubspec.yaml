@@ -55,6 +55,7 @@ flutter:
     - lib/docs/examples/date_picker/
     - lib/docs/examples/dialog/
     - lib/docs/examples/empty/
+    - lib/docs/examples/expansion_tile/
     - lib/docs/examples/floating_action_button/
     - lib/docs/examples/form/
     - lib/docs/examples/hover_card/
