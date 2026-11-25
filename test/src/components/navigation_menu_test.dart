@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:finesse/finesse.dart';
 import 'package:finesse/src/components/surface.dart';
 import 'package:flutter/gestures.dart';
@@ -570,6 +572,53 @@ void main() {
       await tester.sendKeyEvent(LogicalKeyboardKey.escape);
       await tester.pumpAndSettle();
       expect(find.text('Analytics'), findsNothing);
+    });
+
+    testWidgets('collapsed with a panel open, it closes the panel and leaves '
+        'Escape to the sheet', (tester) async {
+      late StateSetter rebuild;
+      var collapsed = false;
+      await pumpFinesse(
+        tester,
+        StatefulBuilder(
+          builder: (context, setState) {
+            rebuild = setState;
+            return menu(collapsed: collapsed);
+          },
+        ),
+      );
+      await tester.tap(find.text('Products'));
+      await tester.pumpAndSettle();
+      expect(find.text('Analytics'), findsOneWidget);
+      rebuild(() => collapsed = true);
+      await tester.pumpAndSettle();
+      expect(log, ['open 0', 'open null']);
+
+      await tester.tap(find.byType(IconButton));
+      await tester.pumpAndSettle();
+      expect(find.text('Pricing'), findsOneWidget);
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      expect(find.text('Pricing'), findsNothing);
+    });
+
+    testWidgets('under a dialog, Escape is the dialog\'s', (tester) async {
+      await pumpFinesse(tester, menu());
+      await tester.tap(find.text('Products'));
+      await tester.pumpAndSettle();
+      expect(find.text('Analytics'), findsOneWidget);
+      unawaited(
+        showDialog<void>(
+          context: tester.element(find.text('Products')),
+          builder: (_) => const Dialog(child: Text('Dialog')),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Dialog'), findsOneWidget);
+      expect(find.text('Analytics'), findsOneWidget);
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      expect(find.text('Dialog'), findsNothing);
     });
   });
 
