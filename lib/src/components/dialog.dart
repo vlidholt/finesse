@@ -2,7 +2,6 @@ import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:boxy/flex.dart';
-import 'package:finesse/src/components/button.dart';
 import 'package:finesse/src/components/icon_button.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
@@ -804,6 +803,13 @@ class Dialog extends StatelessWidget {
   /// {@endtemplate}
   final bool? actionsPinned;
 
+  /// Whether [action] lays buttons out side by side: a [Flex] across, or
+  /// one in a [Flexible].
+  static bool _isRow(Widget action) {
+    final inner = action is Flexible ? action.child : action;
+    return inner is Flex && inner.direction == Axis.horizontal;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -998,12 +1004,12 @@ class Dialog extends StatelessWidget {
                     for (final action in actions)
                       // A button fills the dialog's width and gives its
                       // label that width. The theme that does it reaches
-                      // every button below it, so it goes around a
-                      // button only: any other action — a row of
-                      // buttons — is handed the width and lays out its
-                      // own, where a button asked to be as wide as a row
-                      // would have no width to take.
-                      if (expandedTheme != null && action is Button)
+                      // every button below it, so it goes around any
+                      // action but a row: a button asked to be as wide as
+                      // a row has no width to take, so a row of buttons
+                      // is handed the width and lays out its own. In a
+                      // wrap each button takes a run of its own.
+                      if (expandedTheme != null && !_isRow(action))
                         Theme(data: expandedTheme, child: action)
                       else
                         action,

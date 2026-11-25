@@ -67,6 +67,37 @@ void main() {
     expect(send.center.dy, lessThan(cancel.center.dy));
   });
 
+  testWidgets('on a phone the buttons of a wrap each fill a run', (
+    tester,
+  ) async {
+    _phone(tester);
+    await tester.pumpWidget(
+      FinesseApp(
+        formFactor: FormFactor.mobile,
+        home: Dialog(
+          title: const Text('Share'),
+          actions: [
+            Flexible(
+              child: Wrap(
+                verticalDirection: VerticalDirection.up,
+                children: [
+                  Button.outline(onPressed: () {}, child: const Text('Later')),
+                  Button(onPressed: () {}, child: const Text('Follow')),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    final later = tester.getRect(find.widgetWithText(Button, 'Later'));
+    final follow = tester.getRect(find.widgetWithText(Button, 'Follow'));
+    expect(follow.width, later.width);
+    expect(follow.center.dy, lessThan(later.center.dy));
+  });
+
   testWidgets('the phone layout follows the form factor, not the window', (
     tester,
   ) async {
