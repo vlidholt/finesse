@@ -8,6 +8,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../finesse_harness.dart';
+import '../../frame_sampler.dart';
 
 void main() {
   late List<int> changes;
@@ -658,6 +659,80 @@ void main() {
         );
         expect(selected, [4, 0], reason: direction.name);
       }
+    });
+
+    testWidgets('a tap on a dot selects its page when the indicator is '
+        'stretched', (tester) async {
+      for (final variant in PageIndicatorVariant.values) {
+        for (final direction in TextDirection.values) {
+          final selected = <int>[];
+          await pumpFinesse(
+            tester,
+            Align(
+              alignment: Alignment.topCenter,
+              child: SizedBox(
+                width: 300,
+                child: PageIndicator(
+                  count: 5,
+                  index: 2,
+                  variant: variant,
+                  onSelected: selected.add,
+                ),
+              ),
+            ),
+            textDirection: direction,
+          );
+          final dots = tester.getRect(find.byType(CustomPaint).last);
+          final first = direction == TextDirection.ltr
+              ? dots.centerLeft + const Offset(3, 0)
+              : dots.centerRight - const Offset(3, 0);
+          await tester.tapAt(first);
+          final last = direction == TextDirection.ltr
+              ? dots.centerRight - const Offset(3, 0)
+              : dots.centerLeft + const Offset(3, 0);
+          await tester.tapAt(last);
+          expect(selected, [0, 4], reason: '${variant.name} ${direction.name}');
+        }
+      }
+    });
+
+    testWidgets('a dot fades between its colours without a flash, '
+        'whatever their opacity', (tester) async {
+      final sampler = FrameSampler();
+      final index = ValueNotifier(0);
+      addTearDown(index.dispose);
+      await pumpFinesse(
+        tester,
+        sampler.wrap(
+          ColoredBox(
+            color: const Color(0xFF000000),
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: ValueListenableBuilder(
+                valueListenable: index,
+                builder: (context, index, _) => PageIndicator(
+                  count: 3,
+                  index: index,
+                  // A translucent white, as the dark border is, to an
+                  // opaque colour.
+                  color: const Color(0x1AFFFFFF),
+                  activeColor: const Color(0xFFFF0000),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      index.value = 1;
+      await tester.pump();
+      final frames = await sampler.record(
+        tester,
+        tester.getTopLeft(find.byType(CustomPaint).last) + const Offset(3, 3),
+        frames: 30,
+      );
+      expect(rgbOf(frames.first), [255, 0, 0]);
+      expectMonotone(frames, reason: 'the first dot');
     });
 
     testWidgets('the arrow keys step while it has the focus', (tester) async {
