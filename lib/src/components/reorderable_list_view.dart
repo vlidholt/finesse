@@ -356,11 +356,19 @@ class _ListBoardState extends _BoardState<Object> {
 
   void _say(String message) => super._announce(message);
 
-  String _positionOf(int index) {
+  /// What the row of [id] is called, asked by the index it has in the
+  /// parent's list — before a move changes it.
+  String? _labelOf(Object id) {
+    final index = _locations[id]?.index;
+    if (index == null || index >= _count) return null;
+    return _list.itemSemanticLabel?.call(index);
+  }
+
+  /// Where a row that is moving is now, with its name, [label].
+  String _positionOf(int index, String? label) {
     final position = FinesseLocalizations.of(
       context,
     ).reorder.position(position: index + 1, count: _count);
-    final label = index < _count ? _list.itemSemanticLabel?.call(index) : null;
     return label == null ? position : '$label, $position';
   }
 
@@ -440,7 +448,10 @@ class _ListBoardState extends _BoardState<Object> {
     if (columns != 0) return;
     final before = drag.targetIndex;
     super._keyboardStep(drag, rows: rows);
-    if (drag.targetIndex != before) _say(_positionOf(drag.targetIndex));
+    if (drag.targetIndex != before) {
+      // The row that moves, not the one in its way.
+      _say(_positionOf(drag.targetIndex, _labelOf(drag.id)));
+    }
   }
 
   // --- Letting go ----------------------------------------------------------
@@ -489,8 +500,12 @@ class _ListBoardState extends _BoardState<Object> {
     bool announce = true,
   }) {
     final last = _count - 1;
+    // Named before the parent applies the move.
+    final label = announce ? _labelOf(id) : null;
     final moved = super._moveDirect(id, toColumn, toIndex, announce: announce);
-    if (moved && announce) _say(_positionOf((toIndex ?? last).clamp(0, last)));
+    if (moved && announce) {
+      _say(_positionOf((toIndex ?? last).clamp(0, last), label));
+    }
     return moved;
   }
 
@@ -557,8 +572,12 @@ class _ListBoardState extends _BoardState<Object> {
   // --- Build ---------------------------------------------------------------
 
   @override
-  _BoardStyle _resolveStyle(BuildContext context) {
-    final style = super._resolveStyle(context);
+  _BoardStyle _resolveStyle(BuildContext context, {ThemeData? itemTheme}) {
+    // A row is whatever the caller built, not a board's card.
+    final style = super._resolveStyle(
+      context,
+      itemTheme: itemTheme ?? Theme.of(context),
+    );
     return _BoardStyle(
       // Rows touch, and the list has no surface of its own.
       columnGap: 0,
@@ -602,8 +621,7 @@ class _ListBoardState extends _BoardState<Object> {
       autoScrollSpeed: style.autoScrollSpeed,
       snap: false,
       reduced: style.reduced,
-      // A row is whatever the caller built, not a board's card.
-      itemTheme: Theme.of(context),
+      itemTheme: style.itemTheme,
       textDirection: style.textDirection,
     );
   }

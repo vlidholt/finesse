@@ -1814,7 +1814,9 @@ class _BoardState<T extends Object> extends State<Board<T>>
 
   // --- Build ---------------------------------------------------------------
 
-  _BoardStyle _resolveStyle(BuildContext context) {
+  /// The board's look. A subclass whose items are not cards passes the
+  /// [itemTheme] they are built under, so that none is derived for them.
+  _BoardStyle _resolveStyle(BuildContext context, {ThemeData? itemTheme}) {
     final theme = Theme.of(context);
     final board = theme.boardTheme;
     final scheme = theme.colorScheme;
@@ -1901,7 +1903,7 @@ class _BoardState<T extends Object> extends State<Board<T>>
       autoScrollSpeed: board.autoScrollSpeed ?? 900,
       snap: widget.snap ?? board.snap ?? false,
       reduced: motion.reduced,
-      itemTheme: _itemThemeOf(theme),
+      itemTheme: itemTheme ?? _itemThemeOf(theme),
       textDirection: direction,
     );
   }
