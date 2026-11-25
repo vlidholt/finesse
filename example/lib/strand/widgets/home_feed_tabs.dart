@@ -63,7 +63,7 @@ class _SortMenu extends StatelessWidget {
     return DropdownMenu(
       items: [
         for (final sort in FeedSort.values)
-          ContextMenuItem(
+          MenuItem(
             trailing: model.sort == sort
                 ? const PhosphorIcon(PhosphorIconsRegular.check)
                 : null,

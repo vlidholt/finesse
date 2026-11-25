@@ -56,7 +56,7 @@ class _DropdownMenuCheckableExampleState
         const MenuDivider(),
         // A plain row keeps the column of the check marks free, so its
         // label lines up with the ones above.
-        ContextMenuItem(
+        MenuItem(
           onPressed: () => setState(() {
             statusBar = true;
             panel = true;

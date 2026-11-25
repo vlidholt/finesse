@@ -11,118 +11,118 @@ class ContextMenuSubmenusExample extends StatelessWidget {
     return ContextMenuRegion(
       constraints: const BoxConstraints(minWidth: 220),
       items: const [
-        ContextMenuItem(
+        MenuItem(
           leading: PhosphorIcon(PhosphorIconsRegular.folderOpen),
           child: Text('Open'),
         ),
-        ContextMenuItem(
+        MenuItem(
           leading: PhosphorIcon(PhosphorIconsRegular.appWindow),
           trailing: more,
           items: [
-            ContextMenuItem(child: Text('Preview')),
-            ContextMenuItem(child: Text('Text Editor')),
-            ContextMenuItem(child: Text('Code')),
+            MenuItem(child: Text('Preview')),
+            MenuItem(child: Text('Text Editor')),
+            MenuItem(child: Text('Code')),
             MenuDivider(),
-            ContextMenuItem(child: Text('Other...')),
+            MenuItem(child: Text('Other...')),
           ],
           child: Text('Open With'),
         ),
-        ContextMenuItem(
+        MenuItem(
           leading: PhosphorIcon(PhosphorIconsRegular.shareNetwork),
           trailing: more,
           items: [
-            ContextMenuItem(child: Text('Email')),
-            ContextMenuItem(child: Text('Messages')),
-            ContextMenuItem(child: Text('AirDrop')),
-            ContextMenuItem(
+            MenuItem(child: Text('Email')),
+            MenuItem(child: Text('Messages')),
+            MenuItem(child: Text('AirDrop')),
+            MenuItem(
               trailing: more,
               items: [
-                ContextMenuItem(child: Text('Copy Link')),
-                ContextMenuItem(child: Text('Copy Embed Code')),
-                ContextMenuItem(child: Text('Copy as Markdown')),
+                MenuItem(child: Text('Copy Link')),
+                MenuItem(child: Text('Copy Embed Code')),
+                MenuItem(child: Text('Copy as Markdown')),
               ],
               child: Text('Copy'),
             ),
           ],
           child: Text('Share'),
         ),
-        ContextMenuItem(
+        MenuItem(
           leading: PhosphorIcon(PhosphorIconsRegular.folderSimplePlus),
           trailing: more,
           items: [
-            ContextMenuItem(child: Text('Desktop')),
-            ContextMenuItem(child: Text('Documents')),
-            ContextMenuItem(child: Text('Downloads')),
-            ContextMenuItem(
+            MenuItem(child: Text('Desktop')),
+            MenuItem(child: Text('Documents')),
+            MenuItem(child: Text('Downloads')),
+            MenuItem(
               trailing: more,
               items: [
-                ContextMenuItem(child: Text('Design')),
-                ContextMenuItem(child: Text('Engineering')),
-                ContextMenuItem(child: Text('Marketing')),
+                MenuItem(child: Text('Design')),
+                MenuItem(child: Text('Engineering')),
+                MenuItem(child: Text('Marketing')),
               ],
               child: Text('Projects'),
             ),
           ],
           child: Text('Move To'),
         ),
-        ContextMenuItem(
+        MenuItem(
           leading: PhosphorIcon(PhosphorIconsRegular.tag),
           trailing: more,
           items: [
-            ContextMenuItem(child: Text('Red')),
-            ContextMenuItem(child: Text('Orange')),
-            ContextMenuItem(child: Text('Green')),
-            ContextMenuItem(child: Text('Blue')),
+            MenuItem(child: Text('Red')),
+            MenuItem(child: Text('Orange')),
+            MenuItem(child: Text('Green')),
+            MenuItem(child: Text('Blue')),
             MenuDivider(),
-            ContextMenuItem(child: Text('Edit Tags...')),
+            MenuItem(child: Text('Edit Tags...')),
           ],
           child: Text('Tags'),
         ),
-        ContextMenuItem(
+        MenuItem(
           leading: PhosphorIcon(PhosphorIconsRegular.arrowsDownUp),
           trailing: more,
           items: [
-            ContextMenuItem(child: Text('Name')),
-            ContextMenuItem(child: Text('Date Modified')),
-            ContextMenuItem(child: Text('Size')),
-            ContextMenuItem(child: Text('Kind')),
+            MenuItem(child: Text('Name')),
+            MenuItem(child: Text('Date Modified')),
+            MenuItem(child: Text('Size')),
+            MenuItem(child: Text('Kind')),
           ],
           child: Text('Sort By'),
         ),
-        ContextMenuItem(
+        MenuItem(
           leading: PhosphorIcon(PhosphorIconsRegular.squaresFour),
           trailing: more,
           items: [
-            ContextMenuItem(child: Text('Icons')),
-            ContextMenuItem(child: Text('List')),
-            ContextMenuItem(child: Text('Columns')),
-            ContextMenuItem(child: Text('Gallery')),
+            MenuItem(child: Text('Icons')),
+            MenuItem(child: Text('List')),
+            MenuItem(child: Text('Columns')),
+            MenuItem(child: Text('Gallery')),
           ],
           child: Text('View As'),
         ),
-        ContextMenuItem(
+        MenuItem(
           leading: PhosphorIcon(PhosphorIconsRegular.copy),
           trailing: more,
           items: [
-            ContextMenuItem(child: Text('Duplicate')),
-            ContextMenuItem(child: Text('Copy Path')),
-            ContextMenuItem(child: Text('Copy Name')),
+            MenuItem(child: Text('Duplicate')),
+            MenuItem(child: Text('Copy Path')),
+            MenuItem(child: Text('Copy Name')),
           ],
           child: Text('Copy'),
         ),
-        ContextMenuItem(
+        MenuItem(
           leading: PhosphorIcon(PhosphorIconsRegular.lightning),
           trailing: more,
           items: [
-            ContextMenuItem(child: Text('Compress')),
-            ContextMenuItem(child: Text('Convert Image')),
-            ContextMenuItem(child: Text('Remove Background')),
-            ContextMenuItem(child: Text('Create PDF')),
+            MenuItem(child: Text('Compress')),
+            MenuItem(child: Text('Convert Image')),
+            MenuItem(child: Text('Remove Background')),
+            MenuItem(child: Text('Create PDF')),
           ],
           child: Text('Quick Actions'),
         ),
         MenuDivider(),
-        ContextMenuItem(
+        MenuItem(
           leading: PhosphorIcon(PhosphorIconsRegular.trash),
           destructive: true,
           child: Text('Move to Trash'),

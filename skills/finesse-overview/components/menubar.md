@@ -40,30 +40,30 @@ class _MenubarBasicExampleState extends State<MenubarBasicExample> {
       items: [
         MenubarItem(
           items: [
-            ContextMenuItem(
+            MenuItem(
               shortcut: keys(LogicalKeyboardKey.keyT),
               child: const Text('New Tab'),
             ),
-            ContextMenuItem(
+            MenuItem(
               shortcut: keys(LogicalKeyboardKey.keyN),
               child: const Text('New Window'),
             ),
-            const ContextMenuItem(
+            const MenuItem(
               enabled: false,
               child: Text('New Incognito Window'),
             ),
             const MenuDivider(),
-            const ContextMenuItem(
+            const MenuItem(
               trailing: more,
               items: [
-                ContextMenuItem(child: Text('Email Link')),
-                ContextMenuItem(child: Text('Messages')),
-                ContextMenuItem(child: Text('Notes')),
+                MenuItem(child: Text('Email Link')),
+                MenuItem(child: Text('Messages')),
+                MenuItem(child: Text('Notes')),
               ],
               child: Text('Share'),
             ),
             const MenuDivider(),
-            ContextMenuItem(
+            MenuItem(
               shortcut: keys(LogicalKeyboardKey.keyP),
               child: const Text('Print...'),
             ),
@@ -72,30 +72,30 @@ class _MenubarBasicExampleState extends State<MenubarBasicExample> {
         ),
         MenubarItem(
           items: [
-            ContextMenuItem(
+            MenuItem(
               shortcut: keys(LogicalKeyboardKey.keyZ),
               child: const Text('Undo'),
             ),
-            ContextMenuItem(
+            MenuItem(
               shortcut: keys(LogicalKeyboardKey.keyZ, shift: true),
               child: const Text('Redo'),
             ),
             const MenuDivider(),
-            const ContextMenuItem(
+            const MenuItem(
               trailing: more,
               items: [
-                ContextMenuItem(child: Text('Search the Web')),
+                MenuItem(child: Text('Search the Web')),
                 MenuDivider(),
-                ContextMenuItem(child: Text('Find...')),
-                ContextMenuItem(child: Text('Find Next')),
-                ContextMenuItem(child: Text('Find Previous')),
+                MenuItem(child: Text('Find...')),
+                MenuItem(child: Text('Find Next')),
+                MenuItem(child: Text('Find Previous')),
               ],
               child: Text('Find'),
             ),
             const MenuDivider(),
-            const ContextMenuItem(child: Text('Cut')),
-            const ContextMenuItem(child: Text('Copy')),
-            const ContextMenuItem(child: Text('Paste')),
+            const MenuItem(child: Text('Cut')),
+            const MenuItem(child: Text('Copy')),
+            const MenuItem(child: Text('Paste')),
           ],
           child: const Text('Edit'),
         ),
@@ -112,12 +112,12 @@ class _MenubarBasicExampleState extends State<MenubarBasicExample> {
               child: const Text('Always Show Full URLs'),
             ),
             const MenuDivider(),
-            // Lined up with the rows above without `ContextMenuItem.inset`.
-            ContextMenuItem(
+            // Lined up with the rows above without `MenuItem.inset`.
+            MenuItem(
               shortcut: keys(LogicalKeyboardKey.keyR),
               child: const Text('Reload'),
             ),
-            const ContextMenuItem(child: Text('Toggle Full Screen')),
+            const MenuItem(child: Text('Toggle Full Screen')),
           ],
           child: const Text('View'),
         ),
@@ -133,8 +133,8 @@ class _MenubarBasicExampleState extends State<MenubarBasicExample> {
               ],
             ),
             const MenuDivider(),
-            const ContextMenuItem(child: Text('Edit...')),
-            const ContextMenuItem(child: Text('Add Profile...')),
+            const MenuItem(child: Text('Edit...')),
+            const MenuItem(child: Text('Add Profile...')),
           ],
           child: const Text('Profiles'),
         ),

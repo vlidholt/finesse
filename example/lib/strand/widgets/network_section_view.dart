@@ -256,7 +256,7 @@ class _SortMenu extends StatelessWidget {
       anchor: _anchor,
       items: [
         for (final sort in ConnectionSort.values)
-          ContextMenuItem(
+          MenuItem(
             trailing: controller.sort == sort
                 ? const PhosphorIcon(PhosphorIconsRegular.check)
                 : null,

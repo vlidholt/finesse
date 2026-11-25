@@ -125,7 +125,7 @@ class _SortMenu extends StatelessWidget {
       anchor: _anchor,
       items: [
         for (final sort in JobSort.values)
-          ContextMenuItem(
+          MenuItem(
             trailing: sort == state.sort
                 ? const PhosphorIcon(PhosphorIconsRegular.check)
                 : null,

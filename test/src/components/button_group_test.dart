@@ -405,8 +405,8 @@ void main() {
             outline('Save'),
             DropdownMenu(
               items: [
-                ContextMenuItem(onPressed: () {}, child: const Text('Draft')),
-                ContextMenuItem(onPressed: () {}, child: const Text('Copy')),
+                MenuItem(onPressed: () {}, child: const Text('Draft')),
+                MenuItem(onPressed: () {}, child: const Text('Copy')),
               ],
               builder: (context, controller, _) => IconButton.outline(
                 tooltip: 'More',

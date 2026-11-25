@@ -69,40 +69,40 @@ class ContextMenuTheme with _$ContextMenuTheme {
   /// {@macro ContextMenu.padding}
   final EdgeInsetsGeometry? padding;
 
-  /// {@macro ContextMenuItem.leadingPadding}
+  /// {@macro MenuItem.leadingPadding}
   final EdgeInsetsGeometry? leadingPadding;
 
-  /// {@macro ContextMenuItem.trailingPadding}
+  /// {@macro MenuItem.trailingPadding}
   final EdgeInsetsGeometry? trailingPadding;
 
-  /// {@macro ContextMenuItem.padding}
+  /// {@macro MenuItem.padding}
   final EdgeInsetsGeometry? itemPadding;
 
-  /// {@macro ContextMenuItem.insetPadding}
+  /// {@macro MenuItem.insetPadding}
   final EdgeInsetsGeometry? insetPadding;
 
-  /// {@macro ContextMenuItem.anchor}
+  /// {@macro MenuItem.anchor}
   final AnchorBase? anchor;
 
-  /// {@macro ContextMenuItem.showDelay}
+  /// {@macro MenuItem.showDelay}
   final Duration? showDelay;
 
-  /// {@macro ContextMenuItem.height}
+  /// {@macro MenuItem.height}
   final double? height;
 
-  /// {@macro ContextMenuItem.buttonVariant}
+  /// {@macro MenuItem.buttonVariant}
   final ButtonVariant? buttonVariant;
 
-  /// {@macro ContextMenuItem.decoration}
+  /// {@macro MenuItem.decoration}
   final FinesseDecoration? itemDecoration;
 
-  /// {@macro ContextMenuItem.textStyle}
+  /// {@macro MenuItem.textStyle}
   final TextStyle? textStyle;
 
-  /// {@macro ContextMenuItem.selectedTextStyle}
+  /// {@macro MenuItem.selectedTextStyle}
   final TextStyle? selectedTextStyle;
 
-  /// {@macro ContextMenuItem.trailingTextStyle}
+  /// {@macro MenuItem.trailingTextStyle}
   final TextStyle? trailingTextStyle;
 
   /// The style of an item's trailing widget while the item is hovered or its
@@ -125,13 +125,13 @@ class ContextMenuTheme with _$ContextMenuTheme {
   /// {@macro ContextMenu.padding}
   final EdgeInsetsGeometry? subMenuPadding;
 
-  /// {@macro ContextMenuItem.backgroundColor}
+  /// {@macro MenuItem.backgroundColor}
   final Color? backgroundColor;
 
-  /// {@macro ContextMenuItem.selectedBackgroundColor}
+  /// {@macro MenuItem.selectedBackgroundColor}
   final Color? selectedBackgroundColor;
 
-  /// {@macro ContextMenuItem.closeOnTap}
+  /// {@macro MenuItem.closeOnTap}
   final bool? closeOnTap;
 
   /// {@macro Popover.effects}

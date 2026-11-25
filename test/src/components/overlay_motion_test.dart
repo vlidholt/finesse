@@ -468,12 +468,12 @@ void main() {
       alignment: alignment,
       child: ContextMenuRegion(
         items: [
-          ContextMenuItem(onPressed: () {}, child: const Text('Back')),
-          ContextMenuItem(onPressed: () {}, child: const Text('Forward')),
-          ContextMenuItem(onPressed: () {}, child: const Text('Reload')),
-          ContextMenuItem(
+          MenuItem(onPressed: () {}, child: const Text('Back')),
+          MenuItem(onPressed: () {}, child: const Text('Forward')),
+          MenuItem(onPressed: () {}, child: const Text('Reload')),
+          MenuItem(
             items: [
-              ContextMenuItem(onPressed: () {}, child: const Text('Save')),
+              MenuItem(onPressed: () {}, child: const Text('Save')),
             ],
             child: const Text('More'),
           ),
@@ -663,11 +663,11 @@ void main() {
       child: Menubar(
         items: [
           MenubarItem(
-            items: [ContextMenuItem(child: Text('New file'))],
+            items: [MenuItem(child: Text('New file'))],
             child: Text('File'),
           ),
           MenubarItem(
-            items: [ContextMenuItem(child: Text('Undo'))],
+            items: [MenuItem(child: Text('Undo'))],
             child: Text('Edit'),
           ),
         ],

@@ -44,9 +44,9 @@ void main() {
   );
 
   const items = <Widget>[
-    ContextMenuItem(value: 'copy', child: Text('Copy')),
-    ContextMenuItem(value: 'paste', child: Text('Paste')),
-    ContextMenuItem(child: Text('Nothing')),
+    MenuItem(value: 'copy', child: Text('Copy')),
+    MenuItem(value: 'paste', child: Text('Paste')),
+    MenuItem(child: Text('Nothing')),
   ];
 
   group('placement', () {
@@ -187,7 +187,7 @@ void main() {
         context: context,
         position: const Offset(100, 100),
         items: [
-          ContextMenuItem(
+          MenuItem(
             onPressed: () => pressed++,
             child: const Text('Run'),
           ),
@@ -221,8 +221,8 @@ void main() {
         context: context,
         position: const Offset(100, 100),
         items: const [
-          ContextMenuItem(
-            items: [ContextMenuItem(value: 'pdf', child: Text('PDF'))],
+          MenuItem(
+            items: [MenuItem(value: 'pdf', child: Text('PDF'))],
             child: Text('Export'),
           ),
         ],
@@ -248,7 +248,7 @@ void main() {
         position: const Offset(100, 100),
         items: [
           Builder(
-            builder: (context) => ContextMenuItem(
+            builder: (context) => MenuItem(
               onPressed: () => Navigator.of(context).pop('own'),
               child: const Text('Pop'),
             ),
@@ -351,8 +351,8 @@ void main() {
         context: context,
         position: const Offset(100, 100),
         items: const [
-          ContextMenuItem(
-            items: [ContextMenuItem(value: 'pdf', child: Text('PDF'))],
+          MenuItem(
+            items: [MenuItem(value: 'pdf', child: Text('PDF'))],
             child: Text('Export'),
           ),
         ],
@@ -411,7 +411,7 @@ void main() {
         position: const Offset(100, 100),
         items: [
           Builder(
-            builder: (context) => ContextMenuItem(
+            builder: (context) => MenuItem(
               value: 'opened',
               onPressed: () => showDialog<void>(
                 context: context,

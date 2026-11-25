@@ -26,18 +26,18 @@ class _ContextMenuBasicExampleState extends State<ContextMenuBasicExample> {
       constraints: const BoxConstraints(minWidth: 260),
       items: [
         // With a checkable row in the menu, every row keeps the column of
-        // the check marks free: no `ContextMenuItem.inset` is needed.
-        ContextMenuItem(
+        // the check marks free: no `MenuItem.inset` is needed.
+        MenuItem(
           // Different keys per platform, so the text is given as it is.
           shortcut: MenuShortcut.text(apple ? '⌘[' : 'Alt+←'),
           child: const Text('Back'),
         ),
-        ContextMenuItem(
+        MenuItem(
           enabled: false,
           shortcut: MenuShortcut.text(apple ? '⌘]' : 'Alt+→'),
           child: const Text('Forward'),
         ),
-        ContextMenuItem(
+        MenuItem(
           // The same key with the platform's own modifier.
           shortcut: MenuShortcut(
             SingleActivator(
@@ -48,13 +48,13 @@ class _ContextMenuBasicExampleState extends State<ContextMenuBasicExample> {
           ),
           child: const Text('Reload'),
         ),
-        const ContextMenuItem(
+        const MenuItem(
           trailing: PhosphorIcon(PhosphorIconsRegular.caretRight),
           items: [
-            ContextMenuItem(child: Text('Save Page As...')),
-            ContextMenuItem(child: Text('Create Shortcut...')),
+            MenuItem(child: Text('Save Page As...')),
+            MenuItem(child: Text('Create Shortcut...')),
             MenuDivider(),
-            ContextMenuItem(child: Text('Developer Tools')),
+            MenuItem(child: Text('Developer Tools')),
           ],
           child: Text('More Tools'),
         ),

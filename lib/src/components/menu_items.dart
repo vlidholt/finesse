@@ -3,7 +3,7 @@ part of 'context_menu.dart';
 /// Marks the row below it as checkable, with its state.
 ///
 /// [MenuCheckboxItem] and [MenuRadioItem] put one directly around the
-/// [ContextMenuItem] they build, which draws the indicator from it.
+/// [MenuItem] they build, which draws the indicator from it.
 class _MenuCheckable extends InheritedWidget {
   const _MenuCheckable({
     required this.checked,
@@ -151,15 +151,15 @@ class MenuCheckboxItem extends StatelessWidget {
   /// The label.
   final Widget child;
 
-  /// {@macro ContextMenuItem.leading}
+  /// {@macro MenuItem.leading}
   ///
   /// It follows the check mark.
   final Widget? leading;
 
-  /// {@macro ContextMenuItem.trailing}
+  /// {@macro MenuItem.trailing}
   final Widget? trailing;
 
-  /// {@macro ContextMenuItem.shortcut}
+  /// {@macro MenuItem.shortcut}
   final MenuShortcut? shortcut;
 
   /// Whether a click or Enter closes the menu after toggling. Defaults to
@@ -175,7 +175,7 @@ class MenuCheckboxItem extends StatelessWidget {
     return _MenuCheckable(
       checked: checked,
       radio: false,
-      child: ContextMenuItem(
+      child: MenuItem(
         enabled: enabled && onChanged != null,
         leading: leading,
         trailing: trailing,
@@ -282,15 +282,15 @@ class MenuRadioItem<T> extends StatelessWidget {
   /// The label.
   final Widget child;
 
-  /// {@macro ContextMenuItem.leading}
+  /// {@macro MenuItem.leading}
   ///
   /// It follows the dot.
   final Widget? leading;
 
-  /// {@macro ContextMenuItem.trailing}
+  /// {@macro MenuItem.trailing}
   final Widget? trailing;
 
-  /// {@macro ContextMenuItem.shortcut}
+  /// {@macro MenuItem.shortcut}
   final MenuShortcut? shortcut;
 
   /// Whether a click or Enter closes the menu after choosing. Defaults to
@@ -313,7 +313,7 @@ class MenuRadioItem<T> extends StatelessWidget {
     return _MenuCheckable(
       checked: group != null && group.value == value,
       radio: true,
-      child: ContextMenuItem(
+      child: MenuItem(
         enabled: enabled && onChanged != null,
         leading: leading,
         trailing: trailing,
@@ -435,7 +435,7 @@ class MenuDivider extends StatelessWidget {
 /// the same [SingleActivator] can be handed to both.
 ///
 /// ```dart
-/// ContextMenuItem(
+/// MenuItem(
 ///   shortcut: const MenuShortcut(
 ///     SingleActivator(LogicalKeyboardKey.keyS, meta: true),
 ///   ),

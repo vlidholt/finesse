@@ -127,7 +127,7 @@ void main() {
                     const Menubar(
                       items: [
                         MenubarItem(
-                          items: [ContextMenuItem(child: Text('New'))],
+                          items: [MenuItem(child: Text('New'))],
                           child: Text('File'),
                         ),
                       ],
@@ -359,7 +359,7 @@ void main() {
                     const Menubar(
                       items: [
                         MenubarItem(
-                          items: [ContextMenuItem(child: Text('New'))],
+                          items: [MenuItem(child: Text('New'))],
                           child: Text('File'),
                         ),
                       ],

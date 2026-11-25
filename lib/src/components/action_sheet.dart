@@ -145,7 +145,7 @@ Future<T?> showActionSheet<T>({
             ),
           ),
         for (final action in actions)
-          ContextMenuItem(
+          MenuItem(
             value: action.value,
             leading: action.icon,
             destructive: action.destructive,

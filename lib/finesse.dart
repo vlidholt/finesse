@@ -59,7 +59,7 @@ export 'src/components/chip_group.dart';
 export 'src/components/collapsible.dart';
 export 'src/components/color_picker.dart';
 export 'src/components/command.dart';
-export 'src/components/context_menu.dart' hide ContextMenuItemController;
+export 'src/components/context_menu.dart' hide MenuItemController;
 export 'src/components/control_affinity.dart' show ControlAffinity;
 export 'src/components/control_list_tiles.dart';
 export 'src/components/data_table.dart';

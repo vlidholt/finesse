@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// The row kinds a menu takes beside `ContextMenuItem`: checkbox and radio
+/// The row kinds a menu takes beside `MenuItem`: checkbox and radio
 /// rows, labels, dividers and shortcuts — and the column every row of a
 /// menu keeps free once one of them is checkable.
 enum _Fruit { apple, banana, cherry }
@@ -192,7 +192,7 @@ void main() {
             onChanged: (_) => changes++,
             child: const Text('Off'),
           ),
-          ContextMenuItem(onPressed: () {}, child: const Text('Plain')),
+          MenuItem(onPressed: () {}, child: const Text('Plain')),
         ],
       );
       await tester.tap(find.text('Locked'), warnIfMissed: false);
@@ -404,8 +404,8 @@ void main() {
           onChanged: (_) {},
           child: const Text('Checked'),
         ),
-      ContextMenuItem(onPressed: () {}, child: const Text('Plain')),
-      ContextMenuItem(
+      MenuItem(onPressed: () {}, child: const Text('Plain')),
+      MenuItem(
         leading: const PhosphorIcon(PhosphorIconsRegular.gear),
         onPressed: () {},
         child: const Text('Iconed'),
@@ -465,7 +465,7 @@ void main() {
               child: const Text('Wrapped'),
             ),
           ),
-          ContextMenuItem(onPressed: () {}, child: const Text('Plain')),
+          MenuItem(onPressed: () {}, child: const Text('Plain')),
         ],
       );
       expect(
@@ -483,9 +483,9 @@ void main() {
             onChanged: (_) {},
             child: const Text('Checked'),
           ),
-          ContextMenuItem(
+          MenuItem(
             items: [
-              ContextMenuItem(onPressed: () {}, child: const Text('Leaf')),
+              MenuItem(onPressed: () {}, child: const Text('Leaf')),
             ],
             child: const Text('More'),
           ),
@@ -540,11 +540,11 @@ void main() {
   group('MenuLabel and MenuDivider', () {
     List<Widget> grouped() => [
       const MenuLabel(child: Text('Fruit')),
-      ContextMenuItem(onPressed: () {}, child: const Text('Apple')),
+      MenuItem(onPressed: () {}, child: const Text('Apple')),
       const MenuDivider(),
       const MenuLabel(child: Text('Vegetables')),
-      ContextMenuItem(onPressed: () {}, child: const Text('Beet')),
-      ContextMenuItem(onPressed: () {}, child: const Text('Carrot')),
+      MenuItem(onPressed: () {}, child: const Text('Beet')),
+      MenuItem(onPressed: () {}, child: const Text('Carrot')),
     ];
 
     testWidgets('the arrows, Home and End pass over them', (tester) async {
@@ -579,7 +579,7 @@ void main() {
       await pumpMenu(
         tester,
         items: (_) => [
-          ContextMenuItem(onPressed: () {}, child: const Text('Alpha')),
+          MenuItem(onPressed: () {}, child: const Text('Alpha')),
           MenuCheckboxItem(
             checked: true,
             onChanged: (_) {},
@@ -804,7 +804,7 @@ void main() {
       await pumpMenu(
         tester,
         items: (_) => [
-          ContextMenuItem(
+          MenuItem(
             shortcut: const MenuShortcut(
               SingleActivator(LogicalKeyboardKey.keyS, meta: true),
             ),
@@ -823,7 +823,7 @@ void main() {
         tester,
         textDirection: TextDirection.rtl,
         items: (_) => [
-          ContextMenuItem(
+          MenuItem(
             shortcut: const MenuShortcut.text('Ctrl+K'),
             trailing: const PhosphorIcon(PhosphorIconsRegular.caretLeft),
             onPressed: () {},
@@ -868,7 +868,7 @@ void main() {
               shortcut: const MenuShortcut.text('Ctrl+G'),
               child: const Text('Grid'),
             ),
-            ContextMenuItem(onPressed: () {}, child: const Text('Plain')),
+            MenuItem(onPressed: () {}, child: const Text('Plain')),
           ],
         );
         final theme = Theme.of(tester.element(find.text('Grid')));
@@ -1082,13 +1082,13 @@ void main() {
                       child: const Text('Autosave'),
                     ),
                     const MenuDivider(),
-                    const ContextMenuItem(child: Text('Close')),
+                    const MenuItem(child: Text('Close')),
                   ],
                   child: const Text('File'),
                 ),
                 const MenubarItem(
                   enabled: false,
-                  items: [ContextMenuItem(child: Text('Never'))],
+                  items: [MenuItem(child: Text('Never'))],
                   child: Text('Window'),
                 ),
               ],

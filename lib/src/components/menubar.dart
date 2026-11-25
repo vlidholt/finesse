@@ -186,7 +186,7 @@ class _MenubarState extends State<Menubar> {
 /// One menu of a [Menubar]: a trigger in the strip and the menu that opens
 /// under it.
 ///
-/// The [items] are a menu's rows — [ContextMenuItem], [MenuCheckboxItem],
+/// The [items] are a menu's rows — [MenuItem], [MenuCheckboxItem],
 /// [MenuRadioGroup], [MenuLabel], [MenuDivider], submenus. How the trigger
 /// and its menu look is the theme's (`MenubarTheme`); re-theme the subtree
 /// for a menubar that looks different.
@@ -196,9 +196,9 @@ class _MenubarState extends State<Menubar> {
 ///   items: [
 ///     MenubarItem(
 ///       items: [
-///         ContextMenuItem(child: const Text('New tab'), onPressed: () {}),
+///         MenuItem(child: const Text('New tab'), onPressed: () {}),
 ///         const MenuDivider(),
-///         ContextMenuItem(child: const Text('Print…'), onPressed: () {}),
+///         MenuItem(child: const Text('Print…'), onPressed: () {}),
 ///       ],
 ///       child: const Text('File'),
 ///     ),

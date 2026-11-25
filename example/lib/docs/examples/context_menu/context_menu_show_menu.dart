@@ -29,18 +29,18 @@ class _ContextMenuShowMenuExampleState
       position: globalPosition,
       items: [
         MenuLabel(child: Text('Cell $name')),
-        const ContextMenuItem(
+        const MenuItem(
           value: _CellAction.copy,
           leading: PhosphorIcon(PhosphorIconsRegular.copy),
           child: Text('Copy'),
         ),
-        const ContextMenuItem(
+        const MenuItem(
           value: _CellAction.fill,
           leading: PhosphorIcon(PhosphorIconsRegular.paintBucket),
           child: Text('Fill'),
         ),
         const MenuDivider(),
-        ContextMenuItem(
+        MenuItem(
           value: _CellAction.clear,
           enabled: _filled.contains(cell),
           destructive: true,

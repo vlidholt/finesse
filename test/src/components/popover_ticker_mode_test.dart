@@ -50,7 +50,7 @@ void main() {
             index: index,
             first: DropdownMenu(
               items: [
-                ContextMenuItem(
+                MenuItem(
                   // The item switches section and the menu then closes
                   // itself — in that order, as `onPressed` runs first.
                   onPressed: () => setState(() => index = 1),

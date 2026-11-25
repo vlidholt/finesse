@@ -482,7 +482,7 @@ class _RowMenu extends StatelessWidget {
     return DropdownMenu(
       anchor: _anchor,
       itemsBuilder: (_) => [
-        ContextMenuItem(
+        MenuItem(
           leading: PhosphorIcon(
             unread
                 ? PhosphorIconsRegular.envelopeSimpleOpen
@@ -491,18 +491,18 @@ class _RowMenu extends StatelessWidget {
           onPressed: onToggleRead,
           child: Text(unread ? 'Mark as read' : 'Mark as unread'),
         ),
-        ContextMenuItem(
+        MenuItem(
           leading: const PhosphorIcon(PhosphorIconsRegular.bellSimpleSlash),
           onPressed: onMute,
           child: const Text('Show fewer like this'),
         ),
-        ContextMenuItem(
+        MenuItem(
           leading: const PhosphorIcon(PhosphorIconsRegular.gearSix),
           onPressed: () => openSettings(context, SettingsSection.notifications),
           child: const Text('Notification settings'),
         ),
         const Divider(margin: EdgeInsets.symmetric(vertical: 4)),
-        ContextMenuItem(
+        MenuItem(
           destructive: true,
           leading: const PhosphorIcon(PhosphorIconsRegular.trash),
           onPressed: onRemove,

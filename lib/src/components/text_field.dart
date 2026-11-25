@@ -1243,7 +1243,7 @@ class TextFieldState extends State<TextField>
         ),
         items: [
           for (final item in buttonItems)
-            ContextMenuItem(
+            MenuItem(
               onTapDown: item.onPressed != null
                   ? (_) {
                       item.onPressed!();

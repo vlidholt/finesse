@@ -567,7 +567,7 @@ class _SwipeActionsState extends State<SwipeActions>
         hitTestBehavior: HitTestBehavior.translucent,
         items: [
           for (final action in offered)
-            ContextMenuItem(
+            MenuItem(
               leading: action.icon,
               destructive: action.destructive,
               onPressed: () => unawaited(_run(action)),

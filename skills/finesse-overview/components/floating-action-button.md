@@ -166,15 +166,15 @@ class FloatingActionButtonMenuExample extends StatelessWidget {
       ),
       constraints: const BoxConstraints(minWidth: 200),
       items: const [
-        ContextMenuItem(
+        MenuItem(
           leading: PhosphorIcon(PhosphorIconsRegular.notePencil),
           child: Text('Post'),
         ),
-        ContextMenuItem(
+        MenuItem(
           leading: PhosphorIcon(PhosphorIconsRegular.image),
           child: Text('Photo'),
         ),
-        ContextMenuItem(
+        MenuItem(
           leading: PhosphorIcon(PhosphorIconsRegular.chartBar),
           child: Text('Poll'),
         ),

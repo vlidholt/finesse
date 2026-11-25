@@ -14,12 +14,12 @@ class ButtonGroupSplitExample extends StatelessWidget {
         const ButtonGroupSeparator(),
         DropdownMenu(
           items: [
-            ContextMenuItem(
+            MenuItem(
               leading: const PhosphorIcon(PhosphorIconsRegular.clock),
               onPressed: () {},
               child: const Text('Send later'),
             ),
-            ContextMenuItem(
+            MenuItem(
               leading: const PhosphorIcon(PhosphorIconsRegular.floppyDisk),
               onPressed: () {},
               child: const Text('Save as draft'),

@@ -82,7 +82,7 @@ void main() {
           build: (controller) => DropdownMenu(
             controller: controller as FinesseContextMenuController,
             items: [
-              ContextMenuItem(onPressed: () {}, child: const Text('Floating')),
+              MenuItem(onPressed: () {}, child: const Text('Floating')),
             ],
             builder: (context, controller, _) => const Text('Anchor'),
           ),

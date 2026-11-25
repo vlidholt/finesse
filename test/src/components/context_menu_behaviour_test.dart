@@ -46,7 +46,7 @@ void main() {
       await pumpMenu(
         tester,
         controller: controller,
-        items: const [ContextMenuItem(child: Text('Copy'))],
+        items: const [MenuItem(child: Text('Copy'))],
       );
 
       controller.showAt(const Offset(200, 150));
@@ -64,7 +64,7 @@ void main() {
       await pumpMenu(
         tester,
         controller: controller,
-        items: const [ContextMenuItem(child: Text('Copy'))],
+        items: const [MenuItem(child: Text('Copy'))],
       );
 
       controller.showAt(const Offset(795, 595));
@@ -88,7 +88,7 @@ void main() {
       controller: controller,
       size: const Size(400, 300),
       items: [
-        for (var i = 0; i < 40; i++) ContextMenuItem(child: Text('Item $i')),
+        for (var i = 0; i < 40; i++) MenuItem(child: Text('Item $i')),
       ],
     );
     controller.showAt(const Offset(10, 10));
@@ -116,7 +116,7 @@ void main() {
       controller: controller,
       itemsBuilder: (_) {
         builds++;
-        return const [ContextMenuItem(child: Text('Lazy'))];
+        return const [MenuItem(child: Text('Lazy'))];
       },
     );
     expect(builds, 0);
@@ -136,13 +136,13 @@ void main() {
         controller: controller,
         items: const [
           // A leading icon renders a glyph as text; type-ahead must skip it.
-          ContextMenuItem(
+          MenuItem(
             leading: Icon(IconData(0x41)),
             child: Text('Back'),
           ),
-          ContextMenuItem(child: Text('Copy')),
-          ContextMenuItem(child: Text('Cut')),
-          ContextMenuItem(child: Text('Paste')),
+          MenuItem(child: Text('Copy')),
+          MenuItem(child: Text('Cut')),
+          MenuItem(child: Text('Paste')),
         ],
       );
       controller.show();
@@ -226,8 +226,8 @@ void main() {
       tester,
       controller: controller,
       items: const [
-        ContextMenuItem(
-          items: [ContextMenuItem(child: Text('Nested'))],
+        MenuItem(
+          items: [MenuItem(child: Text('Nested'))],
           child: Text('More'),
         ),
       ],
@@ -266,20 +266,20 @@ void main() {
         tester,
         controller: controller,
         items: const [
-          ContextMenuItem(
+          MenuItem(
             items: [
-              ContextMenuItem(
-                items: [ContextMenuItem(child: Text('Deep'))],
+              MenuItem(
+                items: [MenuItem(child: Text('Deep'))],
                 child: Text('Nested'),
               ),
             ],
             child: Text('First'),
           ),
-          ContextMenuItem(
-            items: [ContextMenuItem(child: Text('Second nested'))],
+          MenuItem(
+            items: [MenuItem(child: Text('Second nested'))],
             child: Text('Second'),
           ),
-          ContextMenuItem(child: Text('Leaf')),
+          MenuItem(child: Text('Leaf')),
         ],
       );
       controller.showAt(const Offset(100, 100));
@@ -338,12 +338,12 @@ void main() {
       tester,
       controller: controller,
       items: const [
-        ContextMenuItem(
-          items: [ContextMenuItem(child: Text('First nested'))],
+        MenuItem(
+          items: [MenuItem(child: Text('First nested'))],
           child: Text('First'),
         ),
-        ContextMenuItem(
-          items: [ContextMenuItem(child: Text('Second nested'))],
+        MenuItem(
+          items: [MenuItem(child: Text('Second nested'))],
           child: Text('Second'),
         ),
       ],

@@ -255,7 +255,7 @@ void main() {
               constraints: const BoxConstraints(minWidth: 180),
               items: [
                 for (final label in ['One', 'Two', 'Three', 'Four'])
-                  ContextMenuItem(onPressed: () {}, child: Text(label)),
+                  MenuItem(onPressed: () {}, child: Text(label)),
               ],
               child: const SizedBox(width: 40, height: 20),
             ),

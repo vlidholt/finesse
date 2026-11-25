@@ -87,7 +87,7 @@ class SelectionArea extends StatefulWidget {
     final items = [
       for (final item in selectableRegionState.contextMenuButtonItems)
         if (TextSelectionToolbar.labelFor(context, item) case final label?)
-          ContextMenuItem(
+          MenuItem(
             // On the way down, like the text field's menu: the press is
             // also a tap outside the region, which takes the menu away.
             onTapDown: item.onPressed == null ? null : (_) => item.onPressed!(),

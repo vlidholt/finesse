@@ -62,9 +62,9 @@ void main() {
             child: DropdownMenu(
               controller: menu,
               items: [
-                ContextMenuItem(onPressed: () {}, child: const Text('One')),
-                ContextMenuItem(onPressed: () {}, child: const Text('Two')),
-                ContextMenuItem(onPressed: () {}, child: const Text('Three')),
+                MenuItem(onPressed: () {}, child: const Text('One')),
+                MenuItem(onPressed: () {}, child: const Text('Two')),
+                MenuItem(onPressed: () {}, child: const Text('Three')),
               ],
               builder: (context, controller, _) => const Text('Anchor'),
             ),
@@ -122,7 +122,7 @@ void main() {
               MenuRadioItem(value: 2, child: Text('Large')),
             ],
           ),
-          ContextMenuItem(onPressed: () {}, child: const Text('Reset')),
+          MenuItem(onPressed: () {}, child: const Text('Reset')),
         ],
       ).ignore();
       await settle(tester);

@@ -10,13 +10,13 @@ part of 'context_menu.dart';
 /// it, aligned to its start edge, as a [DropdownMenu] does under its
 /// trigger. Either way it is mirrored or shifted to stay on screen.
 ///
-/// The [items] are a [ContextMenu]'s: [ContextMenuItem], [MenuCheckboxItem],
+/// The [items] are a [ContextMenu]'s: [MenuItem], [MenuCheckboxItem],
 /// [MenuRadioGroup], [MenuLabel], [MenuDivider], submenus. The menu takes
 /// the keyboard focus, and closes on a tap outside, on Escape and on the
 /// system's back gesture.
 ///
 /// The returned future completes when the menu has closed: with the
-/// [ContextMenuItem.value] of the row that closed it, or with null when it
+/// [MenuItem.value] of the row that closed it, or with null when it
 /// was dismissed or the row has no value. A row's `onPressed` still runs.
 ///
 /// ```dart
@@ -24,8 +24,8 @@ part of 'context_menu.dart';
 ///   context: context,
 ///   position: details.globalPosition,
 ///   items: const [
-///     ContextMenuItem(value: CellAction.copy, child: Text('Copy')),
-///     ContextMenuItem(value: CellAction.clear, child: Text('Clear')),
+///     MenuItem(value: CellAction.copy, child: Text('Copy')),
+///     MenuItem(value: CellAction.clear, child: Text('Clear')),
 ///   ],
 /// );
 /// ```

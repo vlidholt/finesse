@@ -297,7 +297,7 @@ class FinesseContextMenuController extends PopoverController {
   }
 }
 
-/// A menu of [ContextMenuItem]s shown in a popover next to [child].
+/// A menu of [MenuItem]s shown in a popover next to [child].
 ///
 /// This is the menu surface behind shadcn's `DropdownMenuContent` and
 /// `ContextMenuContent`. It opens when [visible] or [controller] says so; use
@@ -491,12 +491,12 @@ class ContextMenuState extends State<ContextMenu> {
   final _contentFocusNode = FocusNode(debugLabel: 'ContextMenu content');
 
   /// The row of this menu level the pointer was last over.
-  _ContextMenuItemState? _hoveredItem;
+  _MenuItemState? _hoveredItem;
 
   /// Called when the pointer reaches [item], a row of this menu level. The
   /// row it left gives up its highlight and closes its submenu at once,
   /// without waiting for its grace period, so only one submenu is ever open.
-  void _itemHovered(_ContextMenuItemState item) {
+  void _itemHovered(_MenuItemState item) {
     final previous = _hoveredItem;
     _hoveredItem = item;
     if (previous == null || identical(previous, item) || !previous.mounted) {
@@ -866,13 +866,13 @@ class ContextMenuState extends State<ContextMenu> {
   }
 }
 
-/// Tracks whether a [ContextMenuItem] is hovered or focused, and the same
+/// Tracks whether a [MenuItem] is hovered or focused, and the same
 /// for the items in its submenu.
 ///
 /// Used internally. It is not exported from `package:finesse/finesse.dart`.
-class ContextMenuItemController extends ChangeNotifier {
+class MenuItemController extends ChangeNotifier {
   /// Creates a controller for the item identified by [itemKey].
-  ContextMenuItemController({
+  MenuItemController({
     required this.itemKey,
     bool hovered = false,
     bool focused = false,
@@ -907,7 +907,7 @@ class ContextMenuItemController extends ChangeNotifier {
   final Key itemKey;
 
   /// Maps the item key to the item controller
-  final Map<Key, ContextMenuItemController> items = {};
+  final Map<Key, MenuItemController> items = {};
 
   /// Whether the item is highlighted: it is hovered or focused, or an item in
   /// its submenu is.
@@ -923,18 +923,18 @@ class ContextMenuItemController extends ChangeNotifier {
   }
 
   /// Adds [controller] to the items of this item's submenu.
-  void registerSubItem(ContextMenuItemController controller) {
+  void registerSubItem(MenuItemController controller) {
     items[controller.itemKey] = controller;
   }
 
   /// Removes [controller] from the items of this item's submenu.
-  void unregisterSubItem(ContextMenuItemController controller) {
+  void unregisterSubItem(MenuItemController controller) {
     items.remove(controller.itemKey);
   }
 }
 
 /// The variant of the context menu item.
-enum ContextMenuItemVariant {
+enum MenuItemVariant {
   /// A regular row.
   primary,
 
@@ -946,43 +946,11 @@ enum ContextMenuItemVariant {
 /// A row in a [ContextMenu], shadcn's `DropdownMenuItem`.
 ///
 /// When [items] is not empty, the row opens a submenu with them on hover.
-class ContextMenuItem extends StatefulWidget {
-  /// Creates a regular menu item.
-  const ContextMenuItem({
+class MenuItem extends StatefulWidget {
+  /// Creates a menu item: a regular row unless [variant] says otherwise.
+  const MenuItem({
     super.key,
-    required this.child,
-    this.items = const [],
-    this.enabled = true,
-    this.leading,
-    this.trailing,
-    this.leadingPadding,
-    this.trailingPadding,
-    this.padding,
-    this.onPressed,
-    this.onTapDown,
-    this.anchor,
-    this.showDelay,
-    this.height,
-    this.buttonVariant,
-    this.decoration,
-    this.textStyle,
-    this.selectedTextStyle,
-    this.trailingTextStyle,
-    this.constraints,
-    this.subMenuPadding,
-    this.backgroundColor,
-    this.selectedBackgroundColor,
-    this.closeOnTap,
-    this.destructive = false,
-    this.shortcut,
-    this.value,
-  }) : variant = ContextMenuItemVariant.primary,
-       insetPadding = null;
-
-  /// Creates a menu item with an explicit [variant].
-  const ContextMenuItem.raw({
-    super.key,
-    required this.variant,
+    this.variant = MenuItemVariant.primary,
     required this.child,
     this.items = const [],
     this.enabled = true,
@@ -1014,7 +982,7 @@ class ContextMenuItem extends StatefulWidget {
 
   /// Creates an inset menu item, whose label lines up with items that have a
   /// leading icon.
-  const ContextMenuItem.inset({
+  const MenuItem.inset({
     super.key,
     required this.child,
     this.items = const [],
@@ -1043,72 +1011,72 @@ class ContextMenuItem extends StatefulWidget {
     this.destructive = false,
     this.shortcut,
     this.value,
-  }) : variant = ContextMenuItemVariant.inset;
+  }) : variant = MenuItemVariant.inset;
 
-  /// {@template ContextMenuItem.variant}
+  /// {@template MenuItem.variant}
   /// The variant of the context menu item, defaults to
-  /// [ContextMenuItemVariant.primary].
+  /// [MenuItemVariant.primary].
   /// {@endtemplate}
-  final ContextMenuItemVariant variant;
+  final MenuItemVariant variant;
 
-  /// {@template ContextMenuItem.child}
+  /// {@template MenuItem.child}
   /// The child of the context menu item.
   /// {@endtemplate}
   final Widget child;
 
-  /// {@template ContextMenuItem.enabled}
+  /// {@template MenuItem.enabled}
   /// Whether the context menu item is enabled, defaults to true.
   /// {@endtemplate}
   final bool enabled;
 
-  /// {@template ContextMenuItem.leading}
+  /// {@template MenuItem.leading}
   /// The leading widget of the context menu item.
   /// {@endtemplate}
   final Widget? leading;
 
-  /// {@template ContextMenuItem.trailing}
+  /// {@template MenuItem.trailing}
   /// The trailing widget of the context menu item.
   /// {@endtemplate}
   final Widget? trailing;
 
-  /// {@template ContextMenuItem.leadingPadding}
+  /// {@template MenuItem.leadingPadding}
   /// The padding of the leading widget, defaults to
   /// `EdgeInsets.only(right: 8)`.
   /// {@endtemplate}
   final EdgeInsetsGeometry? leadingPadding;
 
-  /// {@template ContextMenuItem.trailingPadding}
+  /// {@template MenuItem.trailingPadding}
   /// The padding of the trailing widget, defaults to
   /// `EdgeInsets.only(left: 8)`.
   /// {@endtemplate}
   final EdgeInsetsGeometry? trailingPadding;
 
-  /// {@template ContextMenuItem.padding}
+  /// {@template MenuItem.padding}
   /// The padding of the context menu item, defaults to
   /// `EdgeInsets.symmetric(horizontal: 4)`.
   /// {@endtemplate}
   final EdgeInsetsGeometry? padding;
 
-  /// {@template ContextMenuItem.insetPadding}
+  /// {@template MenuItem.insetPadding}
   /// The row's own padding. Defaults to the style's item padding
   /// (`StyleTokens.itemPaddingX`, shadcn's `px-2`) on both sides, plus a
   /// 24px icon column at the start when the variant is inset.
   /// {@endtemplate}
   final EdgeInsetsGeometry? insetPadding;
 
-  /// {@template ContextMenuItem.onPressed}
+  /// {@template MenuItem.onPressed}
   /// The callback called when the context menu item is pressed.
   /// {@endtemplate}
   final VoidCallback? onPressed;
 
-  /// {@template ContextMenuItem.onTapDown}
+  /// {@template MenuItem.onTapDown}
   /// The callback called when a pointer down event is detected on the context
   /// menu item. Useful when the action must fire immediately before the
   /// overlay is dismissed (e.g. text selection context menus).
   /// {@endtemplate}
   final ValueChanged<TapDownDetails>? onTapDown;
 
-  /// {@template ContextMenuItem.anchor}
+  /// {@template MenuItem.anchor}
   /// The anchor of the context menu item, defaults to
   /// ```dart
   /// AnchorAuto(
@@ -1120,7 +1088,7 @@ class ContextMenuItem extends StatefulWidget {
   /// {@endtemplate}
   final AnchorBase? anchor;
 
-  /// {@template ContextMenuItem.showDelay}
+  /// {@template MenuItem.showDelay}
   /// How long an item with a submenu stays highlighted, with its submenu
   /// open, after the pointer leaves it. Defaults to 100ms.
   ///
@@ -1130,30 +1098,30 @@ class ContextMenuItem extends StatefulWidget {
   /// {@endtemplate}
   final Duration? showDelay;
 
-  /// {@template ContextMenuItem.height}
+  /// {@template MenuItem.height}
   /// The height of the context menu item, defaults to 32.
   /// {@endtemplate}
   final double? height;
 
-  /// {@template ContextMenuItem.buttonVariant}
+  /// {@template MenuItem.buttonVariant}
   /// The variant of the button of the context menu item, defaults to
   /// [ButtonVariant.ghost].
   /// {@endtemplate}
   final ButtonVariant? buttonVariant;
 
-  /// {@template ContextMenuItem.decoration}
+  /// {@template MenuItem.decoration}
   /// The decoration of the context menu item, defaults to
   /// `FinesseDecoration(secondaryBorder: FinesseBorder.none)`.
   /// {@endtemplate}
   final FinesseDecoration? decoration;
 
-  /// {@template ContextMenuItem.textStyle}
+  /// {@template MenuItem.textStyle}
   /// The text style of the context menu item, defaults to
   /// `small.copyWith(fontWeight: FontWeight.normal)`.
   /// {@endtemplate}
   final TextStyle? textStyle;
 
-  /// {@template ContextMenuItem.selectedTextStyle}
+  /// {@template MenuItem.selectedTextStyle}
   /// The text style of the item while it is selected or hovered.
   ///
   /// Defaults to [textStyle]. It exists because a menu whose selection is a
@@ -1161,7 +1129,7 @@ class ContextMenuItem extends StatefulWidget {
   /// {@endtemplate}
   final TextStyle? selectedTextStyle;
 
-  /// {@template ContextMenuItem.trailingTextStyle}
+  /// {@template MenuItem.trailingTextStyle}
   /// The text style of the trailing widget, defaults to
   /// `muted.copyWith(fontSize: 12, height: 1)`.
   /// {@endtemplate}
@@ -1173,44 +1141,44 @@ class ContextMenuItem extends StatefulWidget {
   /// {@macro ContextMenu.padding}
   final EdgeInsetsGeometry? subMenuPadding;
 
-  /// {@template ContextMenuItem.backgroundColor}
+  /// {@template MenuItem.backgroundColor}
   /// The background color of the context menu item, defaults to
   /// `null`.
   /// {@endtemplate}
   final Color? backgroundColor;
 
-  /// {@template ContextMenuItem.selectedBackgroundColor}
+  /// {@template MenuItem.selectedBackgroundColor}
   /// The background color of the context menu item when it is selected,
   /// defaults to `theme.colorScheme.accent`.
   /// {@endtemplate}
   final Color? selectedBackgroundColor;
 
-  /// {@template ContextMenuItem.closeOnTap}
+  /// {@template MenuItem.closeOnTap}
   /// Whether the context menu should be closed when the item is tapped,
   /// defaults to `true` when [items] is empty, otherwise `false`.
   /// {@endtemplate}
   final bool? closeOnTap;
 
-  /// {@template ContextMenuItem.items}
+  /// {@template MenuItem.items}
   /// The submenu items of the context menu item.
   /// {@endtemplate}
   final List<Widget> items;
 
-  /// {@template ContextMenuItem.destructive}
+  /// {@template MenuItem.destructive}
   /// Whether this is a destructive action, shadcn's
   /// `data-[variant=destructive]`: the label and icons take the destructive
   /// colour and the hover highlight becomes a destructive wash.
   /// {@endtemplate}
   final bool destructive;
 
-  /// {@template ContextMenuItem.shortcut}
+  /// {@template MenuItem.shortcut}
   /// The keyboard shortcut shown at the end of the row, before [trailing].
   ///
   /// It is only displayed: binding the keys is the app's job.
   /// {@endtemplate}
   final MenuShortcut? shortcut;
 
-  /// {@template ContextMenuItem.value}
+  /// {@template MenuItem.value}
   /// What [showMenu] completes with when this item is chosen.
   ///
   /// It is read when the item closes its menu (see [closeOnTap]). A menu
@@ -1219,20 +1187,19 @@ class ContextMenuItem extends StatefulWidget {
   final Object? value;
 
   @override
-  State<ContextMenuItem> createState() => _ContextMenuItemState();
+  State<MenuItem> createState() => _MenuItemState();
 }
 
-class _ContextMenuItemState extends State<ContextMenuItem> {
+class _MenuItemState extends State<MenuItem> {
   final itemKey = UniqueKey();
-  late final controller = ContextMenuItemController(itemKey: itemKey);
+  late final controller = MenuItemController(itemKey: itemKey);
 
   /// Shared with the item's button so the trailing widget and text colours
   /// can follow the button's own hover state — a leaf item is only ever
   /// hovered, never "selected", so selection alone cannot drive them.
   final statesController = WidgetStatesController();
   // get the parent item controller, if any, meaning this item is a submenu
-  late final parentItemController = context
-      .maybeRead<ContextMenuItemController>();
+  late final parentItemController = context.maybeRead<MenuItemController>();
 
   bool get hasTrailingIcon => widget.items.isNotEmpty;
 
@@ -1345,10 +1312,10 @@ class _ContextMenuItemState extends State<ContextMenuItem> {
     // `pl-8`-style gutter: the base padding plus a 24px icon column.
     final itemPaddingX = theme.style.itemPaddingX * theme.spacing.step / 4;
     final defaultInsetPadding = switch (widget.variant) {
-      ContextMenuItemVariant.primary => EdgeInsets.symmetric(
+      MenuItemVariant.primary => EdgeInsets.symmetric(
         horizontal: itemPaddingX,
       ),
-      ContextMenuItemVariant.inset => EdgeInsetsDirectional.only(
+      MenuItemVariant.inset => EdgeInsetsDirectional.only(
         start: itemPaddingX + 24,
         end: itemPaddingX,
       ),

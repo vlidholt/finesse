@@ -83,22 +83,22 @@ class UserMenu extends StatelessWidget {
           const _Identity(),
           divider,
           if (showProfile)
-            ContextMenuItem(
+            MenuItem(
               leading: const PhosphorIcon(PhosphorIconsRegular.user),
               onPressed: () => context.goTo(StrandDestination.profile),
               child: const Text('View profile'),
             ),
-          ContextMenuItem(
+          MenuItem(
             leading: const PhosphorIcon(PhosphorIconsRegular.bookmarkSimple),
             onPressed: () => showSavedItems(context),
             child: const Text('Saved items'),
           ),
-          ContextMenuItem(
+          MenuItem(
             leading: const PhosphorIcon(PhosphorIconsRegular.gearSix),
             onPressed: () => openSettings(context),
             child: const Text('Settings'),
           ),
-          ContextMenuItem(
+          MenuItem(
             leading: PhosphorIcon(
               dark ? PhosphorIconsRegular.sun : PhosphorIconsRegular.moon,
             ),
@@ -106,12 +106,12 @@ class UserMenu extends StatelessWidget {
             child: Text(dark ? 'Light mode' : 'Dark mode'),
           ),
           divider,
-          ContextMenuItem(
+          MenuItem(
             leading: const PhosphorIcon(PhosphorIconsRegular.squaresFour),
             onPressed: context.openComponentLibrary,
             child: const Text('Browse components'),
           ),
-          ContextMenuItem(
+          MenuItem(
             leading: const PhosphorIcon(PhosphorIconsRegular.paintBrush),
             onPressed: context.toggleThemeEditor,
             child: Text(

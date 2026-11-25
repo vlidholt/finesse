@@ -344,7 +344,7 @@ void main() {
       }
       expect(find.byType(Sheet), findsNothing);
       expect(find.byType(Dialog), findsNothing);
-      expect(find.byType(ContextMenuItem), findsNWidgets(4));
+      expect(find.byType(MenuItem), findsNWidgets(4));
       // A menu has no Cancel row: a click outside it cancels.
       expect(find.text('Cancel'), findsNothing);
       expect(find.text('Post by Maya'), findsOneWidget);

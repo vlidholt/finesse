@@ -96,7 +96,7 @@ class _StageMenu extends StatelessWidget {
     return DropdownMenu(
       constraints: const BoxConstraints(minWidth: 208),
       items: [
-        ContextMenuItem(
+        MenuItem(
           leading: const PhosphorIcon(
             PhosphorIconsRegular.clockCounterClockwise,
           ),
@@ -104,7 +104,7 @@ class _StageMenu extends StatelessWidget {
           onPressed: () => applications.sort(stage, ApplicationSort.updated),
           child: const Text('Sort by last updated'),
         ),
-        ContextMenuItem(
+        MenuItem(
           leading: const PhosphorIcon(PhosphorIconsRegular.sortAscending),
           enabled: !empty,
           onPressed: () => applications.sort(stage, ApplicationSort.company),
@@ -112,7 +112,7 @@ class _StageMenu extends StatelessWidget {
         ),
         const Divider(margin: EdgeInsets.symmetric(vertical: 4)),
         if (stage == ApplicationStage.archived)
-          ContextMenuItem(
+          MenuItem(
             leading: const PhosphorIcon(PhosphorIconsRegular.trash),
             enabled: !empty,
             destructive: true,
@@ -120,7 +120,7 @@ class _StageMenu extends StatelessWidget {
             child: const Text('Clear the archive'),
           )
         else
-          ContextMenuItem(
+          MenuItem(
             leading: const PhosphorIcon(PhosphorIconsRegular.archive),
             enabled: !empty,
             onPressed: () => applications.archiveAll(stage),

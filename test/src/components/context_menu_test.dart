@@ -26,7 +26,7 @@ void main() {
           body: ContextMenuRegion(
             controller: controller,
             tapEnabled: tapEnabled,
-            items: const [ContextMenuItem(child: Text('Item'))],
+            items: const [MenuItem(child: Text('Item'))],
             child: const SizedBox(width: 200, height: 200, key: Key('target')),
           ),
         ),
@@ -137,8 +137,8 @@ void main() {
             ContextMenuRegion(
               controller: controller,
               items: const [
-                ContextMenuItem(child: Text('Enabled')),
-                ContextMenuItem(
+                MenuItem(child: Text('Enabled')),
+                MenuItem(
                   enabled: false,
                   child: Text('Disabled'),
                 ),
@@ -175,44 +175,44 @@ void main() {
             ContextMenuRegion(
               constraints: const BoxConstraints(minWidth: 300),
               items: [
-                const ContextMenuItem.inset(
+                const MenuItem.inset(
                   child: Text('Back'),
                 ),
-                const ContextMenuItem.inset(
+                const MenuItem.inset(
                   enabled: false,
                   child: Text('Forward'),
                 ),
-                const ContextMenuItem.inset(
+                const MenuItem.inset(
                   child: Text('Reload'),
                 ),
-                const ContextMenuItem.inset(
+                const MenuItem.inset(
                   trailing: Icon(PhosphorIconsRegular.caretRight),
                   items: [
-                    ContextMenuItem(
+                    MenuItem(
                       child: Text('Save Page As...'),
                     ),
-                    ContextMenuItem(
+                    MenuItem(
                       child: Text('Create Shortcut...'),
                     ),
-                    ContextMenuItem(
+                    MenuItem(
                       child: Text('Name Window...'),
                     ),
-                    ContextMenuItem(
+                    MenuItem(
                       child: Text('Developer Tools'),
                     ),
                   ],
                   child: Text('More Tools'),
                 ),
-                const ContextMenuItem(
+                const MenuItem(
                   leading: Icon(PhosphorIconsRegular.check),
                   child: Text('Show Bookmarks Bar'),
                 ),
-                const ContextMenuItem.inset(child: Text('Show Full URLs')),
+                const MenuItem.inset(child: Text('Show Full URLs')),
                 const Padding(
                   padding: EdgeInsets.fromLTRB(36, 8, 8, 8),
                   child: Text('People'),
                 ),
-                ContextMenuItem(
+                MenuItem(
                   leading: SizedBox.square(
                     dimension: 16,
                     child: Center(
@@ -228,7 +228,7 @@ void main() {
                   ),
                   child: const Text('Pedro Duarte'),
                 ),
-                const ContextMenuItem.inset(child: Text('Colm Tuite')),
+                const MenuItem.inset(child: Text('Colm Tuite')),
               ],
               child: Container(
                 width: 300,

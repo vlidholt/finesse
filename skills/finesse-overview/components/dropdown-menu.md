@@ -29,29 +29,29 @@ class DropdownMenuBasicExample extends StatelessWidget {
       constraints: const BoxConstraints(minWidth: 224),
       items: [
         const MenuLabel(child: Text('My account')),
-        ContextMenuItem(
+        MenuItem(
           leading: const PhosphorIcon(PhosphorIconsRegular.user),
           shortcut: MenuShortcut(keys(LogicalKeyboardKey.keyP, shift: true)),
           child: const Text('Profile'),
         ),
-        ContextMenuItem(
+        MenuItem(
           leading: const PhosphorIcon(PhosphorIconsRegular.gear),
           shortcut: MenuShortcut(keys(LogicalKeyboardKey.comma)),
           child: const Text('Settings'),
         ),
-        const ContextMenuItem(
+        const MenuItem(
           leading: PhosphorIcon(PhosphorIconsRegular.users),
           trailing: PhosphorIcon(PhosphorIconsRegular.caretRight),
           items: [
-            ContextMenuItem(child: Text('Email')),
-            ContextMenuItem(child: Text('Message')),
+            MenuItem(child: Text('Email')),
+            MenuItem(child: Text('Message')),
             MenuDivider(),
-            ContextMenuItem(
+            MenuItem(
               trailing: PhosphorIcon(PhosphorIconsRegular.caretRight),
               items: [
-                ContextMenuItem(child: Text('Slack')),
-                ContextMenuItem(child: Text('Discord')),
-                ContextMenuItem(child: Text('Copy Invite Link')),
+                MenuItem(child: Text('Slack')),
+                MenuItem(child: Text('Discord')),
+                MenuItem(child: Text('Copy Invite Link')),
               ],
               child: Text('More...'),
             ),
@@ -59,7 +59,7 @@ class DropdownMenuBasicExample extends StatelessWidget {
           child: Text('Invite users'),
         ),
         const MenuDivider(),
-        ContextMenuItem(
+        MenuItem(
           leading: const PhosphorIcon(PhosphorIconsRegular.signOut),
           shortcut: MenuShortcut(keys(LogicalKeyboardKey.keyQ, shift: true)),
           destructive: true,
@@ -138,7 +138,7 @@ class _DropdownMenuCheckableExampleState
         const MenuDivider(),
         // A plain row keeps the column of the check marks free, so its
         // label lines up with the ones above.
-        ContextMenuItem(
+        MenuItem(
           onPressed: () => setState(() {
             statusBar = true;
             panel = true;

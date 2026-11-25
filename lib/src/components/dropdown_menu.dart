@@ -16,7 +16,7 @@ typedef DropdownMenuTriggerBuilder =
 /// aligned to its start edge.
 ///
 /// The menu is a [ContextMenu], so it takes the same items
-/// ([ContextMenuItem], separators, labels, submenus), scrolls when long,
+/// ([MenuItem], separators, labels, submenus), scrolls when long,
 /// supports keyboard navigation and type-ahead, and flips to stay on screen:
 /// to the trigger's end edge near the side of the screen, above it near the
 /// bottom.
@@ -24,8 +24,8 @@ typedef DropdownMenuTriggerBuilder =
 /// ```dart
 /// DropdownMenu(
 ///   items: [
-///     ContextMenuItem(child: Text('Profile'), onPressed: () {}),
-///     ContextMenuItem(child: Text('Log out'), onPressed: () {}),
+///     MenuItem(child: Text('Profile'), onPressed: () {}),
+///     MenuItem(child: Text('Log out'), onPressed: () {}),
 ///   ],
 ///   builder: (context, controller, _) => Button.outline(
 ///     onPressed: controller.toggle,

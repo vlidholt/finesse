@@ -11,11 +11,11 @@ void main() {
           child: Menubar(
             items: [
               MenubarItem(
-                items: [ContextMenuItem(child: Text('New file'))],
+                items: [MenuItem(child: Text('New file'))],
                 child: Text('File'),
               ),
               MenubarItem(
-                items: [ContextMenuItem(child: Text('Undo'))],
+                items: [MenuItem(child: Text('Undo'))],
                 child: Text('Edit'),
               ),
             ],

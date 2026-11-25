@@ -27,8 +27,8 @@ void main() {
             DropdownMenu(
               controller: menu,
               items: [
-                ContextMenuItem(onPressed: () {}, child: const Text('One')),
-                ContextMenuItem(onPressed: () {}, child: const Text('Two')),
+                MenuItem(onPressed: () {}, child: const Text('One')),
+                MenuItem(onPressed: () {}, child: const Text('Two')),
               ],
               builder: (context, controller, _) => const Text('Anchor'),
             ),

@@ -220,7 +220,7 @@ class _PostMenu extends StatelessWidget {
     final author = post.author;
     return DropdownMenu(
       itemsBuilder: (_) => [
-        ContextMenuItem(
+        MenuItem(
           leading: const PhosphorIcon(PhosphorIconsRegular.bookmarkSimple),
           onPressed: () => showStrandToast(
             context,
@@ -229,13 +229,13 @@ class _PostMenu extends StatelessWidget {
           ),
           child: const Text('Save post'),
         ),
-        ContextMenuItem(
+        MenuItem(
           leading: const PhosphorIcon(PhosphorIconsRegular.link),
           onPressed: () => copyLink(context, 'strand.app/posts/${post.id}'),
           child: const Text('Copy link'),
         ),
         if (post.followable)
-          ContextMenuItem(
+          MenuItem(
             leading: PhosphorIcon(
               model.isFollowing(author)
                   ? PhosphorIconsRegular.userMinus
@@ -247,7 +247,7 @@ class _PostMenu extends StatelessWidget {
               '${author.firstName}',
             ),
           ),
-        ContextMenuItem(
+        MenuItem(
           leading: const PhosphorIcon(PhosphorIconsRegular.eyeSlash),
           onPressed: () => showStrandToast(
             context,
