@@ -46,6 +46,12 @@ Finder _switch(String title) => find.descendant(
   matching: find.byType(Switch),
 );
 
+/// The chips that choose a page on a phone. The Account page's skills are
+/// chips too, with a button to remove them.
+final _sectionChips = find.byWidgetPredicate(
+  (widget) => widget is Chip && widget.onDeleted == null,
+);
+
 void main() {
   setUpAll(() async {
     await loadStrandTestFont();
@@ -88,7 +94,7 @@ void main() {
       await _pump(tester);
 
       expect(find.text('Settings'), findsOneWidget);
-      expect(find.byType(Chip), findsNothing);
+      expect(_sectionChips, findsNothing);
       for (final section in SettingsSection.values) {
         expect(
           find.widgetWithText(Button, section.label),
@@ -102,7 +108,10 @@ void main() {
 
       await tester.tap(find.widgetWithText(Button, 'Privacy'));
       await settleFrames(tester, frames: 4);
-      expect(find.text('Profile visibility'), findsOneWidget);
+      expect(
+        find.text('Who can open your profile and find it in search.'),
+        findsOneWidget,
+      );
       expect(find.text('Sign-in and security'), findsNothing);
       expect(_settings(tester).section, SettingsSection.privacy);
     });
@@ -110,7 +119,7 @@ void main() {
     testWidgets('lists them as chips on a phone', (tester) async {
       await _pump(tester, size: strandPhone);
 
-      expect(find.byType(Chip), findsNWidgets(4));
+      expect(_sectionChips, findsNWidgets(4));
       // The last chip is off the end of the strip until it is scrolled to.
       await scrollToAndTap(tester, find.widgetWithText(Chip, 'Appearance'));
       expect(find.text('Theme'), findsOneWidget);
@@ -164,14 +173,14 @@ void main() {
       expect(edited, findsOneWidget);
       expect(tester.widget<Button>(save).enabled, isTrue);
       // The pages are a rail beside the cards.
-      expect(find.byType(Chip), findsNothing);
+      expect(_sectionChips, findsNothing);
 
       // Narrower, still a desktop: the rail becomes a strip of chips, and
       // the page moves from a row to a column.
       tester.view.physicalSize = const Size(800, 900);
       await settleFrames(tester, frames: 6);
       expect(Theme.of(strandContext(tester)).formFactor, FormFactor.desktop);
-      expect(find.byType(Chip), findsWidgets);
+      expect(_sectionChips, findsWidgets);
       expect(edited, findsOneWidget);
       expect(tester.widget<Button>(save).enabled, isTrue);
 
@@ -182,7 +191,7 @@ void main() {
       expect(edited, findsOneWidget);
       tester.view.physicalSize = const Size(1100, 900);
       await settleFrames(tester, frames: 6);
-      expect(find.byType(Chip), findsNothing);
+      expect(_sectionChips, findsNothing);
       expect(edited, findsOneWidget);
       expect(tester.widget<Button>(save).enabled, isTrue);
       expect(tester.takeException(), isNull);
@@ -239,7 +248,7 @@ void main() {
       await _open(tester, SettingsSection.privacy);
       final settings = _settings(tester);
 
-      expect(find.byType(Radio<ProfileVisibility>), findsNWidgets(3));
+      expect(find.byType(RadioListTile<ProfileVisibility>), findsNWidgets(3));
       await tester.tap(find.text('Connections'));
       await settleFrames(tester, frames: 4);
       expect(settings.visibility, ProfileVisibility.connections);
@@ -321,12 +330,13 @@ void main() {
     ) async {
       await _pump(tester);
       await _open(tester, SettingsSection.appearance);
-      await scrollToAndTap(tester, _switch('Compact feed'));
+      // A row of a grouped list: the whole row is the switch.
+      await scrollToAndTap(tester, find.text('Compact feed'));
       expect(_settings(tester).compactFeed, isTrue);
 
       // A new page, the same session.
       await _pump(tester);
-      expect(find.text('Feed and motion'), findsOneWidget);
+      expect(find.text('Compact feed'), findsOneWidget);
       expect(tester.widget<Switch>(_switch('Compact feed')).value, isTrue);
     });
   });
