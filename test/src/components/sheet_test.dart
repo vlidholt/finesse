@@ -185,7 +185,7 @@ void main() {
         tester,
         side: SheetSide.right,
         builder: (context) => const Sheet(
-          constraints: BoxConstraints.tightFor(width: 288),
+          style: SheetTheme(constraints: BoxConstraints.tightFor(width: 288)),
           child: Text('Side'),
         ),
       );
@@ -264,7 +264,7 @@ void main() {
       await _open(
         tester,
         builder: (context) => const Sheet(
-          padding: EdgeInsets.zero,
+          style: SheetTheme(padding: EdgeInsets.zero),
           showCloseButton: false,
           showDragHandle: false,
           detents: [SheetDetent.medium, SheetDetent.full],
@@ -323,7 +323,7 @@ void main() {
     });
 
     Widget sheet(BuildContext context) => const Sheet(
-      padding: EdgeInsets.zero,
+      style: SheetTheme(padding: EdgeInsets.zero),
       showCloseButton: false,
       detents: [SheetDetent.medium, SheetDetent.full],
       scrollable: false,
@@ -1125,7 +1125,7 @@ void main() {
           initialDetent: SheetDetent.large,
           showDragHandle: false,
           showCloseButton: false,
-          padding: EdgeInsets.zero,
+          style: const SheetTheme(padding: EdgeInsets.zero),
           child: const SizedBox(height: 200),
         ),
       );
@@ -1559,7 +1559,7 @@ void main() {
       await _open(
         tester,
         builder: (context) => const Sheet(
-          borderRadius: BorderRadius.all(Radius.circular(3)),
+          style: SheetTheme(borderRadius: BorderRadius.all(Radius.circular(3))),
           child: SizedBox(height: 100),
         ),
       );

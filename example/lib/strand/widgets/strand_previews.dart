@@ -213,7 +213,7 @@ class _PersonPreview extends StatelessWidget {
         final connected = network.isConnected(person);
         final mutuals = _mutualsOf(person);
         return Dialog(
-          constraints: _previewConstraints,
+          style: DialogTheme(constraints: _previewConstraints),
           showCloseButton: true,
           semanticLabel: person.name,
           actions: _previewActions(context, [
@@ -325,7 +325,7 @@ class _CompanyPreview extends StatelessWidget {
     return ListenableBuilder(
       listenable: network,
       builder: (context, _) => Dialog(
-        constraints: _previewConstraints,
+        style: DialogTheme(constraints: _previewConstraints),
         showCloseButton: true,
         semanticLabel: company.name,
         actions: _previewActions(context, [

@@ -92,9 +92,11 @@ class _StoryViewerState extends State<_StoryViewer> {
     final person = stories[_index].person;
     final radius = theme.radii.xl2;
     return Dialog(
-      padding: EdgeInsets.zero,
-      borderRadius: radius,
-      constraints: const BoxConstraints(maxWidth: 380),
+      style: DialogTheme(
+        padding: EdgeInsets.zero,
+        borderRadius: radius,
+        constraints: const BoxConstraints(maxWidth: 380),
+      ),
       // The profile's round glass button: white on a dark scrim, where the
       // dialog's own would be dark on the photograph.
       closeButton: ProfileCoverButton(
@@ -266,7 +268,7 @@ Future<void> showArticlePreview(
       final theme = Theme.of(context);
       final scheme = theme.colorScheme;
       return Dialog(
-        constraints: const BoxConstraints(maxWidth: 520),
+        style: DialogTheme(constraints: const BoxConstraints(maxWidth: 520)),
         semanticLabel: title,
         actions: [
           Button.outline(
@@ -353,7 +355,7 @@ class _SendDialogState extends State<_SendDialog> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Dialog(
-      constraints: const BoxConstraints(maxWidth: 440),
+      style: DialogTheme(constraints: const BoxConstraints(maxWidth: 440)),
       title: const Text('Send to'),
       description: Text('Share ${widget.what} in a message.'),
       actions: [

@@ -361,7 +361,7 @@ void main() {
     testWidgets('the dialog casts no shadow', (tester) async {
       await open(tester);
       final dialog = tester.widget<Dialog>(find.byType(Dialog));
-      expect(dialog.shadows, Shadows.none);
+      expect(dialog.style?.shadows, Shadows.none);
     });
 
     testWidgets('the empty state is a quiet text-sm line, not the Empty '

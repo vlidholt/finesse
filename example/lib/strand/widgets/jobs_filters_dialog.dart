@@ -14,7 +14,7 @@ Future<void> showJobFiltersDialog(BuildContext context, JobsState state) {
       builder: (context, _) => Dialog(
         title: const Text('All filters'),
         description: const Text('Narrow the results to roles that fit.'),
-        constraints: const BoxConstraints(maxWidth: 440),
+        style: DialogTheme(constraints: const BoxConstraints(maxWidth: 440)),
         scrollable: true,
         actions: [
           Button(

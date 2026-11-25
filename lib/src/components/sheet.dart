@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:math' as math;
-import 'dart:ui' show ImageFilter, lerpDouble;
+import 'dart:ui' show lerpDouble;
 
 import 'package:finesse/src/components/button.dart';
 import 'package:finesse/src/components/dialog.dart';
@@ -9,6 +9,7 @@ import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/raw_components/pressable.dart';
 import 'package:finesse/src/theme/components/button.dart';
+import 'package:finesse/src/theme/components/sheet.dart';
 import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
@@ -423,26 +424,16 @@ class Sheet extends StatefulWidget {
     this.showDragHandle,
     this.dragHandle,
     this.scrollable,
-    this.padding,
-    this.gap,
-    this.constraints,
-    this.backgroundColor,
-    this.filter,
-    this.borderRadius,
-    this.border,
-    this.shadows,
-    this.titleStyle,
-    this.descriptionStyle,
     this.showCloseButton,
     this.closeIcon,
     this.closeButton,
-    this.closeIconPosition,
     this.onDismissed,
     this.useSafeArea,
     this.titlePinned,
     this.descriptionPinned,
     this.actionsPinned,
     this.semanticLabel,
+    this.style,
   }) : assert(
          child == null || builder == null,
          'Give a sheet a child or a builder, not both.',
@@ -541,65 +532,6 @@ class Sheet extends StatefulWidget {
   /// {@endtemplate}
   final bool? scrollable;
 
-  /// {@template Sheet.padding}
-  /// The space around the content. The safe area — the home indicator, the
-  /// status bar under a full-height sheet — is added to it.
-  /// {@endtemplate}
-  final EdgeInsetsGeometry? padding;
-
-  /// {@template Sheet.gap}
-  /// The space between the title, the description, the content and the
-  /// actions.
-  /// {@endtemplate}
-  final double? gap;
-
-  /// {@template Sheet.constraints}
-  /// Limits on the sheet's size. Across its axis the largest size is the
-  /// cap that keeps a sheet from the top or bottom readable on a wide
-  /// window (640 on a desktop by default) or that gives a sheet from a
-  /// side its width (three quarters of the page, at most 384, by default);
-  /// along its axis the detents decide, within these.
-  /// {@endtemplate}
-  final BoxConstraints? constraints;
-
-  /// {@template Sheet.backgroundColor}
-  /// The colour of the sheet's surface.
-  /// {@endtemplate}
-  final Color? backgroundColor;
-
-  /// {@template Sheet.filter}
-  /// A filter applied to what is behind the sheet, for a translucent
-  /// [backgroundColor]: the blur of a glass surface. Null, the default,
-  /// applies none.
-  /// {@endtemplate}
-  final ImageFilter? filter;
-
-  /// The corners of the sheet, used as given. By default a sheet from the
-  /// top or bottom takes the theme's radius on the two corners of its open
-  /// edge, and a sheet from a side is square.
-  final BorderRadius? borderRadius;
-
-  /// {@template Sheet.border}
-  /// The outline of the sheet.
-  /// {@endtemplate}
-  final BoxBorder? border;
-
-  /// {@template Sheet.shadows}
-  /// The shadows the sheet casts on the page.
-  /// {@endtemplate}
-  final List<BoxShadow>? shadows;
-
-  /// {@template Sheet.titleStyle}
-  /// The text style of the title.
-  /// {@endtemplate}
-  final TextStyle? titleStyle;
-
-  /// {@template Sheet.descriptionStyle}
-  /// The text style of the description, and of text in the content that
-  /// has none of its own.
-  /// {@endtemplate}
-  final TextStyle? descriptionStyle;
-
   /// {@template Sheet.showCloseButton}
   /// Whether the sheet has a close button in its top end corner. A modal
   /// sheet has one by default; an inline sheet has one when it is given
@@ -618,12 +550,6 @@ class Sheet extends StatefulWidget {
   /// itself; [closeIcon] is not used.
   /// {@endtemplate}
   final Widget? closeButton;
-
-  /// {@template Sheet.closeIconPosition}
-  /// Where the close button sits in the sheet; 8 from the top and from the
-  /// end by default.
-  /// {@endtemplate}
-  final Position? closeIconPosition;
 
   /// Called when the sheet is dismissed: by the close button, by
   /// `SheetController.close` and by a drag that dismisses it. A modal sheet
@@ -655,6 +581,14 @@ class Sheet extends StatefulWidget {
   /// to true.
   /// {@endtemplate}
   final bool? actionsPinned;
+
+  /// Overrides of the theme's `SheetTheme` for this sheet: its padding
+  /// and gaps, size limits, fill, filter, border, corners, shadows, the
+  /// styles of its text, where its close button sits and how its drag
+  /// handle looks. It is merged over the theme, so only the fields that are
+  /// set change anything; a `borderRadius` here is used as it is, where
+  /// the theme's gives its corners to the side the sheet comes from.
+  final SheetTheme? style;
 
   /// The accessible name of the sheet, announced when it opens. Without
   /// one a modal sheet is named by its [title].
@@ -1323,7 +1257,7 @@ class _SheetState extends State<Sheet> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final sheetTheme = theme.sheetTheme;
+    final sheetTheme = theme.sheetTheme.merge(widget.style);
     final direction = Directionality.of(context);
     final mobile = theme.formFactor == FormFactor.mobile;
     final modal = _isModal;
@@ -1341,18 +1275,14 @@ class _SheetState extends State<Sheet> with TickerProviderStateMixin {
         (vertical && draggable != false && (mobile || _hasStops));
 
     final backgroundColor =
-        widget.backgroundColor ??
-        sheetTheme.backgroundColor ??
-        theme.colorScheme.background;
-    final filter = widget.filter ?? sheetTheme.filter;
+        sheetTheme.backgroundColor ?? theme.colorScheme.background;
+    final filter = sheetTheme.filter;
     final border =
-        widget.border ??
-        sheetTheme.border ??
-        Border.all(color: theme.colorScheme.border);
-    final shadows = widget.shadows ?? sheetTheme.shadows ?? Shadows.lg;
-    final themeRadius = sheetTheme.borderRadius ?? theme.radius;
+        sheetTheme.border ?? Border.all(color: theme.colorScheme.border);
+    final shadows = sheetTheme.shadows ?? Shadows.lg;
+    final themeRadius = theme.sheetTheme.borderRadius ?? theme.radius;
     final borderRadius =
-        widget.borderRadius ??
+        widget.style?.borderRadius ??
         switch (side) {
           SheetSide.bottom => BorderRadius.only(
             topLeft: themeRadius.topLeft,
@@ -1406,20 +1336,17 @@ class _SheetState extends State<Sheet> with TickerProviderStateMixin {
       scrollController: _scroll,
       scrollable: scrollable,
       builder: widget.builder,
-      padding:
-          (widget.padding ?? sheetTheme.padding ?? const EdgeInsets.all(24))
-              .resolve(direction),
+      padding: (sheetTheme.padding ?? const EdgeInsets.all(24)).resolve(
+        direction,
+      ),
       safeArea: contentSafe,
-      gap: widget.gap ?? sheetTheme.gap ?? 8,
+      gap: sheetTheme.gap ?? 8,
       actionsGap: sheetTheme.actionsGap ?? 8,
-      titleStyle:
-          (widget.titleStyle ?? sheetTheme.titleStyle ?? theme.textTheme.large)
-              .fallback(color: theme.colorScheme.foreground),
-      descriptionStyle:
-          (widget.descriptionStyle ??
-                  sheetTheme.descriptionStyle ??
-                  theme.textTheme.muted)
-              .fallback(color: theme.colorScheme.mutedForeground),
+      titleStyle: (sheetTheme.titleStyle ?? theme.textTheme.large).fallback(
+        color: theme.colorScheme.foreground,
+      ),
+      descriptionStyle: (sheetTheme.descriptionStyle ?? theme.textTheme.muted)
+          .fallback(color: theme.colorScheme.mutedForeground),
       titlePinned: widget.titlePinned ?? sheetTheme.titlePinned ?? false,
       descriptionPinned:
           widget.descriptionPinned ?? sheetTheme.descriptionPinned ?? false,
@@ -1435,11 +1362,11 @@ class _SheetState extends State<Sheet> with TickerProviderStateMixin {
                 )
               : null),
       closeIconPosition:
-          widget.closeIconPosition ??
           sheetTheme.closeIconPosition ??
           Position.directional(top: 8, end: 8, textDirection: direction),
       handle: showHandle
           ? _SheetHandle(
+              style: widget.style,
               side: side,
               focusNode: _handleFocus,
               resizable: _hasStops,
@@ -1496,7 +1423,6 @@ class _SheetState extends State<Sheet> with TickerProviderStateMixin {
         }
 
         final limits =
-            widget.constraints ??
             sheetTheme.constraints ??
             (vertical
                 ? (mobile
@@ -1903,6 +1829,7 @@ class _SheetCloseButton extends StatelessWidget {
 /// with the arrow keys, and to tap through the detents.
 class _SheetHandle extends StatefulWidget {
   const _SheetHandle({
+    required this.style,
     required this.side,
     required this.focusNode,
     required this.resizable,
@@ -1914,6 +1841,7 @@ class _SheetHandle extends StatefulWidget {
     required this.child,
   });
 
+  final SheetTheme? style;
   final SheetSide side;
   final FocusNode focusNode;
 
@@ -1937,7 +1865,7 @@ class _SheetHandleState extends State<_SheetHandle> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final sheetTheme = theme.sheetTheme;
+    final sheetTheme = theme.sheetTheme.merge(widget.style);
     final vertical = widget.side.isVertical;
     final length = sheetTheme.dragHandleWidth ?? 36.0;
     final thickness = sheetTheme.dragHandleHeight ?? 4.0;

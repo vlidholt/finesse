@@ -135,10 +135,12 @@ void main() {
                 context: context,
                 side: SheetSide.start,
                 builder: (context) => Sheet(
-                  padding: EdgeInsets.zero,
+                  style: const SheetTheme(
+                    padding: EdgeInsets.zero,
+                    constraints: BoxConstraints.tightFor(width: 280),
+                  ),
                   showCloseButton: false,
                   scrollable: false,
-                  constraints: const BoxConstraints.tightFor(width: 280),
                   child: sidebar(trigger: true),
                 ),
               ),

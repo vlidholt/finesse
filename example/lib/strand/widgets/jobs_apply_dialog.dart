@@ -156,7 +156,7 @@ class _EasyApplyDialogState extends State<_EasyApplyDialog> {
     return Dialog(
       title: Text('Apply to ${job.company.name}'),
       description: Text(job.title),
-      constraints: const BoxConstraints(maxWidth: 560),
+      style: DialogTheme(constraints: const BoxConstraints(maxWidth: 560)),
       scrollable: true,
       actions: [
         if (index == 0)

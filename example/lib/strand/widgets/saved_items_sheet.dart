@@ -85,7 +85,9 @@ class _SavedItemsSheet extends StatelessWidget {
     return Sheet(
       title: const Text('Saved items'),
       description: const Text('Only you can see what you save.'),
-      constraints: mobile ? null : const BoxConstraints(maxWidth: 420),
+      style: SheetTheme(
+        constraints: mobile ? null : const BoxConstraints(maxWidth: 420),
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,

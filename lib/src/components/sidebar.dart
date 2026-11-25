@@ -10,6 +10,7 @@ import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/raw_components/focusable.dart';
 import 'package:finesse/src/raw_components/portal.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/components/sheet.dart';
 import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/border.dart';
@@ -474,16 +475,18 @@ class _SidebarScaffoldState extends State<SidebarScaffold> {
           collapsible: sidebar.collapsible,
           collapsedWidth: collapsedWidth,
           child: Sheet(
-            padding: EdgeInsets.zero,
-            gap: 0,
+            style: SheetTheme(
+              padding: EdgeInsets.zero,
+              gap: 0,
+              backgroundColor:
+                  sidebar.backgroundColor ??
+                  Theme.of(sheetContext).sidebarTheme.backgroundColor,
+              constraints: BoxConstraints.tightFor(width: effectiveMobileWidth),
+            ),
             showCloseButton: false,
             // The sidebar owns its scrolling; the sheet's own scroll view
             // would hand it unbounded height and break its Expanded column.
             scrollable: false,
-            backgroundColor:
-                sidebar.backgroundColor ??
-                Theme.of(sheetContext).sidebarTheme.backgroundColor,
-            constraints: BoxConstraints.tightFor(width: effectiveMobileWidth),
             child: sidebar,
           ),
         );

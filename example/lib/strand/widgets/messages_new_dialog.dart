@@ -107,7 +107,7 @@ class _NewMessageDialogState extends State<_NewMessageDialog> {
 
     return Dialog(
       title: const Text('New message'),
-      constraints: const BoxConstraints(maxWidth: 440),
+      style: DialogTheme(constraints: const BoxConstraints(maxWidth: 440)),
       actions: [
         Button.outline(
           onPressed: () => Navigator.of(context).pop(),

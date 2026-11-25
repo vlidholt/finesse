@@ -7,6 +7,7 @@ import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/raw_components/roving_focus.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/components/dialog.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/theme/themes/shadows.dart';
 import 'package:finesse/src/utils/backdrop.dart';
@@ -720,17 +721,21 @@ Future<T?> showCommandDialog<T>({
       return Padding(
         padding: EdgeInsets.fromLTRB(16, topOffset, 16, 16),
         child: Dialog(
-          alignment: Alignment.topCenter,
+          style: DialogTheme(
+            alignment: Alignment.topCenter,
+            constraints: const BoxConstraints(maxWidth: 448),
+            borderRadius: radius,
+            padding: EdgeInsets.zero,
+            shadows: Shadows.none,
+            backgroundColor: commandTheme.backgroundColor,
+            filter: commandTheme.surfaceFilter,
+          ),
           // `sm:max-w-md`, with the padding above keeping the
           // `calc(100%-2rem)` margins on narrow screens.
-          constraints: const BoxConstraints(maxWidth: 448),
-          borderRadius: radius,
-          padding: EdgeInsets.zero,
+
           scrollable: false,
-          shadows: Shadows.none,
           // The palette's own fill and filter: glass in a glass style.
-          backgroundColor: commandTheme.backgroundColor,
-          filter: commandTheme.surfaceFilter,
+
           child: Command(
             groups: groups,
             placeholder: placeholder,

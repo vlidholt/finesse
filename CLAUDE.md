@@ -1072,8 +1072,9 @@ web ends when commands reach the GPU, so GPU-bound work does not show in it.
   its variant's `ButtonTheme` with the caller's `style:` (a `ButtonTheme`,
   a `ToggleTheme` for a toggle, a `ContextMenuTheme` for a `MenuItem`)
   merged over it; there are no colour, size or decoration parameters on
-  the widgets themselves. A `Card` is styled the same way
-  (`style: CardTheme(...)`, even for its `padding`).
+  the widgets themselves. `Card`, `Dialog` and `Sheet` are styled the same
+  way (`style: CardTheme(...)`, even for a card's `padding` or a dialog's
+  `constraints`); what they show and how they behave stay parameters.
 - **Rarer gestures are a `FinesseGestureDetector` around the control**
   (double tap, secondary tap, tap down, long-press phases, pan). The
   control keeps its own tap, so a second `onTap`/`onTapDown` there loses

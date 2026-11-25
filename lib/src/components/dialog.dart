@@ -6,6 +6,7 @@ import 'package:finesse/src/components/icon_button.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/theme/components/button.dart';
+import 'package:finesse/src/theme/components/dialog.dart';
 import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
@@ -514,33 +515,12 @@ class Dialog extends StatelessWidget {
     this.closeButton,
     this.onDismissed,
     this.semanticLabel,
-    this.closeIconPosition,
-    this.borderRadius,
-    this.backgroundColor,
-    this.padding,
-    this.gap,
-    this.constraints,
-    this.border,
-    this.shadows,
-    this.filter,
-    this.actionsAxis,
-    this.actionsMainAxisSize,
-    this.actionsMainAxisAlignment,
-    this.actionsVerticalDirection,
-    this.titleStyle,
-    this.descriptionStyle,
-    this.titleTextAlign,
-    this.descriptionTextAlign,
-    this.alignment,
-    this.mainAxisAlignment,
-    this.crossAxisAlignment,
     this.scrollable,
-    this.scrollPadding,
-    this.actionsGap,
     this.useSafeArea,
     this.titlePinned,
     this.descriptionPinned,
     this.actionsPinned,
+    this.style,
   });
 
   /// Creates an alert variant dialog widget, typically for warnings or
@@ -556,33 +536,12 @@ class Dialog extends StatelessWidget {
     this.closeButton,
     this.onDismissed,
     this.semanticLabel,
-    this.closeIconPosition,
-    this.borderRadius,
-    this.backgroundColor,
-    this.padding,
-    this.gap,
-    this.constraints,
-    this.border,
-    this.shadows,
-    this.filter,
-    this.actionsAxis,
-    this.actionsMainAxisSize,
-    this.actionsMainAxisAlignment,
-    this.actionsVerticalDirection,
-    this.titleStyle,
-    this.descriptionStyle,
-    this.titleTextAlign,
-    this.descriptionTextAlign,
-    this.alignment,
-    this.mainAxisAlignment,
-    this.crossAxisAlignment,
     this.scrollable,
-    this.scrollPadding,
-    this.actionsGap,
     this.useSafeArea,
     this.titlePinned,
     this.descriptionPinned,
     this.actionsPinned,
+    this.style,
   }) : variant = DialogVariant.alert;
 
   /// {@template Dialog.title}
@@ -612,7 +571,7 @@ class Dialog extends StatelessWidget {
 
   /// {@template Dialog.actions}
   /// The list of action widgets displayed at the bottom of the dialog.
-  /// Typically buttons, arranged based on [actionsAxis].
+  /// Typically buttons, laid out along the theme's `actionsAxis`.
   /// Defaults to an empty list if not specified.
   /// {@endtemplate}
   final List<Widget> actions;
@@ -654,126 +613,12 @@ class Dialog extends StatelessWidget {
   /// {@endtemplate}
   final String? semanticLabel;
 
-  /// {@template Dialog.closeIconPosition}
-  /// The position of the close icon within the dialog.
-  /// Defaults to top-end (8, 8) if not specified.
-  /// {@endtemplate}
-  final Position? closeIconPosition;
-
-  /// {@template Dialog.borderRadius}
-  /// The border radius of the dialog’s corners.
-  /// Defaults to the theme’s radius if not specified.
-  /// {@endtemplate}
-  final BorderRadius? borderRadius;
-
-  /// {@template Dialog.backgroundColor}
-  /// The background color of the dialog.
-  /// Defaults to the theme’s background color if not specified.
-  /// {@endtemplate}
-  final Color? backgroundColor;
-
-  /// {@template Dialog.padding}
-  /// The padding inside the dialog, surrounding all content.
-  /// Defaults to EdgeInsets.all(24) if not specified.
-  /// {@endtemplate}
-  final EdgeInsetsGeometry? padding;
-
-  /// {@template Dialog.gap}
-  /// The gap between content elements (title, description, child, actions).
-  /// Defaults to 8 if not specified.
-  /// {@endtemplate}
-  final double? gap;
-
-  /// {@template Dialog.constraints}
-  /// Constraints applied to the dialog’s layout.
-  /// Defaults to a max width of 512 if not specified.
-  /// {@endtemplate}
-  final BoxConstraints? constraints;
-
-  /// {@template Dialog.border}
-  /// The border surrounding the dialog.
-  /// Defaults to a border with the theme’s border color if not specified.
-  /// {@endtemplate}
-  final BoxBorder? border;
-
-  /// {@template Dialog.shadows}
-  /// The list of box shadows applied to the dialog for elevation.
-  /// Defaults to large shadows if not specified.
-  /// {@endtemplate}
-  final List<BoxShadow>? shadows;
-
-  /// {@template Dialog.filter}
-  /// A filter applied to what is behind the dialog, for a translucent
-  /// [backgroundColor]: the blur of a glass surface. Null, the default,
-  /// applies none.
-  /// {@endtemplate}
-  final ImageFilter? filter;
-
-  /// {@template Dialog.actionsAxis}
-  /// The axis along which actions are arranged (horizontal or vertical).
-  /// Follows the theme's form factor if not specified.
-  /// {@endtemplate}
-  final Axis? actionsAxis;
-
-  /// {@template Dialog.actionsMainAxisSize}
-  /// The main axis size of the actions layout.
-  /// Defaults to [MainAxisSize.max] if not specified.
-  /// {@endtemplate}
-  final MainAxisSize? actionsMainAxisSize;
-
-  /// {@template Dialog.actionsMainAxisAlignment}
-  /// The main axis alignment of the actions.
-  /// Defaults to [MainAxisAlignment.end] if not specified.
-  /// {@endtemplate}
-  final MainAxisAlignment? actionsMainAxisAlignment;
-
-  /// {@template Dialog.actionsVerticalDirection}
-  /// The vertical direction of the actions layout when vertical.
-  /// Follows the theme's form factor if not specified.
-  /// {@endtemplate}
-  final VerticalDirection? actionsVerticalDirection;
-
-  /// {@template Dialog.titleStyle}
-  /// The text style for the title.
-  /// Defaults to the theme’s large text style if not specified.
-  /// {@endtemplate}
-  final TextStyle? titleStyle;
-
-  /// {@template Dialog.descriptionStyle}
-  /// The text style for the description.
-  /// Defaults to the theme’s muted text style if not specified.
-  /// {@endtemplate}
-  final TextStyle? descriptionStyle;
-
-  /// {@template Dialog.titleTextAlign}
-  /// The text alignment for the title.
-  /// Follows the theme's form factor if not specified.
-  /// {@endtemplate}
-  final TextAlign? titleTextAlign;
-
-  /// {@template Dialog.descriptionTextAlign}
-  /// The text alignment for the description.
-  /// Follows the theme's form factor if not specified.
-  /// {@endtemplate}
-  final TextAlign? descriptionTextAlign;
-
-  /// {@template Dialog.alignment}
-  /// The alignment of the dialog within its parent container.
-  /// Defaults to [Alignment.center] if not specified.
-  /// {@endtemplate}
-  final Alignment? alignment;
-
-  /// {@template Dialog.mainAxisAlignment}
-  /// The main axis alignment of the dialog’s column content.
-  /// Defaults to [MainAxisAlignment.start] if not specified.
-  /// {@endtemplate}
-  final MainAxisAlignment? mainAxisAlignment;
-
-  /// {@template Dialog.crossAxisAlignment}
-  /// The cross axis alignment of the dialog’s column content.
-  /// Defaults to [CrossAxisAlignment.start] if not specified.
-  /// {@endtemplate}
-  final CrossAxisAlignment? crossAxisAlignment;
+  /// Overrides of the variant's `DialogTheme` for this dialog: its size
+  /// and placement, padding and gaps, fill, filter, border, corners,
+  /// shadows, the styles and alignment of its text, how its actions are
+  /// laid out and where its close button sits. It is merged over the
+  /// theme, so only the fields that are set change anything.
+  final DialogTheme? style;
 
   /// {@template Dialog.scrollable}
   /// Whether the dialog content is scrollable.
@@ -781,21 +626,6 @@ class Dialog extends StatelessWidget {
   /// Defaults to true if not specified.
   /// {@endtemplate}
   final bool? scrollable;
-
-  /// {@template Dialog.scrollPadding}
-  /// The padding applied when the dialog content is scrollable.
-  ///
-  /// If not specified, no additional padding is applied to the scrollable
-  /// content.
-  /// {@endtemplate}
-  final EdgeInsetsGeometry? scrollPadding;
-
-  /// {@template Dialog.actionsGap}
-  /// The gap between action buttons.
-
-  /// Defaults to 8 if not specified.
-  /// {@endtemplate}
-  final double? actionsGap;
 
   /// {@template Dialog.useSafeArea}
   /// Whether to wrap the dialog in a SafeArea widget to avoid system UI
@@ -839,12 +669,10 @@ class Dialog extends StatelessWidget {
     final effectiveDialogTheme = switch (variant) {
       DialogVariant.primary => theme.primaryDialogTheme,
       DialogVariant.alert => theme.alertDialogTheme,
-    };
+    }.merge(style);
 
     final effectiveBackgroundColor =
-        backgroundColor ??
-        effectiveDialogTheme.backgroundColor ??
-        theme.colorScheme.background;
+        effectiveDialogTheme.backgroundColor ?? theme.colorScheme.background;
 
     final effectiveShowCloseButton =
         showCloseButton ?? effectiveDialogTheme.showCloseButton ?? false;
@@ -875,7 +703,6 @@ class Dialog extends StatelessWidget {
               ));
 
     final effectiveCloseIconPosition =
-        closeIconPosition ??
         effectiveDialogTheme.closeIconPosition ??
         Position.directional(
           top: 8,
@@ -883,60 +710,48 @@ class Dialog extends StatelessWidget {
           textDirection: Directionality.of(context),
         );
 
-    final effectiveRadius =
-        borderRadius ?? effectiveDialogTheme.borderRadius ?? theme.radius;
+    final effectiveRadius = effectiveDialogTheme.borderRadius ?? theme.radius;
 
     final effectiveConstraints =
-        constraints ??
-        effectiveDialogTheme.constraints ??
-        const BoxConstraints(maxWidth: 512);
+        effectiveDialogTheme.constraints ?? const BoxConstraints(maxWidth: 512);
 
     final effectiveBorder =
-        border ??
         effectiveDialogTheme.border ??
         Border.all(color: theme.colorScheme.border);
 
-    final effectiveShadows =
-        shadows ?? effectiveDialogTheme.shadows ?? Shadows.lg;
+    final effectiveShadows = effectiveDialogTheme.shadows ?? Shadows.lg;
 
     final effectivePadding =
-        padding ?? effectiveDialogTheme.padding ?? const EdgeInsets.all(24);
+        effectiveDialogTheme.padding ?? const EdgeInsets.all(24);
 
-    final effectiveGap = gap ?? effectiveDialogTheme.gap ?? 8;
+    final effectiveGap = effectiveDialogTheme.gap ?? 8;
 
     final effectiveTitleStyle =
-        (titleStyle ?? effectiveDialogTheme.titleStyle ?? theme.textTheme.large)
-            .fallback(color: theme.colorScheme.foreground);
+        (effectiveDialogTheme.titleStyle ?? theme.textTheme.large).fallback(
+          color: theme.colorScheme.foreground,
+        );
 
     final effectiveDescriptionStyle =
-        (descriptionStyle ??
-                effectiveDialogTheme.descriptionStyle ??
-                theme.textTheme.muted)
+        (effectiveDialogTheme.descriptionStyle ?? theme.textTheme.muted)
             .fallback(
               color: theme.colorScheme.mutedForeground,
             );
 
     final effectiveAlignment =
-        alignment ?? effectiveDialogTheme.alignment ?? Alignment.center;
+        effectiveDialogTheme.alignment ?? Alignment.center;
 
     final effectiveMainAxisAlignment =
-        mainAxisAlignment ??
-        effectiveDialogTheme.mainAxisAlignment ??
-        MainAxisAlignment.start;
+        effectiveDialogTheme.mainAxisAlignment ?? MainAxisAlignment.start;
 
     final effectiveCrossAxisAlignment =
-        crossAxisAlignment ??
-        effectiveDialogTheme.crossAxisAlignment ??
-        CrossAxisAlignment.start;
+        effectiveDialogTheme.crossAxisAlignment ?? CrossAxisAlignment.start;
 
     final effectiveScrollable =
         scrollable ?? effectiveDialogTheme.scrollable ?? true;
 
-    final effectiveScrollPadding =
-        scrollPadding ?? effectiveDialogTheme.scrollPadding;
+    final effectiveScrollPadding = effectiveDialogTheme.scrollPadding;
 
-    final effectiveActionsGap =
-        actionsGap ?? effectiveDialogTheme.actionsGap ?? 8;
+    final effectiveActionsGap = effectiveDialogTheme.actionsGap ?? 8;
 
     final effectiveUseSafeArea =
         useSafeArea ?? effectiveDialogTheme.useSafeArea ?? true;
@@ -976,32 +791,25 @@ class Dialog extends StatelessWidget {
             : effectiveConstraints;
 
         final effectiveActionsAxis =
-            actionsAxis ??
             effectiveDialogTheme.actionsAxis ??
             (sm ? Axis.horizontal : Axis.vertical);
 
         final effectiveActionsMainAxisSize =
-            actionsMainAxisSize ??
-            effectiveDialogTheme.actionsMainAxisSize ??
-            MainAxisSize.min;
+            effectiveDialogTheme.actionsMainAxisSize ?? MainAxisSize.min;
 
         final effectiveActionsMainAxisAlignment =
-            actionsMainAxisAlignment ??
             effectiveDialogTheme.actionsMainAxisAlignment ??
             MainAxisAlignment.end;
 
         final effectiveActionsVerticalDirection =
-            actionsVerticalDirection ??
             effectiveDialogTheme.actionsVerticalDirection ??
             (sm ? VerticalDirection.down : VerticalDirection.up);
 
         final effectiveTitleTextAlign =
-            titleTextAlign ??
             effectiveDialogTheme.titleTextAlign ??
             (sm ? TextAlign.start : TextAlign.center);
 
         final effectiveDescriptionTextAlign =
-            descriptionTextAlign ??
             effectiveDialogTheme.descriptionTextAlign ??
             (sm ? TextAlign.start : TextAlign.center);
 
@@ -1147,12 +955,12 @@ class Dialog extends StatelessWidget {
         return ConstrainedBox(
           constraints: constraints,
           child: BackdropSurface(
-            filter: filter,
+            filter: effectiveDialogTheme.filter,
             tintOpacity: effectiveBackgroundColor.a,
             borderRadius: surfaceRadius ?? BorderRadius.zero,
             // A filter is clipped, which would cut the shadow off; it is
             // painted outside the clip instead.
-            shadow: filter == null
+            shadow: effectiveDialogTheme.filter == null
                 ? null
                 : ShadowDecoration.box(
                     borderRadius: surfaceRadius,
@@ -1163,7 +971,9 @@ class Dialog extends StatelessWidget {
                 color: effectiveBackgroundColor,
                 borderRadius: surfaceRadius,
                 border: effectiveBorder,
-                shadows: filter == null ? effectiveShadows : const [],
+                shadows: effectiveDialogTheme.filter == null
+                    ? effectiveShadows
+                    : const [],
               ),
               child: widget,
             ),

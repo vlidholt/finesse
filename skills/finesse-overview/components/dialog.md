@@ -44,7 +44,7 @@ class DialogFormExample extends StatelessWidget {
                 child: const Text('Save changes'),
               ),
             ],
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            style: DialogTheme(crossAxisAlignment: CrossAxisAlignment.stretch),
             child: Container(
               width: 375,
               padding: const EdgeInsets.symmetric(vertical: 20),

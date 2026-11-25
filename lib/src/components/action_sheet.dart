@@ -4,6 +4,8 @@ import 'package:finesse/src/components/sheet.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/raw_components/pressable.dart';
 import 'package:finesse/src/theme/components/context_menu.dart';
+import 'package:finesse/src/theme/components/dialog.dart';
+import 'package:finesse/src/theme/components/sheet.dart';
 import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
@@ -114,7 +116,7 @@ Future<T?> showActionSheet<T>({
       side: SheetSide.bottom,
       useRootNavigator: useRootNavigator,
       builder: (context) => Sheet(
-        padding: EdgeInsets.zero,
+        style: const SheetTheme(padding: EdgeInsets.zero),
         showCloseButton: false,
         child: ActionSheet<T>(
           title: title,
@@ -178,10 +180,13 @@ Future<T?> showActionSheet<T>({
     builder: (context) {
       final sheetTheme = Theme.of(context).actionSheetTheme;
       return Dialog(
-        padding: EdgeInsets.zero,
-        constraints:
-            sheetTheme.dialogConstraints ?? const BoxConstraints(maxWidth: 320),
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        style: DialogTheme(
+          padding: EdgeInsets.zero,
+          constraints:
+              sheetTheme.dialogConstraints ??
+              const BoxConstraints(maxWidth: 320),
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+        ),
         child: ActionSheet<T>(
           title: title,
           message: message,

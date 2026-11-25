@@ -50,6 +50,7 @@ mixin _$DialogTheme {
           : b.actionsVerticalDirection,
       border: BoxBorder.lerp(a.border, b.border, t),
       shadows: t < 0.5 ? a.shadows : b.shadows,
+      filter: t < 0.5 ? a.filter : b.filter,
       titleStyle: TextStyle.lerp(a.titleStyle, b.titleStyle, t),
       descriptionStyle: TextStyle.lerp(
         a.descriptionStyle,
@@ -94,6 +95,7 @@ mixin _$DialogTheme {
     VerticalDirection? actionsVerticalDirection,
     BoxBorder? border,
     List<BoxShadow>? shadows,
+    ImageFilter? filter,
     TextStyle? titleStyle,
     TextStyle? descriptionStyle,
     TextAlign? titleTextAlign,
@@ -130,6 +132,7 @@ mixin _$DialogTheme {
           actionsVerticalDirection ?? _this.actionsVerticalDirection,
       border: border ?? _this.border,
       shadows: shadows ?? _this.shadows,
+      filter: filter ?? _this.filter,
       titleStyle: titleStyle ?? _this.titleStyle,
       descriptionStyle: descriptionStyle ?? _this.descriptionStyle,
       titleTextAlign: titleTextAlign ?? _this.titleTextAlign,
@@ -175,6 +178,7 @@ mixin _$DialogTheme {
       actionsVerticalDirection: other.actionsVerticalDirection,
       border: other.border,
       shadows: other.shadows,
+      filter: other.filter,
       titleStyle: _this.titleStyle?.merge(other.titleStyle) ?? other.titleStyle,
       descriptionStyle:
           _this.descriptionStyle?.merge(other.descriptionStyle) ??
@@ -223,6 +227,7 @@ mixin _$DialogTheme {
         _other.actionsVerticalDirection == _this.actionsVerticalDirection &&
         _other.border == _this.border &&
         _other.shadows == _this.shadows &&
+        _other.filter == _this.filter &&
         _other.titleStyle == _this.titleStyle &&
         _other.descriptionStyle == _this.descriptionStyle &&
         _other.titleTextAlign == _this.titleTextAlign &&
@@ -261,6 +266,7 @@ mixin _$DialogTheme {
       _this.actionsVerticalDirection,
       _this.border,
       _this.shadows,
+      _this.filter,
       _this.titleStyle,
       _this.descriptionStyle,
       _this.titleTextAlign,

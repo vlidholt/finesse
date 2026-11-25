@@ -17,6 +17,7 @@ import 'package:finesse/src/raw_components/focusable.dart';
 import 'package:finesse/src/raw_components/portal.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/components/layout.dart';
+import 'package:finesse/src/theme/components/sheet.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/arrow_key_focus.dart';
 import 'package:finesse/src/utils/debug_check.dart';
@@ -1435,9 +1436,11 @@ class SelectState<T> extends State<Select<T>> {
                         title: widget.title ?? widget.placeholder,
                         // The search stays put and the list scrolls.
                         scrollable: false,
-                        constraints: BoxConstraints(
-                          maxWidth: 560,
-                          maxHeight: MediaQuery.sizeOf(context).height * .8,
+                        style: SheetTheme(
+                          constraints: BoxConstraints(
+                            maxWidth: 560,
+                            maxHeight: MediaQuery.sizeOf(context).height * .8,
+                          ),
                         ),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,

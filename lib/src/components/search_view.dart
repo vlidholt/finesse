@@ -7,6 +7,7 @@ import 'package:finesse/src/components/scaffold.dart';
 import 'package:finesse/src/components/search_field.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/page_route.dart';
+import 'package:finesse/src/theme/components/dialog.dart';
 import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/theme/themes/shadows.dart';
@@ -96,16 +97,19 @@ Future<T?> showSearch<T>({
       return Padding(
         padding: EdgeInsets.fromLTRB(16, top, 16, 16),
         child: Dialog(
-          alignment: Alignment.topCenter,
-          constraints: const BoxConstraints(maxWidth: 560),
-          borderRadius: commandTheme.decoration?.border?.borderRadius?.resolve(
-            direction,
+          style: DialogTheme(
+            alignment: Alignment.topCenter,
+            constraints: const BoxConstraints(maxWidth: 560),
+            borderRadius: commandTheme.decoration?.border?.borderRadius
+                ?.resolve(
+                  direction,
+                ),
+            padding: EdgeInsets.zero,
+            shadows: Shadows.none,
+            backgroundColor: commandTheme.backgroundColor,
+            filter: commandTheme.surfaceFilter,
           ),
-          padding: EdgeInsets.zero,
           scrollable: false,
-          shadows: Shadows.none,
-          backgroundColor: commandTheme.backgroundColor,
-          filter: commandTheme.surfaceFilter,
           child: _SearchView<T>(
             builder: builder,
             placeholder: placeholder,

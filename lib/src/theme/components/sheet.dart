@@ -54,13 +54,19 @@ class SheetTheme with _$SheetTheme {
   /// {@macro Sheet.side}
   final SheetSide? side;
 
-  /// {@macro Sheet.constraints}
+  /// Limits on the sheet's size. Across its axis the largest size is the
+  /// cap that keeps a sheet from the top or bottom readable on a wide
+  /// window (640 on a desktop by default) or that gives a sheet from a
+  /// side its width (three quarters of the page, at most 384, by default);
+  /// along its axis the detents decide, within these.
   final BoxConstraints? constraints;
 
-  /// {@macro Sheet.backgroundColor}
+  /// The colour of the sheet's surface.
   final Color? backgroundColor;
 
-  /// {@macro Sheet.filter}
+  /// A filter applied to what is behind the sheet, for a translucent
+  /// [backgroundColor]: the blur of a glass surface. Null, the default,
+  /// applies none.
   final ImageFilter? filter;
 
   /// The corners of a sheet that comes from the top or the bottom, on the
@@ -68,25 +74,28 @@ class SheetTheme with _$SheetTheme {
   /// given a radius of its own.
   final BorderRadius? borderRadius;
 
-  /// {@macro Sheet.border}
+  /// The outline of the sheet.
   final BoxBorder? border;
 
-  /// {@macro Sheet.shadows}
+  /// The shadows the sheet casts on the page.
   final List<BoxShadow>? shadows;
 
-  /// {@macro Sheet.padding}
+  /// The space around the content. The safe area — the home indicator, the
+  /// status bar under a full-height sheet — is added to it.
   final EdgeInsetsGeometry? padding;
 
-  /// {@macro Sheet.gap}
+  /// The space between the title, the description, the content and the
+  /// actions.
   final double? gap;
 
   /// The gap between two actions.
   final double? actionsGap;
 
-  /// {@macro Sheet.titleStyle}
+  /// The text style of the title.
   final TextStyle? titleStyle;
 
-  /// {@macro Sheet.descriptionStyle}
+  /// The text style of the description, and of text in the content that
+  /// has none of its own.
   final TextStyle? descriptionStyle;
 
   /// {@macro Sheet.scrollable}
@@ -113,7 +122,8 @@ class SheetTheme with _$SheetTheme {
   /// a constant.
   final Widget? closeIcon;
 
-  /// {@macro Sheet.closeIconPosition}
+  /// Where the close button sits in the sheet; 8 from the top and from the
+  /// end by default.
   final Position? closeIconPosition;
 
   /// {@macro Sheet.draggable}

@@ -193,7 +193,13 @@ package as it is, compared with shad.
   `padding`, `width`, `height`, `backgroundColor`, `borderRadius`,
   `border`, `shadows`, `clipBehavior`, `gap`, `sectionGap`, `titleStyle`,
   `descriptionStyle` and the six `row*`/`column*` alignment and size
-  parameters.
+  parameters. `Dialog` and `Sheet` take a `style` (a `DialogTheme`, a
+  `SheetTheme`) for their size, padding, gaps, fill, filter, border,
+  corners, shadows, text styles and alignment, the layout of a dialog's
+  actions and where the close button sits; what they show and how they
+  behave (`scrollable`, `useSafeArea`, the `*Pinned` flags, detents,
+  dragging, the close button itself) stay parameters. `DialogTheme` gains
+  `filter`.
 - **Rarer gestures are not button parameters.** Double tap, secondary tap,
   tap down and the long-press phases are a `FinesseGestureDetector` around
   the button. `hoverStrategies` and `longPressDuration` are gone from
