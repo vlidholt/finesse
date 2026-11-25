@@ -1,17 +1,14 @@
 import 'package:example/common/page_switch.dart';
 import 'package:example/common/theme_editor/customizer_panel.dart';
-import 'package:example/strand/screens/home_screen.dart';
-import 'package:example/strand/strand_shell.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'support.dart';
 
-/// The app-level transitions: a Strand destination, a section or a docs
-/// page comes in from its side out of the page colour, and the theme
-/// editor slides in from the edge — each in one movement, with the page
-/// live from the first frame and its state kept.
+/// The app-level transitions: a docs page comes in from its side out of the
+/// page colour, and the theme editor slides in from the edge — each in one
+/// movement, with the page live from the first frame and its state kept.
 const _frame = Duration(milliseconds: 16);
 
 void _expectMonotone(List<double> values, {required String reason}) {
@@ -26,8 +23,7 @@ void _expectMonotone(List<double> values, {required String reason}) {
   }
 }
 
-/// The cover and the slide of the [PageSwitch] — or of the package's
-/// `DestinationStack`, which is built the same way — found by [finder].
+/// The cover and the slide of the [PageSwitch] found by [finder].
 ({double cover, Offset offset}) _switchOf(WidgetTester tester, Finder finder) {
   // The cover is a box of the page colour painted at the cover's opacity,
   // after the page: the last box in the switch that takes no pointers.
@@ -143,33 +139,6 @@ void main() {
   });
 
   group('the app', () {
-    testWidgets('a destination switched to slides in from its side and the '
-        'screens keep their state', (tester) async {
-      await pumpApp(tester);
-      final context = tester.element(find.byType(StrandShell));
-      final home = tester.element(find.byType(HomeScreen));
-      final shell = find.descendant(
-        of: find.byType(StrandShell),
-        matching: find.byType(DestinationStack),
-      );
-
-      strandDestinationProvider.of(context).value = StrandDestination.jobs;
-      await tester.pump();
-      final forward = _switchOf(tester, shell);
-      expect(forward.cover, inExclusiveRange(.3, .8));
-      // Jobs is after Home: from the end.
-      expect(forward.offset.dx, greaterThan(0));
-      await settle(tester);
-      expect(_switchOf(tester, shell).cover, 0);
-
-      strandDestinationProvider.of(context).value = StrandDestination.home;
-      await tester.pump();
-      expect(_switchOf(tester, shell).offset.dx, lessThan(0));
-      await settle(tester);
-      // The same Home screen as before, not a new one.
-      expect(tester.element(find.byType(HomeScreen)), same(home));
-    });
-
     testWidgets('the theme editor slides in from the end edge and out again, '
         'and is gone when it has left', (tester) async {
       await pumpApp(tester);

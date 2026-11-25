@@ -80,7 +80,7 @@ class ChatBubbleTypingExample extends StatelessWidget {
             spacing: 8,
             children: [
               Avatar(
-                'assets/strand/avatar_omar_rahimi.jpg',
+                'assets/images/avatar_omar_rahimi.jpg',
                 size: Size.square(28),
                 fallback: Text('O'),
               ),

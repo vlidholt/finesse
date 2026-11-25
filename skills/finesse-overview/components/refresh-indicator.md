@@ -36,7 +36,7 @@ class _RefreshIndicatorBasicExampleState
     if (!mounted) return;
     setState(() {
       fetched++;
-      messages.insert(0, ('Strand', 'New message number $fetched'));
+      messages.insert(0, ('Demo', 'New message number $fetched'));
     });
   }
 

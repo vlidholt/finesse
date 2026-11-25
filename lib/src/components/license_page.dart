@@ -28,7 +28,7 @@ import 'package:flutter/widgets.dart';
 ///   title: const Text('Licenses'),
 ///   onTap: () => showLicensePage(
 ///     context: context,
-///     applicationName: 'Strand',
+///     applicationName: 'Demo',
 ///     applicationVersion: '2.4.0',
 ///   ),
 /// )

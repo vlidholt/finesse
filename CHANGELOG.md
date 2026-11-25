@@ -6,6 +6,12 @@ package as it is, compared with shad.
 
 It needs Flutter 3.50 or later (Dart 3.14).
 
+The example app is the component library: a page per component and guide,
+and a theme editor that restyles it live. Demo, the app the default look
+was measured from (Strand, until it moved), is its own repository,
+[finesse_demo](https://github.com/vlidholt/finesse_demo), deployed to
+<https://vlidholt.github.io/finesse_demo/>.
+
 ### Changed from shad
 
 #### Names and vocabulary

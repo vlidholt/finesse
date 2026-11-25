@@ -110,7 +110,7 @@ class _StepperVerticalExampleState extends State<StepperVerticalExample> {
         steps: [
           Step(
             title: const Text('Create the workspace'),
-            subtitle: const Text('Strand Labs'),
+            subtitle: const Text('Demo Labs'),
             content: note('Pick a name your team will recognise.'),
           ),
           Step(

@@ -3,7 +3,7 @@
 // The docs browser is pumped directly — `ComponentsScreen` inside a bare
 // `FinesseApp` on the package's default theme — rather than through the
 // example's `App`, so these tests depend on nothing but the docs themselves
-// and the package: not on Strand, the theme editor or google_fonts.
+// and the package: not on the theme editor or google_fonts.
 import 'dart:io';
 
 import 'package:example/docs/docs.dart';

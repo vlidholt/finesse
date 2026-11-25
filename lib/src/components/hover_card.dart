@@ -35,7 +35,7 @@ import 'package:flutter/widgets.dart';
 /// HoverCard(
 ///   builder: (context) => const SizedBox(
 ///     width: 260,
-///     child: Text('Maya Lindqvist designs type at Strand.'),
+///     child: Text('Maya Lindqvist designs type at Demo.'),
 ///   ),
 ///   child: const Text('@maya'),
 /// )

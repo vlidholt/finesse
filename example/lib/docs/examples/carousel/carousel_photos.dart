@@ -8,10 +8,10 @@ class CarouselPhotosExample extends StatelessWidget {
   const CarouselPhotosExample({super.key});
 
   static const _photos = [
-    ('assets/strand/photo_alpine_lake.jpg', 'A lake between mountains'),
-    ('assets/strand/photo_workshop_team.jpg', 'A team at a workshop'),
-    ('assets/strand/photo_conference_stage.jpg', 'A conference stage'),
-    ('assets/strand/story_mountain_meadow.jpg', 'A mountain meadow'),
+    ('assets/images/photo_alpine_lake.jpg', 'A lake between mountains'),
+    ('assets/images/photo_workshop_team.jpg', 'A team at a workshop'),
+    ('assets/images/photo_conference_stage.jpg', 'A conference stage'),
+    ('assets/images/story_mountain_meadow.jpg', 'A mountain meadow'),
   ];
 
   @override

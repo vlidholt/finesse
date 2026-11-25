@@ -7,10 +7,10 @@ class AvatarGroupBasicExample extends StatelessWidget {
   const AvatarGroupBasicExample({super.key});
 
   static const _photos = [
-    'assets/strand/avatar_mei_tanaka.jpg',
-    'assets/strand/avatar_omar_rahimi.jpg',
-    'assets/strand/avatar_claire_dubois.jpg',
-    'assets/strand/avatar_julian_reyes.jpg',
+    'assets/images/avatar_mei_tanaka.jpg',
+    'assets/images/avatar_omar_rahimi.jpg',
+    'assets/images/avatar_claire_dubois.jpg',
+    'assets/images/avatar_julian_reyes.jpg',
   ];
 
   @override

@@ -24,7 +24,7 @@ class _NavigationMenuCollapsedExampleState
     return PhoneFrame(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Strand'),
+          title: const Text('Demo'),
           actions: [
             // Inside the frame the theme is a phone's, so the menu
             // collapses by itself; `collapsed: true` does it anywhere.

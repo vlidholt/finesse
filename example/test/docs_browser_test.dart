@@ -12,7 +12,6 @@ void main() {
   /// The component library, which is where the docs browser lives.
   Future<void> pumpDocs(WidgetTester tester) async {
     await pumpApp(tester, size: const Size(1400, 900));
-    await openComponentLibrary(tester);
   }
 
   ComponentsScreenState docs(WidgetTester tester) =>

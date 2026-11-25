@@ -15,9 +15,8 @@ import 'package:flutter/services.dart';
 
 /// The theme customizer: a panel docked beside the app.
 ///
-/// It edits the configuration the whole app is themed from — Strand and the
-/// component library both follow it. The panel
-/// itself does not: it renders as fixed dark chrome at an unscaled text size,
+/// It edits the configuration the whole app is themed from: the component
+/// library follows it. The panel itself does not: it renders as fixed dark chrome at an unscaled text size,
 /// because a panel that followed the configuration becomes unreadable while
 /// editing a light, menu-inverted or heavily scaled theme.
 ///
@@ -757,7 +756,7 @@ class _Actions extends StatelessWidget {
               ),
               Expanded(
                 child: Button.outline(
-                  // All the way back: the Strand preset, viewed the default
+                  // All the way back: the Original preset, viewed the default
                   // way.
                   onPressed: () => onChanged(const ThemeEditorConfig()),
                   leading: const PhosphorIcon(

@@ -30,17 +30,17 @@ class IndicatorBadgePresenceExample extends StatelessWidget {
       spacing: 20,
       children: [
         person(
-          'assets/strand/avatar_mei_tanaka.jpg',
+          'assets/images/avatar_mei_tanaka.jpg',
           'M',
           color: scheme.success,
         ),
         person(
-          'assets/strand/avatar_julian_reyes.jpg',
+          'assets/images/avatar_julian_reyes.jpg',
           'J',
           color: scheme.warning,
         ),
         person(
-          'assets/strand/avatar_freya_holm.jpg',
+          'assets/images/avatar_freya_holm.jpg',
           'F',
           color: scheme.mutedForeground,
         ),

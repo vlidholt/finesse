@@ -23,7 +23,7 @@ void main() {
       ['zebra']: 'Zebra licence text.',
       ['Alpha']: 'Alpha first licence.\n\nIts second paragraph.',
       ['Alpha', 'beta']: 'A licence shared by two packages.',
-      ['Strand']: 'The licence of the app itself.',
+      ['Demo']: 'The licence of the app itself.',
     });
   });
   tearDown(LicenseRegistry.reset);
@@ -34,7 +34,7 @@ void main() {
     TextDirection direction = TextDirection.ltr,
     double textScale = 1,
     Widget? home,
-    String title = 'Strand',
+    String title = 'Demo',
   }) async {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = size;
@@ -56,7 +56,7 @@ void main() {
                   onPressed: () => showLicensePage(
                     context: context,
                     applicationVersion: '2.4.0',
-                    applicationLegalese: '© Strand Labs',
+                    applicationLegalese: '© Demo Labs',
                     applicationIcon: const PhosphorIcon(
                       PhosphorIconsFill.circlesThree,
                     ),
@@ -103,7 +103,7 @@ void main() {
         .widgetList<ListTile>(find.byType(ListTile))
         .map((tile) => (tile.title as Text).data)
         .toList();
-    expect(names, ['Strand', 'Alpha', 'beta', 'zebra']);
+    expect(names, ['Demo', 'Alpha', 'beta', 'zebra']);
     final counts = tester
         .widgetList<ListTile>(find.byType(ListTile))
         .map((tile) => (tile.subtitle! as Text).data)
@@ -117,9 +117,9 @@ void main() {
     await open(tester);
     expect(find.text('Licenses'), findsOneWidget);
     // The header and the package of the same name.
-    expect(find.text('Strand'), findsNWidgets(2));
+    expect(find.text('Demo'), findsNWidgets(2));
     expect(find.text('2.4.0'), findsOneWidget);
-    expect(find.text('© Strand Labs'), findsOneWidget);
+    expect(find.text('© Demo Labs'), findsOneWidget);
     expect(find.byIcon(PhosphorIconsFill.circlesThree), findsOneWidget);
     final theme = Theme.of(tester.element(find.text('2.4.0')));
     expect(
@@ -224,7 +224,7 @@ void main() {
     );
     final bar = tester.getRect(find.byType(AppBar));
     expect(
-      tester.getRect(find.text('Strand').first).top,
+      tester.getRect(find.text('Demo').first).top,
       greaterThan(bar.bottom),
     );
 
