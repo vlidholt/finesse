@@ -72,6 +72,7 @@ import 'package:example/docs/pages/switch.dart';
 import 'package:example/docs/pages/tab_bar.dart';
 import 'package:example/docs/pages/table.dart';
 import 'package:example/docs/pages/tabs.dart';
+import 'package:example/docs/pages/tag_field.dart';
 import 'package:example/docs/pages/text_field.dart';
 import 'package:example/docs/pages/textarea.dart';
 import 'package:example/docs/pages/theming.dart';
@@ -180,6 +181,7 @@ final componentDocs = [
   tabBarDoc,
   tableDoc,
   tabsDoc,
+  tagFieldDoc,
   textFieldDoc,
   textareaDoc,
   timePickerDoc,

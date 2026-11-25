@@ -77,7 +77,7 @@ Future<void> _type(WidgetTester tester, String text) async {
 }
 
 final _rows = find.byWidgetPredicate(
-  (widget) => '${widget.runtimeType}'.startsWith('_OptionRow'),
+  (widget) => '${widget.runtimeType}'.startsWith('AutocompleteOptionRow'),
 );
 
 /// The option rows showing, as their texts in order.

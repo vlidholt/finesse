@@ -79,6 +79,7 @@ const _slugs = [
   'tab_bar',
   'table',
   'tabs',
+  'tag_field',
   'text_field',
   'textarea',
   'time_picker',

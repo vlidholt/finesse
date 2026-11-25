@@ -585,7 +585,7 @@ class _AutocompleteState<T extends Object> extends State<Autocomplete<T>> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           for (final (index, option) in _options.indexed)
-            _OptionRow(
+            AutocompleteOptionRow(
               index: index,
               highlight: _highlight,
               onSelected: () => _select(option),
@@ -626,26 +626,39 @@ class _AutocompleteState<T extends Object> extends State<Autocomplete<T>> {
 
 enum _Panel { options, loading, empty }
 
-/// One option: a row in the look of a `SelectOption`, highlighted while the
-/// pointer is over it or the arrow keys are on it.
-class _OptionRow extends StatefulWidget {
-  const _OptionRow({
+/// One option of an `Autocomplete`'s list: a row in the look of a
+/// `SelectOption`, highlighted while the pointer is over it or the arrow
+/// keys are on it.
+///
+/// Internal: shared by `Autocomplete` and `TagField`, and not exported.
+class AutocompleteOptionRow extends StatefulWidget {
+  /// Creates the row of the option at [index].
+  const AutocompleteOptionRow({
     required this.index,
     required this.highlight,
     required this.onSelected,
     required this.child,
+    super.key,
   });
 
+  /// The option's place in the list.
   final int index;
+
+  /// The highlighted option of the list, and whether the arrow keys put it
+  /// there — then the row scrolls itself into view.
   final ValueNotifier<({int? index, bool byKeyboard})> highlight;
+
+  /// Called when the row is tapped.
   final VoidCallback onSelected;
+
+  /// The row's content.
   final Widget child;
 
   @override
-  State<_OptionRow> createState() => _OptionRowState();
+  State<AutocompleteOptionRow> createState() => _AutocompleteOptionRowState();
 }
 
-class _OptionRowState extends State<_OptionRow> {
+class _AutocompleteOptionRowState extends State<AutocompleteOptionRow> {
   bool _highlighted = false;
 
   @override
@@ -656,7 +669,7 @@ class _OptionRowState extends State<_OptionRow> {
   }
 
   @override
-  void didUpdateWidget(_OptionRow oldWidget) {
+  void didUpdateWidget(AutocompleteOptionRow oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.highlight != oldWidget.highlight) {
       oldWidget.highlight.removeListener(_onHighlightChanged);

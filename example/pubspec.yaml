@@ -81,6 +81,7 @@ flutter:
     - lib/docs/examples/switch/
     - lib/docs/examples/table/
     - lib/docs/examples/tabs/
+    - lib/docs/examples/tag_field/
     - lib/docs/examples/textarea/
     - lib/docs/examples/time_picker/
     - lib/docs/examples/toast/
