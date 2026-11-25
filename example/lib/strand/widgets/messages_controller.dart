@@ -62,6 +62,7 @@ class MessagesController extends ChangeNotifier {
   late final _unreadCount = ValueNotifier<int>(_countUnread());
   bool _threadVisible = false;
   final _muted = <String>{};
+  final _deleted = <String>{};
   bool _disposed = false;
 
   /// The conversation the desktop panes show.
@@ -87,15 +88,18 @@ class MessagesController extends ChangeNotifier {
   }
 
   /// How many message requests are waiting: the number on the chip.
-  int get requestCount =>
-      conversations.where((conversation) => conversation.request).length;
+  int get requestCount => conversations
+      .where((conversation) => conversation.request)
+      .where((conversation) => !_deleted.contains(conversation.id))
+      .length;
 
   /// The conversations the list shows for the current filter and search.
   List<Conversation> get visible {
     final needle = search.text.trim().toLowerCase();
     return [
       for (final conversation in conversations)
-        if (_matchesFilter(conversation) &&
+        if (!_deleted.contains(conversation.id) &&
+            _matchesFilter(conversation) &&
             (needle.isEmpty ||
                 conversation.name.toLowerCase().contains(needle) ||
                 previewOf(conversation).toLowerCase().contains(needle)))
@@ -116,7 +120,10 @@ class MessagesController extends ChangeNotifier {
 
   /// Opens [conversation] and marks it read.
   void select(Conversation conversation) {
-    final changed = _selectedId != conversation.id;
+    // Opening a deleted conversation — from "New message" — is how it
+    // comes back.
+    final restored = _deleted.remove(conversation.id);
+    final changed = _selectedId != conversation.id || restored;
     _selectedId = conversation.id;
     final wasUnread = _markRead(conversation);
     if (changed || wasUnread) notifyListeners();
@@ -157,6 +164,7 @@ class MessagesController extends ChangeNotifier {
 
   int _countUnread() => conversations
       .where((conversation) => !conversation.request)
+      .where((conversation) => !_deleted.contains(conversation.id))
       .where((conversation) => unreadOf(conversation) > 0)
       .length;
 
@@ -392,6 +400,44 @@ class MessagesController extends ChangeNotifier {
   /// When the last message was sent, as the list shows it.
   String timeOf(Conversation conversation) =>
       _touched.contains(conversation.id) ? 'now' : conversation.time;
+
+  /// Marks [conversation] read if anything in it is unread, and unread —
+  /// one message, as far as the list's badge goes — if nothing is: what the
+  /// row's swipe and its menu offer.
+  void toggleRead(Conversation conversation) {
+    _unread[conversation.id] = unreadOf(conversation) > 0 ? 0 : 1;
+    _unreadCount.value = _countUnread();
+    notifyListeners();
+  }
+
+  /// Whether [conversation] has been deleted from the list.
+  bool isDeleted(Conversation conversation) =>
+      _deleted.contains(conversation.id);
+
+  /// Takes [conversation] out of the list. If it was the open one, the
+  /// first that is left is opened in its place — without being read: the
+  /// user did not choose it.
+  ///
+  /// Nothing of it is thrown away, so [restore] brings it back as it was.
+  void delete(Conversation conversation) {
+    if (!_deleted.add(conversation.id)) return;
+    if (_selectedId == conversation.id) {
+      final next = conversations.where(
+        (other) => !_deleted.contains(other.id) && !other.request,
+      );
+      if (next.isNotEmpty) _selectedId = next.first.id;
+    }
+    _unreadCount.value = _countUnread();
+    notifyListeners();
+  }
+
+  /// Puts a deleted conversation back in its place: the toast's "Undo",
+  /// and what writing to its person again does.
+  void restore(Conversation conversation) {
+    if (!_deleted.remove(conversation.id)) return;
+    _unreadCount.value = _countUnread();
+    notifyListeners();
+  }
 
   bool isMuted(Conversation conversation) => _muted.contains(conversation.id);
 

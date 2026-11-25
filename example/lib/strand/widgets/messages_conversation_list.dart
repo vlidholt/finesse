@@ -3,6 +3,7 @@ import 'package:example/strand/widgets/messages_common.dart';
 import 'package:example/strand/widgets/messages_controller.dart';
 import 'package:example/strand/widgets/messages_new_dialog.dart';
 import 'package:example/strand/widgets/strand_metrics.dart';
+import 'package:example/strand/widgets/strand_pieces.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
@@ -47,15 +48,20 @@ class MessagesConversationList extends StatelessWidget {
     final rowInset = theme.layoutTheme.gap(GapSize.sm);
     final conversations = controller.visible;
 
-    Widget row(Conversation conversation) => _ConversationTile(
+    Widget row(Conversation conversation) => _ConversationRow(
       key: ValueKey(conversation.id),
+      controller: controller,
       conversation: conversation,
-      preview: controller.previewOf(conversation),
-      time: controller.timeOf(conversation),
-      unread: controller.unreadOf(conversation),
-      selected: showSelection && conversation.id == controller.selected.id,
-      surfaceColor: surfaceColor,
-      onTap: () => onOpen(conversation),
+      child: _ConversationTile(
+        conversation: conversation,
+        preview: controller.previewOf(conversation),
+        time: controller.timeOf(conversation),
+        unread: controller.unreadOf(conversation),
+        muted: controller.isMuted(conversation),
+        selected: showSelection && conversation.id == controller.selected.id,
+        surfaceColor: surfaceColor,
+        onTap: () => onOpen(conversation),
+      ),
     );
 
     final header = Padding(
@@ -86,30 +92,116 @@ class MessagesConversationList extends StatelessWidget {
     const rowGap = 2.0;
     final rowsPadding = EdgeInsets.fromLTRB(rowInset, 0, rowInset, rowInset);
 
-    return Column(
-      mainAxisSize: scrollable ? MainAxisSize.max : MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        header,
-        if (scrollable)
-          Expanded(
-            child: ListView.separated(
+    // One row open at a time: uncovering a second closes the first.
+    return SwipeActionsScope(
+      child: Column(
+        mainAxisSize: scrollable ? MainAxisSize.max : MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          header,
+          if (scrollable)
+            Expanded(
+              child: ListView.separated(
+                padding: rowsPadding,
+                itemCount: conversations.length,
+                separatorBuilder: (_, _) => const SizedBox(height: rowGap),
+                itemBuilder: (context, index) => row(conversations[index]),
+              ),
+            )
+          else
+            Padding(
               padding: rowsPadding,
-              itemCount: conversations.length,
-              separatorBuilder: (_, _) => const SizedBox(height: rowGap),
-              itemBuilder: (context, index) => row(conversations[index]),
+              child: Column(
+                spacing: rowGap,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [for (final c in conversations) row(c)],
+              ),
             ),
-          )
-        else
-          Padding(
-            padding: rowsPadding,
-            child: Column(
-              spacing: rowGap,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [for (final c in conversations) row(c)],
+        ],
+      ),
+    );
+  }
+}
+
+/// A conversation's row with its actions behind it.
+///
+/// With a finger the row is swiped: from the start edge to mark it read or
+/// unread, from the end edge to delete it or mute it, and a swipe all the
+/// way across does the first of those. With a mouse the same three are the
+/// row's context menu (a secondary click, or the menu key). The state they
+/// change is the session's controller, so the navigation's badge follows.
+class _ConversationRow extends StatelessWidget {
+  const _ConversationRow({
+    required this.controller,
+    required this.conversation,
+    required this.child,
+    super.key,
+  });
+
+  final MessagesController controller;
+  final Conversation conversation;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final unread = controller.unreadOf(conversation) > 0;
+    final muted = controller.isMuted(conversation);
+    final theme = Theme.of(context);
+    // Clipped to the row's rounded shape, so the actions come out from
+    // behind it with its corners. A clip in paint: no layer.
+    return ClipRRect(
+      borderRadius: theme.listTileTheme.borderRadius ?? theme.radius,
+      child: SwipeActions(
+        leading: [
+          SwipeAction(
+            icon: PhosphorIcon(
+              unread
+                  ? PhosphorIconsRegular.envelopeSimpleOpen
+                  : PhosphorIconsRegular.envelopeSimple,
             ),
+            label: unread ? 'Read' : 'Unread',
+            onPressed: () {
+              controller.toggleRead(conversation);
+              return false;
+            },
           ),
-      ],
+        ],
+        trailing: [
+          // The assistant is pinned: it can be muted, not deleted.
+          if (!conversation.assistant)
+            SwipeAction(
+              icon: const PhosphorIcon(PhosphorIconsRegular.trash),
+              label: 'Delete',
+              destructive: true,
+              // The row leaves, and `onRemoved` takes it out of the list.
+              onPressed: () => true,
+            ),
+          SwipeAction(
+            icon: PhosphorIcon(
+              muted
+                  ? PhosphorIconsRegular.bell
+                  : PhosphorIconsRegular.bellSimpleSlash,
+            ),
+            label: muted ? 'Unmute' : 'Mute',
+            onPressed: () {
+              controller.toggleMuted(conversation);
+              return false;
+            },
+          ),
+        ],
+        onRemoved: () {
+          controller.delete(conversation);
+          showStrandToast(
+            context,
+            'Conversation deleted',
+            description: conversation.name,
+            variant: ToastVariant.destructive,
+            actionLabel: 'Undo',
+            onAction: () => controller.restore(conversation),
+          );
+        },
+        child: child,
+      ),
     );
   }
 }
@@ -206,16 +298,20 @@ class _ConversationTile extends StatelessWidget {
     required this.preview,
     required this.time,
     required this.unread,
+    required this.muted,
     required this.selected,
     required this.onTap,
     this.surfaceColor,
-    super.key,
   });
 
   final Conversation conversation;
   final String preview;
   final String time;
   final int unread;
+
+  /// Whether the conversation's notifications are off: a struck-out bell
+  /// before the time.
+  final bool muted;
   final bool selected;
   final VoidCallback onTap;
   final Color? surfaceColor;
@@ -245,6 +341,15 @@ class _ConversationTile extends StatelessWidget {
         children: [
           Expanded(child: Text(conversation.name)),
           const Gap.sm(),
+          if (muted) ...[
+            PhosphorIcon(
+              PhosphorIconsRegular.bellSimpleSlash,
+              size: theme.iconBeside(theme.messagesCaption),
+              color: colors.mutedForeground,
+              semanticLabel: 'Muted',
+            ),
+            const Gap.xs(),
+          ],
           Text(
             time,
             style: theme.messagesCaption.copyWith(
