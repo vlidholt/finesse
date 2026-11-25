@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:finesse/finesse.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
@@ -355,6 +357,57 @@ void main() {
       await tester.pumpAndSettle();
       expect(opened.result, _Choice.save);
       expect(opened.pressed, [_Choice.save]);
+    });
+
+    testWidgets('as a menu, it runs the action once the menu has closed, '
+        'and sets the default action in bold', (tester) async {
+      late BuildContext page;
+      final pageWasCurrent = <bool>[];
+      Object? result = 'pending';
+      await pumpFinesse(
+        tester,
+        Builder(
+          builder: (context) {
+            page = context;
+            return const SizedBox.expand();
+          },
+        ),
+        formFactor: FormFactor.desktop,
+      );
+      unawaited(
+        showActionSheet<_Choice>(
+          context: page,
+          anchorRect: const Rect.fromLTWH(400, 200, 40, 40),
+          actions: [
+            ActionSheetAction(
+              value: _Choice.save,
+              isDefault: true,
+              label: const Text('Save'),
+              onPressed: () =>
+                  pageWasCurrent.add(ModalRoute.of(page)!.isCurrent),
+            ),
+            const ActionSheetAction(
+              value: _Choice.share,
+              label: Text('Share'),
+            ),
+          ],
+        ).then((value) => result = value),
+      );
+      for (var i = 0; i < 12; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+      FontWeight? weight(String label) => DefaultTextStyle.of(
+        tester.element(find.text(label)),
+      ).style.fontWeight;
+      expect(weight('Save'), FontWeight.w600);
+      expect(weight('Share'), isNot(FontWeight.w600));
+
+      await tester.tap(find.text('Save'));
+      await tester.pumpAndSettle();
+      // Run over the page, as a sheet's and a dialog's are: whatever it
+      // opens is not pushed over a menu on its way out.
+      expect(pageWasCurrent, [true]);
+      expect(result, _Choice.save);
     });
 
     testWidgets('a click outside the menu cancels', (tester) async {
