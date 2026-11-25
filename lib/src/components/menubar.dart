@@ -13,6 +13,7 @@ import 'package:finesse/src/utils/moving_indicator.dart';
 import 'package:finesse/src/utils/provider.dart';
 import 'package:finesse/src/utils/provider_index.dart';
 import 'package:finesse/src/utils/shadow.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
 
@@ -266,6 +267,33 @@ class _MenubarItemState extends State<MenubarItem> {
   /// a flicker.
   bool _tookOver = false;
 
+  @override
+  void initState() {
+    super.initState();
+    popoverController.addListener(_onPopoverChanged);
+  }
+
+  bool _wasOpen = false;
+
+  /// The menu closed by itself — a row was chosen, Escape, a press outside
+  /// it: the menubar has no open menu any more. Left selected, hovering
+  /// the next trigger would open its menu.
+  void _onPopoverChanged() {
+    final open = popoverController.isOpen;
+    if (open == _wasOpen) return;
+    _wasOpen = open;
+    if (open) return;
+    // After the frame: the focus the menu gives back on its way out comes
+    // first, and a trigger that takes the focus selects itself.
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || popoverController.isOpen) return;
+      if (menubarController.selectedIndex == index) {
+        menubarController.selectedIndex = null;
+      }
+    });
+    SchedulerBinding.instance.ensureVisualUpdate();
+  }
+
   void onSelectedIndexChange() {
     final previous = _lastSelectedIndex;
     final current = menubarController.selectedIndex;
@@ -298,7 +326,9 @@ class _MenubarItemState extends State<MenubarItem> {
   @override
   void dispose() {
     _menubarController?.removeListener(onSelectedIndexChange);
-    popoverController.dispose();
+    popoverController
+      ..removeListener(_onPopoverChanged)
+      ..dispose();
     super.dispose();
   }
 
