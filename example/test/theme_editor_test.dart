@@ -38,7 +38,7 @@ void main() {
     test('is a preview setting: kept across presets, not part of the look', () {
       const on = ThemeEditorConfig(liquidGlass: EditorLiquidGlass.on);
       expect(on.look, const ThemeEditorConfig());
-      expect(ThemePreset.of(on), ThemePreset.strand);
+      expect(ThemePreset.of(on), ThemePreset.original);
       for (final preset in ThemePreset.values) {
         expect(preset.applyTo(on).liquidGlass, EditorLiquidGlass.on);
       }
