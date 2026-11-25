@@ -112,17 +112,27 @@ class _ProgressState extends State<ProgressBar>
     curve: Cubic(0.10, 0, 0.45, 1),
   );
 
+  /// Drives the indeterminate bar. Made the first time the bar is
+  /// indeterminate and kept: a single-ticker state can make only one.
   AnimationController? _controller;
+
+  /// Runs the indeterminate loop while there is no value, and stops it
+  /// while there is one.
+  void _syncController() {
+    if (widget.value == null) {
+      (_controller ??= AnimationController(
+        duration: const Duration(milliseconds: _kIndeterminateLinearDuration),
+        vsync: this,
+      )).repeat();
+    } else {
+      _controller?.stop();
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    if (widget.value == null) {
-      _controller = AnimationController(
-        duration: const Duration(milliseconds: _kIndeterminateLinearDuration),
-        vsync: this,
-      )..repeat();
-    }
+    _syncController();
     if (widget.valueColor != null) {
       widget.valueColor!.addListener(_handleColorChange);
     }
@@ -131,14 +141,8 @@ class _ProgressState extends State<ProgressBar>
   @override
   void didUpdateWidget(ProgressBar oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.value == null && oldWidget.value != null) {
-      _controller = AnimationController(
-        duration: const Duration(milliseconds: _kIndeterminateLinearDuration),
-        vsync: this,
-      )..repeat();
-    } else if (widget.value != null && oldWidget.value == null) {
-      _controller?.dispose();
-      _controller = null;
+    if ((widget.value == null) != (oldWidget.value == null)) {
+      _syncController();
     }
     if (widget.valueColor != oldWidget.valueColor) {
       oldWidget.valueColor?.removeListener(_handleColorChange);
