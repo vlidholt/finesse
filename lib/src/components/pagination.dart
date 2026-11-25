@@ -253,15 +253,13 @@ class Pagination extends StatelessWidget {
               '${localizations.pagination.page} '
               '${numberFormat.format(entry)}',
           child: ExcludeSemantics(
-            child: Button.raw(
+            child: Button(
               variant: isCurrent ? ButtonVariant.outline : ButtonVariant.ghost,
               size: ButtonSize.icon,
               decoration: isCurrent
                   ? null
                   : _inactivePageButtonDecoration(theme),
               enabled: enabled && onPageChanged != null,
-              // A page number is a button like the arrows beside it.
-              pressScale: null,
               onPressed: onPageChanged == null || isCurrent
                   ? null
                   : () => onPageChanged!(entry),

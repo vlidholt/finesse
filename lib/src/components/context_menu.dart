@@ -1499,7 +1499,8 @@ class _ContextMenuItemState extends State<ContextMenuItem> {
             padding: effectivePadding,
             child: _CheckableSemantics(
               checkable: checkable,
-              child: Button.raw(
+              child: Button(
+                pressScale: 1,
                 height: effectiveHeight,
                 enabled: widget.enabled,
                 variant: effectiveButtonVariant,

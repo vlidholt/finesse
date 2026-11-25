@@ -69,12 +69,13 @@ enum ButtonSize {
 /// variants (primary, destructive, outline, secondary, ghost, link) and sizes
 /// (regular, small, large).
 /// It supports rich interaction states (hover, press, focus) and can include leading/trailing
-/// widgets alongside text. Use named constructors for specific variants or
-/// [Button.raw] for full control.
+/// widgets alongside text. Pass `variant:` or use the named constructors,
+/// which are shortcuts for it.
 class Button extends StatefulWidget {
-  /// Creates a primary variant button widget.
+  /// Creates a button: the primary variant unless [variant] says otherwise.
   const Button({
     super.key,
+    this.variant = ButtonVariant.primary,
     this.child,
     this.leading,
     this.trailing,
@@ -127,69 +128,6 @@ class Button extends StatefulWidget {
     this.pressedOffset,
     this.pressAnimationDuration,
     this.pressScale,
-    this.transitionDuration,
-    this.expands,
-    this.textStyle,
-    this.canRequestFocus,
-  }) : variant = ButtonVariant.primary;
-
-  /// Creates a button widget with a specified [variant], allowing full control
-  /// over configuration.
-  const Button.raw({
-    super.key,
-    required this.variant,
-    this.size,
-    this.iconSize,
-    this.child,
-    this.leading,
-    this.trailing,
-    this.onPressed,
-    this.cursor,
-    this.width,
-    this.height,
-    this.padding,
-    this.backgroundColor,
-    this.hoverBackgroundColor,
-    this.foregroundColor,
-    this.hoverForegroundColor,
-    this.autofocus = false,
-    this.focusNode,
-    this.pressedBackgroundColor,
-    this.pressedForegroundColor,
-    this.shadows,
-    this.gradient,
-    this.textDecoration,
-    this.hoverTextDecoration,
-    this.decoration,
-    this.enabled = true,
-    this.loading = false,
-    this.onLongPress,
-    this.statesController,
-    this.mainAxisAlignment,
-    this.crossAxisAlignment,
-    this.hoverStrategies,
-    this.onHoverChange,
-    this.onTapDown,
-    this.onTapUp,
-    this.onTapCancel,
-    this.onSecondaryTapDown,
-    this.onSecondaryTapUp,
-    this.onSecondaryTapCancel,
-    this.onLongPressStart,
-    this.onLongPressCancel,
-    this.onLongPressUp,
-    this.onLongPressDown,
-    this.onLongPressEnd,
-    this.onDoubleTap,
-    this.onDoubleTapDown,
-    this.onDoubleTapCancel,
-    this.longPressDuration,
-    this.textDirection,
-    this.gap,
-    this.onFocusChange,
-    this.pressedOffset,
-    this.pressAnimationDuration,
-    this.pressScale = 1,
     this.transitionDuration,
     this.expands,
     this.textStyle,
@@ -847,10 +785,9 @@ class Button extends StatefulWidget {
 
   /// {@macro ButtonTheme.pressScale}
   ///
-  /// [Button.raw] is the base of rows and custom controls as well as of
-  /// buttons, so it does not scale unless asked to: it defaults to 1. Pass
-  /// `Motion.of(context).pressScale` for a raw button that should respond
-  /// like the others, or null to follow the variant's theme.
+  /// Null, the default, follows the variant's theme. A [Button] used as the
+  /// base of a row or a custom control — a menu item, a calendar day —
+  /// passes 1 so that it does not scale.
   final double? pressScale;
 
   /// {@macro ButtonTheme.transitionDuration}

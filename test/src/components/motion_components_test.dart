@@ -472,7 +472,7 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('Button.raw does not scale unless asked; IconButton does', (
+    testWidgets('A Button with pressScale 1 does not scale; IconButton does', (
       tester,
     ) async {
       await tester.pumpWidget(
@@ -480,8 +480,9 @@ void main() {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Button.raw(
+              Button(
                 variant: ButtonVariant.ghost,
+                pressScale: 1,
                 onPressed: () {},
                 child: const Text('raw'),
               ),

@@ -402,12 +402,12 @@ enum DialogVariant {
 /// The [Dialog] widget provides a styled container for presenting a title,
 /// description, custom content, and actions in a modal format. It supports
 /// variants (primary and alert) and integrates with [Theme] for styling.
-/// Use named constructors like [Dialog.alert] for alert-specific styling or
-/// [Dialog.raw] for full control.
+/// Pass `variant:` or use [Dialog.alert], the shortcut for the alert variant.
 class Dialog extends StatelessWidget {
-  /// Creates a primary variant dialog widget.
+  /// Creates a dialog: the primary variant unless [variant] says otherwise.
   const Dialog({
     super.key,
+    this.variant = DialogVariant.primary,
     this.title,
     this.description,
     this.child,
@@ -445,7 +445,7 @@ class Dialog extends StatelessWidget {
     this.titlePinned,
     this.descriptionPinned,
     this.actionsPinned,
-  }) : variant = DialogVariant.primary;
+  });
 
   /// Creates an alert variant dialog widget, typically for warnings or
   /// critical messages.
@@ -489,50 +489,6 @@ class Dialog extends StatelessWidget {
     this.descriptionPinned,
     this.actionsPinned,
   }) : variant = DialogVariant.alert;
-
-  /// Creates a dialog widget with a specified [variant], offering full
-  /// customization.
-  const Dialog.raw({
-    super.key,
-    required this.variant,
-    this.title,
-    this.description,
-    this.child,
-    this.actions = const [],
-    this.closeIcon,
-    this.closeIconData,
-    this.onClose,
-    this.semanticLabel,
-    this.closeIconPosition,
-    this.radius,
-    this.backgroundColor,
-    this.expandActionsWhenTiny,
-    this.padding,
-    this.gap,
-    this.constraints,
-    this.border,
-    this.shadows,
-    this.filter,
-    this.removeBorderRadiusWhenTiny,
-    this.actionsAxis,
-    this.actionsMainAxisSize,
-    this.actionsMainAxisAlignment,
-    this.actionsVerticalDirection,
-    this.titleStyle,
-    this.descriptionStyle,
-    this.titleTextAlign,
-    this.descriptionTextAlign,
-    this.alignment,
-    this.mainAxisAlignment,
-    this.crossAxisAlignment,
-    this.scrollable,
-    this.scrollPadding,
-    this.actionsGap,
-    this.useSafeArea,
-    this.titlePinned,
-    this.descriptionPinned,
-    this.actionsPinned,
-  });
 
   /// {@template Dialog.title}
   /// The title widget displayed at the top of the dialog.

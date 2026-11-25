@@ -219,7 +219,8 @@ class _CompanyPreview extends StatelessWidget {
             onPressed: () => Navigator.of(context).pop(StrandDestination.jobs),
             child: Text(roles == 0 ? 'Browse jobs' : 'See open roles'),
           ),
-          Button.raw(
+          Button(
+            pressScale: 1,
             variant: network.isFollowingPage(company)
                 ? ButtonVariant.secondary
                 : ButtonVariant.primary,

@@ -42,8 +42,9 @@ class NetworkManageCard extends StatelessWidget {
       final count = controller.countOf(section);
       return Semantics(
         selected: selected,
-        child: Button.raw(
+        child: Button(
           variant: selected ? ButtonVariant.secondary : ButtonVariant.ghost,
+          pressScale: 1,
           width: double.infinity,
           padding: EdgeInsets.symmetric(horizontal: theme.gap(GapSize.sm)),
           gap: theme.gap(GapSize.sm),

@@ -153,7 +153,8 @@ class _SectionRail extends StatelessWidget {
           for (final section in SettingsSection.values)
             Semantics(
               selected: section == selected,
-              child: Button.raw(
+              child: Button(
+                pressScale: 1,
                 variant: section == selected
                     ? ButtonVariant.secondary
                     : ButtonVariant.ghost,

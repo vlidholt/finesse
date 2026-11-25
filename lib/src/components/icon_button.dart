@@ -17,8 +17,8 @@ import 'package:flutter/widgets.dart';
 /// designed for icon-only use cases, offering multiple styling variants
 /// (primary, destructive, outline, secondary, ghost). It supports rich
 /// interaction states and integrates with [Theme] for consistent
-/// appearance. Use named constructors like [IconButton.destructive] for
-/// specific variants or [IconButton.raw] for full control.
+/// appearance. Pass `variant:` or use named constructors like
+/// [IconButton.destructive], which are shortcuts for it.
 ///
 /// shadcn/ui itself has no separate component — it is `<Button size="icon">`,
 /// and `Button(size: ButtonSize.icon, child: PhosphorIcon(...))` is exactly
@@ -26,9 +26,11 @@ import 'package:flutter/widgets.dart';
 /// spells `size-icon-sm` / `size-icon-lg`) and the semantic label an
 /// icon-only control needs, so prefer it when the button holds only an icon.
 class IconButton extends StatelessWidget {
-  /// Creates a primary variant icon button widget.
+  /// Creates an icon button: the primary variant unless [variant] says
+  /// otherwise.
   const IconButton({
     super.key,
+    this.variant = ButtonVariant.primary,
     required this.icon,
     this.iconSize,
     this.size,
@@ -72,56 +74,6 @@ class IconButton extends StatelessWidget {
     this.onDoubleTapCancel,
     this.longPressDuration,
     this.onFocusChange,
-  }) : variant = ButtonVariant.primary;
-
-  /// Creates an icon button widget with a specified [variant], offering full
-  /// customization.
-  const IconButton.raw({
-    super.key,
-    required this.variant,
-    required this.icon,
-    this.iconSize,
-    this.size,
-    this.semanticLabel,
-    this.tooltip,
-    this.onPressed,
-    this.cursor,
-    this.width,
-    this.height,
-    this.padding,
-    this.backgroundColor,
-    this.hoverBackgroundColor,
-    this.foregroundColor,
-    this.hoverForegroundColor,
-    this.autofocus = false,
-    this.focusNode,
-    this.onFocusChange,
-    this.pressedBackgroundColor,
-    this.pressedForegroundColor,
-    this.shadows,
-    this.gradient,
-    this.decoration,
-    this.enabled = true,
-    this.loading = false,
-    this.onLongPress,
-    this.statesController,
-    this.hoverStrategies,
-    this.onHoverChange,
-    this.onTapDown,
-    this.onTapUp,
-    this.onTapCancel,
-    this.onSecondaryTapDown,
-    this.onSecondaryTapUp,
-    this.onSecondaryTapCancel,
-    this.onLongPressStart,
-    this.onLongPressCancel,
-    this.onLongPressUp,
-    this.onLongPressDown,
-    this.onLongPressEnd,
-    this.onDoubleTap,
-    this.onDoubleTapDown,
-    this.onDoubleTapCancel,
-    this.longPressDuration,
   }) : assert(
          variant != ButtonVariant.link,
          "IconButton doesn't support the link variant",
@@ -541,7 +493,7 @@ class IconButton extends StatelessWidget {
     }
 
     final label = semanticLabel ?? tooltip;
-    Widget button = Button.raw(
+    Widget button = Button(
       variant: variant,
       width: effectiveWidth,
       height: effectiveHeight,
@@ -582,9 +534,6 @@ class IconButton extends StatelessWidget {
       onDoubleTapCancel: onDoubleTapCancel,
       longPressDuration: longPressDuration,
       onFocusChange: onFocusChange,
-      // A raw button does not scale unless asked; an icon button is a
-      // button, so it follows the variant's theme like the others.
-      pressScale: null,
       // The label stands in for the icon; both would be read otherwise.
       child: label == null ? icon : ExcludeSemantics(child: icon),
     );

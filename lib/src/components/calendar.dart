@@ -1279,15 +1279,12 @@ class _CalendarState extends State<Calendar> {
                               opacity: isInMonth
                                   ? 1
                                   : effectiveDayButtonOutsideMonthOpacity,
-                              child: Button.raw(
+                              child: Button(
                                 variant: variant,
                                 width: effectiveDayButtonSize,
                                 height: effectiveDayButtonSize,
                                 decoration: effectiveDayButtonDecoration,
                                 enabled: enabled(date),
-                                // A day is a small button: it follows the
-                                // variant's press response.
-                                pressScale: null,
                                 padding: effectiveDayButtonPadding,
                                 child: Text(
                                   date.day.toString(),

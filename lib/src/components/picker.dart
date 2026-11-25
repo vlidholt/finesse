@@ -361,8 +361,9 @@ class PickerTrigger extends StatelessWidget {
             data: IconThemeData(color: iconColor),
             child: icon,
           );
-    return Button.raw(
+    return Button(
       variant: variant ?? ButtonVariant.outline,
+      pressScale: 1,
       size: size,
       width: width,
       expands: expands,

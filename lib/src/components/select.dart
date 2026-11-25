@@ -57,9 +57,15 @@ enum SelectVariant {
 /// It supports single and multiple selection, search functionality, and
 /// extensive customization through various properties.
 class Select<T> extends StatefulWidget {
-  /// Creates a [Select] with the primary variant.
+  /// Creates a select that holds one value.
+  ///
+  /// [variant] is [SelectVariant.primary], the default, or
+  /// [SelectVariant.search], which adds a search field and needs [search]
+  /// or [onSearchChanged]; [Select.withSearch] is the shortcut for it. For
+  /// several values, use [Select.multiple].
   const Select({
     super.key,
+    this.variant = SelectVariant.primary,
     this.selectedOptionBuilder,
     this.options,
     this.optionsBuilder,
@@ -101,23 +107,34 @@ class Select<T> extends StatefulWidget {
     this.popoverReverseDuration,
     this.ensureSelectedVisible,
     this.onPressed,
-  }) : variant = SelectVariant.primary,
-       values = null,
+    this.onSearchChanged,
+    this.searchDivider,
+    this.searchInputLeading,
+    this.searchPlaceholder,
+    this.searchPadding,
+    this.search,
+    this.clearSearchOnClose,
+    this.searchFocusNode,
+    this.onSearchSubmitted,
+  }) : values = null,
        initialValues = const {},
-       onSearchChanged = null,
-       searchDivider = null,
-       searchPlaceholder = null,
-       searchInputLeading = null,
        onValuesChanged = null,
-       searchPadding = null,
        selectedOptionsBuilder = null,
-       search = null,
-       clearSearchOnClose = false,
-       searchFocusNode = null,
-       onSearchSubmitted = null,
+       assert(
+         variant == SelectVariant.primary || variant == SelectVariant.search,
+         'Select() holds one value: use Select.multiple for the multiple '
+         'variants',
+       ),
        assert(
          options != null || optionsBuilder != null,
          'Either options or optionsBuilder must be provided',
+       ),
+       assert(
+         variant != SelectVariant.search ||
+             search != null ||
+             onSearchChanged != null,
+         'Either search or onSearchChanged must be provided for the search '
+         'variant',
        );
 
   /// Creates a [Select] with the search variant.
@@ -187,9 +204,15 @@ class Select<T> extends StatefulWidget {
          'Either search or onSearchChanged must be provided',
        );
 
-  /// Creates a [Select] with the multiple select variant.
+  /// Creates a select that holds several values.
+  ///
+  /// [variant] is [SelectVariant.multiple], the default, or
+  /// [SelectVariant.multipleWithSearch], which adds a search field and
+  /// needs [search] or [onSearchChanged]; [Select.multipleWithSearch] is the
+  /// shortcut for it.
   const Select.multiple({
     super.key,
+    this.variant = SelectVariant.multiple,
     this.options,
     this.optionsBuilder,
     this.selectedOptionsBuilder,
@@ -231,24 +254,36 @@ class Select<T> extends StatefulWidget {
     this.popoverReverseDuration,
     this.ensureSelectedVisible,
     this.onPressed,
-  }) : variant = SelectVariant.multiple,
-       onSearchChanged = null,
-       value = null,
+    this.onSearchChanged,
+    this.searchDivider,
+    this.searchInputLeading,
+    this.searchPlaceholder,
+    this.searchPadding,
+    this.search,
+    this.clearSearchOnClose,
+    this.searchFocusNode,
+    this.onSearchSubmitted,
+  }) : value = null,
        initialValue = null,
        selectedOptionBuilder = null,
-       searchDivider = null,
-       searchPlaceholder = null,
-       searchInputLeading = null,
-       searchPadding = null,
-       search = null,
-       clearSearchOnClose = false,
        onChanged = null,
        onValuesChanged = onChanged,
-       searchFocusNode = null,
-       onSearchSubmitted = null,
+       assert(
+         variant == SelectVariant.multiple ||
+             variant == SelectVariant.multipleWithSearch,
+         'Select.multiple holds several values: use Select() for the single '
+         'variants',
+       ),
        assert(
          options != null || optionsBuilder != null,
          'Either options or optionsBuilder must be provided',
+       ),
+       assert(
+         variant != SelectVariant.multipleWithSearch ||
+             search != null ||
+             onSearchChanged != null,
+         'Either search or onSearchChanged must be provided for the search '
+         'variant',
        );
 
   /// Creates a [Select] with the multiple select and search variant.
@@ -317,73 +352,6 @@ class Select<T> extends StatefulWidget {
        assert(
          search != null || onSearchChanged != null,
          'Either search or onSearchChanged must be provided',
-       );
-
-  /// Creates a [Select] with a raw variant, allowing full customization.
-  const Select.raw({
-    super.key,
-    required this.variant,
-    this.options,
-    this.optionsBuilder,
-    this.selectedOptionBuilder,
-    this.selectedOptionsBuilder,
-    this.controller,
-    this.onSearchChanged,
-    this.searchDivider,
-    this.searchInputLeading,
-    this.searchPlaceholder,
-    this.searchPadding,
-    this.search,
-    this.clearSearchOnClose,
-    this.enabled = true,
-    this.presentation = PickerPresentation.auto,
-    this.title,
-    this.placeholder,
-    this.placeholderStyle,
-    this.value,
-    this.initialValue,
-    this.values,
-    this.initialValues = const {},
-    this.onChanged,
-    this.onValuesChanged,
-    this.focusNode,
-    this.autofocus = false,
-    this.onFocusChange,
-    this.closeOnTapOutside = true,
-    this.minWidth,
-    this.maxWidth,
-    this.maxHeight,
-    this.minHeight,
-    this.decoration,
-    this.trailing,
-    this.padding,
-    this.optionsPadding,
-    this.showScrollToBottomChevron,
-    this.showScrollToTopChevron,
-    this.scrollController,
-    this.anchor,
-    this.effects,
-    this.shadows,
-    this.filter,
-    this.header,
-    this.footer,
-    this.allowDeselection = false,
-    this.closeOnSelect = true,
-    this.groupId,
-    this.itemCount,
-    this.shrinkWrap,
-    this.popoverReverseDuration,
-    this.ensureSelectedVisible,
-    this.searchFocusNode,
-    this.onSearchSubmitted,
-    this.onPressed,
-  }) : assert(
-         variant == SelectVariant.primary || onSearchChanged != null,
-         'onSearchChanged must be provided when variant is search',
-       ),
-       assert(
-         options != null || optionsBuilder != null,
-         'Either options or optionsBuilder must be provided',
        );
 
   /// {@template Select.value}
@@ -628,8 +596,8 @@ class Select<T> extends StatefulWidget {
   /// The variant of the [Select] widget, determining its behavior and
   /// appearance.
   ///
-  /// See [SelectVariant] for available variants.
-  /// Defaults to [SelectVariant.primary] for the default constructor.
+  /// See [SelectVariant] for available variants. [Select.new] takes the two
+  /// single ones and [Select.multiple] the two multiple ones.
   /// {@endtemplate}
   final SelectVariant variant;
 

@@ -274,7 +274,8 @@ class _CategoryFilter extends StatelessWidget {
                 for (final category in SearchCategory.values)
                   Semantics(
                     selected: category == selected,
-                    child: Button.raw(
+                    child: Button(
+                      pressScale: 1,
                       variant: category == selected
                           ? ButtonVariant.secondary
                           : ButtonVariant.ghost,

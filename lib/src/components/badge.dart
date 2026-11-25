@@ -30,12 +30,13 @@ enum BadgeVariant {
 /// The [Badge] widget is used to highlight brief pieces of information,
 /// such as tags or status indicators. It supports multiple variants
 /// (primary, secondary, outline, destructive) with hover effects and optional
-/// tap functionality. Use the named constructors for specific variants or
-/// [Badge.raw] for full control.
+/// tap functionality. Pass `variant:` or use the named constructors, which are
+/// shortcuts for it.
 class Badge extends StatefulWidget {
-  /// Creates a primary variant badge widget.
+  /// Creates a badge: the primary variant unless [variant] says otherwise.
   const Badge({
     super.key,
+    this.variant = BadgeVariant.primary,
     required this.child,
     this.shape,
     this.backgroundColor,
@@ -46,7 +47,7 @@ class Badge extends StatefulWidget {
     this.enabled = true,
     this.cursor,
     this.textStyle,
-  }) : variant = BadgeVariant.primary;
+  });
 
   /// Creates a secondary variant badge widget, typically for less prominent
   /// information.
@@ -95,23 +96,6 @@ class Badge extends StatefulWidget {
     this.cursor,
     this.textStyle,
   }) : variant = BadgeVariant.destructive;
-
-  /// Creates a badge widget with a specified [variant], allowing full control
-  /// over configuration.
-  const Badge.raw({
-    super.key,
-    required this.variant,
-    required this.child,
-    this.shape,
-    this.backgroundColor,
-    this.hoverBackgroundColor,
-    this.foregroundColor,
-    this.padding,
-    this.onPressed,
-    this.enabled = true,
-    this.cursor,
-    this.textStyle,
-  });
 
   /// {@template Badge.variant}
   /// The variant of the badge, one of [BadgeVariant] options (primary,

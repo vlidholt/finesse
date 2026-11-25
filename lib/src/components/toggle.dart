@@ -45,6 +45,7 @@ class Toggle extends StatefulWidget {
   /// {@macro Toggle}
   const Toggle({
     super.key,
+    this.variant = ToggleVariant.primary,
     required this.value,
     required this.child,
     this.onChanged,
@@ -68,7 +69,7 @@ class Toggle extends StatefulWidget {
     this.onFocusChange,
     this.statesController,
     this.semanticLabel,
-  }) : variant = ToggleVariant.primary;
+  });
 
   /// A bordered toggle, matching shadcn/ui's `variant="outline"`.
   const Toggle.outline({
@@ -97,35 +98,6 @@ class Toggle extends StatefulWidget {
     this.statesController,
     this.semanticLabel,
   }) : variant = ToggleVariant.outline;
-
-  /// Creates a toggle with a specified [variant], allowing full control.
-  const Toggle.raw({
-    super.key,
-    required this.variant,
-    required this.value,
-    required this.child,
-    this.onChanged,
-    this.enabled = true,
-    this.leading,
-    this.backgroundColor,
-    this.hoverBackgroundColor,
-    this.selectedBackgroundColor,
-    this.selectedHoverBackgroundColor,
-    this.foregroundColor,
-    this.hoverForegroundColor,
-    this.selectedForegroundColor,
-    this.padding,
-    this.decoration,
-    this.textStyle,
-    this.gap,
-    this.height,
-    this.width,
-    this.focusNode,
-    this.autofocus = false,
-    this.onFocusChange,
-    this.statesController,
-    this.semanticLabel,
-  });
 
   /// The visual style of the toggle. Set by the constructor:
   /// [ToggleVariant.primary] for [Toggle.new] and
@@ -661,7 +633,7 @@ class _ToggleGroupState<T> extends State<ToggleGroup<T>> {
       }
       final item = widget.children[i];
       items.add(
-        Toggle.raw(
+        Toggle(
           variant: widget.toggleVariant,
           value: _values.contains(item.value),
           enabled: widget.enabled && item.enabled,

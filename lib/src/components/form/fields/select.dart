@@ -14,11 +14,14 @@ import 'package:flutter/widgets.dart';
 /// For a field that holds several values, use [SelectMultipleFormField].
 class SelectFormField<T> extends FinesseFormField<T> {
   /// Creates a select form field, like [Select.new].
+  ///
+  /// [variant] is [SelectVariant.primary], the default, or
+  /// [SelectVariant.search]; [SelectFormField.withSearch] is the shortcut for
+  /// the second.
   SelectFormField({
     super.id,
     super.key,
     super.onSaved,
-    super.forceErrorText,
     super.label,
     super.error,
     super.description,
@@ -32,6 +35,10 @@ class SelectFormField<T> extends FinesseFormField<T> {
     super.initialValue,
     super.focusNode,
     super.validator,
+    super.forceErrorText,
+
+    /// {@macro Select.variant}
+    SelectVariant variant = SelectVariant.primary,
 
     /// {@macro Select.selectedOptionBuilder}
     SelectedOptionBuilder<T>? selectedOptionBuilder,
@@ -39,8 +46,11 @@ class SelectFormField<T> extends FinesseFormField<T> {
     /// {@macro Select.options}
     Iterable<Widget>? options,
 
-    /// {@macro Select.optionsBuilder}
+    /// The builder for the options of the [Select].
     Widget? Function(BuildContext, int)? optionsBuilder,
+
+    /// {@macro Select.onSearchChanged}
+    ValueChanged<String>? onSearchChanged,
 
     /// {@macro Select.placeholder}
     Widget? placeholder,
@@ -84,6 +94,24 @@ class SelectFormField<T> extends FinesseFormField<T> {
     /// {@macro Popover.filter}
     ImageFilter? filter,
 
+    /// {@macro Select.searchDivider}
+    Widget? searchDivider,
+
+    /// {@macro Select.searchInputLeading}
+    Widget? searchInputLeading,
+
+    /// {@macro Select.searchPlaceholder}
+    Widget? searchPlaceholder,
+
+    /// {@macro Select.searchPadding}
+    EdgeInsetsGeometry? searchPadding,
+
+    /// {@macro Select.search}
+    Widget? search,
+
+    /// {@macro Select.clearSearchOnClose}
+    bool? clearSearchOnClose,
+
     /// {@macro Select.controller}
     PopoverController? controller,
 
@@ -111,9 +139,19 @@ class SelectFormField<T> extends FinesseFormField<T> {
     /// {@macro Select.ensureSelectedVisible}
     bool? ensureSelectedVisible,
 
+    /// {@macro Select.searchFocusNode}
+    FocusNode? searchFocusNode,
+
+    /// {@macro Select.onSearchSubmitted}
+    ValueChanged<String>? onSearchSubmitted,
+
     /// {@macro Select.onPressed}
     VoidCallback? onPressed,
-  }) : super(
+  }) : assert(
+         variant == SelectVariant.primary || variant == SelectVariant.search,
+         '''The variant is not supported. Use primary or search or use SelectMultipleFormField instead.''',
+       ),
+       super(
          decorationBuilder: (context) =>
              (Theme.of(context).selectTheme.decoration ??
                      const FinesseDecoration())
@@ -122,8 +160,8 @@ class SelectFormField<T> extends FinesseFormField<T> {
            state as SelectFormFieldState<T>;
 
            return Select<T>(
+             variant: variant,
              options: options,
-             allowDeselection: allowDeselection,
              optionsBuilder: optionsBuilder,
              selectedOptionBuilder: selectedOptionBuilder,
              focusNode: state.focusNode,
@@ -144,14 +182,24 @@ class SelectFormField<T> extends FinesseFormField<T> {
              showScrollToBottomChevron: showScrollToBottomChevron,
              scrollController: scrollController,
              filter: filter,
+             onSearchChanged: onSearchChanged,
+             searchDivider: searchDivider,
+             searchInputLeading: searchInputLeading,
+             searchPlaceholder: searchPlaceholder,
+             searchPadding: searchPadding,
+             search: search,
+             clearSearchOnClose: clearSearchOnClose,
              controller: controller,
              header: header,
              footer: footer,
+             allowDeselection: allowDeselection,
              closeOnSelect: closeOnSelect,
              groupId: groupId,
              itemCount: itemCount,
              shrinkWrap: shrinkWrap,
              ensureSelectedVisible: ensureSelectedVisible,
+             searchFocusNode: searchFocusNode,
+             onSearchSubmitted: onSearchSubmitted,
              onPressed: onPressed,
            );
          },
@@ -196,6 +244,8 @@ class SelectFormField<T> extends FinesseFormField<T> {
     bool? showScrollToBottomChevron,
     ScrollController? scrollController,
     AnchorBase? anchor,
+
+    /// {@macro Popover.filter}
     ImageFilter? filter,
     Widget? searchDivider,
     Widget? searchInputLeading,
@@ -286,140 +336,6 @@ class SelectFormField<T> extends FinesseFormField<T> {
          },
        );
 
-  /// Creates a select form field with an explicit [variant], like
-  /// [Select.raw]. [variant] must be [SelectVariant.primary] or
-  /// [SelectVariant.search].
-  SelectFormField.raw({
-    super.id,
-    super.key,
-    super.onSaved,
-    super.label,
-    super.error,
-    super.description,
-    super.onChanged,
-    super.toValueTransformer,
-    super.fromValueTransformer,
-    super.onReset,
-    super.enabled,
-    super.autovalidateMode,
-    super.restorationId,
-    super.initialValue,
-    super.focusNode,
-    super.validator,
-    super.forceErrorText,
-    required SelectVariant variant,
-    SelectedOptionBuilder<T>? selectedOptionBuilder,
-    Iterable<Widget>? options,
-
-    /// The builder for the options of the [Select].
-    Widget? Function(BuildContext, int)? optionsBuilder,
-    ValueChanged<String>? onSearchChanged,
-    Widget? placeholder,
-    bool closeOnTapOutside = true,
-    double? minWidth,
-    double? maxHeight,
-    FinesseDecoration? decoration,
-    Widget? trailing,
-    EdgeInsetsGeometry? padding,
-    EdgeInsetsGeometry? optionsPadding,
-    bool? showScrollToTopChevron,
-    bool? showScrollToBottomChevron,
-    ScrollController? scrollController,
-    AnchorBase? anchor,
-    ImageFilter? filter,
-    Widget? searchDivider,
-    Widget? searchInputLeading,
-    Widget? searchPlaceholder,
-    EdgeInsetsGeometry? searchPadding,
-    Widget? search,
-    bool? clearSearchOnClose,
-    PopoverController? controller,
-
-    /// {@macro Select.header}
-    Widget? header,
-
-    /// {@macro Select.footer}
-    Widget? footer,
-    bool allowDeselection = false,
-    bool closeOnSelect = true,
-
-    /// {@macro Popover.groupId}
-    Object? groupId,
-
-    /// {@macro Select.itemCount}
-    int? itemCount,
-
-    /// {@macro Select.shrinkWrap}
-    bool? shrinkWrap,
-
-    /// {@macro Select.ensureSelectedVisible}
-    bool? ensureSelectedVisible,
-
-    /// {@macro Select.searchFocusNode}
-    FocusNode? searchFocusNode,
-
-    /// {@macro Select.onSearchSubmitted}
-    ValueChanged<String>? onSearchSubmitted,
-
-    /// {@macro Select.onPressed}
-    VoidCallback? onPressed,
-  }) : assert(
-         variant == SelectVariant.primary || variant == SelectVariant.search,
-         '''The variant is not supported. Use primary or search or use SelectMultipleFormField instead.''',
-       ),
-       super(
-         decorationBuilder: (context) =>
-             (Theme.of(context).selectTheme.decoration ??
-                     const FinesseDecoration())
-                 .merge(decoration),
-         builder: (state) {
-           state as SelectFormFieldState<T>;
-
-           return Select<T>.raw(
-             variant: variant,
-             options: options,
-             optionsBuilder: optionsBuilder,
-             selectedOptionBuilder: selectedOptionBuilder,
-             focusNode: state.focusNode,
-             placeholder: placeholder,
-             value: state.value,
-             onChanged: state.didChange,
-             enabled: state.enabled,
-             closeOnTapOutside: closeOnTapOutside,
-             anchor: anchor,
-             minWidth: minWidth,
-             maxHeight: maxHeight,
-             decoration: state.decoration,
-             trailing: trailing,
-             padding: padding,
-             optionsPadding: optionsPadding,
-             showScrollToTopChevron: showScrollToTopChevron,
-             showScrollToBottomChevron: showScrollToBottomChevron,
-             scrollController: scrollController,
-             filter: filter,
-             onSearchChanged: onSearchChanged,
-             searchDivider: searchDivider,
-             searchInputLeading: searchInputLeading,
-             searchPlaceholder: searchPlaceholder,
-             searchPadding: searchPadding,
-             search: search,
-             clearSearchOnClose: clearSearchOnClose,
-             controller: controller,
-             header: header,
-             footer: footer,
-             allowDeselection: allowDeselection,
-             closeOnSelect: closeOnSelect,
-             groupId: groupId,
-             itemCount: itemCount,
-             shrinkWrap: shrinkWrap,
-             ensureSelectedVisible: ensureSelectedVisible,
-             searchFocusNode: searchFocusNode,
-             onSearchSubmitted: onSearchSubmitted,
-             onPressed: onPressed,
-           );
-         },
-       );
-
   @override
   FinesseFormFieldState<SelectFormField<T>, T> createState() =>
       SelectFormFieldState<T>();
@@ -434,6 +350,10 @@ class SelectFormFieldState<T>
 /// options.
 class SelectMultipleFormField<T> extends FinesseFormField<Set<T>> {
   /// Creates a multiple select form field, like [Select.multiple].
+  ///
+  /// [variant] is [SelectVariant.multiple], the default, or
+  /// [SelectVariant.multipleWithSearch];
+  /// [SelectMultipleFormField.withSearch] is the shortcut for the second.
   SelectMultipleFormField({
     super.id,
     super.key,
@@ -452,25 +372,83 @@ class SelectMultipleFormField<T> extends FinesseFormField<Set<T>> {
     super.focusNode,
     super.validator,
     super.forceErrorText,
+
+    /// {@macro Select.variant}
+    SelectVariant variant = SelectVariant.multiple,
+
+    /// {@macro Select.selectedOptionsBuilder}
     SelectedOptionBuilder<List<T>>? selectedOptionsBuilder,
+
+    /// {@macro Select.options}
     Iterable<Widget>? options,
 
     /// The builder for the options of the [Select].
     Widget? Function(BuildContext, int)? optionsBuilder,
+
+    /// {@macro Select.onSearchChanged}
+    ValueChanged<String>? onSearchChanged,
+
+    /// {@macro Select.placeholder}
     Widget? placeholder,
+
+    /// {@macro Select.closeOnTapOutside}
     bool closeOnTapOutside = true,
+
+    /// {@macro Select.minWidth}
     double? minWidth,
+
+    /// {@macro Select.maxWidth}
     double? maxWidth,
+
+    /// {@macro Select.maxHeight}
     double? maxHeight,
+
+    /// {@macro Select.decoration}
     FinesseDecoration? decoration,
+
+    /// {@macro Select.trailing}
     Widget? trailing,
+
+    /// {@macro Select.padding}
     EdgeInsetsGeometry? padding,
+
+    /// {@macro Select.optionsPadding}
     EdgeInsetsGeometry? optionsPadding,
+
+    /// {@macro Select.showScrollToTopChevron}
     bool? showScrollToTopChevron,
+
+    /// {@macro Select.showScrollToBottomChevron}
     bool? showScrollToBottomChevron,
+
+    /// {@macro Select.scrollController}
     ScrollController? scrollController,
+
+    /// {@macro Select.anchor}
     AnchorBase? anchor,
+
+    /// {@macro Popover.filter}
     ImageFilter? filter,
+
+    /// {@macro Select.searchDivider}
+    Widget? searchDivider,
+
+    /// {@macro Select.searchInputLeading}
+    Widget? searchInputLeading,
+
+    /// {@macro Select.searchPlaceholder}
+    Widget? searchPlaceholder,
+
+    /// {@macro Select.searchPadding}
+    EdgeInsetsGeometry? searchPadding,
+
+    /// {@macro Select.search}
+    Widget? search,
+
+    /// {@macro Select.clearSearchOnClose}
+    bool? clearSearchOnClose,
+
+    /// {@macro Select.controller}
     PopoverController? controller,
 
     /// {@macro Select.header}
@@ -478,20 +456,33 @@ class SelectMultipleFormField<T> extends FinesseFormField<Set<T>> {
 
     /// {@macro Select.footer}
     Widget? footer,
-    bool closeOnSelect = true,
 
     /// {@macro Select.allowDeselection}
     bool allowDeselection = true,
 
+    /// {@macro Select.closeOnSelect}
+    bool closeOnSelect = true,
+
     /// {@macro Select.ensureSelectedVisible}
     bool? ensureSelectedVisible,
+
+    /// {@macro Select.searchFocusNode}
+    FocusNode? searchFocusNode,
+
+    /// {@macro Select.onSearchSubmitted}
+    ValueChanged<String>? onSearchSubmitted,
 
     /// {@macro Select.onPressed}
     VoidCallback? onPressed,
 
     /// {@macro Popover.groupId}
     Object? groupId,
-  }) : super(
+  }) : assert(
+         variant == SelectVariant.multiple ||
+             variant == SelectVariant.multipleWithSearch,
+         '''The variant is not supported. Use multiple or multipleWithSearch or use SelectFormField instead.''',
+       ),
+       super(
          decorationBuilder: (context) =>
              (Theme.of(context).selectTheme.decoration ??
                      const FinesseDecoration())
@@ -500,6 +491,7 @@ class SelectMultipleFormField<T> extends FinesseFormField<Set<T>> {
            state as SelectMultipleFormFieldState<T>;
 
            return Select<T>.multiple(
+             variant: variant,
              options: options,
              optionsBuilder: optionsBuilder,
              selectedOptionsBuilder: selectedOptionsBuilder,
@@ -521,12 +513,21 @@ class SelectMultipleFormField<T> extends FinesseFormField<Set<T>> {
              showScrollToBottomChevron: showScrollToBottomChevron,
              scrollController: scrollController,
              filter: filter,
+             onSearchChanged: onSearchChanged,
+             searchDivider: searchDivider,
+             searchInputLeading: searchInputLeading,
+             searchPlaceholder: searchPlaceholder,
+             searchPadding: searchPadding,
+             search: search,
+             clearSearchOnClose: clearSearchOnClose,
              controller: controller,
              header: header,
              footer: footer,
-             closeOnSelect: closeOnSelect,
              allowDeselection: allowDeselection,
+             closeOnSelect: closeOnSelect,
              ensureSelectedVisible: ensureSelectedVisible,
+             searchFocusNode: searchFocusNode,
+             onSearchSubmitted: onSearchSubmitted,
              onPressed: onPressed,
              groupId: groupId,
            );
@@ -572,6 +573,8 @@ class SelectMultipleFormField<T> extends FinesseFormField<Set<T>> {
     bool? showScrollToBottomChevron,
     ScrollController? scrollController,
     AnchorBase? anchor,
+
+    /// {@macro Popover.filter}
     ImageFilter? filter,
     Widget? searchDivider,
     Widget? searchInputLeading,
@@ -647,133 +650,6 @@ class SelectMultipleFormField<T> extends FinesseFormField<Set<T>> {
              footer: footer,
              closeOnSelect: closeOnSelect,
              allowDeselection: allowDeselection,
-             ensureSelectedVisible: ensureSelectedVisible,
-             searchFocusNode: searchFocusNode,
-             onSearchSubmitted: onSearchSubmitted,
-             onPressed: onPressed,
-             groupId: groupId,
-           );
-         },
-       );
-
-  /// Creates a multiple select form field with an explicit [variant], like
-  /// [Select.raw]. [variant] must be [SelectVariant.multiple] or
-  /// [SelectVariant.multipleWithSearch].
-  SelectMultipleFormField.raw({
-    super.id,
-    super.key,
-    super.onSaved,
-    super.label,
-    super.error,
-    super.description,
-    super.onChanged,
-    super.toValueTransformer,
-    super.fromValueTransformer,
-    super.onReset,
-    super.enabled,
-    super.autovalidateMode,
-    super.restorationId,
-    super.initialValue,
-    super.focusNode,
-    super.validator,
-    super.forceErrorText,
-    required SelectVariant variant,
-    SelectedOptionBuilder<List<T>>? selectedOptionsBuilder,
-    Iterable<Widget>? options,
-
-    /// The builder for the options of the [Select].
-    Widget? Function(BuildContext, int)? optionsBuilder,
-    ValueChanged<String>? onSearchChanged,
-    Widget? placeholder,
-    bool closeOnTapOutside = true,
-    double? minWidth,
-    double? maxHeight,
-    FinesseDecoration? decoration,
-    Widget? trailing,
-    EdgeInsetsGeometry? padding,
-    EdgeInsetsGeometry? optionsPadding,
-    bool? showScrollToTopChevron,
-    bool? showScrollToBottomChevron,
-    ScrollController? scrollController,
-    AnchorBase? anchor,
-    ImageFilter? filter,
-    Widget? searchDivider,
-    Widget? searchInputLeading,
-    Widget? searchPlaceholder,
-    EdgeInsetsGeometry? searchPadding,
-    Widget? search,
-    bool? clearSearchOnClose,
-    PopoverController? controller,
-
-    /// {@macro Select.header}
-    Widget? header,
-
-    /// {@macro Select.footer}
-    Widget? footer,
-    bool allowDeselection = true,
-    bool closeOnSelect = true,
-
-    /// {@macro Select.ensureSelectedVisible}
-    bool? ensureSelectedVisible,
-
-    /// {@macro Select.searchFocusNode}
-    FocusNode? searchFocusNode,
-
-    /// {@macro Select.onSearchSubmitted}
-    ValueChanged<String>? onSearchSubmitted,
-
-    /// {@macro Select.onPressed}
-    VoidCallback? onPressed,
-
-    /// {@macro Popover.groupId}
-    Object? groupId,
-  }) : assert(
-         variant == SelectVariant.multiple ||
-             variant == SelectVariant.multipleWithSearch,
-         '''The variant is not supported. Use multiple or multipleWithSearch or use SelectFormField instead.''',
-       ),
-       super(
-         decorationBuilder: (context) =>
-             (Theme.of(context).selectTheme.decoration ??
-                     const FinesseDecoration())
-                 .merge(decoration),
-         builder: (state) {
-           state as SelectMultipleFormFieldState<T>;
-
-           return Select<T>.raw(
-             variant: variant,
-             options: options,
-             optionsBuilder: optionsBuilder,
-             selectedOptionsBuilder: selectedOptionsBuilder,
-             values: state.value ?? const {},
-             onValuesChanged: state.didChange,
-             focusNode: state.focusNode,
-             placeholder: placeholder,
-             enabled: state.enabled,
-             closeOnTapOutside: closeOnTapOutside,
-             anchor: anchor,
-             minWidth: minWidth,
-             maxHeight: maxHeight,
-             decoration: state.decoration,
-             trailing: trailing,
-             padding: padding,
-             optionsPadding: optionsPadding,
-             showScrollToTopChevron: showScrollToTopChevron,
-             showScrollToBottomChevron: showScrollToBottomChevron,
-             scrollController: scrollController,
-             filter: filter,
-             onSearchChanged: onSearchChanged,
-             searchDivider: searchDivider,
-             searchInputLeading: searchInputLeading,
-             searchPlaceholder: searchPlaceholder,
-             searchPadding: searchPadding,
-             search: search,
-             clearSearchOnClose: clearSearchOnClose,
-             controller: controller,
-             header: header,
-             footer: footer,
-             allowDeselection: allowDeselection,
-             closeOnSelect: closeOnSelect,
              ensureSelectedVisible: ensureSelectedVisible,
              searchFocusNode: searchFocusNode,
              onSearchSubmitted: onSearchSubmitted,

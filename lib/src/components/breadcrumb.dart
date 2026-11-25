@@ -217,8 +217,9 @@ class _BreadcrumbLinkState extends State<BreadcrumbLink> {
             .copyWith(fontWeight: FontWeight.normal)
             .fallback(color: theme.colorScheme.mutedForeground);
 
-    return Button.raw(
+    return Button(
       variant: ButtonVariant.link,
+      pressScale: 1,
       onHoverChange:
           widget.onHoverChange ??
           (isHovered) => setState(() => this.isHovered = isHovered),
@@ -547,8 +548,9 @@ class BreadcrumbDropMenuItem extends StatelessWidget {
         theme.breadcrumbTheme.dropdownItemPadding ??
         const EdgeInsets.symmetric(horizontal: 12, vertical: 10);
 
-    return Button.raw(
+    return Button(
       variant: ButtonVariant.ghost,
+      pressScale: 1,
       height: 0,
       width: 0,
       padding: effectiveItemPadding,

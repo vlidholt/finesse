@@ -117,7 +117,8 @@ class _ActionButton extends StatelessWidget {
       SuggestionAction.connect =>
         done ? PhosphorIconsRegular.clock : PhosphorIconsRegular.userPlus,
     };
-    return Button.raw(
+    return Button(
+      pressScale: 1,
       // Pressed, it fills in: "Following", "Pending".
       variant: done ? ButtonVariant.secondary : ButtonVariant.outline,
       size: ButtonSize.sm,

@@ -363,8 +363,9 @@ class _MenubarItemState extends State<MenubarItem> {
               onPointerDown: widget.enabled
                   ? (event) => inherited._triggerPointer = event.pointer
                   : null,
-              child: Button.raw(
+              child: Button(
                 variant: effectiveVariant,
+                pressScale: 1,
                 height: effectiveHeight,
                 backgroundColor: menubarTheme.buttonBackgroundColor,
                 focusNode: widget.focusNode,

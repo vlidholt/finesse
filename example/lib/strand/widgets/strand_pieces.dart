@@ -301,7 +301,8 @@ class StrandPillButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Button.raw(
+    return Button(
+      pressScale: 1,
       variant: done
           ? ButtonVariant.secondary
           : primary
