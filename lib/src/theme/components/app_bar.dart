@@ -3,6 +3,18 @@ import 'package:theme_extensions_builder_annotation/theme_extensions_builder_ann
 
 part 'app_bar.g.theme.dart';
 
+/// When an app bar shows its surface: the fill, the hairline under it and
+/// the blur of what scrolls beneath.
+enum AppBarSurfaceBehavior {
+  /// The surface is always there.
+  always,
+
+  /// The bar is bare while the page is at its top and takes its surface
+  /// once content has scrolled under it — the way a large title sits on
+  /// the page until the page moves.
+  whenScrolled,
+}
+
 /// The theme of `AppBar`: every value the widget does not set itself.
 @themeGen
 @immutable
@@ -20,6 +32,10 @@ class AppBarTheme with _$AppBarTheme {
     this.maxWidth,
     this.gap,
     this.titleStyle,
+    this.centerTitle,
+    this.surfaceBehavior,
+    this.largeTitleStyle,
+    this.expandedHeight,
   }) : _canMerge = canMerge;
 
   @ignore
@@ -57,6 +73,21 @@ class AppBarTheme with _$AppBarTheme {
 
   /// The style of the bar's title.
   final TextStyle? titleStyle;
+
+  /// Whether the title is centred in the bar rather than set after the
+  /// leading widget.
+  final bool? centerTitle;
+
+  /// When the bar shows its surface.
+  final AppBarSurfaceBehavior? surfaceBehavior;
+
+  /// The style of the large title of a `SliverAppBar.large`.
+  final TextStyle? largeTitleStyle;
+
+  /// The height of the area under the toolbar of a `SliverAppBar.large`
+  /// while it is fully expanded. Null fits the large title, with the layout
+  /// gap above and below it.
+  final double? expandedHeight;
 
   /// Linearly interpolates between two themes.
   static AppBarTheme? lerp(AppBarTheme? a, AppBarTheme? b, double t) =>

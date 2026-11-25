@@ -31,6 +31,7 @@ import 'package:finesse/src/theme/components/default_keyboard_toolbar.dart';
 import 'package:finesse/src/theme/components/dialog.dart';
 import 'package:finesse/src/theme/components/divider.dart';
 import 'package:finesse/src/theme/components/empty.dart';
+import 'package:finesse/src/theme/components/floating_action_button.dart';
 import 'package:finesse/src/theme/components/glass.dart';
 import 'package:finesse/src/theme/components/icon_tile.dart';
 import 'package:finesse/src/theme/components/indicator_badge.dart';
@@ -1850,6 +1851,46 @@ class DefaultThemeVariant extends ThemeVariant {
       maxWidth: style.pageMaxWidth + 2 * scaled(style.pagePaddingX),
       gap: scaled(style.gapXl),
       titleStyle: style.title.apply(effectiveTextTheme.large),
+      centerTitle: false,
+      surfaceBehavior: AppBarSurfaceBehavior.always,
+      // The headline of the app type scale; a style without one keeps the
+      // prose scale's third heading. `display` is too big for a bar.
+      largeTitleStyle:
+          (style.headline?.apply(effectiveTextTheme.h3) ??
+                  effectiveTextTheme.h3)
+              .copyWith(color: colorScheme.foreground),
+    );
+  }
+
+  @override
+  FloatingActionButtonTheme floatingActionButtonTheme() {
+    // As round as the action in the floating bottom bar; a square style
+    // keeps its corners.
+    final square = cardRadius == BorderRadius.zero;
+    return FloatingActionButtonTheme(
+      size: scaled(style.fabSize),
+      sizeSm: scaled(style.fabSizeSm),
+      sizeLg: scaled(style.fabSizeLg),
+      iconSize: scaled(style.navigationIconSize),
+      iconSizeSm: scaled(style.navigationIconSize - 4),
+      iconSizeLg: scaled(style.navigationIconSize + 4),
+      padding: scaled(style.gapLg + style.gapXs),
+      gap: scaled(style.gapSm),
+      radius: square ? BorderRadius.zero : radii.full,
+      backgroundColor: colorScheme.primary,
+      foregroundColor: colorScheme.primaryForeground,
+      // Over the card: a scheme's secondary may be a translucent wash, and
+      // a floating button is not something to read the page through.
+      secondaryBackgroundColor: Color.alphaBlend(
+        colorScheme.secondary,
+        colorScheme.card.withValues(alpha: 1),
+      ),
+      secondaryForegroundColor: colorScheme.secondaryForeground,
+      glassForegroundColor: colorScheme.foreground,
+      shadows: _isDark
+          ? style.floatingShadowDark ?? style.floatingShadow
+          : style.floatingShadow,
+      labelStyle: style.label.apply(effectiveTextTheme.small),
     );
   }
 

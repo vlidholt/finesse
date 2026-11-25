@@ -296,6 +296,18 @@ void main() {
         BottomNavigationBarTheme(shadows: shadows()),
         isNot(const BottomNavigationBarTheme(shadows: [])),
       );
+      expect(
+        FloatingActionButtonTheme(shadows: shadows()),
+        FloatingActionButtonTheme(shadows: shadows()),
+      );
+      expect(
+        FloatingActionButtonTheme(shadows: shadows()).hashCode,
+        FloatingActionButtonTheme(shadows: shadows()).hashCode,
+      );
+      expect(
+        FloatingActionButtonTheme(shadows: shadows()),
+        isNot(const FloatingActionButtonTheme(shadows: [])),
+      );
       // Deliberately non-const: const lists would be identical anyway.
       expect(
         // ignore: prefer_const_constructors, prefer_const_literals_to_create_immutables
@@ -327,6 +339,7 @@ void main() {
     List<Object?> finesseThemes(ThemeData t) => [
       t.glassTheme,
       t.appBarTheme,
+      t.floatingActionButtonTheme,
       t.navigationBarTheme,
       t.bottomNavigationBarTheme,
       t.chipTheme,

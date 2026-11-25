@@ -44,6 +44,7 @@ class FinesseLocalizationsData with BaseTranslations<FinesseLocale, FinesseLocal
 	late final FinesseLocalizationsData$pagination$en pagination = FinesseLocalizationsData$pagination$en.internal(_root);
 	late final FinesseLocalizationsData$dialog$en dialog = FinesseLocalizationsData$dialog$en.internal(_root);
 	late final FinesseLocalizationsData$board$en board = FinesseLocalizationsData$board$en.internal(_root);
+	late final FinesseLocalizationsData$navigation$en navigation = FinesseLocalizationsData$navigation$en.internal(_root);
 }
 
 // Path: timePicker
@@ -211,6 +212,24 @@ class FinesseLocalizationsData$board$en {
 	String get dragHandle => 'Drag to move';
 }
 
+// Path: navigation
+class FinesseLocalizationsData$navigation$en {
+	FinesseLocalizationsData$navigation$en.internal(this._root);
+
+	final FinesseLocalizationsData _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Back'
+	String get back => 'Back';
+
+	/// en: 'Open menu'
+	String get openMenu => 'Open menu';
+
+	/// en: 'Navigation menu'
+	String get menu => 'Navigation menu';
+}
+
 /// The flat map containing all translations for locale <en>.
 /// Only for edge cases! For simple maps, use the map function of this library.
 ///
@@ -247,6 +266,9 @@ extension on FinesseLocalizationsData {
 			'board.cancelled' => 'Move cancelled',
 			'board.refused' => ({required Object column}) => '${column} does not accept this item',
 			'board.dragHandle' => 'Drag to move',
+			'navigation.back' => 'Back',
+			'navigation.openMenu' => 'Open menu',
+			'navigation.menu' => 'Navigation menu',
 			_ => null,
 		};
 	}

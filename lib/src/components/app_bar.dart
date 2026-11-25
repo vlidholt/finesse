@@ -1,5 +1,9 @@
+import 'package:finesse/src/components/app_bar_layout.dart';
+import 'package:finesse/src/theme/components/app_bar.dart';
+import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/backdrop.dart';
+import 'package:finesse/src/utils/system_overlay_style.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 /// The bar across the top of a screen: a logo or back button, a title, and
@@ -7,35 +11,56 @@ import 'package:flutter/widgets.dart';
 ///
 /// ```dart
 /// AppBar(
-///   leading: const Logo(),
-///   middle: NavigationBar(destinations: destinations, selectedIndex: 0),
+///   title: const Text('Settings'),
 ///   actions: [
 ///     IconButton.ghost(icon: const PhosphorIcon(PhosphorIconsRegular.bell)),
 ///   ],
 /// )
 /// ```
 ///
-/// With a [middle], the bar has three zones: [leading] and [title] start
-/// aligned, [middle] centred in the bar, [actions] end aligned. Without one,
-/// [title] takes the space between [leading] and [actions].
+/// **Zones.** With a [middle], the bar has three zones: [leading] and
+/// [title] start aligned, [middle] centred in the bar, [actions] end
+/// aligned. Without one, [title] takes the space between [leading] and
+/// [actions] — or, with [centerTitle], sits in the centre of the bar the
+/// way a pushed page's title does on iOS.
 ///
-/// The bar's height follows the theme's form factor and its fill follows the
-/// style's bar opacity: a translucent bar blurs whatever scrolls beneath it,
-/// which is the reason to put it in a `Scaffold` rather than a `Column`. The
-/// content is centred and capped at the width of a `PageContainer`'s padding
-/// box, so on a wide screen the bar's ends sit one page margin outside the
-/// page content below it.
+/// **The leading button.** A bar that is given no [leading] shows the one
+/// its place calls for: a `CloseButton` on a full-screen dialog, a
+/// `BackButton` on a page that can be popped, a menu button over a
+/// `Scaffold` with a drawer. [automaticallyImplyLeading] turns that off.
+///
+/// **Under the toolbar.** [bottom] is a second row inside the same surface
+/// and above the hairline: a `TabBar`, a search field, a row of filter
+/// chips. It adds its own height.
+///
+/// **The surface.** The bar's height follows the theme's form factor and
+/// its fill follows the style's bar opacity: a translucent bar blurs
+/// whatever scrolls beneath it, which is the reason to put it in a
+/// `Scaffold` rather than a `Column`. With
+/// [AppBarSurfaceBehavior.whenScrolled] the bar is bare while the page is
+/// at its top and takes its fill, hairline and blur once content scrolls
+/// under it. A primary bar also styles the system's status bar so that its
+/// icons read on the bar.
+///
+/// The content is centred and capped at the width of a `PageContainer`'s
+/// padding box, so on a wide screen the bar's ends sit one page margin
+/// outside the page content below it.
 class AppBar extends StatelessWidget {
   /// Creates an app bar.
   const AppBar({
     this.leading,
+    this.automaticallyImplyLeading = true,
     this.title,
+    this.centerTitle,
     this.middle,
     this.actions = const [],
+    this.bottom,
     this.height,
     this.padding,
     this.backgroundColor,
     this.showBorder = true,
+    this.surfaceBehavior,
+    this.systemOverlayStyle,
     this.maxWidth,
     this.gap,
     this.actionsGap,
@@ -46,8 +71,21 @@ class AppBar extends StatelessWidget {
   /// The widget at the start: a logo, a back button.
   final Widget? leading;
 
+  /// Whether a bar without a [leading] shows the button its place calls
+  /// for: close, back, or the scaffold's menu.
+  final bool automaticallyImplyLeading;
+
   /// The widget after [leading]: a title, a search field, a person's name.
+  ///
+  /// It is announced as the page's heading — unless the bar has a [middle]:
+  /// a bar that carries the app's navigation is not headed by what sits
+  /// beside its logo.
   final Widget? title;
+
+  /// Whether [title] is centred in the bar instead of following [leading].
+  /// Defaults to the theme's, which is false. A [middle] has the centre
+  /// first.
+  final bool? centerTitle;
 
   /// A widget centred in the bar, usually a `NavigationBar`.
   final Widget? middle;
@@ -55,11 +93,17 @@ class AppBar extends StatelessWidget {
   /// The widgets at the end, usually icon buttons.
   final List<Widget> actions;
 
-  /// The bar's height, not counting the safe area or the hairline under
-  /// it. Defaults to the theme's.
+  /// A row under the toolbar, inside the bar's surface: a `TabBar`, a
+  /// search field, filter chips. It takes the bar's width; give it its own
+  /// margins.
+  final Widget? bottom;
+
+  /// The toolbar's height, not counting the safe area, [bottom] or the
+  /// hairline under the bar. Defaults to the theme's.
   final double? height;
 
-  /// Padding around the content. Defaults to the theme's page margin.
+  /// Padding around the toolbar's content. Defaults to the theme's page
+  /// margin.
   final EdgeInsetsGeometry? padding;
 
   /// The bar's fill. Defaults to the theme's.
@@ -67,6 +111,18 @@ class AppBar extends StatelessWidget {
 
   /// Whether a hairline is drawn under the bar.
   final bool showBorder;
+
+  /// When the bar shows its fill, hairline and blur. Defaults to the
+  /// theme's, which is always.
+  ///
+  /// [AppBarSurfaceBehavior.whenScrolled] needs a `Scaffold` above the bar:
+  /// that is what tells it the page has scrolled.
+  final AppBarSurfaceBehavior? surfaceBehavior;
+
+  /// The style of the system's status bar over this bar. Defaults to
+  /// transparent, with icons that read on the bar's fill. Only a [primary]
+  /// bar sets one.
+  final SystemUiOverlayStyle? systemOverlayStyle;
 
   /// The widest the content grows. Defaults to the theme's page width.
   final double? maxWidth;
@@ -81,8 +137,8 @@ class AppBar extends StatelessWidget {
   /// the status bar.
   final bool primary;
 
-  /// The height an [AppBar] takes in [context], including the status bar
-  /// when [primary]. A `Scaffold` uses it to inset its body.
+  /// The height an [AppBar] without a `bottom` takes in [context],
+  /// including the status bar when [primary].
   static double heightOf(BuildContext context, {bool primary = true}) {
     final theme = Theme.of(context);
     return (theme.appBarTheme.height ?? 64) +
@@ -96,101 +152,131 @@ class AppBar extends StatelessWidget {
     final theme = Theme.of(context);
     final bar = theme.appBarTheme;
     final topInset = primary ? MediaQuery.paddingOf(context).top : 0.0;
-    final effectiveGap = gap ?? bar.gap ?? 24;
-    final foreground = bar.foregroundColor ?? theme.colorScheme.foreground;
+    final toolbarHeight = height ?? bar.height ?? 64;
+    final fill =
+        backgroundColor ?? bar.backgroundColor ?? theme.colorScheme.card;
+    final behavior =
+        surfaceBehavior ?? bar.surfaceBehavior ?? AppBarSurfaceBehavior.always;
 
-    final actionsRow = actions.isEmpty
-        ? null
-        : Row(
+    final implied = leading == null && automaticallyImplyLeading
+        ? impliedLeading(context)
+        : null;
+    final toolbar = AppBarToolbar(
+      height: toolbarHeight,
+      leading: leading ?? implied,
+      // The bar's own button lines its glyph up with the page margin, as
+      // the title of a bar without one does.
+      alignLeadingGlyph: implied != null,
+      title: title,
+      middle: middle,
+      actions: actions,
+      centerTitle: centerTitle ?? bar.centerTitle ?? false,
+      padding: padding,
+      maxWidth: maxWidth,
+      gap: gap,
+      actionsGap: actionsGap,
+    );
+    final content = bottom == null
+        ? toolbar
+        : Column(
             mainAxisSize: MainAxisSize.min,
-            spacing: actionsGap ?? theme.layoutTheme.gapSm ?? 8,
-            children: actions,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [toolbar, bottom!],
           );
 
-    final Widget content;
-    if (middle != null) {
-      content = Row(
-        spacing: effectiveGap,
-        children: [
-          Expanded(
-            child: Row(
-              spacing: effectiveGap - 4,
-              children: [
-                ?leading,
-                if (title != null) Flexible(child: title!),
-              ],
+    Widget surface(Animation<double>? visibility) => AppBarSurface(
+      color: fill,
+      borderColor: showBorder
+          ? bar.borderColor ?? theme.colorScheme.border
+          : null,
+      blur: bar.blur ?? 0,
+      saturation: bar.saturation ?? 1,
+      // The hairline is added to the height rather than taken from it, so
+      // a 64-point bar has 64 points for its content.
+      padding: EdgeInsets.only(top: topInset),
+      visibility: visibility,
+      child: content,
+    );
+
+    Widget result = Semantics(
+      container: true,
+      child: behavior == AppBarSurfaceBehavior.always
+          ? surface(null)
+          : _ScrolledUnder(builder: surface),
+    );
+    if (primary) {
+      result = AnnotatedRegion<SystemUiOverlayStyle>(
+        value:
+            systemOverlayStyle ??
+            systemOverlayStyleFor(
+              surfaceBrightness(fill, theme.colorScheme.background),
             ),
-          ),
-          middle!,
-          Expanded(
-            child: Align(
-              alignment: AlignmentDirectional.centerEnd,
-              child: actionsRow,
-            ),
-          ),
-        ],
-      );
-    } else {
-      content = Row(
-        spacing: effectiveGap / 2,
-        children: [
-          ?leading,
-          Expanded(child: title ?? const SizedBox.shrink()),
-          ?actionsRow,
-        ],
+        child: result,
       );
     }
+    return result;
+  }
+}
 
-    return Semantics(
-      container: true,
-      child: Backdrop(
-        blur: bar.blur ?? 0,
-        saturation: bar.saturation ?? 1,
-        child: Container(
-          // The hairline is added to the height rather than taken from it,
-          // so a 64-point bar has 64 points for its content.
-          height:
-              (height ?? bar.height ?? 64) + topInset + (showBorder ? 1 : 0),
-          padding: EdgeInsets.only(top: topInset),
-          decoration: BoxDecoration(
-            color:
-                backgroundColor ??
-                bar.backgroundColor ??
-                theme.colorScheme.card,
-            border: showBorder
-                ? Border(
-                    bottom: BorderSide(
-                      color: bar.borderColor ?? theme.colorScheme.border,
-                    ),
-                  )
-                : null,
-          ),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                maxWidth: maxWidth ?? bar.maxWidth ?? double.infinity,
-              ),
-              child: Padding(
-                padding:
-                    padding ??
-                    bar.padding ??
-                    const EdgeInsets.symmetric(horizontal: 24),
-                child: DefaultTextStyle.merge(
-                  style: (bar.titleStyle ?? theme.textTheme.large).copyWith(
-                    color: foreground,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  child: IconTheme.merge(
-                    data: IconThemeData(color: foreground),
-                    child: content,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
+/// Runs an animation up to 1 while the page under the nearest `Scaffold`
+/// has scrolled away from its top, and back to 0 when it returns.
+///
+/// The builder runs once: what it builds follows the animation at paint
+/// time.
+class _ScrolledUnder extends StatefulWidget {
+  const _ScrolledUnder({required this.builder});
+
+  final Widget Function(Animation<double> scrolledUnder) builder;
+
+  @override
+  State<_ScrolledUnder> createState() => _ScrolledUnderState();
+}
+
+class _ScrolledUnderState extends State<_ScrolledUnder>
+    with SingleTickerProviderStateMixin {
+  late final _controller = AnimationController(vsync: this);
+  ScrollNotificationObserverState? _observer;
+  bool _scrolledUnder = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final observer = ScrollNotificationObserver.maybeOf(context);
+    if (identical(observer, _observer)) return;
+    _observer?.removeListener(_onScroll);
+    _observer = observer?..addListener(_onScroll);
+  }
+
+  void _onScroll(ScrollNotification notification) {
+    // The page's own scroll view, not one nested inside it.
+    if (notification is! ScrollUpdateNotification || notification.depth != 0) {
+      return;
+    }
+    final metrics = notification.metrics;
+    final under = switch (metrics.axisDirection) {
+      AxisDirection.down => metrics.extentBefore > 0,
+      // A reversed list, a conversation: its start is at the bottom.
+      AxisDirection.up => metrics.extentAfter > 0,
+      // A carousel in the page says nothing about what is under the bar.
+      AxisDirection.left || AxisDirection.right => _scrolledUnder,
+    };
+    if (under == _scrolledUnder) return;
+    _scrolledUnder = under;
+    final motion = Motion.of(context);
+    _controller.animateTo(
+      under ? 1 : 0,
+      duration: motion.fast,
+      curve: motion.standard,
     );
   }
+
+  @override
+  void dispose() {
+    _observer?.removeListener(_onScroll);
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.builder(_controller);
 }

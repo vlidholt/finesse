@@ -36,6 +36,10 @@ mixin _$AppBarTheme {
       maxWidth: lerpDouble$(a.maxWidth, b.maxWidth, t),
       gap: lerpDouble$(a.gap, b.gap, t),
       titleStyle: TextStyle.lerp(a.titleStyle, b.titleStyle, t),
+      centerTitle: t < 0.5 ? a.centerTitle : b.centerTitle,
+      surfaceBehavior: t < 0.5 ? a.surfaceBehavior : b.surfaceBehavior,
+      largeTitleStyle: TextStyle.lerp(a.largeTitleStyle, b.largeTitleStyle, t),
+      expandedHeight: lerpDouble$(a.expandedHeight, b.expandedHeight, t),
     );
   }
 
@@ -50,6 +54,10 @@ mixin _$AppBarTheme {
     double? maxWidth,
     double? gap,
     TextStyle? titleStyle,
+    bool? centerTitle,
+    AppBarSurfaceBehavior? surfaceBehavior,
+    TextStyle? largeTitleStyle,
+    double? expandedHeight,
   }) {
     final _this = (this as AppBarTheme);
 
@@ -64,6 +72,10 @@ mixin _$AppBarTheme {
       maxWidth: maxWidth ?? _this.maxWidth,
       gap: gap ?? _this.gap,
       titleStyle: titleStyle ?? _this.titleStyle,
+      centerTitle: centerTitle ?? _this.centerTitle,
+      surfaceBehavior: surfaceBehavior ?? _this.surfaceBehavior,
+      largeTitleStyle: largeTitleStyle ?? _this.largeTitleStyle,
+      expandedHeight: expandedHeight ?? _this.expandedHeight,
     );
   }
 
@@ -89,6 +101,12 @@ mixin _$AppBarTheme {
       maxWidth: other.maxWidth,
       gap: other.gap,
       titleStyle: _this.titleStyle?.merge(other.titleStyle) ?? other.titleStyle,
+      centerTitle: other.centerTitle,
+      surfaceBehavior: other.surfaceBehavior,
+      largeTitleStyle:
+          _this.largeTitleStyle?.merge(other.largeTitleStyle) ??
+          other.largeTitleStyle,
+      expandedHeight: other.expandedHeight,
     );
   }
 
@@ -114,7 +132,11 @@ mixin _$AppBarTheme {
         _other.padding == _this.padding &&
         _other.maxWidth == _this.maxWidth &&
         _other.gap == _this.gap &&
-        _other.titleStyle == _this.titleStyle;
+        _other.titleStyle == _this.titleStyle &&
+        _other.centerTitle == _this.centerTitle &&
+        _other.surfaceBehavior == _this.surfaceBehavior &&
+        _other.largeTitleStyle == _this.largeTitleStyle &&
+        _other.expandedHeight == _this.expandedHeight;
   }
 
   @override
@@ -133,6 +155,10 @@ mixin _$AppBarTheme {
       _this.maxWidth,
       _this.gap,
       _this.titleStyle,
+      _this.centerTitle,
+      _this.surfaceBehavior,
+      _this.largeTitleStyle,
+      _this.expandedHeight,
     );
   }
 }

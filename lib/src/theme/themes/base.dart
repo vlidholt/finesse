@@ -24,6 +24,7 @@ import 'package:finesse/src/theme/components/default_keyboard_toolbar.dart';
 import 'package:finesse/src/theme/components/dialog.dart';
 import 'package:finesse/src/theme/components/divider.dart';
 import 'package:finesse/src/theme/components/empty.dart';
+import 'package:finesse/src/theme/components/floating_action_button.dart';
 import 'package:finesse/src/theme/components/glass.dart';
 import 'package:finesse/src/theme/components/icon_tile.dart';
 import 'package:finesse/src/theme/components/indicator_badge.dart';
@@ -153,6 +154,7 @@ abstract class BaseTheme {
     required this.kbdTheme,
     required this.glassTheme,
     required this.appBarTheme,
+    required this.floatingActionButtonTheme,
     required this.navigationBarTheme,
     required this.bottomNavigationBarTheme,
     required this.chipTheme,
@@ -201,6 +203,9 @@ abstract class BaseTheme {
 
   /// The theme of the matching widget.
   final AppBarTheme appBarTheme;
+
+  /// The theme of `FloatingActionButton`.
+  final FloatingActionButtonTheme floatingActionButtonTheme;
 
   /// The theme of the matching widget.
   final NavigationBarTheme navigationBarTheme;
@@ -641,6 +646,9 @@ abstract class ThemeVariant {
 
   /// Builds the [AppBarTheme].
   AppBarTheme appBarTheme();
+
+  /// Builds the [FloatingActionButtonTheme].
+  FloatingActionButtonTheme floatingActionButtonTheme();
 
   /// Builds the [NavigationBarTheme].
   NavigationBarTheme navigationBarTheme();

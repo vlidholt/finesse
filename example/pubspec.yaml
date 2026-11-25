@@ -50,6 +50,7 @@ flutter:
     - lib/docs/examples/date_picker/
     - lib/docs/examples/dialog/
     - lib/docs/examples/empty/
+    - lib/docs/examples/floating_action_button/
     - lib/docs/examples/form/
     - lib/docs/examples/icon_button/
     - lib/docs/examples/text_field/
@@ -73,6 +74,7 @@ flutter:
     - lib/docs/examples/sidebar/
     - lib/docs/examples/skeleton/
     - lib/docs/examples/slider/
+    - lib/docs/examples/sliver_app_bar/
     - lib/docs/examples/sonner/
     - lib/docs/examples/spinner/
     - lib/docs/examples/switch/
@@ -98,6 +100,7 @@ flutter:
     - lib/docs/examples/streaming_text/
     - lib/docs/examples/indicator_badge/
     - lib/docs/examples/avatar_group/
+    - lib/docs/examples/back_button/
     - lib/docs/examples/icon_tile/
     - lib/docs/examples/timeline/
     - lib/docs/examples/pressable/

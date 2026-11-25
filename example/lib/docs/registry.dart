@@ -4,6 +4,7 @@ import 'package:example/docs/pages/alert.dart';
 import 'package:example/docs/pages/app_bar.dart';
 import 'package:example/docs/pages/avatar.dart';
 import 'package:example/docs/pages/avatar_group.dart';
+import 'package:example/docs/pages/back_button.dart';
 import 'package:example/docs/pages/badge.dart';
 import 'package:example/docs/pages/board.dart';
 import 'package:example/docs/pages/breadcrumb.dart';
@@ -23,6 +24,7 @@ import 'package:example/docs/pages/dialog.dart';
 import 'package:example/docs/pages/divider.dart';
 import 'package:example/docs/pages/dropdown_menu.dart';
 import 'package:example/docs/pages/empty.dart';
+import 'package:example/docs/pages/floating_action_button.dart';
 import 'package:example/docs/pages/fonts.dart';
 import 'package:example/docs/pages/form.dart';
 import 'package:example/docs/pages/form_factors.dart';
@@ -58,6 +60,7 @@ import 'package:example/docs/pages/sheet.dart';
 import 'package:example/docs/pages/sidebar.dart';
 import 'package:example/docs/pages/skeleton.dart';
 import 'package:example/docs/pages/slider.dart';
+import 'package:example/docs/pages/sliver_app_bar.dart';
 import 'package:example/docs/pages/sonner.dart';
 import 'package:example/docs/pages/spinner.dart';
 import 'package:example/docs/pages/streaming_text.dart';
@@ -119,6 +122,7 @@ final componentDocs = [
   appBarDoc,
   avatarDoc,
   avatarGroupDoc,
+  backButtonDoc,
   badgeDoc,
   boardDoc,
   breadcrumbDoc,
@@ -138,6 +142,7 @@ final componentDocs = [
   dividerDoc,
   dropdownMenuDoc,
   emptyDoc,
+  floatingActionButtonDoc,
   glassDoc,
   iconButtonDoc,
   iconTileDoc,
@@ -162,6 +167,7 @@ final componentDocs = [
   sidebarDoc,
   skeletonDoc,
   sliderDoc,
+  sliverAppBarDoc,
   sonnerDoc,
   spinnerDoc,
   streamingTextDoc,
