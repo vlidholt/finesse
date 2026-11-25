@@ -182,6 +182,23 @@ void main() {
       expect(find.byType(TimeField), findsNothing);
     });
 
+    testWidgets("emptying the popover's field clears the time", (
+      tester,
+    ) async {
+      await pumpFinesse(
+        tester,
+        const _Host(initial: TimeOfDay(hour: 7, minute: 45)),
+      );
+      await open(tester);
+      tester.testTextInput.enterText('');
+      await tester.pump();
+      expect(host(tester).value, isNull);
+      expect(host(tester).changes, [null]);
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await rest(tester);
+      expect(find.text('Select time'), findsOneWidget);
+    });
+
     testWidgets('on a phone it opens wheels in a sheet', (tester) async {
       await pumpFinesse(
         tester,

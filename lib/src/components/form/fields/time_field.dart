@@ -71,9 +71,10 @@ class TimeFormField extends FinesseFormField<TimeOfDay> {
          builder: (state) {
            state as _TimeFormFieldState;
            return TimeField(
-             // A reset writes the initial value back into the fields.
+             // A reset writes the initial value back into the fields,
+             // even over a half-typed time the form holds as null.
              key: ValueKey(state._generation),
-             initialValue: state.value,
+             value: state.value,
              onChanged: state.didChange,
              enabled: state.enabled,
              focusNode: state.focusNode,
