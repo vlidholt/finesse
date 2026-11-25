@@ -575,7 +575,7 @@ class _AppState extends State<FinesseApp> {
 
   // One instance, not one per build: constructing a `ThemeData` derives
   // every component theme, and a new one each time is also a miss in the
-  // form-factor cache and a full comparison in `AnimatedTheme`.
+  // form-factor cache and a full comparison in `CrossFadeTheme`.
   static final ThemeData _defaultLightTheme = ThemeData(
     brightness: Brightness.light,
   );
@@ -806,7 +806,7 @@ class FinesseAppBuilder extends StatelessWidget {
     // widget.builder() will not find the theme. Therefore, we
     // surround widget.builder with yet another builder so that
     // a context separates them and Theme.of() correctly
-    // resolves to the theme we passed to AnimatedTheme.
+    // resolves to the theme we passed to CrossFadeTheme.
     return Builder(
       builder: (BuildContext context) {
         // The `Toaster` goes around the [child], inside [builder], so that

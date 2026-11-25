@@ -32,8 +32,9 @@ enum _Part { day, month, year }
 /// birthday, an expiry date — where paging a calendar back thirty years is
 /// the slow way; `DatePicker` is the button that shows a calendar or
 /// wheels. It is the sibling of `TimeField`, and takes its look from the
-/// same theme (`TimeFieldTheme`): each field has a text field's text,
-/// outline, fill and height.
+/// same theme (`TimeFieldTheme`), on purpose, so the two match in a form:
+/// each field has a text field's text, outline, fill and height. There is
+/// no `DateFieldTheme`.
 ///
 /// Typing fills a field and moves on to the next once it is full, or once
 /// no further digit could follow (a 4 is a whole month). The up and down

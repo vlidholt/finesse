@@ -720,7 +720,9 @@ weight, another font, at or above the reference — is a plain `Icon`.
 - `FinesseBorder.merge` takes the other's `borderRadius` and `offset` only
   where the other sets them. Taking both unconditionally once made an
   override that set only the radius drop the offset, which collapsed a
-  focus ring onto the element's own border; keep the two null-aware.
+  focus ring onto the element's own border; keep the two null-aware. The
+  `FinesseRoundedSuperellipseBorder` branch builds a new border, so it has
+  to carry `offset` and `padding` itself (`border_merge_test.dart`).
 - `OutwardBorderPainter` inflates the rect by `offset` and strokes *inside*
   it, so `offset == width` puts the stroke flush against the element. That is
   how the shadcn ring's "no gap" is reproduced.

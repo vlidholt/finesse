@@ -5,6 +5,14 @@ import 'package:theme_extensions_builder_annotation/theme_extensions_builder_ann
 part 'time_field.g.theme.dart';
 
 /// The theme of `TimeField`: every value the widget does not set itself.
+///
+/// `DateField` takes its look from this theme as well, on purpose: the two
+/// are siblings and sit side by side in a form, so their fields share one
+/// text style, placeholder style, label style, decoration, padding, width,
+/// gap and spacing, and `jumpToNextFieldWhenFilled`. The values about the
+/// wrap the fields are laid out in ([axis], [alignment], [runAlignment],
+/// [crossAxisAlignment]) and about the day period ([periodHeight],
+/// [periodMinWidth], [periodDecoration]) are the time field's alone.
 @themeGen
 @immutable
 class TimeFieldTheme with _$TimeFieldTheme {

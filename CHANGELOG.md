@@ -582,6 +582,9 @@ Problems inherited from shad:
 - A `ContextMenu` open from its first build did not take the keyboard
   focus.
 - Toasts had their shadow clipped off.
+- Merging a `FinesseRoundedSuperellipseBorder` dropped its `offset` and
+  `padding`, so a focus ring drawn with one collapsed onto the element's
+  own border.
 - A `Dialog` on a narrow screen, an open `Tooltip` and a `FinesseApp` given
   no theme derived the whole theme again on every build, and the page,
   dialog and `showPopover` routes set their transition up again on every

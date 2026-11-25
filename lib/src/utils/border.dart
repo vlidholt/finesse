@@ -255,6 +255,11 @@ class FinesseBorder {
           _ => other.side,
         },
         borderRadius: other.borderRadius ?? borderRadius,
+        // Null-aware, like the rest of a merge: an override that sets only
+        // the radius keeps the offset, or a focus ring collapses onto the
+        // element's own border.
+        padding: other.padding ?? padding,
+        offset: other.offset ?? offset,
       );
     }
     return copyWith(
@@ -557,6 +562,8 @@ class FinesseRoundedSuperellipseBorder extends FinesseBorder {
     super.canMerge,
     this.side,
     super.borderRadius,
+    super.padding,
+    super.offset,
   });
 
   /// The side drawn on every edge.
@@ -564,7 +571,7 @@ class FinesseRoundedSuperellipseBorder extends FinesseBorder {
 
   @override
   String toString() {
-    return '''FinesseRoundedSuperellipseBorder(canMerge: $canMerge, side: $side, borderRadius: $borderRadius)''';
+    return '''FinesseRoundedSuperellipseBorder(canMerge: $canMerge, side: $side, borderRadius: $borderRadius, padding: $padding, offset: $offset)''';
   }
 
   @override
@@ -574,9 +581,12 @@ class FinesseRoundedSuperellipseBorder extends FinesseBorder {
     return other is FinesseRoundedSuperellipseBorder &&
         other.canMerge == canMerge &&
         other.side == side &&
-        other.borderRadius == borderRadius;
+        other.borderRadius == borderRadius &&
+        other.padding == padding &&
+        other.offset == offset;
   }
 
   @override
-  int get hashCode => Object.hash(canMerge, side, borderRadius);
+  int get hashCode =>
+      Object.hash(canMerge, side, borderRadius, padding, offset);
 }
