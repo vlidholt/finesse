@@ -569,7 +569,10 @@ class ScaffoldState extends State<Scaffold> with TickerProviderStateMixin {
     final background = widget.backgroundColor ?? theme.colorScheme.background;
 
     _geometry.viewHeight = media.size.height;
-    final onStage = TickerMode.valuesOf(context).enabled;
+    // Off stage under a covered route, and in a hidden child of an
+    // IndexedStack, which keeps its tickers running.
+    final onStage =
+        TickerMode.valuesOf(context).enabled && Visibility.of(context);
     if (onStage != _geometry.onStage) {
       _geometry.onStage = onStage;
       if (_overlayInsets != null) _scheduleReport();

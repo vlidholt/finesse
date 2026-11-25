@@ -848,6 +848,38 @@ void main() {
       expect(insets!.insets, const EdgeInsets.only(bottom: 56));
     });
 
+    testWidgets('a scaffold in a hidden tab of an IndexedStack reports '
+        'nothing', (tester) async {
+      OverlayInsets? insets;
+      Widget app(int index) => FinesseApp(
+        builder: (context, child) => OverlayInsetsScope(
+          child: Builder(
+            builder: (context) {
+              insets = OverlayInsets.maybeOf(context);
+              return child!;
+            },
+          ),
+        ),
+        // A hidden child of an IndexedStack keeps its tickers running.
+        home: IndexedStack(
+          index: index,
+          children: [
+            Scaffold(footer: box(_footer, 56), body: const SizedBox.expand()),
+            const SizedBox.expand(),
+          ],
+        ),
+      );
+      await tester.pumpWidget(app(0));
+      await tester.pump();
+      expect(insets!.insets, const EdgeInsets.only(bottom: 56));
+      await tester.pumpWidget(app(1));
+      await tester.pump();
+      expect(insets!.insets, EdgeInsets.zero);
+      await tester.pumpWidget(app(0));
+      await tester.pump();
+      expect(insets!.insets, const EdgeInsets.only(bottom: 56));
+    });
+
     test('the registry keeps the largest report on each edge', () {
       final insets = OverlayInsets();
       var changes = 0;
