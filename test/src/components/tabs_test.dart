@@ -44,6 +44,8 @@ void main() {
       home: Scaffold(
         body: Tabs<String>(
           value: 'account',
+          // Without it the tabs are inert, and drawn so.
+          onChanged: (_) {},
           tabs: [
             Tab(
               value: 'account',
@@ -110,6 +112,8 @@ void main() {
         createTestWidget(
           Tabs<String>(
             value: 'account',
+            // Without it the tabs are inert, and drawn so.
+            onChanged: (_) {},
             tabs: [
               Tab(
                 value: 'account',

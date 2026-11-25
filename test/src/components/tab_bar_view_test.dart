@@ -817,11 +817,11 @@ void main() {
         'content', (tester) async {
       await pumpFinesse(
         tester,
-        SingleChildScrollView(
+        const SingleChildScrollView(
           child: Tabs<String>(
             value: 'a',
             expandContent: true,
-            tabs: const [
+            tabs: [
               Tab(
                 value: 'a',
                 content: SizedBox(height: 120, child: Text('page a')),

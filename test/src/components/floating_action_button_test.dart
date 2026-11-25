@@ -539,9 +539,9 @@ void main() {
         'the filter is translucent', (tester) async {
       // An opacity layer around a backdrop filter takes the blur away on
       // some renderers, the web's among them.
-      double opacityAbove(RenderObject? node) {
+      double opacityAbove(RenderObject? from) {
         var lowest = 1.0;
-        for (; node != null; node = node.parent) {
+        for (var node = from; node != null; node = node.parent) {
           if (node is RenderAnimatedOpacity) {
             lowest = lowest < node.opacity.value ? lowest : node.opacity.value;
           } else if (node is RenderOpacity) {
