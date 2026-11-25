@@ -388,6 +388,7 @@ class RangeSlider extends StatefulWidget {
     this.min,
     this.max,
     this.autofocus = false,
+    this.focusNode,
     this.mouseCursor,
     this.disabledMouseCursor,
     this.thumbColor,
@@ -447,6 +448,10 @@ class RangeSlider extends StatefulWidget {
   /// Defaults to false.
   /// {@endtemplate}
   final bool autofocus;
+
+  /// The focus node of the lowest thumb. The other thumbs have nodes of
+  /// their own.
+  final FocusNode? focusNode;
 
   /// {@macro Slider.mouseCursor}
   final MouseCursor? mouseCursor;
@@ -544,6 +549,7 @@ class _RangeSliderState extends State<RangeSlider> {
       min: widget.min,
       max: widget.max,
       autofocus: widget.autofocus,
+      focusNode: widget.focusNode,
       mouseCursor: widget.mouseCursor,
       disabledMouseCursor: widget.disabledMouseCursor,
       thumbColor: widget.thumbColor,

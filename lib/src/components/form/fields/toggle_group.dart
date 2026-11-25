@@ -35,7 +35,6 @@ class ToggleGroupFormField<T> extends FinesseFormField<Set<T>> {
     super.enabled,
     super.autovalidateMode,
     super.restorationId,
-    super.focusNode,
 
     /// The items of the group.
     required List<ToggleGroupItem<T>> children,

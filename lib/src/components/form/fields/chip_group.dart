@@ -36,7 +36,6 @@ class ChipGroupFormField<T> extends FinesseFormField<Set<T>> {
     super.enabled,
     super.autovalidateMode,
     super.restorationId,
-    super.focusNode,
 
     /// The chips, in order.
     required List<ChipGroupItem<T>> items,
