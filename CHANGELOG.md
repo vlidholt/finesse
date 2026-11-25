@@ -74,6 +74,7 @@ package as it is, compared with shad.
   `ResizablePanelGroup`, `RovingFocus` or the button, menubar and resizable
   themes, and no `SelectOption.direction`: wrap in a `Directionality`.
 - **Smaller renames.** `Popover(popover:)` is `Popover(builder:)`.
+  `Command.onItemSelected` is `onSelected`.
   `ProgressBar.semanticsLabel`/`semanticsValue` and
   `StreamingText.semanticsLabel` are `semanticLabel`/`semanticValue`.
   `SidebarMenuButton.isActive` and `SidebarMenuSubButton.isActive` are

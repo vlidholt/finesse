@@ -53,7 +53,7 @@ class CommandItem {
   /// Whether the item can be chosen.
   final bool enabled;
 
-  /// An arbitrary payload, surfaced through [Command.onItemSelected].
+  /// An arbitrary payload, surfaced through [Command.onSelected].
   final Object? value;
 
   /// The haystack the default filter searches.
@@ -118,7 +118,7 @@ class Command extends StatefulWidget {
     required this.groups,
     this.placeholder,
     this.emptyBuilder,
-    this.onItemSelected,
+    this.onSelected,
     this.onQueryChanged,
     this.filter,
     this.controller,
@@ -149,8 +149,9 @@ class Command extends StatefulWidget {
   /// shadcn's `CommandEmpty`.
   final Widget Function(BuildContext context, String query)? emptyBuilder;
 
-  /// Called with the chosen item, in addition to its own `onSelected`.
-  final ValueChanged<CommandItem>? onItemSelected;
+  /// Called with the chosen item, after the item's own
+  /// [CommandItem.onSelected].
+  final ValueChanged<CommandItem>? onSelected;
 
   /// Called whenever the query changes.
   final ValueChanged<String>? onQueryChanged;
@@ -355,7 +356,7 @@ class _CommandState extends State<Command> {
   void _select(CommandItem item) {
     if (!item.enabled) return;
     item.onSelected?.call();
-    widget.onItemSelected?.call(item);
+    widget.onSelected?.call(item);
   }
 
   void _activateAt(int index) {
@@ -741,7 +742,7 @@ Future<T?> showCommandDialog<T>({
             backgroundColor: const Color(0x00000000),
             itemBorderRadius: commandTheme.dialogItemBorderRadius,
             onEscape: () => Navigator.of(context).maybePop(),
-            onItemSelected: (item) {
+            onSelected: (item) {
               Navigator.of(context).pop(item.value as T?);
             },
           ),

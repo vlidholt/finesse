@@ -228,13 +228,13 @@ void main() {
       expect(escaped, isTrue);
     });
 
-    testWidgets('onItemSelected reports the chosen item', (tester) async {
+    testWidgets('onSelected reports the chosen item', (tester) async {
       CommandItem? selected;
       await tester.pumpWidget(
         wrap(
           Command(
             groups: groups(),
-            onItemSelected: (item) => selected = item,
+            onSelected: (item) => selected = item,
           ),
         ),
       );
