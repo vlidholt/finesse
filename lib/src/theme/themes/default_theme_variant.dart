@@ -999,6 +999,11 @@ class DefaultThemeVariant extends ThemeVariant {
         ),
       ),
       filter: popoverFilter,
+      // For a popover that asks for an arrow (`Popover(showArrow: true)`,
+      // `HoverCard`): the tooltip's shape a step larger, for a surface
+      // with wider corners — about 7 tall on a foot of 16.
+      arrowSize: scaled(14),
+      arrowRadius: style.itemRadius == RadiusToken.none ? 0 : 2,
       anchor: const AnchorAuto(
         offset: Offset(0, 4),
         fallback: AnchorAuto(

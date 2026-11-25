@@ -34,6 +34,9 @@ mixin _$PopoverTheme {
       filter: t < 0.5 ? a.filter : b.filter,
       reverseDuration: lerpDuration$(a.reverseDuration, b.reverseDuration, t),
       textStyle: TextStyle.lerp(a.textStyle, b.textStyle, t),
+      showArrow: t < 0.5 ? a.showArrow : b.showArrow,
+      arrowSize: lerpDouble$(a.arrowSize, b.arrowSize, t),
+      arrowRadius: lerpDouble$(a.arrowRadius, b.arrowRadius, t),
     );
   }
 
@@ -46,6 +49,9 @@ mixin _$PopoverTheme {
     ImageFilter? filter,
     Duration? reverseDuration,
     TextStyle? textStyle,
+    bool? showArrow,
+    double? arrowSize,
+    double? arrowRadius,
   }) {
     final _this = (this as PopoverTheme);
 
@@ -58,6 +64,9 @@ mixin _$PopoverTheme {
       filter: filter ?? _this.filter,
       reverseDuration: reverseDuration ?? _this.reverseDuration,
       textStyle: textStyle ?? _this.textStyle,
+      showArrow: showArrow ?? _this.showArrow,
+      arrowSize: arrowSize ?? _this.arrowSize,
+      arrowRadius: arrowRadius ?? _this.arrowRadius,
     );
   }
 
@@ -81,6 +90,9 @@ mixin _$PopoverTheme {
       filter: other.filter,
       reverseDuration: other.reverseDuration,
       textStyle: _this.textStyle?.merge(other.textStyle) ?? other.textStyle,
+      showArrow: other.showArrow,
+      arrowSize: other.arrowSize,
+      arrowRadius: other.arrowRadius,
     );
   }
 
@@ -104,7 +116,10 @@ mixin _$PopoverTheme {
         _other.anchor == _this.anchor &&
         _other.filter == _this.filter &&
         _other.reverseDuration == _this.reverseDuration &&
-        _other.textStyle == _this.textStyle;
+        _other.textStyle == _this.textStyle &&
+        _other.showArrow == _this.showArrow &&
+        _other.arrowSize == _this.arrowSize &&
+        _other.arrowRadius == _this.arrowRadius;
   }
 
   @override
@@ -121,6 +136,9 @@ mixin _$PopoverTheme {
       _this.filter,
       _this.reverseDuration,
       _this.textStyle,
+      _this.showArrow,
+      _this.arrowSize,
+      _this.arrowRadius,
     );
   }
 }

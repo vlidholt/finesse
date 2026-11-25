@@ -27,6 +27,7 @@ import 'package:example/docs/pages/fonts.dart';
 import 'package:example/docs/pages/form.dart';
 import 'package:example/docs/pages/form_factors.dart';
 import 'package:example/docs/pages/glass.dart';
+import 'package:example/docs/pages/hover_card.dart';
 import 'package:example/docs/pages/icon_button.dart';
 import 'package:example/docs/pages/icon_tile.dart';
 import 'package:example/docs/pages/icons.dart';
@@ -139,6 +140,7 @@ final componentDocs = [
   dropdownMenuDoc,
   emptyDoc,
   glassDoc,
+  hoverCardDoc,
   iconButtonDoc,
   iconTileDoc,
   indicatorBadgeDoc,

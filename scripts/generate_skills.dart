@@ -43,6 +43,7 @@ const _slugs = [
   'dropdown_menu',
   'empty',
   'glass',
+  'hover_card',
   'icon_button',
   'icon_tile',
   'indicator_badge',
