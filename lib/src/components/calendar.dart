@@ -682,12 +682,23 @@ class _CalendarState extends State<Calendar> {
     final effectiveNavigationButtonIconSize =
         calendar.navigationButtonIconSize ?? 16;
 
-    final effectiveBackNavigationButtonSrc =
-        calendar.backNavigationButtonIconData ?? PhosphorIconsRegular.caretLeft;
+    final navigationButtonIconTheme = IconThemeData(
+      size: effectiveNavigationButtonIconSize,
+    );
 
-    final effectiveForwardNavigationButtonSrc =
-        calendar.forwardNavigationButtonIconData ??
-        PhosphorIconsRegular.caretRight;
+    final effectiveBackNavigationButtonIcon = IconTheme.merge(
+      data: navigationButtonIconTheme,
+      child:
+          calendar.backNavigationButtonIcon ??
+          const PhosphorIcon(PhosphorIconsRegular.caretLeft),
+    );
+
+    final effectiveForwardNavigationButtonIcon = IconTheme.merge(
+      data: navigationButtonIconTheme,
+      child:
+          calendar.forwardNavigationButtonIcon ??
+          const PhosphorIcon(PhosphorIconsRegular.caretRight),
+    );
 
     final effectiveNavigationButtonPadding =
         calendar.navigationButtonPadding ?? EdgeInsets.zero;
@@ -911,10 +922,7 @@ class _CalendarState extends State<Calendar> {
             padding: effectiveNavigationButtonPadding,
             enabled: !isPreviousMonthButtonDisabled,
             onHover: (hovered) => backMonthButtonHovered.value = hovered,
-            icon: PhosphorIcon(
-              effectiveBackNavigationButtonSrc,
-              size: effectiveNavigationButtonIconSize,
-            ),
+            icon: effectiveBackNavigationButtonIcon,
             onPressed: () => goToMonth(currentMonth.previousMonth),
           ),
         );
@@ -933,10 +941,7 @@ class _CalendarState extends State<Calendar> {
             enabled: !isNextMonthButtonDisabled,
             onHover: (hovered) => forwardMonthButtonHovered.value = hovered,
             onPressed: () => goToMonth(currentMonth.nextMonth),
-            icon: PhosphorIcon(
-              effectiveForwardNavigationButtonSrc,
-              size: effectiveNavigationButtonIconSize,
-            ),
+            icon: effectiveForwardNavigationButtonIcon,
           ),
         );
       },

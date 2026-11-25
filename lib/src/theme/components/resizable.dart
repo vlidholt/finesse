@@ -53,7 +53,7 @@ class ResizableTheme with _$ResizableTheme {
   /// {@macro ResizablePanelGroup.showHandle}
   final bool? showHandle;
 
-  /// {@macro ResizablePanelGroup.handleIconData}
+  /// An icon for the resize handle.
   final IconData? handleIconData;
 
   /// {@macro ResizablePanelGroup.dividerSize}

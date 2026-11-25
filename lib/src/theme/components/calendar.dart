@@ -22,8 +22,8 @@ class CalendarTheme with _$CalendarTheme {
     this.monthSelectorPadding,
     this.navigationButtonSize,
     this.navigationButtonIconSize,
-    this.backNavigationButtonIconData,
-    this.forwardNavigationButtonIconData,
+    this.backNavigationButtonIcon,
+    this.forwardNavigationButtonIcon,
     this.navigationButtonPadding,
     this.navigationButtonDisabledOpacity,
     this.decoration,
@@ -103,13 +103,20 @@ class CalendarTheme with _$CalendarTheme {
   /// The navigation button icon size, defaults to 16
   final double? navigationButtonIconSize;
 
-  /// The back navigation button src, defaults to
-  /// `PhosphorIconsRegular.caretLeft`
-  final IconData? backNavigationButtonIconData;
+  /// The icon of the back navigation button, defaults to a
+  /// `PhosphorIconsRegular.caretLeft`, drawn at [navigationButtonIconSize].
+  ///
+  /// A theme is compared on every rebuild, so a widget given here has to be
+  /// a constant.
+  final Widget? backNavigationButtonIcon;
 
-  /// The forward navigation button src, defaults to
-  /// `PhosphorIconsRegular.caretRight`
-  final IconData? forwardNavigationButtonIconData;
+  /// The icon of the forward navigation button, defaults to a
+  /// `PhosphorIconsRegular.caretRight`, drawn at
+  /// [navigationButtonIconSize].
+  ///
+  /// A theme is compared on every rebuild, so a widget given here has to be
+  /// a constant.
+  final Widget? forwardNavigationButtonIcon;
 
   /// The padding of the navigation button, defaults to [EdgeInsets.zero]
   final EdgeInsetsGeometry? navigationButtonPadding;

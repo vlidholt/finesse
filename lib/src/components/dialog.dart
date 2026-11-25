@@ -388,8 +388,8 @@ Future<T?> showDialog<T>({
 /// Variants available for the [Dialog] widget.
 enum DialogVariant {
   /// A standard dialog. Like an alert it has no close button unless it is
-  /// given one (`closeIconData` or `closeIcon`): it is dismissed by a tap on
-  /// the barrier, by Escape, or by one of its actions.
+  /// given one (`showCloseButton` or `closeButton`): it is dismissed by a tap
+  /// on the barrier, by Escape, or by one of its actions.
   primary,
 
   /// A dialog that needs a response. It has no close button by default, so the
@@ -412,8 +412,9 @@ class Dialog extends StatelessWidget {
     this.description,
     this.child,
     this.actions = const [],
+    this.showCloseButton,
     this.closeIcon,
-    this.closeIconData,
+    this.closeButton,
     this.onClose,
     this.semanticLabel,
     this.closeIconPosition,
@@ -455,8 +456,9 @@ class Dialog extends StatelessWidget {
     this.description,
     this.child,
     this.actions = const [],
+    this.showCloseButton,
     this.closeIcon,
-    this.closeIconData,
+    this.closeButton,
     this.onClose,
     this.semanticLabel,
     this.closeIconPosition,
@@ -522,29 +524,32 @@ class Dialog extends StatelessWidget {
   /// {@endtemplate}
   final List<Widget> actions;
 
-  /// {@template Dialog.closeIcon}
-  /// A custom widget for the close button, shown in the dialog's top end
-  /// corner. Overrides [closeIconData].
+  /// {@template Dialog.showCloseButton}
+  /// Whether the dialog has a close button in its top end corner.
   ///
-  /// A dialog has no close button by default: give it an action that
-  /// closes it — a Cancel or Close button — or pass [closeIconData] to get
-  /// the ghost button with that icon.
+  /// Null, the default, follows the theme, and the built-in themes say no:
+  /// a dialog is closed by one of its actions — a Cancel or Close button —
+  /// by Escape or by a tap outside.
+  /// {@endtemplate}
+  final bool? showCloseButton;
+
+  /// {@template Dialog.closeIcon}
+  /// The icon of the close button; a cross by default. Shown when
+  /// [showCloseButton] is true.
   /// {@endtemplate}
   final Widget? closeIcon;
 
-  /// {@template Dialog.closeIconData}
-  /// The icon of the close button, such as [PhosphorIconsRegular.x].
-  ///
-  /// Null, the default, falls back to the theme's `closeIconData`, and when
-  /// that is null too — as it is in the built-in themes — the dialog has no
-  /// close button. Not used when [closeIcon] is given.
+  /// {@template Dialog.closeButton}
+  /// A widget that stands in for the close button, shown in the dialog's
+  /// top end corner whatever [showCloseButton] says. It closes the dialog
+  /// itself; [closeIcon] and [onClose] are not used.
   /// {@endtemplate}
-  final IconData? closeIconData;
+  final Widget? closeButton;
 
   /// {@template Dialog.onClose}
   /// Called when the default close button is pressed. Defaults to
   /// `Navigator.maybePop`, which respects a `PopScope` around the dialog.
-  /// Not used when [closeIcon] replaces the button.
+  /// Not used when [closeButton] replaces the button.
   /// {@endtemplate}
   final VoidCallback? onClose;
 
@@ -753,17 +758,18 @@ class Dialog extends StatelessWidget {
         effectiveDialogTheme.backgroundColor ??
         theme.colorScheme.background;
 
+    final effectiveShowCloseButton =
+        showCloseButton ?? effectiveDialogTheme.showCloseButton ?? false;
+
     final effectiveCloseIcon =
-        closeIcon ??
-        (closeIconData == null && effectiveDialogTheme.closeIconData == null
+        closeButton ??
+        (!effectiveShowCloseButton
             ? null
             : IconButton.ghost(
-                icon: PhosphorIcon(
-                  size: 16,
-                  closeIconData ??
-                      effectiveDialogTheme.closeIconData ??
-                      PhosphorIconsRegular.x,
-                ),
+                icon:
+                    closeIcon ??
+                    effectiveDialogTheme.closeIcon ??
+                    const PhosphorIcon(PhosphorIconsRegular.x, size: 16),
                 width: 20,
                 height: 20,
                 padding: EdgeInsets.zero,

@@ -59,7 +59,7 @@ class _NewMessageDialogState extends State<_NewMessageDialog> {
       title: const Text('New message'),
       // A picker with no actions of its own: the x is its way out, next to
       // Escape and a tap outside. Dialogs have none unless they ask.
-      closeIconData: PhosphorIconsRegular.x,
+      showCloseButton: true,
       constraints: const BoxConstraints(maxWidth: 440),
       scrollable: true,
       child: Column(

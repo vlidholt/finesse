@@ -70,7 +70,7 @@ class _StoryViewer extends StatelessWidget {
       constraints: const BoxConstraints(maxWidth: 380),
       // The profile's round glass button: white on a dark scrim, where the
       // dialog's own would be dark on the photograph.
-      closeIcon: ProfileCoverButton(
+      closeButton: ProfileCoverButton(
         icon: PhosphorIconsRegular.x,
         semanticLabel: 'Close',
         onPressed: () => Navigator.of(context).pop(),

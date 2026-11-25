@@ -27,12 +27,12 @@ void main() {
     await settle(tester);
   }
 
-  test('no built-in dialog theme carries a close icon; the sheet shows its '
-      'close button', () {
+  test('no built-in dialog theme shows a close button; the sheet shows '
+      'its own', () {
     for (final style in StyleTokens.all) {
       final theme = ThemeData(style: style);
-      expect(theme.primaryDialogTheme.closeIconData, isNull);
-      expect(theme.alertDialogTheme.closeIconData, isNull);
+      expect(theme.primaryDialogTheme.showCloseButton, isNull);
+      expect(theme.alertDialogTheme.showCloseButton, isNull);
       expect(theme.sheetTheme.showCloseButton, isTrue);
     }
   });
@@ -74,14 +74,14 @@ void main() {
     expect(find.text('Edit profile'), findsNothing);
   });
 
-  testWidgets('closeIconData opts the button back in, and it closes', (
+  testWidgets('showCloseButton opts the button back in, and it closes', (
     tester,
   ) async {
     await open(
       tester,
       (context) => const Dialog(
         title: Text('Edit profile'),
-        closeIconData: PhosphorIconsRegular.x,
+        showCloseButton: true,
       ),
     );
     expect(closeIcon, findsOneWidget);
@@ -90,11 +90,65 @@ void main() {
     expect(find.text('Edit profile'), findsNothing);
   });
 
+  testWidgets('closeIcon is the glyph of the button, and only that', (
+    tester,
+  ) async {
+    await open(
+      tester,
+      (context) => const Dialog(
+        title: Text('Edit profile'),
+        closeIcon: PhosphorIcon(PhosphorIconsRegular.arrowLeft),
+      ),
+    );
+    // An icon alone does not ask for the button.
+    expect(find.byIcon(PhosphorIconsRegular.arrowLeft), findsNothing);
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await settle(tester);
+
+    await open(
+      tester,
+      (context) => const Dialog(
+        title: Text('Edit profile'),
+        showCloseButton: true,
+        closeIcon: PhosphorIcon(PhosphorIconsRegular.arrowLeft),
+      ),
+    );
+    expect(closeIcon, findsNothing);
+    final glyph = find.byIcon(PhosphorIconsRegular.arrowLeft);
+    expect(
+      find.ancestor(of: glyph, matching: find.byType(IconButton)),
+      findsOneWidget,
+    );
+    await tester.tap(glyph);
+    await settle(tester);
+    expect(find.text('Edit profile'), findsNothing);
+  });
+
+  testWidgets('closeButton stands in for the whole button', (tester) async {
+    var pressed = 0;
+    await open(
+      tester,
+      (context) => Dialog(
+        title: const Text('Edit profile'),
+        closeButton: Button.ghost(
+          onPressed: () => pressed++,
+          child: const Text('Done'),
+        ),
+      ),
+    );
+    expect(closeIcon, findsNothing);
+    await tester.tap(find.text('Done'));
+    await settle(tester);
+    // It is the caller's button: the dialog does not close on its behalf.
+    expect(pressed, 1);
+    expect(find.text('Edit profile'), findsOneWidget);
+  });
+
   testWidgets('a theme can opt every dialog back in', (tester) async {
     final base = ThemeData();
     final theme = base.copyWith(
       primaryDialogTheme: base.primaryDialogTheme.copyWith(
-        closeIconData: PhosphorIconsRegular.x,
+        showCloseButton: true,
       ),
     );
     await pumpFinesse(

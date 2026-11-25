@@ -26,7 +26,8 @@ mixin _$DialogTheme {
     }
 
     return DialogTheme(
-      closeIconData: t < 0.5 ? a.closeIconData : b.closeIconData,
+      showCloseButton: t < 0.5 ? a.showCloseButton : b.showCloseButton,
+      closeIcon: t < 0.5 ? a.closeIcon : b.closeIcon,
       closeIconPosition: Position.lerp(
         a.closeIconPosition,
         b.closeIconPosition,
@@ -87,7 +88,8 @@ mixin _$DialogTheme {
   }
 
   DialogTheme copyWith({
-    IconData? closeIconData,
+    bool? showCloseButton,
+    Widget? closeIcon,
     Position? closeIconPosition,
     BorderRadius? borderRadius,
     Color? backgroundColor,
@@ -124,7 +126,8 @@ mixin _$DialogTheme {
     final _this = (this as DialogTheme);
 
     return DialogTheme(
-      closeIconData: closeIconData ?? _this.closeIconData,
+      showCloseButton: showCloseButton ?? _this.showCloseButton,
+      closeIcon: closeIcon ?? _this.closeIcon,
       closeIconPosition: closeIconPosition ?? _this.closeIconPosition,
       borderRadius: borderRadius ?? _this.borderRadius,
       backgroundColor: backgroundColor ?? _this.backgroundColor,
@@ -176,7 +179,8 @@ mixin _$DialogTheme {
     }
 
     return copyWith(
-      closeIconData: other.closeIconData,
+      showCloseButton: other.showCloseButton,
+      closeIcon: other.closeIcon,
       closeIconPosition: other.closeIconPosition,
       borderRadius: other.borderRadius,
       backgroundColor: other.backgroundColor,
@@ -227,7 +231,8 @@ mixin _$DialogTheme {
     final _this = (this as DialogTheme);
     final _other = (other as DialogTheme);
 
-    return _other.closeIconData == _this.closeIconData &&
+    return _other.showCloseButton == _this.showCloseButton &&
+        _other.closeIcon == _this.closeIcon &&
         _other.closeIconPosition == _this.closeIconPosition &&
         _other.borderRadius == _this.borderRadius &&
         _other.backgroundColor == _this.backgroundColor &&
@@ -268,7 +273,8 @@ mixin _$DialogTheme {
 
     return Object.hashAll([
       runtimeType,
-      _this.closeIconData,
+      _this.showCloseButton,
+      _this.closeIcon,
       _this.closeIconPosition,
       _this.borderRadius,
       _this.backgroundColor,

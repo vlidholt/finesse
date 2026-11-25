@@ -15,7 +15,8 @@ class DialogTheme with _$DialogTheme {
   /// {@macro DialogTheme}
   const DialogTheme({
     bool canMerge = true,
-    this.closeIconData,
+    this.showCloseButton,
+    this.closeIcon,
     this.closeIconPosition,
     this.borderRadius,
     this.backgroundColor,
@@ -56,8 +57,14 @@ class DialogTheme with _$DialogTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro Dialog.closeIconData}
-  final IconData? closeIconData;
+  /// {@macro Dialog.showCloseButton}
+  final bool? showCloseButton;
+
+  /// {@macro Dialog.closeIcon}
+  ///
+  /// A theme is compared on every rebuild, so a widget given here has to be
+  /// a constant.
+  final Widget? closeIcon;
 
   /// {@macro Dialog.closeIconPosition}
   final Position? closeIconPosition;

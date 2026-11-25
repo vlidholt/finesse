@@ -57,12 +57,12 @@ mixin _$CalendarTheme {
         b.navigationButtonIconSize,
         t,
       ),
-      backNavigationButtonIconData: t < 0.5
-          ? a.backNavigationButtonIconData
-          : b.backNavigationButtonIconData,
-      forwardNavigationButtonIconData: t < 0.5
-          ? a.forwardNavigationButtonIconData
-          : b.forwardNavigationButtonIconData,
+      backNavigationButtonIcon: t < 0.5
+          ? a.backNavigationButtonIcon
+          : b.backNavigationButtonIcon,
+      forwardNavigationButtonIcon: t < 0.5
+          ? a.forwardNavigationButtonIcon
+          : b.forwardNavigationButtonIcon,
       navigationButtonPadding: EdgeInsetsGeometry.lerp(
         a.navigationButtonPadding,
         b.navigationButtonPadding,
@@ -220,8 +220,8 @@ mixin _$CalendarTheme {
     EdgeInsetsGeometry? monthSelectorPadding,
     double? navigationButtonSize,
     double? navigationButtonIconSize,
-    IconData? backNavigationButtonIconData,
-    IconData? forwardNavigationButtonIconData,
+    Widget? backNavigationButtonIcon,
+    Widget? forwardNavigationButtonIcon,
     EdgeInsetsGeometry? navigationButtonPadding,
     double? navigationButtonDisabledOpacity,
     FinesseDecoration? decoration,
@@ -283,11 +283,10 @@ mixin _$CalendarTheme {
       navigationButtonSize: navigationButtonSize ?? _this.navigationButtonSize,
       navigationButtonIconSize:
           navigationButtonIconSize ?? _this.navigationButtonIconSize,
-      backNavigationButtonIconData:
-          backNavigationButtonIconData ?? _this.backNavigationButtonIconData,
-      forwardNavigationButtonIconData:
-          forwardNavigationButtonIconData ??
-          _this.forwardNavigationButtonIconData,
+      backNavigationButtonIcon:
+          backNavigationButtonIcon ?? _this.backNavigationButtonIcon,
+      forwardNavigationButtonIcon:
+          forwardNavigationButtonIcon ?? _this.forwardNavigationButtonIcon,
       navigationButtonPadding:
           navigationButtonPadding ?? _this.navigationButtonPadding,
       navigationButtonDisabledOpacity:
@@ -375,8 +374,8 @@ mixin _$CalendarTheme {
       monthSelectorPadding: other.monthSelectorPadding,
       navigationButtonSize: other.navigationButtonSize,
       navigationButtonIconSize: other.navigationButtonIconSize,
-      backNavigationButtonIconData: other.backNavigationButtonIconData,
-      forwardNavigationButtonIconData: other.forwardNavigationButtonIconData,
+      backNavigationButtonIcon: other.backNavigationButtonIcon,
+      forwardNavigationButtonIcon: other.forwardNavigationButtonIcon,
       navigationButtonPadding: other.navigationButtonPadding,
       navigationButtonDisabledOpacity: other.navigationButtonDisabledOpacity,
       decoration: _this.decoration?.merge(other.decoration) ?? other.decoration,
@@ -475,10 +474,9 @@ mixin _$CalendarTheme {
         _other.monthSelectorPadding == _this.monthSelectorPadding &&
         _other.navigationButtonSize == _this.navigationButtonSize &&
         _other.navigationButtonIconSize == _this.navigationButtonIconSize &&
-        _other.backNavigationButtonIconData ==
-            _this.backNavigationButtonIconData &&
-        _other.forwardNavigationButtonIconData ==
-            _this.forwardNavigationButtonIconData &&
+        _other.backNavigationButtonIcon == _this.backNavigationButtonIcon &&
+        _other.forwardNavigationButtonIcon ==
+            _this.forwardNavigationButtonIcon &&
         _other.navigationButtonPadding == _this.navigationButtonPadding &&
         _other.navigationButtonDisabledOpacity ==
             _this.navigationButtonDisabledOpacity &&
@@ -549,8 +547,8 @@ mixin _$CalendarTheme {
       _this.monthSelectorPadding,
       _this.navigationButtonSize,
       _this.navigationButtonIconSize,
-      _this.backNavigationButtonIconData,
-      _this.forwardNavigationButtonIconData,
+      _this.backNavigationButtonIcon,
+      _this.forwardNavigationButtonIcon,
       _this.navigationButtonPadding,
       _this.navigationButtonDisabledOpacity,
       _this.decoration,

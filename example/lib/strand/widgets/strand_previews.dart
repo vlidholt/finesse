@@ -99,7 +99,7 @@ class _PersonPreview extends StatelessWidget {
         final mutuals = _mutuals;
         return Dialog(
           constraints: _previewConstraints,
-          closeIconData: PhosphorIconsRegular.x,
+          showCloseButton: true,
           semanticLabel: person.name,
           actions: _previewActions(context, [
             Button.outline(
@@ -211,7 +211,7 @@ class _CompanyPreview extends StatelessWidget {
       listenable: network,
       builder: (context, _) => Dialog(
         constraints: _previewConstraints,
-        closeIconData: PhosphorIconsRegular.x,
+        showCloseButton: true,
         semanticLabel: company.name,
         actions: _previewActions(context, [
           Button.outline(

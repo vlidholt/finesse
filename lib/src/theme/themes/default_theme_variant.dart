@@ -1592,7 +1592,7 @@ class DefaultThemeVariant extends ThemeVariant {
   @override
   DialogTheme primaryDialogTheme() {
     return DialogTheme(
-      // No `closeIconData`: a dialog has no close button unless it asks for
+      // No `showCloseButton`: a dialog has no close button unless it asks for
       // one. A sheet keeps its own; see [sheetTheme].
       borderRadius: dialogRadius,
       // A dialog sits on the popover surface (`bg-popover`), which in dark
@@ -1787,7 +1787,7 @@ class DefaultThemeVariant extends ThemeVariant {
     // No duration, curve or effects: an item opens on the motion tokens'
     // spring unless a theme or the item itself says otherwise.
     return AccordionTheme(
-      iconData: PhosphorIconsRegular.caretDown,
+      icon: const PhosphorIcon(PhosphorIconsRegular.caretDown),
       padding: spacing.symmetric(vertical: 4),
       underlineTitleOnHover: true,
       maintainState: false,
@@ -2582,8 +2582,12 @@ class DefaultThemeVariant extends ThemeVariant {
     // row all share the cell size.
     navigationButtonSize: scaled(style.calendarCellSize),
     navigationButtonIconSize: scaled(style.iconButtonIconSize),
-    backNavigationButtonIconData: PhosphorIconsRegular.caretLeft,
-    forwardNavigationButtonIconData: PhosphorIconsRegular.caretRight,
+    backNavigationButtonIcon: const PhosphorIcon(
+      PhosphorIconsRegular.caretLeft,
+    ),
+    forwardNavigationButtonIcon: const PhosphorIcon(
+      PhosphorIconsRegular.caretRight,
+    ),
     navigationButtonPadding: EdgeInsets.zero,
     navigationButtonDisabledOpacity: .5,
     decoration: FinesseDecoration(

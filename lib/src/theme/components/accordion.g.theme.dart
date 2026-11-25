@@ -26,7 +26,7 @@ mixin _$AccordionTheme {
     }
 
     return AccordionTheme(
-      iconData: t < 0.5 ? a.iconData : b.iconData,
+      icon: t < 0.5 ? a.icon : b.icon,
       iconEffects: t < 0.5 ? a.iconEffects : b.iconEffects,
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
       underlineTitleOnHover: t < 0.5
@@ -41,7 +41,7 @@ mixin _$AccordionTheme {
   }
 
   AccordionTheme copyWith({
-    IconData? iconData,
+    Widget? icon,
     List<Effect<dynamic>>? iconEffects,
     EdgeInsetsGeometry? padding,
     bool? underlineTitleOnHover,
@@ -54,7 +54,7 @@ mixin _$AccordionTheme {
     final _this = (this as AccordionTheme);
 
     return AccordionTheme(
-      iconData: iconData ?? _this.iconData,
+      icon: icon ?? _this.icon,
       iconEffects: iconEffects ?? _this.iconEffects,
       padding: padding ?? _this.padding,
       underlineTitleOnHover:
@@ -79,7 +79,7 @@ mixin _$AccordionTheme {
     }
 
     return copyWith(
-      iconData: other.iconData,
+      icon: other.icon,
       iconEffects: other.iconEffects,
       padding: other.padding,
       underlineTitleOnHover: other.underlineTitleOnHover,
@@ -104,7 +104,7 @@ mixin _$AccordionTheme {
     final _this = (this as AccordionTheme);
     final _other = (other as AccordionTheme);
 
-    return _other.iconData == _this.iconData &&
+    return _other.icon == _this.icon &&
         _other.iconEffects == _this.iconEffects &&
         _other.padding == _this.padding &&
         _other.underlineTitleOnHover == _this.underlineTitleOnHover &&
@@ -121,7 +121,7 @@ mixin _$AccordionTheme {
 
     return Object.hash(
       runtimeType,
-      _this.iconData,
+      _this.icon,
       _this.iconEffects,
       _this.padding,
       _this.underlineTitleOnHover,

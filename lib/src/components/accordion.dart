@@ -231,7 +231,6 @@ class AccordionItem<T> extends StatefulWidget {
     required this.child,
     this.separator,
     this.icon,
-    this.iconData,
     this.iconEffects,
     this.padding,
     this.underlineTitleOnHover,
@@ -269,17 +268,10 @@ class AccordionItem<T> extends StatefulWidget {
   final Widget? separator;
 
   /// {@template AccordionItem.icon}
-  /// A custom widget to use as the item's icon, takes precedence over
-  /// [iconData].
+  /// The item's icon, a caret pointing down by default.
   /// Displayed in the header and animated based on [iconEffects].
   /// {@endtemplate}
   final Widget? icon;
-
-  /// {@template AccordionItem.iconData}
-  /// The icon data to display if [icon] is not provided.
-  /// Used to create a default [Icon] widget with theme styling.
-  /// {@endtemplate}
-  final IconData? iconData;
 
   /// {@template AccordionItem.iconEffects}
   /// The animation effects applied to the icon when the item expands or
@@ -445,17 +437,18 @@ class _AccordionItemState<T> extends State<AccordionItem<T>>
               ),
             ];
 
-        final effectiveIconData =
-            widget.iconData ??
-            theme.accordionTheme.iconData ??
-            PhosphorIconsRegular.caretDown;
-
+        // The theme's icon is drawn as the default one is; an icon given
+        // to the item itself is the caller's to size and colour.
         final effectiveIcon =
             widget.icon ??
-            PhosphorIcon(
-              effectiveIconData,
-              color: theme.colorScheme.foreground,
-              size: 16,
+            IconTheme.merge(
+              data: IconThemeData(
+                color: theme.colorScheme.foreground,
+                size: 16,
+              ),
+              child:
+                  theme.accordionTheme.icon ??
+                  const PhosphorIcon(PhosphorIconsRegular.caretDown),
             );
 
         final effectivePadding =

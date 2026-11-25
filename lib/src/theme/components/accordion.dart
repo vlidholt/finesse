@@ -14,7 +14,7 @@ class AccordionTheme with _$AccordionTheme {
   /// {@macro AccordionTheme}
   const AccordionTheme({
     bool canMerge = true,
-    this.iconData,
+    this.icon,
     this.iconEffects,
     this.padding,
     this.underlineTitleOnHover,
@@ -31,8 +31,12 @@ class AccordionTheme with _$AccordionTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro AccordionItem.iconData}
-  final IconData? iconData;
+  /// {@macro AccordionItem.icon}
+  ///
+  /// A theme is compared on every rebuild, so a widget given here has to be
+  /// a constant. It is drawn 16 points large in the foreground colour unless
+  /// it says otherwise.
+  final Widget? icon;
 
   /// {@macro AccordionItem.iconEffects}
   final List<Effect<dynamic>>? iconEffects;

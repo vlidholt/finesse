@@ -378,7 +378,6 @@ class ResizablePanelGroup extends StatefulWidget {
     this.verticalDirection,
     this.controller,
     this.showHandle,
-    this.handleIconData,
     this.handleIcon,
     this.dividerSize,
     this.dividerThickness,
@@ -440,14 +439,10 @@ class ResizablePanelGroup extends StatefulWidget {
   /// {@endtemplate}
   final bool? showHandle;
 
-  /// {@template ResizablePanelGroup.handleIconData}
-  /// The icon data for the resize handle.
-  /// {@endtemplate}
-  final IconData? handleIconData;
-
   /// {@template ResizablePanelGroup.handleIcon}
   /// A custom widget to use as the resize handle.
-  /// If provided, this will be displayed instead of the default icon.
+  /// If provided, this will be displayed instead of the default grip and
+  /// its decoration.
   /// {@endtemplate}
   final Widget? handleIcon;
 
@@ -815,10 +810,9 @@ class ResizablePanelGroupState extends State<ResizablePanelGroup> {
                   child: Padding(
                     padding: effectiveHandlePadding,
                     child: PhosphorIcon(
-                      widget.handleIconData ??
-                          (isHorizontal
-                              ? PhosphorIconsRegular.dotsSixVertical
-                              : PhosphorIconsRegular.dotsSix),
+                      isHorizontal
+                          ? PhosphorIconsRegular.dotsSixVertical
+                          : PhosphorIconsRegular.dotsSix,
                       size: effectiveHandleSize,
                     ),
                   ),
