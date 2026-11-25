@@ -1000,7 +1000,9 @@ class ThemeData extends BaseTheme with _$ThemeData {
   ///
   /// ```dart
   /// Button.outline(
-  ///   decoration: theme.buttonDecoration(radius: theme.radii.full),
+  ///   style: ButtonTheme(
+  ///     decoration: theme.buttonDecoration(radius: theme.radii.full),
+  ///   ),
   ///   onPressed: _follow,
   ///   child: const Text('Follow'),
   /// )

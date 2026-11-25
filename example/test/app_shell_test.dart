@@ -89,13 +89,13 @@ void main() {
       await tester.tap(inSidebar(find.text('Button')));
       await settle(tester);
 
+      // The page's description: rich text, since it names widgets in code.
       expect(
-        find.text(
-          'Displays a button or a component that looks like a button. '
-          'Six variants share one API: pick the one matching the '
-          "action's weight.",
+        find.textContaining(
+          'A label that does something when pressed.',
+          findRichText: true,
         ),
-        findsOneWidget,
+        findsWidgets,
       );
     });
 
@@ -279,8 +279,11 @@ void main() {
 
       expect(find.byType(ThemeCustomizerPanel), findsOneWidget);
       expect(
-        find.text('Displays a badge or a component that looks like a badge.'),
-        findsOneWidget,
+        find.textContaining(
+          'A small pill that states something',
+          findRichText: true,
+        ),
+        findsWidgets,
       );
     });
 
