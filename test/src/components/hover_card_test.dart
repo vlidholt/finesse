@@ -31,7 +31,8 @@ void main() {
     onOpenChanged: onOpenChanged,
     builder:
         builder ??
-        (context) => const SizedBox(width: 200, height: 80, child: Text('Card')),
+        (context) =>
+            const SizedBox(width: 200, height: 80, child: Text('Card')),
     child: child ?? const SizedBox(width: 80, height: 24, child: Text('Name')),
   );
 

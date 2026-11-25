@@ -124,7 +124,7 @@ void main() {
         anchor: Alignment.topLeft,
         radius: 12,
       );
-      final keepClear = 12 + 10 * 1.4142135623730951 / 2;
+      const keepClear = 12 + 10 * 1.4142135623730951 / 2;
       expect(shape.arrowCenter(size)!.dx, closeTo(keepClear, .001));
     });
 
@@ -223,13 +223,11 @@ void main() {
         overlayAlignment: AlignmentDirectional.centerStart,
       );
       expect(
-        (ArrowPlacement.withGap(anchor, 5, TextDirection.ltr) as Anchor)
-            .offset,
+        (ArrowPlacement.withGap(anchor, 5, TextDirection.ltr) as Anchor).offset,
         const Offset(5, 0),
       );
       expect(
-        (ArrowPlacement.withGap(anchor, 5, TextDirection.rtl) as Anchor)
-            .offset,
+        (ArrowPlacement.withGap(anchor, 5, TextDirection.rtl) as Anchor).offset,
         const Offset(-5, 0),
       );
     });

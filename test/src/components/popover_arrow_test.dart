@@ -90,7 +90,7 @@ void main() {
       expect(mark.dx, closeTo(target.center.dx, .5));
     });
 
-    testWidgets('the tip stands the anchor\'s gap off the trigger', (
+    testWidgets('the tip stands the gap of the anchor off the trigger', (
       tester,
     ) async {
       await pumpPopover(tester);
@@ -250,8 +250,7 @@ void main() {
           .resolve(TextDirection.ltr)
           .topRight
           .x;
-      final keepClear =
-          radius + theme.popoverTheme.arrowSize! * math.sqrt2 / 2;
+      final keepClear = radius + theme.popoverTheme.arrowSize! * math.sqrt2 / 2;
       final mark = tester.getCenter(arrow).dx;
       expect(mark, lessThanOrEqualTo(box.right - keepClear + .5));
       expect(mark, greaterThan(box.center.dx));

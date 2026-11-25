@@ -25,7 +25,7 @@ enum SurfaceKind {
 /// The surface of a popover or menu, around any [child].
 ///
 /// Use it for floating UI that finesse does not provide as a component — a
-/// cell editor, a find bar, a hover card — so it gets the same outline
+/// cell editor, a find bar, a palette of swatches — so it gets the same outline
 /// (shadcn's `ring-foreground/10`, not `--border`), radius, padding,
 /// colours and shadow as a `Popover`. The shadow is painted the way CSS
 /// paints `box-shadow`, outside the element only; a hand-built
