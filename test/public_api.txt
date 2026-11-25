@@ -277,7 +277,6 @@ NumberFormat
 OtpField
 OtpFieldGroup
 OtpFieldSlot
-OtpFieldState
 OtpFieldTheme
 OtpFormField
 OverlayInsets
