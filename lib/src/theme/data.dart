@@ -128,6 +128,11 @@ class ThemeData extends BaseTheme with _$ThemeData {
     FinesseDecoration? decoration,
     TextTheme? textTheme,
     double? disabledOpacity,
+
+    /// Whether controls give haptic feedback on a touch platform: the tick
+    /// of a wheel, a slider's stops, a switch. Defaults to true. False
+    /// silences every call made through `Haptics` below this theme.
+    bool? haptics,
     SelectTheme? selectTheme,
     SelectOptionTheme? selectOptionTheme,
     CardTheme? cardTheme,
@@ -405,6 +410,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
         decoration: decoration,
         textTheme: textTheme,
         disabledOpacity: disabledOpacity,
+        haptics: haptics,
         selectTheme: selectTheme,
         selectOptionTheme: selectOptionTheme,
         cardTheme: cardTheme,
@@ -530,6 +536,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
       // make a style change leave every font size untouched.
       textTheme: effectiveVariant.textTheme(),
       disabledOpacity: disabledOpacity ?? .5,
+      haptics: haptics ?? true,
       selectTheme: effectiveVariant.selectTheme().merge(selectTheme),
       selectOptionTheme: effectiveVariant.selectOptionTheme().merge(
         selectOptionTheme,
@@ -679,6 +686,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     required super.decoration,
     required super.textTheme,
     required super.disabledOpacity,
+    required super.haptics,
     required super.selectTheme,
     required super.selectOptionTheme,
     required super.cardTheme,
@@ -786,6 +794,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     FinesseDecoration? decoration,
     TextTheme? textTheme,
     double? disabledOpacity,
+    bool? haptics,
     SelectTheme? selectTheme,
     SelectOptionTheme? selectOptionTheme,
     CardTheme? cardTheme,
@@ -887,6 +896,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
       decoration: decoration ?? i.decoration,
       textTheme: textTheme ?? i.textTheme,
       disabledOpacity: disabledOpacity ?? i.disabledOpacity,
+      haptics: haptics ?? i.haptics,
       selectTheme: selectTheme ?? i.selectTheme,
       selectOptionTheme: selectOptionTheme ?? i.selectOptionTheme,
       cardTheme: cardTheme ?? i.cardTheme,
@@ -1089,6 +1099,7 @@ final class _ThemeInputs {
     this.decoration,
     this.textTheme,
     this.disabledOpacity,
+    this.haptics,
     this.selectTheme,
     this.selectOptionTheme,
     this.cardTheme,
@@ -1188,6 +1199,7 @@ final class _ThemeInputs {
   final FinesseDecoration? decoration;
   final TextTheme? textTheme;
   final double? disabledOpacity;
+  final bool? haptics;
   final SelectTheme? selectTheme;
   final SelectOptionTheme? selectOptionTheme;
   final CardTheme? cardTheme;

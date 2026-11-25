@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:finesse/src/components/decorator.dart';
 import 'package:finesse/src/components/text_field.dart';
 import 'package:finesse/src/icons/phosphor_icon.dart';
 import 'package:finesse/src/icons/phosphor_icons_regular.dart';
@@ -9,6 +10,7 @@ import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/content_switch.dart';
+import 'package:finesse/src/utils/haptics.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -378,7 +380,7 @@ class _NumberFieldState extends State<NumberField> {
     final next = _clamp(_round(value));
     if (next == _current && _controller.text == _write(next)) return false;
     if (widget.variant == NumberFieldVariant.field) _setText(_write(next));
-    if (touch) HapticFeedback.selectionClick();
+    if (touch) Haptics.selection(context);
     _report(next);
     return true;
   }

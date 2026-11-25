@@ -352,6 +352,7 @@ class _MovingIndicatorRenderWidget extends SingleChildRenderObjectWidget {
 /// The render object of a [MovingIndicator]: lays out its child, finds the
 /// selected target and paints that target's decoration on the animated
 /// rectangle.
+@internal
 class RenderMovingIndicator extends RenderProxyBox {
   RenderMovingIndicator._(this._state, this._position, this._textDirection) {
     _state._renderObject = this;
@@ -609,6 +610,7 @@ class MovingIndicatorTarget extends SingleChildRenderObjectWidget {
 }
 
 /// The render object of a [MovingIndicatorTarget].
+@internal
 class RenderMovingIndicatorTarget extends RenderProxyBox {
   RenderMovingIndicatorTarget._(
     this._group,

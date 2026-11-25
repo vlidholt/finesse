@@ -59,6 +59,9 @@ void main() {
     ) async {
       await pumpApp(tester, size: wide);
       await openComponentLibrary(tester);
+      // The guides above it can push it below the fold.
+      await tester.ensureVisible(inSidebar(find.text('Badge')));
+      await tester.pump();
       await tester.tap(inSidebar(find.text('Badge')));
       await settle(tester);
 
@@ -273,6 +276,9 @@ void main() {
       // every time the editor was opened.
       await pumpApp(tester, size: wide);
       await openComponentLibrary(tester);
+      // The guides above it can push it below the fold.
+      await tester.ensureVisible(inSidebar(find.text('Badge')));
+      await tester.pump();
       await tester.tap(inSidebar(find.text('Badge')));
       await settle(tester);
       await toggleEditor(tester);

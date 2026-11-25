@@ -1,4 +1,5 @@
 import 'package:finesse/src/components/button_group.dart';
+import 'package:finesse/src/components/decorator.dart';
 import 'package:finesse/src/components/spinner.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/raw_components/pressable.dart';

@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui' show ImageFilter;
 
 import 'package:finesse/src/components/back_button.dart';
@@ -199,6 +200,25 @@ class AppBarToolbar extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The height of a bar's toolbar at the text scale of [context], for a
+/// style height of [height].
+///
+/// A style height is the height at the platform's own text size: it is a
+/// floor, not a size, once the user has scaled the text. The toolbar keeps
+/// its height for as long as a line of its title fits, which with the
+/// shipped styles is up to a little over twice the text size, and is as
+/// tall as that line from there on. At a scale of 1 or less it is exactly
+/// [height].
+double appBarToolbarHeight(BuildContext context, double height) {
+  final scaler = MediaQuery.maybeTextScalerOf(context) ?? TextScaler.noScaling;
+  if (scaler == TextScaler.noScaling) return height;
+  final theme = Theme.of(context);
+  final style = theme.appBarTheme.titleStyle ?? theme.textTheme.large;
+  final fontSize = style.fontSize ?? 14;
+  final line = scaler.scale(fontSize) * (style.height ?? 1.2);
+  return math.max(height, line.ceilToDouble());
 }
 
 /// The surface of a bar: its fill over the blurred page, and the hairline

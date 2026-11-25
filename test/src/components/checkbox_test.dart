@@ -1,8 +1,8 @@
 import 'package:finesse/material.dart';
 import 'package:finesse/src/app.dart';
 import 'package:finesse/src/components/checkbox.dart'; // Adjust import path based on your project structure
+import 'package:finesse/src/components/decorator.dart';
 import 'package:finesse/src/components/disabled.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/utils/pop_in.dart';
 import 'package:flutter/material.dart' hide Checkbox;
 import 'package:flutter_test/flutter_test.dart';

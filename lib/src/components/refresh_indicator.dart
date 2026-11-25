@@ -6,11 +6,11 @@ import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/debug_check.dart';
+import 'package:finesse/src/utils/haptics.dart';
 import 'package:finesse/src/utils/pop_in.dart';
 import 'package:finesse/src/utils/shadow.dart';
 import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 /// Pull a list down past its top to refresh it.
@@ -314,7 +314,7 @@ class RefreshIndicatorState extends State<RefreshIndicator>
     _position.jumpTo(_pull / _trigger);
     final armed = _pull >= _trigger;
     if (armed && _mode == _Mode.drag) {
-      if (_touch) HapticFeedback.mediumImpact();
+      if (_touch) Haptics.impact(context, HapticImpact.medium);
       setState(() {
         _mode = _Mode.armed;
         _armings++;

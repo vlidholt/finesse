@@ -148,6 +148,83 @@ void main() {
       expect(tester.getSize(find.byType(GridView)).width, 350);
     });
 
+    for (final direction in TextDirection.values) {
+      testWidgets('the header reads in the text direction: ${direction.name}', (
+        tester,
+      ) async {
+        final rtl = direction == TextDirection.rtl;
+        final months = <DateTime>[];
+        await pumpFinesse(
+          tester,
+          Center(
+            child: Calendar(
+              initialMonth: may,
+              calendarTheme: _small,
+              onMonthChanged: months.add,
+            ),
+          ),
+          textDirection: direction,
+        );
+        // Earlier days are towards the start, in the grid…
+        final first = tester.getCenter(dayOf(1).first).dx;
+        final second = tester.getCenter(dayOf(2).first).dx;
+        expect(second > first, !rtl);
+
+        // …and so is the button that goes to earlier months, with a caret
+        // that points the way it leads.
+        final towardsLeft = find.byIcon(PhosphorIconsRegular.caretLeft);
+        final towardsRight = find.byIcon(PhosphorIconsRegular.caretRight);
+        expect(towardsLeft, findsOneWidget);
+        expect(towardsRight, findsOneWidget);
+        final calendar = tester.getRect(find.byType(Calendar));
+        expect(tester.getCenter(towardsLeft).dx, lessThan(calendar.center.dx));
+        expect(
+          tester.getCenter(towardsRight).dx,
+          greaterThan(calendar.center.dx),
+        );
+
+        final back = rtl ? towardsRight : towardsLeft;
+        final forward = rtl ? towardsLeft : towardsRight;
+        await tester.tap(back);
+        await settle(tester);
+        expect((months.last.year, months.last.month), (2024, 4));
+        await tester.tap(forward);
+        await settle(tester);
+        await tester.tap(forward);
+        await settle(tester);
+        expect((months.last.year, months.last.month), (2024, 6));
+      });
+    }
+
+    testWidgets("a theme's own navigation icons are drawn as given", (
+      tester,
+    ) async {
+      await pumpFinesse(
+        tester,
+        Center(
+          child: Calendar(
+            initialMonth: may,
+            calendarTheme: _small.copyWith(
+              backNavigationButtonIcon: const PhosphorIcon(
+                PhosphorIconsRegular.arrowLeft,
+              ),
+              forwardNavigationButtonIcon: const PhosphorIcon(
+                PhosphorIconsRegular.arrowRight,
+              ),
+            ),
+          ),
+        ),
+        textDirection: TextDirection.rtl,
+      );
+      expect(find.byIcon(PhosphorIconsRegular.caretLeft), findsNothing);
+      final calendar = tester.getRect(find.byType(Calendar));
+      // Back is at the start, which is the right.
+      expect(
+        tester.getCenter(find.byIcon(PhosphorIconsRegular.arrowLeft)).dx,
+        greaterThan(calendar.center.dx),
+      );
+    });
+
     testWidgets('cells grow with the text scale', (tester) async {
       await pumpFinesse(
         tester,

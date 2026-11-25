@@ -7,6 +7,10 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../finesse_harness.dart';
 
 void main() {
+  // Haptics are silent under `flutter test` unless a test asks.
+  setUp(() => Haptics.debugEnabledInTests = true);
+  tearDown(() => Haptics.debugEnabledInTests = false);
+
   Widget boxed(Widget child) =>
       Center(child: SizedBox(width: 400, child: child));
 

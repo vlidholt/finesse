@@ -1,6 +1,6 @@
 import 'package:finesse/src/components/form/form.dart';
+import 'package:finesse/src/components/input_decorator.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/components/input_decorator.dart';
 import 'package:flutter/widgets.dart';
 
 /// A function that transforms the value of a form field into a different

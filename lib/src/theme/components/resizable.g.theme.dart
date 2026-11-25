@@ -31,7 +31,7 @@ mixin _$ResizableTheme {
       mainAxisSize: t < 0.5 ? a.mainAxisSize : b.mainAxisSize,
       verticalDirection: t < 0.5 ? a.verticalDirection : b.verticalDirection,
       showHandle: t < 0.5 ? a.showHandle : b.showHandle,
-      handleIconData: t < 0.5 ? a.handleIconData : b.handleIconData,
+      handleIcon: t < 0.5 ? a.handleIcon : b.handleIcon,
       dividerSize: lerpDouble$(a.dividerSize, b.dividerSize, t),
       resetOnDoubleTap: t < 0.5 ? a.resetOnDoubleTap : b.resetOnDoubleTap,
       handleDecoration: FinesseDecoration.lerp(
@@ -56,7 +56,7 @@ mixin _$ResizableTheme {
     MainAxisSize? mainAxisSize,
     VerticalDirection? verticalDirection,
     bool? showHandle,
-    IconData? handleIconData,
+    Widget? handleIcon,
     double? dividerSize,
     bool? resetOnDoubleTap,
     FinesseDecoration? handleDecoration,
@@ -73,7 +73,7 @@ mixin _$ResizableTheme {
       mainAxisSize: mainAxisSize ?? _this.mainAxisSize,
       verticalDirection: verticalDirection ?? _this.verticalDirection,
       showHandle: showHandle ?? _this.showHandle,
-      handleIconData: handleIconData ?? _this.handleIconData,
+      handleIcon: handleIcon ?? _this.handleIcon,
       dividerSize: dividerSize ?? _this.dividerSize,
       resetOnDoubleTap: resetOnDoubleTap ?? _this.resetOnDoubleTap,
       handleDecoration: handleDecoration ?? _this.handleDecoration,
@@ -101,7 +101,7 @@ mixin _$ResizableTheme {
       mainAxisSize: other.mainAxisSize,
       verticalDirection: other.verticalDirection,
       showHandle: other.showHandle,
-      handleIconData: other.handleIconData,
+      handleIcon: other.handleIcon,
       dividerSize: other.dividerSize,
       resetOnDoubleTap: other.resetOnDoubleTap,
       handleDecoration:
@@ -132,7 +132,7 @@ mixin _$ResizableTheme {
         _other.mainAxisSize == _this.mainAxisSize &&
         _other.verticalDirection == _this.verticalDirection &&
         _other.showHandle == _this.showHandle &&
-        _other.handleIconData == _this.handleIconData &&
+        _other.handleIcon == _this.handleIcon &&
         _other.dividerSize == _this.dividerSize &&
         _other.resetOnDoubleTap == _this.resetOnDoubleTap &&
         _other.handleDecoration == _this.handleDecoration &&
@@ -153,7 +153,7 @@ mixin _$ResizableTheme {
       _this.mainAxisSize,
       _this.verticalDirection,
       _this.showHandle,
-      _this.handleIconData,
+      _this.handleIcon,
       _this.dividerSize,
       _this.resetOnDoubleTap,
       _this.handleDecoration,

@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:collection/collection.dart';
 import 'package:finesse/src/components/button.dart';
+import 'package:finesse/src/components/decorator.dart';
 import 'package:finesse/src/components/icon_button.dart';
 import 'package:finesse/src/components/select.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
@@ -680,18 +681,25 @@ class _CalendarState extends State<Calendar> {
       size: effectiveNavigationButtonIconSize,
     );
 
+    // The header follows the reading direction, as the grid under it does:
+    // earlier months are towards the start, and the carets point where
+    // their buttons lead. A theme's own icon is drawn as given.
+    final rtl = Directionality.of(context) == TextDirection.rtl;
+    const towardsLeft = PhosphorIcon(PhosphorIconsRegular.caretLeft);
+    const towardsRight = PhosphorIcon(PhosphorIconsRegular.caretRight);
+
     final effectiveBackNavigationButtonIcon = IconTheme.merge(
       data: navigationButtonIconTheme,
       child:
           calendar.backNavigationButtonIcon ??
-          const PhosphorIcon(PhosphorIconsRegular.caretLeft),
+          (rtl ? towardsRight : towardsLeft),
     );
 
     final effectiveForwardNavigationButtonIcon = IconTheme.merge(
       data: navigationButtonIconTheme,
       child:
           calendar.forwardNavigationButtonIcon ??
-          const PhosphorIcon(PhosphorIconsRegular.caretRight),
+          (rtl ? towardsLeft : towardsRight),
     );
 
     final effectiveNavigationButtonPadding =
@@ -955,7 +963,6 @@ class _CalendarState extends State<Calendar> {
           final isLastMonth = index == models.length - 1;
 
           final labelNavigation = Row(
-            textDirection: TextDirection.ltr,
             children: [
               if (isFirstMonth && effectiveShowNavigation) backButton,
               Expanded(
@@ -992,7 +999,6 @@ class _CalendarState extends State<Calendar> {
                         : switch (effectiveCaptionLayout) {
                             CalendarCaptionLayout.label => labelNavigation,
                             CalendarCaptionLayout.dropdown => Row(
-                              textDirection: TextDirection.ltr,
                               children: [
                                 if (effectiveShowNavigation) backButton,
                                 Expanded(
@@ -1013,7 +1019,6 @@ class _CalendarState extends State<Calendar> {
                               ],
                             ),
                             CalendarCaptionLayout.dropdownMonths => Row(
-                              textDirection: TextDirection.ltr,
                               children: [
                                 if (effectiveShowNavigation) backButton,
                                 Expanded(
@@ -1039,7 +1044,6 @@ class _CalendarState extends State<Calendar> {
                               ],
                             ),
                             CalendarCaptionLayout.dropdownYears => Row(
-                              textDirection: TextDirection.ltr,
                               children: [
                                 if (effectiveShowNavigation) backButton,
                                 Expanded(

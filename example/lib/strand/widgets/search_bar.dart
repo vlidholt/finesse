@@ -360,7 +360,6 @@ class _Panel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final popover = theme.popoverTheme;
     final session = context.strand;
     final results = SearchData.search(query);
     final typed = query.trim().isNotEmpty;
@@ -423,10 +422,7 @@ class _Panel extends StatelessWidget {
       label: 'Search suggestions',
       child: SizedBox(
         width: StrandSearchBar.panelWidth,
-        child: SurfacePainter(
-          decoration: (popover.decoration ?? const FinesseDecoration())
-              .copyWith(shadows: popover.shadows),
-          filter: popover.filter,
+        child: Surface(
           padding: EdgeInsets.all(theme.gap(GapSize.xs)),
           child: ConstrainedBox(
             constraints: BoxConstraints(maxHeight: maxHeight),

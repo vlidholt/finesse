@@ -1,5 +1,6 @@
 import 'package:finesse/finesse.dart' hide Scaffold;
 import 'package:finesse/material.dart';
+import 'package:finesse/src/components/select.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

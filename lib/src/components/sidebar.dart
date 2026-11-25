@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:finesse/src/components/decorator.dart';
 import 'package:finesse/src/components/divider.dart';
 import 'package:finesse/src/components/sheet.dart';
 import 'package:finesse/src/components/skeleton.dart';
@@ -185,12 +186,15 @@ class SidebarScope extends InheritedWidget {
 
   /// Returns the nearest scope.
   ///
-  /// Asserts that a [SidebarScaffold] is an ancestor.
+  /// Asserts that there is one: a [SidebarScaffold] provides it, and so
+  /// does a [Sidebar] used on its own.
   static SidebarScope of(BuildContext context) {
     final scope = maybeOf(context);
     assert(
       scope != null,
-      'SidebarScope.of() called outside of a SidebarScaffold',
+      'SidebarScope.of() found no SidebarScope. The sidebar widgets '
+      '(SidebarMenuButton, SidebarGroup, SidebarTrigger…) belong inside a '
+      'Sidebar, or under a SidebarScaffold.',
     );
     return scope!;
   }
@@ -635,9 +639,16 @@ class Sidebar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     assert(debugCheckHasTheme(context));
+    final scope = SidebarScope.maybeOf(context);
+    // On its own — a `Scaffold`'s drawer, the content of a sheet, a panel
+    // of a split view — the sidebar is its own host.
+    if (scope == null) return _StandaloneSidebar(sidebar: this);
+    return _buildIn(context, scope);
+  }
+
+  Widget _buildIn(BuildContext context, SidebarScope scope) {
     final theme = Theme.of(context);
     final sidebarTheme = theme.sidebarTheme;
-    final scope = SidebarScope.of(context);
 
     final effectiveBackgroundColor =
         backgroundColor ??
@@ -778,6 +789,77 @@ class Sidebar extends StatelessWidget {
       clipBehavior: Clip.hardEdge,
       decoration: const BoxDecoration(),
       child: content,
+    );
+  }
+}
+
+/// Hosts a [Sidebar] that has no [SidebarScaffold] above it, so that its
+/// menu widgets find the [SidebarScope] they read.
+///
+/// The sidebar is shown the way the scaffold's own sheet shows it: its
+/// column on its surface, expanded, as large as it is allowed to be. A
+/// [SidebarTrigger] inside closes the panel the sidebar is in — a drawer, a
+/// sheet — and does nothing in a page.
+class _StandaloneSidebar extends StatefulWidget {
+  const _StandaloneSidebar({required this.sidebar});
+
+  final Sidebar sidebar;
+
+  @override
+  State<_StandaloneSidebar> createState() => _StandaloneSidebarState();
+}
+
+class _StandaloneSidebarState extends State<_StandaloneSidebar> {
+  late final SidebarController _controller = SidebarController()
+    ..setMobileOpen(true)
+    ..addListener(_handleToggle);
+
+  ModalRoute<Object?>? _route;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _route = ModalRoute.of(context);
+  }
+
+  void _handleToggle() {
+    if (_controller.isMobileOpen) return;
+    // It is always open; being asked to close means leaving.
+    _controller.setMobileOpen(true);
+    final route = _route;
+    if (route is! PopupRoute || !route.isActive) return;
+    if (route.isCurrent) {
+      route.navigator?.pop();
+    } else {
+      route.navigator?.removeRoute(route);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final sidebar = widget.sidebar;
+    return SidebarScope(
+      controller: _controller,
+      isMobile: true,
+      inSheet: true,
+      open: true,
+      side: sidebar.side,
+      variant: sidebar.variant,
+      collapsible: sidebar.collapsible,
+      collapsedWidth:
+          sidebar.collapsedWidth ??
+          Theme.of(context).sidebarTheme.collapsedWidth ??
+          48,
+      child: Builder(
+        builder: (context) =>
+            sidebar._buildIn(context, SidebarScope.of(context)),
+      ),
     );
   }
 }

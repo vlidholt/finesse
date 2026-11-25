@@ -75,4 +75,19 @@ void main() {
       expect(tester.getSize(find.byType(Kbd)).height, 32);
     });
   });
+
+  group('Kbd', () {
+    Widget wrap(Widget child) => FinesseApp(home: Center(child: child));
+
+    testWidgets('renders a single cap', (tester) async {
+      await tester.pumpWidget(wrap(const Kbd('K')));
+      expect(find.text('K'), findsOneWidget);
+    });
+
+    testWidgets('renders a group of caps', (tester) async {
+      await tester.pumpWidget(wrap(const Kbd.group(['⌘', 'K'])));
+      expect(find.text('⌘'), findsOneWidget);
+      expect(find.text('K'), findsOneWidget);
+    });
+  });
 }

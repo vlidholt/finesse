@@ -37,6 +37,10 @@ class _HostState extends State<_Host> {
 }
 
 void main() {
+  // Haptics are silent under `flutter test` unless a test asks.
+  setUp(() => Haptics.debugEnabledInTests = true);
+  tearDown(() => Haptics.debugEnabledInTests = false);
+
   _HostState host(WidgetTester tester) => tester.state(find.byType(_Host));
 
   /// A point [stars] stars along the rating, in reading order.

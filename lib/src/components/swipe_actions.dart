@@ -7,6 +7,7 @@ import 'package:finesse/src/raw_components/pressable.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/debug_check.dart';
+import 'package:finesse/src/utils/haptics.dart';
 import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
@@ -366,7 +367,9 @@ class _SwipeActionsState extends State<SwipeActions>
     if (armed != _fullArmed) {
       _fullArmed = armed;
       _spreadIndex = 0;
-      if (armed && _dragTouch) HapticFeedback.mediumImpact();
+      if (armed && _dragTouch) {
+        Haptics.impact(context, HapticImpact.medium);
+      }
       _spread.animateTo(armed ? 1 : 0, spring: Motion.of(context).snappy);
     }
   }

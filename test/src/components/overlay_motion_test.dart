@@ -1,5 +1,6 @@
 import 'package:finesse/finesse.dart';
 import 'package:finesse/src/utils/entrance.dart';
+import 'package:finesse/src/utils/moving_indicator.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';

@@ -115,6 +115,10 @@ Future<void> _blur(WidgetTester tester) async {
 }
 
 void main() {
+  // Haptics are silent under `flutter test` unless a test asks.
+  setUp(() => Haptics.debugEnabledInTests = true);
+  tearDown(() => Haptics.debugEnabledInTests = false);
+
   late List<MethodCall> haptics;
 
   setUp(() {

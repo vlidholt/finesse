@@ -108,6 +108,12 @@ licensePage:
   oneLicense: "1 license"
   licenses: "$count licenses"
 
+dataTable:
+  loading: "Loading rows"
+  loadFailed: "These rows could not be loaded."
+  retry: "Try again"
+  selectedCount: "$selected of $total row(s) selected."
+
 pagination:
   previous: "Previous"
   next: "Next"

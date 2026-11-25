@@ -203,6 +203,10 @@ Future<void> _dragBy(
 }
 
 void main() {
+  // Haptics are silent under `flutter test` unless a test asks.
+  setUp(() => Haptics.debugEnabledInTests = true);
+  tearDown(() => Haptics.debugEnabledInTests = false);
+
   group('BoardTheme', () {
     test('follows the form factor', () {
       final desktop = ThemeData().boardTheme;

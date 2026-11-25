@@ -5,6 +5,7 @@ import 'dart:ui' as ui;
 
 import 'package:boxy/flex.dart';
 import 'package:finesse/src/components/context_menu.dart';
+import 'package:finesse/src/components/decorator.dart';
 import 'package:finesse/src/components/disabled.dart';
 import 'package:finesse/src/components/text_magnifier.dart';
 import 'package:finesse/src/components/text_selection.dart';

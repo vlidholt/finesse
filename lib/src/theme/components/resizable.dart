@@ -18,7 +18,7 @@ class ResizableTheme with _$ResizableTheme {
     this.mainAxisSize,
     this.verticalDirection,
     this.showHandle,
-    this.handleIconData,
+    this.handleIcon,
     this.dividerSize,
     this.resetOnDoubleTap,
     this.handleDecoration,
@@ -49,8 +49,11 @@ class ResizableTheme with _$ResizableTheme {
   /// {@macro ResizablePanelGroup.showHandle}
   final bool? showHandle;
 
-  /// An icon for the resize handle.
-  final IconData? handleIconData;
+  /// {@macro ResizablePanelGroup.handleIcon}
+  ///
+  /// Has to be a constant: a widget built anew for each theme makes two
+  /// otherwise equal themes unequal.
+  final Widget? handleIcon;
 
   /// {@macro ResizablePanelGroup.dividerSize}
   final double? dividerSize;

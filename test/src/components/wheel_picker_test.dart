@@ -73,6 +73,10 @@ class _HostState extends State<_Host> {
 }
 
 void main() {
+  // Haptics are silent under `flutter test` unless a test asks.
+  setUp(() => Haptics.debugEnabledInTests = true);
+  tearDown(() => Haptics.debugEnabledInTests = false);
+
   final wheel = find.byType(WheelPicker<int>);
 
   _HostState host(WidgetTester tester) => tester.state(find.byType(_Host));

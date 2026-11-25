@@ -1,4 +1,5 @@
 import 'package:finesse/src/components/control_affinity.dart';
+import 'package:finesse/src/components/decorator.dart';
 import 'package:finesse/src/components/disabled.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/raw_components/focusable.dart';
@@ -8,6 +9,7 @@ import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/activation_keys.dart';
 import 'package:finesse/src/utils/debug_check.dart';
 import 'package:finesse/src/utils/extensions/text_style.dart';
+import 'package:finesse/src/utils/haptics.dart';
 import 'package:finesse/src/utils/motion_color.dart';
 import 'package:finesse/src/utils/pop_in.dart';
 import 'package:flutter/widgets.dart';
@@ -191,6 +193,7 @@ class _CheckboxState extends State<Checkbox> {
     if (widget.onChanged == null) return;
 
     // A mixed box becomes a checked one.
+    Haptics.selection(context);
     widget.onChanged!(!(widget.value ?? false));
     if (!focusNode.hasFocus) {
       FocusScope.of(context).unfocus();

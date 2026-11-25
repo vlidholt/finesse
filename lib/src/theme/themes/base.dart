@@ -125,6 +125,7 @@ abstract class BaseTheme {
     required this.decoration,
     required this.textTheme,
     required this.disabledOpacity,
+    required this.haptics,
     required this.selectTheme,
     required this.selectOptionTheme,
     required this.cardTheme,
@@ -354,6 +355,11 @@ abstract class BaseTheme {
 
   /// The opacity of disabled components. Defaults to 0.5.
   final double disabledOpacity;
+
+  /// Whether controls give haptic feedback on a touch platform. Defaults to
+  /// true; false silences every call made through `Haptics` below this
+  /// theme.
+  final bool haptics;
 
   /// The theme of `Select`.
   final SelectTheme selectTheme;
