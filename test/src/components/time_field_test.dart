@@ -224,7 +224,10 @@ void main() {
       expect(reported, [null]);
       await tester.enterText(fields().at(1), '45');
       await tester.pump();
-      expect(reported, [null, const TimeOfDay(hour: 9, minute: 45, second: 15)]);
+      expect(reported, [
+        null,
+        const TimeOfDay(hour: 9, minute: 45, second: 15),
+      ]);
     });
 
     testWidgets('a time outside its bounds is moved in when focus leaves', (
@@ -453,7 +456,6 @@ void main() {
       expect(formKey.currentState!.value['start'], isNull);
       expect(formKey.currentState!.validate(), isFalse);
     });
-
 
     testWidgets('validates, saves and resets', (tester) async {
       final formKey = GlobalKey<FinesseFormState>();

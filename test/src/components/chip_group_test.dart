@@ -572,19 +572,19 @@ void main() {
     ) async {
       await pumpFinesse(
         tester,
-        const _Host(count: 4, width: 600, wrap: false),
+        const _Host(width: 600, wrap: false),
       );
       final fade = tester.renderObject(
         find.byWidgetPredicate((w) => '${w.runtimeType}' == '_EdgeFade'),
       );
       expect(fade.debugLayer, isNull);
-      // The fade's compositing bit is not updated when a layout starts it;
-      // it needs none, as the scroll view below is a repaint boundary.
+      // A layout that starts the fade does not update its compositing bit,
+      // and need not: the scroll view below is a repaint boundary.
       expect(fade.needsCompositing, isTrue);
       // Narrower, with no scroll: only the layout finds the row overflows.
       await pumpFinesse(
         tester,
-        const _Host(count: 4, width: 120, wrap: false),
+        const _Host(width: 120, wrap: false),
       );
       expect(
         tester.renderObject(
