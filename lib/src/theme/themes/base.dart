@@ -74,7 +74,6 @@ import 'package:finesse/src/theme/radii.dart';
 import 'package:finesse/src/theme/spacing.dart';
 import 'package:finesse/src/theme/style.dart';
 import 'package:finesse/src/theme/text_theme/theme.dart';
-import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:finesse/src/utils/responsive.dart';
 import 'package:flutter/widgets.dart';
 
@@ -150,7 +149,6 @@ abstract class BaseTheme {
     required this.accordionTheme,
     required this.tableTheme,
     required this.resizableTheme,
-    required this.hoverStrategies,
     required this.disableSecondaryBorder,
     required this.tabsTheme,
     required this.contextMenuTheme,
@@ -435,9 +433,6 @@ abstract class BaseTheme {
   /// The theme of `ResizablePanelGroup`.
   final ResizableTheme resizableTheme;
 
-  /// The gestures that give touch devices a hover state.
-  final HoverStrategies hoverStrategies;
-
   /// Whether controls show focus without the outward ring. Defaults to false.
   ///
   /// When true, `ThemeData` uses
@@ -655,9 +650,6 @@ abstract class ThemeVariant {
 
   /// Builds the theme of `ResizablePanelGroup`.
   ResizableTheme resizableTheme();
-
-  /// Builds the gestures that give touch devices a hover state.
-  HoverStrategies hoverStrategies();
 
   /// Builds the theme of `Tabs`.
   TabsTheme tabsTheme();

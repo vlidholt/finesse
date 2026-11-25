@@ -84,6 +84,46 @@ void main() {
       expect(at.dy, closeTo(310, 2));
     });
 
+    testWidgets('FinesseGestureDetector reports the global position, so '
+        'what it hands showMenu lands at the pointer', (tester) async {
+      final downs = <Offset>[];
+      await tester.pumpWidget(
+        docked(
+          Builder(
+            builder: (context) => FinesseGestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTapDown: (details) => downs.add(details.globalPosition),
+              onSecondaryTapDown: (details) {
+                downs.add(details.globalPosition);
+                showMenu<void>(
+                  context: context,
+                  position: details.globalPosition,
+                  items: const [MenuItem(child: Text('Paste'))],
+                );
+              },
+              child: const SizedBox.expand(),
+            ),
+          ),
+        ),
+      );
+      await tester.tapAt(const Offset(380, 260));
+      await tester.tapAt(
+        const Offset(400, 300),
+        buttons: kSecondaryButton,
+        kind: PointerDeviceKind.mouse,
+      );
+      await settle(tester);
+      expect(downs, const [Offset(380, 260), Offset(400, 300)]);
+      final menu = tester.getRect(
+        find.ancestor(
+          of: find.text('Paste'),
+          matching: find.byType(BackdropSurface),
+        ),
+      );
+      expect(menu.left, closeTo(400, 1.5));
+      expect(menu.top, closeTo(300, 1.5));
+    });
+
     testWidgets('showMenu opens at the point it is given', (tester) async {
       late BuildContext page;
       await tester.pumpWidget(

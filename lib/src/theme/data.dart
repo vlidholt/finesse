@@ -80,7 +80,6 @@ import 'package:finesse/src/theme/themes/base.dart';
 import 'package:finesse/src/theme/themes/default_theme_no_secondary_border_variant.dart';
 import 'package:finesse/src/theme/themes/default_theme_variant.dart';
 import 'package:finesse/src/utils/border.dart';
-import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:finesse/src/utils/responsive.dart';
 import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
@@ -157,7 +156,6 @@ class ThemeData extends BaseTheme with _$ThemeData {
     AccordionTheme? accordionTheme,
     TableTheme? tableTheme,
     ResizableTheme? resizableTheme,
-    HoverStrategies? hoverStrategies,
     bool? disableSecondaryBorder,
     TabsTheme? tabsTheme,
     SkeletonTheme? skeletonTheme,
@@ -436,7 +434,6 @@ class ThemeData extends BaseTheme with _$ThemeData {
         accordionTheme: accordionTheme,
         tableTheme: tableTheme,
         resizableTheme: resizableTheme,
-        hoverStrategies: hoverStrategies,
         disableSecondaryBorder: disableSecondaryBorder,
         tabsTheme: tabsTheme,
         skeletonTheme: skeletonTheme,
@@ -581,7 +578,6 @@ class ThemeData extends BaseTheme with _$ThemeData {
       accordionTheme: effectiveVariant.accordionTheme().merge(accordionTheme),
       tableTheme: effectiveVariant.tableTheme().merge(tableTheme),
       resizableTheme: effectiveVariant.resizableTheme().merge(resizableTheme),
-      hoverStrategies: hoverStrategies ?? effectiveVariant.hoverStrategies(),
       disableSecondaryBorder: effectiveDisableSecondaryBorder,
       tabsTheme: effectiveVariant.tabsTheme().merge(tabsTheme),
       contextMenuTheme: effectiveVariant.contextMenuTheme().merge(
@@ -716,7 +712,6 @@ class ThemeData extends BaseTheme with _$ThemeData {
     required super.accordionTheme,
     required super.tableTheme,
     required super.resizableTheme,
-    required super.hoverStrategies,
     required super.disableSecondaryBorder,
     required super.tabsTheme,
     required super.contextMenuTheme,
@@ -825,7 +820,6 @@ class ThemeData extends BaseTheme with _$ThemeData {
     AccordionTheme? accordionTheme,
     TableTheme? tableTheme,
     ResizableTheme? resizableTheme,
-    HoverStrategies? hoverStrategies,
     bool? disableSecondaryBorder,
     TabsTheme? tabsTheme,
     SkeletonTheme? skeletonTheme,
@@ -928,7 +922,6 @@ class ThemeData extends BaseTheme with _$ThemeData {
       accordionTheme: accordionTheme ?? i.accordionTheme,
       tableTheme: tableTheme ?? i.tableTheme,
       resizableTheme: resizableTheme ?? i.resizableTheme,
-      hoverStrategies: hoverStrategies ?? i.hoverStrategies,
       disableSecondaryBorder:
           disableSecondaryBorder ?? i.disableSecondaryBorder,
       tabsTheme: tabsTheme ?? i.tabsTheme,
@@ -1132,7 +1125,6 @@ final class _ThemeInputs {
     this.accordionTheme,
     this.tableTheme,
     this.resizableTheme,
-    this.hoverStrategies,
     this.disableSecondaryBorder,
     this.tabsTheme,
     this.skeletonTheme,
@@ -1233,7 +1225,6 @@ final class _ThemeInputs {
   final AccordionTheme? accordionTheme;
   final TableTheme? tableTheme;
   final ResizableTheme? resizableTheme;
-  final HoverStrategies? hoverStrategies;
   final bool? disableSecondaryBorder;
   final TabsTheme? tabsTheme;
   final SkeletonTheme? skeletonTheme;

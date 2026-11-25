@@ -1,127 +1,37 @@
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/extensions/tap_details.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 
-/// Decides which gestures turn the hover state on and off on devices without
-/// a mouse.
-///
-/// [FinesseGestureDetector] uses it to give touch devices a hover state. When a
-/// mouse pointer is inside the detector, the strategies are ignored.
-@immutable
-class HoverStrategies {
-  /// Creates a set of hover strategies.
-  const HoverStrategies({
-    this.hover = const {},
-    this.unhover = const {},
-    this.longPressDuration,
-    this.onHover,
-  });
-
-  /// The gestures that turn the hover state on. Defaults to none.
-  ///
-  /// A gesture that is in both [hover] and [unhover] toggles the state.
-  final Set<HoverStrategy> hover;
-
-  /// The gestures that turn the hover state off. Defaults to none.
-  final Set<HoverStrategy> unhover;
-
-  /// How long a press must last to count as a long press.
-  ///
-  /// [FinesseGestureDetector.longPressDuration] takes precedence. When both are
-  /// null, the detector uses [kLongPressTimeout].
-  final Duration? longPressDuration;
-
-  /// Called with the new hover state each time it changes.
-  final ValueChanged<bool>? onHover;
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-
-    return other is HoverStrategies &&
-        setEquals(other.hover, hover) &&
-        setEquals(other.unhover, unhover) &&
-        other.longPressDuration == longPressDuration &&
-        other.onHover == onHover;
-  }
-
-  @override
-  int get hashCode {
-    return hover.hashCode ^
-        unhover.hashCode ^
-        longPressDuration.hashCode ^
-        onHover.hashCode;
-  }
-
-  /// Returns a copy with the given fields replaced.
-  HoverStrategies copyWith({
-    Set<HoverStrategy>? hover,
-    Set<HoverStrategy>? unhover,
-    Duration? longPressDuration,
-    ValueChanged<bool>? onHover,
-  }) {
-    return HoverStrategies(
-      hover: hover ?? this.hover,
-      unhover: unhover ?? this.unhover,
-      longPressDuration: longPressDuration ?? this.longPressDuration,
-      onHover: onHover ?? this.onHover,
-    );
-  }
+// On a device with no hover, a press stands in for it: a finger that comes
+// down on the detector hovers it until it lifts, gives up or taps elsewhere.
+// While a mouse pointer is inside, the hover is the pointer's.
+enum _Gesture {
+  tapDown,
+  tapUp,
+  tapCancel,
+  tapOutside,
+  longPressDown,
+  longPressStart,
+  longPressUp,
+  longPressEnd,
+  longPressCancel,
+  doubleTapDown,
+  doubleTapCancel,
 }
 
-/// A gesture that can change the hover state of a [FinesseGestureDetector].
-///
-/// Use these values in [HoverStrategies.hover] and
-/// [HoverStrategies.unhover].
-enum HoverStrategy {
-  /// A primary pointer touches down for a tap.
-  onTapDown,
+const _hoverOn = {
+  _Gesture.tapDown,
+  _Gesture.longPressDown,
+  _Gesture.longPressStart,
+};
 
-  /// A primary pointer lifts up after a tap.
-  onTapUp,
-
-  /// A tap does not complete.
-  onTapCancel,
-
-  /// A long press starts.
-  onLongPressStart,
-
-  /// A long press does not complete.
-  onLongPressCancel,
-
-  /// The pointer lifts up after a long press.
-  onLongPressUp,
-
-  /// A pointer touches down that can become a long press.
-  onLongPressDown,
-
-  /// A long press ends.
-  onLongPressEnd,
-
-  /// A pointer touches down for a second tap.
-  onDoubleTapDown,
-
-  /// A double tap does not complete.
-  onDoubleTapCancel,
-
-  /// A force press starts.
-  ///
-  /// [FinesseGestureDetector] does not read this value at the moment.
-  onForcePressStart,
-
-  /// A force press ends.
-  ///
-  /// [FinesseGestureDetector] does not read this value at the moment.
-  onForcePressEnd,
-
-  /// A tap completes.
-  onTap,
-
-  /// The user taps outside the widget.
-  onTapOutside,
-}
+const _hoverOff = {
+  _Gesture.tapUp,
+  _Gesture.tapOutside,
+  _Gesture.tapCancel,
+  _Gesture.longPressUp,
+  _Gesture.longPressEnd,
+  _Gesture.longPressCancel,
+};
 
 /// A [GestureDetector] for the gestures a control has no callback for, which
 /// can also stand in for hover where there is no pointer.
@@ -145,16 +55,14 @@ enum HoverStrategy {
 /// has lasted a tenth of a second. Use a `Listener` to hear every pointer
 /// that comes down.
 ///
-/// With [hoverStrategies] it reports a hover on a device that has none —
-/// which is how a `Tooltip` shows under a held finger. While a mouse pointer
-/// is inside, the strategies are ignored and the hover is the pointer's.
+/// [onHover] reports the mouse's hover and, on a device that has none, a
+/// press: a finger that comes down hovers the detector until it lifts.
 class FinesseGestureDetector extends StatefulWidget {
   /// Creates a gesture detector that also tracks the hover state.
   const FinesseGestureDetector({
     super.key,
     required this.child,
     this.mouseCursor = MouseCursor.defer,
-    this.hoverStrategies,
     this.behavior,
     this.onHover,
     this.onTap,
@@ -194,15 +102,11 @@ class FinesseGestureDetector extends StatefulWidget {
     this.dragStartBehavior = DragStartBehavior.start,
   });
 
-  /// The strategies that set the hover state on devices without a mouse.
-  ///
-  /// Defaults to the `hoverStrategies` of the current [Theme].
-  final HoverStrategies? hoverStrategies;
-
   /// Called with the new hover state each time it changes.
   ///
-  /// The hover state comes from the mouse when there is one, and from
-  /// [hoverStrategies] when there is not.
+  /// The hover state comes from the mouse when there is one; without one a
+  /// press stands in for it, from the moment a pointer comes down until it
+  /// lifts, gives up or taps elsewhere.
   final ValueChanged<bool>? onHover;
 
   /// The mouse cursor shown over the widget. Defaults to [MouseCursor.defer].
@@ -218,14 +122,9 @@ class FinesseGestureDetector extends StatefulWidget {
   final VoidCallback? onTapOutside;
 
   /// Called when a pointer touches down for a primary tap.
-  ///
-  /// The global position in the details is relative to the nearest
-  /// [Navigator]'s overlay when that is not the root overlay.
   final ValueChanged<TapDownDetails>? onTapDown;
 
   /// Called when a pointer lifts up after a primary tap.
-  ///
-  /// The global position follows the same rule as in [onTapDown].
   final ValueChanged<TapUpDetails>? onTapUp;
 
   /// Called when a primary tap does not complete.
@@ -273,9 +172,7 @@ class FinesseGestureDetector extends StatefulWidget {
   /// Called when a double tap does not complete.
   final VoidCallback? onDoubleTapCancel;
 
-  /// How long a press must last to count as a long press.
-  ///
-  /// When null, uses [HoverStrategies.longPressDuration], then
+  /// How long a press must last to count as a long press. Defaults to
   /// [kLongPressTimeout].
   final Duration? longPressDuration;
 
@@ -401,117 +298,48 @@ class _GestureDetectorState extends State<FinesseGestureDetector> {
 
   /// Whether a mouse pointer is currently inside this detector.
   ///
-  /// [HoverStrategies] exists for devices with no real hover: it
-  /// synthesises a hover state from tap/long-press gestures. On a device that
-  /// *does* hover, applying them fights the MouseRegion — `unhover:
-  /// {onTapUp, ...}` would clear the highlight the moment a click completes,
-  /// even though the cursor has not moved. The class doc already promised the
-  /// strategies are ignored when a mouse is present; this enforces it.
+  /// A press stands in for hover only on a device that has none. With a
+  /// mouse inside, the press would fight the `MouseRegion`: a click's tap-up
+  /// would clear the highlight although the cursor has not moved.
   bool mouseInside = false;
-
-  // See https://github.com/nank1ro/flutter-shadcn-ui/issues/319
-  Offset correctGlobalPosition(BuildContext context, Offset globalPosition) {
-    // Get the root navigator's overlay (screen coordinates)
-    final rootNavigator = Navigator.maybeOf(context, rootNavigator: true);
-    final rootOverlay = rootNavigator?.overlay;
-    if (rootOverlay == null) return globalPosition;
-
-    // Get the shell navigator's overlay (nearest Navigator)
-    final shellNavigator = Navigator.maybeOf(context);
-    final shellOverlay = shellNavigator?.overlay;
-    if (shellOverlay == null || shellOverlay == rootOverlay) {
-      return globalPosition;
-    }
-
-    final shellRenderObject = shellOverlay.context.findRenderObject();
-    if (shellRenderObject is! RenderBox) {
-      return globalPosition;
-    }
-
-    final shellOffset = shellRenderObject.localToGlobal(Offset.zero);
-    final correctedPosition = globalPosition - shellOffset;
-
-    return correctedPosition;
-  }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final configuration = ScrollConfiguration.of(context);
 
-    final effectiveHoverStrategies =
-        widget.hoverStrategies ?? theme.hoverStrategies;
     final gestures = <Type, GestureRecognizerFactory>{};
     final gestureSettings = MediaQuery.maybeGestureSettingsOf(context);
 
-    void setHover(HoverStrategy strategy) {
+    void setHover(_Gesture gesture) {
       // A real hover is already being tracked by the MouseRegion below.
       if (mouseInside) return;
-
-      final presentInHover = effectiveHoverStrategies.hover.contains(strategy);
-      final presentInUnhover = effectiveHoverStrategies.unhover.contains(
-        strategy,
-      );
-
-      // Toggle the hover state if the strategy is present in both hover and
-      // unhover sets.
-      if (presentInHover && presentInUnhover) {
-        hovered = !hovered;
-        widget.onHover?.call(hovered);
-        effectiveHoverStrategies.onHover?.call(hovered);
-        return;
-      }
-
-      if (presentInHover) {
-        widget.onHover?.call(true);
-        effectiveHoverStrategies.onHover?.call(true);
-        hovered = true;
-      } else if (presentInUnhover) {
-        widget.onHover?.call(false);
-        effectiveHoverStrategies.onHover?.call(false);
-        hovered = false;
-      }
+      final on = _hoverOn.contains(gesture);
+      if (!on && !_hoverOff.contains(gesture)) return;
+      if (on == hovered) return;
+      hovered = on;
+      widget.onHover?.call(on);
     }
 
     void effectiveOnTapDown(TapDownDetails d) {
-      setHover(HoverStrategy.onTapDown);
-      final correctedGlobalPosition = correctGlobalPosition(
-        context,
-        d.globalPosition,
-      );
-      widget.onTapDown?.call(
-        d.copyWith(globalPosition: correctedGlobalPosition),
-      );
+      setHover(_Gesture.tapDown);
+      widget.onTapDown?.call(d);
     }
 
     void effectiveOnTap() {
-      setHover(HoverStrategy.onTap);
       widget.onTap?.call();
     }
 
     void effectiveOnTapOutside(PointerDownEvent event) {
-      setHover(HoverStrategy.onTapOutside);
+      setHover(_Gesture.tapOutside);
       widget.onTapOutside?.call();
     }
 
     void effectiveOnSecondaryTapDown(TapDownDetails d) {
-      final correctedGlobalPosition = correctGlobalPosition(
-        context,
-        d.globalPosition,
-      );
-      widget.onSecondaryTapDown?.call(
-        d.copyWith(globalPosition: correctedGlobalPosition),
-      );
+      widget.onSecondaryTapDown?.call(d);
     }
 
     void effectiveOnSecondaryTapUp(TapUpDetails d) {
-      final correctedGlobalPosition = correctGlobalPosition(
-        context,
-        d.globalPosition,
-      );
-      widget.onSecondaryTapUp?.call(
-        d.copyWith(globalPosition: correctedGlobalPosition),
-      );
+      widget.onSecondaryTapUp?.call(d);
     }
 
     void effectiveOnSecondaryTapCancel() {
@@ -523,76 +351,48 @@ class _GestureDetectorState extends State<FinesseGestureDetector> {
     }
 
     void effectiveOnTapUp(TapUpDetails d) {
-      setHover(HoverStrategy.onTapUp);
-      final correctedGlobalPosition = correctGlobalPosition(
-        context,
-        d.globalPosition,
-      );
-      widget.onTapUp?.call(d.copyWith(globalPosition: correctedGlobalPosition));
+      setHover(_Gesture.tapUp);
+      widget.onTapUp?.call(d);
     }
 
     void effectiveOnTapCancel() {
-      setHover(HoverStrategy.onTapCancel);
+      setHover(_Gesture.tapCancel);
       widget.onTapCancel?.call();
     }
 
     void effectiveOnDoubleTapDown(TapDownDetails d) {
-      setHover(HoverStrategy.onDoubleTapDown);
-      final correctedGlobalPosition = correctGlobalPosition(
-        context,
-        d.globalPosition,
-      );
-      widget.onDoubleTapDown?.call(
-        d.copyWith(globalPosition: correctedGlobalPosition),
-      );
+      setHover(_Gesture.doubleTapDown);
+      widget.onDoubleTapDown?.call(d);
     }
 
     void effectiveOnDoubleTapCancel() {
-      setHover(HoverStrategy.onDoubleTapCancel);
+      setHover(_Gesture.doubleTapCancel);
       widget.onDoubleTapCancel?.call();
     }
 
     void effectiveOnLongPressStart(LongPressStartDetails d) {
-      setHover(HoverStrategy.onLongPressStart);
-      final correctedGlobalPosition = correctGlobalPosition(
-        context,
-        d.globalPosition,
-      );
-      widget.onLongPressStart?.call(
-        d.copyWith(globalPosition: correctedGlobalPosition),
-      );
+      setHover(_Gesture.longPressStart);
+      widget.onLongPressStart?.call(d);
     }
 
     void effectiveOnLongPressCancel() {
-      setHover(HoverStrategy.onLongPressCancel);
+      setHover(_Gesture.longPressCancel);
       widget.onLongPressCancel?.call();
     }
 
     void effectiveOnLongPressUp() {
-      setHover(HoverStrategy.onLongPressUp);
+      setHover(_Gesture.longPressUp);
       widget.onLongPressUp?.call();
     }
 
     void effectiveOnLongPressDown(LongPressDownDetails d) {
-      setHover(HoverStrategy.onLongPressDown);
-      final correctedGlobalPosition = correctGlobalPosition(
-        context,
-        d.globalPosition,
-      );
-      widget.onLongPressDown?.call(
-        d.copyWith(globalPosition: correctedGlobalPosition),
-      );
+      setHover(_Gesture.longPressDown);
+      widget.onLongPressDown?.call(d);
     }
 
     void effectiveOnLongPressEnd(LongPressEndDetails d) {
-      setHover(HoverStrategy.onLongPressEnd);
-      final correctedGlobalPosition = correctGlobalPosition(
-        context,
-        d.globalPosition,
-      );
-      widget.onLongPressEnd?.call(
-        d.copyWith(globalPosition: correctedGlobalPosition),
-      );
+      setHover(_Gesture.longPressEnd);
+      widget.onLongPressEnd?.call(d);
     }
 
     gestures[TapGestureRecognizer] =
@@ -646,10 +446,7 @@ class _GestureDetectorState extends State<FinesseGestureDetector> {
       gestures[LongPressGestureRecognizer] =
           GestureRecognizerFactoryWithHandlers<LongPressGestureRecognizer>(
             () => LongPressGestureRecognizer(
-              duration:
-                  widget.longPressDuration ??
-                  effectiveHoverStrategies.longPressDuration ??
-                  kLongPressTimeout,
+              duration: widget.longPressDuration ?? kLongPressTimeout,
               debugOwner: this,
               supportedDevices: widget.supportedDevices,
             ),
@@ -728,13 +525,11 @@ class _GestureDetectorState extends State<FinesseGestureDetector> {
           mouseInside = true;
           hovered = true;
           widget.onHover?.call(true);
-          effectiveHoverStrategies.onHover?.call(true);
         },
         onExit: (_) {
           mouseInside = false;
           hovered = false;
           widget.onHover?.call(false);
-          effectiveHoverStrategies.onHover?.call(false);
         },
         child: RawGestureDetector(
           gestures: gestures,

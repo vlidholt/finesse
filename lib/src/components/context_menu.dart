@@ -156,16 +156,6 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
     controller.open();
   }
 
-  /// The global position of a point of the region's own box.
-  ///
-  /// Worked out from the gesture's local position rather than read from
-  /// its details: the menu's anchor is a point on the screen, wherever the
-  /// navigator around the region begins.
-  Offset _global(Offset local) {
-    final box = context.findRenderObject();
-    return box is RenderBox && box.attached ? box.localToGlobal(local) : local;
-  }
-
   void hide() {
     controller.close();
   }
@@ -221,7 +211,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
             if (controller.isOpen) {
               hide();
             } else {
-              show(_global(d.localPosition));
+              show(d.globalPosition);
             }
           } else {
             hide();
@@ -234,18 +224,18 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         // `assert(_selectable == null)`. See suppressBrowserContextMenu.
         onSecondaryTapDown: (d) {
           if (kIsWeb) suppressBrowserContextMenu();
-          if (!isWindows) show(_global(d.localPosition));
+          if (!isWindows) show(d.globalPosition);
         },
         onSecondaryTapUp: (d) {
           // On Windows the browser fires `contextmenu` on button up, which
           // can be arbitrarily long after the down — re-arm so a slow click
           // stays covered, and only then open the menu.
           if (kIsWeb) suppressBrowserContextMenu();
-          if (isWindows) show(_global(d.localPosition));
+          if (isWindows) show(d.globalPosition);
         },
         onLongPressStart: effectiveLongPressEnabled
             ? (d) {
-                offset = _global(d.localPosition);
+                offset = d.globalPosition;
               }
             : null,
         onLongPress: effectiveLongPressEnabled ? onLongPress : null,

@@ -88,7 +88,6 @@ import 'package:finesse/src/theme/themes/shadows.dart';
 import 'package:finesse/src/utils/backdrop.dart';
 import 'package:finesse/src/utils/border.dart';
 import 'package:finesse/src/utils/extensions/text_style.dart';
-import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 
@@ -1833,26 +1832,6 @@ class DefaultThemeVariant extends ThemeVariant {
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.max,
       verticalDirection: VerticalDirection.down,
-    );
-  }
-
-  @override
-  HoverStrategies hoverStrategies() {
-    return const HoverStrategies(
-      hover: {
-        HoverStrategy.onTapDown,
-        HoverStrategy.onLongPressDown,
-        HoverStrategy.onLongPressStart,
-      },
-      unhover: {
-        HoverStrategy.onTapUp,
-        HoverStrategy.onTapOutside,
-        HoverStrategy.onTapCancel,
-        HoverStrategy.onLongPressUp,
-        HoverStrategy.onLongPressEnd,
-        HoverStrategy.onLongPressCancel,
-      },
-      longPressDuration: kLongPressTimeout,
     );
   }
 

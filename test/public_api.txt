@@ -218,8 +218,6 @@ GlobalFinesseLocalizations
 HapticImpact
 Haptics
 HoverCard
-HoverStrategies
-HoverStrategy
 IconButton
 IconTile
 IconTileTheme

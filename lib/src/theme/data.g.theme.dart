@@ -254,7 +254,6 @@ mixin _$ThemeData {
         b.resizableTheme,
         t,
       )!,
-      hoverStrategies: t < 0.5 ? a.hoverStrategies : b.hoverStrategies,
       disableSecondaryBorder: t < 0.5
           ? a.disableSecondaryBorder
           : b.disableSecondaryBorder,
@@ -376,7 +375,6 @@ mixin _$ThemeData {
     AccordionTheme? accordionTheme,
     TableTheme? tableTheme,
     ResizableTheme? resizableTheme,
-    HoverStrategies? hoverStrategies,
     bool? disableSecondaryBorder,
     TabsTheme? tabsTheme,
     ContextMenuTheme? contextMenuTheme,
@@ -478,7 +476,6 @@ mixin _$ThemeData {
       accordionTheme: accordionTheme ?? _this.accordionTheme,
       tableTheme: tableTheme ?? _this.tableTheme,
       resizableTheme: resizableTheme ?? _this.resizableTheme,
-      hoverStrategies: hoverStrategies ?? _this.hoverStrategies,
       disableSecondaryBorder:
           disableSecondaryBorder ?? _this.disableSecondaryBorder,
       tabsTheme: tabsTheme ?? _this.tabsTheme,
@@ -623,7 +620,6 @@ mixin _$ThemeData {
       accordionTheme: _this.accordionTheme.merge(other.accordionTheme),
       tableTheme: _this.tableTheme.merge(other.tableTheme),
       resizableTheme: _this.resizableTheme.merge(other.resizableTheme),
-      hoverStrategies: other.hoverStrategies,
       disableSecondaryBorder: other.disableSecondaryBorder,
       tabsTheme: _this.tabsTheme.merge(other.tabsTheme),
       contextMenuTheme: _this.contextMenuTheme.merge(other.contextMenuTheme),
@@ -733,7 +729,6 @@ mixin _$ThemeData {
         _other.accordionTheme == _this.accordionTheme &&
         _other.tableTheme == _this.tableTheme &&
         _other.resizableTheme == _this.resizableTheme &&
-        _other.hoverStrategies == _this.hoverStrategies &&
         _other.disableSecondaryBorder == _this.disableSecondaryBorder &&
         _other.tabsTheme == _this.tabsTheme &&
         _other.contextMenuTheme == _this.contextMenuTheme &&
@@ -833,7 +828,6 @@ mixin _$ThemeData {
       _this.accordionTheme,
       _this.tableTheme,
       _this.resizableTheme,
-      _this.hoverStrategies,
       _this.disableSecondaryBorder,
       _this.tabsTheme,
       _this.contextMenuTheme,

@@ -10,10 +10,9 @@ void main() {
 
   group('hover is retained across a click', () {
     testWidgets('a mouse click does not clear the hover state', (tester) async {
-      // Regression: the default hoverStrategies list onTapUp under `unhover`.
-      // Those exist to synthesise hover on touch devices, but they fired for
-      // mouse clicks too, so the highlight vanished mid-click even though the
-      // cursor had not moved.
+      // Regression: on a device with no hover a press stands in for it and
+      // a tap-up ends it. That fired for mouse clicks too, so the highlight
+      // vanished mid-click even though the cursor had not moved.
       final changes = <bool>[];
       await tester.pumpWidget(
         wrap(
