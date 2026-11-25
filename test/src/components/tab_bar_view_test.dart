@@ -763,7 +763,8 @@ void main() {
       tester,
     ) async {
       await pumpFinesse(tester, tabs(), theme: _theme);
-      await tester.tap(find.text('B'));
+      // An inert tab absorbs the tap; that it lands nowhere is the point.
+      await tester.tap(find.text('B'), warnIfMissed: false);
       await tester.pumpAndSettle();
       expect(find.text('page a').hitTestable(), findsOneWidget);
       await tester.flingFrom(

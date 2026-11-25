@@ -452,7 +452,7 @@ void main() {
       );
 
       // Should not throw error when tapped with null onPressed
-      await tester.tap(find.text('Non-clickable Item'));
+      await tester.tap(find.text('Non-clickable Item'), warnIfMissed: false);
       await tester.pumpAndSettle();
 
       expect(find.text('Non-clickable Item'), findsOneWidget);
