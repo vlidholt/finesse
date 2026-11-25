@@ -30,6 +30,9 @@ keyboardToolbar:
 empty:
   title: "No results"
 
+chip:
+  remove: "Remove"
+
 command:
   noResults: "No results found."
 

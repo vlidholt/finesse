@@ -1,6 +1,11 @@
+import 'package:finesse/src/i18n/localizations_delegate.dart';
+import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/raw_components/pressable.dart';
+import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/spring.dart';
 import 'package:finesse/src/utils/text_scaled_height.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 /// How a [Chip] is outlined.
@@ -32,6 +37,11 @@ enum ChipVariant {
 /// the theme's form factor — 32 logical pixels tall on a desktop, 36 on a
 /// phone — while a static tag keeps the desktop height everywhere: it is not
 /// a touch target.
+///
+/// With [onDeleted] the chip ends in a small cross that removes it: a
+/// target and a button of its own, so the chip can still be tapped for
+/// something else. Backspace and Delete on the focused chip remove it too.
+/// With [showCheckmark] a selected chip grows a check before its label.
 class Chip extends StatelessWidget {
   /// Creates a chip.
   const Chip({
@@ -41,6 +51,11 @@ class Chip extends StatelessWidget {
     this.selected = false,
     this.onSelected,
     this.onPressed,
+    this.onDeleted,
+    this.deleteIcon,
+    this.deleteSemanticLabel,
+    this.showCheckmark,
+    this.enabled = true,
     this.variant = ChipVariant.outline,
     this.height,
     this.padding,
@@ -69,6 +84,26 @@ class Chip extends StatelessWidget {
 
   /// Called when the chip is tapped. Ignored when [onSelected] is given.
   final VoidCallback? onPressed;
+
+  /// Called when the chip's cross is tapped, or Backspace or Delete is
+  /// pressed on the focused chip. Null leaves the cross out.
+  final VoidCallback? onDeleted;
+
+  /// The icon of the delete button. Defaults to a cross.
+  final Widget? deleteIcon;
+
+  /// What assistive technology calls the delete button. Defaults to the
+  /// localized "Remove".
+  final String? deleteSemanticLabel;
+
+  /// Whether a selected chip shows a check before its label. Defaults to
+  /// the theme's, which is false.
+  final bool? showCheckmark;
+
+  /// Whether the chip reacts to input. A disabled chip keeps the size of
+  /// one that can be tapped, dimmed; a chip with no callback at all is a
+  /// tag and is not dimmed.
+  final bool enabled;
 
   /// How the chip is outlined.
   final ChipVariant variant;
@@ -100,11 +135,15 @@ class Chip extends StatelessWidget {
     final chip = theme.chipTheme;
     final scheme = theme.colorScheme;
     final radius = chip.radius ?? theme.radii.full;
-    final onTap = onSelected != null ? () => onSelected!(!selected) : onPressed;
+    // What a tap would do, were the chip enabled.
+    final action = onSelected != null
+        ? () => onSelected!(!selected)
+        : onPressed;
+    final onTap = enabled ? action : null;
     // A tag is not a touch target, so it does not grow on a phone.
     final effectiveHeight =
         height ??
-        (onTap == null
+        (action == null
             ? theme.variant.baseStyle.chipHeight * theme.spacing.step / 4
             : chip.height ?? 32);
 
@@ -142,18 +181,53 @@ class Chip extends StatelessWidget {
         color: foreground,
       );
 
+      final gap = chip.gap ?? 6;
+      final iconSize = chip.iconSize ?? 16;
+      final checkmark = showCheckmark ?? chip.showCheckmark ?? false;
+      var contentPadding =
+          (padding ??
+                  chip.padding ??
+                  const EdgeInsets.symmetric(horizontal: 12))
+              .resolve(Directionality.of(context));
+      if (onDeleted != null && enabled) {
+        // The cross brings its own room: it sits closer to the end than a
+        // label would.
+        final ltr = Directionality.of(context) == TextDirection.ltr;
+        final end = contentPadding.horizontal / 2 - _deleteInset;
+        contentPadding = contentPadding.copyWith(
+          left: ltr ? null : end.clamp(0.0, double.infinity),
+          right: ltr ? end.clamp(0.0, double.infinity) : null,
+        );
+      }
       Widget content = Padding(
-        padding:
-            padding ??
-            chip.padding ??
-            const EdgeInsets.symmetric(horizontal: 12),
+        padding: contentPadding,
         child: Row(
           mainAxisSize: MainAxisSize.min,
-          spacing: chip.gap ?? 6,
           children: [
-            ?leading,
-            Flexible(child: label),
-            ?trailing,
+            if (checkmark)
+              _ChipCheck(visible: selected, size: iconSize, gap: gap),
+            Flexible(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                spacing: gap,
+                children: [
+                  ?leading,
+                  Flexible(child: label),
+                  ?trailing,
+                ],
+              ),
+            ),
+            if (onDeleted != null && enabled)
+              _ChipDelete(
+                onDeleted: onDeleted!,
+                icon: deleteIcon,
+                semanticLabel: deleteSemanticLabel,
+                size: iconSize,
+                color: foreground,
+                // The chip is the Tab stop when it can take the focus;
+                // the keyboard removes it with Backspace or Delete.
+                focusable: onTap == null,
+              ),
           ],
         ),
       );
@@ -208,7 +282,7 @@ class Chip extends StatelessWidget {
 
     // A chip with neither callback is a tag, not a control: wrapping it in a
     // `Pressable` would announce every skill or label as a disabled button.
-    if (onTap == null) {
+    if (action == null) {
       final tag = buildChip(context, const <WidgetState>{});
       if (semanticLabel == null && !selected) return tag;
       return Semantics(
@@ -218,7 +292,7 @@ class Chip extends StatelessWidget {
       );
     }
 
-    return Pressable(
+    final chipButton = Pressable(
       onPressed: onTap,
       // Only a chip that toggles announces "selected" / "not selected".
       selected: onSelected != null || selected ? selected : null,
@@ -226,6 +300,136 @@ class Chip extends StatelessWidget {
       semanticLabel: semanticLabel,
       builder: buildChip,
     );
+    if (!enabled) {
+      // Still a button to assistive technology, one that is disabled.
+      return Opacity(opacity: theme.disabledOpacity, child: chipButton);
+    }
+    if (onDeleted == null) return chipButton;
+    return Focus(
+      canRequestFocus: false,
+      skipTraversal: true,
+      onKeyEvent: (node, event) {
+        if (event is! KeyDownEvent) return KeyEventResult.ignored;
+        final key = event.logicalKey;
+        if (key != LogicalKeyboardKey.backspace &&
+            key != LogicalKeyboardKey.delete) {
+          return KeyEventResult.ignored;
+        }
+        onDeleted!();
+        return KeyEventResult.handled;
+      },
+      child: chipButton,
+    );
+  }
+
+  /// How far inside the chip's end the delete button's target begins.
+  static const _deleteInset = 8.0;
+}
+
+/// The check a selected chip shows when asked to: it pops in while the
+/// chip opens up to make room for it.
+class _ChipCheck extends StatelessWidget {
+  const _ChipCheck({
+    required this.visible,
+    required this.size,
+    required this.gap,
+  });
+
+  final bool visible;
+  final double size;
+  final double gap;
+
+  @override
+  Widget build(BuildContext context) {
+    final motion = Motion.of(context);
+    return SpringBuilder(
+      value: visible ? 1 : 0,
+      spring: motion.snappy,
+      builder: (context, t, child) {
+        final shown = t.clamp(0.0, 1.0);
+        return ClipRect(
+          child: Align(
+            alignment: AlignmentDirectional.centerStart,
+            widthFactor: shown,
+            child: Opacity(
+              opacity: shown,
+              child: Transform.scale(
+                // A little overshoot of the spring is the pop.
+                scale: motion.reduced ? 1 : .4 + .6 * t,
+                child: child,
+              ),
+            ),
+          ),
+        );
+      },
+      child: Padding(
+        padding: EdgeInsetsDirectional.only(end: gap),
+        child: PhosphorIcon(PhosphorIconsBold.check, size: size - 2),
+      ),
+    );
+  }
+}
+
+/// The cross at the end of a chip that can be removed.
+class _ChipDelete extends StatelessWidget {
+  const _ChipDelete({
+    required this.onDeleted,
+    required this.icon,
+    required this.semanticLabel,
+    required this.size,
+    required this.color,
+    required this.focusable,
+  });
+
+  final VoidCallback onDeleted;
+  final Widget? icon;
+  final String? semanticLabel;
+  final double size;
+  final Color color;
+  final bool focusable;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final button = Pressable(
+      onPressed: onDeleted,
+      semanticLabel:
+          semanticLabel ?? FinesseLocalizations.of(context).chip.remove,
+      // The whole end of the chip is the target; only the disc is drawn.
+      builder: (context, states) {
+        final active =
+            states.contains(WidgetState.hovered) ||
+            states.contains(WidgetState.pressed);
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: FocusRing(
+            visible: states.contains(WidgetState.focused),
+            borderRadius: theme.radii.full,
+            child: AnimatedFill(
+              color: active
+                  ? color.withValues(alpha: color.a * .12)
+                  : const Color(0x00000000),
+              borderRadius: theme.radii.full,
+              child: SizedBox.square(
+                dimension: size + 4,
+                child: Center(
+                  child: IconTheme.merge(
+                    data: IconThemeData(
+                      size: size - 4,
+                      color: color.withValues(
+                        alpha: color.a * (active ? 1 : .7),
+                      ),
+                    ),
+                    child: icon ?? const PhosphorIcon(PhosphorIconsBold.x),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+    return focusable ? button : ExcludeFocus(child: button);
   }
 }
 

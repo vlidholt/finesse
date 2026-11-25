@@ -1953,6 +1953,10 @@ class DefaultThemeVariant extends ThemeVariant {
       selectedBackgroundColor: colorScheme.accent,
       selectedForegroundColor: colorScheme.accentForeground,
       selectedBorderColor: colorScheme.accentBorder,
+      showCheckmark: false,
+      groupSpacing: scaled(style.gapSm),
+      groupRunSpacing: scaled(style.gapSm),
+      groupFade: 24,
     );
   }
 

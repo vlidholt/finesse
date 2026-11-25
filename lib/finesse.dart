@@ -50,6 +50,7 @@ export 'src/components/chat_bubble.dart';
 export 'src/components/chat_list.dart';
 export 'src/components/checkbox.dart';
 export 'src/components/chip.dart';
+export 'src/components/chip_group.dart';
 export 'src/components/collapsible.dart';
 export 'src/components/command.dart';
 export 'src/components/context_menu.dart' hide ContextMenuItemController;
