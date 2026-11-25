@@ -11,6 +11,7 @@ import 'package:finesse/src/theme/components/button.dart';
 import 'package:finesse/src/theme/components/button_sizes.dart';
 import 'package:finesse/src/theme/components/calendar.dart';
 import 'package:finesse/src/theme/components/card.dart';
+import 'package:finesse/src/theme/components/carousel.dart';
 import 'package:finesse/src/theme/components/chat_bubble.dart';
 import 'package:finesse/src/theme/components/chat_list.dart';
 import 'package:finesse/src/theme/components/checkbox.dart';
@@ -121,6 +122,7 @@ abstract class BaseTheme {
     required this.selectTheme,
     required this.selectOptionTheme,
     required this.cardTheme,
+    required this.carouselTheme,
     required this.switchTheme,
     required this.checkboxTheme,
     required this.textFieldTheme,
@@ -344,6 +346,9 @@ abstract class BaseTheme {
   /// The theme of `Card`.
   final CardTheme cardTheme;
 
+  /// The theme of `Carousel` and `PageIndicator`.
+  final CarouselTheme carouselTheme;
+
   /// The theme of `Switch`.
   final SwitchTheme switchTheme;
 
@@ -552,6 +557,9 @@ abstract class ThemeVariant {
 
   /// Builds the theme of `Card`.
   CardTheme cardTheme();
+
+  /// Builds the [CarouselTheme].
+  CarouselTheme carouselTheme();
 
   /// Builds the theme of `Switch`.
   SwitchTheme switchTheme();

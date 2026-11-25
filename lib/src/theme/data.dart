@@ -12,6 +12,7 @@ import 'package:finesse/src/theme/components/button.dart';
 import 'package:finesse/src/theme/components/button_sizes.dart';
 import 'package:finesse/src/theme/components/calendar.dart';
 import 'package:finesse/src/theme/components/card.dart';
+import 'package:finesse/src/theme/components/carousel.dart';
 import 'package:finesse/src/theme/components/chat_bubble.dart';
 import 'package:finesse/src/theme/components/chat_list.dart';
 import 'package:finesse/src/theme/components/checkbox.dart';
@@ -124,6 +125,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     SelectTheme? selectTheme,
     SelectOptionTheme? selectOptionTheme,
     CardTheme? cardTheme,
+    CarouselTheme? carouselTheme,
     SwitchTheme? switchTheme,
     CheckboxTheme? checkboxTheme,
     TextFieldTheme? textFieldTheme,
@@ -394,6 +396,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
         selectTheme: selectTheme,
         selectOptionTheme: selectOptionTheme,
         cardTheme: cardTheme,
+        carouselTheme: carouselTheme,
         switchTheme: switchTheme,
         checkboxTheme: checkboxTheme,
         textFieldTheme: textFieldTheme,
@@ -514,6 +517,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
         selectOptionTheme,
       ),
       cardTheme: effectiveVariant.cardTheme().merge(cardTheme),
+      carouselTheme: effectiveVariant.carouselTheme().merge(carouselTheme),
       switchTheme: effectiveVariant.switchTheme().merge(switchTheme),
       checkboxTheme: effectiveVariant.checkboxTheme().merge(checkboxTheme),
       textFieldTheme: effectiveVariant.textFieldTheme().merge(textFieldTheme),
@@ -648,6 +652,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     required super.selectTheme,
     required super.selectOptionTheme,
     required super.cardTheme,
+    required super.carouselTheme,
     required super.switchTheme,
     required super.checkboxTheme,
     required super.textFieldTheme,
@@ -748,6 +753,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     SelectTheme? selectTheme,
     SelectOptionTheme? selectOptionTheme,
     CardTheme? cardTheme,
+    CarouselTheme? carouselTheme,
     SwitchTheme? switchTheme,
     CheckboxTheme? checkboxTheme,
     TextFieldTheme? textFieldTheme,
@@ -842,6 +848,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
       selectTheme: selectTheme ?? i.selectTheme,
       selectOptionTheme: selectOptionTheme ?? i.selectOptionTheme,
       cardTheme: cardTheme ?? i.cardTheme,
+      carouselTheme: carouselTheme ?? i.carouselTheme,
       switchTheme: switchTheme ?? i.switchTheme,
       checkboxTheme: checkboxTheme ?? i.checkboxTheme,
       textFieldTheme: textFieldTheme ?? i.textFieldTheme,
@@ -1034,6 +1041,7 @@ final class _ThemeInputs {
     this.selectTheme,
     this.selectOptionTheme,
     this.cardTheme,
+    this.carouselTheme,
     this.switchTheme,
     this.checkboxTheme,
     this.textFieldTheme,
@@ -1126,6 +1134,7 @@ final class _ThemeInputs {
   final SelectTheme? selectTheme;
   final SelectOptionTheme? selectOptionTheme;
   final CardTheme? cardTheme;
+  final CarouselTheme? carouselTheme;
   final SwitchTheme? switchTheme;
   final CheckboxTheme? checkboxTheme;
   final TextFieldTheme? textFieldTheme;

@@ -18,6 +18,7 @@ import 'package:finesse/src/theme/components/button.dart';
 import 'package:finesse/src/theme/components/button_sizes.dart';
 import 'package:finesse/src/theme/components/calendar.dart';
 import 'package:finesse/src/theme/components/card.dart';
+import 'package:finesse/src/theme/components/carousel.dart';
 import 'package:finesse/src/theme/components/chat_bubble.dart';
 import 'package:finesse/src/theme/components/chat_list.dart';
 import 'package:finesse/src/theme/components/checkbox.dart';
@@ -1174,6 +1175,34 @@ class DefaultThemeVariant extends ThemeVariant {
       columnMainAxisSize: MainAxisSize.min,
       columnCrossAxisAlignment: CrossAxisAlignment.start,
       columnMainAxisAlignment: MainAxisAlignment.start,
+    );
+  }
+
+  @override
+  CarouselTheme carouselTheme() {
+    return CarouselTheme(
+      spacing: scaled(style.gapMd),
+      // An icon button's size, so on a phone the arrows are touch targets.
+      arrowSize: scaled(style.iconButtonSize),
+      arrowIconSize: 16,
+      arrowInset: scaled(style.gapSm),
+      // Opaque: an arrow floats over whatever the pages show.
+      arrowColor: colorScheme.popover,
+      arrowHoverColor: Color.alphaBlend(colorScheme.muted, colorScheme.popover),
+      arrowForegroundColor: colorScheme.popoverForeground,
+      arrowBorderColor: surfaceBorderColor,
+      indicatorInset: scaled(style.gapSm),
+      dotSize: 6,
+      activeDotExtent: 18,
+      dotSpacing: 6,
+      dotColor: _wash(colorScheme.foreground, .2),
+      activeDotColor: colorScheme.tint,
+      // Over a photograph: the page's palette says nothing about what is
+      // underneath, so these are fixed.
+      overlayColor: const Color(0x8A09090B),
+      overlayDotColor: const Color(0x80FFFFFF),
+      overlayActiveDotColor: const Color(0xFFFFFFFF),
+      overlayPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
     );
   }
 

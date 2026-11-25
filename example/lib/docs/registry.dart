@@ -10,6 +10,7 @@ import 'package:example/docs/pages/breadcrumb.dart';
 import 'package:example/docs/pages/button.dart';
 import 'package:example/docs/pages/calendar.dart';
 import 'package:example/docs/pages/card.dart';
+import 'package:example/docs/pages/carousel.dart';
 import 'package:example/docs/pages/chat_bubble.dart';
 import 'package:example/docs/pages/chat_list.dart';
 import 'package:example/docs/pages/checkbox.dart';
@@ -44,6 +45,7 @@ import 'package:example/docs/pages/navigation_bar.dart';
 import 'package:example/docs/pages/otp_field.dart';
 import 'package:example/docs/pages/overview.dart';
 import 'package:example/docs/pages/page_container.dart';
+import 'package:example/docs/pages/page_indicator.dart';
 import 'package:example/docs/pages/pagination.dart';
 import 'package:example/docs/pages/popover.dart';
 import 'package:example/docs/pages/portal.dart';
@@ -129,6 +131,7 @@ final componentDocs = [
   buttonDoc,
   calendarDoc,
   cardDoc,
+  carouselDoc,
   chatBubbleDoc,
   chatListDoc,
   checkboxDoc,
@@ -154,6 +157,7 @@ final componentDocs = [
   navigationBarDoc,
   otpFieldDoc,
   pageContainerDoc,
+  pageIndicatorDoc,
   paginationDoc,
   popoverDoc,
   pressableDoc,

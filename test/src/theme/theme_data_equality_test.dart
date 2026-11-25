@@ -330,6 +330,7 @@ void main() {
       t.navigationBarTheme,
       t.bottomNavigationBarTheme,
       t.chipTheme,
+      t.carouselTheme,
       t.listSectionTheme,
       t.listTileTheme,
       t.refreshIndicatorTheme,

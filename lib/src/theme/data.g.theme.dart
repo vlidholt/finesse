@@ -174,6 +174,7 @@ mixin _$ThemeData {
         t,
       )!,
       cardTheme: CardTheme.lerp(a.cardTheme, b.cardTheme, t)!,
+      carouselTheme: CarouselTheme.lerp(a.carouselTheme, b.carouselTheme, t)!,
       switchTheme: SwitchTheme.lerp(a.switchTheme, b.switchTheme, t)!,
       checkboxTheme: CheckboxTheme.lerp(a.checkboxTheme, b.checkboxTheme, t)!,
       textFieldTheme: TextFieldTheme.lerp(
@@ -323,6 +324,7 @@ mixin _$ThemeData {
     SelectTheme? selectTheme,
     SelectOptionTheme? selectOptionTheme,
     CardTheme? cardTheme,
+    CarouselTheme? carouselTheme,
     SwitchTheme? switchTheme,
     CheckboxTheme? checkboxTheme,
     TextFieldTheme? textFieldTheme,
@@ -413,6 +415,7 @@ mixin _$ThemeData {
       selectTheme: selectTheme ?? _this.selectTheme,
       selectOptionTheme: selectOptionTheme ?? _this.selectOptionTheme,
       cardTheme: cardTheme ?? _this.cardTheme,
+      carouselTheme: carouselTheme ?? _this.carouselTheme,
       switchTheme: switchTheme ?? _this.switchTheme,
       checkboxTheme: checkboxTheme ?? _this.checkboxTheme,
       textFieldTheme: textFieldTheme ?? _this.textFieldTheme,
@@ -538,6 +541,7 @@ mixin _$ThemeData {
       selectTheme: _this.selectTheme.merge(other.selectTheme),
       selectOptionTheme: _this.selectOptionTheme.merge(other.selectOptionTheme),
       cardTheme: _this.cardTheme.merge(other.cardTheme),
+      carouselTheme: _this.carouselTheme.merge(other.carouselTheme),
       switchTheme: _this.switchTheme.merge(other.switchTheme),
       checkboxTheme: _this.checkboxTheme.merge(other.checkboxTheme),
       textFieldTheme: _this.textFieldTheme.merge(other.textFieldTheme),
@@ -647,6 +651,7 @@ mixin _$ThemeData {
         _other.selectTheme == _this.selectTheme &&
         _other.selectOptionTheme == _this.selectOptionTheme &&
         _other.cardTheme == _this.cardTheme &&
+        _other.carouselTheme == _this.carouselTheme &&
         _other.switchTheme == _this.switchTheme &&
         _other.checkboxTheme == _this.checkboxTheme &&
         _other.textFieldTheme == _this.textFieldTheme &&
@@ -738,6 +743,7 @@ mixin _$ThemeData {
       _this.selectTheme,
       _this.selectOptionTheme,
       _this.cardTheme,
+      _this.carouselTheme,
       _this.switchTheme,
       _this.checkboxTheme,
       _this.textFieldTheme,
