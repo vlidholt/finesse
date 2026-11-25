@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:finesse/finesse.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -345,7 +346,8 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(_surface(tester).top, lessThan(top));
-      expect(calls, ['HapticFeedbackType.selectionClick']);
+      // A browser has no haptics to give.
+      expect(calls, kIsWeb ? isEmpty : ['HapticFeedbackType.selectionClick']);
     });
 
     testWidgets('ThemeData(haptics: false) keeps the detent silent', (
