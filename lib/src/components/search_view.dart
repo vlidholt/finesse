@@ -98,7 +98,6 @@ Future<T?> showSearch<T>({
         child: Dialog(
           alignment: Alignment.topCenter,
           constraints: const BoxConstraints(maxWidth: 560),
-          removeBorderRadiusWhenTiny: false,
           borderRadius: commandTheme.decoration?.border?.borderRadius?.resolve(
             direction,
           ),

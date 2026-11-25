@@ -722,7 +722,6 @@ Future<T?> showCommandDialog<T>({
           // `sm:max-w-md`, with the padding above keeping the
           // `calc(100%-2rem)` margins on narrow screens.
           constraints: const BoxConstraints(maxWidth: 448),
-          removeBorderRadiusWhenTiny: false,
           borderRadius: radius,
           padding: EdgeInsets.zero,
           scrollable: false,

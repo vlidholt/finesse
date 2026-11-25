@@ -1,9 +1,12 @@
+import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:boxy/flex.dart';
+import 'package:finesse/src/components/button.dart';
 import 'package:finesse/src/components/icon_button.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
+import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/theme/themes/shadows.dart';
@@ -12,7 +15,6 @@ import 'package:finesse/src/utils/entrance.dart';
 import 'package:finesse/src/utils/expanded_actions_theme.dart';
 import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:finesse/src/utils/position.dart';
-import 'package:finesse/src/utils/responsive.dart';
 import 'package:finesse/src/utils/route_theme.dart';
 import 'package:finesse/src/utils/separated_iterable.dart';
 import 'package:finesse/src/utils/shadow.dart';
@@ -493,14 +495,12 @@ class Dialog extends StatelessWidget {
     this.closeIconPosition,
     this.borderRadius,
     this.backgroundColor,
-    this.expandActionsWhenTiny,
     this.padding,
     this.gap,
     this.constraints,
     this.border,
     this.shadows,
     this.filter,
-    this.removeBorderRadiusWhenTiny,
     this.actionsAxis,
     this.actionsMainAxisSize,
     this.actionsMainAxisAlignment,
@@ -537,14 +537,12 @@ class Dialog extends StatelessWidget {
     this.closeIconPosition,
     this.borderRadius,
     this.backgroundColor,
-    this.expandActionsWhenTiny,
     this.padding,
     this.gap,
     this.constraints,
     this.border,
     this.shadows,
     this.filter,
-    this.removeBorderRadiusWhenTiny,
     this.actionsAxis,
     this.actionsMainAxisSize,
     this.actionsMainAxisAlignment,
@@ -652,12 +650,6 @@ class Dialog extends StatelessWidget {
   /// {@endtemplate}
   final Color? backgroundColor;
 
-  /// {@template Dialog.expandActionsWhenTiny}
-  /// Whether actions expand to full width on small screens.
-  /// Defaults to true if not specified.
-  /// {@endtemplate}
-  final bool? expandActionsWhenTiny;
-
   /// {@template Dialog.padding}
   /// The padding inside the dialog, surrounding all content.
   /// Defaults to EdgeInsets.all(24) if not specified.
@@ -695,15 +687,9 @@ class Dialog extends StatelessWidget {
   /// {@endtemplate}
   final ImageFilter? filter;
 
-  /// {@template Dialog.removeBorderRadiusWhenTiny}
-  /// Whether to remove the border radius on small screens.
-  /// Defaults to true if not specified.
-  /// {@endtemplate}
-  final bool? removeBorderRadiusWhenTiny;
-
   /// {@template Dialog.actionsAxis}
   /// The axis along which actions are arranged (horizontal or vertical).
-  /// Responsive to screen size if not specified.
+  /// Follows the theme's form factor if not specified.
   /// {@endtemplate}
   final Axis? actionsAxis;
 
@@ -721,7 +707,7 @@ class Dialog extends StatelessWidget {
 
   /// {@template Dialog.actionsVerticalDirection}
   /// The vertical direction of the actions layout when vertical.
-  /// Responsive to screen size if not specified.
+  /// Follows the theme's form factor if not specified.
   /// {@endtemplate}
   final VerticalDirection? actionsVerticalDirection;
 
@@ -739,13 +725,13 @@ class Dialog extends StatelessWidget {
 
   /// {@template Dialog.titleTextAlign}
   /// The text alignment for the title.
-  /// Responsive to screen size if not specified.
+  /// Follows the theme's form factor if not specified.
   /// {@endtemplate}
   final TextAlign? titleTextAlign;
 
   /// {@template Dialog.descriptionTextAlign}
   /// The text alignment for the description.
-  /// Responsive to screen size if not specified.
+  /// Follows the theme's form factor if not specified.
   /// {@endtemplate}
   final TextAlign? descriptionTextAlign;
 
@@ -868,11 +854,6 @@ class Dialog extends StatelessWidget {
     final effectiveRadius =
         borderRadius ?? effectiveDialogTheme.borderRadius ?? theme.radius;
 
-    final effectiveExpandActionsWhenTiny =
-        expandActionsWhenTiny ??
-        effectiveDialogTheme.expandActionsWhenTiny ??
-        true;
-
     final effectiveConstraints =
         constraints ??
         effectiveDialogTheme.constraints ??
@@ -886,10 +867,6 @@ class Dialog extends StatelessWidget {
     final effectiveShadows =
         shadows ?? effectiveDialogTheme.shadows ?? Shadows.lg;
 
-    final effectiveRemoveBorderRadiusWhenTiny =
-        removeBorderRadiusWhenTiny ??
-        effectiveDialogTheme.removeBorderRadiusWhenTiny ??
-        true;
     final effectivePadding =
         padding ?? effectiveDialogTheme.padding ?? const EdgeInsets.all(24);
 
@@ -941,164 +918,203 @@ class Dialog extends StatelessWidget {
     final effectiveActionsPinned =
         actionsPinned ?? effectiveDialogTheme.actionsPinned ?? true;
 
-    final dialog = ConstrainedBox(
-      constraints: effectiveConstraints,
-      child: ResponsiveBuilder(
-        builder: (context, breakpoint) {
-          final sm = breakpoint >= theme.breakpoints.sm;
+    // The phone layout follows the theme's form factor, not the window:
+    // actions stacked and as wide as the dialog, text centred.
+    final mobile = theme.formFactor == FormFactor.mobile;
+    final sm = !mobile;
 
-          final effectiveActionsAxis =
-              actionsAxis ??
-              effectiveDialogTheme.actionsAxis ??
-              (sm ? Axis.horizontal : Axis.vertical);
+    final dialog = LayoutBuilder(
+      builder: (context, available) {
+        // On a phone a dialog that has the whole width of the screen, and
+        // could take it, does: it is a band across the screen, with no
+        // corners to round. One that floats — on a wider screen, inside
+        // margins — is as wide as its content and keeps them.
+        final screenWidth = MediaQuery.sizeOf(context).width;
+        final edgeToEdge =
+            mobile &&
+            available.maxWidth >= screenWidth - .5 &&
+            screenWidth <= effectiveConstraints.maxWidth;
+        final constraints = edgeToEdge
+            ? effectiveConstraints.copyWith(
+                minWidth: math.max(
+                  effectiveConstraints.minWidth,
+                  available.maxWidth,
+                ),
+              )
+            : effectiveConstraints;
 
-          final effectiveActionsMainAxisSize =
-              actionsMainAxisSize ??
-              effectiveDialogTheme.actionsMainAxisSize ??
-              MainAxisSize.min;
+        final effectiveActionsAxis =
+            actionsAxis ??
+            effectiveDialogTheme.actionsAxis ??
+            (sm ? Axis.horizontal : Axis.vertical);
 
-          final effectiveActionsMainAxisAlignment =
-              actionsMainAxisAlignment ??
-              effectiveDialogTheme.actionsMainAxisAlignment ??
-              MainAxisAlignment.end;
+        final effectiveActionsMainAxisSize =
+            actionsMainAxisSize ??
+            effectiveDialogTheme.actionsMainAxisSize ??
+            MainAxisSize.min;
 
-          final effectiveActionsVerticalDirection =
-              actionsVerticalDirection ??
-              effectiveDialogTheme.actionsVerticalDirection ??
-              (sm ? VerticalDirection.down : VerticalDirection.up);
+        final effectiveActionsMainAxisAlignment =
+            actionsMainAxisAlignment ??
+            effectiveDialogTheme.actionsMainAxisAlignment ??
+            MainAxisAlignment.end;
 
-          final effectiveTitleTextAlign =
-              titleTextAlign ??
-              effectiveDialogTheme.titleTextAlign ??
-              (sm ? TextAlign.start : TextAlign.center);
+        final effectiveActionsVerticalDirection =
+            actionsVerticalDirection ??
+            effectiveDialogTheme.actionsVerticalDirection ??
+            (sm ? VerticalDirection.down : VerticalDirection.up);
 
-          final effectiveDescriptionTextAlign =
-              descriptionTextAlign ??
-              effectiveDialogTheme.descriptionTextAlign ??
-              (sm ? TextAlign.start : TextAlign.center);
+        final effectiveTitleTextAlign =
+            titleTextAlign ??
+            effectiveDialogTheme.titleTextAlign ??
+            (sm ? TextAlign.start : TextAlign.center);
 
-          Widget? effectiveActions = actions.isEmpty
-              ? null
-              : BoxyFlexible.align(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  child: Flex(
-                    direction: effectiveActionsAxis,
-                    mainAxisSize: effectiveActionsMainAxisSize,
-                    mainAxisAlignment: effectiveActionsMainAxisAlignment,
-                    verticalDirection: effectiveActionsVerticalDirection,
-                    spacing: effectiveActionsGap,
-                    children: actions,
-                  ),
-                );
+        final effectiveDescriptionTextAlign =
+            descriptionTextAlign ??
+            effectiveDialogTheme.descriptionTextAlign ??
+            (sm ? TextAlign.start : TextAlign.center);
 
-          if (!sm &&
-              effectiveExpandActionsWhenTiny &&
-              effectiveActions != null) {
-            effectiveActions = Theme(
-              data: expandedActionsThemeOf(theme),
-              // Full-width buttons give their labels the button's width, so
-              // a long label ellipsizes instead of overflowing the button.
-              child: DefaultTextStyle.merge(
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                softWrap: false,
-                child: effectiveActions,
-              ),
-            );
-          }
+        // Stacked on a phone, the actions are as wide as the dialog.
+        final expandActions = mobile && effectiveActionsAxis == Axis.vertical;
+        final expandedTheme = expandActions
+            ? expandedActionsThemeOf(theme)
+            : null;
 
-          final effectiveTitle = title != null
-              ? DefaultTextStyle(
-                  style: effectiveTitleStyle,
-                  textAlign: effectiveTitleTextAlign,
-                  child: title!,
-                )
-              : null;
+        Widget? effectiveActions = actions.isEmpty
+            ? null
+            : BoxyFlexible.align(
+                crossAxisAlignment: expandActions
+                    ? CrossAxisAlignment.stretch
+                    : CrossAxisAlignment.end,
+                child: Flex(
+                  direction: effectiveActionsAxis,
+                  mainAxisSize: effectiveActionsMainAxisSize,
+                  mainAxisAlignment: effectiveActionsMainAxisAlignment,
+                  crossAxisAlignment: expandActions
+                      ? CrossAxisAlignment.stretch
+                      : CrossAxisAlignment.center,
+                  verticalDirection: effectiveActionsVerticalDirection,
+                  spacing: effectiveActionsGap,
+                  children: [
+                    for (final action in actions)
+                      // A button fills the dialog's width and gives its
+                      // label that width. The theme that does it reaches
+                      // every button below it, so it goes around a
+                      // button only: any other action — a row of
+                      // buttons — is handed the width and lays out its
+                      // own, where a button asked to be as wide as a row
+                      // would have no width to take.
+                      if (expandedTheme != null && action is Button)
+                        Theme(data: expandedTheme, child: action)
+                      else
+                        action,
+                  ],
+                ),
+              );
 
-          final effectiveDescription = description != null
-              ? DefaultTextStyle(
-                  style: effectiveDescriptionStyle,
-                  textAlign: effectiveDescriptionTextAlign,
-                  child: description!,
-                )
-              : null;
+        if (expandActions && effectiveActions != null) {
+          // A long label ellipsizes instead of overflowing its button.
+          effectiveActions = DefaultTextStyle.merge(
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            softWrap: false,
+            child: effectiveActions,
+          );
+        }
 
-          final effectiveChild = child != null
-              ? DefaultTextStyle(
-                  style: effectiveDescriptionStyle,
-                  child: child!,
-                )
-              : null;
+        final effectiveTitle = title != null
+            ? DefaultTextStyle(
+                style: effectiveTitleStyle,
+                textAlign: effectiveTitleTextAlign,
+                child: title!,
+              )
+            : null;
 
-          Widget widget = BoxyColumn(
+        final effectiveDescription = description != null
+            ? DefaultTextStyle(
+                style: effectiveDescriptionStyle,
+                textAlign: effectiveDescriptionTextAlign,
+                child: description!,
+              )
+            : null;
+
+        final effectiveChild = child != null
+            ? DefaultTextStyle(
+                style: effectiveDescriptionStyle,
+                child: child!,
+              )
+            : null;
+
+        Widget widget = BoxyColumn(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: effectiveMainAxisAlignment,
+          crossAxisAlignment: effectiveCrossAxisAlignment,
+          children: [
+            // Only show title if not scrollable or scrollable but not pinned
+            if (effectiveTitle != null &&
+                (!effectiveScrollable || !effectiveTitlePinned))
+              effectiveTitle,
+            // Only show description if not scrollable or scrollable but not
+            // pinned
+            if (effectiveDescription != null &&
+                (!effectiveScrollable || !effectiveDescriptionPinned))
+              effectiveDescription,
+            if (effectiveChild != null) Flexible(child: effectiveChild),
+            // Only show actions if not scrollable or scrollable but not
+            // pinned
+            if (effectiveActions != null &&
+                (!effectiveScrollable || !effectiveActionsPinned))
+              effectiveActions,
+          ].separatedBy(SizedBox(height: effectiveGap)),
+        );
+
+        if (effectiveScrollable) {
+          widget = BoxyColumn(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: effectiveMainAxisAlignment,
             crossAxisAlignment: effectiveCrossAxisAlignment,
             children: [
-              // Only show title if not scrollable or scrollable but not pinned
-              if (effectiveTitle != null &&
-                  (!effectiveScrollable || !effectiveTitlePinned))
+              // Pinned title
+              if (effectiveTitle != null && effectiveTitlePinned)
                 effectiveTitle,
-              // Only show description if not scrollable or scrollable but not
-              // pinned
-              if (effectiveDescription != null &&
-                  (!effectiveScrollable || !effectiveDescriptionPinned))
+              // Pinned description
+              if (effectiveDescription != null && effectiveDescriptionPinned)
                 effectiveDescription,
-              if (effectiveChild != null) Flexible(child: effectiveChild),
-              // Only show actions if not scrollable or scrollable but not
-              // pinned
-              if (effectiveActions != null &&
-                  (!effectiveScrollable || !effectiveActionsPinned))
+              Flexible(
+                child: SingleChildScrollView(
+                  padding: effectiveScrollPadding,
+                  child: widget,
+                ),
+              ),
+              // Pinned actions
+              if (effectiveActions != null && effectiveActionsPinned)
                 effectiveActions,
             ].separatedBy(SizedBox(height: effectiveGap)),
           );
+        }
 
-          if (effectiveScrollable) {
-            widget = BoxyColumn(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: effectiveMainAxisAlignment,
-              crossAxisAlignment: effectiveCrossAxisAlignment,
-              children: [
-                // Pinned title
-                if (effectiveTitle != null && effectiveTitlePinned)
-                  effectiveTitle,
-                // Pinned description
-                if (effectiveDescription != null && effectiveDescriptionPinned)
-                  effectiveDescription,
-                Flexible(
-                  child: SingleChildScrollView(
-                    padding: effectiveScrollPadding,
-                    child: widget,
-                  ),
-                ),
-                // Pinned actions
-                if (effectiveActions != null && effectiveActionsPinned)
-                  effectiveActions,
-              ].separatedBy(SizedBox(height: effectiveGap)),
-            );
-          }
-
-          widget = Stack(
-            children: [
-              Padding(
-                padding: effectivePadding,
-                child: widget,
+        widget = Stack(
+          children: [
+            Padding(
+              padding: effectivePadding,
+              child: widget,
+            ),
+            if (effectiveCloseIcon != null)
+              effectiveCloseIcon.positionedWith(
+                effectiveCloseIconPosition,
               ),
-              if (effectiveCloseIcon != null)
-                effectiveCloseIcon.positionedWith(effectiveCloseIconPosition),
-            ],
-          );
+          ],
+        );
 
-          if (effectiveUseSafeArea) {
-            widget = SafeArea(child: widget);
-          }
+        if (effectiveUseSafeArea) {
+          widget = SafeArea(child: widget);
+        }
 
-          final surfaceRadius = (!sm && effectiveRemoveBorderRadiusWhenTiny)
-              ? null
-              : effectiveRadius;
-          // Through a `BackdropSurface` even without a filter, so the
-          // route's entrance fade has one place to go either way.
-          return BackdropSurface(
+        final surfaceRadius = edgeToEdge ? null : effectiveRadius;
+        // Through a `BackdropSurface` even without a filter, so the
+        // route's entrance fade has one place to go either way.
+        return ConstrainedBox(
+          constraints: constraints,
+          child: BackdropSurface(
             filter: filter,
             tintOpacity: effectiveBackgroundColor.a,
             borderRadius: surfaceRadius ?? BorderRadius.zero,
@@ -1119,9 +1135,9 @@ class Dialog extends StatelessWidget {
               ),
               child: widget,
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
 
     // Get the current view padding

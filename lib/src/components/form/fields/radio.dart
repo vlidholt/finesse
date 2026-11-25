@@ -25,7 +25,12 @@ class RadioGroupFormField<T> extends FinesseFormField<T> {
     super.restorationId,
     super.initialValue,
     super.validator,
-    required Iterable<Widget> items,
+
+    /// {@macro FinesseRadioGroup.items}
+    Iterable<Widget>? items,
+
+    /// {@macro FinesseRadioGroup.child}
+    Widget? child,
 
     /// {@macro FinesseRadioGroup.axis}
     Axis? axis,
@@ -44,7 +49,11 @@ class RadioGroupFormField<T> extends FinesseFormField<T> {
 
     /// {@macro FinesseRadioGroup.crossAxisAlignment}
     WrapCrossAlignment? crossAxisAlignment,
-  }) : super(
+  }) : assert(
+         (items == null) != (child == null),
+         'Give a radio group either items or a child.',
+       ),
+       super(
          decorationBuilder: (context) =>
              Theme.of(context).radioTheme.decoration ??
              const FinesseDecoration(),
@@ -64,6 +73,7 @@ class RadioGroupFormField<T> extends FinesseFormField<T> {
              alignment: alignment,
              runAlignment: runAlignment,
              crossAxisAlignment: crossAxisAlignment,
+             child: child,
            );
          },
        );

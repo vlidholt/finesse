@@ -19,13 +19,11 @@ class DialogTheme with _$DialogTheme {
     this.closeIconPosition,
     this.borderRadius,
     this.backgroundColor,
-    this.expandActionsWhenTiny,
     this.padding,
     this.gap,
     this.constraints,
     this.border,
     this.shadows,
-    this.removeBorderRadiusWhenTiny,
     this.actionsAxis,
     this.actionsMainAxisSize,
     this.actionsMainAxisAlignment,
@@ -72,9 +70,6 @@ class DialogTheme with _$DialogTheme {
   /// {@macro Dialog.backgroundColor}
   final Color? backgroundColor;
 
-  /// {@macro Dialog.expandActionsWhenTiny}
-  final bool? expandActionsWhenTiny;
-
   /// {@macro Dialog.padding}
   final EdgeInsetsGeometry? padding;
 
@@ -101,9 +96,6 @@ class DialogTheme with _$DialogTheme {
 
   /// {@macro Dialog.shadows}
   final List<BoxShadow>? shadows;
-
-  /// {@macro Dialog.removeBorderRadiusWhenTiny}
-  final bool? removeBorderRadiusWhenTiny;
 
   /// {@macro Dialog.titleStyle}
   final TextStyle? titleStyle;

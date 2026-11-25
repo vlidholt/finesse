@@ -90,7 +90,8 @@ class MenubarTheme with _$MenubarTheme {
   /// {@macro Popover.filter}
   final ImageFilter? filter;
 
-  /// {@macro MenubarItem.anchor}
+  /// Where a menu opens against its trigger. Defaults to below the trigger,
+  /// aligned to its start edge.
   final AnchorBase? anchor;
 
   /// {@macro Button.variant}
@@ -105,7 +106,7 @@ class MenubarTheme with _$MenubarTheme {
   /// {@macro Button.width}
   final double? buttonWidth;
 
-  /// {@macro MenubarItem.height}
+  /// The height of a trigger, 32 by default.
   final double? buttonHeight;
 
   /// {@macro Button.padding}
@@ -114,7 +115,9 @@ class MenubarTheme with _$MenubarTheme {
   /// {@macro Button.backgroundColor}
   final Color? buttonBackgroundColor;
 
-  /// {@macro MenubarItem.selectedBackgroundColor}
+  /// The fill behind the trigger whose menu is open, the scheme's accent
+  /// by default. It travels from trigger to trigger as the open menu
+  /// changes.
   final Color? buttonSelectedBackgroundColor;
 
   /// {@macro Button.hoverBackgroundColor}

@@ -1598,8 +1598,6 @@ class DefaultThemeVariant extends ThemeVariant {
       // the other floating surfaces.
       backgroundColor: colorScheme.popover,
       border: Border.all(color: dialogBorderColor),
-      removeBorderRadiusWhenTiny: true,
-      expandActionsWhenTiny: true,
       // A dialog scales up and leaves on the motion tokens, read by
       // `showDialog`.
       constraints: const BoxConstraints(maxWidth: 512),
@@ -1626,8 +1624,6 @@ class DefaultThemeVariant extends ThemeVariant {
       backgroundColor: colorScheme.popover,
       border: Border.all(color: dialogBorderColor),
       borderRadius: dialogRadius,
-      removeBorderRadiusWhenTiny: true,
-      expandActionsWhenTiny: true,
       // A dialog scales up and leaves on the motion tokens, read by
       // `showDialog`.
       constraints: const BoxConstraints(maxWidth: 512),
