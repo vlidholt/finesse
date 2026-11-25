@@ -275,20 +275,22 @@ class _CategoryFilter extends StatelessWidget {
                   Semantics(
                     selected: category == selected,
                     child: Button(
-                      pressScale: 1,
+                      style: ButtonTheme(
+                        pressScale: 1,
+                        width: double.infinity,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: theme.gap(GapSize.sm),
+                        ),
+                        gap: theme.gap(GapSize.sm),
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        foregroundColor: category == selected
+                            ? scheme.tint
+                            : scheme.foregroundSubtle,
+                      ),
                       variant: category == selected
                           ? ButtonVariant.secondary
                           : ButtonVariant.ghost,
                       enabled: results.countOf(category) > 0,
-                      width: double.infinity,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: theme.gap(GapSize.sm),
-                      ),
-                      gap: theme.gap(GapSize.sm),
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      foregroundColor: category == selected
-                          ? scheme.tint
-                          : scheme.foregroundSubtle,
                       leading: PhosphorIcon(category.icon),
                       trailing: Text(
                         '${results.countOf(category)}',

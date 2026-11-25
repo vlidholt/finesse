@@ -123,12 +123,31 @@ enum HoverStrategy {
   onTapOutside,
 }
 
-/// A special [GestureDetector] that handles the hovering state of the [child]
-/// on devices where the hover is not supported (eg mobile) with the help of
-/// [hoverStrategies].
+/// A [GestureDetector] for the gestures a control has no callback for, which
+/// can also stand in for hover where there is no pointer.
 ///
-/// If the device supports mouse, the [hoverStrategies] will be ignored and
-/// [MouseRegion] will be used instead.
+/// The controls of this package are built on `Pressable`, which answers a
+/// tap, a long press and the keyboard and nothing else. For anything rarer —
+/// a double tap, a secondary tap, the moment a press starts or is given up,
+/// a pan — wrap the control in one of these:
+///
+/// ```dart
+/// FinesseGestureDetector(
+///   onDoubleTap: _zoom,
+///   onSecondaryTapDown: (details) => _showMenuAt(details.globalPosition),
+///   child: Button.outline(onPressed: _open, child: const Text('Photo')),
+/// )
+/// ```
+///
+/// The control inside keeps its own tap. Giving this an [onTap] as well, or
+/// an [onTapDown], puts a second tap recogniser beside the control's: the
+/// control wins a tap, and this one's `onTapDown` is only heard once a press
+/// has lasted a tenth of a second. Use a `Listener` to hear every pointer
+/// that comes down.
+///
+/// With [hoverStrategies] it reports a hover on a device that has none —
+/// which is how a `Tooltip` shows under a held finger. While a mouse pointer
+/// is inside, the strategies are ignored and the hover is the pointer's.
 class FinesseGestureDetector extends StatefulWidget {
   /// Creates a gesture detector that also tracks the hover state.
   const FinesseGestureDetector({

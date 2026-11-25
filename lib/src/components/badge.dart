@@ -1,11 +1,7 @@
-import 'package:finesse/src/components/disabled.dart';
 import 'package:finesse/src/theme/components/badge.dart';
 import 'package:finesse/src/theme/data.dart';
-import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/debug_check.dart';
-import 'package:finesse/src/utils/gesture_detector.dart';
-import 'package:finesse/src/utils/motion_color.dart';
 import 'package:finesse/src/utils/pop_in.dart';
 import 'package:flutter/widgets.dart';
 
@@ -24,15 +20,21 @@ enum BadgeVariant {
   destructive,
 }
 
-/// A customizable badge widget that displays content with variant-based
-/// styling.
+/// A small pill that states something: a status, a category, a count.
 ///
-/// The [Badge] widget is used to highlight brief pieces of information,
-/// such as tags or status indicators. It supports multiple variants
-/// (primary, secondary, outline, destructive) with hover effects and optional
-/// tap functionality. Pass `variant:` or use the named constructors, which are
-/// shortcuts for it.
-class Badge extends StatefulWidget {
+/// ```dart
+/// Badge.secondary(child: const Text('Draft'))
+/// ```
+///
+/// A badge is read, not pressed: it has no hover, no cursor and no
+/// callback. A pill that does something when pressed — a filter, a tag that
+/// can be removed, a choice — is a `Chip`; the count on the corner of an
+/// icon is an `IndicatorBadge`.
+///
+/// It comes in four variants (primary, secondary, outline, destructive):
+/// pass `variant:` or use the named constructors, which are shortcuts for
+/// it. A badge whose text changes pops once, so the change is noticed.
+class Badge extends StatelessWidget {
   /// Creates a badge: the primary variant unless [variant] says otherwise.
   const Badge({
     super.key,
@@ -40,12 +42,8 @@ class Badge extends StatefulWidget {
     required this.child,
     this.shape,
     this.backgroundColor,
-    this.hoverBackgroundColor,
     this.foregroundColor,
     this.padding,
-    this.onPressed,
-    this.enabled = true,
-    this.mouseCursor,
     this.textStyle,
   });
 
@@ -56,12 +54,8 @@ class Badge extends StatefulWidget {
     required this.child,
     this.shape,
     this.backgroundColor,
-    this.hoverBackgroundColor,
     this.foregroundColor,
     this.padding,
-    this.onPressed,
-    this.enabled = true,
-    this.mouseCursor,
     this.textStyle,
   }) : variant = BadgeVariant.secondary;
 
@@ -72,12 +66,8 @@ class Badge extends StatefulWidget {
     required this.child,
     this.shape,
     this.backgroundColor,
-    this.hoverBackgroundColor,
     this.foregroundColor,
     this.padding,
-    this.onPressed,
-    this.enabled = true,
-    this.mouseCursor,
     this.textStyle,
   }) : variant = BadgeVariant.outline;
 
@@ -88,12 +78,8 @@ class Badge extends StatefulWidget {
     required this.child,
     this.shape,
     this.backgroundColor,
-    this.hoverBackgroundColor,
     this.foregroundColor,
     this.padding,
-    this.onPressed,
-    this.enabled = true,
-    this.mouseCursor,
     this.textStyle,
   }) : variant = BadgeVariant.destructive;
 
@@ -119,18 +105,10 @@ class Badge extends StatefulWidget {
   final ShapeBorder? shape;
 
   /// {@template Badge.backgroundColor}
-  /// The background color of the badge when not hovered, overriding the theme
-  /// default if provided.
-  /// Changes based on [variant] if not explicitly set.
+  /// The background color of the badge, overriding the theme default if
+  /// provided.
   /// {@endtemplate}
   final Color? backgroundColor;
-
-  /// {@template Badge.hoverBackgroundColor}
-  /// The background color of the badge when hovered, overriding the theme
-  /// default if provided.
-  /// Applied during mouse hover for visual feedback.
-  /// {@endtemplate}
-  final Color? hoverBackgroundColor;
 
   /// {@template Badge.foregroundColor}
   /// The color of the badge's content (e.g., text), overriding the theme
@@ -151,43 +129,8 @@ class Badge extends StatefulWidget {
   /// {@endtemplate}
   final TextStyle? textStyle;
 
-  /// {@template Badge.onPressed}
-  /// The callback invoked when the badge is tapped, making it interactive if
-  /// provided.
-  /// If null, the badge remains non-interactive.
-  /// {@endtemplate}
-  final VoidCallback? onPressed;
-
-  /// {@template Badge.enabled}
-  /// Whether the badge is interactive, defaults to `true`.
-  ///
-  /// When `false` the badge is dimmed and [onPressed] is not called. Has no
-  /// visible effect on a badge without an [onPressed].
-  /// {@endtemplate}
-  final bool enabled;
-
-  /// {@template Badge.mouseCursor}
-  /// The cursor displayed when hovering over the badge, providing feedback
-  /// when the badge is interactive. Defaults to [SystemMouseCursors.click] if
-  /// [onPressed] is provided, otherwise [MouseCursor.defer].
-  /// {@endtemplate}
-  final MouseCursor? mouseCursor;
-
-  @override
-  State<Badge> createState() => _BadgeState();
-}
-
-class _BadgeState extends State<Badge> {
-  final isHovered = ValueNotifier(false);
-
-  @override
-  void dispose() {
-    isHovered.dispose();
-    super.dispose();
-  }
-
-  BadgeTheme badgeTheme(ThemeData theme) {
-    return switch (widget.variant) {
+  BadgeTheme _badgeTheme(ThemeData theme) {
+    return switch (variant) {
       BadgeVariant.primary => theme.primaryBadgeTheme,
       BadgeVariant.secondary => theme.secondaryBadgeTheme,
       BadgeVariant.destructive => theme.destructiveBadgeTheme,
@@ -195,89 +138,43 @@ class _BadgeState extends State<Badge> {
     };
   }
 
-  Color? background(ThemeData theme) {
-    return widget.backgroundColor ?? badgeTheme(theme).backgroundColor;
-  }
-
-  Color? hoverBackground(ThemeData theme) {
-    return widget.hoverBackgroundColor ??
-        badgeTheme(theme).hoverBackgroundColor;
-  }
-
-  Color? foreground(ThemeData theme) {
-    return widget.foregroundColor ?? badgeTheme(theme).foregroundColor;
-  }
-
-  ShapeBorder shape(ThemeData theme) {
-    return widget.shape ?? badgeTheme(theme).shape ?? const StadiumBorder();
-  }
-
-  EdgeInsetsGeometry? padding(ThemeData theme) {
-    return widget.padding ?? badgeTheme(theme).padding;
-  }
-
-  TextStyle textStyle(ThemeData theme) {
-    return widget.textStyle ??
-        badgeTheme(theme).textStyle ??
-        theme.textTheme.small;
-  }
-
-  MouseCursor cursor(ThemeData theme) {
-    final defaultCursor = widget.onPressed != null
-        ? SystemMouseCursors.click
-        : MouseCursor.defer;
-    return widget.mouseCursor ?? badgeTheme(theme).mouseCursor ?? defaultCursor;
-  }
-
   @override
   Widget build(BuildContext context) {
     assert(debugCheckHasTheme(context));
     final theme = Theme.of(context);
-    final motion = Motion.of(context);
-    final label = widget.child;
+    final badgeTheme = _badgeTheme(theme);
+    final label = child;
+    final foreground = foregroundColor ?? badgeTheme.foregroundColor;
 
-    Widget badge = Semantics(
-      container: true,
-      child: MouseRegion(
-        cursor: cursor(theme),
-        onEnter: (_) {
-          isHovered.value = true;
-        },
-        onExit: (_) {
-          isHovered.value = false;
-        },
-        child: ValueListenableBuilder(
-          valueListenable: isHovered,
-          builder: (context, hovered, child) {
-            // The fill fades to its hover colour and back.
-            return AnimatedColorBuilder(
-              color: hovered ? hoverBackground(theme) : background(theme),
-              duration: motion.fast,
-              curve: motion.standard,
-              builder: (context, color, child) => Container(
-                decoration: ShapeDecoration(
-                  shape: shape(theme),
-                  color: color,
-                ),
-                padding: padding(theme),
-                child: child,
-              ),
-              child: child,
-            );
-          },
+    // A badge whose text changes — a count, a status — pops once, so the
+    // change is noticed. Only a plain `Text` can be compared.
+    return PopOnChange(
+      value: label is Text ? (label.data ?? label.textSpan) : null,
+      child: Semantics(
+        container: true,
+        child: Container(
+          decoration: ShapeDecoration(
+            shape: shape ?? badgeTheme.shape ?? const StadiumBorder(),
+            color: backgroundColor ?? badgeTheme.backgroundColor,
+          ),
+          padding: padding ?? badgeTheme.padding,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
               IconTheme.merge(
                 data: IconThemeData(
-                  size: badgeTheme(theme).iconSize ?? 12,
-                  color: foreground(theme),
+                  size: badgeTheme.iconSize ?? 12,
+                  color: foreground,
                 ),
                 child: DefaultTextStyle(
-                  style: textStyle(theme).copyWith(color: foreground(theme)),
+                  style:
+                      (textStyle ??
+                              badgeTheme.textStyle ??
+                              theme.textTheme.small)
+                          .copyWith(color: foreground),
                   textAlign: TextAlign.center,
-                  child: widget.child,
+                  child: child,
                 ),
               ),
             ],
@@ -285,23 +182,5 @@ class _BadgeState extends State<Badge> {
         ),
       ),
     );
-
-    // A badge whose text changes — a count, a status — pops once, so the
-    // change is noticed. Only a plain `Text` can be compared.
-    badge = PopOnChange(
-      value: label is Text ? (label.data ?? label.textSpan) : null,
-      child: badge,
-    );
-
-    if (widget.onPressed != null) {
-      badge = FinesseGestureDetector(
-        onTap: widget.enabled ? widget.onPressed : null,
-        child: badge,
-      );
-    }
-    if (!widget.enabled) {
-      badge = Disabled(disabled: true, child: badge);
-    }
-    return badge;
   }
 }

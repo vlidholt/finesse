@@ -44,12 +44,14 @@ class NetworkManageCard extends StatelessWidget {
         selected: selected,
         child: Button(
           variant: selected ? ButtonVariant.secondary : ButtonVariant.ghost,
-          pressScale: 1,
-          width: double.infinity,
-          padding: EdgeInsets.symmetric(horizontal: theme.gap(GapSize.sm)),
-          gap: theme.gap(GapSize.sm),
-          mainAxisAlignment: MainAxisAlignment.start,
-          foregroundColor: selected ? scheme.tint : scheme.foregroundSubtle,
+          style: ButtonTheme(
+            pressScale: 1,
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(horizontal: theme.gap(GapSize.sm)),
+            gap: theme.gap(GapSize.sm),
+            mainAxisAlignment: MainAxisAlignment.start,
+            foregroundColor: selected ? scheme.tint : scheme.foregroundSubtle,
+          ),
           leading: PhosphorIcon(section.icon),
           trailing: section == NetworkSection.grow
               ? IndicatorBadge(

@@ -33,22 +33,24 @@ class HomeComposerCard extends StatelessWidget {
                 // composer rather than taking text here.
                 child: Button.outline(
                   size: ButtonSize.lg,
-                  width: double.infinity,
-                  decoration: theme.buttonDecoration(
-                    radius: theme.radii.full,
+                  style: ButtonTheme(
+                    width: double.infinity,
+                    decoration: theme.buttonDecoration(
+                      radius: theme.radii.full,
+                    ),
+                    backgroundColor: scheme.muted,
+                    hoverBackgroundColor: scheme.secondary,
+                    foregroundColor: scheme.mutedForeground,
+                    hoverForegroundColor: scheme.mutedForeground,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    pressedOffset: Offset.zero,
+                    // The size of the theme's `large`, at the weight of
+                    // running text: a placeholder, not a label.
+                    textStyle: theme.textTheme.large.copyWith(
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
-                  backgroundColor: scheme.muted,
-                  hoverBackgroundColor: scheme.secondary,
-                  foregroundColor: scheme.mutedForeground,
-                  hoverForegroundColor: scheme.mutedForeground,
-                  mainAxisAlignment: MainAxisAlignment.start,
                   mouseCursor: SystemMouseCursors.text,
-                  pressedOffset: Offset.zero,
-                  // The size of the theme's `large`, at the weight of
-                  // running text: a placeholder, not a label.
-                  textStyle: theme.textTheme.large.copyWith(
-                    fontWeight: FontWeight.w400,
-                  ),
                   onPressed: compose,
                   child: Flexible(
                     child: Text(
@@ -68,10 +70,12 @@ class HomeComposerCard extends StatelessWidget {
               for (final action in HomeData.composerActions)
                 Flexible(
                   child: Button.ghost(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: theme.gap(GapSize.md),
+                    style: ButtonTheme(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: theme.gap(GapSize.md),
+                      ),
+                      foregroundColor: scheme.foregroundSubtle,
                     ),
-                    foregroundColor: scheme.foregroundSubtle,
                     leading: PhosphorIcon(action.icon),
                     onPressed: compose,
                     child: Flexible(

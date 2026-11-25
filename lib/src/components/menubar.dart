@@ -3,6 +3,7 @@ import 'package:finesse/src/components/button.dart';
 import 'package:finesse/src/components/context_menu.dart';
 import 'package:finesse/src/components/popover.dart';
 import 'package:finesse/src/raw_components/portal.dart';
+import 'package:finesse/src/theme/components/button.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
@@ -372,9 +373,28 @@ class _MenubarItemState extends State<MenubarItem> {
                   : null,
               child: Button(
                 variant: effectiveVariant,
-                pressScale: 1,
-                height: effectiveHeight,
-                backgroundColor: menubarTheme.buttonBackgroundColor,
+                style: ButtonTheme(
+                  pressScale: 1,
+                  height: effectiveHeight,
+                  backgroundColor: menubarTheme.buttonBackgroundColor,
+                  width: menubarTheme.buttonWidth,
+                  padding: menubarTheme.buttonPadding,
+                  hoverBackgroundColor: menubarTheme.buttonHoverBackgroundColor,
+                  foregroundColor: menubarTheme.buttonForegroundColor,
+                  hoverForegroundColor: menubarTheme.buttonHoverForegroundColor,
+                  pressedBackgroundColor:
+                      menubarTheme.buttonPressedBackgroundColor,
+                  pressedForegroundColor:
+                      menubarTheme.buttonPressedForegroundColor,
+                  shadows: menubarTheme.buttonShadows,
+                  gradient: menubarTheme.buttonGradient,
+                  textDecoration: menubarTheme.buttonTextDecoration,
+                  hoverTextDecoration: menubarTheme.buttonHoverTextDecoration,
+                  decoration: effectiveButtonDecoration,
+                  gap: menubarTheme.buttonGap,
+                  mainAxisAlignment: menubarTheme.buttonMainAxisAlignment,
+                  crossAxisAlignment: menubarTheme.buttonCrossAxisAlignment,
+                ),
                 focusNode: widget.focusNode,
                 onFocusChange: (focused) {
                   // Set the selected index
@@ -402,25 +422,7 @@ class _MenubarItemState extends State<MenubarItem> {
                 trailing: widget.trailing,
                 size: menubarTheme.buttonSize,
                 mouseCursor: menubarTheme.buttonMouseCursor,
-                width: menubarTheme.buttonWidth,
-                padding: menubarTheme.buttonPadding,
-                hoverBackgroundColor: menubarTheme.buttonHoverBackgroundColor,
-                foregroundColor: menubarTheme.buttonForegroundColor,
-                hoverForegroundColor: menubarTheme.buttonHoverForegroundColor,
-                pressedBackgroundColor:
-                    menubarTheme.buttonPressedBackgroundColor,
-                pressedForegroundColor:
-                    menubarTheme.buttonPressedForegroundColor,
-                shadows: menubarTheme.buttonShadows,
-                gradient: menubarTheme.buttonGradient,
-                textDecoration: menubarTheme.buttonTextDecoration,
-                hoverTextDecoration: menubarTheme.buttonHoverTextDecoration,
-                decoration: effectiveButtonDecoration,
                 enabled: widget.enabled,
-                gap: menubarTheme.buttonGap,
-                mainAxisAlignment: menubarTheme.buttonMainAxisAlignment,
-                crossAxisAlignment: menubarTheme.buttonCrossAxisAlignment,
-                hoverStrategies: menubarTheme.buttonHoverStrategies,
                 expands: menubarTheme.buttonExpands,
                 child: child,
               ),

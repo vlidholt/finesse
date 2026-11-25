@@ -2,6 +2,7 @@ import 'package:finesse/src/components/button.dart';
 import 'package:finesse/src/components/popover.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/raw_components/portal.dart';
+import 'package:finesse/src/theme/components/button.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/extensions/text_style.dart';
@@ -212,15 +213,16 @@ class _BreadcrumbLinkState extends State<BreadcrumbLink> {
 
     return Button(
       variant: ButtonVariant.link,
-      pressScale: 1,
+      // Zero dimensions: the button is as large as its child.
+      style: const ButtonTheme(
+        pressScale: 1,
+        padding: EdgeInsets.zero,
+        height: 0,
+        width: 0,
+      ),
       onHover:
           widget.onHover ??
           (isHovered) => setState(() => this.isHovered = isHovered),
-      padding: EdgeInsets.zero,
-      // Use zero dimensions; Button's minWidth/minHeight constraints
-      // allow the button to size to its child content
-      height: 0,
-      width: 0,
       onPressed: widget.onPressed,
       child: DefaultTextStyle(
         style: effectiveTextStyle.copyWith(
@@ -542,11 +544,13 @@ class BreadcrumbDropMenuItem extends StatelessWidget {
 
     return Button(
       variant: ButtonVariant.ghost,
-      pressScale: 1,
-      height: 0,
-      width: 0,
-      padding: effectiveItemPadding,
-      mainAxisAlignment: MainAxisAlignment.start,
+      style: ButtonTheme(
+        pressScale: 1,
+        height: 0,
+        width: 0,
+        padding: effectiveItemPadding,
+        mainAxisAlignment: MainAxisAlignment.start,
+      ),
       onPressed: onPressed,
       child: DefaultTextStyle(
         style: effectiveTextStyle,

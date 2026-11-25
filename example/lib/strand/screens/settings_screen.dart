@@ -154,19 +154,21 @@ class _SectionRail extends StatelessWidget {
             Semantics(
               selected: section == selected,
               child: Button(
-                pressScale: 1,
+                style: ButtonTheme(
+                  pressScale: 1,
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: theme.gap(GapSize.sm),
+                  ),
+                  gap: theme.gap(GapSize.sm),
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  foregroundColor: section == selected
+                      ? scheme.tint
+                      : scheme.foregroundSubtle,
+                ),
                 variant: section == selected
                     ? ButtonVariant.secondary
                     : ButtonVariant.ghost,
-                width: double.infinity,
-                padding: EdgeInsets.symmetric(
-                  horizontal: theme.gap(GapSize.sm),
-                ),
-                gap: theme.gap(GapSize.sm),
-                mainAxisAlignment: MainAxisAlignment.start,
-                foregroundColor: section == selected
-                    ? scheme.tint
-                    : scheme.foregroundSubtle,
                 leading: PhosphorIcon(SettingsScreen._icons[section]),
                 onPressed: () => onSelected(section),
                 child: Expanded(

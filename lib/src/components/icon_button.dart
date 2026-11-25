@@ -1,30 +1,29 @@
 import 'package:finesse/src/components/button.dart';
 import 'package:finesse/src/components/button_group.dart';
 import 'package:finesse/src/components/tooltip.dart';
-import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/theme/components/button.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/debug_check.dart';
-import 'package:finesse/src/utils/gesture_detector.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 
-/// A customizable icon-only button widget with variant styling.
+/// A button that holds only an icon.
 ///
-/// The [IconButton] widget is a specialized version of [Button]
-/// designed for icon-only use cases, offering multiple styling variants
-/// (primary, destructive, outline, secondary, ghost). It supports rich
-/// interaction states and integrates with [Theme] for consistent
-/// appearance. Pass `variant:` or use named constructors like
-/// [IconButton.destructive], which are shortcuts for it.
+/// ```dart
+/// IconButton.ghost(
+///   icon: const PhosphorIcon(PhosphorIconsRegular.archive),
+///   tooltip: 'Archive',
+///   onPressed: _archive,
+/// )
+/// ```
 ///
-/// shadcn/ui itself has no separate component — it is `<Button size="icon">`,
-/// and `Button(size: ButtonSize.icon, child: PhosphorIcon(...))` is exactly
-/// that. This adds the square sizes for the `sm`/`lg` steps (which shadcn
-/// spells `size-icon-sm` / `size-icon-lg`) and the semantic label an
-/// icon-only control needs, so prefer it when the button holds only an icon.
+/// It is a [Button] in the square sizes — shadcn/ui's
+/// `<Button size="icon">`, `icon-sm` and `icon-lg` — with the name an
+/// icon-only control needs: give it a [tooltip], which also names it for
+/// assistive technology, or a [semanticLabel].
+///
+/// It takes the same variants as a button, except the link (pass `variant:`
+/// or use named constructors like [IconButton.ghost]), the same three
+/// sizes, and the same [style] object for anything else.
 class IconButton extends StatelessWidget {
   /// Creates an icon button: the primary variant unless [variant] says
   /// otherwise.
@@ -32,247 +31,106 @@ class IconButton extends StatelessWidget {
     super.key,
     this.variant = ButtonVariant.primary,
     required this.icon,
-    this.iconSize,
-    this.size,
-    this.semanticLabel,
-    this.tooltip,
     this.onPressed,
-    this.mouseCursor,
-    this.width,
-    this.height,
-    this.padding,
-    this.backgroundColor,
-    this.hoverBackgroundColor,
-    this.foregroundColor,
-    this.hoverForegroundColor,
-    this.autofocus = false,
-    this.focusNode,
-    this.pressedBackgroundColor,
-    this.pressedForegroundColor,
-    this.shadows,
-    this.gradient,
-    this.decoration,
+    this.onLongPress,
+    this.size,
     this.enabled = true,
     this.loading = false,
-    this.onLongPress,
+    this.focusNode,
+    this.autofocus = false,
     this.statesController,
-    this.hoverStrategies,
     this.onHover,
-    this.onTapDown,
-    this.onTapUp,
-    this.onTapCancel,
-    this.onSecondaryTapDown,
-    this.onSecondaryTapUp,
-    this.onSecondaryTapCancel,
-    this.onLongPressStart,
-    this.onLongPressCancel,
-    this.onLongPressUp,
-    this.onLongPressDown,
-    this.onLongPressEnd,
-    this.onDoubleTap,
-    this.onDoubleTapDown,
-    this.onDoubleTapCancel,
-    this.longPressDuration,
     this.onFocusChange,
+    this.mouseCursor,
+    this.semanticLabel,
+    this.tooltip,
+    this.style,
   }) : assert(
          variant != ButtonVariant.link,
          "IconButton doesn't support the link variant",
        );
 
-  /// Creates a destructive variant icon button widget, typically for warning or
+  /// Creates a destructive variant icon button, typically for warning or
   /// error actions.
   const IconButton.destructive({
     super.key,
     required this.icon,
-    this.iconSize,
-    this.size,
-    this.semanticLabel,
-    this.tooltip,
     this.onPressed,
-    this.mouseCursor,
-    this.width,
-    this.height,
-    this.padding,
-    this.backgroundColor,
-    this.hoverBackgroundColor,
-    this.foregroundColor,
-    this.hoverForegroundColor,
-    this.autofocus = false,
-    this.focusNode,
-    this.onFocusChange,
-    this.pressedBackgroundColor,
-    this.pressedForegroundColor,
-    this.shadows,
-    this.gradient,
-    this.decoration,
+    this.onLongPress,
+    this.size,
     this.enabled = true,
     this.loading = false,
-    this.onLongPress,
+    this.focusNode,
+    this.autofocus = false,
     this.statesController,
-    this.hoverStrategies,
     this.onHover,
-    this.onTapDown,
-    this.onTapUp,
-    this.onTapCancel,
-    this.onSecondaryTapDown,
-    this.onSecondaryTapUp,
-    this.onSecondaryTapCancel,
-    this.onLongPressStart,
-    this.onLongPressCancel,
-    this.onLongPressUp,
-    this.onLongPressDown,
-    this.onLongPressEnd,
-    this.onDoubleTap,
-    this.onDoubleTapDown,
-    this.onDoubleTapCancel,
-    this.longPressDuration,
+    this.onFocusChange,
+    this.mouseCursor,
+    this.semanticLabel,
+    this.tooltip,
+    this.style,
   }) : variant = ButtonVariant.destructive;
 
-  /// Creates an outline variant icon button widget, typically with a bordered
+  /// Creates an outline variant icon button, typically with a bordered
   /// appearance.
   const IconButton.outline({
     super.key,
     required this.icon,
-    this.iconSize,
-    this.size,
-    this.semanticLabel,
-    this.tooltip,
     this.onPressed,
-    this.mouseCursor,
-    this.width,
-    this.height,
-    this.padding,
-    this.backgroundColor,
-    this.hoverBackgroundColor,
-    this.foregroundColor,
-    this.hoverForegroundColor,
-    this.autofocus = false,
-    this.focusNode,
-    this.pressedBackgroundColor,
-    this.pressedForegroundColor,
-    this.shadows,
-    this.gradient,
-    this.decoration,
+    this.onLongPress,
+    this.size,
     this.enabled = true,
     this.loading = false,
-    this.onLongPress,
+    this.focusNode,
+    this.autofocus = false,
     this.statesController,
-    this.hoverStrategies,
     this.onHover,
-    this.onTapDown,
-    this.onTapUp,
-    this.onTapCancel,
-    this.onSecondaryTapDown,
-    this.onSecondaryTapUp,
-    this.onSecondaryTapCancel,
-    this.onLongPressStart,
-    this.onLongPressCancel,
-    this.onLongPressUp,
-    this.onLongPressDown,
-    this.onLongPressEnd,
-    this.onDoubleTap,
-    this.onDoubleTapDown,
-    this.onDoubleTapCancel,
-    this.longPressDuration,
     this.onFocusChange,
+    this.mouseCursor,
+    this.semanticLabel,
+    this.tooltip,
+    this.style,
   }) : variant = ButtonVariant.outline;
 
-  /// Creates a secondary variant icon button widget, typically for less
-  /// prominent actions.
+  /// Creates a secondary variant icon button, typically for less prominent
+  /// actions.
   const IconButton.secondary({
     super.key,
     required this.icon,
-    this.iconSize,
-    this.size,
-    this.semanticLabel,
-    this.tooltip,
     this.onPressed,
-    this.mouseCursor,
-    this.width,
-    this.height,
-    this.padding,
-    this.backgroundColor,
-    this.hoverBackgroundColor,
-    this.foregroundColor,
-    this.hoverForegroundColor,
-    this.autofocus = false,
-    this.focusNode,
-    this.pressedBackgroundColor,
-    this.pressedForegroundColor,
-    this.shadows,
-    this.gradient,
-    this.decoration,
+    this.onLongPress,
+    this.size,
     this.enabled = true,
     this.loading = false,
-    this.onLongPress,
+    this.focusNode,
+    this.autofocus = false,
     this.statesController,
-    this.hoverStrategies,
     this.onHover,
-    this.onTapDown,
-    this.onTapUp,
-    this.onTapCancel,
-    this.onSecondaryTapDown,
-    this.onSecondaryTapUp,
-    this.onSecondaryTapCancel,
-    this.onLongPressStart,
-    this.onLongPressCancel,
-    this.onLongPressUp,
-    this.onLongPressDown,
-    this.onLongPressEnd,
-    this.onDoubleTap,
-    this.onDoubleTapDown,
-    this.onDoubleTapCancel,
-    this.longPressDuration,
     this.onFocusChange,
+    this.mouseCursor,
+    this.semanticLabel,
+    this.tooltip,
+    this.style,
   }) : variant = ButtonVariant.secondary;
 
-  /// Creates a ghost variant icon button widget, typically with minimal
-  /// styling.
+  /// Creates a ghost variant icon button, typically with minimal styling.
   const IconButton.ghost({
     super.key,
     required this.icon,
-    this.iconSize,
-    this.size,
-    this.semanticLabel,
-    this.tooltip,
     this.onPressed,
-    this.mouseCursor,
-    this.width,
-    this.height,
-    this.padding,
-    this.backgroundColor,
-    this.hoverBackgroundColor,
-    this.foregroundColor,
-    this.hoverForegroundColor,
-    this.autofocus = false,
-    this.focusNode,
-    this.pressedBackgroundColor,
-    this.pressedForegroundColor,
-    this.shadows,
-    this.gradient,
-    this.decoration,
+    this.onLongPress,
+    this.size,
     this.enabled = true,
     this.loading = false,
-    this.onLongPress,
+    this.focusNode,
+    this.autofocus = false,
     this.statesController,
-    this.hoverStrategies,
     this.onHover,
-    this.onTapDown,
-    this.onTapUp,
-    this.onTapCancel,
-    this.onSecondaryTapDown,
-    this.onSecondaryTapUp,
-    this.onSecondaryTapCancel,
-    this.onLongPressStart,
-    this.onLongPressCancel,
-    this.onLongPressUp,
-    this.onLongPressDown,
-    this.onLongPressEnd,
-    this.onDoubleTap,
-    this.onDoubleTapDown,
-    this.onDoubleTapCancel,
-    this.longPressDuration,
     this.onFocusChange,
+    this.mouseCursor,
+    this.semanticLabel,
+    this.tooltip,
+    this.style,
   }) : variant = ButtonVariant.ghost;
 
   /// {@macro Button.variant}
@@ -284,34 +142,17 @@ class IconButton extends StatelessWidget {
   /// {@macro Button.onLongPress}
   final VoidCallback? onLongPress;
 
-  /// {@template IconButton.icon}
-  /// The icon widget displayed within the button.
-  /// Typically an [Icon], required to define the button’s content.
-  /// {@endtemplate}
+  /// The icon. It takes the button's icon size and foreground colour.
   final Widget icon;
 
-  /// {@template IconButton.iconSize}
-  /// The size of the icon within the button.
-  /// Defaults to the [IconThemeData.size] if not specified.
-  /// {@endtemplate}
-  final double? iconSize;
-
-  /// {@template IconButton.size}
-  /// The button size to resolve metrics from.
-  ///
-  /// Defaults to [ButtonSize.icon] — the square icon size matching
-  /// shadcn/ui's `<Button size="icon">`. Pass [ButtonSize.sm] or
-  /// [ButtonSize.lg] for the smaller/larger icon buttons.
-  /// {@endtemplate}
+  /// The size: [ButtonSize.regular], the default, [ButtonSize.sm] or
+  /// [ButtonSize.lg]. They are read as the theme's square sizes
+  /// (`ButtonSizesTheme.icon`, `iconSm`, `iconLg`), which size the glyph
+  /// independently of a text button's at the same step.
   final ButtonSize? size;
 
-  /// {@template IconButton.semanticLabel}
-  /// The accessible name announced by screen readers.
-  ///
-  /// An icon-only button has no text for assistive technology to read, so
-  /// this should almost always be provided — it is the equivalent of the
-  /// `sr-only` span shadcn/ui puts inside `<Button size="icon">`.
-  /// {@endtemplate}
+  /// What assistive technology reads for the button. An icon alone says
+  /// nothing, so give this or a [tooltip].
   final String? semanticLabel;
 
   /// What the button does, in a word or two: "Archive", "More options".
@@ -329,47 +170,11 @@ class IconButton extends StatelessWidget {
   /// {@macro Button.mouseCursor}
   final MouseCursor? mouseCursor;
 
-  /// {@macro Button.width}
-  final double? width;
-
-  /// {@macro Button.height}
-  final double? height;
-
-  /// {@macro Button.padding}
-  final EdgeInsetsGeometry? padding;
-
-  /// {@macro Button.backgroundColor}
-  final Color? backgroundColor;
-
-  /// {@macro Button.hoverBackgroundColor}
-  final Color? hoverBackgroundColor;
-
-  /// {@macro Button.foregroundColor}
-  final Color? foregroundColor;
-
-  /// {@macro Button.hoverForegroundColor}
-  final Color? hoverForegroundColor;
-
   /// {@macro Button.autofocus}
   final bool autofocus;
 
   /// {@macro Button.focusNode}
   final FocusNode? focusNode;
-
-  /// {@macro Button.pressedBackgroundColor}
-  final Color? pressedBackgroundColor;
-
-  /// {@macro Button.pressedForegroundColor}
-  final Color? pressedForegroundColor;
-
-  /// {@macro Button.shadows}
-  final List<BoxShadow>? shadows;
-
-  /// {@macro Button.gradient}
-  final Gradient? gradient;
-
-  /// {@macro Button.decoration}
-  final FinesseDecoration? decoration;
 
   /// {@macro Button.enabled}
   final bool enabled;
@@ -377,192 +182,94 @@ class IconButton extends StatelessWidget {
   /// {@macro Button.statesController}
   final WidgetStatesController? statesController;
 
-  /// {@macro Button.hoverStrategies}
-  final HoverStrategies? hoverStrategies;
-
   /// {@macro Button.onHover}
   final ValueChanged<bool>? onHover;
-
-  /// {@macro Button.onTapDown}
-  final ValueChanged<TapDownDetails>? onTapDown;
-
-  /// {@macro Button.onTapUp}
-  final ValueChanged<TapUpDetails>? onTapUp;
-
-  /// {@macro Button.onTapCancel}
-  final VoidCallback? onTapCancel;
-
-  /// {@macro Button.onSecondaryTapDown}
-  final ValueChanged<TapDownDetails>? onSecondaryTapDown;
-
-  /// {@macro Button.onSecondaryTapUp}
-  final ValueChanged<TapUpDetails>? onSecondaryTapUp;
-
-  /// {@macro Button.onSecondaryTapCancel}
-  final VoidCallback? onSecondaryTapCancel;
-
-  /// {@macro Button.onLongPressStart}
-  final ValueChanged<LongPressStartDetails>? onLongPressStart;
-
-  /// {@macro Button.onLongPressCancel}
-  final VoidCallback? onLongPressCancel;
-
-  /// {@macro Button.onLongPressUp}
-  final VoidCallback? onLongPressUp;
-
-  /// {@macro Button.onLongPressDown}
-  final ValueChanged<LongPressDownDetails>? onLongPressDown;
-
-  /// {@macro Button.onLongPressEnd}
-  final ValueChanged<LongPressEndDetails>? onLongPressEnd;
-
-  /// {@macro Button.onDoubleTap}
-  final VoidCallback? onDoubleTap;
-
-  /// {@macro Button.onDoubleTapDown}
-  final ValueChanged<TapDownDetails>? onDoubleTapDown;
-
-  /// {@macro Button.onDoubleTapCancel}
-  final VoidCallback? onDoubleTapCancel;
-
-  /// {@macro Button.longPressDuration}
-  final Duration? longPressDuration;
 
   /// {@macro Button.onFocusChange}
   final ValueChanged<bool>? onFocusChange;
 
-  /// The button theme for [variant], read from [theme].
-  ButtonTheme buttonTheme(ThemeData theme) {
-    return switch (variant) {
-      ButtonVariant.primary => theme.primaryButtonTheme,
-      ButtonVariant.destructive => theme.destructiveButtonTheme,
-      ButtonVariant.secondary => theme.secondaryButtonTheme,
-      ButtonVariant.ghost => theme.ghostButtonTheme,
-      ButtonVariant.outline => theme.outlineButtonTheme,
-      ButtonVariant.link => theme.linkButtonTheme,
-    };
-  }
+  /// {@macro Button.style}
+  ///
+  /// On an icon button `ButtonTheme.width`, `height`, `padding` and
+  /// `iconSize` replace the square size's.
+  final ButtonTheme? style;
 
   @override
   Widget build(BuildContext context) {
     assert(debugCheckHasTheme(context));
 
     final theme = Theme.of(context);
+    final style = this.style;
 
-    final sizesTheme = buttonTheme(theme).sizesTheme;
+    final sizes = Button.themeOf(context, variant).merge(style).sizesTheme;
     // The square sizes, not the text-button ones: shadcn sizes an icon
     // button's glyph independently of a text button's at the same step
     // (`.cn-button-size-icon-sm` keeps 16 where `.cn-button-size-sm` drops
     // to 14).
-    final defaultSize = switch (size ?? ButtonSize.icon) {
-      ButtonSize.icon => sizesTheme?.icon ?? theme.buttonSizesTheme.icon!,
+    final metrics = switch (size ?? ButtonSize.regular) {
+      ButtonSize.regular => sizes?.icon ?? theme.buttonSizesTheme.icon!,
       ButtonSize.sm =>
-        sizesTheme?.iconSm ??
+        sizes?.iconSm ??
             theme.buttonSizesTheme.iconSm ??
-            sizesTheme?.sm ??
+            sizes?.sm ??
             theme.buttonSizesTheme.sm!,
       ButtonSize.lg =>
-        sizesTheme?.iconLg ??
+        sizes?.iconLg ??
             theme.buttonSizesTheme.iconLg ??
-            sizesTheme?.lg ??
+            sizes?.lg ??
             theme.buttonSizesTheme.lg!,
-      ButtonSize.regular =>
-        sizesTheme?.regular ?? theme.buttonSizesTheme.regular!,
     };
 
-    final effectivePadding = padding ?? defaultSize.padding;
-
-    final effectiveHeight = height ?? defaultSize.height;
-    // Only the `icon` size carries an explicit width. For sm/lg/regular fall
-    // back to the height so an icon button stays square at every size.
-    final effectiveWidth = width ?? defaultSize.width ?? effectiveHeight;
+    final height = style?.height ?? metrics.height;
 
     // The style can round icon buttons differently from text buttons — a
     // circle beside a 10-point rectangle. The focus ring has to follow the
     // new radius or it stays a rounded square around a round button.
-    var effectiveDecoration = decoration;
+    var decoration = style?.decoration;
     final radiusToken = theme.style.iconButtonRadius;
     // Not in a group: joined to its neighbours an icon button is one
     // segment of a bar, and takes the bar's corners.
     if (radiusToken != null &&
         decoration == null &&
         !ButtonGroupScope.isWithin(context)) {
-      effectiveDecoration = theme.buttonDecoration(
+      decoration = theme.buttonDecoration(
         radius: theme.radii.resolve(radiusToken),
       );
     }
 
     final label = semanticLabel ?? tooltip;
-    Widget button = Button(
+    final Widget button = Button(
       variant: variant,
-      width: effectiveWidth,
-      height: effectiveHeight,
-      padding: effectivePadding,
-      iconSize: iconSize ?? defaultSize.iconSize,
+      style: (style ?? const ButtonTheme()).copyWith(
+        // A size with no width of its own stays square.
+        width: style?.width ?? metrics.width ?? height,
+        height: height,
+        padding: style?.padding ?? metrics.padding,
+        iconSize: style?.iconSize ?? metrics.iconSize,
+        decoration: decoration,
+      ),
       onPressed: onPressed,
       onLongPress: onLongPress,
       mouseCursor: mouseCursor,
-      backgroundColor: backgroundColor,
-      hoverBackgroundColor: hoverBackgroundColor,
-      foregroundColor: foregroundColor,
-      hoverForegroundColor: hoverForegroundColor,
       autofocus: autofocus,
       focusNode: focusNode,
-      pressedBackgroundColor: pressedBackgroundColor,
-      pressedForegroundColor: pressedForegroundColor,
-      shadows: shadows,
-      gradient: gradient,
-      decoration: effectiveDecoration,
       enabled: enabled,
       loading: loading,
       statesController: statesController,
-      hoverStrategies: hoverStrategies,
       onHover: onHover,
-      onTapDown: onTapDown,
-      onTapUp: onTapUp,
-      onTapCancel: onTapCancel,
-      onSecondaryTapDown: onSecondaryTapDown,
-      onSecondaryTapUp: onSecondaryTapUp,
-      onSecondaryTapCancel: onSecondaryTapCancel,
-      onLongPressStart: onLongPressStart,
-      onLongPressCancel: onLongPressCancel,
-      onLongPressUp: onLongPressUp,
-      onLongPressDown: onLongPressDown,
-      onLongPressEnd: onLongPressEnd,
-      onDoubleTap: onDoubleTap,
-      onDoubleTapDown: onDoubleTapDown,
-      onDoubleTapCancel: onDoubleTapCancel,
-      longPressDuration: longPressDuration,
       onFocusChange: onFocusChange,
-      // The label stands in for the icon; both would be read otherwise.
-      child: label == null ? icon : ExcludeSemantics(child: icon),
+      // An icon-only button carries no text, so without a label a screen
+      // reader announces nothing at all. It stands in for the icon: both
+      // would be read otherwise.
+      semanticLabel: label,
+      child: icon,
     );
 
-    if (label != null) {
-      // An icon-only button carries no text, so without this a screen reader
-      // announces nothing at all. Merged with the button's own node rather
-      // than put in its place: excluding the button would take its tap and
-      // focus actions away with it, and the control could be read but not
-      // pressed.
-      button = MergeSemantics(
-        child: Semantics(
-          label: label,
-          value: loading
-              ? FinesseLocalizations.of(context).button.loading
-              : null,
-          child: button,
-        ),
-      );
-    }
-
-    if (tooltip != null) {
-      button = Tooltip(
-        focusNode: focusNode,
-        builder: (context) => Text(tooltip!),
-        child: button,
-      );
-    }
-
-    return button;
+    if (tooltip == null) return button;
+    return Tooltip(
+      focusNode: focusNode,
+      builder: (context) => Text(tooltip!),
+      child: button,
+    );
   }
 }

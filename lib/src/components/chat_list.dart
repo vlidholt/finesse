@@ -6,6 +6,7 @@ import 'package:finesse/src/components/icon_button.dart';
 import 'package:finesse/src/components/indicator_badge.dart';
 import 'package:finesse/src/icons/phosphor_icon.dart';
 import 'package:finesse/src/icons/phosphor_icons_regular.dart';
+import 'package:finesse/src/theme/components/button.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/entrance.dart';
@@ -905,11 +906,13 @@ class _ChatListState<T> extends State<ChatList<T>> {
                         ),
                         semanticLabel: widget.jumpToLatestLabel,
                         // Opaque and lifted: the messages scroll under it.
-                        backgroundColor: Theme.of(context).colorScheme.card,
-                        hoverBackgroundColor: Theme.of(
-                          context,
-                        ).colorScheme.card,
-                        shadows: Theme.of(context).cardTheme.shadows,
+                        style: ButtonTheme(
+                          backgroundColor: Theme.of(context).colorScheme.card,
+                          hoverBackgroundColor: Theme.of(
+                            context,
+                          ).colorScheme.card,
+                          shadows: Theme.of(context).cardTheme.shadows,
+                        ),
                         onPressed: jump,
                       ),
                     ),

@@ -118,13 +118,15 @@ class _ActionButton extends StatelessWidget {
         done ? PhosphorIconsRegular.clock : PhosphorIconsRegular.userPlus,
     };
     return Button(
-      pressScale: 1,
+      style: ButtonTheme(
+        pressScale: 1,
+        // A pill, where the style's text buttons are rounded rectangles.
+        decoration: theme.buttonDecoration(radius: theme.radii.full),
+        textStyle: theme.textTheme.small,
+      ),
       // Pressed, it fills in: "Following", "Pending".
       variant: done ? ButtonVariant.secondary : ButtonVariant.outline,
       size: ButtonSize.sm,
-      // A pill, where the style's text buttons are rounded rectangles.
-      decoration: theme.buttonDecoration(radius: theme.radii.full),
-      textStyle: theme.textTheme.small,
       leading: PhosphorIcon(icon),
       onPressed: onPressed,
       child: Text(done ? action.doneLabel : action.label),

@@ -14,10 +14,8 @@ class BadgeTheme with _$BadgeTheme {
     bool canMerge = true,
     this.shape,
     this.backgroundColor,
-    this.hoverBackgroundColor,
     this.foregroundColor,
     this.padding,
-    this.mouseCursor,
     this.textStyle,
     this.iconSize,
   }) : _canMerge = canMerge;
@@ -34,17 +32,11 @@ class BadgeTheme with _$BadgeTheme {
   /// {@macro Badge.backgroundColor}
   final Color? backgroundColor;
 
-  /// {@macro Badge.hoverBackgroundColor}
-  final Color? hoverBackgroundColor;
-
   /// {@macro Badge.foregroundColor}
   final Color? foregroundColor;
 
   /// {@macro Badge.padding}
   final EdgeInsetsGeometry? padding;
-
-  /// {@macro Badge.mouseCursor}
-  final MouseCursor? mouseCursor;
 
   /// {@macro Badge.textStyle}
   final TextStyle? textStyle;

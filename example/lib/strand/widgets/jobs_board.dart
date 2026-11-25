@@ -49,7 +49,9 @@ class JobsBoard extends StatelessWidget {
               trailing: _StageMenu(stage: stage, applications: applications),
               footer: stage == ApplicationStage.saved
                   ? Button.ghost(
-                      width: double.infinity,
+                      style: ButtonTheme(
+                        width: double.infinity,
+                      ),
                       // The label takes the width that is left and gives
                       // way when a wide font or a large text size needs
                       // more than the column has.

@@ -66,7 +66,9 @@ class JobDetailPage extends StatelessWidget {
                       ? PhosphorIconsFill.bookmarkSimple
                       : PhosphorIconsRegular.bookmarkSimple,
                 ),
-                foregroundColor: saved ? colors.tint : null,
+                style: ButtonTheme(
+                  foregroundColor: saved ? colors.tint : null,
+                ),
                 semanticLabel: saved ? 'Remove from saved jobs' : 'Save job',
                 onPressed: () => state.toggleSaved(job),
               ),

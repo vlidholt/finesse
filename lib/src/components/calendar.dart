@@ -5,6 +5,7 @@ import 'package:finesse/src/components/button.dart';
 import 'package:finesse/src/components/icon_button.dart';
 import 'package:finesse/src/components/select.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
+import 'package:finesse/src/theme/components/button.dart';
 import 'package:finesse/src/theme/components/calendar.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/theme.dart';
@@ -908,9 +909,11 @@ class _CalendarState extends State<Calendar> {
         return Opacity(
           opacity: isHovered ? 1 : effectiveNavigationButtonDisabledOpacity,
           child: IconButton.outline(
-            width: effectiveNavigationButtonSize,
-            height: effectiveNavigationButtonSize,
-            padding: effectiveNavigationButtonPadding,
+            style: ButtonTheme(
+              width: effectiveNavigationButtonSize,
+              height: effectiveNavigationButtonSize,
+              padding: effectiveNavigationButtonPadding,
+            ),
             enabled: !isPreviousMonthButtonDisabled,
             onHover: (hovered) => backMonthButtonHovered.value = hovered,
             icon: effectiveBackNavigationButtonIcon,
@@ -926,9 +929,11 @@ class _CalendarState extends State<Calendar> {
         return Opacity(
           opacity: isHovered ? 1 : effectiveNavigationButtonDisabledOpacity,
           child: IconButton.outline(
-            width: effectiveNavigationButtonSize,
-            height: effectiveNavigationButtonSize,
-            padding: effectiveNavigationButtonPadding,
+            style: ButtonTheme(
+              width: effectiveNavigationButtonSize,
+              height: effectiveNavigationButtonSize,
+              padding: effectiveNavigationButtonPadding,
+            ),
             enabled: !isNextMonthButtonDisabled,
             onHover: (hovered) => forwardMonthButtonHovered.value = hovered,
             onPressed: () => goToMonth(currentMonth.nextMonth),
@@ -1277,11 +1282,13 @@ class _CalendarState extends State<Calendar> {
                                   : effectiveDayButtonOutsideMonthOpacity,
                               child: Button(
                                 variant: variant,
-                                width: effectiveDayButtonSize,
-                                height: effectiveDayButtonSize,
-                                decoration: effectiveDayButtonDecoration,
+                                style: ButtonTheme(
+                                  width: effectiveDayButtonSize,
+                                  height: effectiveDayButtonSize,
+                                  decoration: effectiveDayButtonDecoration,
+                                  padding: effectiveDayButtonPadding,
+                                ),
                                 enabled: enabled(date),
-                                padding: effectiveDayButtonPadding,
                                 child: Text(
                                   date.day.toString(),
                                   style: textStyle,

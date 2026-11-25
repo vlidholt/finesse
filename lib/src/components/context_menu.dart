@@ -10,6 +10,7 @@ import 'package:finesse/src/components/scroll_area.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/raw_components/portal.dart';
+import 'package:finesse/src/theme/components/button.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/motion.dart';
@@ -25,6 +26,7 @@ import 'package:finesse/src/utils/mouse_area.dart';
 import 'package:finesse/src/utils/pop_in.dart';
 import 'package:finesse/src/utils/provider.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
@@ -1417,39 +1419,36 @@ class _MenuItemState extends State<MenuItem> {
             child: _CheckableSemantics(
               checkable: checkable,
               child: Button(
-                pressScale: 1,
-                height: effectiveHeight,
                 enabled: widget.enabled,
                 variant: effectiveButtonVariant,
-                decoration: effectiveDecoration,
-                width: double.infinity,
-                padding: effectiveInsetPadding,
                 statesController: statesController,
-                backgroundColor: selected
-                    ? effectiveSelectedBackgroundColor
-                    : effectiveBackgroundColor,
-                hoverBackgroundColor: effectiveSelectedBackgroundColor,
-                // Through the button rather than a wrapping DefaultTextStyle,
-                // so its IconTheme recolours leading and trailing icons with
-                // the text — shadcn's `focus:**:text-accent-foreground`.
-                foregroundColor: selected
-                    ? selectedForegroundColor
-                    : foregroundColor,
-                hoverForegroundColor: selectedForegroundColor,
-                // A menu's highlight follows the pointer and the arrow keys
-                // row by row: it is there or it is not, with no fade and no
-                // glide between rows.
-                transitionDuration: Duration.zero,
-                textStyle: highlighted
-                    ? effectiveSelectedTextStyle
-                    : effectiveTextStyle,
+                style: ButtonTheme(
+                  pressScale: 1,
+                  height: effectiveHeight,
+                  decoration: effectiveDecoration,
+                  width: double.infinity,
+                  padding: effectiveInsetPadding,
+                  backgroundColor: selected
+                      ? effectiveSelectedBackgroundColor
+                      : effectiveBackgroundColor,
+                  hoverBackgroundColor: effectiveSelectedBackgroundColor,
+                  // Through the button rather than a wrapping
+                  // DefaultTextStyle, so its IconTheme recolours leading and
+                  // trailing icons with the text — shadcn's
+                  // `focus:**:text-accent-foreground`.
+                  foregroundColor: selected
+                      ? selectedForegroundColor
+                      : foregroundColor,
+                  hoverForegroundColor: selectedForegroundColor,
+                  // A menu's highlight follows the pointer and the arrow
+                  // keys row by row: it is there or it is not, with no fade
+                  // and no glide between rows.
+                  transitionDuration: Duration.zero,
+                  textStyle: highlighted
+                      ? effectiveSelectedTextStyle
+                      : effectiveTextStyle,
+                ),
                 onFocusChange: controller.setFocused,
-                onTapDown: widget.onTapDown != null
-                    ? (details) {
-                        widget.onTapDown!(details);
-                        if (effectiveCloseOnTap) _close(contextMenu);
-                      }
-                    : null,
                 onPressed: () {
                   // Space on a checkable row toggles it and leaves the menu
                   // open, so several can be set in one visit; Enter and a
@@ -1539,6 +1538,27 @@ class _MenuItemState extends State<MenuItem> {
     final itemConstraints = theme.contextMenuTheme.itemConstraints;
     if (itemConstraints != null) {
       child = ConstrainedBox(constraints: itemConstraints, child: child);
+    }
+
+    // On the way down, before anything else hears of the press: the row's
+    // own tap comes on the way up, and by then a press that is also a tap
+    // outside what the menu belongs to has taken the menu away.
+    final onTapDown = widget.onTapDown;
+    if (onTapDown != null && widget.enabled) {
+      child = Listener(
+        onPointerDown: (event) {
+          if (event.buttons != kPrimaryButton) return;
+          onTapDown(
+            TapDownDetails(
+              globalPosition: event.position,
+              localPosition: event.localPosition,
+              kind: event.kind,
+            ),
+          );
+          if (effectiveCloseOnTap) _close(contextMenu);
+        },
+        child: child,
+      );
     }
 
     // if the item has at least one submenu item, wrap it in a provider to

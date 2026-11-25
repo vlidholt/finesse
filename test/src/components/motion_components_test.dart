@@ -356,8 +356,10 @@ void main() {
 
     Widget button({bool enabled = true, VoidCallback? onPressed}) => _app(
       Button(
-        backgroundColor: rest,
-        hoverBackgroundColor: hover,
+        style: const ButtonTheme(
+          backgroundColor: rest,
+          hoverBackgroundColor: hover,
+        ),
         enabled: enabled,
         onPressed: onPressed ?? () {},
         child: const Text('Go'),
@@ -482,7 +484,7 @@ void main() {
             children: [
               Button(
                 variant: ButtonVariant.ghost,
-                pressScale: 1,
+                style: const ButtonTheme(pressScale: 1),
                 onPressed: () {},
                 child: const Text('raw'),
               ),

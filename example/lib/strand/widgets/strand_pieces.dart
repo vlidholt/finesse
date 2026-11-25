@@ -302,17 +302,19 @@ class StrandPillButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Button(
-      pressScale: 1,
+      style: ButtonTheme(
+        pressScale: 1,
+        width: expand ? double.infinity : null,
+        // A pill, where the style's text buttons are rounded rectangles.
+        decoration: theme.buttonDecoration(radius: theme.radii.full),
+        textStyle: theme.textTheme.small,
+      ),
       variant: done
           ? ButtonVariant.secondary
           : primary
           ? ButtonVariant.primary
           : ButtonVariant.outline,
       size: ButtonSize.sm,
-      width: expand ? double.infinity : null,
-      // A pill, where the style's text buttons are rounded rectangles.
-      decoration: theme.buttonDecoration(radius: theme.radii.full),
-      textStyle: theme.textTheme.small,
       leading: PhosphorIcon(done ? doneIcon ?? icon : icon),
       onPressed: onPressed,
       // Flexible, so a long label in a narrow column — a phone at a large

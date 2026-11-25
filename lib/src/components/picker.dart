@@ -6,6 +6,7 @@ import 'package:finesse/src/components/popover.dart';
 import 'package:finesse/src/components/sheet.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/raw_components/portal.dart';
+import 'package:finesse/src/theme/components/button.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/components/layout.dart';
 import 'package:finesse/src/theme/form_factor.dart';
@@ -352,14 +353,16 @@ class PickerTrigger extends StatelessWidget {
           );
     return Button(
       variant: variant ?? ButtonVariant.outline,
-      pressScale: 1,
+      style: ButtonTheme(
+        pressScale: 1,
+        width: width,
+        mainAxisAlignment: MainAxisAlignment.start,
+      ),
       size: size,
-      width: width,
       expands: expands,
       enabled: enabled,
       focusNode: focusNode,
       autofocus: autofocus,
-      mainAxisAlignment: MainAxisAlignment.start,
       onPressed: onPressed,
       leading: tinted(leading),
       trailing: tinted(trailing),

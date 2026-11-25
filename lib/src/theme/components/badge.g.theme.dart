@@ -28,14 +28,8 @@ mixin _$BadgeTheme {
     return BadgeTheme(
       shape: ShapeBorder.lerp(a.shape, b.shape, t),
       backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
-      hoverBackgroundColor: Color.lerp(
-        a.hoverBackgroundColor,
-        b.hoverBackgroundColor,
-        t,
-      ),
       foregroundColor: Color.lerp(a.foregroundColor, b.foregroundColor, t),
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
-      mouseCursor: t < 0.5 ? a.mouseCursor : b.mouseCursor,
       textStyle: TextStyle.lerp(a.textStyle, b.textStyle, t),
       iconSize: lerpDouble$(a.iconSize, b.iconSize, t),
     );
@@ -44,10 +38,8 @@ mixin _$BadgeTheme {
   BadgeTheme copyWith({
     ShapeBorder? shape,
     Color? backgroundColor,
-    Color? hoverBackgroundColor,
     Color? foregroundColor,
     EdgeInsetsGeometry? padding,
-    MouseCursor? mouseCursor,
     TextStyle? textStyle,
     double? iconSize,
   }) {
@@ -56,10 +48,8 @@ mixin _$BadgeTheme {
     return BadgeTheme(
       shape: shape ?? _this.shape,
       backgroundColor: backgroundColor ?? _this.backgroundColor,
-      hoverBackgroundColor: hoverBackgroundColor ?? _this.hoverBackgroundColor,
       foregroundColor: foregroundColor ?? _this.foregroundColor,
       padding: padding ?? _this.padding,
-      mouseCursor: mouseCursor ?? _this.mouseCursor,
       textStyle: textStyle ?? _this.textStyle,
       iconSize: iconSize ?? _this.iconSize,
     );
@@ -79,10 +69,8 @@ mixin _$BadgeTheme {
     return copyWith(
       shape: other.shape,
       backgroundColor: other.backgroundColor,
-      hoverBackgroundColor: other.hoverBackgroundColor,
       foregroundColor: other.foregroundColor,
       padding: other.padding,
-      mouseCursor: other.mouseCursor,
       textStyle: _this.textStyle?.merge(other.textStyle) ?? other.textStyle,
       iconSize: other.iconSize,
     );
@@ -103,10 +91,8 @@ mixin _$BadgeTheme {
 
     return _other.shape == _this.shape &&
         _other.backgroundColor == _this.backgroundColor &&
-        _other.hoverBackgroundColor == _this.hoverBackgroundColor &&
         _other.foregroundColor == _this.foregroundColor &&
         _other.padding == _this.padding &&
-        _other.mouseCursor == _this.mouseCursor &&
         _other.textStyle == _this.textStyle &&
         _other.iconSize == _this.iconSize;
   }
@@ -119,10 +105,8 @@ mixin _$BadgeTheme {
       runtimeType,
       _this.shape,
       _this.backgroundColor,
-      _this.hoverBackgroundColor,
       _this.foregroundColor,
       _this.padding,
-      _this.mouseCursor,
       _this.textStyle,
       _this.iconSize,
     );

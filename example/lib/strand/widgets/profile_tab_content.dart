@@ -82,8 +82,10 @@ class _ProfilePostCardState extends State<ProfilePostCard> {
             children: [
               Button.ghost(
                 size: ButtonSize.sm,
-                foregroundColor: _liked ? scheme.tint : null,
-                hoverForegroundColor: _liked ? scheme.tint : null,
+                style: ButtonTheme(
+                  foregroundColor: _liked ? scheme.tint : null,
+                  hoverForegroundColor: _liked ? scheme.tint : null,
+                ),
                 leading: PhosphorIcon(
                   _liked ? PhosphorIconsFill.heart : PhosphorIconsRegular.heart,
                 ),

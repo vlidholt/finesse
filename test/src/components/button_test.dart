@@ -1,12 +1,18 @@
 import 'package:finesse/material.dart';
 import 'package:finesse/src/app.dart';
-import 'package:finesse/src/components/button.dart'; // Adjust import path based on your project structure
+import 'package:finesse/src/components/button.dart';
+import 'package:finesse/src/components/icon_button.dart';
+import 'package:finesse/src/theme/components/button.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/style.dart';
 import 'package:finesse/src/theme/theme.dart';
-import 'package:flutter/material.dart' hide Theme, ThemeData;
+import 'package:flutter/material.dart'
+    hide ButtonTheme, IconButton, Theme, ThemeData;
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../../finesse_harness.dart';
 
 void main() {
   // Helper method to create a test widget wrapped in FinesseApp and Scaffold
@@ -29,7 +35,7 @@ void main() {
           const SizedBox(
             width: 120,
             child: Button(
-              width: double.infinity,
+              style: ButtonTheme(width: double.infinity),
               expands: true,
               child: Flexible(
                 child: Text(
@@ -203,9 +209,11 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const Button(
-            backgroundColor: customBackgroundColor,
-            padding: customPadding,
-            width: customWidth,
+            style: ButtonTheme(
+              backgroundColor: customBackgroundColor,
+              padding: customPadding,
+              width: customWidth,
+            ),
             child: Text('Styled Button'),
           ),
         ),
@@ -289,7 +297,10 @@ void main() {
     });
 
     testWidgets('handles focus correctly', (WidgetTester tester) async {
+      // As on a desktop, where the focus shows.
+      useTraditionalHighlights();
       final focusNode = FocusNode();
+      addTearDown(focusNode.dispose);
       await tester.pumpWidget(
         createTestWidget(
           Button(
@@ -314,6 +325,49 @@ void main() {
       expect(decoratorFinder, findsOneWidget);
       final decorator = tester.widget<Decorator>(decoratorFinder);
       expect(decorator.focused, true);
+    });
+
+    testWidgets('a focus that came from code on a touch screen does not '
+        'show until a key is pressed', (WidgetTester tester) async {
+      // CSS's `:focus-visible`, as for every control built on Pressable.
+      final focusNode = FocusNode();
+      addTearDown(focusNode.dispose);
+      final changes = <bool>[];
+      await tester.pumpWidget(
+        createTestWidget(
+          Column(
+            children: [
+              Button(
+                focusNode: focusNode,
+                onFocusChange: changes.add,
+                onPressed: () {},
+                child: const Text('First'),
+              ),
+              Button(onPressed: () {}, child: const Text('Second')),
+            ],
+          ),
+        ),
+      );
+      bool ringed(String label) => tester
+          .widget<Decorator>(
+            find.ancestor(
+              of: find.text(label),
+              matching: find.byType(Decorator),
+            ),
+          )
+          .focused;
+
+      focusNode.requestFocus();
+      await tester.pumpAndSettle();
+      expect(focusNode.hasFocus, isTrue);
+      // The caller hears of it either way.
+      expect(changes, [true]);
+      expect(ringed('First'), isFalse);
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pumpAndSettle();
+      expect(ringed('First'), isFalse);
+      expect(ringed('Second'), isTrue);
     });
 
     testWidgets('follows the ambient text direction', (
@@ -564,11 +618,13 @@ void main() {
         expect(tester.getSize(find.byIcon(Icons.star)), const Size.square(22));
       });
 
-      testWidgets('Button.iconSize overrides the style', (tester) async {
+      testWidgets("a style's iconSize overrides the size's", (
+        tester,
+      ) async {
         await tester.pumpWidget(
           createTestWidget(
             const Button(
-              iconSize: 10,
+              style: ButtonTheme(iconSize: 10),
               leading: Icon(Icons.star),
               child: Text('Button'),
             ),
@@ -578,16 +634,15 @@ void main() {
         expect(tester.getSize(find.byIcon(Icons.star)), const Size.square(10));
       });
 
-      testWidgets('size: icon is the icon button, without the wrapper', (
-        tester,
-      ) async {
-        // shadcn has no separate IconButton — `<Button size="icon">` is the
-        // whole of it, and IconButton is a convenience over this.
+      testWidgets('an icon-only button is an IconButton: the square size '
+          'with its own glyph size', (tester) async {
+        // shadcn has no separate IconButton — it is `<Button size="icon">`.
+        // Here that size is IconButton's alone.
         await tester.pumpWidget(
           createTestWidget(
-            const Button(
-              size: ButtonSize.icon,
-              child: Icon(Icons.star),
+            const IconButton(
+              semanticLabel: 'Favourite',
+              icon: Icon(Icons.star),
             ),
             theme: nova,
           ),

@@ -6,7 +6,13 @@ import 'package:theme_extensions_builder_annotation/theme_extensions_builder_ann
 part 'toggle.g.theme.dart';
 
 /// {@template ToggleTheme}
-/// Theme for the `Toggle` widget.
+/// How a `Toggle` looks: its colours off, on and hovered, its decoration
+/// and its metrics.
+///
+/// `ThemeData` holds one per variant (`toggleTheme`, `outlineToggleTheme`),
+/// and `Toggle.style` takes one to restyle a single toggle: it is merged
+/// over the variant's theme, so only the fields that are set change
+/// anything.
 /// {@endtemplate}
 @themeGen
 @immutable
@@ -26,6 +32,7 @@ class ToggleTheme with _$ToggleTheme {
     this.textStyle,
     this.gap,
     this.height,
+    this.width,
     this.iconSize,
     this.pressScale,
     this.transitionDuration,
@@ -39,41 +46,46 @@ class ToggleTheme with _$ToggleTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro Toggle.backgroundColor}
+  /// The fill when off. Null paints none.
   final Color? backgroundColor;
 
-  /// {@macro Toggle.hoverBackgroundColor}
+  /// The fill when off and hovered or held.
   final Color? hoverBackgroundColor;
 
-  /// {@macro Toggle.selectedBackgroundColor}
+  /// The fill when on.
   final Color? selectedBackgroundColor;
 
-  /// {@macro Toggle.selectedHoverBackgroundColor}
+  /// The fill when on and hovered or held.
   final Color? selectedHoverBackgroundColor;
 
-  /// {@macro Toggle.foregroundColor}
+  /// The colour of the label and icons when off.
   final Color? foregroundColor;
 
-  /// {@macro Toggle.hoverForegroundColor}
+  /// The colour of the label and icons when off and hovered or held.
   final Color? hoverForegroundColor;
 
-  /// {@macro Toggle.selectedForegroundColor}
+  /// The colour of the label and icons when on.
   final Color? selectedForegroundColor;
 
-  /// {@macro Toggle.padding}
+  /// The padding inside the toggle.
   final EdgeInsetsGeometry? padding;
 
-  /// {@macro Toggle.decoration}
+  /// The border, corners and focus treatment. A style override is merged
+  /// into the variant's.
   final FinesseDecoration? decoration;
 
-  /// {@macro Toggle.textStyle}
+  /// The text style of the label. A style override is merged into the
+  /// variant's.
   final TextStyle? textStyle;
 
   /// The gap between the leading icon and the label.
   final double? gap;
 
-  /// The height of the toggle.
+  /// The height of the toggle. It is a floor once text is scaled up.
   final double? height;
+
+  /// A fixed width. Null, the default, is as wide as the content.
+  final double? width;
 
   /// The size of the toggle's icons. Defaults to 16.
   final double? iconSize;

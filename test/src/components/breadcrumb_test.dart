@@ -200,7 +200,7 @@ void main() {
       final button = find.widgetWithText(Button, 'Hoverable');
       expect(
         find.descendant(of: button, matching: find.byType(MouseRegion)),
-        findsOneWidget,
+        findsWidgets,
       );
     });
   });
@@ -472,7 +472,7 @@ void main() {
 
       final button = tester.widget<Button>(find.byType(Button));
       expect(
-        button.padding,
+        button.style?.padding,
         const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       );
     });
@@ -493,7 +493,7 @@ void main() {
       );
 
       final button = tester.widget<Button>(find.byType(Button));
-      expect(button.padding, customPadding);
+      expect(button.style?.padding, customPadding);
     });
 
     testWidgets('uses ghost button variant', (tester) async {

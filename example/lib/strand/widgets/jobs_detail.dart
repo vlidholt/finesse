@@ -183,11 +183,13 @@ class JobActions extends StatelessWidget {
 
     final apply = Button(
       size: ButtonSize.lg,
-      // The one call to action in the tint rather than the primary colour.
-      backgroundColor: colors.tint,
-      hoverBackgroundColor: colors.tint.withValues(alpha: .8),
-      foregroundColor: colors.tintForeground,
-      hoverForegroundColor: colors.tintForeground,
+      style: ButtonTheme(
+        // The one call to action in the tint rather than the primary colour.
+        backgroundColor: colors.tint,
+        hoverBackgroundColor: colors.tint.withValues(alpha: .8),
+        foregroundColor: colors.tintForeground,
+        hoverForegroundColor: colors.tintForeground,
+      ),
       enabled: !applied,
       leading: PhosphorIcon(
         applied ? PhosphorIconsRegular.check : PhosphorIconsRegular.lightning,
@@ -202,8 +204,10 @@ class JobActions extends StatelessWidget {
         if (expand) Expanded(child: apply) else apply,
         Button.outline(
           size: ButtonSize.lg,
-          // The large height with the regular button's side padding.
-          padding: theme.buttonSizesTheme.regular?.padding,
+          style: ButtonTheme(
+            // The large height with the regular button's side padding.
+            padding: theme.buttonSizesTheme.regular?.padding,
+          ),
           leading: PhosphorIcon(
             saved
                 ? PhosphorIconsFill.bookmarkSimple

@@ -59,9 +59,11 @@ class _HomeSuggestionsCardState extends State<HomeSuggestionsCard> {
           ),
           const Gap.lg(),
           Button.secondary(
-            width: double.infinity,
-            gap: theme.gap(GapSize.xs),
-            textStyle: theme.textTheme.small,
+            style: ButtonTheme(
+              width: double.infinity,
+              gap: theme.gap(GapSize.xs),
+              textStyle: theme.textTheme.small,
+            ),
             trailing: const PhosphorIcon(PhosphorIconsRegular.caretRight),
             onPressed: () => context.goTo(StrandDestination.network),
             child: const Flexible(
@@ -158,8 +160,10 @@ class _SuggestionRow extends StatelessWidget {
         ),
         Button.outline(
           size: ButtonSize.sm,
-          decoration: theme.buttonDecoration(radius: theme.radii.full),
-          textStyle: theme.textTheme.small,
+          style: ButtonTheme(
+            decoration: theme.buttonDecoration(radius: theme.radii.full),
+            textStyle: theme.textTheme.small,
+          ),
           leading: PhosphorIcon(
             invited
                 ? PhosphorIconsRegular.clock

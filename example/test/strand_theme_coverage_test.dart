@@ -166,15 +166,15 @@ List<_Sample> _measure(WidgetTester tester) {
         _Kind.icon: [widget.size],
       },
       Button() => {
-        _Kind.icon: [widget.iconSize],
-        _Kind.height: [widget.height],
-        _Kind.inset: _insets(widget.padding),
-        _Kind.gap: [widget.gap],
+        _Kind.icon: [widget.style?.iconSize],
+        _Kind.height: [widget.style?.height],
+        _Kind.inset: _insets(widget.style?.padding),
+        _Kind.gap: [widget.style?.gap],
       },
       IconButton() => {
-        _Kind.icon: [widget.iconSize],
-        _Kind.height: [widget.height, widget.width],
-        _Kind.inset: _insets(widget.padding),
+        _Kind.icon: [widget.style?.iconSize],
+        _Kind.height: [widget.style?.height, widget.style?.width],
+        _Kind.inset: _insets(widget.style?.padding),
       },
       Chip() => {
         _Kind.height: [widget.height],

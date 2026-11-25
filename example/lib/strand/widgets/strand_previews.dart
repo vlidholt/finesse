@@ -220,7 +220,9 @@ class _CompanyPreview extends StatelessWidget {
             child: Text(roles == 0 ? 'Browse jobs' : 'See open roles'),
           ),
           Button(
-            pressScale: 1,
+            style: ButtonTheme(
+              pressScale: 1,
+            ),
             variant: network.isFollowingPage(company)
                 ? ButtonVariant.secondary
                 : ButtonVariant.primary,

@@ -2,6 +2,7 @@ import 'package:finesse/src/components/button.dart';
 import 'package:finesse/src/components/icon_button.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
+import 'package:finesse/src/theme/components/button.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/theme.dart';
@@ -255,10 +256,15 @@ class Pagination extends StatelessWidget {
           child: ExcludeSemantics(
             child: Button(
               variant: isCurrent ? ButtonVariant.outline : ButtonVariant.ghost,
-              size: ButtonSize.icon,
-              decoration: isCurrent
-                  ? null
-                  : _inactivePageButtonDecoration(theme),
+              // A square, like an icon button, around the number.
+              style: ButtonTheme(
+                width: theme.buttonSizesTheme.icon?.width,
+                height: theme.buttonSizesTheme.icon?.height,
+                padding: theme.buttonSizesTheme.icon?.padding,
+                decoration: isCurrent
+                    ? null
+                    : _inactivePageButtonDecoration(theme),
+              ),
               enabled: enabled && onPageChanged != null,
               onPressed: onPageChanged == null || isCurrent
                   ? null

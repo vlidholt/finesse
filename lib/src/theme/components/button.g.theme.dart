@@ -60,12 +60,8 @@ mixin _$ButtonTheme {
       decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
       width: lerpDouble$(a.width, b.width, t),
       height: lerpDouble$(a.height, b.height, t),
-      longPressDuration: lerpDuration$(
-        a.longPressDuration,
-        b.longPressDuration,
-        t,
-      ),
-      hoverStrategies: t < 0.5 ? a.hoverStrategies : b.hoverStrategies,
+      padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
+      iconSize: lerpDouble$(a.iconSize, b.iconSize, t),
       mainAxisAlignment: t < 0.5 ? a.mainAxisAlignment : b.mainAxisAlignment,
       crossAxisAlignment: t < 0.5 ? a.crossAxisAlignment : b.crossAxisAlignment,
       gap: lerpDouble$(a.gap, b.gap, t),
@@ -103,8 +99,8 @@ mixin _$ButtonTheme {
     FinesseDecoration? decoration,
     double? width,
     double? height,
-    Duration? longPressDuration,
-    HoverStrategies? hoverStrategies,
+    EdgeInsetsGeometry? padding,
+    double? iconSize,
     MainAxisAlignment? mainAxisAlignment,
     CrossAxisAlignment? crossAxisAlignment,
     double? gap,
@@ -136,8 +132,8 @@ mixin _$ButtonTheme {
       decoration: decoration ?? _this.decoration,
       width: width ?? _this.width,
       height: height ?? _this.height,
-      longPressDuration: longPressDuration ?? _this.longPressDuration,
-      hoverStrategies: hoverStrategies ?? _this.hoverStrategies,
+      padding: padding ?? _this.padding,
+      iconSize: iconSize ?? _this.iconSize,
       mainAxisAlignment: mainAxisAlignment ?? _this.mainAxisAlignment,
       crossAxisAlignment: crossAxisAlignment ?? _this.crossAxisAlignment,
       gap: gap ?? _this.gap,
@@ -179,8 +175,8 @@ mixin _$ButtonTheme {
       decoration: _this.decoration?.merge(other.decoration) ?? other.decoration,
       width: other.width,
       height: other.height,
-      longPressDuration: other.longPressDuration,
-      hoverStrategies: other.hoverStrategies,
+      padding: other.padding,
+      iconSize: other.iconSize,
       mainAxisAlignment: other.mainAxisAlignment,
       crossAxisAlignment: other.crossAxisAlignment,
       gap: other.gap,
@@ -222,8 +218,8 @@ mixin _$ButtonTheme {
         _other.decoration == _this.decoration &&
         _other.width == _this.width &&
         _other.height == _this.height &&
-        _other.longPressDuration == _this.longPressDuration &&
-        _other.hoverStrategies == _this.hoverStrategies &&
+        _other.padding == _this.padding &&
+        _other.iconSize == _this.iconSize &&
         _other.mainAxisAlignment == _this.mainAxisAlignment &&
         _other.crossAxisAlignment == _this.crossAxisAlignment &&
         _other.gap == _this.gap &&
@@ -257,8 +253,8 @@ mixin _$ButtonTheme {
       _this.decoration,
       _this.width,
       _this.height,
-      _this.longPressDuration,
-      _this.hoverStrategies,
+      _this.padding,
+      _this.iconSize,
       _this.mainAxisAlignment,
       _this.crossAxisAlignment,
       _this.gap,

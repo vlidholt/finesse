@@ -3,10 +3,11 @@ import 'package:finesse/src/app.dart';
 import 'package:finesse/src/components/button.dart';
 import 'package:finesse/src/components/icon_button.dart';
 import 'package:finesse/src/theme/color_scheme/zinc.dart';
+import 'package:finesse/src/theme/components/button.dart';
 import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/spacing.dart';
 import 'package:finesse/src/theme/style.dart';
-import 'package:flutter/material.dart' hide IconButton, ThemeData;
+import 'package:flutter/material.dart' hide ButtonTheme, IconButton, ThemeData;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../fixture_styles.dart';
@@ -99,13 +100,13 @@ void main() {
       );
     });
 
-    testWidgets('IconButton.iconSize updates icon size', (tester) async {
+    testWidgets("a style's iconSize updates icon size", (tester) async {
       const customIconSize = 10.0;
       await tester.pumpWidget(
         createTestWidget(
           const IconButton(
             icon: Icon(Icons.add),
-            iconSize: customIconSize,
+            style: ButtonTheme(iconSize: customIconSize),
           ),
         ),
       );

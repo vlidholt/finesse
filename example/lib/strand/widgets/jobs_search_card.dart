@@ -83,8 +83,10 @@ class JobsSearchCard extends StatelessWidget {
                 Expanded(flex: 5, child: location),
                 Button(
                   size: ButtonSize.lg,
-                  // As tall as the fields beside it, and a step rounder.
-                  decoration: theme.buttonDecoration(radius: theme.radii.lg),
+                  style: ButtonTheme(
+                    // As tall as the fields beside it, and a step rounder.
+                    decoration: theme.buttonDecoration(radius: theme.radii.lg),
+                  ),
                   leading: const PhosphorIcon(
                     PhosphorIconsRegular.magnifyingGlass,
                   ),

@@ -4,7 +4,6 @@ import 'package:finesse/src/components/button.dart';
 import 'package:finesse/src/raw_components/portal.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/utils/border.dart';
-import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
@@ -52,7 +51,6 @@ class MenubarTheme with _$MenubarTheme {
     this.buttonGap,
     this.buttonMainAxisAlignment,
     this.buttonCrossAxisAlignment,
-    this.buttonHoverStrategies,
     this.buttonExpands,
     this.selectOnHover,
   }) : _canMerge = canMerge;
@@ -161,9 +159,6 @@ class MenubarTheme with _$MenubarTheme {
 
   /// {@macro Button.crossAxisAlignment}
   final CrossAxisAlignment? buttonCrossAxisAlignment;
-
-  /// {@macro Button.hoverStrategies}
-  final HoverStrategies? buttonHoverStrategies;
 
   /// {@macro Button.expands}
   final bool? buttonExpands;

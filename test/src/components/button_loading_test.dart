@@ -239,14 +239,15 @@ void main() {
         Button(loading: true, onPressed: () {}, child: const Text('Save')),
       );
       await frames(tester, find.byType(Button));
-      expect(find.bySemanticsLabel('Loading'), findsOneWidget);
-      // The button's own node says it cannot be pressed now.
-      SemanticsNode? node = tester.getSemantics(find.text('Save'));
-      while (node != null && !node.flagsCollection.isButton) {
-        node = node.parent;
-      }
-      expect(node, isNotNull);
-      expect(node!.flagsCollection.isEnabled, Tristate.isFalse);
+      // One node: the button, by its label, busy and not to be pressed.
+      final data = tester.getSemantics(find.text('Save')).getSemanticsData();
+      expect(data.label, 'Save');
+      expect(data.value, 'Loading');
+      expect(data.flagsCollection.isButton, isTrue);
+      expect(data.flagsCollection.isEnabled, Tristate.isFalse);
+      expect(data.hasAction(SemanticsAction.tap), isFalse);
+      // The spinner says nothing of its own.
+      expect(find.bySemanticsLabel('Loading'), findsNothing);
       handle.dispose();
     });
 

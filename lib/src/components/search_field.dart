@@ -4,6 +4,7 @@ import 'package:finesse/src/components/text_field.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/icons/phosphor_icon.dart';
 import 'package:finesse/src/icons/phosphor_icons_regular.dart';
+import 'package:finesse/src/theme/components/button.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
@@ -352,7 +353,7 @@ class _SearchFieldState extends State<SearchField> {
             padding: EdgeInsetsDirectional.only(start: gap),
             child: Button.link(
               onPressed: _cancel,
-              padding: EdgeInsets.zero,
+              style: const ButtonTheme(padding: EdgeInsets.zero),
               child: Text(l.search.cancel),
             ),
           ),

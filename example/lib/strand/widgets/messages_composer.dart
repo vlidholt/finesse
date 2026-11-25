@@ -74,9 +74,11 @@ class _MessagesComposerState extends State<MessagesComposer> {
     final messageStyle = theme.chatBubbleTheme.textStyle ?? theme.textTheme.p;
 
     Widget tool(IconData icon, String label) => IconButton.ghost(
-      width: MessagesComposer._controlSize,
-      height: MessagesComposer._controlSize,
-      iconSize: theme.glyphLg,
+      style: ButtonTheme(
+        width: MessagesComposer._controlSize,
+        height: MessagesComposer._controlSize,
+        iconSize: theme.glyphLg,
+      ),
       icon: PhosphorIcon(icon),
       semanticLabel: label,
       onPressed: () => showNothingToAttach(context),
@@ -133,15 +135,17 @@ class _MessagesComposerState extends State<MessagesComposer> {
             ),
           ),
           IconButton(
-            width: MessagesComposer._sendSize,
-            height: MessagesComposer._sendSize,
-            iconSize: theme.glyphLg,
-            // The design's `--accent`: the tint, not the primary button's
-            // fill, which stays dark teal in the dark theme.
-            backgroundColor: colors.tint,
-            hoverBackgroundColor: colors.tint.withValues(alpha: .9),
-            foregroundColor: colors.tintForeground,
-            hoverForegroundColor: colors.tintForeground,
+            style: ButtonTheme(
+              width: MessagesComposer._sendSize,
+              height: MessagesComposer._sendSize,
+              iconSize: theme.glyphLg,
+              // The design's `--accent`: the tint, not the primary button's
+              // fill, which stays dark teal in the dark theme.
+              backgroundColor: colors.tint,
+              hoverBackgroundColor: colors.tint.withValues(alpha: .9),
+              foregroundColor: colors.tintForeground,
+              hoverForegroundColor: colors.tintForeground,
+            ),
             // The plane gives way to a square while a reply can be stopped.
             icon: ContentSwitch(
               value: onStop != null,
