@@ -233,6 +233,28 @@ class OverlayEntrance extends StatefulWidget {
   /// The overlay.
   final Widget child;
 
+  /// How far into view an entrance of [spec] playing on [controller] is
+  /// painted now, under [motion]: the opacity of its fade and its scale.
+  ///
+  /// For an owner that replaces the entrance with an exit of its own: an
+  /// exit that started from fully in view would first jump there.
+  static ({double opacity, double scale}) paintedAt(
+    Animation<double> controller,
+    EntranceSpec spec,
+    Motion motion,
+  ) {
+    if (spec.isInstant) return (opacity: 1, scale: 1);
+    // The same progress as the entrance's own: the turning points are
+    // shared per controller and curve.
+    final progress = EntranceProgress(controller, curve: spec.curve).value;
+    final opacity = EntranceProgress(
+      controller,
+      curve: _FadeCurve(spec.curve, _EntranceTransition._fadeEnd),
+    ).value;
+    final from = motion.reduced ? 1.0 : (spec.scale ?? motion.overlayScale);
+    return (opacity: opacity, scale: from + (1 - from) * progress);
+  }
+
   @override
   State<OverlayEntrance> createState() => _OverlayEntranceState();
 }

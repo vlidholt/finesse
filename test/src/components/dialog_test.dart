@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:finesse/material.dart';
 import 'package:finesse/src/app.dart';
 import 'package:finesse/src/components/dialog.dart';
 import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:flutter/material.dart' hide Dialog, ThemeData, showDialog;
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -184,6 +187,53 @@ void main() {
       await tester.pump();
       expect(find.text('Title'), findsNothing);
     });
+
+    testWidgets('closed part-way in, it leaves from where it had got to', (
+      tester,
+    ) async {
+      final navigator = GlobalKey<NavigatorState>();
+      await tester.pumpWidget(
+        FinesseApp(navigatorKey: navigator, home: const SizedBox.expand()),
+      );
+      unawaited(
+        showDialog<void>(
+          context: navigator.currentContext!,
+          builder: (_) => const Dialog(
+            child: SizedBox(width: 100, height: 100, key: _content),
+          ),
+        ),
+      );
+      await tester.pump();
+      for (var i = 0; i < 3; i++) {
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      final entered = _painted(tester);
+      expect(entered.opacity, lessThan(.9), reason: 'still on its way in');
+
+      navigator.currentState!.pop();
+      await tester.pump();
+      var last = entered;
+      var frames = 0;
+      while (find.byKey(_content).evaluate().isNotEmpty) {
+        final now = _painted(tester);
+        expect(
+          now.opacity,
+          lessThanOrEqualTo(last.opacity + 1e-6),
+          reason: 'frame $frames: from ${last.opacity} to ${now.opacity}',
+        );
+        expect(
+          now.width,
+          lessThanOrEqualTo(last.width + 1e-6),
+          reason: 'frame $frames: from ${last.width} to ${now.width}',
+        );
+        last = now;
+        await tester.pump(const Duration(milliseconds: 16));
+        frames++;
+        expect(frames, lessThan(120), reason: 'the exit never ended');
+      }
+      // The route turns around from where it was, so this exit is short.
+      expect(frames, greaterThan(1), reason: 'the exit did not animate');
+    });
   });
 
   group('Dialog', () {
@@ -224,6 +274,27 @@ class _CountedState extends State<_Counted> {
 
   @override
   Widget build(BuildContext context) => const SizedBox(width: 60, height: 30);
+}
+
+const _content = Key('content');
+
+/// How opaque the dialog's content is painted, and how wide.
+({double opacity, double width}) _painted(WidgetTester tester) {
+  final box = tester.renderObject<RenderBox>(find.byKey(_content));
+  var opacity = 1.0;
+  RenderObject? node = box;
+  while (node != null) {
+    if (node is RenderAnimatedOpacity) opacity *= node.opacity.value;
+    if (node is RenderOpacity) opacity *= node.opacity;
+    node = node.parent;
+  }
+  final transform = box.getTransformTo(null);
+  final left = MatrixUtils.transformPoint(transform, Offset.zero);
+  final right = MatrixUtils.transformPoint(
+    transform,
+    Offset(box.size.width, 0),
+  );
+  return (opacity: opacity, width: right.dx - left.dx);
 }
 
 /// The widget that moves a dialog in and out.

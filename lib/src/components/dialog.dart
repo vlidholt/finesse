@@ -278,6 +278,10 @@ class _DialogMotionState extends State<_DialogMotion>
   Duration get _duration =>
       widget.entering ? widget.enter.duration : widget.exit.duration;
 
+  /// How far in the entrance had got when the exit took over: the exit
+  /// starts there rather than jumping back into full view.
+  ({double opacity, double scale}) _exitFrom = (opacity: 1, scale: 1);
+
   /// The exit's fade and shrink, made when the exit they are for changes:
   /// an animation made in `build` is a new listener on every build.
   _DialogExit? _exitFor;
@@ -295,6 +299,16 @@ class _DialogMotionState extends State<_DialogMotion>
   @override
   void didUpdateWidget(_DialogMotion oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (oldWidget.entering && !widget.entering) {
+      _exitFrom = oldWidget.enter.isInstant
+          ? (opacity: 1, scale: 1)
+          : OverlayEntrance.paintedAt(
+              _controller,
+              oldWidget.enter,
+              Motion.of(context),
+            );
+      _exitFor = null;
+    }
     final duration = _duration;
     if (widget.entering != oldWidget.entering ||
         duration != _controller.duration) {
@@ -327,15 +341,23 @@ class _DialogMotionState extends State<_DialogMotion>
     if (exit.duration <= Duration.zero) return widget.child;
     if (exit != _exitFor) {
       _exitFor = exit;
+      final from = _exitFrom;
       final progress = _controller.drive(CurveTween(curve: exit.curve));
-      _exitFade = progress.drive(Tween<double>(begin: 1, end: 0));
-      _exitScale = progress.drive(Tween<double>(begin: 1, end: exit.scale));
+      _exitFade = progress.drive(Tween<double>(begin: from.opacity, end: 0));
+      // A dialog that had not grown as far as the exit shrinks to stays
+      // the size it was.
+      _exitScale = progress.drive(
+        Tween<double>(
+          begin: from.scale,
+          end: math.min(from.scale, exit.scale),
+        ),
+      );
     }
     final Widget faded = BackdropFadeHost(
       opacity: _exitFade,
       child: widget.child,
     );
-    if (exit.scale == 1) return faded;
+    if (exit.scale == 1 && _exitFrom.scale == 1) return faded;
     return ScaleTransition(scale: _exitScale, child: faded);
   }
 }
