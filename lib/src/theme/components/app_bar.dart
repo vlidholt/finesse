@@ -1,3 +1,4 @@
+import 'package:finesse/src/liquid_glass/liquid_glass_theme.dart';
 import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
@@ -22,6 +23,7 @@ class AppBarTheme with _$AppBarTheme {
   /// Creates a theme; a null field falls back to the app theme's.
   const AppBarTheme({
     bool canMerge = true,
+    this.liquidGlass,
     this.height,
     this.backgroundColor,
     this.foregroundColor,
@@ -43,6 +45,10 @@ class AppBarTheme with _$AppBarTheme {
 
   @override
   bool get canMerge => _canMerge;
+
+  /// Whether the app bar draws with Liquid Glass, over
+  /// `ThemeData.liquidGlass.mode`; null follows the theme.
+  final LiquidGlassMode? liquidGlass;
 
   /// The bar's height, not counting the safe area above it.
   final double? height;

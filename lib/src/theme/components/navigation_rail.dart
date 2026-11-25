@@ -1,3 +1,4 @@
+import 'package:finesse/src/liquid_glass/liquid_glass_theme.dart';
 import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
@@ -11,6 +12,7 @@ class NavigationRailTheme with _$NavigationRailTheme {
   /// Creates a navigation rail theme.
   const NavigationRailTheme({
     bool canMerge = true,
+    this.liquidGlass,
     this.width,
     this.extendedWidth,
     this.itemHeight,
@@ -41,6 +43,10 @@ class NavigationRailTheme with _$NavigationRailTheme {
 
   @override
   bool get canMerge => _canMerge;
+
+  /// Whether the navigation rail draws with Liquid Glass, over
+  /// `ThemeData.liquidGlass.mode`; null follows the theme.
+  final LiquidGlassMode? liquidGlass;
 
   /// The rail's width with its labels under the icons.
   final double? width;

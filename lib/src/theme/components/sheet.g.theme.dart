@@ -26,6 +26,7 @@ mixin _$SheetTheme {
     }
 
     return SheetTheme(
+      liquidGlass: t < 0.5 ? a.liquidGlass : b.liquidGlass,
       side: t < 0.5 ? a.side : b.side,
       constraints: BoxConstraints.lerp(a.constraints, b.constraints, t),
       backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
@@ -68,6 +69,7 @@ mixin _$SheetTheme {
   }
 
   SheetTheme copyWith({
+    LiquidGlassMode? liquidGlass,
     SheetSide? side,
     BoxConstraints? constraints,
     Color? backgroundColor,
@@ -98,6 +100,7 @@ mixin _$SheetTheme {
     final _this = (this as SheetTheme);
 
     return SheetTheme(
+      liquidGlass: liquidGlass ?? _this.liquidGlass,
       side: side ?? _this.side,
       constraints: constraints ?? _this.constraints,
       backgroundColor: backgroundColor ?? _this.backgroundColor,
@@ -140,6 +143,7 @@ mixin _$SheetTheme {
     }
 
     return copyWith(
+      liquidGlass: other.liquidGlass,
       side: other.side,
       constraints: other.constraints,
       backgroundColor: other.backgroundColor,
@@ -184,7 +188,8 @@ mixin _$SheetTheme {
     final _this = (this as SheetTheme);
     final _other = (other as SheetTheme);
 
-    return _other.side == _this.side &&
+    return _other.liquidGlass == _this.liquidGlass &&
+        _other.side == _this.side &&
         _other.constraints == _this.constraints &&
         _other.backgroundColor == _this.backgroundColor &&
         _other.filter == _this.filter &&
@@ -218,6 +223,7 @@ mixin _$SheetTheme {
 
     return Object.hashAll([
       runtimeType,
+      _this.liquidGlass,
       _this.side,
       _this.constraints,
       _this.backgroundColor,

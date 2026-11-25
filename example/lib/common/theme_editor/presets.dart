@@ -104,5 +104,6 @@ enum ThemePreset {
     brightness: current.brightness,
     formFactor: current.formFactor,
     textScale: current.textScale,
+    liquidGlass: current.liquidGlass,
   );
 }

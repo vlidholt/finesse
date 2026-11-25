@@ -25,6 +25,9 @@ Future<void> main() async {
     EditorFont.byTitle(const ThemeEditorConfig().fontTitle).load(
       timeout: const Duration(seconds: 3),
     ),
+    // The Liquid Glass shaders, which iOS and macOS draw the bars, the
+    // floating surfaces and the lens controls with.
+    LiquidGlass.initialize(),
   ]);
   runApp(const App());
 }

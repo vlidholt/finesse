@@ -26,6 +26,7 @@ mixin _$ToastTheme {
     }
 
     return ToastTheme(
+      liquidGlass: t < 0.5 ? a.liquidGlass : b.liquidGlass,
       backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
       filter: t < 0.5 ? a.filter : b.filter,
       border: FinesseBorder.lerp(a.border, b.border, t),
@@ -49,6 +50,7 @@ mixin _$ToastTheme {
   }
 
   ToastTheme copyWith({
+    LiquidGlassMode? liquidGlass,
     Color? backgroundColor,
     ImageFilter? filter,
     FinesseBorder? border,
@@ -68,6 +70,7 @@ mixin _$ToastTheme {
     final _this = (this as ToastTheme);
 
     return ToastTheme(
+      liquidGlass: liquidGlass ?? _this.liquidGlass,
       backgroundColor: backgroundColor ?? _this.backgroundColor,
       filter: filter ?? _this.filter,
       border: border ?? _this.border,
@@ -98,6 +101,7 @@ mixin _$ToastTheme {
     }
 
     return copyWith(
+      liquidGlass: other.liquidGlass,
       backgroundColor: other.backgroundColor,
       filter: other.filter,
       border: _this.border?.merge(other.border) ?? other.border,
@@ -131,7 +135,8 @@ mixin _$ToastTheme {
     final _this = (this as ToastTheme);
     final _other = (other as ToastTheme);
 
-    return _other.backgroundColor == _this.backgroundColor &&
+    return _other.liquidGlass == _this.liquidGlass &&
+        _other.backgroundColor == _this.backgroundColor &&
         _other.filter == _this.filter &&
         _other.border == _this.border &&
         _other.borderRadius == _this.borderRadius &&
@@ -154,6 +159,7 @@ mixin _$ToastTheme {
 
     return Object.hash(
       runtimeType,
+      _this.liquidGlass,
       _this.backgroundColor,
       _this.filter,
       _this.border,

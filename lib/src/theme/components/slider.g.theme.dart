@@ -26,6 +26,7 @@ mixin _$SliderTheme {
     }
 
     return SliderTheme(
+      liquidGlass: t < 0.5 ? a.liquidGlass : b.liquidGlass,
       min: lerpDouble$(a.min, b.min, t),
       max: lerpDouble$(a.max, b.max, t),
       mouseCursor: t < 0.5 ? a.mouseCursor : b.mouseCursor,
@@ -67,6 +68,7 @@ mixin _$SliderTheme {
   }
 
   SliderTheme copyWith({
+    LiquidGlassMode? liquidGlass,
     double? min,
     double? max,
     MouseCursor? mouseCursor,
@@ -86,6 +88,7 @@ mixin _$SliderTheme {
     final _this = (this as SliderTheme);
 
     return SliderTheme(
+      liquidGlass: liquidGlass ?? _this.liquidGlass,
       min: min ?? _this.min,
       max: max ?? _this.max,
       mouseCursor: mouseCursor ?? _this.mouseCursor,
@@ -119,6 +122,7 @@ mixin _$SliderTheme {
     }
 
     return copyWith(
+      liquidGlass: other.liquidGlass,
       min: other.min,
       max: other.max,
       mouseCursor: other.mouseCursor,
@@ -150,7 +154,8 @@ mixin _$SliderTheme {
     final _this = (this as SliderTheme);
     final _other = (other as SliderTheme);
 
-    return _other.min == _this.min &&
+    return _other.liquidGlass == _this.liquidGlass &&
+        _other.min == _this.min &&
         _other.max == _this.max &&
         _other.mouseCursor == _this.mouseCursor &&
         _other.disabledMouseCursor == _this.disabledMouseCursor &&
@@ -173,6 +178,7 @@ mixin _$SliderTheme {
 
     return Object.hash(
       runtimeType,
+      _this.liquidGlass,
       _this.min,
       _this.max,
       _this.mouseCursor,

@@ -1,5 +1,7 @@
 import 'dart:math' as math;
 
+import 'package:finesse/src/liquid_glass/controls.dart';
+import 'package:finesse/src/liquid_glass/liquid_glass.dart';
 import 'package:finesse/src/raw_components/focusable.dart';
 import 'package:finesse/src/theme/components/slider.dart';
 import 'package:finesse/src/theme/motion.dart';
@@ -312,6 +314,46 @@ class _SliderState extends State<Slider> {
   @override
   Widget build(BuildContext context) {
     final value = widget.value ?? _value;
+    final theme = Theme.of(context);
+    final sliderTheme = theme.sliderTheme;
+    // A value bubble, division marks and restricted interaction are
+    // finesse's own; a slider that asks for one keeps finesse's look.
+    if (widget.valueIndicator != SliderValueIndicator.always &&
+        (widget.divisions == null || !widget.showDivisionMarks) &&
+        widget.allowedInteraction == null &&
+        LiquidGlass.isActive(context, sliderTheme.liquidGlass)) {
+      final scheme = theme.colorScheme;
+      final slider = LiquidGlassSlider(
+        value: value,
+        onChanged: widget.enabled
+            ? (next) {
+                if (widget.value == null) setState(() => _value = next);
+                widget.onChanged?.call(next);
+              }
+            : null,
+        onChangeStart: widget.onChangeStart,
+        onChangeEnd: widget.onChangeEnd,
+        min: widget.min ?? sliderTheme.min ?? 0,
+        max: widget.max ?? sliderTheme.max ?? 1,
+        divisions: widget.divisions,
+        trackHeight: widget.trackHeight ?? sliderTheme.trackHeight ?? 8,
+        thumbSize: 2 * (widget.thumbRadius ?? sliderTheme.thumbRadius ?? 10),
+        activeColor:
+            widget.activeTrackColor ??
+            sliderTheme.activeTrackColor ??
+            scheme.primary,
+        inactiveColor:
+            widget.inactiveTrackColor ??
+            sliderTheme.inactiveTrackColor ??
+            scheme.secondary,
+        thumbColor:
+            widget.thumbColor ?? sliderTheme.thumbColor ?? scheme.background,
+        focusNode: widget.focusNode,
+        autofocus: widget.autofocus,
+      );
+      if (widget.semanticLabel == null) return slider;
+      return Semantics(label: widget.semanticLabel, child: slider);
+    }
     final slider = _SliderCore(
       // One thumb: the multi-thumb core collapses to exactly the
       // single-value slider when handed a one-element list.

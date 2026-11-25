@@ -1,5 +1,6 @@
 import 'dart:ui' as ui;
 
+import 'package:finesse/src/liquid_glass/liquid_glass.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/backdrop.dart';
 import 'package:finesse/src/utils/shadow.dart';
@@ -64,6 +65,9 @@ class BottomBarSurface extends StatelessWidget {
     final radius = radiusIn(context, floating: floating);
     final bottomInset = MediaQuery.paddingOf(context).bottom;
     final borderColor = bar.borderColor ?? theme.colorScheme.border;
+    if (LiquidGlass.isActive(context, bar.liquidGlass)) {
+      return _buildLiquid(context, bottomInset);
+    }
     // A floating bar's hairline can catch the light along its top edge;
     // see `BottomNavigationBarTheme.rimColor`.
     final rimColor = floating ? bar.rimColor : null;
@@ -124,6 +128,38 @@ class BottomBarSurface extends StatelessWidget {
           child: semantic,
         ),
       ),
+    );
+  }
+}
+
+extension on BottomBarSurface {
+  /// The bar on Liquid Glass: the same layout — the outline's point is
+  /// kept as padding — with the glass's own tint, rim and shadow.
+  Widget _buildLiquid(
+    BuildContext context,
+    double bottomInset,
+  ) {
+    final bar = Theme.of(context).bottomNavigationBarTheme;
+    final content = Padding(
+      padding: (bar.padding ?? const EdgeInsets.all(6))
+          .add(EdgeInsets.all(floating ? 1 : 0))
+          .add(EdgeInsets.only(top: floating ? 0 : 1))
+          .add(EdgeInsets.only(bottom: floating ? 0 : bottomInset)),
+      child: child,
+    );
+    final surface = Semantics(
+      container: true,
+      explicitChildNodes: true,
+      child: floating
+          ? LiquidGlassSurface(capsule: true, child: content)
+          : LiquidGlassSurface(child: content),
+    );
+    if (!floating) return surface;
+    return Padding(
+      padding: (bar.margin ?? const EdgeInsets.only(bottom: 22)).add(
+        EdgeInsets.only(bottom: bottomInset),
+      ),
+      child: Center(heightFactor: 1, child: surface),
     );
   }
 }

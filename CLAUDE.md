@@ -170,6 +170,73 @@ shadow off.
   in a straight line from wherever it was, its turning points kept per
   parent animation in an `Expando`, so a rebuilt transition keeps them.
 
+### Liquid Glass
+
+On iOS and macOS (natively and in a browser, where Flutter reports the
+browser's platform) finesse draws its chrome, floating surfaces and lens
+controls with `liquid_glass_widgets` (1.21, MIT, a hard dependency).
+`ThemeData.liquidGlass` is a `LiquidGlassTheme` (`mode`: `auto`/`always`/
+`never`, the package's `style`, `quality`, `adaptiveQuality`,
+`respectSystemAccessibility`, `light`/`dark` `GlassThemeSettings`,
+`tintFromColorScheme`); each component theme that switches has a nullable
+`liquidGlass` mode over it. Components ask `LiquidGlass.isActive(context,
+componentTheme.liquidGlass)` at build: never a window width, never cached.
+
+- **Only `lib/src/liquid_glass/` imports the package or Cupertino.** The
+  package imports the SDK's `cupertino.dart` in 74 files and reads
+  `CupertinoTheme` for its accent, so `LiquidGlassBridge` puts a
+  `CupertinoTheme` (from the SDK, deprecated in favour of `cupertino_ui`,
+  hence the ignore: a `cupertino_ui` theme is another class the package
+  would not see) and a `GlassTheme` derived from the finesse theme around
+  every package widget, cached per `ThemeData` in an `Expando`. Components
+  build finesse wrappers from that directory (`LiquidGlassSurface`,
+  `LiquidGlassBarGroup`, `LiquidGlassScrollEdge`, `LiquidGlassSwitch`/
+  `Slider`/`SegmentedControl`/`TabBar`), and the config types
+  (`GlassStyle`, `GlassQuality`, `GlassThemeSettings`) reach them through
+  `liquid_glass_theme.dart`'s re-export. The package's `GlassTheme` clashes
+  with ours: import it `as lg`.
+- **Surfaces swap material; lens controls delegate.** Bars, `Glass`,
+  `Surface`/`SurfacePainter` (popovers, menus, select lists), `Command` in a
+  dialog, `Dialog`, `Sheet`, toasts, the rail and a glass FAB keep their
+  layout and behaviour and draw `LiquidGlassSurface` (a `GlassContainer`
+  with its own layer) instead of tint + border + shadow + backdrop; the
+  decoration's border stays as padding (`glassFreeDecoration`), so nothing
+  moves. `Switch`, `Slider`, `SegmentedControl` and the floating
+  `BottomNavigationBar` build the package's widget. Each delegation has a
+  frosted fallback for what the package cannot express: a slider with an
+  always-shown bubble or division marks, a segmented control with no
+  selection or an unnamed non-`Text` label, a bar with nothing selected or
+  docked, a popover with an arrow. Tooltips never switch.
+- **A Liquid Glass surface claims the entrance fade too**, like a
+  `BackdropSurface`, and fades the glass by `LiquidGlassSettings.visibility`
+  with its content in a `FadeTransition`: the shader does not survive an
+  opacity layer any better than a backdrop filter.
+- **The app bar has no fill on glass.** `AppBarSurface(liquid: true)` puts
+  a `LiquidGlassScrollEdge` behind the toolbar (the package's
+  `ProgressiveBlur` plus a page-colour gradient, the iOS 26 soft scroll
+  edge; its sigma, not an opacity, follows the bar's `visibility`), with
+  the hairline only under `GlassStyle.ios27`; leading and actions go on
+  `LiquidGlassBarGroup` capsules (all actions on one).
+- **The bottom bar's `action` floats beside the tabs** on the glass bar
+  (`GlassTabBarExtraButton`, iOS 26's split bar), not between them.
+- **Haptics stay finesse's rule**: the switch gets
+  `enableHaptics: Haptics.enabledOf(context)`. `GlassSlider` ticks on
+  division changes by itself and cannot be told not to.
+- **The phone metrics are Liquid Glass's** (`finesseMobile`: app bar 44,
+  bottom item 52 → a 64 bar, switch 58 × 26, slider thumb 28, popover and
+  dialog radius `xl4` = 24), so a phone screen is laid out the same frosted
+  or liquid. `_derivedMobile` caps the app bar at 60 rather than setting
+  it, or the phone style stops being a fixed point. Desktop (macOS too)
+  keeps finesse's sizes.
+- **Tests run as Android, so `auto` is frosted.** Set
+  `debugDefaultTargetPlatformOverride = TargetPlatform.iOS` (and put it
+  back) to test the glass; `test/src/liquid_glass/liquid_glass_test.dart`
+  walks every component both ways. **Never call `LiquidGlass.initialize()`
+  in a test**: under `FLUTTER_TEST` the package looks its premium shaders
+  up without the `packages/liquid_glass_widgets/` prefix, which only
+  resolves in the package's own tests. Headless tests have no shader
+  filters, so the package draws its `standard` tier there, as on the web.
+
 ### Motion
 
 One vocabulary, `Motion` (`lib/src/theme/motion.dart`), lives on the style
@@ -969,9 +1036,12 @@ weight, another font, at or above the reference — is a plain `Icon`.
 - **Nothing under `lib/` may import `material.dart`, `cupertino.dart` or the
   package's own barrel** — `lib/material.dart` (the opt-in interop library)
   is the only exemption, and both `.github/workflows/check-imports.yaml` and
-  `test/src/material_interop_test.dart` enforce it. Flutter is moving
+  `test/src/material_interop_test.dart` enforce it. The one other exception
+  is `lib/src/liquid_glass/`, which alone imports `liquid_glass_widgets`
+  and the SDK's `cupertino.dart` (see "Liquid Glass"); the same check and
+  test hold every other file to the rule. Flutter is moving
   Material and Cupertino out of the SDK into `material_ui`/`cupertino_ui`;
-  since 1.0.1 the core does not touch them at all. `FinesseApp` therefore has
+  apart from that adapter the core does not touch them. `FinesseApp` therefore has
   its own `ThemeMode`, `FinessePageRoute` and `Scrollbar`-based scroll
   behaviour, and `DefaultStyles` sets the root icon theme and selection
   colours that a Material `Theme` used to. Material widgets in an app need
@@ -1687,6 +1757,12 @@ come from it.
   configuration: building the same configuration twice must give `==`
   themes, or every rebuild of the shell is a theme change (see "Theme
   equality is load-bearing").
+- **Liquid Glass (Auto / On / Off) is a preview setting** like form factor
+  and text scale: outside `look`, kept by `ThemePreset.applyTo`, so it
+  never turns a preset into "Custom"; but it is exported in the snippet
+  when not Auto, since an app can set it too. On is `LiquidGlassMode.always`
+  and previews the glass on any platform; off Apple platforms (and in
+  every browser) the package draws its `standard` tier.
 - Choices of two or three are `ThemeSegments` (a `SegmentedControl` row);
   the panel's sliders are the package `Slider` with a value bubble while
   dragging, so `picker.dart` imports no Material.

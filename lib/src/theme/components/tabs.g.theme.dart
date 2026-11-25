@@ -26,6 +26,7 @@ mixin _$TabsTheme {
     }
 
     return TabsTheme(
+      liquidGlass: t < 0.5 ? a.liquidGlass : b.liquidGlass,
       gap: lerpDouble$(a.gap, b.gap, t),
       tabsGap: lerpDouble$(a.tabsGap, b.tabsGap, t),
       expandTabs: t < 0.5 ? a.expandTabs : b.expandTabs,
@@ -147,6 +148,7 @@ mixin _$TabsTheme {
   }
 
   TabsTheme copyWith({
+    LiquidGlassMode? liquidGlass,
     double? gap,
     double? tabsGap,
     bool? expandTabs,
@@ -194,6 +196,7 @@ mixin _$TabsTheme {
     final _this = (this as TabsTheme);
 
     return TabsTheme(
+      liquidGlass: liquidGlass ?? _this.liquidGlass,
       gap: gap ?? _this.gap,
       tabsGap: tabsGap ?? _this.tabsGap,
       expandTabs: expandTabs ?? _this.expandTabs,
@@ -265,6 +268,7 @@ mixin _$TabsTheme {
     }
 
     return copyWith(
+      liquidGlass: other.liquidGlass,
       gap: other.gap,
       tabsGap: other.tabsGap,
       expandTabs: other.expandTabs,
@@ -331,7 +335,8 @@ mixin _$TabsTheme {
     final _this = (this as TabsTheme);
     final _other = (other as TabsTheme);
 
-    return _other.gap == _this.gap &&
+    return _other.liquidGlass == _this.liquidGlass &&
+        _other.gap == _this.gap &&
         _other.tabsGap == _this.tabsGap &&
         _other.expandTabs == _this.expandTabs &&
         _other.tabAlignment == _this.tabAlignment &&
@@ -383,6 +388,7 @@ mixin _$TabsTheme {
 
     return Object.hashAll([
       runtimeType,
+      _this.liquidGlass,
       _this.gap,
       _this.tabsGap,
       _this.expandTabs,

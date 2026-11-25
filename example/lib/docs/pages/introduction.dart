@@ -19,7 +19,8 @@ final introductionDoc = ComponentDoc(
       ),
       DocParagraph(
         'The library is self-contained. Components use the Flutter widgets '
-        'layer directly, with no Material or Cupertino dependency, and '
+        'layer directly, with no Material dependency (Cupertino comes in '
+        'only through the Liquid Glass adapter), and '
         'every visual decision flows from the theme. Restyling an app is '
         'configuration, not surgery: swap the color scheme, the corner '
         'radius, or the entire style preset, and every component follows.',

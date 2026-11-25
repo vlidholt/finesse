@@ -1,5 +1,7 @@
 import 'package:finesse/src/components/bottom_bar_surface.dart';
 import 'package:finesse/src/components/indicator_badge.dart';
+import 'package:finesse/src/liquid_glass/liquid_glass.dart';
+import 'package:finesse/src/liquid_glass/tab_bar.dart';
 import 'package:finesse/src/raw_components/pressable.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
@@ -451,6 +453,14 @@ class BottomNavigationBar extends StatelessWidget {
       Directionality.of(context),
     );
     final gap = bar.gap ?? 4;
+    final selected = selectedIndex;
+    if (isFloating &&
+        selected != null &&
+        selected >= 0 &&
+        selected < destinations.length &&
+        LiquidGlass.isActive(context, bar.liquidGlass)) {
+      return _buildLiquid(context, selected, barPadding);
+    }
     // A floating bar is as wide as its items, but never wider than the
     // screen: on a narrow phone the items give up width evenly rather than
     // overflow.
@@ -661,6 +671,70 @@ class BottomNavigationBar extends StatelessWidget {
           children: children,
         ),
       ),
+    );
+  }
+}
+
+extension on BottomNavigationBar {
+  /// The bar on Liquid Glass: the package's tab bar, its lens travelling
+  /// between the destinations, and the [action] on a capsule of its own
+  /// beside them rather than between them.
+  Widget _buildLiquid(
+    BuildContext context,
+    int selected,
+    EdgeInsets barPadding,
+  ) {
+    final theme = Theme.of(context);
+    final bar = theme.bottomNavigationBarTheme;
+    final selectedColor = bar.selectedForegroundColor ?? theme.colorScheme.tint;
+    final color = bar.foregroundColor ?? theme.colorScheme.foregroundSubtle;
+    final iconSize = bar.iconSize ?? 26;
+    final margin = (bar.margin ?? const EdgeInsets.only(bottom: 22)).resolve(
+      Directionality.of(context),
+    );
+    Widget icon(NavigationDestination destination, {required bool active}) =>
+        badgedDestinationIcon(
+          destination,
+          DestinationIcon(
+            selected: active,
+            icon: destination.icon,
+            selectedIcon: destination.selectedIcon,
+            color: active ? selectedColor : color,
+            size: iconSize,
+          ),
+          Offset.zero,
+        );
+    final action = this.action;
+    return LiquidGlassTabBar(
+      tabs: [
+        for (final destination in destinations)
+          LiquidGlassTab(
+            icon: icon(destination, active: false),
+            activeIcon: icon(destination, active: true),
+            label: destination.label,
+          ),
+      ],
+      selectedIndex: selected,
+      onSelected: onDestinationSelected,
+      action: action == null
+          ? null
+          : LiquidGlassTabAction(
+              icon: IconTheme.merge(
+                data: IconThemeData(
+                  size: bar.actionIconSize ?? 22,
+                  color: selectedColor,
+                ),
+                child: action.icon,
+              ),
+              label: action.label,
+              onPressed: action.onPressed,
+            ),
+      barHeight: (bar.itemHeight ?? 48) + barPadding.vertical,
+      iconSize: iconSize,
+      selectedColor: selectedColor,
+      unselectedColor: color,
+      showLabels: showLabels ?? bar.showLabels ?? false,
+      bottomMargin: margin.bottom,
     );
   }
 }
