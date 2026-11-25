@@ -66,6 +66,7 @@ import 'package:example/docs/pages/spinner.dart';
 import 'package:example/docs/pages/streaming_text.dart';
 import 'package:example/docs/pages/styles.dart';
 import 'package:example/docs/pages/surface.dart';
+import 'package:example/docs/pages/swipe_actions.dart';
 import 'package:example/docs/pages/switch.dart';
 import 'package:example/docs/pages/tab_bar.dart';
 import 'package:example/docs/pages/table.dart';
@@ -172,6 +173,7 @@ final componentDocs = [
   spinnerDoc,
   streamingTextDoc,
   surfaceDoc,
+  swipeActionsDoc,
   switchDoc,
   tabBarDoc,
   tableDoc,

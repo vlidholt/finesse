@@ -73,6 +73,7 @@ const _slugs = [
   'spinner',
   'streaming_text',
   'surface',
+  'swipe_actions',
   'switch',
   'tab_bar',
   'table',

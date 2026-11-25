@@ -56,6 +56,7 @@ flutter:
     - lib/docs/examples/otp_field/
     - lib/docs/examples/kbd/
     - lib/docs/examples/surface/
+    - lib/docs/examples/swipe_actions/
     - lib/docs/examples/scroll_area/
     - lib/docs/examples/dropdown_menu/
     - lib/docs/examples/keyboard_toolbar/

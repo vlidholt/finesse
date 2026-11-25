@@ -109,6 +109,7 @@ export 'src/components/sonner.dart' hide ToastInfo;
 export 'src/components/spinner.dart';
 export 'src/components/streaming_text.dart';
 export 'src/components/surface.dart';
+export 'src/components/swipe_actions.dart';
 export 'src/components/switch.dart';
 export 'src/components/tab_bar.dart';
 export 'src/components/table.dart';
