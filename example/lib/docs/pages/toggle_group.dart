@@ -6,7 +6,13 @@ import 'package:example/docs/examples/toggle_group/toggle_group_outline.dart';
 final toggleGroupDoc = ComponentDoc(
   slug: 'toggle_group',
   title: 'Toggle Group',
-  description: 'A set of two-state buttons that can be toggled on or off.',
+  description:
+      'A set of two-state buttons that can be toggled on or off. The group '
+      'is controlled: it shows `values` and reports a tap through '
+      '`onChanged`; `initialValues` instead makes a group that keeps its '
+      'own selection. With `gap: 0` the items are joined into one bar, as '
+      'in a `ButtonGroup`, and `ToggleGroupFormField` puts a group in a '
+      '`FinesseForm`.',
   examples: [
     ComponentExample(
       id: 'toggle_group_basic',

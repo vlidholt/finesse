@@ -73,6 +73,7 @@ export 'src/components/form/fields/switch.dart';
 export 'src/components/form/fields/text_field.dart';
 export 'src/components/form/fields/textarea.dart';
 export 'src/components/form/fields/time_picker.dart';
+export 'src/components/form/fields/toggle_group.dart';
 export 'src/components/form/form.dart';
 export 'src/components/glass.dart';
 export 'src/components/icon_button.dart';
