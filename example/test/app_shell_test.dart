@@ -17,6 +17,17 @@ void main() {
   Finder inSidebar(Finder finder) =>
       find.descendant(of: find.byType(Sidebar), matching: finder);
 
+  /// Opens the docs page called [name] from the sidebar. The list grows
+  /// with the library, so the entry is scrolled into view first: a page
+  /// added above it must not push it out of reach.
+  Future<void> openPage(WidgetTester tester, String name) async {
+    final entry = inSidebar(find.text(name));
+    await tester.ensureVisible(entry);
+    await settle(tester);
+    await tester.tap(entry);
+    await settle(tester);
+  }
+
   /// The paint-brush button in the component library's bar.
   Future<void> toggleEditor(WidgetTester tester) async {
     await tester.tap(find.byIcon(PhosphorIconsRegular.paintBrush).first);
@@ -59,11 +70,7 @@ void main() {
     ) async {
       await pumpApp(tester, size: wide);
       await openComponentLibrary(tester);
-      // The guides above it can push it below the fold.
-      await tester.ensureVisible(inSidebar(find.text('Badge')));
-      await tester.pump();
-      await tester.tap(inSidebar(find.text('Badge')));
-      await settle(tester);
+      await openPage(tester, 'Badge');
 
       await tester.tap(find.byIcon(PhosphorIconsRegular.arrowLeft));
       await settle(tester);
@@ -86,11 +93,7 @@ void main() {
       await pumpApp(tester, size: wide);
       await openComponentLibrary(tester);
 
-      // The list grows with the library: the entry may be below the fold.
-      await tester.ensureVisible(inSidebar(find.text('Button')));
-      await settle(tester);
-      await tester.tap(inSidebar(find.text('Button')));
-      await settle(tester);
+      await openPage(tester, 'Button');
 
       // The page's description: rich text, since it names widgets in code.
       expect(
@@ -276,11 +279,7 @@ void main() {
       // every time the editor was opened.
       await pumpApp(tester, size: wide);
       await openComponentLibrary(tester);
-      // The guides above it can push it below the fold.
-      await tester.ensureVisible(inSidebar(find.text('Badge')));
-      await tester.pump();
-      await tester.tap(inSidebar(find.text('Badge')));
-      await settle(tester);
+      await openPage(tester, 'Badge');
       await toggleEditor(tester);
 
       expect(find.byType(ThemeCustomizerPanel), findsOneWidget);
