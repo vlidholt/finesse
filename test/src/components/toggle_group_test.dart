@@ -219,4 +219,68 @@ void main() {
       expect(selected(tester), {'a'});
     });
   });
+
+  group('ToggleGroup', () {
+    Widget wrap(Widget child) => FinesseApp(home: Center(child: child));
+
+    testWidgets('single variant replaces the selection', (tester) async {
+      Set<String>? latest;
+      await tester.pumpWidget(
+        wrap(
+          ToggleGroup<String>(
+            values: const {'a'},
+            onChanged: (v) => latest = v,
+            children: const [
+              ToggleGroupItem(value: 'a', child: Text('A')),
+              ToggleGroupItem(value: 'b', child: Text('B')),
+            ],
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('B'));
+      await tester.pumpAndSettle();
+      expect(latest, {'b'});
+    });
+
+    testWidgets('single variant deselects on re-tap', (tester) async {
+      Set<String>? latest;
+      await tester.pumpWidget(
+        wrap(
+          ToggleGroup<String>(
+            values: const {'a'},
+            onChanged: (v) => latest = v,
+            children: const [
+              ToggleGroupItem(value: 'a', child: Text('A')),
+              ToggleGroupItem(value: 'b', child: Text('B')),
+            ],
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('A'));
+      await tester.pumpAndSettle();
+      expect(latest, isEmpty);
+    });
+
+    testWidgets('multiple variant accumulates', (tester) async {
+      Set<String>? latest;
+      await tester.pumpWidget(
+        wrap(
+          ToggleGroup<String>.multiple(
+            values: const {'a'},
+            onChanged: (v) => latest = v,
+            children: const [
+              ToggleGroupItem(value: 'a', child: Text('A')),
+              ToggleGroupItem(value: 'b', child: Text('B')),
+            ],
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('B'));
+      await tester.pumpAndSettle();
+      expect(latest, {'a', 'b'});
+    });
+  });
 }

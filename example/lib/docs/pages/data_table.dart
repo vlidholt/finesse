@@ -5,8 +5,10 @@ final dataTableDoc = ComponentDoc(
   slug: 'data_table',
   title: 'Data Table',
   description:
-      'A table with sorting, selection, filtering, and pagination, driven '
-      'by a controller.',
+      '`DataTable` is the data features on top of the grid: give it rows '
+      'and columns and a `DataTableController` sorts, filters, selects and '
+      'pages them. To lay out cells of your own with none of that, use '
+      '`FinesseTable`, the grid it is built on.',
   examples: [
     ComponentExample(
       id: 'data_table_payments',

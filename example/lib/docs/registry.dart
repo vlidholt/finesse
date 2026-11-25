@@ -10,6 +10,7 @@ import 'package:example/docs/pages/back_button.dart';
 import 'package:example/docs/pages/badge.dart';
 import 'package:example/docs/pages/board.dart';
 import 'package:example/docs/pages/breadcrumb.dart';
+import 'package:example/docs/pages/building_blocks.dart';
 import 'package:example/docs/pages/button.dart';
 import 'package:example/docs/pages/button_group.dart';
 import 'package:example/docs/pages/calendar.dart';
@@ -130,6 +131,7 @@ final docGroups = <DocGroup>[
       motionDoc,
       formDoc,
       portalDoc,
+      buildingBlocksDoc,
     ],
   ),
   DocGroup(

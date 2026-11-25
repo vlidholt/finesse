@@ -348,6 +348,58 @@ class DocBullets extends StatelessWidget {
   }
 }
 
+/// A small table of prose, with the same inline-code treatment as
+/// [DocParagraph]. The first column is as wide as its content; the others
+/// share the rest.
+class DocTable extends StatelessWidget {
+  const DocTable({super.key, required this.columns, required this.rows});
+
+  /// The header of each column.
+  final List<String> columns;
+
+  /// One list per row, a cell per column.
+  final List<List<String>> rows;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final border = BorderSide(color: theme.colorScheme.border);
+
+    Widget cell(String text, {required bool header}) => Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      child: Text.rich(
+        TextSpan(children: DocParagraph.spans(context, text)),
+        style: header
+            ? theme.textTheme.small.copyWith(
+                color: theme.colorScheme.mutedForeground,
+              )
+            : theme.textTheme.small,
+      ),
+    );
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        border: Border.fromBorderSide(border),
+        borderRadius: theme.radii.lg,
+      ),
+      child: Table(
+        columnWidths: const {0: IntrinsicColumnWidth()},
+        defaultVerticalAlignment: TableCellVerticalAlignment.top,
+        border: TableBorder(horizontalInside: border),
+        children: [
+          TableRow(
+            children: [for (final c in columns) cell(c, header: true)],
+          ),
+          for (final row in rows)
+            TableRow(
+              children: [for (final c in row) cell(c, header: false)],
+            ),
+        ],
+      ),
+    );
+  }
+}
+
 /// The body of a written documentation page: sections separated by a
 /// consistent gap.
 class DocProse extends StatelessWidget {

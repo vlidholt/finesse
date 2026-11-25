@@ -133,6 +133,7 @@ flutter:
     - lib/docs/examples/page_route/
     - lib/docs/examples/page_indicator/
     - lib/docs/examples/form_factors/
+    - lib/docs/examples/building_blocks/
     - lib/docs/examples/icons/
 
   fonts:
