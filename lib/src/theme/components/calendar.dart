@@ -128,7 +128,7 @@ class CalendarTheme with _$CalendarTheme {
   /// ```dart
   /// FinesseDecoration(
   ///   border: FinesseBorder.all(
-  ///     radius: radius,
+  ///     borderRadius: radius,
   ///     padding: const EdgeInsets.all(12),
   ///     color: colorScheme.border
   ///   ),
@@ -212,21 +212,21 @@ class CalendarTheme with _$CalendarTheme {
   ///           !isLastDateInRange
   ///       ? isFirstOfRow
   ///           ? FinesseBorder(
-  ///               radius: BorderRadius.only(
+  ///               borderRadius: BorderRadius.only(
   ///                 topLeft: theme.radius.topLeft,
   ///                 bottomLeft: theme.radius.bottomLeft,
   ///               ),
   ///             )
   ///           : isLastOfRow
   ///               ? FinesseBorder(
-  ///                   radius: BorderRadius.only(
+  ///                   borderRadius: BorderRadius.only(
   ///                     topRight: theme.radius.topRight,
   ///                     bottomRight:
   ///                         theme.radius.bottomRight,
   ///                   ),
   ///                 )
   ///               : const FinesseBorder(
-  ///                   radius: BorderRadius.zero,
+  ///                   borderRadius: BorderRadius.zero,
   ///                 )
   ///       : null,
   ///    secondaryFocusedBorder: FinesseBorder.all(

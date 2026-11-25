@@ -151,7 +151,7 @@ class Checkbox extends StatefulWidget {
   final Widget? description;
 
   /// {@template Checkbox.padding}
-  /// The padding between the checkbox and its label/sublabel.
+  /// The padding between the checkbox and its label and description.
   /// Defaults to `EdgeInsetsDirectional.only(start: 8)` if not specified.
   /// {@endtemplate}
   final EdgeInsetsGeometry? padding;
@@ -169,7 +169,7 @@ class Checkbox extends StatefulWidget {
   final ControlAffinity controlAffinity;
 
   /// {@template Checkbox.crossAxisAlignment}
-  /// The cross-axis alignment of the checkbox and label/sublabel.
+  /// The cross-axis alignment of the checkbox and its label and description.
   /// Defaults to [CrossAxisAlignment.start] if both label and description are
   /// present, otherwise [CrossAxisAlignment.center].
   /// {@endtemplate}

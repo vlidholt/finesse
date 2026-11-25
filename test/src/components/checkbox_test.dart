@@ -66,7 +66,9 @@ void main() {
       );
     });
 
-    testWidgets('renders with label and sublabel', (WidgetTester tester) async {
+    testWidgets('renders with label and description', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         createTestWidget(
           const Checkbox(
@@ -77,11 +79,12 @@ void main() {
         ),
       );
 
-      // Check label and sublabel are rendered
+      // Check label and description are rendered
       expect(find.text('Checkbox Label'), findsOneWidget);
       expect(find.text('Checkbox Sublabel'), findsOneWidget);
 
-      // Check layout includes checkbox, label, and sublabel in a Row and Column
+      // Check layout includes checkbox, label, and description in a Row and
+      // Column
       final rowFinder = find.byType(Row);
       expect(rowFinder, findsOneWidget);
       final columnFinder = find.descendant(
@@ -274,7 +277,7 @@ void main() {
       final paddingFinder = find.descendant(
         of: find.byType(Row),
         matching: find.ancestor(
-          of: find.byType(Column), // Target the Column with label/sublabel
+          of: find.byType(Column), // Target the Column with label/description
           matching: find.byType(Padding),
         ),
       );
@@ -308,7 +311,7 @@ void main() {
       expect(decorator.focused, true);
     });
 
-    testWidgets('renders without label and sublabel', (
+    testWidgets('renders without label and description', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
@@ -321,7 +324,10 @@ void main() {
 
       // Check only checkbox is rendered (no label/description)
       expect(find.byType(Row), findsNothing);
-      expect(find.byType(Column), findsNothing); // No Column for label/sublabel
+      expect(
+        find.byType(Column),
+        findsNothing,
+      ); // No Column for label/description
       expect(find.text('Label'), findsNothing);
     });
 

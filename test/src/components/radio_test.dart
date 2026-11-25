@@ -333,7 +333,9 @@ void main() {
       expect(decorator.focused, true);
     });
 
-    testWidgets('renders with label and sublabel', (WidgetTester tester) async {
+    testWidgets('renders with label and description', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         createTestWidget(
           const FinesseRadioGroup<String>(
@@ -348,11 +350,11 @@ void main() {
         ),
       );
 
-      // Check label and sublabel are rendered
+      // Check label and description are rendered
       expect(find.text('Option 1'), findsOneWidget);
       expect(find.text('Sublabel'), findsOneWidget);
 
-      // Check layout includes radio, label, and sublabel
+      // Check layout includes radio, label, and description
       final rowFinder = find.byType(Row);
       expect(rowFinder, findsOneWidget);
       final columnFinder = find.descendant(
