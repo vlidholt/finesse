@@ -603,12 +603,6 @@ weight, another font, at or above the reference — is a plain `Icon`.
   never happens. `await controller.reverse().orCancel` inside a
   `try`/`on TickerCanceled`, then decide again (`Tooltip._leave`,
   `test/src/components/tooltip_lifecycle_test.dart`).
-- **`Pressable` takes hover from a `MouseRegion`**, not from
-  `FocusableActionDetector`'s highlight callback, which only fires in the
-  traditional highlight mode. A `semanticLabel` excludes the *content's*
-  semantics only — excluding at the outer `Semantics` also dropped the tap
-  and focus actions, so a labelled region could be read but not activated.
-
 - **CSS heights are border-box; `Container` adds its decoration's border as
   padding around the child** (`DecoratedBox` does not — the menubar strip
   relied on one and came out 2px short). A height constraint applied *inside*
@@ -801,7 +795,7 @@ weight, another font, at or above the reference — is a plain `Icon`.
   modes so the child keeps its place in the tree when the flag changes.
   The overlay is built below the portal, so in the focus tree it is a
   descendant of what surrounds the child and one `DismissShortcut` hears
-  Escape from both. The focus goes back at `hide()`, in a microtask, not
+  Escape from both. The focus goes back at `close()`, in a microtask, not
   when the exit has played: whatever closed the popover may have asked for
   the focus itself. A text field gives up the focus on a click outside *its*
   tap region, so a field that keeps the caret under a popover takes the
@@ -870,9 +864,10 @@ weight, another font, at or above the reference — is a plain `Icon`.
   compared only on Linux: `test/flutter_test_config.dart` (through
   `golden_config_io.dart`, behind a conditional import so the Chrome tests
   still compile) skips pixel comparison elsewhere — macOS differs by
-  several percent on these small images — and makes `--update-goldens` a no-op there, so macOS pixels can
-  never be committed. `SHAD_COMPARE_GOLDENS=1` forces comparison;
-  `SHAD_SKIP_GOLDENS=1` skips it on Linux too (the minimum-Flutter CI job).
+  several percent on these small images — and makes `--update-goldens` a
+  no-op there, so macOS pixels can never be committed.
+  `SHAD_COMPARE_GOLDENS=1` forces comparison; `SHAD_SKIP_GOLDENS=1` skips
+  it on Linux too (the minimum-Flutter CI job).
 - Prefer asserting resolved *theme values* over pixels. For anything with modes
   (menu colour × finish × accent × brightness) walk the whole matrix in one test
   and assert luminance contrast — that found a real collision (light + inverted
@@ -892,7 +887,7 @@ weight, another font, at or above the reference — is a plain `Icon`.
   content takes taps from its first visible frame, but under a scale
   transform, so pump ~12 × 50 ms before tapping an option, and pick options
   near the top of the list, since ones below the scroll fold are found but
-  not tappable. A popover that took the focus gives it back at `hide()`,
+  not tappable. A popover that took the focus gives it back at `close()`,
   not when the exit has played.
 - **An overflow is reported once per render object.** A test that checks
   "nothing overflows" at several window sizes or text scales pumps a fresh
@@ -1081,7 +1076,13 @@ web ends when commands reach the GPU, so GPU-bound work does not show in it.
   a button is not merged into its name. The default stays false, so a
   `MergeSemantics` around a tile and its control, or a `Semantics` adding
   custom actions to a row, still reaches it. A loading button is announced
-  with the value "Loading" and as disabled (Flutter has no busy flag).
+  with the value "Loading" and as disabled (Flutter has no busy flag). A
+  `semanticLabel` excludes the *content's* semantics only — excluding at
+  the outer `Semantics` also dropped the tap and focus actions, so a
+  labelled region could be read but not activated.
+- **Hover comes from a `MouseRegion`**, not from
+  `FocusableActionDetector`'s highlight callback, which only fires in the
+  traditional highlight mode.
 - **`Pressable(enabled: true)` with no callbacks** keeps the region
   focusable and hoverable and announces it as not pressable: that is how
   a loading button keeps the focus. `disabled` and `selected` reach an
@@ -1169,18 +1170,17 @@ ticks only for a finger's changes, as the board and the wheel do.
 - **`FinesseScrollBehavior` stretches on Android** (see "Testing" for what
   that does to finders).
 - **One tab list.** `TabBar<T>` (value-based, underline or segmented),
-  `Tabs<T>` (a tab bar over content), `SegmentedControl<T>` and the app
-  bar's `bottom` all build the internal `TabList` (`tab_list.dart`). `Tab`
+  `Tabs<T>` (a tab bar over content) and `SegmentedControl<T>` all build
+  the internal `TabList` (`tab_list.dart`). `Tab`
   is a data class, not a widget. The list is one Tab stop — only the
   selected tab takes the focus, the others `skipTraversal` — and the arrows
   move the selection. `SemanticsRole.tabBar` throws if a direct child is
   not a tab, so a tooltip or label goes inside the tab's `MergeSemantics`.
-- **`TabPages` is not a `PageView`**: one render object, hidden pages off
-  stage all four ways (paint, hit test, focus, semantics), the drag
-  divisor a page plus its gutter. A page's builder context sits under the
-  `TickerMode`/`Visibility` (a `Builder`), and `swipePosition` is nulled
-  in `dispose` only if non-null. `TabsController<T>` is shared by a
-  `TabBar` and a `TabBarView`.
+- **`TabPages` is not a `PageView`**: one render object with the hidden
+  pages off stage, the drag divisor a page plus its gutter. A page's
+  builder context sits under the `TickerMode`/`Visibility` (a `Builder`),
+  and `swipePosition` is nulled in `dispose` only if non-null.
+  `TabsController<T>` is shared by a `TabBar` and a `TabBarView`.
 - `NavigationScaffold(layout:)` places a top bar, a bottom bar or a
   `NavigationRail`; in the rail layout the rail is part of the scaffold's
   body and reads the `MediaQuery` under it. `BottomBarSurface` is the one
@@ -1290,8 +1290,8 @@ ticks only for a finger's changes, as the board and the wheel do.
   signed distance), or it takes every vertical scroll. A trackpad pan is
   not a pointer-down (`onPointerPanZoomStart`, `RefreshIndicator`).
 - `PageView.onPageChanged` fires for every page passed. An internal key
-  must not be a plain `ValueKey('row')`: a private enum value cannot
-  collide with an app's.
+  is a private enum value, never a plain `ValueKey('row')`, which an app's
+  own key can equal.
 - **`ReorderableListView` is a `Board` over one bare column**, a `part` of
   the board library (`board.dart` → `reorderable_list_view.dart`), so it
   lifts, tilts, makes way and lands on the board's springs and theme. Fix

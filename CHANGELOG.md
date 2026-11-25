@@ -1,7 +1,8 @@
 ## 0.1.0
 
 The first release of `finesse`, a fork of
-[`shad`](https://pub.dev/packages/shad) 1.0.2. This entry describes the package as it is, compared with shad.
+[`shad`](https://pub.dev/packages/shad) 1.0.2. This entry describes the
+package as it is, compared with shad.
 
 ### Changed from shad
 
