@@ -167,7 +167,7 @@ class JobMatchPanel extends StatelessWidget {
           const ProgressBar(
             value: JobsData.matchScore,
             // A hair slimmer than the theme's bar.
-            minHeight: 6,
+            height: 6,
             semanticLabel: 'Skills match',
             semanticValue: JobsData.matchScoreLabel,
           ),

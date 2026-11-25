@@ -49,7 +49,7 @@ void main() {
       final theme = themeOf(tester, find.byType(ProgressRing));
       final painter = painterOf(tester);
       expect(painter.color, theme.progressBarTheme.color);
-      expect(painter.trackColor, theme.progressBarTheme.backgroundColor);
+      expect(painter.trackColor, theme.progressBarTheme.trackColor);
       expect(tester.getSize(find.byType(ProgressRing)), const Size(40, 40));
       expect(painter.strokeWidth, 4);
 
@@ -73,6 +73,25 @@ void main() {
       final arc = painterOf(tester).arc();
       expect(arc.start, moreOrLessEquals(-math.pi / 2));
       expect(arc.sweep, moreOrLessEquals(math.pi / 2));
+    });
+
+    testWidgets('a new value rides the spring of the progress bar theme', (
+      tester,
+    ) async {
+      Widget themed(double value) => Builder(
+        builder: (context) => Theme(
+          data: Theme.of(context).copyWith(
+            progressBarTheme: const ProgressBarTheme(
+              spring: MotionSpring.instant,
+            ),
+          ),
+          child: ring(value: value),
+        ),
+      );
+      await pumpFinesse(tester, themed(.25));
+      await pumpFinesse(tester, themed(.75));
+      await tester.pump();
+      expect(painterOf(tester).arc().sweep, moreOrLessEquals(math.pi * 1.5));
     });
 
     testWidgets('values outside 0 to 1 are clamped', (tester) async {

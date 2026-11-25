@@ -755,7 +755,7 @@ void main() {
       expect(mira.sliderTheme.trackHeight, 4);
       expect(mira.sliderTheme.thumbRadius, 6);
       expect(mira.switchTheme.width, 28);
-      expect(mira.progressBarTheme.minHeight, 4);
+      expect(mira.progressBarTheme.height, 4);
       expect(
         sera.selectOptionTheme.padding,
         const EdgeInsets.symmetric(

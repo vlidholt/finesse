@@ -367,12 +367,12 @@ void main() {
           // Track `--fill-2`, fill `--accent`.
           expect(finesse.progressBarTheme.color, finesse.colorScheme.tint);
           expect(
-            finesse.progressBarTheme.backgroundColor,
+            finesse.progressBarTheme.trackColor,
             finesse.colorScheme.secondary,
           );
           expect(nova.progressBarTheme.color, nova.colorScheme.primary);
           expect(
-            nova.progressBarTheme.backgroundColor,
+            nova.progressBarTheme.trackColor,
             nova.colorScheme.muted,
           );
         });
@@ -442,13 +442,13 @@ void main() {
       final track = withStyle(
         StyleTokens.nova.copyWith(progressTrackFill: SurfaceFill.secondary),
       ).progressBarTheme;
-      expect(track.backgroundColor, scheme.secondary);
+      expect(track.trackColor, scheme.secondary);
       expect(track.color, scheme.primary);
       final tinted = withStyle(
         StyleTokens.nova.copyWith(progressTinted: true),
       ).progressBarTheme;
       expect(tinted.color, scheme.tint);
-      expect(tinted.backgroundColor, scheme.muted);
+      expect(tinted.trackColor, scheme.muted);
 
       expect(
         withStyle(

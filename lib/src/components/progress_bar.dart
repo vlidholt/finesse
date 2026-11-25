@@ -15,10 +15,10 @@ class ProgressBar extends StatefulWidget {
   const ProgressBar({
     super.key,
     this.value,
-    this.backgroundColor,
+    this.trackColor,
     this.color,
     this.valueColor,
-    this.minHeight,
+    this.height,
     this.semanticLabel,
     this.semanticValue,
     this.borderRadius,
@@ -31,11 +31,11 @@ class ProgressBar extends StatefulWidget {
   /// {@endtemplate}
   final double? value;
 
-  /// {@template ProgressBar.backgroundColor}
-  /// The background color of the progress bar.
-  /// Defaults to the theme's secondary color if not specified.
+  /// {@template ProgressBar.trackColor}
+  /// The colour of the track the progress fills, as on a `ProgressRing`.
+  /// Defaults to the theme's.
   /// {@endtemplate}
-  final Color? backgroundColor;
+  final Color? trackColor;
 
   /// {@template ProgressBar.color}
   /// The color of the progress indicator itself.
@@ -50,11 +50,10 @@ class ProgressBar extends StatefulWidget {
   /// {@endtemplate}
   final Animation<Color?>? valueColor;
 
-  /// {@template ProgressBar.minHeight}
-  /// The minimum height of the progress bar.
-  /// Defaults to 16 if not specified.
+  /// {@template ProgressBar.height}
+  /// The height of the bar. Defaults to the theme's.
   /// {@endtemplate}
-  final double? minHeight;
+  final double? height;
 
   /// {@template ProgressBar.semanticLabel}
   /// The accessibility label for the progress bar.
@@ -63,8 +62,8 @@ class ProgressBar extends StatefulWidget {
   final String? semanticLabel;
 
   /// {@template ProgressBar.semanticValue}
-  /// The accessibility value for the progress bar (e.g., percentage).
-  /// Provides current progress to screen readers; defaults to null.
+  /// The progress as assistive technology reads it. Defaults to [value] as
+  /// a percentage, and to nothing while the bar is indeterminate.
   /// {@endtemplate}
   final String? semanticValue;
 
@@ -164,16 +163,15 @@ class _ProgressState extends State<ProgressBar>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final effectiveMinHeight =
-        widget.minHeight ?? theme.progressBarTheme.minHeight ?? 16.0;
+    final height = widget.height ?? theme.progressBarTheme.height ?? 16.0;
     final effectiveColor =
         widget.color ??
         theme.progressBarTheme.color ??
         theme.colorScheme.primary;
     final currentColor = widget.valueColor?.value ?? effectiveColor;
-    final effectiveBackgroundColor =
-        widget.backgroundColor ??
-        theme.progressBarTheme.backgroundColor ??
+    final trackColor =
+        widget.trackColor ??
+        theme.progressBarTheme.trackColor ??
         theme.colorScheme.secondary;
     final effectiveBorderRadius =
         widget.borderRadius ??
@@ -186,17 +184,22 @@ class _ProgressState extends State<ProgressBar>
 
     return Semantics(
       label: widget.semanticLabel,
-      value: widget.semanticValue,
+      value:
+          widget.semanticValue ??
+          switch (widget.value) {
+            final value? => '${(value.clamp(0, 1) * 100).round()}%',
+            null => null,
+          },
       child: SizedBox(
         width: double.infinity,
-        height: effectiveMinHeight,
+        height: height,
         child: ClipRRect(
           borderRadius: effectiveBorderRadius,
           child: Container(
             width: double.infinity,
-            height: effectiveMinHeight,
+            height: height,
             decoration: BoxDecoration(
-              color: effectiveBackgroundColor,
+              color: trackColor,
               borderRadius: effectiveInnerBorderRadius,
             ),
             child: widget.value != null

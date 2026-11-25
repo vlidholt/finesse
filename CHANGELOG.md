@@ -76,7 +76,10 @@ package as it is, compared with shad.
 - **Smaller renames.** `Popover(popover:)` is `Popover(builder:)`.
   `Command.onItemSelected` is `onSelected`.
   `ProgressBar.semanticsLabel`/`semanticsValue` and
-  `StreamingText.semanticsLabel` are `semanticLabel`/`semanticValue`.
+  `StreamingText.semanticsLabel` are `semanticLabel`/`semanticValue`; a
+  determinate bar announces its percentage by default, as a `ProgressRing`
+  does. `ProgressBar.backgroundColor` and `minHeight` are `trackColor` and
+  `height` (the bar's height, not a floor), also on `ProgressBarTheme`.
   `SidebarMenuButton.isActive` and `SidebarMenuSubButton.isActive` are
   `selected`. `Calendar.hideNavigation`/`hideWeekdayNames` are
   `showNavigation`/`showWeekdayNames` (default true), also on
@@ -458,7 +461,8 @@ package as it is, compared with shad.
   `semanticContainer`, `pressScale`).
 - `Stepper`, `Step`, `StepState`, `StepperControls`, `StepperTheme`.
 - `AlertVariant.success`, `warning` and `info`, and `Alert(onDismissed:)`.
-- `ProgressRing`; `Skeleton.shimmer`.
+- `ProgressRing`, which takes its colours and its spring from the
+  `ProgressBarTheme`; `Skeleton.shimmer`.
 - `LicensePage` and `showLicensePage`.
 
 #### Motion

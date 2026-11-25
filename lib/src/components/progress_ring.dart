@@ -35,8 +35,8 @@ import 'package:flutter/widgets.dart';
 /// )
 /// ```
 ///
-/// The arc takes the progress bar's colour and the track its background,
-/// so the two read as one family.
+/// The arc takes the progress bar's colour, the track its track colour and
+/// a new value its spring, so the two read as one family.
 class ProgressRing extends StatefulWidget {
   /// Creates a progress ring.
   const ProgressRing({
@@ -69,7 +69,7 @@ class ProgressRing extends StatefulWidget {
   final Color? color;
 
   /// The colour of the track behind the arc. Defaults to the progress bar
-  /// theme's background; pass a transparent colour for none.
+  /// theme's `trackColor`; pass a transparent colour for none.
   final Color? trackColor;
 
   /// A widget centred in the ring: a percentage, an icon.
@@ -127,7 +127,13 @@ class _ProgressRingState extends State<ProgressRing>
         _syncSpin();
         _value.jumpTo(_clamped(value));
       } else {
-        _value.animateTo(_clamped(value), spring: Motion.of(context).smooth);
+        // The bar's spring, so the two read as one family.
+        _value.animateTo(
+          _clamped(value),
+          spring:
+              Theme.of(context).progressBarTheme.spring ??
+              Motion.of(context).smooth,
+        );
       }
     }
   }
@@ -199,7 +205,7 @@ class _ProgressRingState extends State<ProgressRing>
                   color: widget.color ?? bar.color ?? theme.colorScheme.tint,
                   trackColor:
                       widget.trackColor ??
-                      bar.backgroundColor ??
+                      bar.trackColor ??
                       theme.colorScheme.muted,
                   strokeWidth: strokeWidth,
                   trackStart: _trackStart,

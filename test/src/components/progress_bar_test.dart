@@ -32,6 +32,34 @@ void main() {
       );
     });
 
+    testWidgets('announces a percentage, as a ProgressRing does, or the '
+        'value it is given', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        createTestWidget(
+          const ProgressBar(value: .42, semanticLabel: 'Upload'),
+        ),
+      );
+      expect(
+        tester.getSemantics(find.byType(ProgressBar)),
+        matchesSemantics(label: 'Upload', value: '42%'),
+      );
+      await tester.pumpWidget(
+        createTestWidget(
+          const ProgressBar(
+            value: .42,
+            semanticLabel: 'Upload',
+            semanticValue: 'Almost half',
+          ),
+        ),
+      );
+      expect(
+        tester.getSemantics(find.byType(ProgressBar)),
+        matchesSemantics(label: 'Upload', value: 'Almost half'),
+      );
+      handle.dispose();
+    });
+
     testWidgets('goes indeterminate, determinate and indeterminate again, '
         'and rests while determinate', (tester) async {
       final value = ValueNotifier<double?>(null);

@@ -1733,11 +1733,11 @@ class DefaultThemeVariant extends ThemeVariant {
   @override
   ProgressBarTheme progressBarTheme() {
     return ProgressBarTheme(
-      minHeight: scaled(style.progressHeight),
+      height: scaled(style.progressHeight),
       color: style.progressTinted ? colorScheme.tint : colorScheme.primary,
       // `bg-muted`, not the secondary, for the same reason as the slider —
       // unless the style says otherwise.
-      backgroundColor:
+      trackColor:
           _fill(style.progressTrackFill, colorScheme) ?? colorScheme.muted,
       borderRadius: const BorderRadius.all(Radius.circular(16)),
     );
