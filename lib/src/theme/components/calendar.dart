@@ -15,7 +15,7 @@ class CalendarTheme with _$CalendarTheme {
   /// {@macro CalendarTheme}
   const CalendarTheme({
     bool canMerge = true,
-    this.hideNavigation,
+    this.showNavigation,
     this.yearSelectorMinWidth,
     this.monthSelectorMinWidth,
     this.yearSelectorPadding,
@@ -60,7 +60,7 @@ class CalendarTheme with _$CalendarTheme {
     this.gridCrossAxisSpacing,
     this.selectedDayButtonOutsideMonthVariant,
     this.captionLayout,
-    this.hideWeekdayNames,
+    this.showWeekdayNames,
     this.showOutsideDays,
     this.formatMonthYear,
     this.formatMonth,
@@ -80,8 +80,8 @@ class CalendarTheme with _$CalendarTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// Whether to hide the navigation buttons, defaults to false.
-  final bool? hideNavigation;
+  /// Whether to show the navigation buttons, defaults to true.
+  final bool? showNavigation;
 
   /// The minimum width of the year selector, defaults to 64
   final double? yearSelectorMinWidth;
@@ -143,7 +143,7 @@ class CalendarTheme with _$CalendarTheme {
   final double? runSpacingBetweenMonths;
 
   /// The month constraints, defaults to `BoxConstraints(maxWidth: 252)`
-  /// or `BoxConstraints(maxWidth: 310)` depending on the [hideNavigation] and
+  /// or `BoxConstraints(maxWidth: 310)` depending on the [showNavigation] and
   /// [captionLayout] values.
   final BoxConstraints? monthConstraints;
 
@@ -298,8 +298,9 @@ class CalendarTheme with _$CalendarTheme {
   /// The layout of the caption, defaults to [CalendarCaptionLayout.label].
   final CalendarCaptionLayout? captionLayout;
 
-  /// Hide the month’s head displaying the weekday names, defaults to false.
-  final bool? hideWeekdayNames;
+  /// Whether to show the month’s head with the weekday names, defaults to
+  /// true.
+  final bool? showWeekdayNames;
 
   /// Whether to show days outside the current month, defaults to true.
   final bool? showOutsideDays;

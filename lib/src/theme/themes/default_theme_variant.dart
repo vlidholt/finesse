@@ -2570,7 +2570,7 @@ class DefaultThemeVariant extends ThemeVariant {
         color: colorScheme.ring.withValues(alpha: .5),
       ),
     ),
-    hideNavigation: false,
+    showNavigation: true,
     yearSelectorMinWidth: 64,
     monthSelectorMinWidth: 64,
     // Horizontal only: the trigger height is pinned (`h-8` and friends), so
@@ -2642,7 +2642,7 @@ class DefaultThemeVariant extends ThemeVariant {
     weekdaysTextAlign: TextAlign.center,
     gridMainAxisSpacing: 8,
     gridCrossAxisSpacing: 0,
-    hideWeekdayNames: false,
+    showWeekdayNames: true,
     showOutsideDays: true,
     showWeekNumbers: false,
     weekStartsOn: 1,

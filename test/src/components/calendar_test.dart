@@ -457,12 +457,12 @@ void main() {
             initialMonth: DateTime(2024),
             min: DateTime(2023),
             max: DateTime(2024, 12, 31),
-            hideNavigation: true,
+            showNavigation: false,
             captionLayout: CalendarCaptionLayout.label,
             showWeekNumbers: false,
             showOutsideDays: false,
             fixedWeeks: false,
-            hideWeekdayNames: false,
+            showWeekdayNames: true,
           ),
         ),
       );
@@ -473,7 +473,41 @@ void main() {
       );
     });
 
-    testWidgets('Calendar hideNavigation false matches goldens', (
+    testWidgets('showNavigation and showWeekdayNames default to true', (
+      tester,
+    ) async {
+      Iterable<Offstage> hidden() => tester
+          .widgetList<Offstage>(
+            find.descendant(
+              of: find.byType(Calendar),
+              matching: find.byType(Offstage, skipOffstage: false),
+            ),
+          )
+          .where((offstage) => offstage.offstage);
+
+      await tester.pumpWidget(
+        createTestWidget(Calendar(initialMonth: DateTime(2024))),
+      );
+      expect(find.byIcon(PhosphorIconsRegular.caretLeft), findsOneWidget);
+      expect(find.byIcon(PhosphorIconsRegular.caretRight), findsOneWidget);
+      expect(hidden(), isEmpty);
+
+      await tester.pumpWidget(
+        createTestWidget(
+          Calendar(
+            initialMonth: DateTime(2024),
+            showNavigation: false,
+            showWeekdayNames: false,
+          ),
+        ),
+      );
+      expect(find.byIcon(PhosphorIconsRegular.caretLeft), findsNothing);
+      expect(find.byIcon(PhosphorIconsRegular.caretRight), findsNothing);
+      // The row of weekday names is kept for the column widths, off stage.
+      expect(hidden(), hasLength(1));
+    });
+
+    testWidgets('Calendar showNavigation true matches goldens', (
       tester,
     ) async {
       await tester.pumpWidget(
@@ -482,7 +516,7 @@ void main() {
             initialMonth: DateTime(2024),
             min: DateTime(2023),
             max: DateTime(2024, 12, 31),
-            hideNavigation: false,
+            showNavigation: true,
           ),
         ),
       );
@@ -530,7 +564,7 @@ void main() {
       );
     });
 
-    testWidgets('Calendar hideWeekdayNames matches goldens', (
+    testWidgets('Calendar without weekday names matches goldens', (
       tester,
     ) async {
       await tester.pumpWidget(
@@ -540,7 +574,7 @@ void main() {
             min: DateTime(2023),
             max: DateTime(2024, 12, 31),
             captionLayout: CalendarCaptionLayout.label,
-            hideWeekdayNames: true,
+            showWeekdayNames: false,
           ),
         ),
       );

@@ -26,7 +26,7 @@ mixin _$CalendarTheme {
     }
 
     return CalendarTheme(
-      hideNavigation: t < 0.5 ? a.hideNavigation : b.hideNavigation,
+      showNavigation: t < 0.5 ? a.showNavigation : b.showNavigation,
       yearSelectorMinWidth: lerpDouble$(
         a.yearSelectorMinWidth,
         b.yearSelectorMinWidth,
@@ -195,7 +195,7 @@ mixin _$CalendarTheme {
           ? a.selectedDayButtonOutsideMonthVariant
           : b.selectedDayButtonOutsideMonthVariant,
       captionLayout: t < 0.5 ? a.captionLayout : b.captionLayout,
-      hideWeekdayNames: t < 0.5 ? a.hideWeekdayNames : b.hideWeekdayNames,
+      showWeekdayNames: t < 0.5 ? a.showWeekdayNames : b.showWeekdayNames,
       showOutsideDays: t < 0.5 ? a.showOutsideDays : b.showOutsideDays,
       formatMonthYear: t < 0.5 ? a.formatMonthYear : b.formatMonthYear,
       formatMonth: t < 0.5 ? a.formatMonth : b.formatMonth,
@@ -213,7 +213,7 @@ mixin _$CalendarTheme {
   }
 
   CalendarTheme copyWith({
-    bool? hideNavigation,
+    bool? showNavigation,
     double? yearSelectorMinWidth,
     double? monthSelectorMinWidth,
     EdgeInsetsGeometry? yearSelectorPadding,
@@ -258,7 +258,7 @@ mixin _$CalendarTheme {
     ButtonVariant? dayButtonOutsideMonthVariant,
     ButtonVariant? selectedDayButtonOutsideMonthVariant,
     CalendarCaptionLayout? captionLayout,
-    bool? hideWeekdayNames,
+    bool? showWeekdayNames,
     bool? showOutsideDays,
     String Function(DateTime)? formatMonthYear,
     String Function(DateTime)? formatMonth,
@@ -274,7 +274,7 @@ mixin _$CalendarTheme {
     final _this = (this as CalendarTheme);
 
     return CalendarTheme(
-      hideNavigation: hideNavigation ?? _this.hideNavigation,
+      showNavigation: showNavigation ?? _this.showNavigation,
       yearSelectorMinWidth: yearSelectorMinWidth ?? _this.yearSelectorMinWidth,
       monthSelectorMinWidth:
           monthSelectorMinWidth ?? _this.monthSelectorMinWidth,
@@ -340,7 +340,7 @@ mixin _$CalendarTheme {
           selectedDayButtonOutsideMonthVariant ??
           _this.selectedDayButtonOutsideMonthVariant,
       captionLayout: captionLayout ?? _this.captionLayout,
-      hideWeekdayNames: hideWeekdayNames ?? _this.hideWeekdayNames,
+      showWeekdayNames: showWeekdayNames ?? _this.showWeekdayNames,
       showOutsideDays: showOutsideDays ?? _this.showOutsideDays,
       formatMonthYear: formatMonthYear ?? _this.formatMonthYear,
       formatMonth: formatMonth ?? _this.formatMonth,
@@ -367,7 +367,7 @@ mixin _$CalendarTheme {
     }
 
     return copyWith(
-      hideNavigation: other.hideNavigation,
+      showNavigation: other.showNavigation,
       yearSelectorMinWidth: other.yearSelectorMinWidth,
       monthSelectorMinWidth: other.monthSelectorMinWidth,
       yearSelectorPadding: other.yearSelectorPadding,
@@ -439,7 +439,7 @@ mixin _$CalendarTheme {
       selectedDayButtonOutsideMonthVariant:
           other.selectedDayButtonOutsideMonthVariant,
       captionLayout: other.captionLayout,
-      hideWeekdayNames: other.hideWeekdayNames,
+      showWeekdayNames: other.showWeekdayNames,
       showOutsideDays: other.showOutsideDays,
       formatMonthYear: other.formatMonthYear,
       formatMonth: other.formatMonth,
@@ -467,7 +467,7 @@ mixin _$CalendarTheme {
     final _this = (this as CalendarTheme);
     final _other = (other as CalendarTheme);
 
-    return _other.hideNavigation == _this.hideNavigation &&
+    return _other.showNavigation == _this.showNavigation &&
         _other.yearSelectorMinWidth == _this.yearSelectorMinWidth &&
         _other.monthSelectorMinWidth == _this.monthSelectorMinWidth &&
         _other.yearSelectorPadding == _this.yearSelectorPadding &&
@@ -520,7 +520,7 @@ mixin _$CalendarTheme {
         _other.selectedDayButtonOutsideMonthVariant ==
             _this.selectedDayButtonOutsideMonthVariant &&
         _other.captionLayout == _this.captionLayout &&
-        _other.hideWeekdayNames == _this.hideWeekdayNames &&
+        _other.showWeekdayNames == _this.showWeekdayNames &&
         _other.showOutsideDays == _this.showOutsideDays &&
         _other.formatMonthYear == _this.formatMonthYear &&
         _other.formatMonth == _this.formatMonth &&
@@ -540,7 +540,7 @@ mixin _$CalendarTheme {
 
     return Object.hashAll([
       runtimeType,
-      _this.hideNavigation,
+      _this.showNavigation,
       _this.yearSelectorMinWidth,
       _this.monthSelectorMinWidth,
       _this.yearSelectorPadding,
@@ -585,7 +585,7 @@ mixin _$CalendarTheme {
       _this.dayButtonOutsideMonthVariant,
       _this.selectedDayButtonOutsideMonthVariant,
       _this.captionLayout,
-      _this.hideWeekdayNames,
+      _this.showWeekdayNames,
       _this.showOutsideDays,
       _this.formatMonthYear,
       _this.formatMonth,

@@ -155,9 +155,9 @@ class Calendar extends StatefulWidget {
     this.showWeekNumbers,
     this.showOutsideDays,
     this.fixedWeeks,
-    this.hideWeekdayNames,
+    this.showWeekdayNames,
     this.captionLayout,
-    this.hideNavigation,
+    this.showNavigation,
     this.reverseMonths = false,
     this.onMonthChanged,
     this.groupId,
@@ -188,9 +188,9 @@ class Calendar extends StatefulWidget {
     this.showWeekNumbers,
     this.showOutsideDays,
     this.fixedWeeks,
-    this.hideWeekdayNames,
+    this.showWeekdayNames,
     this.captionLayout,
-    this.hideNavigation,
+    this.showNavigation,
     this.reverseMonths = false,
     this.onMonthChanged,
     this.groupId,
@@ -221,9 +221,9 @@ class Calendar extends StatefulWidget {
     this.showWeekNumbers,
     this.showOutsideDays,
     this.fixedWeeks,
-    this.hideWeekdayNames,
+    this.showWeekdayNames,
     this.captionLayout,
-    this.hideNavigation,
+    this.showNavigation,
     this.reverseMonths = false,
     this.onMonthChanged,
     this.groupId,
@@ -312,15 +312,15 @@ class Calendar extends StatefulWidget {
   /// height from month to month. Needs [showOutsideDays].
   final bool? fixedWeeks;
 
-  /// Whether the row of weekday names is hidden.
-  final bool? hideWeekdayNames;
+  /// Whether the row of weekday names shows. Defaults to true.
+  final bool? showWeekdayNames;
 
   /// How the caption names the month: as a label, or with dropdowns for the
   /// month, the year or both.
   final CalendarCaptionLayout? captionLayout;
 
-  /// Whether the previous and next buttons are hidden.
-  final bool? hideNavigation;
+  /// Whether the previous and next buttons show. Defaults to true.
+  final bool? showNavigation;
 
   /// Whether, with several months, the latest shows first.
   final bool reverseMonths;
@@ -371,8 +371,8 @@ class _CalendarState extends State<Calendar> {
   bool get effectiveShowOutsideDays =>
       widget.showOutsideDays ?? _calendarTheme.showOutsideDays ?? true;
 
-  bool get effectiveHideWeekdayNames =>
-      widget.hideWeekdayNames ?? _calendarTheme.hideWeekdayNames ?? false;
+  bool get effectiveShowWeekdayNames =>
+      widget.showWeekdayNames ?? _calendarTheme.showWeekdayNames ?? true;
 
   bool get effectiveShowWeekNumbers =>
       widget.showWeekNumbers ?? _calendarTheme.showWeekNumbers ?? false;
@@ -662,8 +662,8 @@ class _CalendarState extends State<Calendar> {
         ? datesModels.reversed.toList()
         : datesModels;
 
-    final effectiveHideNavigation =
-        widget.hideNavigation ?? calendar.hideNavigation ?? false;
+    final effectiveShowNavigation =
+        widget.showNavigation ?? calendar.showNavigation ?? true;
 
     final effectiveYearSelectorMinWidth = calendar.yearSelectorMinWidth ?? 64;
 
@@ -961,7 +961,7 @@ class _CalendarState extends State<Calendar> {
           final labelNavigation = Row(
             textDirection: TextDirection.ltr,
             children: [
-              if (isFirstMonth && !effectiveHideNavigation) backButton,
+              if (isFirstMonth && effectiveShowNavigation) backButton,
               Expanded(
                 child: Center(
                   child: Text(
@@ -970,7 +970,7 @@ class _CalendarState extends State<Calendar> {
                   ),
                 ),
               ),
-              if (isLastMonth && !effectiveHideNavigation) forwardButton,
+              if (isLastMonth && effectiveShowNavigation) forwardButton,
             ],
           );
 
@@ -998,7 +998,7 @@ class _CalendarState extends State<Calendar> {
                             CalendarCaptionLayout.dropdown => Row(
                               textDirection: TextDirection.ltr,
                               children: [
-                                if (!effectiveHideNavigation) backButton,
+                                if (effectiveShowNavigation) backButton,
                                 Expanded(
                                   child: Center(
                                     child: Row(
@@ -1013,13 +1013,13 @@ class _CalendarState extends State<Calendar> {
                                     ),
                                   ),
                                 ),
-                                if (!effectiveHideNavigation) forwardButton,
+                                if (effectiveShowNavigation) forwardButton,
                               ],
                             ),
                             CalendarCaptionLayout.dropdownMonths => Row(
                               textDirection: TextDirection.ltr,
                               children: [
-                                if (!effectiveHideNavigation) backButton,
+                                if (effectiveShowNavigation) backButton,
                                 Expanded(
                                   child: Center(
                                     child: Row(
@@ -1039,13 +1039,13 @@ class _CalendarState extends State<Calendar> {
                                     ),
                                   ),
                                 ),
-                                if (!effectiveHideNavigation) forwardButton,
+                                if (effectiveShowNavigation) forwardButton,
                               ],
                             ),
                             CalendarCaptionLayout.dropdownYears => Row(
                               textDirection: TextDirection.ltr,
                               children: [
-                                if (!effectiveHideNavigation) backButton,
+                                if (effectiveShowNavigation) backButton,
                                 Expanded(
                                   child: Center(
                                     child: Row(
@@ -1065,7 +1065,7 @@ class _CalendarState extends State<Calendar> {
                                     ),
                                   ),
                                 ),
-                                if (!effectiveHideNavigation) forwardButton,
+                                if (effectiveShowNavigation) forwardButton,
                               ],
                             ),
                           },
@@ -1073,7 +1073,7 @@ class _CalendarState extends State<Calendar> {
                 ),
                 // week days
                 Offstage(
-                  offstage: effectiveHideWeekdayNames,
+                  offstage: !effectiveShowWeekdayNames,
                   child: Padding(
                     padding: effectiveWeekdaysPadding,
                     child: Row(
