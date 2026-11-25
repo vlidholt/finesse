@@ -45,6 +45,24 @@ void main() {
     },
   );
 
+  test('a plain override keeps the superellipse shape', () {
+    const ring = FinesseRoundedSuperellipseBorder(side: side, offset: 2);
+    final merged = ring.merge(const FinesseBorder(borderRadius: radius));
+    expect(merged, isA<FinesseRoundedSuperellipseBorder>());
+    expect((merged as FinesseRoundedSuperellipseBorder).side, side);
+    expect(merged.borderRadius, radius);
+    expect(merged.offset, 2);
+
+    const wider = FinesseBorderSide(width: 3);
+    final recoloured = ring.merge(
+      const FinesseBorder(top: wider, right: wider, bottom: wider, left: wider),
+    );
+    expect(
+      (recoloured as FinesseRoundedSuperellipseBorder).side,
+      side.merge(wider),
+    );
+  });
+
   test('the offset is part of the equality of a superellipse border', () {
     expect(
       const FinesseRoundedSuperellipseBorder(offset: 1),

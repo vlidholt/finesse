@@ -262,6 +262,21 @@ class FinesseBorder {
         offset: other.offset ?? offset,
       );
     }
+    if (this case final FinesseRoundedSuperellipseBorder border) {
+      // A plain override keeps the superellipse shape. It has one side for
+      // every edge, so the override's sides apply only when they agree.
+      final uniform =
+          other.top == other.right &&
+          other.top == other.bottom &&
+          other.top == other.left;
+      final otherSide = uniform ? other.top : null;
+      return FinesseRoundedSuperellipseBorder(
+        side: border.side?.merge(otherSide) ?? otherSide,
+        borderRadius: other.borderRadius ?? borderRadius,
+        padding: other.padding ?? padding,
+        offset: other.offset ?? offset,
+      );
+    }
     return copyWith(
       // The merged result is always mergeable again: [other] opted into the
       // merge (checked above), so the combination stays open to further

@@ -630,7 +630,8 @@ Problems inherited from shad:
 - Toasts had their shadow clipped off.
 - Merging a `FinesseRoundedSuperellipseBorder` dropped its `offset` and
   `padding`, so a focus ring drawn with one collapsed onto the element's
-  own border.
+  own border, and a plain `FinesseBorder` merged into one replaced the
+  superellipse with a rectangle.
 - A `Dialog` on a narrow screen, an open `Tooltip` and a `FinesseApp` given
   no theme derived the whole theme again on every build, and the page,
   dialog and `showPopover` routes set their transition up again on every
