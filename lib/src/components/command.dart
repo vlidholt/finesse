@@ -230,11 +230,11 @@ class Command extends StatefulWidget {
   }
 
   @override
-  State<Command> createState() => CommandState();
+  State<Command> createState() => _CommandState();
 }
 
 /// The state of a [Command].
-class CommandState extends State<Command> {
+class _CommandState extends State<Command> {
   TextEditingController? _internalController;
 
   /// The controller of the search field: [Command.controller] when given,

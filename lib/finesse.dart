@@ -35,7 +35,7 @@ export 'package:two_dimensional_scrollables/two_dimensional_scrollables.dart'
 
 export 'src/app.dart';
 // Components
-export 'src/components/accordion.dart';
+export 'src/components/accordion.dart' hide AccordionState;
 export 'src/components/action_sheet.dart';
 export 'src/components/alert.dart';
 export 'src/components/app_bar.dart';
@@ -56,10 +56,11 @@ export 'src/components/chat_list.dart';
 export 'src/components/checkbox.dart';
 export 'src/components/chip.dart';
 export 'src/components/chip_group.dart';
-export 'src/components/collapsible.dart';
+export 'src/components/collapsible.dart' hide CollapsibleState;
 export 'src/components/color_picker.dart';
 export 'src/components/command.dart';
-export 'src/components/context_menu.dart' hide MenuItemController;
+export 'src/components/context_menu.dart'
+    hide ContextMenuState, MenuItemController;
 export 'src/components/control_affinity.dart' show ControlAffinity;
 export 'src/components/control_list_tiles.dart';
 export 'src/components/data_table.dart';
@@ -74,22 +75,28 @@ export 'src/components/dropdown_menu.dart';
 export 'src/components/empty.dart';
 export 'src/components/floating_action_button.dart';
 export 'src/components/form/field.dart';
-export 'src/components/form/fields/checkbox.dart';
-export 'src/components/form/fields/date_picker.dart';
-export 'src/components/form/fields/date_range_picker.dart';
-export 'src/components/form/fields/number_field.dart';
-export 'src/components/form/fields/otp_field.dart';
-export 'src/components/form/fields/radio.dart';
-export 'src/components/form/fields/segmented_control.dart';
-export 'src/components/form/fields/select.dart';
-export 'src/components/form/fields/slider.dart';
-export 'src/components/form/fields/switch.dart';
-export 'src/components/form/fields/text_field.dart';
-export 'src/components/form/fields/textarea.dart';
-export 'src/components/form/fields/time_field.dart';
-export 'src/components/form/fields/time_picker.dart';
-export 'src/components/form/fields/toggle_group.dart';
-export 'src/components/form/form.dart';
+export 'src/components/form/fields/checkbox.dart' hide CheckboxFormFieldState;
+export 'src/components/form/fields/date_picker.dart'
+    hide DatePickerFormFieldState;
+export 'src/components/form/fields/date_range_picker.dart'
+    hide DateRangePickerFormFieldState;
+export 'src/components/form/fields/number_field.dart' hide NumberFormFieldState;
+export 'src/components/form/fields/otp_field.dart' hide OtpFormFieldState;
+export 'src/components/form/fields/radio.dart' hide RadioGroupFormFieldState;
+export 'src/components/form/fields/segmented_control.dart'
+    hide SegmentedControlFormFieldState;
+export 'src/components/form/fields/select.dart'
+    hide SelectFormFieldState, SelectMultipleFormFieldState;
+export 'src/components/form/fields/slider.dart' hide SliderFormFieldState;
+export 'src/components/form/fields/switch.dart' hide SwitchFormFieldState;
+export 'src/components/form/fields/text_field.dart' hide TextFormFieldState;
+export 'src/components/form/fields/textarea.dart' hide TextareaFormFieldState;
+export 'src/components/form/fields/time_field.dart' hide TimeFormFieldState;
+export 'src/components/form/fields/time_picker.dart'
+    hide TimePickerFormFieldState;
+export 'src/components/form/fields/toggle_group.dart'
+    hide ToggleGroupFormFieldState;
+export 'src/components/form/form.dart' hide FormScope;
 export 'src/components/glass.dart';
 export 'src/components/hover_card.dart';
 export 'src/components/icon_button.dart';
@@ -114,19 +121,20 @@ export 'src/components/pagination.dart';
 export 'src/components/picker.dart'
     show PickerPresentation, PickerTriggerBuilder;
 export 'src/components/popover.dart';
-export 'src/components/progress_bar.dart';
+export 'src/components/progress_bar.dart'
+    hide DeterminateProgressBar, IndeterminateProgressBar;
 export 'src/components/progress_ring.dart';
 export 'src/components/radio.dart';
 export 'src/components/rating.dart';
 export 'src/components/refresh_indicator.dart';
 export 'src/components/reorderable_list_view.dart';
-export 'src/components/resizable.dart';
+export 'src/components/resizable.dart' hide PanelInfo, ResizeResult;
 export 'src/components/scaffold.dart';
 export 'src/components/scroll_area.dart';
 export 'src/components/search_field.dart';
 export 'src/components/search_view.dart';
 export 'src/components/segmented_control.dart';
-export 'src/components/select.dart';
+export 'src/components/select.dart' hide SelectState;
 export 'src/components/selection_area.dart';
 export 'src/components/sheet.dart';
 export 'src/components/sidebar.dart';
@@ -136,7 +144,7 @@ export 'src/components/sliver_app_bar.dart';
 export 'src/components/spinner.dart';
 export 'src/components/stepper.dart';
 export 'src/components/streaming_text.dart';
-export 'src/components/surface.dart';
+export 'src/components/surface.dart' hide SurfacePainter;
 export 'src/components/swipe_actions.dart';
 export 'src/components/switch.dart';
 export 'src/components/tab_bar.dart';
@@ -148,7 +156,7 @@ export 'src/components/tag_field.dart';
 export 'src/components/text_field.dart';
 export 'src/components/text_magnifier.dart';
 export 'src/components/text_selection.dart';
-export 'src/components/textarea.dart' hide ResizeGripPainter;
+export 'src/components/textarea.dart';
 export 'src/components/time_field.dart';
 export 'src/components/time_picker.dart';
 export 'src/components/time_wheel_picker.dart';
@@ -285,8 +293,9 @@ export 'src/utils/extensions/breakpoints.dart';
 export 'src/utils/gesture_detector.dart';
 export 'src/utils/input_formatters.dart';
 export 'src/utils/motion_color.dart';
-export 'src/utils/mouse_area.dart' show MouseArea, MouseAreaSurface;
-export 'src/utils/moving_indicator.dart';
+export 'src/utils/mouse_area.dart' show MouseArea;
+export 'src/utils/moving_indicator.dart'
+    hide RenderMovingIndicator, RenderMovingIndicatorTarget;
 export 'src/utils/overlay_insets.dart';
 export 'src/utils/pop_in.dart';
 export 'src/utils/position.dart' hide PositionedExt;

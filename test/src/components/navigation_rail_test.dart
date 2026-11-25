@@ -1,6 +1,7 @@
 import 'dart:ui' as ui;
 
 import 'package:finesse/finesse.dart';
+import 'package:finesse/src/utils/moving_indicator.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';

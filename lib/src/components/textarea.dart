@@ -705,7 +705,7 @@ class _TextareaState extends State<Textarea> {
                 behavior: HitTestBehavior.translucent,
                 child: widget.resizeHandleBuilder != null
                     ? Builder(builder: widget.resizeHandleBuilder!)
-                    : const DefaultResizeGrip(),
+                    : const _DefaultResizeGrip(),
               ),
             ),
           ),
@@ -719,9 +719,9 @@ class _TextareaState extends State<Textarea> {
 ///
 /// This widget appears in the bottom-right corner and allows
 /// the user to drag and resize the textarea vertically.
-class DefaultResizeGrip extends StatelessWidget {
+class _DefaultResizeGrip extends StatelessWidget {
   /// Creates the default resize grip.
-  const DefaultResizeGrip({super.key});
+  const _DefaultResizeGrip();
 
   @override
   Widget build(BuildContext context) {
@@ -731,40 +731,28 @@ class DefaultResizeGrip extends StatelessWidget {
       width: 8,
       height: 8,
       child: CustomPaint(
-        painter: ResizeGripPainter(color: theme.colorScheme.ring),
+        painter: _ResizeGripPainter(color: theme.colorScheme.ring),
       ),
     );
   }
 }
 
-/// A customizable painter for drawing diagonal resize grip lines,
-/// typically used in the bottom-right corner of a resizable widget.
-class ResizeGripPainter extends CustomPainter {
-  /// Creates a painter that draws multiple diagonal lines to represent a resize
-  /// grip.
-  ///
-  /// - [color]: The color of the lines.
-  /// - [strokeWidth]: Thickness of each grip line. Default is 0.8.
-  /// - [lineCount]: Number of diagonal lines to draw. Default is 3.
-  /// - [spacing]: Spacing between each line. Default is 4.0.
-  const ResizeGripPainter({
-    required this.color,
-    this.strokeWidth = 0.8,
-    this.lineCount = 3,
-    this.spacing = 4.0,
-  });
+/// Paints the diagonal lines of the resize grip in the bottom-right corner
+/// of a resizable [Textarea].
+class _ResizeGripPainter extends CustomPainter {
+  const _ResizeGripPainter({required this.color});
 
   /// The color of the grip lines.
   final Color color;
 
   /// The thickness of the lines.
-  final double strokeWidth;
+  static const strokeWidth = 0.8;
 
   /// The number of diagonal lines in the grip.
-  final int lineCount;
+  static const lineCount = 3;
 
   /// The spacing between each grip line.
-  final double spacing;
+  static const spacing = 4.0;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -783,10 +771,7 @@ class ResizeGripPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant ResizeGripPainter oldDelegate) {
-    return oldDelegate.color != color ||
-        oldDelegate.strokeWidth != strokeWidth ||
-        oldDelegate.lineCount != lineCount ||
-        oldDelegate.spacing != spacing;
+  bool shouldRepaint(covariant _ResizeGripPainter oldDelegate) {
+    return oldDelegate.color != color;
   }
 }

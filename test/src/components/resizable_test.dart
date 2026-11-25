@@ -1,6 +1,9 @@
 import 'package:finesse/material.dart';
 import 'package:finesse/src/app.dart';
 import 'package:finesse/src/components/resizable.dart';
+import 'package:finesse/src/icons/phosphor_icons.dart';
+import 'package:finesse/src/theme/components/resizable.dart';
+import 'package:finesse/src/theme/data.dart' as f;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -348,6 +351,109 @@ void main() {
         controller.getPanelInfo(0).size,
         greaterThan(controller.getPanelInfo(1).size),
       );
+    });
+
+    testWidgets('the controller reads, sets and resets the sizes', (
+      tester,
+    ) async {
+      final controller = ResizableController();
+      addTearDown(controller.dispose);
+      expect(controller.sizes, isEmpty);
+      var notified = 0;
+      controller.addListener(() => notified++);
+
+      await tester.pumpWidget(
+        createTestWidget(
+          SizedBox(
+            width: 400,
+            height: 100,
+            child: ResizablePanelGroup(
+              controller: controller,
+              children: const [
+                ResizablePanel(
+                  id: 1,
+                  defaultSize: 0.5,
+                  child: SizedBox.expand(key: ValueKey('one')),
+                ),
+                ResizablePanel(
+                  id: 2,
+                  defaultSize: 0.5,
+                  minSize: .2,
+                  child: SizedBox.expand(key: ValueKey('two')),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+      expect(controller.sizes, [0.5, 0.5]);
+      final one = find.byKey(const ValueKey('one'));
+      final two = find.byKey(const ValueKey('two'));
+      expect(tester.getSize(one).width, tester.getSize(two).width);
+
+      notified = 0;
+      controller.setSizes([0.75, 0.25]);
+      await tester.pump();
+      expect(notified, 1);
+      expect(controller.sizes, [0.75, 0.25]);
+      expect(
+        tester.getSize(one).width,
+        closeTo(tester.getSize(two).width * 3, 1),
+      );
+
+      // A size outside the panel's own limits is refused.
+      expect(() => controller.setSizes([0.9, 0.1]), throwsException);
+
+      controller.reset();
+      await tester.pump();
+      expect(controller.sizes, [0.5, 0.5]);
+      expect(tester.getSize(one).width, tester.getSize(two).width);
+    });
+
+    testWidgets("the theme's handleIcon replaces the grip", (tester) async {
+      const icon = SizedBox(key: ValueKey('grip'), width: 6, height: 20);
+      Widget group({Widget? handleIcon}) => SizedBox(
+        width: 400,
+        height: 100,
+        child: ResizablePanelGroup(
+          showHandle: true,
+          handleIcon: handleIcon,
+          children: const [
+            ResizablePanel(id: 1, defaultSize: 0.5, child: SizedBox.expand()),
+            ResizablePanel(id: 2, defaultSize: 0.5, child: SizedBox.expand()),
+          ],
+        ),
+      );
+
+      await tester.pumpWidget(createTestWidget(group()));
+      expect(find.byIcon(PhosphorIconsRegular.dotsSixVertical), findsOneWidget);
+
+      await tester.pumpWidget(
+        FinesseApp(
+          theme: f.ThemeData(
+            resizableTheme: const ResizableTheme(handleIcon: icon),
+          ),
+          home: group(),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.byKey(const ValueKey('grip')), findsOneWidget);
+      expect(find.byIcon(PhosphorIconsRegular.dotsSixVertical), findsNothing);
+
+      // The widget's own handle wins over the theme's.
+      await tester.pumpWidget(
+        FinesseApp(
+          theme: f.ThemeData(
+            resizableTheme: const ResizableTheme(handleIcon: icon),
+          ),
+          home: group(
+            handleIcon: const SizedBox(key: ValueKey('own'), width: 4),
+          ),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.byKey(const ValueKey('own')), findsOneWidget);
+      expect(find.byKey(const ValueKey('grip')), findsNothing);
     });
   });
 }

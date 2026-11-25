@@ -7,9 +7,14 @@ import 'package:finesse/src/utils/border.dart';
 import 'package:finesse/src/utils/extensions/double.dart';
 import 'package:finesse/src/utils/mouse_cursor_provider.dart';
 import 'package:finesse/src/utils/provider.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
-/// The result of resizing a panel
+/// The result of resizing a panel.
+///
+/// Plumbing between a [ResizablePanelGroup] and its controller; not part
+/// of the package's public API.
+@internal
 enum ResizeResult {
   /// The whole drag distance was applied.
   success,
@@ -23,7 +28,12 @@ enum ResizeResult {
   failedTrailing,
 }
 
-/// The size information of a panel
+/// The size information of a panel.
+///
+/// Plumbing between a [ResizablePanelGroup] and its controller; not part
+/// of the package's public API. Read sizes with
+/// [ResizableController.sizes].
+@internal
 class PanelInfo {
   /// Creates the size information of a panel. All sizes are fractions of the
   /// group, from 0 to 1.
@@ -89,20 +99,56 @@ class PanelInfo {
 /// them.
 ///
 /// Pass one to [ResizablePanelGroup.controller] to read or change the
-/// sizes from outside. When none is given, the group creates its own.
+/// sizes from outside: [sizes] are the current fractions, [setSizes] applies
+/// new ones and [reset] goes back to each panel's default. It notifies its
+/// listeners whenever a size changes. When none is given, the group creates
+/// its own.
 class ResizableController extends ChangeNotifier {
   /// Creates a controller with no panels.
   ResizableController();
 
   /// The size information of each panel, in layout order.
+  @internal
   final panelsInfo = <PanelInfo>[];
 
   /// The default size of each panel, in layout order. Used to reset sizes.
   final defaultSizes = <double>[];
 
+  /// The size of each panel as a fraction of the group, in layout order.
+  ///
+  /// Empty until a [ResizablePanelGroup] has been built with this
+  /// controller.
+  List<double> get sizes => [for (final panel in panelsInfo) panel.size];
+
+  /// Gives each panel the size at its index in [sizes], a fraction of the
+  /// group, and notifies listeners.
+  ///
+  /// There must be one size per panel, each within the panel's minimum and
+  /// maximum.
+  void setSizes(List<double> sizes) {
+    assert(
+      sizes.length == panelsInfo.length,
+      'setSizes was given ${sizes.length} sizes for ${panelsInfo.length} '
+      'panels.',
+    );
+    for (var i = 0; i < sizes.length && i < panelsInfo.length; i++) {
+      panelsInfo[i].size = sizes[i];
+    }
+    notifyListeners();
+  }
+
+  /// Gives every panel its default size again and notifies listeners.
+  void reset() {
+    for (var i = 0; i < panelsInfo.length; i++) {
+      panelsInfo[i]._size = defaultSizes[i];
+    }
+    notifyListeners();
+  }
+
   /// {@template ResizableController.registerPanel}
   /// This method adds a new panel to the controller and returns its index.
   /// {@endtemplate}
+  @internal
   int registerPanel(PanelInfo info) {
     panelsInfo.add(info);
     defaultSizes.add(info.defaultSize);
@@ -110,6 +156,7 @@ class ResizableController extends ChangeNotifier {
   }
 
   /// Inserts a panel at [index] and notifies listeners.
+  @internal
   void insertPanel(int index, PanelInfo info) {
     panelsInfo.insert(index, info);
     defaultSizes.insert(index, info.defaultSize);
@@ -119,6 +166,7 @@ class ResizableController extends ChangeNotifier {
   /// Removes the panel with the given [id] and notifies listeners.
   ///
   /// Does nothing if no panel has that id.
+  @internal
   void unregisterPanel(Object id) {
     final index = panelsInfo.indexWhere((e) => e.id == id);
     if (index == -1) return;
@@ -131,6 +179,7 @@ class ResizableController extends ChangeNotifier {
   /// This method retrieves the information of a panel at the specified index.
   /// Throws an exception if the index is out of bounds.
   /// {@endtemplate}
+  @internal
   PanelInfo getPanelInfo(int index) {
     final contains = panelsInfo.length > index;
     if (!contains) throw Exception('Panel info not found for index: $index');
@@ -138,6 +187,7 @@ class ResizableController extends ChangeNotifier {
   }
 
   /// Update the panel info with the given [panels]
+  @internal
   void update(List<PanelInfo> panels) {
     clear();
     panels.forEach(registerPanel);
@@ -145,6 +195,7 @@ class ResizableController extends ChangeNotifier {
   }
 
   /// Clear all the panel info and default sizes
+  @internal
   void clear() {
     panelsInfo.clear();
     defaultSizes.clear();
@@ -165,6 +216,7 @@ class ResizableController extends ChangeNotifier {
   ///
   /// [pivotIndices] is the pair of panel indices adjacent to the dragged
   /// divider: `[leadingIndex, trailingIndex]`.
+  @internal
   ResizeResult resize({
     required double delta,
     required List<double> initialLayout,
@@ -325,6 +377,7 @@ class ResizableController extends ChangeNotifier {
   }
 
   /// Reset the default sizes of the leading and trailing panels.
+  @internal
   void resetDefaultSizes(int leadingIndex, int trailingIndex) {
     assert(
       (leadingIndex - trailingIndex).abs() == 1,
@@ -341,10 +394,12 @@ class ResizableController extends ChangeNotifier {
   ///
   /// The group sets this value during layout. It converts drag distances into
   /// fractions.
+  @internal
   double totalAvailableWidth = 0;
 
   /// The total size of all registered panels, used to calculate available
   /// space for resizing.
+  @internal
   double get base => panelsInfo
       .fold<double>(
         0,
@@ -435,7 +490,7 @@ class ResizablePanelGroup extends StatefulWidget {
   /// {@template ResizablePanelGroup.handleIcon}
   /// A custom widget to use as the resize handle.
   /// If provided, this will be displayed instead of the default grip and
-  /// its decoration.
+  /// its decoration. Defaults to `ResizableTheme.handleIcon`.
   /// {@endtemplate}
   final Widget? handleIcon;
 
@@ -480,22 +535,19 @@ class ResizablePanelGroup extends StatefulWidget {
   final double? handleSize;
 
   @override
-  ResizablePanelGroupState createState() => ResizablePanelGroupState();
+  State<ResizablePanelGroup> createState() => _ResizablePanelGroupState();
 }
 
-/// The state of a [ResizablePanelGroup].
-class ResizablePanelGroupState extends State<ResizablePanelGroup> {
+class _ResizablePanelGroupState extends State<ResizablePanelGroup> {
   ResizableController? _internalController;
 
   /// Sets the mouse cursor while a divider is dragged.
   late final mouseCursorController = context.read<MouseCursorController>();
 
   /// Whether a divider is being dragged.
-  @protected
   final dragging = ValueNotifier<bool>(false);
 
   /// The constraints of the group from the last layout.
-  @protected
   BoxConstraints? currentConstraints;
 
   /// Snapshot of panel sizes at drag start (absolute-delta approach).
@@ -585,12 +637,6 @@ class ResizablePanelGroupState extends State<ResizablePanelGroup> {
       );
     }
   }
-
-  /// {@macro ResizableController.registerPanel}
-  int registerPanel(PanelInfo info) => controller.registerPanel(info);
-
-  /// {@macro ResizableController.getPanelInfo}
-  PanelInfo getPanelInfo(int index) => controller.getPanelInfo(index);
 
   /// Starts a drag of the divider after the panel at [index].
   ///
@@ -795,6 +841,7 @@ class ResizablePanelGroupState extends State<ResizablePanelGroup> {
             // lazy, will be initialized when the handle is needed
             late final handle =
                 widget.handleIcon ??
+                theme.resizableTheme.handleIcon ??
                 Decorator(
                   decoration: effectiveHandleDecoration,
                   child: Padding(
