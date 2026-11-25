@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:finesse/finesse.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -606,6 +608,91 @@ void main() {
       await _backGesture(tester, 'cancelBackGesture');
       await tester.pumpAndSettle();
       expect(find.byKey(_page), findsOneWidget);
+    });
+
+    testWidgets('closes a dialog on the root navigator, not the page under '
+        'it in a nested one', (tester) async {
+      _phone(tester);
+      final nested = GlobalKey<NavigatorState>();
+      await tester.pumpWidget(
+        FinesseApp(
+          navigatorKey: _navigator,
+          home: Navigator(
+            key: nested,
+            onGenerateRoute: (_) => FinessePageRoute<void>(
+              builder: (_) => const SizedBox.expand(key: _home),
+            ),
+          ),
+        ),
+      );
+      nested.currentState!.push(
+        FinessePageRoute<void>(
+          builder: (_) => const SizedBox.expand(key: _page),
+        ),
+      );
+      await tester.pumpAndSettle();
+      unawaited(
+        showDialog<void>(
+          context: nested.currentContext!,
+          builder: (_) => const SizedBox.square(
+            dimension: 100,
+            key: Key('dialog'),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await _backGesture(tester, 'startBackGesture');
+      await _backGesture(tester, 'updateBackGestureProgress', .5);
+      expect(nested.currentState!.userGestureInProgress, isFalse);
+      expect(_painted(tester, find.byKey(_page)).width, 390);
+      await _backGesture(tester, 'commitBackGesture');
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('dialog')), findsNothing);
+      expect(find.byKey(_page), findsOneWidget);
+    });
+
+    testWidgets('is not answered by a page in a tab that is not shown', (
+      tester,
+    ) async {
+      _phone(tester);
+      final tabs = [GlobalKey<NavigatorState>(), GlobalKey<NavigatorState>()];
+      await tester.pumpWidget(
+        FinesseApp(
+          home: IndexedStack(
+            index: 1,
+            children: [
+              for (final tab in tabs)
+                Navigator(
+                  key: tab,
+                  onGenerateRoute: (_) => FinessePageRoute<void>(
+                    builder: (_) => const SizedBox.expand(),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      );
+      for (final (i, tab) in tabs.indexed) {
+        tab.currentState!.push(
+          FinessePageRoute<void>(
+            builder: (_) => SizedBox.expand(key: Key('page $i')),
+          ),
+        );
+      }
+      await tester.pumpAndSettle();
+
+      await _backGesture(tester, 'startBackGesture');
+      await _backGesture(tester, 'updateBackGestureProgress', .5);
+      expect(tabs[0].currentState!.userGestureInProgress, isFalse);
+      expect(tabs[1].currentState!.userGestureInProgress, isTrue);
+      await _backGesture(tester, 'commitBackGesture');
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const Key('page 0'), skipOffstage: false),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key('page 1')), findsNothing);
     });
   });
 
