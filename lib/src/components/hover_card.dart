@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:finesse/src/components/popover.dart';
 import 'package:finesse/src/raw_components/portal.dart';
 import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/route_on_top.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -234,7 +235,14 @@ class _HoverCardState extends State<HoverCard> {
     if (event is! KeyDownEvent ||
         event.logicalKey != LogicalKeyboardKey.escape ||
         !_controller.isOpen ||
-        _focusNode.hasFocus) {
+        _focusNode.hasFocus ||
+        !mounted ||
+        // An early handler hears the key wherever the focus is: under a
+        // dialog, or in a part of the tree that is not shown, the key is
+        // someone else's.
+        !TickerMode.valuesOf(context).enabled ||
+        !Visibility.of(context) ||
+        !isInTopRoute(context)) {
       return KeyEventResult.ignored;
     }
     _closeNow();

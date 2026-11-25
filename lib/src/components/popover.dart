@@ -489,10 +489,20 @@ class _PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
     if (widget.exitDuration != oldWidget.exitDuration) {
       _syncExitDuration();
     }
-    if (widget.controller != null &&
-        widget.controller != oldWidget.controller) {
-      oldWidget.controller?.removeListener(_onPopoverToggle);
-      widget.controller!.addListener(_onPopoverToggle);
+    if (widget.controller != oldWidget.controller) {
+      // To a controller of the caller's, from one or from this popover's
+      // own; or back to an own one, which carries on from where the
+      // caller's was.
+      final previous = oldWidget.controller ?? _controller!;
+      previous.removeListener(_onPopoverToggle);
+      if (widget.controller == null) {
+        _controller = PopoverController(isOpen: previous.isOpen);
+      } else if (oldWidget.controller == null) {
+        _controller!.dispose();
+        _controller = null;
+      }
+      controller.addListener(_onPopoverToggle);
+      if (controller.isOpen != previous.isOpen) _onPopoverToggle();
     }
 
     if (widget.open != null) {

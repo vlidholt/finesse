@@ -5,6 +5,7 @@ import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/entrance.dart';
+import 'package:finesse/src/utils/route_on_top.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
@@ -666,11 +667,24 @@ class _BackGestureDetectorState extends State<_BackGestureDetector>
   }
 
   // The system's predictive back gesture. Every page listens; the one on
-  // top that can go back answers.
+  // top that can go back answers. Every observer that answers is told the
+  // rest of the gesture, so a page that is current only in its own
+  // navigator must not: under a dialog on the root navigator, or in a tab
+  // an `IndexedStack` is not showing.
 
   @override
-  bool handleStartBackGesture(PredictiveBackEvent backEvent) =>
-      widget.route._predictiveStart(backEvent);
+  bool handleStartBackGesture(PredictiveBackEvent backEvent) {
+    if (!_onTop) return false;
+    return widget.route._predictiveStart(backEvent);
+  }
+
+  bool get _onTop =>
+      mounted &&
+      TickerMode.valuesOf(context).enabled &&
+      Visibility.of(context) &&
+      // The transitions are built around the page, outside the route's
+      // subtree.
+      isInTopRoute(widget.route.subtreeContext ?? context);
 
   @override
   void handleUpdateBackGestureProgress(PredictiveBackEvent backEvent) =>

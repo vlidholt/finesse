@@ -17,6 +17,7 @@ import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/content_switch.dart';
 import 'package:finesse/src/utils/debug_check.dart';
 import 'package:finesse/src/utils/moving_indicator.dart';
+import 'package:finesse/src/utils/route_on_top.dart';
 import 'package:finesse/src/utils/spring.dart';
 import 'package:finesse/src/utils/spring_size.dart';
 import 'package:flutter/rendering.dart';
@@ -464,7 +465,14 @@ class _NavigationMenuState extends State<NavigationMenu>
     if (event is! KeyDownEvent ||
         event.logicalKey != LogicalKeyboardKey.escape ||
         _open == null ||
-        _panelNode.hasFocus) {
+        _panelNode.hasFocus ||
+        !mounted ||
+        // An early handler hears the key wherever the focus is: under a
+        // dialog, or in a part of the tree that is not shown, the key is
+        // someone else's.
+        !TickerMode.valuesOf(context).enabled ||
+        !Visibility.of(context) ||
+        !isInTopRoute(context)) {
       return KeyEventResult.ignored;
     }
     _close();
@@ -549,6 +557,14 @@ class _NavigationMenuState extends State<NavigationMenu>
   Widget build(BuildContext context) {
     assert(debugCheckHasTheme(context));
     if (_collapsed) {
+      // The row and its panel are gone; a panel left open would go on
+      // answering Escape for a popover nobody sees. Not during build:
+      // closing reports to the parent.
+      if (_open != null) {
+        SchedulerBinding.instance.addPostFrameCallback((_) {
+          if (mounted && _collapsed) _close();
+        });
+      }
       return _CollapsedMenu(
         items: widget.items,
         semanticLabel: widget.semanticLabel,

@@ -258,6 +258,59 @@ void main() {
     expect(submenu.right, lessThanOrEqualTo(parent.left + 9));
   });
 
+  testWidgets('ContextMenuTheme.subMenuPadding pads a submenu, and only a '
+      'submenu', (tester) async {
+    final controller = PopoverController();
+    addTearDown(controller.dispose);
+    await tester.pumpWidget(
+      FinesseApp(
+        theme: ThemeData(
+          contextMenuTheme: const ContextMenuTheme(
+            padding: EdgeInsets.symmetric(vertical: 4),
+            subMenuPadding: EdgeInsets.symmetric(vertical: 20),
+          ),
+        ),
+        home: Align(
+          alignment: Alignment.topLeft,
+          child: ContextMenu(
+            controller: controller,
+            items: const [
+              MenuItem(
+                items: [MenuItem(child: Text('Nested'))],
+                child: Text('More'),
+              ),
+            ],
+            child: const SizedBox(width: 10, height: 10),
+          ),
+        ),
+      ),
+    );
+    controller.openAt(const Offset(100, 100));
+    await tester.pumpAndSettle();
+    final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    addTearDown(mouse.removePointer);
+    await mouse.addPointer(location: Offset.zero);
+    await mouse.moveTo(tester.getCenter(find.text('More')));
+    await tester.pumpAndSettle();
+
+    // From the top of a menu's surface to the top of its list.
+    double inset(String item) {
+      final list = find
+          .ancestor(
+            of: find.text(item),
+            matching: find.byType(SingleChildScrollView),
+          )
+          .first;
+      final surface = find
+          .ancestor(of: list, matching: find.byType(Decorator))
+          .first;
+      return tester.getRect(list).top - tester.getRect(surface).top;
+    }
+
+    expect(inset('More'), moreOrLessEquals(4, epsilon: 1.5));
+    expect(inset('Nested'), moreOrLessEquals(20, epsilon: 1.5));
+  });
+
   group('moving to another row', () {
     Future<TestGesture> openFirst(WidgetTester tester) async {
       final controller = PopoverController();

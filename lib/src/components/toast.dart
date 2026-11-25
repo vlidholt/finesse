@@ -380,6 +380,12 @@ class ToasterState extends State<Toaster> with TickerProviderStateMixin {
   /// Oldest first, toasts on their way out included.
   final _entries = <_ToastEntry>[];
 
+  /// Toasts shown while the tree was being built, which join [_entries]
+  /// after the frame. They are found by id from the moment they are shown:
+  /// two widgets that show the same id in one build give one toast, and
+  /// the id that `show` returned can be updated or dismissed at once.
+  final _pending = <_ToastEntry>[];
+
   /// How open the stack is: 0 closed, 1 every toast laid out by itself.
   late final _expansion = SpringController(vsync: this);
 
@@ -439,10 +445,11 @@ class ToasterState extends State<Toaster> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    for (final entry in _entries) {
+    for (final entry in [..._entries, ..._pending]) {
       entry.dispose();
     }
     _entries.clear();
+    _pending.clear();
     _syncShortcut();
     _scope.dispose();
     _expansion.dispose();
@@ -459,7 +466,7 @@ class ToasterState extends State<Toaster> with TickerProviderStateMixin {
   /// The toasts on screen or waiting behind the stack, newest last. Toasts
   /// that are leaving are not among them.
   List<Toast> get toasts => [
-    for (final entry in _entries)
+    for (final entry in [..._entries, ..._pending])
       if (!entry.leaving) entry.toast,
   ];
 
@@ -513,7 +520,7 @@ class ToasterState extends State<Toaster> with TickerProviderStateMixin {
   )!;
 
   _ToastEntry? _find(Object id) {
-    for (final entry in _entries) {
+    for (final entry in [..._entries, ..._pending]) {
       if (!entry.leaving && entry.id == id) return entry;
     }
     return null;
@@ -600,7 +607,10 @@ class ToasterState extends State<Toaster> with TickerProviderStateMixin {
     entry.fade.addStatusListener((status) {
       if (status == AnimationStatus.dismissed && entry.leaving) _remove(entry);
     });
+    _pending.add(entry);
     _mutate(() {
+      // Dismissed before it got here.
+      if (!_pending.remove(entry)) return;
       _entries.add(entry);
       _syncShortcut();
       if (motion.normal <= Duration.zero) {
@@ -650,7 +660,7 @@ class ToasterState extends State<Toaster> with TickerProviderStateMixin {
 
   /// Dismisses every toast. The future completes when the last has left.
   Future<void> dismissAll() => Future.wait([
-    for (final entry in _entries.toList())
+    for (final entry in [..._entries, ..._pending])
       if (!entry.leaving) _dismiss(entry),
   ]);
 
@@ -683,6 +693,12 @@ class ToasterState extends State<Toaster> with TickerProviderStateMixin {
   }
 
   void _remove(_ToastEntry entry) {
+    if (_pending.remove(entry)) {
+      // Never shown: nothing on screen to take down.
+      entry.dispose();
+      if (!entry.gone.isCompleted) entry.gone.complete();
+      return;
+    }
     if (!_entries.remove(entry)) return;
     if (entry.focusNode.hasFocus) _returnFocus();
     entry.dispose();

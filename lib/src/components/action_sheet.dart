@@ -129,6 +129,14 @@ Future<T?> showActionSheet<T>({
   }
 
   if (anchorRect != null) {
+    // As above, the action runs once the menu has closed: a row's own
+    // `onPressed` runs before its menu closes.
+    ActionSheetAction<T>? chosen;
+    // The default action stands out as it does in a sheet.
+    final emphasized =
+        (theme.contextMenuTheme.textStyle ?? theme.textTheme.small).copyWith(
+          fontWeight: FontWeight.w600,
+        );
     return showMenu<T>(
       context: context,
       anchorRect: anchorRect,
@@ -150,11 +158,15 @@ Future<T?> showActionSheet<T>({
             leading: action.icon,
             destructive: action.destructive,
             enabled: action.enabled,
-            onPressed: action.onPressed ?? () {},
+            textStyle: action.isDefault ? emphasized : null,
+            onPressed: () => chosen = action,
             child: action.label,
           ),
       ],
-    );
+    ).then((value) {
+      chosen?.onPressed?.call();
+      return value;
+    });
   }
 
   return showDialog<T>(

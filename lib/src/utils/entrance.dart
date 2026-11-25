@@ -233,6 +233,28 @@ class OverlayEntrance extends StatefulWidget {
   /// The overlay.
   final Widget child;
 
+  /// How far into view an entrance of [spec] playing on [controller] is
+  /// painted now, under [motion]: the opacity of its fade and its scale.
+  ///
+  /// For an owner that replaces the entrance with an exit of its own: an
+  /// exit that started from fully in view would first jump there.
+  static ({double opacity, double scale}) paintedAt(
+    Animation<double> controller,
+    EntranceSpec spec,
+    Motion motion,
+  ) {
+    if (spec.isInstant) return (opacity: 1, scale: 1);
+    // The same progress as the entrance's own: the turning points are
+    // shared per controller and curve.
+    final progress = EntranceProgress(controller, curve: spec.curve).value;
+    final opacity = EntranceProgress(
+      controller,
+      curve: _FadeCurve(spec.curve, _EntranceTransition._fadeEnd),
+    ).value;
+    final from = motion.reduced ? 1.0 : (spec.scale ?? motion.overlayScale);
+    return (opacity: opacity, scale: from + (1 - from) * progress);
+  }
+
   @override
   State<OverlayEntrance> createState() => _OverlayEntranceState();
 }
@@ -461,6 +483,14 @@ class EntranceProgress extends Animation<double>
 /// should close too. While it is hidden or leaving it ignores pointers.
 ///
 /// With reduced motion it is a plain short fade.
+///
+/// The fade is an opacity layer around the whole [child]. A backdrop filter
+/// inside — `Glass`, a blurred `Card`, a glass `Surface` — does not survive
+/// under one on every renderer (the web draws no blur until the fade ends),
+/// so frosted glass reads as a plain tint while it arrives and leaves. The
+/// package's overlays avoid this by letting their own surface take the fade
+/// over, which works because the surface is all they show; [child] here can
+/// be anything, so nothing in it is offered the fade.
 class Entrance extends StatefulWidget {
   /// Creates an entrance around [child].
   const Entrance({
