@@ -124,10 +124,10 @@ class Scaffold extends StatefulWidget {
   /// A bar that rides above [bottomNavigationBar] and above the software
   /// keyboard: a message composer, a row of actions, a `Toolbar`.
   ///
-  /// It lies over the end of the page, like the bars. A field in the page
-  /// that takes the focus is scrolled above the keyboard, not above the
-  /// footer: give a field that can end up under it a `scrollPadding` of the
-  /// footer's height.
+  /// It lies over the end of the page, like the bars, and is part of the
+  /// bottom inset the page is told about. A `TextField` in the page that
+  /// takes the focus is scrolled clear of it: its default `scrollPadding`
+  /// includes that inset.
   final Widget? footer;
 
   /// A panel that stays over the bottom of the page without blocking it,

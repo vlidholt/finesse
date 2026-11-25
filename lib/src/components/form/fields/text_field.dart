@@ -142,7 +142,7 @@ class TextFormField extends FinesseFormField<String> {
     Brightness? keyboardAppearance,
 
     /// {@macro TextField.scrollPadding}
-    EdgeInsets scrollPadding = const EdgeInsets.all(20),
+    EdgeInsets? scrollPadding,
 
     /// {@macro TextField.enableInteractiveSelection}
     bool? enableInteractiveSelection,

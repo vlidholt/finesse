@@ -285,7 +285,7 @@ void main() {
     });
 
     testWidgets('a focused field at the end of the page is scrolled above '
-        'the keyboard', (tester) async {
+        'the keyboard and the footer that rides on it', (tester) async {
       final focus = FocusNode();
       addTearDown(focus.dispose);
       Widget scaffold() => Scaffold(
@@ -304,9 +304,11 @@ void main() {
       await pump(tester, scaffold(), keyboard: 300);
       await tester.pump(const Duration(milliseconds: 400));
       final field = tester.getRect(find.byType(TextField));
-      // Above the keyboard. Not above the footer: revealing a field stops
-      // at the viewport's edge, and the footer lies over the viewport.
-      expect(field.bottom, lessThanOrEqualTo(844 - 300));
+      // Above the keyboard, and above the footer too: the footer lies over
+      // the end of the viewport, and the field's scroll padding takes in
+      // the inset the scaffold tells its page about.
+      expect(rect(tester, _footer).top, 844 - 300 - 56);
+      expect(field.bottom, lessThanOrEqualTo(844 - 300 - 56));
       expect(field.top, greaterThan(0));
     });
 

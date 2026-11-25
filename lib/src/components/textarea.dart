@@ -53,7 +53,7 @@ class Textarea extends StatefulWidget {
     this.selectionHeightStyle = ui.BoxHeightStyle.tight,
     this.selectionWidthStyle = ui.BoxWidthStyle.tight,
     this.keyboardAppearance,
-    this.scrollPadding = const EdgeInsets.all(20),
+    this.scrollPadding,
     this.dragStartBehavior = DragStartBehavior.start,
     bool? enableInteractiveSelection,
     this.selectionControls,
@@ -269,10 +269,8 @@ class Textarea extends StatefulWidget {
   /// {@endtemplate}
   final ui.BoxWidthStyle selectionWidthStyle;
 
-  /// {@template Textarea.scrollPadding}
-  /// Insets to apply to the input when it's scrolled into view.
-  /// {@endtemplate}
-  final EdgeInsets scrollPadding;
+  /// {@macro TextField.scrollPadding}
+  final EdgeInsets? scrollPadding;
 
   /// {@template Textarea.scrollController}
   /// Optional controller for managing scroll position.

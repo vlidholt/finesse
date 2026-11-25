@@ -39,6 +39,30 @@ String? _localizedLabel(
   };
 }
 
+/// The `scrollPadding` of an input that is given none: 20 on every side,
+/// and at the top and the bottom what lies over the scroll view the input
+/// is in.
+EdgeInsets _defaultScrollPadding(BuildContext context) {
+  var covered = MediaQuery.paddingOf(context);
+  // A `ListView` moves the padding into its own content and takes it off
+  // for its children, so in a list the input is told of none. What lies
+  // over the viewport is what the scroll view itself is told.
+  final scrollable = Scrollable.maybeOf(context, axis: Axis.vertical);
+  if (scrollable != null) {
+    final own = context.getElementForInheritedWidgetOfExactType<MediaQuery>();
+    final outer = scrollable.context
+        .getElementForInheritedWidgetOfExactType<MediaQuery>();
+    if (outer != null && !identical(outer, own)) {
+      // The aspects of a `MediaQuery` are its own to name: this follows
+      // every change of the outer one. Under a `Scaffold` that is the
+      // page's insets and little else.
+      final media = context.dependOnInheritedElement(outer) as MediaQuery;
+      covered = media.data.padding;
+    }
+  }
+  return EdgeInsets.fromLTRB(20, 20 + covered.top, 20, 20 + covered.bottom);
+}
+
 /// A customizable text input field with optional leading and trailing widgets.
 ///
 /// The [TextField] widget provides a styled text field with support for
@@ -90,7 +114,7 @@ class TextField extends StatefulWidget {
     this.selectionHeightStyle = ui.BoxHeightStyle.tight,
     this.selectionWidthStyle = ui.BoxWidthStyle.tight,
     this.keyboardAppearance,
-    this.scrollPadding = const EdgeInsets.all(20),
+    this.scrollPadding,
     this.dragStartBehavior = DragStartBehavior.start,
     bool? enableInteractiveSelection,
     this.selectionControls,
@@ -474,10 +498,16 @@ class TextField extends StatefulWidget {
   final Brightness? keyboardAppearance;
 
   /// {@template TextField.scrollPadding}
-  /// The padding applied around the input when scrolling to keep it visible.
-  /// Defaults to EdgeInsets.all(20).
+  /// The space kept around the input when a scroll view brings it into
+  /// view, as it does when the input takes the focus.
+  ///
+  /// Defaults to 20 on every side, and at the top and the bottom what
+  /// lies over the scroll view there as well — its `MediaQuery` padding,
+  /// which under a `Scaffold` is the app bar, the bottom bar and the
+  /// footer — so a focused input comes to rest clear of the bars, not
+  /// under them.
   /// {@endtemplate}
-  final EdgeInsets scrollPadding;
+  final EdgeInsets? scrollPadding;
 
   /// {@template TextField.dragStartBehavior}
   /// The behavior for starting a drag gesture.
@@ -1440,7 +1470,9 @@ class TextFieldState extends State<TextField>
                         onSubmitted: widget.onSubmitted,
                         onAppPrivateCommand: widget.onAppPrivateCommand,
                         inputFormatters: effectiveInputFormatters,
-                        scrollPadding: widget.scrollPadding,
+                        scrollPadding:
+                            widget.scrollPadding ??
+                            _defaultScrollPadding(context),
                         dragStartBehavior: widget.dragStartBehavior,
                         scrollPhysics: widget.scrollPhysics,
                         // Disable the internal scrollbars
