@@ -1,8 +1,13 @@
 # Tabs
 
-A set of layered sections of content displayed one at a time.
+Sections of content shown one at a time: a `TabBar` with the s `content` under it. Controlled with `value` and "
+      
+      "content can be swiped to the next tabs selection "
+      
 
 ## Default
+
+The segmented strip is as wide as its tabs; `expandTabs` makes them share the width, and `tabBarAlignment` places a strip that is narrower than its content. A tab that is not showing keeps its state unless `maintainState` is false.
 
 ```dart
 import 'package:finesse/finesse.dart';
@@ -82,9 +87,76 @@ class TabsBasicExample extends StatelessWidget {
 }
 ```
 
+## Underline
+
+`variant: TabBarVariant.underline` puts the content under a row of text tabs. The content is as tall as the tab showing; set `expandContent` to fill the height left under the bar instead. `swipeable: false` switches the swipe off.
+
+```dart
+import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
+
+/// `Tabs` with the underline bar. The content is as tall as the tab that
+/// is showing; swiped to the next tab, it goes from the one height to the
+/// other.
+class TabsUnderlineExample extends StatefulWidget {
+  const TabsUnderlineExample({super.key});
+
+  @override
+  State<TabsUnderlineExample> createState() => _TabsUnderlineExampleState();
+}
+
+class _TabsUnderlineExampleState extends State<TabsUnderlineExample> {
+  String tab = 'overview';
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 420),
+      child: Tabs<String>(
+        variant: TabBarVariant.underline,
+        value: tab,
+        onChanged: (value) => setState(() => tab = value),
+        tabs: const [
+          Tab(
+            value: 'overview',
+            content: Card(
+              title: Text('Overview'),
+              description: Text(
+                'Two releases this month, and the editor left beta.',
+              ),
+            ),
+            child: Text('Overview'),
+          ),
+          Tab(
+            value: 'activity',
+            content: Card(
+              title: Text('Activity'),
+              description: Text(
+                'Mei merged the tab bar. Jonas opened four issues. Ada '
+                'reviewed the route work, twice, and asked for one more '
+                'test of the back swipe in a right-to-left layout.',
+              ),
+            ),
+            child: Text('Activity'),
+          ),
+          Tab(
+            value: 'settings',
+            content: Card(
+              title: Text('Settings'),
+              description: Text('Only owners can change these.'),
+            ),
+            child: Text('Settings'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
+
 ## Tabs list
 
-With no content, only the list renders: a segmented control.
+With no content, only the bar is shown. To pick a value this way, use a `SegmentedControl`, which a screen reader hears as radio buttons rather than tabs.
 
 ```dart
 import 'package:finesse/finesse.dart';

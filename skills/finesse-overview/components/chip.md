@@ -1,6 +1,6 @@
 # Chip
 
-A compact pill for a filter, a choice or a tag. With `onSelected` it toggles, with `onPressed` it is a button, and with neither it is a static tag. Its height follows the form factor.
+A compact pill for a filter, a choice or a tag. With `onSelected` it toggles, with `onPressed` it is a button, and with neither it is a static tag. Its height follows the form factor. `onDeleted` adds a cross that removes it, `showCheckmark` a check while it is selected, and `ChipGroup` holds the set of chosen chips.
 
 ## Filters
 
@@ -123,14 +123,15 @@ class ChipVariantsExample extends StatelessWidget {
 
 ## Removable
 
-A trailing icon and `onPressed`. Give an icon-led action a `semanticLabel` that says what the tap does.
+`onDeleted` adds a cross with its own target and its own name for assistive technology (`deleteSemanticLabel`). Backspace or Delete on the focused chip removes it as well.
 
 ```dart
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
-/// Chips as buttons: `onPressed` instead of `onSelected`, with a trailing
-/// icon that says what the tap does.
+/// Chips that can be removed: `onDeleted` adds a cross that is a target of
+/// its own, so the chip itself can still do something else. Backspace and
+/// Delete on a focused chip remove it too.
 class ChipRemovableExample extends StatefulWidget {
   const ChipRemovableExample({super.key});
 
@@ -142,36 +143,158 @@ class _ChipRemovableExampleState extends State<ChipRemovableExample> {
   static const _all = ['Product design', 'Copenhagen', 'Remote', 'Senior'];
 
   late final terms = [..._all];
+  String? opened;
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      alignment: WrapAlignment.center,
-      crossAxisAlignment: WrapCrossAlignment.center,
+    final theme = Theme.of(context);
+    return FinesseColumn(
+      mainAxisSize: MainAxisSize.min,
+      gap: GapSize.md,
       children: [
-        for (final term in terms)
-          Chip(
-            label: Text(term),
-            trailing: const PhosphorIcon(PhosphorIconsRegular.x),
-            semanticLabel: 'Remove $term',
-            onPressed: () => setState(() => terms.remove(term)),
-          ),
-        if (terms.length < _all.length)
-          Chip(
-            label: const Text('Reset'),
-            leading: const PhosphorIcon(
-              PhosphorIconsRegular.arrowCounterClockwise,
-            ),
-            variant: ChipVariant.dashed,
-            onPressed: () => setState(
-              () => terms
-                ..clear()
-                ..addAll(_all),
-            ),
-          ),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          alignment: WrapAlignment.center,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            for (final term in terms)
+              Chip(
+                label: Text(term),
+                onPressed: () => setState(() => opened = term),
+                onDeleted: () => setState(() => terms.remove(term)),
+                deleteSemanticLabel: 'Remove $term',
+              ),
+            if (terms.length < _all.length)
+              Chip(
+                label: const Text('Reset'),
+                leading: const PhosphorIcon(
+                  PhosphorIconsRegular.arrowCounterClockwise,
+                ),
+                variant: ChipVariant.dashed,
+                onPressed: () => setState(
+                  () => terms
+                    ..clear()
+                    ..addAll(_all),
+                ),
+              ),
+          ],
+        ),
+        Text(
+          opened == null ? 'Tap a chip, or its cross' : 'Opened "$opened"',
+          style: theme.textTheme.muted,
+        ),
       ],
+    );
+  }
+}
+```
+
+## A group
+
+`ChipGroup` is controlled: `values` is the chosen set and `onChanged` reports the set a tap would make. It is one Tab stop; the arrow keys, Home and End move between its chips. `showCheckmark` marks the chosen ones.
+
+```dart
+import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
+
+/// `ChipGroup` holds the set of chosen chips. Here any number may be
+/// chosen and each one shows a check; the arrow keys move between chips.
+class ChipGroupExample extends StatefulWidget {
+  const ChipGroupExample({super.key});
+
+  @override
+  State<ChipGroupExample> createState() => _ChipGroupExampleState();
+}
+
+class _ChipGroupExampleState extends State<ChipGroupExample> {
+  static const _toppings = [
+    'Mozzarella',
+    'Basil',
+    'Mushrooms',
+    'Olives',
+    'Artichoke',
+    'Anchovies',
+    'Chili',
+  ];
+
+  Set<String> chosen = {'Mozzarella', 'Basil'};
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 420),
+      child: ChipGroup<String>(
+        semanticLabel: 'Toppings',
+        values: chosen,
+        onChanged: (values) => setState(() => chosen = values),
+        showCheckmark: true,
+        alignment: WrapAlignment.center,
+        items: [
+          for (final topping in _toppings)
+            ChipGroupItem(
+              value: topping,
+              label: Text(topping),
+              enabled: topping != 'Anchovies',
+            ),
+        ],
+      ),
+    );
+  }
+}
+```
+
+## A scrolling filter bar
+
+`wrap: false` keeps the chips on one row that scrolls and fades at an edge it continues beyond. `multiple: false` with `allowEmpty: false` makes it a choice of exactly one. Give the s margin as `padding` so the chips scroll to the screenedge.
+
+```dart
+import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
+
+/// A filter bar: one row that scrolls sideways and fades where it goes on,
+/// as above a list on a phone. One chip at a time, and never none.
+class ChipGroupScrollExample extends StatefulWidget {
+  const ChipGroupScrollExample({super.key});
+
+  @override
+  State<ChipGroupScrollExample> createState() => _ChipGroupScrollExampleState();
+}
+
+class _ChipGroupScrollExampleState extends State<ChipGroupScrollExample> {
+  static const _filters = {
+    'All': PhosphorIconsRegular.squaresFour,
+    'Unread': PhosphorIconsRegular.envelopeSimple,
+    'Mentions': PhosphorIconsRegular.at,
+    'Following': PhosphorIconsRegular.userCheck,
+    'Jobs': PhosphorIconsRegular.briefcase,
+    'Events': PhosphorIconsRegular.calendarDots,
+    'Archived': PhosphorIconsRegular.archive,
+  };
+
+  String filter = 'All';
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 360),
+      child: ChipGroup<String>(
+        semanticLabel: 'Show',
+        values: {filter},
+        onChanged: (values) => setState(() => filter = values.single),
+        multiple: false,
+        allowEmpty: false,
+        wrap: false,
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+        items: [
+          for (final MapEntry(key: name, value: icon) in _filters.entries)
+            ChipGroupItem(
+              value: name,
+              label: Text(name),
+              leading: PhosphorIcon(icon),
+            ),
+        ],
+      ),
     );
   }
 }

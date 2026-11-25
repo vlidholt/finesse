@@ -126,14 +126,14 @@ class _ListTileSelectableExampleState extends State<ListTileSelectableExample> {
 
 ## Settings
 
-`subtitleMaxLines` lets the second line wrap. A row with a control at the end leaves `onTap` out, so the control is the only target.
+`subtitleMaxLines` lets the second line wrap. A row with a control at the end leaves `onTap` out, so the control is the only target; `showChevron` ends a row that leads somewhere.
 
 ```dart
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
-/// Settings rows: an icon tile in front, a control or a chevron behind, and
-/// a subtitle that is allowed to wrap to two lines.
+/// Settings rows: an icon tile in front, a control, a value or a chevron
+/// behind, and a subtitle that is allowed to wrap to two lines.
 class ListTileSettingsExample extends StatefulWidget {
   const ListTileSettingsExample({super.key});
 
@@ -175,10 +175,7 @@ class _ListTileSettingsExampleState extends State<ListTileSettingsExample> {
               ),
               title: const Text('Privacy'),
               subtitle: const Text('Who can see your profile and activity'),
-              trailing: const PhosphorIcon(
-                PhosphorIconsRegular.caretRight,
-                size: 16,
-              ),
+              showChevron: true,
               onTap: () {},
             ),
             ListTile(
@@ -186,15 +183,166 @@ class _ListTileSettingsExampleState extends State<ListTileSettingsExample> {
                 icon: PhosphorIcon(PhosphorIconsRegular.translate),
               ),
               title: const Text('Language'),
-              subtitle: const Text('English'),
-              trailing: const PhosphorIcon(
-                PhosphorIconsRegular.caretRight,
-                size: 16,
-              ),
+              value: const Text('English'),
+              showChevron: true,
               onTap: () {},
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+```
+
+## Value, chevron, destructive and disabled
+
+`value` is the quiet text before the trailing widget: it takes the room it needs, up to a little under half the row, and never pushes the title out. `showChevron` marks a row that leads somewhere, `destructive` one that cannot be undone, and `enabled: false` dims a row and takes it out of the focus order.
+
+```dart
+import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
+
+/// What a row can say beyond its title: its current value, a chevron for a
+/// row that leads somewhere, a destructive action, and a row switched off.
+class ListTileValueExample extends StatelessWidget {
+  const ListTileValueExample({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 420),
+      child: Card(
+        padding: const EdgeInsets.all(8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const PhosphorIcon(PhosphorIconsRegular.translate),
+              title: const Text('Language'),
+              value: const Text('English'),
+              showChevron: true,
+              onTap: () {},
+            ),
+            ListTile(
+              leading: const PhosphorIcon(PhosphorIconsRegular.cloud),
+              title: const Text('Storage'),
+              value: const Text('12.4 GB of 50 GB'),
+              showChevron: true,
+              onTap: () {},
+              onLongPress: () {},
+            ),
+            ListTile(
+              leading: const PhosphorIcon(PhosphorIconsRegular.usersThree),
+              title: const Text('Team workspace'),
+              value: const Text('Upgrade to unlock'),
+              showChevron: true,
+              enabled: false,
+              onTap: () {},
+            ),
+            ListTile(
+              leading: const PhosphorIcon(PhosphorIconsRegular.trash),
+              title: const Text('Delete account'),
+              destructive: true,
+              onTap: () {},
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
+## Switch, checkbox and radio rows
+
+`SwitchListTile`, `CheckboxListTile` and `RadioListTile` make the whole row the control: one target, one focus stop, one thing for a screen reader to announce. A tristate checkbox shows a dash for "some".
+
+```dart
+import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
+
+/// Rows that are controls: a tap anywhere on the row flips the switch,
+/// ticks the box or picks the radio, and a screen reader meets one control
+/// named by the row's title.
+class ListTileControlsExample extends StatefulWidget {
+  const ListTileControlsExample({super.key});
+
+  @override
+  State<ListTileControlsExample> createState() =>
+      _ListTileControlsExampleState();
+}
+
+class _ListTileControlsExampleState extends State<ListTileControlsExample> {
+  bool receipts = true;
+  final topics = {'Design': true, 'Research': false, 'Hiring': true};
+  String density = 'Comfortable';
+
+  /// All, none, or — null — some of the topics.
+  bool? get _all {
+    final on = topics.values.where((value) => value).length;
+    if (on == 0) return false;
+    return on == topics.length ? true : null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final overline = Theme.of(context).style.overline;
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 420),
+      child: FinesseColumn(
+        gap: GapSize.lg,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListSection(
+            children: [
+              SwitchListTile(
+                title: const Text('Read receipts'),
+                subtitle: const Text(
+                  'Let people see when you have read their message',
+                ),
+                value: receipts,
+                onChanged: (value) => setState(() => receipts = value),
+              ),
+            ],
+          ),
+          ListSection(
+            header: Text(overline.applyCase('Topics')),
+            children: [
+              CheckboxListTile(
+                title: const Text('All topics'),
+                tristate: true,
+                value: _all,
+                controlAffinity: ControlAffinity.leading,
+                // A mixed box, like an empty one, selects everything.
+                onChanged: (_) => setState(() {
+                  final next = _all != true;
+                  topics.updateAll((_, _) => next);
+                }),
+              ),
+              for (final topic in topics.keys)
+                CheckboxListTile(
+                  title: Text(topic),
+                  value: topics[topic],
+                  controlAffinity: ControlAffinity.leading,
+                  onChanged: (value) =>
+                      setState(() => topics[topic] = value ?? false),
+                ),
+            ],
+          ),
+          ListSection(
+            header: Text(overline.applyCase('Density')),
+            children: [
+              for (final option in ['Compact', 'Comfortable', 'Spacious'])
+                RadioListTile<String>(
+                  title: Text(option),
+                  value: option,
+                  groupValue: density,
+                  onChanged: (value) => setState(() => density = value!),
+                ),
+            ],
+          ),
+        ],
       ),
     );
   }

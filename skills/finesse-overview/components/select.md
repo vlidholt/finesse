@@ -1,8 +1,10 @@
 # Select
 
-Displays a list of options for the user to pick from, triggered by a button.
+Displays a list of options for the user to pick from, triggered by a button. Give `value` to hold the choice yourself or `initialValue` to let the select keep it; `Select.multiple` holds `values`. The searchable and multiple variants open a bottom sheet on a phone. `SelectFormField` and `SelectMultipleFormField` put a select in a form.
 
 ## Default
+
+A `SelectOption` with a `label` needs no child, and the trigger shows that label for the chosen value. `selectedOptionBuilder` builds something else there.
 
 ```dart
 import 'package:finesse/finesse.dart';
@@ -16,8 +18,17 @@ const _fruits = {
   'pineapple': 'Pineapple',
 };
 
-class SelectBasicExample extends StatelessWidget {
+/// A plain select. Each option has a `label`, which is what the trigger
+/// shows for the chosen one; the parent holds the value.
+class SelectBasicExample extends StatefulWidget {
   const SelectBasicExample({super.key});
+
+  @override
+  State<SelectBasicExample> createState() => _SelectBasicExampleState();
+}
+
+class _SelectBasicExampleState extends State<SelectBasicExample> {
+  String? fruit;
 
   @override
   Widget build(BuildContext context) {
@@ -25,12 +36,12 @@ class SelectBasicExample extends StatelessWidget {
       constraints: const BoxConstraints(minWidth: 180),
       child: Select<String>(
         placeholder: const Text('Select a fruit'),
+        value: fruit,
+        onChanged: (value) => setState(() => fruit = value),
         options: [
-          for (final fruit in _fruits.entries)
-            SelectOption(value: fruit.key, child: Text(fruit.value)),
+          for (final MapEntry(:key, :value) in _fruits.entries)
+            SelectOption(value: key, label: value),
         ],
-        selectedOptionBuilder: (context, value) => Text(_fruits[value]!),
-        onChanged: (value) {},
       ),
     );
   }
@@ -98,6 +109,66 @@ class _SelectSearchExampleState extends State<SelectSearchExample> {
         selectedOptionBuilder: (context, value) =>
             Text(_dartFrameworks[value]!),
         onChanged: (value) {},
+      ),
+    );
+  }
+}
+```
+
+## Multiple, in a sheet
+
+`Select.multipleWithSearch` with `values` and `onChanged`. `PickerPresentation.auto`, the default, opens the sheet on a phone and a popover on a desktop; a plain single select stays a popover everywhere.
+
+```dart
+import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
+
+const _skills = [
+  'Dart',
+  'Flutter',
+  'Serverpod',
+  'Kotlin',
+  'Swift',
+  'TypeScript',
+  'Rust',
+  'Go',
+  'Python',
+  'SQL',
+];
+
+/// Several values, with a search field. On a desktop the options open in
+/// a popover; on a phone, in a bottom sheet with the search pinned at its
+/// top, rows at touch height and Done. `presentation` forces either one —
+/// here the sheet, so it shows on any screen.
+class SelectMultipleExample extends StatefulWidget {
+  const SelectMultipleExample({super.key});
+
+  @override
+  State<SelectMultipleExample> createState() => _SelectMultipleExampleState();
+}
+
+class _SelectMultipleExampleState extends State<SelectMultipleExample> {
+  Set<String> skills = {'Dart', 'Flutter'};
+  String query = '';
+
+  @override
+  Widget build(BuildContext context) {
+    final shown = _skills.where(
+      (skill) => skill.toLowerCase().contains(query.toLowerCase()),
+    );
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minWidth: 220, maxWidth: 320),
+      child: Select<String>.multipleWithSearch(
+        presentation: PickerPresentation.sheet,
+        placeholder: const Text('Skills'),
+        searchPlaceholder: const Text('Search skills'),
+        values: skills,
+        onChanged: (values) => setState(() => skills = values),
+        onSearchChanged: (value) => setState(() => query = value),
+        allowDeselection: true,
+        options: [
+          for (final skill in shown) SelectOption(value: skill, label: skill),
+        ],
       ),
     );
   }

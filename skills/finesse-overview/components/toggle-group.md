@@ -1,6 +1,6 @@
 # Toggle Group
 
-A set of two-state buttons that can be toggled on or off.
+A set of two-state buttons that can be toggled on or off. The group is controlled: it shows `values` and reports a tap through `onChanged`; `initialValues` instead makes a group that keeps its own selection. With `gap: 0` the items are joined into one bar, as in a `ButtonGroup`, and `ToggleGroupFormField` puts a group in a `FinesseForm`.
 
 ## Single
 
