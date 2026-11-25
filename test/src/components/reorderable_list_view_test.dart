@@ -23,6 +23,7 @@ void main() {
     bool enabled = true,
     bool handles = true,
     bool builder = false,
+    bool apply = true,
     int? count,
   }) {
     if (count != null) items = [for (var i = 0; i < count; i++) 'Item $i'];
@@ -30,7 +31,7 @@ void main() {
       builder: (context, setState) {
         void onReorder(int from, int to) {
           moves.add((from, to));
-          setState(() => items.insert(to, items.removeAt(from)));
+          if (apply) setState(() => items.insert(to, items.removeAt(from)));
         }
 
         Widget row(String item) => ListTile(
@@ -48,6 +49,7 @@ void main() {
             child: builder
                 ? ReorderableListView.builder(
                     itemCount: items.length,
+                    itemId: (index) => items[index],
                     itemBuilder: (context, index) => row(items[index]),
                     onReorder: onReorder,
                     longPressToDrag: longPressToDrag,
@@ -71,10 +73,41 @@ void main() {
     );
   }
 
-  /// The caller's row for [item]; the list's own wrapper has the same key.
-  Finder rowOf(String item) => find.byWidgetPredicate(
-    (widget) => widget is ListTile && widget.key == ValueKey(item),
+  // The copies hang under the list's portal, which is a box of no size:
+  // a finder that skips what is off stage does not look there.
+  final inTheAir = find.byWidgetPredicate(
+    (widget) => '${widget.runtimeType}'.startsWith('_ProxyView'),
+    skipOffstage: false,
   );
+
+  bool isRowOf(Widget widget, String item) =>
+      widget is ListTile && widget.key == ValueKey(item);
+
+  /// The row of [item] in the list. Its copy in the air, which is built
+  /// from the same widget, is [liftedRowOf].
+  Finder rowOf(String item) => find.descendant(
+    of: find.byType(SliverList),
+    matching: find.byWidgetPredicate((widget) => isRowOf(widget, item)),
+  );
+
+  /// Every copy in the air.
+  Finder lifted() => find.descendant(
+    of: inTheAir,
+    matching: find.byType(ListTile, skipOffstage: false),
+    skipOffstage: false,
+  );
+
+  Finder liftedRowOf(String item) => find.descendant(
+    of: inTheAir,
+    matching: find.byWidgetPredicate(
+      (widget) => isRowOf(widget, item),
+      skipOffstage: false,
+    ),
+    skipOffstage: false,
+  );
+
+  Finder textOf(String item) =>
+      find.descendant(of: rowOf(item), matching: find.text(item));
 
   Finder handleOf(String item) => find.descendant(
     of: rowOf(item),
@@ -143,6 +176,31 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  /// Picks the row of [item] up by its handle and carries it [dy] further.
+  /// The first movement is the slop a handle waits for, and is not part of
+  /// the distance.
+  Future<TestGesture> carry(
+    WidgetTester tester,
+    String item,
+    Offset by,
+  ) async {
+    final gesture = await tester.startGesture(tester.getCenter(handleOf(item)));
+    await gesture.moveBy(const Offset(0, 20));
+    await gesture.moveBy(by - const Offset(0, 20));
+    await tester.pump();
+    return gesture;
+  }
+
+  /// Focuses the handle of the first row, as the first Tab does.
+  Future<void> focusFirstHandle(WidgetTester tester) async {
+    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    await tester.pump();
+    expect(
+      FocusManager.instance.primaryFocus?.debugLabel,
+      'ReorderableDragHandle',
+    );
+  }
+
   group('ReorderableListView', () {
     testWidgets('builds in every layout at twice the text size', (
       tester,
@@ -177,7 +235,7 @@ void main() {
         'minus one to correct', (tester) async {
       await pumpFinesse(tester, list());
       final rowHeight = tester.getSize(rowOf('A')).height;
-      await drag(tester, tester.getCenter(handleOf('A')), rowHeight * 2);
+      await drag(tester, tester.getCenter(handleOf('A')), rowHeight * 2 + 20);
       expect(moves, [(0, 2)]);
       expect(items, ['B', 'C', 'A', 'D', 'E']);
       expect(log, ['start 0', 'end 2']);
@@ -186,22 +244,28 @@ void main() {
     testWidgets('dragging a handle up', (tester) async {
       await pumpFinesse(tester, list());
       final rowHeight = tester.getSize(rowOf('A')).height;
-      await drag(tester, tester.getCenter(handleOf('D')), -rowHeight * 2);
+      await drag(tester, tester.getCenter(handleOf('D')), -rowHeight * 2 - 20);
       expect(moves, [(3, 1)]);
       expect(items, ['A', 'D', 'B', 'C', 'E']);
     });
 
-    testWidgets('a row dropped where it was reports nothing', (tester) async {
+    testWidgets('a row dropped where it was reports no move, and its end', (
+      tester,
+    ) async {
       await pumpFinesse(tester, list());
-      await drag(tester, tester.getCenter(handleOf('B')), 6);
+      await drag(tester, tester.getCenter(handleOf('B')), 20);
       expect(moves, isEmpty);
+      expect(log, ['start 1', 'end 1']);
     });
 
-    testWidgets('the builder constructor reorders too', (tester) async {
+    testWidgets('the builder constructor reorders too, by item id', (
+      tester,
+    ) async {
       await pumpFinesse(tester, list(builder: true));
       final rowHeight = tester.getSize(rowOf('A')).height;
-      await drag(tester, tester.getCenter(handleOf('A')), rowHeight);
+      await drag(tester, tester.getCenter(handleOf('A')), rowHeight + 20);
       expect(moves, [(0, 1)]);
+      expect(items, ['B', 'A', 'C', 'D', 'E']);
     });
 
     testWidgets('a finger held on a row picks it up; a mouse held there '
@@ -210,7 +274,7 @@ void main() {
       final rowHeight = tester.getSize(rowOf('A')).height;
       await drag(
         tester,
-        tester.getCenter(find.text('A')),
+        tester.getCenter(textOf('A')),
         rowHeight,
         hold: kLongPressTimeout + const Duration(milliseconds: 100),
       );
@@ -219,7 +283,7 @@ void main() {
       moves.clear();
       await drag(
         tester,
-        tester.getCenter(find.text('C')),
+        tester.getCenter(textOf('C')),
         rowHeight,
         kind: PointerDeviceKind.mouse,
         hold: kLongPressTimeout + const Duration(milliseconds: 100),
@@ -234,13 +298,25 @@ void main() {
       final rowHeight = tester.getSize(rowOf('A')).height;
       await drag(
         tester,
-        tester.getCenter(find.text('A')),
+        tester.getCenter(textOf('A')),
         rowHeight,
         hold: kLongPressTimeout + const Duration(milliseconds: 100),
       );
       expect(moves, isEmpty);
-      await drag(tester, tester.getCenter(handleOf('A')), rowHeight);
+      await drag(tester, tester.getCenter(handleOf('A')), rowHeight + 20);
       expect(moves, [(0, 1)]);
+    });
+
+    testWidgets('a mouse drags by the handle', (tester) async {
+      await pumpFinesse(tester, list());
+      final rowHeight = tester.getSize(rowOf('A')).height;
+      await drag(
+        tester,
+        tester.getCenter(handleOf('B')),
+        rowHeight * 2 + 20,
+        kind: PointerDeviceKind.mouse,
+      );
+      expect(moves, [(1, 3)]);
     });
 
     testWidgets('a quick vertical drag on a row scrolls the list', (
@@ -258,6 +334,7 @@ void main() {
       final rowHeight = tester.getSize(rowOf('A')).height;
       await drag(tester, tester.getCenter(handleOf('A')), rowHeight * 2);
       expect(moves, isEmpty);
+      expect(log, isEmpty);
     });
 
     testWidgets('a moved row keeps its state', (tester) async {
@@ -267,60 +344,28 @@ void main() {
       await tester.pump();
       expect(find.text('2'), findsOneWidget);
       final rowHeight = tester.getSize(rowOf('A')).height;
-      await drag(tester, tester.getCenter(handleOf('A')), rowHeight * 2);
+      await drag(tester, tester.getCenter(handleOf('A')), rowHeight * 2 + 20);
       expect(items.indexOf('A'), 2);
       expect(find.text('2'), findsOneWidget);
     });
 
-    testWidgets('the row in the air is lifted: larger, on the card colour, '
-        "under the board's shadow", (tester) async {
-      await pumpFinesse(tester, list());
-      final gesture = await tester.startGesture(
-        tester.getCenter(handleOf('B')),
-      );
-      await gesture.moveBy(const Offset(0, 10));
-      await tester.pump();
-      await gesture.moveBy(const Offset(0, 10));
-      // The lift starts on the frame after the drag does.
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 300));
-      final theme = themeOf(tester, find.byType(ReorderableListView));
-      final lifted = find.byWidgetPredicate(
-        (widget) =>
-            widget is DecoratedBox && widget.decoration is ShadowDecoration,
-      );
-      expect(lifted, findsOneWidget);
-      final decoration =
-          tester.widget<DecoratedBox>(lifted).decoration as ShadowDecoration;
-      expect(decoration.shadows, isNotEmpty);
-      final scale = tester
-          .widget<Transform>(
-            find.ancestor(of: lifted, matching: find.byType(Transform)).first,
-          )
-          .transform
-          .getMaxScaleOnAxis();
-      expect(scale, greaterThan(1));
-      expect(scale, lessThanOrEqualTo(theme.boardTheme.dragScale! + 1e-6));
-      await gesture.up();
-      await tester.pumpAndSettle();
-      expect(lifted, findsNothing);
-    });
-
-    testWidgets('a touch drag gives a haptic at pick-up and at the drop; a '
-        'mouse drag gives none', (tester) async {
+    testWidgets('a touch drag gives a haptic at pick-up, at each slot '
+        'crossed and at the drop; a mouse drag gives none', (tester) async {
       final calls = hapticCalls(tester);
       await pumpFinesse(tester, list());
       final rowHeight = tester.getSize(rowOf('A')).height;
-      await drag(tester, tester.getCenter(handleOf('A')), rowHeight);
+      await drag(tester, tester.getCenter(handleOf('A')), rowHeight * 2 + 20);
       expect(calls.map((call) => call.arguments), [
         'HapticFeedbackType.mediumImpact',
+        'HapticFeedbackType.selectionClick',
+        'HapticFeedbackType.selectionClick',
         'HapticFeedbackType.lightImpact',
       ]);
       calls.clear();
       await drag(
         tester,
         tester.getCenter(handleOf('C')),
-        rowHeight,
+        rowHeight + 20,
         kind: PointerDeviceKind.mouse,
       );
       expect(calls, isEmpty);
@@ -330,15 +375,10 @@ void main() {
     testWidgets('held near the bottom edge, the list scrolls under the '
         'row', (tester) async {
       await pumpFinesse(tester, list(count: 30));
-      final gesture = await tester.startGesture(
-        tester.getCenter(handleOf('Item 1')),
-      );
-      await gesture.moveBy(const Offset(0, 10));
-      await tester.pump();
+      final start = tester.getCenter(handleOf('Item 1'));
+      final gesture = await carry(tester, 'Item 1', const Offset(0, 30));
       final bottom = tester.getRect(find.byType(ReorderableListView)).bottom;
-      await gesture.moveTo(
-        Offset(tester.getCenter(handleOf('Item 1')).dx, bottom - 4),
-      );
+      await gesture.moveTo(Offset(start.dx, bottom - 4));
       for (var i = 0; i < 60; i++) {
         await tester.pump(const Duration(milliseconds: 16));
       }
@@ -347,16 +387,409 @@ void main() {
       expect(moves.single.$1, 1);
       expect(moves.single.$2, greaterThan(8));
     });
+
+    testWidgets('a shrink-wrapped list in a scrolling page scrolls the page', (
+      tester,
+    ) async {
+      final page = ScrollController();
+      addTearDown(page.dispose);
+      items = [for (var i = 0; i < 12; i++) 'Item $i'];
+      await pumpFinesse(
+        tester,
+        StatefulBuilder(
+          builder: (context, setState) => Center(
+            child: SizedBox(
+              width: 360,
+              height: 300,
+              child: SingleChildScrollView(
+                controller: page,
+                child: Column(
+                  children: [
+                    const SizedBox(height: 120, child: Text('Above')),
+                    ReorderableListView(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      onReorder: (from, to) {
+                        moves.add((from, to));
+                        setState(() => items.insert(to, items.removeAt(from)));
+                      },
+                      children: [
+                        for (final item in items)
+                          ListTile(
+                            key: ValueKey(item),
+                            title: Text(item),
+                            trailing: const ReorderableDragHandle(),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 120, child: Text('Below')),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      final start = tester.getCenter(handleOf('Item 0'));
+      final gesture = await carry(tester, 'Item 0', const Offset(0, 30));
+      final bottom = tester.getRect(find.byType(SingleChildScrollView)).bottom;
+      await gesture.moveTo(Offset(start.dx, bottom - 4));
+      for (var i = 0; i < 40; i++) {
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      expect(page.offset, greaterThan(100));
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(moves.single.$1, 0);
+      expect(moves.single.$2, greaterThan(3));
+      expect(lifted(), findsNothing);
+    });
+  });
+
+  group('ReorderableListView motion', () {
+    testWidgets('the row in the air is a lifted copy: larger, over the '
+        'card colour', (tester) async {
+      await pumpFinesse(tester, list());
+      final width = tester.getSize(rowOf('B')).width;
+      final gesture = await carry(tester, 'B', const Offset(0, 30));
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(liftedRowOf('B'), findsOneWidget);
+      final theme = themeOf(tester, find.byType(ReorderableListView));
+      // `getRect` goes through the copy's transform.
+      final scale = tester.getRect(liftedRowOf('B')).width / width;
+      expect(scale, closeTo(theme.boardTheme.dragScale!, .005));
+      // The copy stands on the card colour, which the row does not have.
+      expect(
+        find.ancestor(
+          of: liftedRowOf('B'),
+          matching: find.byWidgetPredicate(
+            (widget) => '${widget.runtimeType}' == '_LiftFill',
+            skipOffstage: false,
+          ),
+        ),
+        findsOneWidget,
+      );
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(lifted(), findsNothing);
+    });
+
+    testWidgets('the others make way on a spring, in paint: no row is laid '
+        'out while a slot opens, and none turns back', (tester) async {
+      await pumpFinesse(tester, list());
+      final rowHeight = tester.getSize(rowOf('A')).height;
+      final rest = tester.getTopLeft(rowOf('C')).dy;
+      final box = tester.renderObject<RenderBox>(rowOf('C'));
+      final gesture = await carry(tester, 'A', Offset(0, rowHeight * 2.2));
+      var laidOut = 0;
+      final tops = <double>[];
+      for (var i = 0; i < 40; i++) {
+        if (box.debugNeedsLayout) laidOut++;
+        await tester.pump(const Duration(milliseconds: 16));
+        tops.add(tester.getTopLeft(rowOf('C')).dy);
+      }
+      expect(laidOut, 0);
+      // C slides up by one row and never turns back.
+      expect(tops.last, closeTo(rest - rowHeight, .5));
+      for (var i = 1; i < tops.length; i++) {
+        expect(tops[i], lessThanOrEqualTo(tops[i - 1] + .01));
+      }
+      // It moved over several frames, not in one.
+      expect(
+        tops.where((top) => top < rest - 1 && top > rest - rowHeight + 1),
+        isNotEmpty,
+      );
+      await gesture.up();
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('let go, the copy flies to its slot, lands with a press '
+        'in, and is gone', (tester) async {
+      await pumpFinesse(tester, list());
+      final rowHeight = tester.getSize(rowOf('A')).height;
+      final top = tester.getTopLeft(rowOf('A')).dy;
+      final width = tester.getSize(rowOf('A')).width;
+      final gesture = await carry(tester, 'A', Offset(30, rowHeight * 2.4));
+      await tester.pump(const Duration(milliseconds: 300));
+      await gesture.up();
+      await tester.pump();
+      var smallest = double.infinity;
+      var frames = 0;
+      while (lifted().evaluate().isNotEmpty && frames < 200) {
+        await tester.pump(const Duration(milliseconds: 16));
+        frames++;
+        if (lifted().evaluate().isNotEmpty) {
+          final rect = tester.getRect(liftedRowOf('A'));
+          if (rect.width < smallest) smallest = rect.width;
+        }
+      }
+      // It took a while (a flight), ended, and on the way pressed in below
+      // its own size: the landing.
+      expect(frames, inInclusiveRange(8, 199));
+      expect(smallest, lessThan(width));
+      expect(items, ['B', 'C', 'A', 'D', 'E']);
+      await tester.pumpAndSettle();
+      expect(
+        tester.getTopLeft(rowOf('A')).dy,
+        closeTo(top + rowHeight * 2, .5),
+      );
+      expect(tester.binding.hasScheduledFrame, isFalse);
+    });
+
+    testWidgets('a row caught in flight is picked up again', (tester) async {
+      await pumpFinesse(tester, list());
+      final rowHeight = tester.getSize(rowOf('A')).height;
+      var gesture = await carry(tester, 'A', Offset(0, rowHeight * 3));
+      await gesture.up();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 32));
+      // Still in the air.
+      expect(lifted(), findsOneWidget);
+      gesture = await carry(tester, 'A', const Offset(0, 30));
+      await tester.pump(const Duration(milliseconds: 16));
+      expect(lifted(), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(lifted(), findsNothing);
+    });
+
+    testWidgets('a change the parent makes by itself is animated: the rows '
+        'glide to where they belong', (tester) async {
+      late StateSetter rebuild;
+      await pumpFinesse(
+        tester,
+        StatefulBuilder(
+          builder: (context, setState) {
+            rebuild = setState;
+            return list();
+          },
+        ),
+      );
+      final rowHeight = tester.getSize(rowOf('A')).height;
+      final top = tester.getTopLeft(rowOf('A')).dy;
+      rebuild(() => items = ['E', 'D', 'C', 'B', 'A']);
+      await tester.pump();
+      // The frame of the change draws every row where it was.
+      expect(tester.getTopLeft(rowOf('A')).dy, closeTo(top, .5));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 80));
+      final mid = tester.getTopLeft(rowOf('A')).dy;
+      expect(mid, greaterThan(top + 1));
+      expect(mid, lessThan(top + rowHeight * 4 - 1));
+      await tester.pumpAndSettle();
+      expect(
+        tester.getTopLeft(rowOf('A')).dy,
+        closeTo(top + rowHeight * 4, .5),
+      );
+
+      // A removal: the rows below close the gap on the same spring.
+      final before = tester.getTopLeft(rowOf('A')).dy;
+      rebuild(() => items = ['E', 'D', 'B', 'A']);
+      await tester.pump();
+      expect(tester.getTopLeft(rowOf('A')).dy, closeTo(before, .5));
+      await tester.pumpAndSettle();
+      expect(
+        tester.getTopLeft(rowOf('A')).dy,
+        closeTo(before - rowHeight, .5),
+      );
+    });
+
+    testWidgets('a parent that does not apply the move gets its row back', (
+      tester,
+    ) async {
+      await pumpFinesse(tester, list(apply: false));
+      final rowHeight = tester.getSize(rowOf('A')).height;
+      final top = tester.getTopLeft(rowOf('A')).dy;
+      await drag(tester, tester.getCenter(handleOf('A')), rowHeight * 2 + 20);
+      expect(moves, [(0, 2)]);
+      expect(items, ['A', 'B', 'C', 'D', 'E']);
+      expect(tester.getTopLeft(rowOf('A')).dy, closeTo(top, .5));
+      expect(tester.getTopLeft(rowOf('B')).dy, closeTo(top + rowHeight, .5));
+      expect(lifted(), findsNothing);
+    });
+
+    testWidgets('with reduced motion nothing flies: the row is where the '
+        'next build puts it', (tester) async {
+      await pumpFinesse(
+        tester,
+        MediaQuery(
+          data: const MediaQueryData(disableAnimations: true),
+          child: list(),
+        ),
+      );
+      final rowHeight = tester.getSize(rowOf('A')).height;
+      final top = tester.getTopLeft(rowOf('A')).dy;
+      final gesture = await carry(tester, 'A', Offset(0, rowHeight * 2));
+      await tester.pump(const Duration(milliseconds: 16));
+      // The others are already out of the way, and the copy is not scaled.
+      expect(tester.getTopLeft(rowOf('B')).dy, closeTo(top, .5));
+      expect(
+        tester.getSize(liftedRowOf('A')).width,
+        tester.getRect(liftedRowOf('A')).width,
+      );
+      await gesture.up();
+      await tester.pump();
+      await tester.pump();
+      expect(lifted(), findsNothing);
+      expect(
+        tester.getTopLeft(rowOf('A')).dy,
+        closeTo(top + rowHeight * 2, .5),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.binding.hasScheduledFrame, isFalse);
+    });
+
+    testWidgets('Motion.none moves nothing either', (tester) async {
+      await pumpFinesse(tester, list(), theme: ThemeData(motion: Motion.none));
+      final rowHeight = tester.getSize(rowOf('A')).height;
+      await drag(tester, tester.getCenter(handleOf('A')), rowHeight * 2 + 20);
+      expect(items, ['B', 'C', 'A', 'D', 'E']);
+      expect(lifted(), findsNothing);
+    });
+
+    testWidgets('hidden mid-drag, the row is put back and no copy is left', (
+      tester,
+    ) async {
+      var visible = true;
+      late StateSetter rebuild;
+      await pumpFinesse(
+        tester,
+        StatefulBuilder(
+          builder: (context, setState) {
+            rebuild = setState;
+            return IndexedStack(
+              index: visible ? 0 : 1,
+              children: [list(), const Text('elsewhere')],
+            );
+          },
+        ),
+      );
+      final gesture = await carry(tester, 'A', const Offset(0, 100));
+      expect(lifted(), findsOneWidget);
+      rebuild(() => visible = false);
+      await tester.pump();
+      await tester.pump();
+      expect(lifted(), findsNothing);
+      expect(log, ['start 0', 'end 0']);
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(moves, isEmpty);
+    });
+  });
+
+  group('SliverReorderableListView', () {
+    Widget page({EdgeInsets padding = EdgeInsets.zero}) => StatefulBuilder(
+      builder: (context, setState) => Center(
+        child: SizedBox(
+          width: 360,
+          height: 400,
+          child: CustomScrollView(
+            slivers: [
+              const SliverToBoxAdapter(
+                child: SizedBox(height: 90, child: Text('Header')),
+              ),
+              SliverPadding(
+                padding: padding,
+                sliver: SliverReorderableListView(
+                  itemCount: items.length,
+                  itemId: (index) => items[index],
+                  itemBuilder: (context, index) => ListTile(
+                    key: ValueKey(items[index]),
+                    title: Text(items[index]),
+                    trailing: const ReorderableDragHandle(),
+                  ),
+                  onReorder: (from, to) {
+                    moves.add((from, to));
+                    setState(() => items.insert(to, items.removeAt(from)));
+                  },
+                ),
+              ),
+              const SliverToBoxAdapter(
+                child: SizedBox(height: 600, child: Text('Footer')),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    testWidgets('reorders among other slivers, and scrolls its scroll view '
+        'from the edge', (tester) async {
+      items = [for (var i = 0; i < 20; i++) 'Item $i'];
+      await pumpFinesse(tester, page());
+      final rowHeight = tester.getSize(rowOf('Item 0')).height;
+      await drag(
+        tester,
+        tester.getCenter(handleOf('Item 0')),
+        rowHeight * 2 + 20,
+      );
+      expect(moves, [(0, 2)]);
+
+      moves.clear();
+      final start = tester.getCenter(handleOf('Item 1'));
+      final gesture = await carry(tester, 'Item 1', const Offset(0, 30));
+      final bottom = tester.getRect(find.byType(CustomScrollView)).bottom;
+      await gesture.moveTo(Offset(start.dx, bottom - 4));
+      for (var i = 0; i < 60; i++) {
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(moves.single.$2, greaterThan(6));
+      expect(lifted(), findsNothing);
+    });
+
+    testWidgets('inset from its viewport, a row held by the keyboard stays '
+        'in its column', (tester) async {
+      await pumpFinesse(
+        tester,
+        page(padding: const EdgeInsets.fromLTRB(40, 0, 24, 0)),
+      );
+      final row = tester.getRect(rowOf('A'));
+      await focusFirstHandle(tester);
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pumpAndSettle();
+      final copy = tester.getRect(liftedRowOf('A'));
+      expect(copy.center.dx, closeTo(row.center.dx, .5));
+      expect(copy.center.dy, closeTo(row.center.dy + row.height * 2, 1));
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      await tester.pumpAndSettle();
+      expect(items, ['B', 'C', 'A', 'D', 'E']);
+    });
+
+    testWidgets('scrolled far past its start, a copy is still painted', (
+      tester,
+    ) async {
+      items = [for (var i = 0; i < 60; i++) 'Item $i'];
+      await pumpFinesse(tester, page());
+      tester
+          .state<ScrollableState>(find.byType(Scrollable).first)
+          .position
+          .jumpTo(1800);
+      await tester.pump();
+      final handle = find.byType(ReorderableDragHandle).hitTestable().first;
+      final gesture = await tester.startGesture(tester.getCenter(handle));
+      await gesture.moveBy(const Offset(0, 20));
+      await gesture.moveBy(const Offset(0, 60));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(lifted(), findsOneWidget);
+      expect(tester.getSize(lifted()).height, greaterThan(20));
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(moves, hasLength(1));
+    });
   });
 
   group('ReorderableListView keyboard', () {
     testWidgets('Space picks up, arrows move, Space drops; every step is '
-        'announced', (tester) async {
+        'announced and the move is reported once', (tester) async {
       final said = announcements(tester);
       await pumpFinesse(tester, list());
-      // The first handle is the first focus stop of the list.
-      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
-      await tester.pump();
+      await focusFirstHandle(tester);
       await tester.sendKeyEvent(LogicalKeyboardKey.space);
       await tester.pump();
       expect(said.last, contains('Picked up'));
@@ -364,79 +797,78 @@ void main() {
 
       await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
       await tester.pumpAndSettle();
-      expect(items, ['B', 'A', 'C', 'D', 'E']);
-      expect(said.last, 'A, Position 2 of 5');
+      expect(said.last, 'B, Position 2 of 5');
+      // The list is the parent's: nothing has moved in it yet.
+      expect(moves, isEmpty);
 
       await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
-      await tester.pumpAndSettle();
-      expect(items, ['B', 'C', 'A', 'D', 'E']);
       await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
       await tester.pumpAndSettle();
-      expect(items, ['B', 'A', 'C', 'D', 'E']);
+      expect(said.last, 'B, Position 2 of 5');
 
       await tester.sendKeyEvent(LogicalKeyboardKey.space);
       await tester.pumpAndSettle();
+      expect(moves, [(0, 1)]);
+      expect(items, ['B', 'A', 'C', 'D', 'E']);
       expect(said.last, 'Dropped at position 2 of 5');
       expect(log.last, 'end 1');
       // Dropped: the arrows no longer move it.
       await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
       await tester.pumpAndSettle();
       expect(items, ['B', 'A', 'C', 'D', 'E']);
+      expect(lifted(), findsNothing);
     });
 
     testWidgets('Escape puts the row back where it was', (tester) async {
       final said = announcements(tester);
       await pumpFinesse(tester, list());
-      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
-      await tester.pump();
+      await focusFirstHandle(tester);
       await tester.sendKeyEvent(LogicalKeyboardKey.enter);
       await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
-      await tester.pumpAndSettle();
       await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
       await tester.pumpAndSettle();
-      expect(items.indexOf('A'), 2);
       await tester.sendKeyEvent(LogicalKeyboardKey.escape);
       await tester.pumpAndSettle();
       expect(items, ['A', 'B', 'C', 'D', 'E']);
+      expect(moves, isEmpty);
       expect(said.last, 'Move cancelled');
+      expect(log, ['start 0', 'end 0']);
     });
 
-    testWidgets('Home and End move a held row to the ends, and the ends '
+    testWidgets('Home and End carry a held row to the ends, and the ends '
         'stop it', (tester) async {
       await pumpFinesse(tester, list());
-      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
-      await tester.pump();
+      await focusFirstHandle(tester);
       await tester.sendKeyEvent(LogicalKeyboardKey.space);
       await tester.sendKeyEvent(LogicalKeyboardKey.end);
-      await tester.pumpAndSettle();
-      expect(items.last, 'A');
       await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
       await tester.pumpAndSettle();
-      expect(items.last, 'A');
+      expect(items, ['B', 'C', 'D', 'E', 'A']);
+      // The focus went with the row.
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
       await tester.sendKeyEvent(LogicalKeyboardKey.home);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
       await tester.pumpAndSettle();
-      expect(items.first, 'A');
+      expect(items, ['A', 'B', 'C', 'D', 'E']);
     });
 
-    testWidgets('the held row is lifted in place, and the focus stays on '
-        'its handle as it moves', (tester) async {
+    testWidgets('the held row is a lifted copy on its slot, and the focus '
+        'stays on its handle as it moves', (tester) async {
       useTraditionalHighlights();
       await pumpFinesse(tester, list());
-      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
-      await tester.pump();
+      await focusFirstHandle(tester);
       final handle = tester.state(handleOf('A'));
       await tester.sendKeyEvent(LogicalKeyboardKey.space);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
-      expect(
-        find.byWidgetPredicate(
-          (widget) =>
-              widget is DecoratedBox && widget.decoration is ShadowDecoration,
-        ),
-        findsOneWidget,
-      );
+      expect(liftedRowOf('A'), findsOneWidget);
       await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
       await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      await tester.pumpAndSettle();
+      expect(items, ['B', 'A', 'C', 'D', 'E']);
       expect(tester.state(handleOf('A')), same(handle));
       expect(
         FocusManager.instance.primaryFocus?.context
@@ -444,24 +876,79 @@ void main() {
             ?.key,
         const ValueKey('A'),
       );
-      await tester.sendKeyEvent(LogicalKeyboardKey.space);
-      await tester.pumpAndSettle();
       expect(tester.hasRunningAnimations, isFalse);
     });
 
     testWidgets('tabbing away drops the row where it is', (tester) async {
       await pumpFinesse(tester, list());
-      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
-      await tester.pump();
+      await focusFirstHandle(tester);
       await tester.sendKeyEvent(LogicalKeyboardKey.space);
       await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
       await tester.pumpAndSettle();
       await tester.sendKeyEvent(LogicalKeyboardKey.tab);
       await tester.pumpAndSettle();
       expect(log.last, 'end 1');
+      expect(items, ['B', 'A', 'C', 'D', 'E']);
       await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
       await tester.pumpAndSettle();
       expect(items, ['B', 'A', 'C', 'D', 'E']);
+    });
+
+    testWidgets('a row with a handle is not a Tab stop itself; a row '
+        'without one is, and Space picks it up', (tester) async {
+      useTraditionalHighlights();
+      final said = announcements(tester);
+      await pumpFinesse(tester, list());
+      final labels = <String?>[];
+      for (var i = 0; i < 5; i++) {
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        labels.add(FocusManager.instance.primaryFocus?.debugLabel);
+      }
+      expect(labels, everyElement('ReorderableDragHandle'));
+
+      await pumpFinesse(tester, const SizedBox());
+      await pumpFinesse(tester, list(handles: false));
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      expect(FocusManager.instance.primaryFocus?.debugLabel, 'Board item');
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      await tester.pump();
+      expect(said.last, contains('Picked up'));
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      await tester.pumpAndSettle();
+      expect(items, ['B', 'A', 'C', 'D', 'E']);
+    });
+
+    testWidgets("the focus ring is the handle's: the row around a focused "
+        'handle shows none', (tester) async {
+      useTraditionalHighlights();
+      await pumpFinesse(tester, list());
+      await focusFirstHandle(tester);
+      await tester.pump(const Duration(milliseconds: 300));
+      final around = tester
+          .widgetList<FocusRing>(
+            find.ancestor(of: handleOf('A'), matching: find.byType(FocusRing)),
+          )
+          .where((ring) => ring.visible);
+      expect(around, isEmpty);
+      final own = tester.widget<FocusRing>(
+        find.descendant(of: handleOf('A'), matching: find.byType(FocusRing)),
+      );
+      expect(own.visible, isTrue);
+    });
+
+    testWidgets('sideways arrows do nothing to a held row', (tester) async {
+      await pumpFinesse(tester, list());
+      await focusFirstHandle(tester);
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      await tester.pumpAndSettle();
+      expect(moves, isEmpty);
+      expect(tester.takeException(), isNull);
     });
   });
 
@@ -498,10 +985,17 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('the handle is a named button', (tester) async {
+    testWidgets('the handle is a named button, and the copy in the air is '
+        'not in the tree', (tester) async {
       final handle = tester.ensureSemantics();
       await pumpFinesse(tester, list());
       expect(find.bySemanticsLabel('Drag to reorder'), findsNWidgets(5));
+      final gesture = await carry(tester, 'B', const Offset(0, 40));
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(lifted(), findsOneWidget);
+      expect(find.bySemanticsLabel('Drag to reorder'), findsNWidgets(5));
+      await gesture.up();
+      await tester.pumpAndSettle();
       handle.dispose();
     });
   });
@@ -525,7 +1019,7 @@ void main() {
       addTearDown(mouse.removePointer);
       await tester.pump();
       expect(opacity('A'), 0);
-      await mouse.moveTo(tester.getCenter(find.text('B')));
+      await mouse.moveTo(tester.getCenter(textOf('B')));
       await tester.pumpAndSettle();
       expect(opacity('B'), 1);
       expect(opacity('A'), 0);

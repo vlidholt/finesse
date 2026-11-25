@@ -2,6 +2,7 @@ import 'package:example/docs/docs.dart';
 import 'package:example/docs/examples/list_section/list_section_form.dart';
 import 'package:example/docs/examples/list_section/list_section_plain.dart';
 import 'package:example/docs/examples/list_section/list_section_settings.dart';
+import 'package:example/docs/examples/list_section/list_section_sliver.dart';
 
 final listSectionDoc = ComponentDoc(
   slug: 'list_section',
@@ -38,6 +39,18 @@ final listSectionDoc = ComponentDoc(
           'edge with only hairlines between them.',
       minPreviewHeight: 320,
       builder: (_) => const ListSectionPlainExample(),
+    ),
+    ComponentExample(
+      id: 'list_section_sliver',
+      title: 'Long lists',
+      description:
+          'A `ListSection` builds all of its rows. `SliverListSection` is the '
+          'same section as a sliver of a `CustomScrollView`, and '
+          '`SliverListSection.builder` builds its rows as they scroll into '
+          'view: the card is one decoration behind them, and no row is '
+          'clipped or composited on its own.',
+      minPreviewHeight: 460,
+      builder: (_) => const ListSectionSliverExample(),
     ),
   ],
 );

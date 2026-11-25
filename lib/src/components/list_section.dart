@@ -1,5 +1,9 @@
 import 'package:finesse/src/components/card.dart';
+import 'package:finesse/src/theme/components/list_section.dart';
+import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/theme.dart';
+import 'package:finesse/src/utils/border.dart';
+import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
@@ -71,8 +75,9 @@ enum ListSectionPosition {
 /// `TextField`, a `Select`, a `Switch`.
 ///
 /// The section is as wide as it is allowed to be and as tall as its rows;
-/// put several in a scrolling column. A very long list of rows belongs in a
-/// lazy list instead: a section builds all of its children.
+/// put several in a scrolling column. It builds all of its children: a very
+/// long list of rows is a [SliverListSection], which builds them as they
+/// scroll into view.
 class ListSection extends StatelessWidget {
   /// Creates a section of [children].
   const ListSection({
@@ -116,60 +121,9 @@ class ListSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final section = theme.listSectionTheme;
-    final scheme = theme.colorScheme;
-    final direction = Directionality.of(context);
-    final isCard = variant == ListSectionVariant.card;
-
-    final cardRadius =
-        section.borderRadius ?? theme.cardTheme.borderRadius ?? theme.radius;
-    final borderWidth = isCard
-        ? (theme.cardTheme.border?.top?.width ?? 1)
-        : 0.0;
-    // The corners of the rows' own area, inside the card's outline.
-    final innerRadius = isCard
-        ? _deflate(cardRadius, borderWidth)
-        : BorderRadius.zero;
-    final tilePadding = (section.tilePadding ?? EdgeInsets.zero).resolve(
-      direction,
-    );
-    final thickness = section.dividerThickness ?? 1;
-    final dividerColor = section.dividerColor ?? scheme.border;
-
+    final look = _SectionLook.of(context, variant, dividerIndent);
+    final section = look.section;
     final count = children.length;
-    final rows = <Widget>[
-      for (var i = 0; i < count; i++)
-        _SectionRow(
-          divider: dividers && i < count - 1,
-          color: dividerColor,
-          thickness: thickness,
-          indent: dividerIndent,
-          fallbackIndent: direction == TextDirection.ltr
-              ? tilePadding.left
-              : tilePadding.right,
-          textDirection: direction,
-          child: Semantics(
-            role: SemanticsRole.listItem,
-            container: true,
-            child: ListSectionScope(
-              position: count == 1
-                  ? ListSectionPosition.only
-                  : i == 0
-                  ? ListSectionPosition.first
-                  : i == count - 1
-                  ? ListSectionPosition.last
-                  : ListSectionPosition.middle,
-              variant: variant,
-              borderRadius: innerRadius,
-              tilePadding: section.tilePadding,
-              minTileHeight: section.minTileHeight ?? 0,
-              pressedColor: section.pressedColor ?? scheme.muted,
-              child: children[i],
-            ),
-          ),
-        ),
-    ];
 
     Widget body = Semantics(
       role: SemanticsRole.list,
@@ -178,11 +132,14 @@ class ListSection extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: rows,
+        children: [
+          for (var i = 0; i < count; i++)
+            look.row(i, count, children[i], dividers: dividers),
+        ],
       ),
     );
 
-    if (isCard) {
+    if (look.isCard) {
       body = Card(
         padding: EdgeInsets.zero,
         backgroundColor: section.backgroundColor,
@@ -193,8 +150,9 @@ class ListSection extends StatelessWidget {
       );
     }
 
-    final hasHeader = header != null || headerTrailing != null;
-    if (!hasHeader && footer == null) {
+    final top = look.header(header, headerTrailing);
+    final bottom = look.footer(footer);
+    if (top == null && bottom == null) {
       return Padding(
         padding: margin ?? section.margin ?? EdgeInsets.zero,
         child: body,
@@ -206,43 +164,320 @@ class ListSection extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (hasHeader)
-            Padding(
-              padding: section.headerPadding ?? EdgeInsets.zero,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: header == null
-                        ? const SizedBox.shrink()
-                        : Semantics(
-                            header: true,
-                            child: DefaultTextStyle.merge(
-                              style:
-                                  section.headerStyle ??
-                                  theme.textTheme.caption,
-                              child: header!,
-                            ),
-                          ),
-                  ),
-                  if (headerTrailing != null)
-                    DefaultTextStyle.merge(
-                      style: theme.textTheme.small,
-                      child: headerTrailing!,
-                    ),
-                ],
+        children: [?top, body, ?bottom],
+      ),
+    );
+  }
+}
+
+/// A [ListSection] as a sliver, whose rows are built as they scroll into
+/// view: a long grouped list — every contact, every package, every setting
+/// a search found — among the other slivers of a `CustomScrollView`.
+///
+/// ```dart
+/// CustomScrollView(
+///   slivers: [
+///     SliverListSection.builder(
+///       header: const Text('Packages'),
+///       itemCount: packages.length,
+///       itemBuilder: (context, index) => ListTile(
+///         title: Text(packages[index].name),
+///         showChevron: true,
+///         onTap: () => open(packages[index]),
+///       ),
+///     ),
+///   ],
+/// )
+/// ```
+///
+/// It looks as a [ListSection] does — the header, the rows on the card or
+/// edge to edge, the hairlines inset to the text, the footer — and its rows
+/// read the same [ListSectionScope]. The card is painted once behind all
+/// the rows; nothing is clipped or composited per row, so a row that fills
+/// its own background rounds the section's corners itself, as `ListTile`
+/// does, with [ListSectionScope.rowBorderRadius]. Unlike a [ListSection]'s
+/// card, the sliver's never blurs what is behind it.
+///
+/// See also:
+///
+///  * [ListSection], which builds all of its rows and can sit anywhere.
+class SliverListSection extends StatelessWidget {
+  /// Creates a section of [children] as a sliver. The children are laid out
+  /// as they scroll into view; to build them lazily too, use
+  /// [SliverListSection.builder].
+  SliverListSection({
+    required List<Widget> children,
+    this.header,
+    this.headerTrailing,
+    this.footer,
+    this.variant = ListSectionVariant.card,
+    this.dividers = true,
+    this.dividerIndent,
+    this.margin,
+    super.key,
+  }) : itemCount = children.length,
+       itemBuilder = ((context, index) => children[index]),
+       findChildIndexCallback = null;
+
+  /// Creates a section whose rows are built as they scroll into view.
+  const SliverListSection.builder({
+    required this.itemCount,
+    required this.itemBuilder,
+    this.findChildIndexCallback,
+    this.header,
+    this.headerTrailing,
+    this.footer,
+    this.variant = ListSectionVariant.card,
+    this.dividers = true,
+    this.dividerIndent,
+    this.margin,
+    super.key,
+  });
+
+  /// The number of rows.
+  final int itemCount;
+
+  /// Builds the row at an index.
+  final IndexedWidgetBuilder itemBuilder;
+
+  /// Finds the new index of a row by the key of the widget [itemBuilder]
+  /// built for it, so that rows keep their state when the list is
+  /// reordered. See `SliverChildBuilderDelegate.findChildIndexCallback`.
+  final ChildIndexGetter? findChildIndexCallback;
+
+  /// The heading above the rows; see [ListSection.header].
+  final Widget? header;
+
+  /// A widget at the end of the header's line.
+  final Widget? headerTrailing;
+
+  /// The explanation under the rows, a muted caption.
+  final Widget? footer;
+
+  /// How the rows are presented.
+  final ListSectionVariant variant;
+
+  /// Whether a hairline is drawn between two rows.
+  final bool dividers;
+
+  /// How far from the start edge the hairlines begin. Null starts each one
+  /// at its row's text.
+  final double? dividerIndent;
+
+  /// The space around the section. Defaults to the theme's.
+  final EdgeInsetsGeometry? margin;
+
+  @override
+  Widget build(BuildContext context) {
+    final look = _SectionLook.of(context, variant, dividerIndent);
+    final section = look.section;
+    final theme = look.theme;
+    final count = itemCount;
+
+    Widget body = SliverSemantics(
+      role: SemanticsRole.list,
+      container: true,
+      explicitChildNodes: true,
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (context, index) {
+            final child = itemBuilder(context, index);
+            return KeyedSubtree(
+              // The caller's key says which row this is.
+              key: child.key,
+              child: look.row(
+                index,
+                count,
+                child,
+                dividers: dividers,
+                indexed: true,
               ),
+            );
+          },
+          childCount: count,
+          findChildIndexCallback: findChildIndexCallback,
+          // The row's own node carries its index: a node of the list's
+          // between the two would stand between a list and its items.
+          addSemanticIndexes: false,
+        ),
+      ),
+    );
+
+    if (look.isCard && count > 0) {
+      final border =
+          (theme.cardTheme.border ??
+                  FinesseBorder.all(color: theme.colorScheme.border, width: 1))
+              .toBorder();
+      // The card is one decoration behind every row, built or not. It is
+      // painted with the list, so it costs a rounded rectangle a frame.
+      body = DecoratedSliver(
+        decoration: ShadowDecoration.box(
+          color:
+              section.backgroundColor ??
+              theme.cardTheme.backgroundColor ??
+              theme.colorScheme.card,
+          borderRadius: look.cardRadius,
+          border: border,
+          shadows: theme.cardTheme.shadows ?? const [],
+        ),
+        // As a `Container` does, the outline takes its width from the rows.
+        sliver: SliverPadding(padding: border.dimensions, sliver: body),
+      );
+    }
+
+    final top = look.header(header, headerTrailing);
+    final bottom = look.footer(footer);
+    return SliverPadding(
+      padding: margin ?? section.margin ?? EdgeInsets.zero,
+      sliver: top == null && bottom == null
+          ? body
+          : SliverMainAxisGroup(
+              slivers: [
+                if (top != null) SliverToBoxAdapter(child: top),
+                body,
+                if (bottom != null) SliverToBoxAdapter(child: bottom),
+              ],
             ),
-          body,
-          if (footer != null)
-            Padding(
-              padding: section.footerPadding ?? EdgeInsets.zero,
-              child: DefaultTextStyle.merge(
-                style: section.footerStyle ?? theme.textTheme.caption,
-                child: footer!,
-              ),
+    );
+  }
+}
+
+/// What [ListSection] and [SliverListSection] share: the metrics a section
+/// resolves from the theme once, and the widgets it makes of them.
+class _SectionLook {
+  _SectionLook._({
+    required this.theme,
+    required this.variant,
+    required this.cardRadius,
+    required this.innerRadius,
+    required this.fallbackIndent,
+    required this.indent,
+    required this.direction,
+  });
+
+  factory _SectionLook.of(
+    BuildContext context,
+    ListSectionVariant variant,
+    double? dividerIndent,
+  ) {
+    final theme = Theme.of(context);
+    final section = theme.listSectionTheme;
+    final direction = Directionality.of(context);
+    final isCard = variant == ListSectionVariant.card;
+    final cardRadius =
+        section.borderRadius ?? theme.cardTheme.borderRadius ?? theme.radius;
+    final borderWidth = isCard
+        ? (theme.cardTheme.border?.top?.width ?? 1)
+        : 0.0;
+    final tilePadding = (section.tilePadding ?? EdgeInsets.zero).resolve(
+      direction,
+    );
+    return _SectionLook._(
+      theme: theme,
+      variant: variant,
+      cardRadius: cardRadius,
+      // The corners of the rows' own area, inside the card's outline.
+      innerRadius: isCard
+          ? _deflate(cardRadius, borderWidth)
+          : BorderRadius.zero,
+      fallbackIndent: direction == TextDirection.ltr
+          ? tilePadding.left
+          : tilePadding.right,
+      indent: dividerIndent,
+      direction: direction,
+    );
+  }
+
+  final ThemeData theme;
+  final ListSectionVariant variant;
+  final BorderRadius cardRadius;
+  final BorderRadius innerRadius;
+  final double fallbackIndent;
+  final double? indent;
+  final TextDirection direction;
+
+  ListSectionTheme get section => theme.listSectionTheme;
+
+  bool get isCard => variant == ListSectionVariant.card;
+
+  /// The row at [index] of [count]: its hairline, its place in the
+  /// semantics list and the scope its tile reads.
+  Widget row(
+    int index,
+    int count,
+    Widget child, {
+    required bool dividers,
+    bool indexed = false,
+  }) {
+    final section = this.section;
+    final scheme = theme.colorScheme;
+    return _SectionRow(
+      divider: dividers && index < count - 1,
+      color: section.dividerColor ?? scheme.border,
+      thickness: section.dividerThickness ?? 1,
+      indent: indent,
+      fallbackIndent: fallbackIndent,
+      textDirection: direction,
+      child: Semantics(
+        role: SemanticsRole.listItem,
+        container: true,
+        child: ListSectionScope(
+          position: count == 1
+              ? ListSectionPosition.only
+              : index == 0
+              ? ListSectionPosition.first
+              : index == count - 1
+              ? ListSectionPosition.last
+              : ListSectionPosition.middle,
+          variant: variant,
+          borderRadius: innerRadius,
+          tilePadding: section.tilePadding,
+          minTileHeight: section.minTileHeight ?? 0,
+          pressedColor: section.pressedColor ?? scheme.muted,
+          child: indexed ? IndexedSemantics(index: index, child: child) : child,
+        ),
+      ),
+    );
+  }
+
+  /// The line above the rows, or null when there is nothing to put on it.
+  Widget? header(Widget? header, Widget? trailing) {
+    if (header == null && trailing == null) return null;
+    final section = this.section;
+    return Padding(
+      padding: section.headerPadding ?? EdgeInsets.zero,
+      child: Row(
+        children: [
+          Expanded(
+            child: header == null
+                ? const SizedBox.shrink()
+                : Semantics(
+                    header: true,
+                    child: DefaultTextStyle.merge(
+                      style: section.headerStyle ?? theme.textTheme.caption,
+                      child: header,
+                    ),
+                  ),
+          ),
+          if (trailing != null)
+            DefaultTextStyle.merge(
+              style: theme.textTheme.small,
+              child: trailing,
             ),
         ],
+      ),
+    );
+  }
+
+  /// The caption under the rows, or null without one.
+  Widget? footer(Widget? footer) {
+    if (footer == null) return null;
+    final section = this.section;
+    return Padding(
+      padding: section.footerPadding ?? EdgeInsets.zero,
+      child: DefaultTextStyle.merge(
+        style: section.footerStyle ?? theme.textTheme.caption,
+        child: footer,
       ),
     );
   }

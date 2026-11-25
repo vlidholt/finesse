@@ -1,6 +1,7 @@
 import 'package:example/docs/docs.dart';
 import 'package:example/docs/examples/reorderable_list_view/reorderable_list_view_basic.dart';
 import 'package:example/docs/examples/reorderable_list_view/reorderable_list_view_handles.dart';
+import 'package:example/docs/examples/reorderable_list_view/reorderable_list_view_sliver.dart';
 
 final reorderableListViewDoc = ComponentDoc(
   slug: 'reorderable_list_view',
@@ -15,7 +16,9 @@ final reorderableListViewDoc = ComponentDoc(
       description:
           'Every row has a key and a `ReorderableDragHandle`. A finger also '
           'picks a row up by pressing and holding anywhere on it; a mouse '
-          'uses the grip, which shows under the pointer. From the keyboard, '
+          'uses the grip, which shows under the pointer. The row lifts as '
+          'a card does on a `Board`, the others make way on springs, and '
+          'on release it flies to its place and lands. From the keyboard, '
           'Space or Enter on a focused grip picks the row up, the arrow '
           'keys move it, Space drops it and Escape puts it back. '
           '`onReorder(from, to)` reports the row\'s final index, so '
@@ -29,10 +32,22 @@ final reorderableListViewDoc = ComponentDoc(
       description:
           '`longPressToDrag: false` leaves a long press to the rows. '
           '`ReorderableListView.builder` builds rows as they scroll into '
-          'view, and the list scrolls when a row is held near its edge. '
-          'A row keeps its state when it is moved.',
+          'view — `itemId` says which item is at an index, so the rows '
+          'need no key — and the list scrolls when a row is held near its '
+          'edge. A row keeps its state when it is moved.',
       minPreviewHeight: 380,
       builder: (_) => const ReorderableListViewHandlesExample(),
+    ),
+    ComponentExample(
+      id: 'reorderable_list_view_sliver',
+      title: 'A sliver, and changes made from code',
+      description:
+          '`SliverReorderableListView` is the same list among the other '
+          'slivers of a `CustomScrollView`. A change the parent makes by '
+          'itself is animated too: sort or shuffle the queue and the rows '
+          'glide to where they now belong.',
+      minPreviewHeight: 420,
+      builder: (_) => const ReorderableListViewSliverExample(),
     ),
   ],
 );
