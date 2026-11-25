@@ -422,4 +422,187 @@ void main() {
       }
     });
   });
+
+  group('RadioListTile under a FinesseRadioGroup', () {
+    const options = ['Everyone', 'Connections', 'No one'];
+
+    Widget rows({bool sectionEnabled = true}) => ListSection(
+      children: [
+        for (final option in options)
+          RadioListTile<String>(
+            key: Key(option),
+            title: Text(option),
+            value: option,
+            enabled: sectionEnabled,
+          ),
+      ],
+    );
+
+    PopIn dot(WidgetTester tester, String option) => tester.widget<PopIn>(
+      find.descendant(
+        of: find.byKey(Key(option)),
+        matching: find.byType(PopIn),
+      ),
+    );
+
+    testWidgets('a row given neither groupValue nor onChanged shows the '
+        "group's selection and selects through it", (tester) async {
+      var selected = 'Everyone';
+      final seen = <String>[];
+      await pumpFinesse(
+        tester,
+        Align(
+          alignment: Alignment.topCenter,
+          child: SizedBox(
+            width: 340,
+            child: StatefulBuilder(
+              builder: (context, setState) => FinesseRadioGroup<String>(
+                // A section takes the width it is given, and a
+                // horizontal wrap is the one that gives it one.
+                axis: Axis.horizontal,
+                value: selected,
+                onChanged: (value) => setState(() {
+                  selected = value;
+                  seen.add(value);
+                }),
+                items: [rows()],
+              ),
+            ),
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      // The section is as wide as the group lets it be.
+      expect(tester.getSize(find.byType(ListSection)).width, 340);
+      expect(dot(tester, 'Everyone').visible, isTrue);
+      expect(dot(tester, 'No one').visible, isFalse);
+
+      await tester.tap(find.text('No one'));
+      await tester.pumpAndSettle();
+      expect(seen, ['No one']);
+      expect(dot(tester, 'Everyone').visible, isFalse);
+      expect(dot(tester, 'No one').visible, isTrue);
+      // The selected row is not reported again.
+      await tester.tap(find.text('No one'));
+      await tester.pumpAndSettle();
+      expect(seen, ['No one']);
+    });
+
+    testWidgets('a group that keeps its own state, and the keyboard', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await pumpFinesse(
+        tester,
+        Align(
+          alignment: Alignment.topCenter,
+          child: SizedBox(
+            width: 340,
+            child: FinesseRadioGroup<String>(
+              axis: Axis.horizontal,
+              initialValue: 'Connections',
+              items: [rows()],
+            ),
+          ),
+        ),
+      );
+      expect(dot(tester, 'Connections').visible, isTrue);
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      await tester.pumpAndSettle();
+      expect(dot(tester, 'Everyone').visible, isTrue);
+      expect(dot(tester, 'Connections').visible, isFalse);
+      final node = tester.getSemantics(find.byKey(const Key('Everyone')));
+      expect(node.flagsCollection.isChecked, ui.CheckedState.isTrue);
+      expect(node.flagsCollection.isInMutuallyExclusiveGroup, isTrue);
+      handle.dispose();
+    });
+
+    testWidgets('a disabled group, or a disabled row, takes no tap', (
+      tester,
+    ) async {
+      final seen = <String>[];
+      Widget build({required bool group, required bool row}) => Align(
+        alignment: Alignment.topCenter,
+        child: SizedBox(
+          width: 340,
+          child: FinesseRadioGroup<String>(
+            axis: Axis.horizontal,
+            value: 'Everyone',
+            enabled: group,
+            onChanged: seen.add,
+            items: [rows(sectionEnabled: row)],
+          ),
+        ),
+      );
+      await pumpFinesse(tester, build(group: false, row: true));
+      await tester.tap(find.text('No one'));
+      await tester.pumpAndSettle();
+      expect(seen, isEmpty);
+      await pumpFinesse(tester, build(group: true, row: false));
+      await tester.tap(find.text('No one'));
+      await tester.pumpAndSettle();
+      expect(seen, isEmpty);
+      await pumpFinesse(tester, build(group: true, row: true));
+      await tester.tap(find.text('No one'));
+      await tester.pumpAndSettle();
+      expect(seen, ['No one']);
+    });
+
+    testWidgets("a row that is told its groupValue is its caller's, "
+        'whatever group is around it', (tester) async {
+      final seen = <int?>[];
+      await pumpFinesse(
+        tester,
+        Align(
+          alignment: Alignment.topCenter,
+          child: SizedBox(
+            width: 340,
+            // A group of another type, for something else on the page.
+            child: FinesseRadioGroup<String>(
+              axis: Axis.horizontal,
+              initialValue: 'x',
+              items: [
+                ListSection(
+                  children: [
+                    for (final n in [1, 2])
+                      RadioListTile<int>(
+                        key: Key('$n'),
+                        title: Text('Option $n'),
+                        value: n,
+                        groupValue: 1,
+                        onChanged: seen.add,
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      expect(dot(tester, '1').visible, isTrue);
+      await tester.tap(find.text('Option 2'));
+      await tester.pumpAndSettle();
+      expect(seen, [2]);
+    });
+
+    testWidgets('with no group and no onChanged the row is switched off', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await pumpFinesse(
+        tester,
+        Align(
+          alignment: Alignment.topCenter,
+          child: SizedBox(width: 340, child: rows()),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      final node = tester.getSemantics(find.byKey(const Key('Everyone')));
+      expect(node.flagsCollection.isEnabled, ui.Tristate.isFalse);
+      handle.dispose();
+    });
+  });
 }
