@@ -24,6 +24,7 @@ import 'package:example/docs/pages/color_picker.dart';
 import 'package:example/docs/pages/command.dart';
 import 'package:example/docs/pages/context_menu.dart';
 import 'package:example/docs/pages/data_table.dart';
+import 'package:example/docs/pages/date_field.dart';
 import 'package:example/docs/pages/date_picker.dart';
 import 'package:example/docs/pages/dialog.dart';
 import 'package:example/docs/pages/divider.dart';
@@ -169,6 +170,7 @@ final componentDocs = [
   commandDoc,
   contextMenuDoc,
   dataTableDoc,
+  dateFieldDoc,
   datePickerDoc,
   dialogDoc,
   dividerDoc,

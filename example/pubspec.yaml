@@ -51,6 +51,7 @@ flutter:
     - lib/docs/examples/command/
     - lib/docs/examples/context_menu/
     - lib/docs/examples/data_table/
+    - lib/docs/examples/date_field/
     - lib/docs/examples/date_picker/
     - lib/docs/examples/dialog/
     - lib/docs/examples/empty/

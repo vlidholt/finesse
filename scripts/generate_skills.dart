@@ -43,6 +43,7 @@ const _slugs = [
   'command',
   'context_menu',
   'data_table',
+  'date_field',
   'date_picker',
   'dialog',
   'divider',
