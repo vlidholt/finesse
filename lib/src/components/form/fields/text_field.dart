@@ -497,13 +497,6 @@ class TextFormFieldState extends FinesseFormFieldState<TextFormField, String> {
   }
 
   @override
-  void reset() {
-    super.reset();
-    controller.text = initialValue ?? '';
-    widget.onChanged?.call(controller.text);
-  }
-
-  @override
   void dispose() {
     controller.removeListener(onControllerChanged);
     _controller?.dispose();
