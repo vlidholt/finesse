@@ -522,6 +522,8 @@ finesseTextSelectionControls
 formatPickedDate
 formatPickedDateRange
 formatTimeOfDay
+isInTopRoute
+isShownOnTop
 lerpColorThroughAlpha
 showActionSheet
 showCommandDialog

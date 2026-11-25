@@ -300,6 +300,7 @@ export 'src/utils/overlay_insets.dart';
 export 'src/utils/pop_in.dart';
 export 'src/utils/position.dart' hide PositionedExt;
 export 'src/utils/responsive.dart';
+export 'src/utils/route_on_top.dart';
 export 'src/utils/shadow.dart' hide paintOuterShadows;
 export 'src/utils/spring.dart';
 export 'src/utils/spring_size.dart';

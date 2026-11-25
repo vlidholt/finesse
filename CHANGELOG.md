@@ -529,7 +529,10 @@ package as it is, compared with shad.
   `ThemeData(haptics: false)` switches them off.
 - `CrossFadeTheme` and `ThemeChange`; `TextTheme.caption` for fine print;
   `DismissShortcut` (Escape closes something of yours without taking the
-  key from the dialog around it); `FinesseTable.rowSelected`;
+  key from the dialog around it); `isShownOnTop` and `isInTopRoute` (what a
+  key handler or a system gesture asks before it acts: shown, and in the
+  top route of every navigator up — a route's `isCurrent` answers for its
+  own navigator only); `FinesseTable.rowSelected`;
   `Portal.onShown`; `BottomNavigationBarTheme.rimColor` and `shadows`.
 - Style tokens `tableHoverOpacity`, `tableSelectionTinted`,
   `menuHighlightOpacity`, `floatingShadowDark`, `fabSize` (`Sm`, `Lg`)

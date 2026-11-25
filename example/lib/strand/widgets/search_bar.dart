@@ -70,7 +70,7 @@ SearchCallbacks searchCallbacksFor(
 /// puts the cursor in the field from anywhere in Strand. It is a
 /// `HardwareKeyboard` handler, which hears a key wherever the focus is —
 /// including inside a dialog — so it checks that nothing covers the bar
-/// (`isOnTopRoute`) before it acts.
+/// (`isInTopRoute`) before it acts.
 class StrandSearchBar extends StatefulWidget {
   const StrandSearchBar({super.key});
 
@@ -151,7 +151,7 @@ class _StrandSearchBarState extends State<StrandSearchBar> {
     if (!SearchField.isSearchShortcut(event)) return false;
     // Not under a dialog, a sheet or a full-screen page: the focus belongs
     // to whatever covers the bar, and the panel would open behind it.
-    if (!mounted || !context.isOnTopRoute) return false;
+    if (!mounted || !isInTopRoute(context)) return false;
     // Strand stays alive behind the component library; the shortcut is
     // not its to take while it is not showing.
     if (appSectionProvider.of(context).untrackedValue != AppSection.strand) {

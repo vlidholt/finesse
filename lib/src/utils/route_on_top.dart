@@ -1,5 +1,28 @@
 import 'package:flutter/widgets.dart';
 
+/// Whether the widget at [context] is what the user is looking at: shown —
+/// not under a covered route (`TickerMode`), nor in a hidden child of an
+/// `IndexedStack` (`Visibility.of`), which keeps its tickers running — and
+/// [isInTopRoute].
+///
+/// Anything that reacts to an event from outside the focus tree asks this
+/// when the event arrives: an early or late key handler, a
+/// `HardwareKeyboard` handler, a system back gesture. Each of the three
+/// misses a case the others catch.
+///
+/// [routeContext] is where to look for the route, when [context] is
+/// outside the route's subtree (a route's own transitions); it defaults to
+/// [context].
+///
+/// `TickerMode.valuesOf` and `Visibility.of` make [context] depend on them,
+/// so a widget that asks from an event handler is rebuilt when either
+/// changes, as it would be for asking in its `build`.
+bool isShownOnTop(BuildContext context, {BuildContext? routeContext}) =>
+    context.mounted &&
+    TickerMode.valuesOf(context).enabled &&
+    Visibility.of(context) &&
+    isInTopRoute(routeContext ?? context);
+
 /// Whether [context] is in the route on top of the whole app: the current
 /// route of its navigator, in a navigator that is itself in the current
 /// route of the navigator around it, all the way up.

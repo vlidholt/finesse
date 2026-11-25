@@ -776,6 +776,16 @@ weight, another font, at or above the reference — is a plain `Icon`.
   needs a re-entrancy guard *and* a real yield (`Future.delayed(Duration.zero)`)
   per iteration. `test/src/components/select_auto_scroll_test.dart` locks the
   guard. On web this reads as a browser bug, which is how it went unnoticed.
+- **An early or late key handler, a `HardwareKeyboard` handler, or
+  anything else that reacts to a system event, asks whether its widget is
+  shown and on top when the event arrives: `isShownOnTop(context)`
+  (`lib/src/utils/route_on_top.dart`, exported) — `TickerMode`,
+  `Visibility.of` and `isInTopRoute`, which checks every navigator up
+  without a dependency.** `ModalRoute.isCurrent` answers for one navigator
+  only: a page in a nested navigator stays current under a dialog pushed
+  on the root one. The page route's back gestures, the hover card, the
+  navigation menu's Escape and the sidebar's ⌘B/Ctrl+B all go through it;
+  there is no second copy.
 - **Escape must not be bound unconditionally.** A `CallbackShortcuts` for
   Escape consumes the key even while its overlay is closed, so the enclosing
   dialog never closes. Use `DismissShortcut` (`lib/src/utils/`, exported),
@@ -1654,8 +1664,8 @@ disco providers in `common/app_state.dart`, provided above `FinesseApp`.
   on the panel neither closes it nor takes the caret. It opens from `onTap`
   as well as on a focus gain: after a tap outside on a touch screen the
   field still has the focus.
-- **A global shortcut asks `context.isOnTopRoute`, not
-  `ModalRoute.isCurrent`** (`navigation.dart`). Strand's pages are in the
+- **A global shortcut asks the package's `isInTopRoute(context)`, not
+  `ModalRoute.isCurrent`** (the search bar). Strand's pages are in the
   navigator `AppShell` hosts, and a dialog is pushed on the *root* one, so
   a page's own route stays current under every dialog; a
   `HardwareKeyboard` handler hears keys wherever the focus is and would

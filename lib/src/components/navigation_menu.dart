@@ -470,9 +470,7 @@ class _NavigationMenuState extends State<NavigationMenu>
         // An early handler hears the key wherever the focus is: under a
         // dialog, or in a part of the tree that is not shown, the key is
         // someone else's.
-        !TickerMode.valuesOf(context).enabled ||
-        !Visibility.of(context) ||
-        !isInTopRoute(context)) {
+        !isShownOnTop(context)) {
       return KeyEventResult.ignored;
     }
     _close();

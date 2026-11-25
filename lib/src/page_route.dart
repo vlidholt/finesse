@@ -678,13 +678,14 @@ class _BackGestureDetectorState extends State<_BackGestureDetector>
     return widget.route._predictiveStart(backEvent);
   }
 
+  // The transitions are built around the page, outside the route's
+  // subtree, so the route is looked for from the page.
   bool get _onTop =>
       mounted &&
-      TickerMode.valuesOf(context).enabled &&
-      Visibility.of(context) &&
-      // The transitions are built around the page, outside the route's
-      // subtree.
-      isInTopRoute(widget.route.subtreeContext ?? context);
+      isShownOnTop(
+        context,
+        routeContext: widget.route.subtreeContext ?? context,
+      );
 
   @override
   void handleUpdateBackGestureProgress(PredictiveBackEvent backEvent) =>

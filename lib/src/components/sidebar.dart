@@ -16,6 +16,7 @@ import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/border.dart';
 import 'package:finesse/src/utils/debug_check.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
+import 'package:finesse/src/utils/route_on_top.dart';
 import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -346,26 +347,6 @@ class _SidebarScaffoldState extends State<SidebarScaffold> {
 
   bool get _isMobile => Theme.of(context).formFactor == FormFactor.mobile;
 
-  /// Whether the scaffold is showing, as of its last build: not under a
-  /// covered route, nor in a hidden child of an `IndexedStack`, which keeps
-  /// its tickers running.
-  bool _onStage = true;
-
-  /// Whether no route covers this one, in this navigator or in any that
-  /// hosts it. A dialog is often pushed on the root navigator, above the
-  /// route that hosts a nested one, which stays current under it.
-  bool get _onTopRoute {
-    BuildContext? at = context;
-    while (at != null && at.mounted) {
-      final route = ModalRoute.of(at);
-      if (route == null) return true;
-      if (!route.isCurrent) return false;
-      // The navigator's own context is inside the route that hosts it.
-      at = route.navigator?.context;
-    }
-    return true;
-  }
-
   static bool get _apple => switch (defaultTargetPlatform) {
     TargetPlatform.macOS || TargetPlatform.iOS => true,
     _ => false,
@@ -408,7 +389,9 @@ class _SidebarScaffoldState extends State<SidebarScaffold> {
         (_apple
             ? keyboard.isMetaPressed && !keyboard.isControlPressed
             : keyboard.isControlPressed && !keyboard.isMetaPressed);
-    if (!chord || !mounted || !_onStage || !_onTopRoute) {
+    // Heard wherever the focus is: under a dialog, or in a part of the tree
+    // that is not shown, the chord is someone else's.
+    if (!chord || !mounted || !isShownOnTop(context)) {
       return KeyEventResult.ignored;
     }
     controller.toggle(isMobile: _isMobile);
@@ -508,7 +491,6 @@ class _SidebarScaffoldState extends State<SidebarScaffold> {
     final sidebar = widget.sidebar;
     final isMobile = _isMobile;
     final open = controller.isOpen;
-    _onStage = TickerMode.valuesOf(context).enabled && Visibility.of(context);
 
     var content = widget.child;
 

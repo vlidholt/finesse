@@ -180,12 +180,13 @@ class SearchField extends StatefulWidget {
   /// The field does not listen for it; the app decides where the shortcut
   /// applies. A `HardwareKeyboard` handler hears a key wherever the focus
   /// is, a dialog included, so check that the field is what the user is
-  /// looking at before moving the focus to it:
+  /// looking at before moving the focus to it (`isShownOnTop`; a route's
+  /// `isCurrent` answers for its own navigator only):
   ///
   /// ```dart
   /// bool onKey(KeyEvent event) {
   ///   if (!SearchField.isSearchShortcut(event)) return false;
-  ///   if (!(ModalRoute.of(context)?.isCurrent ?? true)) return false;
+  ///   if (!isShownOnTop(context)) return false;
   ///   searchFocusNode.requestFocus();
   ///   return true;
   /// }
