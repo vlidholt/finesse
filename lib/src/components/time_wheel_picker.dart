@@ -1,6 +1,7 @@
 import 'package:finesse/src/components/time_field.dart';
 import 'package:finesse/src/components/wheel_picker.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
+import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
 
 /// A time chosen on wheels: hours, minutes and, optionally, seconds, with a
@@ -215,6 +216,15 @@ class TimeWheelPicker extends StatelessWidget {
         ],
       ),
     );
+    // Inside another group — a date beside a time — the wheels join its
+    // lens.
+    if (WheelPickerGroup.encloses(context)) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        spacing: Theme.of(context).wheelPickerTheme.gap ?? 0,
+        children: [clock, ?periods],
+      );
+    }
     return WheelPickerGroup(
       visibleItems: visibleItems,
       mainAxisSize: mainAxisSize,

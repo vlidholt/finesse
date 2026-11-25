@@ -114,7 +114,7 @@ void main() {
                       onChanged: (_) {},
                       child: const Text('Tg'),
                     ),
-                    const DatePicker(),
+                    DatePicker(value: null, onChanged: (_) {}),
                     const OtpField(
                       maxLength: 2,
                       children: [
@@ -619,21 +619,28 @@ void main() {
             home: Scaffold(
               body: Center(
                 child: Calendar(
-                  selected: DateTime(2024, 5, 15),
+                  value: DateTime(2024, 5, 15),
                   captionLayout: CalendarCaptionLayout.dropdown,
-                  // Single-glyph captions: the test font (Ahem) renders every
-                  // glyph a full em wide, so a real month name wraps to two
-                  // lines inside the trigger and inflates its height.
-                  dropdownFormatMonth: (date) => 'M',
-                  dropdownFormatYear: (date) => 'Y',
-                  // Ditto for the day numbers: two Ahem digits are wider than
-                  // mira's 24px cell, though half that wide in a real font.
-                  // Every day state resolves its own style, so all four are
-                  // pinned.
-                  dayButtonTextStyle: const TextStyle(fontSize: 8),
-                  selectedDayButtonTextStyle: const TextStyle(fontSize: 8),
-                  insideRangeDayButtonTextStyle: const TextStyle(fontSize: 8),
-                  dayButtonOutsideMonthTextStyle: const TextStyle(fontSize: 8),
+                  calendarTheme: CalendarTheme(
+                    // Single-glyph captions: the test font (Ahem) renders
+                    // every glyph a full em wide, so a real month name wraps
+                    // to two lines inside the trigger and inflates its
+                    // height.
+                    dropdownFormatMonth: (date) => 'M',
+                    dropdownFormatYear: (date) => 'Y',
+                    // Ditto for the day numbers: two Ahem digits are wider
+                    // than mira's 24px cell, though half that wide in a real
+                    // font. Every day state resolves its own style, so all
+                    // four are pinned.
+                    dayButtonTextStyle: const TextStyle(fontSize: 8),
+                    selectedDayButtonTextStyle: const TextStyle(fontSize: 8),
+                    insideRangeDayButtonTextStyle: const TextStyle(
+                      fontSize: 8,
+                    ),
+                    dayButtonOutsideMonthTextStyle: const TextStyle(
+                      fontSize: 8,
+                    ),
+                  ),
                 ),
               ),
             ),

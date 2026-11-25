@@ -344,14 +344,22 @@ class PickerTrigger extends StatelessWidget {
       onPressed: onPressed,
       leading: tinted(leading),
       trailing: tinted(trailing),
-      child: label != null
-          ? Text(label, maxLines: 1, overflow: TextOverflow.ellipsis)
-          : DefaultTextStyle.merge(
-              style: TextStyle(color: scheme.mutedForeground),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              child: placeholder,
-            ),
+      // Flexible, so a date too long for a fixed-width button ends in an
+      // ellipsis instead of overflowing it.
+      child: Flexible(
+        child: label != null
+            ? Text(label, maxLines: 1, overflow: TextOverflow.ellipsis)
+            // The placeholder is the muted text style, as in a field: it
+            // is not the button's label.
+            : DefaultTextStyle(
+                style: theme.textTheme.muted.copyWith(
+                  color: scheme.mutedForeground,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                child: placeholder,
+              ),
+      ),
     );
   }
 }
@@ -371,14 +379,20 @@ class PickerSheetBody extends StatelessWidget {
     required this.onDone,
     this.onCancel,
     this.onClear,
+    this.maxWidth,
     super.key,
   });
 
   /// The choices.
   final Widget child;
 
-  /// Keeps what was chosen.
+  /// Keeps what was chosen. Null leaves the button out, for a sheet in
+  /// which a tap on a choice is the choice.
   final VoidCallback? onDone;
+
+  /// The widest the body is laid out. A bottom sheet is as wide as the
+  /// window, which on a desktop is far wider than a picker reads well.
+  final double? maxWidth;
 
   /// Drops it. Null leaves the button out, for a sheet whose choices take
   /// effect as they are made.
@@ -390,38 +404,44 @@ class PickerSheetBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = FinesseLocalizations.of(context);
-    return FinesseColumn(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      gap: GapSize.lg,
-      children: [
-        child,
-        FinesseRow(
-          gap: GapSize.sm,
+    return Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: maxWidth ?? 420),
+        child: FinesseColumn(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          gap: GapSize.lg,
           children: [
-            if (onClear != null)
-              Button.ghost(
-                onPressed: onClear,
-                child: Text(l.datePicker.clear),
-              ),
-            if (onCancel != null)
-              Expanded(
-                child: Button.outline(
-                  onPressed: onCancel,
-                  expands: true,
-                  child: Text(l.datePicker.cancel),
-                ),
-              ),
-            Expanded(
-              child: Button(
-                onPressed: onDone,
-                expands: true,
-                child: Text(l.datePicker.done),
-              ),
+            child,
+            FinesseRow(
+              gap: GapSize.sm,
+              children: [
+                if (onClear != null)
+                  Button.ghost(
+                    onPressed: onClear,
+                    child: Text(l.datePicker.clear),
+                  ),
+                if (onCancel != null)
+                  Expanded(
+                    child: Button.outline(
+                      onPressed: onCancel,
+                      expands: true,
+                      child: Text(l.datePicker.cancel),
+                    ),
+                  ),
+                if (onDone != null)
+                  Expanded(
+                    child: Button(
+                      onPressed: onDone,
+                      expands: true,
+                      child: Text(l.datePicker.done),
+                    ),
+                  ),
+              ],
             ),
           ],
         ),
-      ],
+      ),
     );
   }
 }

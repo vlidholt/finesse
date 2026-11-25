@@ -55,6 +55,7 @@ export 'src/components/command.dart';
 export 'src/components/context_menu.dart' hide ContextMenuItemController;
 export 'src/components/data_table.dart';
 export 'src/components/date_picker.dart';
+export 'src/components/date_wheel_picker.dart';
 export 'src/components/default_keyboard_toolbar.dart';
 export 'src/components/dialog.dart';
 export 'src/components/disabled.dart';

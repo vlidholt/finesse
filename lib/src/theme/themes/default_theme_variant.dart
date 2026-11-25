@@ -2314,13 +2314,14 @@ class DefaultThemeVariant extends ThemeVariant {
 
   @override
   DatePickerTheme datePickerTheme() {
-    return const DatePickerTheme(
-      calendarDecoration: FinesseDecoration.none,
-      allowDeselection: true,
+    return DatePickerTheme(
       buttonVariant: ButtonVariant.outline,
       width: 276,
-      mainAxisAlignment: MainAxisAlignment.start,
-      iconData: PhosphorIconsRegular.calendarBlank,
+      popoverPadding: EdgeInsets.all(scaled(style.calendarPadding)),
+      allowDeselection: true,
+      closeOnSelection: true,
+      sheetMaxWidth: 420,
+      sheetWheelItems: 5,
     );
   }
 

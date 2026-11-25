@@ -94,6 +94,7 @@ class WheelPicker<T> extends StatefulWidget {
   }) : itemCount = null,
        itemBuilder = null,
        indexOf = null,
+       sizingLabels = null,
        assert(visibleItems > 0, 'A wheel shows at least one row.');
 
   /// Creates a wheel whose rows are made on demand, for a long list — the
@@ -123,6 +124,7 @@ class WheelPicker<T> extends StatefulWidget {
     this.visibleItems = 5,
     this.looping = false,
     this.width,
+    this.sizingLabels,
     this.alignment = AlignmentDirectional.center,
     this.enabled = true,
     this.focusNode,
@@ -174,8 +176,13 @@ class WheelPicker<T> extends StatefulWidget {
   /// theme's padding; `double.infinity` fills the room the parent gives.
   ///
   /// A [WheelPicker.builder] with more than 64 rows measures a sample of
-  /// them, so give a width when one row is far wider than the rest.
+  /// them; give [sizingLabels] when the rows differ much in width.
   final double? width;
+
+  /// The labels a [WheelPicker.builder] is made wide enough for, in place
+  /// of a sample of its rows: the widest things a row can read, such as
+  /// each weekday with each month.
+  final List<String>? sizingLabels;
 
   /// Where a label sits across the wheel's width.
   final AlignmentGeometry alignment;
@@ -696,9 +703,11 @@ class _WheelPickerState<T> extends State<WheelPicker<T>>
   ) {
     final n = count;
     // Every row of a short list; an even sample of a long one.
-    final sample = n <= 64
-        ? [for (var i = 0; i < n; i++) labelAt(i)]
-        : [for (var i = 0; i < 64; i++) labelAt(i * (n - 1) ~/ 63)];
+    final sample =
+        widget.sizingLabels ??
+        (n <= 64
+            ? [for (var i = 0; i < n; i++) labelAt(i)]
+            : [for (var i = 0; i < 64; i++) labelAt(i * (n - 1) ~/ 63)]);
     final key = (style, scaler, magnification, padding, direction);
     if (key == _measuredKey && listEquals(sample, _measuredLabels)) {
       return _measuredWidth;
@@ -933,7 +942,7 @@ class WheelPickerGroup extends StatelessWidget {
     required this.children,
     this.itemExtent,
     this.visibleItems = 5,
-    this.mainAxisAlignment = MainAxisAlignment.center,
+    this.alignment = Alignment.center,
     this.mainAxisSize = MainAxisSize.min,
     super.key,
   }) : assert(visibleItems > 0, 'A wheel shows at least one row.');
@@ -948,12 +957,19 @@ class WheelPickerGroup extends StatelessWidget {
   /// How many rows fit in the height of the group.
   final int visibleItems;
 
-  /// How the children are placed when the group is wider than they are.
-  final MainAxisAlignment mainAxisAlignment;
+  /// Where the children sit when the group is wider than they are.
+  final AlignmentGeometry alignment;
 
   /// Whether the group, and with it the lens, is as wide as its children
   /// need or as wide as its parent allows.
   final MainAxisSize mainAxisSize;
+
+  /// Whether [context] is inside a group, and so already under a lens.
+  ///
+  /// A widget made of several wheels asks before it builds a group of its
+  /// own: inside one it lays its wheels out bare and shares the lens.
+  static bool encloses(BuildContext context) =>
+      _WheelGroupScope.maybeOf(context) != null;
 
   @override
   Widget build(BuildContext context) {
@@ -961,6 +977,17 @@ class WheelPickerGroup extends StatelessWidget {
     final wheel = theme.wheelPickerTheme;
     final base = itemExtent ?? wheel.itemExtent ?? 36;
     final extent = textScaledMaxHeight(context, base);
+    // Wheels are as wide as their labels, whatever room there is. Where
+    // there is less — a narrow screen, a large text scale — the group is
+    // shown whole and smaller rather than cut off.
+    final wheels = FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        spacing: wheel.gap ?? 0,
+        children: children,
+      ),
+    );
     return _WheelGroupScope(
       itemExtent: base,
       visibleItems: visibleItems,
@@ -976,12 +1003,9 @@ class WheelPickerGroup extends StatelessWidget {
               style: theme.textTheme.p
                   .copyWith(color: theme.colorScheme.foreground)
                   .merge(wheel.selectedTextStyle),
-              child: Row(
-                mainAxisSize: mainAxisSize,
-                mainAxisAlignment: mainAxisAlignment,
-                spacing: wheel.gap ?? 0,
-                children: children,
-              ),
+              child: mainAxisSize == MainAxisSize.max
+                  ? Align(alignment: alignment, child: wheels)
+                  : wheels,
             ),
           ),
         ],

@@ -4,6 +4,7 @@ import 'package:finesse/src/components/button.dart';
 import 'package:finesse/src/components/calendar.dart'; // Adjust import path based on your project structure
 import 'package:finesse/src/components/icon_button.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
+import 'package:finesse/src/theme/components/calendar.dart';
 import 'package:finesse/src/utils/extensions/date_time.dart';
 import 'package:flutter/material.dart' hide DateTimeRange, IconButton;
 import 'package:flutter/services.dart';
@@ -90,7 +91,7 @@ void main() {
         createTestWidget(
           Calendar.multiple(
             initialMonth: DateTime(2024),
-            selected: const [],
+            values: const [],
           ),
         ),
       );
@@ -177,7 +178,7 @@ void main() {
         createTestWidget(
           Calendar.multiple(
             initialMonth: DateTime(2024),
-            onChanged: (dates) => selectedDates = dates,
+            onValuesChanged: (dates) => selectedDates = dates,
           ),
         ),
       );
@@ -202,7 +203,7 @@ void main() {
         createTestWidget(
           Calendar.range(
             initialMonth: DateTime(2024),
-            onChanged: (range) => selectedRange = range,
+            onRangeChanged: (range) => selectedRange = range,
           ),
         ),
       );
@@ -398,7 +399,9 @@ void main() {
         createTestWidget(
           Calendar(
             initialMonth: DateTime(2024),
-            dayButtonSize: customDayButtonSize,
+            calendarTheme: const CalendarTheme(
+              dayButtonSize: customDayButtonSize,
+            ),
           ),
         ),
       );
@@ -421,7 +424,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           Calendar(
-            selected: DateTime(2024, 12),
+            value: DateTime(2024, 12),
             showWeekNumbers: true,
             initialMonth: DateTime(2024),
           ),
@@ -452,8 +455,8 @@ void main() {
         createTestWidget(
           Calendar(
             initialMonth: DateTime(2024),
-            fromMonth: DateTime(2023),
-            toMonth: DateTime(2024, 12),
+            min: DateTime(2023),
+            max: DateTime(2024, 12, 31),
             hideNavigation: true,
             captionLayout: CalendarCaptionLayout.label,
             showWeekNumbers: false,
@@ -477,8 +480,8 @@ void main() {
         createTestWidget(
           Calendar(
             initialMonth: DateTime(2024),
-            fromMonth: DateTime(2023),
-            toMonth: DateTime(2024, 12),
+            min: DateTime(2023),
+            max: DateTime(2024, 12, 31),
             hideNavigation: false,
           ),
         ),
@@ -495,8 +498,8 @@ void main() {
         createTestWidget(
           Calendar(
             initialMonth: DateTime(2024),
-            fromMonth: DateTime(2023),
-            toMonth: DateTime(2024, 12),
+            min: DateTime(2023),
+            max: DateTime(2024, 12, 31),
             showWeekNumbers: true,
           ),
         ),
@@ -513,8 +516,8 @@ void main() {
         createTestWidget(
           Calendar(
             initialMonth: DateTime(2024),
-            fromMonth: DateTime(2023),
-            toMonth: DateTime(2024, 12),
+            min: DateTime(2023),
+            max: DateTime(2024, 12, 31),
             captionLayout: CalendarCaptionLayout.label,
             fixedWeeks: true,
           ),
@@ -534,8 +537,8 @@ void main() {
         createTestWidget(
           Calendar(
             initialMonth: DateTime(2024),
-            fromMonth: DateTime(2023),
-            toMonth: DateTime(2024, 12),
+            min: DateTime(2023),
+            max: DateTime(2024, 12, 31),
             captionLayout: CalendarCaptionLayout.label,
             hideWeekdayNames: true,
           ),
@@ -554,10 +557,10 @@ void main() {
           Calendar.multiple(
             initialMonth: DateTime(2024),
             numberOfMonths: 2,
-            fromMonth: DateTime(2024),
-            toMonth: DateTime(2024, 12),
-            min: 5,
-            max: 10,
+            min: DateTime(2024),
+            max: DateTime(2024, 12, 31),
+            minSelected: 5,
+            maxSelected: 10,
           ),
         ),
       );
@@ -574,10 +577,10 @@ void main() {
           Calendar.range(
             initialMonth: DateTime(2024),
             numberOfMonths: 2,
-            fromMonth: DateTime(2024),
-            toMonth: DateTime(2024, 12),
-            min: 5,
-            max: 10,
+            min: DateTime(2024),
+            max: DateTime(2024, 12, 31),
+            minDays: 5,
+            maxDays: 10,
           ),
         ),
       );
