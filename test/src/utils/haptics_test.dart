@@ -226,6 +226,24 @@ void main() {
       expect(calls, isEmpty);
     });
 
+    testWidgets('ContextMenuRegion: a medium impact as a long press opens '
+        'the menu', (tester) async {
+      await pumpFinesse(
+        tester,
+        const Center(
+          child: ContextMenuRegion(
+            longPressEnabled: true,
+            items: [MenuItem(child: Text('Copy'))],
+            child: SizedBox(width: 200, height: 100, child: Text('Hold me')),
+          ),
+        ),
+      );
+      await tester.longPress(find.text('Hold me'));
+      await settle(tester);
+      expect(find.text('Copy'), findsOneWidget);
+      expect(calls, ['mediumImpact']);
+    });
+
     testWidgets('Checkbox: a selection tick per toggle', (tester) async {
       var value = false;
       await pumpFinesse(

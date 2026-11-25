@@ -16,6 +16,7 @@ import 'package:finesse/src/theme/themes/shadows.dart';
 import 'package:finesse/src/utils/backdrop.dart';
 import 'package:finesse/src/utils/expanded_actions_theme.dart';
 import 'package:finesse/src/utils/extensions/text_style.dart';
+import 'package:finesse/src/utils/haptics.dart';
 import 'package:finesse/src/utils/position.dart';
 import 'package:finesse/src/utils/route_theme.dart';
 import 'package:finesse/src/utils/separated_iterable.dart';
@@ -1198,7 +1199,7 @@ class _SheetState extends State<Sheet> with TickerProviderStateMixin {
         : _nearestStop(px);
     _goTo(target, velocity: -closingVelocity);
     if (target != previous && _dragKind == PointerDeviceKind.touch) {
-      unawaited(HapticFeedback.selectionClick());
+      Haptics.selection(context);
     }
   }
 

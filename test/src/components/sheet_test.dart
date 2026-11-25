@@ -300,6 +300,72 @@ void main() {
     });
   });
 
+  group('haptics', () {
+    late List<String> calls;
+
+    setUp(() {
+      calls = [];
+      Haptics.debugEnabledInTests = true;
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(SystemChannels.platform, (call) async {
+            if (call.method == 'HapticFeedback.vibrate') {
+              calls.add('${call.arguments}');
+            }
+            return null;
+          });
+    });
+
+    tearDown(() {
+      Haptics.debugEnabledInTests = false;
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(SystemChannels.platform, null);
+    });
+
+    Widget sheet(BuildContext context) => const Sheet(
+      padding: EdgeInsets.zero,
+      showCloseButton: false,
+      detents: [SheetDetent.medium, SheetDetent.full],
+      scrollable: false,
+      // Opaque, so the sheet's own recognizer hears the drag.
+      child: ColoredBox(
+        key: ValueKey('content'),
+        color: Color(0xff00ff00),
+        child: SizedBox.expand(),
+      ),
+    );
+
+    testWidgets('a finger that moves a sheet to another detent ticks once '
+        'through Haptics', (tester) async {
+      await _open(tester, builder: sheet);
+      final top = _surface(tester).top;
+      await tester.timedDrag(
+        find.byKey(const ValueKey('content')),
+        const Offset(0, -300),
+        const Duration(milliseconds: 400),
+      );
+      await tester.pumpAndSettle();
+      expect(_surface(tester).top, lessThan(top));
+      expect(calls, ['HapticFeedbackType.selectionClick']);
+    });
+
+    testWidgets('ThemeData(haptics: false) keeps the detent silent', (
+      tester,
+    ) async {
+      await _open(
+        tester,
+        builder: sheet,
+        theme: ThemeData(haptics: false),
+      );
+      await tester.timedDrag(
+        find.byKey(const ValueKey('content')),
+        const Offset(0, -300),
+        const Duration(milliseconds: 400),
+      );
+      await tester.pumpAndSettle();
+      expect(calls, isEmpty);
+    });
+  });
+
   group('modal', () {
     testWidgets('pops with a value', (tester) async {
       Object? result = 'unset';

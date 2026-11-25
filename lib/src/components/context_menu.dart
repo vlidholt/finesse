@@ -22,6 +22,7 @@ import 'package:finesse/src/utils/browser_context_menu/browser_context_menu.dart
 import 'package:finesse/src/utils/entrance.dart';
 import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
+import 'package:finesse/src/utils/haptics.dart';
 import 'package:finesse/src/utils/mouse_area.dart';
 import 'package:finesse/src/utils/pop_in.dart';
 import 'package:finesse/src/utils/provider.dart';
@@ -175,6 +176,8 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
 
   void onLongPress() {
     assert(offset != null, 'offset must not be null');
+    // A held finger is answered with a firm tick as the menu comes up.
+    Haptics.impact(context, HapticImpact.medium);
     showAtOffset(offset!);
   }
 
