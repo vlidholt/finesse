@@ -15,8 +15,10 @@ import 'package:flutter/widgets.dart';
 ///
 /// On a desktop it is one tall card split by hairlines into three panes: the
 /// conversation list, the open conversation, and the details of whoever it
-/// is with. The card sheds panes as the window narrows — the details first,
-/// then the conversation, which the list then pushes as a full-screen page.
+/// is with — a `ListDetailLayout` whose detail is the conversation and the
+/// details side by side. The card sheds panes as the window narrows — the
+/// details first, then the conversation, which the list then pushes as a
+/// full-screen page.
 ///
 /// On a phone the destination is the list alone, on the page itself, and a
 /// row opens the conversation as a page with its own header and composer.
@@ -181,27 +183,34 @@ class _MessagesScreenState extends State<MessagesScreen> {
       child: SizedBox.expand(
         child: !showConversation
             ? list
-            : Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  SizedBox(width: MessagesScreen.listWidth, child: list),
-                  const Divider.vertical(),
-                  Expanded(
-                    child: MessagesConversationPane(
-                      controller: _controller,
-                      onToggleDetails: canShowDetails
-                          ? _controller.toggleDetails
-                          : null,
+            // The list and what is chosen in it, side by side with a
+            // hairline between. On a phone the package's layout would push
+            // the detail inside itself, under the shell's bars; a
+            // conversation there needs the whole screen, so the phone's
+            // list pushes its own page instead (see [_openAsPage]).
+            : ListDetailLayout(
+                listWidth: MessagesScreen.listWidth,
+                list: list,
+                detail: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      child: MessagesConversationPane(
+                        controller: _controller,
+                        onToggleDetails: canShowDetails
+                            ? _controller.toggleDetails
+                            : null,
+                      ),
                     ),
-                  ),
-                  if (canShowDetails && _controller.detailsVisible) ...[
-                    const Divider.vertical(),
-                    SizedBox(
-                      width: MessagesScreen.detailsWidth,
-                      child: MessagesDetailsPane(controller: _controller),
-                    ),
+                    if (canShowDetails && _controller.detailsVisible) ...[
+                      const Divider.vertical(),
+                      SizedBox(
+                        width: MessagesScreen.detailsWidth,
+                        child: MessagesDetailsPane(controller: _controller),
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
       ),
     );
