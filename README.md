@@ -6,9 +6,15 @@
 
 A design system for Flutter: more than a hundred widgets themed by one `ThemeData`, with frosted-glass surfaces, desktop and phone metrics in the same theme, motion on springs, and no dependency on Material or Cupertino.
 
-![The Strand demo app built with finesse](https://raw.githubusercontent.com/vlidholt/finesse/main/assets/screenshot.png)
+![A dashboard on a desktop and a conversation on a phone, both built with finesse](https://raw.githubusercontent.com/vlidholt/finesse/main/doc/images/hero.webp)
 
 `finesse` is a fork of [shad](https://pub.dev/packages/shad), a Flutter port of [shadcn/ui](https://ui.shadcn.com). It keeps that component set and theming model, drops the `Shad` prefix, and adds its own default look and the pieces an app needs around the components: a scaffold, app and navigation bars, sheets, pickers, lists, page layout, and theme-driven spacing and motion.
+
+## Gallery
+
+![Cards, forms, a calendar, list sections, a one-time code field, toasts and more in the default light theme](https://raw.githubusercontent.com/vlidholt/finesse/main/doc/images/components-light.webp)
+
+![The same components in the dark theme](https://raw.githubusercontent.com/vlidholt/finesse/main/doc/images/components-dark.webp)
 
 ## Features
 
@@ -95,6 +101,18 @@ ThemeData(
 )
 ```
 
+Four styles ship with the package. `finesse` is the default; `nova`, `maia` and `lyra` are styles from shadcn/ui:
+
+![The same card in the finesse, nova, maia and lyra styles](https://raw.githubusercontent.com/vlidholt/finesse/main/doc/images/styles.webp)
+
+Four base palettes, each in light and dark:
+
+![The teal, neutral, zinc and stone palettes, light and dark](https://raw.githubusercontent.com/vlidholt/finesse/main/doc/images/palettes.webp)
+
+And accents that recolour any palette:
+
+![Violet, rose, amber, blue, emerald and orange accents on the neutral palette](https://raw.githubusercontent.com/vlidholt/finesse/main/doc/images/accents.webp)
+
 A style is a set of measured tokens (control heights, radii, shadows, type roles, glass, spacing). Change any of them with `copyWith`; the change applies to the phone metrics too wherever they did not already differ:
 
 ```dart
@@ -109,6 +127,8 @@ ThemeData(
 Every component also has its own theme on `ThemeData` (`cardTheme`, `chipTheme`, `appBarTheme`, …) for overrides that go beyond the tokens.
 
 ## Form factors
+
+![One settings screen in a desktop window and on a phone: the same widgets, with the phone's larger controls and a floating tab bar](https://raw.githubusercontent.com/vlidholt/finesse/main/doc/images/form-factors.webp)
 
 `FinesseApp` uses the phone metrics when the window is narrower than the theme's `md` breakpoint (768) and the desktop metrics otherwise; `formFactor:` pins one. Widgets size themselves from the theme, so most screens need no branching. Where a screen is *arranged* differently on a phone, branch on the theme rather than on the window:
 

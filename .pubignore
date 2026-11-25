@@ -9,6 +9,8 @@
 /windows/
 /reference/
 /scripts/
+# The README's images, served from GitHub by absolute URL.
+/doc/
 /CLAUDE.md
 /build.yaml
 /coverage/
