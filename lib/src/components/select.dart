@@ -1269,7 +1269,7 @@ class SelectState<T> extends State<Select<T>> {
               maxWidth: effectiveMaxWidth,
             );
 
-            // Built lazily inside the `popover:` builder below rather than
+            // Built lazily inside the `builder:` callback below rather than
             // here. This LayoutBuilder wraps the whole select — anchor
             // included — so it re-runs on every layout pass of the *closed*
             // select. `widget.options` is a lazy Iterable, so materialising it

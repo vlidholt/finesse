@@ -70,16 +70,16 @@ class PopoverController extends ChangeNotifier {
 ///   // The same group for the field: a click on the panel is then not a
 ///   // click outside the field, which would take its focus on a desktop.
 ///   groupId: group,
-///   popover: (context) => const SuggestionList(),
+///   builder: (context) => const SuggestionList(),
 ///   child: TextField(groupId: group, onChanged: search),
 /// )
 /// ```
 class Popover extends StatefulWidget {
-  /// Creates a popover that shows [popover] next to [child].
+  /// Creates a popover that shows [builder] next to [child].
   const Popover({
     super.key,
     required this.child,
-    required this.popover,
+    required this.builder,
     this.controller,
     this.open,
     this.closeOnTapOutside = true,
@@ -101,10 +101,10 @@ class Popover extends StatefulWidget {
          'Either controller or visible must be provided',
        );
 
-  /// {@template Popover.popover}
+  /// {@template Popover.builder}
   /// The widget displayed as a popover.
   /// {@endtemplate}
-  final WidgetBuilder popover;
+  final WidgetBuilder builder;
 
   /// {@template Popover.child}
   /// The child widget.
@@ -112,7 +112,7 @@ class Popover extends StatefulWidget {
   final Widget child;
 
   /// {@template Popover.controller}
-  /// The controller that controls the visibility of the [popover].
+  /// The controller that controls the visibility of the [builder].
   /// {@endtemplate}
   final PopoverController? controller;
 
@@ -154,14 +154,14 @@ class Popover extends StatefulWidget {
   final bool requestFocus;
 
   ///{@template Popover.anchor}
-  /// The position of the [popover] in the global coordinate system.
+  /// The position of the [builder] in the global coordinate system.
   ///
   /// Defaults to `AnchorAuto(offset: Offset(0, 4))`.
   /// {@endtemplate}
   final AnchorBase? anchor;
 
   /// {@template Popover.effects}
-  /// The animation effects applied to the [popover]. Defaults to the
+  /// The animation effects applied to the [builder]. Defaults to the
   /// theme's, and then to `EntranceEffect.forMotion`: a fade with a little
   /// growth out of the edge that faces the trigger, on the theme's motion
   /// tokens. An empty list shows the popover at once.
@@ -169,31 +169,31 @@ class Popover extends StatefulWidget {
   final List<Effect<dynamic>>? effects;
 
   /// {@template Popover.shadows}
-  /// The shadows applied to the [popover], defaults to
+  /// The shadows applied to the [builder], defaults to
   /// [Shadows.md].
   /// {@endtemplate}
   final List<BoxShadow>? shadows;
 
   /// {@template Popover.padding}
-  /// The padding of the [popover], defaults to
+  /// The padding of the [builder], defaults to
   /// `EdgeInsets.symmetric(horizontal: 12, vertical: 6)`.
   /// {@endtemplate}
   final EdgeInsetsGeometry? padding;
 
   /// {@template Popover.decoration}
-  /// The decoration of the [popover].
+  /// The decoration of the [builder].
   /// {@endtemplate}
   final FinesseDecoration? decoration;
 
   /// {@template Popover.filter}
-  /// The filter of the [popover]. If `null`, falls back to `PopoverTheme`.
+  /// The filter of the [builder]. If `null`, falls back to `PopoverTheme`.
   /// {@endtemplate}
   final ImageFilter? filter;
 
   /// {@template Popover.groupId}
-  /// The group id of the [popover], defaults to `UniqueKey()`.
+  /// The group id of the [builder], defaults to `UniqueKey()`.
   ///
-  /// Used to determine it the tap is inside the [popover] or not.
+  /// Used to determine it the tap is inside the [builder] or not.
   /// {@endtemplate}
   final Object? groupId;
 
@@ -555,7 +555,7 @@ class _PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
         filter: effectiveFilter,
         textStyle: widget.textStyle ?? theme.popoverTheme.textStyle,
         arrow: arrow,
-        child: Builder(builder: widget.popover),
+        child: Builder(builder: widget.builder),
       ),
     );
 

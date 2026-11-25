@@ -61,7 +61,7 @@ void main() {
           controller: PopoverController.new,
           build: (controller) => Popover(
             controller: controller as PopoverController,
-            popover: (context) => const Text('Floating'),
+            builder: (context) => const Text('Floating'),
             child: const Text('Anchor'),
           ),
           set: (controller, {required open}) =>
@@ -189,7 +189,7 @@ void main() {
               child: Center(
                 child: Popover(
                   controller: controller,
-                  popover: (context) => const Text('Floating'),
+                  builder: (context) => const Text('Floating'),
                   child: const Text('Anchor'),
                 ),
               ),
@@ -230,7 +230,7 @@ void main() {
             Center(
               child: Popover(
                 controller: controller,
-                popover: (context) => const Text('Floating'),
+                builder: (context) => const Text('Floating'),
                 child: const SizedBox(height: 40, child: Text('Anchor')),
               ),
             ),

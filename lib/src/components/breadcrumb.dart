@@ -466,7 +466,7 @@ class _BreadcrumbDropdownState extends State<BreadcrumbDropdown> {
       ),
       controller: controller,
       padding: effectiveDropdownMenuPadding,
-      popover: (context) => IntrinsicWidth(
+      builder: (context) => IntrinsicWidth(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,

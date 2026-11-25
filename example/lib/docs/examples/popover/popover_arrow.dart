@@ -74,7 +74,7 @@ class _ArrowPopoverState extends State<_ArrowPopover> {
       controller: controller,
       showArrow: true,
       anchor: widget.anchor,
-      popover: (_) => SizedBox(
+      builder: (_) => SizedBox(
         width: 220,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

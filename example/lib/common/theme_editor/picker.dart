@@ -213,7 +213,7 @@ class _ThemePickerState<T> extends State<ThemePicker<T>> {
           width: 1,
         ),
       ),
-      popover: (context) => _PickerList<T>(
+      builder: (context) => _PickerList<T>(
         options: widget.options,
         selectedIndex: selectedIndex,
         onSelected: (option) {
@@ -658,7 +658,7 @@ class _ThemeGroupPickerState extends State<ThemeGroupPicker> {
       controller: controller,
       padding: const EdgeInsets.all(4),
       anchor: const AnchorAuto(offset: Offset(0, 4)),
-      popover: (context) => ConstrainedBox(
+      builder: (context) => ConstrainedBox(
         constraints: const BoxConstraints(
           maxHeight: 360,
           minWidth: 232,

@@ -66,7 +66,7 @@ void main() {
             alignment: const Alignment(0, -.6),
             child: Popover(
               controller: controller,
-              popover: (context) => const SizedBox(
+              builder: (context) => const SizedBox(
                 key: Key('content'),
                 width: 160,
                 height: 120,

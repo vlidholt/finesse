@@ -14,7 +14,7 @@ void main() {
             const Surface(child: Text('surface')),
             Popover(
               controller: controller,
-              popover: (_) => const Text('popover'),
+              builder: (_) => const Text('popover'),
               child: const SizedBox(width: 10, height: 10),
             ),
           ],

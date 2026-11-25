@@ -380,7 +380,7 @@ void main() {
                 // As heavy as the tooltip's, so the solid styles' faint
                 // one does not make the check under the surface vacuous.
                 shadows: shadow ? heavy : null,
-                popover: (context) => const SizedBox(width: 180, height: 80),
+                builder: (context) => const SizedBox(width: 180, height: 80),
                 child: const SizedBox(width: 40, height: 20),
               ),
             );
@@ -408,7 +408,7 @@ void main() {
             child: Popover(
               controller: controller = PopoverController(),
               showArrow: true,
-              popover: (context) => const SizedBox(width: 180, height: 80),
+              builder: (context) => const SizedBox(width: 180, height: 80),
               child: const SizedBox(width: 40, height: 20),
             ),
           ),

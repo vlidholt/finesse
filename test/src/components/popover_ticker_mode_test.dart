@@ -91,7 +91,7 @@ void main() {
       index: index,
       first: Popover(
         controller: controller,
-        popover: (context) => const Text('Popover content'),
+        builder: (context) => const Text('Popover content'),
         child: const Text('Anchor'),
       ),
     );

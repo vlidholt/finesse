@@ -586,7 +586,7 @@ class _TagFieldState<T extends Object> extends State<TagField<T>> {
           decoration: select.popoverDecoration,
           shadows: select.shadows,
           filter: select.filter,
-          popover: (context) => ConstrainedBox(
+          builder: (context) => ConstrainedBox(
             constraints: BoxConstraints(
               minWidth: width ?? 0,
               maxWidth: width ?? double.infinity,

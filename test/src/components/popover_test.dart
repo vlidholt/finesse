@@ -19,7 +19,7 @@ void main() {
         createTestWidget(
           Popover(
             open: true,
-            popover: (context) {
+            builder: (context) {
               return const Text('Popover');
             },
             child: const Text('Child'),
@@ -42,7 +42,7 @@ void main() {
         createTestWidget(
           Popover(
             open: true,
-            popover: (context) => const SizedBox(
+            builder: (context) => const SizedBox(
               width: 200,
               child: Text('Popover'),
             ),

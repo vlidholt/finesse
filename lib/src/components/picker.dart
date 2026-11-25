@@ -245,7 +245,7 @@ class _PickerHostState extends State<PickerHost> {
       shadows: widget.shadows,
       filter: widget.filter,
       decoration: widget.decoration,
-      popover: (context) => widget.popoverBuilder(context, _controller.close),
+      builder: (context) => widget.popoverBuilder(context, _controller.close),
       child: trigger,
     );
   }

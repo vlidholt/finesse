@@ -48,7 +48,7 @@ void main() {
               open: true,
               showArrow: showArrow,
               anchor: anchor,
-              popover: (context) => SizedBox.fromSize(
+              builder: (context) => SizedBox.fromSize(
                 size: content,
                 child: const Text('Panel'),
               ),
@@ -349,7 +349,7 @@ void main() {
                         open: true,
                         showArrow: true,
                         shadows: const [],
-                        popover: (context) =>
+                        builder: (context) =>
                             const SizedBox(width: 160, height: 60),
                         child: const SizedBox(
                           key: trigger,
@@ -518,7 +518,7 @@ void main() {
           child: Popover(
             controller: controller,
             showArrow: true,
-            popover: (context) => const SizedBox(width: 160, height: 60),
+            builder: (context) => const SizedBox(width: 160, height: 60),
             child: const SizedBox(key: trigger, width: 40, height: 24),
           ),
         ),

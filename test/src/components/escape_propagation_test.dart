@@ -69,7 +69,7 @@ void main() {
       tester,
       Popover(
         controller: controller,
-        popover: (_) => const Text('content'),
+        builder: (_) => const Text('content'),
         child: Button(
           focusNode: focusNode,
           onPressed: controller.toggle,

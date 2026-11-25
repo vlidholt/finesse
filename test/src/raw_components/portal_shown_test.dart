@@ -119,7 +119,7 @@ void main() {
                   curve: Curves.linear,
                 ),
               ],
-              popover: (context) => const Text('Content'),
+              builder: (context) => const Text('Content'),
               child: const Text('Trigger'),
             ),
           ),

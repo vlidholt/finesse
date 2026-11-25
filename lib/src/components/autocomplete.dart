@@ -522,7 +522,7 @@ class _AutocompleteState<T extends Object> extends State<Autocomplete<T>> {
           decoration: select.popoverDecoration,
           shadows: select.shadows,
           filter: select.filter,
-          popover: (context) => _buildPanel(context, width),
+          builder: (context) => _buildPanel(context, width),
           child: Focus(
             // Above the field's own node, so the keys are heard before the
             // field's default handling of them.

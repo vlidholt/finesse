@@ -141,7 +141,7 @@ void main() {
     child: Popover(
       controller: controller,
       effects: effects,
-      popover: (context) =>
+      builder: (context) =>
           const SizedBox(key: content, width: 200, height: 120),
       child: const SizedBox(width: 60, height: 30),
     ),
@@ -332,7 +332,7 @@ void main() {
             alignment: const Alignment(0, -.5),
             child: Popover(
               controller: controller,
-              popover: (context) => Button(
+              builder: (context) => Button(
                 onPressed: () => taps++,
                 child: const Text('Inside'),
               ),

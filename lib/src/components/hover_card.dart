@@ -262,7 +262,7 @@ class _HoverCardState extends State<HoverCard> {
         showArrow: widget.showArrow,
         // Inside the hover region instead, so the whole card is one.
         padding: EdgeInsets.zero,
-        popover: (context) => MouseRegion(
+        builder: (context) => MouseRegion(
           onEnter: (_) {
             // Not a card that is already leaving.
             if (!_controller.isOpen) return;

@@ -803,7 +803,7 @@ class ContextMenuState extends State<ContextMenu> {
           (_root != null ? Duration.zero : null),
       useSameGroupIdForChild: false,
       requestFocus: widget.requestFocus,
-      popover: (context) {
+      builder: (context) {
         final items = widget.itemsBuilder?.call(context) ?? widget.items;
         final indicatorColumn = _checkables > 0 || _anyCheckable(items);
         _builtIndicatorColumn = indicatorColumn;

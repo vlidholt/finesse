@@ -81,7 +81,7 @@ class _HarnessState extends State<_Harness> {
                         targetAnchor: Alignment.topCenter,
                       )
                     : null,
-                popover: (context) => Column(
+                builder: (context) => Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const Text('suggestions'),
