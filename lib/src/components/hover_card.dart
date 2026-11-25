@@ -171,10 +171,10 @@ class _HoverCardState extends State<HoverCard> {
     _closeTimer?.cancel();
     _closeTimer = null;
     if (!widget.enabled || _controller.isOpen || _openTimer != null) return;
-    if (widget.openDelay <= Duration.zero) return _controller.show();
+    if (widget.openDelay <= Duration.zero) return _controller.open();
     _openTimer = Timer(widget.openDelay, () {
       _openTimer = null;
-      if (mounted && widget.enabled && _wanted) _controller.show();
+      if (mounted && widget.enabled && _wanted) _controller.open();
     });
   }
 
@@ -184,17 +184,17 @@ class _HoverCardState extends State<HoverCard> {
     _openTimer?.cancel();
     _openTimer = null;
     if (!_controller.isOpen || _held || _closeTimer != null) return;
-    if (widget.closeDelay <= Duration.zero) return _controller.hide();
+    if (widget.closeDelay <= Duration.zero) return _controller.close();
     _closeTimer = Timer(widget.closeDelay, () {
       _closeTimer = null;
-      if (mounted && !_wanted && !_held) _controller.hide();
+      if (mounted && !_wanted && !_held) _controller.close();
     });
   }
 
   void _closeNow() {
     _openTimer?.cancel();
     _openTimer = null;
-    _controller.hide();
+    _controller.close();
   }
 
   void _sync() => _wanted ? _scheduleOpen() : _scheduleClose();
@@ -213,7 +213,7 @@ class _HoverCardState extends State<HoverCard> {
     _held = true;
     _closeTimer?.cancel();
     _closeTimer = null;
-    _controller.show();
+    _controller.open();
   }
 
   /// Escape, while the card is open and the focus is somewhere it cannot

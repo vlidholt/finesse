@@ -191,7 +191,7 @@ void main() {
           ),
         ),
       );
-      controller.show();
+      controller.open();
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
 
@@ -229,7 +229,7 @@ void main() {
           ),
         ),
       );
-      controller.show();
+      controller.open();
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
       await tester.pump(const Duration(milliseconds: 300));
@@ -262,7 +262,7 @@ void main() {
           ),
         ),
       );
-      controller.show();
+      controller.open();
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
       await tester.pump(const Duration(milliseconds: 300));
@@ -290,7 +290,7 @@ void main() {
           ),
         ),
       );
-      controller.show();
+      controller.open();
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
 

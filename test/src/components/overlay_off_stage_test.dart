@@ -199,7 +199,7 @@ void main() {
         ),
       ),
     );
-    controller.show();
+    controller.open();
     await settle(tester);
     expect(floating, findsOneWidget);
 
@@ -239,7 +239,7 @@ void main() {
         ),
       ),
     );
-    controller.show();
+    controller.open();
     await settle(tester);
     expect(floating, findsOneWidget);
     scroll.jumpTo(100);

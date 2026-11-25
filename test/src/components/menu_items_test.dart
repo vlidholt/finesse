@@ -54,7 +54,7 @@ void main() {
         ),
       ),
     );
-    controller.show();
+    controller.open();
     await settle(tester);
     return controller;
   }
@@ -143,7 +143,7 @@ void main() {
       expect(checked, isTrue);
       expect(menu.isOpen, isFalse);
 
-      menu.show();
+      menu.open();
       await settle(tester);
       await tester.tap(find.text('Grid'));
       await tester.pumpAndSettle();
@@ -286,7 +286,7 @@ void main() {
       expect(value, _Fruit.banana);
       expect(menu.isOpen, isFalse);
 
-      menu.show();
+      menu.open();
       await settle(tester);
       expect(dot('Apple'), findsNothing);
       expect(dot('Banana'), findsOneWidget);

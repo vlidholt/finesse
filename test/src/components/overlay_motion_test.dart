@@ -150,7 +150,7 @@ void main() {
   /// Opens [controller]'s popover and pumps to the first frame it is on
   /// screen, which is the first frame of its entrance.
   Future<void> open(WidgetTester tester, PopoverController controller) async {
-    controller.show();
+    controller.open();
     // Build the portal, lay the overlay out unseen, then show it in place.
     await tester.pump();
     await tester.pump();
@@ -247,7 +247,7 @@ void main() {
       await open(tester, controller);
       await tester.pump(const Duration(milliseconds: 600));
 
-      controller.hide();
+      controller.close();
       await tester.pump();
       final opacity = <double>[];
       final scale = <double>[];
@@ -296,13 +296,13 @@ void main() {
         sample();
       }
       final turnedAt = scale.length;
-      controller.hide();
+      controller.close();
       for (var i = 0; i < 2; i++) {
         await tester.pump(_frame);
         sample();
       }
       final reopenedAt = scale.length;
-      controller.show();
+      controller.open();
       for (var i = 0; i < 30; i++) {
         await tester.pump(_frame);
         sample();
@@ -341,7 +341,7 @@ void main() {
           ),
         ),
       );
-      controller.show();
+      controller.open();
       // 100 ms after it was asked for, counting the frames the portal
       // needs.
       for (var i = 0; i < 6; i++) {
@@ -396,7 +396,7 @@ void main() {
         findsNothing,
       );
       expect(find.byKey(content), findsOneWidget);
-      controller.hide();
+      controller.close();
       await tester.pump();
       await tester.pump();
       expect(find.byKey(content), findsNothing);
@@ -430,7 +430,7 @@ void main() {
         findsNothing,
       );
       await tester.pump(const Duration(milliseconds: 80));
-      controller.hide();
+      controller.close();
       await tester.pump(const Duration(milliseconds: 300));
       await tester.pump();
 

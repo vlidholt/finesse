@@ -46,7 +46,7 @@ class DropdownMenu extends StatefulWidget {
     this.anchor,
     this.constraints,
     this.padding,
-    this.onOpenChange,
+    this.onOpenChanged,
     this.requestFocus = true,
   });
 
@@ -77,7 +77,7 @@ class DropdownMenu extends StatefulWidget {
   final EdgeInsetsGeometry? padding;
 
   /// Called when the menu opens or closes.
-  final ValueChanged<bool>? onOpenChange;
+  final ValueChanged<bool>? onOpenChanged;
 
   /// {@macro ContextMenu.requestFocus}
   final bool requestFocus;
@@ -130,7 +130,7 @@ class _DropdownMenuState extends State<DropdownMenu> {
     final open = _controller.isOpen;
     if (open == _wasOpen) return;
     _wasOpen = open;
-    widget.onOpenChange?.call(open);
+    widget.onOpenChanged?.call(open);
   }
 
   @override

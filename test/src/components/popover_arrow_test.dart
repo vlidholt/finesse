@@ -45,7 +45,7 @@ void main() {
           child: Padding(
             padding: inset,
             child: Popover(
-              visible: true,
+              open: true,
               showArrow: showArrow,
               anchor: anchor,
               popover: (context) => SizedBox.fromSize(
@@ -346,7 +346,7 @@ void main() {
                     color: const Color(0xffffffff),
                     child: Center(
                       child: Popover(
-                        visible: true,
+                        open: true,
                         showArrow: true,
                         shadows: const [],
                         popover: (context) =>
@@ -524,10 +524,10 @@ void main() {
         ),
       );
       expect(arrow, findsNothing);
-      controller.show();
+      controller.open();
       await tester.pumpAndSettle();
       expect(arrow, findsOneWidget);
-      controller.hide();
+      controller.close();
       await tester.pumpAndSettle();
       expect(arrow, findsNothing);
     });

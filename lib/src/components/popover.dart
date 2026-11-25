@@ -19,44 +19,44 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-/// Controls the visibility of a [Popover].
+/// Opens and closes a [Popover].
 class PopoverController extends ChangeNotifier {
-  /// Creates a controller. The popover starts hidden unless [isOpen] is true.
+  /// Creates a controller. The popover starts closed unless [isOpen] is true.
   PopoverController({bool isOpen = false}) : _isOpen = isOpen;
 
   bool _isOpen = false;
 
-  /// Indicates if the popover is visible.
+  /// Whether the popover is open.
   bool get isOpen => _isOpen;
 
-  /// Displays the popover.
-  void show() {
+  /// Opens the popover.
+  void open() {
     if (_isOpen) return;
     _isOpen = true;
     notifyListeners();
   }
 
-  /// Hides the popover.
-  void hide() {
+  /// Closes the popover.
+  void close() {
     if (!_isOpen) return;
     _isOpen = false;
     notifyListeners();
   }
 
-  /// Shows the popover when [open] is true and hides it otherwise.
+  /// Opens the popover when [open] is true and closes it otherwise.
   void setOpen(bool open) {
     if (_isOpen == open) return;
     _isOpen = open;
     notifyListeners();
   }
 
-  /// Toggles the visibility of the popover.
-  void toggle() => _isOpen ? hide() : show();
+  /// Opens the popover if it is closed and closes it if it is open.
+  void toggle() => _isOpen ? close() : open();
 }
 
 /// Shows a floating panel next to its [child], shadcn/ui's `Popover`.
 ///
-/// Control the visibility with a [PopoverController] or with [visible].
+/// Open and close it with a [PopoverController] or with [open].
 ///
 /// By default the popover takes the keyboard focus when it opens and keeps
 /// it until it closes, as a menu or a small form should. A popover that
@@ -81,7 +81,7 @@ class Popover extends StatefulWidget {
     required this.child,
     required this.popover,
     this.controller,
-    this.visible,
+    this.open,
     this.closeOnTapOutside = true,
     this.requestFocus = true,
     this.anchor,
@@ -97,7 +97,7 @@ class Popover extends StatefulWidget {
     this.textStyle,
     this.showArrow,
   }) : assert(
-         (controller != null) ^ (visible != null),
+         (controller != null) ^ (open != null),
          'Either controller or visible must be provided',
        );
 
@@ -116,10 +116,11 @@ class Popover extends StatefulWidget {
   /// {@endtemplate}
   final PopoverController? controller;
 
-  /// {@template Popover.visible}
-  /// Indicates if the popover should be visible.
+  /// {@template Popover.open}
+  /// Whether the popover is open, for a parent that holds that state
+  /// itself. Give this or a [controller], not both.
   /// {@endtemplate}
-  final bool? visible;
+  final bool? open;
 
   /// {@template Popover.closeOnTapOutside}
   /// Closes the popover when the user taps outside, defaults to true.
@@ -324,7 +325,7 @@ class _PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
   void initState() {
     super.initState();
     if (widget.controller == null) {
-      _controller = PopoverController(isOpen: widget.visible ?? false);
+      _controller = PopoverController(isOpen: widget.open ?? false);
     }
     animationController = AnimationController(
       vsync: this,
@@ -435,11 +436,11 @@ class _PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
       widget.controller!.addListener(_onPopoverToggle);
     }
 
-    if (widget.visible != null) {
-      if (widget.visible! && !controller.isOpen) {
-        controller.show();
-      } else if (!widget.visible! && controller.isOpen) {
-        controller.hide();
+    if (widget.open != null) {
+      if (widget.open! && !controller.isOpen) {
+        controller.open();
+      } else if (!widget.open! && controller.isOpen) {
+        controller.close();
       }
     }
   }
@@ -573,7 +574,7 @@ class _PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
       popover = TapRegion(
         groupId: groupId,
         behavior: HitTestBehavior.opaque,
-        onTapOutside: (_) => controller.hide(),
+        onTapOutside: (_) => controller.close(),
         child: popover,
       );
     }
@@ -583,7 +584,7 @@ class _PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
     // reaches the shortcut from the child and from the popover alike.
     Widget child = DismissShortcut(
       isActive: () => controller.isOpen,
-      onDismiss: controller.hide,
+      onDismiss: controller.close,
       // One traversal group for the child and the popover, in that order.
       // It is there whether or not the popover takes the focus, so the
       // child keeps its place in the tree when that changes.

@@ -46,7 +46,7 @@ class ContextMenuRegion extends StatefulWidget {
     required this.child,
     this.items = const [],
     this.itemsBuilder,
-    this.visible,
+    this.open,
     this.constraints,
     this.onHoverArea,
     this.padding,
@@ -81,8 +81,8 @@ class ContextMenuRegion extends StatefulWidget {
   /// {@macro ContextMenu.itemsBuilder}
   final List<Widget> Function(BuildContext context)? itemsBuilder;
 
-  /// {@macro ContextMenu.visible}
-  final bool? visible;
+  /// {@macro ContextMenu.open}
+  final bool? open;
 
   /// {@macro ContextMenu.constraints}
   final BoxConstraints? constraints;
@@ -147,15 +147,15 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
   PopoverController get controller =>
       widget.controller ??
       (_controller ??= FinesseContextMenuController(
-        isOpen: widget.visible ?? false,
+        isOpen: widget.open ?? false,
       ));
   Offset? offset;
 
   @override
   void didUpdateWidget(covariant ContextMenuRegion oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.visible != null) {
-      controller.setOpen(widget.visible!);
+    if (widget.open != null) {
+      controller.setOpen(widget.open!);
     }
   }
 
@@ -168,11 +168,11 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
   void showAtOffset(Offset offset) {
     if (!mounted) return;
     setState(() => this.offset = offset);
-    controller.show();
+    controller.open();
   }
 
   void hide() {
-    controller.hide();
+    controller.close();
   }
 
   void show(Offset offset) {
@@ -266,41 +266,41 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
 /// point it opens at.
 ///
 /// Any [PopoverController] works as a context menu controller; this one
-/// adds [showAt].
+/// adds [openAt].
 class FinesseContextMenuController extends PopoverController {
   /// Creates a controller. [isOpen] sets whether the menu starts open.
   FinesseContextMenuController({super.isOpen});
 
   Offset? _position;
 
-  /// The global point the menu opens at, set by [showAt]. Null means the
+  /// The global point the menu opens at, set by [openAt]. Null means the
   /// menu's own anchor.
   Offset? get position => _position;
 
   /// Opens the menu with its corner at [globalPosition], as a context menu
   /// opens at the pointer. The menu is mirrored or shifted to stay on screen.
-  void showAt(Offset globalPosition) {
+  void openAt(Offset globalPosition) {
     final moved = _position != globalPosition;
     _position = globalPosition;
     if (isOpen) {
       if (moved) notifyListeners();
     } else {
-      super.show();
+      super.open();
     }
   }
 
-  /// Opens the menu at its own anchor, forgetting any [showAt] position.
+  /// Opens the menu at its own anchor, forgetting any [openAt] position.
   @override
-  void show() {
+  void open() {
     _position = null;
-    super.show();
+    super.open();
   }
 }
 
 /// A menu of [MenuItem]s shown in a popover next to [child].
 ///
 /// This is the menu surface behind shadcn's `DropdownMenuContent` and
-/// `ContextMenuContent`. It opens when [visible] or [controller] says so; use
+/// `ContextMenuContent`. It opens when [open] or [controller] says so; use
 /// [ContextMenuRegion] to open it on a right click or long press. With no
 /// [items] and no [itemsBuilder], it builds only [child].
 class ContextMenu extends StatefulWidget {
@@ -311,7 +311,7 @@ class ContextMenu extends StatefulWidget {
     this.items = const [],
     this.itemsBuilder,
     this.anchor,
-    this.visible,
+    this.open,
     this.constraints,
     this.onHoverArea,
     this.padding,
@@ -368,10 +368,11 @@ class ContextMenu extends StatefulWidget {
   /// {@endtemplate}
   final AnchorBase? anchor;
 
-  /// {@template ContextMenu.visible}
-  /// Whether the context menu is visible, defaults to null.
+  /// {@template ContextMenu.open}
+  /// Whether the context menu is open. Null, the default, leaves that to
+  /// the controller.
   /// {@endtemplate}
-  final bool? visible;
+  final bool? open;
 
   /// {@template ContextMenu.constraints}
   /// The constraints of the context menu, defaults to
@@ -678,11 +679,11 @@ class ContextMenuState extends State<ContextMenu> {
 
   /// The controller in use: [ContextMenu.controller] when given, otherwise
   /// an internal [FinesseContextMenuController] that starts open when
-  /// [ContextMenu.visible] is true.
+  /// [ContextMenu.open] is true.
   PopoverController get controller =>
       widget.controller ??
       (_controller ??= FinesseContextMenuController(
-        isOpen: widget.visible ?? false,
+        isOpen: widget.open ?? false,
       ));
 
   @override
@@ -704,8 +705,8 @@ class ContextMenuState extends State<ContextMenu> {
   void didUpdateWidget(covariant ContextMenu oldWidget) {
     super.didUpdateWidget(oldWidget);
     _listenTo(controller);
-    if (widget.visible != null) {
-      controller.setOpen(widget.visible!);
+    if (widget.open != null) {
+      controller.setOpen(widget.open!);
     }
   }
 
@@ -718,9 +719,9 @@ class ContextMenuState extends State<ContextMenu> {
     super.dispose();
   }
 
-  /// Opens the menu when [visible] is true, and closes it otherwise.
-  void setVisible(bool visible) {
-    controller.setOpen(visible);
+  /// Opens the menu when [open] is true, and closes it otherwise.
+  void setOpen(bool open) {
+    controller.setOpen(open);
   }
 
   @override
@@ -1269,7 +1270,7 @@ class _MenuItemState extends State<MenuItem> {
   void _close(ContextMenuState contextMenu) {
     context.getInheritedWidgetOfExactType<_MenuResult>()?.holder.value =
         widget.value;
-    contextMenu.setVisible(false);
+    contextMenu.setOpen(false);
   }
 
   @override
@@ -1455,7 +1456,7 @@ class _MenuItemState extends State<MenuItem> {
         final highlighted = selected || hovered;
 
         return ContextMenu(
-          visible: selected,
+          open: selected,
           anchor: effectiveAnchor,
           constraints: widget.constraints,
           padding: widget.subMenuPadding,

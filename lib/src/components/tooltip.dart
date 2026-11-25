@@ -342,7 +342,7 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
   }
 
   void onFocusChange() {
-    hasFocus ? controller.show() : controller.hide();
+    hasFocus ? controller.open() : controller.close();
   }
 
   Future<void> onHoverChange(bool value) async {
@@ -367,7 +367,7 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
       if (hovered) {
         _warm = _othersShowing;
         _showing.add(this);
-        controller.show();
+        controller.open();
       }
     } else {
       if (widget.showDuration != null) {
@@ -397,7 +397,7 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
     }
     if (!mounted) return;
     if (hovered || hasFocus) return;
-    controller.hide();
+    controller.close();
   }
 
   @override
@@ -433,7 +433,7 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
           isActive: () => controller.isOpen,
           onDismiss: () {
             hovered = false;
-            controller.hide();
+            controller.close();
           },
           child: Portal(
             visible: controller.isOpen && _onStage,

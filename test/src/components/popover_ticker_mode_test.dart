@@ -97,7 +97,7 @@ void main() {
     );
 
     await pumpFinesse(tester, app(0));
-    controller.show();
+    controller.open();
     for (var i = 0; i < 12; i++) {
       await tester.pump(const Duration(milliseconds: 50));
     }
@@ -108,12 +108,12 @@ void main() {
 
     // Closing it while it is away takes effect at once: there is no ticker
     // to run the exit animation.
-    controller.hide();
+    controller.close();
     await tester.pump();
     await pumpFinesse(tester, app(0));
     expect(shown('Popover content'), findsNothing);
 
-    controller.show();
+    controller.open();
     for (var i = 0; i < 12; i++) {
       await tester.pump(const Duration(milliseconds: 50));
     }
@@ -141,7 +141,7 @@ void main() {
     );
 
     await pumpFinesse(tester, app(0));
-    controller.show();
+    controller.open();
     for (var i = 0; i < 12; i++) {
       await tester.pump(const Duration(milliseconds: 50));
     }

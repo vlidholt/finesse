@@ -316,10 +316,10 @@ void main() {
         ),
         formFactor: FormFactor.mobile,
       );
-      controller.show();
+      controller.open();
       await rest(tester);
       expect(find.byType(Sheet), findsOneWidget);
-      controller.hide();
+      controller.close();
       await rest(tester);
       expect(find.byType(Sheet), findsNothing);
     });

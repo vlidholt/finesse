@@ -18,7 +18,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           Popover(
-            visible: true,
+            open: true,
             popover: (context) {
               return const Text('Popover');
             },
@@ -41,7 +41,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           Popover(
-            visible: true,
+            open: true,
             popover: (context) => const SizedBox(
               width: 200,
               child: Text('Popover'),

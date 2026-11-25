@@ -354,7 +354,7 @@ void main() {
             ),
           ),
         );
-        controller.show();
+        controller.open();
         for (var i = 0; i < 40; i++) {
           await tester.pump(const Duration(milliseconds: 16));
         }

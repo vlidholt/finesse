@@ -163,7 +163,7 @@ class _PickerHostState extends State<PickerHost> {
       // from one presentation into the other; it closes instead.
       if (_controller.isOpen) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) _controller.hide();
+          if (mounted) _controller.close();
         });
       }
       _sheet = sheet;
@@ -201,7 +201,7 @@ class _PickerHostState extends State<PickerHost> {
         // The route is known only from inside it. Closing goes through it,
         // so a dialog opened over the sheet is never popped in its place.
         if (_sheetShowing) _sheetRoute ??= ModalRoute.of(sheetContext);
-        return widget.sheetBuilder(sheetContext, _controller.hide);
+        return widget.sheetBuilder(sheetContext, _controller.close);
       },
     ).whenComplete(() {
       // The picker may be gone by the time its sheet has left.
@@ -209,7 +209,7 @@ class _PickerHostState extends State<PickerHost> {
       _sheetShowing = false;
       _sheetRoute = null;
       // Dismissed by the barrier, a drag or the system back gesture.
-      if (_controller.isOpen) _controller.hide();
+      if (_controller.isOpen) _controller.close();
     });
   }
 
@@ -245,7 +245,7 @@ class _PickerHostState extends State<PickerHost> {
       shadows: widget.shadows,
       filter: widget.filter,
       decoration: widget.decoration,
-      popover: (context) => widget.popoverBuilder(context, _controller.hide),
+      popover: (context) => widget.popoverBuilder(context, _controller.close),
       child: trigger,
     );
   }

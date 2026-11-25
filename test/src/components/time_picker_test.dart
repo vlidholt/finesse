@@ -323,13 +323,13 @@ void main() {
           _Host(controller: controller),
           formFactor: formFactor,
         );
-        controller.show();
+        controller.open();
         await rest(tester);
         final content = formFactor == FormFactor.mobile
             ? find.byType(TimeWheelPicker)
             : find.byType(TimeField);
         expect(content, findsOneWidget, reason: formFactor.name);
-        controller.hide();
+        controller.close();
         await rest(tester);
         expect(content, findsNothing, reason: formFactor.name);
         expect(controller.isOpen, isFalse);

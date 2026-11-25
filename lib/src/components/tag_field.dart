@@ -197,7 +197,7 @@ class _TagFieldState<T extends Object> extends State<TagField<T>> {
     if (!focused) {
       // What was typed is not lost by leaving the field.
       _commitText(_controller.text);
-      _popover.hide();
+      _popover.close();
     }
   }
 
@@ -312,7 +312,7 @@ class _TagFieldState<T extends Object> extends State<TagField<T>> {
 
   void _closeOptions() {
     _question++;
-    _popover.hide();
+    _popover.close();
     if (_options.isNotEmpty) setState(() => _options = const []);
     _highlight.value = (index: null, byKeyboard: false);
   }

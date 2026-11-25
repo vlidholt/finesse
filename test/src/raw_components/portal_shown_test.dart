@@ -127,14 +127,14 @@ void main() {
       );
 
       Future<double> openAndSample() async {
-        controller.show();
+        controller.open();
         // Until it is on screen and its entrance has started.
         for (var i = 0; i < 4; i++) {
           await tester.pump();
         }
         await tester.pump(const Duration(milliseconds: 200));
         final value = _opacity(tester, find.text('Content'));
-        controller.hide();
+        controller.close();
         await tester.pump();
         await tester.pump(const Duration(seconds: 2));
         await tester.pump();

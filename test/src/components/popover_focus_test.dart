@@ -165,7 +165,7 @@ void main() {
     await tester.tap(find.byKey(const Key('field')));
     await tester.pump();
     expect(field.hasPrimaryFocus, isTrue);
-    controller.show();
+    controller.open();
     await settle(tester);
     expect(find.text('suggestions'), findsOneWidget);
   }
@@ -304,7 +304,7 @@ void main() {
       await tab(tester, back: true);
       expect(state.second.hasPrimaryFocus, isTrue);
 
-      controller.hide();
+      controller.close();
       await settle(tester);
       expect(state.after.hasPrimaryFocus, isTrue);
     });
@@ -318,7 +318,7 @@ void main() {
       await tab(tester);
       await tab(tester);
       expect(state.after.hasPrimaryFocus, isTrue);
-      controller.hide();
+      controller.close();
       await settle(tester);
       expect(state.after.hasPrimaryFocus, isTrue);
     });
@@ -411,7 +411,7 @@ void main() {
       );
       field.requestFocus();
       await tester.pump();
-      menu.show();
+      menu.open();
       await settleMenu(tester);
       expect(find.text('One'), findsOneWidget);
       return menu;
@@ -480,7 +480,7 @@ void main() {
       );
       trigger.requestFocus();
       await tester.pump();
-      picker.show();
+      picker.open();
       await settleMenu(tester);
       expect(find.byType(Calendar), findsOneWidget);
       expect(trigger.hasPrimaryFocus, isTrue);

@@ -40,7 +40,7 @@ void main() {
     addTearDown(b.dispose);
     await pumpMenus(tester, a, b);
 
-    a.show();
+    a.open();
     await tester.pumpAndSettle();
     expect(find.text('a item'), findsOneWidget);
 

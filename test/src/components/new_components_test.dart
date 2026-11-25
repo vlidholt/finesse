@@ -235,11 +235,11 @@ void main() {
       );
       expect(find.text('Hidden'), findsNothing);
 
-      controller.show();
+      controller.open();
       await tester.pumpAndSettle();
       expect(find.text('Hidden'), findsOneWidget);
 
-      controller.hide();
+      controller.close();
       await tester.pumpAndSettle();
       expect(find.text('Hidden'), findsNothing);
     });

@@ -1049,7 +1049,7 @@ class SelectState<T> extends State<Select<T>> {
       next.add(value);
     }
     if (widget.closeOnSelect) {
-      popoverController.hide();
+      popoverController.close();
       focusNode.requestFocus();
     }
     if (setEquals(before, next)) return;
@@ -1242,7 +1242,7 @@ class SelectState<T> extends State<Select<T>> {
       builder: (context, child) {
         return DismissShortcut(
           isActive: () => popoverController.isOpen,
-          onDismiss: popoverController.hide,
+          onDismiss: popoverController.close,
           child: CallbackShortcuts(
             bindings: searchFocusNode.hasFocus
                 ? const {}

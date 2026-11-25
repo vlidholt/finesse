@@ -49,7 +49,7 @@ void main() {
         items: const [MenuItem(child: Text('Copy'))],
       );
 
-      controller.showAt(const Offset(200, 150));
+      controller.openAt(const Offset(200, 150));
       await tester.pumpAndSettle();
       final rect = menuRect(tester, 'Copy');
       expect(rect.topLeft.dx, moreOrLessEquals(200, epsilon: 1));
@@ -67,7 +67,7 @@ void main() {
         items: const [MenuItem(child: Text('Copy'))],
       );
 
-      controller.showAt(const Offset(795, 595));
+      controller.openAt(const Offset(795, 595));
       await tester.pumpAndSettle();
       final rect = menuRect(tester, 'Copy');
       expect(rect.right, lessThanOrEqualTo(800));
@@ -91,7 +91,7 @@ void main() {
         for (var i = 0; i < 40; i++) MenuItem(child: Text('Item $i')),
       ],
     );
-    controller.showAt(const Offset(10, 10));
+    controller.openAt(const Offset(10, 10));
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
@@ -121,7 +121,7 @@ void main() {
     );
     expect(builds, 0);
 
-    controller.show();
+    controller.open();
     await tester.pumpAndSettle();
     expect(builds, greaterThan(0));
     expect(find.text('Lazy'), findsOneWidget);
@@ -145,7 +145,7 @@ void main() {
           MenuItem(child: Text('Paste')),
         ],
       );
-      controller.show();
+      controller.open();
       // Past the entrance animation, which ignores pointers and keys.
       for (var i = 0; i < 12; i++) {
         await tester.pump(const Duration(milliseconds: 50));
@@ -232,7 +232,7 @@ void main() {
         ),
       ],
     );
-    controller.showAt(const Offset(780, 100));
+    controller.openAt(const Offset(780, 100));
     await tester.pumpAndSettle();
 
     final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
@@ -282,7 +282,7 @@ void main() {
           MenuItem(child: Text('Leaf')),
         ],
       );
-      controller.showAt(const Offset(100, 100));
+      controller.openAt(const Offset(100, 100));
       await tester.pumpAndSettle();
 
       final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
@@ -348,7 +348,7 @@ void main() {
         ),
       ],
     );
-    controller.showAt(const Offset(100, 100));
+    controller.openAt(const Offset(100, 100));
     await tester.pumpAndSettle();
 
     final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);

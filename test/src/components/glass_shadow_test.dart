@@ -261,7 +261,7 @@ void main() {
             ),
           );
         },
-        open: (tester) async => controller.show(),
+        open: (tester) async => controller.open(),
         surface: find.byType(BackdropSurface),
         tint: (theme) => theme.contextMenuTheme.decoration!.color!,
       );
@@ -312,7 +312,7 @@ void main() {
             ),
           );
         },
-        open: (tester) async => controller.show(),
+        open: (tester) async => controller.open(),
         surface: find.byType(BackdropSurface),
         tint: (theme) => theme.tooltipTheme.decoration!.color!,
         extraInside: (tester) => [arrowTip(tester)],
@@ -337,7 +337,7 @@ void main() {
         ),
       );
       addTearDown(controller.dispose);
-      controller.show();
+      controller.open();
       await advance(tester, settled: true);
       expectSame(
         await sampler.pixel(tester, arrowTip(tester)),
@@ -385,7 +385,7 @@ void main() {
               ),
             );
           },
-          open: (tester) async => controller.show(),
+          open: (tester) async => controller.open(),
           surface: find.byType(BackdropSurface),
           tint: (theme) => theme.popoverTheme.decoration!.color!,
           extraInside: (tester) => [arrowTip(tester)],
@@ -414,7 +414,7 @@ void main() {
           ),
         );
         addTearDown(controller.dispose);
-        controller.show();
+        controller.open();
         await advance(tester, settled: true);
         expectSame(
           await sampler.pixel(tester, arrowTip(tester)),

@@ -220,7 +220,7 @@ class _ThemePickerState<T> extends State<ThemePicker<T>> {
           // Re-picking the current option would otherwise rebuild both app
           // themes to arrive back where it started.
           if (option.value != widget.value) widget.onChanged(option.value);
-          controller.hide();
+          controller.close();
         },
       ),
       child: _SettingBox(

@@ -6,31 +6,29 @@ import 'package:flutter/widgets.dart';
 
 /// Controls the open state of a [Collapsible].
 class CollapsibleController extends ChangeNotifier {
-  /// Creates a controller. [open] sets whether the content starts shown.
-  CollapsibleController({bool open = false}) : _open = open;
+  /// Creates a controller. [isOpen] sets whether the content starts shown.
+  CollapsibleController({bool isOpen = false}) : _open = isOpen;
 
   bool _open;
 
   /// Whether the collapsible's content is currently shown.
-  bool get open => _open;
-
-  set open(bool value) {
-    if (_open == value) return;
-    _open = value;
-    notifyListeners();
-  }
-
-  /// The same as [open], under the name `PopoverController` uses.
   bool get isOpen => _open;
 
   /// Shows the content.
-  void show() => open = true;
+  void open() => setOpen(true);
 
   /// Hides the content.
-  void hide() => open = false;
+  void close() => setOpen(false);
 
   /// Shows the content if hidden, hides it if shown.
-  void toggle() => open = !_open;
+  void toggle() => setOpen(!_open);
+
+  /// Shows the content when [open] is true and hides it otherwise.
+  void setOpen(bool open) {
+    if (_open == open) return;
+    _open = open;
+    notifyListeners();
+  }
 }
 
 /// Builds the trigger of a [Collapsible].
@@ -67,7 +65,7 @@ class Collapsible extends StatefulWidget {
     this.trigger,
     this.controller,
     this.initiallyOpen = false,
-    this.onOpenChange,
+    this.onOpenChanged,
     this.duration,
     this.curve,
     this.reverseDuration,
@@ -97,7 +95,7 @@ class Collapsible extends StatefulWidget {
   final bool initiallyOpen;
 
   /// Called whenever the open state changes.
-  final ValueChanged<bool>? onOpenChange;
+  final ValueChanged<bool>? onOpenChanged;
 
   /// {@template Collapsible.duration}
   /// The duration of the expand animation. Defaults to the time the theme's
@@ -150,7 +148,7 @@ class CollapsibleState extends State<Collapsible>
   late final AnimationController _animationController = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 200),
-    value: controller.open ? 1 : 0,
+    value: controller.isOpen ? 1 : 0,
   );
 
   late final CurvedAnimation _sizeFactor = CurvedAnimation(
@@ -163,7 +161,7 @@ class CollapsibleState extends State<Collapsible>
     super.initState();
     if (widget.controller == null) {
       _internalController = CollapsibleController(
-        open: widget.initiallyOpen,
+        isOpen: widget.initiallyOpen,
       );
     }
     controller.addListener(_onOpenChanged);
@@ -191,12 +189,12 @@ class CollapsibleState extends State<Collapsible>
   }
 
   void _onOpenChanged() {
-    if (controller.open) {
+    if (controller.isOpen) {
       _animationController.forward();
     } else {
       _animationController.reverse();
     }
-    widget.onOpenChange?.call(controller.open);
+    widget.onOpenChanged?.call(controller.isOpen);
     if (mounted) setState(() {});
   }
 
@@ -227,7 +225,7 @@ class CollapsibleState extends State<Collapsible>
         collapsibleTheme.crossAxisAlignment ??
         CrossAxisAlignment.stretch;
 
-    final open = controller.open;
+    final open = controller.isOpen;
 
     return Column(
       mainAxisSize: MainAxisSize.min,

@@ -100,7 +100,7 @@ class SelectionArea extends StatefulWidget {
       // menu is about.
       canRequestFocus: false,
       child: ContextMenu(
-        visible: true,
+        open: true,
         anchor: GlobalAnchor(
           selectableRegionState.contextMenuAnchors.primaryAnchor,
         ),

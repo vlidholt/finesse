@@ -75,42 +75,54 @@ enum SidebarMenuButtonVariant {
 
 /// Controls the open state of a [Sidebar].
 ///
-/// Desktop and mobile are independent, exactly as in shadcn/ui: [open] drives
-/// the inline sidebar, [openMobile] the modal sheet shown under the
+/// Desktop and mobile are independent, exactly as in shadcn/ui: [isOpen] is
+/// the inline sidebar, [isMobileOpen] the modal sheet shown under the
 /// breakpoint.
 class SidebarController extends ChangeNotifier {
-  /// Creates a controller. The desktop sidebar starts expanded when [open] is
-  /// true, the default. The mobile sheet starts closed.
-  SidebarController({bool open = true}) : _open = open;
+  /// Creates a controller. The desktop sidebar starts expanded when [isOpen]
+  /// is true, the default. The mobile sheet starts closed.
+  SidebarController({bool isOpen = true}) : _open = isOpen;
 
   bool _open;
 
   /// Whether the inline (desktop) sidebar is expanded.
-  bool get open => _open;
-
-  /// The same as [open], under the name `PopoverController` uses.
   bool get isOpen => _open;
 
-  set open(bool value) {
-    if (_open == value) return;
-    _open = value;
+  /// Expands the inline sidebar.
+  void open() => setOpen(true);
+
+  /// Collapses the inline sidebar.
+  void close() => setOpen(false);
+
+  /// Expands the inline sidebar when [open] is true and collapses it
+  /// otherwise.
+  void setOpen(bool open) {
+    if (_open == open) return;
+    _open = open;
     notifyListeners();
   }
 
-  bool _openMobile = false;
+  bool _mobileOpen = false;
 
   /// Whether the mobile sheet is shown.
-  bool get openMobile => _openMobile;
+  bool get isMobileOpen => _mobileOpen;
 
-  set openMobile(bool value) {
-    if (_openMobile == value) return;
-    _openMobile = value;
+  /// Shows the mobile sheet.
+  void openMobile() => setMobileOpen(true);
+
+  /// Hides the mobile sheet.
+  void closeMobile() => setMobileOpen(false);
+
+  /// Shows the mobile sheet when [open] is true and hides it otherwise.
+  void setMobileOpen(bool open) {
+    if (_mobileOpen == open) return;
+    _mobileOpen = open;
     notifyListeners();
   }
 
   /// Flips the state for the given form factor.
   void toggle({required bool isMobile}) {
-    isMobile ? openMobile = !openMobile : open = !open;
+    isMobile ? setMobileOpen(!_mobileOpen) : setOpen(!_open);
   }
 }
 
@@ -221,8 +233,8 @@ class SidebarScaffold extends StatefulWidget {
     required this.sidebar,
     required this.child,
     this.controller,
-    this.defaultOpen = true,
-    this.onOpenChange,
+    this.initiallyOpen = true,
+    this.onOpenChanged,
     this.keyboardShortcut = true,
     this.borderRadius,
   });
@@ -235,14 +247,14 @@ class SidebarScaffold extends StatefulWidget {
 
   /// An external controller for the open state.
   ///
-  /// When null an internal one is created, seeded from [defaultOpen].
+  /// When null an internal one is created, seeded from [initiallyOpen].
   final SidebarController? controller;
 
   /// Whether the sidebar starts open. Ignored when [controller] is set.
-  final bool defaultOpen;
+  final bool initiallyOpen;
 
   /// Called whenever the desktop open state changes.
-  final ValueChanged<bool>? onOpenChange;
+  final ValueChanged<bool>? onOpenChanged;
 
   /// Whether `⌘B`/`Ctrl+B` toggles the sidebar.
   final bool keyboardShortcut;
@@ -275,9 +287,9 @@ class _SidebarScaffoldState extends State<SidebarScaffold> {
   void initState() {
     super.initState();
     if (widget.controller == null) {
-      _internalController = SidebarController(open: widget.defaultOpen);
+      _internalController = SidebarController(isOpen: widget.initiallyOpen);
     }
-    _lastOpen = controller.open;
+    _lastOpen = controller.isOpen;
     controller.addListener(_onControllerChanged);
     if (widget.keyboardShortcut) {
       HardwareKeyboard.instance.addHandler(_onKeyEvent);
@@ -330,10 +342,10 @@ class _SidebarScaffoldState extends State<SidebarScaffold> {
     // The reference renders the sheet only in its mobile branch, so growing
     // past the breakpoint unmounts it. Here it is a pushed route, which has
     // to be popped explicitly — after the frame, since this runs mid-build.
-    if (!_isMobile && controller.openMobile) {
+    if (!_isMobile && controller.isMobileOpen) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted && !_isMobile && controller.openMobile) {
-          controller.openMobile = false;
+        if (mounted && !_isMobile && controller.isMobileOpen) {
+          controller.closeMobile();
         }
       });
     }
@@ -355,9 +367,9 @@ class _SidebarScaffoldState extends State<SidebarScaffold> {
   }
 
   void _onControllerChanged() {
-    if (controller.open != _lastOpen) {
-      _lastOpen = controller.open;
-      widget.onOpenChange?.call(controller.open);
+    if (controller.isOpen != _lastOpen) {
+      _lastOpen = controller.isOpen;
+      widget.onOpenChanged?.call(controller.isOpen);
     }
     _syncMobileSheet();
     if (mounted) setState(() {});
@@ -365,10 +377,10 @@ class _SidebarScaffoldState extends State<SidebarScaffold> {
 
   void _syncMobileSheet() {
     if (!mounted) return;
-    if (controller.openMobile && !_sheetShowing) {
+    if (controller.isMobileOpen && !_sheetShowing) {
       _sheetShowing = true;
       _showMobileSheet();
-    } else if (!controller.openMobile && _sheetShowing) {
+    } else if (!controller.isMobileOpen && _sheetShowing) {
       _sheetShowing = false;
       final route = _sheetRoute;
       if (route != null && route.isActive) {
@@ -433,7 +445,7 @@ class _SidebarScaffoldState extends State<SidebarScaffold> {
       // controller, dispose cleanup — so this is where the state resyncs.
       _sheetShowing = false;
       _sheetRoute = null;
-      if (mounted && controller.openMobile) controller.openMobile = false;
+      if (mounted && controller.isMobileOpen) controller.closeMobile();
     });
   }
 
@@ -444,7 +456,7 @@ class _SidebarScaffoldState extends State<SidebarScaffold> {
     final sidebarTheme = theme.sidebarTheme;
     final sidebar = widget.sidebar;
     final isMobile = _isMobile;
-    final open = controller.open;
+    final open = controller.isOpen;
 
     var content = widget.child;
 

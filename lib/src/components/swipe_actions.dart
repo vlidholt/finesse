@@ -449,7 +449,7 @@ class _SwipeActionsState extends State<SwipeActions>
             HardwareKeyboard.instance.isShiftPressed);
     if (!menuKey) return KeyEventResult.ignored;
     final box = context.findRenderObject()! as RenderBox;
-    _menu.showAt(box.localToGlobal(box.size.center(Offset.zero)));
+    _menu.openAt(box.localToGlobal(box.size.center(Offset.zero)));
     return KeyEventResult.handled;
   }
 

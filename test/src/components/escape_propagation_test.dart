@@ -78,7 +78,7 @@ void main() {
       ),
     );
     focusNode.requestFocus();
-    controller.show();
+    controller.open();
     await tester.pumpAndSettle();
     expect(controller.isOpen, isTrue);
 

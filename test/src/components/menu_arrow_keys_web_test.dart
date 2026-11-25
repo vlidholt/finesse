@@ -53,7 +53,7 @@ void main() {
       }
     }
 
-    menu.show();
+    menu.open();
     await settle();
     await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
     await tester.pump();
@@ -64,10 +64,10 @@ void main() {
     await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
     await tester.pump();
     expect(focused('One'), isTrue);
-    menu.hide();
+    menu.close();
     await settle();
 
-    select.show();
+    select.open();
     await settle();
     expect(focused('Apple'), isTrue);
     await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);

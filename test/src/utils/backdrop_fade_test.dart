@@ -86,7 +86,7 @@ void main() {
     tester,
   ) async {
     final controller = await pumpPopover(tester, ThemeData());
-    controller.show();
+    controller.open();
     // The portal measures, positions, then shows; the entrance is 150 ms.
     await tester.pump();
     await tester.pump();
@@ -112,7 +112,7 @@ void main() {
     expect(tester.widget<BackdropFilter>(filter).filter, full);
 
     // And the same on the way out.
-    controller.hide();
+    controller.close();
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 60));
     expect(opacityAbove(tester, filter), 1);
@@ -132,7 +132,7 @@ void main() {
       tester,
       ThemeData(style: StyleTokens.nova),
     );
-    controller.show();
+    controller.open();
     await tester.pump();
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 16));
@@ -154,7 +154,7 @@ void main() {
       ThemeData(),
       sampler: sampler,
     );
-    controller.show();
+    controller.open();
     await tester.pump();
     await tester.pump();
     // Two probes inside the popover, one over a black stripe and one over a

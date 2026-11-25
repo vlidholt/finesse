@@ -98,7 +98,7 @@ void main() {
       addTearDown(controller.dispose);
       await pumpDesktop(tester, createTestWidget(controller: controller));
 
-      controller.open = false;
+      controller.close();
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
 
@@ -116,7 +116,7 @@ void main() {
         ),
       );
 
-      controller.open = false;
+      controller.close();
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
 
@@ -140,10 +140,10 @@ void main() {
         ),
       );
 
-      expect(controller.open, isTrue);
+      expect(controller.isOpen, isTrue);
       await tester.tap(find.byType(SidebarTrigger));
       await tester.pump();
-      expect(controller.open, isFalse);
+      expect(controller.isOpen, isFalse);
     });
 
     testWidgets('menu button onPressed fires and isActive highlights', (
@@ -226,7 +226,7 @@ void main() {
 
       expect(find.text('Installation'), findsOneWidget);
 
-      controller.open = false;
+      controller.close();
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
 
@@ -317,13 +317,13 @@ void main() {
       }
 
       expect(tester.takeException(), isNull);
-      expect(controller.openMobile, isTrue);
+      expect(controller.isMobileOpen, isTrue);
       expect(find.byType(Sheet), findsOneWidget);
       // The sheet shows the full sidebar, never the icon rail.
       expect(find.text('Home'), findsOneWidget);
 
       // Closing through the controller pops the sheet again.
-      controller.openMobile = false;
+      controller.closeMobile();
       for (var i = 0; i < 12; i++) {
         await tester.pump(const Duration(milliseconds: 50));
       }
@@ -375,7 +375,7 @@ void main() {
         ),
       );
 
-      controller.open = false;
+      controller.close();
       for (var i = 0; i < 12; i++) {
         await tester.pump(const Duration(milliseconds: 50));
       }
@@ -383,7 +383,7 @@ void main() {
 
       // ...and back out again, which used to overflow while the trailing
       // chevron reappeared before the width had grown to fit it.
-      controller.open = true;
+      controller.open();
       for (var i = 0; i < 12; i++) {
         await tester.pump(const Duration(milliseconds: 50));
       }
@@ -393,7 +393,7 @@ void main() {
     testWidgets('collapsed menu buttons are squares at the start edge', (
       tester,
     ) async {
-      final controller = SidebarController(open: false);
+      final controller = SidebarController(isOpen: false);
       addTearDown(controller.dispose);
       await pumpDesktop(
         tester,
@@ -453,7 +453,7 @@ void main() {
       await tester.pumpWidget(createTestWidget(controller: controller));
       await tester.pump();
 
-      controller.openMobile = true;
+      controller.openMobile();
       for (var i = 0; i < 12; i++) {
         await tester.pump(const Duration(milliseconds: 50));
       }
@@ -466,7 +466,7 @@ void main() {
       }
       expect(find.byType(Sheet), findsNothing);
       // ...and the controller learned about it, so the trigger reopens.
-      expect(controller.openMobile, isFalse);
+      expect(controller.isMobileOpen, isFalse);
       expect(tester.takeException(), isNull);
     });
 
@@ -499,7 +499,7 @@ void main() {
       );
       await tester.pump();
 
-      controller.openMobile = true;
+      controller.openMobile();
       for (var i = 0; i < 12; i++) {
         await tester.pump(const Duration(milliseconds: 50));
       }
@@ -534,7 +534,7 @@ void main() {
       await tester.pumpWidget(createTestWidget(controller: controller));
       await tester.pump();
 
-      controller.openMobile = true;
+      controller.openMobile();
       for (var i = 0; i < 12; i++) {
         await tester.pump(const Duration(milliseconds: 50));
       }
@@ -547,7 +547,7 @@ void main() {
         await tester.pump(const Duration(milliseconds: 50));
       }
       expect(find.byType(Sheet), findsNothing);
-      expect(controller.openMobile, isFalse);
+      expect(controller.isMobileOpen, isFalse);
       expect(tester.takeException(), isNull);
     });
 
@@ -632,18 +632,18 @@ void main() {
       await pumpDesktop(tester, railWidget(controller));
 
       // Expanded, on the left: the edge collapses leftwards.
-      expect(controller.open, isTrue);
+      expect(controller.isOpen, isTrue);
       expect(railCursor(tester), SystemMouseCursors.resizeLeft);
 
       // A click anywhere on the strip toggles — not just on the 2px line.
       await tester.tapAt(tester.getCenter(railFinder()) + const Offset(5, 0));
       await tester.pump(const Duration(milliseconds: 300));
-      expect(controller.open, isFalse);
+      expect(controller.isOpen, isFalse);
       expect(railCursor(tester), SystemMouseCursors.resizeRight);
 
       await tester.tapAt(tester.getCenter(railFinder()));
       await tester.pump(const Duration(milliseconds: 300));
-      expect(controller.open, isTrue);
+      expect(controller.isOpen, isTrue);
     });
 
     testWidgets('only accompanies the icon collapse mode', (tester) async {
@@ -662,7 +662,7 @@ void main() {
     testWidgets('pop up on the inner side of the rail, arrow pointing back', (
       tester,
     ) async {
-      final controller = SidebarController(open: false);
+      final controller = SidebarController(isOpen: false);
       addTearDown(controller.dispose);
       await pumpDesktop(
         tester,

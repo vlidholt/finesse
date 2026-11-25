@@ -388,7 +388,7 @@ class _MenubarItemState extends State<MenubarItem> {
                   menubarController.selectedIndex = index;
                   // If selected and popover is not open, open it
                   if (selected && !popoverController.isOpen) {
-                    popoverController.show();
+                    popoverController.open();
                   }
                 },
                 leading: widget.leading,

@@ -71,7 +71,7 @@ void main() {
           ),
         ),
       );
-      menu.show();
+      menu.open();
       await settle(tester);
 
       await press(tester, LogicalKeyboardKey.arrowDown);
@@ -167,7 +167,7 @@ void main() {
           ),
         ),
       );
-      popover.show();
+      popover.open();
       await settle(tester);
       // The selected option has the focus when the list opens.
       expect(focused(tester, 'Apple'), isTrue);

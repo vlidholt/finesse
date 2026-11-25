@@ -1237,7 +1237,7 @@ class TextFieldState extends State<TextField>
       // before the menu renders.
       canRequestFocus: false,
       child: ContextMenu(
-        visible: true,
+        open: true,
         anchor: GlobalAnchor(
           editableTextState.contextMenuAnchors.primaryAnchor,
         ),

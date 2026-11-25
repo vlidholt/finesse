@@ -174,7 +174,7 @@ class _MenuRoute<T> extends PopupRoute<T> {
   @override
   bool didPop(T? result) {
     _leaving = true;
-    _controller.hide();
+    _controller.close();
     return super.didPop(result);
   }
 
@@ -214,8 +214,8 @@ class _MenuRoute<T> extends PopupRoute<T> {
     return BlockSemantics(
       child: Semantics(
         label: barrierLabel,
-        onTap: _controller.hide,
-        onDismiss: _controller.hide,
+        onTap: _controller.close,
+        onDismiss: _controller.close,
         child: const MouseRegion(
           cursor: SystemMouseCursors.basic,
           child: Listener(
