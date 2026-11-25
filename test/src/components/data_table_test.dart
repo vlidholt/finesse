@@ -1,4 +1,5 @@
 import 'package:finesse/finesse.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -268,6 +269,59 @@ void main() {
       expect(controller.sortColumnId, isNull);
       expect(find.byIcon(PhosphorIconsRegular.arrowUp), findsNothing);
       expect(find.byIcon(PhosphorIconsRegular.arrowDown), findsNothing);
+    });
+
+    testWidgets('a sortable header is a button that takes the focus and '
+        'says how the table is sorted', (tester) async {
+      final handle = tester.ensureSemantics();
+      final controller = DataTableController<_User>(rows: users);
+      addTearDown(controller.dispose);
+
+      await tester.pumpWidget(
+        FinesseApp(
+          home: DataTable<_User>(
+            columns: columns(),
+            controller: controller,
+            height: 400,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        tester.getSemantics(find.text('Name')),
+        containsSemantics(
+          label: 'Name',
+          isButton: true,
+          isFocusable: true,
+          hasTapAction: true,
+        ),
+      );
+      expect(tester.getSemantics(find.text('Name')).value, isEmpty);
+      expect(
+        tester.getSemantics(find.text('ID')),
+        containsSemantics(isButton: false, isFocusable: false),
+      );
+
+      // The keyboard reaches it and sorts with it.
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+      expect(controller.sortColumnId, 'name');
+      expect(
+        tester.getSemantics(find.text('Name')).value,
+        'Sorted ascending',
+      );
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      await tester.pumpAndSettle();
+      expect(controller.sortDirection, SortDirection.descending);
+      expect(
+        tester.getSemantics(find.text('Name')).value,
+        'Sorted descending',
+      );
+      expect(tester.getSemantics(find.text('Age')).value, isEmpty);
+      handle.dispose();
     });
 
     testWidgets('a non-sortable header does not sort', (tester) async {
