@@ -56,8 +56,14 @@ class ChipGroupItem<T> {
 /// false they stay on one row that scrolls sideways, fading at an edge
 /// they continue beyond — the filter bar of a phone screen.
 ///
+/// [leading] and [trailing] hold an action beside the choices — an "All
+/// filters" chip that opens the rest — at the start and the end of the
+/// first row. They are not chosen and do not scroll: in a group that
+/// scrolls they stay where they are while the chips pass under the fade.
+/// A group with either needs a bounded width.
+///
 /// The group is one Tab stop; the arrow keys, Home and End move the focus
-/// between its chips.
+/// between its chips. [leading] and [trailing] are Tab stops of their own.
 class ChipGroup<T> extends StatefulWidget {
   /// Creates a group of chips.
   const ChipGroup({
@@ -72,6 +78,8 @@ class ChipGroup<T> extends StatefulWidget {
     this.alignment = WrapAlignment.start,
     this.padding,
     this.semanticLabel,
+    this.leading,
+    this.trailing,
     super.key,
   });
 
@@ -112,6 +120,14 @@ class ChipGroup<T> extends StatefulWidget {
 
   /// What the group chooses, for assistive technology.
   final String? semanticLabel;
+
+  /// An action before the chips, usually a [Chip] with `onPressed`. It
+  /// stays at the start of the first row.
+  final Widget? leading;
+
+  /// An action after the chips, usually a [Chip] with `onPressed`. It
+  /// stays at the end of the first row.
+  final Widget? trailing;
 
   @override
   State<ChipGroup<T>> createState() => _ChipGroupState<T>();
@@ -279,15 +295,36 @@ class _ChipGroupState<T> extends State<ChipGroup<T>> {
       );
     }
 
+    Widget group = Focus(
+      canRequestFocus: false,
+      skipTraversal: true,
+      onKeyEvent: _onKey,
+      child: body,
+    );
+    final leading = widget.leading;
+    final trailing = widget.trailing;
+    if (leading != null || trailing != null) {
+      // Beside the first row, whatever the chips wrap to, and outside the
+      // scroll view of a group that scrolls.
+      group = Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: spacing,
+        children: [
+          ?leading,
+          Expanded(child: group),
+          ?trailing,
+        ],
+      );
+    }
+
     return Semantics(
       container: true,
+      // The group is named; each chip, and the actions beside them, is a
+      // node of its own. Without this a lone chip beside a scroll view
+      // merged into the group's node and lost its name.
+      explicitChildNodes: true,
       label: widget.semanticLabel,
-      child: Focus(
-        canRequestFocus: false,
-        skipTraversal: true,
-        onKeyEvent: _onKey,
-        child: body,
-      ),
+      child: group,
     );
   }
 }

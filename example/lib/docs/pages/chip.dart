@@ -60,7 +60,8 @@ final chipDoc = ComponentDoc(
           'fades at an edge it continues beyond. `multiple: false` with '
           '`allowEmpty: false` makes it a choice of exactly one. Give the '
           "page's margin as `padding` so the chips scroll to the screen's "
-          'edge.',
+          'edge. `leading` and `trailing` hold an action beside the '
+          'chips — here the order — that stays put while they scroll.',
       builder: (_) => const ChipGroupScrollExample(),
     ),
   ],

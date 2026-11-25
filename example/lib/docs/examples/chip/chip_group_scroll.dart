@@ -2,7 +2,8 @@ import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
 /// A filter bar: one row that scrolls sideways and fades where it goes on,
-/// as above a list on a phone. One chip at a time, and never none.
+/// as above a list on a phone. One chip at a time, and never none; the
+/// order is an action held at the start while the chips scroll past.
 class ChipGroupScrollExample extends StatefulWidget {
   const ChipGroupScrollExample({super.key});
 
@@ -22,6 +23,7 @@ class _ChipGroupScrollExampleState extends State<ChipGroupScrollExample> {
   };
 
   String filter = 'All';
+  bool newestFirst = true;
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +37,18 @@ class _ChipGroupScrollExampleState extends State<ChipGroupScrollExample> {
         allowEmpty: false,
         wrap: false,
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+        leading: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Chip(
+            leading: PhosphorIcon(
+              newestFirst
+                  ? PhosphorIconsRegular.sortDescending
+                  : PhosphorIconsRegular.sortAscending,
+            ),
+            label: Text(newestFirst ? 'Newest' : 'Oldest'),
+            onPressed: () => setState(() => newestFirst = !newestFirst),
+          ),
+        ),
         items: [
           for (final MapEntry(key: name, value: icon) in _filters.entries)
             ChipGroupItem(

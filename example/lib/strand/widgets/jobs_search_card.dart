@@ -163,13 +163,14 @@ class _SearchInput extends StatelessWidget {
   }
 }
 
-/// The filter chips of the Jobs search, a `ChipGroup` of the filters and
-/// the "All filters" chip that opens every one of them as a switch.
+/// The filter chips of the Jobs search, a `ChipGroup` of the filters with
+/// the "All filters" chip, which opens every one of them as a switch, as
+/// its action.
 ///
 /// Under the desktop search fields they wrap, with "All filters" at the
-/// end of the first row ([JobsFilterChips.new]). On a phone they are one row that scrolls
-/// sideways under the search panel, with "All filters" held at the start
-/// and the chips running out to the screen's edge
+/// end of the first row ([JobsFilterChips.new]). On a phone they are one
+/// row that scrolls sideways under the search panel, with "All filters"
+/// held at the start and the chips running out to the screen's edge
 /// ([JobsFilterChips.bar]): give it the page's margin as [margin], and no
 /// padding of its own around it.
 class JobsFilterChips extends StatelessWidget {
@@ -196,16 +197,26 @@ class JobsFilterChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final rtl = Directionality.of(context) == TextDirection.rtl;
     final start = rtl ? margin.right : margin.left;
     final end = rtl ? margin.left : margin.right;
+    final allFilters = Chip(
+      label: Text(scrolls ? 'Filters' : 'All filters'),
+      leading: const PhosphorIcon(PhosphorIconsRegular.slidersHorizontal),
+      semanticLabel: 'All filters',
+      onPressed: () => showJobFiltersDialog(context, state),
+    );
     final group = ChipGroup<String>(
       semanticLabel: 'Job filters',
       wrap: !scrolls,
       values: state.filters,
       onChanged: state.setFilters,
       padding: scrolls ? EdgeInsetsDirectional.only(end: end) : EdgeInsets.zero,
+      // Held at the start of the phone's bar while the chips scroll past
+      // it; at the end of the first row when they wrap, however many rows
+      // that is.
+      leading: scrolls ? allFilters : null,
+      trailing: scrolls ? null : allFilters,
       items: [
         for (final filter in JobsData.filters)
           ChipGroupItem(
@@ -215,34 +226,10 @@ class JobsFilterChips extends StatelessWidget {
           ),
       ],
     );
-    final allFilters = Chip(
-      label: Text(scrolls ? 'Filters' : 'All filters'),
-      leading: const PhosphorIcon(PhosphorIconsRegular.slidersHorizontal),
-      semanticLabel: 'All filters',
-      onPressed: () => showJobFiltersDialog(context, state),
-    );
-
-    if (scrolls) {
-      return Padding(
-        padding: EdgeInsetsDirectional.only(start: start),
-        child: Row(
-          spacing: theme.chipTheme.groupSpacing ?? theme.gap(GapSize.sm),
-          children: [
-            allFilters,
-            Expanded(child: group),
-          ],
-        ),
-      );
-    }
-
-    // "All filters" ends the first row, however many the filters wrap to.
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: theme.chipTheme.groupSpacing ?? theme.gap(GapSize.sm),
-      children: [
-        Expanded(child: group),
-        allFilters,
-      ],
+    if (!scrolls) return group;
+    return Padding(
+      padding: EdgeInsetsDirectional.only(start: start),
+      child: group,
     );
   }
 }

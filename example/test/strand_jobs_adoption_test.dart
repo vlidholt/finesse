@@ -74,10 +74,19 @@ void main() {
       final group = find.byType(ChipGroup<String>);
       expect(group, findsOneWidget);
       expect(tester.widget<ChipGroup<String>>(group).wrap, isTrue);
-      // "All filters" is not a filter of the group but ends its first row.
+      // "All filters" is not a filter of the group but its action, at the
+      // end of its first row.
+      final chipGroup = tester.widget<ChipGroup<String>>(group);
       expect(
-        find.descendant(of: group, matching: _chip('All filters')),
-        findsNothing,
+        chipGroup.items.map((item) => (item.label as Text).data),
+        isNot(contains('All filters')),
+      );
+      expect(
+        find.descendant(
+          of: find.byWidget(chipGroup.trailing!),
+          matching: find.text('All filters'),
+        ),
+        findsOneWidget,
       );
       expect(
         tester.getTopLeft(_chip('All filters')).dx,

@@ -16,6 +16,8 @@ class _Host extends StatefulWidget {
     this.disabled = const {},
     this.width = 600,
     this.showCheckmark,
+    this.leading,
+    this.trailing,
   });
 
   final Set<int> initial;
@@ -26,6 +28,8 @@ class _Host extends StatefulWidget {
   final Set<int> disabled;
   final double width;
   final bool? showCheckmark;
+  final Widget? leading;
+  final Widget? trailing;
 
   @override
   State<_Host> createState() => _HostState();
@@ -47,6 +51,8 @@ class _HostState extends State<_Host> {
           allowEmpty: widget.allowEmpty,
           wrap: widget.wrap,
           showCheckmark: widget.showCheckmark,
+          leading: widget.leading,
+          trailing: widget.trailing,
           onChanged: (v) {
             changes.add(v);
             setState(() => values = v);
@@ -444,6 +450,99 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
+    group('an action beside the chips', () {
+      var pressed = 0;
+      Widget action(String label) => Chip(
+        key: ValueKey(label),
+        label: Text(label),
+        onPressed: () => pressed++,
+      );
+
+      for (final wrap in [true, false]) {
+        testWidgets('${wrap ? 'wrapping' : 'scrolling'}: leading and '
+            'trailing stand at the ends of the first row, are pressed and '
+            'not chosen', (tester) async {
+          pressed = 0;
+          await pumpFinesse(
+            tester,
+            _Host(
+              count: 12,
+              width: 360,
+              wrap: wrap,
+              leading: action('Sort'),
+              trailing: action('All filters'),
+            ),
+          );
+          final group = tester.getRect(find.byType(ChipGroup<int>));
+          final sort = tester.getRect(find.byKey(const ValueKey('Sort')));
+          final all = tester.getRect(
+            find.byKey(const ValueKey('All filters')),
+          );
+          final first = tester.getRect(find.widgetWithText(Chip, 'c0'));
+          expect(sort.left, group.left);
+          expect(all.right, group.right);
+          expect(sort.top, first.top);
+          expect(all.top, first.top);
+          expect(first.left, greaterThan(sort.right));
+          await tester.tap(find.byKey(const ValueKey('All filters')));
+          await settle(tester);
+          expect(pressed, 1);
+          expect(host(tester).changes, isEmpty);
+
+          if (wrap) {
+            // The chips wrap between the two.
+            final last = tester.getRect(find.widgetWithText(Chip, 'c11'));
+            expect(last.top, greaterThan(first.bottom));
+            expect(last.right, lessThan(all.left));
+          } else {
+            // The chips scroll under the fade; the actions stay put.
+            await tester.drag(find.text('c0'), const Offset(-150, 0));
+            await tester.pumpAndSettle();
+            expect(
+              tester.getRect(find.byKey(const ValueKey('Sort'))),
+              sort,
+            );
+            expect(
+              tester.getRect(find.byKey(const ValueKey('All filters'))),
+              all,
+            );
+            expect(
+              tester.getRect(find.widgetWithText(Chip, 'c0')).left,
+              lessThan(first.left),
+            );
+          }
+          expect(tester.takeException(), isNull);
+        });
+      }
+
+      testWidgets('the actions are Tab stops of their own; the arrows stay '
+          'among the chips', (tester) async {
+        await pumpFinesse(
+          tester,
+          _Host(leading: action('Sort'), trailing: action('All filters')),
+        );
+        Chip focused() => FocusManager.instance.primaryFocus!.context!
+            .findAncestorWidgetOfExactType<Chip>()!;
+        String label(Chip chip) => (chip.label as Text).data!;
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        expect(label(focused()), 'Sort');
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        expect(label(focused()), 'c0');
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pump();
+        expect(label(focused()), 'c3');
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        expect(label(focused()), 'All filters');
+      });
+    });
+
     testWidgets('a scrolling row fades only at an edge it goes on beyond', (
       tester,
     ) async {
@@ -554,6 +653,30 @@ void main() {
       final context = FocusManager.instance.primaryFocus!.context!;
       final chip = context.findAncestorWidgetOfExactType<Chip>()!;
       expect((chip.label as Text).data, 'c2');
+    });
+
+    testWidgets('an action beside a scrolling row is a named button of its '
+        'own, not part of the group\'s name', (tester) async {
+      final handle = tester.ensureSemantics();
+      await pumpFinesse(
+        tester,
+        _Host(
+          count: 12,
+          width: 300,
+          wrap: false,
+          leading: Chip(
+            label: const Text('Sort'),
+            semanticLabel: 'Sort by date',
+            onPressed: () {},
+          ),
+        ),
+      );
+      expect(find.bySemanticsLabel('Filters'), findsOneWidget);
+      expect(
+        tester.getSemantics(find.bySemanticsLabel('Sort by date')),
+        containsSemantics(isButton: true, hasTapAction: true),
+      );
+      handle.dispose();
     });
 
     testWidgets('chosen chips say so to assistive technology', (tester) async {
