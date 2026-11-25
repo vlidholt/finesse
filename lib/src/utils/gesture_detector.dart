@@ -49,11 +49,12 @@ const _hoverOff = {
 /// )
 /// ```
 ///
-/// The control inside keeps its own tap. Giving this an [onTap] as well, or
-/// an [onTapDown], puts a second tap recogniser beside the control's: the
-/// control wins a tap, and this one's `onTapDown` is only heard once a press
-/// has lasted a tenth of a second. Use a `Listener` to hear every pointer
-/// that comes down.
+/// The control inside keeps its own tap. This detector always has a tap
+/// recogniser of its own, whatever callbacks it is given — it follows a
+/// press for [onHover] — so there are always two beside each other: the
+/// control wins a tap, and this one's [onTapDown] is only heard once a
+/// press has lasted a tenth of a second. Use a `Listener` to hear every
+/// pointer that comes down.
 ///
 /// [onHover] reports the mouse's hover and, on a device that has none, a
 /// press: a finger that comes down hovers the detector until it lifts.
