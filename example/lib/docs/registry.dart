@@ -76,6 +76,7 @@ import 'package:example/docs/pages/toast.dart';
 import 'package:example/docs/pages/toggle.dart';
 import 'package:example/docs/pages/toggle_group.dart';
 import 'package:example/docs/pages/tooltip.dart';
+import 'package:example/docs/pages/wheel_picker.dart';
 import 'package:example/docs/pages/typography.dart';
 
 /// Every documented page, in the order the sidebar shows them.
@@ -178,6 +179,7 @@ final componentDocs = [
   toggleDoc,
   toggleGroupDoc,
   tooltipDoc,
+  wheelPickerDoc,
 ];
 
 final overviewDoc = ComponentDoc(

@@ -116,6 +116,7 @@ export 'src/components/timeline.dart';
 export 'src/components/toast.dart';
 export 'src/components/toggle.dart';
 export 'src/components/tooltip.dart';
+export 'src/components/wheel_picker.dart' hide RenderWheel;
 // Localizations
 export 'src/i18n/localizations_delegate.dart';
 // The generated strings file re-exports all of slang and declares an
@@ -199,6 +200,7 @@ export 'src/theme/components/timeline.dart';
 export 'src/theme/components/toast.dart';
 export 'src/theme/components/toggle.dart';
 export 'src/theme/components/tooltip.dart';
+export 'src/theme/components/wheel_picker.dart';
 export 'src/theme/cross_fade_theme.dart';
 export 'src/theme/data.dart';
 export 'src/theme/form_factor.dart';

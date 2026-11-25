@@ -84,6 +84,7 @@ flutter:
     - lib/docs/examples/toggle/
     - lib/docs/examples/toggle_group/
     - lib/docs/examples/tooltip/
+    - lib/docs/examples/wheel_picker/
     - lib/docs/examples/typography/
     - lib/docs/examples/glass/
     - lib/docs/examples/app_bar/

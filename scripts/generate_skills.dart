@@ -82,6 +82,7 @@ const _slugs = [
   'toggle',
   'toggle_group',
   'tooltip',
+  'wheel_picker',
 ];
 
 void main() {
