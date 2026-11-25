@@ -17,7 +17,7 @@ class _CheckboxBasicExampleState extends State<CheckboxBasicExample> {
       value: value,
       onChanged: (v) => setState(() => value = v),
       label: const Text('Accept terms and conditions'),
-      sublabel: const Text(
+      description: const Text(
         'You agree to our Terms of Service and Privacy Policy.',
       ),
     );

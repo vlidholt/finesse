@@ -7,6 +7,7 @@ import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:finesse/src/utils/shadow.dart';
 import 'package:finesse/src/utils/spring.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
@@ -40,31 +41,16 @@ enum SliderInteraction {
   slideThumb,
 }
 
-/// {@template SliderController}
-/// A controller for the [Slider] widget, managing its value.
-///
-/// Extends [ValueNotifier] to provide reactive updates when the slider value
-/// changes.
-/// {@endtemplate}
-class SliderController extends ValueNotifier<double> {
-  /// Creates a [SliderController] with an initial value.
-  SliderController({
-    required double initialValue,
-  }) : super(initialValue);
-}
+/// When a slider shows its value in a bubble above the thumb.
+enum SliderValueIndicator {
+  /// Never. The value is still announced to assistive technology.
+  never,
 
-/// {@template RangeSliderController}
-/// A controller for the [RangeSlider] widget, managing its values — one
-/// per thumb, in ascending order.
-///
-/// Extends [ValueNotifier] to provide reactive updates when any of the values
-/// change.
-/// {@endtemplate}
-class RangeSliderController extends ValueNotifier<List<double>> {
-  /// Creates a [RangeSliderController] with the initial values.
-  RangeSliderController({
-    required List<double> initialValues,
-  }) : super(List<double>.of(initialValues));
+  /// While the thumb is dragged, hovered or has the keyboard focus.
+  whileDragging,
+
+  /// Always.
+  always,
 }
 
 /// A customizable slider widget styled to match the Shadcn UI design system.
@@ -76,10 +62,11 @@ class RangeSliderController extends ValueNotifier<List<double>> {
 class Slider extends StatefulWidget {
   /// Creates a [Slider].
   ///
-  /// Either [initialValue] or [controller] must be provided to determine the
-  /// slider's starting value.
+  /// Give [value] to hold the value yourself, changing it in [onChanged],
+  /// or [initialValue] to let the slider keep it.
   const Slider({
     super.key,
+    this.value,
     this.initialValue,
     this.onChanged,
     this.enabled = true,
@@ -104,20 +91,22 @@ class Slider extends StatefulWidget {
     this.onChangeEnd,
     this.divisions,
     this.showDivisionMarks = true,
-    this.label,
+    this.valueIndicator = SliderValueIndicator.never,
+    this.valueLabel,
+    this.semanticLabel,
     this.semanticFormatterCallback,
     this.allowedInteraction,
-    this.controller,
   }) : assert(
-         (initialValue != null) ^ (controller != null),
-         'Either initialValue or controller must be specified',
+         (value != null) ^ (initialValue != null),
+         'Give value to control the slider or initialValue to seed it: one '
+         'of the two, not both.',
        );
 
-  /// {@template Slider.initialValue}
-  /// The initial value of the slider.
-  ///
-  /// This value is used only when [controller] is null.
-  /// {@endtemplate}
+  /// The value of the slider, held by the parent: the slider shows it and
+  /// reports a new one through [onChanged] without changing by itself.
+  final double? value;
+
+  /// The value the slider starts with when it keeps its own state.
   final double? initialValue;
 
   /// {@template Slider.onChanged}
@@ -281,13 +270,24 @@ class Slider extends StatefulWidget {
   /// {@endtemplate}
   final bool showDivisionMarks;
 
-  /// {@template Slider.label}
+  /// {@template Slider.valueIndicator}
+  /// When the value shows in a bubble above the thumb: never, while the
+  /// thumb is dragged, hovered or focused, or always.
+  /// {@endtemplate}
+  final SliderValueIndicator valueIndicator;
+
+  /// {@template Slider.valueLabel}
+  /// Turns a value into the text of the bubble, and into what assistive
+  /// technology reads when there is no [semanticFormatterCallback].
+  /// Defaults to the number, with decimals only when it has any.
+  /// {@endtemplate}
+  final String Function(double value)? valueLabel;
+
+  /// {@template Slider.semanticLabel}
   /// The slider's accessible name, announced by assistive technologies
   /// together with its value.
-  ///
-  /// shadcn's slider shows no value bubble, so this is not drawn.
   /// {@endtemplate}
-  final String? label;
+  final String? semanticLabel;
 
   /// {@template Slider.semanticFormatterCallback}
   /// A semantic formatter to be called by assistive technologies.
@@ -301,88 +301,56 @@ class Slider extends StatefulWidget {
   /// {@endtemplate}
   final SliderInteraction? allowedInteraction;
 
-  /// {@macro SliderController}
-  final SliderController? controller;
-
   @override
   State<Slider> createState() => _SliderState();
 }
 
 class _SliderState extends State<Slider> {
-  late final controller =
-      widget.controller ??
-      SliderController(
-        initialValue: widget.initialValue!,
-      );
-
-  @override
-  void didUpdateWidget(covariant Slider oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.controller != widget.controller) {
-      // Dispose the old controller if it was internally created
-      if (oldWidget.controller == null) {
-        oldWidget.controller?.dispose();
-      }
-      // Initialize the new controller if it's null
-      if (widget.controller == null) {
-        controller.value = widget.initialValue!;
-      }
-    }
-  }
-
-  @override
-  void dispose() {
-    // dispose the internal controller
-    if (widget.controller == null) {
-      controller.dispose();
-    }
-    super.dispose();
-  }
+  late double _value = widget.value ?? widget.initialValue!;
 
   @override
   Widget build(BuildContext context) {
-    final slider = ValueListenableBuilder(
-      valueListenable: controller,
-      builder: (context, value, child) {
-        return _SliderCore(
-          // One thumb: the multi-thumb core collapses to exactly the
-          // single-value slider when handed a one-element list.
-          values: [value],
-          onValuesChanged: (values) {
-            controller.value = values.first;
-            widget.onChanged?.call(values.first);
-          },
-          enabled: widget.enabled,
-          min: widget.min,
-          max: widget.max,
-          focusNode: widget.focusNode,
-          onFocusChange: widget.onFocusChange,
-          autofocus: widget.autofocus,
-          mouseCursor: widget.mouseCursor,
-          disabledMouseCursor: widget.disabledMouseCursor,
-          thumbColor: widget.thumbColor,
-          disabledThumbColor: widget.disabledThumbColor,
-          thumbBorderColor: widget.thumbBorderColor,
-          disabledThumbBorderColor: widget.disabledThumbBorderColor,
-          activeTrackColor: widget.activeTrackColor,
-          inactiveTrackColor: widget.inactiveTrackColor,
-          disabledActiveTrackColor: widget.disabledActiveTrackColor,
-          disabledInactiveTrackColor: widget.disabledInactiveTrackColor,
-          trackHeight: widget.trackHeight,
-          thumbRadius: widget.thumbRadius,
-          onChangeStart: (values) => widget.onChangeStart?.call(values.first),
-          onChangeEnd: (values) => widget.onChangeEnd?.call(values.first),
-          divisions: widget.divisions,
-          showDivisionMarks: widget.showDivisionMarks,
-          allowedInteraction: widget.allowedInteraction,
-          semanticFormatter: widget.semanticFormatterCallback == null
-              ? null
-              : (value, _) => widget.semanticFormatterCallback!(value),
-        );
+    final value = widget.value ?? _value;
+    final slider = _SliderCore(
+      // One thumb: the multi-thumb core collapses to exactly the
+      // single-value slider when handed a one-element list.
+      values: [value],
+      onValuesChanged: (values) {
+        // A controlled slider waits for its parent to hand the value back.
+        if (widget.value == null) setState(() => _value = values.first);
+        widget.onChanged?.call(values.first);
       },
+      enabled: widget.enabled,
+      min: widget.min,
+      max: widget.max,
+      focusNode: widget.focusNode,
+      onFocusChange: widget.onFocusChange,
+      autofocus: widget.autofocus,
+      mouseCursor: widget.mouseCursor,
+      disabledMouseCursor: widget.disabledMouseCursor,
+      thumbColor: widget.thumbColor,
+      disabledThumbColor: widget.disabledThumbColor,
+      thumbBorderColor: widget.thumbBorderColor,
+      disabledThumbBorderColor: widget.disabledThumbBorderColor,
+      activeTrackColor: widget.activeTrackColor,
+      inactiveTrackColor: widget.inactiveTrackColor,
+      disabledActiveTrackColor: widget.disabledActiveTrackColor,
+      disabledInactiveTrackColor: widget.disabledInactiveTrackColor,
+      trackHeight: widget.trackHeight,
+      thumbRadius: widget.thumbRadius,
+      onChangeStart: (values) => widget.onChangeStart?.call(values.first),
+      onChangeEnd: (values) => widget.onChangeEnd?.call(values.first),
+      divisions: widget.divisions,
+      showDivisionMarks: widget.showDivisionMarks,
+      allowedInteraction: widget.allowedInteraction,
+      valueIndicator: widget.valueIndicator,
+      valueLabel: widget.valueLabel,
+      semanticFormatter: widget.semanticFormatterCallback == null
+          ? null
+          : (value, _) => widget.semanticFormatterCallback!(value),
     );
-    if (widget.label == null) return slider;
-    return Semantics(label: widget.label, child: slider);
+    if (widget.semanticLabel == null) return slider;
+    return Semantics(label: widget.semanticLabel, child: slider);
   }
 }
 
@@ -399,18 +367,20 @@ class _SliderState extends State<Slider> {
 ///
 /// ```dart
 /// RangeSlider(
-///   initialValues: const [20, 80],
+///   values: _range,
 ///   max: 100,
-///   onChanged: (values) => print('${values.first}..${values.last}'),
+///   onChanged: (values) => setState(() => _range = values),
 /// )
 /// ```
 class RangeSlider extends StatefulWidget {
   /// Creates a [RangeSlider].
   ///
-  /// Either [initialValues] or [controller] must be provided to determine the
-  /// slider's starting values, one per thumb.
+  /// Give [values] to hold the values yourself, changing them in
+  /// [onChanged], or [initialValues] to let the slider keep them: one per
+  /// thumb, in ascending order.
   const RangeSlider({
     super.key,
+    this.values,
     this.initialValues,
     this.onChanged,
     this.enabled = true,
@@ -433,19 +403,24 @@ class RangeSlider extends StatefulWidget {
     this.onChangeEnd,
     this.divisions,
     this.showDivisionMarks = true,
+    this.valueIndicator = SliderValueIndicator.never,
+    this.valueLabel,
+    this.semanticLabel,
     this.semanticFormatterCallback,
     this.allowedInteraction,
-    this.controller,
   }) : assert(
-         (initialValues != null) ^ (controller != null),
-         'Either initialValues or controller must be specified',
+         (values != null) ^ (initialValues != null),
+         'Give values to control the slider or initialValues to seed it: '
+         'one of the two, not both.',
        );
 
-  /// {@template RangeSlider.initialValues}
-  /// The initial values of the slider, one per thumb, in ascending order.
-  ///
-  /// These values are used only when [controller] is null.
-  /// {@endtemplate}
+  /// The values of the slider, one per thumb in ascending order, held by
+  /// the parent: the slider shows them and reports new ones through
+  /// [onChanged] without changing by itself.
+  final List<double>? values;
+
+  /// The values the slider starts with when it keeps its own state, one
+  /// per thumb in ascending order.
   final List<double>? initialValues;
 
   /// {@template RangeSlider.onChanged}
@@ -537,69 +512,60 @@ class RangeSlider extends StatefulWidget {
   /// {@macro Slider.allowedInteraction}
   final SliderInteraction? allowedInteraction;
 
-  /// {@macro RangeSliderController}
-  final RangeSliderController? controller;
+  /// {@macro Slider.valueIndicator}
+  final SliderValueIndicator valueIndicator;
+
+  /// {@macro Slider.valueLabel}
+  final String Function(double value)? valueLabel;
+
+  /// {@macro Slider.semanticLabel}
+  final String? semanticLabel;
 
   @override
   State<RangeSlider> createState() => _RangeSliderState();
 }
 
 class _RangeSliderState extends State<RangeSlider> {
-  late final controller =
-      widget.controller ??
-      RangeSliderController(initialValues: widget.initialValues!);
-
-  @override
-  void didUpdateWidget(covariant RangeSlider oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.controller != widget.controller &&
-        widget.controller == null) {
-      controller.value = List<double>.of(widget.initialValues!);
-    }
-  }
-
-  @override
-  void dispose() {
-    if (widget.controller == null) controller.dispose();
-    super.dispose();
-  }
+  late List<double> _values = List.of(
+    widget.values ?? widget.initialValues!,
+  );
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: controller,
-      builder: (context, values, child) {
-        return _SliderCore(
-          values: values,
-          onValuesChanged: (next) {
-            controller.value = next;
-            widget.onChanged?.call(next);
-          },
-          enabled: widget.enabled,
-          min: widget.min,
-          max: widget.max,
-          autofocus: widget.autofocus,
-          mouseCursor: widget.mouseCursor,
-          disabledMouseCursor: widget.disabledMouseCursor,
-          thumbColor: widget.thumbColor,
-          disabledThumbColor: widget.disabledThumbColor,
-          thumbBorderColor: widget.thumbBorderColor,
-          disabledThumbBorderColor: widget.disabledThumbBorderColor,
-          activeTrackColor: widget.activeTrackColor,
-          inactiveTrackColor: widget.inactiveTrackColor,
-          disabledActiveTrackColor: widget.disabledActiveTrackColor,
-          disabledInactiveTrackColor: widget.disabledInactiveTrackColor,
-          trackHeight: widget.trackHeight,
-          thumbRadius: widget.thumbRadius,
-          onChangeStart: widget.onChangeStart,
-          onChangeEnd: widget.onChangeEnd,
-          divisions: widget.divisions,
-          showDivisionMarks: widget.showDivisionMarks,
-          allowedInteraction: widget.allowedInteraction,
-          semanticFormatter: widget.semanticFormatterCallback,
-        );
+    final slider = _SliderCore(
+      values: widget.values ?? _values,
+      onValuesChanged: (next) {
+        // A controlled slider waits for its parent to hand the values back.
+        if (widget.values == null) setState(() => _values = next);
+        widget.onChanged?.call(next);
       },
+      enabled: widget.enabled,
+      min: widget.min,
+      max: widget.max,
+      autofocus: widget.autofocus,
+      mouseCursor: widget.mouseCursor,
+      disabledMouseCursor: widget.disabledMouseCursor,
+      thumbColor: widget.thumbColor,
+      disabledThumbColor: widget.disabledThumbColor,
+      thumbBorderColor: widget.thumbBorderColor,
+      disabledThumbBorderColor: widget.disabledThumbBorderColor,
+      activeTrackColor: widget.activeTrackColor,
+      inactiveTrackColor: widget.inactiveTrackColor,
+      disabledActiveTrackColor: widget.disabledActiveTrackColor,
+      disabledInactiveTrackColor: widget.disabledInactiveTrackColor,
+      trackHeight: widget.trackHeight,
+      thumbRadius: widget.thumbRadius,
+      onChangeStart: widget.onChangeStart,
+      onChangeEnd: widget.onChangeEnd,
+      divisions: widget.divisions,
+      showDivisionMarks: widget.showDivisionMarks,
+      allowedInteraction: widget.allowedInteraction,
+      valueIndicator: widget.valueIndicator,
+      valueLabel: widget.valueLabel,
+      semanticFormatter: widget.semanticFormatterCallback,
     );
+    if (widget.semanticLabel == null) return slider;
+    return Semantics(label: widget.semanticLabel, child: slider);
   }
 }
 
@@ -636,6 +602,8 @@ class _SliderCore extends StatefulWidget {
     required this.showDivisionMarks,
     required this.allowedInteraction,
     required this.semanticFormatter,
+    required this.valueIndicator,
+    required this.valueLabel,
     this.focusNode,
     this.onFocusChange,
   });
@@ -669,6 +637,8 @@ class _SliderCore extends StatefulWidget {
   final bool showDivisionMarks;
   final SliderInteraction? allowedInteraction;
   final String Function(double value, int index)? semanticFormatter;
+  final SliderValueIndicator valueIndicator;
+  final String Function(double value)? valueLabel;
 
   @override
   State<_SliderCore> createState() => _SliderCoreState();
@@ -738,6 +708,25 @@ class _SliderCoreState extends State<_SliderCore> {
   // theme-level min/max reaches the interaction maths and not just the paint.
   SliderTheme get _sliderTheme => Theme.of(context, listen: false).sliderTheme;
 
+  /// Whether the drag in progress is a finger's or a stylus's.
+  bool _touchDrag = false;
+
+  void _dragStarted(DragStartDetails details) {
+    _touchDrag =
+        details.kind == PointerDeviceKind.touch ||
+        details.kind == PointerDeviceKind.stylus;
+  }
+
+  /// The value as the bubble writes it.
+  String _labelOf(double value) {
+    final label = widget.valueLabel;
+    if (label != null) return label(value);
+    // Two decimals at most, and none that are zero: a value worked out
+    // from a position is rarely a whole number to the last bit.
+    final text = value.toStringAsFixed(2);
+    return text.contains('.') ? text.replaceFirst(RegExp(r'\.?0+$'), '') : text;
+  }
+
   double get _min => widget.min ?? _sliderTheme.min ?? 0;
 
   double get _max => widget.max ?? _sliderTheme.max ?? 1;
@@ -767,6 +756,10 @@ class _SliderCoreState extends State<_SliderCore> {
     if (index < values.length - 1) value = math.min(value, values[index + 1]);
 
     if (values[index] == value) return;
+    // A finger feels each stop of a stepped slider as it passes.
+    if (_touchDrag && (widget.divisions ?? 0) > 0) {
+      HapticFeedback.selectionClick();
+    }
     widget.onValuesChanged(List<double>.of(values)..[index] = value);
   }
 
@@ -1013,86 +1006,99 @@ class _SliderCoreState extends State<_SliderCore> {
                     (focused ||
                         hoveredThumb == index ||
                         draggingThumb == index);
-                return Semantics(
-                  slider: true,
-                  value:
-                      widget.semanticFormatter?.call(value, index) ??
-                      value.toString(),
-                  child: SizedBox(
-                    width: effectiveThumbRadius * 2,
-                    height: effectiveThumbRadius * 2,
-                    child: FinesseGestureDetector(
-                      cursor: widget.enabled
-                          ? effectiveMouseCursor
-                          : effectiveDisabledMouseCursor,
-                      onPanUpdate: canSlideThumb
-                          ? (details) {
-                              final dx = _localDx(
-                                layoutContext,
-                                details.globalPosition,
-                              );
-                              if (dx == null) return;
-                              _updateThumb(
-                                index,
-                                _valueFromDx(dx, effectiveTrackWidth),
-                              );
-                            }
-                          : null,
-                      onPanDown: widget.enabled
-                          ? (_) => _setDragging(index)
-                          : null,
-                      onPanCancel: widget.enabled
-                          ? () => _setDragging(null)
-                          : null,
-                      onPanStart: widget.enabled
-                          ? (details) {
-                              _setDragging(index);
-                              widget.onChangeStart?.call(widget.values);
-                            }
-                          : null,
-                      onPanEnd: widget.enabled
-                          ? (details) {
-                              _setDragging(null);
-                              widget.onChangeEnd?.call(widget.values);
-                            }
-                          : null,
-                      child: MouseRegion(
-                        onEnter: (_) => _setHovered(index),
-                        onExit: (_) => _setHovered(null),
-                        // The ring grows out of the thumb and the thumb
-                        // swells while it is held; both are paint only, so
-                        // the slider's box never changes.
-                        child: SpringBuilder(
-                          value: draggingThumb == index && widget.enabled
-                              ? 1
-                              : 0,
-                          spring: motion.bouncy,
-                          builder: (context, press, child) => Transform.scale(
-                            scale: 1 + (thumbPressScale - 1) * press,
-                            child: child,
-                          ),
+                final bubbleVisible = switch (widget.valueIndicator) {
+                  SliderValueIndicator.never => false,
+                  SliderValueIndicator.always => true,
+                  SliderValueIndicator.whileDragging => ringVisible,
+                };
+                return _SliderValueBubble(
+                  enabled: widget.valueIndicator != SliderValueIndicator.never,
+                  visible: bubbleVisible,
+                  label: _labelOf(value),
+                  child: Semantics(
+                    slider: true,
+                    value:
+                        widget.semanticFormatter?.call(value, index) ??
+                        (widget.valueLabel == null
+                            ? value.toString()
+                            : _labelOf(value)),
+                    child: SizedBox(
+                      width: effectiveThumbRadius * 2,
+                      height: effectiveThumbRadius * 2,
+                      child: FinesseGestureDetector(
+                        cursor: widget.enabled
+                            ? effectiveMouseCursor
+                            : effectiveDisabledMouseCursor,
+                        onPanUpdate: canSlideThumb
+                            ? (details) {
+                                final dx = _localDx(
+                                  layoutContext,
+                                  details.globalPosition,
+                                );
+                                if (dx == null) return;
+                                _updateThumb(
+                                  index,
+                                  _valueFromDx(dx, effectiveTrackWidth),
+                                );
+                              }
+                            : null,
+                        onPanDown: widget.enabled
+                            ? (_) => _setDragging(index)
+                            : null,
+                        onPanCancel: widget.enabled
+                            ? () => _setDragging(null)
+                            : null,
+                        onPanStart: widget.enabled
+                            ? (details) {
+                                _dragStarted(details);
+                                _setDragging(index);
+                                widget.onChangeStart?.call(widget.values);
+                              }
+                            : null,
+                        onPanEnd: widget.enabled
+                            ? (details) {
+                                _setDragging(null);
+                                widget.onChangeEnd?.call(widget.values);
+                              }
+                            : null,
+                        child: MouseRegion(
+                          onEnter: (_) => _setHovered(index),
+                          onExit: (_) => _setHovered(null),
+                          // The ring grows out of the thumb and the thumb
+                          // swells while it is held; both are paint only, so
+                          // the slider's box never changes.
                           child: SpringBuilder(
-                            value: ringVisible ? 1 : 0,
-                            spring: motion.snappy,
-                            builder: (context, ring, _) => Container(
-                              decoration: ShadowDecoration.box(
-                                shape: BoxShape.circle,
-                                color: resolvedThumbColor,
-                                border: Border.all(
-                                  color: resolvedThumbBorderColor,
-                                  width: thumbBorderWidth,
+                            value: draggingThumb == index && widget.enabled
+                                ? 1
+                                : 0,
+                            spring: motion.bouncy,
+                            builder: (context, press, child) => Transform.scale(
+                              scale: 1 + (thumbPressScale - 1) * press,
+                              child: child,
+                            ),
+                            child: SpringBuilder(
+                              value: ringVisible ? 1 : 0,
+                              spring: motion.snappy,
+                              builder: (context, ring, _) => Container(
+                                decoration: ShadowDecoration.box(
+                                  shape: BoxShape.circle,
+                                  color: resolvedThumbColor,
+                                  border: Border.all(
+                                    color: resolvedThumbBorderColor,
+                                    width: thumbBorderWidth,
+                                  ),
+                                  // A spread-only shadow is a ring: it grows
+                                  // outward without moving anything, which is
+                                  // what `hover:ring-4` does.
+                                  shadows: ring > 0
+                                      ? [
+                                          BoxShadow(
+                                            color: ringColor,
+                                            spreadRadius: ringWidth * ring,
+                                          ),
+                                        ]
+                                      : const <BoxShadow>[],
                                 ),
-                                // A spread-only shadow is a ring: it grows
-                                // outward without moving anything, which is
-                                // what `hover:ring-4` does.
-                                shadows: ring > 0
-                                    ? [
-                                        BoxShadow(
-                                          color: ringColor,
-                                          spreadRadius: ringWidth * ring,
-                                        ),
-                                      ]
-                                    : const <BoxShadow>[],
                               ),
                             ),
                           ),
@@ -1181,7 +1187,10 @@ class _SliderCoreState extends State<_SliderCore> {
                     : null,
                 onPanCancel: widget.enabled ? () => _setDragging(null) : null,
                 onPanStart: widget.enabled
-                    ? (details) => widget.onChangeStart?.call(widget.values)
+                    ? (details) {
+                        _dragStarted(details);
+                        widget.onChangeStart?.call(widget.values);
+                      }
                     : null,
                 onPanEnd: widget.enabled
                     ? (details) {
@@ -1266,4 +1275,192 @@ class _SliderCoreState extends State<_SliderCore> {
       },
     );
   }
+}
+
+/// The value of a thumb in a bubble above it: the tooltip's surface, with
+/// its arrow pointing at the thumb.
+///
+/// The bubble is painted in the overlay, so nothing around the slider — a
+/// card, the edge of a scroll view — cuts it off, and it follows the thumb
+/// through a layer link, so a drag moves it without a layout. It is in the
+/// overlay only while it shows.
+class _SliderValueBubble extends StatefulWidget {
+  const _SliderValueBubble({
+    required this.enabled,
+    required this.visible,
+    required this.label,
+    required this.child,
+  });
+
+  /// Whether there is a bubble at all.
+  final bool enabled;
+  final bool visible;
+  final String label;
+  final Widget child;
+
+  @override
+  State<_SliderValueBubble> createState() => _SliderValueBubbleState();
+}
+
+class _SliderValueBubbleState extends State<_SliderValueBubble> {
+  final _link = LayerLink();
+  final _portal = OverlayPortalController();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.enabled && widget.visible) _portal.show();
+  }
+
+  @override
+  void didUpdateWidget(_SliderValueBubble oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.enabled && widget.visible && !_portal.isShowing) {
+      // The overlay may not be changed while it is being built.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && widget.enabled && widget.visible) _portal.show();
+      });
+    }
+  }
+
+  void _left() {
+    // Out of the overlay once it has shrunk away.
+    if (mounted && !widget.visible && _portal.isShowing) _portal.hide();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!widget.enabled) return widget.child;
+    final theme = Theme.of(context);
+    final tooltip = theme.tooltipTheme;
+    final motion = Motion.of(context);
+    final color = tooltip.decoration?.color ?? theme.colorScheme.foreground;
+    final radius =
+        tooltip.decoration?.border?.radius?.resolve(
+          Directionality.of(context),
+        ) ??
+        theme.radius;
+    final arrow = tooltip.arrowSize ?? 10;
+    return CompositedTransformTarget(
+      link: _link,
+      child: OverlayPortal(
+        controller: _portal,
+        overlayChildBuilder: (context) => Positioned(
+          left: 0,
+          top: 0,
+          child: CompositedTransformFollower(
+            link: _link,
+            showWhenUnlinked: false,
+            targetAnchor: Alignment.topCenter,
+            followerAnchor: Alignment.bottomCenter,
+            // The arrow's tip stops a hair above the thumb's ring.
+            offset: const Offset(0, -6),
+            child: IgnorePointer(
+              child: ExcludeSemantics(
+                // It pops out of the thumb and shrinks back into it.
+                child: SpringBuilder(
+                  value: widget.visible ? 1 : 0,
+                  spring: widget.visible ? motion.bouncy : motion.snappy,
+                  onEnd: _left,
+                  builder: (context, t, child) => Opacity(
+                    opacity: t.clamp(0.0, 1.0),
+                    child: Transform.scale(
+                      scale: motion.reduced ? 1 : .6 + .4 * t,
+                      alignment: Alignment.bottomCenter,
+                      child: child,
+                    ),
+                  ),
+                  child: CustomPaint(
+                    painter: _BubblePainter(
+                      color: color,
+                      radius: radius,
+                      arrowSize: arrow,
+                      arrowRadius: tooltip.arrowRadius ?? 0,
+                    ),
+                    child: Padding(
+                      // Room for the half of the arrow below the bubble.
+                      padding: EdgeInsets.only(bottom: arrow / 2),
+                      child: Padding(
+                        padding:
+                            tooltip.padding ??
+                            const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                        child: Text(
+                          widget.label,
+                          maxLines: 1,
+                          style: theme.textTheme.muted
+                              .copyWith(color: theme.colorScheme.background)
+                              .merge(tooltip.textStyle)
+                              .copyWith(
+                                fontFeatures: const [
+                                  FontFeature.tabularFigures(),
+                                ],
+                              ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        child: widget.child,
+      ),
+    );
+  }
+}
+
+/// A rounded bubble with a square arrow, turned on its corner, under its
+/// middle.
+class _BubblePainter extends CustomPainter {
+  const _BubblePainter({
+    required this.color,
+    required this.radius,
+    required this.arrowSize,
+    required this.arrowRadius,
+  });
+
+  final Color color;
+  final BorderRadius radius;
+  final double arrowSize;
+  final double arrowRadius;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final body = Offset.zero & Size(size.width, size.height - arrowSize / 2);
+    // Two contours wound the same way and filled non-zero: where the arrow
+    // overlaps the bubble a translucent colour is painted once, not twice.
+    final path = Path()..addRRect(radius.toRRect(body));
+    final diamond = Path()
+      ..addRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromCenter(
+            center: Offset.zero,
+            width: arrowSize,
+            height: arrowSize,
+          ),
+          Radius.circular(arrowRadius),
+        ),
+      );
+    path.addPath(
+      diamond,
+      Offset.zero,
+      matrix4: (Matrix4.translationValues(
+        size.width / 2,
+        body.bottom,
+        0,
+      )..rotateZ(math.pi / 4)).storage,
+    );
+    canvas.drawPath(path, Paint()..color = color);
+  }
+
+  @override
+  bool shouldRepaint(_BubblePainter oldDelegate) =>
+      oldDelegate.color != color ||
+      oldDelegate.radius != radius ||
+      oldDelegate.arrowSize != arrowSize ||
+      oldDelegate.arrowRadius != arrowRadius;
 }

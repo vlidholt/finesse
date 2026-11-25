@@ -341,7 +341,7 @@ void main() {
               Radio(
                 value: 'option1',
                 label: Text('Option 1'),
-                sublabel: Text('Sublabel'),
+                description: Text('Sublabel'),
               ),
             ],
           ),
@@ -417,7 +417,7 @@ void main() {
               (index) => Radio<bool>(
                 value: index.isEven,
                 label: Text('Label $index'),
-                sublabel: Text('Sublabel $index'),
+                description: Text('Sublabel $index'),
               ),
             ),
           ),

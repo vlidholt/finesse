@@ -41,17 +41,13 @@ void main() {
     );
   });
 
-  testWidgets('a radio group moves its listener to a swapped controller', (
+  testWidgets('a radio group follows a value written from outside', (
     tester,
   ) async {
-    final a = RadioController<int>(value: 1);
-    final b = RadioController<int>(value: 1);
-    addTearDown(a.dispose);
-    addTearDown(b.dispose);
     int? changed;
-    Widget build(RadioController<int> controller) => FinesseApp(
+    Widget build(int? value) => FinesseApp(
       home: FinesseRadioGroup<int>(
-        controller: controller,
+        value: value,
         onChanged: (v) => changed = v,
         items: const [
           Radio(value: 1, label: Text('one')),
@@ -60,15 +56,13 @@ void main() {
       ),
     );
 
-    await tester.pumpWidget(build(a));
-    await tester.pumpWidget(build(b));
-    changed = null;
-    a.value = 2;
+    await tester.pumpWidget(build(1));
+    await tester.pumpWidget(build(2));
     await tester.pump();
-    expect(changed, isNull, reason: 'the old controller is no longer heard');
-    b.value = 2;
+    expect(changed, isNull, reason: 'a change from outside is not reported');
+    await tester.tap(find.text('one'));
     await tester.pump();
-    expect(changed, 2);
+    expect(changed, 1);
   });
 
   testWidgets('a select notifies its controller when initialValue changes', (

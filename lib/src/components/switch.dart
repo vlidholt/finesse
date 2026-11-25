@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:finesse/src/components/control_affinity.dart';
 import 'package:finesse/src/components/disabled.dart';
 import 'package:finesse/src/raw_components/focusable.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
@@ -37,9 +38,9 @@ class Switch extends StatefulWidget {
     this.margin,
     this.duration,
     this.decoration,
-    this.direction,
+    this.controlAffinity = ControlAffinity.leading,
     this.label,
-    this.sublabel,
+    this.description,
     this.padding,
   });
 
@@ -141,29 +142,23 @@ class Switch extends StatefulWidget {
   /// {@endtemplate}
   final FinesseDecoration? decoration;
 
-  /// {@template Switch.direction}
-  /// Text direction of the switch and associated label.
-  ///
-  /// Determines the layout direction, e.g., left-to-right (LTR) or
-  /// right-to-left (RTL).
+  /// {@template Switch.controlAffinity}
+  /// Whether the switch comes before the label or after it.
   /// {@endtemplate}
-  final TextDirection? direction;
+  final ControlAffinity controlAffinity;
 
   /// {@template Switch.label}
   /// Widget to display as a label for the switch.
   ///
-  /// Typically a [Text] widget describing the switch's function. Positioned to
-  /// the right in LTR direction.
+  /// Typically a [Text] widget describing the switch's function, on the side
+  /// [controlAffinity] leaves free.
   /// {@endtemplate}
   final Widget? label;
 
-  /// {@template Switch.sublabel}
-  /// Widget to display as a sublabel, providing additional context below the
-  /// label.
-  ///
-  /// Usually a smaller [Text] widget for descriptive purposes.
+  /// {@template Switch.description}
+  /// An optional line under the label, in the muted colour.
   /// {@endtemplate}
-  final Widget? sublabel;
+  final Widget? description;
 
   /// {@template Switch.padding}
   /// Padding between the switch itself and its label.
@@ -235,7 +230,7 @@ class _SwitchState extends State<Switch> with SingleTickerProviderStateMixin {
     assert(debugCheckHasTheme(context));
     final theme = Theme.of(context);
 
-    final direction = widget.direction ?? Directionality.of(context);
+    final direction = Directionality.of(context);
     final effectiveThumbColor =
         widget.thumbColor ??
         theme.switchTheme.thumbColor ??
@@ -376,45 +371,40 @@ class _SwitchState extends State<Switch> with SingleTickerProviderStateMixin {
       disabledOpacity: 1,
       child: GestureDetector(
         onTap: widget.onChanged == null ? null : onTap,
-        child: Row(
-          textDirection: direction,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            switchWidget,
-            if (widget.label != null)
-              Flexible(
-                child: Padding(
-                  padding: effectivePadding,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
+        child: ControlLabelRow(
+          affinity: widget.controlAffinity,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          labelPadding: effectivePadding,
+          control: switchWidget,
+          label: widget.label == null
+              ? null
+              : Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: DefaultTextStyle(
+                        style: theme.textTheme.muted.copyWith(
+                          fontWeight: FontWeight.w500,
+                          color: theme.colorScheme.foreground,
+                        ),
+                        child: widget.label!,
+                      ),
+                    ),
+                    if (widget.description != null)
                       MouseRegion(
                         cursor: SystemMouseCursors.click,
                         child: DefaultTextStyle(
-                          style: theme.textTheme.muted.copyWith(
-                            fontWeight: FontWeight.w500,
-                            color: theme.colorScheme.foreground,
+                          style: theme.textTheme.muted.fallback(
+                            color: theme.colorScheme.mutedForeground,
                           ),
-                          child: widget.label!,
+                          child: widget.description!,
                         ),
                       ),
-                      if (widget.sublabel != null)
-                        MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          child: DefaultTextStyle(
-                            style: theme.textTheme.muted.fallback(
-                              color: theme.colorScheme.mutedForeground,
-                            ),
-                            child: widget.sublabel!,
-                          ),
-                        ),
-                    ],
-                  ),
+                  ],
                 ),
-              ),
-          ],
         ),
       ),
     );

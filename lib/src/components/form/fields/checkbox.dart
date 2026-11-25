@@ -1,4 +1,5 @@
 import 'package:finesse/src/components/checkbox.dart';
+import 'package:finesse/src/components/control_affinity.dart';
 import 'package:finesse/src/components/form/field.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/theme.dart';
@@ -47,14 +48,14 @@ class CheckboxFormField extends FinesseFormField<bool> {
     /// {@macro Checkbox.label}
     Widget? inputLabel,
 
-    /// {@macro Checkbox.sublabel}
-    Widget? inputSublabel,
+    /// {@macro Checkbox.description}
+    Widget? inputDescription,
 
     /// {@macro Checkbox.padding}
     EdgeInsetsGeometry? padding,
 
-    /// {@macro Checkbox.direction}
-    TextDirection? direction,
+    /// {@macro Checkbox.controlAffinity}
+    ControlAffinity controlAffinity = ControlAffinity.leading,
 
     /// {@macro Checkbox.crossAxisAlignment}
     CrossAxisAlignment? crossAxisAlignment,
@@ -71,7 +72,7 @@ class CheckboxFormField extends FinesseFormField<bool> {
          builder: (state) {
            state as CheckboxFormFieldState;
            return Checkbox(
-             value: state.value!,
+             value: state.value ?? false,
              onChanged: state.didChange,
              enabled: state.enabled,
              focusNode: state.focusNode,
@@ -80,9 +81,9 @@ class CheckboxFormField extends FinesseFormField<bool> {
              icon: icon,
              color: color,
              label: inputLabel,
-             sublabel: inputSublabel,
+             description: inputDescription,
              padding: padding,
-             direction: direction,
+             controlAffinity: controlAffinity,
              decoration: state.decoration,
              crossAxisAlignment: crossAxisAlignment,
              checkboxPadding: checkboxPadding,
