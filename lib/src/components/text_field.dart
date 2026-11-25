@@ -1392,7 +1392,7 @@ class TextFieldState extends State<TextField>
     return ConstrainedBox(
       constraints: effectiveConstraints,
       child: Disabled(
-        disabled: !widget.enabled,
+        enabled: widget.enabled,
         child: _selectionGestureDetectorBuilder.buildGestureDetector(
           behavior: HitTestBehavior.translucent,
           child: KeyboardToolbar(

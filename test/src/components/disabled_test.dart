@@ -22,7 +22,7 @@ void main() {
         Button(onPressed: () {}, child: const Text('Before')),
         Disabled(
           key: const ValueKey('group'),
-          disabled: disabled,
+          enabled: !disabled,
           showForbiddenCursor: showForbiddenCursor,
           disabledOpacity: disabledOpacity,
           child: Column(

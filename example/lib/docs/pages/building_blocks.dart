@@ -121,7 +121,7 @@ final buildingBlocksDoc = ComponentDoc(
           DocParagraph(
             'Most controls take `enabled`. `Disabled` is for the group: '
             'a form section waiting on a switch, a toolbar while a save is '
-            'in flight. While `disabled` is true the subtree absorbs '
+            'in flight. While `enabled` is false the subtree absorbs '
             'pointers, is excluded from focus traversal and is drawn at '
             '`ThemeData.disabledOpacity` (or `disabledOpacity`). '
             '`showForbiddenCursor` adds the not-allowed cursor.',

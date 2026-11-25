@@ -458,7 +458,7 @@ class _RadioState<T> extends State<Radio<T>> {
       checked: selected,
       child: Disabled(
         showForbiddenCursor: true,
-        disabled: !enabled,
+        enabled: enabled,
         child: CallbackShortcuts(
           bindings: {
             for (final trigger in activationKeys)
@@ -520,7 +520,7 @@ class _RadioState<T> extends State<Radio<T>> {
     );
     return Disabled(
       showForbiddenCursor: true,
-      disabled: !enabled,
+      enabled: enabled,
       disabledOpacity: 1,
       child: GestureDetector(
         onTap: enabled ? onTap : null,

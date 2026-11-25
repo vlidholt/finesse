@@ -267,7 +267,7 @@ class _CheckboxState extends State<Checkbox> {
       mixed: widget.tristate ? value == null : null,
       child: Disabled(
         showForbiddenCursor: true,
-        disabled: !widget.enabled,
+        enabled: widget.enabled,
         child: CallbackShortcuts(
           bindings: {
             for (final trigger in activationKeys)
@@ -342,7 +342,7 @@ class _CheckboxState extends State<Checkbox> {
 
     return Disabled(
       showForbiddenCursor: true,
-      disabled: !widget.enabled,
+      enabled: widget.enabled,
       disabledOpacity: 1,
       child: GestureDetector(
         onTap: widget.onChanged == null ? null : onTap,

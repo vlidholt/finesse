@@ -423,7 +423,7 @@ class _OtpFieldState extends State<OtpField> {
     return Provider(
       data: this,
       child: Disabled(
-        disabled: !widget.enabled,
+        enabled: widget.enabled,
         child: _OtpFieldRingOverlay(
           ring: _focusedRing,
           child: Row(

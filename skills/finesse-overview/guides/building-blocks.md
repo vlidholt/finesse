@@ -106,7 +106,7 @@ class Swatch extends StatelessWidget {
 | Widget | For |
 | --- | --- |
 | `FinesseGestureDetector` | Gestures `Pressable` has no callback for: double tap, secondary tap, tap-down, long-press phases. On touch it reports a press as a hover, as menus need. |
-| `Disabled(disabled:, child:)` | Dims a subtree and takes it out of the focus order (`showForbiddenCursor` adds the cursor). |
+| `Disabled(enabled:, child:)` | Dims a subtree and takes it out of the focus order (`showForbiddenCursor` adds the cursor). |
 | `Focusable` | A focus node with a builder that is told whether it is focused. |
 | `RovingFocus` + `RovingFocusController` | One Tab stop for a group, with the arrow keys moving inside it and type-ahead. |
 | `DismissShortcut` | Escape that closes your overlay and nothing else (see [overlays.md](overlays.md)). |

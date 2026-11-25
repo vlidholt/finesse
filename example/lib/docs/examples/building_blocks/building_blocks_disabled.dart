@@ -30,7 +30,7 @@ class _BuildingBlocksDisabledExampleState
             label: const Text('Lock billing details'),
           ),
           Disabled(
-            disabled: _locked,
+            enabled: !_locked,
             // A "not allowed" cursor over the group while it is off.
             showForbiddenCursor: true,
             child: FinesseColumn(

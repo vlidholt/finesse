@@ -83,7 +83,8 @@ package as it is, compared with shad.
   `SidebarMenuButton.isActive` and `SidebarMenuSubButton.isActive` are
   `selected`. `Calendar.hideNavigation`/`hideWeekdayNames` are
   `showNavigation`/`showWeekdayNames` (default true), also on
-  `CalendarTheme`. `sublabel` is `description` and `direction` is
+  `CalendarTheme`. `Disabled(disabled:)` is `Disabled(enabled:)`, inverted.
+  `sublabel` is `description` and `direction` is
   `controlAffinity` (`ControlAffinity`) on checkboxes, radios and switches.
 - **A smaller public surface.** The barrel no longer exports state classes
   (`AccordionState`, `CollapsibleState`, `ContextMenuState`, `CommandState`,

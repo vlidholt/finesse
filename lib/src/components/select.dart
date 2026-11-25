@@ -1287,7 +1287,7 @@ class SelectState<T> extends State<Select<T>> {
             }
 
             final Widget select = Disabled(
-              disabled: !_enabled,
+              enabled: _enabled,
               child: Focusable(
                 autofocus: widget.autofocus,
                 onFocusChange: widget.onFocusChange,

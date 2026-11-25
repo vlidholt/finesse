@@ -5,26 +5,26 @@ import 'package:flutter/widgets.dart';
 /// Switches a whole subtree off: a form section waiting on a switch, a
 /// toolbar while a save is in flight.
 ///
-/// While [disabled] is true the subtree takes no pointer events, cannot
+/// While [enabled] is false the subtree takes no pointer events, cannot
 /// take the keyboard focus (a control that had it gives it up, and Tab
 /// skips the group), and is drawn at the theme's `disabledOpacity`.
 /// Assistive technology reads the content and is told it cannot be acted
 /// on. A single control is better served by its own `enabled`.
 class Disabled extends StatelessWidget {
-  /// Creates a widget that conditionally disables its child.
+  /// Creates a widget that disables its child while [enabled] is false.
   const Disabled({
     super.key,
-    required this.disabled,
+    required this.enabled,
     required this.child,
     this.showForbiddenCursor = false,
     this.disabledOpacity,
   });
 
-  /// {@template Disabled.disabled}
-  /// Whether the child widget is disabled.
-  /// When true, the child becomes non-interactive and may be visually altered.
+  /// {@template Disabled.enabled}
+  /// Whether the child responds. While it is false the child is
+  /// non-interactive and drawn at the disabled opacity.
   /// {@endtemplate}
-  final bool disabled;
+  final bool enabled;
 
   /// {@template Disabled.child}
   /// The widget to be conditionally disabled.
@@ -50,6 +50,7 @@ class Disabled extends StatelessWidget {
   Widget build(BuildContext context) {
     assert(debugCheckHasTheme(context));
     final theme = Theme.of(context);
+    final disabled = !enabled;
 
     // No pointer and no keyboard: without the second, Tab still reached a
     // button in a disabled group and Enter pressed it. Both wrappers stay in

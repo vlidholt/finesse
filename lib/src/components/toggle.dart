@@ -280,7 +280,7 @@ class Toggle extends StatelessWidget {
         // Dimmed and deaf while disabled; the same widgets either way, so
         // the toggle keeps its state when it is enabled again.
         return Disabled(
-          disabled: !enabled,
+          enabled: enabled,
           // The size constraints sit *outside* the decorator so the outline
           // variant's border — and the no-secondary-border variant's focus
           // reserve — is counted into the toggle's height, the way CSS

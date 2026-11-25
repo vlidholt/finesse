@@ -205,7 +205,7 @@ void main() {
         findsNWidgets(2),
       ); // One for checkbox, one for outer wrapper
       final innerDisabled = tester.widget<Disabled>(disabledFinder.first);
-      expect(innerDisabled.disabled, true);
+      expect(innerDisabled.enabled, isFalse);
     });
 
     testWidgets('applies custom size correctly', (WidgetTester tester) async {

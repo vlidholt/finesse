@@ -258,7 +258,7 @@ class _SwitchState extends State<Switch> with SingleTickerProviderStateMixin {
       toggled: widget.value,
       child: Disabled(
         showForbiddenCursor: true,
-        disabled: !widget.enabled,
+        enabled: widget.enabled,
         child: CallbackShortcuts(
           bindings: {
             for (final trigger in activationKeys)
@@ -353,7 +353,7 @@ class _SwitchState extends State<Switch> with SingleTickerProviderStateMixin {
 
     return Disabled(
       showForbiddenCursor: true,
-      disabled: !widget.enabled,
+      enabled: widget.enabled,
       disabledOpacity: 1,
       child: GestureDetector(
         onTap: widget.onChanged == null ? null : onTap,
