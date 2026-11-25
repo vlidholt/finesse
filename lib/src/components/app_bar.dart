@@ -28,6 +28,9 @@ import 'package:flutter/widgets.dart';
 /// its place calls for: a `CloseButton` on a full-screen dialog, a
 /// `BackButton` on a page that can be popped, a menu button over a
 /// `Scaffold` with a drawer. [automaticallyImplyLeading] turns that off.
+/// Likewise a bar with no [actions] over a `Scaffold` with an end drawer
+/// shows the button that opens it, unless [automaticallyImplyActions] is
+/// false.
 ///
 /// **Under the toolbar.** [bottom] is a second row inside the same surface
 /// and above the hairline: a `TabBar`, a search field, a row of filter
@@ -54,6 +57,7 @@ class AppBar extends StatelessWidget {
     this.centerTitle,
     this.middle,
     this.actions = const [],
+    this.automaticallyImplyActions = true,
     this.bottom,
     this.height,
     this.padding,
@@ -92,6 +96,10 @@ class AppBar extends StatelessWidget {
 
   /// The widgets at the end, usually icon buttons.
   final List<Widget> actions;
+
+  /// Whether a bar without [actions] over a scaffold with an end drawer
+  /// shows the button that opens it.
+  final bool automaticallyImplyActions;
 
   /// A row under the toolbar, inside the bar's surface: a `TabBar`, a
   /// search field, filter chips. It takes the bar's width; give it its own
@@ -169,7 +177,9 @@ class AppBar extends StatelessWidget {
       alignLeadingGlyph: implied != null,
       title: title,
       middle: middle,
-      actions: actions,
+      actions: automaticallyImplyActions
+          ? impliedActions(context, actions)
+          : actions,
       centerTitle: centerTitle ?? bar.centerTitle ?? false,
       padding: padding,
       maxWidth: maxWidth,

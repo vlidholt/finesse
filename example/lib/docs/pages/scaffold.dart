@@ -1,11 +1,13 @@
 import 'package:example/docs/docs.dart';
 import 'package:example/docs/examples/scaffold/scaffold_banner.dart';
+import 'package:example/docs/examples/scaffold/scaffold_banner_alert.dart';
 import 'package:example/docs/examples/scaffold/scaffold_basic.dart';
 import 'package:example/docs/examples/scaffold/scaffold_bottom_sheet.dart';
 import 'package:example/docs/examples/scaffold/scaffold_drawer.dart';
 import 'package:example/docs/examples/scaffold/scaffold_floating_action_button.dart';
 import 'package:example/docs/examples/scaffold/scaffold_footer.dart';
 import 'package:example/docs/examples/scaffold/scaffold_navigation.dart';
+import 'package:example/docs/examples/scaffold/scaffold_sheet.dart';
 import 'package:flutter/widgets.dart';
 
 final scaffoldDoc = ComponentDoc(
@@ -98,6 +100,17 @@ final scaffoldDoc = ComponentDoc(
       builder: (_) => const ScaffoldBottomSheetExample(),
     ),
     ComponentExample(
+      id: 'scaffold_sheet',
+      title: 'An inline sheet',
+      description:
+          'A `Sheet` in `bottomSheet` is an inline sheet: it rests at its '
+          'smallest detent and is pulled up to the next, with no route and '
+          'no barrier, so the page behind it stays in use.',
+      minPreviewHeight: 620,
+      padding: const EdgeInsets.all(24),
+      builder: (_) => const ScaffoldSheetExample(),
+    ),
+    ComponentExample(
       id: 'scaffold_banner',
       title: 'Banner',
       description:
@@ -108,6 +121,17 @@ final scaffoldDoc = ComponentDoc(
       minPreviewHeight: 620,
       padding: const EdgeInsets.all(24),
       builder: (_) => const ScaffoldBannerExample(),
+    ),
+    ComponentExample(
+      id: 'scaffold_banner_alert',
+      title: 'An alert as the banner',
+      description:
+          'An `Alert` with `onDismissed` has a close button; it folds '
+          'away, and the callback takes it out of the scaffold once it '
+          'has.',
+      minPreviewHeight: 620,
+      padding: const EdgeInsets.all(24),
+      builder: (_) => const ScaffoldBannerAlertExample(),
     ),
     ComponentExample(
       id: 'scaffold_navigation',
