@@ -153,6 +153,16 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
     controller.open();
   }
 
+  /// The global position of a point of the region's own box.
+  ///
+  /// Worked out from the gesture's local position rather than read from
+  /// its details: the menu's anchor is a point on the screen, wherever the
+  /// navigator around the region begins.
+  Offset _global(Offset local) {
+    final box = context.findRenderObject();
+    return box is RenderBox && box.attached ? box.localToGlobal(local) : local;
+  }
+
   void hide() {
     controller.close();
   }
@@ -206,7 +216,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
             if (controller.isOpen) {
               hide();
             } else {
-              show(d.globalPosition);
+              show(_global(d.localPosition));
             }
           } else {
             hide();
@@ -219,18 +229,18 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         // `assert(_selectable == null)`. See suppressBrowserContextMenu.
         onSecondaryTapDown: (d) {
           if (kIsWeb) suppressBrowserContextMenu();
-          if (!isWindows) show(d.globalPosition);
+          if (!isWindows) show(_global(d.localPosition));
         },
         onSecondaryTapUp: (d) {
           // On Windows the browser fires `contextmenu` on button up, which
           // can be arbitrarily long after the down — re-arm so a slow click
           // stays covered, and only then open the menu.
           if (kIsWeb) suppressBrowserContextMenu();
-          if (isWindows) show(d.globalPosition);
+          if (isWindows) show(_global(d.localPosition));
         },
         onLongPressStart: effectiveLongPressEnabled
             ? (d) {
-                offset = d.globalPosition;
+                offset = _global(d.localPosition);
               }
             : null,
         onLongPress: effectiveLongPressEnabled ? onLongPress : null,
@@ -268,7 +278,8 @@ class ContextMenu extends StatefulWidget {
        onHoverArea = null,
        entrance = null,
        onTapOutside = null,
-       onTapUpInside = null;
+       onTapUpInside = null,
+       onDismissed = null;
 
   /// Creates a context menu with the plumbing the package's own menus need:
   /// the hover group and tap callbacks that tie a submenu to its row and a
@@ -293,6 +304,7 @@ class ContextMenu extends StatefulWidget {
     this.entrance,
     this.onTapOutside,
     this.onTapUpInside,
+    this.onDismissed,
   });
 
   /// {@template ContextMenu.requestFocus}
@@ -387,6 +399,11 @@ class ContextMenu extends StatefulWidget {
   @internal
   final TapRegionUpCallback? onTapUpInside;
 
+  /// Called when a menu that [open] holds open closes itself: Escape, with
+  /// the focus in it. A row uses it to keep the submenu it dismissed shut.
+  @internal
+  final VoidCallback? onDismissed;
+
   @override
   State<ContextMenu> createState() => ContextMenuState();
 }
@@ -475,6 +492,10 @@ class ContextMenuState extends State<ContextMenu> {
 
   void _onOpenChanged() {
     final controller = this.controller;
+    // Closed from inside while its parent still says open.
+    if (!controller.isOpen && (widget.open ?? false)) {
+      widget.onDismissed?.call();
+    }
     // A hover-opened submenu leaves focus where it is, and so does a menu
     // that was asked to.
     if (!controller.isOpen || _root != null || !widget.requestFocus) return;
@@ -721,10 +742,17 @@ class ContextMenuState extends State<ContextMenu> {
                           child: _MenuLevel(
                             menu: this,
                             indicatorColumn: indicatorColumn,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: items,
+                            // A menu to a screen reader: its rows are menu
+                            // items, and a submenu is a menu of its own.
+                            child: Semantics(
+                              container: true,
+                              explicitChildNodes: true,
+                              role: items.isEmpty ? null : SemanticsRole.menu,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: items,
+                              ),
                             ),
                           ),
                         ),
@@ -1103,6 +1131,38 @@ class _MenuItemState extends State<MenuItem> {
     controller.clearHovered();
   }
 
+  /// Whether this row's submenu was closed with Escape. It stays shut,
+  /// though the row is still highlighted, until the pointer or the focus
+  /// has left the row, or the arrow key that leads into it asks for it
+  /// again: one press of Escape closes one layer, and it would not be
+  /// closed if the row it returns the focus to opened it straight away.
+  bool _submenuDismissed = false;
+
+  void _onSubmenuDismissed() {
+    if (!mounted || _submenuDismissed) return;
+    setState(() => _submenuDismissed = true);
+  }
+
+  /// The row is done with: the next time it is reached its submenu opens.
+  void _onSelectionChanged() {
+    if (_submenuDismissed && !controller.hovered && !controller.focused) {
+      setState(() => _submenuDismissed = false);
+    }
+  }
+
+  /// The arrow that leads into the submenu opens it again.
+  KeyEventResult _onRowKey(FocusNode node, KeyEvent event) {
+    if (!_submenuDismissed || event is! KeyDownEvent) {
+      return KeyEventResult.ignored;
+    }
+    final towards = Directionality.of(context) == TextDirection.ltr
+        ? LogicalKeyboardKey.arrowRight
+        : LogicalKeyboardKey.arrowLeft;
+    if (event.logicalKey != towards) return KeyEventResult.ignored;
+    setState(() => _submenuDismissed = false);
+    return KeyEventResult.handled;
+  }
+
   bool _buttonHovered = false;
 
   /// Tells the menu level when the pointer reaches this row, so the row it
@@ -1142,6 +1202,7 @@ class _MenuItemState extends State<MenuItem> {
   void initState() {
     super.initState();
     statesController.addListener(_onStatesChanged);
+    controller.addListener(_onSelectionChanged);
     // register the subitem controller if this item is a submenu
     parentItemController?.registerSubItem(controller);
     if (context.getInheritedWidgetOfExactType<_MenuCheckable>() != null) {
@@ -1343,7 +1404,8 @@ class _MenuItemState extends State<MenuItem> {
         final highlighted = selected || hovered;
 
         return ContextMenu.internal(
-          open: selected,
+          open: selected && !_submenuDismissed,
+          onDismissed: _onSubmenuDismissed,
           anchor: effectiveAnchor,
           constraints: widget.constraints,
           padding: widget.subMenuPadding,
@@ -1462,6 +1524,17 @@ class _MenuItemState extends State<MenuItem> {
         );
       },
     );
+
+    if (widget.items.isNotEmpty) {
+      // Above the row's own focus, so it hears the key the row has no use
+      // for.
+      child = Focus(
+        canRequestFocus: false,
+        skipTraversal: true,
+        onKeyEvent: _onRowKey,
+        child: child,
+      );
+    }
 
     final itemConstraints = theme.contextMenuTheme.itemConstraints;
     if (itemConstraints != null) {

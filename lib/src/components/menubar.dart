@@ -12,6 +12,7 @@ import 'package:finesse/src/utils/moving_indicator.dart';
 import 'package:finesse/src/utils/provider.dart';
 import 'package:finesse/src/utils/provider_index.dart';
 import 'package:finesse/src/utils/shadow.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
 
 /// {@template MenubarController}
@@ -168,13 +169,19 @@ class _MenubarState extends State<Menubar> {
         // The open menu's trigger is marked by one fill that slides along
         // the strip as the menus are switched.
         child: MovingIndicator(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: widget.items
-                .mapIndexed(
-                  (i, item) => IndexProvider(index: i, child: item),
-                )
-                .toList(),
+          // A menu bar to a screen reader, and its triggers menu items.
+          child: Semantics(
+            container: true,
+            explicitChildNodes: true,
+            role: widget.items.isEmpty ? null : SemanticsRole.menuBar,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: widget.items
+                  .mapIndexed(
+                    (i, item) => IndexProvider(index: i, child: item),
+                  )
+                  .toList(),
+            ),
           ),
         ),
       ),
@@ -326,7 +333,7 @@ class _MenubarItemState extends State<MenubarItem> {
     final effectiveSelectOnHover =
         inherited.widget.selectOnHover ?? menubarTheme.selectOnHover ?? true;
 
-    return ListenableBuilder(
+    final Widget item = ListenableBuilder(
       listenable: menubarController,
       builder: (context, child) {
         final selected = menubarController.selectedIndex == index;
@@ -422,6 +429,11 @@ class _MenubarItemState extends State<MenubarItem> {
         );
       },
       child: widget.child,
+    );
+    // One node per trigger: a menu item of the bar, with the trigger's own
+    // label and tap. The menu it opens is drawn in the overlay, outside it.
+    return MergeSemantics(
+      child: Semantics(role: SemanticsRole.menuItem, child: item),
     );
   }
 }

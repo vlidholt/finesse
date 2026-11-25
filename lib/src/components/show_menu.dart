@@ -71,7 +71,7 @@ Future<T?> showMenu<T>({
   return navigator.push(
     _MenuRoute<T>(
       anchor: anchor,
-      atPoint: anchorRect == null,
+      point: position,
       items: items,
       constraints: constraints,
       barrierLabel:
@@ -116,7 +116,7 @@ class _MenuResult extends InheritedWidget {
 class _MenuRoute<T> extends PopupRoute<T> {
   _MenuRoute({
     required this.anchor,
-    required this.atPoint,
+    required this.point,
     required this.items,
     required this.constraints,
     required this.barrierLabel,
@@ -129,9 +129,9 @@ class _MenuRoute<T> extends PopupRoute<T> {
   /// coordinates.
   final Rect anchor;
 
-  /// Whether the menu opens with its corner on [anchor], rather than below
-  /// it.
-  final bool atPoint;
+  /// The point, in global coordinates, the menu opens with its corner on.
+  /// Null opens it below [anchor].
+  final Offset? point;
 
   final List<Widget> items;
   final BoxConstraints? constraints;
@@ -240,9 +240,9 @@ class _MenuRoute<T> extends PopupRoute<T> {
               rect: anchor,
               child: ContextMenu(
                 controller: _controller,
-                anchor: atPoint
+                anchor: point != null
                     ? GlobalAnchor(
-                        anchor.topLeft,
+                        point!,
                         followerAnchor: AlignmentDirectional.topStart,
                       )
                     : DropdownMenu.defaultAnchor,

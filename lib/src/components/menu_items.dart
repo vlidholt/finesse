@@ -32,8 +32,9 @@ double _menuIndicatorSize(BuildContext context, ThemeData theme) =>
       context,
     ).scale(theme.contextMenuTheme.indicatorSize ?? 16);
 
-/// Tells a screen reader that the row below is checked or not, as one node
-/// with the row's label and its tap action.
+/// Tells a screen reader what the row below is — a menu item, or a
+/// checkbox or radio item that is checked or not — as one node with the
+/// row's label and its tap action.
 class _CheckableSemantics extends StatelessWidget {
   const _CheckableSemantics({required this.checkable, required this.child});
 
@@ -43,11 +44,20 @@ class _CheckableSemantics extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final checkable = this.checkable;
-    if (checkable == null) return child;
+    // A menu item has to be in a menu: the framework asserts it. A row
+    // built anywhere else is a plain button.
+    final inMenu = context.getInheritedWidgetOfExactType<_MenuLevel>() != null;
     return MergeSemantics(
       child: Semantics(
-        checked: checkable.checked,
-        inMutuallyExclusiveGroup: checkable.radio,
+        role: !inMenu
+            ? null
+            : checkable == null
+            ? SemanticsRole.menuItem
+            : checkable.radio
+            ? SemanticsRole.menuItemRadio
+            : SemanticsRole.menuItemCheckbox,
+        checked: checkable?.checked,
+        inMutuallyExclusiveGroup: checkable?.radio,
         child: child,
       ),
     );
