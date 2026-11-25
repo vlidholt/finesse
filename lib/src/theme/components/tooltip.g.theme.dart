@@ -31,7 +31,6 @@ mixin _$TooltipTheme {
       anchor: t < 0.5 ? a.anchor : b.anchor,
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
       decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
-      hoverStrategies: t < 0.5 ? a.hoverStrategies : b.hoverStrategies,
       longPressDuration: lerpDuration$(
         a.longPressDuration,
         b.longPressDuration,
@@ -52,7 +51,6 @@ mixin _$TooltipTheme {
     AnchorBase? anchor,
     EdgeInsetsGeometry? padding,
     FinesseDecoration? decoration,
-    HoverStrategies? hoverStrategies,
     Duration? longPressDuration,
     TextStyle? textStyle,
     double? maxWidth,
@@ -69,7 +67,6 @@ mixin _$TooltipTheme {
       anchor: anchor ?? _this.anchor,
       padding: padding ?? _this.padding,
       decoration: decoration ?? _this.decoration,
-      hoverStrategies: hoverStrategies ?? _this.hoverStrategies,
       longPressDuration: longPressDuration ?? _this.longPressDuration,
       textStyle: textStyle ?? _this.textStyle,
       maxWidth: maxWidth ?? _this.maxWidth,
@@ -97,7 +94,6 @@ mixin _$TooltipTheme {
       anchor: other.anchor,
       padding: other.padding,
       decoration: _this.decoration?.merge(other.decoration) ?? other.decoration,
-      hoverStrategies: other.hoverStrategies,
       longPressDuration: other.longPressDuration,
       textStyle: _this.textStyle?.merge(other.textStyle) ?? other.textStyle,
       maxWidth: other.maxWidth,
@@ -126,7 +122,6 @@ mixin _$TooltipTheme {
         _other.anchor == _this.anchor &&
         _other.padding == _this.padding &&
         _other.decoration == _this.decoration &&
-        _other.hoverStrategies == _this.hoverStrategies &&
         _other.longPressDuration == _this.longPressDuration &&
         _other.textStyle == _this.textStyle &&
         _other.maxWidth == _this.maxWidth &&
@@ -147,7 +142,6 @@ mixin _$TooltipTheme {
       _this.anchor,
       _this.padding,
       _this.decoration,
-      _this.hoverStrategies,
       _this.longPressDuration,
       _this.textStyle,
       _this.maxWidth,

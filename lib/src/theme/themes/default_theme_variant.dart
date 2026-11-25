@@ -972,21 +972,6 @@ class DefaultThemeVariant extends ThemeVariant {
           offset: Offset(0, 4),
         ),
       ),
-      hoverStrategies: const HoverStrategies(
-        hover: {
-          HoverStrategy.onTap,
-          HoverStrategy.onLongPressDown,
-          HoverStrategy.onLongPressStart,
-        },
-        unhover: {
-          HoverStrategy.onTap,
-          HoverStrategy.onTapOutside,
-          HoverStrategy.onLongPressUp,
-          HoverStrategy.onLongPressEnd,
-          HoverStrategy.onLongPressCancel,
-        },
-        longPressDuration: kLongPressTimeout,
-      ),
     );
   }
 

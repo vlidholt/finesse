@@ -2,7 +2,6 @@ import 'dart:ui' show ImageFilter;
 
 import 'package:finesse/src/raw_components/portal.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
@@ -22,7 +21,6 @@ class TooltipTheme with _$TooltipTheme {
     this.padding,
     this.decoration,
     this.anchor,
-    this.hoverStrategies,
     this.longPressDuration,
     this.textStyle,
     this.maxWidth,
@@ -52,9 +50,6 @@ class TooltipTheme with _$TooltipTheme {
 
   /// {@macro Tooltip.decoration}
   final FinesseDecoration? decoration;
-
-  /// {@macro Tooltip.hoverStrategies}
-  final HoverStrategies? hoverStrategies;
 
   /// {@macro Tooltip.longPressDuration}
   final Duration? longPressDuration;

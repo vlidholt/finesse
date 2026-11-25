@@ -11,14 +11,19 @@ import 'package:finesse/src/utils/arrow_surface.dart';
 import 'package:finesse/src/utils/backdrop.dart';
 import 'package:finesse/src/utils/dismiss_shortcut.dart';
 import 'package:finesse/src/utils/entrance.dart';
-import 'package:finesse/src/utils/gesture_detector.dart';
 import 'package:finesse/src/utils/mouse_area.dart';
 import 'package:finesse/src/utils/shadow.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 
 /// {@template Tooltip}
 /// A widget that displays a tooltip on hover or focus, styled to match the
 /// Shadcn UI design system.
+///
+/// A mouse shows it by hovering, the keyboard by focusing the child (give
+/// the tooltip the child's `focusNode`), and a finger or a pen by a long
+/// press: it shows while the press is held. The tooltip listens for all
+/// three itself, so the child can be any widget.
 ///
 /// It pops out of the side that faces its trigger on the theme's motion
 /// tokens (`Motion.of`), and only fades in when it takes over from the
@@ -36,7 +41,6 @@ class Tooltip extends StatefulWidget {
     this.padding,
     this.decoration,
     this.anchor,
-    this.hoverStrategies,
     this.controller,
     this.longPressDuration,
     this.showArrow,
@@ -111,14 +115,6 @@ class Tooltip extends StatefulWidget {
   /// {@endtemplate}
   final AnchorBase? anchor;
 
-  /// {@template Tooltip.hoverStrategies}
-  /// The hover strategies to use for the tooltip on devices with touchscreens.
-  ///
-  /// Configures how hover interactions are interpreted, especially on touch
-  /// devices.
-  /// {@endtemplate}
-  final HoverStrategies? hoverStrategies;
-
   /// {@template Tooltip.controller}
   /// The controller that manages the visibility of the [Tooltip].
   ///
@@ -128,11 +124,9 @@ class Tooltip extends StatefulWidget {
   final PopoverController? controller;
 
   /// {@template Tooltip.longPressDuration}
-  /// The duration for a long press to be recognized, triggering the tooltip on
-  /// touch devices.
-  ///
-  /// Specifies how long a press must be to trigger the tooltip on touch-based
-  /// interactions.
+  /// How long a finger or a pen has to rest on the child before the tooltip
+  /// shows, the platform's long-press time by default. It is read when the
+  /// tooltip is first built.
   /// {@endtemplate}
   final Duration? longPressDuration;
 
@@ -230,46 +224,6 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
     }
   }
 
-  /// The hover strategies this tooltip was configured with, before the
-  /// tooltip's own onHover is layered on top.
-  HoverStrategies? _baseHoverStrategies;
-
-  /// The theme handed to [Tooltip.child], with the merged hover strategies
-  /// applied.
-  ///
-  /// Computed here rather than in build(). Building it per build allocated a
-  /// fresh `onHover` closure, and HoverStrategies compares that
-  /// closure in `==`, so the copied theme was never equal to the previous one.
-  /// FinesseInheritedTheme then reported a change and rebuilt the tooltip's
-  /// entire child subtree on every tooltip rebuild — and `ThemeData.copyWith`
-  /// re-runs all 54 component-theme merges each time.
-  late ThemeData _childTheme;
-
-  void _handleHoverChange(bool value) {
-    _baseHoverStrategies?.onHover?.call(value);
-    onHoverChange(value);
-  }
-
-  void _syncEffectiveTheme() {
-    final theme = Theme.of(context);
-    final base =
-        widget.hoverStrategies ??
-        theme.tooltipTheme.hoverStrategies ??
-        theme.hoverStrategies;
-    _baseHoverStrategies = base;
-    _childTheme = theme.copyWith(
-      hoverStrategies: base.copyWith(
-        // A tear-off of an instance method is canonicalized per receiver, so
-        // this keeps a stable identity across rebuilds.
-        onHover: _handleHoverChange,
-        longPressDuration:
-            widget.longPressDuration ?? theme.tooltipTheme.longPressDuration,
-      ),
-    );
-    // It leaves faster than it arrives.
-    animationController.reverseDuration = Motion.of(context).fast;
-  }
-
   /// Whether the trigger is in a part of the tree that is shown; see the
   /// same field on `Popover`. A tooltip whose trigger was hidden — in an
   /// `IndexedStack` child that is not showing, an `Offstage` — would
@@ -286,7 +240,8 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _syncEffectiveTheme();
+    // It leaves faster than it arrives.
+    animationController.reverseDuration = Motion.of(context).fast;
     _stage.resolve();
   }
 
@@ -304,10 +259,6 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
       }
       controller.addListener(_onOpenChanged);
       _onOpenChanged();
-    }
-    if (widget.hoverStrategies != oldWidget.hoverStrategies ||
-        widget.longPressDuration != oldWidget.longPressDuration) {
-      _syncEffectiveTheme();
     }
   }
 
@@ -550,21 +501,46 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
             },
             child: MouseArea(
               groupId: 'tooltip',
-              // The child reports hover through the theme's hover strategies,
-              // but a disabled button stops reporting, so its tooltip never
-              // showed. Radix wraps disabled triggers for the same reason.
-              // Listening here too covers any child; onHoverChange ignores
-              // the duplicate when both report. A non-opaque MouseRegion
-              // reports a miss from hitTest even when its child is hit, which
-              // hid the trigger from a GestureDetector around the tooltip and
-              // let taps through to widgets behind it. Deferring to the child
-              // keeps the trigger's own hit test.
-              child: MouseRegion(
-                hitTestBehavior: HitTestBehavior.deferToChild,
-                onEnter: (_) => onHoverChange(true),
-                onExit: (_) => onHoverChange(false),
-                child: Theme(
-                  data: _childTheme,
+              // The tooltip listens itself rather than have its child
+              // report: any child will do, a disabled button included, and
+              // no theme has to be made per tooltip to carry a callback
+              // down. A finger or a pen shows it with a long press, for as
+              // long as the press is held; a mouse hovers.
+              child: RawGestureDetector(
+                // The press is the tooltip's own business: the child's
+                // semantics say what the child does.
+                excludeFromSemantics: true,
+                gestures: {
+                  LongPressGestureRecognizer:
+                      GestureRecognizerFactoryWithHandlers<
+                        LongPressGestureRecognizer
+                      >(
+                        () => LongPressGestureRecognizer(
+                          debugOwner: this,
+                          duration:
+                              widget.longPressDuration ??
+                              theme.tooltipTheme.longPressDuration,
+                          supportedDevices: const {
+                            PointerDeviceKind.touch,
+                            PointerDeviceKind.stylus,
+                            PointerDeviceKind.invertedStylus,
+                          },
+                        ),
+                        (recognizer) => recognizer
+                          ..onLongPress = (() => onHoverChange(true))
+                          ..onLongPressEnd = ((_) => onHoverChange(false))
+                          ..onLongPressCancel = (() => onHoverChange(false)),
+                      ),
+                },
+                // A non-opaque MouseRegion reports a miss from hitTest even
+                // when its child is hit, which hid the trigger from a
+                // GestureDetector around the tooltip and let taps through
+                // to widgets behind it. Deferring to the child keeps the
+                // trigger's own hit test.
+                child: MouseRegion(
+                  hitTestBehavior: HitTestBehavior.deferToChild,
+                  onEnter: (_) => onHoverChange(true),
+                  onExit: (_) => onHoverChange(false),
                   child: widget.child,
                 ),
               ),
