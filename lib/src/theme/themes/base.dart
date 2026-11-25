@@ -39,6 +39,7 @@ import 'package:finesse/src/theme/components/phosphor_icon.dart';
 import 'package:finesse/src/theme/components/popover.dart';
 import 'package:finesse/src/theme/components/progress_bar.dart';
 import 'package:finesse/src/theme/components/radio.dart';
+import 'package:finesse/src/theme/components/refresh_indicator.dart';
 import 'package:finesse/src/theme/components/resizable.dart';
 import 'package:finesse/src/theme/components/scroll_area.dart';
 import 'package:finesse/src/theme/components/select.dart';
@@ -134,6 +135,7 @@ abstract class BaseTheme {
     required this.sliderTheme,
     required this.sheetTheme,
     required this.progressBarTheme,
+    required this.refreshIndicatorTheme,
     required this.accordionTheme,
     required this.tableTheme,
     required this.resizableTheme,
@@ -384,6 +386,9 @@ abstract class BaseTheme {
   /// The theme of `ProgressBar`.
   final ProgressBarTheme progressBarTheme;
 
+  /// The theme of `RefreshIndicator`.
+  final RefreshIndicatorTheme refreshIndicatorTheme;
+
   /// The theme of `Accordion`.
   final AccordionTheme accordionTheme;
 
@@ -586,6 +591,9 @@ abstract class ThemeVariant {
 
   /// Builds the theme of `ProgressBar`.
   ProgressBarTheme progressBarTheme();
+
+  /// Builds the [RefreshIndicatorTheme].
+  RefreshIndicatorTheme refreshIndicatorTheme();
 
   /// Builds the theme of `Accordion`.
   AccordionTheme accordionTheme();

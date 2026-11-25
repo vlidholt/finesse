@@ -332,6 +332,7 @@ void main() {
       t.chipTheme,
       t.listSectionTheme,
       t.listTileTheme,
+      t.refreshIndicatorTheme,
       t.chatBubbleTheme,
       t.indicatorBadgeTheme,
       t.iconTileTheme,

@@ -46,6 +46,7 @@ import 'package:finesse/src/theme/components/phosphor_icon.dart';
 import 'package:finesse/src/theme/components/popover.dart';
 import 'package:finesse/src/theme/components/progress_bar.dart';
 import 'package:finesse/src/theme/components/radio.dart';
+import 'package:finesse/src/theme/components/refresh_indicator.dart';
 import 'package:finesse/src/theme/components/resizable.dart';
 import 'package:finesse/src/theme/components/scroll_area.dart';
 import 'package:finesse/src/theme/components/select.dart';
@@ -1592,6 +1593,21 @@ class DefaultThemeVariant extends ThemeVariant {
       backgroundColor:
           _fill(style.progressTrackFill, colorScheme) ?? colorScheme.muted,
       borderRadius: const BorderRadius.all(Radius.circular(16)),
+    );
+  }
+
+  @override
+  RefreshIndicatorTheme refreshIndicatorTheme() {
+    return RefreshIndicatorTheme(
+      size: scaled(40),
+      strokeWidth: 2.5,
+      color: colorScheme.tint,
+      // The popover's colour, opaque: a circle this small that travels with
+      // a finger is not worth a backdrop filter per frame.
+      backgroundColor: colorScheme.popover,
+      borderColor: surfaceBorderColor,
+      triggerDistance: 80,
+      displacement: scaled(style.gapMd),
     );
   }
 

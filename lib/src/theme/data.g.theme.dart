@@ -220,6 +220,11 @@ mixin _$ThemeData {
         b.progressBarTheme,
         t,
       )!,
+      refreshIndicatorTheme: RefreshIndicatorTheme.lerp(
+        a.refreshIndicatorTheme,
+        b.refreshIndicatorTheme,
+        t,
+      )!,
       accordionTheme: AccordionTheme.lerp(
         a.accordionTheme,
         b.accordionTheme,
@@ -332,6 +337,7 @@ mixin _$ThemeData {
     SliderTheme? sliderTheme,
     SheetTheme? sheetTheme,
     ProgressBarTheme? progressBarTheme,
+    RefreshIndicatorTheme? refreshIndicatorTheme,
     AccordionTheme? accordionTheme,
     TableTheme? tableTheme,
     ResizableTheme? resizableTheme,
@@ -423,6 +429,8 @@ mixin _$ThemeData {
       sliderTheme: sliderTheme ?? _this.sliderTheme,
       sheetTheme: sheetTheme ?? _this.sheetTheme,
       progressBarTheme: progressBarTheme ?? _this.progressBarTheme,
+      refreshIndicatorTheme:
+          refreshIndicatorTheme ?? _this.refreshIndicatorTheme,
       accordionTheme: accordionTheme ?? _this.accordionTheme,
       tableTheme: tableTheme ?? _this.tableTheme,
       resizableTheme: resizableTheme ?? _this.resizableTheme,
@@ -550,6 +558,9 @@ mixin _$ThemeData {
       sliderTheme: _this.sliderTheme.merge(other.sliderTheme),
       sheetTheme: _this.sheetTheme.merge(other.sheetTheme),
       progressBarTheme: _this.progressBarTheme.merge(other.progressBarTheme),
+      refreshIndicatorTheme: _this.refreshIndicatorTheme.merge(
+        other.refreshIndicatorTheme,
+      ),
       accordionTheme: _this.accordionTheme.merge(other.accordionTheme),
       tableTheme: _this.tableTheme.merge(other.tableTheme),
       resizableTheme: _this.resizableTheme.merge(other.resizableTheme),
@@ -650,6 +661,7 @@ mixin _$ThemeData {
         _other.sliderTheme == _this.sliderTheme &&
         _other.sheetTheme == _this.sheetTheme &&
         _other.progressBarTheme == _this.progressBarTheme &&
+        _other.refreshIndicatorTheme == _this.refreshIndicatorTheme &&
         _other.accordionTheme == _this.accordionTheme &&
         _other.tableTheme == _this.tableTheme &&
         _other.resizableTheme == _this.resizableTheme &&
@@ -740,6 +752,7 @@ mixin _$ThemeData {
       _this.sliderTheme,
       _this.sheetTheme,
       _this.progressBarTheme,
+      _this.refreshIndicatorTheme,
       _this.accordionTheme,
       _this.tableTheme,
       _this.resizableTheme,

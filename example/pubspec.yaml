@@ -68,6 +68,7 @@ flutter:
     - lib/docs/examples/progress_bar/
     - lib/docs/examples/progress_ring/
     - lib/docs/examples/radio_group/
+    - lib/docs/examples/refresh_indicator/
     - lib/docs/examples/resizable/
     - lib/docs/examples/select/
     - lib/docs/examples/divider/

@@ -29,6 +29,30 @@ pagination:
   morePages: "More pages"
   page: "Page"
 
+carousel:
+  previous: "Previous page"
+  next: "Next page"
+  page: "Page $page of $count"
+  item: "$index of $count"
+
+refreshIndicator:
+  refresh: "Refresh"
+  refreshing: "Refreshing"
+
+reorder:
+  moveUp: "Move up"
+  moveDown: "Move down"
+  moveToTop: "Move to top"
+  moveToBottom: "Move to bottom"
+  pickedUp: "Picked up. Use the arrow keys to move, Space to drop, Escape to cancel."
+  position: "Position $position of $count"
+  dropped: "Dropped at position $position of $count"
+  cancelled: "Move cancelled"
+  dragHandle: "Drag to reorder"
+
+swipeActions:
+  more: "More actions"
+
 dialog:
   close: "Close"
   dismiss: "Dismiss"

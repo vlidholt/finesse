@@ -60,6 +60,7 @@ const _slugs = [
   'progress_bar',
   'progress_ring',
   'radio_group',
+  'refresh_indicator',
   'resizable',
   'scaffold',
   'scroll_area',

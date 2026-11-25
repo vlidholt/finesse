@@ -40,6 +40,7 @@ import 'package:finesse/src/theme/components/phosphor_icon.dart';
 import 'package:finesse/src/theme/components/popover.dart';
 import 'package:finesse/src/theme/components/progress_bar.dart';
 import 'package:finesse/src/theme/components/radio.dart';
+import 'package:finesse/src/theme/components/refresh_indicator.dart';
 import 'package:finesse/src/theme/components/resizable.dart';
 import 'package:finesse/src/theme/components/scroll_area.dart';
 import 'package:finesse/src/theme/components/select.dart';
@@ -137,6 +138,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     SliderTheme? sliderTheme,
     SheetTheme? sheetTheme,
     ProgressBarTheme? progressBarTheme,
+    RefreshIndicatorTheme? refreshIndicatorTheme,
     AccordionTheme? accordionTheme,
     TableTheme? tableTheme,
     ResizableTheme? resizableTheme,
@@ -406,6 +408,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
         sliderTheme: sliderTheme,
         sheetTheme: sheetTheme,
         progressBarTheme: progressBarTheme,
+        refreshIndicatorTheme: refreshIndicatorTheme,
         accordionTheme: accordionTheme,
         tableTheme: tableTheme,
         resizableTheme: resizableTheme,
@@ -539,6 +542,9 @@ class ThemeData extends BaseTheme with _$ThemeData {
       progressBarTheme: effectiveVariant.progressBarTheme().merge(
         progressBarTheme,
       ),
+      refreshIndicatorTheme: effectiveVariant.refreshIndicatorTheme().merge(
+        refreshIndicatorTheme,
+      ),
       accordionTheme: effectiveVariant.accordionTheme().merge(accordionTheme),
       tableTheme: effectiveVariant.tableTheme().merge(tableTheme),
       resizableTheme: effectiveVariant.resizableTheme().merge(resizableTheme),
@@ -656,6 +662,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     required super.sliderTheme,
     required super.sheetTheme,
     required super.progressBarTheme,
+    required super.refreshIndicatorTheme,
     required super.accordionTheme,
     required super.tableTheme,
     required super.resizableTheme,
@@ -755,6 +762,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     SliderTheme? sliderTheme,
     SheetTheme? sheetTheme,
     ProgressBarTheme? progressBarTheme,
+    RefreshIndicatorTheme? refreshIndicatorTheme,
     AccordionTheme? accordionTheme,
     TableTheme? tableTheme,
     ResizableTheme? resizableTheme,
@@ -848,6 +856,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
       sliderTheme: sliderTheme ?? i.sliderTheme,
       sheetTheme: sheetTheme ?? i.sheetTheme,
       progressBarTheme: progressBarTheme ?? i.progressBarTheme,
+      refreshIndicatorTheme: refreshIndicatorTheme ?? i.refreshIndicatorTheme,
       accordionTheme: accordionTheme ?? i.accordionTheme,
       tableTheme: tableTheme ?? i.tableTheme,
       resizableTheme: resizableTheme ?? i.resizableTheme,
@@ -1039,6 +1048,7 @@ final class _ThemeInputs {
     this.sliderTheme,
     this.sheetTheme,
     this.progressBarTheme,
+    this.refreshIndicatorTheme,
     this.accordionTheme,
     this.tableTheme,
     this.resizableTheme,
@@ -1130,6 +1140,7 @@ final class _ThemeInputs {
   final SliderTheme? sliderTheme;
   final SheetTheme? sheetTheme;
   final ProgressBarTheme? progressBarTheme;
+  final RefreshIndicatorTheme? refreshIndicatorTheme;
   final AccordionTheme? accordionTheme;
   final TableTheme? tableTheme;
   final ResizableTheme? resizableTheme;

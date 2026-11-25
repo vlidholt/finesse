@@ -42,6 +42,10 @@ class FinesseLocalizationsData with BaseTranslations<FinesseLocale, FinesseLocal
 	late final FinesseLocalizationsData$empty$en empty = FinesseLocalizationsData$empty$en.internal(_root);
 	late final FinesseLocalizationsData$command$en command = FinesseLocalizationsData$command$en.internal(_root);
 	late final FinesseLocalizationsData$pagination$en pagination = FinesseLocalizationsData$pagination$en.internal(_root);
+	late final FinesseLocalizationsData$carousel$en carousel = FinesseLocalizationsData$carousel$en.internal(_root);
+	late final FinesseLocalizationsData$refreshIndicator$en refreshIndicator = FinesseLocalizationsData$refreshIndicator$en.internal(_root);
+	late final FinesseLocalizationsData$reorder$en reorder = FinesseLocalizationsData$reorder$en.internal(_root);
+	late final FinesseLocalizationsData$swipeActions$en swipeActions = FinesseLocalizationsData$swipeActions$en.internal(_root);
 	late final FinesseLocalizationsData$dialog$en dialog = FinesseLocalizationsData$dialog$en.internal(_root);
 	late final FinesseLocalizationsData$board$en board = FinesseLocalizationsData$board$en.internal(_root);
 }
@@ -160,6 +164,90 @@ class FinesseLocalizationsData$pagination$en {
 	String get page => 'Page';
 }
 
+// Path: carousel
+class FinesseLocalizationsData$carousel$en {
+	FinesseLocalizationsData$carousel$en.internal(this._root);
+
+	final FinesseLocalizationsData _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Previous page'
+	String get previous => 'Previous page';
+
+	/// en: 'Next page'
+	String get next => 'Next page';
+
+	/// en: 'Page $page of $count'
+	String page({required Object page, required Object count}) => 'Page ${page} of ${count}';
+
+	/// en: '$index of $count'
+	String item({required Object index, required Object count}) => '${index} of ${count}';
+}
+
+// Path: refreshIndicator
+class FinesseLocalizationsData$refreshIndicator$en {
+	FinesseLocalizationsData$refreshIndicator$en.internal(this._root);
+
+	final FinesseLocalizationsData _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Refresh'
+	String get refresh => 'Refresh';
+
+	/// en: 'Refreshing'
+	String get refreshing => 'Refreshing';
+}
+
+// Path: reorder
+class FinesseLocalizationsData$reorder$en {
+	FinesseLocalizationsData$reorder$en.internal(this._root);
+
+	final FinesseLocalizationsData _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Move up'
+	String get moveUp => 'Move up';
+
+	/// en: 'Move down'
+	String get moveDown => 'Move down';
+
+	/// en: 'Move to top'
+	String get moveToTop => 'Move to top';
+
+	/// en: 'Move to bottom'
+	String get moveToBottom => 'Move to bottom';
+
+	/// en: 'Picked up. Use the arrow keys to move, Space to drop, Escape to cancel.'
+	String get pickedUp => 'Picked up. Use the arrow keys to move, Space to drop, Escape to cancel.';
+
+	/// en: 'Position $position of $count'
+	String position({required Object position, required Object count}) => 'Position ${position} of ${count}';
+
+	/// en: 'Dropped at position $position of $count'
+	String dropped({required Object position, required Object count}) => 'Dropped at position ${position} of ${count}';
+
+	/// en: 'Move cancelled'
+	String get cancelled => 'Move cancelled';
+
+	/// en: 'Drag to reorder'
+	String get dragHandle => 'Drag to reorder';
+}
+
+// Path: swipeActions
+class FinesseLocalizationsData$swipeActions$en {
+	FinesseLocalizationsData$swipeActions$en.internal(this._root);
+
+	final FinesseLocalizationsData _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'More actions'
+	String get more => 'More actions';
+}
+
 // Path: dialog
 class FinesseLocalizationsData$dialog$en {
 	FinesseLocalizationsData$dialog$en.internal(this._root);
@@ -236,6 +324,22 @@ extension on FinesseLocalizationsData {
 			'pagination.next' => 'Next',
 			'pagination.morePages' => 'More pages',
 			'pagination.page' => 'Page',
+			'carousel.previous' => 'Previous page',
+			'carousel.next' => 'Next page',
+			'carousel.page' => ({required Object page, required Object count}) => 'Page ${page} of ${count}',
+			'carousel.item' => ({required Object index, required Object count}) => '${index} of ${count}',
+			'refreshIndicator.refresh' => 'Refresh',
+			'refreshIndicator.refreshing' => 'Refreshing',
+			'reorder.moveUp' => 'Move up',
+			'reorder.moveDown' => 'Move down',
+			'reorder.moveToTop' => 'Move to top',
+			'reorder.moveToBottom' => 'Move to bottom',
+			'reorder.pickedUp' => 'Picked up. Use the arrow keys to move, Space to drop, Escape to cancel.',
+			'reorder.position' => ({required Object position, required Object count}) => 'Position ${position} of ${count}',
+			'reorder.dropped' => ({required Object position, required Object count}) => 'Dropped at position ${position} of ${count}',
+			'reorder.cancelled' => 'Move cancelled',
+			'reorder.dragHandle' => 'Drag to reorder',
+			'swipeActions.more' => 'More actions',
 			'dialog.close' => 'Close',
 			'dialog.dismiss' => 'Dismiss',
 			'board.moveUp' => 'Move up',
