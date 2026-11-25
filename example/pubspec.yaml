@@ -60,6 +60,7 @@ flutter:
     - lib/docs/examples/segmented_control/
     - lib/docs/examples/dropdown_menu/
     - lib/docs/examples/keyboard_toolbar/
+    - lib/docs/examples/list_detail_layout/
     - lib/docs/examples/layout/
     - lib/docs/examples/menubar/
     - lib/docs/examples/pagination/

@@ -81,6 +81,7 @@ export 'src/components/icon_tile.dart';
 export 'src/components/indicator_badge.dart';
 export 'src/components/kbd.dart';
 export 'src/components/layout.dart';
+export 'src/components/list_detail_layout.dart';
 export 'src/components/list_tile.dart';
 export 'src/components/menubar.dart';
 export 'src/components/navigation_bar.dart'

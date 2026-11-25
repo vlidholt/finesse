@@ -35,6 +35,7 @@ import 'package:example/docs/pages/installation.dart';
 import 'package:example/docs/pages/introduction.dart';
 import 'package:example/docs/pages/kbd.dart';
 import 'package:example/docs/pages/keyboard_toolbar.dart';
+import 'package:example/docs/pages/list_detail_layout.dart';
 import 'package:example/docs/pages/layout.dart';
 import 'package:example/docs/pages/list_tile.dart';
 import 'package:example/docs/pages/menubar.dart';
@@ -148,6 +149,7 @@ final componentDocs = [
   indicatorBadgeDoc,
   kbdDoc,
   keyboardToolbarDoc,
+  listDetailLayoutDoc,
   listTileDoc,
   menubarDoc,
   navigationBarDoc,

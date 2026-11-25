@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:example/common/theme_editor/editor_config.dart';
+import 'package:example/docs/examples/list_detail_layout/list_detail_layout_basic.dart';
 import 'package:example/docs/examples/navigation_bar/navigation_bar_labels.dart';
 import 'package:example/docs/examples/navigation_rail/navigation_rail_basic.dart';
 import 'package:example/docs/examples/page_route/page_route_push.dart';
@@ -411,6 +412,28 @@ void main() {
         );
       });
     }
+    testWidgets('list detail', (tester) async {
+      await render(
+        tester,
+        'list_detail',
+        const ListDetailLayoutBasicExample(),
+        size: const Size(760, 500),
+        act: (tester, name) async {
+          await tester.tap(find.text('Jonas Lind'));
+          await tester.pumpAndSettle();
+          await capture(tester, '${name}_desktop');
+          await tester.tap(find.text('Phone'));
+          await tester.pumpAndSettle();
+          await capture(tester, '${name}_phone_detail');
+          await tester.tap(find.bySemanticsLabel('Back'));
+          await tester.pump();
+          await tester.pump(const Duration(milliseconds: 60));
+          await capture(tester, '${name}_phone_leaving');
+          await tester.pumpAndSettle();
+          await capture(tester, '${name}_phone_list');
+        },
+      );
+    });
     testWidgets('scaffold layouts', (tester) async {
       await render(
         tester,
