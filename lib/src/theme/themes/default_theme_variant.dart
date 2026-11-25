@@ -2123,8 +2123,12 @@ class DefaultThemeVariant extends ThemeVariant {
       indicatorInset: scaled(12),
       backgroundColor: _wash(colorScheme.bar, opacity),
       borderColor: colorScheme.border,
-      blur: opacity < 1 ? style.glassBlur : 0,
-      saturation: opacity < 1 ? style.glassSaturation : 1,
+      // Translucent, as the bars are, but not frosted: the rail lies beside
+      // the page, on its flat fill, where a backdrop filter would cost a
+      // layer every frame and show nothing. Cards are left unblurred for
+      // the same reason. A theme that puts content under it opts in.
+      blur: 0,
+      saturation: 1,
       actionSize: math.max(scaled(44), scaled(style.buttonHeight)),
       actionBackgroundColor: colorScheme.primary,
       actionForegroundColor: colorScheme.primaryForeground,
