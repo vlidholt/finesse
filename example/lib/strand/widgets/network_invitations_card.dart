@@ -46,9 +46,11 @@ class NetworkInvitationsCard extends StatelessWidget {
     final pending = controller.pending;
 
     return Card(
-      sectionGap: theme.gap(GapSize.md),
-      rowMainAxisSize: MainAxisSize.max,
-      columnCrossAxisAlignment: CrossAxisAlignment.stretch,
+      style: CardTheme(
+        sectionGap: theme.gap(GapSize.md),
+        rowMainAxisSize: MainAxisSize.max,
+        columnCrossAxisAlignment: CrossAxisAlignment.stretch,
+      ),
       title: Row(
         children: [
           const Flexible(

@@ -176,10 +176,10 @@ class _MessagesScreenState extends State<MessagesScreen> {
     );
 
     return Card(
-      padding: EdgeInsets.zero,
-      // Rounder than the theme's cards, as the designs draw the one card
-      // that fills the page.
-      borderRadius: theme.radii.xl2,
+      style: CardTheme(
+        padding: EdgeInsets.zero,
+        borderRadius: theme.radii.xl2,
+      ),
       child: SizedBox.expand(
         child: !showConversation
             ? list

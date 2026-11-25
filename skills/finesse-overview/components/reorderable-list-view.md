@@ -36,9 +36,11 @@ class _ReorderableListViewBasicExampleState
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 400),
       child: Card(
-        padding: const EdgeInsets.all(8),
-        columnCrossAxisAlignment: CrossAxisAlignment.stretch,
-        rowMainAxisSize: MainAxisSize.max,
+        style: CardTheme(
+          padding: const EdgeInsets.all(8),
+          columnCrossAxisAlignment: CrossAxisAlignment.stretch,
+          rowMainAxisSize: MainAxisSize.max,
+        ),
         child: ReorderableListView(
           // As tall as its rows: the page around it scrolls.
           shrinkWrap: true,
@@ -123,9 +125,11 @@ class _ReorderableListViewHandlesExampleState
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 400, maxHeight: 320),
       child: Card(
-        padding: EdgeInsets.zero,
-        columnCrossAxisAlignment: CrossAxisAlignment.stretch,
-        rowMainAxisSize: MainAxisSize.max,
+        style: CardTheme(
+          padding: EdgeInsets.zero,
+          columnCrossAxisAlignment: CrossAxisAlignment.stretch,
+          rowMainAxisSize: MainAxisSize.max,
+        ),
         child: ReorderableListView.builder(
           padding: const EdgeInsets.all(8),
           longPressToDrag: false,
@@ -197,9 +201,11 @@ class _ReorderableListViewSliverExampleState
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 400, maxHeight: 360),
       child: Card(
-        padding: EdgeInsets.zero,
-        columnCrossAxisAlignment: CrossAxisAlignment.stretch,
-        rowMainAxisSize: MainAxisSize.max,
+        style: CardTheme(
+          padding: EdgeInsets.zero,
+          columnCrossAxisAlignment: CrossAxisAlignment.stretch,
+          rowMainAxisSize: MainAxisSize.max,
+        ),
         child: CustomScrollView(
           slivers: [
             SliverToBoxAdapter(

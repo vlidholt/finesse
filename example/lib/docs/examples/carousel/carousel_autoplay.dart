@@ -34,9 +34,11 @@ class _CarouselAutoplayExampleState extends State<CarouselAutoplayExample> {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 420),
       child: Card(
-        padding: EdgeInsets.zero,
-        columnCrossAxisAlignment: CrossAxisAlignment.stretch,
-        rowMainAxisSize: MainAxisSize.max,
+        style: CardTheme(
+          padding: EdgeInsets.zero,
+          columnCrossAxisAlignment: CrossAxisAlignment.stretch,
+          rowMainAxisSize: MainAxisSize.max,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

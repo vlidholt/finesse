@@ -120,7 +120,7 @@ class JobCard extends StatelessWidget {
       selected: selected,
       // No `semanticLabel`: it would stand in for everything inside the
       // card, the bookmark button included. The card reads its own text.
-      borderRadius: theme.radii.xl,
+      style: CardTheme(borderRadius: theme.radii.xl),
       child: content,
     );
   }

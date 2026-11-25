@@ -12,7 +12,7 @@ class IndicatorBadgeStandaloneExample extends StatelessWidget {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 360),
       child: Card(
-        padding: const EdgeInsets.all(8),
+        style: CardTheme(padding: const EdgeInsets.all(8)),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

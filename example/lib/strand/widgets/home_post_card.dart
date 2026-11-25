@@ -55,9 +55,10 @@ class _HomePostCardState extends State<HomePostCard> {
             Directionality.of(context),
           );
       return Card(
-        // The action row's touch targets reach into the bottom inset.
-        padding: padding.copyWith(
-          bottom: padding.bottom - theme.gap(GapSize.xs),
+        style: CardTheme(
+          padding: padding.copyWith(
+            bottom: padding.bottom - theme.gap(GapSize.xs),
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

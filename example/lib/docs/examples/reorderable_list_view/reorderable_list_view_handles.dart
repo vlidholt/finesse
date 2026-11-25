@@ -44,9 +44,11 @@ class _ReorderableListViewHandlesExampleState
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 400, maxHeight: 320),
       child: Card(
-        padding: EdgeInsets.zero,
-        columnCrossAxisAlignment: CrossAxisAlignment.stretch,
-        rowMainAxisSize: MainAxisSize.max,
+        style: CardTheme(
+          padding: EdgeInsets.zero,
+          columnCrossAxisAlignment: CrossAxisAlignment.stretch,
+          rowMainAxisSize: MainAxisSize.max,
+        ),
         child: ReorderableListView.builder(
           padding: const EdgeInsets.all(8),
           longPressToDrag: false,

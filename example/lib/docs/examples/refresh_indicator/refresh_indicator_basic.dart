@@ -37,9 +37,11 @@ class _RefreshIndicatorBasicExampleState
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 380, maxHeight: 380),
       child: Card(
-        padding: EdgeInsets.zero,
-        columnCrossAxisAlignment: CrossAxisAlignment.stretch,
-        rowMainAxisSize: MainAxisSize.max,
+        style: CardTheme(
+          padding: EdgeInsets.zero,
+          columnCrossAxisAlignment: CrossAxisAlignment.stretch,
+          rowMainAxisSize: MainAxisSize.max,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

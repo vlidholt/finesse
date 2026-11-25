@@ -72,8 +72,10 @@ class _DataTablePaymentsExampleState extends State<DataTablePaymentsExample> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Card(
-              padding: EdgeInsets.zero,
-              clipBehavior: Clip.antiAlias,
+              style: CardTheme(
+                padding: EdgeInsets.zero,
+                clipBehavior: Clip.antiAlias,
+              ),
               child: DataTable<Payment>(
                 controller: controller,
                 selectable: true,

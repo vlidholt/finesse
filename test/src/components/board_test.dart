@@ -101,7 +101,10 @@ class _HostState extends State<_Host> {
         );
         return widget.pressable
             ? Card(onTap: () => pressed.add(item), child: content)
-            : Card(padding: EdgeInsets.zero, child: content);
+            : Card(
+                style: const CardTheme(padding: EdgeInsets.zero),
+                child: content,
+              );
       },
       onMove: (move) {
         moves.add(move);

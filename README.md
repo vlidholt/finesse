@@ -61,7 +61,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Card(
-        width: 320,
+        style: const CardTheme(width: 320),
         title: const Text('Create project'),
         description: const Text('Deploy your new project in one click.'),
         footer: Button(

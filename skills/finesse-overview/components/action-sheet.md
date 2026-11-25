@@ -174,7 +174,7 @@ class _ActionSheetInlineExampleState extends State<ActionSheetInlineExample> {
     return SizedBox(
       width: 300,
       child: Card(
-        padding: EdgeInsets.zero,
+        style: CardTheme(padding: EdgeInsets.zero),
         child: ActionSheet<SortOrder>(
           title: const Text('Sort files by'),
           showCancel: false,

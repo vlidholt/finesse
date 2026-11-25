@@ -88,7 +88,7 @@ class _HostState extends State<_Host> {
           ),
       ],
       itemBuilder: (context, item, details) => Card(
-        padding: EdgeInsets.zero,
+        style: const CardTheme(padding: EdgeInsets.zero),
         // Every other card is a button: a focus node inside the item.
         onTap: item.hashCode.isEven ? () {} : null,
         child: SizedBox(

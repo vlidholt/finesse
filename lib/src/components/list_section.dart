@@ -1,4 +1,5 @@
 import 'package:finesse/src/components/card.dart';
+import 'package:finesse/src/theme/components/card.dart';
 import 'package:finesse/src/theme/components/list_section.dart';
 import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/theme.dart';
@@ -141,11 +142,13 @@ class ListSection extends StatelessWidget {
 
     if (look.isCard) {
       body = Card(
-        padding: EdgeInsets.zero,
-        backgroundColor: section.backgroundColor,
-        borderRadius: section.borderRadius,
-        rowMainAxisSize: MainAxisSize.max,
-        columnCrossAxisAlignment: CrossAxisAlignment.stretch,
+        style: CardTheme(
+          padding: EdgeInsets.zero,
+          backgroundColor: section.backgroundColor,
+          borderRadius: section.borderRadius,
+          rowMainAxisSize: MainAxisSize.max,
+          columnCrossAxisAlignment: CrossAxisAlignment.stretch,
+        ),
         child: body,
       );
     }

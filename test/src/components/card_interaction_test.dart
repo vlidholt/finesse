@@ -37,9 +37,11 @@ void main() {
           onTap: onPressed,
           selected: selected,
           semanticLabel: semanticLabel,
-          backgroundColor: backgroundColor,
-          border: border,
-          borderRadius: radius,
+          style: CardTheme(
+            backgroundColor: backgroundColor,
+            border: border,
+            borderRadius: radius,
+          ),
           title: const Text('Senior designer'),
           description: const Text('Halcyon'),
           footer: footer,
@@ -396,7 +398,7 @@ void main() {
           width: 320,
           child: Card(
             selected: selected,
-            padding: const EdgeInsets.fromLTRB(8, 4, 12, 6),
+            style: const CardTheme(padding: EdgeInsets.fromLTRB(8, 4, 12, 6)),
             child: const SizedBox(key: Key('body'), height: 30),
           ),
         ),
@@ -418,7 +420,7 @@ void main() {
             width: 320,
             child: Card(
               selected: true,
-              padding: EdgeInsets.zero,
+              style: CardTheme(padding: EdgeInsets.zero),
               child: SizedBox(key: Key('body'), height: 30),
             ),
           ),
@@ -555,8 +557,10 @@ void main() {
       child: SizedBox(
         width: 320,
         child: Card(
-          sectionGap: sectionGap,
-          gap: gap,
+          style: CardTheme(
+            sectionGap: sectionGap,
+            gap: gap,
+          ),
           title: const Text('Title'),
           description: const Text('Description'),
           footer: footer,

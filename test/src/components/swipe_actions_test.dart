@@ -766,7 +766,10 @@ void main() {
         ),
       );
       expect(delete.right, lessThanOrEqualTo(card.right));
-      expect(tester.widget<Card>(find.byType(Card)).clipBehavior, isNull);
+      expect(
+        tester.widget<Card>(find.byType(Card)).style?.clipBehavior,
+        isNull,
+      );
     });
   });
 }

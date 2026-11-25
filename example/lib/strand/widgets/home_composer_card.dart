@@ -18,7 +18,7 @@ class HomeComposerCard extends StatelessWidget {
     void compose() => showComposeDialog(context);
 
     return Card(
-      padding: EdgeInsets.all(theme.gap(GapSize.lg)),
+      style: CardTheme(padding: EdgeInsets.all(theme.gap(GapSize.lg))),
       child: FinesseColumn(
         gap: GapSize.md,
         crossAxisAlignment: CrossAxisAlignment.stretch,

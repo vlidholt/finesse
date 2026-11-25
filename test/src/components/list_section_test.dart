@@ -157,7 +157,7 @@ void main() {
     ) async {
       await pumpFinesse(tester, section());
       final card = tester.widget<Card>(find.byType(Card));
-      expect(card.padding, EdgeInsets.zero);
+      expect(card.style?.padding, EdgeInsets.zero);
       // The rows fill the card from edge to edge.
       final cardRect = tester.getRect(find.byType(Card));
       final rowRect = tester.getRect(find.byKey(const Key('b')));

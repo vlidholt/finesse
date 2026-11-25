@@ -41,11 +41,12 @@ class ProfileSection extends StatelessWidget {
       child: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
     );
     return Card(
-      padding: padding,
-      // Under the heading, where the theme's cards leave a full padding.
-      sectionGap: Theme.of(context).gap(GapSize.md),
-      rowMainAxisSize: MainAxisSize.max,
-      columnCrossAxisAlignment: CrossAxisAlignment.stretch,
+      style: CardTheme(
+        padding: padding,
+        sectionGap: Theme.of(context).gap(GapSize.md),
+        rowMainAxisSize: MainAxisSize.max,
+        columnCrossAxisAlignment: CrossAxisAlignment.stretch,
+      ),
       title: heading,
       action: trailing,
       child: child,

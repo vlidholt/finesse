@@ -192,10 +192,10 @@ List<_Sample> _measure(WidgetTester tester) {
             ..._radii(decoration.borderRadius),
         ],
       },
-      Card() => {
-        _Kind.inset: _insets(widget.padding),
-        _Kind.radius: _radii(widget.borderRadius),
-        _Kind.gap: [widget.gap, widget.sectionGap],
+      Card(:final style) => {
+        _Kind.inset: _insets(style?.padding),
+        _Kind.radius: _radii(style?.borderRadius),
+        _Kind.gap: [style?.gap, style?.sectionGap],
       },
       SizedBox() => {
         _Kind.height: [widget.height],

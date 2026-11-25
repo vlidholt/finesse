@@ -83,7 +83,7 @@ class NetworkManageCard extends StatelessWidget {
     }
 
     return Card(
-      padding: EdgeInsets.zero,
+      style: CardTheme(padding: EdgeInsets.zero),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,

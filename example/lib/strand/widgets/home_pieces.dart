@@ -74,8 +74,7 @@ class HomeSectionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      // Under the heading, where the theme's cards leave a full padding.
-      sectionGap: Theme.of(context).gap(GapSize.md),
+      style: CardTheme(sectionGap: Theme.of(context).gap(GapSize.md)),
       title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
       action: trailing,
       child: child,

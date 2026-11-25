@@ -14,9 +14,11 @@ class EmptyBasicExample extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      width: 400,
-      height: 320,
-      columnMainAxisSize: MainAxisSize.max,
+      style: CardTheme(
+        width: 400,
+        height: 320,
+        columnMainAxisSize: MainAxisSize.max,
+      ),
       child: Empty(
         icon: const PhosphorIcon(PhosphorIconsRegular.tray),
         title: const Text('No messages'),

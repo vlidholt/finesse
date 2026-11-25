@@ -83,7 +83,7 @@ class _SearchScreenState extends State<SearchScreen> {
     final Widget body;
     if (query.trim().isEmpty) {
       body = Card(
-        padding: EdgeInsets.all(theme.gap(GapSize.sm)),
+        style: CardTheme(padding: EdgeInsets.all(theme.gap(GapSize.sm))),
         child: SearchSuggestions(history: session.search, onPick: _pick),
       );
     } else if (results.isEmpty) {
@@ -236,7 +236,7 @@ class _CategoryFilter extends StatelessWidget {
 
     final inset = theme.gap(GapSize.sm);
     return Card(
-      padding: EdgeInsets.zero,
+      style: CardTheme(padding: EdgeInsets.zero),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,

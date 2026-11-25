@@ -81,8 +81,10 @@ class _DataTablePaymentsExampleState extends State<DataTablePaymentsExample> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Card(
-              padding: EdgeInsets.zero,
-              clipBehavior: Clip.antiAlias,
+              style: CardTheme(
+                padding: EdgeInsets.zero,
+                clipBehavior: Clip.antiAlias,
+              ),
               child: DataTable<Payment>(
                 controller: controller,
                 selectable: true,
@@ -270,8 +272,10 @@ class _DataTableRemoteExampleState extends State<DataTableRemoteExample> {
             onCleared: () => _controller.query = '',
           ),
           Card(
-            padding: EdgeInsets.zero,
-            clipBehavior: Clip.antiAlias,
+            style: CardTheme(
+              padding: EdgeInsets.zero,
+              clipBehavior: Clip.antiAlias,
+            ),
             child: DataTable<Shipment>(
               controller: _controller,
               // The header and six rows: the same while a page loads.

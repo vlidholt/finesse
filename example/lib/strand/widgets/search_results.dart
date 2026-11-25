@@ -357,8 +357,7 @@ class SearchResultsView extends StatelessWidget {
       );
       if (compact) return rows;
       return Card(
-        // The rows bring their own inset, as a conversation's do.
-        padding: EdgeInsets.all(theme.gap(GapSize.sm)),
+        style: CardTheme(padding: EdgeInsets.all(theme.gap(GapSize.sm))),
         child: rows,
       );
     }

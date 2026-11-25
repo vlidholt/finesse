@@ -101,7 +101,7 @@ class _HostState extends State<_Host> {
             final name = '${details.dragging ? 'lifted' : 'item'}-$item';
             _builds[name] = (_builds[name] ?? 0) + 1;
             return Card(
-              padding: EdgeInsets.zero,
+              style: const CardTheme(padding: EdgeInsets.zero),
               onTap: widget.onItemPressed == null
                   ? null
                   : () => widget.onItemPressed!(context, item),
@@ -816,7 +816,7 @@ void main() {
                 BoardColumn(id: e.key, label: e.key, items: e.value),
             ],
             itemBuilder: (context, item, details) => Card(
-              padding: EdgeInsets.zero,
+              style: const CardTheme(padding: EdgeInsets.zero),
               child: SizedBox(
                 key: ValueKey('${details.dragging ? 'lifted' : 'item'}-$item'),
                 height: 56,

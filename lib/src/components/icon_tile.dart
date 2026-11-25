@@ -1,5 +1,6 @@
 import 'package:finesse/src/components/card.dart';
 import 'package:finesse/src/raw_components/pressable.dart';
+import 'package:finesse/src/theme/components/card.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
 
@@ -115,15 +116,17 @@ class StatTile extends StatelessWidget {
     final theme = Theme.of(context);
     final layout = theme.layoutTheme;
     final card = Card(
-      borderRadius: theme.radii.xl,
-      padding:
-          padding ??
-          EdgeInsets.symmetric(
-            horizontal: layout.gapLg ?? 16,
-            vertical: (layout.gapLg ?? 16) - 2,
-          ),
-      rowMainAxisSize: MainAxisSize.max,
-      rowCrossAxisAlignment: CrossAxisAlignment.center,
+      style: CardTheme(
+        borderRadius: theme.radii.xl,
+        padding:
+            padding ??
+            EdgeInsets.symmetric(
+              horizontal: layout.gapLg ?? 16,
+              vertical: (layout.gapLg ?? 16) - 2,
+            ),
+        rowMainAxisSize: MainAxisSize.max,
+        rowCrossAxisAlignment: CrossAxisAlignment.center,
+      ),
       child: Row(
         spacing: layout.gapMd ?? 12,
         children: [

@@ -177,10 +177,12 @@ class _AddStoryCard extends StatelessWidget {
     final sideInset = theme.gap(GapSize.sm);
     return Card(
       onTap: () => showComposeDialog(context),
-      padding: EdgeInsets.zero,
-      borderRadius: metrics.borderRadius(theme),
-      height: metrics.addHeight,
-      columnCrossAxisAlignment: CrossAxisAlignment.stretch,
+      style: CardTheme(
+        padding: EdgeInsets.zero,
+        borderRadius: metrics.borderRadius(theme),
+        height: metrics.addHeight,
+        columnCrossAxisAlignment: CrossAxisAlignment.stretch,
+      ),
       child: SizedBox(
         height: metrics.height,
         child: Stack(

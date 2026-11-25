@@ -189,7 +189,11 @@ package as it is, compared with shad.
   the theme's) in place of `padding`, `insetPadding`, `leadingPadding`,
   `trailingPadding`, `height`, `buttonVariant`, `decoration`, the text
   styles, the background colours, `anchor`, `showDelay`, `constraints` and
-  `subMenuPadding`.
+  `subMenuPadding`. A `Card` takes one `style` (a `CardTheme`) in place of
+  `padding`, `width`, `height`, `backgroundColor`, `borderRadius`,
+  `border`, `shadows`, `clipBehavior`, `gap`, `sectionGap`, `titleStyle`,
+  `descriptionStyle` and the six `row*`/`column*` alignment and size
+  parameters.
 - **Rarer gestures are not button parameters.** Double tap, secondary tap,
   tap down and the long-press phases are a `FinesseGestureDetector` around
   the button. `hoverStrategies` and `longPressDuration` are gone from

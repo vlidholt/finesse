@@ -337,9 +337,11 @@ class _InvitationsTeaser extends StatelessWidget {
     final scheme = theme.colorScheme;
     return Card(
       onTap: onPressed,
-      borderRadius: theme.radii.xl,
-      padding: EdgeInsets.all(theme.gap(GapSize.md)),
-      rowMainAxisSize: MainAxisSize.max,
+      style: CardTheme(
+        borderRadius: theme.radii.xl,
+        padding: EdgeInsets.all(theme.gap(GapSize.md)),
+        rowMainAxisSize: MainAxisSize.max,
+      ),
       child: Row(
         children: [
           const IconTile(icon: PhosphorIcon(PhosphorIconsRegular.userPlus)),

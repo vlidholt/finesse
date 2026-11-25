@@ -309,7 +309,7 @@ void main() {
         tester,
         const Center(
           child: Card(
-            backgroundColor: Color(0xff336699),
+            style: CardTheme(backgroundColor: Color(0xff336699)),
             child: Text('Hi'),
           ),
         ),

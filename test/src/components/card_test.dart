@@ -1,10 +1,11 @@
 import 'package:finesse/material.dart';
 import 'package:finesse/src/app.dart';
 import 'package:finesse/src/components/card.dart'; // Adjust import path based on your project structure
+import 'package:finesse/src/theme/components/card.dart';
 import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/style.dart';
 import 'package:finesse/src/theme/theme.dart';
-import 'package:flutter/material.dart' hide Card, Theme, ThemeData;
+import 'package:flutter/material.dart' hide Card, CardTheme, Theme, ThemeData;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../decoration_finders.dart';
@@ -87,7 +88,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const Card(
-            padding: customPadding,
+            style: CardTheme(padding: customPadding),
             child: Text('Padded Card'),
           ),
         ),
@@ -108,8 +109,10 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const Card(
-            backgroundColor: customBackgroundColor,
-            borderRadius: customRadius,
+            style: CardTheme(
+              backgroundColor: customBackgroundColor,
+              borderRadius: customRadius,
+            ),
             child: Text('Styled Card'),
           ),
         ),
@@ -132,8 +135,10 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const Card(
-            width: customWidth,
-            height: customHeight,
+            style: CardTheme(
+              width: customWidth,
+              height: customHeight,
+            ),
             child: Text('Sized Card'),
           ),
         ),
@@ -153,8 +158,10 @@ void main() {
           const Card(
             leading: Icon(Icons.star),
             trailing: Icon(Icons.arrow_forward),
-            rowMainAxisAlignment: MainAxisAlignment.center,
-            rowCrossAxisAlignment: CrossAxisAlignment.center,
+            style: CardTheme(
+              rowMainAxisAlignment: MainAxisAlignment.center,
+              rowCrossAxisAlignment: CrossAxisAlignment.center,
+            ),
             child: Text('Aligned Card'),
           ),
         ),
@@ -176,8 +183,10 @@ void main() {
           const Card(
             title: Text('Title'),
             description: Text('Description'),
-            columnMainAxisAlignment: MainAxisAlignment.center,
-            columnCrossAxisAlignment: CrossAxisAlignment.center,
+            style: CardTheme(
+              columnMainAxisAlignment: MainAxisAlignment.center,
+              columnCrossAxisAlignment: CrossAxisAlignment.center,
+            ),
           ),
         ),
       );

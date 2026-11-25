@@ -142,7 +142,7 @@ class _SectionRail extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     return Card(
-      padding: EdgeInsets.all(theme.gap(GapSize.sm)),
+      style: CardTheme(padding: EdgeInsets.all(theme.gap(GapSize.sm))),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,

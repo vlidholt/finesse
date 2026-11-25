@@ -19,7 +19,7 @@ class _ListTileSettingsExampleState extends State<ListTileSettingsExample> {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 420),
       child: Card(
-        padding: const EdgeInsets.all(8),
+        style: CardTheme(padding: const EdgeInsets.all(8)),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

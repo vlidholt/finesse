@@ -153,9 +153,11 @@ class NetworkSectionView extends StatelessWidget {
     };
 
     return Card(
-      sectionGap: theme.gap(GapSize.md),
-      rowMainAxisSize: MainAxisSize.max,
-      columnCrossAxisAlignment: CrossAxisAlignment.stretch,
+      style: CardTheme(
+        sectionGap: theme.gap(GapSize.md),
+        rowMainAxisSize: MainAxisSize.max,
+        columnCrossAxisAlignment: CrossAxisAlignment.stretch,
+      ),
       title: showTitle
           ? Semantics(
               header: true,

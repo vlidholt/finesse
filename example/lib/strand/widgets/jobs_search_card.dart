@@ -68,8 +68,10 @@ class JobsSearchCard extends StatelessWidget {
 
     final inset = layout.gap(GapSize.lg);
     return Card(
-      padding: EdgeInsets.zero,
-      borderRadius: theme.radii.xl3,
+      style: CardTheme(
+        padding: EdgeInsets.zero,
+        borderRadius: theme.radii.xl3,
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,

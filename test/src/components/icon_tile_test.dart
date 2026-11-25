@@ -224,7 +224,7 @@ void main() {
       expect(find.byType(IconTile), findsOneWidget);
       expect(tester.getSize(find.byType(StatTile)).width, 300);
       expect(
-        tester.widget<Card>(find.byType(Card)).borderRadius,
+        tester.widget<Card>(find.byType(Card)).style?.borderRadius,
         theme.radii.xl,
       );
       // The number is a headline, the label a muted line under it.

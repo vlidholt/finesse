@@ -31,9 +31,11 @@ class _ReorderableListViewSliverExampleState
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 400, maxHeight: 360),
       child: Card(
-        padding: EdgeInsets.zero,
-        columnCrossAxisAlignment: CrossAxisAlignment.stretch,
-        rowMainAxisSize: MainAxisSize.max,
+        style: CardTheme(
+          padding: EdgeInsets.zero,
+          columnCrossAxisAlignment: CrossAxisAlignment.stretch,
+          rowMainAxisSize: MainAxisSize.max,
+        ),
         child: CustomScrollView(
           slivers: [
             SliverToBoxAdapter(

@@ -76,8 +76,7 @@ class NotificationsList extends StatelessWidget {
                 ),
                 const Gap.md(),
                 Card(
-                  // The rows bring their own inset, as a conversation's do.
-                  padding: EdgeInsets.all(inset),
+                  style: CardTheme(padding: EdgeInsets.all(inset)),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,

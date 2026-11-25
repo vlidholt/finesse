@@ -30,7 +30,7 @@ class HomeProfileCard extends StatelessWidget {
     void openProfile() => context.goTo(StrandDestination.profile);
 
     return Card(
-      padding: EdgeInsets.zero,
+      style: CardTheme(padding: EdgeInsets.zero),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,

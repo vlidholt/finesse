@@ -32,8 +32,10 @@ class _ProfilePostCardState extends State<ProfilePostCard> {
     final reactions = post.reactions + (_liked ? 1 : 0);
 
     return Card(
-      rowMainAxisSize: MainAxisSize.max,
-      columnCrossAxisAlignment: CrossAxisAlignment.stretch,
+      style: CardTheme(
+        rowMainAxisSize: MainAxisSize.max,
+        columnCrossAxisAlignment: CrossAxisAlignment.stretch,
+      ),
       child: FinesseColumn(
         gap: GapSize.md,
         mainAxisSize: MainAxisSize.min,

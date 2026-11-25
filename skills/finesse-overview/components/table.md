@@ -47,8 +47,10 @@ class TableInvoicesExample extends StatelessWidget {
       child: SizedBox(
         width: double.infinity,
         child: Card(
-          padding: EdgeInsets.zero,
-          clipBehavior: Clip.antiAlias,
+          style: CardTheme(
+            padding: EdgeInsets.zero,
+            clipBehavior: Clip.antiAlias,
+          ),
           child: SizedBox(
             height: tableHeight,
             child: FinesseTable.list(
