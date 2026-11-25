@@ -288,7 +288,7 @@ void main() {
 
       expect(find.text('You are going to 2 events'), findsOneWidget);
       expect(find.byType(BottomNavigationBar), findsNothing);
-      await tester.tap(find.byIcon(PhosphorIconsRegular.arrowLeft));
+      await tester.tap(find.byType(BackButton));
       await settle(tester);
       expect(find.byType(HomeScreen), findsOneWidget);
       expect(tester.takeException(), isNull);

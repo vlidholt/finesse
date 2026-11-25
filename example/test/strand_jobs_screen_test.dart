@@ -595,7 +595,7 @@ void main() {
 
       expect(page, findsOneWidget);
       expect(inBar(find.text('Quill')), findsOneWidget);
-      expect(inBar(find.byIcon(PhosphorIconsRegular.arrowLeft)), findsOne);
+      expect(inBar(find.byType(BackButton)), findsOne);
       expect(inBar(find.byIcon(PhosphorIconsRegular.bookmarkSimple)), findsOne);
       expect(inBar(find.byIcon(PhosphorIconsRegular.export)), findsOne);
       expect(_inDetail(find.text('Product designer, Editor')), findsOneWidget);
@@ -628,7 +628,7 @@ void main() {
         lessThan(tester.getTopLeft(inPage(find.byType(Glass))).dy),
       );
 
-      await tester.tap(inBar(find.byIcon(PhosphorIconsRegular.arrowLeft)));
+      await tester.tap(inBar(find.byType(BackButton)));
       await _settle(tester);
 
       expect(find.byType(JobDetailPage), findsNothing);

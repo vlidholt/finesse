@@ -132,11 +132,6 @@ class _SearchScreenState extends State<SearchScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton.ghost(
-          icon: const PhosphorIcon(PhosphorIconsRegular.arrowLeft),
-          semanticLabel: 'Back',
-          onPressed: () => Navigator.of(context).pop(),
-        ),
         // Aligned, because the bar hands its title a tight width and the
         // cap would otherwise not apply.
         title: Align(

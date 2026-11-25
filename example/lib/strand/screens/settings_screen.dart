@@ -57,11 +57,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton.ghost(
-          icon: const PhosphorIcon(PhosphorIconsRegular.arrowLeft),
-          semanticLabel: 'Back',
-          onPressed: () => Navigator.of(context).pop(),
-        ),
         title: const Text('Settings'),
       ),
       body: PageContainer(

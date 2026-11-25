@@ -351,7 +351,7 @@ void main() {
       expect(find.byType(SettingsScreen), findsOneWidget);
       expect(find.byType(NavigationBar), findsNothing);
 
-      await tester.tap(find.byIcon(PhosphorIconsRegular.arrowLeft));
+      await tester.tap(find.byType(BackButton));
       await settle(tester);
       expect(find.byType(SettingsScreen), findsNothing);
       expect(find.byType(NavigationBar), findsOneWidget);

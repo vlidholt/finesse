@@ -212,11 +212,6 @@ class NetworkSectionPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton.ghost(
-          icon: const PhosphorIcon(PhosphorIconsRegular.arrowLeft),
-          semanticLabel: 'Back',
-          onPressed: () => Navigator.of(context).pop(),
-        ),
         title: Text(section.label),
       ),
       body: PageContainer(
