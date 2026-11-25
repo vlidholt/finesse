@@ -61,12 +61,15 @@ final introductionDoc = ComponentDoc(
             'the app as an asset, so the two can never drift apart.',
           ),
           DocParagraph(
-            'This app is itself built with finesse. It opens on Strand, a '
-            'small social network that the default theme was designed '
-            'for; this component library is its other half. Open the '
-            'theme editor with the paintbrush button in the top bar and '
-            'change the style, palette, or radius. The whole app '
-            'restyles, Strand and these pages included.',
+            'This app is itself built with finesse. Open the theme editor '
+            'with the paintbrush button in the top bar and change the '
+            'style, palette, or radius: every page restyles.',
+          ),
+          DocParagraph(
+            'To see finesse in a whole app, try Demo, the small '
+            'professional network the default theme was designed for: '
+            '`https://vlidholt.github.io/finesse_demo/`. Its source is at '
+            '`https://github.com/vlidholt/finesse_demo`.',
           ),
         ],
       ),

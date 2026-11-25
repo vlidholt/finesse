@@ -5,7 +5,6 @@ import 'package:example/common/theme_editor/fonts.dart';
 import 'package:example/common/theme_editor/presets.dart';
 import 'package:example/main.dart';
 import 'package:example/screens/components_screen.dart';
-import 'package:example/strand/strand_shell.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_solidart/flutter_solidart.dart';
@@ -231,15 +230,15 @@ void main() {
     });
   });
 
-  /// The theme Strand is built with — what the editor is driving.
-  ThemeData strandTheme(WidgetTester tester) =>
-      Theme.of(tester.element(find.byType(StrandShell)));
+  /// The theme the docs browser is built with — what the editor is driving.
+  ThemeData pageTheme(WidgetTester tester) =>
+      Theme.of(tester.element(find.byType(ComponentsSection)));
 
   /// Lets a `RenderFlex` overflow pass for the rest of the current test,
   /// and nothing else.
   ///
-  /// For the tests that re-theme the *Strand screens* with settings they
-  /// were not drawn for. The test font is a square per glyph — nearly twice
+  /// For the tests that re-theme the *docs pages* with settings they were
+  /// not drawn for. The test font is a square per glyph — nearly twice
   /// as wide as any real face — so a label that fits its button with room
   /// to spare in Geist can miss by a pixel here once a theme changes the
   /// type size or the card padding. That is the test font's doing, in
@@ -364,14 +363,14 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('Strand follows the app-wide theme mode', (tester) async {
+    testWidgets('the page follows the app-wide theme mode', (tester) async {
       await pump(tester);
-      expect(strandTheme(tester).brightness, Brightness.light);
+      expect(pageTheme(tester).brightness, Brightness.light);
 
       themeModeProvider.of(appContext(tester)).value = ThemeMode.dark;
       await settle(tester);
 
-      expect(strandTheme(tester).brightness, Brightness.dark);
+      expect(pageTheme(tester).brightness, Brightness.dark);
       expect(tester.takeException(), isNull);
     });
 
@@ -383,7 +382,7 @@ void main() {
       await choose(tester, 'Accent', 'Blue');
 
       expect(
-        strandTheme(tester).colorScheme.primary,
+        pageTheme(tester).colorScheme.primary,
         AccentScheme.blueLight.primary,
       );
     });
@@ -394,7 +393,7 @@ void main() {
       await choose(tester, 'Base Color', 'Zinc');
 
       expect(
-        strandTheme(tester).colorScheme.background,
+        pageTheme(tester).colorScheme.background,
         const ZincColorScheme.light().background,
       );
     });
@@ -406,22 +405,19 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('re-themes both halves of the app', (tester) async {
+    testWidgets('re-themes the component library', (tester) async {
       await pump(tester);
 
       await choose(tester, 'Base Color', 'Zinc');
       await choose(tester, 'Style', 'Lyra');
 
-      final zinc = const ZincColorScheme.light().background;
-      expect(strandTheme(tester).colorScheme.background, zinc);
-      expect(strandTheme(tester).style, StyleTokens.lyra);
-
-      // The component library is themed from the same configuration.
-      await openComponentLibrary(tester);
       final docsTheme = Theme.of(
         tester.element(find.byType(ComponentsScreen)),
       );
-      expect(docsTheme.colorScheme.background, zinc);
+      expect(
+        docsTheme.colorScheme.background,
+        const ZincColorScheme.light().background,
+      );
       expect(docsTheme.style, StyleTokens.lyra);
       expect(tester.takeException(), isNull);
     });
@@ -429,7 +425,7 @@ void main() {
     testWidgets('Reset returns to the package default look', (tester) async {
       await pump(tester);
       await choose(tester, 'Style', 'Nova');
-      expect(strandTheme(tester).style, StyleTokens.nova);
+      expect(pageTheme(tester).style, StyleTokens.nova);
 
       await tester.tap(find.text('Reset'));
       await settle(tester);
@@ -437,7 +433,7 @@ void main() {
         themeConfigProvider.of(appContext(tester)).value,
         const ThemeEditorConfig(),
       );
-      expect(strandTheme(tester).style, StyleTokens.finesse);
+      expect(pageTheme(tester).style, StyleTokens.finesse);
     });
 
     testWidgets('a preset re-themes the app, and a change after it is Custom', (
@@ -453,7 +449,7 @@ void main() {
 
       final config = themeConfigProvider.of(appContext(tester));
       expect(ThemePreset.of(config.value), ThemePreset.classic);
-      final theme = strandTheme(tester);
+      final theme = pageTheme(tester);
       expect(theme.colorScheme, const NeutralColorScheme.light());
       expect(theme.cardTheme.backgroundColor!.a, 1);
       expect(theme.bottomNavigationBarTheme.floating, isFalse);
@@ -463,11 +459,11 @@ void main() {
       await choose(tester, 'Radius', 'Large');
       expect(ThemePreset.of(config.value), isNull);
       expect(inPanel(find.text('Custom')), findsOneWidget);
-      expect(strandTheme(tester).radius, BorderRadius.circular(14 * .8));
+      expect(pageTheme(tester).radius, BorderRadius.circular(14 * .8));
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('every preset themes Strand in light and dark, desktop and '
+    testWidgets('every preset themes the docs in light and dark, desktop and '
         'phone, without an error', (tester) async {
       tolerateTextOverflow();
       for (final size in [desktopSize, mobileSize]) {
@@ -481,7 +477,7 @@ void main() {
             await settle(tester);
             final where = '${preset.label} $themeMode at $size';
             expect(tester.takeException(), isNull, reason: where);
-            final theme = strandTheme(tester);
+            final theme = pageTheme(tester);
             expect(theme.style.name, preset.config.style.name, reason: where);
             expect(
               theme.brightness,
@@ -518,9 +514,13 @@ void main() {
             cardPaddingScale: 1.5,
             bottomBarFloating: () => false,
           );
+          // The Card page, which has cards to look at.
+          tester
+              .state<ComponentsScreenState>(find.byType(ComponentsScreen))
+              .open('card');
           await settle(tester);
 
-          final theme = strandTheme(tester);
+          final theme = pageTheme(tester);
           final phone = size == mobileSize;
           expect(
             theme.formFactor,
@@ -531,7 +531,7 @@ void main() {
           expect(theme.cardTheme.blur, 8);
           expect(theme.appBarTheme.blur, 8);
           // And it is a real filter on screen, not only a number in the
-          // theme: every card on the home feed is over a backdrop.
+          // theme: the cards on the page are over a backdrop.
           expect(
             find.descendant(
               of: find.byType(Card),
@@ -568,13 +568,14 @@ void main() {
       await pumpApp(tester);
       expect(configOf(tester).value.formFactor, EditorFormFactor.auto);
       expect(appTheme(tester).formFactor, FormFactor.desktop);
-      expect(find.byType(NavigationBar), findsOneWidget);
-      expect(tester.getSize(find.byType(StrandShell)), desktopSize);
+      expect(find.byType(Sidebar), findsOneWidget);
+      expect(tester.getSize(find.byType(ComponentsSection)), desktopSize);
 
       await pumpApp(tester, size: mobileSize);
       expect(appTheme(tester).formFactor, FormFactor.mobile);
-      expect(find.byType(BottomNavigationBar), findsOneWidget);
-      expect(tester.getSize(find.byType(StrandShell)), mobileSize);
+      // The sidebar is a sheet on a phone, closed.
+      expect(find.byType(Sidebar), findsNothing);
+      expect(tester.getSize(find.byType(ComponentsSection)), mobileSize);
     });
 
     testWidgets('Mobile shows the phone layout on a wide window, in a '
@@ -583,27 +584,26 @@ void main() {
       await setFormFactor(tester, EditorFormFactor.mobile);
 
       expect(appTheme(tester).formFactor, FormFactor.mobile);
-      expect(strandTheme(tester).formFactor, FormFactor.mobile);
-      expect(strandTheme(tester).style, StyleTokens.finesseMobile);
-      // Strand's phone chrome, not its desktop bar.
-      expect(find.byType(BottomNavigationBar), findsOneWidget);
-      expect(find.byType(NavigationBar), findsNothing);
+      expect(pageTheme(tester).formFactor, FormFactor.mobile);
+      expect(pageTheme(tester).style, StyleTokens.finesseMobile);
+      // The phone's chrome: the sidebar is a sheet, closed.
+      expect(find.byType(Sidebar), findsNothing);
       // Laid out at a phone's size, centred in the window.
-      final shell = tester.getRect(find.byType(StrandShell));
+      final shell = tester.getRect(find.byType(ComponentsSection));
       expect(shell.width, AppShell.phoneFrame.width);
       expect(shell.height, AppShell.phoneFrame.height);
       expect(shell.center.dx, desktopSize.width / 2);
       expect(shell.center.dy, desktopSize.height / 2);
       // Breakpoints inside see a phone as well.
       expect(
-        MediaQuery.sizeOf(tester.element(find.byType(StrandShell))),
+        MediaQuery.sizeOf(tester.element(find.byType(ComponentsSection))),
         AppShell.phoneFrame,
       );
       expect(tester.takeException(), isNull);
 
       // Beside the docked editor the frame is centred in what is left.
       await openThemeEditor(tester);
-      final docked = tester.getRect(find.byType(StrandShell));
+      final docked = tester.getRect(find.byType(ComponentsSection));
       expect(docked.size, shell.size);
       expect(
         docked.center.dx,
@@ -614,9 +614,9 @@ void main() {
       // Back to Auto: the desktop layout, at the page's full size.
       await setFormFactor(tester, EditorFormFactor.auto);
       expect(appTheme(tester).formFactor, FormFactor.desktop);
-      expect(find.byType(NavigationBar), findsOneWidget);
+      expect(find.byType(Sidebar), findsOneWidget);
       expect(
-        tester.getSize(find.byType(StrandShell)),
+        tester.getSize(find.byType(ComponentsSection)),
         Size(
           desktopSize.width - ThemeCustomizerPanel.width,
           desktopSize.height,
@@ -631,7 +631,7 @@ void main() {
       await pumpApp(tester, size: const Size(1200, 600));
       await setFormFactor(tester, EditorFormFactor.mobile);
 
-      final shell = tester.getRect(find.byType(StrandShell));
+      final shell = tester.getRect(find.byType(ComponentsSection));
       expect(shell.width, AppShell.phoneFrame.width);
       expect(shell.height, 600 - 32);
       expect(shell.top, 16);
@@ -645,24 +645,23 @@ void main() {
       await setFormFactor(tester, EditorFormFactor.mobile);
 
       expect(appTheme(tester).formFactor, FormFactor.mobile);
-      expect(tester.getSize(find.byType(StrandShell)), mobileSize);
+      expect(tester.getSize(find.byType(ComponentsSection)), mobileSize);
       expect(tester.takeException(), isNull);
     });
 
     testWidgets('Desktop shows the desktop layout on a narrow window, scaled '
         'to fit rather than overflowing', (tester) async {
       await pumpApp(tester, size: mobileSize);
-      expect(find.byType(BottomNavigationBar), findsOneWidget);
+      expect(find.byType(Sidebar), findsNothing);
       await setFormFactor(tester, EditorFormFactor.desktop);
 
       expect(appTheme(tester).formFactor, FormFactor.desktop);
-      expect(strandTheme(tester).style, StyleTokens.finesse);
-      // A desktop that narrow puts its destinations in a rail.
-      expect(find.byType(NavigationRail), findsOneWidget);
-      expect(find.byType(BottomNavigationBar), findsNothing);
+      expect(pageTheme(tester).style, StyleTokens.finesse);
+      // The desktop's sidebar, beside the page.
+      expect(find.byType(Sidebar), findsOneWidget);
       // Laid out at the narrowest width a desktop layout is designed for…
       final breakpoint = appTheme(tester).breakpoints.md.value;
-      final shell = find.byType(StrandShell);
+      final shell = find.byType(ComponentsSection);
       expect(tester.getSize(shell).width, breakpoint);
       expect(
         MediaQuery.sizeOf(tester.element(shell)).width,
@@ -695,9 +694,8 @@ void main() {
       await openThemeEditor(tester);
 
       expect(appTheme(tester).formFactor, FormFactor.desktop);
-      // A desktop that narrow puts its destinations in a rail.
-      expect(find.byType(NavigationRail), findsOneWidget);
-      final shell = find.byType(StrandShell);
+      expect(find.byType(Sidebar), findsOneWidget);
+      final shell = find.byType(ComponentsSection);
       expect(
         tester.getSize(shell).width,
         appTheme(tester).breakpoints.md.value,
@@ -707,7 +705,6 @@ void main() {
 
     testWidgets('switching keeps the page you were on', (tester) async {
       await pumpApp(tester);
-      await openComponentLibrary(tester);
       final screen = find.byType(ComponentsScreen);
       final state = tester.state(screen);
 
@@ -735,7 +732,7 @@ void main() {
 
       expect(configOf(tester).value.formFactor, EditorFormFactor.mobile);
       expect(appTheme(tester).formFactor, FormFactor.mobile);
-      expect(find.byType(BottomNavigationBar), findsOneWidget);
+      expect(find.byType(Sidebar), findsNothing);
       expect(tester.takeException(), isNull);
     });
 

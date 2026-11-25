@@ -78,8 +78,10 @@ own default look and its own rules.
 - **No deprecation shims.** The fork is pre-1.0; a rename is a changelog
   entry under "Changed from shad", not a `@Deprecated` typedef.
 - **The default look** is `StyleTokens.finesse` on `TealColorScheme`, measured
-  from the Strand designs (four screens, desktop and mobile, light and dark)
-  that `example/lib/strand/` replicates. `nova`, `maia` and `lyra` are the
+  from the Demo designs (four screens, desktop and mobile, light and dark)
+  that [`finesse_demo`](https://github.com/vlidholt/finesse_demo), a
+  repository of its own, replicates. Until the split it was "Strand", in
+  `example/lib/strand/`. `nova`, `maia` and `lyra` are the
   shadcn styles that remain; `neutral`, `zinc` and `stone` the base palettes.
   `reference/ui/` (below) is still the source of truth for those three.
 - **Icons are Phosphor**, vendored into this package (see "Fonts" below) and
@@ -104,7 +106,7 @@ Layout that *rearranges* on a phone uses `FormFactorBuilder` or
 `Theme.of(context).formFactor`. Layout that only *resizes* uses the gap scale
 (`Gap.md()`, `FinesseRow(gap: GapSize.lg)`), `PageContainer` and widget
 defaults, all of which read `ThemeData.layoutTheme`. Demo screens hard-code a
-dimension only for a picture (see the Strand rules below).
+dimension only for a picture (see `finesse_demo`'s own `CLAUDE.md`).
 
 ### Glass
 
@@ -262,9 +264,8 @@ in a `build` is fine; any other curve has to be a constant.
 - A `CurvedAnimation` created in `build` leaks a listener; use
   `controller.drive(CurveTween(...))`.
 - **A fade around a whole page is a fade around glass.** `DestinationStack`
-  (Strand's shell) and the example's `PageSwitch`
-  (`example/lib/common/page_switch.dart`, the section and docs-page
-  switch) slide the incoming page and fade a cover of the page colour *out*
+  (the Demo app's shell) and the example's `PageSwitch`
+  (`example/lib/common/page_switch.dart`, the docs-page switch) slide the incoming page and fade a cover of the page colour *out*
   over it, never from fully opaque (a blank first frame reads as a flash).
   They paint one child, so the switch is incoming-only.
 - The navigator keeps a new `PageRoute` offstage for its first frame, so
@@ -347,7 +348,7 @@ themes. Understanding this order prevents most theming bugs.
   `ThemeData` (`expandedActionsThemeOf` in
   `lib/src/utils/expanded_actions_theme.dart`, shared by dialogs and sheets;
   `_contentThemeOf` in `tooltip.dart`; the board's `_itemThemeOf`; the
-  Strand shell's rail theme); `FinesseApp`'s fallback themes are static.
+  Demo shell's rail theme); `FinesseApp`'s fallback themes are static.
   `test/src/components/derived_theme_identity_test.dart` holds it. Under an
   `AnimatedTheme` (not `FinesseApp`, which switches themes) the board's
   item theme is still derived per lerped `ThemeData`.
@@ -529,7 +530,7 @@ weight, another font, at or above the reference — is a plain `Icon`.
 - The dark card and popover are a step lighter than the page.
 - Overlays are `bg-black/10` with `backdrop-blur-xs` in both modes — the blur is
   what lets the tint stay that light.
-- The base palettes are `teal` (the default, measured from the Strand
+- The base palettes are `teal` (the default, measured from the Demo
   designs), and `neutral`, `stone` and `zinc`, generated from `themes.ts`.
   shadcn's v3 palettes and the other bases were dropped in the fork;
   `AccentScheme` recolours any base. `applyAccentScheme` also sets the
@@ -921,7 +922,7 @@ weight, another font, at or above the reference — is a plain `Icon`.
   delivered by the next pump, the future never completes and the test hangs
   instead of failing. `unawaited(chunks.close())`, then pump. A stand-in
   stream is a `StreamController` driven by `Timer`s that `onCancel` cancels
-  (`example/lib/strand/widgets/messages_assistant.dart`), not an `async*`
+  (`lib/widgets/messages_assistant.dart` in `finesse_demo`), not an `async*`
   around `Future.delayed`, whose pending delay outlives the listener.
 - A controller started between two frames moves on the *second* pump: pump
   once before a timed pump when sampling an animation. A test that reads a
@@ -1014,14 +1015,18 @@ weight, another font, at or above the reference — is a plain `Icon`.
 
 ## Performance
 
-What a frame costs on the web is counted by
-`example/test/perf_structure_test.dart` (backdrop filters, save layers, builds
-and paints per scroll frame, at rest and across a theme switch, per Strand
-screen at both sizes) and timed in a browser with
-`flutter build web --release -t test_driver/perf.dart` and
-`await finessePerf.scroll(1200, 2)` in the console. The Browser pane must be
-*showing*: a hidden pane runs animation at 1 Hz. `FrameTiming.raster` on the
-web ends when commands reach the GPU, so GPU-bound work does not show in it.
+What a frame costs on the web is measured in the Demo app
+([`finesse_demo`](https://github.com/vlidholt/finesse_demo)), a whole app
+on the package's default look: its `test/perf_structure_test.dart` counts
+backdrop filters, save layers, builds and paints per scroll frame, at rest
+and across a theme switch, per screen at both sizes, and
+`flutter build web --release -t test_driver/perf.dart` there times them in
+a browser (`await finessePerf.scroll(1200, 2)` in the console). A change
+here that could move those numbers is checked there, against a local
+checkout (its `pubspec_overrides.yaml`). The browser must be *showing*: a
+hidden pane runs animation at 1 Hz. `FrameTiming.raster` on the web ends
+when commands reach the GPU, so GPU-bound work does not show in it. The
+rules below were all found there.
 
 - **A clip the size of a shadow is the most expensive thing here.** Skia has
   no analytic form for "everything outside this rounded box" as one path: on
@@ -1073,9 +1078,9 @@ web ends when commands reach the GPU, so GPU-bound work does not show in it.
   a frame costs the same.
 - **A pinned bar is its own layer.** `SliverAppBar`'s box is a
   `RepaintBoundary`; without it a collapsed bar repainted its toolbar on
-  every scroll frame (the phone Profile went from fewer than 4 paints per
-  frame to 16), and `perf_structure_test.dart` holds the page to fewer
-  than 4.
+  every scroll frame (Demo's phone Profile went from fewer than 4 paints per
+  frame to 16), and Demo's `perf_structure_test.dart` holds the page to
+  fewer than 4.
 
 ## Pressing: `Pressable`, buttons, gestures
 
@@ -1590,184 +1595,25 @@ through one (`animateSize`, `ChatBubbleTheme.sizeSpring`).
 
 ## The example app
 
-`example/` is three things under one `AppShell` (`common/app_shell.dart`):
-**Strand**, a social-network demo that replicates the reference designs and
-is what the app opens on; the **component library** (docs browser); and the
-**theme editor**, a panel docked beside whichever of the two is showing.
-App-wide state — section, theme mode, text direction, the editor's
-configuration and whether its panel is open — is solidart signals behind
-disco providers in `common/app_state.dart`, provided above `FinesseApp`.
+`example/` is the **component library** (docs browser) under one
+`AppShell` (`common/app_shell.dart`), with the **theme editor**, a panel
+docked beside it. It is what the Pages site
+(<https://vlidholt.github.io/finesse/>) shows. App-wide state — theme mode,
+text direction, the editor's configuration and whether its panel is open —
+is solidart signals behind disco providers in `common/app_state.dart`,
+provided above `FinesseApp`. The shell hosts a nested `Navigator`, so a
+full-screen route a docs example pushes covers the library's bar but not
+the docked editor.
 
-### Strand (`example/lib/strand/`)
-
-- `strand_shell.dart` is a `NavigationScaffold` over a `DestinationStack`;
-  on a desktop narrower than 1024 (`StrandShell.topBarFrom`) the
-  destinations leave the top bar for a `NavigationRail`, and choosing the
-  destination already showing scrolls it to the top. Pushed pages use the
-  app bar's implied `BackButton`. `navigation.dart` has
-  `StrandDestination`, `context.goTo(...)` and
-  `context.pushFullScreen(builder)`. `data.dart` and `assets.dart` hold the
-  people, companies and image paths shared by the screens (images are in
-  `example/assets/strand/`, taken from the design files).
-- One screen per destination: `screens/<x>_screen.dart`, its pieces in
-  `widgets/<x>_*.dart`, its content in `data/<x>_data.dart`, its tests in
-  `example/test/strand_<x>_screen_test.dart`. Home, Jobs, Messages and
-  Profile come from the designs. Network, Notifications, Search and Settings
-  were never drawn; they are built from the designed screens' pieces and
-  rules (`widgets/strand_pieces.dart` has the shared page header, section
-  heading, pill button, mark and date tile). Settings and Search are pushed
-  routes. Jobs has a second view, "My applications", a `Board`
-  (`widgets/jobs_board*.dart`, `jobsViewProvider`,
-  `context.openApplications()`), and Easy Apply is a three-step `Stepper`
-  in a dialog. Messages is a `ListDetailLayout`; a thread is a `ChatList`;
-  the conversation pinned first, "Strand Assistant", streams its replies
-  into a `StreamingText`, and the send button is a stop button while one
-  arrives. The screens use the package's own widgets for what the designs
-  imply (`RefreshIndicator`, `SwipeActions` with the same actions in a
-  context menu for a mouse, `Carousel`, `HoverCard`, `showActionSheet`,
-  `SegmentedControl`, `TagField`, picker sheets and wheels on a phone,
-  `ListSection` rows, `Button(loading:)`, toast variants).
-- **State more than one place shows is in the `StrandSession`**
-  (`session.dart`, `context.strand`, provided beside
-  `strandDestinationProvider`): `notifications`, `messages`, `network`,
-  `search` (recent searches), `settings`, and `jobs` with `applications` —
-  the Jobs screen's two sides, its summary tiles and the "Saved items" sheet
-  count the same saved jobs. A screen's own state stays in the screen
-  (`HomeFeedModel`).
-  - `session.messages` is the one `MessagesController`: a reply goes on
-    arriving after the user has left the Messages screen. The shell's badge
-    is its `unreadCount` (a `ValueListenable`; requests are not counted),
-    a reply landing in a thread nobody is looking at (`threadVisible`) is
-    unread, and `session.badges` announces a change in either badge number
-    and nothing else. How the other side answers is injected
-    (`MessagesReplies`, `widgets/messages_assistant.dart`).
-  - The session reports every listing to `ApplicationsController.track`
-    whenever anything about the Jobs screen changes, so `track` acts only
-    on a listing whose saved or applied state *changed*. Re-syncing from
-    the full state undid whatever the user had done on the board since.
-  - A test that pumps a screen alone adds `strandSessionProvider` to its
-    providers, or wraps it in `StrandSessionHost`
-    (`test/strand_support.dart`) to decide who answers a message and when;
-    disco disposes an overridden value with the provider's own `dispose`,
-    so the session's timers die with the test's tree.
-- **What the user typed must not live in a `State` that a layout change
-  rebuilds.** The desktop and phone feeds are different widgets, and a
-  resize or the docked editor swaps one for the other: a half-written
-  comment is in `HomeFeedModel.draftFor(post)`; the selected settings page
-  is held by a `GlobalKey` and moves between the two arrangements with its
-  state; and its field grid is one `Wrap` either way (`_FieldGrid`), so the
-  field being typed in keeps its focus when the column count changes.
-- **A control named by a visible label is one semantic node**
-  (`MergeSemantics`, or `ExcludeSemantics` on the label the control
-  repeats). `announced(tester, text)` in `test/strand_support.dart` returns
-  what a screen reader stops on; a labelled control must come out of it
-  once.
-- **Nothing in Strand is a dead end.** A control with no designed
-  destination gets the lightest real response from
-  `widgets/strand_actions.dart` / `strand_previews.dart`: a preview dialog,
-  a toast with Undo, or a trip to the screen that owns the subject.
-  `grep "onPressed: () {}"` under `lib/strand` should stay empty.
-- **From a pushed page, navigate with `context.leaveTo(destination)`**,
-  which pops the page first; `goTo` would switch the shell underneath it.
-  Call it with the page's context, not a dialog's.
-- **A panel with no barrier lives and dies with the focus.** The desktop
-  search panel (`widgets/search_bar.dart`) is a `Popover(requestFocus:
-  false)`, not a route, so nothing but the focus says whether it is in use.
-  Field and panel sit under a `Focus` that cannot take the focus itself and
-  whose `onFocusChange(false)` closes the panel — Tab away, a click
-  elsewhere, a result opening a dialog. The popover makes them one
-  traversal group, and the field takes the popover's `groupId`, so a click
-  on the panel neither closes it nor takes the caret. It opens from `onTap`
-  as well as on a focus gain: after a tap outside on a touch screen the
-  field still has the focus.
-- **A global shortcut asks the package's `isInTopRoute(context)`, not
-  `ModalRoute.isCurrent`** (the search bar). Strand's pages are in the
-  navigator `AppShell` hosts, and a dialog is pushed on the *root* one, so
-  a page's own route stays current under every dialog; a
-  `HardwareKeyboard` handler hears keys wherever the focus is and would
-  reach through the barrier. The search shortcut is one modifier per
-  platform and no other with it (`SearchField.isSearchShortcut`): ⌘K on
-  Apple platforms, Ctrl+K elsewhere — Ctrl+K deletes to the end of the line
-  in every macOS text field, and AltGr reports itself as Ctrl+Alt on
-  Windows.
-- Search wants every word of the query; a canned query (a trending topic)
-  is mapped to words the data contains, and
-  `strand_search_screen_test.dart` checks every suggested search finds
-  something.
-- A test finder for a tappable row's inner `Semantics` label finds nothing:
-  `Pressable` merges it into the row's node. Find the widget instead. To
-  focus a chip of a `ChipGroup`, go through `Chip.focusNode`: `Focus.of`
-  finds the group's non-focusable wrapper. `completeEasyApply` in
-  `test/strand_support.dart` walks the application stepper.
-- **A screen is built inside the shell's `Scaffold`**, so its `MediaQuery`
-  padding already includes the bars; a `PageContainer(scrollable: true)`
-  clears them and lets content scroll underneath. A view that needs the
-  whole phone screen (a conversation, a job's detail) is a *pushed route*
-  with its own `Scaffold` + `AppBar`; `AppShell` hosts a nested `Navigator`
-  so such a route covers Strand's bars but not the docked editor.
-- **The form factor follows the page's width, not the window's**
-  (`AppShell.formFactorFor`), so docking the editor beside a narrow window
-  gives Strand the phone layout. The editor can also pin it; pinned Mobile
-  on a wide page is shown in a centred 390×844 frame.
-- **Layout rules the screens follow** (keep to them when adding one): sizes
-  come from the theme, never from `if (mobile)`; branch on the form factor
-  only where the design *rearranges*; decide how many columns fit from a
-  `LayoutBuilder`'s width so 800–1200px windows degrade gracefully.
-- **Strand takes every size from the theme, and a test holds it to that.**
-  Text is a `Theme.of(context).textTheme` style (`h1`, `h3`, `h4`, `large`,
-  `p`, `small`, `muted`, `caption`), copied for a weight or colour, never
-  given a `fontSize`; gaps are `Gap.md()` / `GapSize` / `theme.gap(...)`;
-  radii are `theme.radii`; and the sizes the package has no token for come
-  from `widgets/strand_metrics.dart`, an extension on `ThemeData` that
-  derives them from one — avatar steps `avatarXs`…`avatarXl` from the
-  theme's avatar, `iconBeside(style)` for a glyph set in a line of text,
-  `cardInsets` for a surface laid out like a card. A design value between
-  two steps was snapped to the nearer one on purpose (gaps of 6, 10, 14 and
-  18 became 4, 8, 12 and 16); do not reintroduce named off-scale constants
-  (the old `*_metrics.dart` files are gone).
-  `example/test/strand_theme_coverage_test.dart` builds every screen but
-  Messages under the default theme and under one whose type, gap, radius,
-  avatar and glyph sizes all differ, and fails — with file and line — on
-  any size a Strand source file hands to a widget that is the same in
-  both. A size that is meant to be a literal (a photograph's height, the
-  logo, the story rail) goes in its `_exempt` map with the reason. A
-  `Divider` between sections of a card passes `margin: EdgeInsets.zero`:
-  the shadcn styles give dividers a 16-point margin of their own. A tab
-  strip that fills a phone's width uses `StrandTabLabel`, which shrinks the
-  label to fit where a `Tab`'s own text would end in an ellipsis.
-- **Text and icons drawn straight on a surface use `scheme.tint`**, never
-  `accentForeground`. The two are the same teal in the default scheme, but
-  `accentForeground` is the ink *on an accent fill* (a selected chip, a
-  highlighted menu row) and need not read on a card.
-- **Reading the designs.** In the design HTML, `<span>`/`<div>` are
-  content-box and `<button>` is border-box: a `h:30` span with a 1px border
-  renders 32 tall, which is why skill chips are 32. A header of `h:64` with
-  a bottom border is 65 — `AppBar` and `TabBar` add their hairline to their
-  height for the same reason.
-- **A label on a photograph is a plain scrim, not glass.** A backdrop
-  filter samples everything behind it within the blur radius, so a frosted
-  label on a dark photo picks up the pale page around the card and turns
-  grey (CSS samples only under the element), and isolating each card with
-  `Clip.antiAliasWithSaveLayer` cost a save layer and a filter per card.
-  A story's name sits on a scrim with no filter (`home_stories.dart`).
-- **A row of chips choosing one of several** is a
-  `ChipGroup(value:, allowDeselection: false, wrap: false)`, which
-  fades at the edge it scrolls beyond; an action held at the start or end
-  of the row ("All filters", "Filters") is `ChipGroup.leading`/`trailing`,
-  outside the choices and the scroll view, with Tab stops of its own (it
-  needs a bounded width). A bar that scrolls out to the screen edge (Jobs
-  and Home on the phone) needs the page to keep only its vertical margins,
-  every other child taking the side margins itself.
-- **A toast's action that navigates captures a `NavigatorState` and the
-  signals at show time** (`applicationsOpener`), never a `BuildContext`:
-  the page that showed it may be gone by the time it is tapped.
-- **Verifying a screen without running the app:** render it to PNG from a
-  test (`RepaintBoundary.toImage` inside `tester.runAsync`, Phosphor fonts
-  loaded from `fonts/phosphor/` as `packages/finesse/PhosphorRegular` etc.,
-  a system TTF as the body font, `debugDisableShadows = false`, every
-  `AssetImage` precached) and compare with the design. flutter_test's own
-  font is an em-wide box per glyph and overflows labels that fit any real
-  font, so screen and docs tests load the example's bundled JetBrains Mono.
+**Demo**, the social-network app that replicates the designs the default
+look was measured from (it was "Strand", in `example/lib/strand/`), is its
+own repository, [`finesse_demo`](https://github.com/vlidholt/finesse_demo),
+with its own Pages site, CI and `CLAUDE.md` holding the rules its screens
+follow. It depends on this package from git, so a breaking change here
+breaks it on its next `flutter pub upgrade`: run its suite against a local
+checkout before changing public API it uses. The docs introduction links
+to it, and the images the docs examples show (`example/assets/images/`)
+come from it.
 
 ### The component library
 
@@ -1814,7 +1660,11 @@ disco providers in `common/app_state.dart`, provided above `FinesseApp`.
 - **The editor themes the whole app, not a preview pane.** The configuration
   lives in `themeConfigProvider` and `FinesseApp`'s `theme`, `darkTheme`,
   form factor and text scale are all built from it.
-- **Presets** (`presets.dart`): Strand is `const ThemeEditorConfig()` and
+- **The form factor follows the page's width, not the window's**
+  (`AppShell.formFactorFor`), so docking the editor beside a narrow window
+  gives the docs the phone layout. The editor can also pin it; pinned
+  Mobile on a wide page is shown in a centred 390×844 frame.
+- **Presets** (`presets.dart`): Original is `const ThemeEditorConfig()` and
   must build to exactly the package default `ThemeData` with Geist — a test
   holds that. Choosing a preset loads its fonts first; any later change to
   the look shows "Custom". Form factor and text scale are *preview* settings

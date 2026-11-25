@@ -43,7 +43,7 @@ class GlassLevelsExample extends StatelessWidget {
             // Something busy behind the glass, so the blur has work to do.
             Positioned.fill(
               child: Image.asset(
-                'assets/strand/photo_alpine_lake.jpg',
+                'assets/images/photo_alpine_lake.jpg',
                 fit: BoxFit.cover,
               ),
             ),
@@ -125,7 +125,7 @@ class GlassScrimExample extends StatelessWidget {
           fit: StackFit.expand,
           children: [
             Image.asset(
-              'assets/strand/photo_alpine_lake.jpg',
+              'assets/images/photo_alpine_lake.jpg',
               fit: BoxFit.cover,
             ),
             PositionedDirectional(

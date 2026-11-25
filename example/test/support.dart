@@ -62,9 +62,6 @@ Future<void> pumpApp(
 BuildContext appContext(WidgetTester tester) =>
     tester.element(find.byType(AppShell));
 
-Signal<AppSection> sectionSignal(WidgetTester tester) =>
-    appSectionProvider.of(appContext(tester));
-
 Signal<bool> editorOpenSignal(WidgetTester tester) =>
     themeEditorOpenProvider.of(appContext(tester));
 
@@ -73,11 +70,4 @@ Future<void> openThemeEditor(WidgetTester tester) async {
   editorOpenSignal(tester).value = true;
   await settle(tester);
   expect(find.byType(ThemeCustomizerPanel), findsOneWidget);
-}
-
-/// Switches to the component library, as the menus' "Browse components"
-/// does.
-Future<void> openComponentLibrary(WidgetTester tester) async {
-  sectionSignal(tester).value = AppSection.components;
-  await settle(tester);
 }

@@ -285,7 +285,7 @@ RRect? _roundedBoxOf(
 /// form for it, so on the web it rasterises a coverage mask the size of the
 /// whole shadow on the CPU and uploads it, and does so again on every frame
 /// in which the surface has moved by a fraction of a pixel: every frame of
-/// a scroll, for every card on screen. Measured on the Strand feed that
+/// a scroll, for every card on screen. Measured on the Demo feed that
 /// clip was two thirds of the whole frame's raster time.
 ///
 /// The outside of a rounded box is the outside of its bounding rectangle

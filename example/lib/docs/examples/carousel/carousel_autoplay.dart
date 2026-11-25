@@ -14,7 +14,7 @@ class CarouselAutoplayExample extends StatefulWidget {
 
 class _CarouselAutoplayExampleState extends State<CarouselAutoplayExample> {
   static const _quotes = [
-    ('“Strand is where our team finds its next hire.”', 'Mei Tanaka'),
+    ('“Demo is where our team finds its next hire.”', 'Mei Tanaka'),
     ('“The only feed I read to the end.”', 'Omar Rahimi'),
     ('“It feels like it was made by people who listen.”', 'Claire Dubois'),
   ];

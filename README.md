@@ -6,7 +6,9 @@
 
 A design system for Flutter: more than a hundred widgets themed by one `ThemeData`, with frosted-glass surfaces, desktop and phone metrics in the same theme, motion on springs, and no dependency on Material or Cupertino.
 
-![The Strand demo app built with finesse](https://raw.githubusercontent.com/vlidholt/finesse/main/assets/screenshot.png)
+![Demo, an app built with finesse](https://raw.githubusercontent.com/vlidholt/finesse/main/assets/screenshot.png)
+
+See it in a whole app in [Demo](https://vlidholt.github.io/finesse_demo/), a small professional network built from `finesse` widgets ([source](https://github.com/vlidholt/finesse_demo)), and browse every component in the [component library](https://vlidholt.github.io/finesse/).
 
 `finesse` is a fork of [shad](https://pub.dev/packages/shad), a Flutter port of [shadcn/ui](https://ui.shadcn.com). It keeps that component set and theming model, drops the `Shad` prefix, and adds its own default look and the pieces an app needs around the components: a scaffold, app and navigation bars, sheets, pickers, lists, page layout, and theme-driven spacing and motion.
 
@@ -221,7 +223,7 @@ Android, iOS, macOS, Windows, Linux and the web, including WebAssembly. The pack
 | --- | --- |
 | `lib/` | The `finesse` package. |
 | `fonts/phosphor/` | The bundled Phosphor icon fonts and their licence. |
-| `example/` | The demo app: Strand, a social network built entirely from `finesse` widgets, plus the component library and a theme editor. |
+| `example/` | The component library: a page per component with live previews and their source, guides, and a theme editor that restyles it all. Deployed to <https://vlidholt.github.io/finesse/>. The demo app is in its own repository, [finesse_demo](https://github.com/vlidholt/finesse_demo). |
 | `test/` | The package's test suite. |
 | `skills/finesse-overview/` | An [Agent Skill](https://agentskills.io) describing `finesse`'s API, for coding agents. |
 

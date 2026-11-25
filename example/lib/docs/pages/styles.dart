@@ -44,8 +44,8 @@ ThemeData(
           DocParagraph(
             '`nova`, `maia` and `lyra` are three of the styles of '
             'shadcn/ui, measured from its CSS. `finesse` is the '
-            "package's own, measured from the Strand designs that the "
-            'example app opens on.',
+            "package's own, measured from the designs of Demo, the app at "
+            '`https://vlidholt.github.io/finesse_demo/`.',
           ),
           DocParagraph(
             'Try them live: open the theme editor with the paintbrush '

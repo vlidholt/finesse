@@ -1983,7 +1983,7 @@ class DefaultThemeVariant extends ThemeVariant {
       saturation: opacity < 1 ? style.glassSaturation : 1,
       padding: EdgeInsets.symmetric(horizontal: scaled(style.pagePaddingX)),
       // The bar's *content* is as wide as the page's padding box: in the
-      // Strand designs the logo sits one page margin outside the first
+      // Demo designs the logo sits one page margin outside the first
       // card, and the 280-point search field only fits at that width. The
       // cap applies outside the bar's own padding, hence the addition.
       maxWidth: style.pageMaxWidth + 2 * scaled(style.pagePaddingX),

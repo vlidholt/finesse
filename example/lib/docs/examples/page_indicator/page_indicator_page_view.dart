@@ -58,8 +58,8 @@ class _PageIndicatorPageViewExampleState
                     onPageChanged: (index) => setState(() => page = index),
                     itemBuilder: (context, index) => Image.asset(
                       index.isEven
-                          ? 'assets/strand/photo_alpine_lake.jpg'
-                          : 'assets/strand/photo_conference_stage.jpg',
+                          ? 'assets/images/photo_alpine_lake.jpg'
+                          : 'assets/images/photo_conference_stage.jpg',
                       fit: BoxFit.cover,
                       semanticLabel: 'Photograph ${index + 1}',
                     ),

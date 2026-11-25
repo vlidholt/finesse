@@ -17,10 +17,10 @@ class CarouselPhotosExample extends StatelessWidget {
   const CarouselPhotosExample({super.key});
 
   static const _photos = [
-    ('assets/strand/photo_alpine_lake.jpg', 'A lake between mountains'),
-    ('assets/strand/photo_workshop_team.jpg', 'A team at a workshop'),
-    ('assets/strand/photo_conference_stage.jpg', 'A conference stage'),
-    ('assets/strand/story_mountain_meadow.jpg', 'A mountain meadow'),
+    ('assets/images/photo_alpine_lake.jpg', 'A lake between mountains'),
+    ('assets/images/photo_workshop_team.jpg', 'A team at a workshop'),
+    ('assets/images/photo_conference_stage.jpg', 'A conference stage'),
+    ('assets/images/story_mountain_meadow.jpg', 'A mountain meadow'),
   ];
 
   @override
@@ -142,7 +142,7 @@ class CarouselAutoplayExample extends StatefulWidget {
 
 class _CarouselAutoplayExampleState extends State<CarouselAutoplayExample> {
   static const _quotes = [
-    ('“Strand is where our team finds its next hire.”', 'Mei Tanaka'),
+    ('“Demo is where our team finds its next hire.”', 'Mei Tanaka'),
     ('“The only feed I read to the end.”', 'Omar Rahimi'),
     ('“It feels like it was made by people who listen.”', 'Claire Dubois'),
   ];

@@ -17,19 +17,19 @@ class TimelineExperienceExample extends StatelessWidget {
 
   static const _roles = [
     (
-      'assets/strand/logo_halcyon.png',
+      'assets/images/logo_halcyon.png',
       'Senior product designer',
       'Halcyon',
       '2022 to present',
     ),
     (
-      'assets/strand/logo_birchline.png',
+      'assets/images/logo_birchline.png',
       'Product designer',
       'Birchline',
       '2019 to 2022',
     ),
     (
-      'assets/strand/logo_lumen_labs.png',
+      'assets/images/logo_lumen_labs.png',
       'Design intern',
       'Lumen Labs',
       '2018 to 2019',

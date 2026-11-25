@@ -131,7 +131,7 @@ class _ShellState extends State<Shell> {
   @override
   Widget build(BuildContext context) {
     return NavigationScaffold(
-      title: const Text('Strand'),
+      title: const Text('Demo'),
       selectedIndex: _index,
       onDestinationSelected: (index) => setState(() => _index = index),
       destinations: const [

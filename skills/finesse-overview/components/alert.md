@@ -149,7 +149,7 @@ class _AlertDismissibleExampleState extends State<AlertDismissibleExample> {
               variant: AlertVariant.info,
               title: const Text('Scheduled maintenance'),
               description: const Text(
-                'Strand will be read-only on Saturday from 02:00 to 03:00.',
+                'Demo will be read-only on Saturday from 02:00 to 03:00.',
               ),
               // Called once the alert has folded away.
               onDismissed: () => setState(() => _shown = false),

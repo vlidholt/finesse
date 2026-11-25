@@ -1,8 +1,6 @@
 import 'package:example/common/app_shell.dart';
 import 'package:example/common/theme_editor/customizer_panel.dart';
 import 'package:example/screens/components_screen.dart';
-import 'package:example/strand/strand_shell.dart';
-import 'package:example/strand/widgets/home_post_comments.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -34,15 +32,11 @@ void main() {
     await settle(tester);
   }
 
-  testWidgets('the app opens on Strand, with the editor closed', (
-    tester,
-  ) async {
+  testWidgets('the app opens on the component library, with the editor '
+      'closed', (tester) async {
     await pumpApp(tester, size: wide);
 
-    expect(sectionSignal(tester).value, AppSection.strand);
-    expect(find.byType(StrandShell), findsOneWidget);
-    // The component library is not even built until it is first opened.
-    expect(find.byType(ComponentsScreen, skipOffstage: false), findsNothing);
+    expect(find.byType(ComponentsScreen), findsOneWidget);
     expect(find.byType(ThemeCustomizerPanel), findsNothing);
     expect(tester.takeException(), isNull);
   });
@@ -50,7 +44,6 @@ void main() {
   group('the component library', () {
     testWidgets('opens the docs browser under its own bar', (tester) async {
       await pumpApp(tester, size: wide);
-      await openComponentLibrary(tester);
 
       expect(find.byType(ComponentsSection), findsOneWidget);
       expect(find.byType(Sidebar), findsOneWidget);
@@ -59,31 +52,8 @@ void main() {
         find.textContaining('finesse is a Flutter implementation'),
         findsOneWidget,
       );
-      // Strand is alive underneath, not showing.
-      expect(find.byType(StrandShell), findsNothing);
-      expect(find.byType(StrandShell, skipOffstage: false), findsOneWidget);
-      expect(tester.takeException(), isNull);
-    });
-
-    testWidgets('the back button returns to Strand and keeps the open page', (
-      tester,
-    ) async {
-      await pumpApp(tester, size: wide);
-      await openComponentLibrary(tester);
-      await openPage(tester, 'Badge');
-
-      await tester.tap(find.byIcon(PhosphorIconsRegular.arrowLeft));
-      await settle(tester);
-      expect(sectionSignal(tester).value, AppSection.strand);
-      expect(find.byType(StrandShell), findsOneWidget);
-
-      await openComponentLibrary(tester);
-      expect(
-        tester
-            .state<ComponentsScreenState>(find.byType(ComponentsScreen))
-            .selectedSlug,
-        'badge',
-      );
+      // The first route: nothing to go back to.
+      expect(find.byIcon(PhosphorIconsRegular.arrowLeft), findsNothing);
       expect(tester.takeException(), isNull);
     });
 
@@ -91,7 +61,6 @@ void main() {
       tester,
     ) async {
       await pumpApp(tester, size: wide);
-      await openComponentLibrary(tester);
 
       await openPage(tester, 'Button');
 
@@ -107,7 +76,6 @@ void main() {
 
     testWidgets('the search box filters the sidebar', (tester) async {
       await pumpApp(tester, size: wide);
-      await openComponentLibrary(tester);
 
       await tester.enterText(inSidebar(find.byType(TextField)), 'badge');
       await settle(tester);
@@ -120,7 +88,6 @@ void main() {
       tester,
     ) async {
       await pumpApp(tester, size: wide);
-      await openComponentLibrary(tester);
 
       await tester.tap(find.byIcon(PhosphorIconsRegular.sun));
       await settle(tester);
@@ -137,10 +104,8 @@ void main() {
 
     testWidgets('fits a phone', (tester) async {
       await pumpApp(tester, size: mobileSize);
-      await openComponentLibrary(tester);
 
       expect(find.byType(ComponentsScreen), findsOneWidget);
-      expect(find.byIcon(PhosphorIconsRegular.arrowLeft), findsOneWidget);
       expect(find.byIcon(PhosphorIconsRegular.paintBrush), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
@@ -149,7 +114,6 @@ void main() {
   group('the theme editor', () {
     testWidgets('docks beside the page, and closes again', (tester) async {
       await pumpApp(tester, size: wide);
-      await openComponentLibrary(tester);
 
       expect(find.byType(ThemeCustomizerPanel), findsNothing);
       await toggleEditor(tester);
@@ -179,48 +143,30 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    // Docking takes room from the page: at 1130 Strand's home loses both
-    // its rails at once, and at 1000 it becomes the phone layout, whose
-    // post cards have no comment field at all. Neither may cost the user
-    // what they were typing.
-    for (final width in const [1130.0, 1000.0]) {
-      testWidgets('docking it in a ${width.toInt()}-wide window keeps a '
-          'half-written comment on the home feed', (tester) async {
-        await pumpApp(tester, size: Size(width, 900));
-        const draft = 'A half-written comment';
-        final field = find.descendant(
-          of: find.byType(HomePostComments),
-          matching: find.byType(TextField),
-        );
-        await Scrollable.ensureVisible(
-          tester.element(field.first),
-          alignment: .5,
-        );
-        await tester.pump();
-        await tester.enterText(field.first, draft);
-        await settle(tester, frames: 4);
-        expect(find.text(draft), findsOneWidget);
+    testWidgets('docking it beside a medium window lays the page out for '
+        'the room it is left with, and keeps the open page', (tester) async {
+      await pumpApp(tester, size: const Size(1000, 900));
+      await openPage(tester, 'Badge');
+      ThemeData theme() =>
+          Theme.of(tester.element(find.byType(ComponentsScreen)));
+      expect(theme().formFactor, FormFactor.desktop);
 
-        editorOpenSignal(tester).value = true;
-        await settle(tester, frames: 20);
-        expect(tester.takeException(), isNull);
-        final docked = Theme.of(
-          tester.element(find.byType(StrandShell)),
-        ).formFactor;
-        expect(
-          docked,
-          width == 1130 ? FormFactor.desktop : FormFactor.mobile,
-        );
-        if (docked == FormFactor.desktop) {
-          expect(find.text(draft, skipOffstage: false), findsOneWidget);
-        }
+      editorOpenSignal(tester).value = true;
+      await settle(tester, frames: 20);
+      // 1000 less the panel is below the phone breakpoint.
+      expect(theme().formFactor, FormFactor.mobile);
+      expect(
+        tester
+            .state<ComponentsScreenState>(find.byType(ComponentsScreen))
+            .selectedSlug,
+        'badge',
+      );
 
-        editorOpenSignal(tester).value = false;
-        await settle(tester, frames: 20);
-        expect(find.text(draft, skipOffstage: false), findsOneWidget);
-        expect(tester.takeException(), isNull);
-      });
-    }
+      editorOpenSignal(tester).value = false;
+      await settle(tester, frames: 20);
+      expect(theme().formFactor, FormFactor.desktop);
+      expect(tester.takeException(), isNull);
+    });
 
     testWidgets('the panel is built once for its slide, not on every frame '
         'of it', (tester) async {
@@ -259,7 +205,6 @@ void main() {
       tester,
     ) async {
       await pumpApp(tester, size: wide);
-      await openComponentLibrary(tester);
       await toggleEditor(tester);
       await tester.tap(find.byIcon(PhosphorIconsRegular.textAlignLeft));
       await settle(tester);
@@ -278,7 +223,6 @@ void main() {
       // docs browser's State, which sent you back to the first component
       // every time the editor was opened.
       await pumpApp(tester, size: wide);
-      await openComponentLibrary(tester);
       await openPage(tester, 'Badge');
       await toggleEditor(tester);
 
@@ -303,7 +247,6 @@ void main() {
     testWidgets('fills a narrow viewport, and closes itself', (tester) async {
       const narrow = Size(600, 1000);
       await pumpApp(tester, size: narrow);
-      await openComponentLibrary(tester);
       await toggleEditor(tester);
 
       final panel = find.byType(ThemeCustomizerPanel);

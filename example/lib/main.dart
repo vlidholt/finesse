@@ -4,17 +4,12 @@ import 'package:example/common/app_state.dart';
 import 'package:example/common/theme_editor/editor_config.dart';
 import 'package:example/common/theme_editor/fonts.dart';
 import 'package:example/docs/docs.dart';
-import 'package:example/strand/navigation.dart';
-import 'package:example/strand/session.dart';
-import 'package:example/strand/widgets/jobs_board_view.dart';
 import 'package:finesse/finesse.dart';
 import 'package:finesse/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_solidart/flutter_solidart.dart';
 
 export 'package:example/common/app_state.dart';
-export 'package:example/strand/navigation.dart'
-    show StrandDestination, strandDestinationProvider;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,20 +29,6 @@ Future<void> main() async {
   runApp(const App());
 }
 
-/// Every app-level provider: the state in `common/app_state.dart` and
-/// Strand's selected destination. They sit above [FinesseApp], so every
-/// route can read them.
-final appProviders = <InstantiableProvider>[
-  appSectionProvider,
-  themeModeProvider,
-  directionalityProvider,
-  themeConfigProvider,
-  themeEditorOpenProvider,
-  strandDestinationProvider,
-  strandSessionProvider,
-  jobsViewProvider,
-];
-
 /// Named styles the app adds on top of whatever the editor produces — an
 /// example of extending [TextTheme]; see the `/typography` page for how
 /// they are read back.
@@ -61,9 +42,8 @@ Map<String, TextStyle> appCustomTextStyles(Brightness brightness) => {
   ),
 };
 
-/// The example app: Strand, the social network the default theme was
-/// designed for, with the component library and the theme editor one menu
-/// away.
+/// The example app: the component library, with the theme editor docked
+/// beside it on request.
 class App extends StatefulWidget {
   const App({super.key});
 
@@ -103,7 +83,7 @@ class _AppState extends State<App> {
           final themeMode = themeModeProvider.of(context).value;
           final directionality = directionalityProvider.of(context).value;
           // Both themes come from the editor's configuration, so the panel
-          // restyles the whole app — Strand and the component library alike.
+          // restyles the whole app.
           final config = themeConfigProvider.of(context).value;
           final editorOpen = themeEditorOpenProvider.of(context).value;
           _buildThemes(config);

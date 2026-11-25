@@ -7,9 +7,9 @@ class ListSectionPlainExample extends StatelessWidget {
   const ListSectionPlainExample({super.key});
 
   static const _people = [
-    ('assets/strand/avatar_omar_rahimi.jpg', 'Omar Rahimi', 'Birchline'),
-    ('assets/strand/avatar_mei_tanaka.jpg', 'Mei Tanaka', 'Lumen Labs'),
-    ('assets/strand/avatar_claire_dubois.jpg', 'Claire Dubois', 'Collective'),
+    ('assets/images/avatar_omar_rahimi.jpg', 'Omar Rahimi', 'Birchline'),
+    ('assets/images/avatar_mei_tanaka.jpg', 'Mei Tanaka', 'Lumen Labs'),
+    ('assets/images/avatar_claire_dubois.jpg', 'Claire Dubois', 'Collective'),
   ];
 
   @override
