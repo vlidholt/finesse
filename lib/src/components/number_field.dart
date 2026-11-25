@@ -223,7 +223,9 @@ class _NumberFieldState extends State<NumberField> {
       _focusNode.addListener(_onFocusChanged);
     }
     if (!_editable) _repeater.stop();
-    if (widget.value != oldWidget.value) _known = widget.value;
+    // A rebuild is the parent's word, whether or not the value changed: a
+    // parent that refused the last step is asked for it again.
+    _known = widget.value;
     // The parent's value wins — except while it only echoes what is being
     // typed: writing "1" back over "1." would eat the point.
     final typing =
