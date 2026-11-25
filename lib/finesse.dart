@@ -123,8 +123,7 @@ export 'src/components/pagination.dart';
 export 'src/components/picker.dart'
     show PickerPresentation, PickerTriggerBuilder;
 export 'src/components/popover.dart';
-export 'src/components/progress_bar.dart'
-    hide DeterminateProgressBar, IndeterminateProgressBar;
+export 'src/components/progress_bar.dart' hide DeterminateProgressBar;
 export 'src/components/progress_ring.dart';
 export 'src/components/radio.dart';
 export 'src/components/rating.dart';

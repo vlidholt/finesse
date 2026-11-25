@@ -210,7 +210,7 @@ class _ProgressState extends State<ProgressBar>
                       borderRadius: effectiveInnerBorderRadius,
                     ),
                   )
-                : IndeterminateProgressBar(
+                : _IndeterminateProgressBar(
                     controller: _controller,
                     indeterminateLinearDuration: _kIndeterminateLinearDuration,
                     line1TailCurve: line1TailCurve,
@@ -227,13 +227,9 @@ class _ProgressState extends State<ProgressBar>
   }
 }
 
-/// {@template IndeterminateProgressBar}
-/// A widget that represents the indeterminate state of the progress bar.
-/// {@endtemplate}
-class IndeterminateProgressBar extends StatelessWidget {
-  /// {@macro IndeterminateProgressBar}
-  const IndeterminateProgressBar({
-    super.key,
+/// The indeterminate state of a [ProgressBar].
+class _IndeterminateProgressBar extends StatelessWidget {
+  const _IndeterminateProgressBar({
     required this.controller,
     required this.indeterminateLinearDuration,
     required this.line1TailCurve,
