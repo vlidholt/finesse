@@ -1,5 +1,6 @@
 import 'package:example/docs/docs.dart';
 import 'package:example/docs/pages/accordion.dart';
+import 'package:example/docs/pages/action_sheet.dart';
 import 'package:example/docs/pages/alert.dart';
 import 'package:example/docs/pages/app_bar.dart';
 import 'package:example/docs/pages/avatar.dart';
@@ -116,6 +117,7 @@ final docGroups = <DocGroup>[
 /// Every component reference page, in sidebar order: alphabetical by title.
 final componentDocs = [
   accordionDoc,
+  actionSheetDoc,
   alertDoc,
   appBarDoc,
   avatarDoc,

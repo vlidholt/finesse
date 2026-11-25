@@ -83,6 +83,9 @@ void main() {
       await pumpApp(tester, size: wide);
       await openComponentLibrary(tester);
 
+      // The list grows with every component: the row may be under the fold.
+      await tester.ensureVisible(inSidebar(find.text('Button')));
+      await settle(tester);
       await tester.tap(inSidebar(find.text('Button')));
       await settle(tester);
 
