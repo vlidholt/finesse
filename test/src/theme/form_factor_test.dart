@@ -90,7 +90,7 @@ void main() {
 
     test('the rest of the phone metrics follow', () {
       expect(desktop.appBarTheme.height, 64);
-      expect(mobile.appBarTheme.height, 60);
+      expect(mobile.appBarTheme.height, 44);
       expect(desktop.layoutTheme.gap(GapSize.lg), 16);
       expect(mobile.layoutTheme.gap(GapSize.lg), 12);
       expect(desktop.layoutTheme.gap(GapSize.xl), 24);
@@ -113,7 +113,7 @@ void main() {
       expect(desktop.checkboxTheme.size, 18);
       expect(mobile.checkboxTheme.size, 20);
       expect(desktop.switchTheme.width, 36);
-      expect(mobile.switchTheme.width, 44);
+      expect(mobile.switchTheme.width, 58);
     });
 
     test('the mobile metrics apply to both variants', () {

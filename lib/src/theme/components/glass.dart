@@ -1,3 +1,4 @@
+import 'package:finesse/src/liquid_glass/liquid_glass_theme.dart';
 import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 
@@ -10,6 +11,7 @@ class GlassTheme with _$GlassTheme {
   /// Creates a theme; a null field falls back to the app theme's.
   const GlassTheme({
     bool canMerge = true,
+    this.liquidGlass,
     this.blur,
     this.saturation,
     this.color,
@@ -25,6 +27,10 @@ class GlassTheme with _$GlassTheme {
 
   @override
   bool get canMerge => _canMerge;
+
+  /// Whether `Glass` draws with Liquid Glass, over
+  /// `ThemeData.liquidGlass.mode`; null follows the theme.
+  final LiquidGlassMode? liquidGlass;
 
   /// The sigma of the backdrop blur.
   final double? blur;

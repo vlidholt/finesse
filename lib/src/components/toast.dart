@@ -5,6 +5,7 @@ import 'dart:ui' show lerpDouble;
 import 'package:finesse/src/components/spinner.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
+import 'package:finesse/src/liquid_glass/liquid_glass.dart';
 import 'package:finesse/src/raw_components/pressable.dart';
 import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/motion.dart';
@@ -213,6 +214,22 @@ class Toast extends StatelessWidget {
     // words would show through a glass toast in front of it.
     if (slot != null) {
       content = FadeTransition(opacity: slot.contentOpacity, child: content);
+    }
+
+    if (LiquidGlass.isActive(context, toastTheme.liquidGlass)) {
+      return ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: theme.toasterTheme.width ?? _fallbackWidth,
+        ),
+        child: LiquidGlassSurface(
+          radius: radius.resolve(Directionality.of(context)).topLeft.x,
+          overlay: true,
+          child: Padding(
+            padding: border.toBorder().dimensions,
+            child: content,
+          ),
+        ),
+      );
     }
 
     return ConstrainedBox(

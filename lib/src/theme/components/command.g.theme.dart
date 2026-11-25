@@ -26,6 +26,7 @@ mixin _$CommandTheme {
     }
 
     return CommandTheme(
+      liquidGlass: t < 0.5 ? a.liquidGlass : b.liquidGlass,
       backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
       decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
@@ -103,6 +104,7 @@ mixin _$CommandTheme {
   }
 
   CommandTheme copyWith({
+    LiquidGlassMode? liquidGlass,
     Color? backgroundColor,
     FinesseDecoration? decoration,
     EdgeInsetsGeometry? padding,
@@ -136,6 +138,7 @@ mixin _$CommandTheme {
     final _this = (this as CommandTheme);
 
     return CommandTheme(
+      liquidGlass: liquidGlass ?? _this.liquidGlass,
       backgroundColor: backgroundColor ?? _this.backgroundColor,
       decoration: decoration ?? _this.decoration,
       padding: padding ?? _this.padding,
@@ -183,6 +186,7 @@ mixin _$CommandTheme {
     }
 
     return copyWith(
+      liquidGlass: other.liquidGlass,
       backgroundColor: other.backgroundColor,
       decoration: _this.decoration?.merge(other.decoration) ?? other.decoration,
       padding: other.padding,
@@ -236,7 +240,8 @@ mixin _$CommandTheme {
     final _this = (this as CommandTheme);
     final _other = (other as CommandTheme);
 
-    return _other.backgroundColor == _this.backgroundColor &&
+    return _other.liquidGlass == _this.liquidGlass &&
+        _other.backgroundColor == _this.backgroundColor &&
         _other.decoration == _this.decoration &&
         _other.padding == _this.padding &&
         _other.searchPadding == _this.searchPadding &&
@@ -275,6 +280,7 @@ mixin _$CommandTheme {
 
     return Object.hashAll([
       runtimeType,
+      _this.liquidGlass,
       _this.backgroundColor,
       _this.decoration,
       _this.padding,

@@ -175,6 +175,26 @@ enum Density {
 }
 
 /// Which of a style's two sets of metrics the app is laid out with.
+/// Where the app draws with Liquid Glass. A preview setting: it lets the
+/// glass be seen on any platform, where `auto` shows it on Apple ones only.
+enum EditorLiquidGlass {
+  /// Liquid Glass on iOS and macOS, frosted glass elsewhere: the package's
+  /// default.
+  auto('Auto', LiquidGlassMode.auto),
+
+  /// Liquid Glass on every platform.
+  on('On', LiquidGlassMode.always),
+
+  /// finesse's frosted glass on every platform.
+  off('Off', LiquidGlassMode.never);
+
+  const EditorLiquidGlass(this.label, this.mode);
+
+  final String label;
+
+  final LiquidGlassMode mode;
+}
+
 enum EditorFormFactor {
   /// Follow the width the page has, as `FinesseApp` does by itself.
   auto('Auto', null),
@@ -235,6 +255,7 @@ class ThemeEditorConfig {
     this.menuAccent = EditorMenuAccent.subtle,
     this.formFactor = EditorFormFactor.auto,
     this.textScale = 1,
+    this.liquidGlass = EditorLiquidGlass.auto,
   });
 
   final Brightness brightness;
@@ -290,6 +311,11 @@ class ThemeEditorConfig {
 
   /// Preview only: the platform text scale the app is shown at.
   final double textScale;
+
+  /// Preview: where the app draws with Liquid Glass. Kept across presets,
+  /// like the other preview settings, but exported when it is not `auto`:
+  /// it is a theme setting an app can make too.
+  final EditorLiquidGlass liquidGlass;
 
   /// The `md` radius in logical pixels: a custom value, the preset's, or the
   /// selected style's own.
@@ -367,6 +393,7 @@ class ThemeEditorConfig {
     EditorMenuAccent? menuAccent,
     EditorFormFactor? formFactor,
     double? textScale,
+    EditorLiquidGlass? liquidGlass,
   }) {
     return ThemeEditorConfig(
       brightness: brightness ?? this.brightness,
@@ -397,6 +424,7 @@ class ThemeEditorConfig {
       menuAccent: menuAccent ?? this.menuAccent,
       formFactor: formFactor ?? this.formFactor,
       textScale: textScale ?? this.textScale,
+      liquidGlass: liquidGlass ?? this.liquidGlass,
     );
   }
 
@@ -409,6 +437,7 @@ class ThemeEditorConfig {
     brightness: Brightness.light,
     formFactor: EditorFormFactor.auto,
     textScale: 1,
+    liquidGlass: EditorLiquidGlass.auto,
   );
 
   /// A value type, so a no-op edit — re-picking the option that is already
@@ -439,7 +468,8 @@ class ThemeEditorConfig {
         other.menuFinish == menuFinish &&
         other.menuAccent == menuAccent &&
         other.formFactor == formFactor &&
-        other.textScale == textScale;
+        other.textScale == textScale &&
+        other.liquidGlass == liquidGlass;
   }
 
   @override
@@ -466,6 +496,7 @@ class ThemeEditorConfig {
     menuAccent,
     formFactor,
     textScale,
+    liquidGlass,
   ]);
 
   /// The palette, fully resolved for [brightness]: the base, then the accent.
@@ -609,6 +640,11 @@ class ThemeEditorConfig {
         EditorMenuAccent.subtle => MenuAccent.subtle,
         EditorMenuAccent.bold => MenuAccent.bold,
       },
+      // Null for `auto`, so the default configuration is still exactly the
+      // package's default theme.
+      liquidGlass: liquidGlass == EditorLiquidGlass.auto
+          ? null
+          : LiquidGlassTheme(mode: liquidGlass.mode),
     );
   }
 
@@ -640,6 +676,9 @@ class ThemeEditorConfig {
       if (menuFinish == MenuSurfaceFinish.translucent) 'menuTranslucent: true,',
       if (menuFinish == MenuSurfaceFinish.solid) 'menuTranslucent: false,',
       if (menuAccent == EditorMenuAccent.bold) 'menuAccent: MenuAccent.bold,',
+      if (liquidGlass != EditorLiquidGlass.auto)
+        'liquidGlass: const LiquidGlassTheme('
+            'mode: LiquidGlassMode.${liquidGlass.mode.name}),',
     ];
     return ['ThemeData(', ..._indented(lines), ')'].join('\n');
   }

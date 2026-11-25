@@ -3,6 +3,7 @@
 import 'package:finesse/src/components/scroll_area.dart';
 import 'package:finesse/src/components/toast.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
+import 'package:finesse/src/liquid_glass/liquid_glass.dart';
 import 'package:finesse/src/page_route.dart';
 import 'package:finesse/src/theme/cross_fade_theme.dart';
 import 'package:finesse/src/theme/data.dart';
@@ -815,7 +816,13 @@ class FinesseAppBuilder extends StatelessWidget {
         final effectiveChild = child != null ? Toaster(child: child!) : child;
         return ColoredBox(
           color: backgroundColor ?? Theme.of(context).colorScheme.background,
-          child: builder?.call(context, effectiveChild) ?? effectiveChild,
+          // The app-wide half of Liquid Glass: the package's accessibility
+          // switch and, if the theme asks, its adaptive quality.
+          child: switch (builder?.call(context, effectiveChild) ??
+              effectiveChild) {
+            null => null,
+            final app => LiquidGlassAppScope(child: app),
+          },
         );
       },
     );

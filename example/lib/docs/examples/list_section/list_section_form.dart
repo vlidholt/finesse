@@ -65,7 +65,7 @@ class _ListSectionFormExampleState extends State<ListSectionFormExample> {
           ),
           SwitchListTile(
             title: const Text('Public profile'),
-            subtitle: const Text('Anyone on Strand can find you'),
+            subtitle: const Text('Anyone on Demo can find you'),
             value: public,
             onChanged: (value) => setState(() => public = value),
           ),

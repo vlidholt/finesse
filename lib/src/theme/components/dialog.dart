@@ -1,5 +1,6 @@
 import 'dart:ui' show ImageFilter;
 
+import 'package:finesse/src/liquid_glass/liquid_glass_theme.dart';
 import 'package:finesse/src/utils/position.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
@@ -16,6 +17,7 @@ class DialogTheme with _$DialogTheme {
   /// {@macro DialogTheme}
   const DialogTheme({
     bool canMerge = true,
+    this.liquidGlass,
     this.showCloseButton,
     this.closeIcon,
     this.closeIconPosition,
@@ -54,6 +56,10 @@ class DialogTheme with _$DialogTheme {
 
   @override
   bool get canMerge => _canMerge;
+
+  /// Whether dialogs draw with Liquid Glass, over
+  /// `ThemeData.liquidGlass.mode`; null follows the theme.
+  final LiquidGlassMode? liquidGlass;
 
   /// {@macro Dialog.showCloseButton}
   final bool? showCloseButton;

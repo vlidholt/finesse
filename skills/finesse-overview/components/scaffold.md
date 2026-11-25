@@ -861,7 +861,7 @@ class _ScaffoldNavigationExampleState extends State<ScaffoldNavigationExample> {
                     size: 28,
                     color: theme.colorScheme.tint,
                   ),
-                  title: const Text('Strand'),
+                  title: const Text('Demo'),
                   actions: [
                     IconButton.ghost(
                       icon: const PhosphorIcon(PhosphorIconsRegular.gear),

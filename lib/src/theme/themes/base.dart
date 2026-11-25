@@ -1,3 +1,4 @@
+import 'package:finesse/src/liquid_glass/liquid_glass_theme.dart';
 import 'package:finesse/src/theme/color_scheme/base.dart';
 import 'package:finesse/src/theme/components/accordion.dart';
 import 'package:finesse/src/theme/components/action_sheet.dart';
@@ -126,6 +127,7 @@ abstract class BaseTheme {
     required this.textTheme,
     required this.disabledOpacity,
     required this.haptics,
+    required this.liquidGlass,
     required this.selectTheme,
     required this.selectOptionTheme,
     required this.cardTheme,
@@ -363,6 +365,9 @@ abstract class BaseTheme {
   /// true; false silences every call made through `Haptics` below this
   /// theme.
   final bool haptics;
+
+  /// Where components are drawn with Liquid Glass, and how.
+  final LiquidGlassTheme liquidGlass;
 
   /// The theme of `Select`.
   final SelectTheme selectTheme;

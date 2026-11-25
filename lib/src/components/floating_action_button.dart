@@ -1,6 +1,7 @@
 import 'dart:ui' show lerpDouble;
 
 import 'package:finesse/src/components/glass.dart';
+import 'package:finesse/src/liquid_glass/liquid_glass.dart';
 import 'package:finesse/src/raw_components/pressable.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
@@ -246,7 +247,18 @@ class FloatingActionButton extends StatelessWidget {
           ),
         );
         final Widget surface;
-        if (glass) {
+        if (glass &&
+            LiquidGlass.isActive(
+              context,
+              theme.floatingActionButtonTheme.liquidGlass,
+            )) {
+          // The glass's own tint, rim and shadow, lit by the finger.
+          surface = LiquidGlassSurface(
+            radius: radius.topLeft.x,
+            interactive: true,
+            child: box,
+          );
+        } else if (glass) {
           // The glass's tint and border, over a filter of the button's own:
           // a surface that takes over the fade of the scaffold's pop, so
           // that the button keeps its blur while it comes and goes.

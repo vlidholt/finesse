@@ -1,4 +1,5 @@
 import 'package:finesse/src/components/button.dart';
+import 'package:finesse/src/liquid_glass/liquid_glass_theme.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:flutter/foundation.dart';
@@ -17,6 +18,7 @@ class TabsTheme with _$TabsTheme {
   /// {@macro TabsTheme}
   const TabsTheme({
     bool canMerge = true,
+    this.liquidGlass,
     this.gap,
     this.tabsGap,
     this.expandTabs,
@@ -67,6 +69,11 @@ class TabsTheme with _$TabsTheme {
 
   @override
   bool get canMerge => _canMerge;
+
+  /// Whether `SegmentedControl` and segmented tab bars draw with Liquid
+  /// Glass, over
+  /// `ThemeData.liquidGlass.mode`; null follows the theme.
+  final LiquidGlassMode? liquidGlass;
 
   /// The gap between the tab bar and the content under it in a `Tabs`.
   final double? gap;

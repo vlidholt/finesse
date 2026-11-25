@@ -283,7 +283,7 @@ void main() {
         tab: 36.0,
         menubar: 44.0,
         checkbox: 20.0,
-        switchSize: Size(44, 24),
+        switchSize: Size(58, 26),
       ),
     };
 

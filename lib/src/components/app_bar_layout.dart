@@ -7,6 +7,8 @@ import 'package:finesse/src/components/scaffold.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/icons/phosphor_icon.dart';
 import 'package:finesse/src/icons/phosphor_icons_regular.dart';
+import 'package:finesse/src/liquid_glass/liquid_glass.dart';
+import 'package:finesse/src/liquid_glass/liquid_glass_theme.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/backdrop.dart';
 import 'package:flutter/rendering.dart';
@@ -14,6 +16,29 @@ import 'package:flutter/widgets.dart';
 
 // The parts `AppBar` and `SliverAppBar` are both made of: the toolbar row,
 // the bar's surface, and the leading button a bar shows by itself. Internal.
+
+/// A bar's [leading] and [actions] as iOS 26 puts them on Liquid Glass:
+/// the leading button on a capsule of its own and all the actions on one
+/// shared capsule, [actionsGap] apart.
+(Widget?, List<Widget>) liquidGlassBarSlots(
+  BuildContext context, {
+  required Widget? leading,
+  required List<Widget> actions,
+  double? actionsGap,
+}) {
+  final theme = Theme.of(context);
+  return (
+    leading == null ? null : LiquidGlassBarGroup(children: [leading]),
+    actions.isEmpty
+        ? actions
+        : [
+            LiquidGlassBarGroup(
+              gap: actionsGap ?? theme.layoutTheme.gapSm ?? 8,
+              children: actions,
+            ),
+          ],
+  );
+}
 
 /// The button a bar shows at its start when it was given none: a close
 /// button on a full-screen dialog, a back button on a page that can be
@@ -252,8 +277,14 @@ class AppBarSurface extends StatelessWidget {
     this.saturation = 1,
     this.padding = EdgeInsets.zero,
     this.visibility,
+    this.liquid = false,
     super.key,
   });
+
+  /// Whether the bar is Liquid Glass: no fill of its own, only the page
+  /// under it blurred and faded into the page colour (see
+  /// `LiquidGlassScrollEdge`), with the hairline only in the iOS 27 style.
+  final bool liquid;
 
   /// The bar's content.
   final Widget child;
@@ -281,6 +312,28 @@ class AppBarSurface extends StatelessWidget {
   Widget build(BuildContext context) {
     final border = borderColor;
     final visibility = this.visibility;
+    if (liquid) {
+      final theme = Theme.of(context);
+      final hairline = theme.liquidGlass.style == GlassStyle.ios27
+          ? border
+          : null;
+      return Stack(
+        children: [
+          Positioned.fill(
+            child: LiquidGlassScrollEdge(
+              color: theme.colorScheme.background,
+              visibility: visibility,
+              hairline: hairline,
+            ),
+          ),
+          Padding(
+            // The hairline's point, as the frosted bar reserves it.
+            padding: padding + EdgeInsets.only(bottom: border == null ? 0 : 1),
+            child: child,
+          ),
+        ],
+      );
+    }
     if (visibility == null) {
       return Backdrop(
         blur: blur,

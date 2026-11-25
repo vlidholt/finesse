@@ -26,6 +26,7 @@ mixin _$PopoverTheme {
     }
 
     return PopoverTheme(
+      liquidGlass: t < 0.5 ? a.liquidGlass : b.liquidGlass,
       shadows: t < 0.5 ? a.shadows : b.shadows,
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
       decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
@@ -39,6 +40,7 @@ mixin _$PopoverTheme {
   }
 
   PopoverTheme copyWith({
+    LiquidGlassMode? liquidGlass,
     List<BoxShadow>? shadows,
     EdgeInsetsGeometry? padding,
     FinesseDecoration? decoration,
@@ -52,6 +54,7 @@ mixin _$PopoverTheme {
     final _this = (this as PopoverTheme);
 
     return PopoverTheme(
+      liquidGlass: liquidGlass ?? _this.liquidGlass,
       shadows: shadows ?? _this.shadows,
       padding: padding ?? _this.padding,
       decoration: decoration ?? _this.decoration,
@@ -76,6 +79,7 @@ mixin _$PopoverTheme {
     }
 
     return copyWith(
+      liquidGlass: other.liquidGlass,
       shadows: other.shadows,
       padding: other.padding,
       decoration: _this.decoration?.merge(other.decoration) ?? other.decoration,
@@ -101,7 +105,8 @@ mixin _$PopoverTheme {
     final _this = (this as PopoverTheme);
     final _other = (other as PopoverTheme);
 
-    return _other.shadows == _this.shadows &&
+    return _other.liquidGlass == _this.liquidGlass &&
+        _other.shadows == _this.shadows &&
         _other.padding == _this.padding &&
         _other.decoration == _this.decoration &&
         _other.anchor == _this.anchor &&
@@ -118,6 +123,7 @@ mixin _$PopoverTheme {
 
     return Object.hash(
       runtimeType,
+      _this.liquidGlass,
       _this.shadows,
       _this.padding,
       _this.decoration,

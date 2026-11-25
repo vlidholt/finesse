@@ -4,11 +4,19 @@
 [![Flutter test](https://github.com/vlidholt/finesse/actions/workflows/flutter-test.yaml/badge.svg)](https://github.com/vlidholt/finesse/actions/workflows/flutter-test.yaml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-A design system for Flutter: more than a hundred widgets themed by one `ThemeData`, with frosted-glass surfaces, desktop and phone metrics in the same theme, motion on springs, and no dependency on Material or Cupertino.
+A design system for Flutter: more than a hundred widgets themed by one `ThemeData`, with frosted-glass surfaces that become Liquid Glass on iOS and macOS, desktop and phone metrics in the same theme, motion on springs, and no dependency on Material.
 
-![The Strand demo app built with finesse](https://raw.githubusercontent.com/vlidholt/finesse/main/assets/screenshot.png)
+![A dashboard on a desktop and a conversation on a phone, both built with finesse](https://raw.githubusercontent.com/vlidholt/finesse/main/doc/images/hero.webp)
+
+See it in a whole app in [Demo](https://vlidholt.github.io/finesse_demo/), a small professional network built from `finesse` widgets ([source](https://github.com/vlidholt/finesse_demo)), and browse every component in the [component library](https://vlidholt.github.io/finesse/).
 
 `finesse` is a fork of [shad](https://pub.dev/packages/shad), a Flutter port of [shadcn/ui](https://ui.shadcn.com). It keeps that component set and theming model, drops the `Shad` prefix, and adds its own default look and the pieces an app needs around the components: a scaffold, app and navigation bars, sheets, pickers, lists, page layout, and theme-driven spacing and motion.
+
+## Gallery
+
+![Cards, forms, a calendar, list sections, a one-time code field, toasts and more in the default light theme](https://raw.githubusercontent.com/vlidholt/finesse/main/doc/images/components-light.webp)
+
+![The same components in the dark theme](https://raw.githubusercontent.com/vlidholt/finesse/main/doc/images/components-dark.webp)
 
 ## Features
 
@@ -16,6 +24,7 @@ A design system for Flutter: more than a hundred widgets themed by one `ThemeDat
 - **One theme, two form factors.** Every style carries metrics for a desktop and for a phone. `FinesseApp` picks between them from the window width, so the same `Button` is 36 points tall in a desktop window and 44 on a phone, body text grows from 14 to 15, and page margins tighten, with no `if (isMobile)` in your code.
 - **App structure.** `Scaffold` with drawers, a footer, a bottom sheet and a floating action button; `AppBar` and a collapsing `SliverAppBar`; a top `NavigationBar`, a floating `BottomNavigationBar` and a `NavigationRail`, with `NavigationScaffold` to switch between them; page routes with the iOS back swipe and Android's predictive back.
 - **Glass.** Translucent cards, and bars, menus, popovers, tooltips and toasts that blur and saturate what is behind them, are part of the style, with tokens for blur and for the opacity of each kind of surface. `Glass` puts the same surface anywhere.
+- **Liquid Glass on Apple platforms.** On iOS and macOS, natively and on the web, the bars, menus, popovers, dialogs, sheets, toasts, switches, sliders and segmented controls are drawn with Liquid Glass through [`liquid_glass_widgets`](https://pub.dev/packages/liquid_glass_widgets), with no change to your code; `ThemeData(liquidGlass: LiquidGlassTheme(mode: ...))` turns it on everywhere or off. Call `await LiquidGlass.initialize()` in `main()` to load its shaders before the first frame.
 - **Motion from the theme.** Durations, curves and springs come from one `Motion` on the style: overlays grow from their anchor, selections travel, controls respond to a press, and the platform's reduced-motion setting is honoured everywhere. No component takes its own effects or durations.
 - **Spacing from the theme.** A named gap scale (`Gap.md()`, `FinesseRow(gap: GapSize.lg)`) and `PageContainer` keep screens consistent and let a theme change their rhythm.
 - **Styles and colour schemes.** Four styles (`finesse`, `nova`, `maia`, `lyra`) and four base palettes (`teal`, `neutral`, `zinc`, `stone`) in light and dark, 17 accent overlays, and every token overridable through `copyWith`.
@@ -95,6 +104,18 @@ ThemeData(
 )
 ```
 
+Four styles ship with the package. `finesse` is the default; `nova`, `maia` and `lyra` are styles from shadcn/ui:
+
+![The same card in the finesse, nova, maia and lyra styles](https://raw.githubusercontent.com/vlidholt/finesse/main/doc/images/styles.webp)
+
+Four base palettes, each in light and dark:
+
+![The teal, neutral, zinc and stone palettes, light and dark](https://raw.githubusercontent.com/vlidholt/finesse/main/doc/images/palettes.webp)
+
+And accents that recolour any palette:
+
+![Violet, rose, amber, blue, emerald and orange accents on the neutral palette](https://raw.githubusercontent.com/vlidholt/finesse/main/doc/images/accents.webp)
+
 A style is a set of measured tokens (control heights, radii, shadows, type roles, glass, spacing). Change any of them with `copyWith`; the change applies to the phone metrics too wherever they did not already differ:
 
 ```dart
@@ -109,6 +130,8 @@ ThemeData(
 Every component also has its own theme on `ThemeData` (`cardTheme`, `chipTheme`, `appBarTheme`, …) for overrides that go beyond the tokens.
 
 ## Form factors
+
+![One settings screen in a desktop window and on a phone: the same widgets, with the phone's larger controls and a floating tab bar](https://raw.githubusercontent.com/vlidholt/finesse/main/doc/images/form-factors.webp)
 
 `FinesseApp` uses the phone metrics when the window is narrower than the theme's `md` breakpoint (768) and the desktop metrics otherwise; `formFactor:` pins one. Widgets size themselves from the theme, so most screens need no branching. Where a screen is *arranged* differently on a phone, branch on the theme rather than on the window:
 
@@ -193,7 +216,7 @@ The default look was designed around [Geist](https://vercel.com/font); the examp
 
 ## Material and Cupertino
 
-`package:finesse/finesse.dart` does not import Material or Cupertino, which Flutter is moving out of the SDK into the [`material_ui`](https://pub.dev/packages/material_ui) and [`cupertino_ui`](https://pub.dev/packages/cupertino_ui) packages. To use Material or Cupertino widgets in a `finesse` app, also import `package:finesse/material.dart` and wrap the app in a `FinesseMaterial`:
+`package:finesse/finesse.dart` does not import Material, and imports Cupertino only through its Liquid Glass adapter (`liquid_glass_widgets` reads the SDK's `CupertinoTheme`); Flutter is moving both out of the SDK into the [`material_ui`](https://pub.dev/packages/material_ui) and [`cupertino_ui`](https://pub.dev/packages/cupertino_ui) packages. To use Material or Cupertino widgets in a `finesse` app, also import `package:finesse/material.dart` and wrap the app in a `FinesseMaterial`:
 
 ```dart
 import 'package:finesse/material.dart';
@@ -221,7 +244,7 @@ Android, iOS, macOS, Windows, Linux and the web, including WebAssembly. The pack
 | --- | --- |
 | `lib/` | The `finesse` package. |
 | `fonts/phosphor/` | The bundled Phosphor icon fonts and their licence. |
-| `example/` | The demo app: Strand, a social network built entirely from `finesse` widgets, plus the component library and a theme editor. |
+| `example/` | The component library: a page per component with live previews and their source, guides, and a theme editor that restyles it all. Deployed to <https://vlidholt.github.io/finesse/>. The demo app is in its own repository, [finesse_demo](https://github.com/vlidholt/finesse_demo). |
 | `test/` | The package's test suite. |
 | `skills/finesse-overview/` | An [Agent Skill](https://agentskills.io) describing `finesse`'s API, for coding agents. |
 

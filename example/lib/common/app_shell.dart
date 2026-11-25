@@ -1,28 +1,21 @@
 import 'dart:math' as math;
 
 import 'package:example/common/app_state.dart';
-import 'package:example/common/page_switch.dart';
 import 'package:example/common/theme_editor/customizer_panel.dart';
 import 'package:example/common/theme_editor/editor_config.dart';
 import 'package:example/screens/components_screen.dart';
-import 'package:example/strand/strand_shell.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_solidart/flutter_solidart.dart';
 
-export 'package:example/common/app_state.dart' show AppSection;
-
 /// The application frame: the page, with the theme customizer docked beside
 /// it when it is open.
 ///
-/// The page is a [Navigator] showing the current [AppSection] — Strand, or
-/// the component library — and whatever full-screen routes a screen pushes
-/// on top of it. Because the navigator is *inside* the frame, such a route
-/// covers the section's own chrome but leaves the editor panel docked, so a
-/// conversation or a search page can still be re-themed live.
-///
-/// Both sections stay alive once visited, so switching back and forth keeps
-/// scroll position and page state.
+/// The page is a [Navigator] showing the component library and whatever
+/// full-screen routes a docs example pushes on top of it. Because the
+/// navigator is *inside* the frame, such a route covers the library's own
+/// chrome but leaves the editor panel docked, so it can still be re-themed
+/// live.
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
 
@@ -38,8 +31,8 @@ class AppShell extends StatefulWidget {
   /// The width left for the page in a window [windowWidth] wide.
   ///
   /// `App` picks the theme's form factor from this rather than from the
-  /// window, so docking the editor beside a medium-width window lays Strand
-  /// out for the phone-sized space it actually has.
+  /// window, so docking the editor beside a medium-width window lays the
+  /// page out for the phone-sized space it actually has.
   static double pageWidth(double windowWidth, {required bool editorOpen}) =>
       editorOpen && docksEditor(windowWidth)
       ? windowWidth - ThemeCustomizerPanel.width
@@ -306,8 +299,8 @@ class _PageFrame extends StatelessWidget {
   }
 }
 
-/// The navigator in the page area. Its first route is the section switcher;
-/// screens push full-screen routes above it.
+/// The navigator in the page area. Its first route is the component
+/// library; docs examples push full-screen routes above it.
 class _PageNavigator extends StatefulWidget {
   const _PageNavigator({required this.navigatorKey});
 
@@ -318,7 +311,7 @@ class _PageNavigator extends StatefulWidget {
 }
 
 class _PageNavigatorState extends State<_PageNavigator> {
-  /// Whether a full-screen route is showing above the sections.
+  /// Whether a full-screen route is showing above the library.
   final _canPop = ValueNotifier(false);
   late final _observer = _CanPopObserver(_canPop);
 
@@ -335,7 +328,10 @@ class _PageNavigatorState extends State<_PageNavigator> {
       observers: [_observer],
       onGenerateRoute: (settings) => FinessePageRoute<void>(
         settings: settings,
-        builder: (context) => const _Sections(),
+        builder: (context) => ColoredBox(
+          color: Theme.of(context).colorScheme.background,
+          child: const ComponentsSection(),
+        ),
       ),
     );
     // The system back gesture goes to the root navigator, which has nothing
@@ -381,62 +377,8 @@ class _CanPopObserver extends NavigatorObserver {
       _update();
 }
 
-/// Strand and the component library, one showing at a time.
-class _Sections extends StatefulWidget {
-  const _Sections();
-
-  @override
-  State<_Sections> createState() => _SectionsState();
-}
-
-class _SectionsState extends State<_Sections> {
-  /// The component library registers ~50 doc pages; it is not built until it
-  /// is first opened.
-  bool _componentsBuilt = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return SignalBuilder(
-      builder: (context, _) {
-        final section = appSectionProvider.of(context).value;
-        if (section == AppSection.components) _componentsBuilt = true;
-
-        // IndexedStack keeps both sections alive but installs no
-        // TickerMode, so the offstage one's skeletons, spinners and
-        // progress bars would keep asking for a frame every 16ms for the
-        // whole session — the app never idles, and every per-frame
-        // allocation compounds instead of being absorbed.
-        Widget onlyTicksWhenActive(AppSection self, Widget child) =>
-            TickerMode(enabled: section == self, child: child);
-
-        return ColoredBox(
-          color: Theme.of(context).colorScheme.background,
-          // The section switched to slides in from its side: the library
-          // from the end, Strand back from the start.
-          child: PageSwitch(
-            value: section.index,
-            child: IndexedStack(
-              index: section.index,
-              sizing: StackFit.expand,
-              children: [
-                onlyTicksWhenActive(AppSection.strand, const StrandShell()),
-                onlyTicksWhenActive(
-                  AppSection.components,
-                  _componentsBuilt
-                      ? const ComponentsSection()
-                      : const SizedBox.shrink(),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-/// The component-library browser under a slim app bar: back to Strand,
-/// light/dark, text direction and the theme editor.
+/// The component-library browser under a slim app bar: light/dark, text
+/// direction and the theme editor.
 class ComponentsSection extends StatelessWidget {
   const ComponentsSection({super.key});
 
@@ -449,12 +391,9 @@ class ComponentsSection extends StatelessWidget {
         AppBar(
           // The docs browser is full-bleed, so its bar is too.
           maxWidth: double.infinity,
-          leading: IconButton.ghost(
-            icon: const PhosphorIcon(PhosphorIconsRegular.arrowLeft),
-            semanticLabel: 'Back to Strand',
-            onPressed: () =>
-                appSectionProvider.of(context).value = AppSection.strand,
-          ),
+          // The page is the app's first route: there is nowhere to go back
+          // to, and nothing should be implied.
+          automaticallyImplyLeading: false,
           title: const Text('Components'),
           actions: const [
             _ThemeModeButton(),

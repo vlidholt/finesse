@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui' show lerpDouble;
 
 import 'package:finesse/src/components/navigation_bar.dart';
+import 'package:finesse/src/liquid_glass/liquid_glass.dart';
 import 'package:finesse/src/raw_components/pressable.dart';
 import 'package:finesse/src/theme/components/layout.dart';
 import 'package:finesse/src/theme/motion.dart';
@@ -134,6 +135,7 @@ class _Rail extends StatelessWidget {
     final edge = style.padding ?? 8;
     final gap = theme.layoutTheme.gap(GapSize.sm);
     final selected = rail.selectedIndex;
+    final liquid = LiquidGlass.isActive(context, style.liquidGlass);
 
     Widget slot(Widget child) => SizedBox(
       width: width,
@@ -149,7 +151,8 @@ class _Rail extends StatelessWidget {
     return Semantics(
       container: true,
       explicitChildNodes: true,
-      child: Backdrop(
+      child: _RailSurface(
+        liquid: liquid,
         blur: style.blur ?? 0,
         saturation: style.saturation ?? 1,
         child: Container(
@@ -161,10 +164,16 @@ class _Rail extends StatelessWidget {
             bottom: safe.bottom + edge,
           ),
           decoration: BoxDecoration(
-            color: style.backgroundColor ?? theme.colorScheme.card,
+            // On Liquid Glass the glass is the fill and the rim the line;
+            // the hairline keeps its point of layout.
+            color: liquid
+                ? null
+                : style.backgroundColor ?? theme.colorScheme.card,
             border: BorderDirectional(
               end: BorderSide(
-                color: style.borderColor ?? theme.colorScheme.border,
+                color: liquid
+                    ? const Color(0x00000000)
+                    : style.borderColor ?? theme.colorScheme.border,
               ),
             ),
           ),
@@ -502,4 +511,24 @@ class _RailAction extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The rail's material: Liquid Glass, or finesse's frosted backdrop.
+class _RailSurface extends StatelessWidget {
+  const _RailSurface({
+    required this.liquid,
+    required this.blur,
+    required this.saturation,
+    required this.child,
+  });
+
+  final bool liquid;
+  final double blur;
+  final double saturation;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => liquid
+      ? LiquidGlassSurface(child: child)
+      : Backdrop(blur: blur, saturation: saturation, child: child);
 }

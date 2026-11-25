@@ -7,9 +7,9 @@ import 'package:example/common/theme_editor/editor_config.dart';
 /// together in light and dark. `test/theme_presets_test.dart` checks the
 /// contrast of every one of them in both.
 enum ThemePreset {
-  /// The package default, and the look the Strand screens were designed in:
-  /// soft teal glass, set in Geist.
-  strand('Strand', ThemeEditorConfig()),
+  /// The package default, and the look the Demo app was designed in: soft
+  /// teal glass, set in Geist.
+  original('Original', ThemeEditorConfig()),
 
   /// Classic shadcn/ui: compact Nova on true neutrals, opaque cards, Inter,
   /// and a bottom bar docked to the edge.
@@ -104,5 +104,6 @@ enum ThemePreset {
     brightness: current.brightness,
     formFactor: current.formFactor,
     textScale: current.textScale,
+    liquidGlass: current.liquidGlass,
   );
 }

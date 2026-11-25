@@ -1,4 +1,5 @@
 import 'package:finesse/src/components/app_bar_layout.dart';
+import 'package:finesse/src/liquid_glass/liquid_glass.dart';
 import 'package:finesse/src/theme/components/app_bar.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
@@ -181,17 +182,28 @@ class AppBar extends StatelessWidget {
     final implied = leading == null && automaticallyImplyLeading
         ? impliedLeading(context)
         : null;
+    final liquid = LiquidGlass.isActive(context, bar.liquidGlass);
+    var effectiveLeading = leading ?? implied;
+    var effectiveActions = automaticallyImplyActions
+        ? impliedActions(context, actions)
+        : actions;
+    if (liquid) {
+      (effectiveLeading, effectiveActions) = liquidGlassBarSlots(
+        context,
+        leading: effectiveLeading,
+        actions: effectiveActions,
+        actionsGap: actionsGap,
+      );
+    }
     final toolbar = AppBarToolbar(
       height: toolbarHeight,
-      leading: leading ?? implied,
+      leading: effectiveLeading,
       // The bar's own button lines its glyph up with the page margin, as
-      // the title of a bar without one does.
-      alignLeadingGlyph: implied != null,
+      // the title of a bar without one does. On glass the capsule does.
+      alignLeadingGlyph: implied != null && !liquid,
       title: title,
       middle: middle,
-      actions: automaticallyImplyActions
-          ? impliedActions(context, actions)
-          : actions,
+      actions: effectiveActions,
       centerTitle: centerTitle ?? bar.centerTitle ?? false,
       padding: padding,
       maxWidth: maxWidth,
@@ -217,6 +229,7 @@ class AppBar extends StatelessWidget {
       // a 64-point bar has 64 points for its content.
       padding: EdgeInsets.only(top: topInset),
       visibility: visibility,
+      liquid: liquid,
       child: content,
     );
 

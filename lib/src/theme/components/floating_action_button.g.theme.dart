@@ -30,6 +30,7 @@ mixin _$FloatingActionButtonTheme {
     }
 
     return FloatingActionButtonTheme(
+      liquidGlass: t < 0.5 ? a.liquidGlass : b.liquidGlass,
       size: lerpDouble$(a.size, b.size, t),
       sizeSm: lerpDouble$(a.sizeSm, b.sizeSm, t),
       sizeLg: lerpDouble$(a.sizeLg, b.sizeLg, t),
@@ -62,6 +63,7 @@ mixin _$FloatingActionButtonTheme {
   }
 
   FloatingActionButtonTheme copyWith({
+    LiquidGlassMode? liquidGlass,
     double? size,
     double? sizeSm,
     double? sizeLg,
@@ -82,6 +84,7 @@ mixin _$FloatingActionButtonTheme {
     final _this = (this as FloatingActionButtonTheme);
 
     return FloatingActionButtonTheme(
+      liquidGlass: liquidGlass ?? _this.liquidGlass,
       size: size ?? _this.size,
       sizeSm: sizeSm ?? _this.sizeSm,
       sizeLg: sizeLg ?? _this.sizeLg,
@@ -115,6 +118,7 @@ mixin _$FloatingActionButtonTheme {
     }
 
     return copyWith(
+      liquidGlass: other.liquidGlass,
       size: other.size,
       sizeSm: other.sizeSm,
       sizeLg: other.sizeLg,
@@ -147,7 +151,8 @@ mixin _$FloatingActionButtonTheme {
     final _this = (this as FloatingActionButtonTheme);
     final _other = (other as FloatingActionButtonTheme);
 
-    return _other.size == _this.size &&
+    return _other.liquidGlass == _this.liquidGlass &&
+        _other.size == _this.size &&
         _other.sizeSm == _this.sizeSm &&
         _other.sizeLg == _this.sizeLg &&
         _other.iconSize == _this.iconSize &&
@@ -171,6 +176,7 @@ mixin _$FloatingActionButtonTheme {
 
     return Object.hash(
       runtimeType,
+      _this.liquidGlass,
       _this.size,
       _this.sizeSm,
       _this.sizeLg,

@@ -1,3 +1,4 @@
+import 'package:finesse/src/liquid_glass/liquid_glass_theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
@@ -15,6 +16,7 @@ class FloatingActionButtonTheme with _$FloatingActionButtonTheme {
   /// Creates a theme; a null field falls back to the app theme's.
   const FloatingActionButtonTheme({
     bool canMerge = true,
+    this.liquidGlass,
     this.size,
     this.sizeSm,
     this.sizeLg,
@@ -38,6 +40,10 @@ class FloatingActionButtonTheme with _$FloatingActionButtonTheme {
 
   @override
   bool get canMerge => _canMerge;
+
+  /// Whether the floating action button draws with Liquid Glass, over
+  /// `ThemeData.liquidGlass.mode`; null follows the theme.
+  final LiquidGlassMode? liquidGlass;
 
   /// The height of a regular button, and its width without a label.
   final double? size;

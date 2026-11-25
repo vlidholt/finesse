@@ -26,6 +26,7 @@ mixin _$DialogTheme {
     }
 
     return DialogTheme(
+      liquidGlass: t < 0.5 ? a.liquidGlass : b.liquidGlass,
       showCloseButton: t < 0.5 ? a.showCloseButton : b.showCloseButton,
       closeIcon: t < 0.5 ? a.closeIcon : b.closeIcon,
       closeIconPosition: Position.lerp(
@@ -81,6 +82,7 @@ mixin _$DialogTheme {
   }
 
   DialogTheme copyWith({
+    LiquidGlassMode? liquidGlass,
     bool? showCloseButton,
     Widget? closeIcon,
     Position? closeIconPosition,
@@ -116,6 +118,7 @@ mixin _$DialogTheme {
     final _this = (this as DialogTheme);
 
     return DialogTheme(
+      liquidGlass: liquidGlass ?? _this.liquidGlass,
       showCloseButton: showCloseButton ?? _this.showCloseButton,
       closeIcon: closeIcon ?? _this.closeIcon,
       closeIconPosition: closeIconPosition ?? _this.closeIconPosition,
@@ -164,6 +167,7 @@ mixin _$DialogTheme {
     }
 
     return copyWith(
+      liquidGlass: other.liquidGlass,
       showCloseButton: other.showCloseButton,
       closeIcon: other.closeIcon,
       closeIconPosition: other.closeIconPosition,
@@ -213,7 +217,8 @@ mixin _$DialogTheme {
     final _this = (this as DialogTheme);
     final _other = (other as DialogTheme);
 
-    return _other.showCloseButton == _this.showCloseButton &&
+    return _other.liquidGlass == _this.liquidGlass &&
+        _other.showCloseButton == _this.showCloseButton &&
         _other.closeIcon == _this.closeIcon &&
         _other.closeIconPosition == _this.closeIconPosition &&
         _other.borderRadius == _this.borderRadius &&
@@ -252,6 +257,7 @@ mixin _$DialogTheme {
 
     return Object.hashAll([
       runtimeType,
+      _this.liquidGlass,
       _this.showCloseButton,
       _this.closeIcon,
       _this.closeIconPosition,

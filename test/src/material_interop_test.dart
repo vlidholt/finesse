@@ -24,8 +24,31 @@ void main() {
     for (final file in Directory('lib').listSync(recursive: true)) {
       if (file is! File || !file.path.endsWith('.dart')) continue;
       if (file.path == 'lib/material.dart') continue;
+      final source = file.readAsStringSync();
+      final material = RegExp(
+        r'''^\s*(import|export)\s+'package:flutter/material\.dart''',
+        multiLine: true,
+      );
+      if (material.hasMatch(source)) offenders.add(file.path);
+      // The Liquid Glass adapter bridges the theme into the SDK's
+      // CupertinoTheme, which liquid_glass_widgets reads; nothing else may.
+      if (file.path.startsWith('lib/src/liquid_glass/')) continue;
+      final cupertino = RegExp(
+        r'''^\s*(import|export)\s+'package:flutter/cupertino\.dart''',
+        multiLine: true,
+      );
+      if (cupertino.hasMatch(source)) offenders.add(file.path);
+    }
+    expect(offenders, isEmpty);
+  });
+
+  test('only lib/src/liquid_glass/ imports liquid_glass_widgets', () {
+    final offenders = <String>[];
+    for (final file in Directory('lib').listSync(recursive: true)) {
+      if (file is! File || !file.path.endsWith('.dart')) continue;
+      if (file.path.startsWith('lib/src/liquid_glass/')) continue;
       final imports = RegExp(
-        r'''^\s*(import|export)\s+'package:flutter/(material|cupertino)\.dart''',
+        r'''^\s*(import|export)\s+'package:liquid_glass_widgets/''',
         multiLine: true,
       );
       if (imports.hasMatch(file.readAsStringSync())) offenders.add(file.path);

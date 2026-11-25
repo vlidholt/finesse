@@ -6,6 +6,12 @@ package as it is, compared with shad.
 
 It needs Flutter 3.50 or later (Dart 3.14).
 
+The example app is the component library: a page per component and guide,
+and a theme editor that restyles it live. Demo, the app the default look
+was measured from (Strand, until it moved), is its own repository,
+[finesse_demo](https://github.com/vlidholt/finesse_demo), deployed to
+<https://vlidholt.github.io/finesse_demo/>.
+
 ### Changed from shad
 
 #### Names and vocabulary
@@ -337,6 +343,42 @@ It needs Flutter 3.50 or later (Dart 3.14).
   a `controller`) its tabs are inert, as a `TabBar`'s are.
 
 ### Added
+
+#### Liquid Glass
+
+- **Liquid Glass on iOS and macOS**, natively and in a browser, through
+  [`liquid_glass_widgets`](https://pub.dev/packages/liquid_glass_widgets)
+  (now a dependency, with `cupertino_icons`). `ThemeData(liquidGlass:
+  LiquidGlassTheme(...))` decides where: `LiquidGlassMode.auto` (the
+  default) is Liquid Glass on Apple platforms and finesse's frosted glass
+  elsewhere; `always` and `never` decide for every platform. Each component
+  that switches has a nullable `liquidGlass` on its component theme that
+  wins over the theme's.
+- **What switches:** `AppBar` (no fill; the content under it is blurred and
+  faded into the page; the leading button and the actions on glass
+  capsules), the floating `BottomNavigationBar` (the package's tab bar,
+  with a lens that slides between tabs and the `action` on its own capsule
+  beside them), `Toolbar`, `NavigationRail`, a glass `FloatingActionButton`,
+  `Glass`, popovers, menus, a select's list, `Surface`, `Command` in a
+  dialog, `Dialog`, `Sheet`, toasts, and the lens controls `Switch`,
+  `Slider` and `SegmentedControl`. Tooltips, cards, list tiles, fields and
+  content buttons stay as they are.
+- `LiquidGlassTheme` passes on the package's options: `style`
+  (`GlassStyle.ios27` or `ios26`), `quality` (`GlassQuality`),
+  `adaptiveQuality`, `respectSystemAccessibility`, and `light`/`dark`
+  `GlassThemeSettings`. The glass is tinted from the scheme's `bar` colour
+  unless `tintFromColorScheme` is false.
+- The example's theme editor has a Liquid Glass toggle (Auto / On / Off)
+  that previews it on any platform.
+- `LiquidGlass.initialize()` loads the shaders before the first frame; if
+  they fail to load, finesse falls back to frosted glass. Under Increase
+  Contrast finesse draws frosted glass.
+- **The phone metrics of `StyleTokens.finesse` are Liquid Glass's**, so a
+  phone layout is the same frosted or liquid: a 44-point app bar (was 60),
+  a 64-point bottom bar (item height 52, was 48), a 58 × 26 switch (was
+  44 × 24), a 28-point slider thumb (was 22), and 24-point corners on
+  popovers and dialogs (`RadiusToken.xl4`; were `lg` and `xl3`). Desktop
+  metrics and the shadcn styles are unchanged.
 
 #### App and screen structure
 

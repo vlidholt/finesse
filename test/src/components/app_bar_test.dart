@@ -30,7 +30,7 @@ void main() {
       final desktop = ThemeData().appBarTheme;
       final mobile = ThemeData(formFactor: FormFactor.mobile).appBarTheme;
       expect(desktop.height, 64);
-      expect(mobile.height, 60);
+      expect(mobile.height, 44);
       expect(desktop.padding, const EdgeInsets.symmetric(horizontal: 24));
       expect(mobile.padding, const EdgeInsets.symmetric(horizontal: 16));
       // The gap between the bar's zones is the layout scale's xl.
@@ -143,7 +143,7 @@ void main() {
           tester,
           find.byType(AppBar),
         ).appBarTheme.height!;
-        expect(themed, formFactor == FormFactor.mobile ? 60 : 64);
+        expect(themed, formFactor == FormFactor.mobile ? 44 : 64);
         expect(size.height, themed + 1);
       }
     });

@@ -15,9 +15,8 @@ import 'package:flutter/services.dart';
 
 /// The theme customizer: a panel docked beside the app.
 ///
-/// It edits the configuration the whole app is themed from — Strand and the
-/// component library both follow it. The panel
-/// itself does not: it renders as fixed dark chrome at an unscaled text size,
+/// It edits the configuration the whole app is themed from: the component
+/// library follows it. The panel itself does not: it renders as fixed dark chrome at an unscaled text size,
 /// because a panel that followed the configuration becomes unreadable while
 /// editing a light, menu-inverted or heavily scaled theme.
 ///
@@ -271,6 +270,18 @@ class _SettingsState extends State<_Settings> {
             ),
           ]),
           _section(_SectionId.glass, [
+            // Auto draws Liquid Glass on iOS and macOS only; On shows it on
+            // whatever this runs on. Kept across presets, like the preview
+            // settings below.
+            ThemeSegments<EditorLiquidGlass>(
+              label: 'Liquid Glass',
+              value: config.liquidGlass,
+              options: [
+                for (final m in EditorLiquidGlass.values)
+                  PickerOption(value: m, label: m.label),
+              ],
+              onChanged: (v) => onChanged(config.copyWith(liquidGlass: v)),
+            ),
             ThemeSlider(
               label: 'Card Opacity',
               value: config.effectiveCardOpacity,
@@ -757,7 +768,7 @@ class _Actions extends StatelessWidget {
               ),
               Expanded(
                 child: Button.outline(
-                  // All the way back: the Strand preset, viewed the default
+                  // All the way back: the Original preset, viewed the default
                   // way.
                   onPressed: () => onChanged(const ThemeEditorConfig()),
                   leading: const PhosphorIcon(

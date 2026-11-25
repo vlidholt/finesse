@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../finesse_harness.dart';
 import '../../fixture_styles.dart';
 
-/// What the theme gained when the Strand screens were folded back in:
+/// What the theme gained when the Demo screens were folded back in:
 /// `textTheme.muted`'s colour, seven style tokens, `ThemeData.baseStyle`,
 /// `ThemeData.buttonDecoration` and the variant's wider equality.
 void main() {

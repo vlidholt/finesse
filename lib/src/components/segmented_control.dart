@@ -1,4 +1,7 @@
 import 'package:finesse/src/components/tab_list.dart';
+import 'package:finesse/src/liquid_glass/controls.dart';
+import 'package:finesse/src/liquid_glass/liquid_glass.dart';
+import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
 
 /// One choice of a [SegmentedControl].
@@ -106,6 +109,37 @@ class SegmentedControl<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     final onChanged = enabled ? this.onChanged : null;
     final selected = segments.indexWhere((segment) => segment.value == value);
+    final theme = Theme.of(context);
+    // The glass control needs a selection and segments it can name: a label
+    // is a `Text`, or the segment has a semantic label. Anything else stays
+    // finesse's own.
+    String? labelOf(Segment<T> segment) => switch (segment.label) {
+      null => null,
+      final Text text when text.data != null => text.data,
+      _ => segment.semanticLabel ?? '',
+    };
+    if (selected >= 0 &&
+        segments.every((s) => labelOf(s) != '') &&
+        LiquidGlass.isActive(context, theme.tabsTheme.liquidGlass)) {
+      return LiquidGlassSegmentedControl(
+        segments: [
+          for (final segment in segments)
+            LiquidGlassSegment(
+              label: labelOf(segment),
+              icon: segment.icon,
+              enabled: segment.enabled,
+              tooltip: segment.tooltip,
+              semanticLabel: segment.semanticLabel,
+            ),
+        ],
+        selectedIndex: selected,
+        onSelected: onChanged == null
+            ? null
+            : (index) => onChanged(segments[index].value),
+        height: theme.style.tabHeight ?? 32,
+        expand: expand,
+      );
+    }
     return TabList(
       items: [
         for (final segment in segments)

@@ -4,8 +4,7 @@ import 'package:flutter/widgets.dart';
 /// Brings a page in when [value] changes: it rises out of the page colour
 /// while it slides a few pixels in from the side it comes from.
 ///
-/// It is the transition between Strand's destinations, between Strand and
-/// the component library, and between the pages of the docs browser. Like
+/// It is the transition between the pages of the docs browser. Like
 /// the package's `ContentSwitch` it only animates what comes *in* — [child]
 /// is in its place, laid out and interactive, from the first frame — and
 /// only paints.

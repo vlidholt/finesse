@@ -21,16 +21,16 @@ void main() {
   setUpAll(setUpFonts);
 
   group('the presets', () {
-    test('are Strand, a classic, a soft and a sharp one, and more', () {
+    test('are Original, a classic, a soft and a sharp one, and more', () {
       expect(ThemePreset.values.length, greaterThanOrEqualTo(4));
-      expect(ThemePreset.values.first, ThemePreset.strand);
+      expect(ThemePreset.values.first, ThemePreset.original);
       // One word each.
       for (final preset in ThemePreset.values) {
         expect(preset.label, matches(RegExp(r'^[A-Z][a-z]+$')));
       }
 
-      // Strand is the package default look.
-      expect(ThemePreset.strand.config, const ThemeEditorConfig());
+      // Original is the package default look.
+      expect(ThemePreset.original.config, const ThemeEditorConfig());
 
       // The classic shadcn look: Nova on neutral in Inter, opaque cards.
       final classic = ThemePreset.classic.config;
@@ -175,7 +175,7 @@ void main() {
           final text = theme.textTheme;
           final style = theme.style;
 
-          // Each style a Strand screen uses is the preset style's role —
+          // Each style an app screen uses is the preset style's role —
           // nothing is left at the package's prose defaults.
           expect(text.h1.fontSize, style.display!.fontSize, reason: reason);
           expect(text.h3.fontSize, style.headline!.fontSize, reason: reason);
@@ -409,7 +409,7 @@ void main() {
 
     test('the default configuration is the package default, in Geist', () {
       for (final brightness in Brightness.values) {
-        final theme = ThemePreset.strand.config
+        final theme = ThemePreset.original.config
             .copyWith(brightness: brightness)
             .build();
         expect(

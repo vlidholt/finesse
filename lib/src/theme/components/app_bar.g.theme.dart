@@ -26,6 +26,7 @@ mixin _$AppBarTheme {
     }
 
     return AppBarTheme(
+      liquidGlass: t < 0.5 ? a.liquidGlass : b.liquidGlass,
       height: lerpDouble$(a.height, b.height, t),
       backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
       foregroundColor: Color.lerp(a.foregroundColor, b.foregroundColor, t),
@@ -44,6 +45,7 @@ mixin _$AppBarTheme {
   }
 
   AppBarTheme copyWith({
+    LiquidGlassMode? liquidGlass,
     double? height,
     Color? backgroundColor,
     Color? foregroundColor,
@@ -62,6 +64,7 @@ mixin _$AppBarTheme {
     final _this = (this as AppBarTheme);
 
     return AppBarTheme(
+      liquidGlass: liquidGlass ?? _this.liquidGlass,
       height: height ?? _this.height,
       backgroundColor: backgroundColor ?? _this.backgroundColor,
       foregroundColor: foregroundColor ?? _this.foregroundColor,
@@ -91,6 +94,7 @@ mixin _$AppBarTheme {
     }
 
     return copyWith(
+      liquidGlass: other.liquidGlass,
       height: other.height,
       backgroundColor: other.backgroundColor,
       foregroundColor: other.foregroundColor,
@@ -123,7 +127,8 @@ mixin _$AppBarTheme {
     final _this = (this as AppBarTheme);
     final _other = (other as AppBarTheme);
 
-    return _other.height == _this.height &&
+    return _other.liquidGlass == _this.liquidGlass &&
+        _other.height == _this.height &&
         _other.backgroundColor == _this.backgroundColor &&
         _other.foregroundColor == _this.foregroundColor &&
         _other.borderColor == _this.borderColor &&
@@ -145,6 +150,7 @@ mixin _$AppBarTheme {
 
     return Object.hash(
       runtimeType,
+      _this.liquidGlass,
       _this.height,
       _this.backgroundColor,
       _this.foregroundColor,

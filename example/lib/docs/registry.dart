@@ -52,6 +52,7 @@ import 'package:example/docs/pages/license_page.dart';
 import 'package:example/docs/pages/list_section.dart';
 import 'package:example/docs/pages/list_tile.dart';
 import 'package:example/docs/pages/menubar.dart';
+import 'package:example/docs/pages/liquid_glass.dart';
 import 'package:example/docs/pages/motion.dart';
 import 'package:example/docs/pages/navigation_bar.dart';
 import 'package:example/docs/pages/navigation_menu.dart';
@@ -132,6 +133,7 @@ final docGroups = <DocGroup>[
       formFactorsDoc,
       responsiveDoc,
       motionDoc,
+      liquidGlassDoc,
       formDoc,
       portalDoc,
       buildingBlocksDoc,

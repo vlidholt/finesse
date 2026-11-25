@@ -11,7 +11,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'support.dart';
 
 /// The panel on its own: pumped in a bare [FinesseApp] with a host that
-/// holds the configuration, so nothing here depends on the Strand screens
+/// holds the configuration, so nothing here depends on the docs pages
 /// or the docs browser compiling.
 void main() {
   setUpAll(setUpFonts);
@@ -372,14 +372,14 @@ void main() {
   });
 
   group('presets', () {
-    testWidgets('are offered by name, Strand selected', (tester) async {
+    testWidgets('are offered by name, Original selected', (tester) async {
       await pumpPanel(tester);
       for (final preset in ThemePreset.values) {
         expect(inPanel(find.text(preset.label)), findsOneWidget);
       }
       expect(find.text('Custom'), findsNothing);
       expect(
-        tester.getSemantics(inPanel(find.text('Strand'))),
+        tester.getSemantics(inPanel(find.text('Original'))),
         isSemantics(isSelected: true, hasSelectedState: true, isButton: true),
       );
       expect(
@@ -492,14 +492,14 @@ void main() {
       await choose(tester, 'Form Factor', 'Mobile');
       expect(config.formFactor, EditorFormFactor.mobile);
       expect(find.text('Custom'), findsNothing);
-      expect(ThemePreset.of(config), ThemePreset.strand);
+      expect(ThemePreset.of(config), ThemePreset.original);
 
       await tapSliderMiddle(tester, 'Text Scale');
       expect(config.textScale, closeTo(1.2, .001));
       expect(find.text('Custom'), findsNothing);
     });
 
-    testWidgets('Reset returns to Strand, viewed the default way', (
+    testWidgets('Reset returns to Original, viewed the default way', (
       tester,
     ) async {
       await pumpPanel(
@@ -515,7 +515,7 @@ void main() {
       await tester.tap(find.text('Reset'));
       await settle(tester);
       expect(config, const ThemeEditorConfig());
-      expect(ThemePreset.of(config), ThemePreset.strand);
+      expect(ThemePreset.of(config), ThemePreset.original);
       expect(find.text('Custom'), findsNothing);
     });
   });
@@ -630,7 +630,7 @@ void main() {
       await pumpPanel(tester);
       await unfoldAll(tester);
 
-      // Off in the Strand preset, as in the package's default style.
+      // Off in the Original preset, as in the package's default style.
       expect(config.effectiveCardBlur, isFalse);
       await tapInPanel(tester, find.text('Card Blur'));
       expect(config.cardBlur, isTrue);

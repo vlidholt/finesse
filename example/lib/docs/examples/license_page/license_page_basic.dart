@@ -12,10 +12,10 @@ class LicensePageBasicExample extends StatelessWidget {
       // read from Flutter's LicenseRegistry.
       onPressed: () => showLicensePage(
         context: context,
-        applicationName: 'Strand',
+        applicationName: 'Demo',
         applicationVersion: '2.4.0',
         applicationIcon: const PhosphorIcon(PhosphorIconsFill.circlesThree),
-        applicationLegalese: '© 2026 Strand Labs',
+        applicationLegalese: '© 2026 Demo Labs',
       ),
       child: const Text('Open source licenses'),
     );

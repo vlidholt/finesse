@@ -35,7 +35,7 @@ class _BuildingBlocksBackdropExampleState
                 fit: StackFit.expand,
                 children: [
                   Image.asset(
-                    'assets/strand/photo_alpine_lake.jpg',
+                    'assets/images/photo_alpine_lake.jpg',
                     fit: BoxFit.cover,
                   ),
                   Center(
