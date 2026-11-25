@@ -1,6 +1,16 @@
+import 'package:finesse/src/components/button.dart';
+import 'package:finesse/src/components/icon_button.dart';
+import 'package:finesse/src/i18n/localizations_delegate.dart';
+import 'package:finesse/src/icons/phosphor_icons.dart';
+import 'package:finesse/src/theme/components/alert.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/components/layout.dart';
+import 'package:finesse/src/theme/data.dart';
+import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/border.dart';
+import 'package:finesse/src/utils/expand_reveal.dart';
+import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/widgets.dart';
 
 /// Variants available for the [Alert] widget.
@@ -10,67 +20,46 @@ enum AlertVariant {
 
   /// An alert in the destructive colour, for errors.
   destructive,
+
+  /// Something worked: a check, on a wash of the scheme's `success`.
+  success,
+
+  /// Something needs attention: a warning sign, on a wash of the scheme's
+  /// `warning`.
+  warning,
+
+  /// Something worth knowing: an info mark, on a wash of the scheme's
+  /// `tint`.
+  info,
 }
 
-/// A customizable alert widget that displays a message with optional icon and
-/// styling.
+/// A message set into the page: a callout with a title, a description and
+/// an icon.
 ///
-/// The [Alert] widget can be used to show informational or warning messages
-/// to users. It supports two variants: primary (default) and destructive, which
-/// can be styled through the [Theme].
-/// Use the named constructors [Alert.destructive] or [Alert.raw] for
-/// specific configurations.
-class Alert extends StatelessWidget {
-  /// Creates a primary variant alert widget.
+/// ```dart
+/// Alert(
+///   variant: AlertVariant.success,
+///   title: const Text('Payment received'),
+///   description: const Text('A receipt is on its way to your inbox.'),
+///   onDismissed: () => setState(() => _showReceipt = false),
+/// )
+/// ```
+///
+/// [variant] picks the look. [AlertVariant.primary] and
+/// [AlertVariant.destructive] are shadcn's and show an [icon] only when
+/// given one; [AlertVariant.success], [AlertVariant.warning] and
+/// [AlertVariant.info] are tinted with the scheme's `success`, `warning` and
+/// `tint` and bring an icon of their own.
+///
+/// With [onDismissed] the alert has a close button. Pressing it folds the
+/// alert away and then calls [onDismissed], for the parent to stop building
+/// it. Under a `Scaffold`'s app bar that is a banner.
+class Alert extends StatefulWidget {
+  /// Creates an alert; [variant] defaults to [AlertVariant.primary].
   const Alert({
     super.key,
-    this.icon,
-    this.title,
-    this.description,
-    this.textDirection,
-    this.decoration,
-    this.iconPadding,
-    this.iconColor,
-    this.iconSize,
-    this.titleStyle,
-    this.descriptionStyle,
-    this.gap,
-    this.mainAxisAlignment,
-    this.crossAxisAlignment,
-    this.leading,
-    this.trailing,
-    this.top,
-    this.bottom,
-  }) : variant = AlertVariant.primary;
-
-  /// Creates a destructive variant alert widget, typically used for error or
-  /// warning messages.
-  const Alert.destructive({
-    super.key,
-    this.icon,
-    this.title,
-    this.description,
-    this.textDirection,
-    this.decoration,
-    this.iconPadding,
-    this.iconColor,
-    this.iconSize,
-    this.titleStyle,
-    this.descriptionStyle,
-    this.gap,
-    this.mainAxisAlignment,
-    this.crossAxisAlignment,
-    this.leading,
-    this.trailing,
-    this.top,
-    this.bottom,
-  }) : variant = AlertVariant.destructive;
-
-  /// Creates a raw alert widget with a specified [variant], allowing full
-  /// control over configuration.
-  const Alert.raw({
-    super.key,
-    required this.variant,
+    this.variant = AlertVariant.primary,
+    this.onDismissed,
     this.icon,
     this.title,
     this.description,
@@ -90,15 +79,45 @@ class Alert extends StatelessWidget {
     this.bottom,
   });
 
+  /// Creates a destructive variant alert widget, typically used for error or
+  /// warning messages.
+  const Alert.destructive({
+    super.key,
+    this.onDismissed,
+    this.icon,
+    this.title,
+    this.description,
+    this.textDirection,
+    this.decoration,
+    this.iconPadding,
+    this.iconColor,
+    this.iconSize,
+    this.titleStyle,
+    this.descriptionStyle,
+    this.gap,
+    this.mainAxisAlignment,
+    this.crossAxisAlignment,
+    this.leading,
+    this.trailing,
+    this.top,
+    this.bottom,
+  }) : variant = AlertVariant.destructive;
+
   /// {@template Alert.variant}
-  /// The variant of the alert, either [AlertVariant.primary] or
-  /// [AlertVariant.destructive].
-  /// Determines the visual style applied through the [Theme].
+  /// The look of the alert; see [AlertVariant].
   /// {@endtemplate}
   final AlertVariant variant;
 
+  /// Called after the alert has been closed with its close button and has
+  /// folded away. The alert then takes no room, but is still in the tree:
+  /// stop building it here.
+  ///
+  /// Null, the default, shows no close button.
+  final VoidCallback? onDismissed;
+
   /// {@template Alert.icon}
-  /// A custom widget to use as the alert's icon.
+  /// The alert's icon. The success, warning and info variants show one of
+  /// their own when this is null; the others show none.
   /// {@endtemplate}
   final Widget? icon;
 
@@ -207,15 +226,52 @@ class Alert extends StatelessWidget {
   final Widget? trailing;
 
   @override
+  State<Alert> createState() => _AlertState();
+}
+
+class _AlertState extends State<Alert> {
+  /// Whether the close button was pressed and the alert is folding away.
+  bool _dismissing = false;
+
+  /// The tint of a success, warning or info alert: its accent, and the
+  /// opaque fill it is washed with.
+  (Color accent, Color fill)? _tintOf(ThemeData theme, AlertTheme alertTheme) {
+    final scheme = theme.colorScheme;
+    final card = alertTheme.decoration?.color ?? scheme.card;
+    Color wash(Color color) =>
+        Color.alphaBlend(color.withValues(alpha: color.a * .1), card);
+    return switch (widget.variant) {
+      AlertVariant.primary || AlertVariant.destructive => null,
+      AlertVariant.success => (
+        alertTheme.successColor ?? scheme.success,
+        alertTheme.successBackgroundColor ??
+            Color.alphaBlend(scheme.successMuted, card),
+      ),
+      AlertVariant.warning => (
+        alertTheme.warningColor ?? scheme.warning,
+        alertTheme.warningBackgroundColor ?? wash(scheme.warning),
+      ),
+      AlertVariant.info => (
+        alertTheme.infoColor ?? scheme.tint,
+        alertTheme.infoBackgroundColor ?? wash(scheme.tint),
+      ),
+    };
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final variant = widget.variant;
 
-    final effectiveAlertTheme = variant == AlertVariant.primary
-        ? theme.primaryAlertTheme
-        : theme.destructiveAlertTheme;
+    // The tinted variants are the primary alert in another colour: they
+    // share its metrics and its type.
+    final effectiveAlertTheme = variant == AlertVariant.destructive
+        ? theme.destructiveAlertTheme
+        : theme.primaryAlertTheme;
+    final tint = _tintOf(theme, effectiveAlertTheme);
 
     final effectiveIconPadding =
-        iconPadding ??
+        widget.iconPadding ??
         effectiveAlertTheme.iconPadding ??
         const EdgeInsetsDirectional.only(end: 12);
 
@@ -227,17 +283,49 @@ class Alert extends StatelessWidget {
       ),
     );
 
-    final effectiveDecoration = defaultDecoration
-        .merge(effectiveAlertTheme.decoration)
-        .merge(decoration);
+    var themeDecoration = defaultDecoration.merge(
+      effectiveAlertTheme.decoration,
+    );
+    if (tint != null) {
+      // The outline takes a little of the accent, so the alert has an edge
+      // on a card of its own colour.
+      final edge = FinesseBorderSide(
+        color: tint.$1.withValues(alpha: tint.$1.a * .3),
+      );
+      final border = themeDecoration.border;
+      themeDecoration = themeDecoration.copyWith(
+        color: tint.$2,
+        border: border?.copyWith(
+          top: border.top?.merge(edge),
+          right: border.right?.merge(edge),
+          bottom: border.bottom?.merge(edge),
+          // A style's accent bar down the start edge takes the accent whole.
+          left: theme.style.alertAccentBar
+              ? border.left?.merge(FinesseBorderSide(color: tint.$1))
+              : border.left?.merge(edge),
+        ),
+      );
+    }
+    final effectiveDecoration = themeDecoration.merge(widget.decoration);
 
     final effectiveIconColor =
-        iconColor ??
+        widget.iconColor ??
+        tint?.$1 ??
         effectiveAlertTheme.iconColor ??
         theme.colorScheme.foreground;
 
-    final effectiveIconSize = iconSize ?? effectiveAlertTheme.iconSize;
+    final effectiveIconSize = widget.iconSize ?? effectiveAlertTheme.iconSize;
 
+    final icon =
+        widget.icon ??
+        switch (variant) {
+          AlertVariant.primary || AlertVariant.destructive => null,
+          AlertVariant.success => const PhosphorIcon(
+            PhosphorIconsFill.checkCircle,
+          ),
+          AlertVariant.warning => const PhosphorIcon(PhosphorIconsFill.warning),
+          AlertVariant.info => const PhosphorIcon(PhosphorIconsFill.info),
+        };
     final effectiveIcon = icon != null
         ? Padding(
             padding: effectiveIconPadding,
@@ -246,7 +334,7 @@ class Alert extends StatelessWidget {
                 color: effectiveIconColor,
                 size: effectiveIconSize,
               ),
-              child: icon!,
+              child: icon,
             ),
           )
         : null;
@@ -257,38 +345,42 @@ class Alert extends StatelessWidget {
           fontWeight: FontWeight.w500,
         )
         .merge(effectiveAlertTheme.titleStyle)
-        .merge(titleStyle);
+        .merge(widget.titleStyle);
 
     final effectiveDescriptionStyle =
-        descriptionStyle ??
+        widget.descriptionStyle ??
         effectiveAlertTheme.descriptionStyle ??
         theme.textTheme.muted;
 
-    final effectiveGap = gap ?? effectiveAlertTheme.gap ?? 2.0;
+    final effectiveGap = widget.gap ?? effectiveAlertTheme.gap ?? 2.0;
 
     final effectiveMainAxisAlignment =
-        mainAxisAlignment ??
+        widget.mainAxisAlignment ??
         effectiveAlertTheme.mainAxisAlignment ??
         MainAxisAlignment.start;
 
     final effectiveCrossAxisAlignment =
-        crossAxisAlignment ??
+        widget.crossAxisAlignment ??
         effectiveAlertTheme.crossAxisAlignment ??
         CrossAxisAlignment.start;
 
-    return Decorator(
+    final title = widget.title;
+    final description = widget.description;
+    final dismissible = widget.onDismissed != null;
+
+    final Widget alert = Decorator(
       decoration: effectiveDecoration,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          ?top,
+          ?widget.top,
           Row(
             crossAxisAlignment: effectiveCrossAxisAlignment,
             mainAxisAlignment: effectiveMainAxisAlignment,
-            textDirection: textDirection,
+            textDirection: widget.textDirection,
             children: [
-              ?leading,
+              ?widget.leading,
               ?effectiveIcon,
               Expanded(
                 child: Column(
@@ -299,22 +391,60 @@ class Alert extends StatelessWidget {
                     if (title != null)
                       DefaultTextStyle(
                         style: effectiveTitleStyle,
-                        child: title!,
+                        child: title,
                       ),
                     if (description != null)
                       DefaultTextStyle(
                         style: effectiveDescriptionStyle,
-                        child: description!,
+                        child: description,
                       ),
                   ],
                 ),
               ),
-              ?trailing,
+              ?widget.trailing,
+              if (dismissible)
+                Padding(
+                  padding: EdgeInsetsDirectional.only(
+                    start: theme.layoutTheme.gap(GapSize.sm),
+                  ),
+                  // Pulled into the alert's padding: the button's own box
+                  // is larger than its glyph.
+                  child: Transform.translate(
+                    offset: Offset(
+                      Directionality.of(context) == TextDirection.rtl ? -4 : 4,
+                      -4,
+                    ),
+                    child: IconButton.ghost(
+                      size: ButtonSize.sm,
+                      tooltip: FinesseLocalizations.of(context).alert.dismiss,
+                      foregroundColor: effectiveDescriptionStyle.color,
+                      enabled: !_dismissing,
+                      onPressed: () => setState(() => _dismissing = true),
+                      icon: const PhosphorIcon(PhosphorIconsRegular.x),
+                    ),
+                  ),
+                ),
             ],
           ),
-          ?bottom,
+          ?widget.bottom,
         ],
       ),
+    );
+    if (!dismissible) return alert;
+
+    final motion = Motion.of(context);
+    return SpringBuilder(
+      value: _dismissing ? 0 : 1,
+      spring: motion.smooth,
+      onEnd: () {
+        if (_dismissing) widget.onDismissed?.call();
+      },
+      builder: (context, t, child) => ExpandReveal(
+        factor: t,
+        travel: motion.overlayTravel,
+        child: child!,
+      ),
+      child: alert,
     );
   }
 }

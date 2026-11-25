@@ -1456,6 +1456,23 @@ class DefaultThemeVariant extends ThemeVariant {
       descriptionStyle: style.body
           .apply(effectiveTextTheme.muted)
           .copyWith(color: colorScheme.mutedForeground),
+      // The tinted variants are this alert in another colour: an icon in
+      // the scheme's status colour on an opaque wash of it over the card.
+      successColor: colorScheme.success,
+      successBackgroundColor: Color.alphaBlend(
+        colorScheme.successMuted,
+        colorScheme.card,
+      ),
+      warningColor: colorScheme.warning,
+      warningBackgroundColor: Color.alphaBlend(
+        _wash(colorScheme.warning, .1),
+        colorScheme.card,
+      ),
+      infoColor: colorScheme.tint,
+      infoBackgroundColor: Color.alphaBlend(
+        _wash(colorScheme.tint, .1),
+        colorScheme.card,
+      ),
     );
   }
 

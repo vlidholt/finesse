@@ -1,3 +1,6 @@
+alert:
+  dismiss: "Dismiss"
+
 timePicker:
   hours: "Hours"
   minutes: "Minutes"
