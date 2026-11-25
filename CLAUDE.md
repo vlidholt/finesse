@@ -52,8 +52,8 @@ own default look and its own rules.
     `TagField`). `allowDeselection` says whether the selection may become
     empty, on pickers too (`DatePicker`, `TimePicker`, from their themes).
     **A null callback disables the control** — `Button`, `IconButton`,
-    `Toggle`, `Chip`, `ToggleGroup`, `ChipGroup`, `Select` (unless it has
-    an `onTap`), `SegmentedControl`, the pickers.
+    `Toggle`, `Chip`, `ToggleGroup`, `ChipGroup`, `FinesseRadioGroup`,
+    `Select` (unless it has an `onTap`), `SegmentedControl`, the pickers.
   - Open state is `open`, `initiallyOpen`, `onOpenChanged`; every
     controller has `isOpen`, `open()`, `close()`, `toggle()`,
     `setOpen(bool)`.
@@ -1293,9 +1293,11 @@ ticks only for a finger's changes, as the board and the wheel do.
   the card's corners. `SliverListSection` is the lazy one (`LicensePage`).
 - **The control tiles draw the real control** under `ExcludeSemantics`,
   `ExcludeFocus` and `IgnorePointer`; the tile is the one control. Tests
-  tap the title. `FinesseRadioGroup` takes a `child` (a `ListSection` of
-  `RadioListTile`s) as well as `items`, since its vertical `Wrap` hands its
-  items an unbounded width.
+  tap the title. A `RadioListTile` takes only its `value`: like a `Radio`
+  it is a choice of the `FinesseRadioGroup` around it (and asserts there
+  is one). The group takes a `child` (a `ListSection` of `RadioListTile`s)
+  as well as `items`, since its vertical `Wrap` hands its items an
+  unbounded width.
 - A swipe recognizer must refuse the directions it has no use for
   (`SwipeActions` overrides `hasSufficientGlobalDistanceToAccept` with the
   signed distance), or it takes every vertical scroll. A trackpad pan is

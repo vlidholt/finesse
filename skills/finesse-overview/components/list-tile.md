@@ -256,7 +256,7 @@ class ListTileValueExample extends StatelessWidget {
 
 ## Switch, checkbox and radio rows
 
-`SwitchListTile`, `CheckboxListTile` and `RadioListTile` make the whole row the control: one target, one focus stop, one thing for a screen reader to announce. A tristate checkbox shows a dash for "some".
+`SwitchListTile`, `CheckboxListTile` and `RadioListTile` make the whole row the control: one target, one focus stop, one thing for a screen reader to announce. A tristate checkbox shows a dash for "some". Radio rows are the choices of the `FinesseRadioGroup` around their section.
 
 ```dart
 import 'package:finesse/finesse.dart';
@@ -330,17 +330,16 @@ class _ListTileControlsExampleState extends State<ListTileControlsExample> {
                 ),
             ],
           ),
-          ListSection(
-            header: Text(overline.applyCase('Density')),
-            children: [
-              for (final option in ['Compact', 'Comfortable', 'Spacious'])
-                RadioListTile<String>(
-                  title: Text(option),
-                  value: option,
-                  groupValue: density,
-                  onChanged: (value) => setState(() => density = value!),
-                ),
-            ],
+          FinesseRadioGroup<String>(
+            value: density,
+            onChanged: (value) => setState(() => density = value),
+            child: ListSection(
+              header: Text(overline.applyCase('Density')),
+              children: [
+                for (final option in ['Compact', 'Comfortable', 'Spacious'])
+                  RadioListTile<String>(title: Text(option), value: option),
+              ],
+            ),
           ),
         ],
       ),

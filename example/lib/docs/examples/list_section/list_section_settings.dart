@@ -66,17 +66,19 @@ class _ListSectionSettingsExampleState
               ),
             ],
           ),
-          ListSection(
-            header: Text(overline.applyCase('Who can message you')),
-            children: [
-              for (final option in _Audience.values)
-                RadioListTile<_Audience>(
-                  title: Text(option.label),
-                  value: option,
-                  groupValue: audience,
-                  onChanged: (value) => setState(() => audience = value!),
-                ),
-            ],
+          FinesseRadioGroup<_Audience>(
+            value: audience,
+            onChanged: (value) => setState(() => audience = value),
+            child: ListSection(
+              header: Text(overline.applyCase('Who can message you')),
+              children: [
+                for (final option in _Audience.values)
+                  RadioListTile<_Audience>(
+                    title: Text(option.label),
+                    value: option,
+                  ),
+              ],
+            ),
           ),
           ListSection(
             children: [

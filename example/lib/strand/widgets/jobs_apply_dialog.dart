@@ -303,23 +303,23 @@ class _ResumeStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListSection(
-      footer: const Text('The hiring team sees the file you choose.'),
-      children: [
-        for (final resume in JobsData.resumes)
-          RadioListTile<(String, String)>(
-            value: resume,
-            groupValue: value,
-            secondary: const IconTile(
-              icon: PhosphorIcon(PhosphorIconsRegular.filePdf),
+    return FinesseRadioGroup<(String, String)>(
+      value: value,
+      onChanged: onChanged,
+      child: ListSection(
+        footer: const Text('The hiring team sees the file you choose.'),
+        children: [
+          for (final resume in JobsData.resumes)
+            RadioListTile<(String, String)>(
+              value: resume,
+              secondary: const IconTile(
+                icon: PhosphorIcon(PhosphorIconsRegular.filePdf),
+              ),
+              title: Text(resume.$1),
+              subtitle: Text(resume.$2),
             ),
-            title: Text(resume.$1),
-            subtitle: Text(resume.$2),
-            onChanged: (resume) {
-              if (resume != null) onChanged(resume);
-            },
-          ),
-      ],
+        ],
+      ),
     );
   }
 }

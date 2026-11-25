@@ -21,7 +21,9 @@ ListTile(
 A row with a control is a `SwitchListTile`, `CheckboxListTile` or
 `RadioListTile<T>`: the whole row toggles the control, the row is one
 semantics node, and `controlAffinity` puts the control at the start or the
-end. Radio tiles take `value`, `groupValue` and `onChanged`.
+end. A radio tile takes only its `value`: like a `Radio`, it belongs to
+the `FinesseRadioGroup` around it (give the group the `ListSection` as
+its `child`), which holds `value` and `onChanged`.
 
 A row that opens to show rows of its own is an `ExpansionTile(title:,
 children:)` (`open`/`initiallyOpen`/`onOpenChanged`).

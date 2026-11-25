@@ -132,6 +132,7 @@ void main() {
     expect(FinesseRadioGroup<int>.new, throwsA(isA<AssertionError>()));
     expect(
       () => FinesseRadioGroup<int>(
+        onChanged: (_) {},
         items: const [],
         child: const SizedBox(),
       ),

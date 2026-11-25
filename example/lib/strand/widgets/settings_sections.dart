@@ -609,23 +609,21 @@ class _VisibilityCard extends StatelessWidget {
   Widget build(BuildContext context) {
     // One choice of three: a grouped list of radio rows, each of which
     // takes the tap anywhere along it.
-    return ListSection(
-      header: _sectionHeader(context, 'Profile visibility'),
-      footer: const Text('Who can open your profile and find it in search.'),
-      children: [
-        for (final option in ProfileVisibility.values)
-          RadioListTile<ProfileVisibility>(
-            value: option,
-            groupValue: settings.visibility,
-            title: Text(option.label),
-            subtitle: Text(option.detail),
-            onChanged: (value) {
-              if (value != null) {
-                settings.update(() => settings.visibility = value);
-              }
-            },
-          ),
-      ],
+    return FinesseRadioGroup<ProfileVisibility>(
+      value: settings.visibility,
+      onChanged: (value) => settings.update(() => settings.visibility = value),
+      child: ListSection(
+        header: _sectionHeader(context, 'Profile visibility'),
+        footer: const Text('Who can open your profile and find it in search.'),
+        children: [
+          for (final option in ProfileVisibility.values)
+            RadioListTile<ProfileVisibility>(
+              value: option,
+              title: Text(option.label),
+              subtitle: Text(option.detail),
+            ),
+        ],
+      ),
     );
   }
 }

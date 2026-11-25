@@ -69,17 +69,16 @@ class _ListTileControlsExampleState extends State<ListTileControlsExample> {
                 ),
             ],
           ),
-          ListSection(
-            header: Text(overline.applyCase('Density')),
-            children: [
-              for (final option in ['Compact', 'Comfortable', 'Spacious'])
-                RadioListTile<String>(
-                  title: Text(option),
-                  value: option,
-                  groupValue: density,
-                  onChanged: (value) => setState(() => density = value!),
-                ),
-            ],
+          FinesseRadioGroup<String>(
+            value: density,
+            onChanged: (value) => setState(() => density = value),
+            child: ListSection(
+              header: Text(overline.applyCase('Density')),
+              children: [
+                for (final option in ['Compact', 'Comfortable', 'Spacious'])
+                  RadioListTile<String>(title: Text(option), value: option),
+              ],
+            ),
           ),
         ],
       ),

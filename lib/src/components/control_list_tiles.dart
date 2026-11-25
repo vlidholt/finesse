@@ -203,48 +203,27 @@ class CheckboxListTile extends StatelessWidget {
 /// A row with a title and a radio button: one choice of several, with the
 /// whole row as the target.
 ///
-/// ```dart
-/// ListSection(
-///   header: const Text('Who can message you'),
-///   children: [
-///     for (final audience in Audience.values)
-///       RadioListTile<Audience>(
-///         title: Text(audience.label),
-///         value: audience,
-///         groupValue: selected,
-///         onChanged: (value) => setState(() => selected = value!),
-///       ),
-///   ],
-/// )
-/// ```
-///
-/// The row is selected when its [value] equals [groupValue]; activating it
-/// calls [onChanged] with [value] (or with null, for a selected row that is
-/// [toggleable]). The rows of one choice share a [groupValue] and hold no
-/// state themselves, so they can be the rows of a `ListSection`, with its
-/// hairlines between them.
-///
-/// Under a `FinesseRadioGroup` the rows need neither: a row given no
-/// [groupValue] and no [onChanged] is selected when its [value] is the
-/// group's, and selects through the group. The group lays its items out
-/// in a wrap, and it is the horizontal one that hands a section its width.
+/// Like a `Radio`, it is one of the choices of the `FinesseRadioGroup`
+/// around it, which holds the selection: the row is selected when its
+/// [value] is the group's, and activating it selects it through the group.
+/// The rows hold no state themselves, so they can be the rows of a
+/// `ListSection`, with its hairlines between them — give the group the
+/// section as its `child`.
 ///
 /// ```dart
 /// FinesseRadioGroup<Audience>(
 ///   value: selected,
 ///   onChanged: (value) => setState(() => selected = value),
-///   axis: Axis.horizontal,
-///   items: [
-///     ListSection(
-///       children: [
-///         for (final audience in Audience.values)
-///           RadioListTile<Audience>(
-///             title: Text(audience.label),
-///             value: audience,
-///           ),
-///       ],
-///     ),
-///   ],
+///   child: ListSection(
+///     header: const Text('Who can message you'),
+///     children: [
+///       for (final audience in Audience.values)
+///         RadioListTile<Audience>(
+///           title: Text(audience.label),
+///           value: audience,
+///         ),
+///     ],
+///   ),
 /// )
 /// ```
 ///
@@ -257,12 +236,9 @@ class RadioListTile<T> extends StatelessWidget {
   const RadioListTile({
     required this.title,
     required this.value,
-    this.groupValue,
-    this.onChanged,
     this.subtitle,
     this.secondary,
     this.enabled = true,
-    this.toggleable = false,
     this.controlAffinity = ControlAffinity.trailing,
     this.subtitleMaxLines = 2,
     this.focusNode,
@@ -278,26 +254,12 @@ class RadioListTile<T> extends StatelessWidget {
   /// A widget on the side of the row the radio is not on, usually an icon.
   final Widget? secondary;
 
-  /// The choice this row stands for.
+  /// The choice this row stands for. The row is selected when it is the
+  /// value of the `FinesseRadioGroup` around it.
   final T value;
 
-  /// The choice that is selected now. The row is selected when it equals
-  /// [value]. Left out together with [onChanged], the selection is the
-  /// enclosing `FinesseRadioGroup`'s.
-  final T? groupValue;
-
-  /// Called with [value] when the row is activated — or with null, when a
-  /// selected, [toggleable] row is. Null switches the row off, like
-  /// [enabled], unless there is a `FinesseRadioGroup` to select through.
-  final ValueChanged<T?>? onChanged;
-
-  /// Whether the row responds.
+  /// Whether the row responds. A row in a disabled group does not either.
   final bool enabled;
-
-  /// Whether activating the selected row clears the choice. A
-  /// `FinesseRadioGroup` has no cleared state: under one this does
-  /// nothing.
-  final bool toggleable;
 
   /// Which side the radio is on.
   final ControlAffinity controlAffinity;
@@ -310,14 +272,19 @@ class RadioListTile<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // A row that is told nothing about the choice takes it from the group
-    // around it. One that is told is its caller's, whatever is around it.
-    final group = groupValue == null && onChanged == null
-        ? FinesseRadioGroup.maybeOf<T>(context)
-        : null;
-    final selected = value == (group == null ? groupValue : group.value);
-    final active =
-        enabled && (group == null ? onChanged != null : group.enabled);
+    final group = FinesseRadioGroup.maybeOf<T>(context);
+    assert(() {
+      if (group == null) {
+        throw FlutterError(
+          'A RadioListTile needs a FinesseRadioGroup above it.\n'
+          'The group holds the selection. Give it the rows, or the '
+          'ListSection they are in, as its child.',
+        );
+      }
+      return true;
+    }());
+    final selected = group != null && value == group.value;
+    final active = enabled && (group?.enabled ?? false);
     return _ControlTile(
       title: title,
       subtitle: subtitle,
@@ -329,13 +296,7 @@ class RadioListTile<T> extends StatelessWidget {
       checked: selected,
       inMutuallyExclusiveGroup: true,
       onTap: () {
-        if (group != null) {
-          if (!selected) group.select(value);
-        } else if (!selected) {
-          onChanged?.call(value);
-        } else if (toggleable) {
-          onChanged?.call(null);
-        }
+        if (!selected) group?.select(value);
       },
       control: _RadioMark(selected: selected, enabled: active),
     );

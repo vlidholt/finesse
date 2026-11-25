@@ -60,7 +60,8 @@ final listTileDoc = ComponentDoc(
           '`SwitchListTile`, `CheckboxListTile` and `RadioListTile` make '
           'the whole row the control: one target, one focus stop, one '
           'thing for a screen reader to announce. A tristate checkbox '
-          'shows a dash for "some".',
+          'shows a dash for "some". Radio rows are the choices of the '
+          '`FinesseRadioGroup` around their section.',
       minPreviewHeight: 640,
       builder: (_) => const ListTileControlsExample(),
     ),

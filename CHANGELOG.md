@@ -272,8 +272,9 @@ package as it is, compared with shad.
   `TimePicker` (from `TimePickerTheme.allowDeselection`, true in every
   style, so a time can be cleared by default) as on `DatePicker`; in a
   `Select.multiple` it keeps the last option rather than every one.
-- **A null callback disables a control.** A `ToggleGroup` or a `Select`
-  with no callback (a select with an `onTap` excepted) is drawn disabled
+- **A null callback disables a control.** A `ToggleGroup`, a
+  `FinesseRadioGroup` or a `Select` with no callback (a select with an
+  `onTap` excepted) is drawn disabled
   and takes no input, as a `Toggle`, a `Chip` or a `SegmentedControl` is.
 - **Pickers.** The inline time picker is `TimeField` (`TimeFieldTheme`,
   `TimeFormField`); `TimePicker` is now a trigger that opens it in a
@@ -417,7 +418,8 @@ package as it is, compared with shad.
 - `ListTile` (`value`, `showChevron`, `onLongPress`, `enabled`,
   `destructive`), `ListSection` (card or plain) and the lazy
   `SliverListSection`, `SwitchListTile`, `CheckboxListTile` (tristate),
-  `RadioListTile`, and `ExpansionTile`.
+  `RadioListTile` (one choice of the `FinesseRadioGroup` around it, as a
+  `Radio` is), and `ExpansionTile`.
 - `SwipeActions` (`fullSwipe`, `onRemoved`) with `SwipeAction`s,
   `RefreshIndicator`, `Carousel` (`CarouselController`), `PageIndicator`.
 - `ReorderableListView`, `ReorderableListView.builder(itemId:)`,

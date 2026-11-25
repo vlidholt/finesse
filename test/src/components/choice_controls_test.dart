@@ -137,6 +137,7 @@ void main() {
                     description: const Text('more'),
                   ),
                   FinesseRadioGroup<int>(
+                    onChanged: (_) {},
                     initialValue: 1,
                     items: [
                       Radio(
@@ -265,6 +266,7 @@ void main() {
         tester,
         Center(
           child: FinesseRadioGroup<String>(
+            onChanged: (_) {},
             initialValue: 'a',
             items: [
               for (final option in ['a', 'b'])

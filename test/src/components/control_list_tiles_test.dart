@@ -269,24 +269,24 @@ void main() {
   group('RadioListTile', () {
     Widget group({
       required String? selected,
-      ValueChanged<String?>? onChanged,
-      bool toggleable = false,
+      ValueChanged<String>? onChanged,
     }) => Align(
       alignment: Alignment.topCenter,
       child: SizedBox(
         width: 340,
-        child: ListSection(
-          children: [
-            for (final option in ['Everyone', 'Connections', 'No one'])
-              RadioListTile<String>(
-                key: Key(option),
-                title: Text(option),
-                value: option,
-                groupValue: selected,
-                toggleable: toggleable,
-                onChanged: onChanged,
-              ),
-          ],
+        child: FinesseRadioGroup<String>(
+          value: selected,
+          onChanged: onChanged,
+          child: ListSection(
+            children: [
+              for (final option in ['Everyone', 'Connections', 'No one'])
+                RadioListTile<String>(
+                  key: Key(option),
+                  title: Text(option),
+                  value: option,
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -325,17 +325,6 @@ void main() {
       await tester.tap(find.text('No one'));
       await tester.pumpAndSettle();
       expect(seen, ['No one']);
-    });
-
-    testWidgets('a toggleable selected row clears the choice', (tester) async {
-      final seen = <String?>[];
-      await pumpFinesse(
-        tester,
-        group(selected: 'Everyone', toggleable: true, onChanged: seen.add),
-      );
-      await tester.tap(find.text('Everyone'));
-      await tester.pumpAndSettle();
-      expect(seen, [null]);
     });
 
     testWidgets('each row is one node: a radio in an exclusive group', (
@@ -399,9 +388,10 @@ void main() {
           Column(
             children: [
               group(selected: 'Everyone', onChanged: (_) {}),
-              const FinesseRadioGroup<String>(
+              FinesseRadioGroup<String>(
                 initialValue: 'a',
-                items: [Radio(key: Key('radio'), value: 'a')],
+                onChanged: (_) {},
+                items: const [Radio(key: Key('radio'), value: 'a')],
               ),
             ],
           ),
@@ -445,8 +435,8 @@ void main() {
       ),
     );
 
-    testWidgets('a row given neither groupValue nor onChanged shows the '
-        "group's selection and selects through it", (tester) async {
+    testWidgets("a row shows the group's selection and selects through "
+        'it', (tester) async {
       var selected = 'Everyone';
       final seen = <String>[];
       await pumpFinesse(
@@ -501,6 +491,7 @@ void main() {
             child: FinesseRadioGroup<String>(
               axis: Axis.horizontal,
               initialValue: 'Connections',
+              onChanged: (_) {},
               items: [rows()],
             ),
           ),
@@ -550,9 +541,10 @@ void main() {
       expect(seen, ['No one']);
     });
 
-    testWidgets("a row that is told its groupValue is its caller's, "
-        'whatever group is around it', (tester) async {
-      final seen = <int?>[];
+    testWidgets('a row belongs to the nearest group around it', (
+      tester,
+    ) async {
+      final seen = <int>[];
       await pumpFinesse(
         tester,
         Align(
@@ -563,18 +555,21 @@ void main() {
             child: FinesseRadioGroup<String>(
               axis: Axis.horizontal,
               initialValue: 'x',
+              onChanged: (_) {},
               items: [
-                ListSection(
-                  children: [
-                    for (final n in [1, 2])
-                      RadioListTile<int>(
-                        key: Key('$n'),
-                        title: Text('Option $n'),
-                        value: n,
-                        groupValue: 1,
-                        onChanged: seen.add,
-                      ),
-                  ],
+                FinesseRadioGroup<int>(
+                  value: 1,
+                  onChanged: seen.add,
+                  child: ListSection(
+                    children: [
+                      for (final n in [1, 2])
+                        RadioListTile<int>(
+                          key: Key('$n'),
+                          title: Text('Option $n'),
+                          value: n,
+                        ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -588,18 +583,38 @@ void main() {
       expect(seen, [2]);
     });
 
-    testWidgets('with no group and no onChanged the row is switched off', (
-      tester,
-    ) async {
+    testWidgets('with no group around it a row is an error, and with no '
+        'onChanged on the group it is switched off', (tester) async {
+      await pumpFinesse(
+        tester,
+        const Align(
+          alignment: Alignment.topCenter,
+          child: SizedBox(
+            width: 340,
+            child: RadioListTile<String>(title: Text('Alone'), value: 'a'),
+          ),
+        ),
+      );
+      expect(
+        tester.takeException(),
+        isA<FlutterError>().having(
+          (e) => e.message,
+          'message',
+          contains('FinesseRadioGroup'),
+        ),
+      );
+
       final handle = tester.ensureSemantics();
       await pumpFinesse(
         tester,
         Align(
           alignment: Alignment.topCenter,
-          child: SizedBox(width: 340, child: rows()),
+          child: SizedBox(
+            width: 340,
+            child: FinesseRadioGroup<String>(value: 'Everyone', child: rows()),
+          ),
         ),
       );
-      expect(tester.takeException(), isNull);
       final node = tester.getSemantics(find.byKey(const Key('Everyone')));
       expect(node.flagsCollection.isEnabled, ui.Tristate.isFalse);
       handle.dispose();

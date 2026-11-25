@@ -25,6 +25,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const FinesseRadioGroup<String>(
+            onChanged: _ignore,
             items: [
               Radio(value: 'option1', label: Text('Option 1')),
               Radio(value: 'option2', label: Text('Option 2')),
@@ -69,6 +70,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const FinesseRadioGroup<String>(
+            onChanged: _ignore,
             initialValue: 'option1',
             items: [
               Radio(value: 'option1', label: Text('Option 1')),
@@ -203,6 +205,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const FinesseRadioGroup<String>(
+            onChanged: _ignore,
             items: [
               Radio(
                 value: 'option1',
@@ -256,6 +259,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const FinesseRadioGroup<String>(
+            onChanged: _ignore,
             initialValue: 'option1',
             items: [
               Radio(
@@ -287,6 +291,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const FinesseRadioGroup<String>(
+            onChanged: _ignore,
             spacing: customSpacing,
             items: [
               Radio(value: 'option1', label: Text('Option 1')),
@@ -308,6 +313,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           FinesseRadioGroup<String>(
+            onChanged: _ignore,
             items: [
               Radio(
                 value: 'option1',
@@ -339,6 +345,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const FinesseRadioGroup<String>(
+            onChanged: _ignore,
             items: [
               Radio(
                 value: 'option1',
@@ -368,6 +375,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const FinesseRadioGroup<String>(
+            onChanged: _ignore,
             key: ValueKey('initial'),
             initialValue: 'option1',
             items: [
@@ -391,6 +399,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const FinesseRadioGroup<String>(
+            onChanged: _ignore,
             key: ValueKey('updated'),
             initialValue: 'option2',
             items: [
@@ -414,6 +423,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           FinesseRadioGroup<bool>(
+            onChanged: _ignore,
             items: List.generate(
               3,
               (index) => Radio<bool>(
@@ -433,3 +443,6 @@ void main() {
     });
   });
 }
+
+/// A callback for a group that is enabled but whose choices nobody reads.
+void _ignore(Object? _) {}

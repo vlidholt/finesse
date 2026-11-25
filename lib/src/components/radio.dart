@@ -122,7 +122,8 @@ class FinesseRadioGroup<T> extends StatefulWidget {
   final Widget? child;
 
   /// {@template FinesseRadioGroup.onChanged}
-  /// Called with the value of the radio the user selects.
+  /// Called with the value of the radio the user selects. Null disables
+  /// the group.
   /// {@endtemplate}
   final ValueChanged<T>? onChanged;
 
@@ -194,8 +195,12 @@ class _RadioGroupState<T> extends State<FinesseRadioGroup<T>> {
     if (widget.value != oldWidget.value) _value = widget.value;
   }
 
+  /// Whether the radios take input: [FinesseRadioGroup.enabled], and an
+  /// [FinesseRadioGroup.onChanged] to report to.
+  bool get _enabled => widget.enabled && widget.onChanged != null;
+
   void _select(Object? value) {
-    if (value is! T || !widget.enabled) return;
+    if (value is! T || !_enabled) return;
     // A controlled group waits for its parent to hand the value back.
     if (widget.value == null && value != _value) {
       setState(() => _value = value);
@@ -209,7 +214,7 @@ class _RadioGroupState<T> extends State<FinesseRadioGroup<T>> {
     if (child != null) {
       return _RadioGroupMarker(
         value: widget.value ?? _value,
-        enabled: widget.enabled,
+        enabled: _enabled,
         select: _select,
         child: child,
       );
@@ -233,7 +238,7 @@ class _RadioGroupState<T> extends State<FinesseRadioGroup<T>> {
 
     return _RadioGroupMarker(
       value: widget.value ?? _value,
-      enabled: widget.enabled,
+      enabled: _enabled,
       select: _select,
       child: Wrap(
         direction: effectiveAxis,
