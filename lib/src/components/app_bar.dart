@@ -1,5 +1,4 @@
 import 'package:finesse/src/components/app_bar_layout.dart';
-import 'package:finesse/src/liquid_glass/liquid_glass.dart';
 import 'package:finesse/src/theme/components/app_bar.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
@@ -176,13 +175,18 @@ class AppBar extends StatelessWidget {
     );
     final fill =
         backgroundColor ?? bar.backgroundColor ?? theme.colorScheme.card;
-    final behavior =
-        surfaceBehavior ?? bar.surfaceBehavior ?? AppBarSurfaceBehavior.always;
+    final liquid = appBarUsesLiquidGlass(context, bar.liquidGlass);
+    // On Liquid Glass the scroll edge shows once content is under the bar,
+    // as on iOS: at the top it would only blur the page's own first lines.
+    final behavior = liquid
+        ? AppBarSurfaceBehavior.whenScrolled
+        : surfaceBehavior ??
+              bar.surfaceBehavior ??
+              AppBarSurfaceBehavior.always;
 
     final implied = leading == null && automaticallyImplyLeading
         ? impliedLeading(context)
         : null;
-    final liquid = LiquidGlass.isActive(context, bar.liquidGlass);
     var effectiveLeading = leading ?? implied;
     var effectiveActions = automaticallyImplyActions
         ? impliedActions(context, actions)
@@ -193,6 +197,7 @@ class AppBar extends StatelessWidget {
         leading: effectiveLeading,
         actions: effectiveActions,
         actionsGap: actionsGap,
+        leadingIsButton: implied != null,
       );
     }
     final toolbar = AppBarToolbar(

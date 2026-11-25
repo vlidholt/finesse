@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:math' as math;
+import 'dart:ui' as ui;
 
 import 'package:finesse/src/liquid_glass/liquid_glass_theme.dart';
 import 'package:finesse/src/theme/data.dart';
@@ -11,6 +13,7 @@ import 'package:finesse/src/utils/backdrop.dart';
 import 'package:flutter/cupertino.dart'
     show CupertinoTextThemeData, CupertinoTheme, CupertinoThemeData;
 import 'package:flutter/foundation.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lg;
 // Not in the package's barrel, but a public library of it (outside `src/`):
@@ -47,6 +50,7 @@ abstract final class LiquidGlass {
   /// If they fail to load, Liquid Glass is switched off for the life of the
   /// app and finesse's frosted glass is drawn in its place.
   static Future<void> initialize() async {
+    _quietPackageLogs();
     try {
       await lg.LiquidGlassWidgets.initialize(enablePerformanceMonitor: false);
     } on Object catch (error, stack) {
@@ -68,6 +72,34 @@ abstract final class LiquidGlass {
   /// Whether Liquid Glass can be drawn at all: false once [initialize]
   /// failed to load the shaders.
   static bool get available => !_unavailable;
+
+  static bool _logsQuiet = false;
+
+  /// The package's progress messages, which it prints with `debugPrint` in
+  /// every build mode and has no switch for. Its warnings and failures are
+  /// not among them.
+  static const _progressMessages = [
+    '[LiquidGlass] Initializing library',
+    '[LiquidGlass] Initialization complete',
+    '[LightweightGlass] ✓ Created web shader',
+  ];
+
+  /// Keeps the package's progress messages out of the console (a browser's
+  /// included, where they showed in release builds), by putting a filter
+  /// in front of whatever `debugPrint` is at the time. Once per app, from
+  /// [initialize]: an app that does not call it hears them (and a test,
+  /// whose binding owns `debugPrint`, never does).
+  static void _quietPackageLogs() {
+    if (_logsQuiet) return;
+    _logsQuiet = true;
+    final print = debugPrint;
+    debugPrint = (message, {wrapWidth}) {
+      if (message != null && _progressMessages.any(message.startsWith)) {
+        return;
+      }
+      print(message, wrapWidth: wrapWidth);
+    };
+  }
 
   /// Whether Liquid Glass was made unavailable, as a failed [initialize]
   /// does. For tests; put it back with false.
@@ -344,14 +376,34 @@ class _LiquidGlassSurfaceState extends State<LiquidGlassSurface> {
   @override
   Widget build(BuildContext context) {
     final fade = _claimed?.opacity;
-    final child = BackdropFade.none(child: widget.child);
+    final theme = Theme.of(context);
+    Widget child = BackdropFade.none(child: widget.child);
+    // Without shader filters the package draws its lighter glass, whose
+    // rim all but vanishes over a light page: an overlay keeps finesse's
+    // hairline there, so a menu over white still has an edge.
+    final legible = widget.overlay && !ui.ImageFilter.isShaderFilterSupported;
+    if (legible) {
+      child = DecoratedBox(
+        position: DecorationPosition.foreground,
+        decoration: ShapeDecoration(
+          shape: RoundedSuperellipseBorder(
+            borderRadius: BorderRadius.vertical(
+              top: Radius.circular(widget.topRadius ?? widget.radius),
+              bottom: Radius.circular(widget.radius),
+            ),
+            side: BorderSide(color: overlayEdgeColor(theme)),
+          ),
+        ),
+        child: child,
+      );
+    }
     return LiquidGlassBridge(
       child: Builder(
         builder: (context) {
           final quality = widget.overlay || widget.interactive
               ? lg.GlassQuality.premium
               : null;
-          if (fade == null) {
+          if (fade == null && !widget.overlay) {
             return lg.GlassContainer(
               shape: _shape,
               useOwnLayer: true,
@@ -360,28 +412,65 @@ class _LiquidGlassSurfaceState extends State<LiquidGlassSurface> {
               child: child,
             );
           }
-          final settings = lg.GlassThemeHelpers.resolveSettings(
+          var settings = lg.GlassThemeHelpers.resolveSettings(
             context,
             isOverlayPlatter: widget.overlay,
           );
+          if (legible) settings = legibleOverlaySettings(settings, theme);
+          Widget glass(double visibility, Widget content) => lg.GlassContainer(
+            shape: _shape,
+            useOwnLayer: true,
+            quality: quality,
+            clipBehavior: Clip.antiAlias,
+            settings: visibility == 1
+                ? settings
+                : settings.copyWith(
+                    visibility: settings.visibility * visibility,
+                  ),
+            child: content,
+          );
+          if (fade == null) return glass(1, child);
           return AnimatedBuilder(
             animation: fade,
             child: FadeTransition(opacity: fade, child: child),
-            builder: (context, content) => lg.GlassContainer(
-              shape: _shape,
-              useOwnLayer: true,
-              quality: quality,
-              clipBehavior: Clip.antiAlias,
-              settings: settings.copyWith(
-                visibility: settings.visibility * fade.value,
-              ),
-              child: content,
-            ),
+            builder: (context, content) => glass(fade.value, content!),
           );
         },
       ),
     );
   }
+}
+
+/// The hairline an overlay of Liquid Glass keeps without shader filters:
+/// the surfaces' own `ring-foreground/10`, a little stronger in the dark.
+Color overlayEdgeColor(ThemeData theme) {
+  final ink = theme.colorScheme.foreground;
+  return ink.withValues(
+    alpha: ink.a * (theme.brightness == Brightness.dark ? .16 : .1),
+  );
+}
+
+/// [settings] for an overlay (a menu, a popover, a dialog) drawn without
+/// shader filters — in a browser, or under Skia.
+///
+/// The iOS styles make an overlay legible with the package's frost, a
+/// cloud only its full (Impeller) tier draws: its lighter tier keeps the
+/// presets' near-zero blur and shows the page through the glass almost
+/// sharp. So the body is blurred as finesse's own floating glass is, and
+/// lifted towards white in a light theme — the package's whiten veil,
+/// strongest at the rim and lightest in the middle — so text reads over
+/// a white page and a busy one alike.
+lg.LiquidGlassSettings legibleOverlaySettings(
+  lg.LiquidGlassSettings settings,
+  ThemeData theme,
+) {
+  final dark = theme.brightness == Brightness.dark;
+  return settings.copyWith(
+    blur: math.max(settings.blur, theme.style.glassBlur / 2),
+    saturation: math.max(settings.saturation, theme.style.glassSaturation),
+    whitenStrength: math.max(settings.whitenStrength, dark ? 0 : .3),
+    edgeAbsorption: math.max(settings.edgeAbsorption, .08),
+  );
 }
 
 /// Buttons in a bar on one capsule of Liquid Glass, as iOS 26 groups the
@@ -418,18 +507,25 @@ class LiquidGlassBarGroup extends StatelessWidget {
 /// under it blurred more the nearer it is to the screen's edge, and faded
 /// into the page colour, as iOS 26 softens a scroll edge.
 ///
+/// It reaches [overhang] past the bottom of the box it is given, so the
+/// content dissolves into the bar instead of meeting a line where the bar
+/// ends; the box it sits in must not clip.
+///
 /// [visibility] shows it from 0 (nothing) to 1. The blur's strength is
 /// what changes, not an opacity: a backdrop filter under an opacity layer
-/// does not survive on every renderer. On the web and under Skia, where
-/// the graduated blur needs a shader filter they lack, the package blurs
-/// uniformly.
+/// does not survive on every renderer. With shader filters (Impeller) the
+/// blur is the package's `ProgressiveBlur`, one graduated pass. Without
+/// them — the web, Skia — the package would blur uniformly and end on a
+/// hard edge, which reads as a solid bar; there the blur is built from a
+/// few nested bands instead, each blurring a little more of the top, in
+/// steps too small to see.
 class LiquidGlassScrollEdge extends StatelessWidget {
   /// Creates the scroll edge of a bar, faded in by [visibility].
   const LiquidGlassScrollEdge({
     required this.color,
     this.visibility,
-    this.hairline,
     this.maxSigma = 12,
+    this.overhang = 24,
     super.key,
   });
 
@@ -439,37 +535,79 @@ class LiquidGlassScrollEdge extends StatelessWidget {
   /// How much of the edge shows; null is all of it.
   final Animation<double>? visibility;
 
-  /// A hairline along the bottom, as iOS 27 draws under a scrolled bar, or
-  /// null for none.
-  final Color? hairline;
-
   /// The sigma of the blur at the screen's edge.
   final double maxSigma;
 
-  Widget _build(double t) {
-    if (t <= 0) return const SizedBox.expand();
-    final line = hairline;
+  /// How far the edge reaches below the box it is given.
+  final double overhang;
+
+  /// How many nested bands make the graduated blur without shader filters.
+  static const _bands = 6;
+
+  /// The sigma of each band of the graduated blur without shader filters,
+  /// the band reaching furthest down first.
+  ///
+  /// Band `k` covers the top `(k + 1) / n` of the edge. Blurs compose as
+  /// the root of the sum of their squares, so the slice `j` from the top,
+  /// covered by bands `j` to `n - 1`, is blurred by
+  /// `maxSigma × (n − j) / n`: a straight ramp down to a last step of
+  /// `maxSigma / n`.
+  @visibleForTesting
+  static List<double> bandSigmas(double maxSigma, [int n = _bands]) => [
+    for (var k = n - 1; k >= 0; k--)
+      math.sqrt(
+        math.pow(maxSigma * (n - k) / n, 2) -
+            math.pow(maxSigma * (n - k - 1) / n, 2),
+      ),
+  ];
+
+  Widget _blur(double sigma) {
+    if (ui.ImageFilter.isShaderFilterSupported) {
+      return lg.ProgressiveBlur(maxSigma: sigma);
+    }
+    final sigmas = bandSigmas(sigma);
     return Stack(
       fit: StackFit.expand,
       children: [
-        lg.ProgressiveBlur(maxSigma: maxSigma * t),
+        for (var i = 0; i < sigmas.length; i++)
+          FractionallySizedBox(
+            alignment: Alignment.topCenter,
+            heightFactor: (_bands - i) / _bands,
+            child: ClipRect(
+              child: BackdropFilter(
+                filter: ui.ImageFilter.blur(
+                  sigmaX: sigmas[i],
+                  sigmaY: sigmas[i],
+                ),
+                child: const SizedBox.expand(),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _build(double t) {
+    if (t <= 0) return const SizedBox.expand();
+    final a = color.a * t;
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        _blur(maxSigma * t),
         DecoratedBox(
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
+              // Eased, so the fade has no knee where it ends.
+              stops: const [0, .4, .75, 1],
               colors: [
-                color.withValues(alpha: color.a * .72 * t),
+                color.withValues(alpha: a * .8),
+                color.withValues(alpha: a * .5),
+                color.withValues(alpha: a * .15),
                 color.withValues(alpha: 0),
               ],
             ),
-            border: line == null
-                ? null
-                : Border(
-                    bottom: BorderSide(
-                      color: line.withValues(alpha: line.a * t),
-                    ),
-                  ),
           ),
         ),
       ],
@@ -479,13 +617,80 @@ class LiquidGlassScrollEdge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final visibility = this.visibility;
-    return IgnorePointer(
-      child: visibility == null
-          ? _build(1)
-          : AnimatedBuilder(
-              animation: visibility,
-              builder: (context, _) => _build(visibility.value),
-            ),
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Positioned(
+          left: 0,
+          top: 0,
+          right: 0,
+          bottom: -overhang,
+          child: IgnorePointer(
+            child: visibility == null
+                ? _build(1)
+                : _LayoutSafeBuilder(
+                    animation: visibility,
+                    builder: (context) => _build(visibility.value),
+                  ),
+          ),
+        ),
+      ],
     );
   }
+}
+
+/// An `AnimatedBuilder` for an animation that may change while the tree is
+/// being laid out — a `SliverAppBar` moves its surface at layout — where a
+/// rebuild cannot be asked for: that change is built after the frame, one
+/// frame late, which a fading blur does not show.
+class _LayoutSafeBuilder extends StatefulWidget {
+  const _LayoutSafeBuilder({required this.animation, required this.builder});
+
+  final Listenable animation;
+  final WidgetBuilder builder;
+
+  @override
+  State<_LayoutSafeBuilder> createState() => _LayoutSafeBuilderState();
+}
+
+class _LayoutSafeBuilderState extends State<_LayoutSafeBuilder> {
+  bool _deferred = false;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.animation.addListener(_changed);
+  }
+
+  @override
+  void didUpdateWidget(covariant _LayoutSafeBuilder oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!identical(widget.animation, oldWidget.animation)) {
+      oldWidget.animation.removeListener(_changed);
+      widget.animation.addListener(_changed);
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.animation.removeListener(_changed);
+    super.dispose();
+  }
+
+  void _changed() {
+    final scheduler = SchedulerBinding.instance;
+    if (scheduler.schedulerPhase != SchedulerPhase.persistentCallbacks) {
+      setState(() {});
+      return;
+    }
+    if (_deferred) return;
+    _deferred = true;
+    scheduler.addPostFrameCallback((_) {
+      _deferred = false;
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.builder(context);
 }

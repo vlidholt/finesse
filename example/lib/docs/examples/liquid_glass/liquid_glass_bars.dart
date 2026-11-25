@@ -1,11 +1,12 @@
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
-/// The bars of a screen on Liquid Glass. The app bar has no fill of its
-/// own: what scrolls under it is blurred and faded into the page, and its
-/// buttons sit on glass capsules. The bottom bar is a capsule whose
-/// selection is a lens that slides between the tabs, with its action on a
-/// capsule of its own beside them: iOS 26's split bar.
+/// The bars of a phone screen on Liquid Glass. The app bar has no fill and
+/// no edge: what scrolls under it is blurred and faded into the page, more
+/// the nearer the top, and its buttons sit on glass capsules. The bottom
+/// bar is a capsule whose selection is a lens that slides between the
+/// tabs, with its action on a capsule of its own beside them: iOS 26's
+/// split bar.
 class LiquidGlassBarsExample extends StatefulWidget {
   const LiquidGlassBarsExample({super.key});
 
@@ -15,10 +16,13 @@ class LiquidGlassBarsExample extends StatefulWidget {
 
 final _themes = Expando<ThemeData>();
 
-/// The ambient theme with Liquid Glass on everywhere, derived once.
-ThemeData _liquid(ThemeData ambient) => _themes[ambient] ??= ambient.copyWith(
-  liquidGlass: ambient.liquidGlass.copyWith(mode: LiquidGlassMode.always),
-);
+/// The ambient theme with Liquid Glass on everywhere, at the phone form
+/// factor — a desktop's top bar stays solid — derived once.
+ThemeData _liquid(ThemeData ambient) => _themes[ambient] ??= ambient
+    .copyWith(
+      liquidGlass: ambient.liquidGlass.copyWith(mode: LiquidGlassMode.always),
+    )
+    .withFormFactor(FormFactor.mobile);
 
 class _LiquidGlassBarsExampleState extends State<LiquidGlassBarsExample> {
   var selected = 0;

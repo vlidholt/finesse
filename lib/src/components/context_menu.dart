@@ -9,17 +9,22 @@ import 'package:finesse/src/components/popover.dart';
 import 'package:finesse/src/components/scroll_area.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
+import 'package:finesse/src/liquid_glass/liquid_glass.dart';
+import 'package:finesse/src/liquid_glass/menu.dart';
 import 'package:finesse/src/raw_components/portal.dart';
 import 'package:finesse/src/theme/components/button.dart';
 import 'package:finesse/src/theme/components/context_menu.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
+import 'package:finesse/src/theme/components/layout.dart';
 import 'package:finesse/src/theme/data.dart';
+import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/theme/theme_scope.dart';
 import 'package:finesse/src/utils/arrow_key_focus.dart';
 import 'package:finesse/src/utils/border.dart';
 import 'package:finesse/src/utils/browser_context_menu/browser_context_menu.dart';
+import 'package:finesse/src/utils/dismiss_shortcut.dart';
 import 'package:finesse/src/utils/entrance.dart';
 import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:finesse/src/utils/gesture_detector.dart';
@@ -186,7 +191,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
 
     final isWindows = defaultTargetPlatform == TargetPlatform.windows;
 
-    return ContextMenu(
+    return ContextMenu.internal(
       // Radix opens a context menu with its corner at the pointer, not
       // centred on it.
       anchor: offset == null
@@ -275,7 +280,8 @@ class ContextMenu extends StatefulWidget {
        entrance = null,
        onTapOutside = null,
        onTapUpInside = null,
-       onDismissed = null;
+       onDismissed = null,
+       liquidGlassMorph = true;
 
   /// Creates a context menu with the plumbing the package's own menus need:
   /// the hover group and tap callbacks that tie a submenu to its row and a
@@ -301,7 +307,15 @@ class ContextMenu extends StatefulWidget {
     this.onTapOutside,
     this.onTapUpInside,
     this.onDismissed,
+    this.liquidGlassMorph = false,
   });
+
+  /// Whether the menu may morph out of [child] on Liquid Glass (see
+  /// `LiquidGlassMorphPopover`): on a phone or a tablet, for a root menu
+  /// opened at its own anchor. A `ContextMenuRegion`'s menu, which opens
+  /// at the pointer, never does.
+  @internal
+  final bool liquidGlassMorph;
 
   /// {@template ContextMenu.requestFocus}
   /// Whether the menu takes the keyboard focus when it opens, defaults to
@@ -410,6 +424,13 @@ class ContextMenu extends StatefulWidget {
 class _ContextMenuState extends State<ContextMenu> {
   PopoverController? _controller;
 
+  /// How wide a menu that morphs out of its trigger is, at most: an iOS
+  /// menu's width.
+  static const _morphWidth = 250.0;
+
+  /// Whether the last build morphed the menu out of its trigger.
+  bool _builtMorph = false;
+
   /// This menu's tap-region group when it is a root menu.
   final Object _ownTapRegionGroupId = Object();
 
@@ -488,6 +509,8 @@ class _ContextMenuState extends State<ContextMenu> {
 
   void _onOpenChanged() {
     final controller = this.controller;
+    // A menu opened at a point is a finesse popover, never a morph.
+    if (_builtMorph && controller.position != null) setState(() {});
     // Closed from inside while its parent still says open.
     if (!controller.isOpen && (widget.open ?? false)) {
       widget.onDismissed?.call();
@@ -691,6 +714,99 @@ class _ContextMenuState extends State<ContextMenu> {
         )
         .toDouble();
 
+    Widget menu(BuildContext context, {bool fixedWidth = false}) {
+      final items = widget.itemsBuilder?.call(context) ?? widget.items;
+      final indicatorColumn = _checkables > 0 || _anyCheckable(items);
+      _builtIndicatorColumn = indicatorColumn;
+      Widget list = TapRegion(
+        onTapOutside: widget.onTapOutside,
+        onTapUpInside: widget.onTapUpInside,
+        groupId: tapRegionGroupId,
+        // The arrows walk the rows wherever the app runs; the
+        // web's default shortcuts would scroll the page instead.
+        child: ArrowKeyFocus(
+          child: Focus(
+            focusNode: _contentFocusNode,
+            skipTraversal: true,
+            onKeyEvent: _handleKey,
+            child: FocusTraversalGroup(
+              policy: OrderedTraversalPolicy(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxHeight: maxHeight),
+                child: ScrollArea(
+                  child: _MenuLevel(
+                    menu: this,
+                    indicatorColumn: indicatorColumn,
+                    // A menu to a screen reader: its rows are menu
+                    // items, and a submenu is a menu of its own.
+                    child: Semantics(
+                      container: true,
+                      explicitChildNodes: true,
+                      role: items.isEmpty ? null : SemanticsRole.menu,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: items,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      if (!fixedWidth) {
+        list = ConstrainedBox(
+          constraints: effectiveConstraints,
+          child: IntrinsicWidth(child: list),
+        );
+      }
+      return MouseArea(
+        groupId: widget.areaGroupId,
+        key: ValueKey(widget.areaGroupId),
+        child: list,
+      );
+    }
+
+    final trigger = MouseArea(
+      groupId: widget.areaGroupId,
+      onEnter: (_) => widget.onHoverArea?.call(true),
+      onExit: (_) => widget.onHoverArea?.call(false),
+      child: TapRegion(groupId: tapRegionGroupId, child: widget.child),
+    );
+
+    _builtMorph =
+        widget.liquidGlassMorph &&
+        _root == null &&
+        widget.requestFocus &&
+        controller.position == null &&
+        theme.formFactor != FormFactor.desktop &&
+        LiquidGlass.isActive(context, theme.popoverTheme.liquidGlass);
+    if (_builtMorph) {
+      final radius = theme.radii.resolve(theme.style.popoverRadius);
+      Widget child = LiquidGlassMorphPopover(
+        controller: controller,
+        width: math.min(
+          _morphWidth,
+          MediaQuery.sizeOf(context).width -
+              2 * theme.layoutTheme.gap(GapSize.md),
+        ),
+        radius: radius.topLeft.x,
+        builder: (context) => Padding(
+          padding: effectivePadding,
+          child: menu(context, fixedWidth: true),
+        ),
+        child: trigger,
+      );
+      child = DismissShortcut(
+        isActive: () => controller.isOpen,
+        onDismiss: controller.close,
+        child: child,
+      );
+      return Provider(data: this, child: child);
+    }
+
     Widget child = Popover.internal(
       controller: controller,
       padding: effectivePadding,
@@ -709,64 +825,8 @@ class _ContextMenuState extends State<ContextMenu> {
       exitDuration: _root != null ? Duration.zero : null,
       useSameGroupIdForChild: false,
       requestFocus: widget.requestFocus,
-      builder: (context) {
-        final items = widget.itemsBuilder?.call(context) ?? widget.items;
-        final indicatorColumn = _checkables > 0 || _anyCheckable(items);
-        _builtIndicatorColumn = indicatorColumn;
-        return MouseArea(
-          groupId: widget.areaGroupId,
-          key: ValueKey(widget.areaGroupId),
-          child: ConstrainedBox(
-            constraints: effectiveConstraints,
-            child: IntrinsicWidth(
-              child: TapRegion(
-                onTapOutside: widget.onTapOutside,
-                onTapUpInside: widget.onTapUpInside,
-                groupId: tapRegionGroupId,
-                // The arrows walk the rows wherever the app runs; the
-                // web's default shortcuts would scroll the page instead.
-                child: ArrowKeyFocus(
-                  child: Focus(
-                    focusNode: _contentFocusNode,
-                    skipTraversal: true,
-                    onKeyEvent: _handleKey,
-                    child: FocusTraversalGroup(
-                      policy: OrderedTraversalPolicy(),
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(maxHeight: maxHeight),
-                        child: ScrollArea(
-                          child: _MenuLevel(
-                            menu: this,
-                            indicatorColumn: indicatorColumn,
-                            // A menu to a screen reader: its rows are menu
-                            // items, and a submenu is a menu of its own.
-                            child: Semantics(
-                              container: true,
-                              explicitChildNodes: true,
-                              role: items.isEmpty ? null : SemanticsRole.menu,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.min,
-                                children: items,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-      child: MouseArea(
-        groupId: widget.areaGroupId,
-        onEnter: (_) => widget.onHoverArea?.call(true),
-        onExit: (_) => widget.onHoverArea?.call(false),
-        child: TapRegion(groupId: tapRegionGroupId, child: widget.child),
-      ),
+      builder: menu,
+      child: trigger,
     );
 
     // just put one context menu inherited widget.

@@ -2,7 +2,6 @@ import 'dart:math' as math;
 
 import 'package:finesse/src/components/app_bar_layout.dart';
 import 'package:finesse/src/liquid_glass/liquid_glass.dart';
-import 'package:finesse/src/liquid_glass/liquid_glass_theme.dart';
 import 'package:finesse/src/theme/components/app_bar.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
@@ -307,7 +306,10 @@ class _SliverAppBarState extends State<SliverAppBar>
     final direction = Directionality.of(context);
     final topInset = widget.primary ? MediaQuery.paddingOf(context).top : 0.0;
     final fill = widget.backgroundColor ?? bar.backgroundColor ?? scheme.card;
-    final behavior = large
+    final liquid = appBarUsesLiquidGlass(context, bar.liquidGlass);
+    // On Liquid Glass the scroll edge shows once content is under the bar,
+    // as on iOS: at the top it would only blur the page's own first lines.
+    final behavior = large || liquid
         ? AppBarSurfaceBehavior.whenScrolled
         : widget.surfaceBehavior ??
               bar.surfaceBehavior ??
@@ -318,7 +320,6 @@ class _SliverAppBarState extends State<SliverAppBar>
     final implied = widget.leading == null && widget.automaticallyImplyLeading
         ? impliedLeading(context)
         : null;
-    final liquid = LiquidGlass.isActive(context, bar.liquidGlass);
     var leading = widget.leading ?? implied;
     var actions = widget.automaticallyImplyActions
         ? impliedActions(context, widget.actions)
@@ -329,6 +330,7 @@ class _SliverAppBarState extends State<SliverAppBar>
         leading: leading,
         actions: actions,
         actionsGap: widget.actionsGap,
+        leadingIsButton: implied != null,
       );
     }
     final toolbar = Padding(
@@ -450,12 +452,9 @@ class _SliverAppBarState extends State<SliverAppBar>
       blur: bar.blur ?? 0,
       saturation: bar.saturation ?? 1,
     );
-    // On Liquid Glass the bar has no fill: the page scrolled under it is
-    // blurred and faded into the page colour, and the hairline shows only
-    // in the iOS 27 style.
-    final hairline =
-        widget.showBorder &&
-        (!liquid || theme.liquidGlass.style == GlassStyle.ios27);
+    // On Liquid Glass the bar has no fill and no hairline: the page
+    // scrolled under it is blurred and faded into the page colour.
+    final hairline = widget.showBorder && !liquid;
     Widget body = _SliverBarFill(
       scroll: _scroll,
       visibility: always ? null : _surface,

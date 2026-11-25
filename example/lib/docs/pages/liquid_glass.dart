@@ -36,8 +36,11 @@ final liquidGlassDoc = ComponentDoc(
         title: 'What switches',
         children: [
           DocParagraph(
-            'Navigation chrome: `AppBar` (no fill of its own, the page '
-            'blurred under it, its buttons on glass capsules), the floating '
+            'Navigation chrome: on a phone or a tablet, `AppBar` (no fill '
+            'and no edge of its own: the page that scrolls under it is '
+            'blurred more the nearer the top and faded into the page '
+            'colour; a leading button and the actions on glass capsules, a '
+            'logo bare). A desktop\'s top bar stays solid. The floating '
             '`BottomNavigationBar` and `NavigationScaffold`\'s bottom bar, '
             '`Toolbar`, `NavigationRail` and a glass `FloatingActionButton`. '
             'Floating surfaces: popovers, menus, a select\'s list, '
@@ -46,6 +49,13 @@ final liquidGlassDoc = ComponentDoc(
             'the finger: `Switch`, `Slider` and `SegmentedControl`. '
             'Tooltips stay frosted: neither iOS nor macOS draws them in '
             'glass.',
+          ),
+          DocParagraph(
+            'On a phone or a tablet a `DropdownMenu` morphs out of the button '
+            'that opens it on a spring, and gathers back into it when it '
+            'closes: the package\'s own menu, opened and closed by the '
+            'finesse `PopoverController`. A desktop menu, a right-click or '
+            'long-press menu and a submenu are finesse popovers on glass.',
           ),
           DocParagraph(
             'Each of those has a `liquidGlass` field on its component theme '
@@ -76,7 +86,8 @@ final liquidGlassDoc = ComponentDoc(
             'Load the shaders before the first frame with '
             '`await LiquidGlass.initialize()` in `main()`, after '
             '`WidgetsFlutterBinding.ensureInitialized()`. Without it the '
-            'first glass surfaces come in a frame or two late. If the '
+            'first glass surfaces come in a frame or two late, and the '
+            'package\'s progress messages reach the console. If the '
             'shaders fail to load, finesse draws its frosted glass instead '
             'for the life of the app.',
           ),
@@ -112,7 +123,11 @@ final liquidGlassDoc = ComponentDoc(
             'On the web and under Skia the package draws a lighter version '
             'of the same glass by itself: blur, rim and highlights without '
             'refraction, and a uniform blur where the top edge would be '
-            'graduated. When the system asks for more contrast, finesse '
+            'graduated. finesse builds the app bar\'s graduated blur from '
+            'a few nested bands there instead, and gives menus, popovers and '
+            'dialogs a stronger blur, a lighter body and a hairline edge, '
+            'so they read over a white page and a busy one. When the system '
+            'asks for more contrast, finesse '
             'draws its frosted glass instead '
             '(`LiquidGlassTheme.respectSystemAccessibility`).',
           ),
@@ -121,8 +136,8 @@ final liquidGlassDoc = ComponentDoc(
             'Liquid Glass to On (`LiquidGlassMode.always`). Every component '
             'switches as it would on an iPhone, but a browser on any '
             'system, Windows and Linux draw the package\'s lighter tier: no '
-            'refraction or chromatic edges, and a uniform blur under the '
-            'app bar. Android on Impeller draws the full material.',
+            'refraction or chromatic edges. Android on Impeller draws the '
+            'full material.',
           ),
           DocParagraph(
             'In widget tests `auto` resolves to frosted glass, because '

@@ -354,9 +354,11 @@ was measured from (Strand, until it moved), is its own repository,
   elsewhere; `always` and `never` decide for every platform. Each component
   that switches has a nullable `liquidGlass` on its component theme that
   wins over the theme's.
-- **What switches:** `AppBar` (no fill; the content under it is blurred and
-  faded into the page; the leading button and the actions on glass
-  capsules), the floating `BottomNavigationBar` (the package's tab bar,
+- **What switches:** `AppBar` on a phone or a tablet (no fill and no
+  hairline; the content under it is blurred more the nearer the top and
+  faded into the page, a little past the bar's bottom; a leading button and
+  the actions on glass capsules, a logo bare — a desktop's top bar stays
+  solid unless `AppBarTheme.liquidGlass` is `always`), the floating `BottomNavigationBar` (the package's tab bar,
   with a lens that slides between tabs and the `action` on its own capsule
   beside them), `Toolbar`, `NavigationRail`, a glass `FloatingActionButton`,
   `Glass`, popovers, menus, a select's list, `Surface`, `Command` in a
@@ -368,6 +370,19 @@ was measured from (Strand, until it moved), is its own repository,
   `adaptiveQuality`, `respectSystemAccessibility`, and `light`/`dark`
   `GlassThemeSettings`. The glass is tinted from the scheme's `bar` colour
   unless `tintFromColorScheme` is false.
+- **On a phone or a tablet a menu morphs out of its trigger** — a
+  `DropdownMenu` or a root `ContextMenu` opened at its own anchor — through
+  the package's `GlassPopover`, still opened and closed by its
+  `PopoverController`. A desktop menu, a right-click or long-press menu
+  and a submenu are finesse's popovers on glass.
+- **Without shader filters** (every browser, Skia) the package draws a
+  lighter glass whose blur and rim do little over a light page. finesse
+  gives overlays there a stronger blur and a whitened body and keeps its
+  own hairline round them, and builds the app bar's graduated blur from
+  nested bands instead of the package's uniform fallback.
+- `LiquidGlass.initialize()` keeps the package's progress messages
+  (`[LiquidGlass] Initializing library...`, `Created web shader...`) out
+  of the console.
 - The example's theme editor has a Liquid Glass toggle (Auto / On / Off)
   that previews it on any platform.
 - `LiquidGlass.initialize()` loads the shaders before the first frame; if

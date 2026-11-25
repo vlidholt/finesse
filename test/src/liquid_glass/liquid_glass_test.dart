@@ -1,6 +1,14 @@
+import 'dart:math' as math;
+
 import 'package:finesse/finesse.dart';
 import 'package:finesse/src/liquid_glass/liquid_glass.dart'
-    show LiquidGlassBarGroup, LiquidGlassScrollEdge, glassThemeDataOf;
+    show
+        LiquidGlassBarGroup,
+        LiquidGlassScrollEdge,
+        glassThemeDataOf,
+        legibleOverlaySettings,
+        overlayEdgeColor;
+import 'package:finesse/src/liquid_glass/menu.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -279,7 +287,15 @@ void main() {
           ),
         );
         expect(find.byType(LiquidGlassScrollEdge), findsOneWidget);
-        expect(find.byType(lg.ProgressiveBlur), findsOneWidget);
+        // At the top of the page nothing is under the bar, and the edge
+        // waits for content to scroll beneath it.
+        expect(
+          find.descendant(
+            of: find.byType(LiquidGlassScrollEdge),
+            matching: find.byType(BackdropFilter),
+          ),
+          findsNothing,
+        );
         // Both actions share one capsule.
         expect(find.byType(LiquidGlassBarGroup), findsOneWidget);
         expect(
@@ -439,6 +455,189 @@ void main() {
         control.onSegmentSelected(1);
         expect(chosen, 1);
       });
+    });
+    testWidgets('a desktop app bar is solid unless its theme says always', (
+      tester,
+    ) async {
+      await onPlatform(TargetPlatform.macOS, () async {
+        Widget bar() => Column(
+          children: [
+            AppBar(
+              title: const Text('Title'),
+              actions: [IconButton(icon: const SizedBox(), onPressed: () {})],
+            ),
+          ],
+        );
+        await pump(tester, bar(), formFactor: FormFactor.desktop);
+        expect(find.byType(LiquidGlassScrollEdge), findsNothing);
+        expect(find.byType(LiquidGlassBarGroup), findsNothing);
+
+        await pumpFinesse(
+          tester,
+          bar(),
+          theme: ThemeData(
+            appBarTheme: const AppBarTheme(liquidGlass: LiquidGlassMode.always),
+          ),
+        );
+        expect(find.byType(LiquidGlassScrollEdge), findsOneWidget);
+      });
+    });
+
+    testWidgets('a logo stands bare; a leading button gets a capsule', (
+      tester,
+    ) async {
+      await onPlatform(TargetPlatform.iOS, () async {
+        await pump(
+          tester,
+          const Column(
+            children: [AppBar(leading: Text('logo'), title: Text('Title'))],
+          ),
+        );
+        expect(find.byType(LiquidGlassBarGroup), findsNothing);
+
+        await pump(
+          tester,
+          Column(
+            children: [
+              AppBar(
+                leading: IconButton(icon: const SizedBox(), onPressed: () {}),
+                title: const Text('Title'),
+              ),
+            ],
+          ),
+        );
+        expect(find.byType(LiquidGlassBarGroup), findsOneWidget);
+      });
+    });
+
+    testWidgets('a bar on glass draws no hairline of its own', (tester) async {
+      await onPlatform(TargetPlatform.iOS, () async {
+        await pump(
+          tester,
+          const Column(children: [AppBar(title: Text('Title'))]),
+        );
+        expect(
+          find.descendant(
+            of: find.byType(AppBar),
+            matching: find.byWidgetPredicate(
+              (w) =>
+                  w is DecoratedBox &&
+                  w.decoration is BoxDecoration &&
+                  (w.decoration as BoxDecoration).border != null,
+            ),
+          ),
+          findsNothing,
+        );
+      });
+    });
+
+    testWidgets('the scroll edge reaches below its box, in fine bands', (
+      tester,
+    ) async {
+      await pump(
+        tester,
+        const Align(
+          alignment: Alignment.topCenter,
+          child: SizedBox(
+            height: 50,
+            child: LiquidGlassScrollEdge(color: Color(0xFFFFFFFF)),
+          ),
+        ),
+      );
+      // No shader filters in a test, as on the web: the graduated blur is
+      // nested bands rather than the package's single pass, which would
+      // blur uniformly and stop on a line.
+      expect(find.byType(lg.ProgressiveBlur), findsNothing);
+      final bands = find.byType(BackdropFilter);
+      expect(bands, findsNWidgets(6));
+      // The widest band covers the box and its overhang.
+      expect(tester.getRect(bands.first).height, 50 + 24);
+    });
+
+    testWidgets('a menu on a phone morphs out of its trigger', (tester) async {
+      await onPlatform(TargetPlatform.iOS, () async {
+        await pump(
+          tester,
+          Center(
+            child: DropdownMenu(
+              items: const [MenuItem(child: Text('Profile'))],
+              builder: (context, controller, _) => Button(
+                onPressed: controller.toggle,
+                child: const Text('Account'),
+              ),
+            ),
+          ),
+        );
+        expect(find.byType(LiquidGlassMorphPopover), findsOneWidget);
+        expect(find.byType(lg.GlassPopover), findsOneWidget);
+        await tester.tap(find.text('Account'));
+        for (var i = 0; i < 20; i++) {
+          await tester.pump(const Duration(milliseconds: 50));
+        }
+        expect(find.text('Profile'), findsOneWidget);
+        // A tap on a row closes it through the finesse controller.
+        await tester.tap(find.text('Profile'));
+        for (var i = 0; i < 20; i++) {
+          await tester.pump(const Duration(milliseconds: 50));
+        }
+        expect(find.text('Profile'), findsNothing);
+      });
+    });
+
+    testWidgets('a desktop menu and a region menu stay finesse popovers', (
+      tester,
+    ) async {
+      await onPlatform(TargetPlatform.iOS, () async {
+        Widget menu() => Center(
+          child: DropdownMenu(
+            items: const [MenuItem(child: Text('Profile'))],
+            builder: (context, controller, _) => Button(
+              onPressed: controller.toggle,
+              child: const Text('Account'),
+            ),
+          ),
+        );
+        await pump(tester, menu(), formFactor: FormFactor.desktop);
+        expect(find.byType(LiquidGlassMorphPopover), findsNothing);
+
+        await pump(
+          tester,
+          const Center(
+            child: ContextMenuRegion(
+              items: [MenuItem(child: Text('Copy'))],
+              child: SizedBox.square(dimension: 100),
+            ),
+          ),
+        );
+        expect(find.byType(LiquidGlassMorphPopover), findsNothing);
+      });
+    });
+  });
+
+  group('legibility without shader filters', () {
+    test('an overlay is blurred, whitened and edged', () {
+      final light = ThemeData();
+      const preset = lg.LiquidGlassSettings(blur: .6);
+      final settings = legibleOverlaySettings(preset, light);
+      expect(settings.blur, light.style.glassBlur / 2);
+      expect(settings.whitenStrength, greaterThan(0));
+      expect(settings.edgeAbsorption, greaterThan(preset.edgeAbsorption));
+      expect(overlayEdgeColor(light).a, greaterThan(0));
+
+      final dark = ThemeData(brightness: Brightness.dark);
+      expect(legibleOverlaySettings(preset, dark).whitenStrength, 0);
+    });
+
+    test("the scroll edge's bands make a straight ramp", () {
+      const n = 4;
+      final sigmas = LiquidGlassScrollEdge.bandSigmas(12, n);
+      expect(sigmas, hasLength(n));
+      // Slice j from the top is covered by the last n - j bands.
+      for (var j = 0; j < n; j++) {
+        final covering = sigmas.sublist(0, n - j);
+        final composed = covering.fold<double>(0, (a, s) => a + s * s);
+        expect(composed, closeTo(math.pow(12 * (n - j) / n, 2), 1e-9));
+      }
     });
   });
 

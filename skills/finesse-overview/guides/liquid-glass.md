@@ -53,10 +53,11 @@ ThemeData(
 
 | finesse | On Liquid Glass |
 | --- | --- |
-| `AppBar` | No fill; the content under it is blurred and faded into the page (`ProgressiveBlur`); the leading button and the actions sit on glass capsules. The hairline shows only with `GlassStyle.ios27`. |
+| `AppBar` (phone and tablet) | No fill, no hairline; the content under it is blurred more the nearer the top and faded into the page, a little past the bar. A leading button and the actions sit on glass capsules; a logo or title stands bare. A desktop top bar stays solid unless `AppBarTheme(liquidGlass: LiquidGlassMode.always)`. |
 | `BottomNavigationBar` (floating, with a selection) | The package's `GlassTabBar.bottom`: a lens slides between tabs; `action` floats beside the tabs on its own capsule. |
 | `Toolbar`, docked bottom bar, `NavigationRail` | Glass material, finesse layout. |
 | `Glass` (frosted, no custom `color`) | Glass material. Scrims and `frosted: false` stay. |
+| `DropdownMenu`, a root `ContextMenu` (phone and tablet) | Morphs out of its trigger on a spring (the package's `GlassPopover`), driven by its `PopoverController`. Desktop, right-click, long-press and submenus stay finesse popovers. |
 | `Popover`, menus, `Select` list, `Surface`, `Command` in a dialog, `Dialog`, `Sheet`, toasts | Glass material, finesse layout and behaviour; the entrance fade drives the glass's visibility. A popover with an arrow stays frosted. |
 | `Switch`, `Slider`, `SegmentedControl` | The package's `GlassSwitch`, `GlassSlider`, `GlassSegmentedControl` (lens under the finger). A slider with a value bubble always shown or division marks, and a segmented control with no selection or with a non-`Text` label and no `semanticLabel`, stay finesse's. |
 | `Tooltip`, cards, list tiles, fields, content buttons | Unchanged. |
@@ -72,6 +73,12 @@ finesse's sizes.
 
 The full material needs Impeller's shader filters (iOS, macOS, Android).
 On the web and Skia the package draws its `standard` tier by itself (blur,
-rim, highlights, no refraction; the top edge blurs uniformly). Tests run as
+rim, highlights, no refraction). There finesse builds the app bar's
+graduated blur from nested bands (the package's would be uniform, ending on
+a line) and makes overlays legible: a stronger blur, a whitened body and
+finesse's hairline edge (`LiquidGlassSettings` `blur`, `whitenStrength`,
+`edgeAbsorption`; the package's `frost`, which iOS uses for that, is
+Impeller-only). `LiquidGlass.initialize()` also keeps the package's progress
+messages out of the console. Tests run as
 Android, so `auto` is frosted; set `debugDefaultTargetPlatformOverride =
 TargetPlatform.iOS` to exercise the Liquid Glass path.

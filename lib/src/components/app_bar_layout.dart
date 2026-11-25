@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui' show ImageFilter;
 
 import 'package:finesse/src/components/back_button.dart';
+import 'package:finesse/src/components/button.dart';
 import 'package:finesse/src/components/icon_button.dart';
 import 'package:finesse/src/components/scaffold.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
@@ -9,6 +10,7 @@ import 'package:finesse/src/icons/phosphor_icon.dart';
 import 'package:finesse/src/icons/phosphor_icons_regular.dart';
 import 'package:finesse/src/liquid_glass/liquid_glass.dart';
 import 'package:finesse/src/liquid_glass/liquid_glass_theme.dart';
+import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/backdrop.dart';
 import 'package:flutter/rendering.dart';
@@ -17,18 +19,46 @@ import 'package:flutter/widgets.dart';
 // The parts `AppBar` and `SliverAppBar` are both made of: the toolbar row,
 // the bar's surface, and the leading button a bar shows by itself. Internal.
 
+/// Whether a bar at the top of the page draws with Liquid Glass in
+/// [context], its component theme saying [mode].
+///
+/// Only at the phone and tablet form factors: a desktop's top bar is a
+/// solid bar, as a Mac window's toolbar sits on its own material rather
+/// than floating free over the content, unless the bar's own theme asks
+/// for glass with [LiquidGlassMode.always].
+bool appBarUsesLiquidGlass(BuildContext context, LiquidGlassMode? mode) {
+  if (Theme.of(context).formFactor == FormFactor.desktop &&
+      mode != LiquidGlassMode.always) {
+    return false;
+  }
+  return LiquidGlass.isActive(context, mode);
+}
+
+/// Whether [leading] is a button, which iOS 26 puts on a capsule of glass:
+/// a logo or a title at the start of the bar stands on the page bare.
+bool _isBarButton(Widget leading) =>
+    leading is IconButton ||
+    leading is Button ||
+    leading is BackButton ||
+    leading is CloseButton;
+
 /// A bar's [leading] and [actions] as iOS 26 puts them on Liquid Glass:
 /// the leading button on a capsule of its own and all the actions on one
-/// shared capsule, [actionsGap] apart.
+/// shared capsule, [actionsGap] apart. A leading widget that is not a
+/// button (a logo) has no capsule; [leadingIsButton] says it is one
+/// anyway, for a button the bar put there itself.
 (Widget?, List<Widget>) liquidGlassBarSlots(
   BuildContext context, {
   required Widget? leading,
   required List<Widget> actions,
   double? actionsGap,
+  bool leadingIsButton = false,
 }) {
   final theme = Theme.of(context);
   return (
-    leading == null ? null : LiquidGlassBarGroup(children: [leading]),
+    leading == null || !(leadingIsButton || _isBarButton(leading))
+        ? leading
+        : LiquidGlassBarGroup(children: [leading]),
     actions.isEmpty
         ? actions
         : [
@@ -281,9 +311,10 @@ class AppBarSurface extends StatelessWidget {
     super.key,
   });
 
-  /// Whether the bar is Liquid Glass: no fill of its own, only the page
-  /// under it blurred and faded into the page colour (see
-  /// `LiquidGlassScrollEdge`), with the hairline only in the iOS 27 style.
+  /// Whether the bar is Liquid Glass: no fill and no hairline, only the
+  /// page under it blurred and faded into the page colour, more the
+  /// nearer the screen's edge and reaching a little below the bar (see
+  /// `LiquidGlassScrollEdge`), so the bar has no edge of its own.
   final bool liquid;
 
   /// The bar's content.
@@ -314,20 +345,19 @@ class AppBarSurface extends StatelessWidget {
     final visibility = this.visibility;
     if (liquid) {
       final theme = Theme.of(context);
-      final hairline = theme.liquidGlass.style == GlassStyle.ios27
-          ? border
-          : null;
       return Stack(
+        // The scroll edge reaches below the bar.
+        clipBehavior: Clip.none,
         children: [
           Positioned.fill(
             child: LiquidGlassScrollEdge(
               color: theme.colorScheme.background,
               visibility: visibility,
-              hairline: hairline,
             ),
           ),
           Padding(
-            // The hairline's point, as the frosted bar reserves it.
+            // The hairline's point, as the frosted bar reserves it, so the
+            // bar is as tall either way.
             padding: padding + EdgeInsets.only(bottom: border == null ? 0 : 1),
             child: child,
           ),

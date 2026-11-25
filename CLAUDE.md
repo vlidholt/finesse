@@ -206,17 +206,53 @@ componentTheme.liquidGlass)` at build: never a window width, never cached.
   frosted fallback for what the package cannot express: a slider with an
   always-shown bubble or division marks, a segmented control with no
   selection or an unnamed non-`Text` label, a bar with nothing selected or
-  docked, a popover with an arrow. Tooltips never switch.
+  docked, a popover with an arrow, a desktop top bar. Tooltips never
+  switch.
 - **A Liquid Glass surface claims the entrance fade too**, like a
   `BackdropSurface`, and fades the glass by `LiquidGlassSettings.visibility`
   with its content in a `FadeTransition`: the shader does not survive an
   opacity layer any better than a backdrop filter.
-- **The app bar has no fill on glass.** `AppBarSurface(liquid: true)` puts
-  a `LiquidGlassScrollEdge` behind the toolbar (the package's
-  `ProgressiveBlur` plus a page-colour gradient, the iOS 26 soft scroll
-  edge; its sigma, not an opacity, follows the bar's `visibility`), with
-  the hairline only under `GlassStyle.ios27`; leading and actions go on
-  `LiquidGlassBarGroup` capsules (all actions on one).
+- **The app bar has no fill and no edge on glass, and only on a phone or
+  a tablet.** `appBarUsesLiquidGlass` keeps a desktop's top bar (macOS
+  included) finesse's solid bar unless `AppBarTheme.liquidGlass` is
+  `always`. On glass `AppBarSurface(liquid: true)` puts a
+  `LiquidGlassScrollEdge` behind the toolbar — a graduated blur and an
+  eased page-colour gradient, the iOS 26 soft scroll edge, reaching
+  `overhang` (24) below the bar so the page dissolves into it; its sigma,
+  not an opacity, follows the bar's `visibility` — and no hairline. The
+  package's `ProgressiveBlur` needs shader filters: **without them (the
+  web, Skia) it blurs uniformly and stops on a line, which reads as a
+  solid bar**, so there the edge is six nested `BackdropFilter` bands
+  whose sigmas compose to a straight ramp (`bandSigmas`). A leading
+  *button* (`IconButton`, `Button`, `BackButton`, `CloseButton`, or the
+  implied one) goes on a `LiquidGlassBarGroup` capsule; a logo or title
+  stands bare. All actions share one capsule. A bar on glass is always
+  `whenScrolled`: the edge would otherwise blur the page's first lines at
+  rest.
+- **Overlays have to be made legible off Impeller.** The iOS presets get
+  an overlay's legibility from the package's `frost`, which only its
+  premium tier draws; the standard tier (every browser, Skia) keeps their
+  0.6 blur, and its rim fades to 8 % over a light backdrop
+  (`lightweight_glass.frag`'s `rimFade`). So without shader filters an
+  overlay (`LiquidGlassSurface(overlay: true)`, the morphing menu) takes
+  `legibleOverlaySettings` — blur half the style's `glassBlur`, the
+  style's saturation, a .3 whiten veil in light, edge absorption .08 —
+  and finesse's own hairline (`overlayEdgeColor`, foreground/10, /16
+  dark) over the glass. On Impeller the package's settings stand.
+- **A phone's menu morphs out of its trigger.** A root `ContextMenu`
+  (so `DropdownMenu`) at the phone or tablet form factor, opened at its
+  own anchor and taking the focus, builds `LiquidGlassMorphPopover`: the
+  package's `GlassPopover` (a spring morph from the trigger's rect,
+  250 wide or the screen less margins, measured height) driven by the
+  finesse `PopoverController` both ways. A desktop menu, a submenu, a
+  menu opened with `openAt` and a `ContextMenuRegion`'s
+  (`liquidGlassMorph: false`) stay finesse popovers; a menu opened with
+  `openAt` while built as a morph rebuilds as a popover.
+- **The package's progress logs** (`[LiquidGlass] Initializing…`,
+  `[LightweightGlass] ✓ Created web shader…`, printed in release builds
+  too, with no switch) are filtered out by a wrapper `initialize()` puts
+  around `debugPrint`. Not from `FinesseApp`: a test binding fails any
+  test that leaves `debugPrint` changed.
 - **The bottom bar's `action` floats beside the tabs** on the glass bar
   (`GlassTabBarExtraButton`, iOS 26's split bar), not between them.
 - **Haptics stay finesse's rule**: the switch gets
