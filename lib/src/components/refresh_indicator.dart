@@ -283,12 +283,16 @@ class RefreshIndicatorState extends State<RefreshIndicator>
         if (metrics.extentBefore > 0) {
           // Scrolled into the content: the pull is over.
           _cancel();
+        } else if (dragDetails == null && _mode == _Mode.armed) {
+          // Let go while armed. Asked before the content's first step
+          // home is counted, which would take a pull let go just past the
+          // trigger back under it.
+          _release();
         } else {
           // A bouncing list: its content is past the top, and moves about
           // half as far as the finger. Followed on the way back too, so
           // the circle goes home with the content.
           _setPull(_pull - (scrollDelta ?? 0) * _bounceGain);
-          if (dragDetails == null && _mode == _Mode.armed) _release();
         }
       case OverscrollNotification(:final overscroll):
         // A clamping list: the finger's own travel past the top.

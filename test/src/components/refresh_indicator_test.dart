@@ -236,6 +236,8 @@ void main() {
         expect(opacityOf(tester), greaterThan(0));
         await gesture.up();
         await tester.pump();
+        // A bouncing list is let go on its first frame home.
+        await tester.pump(const Duration(milliseconds: 16));
         for (final refresh in refreshes) {
           refresh.complete();
         }
@@ -269,6 +271,36 @@ void main() {
       if (refreshes.length > 1) refreshes.last.complete();
       await tester.pumpAndSettle();
     });
+
+    testWidgets('a bouncing pull let go just past the trigger refreshes', (
+      tester,
+    ) async {
+      final calls = hapticCalls(tester);
+      await pumpFinesse(
+        tester,
+        list(physics: const BouncingScrollPhysics()),
+        formFactor: FormFactor.mobile,
+      );
+      final gesture = await tester.startGesture(const Offset(200, 200));
+      await gesture.moveBy(const Offset(0, 20));
+      await tester.pump();
+      // A point at a time until the indicator arms, with its haptic tap.
+      for (var steps = 0; calls.isEmpty && steps < 600; steps++) {
+        await gesture.moveBy(const Offset(0, 1));
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      expect(calls, isNotEmpty, reason: 'never armed');
+      // Held still, so the release has no speed, and let go: the content's
+      // first step home would take the pull back under the trigger.
+      await tester.pump(const Duration(milliseconds: 60));
+      await gesture.up();
+      for (var i = 0; i < 40; i++) {
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      expect(refreshes, hasLength(1), reason: 'armed but did not refresh');
+      refreshes.single.complete();
+      await tester.pumpAndSettle();
+    }, variant: TargetPlatformVariant.only(TargetPlatform.iOS));
 
     testWidgets('pulling back under the trigger disarms', (tester) async {
       await pumpFinesse(tester, list(physics: const BouncingScrollPhysics()));
