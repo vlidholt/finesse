@@ -56,6 +56,7 @@ import 'package:finesse/src/theme/components/switch.dart';
 import 'package:finesse/src/theme/components/table.dart';
 import 'package:finesse/src/theme/components/tabs.dart';
 import 'package:finesse/src/theme/components/text_field.dart';
+import 'package:finesse/src/theme/components/text_selection.dart';
 import 'package:finesse/src/theme/components/textarea.dart';
 import 'package:finesse/src/theme/components/time_picker.dart';
 import 'package:finesse/src/theme/components/timeline.dart';
@@ -125,6 +126,7 @@ abstract class BaseTheme {
     required this.switchTheme,
     required this.checkboxTheme,
     required this.textFieldTheme,
+    required this.textSelectionTheme,
     required this.radioTheme,
     required this.primaryToastTheme,
     required this.destructiveToastTheme,
@@ -358,6 +360,9 @@ abstract class BaseTheme {
   /// The theme of `TextField`.
   final TextFieldTheme textFieldTheme;
 
+  /// The theme of text selection on touch: handles, toolbar, magnifier.
+  final TextSelectionTheme textSelectionTheme;
+
   /// The theme of `Radio`.
   final RadioTheme radioTheme;
 
@@ -566,6 +571,9 @@ abstract class ThemeVariant {
 
   /// Builds the theme of `TextField`.
   TextFieldTheme textFieldTheme();
+
+  /// Builds the [TextSelectionTheme].
+  TextSelectionTheme textSelectionTheme();
 
   /// Builds the theme of `Radio`.
   RadioTheme radioTheme();

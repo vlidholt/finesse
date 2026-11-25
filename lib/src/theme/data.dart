@@ -57,6 +57,7 @@ import 'package:finesse/src/theme/components/switch.dart';
 import 'package:finesse/src/theme/components/table.dart';
 import 'package:finesse/src/theme/components/tabs.dart';
 import 'package:finesse/src/theme/components/text_field.dart';
+import 'package:finesse/src/theme/components/text_selection.dart';
 import 'package:finesse/src/theme/components/textarea.dart';
 import 'package:finesse/src/theme/components/time_picker.dart';
 import 'package:finesse/src/theme/components/timeline.dart';
@@ -128,6 +129,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     SwitchTheme? switchTheme,
     CheckboxTheme? checkboxTheme,
     TextFieldTheme? textFieldTheme,
+    TextSelectionTheme? textSelectionTheme,
     RadioTheme? radioTheme,
     ToastTheme? primaryToastTheme,
     ToastTheme? destructiveToastTheme,
@@ -399,6 +401,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
         switchTheme: switchTheme,
         checkboxTheme: checkboxTheme,
         textFieldTheme: textFieldTheme,
+        textSelectionTheme: textSelectionTheme,
         radioTheme: radioTheme,
         primaryToastTheme: primaryToastTheme,
         destructiveToastTheme: destructiveToastTheme,
@@ -520,6 +523,9 @@ class ThemeData extends BaseTheme with _$ThemeData {
       switchTheme: effectiveVariant.switchTheme().merge(switchTheme),
       checkboxTheme: effectiveVariant.checkboxTheme().merge(checkboxTheme),
       textFieldTheme: effectiveVariant.textFieldTheme().merge(textFieldTheme),
+      textSelectionTheme: effectiveVariant.textSelectionTheme().merge(
+        textSelectionTheme,
+      ),
       radioTheme: effectiveVariant.radioTheme().merge(radioTheme),
       primaryToastTheme: effectiveVariant.primaryToastTheme().merge(
         primaryToastTheme,
@@ -657,6 +663,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     required super.switchTheme,
     required super.checkboxTheme,
     required super.textFieldTheme,
+    required super.textSelectionTheme,
     required super.radioTheme,
     required super.primaryToastTheme,
     required super.destructiveToastTheme,
@@ -758,6 +765,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     SwitchTheme? switchTheme,
     CheckboxTheme? checkboxTheme,
     TextFieldTheme? textFieldTheme,
+    TextSelectionTheme? textSelectionTheme,
     RadioTheme? radioTheme,
     ToastTheme? primaryToastTheme,
     ToastTheme? destructiveToastTheme,
@@ -853,6 +861,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
       switchTheme: switchTheme ?? i.switchTheme,
       checkboxTheme: checkboxTheme ?? i.checkboxTheme,
       textFieldTheme: textFieldTheme ?? i.textFieldTheme,
+      textSelectionTheme: textSelectionTheme ?? i.textSelectionTheme,
       radioTheme: radioTheme ?? i.radioTheme,
       primaryToastTheme: primaryToastTheme ?? i.primaryToastTheme,
       destructiveToastTheme: destructiveToastTheme ?? i.destructiveToastTheme,
@@ -1047,6 +1056,7 @@ final class _ThemeInputs {
     this.switchTheme,
     this.checkboxTheme,
     this.textFieldTheme,
+    this.textSelectionTheme,
     this.radioTheme,
     this.primaryToastTheme,
     this.destructiveToastTheme,
@@ -1140,6 +1150,7 @@ final class _ThemeInputs {
   final SwitchTheme? switchTheme;
   final CheckboxTheme? checkboxTheme;
   final TextFieldTheme? textFieldTheme;
+  final TextSelectionTheme? textSelectionTheme;
   final RadioTheme? radioTheme;
   final ToastTheme? primaryToastTheme;
   final ToastTheme? destructiveToastTheme;

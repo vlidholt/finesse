@@ -12,7 +12,6 @@ import 'package:example/strand/screens/search_screen.dart';
 import 'package:example/strand/strand_shell.dart';
 import 'package:example/strand/widgets/person_avatar.dart';
 import 'package:example/strand/session.dart';
-import 'package:example/strand/widgets/search_field.dart';
 import 'package:example/strand/widgets/strand_logo.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';

@@ -3,6 +3,7 @@ import 'package:example/docs/pages/accordion.dart';
 import 'package:example/docs/pages/action_sheet.dart';
 import 'package:example/docs/pages/alert.dart';
 import 'package:example/docs/pages/app_bar.dart';
+import 'package:example/docs/pages/autocomplete.dart';
 import 'package:example/docs/pages/avatar.dart';
 import 'package:example/docs/pages/avatar_group.dart';
 import 'package:example/docs/pages/back_button.dart';
@@ -46,6 +47,7 @@ import 'package:example/docs/pages/menubar.dart';
 import 'package:example/docs/pages/motion.dart';
 import 'package:example/docs/pages/navigation_bar.dart';
 import 'package:example/docs/pages/navigation_rail.dart';
+import 'package:example/docs/pages/number_field.dart';
 import 'package:example/docs/pages/otp_field.dart';
 import 'package:example/docs/pages/overview.dart';
 import 'package:example/docs/pages/page_container.dart';
@@ -60,8 +62,11 @@ import 'package:example/docs/pages/resizable.dart';
 import 'package:example/docs/pages/responsive.dart';
 import 'package:example/docs/pages/scaffold.dart';
 import 'package:example/docs/pages/scroll_area.dart';
+import 'package:example/docs/pages/search_field.dart';
+import 'package:example/docs/pages/search_view.dart';
 import 'package:example/docs/pages/segmented_control.dart';
 import 'package:example/docs/pages/select.dart';
+import 'package:example/docs/pages/selection_area.dart';
 import 'package:example/docs/pages/sheet.dart';
 import 'package:example/docs/pages/sidebar.dart';
 import 'package:example/docs/pages/skeleton.dart';
@@ -76,6 +81,7 @@ import 'package:example/docs/pages/switch.dart';
 import 'package:example/docs/pages/tab_bar.dart';
 import 'package:example/docs/pages/table.dart';
 import 'package:example/docs/pages/tabs.dart';
+import 'package:example/docs/pages/tag_field.dart';
 import 'package:example/docs/pages/text_field.dart';
 import 'package:example/docs/pages/textarea.dart';
 import 'package:example/docs/pages/theming.dart';
@@ -128,6 +134,7 @@ final componentDocs = [
   actionSheetDoc,
   alertDoc,
   appBarDoc,
+  autocompleteDoc,
   avatarDoc,
   avatarGroupDoc,
   backButtonDoc,
@@ -163,6 +170,7 @@ final componentDocs = [
   menubarDoc,
   navigationBarDoc,
   navigationRailDoc,
+  numberFieldDoc,
   otpFieldDoc,
   pageContainerDoc,
   pageRouteDoc,
@@ -174,8 +182,11 @@ final componentDocs = [
   resizableDoc,
   scaffoldDoc,
   scrollAreaDoc,
+  searchFieldDoc,
+  searchViewDoc,
   segmentedControlDoc,
   selectDoc,
+  selectionAreaDoc,
   sheetDoc,
   sidebarDoc,
   skeletonDoc,
@@ -189,6 +200,7 @@ final componentDocs = [
   tabBarDoc,
   tableDoc,
   tabsDoc,
+  tagFieldDoc,
   textFieldDoc,
   textareaDoc,
   timePickerDoc,

@@ -32,6 +32,7 @@ class TextFieldTheme with _$TextFieldTheme {
     this.scrollbarPadding,
     this.verticalGap,
     this.useBrowserContextMenu,
+    this.useSystemContextMenu,
   }) : _canMerge = canMerge;
 
   @ignore
@@ -96,6 +97,16 @@ class TextFieldTheme with _$TextFieldTheme {
 
   /// {@macro TextField.useBrowserContextMenu}
   final bool? useBrowserContextMenu;
+
+  /// Whether a text field's selection menu is the operating system's own
+  /// where it can draw one — iOS 16 and later — instead of the package's
+  /// `TextSelectionToolbar`. Defaults to false.
+  ///
+  /// The system's menu is not themed, but pasting from it does not raise
+  /// iOS's "allow paste" dialog, which a paste from any menu drawn by the
+  /// app does. It needs a `MediaQuery` whose
+  /// `supportsShowingSystemContextMenu` is true, which `FinesseApp` gives.
+  final bool? useSystemContextMenu;
 
   /// Linearly interpolates between [a] and [b] by [t].
   static TextFieldTheme? lerp(

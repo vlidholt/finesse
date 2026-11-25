@@ -2,7 +2,6 @@ import 'package:example/strand/data/messages_data.dart';
 import 'package:example/strand/widgets/messages_common.dart';
 import 'package:example/strand/widgets/messages_controller.dart';
 import 'package:example/strand/widgets/messages_new_dialog.dart';
-import 'package:example/strand/widgets/search_field.dart';
 import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
@@ -173,8 +172,6 @@ class _ListHeader extends StatelessWidget {
         ),
         SearchField(
           placeholder: 'Search messages',
-          showShortcut: false,
-          maxWidth: double.infinity,
           controller: controller.search,
         ),
         // The chips do not wrap: the ones that do not fit scroll into view.

@@ -3,7 +3,6 @@ import 'package:example/strand/navigation.dart';
 import 'package:example/strand/screens/search_screen.dart';
 import 'package:example/strand/widgets/home_post_comments.dart';
 import 'package:example/strand/widgets/search_bar.dart';
-import 'package:example/strand/widgets/search_field.dart';
 import 'package:finesse/finesse.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';

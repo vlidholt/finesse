@@ -16,6 +16,39 @@ input:
   copy: "Copy"
   paste: "Paste"
   selectAll: "Select All"
+  delete: "Delete"
+  lookUp: "Look Up"
+  searchWeb: "Search Web"
+  share: "Share"
+  liveText: "Scan Text"
+  moreActions: "More"
+  previousActions: "Back"
+  clear: "Clear"
+  showPassword: "Show password"
+  hidePassword: "Hide password"
+  characterCount: "$count of $max characters"
+  characterLimit: "Character limit reached"
+
+autocomplete:
+  noResults: "No results"
+  oneResult: "1 result available"
+  results: "$count results available"
+  loading: "Loading…"
+
+numberField:
+  increase: "Increase"
+  decrease: "Decrease"
+
+search:
+  placeholder: "Search"
+  cancel: "Cancel"
+  clear: "Clear search"
+  close: "Close search"
+
+tagField:
+  remove: "Remove $tag"
+  added: "$tag added"
+  removed: "$tag removed"
 
 keyboardToolbar:
   done: "Done"

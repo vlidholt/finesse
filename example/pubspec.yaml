@@ -61,6 +61,8 @@ flutter:
     - lib/docs/examples/surface/
     - lib/docs/examples/scroll_area/
     - lib/docs/examples/segmented_control/
+    - lib/docs/examples/search_field/
+    - lib/docs/examples/search_view/
     - lib/docs/examples/dropdown_menu/
     - lib/docs/examples/keyboard_toolbar/
     - lib/docs/examples/list_detail_layout/
@@ -73,6 +75,7 @@ flutter:
     - lib/docs/examples/radio_group/
     - lib/docs/examples/resizable/
     - lib/docs/examples/select/
+    - lib/docs/examples/selection_area/
     - lib/docs/examples/divider/
     - lib/docs/examples/sheet/
     - lib/docs/examples/sidebar/
@@ -84,6 +87,7 @@ flutter:
     - lib/docs/examples/switch/
     - lib/docs/examples/table/
     - lib/docs/examples/tabs/
+    - lib/docs/examples/tag_field/
     - lib/docs/examples/textarea/
     - lib/docs/examples/time_picker/
     - lib/docs/examples/toast/
@@ -94,8 +98,10 @@ flutter:
     - lib/docs/examples/typography/
     - lib/docs/examples/glass/
     - lib/docs/examples/app_bar/
+    - lib/docs/examples/autocomplete/
     - lib/docs/examples/navigation_bar/
     - lib/docs/examples/navigation_rail/
+    - lib/docs/examples/number_field/
     - lib/docs/examples/scaffold/
     - lib/docs/examples/board/
     - lib/docs/examples/chip/

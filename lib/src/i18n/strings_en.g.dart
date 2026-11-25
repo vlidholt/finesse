@@ -39,6 +39,10 @@ class FinesseLocalizationsData with BaseTranslations<FinesseLocale, FinesseLocal
 	late final FinesseLocalizationsData$timePicker$en timePicker = FinesseLocalizationsData$timePicker$en.internal(_root);
 	late final FinesseLocalizationsData$datePicker$en datePicker = FinesseLocalizationsData$datePicker$en.internal(_root);
 	late final FinesseLocalizationsData$input$en input = FinesseLocalizationsData$input$en.internal(_root);
+	late final FinesseLocalizationsData$autocomplete$en autocomplete = FinesseLocalizationsData$autocomplete$en.internal(_root);
+	late final FinesseLocalizationsData$numberField$en numberField = FinesseLocalizationsData$numberField$en.internal(_root);
+	late final FinesseLocalizationsData$search$en search = FinesseLocalizationsData$search$en.internal(_root);
+	late final FinesseLocalizationsData$tagField$en tagField = FinesseLocalizationsData$tagField$en.internal(_root);
 	late final FinesseLocalizationsData$keyboardToolbar$en keyboardToolbar = FinesseLocalizationsData$keyboardToolbar$en.internal(_root);
 	late final FinesseLocalizationsData$empty$en empty = FinesseLocalizationsData$empty$en.internal(_root);
 	late final FinesseLocalizationsData$command$en command = FinesseLocalizationsData$command$en.internal(_root);
@@ -117,6 +121,117 @@ class FinesseLocalizationsData$input$en {
 
 	/// en: 'Select All'
 	String get selectAll => 'Select All';
+
+	/// en: 'Delete'
+	String get delete => 'Delete';
+
+	/// en: 'Look Up'
+	String get lookUp => 'Look Up';
+
+	/// en: 'Search Web'
+	String get searchWeb => 'Search Web';
+
+	/// en: 'Share'
+	String get share => 'Share';
+
+	/// en: 'Scan Text'
+	String get liveText => 'Scan Text';
+
+	/// en: 'More'
+	String get moreActions => 'More';
+
+	/// en: 'Back'
+	String get previousActions => 'Back';
+
+	/// en: 'Clear'
+	String get clear => 'Clear';
+
+	/// en: 'Show password'
+	String get showPassword => 'Show password';
+
+	/// en: 'Hide password'
+	String get hidePassword => 'Hide password';
+
+	/// en: '$count of $max characters'
+	String characterCount({required Object count, required Object max}) => '${count} of ${max} characters';
+
+	/// en: 'Character limit reached'
+	String get characterLimit => 'Character limit reached';
+}
+
+// Path: autocomplete
+class FinesseLocalizationsData$autocomplete$en {
+	FinesseLocalizationsData$autocomplete$en.internal(this._root);
+
+	final FinesseLocalizationsData _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'No results'
+	String get noResults => 'No results';
+
+	/// en: '1 result available'
+	String get oneResult => '1 result available';
+
+	/// en: '$count results available'
+	String results({required Object count}) => '${count} results available';
+
+	/// en: 'Loading…'
+	String get loading => 'Loading…';
+}
+
+// Path: numberField
+class FinesseLocalizationsData$numberField$en {
+	FinesseLocalizationsData$numberField$en.internal(this._root);
+
+	final FinesseLocalizationsData _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Increase'
+	String get increase => 'Increase';
+
+	/// en: 'Decrease'
+	String get decrease => 'Decrease';
+}
+
+// Path: search
+class FinesseLocalizationsData$search$en {
+	FinesseLocalizationsData$search$en.internal(this._root);
+
+	final FinesseLocalizationsData _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Search'
+	String get placeholder => 'Search';
+
+	/// en: 'Cancel'
+	String get cancel => 'Cancel';
+
+	/// en: 'Clear search'
+	String get clear => 'Clear search';
+
+	/// en: 'Close search'
+	String get close => 'Close search';
+}
+
+// Path: tagField
+class FinesseLocalizationsData$tagField$en {
+	FinesseLocalizationsData$tagField$en.internal(this._root);
+
+	final FinesseLocalizationsData _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Remove $tag'
+	String remove({required Object tag}) => 'Remove ${tag}';
+
+	/// en: '$tag added'
+	String added({required Object tag}) => '${tag} added';
+
+	/// en: '$tag removed'
+	String removed({required Object tag}) => '${tag} removed';
 }
 
 // Path: keyboardToolbar
@@ -330,6 +445,31 @@ extension on FinesseLocalizationsData {
 			'input.copy' => 'Copy',
 			'input.paste' => 'Paste',
 			'input.selectAll' => 'Select All',
+			'input.delete' => 'Delete',
+			'input.lookUp' => 'Look Up',
+			'input.searchWeb' => 'Search Web',
+			'input.share' => 'Share',
+			'input.liveText' => 'Scan Text',
+			'input.moreActions' => 'More',
+			'input.previousActions' => 'Back',
+			'input.clear' => 'Clear',
+			'input.showPassword' => 'Show password',
+			'input.hidePassword' => 'Hide password',
+			'input.characterCount' => ({required Object count, required Object max}) => '${count} of ${max} characters',
+			'input.characterLimit' => 'Character limit reached',
+			'autocomplete.noResults' => 'No results',
+			'autocomplete.oneResult' => '1 result available',
+			'autocomplete.results' => ({required Object count}) => '${count} results available',
+			'autocomplete.loading' => 'Loading…',
+			'numberField.increase' => 'Increase',
+			'numberField.decrease' => 'Decrease',
+			'search.placeholder' => 'Search',
+			'search.cancel' => 'Cancel',
+			'search.clear' => 'Clear search',
+			'search.close' => 'Close search',
+			'tagField.remove' => ({required Object tag}) => 'Remove ${tag}',
+			'tagField.added' => ({required Object tag}) => '${tag} added',
+			'tagField.removed' => ({required Object tag}) => '${tag} removed',
 			'keyboardToolbar.done' => 'Done',
 			'empty.title' => 'No results',
 			'command.noResults' => 'No results found.',

@@ -70,7 +70,7 @@ class Textarea extends StatefulWidget {
     this.enableIMEPersonalizedLearning = true,
     this.contextMenuBuilder,
     this.spellCheckConfiguration,
-    this.magnifierConfiguration = TextMagnifierConfiguration.disabled,
+    this.magnifierConfiguration,
     this.selectionColor,
     this.padding,
     this.mainAxisAlignment,
@@ -102,6 +102,7 @@ class Textarea extends StatefulWidget {
     this.useBrowserContextMenu,
     this.onPasteFiles,
     this.onPasteFilesError,
+    this.showCounter = false,
   }) : enableInteractiveSelection = enableInteractiveSelection ?? !readOnly,
        assert(
          initialValue == null || controller == null,
@@ -335,9 +336,11 @@ class Textarea extends StatefulWidget {
   final SpellCheckConfiguration? spellCheckConfiguration;
 
   /// {@template Textarea.magnifierConfiguration}
-  /// Configuration for the text magnifier shown during selection.
+  /// The magnifier shown above the finger while the caret or a selection
+  /// handle is dragged. Defaults to `TextMagnifier.adaptiveConfiguration`:
+  /// this system's loupe on iOS and Android, none on a desktop.
   /// {@endtemplate}
-  final TextMagnifierConfiguration magnifierConfiguration;
+  final TextMagnifierConfiguration? magnifierConfiguration;
 
   /// {@template Textarea.contentInsertionConfiguration}
   /// Platform-specific configuration for handling content insertion.
@@ -467,6 +470,9 @@ class Textarea extends StatefulWidget {
 
   /// {@macro TextField.onPasteFilesError}
   final ValueChanged<Object>? onPasteFilesError;
+
+  /// {@macro TextField.showCounter}
+  final bool showCounter;
 
   @override
   State<Textarea> createState() => _TextareaState();
@@ -687,6 +693,7 @@ class _TextareaState extends State<Textarea> {
             useBrowserContextMenu: widget.useBrowserContextMenu,
             onPasteFiles: widget.onPasteFiles,
             onPasteFilesError: widget.onPasteFilesError,
+            showCounter: widget.showCounter,
           ),
         ),
         if (widget.resizable)
