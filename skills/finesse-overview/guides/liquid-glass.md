@@ -73,9 +73,11 @@ finesse's sizes.
 
 The full material needs Impeller's shader filters (iOS, macOS, Android).
 On the web and Skia the package draws its `standard` tier by itself (blur,
-rim, highlights, no refraction). There finesse builds the app bar's
-graduated blur from strips that fall off smoothly (the package's would be
-uniform, ending on a line), drops the presets' invisible 0.6 blur so it costs
+rim, highlights, no refraction). There a top bar that would be Liquid Glass
+is solid instead (the bar colour, opaque, with its hairline; no scroll edge
+and no capsules: the package's graduated blur would be uniform, ending on a
+line, and one built from backdrop filters shows bands and costs every frame
+of a scroll), finesse drops the presets' invisible 0.6 blur so it costs
 no backdrop pass, and makes overlays legible: a stronger blur, a whitened body and
 finesse's hairline edge (`LiquidGlassSettings` `blur`, `whitenStrength`,
 `edgeAbsorption`; the package's `frost`, which iOS uses for that, is

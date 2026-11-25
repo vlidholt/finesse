@@ -115,6 +115,17 @@ abstract final class LiquidGlass {
   static bool isApplePlatform(TargetPlatform platform) =>
       platform == TargetPlatform.iOS || platform == TargetPlatform.macOS;
 
+  /// Whether the renderer has shader image filters (Impeller), which the
+  /// package's graduated blur needs. The web and Skia have none: there a
+  /// bar that would be Liquid Glass is drawn solid instead (see `AppBar`).
+  static bool get hasShaderFilters =>
+      debugHasShaderFilters ?? ui.ImageFilter.isShaderFilterSupported;
+
+  /// Stands in for the renderer's answer to [hasShaderFilters] in tests,
+  /// which have no shader filters. Put it back with null.
+  @visibleForTesting
+  static bool? debugHasShaderFilters;
+
   /// Whether a component under [context] draws with Liquid Glass.
   ///
   /// [mode] is the component theme's own setting, which wins over
@@ -534,12 +545,12 @@ class LiquidGlassBarGroup extends StatelessWidget {
 ///
 /// [visibility] shows it from 0 (nothing) to 1. The blur's strength is
 /// what changes, not an opacity: a backdrop filter under an opacity layer
-/// does not survive on every renderer. With shader filters (Impeller) the
-/// blur is the package's `ProgressiveBlur`, one graduated pass. Without
-/// them — the web, Skia — the package would blur uniformly and end on a
-/// hard edge, which reads as a solid bar; there the blur is built from a
-/// strips side by side instead, their blur falling with the square of the
-/// distance from the bottom so no step between them shows.
+/// does not survive on every renderer. The blur is the package's
+/// `ProgressiveBlur`, one graduated pass, which needs shader filters
+/// (Impeller). Without them — the web, Skia — a bar that would be Liquid
+/// Glass is drawn solid instead and has no scroll edge (see `AppBar`): every
+/// way of grading a blur there showed bands, and each backdrop filter is
+/// paid on every frame of a scroll.
 class LiquidGlassScrollEdge extends StatelessWidget {
   /// Creates the scroll edge of a bar, faded in by [visibility].
   const LiquidGlassScrollEdge({
@@ -562,57 +573,13 @@ class LiquidGlassScrollEdge extends StatelessWidget {
   /// How far the edge reaches below the box it is given.
   final double overhang;
 
-  /// How many strips make the graduated blur without shader filters.
-  static const _strips = 6;
-
-  /// The sigma of each strip of the graduated blur without shader filters,
-  /// top first.
-  ///
-  /// The strips lie side by side, each blurring the page under it once.
-  /// The sigma falls with the square of the distance from the bottom, so
-  /// the steps between neighbours are tiny where the blur is light, where
-  /// a step would show as a line through sharp content, and larger only
-  /// where the content is a soft wash anyway. Nested bands whose blurs
-  /// compose — this edge's first fallback — step evenly and showed as
-  /// stripes on a photograph.
-  @visibleForTesting
-  static List<double> stripSigmas(double maxSigma, [int n = _strips]) => [
-    for (var j = 0; j < n; j++)
-      maxSigma * math.pow(1 - (j + .5) / n, 2).toDouble(),
-  ];
-
-  Widget _blur(double sigma) {
-    if (ui.ImageFilter.isShaderFilterSupported) {
-      return lg.ProgressiveBlur(maxSigma: sigma);
-    }
-    return Column(
-      children: [
-        for (final s in stripSigmas(sigma))
-          Expanded(
-            child: ClipRect(
-              child: BackdropFilter(
-                filter: ui.ImageFilter.blur(
-                  sigmaX: s,
-                  sigmaY: s,
-                  // Each strip reads the page beyond its own edges, not a
-                  // transparent border, or its ends would darken.
-                  tileMode: TileMode.mirror,
-                ),
-                child: const SizedBox.expand(),
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-
   Widget _build(double t) {
     if (t <= 0) return const SizedBox.expand();
     final a = color.a * t;
     return Stack(
       fit: StackFit.expand,
       children: [
-        _blur(maxSigma * t),
+        lg.ProgressiveBlur(maxSigma: maxSigma * t),
         DecoratedBox(
           decoration: BoxDecoration(
             gradient: LinearGradient(

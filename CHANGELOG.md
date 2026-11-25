@@ -379,9 +379,12 @@ was measured from (Strand, until it moved), is its own repository,
 - **Without shader filters** (every browser, Skia) the package draws a
   lighter glass whose blur and rim do little over a light page. finesse
   gives overlays there a stronger blur and a whitened body and keeps its
-  own hairline round them, and builds the app bar's graduated blur from
-  strips whose blur falls with the square of the distance from the bottom,
-  instead of the package's uniform fallback. A blur too faint to see (the
+  own hairline round them. A phone's or tablet's top bar that would be
+  Liquid Glass is solid there instead: the bar colour at full opacity with
+  its hairline, no blur, no scroll edge and no capsules, at rest too. A
+  graduated blur built from backdrop filters showed bands and cost every
+  frame of a scroll on an iPhone; native keeps the package's graduated
+  blur. A blur too faint to see (the
   iOS presets' 0.6) is dropped there rather than costing a backdrop pass
   under every capsule, bar and control.
 - **The bottom bar's tabs keep their own width**: the capsule hugs them,

@@ -212,33 +212,42 @@ componentTheme.liquidGlass)` at build: never a window width, never cached.
   with its content in a `FadeTransition`: the shader does not survive an
   opacity layer any better than a backdrop filter.
 - **The app bar has no fill and no edge on glass, and only on a phone or
-  a tablet.** `appBarUsesLiquidGlass` keeps a desktop's top bar (macOS
-  included) finesse's solid bar unless `AppBarTheme.liquidGlass` is
-  `always`. On glass `AppBarSurface(liquid: true)` puts a
-  `LiquidGlassScrollEdge` behind the toolbar — a graduated blur and an
-  eased page-colour gradient, the iOS 26 soft scroll edge, reaching
-  `overhang` (24) below the bar so the page dissolves into it; its sigma,
-  not an opacity, follows the bar's `visibility` — and no hairline. The
-  package's `ProgressiveBlur` needs shader filters: **without them (the
-  web, Skia) it blurs uniformly and stops on a line, which reads as a
-  solid bar**, so there the edge is six `BackdropFilter` strips side by
-  side, each blurring the page once, their sigma falling with the square
-  of the distance from the bottom (`stripSigmas`): the steps are tiny
-  where the blur is light, where a step shows as a line. Nested bands
-  whose blurs compose stepped evenly, showed as stripes on a photograph
-  and blurred the top of the edge six times over (29 % of a phone screen
-  blurred, against 9 %). Tried and not working on the web: a
-  `ShaderMask` over a `BackdropFilter` (the mask is ignored and the blur
-  still ends on a line), a perspective `ImageFilter.matrix` around one
-  blur (smears and streaks), and blurs mixed in by a colour filter's
-  alpha. A leading *button* (`IconButton`, `Button`, `BackButton`,
-  `CloseButton`, also inside a `RepaintBoundary`, or the implied one)
-  goes on a `LiquidGlassBarGroup` capsule; a logo or title stands bare.
-  All actions share one capsule. A bar on glass is always
-  `whenScrolled`: the edge would otherwise blur the page's first lines at
-  rest. With no status bar above it (a browser, a desktop window) a
-  primary bar on glass keeps a small gap above its toolbar
-  (`appBarTopInset`), which `AppBar.heightOf` counts.
+  a tablet, and only with shader filters.** `appBarMaterial` (in
+  `app_bar_layout.dart`) picks one of three: `frosted` (finesse's own
+  bar), `liquid` or `solid`. A desktop's top bar (macOS included) is
+  frosted unless `AppBarTheme.liquidGlass` is `always`. On glass with
+  shader filters (Impeller) `AppBarSurface(liquid: true)` puts a
+  `LiquidGlassScrollEdge` behind the toolbar — the package's
+  `ProgressiveBlur` and an eased page-colour gradient, the iOS 26 soft
+  scroll edge, reaching `overhang` (24) below the bar so the page
+  dissolves into it; its sigma, not an opacity, follows the bar's
+  `visibility` — and no hairline. A leading *button* (`IconButton`,
+  `Button`, `BackButton`, `CloseButton`, also inside a `RepaintBoundary`,
+  or the implied one) goes on a `LiquidGlassBarGroup` capsule; a logo or
+  title stands bare. All actions share one capsule. A bar on glass is
+  always `whenScrolled`: the edge would otherwise blur the page's first
+  lines at rest. With no status bar above it (a desktop window, a
+  simulator's frame) a primary bar on glass keeps a small gap above its
+  toolbar (`appBarTopInset`), which `AppBar.heightOf` counts.
+- **Without shader filters (the web, Skia) a bar that would be glass is
+  `solid`**: the bar colour at full opacity, its hairline, no blur, no
+  scroll edge, no capsules, shown at rest too (a large `SliverAppBar`
+  still fills in as its title goes under), laid out as the frosted bar.
+  The test is `LiquidGlass.hasShaderFilters`, not `kIsWeb`, because the
+  missing piece is the renderer's (`debugHasShaderFilters` stands in for
+  it in tests, which have none). Why: the package's `ProgressiveBlur`
+  blurs uniformly there and stops on a line. Every way of grading a blur
+  from backdrop filters was tried and showed bands on a photograph (six
+  nested bands; six, then 24, strips side by side with a quadratic
+  sigma; a `ShaderMask` over a `BackdropFilter`, which the web ignores; a
+  perspective `ImageFilter.matrix`, which smears; colour-filter alpha
+  mixing), and each backdrop filter is paid on every frame of a scroll: on
+  an iPhone's Safari the solid bar had about half the late frames of six
+  strips. A one-pass shader over a snapshot of the page taken while the
+  frame was composited (`toImageSync` of the body's layer through a
+  `FragmentProgram`) was smooth and in the same frame, but CanvasKit reads
+  every snapshot back from the GPU (about 2.5 ms a frame on a Mac) and it
+  had the most late frames of all on the iPhone.
 - **Invisible blurs are not paid for off Impeller.** The iOS presets blur
   by 0.6 and leave the frosting to `frost`; the package's lighter tier
   still pushes a `BackdropFilterLayer` for that 0.6 under every glass
@@ -1168,6 +1177,11 @@ hidden pane runs animation at 1 Hz. `FrameTiming.raster` on the web ends
 when commands reach the GPU, so GPU-bound work does not show in it. The
 rules below were all found there.
 
+- **iOS 27 Safari runs a page served over plain http without the JIT**
+  (WebKit bug 324968, intended): JavaScript and WebAssembly are
+  interpreted, and a Flutter build on the LAN measures five to twenty
+  times too slow on an iPhone. Measure a phone only over https, or with
+  Safari's Enhanced Security Heuristics feature flag off.
 - **A clip the size of a shadow is the most expensive thing here.** Skia has
   no analytic form for "everything outside this rounded box" as one path: on
   the web it rasterises a mask on the CPU and uploads it again on every frame

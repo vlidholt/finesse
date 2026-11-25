@@ -176,14 +176,21 @@ class AppBar extends StatelessWidget {
       context,
       height ?? bar.height ?? 64,
     );
-    final fill =
+    final material = appBarMaterial(context, bar.liquidGlass);
+    final liquid = material == AppBarMaterial.liquid;
+    // Liquid Glass without shader filters: the bar colour, opaque.
+    final solid = material == AppBarMaterial.solid;
+    final barFill =
         backgroundColor ?? bar.backgroundColor ?? theme.colorScheme.card;
-    final liquid = appBarUsesLiquidGlass(context, bar.liquidGlass);
+    final fill = solid ? barFill.withValues(alpha: 1) : barFill;
     final topInset = primary ? appBarTopInset(context, liquid: liquid) : 0.0;
     // On Liquid Glass the scroll edge shows once content is under the bar,
     // as on iOS: at the top it would only blur the page's own first lines.
+    // A solid bar is there at rest too.
     final behavior = liquid
         ? AppBarSurfaceBehavior.whenScrolled
+        : solid
+        ? AppBarSurfaceBehavior.always
         : surfaceBehavior ??
               bar.surfaceBehavior ??
               AppBarSurfaceBehavior.always;
@@ -232,8 +239,8 @@ class AppBar extends StatelessWidget {
       borderColor: showBorder
           ? bar.borderColor ?? theme.colorScheme.border
           : null,
-      blur: bar.blur ?? 0,
-      saturation: bar.saturation ?? 1,
+      blur: solid ? 0 : bar.blur ?? 0,
+      saturation: solid ? 1 : bar.saturation ?? 1,
       // The hairline is added to the height rather than taken from it, so
       // a 64-point bar has 64 points for its content.
       padding: EdgeInsets.only(top: topInset),

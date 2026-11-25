@@ -20,20 +20,48 @@ import 'package:flutter/widgets.dart';
 // The parts `AppBar` and `SliverAppBar` are both made of: the toolbar row,
 // the bar's surface, and the leading button a bar shows by itself. Internal.
 
-/// Whether a bar at the top of the page draws with Liquid Glass in
-/// [context], its component theme saying [mode].
+/// How a bar at the top of the page is drawn.
+enum AppBarMaterial {
+  /// finesse's own bar: the style's bar colour, over its glass filter where
+  /// the colour is translucent, with a hairline under it.
+  frosted,
+
+  /// Liquid Glass: no fill and no hairline, the page under the bar blurred
+  /// and faded into the page colour (`LiquidGlassScrollEdge`), the buttons
+  /// on glass capsules.
+  liquid,
+
+  /// A bar that would be Liquid Glass where the renderer has no shader
+  /// filters (the web, Skia): the bar colour at full opacity, with its
+  /// hairline, no blur and no capsules, shown at rest too. The scroll edge
+  /// needs a graduated blur, which only shader filters draw in one pass;
+  /// built from backdrop filters it showed bands, and on an iPhone's
+  /// Safari every one of them is paid on every frame of a scroll.
+  solid,
+}
+
+/// How a bar at the top of the page is drawn in [context], its component
+/// theme saying [mode].
 ///
-/// Only at the phone and tablet form factors: a desktop's top bar is a
-/// solid bar, as a Mac window's toolbar sits on its own material rather
-/// than floating free over the content, unless the bar's own theme asks
-/// for glass with [LiquidGlassMode.always].
-bool appBarUsesLiquidGlass(BuildContext context, LiquidGlassMode? mode) {
+/// Liquid Glass only at the phone and tablet form factors: a desktop's top
+/// bar is finesse's own, as a Mac window's toolbar sits on its own material
+/// rather than floating free over the content, unless the bar's own theme
+/// asks for glass with [LiquidGlassMode.always].
+AppBarMaterial appBarMaterial(BuildContext context, LiquidGlassMode? mode) {
   if (Theme.of(context).formFactor == FormFactor.desktop &&
       mode != LiquidGlassMode.always) {
-    return false;
+    return AppBarMaterial.frosted;
   }
-  return LiquidGlass.isActive(context, mode);
+  if (!LiquidGlass.isActive(context, mode)) return AppBarMaterial.frosted;
+  return LiquidGlass.hasShaderFilters
+      ? AppBarMaterial.liquid
+      : AppBarMaterial.solid;
 }
+
+/// Whether a bar at the top of the page draws with Liquid Glass in
+/// [context] (see [appBarMaterial]).
+bool appBarUsesLiquidGlass(BuildContext context, LiquidGlassMode? mode) =>
+    appBarMaterial(context, mode) == AppBarMaterial.liquid;
 
 /// The space above a primary bar's toolbar in [context]: the status bar,
 /// or — for a bar of floating glass where there is none (a browser, a

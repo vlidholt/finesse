@@ -304,15 +304,23 @@ class _SliverAppBarState extends State<SliverAppBar>
     final motion = Motion.of(context);
     final large = widget._large;
     final direction = Directionality.of(context);
-    final fill = widget.backgroundColor ?? bar.backgroundColor ?? scheme.card;
-    final liquid = appBarUsesLiquidGlass(context, bar.liquidGlass);
+    final material = appBarMaterial(context, bar.liquidGlass);
+    final liquid = material == AppBarMaterial.liquid;
+    // Liquid Glass without shader filters: the bar colour, opaque.
+    final solid = material == AppBarMaterial.solid;
+    final barFill =
+        widget.backgroundColor ?? bar.backgroundColor ?? scheme.card;
+    final fill = solid ? barFill.withValues(alpha: 1) : barFill;
     final topInset = widget.primary
         ? appBarTopInset(context, liquid: liquid)
         : 0.0;
     // On Liquid Glass the scroll edge shows once content is under the bar,
     // as on iOS: at the top it would only blur the page's own first lines.
+    // A solid bar is there at rest too, unless it is large.
     final behavior = large || liquid
         ? AppBarSurfaceBehavior.whenScrolled
+        : solid
+        ? AppBarSurfaceBehavior.always
         : widget.surfaceBehavior ??
               bar.surfaceBehavior ??
               AppBarSurfaceBehavior.always;
@@ -450,10 +458,12 @@ class _SliverAppBarState extends State<SliverAppBar>
       }
     }
 
-    final filter = Backdrop.filterFor(
-      blur: bar.blur ?? 0,
-      saturation: bar.saturation ?? 1,
-    );
+    final filter = solid
+        ? null
+        : Backdrop.filterFor(
+            blur: bar.blur ?? 0,
+            saturation: bar.saturation ?? 1,
+          );
     // On Liquid Glass the bar has no fill and no hairline: the page
     // scrolled under it is blurred and faded into the page colour.
     final hairline = widget.showBorder && !liquid;

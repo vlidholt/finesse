@@ -16,15 +16,22 @@ import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lg;
 import '../../finesse_harness.dart';
 
 /// Runs [body] with Flutter reporting [platform], and puts it back.
+///
+/// A test has no shader filters; [shaderFilters] says whether to report
+/// them anyway, as a phone's renderer (Impeller) does, or not, as the web
+/// does.
 Future<void> onPlatform(
   TargetPlatform platform,
-  Future<void> Function() body,
-) async {
+  Future<void> Function() body, {
+  bool shaderFilters = true,
+}) async {
   debugDefaultTargetPlatformOverride = platform;
+  LiquidGlass.debugHasShaderFilters = shaderFilters;
   try {
     await body();
   } finally {
     debugDefaultTargetPlatformOverride = null;
+    LiquidGlass.debugHasShaderFilters = null;
   }
 }
 
@@ -592,7 +599,7 @@ void main() {
       });
     });
 
-    testWidgets('the scroll edge reaches below its box, in fine strips', (
+    testWidgets('the scroll edge is the graduated blur, below its box', (
       tester,
     ) async {
       await pump(
@@ -605,15 +612,109 @@ void main() {
           ),
         ),
       );
-      // No shader filters in a test, as on the web: the graduated blur is
-      // strips rather than the package's single pass, which would blur
-      // uniformly and stop on a line.
-      expect(find.byType(lg.ProgressiveBlur), findsNothing);
-      final strips = find.byType(BackdropFilter);
-      expect(strips, findsNWidgets(6));
-      // Together they cover the box and its overhang.
-      final top = tester.getRect(strips.first).top;
-      expect(tester.getRect(strips.last).bottom - top, 50 + 24);
+      final blur = find.byType(lg.ProgressiveBlur);
+      expect(blur, findsOneWidget);
+      // It covers the box and its overhang.
+      expect(tester.getRect(blur).height, 50 + 24);
+    });
+
+    testWidgets('without shader filters a glass app bar is solid', (
+      tester,
+    ) async {
+      await onPlatform(TargetPlatform.iOS, shaderFilters: false, () async {
+        await pump(
+          tester,
+          Column(
+            children: [
+              AppBar(
+                title: const Text('Title'),
+                actions: [
+                  IconButton(icon: const SizedBox(), onPressed: () {}),
+                ],
+              ),
+            ],
+          ),
+        );
+        final bar = find.byType(AppBar);
+        // No scroll edge, no capsules, nothing blurred behind it.
+        expect(find.byType(LiquidGlassScrollEdge), findsNothing);
+        expect(find.byType(LiquidGlassBarGroup), findsNothing);
+        expect(
+          find.descendant(of: bar, matching: find.byType(BackdropFilter)),
+          findsNothing,
+        );
+        // The bar colour, opaque, with the bar's hairline, at rest too.
+        final fills = tester
+            .widgetList<Container>(
+              find.descendant(of: bar, matching: find.byType(Container)),
+            )
+            .map((c) => c.decoration)
+            .whereType<BoxDecoration>()
+            .where((d) => d.color != null)
+            .toList();
+        expect(fills, hasLength(1));
+        final theme = Theme.of(tester.element(bar));
+        expect(
+          fills.single.color,
+          theme.appBarTheme.backgroundColor!.withValues(alpha: 1),
+        );
+        expect(fills.single.border, isNotNull);
+      });
+    });
+
+    testWidgets('a solid bar is as tall as a frosted one', (tester) async {
+      Future<double> heightOn({required bool shaderFilters}) async {
+        var height = 0.0;
+        await onPlatform(
+          TargetPlatform.iOS,
+          shaderFilters: shaderFilters,
+          () async {
+            await pump(
+              tester,
+              const Column(children: [AppBar(title: Text('Title'))]),
+              liquidGlass: shaderFilters
+                  ? const LiquidGlassTheme(mode: LiquidGlassMode.never)
+                  : const LiquidGlassTheme(),
+            );
+            height = tester.getRect(find.byType(AppBar)).height;
+          },
+        );
+        return height;
+      }
+
+      // The glass bar's margin above it is for its capsules; with no
+      // capsules there is none.
+      final frosted = await heightOn(shaderFilters: true);
+      final solid = await heightOn(shaderFilters: false);
+      expect(solid, frosted);
+    });
+
+    testWidgets('without shader filters a glass sliver bar is solid', (
+      tester,
+    ) async {
+      await onPlatform(TargetPlatform.iOS, shaderFilters: false, () async {
+        await pump(
+          tester,
+          const SizedBox(
+            height: 400,
+            child: CustomScrollView(
+              slivers: [
+                SliverAppBar(title: Text('Title')),
+                SliverToBoxAdapter(child: SizedBox(height: 800)),
+              ],
+            ),
+          ),
+        );
+        expect(find.byType(LiquidGlassScrollEdge), findsNothing);
+        expect(find.byType(LiquidGlassBarGroup), findsNothing);
+        expect(
+          find.descendant(
+            of: find.byType(SliverAppBar),
+            matching: find.byType(BackdropFilter),
+          ),
+          findsNothing,
+        );
+      });
     });
 
     testWidgets('a menu on a phone morphs out of its trigger', (tester) async {
@@ -697,21 +798,6 @@ void main() {
       expect(withoutInvisibleBlur(real).blur, 8);
       // The derived theme carries it.
       expect(glassThemeDataOf(ThemeData()).light.settings!.blur, 0);
-    });
-
-    test("the scroll edge's strips fall smoothly to nothing", () {
-      final sigmas = LiquidGlassScrollEdge.stripSigmas(12);
-      expect(sigmas, hasLength(6));
-      expect(sigmas.first, greaterThan(10));
-      expect(sigmas.last, lessThan(.5));
-      // Each step is smaller than the one above it: smallest where the
-      // blur is lightest and a step would show.
-      for (var j = 2; j < sigmas.length; j++) {
-        expect(
-          sigmas[j - 1] - sigmas[j],
-          lessThan(sigmas[j - 2] - sigmas[j - 1]),
-        );
-      }
     });
   });
 
