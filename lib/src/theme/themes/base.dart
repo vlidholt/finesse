@@ -36,6 +36,7 @@ import 'package:finesse/src/theme/components/list_section.dart';
 import 'package:finesse/src/theme/components/list_tile.dart';
 import 'package:finesse/src/theme/components/menubar.dart';
 import 'package:finesse/src/theme/components/navigation_bar.dart';
+import 'package:finesse/src/theme/components/navigation_menu.dart';
 import 'package:finesse/src/theme/components/navigation_rail.dart';
 import 'package:finesse/src/theme/components/otp_field.dart';
 import 'package:finesse/src/theme/components/pagination.dart';
@@ -170,6 +171,7 @@ abstract class BaseTheme {
     required this.appBarTheme,
     required this.floatingActionButtonTheme,
     required this.navigationBarTheme,
+    required this.navigationMenuTheme,
     required this.navigationRailTheme,
     required this.bottomNavigationBarTheme,
     required this.chipTheme,
@@ -225,6 +227,9 @@ abstract class BaseTheme {
 
   /// The theme of the matching widget.
   final NavigationBarTheme navigationBarTheme;
+
+  /// The theme of `NavigationMenu`.
+  final NavigationMenuTheme navigationMenuTheme;
 
   /// The theme of `NavigationRail`.
   final NavigationRailTheme navigationRailTheme;
@@ -710,6 +715,9 @@ abstract class ThemeVariant {
 
   /// Builds the [NavigationBarTheme].
   NavigationBarTheme navigationBarTheme();
+
+  /// Builds the [NavigationMenuTheme].
+  NavigationMenuTheme navigationMenuTheme();
 
   /// Builds the [NavigationRailTheme].
   NavigationRailTheme navigationRailTheme();

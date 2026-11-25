@@ -104,6 +104,7 @@ export 'src/components/list_tile.dart';
 export 'src/components/menubar.dart';
 export 'src/components/navigation_bar.dart'
     hide DestinationIcon, badgedDestinationIcon;
+export 'src/components/navigation_menu.dart';
 export 'src/components/navigation_rail.dart';
 export 'src/components/navigation_scaffold.dart';
 export 'src/components/number_field.dart';
@@ -219,6 +220,7 @@ export 'src/theme/components/list_section.dart';
 export 'src/theme/components/list_tile.dart';
 export 'src/theme/components/menubar.dart';
 export 'src/theme/components/navigation_bar.dart';
+export 'src/theme/components/navigation_menu.dart';
 export 'src/theme/components/navigation_rail.dart';
 export 'src/theme/components/otp_field.dart';
 export 'src/theme/components/pagination.dart';

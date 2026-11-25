@@ -43,6 +43,7 @@ import 'package:finesse/src/theme/components/list_section.dart';
 import 'package:finesse/src/theme/components/list_tile.dart';
 import 'package:finesse/src/theme/components/menubar.dart';
 import 'package:finesse/src/theme/components/navigation_bar.dart';
+import 'package:finesse/src/theme/components/navigation_menu.dart';
 import 'package:finesse/src/theme/components/navigation_rail.dart';
 import 'package:finesse/src/theme/components/otp_field.dart';
 import 'package:finesse/src/theme/components/pagination.dart';
@@ -2097,6 +2098,48 @@ class DefaultThemeVariant extends ThemeVariant {
       indicatorColor: colorScheme.tint,
       indicatorHeight: style.navigationIndicatorHeight,
       indicatorInset: scaled(12),
+    );
+  }
+
+  @override
+  NavigationMenuTheme navigationMenuTheme() {
+    // A highlight in the panel is a menu row's: a wash of the foreground
+    // where the style's floating surfaces are glass, and otherwise the
+    // `bg-muted` the reference's newer styles hover with. It is worked out
+    // in the page's palette, not the menus': the panel is a popover.
+    final wash = _isDark
+        ? style.menuHighlightOpacityDark ?? style.menuHighlightOpacity
+        : style.menuHighlightOpacity;
+    final hover = wash != null
+        ? _wash(colorScheme.popoverForeground, wash)
+        : colorScheme.muted;
+    return NavigationMenuTheme(
+      // `gap-1` between entries, `mt-1.5` under the row, `p-2` in the
+      // panel and around a link.
+      gap: scaled(4),
+      // `data-[state=open]:bg-muted/50`, or the wash on the bar.
+      selectedColor: wash != null
+          ? _wash(colorScheme.foreground, wash)
+          : _wash(colorScheme.muted, _isDark ? .5 : 1),
+      panelOffset: scaled(6),
+      panelPadding: EdgeInsets.all(scaled(8)),
+      panelMargin: scaled(8),
+      linkPadding: EdgeInsets.all(scaled(8)),
+      linkBorderRadius: itemRadius,
+      linkGap: scaled(4),
+      linkHoverColor: hover,
+      linkSelectedColor: _wash(hover, .5),
+      linkTitleStyle: effectiveTextTheme.small.copyWith(
+        color: colorScheme.popoverForeground,
+      ),
+      linkDescriptionStyle: effectiveTextTheme.muted.copyWith(
+        color: colorScheme.mutedForeground,
+      ),
+      sheetLabelStyle: style.overline
+          .apply(effectiveTextTheme.muted)
+          .copyWith(color: colorScheme.mutedForeground),
+      openDelay: const Duration(milliseconds: 120),
+      closeDelay: const Duration(milliseconds: 180),
     );
   }
 

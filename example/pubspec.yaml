@@ -111,6 +111,7 @@ flutter:
     - lib/docs/examples/app_bar/
     - lib/docs/examples/autocomplete/
     - lib/docs/examples/navigation_bar/
+    - lib/docs/examples/navigation_menu/
     - lib/docs/examples/navigation_rail/
     - lib/docs/examples/number_field/
     - lib/docs/examples/scaffold/
