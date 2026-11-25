@@ -656,7 +656,7 @@ void main() {
     });
 
     testWidgets('an action beside a scrolling row is a named button of its '
-        'own, not part of the group\'s name', (tester) async {
+        "own, not part of the group's name", (tester) async {
       final handle = tester.ensureSemantics();
       await pumpFinesse(
         tester,
