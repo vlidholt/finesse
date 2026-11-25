@@ -501,7 +501,7 @@ class _RowMenu extends StatelessWidget {
           onPressed: () => openSettings(context, SettingsSection.notifications),
           child: const Text('Notification settings'),
         ),
-        const Divider.horizontal(margin: EdgeInsets.symmetric(vertical: 4)),
+        const Divider(margin: EdgeInsets.symmetric(vertical: 4)),
         ContextMenuItem(
           destructive: true,
           leading: const PhosphorIcon(PhosphorIconsRegular.trash),

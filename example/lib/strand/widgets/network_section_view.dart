@@ -185,7 +185,7 @@ class NetworkSectionView extends StatelessWidget {
             ],
           ),
           for (final row in rows) ...[
-            Divider.horizontal(
+            Divider(
               margin: EdgeInsets.symmetric(vertical: theme.gap(GapSize.md)),
             ),
             row,

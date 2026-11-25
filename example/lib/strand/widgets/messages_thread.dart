@@ -151,7 +151,7 @@ class _DayDivider extends StatelessWidget {
       child: FinesseRow(
         gap: GapSize.md,
         children: [
-          const Expanded(child: Divider.horizontal()),
+          const Expanded(child: Divider()),
           Text(
             label,
             style: theme.messagesCaption.copyWith(
@@ -159,7 +159,7 @@ class _DayDivider extends StatelessWidget {
               height: 1,
             ),
           ),
-          const Expanded(child: Divider.horizontal()),
+          const Expanded(child: Divider()),
         ],
       ),
     );

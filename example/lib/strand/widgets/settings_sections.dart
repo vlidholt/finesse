@@ -248,7 +248,7 @@ class _RowDivider extends StatelessWidget {
   const _RowDivider();
 
   @override
-  Widget build(BuildContext context) => Divider.horizontal(
+  Widget build(BuildContext context) => Divider(
     margin: EdgeInsets.symmetric(
       vertical: Theme.of(context).gap(GapSize.md),
     ),

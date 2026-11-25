@@ -41,7 +41,7 @@ class JobDetail extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     const section = Gap.xl();
-    final rule = Divider.horizontal(
+    final rule = Divider(
       margin: EdgeInsets.symmetric(vertical: theme.gap(GapSize.xl)),
     );
 

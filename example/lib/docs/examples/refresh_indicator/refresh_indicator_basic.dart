@@ -65,7 +65,7 @@ class _RefreshIndicatorBasicExampleState
                 ],
               ),
             ),
-            const Divider.horizontal(margin: EdgeInsets.zero),
+            const Divider(margin: EdgeInsets.zero),
             Expanded(
               child: RefreshIndicator(
                 key: refreshKey,

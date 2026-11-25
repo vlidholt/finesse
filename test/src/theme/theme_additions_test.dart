@@ -508,7 +508,7 @@ void main() {
     testWidgets('a finesse Divider takes no room beyond its line; a nova one '
         'keeps 16 either side', (tester) async {
       Widget rule() => const Center(
-        child: SizedBox(width: 200, child: Divider.horizontal()),
+        child: SizedBox(width: 200, child: Divider()),
       );
       await pumpFinesse(tester, rule());
       expect(tester.getSize(find.byType(Divider)).height, 1);

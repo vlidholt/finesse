@@ -671,7 +671,7 @@ class _ThemeGroupPickerState extends State<ThemeGroupPicker> {
             children: [
               for (var g = 0; g < widget.groups.length; g++) ...[
                 if (g > 0)
-                  const Divider.horizontal(
+                  const Divider(
                     margin: EdgeInsets.symmetric(vertical: 4),
                   ),
                 Padding(

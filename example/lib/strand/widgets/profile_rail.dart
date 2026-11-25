@@ -39,7 +39,7 @@ class ProfileSettingsCard extends StatelessWidget {
         spacing: theme.gap(GapSize.md),
         children: [
           setting('Profile language', ProfileData.language, 'Edit language'),
-          const Divider.horizontal(margin: EdgeInsets.zero),
+          const Divider(margin: EdgeInsets.zero),
           setting('Public profile and URL', ProfileData.publicUrl, 'Edit URL'),
         ],
       ),

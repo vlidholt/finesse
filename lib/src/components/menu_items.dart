@@ -412,7 +412,7 @@ class MenuDivider extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final menuTheme = theme.contextMenuTheme;
-    return Divider.horizontal(
+    return Divider(
       margin:
           margin ??
           menuTheme.dividerMargin ??

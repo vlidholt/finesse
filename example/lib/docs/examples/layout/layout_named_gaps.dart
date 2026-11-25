@@ -37,7 +37,7 @@ class LayoutNamedGapsExample extends StatelessWidget {
                 ),
               ],
             ),
-            const Divider.horizontal(margin: EdgeInsets.zero),
+            const Divider(margin: EdgeInsets.zero),
             FinesseRow(
               gap: GapSize.sm,
               children: [

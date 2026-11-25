@@ -220,7 +220,7 @@ class _LicensePageState extends State<LicensePage> {
             );
           }
           if (index.isEven) {
-            return const Divider.horizontal(margin: EdgeInsets.zero);
+            return const Divider(margin: EdgeInsets.zero);
           }
           final package = packages[(index - 1) ~/ 2];
           final count = package.licenses.length;
@@ -265,7 +265,7 @@ class _PackageLicensePage extends StatelessWidget {
         itemBuilder: (context, index) {
           final paragraph = rows[index];
           if (paragraph == null) {
-            return Divider.horizontal(
+            return Divider(
               margin: EdgeInsets.symmetric(vertical: gap),
             );
           }

@@ -64,7 +64,7 @@ class UserMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const divider = Divider.horizontal(
+    const divider = Divider(
       margin: EdgeInsets.symmetric(vertical: 4),
     );
 

@@ -103,7 +103,7 @@ class NetworkInvitationsCard extends StatelessWidget {
               children: [
                 for (final (index, invitation) in pending.indexed) ...[
                   if (index > 0)
-                    Divider.horizontal(
+                    Divider(
                       margin: EdgeInsets.symmetric(
                         vertical: theme.gap(GapSize.md),
                       ),

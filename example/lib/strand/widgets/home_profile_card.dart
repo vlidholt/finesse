@@ -123,7 +123,7 @@ class HomeProfileCard extends StatelessWidget {
           ),
           // Flush rules: the blocks on either side carry the space, whatever
           // margin the style gives a divider.
-          const Divider.horizontal(margin: EdgeInsets.zero),
+          const Divider(margin: EdgeInsets.zero),
           Padding(
             padding: EdgeInsets.symmetric(
               horizontal: inset,
@@ -159,7 +159,7 @@ class HomeProfileCard extends StatelessWidget {
               ],
             ),
           ),
-          const Divider.horizontal(margin: EdgeInsets.zero),
+          const Divider(margin: EdgeInsets.zero),
           Padding(
             padding: EdgeInsets.all(theme.gap(GapSize.sm)),
             child: Column(

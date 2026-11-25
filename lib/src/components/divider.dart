@@ -15,7 +15,19 @@ enum DividerVariant {
 ///
 /// Typically used to separate content or sections of row, columns, or lists.
 class Divider extends StatelessWidget {
-  /// Creates a vertical separator.
+  /// Creates a separator: a horizontal line unless [variant] says
+  /// otherwise.
+  const Divider({
+    this.variant = DividerVariant.horizontal,
+    this.margin,
+    this.thickness,
+    this.color,
+    this.radius,
+    super.key,
+  });
+
+  /// Creates a vertical separator, a shortcut for
+  /// `Divider(variant: DividerVariant.vertical)`.
   const Divider.vertical({
     this.margin,
     this.thickness,
@@ -23,25 +35,6 @@ class Divider extends StatelessWidget {
     this.radius,
     super.key,
   }) : variant = DividerVariant.vertical;
-
-  /// Creates a horizontal separator.
-  const Divider.horizontal({
-    this.margin,
-    this.thickness,
-    this.color,
-    this.radius,
-    super.key,
-  }) : variant = DividerVariant.horizontal;
-
-  /// Creates a separator with a specified [variant].
-  const Divider.raw({
-    this.margin,
-    this.thickness,
-    this.color,
-    required this.variant,
-    this.radius,
-    super.key,
-  });
 
   /// {@template Divider.margin}
   /// The margin (or space) around the separator.
@@ -67,8 +60,7 @@ class Divider extends StatelessWidget {
   /// This will override [DividerTheme.color].
   final Color? color;
 
-  /// The variant of the separator.
-  /// This can be explicitly passed using the [Divider.raw] constructor.
+  /// Whether the line is horizontal, the default, or vertical.
   final DividerVariant variant;
 
   /// {@template Divider.radius}

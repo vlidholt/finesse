@@ -94,7 +94,7 @@ class JobsSearchCard extends StatelessWidget {
               ],
             ),
           ),
-          const Divider.horizontal(margin: EdgeInsets.zero),
+          const Divider(margin: EdgeInsets.zero),
           Padding(
             padding: EdgeInsets.fromLTRB(
               inset,

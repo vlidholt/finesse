@@ -402,8 +402,7 @@ class _AccordionItemState<T> extends State<AccordionItem<T>>
       builder: (context, value, child) {
         final expanded = value.contains(widget.value);
         final theme = Theme.of(context);
-        final effectiveSeparator =
-            widget.separator ?? const Divider.horizontal();
+        final effectiveSeparator = widget.separator ?? const Divider();
 
         final motion = Motion.of(context);
         final customEffects = widget.effects ?? theme.accordionTheme.effects;

@@ -1674,7 +1674,7 @@ class SidebarDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Divider.horizontal(
+    return Divider(
       margin: const EdgeInsets.symmetric(horizontal: 8),
       color: theme.sidebarTheme.borderColor ?? theme.colorScheme.sidebarBorder,
     );

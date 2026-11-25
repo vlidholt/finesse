@@ -766,7 +766,7 @@ class ResizablePanelGroupState extends State<ResizablePanelGroup> {
           Axis.vertical => SizedBox(
             // double.infinity doesn't work, just providing a big number
             width: 50000,
-            child: Divider.horizontal(
+            child: Divider(
               margin: EdgeInsets.symmetric(vertical: effectiveDividerSize / 2),
               thickness: effectiveDividerThickness,
               color: effectiveDividerColor,

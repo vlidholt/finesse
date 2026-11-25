@@ -114,7 +114,7 @@ class ThemeCustomizerPanel extends StatelessWidget {
           Expanded(
             child: _Settings(config: config, onChanged: onChanged),
           ),
-          const Divider.horizontal(margin: EdgeInsets.zero),
+          const Divider(margin: EdgeInsets.zero),
           Padding(
             padding: EdgeInsets.only(
               bottom: onClose == null ? 0 : safeArea.bottom,
@@ -522,7 +522,7 @@ class _Section extends StatelessWidget {
               children: children,
             ),
           ),
-        const Divider.horizontal(margin: EdgeInsets.zero),
+        const Divider(margin: EdgeInsets.zero),
       ],
     );
   }

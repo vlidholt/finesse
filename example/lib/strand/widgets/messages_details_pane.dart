@@ -129,7 +129,7 @@ class MessagesDetailsPane extends StatelessWidget {
               ),
             ],
           ),
-          const Divider.horizontal(),
+          const Divider(),
           if (conversation.mutuals.isNotEmpty)
             section(
               conversation.isGroup ? 'Members' : 'Mutual connections',

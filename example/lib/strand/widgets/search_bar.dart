@@ -394,7 +394,7 @@ class _Panel extends StatelessWidget {
               compact: true,
             ),
           ),
-          const Divider.horizontal(margin: EdgeInsets.symmetric(vertical: 4)),
+          const Divider(margin: EdgeInsets.symmetric(vertical: 4)),
           Button.ghost(
             width: double.infinity,
             gap: theme.gap(GapSize.xs),

@@ -370,7 +370,7 @@ class TypographyRolesExample extends StatelessWidget {
                   sampleText,
                   labelWidth: proseLabelWidth,
                 ),
-              const Divider.horizontal(
+              const Divider(
                 margin: EdgeInsets.symmetric(vertical: 8),
               ),
               for (final (label, style) in componentStyles)

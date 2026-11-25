@@ -110,7 +110,7 @@ class _StageMenu extends StatelessWidget {
           onPressed: () => applications.sort(stage, ApplicationSort.company),
           child: const Text('Sort by company'),
         ),
-        const Divider.horizontal(margin: EdgeInsets.symmetric(vertical: 4)),
+        const Divider(margin: EdgeInsets.symmetric(vertical: 4)),
         if (stage == ApplicationStage.archived)
           ContextMenuItem(
             leading: const PhosphorIcon(PhosphorIconsRegular.trash),

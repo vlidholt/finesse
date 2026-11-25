@@ -97,7 +97,7 @@ class _HomePostCardState extends State<HomePostCard> {
             ),
             child: _ReactionSummary(post, compact: false),
           ),
-          const Divider.horizontal(margin: EdgeInsets.zero),
+          const Divider(margin: EdgeInsets.zero),
           const Gap.xs(),
           _Actions(
             post,

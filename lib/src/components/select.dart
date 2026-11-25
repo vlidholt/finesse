@@ -1264,8 +1264,7 @@ class SelectState<T> extends State<Select<T>> {
                 onChanged: widget.onSearchChanged,
                 onSubmitted: widget.onSearchSubmitted,
               ),
-          widget.searchDivider ??
-              const Divider.horizontal(margin: EdgeInsets.zero),
+          widget.searchDivider ?? const Divider(margin: EdgeInsets.zero),
         ],
       ),
     };
