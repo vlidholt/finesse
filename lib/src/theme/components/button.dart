@@ -187,7 +187,7 @@ class ButtonTheme with _$ButtonTheme {
   final bool? expands;
 
   /// {@template ButtonTheme.pressedOffset}
-  /// How far the button shifts while pressed.
+  /// How far the button shifts while pressed, in logical pixels.
   ///
   /// shadcn/ui nudges a button down by one pixel on `:active`
   /// (`active:translate-y-px`); this is the same effect. Defaults to

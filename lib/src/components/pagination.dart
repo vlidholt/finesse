@@ -266,9 +266,15 @@ class Pagination extends StatelessWidget {
                     : _inactivePageButtonDecoration(theme),
               ),
               enabled: enabled && onPageChanged != null,
-              onPressed: onPageChanged == null || isCurrent
+              // The current page does nothing when pressed, but stays a
+              // button, undimmed and in the focus order, as the
+              // reference's `aria-current` link does: a button with no
+              // callback is a disabled one.
+              onPressed: onPageChanged == null
                   ? null
-                  : () => onPageChanged!(entry),
+                  : () {
+                      if (!isCurrent) onPageChanged!(entry);
+                    },
               child: Text(numberFormat.format(entry)),
             ),
           ),
