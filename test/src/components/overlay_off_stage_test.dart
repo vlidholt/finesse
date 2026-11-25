@@ -92,7 +92,7 @@ void main() {
         'a Select': (
           controller: PopoverController.new,
           build: (controller) => Select<String>(
-            popoverController: controller as PopoverController,
+            controller: controller as PopoverController,
             placeholder: const Text('Pick'),
             options: const [
               SelectOption(value: 'a', child: Text('Floating')),

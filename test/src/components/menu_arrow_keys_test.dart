@@ -98,7 +98,7 @@ void main() {
           shortcuts: web ? _webShortcuts : null,
           home: Center(
             child: Select<String>(
-              popoverController: popover,
+              controller: popover,
               initialValue: 'a',
               onChanged: (value) => chosen = value,
               options: const [

@@ -1,13 +1,17 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:finesse/src/components/button.dart';
 import 'package:finesse/src/components/layout.dart';
 import 'package:finesse/src/components/popover.dart';
 import 'package:finesse/src/components/sheet.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/raw_components/portal.dart';
+import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/components/layout.dart';
 import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 /// How a picker — `DatePicker`, `TimePicker`, `Select`, `ColorPickerButton`
 /// — shows its choices when it is opened.
@@ -58,6 +62,11 @@ class PickerHost extends StatefulWidget {
     this.anchor,
     this.groupId,
     this.onOpenChanged,
+    this.effects,
+    this.reverseDuration,
+    this.shadows,
+    this.filter,
+    this.decoration,
     super.key,
   });
 
@@ -96,6 +105,21 @@ class PickerHost extends StatefulWidget {
 
   /// Called when the picker opens or closes.
   final ValueChanged<bool>? onOpenChanged;
+
+  /// The popover's entrance effects, when the picker has its own.
+  final List<Effect<dynamic>>? effects;
+
+  /// How long the popover takes to leave, when the picker says.
+  final Duration? reverseDuration;
+
+  /// The popover's shadows, when the picker has its own.
+  final List<BoxShadow>? shadows;
+
+  /// The popover's backdrop filter, when the picker has its own.
+  final ImageFilter? filter;
+
+  /// The popover's decoration, when the picker has its own.
+  final FinesseDecoration? decoration;
 
   @override
   State<PickerHost> createState() => _PickerHostState();
@@ -216,6 +240,11 @@ class _PickerHostState extends State<PickerHost> {
       closeOnTapOutside: widget.closeOnTapOutside,
       padding: widget.popoverPadding,
       anchor: widget.anchor,
+      effects: widget.effects,
+      reverseDuration: widget.reverseDuration,
+      shadows: widget.shadows,
+      filter: widget.filter,
+      decoration: widget.decoration,
       popover: (context) => widget.popoverBuilder(context, _controller.hide),
       child: trigger,
     );

@@ -65,30 +65,25 @@ void main() {
     expect(changed, 1);
   });
 
-  testWidgets('a select notifies its controller when initialValue changes', (
-    tester,
-  ) async {
-    final controller = SelectController<String>();
-    addTearDown(controller.dispose);
-    var notified = 0;
-    controller.addListener(() => notified++);
-    Widget build(String initial) => FinesseApp(
+  testWidgets('a select shows a value written from outside', (tester) async {
+    Widget build(String? value) => FinesseApp(
       home: Select<String>(
-        controller: controller,
-        initialValue: initial,
+        value: value,
         placeholder: const Text('pick'),
         options: const [
-          SelectOption(value: 'a', child: Text('a')),
-          SelectOption(value: 'b', child: Text('b')),
+          SelectOption(value: 'a', label: 'Option a'),
+          SelectOption(value: 'b', label: 'Option b'),
         ],
-        selectedOptionBuilder: (context, value) => Text(value),
       ),
     );
     await tester.pumpWidget(build('a'));
-    notified = 0;
+    expect(find.text('Option a'), findsOneWidget);
     await tester.pumpWidget(build('b'));
     await tester.pump();
-    expect(controller.value, {'b'});
-    expect(notified, greaterThan(0));
+    expect(find.text('Option b'), findsOneWidget);
+    // A value taken away clears the selection.
+    await tester.pumpWidget(build(null));
+    await tester.pump();
+    expect(find.text('pick'), findsOneWidget);
   });
 }

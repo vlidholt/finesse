@@ -34,7 +34,7 @@ class SelectFormField<T> extends FinesseFormField<T> {
     super.validator,
 
     /// {@macro Select.selectedOptionBuilder}
-    required SelectedOptionBuilder<T> selectedOptionBuilder,
+    SelectedOptionBuilder<T>? selectedOptionBuilder,
 
     /// {@macro Select.options}
     Iterable<Widget>? options,
@@ -84,8 +84,8 @@ class SelectFormField<T> extends FinesseFormField<T> {
     /// {@macro Popover.filter}
     ImageFilter? filter,
 
-    /// {@macro Select.popoverController}
-    PopoverController? popoverController,
+    /// {@macro Select.controller}
+    PopoverController? controller,
 
     /// {@macro Select.header}
     Widget? header,
@@ -107,7 +107,6 @@ class SelectFormField<T> extends FinesseFormField<T> {
 
     /// {@macro Select.shrinkWrap}
     bool? shrinkWrap,
-    this.controller,
 
     /// {@macro Select.ensureSelectedVisible}
     bool? ensureSelectedVisible,
@@ -129,7 +128,8 @@ class SelectFormField<T> extends FinesseFormField<T> {
              selectedOptionBuilder: selectedOptionBuilder,
              focusNode: state.focusNode,
              placeholder: placeholder,
-             initialValue: state.initialValue,
+             value: state.value,
+             onChanged: state.didChange,
              enabled: state.enabled,
              closeOnTapOutside: closeOnTapOutside,
              anchor: anchor,
@@ -144,14 +144,13 @@ class SelectFormField<T> extends FinesseFormField<T> {
              showScrollToBottomChevron: showScrollToBottomChevron,
              scrollController: scrollController,
              filter: filter,
-             popoverController: popoverController,
+             controller: controller,
              header: header,
              footer: footer,
              closeOnSelect: closeOnSelect,
              groupId: groupId,
              itemCount: itemCount,
              shrinkWrap: shrinkWrap,
-             controller: state.controller,
              ensureSelectedVisible: ensureSelectedVisible,
              onPressed: onPressed,
            );
@@ -178,7 +177,7 @@ class SelectFormField<T> extends FinesseFormField<T> {
     super.initialValue,
     super.focusNode,
     super.validator,
-    required SelectedOptionBuilder<T> selectedOptionBuilder,
+    SelectedOptionBuilder<T>? selectedOptionBuilder,
     Iterable<Widget>? options,
 
     /// The builder for the options of the [Select].
@@ -204,7 +203,7 @@ class SelectFormField<T> extends FinesseFormField<T> {
     EdgeInsetsGeometry? searchPadding,
     Widget? search,
     bool? clearSearchOnClose,
-    PopoverController? popoverController,
+    PopoverController? controller,
 
     /// {@macro Select.header}
     Widget? header,
@@ -222,9 +221,6 @@ class SelectFormField<T> extends FinesseFormField<T> {
 
     /// {@macro Select.shrinkWrap}
     bool? shrinkWrap,
-
-    /// {@macro Select.controller}
-    this.controller,
 
     /// {@macro Select.ensureSelectedVisible}
     bool? ensureSelectedVisible,
@@ -252,7 +248,8 @@ class SelectFormField<T> extends FinesseFormField<T> {
              selectedOptionBuilder: selectedOptionBuilder,
              focusNode: state.focusNode,
              placeholder: placeholder,
-             initialValue: state.initialValue,
+             value: state.value,
+             onChanged: state.didChange,
              enabled: state.enabled,
              closeOnTapOutside: closeOnTapOutside,
              anchor: anchor,
@@ -274,14 +271,13 @@ class SelectFormField<T> extends FinesseFormField<T> {
              searchPadding: searchPadding,
              search: search,
              clearSearchOnClose: clearSearchOnClose,
-             popoverController: popoverController,
+             controller: controller,
              header: header,
              footer: footer,
              closeOnSelect: closeOnSelect,
              groupId: groupId,
              itemCount: itemCount,
              shrinkWrap: shrinkWrap,
-             controller: state.controller,
              ensureSelectedVisible: ensureSelectedVisible,
              searchFocusNode: searchFocusNode,
              onSearchSubmitted: onSearchSubmitted,
@@ -312,7 +308,7 @@ class SelectFormField<T> extends FinesseFormField<T> {
     super.validator,
     super.forceErrorText,
     required SelectVariant variant,
-    required SelectedOptionBuilder<T> selectedOptionBuilder,
+    SelectedOptionBuilder<T>? selectedOptionBuilder,
     Iterable<Widget>? options,
 
     /// The builder for the options of the [Select].
@@ -337,7 +333,7 @@ class SelectFormField<T> extends FinesseFormField<T> {
     EdgeInsetsGeometry? searchPadding,
     Widget? search,
     bool? clearSearchOnClose,
-    PopoverController? popoverController,
+    PopoverController? controller,
 
     /// {@macro Select.header}
     Widget? header,
@@ -355,9 +351,6 @@ class SelectFormField<T> extends FinesseFormField<T> {
 
     /// {@macro Select.shrinkWrap}
     bool? shrinkWrap,
-
-    /// {@macro Select.controller}
-    this.controller,
 
     /// {@macro Select.ensureSelectedVisible}
     bool? ensureSelectedVisible,
@@ -389,7 +382,8 @@ class SelectFormField<T> extends FinesseFormField<T> {
              selectedOptionBuilder: selectedOptionBuilder,
              focusNode: state.focusNode,
              placeholder: placeholder,
-             initialValue: state.initialValue,
+             value: state.value,
+             onChanged: state.didChange,
              enabled: state.enabled,
              closeOnTapOutside: closeOnTapOutside,
              anchor: anchor,
@@ -410,7 +404,7 @@ class SelectFormField<T> extends FinesseFormField<T> {
              searchPadding: searchPadding,
              search: search,
              clearSearchOnClose: clearSearchOnClose,
-             popoverController: popoverController,
+             controller: controller,
              header: header,
              footer: footer,
              allowDeselection: allowDeselection,
@@ -418,7 +412,6 @@ class SelectFormField<T> extends FinesseFormField<T> {
              groupId: groupId,
              itemCount: itemCount,
              shrinkWrap: shrinkWrap,
-             controller: state.controller,
              ensureSelectedVisible: ensureSelectedVisible,
              searchFocusNode: searchFocusNode,
              onSearchSubmitted: onSearchSubmitted,
@@ -427,9 +420,6 @@ class SelectFormField<T> extends FinesseFormField<T> {
          },
        );
 
-  /// {@macro Select.controller}
-  final SelectController<T>? controller;
-
   @override
   FinesseFormFieldState<SelectFormField<T>, T> createState() =>
       SelectFormFieldState<T>();
@@ -437,49 +427,7 @@ class SelectFormField<T> extends FinesseFormField<T> {
 
 /// The state of a [SelectFormField].
 class SelectFormFieldState<T>
-    extends FinesseFormFieldState<SelectFormField<T>, T> {
-  SelectController<T>? _controller;
-
-  /// The controller in use: [SelectFormField.controller] when given,
-  /// otherwise an internal one created from the initial value.
-  SelectController<T> get controller =>
-      widget.controller ??
-      (_controller ??= SelectController<T>(
-        initialValue: {if (initialValue is T) initialValue as T},
-      ));
-
-  @override
-  void initState() {
-    super.initState();
-    controller.addListener(onControllerChange);
-  }
-
-  @override
-  void didChange(T? value) {
-    super.didChange(value);
-    controller.value = value is T ? <T>{value} : <T>{};
-  }
-
-  @override
-  void dispose() {
-    controller.removeListener(onControllerChange);
-    _controller?.dispose();
-    super.dispose();
-  }
-
-  /// Copies the controller's selection into the field's value.
-  void onControllerChange() {
-    if (controller.value.firstOrNull != value) {
-      didChange(controller.value.firstOrNull);
-    }
-  }
-
-  @override
-  void reset() {
-    super.reset();
-    controller.value = initialValue is T ? <T>{initialValue as T} : <T>{};
-  }
-}
+    extends FinesseFormFieldState<SelectFormField<T>, T> {}
 
 /// A multiple-choice [Select] that takes part in a `FinesseForm`, with a
 /// label, a description and validation. Its value is the set of selected
@@ -504,7 +452,7 @@ class SelectMultipleFormField<T> extends FinesseFormField<Set<T>> {
     super.focusNode,
     super.validator,
     super.forceErrorText,
-    required SelectedOptionBuilder<List<T>> selectedOptionsBuilder,
+    SelectedOptionBuilder<List<T>>? selectedOptionsBuilder,
     Iterable<Widget>? options,
 
     /// The builder for the options of the [Select].
@@ -523,7 +471,7 @@ class SelectMultipleFormField<T> extends FinesseFormField<Set<T>> {
     ScrollController? scrollController,
     AnchorBase? anchor,
     ImageFilter? filter,
-    PopoverController? popoverController,
+    PopoverController? controller,
 
     /// {@macro Select.header}
     Widget? header,
@@ -534,7 +482,6 @@ class SelectMultipleFormField<T> extends FinesseFormField<Set<T>> {
 
     /// {@macro Select.allowDeselection}
     bool allowDeselection = true,
-    this.controller,
 
     /// {@macro Select.ensureSelectedVisible}
     bool? ensureSelectedVisible,
@@ -556,6 +503,8 @@ class SelectMultipleFormField<T> extends FinesseFormField<Set<T>> {
              options: options,
              optionsBuilder: optionsBuilder,
              selectedOptionsBuilder: selectedOptionsBuilder,
+             values: state.value ?? const {},
+             onChanged: state.didChange,
              focusNode: state.focusNode,
              placeholder: placeholder,
              enabled: state.enabled,
@@ -572,12 +521,11 @@ class SelectMultipleFormField<T> extends FinesseFormField<Set<T>> {
              showScrollToBottomChevron: showScrollToBottomChevron,
              scrollController: scrollController,
              filter: filter,
-             popoverController: popoverController,
+             controller: controller,
              header: header,
              footer: footer,
              closeOnSelect: closeOnSelect,
              allowDeselection: allowDeselection,
-             controller: state.controller,
              ensureSelectedVisible: ensureSelectedVisible,
              onPressed: onPressed,
              groupId: groupId,
@@ -605,7 +553,7 @@ class SelectMultipleFormField<T> extends FinesseFormField<Set<T>> {
     super.focusNode,
     super.validator,
     super.forceErrorText,
-    required SelectedOptionBuilder<List<T>> selectedOptionsBuilder,
+    SelectedOptionBuilder<List<T>>? selectedOptionsBuilder,
     Iterable<Widget>? options,
 
     /// The builder for the options of the [Select].
@@ -631,7 +579,7 @@ class SelectMultipleFormField<T> extends FinesseFormField<Set<T>> {
     EdgeInsetsGeometry? searchPadding,
     Widget? search,
     bool? clearSearchOnClose,
-    PopoverController? popoverController,
+    PopoverController? controller,
 
     /// {@macro Select.header}
     Widget? header,
@@ -642,7 +590,6 @@ class SelectMultipleFormField<T> extends FinesseFormField<Set<T>> {
 
     /// {@macro Select.allowDeselection}
     bool allowDeselection = true,
-    this.controller,
 
     /// {@macro Select.ensureSelectedVisible}
     bool? ensureSelectedVisible,
@@ -670,6 +617,8 @@ class SelectMultipleFormField<T> extends FinesseFormField<Set<T>> {
              options: options,
              optionsBuilder: optionsBuilder,
              selectedOptionsBuilder: selectedOptionsBuilder,
+             values: state.value ?? const {},
+             onChanged: state.didChange,
              focusNode: state.focusNode,
              placeholder: placeholder,
              enabled: state.enabled,
@@ -693,12 +642,11 @@ class SelectMultipleFormField<T> extends FinesseFormField<Set<T>> {
              searchPadding: searchPadding,
              search: search,
              clearSearchOnClose: clearSearchOnClose,
-             popoverController: popoverController,
+             controller: controller,
              header: header,
              footer: footer,
              closeOnSelect: closeOnSelect,
              allowDeselection: allowDeselection,
-             controller: state.controller,
              ensureSelectedVisible: ensureSelectedVisible,
              searchFocusNode: searchFocusNode,
              onSearchSubmitted: onSearchSubmitted,
@@ -730,7 +678,7 @@ class SelectMultipleFormField<T> extends FinesseFormField<Set<T>> {
     super.validator,
     super.forceErrorText,
     required SelectVariant variant,
-    required SelectedOptionBuilder<List<T>> selectedOptionsBuilder,
+    SelectedOptionBuilder<List<T>>? selectedOptionsBuilder,
     Iterable<Widget>? options,
 
     /// The builder for the options of the [Select].
@@ -755,7 +703,7 @@ class SelectMultipleFormField<T> extends FinesseFormField<Set<T>> {
     EdgeInsetsGeometry? searchPadding,
     Widget? search,
     bool? clearSearchOnClose,
-    PopoverController? popoverController,
+    PopoverController? controller,
 
     /// {@macro Select.header}
     Widget? header,
@@ -764,7 +712,6 @@ class SelectMultipleFormField<T> extends FinesseFormField<Set<T>> {
     Widget? footer,
     bool allowDeselection = true,
     bool closeOnSelect = true,
-    this.controller,
 
     /// {@macro Select.ensureSelectedVisible}
     bool? ensureSelectedVisible,
@@ -798,10 +745,11 @@ class SelectMultipleFormField<T> extends FinesseFormField<Set<T>> {
              options: options,
              optionsBuilder: optionsBuilder,
              selectedOptionsBuilder: selectedOptionsBuilder,
+             values: state.value ?? const {},
+             onValuesChanged: state.didChange,
              focusNode: state.focusNode,
              placeholder: placeholder,
              enabled: state.enabled,
-             onMultipleChanged: state.didChange,
              closeOnTapOutside: closeOnTapOutside,
              anchor: anchor,
              minWidth: minWidth,
@@ -821,12 +769,11 @@ class SelectMultipleFormField<T> extends FinesseFormField<Set<T>> {
              searchPadding: searchPadding,
              search: search,
              clearSearchOnClose: clearSearchOnClose,
-             popoverController: popoverController,
+             controller: controller,
              header: header,
              footer: footer,
              allowDeselection: allowDeselection,
              closeOnSelect: closeOnSelect,
-             controller: state.controller,
              ensureSelectedVisible: ensureSelectedVisible,
              searchFocusNode: searchFocusNode,
              onSearchSubmitted: onSearchSubmitted,
@@ -836,9 +783,6 @@ class SelectMultipleFormField<T> extends FinesseFormField<Set<T>> {
          },
        );
 
-  /// {@macro Select.controller}
-  final SelectController<T>? controller;
-
   @override
   FinesseFormFieldState<SelectMultipleFormField<T>, Set<T>> createState() =>
       SelectMultipleFormFieldState<T>();
@@ -846,44 +790,4 @@ class SelectMultipleFormField<T> extends FinesseFormField<Set<T>> {
 
 /// The state of a [SelectMultipleFormField].
 class SelectMultipleFormFieldState<T>
-    extends FinesseFormFieldState<SelectMultipleFormField<T>, Set<T>> {
-  SelectController<T>? _controller;
-
-  /// The controller in use: [SelectMultipleFormField.controller] when
-  /// given, otherwise an internal one created from the initial value.
-  SelectController<T> get controller =>
-      widget.controller ??
-      (_controller ??= SelectController<T>(initialValue: initialValue));
-
-  @override
-  void initState() {
-    super.initState();
-    controller.addListener(onControllerChange);
-  }
-
-  @override
-  void didChange(Set<T>? value) {
-    super.didChange(value);
-    controller.value = value ?? {};
-  }
-
-  @override
-  void dispose() {
-    controller.removeListener(onControllerChange);
-    _controller?.dispose();
-    super.dispose();
-  }
-
-  /// Copies the controller's selection into the field's value.
-  void onControllerChange() {
-    if (controller.value != value) {
-      didChange(controller.value.toSet());
-    }
-  }
-
-  @override
-  void reset() {
-    super.reset();
-    controller.value = initialValue ?? {};
-  }
-}
+    extends FinesseFormFieldState<SelectMultipleFormField<T>, Set<T>> {}
