@@ -335,6 +335,17 @@ abstract final class JobsData {
     'Measure adoption and make the case for where to invest next',
   ];
 
+  // "Easy Apply". The designs stop at the button; these fill its steps.
+
+  /// The phone number the application form starts with.
+  static const applicantPhone = '+45 20 41 18 07';
+
+  /// The files the user can send, with when each last changed.
+  static const resumes = <(String, String)>[
+    ('Noor Haddad – CV 2026.pdf', 'Updated 3 days ago'),
+    ('Noor Haddad – Portfolio.pdf', 'Updated last month'),
+  ];
+
   static const companyFacts = <(IconData, String)>[
     (PhosphorIconsRegular.usersThree, '1,200 employees'),
     (PhosphorIconsRegular.globe, 'Offices in 4 Nordic cities'),

@@ -198,3 +198,15 @@ List<SemanticsData> announced(WidgetTester tester, String text) {
   }
   return found;
 }
+
+/// Walks an open "Easy Apply" from its first step to "Submit application"
+/// and lets the pretend server answer, which closes it and shows a toast.
+Future<void> completeEasyApply(WidgetTester tester) async {
+  for (var step = 0; step < 2; step++) {
+    await tester.tap(find.widgetWithText(Button, 'Next'));
+    await settleFrames(tester);
+  }
+  await tester.tap(find.widgetWithText(Button, 'Submit application'));
+  await tester.pump(const Duration(seconds: 1));
+  await settleFrames(tester);
+}

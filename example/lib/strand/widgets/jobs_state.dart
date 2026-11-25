@@ -43,6 +43,19 @@ class JobsState extends ChangeNotifier {
     ]..sort((a, b) => b.salaryCeiling.compareTo(a.salaryCeiling)),
   };
 
+  /// The labels of the switched-on filters.
+  Set<String> get filters => Set.unmodifiable(_filters);
+
+  /// Switches on exactly the filters labelled [labels]: what a tap in the
+  /// filter chips reports.
+  void setFilters(Set<String> labels) {
+    if (setEquals(labels, _filters)) return;
+    _filters
+      ..clear()
+      ..addAll(labels);
+    notifyListeners();
+  }
+
   bool isFilterOn(JobFilter filter) => _filters.contains(filter.label);
   bool isSaved(Job job) => _saved.contains(job.id);
   bool hasApplied(Job job) => _applied.contains(job.id);

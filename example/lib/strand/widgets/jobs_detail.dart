@@ -1,4 +1,5 @@
 import 'package:example/strand/data/jobs_data.dart';
+import 'package:example/strand/widgets/jobs_apply_dialog.dart';
 import 'package:example/strand/widgets/jobs_company_logo.dart';
 import 'package:example/strand/widgets/jobs_detail_sections.dart';
 import 'package:example/strand/widgets/jobs_state.dart';
@@ -188,12 +189,20 @@ class JobActions extends StatelessWidget {
       hoverBackgroundColor: colors.tint.withValues(alpha: .8),
       foregroundColor: colors.tintForeground,
       hoverForegroundColor: colors.tintForeground,
-      enabled: !applied,
       leading: PhosphorIcon(
         applied ? PhosphorIconsRegular.check : PhosphorIconsRegular.lightning,
       ),
-      onPressed: () => state.apply(job),
-      child: Text(applied ? 'Applied' : 'Easy Apply'),
+      // Once applied, the button leads to the application on the board.
+      onPressed: applied
+          ? applicationsOpener(context)
+          : () => showEasyApply(context, job: job, state: state),
+      // In the phone's bar the label gives way to a large text size.
+      expands: expand,
+      child: Text(
+        applied ? 'View application' : 'Easy Apply',
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
     );
 
     return FinesseRow(

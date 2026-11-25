@@ -187,7 +187,15 @@ void main() {
       await tapAndSettle(tester, inHome(find.text('Privacy')));
       expect(find.byType(SettingsScreen), findsOneWidget);
       expect(session(tester).settings.section, SettingsSection.privacy);
-      expect(find.text('Profile visibility'), findsOneWidget);
+      // A section header, in the style's overline case.
+      expect(
+        find.text(
+          Theme.of(
+            tester.element(find.byType(SettingsScreen)),
+          ).style.overline.applyCase('Profile visibility'),
+        ),
+        findsOneWidget,
+      );
       expect(tester.takeException(), isNull);
     });
 

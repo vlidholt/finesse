@@ -66,9 +66,11 @@ class ApplicationsController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Moves every application at [stage] to the archive.
-  void archiveAll(ApplicationStage stage) {
-    if (stage == ApplicationStage.archived) return;
+  /// Moves every application at [stage] to the archive, and returns what
+  /// [restore] needs to take it back.
+  ApplicationsSnapshot archiveAll(ApplicationStage stage) {
+    final snapshot = _snapshot();
+    if (stage == ApplicationStage.archived) return snapshot;
     final list = _stages[stage]!;
     _stages[ApplicationStage.archived]!.insertAll(0, [
       for (final application in list)
@@ -76,13 +78,33 @@ class ApplicationsController extends ChangeNotifier {
     ]);
     list.clear();
     notifyListeners();
+    return snapshot;
   }
 
-  void clearArchive() {
-    if (_stages[ApplicationStage.archived]!.isEmpty) return;
+  /// Empties the archive, and returns what [restore] needs to take it back.
+  ApplicationsSnapshot clearArchive() {
+    final snapshot = _snapshot();
+    if (_stages[ApplicationStage.archived]!.isEmpty) return snapshot;
     _stages[ApplicationStage.archived]!.clear();
     notifyListeners();
+    return snapshot;
   }
+
+  /// Puts every column back as it was when [snapshot] was taken: the
+  /// "Undo" of [archiveAll] and [clearArchive].
+  void restore(ApplicationsSnapshot snapshot) {
+    for (final MapEntry(key: stage, value: list) in snapshot._stages.entries) {
+      _stages[stage]!
+        ..clear()
+        ..addAll(list);
+    }
+    notifyListeners();
+  }
+
+  ApplicationsSnapshot _snapshot() => ApplicationsSnapshot._({
+    for (final MapEntry(key: stage, value: list) in _stages.entries)
+      stage: List.unmodifiable(list),
+  });
 
   /// What [track] was last told about each listing: (saved, applied).
   final Map<String, (bool, bool)> _tracked = {};
@@ -128,4 +150,12 @@ class ApplicationsController extends ChangeNotifier {
       }
     }
   }
+}
+
+/// The board as it was a moment ago, for an "Undo".
+@immutable
+class ApplicationsSnapshot {
+  const ApplicationsSnapshot._(this._stages);
+
+  final Map<ApplicationStage, List<JobApplication>> _stages;
 }

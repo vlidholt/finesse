@@ -30,7 +30,8 @@ import 'package:flutter_solidart/flutter_solidart.dart';
 /// on the right. When the window is too narrow for both columns the detail
 /// drops away and a job card opens it as a page instead. A phone is that
 /// list-only arrangement with a shorter header: the title, a compact search
-/// panel and the "Top picks for you" cards.
+/// panel, the filter chips as a bar that scrolls sideways, and the "Top
+/// picks for you" cards.
 class JobsScreen extends StatefulWidget {
   const JobsScreen({super.key});
 
@@ -118,6 +119,33 @@ class _JobsScreenState extends State<JobsScreen> {
       locationController: _locationController,
     );
 
+    if (mobile) {
+      // The filter bar scrolls out to the screen's edges, so on a phone the
+      // page keeps only its top and bottom margins and every other part
+      // keeps the side ones itself.
+      final margin = _pagePadding(context).resolve(Directionality.of(context));
+      Widget inset(Widget child) => Padding(
+        padding: EdgeInsets.only(left: margin.left, right: margin.right),
+        child: child,
+      );
+      return PageContainer(
+        scrollable: true,
+        padding: EdgeInsets.only(top: margin.top, bottom: margin.bottom),
+        child: FinesseColumn(
+          gap: GapSize.lg,
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            inset(JobsHeader(state: _state)),
+            inset(viewSwitch),
+            inset(search),
+            JobsFilterChips.bar(state: _state, margin: margin),
+            inset(JobsResults(state: _state, onOpen: _openDetailPage)),
+          ],
+        ),
+      );
+    }
+
     return PageContainer(
       scrollable: true,
       padding: _pagePadding(context),
@@ -129,20 +157,11 @@ class _JobsScreenState extends State<JobsScreen> {
           JobsHeader(state: _state),
           viewSwitch,
           search,
-          if (mobile)
-            Padding(
-              // The phone design sets the list two section gaps below
-              // the search panel, not one.
-              padding: EdgeInsets.only(top: layout.gap(GapSize.lg)),
-              child: JobsResults(state: _state, onOpen: _openDetailPage),
-            )
-          else ...[
-            JobsStats(applications: _applications),
-            Padding(
-              padding: EdgeInsets.only(top: layout.gap(GapSize.xs)),
-              child: _buildColumns(),
-            ),
-          ],
+          JobsStats(applications: _applications),
+          Padding(
+            padding: EdgeInsets.only(top: layout.gap(GapSize.xs)),
+            child: _buildColumns(),
+          ),
         ],
       ),
     );

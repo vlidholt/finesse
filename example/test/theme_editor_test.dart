@@ -657,7 +657,8 @@ void main() {
 
       expect(appTheme(tester).formFactor, FormFactor.desktop);
       expect(strandTheme(tester).style, StyleTokens.finesse);
-      expect(find.byType(NavigationBar), findsOneWidget);
+      // A desktop that narrow puts its destinations in a rail.
+      expect(find.byType(NavigationRail), findsOneWidget);
       expect(find.byType(BottomNavigationBar), findsNothing);
       // Laid out at the narrowest width a desktop layout is designed for…
       final breakpoint = appTheme(tester).breakpoints.md.value;
@@ -694,7 +695,8 @@ void main() {
       await openThemeEditor(tester);
 
       expect(appTheme(tester).formFactor, FormFactor.desktop);
-      expect(find.byType(NavigationBar), findsOneWidget);
+      // A desktop that narrow puts its destinations in a rail.
+      expect(find.byType(NavigationRail), findsOneWidget);
       final shell = find.byType(StrandShell);
       expect(
         tester.getSize(shell).width,
