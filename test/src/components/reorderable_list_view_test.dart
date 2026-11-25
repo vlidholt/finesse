@@ -138,6 +138,8 @@ void main() {
 
   List<MethodCall> hapticCalls(WidgetTester tester) {
     final calls = <MethodCall>[];
+    Haptics.debugEnabledInTests = true;
+    addTearDown(() => Haptics.debugEnabledInTests = false);
     tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
       SystemChannels.platform,
       (call) async {
