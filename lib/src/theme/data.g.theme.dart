@@ -33,6 +33,11 @@ mixin _$ThemeData {
       kbdTheme: KbdTheme.lerp(a.kbdTheme, b.kbdTheme, t)!,
       glassTheme: GlassTheme.lerp(a.glassTheme, b.glassTheme, t)!,
       appBarTheme: AppBarTheme.lerp(a.appBarTheme, b.appBarTheme, t)!,
+      floatingActionButtonTheme: FloatingActionButtonTheme.lerp(
+        a.floatingActionButtonTheme,
+        b.floatingActionButtonTheme,
+        t,
+      )!,
       navigationBarTheme: NavigationBarTheme.lerp(
         a.navigationBarTheme,
         b.navigationBarTheme,
@@ -268,6 +273,7 @@ mixin _$ThemeData {
     KbdTheme? kbdTheme,
     GlassTheme? glassTheme,
     AppBarTheme? appBarTheme,
+    FloatingActionButtonTheme? floatingActionButtonTheme,
     NavigationBarTheme? navigationBarTheme,
     BottomNavigationBarTheme? bottomNavigationBarTheme,
     ChipTheme? chipTheme,
@@ -353,6 +359,8 @@ mixin _$ThemeData {
       kbdTheme: kbdTheme ?? _this.kbdTheme,
       glassTheme: glassTheme ?? _this.glassTheme,
       appBarTheme: appBarTheme ?? _this.appBarTheme,
+      floatingActionButtonTheme:
+          floatingActionButtonTheme ?? _this.floatingActionButtonTheme,
       navigationBarTheme: navigationBarTheme ?? _this.navigationBarTheme,
       bottomNavigationBarTheme:
           bottomNavigationBarTheme ?? _this.bottomNavigationBarTheme,
@@ -456,6 +464,9 @@ mixin _$ThemeData {
       kbdTheme: _this.kbdTheme.merge(other.kbdTheme),
       glassTheme: _this.glassTheme.merge(other.glassTheme),
       appBarTheme: _this.appBarTheme.merge(other.appBarTheme),
+      floatingActionButtonTheme: _this.floatingActionButtonTheme.merge(
+        other.floatingActionButtonTheme,
+      ),
       navigationBarTheme: _this.navigationBarTheme.merge(
         other.navigationBarTheme,
       ),
@@ -583,6 +594,7 @@ mixin _$ThemeData {
         _other.kbdTheme == _this.kbdTheme &&
         _other.glassTheme == _this.glassTheme &&
         _other.appBarTheme == _this.appBarTheme &&
+        _other.floatingActionButtonTheme == _this.floatingActionButtonTheme &&
         _other.navigationBarTheme == _this.navigationBarTheme &&
         _other.bottomNavigationBarTheme == _this.bottomNavigationBarTheme &&
         _other.chipTheme == _this.chipTheme &&
@@ -672,6 +684,7 @@ mixin _$ThemeData {
       _this.kbdTheme,
       _this.glassTheme,
       _this.appBarTheme,
+      _this.floatingActionButtonTheme,
       _this.navigationBarTheme,
       _this.bottomNavigationBarTheme,
       _this.chipTheme,

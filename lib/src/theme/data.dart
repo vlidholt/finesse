@@ -25,6 +25,7 @@ import 'package:finesse/src/theme/components/default_keyboard_toolbar.dart';
 import 'package:finesse/src/theme/components/dialog.dart';
 import 'package:finesse/src/theme/components/divider.dart';
 import 'package:finesse/src/theme/components/empty.dart';
+import 'package:finesse/src/theme/components/floating_action_button.dart';
 import 'package:finesse/src/theme/components/glass.dart';
 import 'package:finesse/src/theme/components/icon_tile.dart';
 import 'package:finesse/src/theme/components/indicator_badge.dart';
@@ -146,6 +147,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     KbdTheme? kbdTheme,
     GlassTheme? glassTheme,
     AppBarTheme? appBarTheme,
+    FloatingActionButtonTheme? floatingActionButtonTheme,
     NavigationBarTheme? navigationBarTheme,
     BottomNavigationBarTheme? bottomNavigationBarTheme,
     ChipTheme? chipTheme,
@@ -414,6 +416,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
         kbdTheme: kbdTheme,
         glassTheme: glassTheme,
         appBarTheme: appBarTheme,
+        floatingActionButtonTheme: floatingActionButtonTheme,
         navigationBarTheme: navigationBarTheme,
         bottomNavigationBarTheme: bottomNavigationBarTheme,
         chipTheme: chipTheme,
@@ -564,6 +567,9 @@ class ThemeData extends BaseTheme with _$ThemeData {
       kbdTheme: effectiveVariant.kbdTheme().merge(kbdTheme),
       glassTheme: effectiveVariant.glassTheme().merge(glassTheme),
       appBarTheme: effectiveVariant.appBarTheme().merge(appBarTheme),
+      floatingActionButtonTheme: effectiveVariant
+          .floatingActionButtonTheme()
+          .merge(floatingActionButtonTheme),
       navigationBarTheme: effectiveVariant.navigationBarTheme().merge(
         navigationBarTheme,
       ),
@@ -670,6 +676,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     required super.kbdTheme,
     required super.glassTheme,
     required super.appBarTheme,
+    required super.floatingActionButtonTheme,
     required super.navigationBarTheme,
     required super.bottomNavigationBarTheme,
     required super.chipTheme,
@@ -758,6 +765,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     KbdTheme? kbdTheme,
     GlassTheme? glassTheme,
     AppBarTheme? appBarTheme,
+    FloatingActionButtonTheme? floatingActionButtonTheme,
     NavigationBarTheme? navigationBarTheme,
     BottomNavigationBarTheme? bottomNavigationBarTheme,
     ChipTheme? chipTheme,
@@ -851,6 +859,8 @@ class ThemeData extends BaseTheme with _$ThemeData {
       kbdTheme: kbdTheme ?? i.kbdTheme,
       glassTheme: glassTheme ?? i.glassTheme,
       appBarTheme: appBarTheme ?? i.appBarTheme,
+      floatingActionButtonTheme:
+          floatingActionButtonTheme ?? i.floatingActionButtonTheme,
       navigationBarTheme: navigationBarTheme ?? i.navigationBarTheme,
       bottomNavigationBarTheme:
           bottomNavigationBarTheme ?? i.bottomNavigationBarTheme,
@@ -1040,6 +1050,7 @@ final class _ThemeInputs {
     this.kbdTheme,
     this.glassTheme,
     this.appBarTheme,
+    this.floatingActionButtonTheme,
     this.navigationBarTheme,
     this.bottomNavigationBarTheme,
     this.chipTheme,
@@ -1130,6 +1141,7 @@ final class _ThemeInputs {
   final KbdTheme? kbdTheme;
   final GlassTheme? glassTheme;
   final AppBarTheme? appBarTheme;
+  final FloatingActionButtonTheme? floatingActionButtonTheme;
   final NavigationBarTheme? navigationBarTheme;
   final BottomNavigationBarTheme? bottomNavigationBarTheme;
   final ChipTheme? chipTheme;

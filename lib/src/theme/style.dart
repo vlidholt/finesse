@@ -273,6 +273,9 @@ class StyleTokens {
     this.gapLg = 16,
     this.gapXl = 24,
     this.appBarHeight = 64,
+    this.fabSize = 48,
+    this.fabSizeSm = 40,
+    this.fabSizeLg = 64,
     this.navigationItemWidth = 88,
     this.navigationIconSize = 24,
     this.navigationIndicatorHeight = 3,
@@ -974,6 +977,15 @@ class StyleTokens {
   /// The height of an app bar.
   final double appBarHeight;
 
+  /// The height of a floating action button, and its width without a label.
+  final double fabSize;
+
+  /// [fabSize] for a small floating action button.
+  final double fabSizeSm;
+
+  /// [fabSize] for a large floating action button.
+  final double fabSizeLg;
+
   /// The width of a destination in a top navigation bar.
   final double navigationItemWidth;
 
@@ -1586,6 +1598,9 @@ class StyleTokens {
     chipHeight: 36,
     underlineTabHeight: 48,
     appBarHeight: 60,
+    fabSize: 56,
+    fabSizeSm: 44,
+    fabSizeLg: 72,
     gapLg: 12,
     gapXl: 16,
     motion: Motion.lively,
@@ -1851,6 +1866,9 @@ class StyleTokens {
       checkboxSize: atLeast(checkboxSize, 20),
       radioSize: atLeast(radioSize, 20),
       appBarHeight: 60,
+      fabSize: atLeast(fabSize, 56),
+      fabSizeSm: atLeast(fabSizeSm, 44),
+      fabSizeLg: atLeast(fabSizeLg, 72),
       pagePaddingX: 16,
       pagePaddingY: 16,
       gapLg: 12,
@@ -2039,6 +2057,9 @@ class StyleTokens {
     double? gapLg,
     double? gapXl,
     double? appBarHeight,
+    double? fabSize,
+    double? fabSizeSm,
+    double? fabSizeLg,
     double? navigationItemWidth,
     double? navigationIconSize,
     double? navigationIndicatorHeight,
@@ -2849,6 +2870,17 @@ class StyleTokens {
             this.appBarHeight,
             currentMobile.appBarHeight,
           ),
+          fabSize: _shared(fabSize, this.fabSize, currentMobile.fabSize),
+          fabSizeSm: _shared(
+            fabSizeSm,
+            this.fabSizeSm,
+            currentMobile.fabSizeSm,
+          ),
+          fabSizeLg: _shared(
+            fabSizeLg,
+            this.fabSizeLg,
+            currentMobile.fabSizeLg,
+          ),
           navigationItemWidth: _shared(
             navigationItemWidth,
             this.navigationItemWidth,
@@ -3252,6 +3284,9 @@ class StyleTokens {
       gapLg: gapLg ?? this.gapLg,
       gapXl: gapXl ?? this.gapXl,
       appBarHeight: appBarHeight ?? this.appBarHeight,
+      fabSize: fabSize ?? this.fabSize,
+      fabSizeSm: fabSizeSm ?? this.fabSizeSm,
+      fabSizeLg: fabSizeLg ?? this.fabSizeLg,
       navigationItemWidth: navigationItemWidth ?? this.navigationItemWidth,
       navigationIconSize: navigationIconSize ?? this.navigationIconSize,
       navigationIndicatorHeight:
@@ -3485,6 +3520,9 @@ class StyleTokens {
     gapLg,
     gapXl,
     appBarHeight,
+    fabSize,
+    fabSizeSm,
+    fabSizeLg,
     navigationItemWidth,
     navigationIconSize,
     navigationIndicatorHeight,

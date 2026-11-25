@@ -186,6 +186,45 @@ void main() {
     expect(copy.cardTheme.padding, const EdgeInsets.all(3));
   });
 
+  test('the floating action button and app bar themes survive a copy, and '
+      'can be the copy', () {
+    final themed = ThemeData(
+      floatingActionButtonTheme: const FloatingActionButtonTheme(size: 60),
+      appBarTheme: const AppBarTheme(centerTitle: true),
+    );
+    final copy = themed.copyWith(radius: BorderRadius.circular(1));
+    expect(copy.floatingActionButtonTheme.size, 60);
+    expect(copy.appBarTheme.centerTitle, isTrue);
+    // Merged over what the variant derives, not replacing it.
+    expect(
+      copy.floatingActionButtonTheme.backgroundColor,
+      copy.colorScheme.primary,
+    );
+
+    final changed = base.copyWith(
+      floatingActionButtonTheme: const FloatingActionButtonTheme(gap: 3),
+    );
+    expect(changed.floatingActionButtonTheme.gap, 3);
+    expect(
+      changed.floatingActionButtonTheme.size,
+      base.floatingActionButtonTheme.size,
+    );
+    // Recoloured with the scheme, resized with the form factor.
+    const dark = TealColorScheme.dark();
+    expect(
+      base
+          .copyWith(colorScheme: dark)
+          .floatingActionButtonTheme
+          .backgroundColor,
+      dark.primary,
+    );
+    expect(base.floatingActionButtonTheme.size, 48);
+    expect(
+      base.withFormFactor(FormFactor.mobile).floatingActionButtonTheme.size,
+      56,
+    );
+  });
+
   test('a copy with no arguments equals the original', () {
     expect(base.copyWith(), base);
   });
