@@ -268,6 +268,24 @@ class ScaffoldState extends State<Scaffold> with TickerProviderStateMixin {
   /// Closes the [Scaffold.endDrawer] if it is open.
   void closeEndDrawer() => _endDrawerRoute?.close();
 
+  /// A drawer's [content] under this scaffold's scope. The drawer is a
+  /// route, built in the navigator's overlay and not under the scaffold,
+  /// so without it `Scaffold.of` would find nothing there — and a menu
+  /// item could not close the drawer it is in.
+  Widget? _scoped(Widget? content, {required bool atEnd}) {
+    if (content == null) return null;
+    return _ScaffoldScope(
+      state: this,
+      hasDrawer: hasDrawer,
+      hasEndDrawer: hasEndDrawer,
+      // Shown, its own drawer is open; the scaffold's state says when it
+      // is closing.
+      isDrawerOpen: !atEnd,
+      isEndDrawerOpen: atEnd,
+      child: content,
+    );
+  }
+
   /// The scaffold's theme if a drawer has to carry it: under the
   /// navigator's own theme the drawer follows that one live — a switch to
   /// dark while it is open included.
@@ -289,7 +307,10 @@ class ScaffoldState extends State<Scaffold> with TickerProviderStateMixin {
     );
     if (navigator == null) return;
 
-    (atEnd ? _endDrawerContent : _drawerContent).value = content;
+    (atEnd ? _endDrawerContent : _drawerContent).value = _scoped(
+      content,
+      atEnd: atEnd,
+    );
     final strings = FinesseLocalizations.of(context);
     final route = ScaffoldDrawerRoute(
       content: atEnd ? _endDrawerContent : _drawerContent,
@@ -349,7 +370,7 @@ class ScaffoldState extends State<Scaffold> with TickerProviderStateMixin {
         return;
       }
       final notifier = atEnd ? _endDrawerContent : _drawerContent;
-      notifier.value = content;
+      notifier.value = _scoped(content, atEnd: atEnd);
       final controller = AnimationController(vsync: this);
       final theme = _drawerTheme(navigator);
       final created = pull = _pull = _DrawerPull(atEnd, controller)
@@ -421,8 +442,8 @@ class ScaffoldState extends State<Scaffold> with TickerProviderStateMixin {
       // elsewhere in the tree, so it is told once this build is over.
       SchedulerBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        _drawerContent.value = widget.drawer;
-        _endDrawerContent.value = widget.endDrawer;
+        _drawerContent.value = _scoped(widget.drawer, atEnd: false);
+        _endDrawerContent.value = _scoped(widget.endDrawer, atEnd: true);
         if (widget.drawer == null) _drawerRoute?.close();
         if (widget.endDrawer == null) _endDrawerRoute?.close();
       });
