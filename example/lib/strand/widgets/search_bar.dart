@@ -51,16 +51,18 @@ SearchCallbacks searchCallbacksFor(
 ///
 /// ## The panel follows the focus
 ///
-/// The panel is not a route and has no barrier, so nothing but the focus
-/// says whether it is in use. It opens when the field gains the focus (and
-/// when the field is tapped or typed in with the focus already there), and
+/// The panel is a `Popover` that does not take the focus
+/// (`requestFocus: false`): the caret stays in the field while results
+/// come and go under it. It has no barrier, so nothing but the focus says
+/// whether it is in use. It opens when the field gains the focus (and when
+/// the field is tapped or typed in with the focus already there), and
 /// closes when the focus leaves both the field and the panel — by Tab, by a
 /// click elsewhere, by a result opening a dialog — as well as on Escape and
-/// on a tap outside. Field and panel are one focus traversal group, so Tab
-/// and the down arrow go from the field into the results and Escape closes
-/// the panel from either; they are one tap-region group too, so a click on
-/// the panel's own surface neither closes it nor takes the focus from the
-/// field.
+/// on a tap outside. The popover makes field and panel one focus traversal
+/// group, so Tab and the down arrow go from the field into the results and
+/// Escape closes the panel from either; the field is in the popover's
+/// tap-region group too, so a click on the panel's own surface neither
+/// closes it nor takes the focus from the field.
 ///
 /// ## The shortcut
 ///
@@ -69,9 +71,6 @@ SearchCallbacks searchCallbacksFor(
 /// `HardwareKeyboard` handler, which hears a key wherever the focus is —
 /// including inside a dialog — so it checks that nothing covers the bar
 /// (`isOnTopRoute`) before it acts.
-///
-/// The panel is a `Portal` rather than a `Popover`: a popover takes the
-/// focus when it opens, and this one has to leave it in the field.
 class StrandSearchBar extends StatefulWidget {
   const StrandSearchBar({super.key});
 
@@ -83,6 +82,9 @@ class StrandSearchBar extends StatefulWidget {
 
   /// What Strand's search fields ask for.
   static const placeholder = 'Search people, posts, jobs';
+
+  /// The space between the panel's edge and its rows.
+  static double _inset(ThemeData theme) => theme.gap(GapSize.xs);
 
   @override
   State<StrandSearchBar> createState() => _StrandSearchBarState();
@@ -99,7 +101,9 @@ class _StrandSearchBarState extends State<StrandSearchBar> {
     skipTraversal: true,
   );
   final _group = Object();
-  bool _open = false;
+
+  /// Whether the panel is showing.
+  final _panel = PopoverController();
 
   static const _anchor = AnchorAuto(
     offset: Offset(0, 8),
@@ -112,8 +116,12 @@ class _StrandSearchBarState extends State<StrandSearchBar> {
     super.initState();
     _focusNode.addListener(_onFocusChanged);
     _controller.addListener(_onQueryChanged);
+    // The arrow keys are bound while the panel is open.
+    _panel.addListener(_onPanelChanged);
     HardwareKeyboard.instance.addHandler(_onKey);
   }
+
+  void _onPanelChanged() => setState(() {});
 
   @override
   void dispose() {
@@ -121,6 +129,7 @@ class _StrandSearchBarState extends State<StrandSearchBar> {
     _controller.dispose();
     _focusNode.dispose();
     _scopeNode.dispose();
+    _panel.dispose();
     super.dispose();
   }
 
@@ -129,11 +138,11 @@ class _StrandSearchBarState extends State<StrandSearchBar> {
   }
 
   void _onQueryChanged() {
-    setState(() {
-      // Typing after Escape brings the panel back; clearing the field on
-      // the way to the results page does not.
-      if (_focusNode.hasFocus && _controller.text.isNotEmpty) _open = true;
-    });
+    // The panel shows the results of what is typed.
+    setState(() {});
+    // Typing after Escape brings the panel back; clearing the field on
+    // the way to the results page does not.
+    if (_focusNode.hasFocus && _controller.text.isNotEmpty) _panel.open();
   }
 
   /// The search shortcut, wherever the focus is — as long as the bar is
@@ -159,13 +168,9 @@ class _StrandSearchBarState extends State<StrandSearchBar> {
     return true;
   }
 
-  void _show() {
-    if (!_open) setState(() => _open = true);
-  }
+  void _show() => _panel.open();
 
-  void _close() {
-    if (_open) setState(() => _open = false);
-  }
+  void _close() => _panel.close();
 
   /// Escape: the panel goes and the field gives up the focus.
   void _dismiss() {
@@ -291,51 +296,51 @@ class _StrandSearchBarState extends State<StrandSearchBar> {
             : null,
       ),
     );
-    return TapRegion(
-      groupId: _group,
-      onTapOutside: (_) => _close(),
-      // The field and the panel together: the overlay is a descendant of
-      // the `Portal` as far as the focus tree goes, so the panel's controls
-      // are the stops after the field, and [_scopeNode] has the focus while
-      // any of them does.
-      child: FocusTraversalGroup(
-        child: Focus(
-          focusNode: _scopeNode,
-          onFocusChange: (focused) {
-            if (!focused) _close();
-          },
-          // Escape closes the panel from the field or from a result, and
-          // is left alone — for whatever encloses the bar — while the panel
-          // is closed.
-          child: DismissShortcut(
-            isActive: () => _open,
+    final open = _panel.isOpen;
+    // Has the focus while the field or anything in the panel does: the
+    // overlay is a descendant of the popover as far as the focus tree
+    // goes, so the panel's controls are the stops after the field.
+    return Focus(
+      focusNode: _scopeNode,
+      onFocusChange: (focused) {
+        if (!focused) _close();
+      },
+      child: CallbackShortcuts(
+        // Bound only while the panel is open: closed, the arrows are the
+        // field's own.
+        bindings: open
+            ? {
+                const SingleActivator(LogicalKeyboardKey.arrowDown): () =>
+                    _step(1),
+                const SingleActivator(LogicalKeyboardKey.arrowUp): () =>
+                    _step(-1),
+              }
+            : const {},
+        child: Popover(
+          controller: _panel,
+          // The caret stays in the field.
+          requestFocus: false,
+          groupId: _group,
+          anchor: _anchor,
+          padding: EdgeInsets.all(StrandSearchBar._inset(theme)),
+          // Escape closes the panel from a result or from the field, and
+          // gives up the focus with it; a text field swallows the key, so
+          // each of the two has its own listener right around it. Closed,
+          // the key is left alone for whatever encloses the bar.
+          builder: (context) => DismissShortcut(
+            isActive: () => _panel.isOpen,
             onDismiss: _dismiss,
-            child: CallbackShortcuts(
-              // Bound only while the panel is open: closed, the arrows are
-              // the field's own.
-              bindings: _open
-                  ? {
-                      const SingleActivator(LogicalKeyboardKey.arrowDown): () =>
-                          _step(1),
-                      const SingleActivator(LogicalKeyboardKey.arrowUp): () =>
-                          _step(-1),
-                    }
-                  : const {},
-              child: Portal(
-                visible: _open,
-                anchor: _anchor,
-                portalBuilder: (context) => TapRegion(
-                  groupId: _group,
-                  child: _Panel(
-                    query: _controller.text,
-                    onPick: _pick,
-                    onSeeAll: _openPage,
-                    callbacks: searchCallbacksFor(this.context, before: _leave),
-                  ),
-                ),
-                child: field,
-              ),
+            child: _Panel(
+              query: _controller.text,
+              onPick: _pick,
+              onSeeAll: _openPage,
+              callbacks: searchCallbacksFor(this.context, before: _leave),
             ),
+          ),
+          child: DismissShortcut(
+            isActive: () => _panel.isOpen,
+            onDismiss: _dismiss,
+            child: field,
           ),
         ),
       ),
@@ -343,7 +348,8 @@ class _StrandSearchBarState extends State<StrandSearchBar> {
   }
 }
 
-/// The surface under the field: suggestions, live results or "no results".
+/// What is on the surface under the field: suggestions, live results or
+/// "no results".
 class _Panel extends StatelessWidget {
   const _Panel({
     required this.query,
@@ -360,7 +366,6 @@ class _Panel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final popover = theme.popoverTheme;
     final session = context.strand;
     final results = SearchData.search(query);
     final typed = query.trim().isNotEmpty;
@@ -419,17 +424,13 @@ class _Panel extends StatelessWidget {
     return Semantics(
       container: true,
       label: 'Search suggestions',
+      // The popover is the surface; this is what is on it.
       child: SizedBox(
-        width: StrandSearchBar.panelWidth,
-        child: SurfacePainter(
-          decoration: (popover.decoration ?? const FinesseDecoration())
-              .copyWith(shadows: popover.shadows),
-          filter: popover.filter,
-          padding: EdgeInsets.all(theme.gap(GapSize.xs)),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxHeight: maxHeight),
-            child: SingleChildScrollView(child: content),
-          ),
+        // The panel's width is the surface's, padding and all.
+        width: StrandSearchBar.panelWidth - StrandSearchBar._inset(theme) * 2,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: maxHeight),
+          child: SingleChildScrollView(child: content),
         ),
       ),
     );
