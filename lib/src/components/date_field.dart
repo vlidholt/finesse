@@ -246,7 +246,8 @@ class _DateFieldState extends State<DateField> {
   void _changed() {
     final date = _read();
     if (date == _date) return;
-    _date = date;
+    // A rebuild: the calendar button opens on the date.
+    setState(() => _date = date);
     widget.onChanged?.call(date);
   }
 
@@ -387,8 +388,8 @@ class _DateFieldState extends State<DateField> {
         .merge(field.style)
         // Digits of one width: a date does not shift as it is typed.
         .copyWith(fontFeatures: const [FontFeature.tabularFigures()]);
-    final labelStyle = theme.textTheme.small
-        .copyWith(fontSize: 12)
+    final labelStyle = theme.style.caption
+        .apply(theme.textTheme.small)
         .merge(field.labelStyle)
         .fallback(color: theme.colorScheme.foreground);
     final placeholderStyle = theme.textTheme.muted.merge(

@@ -388,6 +388,7 @@ class RangeSlider extends StatefulWidget {
     this.min,
     this.max,
     this.autofocus = false,
+    this.focusNode,
     this.mouseCursor,
     this.disabledMouseCursor,
     this.thumbColor,
@@ -447,6 +448,10 @@ class RangeSlider extends StatefulWidget {
   /// Defaults to false.
   /// {@endtemplate}
   final bool autofocus;
+
+  /// The focus node of the lowest thumb. The other thumbs have nodes of
+  /// their own.
+  final FocusNode? focusNode;
 
   /// {@macro Slider.mouseCursor}
   final MouseCursor? mouseCursor;
@@ -544,6 +549,7 @@ class _RangeSliderState extends State<RangeSlider> {
       min: widget.min,
       max: widget.max,
       autofocus: widget.autofocus,
+      focusNode: widget.focusNode,
       mouseCursor: widget.mouseCursor,
       disabledMouseCursor: widget.disabledMouseCursor,
       thumbColor: widget.thumbColor,
@@ -746,16 +752,31 @@ class _SliderCoreState extends State<_SliderCore> {
     return result;
   }
 
+  /// Where thumb [index] stops on its way to [rawValue]: in the bounds, on
+  /// a division, and short of crossing a neighbour.
+  double _constrain(int index, double rawValue) {
+    final values = widget.values;
+    var value = _clampAndSnap(rawValue);
+    if (index > 0) value = math.max(value, values[index - 1]);
+    if (index < values.length - 1) value = math.min(value, values[index + 1]);
+    return value;
+  }
+
+  /// How far a key or assistive technology moves a thumb: one division, or
+  /// a hundredth of the range on a smooth slider.
+  double get _step {
+    final range = _max - _min;
+    final divisions = widget.divisions;
+    return divisions != null && divisions > 0 ? range / divisions : range * .01;
+  }
+
   /// Moves thumb [index] to [rawValue], keeping the values in ascending
   /// order: a thumb stops where its neighbour is rather than crossing it.
   void _updateThumb(int index, double rawValue) {
     final values = widget.values;
     if (index < 0 || index >= values.length) return;
 
-    var value = _clampAndSnap(rawValue);
-    if (index > 0) value = math.max(value, values[index - 1]);
-    if (index < values.length - 1) value = math.min(value, values[index + 1]);
-
+    final value = _constrain(index, rawValue);
     if (values[index] == value) return;
     // A finger feels each stop of a stepped slider as it passes, and
     // either end of any slider as the thumb arrives there.
@@ -769,10 +790,14 @@ class _SliderCoreState extends State<_SliderCore> {
     widget.onValuesChanged(List<double>.of(values)..[index] = value);
   }
 
-  /// The value the given horizontal offset into the track represents.
+  bool get _rtl => Directionality.of(context) == TextDirection.rtl;
+
+  /// The value the given horizontal offset into the track represents: from
+  /// the left, or from the right where text runs that way.
   double _valueFromDx(double dx, double trackWidth) {
     if (trackWidth == 0) return _min;
-    return _min + (dx / trackWidth) * (_max - _min);
+    final fromStart = _rtl ? trackWidth - dx : dx;
+    return _min + (fromStart / trackWidth) * (_max - _min);
   }
 
   /// The thumb a pointer at [value] should grab.
@@ -809,31 +834,28 @@ class _SliderCoreState extends State<_SliderCore> {
       return false;
     }
 
-    final range = _max - _min;
-
-    double increment;
-    if (widget.divisions != null && widget.divisions! > 0) {
-      increment = range / widget.divisions!;
-    } else {
-      increment = range * 0.01; // 1% of range for smooth movement
-    }
-
+    var increment = _step;
     if (HardwareKeyboard.instance.isShiftPressed) {
       increment *= 10;
     }
 
     if (index < 0 || index >= widget.values.length) return false;
     var newValue = widget.values[index];
+    // Right to left, the left arrow points at the far end.
+    final towardsEnd = _rtl
+        ? LogicalKeyboardKey.arrowLeft
+        : LogicalKeyboardKey.arrowRight;
+    final towardsStart = _rtl
+        ? LogicalKeyboardKey.arrowRight
+        : LogicalKeyboardKey.arrowLeft;
 
-    switch (event.logicalKey) {
-      case LogicalKeyboardKey.arrowLeft:
-      case LogicalKeyboardKey.arrowDown:
-        newValue -= increment;
-      case LogicalKeyboardKey.arrowRight:
-      case LogicalKeyboardKey.arrowUp:
-        newValue += increment;
-      default:
-        return false;
+    final key = event.logicalKey;
+    if (key == towardsStart || key == LogicalKeyboardKey.arrowDown) {
+      newValue -= increment;
+    } else if (key == towardsEnd || key == LogicalKeyboardKey.arrowUp) {
+      newValue += increment;
+    } else {
+      return false;
     }
 
     _updateThumb(index, newValue);
@@ -945,6 +967,9 @@ class _SliderCoreState extends State<_SliderCore> {
     final range = effectiveMax - effectiveMin;
     double fractionOf(double value) =>
         range == 0 ? 0.0 : ((value - effectiveMin) / range).clamp(0.0, 1.0);
+    // The minimum is at the start: on the right where text runs that way.
+    final rtl = _rtl;
+    double fromLeft(double fraction) => rtl ? 1 - fraction : fraction;
 
     // A single thumb fills the track from the minimum; two or more fill the
     // span between the outermost thumbs, shadcn's `SliderIndicator`.
@@ -985,14 +1010,18 @@ class _SliderCoreState extends State<_SliderCore> {
 
         Widget buildThumb(int index) {
           final value = values[index];
+          String semanticValue(double value) =>
+              widget.semanticFormatter?.call(value, index) ??
+              (widget.valueLabel == null ? value.toString() : _labelOf(value));
+          final increased = _constrain(index, value + _step);
+          final decreased = _constrain(index, value - _step);
+          final x = fromLeft(fractionOf(value)) * effectiveTrackWidth;
           return Positioned(
             key: ValueKey<int>(index),
-            left:
-                (fractionOf(value) * effectiveTrackWidth - effectiveThumbRadius)
-                    .clamp(
-                      -effectiveThumbRadius,
-                      effectiveTrackWidth - effectiveThumbRadius,
-                    ),
+            left: (x - effectiveThumbRadius).clamp(
+              -effectiveThumbRadius,
+              effectiveTrackWidth - effectiveThumbRadius,
+            ),
             top: (effectiveHeight - effectiveThumbRadius * 2) / 2,
             child: Focusable(
               focusNode: _focusNodeFor(index),
@@ -1023,11 +1052,15 @@ class _SliderCoreState extends State<_SliderCore> {
                   label: _labelOf(value),
                   child: Semantics(
                     slider: true,
-                    value:
-                        widget.semanticFormatter?.call(value, index) ??
-                        (widget.valueLabel == null
-                            ? value.toString()
-                            : _labelOf(value)),
+                    value: semanticValue(value),
+                    increasedValue: semanticValue(increased),
+                    decreasedValue: semanticValue(decreased),
+                    onIncrease: widget.enabled && increased != value
+                        ? () => _updateThumb(index, increased)
+                        : null,
+                    onDecrease: widget.enabled && decreased != value
+                        ? () => _updateThumb(index, decreased)
+                        : null,
                     child: SizedBox(
                       width: effectiveThumbRadius * 2,
                       height: effectiveThumbRadius * 2,
@@ -1119,8 +1152,8 @@ class _SliderCoreState extends State<_SliderCore> {
         }
 
         // Painted — and therefore traversed — in value order, so tabbing
-        // through the thumbs runs left to right however the values are
-        // ordered in the list.
+        // through the thumbs runs from the start to the end however the
+        // values are ordered in the list.
         final thumbOrder = List<int>.generate(values.length, (i) => i)
           ..sort((a, b) {
             final byValue = values[a].compareTo(values[b]);
@@ -1227,7 +1260,9 @@ class _SliderCoreState extends State<_SliderCore> {
                       ),
                       // active track
                       Positioned(
-                        left: lowFraction * effectiveTrackWidth,
+                        left:
+                            (rtl ? 1 - highFraction : lowFraction) *
+                            effectiveTrackWidth,
                         top: 0,
                         width:
                             (highFraction - lowFraction).clamp(0.0, 1.0) *

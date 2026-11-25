@@ -585,5 +585,67 @@ void main() {
       await tester.pump();
       expect(changes, isEmpty);
     });
+
+    testWidgets('a disabled form disables it', (tester) async {
+      final changes = <_Size>[];
+      await pumpFinesse(
+        tester,
+        FinesseForm(
+          enabled: false,
+          child: SegmentedControlFormField<_Size>(
+            id: 'size',
+            initialValue: _Size.small,
+            onChanged: changes.add,
+            segments: const [
+              Segment(value: _Size.small, label: Text('S')),
+              Segment(value: _Size.large, label: Text('L')),
+            ],
+          ),
+        ),
+      );
+      expect(
+        tester
+            .widget<SegmentedControl<_Size>>(
+              find.byType(SegmentedControl<_Size>),
+            )
+            .enabled,
+        isFalse,
+      );
+      await tester.tap(find.text('L'), warnIfMissed: false);
+      await tester.pump();
+      expect(changes, isEmpty);
+    });
+
+    testWidgets('a failed validation moves the focus into the control', (
+      tester,
+    ) async {
+      final form = GlobalKey<FinesseFormState>();
+      await pumpFinesse(
+        tester,
+        FinesseForm(
+          key: form,
+          child: SegmentedControlFormField<_Size>(
+            id: 'size',
+            validator: (value) => value == null ? 'Choose a size' : null,
+            segments: const [
+              Segment(value: _Size.small, label: Text('S')),
+              Segment(value: _Size.large, label: Text('L')),
+            ],
+          ),
+        ),
+      );
+      expect(form.currentState!.validate(), isFalse);
+      await tester.pump();
+      final focus = FocusManager.instance.primaryFocus!.context!;
+      expect(
+        find
+            .ancestor(
+              of: find.byElementPredicate((e) => e == focus),
+              matching: find.byType(SegmentedControl<_Size>),
+            )
+            .evaluate(),
+        isNotEmpty,
+      );
+    });
   });
 }

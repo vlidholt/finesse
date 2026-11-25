@@ -439,6 +439,34 @@ void main() {
       expect(_text(tester), '42');
     });
 
+    testWidgets('a parent that rebuilds without taking a step is asked for '
+        'the same step again', (tester) async {
+      for (final variant in NumberFieldVariant.values) {
+        final changes = <num?>[];
+        await tester.pumpWidget(
+          _app(
+            StatefulBuilder(
+              builder: (context, setState) => NumberField(
+                value: 5,
+                max: 10,
+                variant: variant,
+                onChanged: (v) => setState(() => changes.add(v)),
+              ),
+            ),
+          ),
+        );
+        final up = variant == NumberFieldVariant.field ? _up : _plus;
+        for (var i = 0; i < 2; i++) {
+          await tester.tap(up, kind: PointerDeviceKind.mouse);
+          await tester.pump();
+          await tester.pump();
+        }
+        expect(changes, [6, 6], reason: '$variant');
+        if (variant == NumberFieldVariant.field) expect(_text(tester), '5');
+        await tester.pumpWidget(const SizedBox.shrink());
+      }
+    });
+
     testWidgets('read-only shows no buttons and takes no steps; disabled '
         'dims them', (tester) async {
       final changes = <num?>[];

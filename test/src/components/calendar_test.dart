@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:finesse/material.dart';
 import 'package:finesse/src/app.dart';
 import 'package:finesse/src/components/button.dart';
@@ -9,7 +11,7 @@ import 'package:finesse/src/utils/extensions/date_time.dart';
 import 'package:flutter/material.dart' hide DateTimeRange, IconButton;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' show DateFormat;
 
 void main() {
   // Helper method to create a test widget wrapped in FinesseApp and Scaffold
@@ -623,6 +625,56 @@ void main() {
         find.byType(Calendar),
         matchesGoldenFile('goldens/calendar_range.png'),
       );
+    });
+
+    testWidgets('a range rounds its ends at the edges of each row, right to '
+        'left as well', (tester) async {
+      for (final direction in TextDirection.values) {
+        await tester.pumpWidget(
+          createTestWidget(
+            Directionality(
+              textDirection: direction,
+              child: Calendar.range(
+                initialMonth: DateTime(2024, 3),
+                range: DateTimeRange(
+                  start: DateTime(2024, 3, 2),
+                  end: DateTime(2024, 3, 28),
+                ),
+              ),
+            ),
+          ),
+        );
+        final days = find.descendant(
+          of: find.byType(GridView),
+          matching: find.byType(Button),
+        );
+        final rects = [
+          for (final e in days.evaluate())
+            tester.getRect(
+              find.byElementPredicate((x) => x == e),
+            ),
+        ];
+        final left = rects.map((r) => r.left).reduce(math.min);
+        final right = rects.map((r) => r.right).reduce(math.max);
+        var rounded = 0;
+        for (final (i, element) in days.evaluate().indexed) {
+          final button = element.widget as Button;
+          final radius = button.style?.decoration?.border?.borderRadius
+              ?.resolve(direction);
+          if (radius == null) continue;
+          final roundsLeft = radius.topLeft != Radius.zero;
+          final roundsRight = radius.topRight != Radius.zero;
+          // A cell rounded on one side only is a row's end in the range.
+          if (roundsLeft == roundsRight) continue;
+          rounded++;
+          if (roundsLeft) {
+            expect(rects[i].left, moreOrLessEquals(left, epsilon: 1));
+          } else {
+            expect(rects[i].right, moreOrLessEquals(right, epsilon: 1));
+          }
+        }
+        expect(rounded, greaterThan(4), reason: '$direction');
+      }
     });
   });
 }

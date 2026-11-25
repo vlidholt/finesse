@@ -117,7 +117,7 @@ void main() {
     testWidgets('reports once every field is filled and moves the focus on', (
       tester,
     ) async {
-      final reported = <TimeOfDay>[];
+      final reported = <TimeOfDay?>[];
       await pumpFinesse(
         tester,
         Center(
@@ -152,7 +152,7 @@ void main() {
     testWidgets('the 12-hour clock has a period and reports 24-hour times', (
       tester,
     ) async {
-      final reported = <TimeOfDay>[];
+      final reported = <TimeOfDay?>[];
       await pumpFinesse(
         tester,
         Center(
@@ -206,10 +206,34 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
+    testWidgets('emptying a field of a complete time reports null, and a '
+        'field that does not show keeps its part', (tester) async {
+      final reported = <TimeOfDay?>[];
+      await pumpFinesse(
+        tester,
+        Center(
+          child: TimeField(
+            initialValue: const TimeOfDay(hour: 9, minute: 30, second: 15),
+            use24HourFormat: true,
+            onChanged: reported.add,
+          ),
+        ),
+      );
+      await tester.enterText(fields().at(1), '');
+      await tester.pump();
+      expect(reported, [null]);
+      await tester.enterText(fields().at(1), '45');
+      await tester.pump();
+      expect(reported, [
+        null,
+        const TimeOfDay(hour: 9, minute: 45, second: 15),
+      ]);
+    });
+
     testWidgets('a time outside its bounds is moved in when focus leaves', (
       tester,
     ) async {
-      final reported = <TimeOfDay>[];
+      final reported = <TimeOfDay?>[];
       final other = FocusNode();
       addTearDown(other.dispose);
       await pumpFinesse(
@@ -385,6 +409,54 @@ void main() {
   });
 
   group('TimeFormField', () {
+    testWidgets('a value the form sets is written into the fields', (
+      tester,
+    ) async {
+      final formKey = GlobalKey<FinesseFormState>();
+      await pumpFinesse(
+        tester,
+        Center(
+          child: FinesseForm(
+            key: formKey,
+            child: TimeFormField(id: 'start', use24HourFormat: true),
+          ),
+        ),
+      );
+      formKey.currentState!.setValue({
+        'start': const TimeOfDay(hour: 9, minute: 30),
+      });
+      await tester.pump();
+      expect(textOf(tester, 0), '09');
+      expect(textOf(tester, 1), '30');
+    });
+
+    testWidgets('emptied, its value is null and a required time fails', (
+      tester,
+    ) async {
+      final formKey = GlobalKey<FinesseFormState>();
+      await pumpFinesse(
+        tester,
+        Center(
+          child: FinesseForm(
+            key: formKey,
+            child: TimeFormField(
+              id: 'start',
+              use24HourFormat: true,
+              initialValue: const TimeOfDay(hour: 9, minute: 30),
+              validator: (v) => v == null ? 'Enter a time' : null,
+            ),
+          ),
+        ),
+      );
+      await tester.enterText(fields().at(0), '');
+      await tester.enterText(fields().at(1), '');
+      await tester.pump();
+      expect(textOf(tester, 0), '');
+      expect(textOf(tester, 1), '');
+      expect(formKey.currentState!.value['start'], isNull);
+      expect(formKey.currentState!.validate(), isFalse);
+    });
+
     testWidgets('validates, saves and resets', (tester) async {
       final formKey = GlobalKey<FinesseFormState>();
       await pumpFinesse(

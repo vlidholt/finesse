@@ -320,6 +320,43 @@ void main() {
       expect(shown(tester), ['12', '11', '2026']);
     });
 
+    testWidgets('the calendar opens on the date just typed, also from the '
+        'keyboard', (tester) async {
+      await tester.runAsync(() => initializeDateFormatting('en_GB'));
+      await pumpFinesse(tester, field());
+      await type(tester, 0, '15');
+      await type(tester, 1, '3');
+      await type(tester, 2, '2024');
+      expect(changes, [DateTime(2024, 3, 15)]);
+      // Tab from the year to the calendar button, and Enter opens it.
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      for (var i = 0; i < 14; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+      expect(
+        tester.widget<Calendar>(find.byType(Calendar)).value,
+        DateTime(2024, 3, 15),
+      );
+    });
+
+    testWidgets("the names above the fields are set in the style's caption "
+        'role', (tester) async {
+      await pumpFinesse(
+        tester,
+        field(),
+        theme: ThemeData(
+          style: StyleTokens.finesse.copyWith(
+            caption: const TextRole(fontSize: 13, height: 18 / 13),
+          ),
+        ),
+      );
+      final style = DefaultTextStyle.of(tester.element(find.text('Day'))).style;
+      expect(style.fontSize, 13);
+      expect(style.height, 18 / 13);
+    });
+
     testWidgets('without the calendar button it is three fields', (
       tester,
     ) async {
@@ -422,6 +459,34 @@ void main() {
       expect(shown(tester), ['', '', '']);
       form.currentState!.save();
       expect(form.currentState!.value['born'], isNull);
+    });
+
+    testWidgets('a value the form sets is written into the fields', (
+      tester,
+    ) async {
+      final form = GlobalKey<FinesseFormState>();
+      await pumpFinesse(
+        tester,
+        inLocale(
+          const Locale('en', 'GB'),
+          Center(
+            child: FinesseForm(
+              key: form,
+              child: DateFormField(id: 'born', showCalendarButton: false),
+            ),
+          ),
+        ),
+      );
+      form.currentState!.setFieldValue('born', DateTime(2024, 3, 15));
+      await tester.pump();
+      expect(form.currentState!.value['born'], DateTime(2024, 3, 15));
+      expect(shown(tester), ['15', '03', '2024']);
+
+      // Half erased, the field keeps what is typed while the form's value
+      // is null.
+      await type(tester, 1, '');
+      expect(form.currentState!.value['born'], isNull);
+      expect(shown(tester), ['15', '', '2024']);
     });
   });
 }

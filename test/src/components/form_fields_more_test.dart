@@ -392,6 +392,27 @@ void main() {
       expect(valueOf('price'), [40.0, 50.0]);
     });
 
+    testWidgets('a focus node of its own is the low thumb', (tester) async {
+      final node = FocusNode();
+      addTearDown(node.dispose);
+      await pumpField(
+        tester,
+        RangeSliderFormField(
+          id: 'price',
+          focusNode: node,
+          max: 100,
+          initialValue: const [40, 50],
+          validator: (range) => 'Too narrow',
+        ),
+      );
+      expect(form.currentState!.validate(), isFalse);
+      await tester.pump();
+      expect(node.hasPrimaryFocus, isTrue);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+      await tester.pump();
+      expect((valueOf('price')! as List<double>).first, lessThan(40));
+    });
+
     testWidgets('disabled, a drag changes nothing', (tester) async {
       await pumpField(tester, field(enabled: false));
       final track = tester.getRect(find.byType(RangeSlider));

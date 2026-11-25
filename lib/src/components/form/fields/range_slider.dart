@@ -86,6 +86,7 @@ class RangeSliderFormField extends FinesseFormField<List<double>> {
              values: state.value ?? initialValue,
              onChanged: state.didChange,
              enabled: state.enabled,
+             focusNode: state.focusNode,
              min: min,
              max: max,
              divisions: divisions,

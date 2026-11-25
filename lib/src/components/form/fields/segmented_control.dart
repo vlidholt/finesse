@@ -53,7 +53,7 @@ class SegmentedControlFormField<T> extends FinesseFormField<T> {
            segments: segments,
            value: state.value,
            expand: expand,
-           enabled: state.widget.enabled,
+           enabled: (state as _SegmentedControlFormFieldState<T>).enabled,
            onChanged: state.didChange,
          ),
        );

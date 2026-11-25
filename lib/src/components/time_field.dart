@@ -160,8 +160,9 @@ bool uses24HourFormat(BuildContext context) {
 /// the button that opens one of these in a popover, or wheels in a sheet on
 /// a phone.
 ///
-/// [onChanged] is called once every field that shows holds a number, and
-/// again on each change after that. Give [value] to hold the time yourself,
+/// [onChanged] is called once every field that shows holds a number, again
+/// on each change after that, and with null when a field of a complete time
+/// is emptied again. Give [value] to hold the time yourself,
 /// or [initialValue] to let the field keep it. Because the fields can be
 /// half filled, a [value] is only written into them when it changes.
 class TimeField extends StatefulWidget {
@@ -201,9 +202,9 @@ class TimeField extends StatefulWidget {
   /// The time the field starts with when it keeps its own state.
   final TimeOfDay? initialValue;
 
-  /// Called with the time once every field that shows is filled, and on
-  /// each change after that.
-  final ValueChanged<TimeOfDay>? onChanged;
+  /// Called with the time once every field that shows is filled, on each
+  /// change after that, and with null when the fields stop spelling a time.
+  final ValueChanged<TimeOfDay?>? onChanged;
 
   /// Whether the hours run from 0 to 23, with no day period. Defaults to
   /// what [uses24HourFormat] says for the platform and the locale.
@@ -260,8 +261,15 @@ class _TimeFieldState extends State<TimeField> {
   final _second = _TimeTextController();
   DayPeriod? _period;
 
-  /// The last complete time: what was reported, or given by the parent.
+  /// The time the fields spell: what was last reported, or given by the
+  /// parent. Null while one that shows is empty.
   TimeOfDay? _time;
+
+  /// The last complete time, kept while a field is emptied: the parts that
+  /// do not show come from it.
+  TimeOfDay? _kept;
+
+  void _settle(TimeOfDay? time) => _time = _kept = time;
   bool? _twentyFour;
 
   FocusNode? _ownFirstNode;
@@ -277,7 +285,7 @@ class _TimeFieldState extends State<TimeField> {
   @override
   void initState() {
     super.initState();
-    _time = widget.value ?? widget.initialValue;
+    _settle(widget.value ?? widget.initialValue);
   }
 
   @override
@@ -303,7 +311,7 @@ class _TimeFieldState extends State<TimeField> {
       }
     }
     if (widget.value != oldWidget.value && widget.value != _time) {
-      _time = widget.value;
+      _settle(widget.value);
       _write(_time);
     }
   }
@@ -344,7 +352,7 @@ class _TimeFieldState extends State<TimeField> {
     if (widget.showHours && hour == null) return null;
     if (widget.showMinutes && minute == null) return null;
     if (widget.showSeconds && second == null) return null;
-    var effectiveHour = hour ?? _time?.hour ?? 0;
+    var effectiveHour = hour ?? _kept?.hour ?? 0;
     if (widget.showHours && !_twentyFour!) {
       final period = _period;
       if (period == null) return null;
@@ -355,15 +363,19 @@ class _TimeFieldState extends State<TimeField> {
     return TimeOfDay(
       hour: effectiveHour,
       // A field that does not show keeps what the time had.
-      minute: widget.showMinutes ? minute! : _time?.minute ?? 0,
-      second: widget.showSeconds ? second! : _time?.second ?? 0,
+      minute: widget.showMinutes ? minute! : _kept?.minute ?? 0,
+      second: widget.showSeconds ? second! : _kept?.second ?? 0,
     );
   }
 
   void _changed() {
     final time = _read();
-    if (time == null || time == _time) return;
-    _time = time;
+    if (time == _time) return;
+    if (time == null) {
+      _time = null;
+    } else {
+      _settle(time);
+    }
     widget.onChanged?.call(time);
   }
 
@@ -376,7 +388,7 @@ class _TimeFieldState extends State<TimeField> {
     final clamped = time.clamp(widget.min, widget.max);
     setState(() => _write(clamped));
     if (clamped != _time) {
-      _time = clamped;
+      _settle(clamped);
       widget.onChanged?.call(clamped);
     }
   }
@@ -413,8 +425,8 @@ class _TimeFieldState extends State<TimeField> {
     final style = theme.textTheme.muted
         .copyWith(color: theme.colorScheme.foreground)
         .merge(field.style);
-    final labelStyle = theme.textTheme.small
-        .copyWith(fontSize: 12)
+    final labelStyle = theme.style.caption
+        .apply(theme.textTheme.small)
         .merge(field.labelStyle)
         .fallback(color: theme.colorScheme.foreground);
     final placeholderStyle = theme.textTheme.muted.merge(

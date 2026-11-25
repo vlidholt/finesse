@@ -269,9 +269,9 @@ class FinesseFormFieldState<F extends FinesseFormField<T>, T>
 
   @override
   void reset() {
+    // FormFieldState.reset calls onReset already.
     super.reset();
     didChange(initialValue);
-    widget.onReset?.call();
   }
 
   @override

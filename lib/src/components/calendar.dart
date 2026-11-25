@@ -1260,21 +1260,26 @@ class _CalendarState extends State<Calendar> {
                                     isInRange &&
                                         !isFirstDateInRange &&
                                         !isLastDateInRange
+                                    // A row starts at the right where text
+                                    // runs that way: the grid is mirrored.
                                     ? isFirstOfRow
                                           ? FinesseBorder(
-                                              borderRadius: BorderRadius.only(
-                                                topLeft: cellRadius.topLeft,
-                                                bottomLeft:
-                                                    cellRadius.bottomLeft,
-                                              ),
+                                              borderRadius:
+                                                  BorderRadiusDirectional.only(
+                                                    topStart:
+                                                        cellRadius.topLeft,
+                                                    bottomStart:
+                                                        cellRadius.bottomLeft,
+                                                  ),
                                             )
                                           : isLastOfRow
                                           ? FinesseBorder(
-                                              borderRadius: BorderRadius.only(
-                                                topRight: cellRadius.topRight,
-                                                bottomRight:
-                                                    cellRadius.bottomRight,
-                                              ),
+                                              borderRadius:
+                                                  BorderRadiusDirectional.only(
+                                                    topEnd: cellRadius.topRight,
+                                                    bottomEnd:
+                                                        cellRadius.bottomRight,
+                                                  ),
                                             )
                                           : const FinesseBorder(
                                               borderRadius: BorderRadius.zero,
