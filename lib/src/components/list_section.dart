@@ -267,6 +267,13 @@ class SliverListSection extends StatelessWidget {
   /// The space around the section. Defaults to the theme's.
   final EdgeInsetsGeometry? margin;
 
+  /// [findChildIndexCallback], asked with the caller's own key.
+  ChildIndexGetter? get _findChildIndex {
+    final find = findChildIndexCallback;
+    if (find == null) return null;
+    return (key) => find(key is _RowKey ? key.key : key);
+  }
+
   @override
   Widget build(BuildContext context) {
     final look = _SectionLook.of(context, variant, dividerIndent);
@@ -282,9 +289,11 @@ class SliverListSection extends StatelessWidget {
         delegate: SliverChildBuilderDelegate(
           (context, index) {
             final child = itemBuilder(context, index);
+            final key = child.key;
             return KeyedSubtree(
-              // The caller's key says which row this is.
-              key: child.key,
+              // The caller's key says which row this is. A global one is
+              // the row's own and cannot be used twice: it is wrapped.
+              key: key is GlobalKey ? _RowKey(key) : key,
               child: look.row(
                 index,
                 count,
@@ -295,7 +304,7 @@ class SliverListSection extends StatelessWidget {
             );
           },
           childCount: count,
-          findChildIndexCallback: findChildIndexCallback,
+          findChildIndexCallback: _findChildIndex,
           // The row's own node carries its index: a node of the list's
           // between the two would stand between a list and its items.
           addSemanticIndexes: false,
@@ -798,4 +807,19 @@ class _RenderSectionRow extends RenderProxyBox {
   }
   if (node is! _RenderSectionRow) return null;
   return (divider: node.divider, indent: node.effectiveIndent);
+}
+
+/// A row's [GlobalKey] as the key of the wrapper around the row, which
+/// cannot carry the global key itself while the row does.
+@immutable
+class _RowKey extends LocalKey {
+  const _RowKey(this.key);
+
+  final GlobalKey key;
+
+  @override
+  bool operator ==(Object other) => other is _RowKey && other.key == key;
+
+  @override
+  int get hashCode => key.hashCode;
 }
