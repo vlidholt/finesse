@@ -30,6 +30,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const IconButton(
+            onPressed: _noop,
             icon: Icon(Icons.add),
           ),
         ),
@@ -45,6 +46,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const IconButton.destructive(
+            onPressed: _noop,
             icon: Icon(Icons.add),
           ),
         ),
@@ -60,6 +62,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const IconButton.outline(
+            onPressed: _noop,
             icon: Icon(Icons.add),
           ),
         ),
@@ -74,6 +77,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const IconButton.secondary(
+            onPressed: _noop,
             icon: Icon(Icons.add),
           ),
         ),
@@ -89,6 +93,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const IconButton.ghost(
+            onPressed: _noop,
             icon: Icon(Icons.add),
           ),
         ),
@@ -165,6 +170,33 @@ void main() {
         tester.getSize(find.byType(IconButton)),
         const Size.square(28),
       );
+    });
+
+    testWidgets("with no size it takes the variant theme's, as a Button "
+        'does', (tester) async {
+      await tester.pumpWidget(
+        createTestWidget(
+          const Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(onPressed: _noop, icon: Icon(Icons.add)),
+              IconButton(
+                onPressed: _noop,
+                size: ButtonSize.lg,
+                icon: Icon(Icons.add),
+              ),
+            ],
+          ),
+          theme: ThemeData(
+            style: StyleTokens.nova,
+            primaryButtonTheme: const ButtonTheme(size: ButtonSize.sm),
+          ),
+        ),
+      );
+      final buttons = find.byType(IconButton);
+      // nova's `.cn-button-size-icon-sm` is `size-7`, `icon-lg` `size-9`.
+      expect(tester.getSize(buttons.first), const Size.square(28));
+      expect(tester.getSize(buttons.last), const Size.square(36));
     });
   });
 
@@ -245,3 +277,6 @@ void main() {
     });
   });
 }
+
+/// A callback, so a button is enabled.
+void _noop() {}

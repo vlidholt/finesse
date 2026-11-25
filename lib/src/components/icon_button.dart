@@ -24,7 +24,7 @@ import 'package:flutter/widgets.dart';
 /// It takes the same variants as a button, except the link (pass `variant:`
 /// or use named constructors like [IconButton.ghost]), the same three
 /// sizes, and the same [style] object for anything else.
-class IconButton extends StatelessWidget {
+class IconButton extends StatefulWidget {
   /// Creates an icon button: the primary variant unless [variant] says
   /// otherwise.
   const IconButton({
@@ -195,18 +195,59 @@ class IconButton extends StatelessWidget {
   final ButtonTheme? style;
 
   @override
+  State<IconButton> createState() => _IconButtonState();
+}
+
+class _IconButtonState extends State<IconButton> {
+  /// The node the button and its tooltip share when the caller gives
+  /// none: the tooltip shows on keyboard focus by listening to it.
+  FocusNode? _ownFocusNode;
+
+  FocusNode? get _focusNode {
+    if (widget.focusNode != null) return widget.focusNode;
+    // Kept once made, so a tooltip coming or going does not move the
+    // focus to another node.
+    if (widget.tooltip == null && _ownFocusNode == null) return null;
+    return _ownFocusNode ??= FocusNode(debugLabel: 'IconButton');
+  }
+
+  @override
+  void didUpdateWidget(IconButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.focusNode != null && _ownFocusNode != null) {
+      // The caller's node takes over. Disposed after the frame, once the
+      // Focus below has let go of it.
+      final node = _ownFocusNode!;
+      _ownFocusNode = null;
+      WidgetsBinding.instance.addPostFrameCallback((_) => node.dispose());
+    }
+  }
+
+  @override
+  void dispose() {
+    _ownFocusNode?.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     assert(debugCheckHasTheme(context));
 
     final theme = Theme.of(context);
-    final style = this.style;
+    final widget = this.widget;
+    final style = widget.style;
+    final variant = widget.variant;
+    final tooltip = widget.tooltip;
+    final focusNode = _focusNode;
 
-    final sizes = Button.themeOf(context, variant).merge(style).sizesTheme;
+    final merged = Button.themeOf(context, variant).merge(style);
+    final sizes = merged.sizesTheme;
     // The square sizes, not the text-button ones: shadcn sizes an icon
     // button's glyph independently of a text button's at the same step
     // (`.cn-button-size-icon-sm` keeps 16 where `.cn-button-size-sm` drops
-    // to 14).
-    final metrics = switch (size ?? ButtonSize.regular) {
+    // to 14). Which step, as for a text button, falls back to the variant
+    // theme's.
+    final metrics = switch (widget.size ?? merged.size ?? ButtonSize.regular) {
       ButtonSize.regular => sizes?.icon ?? theme.buttonSizesTheme.icon!,
       ButtonSize.sm =>
         sizes?.iconSm ??
@@ -237,7 +278,7 @@ class IconButton extends StatelessWidget {
       );
     }
 
-    final label = semanticLabel ?? tooltip;
+    final label = widget.semanticLabel ?? tooltip;
     final Widget button = Button(
       variant: variant,
       style: (style ?? const ButtonTheme()).copyWith(
@@ -248,27 +289,27 @@ class IconButton extends StatelessWidget {
         iconSize: style?.iconSize ?? metrics.iconSize,
         decoration: decoration,
       ),
-      onPressed: onPressed,
-      onLongPress: onLongPress,
-      mouseCursor: mouseCursor,
-      autofocus: autofocus,
+      onPressed: widget.onPressed,
+      onLongPress: widget.onLongPress,
+      mouseCursor: widget.mouseCursor,
+      autofocus: widget.autofocus,
       focusNode: focusNode,
-      enabled: enabled,
-      loading: loading,
-      statesController: statesController,
-      onHover: onHover,
-      onFocusChange: onFocusChange,
+      enabled: widget.enabled,
+      loading: widget.loading,
+      statesController: widget.statesController,
+      onHover: widget.onHover,
+      onFocusChange: widget.onFocusChange,
       // An icon-only button carries no text, so without a label a screen
       // reader announces nothing at all. It stands in for the icon: both
       // would be read otherwise.
       semanticLabel: label,
-      child: icon,
+      child: widget.icon,
     );
 
     if (tooltip == null) return button;
     return Tooltip(
       focusNode: focusNode,
-      builder: (context) => Text(tooltip!),
+      builder: (context) => Text(tooltip),
       child: button,
     );
   }
