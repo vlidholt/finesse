@@ -79,6 +79,7 @@ flutter:
     - lib/docs/examples/table/
     - lib/docs/examples/tabs/
     - lib/docs/examples/textarea/
+    - lib/docs/examples/time_field/
     - lib/docs/examples/time_picker/
     - lib/docs/examples/toast/
     - lib/docs/examples/toggle/

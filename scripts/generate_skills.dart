@@ -76,6 +76,7 @@ const _slugs = [
   'tabs',
   'text_field',
   'textarea',
+  'time_field',
   'time_picker',
   'timeline',
   'toast',

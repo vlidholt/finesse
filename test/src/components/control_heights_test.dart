@@ -123,7 +123,7 @@ void main() {
                         ),
                       ],
                     ),
-                    const TimePicker(),
+                    const TimeField(),
                     const Menubar(
                       items: [
                         MenubarItem(
@@ -207,7 +207,7 @@ void main() {
               .getSize(
                 find
                     .descendant(
-                      of: find.byType(TimePicker),
+                      of: find.byType(TimeField),
                       matching: find.byType(TextField),
                     )
                     .first,

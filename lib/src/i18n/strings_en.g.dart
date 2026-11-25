@@ -68,6 +68,15 @@ class FinesseLocalizationsData$timePicker$en {
 
 	/// en: 'AM'
 	String get periodPlaceholder => 'AM';
+
+	/// en: 'AM'
+	String get am => 'AM';
+
+	/// en: 'PM'
+	String get pm => 'PM';
+
+	/// en: 'Select time'
+	String get selectTime => 'Select time';
 }
 
 // Path: datePicker
@@ -80,6 +89,27 @@ class FinesseLocalizationsData$datePicker$en {
 
 	/// en: 'Select date'
 	String get selectDate => 'Select date';
+
+	/// en: 'Select dates'
+	String get selectDateRange => 'Select dates';
+
+	/// en: 'Done'
+	String get done => 'Done';
+
+	/// en: 'Clear'
+	String get clear => 'Clear';
+
+	/// en: 'Cancel'
+	String get cancel => 'Cancel';
+
+	/// en: 'Day'
+	String get day => 'Day';
+
+	/// en: 'Month'
+	String get month => 'Month';
+
+	/// en: 'Year'
+	String get year => 'Year';
 }
 
 // Path: input
@@ -224,7 +254,17 @@ extension on FinesseLocalizationsData {
 			'timePicker.seconds' => 'Seconds',
 			'timePicker.period' => 'Period',
 			'timePicker.periodPlaceholder' => 'AM',
+			'timePicker.am' => 'AM',
+			'timePicker.pm' => 'PM',
+			'timePicker.selectTime' => 'Select time',
 			'datePicker.selectDate' => 'Select date',
+			'datePicker.selectDateRange' => 'Select dates',
+			'datePicker.done' => 'Done',
+			'datePicker.clear' => 'Clear',
+			'datePicker.cancel' => 'Cancel',
+			'datePicker.day' => 'Day',
+			'datePicker.month' => 'Month',
+			'datePicker.year' => 'Year',
 			'input.cut' => 'Cut',
 			'input.copy' => 'Copy',
 			'input.paste' => 'Paste',

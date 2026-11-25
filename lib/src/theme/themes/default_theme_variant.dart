@@ -61,6 +61,7 @@ import 'package:finesse/src/theme/components/table.dart';
 import 'package:finesse/src/theme/components/tabs.dart';
 import 'package:finesse/src/theme/components/text_field.dart';
 import 'package:finesse/src/theme/components/textarea.dart';
+import 'package:finesse/src/theme/components/time_field.dart';
 import 'package:finesse/src/theme/components/time_picker.dart';
 import 'package:finesse/src/theme/components/timeline.dart';
 import 'package:finesse/src/theme/components/toast.dart';
@@ -2359,8 +2360,8 @@ class DefaultThemeVariant extends ThemeVariant {
   }
 
   @override
-  TimePickerTheme timePickerTheme() {
-    return TimePickerTheme(
+  TimeFieldTheme timeFieldTheme() {
+    return TimeFieldTheme(
       axis: Axis.horizontal,
       spacing: 8,
       runSpacing: 4,
@@ -2389,6 +2390,15 @@ class DefaultThemeVariant extends ThemeVariant {
         shadows: style.controlShadow,
         border: fieldBorder,
       ),
+    );
+  }
+
+  @override
+  TimePickerTheme timePickerTheme() {
+    return TimePickerTheme(
+      buttonVariant: ButtonVariant.outline,
+      popoverPadding: EdgeInsets.all(scaled(style.popoverPadding)),
+      sheetWheelItems: 5,
     );
   }
 

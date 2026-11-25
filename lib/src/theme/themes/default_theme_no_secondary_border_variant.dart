@@ -8,7 +8,7 @@ import 'package:finesse/src/theme/components/radio.dart';
 import 'package:finesse/src/theme/components/select.dart';
 import 'package:finesse/src/theme/components/switch.dart';
 import 'package:finesse/src/theme/components/tabs.dart';
-import 'package:finesse/src/theme/components/time_picker.dart';
+import 'package:finesse/src/theme/components/time_field.dart';
 import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/spacing.dart';
 import 'package:finesse/src/theme/style.dart';
@@ -232,8 +232,8 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
   );
 
   @override
-  TimePickerTheme timePickerTheme() => super.timePickerTheme().merge(
-    TimePickerTheme(
+  TimeFieldTheme timeFieldTheme() => super.timeFieldTheme().merge(
+    TimeFieldTheme(
       spacing: 4,
       gap: 2,
       fieldWidth: 50,

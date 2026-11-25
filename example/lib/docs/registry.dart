@@ -69,6 +69,7 @@ import 'package:example/docs/pages/table.dart';
 import 'package:example/docs/pages/tabs.dart';
 import 'package:example/docs/pages/text_field.dart';
 import 'package:example/docs/pages/textarea.dart';
+import 'package:example/docs/pages/time_field.dart';
 import 'package:example/docs/pages/theming.dart';
 import 'package:example/docs/pages/time_picker.dart';
 import 'package:example/docs/pages/timeline.dart';
@@ -173,6 +174,7 @@ final componentDocs = [
   tabsDoc,
   textFieldDoc,
   textareaDoc,
+  timeFieldDoc,
   timePickerDoc,
   timelineDoc,
   toastDoc,

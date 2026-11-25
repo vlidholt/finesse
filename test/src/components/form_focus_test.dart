@@ -133,7 +133,42 @@ void main() {
       await leaveForm(tester, showForm);
     });
 
-    testWidgets('time picker: its hour field, and the form can be disposed', (
+    testWidgets('time field: its hour field, and the form can be disposed', (
+      tester,
+    ) async {
+      final formKey = GlobalKey<FinesseFormState>();
+      final showForm = await pumpForm(
+        tester,
+        formKey,
+        TimeFormField(
+          id: 'time',
+          validator: (v) => v == null ? 'enter a time' : null,
+        ),
+      );
+
+      expect(formKey.currentState!.validate(), isFalse);
+      await tester.pump();
+      final focused = expectFocusInside(tester, find.byType(TimeFormField));
+      // The hour is the first of the field's number fields.
+      final hour = tester.element(
+        find
+            .descendant(
+              of: find.byType(TimeFormField),
+              matching: find.byType(TextField),
+            )
+            .first,
+      );
+      var inHour = false;
+      focused.context!.visitAncestorElements((ancestor) {
+        inHour = ancestor == hour;
+        return !inHour;
+      });
+      expect(inHour, isTrue, reason: 'the focus is not in the hour field');
+
+      await leaveForm(tester, showForm);
+    });
+
+    testWidgets('time picker: its button, and the form can be disposed', (
       tester,
     ) async {
       final formKey = GlobalKey<FinesseFormState>();
@@ -152,14 +187,18 @@ void main() {
         tester,
         find.byType(TimePickerFormField),
       );
-      // The hour is the first of the picker's three fields.
-      final hour = tester.element(find.byType(TimePickerField).first);
-      var inHour = false;
+      final button = tester.element(
+        find.descendant(
+          of: find.byType(TimePickerFormField),
+          matching: find.byType(Button),
+        ),
+      );
+      var inButton = false;
       focused.context!.visitAncestorElements((ancestor) {
-        inHour = ancestor == hour;
-        return !inHour;
+        inButton = ancestor == button;
+        return !inButton;
       });
-      expect(inHour, isTrue, reason: 'the focus is not in the hour field');
+      expect(inButton, isTrue, reason: 'the focus is not on the button');
 
       await leaveForm(tester, showForm);
     });
