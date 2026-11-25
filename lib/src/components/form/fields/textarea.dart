@@ -220,6 +220,9 @@ class TextareaFormField extends FinesseFormField<String> {
 
     /// {@macro TextField.onPasteFilesError}
     ValueChanged<Object>? onPasteFilesError,
+
+    /// {@macro TextField.showCounter}
+    bool showCounter = false,
   }) : super(
          initialValue: controller != null ? controller.text : initialValue,
          validator: validator == null ? null : (v) => validator(v ?? ''),
@@ -299,6 +302,7 @@ class TextareaFormField extends FinesseFormField<String> {
              useBrowserContextMenu: useBrowserContextMenu,
              onPasteFiles: onPasteFiles,
              onPasteFilesError: onPasteFilesError,
+             showCounter: showCounter,
            );
          },
        );

@@ -61,6 +61,7 @@ const _slugs = [
   'resizable',
   'scaffold',
   'scroll_area',
+  'search_field',
   'select',
   'selection_area',
   'sheet',

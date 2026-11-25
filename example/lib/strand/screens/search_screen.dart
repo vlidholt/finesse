@@ -1,7 +1,6 @@
 import 'package:example/strand/data/search_data.dart';
 import 'package:example/strand/session.dart';
 import 'package:example/strand/widgets/search_bar.dart';
-import 'package:example/strand/widgets/search_field.dart';
 import 'package:example/strand/widgets/search_results.dart';
 import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:finesse/finesse.dart';
@@ -139,16 +138,20 @@ class _SearchScreenState extends State<SearchScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         // Aligned, because the bar hands its title a tight width and the
-        // field's own cap would otherwise not apply.
+        // cap would otherwise not apply.
         title: Align(
           alignment: AlignmentDirectional.centerStart,
-          child: SearchField(
-            controller: _controller,
-            autofocus: widget.initialQuery.isEmpty,
-            showShortcut: false,
+          child: ConstrainedBox(
             // The whole bar on a phone; a comfortable field on a desktop.
-            maxWidth: mobile ? double.infinity : 560,
-            onSubmitted: (_) => _remember(),
+            constraints: BoxConstraints(
+              maxWidth: mobile ? double.infinity : 560,
+            ),
+            child: SearchField(
+              controller: _controller,
+              placeholder: StrandSearchBar.placeholder,
+              autofocus: widget.initialQuery.isEmpty,
+              onSubmitted: (_) => _remember(),
+            ),
           ),
         ),
       ),

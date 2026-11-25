@@ -4,7 +4,6 @@ import 'package:example/strand/data/search_data.dart';
 import 'package:example/strand/navigation.dart';
 import 'package:example/strand/screens/search_screen.dart';
 import 'package:example/strand/widgets/search_bar.dart';
-import 'package:example/strand/widgets/search_field.dart';
 import 'package:example/strand/widgets/search_results.dart';
 import 'package:example/strand/widgets/strand_pieces.dart';
 import 'package:finesse/finesse.dart';

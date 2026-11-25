@@ -581,10 +581,10 @@ void main() {
       expect(a.textSelectionTheme.hashCode, b.textSelectionTheme.hashCode);
       expect(a, b);
 
-      const shadow = BoxShadow(blurRadius: 4);
-      // Two lists, equal by value.
-      final one = TextSelectionTheme(magnifierShadows: [shadow]);
-      final two = TextSelectionTheme(magnifierShadows: [shadow]);
+      // Two lists, equal by value and not identical.
+      List<BoxShadow> shadows() => [const BoxShadow(blurRadius: 4)];
+      final one = TextSelectionTheme(magnifierShadows: shadows());
+      final two = TextSelectionTheme(magnifierShadows: shadows());
       expect(one, two);
       expect(one.hashCode, two.hashCode);
       expect(one, isNot(const TextSelectionTheme(magnifierShadows: [])));

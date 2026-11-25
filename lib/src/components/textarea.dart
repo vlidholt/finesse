@@ -102,6 +102,7 @@ class Textarea extends StatefulWidget {
     this.useBrowserContextMenu,
     this.onPasteFiles,
     this.onPasteFilesError,
+    this.showCounter = false,
   }) : enableInteractiveSelection = enableInteractiveSelection ?? !readOnly,
        assert(
          initialValue == null || controller == null,
@@ -470,6 +471,9 @@ class Textarea extends StatefulWidget {
   /// {@macro TextField.onPasteFilesError}
   final ValueChanged<Object>? onPasteFilesError;
 
+  /// {@macro TextField.showCounter}
+  final bool showCounter;
+
   @override
   State<Textarea> createState() => _TextareaState();
 }
@@ -689,6 +693,7 @@ class _TextareaState extends State<Textarea> {
             useBrowserContextMenu: widget.useBrowserContextMenu,
             onPasteFiles: widget.onPasteFiles,
             onPasteFilesError: widget.onPasteFilesError,
+            showCounter: widget.showCounter,
           ),
         ),
         if (widget.resizable)

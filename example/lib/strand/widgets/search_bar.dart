@@ -3,7 +3,6 @@ import 'package:example/strand/data/search_data.dart';
 import 'package:example/strand/navigation.dart';
 import 'package:example/strand/screens/search_screen.dart';
 import 'package:example/strand/session.dart';
-import 'package:example/strand/widgets/search_field.dart';
 import 'package:example/strand/widgets/search_results.dart';
 import 'package:example/strand/widgets/strand_previews.dart';
 import 'package:example/strand/widgets/strand_metrics.dart';
@@ -42,7 +41,7 @@ SearchCallbacks searchCallbacksFor(
   );
 }
 
-/// The desktop app bar's search: the [SearchField], with a panel under it
+/// The desktop app bar's search: a [SearchField], with a panel under it
 /// while the focus is in the field or in the panel.
 ///
 /// Before anything is typed the panel lists the recent and the trending
@@ -78,6 +77,12 @@ class StrandSearchBar extends StatefulWidget {
 
   /// The panel's width: wider than the field, as a results list wants.
   static const panelWidth = 420.0;
+
+  /// The width the designs give the field in the desktop app bar.
+  static const fieldWidth = 280.0;
+
+  /// What Strand's search fields ask for.
+  static const placeholder = 'Search people, posts, jobs';
 
   @override
   State<StrandSearchBar> createState() => _StrandSearchBarState();
@@ -227,7 +232,7 @@ class _StrandSearchBarState extends State<StrandSearchBar> {
     return LayoutBuilder(
       builder: (context, constraints) {
         _collapsed = constraints.maxWidth < _collapseBelow;
-        if (!_collapsed) return _buildField(context);
+        if (!_collapsed) return _buildField(context, constraints.maxWidth);
         // No room for a field: the phone's magnifier, which opens the
         // search page, as long as there is room for that.
         if (constraints.maxWidth < _iconFrom) return const SizedBox.shrink();
@@ -243,12 +248,49 @@ class _StrandSearchBarState extends State<StrandSearchBar> {
     );
   }
 
-  /// The width under which the field gives way to the magnifier — the
-  /// field's own `collapseBelow` — and the one under which that goes too.
+  /// The width under which the field gives way to the magnifier, so a
+  /// narrow app bar keeps its logo and navigation rather than a sliver of
+  /// a text field, and the one under which the magnifier goes too.
   static const _collapseBelow = 120.0;
   static const _iconFrom = 40.0;
 
-  Widget _buildField(BuildContext context) {
+  /// The width from which the field has room for the shortcut's key cap.
+  static const _shortcutFrom = 200.0;
+
+  Widget _buildField(BuildContext context, double width) {
+    final theme = Theme.of(context);
+    final field = ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: StrandSearchBar.fieldWidth),
+      child: SearchField(
+        controller: _controller,
+        focusNode: _focusNode,
+        placeholder: StrandSearchBar.placeholder,
+        // The panel is in the field's tap-region group, so a click
+        // on it leaves the focus in the field.
+        groupId: _group,
+        // Open on a focus *gain* is not enough: after a tap outside
+        // on a touch screen the field still has the focus.
+        onTap: _show,
+        onSubmitted: _openPage,
+        // Escape is the panel's: it closes it, query and all.
+        clearOnEscape: false,
+        // The hint gives way first, and to the clear button once there
+        // is something to clear.
+        trailing: width >= _shortcutFrom && _controller.text.isEmpty
+            // The design's key cap is outlined, not filled: a hairline
+            // in the strong border colour.
+            ? Kbd(
+                SearchField.shortcutLabel,
+                backgroundColor: const Color(0x00000000),
+                border: FinesseBorder.all(
+                  color: theme.colorScheme.borderStrong,
+                  width: 1,
+                  radius: theme.radii.sm,
+                ),
+              )
+            : null,
+      ),
+    );
     return TapRegion(
       groupId: _group,
       onTapOutside: (_) => _close(),
@@ -291,17 +333,7 @@ class _StrandSearchBarState extends State<StrandSearchBar> {
                     callbacks: searchCallbacksFor(this.context, before: _leave),
                   ),
                 ),
-                child: SearchField(
-                  controller: _controller,
-                  focusNode: _focusNode,
-                  // The panel is in the field's tap-region group, so a click
-                  // on it leaves the focus in the field.
-                  groupId: _group,
-                  // Open on a focus *gain* is not enough: after a tap outside
-                  // on a touch screen the field still has the focus.
-                  onPressed: _show,
-                  onSubmitted: _openPage,
-                ),
+                child: field,
               ),
             ),
           ),

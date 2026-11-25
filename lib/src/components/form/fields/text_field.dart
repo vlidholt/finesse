@@ -257,6 +257,15 @@ class TextFormField extends FinesseFormField<String> {
 
     /// {@macro TextField.onPasteFilesError}
     ValueChanged<Object>? onPasteFilesError,
+
+    /// {@macro TextField.clearable}
+    bool clearable = false,
+
+    /// {@macro TextField.revealable}
+    bool revealable = false,
+
+    /// {@macro TextField.showCounter}
+    bool showCounter = false,
   }) : super(
          initialValue: controller != null ? controller.text : initialValue,
          validator: validator == null ? null : (v) => validator(v ?? ''),
@@ -348,8 +357,91 @@ class TextFormField extends FinesseFormField<String> {
              useBrowserContextMenu: useBrowserContextMenu,
              onPasteFiles: onPasteFiles,
              onPasteFilesError: onPasteFilesError,
+             clearable: clearable,
+             revealable: revealable,
+             showCounter: showCounter,
            );
          },
+       );
+
+  /// Creates a form field for a password: its text is obscured, a trailing
+  /// button shows and hides it, and autocorrect and suggestions are off.
+  /// See [TextField.password].
+  ///
+  /// ```dart
+  /// TextFormField.password(
+  ///   label: const Text('Password'),
+  ///   validator: (value) =>
+  ///       value.length < 8 ? 'At least 8 characters' : null,
+  /// )
+  /// ```
+  TextFormField.password({
+    String? id,
+    Key? key,
+    void Function(String?)? onSaved,
+    String? forceErrorText,
+    String? Function(String)? validator,
+    String? initialValue,
+    bool enabled = true,
+    AutovalidateMode? autovalidateMode,
+    String? restorationId,
+    TextEditingController? controller,
+    Widget? label,
+    Widget Function(String)? error,
+    Widget? description,
+    void Function(String)? onChanged,
+    VoidCallback? onReset,
+    FocusNode? focusNode,
+    FinesseDecoration? decoration,
+    Widget? placeholder,
+    TextInputAction? textInputAction,
+    bool autofocus = false,
+    int? maxLength,
+    VoidCallback? onEditingComplete,
+    ValueChanged<String>? onSubmitted,
+    List<TextInputFormatter>? inputFormatters,
+    Iterable<String>? autofillHints = const [AutofillHints.password],
+    Widget? leading,
+    Widget? trailing,
+    bool clearable = false,
+    bool showCounter = false,
+    WidgetBuilder? keyboardToolbarBuilder,
+  }) : this(
+         id: id,
+         key: key,
+         onSaved: onSaved,
+         forceErrorText: forceErrorText,
+         validator: validator,
+         initialValue: initialValue,
+         enabled: enabled,
+         autovalidateMode: autovalidateMode,
+         restorationId: restorationId,
+         controller: controller,
+         label: label,
+         error: error,
+         description: description,
+         onChanged: onChanged,
+         onReset: onReset,
+         focusNode: focusNode,
+         decoration: decoration,
+         placeholder: placeholder,
+         textInputAction: textInputAction,
+         autofocus: autofocus,
+         maxLength: maxLength,
+         onEditingComplete: onEditingComplete,
+         onSubmitted: onSubmitted,
+         inputFormatters: inputFormatters,
+         autofillHints: autofillHints,
+         leading: leading,
+         trailing: trailing,
+         clearable: clearable,
+         showCounter: showCounter,
+         keyboardToolbarBuilder: keyboardToolbarBuilder,
+         obscureText: true,
+         revealable: true,
+         autocorrect: false,
+         enableSuggestions: false,
+         keyboardType: TextInputType.visiblePassword,
        );
 
   /// Controls the text. When null, the field creates its own controller.
