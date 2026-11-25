@@ -47,6 +47,7 @@ import 'package:finesse/src/theme/components/sidebar.dart';
 import 'package:finesse/src/theme/components/skeleton.dart';
 import 'package:finesse/src/theme/components/slider.dart';
 import 'package:finesse/src/theme/components/spinner.dart';
+import 'package:finesse/src/theme/components/stepper.dart';
 import 'package:finesse/src/theme/components/streaming_text.dart';
 import 'package:finesse/src/theme/components/switch.dart';
 import 'package:finesse/src/theme/components/table.dart';
@@ -144,6 +145,7 @@ abstract class BaseTheme {
     required this.otpFieldTheme,
     required this.menubarTheme,
     required this.dividerTheme,
+    required this.stepperTheme,
     required this.toasterTheme,
     required this.textareaTheme,
     required this.defaultKeyboardToolbarTheme,
@@ -416,6 +418,9 @@ abstract class BaseTheme {
   /// The theme of `Divider`.
   final DividerTheme dividerTheme;
 
+  /// The theme of `Stepper`.
+  final StepperTheme stepperTheme;
+
   /// The theme of `Toaster`.
   final ToasterTheme toasterTheme;
 
@@ -609,6 +614,9 @@ abstract class ThemeVariant {
 
   /// Builds the theme of `Divider`.
   DividerTheme dividerTheme();
+
+  /// Builds the theme of `Stepper`.
+  StepperTheme stepperTheme();
 
   /// Builds the theme of `Toaster`.
   ToasterTheme toasterTheme();

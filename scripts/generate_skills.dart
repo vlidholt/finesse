@@ -68,6 +68,7 @@ const _slugs = [
   'skeleton',
   'slider',
   'spinner',
+  'stepper',
   'streaming_text',
   'surface',
   'switch',

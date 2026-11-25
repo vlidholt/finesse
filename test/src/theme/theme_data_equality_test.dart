@@ -288,6 +288,15 @@ void main() {
         BottomNavigationBarTheme(shadows: shadows()),
         BottomNavigationBarTheme(shadows: shadows()),
       );
+      expect(ToastTheme(shadows: shadows()), ToastTheme(shadows: shadows()));
+      expect(
+        ToastTheme(shadows: shadows()).hashCode,
+        ToastTheme(shadows: shadows()).hashCode,
+      );
+      expect(
+        ToastTheme(shadows: shadows()),
+        isNot(const ToastTheme(shadows: [])),
+      );
       expect(
         BottomNavigationBarTheme(shadows: shadows()).hashCode,
         BottomNavigationBarTheme(shadows: shadows()).hashCode,
@@ -336,6 +345,8 @@ void main() {
       t.iconTileTheme,
       t.timelineTheme,
       t.layoutTheme,
+      t.stepperTheme,
+      t.toastTheme,
     ];
 
     test('two separately built default themes are equal', () {
@@ -410,6 +421,13 @@ void main() {
       expect(
         ThemeData().layoutTheme,
         isNot(ThemeData(formFactor: FormFactor.mobile).layoutTheme),
+      );
+      // The toaster theme is all metrics too: where the stack sits and how
+      // wide a toast is follow the form factor.
+      expect(ThemeData().toasterTheme, ThemeData().toasterTheme);
+      expect(
+        ThemeData().toasterTheme,
+        isNot(ThemeData(formFactor: FormFactor.mobile).toasterTheme),
       );
     });
 

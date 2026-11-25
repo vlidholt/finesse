@@ -241,6 +241,7 @@ mixin _$ThemeData {
       otpFieldTheme: OtpFieldTheme.lerp(a.otpFieldTheme, b.otpFieldTheme, t)!,
       menubarTheme: MenubarTheme.lerp(a.menubarTheme, b.menubarTheme, t)!,
       dividerTheme: DividerTheme.lerp(a.dividerTheme, b.dividerTheme, t)!,
+      stepperTheme: StepperTheme.lerp(a.stepperTheme, b.stepperTheme, t)!,
       toasterTheme: ToasterTheme.lerp(a.toasterTheme, b.toasterTheme, t)!,
       textareaTheme: TextareaTheme.lerp(a.textareaTheme, b.textareaTheme, t)!,
       defaultKeyboardToolbarTheme: DefaultKeyboardToolbarTheme.lerp(
@@ -329,6 +330,7 @@ mixin _$ThemeData {
     OtpFieldTheme? otpFieldTheme,
     MenubarTheme? menubarTheme,
     DividerTheme? dividerTheme,
+    StepperTheme? stepperTheme,
     ToasterTheme? toasterTheme,
     TextareaTheme? textareaTheme,
     DefaultKeyboardToolbarTheme? defaultKeyboardToolbarTheme,
@@ -418,6 +420,7 @@ mixin _$ThemeData {
       otpFieldTheme: otpFieldTheme ?? _this.otpFieldTheme,
       menubarTheme: menubarTheme ?? _this.menubarTheme,
       dividerTheme: dividerTheme ?? _this.dividerTheme,
+      stepperTheme: stepperTheme ?? _this.stepperTheme,
       toasterTheme: toasterTheme ?? _this.toasterTheme,
       textareaTheme: textareaTheme ?? _this.textareaTheme,
       defaultKeyboardToolbarTheme:
@@ -540,6 +543,7 @@ mixin _$ThemeData {
       otpFieldTheme: _this.otpFieldTheme.merge(other.otpFieldTheme),
       menubarTheme: _this.menubarTheme.merge(other.menubarTheme),
       dividerTheme: _this.dividerTheme.merge(other.dividerTheme),
+      stepperTheme: _this.stepperTheme.merge(other.stepperTheme),
       toasterTheme: _this.toasterTheme.merge(other.toasterTheme),
       textareaTheme: _this.textareaTheme.merge(other.textareaTheme),
       defaultKeyboardToolbarTheme: _this.defaultKeyboardToolbarTheme.merge(
@@ -638,6 +642,7 @@ mixin _$ThemeData {
         _other.otpFieldTheme == _this.otpFieldTheme &&
         _other.menubarTheme == _this.menubarTheme &&
         _other.dividerTheme == _this.dividerTheme &&
+        _other.stepperTheme == _this.stepperTheme &&
         _other.toasterTheme == _this.toasterTheme &&
         _other.textareaTheme == _this.textareaTheme &&
         _other.defaultKeyboardToolbarTheme == _this.defaultKeyboardToolbarTheme;
@@ -726,6 +731,7 @@ mixin _$ThemeData {
       _this.otpFieldTheme,
       _this.menubarTheme,
       _this.dividerTheme,
+      _this.stepperTheme,
       _this.toasterTheme,
       _this.textareaTheme,
       _this.defaultKeyboardToolbarTheme,

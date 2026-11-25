@@ -54,6 +54,7 @@ import 'package:finesse/src/theme/components/sidebar.dart';
 import 'package:finesse/src/theme/components/skeleton.dart';
 import 'package:finesse/src/theme/components/slider.dart';
 import 'package:finesse/src/theme/components/spinner.dart';
+import 'package:finesse/src/theme/components/stepper.dart';
 import 'package:finesse/src/theme/components/streaming_text.dart';
 import 'package:finesse/src/theme/components/switch.dart';
 import 'package:finesse/src/theme/components/table.dart';
@@ -2448,6 +2449,39 @@ class DefaultThemeVariant extends ThemeVariant {
       horizontalMargin: EdgeInsets.symmetric(
         vertical: scaled(style.dividerMargin),
       ),
+    );
+  }
+
+  @override
+  StepperTheme stepperTheme() {
+    final mobile = formFactor == FormFactor.mobile;
+    return StepperTheme(
+      indicatorSize: scaled(mobile ? 32 : 28),
+      indicatorColor: colorScheme.muted,
+      indicatorBorderColor: colorScheme.border,
+      indicatorForegroundColor: colorScheme.mutedForeground,
+      // Drawn straight on the page or a card, so the tint, not the primary:
+      // that one is tuned as a fill and can be too dim to draw with.
+      activeColor: colorScheme.tint,
+      completeColor: colorScheme.primary,
+      completeForegroundColor: colorScheme.primaryForeground,
+      errorColor: colorScheme.destructive,
+      // The timeline's line: a stepper is one laid on its side.
+      connectorColor: colorScheme.borderStrong,
+      connectorThickness: 2,
+      connectorGap: scaled(style.timelineLineGap),
+      indicatorTextStyle: style.caption
+          .apply(effectiveTextTheme.small)
+          .copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
+      titleStyle: style.label
+          .apply(effectiveTextTheme.small)
+          .copyWith(color: colorScheme.foreground),
+      subtitleStyle: style.caption
+          .apply(effectiveTextTheme.muted)
+          .copyWith(color: colorScheme.mutedForeground),
+      gap: scaled(12),
+      spacing: scaled(20),
+      contentPadding: EdgeInsets.only(top: scaled(12), bottom: scaled(4)),
     );
   }
 

@@ -60,6 +60,7 @@ import 'package:example/docs/pages/sidebar.dart';
 import 'package:example/docs/pages/skeleton.dart';
 import 'package:example/docs/pages/slider.dart';
 import 'package:example/docs/pages/spinner.dart';
+import 'package:example/docs/pages/stepper.dart';
 import 'package:example/docs/pages/streaming_text.dart';
 import 'package:example/docs/pages/styles.dart';
 import 'package:example/docs/pages/surface.dart';
@@ -164,6 +165,7 @@ final componentDocs = [
   skeletonDoc,
   sliderDoc,
   spinnerDoc,
+  stepperDoc,
   streamingTextDoc,
   surfaceDoc,
   switchDoc,

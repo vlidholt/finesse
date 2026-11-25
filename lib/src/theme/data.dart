@@ -48,6 +48,7 @@ import 'package:finesse/src/theme/components/sidebar.dart';
 import 'package:finesse/src/theme/components/skeleton.dart';
 import 'package:finesse/src/theme/components/slider.dart';
 import 'package:finesse/src/theme/components/spinner.dart';
+import 'package:finesse/src/theme/components/stepper.dart';
 import 'package:finesse/src/theme/components/streaming_text.dart';
 import 'package:finesse/src/theme/components/switch.dart';
 import 'package:finesse/src/theme/components/table.dart';
@@ -174,6 +175,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     OtpFieldTheme? otpFieldTheme,
     MenubarTheme? menubarTheme,
     DividerTheme? dividerTheme,
+    StepperTheme? stepperTheme,
     ToasterTheme? toasterTheme,
     TextareaTheme? textareaTheme,
     DefaultKeyboardToolbarTheme? defaultKeyboardToolbarTheme,
@@ -441,6 +443,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
         otpFieldTheme: otpFieldTheme,
         menubarTheme: menubarTheme,
         dividerTheme: dividerTheme,
+        stepperTheme: stepperTheme,
         toasterTheme: toasterTheme,
         textareaTheme: textareaTheme,
         defaultKeyboardToolbarTheme: defaultKeyboardToolbarTheme,
@@ -547,6 +550,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
       otpFieldTheme: effectiveVariant.otpFieldTheme().merge(otpFieldTheme),
       menubarTheme: effectiveVariant.menubarTheme().merge(menubarTheme),
       dividerTheme: effectiveVariant.dividerTheme().merge(dividerTheme),
+      stepperTheme: effectiveVariant.stepperTheme().merge(stepperTheme),
       toasterTheme: effectiveVariant.toasterTheme().merge(toasterTheme),
       textareaTheme: effectiveVariant.textareaTheme().merge(textareaTheme),
       defaultKeyboardToolbarTheme: effectiveVariant
@@ -654,6 +658,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     required super.otpFieldTheme,
     required super.menubarTheme,
     required super.dividerTheme,
+    required super.stepperTheme,
     required super.toasterTheme,
     required super.textareaTheme,
     required super.defaultKeyboardToolbarTheme,
@@ -778,6 +783,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     OtpFieldTheme? otpFieldTheme,
     MenubarTheme? menubarTheme,
     DividerTheme? dividerTheme,
+    StepperTheme? stepperTheme,
     ToasterTheme? toasterTheme,
     TextareaTheme? textareaTheme,
     DefaultKeyboardToolbarTheme? defaultKeyboardToolbarTheme,
@@ -871,6 +877,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
       otpFieldTheme: otpFieldTheme ?? i.otpFieldTheme,
       menubarTheme: menubarTheme ?? i.menubarTheme,
       dividerTheme: dividerTheme ?? i.dividerTheme,
+      stepperTheme: stepperTheme ?? i.stepperTheme,
       toasterTheme: toasterTheme ?? i.toasterTheme,
       textareaTheme: textareaTheme ?? i.textareaTheme,
       defaultKeyboardToolbarTheme:
@@ -1058,6 +1065,7 @@ final class _ThemeInputs {
     this.otpFieldTheme,
     this.menubarTheme,
     this.dividerTheme,
+    this.stepperTheme,
     this.toasterTheme,
     this.textareaTheme,
     this.defaultKeyboardToolbarTheme,
@@ -1147,6 +1155,7 @@ final class _ThemeInputs {
   final OtpFieldTheme? otpFieldTheme;
   final MenubarTheme? menubarTheme;
   final DividerTheme? dividerTheme;
+  final StepperTheme? stepperTheme;
   final ToasterTheme? toasterTheme;
   final TextareaTheme? textareaTheme;
   final DefaultKeyboardToolbarTheme? defaultKeyboardToolbarTheme;

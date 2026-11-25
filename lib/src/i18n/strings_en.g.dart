@@ -40,6 +40,7 @@ class FinesseLocalizationsData with BaseTranslations<FinesseLocale, FinesseLocal
 	late final FinesseLocalizationsData$input$en input = FinesseLocalizationsData$input$en.internal(_root);
 	late final FinesseLocalizationsData$keyboardToolbar$en keyboardToolbar = FinesseLocalizationsData$keyboardToolbar$en.internal(_root);
 	late final FinesseLocalizationsData$empty$en empty = FinesseLocalizationsData$empty$en.internal(_root);
+	late final FinesseLocalizationsData$stepper$en stepper = FinesseLocalizationsData$stepper$en.internal(_root);
 	late final FinesseLocalizationsData$toast$en toast = FinesseLocalizationsData$toast$en.internal(_root);
 	late final FinesseLocalizationsData$command$en command = FinesseLocalizationsData$command$en.internal(_root);
 	late final FinesseLocalizationsData$pagination$en pagination = FinesseLocalizationsData$pagination$en.internal(_root);
@@ -127,6 +128,33 @@ class FinesseLocalizationsData$empty$en {
 
 	/// en: 'No results'
 	String get title => 'No results';
+}
+
+// Path: stepper
+class FinesseLocalizationsData$stepper$en {
+	FinesseLocalizationsData$stepper$en.internal(this._root);
+
+	final FinesseLocalizationsData _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Step $step of $count'
+	String position({required Object step, required Object count}) => 'Step ${step} of ${count}';
+
+	/// en: 'Completed'
+	String get complete => 'Completed';
+
+	/// en: 'Needs attention'
+	String get error => 'Needs attention';
+
+	/// en: 'Continue'
+	String get next => 'Continue';
+
+	/// en: 'Finish'
+	String get finish => 'Finish';
+
+	/// en: 'Cancel'
+	String get cancel => 'Cancel';
 }
 
 // Path: toast
@@ -257,6 +285,12 @@ extension on FinesseLocalizationsData {
 			'input.selectAll' => 'Select All',
 			'keyboardToolbar.done' => 'Done',
 			'empty.title' => 'No results',
+			'stepper.position' => ({required Object step, required Object count}) => 'Step ${step} of ${count}',
+			'stepper.complete' => 'Completed',
+			'stepper.error' => 'Needs attention',
+			'stepper.next' => 'Continue',
+			'stepper.finish' => 'Finish',
+			'stepper.cancel' => 'Cancel',
 			'toast.dismiss' => 'Dismiss',
 			'command.noResults' => 'No results found.',
 			'pagination.previous' => 'Previous',

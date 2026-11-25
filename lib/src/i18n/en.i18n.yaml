@@ -20,6 +20,14 @@ keyboardToolbar:
 empty:
   title: "No results"
 
+stepper:
+  position: "Step $step of $count"
+  complete: "Completed"
+  error: "Needs attention"
+  next: "Continue"
+  finish: "Finish"
+  cancel: "Cancel"
+
 toast:
   dismiss: "Dismiss"
 
