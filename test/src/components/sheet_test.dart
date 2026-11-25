@@ -1448,7 +1448,7 @@ void main() {
           alignment: Alignment.bottomCenter,
           child: Sheet(
             controller: controller,
-            onClose: () => closed++,
+            onDismissed: () => closed++,
             title: const Text('Title'),
           ),
         ),

@@ -364,7 +364,7 @@ class SheetController extends ChangeNotifier {
       _state?._goToDetent(detent, animate: false);
 
   /// Closes the sheet: a modal sheet's route is popped (unless a
-  /// `PopScope` objects), an inline sheet's `onClose` is called.
+  /// `PopScope` objects), an inline sheet's `onDismissed` is called.
   void close() => _state?._requestClose();
 
   void _setDetent(SheetDetent value) {
@@ -437,7 +437,7 @@ class Sheet extends StatefulWidget {
     this.closeIcon,
     this.closeButton,
     this.closeIconPosition,
-    this.onClose,
+    this.onDismissed,
     this.useSafeArea,
     this.titlePinned,
     this.descriptionPinned,
@@ -603,7 +603,7 @@ class Sheet extends StatefulWidget {
   /// {@template Sheet.showCloseButton}
   /// Whether the sheet has a close button in its top end corner. A modal
   /// sheet has one by default; an inline sheet has one when it is given
-  /// an [onClose].
+  /// an [onDismissed].
   /// {@endtemplate}
   final bool? showCloseButton;
 
@@ -625,12 +625,12 @@ class Sheet extends StatefulWidget {
   /// {@endtemplate}
   final Position? closeIconPosition;
 
-  /// Called to close the sheet: by the close button, by
+  /// Called when the sheet is dismissed: by the close button, by
   /// `SheetController.close` and by a drag that dismisses it. A modal sheet
-  /// pops its route by default (`Navigator.maybePop`, which a `PopScope`
-  /// can refuse); an inline sheet has no default, since only its parent
-  /// can take it away.
-  final VoidCallback? onClose;
+  /// pops its route when this is null (`Navigator.maybePop`, which a
+  /// `PopScope` can refuse); an inline sheet has no default, since only its
+  /// parent can take it away.
+  final VoidCallback? onDismissed;
 
   /// {@template Sheet.useSafeArea}
   /// Whether the content keeps clear of the system's bars and cut-outs
@@ -927,9 +927,9 @@ class _SheetState extends State<Sheet> with TickerProviderStateMixin {
   }
 
   void _requestClose() {
-    final onClose = widget.onClose;
-    if (onClose != null) {
-      onClose();
+    final onDismissed = widget.onDismissed;
+    if (onDismissed != null) {
+      onDismissed();
       return;
     }
     final route = _route;
@@ -944,7 +944,7 @@ class _SheetState extends State<Sheet> with TickerProviderStateMixin {
 
   Future<void> _dismissByDrag() async {
     _requestClose();
-    // A `PopScope` may have refused, or `onClose` may have kept the sheet:
+    // A `PopScope` may have refused, or `onDismissed` may have kept it:
     // then it comes back up rather than hanging half way.
     await Future<void>.delayed(Duration.zero);
     if (!mounted || _routeLeaving) return;
@@ -1391,7 +1391,9 @@ class _SheetState extends State<Sheet> with TickerProviderStateMixin {
         (widget.scrollable ?? sheetTheme.scrollable ?? true);
     final showClose =
         widget.showCloseButton ??
-        (modal ? sheetTheme.showCloseButton ?? true : widget.onClose != null);
+        (modal
+            ? sheetTheme.showCloseButton ?? true
+            : widget.onDismissed != null);
 
     Widget content = _SheetContent(
       side: side,

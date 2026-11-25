@@ -512,7 +512,7 @@ class Dialog extends StatelessWidget {
     this.showCloseButton,
     this.closeIcon,
     this.closeButton,
-    this.onClose,
+    this.onDismissed,
     this.semanticLabel,
     this.closeIconPosition,
     this.borderRadius,
@@ -554,7 +554,7 @@ class Dialog extends StatelessWidget {
     this.showCloseButton,
     this.closeIcon,
     this.closeButton,
-    this.onClose,
+    this.onDismissed,
     this.semanticLabel,
     this.closeIconPosition,
     this.borderRadius,
@@ -635,16 +635,16 @@ class Dialog extends StatelessWidget {
   /// {@template Dialog.closeButton}
   /// A widget that stands in for the close button, shown in the dialog's
   /// top end corner whatever [showCloseButton] says. It closes the dialog
-  /// itself; [closeIcon] and [onClose] are not used.
+  /// itself; [closeIcon] and [onDismissed] are not used.
   /// {@endtemplate}
   final Widget? closeButton;
 
-  /// {@template Dialog.onClose}
-  /// Called when the default close button is pressed. Defaults to
-  /// `Navigator.maybePop`, which respects a `PopScope` around the dialog.
-  /// Not used when [closeButton] replaces the button.
+  /// {@template Dialog.onDismissed}
+  /// Called when the user dismisses the dialog with the default close
+  /// button, in place of `Navigator.maybePop`, which respects a `PopScope`
+  /// around the dialog. Not used when [closeButton] replaces the button.
   /// {@endtemplate}
-  final VoidCallback? onClose;
+  final VoidCallback? onDismissed;
 
   /// {@template Dialog.semanticLabel}
   /// The accessible name of the dialog, announced when it opens.
@@ -870,7 +870,8 @@ class Dialog extends StatelessWidget {
                   pressedForegroundColor: theme.colorScheme.foreground,
                 ),
                 semanticLabel: FinesseLocalizations.of(context).dialog.close,
-                onPressed: onClose ?? () => Navigator.of(context).maybePop(),
+                onPressed:
+                    onDismissed ?? () => Navigator.of(context).maybePop(),
               ));
 
     final effectiveCloseIconPosition =

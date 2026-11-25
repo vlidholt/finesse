@@ -213,6 +213,9 @@ package as it is, compared with shad.
   `showCloseButton: true` (with `closeIcon` for another glyph, or
   `closeButton` to replace the whole button), or set it on the dialog
   theme. Sheets keep theirs. A tap on the barrier and Escape still dismiss.
+  What the close button does instead of popping is `onDismissed`, on
+  `Dialog` and `Sheet` alike, the name `Alert` and `Toast` use for being
+  dismissed.
   On a phone a dialog's actions stack full-width from the form factor;
   `expandActionsWhenTiny` and `removeBorderRadiusWhenTiny` are gone.
 - **Popovers and the keyboard focus.** A popover gives the focus back when
