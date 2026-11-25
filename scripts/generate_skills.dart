@@ -21,6 +21,7 @@ const _slugs = [
   'accordion',
   'alert',
   'app_bar',
+  'autocomplete',
   'avatar',
   'avatar_group',
   'badge',

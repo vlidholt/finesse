@@ -2,6 +2,7 @@ import 'package:example/docs/docs.dart';
 import 'package:example/docs/pages/accordion.dart';
 import 'package:example/docs/pages/alert.dart';
 import 'package:example/docs/pages/app_bar.dart';
+import 'package:example/docs/pages/autocomplete.dart';
 import 'package:example/docs/pages/avatar.dart';
 import 'package:example/docs/pages/avatar_group.dart';
 import 'package:example/docs/pages/badge.dart';
@@ -119,6 +120,7 @@ final componentDocs = [
   accordionDoc,
   alertDoc,
   appBarDoc,
+  autocompleteDoc,
   avatarDoc,
   avatarGroupDoc,
   badgeDoc,

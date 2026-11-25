@@ -89,6 +89,7 @@ flutter:
     - lib/docs/examples/typography/
     - lib/docs/examples/glass/
     - lib/docs/examples/app_bar/
+    - lib/docs/examples/autocomplete/
     - lib/docs/examples/navigation_bar/
     - lib/docs/examples/scaffold/
     - lib/docs/examples/board/

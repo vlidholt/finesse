@@ -38,6 +38,7 @@ export 'src/app.dart';
 export 'src/components/accordion.dart';
 export 'src/components/alert.dart';
 export 'src/components/app_bar.dart';
+export 'src/components/autocomplete.dart';
 export 'src/components/avatar.dart';
 export 'src/components/avatar_group.dart';
 export 'src/components/badge.dart';
