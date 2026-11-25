@@ -127,4 +127,3 @@ class TimelineActivityExample extends StatelessWidget {
   }
 }
 ```
-

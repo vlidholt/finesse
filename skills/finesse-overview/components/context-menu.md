@@ -423,4 +423,3 @@ class _GridPainter extends CustomPainter {
       a.length == b.length && a.containsAll(b);
 }
 ```
-

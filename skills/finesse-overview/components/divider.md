@@ -51,4 +51,3 @@ class DividerBasicExample extends StatelessWidget {
   }
 }
 ```
-

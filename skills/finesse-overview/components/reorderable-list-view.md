@@ -4,7 +4,7 @@ A list whose rows can be dragged into a new order: a playlist, a set of prioriti
 
 ## A playlist
 
-Every row has a key and a `ReorderableDragHandle`. A finger also picks a row up by pressing and holding anywhere on it; a mouse uses the grip, which shows under the pointer. From the keyboard, Space or Enter on a focused grip picks the row up, the arrow keys move it, Space drops it and Escape puts it back. `onReorder(from, to)` reports the row's final index, so `list.insert(to, list.removeAt(from))` is all there is to do.
+Every row has a key and a `ReorderableDragHandle`. A finger also picks a row up by pressing and holding anywhere on it; a mouse uses the grip, which shows under the pointer. The row lifts as a card does on a `Board`, the others make way on springs, and on release it flies to its place and lands. From the keyboard, Space or Enter on a focused grip picks the row up, the arrow keys move it, Space drops it and Escape puts it back. `onReorder(from, to)` reports the row's final index, so `list.insert(to, list.removeAt(from))` is all there is to do.
 
 ```dart
 import 'package:finesse/finesse.dart';
@@ -74,7 +74,7 @@ class _ReorderableListViewBasicExampleState
 
 ## Grips only, in a list that scrolls
 
-`longPressToDrag: false` leaves a long press to the rows. `ReorderableListView.builder` builds rows as they scroll into view, and the list scrolls when a row is held near its edge. A row keeps its state when it is moved.
+`longPressToDrag: false` leaves a long press to the rows. `ReorderableListView.builder` builds rows as they scroll into view — `itemId` says which item is at an index, so the rows need no key — and the list scrolls when a row is held near its edge. A row keeps its state when it is moved.
 
 ```dart
 import 'package:finesse/finesse.dart';
@@ -130,13 +130,14 @@ class _ReorderableListViewHandlesExampleState
           padding: const EdgeInsets.all(8),
           longPressToDrag: false,
           itemCount: sections.length,
+          // Which item is at an index, without building its row.
+          itemId: (index) => sections[index].name,
           onReorder: (from, to) =>
               setState(() => sections.insert(to, sections.removeAt(from))),
           itemSemanticLabel: (index) => sections[index].name,
           itemBuilder: (context, index) {
             final section = sections[index];
             return ListTile(
-              key: ValueKey(section.name),
               leading: const ReorderableDragHandle(),
               title: Text(section.name),
               trailing: ValueListenableBuilder(
@@ -158,3 +159,95 @@ class _ReorderableListViewHandlesExampleState
 }
 ```
 
+## A sliver, and changes made from code
+
+`SliverReorderableListView` is the same list among the other slivers of a `CustomScrollView`. A change the parent makes by itself is animated too: sort or shuffle the queue and the rows glide to where they now belong.
+
+```dart
+import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
+
+/// A queue as a sliver, under a header that scrolls away with it. The
+/// buttons change the list from code: the rows glide to their new places
+/// on the same springs a drag uses.
+class ReorderableListViewSliverExample extends StatefulWidget {
+  const ReorderableListViewSliverExample({super.key});
+
+  @override
+  State<ReorderableListViewSliverExample> createState() =>
+      _ReorderableListViewSliverExampleState();
+}
+
+class _ReorderableListViewSliverExampleState
+    extends State<ReorderableListViewSliverExample> {
+  var queue = [
+    'Tidewater',
+    'Analogue Hearts',
+    'Meridian',
+    'Half Light',
+    'Cedar Street',
+    'Unmapped',
+    'Low Sun',
+    'Kite Season',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 400, maxHeight: 360),
+      child: Card(
+        padding: EdgeInsets.zero,
+        columnCrossAxisAlignment: CrossAxisAlignment.stretch,
+        rowMainAxisSize: MainAxisSize.max,
+        child: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                child: Row(
+                  children: [
+                    Expanded(child: Text('Up next', style: theme.textTheme.h4)),
+                    Button.ghost(
+                      size: ButtonSize.sm,
+                      onPressed: () => setState(
+                        () => queue = [...queue]..sort(),
+                      ),
+                      child: const Text('Sort'),
+                    ),
+                    Button.ghost(
+                      size: ButtonSize.sm,
+                      onPressed: () => setState(
+                        () => queue = [...queue]..shuffle(),
+                      ),
+                      child: const Text('Shuffle'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+              sliver: SliverReorderableListView(
+                itemCount: queue.length,
+                itemId: (index) => queue[index],
+                itemSemanticLabel: (index) => queue[index],
+                onReorder: (from, to) => setState(
+                  () => queue.insert(to, queue.removeAt(from)),
+                ),
+                itemBuilder: (context, index) => ListTile(
+                  leading: const IconTile(
+                    icon: PhosphorIcon(PhosphorIconsRegular.musicNote),
+                  ),
+                  title: Text(queue[index]),
+                  trailing: const ReorderableDragHandle(),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```

@@ -244,3 +244,14 @@ class GlassToolbarExample extends StatelessWidget {
 }
 ```
 
+## Card, Surface or Glass
+
+Three widgets draw a rounded panel, and they differ in where the panel sits. Pick by that, not by how translucent you want it: the style decides the translucency of all three.
+
+| Widget | What it is | Use it for |
+| --- | --- | --- |
+| `Card` | Content on the page. Translucent in the default style but never blurred, so a page of them costs nothing per frame; it has a title, description and footer, and padding from the theme. | A post, a settings group, a stat, a form: anything that scrolls with the page. |
+| `Surface` | The skin of something that floats: the popover's or the menu's colours, hairline, shadow and filter, exactly as `Popover` and the menus paint them. | An overlay you place yourself: a search panel under a field, a custom menu, a hover preview. `Popover` already wraps its content in one. |
+| `Glass` | The raw material: a tint over the blurred backdrop, with a hairline. No padding rules, no text style, no meaning. | Floating chrome over content that moves: a toolbar, a pill, a label on a photo. Pass `frosted: false` inside scrolling content. |
+
+If you need only the blur, with a tint of your own, that is `Backdrop`; see Building Blocks.

@@ -1,10 +1,10 @@
 # Toolbar
 
-A bar of actions along the bottom of a screen: what can be done with what is showing. It has the surface of a whose bottom bar floats it is a glass pill, and otherwise it spans the bottom edge.
+A bar of actions along the bottom of a screen: what can be done with what is showing. It has the surface of a `BottomNavigationBar` and follows the same theme, so in a style whose bottom bar floats it is a glass pill, and otherwise it spans the bottom edge.
 
 ## In a Scaffold
 
-scrolls beneath it and is told how far to keep clear. `children` are the actions, usually `IconButton.ghost`s, and `trailing` the one that stands apart. The arrow keys move the focus along the bar.
+Give it to a `Scaffold` as its `bottomNavigationBar`: the page scrolls beneath it and is told how far to keep clear. `children` are the actions, usually `IconButton.ghost`s, and `trailing` the one that stands apart. The arrow keys move the focus along the bar.
 
 ```dart
 import 'package:finesse/finesse.dart';
@@ -175,4 +175,3 @@ class _ToolbarDockedExampleState extends State<ToolbarDockedExample> {
   }
 }
 ```
-

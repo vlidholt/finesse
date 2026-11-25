@@ -25,4 +25,3 @@ class SpinnerBasicExample extends StatelessWidget {
   }
 }
 ```
-

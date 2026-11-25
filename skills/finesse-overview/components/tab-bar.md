@@ -268,4 +268,3 @@ class _TabBarViewExampleState extends State<TabBarViewExample> {
   }
 }
 ```
-

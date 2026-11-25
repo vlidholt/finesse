@@ -220,4 +220,3 @@ class _SliderControlledExampleState extends State<SliderControlledExample> {
   }
 }
 ```
-

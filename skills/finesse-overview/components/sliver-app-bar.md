@@ -115,11 +115,10 @@ class _SliverAppBarBottomExampleState extends State<SliverAppBarBottomExample> {
                   margin,
                   theme.layoutTheme.gap(GapSize.md),
                 ),
-                child: TextField(
-                  placeholder: const Text('Search'),
-                  leading: const PhosphorIcon(
-                    PhosphorIconsRegular.magnifyingGlass,
-                  ),
+                // Cancel slides in beside the field while it has the
+                // focus, as in a search bar on iOS.
+                child: SearchField(
+                  showCancel: true,
                   onChanged: (value) => setState(() => _query = value),
                 ),
               ),
@@ -270,4 +269,3 @@ class SliverAppBarFloatingExample extends StatelessWidget {
   }
 }
 ```
-

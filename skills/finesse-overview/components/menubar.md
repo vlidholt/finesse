@@ -143,4 +143,3 @@ class _MenubarBasicExampleState extends State<MenubarBasicExample> {
   }
 }
 ```
-

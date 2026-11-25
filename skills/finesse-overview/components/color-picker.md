@@ -97,4 +97,3 @@ class _ColorPickerInlineExampleState extends State<ColorPickerInlineExample> {
   }
 }
 ```
-

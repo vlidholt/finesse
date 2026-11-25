@@ -1,13 +1,10 @@
 # List Detail Layout
 
-A list and the detail of what is chosen in it. On a desktop they are side by side; on a phone the list has the screen and the detail is pushed over it as a page. It follows the 
+A list and the detail of what is chosen in it. On a desktop they are side by side; on a phone the list has the screen and the detail is pushed over it as a page. It follows the theme's form factor, and both keep their state when it changes.
 
 ## Conversations
 
-Give it the `list`, the `detail` of the current choice — or null — and a `placeholder` for the desktop while nothing is chosen. On a phone, setting `detail` pushes it with the page s transition and clearing it pops it; when the user goes "
-          
-          
-          
+Give it the `list`, the `detail` of the current choice — or null — and a `placeholder` for the desktop while nothing is chosen. On a phone, setting `detail` pushes it with the page route's transition and clearing it pops it; when the user goes back instead — the system back, a swipe from the edge on iOS — `onDetailClosed` is called, where you clear the choice. `resizable` lets the line between the two be dragged.
 
 ```dart
 import 'package:finesse/finesse.dart';
@@ -154,4 +151,3 @@ class _Conversation extends StatelessWidget {
   }
 }
 ```
-

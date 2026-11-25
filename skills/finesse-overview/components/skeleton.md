@@ -32,4 +32,3 @@ class SkeletonCardExample extends StatelessWidget {
   }
 }
 ```
-

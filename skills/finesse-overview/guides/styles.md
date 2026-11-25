@@ -1,80 +1,104 @@
 # Styles
 
-A style is a complete preset for geometry, typography, shadows and translucency. Four ship with finesse, switchable with one line.
+A style is a complete preset for geometry, typography, shadows,
+translucency and motion. Four ship with finesse, switchable with one line.
 
-Styles are not color variations. Each one is a full set of measurements: control heights and padding, the radius of every kind of surface, the type roles (title, label, body, caption, field), the shadows, and how translucent cards and bars are. Buttons, fields, menu rows, cards, sliders and switches all move together when the style changes. Color is a separate choice; see [theming.md](theming.md).
+Styles are not colour variations. Each is a full set of measurements:
+control heights and padding, the radius of every kind of surface, the text
+roles (title, label, body, caption, overline, field), the shadows, how
+translucent cards, bars and overlays are, and the motion vocabulary.
+Buttons, fields, menu rows, cards, sliders and switches move together when
+the style changes. Colour is a separate choice; see
+[theming.md](theming.md).
 
 ## Choosing a style
 
 ```dart
-ThemeData(
-  style: StyleTokens.maia,
-)
+final theme = ThemeData(style: StyleTokens.maia);
 ```
 
-- `finesse`: the default. Soft glass: 36px buttons and 40px fields, controls rounded to 10 and cards to 18, with cards, bars and outline buttons translucent over a blurred backdrop. It has hand-measured phone metrics (`StyleTokens.finesseMobile`).
-- `nova`: compact and neutral. 32px controls, moderate radii, opaque surfaces.
+- `finesse`: the default, measured from the package's own designs. Soft
+  glass: 36-point buttons and 40-point fields, controls rounded to 10 and
+  cards to 18; translucent cards, and glass bars, popovers, menus, tooltips
+  and toasts. Lively motion. It has hand-measured phone metrics
+  (`StyleTokens.finesseMobile`).
+- `nova`: compact and neutral. 32-point controls, moderate radii, opaque
+  surfaces.
 - `maia`: pill-shaped and roomy, with fully rounded controls.
-- `lyra`: square and compact. No radii, flat shadows, 12px body text.
+- `lyra`: square and compact. No radii, flat shadows, 12-point body text.
 
-`nova`, `maia` and `lyra` are three of shadcn/ui's styles, measured from its CSS. `finesse` is the package's own. The other shadcn styles (`vega`, `mira`, `luma`, `sera`, `rhea`) are not part of this package.
+`nova`, `maia` and `lyra` are three of shadcn/ui's styles, measured from
+its CSS, with calm motion. There is no `vega`, `mira`, `luma`, `sera` or
+`rhea`.
 
 ## Picking at runtime
 
-The presets are values on `StyleTokens`, so a style switcher is a list and a lookup:
-
 ```dart
-StyleTokens.all;              // the four presets, the default first
-StyleTokens.fromName('lyra'); // one, by name; throws ArgumentError if unknown
+final presets = StyleTokens.all; // the four, the default first
+final lyra = StyleTokens.fromName('lyra'); // throws ArgumentError if unknown
 ```
 
 ## Custom styles
 
-A style is data, a set of measured tokens. Derive your own from the preset closest to what you want:
+A style is data. Derive your own from the preset closest to what you want:
 
 ```dart
-ThemeData(
+final theme = ThemeData(
   style: StyleTokens.nova.copyWith(
     buttonRadius: RadiusToken.full,
     buttonHeight: 40,
   ),
-)
+);
 ```
 
-`copyWith` changes the set of metrics it is called on. `nova`, `maia` and `lyra` derive their phone metrics from the result, so one call covers both form factors. `finesse` has a separate `finesseMobile`: to change it on a phone too, copy that as well and pass it as `mobile`.
+`copyWith` reaches the phone metrics too: the style's `mobile` set takes
+each new value whose field it had in common with the desktop set, so
+`StyleTokens.finesse.copyWith(glassBlur: 12)` changes the blur on both
+form factors. A field the phone sets on purpose (control heights, page
+margins, body text) keeps its phone value; to change that as well, pass
+`mobile:` explicitly (see [form-factors.md](form-factors.md)).
 
-## Desktop and phone
+## Glass and translucency
 
-Every style carries a second set of metrics for a phone: larger touch targets, larger body text, tighter page margins. `finesse` defines its own; the others derive theirs. `FinesseApp` picks between the two from the window width. See [form-factors.md](form-factors.md).
-
-## Glass
-
-Translucency belongs to the style, not to the color scheme. The scheme holds the solid `card` and `bar` colors; the style holds `cardOpacity`, `barOpacity`, `glassOpacity` (each with a `...Dark` override), `cardBlur`, `glassBlur` and `glassSaturation`. An opaque style such as `nova` pays for no blur at all. To turn the default style opaque, change both of its sets of metrics:
+Translucency belongs to the style, not to the colour scheme. The scheme
+holds the solid `card` and `bar` colours; the style holds `cardOpacity`,
+`barOpacity`, `glassOpacity`, `popoverOpacity` and `tooltipOpacity` (each
+with a `...Dark` override), `glassBlur`, `glassSaturation` and `cardBlur`.
+A value below 1 is that colour at that opacity over the style's blur. An
+opaque style such as `nova` pays for no blur at all.
 
 ```dart
-StyleTokens opaque(StyleTokens style) => style.copyWith(
+// The default look with opaque surfaces everywhere.
+final opaque = StyleTokens.finesse.copyWith(
   cardOpacity: 1,
   cardOpacityDark: 1,
-  cardBlur: false,
   barOpacity: 1,
   barOpacityDark: 1,
+  popoverOpacity: 1,
+  popoverOpacityDark: 1,
+  tooltipOpacity: 1,
+  tooltipOpacityDark: 1,
 );
-
-ThemeData(
-  style: opaque(StyleTokens.finesse).copyWith(
-    mobile: opaque(StyleTokens.finesseMobile),
-  ),
-)
+final theme = ThemeData(style: opaque);
 ```
 
-For a frosted surface of your own, use the `Glass` widget ([glass.md](../components/glass.md)). Each one is a compositing layer: a handful on screen is fine, a long scrolling list of them is not.
+`cardBlur` is false in every preset: cards are translucent over the flat
+page and blur nothing, because a backdrop filter per card costs every
+frame. For a frosted panel of your own see [surfaces.md](surfaces.md).
 
 ## Spacing
 
-Metrics a style writes in spacing units follow the theme's `Spacing` step, 4px by default. Raising it loosens every unit-derived padding and gap in one move:
+Metrics a style writes in spacing units follow the theme's `Spacing` step,
+4 by default. Raising it loosens every unit-derived padding and gap in one
+move:
 
 ```dart
-ThemeData(
-  spacing: const Spacing(step: 5),
-)
+final roomy = ThemeData(spacing: const Spacing(step: 5));
 ```
+
+## Motion and icons
+
+The style also carries `motion` (`Motion.lively` for `finesse`,
+`Motion.calm` for the others; see [motion.md](motion.md)) and the icons'
+optical weight (`iconOpticalSize`, `iconOpticalStrength`; see
+[icons.md](icons.md)).

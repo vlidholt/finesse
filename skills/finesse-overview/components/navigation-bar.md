@@ -226,7 +226,7 @@ class _NavigationBarDockedExampleState
 
 ## With labels
 
-`showLabels` puts each label under its icon, in the caption style; the selection stays behind the icon. Set it for a whole 
+`showLabels` puts each label under its icon, in the caption style; the selection stays behind the icon. Set it for a whole app with the theme's `bottomNavigationBarTheme`.
 
 ```dart
 import 'package:finesse/finesse.dart';
@@ -299,4 +299,3 @@ class _NavigationBarLabelsExampleState
   }
 }
 ```
-

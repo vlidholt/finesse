@@ -1,6 +1,6 @@
 # Icon Button
 
-A square button holding a single icon.
+A square button holding a single icon. It is a `Button` in the square sizes, with the name an icon-only control needs.
 
 ## Variants
 
@@ -83,3 +83,57 @@ class IconButtonTooltipExample extends StatelessWidget {
 }
 ```
 
+## Sizes and style
+
+`size` takes the three button sizes and reads them as the theme's square ones, which size the glyph on their own. Anything else is the `style`, the same `ButtonTheme` a `Button` takes: its width, height, padding and icon size replace the size's.
+
+```dart
+import 'package:finesse/finesse.dart';
+import 'package:flutter/widgets.dart';
+
+class IconButtonSizesExample extends StatelessWidget {
+  const IconButtonSizesExample({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        IconButton.outline(
+          size: ButtonSize.sm,
+          tooltip: 'Add',
+          onPressed: () {},
+          icon: const PhosphorIcon(PhosphorIconsRegular.plus),
+        ),
+        IconButton.outline(
+          tooltip: 'Add',
+          onPressed: () {},
+          icon: const PhosphorIcon(PhosphorIconsRegular.plus),
+        ),
+        IconButton.outline(
+          size: ButtonSize.lg,
+          tooltip: 'Add',
+          onPressed: () {},
+          icon: const PhosphorIcon(PhosphorIconsRegular.plus),
+        ),
+        // Anything else is the style: a small, quiet close button.
+        IconButton.ghost(
+          style: ButtonTheme(
+            width: 24,
+            height: 24,
+            iconSize: 14,
+            foregroundColor: scheme.mutedForeground,
+            hoverForegroundColor: scheme.foreground,
+          ),
+          tooltip: 'Close',
+          onPressed: () {},
+          icon: const PhosphorIcon(PhosphorIconsRegular.x),
+        ),
+      ],
+    );
+  }
+}
+```

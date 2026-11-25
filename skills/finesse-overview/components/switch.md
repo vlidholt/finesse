@@ -62,4 +62,3 @@ class _SwitchDescriptionExampleState extends State<SwitchDescriptionExample> {
   }
 }
 ```
-

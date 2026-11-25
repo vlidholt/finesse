@@ -262,4 +262,3 @@ class ToastInlineExample extends StatelessWidget {
   }
 }
 ```
-

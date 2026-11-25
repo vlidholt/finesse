@@ -174,4 +174,3 @@ class _SelectMultipleExampleState extends State<SelectMultipleExample> {
   }
 }
 ```
-

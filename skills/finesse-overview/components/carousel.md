@@ -212,4 +212,3 @@ class _CarouselAutoplayExampleState extends State<CarouselAutoplayExample> {
   }
 }
 ```
-

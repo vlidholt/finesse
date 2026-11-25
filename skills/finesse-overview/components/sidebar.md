@@ -208,4 +208,3 @@ class _SidebarSubmenuExampleState extends State<SidebarSubmenuExample> {
   }
 }
 ```
-

@@ -1,9 +1,6 @@
 # Calendar
 
-A month calendar that selects a day, several days or a range. Its parameters say what it does: bounds, how many months show, where the week starts, how the caption is laid out. How it looks is the s `CalendarTheme`, which `calendarTheme` overrides for one "
-      
-      
-      
+A month calendar that selects a day, several days or a range. Its parameters say what it does: bounds, how many months show, where the week starts, how the caption is laid out. How it looks is the theme's `CalendarTheme`, which `calendarTheme` overrides for one calendar. Cells grow with the text scale and a month that does not fit its room is shown whole, smaller. `DatePicker` puts a calendar behind a button.
 
 ## One day
 
@@ -145,4 +142,3 @@ class _CalendarThemeExampleState extends State<CalendarThemeExample> {
   }
 }
 ```
-

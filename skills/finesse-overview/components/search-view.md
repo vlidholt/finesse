@@ -90,4 +90,3 @@ class _SearchViewBasicExampleState extends State<SearchViewBasicExample> {
   }
 }
 ```
-

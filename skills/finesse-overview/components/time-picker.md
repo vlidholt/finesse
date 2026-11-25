@@ -1,6 +1,6 @@
 # Time Picker
 
-A button that shows a time and opens a way to change it: a `TimeField` in a popover on a desktop, wheels in a bottom sheet on a phone. It is the counterpart of `DatePicker`. `presentation` forces either one, `TimeWheelPicker` is the wheels on their own, and `TimePickerFormField` puts the picker in a form.
+A field that shows a time and opens a way to change it: a `TimeField` in a popover on a desktop, wheels in a bottom sheet on a phone. It is the counterpart of `DatePicker`. `presentation` forces either one, `TimeWheelPicker` is the wheels on their own, and `TimePickerFormField` puts the picker in a form.
 
 ## Basic
 
@@ -167,4 +167,3 @@ class _TimePickerTriggerExampleState extends State<TimePickerTriggerExample> {
   }
 }
 ```
-

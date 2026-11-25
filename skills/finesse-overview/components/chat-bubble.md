@@ -161,4 +161,3 @@ class ChatBubbleAttachmentExample extends StatelessWidget {
   }
 }
 ```
-

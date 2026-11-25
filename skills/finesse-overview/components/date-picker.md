@@ -1,6 +1,6 @@
 # Date Picker
 
-A button that shows a date and opens a way to change it: a calendar in a popover on a desktop, a calendar or wheels in a bottom sheet on a phone. `presentation` forces either one and `mode` chooses calendar or wheels. `DateRangePicker` picks a first and a last day, `DateWheelPicker` is the wheels on their own, and `DatePickerFormField` and `DateRangePickerFormField` put the pickers in a form.
+A field that shows a date and opens a way to change it: a calendar in a popover on a desktop, a calendar or wheels in a bottom sheet on a phone. `presentation` forces either one and `mode` chooses calendar or wheels. `DateRangePicker` picks a first and a last day, `DateWheelPicker` is the wheels on their own, and `DatePickerFormField` and `DateRangePickerFormField` put the pickers in a form.
 
 ## A date
 
@@ -162,14 +162,15 @@ class _DatePickerWheelsExampleState extends State<DatePickerWheelsExample> {
 
 ## Another trigger
 
-The calendar inside is configured on the picker too: `captionLayout`, `numberOfMonths`, `weekStartsOn`, `showWeekNumbers`, `selectableDayPredicate` and `calendarTheme`.
+The trigger is a field, to sit among the fields of a form; `variant` makes it that button instead, and `triggerBuilder` any other control. The calendar inside is configured on the picker too: `captionLayout`, `numberOfMonths`, `weekStartsOn`, `showWeekNumbers`, `selectableDayPredicate` and `calendarTheme`.
 
 ```dart
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
-/// The button restyled, and replaced: `formatDate`, `variant` and `leading`
-/// change the default one; `triggerBuilder` builds any other control.
+/// The trigger restyled, and replaced: `variant` makes the default field a
+/// button and `formatDate` writes the date; `triggerBuilder` builds any
+/// other control.
 class DatePickerTriggerExample extends StatefulWidget {
   const DatePickerTriggerExample({super.key});
 
@@ -213,4 +214,3 @@ class _DatePickerTriggerExampleState extends State<DatePickerTriggerExample> {
   }
 }
 ```
-

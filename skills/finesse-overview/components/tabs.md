@@ -1,9 +1,6 @@
 # Tabs
 
-Sections of content shown one at a time: a `TabBar` with the s `content` under it. Controlled with `value` and "
-      
-      "content can be swiped to the next tabs selection "
-      
+Sections of content shown one at a time: a `TabBar` with the selected tab's `content` under it. Controlled with `value` and `onChanged`, or by a `TabsController`. On a touch screen the content can be swiped to the next tab's, and the bar's selection follows the finger.
 
 ## Default
 
@@ -198,4 +195,3 @@ class _TabsListExampleState extends State<TabsListExample> {
   }
 }
 ```
-

@@ -4,9 +4,7 @@ Picks one of a few values that are all in view: a filled strip with a raised thu
 
 ## Default
 
-The thumb is one shape that slides to the chosen segment on the s `Motion.snappy`. The control is one stop for the Tab "
-          
-          
+The thumb is one shape that slides to the chosen segment on the theme's `Motion.snappy`. The control is one stop for the Tab key; the arrow keys, Home and End change the value. On a touch screen, drag along the strip and the thumb follows the finger.
 
 ```dart
 import 'package:finesse/finesse.dart';
@@ -212,4 +210,3 @@ class _SegmentedControlExpandedExampleState
   }
 }
 ```
-

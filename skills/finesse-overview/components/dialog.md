@@ -124,4 +124,3 @@ class DialogAlertExample extends StatelessWidget {
   }
 }
 ```
-

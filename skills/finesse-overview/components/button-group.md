@@ -192,4 +192,3 @@ class _ButtonGroupVerticalExampleState
   }
 }
 ```
-

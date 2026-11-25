@@ -139,4 +139,3 @@ class _ToggleGroupOutlineExampleState extends State<ToggleGroupOutlineExample> {
   }
 }
 ```
-

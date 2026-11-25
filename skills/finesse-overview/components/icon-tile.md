@@ -117,4 +117,3 @@ class IconTileStatsExample extends StatelessWidget {
   }
 }
 ```
-

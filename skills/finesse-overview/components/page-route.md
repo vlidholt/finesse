@@ -1,10 +1,10 @@
 # Page Route
 
-How one page replaces another. `FinessePageRoute` is the route `FinesseApp` pushes by default: a short slide and a fade on the s motion, from the end side on a phone and a few pixelsrise on a desktop. A page can be taken back with a gesture: a drag from its start edge on iOS, and a preview of the predictive back gesture on Android. `FinessePage` is the same route for a declared page list.
+How one page replaces another. `FinessePageRoute` is the route `FinesseApp` pushes by default: a short slide and a fade on the theme's motion, from the end side on a phone and a few pixels' rise on a desktop. A page can be taken back with a gesture: a drag from its start edge on iOS, and a preview of the predictive back gesture on Android. `FinessePage` is the same route for a declared page list.
 
 ## Pushing pages
 
-
+`Navigator.push(FinessePageRoute(builder: ...))`. The page follows the finger for as long as it is held; past the middle, or flicked, it leaves, and otherwise it springs back with the speed it was let go at. `backGesture` is null by default, which follows the platform; `true`, as here, offers the swipe everywhere and `false` switches it off. A `fullscreenDialog` rises from below and never has one, and neither has a page under a `PopScope` that refuses to pop.
 
 ```dart
 import 'package:finesse/finesse.dart';
@@ -107,7 +107,7 @@ class _Page extends StatelessWidget {
 
 ## Declared pages
 
-With `Navigator.pages`, or a router package, pages are values. `FinessePage(child: ...)` shows one through the same route, with `fullscreenDialog`, `maintainState` and `backGesture`. In `go_router`, return it from a 
+With `Navigator.pages`, or a router package, pages are values. `FinessePage(child: ...)` shows one through the same route, with `fullscreenDialog`, `maintainState` and `backGesture`. In `go_router`, return it from a route's `pageBuilder` with `key: state.pageKey`.
 
 ```dart
 import 'package:finesse/finesse.dart';
@@ -200,4 +200,3 @@ class _PageRoutePagesExampleState extends State<PageRoutePagesExample> {
   }
 }
 ```
-

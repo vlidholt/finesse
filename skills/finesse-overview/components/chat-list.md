@@ -235,4 +235,3 @@ class _ChatListStreamExampleState extends State<ChatListStreamExample> {
   }
 }
 ```
-

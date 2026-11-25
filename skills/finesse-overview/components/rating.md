@@ -101,4 +101,3 @@ class _RatingVariantsExampleState extends State<RatingVariantsExample> {
   }
 }
 ```
-

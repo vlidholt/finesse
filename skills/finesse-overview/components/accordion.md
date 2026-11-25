@@ -88,4 +88,3 @@ class AccordionMultipleExample extends StatelessWidget {
   }
 }
 ```
-

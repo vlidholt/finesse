@@ -279,4 +279,3 @@ class _SheetInlineExampleState extends State<SheetInlineExample> {
   }
 }
 ```
-
