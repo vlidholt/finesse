@@ -196,7 +196,9 @@ package as it is, compared with shad.
   theme's square sizes for `sm`, `regular` and `lg`.
 - **`Badge` is a static pill.** `onPressed`, `enabled`,
   `hoverBackgroundColor` and `mouseCursor` are removed from it and from
-  `BadgeTheme`; a pressable pill is a `Chip`.
+  `BadgeTheme`; a pressable pill is a `Chip`. `shape` is `borderRadius`
+  (null is a pill), on `Badge` and `BadgeTheme`, and the theme's outline
+  is `BadgeTheme.borderColor`.
 - **`FinesseGestureDetector` reports true global positions.** It used to
   rewrite `globalPosition` to be overlay-local inside a nested navigator
   (the shad #319 workaround); `GlobalAnchor.offset` is global as

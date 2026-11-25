@@ -40,7 +40,7 @@ class Badge extends StatelessWidget {
     super.key,
     this.variant = BadgeVariant.primary,
     required this.child,
-    this.shape,
+    this.borderRadius,
     this.backgroundColor,
     this.foregroundColor,
     this.padding,
@@ -52,7 +52,7 @@ class Badge extends StatelessWidget {
   const Badge.secondary({
     super.key,
     required this.child,
-    this.shape,
+    this.borderRadius,
     this.backgroundColor,
     this.foregroundColor,
     this.padding,
@@ -64,7 +64,7 @@ class Badge extends StatelessWidget {
   const Badge.outline({
     super.key,
     required this.child,
-    this.shape,
+    this.borderRadius,
     this.backgroundColor,
     this.foregroundColor,
     this.padding,
@@ -76,7 +76,7 @@ class Badge extends StatelessWidget {
   const Badge.destructive({
     super.key,
     required this.child,
-    this.shape,
+    this.borderRadius,
     this.backgroundColor,
     this.foregroundColor,
     this.padding,
@@ -96,13 +96,11 @@ class Badge extends StatelessWidget {
   /// {@endtemplate}
   final Widget child;
 
-  /// {@template Badge.shape}
-  /// The shape of the badge's border, overriding the theme default if
-  /// specified.
-  /// Typically a [StadiumBorder], but can be customized
-  /// (e.g., [RoundedRectangleBorder]).
+  /// {@template Badge.borderRadius}
+  /// The corners of the badge. Defaults to the theme's; null there makes
+  /// it a pill.
   /// {@endtemplate}
-  final ShapeBorder? shape;
+  final BorderRadius? borderRadius;
 
   /// {@template Badge.backgroundColor}
   /// The background color of the badge, overriding the theme default if
@@ -138,6 +136,11 @@ class Badge extends StatelessWidget {
     };
   }
 
+  static ShapeBorder _shape(BorderRadius? borderRadius, BorderSide side) =>
+      borderRadius == null
+      ? StadiumBorder(side: side)
+      : RoundedRectangleBorder(borderRadius: borderRadius, side: side);
+
   @override
   Widget build(BuildContext context) {
     assert(debugCheckHasTheme(context));
@@ -145,6 +148,10 @@ class Badge extends StatelessWidget {
     final badgeTheme = _badgeTheme(theme);
     final label = child;
     final foreground = foregroundColor ?? badgeTheme.foregroundColor;
+    final borderColor = badgeTheme.borderColor;
+    final side = borderColor == null
+        ? BorderSide.none
+        : BorderSide(color: borderColor);
 
     // A badge whose text changes — a count, a status — pops once, so the
     // change is noticed. Only a plain `Text` can be compared.
@@ -154,7 +161,7 @@ class Badge extends StatelessWidget {
         container: true,
         child: Container(
           decoration: ShapeDecoration(
-            shape: shape ?? badgeTheme.shape ?? const StadiumBorder(),
+            shape: _shape(borderRadius ?? badgeTheme.borderRadius, side),
             color: backgroundColor ?? badgeTheme.backgroundColor,
           ),
           padding: padding ?? badgeTheme.padding,

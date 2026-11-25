@@ -771,7 +771,7 @@ class DefaultThemeVariant extends ThemeVariant {
       iconSize: scaled(style.badgeIconSize),
       backgroundColor: colorScheme.primary,
       foregroundColor: colorScheme.primaryForeground,
-      shape: _badgeShape,
+      borderRadius: _badgeBorderRadius,
       padding: _badgePadding,
       textStyle: style.caption.apply(effectiveTextTheme.small),
     );
@@ -791,7 +791,7 @@ class DefaultThemeVariant extends ThemeVariant {
       foregroundColor: style.secondaryBadgeSubtle
           ? colorScheme.foregroundSubtle
           : colorScheme.secondaryForeground,
-      shape: _badgeShape,
+      borderRadius: _badgeBorderRadius,
       padding: _badgePadding,
       textStyle: style.caption.apply(effectiveTextTheme.small),
     );
@@ -809,7 +809,7 @@ class DefaultThemeVariant extends ThemeVariant {
       iconSize: scaled(style.badgeIconSize),
       backgroundColor: _wash(colorScheme.destructive, _isDark ? .2 : .1),
       foregroundColor: colorScheme.destructive,
-      shape: _badgeShape,
+      borderRadius: _badgeBorderRadius,
       padding: _badgePadding,
       textStyle: style.caption.apply(effectiveTextTheme.small),
     );
@@ -824,23 +824,19 @@ class DefaultThemeVariant extends ThemeVariant {
       // `[&>svg]:size-3`.
       iconSize: scaled(style.badgeIconSize),
       foregroundColor: colorScheme.foreground,
-      shape: _badgeShape is StadiumBorder
-          ? StadiumBorder(side: BorderSide(color: colorScheme.border))
-          : RoundedRectangleBorder(side: BorderSide(color: colorScheme.border)),
+      borderRadius: _badgeBorderRadius,
+      borderColor: colorScheme.border,
       padding: _badgePadding,
       textStyle: style.caption.apply(effectiveTextTheme.small),
     );
   }
 
-  /// Badge geometry: `rounded-4xl px-2 py-0.5` — a pill in every style
-  /// except the square ones.
-  ShapeBorder get _badgeShape => switch (style.badgeRadius) {
-    final token? => RoundedRectangleBorder(
-      borderRadius: radii.resolve(token),
-    ),
-    null when style.buttonRadius == RadiusToken.none =>
-      const RoundedRectangleBorder(),
-    null => const StadiumBorder(),
+  /// Badge geometry: `rounded-4xl px-2 py-0.5` — a pill (null) in every
+  /// style except the square ones.
+  BorderRadius? get _badgeBorderRadius => switch (style.badgeRadius) {
+    final token? => radii.resolve(token),
+    null when style.buttonRadius == RadiusToken.none => BorderRadius.zero,
+    null => null,
   };
 
   EdgeInsetsGeometry get _badgePadding {
@@ -865,7 +861,7 @@ class DefaultThemeVariant extends ThemeVariant {
     // `[&>svg]:size-3`.
     iconSize: scaled(style.badgeIconSize),
     foregroundColor: foreground,
-    shape: const RoundedRectangleBorder(),
+    borderRadius: BorderRadius.zero,
     padding: EdgeInsets.zero,
     textStyle: style.caption.apply(effectiveTextTheme.small),
   );

@@ -12,7 +12,8 @@ class BadgeTheme with _$BadgeTheme {
   /// {@macro BadgeTheme}
   const BadgeTheme({
     bool canMerge = true,
-    this.shape,
+    this.borderRadius,
+    this.borderColor,
     this.backgroundColor,
     this.foregroundColor,
     this.padding,
@@ -26,8 +27,11 @@ class BadgeTheme with _$BadgeTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro Badge.shape}
-  final ShapeBorder? shape;
+  /// {@macro Badge.borderRadius}
+  final BorderRadius? borderRadius;
+
+  /// The colour of the badge's outline; null draws none.
+  final Color? borderColor;
 
   /// {@macro Badge.backgroundColor}
   final Color? backgroundColor;

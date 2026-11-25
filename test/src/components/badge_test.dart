@@ -101,25 +101,60 @@ void main() {
       expect(containerFinder, findsOneWidget);
     });
 
-    testWidgets('applies custom shape correctly', (WidgetTester tester) async {
-      const customShape = RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(8)),
-      );
+    testWidgets('takes a borderRadius, and is a pill without one', (
+      WidgetTester tester,
+    ) async {
+      const corners = BorderRadius.all(Radius.circular(8));
       await tester.pumpWidget(
         createTestWidget(
-          const Badge(
-            shape: customShape,
-            child: Text('Custom Shape Badge'),
+          const Badge(borderRadius: corners, child: Text('Square')),
+        ),
+      );
+      ShapeBorder shape() =>
+          (tester.widget<Container>(find.byType(Container)).decoration!
+                  as ShapeDecoration)
+              .shape;
+      expect(shape(), isA<RoundedRectangleBorder>());
+      expect((shape() as RoundedRectangleBorder).borderRadius, corners);
+
+      await tester.pumpWidget(
+        createTestWidget(
+          const Badge(child: Text('Pill')),
+          theme: ThemeData(style: StyleTokens.nova),
+        ),
+      );
+      expect(shape(), isA<StadiumBorder>());
+    });
+
+    testWidgets('an outline badge has the corners of the others', (
+      WidgetTester tester,
+    ) async {
+      ShapeBorder shapeOf(String label) =>
+          (tester
+                      .widget<Container>(
+                        find.ancestor(
+                          of: find.text(label),
+                          matching: find.byType(Container),
+                        ),
+                      )
+                      .decoration!
+                  as ShapeDecoration)
+              .shape;
+      await tester.pumpWidget(
+        createTestWidget(
+          const Row(
+            children: [
+              Badge(child: Text('Primary')),
+              Badge.outline(child: Text('Outline')),
+            ],
           ),
         ),
       );
-
-      // Check Container uses ShapeDecoration with custom shape
-      final containerFinder = find.byType(Container);
-      expect(containerFinder, findsOneWidget);
-      final container = tester.widget<Container>(containerFinder);
-      final decoration = container.decoration as ShapeDecoration?;
-      expect(decoration?.shape, customShape);
+      final primary = shapeOf('Primary') as RoundedRectangleBorder;
+      final outline = shapeOf('Outline') as RoundedRectangleBorder;
+      expect(outline.borderRadius, primary.borderRadius);
+      expect(outline.side.style, BorderStyle.solid);
+      expect(primary.side, BorderSide.none);
     });
 
     testWidgets('applies custom background and foreground colors correctly', (
