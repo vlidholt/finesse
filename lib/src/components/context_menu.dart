@@ -11,6 +11,7 @@ import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/raw_components/portal.dart';
 import 'package:finesse/src/theme/components/button.dart';
+import 'package:finesse/src/theme/components/context_menu.dart';
 import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/motion.dart';
@@ -867,24 +868,9 @@ class MenuItem extends StatefulWidget {
     this.enabled = true,
     this.leading,
     this.trailing,
-    this.leadingPadding,
-    this.trailingPadding,
-    this.padding,
-    this.insetPadding,
     this.onPressed,
     this.onTapDown,
-    this.anchor,
-    this.showDelay,
-    this.height,
-    this.buttonVariant,
-    this.decoration,
-    this.textStyle,
-    this.selectedTextStyle,
-    this.trailingTextStyle,
-    this.constraints,
-    this.subMenuPadding,
-    this.backgroundColor,
-    this.selectedBackgroundColor,
+    this.style,
     this.closeOnTap,
     this.destructive = false,
     this.shortcut,
@@ -900,24 +886,9 @@ class MenuItem extends StatefulWidget {
     this.enabled = true,
     this.leading,
     this.trailing,
-    this.leadingPadding,
-    this.trailingPadding,
-    this.padding,
-    this.insetPadding,
     this.onPressed,
     this.onTapDown,
-    this.anchor,
-    this.showDelay,
-    this.height,
-    this.buttonVariant,
-    this.decoration,
-    this.textStyle,
-    this.selectedTextStyle,
-    this.trailingTextStyle,
-    this.constraints,
-    this.subMenuPadding,
-    this.backgroundColor,
-    this.selectedBackgroundColor,
+    this.style,
     this.closeOnTap,
     this.destructive = false,
     this.shortcut,
@@ -950,31 +921,6 @@ class MenuItem extends StatefulWidget {
   /// {@endtemplate}
   final Widget? trailing;
 
-  /// {@template MenuItem.leadingPadding}
-  /// The padding of the leading widget, defaults to
-  /// `EdgeInsets.only(right: 8)`.
-  /// {@endtemplate}
-  final EdgeInsetsGeometry? leadingPadding;
-
-  /// {@template MenuItem.trailingPadding}
-  /// The padding of the trailing widget, defaults to
-  /// `EdgeInsets.only(left: 8)`.
-  /// {@endtemplate}
-  final EdgeInsetsGeometry? trailingPadding;
-
-  /// {@template MenuItem.padding}
-  /// The padding of the context menu item, defaults to
-  /// `EdgeInsets.symmetric(horizontal: 4)`.
-  /// {@endtemplate}
-  final EdgeInsetsGeometry? padding;
-
-  /// {@template MenuItem.insetPadding}
-  /// The row's own padding. Defaults to the style's item padding
-  /// (`StyleTokens.itemPaddingX`, shadcn's `px-2`) on both sides, plus a
-  /// 24px icon column at the start when the variant is inset.
-  /// {@endtemplate}
-  final EdgeInsetsGeometry? insetPadding;
-
   /// {@template MenuItem.onPressed}
   /// The callback called when the context menu item is pressed.
   /// {@endtemplate}
@@ -987,82 +933,12 @@ class MenuItem extends StatefulWidget {
   /// {@endtemplate}
   final ValueChanged<TapDownDetails>? onTapDown;
 
-  /// {@template MenuItem.anchor}
-  /// The anchor of the context menu item, defaults to
-  /// ```dart
-  /// AnchorAuto(
-  ///   offset: Offset(-8, parentItemController != null ? -5 : -3),
-  ///   targetAnchor: Alignment.topRight,
-  ///   followerAnchor: Alignment.bottomRight,
-  /// )
-  /// ```
-  /// {@endtemplate}
-  final AnchorBase? anchor;
-
-  /// {@template MenuItem.showDelay}
-  /// How long an item with a submenu stays highlighted, with its submenu
-  /// open, after the pointer leaves it. Defaults to 100ms.
-  ///
-  /// The grace period lets the pointer cross the gap to the submenu without
-  /// the submenu closing under it. Reaching another row of the same menu
-  /// ends it at once.
-  /// {@endtemplate}
-  final Duration? showDelay;
-
-  /// {@template MenuItem.height}
-  /// The height of the context menu item, defaults to 32.
-  /// {@endtemplate}
-  final double? height;
-
-  /// {@template MenuItem.buttonVariant}
-  /// The variant of the button of the context menu item, defaults to
-  /// [ButtonVariant.ghost].
-  /// {@endtemplate}
-  final ButtonVariant? buttonVariant;
-
-  /// {@template MenuItem.decoration}
-  /// The decoration of the context menu item, defaults to
-  /// `FinesseDecoration(secondaryBorder: FinesseBorder.none)`.
-  /// {@endtemplate}
-  final FinesseDecoration? decoration;
-
-  /// {@template MenuItem.textStyle}
-  /// The text style of the context menu item, defaults to
-  /// `small.copyWith(fontWeight: FontWeight.normal)`.
-  /// {@endtemplate}
-  final TextStyle? textStyle;
-
-  /// {@template MenuItem.selectedTextStyle}
-  /// The text style of the item while it is selected or hovered.
-  ///
-  /// Defaults to [textStyle]. It exists because a menu whose selection is a
-  /// strong fill needs its label to change with it.
-  /// {@endtemplate}
-  final TextStyle? selectedTextStyle;
-
-  /// {@template MenuItem.trailingTextStyle}
-  /// The text style of the trailing widget, defaults to
-  /// `muted.copyWith(fontSize: 12, height: 1)`.
-  /// {@endtemplate}
-  final TextStyle? trailingTextStyle;
-
-  /// {@macro ContextMenu.constraints}
-  final BoxConstraints? constraints;
-
-  /// {@macro ContextMenu.padding}
-  final EdgeInsetsGeometry? subMenuPadding;
-
-  /// {@template MenuItem.backgroundColor}
-  /// The background color of the context menu item, defaults to
-  /// `null`.
-  /// {@endtemplate}
-  final Color? backgroundColor;
-
-  /// {@template MenuItem.selectedBackgroundColor}
-  /// The background color of the context menu item when it is selected,
-  /// defaults to `theme.colorScheme.accent`.
-  /// {@endtemplate}
-  final Color? selectedBackgroundColor;
+  /// Overrides of the theme's `ContextMenuTheme` for this row: its
+  /// padding, height, decoration, colours, text styles and the anchor and
+  /// delay of its submenu. It is merged over the theme, so only the fields
+  /// that are set change anything; the fields about the menu itself
+  /// (`constraints`, `subMenuPadding`) apply to this row's submenu.
+  final ContextMenuTheme? style;
 
   /// {@template MenuItem.closeOnTap}
   /// Whether the context menu should be closed when the item is tapped,
@@ -1232,6 +1108,7 @@ class _MenuItemState extends State<MenuItem> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final menuTheme = theme.contextMenuTheme.merge(widget.style);
 
     final contextMenu = context.read<_ContextMenuState>();
 
@@ -1247,9 +1124,7 @@ class _MenuItemState extends State<MenuItem> {
     final effectiveIndicatorSize = _menuIndicatorSize(context, theme);
 
     final effectivePadding =
-        widget.padding ??
-        theme.contextMenuTheme.itemPadding ??
-        const EdgeInsets.symmetric(horizontal: 4);
+        menuTheme.itemPadding ?? const EdgeInsets.symmetric(horizontal: 4);
 
     // The row's own horizontal padding (`px-2`), from the style tokens so a
     // denser or roomier style moves it. An inset row reserves shadcn's
@@ -1265,27 +1140,19 @@ class _MenuItemState extends State<MenuItem> {
       ),
     };
 
-    final effectiveInsetPadding =
-        widget.insetPadding ??
-        theme.contextMenuTheme.insetPadding ??
-        defaultInsetPadding;
+    final effectiveInsetPadding = menuTheme.insetPadding ?? defaultInsetPadding;
 
     final effectiveLeadingPadding =
-        widget.leadingPadding ??
-        theme.contextMenuTheme.leadingPadding ??
-        const EdgeInsetsDirectional.only(end: 8);
+        menuTheme.leadingPadding ?? const EdgeInsetsDirectional.only(end: 8);
 
     final effectiveTrailingPadding =
-        widget.trailingPadding ??
-        theme.contextMenuTheme.trailingPadding ??
-        const EdgeInsetsDirectional.only(start: 8);
+        menuTheme.trailingPadding ?? const EdgeInsetsDirectional.only(start: 8);
 
     // A submenu opens beside its item and flips to the other side when it
     // would cross the screen edge, instead of sliding over its parent.
     final submenuOffsetY = parentItemController != null ? -5.0 : -3.0;
     final effectiveAnchor =
-        widget.anchor ??
-        theme.contextMenuTheme.anchor ??
+        menuTheme.anchor ??
         AnchorAuto(
           offset: Offset(-8, submenuOffsetY),
           targetAnchor: Alignment.topRight,
@@ -1297,23 +1164,18 @@ class _MenuItemState extends State<MenuItem> {
           ),
         );
 
-    final effectiveHeight =
-        widget.height ?? theme.contextMenuTheme.height ?? 32;
+    final effectiveHeight = menuTheme.height ?? 32;
 
     final effectiveShowDelay =
-        widget.showDelay ??
-        theme.contextMenuTheme.showDelay ??
-        const Duration(milliseconds: 100);
+        menuTheme.showDelay ?? const Duration(milliseconds: 100);
 
     final effectiveButtonVariant =
-        widget.buttonVariant ??
-        theme.contextMenuTheme.buttonVariant ??
-        ButtonVariant.ghost;
+        menuTheme.buttonVariant ?? ButtonVariant.ghost;
 
     final effectiveDecoration = const FinesseDecoration(
       secondaryBorder: FinesseBorder.none,
       secondaryFocusedBorder: FinesseBorder.none,
-    ).merge(theme.contextMenuTheme.itemDecoration).merge(widget.decoration);
+    ).merge(menuTheme.itemDecoration);
 
     // Menu rows draw their colours from the menu palette slots. shadcn's
     // states, per `cn-dropdown-menu-item`: rest is the popover foreground,
@@ -1321,20 +1183,17 @@ class _MenuItemState extends State<MenuItem> {
     // (icons included) following, and a destructive row keeps its destructive
     // text over a `destructive/10` wash (`/20` in dark).
     final effectiveTextStyle =
-        (widget.textStyle ??
-                theme.contextMenuTheme.textStyle ??
+        (menuTheme.textStyle ??
                 theme.textTheme.small.copyWith(fontWeight: FontWeight.normal))
             .fallback(color: theme.colorScheme.popoverForeground);
 
     final effectiveSelectedTextStyle =
-        (widget.selectedTextStyle ??
-                theme.contextMenuTheme.selectedTextStyle ??
-                effectiveTextStyle)
-            .fallback(color: theme.colorScheme.accentForeground);
+        (menuTheme.selectedTextStyle ?? effectiveTextStyle).fallback(
+          color: theme.colorScheme.accentForeground,
+        );
 
     final effectiveTrailingTextStyle =
-        (widget.trailingTextStyle ??
-                theme.contextMenuTheme.trailingTextStyle ??
+        (menuTheme.trailingTextStyle ??
                 theme.textTheme.muted.copyWith(
                   fontSize: 12,
                   height: 1,
@@ -1342,7 +1201,7 @@ class _MenuItemState extends State<MenuItem> {
             .fallback(color: theme.colorScheme.mutedForeground);
 
     final effectiveSelectedTrailingTextStyle =
-        theme.contextMenuTheme.selectedTrailingTextStyle ??
+        menuTheme.selectedTrailingTextStyle ??
         effectiveTrailingTextStyle.copyWith(
           color: effectiveSelectedTextStyle.color,
         );
@@ -1350,27 +1209,23 @@ class _MenuItemState extends State<MenuItem> {
     // The shortcut is trailing text with the style's own spacing; its
     // colour is the trailing style's for the row's state.
     final effectiveShortcutTextStyle =
-        theme.contextMenuTheme.shortcutTextStyle ?? effectiveTrailingTextStyle;
+        menuTheme.shortcutTextStyle ?? effectiveTrailingTextStyle;
 
-    final effectiveBackgroundColor =
-        widget.backgroundColor ?? theme.contextMenuTheme.backgroundColor;
+    final effectiveBackgroundColor = menuTheme.backgroundColor;
 
     var effectiveSelectedBackgroundColor =
-        widget.selectedBackgroundColor ??
-        theme.contextMenuTheme.selectedBackgroundColor ??
-        theme.colorScheme.accent;
+        menuTheme.selectedBackgroundColor ?? theme.colorScheme.accent;
 
     var foregroundColor = effectiveTextStyle.color!;
     var selectedForegroundColor = effectiveSelectedTextStyle.color!;
 
     if (widget.destructive) {
       final destructive =
-          theme.contextMenuTheme.destructiveForegroundColor ??
-          theme.colorScheme.destructive;
+          menuTheme.destructiveForegroundColor ?? theme.colorScheme.destructive;
       foregroundColor = destructive;
       selectedForegroundColor = destructive;
       effectiveSelectedBackgroundColor =
-          theme.contextMenuTheme.destructiveSelectedBackgroundColor ??
+          menuTheme.destructiveSelectedBackgroundColor ??
           destructive.withValues(
             alpha:
                 destructive.a * (theme.brightness == Brightness.dark ? .2 : .1),
@@ -1378,9 +1233,7 @@ class _MenuItemState extends State<MenuItem> {
     }
 
     final effectiveCloseOnTap =
-        widget.closeOnTap ??
-        theme.contextMenuTheme.closeOnTap ??
-        widget.items.isEmpty;
+        widget.closeOnTap ?? menuTheme.closeOnTap ?? widget.items.isEmpty;
 
     /// if the item has submenu items, use the current item key,
     /// otherwise use the parent item controller's item key
@@ -1402,9 +1255,8 @@ class _MenuItemState extends State<MenuItem> {
           open: selected && !_submenuDismissed,
           onDismissed: _onSubmenuDismissed,
           anchor: effectiveAnchor,
-          constraints: widget.constraints,
-          padding:
-              widget.subMenuPadding ?? theme.contextMenuTheme.subMenuPadding,
+          constraints: widget.style?.constraints,
+          padding: menuTheme.subMenuPadding,
           areaGroupId: effectiveGroupId,
           onHoverArea: (hovered) => _onHoverArea(hovered, effectiveShowDelay),
           items: widget.items,
@@ -1529,7 +1381,7 @@ class _MenuItemState extends State<MenuItem> {
       );
     }
 
-    final itemConstraints = theme.contextMenuTheme.itemConstraints;
+    final itemConstraints = menuTheme.itemConstraints;
     if (itemConstraints != null) {
       child = ConstrainedBox(constraints: itemConstraints, child: child);
     }

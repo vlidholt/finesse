@@ -63,40 +63,64 @@ class ContextMenuTheme with _$ContextMenuTheme {
   /// {@macro ContextMenu.padding}
   final EdgeInsetsGeometry? padding;
 
-  /// {@macro MenuItem.leadingPadding}
+  /// The padding of the leading widget, defaults to
+  /// `EdgeInsets.only(right: 8)`.
   final EdgeInsetsGeometry? leadingPadding;
 
-  /// {@macro MenuItem.trailingPadding}
+  /// The padding of the trailing widget, defaults to
+  /// `EdgeInsets.only(left: 8)`.
   final EdgeInsetsGeometry? trailingPadding;
 
-  /// {@macro MenuItem.padding}
+  /// The padding of the context menu item, defaults to
+  /// `EdgeInsets.symmetric(horizontal: 4)`.
   final EdgeInsetsGeometry? itemPadding;
 
-  /// {@macro MenuItem.insetPadding}
+  /// The row's own padding. Defaults to the style's item padding
+  /// (`StyleTokens.itemPaddingX`, shadcn's `px-2`) on both sides, plus a
+  /// 24px icon column at the start when the variant is inset.
   final EdgeInsetsGeometry? insetPadding;
 
-  /// {@macro MenuItem.anchor}
+  /// The anchor of the context menu item, defaults to
+  /// ```dart
+  /// AnchorAuto(
+  ///   offset: Offset(-8, parentItemController != null ? -5 : -3),
+  ///   targetAnchor: Alignment.topRight,
+  ///   followerAnchor: Alignment.bottomRight,
+  /// )
+  /// ```
   final AnchorBase? anchor;
 
-  /// {@macro MenuItem.showDelay}
+  /// How long an item with a submenu stays highlighted, with its submenu
+  /// open, after the pointer leaves it. Defaults to 100ms.
+  ///
+  /// The grace period lets the pointer cross the gap to the submenu without
+  /// the submenu closing under it. Reaching another row of the same menu
+  /// ends it at once.
   final Duration? showDelay;
 
-  /// {@macro MenuItem.height}
+  /// The height of the context menu item, defaults to 32.
   final double? height;
 
-  /// {@macro MenuItem.buttonVariant}
+  /// The variant of the button of the context menu item, defaults to
+  /// [ButtonVariant.ghost].
   final ButtonVariant? buttonVariant;
 
-  /// {@macro MenuItem.decoration}
+  /// The decoration of the context menu item, defaults to
+  /// `FinesseDecoration(secondaryBorder: FinesseBorder.none)`.
   final FinesseDecoration? itemDecoration;
 
-  /// {@macro MenuItem.textStyle}
+  /// The text style of the context menu item, defaults to
+  /// `small.copyWith(fontWeight: FontWeight.normal)`.
   final TextStyle? textStyle;
 
-  /// {@macro MenuItem.selectedTextStyle}
+  /// The text style of the item while it is selected or hovered.
+  ///
+  /// Defaults to [textStyle]. It exists because a menu whose selection is a
+  /// strong fill needs its label to change with it.
   final TextStyle? selectedTextStyle;
 
-  /// {@macro MenuItem.trailingTextStyle}
+  /// The text style of the trailing widget, defaults to
+  /// `muted.copyWith(fontSize: 12, height: 1)`.
   final TextStyle? trailingTextStyle;
 
   /// The style of an item's trailing widget while the item is hovered or its
@@ -119,10 +143,12 @@ class ContextMenuTheme with _$ContextMenuTheme {
   /// {@macro ContextMenu.padding}
   final EdgeInsetsGeometry? subMenuPadding;
 
-  /// {@macro MenuItem.backgroundColor}
+  /// The background color of the context menu item, defaults to
+  /// `null`.
   final Color? backgroundColor;
 
-  /// {@macro MenuItem.selectedBackgroundColor}
+  /// The background color of the context menu item when it is selected,
+  /// defaults to `theme.colorScheme.accent`.
   final Color? selectedBackgroundColor;
 
   /// {@macro MenuItem.closeOnTap}

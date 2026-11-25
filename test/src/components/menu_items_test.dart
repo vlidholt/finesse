@@ -83,6 +83,28 @@ void main() {
     await tester.pump();
   }
 
+  testWidgets('MenuItem.style overrides the menu theme for one row', (
+    tester,
+  ) async {
+    await pumpMenu(
+      tester,
+      items: (_) => [
+        MenuItem(onPressed: () {}, child: const Text('Plain')),
+        MenuItem(
+          onPressed: () {},
+          style: const ContextMenuTheme(height: 48),
+          child: const Text('Tall'),
+        ),
+      ],
+    );
+    double heightOf(String label) => tester
+        .getSize(
+          find.ancestor(of: find.text(label), matching: find.byType(Button)),
+        )
+        .height;
+    expect(heightOf('Plain'), lessThan(48));
+    expect(heightOf('Tall'), 48);
+  });
   group('MenuCheckboxItem', () {
     testWidgets('a click toggles it and leaves the menu open', (tester) async {
       var checked = false;

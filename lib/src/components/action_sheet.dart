@@ -3,6 +3,7 @@ import 'package:finesse/src/components/dialog.dart';
 import 'package:finesse/src/components/sheet.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/raw_components/pressable.dart';
+import 'package:finesse/src/theme/components/context_menu.dart';
 import 'package:finesse/src/theme/form_factor.dart';
 import 'package:finesse/src/theme/motion.dart';
 import 'package:finesse/src/theme/theme.dart';
@@ -158,7 +159,9 @@ Future<T?> showActionSheet<T>({
             leading: action.icon,
             destructive: action.destructive,
             enabled: action.enabled,
-            textStyle: action.isDefault ? emphasized : null,
+            style: action.isDefault
+                ? ContextMenuTheme(textStyle: emphasized)
+                : null,
             onPressed: () => chosen = action,
             child: action.label,
           ),

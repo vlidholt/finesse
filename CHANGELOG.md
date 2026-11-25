@@ -184,7 +184,12 @@ package as it is, compared with shad.
   over the variant's) in place of some thirty colour, size and decoration
   parameters (`width`, `height`, `padding`, `gap`, `iconSize`, the
   background and foreground colours per state, `decoration`, `shadows`,
-  `gradient`, `textStyle`, `pressScale`, …).
+  `gradient`, `textStyle`, `pressScale`, …). A `MenuItem`, a row that is a
+  button, likewise takes one `style` (a `ContextMenuTheme`, merged over
+  the theme's) in place of `padding`, `insetPadding`, `leadingPadding`,
+  `trailingPadding`, `height`, `buttonVariant`, `decoration`, the text
+  styles, the background colours, `anchor`, `showDelay`, `constraints` and
+  `subMenuPadding`.
 - **Rarer gestures are not button parameters.** Double tap, secondary tap,
   tap down and the long-press phases are a `FinesseGestureDetector` around
   the button. `hoverStrategies` and `longPressDuration` are gone from
