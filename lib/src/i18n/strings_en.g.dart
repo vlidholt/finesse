@@ -701,6 +701,9 @@ class FinesseLocalizationsData$navigation$en {
 
 	/// en: 'Navigation menu'
 	String get menu => 'Navigation menu';
+
+	/// en: 'Toggle sidebar'
+	String get toggleSidebar => 'Toggle sidebar';
 }
 
 /// The flat map containing all translations for locale <en>.
@@ -833,6 +836,7 @@ extension on FinesseLocalizationsData {
 			'navigation.back' => 'Back',
 			'navigation.openMenu' => 'Open menu',
 			'navigation.menu' => 'Navigation menu',
+			'navigation.toggleSidebar' => 'Toggle sidebar',
 			_ => null,
 		};
 	}
