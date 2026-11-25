@@ -387,13 +387,12 @@ class _SidebarScaffoldState extends State<SidebarScaffold> {
     final theme = Theme.of(context).sidebarTheme;
     final effectiveMobileWidth =
         sidebar.mobileWidth ?? theme.mobileWidth ?? 288;
-    final textDirection = Directionality.of(context);
-    final sheetSide = switch ((sidebar.side, textDirection)) {
-      (SidebarSide.start, TextDirection.ltr) => SheetSide.left,
-      (SidebarSide.start, TextDirection.rtl) => SheetSide.right,
-      (SidebarSide.end, TextDirection.ltr) => SheetSide.right,
-      (SidebarSide.end, TextDirection.rtl) => SheetSide.left,
-    };
+    // Resolved here rather than by the sheet: the route is built under the
+    // navigator, which need not share this subtree's text direction.
+    final sheetSide = switch (sidebar.side) {
+      SidebarSide.start => SheetSide.start,
+      SidebarSide.end => SheetSide.end,
+    }.resolve(Directionality.of(context));
     // The route can outlive this State (dispose removes it a frame later),
     // and its builder re-runs on MediaQuery changes in the meantime — so
     // everything it needs is captured here rather than read through `this`,
@@ -417,7 +416,7 @@ class _SidebarScaffoldState extends State<SidebarScaffold> {
           child: Sheet(
             padding: EdgeInsets.zero,
             gap: 0,
-            closeIcon: const SizedBox.shrink(),
+            showCloseButton: false,
             // The sidebar owns its scrolling; the sheet's own scroll view
             // would hand it unbounded height and break its Expanded column.
             scrollable: false,

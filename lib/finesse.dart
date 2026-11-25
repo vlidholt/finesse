@@ -93,12 +93,7 @@ export 'src/components/resizable.dart';
 export 'src/components/scaffold.dart';
 export 'src/components/scroll_area.dart';
 export 'src/components/select.dart';
-export 'src/components/sheet.dart'
-    hide
-        RenderSheetLayoutWithSizeListener,
-        SheetGestureDetector,
-        SheetLayoutWithSizeListener,
-        SizeChangeCallback;
+export 'src/components/sheet.dart';
 export 'src/components/sidebar.dart';
 export 'src/components/skeleton.dart';
 export 'src/components/slider.dart';

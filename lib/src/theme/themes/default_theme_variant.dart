@@ -1577,12 +1577,28 @@ class DefaultThemeVariant extends ThemeVariant {
 
   @override
   SheetTheme sheetTheme() {
-    return const SheetTheme(
-      radius: BorderRadius.zero,
-      expandCrossSide: true,
-      // A sheet is built on a dialog, which has no close button by
-      // default; a sheet has one.
-      closeIconData: PhosphorIconsRegular.x,
+    return SheetTheme(
+      // shadcn's sheet and drawer are `bg-background` with a `border`
+      // hairline, not the popover surface a dialog sits on.
+      backgroundColor: colorScheme.background,
+      border: Border.all(color: colorScheme.border),
+      // The open edge of a sheet from the top or bottom (the drawer's
+      // `rounded-t-*`); a sheet from a side stays square.
+      borderRadius: dialogRadius,
+      shadows: _isDark
+          ? style.floatingShadowDark ?? style.sheetShadow
+          : style.sheetShadow,
+      // Laid out like a dialog.
+      padding: EdgeInsets.all(scaled(style.dialogPadding)),
+      gap: scaled(style.dialogGap),
+      actionsGap: 8,
+      titleStyle: style.title.apply(effectiveTextTheme.large),
+      descriptionStyle: style.body.apply(effectiveTextTheme.muted),
+      // A dialog has no close button by default; a sheet has one.
+      showCloseButton: true,
+      dragHandleColor: _wash(colorScheme.foreground, .2),
+      dragHandleWidth: 36,
+      dragHandleHeight: 4,
     );
   }
 

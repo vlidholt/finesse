@@ -33,6 +33,9 @@ dialog:
   close: "Close"
   dismiss: "Dismiss"
 
+sheet:
+  resize: "Resize"
+
 board:
   moveUp: "Move up"
   moveDown: "Move down"
