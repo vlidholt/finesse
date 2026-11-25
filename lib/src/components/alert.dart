@@ -279,23 +279,44 @@ class _AlertState extends State<Alert> {
     var themeDecoration = defaultDecoration.merge(
       effectiveAlertTheme.decoration,
     );
+    // A style's accent bar runs down the start edge. The theme knows no
+    // direction and draws it on the left, so right to left the two sides
+    // trade places.
+    final accentBar = theme.style.alertAccentBar;
+    final rtl = Directionality.of(context) == TextDirection.rtl;
+    if (accentBar && rtl) {
+      final border = themeDecoration.border;
+      if (border != null) {
+        themeDecoration = themeDecoration.copyWith(
+          border: FinesseBorder(
+            canMerge: border.canMerge,
+            top: border.top,
+            right: border.left,
+            bottom: border.bottom,
+            left: border.right,
+            padding: border.padding,
+            borderRadius: border.borderRadius,
+            offset: border.offset,
+          ),
+        );
+      }
+    }
     if (tint != null) {
       // The outline takes a little of the accent, so the alert has an edge
       // on a card of its own colour.
       final edge = FinesseBorderSide(
         color: tint.$1.withValues(alpha: tint.$1.a * .3),
       );
+      // The accent bar, on the start edge, takes the accent whole.
+      final bar = FinesseBorderSide(color: tint.$1);
       final border = themeDecoration.border;
       themeDecoration = themeDecoration.copyWith(
         color: tint.$2,
         border: border?.copyWith(
           top: border.top?.merge(edge),
-          right: border.right?.merge(edge),
+          right: border.right?.merge(accentBar && rtl ? bar : edge),
           bottom: border.bottom?.merge(edge),
-          // A style's accent bar down the start edge takes the accent whole.
-          left: theme.style.alertAccentBar
-              ? border.left?.merge(FinesseBorderSide(color: tint.$1))
-              : border.left?.merge(edge),
+          left: border.left?.merge(accentBar && !rtl ? bar : edge),
         ),
       );
     }

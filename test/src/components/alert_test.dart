@@ -1,6 +1,7 @@
 import 'package:finesse/material.dart';
 import 'package:finesse/src/app.dart';
 import 'package:finesse/src/components/alert.dart';
+import 'package:finesse/src/components/decorator.dart';
 import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/style.dart';
@@ -54,6 +55,47 @@ void main() {
       expect(primary?.top?.width, 1);
       expect(primary?.top?.color, theme.colorScheme.border);
     });
+
+    for (final direction in TextDirection.values) {
+      for (final variant in [AlertVariant.primary, AlertVariant.success]) {
+        testWidgets('sera draws its accent bar on the start edge '
+            '(${direction.name}, ${variant.name})', (tester) async {
+          await tester.pumpWidget(
+            FinesseApp(
+              theme: ThemeData(style: FixtureStyles.sera),
+              home: Directionality(
+                textDirection: direction,
+                child: Center(
+                  child: Alert(
+                    variant: variant,
+                    title: const Text('Saved'),
+                  ),
+                ),
+              ),
+            ),
+          );
+          final border = tester
+              .widget<Decorator>(
+                find
+                    .descendant(
+                      of: find.byType(Alert),
+                      matching: find.byType(Decorator),
+                    )
+                    .first,
+              )
+              .decoration!
+              .border!;
+          final (start, end) = direction == TextDirection.ltr
+              ? (border.left!, border.right!)
+              : (border.right!, border.left!);
+          expect(start.width, 2);
+          expect(end.width, 1);
+          // The bar takes the accent whole; the far edge the hairline's.
+          expect(start.color!.a, 1);
+          expect(end.color, isNot(start.color));
+        });
+      }
+    }
 
     test('mira compacts the icon, the shipped styles keep size-4', () {
       for (final style in StyleTokens.all) {
