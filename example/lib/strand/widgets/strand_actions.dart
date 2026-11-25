@@ -43,26 +43,53 @@ void copyLink(
   showStrandToast(context, title, description: url);
 }
 
-/// Shows [story] the way a story is looked at: the photograph, whose it
-/// is, and a field to reply.
-Future<void> showStoryViewer(BuildContext context, Story story) {
+/// Shows [story] the way stories are looked at: one photograph at a time,
+/// whose it is, and a field to reply — with the others of [stories] a swipe
+/// away, in the order of the rail.
+///
+/// A `Carousel` of the stories that opens on [story]. A finger swipes to
+/// the next one; with a mouse the carousel shows its arrows, and the arrow
+/// keys turn the page. The dots at the top edge say which story is
+/// showing, and a tap on one goes to it.
+Future<void> showStoryViewer(
+  BuildContext context,
+  Story story, {
+  List<Story> stories = HomeData.stories,
+}) {
   return showDialog<void>(
     context: context,
-    builder: (context) => _StoryViewer(story),
+    builder: (context) => _StoryViewer(
+      stories: stories.contains(story) ? stories : [story],
+      initial: story,
+    ),
   );
 }
 
-class _StoryViewer extends StatelessWidget {
-  const _StoryViewer(this.story);
+class _StoryViewer extends StatefulWidget {
+  const _StoryViewer({required this.stories, required this.initial});
 
-  final Story story;
+  final List<Story> stories;
+  final Story initial;
 
-  static const _white = Color(0xFFFFFFFF);
+  @override
+  State<_StoryViewer> createState() => _StoryViewerState();
+}
+
+class _StoryViewerState extends State<_StoryViewer> {
+  final _controller = CarouselController();
+  late int _index = widget.stories.indexOf(widget.initial);
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final person = story.person;
+    final stories = widget.stories;
+    final person = stories[_index].person;
     final radius = theme.radii.xl2;
     return Dialog(
       padding: EdgeInsets.zero,
@@ -81,93 +108,145 @@ class _StoryViewer extends StatelessWidget {
         child: AspectRatio(
           aspectRatio: 9 / 14,
           child: Stack(
-            fit: StackFit.expand,
             children: [
-              Image.asset(
-                story.image,
-                fit: BoxFit.cover,
-                semanticLabel: '${person.name}’s story',
-              ),
-              // Scrims, so the white text reads on any photograph.
-              const DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Color(0x8009090B),
-                      Color(0x0009090B),
-                      Color(0x0009090B),
-                      Color(0x9909090B),
-                    ],
-                    stops: [0, .28, .6, 1],
-                  ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.all(theme.gap(GapSize.lg)),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+              Positioned.fill(
+                child: Carousel(
+                  controller: _controller,
+                  initialPage: _index,
+                  semanticLabel: 'Stories',
+                  onPageChanged: (index) => setState(() => _index = index),
                   children: [
-                    Row(
-                      children: [
-                        PersonAvatar(
-                          person,
-                          size: theme.avatarSm,
-                          ringColor: _white,
-                          ringWidth: 1.5,
-                        ),
-                        const Gap.sm(),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                person.name,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: theme.textTheme.small.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  color: _white,
-                                ),
-                              ),
-                              Text(
-                                person.headline,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: theme.textTheme.caption.copyWith(
-                                  color: const Color(0xD9FFFFFF),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        // Room for the close button.
-                        Gap.raw(theme.avatarMd),
-                      ],
-                    ),
-                    const Spacer(),
-                    Button(
-                      leading: const PhosphorIcon(
-                        PhosphorIconsRegular.paperPlaneTilt,
-                      ),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        showStrandToast(
-                          context,
-                          'Reply sent to ${person.firstName}',
-                        );
-                      },
-                      child: Text('Reply to ${person.firstName}'),
-                    ),
+                    for (final story in stories) _StoryPage(story),
                   ],
                 ),
               ),
+              if (stories.length > 1)
+                PositionedDirectional(
+                  top: theme.gap(GapSize.sm),
+                  start: 0,
+                  end: 0,
+                  child: Center(
+                    child: PageIndicator(
+                      count: stories.length,
+                      index: _index,
+                      variant: PageIndicatorVariant.overlay,
+                      onSelected: _controller.animateToPage,
+                      semanticLabel: 'Stories',
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+/// One story: the photograph, its author over it, and the reply button.
+class _StoryPage extends StatelessWidget {
+  const _StoryPage(this.story);
+
+  final Story story;
+
+  static const _white = Color(0xFFFFFFFF);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final person = story.person;
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Image.asset(
+          story.image,
+          fit: BoxFit.cover,
+          semanticLabel: '${person.name}’s story',
+        ),
+        // Scrims, so the white text reads on any photograph.
+        const DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0x8009090B),
+                Color(0x0009090B),
+                Color(0x0009090B),
+                Color(0x9909090B),
+              ],
+              stops: [0, .28, .6, 1],
+            ),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.fromLTRB(
+            theme.gap(GapSize.lg),
+            // Under the dots that say which story this is.
+            theme.gap(GapSize.xl) + theme.gap(GapSize.lg),
+            theme.gap(GapSize.lg),
+            theme.gap(GapSize.lg),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  PersonAvatar(
+                    person,
+                    size: theme.avatarSm,
+                    ringColor: _white,
+                    ringWidth: 1.5,
+                  ),
+                  const Gap.sm(),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          person.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.small.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: _white,
+                          ),
+                        ),
+                        Text(
+                          person.headline,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.caption.copyWith(
+                            color: const Color(0xD9FFFFFF),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Room for the close button.
+                  Gap.raw(theme.avatarMd),
+                ],
+              ),
+              const Spacer(),
+              Button(
+                leading: const PhosphorIcon(
+                  PhosphorIconsRegular.paperPlaneTilt,
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  showStrandToast(
+                    context,
+                    'Reply sent to ${person.firstName}',
+                    variant: ToastVariant.success,
+                  );
+                },
+                child: Text('Reply to ${person.firstName}'),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

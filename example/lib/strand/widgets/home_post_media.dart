@@ -99,6 +99,7 @@ class _ImagePagerState extends State<_ImagePager> {
           // Round and round: the tap that turns the last page shows the
           // first again.
           loop: several,
+          showIndicator: several,
           borderRadius: HomePostMedia.radiusOf(theme),
           semanticLabel: 'Photos',
           onPageChanged: (index) => setState(() => _index = index),

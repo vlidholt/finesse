@@ -335,15 +335,15 @@ void main() {
     testWidgets('a screen keeps its state when the window is resized between '
         'the top bar and the rail', (tester) async {
       await pumpApp(tester, size: const Size(1280, 900));
-      final home = tester.state(find.byType(HomeScreen));
+      final home = tester.element(find.byType(HomeScreen));
       tester.view.physicalSize = const Size(900, 900);
       await settle(tester);
       expect(find.byType(NavigationRail), findsOneWidget);
-      expect(tester.state(find.byType(HomeScreen)), same(home));
+      expect(tester.element(find.byType(HomeScreen)), same(home));
       tester.view.physicalSize = const Size(1280, 900);
       await settle(tester);
       expect(find.byType(NavigationBar), findsOneWidget);
-      expect(tester.state(find.byType(HomeScreen)), same(home));
+      expect(tester.element(find.byType(HomeScreen)), same(home));
       expect(tester.takeException(), isNull);
     });
 

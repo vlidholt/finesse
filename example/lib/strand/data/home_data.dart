@@ -274,6 +274,69 @@ abstract final class HomeData {
 
   static const posts = [onboardingWorkshop, calmWriteUp, configNordics];
 
+  /// What a refresh of the feed brings in, one post a pull, in this order.
+  /// They are not in the designs: they are written for the demo, so that
+  /// pulling the feed down has something to show for it.
+  static const freshPosts = [tokenNaming, portfolioReviews, researchReadout];
+
+  static const tokenNaming = FeedPost(
+    id: 'token-naming',
+    author: People.freya,
+    age: 'now',
+    hoursAgo: 0,
+    body:
+        'Renamed forty colour tokens this morning and nothing broke. The '
+        'trick was naming them for what they are for, not what they look '
+        'like: “surface”, “ink”, “tint”. A dark theme stopped being a '
+        'second design system the same day.',
+    compactBody:
+        'Renamed forty colour tokens this morning and nothing broke. Name '
+        'them for what they are for, not what they look like.',
+    reactions: [Reaction.like, Reaction.insight],
+    reactedBy: People.omar,
+    otherReactions: 12,
+    comments: 3,
+  );
+
+  static const portfolioReviews = FeedPost(
+    id: 'portfolio-reviews',
+    author: People.mei,
+    age: 'now',
+    hoursAgo: 0,
+    body:
+        'I have four slots for portfolio reviews next week, for anyone in '
+        'their first two years of design. Thirty minutes, honest notes, no '
+        'slides needed. Reply here or send me a message.',
+    compactBody:
+        'Four slots for portfolio reviews next week, for anyone in their '
+        'first two years of design. Reply here or send me a message.',
+    reactions: [Reaction.love, Reaction.applause],
+    reactedBy: People.sara,
+    otherReactions: 31,
+    comments: 9,
+    reposts: 4,
+  );
+
+  static const researchReadout = FeedPost(
+    id: 'research-readout',
+    author: People.aisha,
+    age: 'now',
+    hoursAgo: 0,
+    body:
+        'Read-out from eight sessions with screen-reader users: the single '
+        'biggest fix was not a component. It was putting the page’s one '
+        'heading first, so the page says what it is before it says '
+        'anything else.',
+    compactBody:
+        'Eight sessions with screen-reader users, one big fix: put the '
+        'page’s heading first, so it says what it is before anything else.',
+    reactions: [Reaction.insight, Reaction.like, Reaction.applause],
+    reactedBy: People.julian,
+    otherReactions: 47,
+    comments: 11,
+    reposts: 6,
+  );
+
   static const onboardingWorkshop = FeedPost(
     id: 'onboarding-workshop',
     author: People.omar,

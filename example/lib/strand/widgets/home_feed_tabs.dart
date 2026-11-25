@@ -1,4 +1,5 @@
 import 'package:example/strand/data/home_data.dart';
+import 'package:example/strand/widgets/home_feed_refresh.dart';
 import 'package:example/strand/widgets/home_feed_scope.dart';
 import 'package:example/strand/widgets/strand_metrics.dart';
 import 'package:example/strand/widgets/strand_pieces.dart';
@@ -8,7 +9,8 @@ import 'package:flutter/widgets.dart';
 /// The feed's segmented control — For you, Following, Trending.
 ///
 /// On a desktop it hugs its labels and shares the row with the "Sort by"
-/// menu; on a phone it fills the width and the menu is left out.
+/// menu, which also refreshes the feed; on a phone it fills the width and
+/// the menu is left out (the feed is pulled down to refresh it).
 class HomeFeedTabs extends StatelessWidget {
   const HomeFeedTabs({super.key});
 
@@ -62,14 +64,21 @@ class _SortMenu extends StatelessWidget {
 
     return DropdownMenu(
       items: [
-        for (final sort in FeedSort.values)
-          MenuItem(
-            trailing: model.sort == sort
-                ? const PhosphorIcon(PhosphorIconsRegular.check)
-                : null,
-            onPressed: () => model.sort = sort,
-            child: Text(sort.label),
-          ),
+        MenuRadioGroup<FeedSort>(
+          value: model.sort,
+          onChanged: (sort) => model.sort = sort,
+          children: [
+            for (final sort in FeedSort.values)
+              MenuRadioItem(value: sort, child: Text(sort.label)),
+          ],
+        ),
+        const MenuDivider(),
+        // What pulling the feed down does, for a mouse, which cannot pull.
+        MenuItem(
+          leading: const PhosphorIcon(PhosphorIconsRegular.arrowClockwise),
+          onPressed: () => HomeFeedRefresh.show(context),
+          child: const Text('Refresh feed'),
+        ),
       ],
       builder: (context, controller, _) => Pressable(
         onPressed: controller.toggle,
