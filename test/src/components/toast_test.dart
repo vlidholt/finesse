@@ -91,6 +91,56 @@ void main() {
       expect(find.byType(Toast), findsNothing);
     });
 
+    testWidgets('shown during a build, a toast is found by its id at once', (
+      tester,
+    ) async {
+      final shown = <String, Object>{};
+      final updated = <String, bool>{};
+      Widget shows(String name, {bool thenUpdate = false}) => _ShowsInBuild(
+        onBuild: (toaster) {
+          shown[name] = toaster.show(
+            const Toast(id: 'offline', title: Text('Offline')),
+          );
+          if (thenUpdate) {
+            updated[name] = toaster.update(
+              'offline',
+              const Toast(id: 'offline', title: Text('Back online')),
+            );
+          }
+        },
+      );
+      await pumpApp(
+        tester,
+        home: Column(children: [shows('a'), shows('b', thenUpdate: true)]),
+      );
+      await settle(tester);
+      // Two widgets showed one id in one build: one toast, updated.
+      expect(find.text('Offline'), findsNothing);
+      expect(find.text('Back online'), findsOneWidget);
+      expect(shown, {'a': 'offline', 'b': 'offline'});
+      expect(updated, {'b': true});
+      await tester.pump(const Duration(seconds: 6));
+      await settle(tester);
+    });
+
+    testWidgets('a toast dismissed in the build that showed it never shows', (
+      tester,
+    ) async {
+      var done = false;
+      await pumpApp(
+        tester,
+        home: _ShowsInBuild(
+          onBuild: (toaster) {
+            final id = toaster.show(const Toast(title: Text('Gone')));
+            unawaited(toaster.dismiss(id).then((_) => done = true));
+          },
+        ),
+      );
+      await settle(tester);
+      expect(find.text('Gone'), findsNothing);
+      expect(done, isTrue);
+    });
+
     testWidgets('a toast with the id of one on screen replaces it in place', (
       tester,
     ) async {
@@ -1169,4 +1219,25 @@ class _CounterState extends State<_Counter> {
     widget.onContext(context);
     return const SizedBox.expand();
   }
+}
+
+/// Calls [onBuild] with the app's toaster the first time it is built.
+class _ShowsInBuild extends StatefulWidget {
+  const _ShowsInBuild({required this.onBuild});
+
+  final void Function(ToasterState toaster) onBuild;
+
+  @override
+  State<_ShowsInBuild> createState() => _ShowsInBuildState();
+}
+
+class _ShowsInBuildState extends State<_ShowsInBuild> {
+  @override
+  void initState() {
+    super.initState();
+    widget.onBuild(Toaster.of(context));
+  }
+
+  @override
+  Widget build(BuildContext context) => const SizedBox(height: 10);
 }
