@@ -1,3 +1,4 @@
+import 'package:flutter/rendering.dart' show OverflowBoxFit;
 import 'package:flutter/widgets.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lg;
 import 'package:una/src/liquid_glass/liquid_glass.dart';
@@ -140,23 +141,33 @@ class LiquidGlassSlider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LiquidGlassBridge(
-      child: lg.GlassSlider(
-        value: value,
-        onChanged: onChanged,
-        onChangeStart: onChangeStart,
-        onChangeEnd: onChangeEnd,
-        min: min,
-        max: max,
-        divisions: divisions,
-        trackHeight: trackHeight,
-        thumbRadius: thumbSize / 2,
-        activeColor: activeColor,
-        inactiveColor: inactiveColor,
-        thumbColor: thumbColor,
-        useOwnLayer: true,
-        focusNode: focusNode,
-        autofocus: autofocus,
+    // The package's slider is `thumbSize + 16` tall and places its thumb
+    // for that height, while its track is centred in whatever height it is
+    // given: squeezed into a shorter row, the thumb sat below the track.
+    // So it always has its own height, centred in the room it is given
+    // (and as tall as that where nothing bounds it).
+    return OverflowBox(
+      fit: OverflowBoxFit.deferToChild,
+      minHeight: thumbSize + 16,
+      maxHeight: thumbSize + 16,
+      child: LiquidGlassBridge(
+        child: lg.GlassSlider(
+          value: value,
+          onChanged: onChanged,
+          onChangeStart: onChangeStart,
+          onChangeEnd: onChangeEnd,
+          min: min,
+          max: max,
+          divisions: divisions,
+          trackHeight: trackHeight,
+          thumbRadius: thumbSize / 2,
+          activeColor: activeColor,
+          inactiveColor: inactiveColor,
+          thumbColor: thumbColor,
+          useOwnLayer: true,
+          focusNode: focusNode,
+          autofocus: autofocus,
+        ),
       ),
     );
   }

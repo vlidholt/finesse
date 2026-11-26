@@ -238,6 +238,29 @@ void main() {
       });
     }
 
+    testWidgets('a glass slider in a short row keeps its thumb on its track', (
+      tester,
+    ) async {
+      await onPlatform(TargetPlatform.iOS, () async {
+        await pump(
+          tester,
+          SizedBox(
+            width: 200,
+            height: 24,
+            child: Center(child: Slider(value: .5, onChanged: (_) {})),
+          ),
+        );
+        final glass = find.byType(lg.GlassSlider);
+        final row = find.byType(SizedBox).first;
+        // At its own height (the thumb's and 16), centred on the row, so the
+        // thumb it places for that height is on the track it centres.
+        final size = tester.getSize(glass);
+        expect(size.height, greaterThan(24));
+        expect(tester.getCenter(glass).dy, tester.getCenter(row).dy);
+        expect(tester.takeException(), isNull);
+      });
+    });
+
     testWidgets('a component theme overrides the theme', (tester) async {
       await onPlatform(TargetPlatform.android, () async {
         await pumpUna(
@@ -839,7 +862,7 @@ void main() {
 
   group('phone metrics', () {
     test('are close to the Liquid Glass sizes', () {
-      const phone = StyleTokens.unaMobile;
+      const phone = StyleTokens.fluidMobile;
       expect(phone.appBarHeight, 44);
       expect(phone.bottomNavigationItemHeight + 2 * 6, 64);
       expect(phone.switchWidth, 58);
@@ -848,8 +871,8 @@ void main() {
     });
 
     test('leave the desktop style alone', () {
-      expect(StyleTokens.una.appBarHeight, 64);
-      expect(StyleTokens.una.switchWidth, 36);
+      expect(StyleTokens.fluid.appBarHeight, 64);
+      expect(StyleTokens.fluid.switchWidth, 36);
     });
   });
 }
