@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:una/src/liquid_glass/liquid_glass.dart'
     show LiquidGlassScrollEdge;
+import 'package:una/src/components/bar_button_scope.dart';
 import 'package:una/una.dart';
 
 import '../../frame_sampler.dart';
@@ -472,6 +473,61 @@ void main() {
       );
       await scrollTo(tester, 400);
       expect(await sampler.pixel(tester, const Offset(300, 20)), _fill);
+    });
+
+    testWidgets('a solid bar keeps its fill over a picture, which starts '
+        'below it, and its buttons plain', (tester) async {
+      // Liquid Glass without shader filters, as in a browser.
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      LiquidGlass.debugHasShaderFilters = false;
+      try {
+        const picture = Color(0xff00ff00);
+        await pump(
+          tester,
+          page(
+            large(
+              expandedHeight: 200,
+              background: const ColoredBox(
+                key: Key('picture'),
+                color: picture,
+              ),
+              actions: [
+                IconButton(
+                  icon: const Icon(PhosphorIconsRegular.bell),
+                  onPressed: () {},
+                ),
+              ],
+            ),
+          ),
+        );
+        final toolbar = toolbarHeight(tester);
+        final rect = tester.getRect(find.byKey(const Key('picture')));
+        expect(rect.top, toolbar);
+        expect(rect.bottom, toolbar + 200);
+        // The toolbar is the bar's own colour at rest, not the picture.
+        expect(await sampler.pixel(tester, const Offset(200, 10)), _fill);
+        expect(
+          (await sampler.pixel(tester, Offset(200, toolbar + 40))).g,
+          greaterThan(.8),
+        );
+        final button = tester.widget<Button>(
+          find.descendant(of: bar(), matching: find.byType(Button)).first,
+        );
+        expect(
+          BarButtonScope.variantOf(
+            tester.element(find.byWidget(button)),
+            button.variant,
+          ),
+          ButtonVariant.ghost,
+        );
+
+        // Collapsed, nothing of the picture shows under the toolbar.
+        await scrollTo(tester, 400);
+        expect(await sampler.pixel(tester, const Offset(200, 10)), _fill);
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+        LiquidGlass.debugHasShaderFilters = null;
+      }
     });
 
     testWidgets("on Liquid Glass the scroll edge is the collapsed bar's "

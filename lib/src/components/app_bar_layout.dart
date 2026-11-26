@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'dart:ui' show ImageFilter;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:una/src/components/back_button.dart';
@@ -56,6 +57,10 @@ AppBarMaterial appBarMaterial(BuildContext context, LiquidGlassMode? mode) {
     return AppBarMaterial.frosted;
   }
   if (!LiquidGlass.isActive(context, mode)) return AppBarMaterial.frosted;
+  // In a browser the top bar is the filled one unless its theme asks for
+  // glass outright: a page there has no status bar for the capsules to
+  // hang under, and they met the top of the window.
+  if (kIsWeb && mode != LiquidGlassMode.always) return AppBarMaterial.solid;
   return LiquidGlass.hasShaderFilters
       ? AppBarMaterial.liquid
       : AppBarMaterial.solid;

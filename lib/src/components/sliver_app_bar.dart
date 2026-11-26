@@ -355,7 +355,11 @@ class _SliverAppBarState extends State<SliverAppBar>
         leadingIsButton: implied != null,
       );
     }
-    final toolbar = Padding(
+    // A solid bar over a picture keeps its fill at rest, with the picture
+    // below it, rather than floating its buttons on the picture: in a
+    // browser there is no status bar for them to hang under.
+    final filledOverPicture = solid && large && widget.background != null;
+    Widget toolbar = Padding(
       padding: EdgeInsets.only(top: topInset),
       child: AppBarToolbar(
         // A floor, as in an `AppBar`: a line of scaled text that needs more
@@ -366,7 +370,7 @@ class _SliverAppBarState extends State<SliverAppBar>
         // discs, there and once the bar has collapsed over the picture.
         buttonVariant: appBarButtonVariant(
           material: material,
-          overPicture: widget.background != null,
+          overPicture: widget.background != null && !filledOverPicture,
         ),
         // In a large bar the small title is there for assistive technology
         // all along, and for the eye once the large one has gone under.
@@ -386,6 +390,8 @@ class _SliverAppBarState extends State<SliverAppBar>
         actionsGap: widget.actionsGap,
       ),
     );
+
+    if (filledOverPicture) toolbar = ColoredBox(color: fill, child: toolbar);
 
     Widget? expanded;
     Widget? background;
@@ -456,27 +462,29 @@ class _SliverAppBarState extends State<SliverAppBar>
         child: Align(alignment: Alignment.bottomCenter, child: block),
       );
       if (widget.background case final picture?) {
-        background = Stack(
-          fit: StackFit.expand,
-          children: [
-            picture,
-            // The page colour comes down behind the toolbar's buttons, so
-            // they read on any picture; the titles bring their own.
-            DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    page.withValues(alpha: .6),
-                    page.withValues(alpha: 0),
-                  ],
-                  stops: const [0, .3],
-                ),
-              ),
-            ),
-          ],
-        );
+        background = filledOverPicture
+            ? picture
+            : Stack(
+                fit: StackFit.expand,
+                children: [
+                  picture,
+                  // The page colour comes down behind the toolbar's buttons, so
+                  // they read on any picture; the titles bring their own.
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          page.withValues(alpha: .6),
+                          page.withValues(alpha: 0),
+                        ],
+                        stops: const [0, .3],
+                      ),
+                    ),
+                  ),
+                ],
+              );
       }
     }
 
@@ -499,7 +507,8 @@ class _SliverAppBarState extends State<SliverAppBar>
         hairline: widget.showBorder ? 1 : 0,
         reduceMotion: motion.reduced,
         titleInset: titleInset,
-        pinBackground: widget.pinBackground,
+        pinBackground: widget.pinBackground && !filledOverPicture,
+        backgroundBelowToolbar: filledOverPicture,
         fadeBackground: liquid,
         veil: scheme.background,
         children: [
@@ -1103,6 +1112,7 @@ class _SliverBarBody extends MultiChildRenderObjectWidget {
     required this.reduceMotion,
     required this.titleInset,
     required this.pinBackground,
+    required this.backgroundBelowToolbar,
     required this.fadeBackground,
     required this.veil,
     required super.children,
@@ -1113,6 +1123,7 @@ class _SliverBarBody extends MultiChildRenderObjectWidget {
   final bool reduceMotion;
   final double titleInset;
   final bool pinBackground;
+  final bool backgroundBelowToolbar;
   final bool fadeBackground;
   final Color veil;
 
@@ -1124,6 +1135,7 @@ class _SliverBarBody extends MultiChildRenderObjectWidget {
     textDirection: Directionality.of(context),
     titleInset: titleInset,
     pinBackground: pinBackground,
+    backgroundBelowToolbar: backgroundBelowToolbar,
     fadeBackground: fadeBackground,
     veil: veil,
   );
@@ -1139,6 +1151,7 @@ class _SliverBarBody extends MultiChildRenderObjectWidget {
       ..textDirection = Directionality.of(context)
       ..titleInset = titleInset
       ..pinBackground = pinBackground
+      ..backgroundBelowToolbar = backgroundBelowToolbar
       ..fadeBackground = fadeBackground
       ..veil = veil;
   }
@@ -1155,6 +1168,7 @@ class _RenderSliverBarBody extends RenderBox
     required TextDirection textDirection,
     required double titleInset,
     required bool pinBackground,
+    required bool backgroundBelowToolbar,
     required bool fadeBackground,
     required Color veil,
   }) : _hairline = hairline,
@@ -1162,6 +1176,7 @@ class _RenderSliverBarBody extends RenderBox
        _textDirection = textDirection,
        _titleInset = titleInset,
        _pinBackground = pinBackground,
+       _backgroundBelowToolbar = backgroundBelowToolbar,
        _fadeBackground = fadeBackground,
        _veil = veil;
 
@@ -1173,6 +1188,19 @@ class _RenderSliverBarBody extends RenderBox
     _pinBackground = value;
     markNeedsPaint();
   }
+
+  /// Whether the picture starts below the toolbar, which has a fill of
+  /// its own, instead of reaching up behind it.
+  bool get backgroundBelowToolbar => _backgroundBelowToolbar;
+  bool _backgroundBelowToolbar;
+  set backgroundBelowToolbar(bool value) {
+    if (value == _backgroundBelowToolbar) return;
+    _backgroundBelowToolbar = value;
+    markNeedsLayout();
+  }
+
+  /// The top of the picture's box: under the toolbar or behind it.
+  double get _backgroundTop => _backgroundBelowToolbar ? _toolbarHeight : 0;
 
   /// Whether a pinned picture's lower edge dissolves into what is below
   /// the bar (Liquid Glass) rather than ending on the bar's hairline.
@@ -1291,9 +1319,13 @@ class _RenderSliverBarBody extends RenderBox
     final toolbar = _toolbarHeight = layout(_BarSlot.toolbar);
     final expanded = _expandedHeight = layout(_BarSlot.expanded);
     final bottom = layout(_BarSlot.bottom);
-    // The picture is behind the toolbar as well as the title.
+    // The picture is behind the toolbar as well as the title, unless the
+    // toolbar is filled.
     _part(_BarSlot.background)?.layout(
-      BoxConstraints.tightFor(width: width, height: toolbar + expanded),
+      BoxConstraints.tightFor(
+        width: width,
+        height: toolbar + expanded - _backgroundTop,
+      ),
     );
     (_part(_BarSlot.toolbar)?.parentData as _BarPartData?)?.offset =
         Offset.zero;
@@ -1346,14 +1378,19 @@ class _RenderSliverBarBody extends RenderBox
   /// Where the picture is painted: lagging behind the page as it scrolls,
   /// and grown from the top to cover when the page is pulled down.
   Matrix4 _backgroundTransform() {
-    if (reduceMotion) return Matrix4.identity();
+    final top = _backgroundTop;
+    if (reduceMotion) return Matrix4.translationValues(0, top, 0);
     if (scroll.stretch <= 0) {
-      return Matrix4.translationValues(0, -scroll.collapse * _parallax, 0);
+      return Matrix4.translationValues(
+        0,
+        top - scroll.collapse * _parallax,
+        0,
+      );
     }
-    final full = _toolbarHeight + _expandedHeight;
+    final full = _toolbarHeight + _expandedHeight - top;
     final scale = full <= 0 ? 1.0 : (full + scroll.stretch) / full;
     return Matrix4.identity()
-      ..translateByDouble(size.width / 2, 0, 0, 1)
+      ..translateByDouble(size.width / 2, top, 0, 1)
       ..scaleByDouble(scale, scale, 1, 1)
       ..translateByDouble(-size.width / 2, 0, 0, 1);
   }
@@ -1401,7 +1438,13 @@ class _RenderSliverBarBody extends RenderBox
     final titleFade = (1 - (progress - .35) / .5).clamp(0.0, 1.0);
     final pin = _pinBackground;
     if (background != null && (pin || progress < 1)) {
-      final shown = Rect.fromLTWH(0, 0, size.width, window.bottom);
+      final top = _backgroundTop;
+      final shown = Rect.fromLTRB(
+        0,
+        top,
+        size.width,
+        math.max(window.bottom, top),
+      );
       final alpha = pin ? 255 : ((1 - progress) * 255).round().clamp(0, 255);
       final scrim = expanded == null ? null : _scrimIn(expanded);
       void paintImage(PaintingContext context, Offset offset) =>
