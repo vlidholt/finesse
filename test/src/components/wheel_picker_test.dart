@@ -137,7 +137,7 @@ void main() {
 
     test('the lens is a wash on glass and the muted fill on a solid style', () {
       final glass = ThemeData();
-      final solid = ThemeData(style: StyleTokens.nova);
+      final solid = ThemeData(style: StyleTokens.crisp);
       expect(glass.wheelPickerTheme.lensColor!.a, lessThan(.2));
       expect(glass.wheelPickerTheme.lensBorderWidth, 1);
       expect(solid.wheelPickerTheme.lensColor, solid.colorScheme.muted);

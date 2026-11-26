@@ -26,16 +26,16 @@ void main() {
   Color over(Color color, Color backdrop) => Color.alphaBlend(color, backdrop);
 
   const palettes = <String, (ColorScheme light, ColorScheme dark)>{
-    'blue': (BlueColorScheme.light(), BlueColorScheme.dark()),
-    'neutral': (NeutralColorScheme.light(), NeutralColorScheme.dark()),
-    'zinc': (ZincColorScheme.light(), ZincColorScheme.dark()),
-    'stone': (StoneColorScheme.light(), StoneColorScheme.dark()),
+    'blue': (OceanColorScheme.light(), OceanColorScheme.dark()),
+    'neutral': (GraphiteColorScheme.light(), GraphiteColorScheme.dark()),
+    'zinc': (IrisColorScheme.light(), IrisColorScheme.dark()),
+    'stone': (EmberColorScheme.light(), EmberColorScheme.dark()),
   };
   const styles = [
-    StyleTokens.una,
-    StyleTokens.nova,
-    StyleTokens.maia,
-    StyleTokens.lyra,
+    StyleTokens.fluid,
+    StyleTokens.crisp,
+    StyleTokens.pebble,
+    StyleTokens.sharp,
   ];
 
   /// Every menu option, in every style, palette and brightness.
@@ -277,7 +277,7 @@ void main() {
       for (final secondary in [false, true]) {
         ThemeData build(MenuAccent? accent) => ThemeData(
           menuAccent: accent,
-          style: StyleTokens.nova,
+          style: StyleTokens.crisp,
           disableSecondaryBorder: secondary,
         );
         final bold = build(MenuAccent.bold);
@@ -299,10 +299,10 @@ void main() {
     });
 
     test('copyWith sets it, and keeps it through an unrelated copy', () {
-      final subtle = ThemeData(style: StyleTokens.nova);
+      final subtle = ThemeData(style: StyleTokens.crisp);
       final bold = subtle.copyWith(menuAccent: MenuAccent.bold);
       final primary = subtle.colorScheme.primary;
-      expect(bold, ThemeData(style: StyleTokens.nova, menuAccent: .bold));
+      expect(bold, ThemeData(style: StyleTokens.crisp, menuAccent: .bold));
       expect(bold.contextMenuTheme.selectedBackgroundColor, primary);
 
       // Through a copy that rebuilds the variant, one that does not, a
@@ -312,7 +312,7 @@ void main() {
         bold.copyWith(disabledOpacity: .3),
         bold.copyWith(),
         bold.withFormFactor(FormFactor.mobile),
-        bold.copyWith(style: StyleTokens.maia),
+        bold.copyWith(style: StyleTokens.pebble),
         bold.copyWith(disableSecondaryBorder: true),
         bold.copyWith(menuTranslucent: false),
       ]) {
@@ -321,7 +321,7 @@ void main() {
         expect(copy.colorScheme.accent, subtle.colorScheme.accent);
       }
       // A new scheme: the new scheme's primary, and its own accent kept.
-      const zinc = ZincColorScheme.dark();
+      const zinc = IrisColorScheme.dark();
       final recoloured = bold.copyWith(colorScheme: zinc);
       expect(recoloured.contextMenuTheme.selectedBackgroundColor, zinc.primary);
       expect(recoloured.colorScheme, zinc);
@@ -339,21 +339,21 @@ void main() {
         'from the variant', () {
       for (final variant in [
         DefaultThemeVariant(
-          colorScheme: const NeutralColorScheme.light(),
+          colorScheme: const GraphiteColorScheme.light(),
           radius: BorderRadius.circular(8),
           effectiveTextTheme: DefaultThemeVariant.defaultTextTheme,
-          style: StyleTokens.nova,
+          style: StyleTokens.crisp,
           menuAccent: MenuAccent.bold,
         ),
         DefaultThemeNoSecondaryBorderVariant(
-          colorScheme: const NeutralColorScheme.light(),
+          colorScheme: const GraphiteColorScheme.light(),
           radius: BorderRadius.circular(8),
           effectiveTextTheme: DefaultThemeVariant.defaultTextTheme,
-          style: StyleTokens.nova,
+          style: StyleTokens.crisp,
           menuAccent: MenuAccent.bold,
         ),
       ]) {
-        const primary = NeutralColorScheme.light();
+        const primary = GraphiteColorScheme.light();
         expect(variant.menuItemHighlight, primary.primary);
         expect(variant.menuItemHighlightForeground, primary.primaryForeground);
 
@@ -391,8 +391,8 @@ void main() {
     });
 
     test('a lerp carries it with the variant, and never mixes a scheme', () {
-      final subtle = ThemeData(style: StyleTokens.nova);
-      final bold = ThemeData(style: StyleTokens.nova, menuAccent: .bold);
+      final subtle = ThemeData(style: StyleTokens.crisp);
+      final bold = ThemeData(style: StyleTokens.crisp, menuAccent: .bold);
       final scheme = subtle.colorScheme;
       for (final t in [0.0, .25, .75, 1.0]) {
         final mixed = ThemeData.lerp(subtle, bold, t)!;
@@ -409,7 +409,7 @@ void main() {
       // Between two schemes, a bold theme's menus follow the scheme being
       // mixed.
       final dark = ThemeData(
-        style: StyleTokens.nova,
+        style: StyleTokens.crisp,
         brightness: Brightness.dark,
         menuAccent: MenuAccent.bold,
       );

@@ -1,6 +1,8 @@
+import 'package:example/common/theme_editor/color_tokens.dart';
 import 'package:example/common/theme_editor/editor_config.dart';
 import 'package:example/common/theme_editor/fonts.dart';
 import 'package:example/common/theme_editor/presets.dart';
+import 'package:example/common/theme_editor/style_field.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -32,28 +34,27 @@ void main() {
       // Original is the package default look.
       expect(ThemePreset.original.config, const ThemeEditorConfig());
 
-      // The classic shadcn look: Nova on neutral in Inter, opaque cards.
+      // The classic shadcn look: Crisp in Graphite, Inter, opaque cards.
       final classic = ThemePreset.classic.config;
-      expect(classic.style, StylePreset.nova);
-      expect(classic.baseColor, BaseColor.neutral);
+      expect(classic.style, StylePreset.crisp);
+      expect(classic.colors, ColorSchemes.graphite);
       expect(classic.fontTitle, 'Inter');
       expect(classic.build().cardTheme.backgroundColor!.a, 1);
       expect(classic.build().cardTheme.blur, 0);
 
-      // The soft one: Maia on a warm base with a colourful accent.
+      // The soft one: Pebble in Rose.
       final bloom = ThemePreset.bloom.config;
-      expect(bloom.style, StylePreset.maia);
-      expect(bloom.baseColor, BaseColor.stone);
-      expect(bloom.accentColor, isNot(AccentColor.base));
+      expect(bloom.style, StylePreset.pebble);
+      expect(bloom.colors, ColorSchemes.rose);
       expect(
         bloom.build().radius.topLeft.x,
-        greaterThan(ThemeData(style: StyleTokens.maia).radius.topLeft.x),
+        greaterThan(ThemeData(style: StyleTokens.pebble).radius.topLeft.x),
       );
 
-      // The sharp one: Lyra, square all the way out, serif and mono.
+      // The sharp one: Sharp, square all the way out, serif and mono.
       final press = ThemePreset.press.config;
-      expect(press.style, StylePreset.lyra);
-      expect(press.baseColor, BaseColor.zinc);
+      expect(press.style, StylePreset.sharp);
+      expect(press.colors, ColorSchemes.forest);
       expect(press.build().radius, BorderRadius.zero);
       expect(press.build().cardTheme.borderRadius, BorderRadius.zero);
       expect(press.font.category, FontCategory.mono);
@@ -81,7 +82,7 @@ void main() {
           final b = presets[j].config;
           final where = '${presets[i].label} / ${presets[j].label}';
           expect(
-            a.style != b.style || a.baseColor != b.baseColor,
+            a.style != b.style || a.colors != b.colors,
             isTrue,
             reason: where,
           );
@@ -203,79 +204,6 @@ void main() {
         }
       }
     });
-
-    test('an accent carries the tint with it, and keeps it legible', () {
-      // BlueColorScheme names its own tint; `applyAccentScheme` leaves it,
-      // which would put a teal selected-tab icon beside rose buttons.
-      const onTeal = ThemeEditorConfig(accentColor: AccentColor.rose);
-      expect(onTeal.colorScheme.primary, AccentScheme.roseLight.primary);
-      expect(onTeal.colorScheme.tint, AccentScheme.roseLight.primary);
-      expect(
-        onTeal.colorScheme.tintForeground,
-        AccentScheme.roseLight.primaryForeground,
-      );
-      expect(onTeal.colorScheme.accentBorder.a, closeTo(.32, .01));
-
-      // The neutrals follow their primary by themselves in light mode…
-      const onZinc = ThemeEditorConfig(
-        baseColor: BaseColor.zinc,
-        accentColor: AccentColor.rose,
-      );
-      expect(
-        onZinc.colorScheme,
-        const ZincColorScheme.light().applyAccentScheme(
-          AccentScheme.roseLight,
-        ),
-      );
-
-      // …but shadcn's dark accent primaries are button fills, far too dark
-      // to draw an icon in on a dark page. Every base and accent gets a
-      // tint that reads, in both brightnesses, from the accent's own ramp.
-      for (final base in BaseColor.values) {
-        for (final accent in AccentColor.values) {
-          for (final brightness in Brightness.values) {
-            final scheme = ThemeEditorConfig(
-              brightness: brightness,
-              baseColor: base,
-              accentColor: accent,
-            ).colorScheme;
-            final where = '${base.name} ${accent.name} $brightness';
-            expect(
-              contrast(scheme.tint, scheme.background),
-              greaterThanOrEqualTo(4.5),
-              reason: 'tint on background: $where',
-            );
-            expect(
-              contrast(scheme.tint, scheme.card),
-              greaterThanOrEqualTo(4.5),
-              reason: 'tint on card: $where',
-            );
-            expect(
-              contrast(scheme.tintForeground, scheme.tint),
-              greaterThanOrEqualTo(3),
-              reason: 'tint foreground: $where',
-            );
-            final overlay = accent.scheme(brightness);
-            if (overlay != null) {
-              expect(
-                [
-                  overlay.primary,
-                  overlay.chart1,
-                  overlay.chart2,
-                  overlay.chart3,
-                  overlay.chart4,
-                  overlay.chart5,
-                ],
-                contains(scheme.tint),
-                reason: 'the tint is one of the accent\'s colours: $where',
-              );
-              // The buttons keep the accent's own primary pair.
-              expect(scheme.primary, overlay.primary, reason: where);
-            }
-          }
-        }
-      }
-    });
   });
 
   group('matching a configuration to its preset', () {
@@ -299,9 +227,14 @@ void main() {
     test('changing any one option of the look does', () {
       const base = ThemeEditorConfig();
       final tweaks = <String, ThemeEditorConfig>{
-        'style': base.copyWith(style: StylePreset.nova),
-        'base colour': base.copyWith(baseColor: BaseColor.zinc),
-        'accent': base.copyWith(accentColor: AccentColor.blue),
+        'style': base.copyWith(style: StylePreset.crisp),
+        'colours': base.copyWith(colors: ColorSchemes.iris),
+        'a colour picked': base.copyWith(
+          lightColors: const ColorEdits({'primary': Color(0xFFDB2777)}),
+        ),
+        'a style field': base.copyWith(
+          styleEdits: const StyleEdits({'buttonHeight': 30.0}),
+        ),
         'font': base.copyWith(fontTitle: 'Inter'),
         'heading font': base.copyWith(headingFontTitle: 'Lora'),
         'radius': base.copyWith(radius: RadiusPreset.large),
@@ -331,11 +264,11 @@ void main() {
         brightness: Brightness.dark,
         formFactor: EditorFormFactor.mobile,
         textScale: 1.2,
-        accentColor: AccentColor.red,
+        colors: ColorSchemes.ember,
       );
       final applied = ThemePreset.classic.applyTo(viewing);
       expect(ThemePreset.of(applied), ThemePreset.classic);
-      expect(applied.accentColor, AccentColor.base);
+      expect(applied.colors, ColorSchemes.graphite);
       expect(applied.brightness, Brightness.dark);
       expect(applied.formFactor, EditorFormFactor.mobile);
       expect(applied.textScale, 1.2);
@@ -397,11 +330,11 @@ void main() {
       );
       // With nothing overridden it is the package's own constant.
       expect(
-        identical(const ThemeEditorConfig().styleTokens, StyleTokens.una),
+        identical(const ThemeEditorConfig().styleTokens, StyleTokens.fluid),
         isTrue,
       );
       expect(
-        identical(ThemePreset.classic.config.styleTokens, StyleTokens.nova),
+        identical(ThemePreset.classic.config.styleTokens, StyleTokens.crisp),
         isFalse,
         reason: 'Classic docks the bottom bar',
       );
@@ -487,7 +420,7 @@ UnaApp(
       // they are repeated on the phone tokens. Both are checked against the
       // package as it is.
       final copyWithReachesPhone =
-          StyleTokens.una
+          StyleTokens.fluid
               .copyWith(glassBlur: 1)
               .forFormFactor(FormFactor.mobile)
               .glassBlur ==
@@ -499,11 +432,9 @@ UnaApp(
         copyWithReachesPhone
             ? '''
 ThemeData(
-  colorScheme: const ZincColorScheme.light().applyAccentScheme(
-    AccentScheme.indigoLight,
-  ),
+  colorScheme: const IrisColorScheme.light(),
   textTheme: TextTheme.fromGoogleFont(GoogleFonts.manrope),
-  style: StyleTokens.una.copyWith(
+  style: StyleTokens.fluid.copyWith(
     cardOpacity: 0.7,
     cardOpacityDark: 0.7,
     cardBlur: true,
@@ -515,18 +446,16 @@ ThemeData(
 )'''
             : '''
 ThemeData(
-  colorScheme: const ZincColorScheme.light().applyAccentScheme(
-    AccentScheme.indigoLight,
-  ),
+  colorScheme: const IrisColorScheme.light(),
   textTheme: TextTheme.fromGoogleFont(GoogleFonts.manrope),
-  style: StyleTokens.una.copyWith(
+  style: StyleTokens.fluid.copyWith(
     cardOpacity: 0.7,
     cardOpacityDark: 0.7,
     cardBlur: true,
     barOpacity: 0.8,
     barOpacityDark: 0.8,
     glassBlur: 32,
-    mobile: StyleTokens.una.forFormFactor(FormFactor.mobile).copyWith(
+    mobile: StyleTokens.fluid.forFormFactor(FormFactor.mobile).copyWith(
       cardOpacity: 0.7,
       cardOpacityDark: 0.7,
       cardBlur: true,
@@ -542,7 +471,7 @@ ThemeData(
       // The same code, compiled. If a snippet above is edited, edit its
       // twin with it: this is what proves the export reproduces the theme.
       final style = copyWithReachesPhone
-          ? StyleTokens.una.copyWith(
+          ? StyleTokens.fluid.copyWith(
               cardOpacity: 0.7,
               cardOpacityDark: 0.7,
               cardBlur: true,
@@ -550,14 +479,14 @@ ThemeData(
               barOpacityDark: 0.8,
               glassBlur: 32,
             )
-          : StyleTokens.una.copyWith(
+          : StyleTokens.fluid.copyWith(
               cardOpacity: 0.7,
               cardOpacityDark: 0.7,
               cardBlur: true,
               barOpacity: 0.8,
               barOpacityDark: 0.8,
               glassBlur: 32,
-              mobile: StyleTokens.una
+              mobile: StyleTokens.fluid
                   .forFormFactor(FormFactor.mobile)
                   .copyWith(
                     cardOpacity: 0.7,
@@ -569,9 +498,7 @@ ThemeData(
                   ),
             );
       final exported = ThemeData(
-        colorScheme: const ZincColorScheme.light().applyAccentScheme(
-          AccentScheme.indigoLight,
-        ),
+        colorScheme: const IrisColorScheme.light(),
         textTheme: TextTheme.fromGoogleFont(GoogleFonts.manrope),
         style: style,
         menuTranslucent: true,
@@ -604,10 +531,10 @@ ThemeData(
       expect(config.toDartSnippet(), '''
 ThemeData(
   textTheme: TextTheme.fromGoogleFont(GoogleFonts.geist),
-  style: StyleTokens.una.copyWith(
+  style: StyleTokens.fluid.copyWith(
     pagePaddingX: 36,
     pagePaddingY: 36,
-    mobile: StyleTokens.una.forFormFactor(FormFactor.mobile).copyWith(
+    mobile: StyleTokens.fluid.forFormFactor(FormFactor.mobile).copyWith(
       pagePaddingX: 24,
       pagePaddingY: 24,
     ),
@@ -616,10 +543,10 @@ ThemeData(
 
       final exported = ThemeData(
         textTheme: TextTheme.fromGoogleFont(GoogleFonts.geist),
-        style: StyleTokens.una.copyWith(
+        style: StyleTokens.fluid.copyWith(
           pagePaddingX: 36,
           pagePaddingY: 36,
-          mobile: StyleTokens.una
+          mobile: StyleTokens.fluid
               .forFormFactor(FormFactor.mobile)
               .copyWith(pagePaddingX: 24, pagePaddingY: 24),
         ),
@@ -643,11 +570,11 @@ ThemeData(
 
     test('for a preset with everything else is the code that builds it', () {
       final snippet = ThemePreset.press.config.toDartSnippet();
-      // Lyra derives its phone metrics from itself, so the docked bottom
+      // Sharp derives its phone metrics from itself, so the docked bottom
       // bar reaches them without being repeated.
       expect(snippet, '''
 ThemeData(
-  colorScheme: const ZincColorScheme.light(),
+  colorScheme: const ForestColorScheme.light(),
   radius: BorderRadius.circular(0),
   textTheme: TextTheme.fromGoogleFont(GoogleFonts.jetBrainsMono).copyWith(
     h1Large: TextTheme.fromGoogleFont(GoogleFonts.playfairDisplay).h1Large,
@@ -656,16 +583,16 @@ ThemeData(
     h3: TextTheme.fromGoogleFont(GoogleFonts.playfairDisplay).h3,
     h4: TextTheme.fromGoogleFont(GoogleFonts.playfairDisplay).h4,
   ),
-  style: StyleTokens.lyra.copyWith(
+  style: StyleTokens.sharp.copyWith(
     bottomNavigationFloating: false,
   ),
   disableSecondaryBorder: true,
-  menuColorScheme: const ZincColorScheme.dark(),
+  menuColorScheme: const ForestColorScheme.dark(),
   menuAccent: MenuAccent.bold,
 )''');
 
       final exported = ThemeData(
-        colorScheme: const ZincColorScheme.light(),
+        colorScheme: const ForestColorScheme.light(),
         radius: BorderRadius.circular(0),
         textTheme: TextTheme.fromGoogleFont(GoogleFonts.jetBrainsMono).copyWith(
           h1Large: TextTheme.fromGoogleFont(
@@ -676,9 +603,9 @@ ThemeData(
           h3: TextTheme.fromGoogleFont(GoogleFonts.playfairDisplay).h3,
           h4: TextTheme.fromGoogleFont(GoogleFonts.playfairDisplay).h4,
         ),
-        style: StyleTokens.lyra.copyWith(bottomNavigationFloating: false),
+        style: StyleTokens.sharp.copyWith(bottomNavigationFloating: false),
         disableSecondaryBorder: true,
-        menuColorScheme: const ZincColorScheme.dark(),
+        menuColorScheme: const ForestColorScheme.dark(),
         menuAccent: MenuAccent.bold,
       );
       final built = ThemePreset.press.config.build();
@@ -706,45 +633,6 @@ ThemeData(
         expect(a.textTheme.h1.fontFamily, b.textTheme.h1.fontFamily);
         expect(a.textTheme.h1.fontFamily, isNot(a.textTheme.p.fontFamily));
       }
-    });
-
-    test('an accent on teal replaces the teal tint, with no extra code', () {
-      const config = ThemeEditorConfig(accentColor: AccentColor.rose);
-      expect(config.toDartSnippet(), '''
-ThemeData(
-  colorScheme: const BlueColorScheme.light().applyAccentScheme(
-    AccentScheme.roseLight,
-  ),
-  textTheme: TextTheme.fromGoogleFont(GoogleFonts.geist),
-)''');
-      final exported = const BlueColorScheme.light().applyAccentScheme(
-        AccentScheme.roseLight,
-      );
-      expect(config.colorScheme, exported);
-      expect(exported.tint, AccentScheme.roseLight.primary);
-    });
-
-    test('a dark accent takes its tint from the accent\'s ramp', () {
-      const config = ThemeEditorConfig(
-        brightness: Brightness.dark,
-        baseColor: BaseColor.zinc,
-        accentColor: AccentColor.indigo,
-      );
-      expect(config.toDartSnippet(), '''
-ThemeData(
-  brightness: Brightness.dark,
-  colorScheme: const ZincColorScheme.dark().applyAccentScheme(
-    AccentScheme.indigoDark,
-  ),
-  textTheme: TextTheme.fromGoogleFont(GoogleFonts.geist),
-)''');
-      final exported = const ZincColorScheme.dark().applyAccentScheme(
-        AccentScheme.indigoDark,
-      );
-      expect(config.colorScheme, exported);
-      // The package picks the legible step itself.
-      expect(exported.tint, AccentScheme.indigoDark.chart1);
-      expect(exported.tintForeground, const Color(0xff09090b));
     });
 
     test('names every font by its google_fonts accessor', () {
@@ -830,11 +718,10 @@ ThemeData(
         expect(snippet, isNot(contains('Shad')), reason: preset.label);
         expect(snippet, contains('UnaApp('));
         expect(snippet, contains('darkTheme: ThemeData('));
-        // The dark half names the dark schemes and accents.
-        if (preset.config.accentColor != AccentColor.base) {
-          final accent = preset.config.accentColor.name;
-          expect(snippet, contains('AccentScheme.${accent}Light'));
-          expect(snippet, contains('AccentScheme.${accent}Dark'));
+        // The dark half names the dark scheme.
+        if (preset.config.colors != ColorSchemes.ocean) {
+          expect(snippet, contains('ColorScheme.light()'));
+          expect(snippet, contains('ColorScheme.dark()'));
         }
       }
     });

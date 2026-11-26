@@ -7,7 +7,7 @@ import 'package:una/src/components/button.dart';
 import 'package:una/src/components/card.dart';
 import 'package:una/src/components/form/fields/text_field.dart';
 import 'package:una/src/components/tabs.dart';
-import 'package:una/src/theme/color_scheme/zinc.dart';
+import 'package:una/src/theme/color_scheme/iris.dart';
 import 'package:una/src/theme/components/tabs.dart';
 import 'package:una/src/theme/data.dart';
 
@@ -32,7 +32,7 @@ void main() {
     return UnaApp(
       builder: (context, child) => UnaMaterial(child: child!),
       theme: ThemeData(
-        colorScheme: const ZincColorScheme.light(),
+        colorScheme: const IrisColorScheme.light(),
         brightness: Brightness.light,
         tabsTheme: TabsTheme(
           tabBarConstraints: const BoxConstraints(maxWidth: 400),

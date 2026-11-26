@@ -17,11 +17,11 @@ void main() {
           themeMode: themeMode,
           theme: ThemeData(
             brightness: Brightness.light,
-            colorScheme: const ZincColorScheme.light(),
+            colorScheme: const IrisColorScheme.light(),
           ),
           darkTheme: ThemeData(
             brightness: Brightness.dark,
-            colorScheme: const ZincColorScheme.dark(),
+            colorScheme: const IrisColorScheme.dark(),
           ),
           home: Builder(
             builder: (context) => Center(
@@ -63,12 +63,12 @@ void main() {
       UnaApp(
         theme: ThemeData(
           brightness: Brightness.light,
-          colorScheme: const ZincColorScheme.light(),
+          colorScheme: const IrisColorScheme.light(),
         ),
         home: ThemeScope(
           data: ThemeData(
             brightness: Brightness.dark,
-            colorScheme: const ZincColorScheme.dark(),
+            colorScheme: const IrisColorScheme.dark(),
           ),
           child: Builder(
             builder: (context) => Center(

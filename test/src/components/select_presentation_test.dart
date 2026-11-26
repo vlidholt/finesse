@@ -423,7 +423,7 @@ void main() {
       tester,
     ) async {
       final theme = ThemeData(
-        menuColorScheme: const BlueColorScheme.dark(),
+        menuColorScheme: const OceanColorScheme.dark(),
       );
       await pumpUna(
         tester,

@@ -618,10 +618,10 @@ void main() {
   testWidgets('right-to-left, a large text scale and every style lay out '
       'without overflow', (tester) async {
     for (final style in [
-      StyleTokens.una,
-      StyleTokens.nova,
-      StyleTokens.maia,
-      StyleTokens.lyra,
+      StyleTokens.fluid,
+      StyleTokens.crisp,
+      StyleTokens.pebble,
+      StyleTokens.sharp,
     ]) {
       for (final formFactor in FormFactor.values) {
         await tester.pumpWidget(

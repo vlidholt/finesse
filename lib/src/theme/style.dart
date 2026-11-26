@@ -50,9 +50,14 @@ enum SurfaceFill {
 
 /// The metrics that distinguish one shadcn/ui *style* from another.
 ///
-/// shadcn ships eight named styles, of which una keeps three — [nova],
-/// [maia] and [lyra] — beside its own [una]. They are not colour
-/// variations — they are full geometry sets. Comparing `registry/styles/style-*.css` shows the same
+/// una ships four: [fluid], its own default, measured from the Demo
+/// designs, and three made from shadcn's styles — [crisp] (shadcn's `nova`:
+/// compact and neutral), [pebble] (`maia`: round and roomy) and [sharp]
+/// (`lyra`: square and dense). shadcn's names are kept in the notes below,
+/// where a value is quoted from its CSS.
+///
+/// A style is not a colour variation — it is a full geometry set.
+/// Comparing shadcn's `registry/styles/style-*.css` shows the same
 /// components rebuilt at different sizes: a `mira` button is 28px tall with 8px
 /// of horizontal padding while a `sera` button is 40px tall with 24px, and
 /// everything around them — inputs, menu rows, card padding, slider tracks,
@@ -84,7 +89,7 @@ enum SurfaceFill {
 ///
 /// The field defaults here are shadcn's `vega`, so a custom style only has to
 /// state what it changes. That is separate from the *theme's* default style,
-/// which is [una].
+/// which is [fluid].
 @immutable
 class StyleTokens {
   /// Creates a style. Only [name] is required; every other field defaults to
@@ -1232,9 +1237,9 @@ class StyleTokens {
   /// Controls round to 10, cards to 18; cards and outline buttons are
   /// translucent, and bars, popovers, menus and tooltips are glass over a
   /// blurred backdrop. Cards do not blur theirs ([cardBlur]). Its [mobile]
-  /// counterpart is [unaMobile].
-  static const una = StyleTokens(
-    name: 'una',
+  /// counterpart is [fluidMobile].
+  static const fluid = StyleTokens(
+    name: 'fluid',
     radius: 10,
     radiusScale: RadiusScale(
       sm: .6,
@@ -1412,13 +1417,13 @@ class StyleTokens {
     pagePaddingY: 24,
     avatarSize: 40,
     motion: Motion.lively,
-    mobile: unaMobile,
+    mobile: fluidMobile,
   );
 
-  /// [una] on a touch-sized screen: 44-point controls, 15-point body
+  /// [fluid] on a touch-sized screen: 44-point controls, 15-point body
   /// text, tighter page margins and rounder cards.
-  static const unaMobile = StyleTokens(
-    name: 'una',
+  static const fluidMobile = StyleTokens(
+    name: 'fluid',
     radius: 10,
     radiusScale: RadiusScale(
       sm: .6,
@@ -1614,8 +1619,8 @@ class StyleTokens {
   );
 
   /// shadcn's default style: its `vega` one size down and a step rounder.
-  static const nova = StyleTokens(
-    name: 'nova',
+  static const crisp = StyleTokens(
+    name: 'crisp',
     // The app-level type scale. Without it `Theme.of(context).textTheme` is
     // shadcn's prose scale — 16-point paragraphs, an 18-point `large` — and
     // a screen written against it comes out a size too big.
@@ -1679,8 +1684,8 @@ class StyleTokens {
   );
 
   /// Pill-shaped and roomy.
-  static const maia = StyleTokens(
-    name: 'maia',
+  static const pebble = StyleTokens(
+    name: 'pebble',
     // The app-level type scale. Without it `Theme.of(context).textTheme` is
     // shadcn's prose scale — 16-point paragraphs, an 18-point `large` — and
     // a screen written against it comes out a size too big.
@@ -1751,8 +1756,8 @@ class StyleTokens {
   );
 
   /// Square and compact.
-  static const lyra = StyleTokens(
-    name: 'lyra',
+  static const sharp = StyleTokens(
+    name: 'sharp',
     // The app-level type scale, a step smaller like the rest of the style.
     display: TextRole(
       fontSize: 24,
@@ -1829,7 +1834,7 @@ class StyleTokens {
   );
 
   /// Every built-in style, the default first.
-  static const all = <StyleTokens>[una, nova, maia, lyra];
+  static const all = <StyleTokens>[fluid, crisp, pebble, sharp];
 
   /// Returns the built-in style called [name], such as `una` or `nova`.
   ///
@@ -1897,7 +1902,7 @@ class StyleTokens {
   ///
   /// The replacement reaches the phone metrics too: [mobile] takes each new
   /// value whose field it had in common with this style, so
-  /// `StyleTokens.una.copyWith(glassBlur: 12)` changes the blur on both
+  /// `StyleTokens.fluid.copyWith(glassBlur: 12)` changes the blur on both
   /// form factors. A field the phone sets differently on purpose (button
   /// height, body text size, page margins) keeps its phone value; change
   /// those with `mobile: style.mobile!.copyWith(...)`, which is used as

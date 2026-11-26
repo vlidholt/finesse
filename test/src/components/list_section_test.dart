@@ -82,9 +82,9 @@ void main() {
       // A row is a touch target on a phone.
       expect(phone.listSectionTheme.minTileHeight, greaterThanOrEqualTo(44));
       for (final style in [
-        StyleTokens.nova,
-        StyleTokens.maia,
-        StyleTokens.lyra,
+        StyleTokens.crisp,
+        StyleTokens.pebble,
+        StyleTokens.sharp,
       ]) {
         final theme = ThemeData(
           style: style,
@@ -385,7 +385,7 @@ void main() {
           ),
         ),
         theme: ThemeData(
-          colorScheme: const NeutralColorScheme.light(),
+          colorScheme: const GraphiteColorScheme.light(),
           listSectionTheme: const ListSectionTheme(
             dividerColor: Color(0xffff0000),
             dividerThickness: 2,

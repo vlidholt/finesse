@@ -8,7 +8,7 @@ import 'package:una/una.dart';
 void main() {
   final darkTheme = ThemeData(
     brightness: Brightness.dark,
-    colorScheme: const NeutralColorScheme.dark(),
+    colorScheme: const GraphiteColorScheme.dark(),
   );
 
   group('ThemeScope', () {
@@ -38,7 +38,7 @@ void main() {
         UnaApp(
           theme: ThemeData(
             brightness: Brightness.light,
-            colorScheme: const NeutralColorScheme.light(),
+            colorScheme: const GraphiteColorScheme.light(),
           ),
           home: ThemeScope(
             data: darkTheme,
@@ -127,7 +127,7 @@ void main() {
         UnaApp(
           theme: ThemeData(
             brightness: Brightness.light,
-            colorScheme: const NeutralColorScheme.light(),
+            colorScheme: const GraphiteColorScheme.light(),
           ),
           home: ThemeScope(
             data: darkTheme,

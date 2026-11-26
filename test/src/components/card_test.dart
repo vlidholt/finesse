@@ -255,7 +255,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const Card(child: Text('Nova card')),
-          theme: ThemeData(style: StyleTokens.nova),
+          theme: ThemeData(style: StyleTokens.crisp),
         ),
       );
 

@@ -4,7 +4,9 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:example/common/code_style.dart';
+import 'package:example/common/theme_editor/color_tokens.dart';
 import 'package:example/common/theme_editor/editor_config.dart';
+import 'package:example/common/theme_editor/editor_rows.dart';
 import 'package:example/common/theme_editor/fonts.dart';
 import 'package:example/common/theme_editor/picker.dart';
 import 'package:example/common/theme_editor/presets.dart';
@@ -28,12 +30,19 @@ class ThemeCustomizerPanel extends StatelessWidget {
     super.key,
     required this.config,
     required this.onChanged,
+    this.brightness = Brightness.light,
+    this.formFactor = FormFactor.desktop,
     this.showLeadingBorder = true,
     this.onClose,
   });
 
   final ThemeEditorConfig config;
   final ValueChanged<ThemeEditorConfig> onChanged;
+
+  /// What the app is showing: the colours and the metrics the lists below
+  /// edit are this brightness's and this form factor's.
+  final Brightness brightness;
+  final FormFactor formFactor;
 
   /// Drawn when the panel sits beside the app; dropped when it fills a narrow
   /// viewport and there is nothing to separate it from.
@@ -45,7 +54,7 @@ class ThemeCustomizerPanel extends StatelessWidget {
   final VoidCallback? onClose;
 
   /// Width of the docked panel on a wide viewport.
-  static const width = 272.0;
+  static const width = 300.0;
 
   /// Chrome, not content: a fixed dark palette at a fixed text size, so the
   /// panel stays readable whatever the configuration under it does.
@@ -54,11 +63,11 @@ class ThemeCustomizerPanel extends StatelessWidget {
   /// varies, so rebuilding it per panel build was pure cost.
   static final _chrome = ThemeData(
     brightness: Brightness.dark,
-    colorScheme: const NeutralColorScheme.dark(),
+    colorScheme: const GraphiteColorScheme.dark(),
     radius: const BorderRadius.all(Radius.circular(8)),
-    // Pinned too: the panel is laid out against shadcn's compact Nova
-    // metrics, and the package default — Una — is roomier.
-    style: StyleTokens.nova,
+    // Pinned too: the panel is laid out against the compact Crisp
+    // metrics, and the package default — Fluid — is roomier.
+    style: StyleTokens.crisp,
   );
 
   /// [_chrome] with touch-sized controls, for when the panel covers a phone.
@@ -111,7 +120,12 @@ class ThemeCustomizerPanel extends StatelessWidget {
               ),
             ),
           Expanded(
-            child: _Settings(config: config, onChanged: onChanged),
+            child: _Settings(
+              config: config,
+              onChanged: onChanged,
+              brightness: brightness,
+              formFactor: formFactor,
+            ),
           ),
           const Divider(margin: EdgeInsets.zero),
           Padding(
@@ -135,7 +149,8 @@ enum _SectionId {
   glass('Glass'),
   layout('Layout'),
   menus('Menus'),
-  preview('Preview');
+  preview('Preview'),
+  all('All settings');
 
   const _SectionId(this.title);
 
@@ -143,10 +158,17 @@ enum _SectionId {
 }
 
 class _Settings extends StatefulWidget {
-  const _Settings({required this.config, required this.onChanged});
+  const _Settings({
+    required this.config,
+    required this.onChanged,
+    required this.brightness,
+    required this.formFactor,
+  });
 
   final ThemeEditorConfig config;
   final ValueChanged<ThemeEditorConfig> onChanged;
+  final Brightness brightness;
+  final FormFactor formFactor;
 
   static const _sameAsBody = 'Same as body';
 
@@ -162,6 +184,7 @@ class _SettingsState extends State<_Settings> {
     _SectionId.glass,
     _SectionId.layout,
     _SectionId.menus,
+    _SectionId.all,
   };
 
   ThemeEditorConfig get config => widget.config;
@@ -193,38 +216,35 @@ class _SettingsState extends State<_Settings> {
             _PresetGrid(config: config, onChanged: onChanged),
           ]),
           _section(_SectionId.color, [
-            ThemePicker<BaseColor>(
-              label: 'Base Color',
-              value: config.baseColor,
+            ThemePicker<ColorSchemes>(
+              label: 'Colors',
+              value: config.colors,
               options: [
-                for (final b in BaseColor.values)
-                  PickerOption(value: b, label: b.label, swatch: b.swatch),
-              ],
-              onChanged: (v) => onChanged(config.copyWith(baseColor: v)),
-            ),
-            ThemePicker<AccentColor>(
-              label: 'Accent',
-              value: config.accentColor,
-              options: [
-                for (final accent in AccentColor.values)
+                for (final c in ColorSchemes.values)
                   PickerOption(
-                    value: accent,
-                    label: accent.label,
-                    // "Base" inherits the base colour's own hue.
-                    swatch: accent.swatch(Brightness.light, config.baseColor),
+                    value: c,
+                    label: c.label,
+                    // Graphite's primary is near-black, lost on the
+                    // panel's dark surface: its dark primary shows instead.
+                    swatch: c == ColorSchemes.graphite
+                        ? c.dark.primary
+                        : c.light.primary,
                   ),
               ],
-              // A preset accent replaces a colour picked by hand.
+              // A new theme starts clean: colours picked for another one
+              // were picked against its palette.
               onChanged: (v) => onChanged(
-                config.copyWith(accentColor: v, customAccent: () => null),
+                config.copyWith(
+                  colors: v,
+                  lightColors: const ColorEdits(),
+                  darkColors: const ColorEdits(),
+                ),
               ),
             ),
-            ThemeColorPicker(
-              label: 'Custom Accent',
-              value: config.customAccent,
-              current: config.colorScheme.primary,
-              onChanged: (color) =>
-                  onChanged(config.copyWith(customAccent: () => color)),
+            ColorTokenList(
+              config: config,
+              brightness: widget.brightness,
+              onChanged: onChanged,
             ),
           ]),
           _section(_SectionId.fonts, [
@@ -280,18 +300,6 @@ class _SettingsState extends State<_Settings> {
             ),
           ]),
           _section(_SectionId.glass, [
-            // Auto draws Liquid Glass on iOS and macOS only; On shows it on
-            // whatever this runs on. Kept across presets, like the preview
-            // settings below.
-            ThemeSegments<EditorLiquidGlass>(
-              label: 'Liquid Glass',
-              value: config.liquidGlass,
-              options: [
-                for (final m in EditorLiquidGlass.values)
-                  PickerOption(value: m, label: m.label),
-              ],
-              onChanged: (v) => onChanged(config.copyWith(liquidGlass: v)),
-            ),
             ThemeSlider(
               label: 'Card Opacity',
               value: config.effectiveCardOpacity,
@@ -465,6 +473,27 @@ class _SettingsState extends State<_Settings> {
               onReset: config.textScale == 1
                   ? null
                   : () => onChanged(config.copyWith(textScale: 1)),
+            ),
+            // Auto draws Liquid Glass on iOS and macOS only; On shows it on
+            // whatever this runs on. Kept across presets, like the preview
+            // settings below.
+            ThemeSegments<EditorLiquidGlass>(
+              label: 'Liquid Glass',
+              value: config.liquidGlass,
+              options: [
+                for (final m in EditorLiquidGlass.values)
+                  PickerOption(value: m, label: m.label),
+              ],
+              onChanged: (v) => onChanged(config.copyWith(liquidGlass: v)),
+            ),
+          ]),
+          // Every field of the style, for what the sections above do not
+          // reach. Applied over them.
+          _section(_SectionId.all, [
+            StyleFieldList(
+              config: config,
+              formFactor: widget.formFactor,
+              onChanged: onChanged,
             ),
           ]),
         ],

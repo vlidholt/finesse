@@ -667,7 +667,7 @@ void main() {
 
     group('icon sizing', () {
       // The `.cn-button` sizes quoted below are shadcn's nova.
-      final nova = ThemeData(style: StyleTokens.nova);
+      final nova = ThemeData(style: StyleTokens.crisp);
 
       testWidgets('leading and trailing icons take the style default', (
         tester,

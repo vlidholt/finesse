@@ -63,10 +63,10 @@ void main() {
   testWidgets('is exactly as tall as a text field, in every style and form '
       'factor', (tester) async {
     for (final style in [
-      StyleTokens.una,
-      StyleTokens.nova,
-      StyleTokens.maia,
-      StyleTokens.lyra,
+      StyleTokens.fluid,
+      StyleTokens.crisp,
+      StyleTokens.pebble,
+      StyleTokens.sharp,
     ]) {
       for (final formFactor in FormFactor.values) {
         final theme = ThemeData(style: style).withFormFactor(formFactor);

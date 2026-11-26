@@ -494,10 +494,10 @@ void main() {
 
     testWidgets('the circle is the popover colour with the tint ring, in '
         'every style and brightness', (tester) async {
-      for (final style in [StyleTokens.una, StyleTokens.nova]) {
+      for (final style in [StyleTokens.fluid, StyleTokens.crisp]) {
         for (final scheme in <ColorScheme>[
-          const BlueColorScheme.light(),
-          const BlueColorScheme.dark(),
+          const OceanColorScheme.light(),
+          const OceanColorScheme.dark(),
         ]) {
           await pumpUna(tester, const SizedBox());
           await pumpUna(

@@ -120,7 +120,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const Badge(child: Text('Pill')),
-          theme: ThemeData(style: StyleTokens.nova),
+          theme: ThemeData(style: StyleTokens.crisp),
         ),
       );
       expect(shape(), isA<StadiumBorder>());
@@ -288,7 +288,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const Badge(child: Text('Pill')),
-          theme: ThemeData(style: StyleTokens.nova),
+          theme: ThemeData(style: StyleTokens.crisp),
         ),
       );
 
@@ -309,7 +309,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const Center(child: Badge(child: Text('New'))),
-          theme: ThemeData(style: StyleTokens.nova),
+          theme: ThemeData(style: StyleTokens.crisp),
         ),
       );
       await tester.pumpAndSettle();

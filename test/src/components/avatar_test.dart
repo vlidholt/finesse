@@ -138,7 +138,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           const Avatar('assets/test_image.png'),
-          theme: ThemeData(style: StyleTokens.nova),
+          theme: ThemeData(style: StyleTokens.crisp),
         ),
       );
 

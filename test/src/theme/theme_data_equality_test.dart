@@ -11,7 +11,7 @@ import 'package:una/una.dart';
 /// re-lerps all 54 component themes on every single rebuild.
 void main() {
   ThemeData buildTheme() => ThemeData(
-    colorScheme: const NeutralColorScheme.light(),
+    colorScheme: const GraphiteColorScheme.light(),
     brightness: Brightness.light,
   );
 
@@ -52,12 +52,12 @@ void main() {
       // copyWith silently reset it to DefaultThemeVariant. Dialog,
       // Tooltip and the board all call copyWith in build().
       final variant = DefaultThemeNoSecondaryBorderVariant(
-        colorScheme: const NeutralColorScheme.light(),
+        colorScheme: const GraphiteColorScheme.light(),
         radius: const BorderRadius.all(Radius.circular(6)),
         effectiveTextTheme: DefaultThemeVariant.defaultTextTheme,
       );
       final theme = ThemeData(
-        colorScheme: const NeutralColorScheme.light(),
+        colorScheme: const GraphiteColorScheme.light(),
         brightness: Brightness.light,
         variant: variant,
       );
@@ -70,7 +70,7 @@ void main() {
     test('a genuine difference still compares unequal', () {
       final a = buildTheme();
       final b = ThemeData(
-        colorScheme: const NeutralColorScheme.dark(),
+        colorScheme: const GraphiteColorScheme.dark(),
         brightness: Brightness.dark,
       );
       expect(a, isNot(equals(b)));
@@ -143,7 +143,7 @@ void main() {
   group('ColorScheme', () {
     test('swapping two colors changes the hash', () {
       // Regression: hashCode was a chain of `^`, which is commutative.
-      const a = NeutralColorScheme.light();
+      const a = GraphiteColorScheme.light();
       final swapped = a.copyWith(primary: a.secondary, secondary: a.primary);
 
       expect(a, isNot(equals(swapped)));
@@ -153,7 +153,7 @@ void main() {
     test('copyWith preserves canMerge', () {
       // Regression: copyWith dropped canMerge, and merge() is built on
       // copyWith, so the "replace, don't merge" opt-out was unrecoverable.
-      final scheme = const NeutralColorScheme.light().copyWith(
+      final scheme = const GraphiteColorScheme.light().copyWith(
         canMerge: false,
       );
       expect(scheme.copyWith(primary: const Color(0xFFFF0000)).canMerge, false);
@@ -162,10 +162,10 @@ void main() {
     test('equal custom maps hash alike', () {
       // Regression: hashed MapEntry objects, which hash by identity, while
       // `==` used mapEquals.
-      final a = const NeutralColorScheme.light().copyWith(
+      final a = const GraphiteColorScheme.light().copyWith(
         custom: {'brand': const Color(0xFF123456)},
       );
-      final b = const NeutralColorScheme.light().copyWith(
+      final b = const GraphiteColorScheme.light().copyWith(
         custom: {'brand': const Color(0xFF123456)},
       );
 
@@ -237,7 +237,7 @@ void main() {
         builder: (context, value, _) {
           return UnaApp(
             theme: ThemeData(
-              colorScheme: const NeutralColorScheme.light(),
+              colorScheme: const GraphiteColorScheme.light(),
               brightness: Brightness.light,
             ),
             home: Builder(
@@ -337,7 +337,7 @@ void main() {
 
     test('a theme with an inline override equals its rebuild', () {
       ThemeData build() => ThemeData(
-        colorScheme: const NeutralColorScheme.light(),
+        colorScheme: const GraphiteColorScheme.light(),
         brightness: Brightness.light,
         cardTheme: CardTheme(shadows: shadows()),
       );
@@ -454,18 +454,18 @@ void main() {
     test('a form factor, a style or a scheme makes a different theme', () {
       final base = ThemeData();
       expect(base, isNot(ThemeData(formFactor: FormFactor.mobile)));
-      expect(base, isNot(ThemeData(style: StyleTokens.nova)));
+      expect(base, isNot(ThemeData(style: StyleTokens.crisp)));
       expect(
         base,
-        isNot(ThemeData(colorScheme: const NeutralColorScheme.light())),
+        isNot(ThemeData(colorScheme: const GraphiteColorScheme.light())),
       );
       expect(base, isNot(ThemeData(brightness: Brightness.dark)));
       // And saying the defaults out loud does not.
       expect(
         base,
         ThemeData(
-          style: StyleTokens.una,
-          colorScheme: const BlueColorScheme.light(),
+          style: StyleTokens.fluid,
+          colorScheme: const OceanColorScheme.light(),
           formFactor: FormFactor.desktop,
           brightness: Brightness.light,
           radius: const BorderRadius.all(Radius.circular(10)),
@@ -496,21 +496,21 @@ void main() {
     });
 
     test('StyleTokens compare by value, mobile counterpart included', () {
-      expect(StyleTokens.una.copyWith(), StyleTokens.una);
+      expect(StyleTokens.fluid.copyWith(), StyleTokens.fluid);
       expect(
-        StyleTokens.una.copyWith().hashCode,
-        StyleTokens.una.hashCode,
+        StyleTokens.fluid.copyWith().hashCode,
+        StyleTokens.fluid.hashCode,
       );
-      expect(StyleTokens.una, isNot(StyleTokens.unaMobile));
+      expect(StyleTokens.fluid, isNot(StyleTokens.fluidMobile));
       // Two derived mobile styles are separate instances and equal.
-      final a = StyleTokens.nova.forFormFactor(FormFactor.mobile);
-      final b = StyleTokens.nova.forFormFactor(FormFactor.mobile);
+      final a = StyleTokens.crisp.forFormFactor(FormFactor.mobile);
+      final b = StyleTokens.crisp.forFormFactor(FormFactor.mobile);
       expect(a, b);
       expect(a.hashCode, b.hashCode);
       // A style that differs only in its mobile counterpart is different.
       expect(
-        StyleTokens.nova.copyWith(mobile: StyleTokens.unaMobile),
-        isNot(StyleTokens.nova),
+        StyleTokens.crisp.copyWith(mobile: StyleTokens.fluidMobile),
+        isNot(StyleTokens.crisp),
       );
     });
 

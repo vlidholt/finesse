@@ -1,7 +1,9 @@
+import 'package:example/common/theme_editor/color_tokens.dart';
 import 'package:example/common/theme_editor/customizer_panel.dart';
 import 'package:example/common/theme_editor/editor_config.dart';
 import 'package:example/common/theme_editor/picker.dart';
 import 'package:example/common/theme_editor/presets.dart';
+import 'package:example/common/theme_editor/style_field.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -26,21 +28,23 @@ void main() {
     'LAYOUT',
     'MENUS',
     'PREVIEW',
+    'ALL SETTINGS',
   ];
 
   /// Every setting, by section.
   const settings = {
-    'COLOR': ['Base Color', 'Accent'],
+    'COLOR': ['Colors', 'Brand', 'Surfaces'],
     'FONTS': ['Heading', 'Font'],
     'SHAPE': ['Style', 'Radius', 'Focus Ring'],
     'GLASS': ['Card Opacity', 'Card Blur', 'Bar Opacity', 'Blur Strength'],
     'LAYOUT': ['Density', 'Page Margin', 'Card Padding', 'Bottom Bar'],
     'MENUS': ['Menu', 'Menu Accent'],
-    'PREVIEW': ['Form Factor', 'Text Scale'],
+    'PREVIEW': ['Form Factor', 'Text Scale', 'Liquid Glass'],
+    'ALL SETTINGS': ['Buttons', 'Fields'],
   };
 
   /// The sections that open folded away.
-  const folded = ['GLASS', 'LAYOUT', 'MENUS'];
+  const folded = ['GLASS', 'LAYOUT', 'MENUS', 'ALL SETTINGS'];
 
   late ThemeEditorConfig config;
   late int closes;
@@ -157,10 +161,11 @@ void main() {
         }
       }
       // The defaults, as the rows show them.
-      expect(find.text('Blue'), findsOneWidget);
+      expect(find.text('Ocean'), findsOneWidget);
       expect(find.text('Geist'), findsOneWidget);
-      expect(find.text('Una'), findsOneWidget);
-      expect(find.text('Auto'), findsOneWidget);
+      expect(find.text('Fluid'), findsOneWidget);
+      // Form factor and Liquid Glass.
+      expect(find.text('Auto'), findsNWidgets(2));
       expect(tester.takeException(), isNull);
     });
 
@@ -188,10 +193,10 @@ void main() {
       }
 
       await tapInPanel(tester, find.text('COLOR'));
-      expect(find.text('Base Color'), findsNothing);
-      expect(find.text('Accent'), findsNothing);
+      expect(find.text('Colors'), findsNothing);
+      expect(find.text('Brand'), findsNothing);
       await tapInPanel(tester, find.text('COLOR'));
-      expect(find.text('Base Color'), findsOneWidget);
+      expect(find.text('Colors'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   });
@@ -206,7 +211,7 @@ void main() {
       'long labels': const ThemeEditorConfig(
         fontTitle: 'Playfair Display',
         headingFontTitle: 'Instrument Serif',
-        accentColor: AccentColor.fuchsia,
+        colors: ColorSchemes.ember,
         density: Density.comfortable,
         menuColor: MenuSurfaceColor.inverted,
         menuFinish: MenuSurfaceFinish.translucent,
@@ -274,11 +279,10 @@ void main() {
         // Each picker, and an option its popover has to show. A choice of
         // two or three is a segmented control, with no popover.
         const pickers = {
-          'Base Color': 'Zinc',
-          'Accent': 'Amber',
+          'Colors': 'Ember',
           'Heading': 'Inter',
           'Font': 'Inter',
-          'Style': 'Lyra',
+          'Style': 'Sharp',
           'Radius': 'Large',
           'Density': 'Spacious',
           'Menu': 'Translucent',
@@ -326,14 +330,14 @@ void main() {
       final scroll = tester.element(inPanel(find.byType(Scrollable)).first);
       final chrome = Theme.of(scroll);
       expect(chrome.brightness, Brightness.dark);
-      expect(chrome.colorScheme, const NeutralColorScheme.dark());
-      expect(chrome.style, StyleTokens.nova);
+      expect(chrome.colorScheme, const GraphiteColorScheme.dark());
+      expect(chrome.style, StyleTokens.crisp);
       expect(MediaQuery.textScalerOf(scroll), TextScaler.noScaling);
 
       // Editing changes the configuration, not the panel.
-      await choose(tester, 'Style', 'Lyra');
-      await choose(tester, 'Base Color', 'Stone');
-      expect(config.style, StylePreset.lyra);
+      await choose(tester, 'Style', 'Sharp');
+      await choose(tester, 'Colors', 'Ember');
+      expect(config.style, StylePreset.sharp);
       expect(
         Theme.of(tester.element(inPanel(find.byType(Scrollable)).first)),
         chrome,
@@ -392,7 +396,7 @@ void main() {
       await pumpPanel(
         tester,
         initial: const ThemeEditorConfig(
-          accentColor: AccentColor.red,
+          colors: ColorSchemes.rose,
           formFactor: EditorFormFactor.mobile,
           textScale: 1.2,
         ),
@@ -428,10 +432,10 @@ void main() {
       expect(ThemePreset.of(config), ThemePreset.classic);
       expect(find.text('Custom'), findsNothing);
 
-      await choose(tester, 'Accent', 'Blue');
-      expect(config.accentColor, AccentColor.blue);
+      await choose(tester, 'Colors', 'Iris');
+      expect(config.colors, ColorSchemes.iris);
       // The rest of Classic is still there: the change was one option.
-      expect(config.style, StylePreset.nova);
+      expect(config.style, StylePreset.crisp);
       expect(config.fontTitle, 'Inter');
       expect(ThemePreset.of(config), isNull);
       expect(find.text('Custom'), findsOneWidget);
@@ -445,7 +449,7 @@ void main() {
       );
 
       // Undoing the change is the preset again.
-      await choose(tester, 'Accent', 'Base');
+      await choose(tester, 'Colors', 'Graphite');
       expect(ThemePreset.of(config), ThemePreset.classic);
       expect(find.text('Custom'), findsNothing);
     });
@@ -634,7 +638,7 @@ void main() {
       expect(config.effectiveCardBlur, isFalse);
       await tapInPanel(tester, find.text('Card Blur'));
       expect(config.cardBlur, isTrue);
-      expect(config.build().cardTheme.blur, StyleTokens.una.glassBlur);
+      expect(config.build().cardTheme.blur, StyleTokens.fluid.glassBlur);
       await tapInPanel(tester, find.text('Card Blur'));
       expect(config.cardBlur, isNull);
       expect(config, const ThemeEditorConfig());
@@ -653,8 +657,8 @@ void main() {
       expect(config.radius, RadiusPreset.large);
       await choose(tester, 'Form Factor', 'Desktop');
       expect(config.formFactor, EditorFormFactor.desktop);
-      await choose(tester, 'Base Color', 'Zinc');
-      expect(config.baseColor, BaseColor.zinc);
+      await choose(tester, 'Colors', 'Forest');
+      expect(config.colors, ColorSchemes.forest);
       expect(tester.takeException(), isNull);
     });
 
@@ -705,7 +709,7 @@ void main() {
       await settle(tester);
 
       expect(clipboard, [ThemePreset.frost.config.toAppSnippet()]);
-      expect(clipboard.single, contains('StyleTokens.una.copyWith('));
+      expect(clipboard.single, contains('StyleTokens.fluid.copyWith('));
       expect(find.text('Theme copied to clipboard'), findsOneWidget);
       // Let the toast go.
       await tester.pump(const Duration(seconds: 6));
@@ -728,6 +732,64 @@ void main() {
       await settle(tester);
       expect(clipboard, [ThemePreset.classic.config.toAppSnippet()]);
       expect(find.text('Theme code'), findsNothing);
+    });
+  });
+
+  group('the long lists', () {
+    testWidgets('a colour group opens to its tokens, and a pinned one can be '
+        'reset', (tester) async {
+      await pumpPanel(tester);
+      expect(find.text('Primary foreground'), findsNothing);
+      await tapInPanel(tester, inPanel(find.text('Brand')));
+      expect(find.text('Primary foreground'), findsOneWidget);
+      expect(inPanel(find.byType(ColorPickerButton)), findsWidgets);
+
+      // Picked by hand (as the picker would report it), the row shows its
+      // hex and a reset button.
+      final primary = ColorToken.byName('primary');
+      config = config.withColor(
+        primary,
+        Brightness.light,
+        const Color(0xFFDB2777),
+      );
+      // A fresh panel, so the group starts folded again.
+      await tester.pumpWidget(const SizedBox.shrink());
+      await pumpPanel(tester, initial: config);
+      await tapInPanel(tester, inPanel(find.text('Brand')));
+      expect(find.text('#DB2777'), findsOneWidget);
+      await tapInPanel(tester, find.bySemanticsLabel('Reset Primary'));
+      expect(config.lightColors.isEmpty, isTrue);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('All settings searches every style field and edits one', (
+      tester,
+    ) async {
+      await pumpPanel(tester);
+      await tapInPanel(tester, find.text('ALL SETTINGS'));
+      for (final group in StyleFieldGroup.values) {
+        expect(find.text(group.label), findsOneWidget, reason: group.label);
+      }
+      await tester.enterText(
+        inPanel(find.byType(EditableText)).last,
+        'concentric',
+      );
+      await settle(tester);
+      expect(find.text('Concentric tabs'), findsOneWidget);
+      final toggle = find.descendant(
+        of: find
+            .ancestor(
+              of: find.text('Concentric tabs'),
+              matching: find.byType(Row),
+            )
+            .first,
+        matching: find.byType(Switch),
+      );
+      final before = config.styleTokens.concentricTabs;
+      await tapInPanel(tester, toggle);
+      expect(config.styleTokens.concentricTabs, !before);
+      expect(config.styleEdits['concentricTabs'], !before);
+      expect(tester.takeException(), isNull);
     });
   });
 }

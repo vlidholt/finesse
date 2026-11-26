@@ -24,7 +24,7 @@ Widget _app(
   Widget home, {
   bool reduceMotion = false,
   Motion? motion,
-  StyleTokens style = StyleTokens.nova,
+  StyleTokens style = StyleTokens.crisp,
 }) {
   return UnaApp(
     theme: ThemeData(style: style, motion: motion ?? _motion),
@@ -489,7 +489,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 600));
     });
 
-    for (final style in [StyleTokens.nova, StyleTokens.una]) {
+    for (final style in [StyleTokens.crisp, StyleTokens.fluid]) {
       testWidgets("${style.name}: a row's highlight is its own fill — there at "
           'once, gone at once, and nothing travels between the rows', (
         tester,
@@ -563,7 +563,7 @@ void main() {
       await tester.pumpWidget(
         UnaApp(
           theme: ThemeData(
-            style: StyleTokens.nova,
+            style: StyleTokens.crisp,
             motion: _motion,
             menuAccent: MenuAccent.bold,
           ),

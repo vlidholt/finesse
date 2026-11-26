@@ -27,7 +27,7 @@ See it in a whole app in [Demo](https://vlidholt.github.io/una_demo/), a small p
 - **Liquid Glass on Apple platforms.** On iOS and macOS, natively and on the web, the bars, menus, popovers, dialogs, sheets, toasts, switches, sliders and segmented controls are drawn with Liquid Glass through [`liquid_glass_widgets`](https://pub.dev/packages/liquid_glass_widgets), with no change to your code; `ThemeData(liquidGlass: LiquidGlassTheme(mode: ...))` turns it on everywhere or off. Call `await LiquidGlass.initialize()` in `main()` to load its shaders before the first frame.
 - **Motion from the theme.** Durations, curves and springs come from one `Motion` on the style: overlays grow from their anchor, selections travel, controls respond to a press, and the platform's reduced-motion setting is honoured everywhere. No component takes its own effects or durations.
 - **Spacing from the theme.** A named gap scale (`Gap.md()`, `UnaRow(gap: GapSize.lg)`) and `PageContainer` keep screens consistent and let a theme change their rhythm.
-- **Styles and colour schemes.** Four styles (`una`, `nova`, `maia`, `lyra`) and four base palettes (`blue`, `neutral`, `zinc`, `stone`) in light and dark, 17 accent overlays, and every token overridable through `copyWith`.
+- **Styles and colour schemes.** Four styles (`fluid`, `crisp`, `pebble`, `sharp`) and six colour schemes (Ocean, Graphite, Forest, Iris, Ember, Rose), each in light and dark, and every token overridable through `copyWith`.
 - **Icons included.** The [Phosphor](https://phosphoricons.com) icon set ships in the package in six weights.
 - **Forms.** `UnaForm` and a `*FormField` widget for every input, with per-field validation.
 - **Localization.** 82 locales, built on `slang`.
@@ -92,35 +92,33 @@ Widgets have no prefix: `Button`, `Card`, `Theme`, `ThemeData`. A name that woul
 
 ## Theming
 
-`ThemeData()` is the default look: the `una` style on the blue palette. A theme is a style, a colour scheme and a text theme, and each can be replaced on its own:
+`ThemeData()` is the default look: the `fluid` style on the Ocean colours. A theme is a style, a colour scheme and a text theme, and each can be replaced on its own:
 
 ```dart
 ThemeData(
-  style: StyleTokens.nova,
-  colorScheme: const NeutralColorScheme.light().applyAccentScheme(
-    AccentScheme.violetLight,
+  style: StyleTokens.crisp,
+  colorScheme: const IrisColorScheme.light().copyWith(
+    primary: const Color(0xFF6D28D9),
   ),
   radius: const BorderRadius.all(Radius.circular(6)),
 )
 ```
 
-Four styles ship with the package. `una` is the default; `nova`, `maia` and `lyra` are styles from shadcn/ui:
+Four styles ship with the package. `fluid` is the default; `crisp`, `pebble` and `sharp` are made from shadcn/ui's styles (Nova, Maia and Lyra):
 
-![The same card in the una, nova, maia and lyra styles](https://raw.githubusercontent.com/vlidholt/una/main/doc/images/styles.webp)
+![The same card in the fluid, crisp, pebble and sharp styles](https://raw.githubusercontent.com/vlidholt/una/main/doc/images/styles.webp)
 
-Four base palettes, each in light and dark:
+Six colour schemes, each a light and a dark palette made from one ladder of lightness, so none is louder than another (`ColorSchemes` lists them):
 
-![The blue, neutral, zinc and stone palettes, light and dark](https://raw.githubusercontent.com/vlidholt/una/main/doc/images/palettes.webp)
+![The Ocean, Graphite, Forest, Iris, Ember and Rose colour schemes, light and dark](https://raw.githubusercontent.com/vlidholt/una/main/doc/images/palettes.webp)
 
-And accents that recolour any palette:
-
-![Violet, rose, amber, blue, emerald and orange accents on the neutral palette](https://raw.githubusercontent.com/vlidholt/una/main/doc/images/accents.webp)
+Any colour of a scheme can be changed with `copyWith`, or the accent from one colour with `applyAccent`.
 
 A style is a set of measured tokens (control heights, radii, shadows, type roles, glass, spacing). Change any of them with `copyWith`; the change applies to the phone metrics too wherever they did not already differ:
 
 ```dart
 ThemeData(
-  style: StyleTokens.una.copyWith(
+  style: StyleTokens.fluid.copyWith(
     cardOpacity: 1, // opaque cards
     gapLg: 20,
   ),

@@ -110,16 +110,16 @@ Theme(
         children: [
           DocParagraph(
             'A `StyleTokens` has a `mobile` field: a second, complete set '
-            'of tokens for a touch-sized screen. `StyleTokens.una` '
-            'points it at `StyleTokens.unaMobile`, which was measured '
+            'of tokens for a touch-sized screen. `StyleTokens.fluid` '
+            'points it at `StyleTokens.fluidMobile`, which was measured '
             'from the phone designs. A style that leaves it null gets '
             'derived metrics instead. `forFormFactor` is what resolves '
             'either:',
           ),
           CodeBlock(
             code: '''
-StyleTokens.una.forFormFactor(FormFactor.mobile); // unaMobile
-StyleTokens.nova.forFormFactor(FormFactor.mobile);    // derived from nova''',
+StyleTokens.fluid.forFormFactor(FormFactor.mobile); // unaMobile
+StyleTokens.crisp.forFormFactor(FormFactor.mobile);    // derived from crisp''',
           ),
           DocParagraph('The derivation only ever loosens a style:'),
           DocBullets(
@@ -139,7 +139,7 @@ StyleTokens.nova.forFormFactor(FormFactor.mobile);    // derived from nova''',
           ),
           CodeBlock(
             code: '''
-final mine = StyleTokens.nova.copyWith(buttonHeight: 34);
+final mine = StyleTokens.crisp.copyWith(buttonHeight: 34);
 
 ThemeData(
   style: mine.copyWith(

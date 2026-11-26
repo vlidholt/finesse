@@ -220,7 +220,7 @@ void main() {
 
   testWidgets(
     'popover, solid surface',
-    (tester) => popover(tester, 'popover nova', style: StyleTokens.nova),
+    (tester) => popover(tester, 'popover nova', style: StyleTokens.crisp),
   );
 
   testWidgets(
@@ -428,7 +428,7 @@ void main() {
 
   testWidgets(
     'tooltip, solid surface',
-    (tester) => tooltip(tester, 'tooltip nova', style: StyleTokens.nova),
+    (tester) => tooltip(tester, 'tooltip nova', style: StyleTokens.crisp),
   );
 
   testWidgets(
@@ -477,7 +477,7 @@ void main() {
 
   testWidgets(
     'dialog, solid surface',
-    (tester) => dialog(tester, 'dialog nova', style: StyleTokens.nova),
+    (tester) => dialog(tester, 'dialog nova', style: StyleTokens.crisp),
   );
 
   testWidgets(

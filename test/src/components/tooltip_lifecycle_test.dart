@@ -45,7 +45,7 @@ double _opacity(WidgetTester tester, Finder content) {
 }
 
 Widget _app(FocusNode focus, {Motion? motion}) => UnaApp(
-  theme: ThemeData(style: StyleTokens.nova, motion: motion),
+  theme: ThemeData(style: StyleTokens.crisp, motion: motion),
   home: Center(
     child: Tooltip(
       focusNode: focus,

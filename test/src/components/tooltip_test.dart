@@ -111,7 +111,7 @@ void main() {
     // text-background` at `text-xs`, borderless and shadowless, with a
     // per-style radius one notch under the popover's.
     test('the surface is inverted, shadowless, at text-xs', () {
-      final theme = ThemeData(style: StyleTokens.nova);
+      final theme = ThemeData(style: StyleTokens.crisp);
       final tooltip = theme.tooltipTheme;
       expect(tooltip.decoration?.color, theme.colorScheme.foreground);
       expect(tooltip.filter, isNull);
@@ -158,15 +158,15 @@ void main() {
 
       // vega `rounded-md` 8, maia `rounded-2xl` 16, luma `rounded-xl` 14.
       expect(radiusOf(FixtureStyles.vega).topLeft.x, 8);
-      expect(radiusOf(StyleTokens.nova).topLeft.x, 8);
+      expect(radiusOf(StyleTokens.crisp).topLeft.x, 8);
       // una: the `sm` step of its own scale, 6 at a base of 10.
-      expect(radiusOf(StyleTokens.una).topLeft.x, 6);
-      expect(radiusOf(StyleTokens.maia).topLeft.x, 16);
+      expect(radiusOf(StyleTokens.fluid).topLeft.x, 6);
+      expect(radiusOf(StyleTokens.pebble).topLeft.x, 16);
       expect(radiusOf(FixtureStyles.luma).topLeft.x, 14);
-      expect(radiusOf(StyleTokens.lyra), BorderRadius.zero);
+      expect(radiusOf(StyleTokens.sharp), BorderRadius.zero);
       expect(radiusOf(FixtureStyles.sera), BorderRadius.zero);
       expect(
-        ThemeData(style: StyleTokens.lyra).tooltipTheme.arrowRadius,
+        ThemeData(style: StyleTokens.sharp).tooltipTheme.arrowRadius,
         0,
       );
     });

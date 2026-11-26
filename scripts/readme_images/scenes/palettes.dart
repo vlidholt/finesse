@@ -6,74 +6,28 @@ import '../harness.dart';
 import 'common.dart';
 
 /// The size of the palette grid.
-const palettesSize = Size(1440, 680);
+const palettesSize = Size(2040, 680);
 
-/// The size of the accent grid.
-const accentsSize = Size(1440, 530);
-
-/// The four base palettes, light over dark.
+/// The six colour schemes, light over dark.
 class PalettesScene extends StatelessWidget {
   /// Creates the grid.
   const PalettesScene({super.key});
 
-  static const _palettes = [
-    ('blue', BlueColorScheme.light(), BlueColorScheme.dark()),
-    ('neutral', NeutralColorScheme.light(), NeutralColorScheme.dark()),
-    ('zinc', ZincColorScheme.light(), ZincColorScheme.dark()),
-    ('stone', StoneColorScheme.light(), StoneColorScheme.dark()),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return _Grid(
       columns: [
-        for (final (name, light, dark) in _palettes)
+        for (final scheme in ColorSchemes.values)
           (
-            name,
-            imageTheme(colorScheme: light),
-            imageTheme(colorScheme: dark, brightness: Brightness.dark),
-          ),
-      ],
-      sample: const _PaletteSample(),
-    );
-  }
-}
-
-/// Six of the accent overlays on the neutral palette, light over dark.
-class AccentsScene extends StatelessWidget {
-  /// Creates the grid.
-  const AccentsScene({super.key});
-
-  static const _accents = [
-    'violet',
-    'rose',
-    'amber',
-    'blue',
-    'emerald',
-    'orange',
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return _Grid(
-      columns: [
-        for (final name in _accents)
-          (
-            name,
+            scheme.label,
+            imageTheme(colorScheme: scheme.light),
             imageTheme(
-              colorScheme: const NeutralColorScheme.light().applyAccentScheme(
-                AccentScheme.fromName(name),
-              ),
-            ),
-            imageTheme(
-              colorScheme: const NeutralColorScheme.dark().applyAccentScheme(
-                AccentScheme.fromName(name, brightness: Brightness.dark),
-              ),
+              colorScheme: scheme.dark,
               brightness: Brightness.dark,
             ),
           ),
       ],
-      sample: const _AccentSample(),
+      sample: const _PaletteSample(),
     );
   }
 }
@@ -178,41 +132,6 @@ class _PaletteSample extends StatelessWidget {
               ),
             ],
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class _AccentSample extends StatelessWidget {
-  const _AccentSample();
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      style: const CardTheme(padding: EdgeInsets.all(16)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Checkbox(value: true, onChanged: (_) {}),
-              const Spacer(),
-              Switch(value: true, onChanged: (_) {}),
-            ],
-          ),
-          const Gap.md(),
-          const Slider(initialValue: 60, max: 100),
-          const Gap.md(),
-          const Row(
-            children: [
-              Badge(child: Text('New')),
-              Gap.sm(),
-              Badge.outline(child: Text('Beta')),
-            ],
-          ),
-          const Gap.md(),
-          Button(onPressed: () {}, child: const Text('Continue')),
         ],
       ),
     );

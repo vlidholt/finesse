@@ -45,12 +45,12 @@ void main() {
 
     test("the line gap is the style's: 8 in una, 6 in the shadcn styles, "
         'and it follows the spacing unit', () {
-      expect(StyleTokens.una.timelineLineGap, 8);
-      expect(StyleTokens.unaMobile.timelineLineGap, 8);
+      expect(StyleTokens.fluid.timelineLineGap, 8);
+      expect(StyleTokens.fluidMobile.timelineLineGap, 8);
       for (final style in [
-        StyleTokens.nova,
-        StyleTokens.maia,
-        StyleTokens.lyra,
+        StyleTokens.crisp,
+        StyleTokens.pebble,
+        StyleTokens.sharp,
       ]) {
         expect(style.timelineLineGap, 6, reason: style.name);
         for (final formFactor in FormFactor.values) {
@@ -70,7 +70,7 @@ void main() {
       );
       expect(
         ThemeData(
-          style: StyleTokens.una.copyWith(timelineLineGap: 12),
+          style: StyleTokens.fluid.copyWith(timelineLineGap: 12),
         ).timelineTheme.lineGap,
         12,
       );
@@ -212,7 +212,7 @@ void main() {
       await pumpUna(
         tester,
         timeline([entry(0, content: 120), entry(1)]),
-        theme: ThemeData(style: StyleTokens.nova),
+        theme: ThemeData(style: StyleTokens.crisp),
       );
       final first = tester.getRect(find.byKey(const Key('marker0')));
       final second = tester.getRect(find.byKey(const Key('marker1')));

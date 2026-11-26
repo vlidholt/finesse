@@ -16,14 +16,14 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return UnaApp(
       theme: ThemeData(
-        colorScheme: const ZincColorScheme.light(),
-        // One of the four styles: una (the default), or shadcn/ui's
-        // nova, maia or lyra.
-        style: StyleTokens.nova,
+        colorScheme: const GraphiteColorScheme.light(),
+        // One of the four styles: fluid (the default), crisp, pebble
+        // or sharp.
+        style: StyleTokens.crisp,
       ),
       darkTheme: ThemeData(
-        colorScheme: const ZincColorScheme.dark(),
-        style: StyleTokens.nova,
+        colorScheme: const GraphiteColorScheme.dark(),
+        style: StyleTokens.crisp,
       ),
       home: const Center(child: SignUpCard()),
     );

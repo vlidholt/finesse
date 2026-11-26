@@ -162,7 +162,7 @@ void main() {
       tester,
       const PhosphorIcon(PhosphorIconsRegular.minus, size: 12, color: black),
       theme: ThemeData(
-        style: StyleTokens.una.copyWith(iconOpticalStrength: 0),
+        style: StyleTokens.fluid.copyWith(iconOpticalStrength: 0),
       ),
     );
     expect(off, closeTo(.75, .02));

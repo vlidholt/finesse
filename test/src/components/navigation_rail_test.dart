@@ -73,7 +73,7 @@ RenderMovingIndicator _indicator(WidgetTester tester) => tester.renderObject(
 void main() {
   group('NavigationRail', () {
     testWidgets('builds in every layout and style', (tester) async {
-      for (final style in [StyleTokens.una, StyleTokens.nova]) {
+      for (final style in [StyleTokens.fluid, StyleTokens.crisp]) {
         for (final layout in kLayouts) {
           for (final extended in [false, true]) {
             await pumpUna(

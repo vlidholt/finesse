@@ -23,27 +23,28 @@ final stylesDoc = ComponentDoc(
           CodeBlock(
             code: '''
 ThemeData(
-  style: StyleTokens.maia,
+  style: StyleTokens.pebble,
 )''',
           ),
           DocBullets(
             items: [
-              '`una`: the default. Soft glass: 36px buttons and 40px '
+              '`fluid`: the default. Soft glass: 36px buttons and 40px '
                   'fields, controls rounded to 10 and cards to 18, with '
                   'translucent cards and outline buttons, and bars, menus '
                   'and popovers over a blurred backdrop. It has '
                   'hand-measured phone metrics.',
-              '`nova`: compact and neutral. 32px controls, moderate '
+              '`crisp`: compact and neutral. 32px controls, moderate '
                   'radii, opaque surfaces.',
-              '`maia`: pill-shaped and roomy, with fully rounded '
+              '`pebble`: pill-shaped and roomy, with fully rounded '
                   'controls.',
-              '`lyra`: square and compact. No radii, flat shadows, 12px '
+              '`sharp`: square and compact. No radii, flat shadows, 12px '
                   'body text.',
             ],
           ),
           DocParagraph(
-            '`nova`, `maia` and `lyra` are three of the styles of '
-            'shadcn/ui, measured from its CSS. `una` is the '
+            '`crisp`, `pebble` and `sharp` are made from three of the '
+            "styles of shadcn/ui (Nova, Maia and Lyra), measured from its "
+            'CSS. `fluid` is the '
             "package's own, measured from the designs of Demo, the app at "
             '`https://vlidholt.github.io/una_demo/`.',
           ),
@@ -63,7 +64,7 @@ ThemeData(
           CodeBlock(
             code: '''
 StyleTokens.all;              // the four presets, the default first
-StyleTokens.fromName('lyra'); // one, by name''',
+StyleTokens.fromName('sharp'); // one, by name''',
           ),
         ],
       ),
@@ -77,7 +78,7 @@ StyleTokens.fromName('lyra'); // one, by name''',
           CodeBlock(
             code: '''
 ThemeData(
-  style: StyleTokens.nova.copyWith(
+  style: StyleTokens.crisp.copyWith(
     buttonRadius: RadiusToken.full,
     buttonHeight: 40,
   ),
@@ -85,9 +86,9 @@ ThemeData(
           ),
           DocParagraph(
             '`copyWith` changes the set of metrics it is called on. '
-            '`nova`, `maia` and `lyra` derive their phone metrics from '
-            'the result, so one call covers both. `una` has a '
-            'separate `unaMobile`: to change it on a phone too, copy '
+            '`crisp`, `pebble` and `sharp` derive their phone metrics '
+            'from the result, so one call covers both. `fluid` has a '
+            'separate `fluidMobile`: to change it on a phone too, copy '
             'that as well and pass it as `mobile`.',
           ),
         ],
@@ -98,7 +99,7 @@ ThemeData(
           DocParagraph(
             'Every style carries a second set of metrics for a phone: '
             'larger touch targets, larger body text, tighter page '
-            'margins. `una` defines its own; the others derive '
+            'margins. `fluid` defines its own; the others derive '
             'theirs. `UnaApp` picks between the two from the window '
             'width. See Form Factors.',
           ),
@@ -112,7 +113,7 @@ ThemeData(
             'The scheme holds the solid `card` and `bar` colors; the '
             'style holds `cardOpacity`, `barOpacity`, `glassOpacity`, '
             '`glassBlur` and `glassSaturation`, with a dark override for '
-            'each opacity. An opaque style such as `nova` pays for no '
+            'each opacity. An opaque style such as `crisp` pays for no '
             'blur at all. To turn the default style opaque, change both '
             'of its sets of metrics:',
           ),
@@ -126,8 +127,8 @@ StyleTokens opaque(StyleTokens style) => style.copyWith(
 );
 
 ThemeData(
-  style: opaque(StyleTokens.una).copyWith(
-    mobile: opaque(StyleTokens.unaMobile),
+  style: opaque(StyleTokens.fluid).copyWith(
+    mobile: opaque(StyleTokens.fluidMobile),
   ),
 )''',
           ),
@@ -142,7 +143,7 @@ ThemeData(
           CodeBlock(
             code: '''
 ThemeData(
-  style: StyleTokens.una.copyWith(cardBlur: true),
+  style: StyleTokens.fluid.copyWith(cardBlur: true),
 )''',
           ),
         ],

@@ -1,8 +1,11 @@
 import 'package:example/common/app_shell.dart';
+import 'package:example/common/theme_editor/color_tokens.dart';
 import 'package:example/common/theme_editor/customizer_panel.dart';
 import 'package:example/common/theme_editor/editor_config.dart';
 import 'package:example/common/theme_editor/fonts.dart';
 import 'package:example/common/theme_editor/presets.dart';
+import 'package:example/common/theme_editor/style_field.dart';
+import 'package:example/common/theme_editor/style_fields.g.dart';
 import 'package:example/main.dart';
 import 'package:example/screens/components_screen.dart';
 import 'package:flutter/widgets.dart';
@@ -63,11 +66,10 @@ void main() {
   group('ThemeEditorConfig', () {
     test('the default config is the package default look', () {
       const config = ThemeEditorConfig();
-      expect(config.style, StylePreset.una);
-      expect(config.baseColor, BaseColor.blue);
-      expect(config.accentColor, AccentColor.base);
+      expect(config.style, StylePreset.fluid);
+      expect(config.colors, ColorSchemes.ocean);
       expect(config.fontTitle, 'Geist');
-      // The radius is left to the style, which is 10 for Una.
+      // The radius is left to the style, which is 10 for Fluid.
       expect(config.usesStyleRadius, isTrue);
       expect(config.effectiveRadius, 10);
 
@@ -79,14 +81,14 @@ void main() {
           brightness: brightness,
           textTheme: config.textTheme,
         );
-        expect(theme.style, StyleTokens.una);
+        expect(theme.style, StyleTokens.fluid);
         expect(theme.radius, BorderRadius.circular(10));
         expect(theme.colorScheme, packageDefault.colorScheme);
         expect(
           theme.colorScheme,
           brightness == Brightness.light
-              ? const BlueColorScheme.light()
-              : const BlueColorScheme.dark(),
+              ? const OceanColorScheme.light()
+              : const OceanColorScheme.dark(),
         );
         expect(theme, packageDefault, reason: '$brightness');
       }
@@ -94,39 +96,25 @@ void main() {
 
     test('the radius follows the style until a preset is picked', () {
       expect(
-        const ThemeEditorConfig(style: StylePreset.lyra).build().radius,
-        ThemeData(style: StyleTokens.lyra).radius,
+        const ThemeEditorConfig(style: StylePreset.sharp).build().radius,
+        ThemeData(style: StyleTokens.sharp).radius,
       );
       const medium = ThemeEditorConfig(radius: RadiusPreset.medium);
       expect(medium.usesStyleRadius, isFalse);
       expect(medium.build().radius, BorderRadius.circular(8));
     });
 
-    test('accent re-tints primary and ring but not the neutrals', () {
-      const base = ThemeEditorConfig();
-      final accented = base.copyWith(accentColor: AccentColor.blue);
-
-      expect(
-        accented.colorScheme.primary,
-        AccentScheme.blueLight.primary,
-      );
-      expect(
-        accented.colorScheme.ring,
-        AccentScheme.blueLight.primary,
-      );
-      // Neutrals are untouched — that is the whole point of separating the
-      // base palette from the accent.
-      expect(accented.colorScheme.background, base.colorScheme.background);
-      expect(accented.colorScheme.border, base.colorScheme.border);
-      expect(accented.colorScheme.muted, base.colorScheme.muted);
-    });
-
-    test('"base" accent leaves the palette alone', () {
-      const config = ThemeEditorConfig(accentColor: AccentColor.base);
-      expect(
-        config.colorScheme.primary,
-        BaseColor.blue.scheme(Brightness.light).primary,
-      );
+    test('a colour theme is the whole scheme, in both brightnesses', () {
+      for (final colors in ColorSchemes.values) {
+        for (final brightness in Brightness.values) {
+          final config = ThemeEditorConfig(
+            colors: colors,
+            brightness: brightness,
+          );
+          expect(config.colorScheme, colors.of(brightness));
+          expect(config.build().colorScheme, colors.of(brightness));
+        }
+      }
     });
 
     test('a custom radius overrides the preset', () {
@@ -144,20 +132,20 @@ void main() {
 
     test('the focus ring comes from the style, not from the editor', () {
       // There are no ring knobs; the style owns it.
-      final lyra = const ThemeEditorConfig(style: StylePreset.lyra).build();
+      final lyra = const ThemeEditorConfig(style: StylePreset.sharp).build();
       final una = const ThemeEditorConfig().build();
 
       expect(lyra.decoration.secondaryFocusedBorder!.top!.width, 1);
       expect(una.decoration.secondaryFocusedBorder!.top!.width, 3);
       expect(
         una.decoration.secondaryFocusedBorder!.top!.color!.a,
-        closeTo(StyleTokens.una.ringOpacity, .01),
+        closeTo(StyleTokens.fluid.ringOpacity, .01),
       );
     });
 
     test('a style retypes the components and keeps the chosen font', () {
       final una = const ThemeEditorConfig().build();
-      final lyra = const ThemeEditorConfig(style: StylePreset.lyra).build();
+      final lyra = const ThemeEditorConfig(style: StylePreset.sharp).build();
 
       // Lyra is the compact, monospace-flavoured style: its menu rows are
       // set a step smaller than Una's.
@@ -189,7 +177,7 @@ void main() {
       }
 
       // Square styles really are square, all the way out to the card.
-      final lyra = const ThemeEditorConfig(style: StylePreset.lyra).build();
+      final lyra = const ThemeEditorConfig(style: StylePreset.sharp).build();
       expect(lyra.cardTheme.borderRadius, BorderRadius.zero);
       // ...and a rounded one scales the card past the control radius.
       final una = const ThemeEditorConfig().build();
@@ -199,59 +187,36 @@ void main() {
       );
     });
 
-    test('every base/accent/brightness combination builds', () {
-      for (final brightness in Brightness.values) {
-        for (final base in BaseColor.values) {
-          for (final accent in AccentColor.values) {
-            final theme = ThemeEditorConfig(
-              brightness: brightness,
-              baseColor: base,
-              accentColor: accent,
-            ).build();
-            expect(theme.colorScheme, isNotNull);
-          }
-        }
-      }
-    });
-
     test('the generated snippet reflects the configuration', () {
       const config = ThemeEditorConfig(
         brightness: Brightness.dark,
-        baseColor: BaseColor.zinc,
-        accentColor: AccentColor.violet,
+        colors: ColorSchemes.iris,
       );
       final snippet = config.toDartSnippet();
 
       expect(snippet, contains('Brightness.dark'));
-      expect(snippet, contains('ZincColorScheme.dark()'));
-      expect(snippet, contains('applyAccentScheme'));
-      // Una is the package default style, so it is not spelled out…
+      expect(snippet, contains('colorScheme: const IrisColorScheme.dark(),'));
+      // Fluid is the package default style, so it is not spelled out…
       expect(snippet, isNot(contains('style:')));
       // …and any other is.
       expect(
-        config.copyWith(style: StylePreset.maia).toDartSnippet(),
-        contains('  style: StyleTokens.maia,\n'),
+        config.copyWith(style: StylePreset.pebble).toDartSnippet(),
+        contains('  style: StyleTokens.pebble,\n'),
       );
-      // The class names of the package as it is now.
-      expect(snippet, isNot(contains('Shad')));
       expect(snippet, startsWith('ThemeData('));
     });
 
-    test('the snippet names every base colour scheme that exists', () {
-      for (final base in BaseColor.values) {
-        final snippet = ThemeEditorConfig(baseColor: base).toDartSnippet();
-        final name = '${base.name[0].toUpperCase()}${base.name.substring(1)}';
-        if (base == BaseColor.blue) {
+    test('the snippet names every colour theme', () {
+      for (final colors in ColorSchemes.values) {
+        final snippet = ThemeEditorConfig(colors: colors).toDartSnippet();
+        final name =
+            '${colors.name[0].toUpperCase()}${colors.name.substring(1)}';
+        if (colors == ColorSchemes.ocean) {
           // The package default: `ThemeData` picks it by itself.
           expect(snippet, isNot(contains('colorScheme:')));
         } else {
           expect(snippet, contains('const ${name}ColorScheme.light()'));
         }
-        // …and the scheme it names is the one the config builds.
-        expect(
-          ThemeEditorConfig(baseColor: base).colorScheme,
-          ColorScheme.fromName(base.name),
-        );
       }
     });
 
@@ -264,11 +229,6 @@ void main() {
         const ThemeEditorConfig(radius: RadiusPreset.large).toDartSnippet(),
         contains('radius: BorderRadius.circular(11.2)'),
       );
-    });
-
-    test('the snippet omits applyAccent when the accent is the base', () {
-      const config = ThemeEditorConfig();
-      expect(config.toDartSnippet(), isNot(contains('applyAccentScheme')));
     });
   });
 
@@ -298,36 +258,153 @@ void main() {
     addTearDown(() => FlutterError.onError = report);
   }
 
-  group('a custom accent', () {
-    const custom = Color(0xFFDB2777);
+  group('colours picked by hand', () {
+    const pink = Color(0xFFDB2777);
+    final primary = ColorToken.byName('primary');
+    final background = ColorToken.byName('background');
 
-    test('re-tints the base palette with applyAccent', () {
-      const config = ThemeEditorConfig(customAccent: custom);
-      expect(config.colorScheme.primary, custom);
+    test('pin a token in the brightness they are picked in', () {
+      final config = const ThemeEditorConfig().withColor(
+        primary,
+        Brightness.light,
+        pink,
+      );
+      expect(config.colorScheme.primary, pink);
+      expect(config.colorSource(primary, Brightness.light), ColorSource.pinned);
+      // Nothing else moves.
       expect(
-        config.colorScheme,
-        const BlueColorScheme.light().applyAccent(custom),
+        config.colorScheme.background,
+        const OceanColorScheme.light().background,
       );
       // It is part of the look, so no preset matches it.
       expect(config.look, isNot(const ThemeEditorConfig().look));
     });
 
-    test('is exported as applyAccent with the colour', () {
-      const config = ThemeEditorConfig(customAccent: custom);
-      final snippet = config.toDartSnippet();
-      expect(snippet, contains('.applyAccent('));
-      expect(snippet, contains('const Color(0xFFDB2777)'));
+    test('carry over to the other brightness, on its own lightness, until '
+        'one is picked there', () {
+      final config = const ThemeEditorConfig().withColor(
+        primary,
+        Brightness.light,
+        pink,
+      );
+      final dark = config.copyWith(brightness: Brightness.dark).colorScheme;
+      expect(config.colorSource(primary, Brightness.dark), ColorSource.derived);
+      // A pink, not Ocean's blue: the hue followed.
+      final hue = Oklch.of(dark.primary).h;
+      expect(hue, closeTo(Oklch.of(pink).h, 6));
+      // Picked in dark too, the dark one is that.
+      const deep = Color(0xFF9D174D);
+      final both = config.withColor(primary, Brightness.dark, deep);
+      expect(
+        both.copyWith(brightness: Brightness.dark).colorScheme.primary,
+        deep,
+      );
+      expect(both.colorScheme.primary, pink);
     });
 
-    test('stands in for the preset accent, and clears', () {
-      const config = ThemeEditorConfig(
-        accentColor: AccentColor.violet,
-        customAccent: custom,
+    test(
+      'a grey picked for the page stays a page colour in the other mode',
+      () {
+        const warm = Color(0xFFF6F1EA);
+        final config = const ThemeEditorConfig().withColor(
+          background,
+          Brightness.light,
+          warm,
+        );
+        final dark = config.copyWith(brightness: Brightness.dark).colorScheme;
+        // Still dark: half the change in lightness, not the light page.
+        expect(dark.background.computeLuminance(), lessThan(.05));
+      },
+    );
+
+    test('are exported as a copyWith on the colour theme, per brightness', () {
+      final config = const ThemeEditorConfig(
+        colors: ColorSchemes.forest,
+      ).withColor(primary, Brightness.light, pink);
+      final light = config.toDartSnippet();
+      expect(light, contains('const ForestColorScheme.light().copyWith('));
+      expect(light, contains('primary: const Color(0xFFDB2777),'));
+      final dark = config.copyWith(brightness: Brightness.dark).toDartSnippet();
+      expect(dark, contains('const ForestColorScheme.dark().copyWith('));
+      expect(dark, contains('primary: const Color(0x'));
+    });
+
+    test('reset hands the token back to the scheme', () {
+      final config = const ThemeEditorConfig()
+          .withColor(primary, Brightness.light, pink)
+          .withColor(primary, Brightness.light, null);
+      expect(config, const ThemeEditorConfig());
+    });
+  });
+
+  group('style fields set by hand', () {
+    StyleField field(String name) =>
+        styleFields.firstWhere((f) => f.name == name);
+
+    test('every field of the style is listed, once', () {
+      final names = styleFields.map((f) => f.name).toList();
+      expect(names.toSet().length, names.length);
+      expect(names, containsAll(['buttonHeight', 'cardPadding', 'motion']));
+      expect(names.length, greaterThan(200));
+    });
+
+    test('a value read is a value the field writes back unchanged', () {
+      const tokens = StyleTokens.fluid;
+      for (final f in styleFields) {
+        final value = f.read(tokens);
+        if (value == null) continue;
+        expect(f.write(tokens, value), tokens, reason: f.name);
+      }
+    });
+
+    test(
+      'a desktop edit reaches the phone where the phone shares the value',
+      () {
+        // The button radius is the same on both; the button height is not.
+        final radius = field('buttonRadius');
+        final height = field('buttonHeight');
+        final config = const ThemeEditorConfig()
+            .withStyleValue(radius, FormFactor.desktop, RadiusToken.none)
+            .withStyleValue(height, FormFactor.desktop, 30.0);
+        expect(
+          config.tokensFor(FormFactor.desktop).buttonRadius,
+          RadiusToken.none,
+        );
+        expect(config.tokensFor(FormFactor.desktop).buttonHeight, 30);
+        final phone = config.tokensFor(FormFactor.mobile);
+        expect(phone.buttonRadius, RadiusToken.none);
+        expect(
+          phone.buttonHeight,
+          StyleTokens.fluid.forFormFactor(FormFactor.mobile).buttonHeight,
+        );
+        // A phone edit stays on the phone.
+        final tall = config.withStyleValue(height, FormFactor.mobile, 52.0);
+        expect(tall.tokensFor(FormFactor.mobile).buttonHeight, 52);
+        expect(tall.tokensFor(FormFactor.desktop).buttonHeight, 30);
+      },
+    );
+
+    test('are exported in the style\'s copyWith', () {
+      final config = const ThemeEditorConfig()
+          .withStyleValue(field('buttonHeight'), FormFactor.desktop, 30.0)
+          .withStyleValue(field('cardShadow'), FormFactor.desktop, Shadows.lg)
+          .withStyleValue(field('motion'), FormFactor.desktop, Motion.calm);
+      final snippet = config.toDartSnippet();
+      expect(snippet, contains('style: StyleTokens.fluid.copyWith('));
+      expect(snippet, contains('buttonHeight: 30,'));
+      expect(snippet, contains('cardShadow: Shadows.lg,'));
+      expect(snippet, contains('motion: Motion.calm,'));
+    });
+
+    test('two configurations with the same edits are equal and build equal '
+        'themes', () {
+      ThemeEditorConfig make() => const ThemeEditorConfig().withStyleValue(
+        field('cardShadow'),
+        FormFactor.desktop,
+        [...Shadows.md],
       );
-      expect(config.colorScheme.primary, custom);
-      final cleared = config.copyWith(customAccent: () => null);
-      expect(cleared.customAccent, isNull);
-      expect(cleared.colorScheme.primary, isNot(custom));
+      expect(make(), make());
+      expect(make().build(), make().build());
     });
   });
 
@@ -380,8 +457,7 @@ void main() {
         expect(inPanel(find.text(preset.label)), findsOneWidget);
       }
       for (final label in [
-        'Base Color',
-        'Accent',
+        'Colors',
         'Heading',
         'Font',
         'Style',
@@ -393,8 +469,8 @@ void main() {
         expect(find.text(label), findsOneWidget, reason: 'missing $label');
       }
       // The defaults, as the pickers show them.
-      expect(find.text('Una'), findsOneWidget);
-      expect(find.text('Blue'), findsOneWidget);
+      expect(find.text('Fluid'), findsOneWidget);
+      expect(find.text('Ocean'), findsOneWidget);
       expect(find.text('Geist'), findsOneWidget);
       // Light/dark and direction are app-wide switches, not settings this
       // panel duplicates.
@@ -427,12 +503,12 @@ void main() {
       await tester.tapAt(const Offset(20, 20));
       await settle(tester);
 
-      await tester.tap(find.text('Base Color'));
+      await tester.tap(inPanel(find.text('Colors')));
       await settle(tester);
-      for (final base in BaseColor.values) {
-        expect(find.text(base.label), findsWidgets, reason: base.label);
+      for (final colors in ColorSchemes.values) {
+        expect(find.text(colors.label), findsWidgets, reason: colors.label);
       }
-      for (final gone in ['Slate', 'Gray', 'Mauve', 'Olive', 'Mist', 'Taupe']) {
+      for (final gone in ['Zinc', 'Stone', 'Neutral', 'Slate', 'Gray']) {
         expect(find.text(gone), findsNothing, reason: gone);
       }
       expect(tester.takeException(), isNull);
@@ -449,27 +525,14 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('picking a theme applies the accent scheme', (tester) async {
+    testWidgets('picking colours re-colours the page', (tester) async {
       await pump(tester);
 
-      // Picked from near the top of the list: the popover scrolls, and an
-      // option below the fold is found but not hit-testable.
-      await choose(tester, 'Accent', 'Blue');
+      await choose(tester, 'Colors', 'Forest');
 
       expect(
-        pageTheme(tester).colorScheme.primary,
-        AccentScheme.blueLight.primary,
-      );
-    });
-
-    testWidgets('picking a base colour changes the neutrals', (tester) async {
-      await pump(tester);
-
-      await choose(tester, 'Base Color', 'Zinc');
-
-      expect(
-        pageTheme(tester).colorScheme.background,
-        const ZincColorScheme.light().background,
+        pageTheme(tester).colorScheme,
+        const ForestColorScheme.light(),
       );
     });
 
@@ -483,24 +546,24 @@ void main() {
     testWidgets('re-themes the component library', (tester) async {
       await pump(tester);
 
-      await choose(tester, 'Base Color', 'Zinc');
-      await choose(tester, 'Style', 'Lyra');
+      await choose(tester, 'Colors', 'Iris');
+      await choose(tester, 'Style', 'Sharp');
 
       final docsTheme = Theme.of(
         tester.element(find.byType(ComponentsScreen)),
       );
       expect(
         docsTheme.colorScheme.background,
-        const ZincColorScheme.light().background,
+        const IrisColorScheme.light().background,
       );
-      expect(docsTheme.style, StyleTokens.lyra);
+      expect(docsTheme.style, StyleTokens.sharp);
       expect(tester.takeException(), isNull);
     });
 
     testWidgets('Reset returns to the package default look', (tester) async {
       await pump(tester);
-      await choose(tester, 'Style', 'Nova');
-      expect(pageTheme(tester).style, StyleTokens.nova);
+      await choose(tester, 'Style', 'Crisp');
+      expect(pageTheme(tester).style, StyleTokens.crisp);
 
       await tester.tap(find.text('Reset'));
       await settle(tester);
@@ -508,7 +571,7 @@ void main() {
         themeConfigProvider.of(appContext(tester)).value,
         const ThemeEditorConfig(),
       );
-      expect(pageTheme(tester).style, StyleTokens.una);
+      expect(pageTheme(tester).style, StyleTokens.fluid);
     });
 
     testWidgets('a preset re-themes the app, and a change after it is Custom', (
@@ -525,7 +588,7 @@ void main() {
       final config = themeConfigProvider.of(appContext(tester));
       expect(ThemePreset.of(config.value), ThemePreset.classic);
       final theme = pageTheme(tester);
-      expect(theme.colorScheme, const NeutralColorScheme.light());
+      expect(theme.colorScheme, const GraphiteColorScheme.light());
       expect(theme.cardTheme.backgroundColor!.a, 1);
       expect(theme.bottomNavigationBarTheme.floating, isFalse);
       expect(theme.textTheme.p.fontFamily, contains('Inter'));
@@ -660,7 +723,7 @@ void main() {
 
       expect(appTheme(tester).formFactor, FormFactor.mobile);
       expect(pageTheme(tester).formFactor, FormFactor.mobile);
-      expect(pageTheme(tester).style, StyleTokens.unaMobile);
+      expect(pageTheme(tester).style, StyleTokens.fluidMobile);
       // The phone's chrome: the sidebar is a sheet, closed.
       expect(find.byType(Sidebar), findsNothing);
       // Laid out at a phone's size, centred in the window.
@@ -731,7 +794,7 @@ void main() {
       await setFormFactor(tester, EditorFormFactor.desktop);
 
       expect(appTheme(tester).formFactor, FormFactor.desktop);
-      expect(pageTheme(tester).style, StyleTokens.una);
+      expect(pageTheme(tester).style, StyleTokens.fluid);
       // The desktop's sidebar, beside the page.
       expect(find.byType(Sidebar), findsOneWidget);
       // Laid out at the narrowest width a desktop layout is designed for…

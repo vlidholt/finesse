@@ -10,10 +10,10 @@ import '../../una_harness.dart';
 /// `ThemeData.buttonDecoration` and the variant's wider equality.
 void main() {
   const styles = [
-    StyleTokens.una,
-    StyleTokens.nova,
-    StyleTokens.maia,
-    StyleTokens.lyra,
+    StyleTokens.fluid,
+    StyleTokens.crisp,
+    StyleTokens.pebble,
+    StyleTokens.sharp,
   ];
 
   group('textTheme.muted', () {
@@ -57,14 +57,14 @@ void main() {
 
     test('follows the scheme of each base palette', () {
       for (final scheme in const <ColorScheme>[
-        BlueColorScheme.light(),
-        BlueColorScheme.dark(),
-        NeutralColorScheme.light(),
-        NeutralColorScheme.dark(),
-        ZincColorScheme.light(),
-        ZincColorScheme.dark(),
-        StoneColorScheme.light(),
-        StoneColorScheme.dark(),
+        OceanColorScheme.light(),
+        OceanColorScheme.dark(),
+        GraphiteColorScheme.light(),
+        GraphiteColorScheme.dark(),
+        IrisColorScheme.light(),
+        IrisColorScheme.dark(),
+        EmberColorScheme.light(),
+        EmberColorScheme.dark(),
       ]) {
         for (final style in styles) {
           expect(
@@ -78,10 +78,10 @@ void main() {
 
     test('a copy with another scheme recolours it', () {
       final theme = ThemeData();
-      final copy = theme.copyWith(colorScheme: const ZincColorScheme.dark());
+      final copy = theme.copyWith(colorScheme: const IrisColorScheme.dark());
       expect(
         copy.textTheme.muted.color,
-        const ZincColorScheme.dark().mutedForeground,
+        const IrisColorScheme.dark().mutedForeground,
       );
       expect(copy.textTheme.muted.color, isNot(theme.textTheme.muted.color));
     });
@@ -194,8 +194,8 @@ void main() {
     test('two themes still compare equal', () {
       expect(ThemeData().textTheme, ThemeData().textTheme);
       expect(
-        ThemeData(style: StyleTokens.nova).textTheme.muted,
-        ThemeData(style: StyleTokens.nova).textTheme.muted,
+        ThemeData(style: StyleTokens.crisp).textTheme.muted,
+        ThemeData(style: StyleTokens.crisp).textTheme.muted,
       );
     });
 
@@ -228,7 +228,7 @@ void main() {
 
   group('the new style tokens', () {
     test('default to the shadcn values and are set by una', () {
-      const defaults = StyleTokens.nova;
+      const defaults = StyleTokens.crisp;
       expect(defaults.secondaryButtonFill, SurfaceFill.secondary);
       expect(defaults.secondaryBadgeFill, SurfaceFill.secondary);
       expect(defaults.secondaryBadgeSubtle, isFalse);
@@ -236,7 +236,7 @@ void main() {
       expect(defaults.progressTinted, isFalse);
       expect(defaults.dividerMargin, 16);
       expect(defaults.timelineLineGap, 6);
-      for (final style in [StyleTokens.maia, StyleTokens.lyra]) {
+      for (final style in [StyleTokens.pebble, StyleTokens.sharp]) {
         expect(style.secondaryButtonFill, defaults.secondaryButtonFill);
         expect(style.secondaryBadgeFill, defaults.secondaryBadgeFill);
         expect(style.secondaryBadgeSubtle, defaults.secondaryBadgeSubtle);
@@ -246,7 +246,7 @@ void main() {
         expect(style.timelineLineGap, defaults.timelineLineGap);
       }
 
-      for (final style in [StyleTokens.una, StyleTokens.unaMobile]) {
+      for (final style in [StyleTokens.fluid, StyleTokens.fluidMobile]) {
         expect(
           style.secondaryButtonFill,
           SurfaceFill.muted,
@@ -266,7 +266,7 @@ void main() {
     });
 
     test("are part of a style's value", () {
-      const base = StyleTokens.nova;
+      const base = StyleTokens.crisp;
       for (final changed in [
         base.copyWith(secondaryButtonFill: SurfaceFill.muted),
         base.copyWith(secondaryBadgeFill: SurfaceFill.muted),
@@ -292,7 +292,7 @@ void main() {
             formFactor: formFactor,
           );
           final nova = ThemeData(
-            style: StyleTokens.nova,
+            style: StyleTokens.crisp,
             brightness: brightness,
             formFactor: formFactor,
           );
@@ -330,7 +330,7 @@ void main() {
             formFactor: formFactor,
           );
           final nova = ThemeData(
-            style: StyleTokens.nova,
+            style: StyleTokens.crisp,
             brightness: brightness,
             formFactor: formFactor,
           );
@@ -360,7 +360,7 @@ void main() {
             formFactor: formFactor,
           );
           final nova = ThemeData(
-            style: StyleTokens.nova,
+            style: StyleTokens.crisp,
             brightness: brightness,
             formFactor: formFactor,
           );
@@ -383,7 +383,7 @@ void main() {
             formFactor: formFactor,
           );
           final nova = ThemeData(
-            style: StyleTokens.nova,
+            style: StyleTokens.crisp,
             brightness: brightness,
             formFactor: formFactor,
           );
@@ -405,7 +405,7 @@ void main() {
             formFactor: formFactor,
           );
           final nova = ThemeData(
-            style: StyleTokens.nova,
+            style: StyleTokens.crisp,
             brightness: brightness,
             formFactor: formFactor,
           );
@@ -416,49 +416,49 @@ void main() {
     }
 
     test('each token moves its component theme on its own', () {
-      final nova = ThemeData(style: StyleTokens.nova);
+      final nova = ThemeData(style: StyleTokens.crisp);
       final scheme = nova.colorScheme;
       ThemeData withStyle(StyleTokens style) => ThemeData(style: style);
 
       expect(
         withStyle(
-          StyleTokens.nova.copyWith(secondaryButtonFill: SurfaceFill.muted),
+          StyleTokens.crisp.copyWith(secondaryButtonFill: SurfaceFill.muted),
         ).secondaryButtonTheme.backgroundColor,
         scheme.muted,
       );
       final badgeFill = withStyle(
-        StyleTokens.nova.copyWith(secondaryBadgeFill: SurfaceFill.muted),
+        StyleTokens.crisp.copyWith(secondaryBadgeFill: SurfaceFill.muted),
       ).secondaryBadgeTheme;
       expect(badgeFill.backgroundColor, scheme.muted);
       // The fill alone does not change the text colour…
       expect(badgeFill.foregroundColor, scheme.secondaryForeground);
       final badgeSubtle = withStyle(
-        StyleTokens.nova.copyWith(secondaryBadgeSubtle: true),
+        StyleTokens.crisp.copyWith(secondaryBadgeSubtle: true),
       ).secondaryBadgeTheme;
       // …and the text colour alone does not change the fill.
       expect(badgeSubtle.foregroundColor, scheme.foregroundSubtle);
       expect(badgeSubtle.backgroundColor, scheme.secondary);
 
       final track = withStyle(
-        StyleTokens.nova.copyWith(progressTrackFill: SurfaceFill.secondary),
+        StyleTokens.crisp.copyWith(progressTrackFill: SurfaceFill.secondary),
       ).progressBarTheme;
       expect(track.trackColor, scheme.secondary);
       expect(track.color, scheme.primary);
       final tinted = withStyle(
-        StyleTokens.nova.copyWith(progressTinted: true),
+        StyleTokens.crisp.copyWith(progressTinted: true),
       ).progressBarTheme;
       expect(tinted.color, scheme.tint);
       expect(tinted.trackColor, scheme.muted);
 
       expect(
         withStyle(
-          StyleTokens.nova.copyWith(dividerMargin: 4),
+          StyleTokens.crisp.copyWith(dividerMargin: 4),
         ).dividerTheme.horizontalMargin,
         const EdgeInsets.symmetric(vertical: 4),
       );
       expect(
         withStyle(
-          StyleTokens.nova.copyWith(timelineLineGap: 10),
+          StyleTokens.crisp.copyWith(timelineLineGap: 10),
         ).timelineTheme.lineGap,
         10,
       );
@@ -466,7 +466,7 @@ void main() {
 
     test('the two unit-based tokens follow the spacing step', () {
       const spacing = Spacing(step: 6);
-      final nova = ThemeData(style: StyleTokens.nova, spacing: spacing);
+      final nova = ThemeData(style: StyleTokens.crisp, spacing: spacing);
       expect(
         nova.dividerTheme.horizontalMargin,
         const EdgeInsets.symmetric(vertical: 24),
@@ -478,7 +478,7 @@ void main() {
     });
 
     test('the other variant derives the same five themes', () {
-      for (final style in [StyleTokens.una, StyleTokens.nova]) {
+      for (final style in [StyleTokens.fluid, StyleTokens.crisp]) {
         final a = ThemeData(style: style);
         final b = ThemeData(style: style, disableSecondaryBorder: true);
         expect(
@@ -508,7 +508,7 @@ void main() {
       await pumpUna(
         tester,
         rule(),
-        theme: ThemeData(style: StyleTokens.nova),
+        theme: ThemeData(style: StyleTokens.crisp),
       );
       expect(tester.getSize(find.byType(Divider)).height, 1 + 16 * 2);
 
@@ -520,14 +520,14 @@ void main() {
       await pumpUna(
         tester,
         upright(),
-        theme: ThemeData(style: StyleTokens.nova),
+        theme: ThemeData(style: StyleTokens.crisp),
       );
       expect(tester.getSize(find.byType(Divider)).width, 1 + 16 * 2);
     });
 
     testWidgets('the tokens reach the widgets: secondary button and badge '
         'fills, the progress bar', (tester) async {
-      for (final style in [StyleTokens.una, StyleTokens.nova]) {
+      for (final style in [StyleTokens.fluid, StyleTokens.crisp]) {
         await pumpUna(
           tester,
           Center(
@@ -545,7 +545,7 @@ void main() {
         );
         expect(tester.takeException(), isNull, reason: style.name);
         final theme = themeOf(tester, find.byKey(const Key('column')));
-        final una = style == StyleTokens.una;
+        final una = style == StyleTokens.fluid;
         final scheme = theme.colorScheme;
 
         bool paintsFill(Finder of, Color color) => find
@@ -650,7 +650,7 @@ void main() {
       }
       expect(
         ThemeData(formFactor: FormFactor.mobile).style,
-        StyleTokens.unaMobile,
+        StyleTokens.fluidMobile,
       );
     });
 
@@ -725,10 +725,10 @@ void main() {
 
     test('a style changed on a phone theme keeps the phone', () {
       final phone = ThemeData(formFactor: FormFactor.mobile);
-      final copy = phone.copyWith(style: StyleTokens.nova);
-      expect(copy.baseStyle, StyleTokens.nova);
+      final copy = phone.copyWith(style: StyleTokens.crisp);
+      expect(copy.baseStyle, StyleTokens.crisp);
       expect(copy.formFactor, FormFactor.mobile);
-      expect(copy.style, StyleTokens.nova.forFormFactor(FormFactor.mobile));
+      expect(copy.style, StyleTokens.crisp.forFormFactor(FormFactor.mobile));
     });
 
     testWidgets('a UnaApp on a phone reports the style it was given', (
@@ -737,13 +737,13 @@ void main() {
       await pumpUna(
         tester,
         const SizedBox.expand(key: Key('page')),
-        theme: ThemeData(style: StyleTokens.maia),
+        theme: ThemeData(style: StyleTokens.pebble),
         formFactor: FormFactor.mobile,
       );
       final theme = themeOf(tester, find.byKey(const Key('page')));
       expect(theme.formFactor, FormFactor.mobile);
-      expect(theme.baseStyle, StyleTokens.maia);
-      expect(theme.style, StyleTokens.maia.forFormFactor(FormFactor.mobile));
+      expect(theme.baseStyle, StyleTokens.pebble);
+      expect(theme.style, StyleTokens.pebble.forFormFactor(FormFactor.mobile));
     });
   });
 
@@ -955,11 +955,11 @@ void main() {
 
   group('DefaultThemeVariant equality', () {
     DefaultThemeVariant variant({
-      StyleTokens style = StyleTokens.una,
+      StyleTokens style = StyleTokens.fluid,
       FormFactor formFactor = FormFactor.desktop,
       ColorScheme? menuColorScheme,
       bool menuTranslucent = false,
-      ColorScheme colorScheme = const BlueColorScheme.light(),
+      ColorScheme colorScheme = const OceanColorScheme.light(),
     }) {
       return DefaultThemeVariant(
         colorScheme: colorScheme,
@@ -976,15 +976,15 @@ void main() {
       expect(variant(), variant());
       expect(variant().hashCode, variant().hashCode);
       final full = variant(
-        style: StyleTokens.nova,
+        style: StyleTokens.crisp,
         formFactor: FormFactor.mobile,
-        menuColorScheme: const BlueColorScheme.dark(),
+        menuColorScheme: const OceanColorScheme.dark(),
         menuTranslucent: true,
       );
       final same = variant(
-        style: StyleTokens.nova,
+        style: StyleTokens.crisp,
         formFactor: FormFactor.mobile,
-        menuColorScheme: const BlueColorScheme.dark(),
+        menuColorScheme: const OceanColorScheme.dark(),
         menuTranslucent: true,
       );
       expect(full, same);
@@ -1003,7 +1003,7 @@ void main() {
       // A phone variant of una and a desktop variant handed una's
       // phone metrics resolve to the same `style`…
       final phone = variant(formFactor: FormFactor.mobile);
-      final baked = variant(style: StyleTokens.unaMobile);
+      final baked = variant(style: StyleTokens.fluidMobile);
       expect(baked.style, phone.style);
       // …but are not the same variant: one goes back to 36-point buttons on
       // a desktop and the other does not.
@@ -1012,7 +1012,7 @@ void main() {
 
       // And the same base style on the same form factor is what matters.
       final mobileOfMobile = variant(
-        style: StyleTokens.unaMobile,
+        style: StyleTokens.fluidMobile,
         formFactor: FormFactor.mobile,
       );
       expect(mobileOfMobile.style, phone.style);
@@ -1020,26 +1020,26 @@ void main() {
     });
 
     test('a different style tells two variants apart', () {
-      expect(variant(style: StyleTokens.nova), isNot(variant()));
+      expect(variant(style: StyleTokens.crisp), isNot(variant()));
       expect(
-        variant(style: StyleTokens.una.copyWith(dividerMargin: 4)),
+        variant(style: StyleTokens.fluid.copyWith(dividerMargin: 4)),
         isNot(variant()),
       );
     });
 
     test('the menu colour scheme tells two variants apart', () {
       final plain = variant();
-      final inverted = variant(menuColorScheme: const BlueColorScheme.dark());
+      final inverted = variant(menuColorScheme: const OceanColorScheme.dark());
       expect(inverted, isNot(plain));
       expect(inverted.hashCode, isNot(plain.hashCode));
       expect(
         inverted,
-        isNot(variant(menuColorScheme: const ZincColorScheme.dark())),
+        isNot(variant(menuColorScheme: const IrisColorScheme.dark())),
       );
       // Null is "follow the page", which is not the same as naming the
       // page's own scheme.
       expect(
-        variant(menuColorScheme: const BlueColorScheme.light()),
+        variant(menuColorScheme: const OceanColorScheme.light()),
         isNot(plain),
       );
     });
@@ -1054,13 +1054,13 @@ void main() {
     test('rebuild with nothing changed is equal; with any of the four '
         'changed it is not', () {
       final base = variant(
-        menuColorScheme: const BlueColorScheme.dark(),
+        menuColorScheme: const OceanColorScheme.dark(),
         menuTranslucent: true,
       );
       expect(base.rebuild(), base);
       expect(base.rebuild().hashCode, base.hashCode);
       expect(base.rebuild(formFactor: FormFactor.mobile), isNot(base));
-      expect(base.rebuild(style: StyleTokens.nova), isNot(base));
+      expect(base.rebuild(style: StyleTokens.crisp), isNot(base));
       expect(base.rebuild(menuColorScheme: null), isNot(base));
       expect(base.rebuild(menuTranslucent: false), isNot(base));
       // And back again.
@@ -1075,7 +1075,7 @@ void main() {
     test('the two variant classes are never equal to each other', () {
       final secondary = variant();
       final none = DefaultThemeNoSecondaryBorderVariant(
-        colorScheme: const BlueColorScheme.light(),
+        colorScheme: const OceanColorScheme.light(),
         radius: const BorderRadius.all(Radius.circular(8)),
         effectiveTextTheme: TextTheme(),
       );
@@ -1084,7 +1084,7 @@ void main() {
       expect(
         none,
         DefaultThemeNoSecondaryBorderVariant(
-          colorScheme: const BlueColorScheme.light(),
+          colorScheme: const OceanColorScheme.light(),
           radius: const BorderRadius.all(Radius.circular(8)),
           effectiveTextTheme: TextTheme(),
         ),
@@ -1095,7 +1095,7 @@ void main() {
       final plain = ThemeData();
       expect(ThemeData(menuTranslucent: true), isNot(plain));
       expect(
-        ThemeData(menuColorScheme: const BlueColorScheme.dark()),
+        ThemeData(menuColorScheme: const OceanColorScheme.dark()),
         isNot(plain),
       );
       expect(
@@ -1103,8 +1103,8 @@ void main() {
         ThemeData(menuTranslucent: true),
       );
       expect(
-        ThemeData(menuColorScheme: const BlueColorScheme.dark()),
-        ThemeData(menuColorScheme: const BlueColorScheme.dark()),
+        ThemeData(menuColorScheme: const OceanColorScheme.dark()),
+        ThemeData(menuColorScheme: const OceanColorScheme.dark()),
       );
     });
   });

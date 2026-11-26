@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:una/una.dart';
 
 void main() {
-  const base = ZincColorScheme.light();
+  const base = IrisColorScheme.light();
   const accent = Color(0xff3b82f6);
 
   group('ColorScheme.applyAccent', () {

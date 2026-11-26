@@ -378,10 +378,10 @@ void main() {
       tester,
     ) async {
       for (final style in [
-        StyleTokens.una,
-        StyleTokens.nova,
-        StyleTokens.maia,
-        StyleTokens.lyra,
+        StyleTokens.fluid,
+        StyleTokens.crisp,
+        StyleTokens.pebble,
+        StyleTokens.sharp,
       ]) {
         await pumpUna(
           tester,

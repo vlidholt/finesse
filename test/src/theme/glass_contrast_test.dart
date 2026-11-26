@@ -26,7 +26,7 @@ void main() {
     bool? translucent,
     bool inverted = false,
     MenuAccent accent = MenuAccent.subtle,
-    StyleTokens style = StyleTokens.una,
+    StyleTokens style = StyleTokens.fluid,
   }) => ThemeData(
     brightness: brightness,
     style: style,
@@ -34,8 +34,8 @@ void main() {
     menuAccent: accent,
     menuColorScheme: inverted
         ? (brightness == Brightness.light
-              ? const BlueColorScheme.dark()
-              : const BlueColorScheme.light())
+              ? const OceanColorScheme.dark()
+              : const OceanColorScheme.light())
         : null,
   );
 
@@ -70,9 +70,9 @@ void main() {
 
   test('the shadcn styles keep their solid surfaces', () {
     for (final style in [
-      StyleTokens.nova,
-      StyleTokens.maia,
-      StyleTokens.lyra,
+      StyleTokens.crisp,
+      StyleTokens.pebble,
+      StyleTokens.sharp,
     ]) {
       for (final brightness in Brightness.values) {
         final theme = themeOf(brightness, style: style);
@@ -119,7 +119,7 @@ void main() {
       final nova = themeOf(
         brightness,
         translucent: true,
-        style: StyleTokens.nova,
+        style: StyleTokens.crisp,
       );
       expect(nova.contextMenuTheme.decoration!.color!.a, closeTo(.7, .001));
       expect(
@@ -326,8 +326,8 @@ void main() {
       // its own brightness.
       final inverted = themeOf(brightness, inverted: true);
       final other = brightness == Brightness.light
-          ? const BlueColorScheme.dark()
-          : const BlueColorScheme.light();
+          ? const OceanColorScheme.dark()
+          : const OceanColorScheme.light();
       expect(
         inverted.contextMenuTheme.selectedBackgroundColor,
         other.foreground.withValues(
@@ -341,9 +341,9 @@ void main() {
 
   test('the shadcn styles keep the accent highlight on their solid menus', () {
     for (final style in [
-      StyleTokens.nova,
-      StyleTokens.maia,
-      StyleTokens.lyra,
+      StyleTokens.crisp,
+      StyleTokens.pebble,
+      StyleTokens.sharp,
     ]) {
       expect(style.menuHighlightOpacity, isNull);
       expect(style.menuHighlightOpacityDark, isNull);

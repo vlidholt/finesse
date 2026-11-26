@@ -99,10 +99,10 @@ void main() {
   group('NavigationMenuTheme', () {
     test('is fed by the style, the scheme and the spacing', () {
       for (final style in [
-        StyleTokens.una,
-        StyleTokens.nova,
-        StyleTokens.maia,
-        StyleTokens.lyra,
+        StyleTokens.fluid,
+        StyleTokens.crisp,
+        StyleTokens.pebble,
+        StyleTokens.sharp,
       ]) {
         for (final brightness in Brightness.values) {
           final theme = ThemeData(style: style, brightness: brightness);

@@ -97,7 +97,7 @@ const PhosphorIcon(PhosphorIconsRegular.house)''',
             code: '''
 // For the app: a stronger correction.
 ThemeData(
-  style: StyleTokens.una.copyWith(iconOpticalStrength: .8),
+  style: StyleTokens.fluid.copyWith(iconOpticalStrength: .8),
 )
 
 // Off, here only.

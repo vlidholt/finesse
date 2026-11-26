@@ -77,15 +77,16 @@ own default look and its own rules.
     the subtree.
 - **No deprecation shims.** The fork is pre-1.0; a rename is a changelog
   entry under "Changed from shad", not a `@Deprecated` typedef.
-- **The default look** is `StyleTokens.una` on `BlueColorScheme`. The
+- **The default look** is `StyleTokens.fluid` on `OceanColorScheme`. The
   style was measured from the Demo designs (four screens, desktop and
   mobile, light and dark) that [`una_demo`](https://github.com/vlidholt/una_demo),
   a repository of its own, replicates; the Demo keeps the designs' own
   `TealColorScheme`, which used to be the package default. Until the split
-  it was "Strand", in `example/lib/strand/`. `nova`, `maia` and `lyra` are
-  the shadcn styles that remain; `blue`, `neutral`, `zinc` and `stone` the
-  base palettes.
+  it was "Strand", in `example/lib/strand/`. The other styles are `crisp`,
+  `pebble` and `sharp`, made from shadcn's Nova, Maia and Lyra (the notes
+  below and the token docs quote shadcn's names where they quote its CSS);
   `reference/ui/` (below) is still the source of truth for those three.
+  The colour schemes are the six of `ColorSchemes` (see "Colour tokens").
 - **Icons are Phosphor**, vendored into this package (see "Fonts" below) and
   exported from the barrel: `PhosphorIconsRegular`, `PhosphorIconsFill`,
   `PhosphorIconsBold`, `Light`, `Thin` and `Duotone`. `PhosphorIcon` is an
@@ -95,7 +96,7 @@ own default look and its own rules.
 ### Form factors
 
 Every `StyleTokens` has a second set of metrics for a phone: `style.mobile`
-if it defines one (`una` → `unaMobile`), otherwise derived by
+if it defines one (`fluid` → `fluidMobile`), otherwise derived by
 `forFormFactor` (controls ≥ 44, body 15, page margins 16). The **variant**
 owns the choice: `DefaultThemeVariant(style:, formFactor:)` keeps the style it
 was given as `baseStyle` and exposes the resolved one as `style`, so every
@@ -134,14 +135,14 @@ the same (`glass_shadow_web_test.dart` repeats it in Chrome).
 `popoverOpacity` and `tooltipOpacity` (each with a dark override) do for
 popovers, menus, a select's list, the command palette and tooltips what
 `barOpacity` does for the bars: below 1 the surface is its colour at that
-opacity over the style's glass filter. They are below 1 in `una` and 1
-in `nova`, `maia` and `lyra`. `ThemeData.menuTranslucent` is three-state on
+opacity over the style's glass filter. They are below 1 in `fluid` and 1
+in `crisp`, `pebble` and `sharp`. `ThemeData.menuTranslucent` is three-state on
 top of that — null follows the style, true is shadcn's 70% finish with a
 `foreground/10` highlight, false keeps menus solid — and
 `test/src/theme/glass_contrast_test.dart` walks every combination over the
 page, black and white.
 
-Toasts are popover surfaces as well: glass in `una`, `popover` and
+Toasts are popover surfaces as well: glass in `fluid`, `popover` and
 `popoverForeground` in the shadcn styles (`ToastTheme.filter`). The
 `Toaster` stack (`RenderToastStack`) clips each toast to its slot in paint,
 with room for the shadow's reach; a plain `ClipRect` cut every toast's
@@ -209,6 +210,10 @@ componentTheme.liquidGlass)` at build: never a window width, never cached.
   always-shown bubble or division marks, a segmented control with no
   selection or an unnamed non-`Text` label, a docked bar, a popover with
   an arrow, a desktop top bar. Tooltips never switch.
+  The package's `GlassSlider` is `thumb + 16` tall and places its thumb
+  for that height while centring its track in whatever it is given, so
+  `LiquidGlassSlider` keeps it at its own height in an `OverflowBox`:
+  squeezed into a shorter row the thumb sat below the track.
 - **A Liquid Glass surface claims the entrance fade too**, like a
   `BackdropSurface`, and fades the glass by `LiquidGlassSettings.visibility`
   with its content in a `FadeTransition`: the shader does not survive an
@@ -231,8 +236,14 @@ componentTheme.liquidGlass)` at build: never a window width, never cached.
   lines at rest. With no status bar above it (a desktop window, a
   simulator's frame) a primary bar on glass keeps a small gap above its
   toolbar (`appBarTopInset`), which `AppBar.heightOf` counts.
-- **Without shader filters (the web, Skia) a bar that would be glass is
-  `solid`**: the bar colour at full opacity, its hairline, no blur, no
+- **In a browser, and without shader filters (Skia), a bar that would be
+  glass is `solid`**, unless its theme says `always` (`kIsWeb` in
+  `appBarMaterial`: a browser page has no status bar for the capsules to
+  hang under, and a browser with shader filters still put them against
+  the top of the window). A large `SliverAppBar` with a `background` on a
+  solid bar keeps its toolbar filled at rest and lays the picture *below*
+  it (`backgroundBelowToolbar`), its buttons plain, and does not pin the
+  picture. Otherwise solid is: the bar colour at full opacity, its hairline, no blur, no
   scroll edge, no capsules, shown at rest too (a large `SliverAppBar`
   still fills in as its title goes under), laid out as the frosted bar.
   The test is `LiquidGlass.hasShaderFilters`, not `kIsWeb`, because the
@@ -331,7 +342,7 @@ componentTheme.liquidGlass)` at build: never a window width, never cached.
 ### Motion
 
 One vocabulary, `Motion` (`lib/src/theme/motion.dart`), lives on the style
-(`StyleTokens.motion`: `lively` for `una`, `calm` for the shadcn styles,
+(`StyleTokens.motion`: `lively` for `fluid`, `calm` for the shadcn styles,
 `none` to switch it off) and `ThemeData(motion:)` overrides it; it is not a
 `BaseTheme` field. Components read it with `Motion.of(context)` — never
 `theme.motion` — which returns the reduced form under
@@ -381,7 +392,7 @@ in a `build` is fine; any other curve has to be a constant.
   command items had the glide and lost it: the highlight follows the pointer
   and the arrow keys row by row, there or not, with no fade and no glide. It
   is the row's own fill again (a menu row is a `Button` whose `style` has
-  `transitionDuration: Duration.zero`). In `una` the fill is a wash of
+  `transitionDuration: Duration.zero`). In `fluid` the fill is a wash of
   the menu's foreground (`StyleTokens.menuHighlightOpacity`/`Dark`, .06/.09)
   under text that keeps its colour — an opaque accent fill is a bright slab
   on glass. A style without the token keeps shadcn's accent fill, and a
@@ -434,7 +445,7 @@ in a `build` is fine; any other curve has to be a constant.
 `reference/ui/` is a clone of [shadcn-ui/ui](https://github.com/shadcn-ui/ui).
 It is gitignored — it is ~150 MB and not ours to vendor — but it is the source
 of truth for every visual decision in the `nova`, `maia` and `lyra` styles and
-in every component the `una` style inherits unchanged.
+in every component the `fluid` style inherits unchanged.
 
 **Look values up there. Do not guess at colours, paddings, radii or type.**
 Several rounds of this project's history were spent fixing values that were
@@ -484,7 +495,7 @@ themes. Understanding this order prevents most theming bugs.
   `caption`, `p`, `list` and `large`. Reading the raw input here once made a
   style change resize components but leave every font size alone.
 - `TextTheme.caption` is the fine print a size under `muted` (counts,
-  timestamps, sources; 12/16 in `una`): the `caption` role's size, line
+  timestamps, sources; 12/16 in `fluid`): the `caption` role's size, line
   height and tracking, in the muted colour, at the text theme's own regular
   weight. The role's medium weight is for the components that label things
   with it (badges, navigation items); metadata set in it stops receding.
@@ -681,20 +692,25 @@ weight, another font, at or above the reference — is a plain `Icon`.
   destructive is a soft `/10` tint, secondary hover is a 5% foreground mix,
   and command items highlight with `bg-muted`. Menu items still use
   `focus:bg-accent focus:text-accent-foreground` — with **every descendant**
-  (icons, shortcuts) following the foreground. (`una` washes the row
+  (icons, shortcuts) following the foreground. (`fluid` washes the row
   instead; see "A menu's highlight does not travel" under Motion.)
 - **Dark `--border` and `--input` are translucent whites** (10% and 15%). This
   matters: an opaque grey hairline disappears against a card of the same value.
 - The dark card and popover are a step lighter than the page.
 - Overlays are `bg-black/10` with `backdrop-blur-xs` in both modes — the blur is
   what lets the tint stay that light.
-- The base palettes are `blue` (the default, a standard blue that keeps
-  4.5:1 for white text), and `neutral`, `stone` and `zinc`, generated from `themes.ts`.
-  shadcn's v3 palettes and the other bases were dropped in the fork;
-  `AccentScheme` recolours any base. `applyAccentScheme` also sets the
-  **tint**: the accent's primary is tuned as a button fill and is often too
-  dim to draw on a dark page, so the tint is the step of the accent's ramp
-  nearest the primary's lightness that reaches 4.5:1 on page and card.
+- **Six colour schemes, one ladder of lightness.** `ColorSchemes` lists
+  them: `ocean` (the default, a standard blue that keeps 4.5:1 for white
+  text), `graphite` (monochrome), `forest`, `iris`, `ember` and `rose`.
+  They are *generated* (`dart run scripts/generate_color_schemes.dart`):
+  Ocean is the template, hand-tuned against the contrast tests, and every
+  other scheme keeps its OKLCH lightness token by token with a hue of its
+  own for the greys (leaning by a factor) and one for the accent, so no
+  scheme is louder than another; Graphite's accent tokens follow its ink.
+  Do not hand-edit the generated files; tune the template or the specs and
+  rerun. shadcn's palettes and its seventeen `AccentScheme`s are gone (the
+  accents' lightness varied wildly); `applyAccent(Color)` remains, and
+  any token is a `copyWith`. The Demo keeps its own `TealColorScheme`.
 - The optional scheme tokens — `tint`, `foregroundSubtle`, `success`,
   `successMuted`, `warning`, `borderStrong`, `accentBorder`, `bar` — each
   fall back to an existing token, so a hand-written scheme keeps working.
@@ -725,7 +741,7 @@ weight, another font, at or above the reference — is a plain `Icon`.
   given. Before that, customising the default style silently did nothing
   on a phone.
 - **The three shadcn styles carry an app type scale** (`display`,
-  `headline`, `subtitle`, `small`) like `una` does. Without one,
+  `headline`, `subtitle`, `small`) like `fluid` does. Without one,
   `Theme.of(context).textTheme` is shadcn's *prose* scale — a 16-point `p`,
   an 18-point `large` — and a screen written against it comes out a size too
   big under that style. A style that names none of the four keeps the prose
@@ -738,9 +754,13 @@ weight, another font, at or above the reference — is a plain `Icon`.
   red, green, blue and alpha separately, so halfway from an opaque white to
   teal's 4% `muted` wash it paints a half-opaque mid-grey, far darker than
   either end — every hover on a chip dipped through it, and so does any
-  `AnimatedContainer` fading from `Color(0x00000000)`. State fills go
-  through `AnimatedFill` (`lib/src/raw_components/pressable.dart`), which
-  cross-fades (premultiplied). The related trap is `withValues(alpha: .5)`:
+  `AnimatedContainer` fading from `Color(0x00000000)`. Between two
+  *translucent* colours it is as bad: Fluid's outline button rests on
+  glass (card at 80%) and hovers to a 4% wash, and every button hover
+  flickered grey. State fills go through `AnimatedFill`
+  (`lib/src/raw_components/pressable.dart`) or `AnimatedColorBuilder`,
+  and both cross-fade premultiplied (`lerpColorThroughAlpha` in
+  `motion_color.dart`); never fade a fill with `Color.lerp`. The related trap is `withValues(alpha: .5)`:
   it *replaces* the alpha, so "half of muted" has to be `muted.a * .5` —
   the table hover was a 50% wash of the foreground until it was.
   `test/src/raw_components/interaction_flash_test.dart` reads the screen
@@ -1218,7 +1238,7 @@ rules below were all found there.
   are the glass. Glass inside scrolling content or on a flat fill is
   `Glass(frosted: false)`; a label on a photograph is a plain scrim, not an
   isolated backdrop (that was a save layer and a filter per card). A theme
-  opts in with `StyleTokens.una.copyWith(cardBlur: true)` or
+  opts in with `StyleTokens.fluid.copyWith(cardBlur: true)` or
   `CardTheme(blur: …)`; the example's Frost preset does. The navigation
   rail is the same case: it lies beside the page on a flat fill, so it is
   translucent but not frosted by default, and `NavigationRailTheme(blur:)`
@@ -1868,6 +1888,25 @@ come from it.
   configuration: building the same configuration twice must give `==`
   themes, or every rebuild of the shell is a theme change (see "Theme
   equality is load-bearing").
+- **Colours: a scheme, then any token by hand.** `colors` is one of
+  `ColorSchemes`; `lightColors`/`darkColors` (`ColorEdits`) pin tokens in
+  one brightness, and a token pinned in one only is carried to the other
+  by `applyColorEdits` (`color_tokens.dart`): the edit's change of hue and
+  chroma (and half its change of lightness, and its opacity) re-applied to
+  the other palette's colour, in OKLCH. The panel edits the brightness the
+  app shows (`ThemeCustomizerPanel.brightness`). Exported as
+  `const XColorScheme.light().copyWith(...)` with every colour that
+  differs, derived ones included.
+- **"All settings" is every `StyleTokens` field**, from
+  `style_fields.g.dart`, generated from `style.dart` by
+  `dart run scripts/generate_style_fields.dart` (a root test fails when it
+  is stale — regenerate after adding a token). Each field gets a group by
+  its name and a control by its type; `style_field.dart` holds the
+  hand-written half (ranges, labels, `toSource`). Edits are `StyleEdits`
+  applied over the quick controls: `styleEdits` on the desktop metrics
+  (and the phone's where the two share the value, as `copyWith` does),
+  `mobileStyleEdits` on the phone's alone; the panel edits the form factor
+  the app shows.
 - **Liquid Glass (Auto / On / Off) is a preview setting** like form factor
   and text scale: outside `look`, kept by `ThemePreset.applyTo`, so it
   never turns a preset into "Custom"; but it is exported in the snippet
@@ -1885,7 +1924,7 @@ come from it.
   reshaped the element above `ComponentsScreen` and threw its `State` away,
   so opening the editor bounced you back to the first component — which
   reads as "the editor does nothing to this page".
-- The customizer panel is **fixed dark chrome** (pinned to `StyleTokens.nova`)
+- The customizer panel is **fixed dark chrome** (pinned to `StyleTokens.crisp`)
   at an unscaled text size, not part of the theme being edited — a panel
   that follows the configuration becomes unreadable while editing a light,
   menu-inverted or 1.6×-scaled theme.

@@ -55,7 +55,7 @@ void main() {
       }
       expect(
         themed(base, formFactor: FormFactor.mobile).style,
-        StyleTokens.unaMobile,
+        StyleTokens.fluidMobile,
       );
     },
   );
@@ -145,7 +145,7 @@ void main() {
     });
 
     test('makes an opaque style translucent', () {
-      const nova = ThemeEditorConfig(style: StylePreset.nova);
+      const nova = ThemeEditorConfig(style: StylePreset.crisp);
       expect(themed(nova).cardTheme.backgroundColor!.a, 1);
       expect(nova.cardsAreTranslucent, isFalse);
       everywhere(nova.copyWith(cardOpacity: () => .5), (theme, where) {
@@ -161,12 +161,12 @@ void main() {
       // 88% is already Una's light value: only the dark one moves.
       final overrides = StyleOverrides.resolve(
         base.copyWith(cardOpacity: () => .88),
-        StyleTokens.una,
+        StyleTokens.fluid,
       );
       expect(overrides.cardOpacity, isNull);
       expect(overrides.cardOpacityDark, .88);
       expect(overrides.code, ['cardOpacityDark: 0.88']);
-      expect(StyleOverrides.resolve(base, StyleTokens.una).isEmpty, isTrue);
+      expect(StyleOverrides.resolve(base, StyleTokens.fluid).isEmpty, isTrue);
     });
   });
 
@@ -216,11 +216,15 @@ void main() {
 
     test('turns it on for a style that has none', () {
       final glassyNova = const ThemeEditorConfig(
-        style: StylePreset.nova,
+        style: StylePreset.crisp,
       ).copyWith(cardOpacity: () => .7, cardBlur: () => true);
       everywhere(glassyNova, (theme, where) {
         expect(theme.style.cardBlur, isTrue, reason: where);
-        expect(theme.cardTheme.blur, StyleTokens.nova.glassBlur, reason: where);
+        expect(
+          theme.cardTheme.blur,
+          StyleTokens.crisp.glassBlur,
+          reason: where,
+        );
       });
     });
   });
@@ -256,7 +260,7 @@ void main() {
   group('Blur Strength', () {
     test('sets the blur behind glass and bars, and behind cards that '
         'blur', () {
-      expect(base.effectiveGlassBlur, StyleTokens.una.glassBlur);
+      expect(base.effectiveGlassBlur, StyleTokens.fluid.glassBlur);
       everywhere(base.copyWith(glassBlur: () => 6), (theme, where) {
         expect(theme.style.glassBlur, 6, reason: where);
         expect(theme.glassTheme.blur, 6, reason: where);
@@ -342,7 +346,7 @@ void main() {
       // Nova has no phone tokens of its own; `forFormFactor` derives them,
       // and pins the page margin to 16 while doing so.
       final nova = const ThemeEditorConfig(
-        style: StylePreset.nova,
+        style: StylePreset.crisp,
       ).copyWith(pageMarginScale: 2);
       expect(pagePadding(themed(nova)), const EdgeInsets.all(48));
       expect(
@@ -352,7 +356,7 @@ void main() {
       // …and the rest of the derived phone metrics are still there.
       expect(
         themed(nova, formFactor: FormFactor.mobile).style.buttonHeight,
-        StyleTokens.nova.forFormFactor(FormFactor.mobile).buttonHeight,
+        StyleTokens.crisp.forFormFactor(FormFactor.mobile).buttonHeight,
       );
     });
   });
@@ -412,7 +416,7 @@ void main() {
       expect(
         identical(
           base.copyWith(bottomBarFloating: () => true).styleTokens,
-          StyleTokens.una,
+          StyleTokens.fluid,
         ),
         isTrue,
       );
@@ -454,7 +458,7 @@ void main() {
 
       // The phone theme has the phone metrics.
       final phone = base.copyWith(formFactor: EditorFormFactor.mobile).build();
-      expect(phone.style, StyleTokens.unaMobile);
+      expect(phone.style, StyleTokens.fluidMobile);
       expect(phone.buttonSizesTheme.regular!.height, 44);
     });
 
@@ -498,7 +502,7 @@ void main() {
       expect(theme.buttonSizesTheme.regular!.height, 44);
       expect(
         theme.style.body.fontSize,
-        StyleTokens.unaMobile.body.fontSize,
+        StyleTokens.fluidMobile.body.fontSize,
       );
     });
   });

@@ -65,7 +65,7 @@ void main() {
         UnaApp(
           builder: (context, child) => UnaMaterial(child: child!),
           theme: ThemeData(
-            colorScheme: const NeutralColorScheme.light(),
+            colorScheme: const GraphiteColorScheme.light(),
             style: style,
           ),
           home: Scaffold(

@@ -44,7 +44,7 @@ void main() {
 
     test('follows a customised caption role', () {
       final theme = ThemeData(
-        style: StyleTokens.una.copyWith(
+        style: StyleTokens.fluid.copyWith(
           caption: const TextRole(
             fontSize: 16,
             fontWeight: FontWeight.w700,

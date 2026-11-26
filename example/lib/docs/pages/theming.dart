@@ -31,70 +31,59 @@ theme.formFactor;            // desktop or mobile''',
         title: 'Color schemes',
         children: [
           DocParagraph(
-            'Four base schemes ship in light and dark: `blue` (the '
-            'default), `neutral`, `zinc` and `stone`. A base scheme '
-            'supplies the whole palette: backgrounds, borders, muted '
-            'tones and a primary.',
+            'Six schemes ship, each a light and a dark palette: Ocean '
+            '(the default, a standard blue), Graphite (monochrome), '
+            'Forest, Iris, Ember and Rose. Each supplies the whole '
+            'palette — page, surfaces, text, lines, the primary and its '
+            'tint, status colors and a chart ramp — and all six are made '
+            'from one ladder of lightness, so none is louder than '
+            'another.',
           ),
           CodeBlock(
             code: '''
 UnaApp(
   theme: ThemeData(
-    colorScheme: const ZincColorScheme.light(),
+    colorScheme: const IrisColorScheme.light(),
   ),
   darkTheme: ThemeData(
     brightness: Brightness.dark,
-    colorScheme: const ZincColorScheme.dark(),
+    colorScheme: const IrisColorScheme.dark(),
   ),
 )''',
           ),
           DocParagraph(
-            'To let users pick a palette at runtime, resolve one by name '
-            'with `ColorScheme.fromName`:',
+            'To let users pick one at runtime, `ColorSchemes` lists them '
+            'with their names and both palettes:',
           ),
           CodeBlock(
             code: '''
-final scheme = ColorScheme.fromName(
-  'stone',
-  brightness: Brightness.dark,
-);''',
+for (final scheme in ColorSchemes.values) {
+  scheme.label;              // 'Ocean', 'Graphite', …
+  scheme.of(Brightness.dark); // its dark palette
+}
+ColorScheme.fromName('forest', brightness: Brightness.dark);''',
           ),
         ],
       ),
       DocSection(
-        title: 'Accents',
+        title: 'Accent from one color',
         children: [
           DocParagraph(
-            'An `AccentScheme` is an overlay: it replaces only the '
-            'tokens that carry the hue (the primary pair, the focus '
-            'ring, the selection and the chart ramp) and leaves the '
-            'base palette alone. Seventeen ship, each in light and dark: '
-            'amber, blue, cyan, emerald, fuchsia, green, indigo, lime, '
-            'orange, pink, purple, red, rose, sky, teal, violet and '
-            'yellow.',
+            '`applyAccent` re-colors a scheme from a single color: the '
+            'primary, the focus ring and the selection, with a readable '
+            'foreground derived for it. It also moves the `tint` '
+            '(selected icons, links, progress fills), `tintForeground` '
+            'and `accentBorder` when the color has a contrast of at '
+            'least 4.5:1 against both `background` and `card`; a color '
+            'too faint for that leaves them alone, so set `tint` yourself '
+            'with `copyWith`.',
           ),
           CodeBlock(
             code: '''
 ThemeData(
-  colorScheme: const ZincColorScheme.light()
-      .applyAccentScheme(AccentScheme.violetLight),
-)
-
-// By name, for a picker:
-AccentScheme.fromName('violet', brightness: Brightness.dark);
-
-// Or any one color, with a readable foreground derived for it:
-const NeutralColorScheme.light().applyAccent(const Color(0xFF3B82F6));''',
-          ),
-          DocParagraph(
-            '`applyAccent` re-colors the primary, the focus ring and the '
-            'selection. It also moves the `tint` (selected icons, links, '
-            'progress fills), `tintForeground` and `accentBorder` when '
-            'the color has a contrast of at least 4.5:1 against both '
-            '`background` and `card`; a color too faint for that leaves '
-            'them alone, so set `tint` yourself with `copyWith` or use '
-            'an `AccentScheme`, which picks a legible step from its '
-            'ramp.',
+  colorScheme: const GraphiteColorScheme.light()
+      .applyAccent(const Color(0xFF6D28D9)),
+)''',
           ),
         ],
       ),
@@ -102,14 +91,15 @@ const NeutralColorScheme.light().applyAccent(const Color(0xFF3B82F6));''',
         title: 'Customizing a scheme',
         children: [
           DocParagraph(
-            'A scheme is a value. Override individual slots where you '
-            'construct it, and carry your own colors in the `custom` map '
-            'so they lerp and switch with the rest of the theme.',
+            'A scheme is a value. Change any color with `copyWith` (or '
+            'where you construct it), and carry your own colors in the '
+            '`custom` map so they lerp and switch with the rest of the '
+            'theme. The theme editor exports exactly this.',
           ),
           CodeBlock(
             code: '''
 ThemeData(
-  colorScheme: const BlueColorScheme.light(
+  colorScheme: const OceanColorScheme.light(
     primary: Color(0xFF16A34A),
     custom: {
       'highlight': Color(0xFFFACC15),
@@ -179,15 +169,15 @@ ThemeData(
             'palette (pass the dark counterpart for the "Inverted" look) '
             'and `menuAccent` picks how strongly rows highlight. Whether '
             'menus are glass is the style\'s choice — they are in '
-            '`una`, whose `popoverOpacity` is below 1, and solid in the '
-            'shadcn styles — unless `menuTranslucent` says otherwise: '
+            '`fluid`, whose `popoverOpacity` is below 1, and solid in '
+            '`crisp`, `pebble` and `sharp` — unless `menuTranslucent` says otherwise: '
             '`true` gives any style the blurred 70% finish, `false` keeps '
             'menus solid.',
           ),
           CodeBlock(
             code: '''
 ThemeData(
-  menuColorScheme: const BlueColorScheme.dark(),
+  menuColorScheme: const OceanColorScheme.dark(),
   menuTranslucent: true,
   menuAccent: MenuAccent.bold,
 )''',

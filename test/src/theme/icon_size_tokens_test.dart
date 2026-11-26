@@ -18,15 +18,15 @@ void main() {
     // The shipped shadcn styles keep the base sizes; una draws both a
     // step larger.
     for (final style in [
-      StyleTokens.nova,
-      StyleTokens.maia,
-      StyleTokens.lyra,
+      StyleTokens.crisp,
+      StyleTokens.pebble,
+      StyleTokens.sharp,
     ]) {
       expect(of(style).toggleTheme.iconSize, 16, reason: style.name);
       expect(of(style).primaryBadgeTheme.iconSize, 12, reason: style.name);
     }
-    expect(of(StyleTokens.una).toggleTheme.iconSize, 18);
-    expect(of(StyleTokens.una).primaryBadgeTheme.iconSize, 14);
+    expect(of(StyleTokens.fluid).toggleTheme.iconSize, 18);
+    expect(of(StyleTokens.fluid).primaryBadgeTheme.iconSize, 14);
   });
 
   testWidgets('a badge hands its icon size down', (tester) async {

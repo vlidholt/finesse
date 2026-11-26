@@ -4,7 +4,7 @@ import 'package:una/material.dart';
 import 'package:una/src/app.dart';
 import 'package:una/src/components/button.dart';
 import 'package:una/src/components/icon_button.dart';
-import 'package:una/src/theme/color_scheme/zinc.dart';
+import 'package:una/src/theme/color_scheme/iris.dart';
 import 'package:una/src/theme/components/button.dart';
 import 'package:una/src/theme/data.dart';
 import 'package:una/src/theme/spacing.dart';
@@ -23,7 +23,7 @@ void main() {
   }
 
   // The `.cn-button-size-icon*` values quoted below are shadcn's nova.
-  final nova = ThemeData(style: StyleTokens.nova);
+  final nova = ThemeData(style: StyleTokens.crisp);
 
   group('IconButton', () {
     testWidgets('IconButton matches goldens', (tester) async {
@@ -188,7 +188,7 @@ void main() {
             ],
           ),
           theme: ThemeData(
-            style: StyleTokens.nova,
+            style: StyleTokens.crisp,
             primaryButtonTheme: const ButtonTheme(size: ButtonSize.sm),
           ),
         ),
@@ -209,10 +209,10 @@ void main() {
     // they stay here as fixtures because they are the styles that prove the
     // `sm` and base slots are read independently.
     final expected = {
-      StyleTokens.una: (16.0, 18.0, 18.0),
-      StyleTokens.nova: (14.0, 16.0, 16.0),
-      StyleTokens.maia: (16.0, 16.0, 16.0),
-      StyleTokens.lyra: (14.0, 16.0, 16.0),
+      StyleTokens.fluid: (16.0, 18.0, 18.0),
+      StyleTokens.crisp: (14.0, 16.0, 16.0),
+      StyleTokens.pebble: (16.0, 16.0, 16.0),
+      StyleTokens.sharp: (14.0, 16.0, 16.0),
       FixtureStyles.vega: (16.0, 16.0, 16.0),
       FixtureStyles.mira: (12.0, 14.0, 16.0),
       FixtureStyles.sera: (14.0, 14.0, 14.0),
@@ -222,7 +222,7 @@ void main() {
       for (final entry in expected.entries) {
         final sizes = ThemeData(
           brightness: Brightness.light,
-          colorScheme: const ZincColorScheme.light(),
+          colorScheme: const IrisColorScheme.light(),
           style: entry.key,
         ).buttonSizesTheme;
 
@@ -236,10 +236,10 @@ void main() {
 
     test('icon buttons keep the base glyph except in mira and sera', () {
       final iconExpected = {
-        StyleTokens.una: (20.0, 20.0, 20.0),
-        StyleTokens.nova: (16.0, 16.0, 16.0),
-        StyleTokens.maia: (16.0, 16.0, 16.0),
-        StyleTokens.lyra: (16.0, 16.0, 16.0),
+        StyleTokens.fluid: (20.0, 20.0, 20.0),
+        StyleTokens.crisp: (16.0, 16.0, 16.0),
+        StyleTokens.pebble: (16.0, 16.0, 16.0),
+        StyleTokens.sharp: (16.0, 16.0, 16.0),
         FixtureStyles.vega: (16.0, 16.0, 16.0),
         FixtureStyles.mira: (12.0, 14.0, 16.0),
         FixtureStyles.sera: (14.0, 14.0, 14.0),
@@ -248,7 +248,7 @@ void main() {
       for (final entry in iconExpected.entries) {
         final sizes = ThemeData(
           brightness: Brightness.light,
-          colorScheme: const ZincColorScheme.light(),
+          colorScheme: const IrisColorScheme.light(),
           style: entry.key,
         ).buttonSizesTheme;
 
@@ -269,8 +269,8 @@ void main() {
       // glyph with everything else.
       final theme = ThemeData(
         brightness: Brightness.light,
-        colorScheme: const ZincColorScheme.light(),
-        style: StyleTokens.nova,
+        colorScheme: const IrisColorScheme.light(),
+        style: StyleTokens.crisp,
         spacing: const Spacing(step: 5),
       );
       expect(theme.buttonSizesTheme.icon!.iconSize, 20);

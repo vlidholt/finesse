@@ -37,10 +37,10 @@ Widget _toolbar({
 void main() {
   testWidgets('builds in every layout and style', (tester) async {
     for (final style in [
-      StyleTokens.una,
-      StyleTokens.nova,
-      StyleTokens.maia,
-      StyleTokens.lyra,
+      StyleTokens.fluid,
+      StyleTokens.crisp,
+      StyleTokens.pebble,
+      StyleTokens.sharp,
     ]) {
       for (final layout in kLayouts) {
         await pumpUna(

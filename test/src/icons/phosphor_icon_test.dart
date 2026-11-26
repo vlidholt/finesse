@@ -115,7 +115,7 @@ void main() {
     });
 
     test('the style tokens reach the theme, on both form factors', () {
-      final style = StyleTokens.una.copyWith(
+      final style = StyleTokens.fluid.copyWith(
         iconOpticalSize: 20,
         iconOpticalStrength: .8,
       );
@@ -126,7 +126,7 @@ void main() {
         expect(icons.referenceSize, 20, reason: formFactor.name);
         expect(icons.strength, .8, reason: formFactor.name);
       }
-      expect(style, isNot(StyleTokens.una));
+      expect(style, isNot(StyleTokens.fluid));
     });
 
     test('the reference is a size on the screen, not spacing units', () {
@@ -145,7 +145,7 @@ void main() {
       expect(theme.phosphorIconTheme.strength, .8);
       expect(theme.phosphorIconTheme.referenceSize, 24);
 
-      final restyled = theme.copyWith(style: StyleTokens.lyra);
+      final restyled = theme.copyWith(style: StyleTokens.sharp);
       expect(restyled.phosphorIconTheme.strength, .8);
       final replaced = theme.copyWith(
         phosphorIconTheme: const PhosphorIconTheme(strength: 0),
@@ -169,7 +169,7 @@ void main() {
         ThemeData().phosphorIconTheme,
         isNot(
           ThemeData(
-            style: StyleTokens.una.copyWith(iconOpticalStrength: .8),
+            style: StyleTokens.fluid.copyWith(iconOpticalStrength: .8),
           ).phosphorIconTheme,
         ),
       );
@@ -285,8 +285,8 @@ void main() {
     testWidgets('follows the size a button gives its icon', (tester) async {
       // nova's buttons hand 16 down and the default style's 18.
       for (final (style, outline) in [
-        (StyleTokens.nova, .25),
-        (StyleTokens.una, .1875),
+        (StyleTokens.crisp, .25),
+        (StyleTokens.fluid, .1875),
       ]) {
         await pumpUna(
           tester,
@@ -459,7 +459,7 @@ void main() {
         tester,
         icon,
         theme: ThemeData(
-          style: StyleTokens.una.copyWith(iconOpticalSize: 16),
+          style: StyleTokens.fluid.copyWith(iconOpticalSize: 16),
         ),
       );
       expect(outlineOf(tester), isNull);
@@ -468,7 +468,7 @@ void main() {
         tester,
         icon,
         theme: ThemeData(
-          style: StyleTokens.una.copyWith(iconOpticalStrength: 0),
+          style: StyleTokens.fluid.copyWith(iconOpticalStrength: 0),
         ),
       );
       expect(outlineOf(tester), isNull);

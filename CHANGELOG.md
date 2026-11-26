@@ -104,15 +104,26 @@ was measured from (Strand, until it moved), is its own repository,
 
 #### Look and theme
 
-- **A new default look.** `ThemeData()` is the `una` style on the
-  `TealColorScheme`: 10-point controls, 18-point translucent cards, bars and
-  menus of frosted glass, soft tinted shadows. Pass `style: StyleTokens.nova`
-  and `colorScheme: const NeutralColorScheme.light()` for the classic
+- **A new default look.** `ThemeData()` is the `fluid` style on the
+  `OceanColorScheme`: 10-point controls, 18-point translucent cards, bars
+  and menus of frosted glass, soft tinted shadows. Pass
+  `style: StyleTokens.crisp` and
+  `colorScheme: const GraphiteColorScheme.light()` for the classic
   shadcn/ui look.
-- **Fewer built-in presets.** The styles are `una`, `nova`, `maia` and
-  `lyra`; the base colour schemes are `teal`, `neutral`, `zinc` and `stone`.
-  `AccentScheme` still recolours any of them, and every token a preset sets
-  can be set on its own through `StyleTokens.copyWith`.
+- **Four styles, renamed.** `fluid` (the default, measured from the Demo
+  designs), and `crisp`, `pebble` and `sharp`, made from shadcn's Nova,
+  Maia and Lyra; `StyleTokens.fluidMobile` is Fluid's phone metrics. Every
+  token a style sets can be set on its own through `StyleTokens.copyWith`.
+- **Six colour schemes instead of shadcn's palettes and accents.**
+  `ColorSchemes` lists `ocean` (the default, a standard blue), `graphite`
+  (monochrome), `forest`, `iris`, `ember` and `rose`, each a light and a
+  dark palette setting every token. They are generated from one ladder of
+  lightness (`scripts/generate_color_schemes.dart`), so none is louder or
+  more washed out than another — shadcn's seventeen accents ranged from a
+  near-white yellow to a near-black violet. `BlueColorScheme`,
+  `NeutralColorScheme`, `ZincColorScheme`, `StoneColorScheme`,
+  `AccentScheme` and `applyAccentScheme` are gone; change any colour with
+  `copyWith`, or the accent from one colour with `applyAccent`.
 - **`ColorScheme.applyAccent` moves the tint as well as the primary.** With
   a colour that reads against both the background and the card (a contrast
   of at least 4.5:1), `tint` becomes that colour, `tintForeground` its
@@ -129,19 +140,19 @@ was measured from (Strand, until it moved), is its own repository,
 - **Floating surfaces are glass in the default style.** Popovers, menus, a
   select's list, the command palette, tooltips and toasts are translucent
   over a blurred backdrop (`StyleTokens.popoverOpacity` and
-  `tooltipOpacity`); they stay solid in `nova`, `maia` and `lyra`.
+  `tooltipOpacity`); they stay solid in `crisp`, `pebble` and `sharp`.
   `ThemeData.menuTranslucent` is three-state: null follows the style, true
   is shadcn's 70% finish and false keeps menus solid. A tooltip's arrow is
   part of the bubble's outline. A toast is a popover surface in every
   style: it takes the scheme's `popover` and `popoverForeground` colours.
 - **Cards do not blur.** They stay translucent, but a backdrop filter per
   card is paid on every frame; opt in with
-  `StyleTokens.una.copyWith(cardBlur: true)` or `CardTheme(blur: …)`.
+  `StyleTokens.fluid.copyWith(cardBlur: true)` or `CardTheme(blur: …)`.
 - **Menu highlights are a wash in the default style.** The highlighted row
   of a menu, a `Select` and the `Command` palette is tinted with the menu's
   own foreground (`StyleTokens.menuHighlightOpacity`, 6% on a light menu and
-  9% on a dark one) and its text and icons keep their colour. `nova`,
-  `maia` and `lyra` keep the accent fill.
+  9% on a dark one) and its text and icons keep their colour. `crisp`,
+  `pebble` and `sharp` keep the accent fill.
 - **`ThemeData.menuAccent` changes menus only.** `MenuAccent.bold` fills
   the highlighted row of a menu with the primary colour and leaves the
   colour scheme alone; in shad it rewrote the scheme's accent pair, which
@@ -408,12 +419,23 @@ was measured from (Strand, until it moved), is its own repository,
   its swatches are a finger's size on a phone. The example's theme
   editor uses it for a custom accent colour, exported as
   `applyAccent`.
-- **The default palette is `BlueColorScheme`**: a standard blue
-  (`#2563EB` buttons, a `#1D4ED8` tint in the light; `#6EB0FB` in the
-  dark) on a cool grey page, setting every optional token as the teal
-  did. `TealColorScheme` is gone from the package: it was measured for
-  the Demo, which keeps it. The base palettes are `blue`, `neutral`,
-  `zinc` and `stone`.
+- **The theme editor edits everything.** Pick one of the six colour
+  schemes, then any of its colours (a colour picked in light mode carries
+  over to dark, adjusted to the dark palette, until one is picked there),
+  and every field of the style under "All settings", grouped and
+  searchable, for the form factor the app shows. Liquid Glass Auto / On /
+  Off sits with the other preview settings.
+- **In a browser the top bar is the filled one** unless its theme asks
+  for Liquid Glass with `always`: a page there has no status bar for the
+  glass capsules to hang under. A large `SliverAppBar` over a picture
+  keeps its toolbar filled at rest there, the picture starting below it.
+- **No flicker on hover.** `AnimatedColorBuilder` (and so every button,
+  toggle and chip fill) cross-fades premultiplied: between Fluid's glass
+  outline button and its hover wash, `Color.lerp` painted a half-opaque
+  mid-grey for a frame or two.
+- **A Liquid Glass slider in a short row keeps its thumb on its track.**
+  The package's slider places its thumb for its own height; squeezed, the
+  thumb sat below the track.
 - **A docked bottom bar on Liquid Glass is the page's scroll edge**
   (blurred and faded from the bottom up, the controls standing on it), not
   a slab of glass; without shader filters it is solid, as the top bar is.
@@ -448,7 +470,7 @@ was measured from (Strand, until it moved), is its own repository,
 - `LiquidGlass.initialize()` loads the shaders before the first frame; if
   they fail to load, una falls back to frosted glass. Under Increase
   Contrast una draws frosted glass.
-- **The phone metrics of `StyleTokens.una` are Liquid Glass's**, so a
+- **The phone metrics of `StyleTokens.fluid` are Liquid Glass's**, so a
   phone layout is the same frosted or liquid: a 44-point app bar (was 60),
   a 64-point bottom bar (item height 52, was 48), a 58 × 26 switch (was
   44 × 24), a 28-point slider thumb (was 22), and 24-point corners on

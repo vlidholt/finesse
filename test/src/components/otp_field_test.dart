@@ -8,7 +8,7 @@ import 'package:una/src/app.dart';
 import 'package:una/src/components/otp_field.dart';
 import 'package:una/src/components/text_field.dart';
 import 'package:una/src/icons/phosphor_icons.dart';
-import 'package:una/src/theme/color_scheme/neutral.dart';
+import 'package:una/src/theme/color_scheme/graphite.dart';
 import 'package:una/src/theme/data.dart';
 import 'package:una/src/theme/style.dart';
 import 'package:una/src/theme/theme.dart';
@@ -127,8 +127,8 @@ void main() {
           // translucent wash and outlines them with one, which blend to
           // within the tolerance in either order.
           theme: ThemeData(
-            style: StyleTokens.nova,
-            colorScheme: const NeutralColorScheme.light(),
+            style: StyleTokens.crisp,
+            colorScheme: const GraphiteColorScheme.light(),
           ),
         ),
       );

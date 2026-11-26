@@ -347,7 +347,7 @@ void main() {
         tester,
         field(),
         theme: ThemeData(
-          style: StyleTokens.una.copyWith(
+          style: StyleTokens.fluid.copyWith(
             caption: const TextRole(fontSize: 13, height: 18 / 13),
           ),
         ),

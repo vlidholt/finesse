@@ -414,7 +414,7 @@ void main() {
 
     testWidgets('shown, each label is under its icon and the bar is a line '
         'taller, floating or docked, in every style', (tester) async {
-      for (final style in [StyleTokens.una, StyleTokens.nova]) {
+      for (final style in [StyleTokens.fluid, StyleTokens.crisp]) {
         for (final floating in [true, false]) {
           await pumpUna(
             tester,

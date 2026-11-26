@@ -59,13 +59,13 @@ void main() {
 
     test('the shadcn styles keep muted/50 and muted', () {
       for (final style in [
-        StyleTokens.nova,
-        StyleTokens.maia,
-        StyleTokens.lyra,
+        StyleTokens.crisp,
+        StyleTokens.pebble,
+        StyleTokens.sharp,
       ]) {
         for (final scheme in const <ColorScheme>[
-          NeutralColorScheme.light(),
-          NeutralColorScheme.dark(),
+          GraphiteColorScheme.light(),
+          GraphiteColorScheme.dark(),
         ]) {
           final theme = ThemeData(style: style, colorScheme: scheme);
           final muted = scheme.muted;
@@ -130,15 +130,15 @@ void main() {
       (
         'nova light',
         ThemeData(
-          style: StyleTokens.nova,
-          colorScheme: const NeutralColorScheme.light(),
+          style: StyleTokens.crisp,
+          colorScheme: const GraphiteColorScheme.light(),
         ),
       ),
       (
         'nova dark',
         ThemeData(
-          style: StyleTokens.nova,
-          colorScheme: const NeutralColorScheme.dark(),
+          style: StyleTokens.crisp,
+          colorScheme: const GraphiteColorScheme.dark(),
         ),
       ),
     ]) {

@@ -1488,10 +1488,10 @@ void main() {
       tester,
     ) async {
       for (final style in [
-        StyleTokens.una,
-        StyleTokens.nova,
-        StyleTokens.maia,
-        StyleTokens.lyra,
+        StyleTokens.fluid,
+        StyleTokens.crisp,
+        StyleTokens.pebble,
+        StyleTokens.sharp,
       ]) {
         for (final brightness in Brightness.values) {
           final theme = ThemeData(brightness: brightness, style: style);

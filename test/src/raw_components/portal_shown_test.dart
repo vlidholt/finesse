@@ -108,7 +108,7 @@ void main() {
       await tester.pumpWidget(
         UnaApp(
           theme: ThemeData(
-            style: StyleTokens.nova,
+            style: StyleTokens.crisp,
             // Reduced, the entrance is a fade over `fast` on `standard`:
             // one second, linear, and done by six tenths of the way.
             motion: Motion.lively

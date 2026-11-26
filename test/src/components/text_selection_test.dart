@@ -596,7 +596,7 @@ void main() {
       );
       expect(theme.textSelectionTheme.handleSize, 16);
       final dark = theme.copyWith(
-        colorScheme: const BlueColorScheme.dark(),
+        colorScheme: const OceanColorScheme.dark(),
         brightness: Brightness.dark,
       );
       expect(dark.textSelectionTheme.handleSize, 16);
@@ -609,10 +609,10 @@ void main() {
 
     test('every style gives the toolbar a touch-sized height', () {
       for (final style in [
-        StyleTokens.una,
-        StyleTokens.nova,
-        StyleTokens.maia,
-        StyleTokens.lyra,
+        StyleTokens.fluid,
+        StyleTokens.crisp,
+        StyleTokens.pebble,
+        StyleTokens.sharp,
       ]) {
         for (final formFactor in FormFactor.values) {
           final theme = ThemeData(

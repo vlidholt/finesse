@@ -243,8 +243,8 @@ void main() {
         theme: ({required shadow}) => ThemeData(
           brightness: brightness,
           style: shadow
-              ? StyleTokens.una
-              : StyleTokens.una.copyWith(popoverShadow: const []),
+              ? StyleTokens.fluid
+              : StyleTokens.fluid.copyWith(popoverShadow: const []),
         ),
         build: ({required shadow}) {
           controller = PopoverController();
@@ -349,8 +349,8 @@ void main() {
     // shadow is cut out of box and arrow alike — through the clip over
     // glass, and by being covered under a solid fill.
     for (final (finish, style) in [
-      ('glass', StyleTokens.una),
-      ('solid', StyleTokens.nova),
+      ('glass', StyleTokens.fluid),
+      ('solid', StyleTokens.crisp),
     ]) {
       testWidgets('$mode: a $finish popover and its arrow', (tester) async {
         late PopoverController controller;
@@ -460,8 +460,8 @@ void main() {
         theme: ({required shadow}) => ThemeData(
           brightness: brightness,
           style: shadow
-              ? StyleTokens.una
-              : StyleTokens.una.copyWith(
+              ? StyleTokens.fluid
+              : StyleTokens.fluid.copyWith(
                   sheetShadow: const [],
                   floatingShadowDark: const [],
                 ),

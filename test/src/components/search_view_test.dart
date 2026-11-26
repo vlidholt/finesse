@@ -369,7 +369,7 @@ void main() {
     for (final formFactor in FormFactor.values) {
       for (final theme in [
         ThemeData(),
-        ThemeData(style: StyleTokens.nova),
+        ThemeData(style: StyleTokens.crisp),
         ThemeData(motion: Motion.none),
       ]) {
         await tester.pumpWidget(

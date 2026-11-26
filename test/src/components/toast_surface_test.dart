@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
@@ -26,22 +28,22 @@ void main() {
 
   const black = Color(0xff000000);
   const white = Color(0xffffffff);
-  const shadcn = [StyleTokens.nova, StyleTokens.maia, StyleTokens.lyra];
+  const shadcn = [StyleTokens.crisp, StyleTokens.pebble, StyleTokens.sharp];
 
   ThemeData themeOf(StyleTokens style, Brightness brightness) => ThemeData(
     style: style,
     brightness: brightness,
-    colorScheme: style == StyleTokens.una
+    colorScheme: style == StyleTokens.fluid
         ? null
         : brightness == Brightness.dark
-        ? const NeutralColorScheme.dark()
-        : const NeutralColorScheme.light(),
+        ? const GraphiteColorScheme.dark()
+        : const GraphiteColorScheme.light(),
   );
 
   group('the toast themes', () {
     test('a toast is a popover surface: glass in the una style', () {
       for (final brightness in Brightness.values) {
-        final theme = themeOf(StyleTokens.una, brightness);
+        final theme = themeOf(StyleTokens.fluid, brightness);
         final toast = theme.toastTheme;
         expect(toast.backgroundColor, theme.popoverTheme.decoration!.color);
         expect(toast.backgroundColor!.a, lessThan(1));
@@ -83,7 +85,7 @@ void main() {
 
     test('every variant shares that surface and says what it is with an '
         'icon that reads on it', () {
-      for (final style in [StyleTokens.una, ...shadcn]) {
+      for (final style in [StyleTokens.fluid, ...shadcn]) {
         for (final brightness in Brightness.values) {
           final theme = themeOf(style, brightness);
           final toast = theme.toastTheme;
@@ -112,7 +114,7 @@ void main() {
     });
 
     test('its text, and a button on it, read over anything', () {
-      for (final style in [StyleTokens.una, ...shadcn]) {
+      for (final style in [StyleTokens.fluid, ...shadcn]) {
         for (final brightness in Brightness.values) {
           final theme = themeOf(style, brightness);
           final toast = theme.toastTheme;
@@ -192,7 +194,7 @@ void main() {
       await tester.pump(const Duration(seconds: 1));
     }
 
-    for (final style in [StyleTokens.una, ...shadcn]) {
+    for (final style in [StyleTokens.fluid, ...shadcn]) {
       for (final brightness in Brightness.values) {
         testWidgets('${style.name} ${brightness.name}: a toast has an edge '
             'over the page and over a card', (tester) async {
@@ -236,18 +238,21 @@ void main() {
                 reason: where,
               );
             }
-            final una = style == StyleTokens.una;
+            final una = style == StyleTokens.fluid;
             final dark = brightness == Brightness.dark;
 
             // The edge: the hairline against what is outside it — the bare
             // backdrop above the toast, the shadowed one below.
             expect(
-              contrast(top, backdrop),
+              math.max(contrast(top, backdrop), contrast(fill, backdrop)),
               greaterThan(dark ? 1.25 : 1.07),
               reason: 'the top edge, $where',
             );
+            // Below, the edge is the hairline or the fill, whichever
+            // stands further from the shadow: on a grey page a white
+            // toast's own fill draws it.
             expect(
-              contrast(hairline, shadow),
+              math.max(contrast(hairline, shadow), contrast(fill, shadow)),
               greaterThan(dark ? 1.3 : 1.03),
               reason: 'the bottom edge, $where',
             );
@@ -288,7 +293,7 @@ void main() {
         'each gets its own when the stack opens', (tester) async {
       await pump(
         tester,
-        themeOf(StyleTokens.una, Brightness.light),
+        themeOf(StyleTokens.fluid, Brightness.light),
         const Color(0xfff3f5f7),
       );
       final toaster = toasterOf(tester);
@@ -334,7 +339,7 @@ void main() {
           'opacity layer', (tester) async {
         await pump(
           tester,
-          themeOf(StyleTokens.una, Brightness.light),
+          themeOf(StyleTokens.fluid, Brightness.light),
           const Color(0xfff3f5f7),
         );
         toasterOf(tester).show(const Toast(title: Text('Saved')));

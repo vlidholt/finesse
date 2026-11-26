@@ -656,12 +656,12 @@ void main() {
 
     testWidgets('on an inverted menu the divider and the label use the '
         "menu's palette, not the page's", (tester) async {
-      const menuScheme = NeutralColorScheme.dark();
+      const menuScheme = GraphiteColorScheme.dark();
       await pumpMenu(
         tester,
         theme: ThemeData(
-          colorScheme: const NeutralColorScheme.light(),
-          style: StyleTokens.nova,
+          colorScheme: const GraphiteColorScheme.light(),
+          style: StyleTokens.crisp,
           menuColorScheme: menuScheme,
         ),
         items: (_) => grouped(),

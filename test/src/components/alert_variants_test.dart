@@ -8,10 +8,10 @@ import '../../frame_sampler.dart';
 /// The success, warning and info variants of `Alert`, and dismissal.
 void main() {
   const styles = [
-    StyleTokens.una,
-    StyleTokens.nova,
-    StyleTokens.maia,
-    StyleTokens.lyra,
+    StyleTokens.fluid,
+    StyleTokens.crisp,
+    StyleTokens.pebble,
+    StyleTokens.sharp,
   ];
 
   double contrast(Color a, Color b) {

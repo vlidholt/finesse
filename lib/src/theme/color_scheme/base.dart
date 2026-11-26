@@ -1,18 +1,19 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:una/src/theme/color_scheme/accent.dart';
-import 'package:una/src/theme/color_scheme/blue.dart';
-import 'package:una/src/theme/color_scheme/neutral.dart';
-import 'package:una/src/theme/color_scheme/stone.dart';
-import 'package:una/src/theme/color_scheme/zinc.dart';
+import 'package:una/src/theme/color_scheme/ember.dart';
+import 'package:una/src/theme/color_scheme/forest.dart';
+import 'package:una/src/theme/color_scheme/graphite.dart';
+import 'package:una/src/theme/color_scheme/iris.dart';
+import 'package:una/src/theme/color_scheme/ocean.dart';
+import 'package:una/src/theme/color_scheme/rose.dart';
 
-/// The colour tokens of a theme, one field per shadcn/ui CSS variable.
+/// The colour tokens of a theme.
 ///
-/// A scheme bundles a neutral base palette and the hue-carrying tokens of an
-/// accent. Use one of the shipped schemes, such as
-/// [NeutralColorScheme.light], and [applyAccentScheme] to change its hue.
-/// The `--chart-*` and `--sidebar-*` tokens are optional and fall back to the
-/// closest core token.
+/// Start from one of the six built-in schemes ([ColorSchemes]: Ocean, the
+/// default, Graphite, Forest, Iris, Ember and Rose), change any token with
+/// [copyWith], or recolour the accent from one colour with [applyAccent].
+/// The `chart*` and `sidebar*` tokens and the ones after them are optional
+/// and fall back to the closest core token.
 @immutable
 class ColorScheme {
   /// Creates a colour scheme from explicit colours.
@@ -88,33 +89,18 @@ class ColorScheme {
        _accentBorder = accentBorder,
        _bar = bar;
 
-  /// Returns the light or dark scheme called [name]: `blue`, `neutral`,
-  /// `stone` or `zinc`.
+  /// Returns the light or dark built-in scheme called [name] (see
+  /// [ColorSchemes]).
   ///
-  /// Throws an [Exception] for an unknown name.
+  /// Throws an [ArgumentError] for an unknown name.
   factory ColorScheme.fromName(
     String name, {
     Brightness brightness = Brightness.light,
   }) {
-    return switch (name) {
-      'blue' =>
-        brightness == Brightness.light
-            ? const BlueColorScheme.light()
-            : const BlueColorScheme.dark(),
-      'neutral' =>
-        brightness == Brightness.light
-            ? const NeutralColorScheme.light()
-            : const NeutralColorScheme.dark(),
-      'stone' =>
-        brightness == Brightness.light
-            ? const StoneColorScheme.light()
-            : const StoneColorScheme.dark(),
-      'zinc' =>
-        brightness == Brightness.light
-            ? const ZincColorScheme.light()
-            : const ZincColorScheme.dark(),
-      _ => throw Exception('Invalid color scheme name'),
-    };
+    for (final scheme in ColorSchemes.values) {
+      if (scheme.name == name) return scheme.of(brightness);
+    }
+    throw ArgumentError.value(name, 'name', 'Not a built-in colour scheme');
   }
 
   final bool _canMerge;
@@ -558,12 +544,10 @@ class ColorScheme {
   /// Returns a copy of this scheme with [accent] applied as the accent hue,
   /// leaving the neutral palette (backgrounds, borders, muted tones) intact.
   ///
-  /// shadcn/ui's theme editor treats the neutral *base colour* and the
-  /// *accent* as two independent choices: pick `zinc` for the greys, then
-  /// `blue` for the primary and focus ring. A [ColorScheme] bundles both,
-  /// so this re-tints only the parts that follow the accent — [primary],
-  /// [ring], [selection] and the [tint] — and derives a readable
-  /// [primaryForeground] when one is not supplied.
+  /// Re-tints only the parts that follow the accent — [primary], [ring],
+  /// [selection] and the [tint] — and derives a readable
+  /// [primaryForeground] when one is not supplied. For every other token,
+  /// use [copyWith].
   ///
   /// The [tint] is the brand colour drawn directly on the page (selected
   /// icons, links, progress fills), so it only follows [accent] where the
@@ -572,18 +556,17 @@ class ColorScheme {
   /// * If [accent] has a contrast of at least 4.5:1 against both [background]
   ///   and [card], it becomes the [tint]; [tintForeground] becomes the new
   ///   [primaryForeground] and [accentBorder] the tint at 32% opacity. A
-  ///   scheme that names its own tint, as `BlueColorScheme` does, has it
+  ///   scheme that names its own tint, as the built-in ones do, has it
   ///   replaced.
   /// * Otherwise the three are left as they are. A scheme that names no tint
   ///   still follows the new [primary], because that is what [tint] falls
   ///   back to; a scheme that names one keeps it, since a legible tint of
   ///   the old hue serves better than an illegible one of the new. Pass a
-  ///   tint of your own with [copyWith], or use [applyAccentScheme], whose
-  ///   accents carry a ramp to pick a legible step from.
+  ///   tint of your own with [copyWith].
   ///
   /// ```dart
   /// ThemeData(
-  ///   colorScheme: const ZincColorScheme.light()
+  ///   colorScheme: const GraphiteColorScheme.light()
   ///       .applyAccent(const Color(0xff3b82f6)),
   /// )
   /// ```
@@ -593,8 +576,8 @@ class ColorScheme {
     bool tintSelection = true,
   }) {
     final foreground = accentForeground ?? contrastingForeground(accent);
-    // The same bar applyAccentScheme sets for a tint: it is drawn *on* a
-    // surface, so it has to read against the page and against a card.
+    // A tint is drawn *on* a surface, so it has to read against the page
+    // and against a card.
     final legible =
         _contrast(accent, background) >= 4.5 && _contrast(accent, card) >= 4.5;
     return copyWith(
@@ -605,73 +588,6 @@ class ColorScheme {
       tint: legible ? accent : null,
       tintForeground: legible ? foreground : null,
       accentBorder: legible ? accent.withValues(alpha: .32) : null,
-    );
-  }
-
-  /// Returns a copy of this scheme with [accent]'s hue-carrying tokens applied.
-  ///
-  /// This is shadcn/ui's base-colour + accent composition: the neutral palette
-  /// is this scheme's, while the primary pair, secondary pair, chart ramp and
-  /// sidebar primary come from the accent. Tokens the accent leaves unset stay
-  /// as they are.
-  ///
-  /// [ring] follows the accent's primary, matching `focus-visible:ring-ring/50`
-  /// picking up the themed hue.
-  ///
-  /// ```dart
-  /// const ZincColorScheme.light()
-  ///     .applyAccentScheme(AccentScheme.violetLight)
-  /// ```
-  ColorScheme applyAccentScheme(AccentScheme accent) {
-    // The tint is the accent drawn *on* a surface — a selected icon, a link, a
-    // progress fill — so it has to read against the page and against a card.
-    // An accent's primary is tuned as a button fill and, in the dark
-    // palettes, is often too dim for that. So: of the primary and the chart
-    // ramp, take the step nearest the primary's own lightness that reaches
-    // 4.5:1 on both surfaces, or failing that the most legible one.
-    double legibility(Color color) {
-      final onPage = _contrast(color, background);
-      final onCard = _contrast(color, card);
-      return onPage < onCard ? onPage : onCard;
-    }
-
-    final candidates = [
-      accent.primary,
-      ?accent.chart1,
-      ?accent.chart2,
-      ?accent.chart3,
-      ?accent.chart4,
-      ?accent.chart5,
-    ];
-    final primaryLuminance = accent.primary.computeLuminance();
-    double distance(Color color) =>
-        (color.computeLuminance() - primaryLuminance).abs();
-    final legible = [
-      for (final candidate in candidates)
-        if (legibility(candidate) >= 4.5) candidate,
-    ]..sort((a, b) => distance(a).compareTo(distance(b)));
-    final tint = legible.isNotEmpty
-        ? legible.first
-        : candidates.reduce((a, b) => legibility(a) >= legibility(b) ? a : b);
-    return copyWith(
-      tint: tint,
-      tintForeground: tint == accent.primary
-          ? accent.primaryForeground
-          : contrastingForeground(tint),
-      accentBorder: tint.withValues(alpha: .32),
-      primary: accent.primary,
-      primaryForeground: accent.primaryForeground,
-      secondary: accent.secondary,
-      secondaryForeground: accent.secondaryForeground,
-      ring: accent.primary,
-      selection: accent.primary.withValues(alpha: .3),
-      chart1: accent.chart1,
-      chart2: accent.chart2,
-      chart3: accent.chart3,
-      chart4: accent.chart4,
-      chart5: accent.chart5,
-      sidebarPrimary: accent.sidebarPrimary,
-      sidebarPrimaryForeground: accent.sidebarPrimaryForeground,
     );
   }
 
@@ -860,4 +776,41 @@ class ColorScheme {
       ]),
     ]);
   }
+}
+
+/// The six built-in colour schemes, each a light and a dark palette made
+/// from one ladder of lightness, so no theme is louder than another.
+enum ColorSchemes {
+  /// A standard blue on a cool grey page: una's default.
+  ocean('Ocean', OceanColorScheme.light(), OceanColorScheme.dark()),
+
+  /// Monochrome: near-black ink as the primary, near-white in the dark.
+  graphite('Graphite', GraphiteColorScheme.light(), GraphiteColorScheme.dark()),
+
+  /// A deep green on greys with a breath of sage.
+  forest('Forest', ForestColorScheme.light(), ForestColorScheme.dark()),
+
+  /// A clear violet on cool, faintly violet greys.
+  iris('Iris', IrisColorScheme.light(), IrisColorScheme.dark()),
+
+  /// A burnt orange on warm stone greys.
+  ember('Ember', EmberColorScheme.light(), EmberColorScheme.dark()),
+
+  /// A rose red on soft, warm greys.
+  rose('Rose', RoseColorScheme.light(), RoseColorScheme.dark());
+
+  const ColorSchemes(this.label, this.light, this.dark);
+
+  /// The scheme's display name.
+  final String label;
+
+  /// The light palette.
+  final ColorScheme light;
+
+  /// The dark palette.
+  final ColorScheme dark;
+
+  /// The palette for [brightness].
+  ColorScheme of(Brightness brightness) =>
+      brightness == Brightness.dark ? dark : light;
 }

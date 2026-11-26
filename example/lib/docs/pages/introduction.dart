@@ -35,16 +35,16 @@ final introductionDoc = ComponentDoc(
                   'sidebar, plus app structure (`Scaffold`, `AppBar`, '
                   '`NavigationBar`) and content pieces (`ListTile`, '
                   '`Chip`, `ChatBubble`, `Timeline`).',
-              'Four styles (`una`, the default, and `nova`, `maia`, '
-                  '`lyra`) as complete presets: geometry, typography, '
+              'Four styles (`fluid`, the default, and `crisp`, `pebble`, '
+                  '`sharp`) as complete presets: geometry, typography, '
                   'shadows and translucency, switchable with one '
                   'setting.',
               'Two form factors per style. The same widgets come out '
                   'with 36-point buttons in a desktop window and '
                   '44-point ones on a phone.',
-              'Four base color schemes (`blue`, the default, `neutral`, '
-                  '`zinc` and `stone`), each in light and dark, with '
-                  'seventeen accent overlays and three menu finishes: '
+              'Six color schemes (Ocean, the default, Graphite, Forest, '
+                  'Iris, Ember and Rose), each in light and dark, every '
+                  'color of them changeable, and three menu finishes: '
                   'inverted, translucent, and bold accent.',
               'The Phosphor icon set in six weights, bundled, and one '
                   'motion vocabulary — springs, entrances and moving '

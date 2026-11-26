@@ -197,7 +197,7 @@ void main() {
             onPressed: () {},
           ),
         ),
-        theme: ThemeData(style: StyleTokens.lyra),
+        theme: ThemeData(style: StyleTokens.sharp),
       );
       final fill = tester.widget<AnimatedFill>(
         find.descendant(of: fab(), matching: find.byType(AnimatedFill)),

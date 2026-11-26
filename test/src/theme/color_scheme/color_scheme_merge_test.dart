@@ -5,14 +5,14 @@ import 'package:una/una.dart';
 void main() {
   group('ColorScheme.merge', () {
     test('merge with null returns this', () {
-      const scheme = NeutralColorScheme.light();
+      const scheme = GraphiteColorScheme.light();
       final result = scheme.merge(null);
       expect(identical(result, scheme), isTrue);
     });
 
     test('merge replaces all standard color fields', () {
-      const base = NeutralColorScheme.light();
-      const other = NeutralColorScheme.dark();
+      const base = GraphiteColorScheme.light();
+      const other = GraphiteColorScheme.dark();
       final result = base.merge(other);
 
       expect(result.background, other.background);
@@ -38,10 +38,10 @@ void main() {
     });
 
     test('merge combines custom maps', () {
-      final base = const NeutralColorScheme.light().copyWith(
+      final base = const GraphiteColorScheme.light().copyWith(
         custom: const {'brand': Color(0xFF000000)},
       );
-      final other = const NeutralColorScheme.light().copyWith(
+      final other = const GraphiteColorScheme.light().copyWith(
         custom: const {'accent': Color(0xFFFFFFFF)},
       );
       final result = base.merge(other);
@@ -51,10 +51,10 @@ void main() {
     });
 
     test('merge custom map - other overrides same keys', () {
-      final base = const NeutralColorScheme.light().copyWith(
+      final base = const GraphiteColorScheme.light().copyWith(
         custom: const {'brand': Color(0xFF000000)},
       );
-      final other = const NeutralColorScheme.light().copyWith(
+      final other = const GraphiteColorScheme.light().copyWith(
         custom: const {'brand': Color(0xFFFF0000)},
       );
       final result = base.merge(other);
@@ -63,7 +63,7 @@ void main() {
     });
 
     test('merge with canMerge false returns other unchanged', () {
-      final base = const NeutralColorScheme.light().copyWith(
+      final base = const GraphiteColorScheme.light().copyWith(
         custom: const {'brand': Color(0xFF000000)},
       );
       const other = ColorScheme(
@@ -101,12 +101,12 @@ void main() {
   group('ThemeData.merge', () {
     test('merges colorScheme custom maps', () {
       final base = ThemeData(
-        colorScheme: const NeutralColorScheme.light().copyWith(
+        colorScheme: const GraphiteColorScheme.light().copyWith(
           custom: const {'brand': Color(0xFF000000)},
         ),
       );
       final other = ThemeData(
-        colorScheme: const NeutralColorScheme.light().copyWith(
+        colorScheme: const GraphiteColorScheme.light().copyWith(
           custom: const {'accent': Color(0xFFFFFFFF)},
         ),
       );
@@ -124,7 +124,7 @@ void main() {
 
     test('non-mergeable colorScheme replaces rather than merges', () {
       final base = ThemeData(
-        colorScheme: const NeutralColorScheme.light().copyWith(
+        colorScheme: const GraphiteColorScheme.light().copyWith(
           custom: const {'brand': Color(0xFF000000)},
         ),
       );

@@ -11,10 +11,10 @@ import '../../frame_sampler.dart';
 /// hairline between two outlines, and nothing moved by the joining.
 void main() {
   const styles = [
-    StyleTokens.una,
-    StyleTokens.nova,
-    StyleTokens.maia,
-    StyleTokens.lyra,
+    StyleTokens.fluid,
+    StyleTokens.crisp,
+    StyleTokens.pebble,
+    StyleTokens.sharp,
   ];
 
   ThemeData themeOf(
@@ -75,7 +75,7 @@ void main() {
     testWidgets('the children lie edge to edge, each exactly as wide as it '
         'is on its own, with its label where it was', (tester) async {
       for (final insideRing in [false, true]) {
-        final theme = themeOf(StyleTokens.una, insideRing: insideRing);
+        final theme = themeOf(StyleTokens.fluid, insideRing: insideRing);
         await pump(
           tester,
           Row(
@@ -320,7 +320,7 @@ void main() {
     testWidgets('the focused child is painted last, with a ring squared '
         'like its corners, and nothing moves', (tester) async {
       for (final insideRing in [false, true]) {
-        final theme = themeOf(StyleTokens.una, insideRing: insideRing);
+        final theme = themeOf(StyleTokens.fluid, insideRing: insideRing);
         await pump(
           tester,
           ButtonGroup(

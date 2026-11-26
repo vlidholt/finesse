@@ -324,8 +324,8 @@ void main() {
       await open(
         tester,
         theme: ThemeData(
-          style: StyleTokens.nova,
-          colorScheme: const NeutralColorScheme.light(),
+          style: StyleTokens.crisp,
+          colorScheme: const GraphiteColorScheme.light(),
         ),
       );
 
@@ -338,17 +338,14 @@ void main() {
           matching: find.byType(TextField),
         ),
       );
-      // `bg-input/30` inside an `--input` outline, no focus ring.
-      expect(
-        input.decoration?.color,
-        theme.colorScheme.input.withValues(alpha: .3),
-      );
+      // `bg-input/30` inside an `--input` outline, no focus ring: 30% of
+      // the input wash, which is itself translucent.
+      final wash = theme.colorScheme.input;
+      expect(input.decoration?.color, wash.withValues(alpha: wash.a * .3));
       expect(input.decoration?.disableSecondaryBorder, true);
       expect(
         input.decoration?.border?.top?.color,
-        theme.colorScheme.input.withValues(
-          alpha: theme.style.commandSearchBorderOpacity,
-        ),
+        wash.withValues(alpha: wash.a * theme.style.commandSearchBorderOpacity),
       );
       // Inset from the dialog edge (`p-1` + `p-1 pb-0`), not edge-to-edge.
       final inputRect = tester.getRect(find.byType(TextField));

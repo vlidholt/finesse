@@ -16,13 +16,13 @@ void main() {
 
     test('a theme is desktop unless told otherwise', () {
       expect(desktop.formFactor, FormFactor.desktop);
-      expect(desktop.style, StyleTokens.una);
+      expect(desktop.style, StyleTokens.fluid);
       expect(mobile.formFactor, FormFactor.mobile);
-      expect(mobile.style, StyleTokens.unaMobile);
+      expect(mobile.style, StyleTokens.fluidMobile);
       // The variant remembers the style it was asked for, not only the one
       // it resolved.
-      expect(mobile.variant.baseStyle, StyleTokens.una);
-      expect(desktop.variant.baseStyle, StyleTokens.una);
+      expect(mobile.variant.baseStyle, StyleTokens.fluid);
+      expect(desktop.variant.baseStyle, StyleTokens.fluid);
     });
 
     test('button, input and chip are 36/40/32 on a desktop', () {
@@ -151,21 +151,21 @@ void main() {
     });
 
     test('una names its mobile counterpart', () {
-      expect(StyleTokens.una.mobile, same(StyleTokens.unaMobile));
+      expect(StyleTokens.fluid.mobile, same(StyleTokens.fluidMobile));
       expect(
-        StyleTokens.una.forFormFactor(FormFactor.mobile),
-        same(StyleTokens.unaMobile),
+        StyleTokens.fluid.forFormFactor(FormFactor.mobile),
+        same(StyleTokens.fluidMobile),
       );
-      expect(StyleTokens.unaMobile.name, 'una');
+      expect(StyleTokens.fluidMobile.name, 'fluid');
     });
 
     test('a style with no explicit mobile derives one', () {
-      const nova = StyleTokens.nova;
+      const nova = StyleTokens.crisp;
       expect(nova.mobile, isNull);
       final mobile = nova.forFormFactor(FormFactor.mobile);
 
       expect(mobile, isNot(nova));
-      expect(mobile.name, 'nova');
+      expect(mobile.name, 'crisp');
       // Controls grow to touch targets.
       expect(nova.buttonHeight, 32);
       expect(mobile.buttonHeight, 44);
@@ -232,11 +232,11 @@ void main() {
 
     test('the derived metrics reach the component themes', () {
       final theme = ThemeData(
-        style: StyleTokens.nova,
+        style: StyleTokens.crisp,
         formFactor: FormFactor.mobile,
       );
-      expect(theme.style, StyleTokens.nova.forFormFactor(FormFactor.mobile));
-      expect(theme.variant.baseStyle, StyleTokens.nova);
+      expect(theme.style, StyleTokens.crisp.forFormFactor(FormFactor.mobile));
+      expect(theme.variant.baseStyle, StyleTokens.crisp);
       expect(theme.buttonSizesTheme.regular!.height, 44);
       expect(theme.textFieldTheme.constraints!.minHeight, 44);
       expect(theme.chipTheme.height, 36);
@@ -326,8 +326,8 @@ void main() {
 
     test('keeps the inputs the theme was built from', () {
       final theme = ThemeData(
-        colorScheme: const ZincColorScheme.dark(),
-        style: StyleTokens.maia,
+        colorScheme: const IrisColorScheme.dark(),
+        style: StyleTokens.pebble,
         radius: const BorderRadius.all(Radius.circular(4)),
         spacing: const Spacing(step: 5),
         disableSecondaryBorder: true,
@@ -335,9 +335,9 @@ void main() {
       );
       final mobile = theme.withFormFactor(FormFactor.mobile);
 
-      expect(mobile.colorScheme, const ZincColorScheme.dark());
+      expect(mobile.colorScheme, const IrisColorScheme.dark());
       expect(mobile.brightness, Brightness.dark);
-      expect(mobile.variant.baseStyle, StyleTokens.maia);
+      expect(mobile.variant.baseStyle, StyleTokens.pebble);
       expect(mobile.radius.topLeft.x, 4);
       expect(mobile.spacing.step, 5);
       expect(mobile.variant, isA<DefaultThemeNoSecondaryBorderVariant>());
@@ -348,10 +348,10 @@ void main() {
 
     test('rebuilds a supplied variant for the new form factor', () {
       final variant = DefaultThemeVariant(
-        colorScheme: const NeutralColorScheme.light(),
+        colorScheme: const GraphiteColorScheme.light(),
         radius: const BorderRadius.all(Radius.circular(6)),
         effectiveTextTheme: DefaultThemeVariant.defaultTextTheme,
-        style: StyleTokens.nova,
+        style: StyleTokens.crisp,
       );
       final theme = ThemeData(variant: variant);
       expect(theme.variant, same(variant));
@@ -359,7 +359,7 @@ void main() {
 
       final mobile = theme.withFormFactor(FormFactor.mobile);
       expect(mobile.formFactor, FormFactor.mobile);
-      expect(mobile.variant.baseStyle, StyleTokens.nova);
+      expect(mobile.variant.baseStyle, StyleTokens.crisp);
       expect(mobile.radius.topLeft.x, 6);
       expect(mobile.buttonSizesTheme.regular!.height, 44);
     });
@@ -367,14 +367,14 @@ void main() {
     test('a variant built for mobile makes a mobile theme', () {
       final theme = ThemeData(
         variant: DefaultThemeVariant(
-          colorScheme: const BlueColorScheme.light(),
+          colorScheme: const OceanColorScheme.light(),
           radius: const BorderRadius.all(Radius.circular(10)),
           effectiveTextTheme: DefaultThemeVariant.defaultTextTheme,
           formFactor: FormFactor.mobile,
         ),
       );
       expect(theme.formFactor, FormFactor.mobile);
-      expect(theme.style, StyleTokens.unaMobile);
+      expect(theme.style, StyleTokens.fluidMobile);
       expect(theme.buttonSizesTheme.regular!.height, 44);
     });
   });
@@ -418,9 +418,9 @@ void main() {
     });
 
     test('also between two different styles', () {
-      final a = ThemeData(style: StyleTokens.nova);
+      final a = ThemeData(style: StyleTokens.crisp);
       final b = ThemeData(
-        style: StyleTokens.lyra,
+        style: StyleTokens.sharp,
         formFactor: FormFactor.mobile,
       );
       for (final t in [0.0, .3, .5, .7, 1.0]) {
@@ -698,7 +698,7 @@ void main() {
         ),
       );
       expect(seen.brightness, Brightness.dark);
-      expect(seen.colorScheme, const BlueColorScheme.dark());
+      expect(seen.colorScheme, const OceanColorScheme.dark());
       expect(seen.formFactor, FormFactor.mobile);
     });
 
@@ -801,8 +801,8 @@ void main() {
 
     test('a style change within one form factor still interpolates', () {
       final tween = ThemeDataTween(
-        begin: ThemeData(style: StyleTokens.nova),
-        end: ThemeData(style: StyleTokens.maia),
+        begin: ThemeData(style: StyleTokens.crisp),
+        end: ThemeData(style: StyleTokens.pebble),
       );
       // 32 -> 36.
       expect(

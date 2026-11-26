@@ -296,7 +296,7 @@ void main() {
     });
 
     testWidgets('builds in every layout, style and brightness', (tester) async {
-      for (final style in [StyleTokens.una, StyleTokens.nova]) {
+      for (final style in [StyleTokens.fluid, StyleTokens.crisp]) {
         await expectBuildsInEveryLayout(
           tester,
           (_) => ring(child: const Text('5')),

@@ -1,4 +1,3 @@
-AccentScheme
 Accordion
 AccordionController
 AccordionItem
@@ -34,7 +33,6 @@ Badge
 BadgeTheme
 BadgeVariant
 BaseTheme
-BlueColorScheme
 Board
 BoardColumn
 BoardController
@@ -115,6 +113,7 @@ ColorPickerButton
 ColorPickerFormField
 ColorPickerMode
 ColorScheme
+ColorSchemes
 Command
 CommandFilter
 CommandGroup
@@ -161,6 +160,7 @@ DividerTheme
 DividerVariant
 DropdownMenu
 DropdownMenuTriggerBuilder
+EmberColorScheme
 Empty
 EmptyTheme
 Entrance
@@ -177,6 +177,7 @@ FocusRing
 FocusWidgetBuilder
 Focusable
 FontBuilder
+ForestColorScheme
 FormFactor
 FormFactorBuilder
 FormFields
@@ -192,6 +193,7 @@ GlassTheme
 GlassThemeSettings
 GlobalAnchor
 GlobalUnaLocalizations
+GraphiteColorScheme
 HapticImpact
 Haptics
 HoverCard
@@ -201,6 +203,7 @@ IconTileTheme
 IndicatorBadge
 IndicatorBadgeTheme
 InputDecorator
+IrisColorScheme
 Kbd
 KbdTheme
 KeyboardToolbar
@@ -255,11 +258,11 @@ NavigationMenuTheme
 NavigationRail
 NavigationRailTheme
 NavigationScaffold
-NeutralColorScheme
 NumberField
 NumberFieldVariant
 NumberFormField
 NumberFormat
+OceanColorScheme
 OtpField
 OtpFieldGroup
 OtpFieldSlot
@@ -326,6 +329,7 @@ ResizableTheme
 ResponsiveBuilder
 ResponsiveWidgetBuilder
 RestorableTabsController
+RoseColorScheme
 RoundedSuperellipseBorderExt
 RovingFocus
 RovingFocusController
@@ -403,7 +407,6 @@ StepState
 Stepper
 StepperControls
 StepperTheme
-StoneColorScheme
 StreamingText
 StreamingTextController
 StreamingTextTheme
@@ -522,7 +525,6 @@ WheelPickerGroup
 WheelPickerItem
 WheelPickerItemBuilder
 WheelPickerTheme
-ZincColorScheme
 colorFromHex
 colorToHex
 formatPickedDate

@@ -158,13 +158,13 @@ void main() {
 
   group('the theme', () {
     test('una is lively, the shadcn styles are calm', () {
-      expect(StyleTokens.una.motion, Motion.lively);
-      expect(StyleTokens.unaMobile.motion, Motion.lively);
-      expect(StyleTokens.nova.motion, Motion.calm);
-      expect(StyleTokens.maia.motion, Motion.calm);
-      expect(StyleTokens.lyra.motion, Motion.calm);
+      expect(StyleTokens.fluid.motion, Motion.lively);
+      expect(StyleTokens.fluidMobile.motion, Motion.lively);
+      expect(StyleTokens.crisp.motion, Motion.calm);
+      expect(StyleTokens.pebble.motion, Motion.calm);
+      expect(StyleTokens.sharp.motion, Motion.calm);
       expect(ThemeData().motion, Motion.lively);
-      expect(ThemeData(style: StyleTokens.nova).motion, Motion.calm);
+      expect(ThemeData(style: StyleTokens.crisp).motion, Motion.calm);
     });
 
     test('ThemeData(motion:) replaces the style motion on both form '
@@ -182,7 +182,7 @@ void main() {
 
     test('the override survives copyWith, and can be replaced', () {
       final theme = ThemeData(motion: Motion.none);
-      expect(theme.copyWith(style: StyleTokens.lyra).motion, Motion.none);
+      expect(theme.copyWith(style: StyleTokens.sharp).motion, Motion.none);
       expect(
         theme.copyWith(radius: BorderRadius.zero).motion,
         Motion.none,
@@ -216,7 +216,7 @@ void main() {
     });
 
     test('StyleTokens.copyWith(motion:) reaches the phone metrics', () {
-      final style = StyleTokens.una.copyWith(motion: Motion.calm);
+      final style = StyleTokens.fluid.copyWith(motion: Motion.calm);
       expect(style.motion, Motion.calm);
       expect(style.forFormFactor(FormFactor.mobile).motion, Motion.calm);
     });

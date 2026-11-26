@@ -130,7 +130,7 @@ void main() {
   ) async {
     final controller = await pumpPopover(
       tester,
-      ThemeData(style: StyleTokens.nova),
+      ThemeData(style: StyleTokens.crisp),
     );
     controller.open();
     await tester.pump();
@@ -201,7 +201,7 @@ void main() {
     (
       'nova with glass popovers',
       ThemeData(
-        style: StyleTokens.nova.copyWith(popoverOpacity: .8, glassBlur: 20),
+        style: StyleTokens.crisp.copyWith(popoverOpacity: .8, glassBlur: 20),
       ),
     ),
   ]) {

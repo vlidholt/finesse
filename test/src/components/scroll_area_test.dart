@@ -14,7 +14,7 @@ void main() {
       expect(vega.radius, const Radius.circular(999));
       // lyra and sera square the thumb (`rounded-none`).
       expect(
-        ThemeData(style: StyleTokens.lyra).scrollAreaTheme.radius,
+        ThemeData(style: StyleTokens.sharp).scrollAreaTheme.radius,
         Radius.zero,
       );
       expect(

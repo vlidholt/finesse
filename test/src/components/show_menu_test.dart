@@ -504,8 +504,8 @@ void main() {
   ) async {
     late BuildContext themed;
     final local = ThemeData(
-      colorScheme: const NeutralColorScheme.dark(),
-      style: StyleTokens.nova,
+      colorScheme: const GraphiteColorScheme.dark(),
+      style: StyleTokens.crisp,
     );
     await pumpPage(
       tester,

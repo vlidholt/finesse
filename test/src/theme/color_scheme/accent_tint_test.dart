@@ -21,311 +21,67 @@ double legibility(Color color, ColorScheme scheme) => math.min(
 const _dark = Color(0xff09090b);
 const _light = Color(0xfffafafa);
 
+/// [scheme]'s core tokens alone: a scheme that names no tint, whose tint
+/// falls back to its primary.
+ColorScheme _bare(ColorScheme scheme) => ColorScheme(
+  background: scheme.background,
+  foreground: scheme.foreground,
+  card: scheme.card,
+  cardForeground: scheme.cardForeground,
+  popover: scheme.popover,
+  popoverForeground: scheme.popoverForeground,
+  primary: scheme.primary,
+  primaryForeground: scheme.primaryForeground,
+  secondary: scheme.secondary,
+  secondaryForeground: scheme.secondaryForeground,
+  muted: scheme.muted,
+  mutedForeground: scheme.mutedForeground,
+  accent: scheme.accent,
+  accentForeground: scheme.accentForeground,
+  destructive: scheme.destructive,
+  destructiveForeground: scheme.destructiveForeground,
+  border: scheme.border,
+  input: scheme.input,
+  ring: scheme.ring,
+  selection: scheme.selection,
+);
+
 void main() {
-  const bases = <String, ColorScheme>{
-    'teal light': BlueColorScheme.light(),
-    'teal dark': BlueColorScheme.dark(),
-    'neutral light': NeutralColorScheme.light(),
-    'neutral dark': NeutralColorScheme.dark(),
-    'zinc light': ZincColorScheme.light(),
-    'zinc dark': ZincColorScheme.dark(),
-    'stone light': StoneColorScheme.light(),
-    'stone dark': StoneColorScheme.dark(),
-  };
-
-  /// Every accent, light and dark, by a name that says which.
-  final accents = <String, AccentScheme>{
-    for (final entry in AccentScheme.all.entries) ...{
-      '${entry.key} (light)': entry.value.$1,
-      '${entry.key} (dark)': entry.value.$2,
+  final bases = <String, ColorScheme>{
+    for (final scheme in ColorSchemes.values) ...{
+      '${scheme.name} light': scheme.light,
+      '${scheme.name} dark': scheme.dark,
     },
+    'bare light': _bare(const OceanColorScheme.light()),
+    'bare dark': _bare(const OceanColorScheme.dark()),
   };
 
-  List<Color> stepsOf(AccentScheme accent) => [
-    accent.primary,
-    ?accent.chart1,
-    ?accent.chart2,
-    ?accent.chart3,
-    ?accent.chart4,
-    ?accent.chart5,
-  ];
-
-  group('ColorScheme.applyAccentScheme tint', () {
-    test('there are accents and bases to walk', () {
-      expect(AccentScheme.all.length, greaterThanOrEqualTo(17));
-      expect(accents, hasLength(AccentScheme.all.length * 2));
-      expect(bases, hasLength(8));
-    });
-
-    test('the tint reads against the background: contrast of at least 3 for '
-        'every accent on every base scheme, in both brightnesses', () {
-      // The whole matrix, mismatched pairs included (a light accent on a
-      // dark base): nothing stops a caller composing them.
-      final short = <String>[];
-      for (final MapEntry(key: accentName, value: accent) in accents.entries) {
-        for (final MapEntry(key: baseName, value: base) in bases.entries) {
-          final result = base.applyAccentScheme(accent);
-          final ratio = contrast(result.tint, result.background);
-          if (ratio < 3) {
-            // An accent none of whose steps reaches 3 must at least have
-            // taken its most legible one.
-            final best = stepsOf(
-              accent,
-            ).map((c) => legibility(c, base)).reduce(math.max);
-            expect(
-              legibility(result.tint, base),
-              closeTo(best, 1e-9),
-              reason: '$accentName on $baseName is not its most legible step',
-            );
-            short.add('$accentName on $baseName: ${ratio.toStringAsFixed(2)}');
-          }
-        }
+  test('every built-in tint reads on the page and on a card, and its '
+      'foreground on it', () {
+    for (final scheme in ColorSchemes.values) {
+      for (final s in [scheme.light, scheme.dark]) {
+        final reason = '${scheme.name} ${s == scheme.dark ? 'dark' : 'light'}';
+        expect(
+          legibility(s.tint, s),
+          greaterThanOrEqualTo(4.5),
+          reason: reason,
+        );
+        expect(
+          contrast(s.tintForeground, s.tint),
+          greaterThanOrEqualTo(4.5),
+          reason: reason,
+        );
       }
-      // Today every accent reaches 3 on every base. If a new one cannot,
-      // this lists it rather than hiding it behind the fallback above.
-      expect(short, isEmpty);
-    });
-
-    test('the tint reads on a card as well as on the page: 4.5 on both '
-        'wherever any step of the accent can reach it', () {
-      var reached = 0;
-      final fellBack = <String>[];
-      for (final MapEntry(key: accentName, value: accent) in accents.entries) {
-        for (final MapEntry(key: baseName, value: base) in bases.entries) {
-          final result = base.applyAccentScheme(accent);
-          final reason = '$accentName on $baseName';
-          final steps = stepsOf(accent);
-          final best = steps.map((c) => legibility(c, base)).reduce(math.max);
-          if (best >= 4.5) {
-            expect(
-              legibility(result.tint, base),
-              greaterThanOrEqualTo(4.5),
-              reason: reason,
-            );
-            reached++;
-          } else {
-            // No step is legible enough: the most legible one it is.
-            expect(
-              legibility(result.tint, base),
-              closeTo(best, 1e-9),
-              reason: reason,
-            );
-            fellBack.add('$reason: ${best.toStringAsFixed(2)}');
-          }
-          expect(steps, contains(result.tint), reason: reason);
-        }
-      }
-      expect(reached, greaterThan(0));
-      // Every shipped accent has a step that reaches 4.5 on every base.
-      expect(fellBack, isEmpty);
-    });
-
-    test('the tint foreground reads on the tint: contrast of at least 3', () {
-      for (final MapEntry(key: accentName, value: accent) in accents.entries) {
-        for (final MapEntry(key: baseName, value: base) in bases.entries) {
-          final result = base.applyAccentScheme(accent);
-          expect(
-            contrast(result.tintForeground, result.tint),
-            greaterThanOrEqualTo(3),
-            reason: '$accentName on $baseName',
-          );
-        }
-      }
-    });
-
-    test("the accent's primary is the tint wherever it is legible, and then "
-        'brings its own foreground', () {
-      var kept = 0;
-      for (final MapEntry(key: accentName, value: accent) in accents.entries) {
-        for (final MapEntry(key: baseName, value: base) in bases.entries) {
-          if (legibility(accent.primary, base) < 4.5) continue;
-          final result = base.applyAccentScheme(accent);
-          final reason = '$accentName on $baseName';
-          expect(result.tint, accent.primary, reason: reason);
-          expect(
-            result.tintForeground,
-            accent.primaryForeground,
-            reason: reason,
-          );
-          kept++;
-        }
-      }
-      expect(kept, greaterThan(0));
-    });
-
-    test('a primary too dim for the page or the card gives way to the '
-        'legible step nearest its own lightness, with a derived '
-        'foreground', () {
-      var replaced = 0;
-      for (final MapEntry(key: accentName, value: accent) in accents.entries) {
-        for (final MapEntry(key: baseName, value: base) in bases.entries) {
-          if (legibility(accent.primary, base) >= 4.5) continue;
-          final result = base.applyAccentScheme(accent);
-          final reason = '$accentName on $baseName';
-          final legible = [
-            for (final step in stepsOf(accent))
-              if (legibility(step, base) >= 4.5) step,
-          ];
-          if (legible.isEmpty) continue;
-
-          expect(result.tint, isNot(accent.primary), reason: reason);
-          expect(legible, contains(result.tint), reason: reason);
-          // Of the steps that read, the one that changes the accent least:
-          // none is nearer the primary's own lightness.
-          double distance(Color c) =>
-              (c.computeLuminance() - accent.primary.computeLuminance()).abs();
-          for (final step in legible) {
-            expect(
-              distance(result.tint),
-              lessThanOrEqualTo(distance(step) + 1e-12),
-              reason: reason,
-            );
-          }
-          expect(
-            result.tintForeground,
-            ColorScheme.contrastingForeground(result.tint),
-            reason: reason,
-          );
-          // The button fill itself is not touched: only the tint moves.
-          expect(result.primary, accent.primary, reason: reason);
-          expect(
-            result.primaryForeground,
-            accent.primaryForeground,
-            reason: reason,
-          );
-          replaced++;
-        }
-      }
-      // The dark accents are the reason this exists.
-      expect(replaced, greaterThan(0));
-    });
-
-    test('with no step legible enough, the most legible one is taken', () {
-      // A ramp of near-background greys: nothing reaches 4.5 on white.
-      const pale = AccentScheme(
-        name: 'pale',
-        primary: Color(0xfff0f0f0),
-        primaryForeground: Color(0xff101010),
-        chart1: Color(0xffe0e0e0),
-        chart2: Color(0xffc0c0c0),
-        chart3: Color(0xfff8f8f8),
-      );
-      const base = ZincColorScheme.light();
-      for (final step in [pale.primary, pale.chart1!, pale.chart2!]) {
-        expect(legibility(step, base), lessThan(4.5));
-      }
-      final result = base.applyAccentScheme(pale);
-      expect(result.tint, pale.chart2);
-      expect(
-        result.tintForeground,
-        ColorScheme.contrastingForeground(pale.chart2!),
-      );
-      expect(result.primary, pale.primary);
-    });
-
-    test('an accent with no chart ramp keeps its primary as the tint', () {
-      const bare = AccentScheme(
-        name: 'bare',
-        primary: Color(0xfff0f0f0),
-        primaryForeground: Color(0xff101010),
-      );
-      final result = const ZincColorScheme.light().applyAccentScheme(bare);
-      expect(result.tint, bare.primary);
-      expect(result.tintForeground, bare.primaryForeground);
-    });
-
-    test('the dark blue accent on dark zinc is one that gives way', () {
-      const base = ZincColorScheme.dark();
-      final result = base.applyAccentScheme(AccentScheme.blueDark);
-      expect(legibility(AccentScheme.blueDark.primary, base), lessThan(4.5));
-      expect(result.tint, isNot(AccentScheme.blueDark.primary));
-      expect(legibility(result.tint, base), greaterThanOrEqualTo(4.5));
-    });
-
-    test('the accent border is the tint at 32%', () {
-      for (final MapEntry(key: accentName, value: accent) in accents.entries) {
-        for (final MapEntry(key: baseName, value: base) in bases.entries) {
-          final result = base.applyAccentScheme(accent);
-          expect(
-            result.accentBorder,
-            result.tint.withValues(alpha: .32),
-            reason: '$accentName on $baseName',
-          );
-        }
-      }
-    });
-
-    test(
-      "a scheme that names its own tint has it replaced by the accent's",
-      () {
-        for (final (base, accent) in [
-          (const BlueColorScheme.light(), AccentScheme.violetLight),
-          (const BlueColorScheme.dark(), AccentScheme.violetDark),
-          (const BlueColorScheme.light(), AccentScheme.orangeLight),
-          (const BlueColorScheme.dark(), AccentScheme.orangeDark),
-        ]) {
-          // Teal sets `tint` itself rather than leaving it to fall back to
-          // the primary, so changing the primary alone would leave a teal
-          // tint behind. None of it survives the accent.
-          final result = base.applyAccentScheme(accent);
-          expect(result.tint, isNot(base.tint), reason: accent.name);
-          expect(stepsOf(accent), contains(result.tint), reason: accent.name);
-          expect(
-            result.tintForeground,
-            isNot(base.tintForeground),
-            reason: accent.name,
-          );
-          expect(
-            result.accentBorder,
-            isNot(base.accentBorder),
-            reason: accent.name,
-          );
-          expect(result.accentBorder.a, closeTo(.32, 1e-6));
-          // The neutral half of teal is left alone.
-          expect(result.background, base.background);
-          expect(result.card, base.card);
-          expect(result.border, base.border);
-        }
-      },
-    );
-
-    test("the dark teal scheme's tint is not its primary, and is replaced "
-        'all the same', () {
-      const base = BlueColorScheme.dark();
-      expect(base.tint, isNot(base.primary));
-      final result = base.applyAccentScheme(AccentScheme.violetDark);
-      expect(result.tint, isNot(base.tint));
-      expect(result.primary, AccentScheme.violetDark.primary);
-    });
-
-    test('the tint reaches the theme', () {
-      final scheme = const BlueColorScheme.dark().applyAccentScheme(
-        AccentScheme.roseDark,
-      );
-      final theme = ThemeData(colorScheme: scheme);
-      expect(theme.colorScheme.tint, scheme.tint);
-      // una fills its progress bar with the tint.
-      expect(theme.progressBarTheme.color, scheme.tint);
-      expect(theme.navigationBarTheme.selectedIconColor, scheme.tint);
-    });
-
-    test('the result is still a value type', () {
-      const base = StoneColorScheme.dark();
-      expect(
-        base.applyAccentScheme(AccentScheme.greenDark),
-        base.applyAccentScheme(AccentScheme.greenDark),
-      );
-      expect(
-        base.applyAccentScheme(AccentScheme.greenDark).hashCode,
-        base.applyAccentScheme(AccentScheme.greenDark).hashCode,
-      );
-    });
+    }
   });
 
   group('ColorScheme.applyAccent tint', () {
     /// The base schemes that set `tint` themselves instead of leaving it to
-    /// fall back to the primary.
-    const namesItsOwnTint = {'teal light', 'teal dark'};
+    /// fall back to the primary: every built-in one.
+    final namesItsOwnTint = {
+      for (final name in bases.keys)
+        if (!name.startsWith('bare')) name,
+    };
 
     /// A spread of single colours: every 15° of hue at seven lightnesses,
     /// plus the greys. Some read on every base, some on none.
@@ -336,7 +92,7 @@ void main() {
       for (var v = 0; v < 256; v += 17) Color.fromARGB(255, v, v, v),
     ];
 
-    test('the bases that name their own tint are the teal ones', () {
+    test('the bases that name their own tint are the built-in ones', () {
       for (final MapEntry(key: name, value: base) in bases.entries) {
         // Re-colouring the primary alone shows which: a tint that only falls
         // back to the primary moves with it.
@@ -418,11 +174,11 @@ void main() {
       expect(keptOwn, greaterThan(0));
     });
 
-    test('the default teal scheme no longer keeps a teal tint under a '
+    test('the default scheme no longer keeps its own tint under a '
         'legible accent, in either brightness', () {
       for (final (base, colour) in [
-        (const BlueColorScheme.light(), const Color(0xff6d28d9)),
-        (const BlueColorScheme.dark(), const Color(0xffc4b5fd)),
+        (const OceanColorScheme.light(), const Color(0xff6d28d9)),
+        (const OceanColorScheme.dark(), const Color(0xffc4b5fd)),
       ]) {
         expect(legibility(colour, base), greaterThanOrEqualTo(4.5));
         final result = base.applyAccent(colour);
@@ -431,7 +187,7 @@ void main() {
         expect(result.tintForeground, isNot(base.tintForeground));
         expect(result.accentBorder, colour.withValues(alpha: .32));
         expect(result.accentBorder, isNot(base.accentBorder));
-        // The neutral half of teal is left alone.
+        // The neutral half of the scheme is left alone.
         expect(result.background, base.background);
         expect(result.card, base.card);
         expect(result.border, base.border);
@@ -440,9 +196,9 @@ void main() {
       }
     });
 
-    test('a yellow on light teal is too faint: the primary changes and the '
-        'teal tint stays', () {
-      const base = BlueColorScheme.light();
+    test('a yellow on light Ocean is too faint: the primary changes and the '
+        'blue tint stays', () {
+      const base = OceanColorScheme.light();
       const yellow = Color(0xfffacc15);
       expect(legibility(yellow, base), lessThan(4.5));
       final result = base.applyAccent(yellow);
@@ -462,12 +218,12 @@ void main() {
       expect(contrast(colour, grey), lessThan(4.5));
       const own = Color(0xff111111);
       for (final base in [
-        const ZincColorScheme.light().copyWith(
+        const IrisColorScheme.light().copyWith(
           background: white,
           card: grey,
           tint: own,
         ),
-        const ZincColorScheme.light().copyWith(
+        const IrisColorScheme.light().copyWith(
           background: grey,
           card: white,
           tint: own,
@@ -477,7 +233,7 @@ void main() {
         expect(result.primary, colour);
         expect(result.tint, own);
       }
-      final both = const ZincColorScheme.light()
+      final both = const IrisColorScheme.light()
           .copyWith(background: white, card: white, tint: own)
           .applyAccent(colour);
       expect(both.tint, colour);
@@ -486,7 +242,9 @@ void main() {
     test('the threshold is 4.5', () {
       // Greys on white either side of the line: #767676 is the well-known
       // lightest grey that passes AA, #777777 the first that does not.
-      const base = ZincColorScheme.light();
+      final base = const OceanColorScheme.light().copyWith(
+        background: const Color(0xffffffff),
+      );
       const own = Color(0xff111111);
       final named = base.copyWith(tint: own);
       const passes = Color(0xff767676);
@@ -500,7 +258,7 @@ void main() {
     test('a supplied foreground is the tint foreground too', () {
       const colour = Color(0xff6d28d9);
       const foreground = Color(0xfffff7ed);
-      final result = const BlueColorScheme.light().applyAccent(
+      final result = const OceanColorScheme.light().applyAccent(
         colour,
         accentForeground: foreground,
       );
@@ -510,7 +268,7 @@ void main() {
     });
 
     test('tintSelection does not decide the tint', () {
-      const base = BlueColorScheme.light();
+      const base = OceanColorScheme.light();
       const colour = Color(0xff6d28d9);
       final result = base.applyAccent(colour, tintSelection: false);
       expect(result.selection, base.selection);
@@ -520,7 +278,7 @@ void main() {
 
     test('the tint reaches the theme', () {
       const colour = Color(0xffc4b5fd);
-      final scheme = const BlueColorScheme.dark().applyAccent(colour);
+      final scheme = const OceanColorScheme.dark().applyAccent(colour);
       final theme = ThemeData(colorScheme: scheme);
       expect(theme.colorScheme.tint, colour);
       expect(theme.progressBarTheme.color, colour);
@@ -615,7 +373,7 @@ void main() {
     });
 
     test('applyAccent derives its foreground from it', () {
-      const base = ZincColorScheme.light();
+      const base = IrisColorScheme.light();
       for (final accent in const [
         Color(0xff1e1b4b),
         Color(0xff3b82f6),

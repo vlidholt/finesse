@@ -675,7 +675,7 @@ void main() {
       ThemeData withBars(double opacity) => ThemeData(
         brightness: Brightness.dark,
         formFactor: FormFactor.mobile,
-        style: StyleTokens.una.copyWith(
+        style: StyleTokens.fluid.copyWith(
           barOpacity: opacity,
           barOpacityDark: opacity,
         ),
@@ -706,9 +706,9 @@ void main() {
       expect(bar.borderColor, light.colorScheme.border);
       expect(bar.rimColor, isNull);
       for (final style in [
-        StyleTokens.nova,
-        StyleTokens.maia,
-        StyleTokens.lyra,
+        StyleTokens.crisp,
+        StyleTokens.pebble,
+        StyleTokens.sharp,
       ]) {
         for (final brightness in Brightness.values) {
           final theme = ThemeData(
@@ -716,8 +716,8 @@ void main() {
             brightness: brightness,
             formFactor: FormFactor.mobile,
             colorScheme: brightness == Brightness.dark
-                ? const NeutralColorScheme.dark()
-                : const NeutralColorScheme.light(),
+                ? const GraphiteColorScheme.dark()
+                : const GraphiteColorScheme.light(),
           );
           final bar = theme.bottomNavigationBarTheme;
           expect(bar.backgroundColor, theme.colorScheme.bar);
@@ -984,8 +984,8 @@ void main() {
         bar(),
         formFactor: FormFactor.mobile,
         theme: ThemeData(
-          style: StyleTokens.nova,
-          colorScheme: const NeutralColorScheme.light(),
+          style: StyleTokens.crisp,
+          colorScheme: const GraphiteColorScheme.light(),
         ),
       );
       expect(find.byType(BackdropFilter), findsNothing);

@@ -63,9 +63,9 @@ void main() {
 
     test('an opaque bar asks for no blur', () {
       for (final style in [
-        StyleTokens.nova,
-        StyleTokens.maia,
-        StyleTokens.lyra,
+        StyleTokens.crisp,
+        StyleTokens.pebble,
+        StyleTokens.sharp,
       ]) {
         final theme = ThemeData(style: style);
         expect(theme.appBarTheme.backgroundColor!.a, 1, reason: style.name);
@@ -511,8 +511,8 @@ void main() {
         tester,
         top(const AppBar(title: Text('Jobs'))),
         theme: ThemeData(
-          style: StyleTokens.nova,
-          colorScheme: const NeutralColorScheme.light(),
+          style: StyleTokens.crisp,
+          colorScheme: const GraphiteColorScheme.light(),
         ),
       );
       expect(find.byType(BackdropFilter), findsNothing);

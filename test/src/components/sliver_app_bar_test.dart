@@ -3,9 +3,9 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/src/components/bar_button_scope.dart';
 import 'package:una/src/liquid_glass/liquid_glass.dart'
     show LiquidGlassScrollEdge;
-import 'package:una/src/components/bar_button_scope.dart';
 import 'package:una/una.dart';
 
 import '../../frame_sampler.dart';
@@ -910,7 +910,7 @@ void main() {
       await pump(
         tester,
         page(const SliverAppBar(title: Text('Feed'))),
-        theme: ThemeData(style: StyleTokens.nova),
+        theme: ThemeData(style: StyleTokens.crisp),
       );
       await tester.pump(const Duration(milliseconds: 400));
       expect(inBar(find.byType(BackdropFilter)), findsNothing);

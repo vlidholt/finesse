@@ -202,7 +202,7 @@ void main() {
         find.descendant(of: card, matching: find.byType(BackdropFilter));
 
     // una with the card blur its styles leave off.
-    final glassCards = StyleTokens.una.copyWith(cardBlur: true);
+    final glassCards = StyleTokens.fluid.copyWith(cardBlur: true);
 
     testWidgets('the una card is translucent and does not blur', (
       tester,
@@ -264,7 +264,7 @@ void main() {
     testWidgets('the nova card is opaque, so it does not', (tester) async {
       for (final brightness in Brightness.values) {
         final theme = ThemeData(
-          style: StyleTokens.nova,
+          style: StyleTokens.crisp,
           brightness: brightness,
         );
         await pumpUna(
@@ -285,16 +285,16 @@ void main() {
 
     testWidgets('none of the shadcn styles blur their cards', (tester) async {
       for (final style in [
-        StyleTokens.nova,
-        StyleTokens.maia,
-        StyleTokens.lyra,
+        StyleTokens.crisp,
+        StyleTokens.pebble,
+        StyleTokens.sharp,
       ]) {
         await pumpUna(
           tester,
           const Center(child: Card(child: Text('Hi'))),
           theme: ThemeData(
             style: style,
-            colorScheme: const NeutralColorScheme.light(),
+            colorScheme: const GraphiteColorScheme.light(),
           ),
         );
         expect(find.byType(BackdropFilter), findsNothing, reason: style.name);

@@ -326,8 +326,8 @@ void main() {
 
     for (final brightness in Brightness.values) {
       for (final (styleName, style) in [
-        ('una', StyleTokens.una),
-        ('nova', StyleTokens.nova),
+        ('una', StyleTokens.fluid),
+        ('nova', StyleTokens.crisp),
       ]) {
         testWidgets(
           'the arrow is filled with the surface and outlined with it '
@@ -459,7 +459,7 @@ void main() {
     });
 
     testWidgets('a square style keeps the tip sharp', (tester) async {
-      expect(ThemeData(style: StyleTokens.lyra).popoverTheme.arrowRadius, 0);
+      expect(ThemeData(style: StyleTokens.sharp).popoverTheme.arrowRadius, 0);
       expect(ThemeData().popoverTheme.arrowRadius, 2);
     });
 

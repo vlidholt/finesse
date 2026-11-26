@@ -14,10 +14,10 @@ class StylesScene extends StatelessWidget {
   const StylesScene({super.key});
 
   static final _styles = [
-    ('una', 'The default: glass, springs, soft radii', StyleTokens.una),
-    ('nova', "shadcn/ui's compact style", StyleTokens.nova),
-    ('maia', "shadcn/ui's rounded style", StyleTokens.maia),
-    ('lyra', "shadcn/ui's sharp style", StyleTokens.lyra),
+    ('fluid', 'The default: glass, springs, soft radii', StyleTokens.fluid),
+    ('crisp', 'Compact and neutral', StyleTokens.crisp),
+    ('pebble', 'Round and roomy', StyleTokens.pebble),
+    ('sharp', 'Square and dense', StyleTokens.sharp),
   ];
 
   @override

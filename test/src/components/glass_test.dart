@@ -22,7 +22,7 @@ void main() {
       final light = ThemeData();
       final dark = ThemeData(brightness: Brightness.dark);
 
-      expect(light.glassTheme.blur, StyleTokens.una.glassBlur);
+      expect(light.glassTheme.blur, StyleTokens.fluid.glassBlur);
       expect(light.glassTheme.blur, 24);
       expect(light.glassTheme.saturation, 1.6);
       expect(light.glassTheme.color, light.colorScheme.card);
@@ -114,7 +114,7 @@ void main() {
             child: Glass(level: level, child: const Text('Hi')),
           ),
           theme: ThemeData(
-            colorScheme: const BlueColorScheme.light().copyWith(card: card),
+            colorScheme: const OceanColorScheme.light().copyWith(card: card),
           ),
         );
         final theme = themeOf(tester, find.byType(Glass));

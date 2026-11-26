@@ -73,9 +73,9 @@ void main() {
       );
       // Which is what a `Radii` built without one uses.
       expect(const Radii(BorderRadius.zero).scale, scale);
-      expect(StyleTokens.nova.radiusScale, scale);
-      expect(StyleTokens.maia.radiusScale, scale);
-      expect(StyleTokens.lyra.radiusScale, scale);
+      expect(StyleTokens.crisp.radiusScale, scale);
+      expect(StyleTokens.pebble.radiusScale, scale);
+      expect(StyleTokens.sharp.radiusScale, scale);
     });
 
     test('una at a base of 10 gives 6/10/12/16/18/20/24', () {
@@ -83,9 +83,9 @@ void main() {
         BorderRadius.all(Radius.circular(10)),
         RadiusScale(sm: .6, lg: 1.2, xl: 1.6, xl2: 1.8, xl3: 2, xl4: 2.4),
       );
-      expect(StyleTokens.una.radius, 10);
-      expect(StyleTokens.una.radiusScale, radii.scale);
-      expect(StyleTokens.unaMobile.radiusScale, radii.scale);
+      expect(StyleTokens.fluid.radius, 10);
+      expect(StyleTokens.fluid.radiusScale, radii.scale);
+      expect(StyleTokens.fluidMobile.radiusScale, radii.scale);
 
       expect(radii.none, BorderRadius.zero);
       expect(radii.sm.topLeft.x, closeTo(6, 1e-9));
@@ -103,7 +103,7 @@ void main() {
     test('the default theme carries that scale and base', () {
       final theme = ThemeData();
       expect(theme.radius, const BorderRadius.all(Radius.circular(10)));
-      expect(theme.radii.scale, StyleTokens.una.radiusScale);
+      expect(theme.radii.scale, StyleTokens.fluid.radiusScale);
       expect(
         [
           for (final token in [
@@ -167,7 +167,7 @@ void main() {
     });
 
     test('the shadcn styles keep a base of 8 on the Tailwind scale', () {
-      for (final style in [StyleTokens.nova, StyleTokens.maia]) {
+      for (final style in [StyleTokens.crisp, StyleTokens.pebble]) {
         final theme = ThemeData(style: style);
         expect(theme.radius.topLeft.x, 8, reason: style.name);
         expect(theme.radii.sm.topLeft.x, 6, reason: style.name);
@@ -208,10 +208,10 @@ void main() {
   group('StyleTokens', () {
     test('ships four styles, uniquely named, the default first', () {
       expect(StyleTokens.all, [
-        StyleTokens.una,
-        StyleTokens.nova,
-        StyleTokens.maia,
-        StyleTokens.lyra,
+        StyleTokens.fluid,
+        StyleTokens.crisp,
+        StyleTokens.pebble,
+        StyleTokens.sharp,
       ]);
       expect(
         StyleTokens.all.map((s) => s.name).toSet(),
@@ -235,7 +235,7 @@ void main() {
     });
 
     test('the square styles are square everywhere', () {
-      for (final style in [StyleTokens.lyra, FixtureStyles.sera]) {
+      for (final style in [StyleTokens.sharp, FixtureStyles.sera]) {
         expect(style.buttonRadius, RadiusToken.none, reason: style.name);
         expect(style.cardRadius, RadiusToken.none, reason: style.name);
         expect(style.dialogRadius, RadiusToken.none, reason: style.name);
@@ -261,7 +261,7 @@ void main() {
         color: Color(0xFF00FF00),
         fontFamily: 'Geist',
       );
-      final applied = StyleTokens.lyra.body.apply(base);
+      final applied = StyleTokens.sharp.body.apply(base);
       expect(applied.fontSize, 12);
       expect(applied.color, const Color(0xFF00FF00));
       expect(applied.fontFamily, 'Geist');
@@ -270,12 +270,12 @@ void main() {
     test('roles size text per style', () {
       // The observation this models: the styles resize text, they do not just
       // reshape boxes.
-      expect(StyleTokens.nova.body.fontSize, 14); // text-sm
-      expect(StyleTokens.maia.body.fontSize, 14); // text-sm
-      expect(StyleTokens.lyra.body.fontSize, 12); // text-xs
-      expect(StyleTokens.nova.title.fontSize, 16); // text-base
-      expect(StyleTokens.lyra.title.fontSize, 14); // text-sm
-      expect(StyleTokens.nova.title.height, 1.375); // leading-snug
+      expect(StyleTokens.crisp.body.fontSize, 14); // text-sm
+      expect(StyleTokens.pebble.body.fontSize, 14); // text-sm
+      expect(StyleTokens.sharp.body.fontSize, 12); // text-xs
+      expect(StyleTokens.crisp.title.fontSize, 16); // text-base
+      expect(StyleTokens.sharp.title.fontSize, 14); // text-sm
+      expect(StyleTokens.crisp.title.height, 1.375); // leading-snug
       // The defaults a custom style starts from are shadcn's `vega`.
       expect(const StyleTokens(name: 'custom').body.fontSize, 14);
       expect(const StyleTokens(name: 'custom').title.fontSize, 16);
@@ -365,7 +365,7 @@ void main() {
       // nova and maia share one scale: display 30/36, headline 20/28,
       // subtitle 14/20 and small 13/18, over a 16-point medium title and
       // 14-point body.
-      for (final style in const [StyleTokens.nova, StyleTokens.maia]) {
+      for (final style in const [StyleTokens.crisp, StyleTokens.pebble]) {
         final theme = ThemeData(style: style);
         expectScale(
           theme,
@@ -389,7 +389,7 @@ void main() {
       // lyra is a step smaller throughout: display 24/32, headline 18/24,
       // subtitle 13/18 and small 12/16, over a 14-point title and 12-point
       // body.
-      final lyra = ThemeData(style: StyleTokens.lyra);
+      final lyra = ThemeData(style: StyleTokens.sharp);
       expectScale(
         lyra,
         h1: 24,
@@ -431,7 +431,7 @@ void main() {
     test('a textarea keeps a moderate radius in the round styles', () {
       // maia has rounded-4xl buttons but a rounded-xl textarea: a 32px radius
       // on a tall box eats into the text.
-      final maia = ThemeData(style: StyleTokens.maia);
+      final maia = ThemeData(style: StyleTokens.pebble);
       final buttonRadius =
           (maia.primaryButtonTheme.decoration!.border!.borderRadius!
                   as BorderRadius)
@@ -450,7 +450,7 @@ void main() {
     test(
       'OTP slots round only the ends of the strip, at the control radius',
       () {
-        final maia = ThemeData(style: StyleTokens.maia);
+        final maia = ThemeData(style: StyleTokens.pebble);
 
         expect(maia.otpFieldTheme.middleBorderRadius, BorderRadius.zero);
         expect(maia.otpFieldTheme.firstBorderRadius!.topLeft.x, 32);
@@ -467,7 +467,7 @@ void main() {
     test('every field ring is concentric with its own shape', () {
       // The ring used to be built once from the control radius, so a textarea
       // — which has a radius of its own — was ringed in the wrong shape.
-      final maia = ThemeData(style: StyleTokens.maia);
+      final maia = ThemeData(style: StyleTokens.pebble);
 
       final controlRing =
           maia.decoration.secondaryFocusedBorder!.borderRadius! as BorderRadius;
@@ -495,7 +495,7 @@ void main() {
       // Textarea resolved padding, alignment and gap from `textFieldTheme`,
       // which made every textarea-specific value in `textareaTheme` dead —
       // a multi-line field was padded like a single-line one.
-      final theme = ThemeData(style: StyleTokens.nova);
+      final theme = ThemeData(style: StyleTokens.crisp);
 
       expect(
         theme.textareaTheme.padding,
@@ -508,7 +508,7 @@ void main() {
     });
 
     test('a single-line field centres its text in its fixed height', () {
-      final theme = ThemeData(style: StyleTokens.nova);
+      final theme = ThemeData(style: StyleTokens.crisp);
 
       // nova sizes its fields `h-8`.
       expect(theme.textFieldTheme.constraints!.minHeight, 32);
@@ -549,7 +549,7 @@ void main() {
     test('tabs are as wide as their labels, not the bar', () {
       // shadcn's TabsList is `w-fit`; ours stretched every tab across the
       // whole bar, which read as enormous padding inside it.
-      final theme = ThemeData(style: StyleTokens.nova);
+      final theme = ThemeData(style: StyleTokens.crisp);
       expect(theme.tabsTheme.expandTabs ?? false, isFalse);
       expect(theme.tabsTheme.padding, const EdgeInsets.all(3)); // p-[3px]
       expect(
@@ -564,19 +564,30 @@ void main() {
       // dark mode, so a hairline lightens whatever it sits on. Ours were
       // opaque greys, which vanished on a card of the same value — that is why
       // a checkbox was hard to make out.
-      const dark = NeutralColorScheme.dark();
-      expect(dark.border, const Color(0x1affffff));
-      expect(dark.input, const Color(0x26ffffff));
-      // And the dark card is a step lighter than the page, per v4.
-      expect(dark.card, isNot(dark.background));
-
-      const light = NeutralColorScheme.light();
-      expect(light.border, const Color(0xffe5e5e5)); // oklch(0.922 0 0)
-      expect(light.input, const Color(0xffe5e5e5));
+      // Every built-in scheme keeps that, in both brightnesses: its
+      // hairlines are washes of its own foreground.
+      for (final scheme in ColorSchemes.values) {
+        for (final s in [scheme.light, scheme.dark]) {
+          expect(s.border.a, lessThan(.2), reason: scheme.name);
+          expect(s.input.a, lessThan(.2), reason: scheme.name);
+          expect(
+            (s.border.withValues(alpha: 1).computeLuminance() -
+                    s.foreground.computeLuminance())
+                .abs(),
+            lessThan(.1),
+            reason: scheme.name,
+          );
+        }
+        // And the dark card is a step lighter than the page, per v4.
+        expect(
+          scheme.dark.card.computeLuminance(),
+          greaterThan(scheme.dark.background.computeLuminance()),
+        );
+      }
     });
 
     test('fields outline with --input, surfaces with a foreground wash', () {
-      final theme = ThemeData(style: StyleTokens.nova);
+      final theme = ThemeData(style: StyleTokens.crisp);
 
       expect(
         theme.textFieldTheme.decoration!.border!.top!.color,
@@ -608,12 +619,12 @@ void main() {
     test('shadows differ per style', () {
       // The constructor default is vega's `shadow-xs`.
       expect(const StyleTokens(name: 'custom').cardShadow, Shadows.xs);
-      expect(StyleTokens.nova.cardShadow, Shadows.none);
-      expect(StyleTokens.maia.popoverShadow, Shadows.xl2);
-      expect(StyleTokens.una.cardShadow, isNot(Shadows.none));
+      expect(StyleTokens.crisp.cardShadow, Shadows.none);
+      expect(StyleTokens.pebble.popoverShadow, Shadows.xl2);
+      expect(StyleTokens.fluid.cardShadow, isNot(Shadows.none));
       expect(
-        StyleTokens.una.cardShadowDark,
-        isNot(StyleTokens.una.cardShadow),
+        StyleTokens.fluid.cardShadowDark,
+        isNot(StyleTokens.fluid.cardShadow),
       );
     });
 
@@ -681,11 +692,11 @@ void main() {
       // The bug this pins: CardTheme.borderRadius was hardcoded to 8, so
       // setting a radius moved buttons and inputs but left cards alone.
       final small = ThemeData(
-        style: StyleTokens.nova,
+        style: StyleTokens.crisp,
         radius: const BorderRadius.all(Radius.circular(4)),
       );
       final large = ThemeData(
-        style: StyleTokens.nova,
+        style: StyleTokens.crisp,
         radius: const BorderRadius.all(Radius.circular(16)),
       );
 
@@ -698,7 +709,7 @@ void main() {
     });
 
     test('a style reshapes every radius at once', () {
-      final lyra = ThemeData(style: StyleTokens.lyra);
+      final lyra = ThemeData(style: StyleTokens.sharp);
       expect(lyra.cardTheme.borderRadius, BorderRadius.zero);
       expect(lyra.primaryDialogTheme.borderRadius, BorderRadius.zero);
       expect(
@@ -729,15 +740,15 @@ void main() {
       // Spot-checks against `registry/styles/style-*.css`, converting
       // Tailwind's scale at 4px per unit. These are the numbers that make the
       // styles visibly different sizes rather than just different radii.
-      expect(StyleTokens.maia.buttonHeight, 36); // h-9
-      expect(StyleTokens.nova.buttonHeight, 32); // h-8
-      expect(StyleTokens.lyra.buttonHeight, 32); // h-8
-      expect(StyleTokens.maia.buttonPaddingX, 12); // px-3
-      expect(StyleTokens.nova.buttonPaddingX, 10); // px-2.5
-      expect(StyleTokens.maia.sliderTrackHeight, 12); // h-3
-      expect(StyleTokens.nova.sliderTrackHeight, 4); // h-1
-      expect(StyleTokens.maia.cardPadding, 24); // --card-spacing: 6
-      expect(StyleTokens.nova.cardPadding, 16); // --card-spacing: 4
+      expect(StyleTokens.pebble.buttonHeight, 36); // h-9
+      expect(StyleTokens.crisp.buttonHeight, 32); // h-8
+      expect(StyleTokens.sharp.buttonHeight, 32); // h-8
+      expect(StyleTokens.pebble.buttonPaddingX, 12); // px-3
+      expect(StyleTokens.crisp.buttonPaddingX, 10); // px-2.5
+      expect(StyleTokens.pebble.sliderTrackHeight, 12); // h-3
+      expect(StyleTokens.crisp.sliderTrackHeight, 4); // h-1
+      expect(StyleTokens.pebble.cardPadding, 24); // --card-spacing: 6
+      expect(StyleTokens.crisp.cardPadding, 16); // --card-spacing: 4
     });
 
     test('the metrics reach the component themes', () {
@@ -771,7 +782,7 @@ void main() {
     });
 
     test('the focus ring follows the style', () {
-      final lyra = ThemeData(style: StyleTokens.lyra);
+      final lyra = ThemeData(style: StyleTokens.sharp);
       final vega = ThemeData(style: FixtureStyles.vega);
 
       expect(lyra.decoration.secondaryFocusedBorder!.top!.width, 1);
@@ -781,9 +792,9 @@ void main() {
     });
 
     test('spacing drives component padding', () {
-      final normal = ThemeData(style: StyleTokens.nova);
+      final normal = ThemeData(style: StyleTokens.crisp);
       final tight = ThemeData(
-        style: StyleTokens.nova,
+        style: StyleTokens.crisp,
         spacing: const Spacing(step: 2),
       );
 
@@ -796,7 +807,7 @@ void main() {
       // step, and rescale with it — exactly as Tailwind's `h-8` follows
       // `--spacing`. Its bracketed literals do not.
       expect(tight.buttonSizesTheme.regular!.height, 16);
-      expect(tight.switchTheme.width, StyleTokens.nova.switchWidth);
+      expect(tight.switchTheme.width, StyleTokens.crisp.switchWidth);
     });
 
     test('style and spacing survive copyWith', () {
@@ -820,7 +831,7 @@ void main() {
       // resolved component themes, so it cannot re-derive them; changing the
       // radius of an existing theme means rebuilding it.
       final variant = DefaultThemeVariant(
-        colorScheme: const NeutralColorScheme.light(),
+        colorScheme: const GraphiteColorScheme.light(),
         radius: const BorderRadius.all(Radius.circular(4)),
         effectiveTextTheme: DefaultThemeVariant.defaultTextTheme,
         style: FixtureStyles.rhea,
@@ -841,7 +852,7 @@ void main() {
 
     test('a variant supplies the radius when none is given', () {
       final variant = DefaultThemeVariant(
-        colorScheme: const NeutralColorScheme.light(),
+        colorScheme: const GraphiteColorScheme.light(),
         radius: const BorderRadius.all(Radius.circular(6)),
         effectiveTextTheme: DefaultThemeVariant.defaultTextTheme,
       );

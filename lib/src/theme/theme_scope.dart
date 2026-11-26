@@ -23,7 +23,7 @@ import 'package:una/src/theme/theme.dart';
 /// ThemeScope(
 ///   data: ThemeData(
 ///     brightness: Brightness.dark,
-///     colorScheme: const NeutralColorScheme.dark(),
+///     colorScheme: const GraphiteColorScheme.dark(),
 ///   ),
 ///   child: const SettingsPanel(),
 /// )

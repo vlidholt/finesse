@@ -83,11 +83,11 @@ void main() {
     });
 
     test("the shadcn styles' own subtitle and small roles reach it too", () {
-      final nova = ThemeData(style: StyleTokens.nova).listTileTheme;
+      final nova = ThemeData(style: StyleTokens.crisp).listTileTheme;
       expect(nova.titleStyle!.fontSize, 14);
       expect(nova.titleStyle!.fontWeight, FontWeight.w600);
       expect(nova.subtitleStyle!.fontSize, 13);
-      final lyra = ThemeData(style: StyleTokens.lyra).listTileTheme;
+      final lyra = ThemeData(style: StyleTokens.sharp).listTileTheme;
       expect(lyra.titleStyle!.fontSize, 13);
       expect(lyra.titleStyle!.fontWeight, FontWeight.w600);
       expect(lyra.subtitleStyle!.fontSize, 12);

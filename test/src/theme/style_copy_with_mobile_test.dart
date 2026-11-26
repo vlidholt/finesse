@@ -5,8 +5,8 @@ import 'package:una/una.dart';
 /// `StyleTokens.copyWith` carries an override to the style's phone metrics
 /// wherever the phone did not differ from the desktop to begin with.
 void main() {
-  const una = StyleTokens.una;
-  const phone = StyleTokens.unaMobile;
+  const una = StyleTokens.fluid;
+  const phone = StyleTokens.fluidMobile;
 
   group('StyleTokens.copyWith and the phone metrics', () {
     test('the fixtures are what these tests assume', () {
@@ -21,7 +21,7 @@ void main() {
       expect(phone.buttonHeight, 44);
       expect(una.tabHeight, 32);
       expect(phone.tabHeight, 36);
-      expect(StyleTokens.nova.mobile, isNull);
+      expect(StyleTokens.crisp.mobile, isNull);
     });
 
     test('a copy with no arguments is equal, phone metrics included', () {
@@ -30,9 +30,9 @@ void main() {
       expect(copy.hashCode, una.hashCode);
       expect(copy.mobile, phone);
       for (final style in [
-        StyleTokens.nova,
-        StyleTokens.maia,
-        StyleTokens.lyra,
+        StyleTokens.crisp,
+        StyleTokens.pebble,
+        StyleTokens.sharp,
         phone,
       ]) {
         expect(style.copyWith(), style, reason: style.name);
@@ -198,9 +198,9 @@ void main() {
     test('a style with no mobile gains none: its phone metrics are derived '
         'from the copy', () {
       for (final style in [
-        StyleTokens.nova,
-        StyleTokens.maia,
-        StyleTokens.lyra,
+        StyleTokens.crisp,
+        StyleTokens.pebble,
+        StyleTokens.sharp,
       ]) {
         final copy = style.copyWith(glassBlur: 7, buttonHeight: 40);
         expect(copy.mobile, isNull, reason: style.name);
@@ -309,7 +309,7 @@ void main() {
     );
 
     test('nova with an override derives its phone theme from the copy', () {
-      final style = StyleTokens.nova.copyWith(
+      final style = StyleTokens.crisp.copyWith(
         dividerMargin: 4,
         buttonHeight: 40,
       );

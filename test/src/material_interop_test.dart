@@ -16,7 +16,7 @@ import 'package:una/una.dart';
 void main() {
   final dark = ThemeData(
     brightness: Brightness.dark,
-    colorScheme: const ZincColorScheme.dark(),
+    colorScheme: const IrisColorScheme.dark(),
   );
 
   test('only lib/material.dart imports Material or Cupertino', () {

@@ -145,10 +145,10 @@ void main() {
     );
 
     for (final (name, style) in [
-      ('una', StyleTokens.una),
-      ('nova', StyleTokens.nova),
-      ('maia', StyleTokens.maia),
-      ('lyra', StyleTokens.lyra),
+      ('una', StyleTokens.fluid),
+      ('nova', StyleTokens.crisp),
+      ('maia', StyleTokens.pebble),
+      ('lyra', StyleTokens.sharp),
     ]) {
       testWidgets('$name: is a field among fields, a value as a field '
           'value and a placeholder as a field placeholder', (tester) async {

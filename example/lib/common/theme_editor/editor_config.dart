@@ -1,77 +1,13 @@
+import 'package:example/common/theme_editor/color_tokens.dart';
 import 'package:example/common/theme_editor/fonts.dart';
+import 'package:example/common/theme_editor/style_field.dart';
+import 'package:example/common/theme_editor/style_fields.g.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:una/una.dart';
 
-/// The package's *base colours*: Una's own blue, and the three shadcn/ui
-/// neutrals it kept.
-enum BaseColor {
-  blue('Blue'),
-  neutral('Neutral'),
-  stone('Stone'),
-  zinc('Zinc');
-
-  const BaseColor(this.label);
-
-  final String label;
-
-  ColorScheme scheme(Brightness brightness) =>
-      ColorScheme.fromName(name, brightness: brightness);
-
-  /// The scheme's class name, as the exported snippet spells it.
-  String get className =>
-      '${name[0].toUpperCase()}${name.substring(1)}ColorScheme';
-
-  /// The dot shown in the picker.
-  ///
-  /// Not `primary` for the neutrals: there it is near-black, which
-  /// disappears against the customizer's dark surface. The muted foreground is
-  /// the same hue at a lightness that reads on either background. Blue's
-  /// primary is the brand colour itself.
-  Color get swatch => this == BaseColor.blue
-      ? scheme(Brightness.light).primary
-      : scheme(Brightness.light).mutedForeground;
-}
-
-/// shadcn/ui's accent *themes*, layered over a [BaseColor].
-enum AccentColor {
-  base('Base'),
-  amber('Amber'),
-  blue('Blue'),
-  cyan('Cyan'),
-  emerald('Emerald'),
-  fuchsia('Fuchsia'),
-  green('Green'),
-  indigo('Indigo'),
-  lime('Lime'),
-  orange('Orange'),
-  pink('Pink'),
-  purple('Purple'),
-  red('Red'),
-  rose('Rose'),
-  sky('Sky'),
-  teal('Teal'),
-  violet('Violet'),
-  yellow('Yellow');
-
-  const AccentColor(this.label);
-
-  final String label;
-
-  AccentScheme? scheme(Brightness brightness) => this == AccentColor.base
-      ? null
-      : AccentScheme.fromName(name, brightness: brightness);
-
-  /// The dot shown in the picker.
-  ///
-  /// "Base" means "keep the base colour's own hue", so it shows that palette's
-  /// swatch rather than its `primary`, which is near-black and reads as a
-  /// missing image.
-  Color swatch(Brightness brightness, BaseColor base) =>
-      scheme(brightness)?.primary ?? base.swatch;
-}
-
 /// The radius presets. [style] follows the selected style's own radius —
-/// 10 for Una — which is what the package does when no radius is given.
+/// 10 for Fluid — which is what the package does when no radius is given.
 /// The others are shadcn/ui's `--radius` presets; components use
 /// `--radius-md`, which is `--radius * 0.8`.
 enum RadiusPreset {
@@ -89,17 +25,17 @@ enum RadiusPreset {
   final double? value;
 }
 
-/// The package's named styles: Una's own, and the three shadcn/ui
-/// styles it kept.
+/// The package's four styles: Fluid, its own, and Crisp, Pebble and
+/// Sharp, made from shadcn/ui's.
 ///
 /// Each is a preset over [StyleTokens] — corner radii, focus-ring
 /// thickness and opacity, and label typography — so picking one reshapes every
 /// component at once.
 enum StylePreset {
-  una('Una'),
-  nova('Nova'),
-  maia('Maia'),
-  lyra('Lyra');
+  fluid('Fluid'),
+  crisp('Crisp'),
+  pebble('Pebble'),
+  sharp('Sharp');
 
   const StylePreset(this.label);
 
@@ -234,10 +170,12 @@ enum EditorFormFactor {
 class ThemeEditorConfig {
   const ThemeEditorConfig({
     this.brightness = Brightness.light,
-    this.style = StylePreset.una,
-    this.baseColor = BaseColor.blue,
-    this.accentColor = AccentColor.base,
-    this.customAccent,
+    this.style = StylePreset.fluid,
+    this.colors = ColorSchemes.ocean,
+    this.lightColors = const ColorEdits(),
+    this.darkColors = const ColorEdits(),
+    this.styleEdits = const StyleEdits(),
+    this.mobileStyleEdits = const StyleEdits(),
     this.headingFontTitle,
     this.fontTitle = 'Geist',
     this.radius = RadiusPreset.style,
@@ -261,13 +199,20 @@ class ThemeEditorConfig {
 
   final Brightness brightness;
   final StylePreset style;
-  final BaseColor baseColor;
-  final AccentColor accentColor;
 
-  /// A colour picked by hand for the accent. When set it stands in for
-  /// [accentColor]: the base palette is re-tinted with
-  /// [ColorScheme.applyAccent].
-  final Color? customAccent;
+  /// The colour theme every colour starts from.
+  final ColorSchemes colors;
+
+  /// The colours picked by hand in light mode, and in dark. A colour picked
+  /// in one only is carried over to the other (see [applyColorEdits]).
+  final ColorEdits lightColors;
+  final ColorEdits darkColors;
+
+  /// Style fields set by hand in "All settings": on the desktop metrics
+  /// (and the phone's, where the two share the value), and on the phone's
+  /// alone. Applied over the quick controls above them.
+  final StyleEdits styleEdits;
+  final StyleEdits mobileStyleEdits;
 
   /// Null means "same as body", shadcn's `fontHeading: "inherit"`.
   final String? headingFontTitle;
@@ -377,9 +322,11 @@ class ThemeEditorConfig {
   ThemeEditorConfig copyWith({
     Brightness? brightness,
     StylePreset? style,
-    BaseColor? baseColor,
-    AccentColor? accentColor,
-    ValueGetter<Color?>? customAccent,
+    ColorSchemes? colors,
+    ColorEdits? lightColors,
+    ColorEdits? darkColors,
+    StyleEdits? styleEdits,
+    StyleEdits? mobileStyleEdits,
     String? headingFontTitle,
     bool clearHeadingFont = false,
     String? fontTitle,
@@ -405,9 +352,11 @@ class ThemeEditorConfig {
     return ThemeEditorConfig(
       brightness: brightness ?? this.brightness,
       style: style ?? this.style,
-      baseColor: baseColor ?? this.baseColor,
-      accentColor: accentColor ?? this.accentColor,
-      customAccent: customAccent == null ? this.customAccent : customAccent(),
+      colors: colors ?? this.colors,
+      lightColors: lightColors ?? this.lightColors,
+      darkColors: darkColors ?? this.darkColors,
+      styleEdits: styleEdits ?? this.styleEdits,
+      mobileStyleEdits: mobileStyleEdits ?? this.mobileStyleEdits,
       headingFontTitle: clearHeadingFont
           ? null
           : (headingFontTitle ?? this.headingFontTitle),
@@ -457,9 +406,11 @@ class ThemeEditorConfig {
     return other is ThemeEditorConfig &&
         other.brightness == brightness &&
         other.style == style &&
-        other.baseColor == baseColor &&
-        other.accentColor == accentColor &&
-        other.customAccent == customAccent &&
+        other.colors == colors &&
+        other.lightColors == lightColors &&
+        other.darkColors == darkColors &&
+        other.styleEdits == styleEdits &&
+        other.mobileStyleEdits == mobileStyleEdits &&
         other.headingFontTitle == headingFontTitle &&
         other.fontTitle == fontTitle &&
         other.radius == radius &&
@@ -485,9 +436,11 @@ class ThemeEditorConfig {
   int get hashCode => Object.hashAll([
     brightness,
     style,
-    baseColor,
-    accentColor,
-    customAccent,
+    colors,
+    lightColors,
+    darkColors,
+    styleEdits,
+    mobileStyleEdits,
     headingFontTitle,
     fontTitle,
     radius,
@@ -509,18 +462,98 @@ class ThemeEditorConfig {
     liquidGlass,
   ]);
 
-  /// The palette, fully resolved for [brightness]: the base, then the accent.
+  /// The palette, fully resolved for [brightness]: the colour theme, then
+  /// the colours picked by hand.
   ColorScheme get colorScheme => _scheme(brightness);
 
   ColorScheme _scheme(Brightness b) {
-    final scheme = baseColor.scheme(b);
-    if (customAccent case final custom?) return scheme.applyAccent(custom);
-    final accent = accentColor.scheme(b);
-    if (accent == null) return scheme;
+    final dark = b == Brightness.dark;
+    final key = (colors, lightColors, darkColors, dark);
+    final cached = _schemes[key];
+    if (cached != null) return cached;
+    if (_schemes.length >= _maxCachedStyles) {
+      _schemes.remove(_schemes.keys.first);
+    }
+    return _schemes[key] = applyColorEdits(
+      base: colors.of(b),
+      otherBase: colors.of(dark ? Brightness.light : Brightness.dark),
+      own: dark ? darkColors : lightColors,
+      other: dark ? lightColors : darkColors,
+    );
+  }
 
-    // `applyAccentScheme` re-tints the primary pair and picks a tint that
-    // reads on the page from the accent's own ramp.
-    return scheme.applyAccentScheme(accent);
+  static final _schemes =
+      <(ColorSchemes, ColorEdits, ColorEdits, bool), ColorScheme>{};
+
+  /// The colour picked by hand for [token] in [b], or null.
+  ColorEdits colorEditsFor(Brightness b) =>
+      b == Brightness.dark ? darkColors : lightColors;
+
+  /// Where [token]'s colour in [b] comes from.
+  ColorSource colorSource(ColorToken token, Brightness b) {
+    final dark = b == Brightness.dark;
+    if ((dark ? darkColors : lightColors)[token.name] != null) {
+      return ColorSource.pinned;
+    }
+    if ((dark ? lightColors : darkColors)[token.name] != null) {
+      return ColorSource.derived;
+    }
+    return ColorSource.scheme;
+  }
+
+  /// This configuration with [token] set to [color] in [b], or handed back
+  /// to the scheme (and to the other brightness) with null.
+  ThemeEditorConfig withColor(ColorToken token, Brightness b, Color? color) =>
+      b == Brightness.dark
+      ? copyWith(darkColors: darkColors.withColor(token.name, color))
+      : copyWith(lightColors: lightColors.withColor(token.name, color));
+
+  /// The style tokens [formFactor] is laid out with.
+  StyleTokens tokensFor(FormFactor formFactor) {
+    final tokens = styleTokens;
+    return formFactor == FormFactor.mobile
+        ? tokens.forFormFactor(FormFactor.mobile)
+        : tokens;
+  }
+
+  /// Whether [field] was set by hand for [formFactor].
+  bool styleEdited(StyleField field, FormFactor formFactor) =>
+      formFactor == FormFactor.mobile
+      ? mobileStyleEdits[field.name] != null ||
+            (styleEdits[field.name] != null && _shared(field))
+      : styleEdits[field.name] != null;
+
+  /// Whether [field] has one value on both of the style's token sets, so a
+  /// desktop edit carries to the phone.
+  bool _shared(StyleField field) {
+    final base = style.tokens;
+    final a = field.read(base);
+    final b = field.read(base.forFormFactor(FormFactor.mobile));
+    return a is List && b is List ? listEquals(a, b) : a == b;
+  }
+
+  /// This configuration with [field] set to [value] for [formFactor], or
+  /// handed back with null. On the desktop a field the phone shares is set
+  /// for both, as `StyleTokens.copyWith` does; on the phone only there.
+  ThemeEditorConfig withStyleValue(
+    StyleField field,
+    FormFactor formFactor,
+    Object? value,
+  ) {
+    if (formFactor == FormFactor.desktop) {
+      return copyWith(styleEdits: styleEdits.withValue(field.name, value));
+    }
+    if (value == null) {
+      return copyWith(
+        mobileStyleEdits: mobileStyleEdits.withValue(field.name, null),
+        styleEdits: _shared(field)
+            ? styleEdits.withValue(field.name, null)
+            : styleEdits,
+      );
+    }
+    return copyWith(
+      mobileStyleEdits: mobileStyleEdits.withValue(field.name, value),
+    );
   }
 
   /// The palette menus draw from, or null when they follow the page.
@@ -574,7 +607,10 @@ class ThemeEditorConfig {
     final mobileBase = base.forFormFactor(FormFactor.mobile);
     final desktop = StyleOverrides.resolve(this, base);
     final mobile = StyleOverrides.resolve(this, mobileBase);
-    if (desktop.isEmpty && mobile.isEmpty) {
+    if (desktop.isEmpty &&
+        mobile.isEmpty &&
+        styleEdits.isEmpty &&
+        mobileStyleEdits.isEmpty) {
       return (
         tokens: base,
         desktop: desktop,
@@ -586,15 +622,24 @@ class ThemeEditorConfig {
     // `StyleTokens` compares by value, so the cache is not what keeps two
     // builds of one configuration equal; it saves copying ~200 fields a few
     // times per build, and `App` builds every configuration twice.
-    final key = (style, desktop, mobile);
+    final key = (style, desktop, mobile, styleEdits, mobileStyleEdits);
     final cached = _styles[key];
     if (cached != null) return cached;
     if (_styles.length >= _maxCachedStyles) {
       _styles.remove(_styles.keys.first);
     }
 
-    final overridden = desktop.apply(base);
-    final phone = mobile.apply(mobileBase);
+    final overridden = styleEdits.apply(desktop.apply(base), styleFields);
+    // The phone takes the desktop's edits to the fields it shares, then
+    // its own.
+    final phone = mobileStyleEdits.apply(
+      StyleEdits({
+        for (final field in styleFields)
+          if (styleEdits[field.name] case final value? when _shared(field))
+            field.name: value,
+      }).apply(mobile.apply(mobileBase), styleFields),
+      styleFields,
+    );
     // What the desktop `copyWith` alone gives a phone is asked of the
     // package rather than assumed, so this — and the exported snippet,
     // which follows it — stays right whichever fields a `copyWith` carries
@@ -611,7 +656,10 @@ class ThemeEditorConfig {
   /// A slider drag makes one style per value it passes; keep the recent few.
   static const _maxCachedStyles = 32;
   static final _styles =
-      <(StylePreset, StyleOverrides, StyleOverrides), _ResolvedStyle>{};
+      <
+        (StylePreset, StyleOverrides, StyleOverrides, StyleEdits, StyleEdits),
+        _ResolvedStyle
+      >{};
 
   /// Builds the theme.
   ///
@@ -671,14 +719,15 @@ class ThemeEditorConfig {
     final dark = brightness == Brightness.dark;
     final lines = <String>[
       if (dark) 'brightness: Brightness.dark,',
-      if (baseColor != BaseColor.blue ||
-          accentColor != AccentColor.base ||
-          customAccent != null)
+      if (colors != ColorSchemes.ocean ||
+          !lightColors.isEmpty ||
+          !darkColors.isEmpty)
         ..._prefixed('colorScheme: ', _schemeCode(brightness)),
       if (!usesStyleRadius)
         'radius: BorderRadius.circular(${_number(effectiveRadius)}),',
       ..._prefixed('textTheme: ', _textThemeCode()),
-      if (styleTokens != StyleTokens.una) ..._prefixed('style: ', _styleCode()),
+      if (styleTokens != StyleTokens.fluid)
+        ..._prefixed('style: ', _styleCode()),
       if (density != Density.normal)
         'spacing: const Spacing(step: ${_number(density.step)}),',
       if (focusRing == FocusRingPlacement.inside)
@@ -717,19 +766,23 @@ class ThemeEditorConfig {
     ].join('\n');
   }
 
-  /// The colour scheme expression for [b], ending in a comma.
+  /// The colour scheme expression for [b], ending in a comma: the colour
+  /// theme's, with every colour that differs from it.
   List<String> _schemeCode(Brightness b) {
-    final base = 'const ${baseColor.className}.${b.name}()';
-    if (customAccent case final custom?) {
-      final hex = colorToHex(custom).substring(1);
-      return ['$base.applyAccent(', '  const Color(0xFF$hex),', '),'];
-    }
-    if (accentColor == AccentColor.base) return ['$base,'];
-
-    final accent =
-        'AccentScheme.${accentColor.name}'
-        '${b == Brightness.light ? 'Light' : 'Dark'}';
-    return ['$base.applyAccentScheme(', '  $accent,', '),'];
+    final name = colors.name;
+    final base =
+        'const ${name[0].toUpperCase()}${name.substring(1)}ColorScheme'
+        '.${b.name}()';
+    final theme = colors.of(b);
+    final resolved = _scheme(b);
+    final changed = [
+      for (final token in colorTokens)
+        if (token.read(resolved) != token.read(theme))
+          '  ${token.name}: '
+              'const Color(0x${token.read(resolved).toARGB32().toRadixString(16).padLeft(8, '0').toUpperCase()}),',
+    ];
+    if (changed.isEmpty) return ['$base,'];
+    return ['$base.copyWith(', ...changed, '),'];
   }
 
   /// The text theme expression, ending in a comma.
@@ -751,20 +804,32 @@ class ThemeEditorConfig {
   List<String> _styleCode() {
     final resolved = _resolveStyle();
     final name = 'StyleTokens.${style.name}';
-    if (resolved.desktop.isEmpty && !resolved.explicitMobile) return ['$name,'];
+    String edit(StyleField field, Object value) =>
+        '${field.name}: ${field.toSource(value)}';
+    final desktopLines = [
+      ...resolved.desktop.code,
+      for (final field in styleFields)
+        if (styleEdits[field.name] case final value?) edit(field, value),
+    ];
+    final mobileLines = [
+      ...resolved.mobile.code,
+      for (final field in styleFields)
+        if (mobileStyleEdits[field.name] case final value?) edit(field, value),
+    ];
+    if (desktopLines.isEmpty && !resolved.explicitMobile) return ['$name,'];
 
     final mobileName = '$name.forFormFactor(FormFactor.mobile)';
     return [
       '$name.copyWith(',
-      for (final line in resolved.desktop.code) '  $line,',
+      for (final line in desktopLines) '  $line,',
       // The phone metrics are a second token set. Where the overrides
       // above do not leave it as it should be, it is spelled out.
       if (resolved.explicitMobile)
-        if (resolved.mobile.isEmpty)
+        if (mobileLines.isEmpty)
           '  mobile: $mobileName,'
         else ...[
           '  mobile: $mobileName.copyWith(',
-          for (final line in resolved.mobile.code) '    $line,',
+          for (final line in mobileLines) '    $line,',
           '  ),',
         ],
       '),',
@@ -805,9 +870,6 @@ typedef _ResolvedStyle = ({
   StyleOverrides mobile,
   bool explicitMobile,
 });
-
-/// A [ColorScheme.tint] chosen for an accent: the colour, what goes on it,
-/// and the `AccentScheme` field it was read from, for the exported code.
 
 /// `1` rather than `1.0`, and no binary-fraction noise: a slider that lands
 /// on 0.7 by arithmetic must not export `0.7000000000000001`.

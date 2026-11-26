@@ -6,7 +6,7 @@ import 'package:una/una.dart';
 /// copy is indistinguishable from a theme built with those inputs directly.
 void main() {
   final base = ThemeData(
-    colorScheme: const ZincColorScheme.light(),
+    colorScheme: const IrisColorScheme.light(),
     brightness: Brightness.light,
   );
 
@@ -14,7 +14,7 @@ void main() {
     const radius = BorderRadius.all(Radius.circular(2));
     final copy = base.copyWith(radius: radius);
     final direct = ThemeData(
-      colorScheme: const ZincColorScheme.light(),
+      colorScheme: const IrisColorScheme.light(),
       brightness: Brightness.light,
       radius: radius,
     );
@@ -26,9 +26,9 @@ void main() {
   });
 
   test('copyWith(colorScheme:) recolours the component themes', () {
-    final copy = base.copyWith(colorScheme: const StoneColorScheme.light());
+    final copy = base.copyWith(colorScheme: const EmberColorScheme.light());
     final direct = ThemeData(
-      colorScheme: const StoneColorScheme.light(),
+      colorScheme: const EmberColorScheme.light(),
       brightness: Brightness.light,
     );
     expect(copy.primaryButtonTheme, direct.primaryButtonTheme);
@@ -37,16 +37,16 @@ void main() {
 
   test('copyWith(style:) and copyWith(spacing:) re-derive metrics', () {
     final copy = base.copyWith(
-      style: StyleTokens.lyra,
+      style: StyleTokens.sharp,
       spacing: const Spacing(step: 3),
     );
     final direct = ThemeData(
-      colorScheme: const ZincColorScheme.light(),
+      colorScheme: const IrisColorScheme.light(),
       brightness: Brightness.light,
-      style: StyleTokens.lyra,
+      style: StyleTokens.sharp,
       spacing: const Spacing(step: 3),
     );
-    expect(copy.style, StyleTokens.lyra);
+    expect(copy.style, StyleTokens.sharp);
     expect(copy.spacing.step, 3);
     expect(copy, direct);
   });
@@ -54,13 +54,13 @@ void main() {
   test('copyWith(formFactor:) re-derives the metrics', () {
     final copy = base.copyWith(formFactor: FormFactor.mobile);
     final direct = ThemeData(
-      colorScheme: const ZincColorScheme.light(),
+      colorScheme: const IrisColorScheme.light(),
       brightness: Brightness.light,
       formFactor: FormFactor.mobile,
     );
     expect(base.formFactor, FormFactor.desktop);
     expect(copy.formFactor, FormFactor.mobile);
-    expect(copy.style, StyleTokens.unaMobile);
+    expect(copy.style, StyleTokens.fluidMobile);
     expect(copy.buttonSizesTheme.regular!.height, 44);
     expect(copy.textFieldTheme.constraints!.minHeight, 46);
     expect(copy.chipTheme.height, 36);
@@ -74,11 +74,11 @@ void main() {
 
   test('copyWith(style:) re-derives from the new style', () {
     final una = ThemeData();
-    final copy = una.copyWith(style: StyleTokens.nova);
-    final direct = ThemeData(style: StyleTokens.nova);
+    final copy = una.copyWith(style: StyleTokens.crisp);
+    final direct = ThemeData(style: StyleTokens.crisp);
 
-    expect(copy.style, StyleTokens.nova);
-    expect(copy.variant.baseStyle, StyleTokens.nova);
+    expect(copy.style, StyleTokens.crisp);
+    expect(copy.variant.baseStyle, StyleTokens.crisp);
     // 36 -> nova's h-8.
     expect(una.buttonSizesTheme.regular!.height, 36);
     expect(copy.buttonSizesTheme.regular!.height, 32);
@@ -89,10 +89,10 @@ void main() {
     expect(copy.cardTheme.backgroundColor, copy.colorScheme.card);
     // A style that does, loses it with the style.
     final glass = ThemeData(
-      style: StyleTokens.una.copyWith(cardBlur: true),
+      style: StyleTokens.fluid.copyWith(cardBlur: true),
     );
-    expect(glass.cardTheme.blur, StyleTokens.una.glassBlur);
-    expect(glass.copyWith(style: StyleTokens.nova).cardTheme.blur, 0);
+    expect(glass.cardTheme.blur, StyleTokens.fluid.glassBlur);
+    expect(glass.copyWith(style: StyleTokens.crisp).cardTheme.blur, 0);
     // The published type scale becomes nova's: paragraphs are 14 in both,
     // but `large` drops from una's 15-point subtitle to nova's 14, and
     // `h4` from una's semibold title to nova's medium one.
@@ -110,9 +110,9 @@ void main() {
       'theme stated none', () {
     final una = ThemeData();
     expect(una.radius, const BorderRadius.all(Radius.circular(10)));
-    expect(una.radii.scale, StyleTokens.una.radiusScale);
+    expect(una.radii.scale, StyleTokens.fluid.radiusScale);
 
-    final nova = una.copyWith(style: StyleTokens.nova);
+    final nova = una.copyWith(style: StyleTokens.crisp);
     expect(nova.radius, const BorderRadius.all(Radius.circular(8)));
     expect(nova.radii.scale, const RadiusScale());
     // lg on the Tailwind scale: 8 * 1.25.
@@ -126,32 +126,32 @@ void main() {
 
     // A radius the caller stated is theirs and survives the style change.
     const stated = BorderRadius.all(Radius.circular(4));
-    final pinned = ThemeData(radius: stated).copyWith(style: StyleTokens.nova);
+    final pinned = ThemeData(radius: stated).copyWith(style: StyleTokens.crisp);
     expect(pinned.radius, stated);
   });
 
   test('copyWith(style:) keeps the form factor', () {
     final mobile = ThemeData(formFactor: FormFactor.mobile);
-    final copy = mobile.copyWith(style: StyleTokens.nova);
+    final copy = mobile.copyWith(style: StyleTokens.crisp);
 
     expect(copy.formFactor, FormFactor.mobile);
-    expect(copy.variant.baseStyle, StyleTokens.nova);
-    expect(copy.style, StyleTokens.nova.forFormFactor(FormFactor.mobile));
+    expect(copy.variant.baseStyle, StyleTokens.crisp);
+    expect(copy.style, StyleTokens.crisp.forFormFactor(FormFactor.mobile));
     expect(copy.buttonSizesTheme.regular!.height, 44);
     expect(
       copy,
-      ThemeData(style: StyleTokens.nova, formFactor: FormFactor.mobile),
+      ThemeData(style: StyleTokens.crisp, formFactor: FormFactor.mobile),
     );
   });
 
   test('copyWith of something unrelated keeps style and form factor', () {
     final mobile = ThemeData(
-      style: StyleTokens.maia,
+      style: StyleTokens.pebble,
       formFactor: FormFactor.mobile,
     );
     final copy = mobile.copyWith(disabledOpacity: .3);
     expect(copy.formFactor, FormFactor.mobile);
-    expect(copy.variant.baseStyle, StyleTokens.maia);
+    expect(copy.variant.baseStyle, StyleTokens.pebble);
     expect(copy.style, mobile.style);
     expect(copy.buttonSizesTheme, mobile.buttonSizesTheme);
     expect(copy.disabledOpacity, .3);
@@ -159,9 +159,9 @@ void main() {
 
   test('copyWith(colorScheme:) recolours the una component themes', () {
     final copy = ThemeData().copyWith(
-      colorScheme: const BlueColorScheme.dark(),
+      colorScheme: const OceanColorScheme.dark(),
     );
-    const dark = BlueColorScheme.dark();
+    const dark = OceanColorScheme.dark();
     expect(copy.brightness, Brightness.dark);
     expect(copy.navigationBarTheme.selectedIconColor, dark.tint);
     expect(copy.navigationRailTheme.selectedIconColor, dark.tint);
@@ -170,7 +170,7 @@ void main() {
     // The dark-only opacities are picked up with the scheme.
     expect(copy.glassTheme.opacity, .66);
     expect(copy.cardTheme.backgroundColor, dark.card.withValues(alpha: .82));
-    expect(copy, ThemeData(colorScheme: const BlueColorScheme.dark()));
+    expect(copy, ThemeData(colorScheme: const OceanColorScheme.dark()));
   });
 
   test('copyWith(disableSecondaryBorder: true) switches the variant', () {
@@ -180,7 +180,7 @@ void main() {
 
   test('component overrides survive a copy', () {
     final themed = ThemeData(
-      colorScheme: const ZincColorScheme.light(),
+      colorScheme: const IrisColorScheme.light(),
       brightness: Brightness.light,
       cardTheme: const CardTheme(padding: EdgeInsets.all(3)),
     );
@@ -212,7 +212,7 @@ void main() {
       base.floatingActionButtonTheme.size,
     );
     // Recoloured with the scheme, resized with the form factor.
-    const dark = BlueColorScheme.dark();
+    const dark = OceanColorScheme.dark();
     expect(
       base
           .copyWith(colorScheme: dark)
@@ -234,21 +234,21 @@ void main() {
   group('brightness', () {
     test('follows a dark scheme when not given', () {
       final theme = ThemeData(
-        colorScheme: const ZincColorScheme.dark(),
+        colorScheme: const IrisColorScheme.dark(),
       );
       expect(theme.brightness, Brightness.dark);
     });
 
     test('follows a light scheme when not given', () {
       final theme = ThemeData(
-        colorScheme: const ZincColorScheme.light(),
+        colorScheme: const IrisColorScheme.light(),
       );
       expect(theme.brightness, Brightness.light);
     });
 
     test('an explicit brightness wins', () {
       final theme = ThemeData(
-        colorScheme: const ZincColorScheme.dark(),
+        colorScheme: const IrisColorScheme.dark(),
         brightness: Brightness.light,
       );
       expect(theme.brightness, Brightness.light);

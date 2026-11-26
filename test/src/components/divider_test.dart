@@ -15,7 +15,7 @@ void main() {
 
         final widget = UnaApp(
           theme: ThemeData(
-            colorScheme: const ZincColorScheme.dark(),
+            colorScheme: const IrisColorScheme.dark(),
             brightness: Brightness.light,
             dividerTheme: dividerTheme,
           ),
@@ -128,7 +128,7 @@ void main() {
 
         final widget = UnaApp(
           theme: ThemeData(
-            colorScheme: const ZincColorScheme.dark(),
+            colorScheme: const IrisColorScheme.dark(),
             brightness: Brightness.light,
             dividerTheme: dividerTheme,
           ),

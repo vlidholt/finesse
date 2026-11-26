@@ -78,15 +78,20 @@ class _AppShellState extends State<AppShell> {
         final open = openSignal.value;
         final config = configSignal.value;
 
-        ThemeCustomizerPanel panel({required bool docked}) =>
-            ThemeCustomizerPanel(
-              config: config,
-              onChanged: (next) => configSignal.value = next,
-              showLeadingBorder: docked,
-              // Covering the viewport, it also covers every button that
-              // could close it again.
-              onClose: docked ? null : () => openSignal.value = false,
-            );
+        ThemeCustomizerPanel panel({
+          required bool docked,
+          required ThemeData theme,
+        }) => ThemeCustomizerPanel(
+          config: config,
+          onChanged: (next) => configSignal.value = next,
+          // The lists of colours and metrics edit what the app shows.
+          brightness: theme.brightness,
+          formFactor: theme.formFactor,
+          showLeadingBorder: docked,
+          // Covering the viewport, it also covers every button that
+          // could close it again.
+          onClose: docked ? null : () => openSignal.value = false,
+        );
 
         return LayoutBuilder(
           builder: (context, constraints) {
@@ -200,7 +205,7 @@ class _AppShellState extends State<AppShell> {
                   width: docked ? ThemeCustomizerPanel.width : width,
                   child: _SlideFromEnd(
                     visible: open,
-                    child: panel(docked: docked),
+                    child: panel(docked: docked, theme: theme),
                   ),
                 ),
               ],

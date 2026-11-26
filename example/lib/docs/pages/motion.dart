@@ -31,7 +31,7 @@ final motionDoc = ComponentDoc(
           id: 'motion_tokens',
           title: 'One vocabulary for everything',
           description:
-              '`StyleTokens.una` moves with `Motion.lively`; the shadcn '
+              '`StyleTokens.fluid` moves with `Motion.lively`; the shadcn '
               'styles with the quieter `Motion.calm`. Pass `motion:` to '
               '`ThemeData` to replace it, or `Motion.none` to switch every '
               'transition off.',

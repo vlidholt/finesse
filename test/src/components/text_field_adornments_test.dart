@@ -106,7 +106,7 @@ void main() {
 
     testWidgets('does not make the field taller, in any style, at any '
         'text scale', (tester) async {
-      for (final style in [StyleTokens.una, StyleTokens.nova]) {
+      for (final style in [StyleTokens.fluid, StyleTokens.crisp]) {
         for (final formFactor in FormFactor.values) {
           for (final scale in [1.0, 2.0]) {
             final theme = ThemeData(style: style).withFormFactor(formFactor);

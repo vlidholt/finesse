@@ -99,7 +99,7 @@ import 'package:una/src/utils/extensions/text_style.dart';
 class DefaultThemeVariant extends ThemeVariant {
   /// Creates the variant.
   ///
-  /// [style] defaults to [StyleTokens.una], [formFactor] to
+  /// [style] defaults to [StyleTokens.fluid], [formFactor] to
   /// [FormFactor.desktop] and [spacing] to the 4px step. A null
   /// [menuColorScheme] makes menus follow [colorScheme], and a null
   /// [menuTranslucent] makes them follow the style. [menuAccent] defaults
@@ -108,7 +108,7 @@ class DefaultThemeVariant extends ThemeVariant {
     required this.colorScheme,
     required this.radius,
     required this.effectiveTextTheme,
-    StyleTokens style = StyleTokens.una,
+    StyleTokens style = StyleTokens.fluid,
     this.formFactor = FormFactor.desktop,
     this.spacing = const Spacing(),
     this.menuColorScheme,

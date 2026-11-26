@@ -60,7 +60,7 @@ void main() {
         final disableSecondaryBorder = combination.disableSecondaryBorder;
         final theme = ThemeData(
           brightness: Brightness.light,
-          colorScheme: const NeutralColorScheme.light(),
+          colorScheme: const GraphiteColorScheme.light(),
           style: combination.style,
           formFactor: combination.formFactor,
           disableSecondaryBorder: disableSecondaryBorder,
@@ -472,7 +472,7 @@ void main() {
     for (final combination in combinations()) {
       final theme = ThemeData(
         brightness: Brightness.light,
-        colorScheme: const NeutralColorScheme.light(),
+        colorScheme: const GraphiteColorScheme.light(),
         style: combination.style,
         formFactor: combination.formFactor,
         disableSecondaryBorder: combination.disableSecondaryBorder,
@@ -621,7 +621,7 @@ void main() {
         final style = combination.metrics;
         final theme = ThemeData(
           brightness: Brightness.light,
-          colorScheme: const NeutralColorScheme.light(),
+          colorScheme: const GraphiteColorScheme.light(),
           style: combination.style,
           formFactor: combination.formFactor,
           disableSecondaryBorder: combination.disableSecondaryBorder,
@@ -704,7 +704,7 @@ void main() {
       final style = combination.metrics;
       final theme = ThemeData(
         brightness: Brightness.light,
-        colorScheme: const NeutralColorScheme.light(),
+        colorScheme: const GraphiteColorScheme.light(),
         style: combination.style,
         formFactor: combination.formFactor,
         disableSecondaryBorder: combination.disableSecondaryBorder,

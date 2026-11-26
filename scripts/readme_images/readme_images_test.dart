@@ -44,10 +44,6 @@ void main() {
     await shoot(tester, 'palettes', palettesSize, const PalettesScene());
   });
 
-  testWidgets('accents', (tester) async {
-    await shoot(tester, 'accents', accentsSize, const AccentsScene());
-  });
-
   testWidgets('form-factors', (tester) async {
     await shoot(
       tester,

@@ -228,21 +228,21 @@ void main() {
         theme.columnBorderRadius!.topLeft.x,
         theme.itemBorderRadius!.topLeft.x + theme.columnPadding!.horizontal / 2,
       );
-      final lyra = ThemeData(style: StyleTokens.lyra).boardTheme;
+      final lyra = ThemeData(style: StyleTokens.sharp).boardTheme;
       expect(lyra.columnBorderRadius, BorderRadius.zero);
       expect(lyra.itemBorderRadius, BorderRadius.zero);
     });
 
     test('items are opaque in every style and brightness', () {
       for (final style in [
-        StyleTokens.una,
-        StyleTokens.nova,
-        StyleTokens.maia,
-        StyleTokens.lyra,
+        StyleTokens.fluid,
+        StyleTokens.crisp,
+        StyleTokens.pebble,
+        StyleTokens.sharp,
       ]) {
         for (final scheme in const [
-          BlueColorScheme.light(),
-          BlueColorScheme.dark(),
+          OceanColorScheme.light(),
+          OceanColorScheme.dark(),
         ]) {
           final theme = ThemeData(style: style, colorScheme: scheme);
           expect(theme.boardTheme.itemColor!.a, 1, reason: style.name);

@@ -987,7 +987,7 @@ void main() {
 
       await tester.pumpWidget(
         UnaApp(
-          theme: ThemeData(style: StyleTokens.nova),
+          theme: ThemeData(style: StyleTokens.crisp),
           home: const Skeleton(width: 100, height: 20),
         ),
       );

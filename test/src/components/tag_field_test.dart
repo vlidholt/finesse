@@ -114,10 +114,10 @@ void main() {
   testWidgets('empty, it is exactly a text field: same height, the '
       'placeholder where a text field has it', (tester) async {
     for (final style in [
-      StyleTokens.una,
-      StyleTokens.nova,
-      StyleTokens.maia,
-      StyleTokens.lyra,
+      StyleTokens.fluid,
+      StyleTokens.crisp,
+      StyleTokens.pebble,
+      StyleTokens.sharp,
     ]) {
       for (final formFactor in FormFactor.values) {
         final theme = ThemeData(style: style).withFormFactor(formFactor);

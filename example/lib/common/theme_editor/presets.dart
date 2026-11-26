@@ -1,4 +1,5 @@
 import 'package:example/common/theme_editor/editor_config.dart';
+import 'package:una/una.dart';
 
 /// The curated themes at the top of the customizer.
 ///
@@ -11,27 +12,26 @@ enum ThemePreset {
   /// blue glass, set in Geist.
   original('Original', ThemeEditorConfig()),
 
-  /// Classic shadcn/ui: compact Nova on true neutrals, opaque cards, Inter,
+  /// The shadcn/ui look: compact Crisp in Graphite, opaque cards, Inter,
   /// and a bottom bar docked to the edge.
   classic(
     'Classic',
     ThemeEditorConfig(
-      style: StylePreset.nova,
-      baseColor: BaseColor.neutral,
+      style: StylePreset.crisp,
+      colors: ColorSchemes.graphite,
       fontTitle: 'Inter',
       bottomBarFloating: false,
     ),
   ),
 
-  /// Soft and round: pill-shaped Maia on warm stone with a rose accent,
+  /// Soft and round: pill-shaped Pebble in Rose, on warm greys,
   /// the largest radius, Figtree under Outfit headings, and see-through
   /// menus.
   bloom(
     'Bloom',
     ThemeEditorConfig(
-      style: StylePreset.maia,
-      baseColor: BaseColor.stone,
-      accentColor: AccentColor.rose,
+      style: StylePreset.pebble,
+      colors: ColorSchemes.rose,
       fontTitle: 'Figtree',
       headingFontTitle: 'Outfit',
       radius: RadiusPreset.large,
@@ -39,14 +39,14 @@ enum ThemePreset {
     ),
   ),
 
-  /// Sharp and editorial: square Lyra on cool zinc, monospaced body under
+  /// Sharp and editorial: square Sharp in deep green, monospaced body under
   /// serif headlines, inverted menus with a bold highlight, the focus ring
   /// drawn inside the control, and a docked bottom bar.
   press(
     'Press',
     ThemeEditorConfig(
-      style: StylePreset.lyra,
-      baseColor: BaseColor.zinc,
+      style: StylePreset.sharp,
+      colors: ColorSchemes.forest,
       fontTitle: 'JetBrains Mono',
       headingFontTitle: 'Playfair Display',
       radius: RadiusPreset.none,
@@ -57,8 +57,8 @@ enum ThemePreset {
     ),
   ),
 
-  /// Una's glass turned up: thinner cards and bars over a stronger
-  /// blur, on zinc with an indigo accent, set in Manrope.
+  /// Fluid's glass turned up: thinner cards and bars over a stronger
+  /// blur, in Iris violet, set in Manrope.
   ///
   /// The one preset whose cards blur what is behind them. The package's
   /// styles leave that off — a card lies on the flat page, where a blur
@@ -68,8 +68,7 @@ enum ThemePreset {
   frost(
     'Frost',
     ThemeEditorConfig(
-      baseColor: BaseColor.zinc,
-      accentColor: AccentColor.indigo,
+      colors: ColorSchemes.iris,
       fontTitle: 'Manrope',
       cardOpacity: .7,
       cardBlur: true,

@@ -36,10 +36,10 @@ void main() {
   );
 
   for (final (name, style) in [
-    ('una', StyleTokens.una),
-    ('nova', StyleTokens.nova),
-    ('maia', StyleTokens.maia),
-    ('lyra', StyleTokens.lyra),
+    ('una', StyleTokens.fluid),
+    ('nova', StyleTokens.crisp),
+    ('maia', StyleTokens.pebble),
+    ('lyra', StyleTokens.sharp),
   ]) {
     for (final brightness in Brightness.values) {
       testWidgets('$name $brightness: the value is a field value, the '
@@ -47,8 +47,8 @@ void main() {
         final theme = ThemeData(
           style: style,
           colorScheme: brightness == Brightness.dark
-              ? const BlueColorScheme.dark()
-              : const BlueColorScheme.light(),
+              ? const OceanColorScheme.dark()
+              : const OceanColorScheme.light(),
         );
         final scheme = theme.colorScheme;
 

@@ -105,7 +105,7 @@ final liquidGlassDoc = ComponentDoc(
         title: 'Sizes',
         children: [
           DocParagraph(
-            'The phone metrics of the `una` style are Liquid Glass\'s: '
+            'The phone metrics of the `fluid` style are Liquid Glass\'s: '
             'a 44-point app bar, a 64-point tab bar, a 58 × 26 switch, '
             'popovers and dialogs with 24-point corners. A screen is laid '
             'out the same whether it is frosted or liquid, so switching '

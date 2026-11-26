@@ -271,10 +271,10 @@ void main() {
       tester,
     ) async {
       for (final style in [
-        StyleTokens.una,
-        StyleTokens.nova,
-        StyleTokens.maia,
-        StyleTokens.lyra,
+        StyleTokens.fluid,
+        StyleTokens.crisp,
+        StyleTokens.pebble,
+        StyleTokens.sharp,
       ]) {
         final theme = ThemeData(style: style);
         await pumpUna(tester, card(), theme: theme);
@@ -314,7 +314,7 @@ void main() {
 
     testWidgets('a selected card is exactly the size of an unselected one, '
         'and nothing inside it moves', (tester) async {
-      for (final style in [StyleTokens.una, StyleTokens.nova]) {
+      for (final style in [StyleTokens.fluid, StyleTokens.crisp]) {
         for (final formFactor in FormFactor.values) {
           final theme = ThemeData(style: style);
           final footer = Button.outline(
@@ -437,7 +437,7 @@ void main() {
       // A style whose cards are glass: una's own are translucent
       // without a blur.
       final glass = ThemeData(
-        style: StyleTokens.una.copyWith(cardBlur: true),
+        style: StyleTokens.fluid.copyWith(cardBlur: true),
       );
       await pumpUna(tester, card(), theme: glass);
       expect(find.byType(BackdropFilter), findsOneWidget);
@@ -583,7 +583,7 @@ void main() {
     }
 
     testWidgets("defaults to the theme's gap between sections", (tester) async {
-      for (final style in [StyleTokens.una, StyleTokens.nova]) {
+      for (final style in [StyleTokens.fluid, StyleTokens.crisp]) {
         await pumpUna(tester, sections(), theme: ThemeData(style: style));
         final theme = themeOf(tester, find.byType(Card));
         final themed = theme.cardTheme.sectionGap!;

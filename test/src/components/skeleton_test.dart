@@ -18,7 +18,7 @@ void main() {
       await tester.pumpWidget(
         UnaApp(
           theme: ThemeData(
-            colorScheme: const NeutralColorScheme.light(),
+            colorScheme: const GraphiteColorScheme.light(),
             brightness: Brightness.light,
             skeletonTheme: const SkeletonTheme(
               color: Color(0xFF123456),

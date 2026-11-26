@@ -32,23 +32,23 @@ void main() {
     selection: Color(0x402040c0),
   );
 
-  group('BlueColorScheme', () {
+  group('OceanColorScheme', () {
     test('is the default scheme of a theme, per brightness', () {
-      expect(ThemeData().colorScheme, const BlueColorScheme.light());
+      expect(ThemeData().colorScheme, const OceanColorScheme.light());
       expect(ThemeData().brightness, Brightness.light);
       expect(
         ThemeData(brightness: Brightness.dark).colorScheme,
-        const BlueColorScheme.dark(),
+        const OceanColorScheme.dark(),
       );
       // And a theme given only the dark scheme reads its brightness off it.
       expect(
-        ThemeData(colorScheme: const BlueColorScheme.dark()).brightness,
+        ThemeData(colorScheme: const OceanColorScheme.dark()).brightness,
         Brightness.dark,
       );
     });
 
     test('light: a standard blue on a cool grey page', () {
-      const s = BlueColorScheme.light();
+      const s = OceanColorScheme.light();
       expect(s.background, const Color(0xfff4f5f7));
       expect(s.foreground, const Color(0xff161a22));
       expect(s.card, const Color(0xffffffff));
@@ -64,7 +64,7 @@ void main() {
     });
 
     test('light: fills and hairlines are washes of the foreground', () {
-      const s = BlueColorScheme.light();
+      const s = OceanColorScheme.light();
       // 8%, 4.3% and 9% of #193c4a — translucent, so they sit correctly on
       // glass rather than painting an opaque grey over it.
       expect(s.secondary, const Color(0x14161a22));
@@ -79,7 +79,7 @@ void main() {
     });
 
     test('light: the optional tokens are all stated', () {
-      const s = BlueColorScheme.light();
+      const s = OceanColorScheme.light();
       expect(s.foregroundSubtle, const Color(0xff3a414e));
       expect(s.tint, const Color(0xff1d4ed8));
       expect(s.tintForeground, const Color(0xffffffff));
@@ -95,7 +95,7 @@ void main() {
     });
 
     test('dark: the same blue on a deep blue-grey page', () {
-      const s = BlueColorScheme.dark();
+      const s = OceanColorScheme.dark();
       expect(s.background, const Color(0xff141a26));
       expect(s.foreground, const Color(0xffeef1f5));
       // The card and popover are a step lighter than the page.
@@ -106,7 +106,7 @@ void main() {
         greaterThan(s.background.computeLuminance()),
       );
       // The button fill is the same blue in both modes…
-      expect(s.primary, const BlueColorScheme.light().primary);
+      expect(s.primary, const OceanColorScheme.light().primary);
       expect(s.primaryForeground, const Color(0xffffffff));
       expect(s.mutedForeground, const Color(0xff97a1af));
       expect(s.accent, const Color(0x522563eb));
@@ -121,7 +121,7 @@ void main() {
     });
 
     test('dark: the optional tokens are all stated', () {
-      const s = BlueColorScheme.dark();
+      const s = OceanColorScheme.dark();
       expect(s.foregroundSubtle, const Color(0xffc6ccd6));
       expect(s.tint, const Color(0xff6eb0fb));
       expect(s.tintForeground, const Color(0xff141a26));
@@ -137,8 +137,8 @@ void main() {
 
     test('dark: the tint is lighter than the primary so it reads on the '
         'page', () {
-      const light = BlueColorScheme.light();
-      const dark = BlueColorScheme.dark();
+      const light = OceanColorScheme.light();
+      const dark = OceanColorScheme.dark();
       // In the light, the tint is a step deeper than the button fill, so
       // text and selection washes in it read on white.
       expect(light.tint, isNot(light.primary));
@@ -156,8 +156,8 @@ void main() {
 
     test('text reads on every surface it is paired with', () {
       for (final s in const [
-        BlueColorScheme.light(),
-        BlueColorScheme.dark(),
+        OceanColorScheme.light(),
+        OceanColorScheme.dark(),
       ]) {
         final dark = s.background.computeLuminance() < .5;
         final label = dark ? 'dark' : 'light';
@@ -230,22 +230,22 @@ void main() {
     });
 
     test('light and dark are different schemes, each equal to itself', () {
-      expect(const BlueColorScheme.light(), const BlueColorScheme.light());
+      expect(const OceanColorScheme.light(), const OceanColorScheme.light());
       expect(
-        const BlueColorScheme.light().hashCode,
-        const BlueColorScheme.light().hashCode,
+        const OceanColorScheme.light().hashCode,
+        const OceanColorScheme.light().hashCode,
       );
       expect(
-        const BlueColorScheme.light(),
-        isNot(const BlueColorScheme.dark()),
+        const OceanColorScheme.light(),
+        isNot(const OceanColorScheme.dark()),
       );
     });
 
     test('a named constructor argument overrides one token', () {
-      const s = BlueColorScheme.light(tint: Color(0xff112233));
+      const s = OceanColorScheme.light(tint: Color(0xff112233));
       expect(s.tint, const Color(0xff112233));
-      expect(s.primary, const BlueColorScheme.light().primary);
-      expect(s, isNot(const BlueColorScheme.light()));
+      expect(s.primary, const OceanColorScheme.light().primary);
+      expect(s, isNot(const OceanColorScheme.light()));
     });
   });
 
@@ -265,15 +265,8 @@ void main() {
       expect(bare.bar, bare.card);
     });
 
-    test('the shadcn palettes rely on the fallbacks', () {
-      for (final s in const <ColorScheme>[
-        NeutralColorScheme.light(),
-        NeutralColorScheme.dark(),
-        ZincColorScheme.light(),
-        ZincColorScheme.dark(),
-        StoneColorScheme.light(),
-        StoneColorScheme.dark(),
-      ]) {
+    test('a scheme that names no optional token relies on the fallbacks', () {
+      for (final s in const <ColorScheme>[bare]) {
         expect(s.tint, s.primary);
         expect(s.tintForeground, s.primaryForeground);
         expect(s.borderStrong, s.input);
@@ -297,11 +290,12 @@ void main() {
         green.successMuted,
         const Color(0xff00aa00).withValues(alpha: .12),
       );
-      // An accent applied to a shadcn base moves the tint with it.
-      final violet = const ZincColorScheme.light().applyAccentScheme(
-        AccentScheme.violetLight,
+      // A legible accent applied to a built-in scheme moves the tint with
+      // it.
+      final violet = const OceanColorScheme.light().applyAccent(
+        const Color(0xff6d28d9),
       );
-      expect(violet.tint, AccentScheme.violetLight.primary);
+      expect(violet.tint, const Color(0xff6d28d9));
     });
 
     test('an explicit token wins over its fallback', () {
@@ -350,10 +344,10 @@ void main() {
     });
 
     test('copyWith keeps the tokens it is not given', () {
-      final copy = const BlueColorScheme.dark().copyWith(
+      final copy = const OceanColorScheme.dark().copyWith(
         primary: const Color(0xff000001),
       );
-      const dark = BlueColorScheme.dark();
+      const dark = OceanColorScheme.dark();
       expect(copy.tint, dark.tint);
       expect(copy.foregroundSubtle, dark.foregroundSubtle);
       expect(copy.borderStrong, dark.borderStrong);
@@ -364,7 +358,7 @@ void main() {
 
     test("merge takes the other scheme's tokens and keeps its own where "
         'the other has none', () {
-      const blue = BlueColorScheme.light();
+      const blue = OceanColorScheme.light();
       // The override states the tokens: they win.
       final overBlue = bare.merge(blue);
       expect(overBlue.tint, blue.tint);
@@ -388,8 +382,8 @@ void main() {
     });
 
     test('lerp between light and dark blue stays opaque where both are', () {
-      const light = BlueColorScheme.light();
-      const dark = BlueColorScheme.dark();
+      const light = OceanColorScheme.light();
+      const dark = OceanColorScheme.dark();
       for (final t in [0.0, .25, .5, .75, 1.0]) {
         final mid = ColorScheme.lerp(light, dark, t);
         expect(mid.tint.a, 1, reason: 't=$t');
@@ -408,7 +402,7 @@ void main() {
       // the raw nullable fields instead fades the stated colour in from
       // nothing, which shows as every tinted icon flashing translucent
       // during a theme change.
-      const blue = BlueColorScheme.light();
+      const blue = OceanColorScheme.light();
       final mid = ColorScheme.lerp(bare, blue, .5);
 
       expect(mid.tint, Color.lerp(bare.tint, blue.tint, .5));
@@ -449,8 +443,8 @@ void main() {
       );
       // nova keeps shadcn's `--border`.
       final nova = ThemeData(
-        style: StyleTokens.nova,
-        colorScheme: const NeutralColorScheme.light(),
+        style: StyleTokens.crisp,
+        colorScheme: const GraphiteColorScheme.light(),
       );
       expect(
         nova.outlineButtonTheme.decoration!.border!.top!.color,
@@ -497,11 +491,9 @@ void main() {
       }
     });
 
-    test('a shadcn palette themes the new widgets through the fallbacks', () {
-      final theme = ThemeData(
-        colorScheme: const ZincColorScheme.light(),
-        style: StyleTokens.nova,
-      );
+    test('a scheme of required tokens only themes the new widgets through '
+        'the fallbacks', () {
+      final theme = ThemeData(colorScheme: bare, style: StyleTokens.crisp);
       final s = theme.colorScheme;
       expect(theme.navigationBarTheme.selectedIconColor, s.primary);
       expect(theme.chatBubbleTheme.outgoingColor, s.primary);
@@ -509,7 +501,7 @@ void main() {
         theme.chatBubbleTheme.outgoingForegroundColor,
         s.primaryForeground,
       );
-      // nova's bars are opaque, so they pay for no backdrop layer.
+      // Crisp's bars are opaque, so they pay for no backdrop layer.
       expect(theme.appBarTheme.backgroundColor, s.card);
       expect(theme.appBarTheme.blur, 0);
       expect(theme.appBarTheme.saturation, 1);
