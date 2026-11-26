@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:una/src/components/disabled.dart';
@@ -654,10 +655,33 @@ class _ColorArea extends StatefulWidget {
 class _ColorAreaState extends State<_ColorArea> {
   bool _focused = false;
 
-  void _at(Offset position, Size size) {
+  /// Where on the thumb the pointer took hold of it, from its centre, so
+  /// a thumb picked up by its edge moves with the pointer instead of
+  /// jumping to centre on it. Zero for a press off the thumb, which puts
+  /// the thumb where it lands.
+  Offset _grab = Offset.zero;
+
+  void _press(Offset position, Size size, double thumb) {
+    final centre = Offset(
+      thumb + widget.hsv.saturation * math.max(0, size.width - thumb * 2),
+      thumb + (1 - widget.hsv.value) * math.max(0, size.height - thumb * 2),
+    );
+    final fromCentre = position - centre;
+    _grab = fromCentre.distance <= thumb ? fromCentre : Offset.zero;
+    _at(position, size, thumb);
+  }
+
+  /// The saturation and value under [position]. The thumb stays inside
+  /// the area, as it does on the tracks: its centre travels from a thumb
+  /// radius in on one side to a radius in on the other, so a thumb in a
+  /// corner is whole, and can be taken hold of anywhere.
+  void _at(Offset position, Size size, double thumb) {
+    final width = math.max(1, size.width - thumb * 2);
+    final height = math.max(1, size.height - thumb * 2);
+    final centre = position - _grab;
     widget.onChanged(
-      (position.dx / size.width).clamp(0.0, 1.0),
-      1 - (position.dy / size.height).clamp(0.0, 1.0),
+      ((centre.dx - thumb) / width).clamp(0.0, 1.0),
+      1 - ((centre.dy - thumb) / height).clamp(0.0, 1.0),
     );
   }
 
@@ -708,9 +732,15 @@ class _ColorAreaState extends State<_ColorArea> {
               final size = constraints.biggest;
               return GestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onTapDown: (details) => _at(details.localPosition, size),
-                onPanStart: (details) => _at(details.localPosition, size),
-                onPanUpdate: (details) => _at(details.localPosition, size),
+                // A drag starts where the pointer came down, so the thumb is
+                // taken hold of where it was touched, not past the slop.
+                dragStartBehavior: DragStartBehavior.down,
+                onTapDown: (details) =>
+                    _press(details.localPosition, size, thumb),
+                onPanStart: (details) =>
+                    _press(details.localPosition, size, thumb),
+                onPanUpdate: (details) =>
+                    _at(details.localPosition, size, thumb),
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
@@ -729,8 +759,11 @@ class _ColorAreaState extends State<_ColorArea> {
                       ),
                     ),
                     Positioned(
-                      left: hsv.saturation * size.width - thumb,
-                      top: (1 - hsv.value) * size.height - thumb,
+                      left:
+                          hsv.saturation * math.max(0, size.width - thumb * 2),
+                      top:
+                          (1 - hsv.value) *
+                          math.max(0, size.height - thumb * 2),
                       child: _ColorThumb(
                         color: hsv.withAlpha(1).toColor(),
                         focused: _focused,
@@ -812,6 +845,9 @@ class _ColorTrack extends StatefulWidget {
 class _ColorTrackState extends State<_ColorTrack> {
   bool _focused = false;
 
+  /// Where on the thumb the pointer took hold of it, from its centre.
+  double _grab = 0;
+
   void _move(double delta) =>
       widget.onChanged((widget.value + delta).clamp(0.0, 1.0));
 
@@ -869,17 +905,26 @@ class _ColorTrackState extends State<_ColorTrack> {
                 final width = constraints.maxWidth;
                 // The thumb stays inside the track's ends.
                 final travel = math.max(1, width - thumb * 2);
+                final fraction = rtl ? 1 - widget.value : widget.value;
                 void at(double dx) {
-                  final t = ((dx - thumb) / travel).clamp(0.0, 1.0);
+                  final t = ((dx - _grab - thumb) / travel).clamp(0.0, 1.0);
                   widget.onChanged(rtl ? 1 - t : t);
                 }
 
-                final fraction = rtl ? 1 - widget.value : widget.value;
+                // A press on the thumb takes hold of it where it lands; one
+                // off it puts the thumb there.
+                void press(double dx) {
+                  final fromCentre = dx - (thumb + fraction * travel);
+                  _grab = fromCentre.abs() <= thumb ? fromCentre : 0;
+                  at(dx);
+                }
+
                 return GestureDetector(
                   behavior: HitTestBehavior.opaque,
-                  onTapDown: (details) => at(details.localPosition.dx),
+                  dragStartBehavior: DragStartBehavior.down,
+                  onTapDown: (details) => press(details.localPosition.dx),
                   onHorizontalDragStart: (details) =>
-                      at(details.localPosition.dx),
+                      press(details.localPosition.dx),
                   onHorizontalDragUpdate: (details) =>
                       at(details.localPosition.dx),
                   child: Stack(

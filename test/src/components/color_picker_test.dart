@@ -78,8 +78,14 @@ void main() {
     ) async {
       await pumpUna(tester, const _Host());
       final area = tester.getRect(sliderNamed('Saturation and brightness'));
+      // The thumb's centre stays a radius in from each edge, so the area's
+      // values span its size less a thumb at each end.
+      final r = Theme.of(
+        tester.element(find.byType(ColorPicker)),
+      ).sliderTheme.thumbRadius!;
+      final span = area.deflate(r);
       await tester.tapAt(
-        Offset(area.left + area.width * .25, area.top + area.height * .25),
+        Offset(span.left + span.width * .25, span.top + span.height * .25),
       );
       await tester.pump();
       expect(hsvOf(tester).saturation, closeTo(.25, .02));

@@ -30,10 +30,22 @@ void main() {
 
   Rect sliderRect(WidgetTester tester) => tester.getRect(find.byType(Slider));
 
+  /// How far the thumb's centre travels: the slider's width less a thumb
+  /// radius at each end, where the thumb stays inside the track.
+  double travel(WidgetTester tester, [Type type = Slider]) {
+    final slider = find.byType(type);
+    final r = Theme.of(tester.element(slider)).sliderTheme.thumbRadius!;
+    return tester.getSize(slider).width - 2 * r;
+  }
+
   /// The centre of the thumb for [fraction] of the track.
-  Offset at(WidgetTester tester, double fraction) {
-    final rect = sliderRect(tester);
-    return Offset(rect.left + rect.width * fraction, rect.center.dy);
+  Offset at(WidgetTester tester, double fraction, [Type type = Slider]) {
+    final rect = tester.getRect(find.byType(type));
+    final inset = (rect.width - travel(tester, type)) / 2;
+    return Offset(
+      rect.left + inset + travel(tester, type) * fraction,
+      rect.center.dy,
+    );
   }
 
   group('Slider value', () {
@@ -117,13 +129,14 @@ void main() {
           ),
         ),
       );
-      final rect = tester.getRect(find.byType(RangeSlider));
-      await tester.tapAt(Offset(rect.left + rect.width * .9, rect.center.dy));
+      await tester.tapAt(at(tester, .9, RangeSlider));
       await tester.pump();
-      expect(values, [20, 90]);
-      await tester.tapAt(Offset(rect.left + rect.width * .1, rect.center.dy));
+      expect(values.first, 20);
+      expect(values.last, closeTo(90, 1e-9));
+      await tester.tapAt(at(tester, .1, RangeSlider));
       await tester.pump();
-      expect(values, [10, 90]);
+      expect(values.first, closeTo(10, 1e-9));
+      expect(values.last, closeTo(90, 1e-9));
     });
   });
 
@@ -192,12 +205,14 @@ void main() {
       expect(bubble('40'), findsNothing);
       final gesture = await tester.startGesture(at(tester, .4));
       await tester.pump();
+      // A hundredth of the travel per step of the value.
+      final unit = travel(tester) / 100;
       // The first move is the slop: it starts the drag.
       await gesture.moveBy(const Offset(20, 0));
-      await gesture.moveBy(const Offset(4, 0));
+      await gesture.moveBy(Offset(6 * unit - 20, 0));
       await rest(tester);
       expect(bubble('46'), findsOneWidget);
-      await gesture.moveBy(const Offset(16, 0));
+      await gesture.moveBy(Offset(4 * unit, 0));
       await tester.pump();
       expect(bubble('50'), findsOneWidget);
       await gesture.up();
@@ -384,7 +399,10 @@ void main() {
       await tester.tapAt(at(tester, .6));
       await tester.pump();
       expect(formKey.currentState!.saveAndValidate(), isTrue);
-      expect(formKey.currentState!.value['volume'], 60);
+      expect(
+        formKey.currentState!.value['volume'] as double,
+        closeTo(60, 1e-9),
+      );
       formKey.currentState!.reset();
       await tester.pump();
       expect(tester.widget<Slider>(find.byType(Slider)).value, 20);

@@ -556,6 +556,112 @@ void main() {
       });
     });
 
+    for (final formFactor in [FormFactor.desktop, FormFactor.mobile]) {
+      for (final expand in [false, true]) {
+        testWidgets('a glass segment with an icon and a label fits the '
+            'control (${formFactor.name}${expand ? ', expanded' : ''})', (
+          tester,
+        ) async {
+          await onPlatform(TargetPlatform.iOS, () async {
+            await pump(
+              tester,
+              Center(
+                child: SizedBox(
+                  width: expand ? 320 : null,
+                  child: SegmentedControl<int>(
+                    value: 0,
+                    expand: expand,
+                    onChanged: (_) {},
+                    segments: const [
+                      Segment(
+                        value: 0,
+                        icon: SizedBox.square(key: Key('icon0'), dimension: 16),
+                        label: Text('Day'),
+                      ),
+                      Segment(
+                        value: 1,
+                        icon: SizedBox.square(key: Key('icon1'), dimension: 16),
+                        label: Text('Week'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              formFactor: formFactor,
+            );
+            // The package stacked the icon over the label, which spilled
+            // out of a control one line high (a RenderFlex overflow).
+            expect(tester.takeException(), isNull);
+            final control = tester.getRect(
+              find.byType(lg.GlassSegmentedControl),
+            );
+            for (final (i, label) in ['Day', 'Week'].indexed) {
+              final icon = tester.getRect(find.byKey(Key('icon$i')));
+              final text = tester.getRect(find.text(label));
+              // Side by side, on one line, inside the control.
+              expect(icon.right, lessThanOrEqualTo(text.left));
+              expect(icon.center.dy, moreOrLessEquals(text.center.dy));
+              expect(control.contains(text.topLeft), isTrue);
+              expect(control.contains(text.bottomRight), isTrue);
+            }
+            // The segment is still named for a screen reader.
+            final glass = tester.widget<lg.GlassSegmentedControl>(
+              find.byType(lg.GlassSegmentedControl),
+            );
+            expect(glass.segments.map((s) => s.semanticLabel), [
+              'Day',
+              'Week',
+            ]);
+          });
+        });
+      }
+    }
+
+    testWidgets('Glass keeps the tint of its level, its blur and its '
+        'saturation on Liquid Glass', (tester) async {
+      await onPlatform(TargetPlatform.iOS, () async {
+        await pump(
+          tester,
+          const Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Glass(child: SizedBox(width: 80, height: 40)),
+                Glass(
+                  level: GlassLevel.strong,
+                  child: SizedBox(width: 80, height: 40),
+                ),
+              ],
+            ),
+          ),
+        );
+        final theme = Theme.of(tester.element(find.byType(Column)));
+        final glass = theme.glassTheme;
+        final card = glass.color ?? theme.colorScheme.card;
+        // Left to the iOS presets, both levels were the same clear glass,
+        // and off Impeller (the web) not blurred at all: nothing like the
+        // frosted surface, and text on it unreadable over a photograph.
+        final surfaces = tester
+            .widgetList<LiquidGlassSurface>(find.byType(LiquidGlassSurface))
+            .toList();
+        expect(surfaces.map((s) => s.tint), [
+          card.withValues(alpha: card.a * glass.opacity!),
+          card.withValues(alpha: card.a * glass.strongOpacity!),
+        ]);
+        for (final surface in surfaces) {
+          expect(surface.blur, glass.blur);
+          expect(surface.saturation, glass.saturation);
+        }
+        final containers = tester
+            .widgetList<lg.GlassContainer>(find.byType(lg.GlassContainer))
+            .toList();
+        for (final (i, container) in containers.indexed) {
+          expect(container.settings!.glassColor, surfaces[i].tint);
+          expect(container.settings!.blur, greaterThanOrEqualTo(glass.blur!));
+        }
+      });
+    });
+
     testWidgets('a segmented control on glass reports its value', (
       tester,
     ) async {

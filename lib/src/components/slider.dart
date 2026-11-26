@@ -836,11 +836,20 @@ class _SliderCoreState extends State<_SliderCore> {
 
   /// The value the given horizontal offset into the track represents: from
   /// the left, or from the right where text runs that way.
-  double _valueFromDx(double dx, double trackWidth) {
-    if (trackWidth == 0) return _min;
+  double _valueFromDx(double dx, double trackWidth, double thumbRadius) {
+    // The thumb's centre travels a thumb radius in from each end, so the
+    // value under a pointer is read along that span: the thumb follows
+    // the finger exactly, and either end is reached with the thumb still
+    // whole inside the track.
+    final travel = trackWidth - thumbRadius * 2;
+    if (travel <= 0) return _min;
     final fromStart = _rtl ? trackWidth - dx : dx;
-    return _min + (fromStart / trackWidth) * (_max - _min);
+    return _min + ((fromStart - thumbRadius) / travel) * (_max - _min);
   }
+
+  /// How far from its thumb's centre the pointer took hold of it, so a
+  /// thumb grabbed by its edge does not jump to centre on the pointer.
+  double _grabOffset = 0;
 
   /// The thumb a pointer at [value] should grab.
   int _nearestThumb(double value) {
@@ -1057,13 +1066,20 @@ class _SliderCoreState extends State<_SliderCore> {
               (widget.valueLabel == null ? value.toString() : _labelOf(value));
           final increased = _constrain(index, value + _step);
           final decreased = _constrain(index, value - _step);
-          final x = fromLeft(fractionOf(value)) * effectiveTrackWidth;
+          // Radix keeps the thumb inside the slider's bounds
+          // (`getThumbInBoundsOffset`): its centre travels from a radius
+          // in at the minimum to a radius in at the maximum. A thumb that
+          // hung half outside at either end could not be grabbed by its
+          // outer half, which no box around the slider hit-tests.
+          final travel = math.max<double>(
+            0,
+            effectiveTrackWidth - effectiveThumbRadius * 2,
+          );
+          final centre =
+              effectiveThumbRadius + fromLeft(fractionOf(value)) * travel;
           return Positioned(
             key: ValueKey<int>(index),
-            left: (x - effectiveThumbRadius).clamp(
-              -effectiveThumbRadius,
-              effectiveTrackWidth - effectiveThumbRadius,
-            ),
+            left: centre - effectiveThumbRadius,
             top: (effectiveHeight - effectiveThumbRadius * 2) / 2,
             child: Focusable(
               focusNode: _focusNodeFor(index),
@@ -1119,12 +1135,21 @@ class _SliderCoreState extends State<_SliderCore> {
                                 if (dx == null) return;
                                 _updateThumb(
                                   index,
-                                  _valueFromDx(dx, effectiveTrackWidth),
+                                  _valueFromDx(
+                                    dx - _grabOffset,
+                                    effectiveTrackWidth,
+                                    effectiveThumbRadius,
+                                  ),
                                 );
                               }
                             : null,
                         onPanDown: widget.enabled
-                            ? (_) => _setDragging(index)
+                            ? (details) {
+                                _grabOffset =
+                                    details.localPosition.dx -
+                                    effectiveThumbRadius;
+                                _setDragging(index);
+                              }
                             : null,
                         onPanCancel: widget.enabled
                             ? () => _setDragging(null)
@@ -1218,135 +1243,157 @@ class _SliderCoreState extends State<_SliderCore> {
             clipBehavior: Clip.none,
             alignment: Alignment.centerLeft,
             children: [
-              // Track with gesture handling based on interaction mode
-              UnaGestureDetector(
-                mouseCursor: widget.enabled
-                    ? effectiveMouseCursor
-                    : effectiveDisabledMouseCursor,
-                onTapDown: canTap && values.isNotEmpty
-                    ? (details) {
-                        final dx = _localDx(
-                          layoutContext,
-                          details.globalPosition,
-                        );
-                        if (dx == null) return;
-                        final value = _valueFromDx(dx, effectiveTrackWidth);
-                        _updateThumb(_nearestThumb(value), value);
-                      }
-                    : null,
-                onPanUpdate: canSlideTrack
-                    ? (details) {
-                        final index = draggingThumb;
-                        if (index == null) return;
-                        final dx = _localDx(
-                          layoutContext,
-                          details.globalPosition,
-                        );
-                        if (dx == null) return;
-                        _updateThumb(
-                          index,
-                          _valueFromDx(dx, effectiveTrackWidth),
-                        );
-                      }
-                    : null,
-                // The thumb the gesture grabs is decided once, when it
-                // starts: a drag that runs past another thumb keeps moving
-                // the one it picked up rather than swapping mid-gesture.
-                onPanDown: widget.enabled && values.isNotEmpty
-                    ? (details) {
-                        final dx = _localDx(
-                          layoutContext,
-                          details.globalPosition,
-                        );
-                        if (dx == null) return;
-                        _setDragging(
-                          _nearestThumb(
-                            _valueFromDx(dx, effectiveTrackWidth),
-                          ),
-                        );
-                      }
-                    : null,
-                onPanCancel: widget.enabled ? () => _setDragging(null) : null,
-                onPanStart: widget.enabled
-                    ? (details) {
-                        _dragStarted(details);
-                        widget.onChangeStart?.call(widget.values);
-                      }
-                    : null,
-                onPanEnd: widget.enabled
-                    ? (details) {
-                        _setDragging(null);
-                        widget.onChangeEnd?.call(widget.values);
-                      }
-                    : null,
-                // `.cn-slider-track` is `overflow-hidden`, so the active
-                // range takes the track's own rounded ends and nothing else:
-                // square where it stops mid-track, rounded where it reaches
-                // an end.
-                child: ClipRRect(
-                  borderRadius: theme.radius,
-                  child: Stack(
-                    children: [
-                      // whole track
-                      SizedBox(
-                        width: effectiveTrackWidth,
-                        height: effectiveTrackHeight,
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            borderRadius: theme.radius,
-                            color: widget.enabled
-                                ? effectiveInactiveTrackColor
-                                : effectiveDisabledInactiveTrackColor,
-                          ),
-                        ),
-                      ),
-                      // active track
-                      Positioned(
-                        left:
-                            (rtl ? 1 - highFraction : lowFraction) *
+              // Track with gesture handling based on interaction mode. It
+              // takes the slider's whole height, so a finger need not land
+              // on the thin track itself.
+              Positioned.fill(
+                child: UnaGestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  mouseCursor: widget.enabled
+                      ? effectiveMouseCursor
+                      : effectiveDisabledMouseCursor,
+                  onTapDown: canTap && values.isNotEmpty
+                      ? (details) {
+                          final dx = _localDx(
+                            layoutContext,
+                            details.globalPosition,
+                          );
+                          if (dx == null) return;
+                          final value = _valueFromDx(
+                            dx,
                             effectiveTrackWidth,
-                        top: 0,
-                        width:
-                            (highFraction - lowFraction).clamp(0.0, 1.0) *
-                            effectiveTrackWidth,
-                        height: effectiveTrackHeight,
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            color: widget.enabled
-                                ? effectiveActiveTrackColor
-                                : effectiveDisabledActiveTrackColor,
-                          ),
-                        ),
-                      ),
-                      // division marks
-                      if (widget.divisions != null &&
-                          widget.divisions! > 0 &&
-                          widget.showDivisionMarks)
-                        ...List.generate(widget.divisions! + 1, (index) {
-                          final position = index / widget.divisions!;
-                          return Positioned(
-                            left:
-                                position * effectiveTrackWidth -
-                                divisionMarkOffset,
-                            top:
-                                (effectiveTrackHeight - divisionMarkHeight) / 2,
-                            child: Container(
-                              width: divisionMarkWidth,
-                              height: divisionMarkHeight,
-                              decoration: BoxDecoration(
-                                color: widget.enabled
-                                    ? theme.colorScheme.border
-                                    : theme.colorScheme.border.withValues(
-                                        alpha: 0.5,
-                                      ),
-                                borderRadius: BorderRadius.circular(
-                                  divisionMarkBorderRadius,
-                                ),
+                            effectiveThumbRadius,
+                          );
+                          _updateThumb(_nearestThumb(value), value);
+                        }
+                      : null,
+                  onPanUpdate: canSlideTrack
+                      ? (details) {
+                          final index = draggingThumb;
+                          if (index == null) return;
+                          final dx = _localDx(
+                            layoutContext,
+                            details.globalPosition,
+                          );
+                          if (dx == null) return;
+                          _updateThumb(
+                            index,
+                            _valueFromDx(
+                              dx,
+                              effectiveTrackWidth,
+                              effectiveThumbRadius,
+                            ),
+                          );
+                        }
+                      : null,
+                  // The thumb the gesture grabs is decided once, when it
+                  // starts: a drag that runs past another thumb keeps moving
+                  // the one it picked up rather than swapping mid-gesture.
+                  onPanDown: widget.enabled && values.isNotEmpty
+                      ? (details) {
+                          final dx = _localDx(
+                            layoutContext,
+                            details.globalPosition,
+                          );
+                          if (dx == null) return;
+                          _setDragging(
+                            _nearestThumb(
+                              _valueFromDx(
+                                dx,
+                                effectiveTrackWidth,
+                                effectiveThumbRadius,
                               ),
                             ),
                           );
-                        }),
-                    ],
+                        }
+                      : null,
+                  onPanCancel: widget.enabled ? () => _setDragging(null) : null,
+                  onPanStart: widget.enabled
+                      ? (details) {
+                          _dragStarted(details);
+                          widget.onChangeStart?.call(widget.values);
+                        }
+                      : null,
+                  onPanEnd: widget.enabled
+                      ? (details) {
+                          _setDragging(null);
+                          widget.onChangeEnd?.call(widget.values);
+                        }
+                      : null,
+                  // `.cn-slider-track` is `overflow-hidden`, so the active
+                  // range takes the track's own rounded ends and nothing else:
+                  // square where it stops mid-track, rounded where it reaches
+                  // an end.
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: ClipRRect(
+                      borderRadius: theme.radius,
+                      child: Stack(
+                        children: [
+                          // whole track
+                          SizedBox(
+                            width: effectiveTrackWidth,
+                            height: effectiveTrackHeight,
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                borderRadius: theme.radius,
+                                color: widget.enabled
+                                    ? effectiveInactiveTrackColor
+                                    : effectiveDisabledInactiveTrackColor,
+                              ),
+                            ),
+                          ),
+                          // active track
+                          Positioned(
+                            left:
+                                (rtl ? 1 - highFraction : lowFraction) *
+                                effectiveTrackWidth,
+                            top: 0,
+                            width:
+                                (highFraction - lowFraction).clamp(0.0, 1.0) *
+                                effectiveTrackWidth,
+                            height: effectiveTrackHeight,
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                color: widget.enabled
+                                    ? effectiveActiveTrackColor
+                                    : effectiveDisabledActiveTrackColor,
+                              ),
+                            ),
+                          ),
+                          // division marks
+                          if (widget.divisions != null &&
+                              widget.divisions! > 0 &&
+                              widget.showDivisionMarks)
+                            ...List.generate(widget.divisions! + 1, (index) {
+                              final position = index / widget.divisions!;
+                              return Positioned(
+                                left:
+                                    position * effectiveTrackWidth -
+                                    divisionMarkOffset,
+                                top:
+                                    (effectiveTrackHeight -
+                                        divisionMarkHeight) /
+                                    2,
+                                child: Container(
+                                  width: divisionMarkWidth,
+                                  height: divisionMarkHeight,
+                                  decoration: BoxDecoration(
+                                    color: widget.enabled
+                                        ? theme.colorScheme.border
+                                        : theme.colorScheme.border.withValues(
+                                            alpha: 0.5,
+                                          ),
+                                    borderRadius: BorderRadius.circular(
+                                      divisionMarkBorderRadius,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),

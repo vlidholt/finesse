@@ -242,25 +242,53 @@ class LiquidGlassSegmentedControl extends StatelessWidget {
       color: theme.colorScheme.foreground,
     );
     final selectedStyle = textStyle.copyWith(fontWeight: FontWeight.w600);
+    final unselectedStyle = textStyle.copyWith(
+      color: theme.colorScheme.mutedForeground,
+    );
+    final iconSize = theme.style.buttonIconSize;
     Widget control = lg.GlassSegmentedControl(
       segments: [
-        for (final segment in segments)
-          lg.GlassSegment(
-            label: segment.label,
-            icon: segment.icon,
-            enabled: onSelected != null && segment.enabled,
-            tooltip: segment.tooltip,
-            semanticLabel: segment.semanticLabel,
-          ),
+        for (final (index, segment) in segments.indexed)
+          switch ((segment.icon, segment.label)) {
+            // The package stacks an icon above its label, which does not
+            // fit a control one line high: the label spilled out of the
+            // bottom. Side by side is how una's segments and the package's
+            // own width maths here read it, so such a segment is handed
+            // over as one icon of that row, its name kept for the screen
+            // reader.
+            (final icon?, final label?) => lg.GlassSegment(
+              icon: _IconLabel(
+                icon: icon,
+                label: label,
+                iconSize: iconSize,
+                style: index == selectedIndex ? selectedStyle : unselectedStyle,
+              ),
+              enabled: onSelected != null && segment.enabled,
+              tooltip: segment.tooltip,
+              semanticLabel: segment.semanticLabel ?? label,
+            ),
+            (final icon, final label) => lg.GlassSegment(
+              label: label,
+              // The package draws a lone icon at 20; una's segments, and
+              // the width measured below, use the button's icon size.
+              icon: icon == null
+                  ? null
+                  : IconTheme.merge(
+                      data: IconThemeData(size: iconSize),
+                      child: icon,
+                    ),
+              enabled: onSelected != null && segment.enabled,
+              tooltip: segment.tooltip,
+              semanticLabel: segment.semanticLabel,
+            ),
+          },
       ],
       selectedIndex: selectedIndex,
       onSegmentSelected: onSelected ?? (_) {},
       height: height,
       selectedTextStyle: selectedStyle,
-      unselectedTextStyle: textStyle.copyWith(
-        color: theme.colorScheme.mutedForeground,
-      ),
-      iconSize: theme.style.buttonIconSize,
+      unselectedTextStyle: unselectedStyle,
+      iconSize: iconSize,
       useOwnLayer: true,
     );
     if (!expand) {
@@ -284,7 +312,7 @@ class LiquidGlassSegmentedControl extends StatelessWidget {
           painter.dispose();
         }
         if (segment.icon != null) {
-          width += theme.style.buttonIconSize + (segment.label == null ? 0 : 6);
+          width += iconSize + (segment.label == null ? 0 : _iconLabelGap);
         }
         if (width > widest) widest = width;
       }
@@ -295,5 +323,52 @@ class LiquidGlassSegmentedControl extends StatelessWidget {
       );
     }
     return LiquidGlassBridge(child: control);
+  }
+}
+
+/// The space between a segment's icon and its label.
+const double _iconLabelGap = 6;
+
+/// A segment's icon and label side by side, in the label style of its
+/// state: the package gives a segment with both one above the other.
+class _IconLabel extends StatelessWidget {
+  const _IconLabel({
+    required this.icon,
+    required this.label,
+    required this.iconSize,
+    required this.style,
+  });
+
+  final Widget icon;
+  final String label;
+  final double iconSize;
+  final TextStyle style;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconTheme.merge(
+            data: IconThemeData(size: iconSize),
+            child: icon,
+          ),
+          const SizedBox(width: _iconLabelGap),
+          Flexible(
+            child: AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 200),
+              style: style,
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
